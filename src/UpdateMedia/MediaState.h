@@ -17,9 +17,11 @@ struct MediaItemState
 	string m_sOldDbAttrDate;
 	int m_sOldDbAttrCount;
 	string m_sOldFileDate;
+	bool m_bHasAttributes;
 
 	MediaItemState(int nFileID, string sPath, string sFilename, string sCurrentDbAttrDate,
-		int sCurrentDbAttrCount, string sOldDbAttrDate, int sOldDbAttrCount, string sOldFileDate
+		int sCurrentDbAttrCount, string sOldDbAttrDate, int sOldDbAttrCount, string sOldFileDate,
+		bool bHasAttributes
 		) :
 		m_nFileID(nFileID),
 		m_sPath(sPath),
@@ -28,11 +30,12 @@ struct MediaItemState
 		m_sCurrentDbAttrCount(sCurrentDbAttrCount),
 		m_sOldDbAttrDate(sOldDbAttrDate),
 		m_sOldDbAttrCount(sOldDbAttrCount),
-		m_sOldFileDate(sOldFileDate)
+		m_sOldFileDate(sOldFileDate),
+		m_bHasAttributes(bHasAttributes)
 	{
 	}
 
-	MediaItemState() : m_nFileID(0), m_sCurrentDbAttrCount(0), m_sOldDbAttrCount(0)
+	MediaItemState() : m_nFileID(0), m_sCurrentDbAttrCount(0), m_sOldDbAttrCount(0), m_bHasAttributes(false)
 	{
 	}
 };

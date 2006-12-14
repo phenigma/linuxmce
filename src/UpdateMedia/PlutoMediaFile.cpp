@@ -123,9 +123,6 @@ PlutoMediaFile::~PlutoMediaFile()
 		SaveEveryThingToDb();
 	}
 
-	if(m_MediaSyncMode == modeDbToFile)
-		g_pPlutoLogger->Write(LV_STATUS, "Being called from pluto-admin. We won't add attributes back in db.");
-
 #ifdef UPDATE_MEDIA
 	if(NULL != m_pPlutoMediaAttributes)
 	{
@@ -811,7 +808,11 @@ string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 		if(!bCreateId3File)
 			return "";
 
-		if(m_pPlutoMediaAttributes->m_mapAttributes.size() == 0)
+		if(
+			m_pPlutoMediaAttributes->m_mapAttributes.size() == 0 && 
+			m_pPlutoMediaAttributes->m_mapLongAttributes.size() == 0 && 
+			m_pPlutoMediaAttributes->m_sStartPosition == ""
+		)
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "# Won't create id3 file (the media file doesn't have attributes)");
 			return "";

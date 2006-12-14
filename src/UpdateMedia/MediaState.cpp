@@ -16,7 +16,8 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 		"SELECT PK_File, Path, Filename, "
 		"GREATEST(MAX(Bookmark.psc_mod), MAX(File_Attribute.psc_mod), MAX(Attribute.psc_mod), MAX(LongAttribute.psc_mod), MAX(Picture_File.psc_mod)) AS CurrentDbAttrDate, "
 		"(COUNT(Bookmark.PK_Bookmark) + COUNT(File_Attribute.FK_Attribute) + COUNT(Attribute.PK_Attribute) + COUNT(LongAttribute.PK_LongAttribute) + COUNT(Picture_File.FK_Picture)) AS CurrentDbAttrCount, "
-		"AttrDate AS OldDbAttrDate, AttrCount AS OldDbAttrCount, ModificationDate AS OldFileDate "
+		"AttrDate AS OldDbAttrDate, AttrCount AS OldDbAttrCount, ModificationDate AS OldFileDate, "
+		"(COUNT(File_Attribute.FK_Attribute) + COUNT(LongAttribute.PK_LongAttribute)) AS HasAttributes "
 		"FROM File "
 		"LEFT JOIN Bookmark ON Bookmark.FK_File = PK_File "
 		"LEFT JOIN File_Attribute ON File_Attribute.FK_File = PK_File "
@@ -37,7 +38,8 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 		sfCurrentDbAttrCount,
 		sfOldDbAttrDate,
 		sfOldDbAttrCount,
-		sfOldFileDate
+		sfOldFileDate,
+		sfHasAttributes
 	};
 
 	MYSQL_ROW row;
@@ -57,9 +59,11 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 				string sOldDbAttrDate = NULL != row[sfOldDbAttrDate] ? row[sfOldDbAttrDate] : string();
 				int sOldDbAttrCount = NULL != row[sfOldDbAttrCount] ? atoi(row[sfOldDbAttrCount]) : 0;
 				string sOldFileDate = NULL != row[sfOldFileDate] ? row[sfOldFileDate] : string();
+				bool bHasAttributes = NULL != row[sfHasAttributes] ? atoi(row[sfHasAttributes]) > 0 : false;
 
 				m_mapMediaState[make_pair(sPath, sFilename)] = MediaItemState(nFileID, sPath, sFilename,
-					sCurrentDbAttrDate, sCurrentDbAttrCount, sOldDbAttrDate, sOldDbAttrCount, sOldFileDate);
+					sCurrentDbAttrDate, sCurrentDbAttrCount, 
+					sOldDbAttrDate, sOldDbAttrCount, sOldFileDate, bHasAttributes);
 			}
 		}
 	}	
@@ -91,7 +95,7 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 		if(
 			!PlutoMediaFile::IsSupported(sFile) && 
 			!FileUtils::FileExists(sDirectory + "/" + sFile + ".id3") && 
-			item.m_sCurrentDbAttrDate != "" && item.m_sCurrentDbAttrCount > 0
+			item.m_sCurrentDbAttrDate != "" && item.m_bHasAttributes
 		)
 			bNeedtoUpdateFile = true;
 
@@ -168,7 +172,8 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 		"SELECT PK_File, Path, Filename, "
 		"GREATEST(MAX(Bookmark.psc_mod), MAX(File_Attribute.psc_mod), MAX(Attribute.psc_mod), MAX(LongAttribute.psc_mod), MAX(Picture_File.psc_mod)) AS CurrentDbAttrDate, "
 		"(COUNT(Bookmark.PK_Bookmark) + COUNT(File_Attribute.FK_Attribute) + COUNT(Attribute.PK_Attribute) + COUNT(LongAttribute.PK_LongAttribute) + COUNT(Picture_File.FK_Picture)) AS CurrentDbAttrCount, "
-		"AttrDate AS OldDbAttrDate, AttrCount AS OldDbAttrCount, ModificationDate AS OldFileDate "
+		"AttrDate AS OldDbAttrDate, AttrCount AS OldDbAttrCount, ModificationDate AS OldFileDate, "
+		"(COUNT(File_Attribute.FK_Attribute) + COUNT(LongAttribute.PK_LongAttribute)) AS HasAttributes "
 		"FROM File "
 		"LEFT JOIN Bookmark ON Bookmark.FK_File = PK_File "
 		"LEFT JOIN File_Attribute ON File_Attribute.FK_File = PK_File "
@@ -187,7 +192,8 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 		sfCurrentDbAttrCount,
 		sfOldDbAttrDate,
 		sfOldDbAttrCount,
-		sfOldFileDate
+		sfOldFileDate,
+		sfHasAttributes
 	};
 
 	MYSQL_ROW row;
@@ -207,9 +213,11 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 				string sOldDbAttrDate = NULL != row[sfOldDbAttrDate] ? row[sfOldDbAttrDate] : string();
 				int sOldDbAttrCount = NULL != row[sfOldDbAttrCount] ? atoi(row[sfOldDbAttrCount]) : 0;
 				string sOldFileDate = NULL != row[sfOldFileDate] ? row[sfOldFileDate] : string();
+				bool bHasAttributes = NULL != row[sfHasAttributes] ? atoi(row[sfHasAttributes]) > 0 : false;
 
 				return MediaItemState(nFileID, sPath, sFilename,
-					sCurrentDbAttrDate, sCurrentDbAttrCount, sOldDbAttrDate, sOldDbAttrCount, sOldFileDate);
+					sCurrentDbAttrDate, sCurrentDbAttrCount, sOldDbAttrDate, 
+					sOldDbAttrCount, sOldFileDate, bHasAttributes);
 			}
 		}
 	}
