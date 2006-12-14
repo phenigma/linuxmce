@@ -241,9 +241,14 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 		CMD_Stop_Media( prevStream->m_iStreamID, &mPosition);
 		if (prevStream->m_iMenuButtons!=0)
 			prevStream->FireMenuOnScreen( 0 );
+			
+		if (prevStream->m_iStreamID!=iStreamID)
+		{
+			ptrFactory->DestroyStream(prevStream->m_iStreamID);
+		}
 	}
 	
-
+	ptrFactory->m_iLastRenderingStream = iStreamID;
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage?pMessage->m_dwPK_Device_From:0);
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s (%s) with corresponding stream %p.", sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
@@ -306,9 +311,6 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() Failed to open media");
 	}
-	
-	// storing streamID for reuse
-	ptrFactory->m_iLastRenderingStream = iStreamID;
 	
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with stream %p.", sMediaURL.c_str(), pStream);
 	
