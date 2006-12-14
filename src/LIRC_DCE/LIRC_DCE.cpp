@@ -186,7 +186,7 @@ bool LIRC_DCE::GetConfig()
 	if (pthread_create(&m_LeechingThread, NULL, StartLeeching, (void *) this))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Leeching Thread");
-		m_bQuit_get()= 1;
+		m_bQuit_set(true);
 		exit(1);
 	}
 	return true;

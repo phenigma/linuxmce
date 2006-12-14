@@ -1317,7 +1317,7 @@ void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, lo
 			if (pthread_create(&m_LearningThread, NULL, StartLearningThread, (void *) pLI))
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
-				m_bQuit_get()= 1;
+				m_bQuit_set(true);
 				exit(1);
 			}
 			m_bLearning = true;
@@ -1348,7 +1348,7 @@ int gc100::LEARN_IR_via_Socket()
 		if (pthread_create(&m_LearningThread, NULL, StartLearningThread_via_Socket, (void *) this))
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
-			m_bQuit_get()= 1;
+			m_bQuit_set(true);
 			exit(1);
 		}
 		m_bLearning = false;
@@ -1480,7 +1480,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 		tv1s.tv_usec = 0;
 
 		timeout_tmp = tv1s;
-		while (! m_bQuit_get()&& ! m_bStopLearning && timeout.tv_sec > 0 && select(learn_fd + 1, &fdset, NULL, NULL, &timeout_tmp) == 0)
+		while (! m_bQuit_get() && ! m_bStopLearning && timeout.tv_sec > 0 && select(learn_fd + 1, &fdset, NULL, NULL, &timeout_tmp) == 0)
 		{
 			timeout.tv_sec--;
 			timeout_tmp = tv1s;
@@ -1663,7 +1663,7 @@ void gc100::CreateChildren()
 	if (pthread_create(&m_EventThread, NULL, StartEventThread, (void *) this))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
-		m_bQuit_get()= 1;
+		m_bQuit_set(true);
 		exit(1);
 	}
 

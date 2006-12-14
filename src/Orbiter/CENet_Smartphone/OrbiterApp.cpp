@@ -94,7 +94,7 @@ RECT globalrc;
 OrbiterApp::OrbiterApp(HINSTANCE hInstance) : m_ScreenMutex("rendering"), m_hInstance(hInstance)
 {
 	Reset();
-	m_bQuit_get()= false;
+	m_bQuit_set(false);
 
 	m_nImageWidth = APP_WIDTH;
 	m_nImageHeight = APP_HEIGHT;
