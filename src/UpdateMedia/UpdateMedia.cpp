@@ -232,7 +232,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 			continue;
 
 		if(m_bAsDaemon)
-			Sleep(2);
+			Sleep(1);
 
 		if(!FileUtils::FileExists(sDirectory + "/" + sFile)) //the file was just being deleted
 		{
@@ -347,6 +347,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 	string sBaseDirectory = FileUtils::BasePath(sDirectory);
 	string sDirectoryName = FileUtils::FilenameWithoutPath(sDirectory);
 	MediaSyncMode dir_sync_mode = MediaState::Instance().SyncModeNeeded(sBaseDirectory, sDirectoryName);
+	g_pPlutoLogger->Write(LV_STATUS, "Sync mode for dir %s/%s: %s", sBaseDirectory.c_str(), sDirectoryName.c_str(), MediaSyncModeStr[dir_sync_mode]); 
 
 	if(dir_sync_mode != modeNone)
 	{
@@ -618,7 +619,7 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 			}
 
 			if(m_bAsDaemon)
-				Sleep(2);
+				Sleep(1);
 		}
 	}
 

@@ -7,6 +7,8 @@
 
 #include "../PlutoUtils/StringUtils.h"
 #include "../pluto_media/Database_pluto_media.h"
+#include "DCE/Logger.h"
+using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 MediaState MediaState::m_instance;
 //-----------------------------------------------------------------------------------------------------
@@ -82,13 +84,26 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 	{
 		MediaItemState item = it->second;
 		if(StringUtils::SQLDateTime(item.m_sOldFileDate) != StringUtils::SQLDateTime(sCurrentFileDate))
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Need to update db for %s/%s: old file data %s, current file date %s", 
+				sDirectory.c_str(), sFile.c_str(), 
+				item.m_sOldFileDate.c_str(), sCurrentFileDate.c_str()); 
 			bNeedToUpdateDb = true;
+		}
 
 		if(
 			item.m_sCurrentDbAttrCount != item.m_sOldDbAttrCount || 
 			StringUtils::SQLDateTime(item.m_sCurrentDbAttrDate) != StringUtils::SQLDateTime(item.m_sOldDbAttrDate)
 		)
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Need to update file for %s/%s: "
+				"old attr count %d, current attr count %d, "
+				"old attr date %s, current attr date %s",
+				sDirectory.c_str(), sFile.c_str(), 
+				item.m_sCurrentDbAttrCount, item.m_sOldDbAttrCount,
+				item.m_sCurrentDbAttrDate.c_str(), item.m_sOldDbAttrDate.c_str()); 
 			bNeedtoUpdateFile = true;
+		}
 
 		//if we have a media file with external id3 file missing
 		//and it haas attributes in the database
@@ -97,7 +112,13 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 			!FileUtils::FileExists(sDirectory + "/" + sFile + ".id3") && 
 			item.m_sCurrentDbAttrDate != "" && item.m_bHasAttributes
 		)
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Need to update file for %s/%s: "
+				"current attr date %s, has attr %d",
+				sDirectory.c_str(), sFile.c_str(), 
+				item.m_sCurrentDbAttrDate.c_str(), item.m_bHasAttributes); 
 			bNeedtoUpdateFile = true;
+		}
 
 		if(bNeedToUpdateDb)
 			if(bNeedtoUpdateFile)
