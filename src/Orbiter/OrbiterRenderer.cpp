@@ -1261,11 +1261,21 @@ void *ImageLoadThread(void *p)
 		// Do them in the reverse order so if we're paging through lots of cells we'll always be rendering
 		// the visible ones first
 		if( pRenderer->m_listBackgroundImage.size()==0 )
+		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"ImageLoadThread pRenderer->m_listBackgroundImage.size()==0");
+#endif
 			return NULL;  // Must have had another imageloadthread also running that serviced the last one at the same split second.  No problem.
+		}
 		BackgroundImage *pBackgroundImage = pRenderer->m_listBackgroundImage.front();
 		pRenderer->m_listBackgroundImage.pop_front();
 		if( !pBackgroundImage->m_pObj_Grid->m_bOnScreen )  // This may have gone off screen, if so ignore it
+		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"ImageLoadThread pBackgroundImage %s is off screen",pBackgroundImage->m_sPic.c_str());
+#endif
 			continue;
+		}
 		vm.Release();
 		size_t GraphicLength;
 		char *pGraphicData = FileUtils::ReadFileIntoBuffer(pBackgroundImage->m_sPic, GraphicLength);
@@ -1275,6 +1285,11 @@ void *ImageLoadThread(void *p)
 		DataGridTable *pDataGridTable = pBackgroundImage->m_pObj_Grid->DataGridTable_Get(pBackgroundImage->m_DataGridTable_Cache.first,pBackgroundImage->m_DataGridTable_Cache.second);
 		if( !pDataGridTable || !pBackgroundImage->m_pObj_Grid->m_bOnScreen || pDataGridTable->m_iRequestID!=pBackgroundImage->m_iRequestID )  // This may have gone off screen while loading the graphic with the mutex unlocked
 		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"ImageLoadThread pBackgroundImage %s request %d!=%d",
+				pBackgroundImage->m_sPic.c_str(),pBackgroundImage->m_iRequestID,pDataGridTable ? pDataGridTable->m_iRequestID : -999);
+#endif
+
 			delete pGraphicData;
 			continue;
 		}
@@ -1297,6 +1312,10 @@ void *ImageLoadThread(void *p)
 			DataGridTable *pDataGridTable2 = pBackgroundImage->m_pObj_Grid->DataGridTable_Get(pBackgroundImage->m_DataGridTable_Cache.first,pBackgroundImage->m_DataGridTable_Cache.second);
 			if( !pDataGridTable2 || pDataGridTable2->m_iRequestID!=pBackgroundImage->m_iRequestID || !pBackgroundImage->m_pObj_Grid->CellIsVisible( pBackgroundImage->m_ColRow.first, pBackgroundImage->m_ColRow.second ) )
 			{
+#ifdef DEBUG
+				g_pPlutoLogger->Write(LV_STATUS,"ImageLoadThread pBackgroundImage2 %s request %d!=%d",
+					pBackgroundImage->m_sPic.c_str(),pBackgroundImage->m_iRequestID,pDataGridTable2 ? pDataGridTable2->m_iRequestID : -999);
+#endif
 				delete pPlutoGraphic;
 				continue;
 			}
@@ -1349,12 +1368,15 @@ g_pPlutoLogger->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLoad p %p %s siz
 	if (bNeedToStartThread)
 	{
 		pthread_t pthread_id; 
-
-		if(pthread_create( &pthread_id, NULL, ImageLoadThread, (void*) this) )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start image loading thread");
+		int result;
+		if( (result=pthread_create( &pthread_id, NULL, ImageLoadThread, (void*) this)) )
+			g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterRenderer::BackgroundImageLoad Cannot start image loading thread %d",result);
 #ifdef DEBUG
 		else
+		{
+			pthread_detach(pthread_id);
 			g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer::BackgroundImageLoad started thread %d",pthread_id);
+		}
 #endif
 	}
 }
