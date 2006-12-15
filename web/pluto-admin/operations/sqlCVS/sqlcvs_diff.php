@@ -155,7 +155,8 @@ function sqlcvs_diff($output,$dbADO) {
 						if(!in_array($cleanTable,$rParmArray)){
 							$rParmArray[]=$cleanTable;	
 						}
-						$tParmArray[$cleanTable][]=$value;
+						$tParmArray[]=$value;
+						$tParmByRepArray[$cleanTable][]=$value;
 					}
 				}			
 			}
@@ -163,13 +164,12 @@ function sqlcvs_diff($output,$dbADO) {
 		
 		$parmList='-r '.join(',',$rParmArray).' -t ';
 		foreach ($rParmArray AS $rep){
-			if(!isset($tParmArray[$rep])){
+			if(!isset($tParmByRepArray[$rep])){
 				header("Location: index.php?section=sqlcvs_diff&error=$TEXT_ERROR_NO_TABLE_SELECTED_CONST");
 				exit();
 			}
-			$parmList.=(substr($parmList,-1)==' ')?',':'';			
-			$parmList.=join(',',$tParmArray[$rep]);
 		}
+		$parmList.=join(',',$tParmArray);
 		
 		$rand_tmp_file='tmp_sqlcvs_file_'.rand(1000,9999);
 		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -e -f /tmp/'.$rand_tmp_file.' diff';
@@ -257,7 +257,7 @@ function sqlcvs_diff($output,$dbADO) {
 						<td><input type="checkbox" name="line_'.$lineNo.'" value="1" checked></td>';
 				if(str_replace('CHANGE:','',$items[3])!='DEL'){
 					$out.='
-						<td><a href="javascript:windowOpen(\'showRecord.php?table='.$lineTable.'&where='.urlencode(str_replace('WHERE:','',$items[4])).'\',\'width=800,height=400,scrollbars=1,resizable=1\');">'.str_replace('CHANGE:','',$items[3]).'</a></td>
+						<td><a href="javascript:windowOpen(\'showRecord.php?table='.$lineTable.'&where='.addslashes(str_replace('WHERE:','',$items[4])).'\',\'width=800,height=400,scrollbars=1,resizable=1\');">'.str_replace('CHANGE:','',$items[3]).'</a></td>
 						<td>'.substr($lineValues[$cols[0]][0],0,20).'</td>
 						<td>'.substr($lineValues[$cols[1]][0],0,20).'</td>
 						<td>'.substr($lineValues[$cols[2]][0],0,20).'</td>
