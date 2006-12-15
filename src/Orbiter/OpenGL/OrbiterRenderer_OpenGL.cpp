@@ -694,7 +694,6 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "No object selected? :o");
 		rectLastSelected.X = 0;
 		rectLastSelected.Y = 0;
 		rectLastSelected.Width = 80;

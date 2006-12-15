@@ -1976,7 +1976,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
 			{
 				DCE::SCREEN_Main SCREEN_Main(m_dwPK_Device,pMessage->m_dwPK_Device_From,"<%=L%>"); //current location
 				SendCommand(SCREEN_Main);
-				g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to bind to a remote in an entertainment area with no media stream");
+				g_pPlutoLogger->Write(LV_WARNING,"Attempt to bind to a remote in an entertainment area with no media stream");
 			}
 			return; // Don't know what area it should be played in, or there's no media playing there
 		}

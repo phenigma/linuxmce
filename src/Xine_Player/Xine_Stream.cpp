@@ -1431,7 +1431,6 @@ void Xine_Stream::DisplayOSDText( string sText )
 	
 	if ( sText.size() == 0 )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Clearing OSD %p", m_xine_osd_t );
 		xine_osd_clear( m_xine_osd_t );
 		xine_osd_hide(m_xine_osd_t, 0);
 		return;

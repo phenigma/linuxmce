@@ -7153,7 +7153,7 @@ void Orbiter::CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMes
 {
 	m_sApplicationName = sName;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_CRITICAL, "Received 'Activate Window' for %s", sName.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Received 'Activate Window' for %s", sName.c_str());
 #endif
 }
 

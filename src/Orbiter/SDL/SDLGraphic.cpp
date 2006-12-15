@@ -74,7 +74,7 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 	if( !m_pSDL_Surface )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read graphic from data %p with size %d", pData, iSize);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read sdl graphic from data %p with size %d", pData, iSize);
 		return false;
 	}
 

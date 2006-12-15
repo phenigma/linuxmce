@@ -386,7 +386,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		
 		if( streamID==0 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Stream_Factory::GetStream streamID is 0");
+			g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream_Factory::GetStream streamID is 0");
 			streamID = m_iLastRenderingStream;
 		}
 
