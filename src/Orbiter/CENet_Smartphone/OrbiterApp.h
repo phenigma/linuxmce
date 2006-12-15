@@ -152,6 +152,9 @@ private:
 		friend LRESULT CALLBACK HookProcedure(int nCode, WPARAM wParam, LPARAM lParam);
 	#endif
 
+	void m_bQuit_set(bool bValue) { m_bQuit = bValue; }
+	bool m_bQuit_get() { return m_bQuit; }
+
 public:
 	OrbiterApp(HINSTANCE hInstance);
 	virtual ~OrbiterApp();
