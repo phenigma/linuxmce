@@ -218,8 +218,8 @@ bool Xine_Stream::ShutdownStream()
 	if ( m_pXineStreamEventQueue )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Disposing the event queue" );
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		xine_event_dispose_queue( m_pXineStreamEventQueue );
+		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineStreamEventQueue = NULL;
 	}
 	
