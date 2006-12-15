@@ -5,6 +5,33 @@
 #include <xine/video_out.h>
 #include <xine/audio_out.h>
 
+#include "DCE/Logger.h"
+
+
+// watchdog
+namespace DCE
+{
+extern	Logger *g_pPlutoLogger;
+}
+
+bool bStreamWatchDogFlag=false;
+int iStreamWatchDogCounter=0;
+
+void* StreamWatchDogRoutine(void* param)
+{
+	int iLocalCounter=iStreamWatchDogCounter;
+        DCE::g_pPlutoLogger->Write(LV_STATUS,"Started libxine watchdog routine\n");
+        usleep(10000000);
+	if (bStreamWatchDogFlag&&(iStreamWatchDogCounter==iLocalCounter))
+	{
+		DCE::g_pPlutoLogger->Write(LV_CRITICAL,"Terminating Xine_Player: watchdog detected libxine deadlock\n");
+		fflush(stdout);
+		kill(getpid(), SIGTERM);
+	}
+		
+	return NULL;
+}
+
 // HACK we have to link against local copy of libdvdnav.a - otherwise MPEG2 playback gets crazy
 /*declarations copied from xine-customized version of libdvd-nav	*/
 extern "C"
@@ -241,6 +268,12 @@ bool Xine_Stream::ShutdownStream()
 
 	g_pPlutoLogger->Write( LV_STATUS, "Going to call a %p and v %p", m_pXineAudioOutput, m_pXineVideoOutput );
 
+	pthread_t watchdog_thread;
+	bStreamWatchDogFlag = true;
+	iStreamWatchDogCounter++;
+	pthread_create(&watchdog_thread, NULL,StreamWatchDogRoutine, NULL);
+	pthread_detach(watchdog_thread);
+
 	if ( m_pXineAudioOutput )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_audio_driver for stream with id: %d", m_iStreamID );
@@ -248,6 +281,9 @@ bool Xine_Stream::ShutdownStream()
 		xine_close_audio_driver( m_pXineLibrary, m_pXineAudioOutput );
 		m_pXineAudioOutput = NULL;
 	}
+	
+	 // Simulate deadlock
+	 //usleep(100000000);
 
 	if ( m_pXineVideoOutput )
 	{
@@ -256,6 +292,8 @@ bool Xine_Stream::ShutdownStream()
 		xine_close_video_driver( m_pXineLibrary, m_pXineVideoOutput );
 		m_pXineVideoOutput = NULL;
 	}
+	
+	bStreamWatchDogFlag = false;
 
 	g_pPlutoLogger->Write( LV_STATUS, "Cleanup completed" );
 	
