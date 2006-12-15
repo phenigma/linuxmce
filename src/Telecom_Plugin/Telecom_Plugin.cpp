@@ -2234,26 +2234,32 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 
 	// We know the call.  Transfer it to a phone in iPK_RoomOrEntArea
 	DeviceData_Router *pDevice_HardPhone=NULL,*pDevice_SoftPhone=NULL;  // See if we have a hard or soft phone in that room
-    ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Hard_Phones_CONST);
-	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Hard_Phones_CONST);
+	if( pListDeviceData_Router != NULL )
 	{
-		if( (*it)->m_dwPK_Room==iPK_RoomOrEntArea )
+		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 		{
-			pDevice_HardPhone = *it;
-			break;
+			if( (*it)->m_dwPK_Room==iPK_RoomOrEntArea )
+			{
+				pDevice_HardPhone = *it;
+				break;
+			}
 		}
 	}
-
+	
 	pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Soft_Phones_CONST);
-	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+	if( pListDeviceData_Router != NULL )
 	{
-		if( (*it)->m_dwPK_Room==iPK_RoomOrEntArea )
+		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 		{
-			pDevice_SoftPhone = *it;
-			break;
+			if( (*it)->m_dwPK_Room==iPK_RoomOrEntArea )
+			{
+				pDevice_SoftPhone = *it;
+				break;
+			}
 		}
 	}
-
+	
 	if( pDevice_HardPhone==NULL && pDevice_SoftPhone==NULL )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Telecom_Plugin::FollowMe_EnteredRoom no phones in room %d",iPK_RoomOrEntArea);
