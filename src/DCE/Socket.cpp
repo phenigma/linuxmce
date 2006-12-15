@@ -293,7 +293,7 @@ Message *Socket::SendReceiveMessage( Message *pMessage)
 
 	string sResult;
 	Message *pOutMessage;
-	if ( ReceiveString( sResult, MAX_DELAY_FOR_RECEIVE_RESPONSE ) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 ) // got the response we expected
+	if ( ReceiveString( sResult, m_iReceiveTimeout > 0 ? m_iReceiveTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE ) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 ) // got the response we expected
 	{
 		if( sResult[7]=='T' )
 			pOutMessage = ReceiveMessage( atoi( sResult.substr( 9 ).c_str() ),true);
