@@ -1150,3 +1150,28 @@ Message *Command_Impl::GetLocalModeResponse()
 {
 	return NULL;
 }
+
+void Command_Impl::OnQuit() 
+{ 
+	m_bQuit_set(true); 
+	m_bTerminate=true; 
+	pthread_cond_broadcast( &m_listMessageQueueCond ); 
+
+#ifndef WINCE
+	if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
+		m_pRouter->Quit();
+#endif
+}
+
+void Command_Impl::OnReload() 
+{ 
+	m_bReload = true; 
+	m_bQuit_set(true); 
+	m_bTerminate=true; 
+	pthread_cond_broadcast( &m_listMessageQueueCond );
+
+#ifndef WINCE
+	if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
+		m_pRouter->Reload();
+#endif
+}

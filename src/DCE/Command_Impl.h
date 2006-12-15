@@ -209,14 +209,14 @@ namespace DCE
 		 * @brief sets the m_bQuit_get()mb data; used when DeviceManager wants the app to terminate
 		 * @todo check: 1/4/2004 - AB removed this to try to stop socket failures Disconnect()
 		 */
-		virtual void OnQuit() { m_bQuit_set(true); pthread_cond_broadcast( &m_listMessageQueueCond ); };
+		virtual void OnQuit();
 		
 		/**
 		 * @brief when DeviceManager wants the app to recheck its config, by default it exits.
 		 * sets the m_bReload, m_bQuit, m_bTerminate flags to true
 		 * @todo test if it's a plug-in, just die and it will be reloaded (same as above Disconnect());
 		 */
-		virtual void OnReload() { m_bReload = true; m_bQuit_set(true); m_bTerminate=true; pthread_cond_broadcast( &m_listMessageQueueCond );}
+		virtual void OnReload(); 
 		
 		/**
 		* @brief For now will only be used by plugins, but later this member function could
