@@ -54,9 +54,9 @@ Gallery::~Gallery(void)
 
 void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 {
-	while(!pPhoto_Screen_Saver->m_bQuit_get())
+	while(!pPhoto_Screen_Saver->m_bQuit_get() && Quit==false )
 	{
-		while (!pPhoto_Screen_Saver->m_bQuit_get() && (FrontEnd->HasEventPending()))
+		while (!pPhoto_Screen_Saver->m_bQuit_get() && (FrontEnd->HasEventPending()) && Quit==false )
 		{
 			FrontEnd->TranslateEvent(Event);
 			if(Event.Type)
@@ -64,7 +64,7 @@ void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 		}
 		bool StatusChange = Event.Type != -1;
 
-		if(!pPhoto_Screen_Saver->m_bQuit_get())
+		if(!pPhoto_Screen_Saver->m_bQuit_get() && Quit==false )
 		{
 			if(StatusChange)
 			{
