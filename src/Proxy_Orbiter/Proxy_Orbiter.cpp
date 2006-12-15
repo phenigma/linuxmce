@@ -102,6 +102,8 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Proxy_Orbiter::~Proxy_Orbiter()
 {
+	KillMaintThread();
+
 	Sleep(2500);
 	PushRefreshEvent(true, true); //force push, ignore any previous push 
     pthread_mutex_destroy(&m_ActionMutex.mutex);
