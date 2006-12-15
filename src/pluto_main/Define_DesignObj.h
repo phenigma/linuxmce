@@ -2312,6 +2312,10 @@
 #define DESIGNOBJ_butManage_CONST 5288
 #define DESIGNOBJ_butRemove_CONST 5289
 #define DESIGNOBJ_butFormat_CONST 5290
+#define DESIGNOBJ_butPound_CONST 5305
+#define DESIGNOBJ_numAsterisk_CONST 5306
+#define DESIGNOBJ_butClear_CONST 5307
+#define DESIGNOBJ_butPlus_CONST 5308
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
