@@ -77,6 +77,8 @@ class Disk_Drive_Functions
 		void CMD_Rip_Disk(int iPK_Users, string sFormat, string sName, string sTracks, int iEK_Disc, int iDriveNumber, string &sCMD_Result, Message *pMessage);
 		string getTracks(string mrl); // We use cddb for nothing other than determining how many tracks there are
 		void DisplayMessageOnOrbVFD(string sMessage);
+		void StartNbdServer();
+		void StopNbdServer();
 
 		// TODO: write accessors for these
 		DeviceData_Base *m_pDevice_AppServer;

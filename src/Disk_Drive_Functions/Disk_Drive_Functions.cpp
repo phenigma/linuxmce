@@ -118,6 +118,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 			BL_SameComputer,m_pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_discid),mrl,m_pCommand_Impl->m_dwPK_Device);
 		m_pCommand_Impl->SendCommand(CMD_Identify_Media_Cat);
 
+		StartNbdServer();
 		m_mediaInserted = true;
     }
 
@@ -127,6 +128,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
         if ( m_mediaInserted == true )
         {
 			m_discid=0;
+			StopNbdServer();
             m_mediaInserted = false;
 			DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
 				BL_SameHouse,m_pCommand_Impl->m_dwPK_Device,"");
@@ -628,4 +630,23 @@ void Disk_Drive_Functions::DisplayMessageOnOrbVFD(string sMessage)
 			StringUtils::itos(VL_MSGTYPE_RUNTIME_NOTICES),"app serve","5","");
 		m_pCommand_Impl->SendCommand(CMD_Display_Message, &sResponse);
 	}
+}
+
+void Disk_Drive_Functions::StartNbdServer()
+{
+	string sArgs = "--start\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server."
+		+ StringUtils::itos(m_dwPK_Device+18000) + ".pid\t--\t" + StringUtils::itos(m_dwPK_Device+18000) + "\t" + m_sDrive + "\t-r";
+
+	ProcessUtils::SpawnApplication(start-stop-daemon, sArgs, "Start nbd server", NULL, true, true);
+
+	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive_Functions::StartNbdServer %s",sArgs.c_str());
+}
+
+void Disk_Drive_Functions::StopNbdServer()
+{
+	string sArgs = "--stop\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server." + StringUtils::itos(m_dwPK_Device+18000) + ".pid\t--retry\t1";
+
+	ProcessUtils::SpawnApplication(start-stop-daemon, sArgs, "Stop nbd server", NULL, true, true);
+
+	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive_Functions::StopNbdServer %s",sArgs.c_str());
 }
