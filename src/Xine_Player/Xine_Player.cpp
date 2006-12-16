@@ -44,6 +44,7 @@ Xine_Player::Xine_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *p
 Xine_Player::~Xine_Player()
 //<-dceag-dest-e->
 {
+	StopNbdDevice();
 	if (ptrFactory)
 	{
 		ptrFactory->ShutdownFactory();
@@ -1393,4 +1394,5 @@ void Xine_Player::StopNbdDevice()
 	string sCmd = "/usr/pluto/bin/nbd-client-wrapper del " + StringUtils::itos(m_iNbdDevice) + " \"" + sIPAddress + "\"";
 	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StopNbdDevice %s",sCmd.c_str());
 	system(sCmd.c_str());
+	m_iNbdDevice=0;
 }
