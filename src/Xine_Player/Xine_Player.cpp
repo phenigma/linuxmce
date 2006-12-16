@@ -1370,6 +1370,22 @@ void Xine_Player::StopNbdDevice()
 	if( m_iNbdDevice==0 )
 		return;
 
+	string sIPAddress;
+	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find( m_iNbdDevice );
+	if( pDevice )
+	{
+		DeviceData_Base *pDevice_TopMost = pDevice->GetTopMostDevice();
+		if( pDevice_TopMost )
+			sIPAddress = pDevice_TopMost->m_sIPAddress;
+	}
+
+	if( sIPAddress.empty() )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::StopNbdDevice can't find ip for %d",m_iNbdDevice);
+		m_iNbdDevice=0;
+		return;
+	}
+
 	string sCmd = "/usr/pluto/bin/nbd-client-wrapper del " + StringUtils::itos(m_iNbdDevice) + "\"" + sIPAddress + "\"";
 	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StopNbdDevice %s",sCmd.c_str());
 	system(sCmd.c_str());
