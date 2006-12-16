@@ -82,7 +82,7 @@ bool Disk_Drive::GetConfig()
 	DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
 		BL_SameHouse,m_dwPK_Device,"");
 	SendCommand(CMD_Report_Discs_in_Drive_DT);
-
+/*
 	// Quick and dirty, get nbd-server working
 	string sNbdServer;
 	sNbdServer += "NBD_PORT[0]=" + StringUtils::itos(m_dwPK_Device+18000) + "\n";
@@ -100,6 +100,7 @@ bool Disk_Drive::GetConfig()
 	}
 
 	delete pPtr;
+*/
 
 	return true;
 }

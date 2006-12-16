@@ -82,7 +82,7 @@ bool Xine_Player::GetConfig()
 			Count++;
 		}
 	}
-
+/*
 	string sFileName = "/etc/nbd-client";
 	std::size_t Size;
 	char *pPtr = FileUtils::ReadFileIntoBuffer( sFileName, Size );
@@ -94,7 +94,7 @@ bool Xine_Player::GetConfig()
 	}
 
 	delete pPtr;
-	
+*/	
 	// Put your code here to initialize the data in this class
 	// The configuration parameters DATA_ are now populated
 	return true;
@@ -1333,17 +1333,16 @@ void Xine_Player::StartNbdDevice(string sMediaURL)
 	if( m_iNbdDevice )
 		StopNbdDevice();
 
-	string::size_type pos = sMediaURL.find("/dev/device");
+	string::size_type pos = sMediaURL.find("/dev/device_");
 	if( pos==string::npos )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s is not a nbd",sMediaURL.c_str());
 #endif
-		return;
+		return false;
 	}
-string sFoo = sMediaURL.substr(pos + 10);
-g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s  / %s",sMediaURL.c_str(),sFoo.c_str());
-m_iNbdDevice = atoi(sFoo.c_str());
+	m_iNbdDevice = atoi(sMediaURL.substr(pos + 12).c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %d / %s",m_iNbdDevice,sMediaURL.c_str());
 
 	string sIPAddress;
 	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find( m_iNbdDevice );
@@ -1358,9 +1357,9 @@ m_iNbdDevice = atoi(sFoo.c_str());
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::StartNbdDevice can't find ip for %d",m_iNbdDevice);
 		m_iNbdDevice=0;
-		return;
+		return false;
 	}
-	
+
 	string sArgs = sIPAddress + "\t" + StringUtils::itos(m_iNbdDevice + 18000) + "\t/dev/device_" + StringUtils::itos(m_iNbdDevice);
 	ProcessUtils::SpawnApplication("/bin/nbd-client", sArgs, "Start nbd client", NULL, true, true);
 	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s",sArgs.c_str());

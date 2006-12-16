@@ -279,10 +279,18 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 		}
 	}
 
+	// If the source is one ea and the destination in another, it could be remotely playing a disc, so 
+	// let ConfirmSourceIsADestination process it
+	// and see if it can still make it non-streaming by using network block
+	// If it changes the source to use an nbd device, then the subsequent SingleEaAndSameDestSource will return true
 	if( pXineMediaStream->SingleEaAndSameDestSource()==false )
 	{
 		if( !ConfirmSourceIsADestination(mediaURL,pXineMediaStream) )
 			return false;
+	}
+
+	if( pXineMediaStream->SingleEaAndSameDestSource()==false )
+	{
 		// For now we're not able to have a xine that renders to a NULL window and can do dvd's.  They require 
 		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
 		// source be one of the destinations, and change the mrl to reference the source disk

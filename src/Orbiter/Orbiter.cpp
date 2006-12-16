@@ -2809,19 +2809,19 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent2 %p type %d key %d",
 	// The left mouse button
 	if( (event.type == Orbiter::Event::REGION_DOWN || event.type == Orbiter::Event::REGION_UP) && m_pMouseBehavior )
 	{
-		if ( event.type == Orbiter::Event::REGION_DOWN && event.data.button.m_iPK_Button==1  )
+		if ( event.type == Orbiter::Event::REGION_DOWN && event.data.region.m_iButton==1  )
 			bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_1_CONST);
-		if ( event.type == Orbiter::Event::REGION_UP && event.data.button.m_iPK_Button==1 )
+		if ( event.type == Orbiter::Event::REGION_UP && event.data.region.m_iButton==1 )
 			bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_1_CONST);
 		// The right mouse button
-		if ( event.type == Orbiter::Event::REGION_DOWN && event.data.button.m_iPK_Button==3 )
+		if ( event.type == Orbiter::Event::REGION_DOWN && event.data.region.m_iButton==3 )
 			bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_2_CONST);
-		if ( event.type == Orbiter::Event::REGION_UP && event.data.button.m_iPK_Button==3 )
+		if ( event.type == Orbiter::Event::REGION_UP && event.data.region.m_iButton==3 )
 			bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_2_CONST);
 		// The middle mouse button, temporarily being used as a kill switch
-		if ( event.type == Orbiter::Event::REGION_DOWN && event.data.button.m_iPK_Button==2  )
+		if ( event.type == Orbiter::Event::REGION_DOWN && event.data.region.m_iButton==2  )
 			bSkipProcessing=m_pMouseBehavior->ButtonDown(BUTTON_Mouse_3_CONST);
-		if ( event.type == Orbiter::Event::REGION_UP && event.data.button.m_iPK_Button==2 )
+		if ( event.type == Orbiter::Event::REGION_UP && event.data.region.m_iButton==2 )
 			bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_3_CONST);
 	}
 #ifdef DEBUG
