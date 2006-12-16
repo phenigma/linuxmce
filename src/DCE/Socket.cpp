@@ -252,6 +252,10 @@ Socket::~Socket()
 
 bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Socket::SendMessage type %d id %d from %d to %d",
+		pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To);
+#endif
 	bool bReturnValue;
 	if( m_bUsePlainText )
 	{

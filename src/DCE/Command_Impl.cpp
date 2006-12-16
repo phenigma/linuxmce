@@ -135,8 +135,10 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_bGeneric = false;
 	m_dwMessageInterceptorCounter=1;
 	m_pMessageBuffer=NULL;
+	m_pthread_queue_id=0;
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
+		m_pthread_queue_id=0;
 		m_bMessageQueueThreadRunning=false;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create message processing queue" );
 	}
@@ -165,8 +167,10 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_bGeneric = false;
 	m_dwMessageInterceptorCounter=0;
 	m_pMessageBuffer=NULL;
+	m_pthread_queue_id=0;
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
+		m_pthread_queue_id=0;
 		m_bMessageQueueThreadRunning=false;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create message processing queue" );
 	}
@@ -227,6 +231,8 @@ void Command_Impl::PrepareToDelete()
 		}
 	}
 	g_pPlutoLogger->Write( LV_STATUS, "Message queue thread quit" );
+	pthread_join(m_pthread_queue_id,NULL);
+	g_pPlutoLogger->Write( LV_STATUS, "Message queue thread joined" );
 
 	if( m_bKillSpawnedDevicesOnExit )
 	{
@@ -773,7 +779,7 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 	if( iConfirmation == 0 || ( iConfirmation == -1 && !pPreformedCommand.m_pcResponse ) )
 	{
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand queue conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
+		g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand queue  id %d conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
 #endif
 		if( m_bLocalMode )
 		{
@@ -792,7 +798,7 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand queue conf %d resp %p",iCon
 	if( !pPreformedCommand.m_pcResponse )
 	{
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation id %d conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
 #endif
 		pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;  // i.e. just an "OK"
 		string sResponse; // We'll use this only if a response wasn't passed in
@@ -819,8 +825,8 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation conf %d resp %
 			bResult = m_pcRequestSocket->SendMessage( pPreformedCommand.m_pMessage, *p_sResponse );
 
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done conf %d resp %p (%d) %s type %d id %d to %d",
-					  iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str(),Type,ID,PK_Device_To);
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done id %d conf %d resp %p (%d) %s type %d id %d to %d",
+					  pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str(),Type,ID,PK_Device_To);
 #endif
 		if( !bResult )
 		{
@@ -834,7 +840,8 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done conf %d r
 		return bResult && *p_sResponse == "OK";
 	}
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out parm conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand id %d out parm conf %d resp %p",
+					  pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
 #endif
 	// There are out parameters, we need to get a message back in return
 	pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
@@ -855,8 +862,8 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out parm conf %d resp %p",i
 	else
 		pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done conf %d resp %p %p %d type %d id %d to %d",
-iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0),Type,ID,PK_Device_To);
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done id %d conf %d resp %p %p %d type %d id %d to %d",
+	pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0),Type,ID,PK_Device_To);
 #endif
 	if( !pResponse || pResponse->m_dwID != 0 )
 	{
@@ -882,7 +889,7 @@ iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m
 
 	bool bResult = sResponse=="OK";
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out parm exiting conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
+g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out id %d parm exiting conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
 #endif
 	delete pResponse;
 	return bResult;
