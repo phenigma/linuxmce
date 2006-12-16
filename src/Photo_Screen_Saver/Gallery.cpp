@@ -41,7 +41,7 @@ unsigned long ProcessUtils::GetMicroTime()
 
 Gallery* Gallery::Instance_ = NULL;
 
-Gallery::Gallery(): Quit(false), FrontEnd(NULL), Scenario(NULL), m_FrontEndMutex("front end mutex")
+Gallery::Gallery(): m_bQuit(false), FrontEnd(NULL), Scenario(NULL), m_FrontEndMutex("front end mutex")
 {
 	m_FrontEndMutex.Init(NULL);
 }
@@ -54,9 +54,9 @@ Gallery::~Gallery(void)
 
 void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 {
-	while(!pPhoto_Screen_Saver->m_bQuit_get() && Quit==false )
+	while(!pPhoto_Screen_Saver->m_bQuit_get() && m_bQuit==false )
 	{
-		while (!pPhoto_Screen_Saver->m_bQuit_get() && (FrontEnd->HasEventPending()) && Quit==false )
+		while (!pPhoto_Screen_Saver->m_bQuit_get() && (FrontEnd->HasEventPending()) && m_bQuit==false )
 		{
 			FrontEnd->TranslateEvent(Event);
 			if(Event.Type)
@@ -64,7 +64,7 @@ void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 		}
 		bool StatusChange = Event.Type != -1;
 
-		if(!pPhoto_Screen_Saver->m_bQuit_get() && Quit==false )
+		if(!pPhoto_Screen_Saver->m_bQuit_get() && m_bQuit==false )
 		{
 			if(StatusChange)
 			{
@@ -98,7 +98,6 @@ void Gallery::PaintScreen(void)
 bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation)
 {
 //	Width = 800; Height = 500;
-	Quit = false;
 	Event.Type = 0;
 	FrontEnd = new SDLFrontEnd();
 	bool Result = FrontEnd->StartVideoMode(Width, Height, false) != 0;
@@ -120,7 +119,7 @@ void Gallery::CleanUp()
 void Gallery::EvaluateEvent(WM_Event Event)
 {
 	if(Event.Type != 0)
-		Quit = true;
+		m_bQuit = true;  // Shouldn't be used anymore
 }
 
 void Gallery::_Sleep(int Miliseconds)
@@ -130,4 +129,10 @@ void Gallery::_Sleep(int Miliseconds)
 #else
 	usleep(Miliseconds*1000);
 #endif
+}
+
+void Gallery::m_bQuit_set(bool bQuit)
+{
+	g_pPlutoLogger->Write(LV_STATUS,"Gallery::m_bQuit_set now %d",(int) bQuit);
+	m_bQuit=bQuit;
 }

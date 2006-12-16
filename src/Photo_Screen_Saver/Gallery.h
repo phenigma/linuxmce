@@ -32,7 +32,7 @@ class Gallery
 	ExtensionManager Extensions;
 	static Gallery* Instance_;
 	SDLFrontEnd* FrontEnd;
-	bool Quit;
+	bool m_bQuit;
 	pluto_pthread_mutex_t m_FrontEndMutex;
 
 	/**
@@ -51,6 +51,7 @@ public:
 	void CleanUp(void);
 	void EvaluateEvent(WM_Event Event);
 	void _Sleep(int Miliseconds);
+	void m_bQuit_set(bool bQuit);
 };
 
 #endif

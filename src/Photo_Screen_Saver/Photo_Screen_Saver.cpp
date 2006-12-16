@@ -190,6 +190,7 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 	if(0 == ThreadID)
 	{
 		SetupInfo->ThreadID = &ThreadID;
+		Gallery::Instance()->m_bQuit_set(false);
 		pthread_create(&ThreadID, NULL, ThreadAnimation, SetupInfo);
 	}
 }
@@ -213,7 +214,7 @@ void Photo_Screen_Saver::Terminate()
 
 	WM_Event Event;
 	Event.Quit();
-	Gallery::Instance()->EvaluateEvent(Event);
+	Gallery::Instance()->m_bQuit_set(true);
 	if( ThreadID )
 		pthread_join(ThreadID, NULL);
 	ThreadID = 0;
