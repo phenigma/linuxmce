@@ -1351,7 +1351,7 @@ m_iNbdDevice = atoi(sFoo.c_str());
 	{
 		DeviceData_Base *pDevice_TopMost = pDevice->GetTopMostDevice();
 		if( pDevice_TopMost )
-			sIPAddress = pDevice_TopMost->IPAddress();
+			sIPAddress = pDevice_TopMost->m_sIPAddress;
 	}
 
 	if( sIPAddress.empty() )

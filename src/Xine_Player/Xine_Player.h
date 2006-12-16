@@ -21,6 +21,7 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		string m_sIPofMD;
+		int m_iNbdDevice;
 
 		// Private methods
 public:
