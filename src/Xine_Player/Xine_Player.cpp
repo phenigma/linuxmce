@@ -1360,7 +1360,7 @@ void Xine_Player::StartNbdDevice(string sMediaURL)
 		return;
 	}
 
-	string sCmd = "/usr/pluto/bin/nbd-client-wrapper add " + StringUtils::itos(m_iNbdDevice) + "\"" + sIPAddress + "\"";
+	string sCmd = "/usr/pluto/bin/nbd-client-wrapper add " + StringUtils::itos(m_iNbdDevice) + " \"" + sIPAddress + "\"";
 	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s",sCmd.c_str());
 	system(sCmd.c_str());
 }
@@ -1386,7 +1386,7 @@ void Xine_Player::StopNbdDevice()
 		return;
 	}
 
-	string sCmd = "/usr/pluto/bin/nbd-client-wrapper del " + StringUtils::itos(m_iNbdDevice) + "\"" + sIPAddress + "\"";
+	string sCmd = "/usr/pluto/bin/nbd-client-wrapper del " + StringUtils::itos(m_iNbdDevice) + " \"" + sIPAddress + "\"";
 	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StopNbdDevice %s",sCmd.c_str());
 	system(sCmd.c_str());
 }
