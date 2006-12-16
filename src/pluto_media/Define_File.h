@@ -31,6 +31,8 @@
 #define FILE_ATTRCOUNT_TABLE_FIELD "File.AttrCount"
 #define FILE_ATTRDATE_FIELD "AttrDate"
 #define FILE_ATTRDATE_TABLE_FIELD "File.AttrDate"
+#define FILE_DATELASTVIEWED_FIELD "DateLastViewed"
+#define FILE_DATELASTVIEWED_TABLE_FIELD "File.DateLastViewed"
 #define FILE_PSC_ID_FIELD "psc_id"
 #define FILE_PSC_ID_TABLE_FIELD "File.psc_id"
 #define FILE_PSC_BATCH_FIELD "psc_batch"
