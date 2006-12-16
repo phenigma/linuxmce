@@ -1871,7 +1871,7 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 			sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_delete_software_CONST];
 			sCommand = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn)
 				+ " 1 " + TOSTRING(COMMAND_Add_Software_CONST) + " " + TOSTRING(COMMANDPARAMETER_PK_Software_CONST)
-				+ " " + StringUtils::itos(PK_Software*-1) + " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " "
+				+ " " + StringUtils::itos(PK_Software) + " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " "
 				+ StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector) + " " TOSTRING(COMMANDPARAMETER_TrueFalse_CONST) " 0";
 		}
 		else

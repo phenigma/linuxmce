@@ -62,6 +62,7 @@ class Disk_Drive_Functions
 	private:
 		Command_Impl * m_pCommand_Impl;
 	    pluto_pthread_mutex_t m_DiskMutex;
+		bool m_bNbdServerRunning;
 
 		void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
 		void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc);

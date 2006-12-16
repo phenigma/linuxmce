@@ -194,7 +194,6 @@ Powerfile: 0, 1, ... */
 void Disk_Drive::CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c47-e->
 {
-	m_pDisk_Drive_Functions->StopNbdServer();
 	m_pDisk_Drive_Functions->m_mediaInserted = false;
 	m_pDisk_Drive_Functions->m_mediaDiskStatus = DISCTYPE_NONE;
 	m_pDisk_Drive_Functions->DisplayMessageOnOrbVFD("Checking disc...");
@@ -235,7 +234,6 @@ void Disk_Drive::CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *p
 	    system("eject");
 	}
 
-	m_pDisk_Drive_Functions->StopNbdServer();
 	m_pDisk_Drive_Functions->m_mediaInserted = false;  // Be sure we re-identify any media in there
 	m_pDisk_Drive_Functions->m_mediaDiskStatus = DISCTYPE_NONE;
 	tLastEject = time(NULL); // Put this after the system call so we know when it's been less than 2 seconds since a successful one

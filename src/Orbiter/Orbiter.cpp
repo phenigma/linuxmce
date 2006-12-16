@@ -3949,6 +3949,9 @@ int k=2;
 			}
 			else if( pMessage->m_dwID==COMMAND_Bind_to_Media_Remote_CONST )
 			{
+#ifdef DEBUG
+				g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ExecuteCommandInList sending bind to media remote");
+#endif
 				pMessage->m_eExpectedResponse = ER_ReplyMessage;  // a set now playing command
 				Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pMessage );
 				if( pResponse && pResponse->m_dwID )

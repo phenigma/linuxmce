@@ -64,6 +64,7 @@ using namespace DCE;
 #include "pluto_main/Define_FloorplanType.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "pluto_main/Table_DeviceTemplate_AV.h"
+#include "pluto_main/Table_Software.h"
 
 #include "DataGrid.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
@@ -1373,42 +1374,41 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::AddSoftware Starting install list");
 #endif
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(atoi(Parms.c_str()));
+	if( pDevice )
+		pDevice = pDevice->GetTopMostDevice();
+	if(!pDevice)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware can't find device %s",Parms.c_str());
+		return NULL;
+	}
 
-	string::size_type pos = 0;
-	PlutoSqlResult result;
-	MYSQL_ROW row;
-	string sMD_ID = StringUtils::Tokenize(Parms,",",pos); // ID of media director
-	string sPK_Device_PC = StringUtils::itos( DatabaseUtils::GetTopMostDevice( m_pDatabase_pluto_main, atoi(sMD_ID.c_str())));
-//	int PK_Controller = pMessage->m_dwPK_Device_From;
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
-	string sql="SELECT PK_Software, Iconstr, Title, Category, Rating, Virus_Free, Installation_status, Description, Homeurl FROM Software WHERE FK_Device="+sPK_Device_PC+" ORDER BY Title";
-
 	int iRow=0;
-	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sql)) )
+	vector<Row_Software *> vectRow_Software;
+	m_pDatabase_pluto_main->Software_get()->GetRows("FK_Device="+ StringUtils::itos(pDevice->m_dwPK_Device) +" ORDER BY Title",&vectRow_Software);
+	for(vector<Row_Software *>::iterator it=vectRow_Software.begin();it!=vectRow_Software.end();++it)
 	{
-		unsigned long *lengths;
-		while((row=mysql_fetch_row(result.r))){
-			lengths=mysql_fetch_lengths(result.r);
-			int size = 0;
-			char *data = NULL;
+		Row_Software *pRow_Software = *it;
 
-			pCell = new DataGridCell("", row[0]);
-			if(lengths[1]){
-				char *Data=new char[lengths[1]];
-				memcpy(Data,row[1],lengths[1]);
-				pCell->SetImage(Data, lengths[1], GR_PNG);
-			}
-			pCell->m_mapAttributes["Title"] = row[2] ? row[2] : "";
-			pCell->m_mapAttributes["Category"] = row[3] ? row[3] : "";
-			pCell->m_mapAttributes["Rating"] = row[4] ? row[4] : "";
-			pCell->m_mapAttributes["Rating"] = row[4] ? row[4] : "";
-			pCell->m_mapAttributes["Virus_Free"] = row[5] ? row[5] : "";
-			pCell->m_mapAttributes["Installation_status"] = row[6] ? row[6] : "";
-			pCell->m_mapAttributes["Description"] = row[7] ? row[7] : "";
-			pDataGrid->SetData(0,iRow++,pCell);
+		pCell = new DataGridCell("", StringUtils::itos(pRow_Software->PK_Software_get()));
+		string s = pRow_Software->Iconstr_get();
+		if( s.size() )
+		{
+			char *Data=new char[s.size()];
+			memcpy(Data,s.c_str(),s.size());
+			pCell->SetImage(Data, s.size(), GR_PNG);
 		}
+		pCell->m_mapAttributes["Title"] = pRow_Software->Title_get();
+		pCell->m_mapAttributes["Category"] = pRow_Software->Category_get();
+		pCell->m_mapAttributes["Rating"] = StringUtils::ftos(pRow_Software->Rating_get());
+		pCell->m_mapAttributes["Virus_Free"] = pRow_Software->Virus_Free_get();
+		pCell->m_mapAttributes["Installation_status"] = pRow_Software->Installation_status_get();
+		pCell->m_mapAttributes["Description"] = pRow_Software->Description_get();;
+
+		pDataGrid->SetData(0,iRow++,pCell);
 	}
 
 	return pDataGrid;
@@ -3110,41 +3110,44 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 	if( iPK_Device<1 )
 		iPK_Device = pMessage->m_dwPK_Device_From;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Starting Add software");
-	string sPK_Device=StringUtils::itos(DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,iPK_Device));
-	g_pPlutoLogger->Write(LV_DEBUG,sPK_Device.c_str());
-	string sql="SELECT IPaddress FROM Device WHERE PK_Device="+sPK_Device;
-	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
-		string sMD_IP=row[0];
-		sql="SELECT PackageName, Downloadurl, RepositoryName, Installation_status FROM Software WHERE PK_Software="+StringUtils::itos(iPK_Software);
-		if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0&&(result.r=mysql_store_result( m_pDatabase_pluto_main->m_pMySQL))&&(row=mysql_fetch_row(result.r))){
-			string sArguments=sMD_IP+"\t"+row[0]+"\t"+row[1]+"\t"+row[2];
-			string sInstalled=row[3];
-//			if(bTrueFalse){
-			if(sInstalled=="No"){
-				g_pPlutoLogger->Write(LV_STATUS,"Install Software");
-				if("1"==sPK_Device){
-					g_pPlutoLogger->Write(LV_DEBUG,((string)"/usr/pluto/bin/InstallSoftware_Remote.sh "+sArguments).c_str());
-					ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware_Remote.sh", sArguments, "InstallSoftware", NULL, true);
-				}else{
-					g_pPlutoLogger->Write(LV_DEBUG,((string)"/usr/pluto/bin/InstallSoftware.sh "+sArguments).c_str());
-					ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallSoftware.sh", sArguments, "InstallSoftware", NULL, true);
-				}
-			}else{
-				g_pPlutoLogger->Write(LV_STATUS,"Remove Software");
-				if("1"==sPK_Device){
-					g_pPlutoLogger->Write(LV_DEBUG,((string)"/usr/pluto/bin/RemoveSoftware_Remote.sh "+sArguments).c_str());
-					ProcessUtils::SpawnApplication("/usr/pluto/bin/RemoveSoftware_Remote.sh", sArguments, "InstallSoftware", NULL, true);
-				}else{
-					g_pPlutoLogger->Write(LV_DEBUG,((string)"/usr/pluto/bin/RemoveSoftware.sh "+sArguments).c_str());
-					ProcessUtils::SpawnApplication("/usr/pluto/bin/RemoveSoftware.sh", sArguments, "InstallSoftware", NULL, true);
-				}
-			}
-		}
- 	}
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+	if(pDevice)
+		pDevice = pDevice->GetTopMostDevice();
+
+	Row_Software *pRow_Software = m_pDatabase_pluto_main->Software_get()->GetRow(iPK_Software);
+
+	if(!pDevice || !pRow_Software)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Add_Software can't find device %d or software %d",iPK_Device,iPK_Software);
+		return;
+	}
+
+	string sCommand;
+	if(bTrueFalse)
+	{
+		if( pDevice->m_dwPK_Device == m_pData->GetTopMostDevice()->m_dwPK_Device )
+			sCommand = "/usr/pluto/bin/InstallSoftware.sh";
+		else
+			sCommand = "/usr/pluto/bin/InstallSoftware_Remote.sh";
+	}
+	else
+	{
+		if( pDevice->m_dwPK_Device == m_pData->GetTopMostDevice()->m_dwPK_Device )
+			sCommand = "/usr/pluto/bin/RemoveSoftware.sh";
+		else
+			sCommand = "/usr/pluto/bin/RemoveSoftware_Remote.sh";
+	}
+
+	string sArguments=pDevice->m_sIPAddress + "\t" + pRow_Software->PackageName_get() + "\t" + pRow_Software->Downloadurl_get() + "\t" + pRow_Software->RepositoryName_get();
+
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Add_Software Starting Add software device %d software %d true %d cmd %d %s",
+		pDevice->m_dwPK_Device,iPK_Software,(int) bTrueFalse,sCommand.c_str(),sArguments.c_str());
+	
+	ProcessUtils::SpawnApplication(sCommand, sArguments, "InstallSoftware", NULL, true, true);
+
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Finishing Add software");
+#endif
 }
 //<-dceag-c833-b->
 

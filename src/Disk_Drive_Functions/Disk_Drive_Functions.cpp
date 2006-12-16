@@ -25,6 +25,7 @@ Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const s
 	: m_pCommand_Impl(pCommand_Impl), m_DiskMutex("disk drive"), m_mediaDiskStatus(DISCTYPE_NONE), m_discid(0),
 	m_isRipping(false), m_mediaInserted(false), m_bTrayOpen(false), m_sDrive(sDrive)
 {
+	m_bNbdServerRunning=false;
 	m_DiskMutex.Init(NULL);
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
 	DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
@@ -104,7 +105,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 
         g_pPlutoLogger->Write(LV_WARNING, "Disc of type %d was detected", status, mrl.c_str());
 
-	m_discid=time(NULL);
+		m_discid=time(NULL);
         if ( bFireEvent && status )
         {
 		g_pPlutoLogger->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", mrl.c_str(),m_discid);
@@ -635,6 +636,10 @@ void Disk_Drive_Functions::DisplayMessageOnOrbVFD(string sMessage)
 
 void Disk_Drive_Functions::StartNbdServer()
 {
+	if( m_bNbdServerRunning )
+		StopNbdServer();
+
+	m_bNbdServerRunning=true;
 	string sArgs = "--start\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server."
 		+ StringUtils::itos(m_pCommand_Impl->m_dwPK_Device+18000) + ".pid\t--\t" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device+18000) + "\t" + m_sDrive + "\t-r";
 
@@ -645,6 +650,12 @@ void Disk_Drive_Functions::StartNbdServer()
 
 void Disk_Drive_Functions::StopNbdServer()
 {
+	if( !m_bNbdServerRunning )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive_Functions::StopNbdServer is not running");
+		return;
+	}
+	m_bNbdServerRunning=false;
 	string sArgs = "--stop\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server." + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device+18000) + ".pid\t--retry\t1";
 
 	ProcessUtils::SpawnApplication("start-stop-daemon", sArgs, "Stop nbd server", NULL, true, true);
