@@ -1339,7 +1339,7 @@ void Xine_Player::StartNbdDevice(string sMediaURL)
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s is not a nbd",sMediaURL.c_str());
 #endif
-		return false;
+		return;
 	}
 	m_iNbdDevice = atoi(sMediaURL.substr(pos + 12).c_str());
 	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %d / %s",m_iNbdDevice,sMediaURL.c_str());
@@ -1357,7 +1357,7 @@ void Xine_Player::StartNbdDevice(string sMediaURL)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::StartNbdDevice can't find ip for %d",m_iNbdDevice);
 		m_iNbdDevice=0;
-		return false;
+		return;
 	}
 
 	string sArgs = sIPAddress + "\t" + StringUtils::itos(m_iNbdDevice + 18000) + "\t/dev/device_" + StringUtils::itos(m_iNbdDevice);
