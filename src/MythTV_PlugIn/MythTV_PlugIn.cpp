@@ -153,6 +153,8 @@ bool MythTV_PlugIn::Register()
 	{
 		while( ( row=mysql_fetch_row( result.r ) ) )
 		{
+			if( !row[1] || !row[1][0] )
+				continue;
 			int PK_Device = row[0] ? mapIpToDevice[row[0]] : 0;
 			string sDirectory = sFilename + StringUtils::itos(PK_Device);
 			string sCmd = "mkdir -p \"" + sDirectory + "\"";
