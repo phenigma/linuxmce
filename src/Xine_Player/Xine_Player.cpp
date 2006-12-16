@@ -24,6 +24,7 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 {
 	m_pDeviceData_MediaPlugin = NULL;
 	ptrFactory = new Xine_Stream_Factory(this);
+	m_iNbdDevice = 0;
 	
 	m_pNotificationSocket = new XineNotification_SocketListener(string("m_pNotificationSocket"));
 	m_pNotificationSocket->m_bSendOnlySocket = true; // one second
@@ -36,6 +37,7 @@ Xine_Player::Xine_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *p
 //<-dceag-const2-e->
 {
 	m_pDeviceData_MediaPlugin=NULL;
+	m_iNbdDevice = 0;
 }
 
 //<-dceag-dest-b->
@@ -87,7 +89,6 @@ bool Xine_Player::GetConfig()
 	if( !pPtr || sNbdClient!=pPtr )
 	{
 		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdClient.c_str(), sNbdClient.size() );
-		ProcessUtils::SpawnApplication("/etc/init.d/nbd-client", "restart", "Start nbd client", NULL, true, true);
 		g_pPlutoLogger->Write(LV_WARNING,"Wrote nbd-client file %d.  changed from %s to %s",
 			(int) bResult,(pPtr ? pPtr : "*NONE*\n"),sNbdClient.c_str());
 	}
@@ -284,6 +285,8 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	
 	string sMediaInfo;
 	
+	StartNbdDevice(sMediaURL);
+
 	if (pStream->OpenMedia( sMediaURL, sMediaInfo,  sMediaPosition))
 	{
 		if (pStream->playStream( sMediaPosition))
@@ -303,6 +306,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Player::CMD_Play_Media() failed to play %s without position info",sMediaURL.c_str());
 				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", iStreamID);
+				StopNbdDevice();
 				EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
 			}
 		}
@@ -1322,5 +1326,52 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - error, broadcast is not enabled");
 				
 	}
+}
+
+void Xine_Player::StartNbdDevice(string sMediaURL)
+{
+	if( m_iNbdDevice )
+		StopNbdDevice();
+
+	string::size_type pos = sMediaURL.find("/dev/device");
+	if( pos==string::npos )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s is not a nbd",sMediaURL.c_str());
+#endif
+		return;
+	}
+string sFoo = sMediaURL.substr(pos + 10);
+g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s  / %s",sMediaURL.c_str(),sFoo.c_str());
+m_iNbdDevice = atoi(sFoo.c_str());
+
+	string sIPAddress;
+	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find( m_iNbdDevice );
+	if( pDevice )
+	{
+		DeviceData_Base *pDevice_TopMost = pDevice->GetTopMostDevice();
+		if( pDevice_TopMost )
+			sIPAddress = pDevice_TopMost->IPAddress();
+	}
+
+	if( sIPAddress.empty() )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::StartNbdDevice can't find ip for %d",m_iNbdDevice);
+		m_iNbdDevice=0;
+		return;
+	}
 	
+	string sArgs = sIPAddress + "\t" + StringUtils::itos(m_iNbdDevice + 18000) + "\t/dev/device_" + StringUtils::itos(m_iNbdDevice);
+	ProcessUtils::SpawnApplication("/bin/nbd-client", sArgs, "Start nbd client", NULL, true, true);
+	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s",sArgs.c_str());
+}
+
+void Xine_Player::StopNbdDevice()
+{
+	if( m_iNbdDevice==0 )
+		return;
+
+	string sArgs = "-d\t/dev/device_" + StringUtils::itos(m_iNbdDevice);
+	ProcessUtils::SpawnApplication("/bin/nbd-client", sArgs, "Stop nbd client", NULL, true, true);
+	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StopNbdDevice %s",sArgs.c_str());
 }

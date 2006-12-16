@@ -2556,6 +2556,7 @@ void Xine_Stream::playbackCompleted( bool bWithErrors )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", m_iStreamID);
 		m_pFactory->m_pPlayer->EVENT_Playback_Completed(m_sCurrentFile,m_iStreamID, bWithErrors );
+		m_pFactory->m_pPlayer->StopNbdDevice();
 	}
 }
 
