@@ -3,6 +3,7 @@
 
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/Other.h"
 
 #include "pluto_main/Define_DeviceTemplate.h"
@@ -635,18 +636,18 @@ void Disk_Drive_Functions::DisplayMessageOnOrbVFD(string sMessage)
 void Disk_Drive_Functions::StartNbdServer()
 {
 	string sArgs = "--start\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server."
-		+ StringUtils::itos(m_dwPK_Device+18000) + ".pid\t--\t" + StringUtils::itos(m_dwPK_Device+18000) + "\t" + m_sDrive + "\t-r";
+		+ StringUtils::itos(m_pCommand_Impl->m_dwPK_Device+18000) + ".pid\t--\t" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device+18000) + "\t" + m_sDrive + "\t-r";
 
-	ProcessUtils::SpawnApplication(start-stop-daemon, sArgs, "Start nbd server", NULL, true, true);
+	ProcessUtils::SpawnApplication("start-stop-daemon", sArgs, "Start nbd server", NULL, true, true);
 
 	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive_Functions::StartNbdServer %s",sArgs.c_str());
 }
 
 void Disk_Drive_Functions::StopNbdServer()
 {
-	string sArgs = "--stop\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server." + StringUtils::itos(m_dwPK_Device+18000) + ".pid\t--retry\t1";
+	string sArgs = "--stop\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server." + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device+18000) + ".pid\t--retry\t1";
 
-	ProcessUtils::SpawnApplication(start-stop-daemon, sArgs, "Stop nbd server", NULL, true, true);
+	ProcessUtils::SpawnApplication("start-stop-daemon", sArgs, "Stop nbd server", NULL, true, true);
 
 	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive_Functions::StopNbdServer %s",sArgs.c_str());
 }
