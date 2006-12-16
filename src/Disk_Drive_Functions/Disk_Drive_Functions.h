@@ -69,6 +69,7 @@ class Disk_Drive_Functions
 		
 	public:
 		Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive);
+		~Disk_Drive_Functions();
 		bool internal_monitor_step(bool bFireEvent);
 		bool internal_reset_drive(bool bFireEvent);
 		int cdrom_has_dir(int fd, const char *directory);

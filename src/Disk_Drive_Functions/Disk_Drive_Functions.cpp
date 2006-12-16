@@ -33,6 +33,11 @@ Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const s
 	m_pCommand_Impl->SendCommand(CMD_Report_Discs_in_Drive_DT);
 }
 
+Disk_Drive_Functions::~Disk_Drive_Functions()
+{
+	StopNbdServer();
+}
+
 void Disk_Drive_Functions::EVENT_Media_Inserted(int iFK_MediaType, string sMRL, string sID, string sName)
 {
 	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_pCommand_Impl->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3, 4, 3, StringUtils::itos(iFK_MediaType).c_str(), 4, sMRL.c_str(), 7, sID.c_str(), 35, sName.c_str()));
