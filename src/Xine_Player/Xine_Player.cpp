@@ -256,6 +256,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	
 	if (pStream==NULL)
 	{
+		EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stream is NULL, aborting - init failure?");
 		return;
 	}
@@ -313,6 +314,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	}
 	else
 	{
+		EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() Failed to open media");
 	}
 	
