@@ -2316,6 +2316,8 @@
 #define DESIGNOBJ_numAsterisk_CONST 5306
 #define DESIGNOBJ_butClear_CONST 5307
 #define DESIGNOBJ_butPlus_CONST 5308
+#define DESIGNOBJ_popKeywordSearch_CONST 5309
+#define DESIGNOBJ_grpMediaAttributeSearch_UI2_CONST 5310
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
