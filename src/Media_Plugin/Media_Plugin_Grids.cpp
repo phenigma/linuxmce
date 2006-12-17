@@ -94,6 +94,7 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	string sPK_Users_Private = StringUtils::Tokenize( Parms,"|",pos );
 	int PK_AttributeType_Sort = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 	int PK_Users = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
+	int iLastViewed = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 	int PK_Attribute = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 	if( sPK_Sources.size()==0 )
 		sPK_Sources = TOSTRING(MEDIASOURCE_File_CONST) "," TOSTRING(MEDIASOURCE_Jukebox_CONST) "," TOSTRING(MEDIASOURCE_Local_Disc_CONST);
@@ -110,7 +111,7 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	if( PK_MediaType==MEDIATYPE_misc_Playlist_CONST )
 		PopulateFileBrowserInfoForPlayList(pMediaListGrid,sPK_Users_Private);
 	else
-		AttributesBrowser( pMediaListGrid, PK_MediaType, PK_Attribute, PK_AttributeType_Sort, bIdentifiesFile, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iPK_Variable, sValue_To_Assign );
+		AttributesBrowser( pMediaListGrid, PK_MediaType, PK_Attribute, PK_AttributeType_Sort, bIdentifiesFile, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iLastViewed, iPK_Variable, sValue_To_Assign );
 
 	pMediaListGrid->m_listFileBrowserInfo.sort(FileBrowserInfoComparer);
 	pMediaListGrid->m_pFileBrowserInfoPtr = new FileBrowserInfoPtr[ pMediaListGrid->m_listFileBrowserInfo.size() ];
@@ -140,7 +141,7 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	return pMediaListGrid;
 }
 
-void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, int PK_Attribute, int PK_AttributeType_Sort, bool bShowFiles, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
+void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, int PK_Attribute, int PK_AttributeType_Sort, bool bShowFiles, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int iLastViewed, int *iPK_Variable, string *sValue_To_Assign )
 {
 	bool bFile=false,bDiscs=false,bSubDirectory=false,bBookmarks=false,bDownload=false;
 	string sPath,sPath_Back;
@@ -269,6 +270,8 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	if( m_sPK_Devices_Online.empty()==false )
 		sOnline = " AND (EK_Device IS NULL OR EK_Device IN (" + m_sPK_Devices_Online + ")) ";
 
+	if( iLastViewed!=2 )
+		sSQL_Where += string(" AND DateLastViewed IS ") + (iLastViewed==1 ? "NOT" : "") + " NULL ";
 // temp hack to simulate the jukebox functionality
 #ifdef SIM_JUKEBOX
 	if( bFile && bDiscs==false )
@@ -834,16 +837,14 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 	if( AC.length( )==0 )
         return pDataGrid; // Nothing passed in yet
 
-    string SQL = "select DISTINCT PK_Attribute, Name, Description, FK_Picture FROM Attribute " \
-		"JOIN File_Attribute ON FK_Attribute=PK_Attribute "\
-		"JOIN File ON File_Attribute.FK_File=PK_File "\
-        "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
-        "JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "\
-		"LEFT JOIN Picture_File ON Picture_File.FK_File=File.PK_File "\
-		"WHERE Name Like '" + StringUtils::SQLEscape(AC) + "%' AND Identifier>0 " +
-		" AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
-		" AND File.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
-        " ORDER BY Name limit 30;";
+    string SQL = 
+		"select DISTINCT PK_Attribute, Name, Description, FK_Picture FROM Attribute "
+		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "
+		"JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "
+		"LEFT JOIN Picture_Attribute ON FK_Attribute=PK_Attribute "
+		"WHERE Name Like '" + StringUtils::SQLEscape(AC) + "%' AND Identifier>0 "
+		"AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(PK_MediaType) + " "
+		"ORDER BY Name limit 30";
 
     PlutoSqlResult result;
     MYSQL_ROW row;
@@ -881,20 +882,20 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 	if( result.r->row_count> 4 )
 		return pDataGrid;
 
-    SQL = "select DISTINCT PK_Attribute, Name, Description, FK_Picture FROM SearchToken "\
-        "JOIN SearchToken_Attribute ON PK_SearchToken=FK_SearchToken "\
-        "JOIN Attribute ON SearchToken_Attribute.FK_Attribute=PK_Attribute "\
-        "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
-		"JOIN File_Attribute ON File_Attribute.FK_Attribute=PK_Attribute "\
-		"JOIN File ON File_Attribute.FK_File=PK_File "\
-        "JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "\
-		"LEFT JOIN Picture_File ON Picture_File.FK_File=File.PK_File "\
-		"WHERE Token like '" + StringUtils::SQLEscape(AC) + "%' " +
-		(AttributesFirstSearch.length() ? "AND PK_Attribute NOT IN (" + StringUtils::SQLEscape(AttributesFirstSearch) + ") " : "") +
-		" AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
-		" AND File.EK_MediaType=" + StringUtils::itos(PK_MediaType) + " AND Identifier>0 " +
-		" ORDER BY Name "\
-        "limit 30;";
+    SQL = 
+		"select DISTINCT PK_Attribute, Name, Description, FK_Picture FROM SearchToken "
+		"JOIN SearchToken_Attribute ON PK_SearchToken=FK_SearchToken "
+		"JOIN Attribute ON SearchToken_Attribute.FK_Attribute=PK_Attribute "
+		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "
+		"JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "
+		"LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute "
+		+ (AttributesFirstSearch.length() ? "AND PK_Attribute NOT IN (" + StringUtils::SQLEscape(AttributesFirstSearch) + ") " : "") +
+		"WHERE Token like '" + StringUtils::SQLEscape(AC) + "%' "
+		"AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(PK_MediaType) + " "
+		"AND Identifier>0 "
+		"ORDER BY Name "
+		"limit 30";
+
 
 	result.ClearResults();
 

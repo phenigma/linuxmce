@@ -1189,6 +1189,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	string sError;
 	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream,sError) )
 	{
+		UpdateViewDate(pMediaStream);
 		CheckStreamForTimeout(pMediaStream);
 		g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
 
@@ -4998,6 +4999,40 @@ void Media_Plugin::CheckStreamForTimeout(MediaStream *pMediaStream)
 	int StreamID = pMediaStream->m_iStreamID_get( );
 	m_pAlarmManager->AddRelativeAlarm(pMediaFile->m_dwDuration,this,MEDIA_PLAYBACK_TIMEOUT,(void *) StreamID);
 }
+
+void Media_Plugin::UpdateViewDate(MediaStream *pMediaStream)
+{
+	for(deque<MediaFile *>::iterator it=pMediaStream->m_dequeMediaFile.begin();it!=pMediaStream->m_dequeMediaFile.end();++it)
+	{
+		MediaFile *pMediaFile = *it;
+		int PK_File=0,PK_Disc=0; // Bookmarks may be used
+		if( pMediaFile->m_dwPK_Bookmark && !pMediaFile->m_dwPK_File && !pMediaFile->m_dwPK_Disk )
+		{
+			Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->GetRow(pMediaFile->m_dwPK_Bookmark);
+			if( pRow_Bookmark )
+			{
+				PK_File=pRow_Bookmark->FK_File_get();
+				PK_Disc=pRow_Bookmark->FK_Disc_get();
+			}
+		}
+
+		if( pMediaFile->m_dwPK_File || PK_File )
+		{
+			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow( pMediaFile->m_dwPK_File ? pMediaFile->m_dwPK_File : PK_File );
+			if( pRow_File )
+				pRow_File->DateLastViewed_set( StringUtils::SQLDateTime(time(NULL)) );
+		}
+		if( pMediaFile->m_dwPK_Disk || PK_Disc )
+		{
+			Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow( pMediaFile->m_dwPK_Disk ? pMediaFile->m_dwPK_Disk : PK_Disc );
+			if( pRow_Disc )
+				pRow_Disc->DateLastViewed_set( StringUtils::SQLDateTime(time(NULL)) );
+		}
+		m_pDatabase_pluto_media->File_get()->Commit();
+		m_pDatabase_pluto_media->Disc_get()->Commit();
+	}
+}
+
 //<-dceag-c780-b->
 
 	/** @brief COMMAND: #780 - Remove playlist */

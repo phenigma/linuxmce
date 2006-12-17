@@ -18,6 +18,7 @@ class MediaFileBrowserOptions
 {
 public:
 	int m_PK_MediaType,m_PK_AttributeType_Sort,m_PK_Users,m_iPK_Screen;
+	int m_iLastViewed; // 0=no, 1=yes, 2=either
 	string m_sPK_MediaSubType,m_sPK_FileFormat,m_sPK_Attribute_Genres,m_sSources,m_sPK_Users_Private;
 	string m_sSelectedFile;  // Used to hold the selected value
 	list<int> m_listPK_AttributeType_Sort_Prior;
@@ -31,12 +32,14 @@ public:
 		m_pOrbiter=pOrbiter; 
 		ClearAll(0,0,0); 
 		m_pObj_ListGrid=m_pObj_PicGrid=NULL;
+		m_iLastViewed=2;
 	}
 
 	string ToString()
 	{
 		string sResult = StringUtils::itos(m_PK_MediaType) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
-			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users) + " | ";
+			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users) + " | "
+			+ StringUtils::itos(m_iLastViewed) + " | ";
 		if( m_listPK_Attribute_Description.size() )
 			sResult += StringUtils::itos(m_listPK_Attribute_Description.front().first);
 		return sResult;

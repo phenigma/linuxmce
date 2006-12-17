@@ -214,6 +214,14 @@ void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_Render, new RenderScreenCallBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_DatagridSelected, new DatagridCellBackData());
 
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
+	if( pObj )
+		pObj->m_GraphicToDisplay_set("fmv1",GRAPHIC_NORMAL,false,true);
+
+	pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_UnviewedOnly_CONST) );
+	if( pObj )
+		pObj->m_GraphicToDisplay_set("fmv2",GRAPHIC_NORMAL,false,true);
+
 	return;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -293,7 +301,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 
 		mediaFileBrowserOptions.m_sSelectedFile = pCell_List->m_Value;
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,mediaFileBrowserOptions.m_sSelectedFile);
-		m_pOrbiter->CMD_Show_Popup(pObj_Play->m_pParentObject->m_ObjectID,10,10,"","filedetails",false,false);
+		m_pOrbiter->CMD_Goto_DesignObj(0,pObj_Play->m_pParentObject->m_ObjectID,"","",false,true);
 
 		if( pCell_Pic && pCell_Pic->m_pGraphic && pCell_Pic->m_pGraphic->m_pGraphicData )
 			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
@@ -315,26 +323,48 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		if( m_pOrbiter->m_pMouseBehavior )
-		{
-			m_pOrbiter->m_pMouseBehavior->ConstrainMouse(pObj_Play->m_pParentObject->m_rPosition + pObj_Play->m_pPopupPoint );
 			m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
-		}
 #endif
+	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Keyword_Search_CONST )
+	{
+	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butClosePopup_CONST )
+	{
+	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_More_ViewedOnly_CONST )
+	{
+		mediaFileBrowserOptions.m_iLastViewed = mediaFileBrowserOptions.m_iLastViewed!=1 ? 1 : 2;
+		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
+		if( pObj )
+			pObj->m_GraphicToDisplay_set("fmvs1",mediaFileBrowserOptions.m_iLastViewed==1 ? GRAPHIC_SELECTED : GRAPHIC_NORMAL,false,true);
+		pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_UnviewedOnly_CONST) );
+		if( pObj )
+			pObj->m_GraphicToDisplay_set("fmvs3",GRAPHIC_NORMAL,false,true);
+
+		MediaBrowser_Render(NULL);
+		m_pOrbiter->CMD_Refresh("*");
+	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_More_UnviewedOnly_CONST )
+	{
+		mediaFileBrowserOptions.m_iLastViewed = mediaFileBrowserOptions.m_iLastViewed!=0 ? 0 : 2;
+		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_UnviewedOnly_CONST) );
+		if( pObj )
+			pObj->m_GraphicToDisplay_set("fmvs2",mediaFileBrowserOptions.m_iLastViewed==0 ? GRAPHIC_SELECTED : GRAPHIC_NORMAL,false,true);
+		pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
+		if( pObj )
+			pObj->m_GraphicToDisplay_set("fmvs4",GRAPHIC_NORMAL,false,true);
+		MediaBrowser_Render(NULL);
+		m_pOrbiter->CMD_Refresh("*");
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Close_CONST )
 	{
 		m_pOrbiter->m_pObj_Highlighted = mediaFileBrowserOptions.m_pObj_ListGrid;
-		m_pOrbiter->CMD_Remove_Popup("","filedetails");
 
 		DesignObj_Orbiter *pObj_CoverArt = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST) );
 		if(NULL != pObj_CoverArt)
 			m_pOrbiter->Renderer()->RemoveGraphic(pObj_CoverArt->GenerateObjectHash(pObj_CoverArt->m_pPopupPoint, false));
 
-
-#ifdef ENABLE_MOUSE_BEHAVIOR
-		if( m_pOrbiter->m_pMouseBehavior )
-			m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
-#endif
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Play_CONST )
 	{
@@ -343,11 +373,13 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 
 g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play Media higlighted %s",mediaFileBrowserOptions.m_sSelectedFile.c_str());
 
-		m_pOrbiter->CMD_Remove_Popup("","filedetails");
+//		m_pOrbiter->CMD_Remove_Popup("","filedetails");
+/*
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		if( m_pOrbiter->m_pMouseBehavior )
 			m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
 #endif
+			*/
 		DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
 			0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
 		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
@@ -485,12 +517,14 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Media_Attributes_For_File_CONST )
 	{
 		SelectedAttributeCell(pCellInfoData->m_pDataGridCell);
-#ifdef ENABLE_MOUSE_BEHAVIOR
-		if( m_pOrbiter->m_pMouseBehavior )
-			m_pOrbiter->m_pMouseBehavior->ConstrainMouse();
-#endif
-		m_pOrbiter->CMD_Remove_Popup("","filedetails");
-		m_pOrbiter->CMD_Remove_Popup("","coverart");
+		m_pOrbiter->CMD_Go_back("","");
+		return true;
+	}
+	else if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Media_Search_Auto_Compl_CONST )
+	{
+		mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
+		mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(pCellInfoData->m_sValue.c_str()),pCellInfoData->m_sText ));
+		m_pOrbiter->CMD_Go_back("","");
 		return true;
 	}
 	return false;
@@ -500,7 +534,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 void ScreenHandler::SelectedAttributeCell(DataGridCell *pCell)
 {
 	mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
-	mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(&pCell->m_Value[2]),pCell->m_Text ? pCell->m_Text : "*unknown attribute*") );
+	mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(&pCell->m_Value[2]),pCell->m_mapAttributes["Name"]) );
 
 	// If we're browing a collection of attributes, say actors, when we choose
 	// one we no longer want to browsing (or sorting by) that same attribute (actors)

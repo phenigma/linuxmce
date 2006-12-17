@@ -874,6 +874,8 @@ namespace DCE
 		// Report our current EntArea/Room to orbiter plugin
 		void FireEntAreaRoomCommands();
 
+		bool HasActivePopups() { return m_listPopups.empty()==false; }
+
 		// Get the coordinates for the highlighted cell within this grid
 		void GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,PlutoRectangle &rect);
 		DataGridCell *GetDataGridHighlightCell(DesignObj_DataGrid *pGrid);

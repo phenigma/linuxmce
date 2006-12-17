@@ -82,6 +82,8 @@ using namespace DCE;
 #include "Linux/OSDScreenHandler.h"
 #endif
 
+#define KEY_DOWN_DURATION		1000
+
 #ifdef HID_REMOTE
 	#include "Linux/HIDInterface.h"
 #endif
@@ -2658,7 +2660,12 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 			gettimeofday(&tButtonUp,NULL);
 			timespec m_tInterval = tButtonUp - m_tButtonDown;
 			long tMilisecondsPassed = m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
-			if( tMilisecondsPassed > 500 )
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing m_tButtonDown %d.%d up %d.%d interval %d",
+				(int) m_tButtonDown.tv_sec,(int) m_tButtonDown.tv_nsec,(int) tButtonUp.tv_sec,(int) tButtonUp.tv_nsec,(int) tMilisecondsPassed);
+#endif
+
+			if( tMilisecondsPassed > KEY_DOWN_DURATION )
 				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'H'));
 
 			if( it == m_mapScanCodeToRemoteButton.end() )  // Either we didn't hold the button or there is no hold specific event
@@ -2682,6 +2689,9 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		else
 		{
 			gettimeofday(&m_tButtonDown,NULL);
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing m_tButtonDown %d.%d",(int) m_tButtonDown.tv_sec,(int) m_tButtonDown.tv_nsec);
+#endif
 			it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'D') );
 
 			map< pair<int,char>, string>::iterator itRepeat = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'R'));
@@ -3137,6 +3147,9 @@ bool Orbiter::ButtonDown( int iPK_Button )
 	//this is not a repeated button
 	//it will be handled in ButtonUp
 	gettimeofday(&m_tButtonDown,NULL);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ButtonDown m_tButtonDown %d.%d",(int) m_tButtonDown.tv_sec,(int) m_tButtonDown.tv_nsec);
+#endif
 	return false;
 }
 
@@ -4076,6 +4089,10 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		else if(  Variable=="MT" )
 		{
 			Output += StringUtils::itos(m_iPK_MediaType);
+		}
+		else if( Variable=="MTB" )
+		{
+			Output += StringUtils::itos(m_pScreenHandler->mediaFileBrowserOptions.m_PK_MediaType);
 		}
 		else if( Variable=="FBO" )
 		{

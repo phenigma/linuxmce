@@ -82,18 +82,19 @@ void MediaBrowserMouseHandler::Stop()
 
 bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
 {
+	if( m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID!=DESIGNOBJ_popFileList_CONST )
+		return false; // Keep processing
 	if( m_pDatagridMouseHandlerHelper->CapturingMouse() )
 		return true;
-	if( m_pMouseBehavior->m_bMouseConstrained )
-		return false;
 
 	return false; // Keep processing
 }
 
 bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 {
-	if( m_pMouseBehavior->m_bMouseConstrained )
-		return false;
+	if( m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID!=DESIGNOBJ_popFileList_CONST )
+		return false; // Keep processing
+
 	if( PK_Button==BUTTON_Mouse_7_CONST && m_bTapAndRelease==false && m_bStartedMovement )
 	{
 //		return false;
@@ -112,7 +113,8 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d)", X, Y, PK_Direction);
 #endif
-	if( m_pMouseBehavior->m_bMouseConstrained && !m_pDatagridMouseHandlerHelper->CapturingMouse() )  // There's a popup grabbing the mouse
+
+	if( m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID!=DESIGNOBJ_popFileList_CONST )
 		return;
 	if( !m_pObj_ListGrid || !m_pObj_PicGrid )
 		return;  // Shouldn't happen
