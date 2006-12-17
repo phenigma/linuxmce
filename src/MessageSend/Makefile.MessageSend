@@ -1,5 +1,3 @@
-SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
-
 ROOT = ..
 CXXFLAGS = -Wall -g -pipe
 LDFLAGS = -L$(ROOT)/lib
@@ -12,11 +10,11 @@ VERSION = 2.0.0
 BaseCPP = -I$(ROOT) -I.. -I$(ROOT)/DCE
 BaseSources = MessageSend.cpp
 
-SerClsCPP = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID
+SerClsCPP = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DUSE_LZO_DATAGRID
 SerClsPfx = $(ROOT)/SerializeClass/
 SerClsSrc = SerializeClass.cpp
 
-DCECPP = -I./ -I../ -I../DCE/ -I../VIPShared/ -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -D_GNU_SOURCE
+DCECPP = -I./ -I../ -I../DCE/ -I../VIPShared/ -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DUSE_LZO_DATAGRID -D_GNU_SOURCE
 DCEPfx = $(ROOT)/DCE/
 DCESrc = DataGrid.cpp ClientSocket.cpp PlainClientSocket.cpp Logger.cpp Message.cpp \
 	Socket.cpp ServerSocket.cpp SocketListener.cpp ServerLogger.cpp \
@@ -26,7 +24,7 @@ DCESrc = DataGrid.cpp ClientSocket.cpp PlainClientSocket.cpp Logger.cpp Message.
 	DCEConfig.cpp DCEMySqlConfig.cpp \
 	Virtual_Device_Translator.cpp arp-cache.cpp
 
-PUCPP = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DUSE_LZO_DATAGRID $(SNR_CPPFLAGS)
+PUCPP = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DUSE_LZO_DATAGRID
 PUPfx = $(ROOT)/PlutoUtils/
 PUSrc = CommonIncludes.cpp FileUtils.cpp MultiThreadIncludes.cpp Other.cpp ProcessUtils.cpp \
 	StringUtils.cpp DatabaseUtils.cpp getch.cpp md5c.cpp minilzo.cpp uuencode.cpp LinuxSerialUSB.cpp
