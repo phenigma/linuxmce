@@ -22,7 +22,7 @@ void MouseBehavior_Win32::SetMousePosition(int X,int Y)
 	::SetCursorPos(nWindowX + X, nWindowY + Y);
 }
 
-void MouseBehavior_Win32::ShowMouse(bool bShow)
+void MouseBehavior_Win32::ShowMouse(bool bShow, SetMouseBehaviorRemote setMouseBehaviorRemote)
 {
 	m_bMouseVisible=bShow;
 	ShowCursor(bShow);

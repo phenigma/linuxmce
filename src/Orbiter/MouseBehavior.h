@@ -125,6 +125,7 @@ namespace DCE
 
 	public:
 		typedef enum { mcs_Normal, mcs_LeftRight, mcs_UpDown, mcs_AnyDirection, mcs_LeftRightUpDown } MouseCursorStyle;
+		typedef enum { smb_Default, smb_TurnOffRemote, smb_TurnOnRemote, smb_LeaveRemoteUnchanged } SetMouseBehaviorRemote;
 		MouseBehavior(Orbiter *pOrbiter);
 		virtual ~MouseBehavior();
 
@@ -150,7 +151,7 @@ namespace DCE
 		virtual void SetMousePosition(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; /*g_pPlutoLogger->Write(LV_FESTIVAL,"SetMousePosition %d,%d",X,Y);*/ }
 		virtual void SetMousePosition(DesignObj_Orbiter *pObj) { SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Y + pObj->m_pPopupPoint.Y + pObj->m_rPosition.Height/2); }
 		virtual void GetMousePosition(PlutoPoint *p) { *p = m_pLastPosition; }
-		virtual void ShowMouse(bool bShow) { }
+		virtual void ShowMouse(bool bShow, SetMouseBehaviorRemote setMouseBehaviorRemote=smb_Default) { }
 		void m_pLastPosition_set(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; }
 
 		void SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection);

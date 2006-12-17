@@ -23,7 +23,7 @@ namespace DCE
 		MouseBehavior_Linux(Orbiter *pOrbiter);
 		~MouseBehavior_Linux();
 		virtual void SetMousePosition(int X,int Y);
-		virtual void ShowMouse(bool bShow);
+		virtual void ShowMouse(bool bShow, SetMouseBehaviorRemote setMouseBehaviorRemote);
         virtual bool ConstrainMouse(const PlutoRectangle &rect);
 		virtual void SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle);
 		virtual bool SetMouseCursorImage(const string &sPath, const string &sPathMask);

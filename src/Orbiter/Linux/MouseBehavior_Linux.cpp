@@ -78,7 +78,7 @@ void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 	mt.Release();
 }
 
-void MouseBehavior_Linux::ShowMouse(bool bShow)
+void MouseBehavior_Linux::ShowMouse(bool bShow, SetMouseBehaviorRemote setMouseBehaviorRemote)
 {
     // TODO: delete these lines
     //       SDL cannot restore a custom cursor set by the X11 code
@@ -86,18 +86,14 @@ void MouseBehavior_Linux::ShowMouse(bool bShow)
 	//SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
 
     // at show, we want to show the standard mouse cursor
-#ifndef WIN32
-#ifdef ORBITER_OPENGL
-	/* no-- what about the media browser it's hidden
+#ifndef HID_REMOTE
 	if( m_pOrbiter->m_pHIDInterface )
 	{
-		if( bShow )
+		if( bShow && (setMouseBehaviorRemote==smb_Default || setMouseBehaviorRemote==smb_TurnOnRemote) )
 			m_pOrbiter->m_pHIDInterface->StartMouse();
-		else
+		else if( !bShow && (setMouseBehaviorRemote==smb_Default || setMouseBehaviorRemote==smb_TurnOffRemote) )
 			m_pOrbiter->m_pHIDInterface->StopMouse();
 	}
-	*/
-#endif
 #endif
 	m_bMouseVisible=bShow;
     g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ShowMouse %d",(int) bShow);

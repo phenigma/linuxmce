@@ -22,7 +22,7 @@ namespace DCE
 		MouseBehavior_Win32(Orbiter *pOrbiter);
 		virtual void SetMousePosition(int X,int Y);
 		virtual void GetMousePosition(PlutoPoint *p) { POINT pt; GetCursorPos(&pt); p->X=pt.x; p->Y=pt.y; }
-		virtual void ShowMouse(bool bShow);
+		virtual void ShowMouse(bool bShow, SetMouseBehaviorRemote setMouseBehaviorRemote);
 
 		bool ConstrainMouse(const PlutoRectangle &rect);
 		void SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle);
