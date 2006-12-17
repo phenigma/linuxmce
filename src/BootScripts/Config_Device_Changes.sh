@@ -263,6 +263,8 @@ rm -f "/usr/pluto/install/compile.sh" # old version mistake precaution
 ln -sf "/usr/pluto/sources/buildall.sh" "/usr/pluto/install/compile.sh"
 chmod +x "/usr/pluto/sources/buildall.sh"
 
+modprobe nbd
+
 InitCmd=$(cat /proc/1/cmdline | tr '\0' ' ')
 if [[ "$StartLocalDevice" == "y" && "$InitCmd" == *2* ]]; then
         echo "Starting local devices"
