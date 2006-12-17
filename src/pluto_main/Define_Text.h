@@ -1132,6 +1132,9 @@
 #define TEXT_Cell_Attribute_Room_CONST 1849
 #define TEXT_Cell_Attribute_Disc_CONST 1850
 #define TEXT_Cell_Attribute_Capacity_CONST 1851
+#define TEXT_Cell_Attributes_Text_CONST 1852
+#define TEXT_done_CONST 1853
+#define TEXT_Providers_CONST 1854
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
