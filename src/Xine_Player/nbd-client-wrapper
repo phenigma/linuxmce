@@ -17,9 +17,8 @@ hostIP=$3
 create_device()
 {
 	i=0
-	for j in `ls -l /dev/device_* 2>/dev/null |cut -f 6 -d' '|sort`
+	for j in `ls -l /dev/device_* 2>/dev/null |cut -f2 -d',' | sed 's/^\ \+//' | cut -f1 -d' ' | sort -n`
 	do
-		echo "i=$i, j=$j"
 		if [ "$i" != "$j" ]
 		then
 			# found free MINOR
