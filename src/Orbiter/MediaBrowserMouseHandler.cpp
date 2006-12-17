@@ -152,7 +152,7 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 	}
 
 	// A very lean location of the highlighted row/cell
-	int Row = (Y-pObj_ListGrid_Active->m_rPosition.Y)/pObj_ListGrid_Active->m_FixedRowHeight;
+	int Row = (Y-pObj_ListGrid_Active->m_rPosition.Y)/(pObj_ListGrid_Active->m_FixedRowHeight+1); // +1 because there's a blank pixel under each one
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) row %d active %p=%p", X, Y, PK_Direction,Row,pObj_ListGrid_Active,m_pObj_PicGrid);
 #endif
