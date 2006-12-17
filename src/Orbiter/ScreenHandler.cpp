@@ -1058,7 +1058,7 @@ void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_Device_F
 
 	DisplayMessageOnOrbiter(PK_Screen,
 		"<%=T" + StringUtils::itos(TEXT_Ask_to_resume_CONST) + "%>",
-		false, "30", true,
+		false, "0", false,
 		"<%=T" + StringUtils::itos(TEXT_YES_CONST) + "%>",sMessageToResume + "\n" + sMessageToGoToRemote,
 		"<%=T" + StringUtils::itos(TEXT_NO_CONST) + "%>",sMessageToGoToRemote,
 		"<%=T" + StringUtils::itos(TEXT_Always_Resume_CONST) + "%>",sMessageToResume + "\n" +
