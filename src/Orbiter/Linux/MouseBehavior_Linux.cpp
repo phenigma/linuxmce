@@ -86,7 +86,7 @@ void MouseBehavior_Linux::ShowMouse(bool bShow, SetMouseBehaviorRemote setMouseB
 	//SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
 
     // at show, we want to show the standard mouse cursor
-#ifndef HID_REMOTE
+#ifdef HID_REMOTE
 	if( m_pOrbiter->m_pHIDInterface )
 	{
 		if( bShow && (setMouseBehaviorRemote==smb_Default || setMouseBehaviorRemote==smb_TurnOnRemote) )
