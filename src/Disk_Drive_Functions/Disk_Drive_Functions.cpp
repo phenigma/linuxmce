@@ -27,6 +27,9 @@ Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const s
 {
 	m_bNbdServerRunning=false;
 	m_DiskMutex.Init(NULL);
+	m_pDevice_MediaIdentifier = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Identifiers_CONST,m_pCommand_Impl);
+	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive_Functions::Disk_Drive_Functions m_pDevice_MediaIdentifier %d",m_pDevice_MediaIdentifier ? m_pDevice_MediaIdentifier->m_dwPK_Device : 0);
+
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
 	DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
 		BL_SameHouse,m_pCommand_Impl->m_dwPK_Device,"");
@@ -121,9 +124,12 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
             g_pPlutoLogger->Write(LV_WARNING, "Not firing the event");
         }
 
-		DCE::CMD_Identify_Media_Cat CMD_Identify_Media_Cat(m_pCommand_Impl->m_dwPK_Device,DEVICECATEGORY_Media_Identifiers_CONST,false,
-			BL_SameComputer,m_pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_discid),mrl,m_pCommand_Impl->m_dwPK_Device);
-		m_pCommand_Impl->SendCommand(CMD_Identify_Media_Cat);
+		if( m_pDevice_MediaIdentifier )
+		{
+			DCE::CMD_Identify_Media CMD_Identify_Media(m_pCommand_Impl->m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
+				m_pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_discid),mrl,m_pCommand_Impl->m_dwPK_Device);
+			m_pCommand_Impl->SendCommand(CMD_Identify_Media);
+		}
 
 		StartNbdServer();
 		m_mediaInserted = true;
