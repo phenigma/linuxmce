@@ -13,10 +13,8 @@
 
 #include "utilities/linux/transparency/transparency.h"
 
-#ifndef WIN32
-#ifdef ORBITER_OPENGL
+#ifdef HID_REMOTE
 #include "HIDInterface.h"
-#endif
 #endif
 
 
