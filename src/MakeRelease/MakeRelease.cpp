@@ -1725,6 +1725,7 @@ string Makefile = "none:\n"
 			f = fopen("debian/postinst.ex", "r");
 			g = fopen("debian/postinst", "w");
 			fchmod(fileno(g), 0644);
+			fprintf(g,"#!/bin/bash\n");
 			char buffer[1024];
 			while (fgets(buffer, 1024, f))
 			{
@@ -1754,6 +1755,7 @@ string Makefile = "none:\n"
 			f = fopen("debian/preinst.ex", "r");
 			g = fopen("debian/preinst", "w");
 			fchmod(fileno(g), 0644);
+			fprintf(g,"#!/bin/bash\n");
 			char buffer[1024];
 			while (fgets(buffer, 1024, f))
 			{
@@ -1783,6 +1785,7 @@ string Makefile = "none:\n"
 			f = fopen("debian/prerm.ex", "r");
 			g = fopen("debian/prerm", "w");
 			fchmod(fileno(g), 0644);
+			fprintf(g,"#!/bin/bash\n");
 			char buffer[1024];
 			while (fgets(buffer, 1024, f))
 			{
@@ -1812,6 +1815,7 @@ string Makefile = "none:\n"
 			f = fopen("debian/postrm.ex", "r");
 			g = fopen("debian/postrm", "w");
 			fchmod(fileno(g), 0644);
+			fprintf(g,"#!/bin/bash\n");
 			char buffer[1024];
 			while (fgets(buffer, 1024, f))
 			{
