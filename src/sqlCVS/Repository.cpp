@@ -949,8 +949,8 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		if( sDefault.length( ) )
 		{
 			string sQuotedDefault;
-			if (sDefault == "CURRENT_TIMESTAMP")
-				sQuotedDefault = sDefault;
+			if (sDefault == "CURRENT_TIMESTAMP" || sField == "psc_mod")
+				sQuotedDefault = "CURRENT_TIMESTAMP";
 			else
 				sQuotedDefault = "'" + sDefault + "'";
 			sSQL << " default " << ( sDefault==NULL_TOKEN ? "NULL" : sQuotedDefault );
