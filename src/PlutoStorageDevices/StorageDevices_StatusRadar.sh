@@ -226,6 +226,8 @@ while : ;do
                         if [[ "$isShareMountable" != "0" ]] ;then
                                 Log "Share $Share_ID ($Share_Name) cannot be mounted"
                                 SetDeviceOnline "$Share_ID" "0"
+				rm -f $mountDirTemp
+				continue
                         else
                                 umount -lf $mountDirTemp 1>/dev/null 2>/dev/null
                                 rm -r $mountDirTemp
@@ -280,6 +282,7 @@ while : ;do
 			if [[ "$isDriveMountable" != "0" ]] ;then
 				Log "Drive $IDrive_ID ($IDrive_BlockDev) cannot be mounted"
 				SetDeviceOnline "$IDrive_ID" "0"
+				rm -r $mountDirTemp
 				continue
 			else
 				umount -lf $mountDirTemp 1>/dev/null 2>/dev/null
