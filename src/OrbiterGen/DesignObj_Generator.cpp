@@ -1915,6 +1915,8 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 void DesignObj_Generator::ScaleAllValues(int FactorX_Input,int FactorY_Input,class DesignObj_Generator *pTopmostObject)
 {
+if( this->m_pRow_DesignObj->PK_DesignObj_get()==4949 )
+int k=2;
 	int FactorX = FactorX_Input * m_iScale/100;
 	int FactorY = FactorY_Input * m_iScale/100;
 	int FactorX_Origin = FactorX_Input;

@@ -1896,6 +1896,9 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 	DataGridCell *pCell;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::DevicesNeedingProviders");
+	Row_Device *pRow_Device_From = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);
+	if( !pRow_Device_From )
+		return NULL; // Shouldn't happen
 	int PK_Device_Topmost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pMessage->m_dwPK_Device_From);
 	if( PK_Device_Topmost==0 )
 		return pDataGrid; // Shouldn't happen
@@ -1917,7 +1920,7 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 				|| DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Orbiter_CONST) )
 					continue; // Skip the internal sources, and orbiters which use this table for another purpose
 
-			string sDescription;
+			string sDescription = pRow_Device->Description_get();
 			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
 			while( pRow_Device_Parent )
 			{
@@ -1926,8 +1929,8 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 			}
 
 			int PK_Device_Topmost_Comp = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
-			if( PK_Device_Topmost_Comp!=PK_Device_Topmost )
-				continue;  // It's not a port on this computer
+			if( PK_Device_Topmost_Comp!=PK_Device_Topmost && pRow_Device->FK_Room_get()!=pRow_Device_From->FK_Room_get() )
+				continue;  // It's not a port on this computer, and it's not in the same room
 
 			/*
 	int iRow=0;
@@ -1980,18 +1983,18 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 				&vectRow_ProviderSource);
 		
 			if( vectRow_ProviderSource.size()==0 )
-				pCell->m_mapAttributes["Provider"]="None";
+				pCell->m_mapAttributes["Description"]="None";
 			else if( vectRow_ProviderSource.size()==1 )  // There's only 1 to choose from.  Pass the info
 			{
 				Row_ProviderSource *pRow_ProviderSource = vectRow_ProviderSource[0];
 				pCell->m_mapAttributes["PK_ProviderSource"] = StringUtils::itos(pRow_ProviderSource->PK_ProviderSource_get());
-				pCell->m_mapAttributes["Provider"]=pRow_ProviderSource->Description_get();
+				pCell->m_mapAttributes["Description"]=pRow_ProviderSource->Description_get();
 				pCell->m_mapAttributes["Comments"]=pRow_ProviderSource->Comments_get();
-				pCell->m_mapAttributes["UserNamePassword_get"]=(pRow_ProviderSource->UserNamePassword_get() ? "1" : "0");
-				pCell->m_mapAttributes["ProviderCommandLine_get"]=pRow_ProviderSource->ProviderCommandLine_get();
-				pCell->m_mapAttributes["DeviceCommandLine_get"]=pRow_ProviderSource->DeviceCommandLine_get();
-				pCell->m_mapAttributes["PackageCommandLine_get"]=pRow_ProviderSource->PackageCommandLine_get();
-				pCell->m_mapAttributes["LineupCommandLine_get"]=pRow_ProviderSource->LineupCommandLine_get();
+				pCell->m_mapAttributes["UserNamePassword"]=(pRow_ProviderSource->UserNamePassword_get() ? "1" : "0");
+				pCell->m_mapAttributes["ProviderCommandLine"]=pRow_ProviderSource->ProviderCommandLine_get();
+				pCell->m_mapAttributes["DeviceCommandLine"]=pRow_ProviderSource->DeviceCommandLine_get();
+				pCell->m_mapAttributes["PackageCommandLine"]=pRow_ProviderSource->PackageCommandLine_get();
+				pCell->m_mapAttributes["LineupCommandLine"]=pRow_ProviderSource->LineupCommandLine_get();
 			}			
 /*
 			DCE::SCREEN_Choose_Provider_for_Device_DL SCREEN_Choose_Provider_for_Device_DL(m_dwPK_Device,sPK_Orbiters,pRow_Device->PK_Device_get(),sText,sDescription);

@@ -1963,6 +1963,8 @@ void OrbiterGenerator::OutputScreen(DesignObj_Generator *ocDesignObj)
 
 void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int ArrayPage,bool bIsChild,string ParentScreen)
 {
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==4949 )
+int k=2;
 	ocDesignObj->m_bChild=bIsChild;
 
 	int PK_Orbiter = ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get();

@@ -2416,9 +2416,9 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 //--------------------------------------------------------------------------------------------------------------
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
-if( pObj->m_iBaseObjectID==5109 )
+if( pObj->m_iBaseObjectID==4949 )
 int k=2;
-if( pObj->m_ObjectID.find("5109")!=string::npos )
+if( pObj->m_ObjectID.find("4949")!=string::npos )
 int k=2;
 	for(size_t s=0;s<pObj->m_vectDesignObjText.size();++s)
 		pObj->m_vectDesignObjText[s]->m_pObject = pObj;
@@ -7915,16 +7915,19 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 		Counter++;
 	}
 
-	//also adjust the datagrid height not to show the black slide on the bottom.
-	if( m_iRotation == 90 || m_iRotation == 270 )
-		pObj_Datagrid->m_rPosition.Width =
-		pObj_Datagrid->m_MaxRow * pObj_Datagrid->m_FixedRowHeight +
-		(pObj_Datagrid->m_MaxRow - 1) * (pObj_Datagrid->m_RowSpacing + 1);
-	else
-		pObj_Datagrid->m_rPosition.Height =
-		pObj_Datagrid->m_MaxRow * pObj_Datagrid->m_FixedRowHeight +
-		(pObj_Datagrid->m_MaxRow - 1) * (pObj_Datagrid->m_RowSpacing + 1);
-
+	// When there are child cells, don't resize the grid because the cells are placed correctly, not rounded to Row/ColHeight
+	if( pObj_Datagrid->m_mapChildDgObjects.size()==0 )
+	{
+		//also adjust the datagrid height not to show the black slide on the bottom.
+		if( m_iRotation == 90 || m_iRotation == 270 )
+			pObj_Datagrid->m_rPosition.Width =
+			pObj_Datagrid->m_MaxRow * pObj_Datagrid->m_FixedRowHeight +
+			(pObj_Datagrid->m_MaxRow - 1) * (pObj_Datagrid->m_RowSpacing + 1);
+		else
+			pObj_Datagrid->m_rPosition.Height =
+			pObj_Datagrid->m_MaxRow * pObj_Datagrid->m_FixedRowHeight +
+			(pObj_Datagrid->m_MaxRow - 1) * (pObj_Datagrid->m_RowSpacing + 1);
+	}
 	// TODO -- Pull the m_mapNumberOfPagesToCache from a designobjparameter
 	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Up_CONST]=10;
 	pObj_Datagrid->m_mapNumberOfPagesToCache[DIRECTION_Down_CONST]=10;

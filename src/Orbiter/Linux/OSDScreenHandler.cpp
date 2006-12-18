@@ -2452,7 +2452,7 @@ bool OSDScreenHandler::CaptureCardPort_DatagridSelected(CallBackData *pData)
 }
 //-----------------------------------------------------------------------------------------------------
 // Create some 'choose provider stages' to keep track of where we are
-#define CPS_CONFIRM					1
+#define CPS_DATAGRID				1
 #define CPS_CHOOSE_SOURCE			2
 #define CPS_GETTING_USERNAME		3
 #define CPS_GETTING_PASSWORD		4
@@ -2606,18 +2606,11 @@ bool OSDScreenHandler::ChooseProvider_ObjectSelected(CallBackData *pData)
 		return false; // It might be another popup ontop of us, but it's not what we're looking for
 	if( pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID==DESIGNOBJ_mnuPopupMessage_CONST )
 	{
-		if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST && (m_iStage==CPS_CONFIRM || m_iStage==CPS_CHOOSE_SOURCE) )
+		if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST && m_iStage==CPS_CHOOSE_SOURCE )
 		{
 			m_iStage++;
 			ChooseProviderGetNextStage();
 			return true;
-		}
-		else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse2_CONST && m_iStage==CPS_CONFIRM )
-		{
-			int PK_Device = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str());
-			DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,"NONE");
-			m_pOrbiter->SendCommand(CMD_Specify_Media_Provider);
-			m_pOrbiter->CMD_Go_back("","");
 		}
 	}
 	else if( pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID==DESIGNOBJ_mnuGenericKeyboard_CONST )
@@ -2648,15 +2641,31 @@ bool OSDScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Devices_Needing_Providers_CONST )
 	{
 		string sPK_DeviceTemplate_MediaType = pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("PK_DeviceTemplate_MediaType");
-		string sPK_ProviderSource = pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("PK_ProviderSource");
-		
+		string sPK_Provider_Source = pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("PK_ProviderSource");
+
+		string sTokens = 
+			sPK_DeviceTemplate_MediaType + "\t" +
+			sPK_Provider_Source + "\t" +
+			pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("Description") + "\t" +
+			pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("Comments") + "\t" +
+			pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("UserNamePassword") + "\t" +
+			pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("ProviderCommandLine") + "\t" +
+			pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("DeviceCommandLine") + "\t" +
+			pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("PackageCommandLine") + "\t" +
+			pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("LineupCommandLine");
+
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST));
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("Comments"));
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,sPK_DeviceTemplate_MediaType + "\t" + sPK_ProviderSource + "\t");
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST,pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("Provider"));
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,sTokens);
+
+		// VARIABLE_Misc_Data_2_CONST are the arguments to the scripts in the format:
+		// sPK_DeviceTemplate_MediaType + "\t" + sPK_Provider_Source + "\t" + sProvider + "\t" + sDevice + "\t" + sPackage + "\t" + sLineup
+ 
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,sPK_DeviceTemplate_MediaType + "\t" + sPK_Provider_Source + "\t");
+//		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST,pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("Provider"));
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Username_CONST,"");
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Password_CONST,"");
-		m_iStage = CPS_CONFIRM;
+		m_iStage = CPS_CHOOSE_SOURCE;
+		m_pOrbiter->m_pScreenHistory_Current->ScreenID(pCellInfoData->m_sValue);
 		ChooseProviderGetNextStage();
 	}
 	else
@@ -2720,17 +2729,8 @@ void OSDScreenHandler::ChooseProviderGetNextStage()
 	string sLineupCommandLine = StringUtils::Tokenize( sTokens, "\t", pos );
 	string sArguments = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST);
 
-	if( m_iStage==CPS_CONFIRM )
-	{
-		string sText = m_pOrbiter->m_mapTextString[TEXT_use_media_provider_CONST];
-       	StringUtils::Replace( &sText, "<%=device%>", m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_3_CONST) );
-		DisplayMessageOnOrbiter(0,
-			sText, false,"0", false,
-			m_pOrbiter->m_mapTextString[TEXT_YES_CONST]," ",
-			m_pOrbiter->m_mapTextString[TEXT_NO_CONST]," ");
-	}
 	// If we don't already have a provider, or we do and there are some comments to show the user, we'll have this stage
-	else if( m_iStage<=CPS_CHOOSE_SOURCE && (sPK_Provider_Source.empty() || sComments.empty()==false) )
+	if( m_iStage<=CPS_CHOOSE_SOURCE && (sPK_Provider_Source.empty() || sComments.empty()==false) )
 	{
 		m_iStage = CPS_CHOOSE_SOURCE;
 // TODO -- need to prompt for the source if it's not provided		if( sPK_Provider_Source.empty()==false )

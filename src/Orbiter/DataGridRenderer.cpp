@@ -134,6 +134,17 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		return;
 	}
 
+	map< pair<int,int>, DesignObj_Orbiter *>::iterator it=m_pObj_Owner_DataGrid->m_mapChildDgObjects.find( make_pair<int,int> (Column,Row) );
+	if(	it!=m_pObj_Owner_DataGrid->m_mapChildDgObjects.end() )
+	{
+		DesignObj_Orbiter *pObj = it->second;
+		x = pObj->m_rPosition.X;
+		y = pObj->m_rPosition.Y;
+		w = pObj->m_rPosition.Width;
+		h = pObj->m_rPosition.Height;
+		return;
+	}
+
 	// These deltas make adjustments to the rest of the coodrinates when there's a first column
 	// on the grid that's a different size from the rest.
 
