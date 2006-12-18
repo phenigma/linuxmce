@@ -15,3 +15,7 @@ screen -d -m -S DCERouter /usr/pluto/bin/Spawn_DCERouter.sh
 while ! nc -z localhost 3450; do
 	sleep 0.1
 done
+
+if [[ "$(pidof discovery.py)" == "" ]] ;then
+	screen -d -m -S discovery /usr/pluto/bin/discovery.py
+fi
