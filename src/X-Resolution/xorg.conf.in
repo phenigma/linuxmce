@@ -78,6 +78,7 @@ Section "Device"
 	Option		"NoLogo"			"true"
 	Option		"NoBandWidthTest"	"true"
 	Option		"ModeValidation"	"NoDFPNativeResolutionCheck, NoEdidMaxPClkCheck, NoMaxPClkCheck"
+	Option		"DynamicTwinView"	"false"
 EndSection
 
 Section "Screen"
