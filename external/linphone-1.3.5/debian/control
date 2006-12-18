@@ -3,7 +3,7 @@ Section: sound
 Priority: optional
 Maintainer: Debian VoIP Team <pkg-voip-maintainers@lists.alioth.debian.org>
 Uploaders: Samuel Mimram <smimram@debian.org>
-Build-Depends: debhelper (>= 4.0.0), autoconf, automake1.9, autotools-dev, libtool, pkg-config, libglib2.0-dev, libosip2-dev (>= 2.2.0), libasound2-dev, libjack0.100.0-dev, libspeex-dev (>= 1.1.12), libsamplerate0-dev, libxml-parser-perl, gtk-doc-tools, docbook-utils, libgnomeui-dev, libgnome2-dev, gnome-applets, libpanel-applet2-dev, dpatch, libavcodec-dev, libvorbis-dev, libreadline5-dev, libsdl1.2-dev
+Build-Depends: debhelper (>= 4.0.0), autoconf, automake1.9, autotools-dev, libtool, pkg-config, libglib2.0-dev, libosip2-dev (>= 2.2.0), libasound2-dev, libjack0.80.0-dev, libspeex-dev (>= 1.1.12), libsamplerate0-dev, libxml-parser-perl, gtk-doc-tools, docbook-utils, libgnomeui-dev, libgnome2-dev, libpanel-applet2-dev, dpatch, libavcodec-dev, libvorbis-dev, libreadline5-dev, libsdl1.2-dev
 Standards-Version: 3.7.2
 
 Package: linphone
