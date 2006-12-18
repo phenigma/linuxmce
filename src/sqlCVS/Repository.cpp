@@ -903,7 +903,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 
 	if( !pTable )
 	{
-		if( m_pDatabase->threaded_mysql_query( "DROP TABLE IF EXISTS " + sTableName )<0 )
+		if( m_pDatabase->threaded_mysql_query( "DROP TABLE IF EXISTS `" + sTableName + "`" )<0 )
 		{
 			cerr << "Could not drop table " << sTableName << endl;
 			throw "Database error";
