@@ -165,6 +165,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 	} else {
 		$time_start = getmicrotime();
 		//$dbADO->debug=true;
+		$existingCommands=array_keys(getAssocArray('InfraredGroup_Command','FK_Command','PK_InfraredGroup_Command',$dbADO,'WHERE FK_InfraredGroup='.$infraredGroupID));
 		
 		$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
 		$oldIRGroup=(int)$_POST['oldIRGroup'];
@@ -241,7 +242,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			exit();
 		}
 
-		if(isset($_POST['add_group'])){
+		if(isset($_POST['add_group']) && $_POST['new_group_description']!=''){
 			$description=cleanString($_POST['new_group_description']);
 			$res=$dbADO->Execute('INSERT INTO InfraredGroup (FK_DeviceCategory,FK_Manufacturer,Description) VALUES (?,?,?)',array($deviceCategoryID,$manufacturerID,$description));
 			$infraredGroupID=$dbADO->Insert_ID();
