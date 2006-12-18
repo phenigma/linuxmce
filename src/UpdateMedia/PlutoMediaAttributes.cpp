@@ -256,7 +256,6 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 					unsigned long count = Read_unsigned_long();
 					for(unsigned long i = 0; i<count; ++i)
 					{
-						long ID = Read_long();
 						PlutoMediaBookmark *pPlutoMediaBookmark = new PlutoMediaBookmark();
 						pPlutoMediaBookmark->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
 						pList->push_back(pPlutoMediaBookmark);
