@@ -39,6 +39,7 @@ chmod 777 /var/www/pluto-admin/cached
 touch /etc/pluto-callerid.conf
 chmod 777 /etc/pluto-callerid.conf
 
+mkdir -p /var/log/pluto
 touch /var/log/pluto/webExecLog.log
 chown www-data.www-data /var/log/pluto/webExecLog.log
 
