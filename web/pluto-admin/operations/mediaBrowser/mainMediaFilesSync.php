@@ -280,7 +280,7 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 	// set navigation bar
 	$navBarArray=array();
 	for($i=1;$i<$noPages+1;$i++){
-		$navBarArray[]=($i==$ppage)?$i:'<a href="index.php?'.str_replace('ppage='.$ppage,'',$_SERVER['QUERY_STRING']).'&ppage='.$i.'">'.$i.'</a>';
+		$navBarArray[]=($i==$ppage)?$i:'<a href="index.php?'.str_replace('ppage='.$ppage,'',$_SERVER['QUERY_STRING']).'&ppage='.$i.'" class="white_link">'.$i.'</a>';
 	}
 	$navBar=join(' | ',$navBarArray);
 	
