@@ -324,17 +324,17 @@ public:
 	/**
 	 * @brief override this if you are adding other objects in your derived class
 	 */
-	virtual bool UnknownSerialize(ItemToSerialize *pItem, bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition) { return false; } 
+	virtual bool UnknownSerialize(ItemToSerialize * /*pItem*/, bool /*bWriting*/, char *&/*pcDataBlock*/, unsigned long & /*dwAllocatedSize*/, char *& /*pcCurrentPosition*/) { return false; } 
 
 	/**
 	 * @brief override this with your own list of members to serialize.  Don't forget to call your base class too
 	 */
-	virtual void SetupSerialization(int iSC_Version) {}; 
+	virtual void SetupSerialization(int /*iSC_Version*/) {}; 
 
 	/**
 	 * @brief override this if you want to be sure you only Deserialize a particular schema version
 	 */
-	virtual bool OkayToDeserialize(int iSC_Version) { return true; }
+	virtual bool OkayToDeserialize(int /*iSC_Version*/) { return true; }
 
 	/**
 	 * @brief Used for classes that know how to serialize themselves.  Only available in the base class
@@ -376,7 +376,7 @@ public:
 	bool CheckRead(unsigned long dwSize)
 	{
 		unsigned long dwCurrentSize = (unsigned long) (m_pcCurrentPosition - m_pcDataBlock);
-		return  !(m_dwAllocatedSize - dwCurrentSize < dwSize);
+		return  m_dwAllocatedSize > dwCurrentSize && !(m_dwAllocatedSize - dwCurrentSize < dwSize);
 	}
 
 	void Write_unsigned_int64(u_int64_t v) {
