@@ -39,6 +39,9 @@ case "$event" in
      $(RunSQL "$Q")
 	 Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Building Started' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
 	 $(RunSQL "$Q")
+	raidSize=$(mdadm --query $md | head -1 |cut -d' ' -f2)
+	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $DeviceID and FK_DeviceData = $DISK_SIZE_ID"
+	$(RunSQL "$Q")
 	 ;; 
 	"RebuildFinished" )
 	Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$md'  AND FK_DeviceData = $BLOCK_DEVICE_ID"
@@ -59,7 +62,10 @@ case "$event" in
 	 len=$((${#event}))
 	 progress=${event:$len-2:$len}
 	 Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Building in progress ($progress %)' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
-	 $(RunSQL "$Q")
+	 $(RunSQL "$Q") 
+	raidSize=$(mdadm --query $md | head -1 |cut -d' ' -f2)
+	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $DeviceID and FK_DeviceData = $DISK_SIZE_ID"
+	$(RunSQL "$Q")
 	 ;;
 	"Fail" )
 	failedDevs=$(mdadm --detail $md | awk '/faulty/ {print $6}')
