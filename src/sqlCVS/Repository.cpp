@@ -930,6 +930,13 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		string sIndex = str.m_vectString[pos++];
 		string sDefault = str.m_vectString[pos++];
 		string sExtra = str.m_vectString[pos++];
+
+		// don't add a psc_mod field that has the default set to NULL
+		// a psc_mod defaulting to NULL didn't exist in the original table to begin with
+		// seems to be a bug in the dumping algorithm, but it's earier to hack it in than to fix it :D
+		if (sField == "psc_mod" && sDefault == NULL_TOKEN)
+			continue;
+
 		if( sExtra=="auto_increment" )
 			bContainsAutoIncrement=true;
 
@@ -949,10 +956,11 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		if( sDefault.length( ) )
 		{
 			string sQuotedDefault;
-			if (sDefault == "CURRENT_TIMESTAMP" || sField == "psc_mod")
-				sDefault = sQuotedDefault = "CURRENT_TIMESTAMP";
+			if (sDefault == "CURRENT_TIMESTAMP")
+				sQuotedDefault = "CURRENT_TIMESTAMP";
 			else
 				sQuotedDefault = "'" + sDefault + "'";
+
 			sSQL << " default " << ( sDefault==NULL_TOKEN ? "NULL" : sQuotedDefault );
 		}
 		sSQL << " " << sExtra;
