@@ -2236,7 +2236,7 @@
 #define DESIGNOBJ_dgGenericDataGrid_CONST 5182
 #define DESIGNOBJ_butUserStatusButton_CONST 5183
 #define DESIGNOBJ_butContainerFileBrowserBack_CONST 5184
-#define DESIGNOBJ_mnuPickCaptureCardPort_CONST 5185
+#define DESIGNOBJ_Specify_Inputs_CONST 5185
 #define DESIGNOBJ_butNoCaptureCardPort_CONST 5186
 #define DESIGNOBJ_dgCaptureCardPorts_CONST 5187
 #define DESIGNOBJ_speak_CONST 5188
@@ -2334,9 +2334,15 @@
 #define DESIGNOBJ_Floorplan_CONST 5324
 #define DESIGNOBJ_FinalHouseSetup_CONST 5325
 #define DESIGNOBJ_butFinalHouseSetup_CONST 5327
-
-#define DESIGNOBJ_butNoDeviceOnPort_CONST 5336
-#define DESIGNOBJ_butNewCamera_CONST 5337
+#define DESIGNOBJ_dgcell_CaptureCardPort_CONST 5330
+#define DESIGNOBJ_dgcell_CaptureCardPort_Select_CONST 5331
+#define DESIGNOBJ_DevicesForCaptureCardPort_CONST 5332
+#define DESIGNOBJ_dgDevicesForCaptureCardPort_CONST 5333
+#define DESIGNOBJ_butCancelCaptureCardPort_CONST 5334
+#define DESIGNOBJ_butNoDeviceOnPort_CONST 5335
+#define DESIGNOBJ_butNewCamera_CONST 5336
+#define DESIGNOBJ_dgDevicesNeedingProviders_CONST 5337
+#define DESIGNOBJ_Specify_Media_Provider_CONST 5338
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
@@ -2390,5 +2396,4 @@
 
 
 #endif
-
 

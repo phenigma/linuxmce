@@ -742,7 +742,6 @@
 #define COMMAND_Get_Screen_Saver_Files_CONST 818
 #define COMMAND_Get_ID_from_Filename_CONST 819
 #define COMMAND_Assign_Return_Route_CONST 820
-#define COMMAND_Check_Media_Providers_CONST 821
 #define COMMAND_Pre_Pnp_Script_Done_CONST 822
 #define COMMAND_Specify_Media_Provider_CONST 823
 #define COMMAND_Sync_Providers_and_Cards_CONST 824

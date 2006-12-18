@@ -1135,6 +1135,14 @@
 #define TEXT_Cell_Attributes_Text_CONST 1852
 #define TEXT_done_CONST 1853
 #define TEXT_Providers_CONST 1854
+#define TEXT_Floorplan_info_CONST 1855
+#define TEXT_Explain_inputs_CONST 1856
+#define TEXT_In_use_device_CONST 1857
+#define TEXT_Specify_device_for_port_CONST 1858
+#define TEXT_Nothing_on_capture_port_CONST 1859
+#define TEXT_Camera_on_port_CONST 1860
+#define TEXT_Explain_Choose_Provider_CONST 1861
+#define TEXT_Which_Provider_CONST 1862
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
