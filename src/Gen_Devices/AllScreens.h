@@ -9456,48 +9456,40 @@ namespace DCE
 	class SCREEN_Choose_Provider_for_Device : public PreformedCommand
 	{
 	public:
-		SCREEN_Choose_Provider_for_Device(long DeviceIDFrom, long DeviceIDTo,
-			int iPK_Device, string sText, string sDescription)
+		SCREEN_Choose_Provider_for_Device(long DeviceIDFrom, long DeviceIDTo)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
-				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */,
-				2 /* The device to get the provider for */, StringUtils::ltos(iPK_Device).c_str(), 9 /* PK_ProviderSouce \t Description \t Comments \t Username/pass \t Provider Command line \t Device Command Line \t Package Command Line \t Lineup Command Line */, sText.c_str(), 163 /* The description of the device */, sDescription.c_str());
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */);
 		}
 	};
 
 	class SCREEN_Choose_Provider_for_Device_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_Choose_Provider_for_Device_DL(long DeviceIDFrom, string sDeviceIDTo,
-			int iPK_Device, string sText, string sDescription)
+		SCREEN_Choose_Provider_for_Device_DL(long DeviceIDFrom, string sDeviceIDTo)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
-				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */,
-				2 /* The device to get the provider for */, StringUtils::ltos(iPK_Device).c_str(), 9 /* PK_ProviderSouce \t Description \t Comments \t Username/pass \t Provider Command line \t Device Command Line \t Package Command Line \t Lineup Command Line */, sText.c_str(), 163 /* The description of the device */, sDescription.c_str());
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */);
 		}
 	};
 
 	class SCREEN_Choose_Provider_for_Device_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_Choose_Provider_for_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			int iPK_Device, string sText, string sDescription)
+		SCREEN_Choose_Provider_for_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
-				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */,
-				2 /* The device to get the provider for */, StringUtils::ltos(iPK_Device).c_str(), 9 /* PK_ProviderSouce \t Description \t Comments \t Username/pass \t Provider Command line \t Device Command Line \t Package Command Line \t Lineup Command Line */, sText.c_str(), 163 /* The description of the device */, sDescription.c_str());
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */);
 		}
 	};
 
 	class SCREEN_Choose_Provider_for_Device_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_Choose_Provider_for_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			int iPK_Device, string sText, string sDescription)
+		SCREEN_Choose_Provider_for_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
-				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */,
-				2 /* The device to get the provider for */, StringUtils::ltos(iPK_Device).c_str(), 9 /* PK_ProviderSouce \t Description \t Comments \t Username/pass \t Provider Command line \t Device Command Line \t Package Command Line \t Lineup Command Line */, sText.c_str(), 163 /* The description of the device */, sDescription.c_str());
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "245" /* screen ID */);
 		}
 	};
 
@@ -9552,48 +9544,40 @@ namespace DCE
 	class SCREEN_Get_Capture_Card_Port : public PreformedCommand
 	{
 	public:
-		SCREEN_Get_Capture_Card_Port(long DeviceIDFrom, long DeviceIDTo,
-			int iPK_Device, string sName, string sDescription, string ssComments)
+		SCREEN_Get_Capture_Card_Port(long DeviceIDFrom, long DeviceIDTo)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
-				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
-				2 /* The device we're asking about */, StringUtils::ltos(iPK_Device).c_str(), 50 /* The name of the device */, sName.c_str(), 163 /* The description of the room it's in */, sDescription.c_str(), 164 /* A fully qualified name of the device */, ssComments.c_str());
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */);
 		}
 	};
 
 	class SCREEN_Get_Capture_Card_Port_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_Get_Capture_Card_Port_DL(long DeviceIDFrom, string sDeviceIDTo,
-			int iPK_Device, string sName, string sDescription, string ssComments)
+		SCREEN_Get_Capture_Card_Port_DL(long DeviceIDFrom, string sDeviceIDTo)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
-				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
-				2 /* The device we're asking about */, StringUtils::ltos(iPK_Device).c_str(), 50 /* The name of the device */, sName.c_str(), 163 /* The description of the room it's in */, sDescription.c_str(), 164 /* A fully qualified name of the device */, ssComments.c_str());
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */);
 		}
 	};
 
 	class SCREEN_Get_Capture_Card_Port_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_Get_Capture_Card_Port_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			int iPK_Device, string sName, string sDescription, string ssComments)
+		SCREEN_Get_Capture_Card_Port_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
-				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
-				2 /* The device we're asking about */, StringUtils::ltos(iPK_Device).c_str(), 50 /* The name of the device */, sName.c_str(), 163 /* The description of the room it's in */, sDescription.c_str(), 164 /* A fully qualified name of the device */, ssComments.c_str());
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */);
 		}
 	};
 
 	class SCREEN_Get_Capture_Card_Port_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_Get_Capture_Card_Port_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			int iPK_Device, string sName, string sDescription, string ssComments)
+		SCREEN_Get_Capture_Card_Port_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
-				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
-				2 /* The device we're asking about */, StringUtils::ltos(iPK_Device).c_str(), 50 /* The name of the device */, sName.c_str(), 163 /* The description of the room it's in */, sDescription.c_str(), 164 /* A fully qualified name of the device */, ssComments.c_str());
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */);
 		}
 	};
 
@@ -9682,6 +9666,86 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
 				COMMANDPARAMETER_PK_Screen_CONST, "249" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Floorplan_Editor : public PreformedCommand
+	{
+	public:
+		SCREEN_Floorplan_Editor(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Floorplan_Editor_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Floorplan_Editor_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Floorplan_Editor_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Floorplan_Editor_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Floorplan_Editor_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Floorplan_Editor_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Final_House_Setup : public PreformedCommand
+	{
+	public:
+		SCREEN_Final_House_Setup(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "251" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Final_House_Setup_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Final_House_Setup_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "251" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Final_House_Setup_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Final_House_Setup_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "251" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Final_House_Setup_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Final_House_Setup_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "251" /* screen ID */);
 		}
 	};
 
@@ -9939,11 +10003,13 @@ namespace DCE
 		virtual void SCREEN_TV_Channels(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CD_Full_Screen_OSD(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Music_Full_Screen_OSD(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Choose_Provider_for_Device(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Get_Username_Password_For_Devices(long PK_Screen, bool bAlready_processed, string sDescription, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Get_Capture_Card_Port(long PK_Screen, int iPK_Device, string sName, string sDescription, string ssComments){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Get_Capture_Card_Port(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Floorplan(long PK_Screen, string sPK_DesignObj){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Halt_System(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Floorplan_Editor(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Final_House_Setup(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11387,10 +11453,7 @@ namespace DCE
 				case 245:
 				{
 					ResetCallBacks();
-					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
-					string sText = pMessage->m_mapParameters[9];
-					string sDescription = pMessage->m_mapParameters[163];
-					SCREEN_Choose_Provider_for_Device(nPK_Screen, iPK_Device, sText, sDescription);
+					SCREEN_Choose_Provider_for_Device(nPK_Screen);
 					break;
 				}
 				case 246:
@@ -11405,11 +11468,7 @@ namespace DCE
 				case 247:
 				{
 					ResetCallBacks();
-					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
-					string sName = pMessage->m_mapParameters[50];
-					string sDescription = pMessage->m_mapParameters[163];
-					string ssComments = pMessage->m_mapParameters[164];
-					SCREEN_Get_Capture_Card_Port(nPK_Screen, iPK_Device, sName, sDescription, ssComments);
+					SCREEN_Get_Capture_Card_Port(nPK_Screen);
 					break;
 				}
 				case 248:
@@ -11423,6 +11482,18 @@ namespace DCE
 				{
 					ResetCallBacks();
 					SCREEN_Halt_System(nPK_Screen);
+					break;
+				}
+				case 250:
+				{
+					ResetCallBacks();
+					SCREEN_Floorplan_Editor(nPK_Screen);
+					break;
+				}
+				case 251:
+				{
+					ResetCallBacks();
+					SCREEN_Final_House_Setup(nPK_Screen);
 					break;
 				}
 

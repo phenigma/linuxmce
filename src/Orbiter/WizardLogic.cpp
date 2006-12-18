@@ -26,8 +26,8 @@ WizardLogic::~WizardLogic()
 bool WizardLogic::Setup()
 {
 #ifdef WIN32
-//	if( !MySQLConnect("192.168.2.133", "root", "", "pluto_main") )
-	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
+	if( !MySQLConnect("192.168.80.1", "root", "", "pluto_main") )
+//	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
 #else
     const char *pMySqlHost = getenv("MySqlHost");
 	string sHost = pMySqlHost && strlen(pMySqlHost) ? pMySqlHost : m_pOrbiter->m_sIPAddress;

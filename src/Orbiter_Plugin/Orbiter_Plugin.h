@@ -499,13 +499,6 @@ format */
 	virtual void CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #821 - Check Media Providers */
-	/** Find media devices where there is no provider specified and prompt the user */
-
-	virtual void CMD_Check_Media_Providers() { string sCMD_Result; CMD_Check_Media_Providers(sCMD_Result,NULL);};
-	virtual void CMD_Check_Media_Providers(string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #828 - Get List of Remotes */
 	/** Get the list of follow-me enabled remote controls */
 		/** @param #9 Text */
@@ -540,7 +533,6 @@ format */
 
 	virtual void CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int iPK_Orbiter) { string sCMD_Result; CMD_Set_Active_Remote(iPK_Device,bFire_Event,iPK_Orbiter,sCMD_Result,NULL);};
 	virtual void CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
 };

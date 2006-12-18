@@ -8,6 +8,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/DatabaseUtils.h"
 
 #include <iostream>
 using namespace std;
@@ -62,6 +63,7 @@ using namespace DCE;
 #include "pluto_media/Table_Picture.h"
 #include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture_Attribute.h"
+#include "pluto_media/Table_ProviderSource.h"
 #include "pluto_media/Table_AttributeType.h"
 #include "pluto_media/Define_MediaSource.h"
 #include "Gen_Devices/AllScreens.h"
@@ -1798,11 +1800,76 @@ class DataGridTable *Media_Plugin::CaptureCardPorts( string GridID, string Parms
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CaptureCardPorts", Parms.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CaptureCardPorts");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	// See what computer we're scanning for ports on
+	int PK_Device_Topmost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pMessage->m_dwPK_Device_From);
+	if( PK_Device_Topmost==0 )
+		return pDataGrid; // Shouldn't happen
 
 	vector<Row_Device *> vectRow_Device;
 	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Capture_Card_Ports_CONST),&vectRow_Device);
+	int iRow=0;
+	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
+	{
+		Row_Device *pRow_Device = *it;
+		int PK_Device_Topmost_Comp = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
+		if( PK_Device_Topmost_Comp!=PK_Device_Topmost )
+			continue;  // It's not a port on this computer
+
+		vector<Row_Device_DeviceData *> vectRow_Device_DeviceData;
+		m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows( "IK_DeviceData=" + StringUtils::itos(pRow_Device->PK_Device_get()) + " AND FK_DeviceData=" TOSTRING(DEVICEDATA_FK_Device_Capture_Card_Port_CONST), &vectRow_Device_DeviceData );
+
+		string sDescription = pRow_Device->Description_get();
+		Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
+		while( pRow_Device_Parent )
+		{
+			sDescription = pRow_Device_Parent->Description_get() + " / " + sDescription;
+			pRow_Device_Parent = pRow_Device_Parent->FK_Device_ControlledVia_getrow();
+		}
+
+		pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Device->PK_Device_get()));
+		if( vectRow_Device_DeviceData.size() )
+		{
+			Row_Device_DeviceData *pRow_Device_DeviceData = (*vectRow_Device_DeviceData.begin());
+			Row_Device *pRow_Device = pRow_Device_DeviceData->FK_Device_getrow();
+			if( pRow_Device )
+			{
+				pCell->m_mapAttributes["InUse_PK_Device"] = StringUtils::itos(pRow_Device->PK_Device_get());
+				pCell->m_mapAttributes["InUse_Device_Description"] = pRow_Device->Description_get();
+			}
+		}
+		pDataGrid->SetData(0,iRow++,pCell);
+	}
+
+	return pDataGrid;
+}
+class DataGridTable *Media_Plugin::DevicesForCaptureCardPort( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::DevicesForCaptureCardPort");
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	Row_Device *pRow_Device_Requestor = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);
+	if( !pRow_Device_Requestor )
+		return NULL; // Shouldn't happen
+
+	// a where clause to select all devices that are a/v or cameras in the current room first
+	string sSQL = 
+		"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+		"JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory "
+		"WHERE FK_DeviceCategory in ("
+		TOSTRING(DEVICECATEGORY_AV_CONST) "," TOSTRING(DEVICECATEGORY_Surveillance_Cameras_CONST) 
+		") OR FK_DeviceCategory_Parent IN ("
+		TOSTRING(DEVICECATEGORY_AV_CONST) "," TOSTRING(DEVICECATEGORY_Surveillance_Cameras_CONST) 
+		") "
+		"ORDER BY FK_Room=" + StringUtils::itos(pRow_Device_Requestor->FK_Room_get()) + " DESC";
+
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device);
 	int iRow=0;
 	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
 	{
@@ -1821,4 +1888,122 @@ class DataGridTable *Media_Plugin::CaptureCardPorts( string GridID, string Parms
 	}
 
 	return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::DevicesNeedingProviders");
+	int PK_Device_Topmost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pMessage->m_dwPK_Device_From);
+	if( PK_Device_Topmost==0 )
+		return pDataGrid; // Shouldn't happen
+
+	// Get a list of all devices which have media of the type live tv
+	int iRow=0;
+	string sSQL = "SELECT PK_Device,FK_MediaType,PK_DeviceTemplate_MediaType FROM Device JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate = Device.FK_DeviceTemplate and FK_MediaType IN (" TOSTRING(MEDIATYPE_np_LiveTV_CONST) "," TOSTRING(MEDIATYPE_pluto_LiveTV_CONST) ") ";
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+	if( ( result.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+	{
+        while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			Row_Device *pRow_Device = this->m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
+			if( !pRow_Device )
+				continue; // Shouldn't happen
+
+			if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Players_CONST 
+				|| DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Orbiter_CONST) )
+					continue; // Skip the internal sources, and orbiters which use this table for another purpose
+
+			string sDescription;
+			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
+			while( pRow_Device_Parent )
+			{
+				sDescription = pRow_Device_Parent->Description_get() + " / " + sDescription;
+				pRow_Device_Parent = pRow_Device_Parent->FK_Device_ControlledVia_getrow();
+			}
+
+			int PK_Device_Topmost_Comp = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
+			if( PK_Device_Topmost_Comp!=PK_Device_Topmost )
+				continue;  // It's not a port on this computer
+
+			/*
+	int iRow=0;
+	PlutoSqlResult result_set;
+    MYSQL_ROW row;
+	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PromptForMissingMediaProviders got %d records",result_set.r->row_count);
+#endif
+		while ((row = mysql_fetch_row(result_set.r)))
+		{
+			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
+			int PK_Device_Topmost_Comp = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
+			if( PK_Device_Topmost_Comp!=PK_Device_Topmost )
+				continue;  // It's not a port on this computer
+
+			string sDescription = pRow_Device->Description_get();
+			if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Players_CONST 
+				|| DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Orbiter_CONST) )
+					continue; // Skip the internal sources, and orbiters which use this table for another purpose
+			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
+			while( pRow_Device_Parent )
+			{
+				sDescription = pRow_Device_Parent->Description_get() + " / " + sDescription;
+				pRow_Device_Parent = pRow_Device_Parent->FK_Device_ControlledVia_getrow();
+			}
+/*
+			string sPK_Orbiters;
+			Row_Room *pRow_Room = pRow_Device->FK_Room_getrow();
+			if( pRow_Room )
+			{
+				sDescription += " (" + pRow_Room->Description_get() + ")";
+				sPK_Orbiters = PK_Device_Orbiters_In_Room_get(pRow_Room->PK_Room_get(),true);
+			}
+			if( sPK_Orbiters.empty() )
+				sPK_Orbiters = m_sPK_Device_AllOrbiters_AllowingPopups;
+*/
+
+			pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Device->PK_Device_get()));
+			pDataGrid->SetData(0,iRow++,pCell);
+
+			pCell->m_mapAttributes["PK_DeviceTemplate_MediaType"] = row[2];
+
+
+			// See what we have as the media providers for this type
+			vector<Row_ProviderSource *> vectRow_ProviderSource;
+			m_pDatabase_pluto_media->ProviderSource_get()->GetRows(
+				"EK_MediaType=" + string(row[1]) + " AND EK_Country=" + StringUtils::itos( m_pRouter->m_pRow_Installation_get()->FK_Country_get() ),
+				&vectRow_ProviderSource);
+		
+			if( vectRow_ProviderSource.size()==0 )
+				pCell->m_mapAttributes["Provider"]="None";
+			else if( vectRow_ProviderSource.size()==1 )  // There's only 1 to choose from.  Pass the info
+			{
+				Row_ProviderSource *pRow_ProviderSource = vectRow_ProviderSource[0];
+				pCell->m_mapAttributes["PK_ProviderSource"] = StringUtils::itos(pRow_ProviderSource->PK_ProviderSource_get());
+				pCell->m_mapAttributes["Provider"]=pRow_ProviderSource->Description_get();
+				pCell->m_mapAttributes["Comments"]=pRow_ProviderSource->Comments_get();
+				pCell->m_mapAttributes["UserNamePassword_get"]=(pRow_ProviderSource->UserNamePassword_get() ? "1" : "0");
+				pCell->m_mapAttributes["ProviderCommandLine_get"]=pRow_ProviderSource->ProviderCommandLine_get();
+				pCell->m_mapAttributes["DeviceCommandLine_get"]=pRow_ProviderSource->DeviceCommandLine_get();
+				pCell->m_mapAttributes["PackageCommandLine_get"]=pRow_ProviderSource->PackageCommandLine_get();
+				pCell->m_mapAttributes["LineupCommandLine_get"]=pRow_ProviderSource->LineupCommandLine_get();
+			}			
+/*
+			DCE::SCREEN_Choose_Provider_for_Device_DL SCREEN_Choose_Provider_for_Device_DL(m_dwPK_Device,sPK_Orbiters,pRow_Device->PK_Device_get(),sText,sDescription);
+			SendCommand(SCREEN_Choose_Provider_for_Device_DL);
+			return true;  // Only do 1 at a time
+*/
+		}
+	}
+	return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::ProvidersForDevice( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	return NULL;
 }

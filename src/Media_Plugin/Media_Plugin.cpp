@@ -561,8 +561,18 @@ bool Media_Plugin::Register()
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::CaptureCardPorts ))
         , DATAGRID_Capture_Card_Ports_CONST,PK_DeviceTemplate_get() );
 
-	//  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
-//  m_pMediaAttributes->ScanDirectory( "Z:\\" );
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DevicesForCaptureCardPort ))
+        , DATAGRID_Capture_Card_Port_Devices_CONST,PK_DeviceTemplate_get() );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DevicesNeedingProviders ))
+        , DATAGRID_Devices_Needing_Providers_CONST,PK_DeviceTemplate_get() );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::ProvidersForDevice ))
+        , DATAGRID_Providers_For_Device_CONST,PK_DeviceTemplate_get() );
+
 	PopulateRemoteControlMaps();
 	RestoreMediaResumePreferences();
 
@@ -1169,6 +1179,21 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	}
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
+
+#ifdef SIM_JUKEBOX
+	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
+	if( pMediaFile )
+	{
+		string sExtension = FileUtils::FindExtension(pMediaFile->m_sFilename);
+		if( StringUtils::ToUpper(sExtension)=="DVD" && pMediaStream->m_pOH_Orbiter_StartedMedia )
+		{
+			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
+				"Please wait up to 20 seconds while I load that disc","","load_jukebox","0","10","1");
+			SendCommand(SCREEN_PopupMessage);
+			Sleep(3000);   // Not good.  We're holding the mutex, but it's a temporary simulation
+		}
+	}
+#endif
 
 	g_pPlutoLogger->Write(LV_STATUS,"Ready to call plugin's startmedia");
 	int iPK_Orbiter_PromptingToResume = 0;	string::size_type queue_pos;
@@ -5238,8 +5263,6 @@ void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string
 	if( sText=="NONE" )
 	{
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_EK_MediaProvider_CONST,sText);
-		DCE::CMD_Check_Media_Providers CMD_Check_Media_Providers(m_dwPK_Device,m_pOrbiter_Plugin->m_dwPK_Device);
-		SendCommand(CMD_Check_Media_Providers);
 		return;
 	}
 
@@ -5276,9 +5299,6 @@ void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string
 
 	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse);
 	SendCommand(CMD_Sync_Providers_and_Cards_Cat);
-
-	DCE::CMD_Check_Media_Providers CMD_Check_Media_Providers(m_dwPK_Device,m_pOrbiter_Plugin->m_dwPK_Device);
-	SendCommand(CMD_Check_Media_Providers);
 }
 //<-dceag-c825-b->
 
@@ -5292,12 +5312,10 @@ void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string
 void Media_Plugin::CMD_Specify_Capture_Card_Port(int iPK_Device,int iPK_Device_Related,string &sCMD_Result,Message *pMessage)
 //<-dceag-c825-e->
 {
+	// Don't allow 2 devices to use the same capture card port
+	string sSQL = "UPDATE Device_DeviceData SET IK_DeviceData=NULL WHERE IK_DeviceData=" + StringUtils::itos(iPK_Device_Related) + " AND FK_DeviceData=" TOSTRING(DEVICEDATA_FK_Device_Capture_Card_Port_CONST);
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_FK_Device_Capture_Card_Port_CONST,StringUtils::itos(iPK_Device_Related));
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,
-		StringUtils::itos(iPK_Device),SCREEN_Get_Capture_Card_Port_CONST);
-	SendCommand(CMD_Remove_Screen_From_History_DL);
-	DCE::CMD_Check_Media_Providers CMD_Check_Media_Providers(m_dwPK_Device,m_pOrbiter_Plugin->m_dwPK_Device);
-	SendCommand(CMD_Check_Media_Providers);
 }
 
 //<-dceag-c831-b->

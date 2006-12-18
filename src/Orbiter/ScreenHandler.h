@@ -127,6 +127,7 @@ public:
 	bool MediaBrowser_ObjectSelected(CallBackData *pData);
 	string GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad);
 	bool MediaBrowser_DatagridSelected(CallBackData *pData);
+	bool FileList_GridRendering(CallBackData *pData);
 	void SelectedAttributeCell(DataGridCell *pCell);
 	bool MediaBrowser_Render(CallBackData *pData);
 	void SetMediaSortFilterSelectedObjects();
@@ -210,19 +211,9 @@ public:
 	bool FileSave_ObjectSelected(CallBackData *pData);
 	bool FileSave_GridSelected(CallBackData *pData);
 
-	void SCREEN_Get_Capture_Card_Port(long PK_Screen, int iPK_Device, string sName, string sDescription, string ssComments);
-
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
 	void SaveFile_SendCommand();
-
-	// Choose provider
-	virtual void SCREEN_Choose_Provider_for_Device(long PK_Screen, int iPK_Device, string sText, string sDescription);
-	bool ChooseProvider_Intercepted(CallBackData *pData);
-	bool ChooseProvider_ObjectSelected(CallBackData *pData);
-	bool ChooseProvider_DatagridSelected(CallBackData *pData);
-	void ChooseProviderGetNextStage();
-	void SpawnProviderScript(string sCommandLine,string sArguments);
 
 	//savefile data
 	string m_sSaveFile_MountedFolder;

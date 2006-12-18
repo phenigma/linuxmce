@@ -237,17 +237,6 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	g_pPlutoLogger->Write( LV_STATUS, "Xine_Plugin::StartMedia() Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
 
-#ifdef SIM_JUKEBOX
-	string sExtension = FileUtils::FindExtension(pMediaFile->m_sFilename);
-	if( StringUtils::ToUpper(sExtension)=="DVD" && pMediaStream->m_pOH_Orbiter_StartedMedia )
-	{
-		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
-			"Please wait up to 20 seconds while I load that disc","","load_jukebox","0","10","1");
-		SendCommand(SCREEN_PopupMessage);
-		Sleep(3000);   // Not good.  We're holding the mutex, but it's a temporary simulation
-	}
-#endif
-
 	string mediaURL;
 	string Response;
 

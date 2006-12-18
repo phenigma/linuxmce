@@ -89,6 +89,9 @@
 #define DATAGRID_HardDiscs_CONST 88
 #define DATAGRID_CompactFlashes_CONST 89
 #define DATAGRID_NetworkStorage_CONST 90
+#define DATAGRID_Capture_Card_Port_Devices_CONST 91
+#define DATAGRID_Devices_Needing_Providers_CONST 92
+#define DATAGRID_Providers_For_Device_CONST 93
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

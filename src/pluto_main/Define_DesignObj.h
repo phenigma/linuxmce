@@ -2335,6 +2335,9 @@
 #define DESIGNOBJ_FinalHouseSetup_CONST 5325
 #define DESIGNOBJ_butFinalHouseSetup_CONST 5327
 
+#define DESIGNOBJ_butNoDeviceOnPort_CONST 5336
+#define DESIGNOBJ_butNewCamera_CONST 5337
+
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_TABLE_FIELD "DesignObj.PK_DesignObj"
@@ -2387,4 +2390,5 @@
 
 
 #endif
+
 

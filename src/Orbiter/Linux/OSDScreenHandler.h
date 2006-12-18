@@ -106,6 +106,25 @@ public:
 	bool SpeedControlDelete(CallBackData *pData);
 	bool SpeedControlCustomRender(CallBackData *pData);
 
+	// Floorplan
+	virtual void SCREEN_Floorplan_Editor(long PK_Screen);
+
+	// House Setup Done
+	virtual void SCREEN_Final_House_Setup(long PK_Screen);
+
+	void SCREEN_Get_Capture_Card_Port(long PK_Screen);
+	bool CaptureCardPort_ObjectSelected(CallBackData *pData);
+	bool CaptureCardPort_DatagridSelected(CallBackData *pData);
+
+	// Choose provider
+	virtual void SCREEN_Choose_Provider_for_Device(long PK_Screen);
+	bool ChooseProvider_Intercepted(CallBackData *pData);
+	bool ChooseProvider_ObjectSelected(CallBackData *pData);
+	bool ChooseProvider_DatagridSelected(CallBackData *pData);
+	void ChooseProviderGetNextStage();
+	void SpawnProviderScript(string sCommandLine,string sArguments);
+
+
 	// New AV Equipment
 	// When working with new devices:
 	//	VARIABLE_Misc_Data_1_CONST (12) = WizardLogic::m_dwPK_Manufacturer = Manufacturer ID

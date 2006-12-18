@@ -4186,36 +4186,65 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			}
 			Output += StringUtils::itos(pObjGD->m_GraphicToDisplay);
 		}
-		else if(  Variable.length()>6 && Variable[0]=='C' && Variable[1]=='A' )
+		else if( Variable[0]=='C' && Variable[1]=='A' )
 		{
-			if( Variable[1]=='H' )
+			if( Variable.length()>6 )
 			{
-				// Syntax is CAH:ObjectID:Attribute
-				string::size_type pos = Variable.find(':',4);
-				if( pos!=string::npos )
+				if( Variable[2]=='H' )
 				{
-					DesignObj_Orbiter *pObj = FindObject(Variable.substr(4,pos-4));
-					if( pObj && pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+					// Syntax is CAH:ObjectID:Attribute
+					string::size_type pos = Variable.find(':',4);
+					if( pos!=string::npos )
 					{
-						DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj;
-						DataGridCell *pCell = GetDataGridHighlightCell(pObj_Grid);
-						if( !pCell )
-							pCell = GetDataGridSelectedCell(pObj_Grid);
+						DesignObj_Orbiter *pObj = FindObject(Variable.substr(4,pos-4));
+						if( pObj && pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+						{
+							DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj;
+							DataGridCell *pCell = GetDataGridHighlightCell(pObj_Grid);
+							if( !pCell )
+								pCell = GetDataGridSelectedCell(pObj_Grid);
 
-						if( pCell && pCell->m_mapAttributes.find( Variable.substr(pos+1) )!=pCell->m_mapAttributes.end() )
-							Output += pCell->m_mapAttributes[ Variable.substr(pos+1)];
+							if( pCell && pCell->m_mapAttributes.find( Variable.substr(pos+1) )!=pCell->m_mapAttributes.end() )
+								Output += pCell->m_mapAttributes[ Variable.substr(pos+1)];
+						}
+					}
+				}
+				else if( pObj->m_pDesignObj_DataGrid )
+				{
+					// Syntax is CA:Attribute.  This is only valid if the object being rendered points to a cell
+					DataGridTable *pDataGridTable = pObj->m_pDesignObj_DataGrid->DataGridTable_Get();
+					if( pDataGridTable )
+					{
+						DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol + pObj->m_pDesignObj_DataGrid->m_GridCurCol, pObj->m_iGridRow + pObj->m_pDesignObj_DataGrid->m_GridCurRow);
+						if( pCell )
+							Output += pCell->m_mapAttributes[ Variable.substr(3) ];
+						else
+							Output += "no text?";
 					}
 				}
 			}
-			else if( pObj->m_pDesignObj_DataGrid )
+			else if( Variable[2]=='V' && pObj->m_pDesignObj_DataGrid )
 			{
-				// Syntax is CA:Attribute.  This is only valid if the object being rendered points to a cell
+				// Syntax is CAV for the value of the selected cell
 				DataGridTable *pDataGridTable = pObj->m_pDesignObj_DataGrid->DataGridTable_Get();
 				if( pDataGridTable )
 				{
 					DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol + pObj->m_pDesignObj_DataGrid->m_GridCurCol, pObj->m_iGridRow + pObj->m_pDesignObj_DataGrid->m_GridCurRow);
-					if( pCell )
-						Output += pCell->m_mapAttributes[ Variable.substr(3) ];
+					if( pCell && pCell->m_Value )
+						Output += pCell->m_Value;
+					else
+						Output += "no text?";
+				}
+			}
+			else if( Variable[2]=='T' && pObj->m_pDesignObj_DataGrid )
+			{
+				// Syntax is CAT for the text of the selected cell
+				DataGridTable *pDataGridTable = pObj->m_pDesignObj_DataGrid->DataGridTable_Get();
+				if( pDataGridTable )
+				{
+					DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol + pObj->m_pDesignObj_DataGrid->m_GridCurCol, pObj->m_iGridRow + pObj->m_pDesignObj_DataGrid->m_GridCurRow);
+					if( pCell && pCell->m_Text )
+						Output += pCell->m_Text;
 					else
 						Output += "no text?";
 				}
