@@ -99,7 +99,7 @@ static void LS_UnregisterWithAsterisk()
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
 
 	func_enter("LS_UnregisterWithAsterisk");
-	linphone_core_terminate_dialog(&LS_LinphoneCore, NULL);
+	linphone_core_terminate_call(&LS_LinphoneCore, NULL);
 	linphone_core_uninit(&LS_LinphoneCore);
 	func_exit("LS_UnregisterWithAsterisk");
 }
@@ -228,7 +228,7 @@ void LS_DropCall()
 void LS_DropCall_nolock()
 {
 	func_enter("LS_DropCall");
-	linphone_core_terminate_dialog(&LS_LinphoneCore, NULL);
+	linphone_core_terminate_call(&LS_LinphoneCore, NULL);
 	LS_bActiveCall = false;
 
 	string tmp;
@@ -255,7 +255,7 @@ void LS_AcceptCall()
 /** Accept the incoming call - version without mutex */
 void LS_AcceptCall_nolock()
 {
-	linphone_core_accept_dialog(&LS_LinphoneCore, NULL);
+	linphone_core_accept_call(&LS_LinphoneCore, NULL);
 	LS_bActiveCall = true;
 }
 
