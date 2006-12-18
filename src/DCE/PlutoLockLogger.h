@@ -46,7 +46,7 @@ namespace DCE
 		}
 
 
-		PlutoLockLogger(pluto_pthread_mutex_t *pLock,int PK_Installation,string File,int Line)
+		PlutoLockLogger(pluto_pthread_mutex_t *pLock,int /*PK_Installation*/,string File,int Line)
 		{
 			m_bReleased=false;
 			m_pLock=pLock;

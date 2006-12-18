@@ -55,6 +55,48 @@ PlutoMediaAttribute& PlutoMediaAttribute::operator =(PlutoMediaAttribute& attrib
 }
 //-----------------------------------------------------------------------------------------------------
 //
+//  PlutoMediaBookmark class
+//
+//-----------------------------------------------------------------------------------------------------
+PlutoMediaBookmark::PlutoMediaBookmark() : SerializeClass()
+{
+}
+//-----------------------------------------------------------------------------------------------------
+PlutoMediaBookmark::PlutoMediaBookmark(string sDescription, string sPosition) :
+	SerializeClass(), m_sDescription(sDescription), m_sPosition(sPosition)
+{
+}
+//-----------------------------------------------------------------------------------------------------
+PlutoMediaBookmark::~PlutoMediaBookmark()
+{
+}
+//-----------------------------------------------------------------------------------------------------
+string PlutoMediaBookmark::SerializeClassClassName() 
+{ 
+	return "PlutoMediaBookmark"; 
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaBookmark::SetupSerialization(int /*iSC_Version*/)
+{
+	StartSerializeList() + m_sDescription + m_sPosition + m_dataPicture + m_dataPictureThumb;
+}
+//-----------------------------------------------------------------------------------------------------
+bool PlutoMediaBookmark::operator ==(PlutoMediaBookmark& bookmark)
+{
+	return m_sDescription == bookmark.m_sDescription && m_sPosition == bookmark.m_sPosition;
+}
+//-----------------------------------------------------------------------------------------------------
+PlutoMediaBookmark& PlutoMediaBookmark::operator =(PlutoMediaBookmark& bookmark)
+{
+	m_sDescription = bookmark.m_sDescription;
+	m_sPosition = bookmark.m_sPosition;
+	m_dataPicture = bookmark.m_dataPicture;
+	m_dataPictureThumb = bookmark.m_dataPictureThumb;
+
+	return *this;
+}
+//-----------------------------------------------------------------------------------------------------
+//
 //  PlutoMediaAttributes class
 //
 //-----------------------------------------------------------------------------------------------------
@@ -71,14 +113,16 @@ PlutoMediaAttributes::~PlutoMediaAttributes()
 		delete it->second;
 	for(MapPlutoMediaAttributes::iterator it = m_mapLongAttributes.begin(), end = m_mapLongAttributes.end(); it != end; ++it)
 		delete it->second;
-	for(MapPictures::iterator itp = m_mapBookmarks.begin(), endp = m_mapBookmarks.end(); itp != endp; ++itp)
+
+	//coverarts
+	for(MapPictures::iterator itp = m_mapCoverarts.begin(), endp = m_mapCoverarts.end(); itp != endp; ++itp)
 		delete [] itp->second;
-	for(MapPictures::iterator itp = m_mapBookmarksThumbs.begin(), endp = m_mapBookmarksThumbs.end(); itp != endp; ++itp)
+	for(MapPictures::iterator itp = m_mapCoverartsThumbs.begin(), endp = m_mapCoverartsThumbs.end(); itp != endp; ++itp)
 		delete [] itp->second;
-	for(MapPictures::iterator itp = m_mapCoverArts.begin(), endp = m_mapCoverArts.end(); itp != endp; ++itp)
-		delete [] itp->second;
-	for(MapPictures::iterator itp = m_mapCoverArtsThumbs.begin(), endp = m_mapCoverArtsThumbs.end(); itp != endp; ++itp)
-		delete [] itp->second;
+	
+	//bookmarks
+	for(ListBookmarks::iterator itb = m_listBookmarks.begin(), endb = m_listBookmarks.end(); itb != endb; ++itb)
+		delete *itb;
 }
 //-----------------------------------------------------------------------------------------------------
 string PlutoMediaAttributes::SerializeClassClassName() 
@@ -98,10 +142,13 @@ void PlutoMediaAttributes::SetupSerialization(int /*iSC_Version*/)
 	(*this) + m_mapAttributes;
 	(*(static_cast<SerializeClass *>(this))) + m_sStartPosition;
 	(*this) + m_mapLongAttributes;
-	(*this) + m_mapBookmarks;
-	(*this) + m_mapBookmarksThumbs;
-	(*this) + m_mapCoverArts;
-	(*this) + m_mapCoverArtsThumbs;
+
+	//coverarts
+	(*this) + m_mapCoverarts;
+	(*this) + m_mapCoverartsThumbs;
+	
+	//bookmarks
+	(*this) + m_listBookmarks;
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaAttributes &PlutoMediaAttributes::operator+ (MapPlutoMediaAttributes &i) 
@@ -113,6 +160,12 @@ PlutoMediaAttributes &PlutoMediaAttributes::operator+ (MapPlutoMediaAttributes &
 PlutoMediaAttributes &PlutoMediaAttributes::operator+ (MapPictures &i) 
 { 
 	m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_MULTIMAP_PICTURES,(void *) &i)); 
+	return (*this); 
+}
+//-----------------------------------------------------------------------------------------------------
+PlutoMediaAttributes &PlutoMediaAttributes::operator+ (ListBookmarks &i)
+{
+	m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_LIST_BOOKMARKS,(void *) &i)); 
 	return (*this); 
 }
 //-----------------------------------------------------------------------------------------------------
@@ -149,6 +202,18 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 					return true;  // We handled it
 				}
 				break;
+
+			case SERIALIZE_DATA_TYPE_LIST_BOOKMARKS:
+				{
+					ListBookmarks *pList = (ListBookmarks *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pList->size());
+					for(ListBookmarks::iterator it = pList->begin(); it!=pList->end(); ++it)
+					{
+						(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+					}
+					return true;  // We handled it
+				}
+				break;
 		};
 	}
 	else
@@ -180,6 +245,21 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 						char *pData = Read_block(size);
 						if(NULL != pData)
 							pMap->insert(std::make_pair(size, pData));
+					}
+					return true;  // We handled it
+				}
+				break;
+
+			case SERIALIZE_DATA_TYPE_LIST_BOOKMARKS:
+				{
+					ListBookmarks *pList = (ListBookmarks *) pItem->m_pItem;
+					unsigned long count = Read_unsigned_long();
+					for(unsigned long i = 0; i<count; ++i)
+					{
+						long ID = Read_long();
+						PlutoMediaBookmark *pPlutoMediaBookmark = new PlutoMediaBookmark();
+						pPlutoMediaBookmark->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+						pList->push_back(pPlutoMediaBookmark);
 					}
 					return true;  // We handled it
 				}

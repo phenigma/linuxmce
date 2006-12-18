@@ -37,6 +37,7 @@ private:
 	int m_nOurInstallationID;
 	int m_nPK_MediaType;
 	bool m_bIsDir;
+	bool m_bNewFileToDb;
 
 	Database_pluto_media *m_pDatabase_pluto_media;
 	static MediaSyncMode m_DefaultMediaSyncMode;
@@ -49,15 +50,17 @@ private:
 
 	//db operations - load:
 	void LoadStartPosition();
-	void LoadEverythingFromDb();
 	void LoadShortAttributes();
 	void LoadLongAttributes();
+	void LoadCoverarts();
 	void LoadBookmarkPictures();
+	void LoadEverythingFromDb();
 	//db operations - save:
 	void SaveStartPosition();
 	void SaveShortAttributesInDb(bool bAddAllToDb);
 	void SaveLongAttributesInDb(bool bAddAllToDb);
 	void SaveBookmarkPictures();
+	void SaveCoverarts();
 	void SaveEveryThingToDb();
 
 	//misc helpers
@@ -70,7 +73,7 @@ private:
 
 	//pictures
 	pair<unsigned long, char *> LoadPicture(int nPictureId, bool bThumb = false);
-	void SavePicture(pair<unsigned long, char *> pairPicture, int nPictureId, bool bThumb/* = false*/);
+	void SavePicture(pair<unsigned long, char *> pairPicture, int nPictureId, bool bThumb = false);
 
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation,

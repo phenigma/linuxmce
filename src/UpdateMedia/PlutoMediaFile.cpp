@@ -72,6 +72,7 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
     m_sFile = sFile;
 	m_nOurInstallationID = PK_Installation;
 	m_nPK_MediaType = 0;
+	m_bNewFileToDb = false;
 	
 	string sFilePath = sDirectory + "/" + sFile;
 	m_bIsDir = IsDirectory(sFilePath);
@@ -253,7 +254,8 @@ void PlutoMediaFile::SaveEveryThingToDb()
 	SaveStartPosition();
 	SaveShortAttributesInDb(false);
 	SaveLongAttributesInDb(false);
-	SaveBookmarkPictures();
+	SaveCoverarts();
+	//SaveBookmarkPictures();
 	AssignPlutoDevice();
 }
 //-----------------------------------------------------------------------------------------------------
@@ -483,6 +485,8 @@ void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveBookmarkPictures()
 {
+	
+
 	//TODO: IMPLEMENT ME!
 
 	//for(MapPictures::iterator itp = m_pPlutoMediaAttributes->m_mapBookmarks.begin(), 
@@ -491,6 +495,31 @@ void PlutoMediaFile::SaveBookmarkPictures()
 	//}
 	//
 	//for(MapPictures::iterator itp = m_mapBookmarksThumbs.begin(), endp = m_mapBookmarksThumbs.end(); itp != endp; ++itp)
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::SaveCoverarts()
+{
+	if(m_bNewFileToDb)
+	{
+		MapPictures::iterator it = m_pPlutoMediaAttributes->m_mapCoverarts.begin();
+		MapPictures::iterator end = m_pPlutoMediaAttributes->m_mapCoverarts.end();
+		MapPictures::iterator it_thumb = m_pPlutoMediaAttributes->m_mapCoverartsThumbs.begin();
+		MapPictures::iterator end_thumb = m_pPlutoMediaAttributes->m_mapCoverartsThumbs.end();
+		for( ; it != end && it_thumb != end_thumb; ++it, ++it_thumb)
+		{
+			Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
+			pRow_Picture->Extension_set("jpg");
+			pRow_Picture->Table_Picture_get()->Commit();
+
+			Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
+			pRow_Picture_File->FK_File_set(m_pPlutoMediaAttributes->m_nFileID);
+			pRow_Picture_File->FK_Picture_set(pRow_Picture->PK_Picture_get());
+			pRow_Picture_File->Table_Picture_File_get()->Commit();
+
+            SavePicture(make_pair(it->first, it->second), pRow_Picture->PK_Picture_get());
+			SavePicture(make_pair(it_thumb->first, it_thumb->second), pRow_Picture->PK_Picture_get(), true);
+		}
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
@@ -610,6 +639,8 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 
 	g_pPlutoLogger->Write(LV_STATUS, "Added %s/%s to db with PK_File = %d", m_sDirectory.c_str(), m_sFile.c_str(),
 		pRow_File->PK_File_get());
+
+	m_bNewFileToDb = true;
 
     return pRow_File->PK_File_get();
 }
@@ -1002,6 +1033,7 @@ void PlutoMediaFile::LoadEverythingFromDb()
 	LoadStartPosition();
 	LoadShortAttributes();
 	LoadLongAttributes();
+	LoadCoverarts();
 	//LoadBookmarkPictures();
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1242,8 +1274,38 @@ void PlutoMediaFile::LoadBookmarkPictures()
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	string SQL = 
-		"SELECT FK_Picture FROM Bookmark "
+		"SELECT FK_Picture, Description, Position FROM Bookmark "
 		"WHERE FK_Picture IS NOT NULL AND "
+		"WHERE FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
+
+	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	{
+		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1] && NULL != row[2])
+		{
+			int nFK_Picture = atoi(row[0]);
+			string sDescription(row[1]);
+			string sPosition(row[2]);
+
+			pair<unsigned long, char *> picture_data = LoadPicture(nFK_Picture);
+			pair<unsigned long, char *> thumb_picture_data = LoadPicture(nFK_Picture, true);
+
+			PlutoMediaBookmark *pBookmark = new PlutoMediaBookmark(sDescription, sPosition);
+			pBookmark->m_dataPicture.m_dwSize = picture_data.first;
+			pBookmark->m_dataPicture.m_pBlock = picture_data.second;
+			pBookmark->m_dataPictureThumb.m_dwSize = thumb_picture_data.first;
+			pBookmark->m_dataPictureThumb.m_pBlock = thumb_picture_data.second;
+
+			m_pPlutoMediaAttributes->m_listBookmarks.push_back(pBookmark);
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::LoadCoverarts()
+{
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	string SQL = 
+		"SELECT FK_Picture FROM Picture_File "
 		"WHERE FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
 
 	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
@@ -1251,8 +1313,8 @@ void PlutoMediaFile::LoadBookmarkPictures()
 		while((row = mysql_fetch_row(result.r)) && NULL != row[0])
 		{
 			int nFK_Picture = atoi(row[0]);
-			m_pPlutoMediaAttributes->m_mapBookmarks.insert(LoadPicture(nFK_Picture));
-			m_pPlutoMediaAttributes->m_mapBookmarksThumbs.insert(LoadPicture(nFK_Picture, true));
+			m_pPlutoMediaAttributes->m_mapCoverarts.insert(LoadPicture(nFK_Picture));
+			m_pPlutoMediaAttributes->m_mapCoverartsThumbs.insert(LoadPicture(nFK_Picture, true));
 		}
 	}
 }

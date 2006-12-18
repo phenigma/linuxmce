@@ -111,7 +111,7 @@ string StringUtils::ToUpper(string sInput)
 #ifndef SYMBIAN
     for (string::iterator i = sInput.begin(); i != sInput.end(); i++)
     {
-        *i = toupper(*i);
+        *i = static_cast<char>(toupper(*i));
     }
 //  transform( sInput.begin(), sInput.end(), sInput.begin(), toupper );
     return sInput;
@@ -127,7 +127,7 @@ string StringUtils::ToLower(string sInput)
 #ifndef SYMBIAN
     for (string::iterator i = sInput.begin(); i != sInput.end(); i++)
     {
-        *i = tolower(*i);
+        *i = static_cast<char>(tolower(*i));
     }
 //  transform( sInput.begin(), sInput.end(), sInput.begin(), tolower );
     return sInput;
@@ -822,7 +822,7 @@ string StringUtils::SQLEscape( string sInput, bool bForLikeStatement /*= false*/
 				//At the end of the string, backslash stands for itself because there 
 				//is nothing following to escape.) 
 
-				if(bForLikeStatement && nPosition != sInput.size() - 1)
+				if(bForLikeStatement && nPosition != int(sInput.size()) - 1)
 				{
 					sOutput += "\\\\\\\\";  break;
 				}
@@ -894,7 +894,7 @@ string StringUtils::GetStringFromConsole()
     while(true)
     {
 #ifndef WINCE
-        char c = getch();
+        char c = static_cast<char>(getch());
 #else
         char c = getchar();
 #endif
@@ -994,8 +994,6 @@ char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs,int *p_iPosN
 				(pos_nextmessage<pos_end || pos_end==string::npos) )
 			pos_end=pos_nextmessage;
 
-char ctmp = sInput[pos_start];
-char cfoo = sInput[sInput.size()-1];
 		// Starting some new "
 		if( sInput[pos_start]=='"' && (pos_end!=string::npos || sInput[sInput.size()-1]=='"') )
 		{

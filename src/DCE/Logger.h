@@ -171,7 +171,7 @@ namespace DCE
 			/**
 			* @brief serializes the class data
 			*/
-			void SetupSerialization(int iSC_Version)
+			void SetupSerialization(int /*iSC_Version*/)
 			{
 				StartSerializeList() +	m_iLevel + m_TimeStamp.tv_sec + m_TimeStamp.tv_usec + m_sName + m_sData + m_dwPK_Device;
 			}

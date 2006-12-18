@@ -4,6 +4,7 @@
 #include "../SerializeClass/SerializeClass.h"
 #define SERIALIZE_DATA_TYPE_MAP_PLUTOMEDIAATTRBUTE	2100
 #define SERIALIZE_DATA_TYPE_MULTIMAP_PICTURES		2101
+#define SERIALIZE_DATA_TYPE_LIST_BOOKMARKS			2102
 #define SERIALIZE_PLUTO_MEDIA_ATTRIBUTES_VERSION	1
 //-----------------------------------------------------------------------------------------------------
 //
@@ -30,8 +31,29 @@ public:
 	PlutoMediaAttribute& operator =(PlutoMediaAttribute& attribute);
 };
 //-----------------------------------------------------------------------------------------------------
+class PlutoMediaBookmark: public SerializeClass
+{
+public:
+
+	string m_sDescription;
+	string m_sPosition;
+	PlutoDataBlock m_dataPicture;
+	PlutoDataBlock m_dataPictureThumb;
+
+	PlutoMediaBookmark();
+	PlutoMediaBookmark(string sDescription, string sPosition);
+	~PlutoMediaBookmark();
+
+	string SerializeClassClassName();
+	void SetupSerialization(int iSC_Version);
+
+	bool operator ==(PlutoMediaBookmark& bookmark);
+	PlutoMediaBookmark& operator =(PlutoMediaBookmark& bookmark);
+};
+//-----------------------------------------------------------------------------------------------------
 typedef multimap<long, PlutoMediaAttribute *> MapPlutoMediaAttributes;
 typedef multimap<unsigned long, char *> MapPictures;
+typedef list<PlutoMediaBookmark *> ListBookmarks;
 //-----------------------------------------------------------------------------------------------------
 //
 //  PlutoMediaAttributes class
@@ -48,10 +70,9 @@ public:
 	string m_sStartPosition;
 	MapPlutoMediaAttributes m_mapAttributes;
 	MapPlutoMediaAttributes m_mapLongAttributes;
-	MapPictures m_mapBookmarks;
-	MapPictures m_mapBookmarksThumbs;
-	MapPictures m_mapCoverArts;
-	MapPictures m_mapCoverArtsThumbs;
+	MapPictures m_mapCoverarts;
+	MapPictures m_mapCoverartsThumbs;
+	ListBookmarks m_listBookmarks;
 
 	PlutoMediaAttributes();
 	~PlutoMediaAttributes();
@@ -62,6 +83,7 @@ public:
 
 	PlutoMediaAttributes &operator+ (MapPlutoMediaAttributes &i);
 	PlutoMediaAttributes &operator+ (MapPictures &i);
+	PlutoMediaAttributes &operator+ (ListBookmarks &i);
 
 	bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,
 		unsigned long &iAllocatedSize,char *&pCurrentPosition);
