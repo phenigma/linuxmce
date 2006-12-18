@@ -947,7 +947,14 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		sSQL << "`" << sField << "` " << sType
 			<< ( sNULL!="YES" ? " NOT NULL " : "" );
 		if( sDefault.length( ) )
-			sSQL << " default " << ( sDefault==NULL_TOKEN ? "NULL" : "'" + sDefault + "'" );
+		{
+			string sQuotedDefault;
+			if (sDefault == "CURRENT_TIMESTAMP")
+				sQuotedDefault = sDefault;
+			else
+				sQuotedDefault = "'" + sDefault + "'";
+			sSQL << " default " << ( sDefault==NULL_TOKEN ? "NULL" : sQuotedDefault );
+		}
 		sSQL << " " << sExtra;
 	}
 	if( sPrimaryKey.length( ) )
