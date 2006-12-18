@@ -32,24 +32,28 @@ function raidDrives($output,$dbADO) {
 	<a href="index.php?section=raid">'.$TEXT_BACK_CONST.'</a>
 ';
 	$fields='
-		FK_DeviceTemplate,
-		PK_Device,Device.Description AS Description,
+		Device.FK_DeviceTemplate,
+		Device.PK_Device,
+		Device.Description AS Description,
 		DeviceTemplate.Description AS Type,
 		DDD1.IK_DeviceData AS Status,
 		DDD2.IK_DeviceData AS RAIDStatus,
 		DDD3.IK_Devicedata AS NoOfDisks,
 		DDD4.IK_DeviceData AS BlockDevice,
-		DDD5.IK_DeviceData AS RaidSize';
+		DDD5.IK_DeviceData AS RaidSize,
+		Parent.Description AS ParentName,
+		Parent.IPAddress AS ParentIP';
 				
 	$join='
-		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate 
-		LEFT JOIN Device_DeviceData DDD1 on DDD1.FK_Device=PK_Device AND DDD1.FK_DeviceData='.$GLOBALS['State'].' 
-		LEFT JOIN Device_DeviceData DDD2 on DDD2.FK_Device=PK_Device AND DDD2.FK_DeviceData='.$GLOBALS['RAIDStatus'].' 
-		LEFT JOIN Device_DeviceData DDD3 on DDD3.FK_Device=PK_Device AND DDD3.FK_DeviceData='.$GLOBALS['NoofDisks'].'
-		LEFT JOIN Device_DeviceData DDD4 on DDD4.FK_Device=PK_Device AND DDD4.FK_DeviceData='.$GLOBALS['BlockDevice'].'
-		LEFT JOIN Device_DeviceData DDD5 on DDD5.FK_Device=PK_Device AND DDD5.FK_DeviceData='.$GLOBALS['DriveSize'];	
+		INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
+		LEFT JOIN Device_DeviceData DDD1 on DDD1.FK_Device=Device.PK_Device AND DDD1.FK_DeviceData='.$GLOBALS['State'].' 
+		LEFT JOIN Device_DeviceData DDD2 on DDD2.FK_Device=Device.PK_Device AND DDD2.FK_DeviceData='.$GLOBALS['RAIDStatus'].' 
+		LEFT JOIN Device_DeviceData DDD3 on DDD3.FK_Device=Device.PK_Device AND DDD3.FK_DeviceData='.$GLOBALS['NoofDisks'].'
+		LEFT JOIN Device_DeviceData DDD4 on DDD4.FK_Device=Device.PK_Device AND DDD4.FK_DeviceData='.$GLOBALS['BlockDevice'].'
+		LEFT JOIN Device_DeviceData DDD5 on DDD5.FK_Device=Device.PK_Device AND DDD5.FK_DeviceData='.$GLOBALS['DriveSize'].'
+		LEFT JOIN Device Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia';	
 
-	$data=getFieldsAsArray('Device',$fields,$dbADO,$join.' WHERE PK_Device='.$deviceID);
+	$data=getFieldsAsArray('Device',$fields,$dbADO,$join.' WHERE Device.PK_Device='.$deviceID);
 	$raidTemplate=$data['FK_DeviceTemplate'][0];
 	
 	$RAIDStatus=(int)$data['RAIDStatus'][0];
@@ -71,6 +75,7 @@ function raidDrives($output,$dbADO) {
 			<table>
 			<tr class="alternate_back">
 				<td align="center"><B>'.$TEXT_ID_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_PARENT_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_RAID_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_RAID_TYPE_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_BLOCK_DEVICE_CONST.'</B></td>
@@ -81,6 +86,7 @@ function raidDrives($output,$dbADO) {
 			</tr>		
 			<tr class="alternate_back">
 				<td>'.$data['PK_Device'][0].'</td>
+				<td>'.$data['ParentName'][0].'</td>
 				<td>'.$data['Description'][0].'</td>
 				<td>'.$data['Type'][0].'</td>
 				<td align="center">'.$data['BlockDevice'][0].'</td>
@@ -123,9 +129,11 @@ function raidDrives($output,$dbADO) {
 
 		$raidDrives=array();
 		$noDrives=count(@$drivesData['PK_Device']);
+		$usedDrives=array();
 		for ($i=0;$i<$noDrives;$i++){
 			$raidDrives[]=$drivesData['PK_Device'][$i];
-
+			$usedDrives[]=$drivesData['Description'][$i];
+			
 			$confirmation=$TEXT_CONFIRM_DELETE_DRIVE_CONST;
 			$noDelete=0;
 			if($RAIDStatus>0 && $drivesData['Type'][$i]!=1){
@@ -170,7 +178,7 @@ function raidDrives($output,$dbADO) {
 				</td>
 			</tr>';
 		}
-		$availableDrives=getAvailableDrives();
+		$availableDrives=getAvailableDrives($data['ParentIP'][0],$usedDrives);
 
 		if(($RAIDStatus==2 && $raidTemplate!=$GLOBALS['Raid0']) || $RAIDStatus!=2){
 			$spareChecked=($RAIDStatus!=0)?'checked onClick="this.checked=true;"':'';
@@ -184,6 +192,7 @@ function raidDrives($output,$dbADO) {
 		$out.='
 		</table>
 		<input type="hidden" name="raidDrives" value="'.join(',',$raidDrives).'">
+		<input type="hidden" name="parentIP" value="'.$data['ParentIP'][0].'">
 		';
 	}
 	$out.='
@@ -196,7 +205,8 @@ function raidDrives($output,$dbADO) {
 			header("Location: index.php?section=raidDrives&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
-
+		$parentIP=$_REQUEST['parentIP'];
+		
 		if(isset($_POST['add']) && @$_POST['drive']!='0'){
 			$spare=(int)@$_POST['spare'];
 			$newDrive=createDevice($GLOBALS['RaidHardDrive'],$installationID,$deviceID,NULL,$dbADO);
@@ -209,7 +219,7 @@ function raidDrives($output,$dbADO) {
 			
 			// if is spare and raid is created or in progress
 			if($spare==1){
-				$cmd='sudo -u root /usr/pluto/bin/add_spare.sh '.$newDrive.' '.$deviceID;
+				$cmd='sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '.$parentIP.' "/usr/pluto/bin/add_spare.sh '.$newDrive.' '.$deviceID.'"';
 				exec_batch_command($cmd);
 			}
 			
@@ -220,10 +230,8 @@ function raidDrives($output,$dbADO) {
 		$raidDrives=explode(',',$_POST['raidDrives']);
 		foreach ($raidDrives AS $drive){
 			if(isset($_POST['delete_'.$drive])){
-				
-				$cmd='sudo -u root /usr/pluto/bin/delete_drive.sh 0 '.$deviceID.' '.$drive;
+				$cmd='sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '.$parentIP.' "/usr/pluto/bin/delete_drive.sh 0 '.$deviceID.' '.$drive.'"';
 				exec_batch_command($cmd);
-				
 				deleteDevice($drive,$dbADO);
 				
 				header("Location: index.php?section=raidDrives&deviceID=$deviceID&msg=".urlencode($TEXT_DRIVE_DELETED_CONST));
@@ -242,20 +250,23 @@ function raidDrives($output,$dbADO) {
 			$raidTemplate=$raidData['FK_DeviceTemplate'][0];
 			switch ($raidTemplate){
 				case $GLOBALS['Raid0']:
-					$cmd='sudo -u root /usr/pluto/bin/create_RAID0.sh '.$deviceID;
+					$cmd='/usr/pluto/bin/create_RAID0.sh';
 				break;				
 				case $GLOBALS['Raid1']:
-					$cmd='sudo -u root /usr/pluto/bin/create_RAID1.sh '.$deviceID;
+					$cmd='/usr/pluto/bin/create_RAID1.sh';
 				break;				
 				case $GLOBALS['Raid5']:
-					$cmd='sudo -u root /usr/pluto/bin/create_RAID5.sh '.$deviceID;
+					$cmd='/usr/pluto/bin/create_RAID5.sh';
 				break;				
 			}
 			
-			exec_batch_command($cmd);
-			
+			$full_cmd='sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '.$parentIP.' "'.$cmd.' '.$deviceID.'"';
+			exec_batch_command($full_cmd);
+
 			set_device_data($deviceID,$GLOBALS['RAIDStatus'],2,$dbADO);			
-			set_device_data($deviceID,$GLOBALS['NoofDisks'],count($raidDrives),$dbADO);
+			if(count($raidDrives)>0){
+				set_device_data($deviceID,$GLOBALS['NoofDisks'],count($raidDrives),$dbADO);
+			}
 			set_device_data($deviceID,$GLOBALS['State'],'Done',$dbADO);
 			
 			header("Location: index.php?section=raidDrives&deviceID=$deviceID&msg=".urlencode($TEXT_RAID_ARRAY_CREATED_CONST));
@@ -276,18 +287,23 @@ function raidDrives($output,$dbADO) {
 	$output->output();
 }
 
-function getAvailableDrives(){
-	$cmd='sudo -u root /usr/pluto/bin/scan_drives.sh';
+function getAvailableDrives($parentIP,$usedDrives=array()){
+	// $parentIP = IP of the Core/MD parent of RAID device
+	
+	$cmd='sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '.$parentIP.' "/usr/pluto/bin/scan_drives.sh"';
 	$drives=exec_batch_command($cmd,1);
 	
 	// TODO: remove
 	//$drives='/dev/hdd1,80.0 G;/dev/hdd2,80.0 G;/dev/hdd3,120.0 G;/dev/hdd4,160.0 G;';
-	
+
 	$drivesArray=explode(';',$drives);
 	$drivesAssoc=array();
 	foreach ($drivesArray AS $drive){
 		if(trim($drive)!=''){
-			$drivesAssoc[$drive]=$drive;
+			list($name,$capacity)=explode(',',$drive);
+			if(!in_array($name,$usedDrives)){
+				$drivesAssoc[$drive]=$drive;
+			}
 		}
 	}
 	

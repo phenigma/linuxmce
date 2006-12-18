@@ -931,7 +931,7 @@ function resizeImage($source, $destination, $new_width, $new_height,$forcedPNG=0
 	if($forcedPNG==1 && !@imagepng($dst_img, str_replace('.jpg','.png',$destination), 100)){
 		return 5; // writing png thumbnail error
 	}else{
-		if(($destinationType=='jpg') && !@imagejpeg($dst_img, $destination, 100))
+		if(($destinationType=='jpg') && !imagejpeg($dst_img, $destination, 100))
 			return 4; // writing jpg thumbnail error
 		elseif(@$destinationType=='png' && !@imagepng($dst_img, $destination, 100))
 			return 5;	// writing png thumbnail error
@@ -2690,9 +2690,9 @@ function getTopLevelParent($deviceID,$dbADO)
 	return $topParent;
 }
 
-function getDeviceFromDT($installationID,$DeviceTemplate,$dbADO)
+function getDeviceFromDT($installationID,$DeviceTemplate,$dbADO,$extraCondition='')
 {
-	$res=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($DeviceTemplate,$installationID));
+	$res=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=? '.$extraCondition,array($DeviceTemplate,$installationID));
 	if($res->RecordCount()==0){
 		return null;
 	}else{
@@ -6112,7 +6112,7 @@ function updateDeviceControlledBy($deviceID,$controlledBy,$dbADO){
 function appServerExec($appServerID,$command,$params=''){
 	// /usr/pluto/bin/MessageSend dcerouter -targetType device 0 $APPSERVERID 1 67 13 "$COMMAND"
 	$cmd='/usr/pluto/bin/MessageSend dcerouter -targetType device 0 '.$appServerID.' 1 67 13 "'.$command.'"'.(($params!='')?' 51 '.$params:'');
-	exec_batch_command($cmd);
+	return exec_batch_command($cmd,1);
 }
 
 function editCommandGroupCommands($commandGroupID,$dbADO){

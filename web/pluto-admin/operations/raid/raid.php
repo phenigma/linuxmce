@@ -22,6 +22,7 @@ function raid($output,$dbADO) {
 	<table>
 		<tr class="tablehead">
 			<td align="center">'.$TEXT_ID_CONST.'</td>
+			<td align="center">'.$TEXT_PARENT_CONST.'</td>
 			<td align="center">'.$TEXT_RAID_CONST.'</td>
 			<td align="center">'.$TEXT_RAID_TYPE_CONST.'</td>
 			<td align="center"><B>'.$TEXT_BLOCK_DEVICE_CONST.'</B></td>
@@ -31,31 +32,36 @@ function raid($output,$dbADO) {
 			<td align="center">'.$TEXT_ACTION_CONST.'</td>
 		</tr>';
 		$pos=0;
+		$computers=getDevicesArrayFromCategory($GLOBALS['rootComputerID'],$dbADO);
 		$raidCategories=getDescendantsForCategory($GLOBALS['RaidCategory'],$dbADO);
 		$raidTemplates=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'WHERE FK_DeviceCategory IN ('.join(',',$raidCategories).')');
 		
 		$fields='
-		FK_DeviceTemplate,
-		PK_Device,Device.Description AS Description,
+		Device.FK_DeviceTemplate,
+		Device.PK_Device,
+		Device.Description AS Description,
 		DeviceTemplate.Description AS Type,
 		DDD1.IK_DeviceData AS Status,
 		DDD2.IK_DeviceData AS RAIDStatus,
 		DDD3.IK_Devicedata AS NoOfDisks,
 		DDD4.IK_DeviceData AS BlockDevice,
-		DDD5.IK_DeviceData AS RaidSize';
+		DDD5.IK_DeviceData AS RaidSize,
+		Parent.Description AS ParentName,
+		Parent.IPAddress AS ParentIP';
 				
 		$join='
-		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate 
-		LEFT JOIN Device_DeviceData DDD1 on DDD1.FK_Device=PK_Device AND DDD1.FK_DeviceData='.$GLOBALS['State'].' 
-		LEFT JOIN Device_DeviceData DDD2 on DDD2.FK_Device=PK_Device AND DDD2.FK_DeviceData='.$GLOBALS['RAIDStatus'].' 
-		LEFT JOIN Device_DeviceData DDD3 on DDD3.FK_Device=PK_Device AND DDD3.FK_DeviceData='.$GLOBALS['NoofDisks'].'
-		LEFT JOIN Device_DeviceData DDD4 on DDD4.FK_Device=PK_Device AND DDD4.FK_DeviceData='.$GLOBALS['BlockDevice'].'
-		LEFT JOIN Device_DeviceData DDD5 on DDD5.FK_Device=PK_Device AND DDD5.FK_DeviceData='.$GLOBALS['DriveSize'];			
+		INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
+		LEFT JOIN Device_DeviceData DDD1 on DDD1.FK_Device=Device.PK_Device AND DDD1.FK_DeviceData='.$GLOBALS['State'].' 
+		LEFT JOIN Device_DeviceData DDD2 on DDD2.FK_Device=Device.PK_Device AND DDD2.FK_DeviceData='.$GLOBALS['RAIDStatus'].' 
+		LEFT JOIN Device_DeviceData DDD3 on DDD3.FK_Device=Device.PK_Device AND DDD3.FK_DeviceData='.$GLOBALS['NoofDisks'].'
+		LEFT JOIN Device_DeviceData DDD4 on DDD4.FK_Device=Device.PK_Device AND DDD4.FK_DeviceData='.$GLOBALS['BlockDevice'].'
+		LEFT JOIN Device_DeviceData DDD5 on DDD5.FK_Device=Device.PK_Device AND DDD5.FK_DeviceData='.$GLOBALS['DriveSize'].'
+		LEFT JOIN Device Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia';			
 		$data=getFieldsAsArray('Device',$fields,$dbADO,$join.' WHERE FK_DeviceCategory IN ('.join(',',$raidCategories).')');
 		if(count($data)==0){
 			$out.='
 			<tr class="alternate_back">
-				<td colspan="8">'.$TEXT_NO_RECORDS_CONST.'</td>
+				<td colspan="9">'.$TEXT_NO_RECORDS_CONST.'</td>
 			</tr>';
 		}
 
@@ -64,8 +70,10 @@ function raid($output,$dbADO) {
 			$raidDevices[]=$data['PK_Device'][$i];
 			$bgColor=($data['RAIDStatus'][$i]==0)?'bgcolor="lightgreen"':'class="alternate_back"';
 			$out.='
+			<input type="hidden" name="parentIP_'.$data['PK_Device'][$i].'" value="'.$data['ParentIP'][$i].'">
 			<tr '.$bgColor.'>
 				<td>'.$data['PK_Device'][$i].'</td>
+				<td>'.$data['ParentName'][$i].'</td>
 				<td>'.$data['Description'][$i].'</td>
 				<td>'.$data['Type'][$i].'</td>
 				<td align="center">'.$data['BlockDevice'][$i].'</td>
@@ -82,13 +90,44 @@ function raid($output,$dbADO) {
 		}
 		
 		$out.='
-			<tr>
-				<td align="center" colspan="8"><B>'.$TEXT_ADD_RAID_CONST.'</B> <input type="text" name="description" value=""> '.$TEXT_TYPE_CONST.' '.pulldownFromArray($raidTemplates,'template',0).' <input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
-			</tr>		
-	</table>
-	<input type="hidden" name="raidDevices" value="'.join(',',$raidDevices).'">
-	<br><em>'.$TEXT_GREEN_LABEL_INFO_CONST.'</em>
+		</table>
+			<input type="hidden" name="raidDevices" value="'.join(',',$raidDevices).'">
+		</form>
+	
+		<form action="index.php" method="POST" name="addRaid">
+		<input type="hidden" name="section" value="raid">
+		<input type="hidden" name="action" value="update">	
+
+		<em>'.$TEXT_GREEN_LABEL_INFO_CONST.'</em><br><br>
+		<table cellpadding="2" cellspacing="0">
+					<tr>
+						<td colspan="2" class="tablehead" align="center"><B>'.$TEXT_ADD_RAID_CONST.'</B></td>
+					</tr>
+					<tr>
+						<td><B>'.$TEXT_PARENT_CONST.'</B></td>
+						<td>'.pulldownFromArray($computers,'computer',0).'</td>
+					</tr>
+					<tr>
+						<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+						<td><input type="text" name="description" value=""></td>
+					</tr>
+					
+					<tr>
+						<td><B>'.$TEXT_TYPE_CONST.'</B></td>
+						<td>'.pulldownFromArray($raidTemplates,'template',0).'</td>
+					</tr>
+					<tr>
+						<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
+					</tr>
+				</table>
 	</form>
+
+	<script>
+	 	var frmvalidator = new formValidator("addRaid"); 			
+		frmvalidator.addValidation("description","req","'.$TEXT_DESCRIPTION_REQUIRED_CONST.'");
+		frmvalidator.addValidation("computer","dontselect=0","'.$TEXT_PARENT_REQUIRED_CONST.'");
+		frmvalidator.addValidation("template","dontselect=0","'.$TEXT_TYPE_REQUIRED_CONST.'");
+	</script>
 	';
 	} else {
 		// check if the user has the right to modify installation
@@ -100,7 +139,8 @@ function raid($output,$dbADO) {
 
 		if(isset($_POST['add']) && (int)@$_POST['template']!=0){
 			$description=cleanString($_POST['description']);
-			$raidID=createDevice((int)@$_POST['template'],$installationID,NULL,NULL,$dbADO);
+			$parent=(int)$_REQUEST['computer'];
+			$raidID=createDevice((int)@$_POST['template'],$installationID,$parent,NULL,$dbADO);
 			$dbADO->Execute('UPDATE Device SET Description=? WHERE PK_Device=?',array($description,$raidID));
 			
 			header("Location: index.php?section=raidDrives&deviceID=$raidID&msg=".urlencode(@$TEXT_RAID_ADDED_CONST));
@@ -110,9 +150,10 @@ function raid($output,$dbADO) {
 		$raidDevices=explode(',',$_POST['raidDevices']);
 		foreach ($raidDevices AS $device){
 			if(isset($_POST['delete_'.$device])){
-				$cmd='sudo -u root /usr/pluto/bin/delete_raid.sh '.$device;
-				exec_batch_command($cmd);
+				$parentIP=$_REQUEST['parentIP_'.$device];
 				
+				$cmd='sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '.$parentIP.' "/usr/pluto/bin/delete_raid.sh '.$device.'"';
+				exec_batch_command($cmd);
 				deleteDevice($device,$dbADO);
 			}
 		}
