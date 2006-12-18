@@ -9,7 +9,9 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$path = (isset($_REQUEST['path']) && $_REQUEST['path']!='')?cleanString($_REQUEST['path']):'';
-	$GLOBALS['files_per_page']=20;
+
+	$_SESSION['media_files_per_page']=(isset($_SESSION['media_files_per_page']))?$_SESSION['media_files_per_page']:20;
+	$_SESSION['media_files_per_page']=(isset($_REQUEST['media_files_per_page']))?$_REQUEST['media_files_per_page']:$_SESSION['media_files_per_page'];
 	
 	$GLOBALS['typeArray']=getAssocArray('MediaType','PK_MediaType','Description',$dbADO,'','ORDER BY Description ASC');
 	$notInDBArray=array();	
@@ -241,14 +243,25 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');	
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mainMediaFilesSync.lang.php');
+	$noPagesArray=array(
+		10=>'10',
+		20=>'20',
+		50=>'50',
+		100=>'100',
+		500=>'500',
+		1000=>'1000',
+		2000=>'2000',
+		10000=>'10000',
+		1000000=>'All *'
+	);
 	
 	if(count($allPhysicalFiles)==0){
 		return $TEXT_NO_FILES_IN_PHYSICAL_DIRECTORY_CONST;
 	}
 
 	$ppage=((int)@$_REQUEST['ppage']>0)?(int)$_REQUEST['ppage']:1;
-	$noPages=ceil(count($allPhysicalFiles)/$GLOBALS['files_per_page']);
-	$physicalFiles=array_slice($allPhysicalFiles,$GLOBALS['files_per_page']*($ppage-1),$GLOBALS['files_per_page']);
+	$noPages=ceil(count($allPhysicalFiles)/$_SESSION['media_files_per_page']);
+	$physicalFiles=array_slice($allPhysicalFiles,$_SESSION['media_files_per_page']*($ppage-1),$_SESSION['media_files_per_page']);
 
 	$queryDBFiles='
 		SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
@@ -318,9 +331,13 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 		}
 	}
 	$out.='
-		<tr>
-			<td align="right" colspan="2">'.$navBar.'</td>
+		<tr class="tablehead">
+			<td><B>Files per page:</B> '.pulldownFromArray($noPagesArray,'media_files_per_page',$_SESSION['media_files_per_page'],'onChange="document.mainMediaFilesSync.action.value=\'form\';document.mainMediaFilesSync.submit();"','key','').'</td>
+			<td align="right">'.$navBar.'</td>
 		</tr>
+		<tr>
+			<td colspan="2"><em>WARNING: the page will load slow for a very large number of files and it may stop working at all</em></td>
+		</tr>		
 	</table>
 	<input type="hidden" name="notInDBArray" value="'.@join(',',@$notInDBArray).'">
 	<input type="hidden" name="ppage" value="'.$ppage.'">';
@@ -348,13 +365,13 @@ function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
 		$dbPKFiles[]=$row['PK_File'];
 		$dbPicsNoFiles[]=$row['picsNo'];
 	}	
-	$noPages=ceil(count($dbFiles)/$GLOBALS['files_per_page']);
+	$noPages=ceil(count($dbFiles)/$_SESSION['media_files_per_page']);
 
 	if(count($dbFiles)==0){
 		return $TEXT_NO_OTHER_FILES_IN_DATABASE_CONST;
 	}
 	
-	$dbFiles=array_slice($dbFiles,$GLOBALS['files_per_page']*($dpage-1),$GLOBALS['files_per_page']);
+	$dbFiles=array_slice($dbFiles,$_SESSION['media_files_per_page']*($dpage-1),$_SESSION['media_files_per_page']);
 	$navBarArray=array();
 	for($i=1;$i<$noPages+1;$i++){
 		$navBarArray[]=($i==$dpage)?$i:'<a href="index.php?'.str_replace('dpage='.$dpage,'',$_SERVER['QUERY_STRING']).'&dpage='.$i.'">'.$i.'</a>';
