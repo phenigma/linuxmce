@@ -81,14 +81,14 @@ function setTemplateFileType($type) {
 			}
 		break;
 		case 'large':
-			if(@$_REQUEST['section']!='checkAmazon'){
+			if(@$_REQUEST['section']!='checkAmazon' || @$_REQUEST['section']!='orbitersWin'){
 				if(@$_REQUEST['section']!=''){
 					@$_SESSION['lastRightFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];
 				}
 			}
 		break;
 		case 'small':
-			if($_REQUEST['section']=='leftMenu' || $_REQUEST['section']=='wizard' || $_REQUEST['section']=='leftMediaBrowser'){
+			if(@$_REQUEST['section']=='leftMenu' || @$_REQUEST['section']=='wizard' || @$_REQUEST['section']=='leftMediaBrowser'){
 				@$_SESSION['lastLeftFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];
 			}
 		break;
