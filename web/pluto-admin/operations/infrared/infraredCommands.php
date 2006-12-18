@@ -57,7 +57,7 @@ function infraredCommands($output,$publicADO) {
 		}
 
 		$GLOBALS['displayedCommands']=array();
-		$publicADO->debug=true;
+		//$publicADO->debug=true;
 		$query='
 			SELECT DISTINCT
 				Command.Description,
