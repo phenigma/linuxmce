@@ -870,9 +870,15 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 		}
 	}
 
-	if( bModifiedRows )
+	// We create /usr/pluto/bin/FillDbAndFetchIcons.start when we first start, and delete it when 
+	// the script finishes.  So if the file is still there, that means the user reloaded the router
+	// without letting the script finish, so we should restart it
+	bool bLockFileExists = FileUtils::FileExists("/usr/pluto/bin/FillDbAndFetchIcons.start");
+	if( bModifiedRows || bLockFileExists )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders records changed");
+		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders records changed %d/%d",(int) bModifiedRows, (int) bLockFileExists);
+		// Create the file
+		system("touch /usr/pluto/bin/FillDbAndFetchIcons.start");
 		DeviceData_Router *pDevice_App_Server=NULL,*pDevice_Us = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
 		if( pDevice_Us )
 			pDevice_App_Server = (DeviceData_Router *) pDevice_Us->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
@@ -880,11 +886,11 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 		if( pDevice_App_Server )
 		{
 			DCE::CMD_Spawn_Application CMD_Spawn_Application_fill(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-				"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,false,true);
+				"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,true,false);
 			SendCommand(CMD_Spawn_Application_fill);
 
 			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
-				"Please don't reload the router, or reboot, or use TV for 5 minutes while I setup your channel data", // Main message
+				"It will take about 10 minutes to retrieve your guide data before you can start using the TV features.", // Main message
 				"", // Command Line
 				"generic message", // Description
 				"0", // sPromptToResetRouter

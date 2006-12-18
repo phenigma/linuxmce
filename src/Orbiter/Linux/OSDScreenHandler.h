@@ -115,6 +115,7 @@ public:
 	void SCREEN_Get_Capture_Card_Port(long PK_Screen);
 	bool CaptureCardPort_ObjectSelected(CallBackData *pData);
 	bool CaptureCardPort_DatagridSelected(CallBackData *pData);
+	bool CaptureCardPort_GridRendering(CallBackData *pData);
 
 	// Choose provider
 	virtual void SCREEN_Choose_Provider_for_Device(long PK_Screen);
@@ -123,6 +124,7 @@ public:
 	bool ChooseProvider_DatagridSelected(CallBackData *pData);
 	void ChooseProviderGetNextStage();
 	void SpawnProviderScript(string sCommandLine,string sArguments);
+	bool ChooseProvider_GridRendering(CallBackData *pData);
 
 
 	// New AV Equipment

@@ -65,7 +65,8 @@ using namespace DCE;
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_ProviderSource.h"
 #include "pluto_media/Table_AttributeType.h"
-#include "pluto_media/Define_MediaSource.h"
+#include "pluto_media/Table_MediaProvider.h"
+#include "pluto_media/Table_MediaSource.h"
 #include "Gen_Devices/AllScreens.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
@@ -1883,6 +1884,7 @@ class DataGridTable *Media_Plugin::DevicesForCaptureCardPort( string GridID, str
 			pRow_Device_Parent = pRow_Device_Parent->FK_Device_ControlledVia_getrow();
 		}
 
+
 		pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Device->PK_Device_get()));
 		pDataGrid->SetData(0,iRow++,pCell);
 	}
@@ -1932,49 +1934,23 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 			if( PK_Device_Topmost_Comp!=PK_Device_Topmost && pRow_Device->FK_Room_get()!=pRow_Device_From->FK_Room_get() )
 				continue;  // It's not a port on this computer, and it's not in the same room
 
-			/*
-	int iRow=0;
-	PlutoSqlResult result_set;
-    MYSQL_ROW row;
-	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
-	{
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PromptForMissingMediaProviders got %d records",result_set.r->row_count);
-#endif
-		while ((row = mysql_fetch_row(result_set.r)))
-		{
-			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
-			int PK_Device_Topmost_Comp = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
-			if( PK_Device_Topmost_Comp!=PK_Device_Topmost )
-				continue;  // It's not a port on this computer
-
-			string sDescription = pRow_Device->Description_get();
-			if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Players_CONST 
-				|| DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Orbiter_CONST) )
-					continue; // Skip the internal sources, and orbiters which use this table for another purpose
-			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
-			while( pRow_Device_Parent )
-			{
-				sDescription = pRow_Device_Parent->Description_get() + " / " + sDescription;
-				pRow_Device_Parent = pRow_Device_Parent->FK_Device_ControlledVia_getrow();
-			}
-/*
-			string sPK_Orbiters;
-			Row_Room *pRow_Room = pRow_Device->FK_Room_getrow();
-			if( pRow_Room )
-			{
-				sDescription += " (" + pRow_Room->Description_get() + ")";
-				sPK_Orbiters = PK_Device_Orbiters_In_Room_get(pRow_Room->PK_Room_get(),true);
-			}
-			if( sPK_Orbiters.empty() )
-				sPK_Orbiters = m_sPK_Device_AllOrbiters_AllowingPopups;
-*/
 
 			pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Device->PK_Device_get()));
 			pDataGrid->SetData(0,iRow++,pCell);
 
 			pCell->m_mapAttributes["PK_DeviceTemplate_MediaType"] = row[2];
 
+			Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_EK_MediaProvider_CONST);
+			Row_MediaProvider *pRow_MediaProvider = NULL;
+			if( pRow_Device_DeviceData )
+				pRow_MediaProvider = m_pDatabase_pluto_media->MediaProvider_get()->GetRow(atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()));
+			if( pRow_MediaProvider )
+			{
+				pCell->m_mapAttributes["PK_MediaProvider"] = StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get());
+				Row_ProviderSource *pRow_ProviderSource = pRow_MediaProvider->FK_ProviderSource_getrow();
+				if( pRow_ProviderSource )
+					pCell->m_mapAttributes["MediaProvider_Selected"] = pRow_ProviderSource->Description_get();
+			}
 
 			// See what we have as the media providers for this type
 			vector<Row_ProviderSource *> vectRow_ProviderSource;
@@ -1996,11 +1972,6 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 				pCell->m_mapAttributes["PackageCommandLine"]=pRow_ProviderSource->PackageCommandLine_get();
 				pCell->m_mapAttributes["LineupCommandLine"]=pRow_ProviderSource->LineupCommandLine_get();
 			}			
-/*
-			DCE::SCREEN_Choose_Provider_for_Device_DL SCREEN_Choose_Provider_for_Device_DL(m_dwPK_Device,sPK_Orbiters,pRow_Device->PK_Device_get(),sText,sDescription);
-			SendCommand(SCREEN_Choose_Provider_for_Device_DL);
-			return true;  // Only do 1 at a time
-*/
 		}
 	}
 	return pDataGrid;

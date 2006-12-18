@@ -2406,6 +2406,7 @@ void OSDScreenHandler::SCREEN_Get_Capture_Card_Port(long PK_Screen)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butInputs_CONST));
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::CaptureCardPort_ObjectSelected,	new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::CaptureCardPort_DatagridSelected, new DatagridCellBackData());
+	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &OSDScreenHandler::CaptureCardPort_GridRendering,	new DatagridAcquiredBackData());
 	ScreenHandlerBase::SCREEN_Get_Capture_Card_Port(PK_Screen);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -2432,6 +2433,36 @@ bool OSDScreenHandler::CaptureCardPort_ObjectSelected(CallBackData *pData)
 		string sResponse;  // Send with return confirmation so the grid doesn't refresh until this command is done
 		m_pOrbiter->SendCommand(CMD_Specify_Capture_Card_Port,&sResponse);
 		m_pOrbiter->CMD_Go_back("","");
+	}
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::CaptureCardPort_GridRendering(CallBackData *pData)
+{
+	// This is called every time a new section of the grid is to be rendered.  We want to find the child object for the check and hide/show it
+	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
+
+	// Iterate through all the cells
+	for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+	{
+		DataGridCell *pCell = it->second;
+		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+
+		// See if there is an object assigned for this column/row
+		map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+		if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+		{
+			DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+			DesignObj_DataList::iterator iHao;
+
+			// Iterate through all the object's children
+			for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+			{
+				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconCheckMark_CONST )
+					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("InUse_PK_Device").empty()==true;
+			}
+		}
 	}
 	return false;
 }
@@ -2476,6 +2507,7 @@ void OSDScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen)
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_DatagridSelected, new DatagridCellBackData());
 	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_Intercepted, new MsgInterceptorCellBackData());
+	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_GridRendering,	new DatagridAcquiredBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
@@ -2826,4 +2858,34 @@ void OSDScreenHandler::SpawnProviderScript(string sCommandLine,string sArguments
 	m_pOrbiter->SendCommand(CMD_Spawn_Application);
 
 	DisplayMessageOnOrbiter(0,m_pOrbiter->m_mapTextString[TEXT_please_wait_for_lookup_CONST],false,"0",false,m_pOrbiter->m_mapTextString[TEXT_CANCEL_CONST]);
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::ChooseProvider_GridRendering(CallBackData *pData)
+{
+	// This is called every time a new section of the grid is to be rendered.  We want to find the child object for the check and hide/show it
+	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
+
+	// Iterate through all the cells
+	for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+	{
+		DataGridCell *pCell = it->second;
+		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+
+		// See if there is an object assigned for this column/row
+		map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+		if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+		{
+			DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+			DesignObj_DataList::iterator iHao;
+
+			// Iterate through all the object's children
+			for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+			{
+				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconCheckMark_CONST )
+					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("PK_MediaProvider").empty()==true;
+			}
+		}
+	}
+	return false;
 }

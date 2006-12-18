@@ -13,3 +13,4 @@ invoke-rc.d mythtv-backend restart
 # Now that we have channels and icons, go ahead and fill the database.  If the user interrupts this now it's ok
 # because it will grab partial data and continue the next time
 /usr/bin/mythfilldatabase
+rm /usr/pluto/bin/FillDbAndFetchIcons.start
