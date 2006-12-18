@@ -402,33 +402,63 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			exit();
 		}
 		
-		if(isset($_REQUEST['addPic']) && isset($_FILES['newPic']) && $_FILES['newPic']['name']!=''){
-			$newUrl=cleanString($_POST['newUrl']);
-			$picExtension=str_replace('.','',strtolower(strrchr($_FILES['newPic']['name'],".")));
-			$picExtension=($picExtension=='jpeg')?'jpg':$picExtension;
-			
-			$insertPicture='INSERT INTO Picture (Extension,URL) VALUES (?,?)';
-			$mediadbADO->Execute($insertPicture,array($picExtension,$newUrl));
-			$insertID=$mediadbADO->Insert_ID();
-			$newPicName=$insertID.'.'.$picExtension;
-			
-			$error='';
-			if(($_FILES['newPic']['type']!="image/jpg") && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
-				$error=$TEXT_ERROR_NOT_JPEG_CONST;
+		if(isset($_REQUEST['addPic'])){
+			if(isset($_FILES['newPic']) && $_FILES['newPic']['name']!=''){
+				$newUrl=cleanString($_POST['newUrl']);
+				$picExtension=str_replace('.','',strtolower(strrchr($_FILES['newPic']['name'],".")));
+				$picExtension=($picExtension=='jpeg')?'jpg':$picExtension;
+				
+				$insertPicture='INSERT INTO Picture (Extension,URL) VALUES (?,?)';
+				$mediadbADO->Execute($insertPicture,array($picExtension,$newUrl));
+				$insertID=$mediadbADO->Insert_ID();
+				$newPicName=$insertID.'.'.$picExtension;
+				
+				$error='';
+				if(($_FILES['newPic']['type']!="image/jpg") && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
+					$error=$TEXT_ERROR_NOT_JPEG_CONST;
+				}
+				elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){
+					// create thumbnail
+					$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$insertID.'_tn.'.$picExtension, 100, 100);
+					// update database
+					$insertPictureAttribute='INSERT INTO Picture_File (FK_File, FK_Picture) VALUES (?,?)';
+					$mediadbADO->Execute($insertPictureAttribute,array($fileID,$insertID));
+				}else{
+					//upload fail, prompt error message
+					$deletePicture='DELETE FROM Picture WHERE PK_Picture=?';
+					$mediadbADO->Execute($deletePicture,$insertID);
+					$error=$TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST.' '.$GLOBALS['mediaPicsPath'];
+				}
 			}
-			elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){
-				// create thumbnail
-				$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$insertID.'_tn.'.$picExtension, 100, 100);
-				// update database
-				$insertPictureAttribute='INSERT INTO Picture_File (FK_File, FK_Picture) VALUES (?,?)';
-				$mediadbADO->Execute($insertPictureAttribute,array($fileID,$insertID));
-			}else{
-				//upload fail, prompt error message
-				$deletePicture='DELETE FROM Picture WHERE PK_Picture=?';
-				$mediadbADO->Execute($deletePicture,$insertID);
-				$error=$TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST.' '.$GLOBALS['mediaPicsPath'];
+
+			if($_POST['newUrl']!='' && $_FILES['newPic']['name']==''){
+				$url=cleanString($_POST['newUrl']);
+
+				$picExtension=str_replace('.','',strtolower(strrchr($url,".")));
+				$picExtension=($picExtension=='jpeg')?'jpg':$picExtension;
+
+				if($picExtension!='jpg'){
+					$error=$TEXT_ERROR_NOT_JPEG_CONST;
+				}else{
+					$insertPicture='INSERT INTO Picture (Extension,URL) VALUES (?,?)';
+					$mediadbADO->Execute($insertPicture,array($picExtension,$url));
+					$entryID=$mediadbADO->Insert_ID();
+					$newPicName=$entryID.'.'.$picExtension;
+
+					savePic($_POST['newUrl'],$GLOBALS['mediaPicsPath'].$newPicName);
+					$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$entryID.'_tn.'.$picExtension, 100, 100);
+
+					if($resizeFlag==0){
+						$mediadbADO->Execute('INSERT INTO Picture_File (FK_File, FK_Picture) VALUES (?,?)',array($fileID,$entryID));
+					}else{
+						$mediadbADO->Execute('DELETE FROM Picture WHERE PK_Picture=?',$entryID);
+						$error=$TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST.' '.$GLOBALS['mediaPicsPath'];
+					}
+				}
 			}
-			if($error!=''){
+
+			
+			if(@$error!=''){
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$error);			
 				exit();
 			}else{
@@ -437,6 +467,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				exit();
 			}
 		}
+		
 		
 		header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST);			
 	}

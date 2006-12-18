@@ -7,7 +7,7 @@ require('include/utils.inc.php');
 require('include/template.class.inc.php');
 
 $table=$_REQUEST['table'];
-$where=urldecode($_REQUEST['where']);
+$where=stripslashes($_REQUEST['where']);
 
 $cols=$dbADO->MetaColumnNames($table);
 $fieldsNo=count($cols);
@@ -25,7 +25,7 @@ foreach ($cols AS $column){
 }
 $out.='</tr>';
 
-$rs=$dbADO->Execute('SELECT '.join(',',$cols).' FROM '.$table.' '.$where);
+$rs=$dbADO->Execute('SELECT `'.join('`,`',$cols).'` FROM '.$table.' '.$where);
 while($row=$rs->FetchRow()){
 	$pos=0;
 	foreach ($cols AS $column){
