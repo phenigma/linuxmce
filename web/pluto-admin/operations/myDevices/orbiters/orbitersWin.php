@@ -54,6 +54,11 @@ function orbitersWin($output,$dbADO) {
 			<td>Windows XP</td>
 			<td><a href="fdownload.php?filepath=installers/OutlookSync.msi" target="_blank">(download)</a></td>
 		</tr>				
+		<tr>
+			<td>Pluto Backup & Share</td>
+			<td>Windows XP</td>
+			<td><a href="fdownload.php?filepath=installers/PlutoBaSInstaller.msi" target="_blank">(download)</a></td>
+		</tr>		
 	</table>
 		
 	</form>

@@ -10,7 +10,8 @@ $allowedFiles=array(
 	'binaries/PthreadsCE.dll',
 	'binaries/logo.gif',
 	'binaries/Orbiter.MD5',
-	'binaries/OrbiterCE.exe'
+	'binaries/OrbiterCE.exe',
+	'PlutoBaSInstaller.msi'
 );
 
 $allowedDirectories=array(
