@@ -935,7 +935,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		// a psc_mod defaulting to NULL didn't exist in the original table to begin with
 		// seems to be a bug in the dumping algorithm, but it's earier to hack it in than to fix it :D
 		if (sField == "psc_mod" && sDefault == NULL_TOKEN)
-			continue;
+			sDefault = "";
 
 		if( sExtra=="auto_increment" )
 			bContainsAutoIncrement=true;
