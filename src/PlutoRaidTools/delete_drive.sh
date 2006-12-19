@@ -22,7 +22,7 @@ else
 	noDisks=$(RunSQL "$Q")
 	noDisks=$(($noDisks-1))
 	Q="UPDATE Device_DeviceData SET IK_DeviceData = $noDisks WHERE FK_Device = $RaidDevice and FK_DeviceData = $NO_DISK_ID"
-	$(RunSQL "$Q")
+	RunSQL "$Q"
 fi
 
 mdadm --manage --set-faulty $array $disk

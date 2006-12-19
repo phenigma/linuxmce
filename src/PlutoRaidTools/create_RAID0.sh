@@ -38,6 +38,6 @@ if [[ $NewAdd == 0 ]] ;then
 
 	raidSize=$(mdadm --query $name | head -1 |cut -d' ' -f2)
 	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $Device and FK_DeviceData = $DISK_SIZE_ID"
-	$(RunSQL "$Q")
+	RunSQL "$Q"
 	#/usr/pluto/bin/start_RAID_monitoring.sh $name
 fi

@@ -15,7 +15,7 @@ NewAdd=$(RunSQL "$Q")
 name=$(/usr/pluto/bin/get_RAID_name.sh)
 name="/dev/$name"
 Q="UPDATE Device_DeviceData SET IK_DeviceData='$name' WHERE FK_Device = $Device and FK_DeviceData = $BLOCK_DEVICE_ID"
-$(RunSQL "$Q")
+RunSQL "$Q"
 #if is new added get the list of active drives and spares
 if [[ $NewAdd == 0 ]] ;then
 	Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate = $HARD_DRIVE_DEVICE_TEMPLATE AND FK_Device_ControlledVia = $Device"
@@ -49,6 +49,6 @@ if [[ $NewAdd == 0 ]] ;then
 	fi
 	raidSize=$(mdadm --query $name | head -1 |cut -d' ' -f2)
 	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $Device and FK_DeviceData = $DISK_SIZE_ID"
-	$(RunSQL "$Q")
+	RunSQL "$Q"
 	#/usr/pluto/bin/start_RAID_monitoring.sh $name
 fi
