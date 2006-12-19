@@ -275,6 +275,8 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 	}
 #endif
 
+	ScreenRendered();
+
 	if( bRenderGraphicsOnly )
 		return;
 

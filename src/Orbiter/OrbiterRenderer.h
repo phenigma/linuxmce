@@ -266,7 +266,15 @@ public:
 
 	virtual void RemoveGraphic(string ObjectID) {}
 
+	/*
+	 *	Orbiter's internal event - it will be fired as soon as as we've finished rendering an object
+	 */
 	virtual void ObjectRendered(DesignObj_Orbiter *pObj_Screen, PlutoPoint point){}
+
+	/*
+	 *	Orbiter's internal event - it will be fired as soon as the we've finished rendering the screen
+	 */
+	virtual void ScreenRendered() {}
 };
 
 #endif //__ORBITER_RENDERER_H__

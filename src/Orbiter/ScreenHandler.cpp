@@ -1470,7 +1470,7 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 					char *pGraphicData = FileUtils::ReadFileIntoBuffer(sIcon, GraphicLength);
 					if( pGraphicData )
 						m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, FileUtils::FindExtension(sIcon),
-							pGraphicData, GraphicLength, "0");  // Store the icon, which is cell's picture
+							pGraphicData, int(GraphicLength), "0");  // Store the icon, which is cell's picture
 				}
 			}
 		}

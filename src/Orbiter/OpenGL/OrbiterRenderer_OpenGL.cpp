@@ -708,7 +708,9 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	Engine->NewScreen(sScreenName);
 	m_pLastHighlightedObject = NULL;
 
+	Engine->BeginModifyGeometry();
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
+	Engine->EndModifyGeometry();
 	
 	NeedToUpdateScreen_ = true;
 
