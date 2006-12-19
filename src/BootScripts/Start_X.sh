@@ -40,7 +40,7 @@ AlphaBlending=$(AlphaBlendingEnabled)
 #XClient=/usr/pluto/bin/Start_IceWM.sh
 XClient=/usr/bin/xfwm4
 XClientParm=()
-XServerParm=(-logverbose 5 -br)
+XServerParm=(-logverbose 9 -br)
 Background=y
 XDisplay=:0
 
