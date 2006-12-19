@@ -4,7 +4,19 @@
 . /usr/pluto/bin/SQL_Ops.sh
 
 DISTRO_Debian=1
+DISTRO_Ubuntu=14
 REPOSITORYTYPE_Package=1
+
+
+if [[ -r /etc/lsb-release ]] ;then
+	. /etc/lsb-release
+fi
+
+if [[ "$DISTRIB_ID" == "Ubuntu" ]] ;then
+	DISTRO=$DISTRO_Ubuntu
+else
+	DISTRO=$DISTRO_Debian
+fi
 
 # Get list of missing packages
 Q="
@@ -36,7 +48,7 @@ fi
 Q="
 	SELECT ps.Name,rsu.URL,ps.Repository
 	FROM Package_Source ps
-	JOIN Package_Source_Compat psc ON ps.PK_Package_Source=psc.FK_Package_Source AND psc.FK_Distro=$DISTRO_Debian
+	JOIN Package_Source_Compat psc ON ps.PK_Package_Source=psc.FK_Package_Source AND psc.FK_Distro=$DISTRO
 	JOIN RepositorySource rs ON ps.FK_RepositorySource=rs.PK_RepositorySource AND FK_RepositoryType=$REPOSITORYTYPE_Package
 	JOIN RepositorySource_URL rsu ON ps.FK_RepositorySource=rsu.FK_RepositorySource
 	WHERE FK_Package IN (${PackageIDs// /,})
