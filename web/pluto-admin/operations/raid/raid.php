@@ -111,11 +111,19 @@ function raid($output,$dbADO) {
 						<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 						<td><input type="text" name="description" value=""></td>
 					</tr>
-					
 					<tr>
 						<td><B>'.$TEXT_TYPE_CONST.'</B></td>
 						<td>'.pulldownFromArray($raidTemplates,'template',0).'</td>
 					</tr>
+					<tr>
+						<td><B>'.$TEXT_USE_AUTOMATICALLY_CONST.'</B></td>
+						<td><input type="checkbox" name="use_automaticly" value="1"></td>
+					</tr>
+					<tr>
+						<td><B>'.$TEXT_USE_PLUTO_DIRECTORY_STRUCTURE_CONST.'</B></td>
+						<td><input type="checkbox" name="use_pluto_directory_structure" value="1"></td>
+					</tr>
+					
 					<tr>
 						<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
 					</tr>
@@ -140,8 +148,13 @@ function raid($output,$dbADO) {
 		if(isset($_POST['add']) && (int)@$_POST['template']!=0){
 			$description=cleanString($_POST['description']);
 			$parent=(int)$_REQUEST['computer'];
+			$use_automaticly=(int)@$_POST['use_automaticly'];
+			$use_pluto_directory_structure=(int)@$_POST['use_pluto_directory_structure'];
+			
 			$raidID=createDevice((int)@$_POST['template'],$installationID,$parent,NULL,$dbADO);
 			$dbADO->Execute('UPDATE Device SET Description=? WHERE PK_Device=?',array($description,$raidID));
+			set_device_data($raidID,$GLOBALS['use_automaticly_dd'],$use_automaticly,$dbADO);
+			set_device_data($raidID,$GLOBALS['use_pluto_directory_structure_dd'],$use_pluto_directory_structure,$dbADO);
 			
 			header("Location: index.php?section=raidDrives&deviceID=$raidID&msg=".urlencode(@$TEXT_RAID_ADDED_CONST));
 			exit();

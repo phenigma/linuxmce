@@ -31,4 +31,6 @@ $TEXT_NO_DRIVES_FOR_ARRAY_CONST='ERROR: at least 2 drives are required to create
 $TEXT_DESCRIPTION_REQUIRED_CONST='Description required.';
 $TEXT_PARENT_REQUIRED_CONST='Parent required.';
 $TEXT_TYPE_REQUIRED_CONST='RAID type required.';
+$TEXT_USE_AUTOMATICALLY_CONST='Use automatically';
+$TEXT_USE_PLUTO_DIRECTORY_STRUCTURE_CONST='Use pluto\'s directory structure';
 ?>
