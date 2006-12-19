@@ -41,6 +41,9 @@ if [[ $NewAdd == 0 ]] ;then
 	RunSQL "$Q"
 	#/usr/pluto/bin/start_RAID_monitoring.sh $name
 
+	## Format the new raid
+	echo "y" | mkfs.ext3 $name
 
+	## Create a pluto directory structure (depending on UsePlutoDirStructure device data)
 	/usr/pluto/bin/StorageDevice_PlutoDirStructure.sh -d $Device
 fi
