@@ -26,12 +26,6 @@ TryInstall()
 		error=$?
 		if [[ $error != 0 ]]; then
 			echo "Try $retries failed with exit code $error"
-			echo "--- Listing possibly useful information ---"
-			echo "=== Process tree ==="
-			ps axf
-			echo "=== lsof|grep /var/lib/dpkg"
-			lsof|grep -F /var/lib/dpkg
-			echo "--- End of listing ---"
 			sleep 5
 		fi
 		((retries++))
