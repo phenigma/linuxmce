@@ -46,7 +46,12 @@ void DatagridMouseHandlerHelper::Start(DesignObj_DataGrid *pObj_ScrollingGrid,in
 	m_bHitBottom=false;
 
 	m_iLastNotch=-1;
-	m_pObj_MediaBrowser_Alpha = m_pMouseBehavior->m_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoAlpha_CONST));
+
+	if(NULL != m_pMouseHandler->m_pObj)
+		m_pObj_MediaBrowser_Alpha = m_pMouseBehavior->m_pOrbiter->FindObject(m_pMouseHandler->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_icoAlpha_CONST));
+	else 
+		m_pObj_MediaBrowser_Alpha = NULL;
+
 	if( m_pObj_MediaBrowser_Alpha && !m_pObj_MediaBrowser_Alpha->m_bOnScreen )
 		m_pObj_MediaBrowser_Alpha = NULL;
 }
