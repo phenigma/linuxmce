@@ -2587,11 +2587,9 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	if(iRow==0)
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK CALLING CMD_Remove_Screen_From_History with id: %s PK_Screen %d",m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK CALLING CMD_Goto_Screen");
 #endif
-		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
-			StringUtils::itos(PK_Device),SCREEN_Choose_Provider_for_Device_CONST);
-		m_pOrbiter->SendCommand(CMD_Remove_Screen_From_History);
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Choose_Provider_for_Device_CONST);
 		string sText = m_pOrbiter->m_mapTextString[TEXT_error_with_provider_CONST];
 		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,sText,"","errorprovider","1","","1");
 		m_pOrbiter->ReceivedMessage(SCREEN_PopupMessage.m_pMessage);
@@ -2686,7 +2684,7 @@ bool OSDScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 			pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("PackageCommandLine") + "\t" +
 			pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("LineupCommandLine");
 
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST));
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, pCellInfoData->m_sValue);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,sTokens);
 
 		// VARIABLE_Misc_Data_2_CONST are the arguments to the scripts in the format:
@@ -2818,11 +2816,10 @@ void OSDScreenHandler::ChooseProviderGetNextStage()
 		DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,sAllArguments);
 		m_pOrbiter->SendCommand(CMD_Specify_Media_Provider);
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProviderGetNextStage CALLING CMD_Remove_Screen_From_History with id: %s PK_Screen %d",m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProviderGetNextStage CALLING CMD_Goto_Screen");
 #endif
-		DCE::CMD_Remove_Screen_From_History CMD_Remove_Screen_From_History(m_pOrbiter->m_dwPK_Device,DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
-			StringUtils::itos(PK_Device),SCREEN_Choose_Provider_for_Device_CONST);
-		m_pOrbiter->SendCommand(CMD_Remove_Screen_From_History);
+
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Choose_Provider_for_Device_CONST);
 
 		string sText = m_pOrbiter->m_mapTextString[TEXT_Media_provider_specified_CONST];
 		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,sText,"","errorprovider","1","","1");
