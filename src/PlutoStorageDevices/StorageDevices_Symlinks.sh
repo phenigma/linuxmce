@@ -12,6 +12,10 @@ TPL_GENERIC_INTERNAL_DRIVE=1790
 TPL_MAXTOR_NAS=1770
 TPL_GENERIC_SAMBA_SHARE=1768
 TPL_GENERIC_NFS_SHARE=1769
+TPL_RAID_0=1854
+TPL_RAID_1=1851
+TPL_RAID_5=1849
+
 
 DD_USE_PLUTO_DIR_STRUCTURE=130
 DD_DIRECTORIES=153
@@ -23,7 +27,7 @@ for userdir in /home/user_* /home/public ;do
 done
 
 ## Lookup our internal storage devices in the db
-Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_SAMBA_SHARE, $TPL_GENERIC_NFS_SHARE)"
+Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_SAMBA_SHARE, $TPL_GENERIC_NFS_SHARE, $TPL_RAID_0, $TPL_RAID_1, $TPL_RAID_5)"
 InternalOwnStorageDevices=$(RunSQL "$Q")
 
 for Device in $InternalOwnStorageDevices; do

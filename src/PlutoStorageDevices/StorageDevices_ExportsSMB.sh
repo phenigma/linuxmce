@@ -6,10 +6,13 @@
 . /usr/pluto/bin/Section_Ops.sh
 
 TPL_GENERIC_INTERNAL_DRIVE=1790
+TPL_RAID_0=1854
+TPL_RAID_1=1851
+TPL_RAID_5=1849
 DD_BLOCK_DEVICE=152
 
 ## Lookup our internal storage devices in the db
-Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate = $TPL_GENERIC_INTERNAL_DRIVE AND FK_Device_ControlledVia=$PK_Device"
+Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE,$TPL_RAID_0,$TPL_RAID_1,$TPL_RAID_5) AND FK_Device_ControlledVia=$PK_Device"
 InternalOwnStorageDevices=$(RunSQL "$Q")
 
 for Device in $InternalOwnStorageDevices; do
