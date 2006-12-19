@@ -230,8 +230,13 @@ void Command_Impl::PrepareToDelete()
 			exit(1);
 		}
 	}
+	
 	g_pPlutoLogger->Write( LV_STATUS, "Message queue thread quit" );
-	pthread_join(m_pthread_queue_id,NULL);
+	if( m_pthread_queue_id != 0 )
+	{
+		pthread_join(m_pthread_queue_id, NULL);
+		m_pthread_queue_id = 0;
+	}
 	g_pPlutoLogger->Write( LV_STATUS, "Message queue thread joined" );
 
 	if( m_bKillSpawnedDevicesOnExit )
