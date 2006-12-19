@@ -37,11 +37,6 @@ MeshFrame::MeshFrame(string Name, MeshContainer* Mesh)
 
 MeshFrame::~MeshFrame(void)
 {
-	if("5172.0.0.5197.4234 clone" == m_sName)
-	{
-		int a = 5;
-	}
-
 #ifdef DEBUG
 	if(m_bDontReleaseTexture)
 		DCE::g_pPlutoLogger->Write(LV_STATUS, "Not releasing texture for %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
@@ -68,36 +63,28 @@ void MeshFrame::MarkAsVolatile()
 
 /*virtual*/ void MeshFrame::CleanUp(bool VolatilesOnly/* = false*/)
 {
-	if("5172.0.0.5197.4234 clone" == m_sName)
-	{
-		int a = 5;
-	}
-
 #ifdef DEBUG
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::CleanUp: %p/%s", this, m_sName.c_str());	
 #endif
 
 	vector<MeshFrame*>::iterator Child;
-	for(Child = Children.begin(); Child!=Children.end(); )
+	for(Child = Children.begin(); Child!=Children.end();++Child)
 	{
 		MeshFrame *pMeshFrame = *Child;
+		pMeshFrame->CleanUp(true);
 
 		if(!VolatilesOnly || pMeshFrame->IsVolatile())
 		{
-			pMeshFrame->CleanUp();
 			delete pMeshFrame;
 			pMeshFrame = NULL;
-			Child = Children.erase(Child);
 		}
 		else
 		{
 			pMeshFrame->ResetParent();
-			++Child;
 		}
 	}	
 
-	if(!VolatilesOnly)
-		Children.clear();
+	Children.clear();
 }
 
 void MeshFrame::SetMeshContainer(MeshContainer* Mesh)
@@ -332,11 +319,6 @@ MeshContainer* MeshFrame::GetMeshContainer()
 MeshFrame *MeshFrame::Clone()
 {
 	MeshFrame *Result = new MeshFrame(m_sName + " clone");
-
-	if(m_sName == "5172.0.0.5197.4234")
-	{
-		int a = 4;
-	}
 
 	Result->MarkAsVolatile();
 

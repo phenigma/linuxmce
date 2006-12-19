@@ -256,11 +256,6 @@ Simulator::~Simulator()
 {
 	if(NULL == m_pInstance)
 	{
-		if(m_bInstanceCreated)
-		{
-			int a = 0;
-		}
-
 		m_bInstanceCreated = true;
 		m_pInstance = new Simulator();
 	}
