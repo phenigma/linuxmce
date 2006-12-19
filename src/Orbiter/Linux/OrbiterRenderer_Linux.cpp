@@ -186,13 +186,16 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 				m_screenMaskObjects, 0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight, false);
 			pOrbiterLinux->m_pX11->Shape_PixmapMask_Rectangle(
 				m_screenMaskPopups, 0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight, false);
-
-			ApplyMasks();
 		}
 
 		if( bRenderGraphicsOnly )
 		{
 			BASE_CLASS::RenderScreen( bRenderGraphicsOnly );
+	
+                        if(pOrbiterLinux->m_bUseMask)
+                                ApplyMasks();
+
+	                m_bScreenRendered = true;
 			return;
 		}		
 		
@@ -208,16 +211,16 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 
 			X11_Locker lock(pOrbiterLinux->GetDisplay());
 			BASE_CLASS::RenderScreen(bRenderGraphicsOnly);
+
+	                if(pOrbiterLinux->m_bUseMask)
+        	                ApplyMasks();
 		}
 
 		if(pOrbiterLinux->m_bOrbiterReady)
 			pOrbiterLinux->m_pWinListManager->ShowSdlWindow(pOrbiterLinux->m_bIsExclusiveMode, pOrbiterLinux->m_bYieldScreen);
+
+	        m_bScreenRendered = true;
 	}
-
-	if(pOrbiterLinux->m_bUseMask)
-		ApplyMasks();
-
-	m_bScreenRendered = true;
 }
 
 void OrbiterRenderer_Linux::ApplyMasks()
