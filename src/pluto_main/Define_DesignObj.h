@@ -2335,7 +2335,6 @@
 #define DESIGNOBJ_FinalHouseSetup_CONST 5325
 #define DESIGNOBJ_butFinalHouseSetup_CONST 5327
 #define DESIGNOBJ_dgcell_CaptureCardPort_CONST 5330
-#define DESIGNOBJ_dgcell_CaptureCardPort_Select_CONST 5331
 #define DESIGNOBJ_DevicesForCaptureCardPort_CONST 5332
 #define DESIGNOBJ_dgDevicesForCaptureCardPort_CONST 5333
 #define DESIGNOBJ_butCancelCaptureCardPort_CONST 5334
@@ -2343,6 +2342,9 @@
 #define DESIGNOBJ_butNewCamera_CONST 5336
 #define DESIGNOBJ_dgDevicesNeedingProviders_CONST 5337
 #define DESIGNOBJ_Specify_Media_Provider_CONST 5338
+#define DESIGNOBJ_dgcell_Device_Provider_CONST 5340
+#define DESIGNOBJ_grp_fp_Datagrid_CONST 5341
+#define DESIGNOBJ_dgFloorplanDevices_CONST 5342
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
