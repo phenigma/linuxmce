@@ -133,7 +133,7 @@ g_pPlutoLogger->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK_DesignObj_get
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2244 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5106 ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
+if( m_pRow_DesignObj->PK_DesignObj_get()==2217 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5106 ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -406,6 +406,7 @@ retry_alt_file:
 							sAltFile="";
 							goto retry_alt_file;
 						}
+
 						cout << "Error reading graphic: " << sGraphicFile << " DesignObj: " << m_pRow_DesignObjVariation->FK_DesignObj_get() << endl;
                         sGraphicFile = "";
                     }
@@ -986,30 +987,63 @@ int k=2;
                     alArrays.push_back(drOVO);
                 else
                 {
-                    if( drOVO->FK_DesignObj_Child_getrow()->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
+					Row_DesignObj *pRow_DesignObj_Child = drOVO->FK_DesignObj_Child_getrow();
+                    if( pRow_DesignObj_Child->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
                     {
                         // Add 1 child for each floorplan page
                         int PageCount=0;
                         vector<Row_Floorplan *> vectRow_Floorplan;
                         m_mds->Floorplan_get()->GetRows(string(FLOORPLAN_FK_INSTALLATION_FIELD) + " Is Null OR " + DEVICE_FK_INSTALLATION_FIELD + "=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()),&vectRow_Floorplan);
-                        for(size_t s=0;s<vectRow_Floorplan.size();++s)
-                        {
-                            Row_Floorplan *pRow_Floorplan = vectRow_Floorplan[s];
-                            m_pOrbiterGenerator->m_iFloorplanPage = ++PageCount;
-                            PlutoRectangle rectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get());
-                            DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),rectangle,this,false,false,false);
-							if( pDesignObj_Generator->m_pRow_DesignObjVariation )
+						if( vectRow_Floorplan.size()==0 )
+						{
+							// When we have a floorplan object and no floorplans, look instead for an object to substitute
+							Row_DesignObjVariation * pRow_DesignObjVariation=NULL,*pRow_DesignObjVariation_Standard=NULL;
+							vector<class Row_DesignObjVariation *> alDesignObjVariations;
+						    PickVariation(m_pOrbiterGenerator,pRow_DesignObj_Child,&pRow_DesignObjVariation,&pRow_DesignObjVariation_Standard,&alDesignObjVariations);
+							if( pRow_DesignObjVariation )
 							{
-								pDesignObj_Generator->m_bCanBeHidden = true;
-								pDesignObj_Generator->m_bHideByDefault = true;
-								pDesignObj_Generator->m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
-								pDesignObj_Generator->m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get()==1;
-								pDesignObj_Generator->m_bDontMergeBackground = drOVO->DontMergeBackground_get()==1;
-								m_alChildDesignObjs.push_back(pDesignObj_Generator);
+								Row_DesignObjVariation_DesignObjParameter *pRow_DesignObjVariation_DesignObjParameter = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_PK_DesignObj_Cell_CONST);
+								if( pRow_DesignObjVariation_DesignObjParameter )
+								{
+									Row_DesignObj *pRow_DesignObj_Substitute = m_mds->DesignObj_get()->GetRow( atoi(pRow_DesignObjVariation_DesignObjParameter->Value_get().c_str()) );
+									if( pRow_DesignObj_Substitute )
+									{
+										PlutoRectangle rectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get());
+										DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_Substitute,rectangle,this,false,false,false);
+										if( pDesignObj_Generator->m_pRow_DesignObjVariation )
+										{
+											pDesignObj_Generator->m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
+											pDesignObj_Generator->m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get()==1;
+											pDesignObj_Generator->m_bDontMergeBackground = drOVO->DontMergeBackground_get()==1;
+											m_alChildDesignObjs.push_back(pDesignObj_Generator);
+										}
+										else
+											delete pDesignObj_Generator;
+									}
+								}
 							}
-							else
-								delete pDesignObj_Generator;
-                        }
+						}
+						else
+						{
+							for(size_t s=0;s<vectRow_Floorplan.size();++s)
+							{
+								Row_Floorplan *pRow_Floorplan = vectRow_Floorplan[s];
+								m_pOrbiterGenerator->m_iFloorplanPage = ++PageCount;
+								PlutoRectangle rectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get());
+								DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),rectangle,this,false,false,false);
+								if( pDesignObj_Generator->m_pRow_DesignObjVariation )
+								{
+									pDesignObj_Generator->m_bCanBeHidden = true;
+									pDesignObj_Generator->m_bHideByDefault = true;
+									pDesignObj_Generator->m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
+									pDesignObj_Generator->m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get()==1;
+									pDesignObj_Generator->m_bDontMergeBackground = drOVO->DontMergeBackground_get()==1;
+									m_alChildDesignObjs.push_back(pDesignObj_Generator);
+								}
+								else
+									delete pDesignObj_Generator;
+							}
+						}
                     }
                     else
                     {

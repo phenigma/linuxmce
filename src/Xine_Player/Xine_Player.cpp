@@ -1396,3 +1396,14 @@ void Xine_Player::StopNbdDevice()
 	system(sCmd.c_str());
 	m_iNbdDevice=0;
 }
+
+//<-dceag-c126-b->
+
+	/** @brief COMMAND: #126 - Guide */
+	/** Show guide information.  For a dvd this may be the menu, just like the menu command */
+
+void Xine_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
+//<-dceag-c126-e->
+{
+	CMD_Goto_Media_Menu(0,0);
+}

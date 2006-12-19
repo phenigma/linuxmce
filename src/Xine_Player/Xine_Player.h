@@ -256,6 +256,13 @@ public:
 	virtual void CMD_Stop(bool bEject,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #126 - Guide */
+	/** Show guide information.  For a dvd this may be the menu, just like the menu command */
+
+	virtual void CMD_Guide() { string sCMD_Result; CMD_Guide(sCMD_Result,NULL);};
+	virtual void CMD_Guide(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #139 - Play */
 	/** Play the media */
 

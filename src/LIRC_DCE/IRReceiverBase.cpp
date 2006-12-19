@@ -123,6 +123,11 @@ IRReceiverBase::~IRReceiverBase()
 
 void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const char *pRepeat, int iRepeat)
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ReceivedCode device %d code %s repeat %s/%d",
+		PK_Device_Remote,pCode,pRepeat,iRepeat);
+#endif
+
 	char cRemoteLayout = m_mapRemoteLayout[PK_Device_Remote];
 	map<string,MapKeysToMessages *>::iterator it = m_mapKeyMapping.find(StringUtils::ToUpper(pCode));
 	if( it!=m_mapKeyMapping.end() )
@@ -196,6 +201,10 @@ void IRReceiverBase::RepeatThread()
 	while( m_bRepeatKey )
 	{
 		rm.TimedCondWait(0,250 * 1000000);
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::RepeatThread device %d code %s/%d",
+			m_PK_Device_Remote,m_sRepeatCode.c_str(),iRepeat);
+#endif
 		if( !m_bRepeatKey )
 			return;
 		ReceivedCode(m_PK_Device_Remote,m_sRepeatCode.c_str(),NULL,iRepeat++);

@@ -260,10 +260,14 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVIRCodesSets)), 
 		DATAGRID_IR_Codes_Sets_CONST,PK_DeviceTemplate_get());
+
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::IRCommands)), 
 		DATAGRID_IR_Commands_CONST,PK_DeviceTemplate_get());
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::FloorplanDevices)), 
+		DATAGRID_Floorplan_Devices_CONST,PK_DeviceTemplate_get());
 	
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::LowSystemDiskSpace ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Low_System_Disk_Space_CONST );
@@ -3271,4 +3275,54 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 	strout.read( *pCustom_Response, *iCustom_Response_Size );
 	
 	g_pPlutoLogger->Write(LV_STATUS,"Finishing Get_Network_Devices_Shares");
+}
+
+class DataGridTable *General_Info_Plugin::FloorplanDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::FloorplanDevices");
+#endif
+
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	int iRow=0;
+
+	if( Parms=="E" )
+	{
+        vector<Row_EntertainArea *> vectRow_EntertainArea;
+		string SQL = "JOIN Room ON FK_Room=PK_Room WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get());
+		m_pDatabase_pluto_main->EntertainArea_get()->GetRows(SQL,&vectRow_EntertainArea);
+	}
+	else if( Parms.empty()==false )
+	{
+		int PK_DeviceCategory=0;
+		switch(Parms[0])
+		{
+		case 'L':
+			PK_DeviceCategory=DEVICECATEGORY_Lighting_Device_CONST;
+			break;
+		case 'S':
+			PK_DeviceCategory=DEVICECATEGORY_Security_Device_CONST;
+			break;
+		case 'T':
+			PK_DeviceCategory=DEVICECATEGORY_Lighting_Device_CONST;
+			break;
+		case 'C':
+			PK_DeviceCategory=DEVICECATEGORY_Phones_CONST;
+			break;
+		}
+
+		string sSQL = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory WHERE FK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) + " OR FK_DeviceCategory_Parent=" + StringUtils::itos(PK_DeviceCategory);
+		vector<Row_Device *> vectRow_Device;
+		m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device);
+		for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
+		{
+			Row_Device *pRow_Device = *it;
+			pCell = new DataGridCell(pRow_Device->Description_get(),StringUtils::itos(pRow_Device->PK_Device_get()));
+			pDataGrid->SetData(0,iRow++,pCell);
+		}
+	}
+
+	return pDataGrid;
 }
