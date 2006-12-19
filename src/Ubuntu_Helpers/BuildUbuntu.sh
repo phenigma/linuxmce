@@ -121,7 +121,7 @@ function Build_Pluto_Stuff {
 #	607 	Pluto ATI Video Drivers Source
 #	543  	Pluto vloopback Kernel Module
 #	542 	Pluto vloopback Kernel Module Source
-	$MakeRelease -b -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 1 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,499,498,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
+	$MakeRelease -b -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 1 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
 #-b
 	#$MakeRelease -h 10.0.0.150 -u root -O $out_dir -D main_sqlcvs_$flavor -c -a -o 1 -r 20 -m 1 -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log) -d 
 }
