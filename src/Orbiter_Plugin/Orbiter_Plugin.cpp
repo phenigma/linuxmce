@@ -71,6 +71,7 @@ using namespace DCE;
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_Size.h"
 #include "pluto_main/Define_Screen.h"
+#include "pluto_main/Define_DataGrid.h"
 #include "pluto_media/Define_AttributeType.h"
 #include "DCERouter.h"
 #include "CreateDevice/CreateDevice.h"
@@ -79,7 +80,7 @@ using namespace DCE;
 #include "pluto_main/Define_Screen.h"
 #include "SerializeClass/ShapesColors.h"
 #include "PlutoUtils/DatabaseUtils.h"
-
+#include "DataGrid.h"
 #include "PopulateListsInVMC.h"
 
 #include <cctype>
@@ -308,8 +309,9 @@ bool Orbiter_Plugin::Register()
 
 	m_pGeneral_Info_Plugin=( General_Info_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
 	m_pPlug_And_Play_Plugin=( Plug_And_Play_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Plug_And_Play_Plugin_CONST);
+	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 
-	if( !m_pLighting_Floorplan || !m_pClimate_Floorplan || !m_pMedia_Floorplan || !m_pSecurity_Floorplan || !m_pTelecom_Floorplan || !m_pGeneral_Info_Plugin )
+	if( !m_pDatagrid_Plugin || !m_pLighting_Floorplan || !m_pClimate_Floorplan || !m_pMedia_Floorplan || !m_pSecurity_Floorplan || !m_pTelecom_Floorplan || !m_pGeneral_Info_Plugin )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
 		return false;
@@ -339,6 +341,10 @@ bool Orbiter_Plugin::Register()
 
     GenerateVMCFiles();
     GeneratePlutoMOConfig();
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&Orbiter_Plugin::FloorplanDevices)), 
+		DATAGRID_Floorplan_Devices_CONST,PK_DeviceTemplate_get());
 
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterDetected) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_detected_CONST);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterLinked) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_linked_CONST);
@@ -2980,4 +2986,170 @@ void Orbiter_Plugin::CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int i
 	}
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_Set_Active_Remote No orbiter %d",iPK_Orbiter);
+}
+
+class DataGridTable *Orbiter_Plugin::FloorplanDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::FloorplanDevices");
+#endif
+
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	int iRow=0;
+
+	if( Parms=="E" )
+	{
+        vector<Row_EntertainArea *> vectRow_EntertainArea;
+		string SQL = "JOIN Room ON FK_Room=PK_Room WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get());
+		m_pDatabase_pluto_main->EntertainArea_get()->GetRows(SQL,&vectRow_EntertainArea);
+		for(vector<Row_EntertainArea *>::iterator it=vectRow_EntertainArea.begin();it!=vectRow_EntertainArea.end();++it)
+		{
+			Row_EntertainArea *pRow_EntertainArea = *it;
+			EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(pRow_EntertainArea->PK_EntertainArea_get());
+			if( !pEntertainArea )
+				continue; // Shouldn't happen
+			
+			pCell = new DataGridCell(pRow_EntertainArea->Description_get(),StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()));
+			pDataGrid->SetData(0,iRow++,pCell);
+
+			int iPK_FloorplanObjectType_Color=0,iColor=0,PK_DesignObj_Toolbar=0;
+			string sDescription;
+			string OSD;
+			Row_FloorplanObjectType_Color *pRow_FloorplanObjectType_Color = NULL;
+
+			m_pMedia_Floorplan->GetFloorplanDeviceInfo(NULL,pEntertainArea,
+				pRow_EntertainArea->FK_FloorplanObjectType_get(),
+				iPK_FloorplanObjectType_Color,iColor,sDescription,OSD,PK_DesignObj_Toolbar);
+
+			if( iPK_FloorplanObjectType_Color )
+				pRow_FloorplanObjectType_Color = m_pDatabase_pluto_main->FloorplanObjectType_Color_get()->GetRow(iPK_FloorplanObjectType_Color);
+
+			if( !iColor && pRow_FloorplanObjectType_Color )
+				iColor = pRow_FloorplanObjectType_Color->Color_get();
+			if( sDescription.length()==0 && pRow_FloorplanObjectType_Color )
+				sDescription = pRow_FloorplanObjectType_Color->Description_get();
+
+			pCell->m_AltColor = iColor;
+			pCell->m_mapAttributes["Description"] = sDescription;
+			pCell->m_mapAttributes["OSD"] = OSD;
+			pCell->m_mapAttributes["PK_DesignObj_Toolbar"] = StringUtils::itos(PK_DesignObj_Toolbar);
+			/*
+		
+
+
+			int iPK_FloorplanObjectType_Color=0,iColor=0,PK_DesignObj_Toolbar=0;
+			string sDescription;
+			Row_FloorplanObjectType_Color *pRow_FloorplanObjectType_Color = NULL;
+
+			FloorplanObject *fpObj = (*fpObjVector)[i];
+			DeviceData_Router *pDeviceData_Router = fpObj->m_pDeviceData_Router;
+
+			pFloorplanInfoProvider->GetFloorplanDeviceInfo(pDeviceData_Router,fpObj->m_pEntertainArea,fpObj->Type,iPK_FloorplanObjectType_Color,iColor,sDescription,OSD,PK_DesignObj_Toolbar);
+			if( iPK_FloorplanObjectType_Color )
+				pRow_FloorplanObjectType_Color = m_pDatabase_pluto_main->FloorplanObjectType_Color_get()->GetRow(iPK_FloorplanObjectType_Color);
+
+			if( !iColor && pRow_FloorplanObjectType_Color )
+				iColor = pRow_FloorplanObjectType_Color->Color_get();
+			if( sDescription.length()==0 && pRow_FloorplanObjectType_Color )
+				sDescription = pRow_FloorplanObjectType_Color->Description_get();
+
+			if(fpObj->PK_Device < 0) //entertain area
+			{
+				vector<Row_Device *> vectRow_Device;
+				m_pDatabase_pluto_main->Device_get()->GetRows(
+					"JOIN DeviceTemplate ON Device.FK_DeviceTemplate = DeviceTemplate.PK_DeviceTemplate "
+					"WHERE FK_Room = " + StringUtils::ltos(fpObj->m_pEntertainArea->m_pRoom->m_dwPK_Room) + " "
+					"AND FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Media_Director_CONST),
+					&vectRow_Device);
+
+				if(vectRow_Device.size() > 0)
+				{
+					Row_Device* pRow_Device = *vectRow_Device.begin();
+					pRow_Device->Reload();
+					if(pRow_Device->Status_get() != "MD_ON")
+					{
+						iColor = PlutoColor::Gray().m_Value;
+						sDescription = "offline";
+					}
+				}
+			}
+
+*/
+		}
+
+
+
+
+
+
+
+	}
+	else if( Parms.empty()==false )
+	{
+		int PK_DeviceCategory=0;
+		FloorplanInfoProvider *pFloorplanInfoProvider=NULL;
+
+		switch(Parms[0])
+		{
+		case 'L':
+			PK_DeviceCategory=DEVICECATEGORY_Lighting_Device_CONST;
+			pFloorplanInfoProvider=m_pLighting_Floorplan;
+			break;
+		case 'S':
+			PK_DeviceCategory=DEVICECATEGORY_Security_Device_CONST;
+			pFloorplanInfoProvider=m_pSecurity_Floorplan;
+			break;
+		case 'T':
+			PK_DeviceCategory=DEVICECATEGORY_Phones_CONST;
+			pFloorplanInfoProvider=m_pTelecom_Floorplan;
+			break;
+		case 'C':
+			PK_DeviceCategory=DEVICECATEGORY_Climate_Device_CONST;
+			pFloorplanInfoProvider=m_pClimate_Floorplan;
+			break;
+		}
+
+		if( !pFloorplanInfoProvider )
+			return NULL; // Shouldn't happen
+
+		string sSQL = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory WHERE FK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) + " OR FK_DeviceCategory_Parent=" + StringUtils::itos(PK_DeviceCategory);
+		vector<Row_Device *> vectRow_Device;
+		m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device);
+		for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
+		{
+			Row_Device *pRow_Device = *it;
+			DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(pRow_Device->PK_Device_get());
+			if( !pDevice )
+				continue;
+
+			pCell = new DataGridCell(pRow_Device->Description_get(),StringUtils::itos(pRow_Device->PK_Device_get()));
+			pDataGrid->SetData(0,iRow++,pCell);
+
+			int iPK_FloorplanObjectType_Color=0,iColor=0,PK_DesignObj_Toolbar=0;
+			string sDescription;
+			string OSD;
+			Row_FloorplanObjectType_Color *pRow_FloorplanObjectType_Color = NULL;
+
+			pFloorplanInfoProvider->GetFloorplanDeviceInfo(pDevice,NULL,
+				atoi(pDevice->m_mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str()),
+				iPK_FloorplanObjectType_Color,iColor,sDescription,OSD,PK_DesignObj_Toolbar);
+
+			if( iPK_FloorplanObjectType_Color )
+				pRow_FloorplanObjectType_Color = m_pDatabase_pluto_main->FloorplanObjectType_Color_get()->GetRow(iPK_FloorplanObjectType_Color);
+
+			if( !iColor && pRow_FloorplanObjectType_Color )
+				iColor = pRow_FloorplanObjectType_Color->Color_get();
+			if( sDescription.length()==0 && pRow_FloorplanObjectType_Color )
+				sDescription = pRow_FloorplanObjectType_Color->Description_get();
+
+			pCell->m_AltColor = iColor;
+			pCell->m_mapAttributes["Description"] = sDescription;
+			pCell->m_mapAttributes["OSD"] = OSD;
+			pCell->m_mapAttributes["PK_DesignObj_Toolbar"] = StringUtils::itos(PK_DesignObj_Toolbar);
+		}
+	}
+
+	return pDataGrid;
 }

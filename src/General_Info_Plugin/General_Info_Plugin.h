@@ -26,10 +26,10 @@ namespace DCE
 	};
 };
 
-//<-dceag-decl-b->
+//<-dceag-decl-b->!
 namespace DCE
 {
-	class General_Info_Plugin : public General_Info_Plugin_Command
+	class General_Info_Plugin : public General_Info_Plugin_Command, public DataGridGeneratorPlugIn
 	{
 //<-dceag-decl-e->
 		typedef pair<int, string> pairPKDescription;

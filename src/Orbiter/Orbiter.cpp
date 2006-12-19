@@ -54,6 +54,7 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_Button.h"
+#include "pluto_main/Define_DataGrid.h"
 
 #include "Floorplan.h"
 #include "pluto_main/Define_DesignObj.h"
@@ -1340,6 +1341,25 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 //------------------------------------------------------------------------
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell, SelectionMethod selectionMethod, int iRow, int iColumn )
 {
+	if( pDesignObj_DataGrid->m_iPK_Datagrid==DATAGRID_Floorplan_Devices_CONST )
+	{
+		if( pDesignObj_DataGrid->m_pFloorplanObject==NULL )
+			pDesignObj_DataGrid->m_pFloorplanObject = new FloorplanObject();
+
+		if( pCell->m_Text )
+			pDesignObj_DataGrid->m_pFloorplanObject->DeviceDescription = pCell->m_Text;
+		if( pCell->m_Value )
+		{
+			pDesignObj_DataGrid->m_pFloorplanObject->PK_Device = atoi(pCell->m_Value);
+			pDesignObj_DataGrid->m_pFloorplanObject->m_pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pDesignObj_DataGrid->m_pFloorplanObject->PK_Device);
+			pDesignObj_DataGrid->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar = atoi(pCell->m_mapAttributes["PK_DesignObj_Toolbar"].c_str());
+		}
+		else
+			pDesignObj_DataGrid->m_pFloorplanObject->m_pDeviceData_Base=NULL;
+
+		SelectedFloorplan(pDesignObj_DataGrid);
+	}
+
 	list<DesignObj_DataGrid *> listObj_ToFlush; // A list of grids which are being redrawn within this action and must be refreshed
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbDataGridSelected);
 	if(pCallBackData)
@@ -1708,16 +1728,16 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 
 void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 {
-//	m_pScreenHistory_Current->m_dwPK_Device = pDesignObj_Orbiter->m_pFloorplanObject->PK_Device;
-	CMD_Set_Variable(VARIABLE_Array_ID_CONST,pDesignObj_Orbiter->m_pFloorplanObject->ObjectTypeDescription);
-	CMD_Set_Variable(VARIABLE_Array_Desc_CONST,pDesignObj_Orbiter->m_pFloorplanObject->DeviceDescription);
-	CMD_Set_Variable(VARIABLE_Status_CONST,pDesignObj_Orbiter->m_pFloorplanObject->Status);
+	// pDesignObj_Orbiter->m_pFloorplanObject->PK_Device will be >0 for a device, <0 for an entertainment area
+	CMD_Set_Variable(VARIABLE_Array_ID_CONST,pDesignObj_Orbiter->m_pFloorplanObject->ObjectTypeDescription); // ie Ceiling light ( for an ea: Pluto Media Dir )
+	CMD_Set_Variable(VARIABLE_Array_Desc_CONST,pDesignObj_Orbiter->m_pFloorplanObject->DeviceDescription); // ie Light switch (on/off) ( for an ea: Bedroom )
+	CMD_Set_Variable(VARIABLE_Status_CONST,pDesignObj_Orbiter->m_pFloorplanObject->Status); // ie On
 
 	// If this has a toolbar, and either (1) there is no previously selected object,
 	// (2) there was a previously selected object but it wasn't a floorplan or (3) used a different toolbar
 	// then we need to activate this toolbar and remove any previous one
 	int PK_DesignObj_Toolbar_ToTurnOn=0,PK_DesignObj_Toolbar_ToTurnOff=0;
-	if( pDesignObj_Orbiter->m_pFloorplanObject && pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar &&
+	if( pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar &&
 		(!m_pObj_LastSelected || m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar!=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar) )
 	{
 		PK_DesignObj_Toolbar_ToTurnOn=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar;

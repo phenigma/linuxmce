@@ -5,6 +5,9 @@
 #include "DesignObj_DataGrid.h"
 #include "../DCE/DataGrid.h"
 #include "../Gen_Devices/AllCommandsRequests.h"
+#include "pluto_main/Define_DataGrid.h"
+#include "pluto_main/Define_Variable.h"
+#include "pluto_main/Define_FloorplanType.h"
 
 using namespace DCE;
 

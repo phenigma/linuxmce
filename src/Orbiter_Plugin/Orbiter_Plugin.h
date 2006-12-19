@@ -14,6 +14,7 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "OrbiterGen/RegenMonitor.h"
 #include "Gen_Devices/AllScreens.h"
+#include "Datagrid_Plugin/Datagrid_Plugin.h"
 
 class Database_pluto_main;
 class Database_pluto_security;
@@ -57,7 +58,7 @@ public:
 };
 
 //<-dceag-decl-b->!
-    class Orbiter_Plugin : public Orbiter_Plugin_Command, public AlarmEvent
+    class Orbiter_Plugin : public Orbiter_Plugin_Command, public AlarmEvent, public DataGridGeneratorPlugIn
     {
 //<-dceag-decl-e->
         bool m_bFloorPlansArePrepared;
@@ -88,6 +89,7 @@ public:
 	class Media_Plugin *m_pMedia_Plugin;
 	class General_Info_Plugin *m_pGeneral_Info_Plugin;
 	class Plug_And_Play_Plugin *m_pPlug_And_Play_Plugin;
+	class Datagrid_Plugin *m_pDatagrid_Plugin;
 	map<string,int> m_mapUsersID;  // ID's fired in presence deteced/lost events mapped to user id's
 
     // Private methods
@@ -177,6 +179,9 @@ public:
 
     void ProcessUnknownDevice();
     bool IdentifyDevice(const string& sMacAddress, string &sDeviceCategoryDesc, int &iPK_DeviceTemplate, string &sManufacturerDesc);
+
+	class DataGridTable *FloorplanDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+
 
 	/*  If the user wants to use the onscreen display, he may want the tv to always stay on and only
 	turn off when the orbiter is specifcally turned off or goes to sleep.  In those cases the user

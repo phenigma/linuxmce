@@ -1012,6 +1012,7 @@ int k=2;
 										DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_Substitute,rectangle,this,false,false,false);
 										if( pDesignObj_Generator->m_pRow_DesignObjVariation )
 										{
+											pDesignObj_Generator->m_bTabStop = true;
 											pDesignObj_Generator->m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
 											pDesignObj_Generator->m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get()==1;
 											pDesignObj_Generator->m_bDontMergeBackground = drOVO->DontMergeBackground_get()==1;
