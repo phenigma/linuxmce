@@ -93,9 +93,10 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 		BuildDependencies(Dependencies);
 		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject StartAnimation %s B(%p) - A(%p)",
 			DatagridFrameID.c_str(), BeforeDataGridClone, m_pRenderFrame);
+
 		Engine->GetDatagridAnimationManager()->PrepareForAnimation(
-			DatagridFrameID, BeforeDataGridClone, m_pRenderFrame, m_AnimationSpeed, iPK_Direction, 
-			GetAlphaLevel() / 255.0f, Dependencies);
+			DatagridFrameID, BeforeDataGridClone, m_pRenderFrame, 
+			m_AnimationSpeed, iPK_Direction, Dependencies);
 		StartAnimation = 0;
 	}
 	else

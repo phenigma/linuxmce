@@ -34,7 +34,6 @@ class AnimationScrollDatagrid
 	int Direction;
 	int StartTime;
 	OpenGL3DEngine* Engine;
-	float MaxAlpha;
 	bool Finished;
 
 
@@ -49,7 +48,7 @@ public:
 	 */
 	AnimationScrollDatagrid(string ObjectID, OpenGL3DEngine* Engine, 
 		MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-		int MilisecondTime, int Direction, float fMaxAlphaLevel, vector <string> Dependencies);
+		int MilisecondTime, int Direction, vector <string> Dependencies);
 	virtual ~AnimationScrollDatagrid(void);
 
 	/**

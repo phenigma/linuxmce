@@ -24,7 +24,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "DCE/Logger.h"
 
 AnimationScrollDatagrid::AnimationScrollDatagrid(string ObjectID, OpenGL3DEngine* Engine, MeshFrame *BeforeGrid, 
-	MeshFrame *AfterGrid, int MilisecondTime, int Direction, float fMaxAlphaLevel, vector <string> pDependencies)
+	MeshFrame *AfterGrid, int MilisecondTime, int Direction, vector <string> pDependencies)
 {
 	Finished = false;
 	this->Engine = Engine;
@@ -32,7 +32,6 @@ AnimationScrollDatagrid::AnimationScrollDatagrid(string ObjectID, OpenGL3DEngine
 	this->AfterGrid = AfterGrid;
 	this->MilisecondTime = MilisecondTime;
 	this->Direction = Direction;
-	this->MaxAlpha = fMaxAlphaLevel;
 	this->ObjectID = ObjectID;
 
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "abc AnimationScrollDatagrid before %p/%s and after %p/%s",
@@ -101,11 +100,6 @@ bool AnimationScrollDatagrid::Update(bool ModifyGeometry)
 		Transform2.ApplyTranslate(0, float(Height/2), float(Height/2));
 		AfterGrid->SetTransform(Transform2);
 	}
-
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Animation step: %f", 100 * Progress);
-
-	BeforeGrid->SetAlpha((1-Progress) * MaxAlpha, "text|datagrid-thumb");
-	AfterGrid->SetAlpha(Progress * MaxAlpha, "text|datagrid-thumb");
 
 	if(Result)
 	{

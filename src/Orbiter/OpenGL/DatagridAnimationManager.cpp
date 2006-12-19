@@ -68,11 +68,11 @@ void DatagridAnimationManager::Cleanup()
 }
 
 void DatagridAnimationManager::PrepareForAnimation(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-		int MilisecondTime, int Direction, float fMaxAlphaLevel, vector<string> Dependencies)
+		int MilisecondTime, int Direction, vector<string> Dependencies)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
 
-	AnimationScrollDatagrid* pAnimation = new AnimationScrollDatagrid(ObjectID, m_pEngine, BeforeGrid, AfterGrid, MilisecondTime, Direction, fMaxAlphaLevel, Dependencies); 
+	AnimationScrollDatagrid* pAnimation = new AnimationScrollDatagrid(ObjectID, m_pEngine, BeforeGrid, AfterGrid, MilisecondTime, Direction, Dependencies); 
 
 	for(vector<AnimationScrollDatagrid *>::iterator it = m_vectPendingAnimations.begin();
 		it != m_vectPendingAnimations.end(); ++it)

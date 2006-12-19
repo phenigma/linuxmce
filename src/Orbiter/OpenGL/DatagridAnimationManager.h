@@ -65,7 +65,7 @@ public:
 	 *	will start
 	 */
 	void PrepareForAnimation(string ObjectID, MeshFrame *BeforeGrid, MeshFrame *AfterGrid,
-		int MilisecondTime, int Direction, float fMaxAlphaLevel, vector<string> Dependencies);
+		int MilisecondTime, int Direction, vector<string> Dependencies);
 
 	/**
 	 *	Stop all animation for one reason (for instance it changes the screen)

@@ -23,41 +23,58 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "DCE/Logger.h"
 
 MeshFrame::MeshFrame(string Name, MeshContainer* Mesh) 
-	: Visible_(true),
-	TextureTransform(),
+	: 
+	m_pParent(NULL),
+	m_bVisible(true),
+	m_bVolatile(false),
+	m_bDontReleaseTexture(false),
 	Transform(),
-	Parent(NULL),
-	Volatile_(false)
+	TextureTransform()
 {
-	this->Mesh = Mesh;
-	this->Name_ = Name;
+	m_pMeshContainer = Mesh;
+	m_sName = Name;
 }
 
 MeshFrame::~MeshFrame(void)
 {
-	if(IsVolatile() && NULL != Mesh)
-		Mesh->DisposeTextures();
+	if("5172.0.0.5197.4234 clone" == m_sName)
+	{
+		int a = 5;
+	}
 
-	delete Mesh;
-	Mesh = NULL;
+#ifdef DEBUG
+	if(m_bDontReleaseTexture)
+		DCE::g_pPlutoLogger->Write(LV_STATUS, "Not releasing texture for %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
+#endif
 
-	if(!Volatile_)
+	if(IsVolatile() && NULL != m_pMeshContainer && !m_bDontReleaseTexture)
+		m_pMeshContainer->DisposeTextures();
+
+	delete m_pMeshContainer;
+	m_pMeshContainer = NULL;
+
+	if(!m_bVolatile)
 		TextureManager::Instance()->InvalidateItem(this);
 
 #ifdef DEBUG
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame destructor %p/%s, volatile %d", this, this->Name_.c_str(), Volatile_);
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame destructor %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
 #endif
 }
 
 void MeshFrame::MarkAsVolatile() 
 { 
-	Volatile_ = true; 
+	m_bVolatile = true; 
 }
 
 /*virtual*/ void MeshFrame::CleanUp(bool VolatilesOnly/* = false*/)
 {
+	if("5172.0.0.5197.4234 clone" == m_sName)
+	{
+		int a = 5;
+	}
+
 #ifdef DEBUG
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::CleanUp: %p/%s", this, Name_.c_str());	
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::CleanUp: %p/%s", this, m_sName.c_str());	
 #endif
 
 	vector<MeshFrame*>::iterator Child;
@@ -70,13 +87,7 @@ void MeshFrame::MarkAsVolatile()
 			pMeshFrame->CleanUp();
 			delete pMeshFrame;
 			pMeshFrame = NULL;
-
-			if(VolatilesOnly)
-			{
-				Child = Children.erase(Child);
-			}
-			else
-				++Child;
+			Child = Children.erase(Child);
 		}
 		else
 		{
@@ -91,7 +102,7 @@ void MeshFrame::MarkAsVolatile()
 
 void MeshFrame::SetMeshContainer(MeshContainer* Mesh)
 {
-	this->Mesh = Mesh;
+	m_pMeshContainer = Mesh;
 }
 
 void MeshFrame::AddChild(MeshFrame* Frame)
@@ -102,21 +113,21 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 		return;
 	}
 
-	if(NULL != Frame->Parent)
+	if(NULL != Frame->m_pParent)
 	{
 		DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::AddChild: Frame %p/%s already has a parent %p!",
-			Frame, Frame->Name_.c_str(), Frame->Parent);	
+			Frame, Frame->m_sName.c_str(), Frame->m_pParent);	
 
 		//throw "Frame already has a parent";
 	}
 
 #ifdef DEBUG
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p/%s to %p/%s", Frame, Frame->Name_.c_str(),
-		this, Name_.c_str());	
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p/%s to %p/%s", Frame, Frame->m_sName.c_str(),
+		this, m_sName.c_str());	
 #endif
 
 	Children.push_back(Frame);
-	Frame->Parent = this;
+	Frame->m_pParent = this;
 
 	CheckIntegrity(Frame);
 }
@@ -131,25 +142,25 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 		return;
 	}
 
-	if(NULL != Frame->Parent)
+	if(NULL != Frame->m_pParent)
 	{
 		vector<MeshFrame*>::iterator Child = 
-			find(Frame->Parent->Children.begin(), Frame->Parent->Children.end(), Frame);
-		if(Child == Frame->Parent->Children.end())
+			find(Frame->m_pParent->Children.begin(), Frame->m_pParent->Children.end(), Frame);
+		if(Child == Frame->m_pParent->Children.end())
 		{
 			DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Got a parent, but doesn't have us as child!");
 			//throw "Got a parent, but doesn't have us as child";
 		}
 		else
 		{
-			Frame->Parent->Children.erase(Child);
+			Frame->m_pParent->Children.erase(Child);
 
 #ifdef DEBUG
 			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p/%s from parent %p/%s", 
-				Frame, Frame->Name_.c_str(), Frame->Parent, Frame->Parent->Name_.c_str());
+				Frame, Frame->m_sName.c_str(), Frame->m_pParent, Frame->m_pParent->m_sName.c_str());
 #endif
 
-			Frame->Parent = NULL;
+			Frame->m_pParent = NULL;
 
 			if(Frame->IsVolatile())
 			{
@@ -176,25 +187,25 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 		return NULL;
 	}
 
-	if(NULL != OldFrame->Parent)
+	if(NULL != OldFrame->m_pParent)
 	{
-		vector<MeshFrame*>::iterator Child = find(OldFrame->Parent->Children.begin(), 
-			OldFrame->Parent->Children.end(), OldFrame);
+		vector<MeshFrame*>::iterator Child = find(OldFrame->m_pParent->Children.begin(), 
+			OldFrame->m_pParent->Children.end(), OldFrame);
 
-		if(Child == OldFrame->Parent->Children.end())
+		if(Child == OldFrame->m_pParent->Children.end())
 		{
 			DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Got a parent, but doesn't have us as child!");
 			//throw "Got a parent, but doesn't have us as child";
 		}
 		else
 		{
-			NewFrame->Parent = OldFrame->Parent;
+			NewFrame->m_pParent = OldFrame->m_pParent;
 			*Child = NewFrame;
 
 #ifdef DEBUG
 			DCE::g_pPlutoLogger->Write(LV_STATUS, "ttt MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
-				OldFrame, OldFrame->Name_.c_str(), OldFrame->Parent, OldFrame->Parent->Name_.c_str(),
-				NewFrame, NewFrame->Name_.c_str());
+				OldFrame, OldFrame->m_sName.c_str(), OldFrame->m_pParent, OldFrame->m_pParent->m_sName.c_str(),
+				NewFrame, NewFrame->m_sName.c_str());
 #endif
 
 			if(NewFrame != OldFrame && NULL != OldFrame && OldFrame->IsVolatile())
@@ -223,7 +234,7 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 
 void MeshFrame::Paint(MeshTransform ChildTransform)
 {
-	if(!Visible_)
+	if(!m_bVisible)
 	{
 		//DCE::g_pPlutoLogger->Write(LV_STATUS, "NOT Painting %p. It's invisible.", this);	
 		return; 
@@ -233,8 +244,8 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 	Transform.ApplyTransform(this->Transform);
 	Transform.ApplyTransform(ChildTransform);
 	MeshPainter* Painter = MeshPainter::Instance();
-	if(Mesh!= NULL)
-		Painter->PaintContainer(*Mesh, Transform, TextureTransform);
+	if(m_pMeshContainer!= NULL)
+		Painter->PaintContainer(*m_pMeshContainer, Transform, TextureTransform);
 
 	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Painting %p with %d children: ", this, Children.size());
 
@@ -260,7 +271,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 
 /*virtual*/ void MeshFrame::SetVisible(bool Visible)
 {
-	Visible_ = Visible;
+	m_bVisible = Visible;
 }
 
 /*virtual*/ void MeshFrame::Paint()
@@ -276,7 +287,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 
 MeshContainer* MeshFrame::GetMeshContainer()
 {
-	return Mesh;
+	return m_pMeshContainer;
 }
 
 /*virtual*/ void MeshFrame::SetAlpha(float Alpha, string ExcludePattern /* = "" */)
@@ -290,13 +301,13 @@ MeshContainer* MeshFrame::GetMeshContainer()
 		for(vector<string>::iterator it = vectPatterns.begin(); it != vectPatterns.end(); ++it)
 		{
 			string sPattern = *it;
-			if(this->Name_.find(sPattern) == 0)
+			if(m_sName.find(sPattern) == 0)
 				return;
 		}
 	}
 
-	if(Mesh)
-		Mesh->SetAlpha(Alpha);
+	if(m_pMeshContainer)
+		m_pMeshContainer->SetAlpha(Alpha);
 
 	vector<MeshFrame *>::iterator Child, EndChild;
 	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
@@ -308,8 +319,8 @@ MeshContainer* MeshFrame::GetMeshContainer()
 
 /*virtual*/ void MeshFrame::SetColor(Point3D& Color)
 {
-	if(Mesh)
-		Mesh->SetColor(Color);
+	if(m_pMeshContainer)
+		m_pMeshContainer->SetColor(Color);
 	vector<MeshFrame *>::iterator Child, EndChild;
 	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
 	{  
@@ -320,12 +331,22 @@ MeshContainer* MeshFrame::GetMeshContainer()
 
 MeshFrame *MeshFrame::Clone()
 {
-	MeshFrame *Result = new MeshFrame(Name_ + " clone");
-	Result->MarkAsVolatile();
-	Result->Visible_ = Visible_;
+	MeshFrame *Result = new MeshFrame(m_sName + " clone");
 
-	if(NULL != Mesh)
-		Result->Mesh = Mesh->Clone();
+	if(m_sName == "5172.0.0.5197.4234")
+	{
+		int a = 4;
+	}
+
+	Result->MarkAsVolatile();
+
+	if(!m_bVolatile && m_sName.find("datagrid-thumb") == string::npos)
+		Result->m_bDontReleaseTexture = true;
+
+	Result->m_bVisible = m_bVisible;
+
+	if(NULL != m_pMeshContainer)
+		Result->m_pMeshContainer = m_pMeshContainer->Clone();
 
 	Result->Transform = Transform;
 	Result->TextureTransform = TextureTransform;
@@ -339,14 +360,14 @@ MeshFrame *MeshFrame::Clone()
 
 void MeshFrame::Print(string sIndent)
 {
-	//if(Name_.find("rectangle") != string::npos)
+	//if(m_sName.find("rectangle") != string::npos)
 	//	return;
 
-	//if(Name_.find("text") != string::npos)
+	//if(m_sName.find("text") != string::npos)
 	//	return;
 
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "%s%s '%s' %s %p", sIndent.c_str(), 
-		Children.size() ? "+ " : "- ", Name_.c_str(), this->Volatile_ ? "(v)" : "", this);
+		Children.size() ? "+ " : "- ", m_sName.c_str(), m_bVolatile ? "(v)" : "", this);
 
 	for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
 	{
@@ -358,7 +379,7 @@ MeshFrame *MeshFrame::FindChild(string Name)
 {
 	MeshFrame *ChildMesh = NULL;
 
-	if(Name_ == Name)
+	if(m_sName == Name)
 		ChildMesh = this;
 	else
 	{
@@ -376,7 +397,7 @@ MeshFrame *MeshFrame::FindChild(string Name)
 
 void MeshFrame::Stealth()
 {	
-	Name_ = Name_ + " stealth";
+	m_sName = m_sName + " stealth";
 
 	for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
 		(*it)->Stealth();
@@ -386,12 +407,12 @@ bool MeshFrame::CheckIntegrity(MeshFrame *Frame)
 {
 	bool Result = false;
 
-	if(NULL != Frame && NULL != Frame->Parent)
+	if(NULL != Frame && NULL != Frame->m_pParent)
 	{
-		vector<MeshFrame*>::iterator Child = find(Frame->Parent->Children.begin(), 
-			Frame->Parent->Children.end(), Frame);
+		vector<MeshFrame*>::iterator Child = find(Frame->m_pParent->Children.begin(), 
+			Frame->m_pParent->Children.end(), Frame);
 
-        Result = Child != Frame->Parent->Children.end();	
+        Result = Child != Frame->m_pParent->Children.end();	
 	}
 
 	if(!Result)

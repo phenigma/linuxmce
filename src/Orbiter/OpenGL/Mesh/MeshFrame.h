@@ -46,12 +46,14 @@ using namespace std;
 
 class MeshFrame
 {
-	bool Visible_;
+	MeshContainer* m_pMeshContainer;
+	MeshFrame* m_pParent;
 
-	MeshContainer* Mesh;
-	MeshFrame* Parent;
-	string Name_;
-	bool Volatile_;
+	string m_sName;
+
+	bool m_bVisible;
+	bool m_bVolatile;
+	bool m_bDontReleaseTexture;
 
 public:
 	//MOVE ME
@@ -152,11 +154,11 @@ public:
 	/**
 	 *	Getter for Parent frame (if is one)
 	 */
-	MeshFrame *GetParent() { return Parent; }
+	MeshFrame *GetParent() { return m_pParent; }
 	/**
 	 *	Make current frame orphan
 	 */
-	void ResetParent() { Parent = NULL; }
+	void ResetParent() { m_pParent = NULL; }
 	/**
 	 *	Search a child from it's name
 	 */
@@ -169,7 +171,7 @@ public:
 	/**
 	 *	Getter of frame's name
 	 */
-	string Name() { return Name_; }
+	string Name() { return m_sName; }
 
 	/**
 	*	Check if operations performs correctly
@@ -183,7 +185,7 @@ public:
 	/**
 	 *	Check volatile flag
 	 */
-	bool IsVolatile() { return Volatile_; }
+	bool IsVolatile() { return m_bVolatile; }
 };
 
 #endif
