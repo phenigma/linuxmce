@@ -30,6 +30,7 @@ load_bttv()
 {
 	echo 'modprobe-ing bttv'
 	modprobe bttv &>/dev/null
+	modprobe dvb-bt8xx &>/dev/null
 }
 trap load_bttv EXIT
 
