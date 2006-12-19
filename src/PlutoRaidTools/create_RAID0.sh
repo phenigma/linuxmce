@@ -25,7 +25,7 @@ if [[ $NewAdd == 0 ]] ;then
 	for Drive in $HardDriveList; do
 		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = $Drive AND FK_DeviceData = $BLOCK_DEVICE_ID"
 		R=$(RunSQL "$Q")
-		Disk=$(echo $R | cut -d' ' -f1)
+		Disk=$(Field 1 "$R")
 		#echo ">>$Disk<<"
 		#echo ">>$IsSpare<<"
 		ActiveDrives="$ActiveDrives "$Disk
@@ -40,4 +40,7 @@ if [[ $NewAdd == 0 ]] ;then
 	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $Device and FK_DeviceData = $DISK_SIZE_ID"
 	RunSQL "$Q"
 	#/usr/pluto/bin/start_RAID_monitoring.sh $name
+
+
+	/usr/pluto/bin/StorageDevice_PlutoDirStructure.sh -d $Device
 fi
