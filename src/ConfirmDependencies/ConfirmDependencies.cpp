@@ -884,7 +884,7 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 					cout << pRow_Package->PK_Package_get() << "|" << "*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
 				else
 					//cout << "#*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
-					cout << pRow_Package->PK_Package_get() << "," << pRow_Package->Description_get() << "," <<
+					cout << "#" << pRow_Package->PK_Package_get() << "," << pRow_Package->Description_get() << "," <<
 					"#*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
 			}
 			return;
