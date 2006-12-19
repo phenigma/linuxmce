@@ -213,6 +213,9 @@
 	$GLOBALS['NoofDisks']=199;					// No of Disks
 	$GLOBALS['Spare']=202;						// Spare
 	$GLOBALS['BlockDevice']=152;				// Block device
+	$GLOBALS['use_automaticly_dd']=134;			// Use automaticly
+	$GLOBALS['use_pluto_directory_structure_dd']=130;	// use pluto directory structure
+	
 	
 	// PK_FloorplanType from table FloorplanType 
 
