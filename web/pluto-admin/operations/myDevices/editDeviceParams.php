@@ -714,6 +714,9 @@ $installationID = (int)@$_SESSION['installationID'];
 				SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,NeedConfigure=?,FK_Room=?,PingTest=?,State=?,`Status`=?,Disabled=? 
 				WHERE PK_Device = ?";
 			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$needConfigure,$room,$PingTest,$State,$Status,$deviceDisabled,$deviceID));
+			
+			updateRoomForEmbeddedDevices($deviceID,$room,$dbADO);
+			
 			setDCERouterNeedConfigure($installationID,$dbADO);
 			updateDeviceControlledBy($deviceID,$controlledVia,$dbADO);
 			
@@ -725,6 +728,7 @@ $installationID = (int)@$_SESSION['installationID'];
 				if($entArea!=$OldEntAreasArray[$key]){
 					if($entArea==1){
 						addDeviceToEntertainArea($deviceID,$value,$dbADO);
+						updateEAForEmbeddedDevices($deviceID,$value,$dbADO);
 					}else{
 						$deleteDeviceEntertainArea='DELETE FROM Device_EntertainArea WHERE FK_Device=? AND FK_EntertainArea=?';
 						$dbADO->Execute($deleteDeviceEntertainArea,array($deviceID,$value));

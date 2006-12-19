@@ -6514,4 +6514,33 @@ function commandMoveDown($cgcID,$pos,$cgID,$dbADO){
 		$dbADO->Execute('UPDATE CommandGroup_Command SET OrderNum=? WHERE PK_CommandGroup_Command=?',array($posArray[0],$cgcID));
 	}	
 }
+
+function updateRoomForEmbeddedDevices($deviceID,$roomID,$dbADO){
+	$embedded=getAssocArray('Device','Device.PK_Device AS PK_Device','Device.FK_DeviceTemplate',$dbADO,'
+	INNER JOIN Device Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device
+	INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+	INNER JOIN DeviceTemplate_DeviceTemplate_ControlledVia ON DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate_ControlledVia=Parent.FK_DeviceTemplate AND Device.FK_DeviceTemplate=DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate AND RerouteMessagesToParent=1
+	WHERE Device.FK_Device_ControlledVia='.$deviceID);
+	$embeddedKeys=array_keys($embedded);
+	
+	if(count($embeddedKeys)>0){
+		$dbADO->Execute('UPDATE Device SET FK_Room=? WHERE PK_Device IN ('.join(',',$embeddedKeys).')',array($roomID));
+	}
+}
+
+function updateEAForEmbeddedDevices($deviceID,$eaID,$dbADO){
+	$embedded=getAssocArray('Device','Device.PK_Device AS PK_Device','Device.FK_DeviceTemplate',$dbADO,'
+	INNER JOIN Device Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device
+	INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+	INNER JOIN DeviceTemplate_DeviceTemplate_ControlledVia ON DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate_ControlledVia=Parent.FK_DeviceTemplate AND Device.FK_DeviceTemplate=DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate AND RerouteMessagesToParent=1
+	WHERE Device.FK_Device_ControlledVia='.$deviceID);
+	
+	
+	if(count($embedded)>0){
+		foreach ($embedded AS $key=>$dt){
+			$dbADO->Execute('INSERT IGNORE INTO Device_EntertainArea (FK_EntertainArea,FK_Device) VALUES (?,?)',array($eaID,$key));
+		}
+	}
+}
+
 ?>

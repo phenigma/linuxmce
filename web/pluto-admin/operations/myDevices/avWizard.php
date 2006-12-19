@@ -405,6 +405,7 @@ function avWizard($output,$dbADO) {
 					if(isset($_POST['controlledBy_'.$value])){
 						$updateDevice='UPDATE Device SET Description=?, FK_Room=?, FK_Device_ControlledVia=? '.@$updateMacIp.' WHERE PK_Device=?';
 						$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
+						updateRoomForEmbeddedDevices($value,$room,$dbADO);
 					}else{
 						$updateDevice='UPDATE Device SET Description=? '.@$updateMacIp.' WHERE PK_Device=?';
 						$dbADO->Execute($updateDevice,array($description,$value));
