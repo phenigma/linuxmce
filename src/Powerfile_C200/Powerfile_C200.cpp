@@ -142,7 +142,7 @@ bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 #ifdef EMULATE_PF
 		char * args[] = {"/bin/cat", "/tmp/samples/mtx-status", NULL};
 #else
-		char * args[] = {"/usr/sbin/mtx", "-f", (char *) m_sChanger.c_str(), "status", NULL};
+		char * args[] = {"/usr/sbin/mtx", "-f", (char *) m_sChanger.c_str(), "nobarcode", "status", NULL};
 #endif
 		if (ProcessUtils::GetCommandOutput(args[0], args, sOutput))
 		{
@@ -292,7 +292,12 @@ bool Powerfile_C200::GetConfig()
 	{
 		vector<string> vsFF; // FF = Filtered Fields
 		ExtractFields(vect_sOutput_Rows[i], vsFF);
-		if (vsFF[1] == "cd/dvd" && vsFF[2] == "TOSHIBA" && vsFF[3] == "DVD-ROM" && vsFF[4] == "SD-M1212")
+		if (vsFF[1] == "cd/dvd" &&
+				(
+				 (vsFF[2] == "TOSHIBA" && vsFF[3] == "DVD-ROM" && vsFF[4] == "SD-M1212") ||
+				 (vsFF[2] == "MATSHITA" && vsFF[3] == "DVD-RAM" && vsFF[4] == "SW-9585S")
+				)
+			)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Found DVD unit %d: %s", nDrive, vsFF[6].c_str());
 			pair<string, string> devPair(vsFF[6], vsFF[7]);
@@ -301,10 +306,22 @@ bool Powerfile_C200::GetConfig()
 			m_vectDDF.push_back(pDDF);
 			nDrive++;
 		}
-		else if (vsFF[1] == "mediumx" && vsFF[2] == "Escient" && vsFF[3] == "Powerfile" && vsFF[4] == "C200")
+		else if (vsFF[1] == "mediumx")
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Found changer unit: %s", vsFF[7].c_str());
-			m_sChanger = vsFF[7];
+			if (vsFF[2] == "Escient" && vsFF[3] == "Powerfile" && vsFF[4] == "C200")
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Found changer unit: %s", vsFF[7].c_str());
+				m_sChanger = vsFF[7];
+			}
+			else if (vsFF[2] == "PowrFile" && vsFF[3] == "C200")
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Found changer unit: %s", vsFF[6].c_str());
+				m_sChanger = vsFF[6];
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "Found an unknown changer unit. Things won't work.");
+			}
 		}
 	}
 
@@ -412,7 +429,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 #ifdef EMULATE_PF
 	string sCmd = "/bin/true";
 #else
-	string sCmd = string("mtx -f ") + m_sChanger + " load " + itos(iSlot_Number) + " " + itos(iDrive_Number);
+	string sCmd = string("mtx -f ") + m_sChanger + " nobarcode load " + itos(iSlot_Number) + " " + itos(iDrive_Number);
 #endif
 
 	sCMD_Result = "FAILED";
@@ -438,7 +455,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 			//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 			//g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			//system(sCmd.c_str());
-			sCmd = "mtx -f " + m_vectDrive[iDrive_Number].second + " eject"; // this is a patched version of mtx
+			sCmd = "mtx -f " + m_vectDrive[iDrive_Number].second + " nobarcode eject"; // this is a patched version of mtx
 			g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			int iRet = system(sCmd.c_str());
 			if (iRet == -1)
@@ -503,7 +520,7 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 #ifdef EMULATE_PF
 	string sCmd = "/bin/true";
 #else
-	string sCmd = string("mtx -f ") + m_sChanger + " unload " + itos(iSlot_Number) + " " + itos(iDrive_Number);
+	string sCmd = string("mtx -f ") + m_sChanger + " nobarcode unload " + itos(iSlot_Number) + " " + itos(iDrive_Number);
 #endif
 	
 	sCMD_Result = "FAILED";
@@ -525,7 +542,7 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 			//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 			//g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			//system(sCmd.c_str());
-			sCmd = "mtx -f " + m_vectDrive[iDrive_Number].second + " eject"; // this is a patched version of mtx
+			sCmd = "mtx -f " + m_vectDrive[iDrive_Number].second + " nobarcode eject"; // this is a patched version of mtx
 			g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			int iRet = system(sCmd.c_str());
 			if (iRet == -1)
