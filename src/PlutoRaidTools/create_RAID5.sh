@@ -25,12 +25,19 @@ if [[ $NewAdd == 0 ]] ;then
 	NrDrives=
 	NrSpareDrives=
 	for Drive in $HardDriveList; do
-		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = $Drive AND (FK_DeviceData = $BLOCK_DEVICE_ID OR FK_DeviceData = $SPARE_ID)"
+		Q="
+			SELECT 
+				Block.IK_DeviceData, 
+				Spare.IK_DeviceData 
+			FROM Device 
+				JOIN Device_DeviceData Block ON Block.FK_Device = PK_Device AND Block.FK_DeviceData = $BLOCK_DEVICE_ID
+				JOIN Device_DeviceData Spare ON Spare.FK_Device = PK_Device AND Spare.FK_DeviceData = $SPARE_ID
+			WHERE 
+				PK_Device = $Drive;
+		"
 		R=$(RunSQL "$Q")
 		Disk=$(Field 1 "$R")
 		IsSpare=$(Field 2 "$R")
-		#echo ">>$Disk<<"
-		#echo ">>$IsSpare<<"
 		if [[ $IsSpare == 1 ]] ;then
 			SpareDrives="$SpareDrives "$Disk
 			NrSpareDrives=$(($NrSpareDrives+1))
@@ -46,6 +53,7 @@ if [[ $NewAdd == 0 ]] ;then
 		echo "y" | mdadm --create $name --auto --level=5 --spare-devices=$NrSpareDrives $SpareDrives --raid-devices=$NrDrives $ActiveDrives
 	else	
 		echo "y" | mdadm --create $name --auto --level=5 --raid-devices=$NrDrives $ActiveDrives
+
 	fi
 	raidSize=$(mdadm --query $name | head -1 |cut -d' ' -f2)
 	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $Device and FK_DeviceData = $DISK_SIZE_ID"
