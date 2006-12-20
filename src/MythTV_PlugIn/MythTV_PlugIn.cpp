@@ -157,9 +157,15 @@ bool MythTV_PlugIn::Register()
 				continue;
 			int PK_Device = row[0] ? mapIpToDevice[row[0]] : 0;
 			string sDirectory = sFilename + StringUtils::itos(PK_Device);
+
 			string sCmd = "mkdir -p \"" + sDirectory + "\"";
 			g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::Register %s",sCmd.c_str());
 			system(sCmd.c_str());
+
+			sCmd = "chmod 775 \"" + sDirectory +"\"";
+			g_pPlutoLogger->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
+			system(sCmd.c_str());
+
 			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
 		}
 	}
