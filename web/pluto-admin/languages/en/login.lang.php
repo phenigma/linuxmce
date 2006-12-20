@@ -1,7 +1,7 @@
 <?
 $TEXT_WELCOME_MSG_CONST='Welcome to <-mkr_t_name_mixed-> Admin.  Please log in:';
 $TEXT_HELP_WITH_ADMIN_SITE_CONST='Help with the <-mkr_t_name_mixed-> Admin site';
-$TEXT_ORBITER_WIN_INSTALLER_CONST='Orbiter Win Installer';
+$TEXT_ORBITER_WIN_INSTALLER_CONST='Orbiter, Utilities and other software';
 $TEXT_LOGIN_USERNAME_REQUIRED_CONST='Please enter your username';
 $TEXT_LOGIN_PASSWORD_REQUIRED_CONST='Please enter your password';
 $TEXT_ERROR_NO_INSTALLATION_CONST='You don\'t have any installation.';

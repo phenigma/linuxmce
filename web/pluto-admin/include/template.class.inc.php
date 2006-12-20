@@ -81,7 +81,7 @@ function setTemplateFileType($type) {
 			}
 		break;
 		case 'large':
-			if(@$_REQUEST['section']!='checkAmazon' || @$_REQUEST['section']!='orbitersWin'){
+			if(@$_REQUEST['section']!='checkAmazon' && @$_REQUEST['section']!='orbitersWin'){
 				if(@$_REQUEST['section']!=''){
 					@$_SESSION['lastRightFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];
 				}

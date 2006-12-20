@@ -20,9 +20,8 @@ function orbitersWin($output,$dbADO) {
 	<input type="hidden" name="section" value="orbitersWin">
 	<input type="hidden" name="action" value="add">	
 		
-	<h3  align="left">'.$TEXT_DOWNLOAD_WINDOWS_SOFTWARE_FOR_ORBITERS_CONST.'</h3>
 	<br>
-	
+	<a href="index.php?section=login" target="_top">'.$TEXT_BACK_CONST.'</a>
 	<table>
 		<tr>
 			<td><B>'.$TEXT_PROCESSOR_CONST.'</B></td>
@@ -73,7 +72,8 @@ function orbitersWin($output,$dbADO) {
 		
 		header("Location: index.php?section=orbitersWin");		
 	}
-
+	
+	$output->setMenuTitle($TEXT_DOWNLOAD_WINDOWS_SOFTWARE_FOR_ORBITERS_CONST);
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_DOWNLOAD_WINDOWS_SOFTWARE_FOR_ORBITERS_CONST);

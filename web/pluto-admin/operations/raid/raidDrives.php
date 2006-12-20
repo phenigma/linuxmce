@@ -29,8 +29,10 @@ function raidDrives($output,$dbADO) {
 	<input type="hidden" name="section" value="raidDrives">
 	<input type="hidden" name="action" value="update">	
 	<input type="hidden" name="deviceID" value="'.$deviceID.'">
-	<a href="index.php?section=raid">'.$TEXT_BACK_CONST.'</a>
-';
+	<a href="index.php?section=raid">'.$TEXT_BACK_CONST.'</a><br><br>
+	
+	'.$TEXT_RAID_DRIVES_INFO_CONST.'
+	';
 	$fields='
 		Device.FK_DeviceTemplate,
 		Device.PK_Device,
@@ -191,6 +193,7 @@ function raidDrives($output,$dbADO) {
 		}
 		$out.='
 		</table>
+		
 		<input type="hidden" name="raidDrives" value="'.join(',',$raidDrives).'">
 		<input type="hidden" name="parentIP" value="'.$data['ParentIP'][0].'">
 		';
