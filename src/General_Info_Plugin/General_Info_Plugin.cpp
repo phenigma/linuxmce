@@ -3183,19 +3183,23 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 
 	g_pPlutoLogger->Write(LV_STATUS,"Starting Get_Network_Devices_Shares");
 
-	map<int, pair<string, string> > mapIP;
+	map<int, pair<string, pair<string, string> > > mapIP;
 	multimap<int, pair<int, string> > mapInfo;
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	string sSQL = 
-		"SELECT DeviceChild.PK_Device, DeviceChild.IPaddress, DeviceParent.Description, DeviceChild.Description, FK_DeviceData, IK_DeviceData "
+		"SELECT DeviceChild.PK_Device, DeviceParent.IPaddress, DeviceParent.Description, DeviceChild.Description, FK_DeviceData, IK_DeviceData "
 		"FROM Device AS DeviceParent "
 		"INNER JOIN DeviceTemplate ON DeviceParent.FK_DeviceTemplate = PK_DeviceTemplate "
 		"INNER JOIN Device AS DeviceChild ON DeviceChild.FK_Device_ControlledVia = DeviceParent.PK_Device "
 		"INNER JOIN Device_DeviceData ON DeviceChild.PK_Device = Device_DeviceData.FK_Device "
 		"AND FK_DeviceData IN (" + StringUtils::ltos(DEVICEDATA_Share_Name_CONST) + ", " + 
-			StringUtils::ltos(DEVICEDATA_Username_CONST) + ", " + StringUtils::ltos(DEVICEDATA_Password_CONST) + " ) "
+			StringUtils::ltos(DEVICEDATA_Username_CONST) + ", " + 
+			StringUtils::ltos(DEVICEDATA_Password_CONST) + ", " +
+			StringUtils::ltos(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST ) + ", " +
+			StringUtils::ltos(DEVICEDATA_Readonly_CONST ) +
+			" ) "
 		"WHERE FK_DeviceCategory = " + StringUtils::ltos(DEVICECATEGORY_FileMedia_Server_CONST);
 
 	enum FieldNames
@@ -3207,6 +3211,7 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 		fnDeviceDataType,
 		fnDeviceDataValue
 	};
+
 	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
 	{
 		while((row = mysql_fetch_row(result.r)))	
@@ -3216,7 +3221,9 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 				int DeviceID = atoi(row[fnDeviceID]);
 
 				//TODO: optimize with a find
-				mapIP[DeviceID] = make_pair( row[fnIP], string(row[fnParentDescription])+" - "+string(row[fnChildDescription]) );
+				mapIP[DeviceID] = make_pair( row[fnIP], 
+					make_pair( string(row[fnParentDescription]), string(row[fnChildDescription]) )
+					);
 
 				int nDeviceDataType = NULL != row[fnDeviceDataType] ? atoi(row[fnDeviceDataType]) : 0;
 				string sDeviceDataValue = NULL != row[fnDeviceDataValue] ? row[fnDeviceDataValue] : string();
@@ -3225,16 +3232,72 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 		}
 	}
 
+	// read core share user/pass
+	string sFilename = "/usr/pluto/var/sambaCredentials.secret";
+	
+	//string sFilename = "c:\\work\\sambaCredentials.secret";
+	
+	size_t Length = 0;
+	char *c = FileUtils::ReadFileIntoBuffer(sFilename, Length);	
+	string sCoreUser="", sCorePass="";
+	if( c && Length ){
+		string sFile(c);
+		string sLine = "";
+		int iPos = 0;
+		string sValue = "username=";
+		iPos = sFile.find( sValue, 0 );
+		if ( iPos>=0 ) {
+			sLine = sFile.substr( iPos+sValue.size(), sFile.size()-iPos+1 );
+			iPos = sLine.find( "\n", 0 );
+			if ( iPos>=0 )
+				sCoreUser = sLine.substr( 0, iPos );
+		}
+		sValue = "password=";
+		iPos = sFile.find( sValue, 0 );
+		if ( iPos>=0 ) {
+			sLine = sFile.substr( iPos+sValue.size(), sFile.size()-iPos+1 );
+			iPos = sLine.find( "\n", 0 );
+			if ( iPos>=0 )
+				sCorePass = sLine.substr( 0, iPos );
+		}
+
+		delete[Length] c;
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL, "sambaCredentials file missing");
+
 	//got the info, let's serialize them
 
 	stringstream strout;
 	// writeln mapIP.size
-	strout<<mapIP.size()<<"\n";
-	for( map<int, pair<string, string> >::iterator iter = mapIP.begin(); iter!= mapIP.end(); ++iter )
+	strout<<mapIP.size()+1<<"\n";
+	// serializing core
+	// writeln DeviceID
+	strout<<0<<"\n";
+	// writeln IP
+	strout<<"0.0.0.0"<<"\n";
+	// Parent Description
+	strout<<"core"<<"\n";
+	// Child description
+	strout<<"backup share"<<"\n";
+	// writeln iCount
+	strout<<5<<"\n";
+	// writeln sParamType+"="+infoiter->second->second				
+	strout<<"ShareName"<<"="<<"\\home\\public\\data"<<"\n";
+	strout<<"UserName"<<"="<<sCoreUser<<"\n";
+	strout<<"Password"<<"="<<sCorePass<<"\n";
+	strout<<"FreeSpace"<<"="<<0<<"\n";
+	strout<<"ReadOnly"<<"="<<0<<"\n";	
+
+
+	for( map<int, pair<string, pair<string, string> > >::iterator iter = mapIP.begin(); iter!= mapIP.end(); ++iter )
 	{
+		// writeln DeviceID
+		strout<<iter->first<<"\n";
 		// writeln IP = mapIP->second		
 		strout<<iter->second.first<<"\n";
-		strout<<iter->second.second<<"\n";
+		strout<<iter->second.second.first<<"\n";
+		strout<<iter->second.second.second<<"\n";
 		int iCount = mapInfo.count( iter->first );
 		// writeln iCount
 		strout<<iCount<<"\n";
@@ -3256,6 +3319,12 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 					break;
 				case DEVICEDATA_Password_CONST:
 					sParamType = "Password";
+					break;
+				case DEVICEDATA_Free_Disk_Space_in_MBytes_CONST:
+					sParamType = "FreeSpace";
+					break;
+				case DEVICEDATA_Readonly_CONST:
+					sParamType = "ReadOnly";
 					break;
 				}
 				// writeln sParamType+"="+infoiter->second->second				
