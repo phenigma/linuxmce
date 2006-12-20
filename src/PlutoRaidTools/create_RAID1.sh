@@ -58,4 +58,5 @@ if [[ $NewAdd == 0 ]] ;then
 
 	## Create a pluto directory structure (depending on UsePlutoDirStructure device data)
 	/usr/pluto/bin/StorageDevice_PlutoDirStructure.sh -d $Device
+	/usr/pluto/bin/StorageDevice_Setup.sh
 fi
