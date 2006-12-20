@@ -111,7 +111,7 @@ for i in `seq $NetworkStringDigits 3` ;do
 done
 
 if [[ "$NCards" -eq 1 ]]; then
-	ntIf="eth0:0"
+	IntIf="eth0:0"
 else
 	[[ "$ExtIf" == "eth0" ]] && IntIf="eth1" || IntIf="eth0"
 fi
