@@ -67,5 +67,8 @@ if [[ $NewAdd == 0 ]] ;then
     echo "y" | mkfs.ext3 $name
 
 	## Create a pluto directory structure (depending on UsePlutoDirStructure device data)
-	/usr/pluto/bin/StorageDevice_PlutoDirStructure.sh -d $Device
+	/usr/pluto/bin/StorageDevices_PlutoDirStructure.sh -d $Device
+	/usr/pluto/bin/StorageDevices_Setup.sh
+			
+	
 fi
