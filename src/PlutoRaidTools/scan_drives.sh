@@ -59,19 +59,19 @@ for part in $availPart ;do
 done
 availPart=$auxPart
 																	     
-for device in $availPart; do
-	if [[ ${#device} == '3' ]]; then
-		new_list="$new_list""$device "
-	else
-		len=$((${#device}-1))
-		device=${device:0:$len}
-		if [[ "$(isInList "$device")" == '1' ]]; then
-			new_list="$new_list""$device "
-		fi
-	fi
-done
+#for device in $availPart; do
+#	if [[ ${#device} == '3' ]]; then
+#		new_list="$new_list""$device "
+#	else
+#		len=$((${#device}-1))
+#		device=${device:0:$len}
+#		if [[ "$(isInList "$device")" == '1' ]]; then
+#			new_list="$new_list""$device "
+#		fi
+#	fi
+#done
 
-for device in $new_list; do
+for device in $availPart; do
 	result=$(mdadm --examine --brief --scan /dev/$device)
 	#if [[ -n $result ]]; then 
 		#sunt hdd-uri care fac parte din array
