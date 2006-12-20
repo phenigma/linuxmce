@@ -55,15 +55,16 @@ if [[ $NewAdd == 0 ]] ;then
 		echo "y" | mdadm --create $name --auto --level=5 --raid-devices=$NrDrives $ActiveDrives
 
 	fi
+	#/usr/pluto/bin/start_RAID_monitoring.sh $name
+
+	sleep 5
 	raidSize=$(mdadm --query $name | head -1 |cut -d' ' -f2)
 	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $Device and FK_DeviceData = $DISK_SIZE_ID"
 	RunSQL "$Q"
-	#/usr/pluto/bin/start_RAID_monitoring.sh $name
-
 	## Format the new raid
 	echo "y" | mkfs.ext3 $name
 
 	## Create a pluto directory structure (depending on UsePlutoDirStructure device data)
 	/usr/pluto/bin/StorageDevices_PlutoDirStructure.sh -d $Device
-	/usr/pluto/bin/StorageDevices_Setup.sh
+
 fi
