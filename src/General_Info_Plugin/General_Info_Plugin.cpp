@@ -3261,7 +3261,7 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 				sCorePass = sLine.substr( 0, iPos );
 		}
 
-		delete c;
+		delete[] c;
 	}
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL, "sambaCredentials file missing");
