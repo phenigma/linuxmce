@@ -25,7 +25,6 @@ else
 	RunSQL "$Q"
 fi
 
-mdadm --manage --set-faulty $array $disk
-mdadm --manage --remove $array $disk
-echo 'y' | mke2fs $disk
-dd if=/dev/zero of=$disk count=1024
+#mdadm --manage --set-faulty $array $disk
+#mdadm --manage --remove $array $disk
+mdadm --zero-superblock $disk

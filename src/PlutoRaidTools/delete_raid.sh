@@ -9,21 +9,20 @@ BLOCK_DEVICE_ID=152
 Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = $RaidDevice and FK_DeviceData = $BLOCK_DEVICE_ID"
 array=$(RunSQL "$Q")
 
-touch /tmp/info.raid
-mdadm --detail $array >/tmp/info.raid
-
-while read line; do
-    drive=$(echo ${line}|cut -d' ' -f6)
-    check=$(echo $drive | grep dev)
-    if [[ -z $check ]]; then
-	drive=$(echo ${line}|cut -d' ' -f7)	    
-    fi
-    if [[ $drive != "/dev/$array:" ]]; then
-    	/usr/pluto/bin/delete_drive.sh '1' $array $drive
-    fi
-done < <(cat /tmp/info.raid | grep /dev)
-
 mdadm -S $array
-rm -f $array "$array:" "/dev/.static$array" "/dev/.tmp.$array"
-rm -f /tmp/info.raid
+
+Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate = $HARD_DRIVE_DEVICE_TEMPLATE AND FK_Device_ControlledVia = $RaidDevice"
+HardDriveList=$(RunSQL "$Q")
+for Drive in $HardDriveList; do
+	Q="SELECT Block.IK_DeviceData 
+	   FROM Device 
+	   JOIN Device_DeviceData Block ON Block.FK_Device = PK_Device AND Block.FK_DeviceData = $BLOCK_DEVICE_ID 
+	   WHERE PK_Device=$Drive"
+	R=$(RunSQL "$Q")
+    	/usr/pluto/bin/delete_drive.sh '1' $array $R
+done
+
+
+rm -f $array
+rm -f "$array:" "/dev/.static$array" "/dev/.tmp.$array"
 
