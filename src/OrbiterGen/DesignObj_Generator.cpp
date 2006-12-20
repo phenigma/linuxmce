@@ -121,8 +121,12 @@ g_pPlutoLogger->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK_DesignObj_get
 		m_pRow_DesignObj=vectRow_DesignObj_Alt[0];
 	else
 		m_pRow_DesignObj=drDesignObj;
-    m_rPosition=rPosition;
     m_ocoParent=ocoParent;
+    m_rPosition=rPosition;
+	if( m_rPosition.Width==-1 )
+		m_rPosition.Right( m_ocoParent->m_rPosition.Right() );
+	if( m_rPosition.Height==-1 )
+		m_rPosition.Bottom( m_ocoParent->m_rPosition.Bottom() );
 	m_pDesignObj_TopMost=this;
 	while( m_pDesignObj_TopMost->m_ocoParent )
 		m_pDesignObj_TopMost = m_pDesignObj_TopMost->m_ocoParent;
@@ -133,7 +137,7 @@ g_pPlutoLogger->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK_DesignObj_get
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2217 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5106 ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
+if( m_pRow_DesignObj->PK_DesignObj_get()==5342 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5106 ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/

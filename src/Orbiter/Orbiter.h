@@ -299,6 +299,7 @@ namespace DCE
 
 
 		class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
+		int m_iRow_Floorplan_LastSelected;  // If we're using datagrids as floorplans, this is the last row
 		class DesignObj_Orbiter *m_pObj_SelectedLastScreen;   // The last object we selected.  Used by floorplans to toggle states
 
 		// '0' - no item is selected until the user moves the arrows
@@ -553,7 +554,7 @@ namespace DCE
 		* @brief
 		* @todo A floorplan object was selected
 		*/
-		virtual void SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter);
+		virtual void SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter,int Row=-1);
 
 		/** The above methods are called by the orbiter-specific class to indicate input, they will call these following methods: */
 

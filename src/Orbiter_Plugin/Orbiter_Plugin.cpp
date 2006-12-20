@@ -2999,7 +2999,7 @@ class DataGridTable *Orbiter_Plugin::FloorplanDevices( string GridID, string Par
 
 	int iRow=0;
 
-	if( Parms=="E" )
+	if( Parms=="M" )
 	{
         vector<Row_EntertainArea *> vectRow_EntertainArea;
 		string SQL = "JOIN Room ON FK_Room=PK_Room WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get());
@@ -3035,56 +3035,7 @@ class DataGridTable *Orbiter_Plugin::FloorplanDevices( string GridID, string Par
 			pCell->m_mapAttributes["Description"] = sDescription;
 			pCell->m_mapAttributes["OSD"] = OSD;
 			pCell->m_mapAttributes["PK_DesignObj_Toolbar"] = StringUtils::itos(PK_DesignObj_Toolbar);
-			/*
-		
-
-
-			int iPK_FloorplanObjectType_Color=0,iColor=0,PK_DesignObj_Toolbar=0;
-			string sDescription;
-			Row_FloorplanObjectType_Color *pRow_FloorplanObjectType_Color = NULL;
-
-			FloorplanObject *fpObj = (*fpObjVector)[i];
-			DeviceData_Router *pDeviceData_Router = fpObj->m_pDeviceData_Router;
-
-			pFloorplanInfoProvider->GetFloorplanDeviceInfo(pDeviceData_Router,fpObj->m_pEntertainArea,fpObj->Type,iPK_FloorplanObjectType_Color,iColor,sDescription,OSD,PK_DesignObj_Toolbar);
-			if( iPK_FloorplanObjectType_Color )
-				pRow_FloorplanObjectType_Color = m_pDatabase_pluto_main->FloorplanObjectType_Color_get()->GetRow(iPK_FloorplanObjectType_Color);
-
-			if( !iColor && pRow_FloorplanObjectType_Color )
-				iColor = pRow_FloorplanObjectType_Color->Color_get();
-			if( sDescription.length()==0 && pRow_FloorplanObjectType_Color )
-				sDescription = pRow_FloorplanObjectType_Color->Description_get();
-
-			if(fpObj->PK_Device < 0) //entertain area
-			{
-				vector<Row_Device *> vectRow_Device;
-				m_pDatabase_pluto_main->Device_get()->GetRows(
-					"JOIN DeviceTemplate ON Device.FK_DeviceTemplate = DeviceTemplate.PK_DeviceTemplate "
-					"WHERE FK_Room = " + StringUtils::ltos(fpObj->m_pEntertainArea->m_pRoom->m_dwPK_Room) + " "
-					"AND FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Media_Director_CONST),
-					&vectRow_Device);
-
-				if(vectRow_Device.size() > 0)
-				{
-					Row_Device* pRow_Device = *vectRow_Device.begin();
-					pRow_Device->Reload();
-					if(pRow_Device->Status_get() != "MD_ON")
-					{
-						iColor = PlutoColor::Gray().m_Value;
-						sDescription = "offline";
-					}
-				}
-			}
-
-*/
 		}
-
-
-
-
-
-
-
 	}
 	else if( Parms.empty()==false )
 	{
@@ -3114,7 +3065,7 @@ class DataGridTable *Orbiter_Plugin::FloorplanDevices( string GridID, string Par
 		if( !pFloorplanInfoProvider )
 			return NULL; // Shouldn't happen
 
-		string sSQL = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory WHERE FK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) + " OR FK_DeviceCategory_Parent=" + StringUtils::itos(PK_DeviceCategory);
+		string sSQL = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory LEFT JOIN Room ON PK_Room=FK_Room WHERE FK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) + " OR FK_DeviceCategory_Parent=" + StringUtils::itos(PK_DeviceCategory) + " ORDER BY Room.Description";
 		vector<Row_Device *> vectRow_Device;
 		m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device);
 		for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
@@ -3124,17 +3075,29 @@ class DataGridTable *Orbiter_Plugin::FloorplanDevices( string GridID, string Par
 			if( !pDevice )
 				continue;
 
-			pCell = new DataGridCell(pRow_Device->Description_get(),StringUtils::itos(pRow_Device->PK_Device_get()));
-			pDataGrid->SetData(0,iRow++,pCell);
+			string sDescription = pDevice->m_sDescription;
+			if( pDevice->m_pRoom )
+				sDescription = pDevice->m_pRoom->m_sDescription + "\n" + sDescription;
 
 			int iPK_FloorplanObjectType_Color=0,iColor=0,PK_DesignObj_Toolbar=0;
-			string sDescription;
 			string OSD;
 			Row_FloorplanObjectType_Color *pRow_FloorplanObjectType_Color = NULL;
 
+			string sD2;
 			pFloorplanInfoProvider->GetFloorplanDeviceInfo(pDevice,NULL,
 				atoi(pDevice->m_mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str()),
-				iPK_FloorplanObjectType_Color,iColor,sDescription,OSD,PK_DesignObj_Toolbar);
+				iPK_FloorplanObjectType_Color,iColor,sD2,OSD,PK_DesignObj_Toolbar);
+
+			if( sD2.empty()==false || OSD.empty() == false )
+			{
+				sDescription += "\n";
+				if( sD2.empty()==false )
+					sDescription += sD2 + " / ";
+				sDescription += OSD;
+			}
+
+			pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Device->PK_Device_get()));
+			pDataGrid->SetData(0,iRow++,pCell);
 
 			if( iPK_FloorplanObjectType_Color )
 				pRow_FloorplanObjectType_Color = m_pDatabase_pluto_main->FloorplanObjectType_Color_get()->GetRow(iPK_FloorplanObjectType_Color);

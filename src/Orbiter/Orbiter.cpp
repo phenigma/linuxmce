@@ -296,6 +296,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_iPK_MediaType=0;
 	m_pScreenHistory_Current=NULL;
 	m_pObj_LastSelected=m_pObj_Highlighted=m_pObj_Highlighted_Last=NULL;
+	m_iRow_Floorplan_LastSelected=-1;
 	m_pObj_SelectedLastScreen=NULL;
 	m_pGraphicBeforeHighlight=NULL;
 	m_pContextToBeRestored=NULL;
@@ -1357,7 +1358,13 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 		else
 			pDesignObj_DataGrid->m_pFloorplanObject->m_pDeviceData_Base=NULL;
 
-		SelectedFloorplan(pDesignObj_DataGrid);
+		SelectedFloorplan(pDesignObj_DataGrid,iRow);
+		PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+		string sValues;
+
+		for(map<int,class DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
+			sValues += StringUtils::itos(it->first) + "|";
+		CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable,sValues);
 	}
 
 	list<DesignObj_DataGrid *> listObj_ToFlush; // A list of grids which are being redrawn within this action and must be refreshed
@@ -1523,7 +1530,8 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 		pDesignObj_DataGrid->m_iPK_Variable, NewValue.c_str());
 #endif
 
-	CMD_Set_Variable(PK_Variable, NewValue);
+	if( pDesignObj_DataGrid->m_iPK_Datagrid!=DATAGRID_Floorplan_Devices_CONST )
+		CMD_Set_Variable(PK_Variable, NewValue); // we already set this in the custom block above
 	for(list<DesignObj_DataGrid *>::iterator it=listObj_ToFlush.begin();it!=listObj_ToFlush.end();++it)
 	{
 		m_pOrbiterRenderer->RenderObjectAsync(*it);
@@ -1726,7 +1734,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 	}
 }
 
-void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
+void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter,int Row)
 {
 	// pDesignObj_Orbiter->m_pFloorplanObject->PK_Device will be >0 for a device, <0 for an entertainment area
 	CMD_Set_Variable(VARIABLE_Array_ID_CONST,pDesignObj_Orbiter->m_pFloorplanObject->ObjectTypeDescription); // ie Ceiling light ( for an ea: Pluto Media Dir )
@@ -1750,7 +1758,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 
 
 	// We've selected this object twice, cycle through the vector of device groups
-	if( m_pObj_LastSelected==pDesignObj_Orbiter )
+	if( (m_pObj_LastSelected==pDesignObj_Orbiter && Row==-1) || (Row!=-1 && Row==m_iRow_Floorplan_LastSelected) )
 	{
 		// We went past the end, select nothing.  Or this is an ent area with no device pointer, so there are no groups anyway
 		if( !pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base ||
@@ -1761,6 +1769,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 			m_mapDevice_Selected.clear();
 			m_mapFloorplanObject_Selected.clear();
 			m_pObj_LastSelected=NULL;
+			m_iRow_Floorplan_LastSelected=-1;
 			m_iLastEntryInDeviceGroup=-1;  // Start at the beginning
 			PK_DesignObj_Toolbar_ToTurnOn=0;
 			PK_DesignObj_Toolbar_ToTurnOff=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar;
@@ -1798,6 +1807,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 			m_mapFloorplanObject_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject;
 		}
 		m_pObj_LastSelected=pDesignObj_Orbiter;
+		m_iRow_Floorplan_LastSelected=Row;
 	}
 
 	// The toolbar will be a direct child of the topmost object, whether it's a screen or a popup
