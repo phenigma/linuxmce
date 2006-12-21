@@ -193,6 +193,10 @@ function deleteAlerts($adate,$securitydbADO){
 	$alerts=getAssocArray('Alert','PK_Alert','DetectionTime',$securitydbADO,'WHERE UNIX_TIMESTAMP(DetectionTime) <= UNIX_TIMESTAMP(\''.$adate.'\')');
 	if(count($alerts)>0){
 		$keys=array_keys($alerts);
+		foreach ($keys AS $key){
+			exec_batch_command('sudo -u root rm '.$GLOBALS['SecurityPicsPath'].'alert_'.$key.'_cam*');
+		}
+		
 		$securitydbADO->Execute('DELETE FROM Alert_Device WHERE FK_Alert IN ('.join(',',$keys).')');
 		$securitydbADO->Execute('DELETE FROM Notification WHERE FK_Alert IN ('.join(',',$keys).')');
 		$securitydbADO->Execute('DELETE FROM Alert WHERE PK_Alert IN ('.join(',',$keys).')');
