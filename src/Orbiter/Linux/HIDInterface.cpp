@@ -19,7 +19,7 @@ PlutoHIDInterface::PlutoHIDInterface(Orbiter *pOrbiter) : m_HIDMutex("HID")
 	m_pOrbiter=pOrbiter; 
 	m_p_usb_dev_handle=NULL; 
 	m_bRunning=false;
-	m_HIDMutex.Init(NULL);
+	m_HIDMutex.Init(&m_pOrbiter->m_MutexAttr);
 	m_iRemoteID=m_iPK_Device_Remote=0;
 	m_iHoldingDownButton=0;
 }
