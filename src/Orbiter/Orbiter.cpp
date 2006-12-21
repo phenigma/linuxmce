@@ -4246,8 +4246,6 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 						DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol + pObj->m_pDesignObj_DataGrid->m_GridCurCol, pObj->m_iGridRow + pObj->m_pDesignObj_DataGrid->m_GridCurRow);
 						if( pCell )
 							Output += pCell->m_mapAttributes[ Variable.substr(3) ];
-						else
-							Output += "no text?";
 					}
 				}
 			}
