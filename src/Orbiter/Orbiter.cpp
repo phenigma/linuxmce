@@ -4258,8 +4258,6 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 					DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol + pObj->m_pDesignObj_DataGrid->m_GridCurCol, pObj->m_iGridRow + pObj->m_pDesignObj_DataGrid->m_GridCurRow);
 					if( pCell && pCell->m_Value )
 						Output += pCell->m_Value;
-					else
-						Output += "no text?";
 				}
 			}
 			else if( Variable[2]=='T' && pObj->m_pDesignObj_DataGrid )
@@ -4271,8 +4269,6 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 					DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol + pObj->m_pDesignObj_DataGrid->m_GridCurCol, pObj->m_iGridRow + pObj->m_pDesignObj_DataGrid->m_GridCurRow);
 					if( pCell && pCell->m_Text )
 						Output += pCell->m_Text;
-					else
-						Output += "no text?";
 				}
 			}
 		}
