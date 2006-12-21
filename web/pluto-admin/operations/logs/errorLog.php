@@ -18,7 +18,7 @@ function errorLog($output,$dbADO) {
 
 	if ($action == 'form') {
 		$selectDevice='
-			SELECT Device.Description,PK_Device,DeviceTemplate.Description AS Template, DeviceCategory.Description AS Category,Manufacturer.Description AS Manufacturer, FK_Manufacturer,FK_DeviceCategory,FK_DeviceTemplate
+			SELECT Device.Description,PK_Device,DeviceTemplate.Description AS Template, DeviceCategory.Description AS Category,Manufacturer.Description AS Manufacturer, FK_Manufacturer,FK_DeviceCategory,FK_DeviceTemplate,CommandLine
 			FROM Device
 			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
@@ -26,8 +26,9 @@ function errorLog($output,$dbADO) {
 			WHERE PK_Device=?';
 		$resDevice=$dbADO->Execute($selectDevice,$deviceID);
 		$rowDevice=$resDevice->FetchRow();
-
-		$logName=getLogName($deviceID,$rowDevice['FK_DeviceTemplate'],$rowDevice['Template'],(int)@$_REQUEST['parentID'],(int)@$_REQUEST['orbiter']);
+		$isGSD=($rowDevice['CommandLine']=='Generic_Serial_Device')?1:0;
+		
+		$logName=getLogName($deviceID,$rowDevice['FK_DeviceTemplate'],$rowDevice['Template'],(int)@$_REQUEST['parentID'],(int)@$_REQUEST['orbiter'],$isGSD);
 		
 		if(file_exists($logName)){
 			exec('grep \'^01\' '.$logName.' | /usr/pluto/bin/ansi2html',$retArray);
