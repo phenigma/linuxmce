@@ -122,6 +122,7 @@ fi
 ## Check Pluto Storage device for free space
 
 Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_NFS_SHARE, $TPL_GENERIC_SAMBA_SHARE)"
+echo $Q
 StorageDevices=$(RunSQL "$Q")
 
 for Device in $StorageDevices; do
@@ -161,7 +162,9 @@ for Device in $StorageDevices; do
 	RunSQL "$Q"
 
 	## Check the space on the drive
-	dfOutput=$(df $Device_MountPoint | grep -v '^Filesystem')
+	dfOutput=$(df $Device_MountPoint 2>/dev/null | grep -v '^Filesystem')
+	[[ $dfOutput == "" ]] && continue
+		
 	Device_DiskFree=$(echo $dfOutput | awk '{ print $4 }') ; Device_DiskFree=$(( $Device_DiskFree / 1024 ))
 	Device_FileSystem=$(mount | grep "on $Device_MountPoint" | awk '{ print $5 }')
 
@@ -173,6 +176,6 @@ for Device in $StorageDevices; do
 	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Device_FileSystem' WHERE FK_DeviceData = '$DD_FILESYSTEM' AND FK_Device = '$Device_ID'"
 	RunSQL "$Q"	
 
-	Logging $TYPE $SEVERITY_NORMAL  $module "Filesystem ( $Device_MountPoint ) has $(($Device_DiskFree / 1024))MB free"
+	Logging $TYPE $SEVERITY_NORMAL  $module "Filesystem ( $Device_MountPoint ) has $(($Device_DiskFree)) MB free"
 	
 done
