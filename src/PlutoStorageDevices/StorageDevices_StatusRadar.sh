@@ -106,7 +106,7 @@ while : ;do
 		Device_IP=$(Field 2 "$FileServer")
 		Device_Username=$(Field 3 "$FileServer")
 		Device_Password=$(Field 4 "$FileServer")
-		
+	
 		if [[ "$Device_IP" == "" ]] ;then
 			SetKidsOnline "$Device_ID" "0"
 			Log "Device $Device_ID has no IP address associated with it."
@@ -158,6 +158,14 @@ while : ;do
 			## Test if the share is still in the list
 			smbclient -U $Device_Username%$Device_Password --list=//$Device_IP --grepable 2>/dev/null | grep "^Disk" | cut -d'|' -f2 | grep -q "^${Share_Name}$"
 			isShareInList=$?
+	
+			## Try with the listing the shares with the username/password of the share
+			if [[ "$isShareInList" != 0 ]] ;then
+				set -x
+				smbclient -U $Share_Username%$Share_Password --list=//$Device_IP --grepable 2>/dev/null | grep "^Disk" | cut -d'|' -f2 | grep -q "^${Share_Name}$"
+				isShareInList=$?
+				set +x
+			fi
 			
 			if [[ "$isShareInList" != "0" ]] ;then
 				Log "Share $Share_ID ($Share_Name) is not advertised by the smb server"
@@ -172,7 +180,7 @@ while : ;do
 			if [[ "$isShareMountable" != "0" ]] ;then
 				Msg="Share $Share_ID ($Share_Name) is not mountable with the username/pass that i have"
 				Log "$Msg"
-                /usr/pluto/bin/MessageSend "$DCERouter" 0 -1001 2 "$EV_User_Password_Mismatch" "$EVP_PK_Device" "$Share_ID" "$EVP_Comment" "$Msg"
+				/usr/pluto/bin/MessageSend "$DCERouter" 0 -1001 2 "$EV_User_Password_Mismatch" "$EVP_PK_Device" "$Share_ID" "$EVP_Comment" "$Msg"
 				SetDeviceOnline "$Share_ID" "0"
 				continue
 			fi
