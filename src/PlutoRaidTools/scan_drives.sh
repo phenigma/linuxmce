@@ -4,8 +4,13 @@ function isInList
 {
 	local disk="$1"
 	for dev in $availPart; do
-		if [[ "$disk" == "$dev" ]]; then 
-			echo '0'
+		if [[ ${#dev} > '3' ]]; then	
+			len=$((${#dev}-1))
+		  	dev=${dev:0:$len}
+
+			if [[ "$disk" == "$dev" ]]; then 
+				echo '0'
+			fi
 		fi
  	done
 	echo '1'
@@ -58,18 +63,19 @@ for part in $availPart ;do
     auxPart="$auxPart $part"
 done
 availPart=$auxPart
-																	     
-#for device in $availPart; do
-#	if [[ ${#device} == '3' ]]; then
-#		new_list="$new_list""$device "
-#	else
-#		len=$((${#device}-1))
-#		device=${device:0:$len}
-#		if [[ "$(isInList "$device")" == '1' ]]; then
-#			new_list="$new_list""$device "
-#		fi
-#	fi
-#done
+
+for device in $availPart; do
+	if [[ ${#device} > '3' ]]; then
+		new_list="$new_list""$device "
+	else
+		#len=$((${#device}-1))
+		#device=${device:0:$len}
+		if [[ "$(isInList "$device")" == '1' ]]; then
+			new_list="$new_list""$device "
+		fi
+	fi
+done
+availPart=$new_list
 
 for device in $availPart; do
 	result=$(mdadm --examine --brief --scan /dev/$device)
