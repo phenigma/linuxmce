@@ -65,8 +65,6 @@ protected:
 	virtual bool RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point = PlutoPoint(0, 0) );
     virtual void ActivateExternalWindowAsync(void *);
 
-    virtual void setInputFocusToMe(void *);
-
     bool m_bOrbiterReady; // ready to process events
     bool m_bIsExclusiveMode; // it's alone on the desktop
 	
@@ -89,7 +87,6 @@ public:
     virtual ~OrbiterLinux();
 
     WinListManager *m_pWinListManager;
-    WMControllerImpl *m_pWMController;
     X11wrapper *m_pX11;
 
 	/**
@@ -137,6 +134,8 @@ public:
     {
         return m_pRecordHandler;
     }
+
+	void StopActivateExternalWindowTask();
 };
 
 #endif // __ORBITERLINUX_H__

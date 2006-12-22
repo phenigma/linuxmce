@@ -1,22 +1,28 @@
 // Window List Manager
 
 #include "win_list_manager.h"
+#include "WindowContext.h"
 #include "DCE/Logger.h"
 using namespace DCE;
 
-WinListManager::WinListManager(WMControllerImpl *pWMController, const string &sSdlWindowName)
+WinListManager::WinListManager(const string &sSdlWindowName)
         : m_WindowsMutex("Windows List Mutex")
-        , m_pWMController(pWMController)
-        , m_sSdlWindowName(sSdlWindowName)
 		, m_bHideSdlWindow(false)
+        , m_sSdlWindowName(sSdlWindowName)
 {
     pthread_mutexattr_init( &m_WindowsMutexAttr );
     pthread_mutexattr_settype( &m_WindowsMutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
     m_WindowsMutex.Init(&m_WindowsMutexAttr);
+
+	m_pWMController = new WMControllerImpl();
 }
 
 WinListManager::~WinListManager()
 {
+	g_pPlutoLogger->Write(LV_WARNING, "WinListManager: deleting Window controller");
+	delete m_pWMController;
+	m_pWMController = NULL;
+
     pthread_mutex_destroy(&m_WindowsMutex.mutex);
     pthread_mutexattr_destroy(&m_WindowsMutexAttr);
 }
@@ -24,141 +30,81 @@ WinListManager::~WinListManager()
 void WinListManager::ResetOrbiterWindow()
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-    m_pWMController->SetLayer(m_sSdlWindowName, LayerAbove);
+	PendingContext(m_sSdlWindowName).Layer(LayerAbove);
 }
 
 void WinListManager::ActivateWindow(const string& sWindowsName)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ActivateWindow()");
-#endif
-	m_pWMController->ActivateWindow(sWindowsName);
+	PendingContext(sWindowsName).Activate(true);
 }
 
 void WinListManager::ActivateSdlWindow()
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ActivateSdlWindow()");
-#endif
-    m_pWMController->ActivateWindow(m_sSdlWindowName);
+	PendingContext(m_sSdlWindowName).Activate(true);
+}
+
+void WinListManager::SetLayer(const string &sClassName, WindowLayer layer)
+{
+	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+	PendingContext(sClassName).Layer(layer);
 }
 
 void WinListManager::ShowSdlWindow(bool bExclusive, bool bYieldInput)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow(%s)", bExclusive ? "true" : "false");
-#endif
-/*
-    string sLastWindow;
-    for (list<string>::iterator it = m_listVisibleWindows.begin(); it != m_listVisibleWindows.end(); ++it)
-        sLastWindow = *it;
-*/
 
 	// when Orbiter is fullscreen no other dialog can be on top of
     // it, so it will be maximized instead
-    m_pWMController->SetVisible(m_sSdlWindowName, !m_bHideSdlWindow);
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow SetVisible");
-#endif
+	PendingContext(m_sSdlWindowName).Visible(!m_bHideSdlWindow);
+	PendingContext(m_sSdlWindowName).Maximize(true);
+	PendingContext(m_sSdlWindowName).Layer(bExclusive ? LayerAbove : LayerBelow);
 
-	m_pWMController->SetMaximized(m_sSdlWindowName, true);
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow SetMaximized");
-#endif
-
-	m_pWMController->SetLayer(m_sSdlWindowName, bExclusive ? LayerAbove : LayerBelow);
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow SetLayer");
-#endif
-
-    if (!m_bHideSdlWindow)
-	{
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow going to ActivateSdlWindow");
-#endif
-		ActivateSdlWindow();
-	}
-    
-    // TODO: possible bugfix: no FullScreen attribute
-    //m_pWMController->SetFullScreen(m_sSdlWindowName, bExclusive);
+    if(!m_bHideSdlWindow)
+		PendingContext(m_sSdlWindowName).Activate(true);
 
     if (bYieldInput)
     {
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow going to bYieldInput");
-#endif
 		if(m_sExternApplicationName != "")
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"WinListManager::ShowSdlWindow activating %s exclusive %d",
-				m_sExternApplicationName.c_str(),(int) bExclusive);
-			m_pWMController->SetLayer(m_sExternApplicationName, bExclusive ? LayerBelow : LayerAbove);
-			m_pWMController->ActivateWindow(m_sExternApplicationName);
+			PendingContext(m_sExternApplicationName).Layer(bExclusive ? LayerBelow : LayerAbove); 
+			PendingContext(m_sExternApplicationName).Activate(true);
 		}
     }
-
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowSdlWindow done");
-#endif
-    return;
 }
 
 void WinListManager::ShowWindow(const string &sWindowName)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowWindow(%s)", sWindowName.c_str());
-#endif
-    m_pWMController->SetVisible(sWindowName, true);
-    m_listVisibleWindows.push_back(sWindowName);
+	PendingContext(sWindowName).Visible(true);
 }
 
 void WinListManager::MaximizeWindow(const string &sWindowName)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::MaximizeWindow(%s)", sWindowName.c_str());
-#endif
-#ifdef ORBITER_OPENGL
-    // TODO: possible bugfix: extra, bad call to LayerBelow
-	m_pWMController->SetLayer(sWindowName, LayerBelow);
-	m_pWMController->SetLayer(sWindowName, LayerNormal);
-#endif	
-    // TODO: possible bugfix: no FullScreen attribute
-    // TODO: possible bugfix: replace SetFullScreen with SetMaximized
-	m_pWMController->SetFullScreen(sWindowName, true);
-    ShowWindow(sWindowName);
+	PendingContext(sWindowName).Maximize(true);
+    PendingContext(sWindowName).Visible(true);
 }
 
 void WinListManager::PositionWindow(const string &sWindowName, int x, int y, int w, int h)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::PositionWindow(%s)", sWindowName.c_str());
-#endif
-    m_pWMController->SetFullScreen(sWindowName, false);
-	m_pWMController->SetMaximized(sWindowName, false);
-	m_pWMController->SetPosition(sWindowName, x, y, w, h);
-#ifdef ORBITER_OPENGL	
-	m_pWMController->SetLayer(sWindowName, LayerBelow);
-    m_pWMController->SetLayer(sWindowName, LayerNormal);
-#endif	
-    ShowWindow(sWindowName);
+	PendingContext(sWindowName).FullScreen(false);
+	PendingContext(sWindowName).Maximize(false);
+	PendingContext(sWindowName).Position(PlutoRectangle(x, y, w, h));
+	PendingContext(sWindowName).Visible(true);
 }
 
 void WinListManager::HideAllWindows()
 {
-    PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WinListManager::HideAllWindows()");
+	g_pPlutoLogger->Write(LV_STATUS, "WinListManager::HideAllWindows");
 #endif
-    for (list<string>::iterator it = m_listVisibleWindows.begin(); it != m_listVisibleWindows.end(); ++it)
-    {
-        m_pWMController->SetVisible(*it, false);
-    }
-    m_listVisibleWindows.clear();
+	
+	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+	for(WindowsContext::iterator it_pending = m_PendingContext.begin(); it_pending != m_PendingContext.end(); ++it_pending)
+		it_pending->second.Visible(false);
 }
 
 string WinListManager::GetExternApplicationName()
@@ -191,18 +137,13 @@ void WinListManager::SetExternApplicationPosition(const PlutoRectangle &coord)
     m_coordExternalApplication = coord;
 }
 
-bool WinListManager::IsEmpty()
-{
-    PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-    return (m_listVisibleWindows.size() == 0);
-}
-
 bool WinListManager::IsWindowAvailable(const string &sClassName)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     list<WinInfo> listWinInfo;
     if (! m_pWMController->ListWindows(listWinInfo))
         return false;
+
     for (list<WinInfo>::iterator it = listWinInfo.begin(); it !=  listWinInfo.end(); ++it)
     {
         if (string::npos != it->sClassName.find(sClassName))
@@ -214,7 +155,7 @@ bool WinListManager::IsWindowAvailable(const string &sClassName)
 bool WinListManager::HideWindow(const string &sClassName)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-	m_pWMController->SetVisible(sClassName, false);
+	PendingContext(sClassName).Visible(false);
     return true;
 }
 
@@ -228,6 +169,105 @@ void WinListManager::SetSdlWindowVisibility(bool bValue)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	m_bHideSdlWindow = !bValue;
-	m_pWMController->SetVisible(m_sSdlWindowName, bValue);
+	PendingContext(m_sSdlWindowName).Visible(bValue);
+}
+
+void WinListManager::ApplyContext()
+{
+#ifdef MAEMO_NOKIA770
+	//no window manager action with nokia 770
+	return;
+#endif
+
+	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+	for(WindowsContext::iterator it_pending = m_PendingContext.begin(); it_pending != m_PendingContext.end(); ++it_pending)
+	{
+		string sWindowName = it_pending->first;
+		WindowContext &pending_context = it_pending->second;
+
+		if(sWindowName.empty())
+			continue;
+
+		WindowsContext::iterator it_current = m_CurrentContext.find(sWindowName);
+		if(it_current != m_CurrentContext.end())
+		{
+			WindowContext &current_context = it_current->second;
+
+			if(current_context != pending_context)
+				g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ApplyContext: applying diff context for '%s': %s",
+					sWindowName.c_str(), pending_context.ToString().c_str());
+
+			if(pending_context.Layer() != current_context.Layer())
+				m_pWMController->SetLayer(sWindowName, pending_context.Layer());
+
+			if(pending_context.IsMaximized() != current_context.IsMaximized())
+				m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
+
+			if(pending_context.IsFullScreen() != current_context.IsFullScreen())
+				m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
+
+
+			if(pending_context.IsVisible() != current_context.IsVisible())
+				m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
+
+			PlutoRectangle rect = pending_context.Position();
+			PlutoRectangle current_rect = current_context.Position();
+			if(
+				!pending_context.IsMaximized() && !pending_context.IsFullScreen() && 
+				rect.Width != -1 && rect.Height != -1 
+				&& 
+				(
+					rect.X != current_rect.X || rect.Y != current_rect.Y ||
+					rect.Width != current_rect.Width || rect.Height != current_rect.Height 
+				)
+			)
+				m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
+
+			if(!current_context.IsActivated() && pending_context.IsActivated())
+				m_pWMController->ActivateWindow(sWindowName);
+
+			if(!pending_context.IsVisible())
+			{
+				//reset position
+                pending_context.Position(PlutoRectangle(-1, -1, -1, -1));
+			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ApplyContext: applying whole context for '%s': %s",
+				sWindowName.c_str(), pending_context.ToString().c_str());
+
+			m_pWMController->SetLayer(sWindowName, pending_context.Layer());
+			m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
+			m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
+			m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
+
+			PlutoRectangle rect = pending_context.Position();
+			if(
+				!pending_context.IsMaximized() && !pending_context.IsFullScreen() &&
+				rect.Width != -1 && rect.Height != -1
+			)
+				m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
+
+			if(pending_context.IsActivated())
+				m_pWMController->ActivateWindow(sWindowName);
+		}
+	}
+
+	m_CurrentContext.clear();
+	m_CurrentContext = m_PendingContext;
+}
+
+WindowContext& WinListManager::PendingContext(string sWindowName)
+{
+	WindowsContext::iterator it = m_PendingContext.find(sWindowName);
+	if(it == m_PendingContext.end())
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "WinListManager::PendingContext: adding new entry %s", sWindowName.c_str());
+		m_PendingContext.insert(make_pair(sWindowName, WindowContext(sWindowName)));
+		return m_PendingContext.find(sWindowName)->second;
+	}
+
+	return it->second;
 }
 

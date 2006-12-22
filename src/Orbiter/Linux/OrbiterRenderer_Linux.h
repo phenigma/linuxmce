@@ -34,7 +34,10 @@ namespace DCE
 		~OrbiterRenderer_Linux();
 
 		void RenderScreen(bool bRenderGraphicsOnly);
+
+#ifndef MAEMO_NOKIA770
        	void EventLoop();
+#endif
 
 		void InitializeAfterSetVideoMode();
 		void InitializeAfterRelatives();

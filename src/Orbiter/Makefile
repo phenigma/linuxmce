@@ -18,6 +18,9 @@ Gen_Dev_Files = $(GENDEV)/OrbiterBase.cpp
 sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
+#Note: For Nokia 770, do an export SNR_CPPFLAGS="-DMAEMO_NOKIA770" before doing a make clean; make bin
+
+
 CXXFLAGS += -g -O0
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DENABLE_MOUSE_BEHAVIOR -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen -I$(ROOT)/SDL_Helpers -DHID_REMOTE
 LDFLAGS += -L/usr/X11R6/lib
@@ -36,6 +39,7 @@ sources += \
 	Linux/win_list_manager.cpp \
 	Linux/HIDInterface.cpp \
 	Linux/OrbiterRenderer_Linux.cpp \
+        Linux/WindowContext.cpp \
 	DesignObj_Data.cpp \
 	DesignObj_Orbiter.cpp \
 	DesignObj_DataGrid.cpp \

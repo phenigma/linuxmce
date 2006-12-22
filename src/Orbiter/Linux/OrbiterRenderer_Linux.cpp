@@ -199,6 +199,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 			return;
 		}		
 		
+		pOrbiterLinux->StopActivateExternalWindowTask();
 		pOrbiterLinux->m_pWinListManager->HideAllWindows();
 		pOrbiterLinux->m_bIsExclusiveMode = true; // This is set to false if there's an application desktop
 
@@ -219,7 +220,8 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 		if(pOrbiterLinux->m_bOrbiterReady)
 			pOrbiterLinux->m_pWinListManager->ShowSdlWindow(pOrbiterLinux->m_bIsExclusiveMode, pOrbiterLinux->m_bYieldScreen);
 
-	        m_bScreenRendered = true;
+		m_bScreenRendered = true;
+		pOrbiterLinux->m_pWinListManager->ApplyContext();
 	}
 }
 
@@ -309,6 +311,7 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, const map<string, b
         pOrbiterLinux->m_pProgressWnd->Run();
         pOrbiterLinux->m_pWinListManager->MaximizeWindow(pOrbiterLinux->m_pProgressWnd->m_wndName);
 		pOrbiterLinux->m_pWinListManager->SetSdlWindowVisibility(false);
+		pOrbiterLinux->m_pWinListManager->ApplyContext();
         return false;
     }
     /*else*/ if (nProgress != -1)
@@ -325,6 +328,7 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, const map<string, b
         pOrbiterLinux->m_pProgressWnd->Terminate();
         pOrbiterLinux->m_pProgressWnd = NULL;
         pOrbiterLinux->reinitGraphics();
+		pOrbiterLinux->m_pWinListManager->ApplyContext();
         return false;
     }
 
@@ -353,6 +357,7 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, int nProgress)
         pOrbiterLinux->m_pProgressWnd->Run();
         pOrbiterLinux->m_pWinListManager->MaximizeWindow(pOrbiterLinux->m_pProgressWnd->m_wndName);
 		pOrbiterLinux->m_pWinListManager->SetSdlWindowVisibility(false);
+		pOrbiterLinux->m_pWinListManager->ApplyContext();
         return false;
     }
     /*else*/ if (nProgress != -1)
@@ -369,6 +374,7 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, int nProgress)
         pOrbiterLinux->m_pProgressWnd->Terminate();
         pOrbiterLinux->m_pProgressWnd = NULL;
         pOrbiterLinux->reinitGraphics();
+		pOrbiterLinux->m_pWinListManager->ApplyContext();
         return false;
     }
 
@@ -393,9 +399,11 @@ int OrbiterRenderer_Linux::PromptUser(string sPrompt, int iTimeoutSeconds, map<i
     promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
     promptDlg.Init();
     pOrbiterLinux->m_pWinListManager->MaximizeWindow(promptDlg.m_wndName);
+	pOrbiterLinux->m_pWinListManager->ApplyContext();
     int nUserAnswer = promptDlg.RunModal();
     promptDlg.DeInit();
 	pOrbiterLinux->m_pWinListManager->SetSdlWindowVisibility(true);
+	pOrbiterLinux->m_pWinListManager->ApplyContext();
     return nUserAnswer;
 }
 
@@ -413,6 +421,7 @@ void OrbiterRenderer_Linux::UnlockDisplay()
         pOrbiterLinux->X_UnlockDisplay();
 }
 
+#ifndef MAEMO_NOKIA770
 void OrbiterRenderer_Linux::EventLoop()
 {
 	int SDL_Event_Pending = 0;
@@ -443,3 +452,4 @@ void OrbiterRenderer_Linux::EventLoop()
 		}
 	}  // while
 }
+#endif //MAEMO_NOKIA770

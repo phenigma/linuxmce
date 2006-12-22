@@ -121,8 +121,9 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
     bool bResult = ptrOrbiterLinux()->m_pX11->Mouse_Constrain(rect.X, rect.Y, rect.Width, rect.Height, ptrOrbiterLinux()->GetMainWindow());
     if (bResult)
     {
-        ptrOrbiterLinux()->m_pWMController->SetLayer(sWindowClassName, LayerBelow);
+		ptrOrbiterLinux()->m_pWinListManager->SetLayer(sWindowClassName, LayerBelow);
         ptrOrbiterLinux()->m_pWinListManager->ActivateSdlWindow();
+		ptrOrbiterLinux()->m_pWinListManager->ApplyContext();
         g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : done",
                               rect.X, rect.Y, rect.Width, rect.Height
                               );

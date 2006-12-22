@@ -9,11 +9,15 @@
 #include <string>
 #include <list>
 using namespace std;
-
+//-----------------------------------------------------------------------------------------------------
+class WindowContext;
+//-----------------------------------------------------------------------------------------------------
+typedef map<string, WindowContext> WindowsContext;
+//-----------------------------------------------------------------------------------------------------
 class WinListManager
 {
 public:
-    WinListManager(WMControllerImpl *pWMController, const string &sSdlWindowName);
+    WinListManager(const string &sSdlWindowName);
     ~WinListManager();
 
     void ActivateWindow(const string& sWindowsName);
@@ -33,29 +37,50 @@ public:
     void SetExternApplicationPosition(const PlutoRectangle &coord);
 
     bool IsEmpty();
-
     bool IsWindowAvailable(const string &sClassName);
 	bool HideWindow(const string &sClassName);
 
 	void GetWindows(list<WinInfo>& listWinInfo);
-
 	void SetSdlWindowVisibility(bool bValue);
-
 	void ResetOrbiterWindow();
+
+	void SetLayer(const string &sClassName, WindowLayer layer);
+
+	void ApplyContext();
 	
-protected:
+private:
+
+	WindowsContext m_CurrentContext;
+	WindowsContext m_PendingContext;
+
+	WindowContext& PendingContext(string sWindowName);
+
     pthread_mutexattr_t m_WindowsMutexAttr;
 	pluto_pthread_mutex_t m_WindowsMutex;
 
-    list<string> m_listVisibleWindows;
-
-    string m_sExternApplicationName;
+	string m_sExternApplicationName;
     PlutoRectangle m_coordExternalApplication;
     unsigned long m_pidExternalApplication;
 
-    WMControllerImpl *m_pWMController;
-    string m_sSdlWindowName;
+    
 	bool m_bHideSdlWindow;
+
+	//internal helpers methods
+	void Internal_ActivateWindow(const string& sWindowsName);
+	void Internal_ActivateSdlWindow();
+	void Internal_ShowSdlWindow(bool bExclusive, bool bYieldInput);
+	void Internal_ShowWindow(const string &sWindowName);
+	void Internal_MaximizeWindow(const string &sWindowName);
+	void Internal_PositionWindow(const string &sWindowName, int x, int y, int w, int h);
+	bool Internal_HideWindow(const string &sClassName);
+	void Internal_SetSdlWindowVisibility(bool bValue);
+	void Internal_ResetOrbiterWindow();
+
+private:
+	
+	string m_sSdlWindowName;
+	WMControllerImpl *m_pWMController;
+
 };
 
 #endif

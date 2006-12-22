@@ -70,7 +70,6 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
         , m_bIsExclusiveMode(false)
         , m_pDisplay_SDL(NULL)
         , m_pWinListManager(NULL)
-        , m_pWMController(NULL)
         , m_pX11(NULL)
 	, m_bMaskApplied(false)
 {
@@ -79,14 +78,13 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
         m_strDisplayName = pDisplayName;
     else
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "getenv returned NULL for variable DISPLAY! Assuming it's :0");
-	m_strDisplayName = ":0";
+		g_pPlutoLogger->Write(LV_CRITICAL, "getenv returned NULL for variable DISPLAY! Assuming it's :0");
+		m_strDisplayName = ":0";
     }
 	
     m_nProgressWidth = 400;
     m_nProgressHeight = 200;
-    m_pWMController = new WMControllerImpl();
-    m_pWinListManager = new WinListManager(m_pWMController, m_strWindowName);
+    m_pWinListManager = new WinListManager(m_strWindowName);
 }
 
 void *HackThread(void *p)
@@ -145,16 +143,7 @@ void OrbiterLinux::HideOtherWindows()
 void OrbiterLinux::reinitGraphics()
 {
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::reinitGraphics()");
-
     m_pWinListManager->ShowSdlWindow(m_bIsExclusiveMode, m_bYieldInput);
-
-    OrbiterCallBack callback = (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe;
-    CallMaintenanceInMiliseconds( 3000, callback, NULL, pe_ALL );
-}
-
-void OrbiterLinux::setInputFocusToMe(void *)
-{
-    CallMaintenanceInMiliseconds( 7000, (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe, NULL, pe_ALL ); // do this every 7 seconds
 }
 
 void OrbiterLinux::setWindowName(string strWindowName)
@@ -275,11 +264,12 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
         {
             // TODO : Set now playing is not sent in video wizard
             // we'll assume this is a xine for now
-            if (m_pWinListManager->GetExternApplicationName() == "")
-                m_pWinListManager->SetExternApplicationName("pluto-xine-playback-window.pluto-xine-playback-window");
+            //if (m_pWinListManager->GetExternApplicationName() == "")
+            //    m_pWinListManager->SetExternApplicationName("pluto-xine-playback-window.pluto-xine-playback-window");
         }
-        m_pWinListManager->SetExternApplicationPosition(rectTotal);
-        ActivateExternalWindowAsync(NULL);
+
+		m_pWinListManager->SetExternApplicationPosition(rectTotal);
+		ActivateExternalWindowAsync(NULL);
 
 		//the keyboard is released to OS, so this is firefox, dvd menu or maybe mythtv-setup 
 		//we'll apply a mask with xshape
@@ -322,6 +312,7 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
             m_pWinListManager->PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
         }
         m_pWinListManager->ActivateWindow(m_pWinListManager->GetExternApplicationName());
+		m_pWinListManager->ApplyContext();
     }
     else
         CallMaintenanceInMiliseconds( bIsWindowAvailable ? 1000 : 200, (OrbiterCallBack)&OrbiterLinux::ActivateExternalWindowAsync, NULL, pe_ALL );
@@ -365,9 +356,6 @@ void OrbiterLinux::Destroy()
 	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() deleting Window manager");
     delete m_pWinListManager;
     m_pWinListManager = NULL;
-	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() deleting Window controller");
-    delete m_pWMController;
-    m_pWMController = NULL;
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() : done");
 }
 
@@ -443,6 +431,7 @@ void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboa
     {
         g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS() : ActivateWindow('%s')", m_pWinListManager->GetExternApplicationName().c_str());
         m_pWinListManager->ActivateWindow(m_pWinListManager->GetExternApplicationName());
+		m_pWinListManager->ApplyContext();
     }
 
 	if(sOnOff == "0" && !m_bUseMask)
@@ -471,6 +460,7 @@ void OrbiterLinux::X_UnlockDisplay()
 
 void OrbiterLinux::GrabPointer(bool bEnable)
 {
+#ifndef MAEMO_NOKIA770
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabPointer(%d)", bEnable);
     if (bEnable)
     {
@@ -481,10 +471,12 @@ void OrbiterLinux::GrabPointer(bool bEnable)
         m_pX11->Mouse_Ungrab();
     }
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabPointer(%d) : done", bEnable);
+#endif
 }
 
 void OrbiterLinux::GrabKeyboard(bool bEnable)
 {
+#ifndef MAEMO_NOKIA770
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabKeyboard(%d)", bEnable);
     if (bEnable)
     {
@@ -495,6 +487,7 @@ void OrbiterLinux::GrabKeyboard(bool bEnable)
         m_pX11->Keyboard_Ungrab();
     }
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabKeyboard(%d) : done", bEnable);
+#endif
 }
 
 bool OrbiterLinux::MaskApplied()
@@ -767,4 +760,18 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode,int Type)
 #endif
 
 	return iPK_Button;
+}
+
+void OrbiterLinux::StopActivateExternalWindowTask()
+{
+	PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
+	for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();++it)
+	{
+		PendingCallBackInfo *pCallBackInfo = (*it).second;
+		if(pCallBackInfo->m_fnCallBack== (OrbiterCallBack)&OrbiterLinux::ActivateExternalWindowAsync)
+		{
+			m_mapPendingCallbacks.erase(it);
+			return;
+		}
+	}
 }
