@@ -71,18 +71,23 @@ Unset_NeedConfigure_Children()
 }
 
 #<-mkr_b_via_b->
-Install_VIA_ALSA()
+Install_VIA_pkgs()
 {
 	local Pkgs_VIA
-	Pkgs_VIA=(via-alsa-2.6.16.20-pluto-2-686)
+	Pkgs_VIA=(via-alsa-2.6.16.20-pluto-2-686 via-xorg)
 
-	echo "$(date -R) --> Finding installed ALSA packages (VIA)"
+	echo "$(date -R) --> Finding installed VIA (ALSA, X) packages"
 	VIA_inst="$(InstalledPackages "${Pkgs_VIA[@]}")"
-	echo "$(date -R) <-- Finding installed ALSA packages (VIA)"
+	echo "$(date -R) <-- Finding installed VIA (ALSA, X) packages"
 
 	if [[ -z "$VIA_inst" ]]; then
 		apt-get -y -f install "${Pkgs_VIA[@]}"
 	fi
+
+	cp -af /usr/pluto/via-xorg/* /
+	depmod -a
+	rmmod via || :
+	modprobe via || :
 }
 #<-mkr_b_via_e->
 
@@ -169,9 +174,9 @@ CleanupVideo()
 #<-mkr_b_via_b->
 		viaprop) # Proprietary VIA drivers
 			if [[ -z "$VIA_dev" ]]; then
+				Install_VIA_pkgs
 				NewDeviceTemplate=$DEVICETEMPLATE_Unichrome
 				VIA_dev=$(/usr/pluto/bin/CreateDevice -d "$NewDeviceTemplate" -R "$PK_Device")
-				Install_VIA_ALSA
 			fi
 		;;
 #<-mkr_b_via_e->
