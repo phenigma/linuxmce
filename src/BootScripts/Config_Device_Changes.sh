@@ -74,7 +74,7 @@ Unset_NeedConfigure_Children()
 Install_VIA_ALSA()
 {
 	local Pkgs_VIA
-	Pkgs_VIA=(via-alsa-2.6.16.20-pluto-1-686)
+	Pkgs_VIA=(via-alsa-2.6.16.20-pluto-2-686)
 
 	echo "$(date -R) --> Finding installed ALSA packages (VIA)"
 	VIA_inst="$(InstalledPackages "${Pkgs_VIA[@]}")"
