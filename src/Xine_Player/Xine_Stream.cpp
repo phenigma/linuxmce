@@ -2724,7 +2724,11 @@ void Xine_Stream::destinationSizeCallback( void *data, int video_width, int vide
 void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_height, double video_pixel_aspect,
 																						int *dest_x, int *dest_y, int *dest_width, int *dest_height,
 																						double *dest_pixel_aspect,
-																						int *win_x, int *win_y )
+																						int *win_x, int *win_y 
+#ifdef	NO_TRICK_PLAY
+																						, int *dispay_no
+#endif
+																						)
 {
 	Xine_Stream * pStream = ( Xine_Stream* ) data;
 
