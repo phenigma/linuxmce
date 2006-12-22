@@ -28,6 +28,12 @@ PackageCmd_lirc="build.sh"
 PackageCmd_asterisk="make_package.sh"
 PackageCmd_kernel_upgrade="BuildKernelUpgrade.sh"
 
+if [[ "$MakeRelease_Flavor" == via ]]; then
+	Packages=("${Packages[@]}" via_xorg)
+	PackageDir_via_xorg=VIA_X_drivers
+	PackageCmd_via_xorg="BuildViaXorg.sh"
+fi
+
 for Pkg in "${Packages[@]}"; do
 	Var="PackageDir_$Pkg"
 	Dir="${!Var}"
