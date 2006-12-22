@@ -1192,7 +1192,11 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 
 		// we should use ordinary play instead of seek if we have audio-only
 		if (m_bHasVideo)
+#ifndef	NO_TRICK_PLAY
 			xine_seek( m_pXineStream, 0, pos );
+#else
+			xine_play( m_pXineStream, 0, pos );
+#endif
 		else
 			xine_play( m_pXineStream, 0, pos );
 
@@ -1230,7 +1234,11 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		
 			g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
 			if (m_bHasVideo)
-				xine_seek( m_pXineStream, 0, pos );
+#ifndef	NO_TRICK_PLAY
+			xine_seek( m_pXineStream, 0, pos );
+#else
+			xine_play( m_pXineStream, 0, pos );
+#endif
 			else
 				xine_play( m_pXineStream, 0, pos );
 		}
@@ -2112,8 +2120,11 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		return;
 	}
 
-
+#ifndef	NO_TRICK_PLAY
 	bool trickModeSupported = StringUtils::StartsWith(m_sCurrentFile,"dvd:", true) ||StringUtils::EndsWith(m_sCurrentFile,".mpg", true) || StringUtils::EndsWith(m_sCurrentFile,".mpeg", true);
+#else
+	const bool trickModeSupported = false;
+#endif
 	//bool trickModeSupported = true;
 	bool trickModeActive = m_bTrickModeActive;
 	
@@ -2135,8 +2146,9 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		if (m_iSpecialSeekSpeed)
 		{
 			StopSpecialSeek();
-		} 
+		}
 		else 
+#ifndef	NO_TRICK_PLAY
 		if ( trickModeActive )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
@@ -2149,6 +2161,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			m_bTrickModeActive = false;
 		}
 		else
+#endif
 			g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed no running seekers found");
 
 		
@@ -2166,6 +2179,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	const int UltraFastFWD = 16*1000;
 	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported )||(desiredSpeed>UltraFastFWD) ||!m_bHasVideo)
 	{	
+#ifndef	NO_TRICK_PLAY
 		if ( trickModeActive )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
@@ -2176,7 +2190,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			m_iTrickPlaySpeed = 0;
 			m_bTrickModeActive = false;
 		}
-		
+#endif		
 		if (m_iSpecialSeekSpeed==0)
 		{
 			StartSpecialSeek( desiredSpeed );
@@ -2192,6 +2206,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	}
 	
 	
+#ifndef	NO_TRICK_PLAY
 	// trick play is supported and  desired speed is ok
 	if ((desiredSpeed > 0) && trickModeSupported)
 	{
@@ -2223,7 +2238,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		
 		return;
 	}
-	
+#endif
 	g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed IMPOSSIBLE_STATE");
 }
 
