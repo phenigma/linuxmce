@@ -2,12 +2,13 @@
 GENDEV=../Gen_Devices
 
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0 -DDEBUG -DTHREAD_LOG -DLOG_ALL_QUERIES $(SNR_CPPFLAGS)
-LDFLAGS = -L$(ROOT)/lib -L$(ROOT)/Xine_Player
+CPPFLAGS = $(SNR_CPPFLAGS) -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0 -DDEBUG -DTHREAD_LOG -DLOG_ALL_QUERIES
+LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib -L$(ROOT)/Xine_Player
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -ljpeg -lxine -lXtst -lX11 -lglib-2.0 -lXmu -lcdda_interface -ldvdnav_xine_custom
 
 MYNAME = Xine_Player
