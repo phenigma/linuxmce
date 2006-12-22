@@ -350,7 +350,7 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 		if( !pRow_Attribute_Title && (PK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST))!=0 )
 			pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);	
 
-		if( pRow_Attribute_Performer || pRow_Attribute_Album )
+		if( (pRow_Attribute_Performer || pRow_Attribute_Album) && m_iPK_MediaType!=MEDIATYPE_pluto_StoredVideo_CONST )
 		{
 			if( pRow_Attribute_Performer )
 			{

@@ -8240,10 +8240,24 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 	if(UsesUIVersion2())
 	{
 		if( m_pMouseBehavior )
+		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code SetMediaInfo-%s-%s-%s-%s-%s",
+				sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str());
+#endif
 			m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection);
+		}
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code SetMediaInfo np:%s showing %d",
+			m_sNowPlaying_Speed.c_str(),(int) m_bShowingSpeedBar);
+#endif
 		if( m_sNowPlaying_Speed.empty()==true && m_bShowingSpeedBar )
 		{
 			// We displayed a speed bar, per below.  Remove it
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code m_pScreenHistory_Current %p current %d osd %d",
+			m_pScreenHistory_Current,m_pScreenHistory_Current->PK_Screen(),m_iPK_Screen_OSD_Speed);
+#endif
 			m_bShowingSpeedBar=false;
 			if( m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()==m_iPK_Screen_OSD_Speed )
 				CMD_Go_back("","1");
@@ -8260,6 +8274,9 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 			// Display the speed bar just as a goto designobj, not a full screen, and we'll go back when the speed returns to normal
 			m_bShowingSpeedBar=true;  // SpeedMouseHandler knows to ignore mouse movements when this is true
 			CMD_Goto_Screen("",m_iPK_Screen_OSD_Speed);
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code going to %d",m_iPK_Screen_OSD_Speed);
+#endif
 		}
 	}
 #endif

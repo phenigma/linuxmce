@@ -1394,6 +1394,8 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 	{
 		Row_Software *pRow_Software = *it;
 
+		pRow_Software->Reload();  // Installation status may have changed
+
 		pCell = new DataGridCell("", StringUtils::itos(pRow_Software->PK_Software_get()));
 		string s = pRow_Software->Iconstr_get();
 		if( s.size() )
@@ -3126,6 +3128,7 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 	string sCommand;
 	if(bTrueFalse)
 	{
+		pRow_Software->Installation_status_set("Ins");
 		if( pDevice->m_dwPK_Device == m_pData->GetTopMostDevice()->m_dwPK_Device )
 			sCommand = "/usr/pluto/bin/InstallSoftware.sh";
 		else
@@ -3133,18 +3136,20 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 	}
 	else
 	{
+		pRow_Software->Installation_status_set("Rem");
 		if( pDevice->m_dwPK_Device == m_pData->GetTopMostDevice()->m_dwPK_Device )
 			sCommand = "/usr/pluto/bin/RemoveSoftware.sh";
 		else
 			sCommand = "/usr/pluto/bin/RemoveSoftware_Remote.sh";
 	}
+	pRow_Software->Table_Software_get()->Commit();
 
 	string sArguments=pDevice->m_sIPAddress + "\t" + pRow_Software->PackageName_get() + "\t" + pRow_Software->Downloadurl_get() + "\t" + pRow_Software->RepositoryName_get();
 
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Add_Software Starting Add software device %d software %d true %d cmd %d %s",
 		pDevice->m_dwPK_Device,iPK_Software,(int) bTrueFalse,sCommand.c_str(),sArguments.c_str());
 	
-	ProcessUtils::SpawnApplication(sCommand, sArguments, "InstallSoftware", NULL, true, true);
+	ProcessUtils::SpawnDaemon(sCommand, sArguments, true);
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Finishing Add software");

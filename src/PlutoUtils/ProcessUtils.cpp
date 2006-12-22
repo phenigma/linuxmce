@@ -27,6 +27,7 @@ using namespace std;
 
 #include "StringUtils.h"
 #include "FileUtils.h"
+#include "PlutoDefs.h"
 
 namespace ProcessUtils
 {
@@ -374,6 +375,23 @@ bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & s
 
 	return true;
 #endif
+}
+
+// SpawnPaenguin
+bool ProcessUtils::SpawnDaemon(string sPath, string sArguments, bool bLogOutput)
+{
+	vector<string> vectArguments;
+	StringUtils::Tokenize(sArguments,"\t",vectArguments);
+	char **pArgs = new char*[vectArguments.size()+1];
+	pArgs[vectArguments.size()]=NULL;
+	
+	int i=0;
+	for(vector<string>::iterator it = vectArguments.begin();it != vectArguments.end();++it)
+		pArgs[i++] = (char *) it->c_str();
+
+	bool bResult = SpawnDaemon(sPath.c_str(),pArgs,bLogOutput);
+	delete [] pArgs; // Not PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS because the strings are c_str and not allocated on the heap
+	return bResult;
 }
 
 // SpawnPaenguin

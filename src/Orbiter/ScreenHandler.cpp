@@ -1525,9 +1525,12 @@ bool ScreenHandler::AddSoftware_GridRendering(CallBackData *pData)
 			{
 				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_Installed_Apps_Not_Virus_Free_CONST )
-					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("Virus_Free")=="Yes";  // Hide this if it's virus fee
+					pDesignObj_Orbiter->m_bHidden = true; // pCell->m_mapAttributes_Find("Virus_Free")=="Yes";  // Hide this if it's virus fee
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconCheckMark_CONST )
-					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("Installation_status")!="Yes";  // Hide this if it's virus fee
+					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("Installation_status")!="Yes";  // Hide this if it's not installed
+				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconHour_Glass_CONST )
+					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("Installation_status")!="Ins" && pCell->m_mapAttributes_Find("Installation_status")!="Rem";  // Hide this if it's not being installed/removed
+					
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_Installed_Apps_Icon_CONST )
 					m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, "PNG",
 						pCell->m_pGraphicData, pCell->m_GraphicLength, "0");  // Store the icon, which is cell's picture

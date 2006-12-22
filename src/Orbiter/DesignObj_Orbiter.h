@@ -57,7 +57,9 @@ public:
 	int m_GraphicBeforeHighlight;
 	void m_GraphicToDisplay_set(string sCalling,int GraphicToDisplay,bool bRecurseChildren=false,bool bSetUnhighlightedState=false)
 	{
-g_pPlutoLogger->Write(LV_STATUS,"m_GraphicToDisplay_set %s %s=%d",sCalling.c_str(),m_ObjectID.c_str(),GraphicToDisplay);
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"m_GraphicToDisplay_set %s %s=%d",sCalling.c_str(),m_ObjectID.c_str(),GraphicToDisplay);
+#endif
 		m_GraphicToDisplay=GraphicToDisplay;
 		if( bSetUnhighlightedState )
 			m_GraphicBeforeHighlight=GraphicToDisplay;

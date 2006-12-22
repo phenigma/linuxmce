@@ -43,6 +43,7 @@ namespace ProcessUtils
 
 	/** Execute a daemon (paenguin?) - i.e. run it in the background and disown it */
 	bool SpawnDaemon(const char * path, char * args[], bool bLogOutput = true);
+	bool SpawnDaemon(string sPath, string sArguments, bool bLogOutput); // Using \t delimited arguments like SpawnApplication
 
 	// This is used to get elapsed time in milliseconds for quick comparissons.
 	// clock is no good because it's only CPU time, not actual time.  timespec

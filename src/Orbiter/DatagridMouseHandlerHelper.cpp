@@ -385,7 +385,7 @@ g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move ****GO**** Y 
 		PlutoRectangle r(m_iLeft,m_Top,m_iRight-m_iLeft,m_Bottom-m_Top);
 		m_pMouseBehavior->ConstrainMouse(r);
 #ifndef WIN32
-		m_pMouseBehavior->ShowMouse(MouseBehavior::smb_TurnOnRemote);
+		m_pMouseBehavior->ShowMouse(false,MouseBehavior::smb_TurnOnRemote);
 #endif
 		return true;
 	}

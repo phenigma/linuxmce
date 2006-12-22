@@ -8,7 +8,8 @@
 #include "pluto_main/Table_Skin.h"
 
 void PopulateScreenMap(Database_pluto_main *pDatabase_pluto_main, map<int,int>& mapDesignObj,
-					   Row_UI *pRow_UI, Row_Skin *pRow_Skin, Row_Device *pRow_Device)
+					   Row_UI *pRow_UI, Row_Skin *pRow_Skin, Row_Device *pRow_Device,
+					   bool bMatchingSkin)
 {
 	string SQL="(FK_UI=" + StringUtils::itos(pRow_UI->PK_UI_get()) + " OR FK_UI IS NULL) AND "
 		"(FK_Skin=" + StringUtils::itos(pRow_Skin->PK_Skin_get()) + " OR FK_Skin IS NULL) AND "
@@ -24,6 +25,10 @@ void PopulateScreenMap(Database_pluto_main *pDatabase_pluto_main, map<int,int>& 
 		Row_Screen_DesignObj *pRow_Screen_DesignObj = vectRow_Screen_DesignObj[s];
 		if( pRow_Screen_DesignObj->FK_Screen_get()==PK_Screen_Last )
 			continue;
+
+		if( bMatchingSkin && pRow_Skin->PK_Skin_get()!=pRow_Screen_DesignObj->FK_Skin_get() )
+			continue;
+
 		PK_Screen_Last=pRow_Screen_DesignObj->FK_Screen_get();
 		mapDesignObj[PK_Screen_Last] = pRow_Screen_DesignObj->FK_DesignObj_get();
 	}	

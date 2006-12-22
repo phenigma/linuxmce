@@ -436,7 +436,10 @@ int OrbiterGenerator::DoIt()
 	for(vector<Row_AttributeType *>::iterator it=vectRow_AttributeType.begin();it!=vectRow_AttributeType.end();++it)
 		m_mapPK_AttributeType_Description[ (*it)->PK_AttributeType_get() ] = (*it)->Description_get();
 
-	PopulateScreenMap(m_spDatabase_pluto_main.get(), m_mapDesignObj, m_pRow_UI, pRow_Skin_For_Translation, m_pRow_Device);
+	PopulateScreenMap(m_spDatabase_pluto_main.get(), m_mapDesignObj, m_pRow_UI, pRow_Skin_For_Translation, m_pRow_Device,false);
+	// Now call it again passing in 'true' and the translated skin so if there's any replacements with the translated skin they'll get picked up
+	PopulateScreenMap(m_spDatabase_pluto_main.get(), m_mapDesignObj, m_pRow_UI, m_pRow_Skin, m_pRow_Device, true);
+
 	vector<Row_Screen *> vectRow_Screen_GoBack;
 	m_spDatabase_pluto_main->Screen_get()->GetRows("GoBackToScreen=1",&vectRow_Screen_GoBack);
 	for(vector<Row_Screen *>::iterator it_vsgb=vectRow_Screen_GoBack.begin();it_vsgb!=vectRow_Screen_GoBack.end();++it_vsgb)
