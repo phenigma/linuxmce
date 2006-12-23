@@ -1145,6 +1145,7 @@
 #define TEXT_Which_Provider_CONST 1862
 #define TEXT_Provider_for_device_CONST 1863
 #define TEXT_floorplan_instructions_CONST 1864
+#define TEXT_Finish_house_setup_CONST 1865
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
