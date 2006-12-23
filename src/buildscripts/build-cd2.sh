@@ -42,12 +42,12 @@ MD5FILE="$BONUSCDDIR/md5.file"
 # packages to get from repositories
 case "$MakeRelease_Flavor" in
     pluto|pluto_debug|via)
-        DEVPKGLIST=( pluto-bluetooth-dongle pluto-usb-uirt pluto-slimserver-plugin pluto-slim-server-streamer pluto-irtrans-wrapper pluto-generic-serial-device )
+        DEVPKGLIST=( pluto-bluetooth-dongle pluto-usb-uirt pluto-slimserver-plugin pluto-slim-server-streamer pluto-irtrans-wrapper pluto-generic-serial-device pluto-tira-wrapper pluto-powerfile-c200 )
         REPLPKGLIST=( slimdevices-slim-server libxine1-dbg)
         AUTOINSTLIST=( video-wizard-videos-pluto )
     ;;
     monster)
-        DEVPKGLIST=( monster-skin pluto-avwizard-skin-monster pluto-monster-database pluto-bluetooth-dongle pluto-usb-uirt pluto-slimserver-plugin pluto-slim-server-streamer pluto-irtrans-wrapper pluto-generic-serial-device )						
+        DEVPKGLIST=( monster-skin pluto-avwizard-skin-monster pluto-monster-database pluto-bluetooth-dongle pluto-usb-uirt pluto-slimserver-plugin pluto-slim-server-streamer pluto-irtrans-wrapper pluto-generic-serial-device pluto-tira-wrapper pluto-powerfile-c200 )	
 		REPLPKGLIST=( slimdevices-slim-server bootsplash-theme-monster libxine1-dbg )
         AUTOINSTLIST=( video-wizard-videos-monster monster-nucleus )
     ;;
@@ -85,6 +85,11 @@ for pkgs in ${AUTOINSTLIST[@]} ;do
 	find "$DEVREPO" -follow -name "${pkgs}*.deb" -exec cp '{}' "$AUTOINSTDIR" ";"
 	find "$REPLREPO" -follow -name "${pkgs}*.deb" -exec cp '{}' "$AUTOINSTDIR" ";"
 done
+
+if [[ "$MakeRelease_Flavor" == via ]]; then
+	chmod +x /home/jason/*.sh
+	cp /home/jason/* "$BONUSCACHEDIR"
+fi
 
 # create md5 file
 touch $MD5FILE
