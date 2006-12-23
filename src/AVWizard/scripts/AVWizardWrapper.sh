@@ -9,10 +9,10 @@ SpcField()
 	echo "$Data" | cut -d' ' -f"$Field"
 }
 
-<-mkr_b_via_b->
+#<-mkr_b_via_b->
 	bash -x /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ApplyViaPatch.sh
 	exit
-<-mkr_b_via_e->
+#<-mkr_b_via_e->
 
 Done=0
 NextStep=$STEP_Welcome

@@ -2,6 +2,10 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 
+#<-mkr_b_via_b->
+exit
+#<-mkr_b_via_e->
+
 function getCurrentLayout {
 	currentLayout=$(cat $XConfFile 2>/dev/null  | grep "^.*Option.*\"XkbLayout\"" | cut -f5 | sed 's/"//g')
 	currentVariant=$(cat $XConfFile 2>/dev/null | grep "^.*Option.*\"XkbVariant\"" | cut -f5 | sed 's/"//g')

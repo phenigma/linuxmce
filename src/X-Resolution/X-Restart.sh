@@ -14,6 +14,10 @@ computerIP=$2
 
 /usr/pluto/bin/LaunchRemoteCmd.sh "$computerIP" "
 	. /usr/pluto/bin/Utils.sh;
+#<-mkr_b_via_b->
+exit
+#<-mkr_b_via_e->
+
 	/usr/pluto/bin/Xconfigure.sh --keep-resolution --update-video-driver
 	cp /etc/X11/xorg.conf{,.test}
 	#kill $(ps ax|grep 'X :0 -ignoreABI -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')

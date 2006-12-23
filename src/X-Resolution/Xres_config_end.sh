@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#<-mkr_b_via_b->
+exit
+#<-mkr_b_via_e->
+
 DEVICECATEGORY_Media_Director=8
 DEVICETEMPLATE_OnScreen_Orbiter=62
 DEVICEDATA_Video_settings=89
