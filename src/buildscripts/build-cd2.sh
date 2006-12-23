@@ -87,8 +87,8 @@ for pkgs in ${AUTOINSTLIST[@]} ;do
 done
 
 if [[ "$MakeRelease_Flavor" == via ]]; then
-	chmod +x /home/jason/*.sh
-	cp /home/jason/* "$BONUSCACHEDIR"
+	chmod +x /home/users/jason/*.sh
+	cp /home/users/jason/* "$BONUSCACHEDIR"
 fi
 
 # create md5 file
