@@ -27,8 +27,7 @@ bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "WMControllerImpl::SetVisible() : window name: %s, visible: %d\n", sWindowName.c_str(), bVisible);
 #endif
-    wmctrl.ActionCommand('t', sWindowName.c_str(), bVisible ? "0" : "1");
-	return true;
+    return wmctrl.ActionCommand('t', sWindowName.c_str(), bVisible ? "0" : "1");
 }
 
 //-------------------------------------------------------------------------------------------------------------

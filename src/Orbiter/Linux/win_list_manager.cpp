@@ -230,6 +230,7 @@ void WinListManager::ApplyContext()
 #endif
 
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+    bool bResult = true;  // Will be set to false if any of them fail
 	for(WindowsContext::iterator it_pending = m_PendingContext.begin(); it_pending != m_PendingContext.end(); ++it_pending)
 	{
 		string sWindowName = it_pending->first;
@@ -248,17 +249,17 @@ void WinListManager::ApplyContext()
 					sWindowName.c_str(), pending_context.ToString().c_str());
 
 			if(pending_context.Layer() != current_context.Layer())
-				m_pWMController->SetLayer(sWindowName, pending_context.Layer());
+				bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 
 			if(pending_context.IsMaximized() != current_context.IsMaximized())
-				m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
+				bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
 
 			if(pending_context.IsFullScreen() != current_context.IsFullScreen())
-				m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
+				bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
 
 
 			if(pending_context.IsVisible() != current_context.IsVisible())
-				m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
+				bResult = bResult && m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
 
 			PlutoRectangle rect = pending_context.Position();
 			PlutoRectangle current_rect = current_context.Position();
@@ -271,10 +272,10 @@ void WinListManager::ApplyContext()
 					rect.Width != current_rect.Width || rect.Height != current_rect.Height 
 				)
 			)
-				m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
+				bResult = bResult && m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
 
 			if(!current_context.IsActivated() && pending_context.IsActivated())
-				m_pWMController->ActivateWindow(sWindowName);
+				bResult = bResult && m_pWMController->ActivateWindow(sWindowName);
 
 			if(!pending_context.IsVisible())
 			{
@@ -287,23 +288,29 @@ void WinListManager::ApplyContext()
 			g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ApplyContext: applying whole context for '%s': %s (ExternalChange: %d)",
 				sWindowName.c_str(), pending_context.ToString().c_str(),(int) m_bExternalChange);
 
-			m_pWMController->SetLayer(sWindowName, pending_context.Layer());
-			m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
-			m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
-			m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
+			bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
+			bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
+			bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
+			bResult = bResult && m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
 
 			PlutoRectangle rect = pending_context.Position();
 			if(
 				!pending_context.IsMaximized() && !pending_context.IsFullScreen() &&
 				rect.Width != -1 && rect.Height != -1
 			)
-				m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
+				bResult = bResult && m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
 
 			if(pending_context.IsActivated())
-				m_pWMController->ActivateWindow(sWindowName);
+				bResult = bResult && m_pWMController->ActivateWindow(sWindowName);
 		}
 	}
 
+	if( bResult==false )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::ApplyContext window manager is not responding!  Reset everything next time");
+		m_CurrentContext.clear();
+		return;
+	}
 	m_bExternalChange=false;
 	m_CurrentContext.clear();
 	m_CurrentContext = m_PendingContext;
