@@ -180,7 +180,7 @@ void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
 			g_pPlutoLogger->Write(LV_STATUS,"WinListManager::GetWindows windows %d-%s is new",
 				it->ulPid,it->sClassName.c_str());
 #endif
-			m_mapKnownWindows[it->ulPID] = it->sClassName;
+			m_mapKnownWindows[it->ulPid] = it->sClassName;
 			bChangesDetected=true;
 		}
 		else
