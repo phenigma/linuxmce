@@ -146,6 +146,8 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	
 	threadEventLoop = NULL;
 	m_pXineStreamEventQueue = NULL;
+
+	m_isSlimClient = false;
 	
 	m_pDynamic_Pointer = new Dynamic_Pointer(this, &cursors[0], &cursors[1]);
 	
@@ -154,10 +156,14 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "Stream output window init failed");
 	} 
+
+	g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::Xine_Stream m_iStreamID %d",m_iStreamID);
 }
 
 Xine_Stream::~Xine_Stream()
 {
+	g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::~Xine_Stream m_iStreamID %d",m_iStreamID);
+
 	ShutdownStream();
 	DestroyWindows();
 }
@@ -1020,7 +1026,10 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 			XA_DELETE_WINDOW = XInternAtom( m_pFactory->m_pXDisplay, "WM_DELETE_WINDOW", False );
 
 			if ( ( unsigned ) event.xclient.data.l[ 0 ] == XA_DELETE_WINDOW )
+			{
+				g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::XServerEventProcessor XA_DELETE_WINDOW" );
 				m_bIsRendering = false;
+			}
 			break;
 		}
 
