@@ -14,6 +14,8 @@ void *ProcessHIDEvents(void *p);
 class PlutoHIDInterface
 {
 private:
+	enum MouseStartStop { mssNone, mssStart, mssStop } m_MouseStartStop;
+
     usb_dev_handle *m_p_usb_dev_handle;
 	bool m_bRunning;
 	pluto_pthread_mutex_t m_HIDMutex;  // This will also protect the callback map
@@ -34,8 +36,10 @@ public:
 	bool ProcessBindRequest(char *inPacket);
 	bool ProcessHIDButton(char *inPacket);
 	bool SetActiveRemote(int iRemoteID,bool bFollowMe);
-	bool StartMouse();
-	bool StopMouse();
+	void StartMouse() { PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex); m_MouseStartStop=mssStart; }
+	void StopMouse() { PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex); m_MouseStartStop=mssStop; }
+	bool DoStartMouse();
+	bool DoStopMouse();
 };
 
 #endif // PlutoHIDInterface_h

@@ -22,6 +22,7 @@ PlutoHIDInterface::PlutoHIDInterface(Orbiter *pOrbiter) : m_HIDMutex("HID")
 	m_HIDMutex.Init(&m_pOrbiter->m_MutexAttr);
 	m_iRemoteID=m_iPK_Device_Remote=0;
 	m_iHoldingDownButton=0;
+	m_MouseStartStop=mssNone;
 }
 
 void PlutoHIDInterface::ProcessHIDEvents()
@@ -91,6 +92,17 @@ void PlutoHIDInterface::ProcessHIDEvents()
 					{
 						if (cnt%100==20) 
 							g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents .", cnt++);
+
+						if( m_MouseStartStop!=mssNone )
+						{
+							PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex);
+							if( m_MouseStartStop==mssStart )
+								DoStartMouse();
+							else
+								DoStopMouse();
+							m_MouseStartStop=mssNone;
+						}
+
 						hm.Release();  
 						usleep(10000);  // Give somebody else a chance to use this
 						hm.Relock();
@@ -169,7 +181,7 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 	return true;
 }
 
-bool PlutoHIDInterface::StartMouse()
+bool PlutoHIDInterface::DoStartMouse()
 {
 	PLUTO_SAFETY_LOCK(hm,m_HIDMutex);
 	if( !m_bRunning )
@@ -194,7 +206,7 @@ bool PlutoHIDInterface::StartMouse()
 	return true;
 }
 
-bool PlutoHIDInterface::StopMouse()
+bool PlutoHIDInterface::DoStopMouse()
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
 	if( !m_bRunning )
