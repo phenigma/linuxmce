@@ -1146,6 +1146,17 @@
 #define TEXT_Provider_for_device_CONST 1863
 #define TEXT_floorplan_instructions_CONST 1864
 #define TEXT_Finish_house_setup_CONST 1865
+#define TEXT_AB_CONST 1866
+#define TEXT_EF_CONST 1868
+#define TEXT_GH_CONST 1869
+#define TEXT_IJ_CONST 1870
+#define TEXT_KL_CONST 1871
+#define TEXT_MN_CONST 1872
+#define TEXT_OPQ_CONST 1873
+#define TEXT_RS_CONST 1874
+#define TEXT_TU_CONST 1875
+#define TEXT_VW_CONST 1876
+#define TEXT_XYZ_CONST 1877
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

@@ -2346,7 +2346,23 @@
 #define DESIGNOBJ_grp_fp_Datagrid_CONST 5341
 #define DESIGNOBJ_dgFloorplanDevices_CONST 5342
 #define DESIGNOBJ_iconHour_Glass_CONST 5343
-#define DESIGNOBJ_objLongFileName_CONST 5361
+#define DESIGNOBJ_butAZ_Comp_AB_CONST 5344
+#define DESIGNOBJ_butAZ_Comp_CD_CONST 5345
+#define DESIGNOBJ_butAZ_Comp_EF_CONST 5346
+#define DESIGNOBJ_butAZ_Comp_GH_CONST 5347
+#define DESIGNOBJ_butAZ_Comp_IJ_CONST 5348
+#define DESIGNOBJ_butAZ_Comp_KL_CONST 5349
+#define DESIGNOBJ_butAZ_Comp_MN_CONST 5350
+#define DESIGNOBJ_butAZ_Comp_OPQ_CONST 5351
+#define DESIGNOBJ_butAZ_Comp_RS_CONST 5352
+#define DESIGNOBJ_butAZ_Comp_TU_CONST 5353
+#define DESIGNOBJ_butAZ_Comp_VW_CONST 5354
+#define DESIGNOBJ_butAZ_Comp_XYZ_CONST 5355
+#define DESIGNOBJ_butAZ_Comp_Group_CONST 5356
+#define DESIGNOBJ_butFAB_Down_CONST 5357
+#define DESIGNOBJ_butFAB_Up_CONST 5358
+#define DESIGNOBJ_butFAB_Options_CONST 5359
+#define DESIGNOBJ_objLongFileName_CONST 5360
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
