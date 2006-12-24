@@ -385,7 +385,7 @@ bool ProcessUtils::SpawnDaemon(string sPath, string sArguments, bool bLogOutput)
 	char **pArgs = new char*[vectArguments.size()+1];
 	pArgs[vectArguments.size()+1]=NULL;
 	
-	pArgs[0] = sPath.c_str();
+	pArgs[0] = (char *) sPath.c_str();
 
 	int i=1;
 	for(vector<string>::iterator it = vectArguments.begin();it != vectArguments.end();++it)
