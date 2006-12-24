@@ -271,6 +271,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		{
 			string s = " ";
 			s[0] = (char) Letter + 64;
+			m_pOrbiter->CMD_Remove_Popup("","coverart");
 			m_pOrbiter->CMD_Seek_Data_Grid(s,0,0,mediaFileBrowserOptions.m_pObj_ListGrid->m_sGridID);
 		}
 	}

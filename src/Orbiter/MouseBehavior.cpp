@@ -302,6 +302,10 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && PK_Screen_OnScreen==SCREEN_Main_CONST && m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() != m_pOrbiter->m_pDesignObj_Orbiter_ScreenSaveMenu )
 	{
+		// If the user has highlighted something and hits f7 again, he probably wants to select it
+		if( m_pMouseHandler && m_pMouseHandler->ButtonDown(BUTTON_Mouse_1_CONST) )
+			return true;
+
 		// If the user hits the menu button from the main menu, go to the screen saver, unless there's a computing app
 		if( m_pOrbiter->m_PK_Screen_ActiveApp_OSD )
 		{

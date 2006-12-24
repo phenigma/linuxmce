@@ -23,6 +23,7 @@ namespace DCE
 	class DatagridMouseHandlerHelper
 	{
 		friend class KeyboardMouseHandler;
+		friend class MediaBrowserMouseHandler;
 		friend class Orbiter;
 
 		class MouseHandler *m_pMouseHandler;

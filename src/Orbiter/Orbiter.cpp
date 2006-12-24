@@ -3518,8 +3518,8 @@ bool Orbiter::GotActivity( int PK_Button )
 	m_LastActivityTime=time( NULL );
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::GotActivity m_bDisplayOn is %d m_bScreenSaverActive %d ui2 %d mousevisible %d",
-		(int) m_bDisplayOn,(int) m_bScreenSaverActive,(int) UsesUIVersion2(),(int) m_pMouseBehavior->m_bMouseVisible);
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::GotActivity m_bDisplayOn is %d m_bScreenSaverActive %d ui2 %d",
+		(int) m_bDisplayOn,(int) m_bScreenSaverActive,(int) UsesUIVersion2());
 #endif
 
 	// If the display is off, or we're in screen saver mode
@@ -5574,6 +5574,9 @@ void Orbiter::CMD_Set_Size_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,in
 void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string &sCMD_Result,Message *pMessage)
 //<-dceag-c25-e->
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Set_Text %s/%d=%s",sPK_DesignObj.c_str(),iPK_Text,sText.c_str());
+#endif
 	DesignObj_Orbiter *pObj=( m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj() : NULL );
 	if(  sPK_DesignObj.length(  )  )
 		pObj = FindObject( sPK_DesignObj );
