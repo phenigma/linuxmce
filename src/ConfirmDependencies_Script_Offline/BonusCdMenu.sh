@@ -45,6 +45,13 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 		echo "ERROR: Failed copying second batch"
 		read
 	fi
+
+#<-mkr_b_via_b->
+	cd /cdrom/via
+	mkdir /home/via
+	cp * /home/via
+#<-mkr_b_via_e->
+
 	sleep 1
 	cd 
 	/usr/bin/eject 1>/dev/null 2>/dev/null

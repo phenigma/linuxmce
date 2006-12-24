@@ -171,7 +171,7 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 
 bool PlutoHIDInterface::StartMouse()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
+	PLUTO_SAFETY_LOCK(hm,m_HIDMutex);
 	if( !m_bRunning )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"PlutoHIDInterface::StartMouse m_bRunning==false");

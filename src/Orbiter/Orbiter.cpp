@@ -3518,7 +3518,8 @@ bool Orbiter::GotActivity( int PK_Button )
 	m_LastActivityTime=time( NULL );
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::GotActivity m_bDisplayOn is %d m_bScreenSaverActive %d ui2 %d",(int) m_bDisplayOn,(int) m_bScreenSaverActive,(int) UsesUIVersion2());
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::GotActivity m_bDisplayOn is %d m_bScreenSaverActive %d ui2 %d mousevisible %d",
+		(int) m_bDisplayOn,(int) m_bScreenSaverActive,(int) UsesUIVersion2(),(int) m_pMouseBehavior->m_bMouseVisible);
 #endif
 
 	// If the display is off, or we're in screen saver mode

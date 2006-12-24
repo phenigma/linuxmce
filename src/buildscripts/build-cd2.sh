@@ -88,7 +88,8 @@ done
 
 if [[ "$MakeRelease_Flavor" == via ]]; then
 	chmod +x /home/users/jason/*.sh
-	cp /home/users/jason/* "$BONUSCACHEDIR"
+	mkdir "$BONUSCDDIR/via"
+	cp /home/users/jason/* "$BONUSCDDIR/via"
 fi
 
 # create md5 file
