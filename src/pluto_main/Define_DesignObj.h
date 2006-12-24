@@ -2346,6 +2346,7 @@
 #define DESIGNOBJ_grp_fp_Datagrid_CONST 5341
 #define DESIGNOBJ_dgFloorplanDevices_CONST 5342
 #define DESIGNOBJ_iconHour_Glass_CONST 5343
+#define DESIGNOBJ_objLongFileName_CONST 5361
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

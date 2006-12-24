@@ -931,7 +931,11 @@ g_PlutoProfiler->DumpResults();
 		}
 
 		m_pScreenHistory_Current->GetObj()->m_bActive=false;
-		m_pOrbiterRenderer->ObjectOffScreen( m_pScreenHistory_Current->GetObj() );
+
+		if( m_pScreenHistory_Current->m_bPutObjectsOffScreen==false )
+			m_pOrbiterRenderer->ObjectOffScreen( m_pScreenHistory_Current->GetObj() );
+		m_pScreenHistory_Current->m_bPutObjectsOffScreen=false;
+
 		for(list<class PlutoPopup*>::iterator it=m_pScreenHistory_Current->GetObj()->m_listPopups.begin();it!=m_pScreenHistory_Current->GetObj()->m_listPopups.end();++it)
 		{
 			PlutoPopup *pPlutoPopup = *it;
@@ -1048,6 +1052,8 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 	{
 		ObjectInfoBackData *pObjectData = (ObjectInfoBackData *)pCallBackData;
 		pObjectData->m_pObj = pObj;
+		pObjectData->m_X=X;
+		pObjectData->m_Y=Y;
 		pObjectData->m_PK_DesignObj_SelectedObject = pObj->m_iBaseObjectID;
 	}
 
@@ -1342,6 +1348,9 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 //------------------------------------------------------------------------
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell, SelectionMethod selectionMethod, int iRow, int iColumn )
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "Orbiter::SelectedGrid cell %p row %d col %d",pCell,iRow,iColumn);
+#endif
 	if( pDesignObj_DataGrid->m_iPK_Datagrid==DATAGRID_Floorplan_Devices_CONST )
 	{
 		if( pDesignObj_DataGrid->m_pFloorplanObject==NULL )
@@ -2446,7 +2455,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 //--------------------------------------------------------------------------------------------------------------
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
-if( pObj->m_ObjectID.find("5341")!=string::npos )
+if( pObj->m_ObjectID.find("4911")!=string::npos )
 int k=2;
 	for(size_t s=0;s<pObj->m_vectDesignObjText.size();++s)
 		pObj->m_vectDesignObjText[s]->m_pObject = pObj;
@@ -4124,10 +4133,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		}
 		else if( Variable=="FBO" )
 		{
-#ifdef ENABLE_MOUSE_BEHAVIOR
 			if( m_pScreenHandler )
 				Output += m_pScreenHandler->mediaFileBrowserOptions.ToString();
-#endif
 		}
 		else if(  Variable=="NP" )
 		{
@@ -5043,6 +5050,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 		//about the hide last current screen.
 		m_pOrbiterRenderer->ObjectOffScreen(m_pScreenHistory_Current->GetObj());
 
+		m_pScreenHistory_Current->m_bPutObjectsOffScreen=true;
 		bNewScreenHistoryItem = false;
 		pScreenHistory_New = m_pScreenHistory_Current; //another designobj for the same screen
 		pScreenHistory_New->AddToHistory();
@@ -5404,7 +5412,6 @@ void Orbiter::CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,st
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot seek to unknown grid");
 	else
 	{
-		pObj_Datagrid->bReAcquire = true;
 		pObj_Datagrid->m_sSeek = sText;
 		CMD_Refresh(pObj_Datagrid->m_sGridID);
 	}
@@ -6279,6 +6286,7 @@ NeedToRender::~NeedToRender()
 		{
 			class ScreenHistory *pScreenHistory = m_pScreenHistory;
 			m_pScreenHistory=NULL;
+
 			m_pOrbiter->NeedToChangeScreens(pScreenHistory);
 		}
 #ifdef DEBUG
@@ -7612,11 +7620,7 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 		return;
 	}
 
-#ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pScreenHandler->mediaFileBrowserOptions.ClearAll(iPK_MediaType,pOrbiterFileBrowser_Entry->m_PK_Screen,m_mapPK_MediaType_PK_Attribute_Sort[iPK_MediaType]);
-#else
-	CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType));  // Done inside ClearAll
-#endif
 	CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
 	CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType));
 	CMD_Goto_Screen("",pOrbiterFileBrowser_Entry->m_PK_Screen);

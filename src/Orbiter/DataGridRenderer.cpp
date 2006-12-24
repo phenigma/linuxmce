@@ -59,6 +59,12 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		return;
 
 	bool bContainsCells = m_pObj_Owner_DataGrid->m_mapChildDgObjects.size()>1; // Store this as a bool so for efficiency we're not doing a find in a map when the map is empty
+	if( bContainsCells )
+	{
+		for(map< pair<int,int>, DesignObj_Orbiter *>::iterator it=m_pObj_Owner_DataGrid->m_mapChildDgObjects.begin();it!=m_pObj_Owner_DataGrid->m_mapChildDgObjects.end();++it)
+			it->second->m_bHidden=true;  // Set them all to hidden.  We will unhide them if there is data for this cell
+	}
+
 	int nAlphaChannel = GetAlphaLevel();
 
 	m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->SolidRectangle( point.X + m_pObj_Owner_DataGrid->m_rPosition.X, 

@@ -23,6 +23,7 @@
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Array.h"
 #include "pluto_media/Define_AttributeType.h"
+#include "pluto_media/Define_FileFormat.h"
 
 using namespace DCE;
 
@@ -195,14 +196,14 @@ string MediaFileBrowserOptions::HumanReadable()
 	if( m_listPK_Attribute_Description.size() )
 		sFilter = m_listPK_Attribute_Description.front().second;
 
-	bool bHide = sFilter.size() ? false : true;
+	bool bHide = m_listPK_Attribute_Description.empty();
 	DesignObj_Orbiter *pObj_Back = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFileBrowserBack_CONST));
 	if( pObj_Back && pObj_Back->m_bHidden != bHide )
 	{
 		NeedToRender render2( m_pOrbiter, "ScreenHandler::HumanReadable" );
 		m_pOrbiter->CMD_Show_Object( pObj_Back->m_ObjectID,0,"","", bHide ? "0" : "1" );
 	}
-	return sResult + sFilter;
+	return sResult + " " + sFilter;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
@@ -246,6 +247,7 @@ bool ScreenHandler::MediaBrowser_Render(CallBackData *pData)
 	{
 		DesignObjText *pText = pObj->m_vectDesignObjText[0];
 		pText->m_sText = mediaFileBrowserOptions.HumanReadable();
+		pObj->m_bHidden = pText->m_sText.empty();
 	}
 	return false;
 }
@@ -256,76 +258,44 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_ScreenMutex);
 
-	if(	pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_CONST	|| pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_dgFileList2_Pics_CONST || pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objCDCover_CONST ) // todo
+	if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_icoAlpha_CONST && mediaFileBrowserOptions.m_pObj_ListGrid && mediaFileBrowserOptions.m_pObj_PicGrid )
 	{
-		DataGridCell *pCell_Pic=NULL,*pCell_List=NULL;
-		if( mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get() )
-			pCell_Pic = mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get()->GetData(mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn + mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurCol,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow);
-		if( mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get() )
-			pCell_List = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get()->GetData(0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow);
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid pic %p list %p pich %d,%d  listh %d,%d",
-			pCell_Pic,pCell_List,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn,mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow,
-			0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
-#endif
-
-		if( !pCell_List )
-			return false; // Shouldn't happen
-
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid value %s text %s",
-			pCell_List->m_Value ? pCell_List->m_Value : "*NULL*",pCell_List->m_Text ? pCell_List->m_Text : "*NULL*");
-#endif
-
-		if( !pCell_List->m_Value || strstr(pCell_List->m_Value,"\t!D")!=NULL )  // If it contains this, the user is going into a subdirectory
+		// Find the position where 0=the top, 1=A, 26=7
+		int Letter = (pObjectInfoData->m_Y-pObjectInfoData->m_pObj->m_rPosition.Y) * 27 / pObjectInfoData->m_pObj->m_rPosition.Height;
+		if( Letter==0 )
 		{
-			// It's a sub directory.  Update the source and refresh the page
-			mediaFileBrowserOptions.m_sSources = pCell_List->m_Value ? pCell_List->m_Value : "";
-			MediaBrowser_Render(NULL);
-			m_pOrbiter->CMD_Refresh("*");
-			return false;
+			mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow = mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow = 0;
+			m_pOrbiter->CMD_Refresh("");
 		}
-
-		GetAttributesForMediaFile(pCell_List->m_Value);
-
-		m_pOrbiter->CMD_Remove_Popup("","coverart");
-
-		if( pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='A' )
-		{
-			SelectedAttributeCell(pCell_List);
-			return false;
-		}
-
-		DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
-		if( !pObj_Play || !pObj_Play->m_pParentObject )
-			return false; // Shouldn't happen
-
-		mediaFileBrowserOptions.m_sSelectedFile = pCell_List->m_Value;
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,mediaFileBrowserOptions.m_sSelectedFile);
-		m_pOrbiter->CMD_Goto_DesignObj(0,pObj_Play->m_pParentObject->m_ObjectID,"","",false,true);
-
-		if( pCell_Pic && pCell_Pic->m_pGraphic && pCell_Pic->m_pGraphic->m_pGraphicData )
-			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
-				pCell_Pic->m_pGraphic->m_pGraphicData,
-				int(pCell_Pic->m_pGraphic->m_GraphicLength),"0");
-		else if( pCell_Pic && pCell_Pic->m_pGraphicData )
-			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
-				pCell_Pic->m_pGraphicData,
-				pCell_Pic->m_GraphicLength,"0");
 		else
-			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
-				NULL,
-				0,"0");
-
-		DesignObj_Orbiter *pParentObject = dynamic_cast<DesignObj_Orbiter *>(pObj_Play->m_pParentObject);
-		if(NULL != pParentObject)
-			m_pOrbiter->Renderer()->RenderObjectAsync(pParentObject);
-
-		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
-#ifdef ENABLE_MOUSE_BEHAVIOR
-		if( m_pOrbiter->m_pMouseBehavior )
-			m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
-#endif
+		{
+			string s = " ";
+			s[0] = (char) Letter + 64;
+			m_pOrbiter->CMD_Seek_Data_Grid(s,0,0,mediaFileBrowserOptions.m_pObj_ListGrid->m_sGridID);
+		}
+	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_objCDCover_CONST && atoi(pObjectInfoData->m_pObj->m_ObjectID.c_str())==DESIGNOBJ_popCoverArt_CONST && mediaFileBrowserOptions.m_pObj_ListGrid )
+	{
+		DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get();
+		if( pDataGridTable )
+		{
+			DataGridCell *pCell = pDataGridTable->GetData( 0, mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow );
+			if( pCell )
+			{
+				// Special case.  The user clicked on the cover art popup.  Since it's a popup MediaBrowser_DatagridSelected won't get called;
+				DatagridCellBackData datagridCellBackData;
+				datagridCellBackData.m_pDesignObj_DataGrid = mediaFileBrowserOptions.m_pObj_ListGrid;
+				datagridCellBackData.m_nPK_Datagrid = mediaFileBrowserOptions.m_pObj_ListGrid->m_iPK_Datagrid;
+				datagridCellBackData.m_Column = mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedColumn;
+				datagridCellBackData.m_Row = mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow;
+				datagridCellBackData.m_pDataGridCell = pCell;
+				if( pCell->m_Text )
+					datagridCellBackData.m_sText = pCell->m_Text;
+				if( pCell->m_Value )
+					datagridCellBackData.m_sValue = pCell->m_Value;
+				return MediaBrowser_DatagridSelected(&datagridCellBackData);
+			}
+		}
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Keyword_Search_CONST )
 	{
@@ -515,7 +485,103 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 
 #endif
 
-	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Media_Attributes_For_File_CONST )
+	if(	pCellInfoData->m_pDesignObj_DataGrid->m_iBaseObjectID == DESIGNOBJ_dgFileList2_CONST || pCellInfoData->m_pDesignObj_DataGrid->m_iBaseObjectID == DESIGNOBJ_dgFileList2_Pics_CONST )
+	{
+		DataGridCell *pCell_Pic=NULL,*pCell_List=NULL;
+		if( pCellInfoData->m_pDesignObj_DataGrid->m_iBaseObjectID == DESIGNOBJ_dgFileList2_CONST )
+		{
+			pCell_List=pCellInfoData->m_pDataGridCell;
+			if( mediaFileBrowserOptions.m_pObj_PicGrid && mediaFileBrowserOptions.m_pObj_ListGrid )
+			{
+				DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get();
+				if( pDataGridTable )
+				{
+					int Row = pCellInfoData->m_Row / mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol;
+					pCell_Pic = pDataGridTable->GetData( Row % mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol, Row );
+				}
+			}
+		}
+		else
+		{
+			pCell_Pic=pCellInfoData->m_pDataGridCell;
+			if( mediaFileBrowserOptions.m_pObj_PicGrid && mediaFileBrowserOptions.m_pObj_ListGrid )
+			{
+				DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get();
+				if( pDataGridTable )
+				{
+					int Row = pCellInfoData->m_Row * mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol + pCellInfoData->m_Column;
+					pCell_List = pDataGridTable->GetData( 0, Row );
+				}
+			}
+		}
+
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid pic %p list %p pich %d,%d  listh %d,%d",
+			pCell_Pic,pCell_List,mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn : -999,
+			mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow : -999,
+			0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
+#endif
+
+		if( !pCell_List )
+			return false; // Shouldn't happen
+
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid value %s text %s",
+			pCell_List->m_Value ? pCell_List->m_Value : "*NULL*",pCell_List->m_Text ? pCell_List->m_Text : "*NULL*");
+#endif
+
+		if( !pCell_List->m_Value || strstr(pCell_List->m_Value,"\t!D")!=NULL )  // If it contains this, the user is going into a subdirectory
+		{
+			// It's a sub directory.  Update the source and refresh the page
+			mediaFileBrowserOptions.m_sSources = pCell_List->m_Value ? pCell_List->m_Value : "";
+			MediaBrowser_Render(NULL);
+			m_pOrbiter->CMD_Refresh("*");
+			return false;
+		}
+
+		GetAttributesForMediaFile(pCell_List->m_Value);
+
+		m_pOrbiter->CMD_Remove_Popup("","coverart");
+
+		if( pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='A' )
+		{
+			SelectedAttributeCell(pCell_List);
+			return false;
+		}
+
+		DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
+		if( !pObj_Play || !pObj_Play->m_pParentObject )
+			return false; // Shouldn't happen
+
+		mediaFileBrowserOptions.m_sSelectedFile = pCell_List->m_Value;
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,mediaFileBrowserOptions.m_sSelectedFile);
+		NeedToRender render2( m_pOrbiter, "ScreenHandler::MediaBrowser_DatagridSelected" );
+		m_pOrbiter->CMD_Goto_DesignObj(0,pObj_Play->m_pParentObject->m_ObjectID,"","",false,true);
+
+		if( pCell_Pic && pCell_Pic->m_pGraphic && pCell_Pic->m_pGraphic->m_pGraphicData )
+			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
+				pCell_Pic->m_pGraphic->m_pGraphicData,
+				int(pCell_Pic->m_pGraphic->m_GraphicLength),"0");
+		else if( pCell_Pic && pCell_Pic->m_pGraphicData )
+			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
+				pCell_Pic->m_pGraphicData,
+				pCell_Pic->m_GraphicLength,"0");
+		else
+			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
+				NULL,
+				0,"0");
+
+		DesignObj_Orbiter *pParentObject = dynamic_cast<DesignObj_Orbiter *>(pObj_Play->m_pParentObject);
+		if(NULL != pParentObject)
+			m_pOrbiter->Renderer()->RenderObjectAsync(pParentObject);
+
+		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
+#ifdef ENABLE_MOUSE_BEHAVIOR
+		if( m_pOrbiter->m_pMouseBehavior )
+			m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
+#endif
+	}
+	else if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Media_Attributes_For_File_CONST )
 	{
 		SelectedAttributeCell(pCellInfoData->m_pDataGridCell);
 		m_pOrbiter->CMD_Go_back("","");
@@ -543,6 +609,9 @@ bool ScreenHandler::FileList_GridRendering(CallBackData *pData)
 		DataGridCell *pCell = it->second;
 		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
 
+		int PK_FileFormat = atoi(pCell->m_mapAttributes_Find("PK_FileFormat").c_str());
+		char cMediaSource = pCell->m_mapAttributes_Find("Source").c_str()[0];
+
 		// See if there is an object assigned for this column/row
 		map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
 		if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
@@ -554,7 +623,15 @@ bool ScreenHandler::FileList_GridRendering(CallBackData *pData)
 			for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
 			{
 				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
-				if( pDesignObj_Orbiter->m_iBaseObjectID==5312 )
+				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_HighDef_CONST && (PK_FileFormat==FILEFORMAT_HD_720_CONST || PK_FileFormat==FILEFORMAT_HD_1080_CONST || PK_FileFormat==FILEFORMAT_Highdef_audio_CONST) )
+					pDesignObj_Orbiter->m_bHidden = false;
+				if( pDesignObj_Orbiter->m_iBaseObjectID==FILEFORMAT_Standard_Def_CONST && (PK_FileFormat==FILEFORMAT_DVD_CONST || PK_FileFormat==FILEFORMAT_MP3_CONST || PK_FileFormat==FILEFORMAT_CD_Quality_CONST) )
+					pDesignObj_Orbiter->m_bHidden = false;
+				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_LocalFile_CONST && cMediaSource=='F' )
+					pDesignObj_Orbiter->m_bHidden = false;
+				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_Download_CONST && cMediaSource=='L' )
+					pDesignObj_Orbiter->m_bHidden = false;
+				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_Disc_CONST && cMediaSource=='D' )
 					pDesignObj_Orbiter->m_bHidden = false;
 			}
 		}
@@ -565,7 +642,10 @@ bool ScreenHandler::FileList_GridRendering(CallBackData *pData)
 void ScreenHandler::SelectedAttributeCell(DataGridCell *pCell)
 {
 	mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
-	mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(&pCell->m_Value[2]),pCell->m_mapAttributes["Name"]) );
+	string sName = pCell->m_mapAttributes["Name"];
+	if( sName.empty() && pCell->m_Text )
+		sName = pCell->m_Text;
+	mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(&pCell->m_Value[2]),sName) );
 
 	// If we're browing a collection of attributes, say actors, when we choose
 	// one we no longer want to browsing (or sorting by) that same attribute (actors)

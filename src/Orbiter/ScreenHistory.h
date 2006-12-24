@@ -37,6 +37,32 @@ namespace DCE
 		bool m_bCantGoBack; 
 
 	public:
+		/* Logic flaw here...  When we do click a button with a goto design obj without changing screens this code:
+			void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,Message *pMessage)
+			m_pOrbiterRenderer->ObjectOffScreen(m_pScreenHistory_Current->GetObj());
+		calls the object off screen method for the prior method, and then assigns the new DesignObj as current:
+			pScreenHistory_New->SetObj(pObj_New);
+		then sets the screen to change to:
+			NeedToRender::NeedToChangeScreens( this, pScreenHistory_New);
+		Next as the stack unwinds
+			bool Orbiter::RegionDown( int x,  int y )
+			NeedToRender render( this, "Region Down" );  // Redraw anything that was changed by this command
+		falls out of scope 
+			NeedToRender::~NeedToRender()
+		calls
+			m_pOrbiter->NeedToChangeScreens(pScreenHistory);
+		for the new object.  Since there is some deep logic here and I don't want to risk breaking anything,
+		as a temporary solution in Goto_DesignObj I'll set m_bPutObjectsOffScreen to true
+		and only call ObjectOffScreen from ~NeedToRender if it's false. 
+		The problem was in the media browser in UI1 you'd select media, it would set the cover art with CMD_Update_Object_image
+		and change to DesignObj 5088.  But ObjectOffScreen would get called for 5088 before it appeared, causing
+				pObj->m_pvectCurrentGraphic = NULL;
+		to set it to NULL and you wouldn't see the cover art.
+
+			TODO - HACK!!
+		*/
+		bool m_bPutObjectsOffScreen;
+
 		map<long, string> m_mapParameters; /** < Any parameters passed in when the screen was created */
 
 		/** < We'll know if we need to add an object to history or not (maybe we are doing a go back) */

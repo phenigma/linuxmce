@@ -25,11 +25,12 @@ public:
 	bool m_bIsDirectory,m_bIsBack;  // Keep track of whether this is a 'go back' or not
 	string m_sDisplayGroup,m_sDisplayName;
 	string m_sMRL;
-	int m_PK_File,m_PK_Disc,m_PK_Picture,m_PK_Attribute,m_PK_Bookmark;
+	int m_PK_File,m_PK_Disc,m_PK_Picture,m_PK_Attribute,m_PK_Bookmark,m_PK_FileFormat;
+	char m_cMediaSource; // F=File, D=Disc, L=Download, A=Attribute
 	enumTypeOfMedia m_enumTypeOfMedia;
 
 	// Constructor for file info
-	FileBrowserInfo(string sDisplayName, string sPath,int PK_File,bool bIsDirectory,bool bIsBack) 
+	FileBrowserInfo(string sDisplayName, string sPath,int PK_File,int PK_FileFormat, char cMediaSource, bool bIsDirectory,bool bIsBack) 
 	{
 		if( sDisplayName.empty() )
 			m_sDisplayName=FileUtils::FilenameWithoutPath(sPath);
@@ -44,6 +45,8 @@ public:
 		m_bIsBack=bIsBack;
 		m_PK_Bookmark=0;
 		m_sMRL=sPath;
+		m_PK_FileFormat=PK_FileFormat;
+		m_cMediaSource=cMediaSource;
 	}
 	// Constructor for attribute info
 	FileBrowserInfo(string sDisplayName, string sMRL,int PK_Attribute) 
@@ -58,9 +61,11 @@ public:
 		m_sMRL=sMRL;
 		m_bIsDirectory=false;
 		m_bIsBack=false;
+		m_PK_FileFormat=0;
+		m_cMediaSource='A';
 	}
 	// Constructor for bookmark
-	FileBrowserInfo(string sDisplayName, int PK_Bookmark, int PK_Picture, int PK_File, int PK_Disc)
+	FileBrowserInfo(string sDisplayName, int PK_Bookmark, int PK_Picture, int PK_File, int PK_Disc,int PK_FileFormat, char cMediaSource)
 	{
 		m_sDisplayName=sDisplayName;
 		m_enumTypeOfMedia=fbi_Bookmark;
@@ -72,6 +77,8 @@ public:
 		m_sMRL="!B" + StringUtils::itos(PK_Bookmark);
 		m_bIsDirectory=false;
 		m_bIsBack=false;
+		m_PK_FileFormat=PK_FileFormat;
+		m_cMediaSource=cMediaSource;
 	}
 };
 

@@ -11,6 +11,7 @@
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Screen.h"
+#include "pluto_main/Define_Text.h"
 #include "DataGrid.h"
 #include "ScreenHistory.h"
 #include "DataGridRenderer.h"
@@ -186,6 +187,16 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 		// This takes care of the list grid
 		NeedToRender render( m_pMouseBehavior->m_pOrbiter, "Move on grid" );
 		ShowCoverArtPopup();
+
+		DataGridCell *pCell = NULL;
+		DataGridTable *pDataGridTable = m_pObj_ListGrid->DataGridTable_Get();
+		if( pDataGridTable )
+		{
+			pCell = pDataGridTable->GetData(0,m_pObj_ListGrid->m_iHighlightedRow + m_pObj_ListGrid->m_GridCurRow );
+			if( pCell && pCell->m_Text )
+				m_pMouseBehavior->m_pOrbiter->CMD_Set_Text( TOSTRING(DESIGNOBJ_objLongFileName_CONST), pCell->m_Text, TEXT_STATUS_CONST );
+		}
+
 		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ListGrid;
 		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
 	}

@@ -76,9 +76,9 @@ DataGridCell::~DataGridCell()
 		m_pMessage = NULL;
 	}
 
+g_pPlutoLogger->Write(LV_STATUS,"delete ~DataGridCell m_pCell->m_pGraphic %p:%p",this,m_pGraphic);
 	if(NULL != m_pGraphicData)
 	{
-g_pPlutoLogger->Write(LV_STATUS,"delete ~DataGridCell m_pCell->m_pGraphic %p:%p",this,m_pGraphic);
 		delete m_pGraphicData;
 		m_pGraphicData = NULL;
 	}

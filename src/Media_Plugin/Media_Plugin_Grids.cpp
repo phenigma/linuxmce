@@ -122,6 +122,7 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	DataGridCell *pCell;
 	string sDisplayGroupPrior;
 	int iRow=0;
+	string sSource = " "; // Convert to a 1 character string
 	for(list<FileBrowserInfo *>::iterator it=pMediaListGrid->m_listFileBrowserInfo.begin();it!=pMediaListGrid->m_listFileBrowserInfo.end();++it)
 	{
 		FileBrowserInfo *pFileBrowserInfo = *it;
@@ -130,7 +131,9 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 			pCell = new DataGridCell(pFileBrowserInfo->m_sDisplayGroup + " : " + pFileBrowserInfo->m_sDisplayName);
 		else 
 			pCell = new DataGridCell(pFileBrowserInfo->m_sDisplayName);
-		
+		pCell->m_mapAttributes["PK_FileFormat"] = StringUtils::itos(pFileBrowserInfo->m_PK_FileFormat);
+		sSource[0] = pFileBrowserInfo->m_cMediaSource ? pFileBrowserInfo->m_cMediaSource : '?';
+		pCell->m_mapAttributes["Source"] = sSource;
 		pCell->SetValue(pFileBrowserInfo->m_sMRL);
 		pMediaListGrid->SetData(0,iRow++,pCell);
 	}
@@ -168,7 +171,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		{
 			bFile=true;
 			bSubDirectory=true;
-			pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("back (..)",sPath_Back,0,true,true) );
+			pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("back (..)",sPath_Back,0,0,'F',true,true) );
 			bUsingDirectory=true;
 		}
 	}
@@ -388,17 +391,17 @@ void Media_Plugin::PopulateFileBrowserInfoForPlayList(MediaListGrid *pMediaListG
 
 void Media_Plugin::PopulateFileBrowserInfoForDisc(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort,string &sPK_Disk,map<int,int> &mapDisk_To_Pic)
 {
-	string sSQL_Sort = "SELECT PK_Disc,Name FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE PK_Disc in (" + sPK_Disk + ")";
+	string sSQL_Sort = "SELECT PK_Disc,Name,FK_FileFormat FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE PK_Disc in (" + sPK_Disk + ")";
 
     PlutoSqlResult result;
     MYSQL_ROW row;
 	map<int,int>::iterator it;
 	FileBrowserInfo *pFileBrowserInfo;
-	// 0 =PK_File, 1=Path, 2=Name, 3=IsDirectory
+	// 0 =PK_Disc, 1=Name, 2=FileFormat
     if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
         while( ( row=mysql_fetch_row( result.r ) ) )
 		{
-			pFileBrowserInfo = new FileBrowserInfo(row[1],string("!r") + row[0],atoi(row[0]),false,false);
+			pFileBrowserInfo = new FileBrowserInfo(row[1],string("!r") + row[0],atoi(row[0]),row[2] ? atoi(row[2]) : 0,'D',false,false);
 			if( (it=mapDisk_To_Pic.find( atoi(row[0]) ))!=mapDisk_To_Pic.end() )
 				pFileBrowserInfo->m_PK_Picture = it->second;
 			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
@@ -409,15 +412,15 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 {
 	string sSQL_Sort;
 	if( PK_AttributeType_Sort==0 )
-		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory FROM File WHERE PK_File in (" + sPK_File + ")";
+		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory,FK_FileFormat FROM File WHERE PK_File in (" + sPK_File + ")";
 	else
-		sSQL_Sort = "SELECT PK_File,'',Name,0 FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ")";
+		sSQL_Sort = "SELECT PK_File,'',Name,0,FK_FileFormat FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ")";
 
     PlutoSqlResult result;
     MYSQL_ROW row;
 	map<int,int>::iterator it;
 	FileBrowserInfo *pFileBrowserInfo;
-	// 0 =PK_File, 1=Path, 2=Name, 3=IsDirectory
+	// 0 =PK_File, 1=Path, 2=Name, 3=IsDirectory, 4=File Format
     if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
         while( ( row=mysql_fetch_row( result.r ) ) )
 		{
@@ -427,12 +430,12 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 				StringUtils::Replace(&sThisPath,"'","\\'");  // Make it , separated, ' quoted and escaped so it works as a sql in (path) clause
 				// sPath will be the sources (juke box, etc.) + \t + any prior directories
 				if( sPath.find("\t!D")==string::npos )  // !D 1 directory
-					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + "!D'" + sThisPath +"'",atoi(row[0]),true,false);
+					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + "!D'" + sThisPath +"'",atoi(row[0]),row[4] ? atoi(row[4]) : 0,'F',true,false);
 				else
-					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + ",'" + sThisPath +"'",atoi(row[0]),true,false);
+					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + ",'" + sThisPath +"'",atoi(row[0]),row[4] ? atoi(row[4]) : 0,'F',true,false);
 			}
 			else
-				pFileBrowserInfo = new FileBrowserInfo(row[2],string("!F") + row[0],atoi(row[0]),false,false);
+				pFileBrowserInfo = new FileBrowserInfo(row[2],string("!F") + row[0],atoi(row[0]),row[4] ? atoi(row[4]) : 0,'F',false,false);
 			if( (it=mapFile_To_Pic.find( atoi(row[0]) ))!=mapFile_To_Pic.end() )
 				pFileBrowserInfo->m_PK_Picture = it->second;
 			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
@@ -474,9 +477,10 @@ void Media_Plugin::PopulateFileBrowserInfoForBookmark(MediaListGrid *pMediaListG
 	if( sPK_File.empty()==false )
 	{
 		string sSQL = 
-			"SELECT PK_Bookmark,Bookmark.FK_File,Description,Name,FK_Picture "
+			"SELECT PK_Bookmark,Bookmark.FK_File,Description,Name,FK_Picture,FK_FileFormat "
 			"FROM Bookmark "
-			"LEFT JOIN File_Attribute ON Bookmark.FK_File=File_Attribute.FK_File "
+			"LEFT JOIN File ON Bookmark.FK_File=PK_File "
+			"LEFT JOIN File_Attribute ON PK_File=File_Attribute.FK_File "
 			"LEFT JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute "
 			"WHERE (FK_AttributeType IS NULL OR FK_AttributeType =" TOSTRING(ATTRIBUTETYPE_Title_CONST) ") AND IsAutoResume=0 "
 			"AND Bookmark.FK_File IN (" + sPK_File + ") "
@@ -498,7 +502,7 @@ void Media_Plugin::PopulateFileBrowserInfoForBookmark(MediaListGrid *pMediaListG
 				else
 					sDescription = "Bookmark"; // Shouldn't happen
 				FileBrowserInfo *pFileBrowserInfo = new FileBrowserInfo(sDescription,atoi(row[0]),
-					row[4] ? atoi(row[4]) : 0, row[1] ? atoi(row[1]) : 0, 0);
+					row[4] ? atoi(row[4]) : 0, row[1] ? atoi(row[1]) : 0, 0, row[5] ? atoi(row[5]) : 0,0);
 				pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
 			}
 	}
@@ -540,7 +544,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	if( sPK_Sources.length() )
 	{
 		string sPrevious = posLastPath<3 ? "!D" : sPK_Sources.substr(0,posLastPath-1);
-		pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("~S21~<-- Back (..)",sPrevious,0,true,true) );
+		pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("~S21~<-- Back (..)",sPrevious,0,0,'F',true,true) );
 	}
 
 	pos=0;
@@ -564,12 +568,12 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 			if( pFileDetails->m_bIsDir && (pDatabaseInfoOnPath==NULL || pDatabaseInfoOnPath->m_bDirectory==true) )
 			{
 				if( sPK_Sources.length() )
-					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,sPK_Sources +"\t" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,true,false);
+					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,sPK_Sources +"\t" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,0,'F',true,false);
 				else
-					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,"!D" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,true,false);
+					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,"!D" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,0,'F',true,false);
 			}
 			else
-				pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,false,false);
+				pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,0,'F',false,false);
 
 			if( pDatabaseInfoOnPath )
 			{

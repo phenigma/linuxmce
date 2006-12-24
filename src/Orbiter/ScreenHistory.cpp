@@ -10,6 +10,7 @@ using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 ScreenHistory::ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory_Prior,Message *pMessage,Orbiter *pOrbiter)
 {
+	m_bPutObjectsOffScreen=false;
 	m_pOrbiter=pOrbiter;
 	m_nPK_Screen = nPK_Screen;
 	m_tTime = time(NULL);

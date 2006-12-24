@@ -19,6 +19,7 @@ class MediaFileBrowserOptions
 public:
 	int m_PK_MediaType,m_PK_AttributeType_Sort,m_PK_Users,m_iPK_Screen;
 	int m_iLastViewed; // 0=no, 1=yes, 2=either
+	int m_iPK_DesignObj_Browser; // The Design obj for the current browse screen
 	string m_sPK_MediaSubType,m_sPK_FileFormat,m_sPK_Attribute_Genres,m_sSources,m_sPK_Users_Private;
 	string m_sSelectedFile;  // Used to hold the selected value
 	list<int> m_listPK_AttributeType_Sort_Prior;
@@ -30,9 +31,10 @@ public:
 	MediaFileBrowserOptions(Orbiter *pOrbiter) 
 	{ 
 		m_pOrbiter=pOrbiter; 
-		ClearAll(0,0,0); 
 		m_pObj_ListGrid=m_pObj_PicGrid=NULL;
 		m_iLastViewed=2;
+		m_iPK_DesignObj_Browser = 0;
+		ClearAll(0,0,0); 
 	}
 
 	string ToString()
@@ -59,10 +61,13 @@ public:
 		m_sSources=TOSTRING(MEDIASOURCE_Hard_Drives_CONST) "," TOSTRING(MEDIASOURCE_Discs__Jukeboxes_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(m_PK_MediaType)); 
 		m_mapObjectsValues.clear();
-		if( !m_pObj_ListGrid )
-			m_pObj_ListGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_CONST));
-		if( !m_pObj_PicGrid )
-			m_pObj_PicGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST));
+		if( PK_Screen )
+			m_iPK_DesignObj_Browser = m_pOrbiter->m_mapDesignObj[PK_Screen];
+
+		if( !m_pObj_ListGrid && m_iPK_DesignObj_Browser )
+			m_pObj_ListGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(StringUtils::itos(m_iPK_DesignObj_Browser) + ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_CONST));
+		if( !m_pObj_PicGrid && m_iPK_DesignObj_Browser )
+			m_pObj_PicGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(StringUtils::itos(m_iPK_DesignObj_Browser) + ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST));
 	}
 
 	void SelectArrays(DesignObj_Orbiter *pObj,int PK_Array,string &sValues);

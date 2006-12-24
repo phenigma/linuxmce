@@ -73,7 +73,8 @@ class ObjectInfoBackData : public CallBackData
 public:
 	long m_PK_DesignObj_SelectedObject;
 	class DesignObj_Orbiter *m_pObj;
-	ObjectInfoBackData() : m_pObj(NULL) {}
+	int m_X,m_Y;
+	ObjectInfoBackData() : m_pObj(NULL) { m_X=m_Y=0; }
 };
 //-----------------------------------------------------------------------------------------------------
 class DatagridCellBackData : public CallBackData

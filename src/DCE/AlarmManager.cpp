@@ -38,10 +38,16 @@ AlarmManager::AlarmManager() : m_Mutex("alarm")
 	m_LastID = 0;
 	pthread_cond_init(&m_Cond, NULL);
 	m_Mutex.Init(NULL,&m_Cond);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"AlarmManager::AlarmManager %p",this);
+#endif
 }
 
 AlarmManager::~AlarmManager()
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"AlarmManager::~AlarmManager start %p",this);
+#endif
 	Stop();
 	
 	pthread_mutex_destroy(&m_Mutex.mutex);
@@ -50,6 +56,9 @@ AlarmManager::~AlarmManager()
 	AlarmIDMap::iterator i;
 	for(i=m_AlarmIDMap.begin();i!=m_AlarmIDMap.end();i++)
 		delete i->second;
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"AlarmManager::~AlarmManager done %p",this);
+#endif
 }
 
 /// Start up the internal processing thread
@@ -127,7 +136,7 @@ void AlarmManager::Run()
 				void* param = entry->param;
 				mm.Release();
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_ALARM, "Calling callback for alarm id %d param=%p entry->when: %d time: %d",id,param,entry->when,time(NULL));
+					g_pPlutoLogger->Write(LV_ALARM, "Calling callback for alarm %p id %d param=%p entry->when: %d time: %d",this,id,param,entry->when,time(NULL));
 #endif
 				entry->callback->AlarmCallback(id, param);
 				mm.Relock();

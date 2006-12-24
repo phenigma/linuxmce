@@ -18,7 +18,7 @@ DesignObj_DataGrid::DesignObj_DataGrid(Orbiter *pOrbiter) : DesignObj_Orbiter(pO
 	m_GridCurCol=-1;
 	m_CachedCurRow=-1;
 	m_CachedCurCol=-1;
-	bReAcquire=false;
+	m_bReAcquire=false;
 	m_iPopulatedWidth=m_iPopulatedHeight=0;
 	m_bParsed=false;
 	m_bFlushOnScreen=true;
@@ -128,12 +128,12 @@ DataGridTable *DesignObj_DataGrid::RequestDatagridContents( int &GridCurCol, int
 {
 	PLUTO_SAFETY_LOCK( vm, m_pOrbiter->m_VariableMutex );
 	DataGridTable *pDataGridTable = DataGridTable_Get(GridCurRow,GridCurCol);
-	if (  bReAcquire || !pDataGridTable || m_sSeek.length() )
+	if (  m_bReAcquire || !pDataGridTable || m_sSeek.length() )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_ACTION,"acquiring %s",m_ObjectID.c_str());
 #endif
-		bReAcquire=false;
+		m_bReAcquire=false;
 
 		++m_pOrbiter->m_dwIDataGridRequestCounter;
 
@@ -156,6 +156,22 @@ g_PlutoProfiler->Start("send command");
 g_PlutoProfiler->Stop("send command");
 			if ( size && data )
 			{
+				if( m_sSeek.empty()==false )
+				{
+					m_sSeek="";  // Only do the seek 1 time
+
+					// If there are other grids tied to this one, those also must be scrolled
+					for( vector<DesignObj_Orbiter *>::iterator it=m_vectObj_TiedToUs.begin();it!=m_vectObj_TiedToUs.end();++it )
+					{
+						DesignObj_Orbiter *pObj = *it;
+						if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+						{
+							DesignObj_DataGrid *pObj_Datagrid = (DesignObj_DataGrid *) pObj;
+							pObj_Datagrid->m_GridCurRow = (GridCurRow * m_MaxCol) / pObj_Datagrid->m_MaxCol;
+						}
+					}
+				}
+
 				// See if we should add page up/down cells -- see notes at top of file
 				bool bAddArrows = m_sExtraInfo.find( 'P' )!=string::npos;
 				
@@ -175,11 +191,14 @@ g_PlutoProfiler->Stop("send command");
 					const char *pPath = pCell->GetImagePath();
 					if (pPath && !pCell->m_pGraphicData && !pCell->m_pGraphic)
 					{
+size_t size;
+pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pPath,size);
+pCell->m_GraphicLength=size;
 //				M.Release();
 #ifdef DEBUG
 						g_pPlutoLogger->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,pDataGridTable->CovertColRowType(it->first).first,pDataGridTable->CovertColRowType(it->first).second);
 #endif
-						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, m_pOrbiter->m_dwIDataGridRequestCounter, make_pair<int,int> (GridCurRow, GridCurCol), pCell, pDataGridTable->CovertColRowType(it->first),!bCache);
+//						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, m_pOrbiter->m_dwIDataGridRequestCounter, make_pair<int,int> (GridCurRow, GridCurCol), pCell, pDataGridTable->CovertColRowType(it->first),!bCache);
 					}
 	//				M.Relock();
 				}
@@ -214,7 +233,6 @@ g_PlutoProfiler->Stop("send command");
 					m_iHighlightedRow=-1;
 					m_iHighlightedColumn=-1;
 				}
-				m_sSeek="";  // Only do the seek 1 time
 			}
 			else
 			{

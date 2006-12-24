@@ -231,7 +231,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 /*virtual*/ void ObjectRenderer::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-if( m_pObj_Owner->m_ObjectID.find("5251")!=string::npos )
+if( m_pObj_Owner->m_ObjectID.find("5312")!=string::npos )
 int k=2;
 	if(!PreRenderActions(pObj_Screen, point))
 		return;
@@ -384,7 +384,7 @@ int k=2;
 	g_pPlutoLogger->Write(LV_STATUS,"xzx Rendering %s with %d %p=%p size %d",m_pObj_Owner->m_ObjectID.c_str(),m_pObj_Owner->m_GraphicToDisplay,
 					  m_pObj_Owner->m_pvectCurrentGraphic,&m_pObj_Owner->m_vectGraphic,(int) m_pObj_Owner->m_vectAltGraphics.size());
 #endif
-if( m_pObj_Owner->m_iBaseObjectID==4782 )
+if( m_pObj_Owner->m_iBaseObjectID==2355 )
 int k=2;
 	if(
 		(m_pObj_Owner == m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted || m_pObj_Owner->ChildOf(m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted) || m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED ||
