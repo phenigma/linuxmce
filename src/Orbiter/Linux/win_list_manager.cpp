@@ -230,7 +230,14 @@ void WinListManager::ApplyContext()
 #endif
 
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-    bool bResult = true;  // Will be set to false if any of them fail
+	list<WinInfo> listWinInfo;
+	GetWindows(listWinInfo);  // Do this first since it may set m_bExternalChange
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"WinListManager::ApplyContext m_bExternalChange %d",(int) m_bExternalChange);
+#endif
+	
+	bool bResult = true;  // Will be set to false if any of them fail
 	for(WindowsContext::iterator it_pending = m_PendingContext.begin(); it_pending != m_PendingContext.end(); ++it_pending)
 	{
 		string sWindowName = it_pending->first;
