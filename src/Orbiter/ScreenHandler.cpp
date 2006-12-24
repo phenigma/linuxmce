@@ -1592,6 +1592,7 @@ bool ScreenHandler::AddSoftware_GridRendering(CallBackData *pData)
 	for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
 	{
 		DataGridCell *pCell = it->second;
+		string sStatus = pCell->m_mapAttributes_Find("Installation_status");
 		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
 
 		// See if there is an object assigned for this column/row
@@ -1608,7 +1609,7 @@ bool ScreenHandler::AddSoftware_GridRendering(CallBackData *pData)
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_Installed_Apps_Not_Virus_Free_CONST )
 					pDesignObj_Orbiter->m_bHidden = true; // pCell->m_mapAttributes_Find("Virus_Free")=="Yes";  // Hide this if it's virus fee
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconCheckMark_CONST )
-					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("Installation_status")!="Yes";  // Hide this if it's not installed
+					pDesignObj_Orbiter->m_bHidden = sStatus!="Yes" && sStatus!="Ins" && sStatus!="Rem";  // Hide this if it's not installed
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconHour_Glass_CONST )
 					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("Installation_status")!="Ins" && pCell->m_mapAttributes_Find("Installation_status")!="Rem";  // Hide this if it's not being installed/removed
 					

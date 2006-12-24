@@ -77,6 +77,9 @@ void WinListManager::ShowSdlWindow(bool bExclusive, bool bYieldInput)
 
 void WinListManager::ShowWindow(const string &sWindowName)
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowWindow %s",sWindowName.c_str());
+#endif
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	PendingContext(sWindowName).Visible(true);
 }
@@ -106,6 +109,9 @@ void WinListManager::HideAllWindows()
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	for(WindowsContext::iterator it_pending = m_PendingContext.begin(); it_pending != m_PendingContext.end(); ++it_pending)
 		it_pending->second.Visible(false);
+	
+	for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
+		HideWindow(it->second);
 }
 
 string WinListManager::GetExternApplicationName()
@@ -155,6 +161,9 @@ bool WinListManager::IsWindowAvailable(const string &sClassName)
 
 bool WinListManager::HideWindow(const string &sClassName)
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ShowWindow %s",sClassName.c_str());
+#endif
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	PendingContext(sClassName).Visible(false);
     return true;
