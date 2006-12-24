@@ -383,9 +383,11 @@ bool ProcessUtils::SpawnDaemon(string sPath, string sArguments, bool bLogOutput)
 	vector<string> vectArguments;
 	StringUtils::Tokenize(sArguments,"\t",vectArguments);
 	char **pArgs = new char*[vectArguments.size()+1];
-	pArgs[vectArguments.size()]=NULL;
+	pArgs[vectArguments.size()+1]=NULL;
 	
-	int i=0;
+	pArgs[0] = sPath.c_str();
+
+	int i=1;
 	for(vector<string>::iterator it = vectArguments.begin();it != vectArguments.end();++it)
 		pArgs[i++] = (char *) it->c_str();
 
