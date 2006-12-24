@@ -15,6 +15,7 @@ WinListManager::WinListManager(const string &sSdlWindowName)
     m_WindowsMutex.Init(&m_WindowsMutexAttr);
 
 	m_pWMController = new WMControllerImpl();
+	m_bExternalChange=false;
 }
 
 WinListManager::~WinListManager()
@@ -163,6 +164,46 @@ void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	m_pWMController->ListWindows(listWinInfo);
+
+	bool bChangesDetected=false;
+
+	map<unsigned long,bool> mapFoundWindows;  // Put all known windows in here with 'false' and mark them as true as we find them
+	for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
+		mapFoundWindows[ it->first ] = false;
+
+	for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end(); ++it)
+	{
+		map<unsigned long,string>::iterator itKnownWindows=m_mapKnownWindows.find( it->ulPid );
+		if( itKnownWindows == m_mapKnownWindows.end() || itKnownWindows->second != it->sClassName )
+		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"WinListManager::GetWindows windows %d-%s is new",
+				it->ulPid,it->sClassName.c_str());
+#endif
+			m_mapKnownWindows[it->ulPID] = it->sClassName;
+			bChangesDetected=true;
+		}
+		else
+			mapFoundWindows[ it->ulPid ] = true;
+	}
+	for(map<unsigned long,bool>::iterator it=mapFoundWindows.begin();it!=mapFoundWindows.end();++it)
+	{
+		if( it->second==false )
+		{
+			bChangesDetected=true;
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"WinListManager::GetWindows windows %d-%s is gone",
+				it->first,m_mapKnownWindows[it->first].c_str());
+#endif
+			m_mapKnownWindows.erase( it->first );
+		}
+	}
+
+	if( bChangesDetected )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"WinListManager::GetWindows m_bExternalChange set");
+		m_bExternalChange = true;
+	}
 }
 
 void WinListManager::SetSdlWindowVisibility(bool bValue)
@@ -189,7 +230,7 @@ void WinListManager::ApplyContext()
 			continue;
 
 		WindowsContext::iterator it_current = m_CurrentContext.find(sWindowName);
-		if(it_current != m_CurrentContext.end())
+		if(it_current != m_CurrentContext.end() && m_bExternalChange==false )
 		{
 			WindowContext &current_context = it_current->second;
 
@@ -234,8 +275,8 @@ void WinListManager::ApplyContext()
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ApplyContext: applying whole context for '%s': %s",
-				sWindowName.c_str(), pending_context.ToString().c_str());
+			g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ApplyContext: applying whole context for '%s': %s (ExternalChange: %d)",
+				sWindowName.c_str(), pending_context.ToString().c_str(),(int) m_bExternalChange);
 
 			m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 			m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
@@ -254,6 +295,7 @@ void WinListManager::ApplyContext()
 		}
 	}
 
+	m_bExternalChange=false;
 	m_CurrentContext.clear();
 	m_CurrentContext = m_PendingContext;
 }

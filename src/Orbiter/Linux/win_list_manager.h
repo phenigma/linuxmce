@@ -62,7 +62,15 @@ private:
     PlutoRectangle m_coordExternalApplication;
     unsigned long m_pidExternalApplication;
 
-    
+	// Every time we run GetWindows() we will update m_mapKnownWindows with the known windows
+	// and check if that list has changed.  If it has we will set m_bExternalChange to true
+	// so the next ApplyContext will cleanly apply all changes.  This should resolve an issue
+	// where an app may die and restart itself (like xine) but it's window doesn't get correctly
+	// positioned because ApplyContext doesn't see that we're trying to change something
+	// we didn't already change
+	map<unsigned long,string> m_mapKnownWindows;  // PID,WindowName
+	bool m_bExternalChange;
+
 	bool m_bHideSdlWindow;
 
 	//internal helpers methods
