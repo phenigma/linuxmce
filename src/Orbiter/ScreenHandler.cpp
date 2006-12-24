@@ -581,6 +581,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 		if( m_pOrbiter->m_pMouseBehavior )
 			m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
 #endif
+		return true;  // Otherwise there may be a crash in selected grid since we may have already removed the grid and the cells
 	}
 	else if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Media_Attributes_For_File_CONST )
 	{
