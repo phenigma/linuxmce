@@ -333,10 +333,14 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 	{
 		m_pOrbiter->m_pObj_Highlighted = mediaFileBrowserOptions.m_pObj_ListGrid;
 
+#ifdef ENABLE_MOUSE_BEHAVIOR
+		if( m_pOrbiter->m_pMouseBehavior )
+			m_pOrbiter->m_pMouseBehavior->SetMousePosition(mediaFileBrowserOptions.m_pObj_ListGrid);  // Move back to the list so we don't select a filter option
+#endif
+
 		DesignObj_Orbiter *pObj_CoverArt = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST) );
 		if(NULL != pObj_CoverArt)
 			m_pOrbiter->Renderer()->RemoveGraphic(pObj_CoverArt->GenerateObjectHash(pObj_CoverArt->m_pPopupPoint, false));
-
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Play_CONST )
 	{
@@ -498,7 +502,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 				if( pDataGridTable )
 				{
 					int Row = pCellInfoData->m_Row / mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol;
-					pCell_Pic = pDataGridTable->GetData( Row % mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol, Row );
+					pCell_Pic = pDataGridTable->GetData( pCellInfoData->m_Row % mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol, Row );
 				}
 			}
 		}

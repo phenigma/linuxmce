@@ -333,7 +333,7 @@ void WinListManager::ApplyContext()
 		}
 		if( bResult==false )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::ApplyContext window manager is not responding!  Reset everything next time");
+			g_pPlutoLogger->Write(LV_STATUS,"WinListManager::ApplyContext unable to set %s",sWindowName.c_str());
 			pending_context.ErrorFlag(true);
 		}
 		else
