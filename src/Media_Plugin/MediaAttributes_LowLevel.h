@@ -116,8 +116,11 @@ public:
     int GetAttributeFromFilePath(string File);
     int GetFileIDFromAttributeID(int PK_Attribute);
 	string GetDefaultDescriptionForMediaFile(MediaFile *pMediaFile);
+	
 	// First name can either be a separate parameter, or part of Name delimited by a tab
-    Row_Attribute *GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName); 
+	// Albums are special situations because they should be combined as one only when the performer is the same.  
+	// Pass in the performer as PK_Attribute_Related to have album attributes consolidated
+    Row_Attribute *GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName,int PK_Attribute_Related=0); 
 	void TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeMediaFile);
 
 	MediaSection *GetMediaSection(deque<MediaSection *> *p_dequeMediaSection,unsigned int Section) 

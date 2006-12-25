@@ -309,7 +309,7 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 	if(!bAddAllToDb)
 	{
 		string SQL = 
-			"SELECT FK_AttributeType, Name, Track, Section "
+			"SELECT PK_Attribute,FK_AttributeType, Name, Track, Section "
 			"FROM Attribute JOIN File_Attribute ON PK_Attribute = FK_Attribute "
 			"WHERE FK_File = " + StringUtils::ltos(PK_File);
 
@@ -319,15 +319,16 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 		{
 			while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
 			{
-				int nFK_AttributeType = atoi(row[0]);
-				string sName = row[1];
-				int nTrack = NULL != row[2] ? atoi(row[2]) : 0;
-				int nSection = NULL != row[3] ? atoi(row[3]) : 0;
+				int nPK_Attribute = atoi(row[0]);
+				int nFK_AttributeType = atoi(row[1]);
+				string sName = row[2];
+				int nTrack = NULL != row[3] ? atoi(row[3]) : 0;
+				int nSection = NULL != row[4] ? atoi(row[4]) : 0;
 
 				mapPlutoMediaAttributes.insert(
 					std::make_pair(
 					nFK_AttributeType, 
-					new PlutoMediaAttribute(nFK_AttributeType, sName, nTrack, nSection)
+					new PlutoMediaAttribute(nPK_Attribute, nFK_AttributeType, sName, nTrack, nSection)
 					)
 					);
 			}
@@ -337,66 +338,83 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 	g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: attributes is db %d, total %d",
 		mapPlutoMediaAttributes.size(), m_pPlutoMediaAttributes->m_mapAttributes.size());
 
-	//Save any new attributes in the database
-	for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(),
-		end = m_pPlutoMediaAttributes->m_mapAttributes.end(); it != end; ++it)
+	// For albums we don't want to add a new one for each media file.  All media from the same album
+	// should be grouped into a single album attribute.  However since different performers could have
+	// albums of the same name we need to maek a pass first to find the performer and skip the album, and then another pass
+	// to add the album
+	int PK_Attribute_Performer=0;
+	for(int iPass=0;iPass<2;++iPass)
 	{
-		PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
-
-		bool bAttributeAlreadyAdded = false;
-
-		if(!bAddAllToDb)
+		//Save any new attributes in the database
+		for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(),
+			end = m_pPlutoMediaAttributes->m_mapAttributes.end(); it != end; ++it)
 		{
-			for(MapPlutoMediaAttributes::iterator itdb = mapPlutoMediaAttributes.begin(),
-				enddb = mapPlutoMediaAttributes.end(); itdb != enddb; ++itdb)
-			{
-				PlutoMediaAttribute *pDBPlutoMediaAttribute = itdb->second;
+			PlutoMediaAttribute *pPlutoMediaAttribute = it->second;
 
-				if(
-					pPlutoMediaAttribute->m_nType == pDBPlutoMediaAttribute->m_nType		&&
-					StringUtils::ToLower(pPlutoMediaAttribute->m_sName) == StringUtils::ToLower(pDBPlutoMediaAttribute->m_sName)		&&
-					pPlutoMediaAttribute->m_nTrack == pDBPlutoMediaAttribute->m_nTrack		&&
-					pPlutoMediaAttribute->m_nSection == pDBPlutoMediaAttribute->m_nSection
-					)
+			bool bAttributeAlreadyAdded = false;
+
+			if(!bAddAllToDb)
+			{
+				for(MapPlutoMediaAttributes::iterator itdb = mapPlutoMediaAttributes.begin(),
+					enddb = mapPlutoMediaAttributes.end(); itdb != enddb; ++itdb)
 				{
-					bAttributeAlreadyAdded = true;
-					break;
+					PlutoMediaAttribute *pDBPlutoMediaAttribute = itdb->second;
+
+					if(
+						pPlutoMediaAttribute->m_nType == pDBPlutoMediaAttribute->m_nType		&&
+						StringUtils::ToLower(pPlutoMediaAttribute->m_sName) == StringUtils::ToLower(pDBPlutoMediaAttribute->m_sName)		&&
+						pPlutoMediaAttribute->m_nTrack == pDBPlutoMediaAttribute->m_nTrack		&&
+						pPlutoMediaAttribute->m_nSection == pDBPlutoMediaAttribute->m_nSection
+						)
+					{
+						if( pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_Performer_CONST )
+							PK_Attribute_Performer = pDBPlutoMediaAttribute->m_nPK_Attribute;
+						bAttributeAlreadyAdded = true;
+						break;
+					}
 				}
 			}
-		}
 
-		if(!bAttributeAlreadyAdded)
-		{
-			if(pPlutoMediaAttribute->m_nType > 0 && !StringUtils::WhiteSpace(pPlutoMediaAttribute->m_sName))
+			if(!bAttributeAlreadyAdded)
 			{
-				MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
-				Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(m_nPK_MediaType,
-					pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName);
-
-				if( pRow_Attribute==NULL )
+				if(pPlutoMediaAttribute->m_nType > 0 && !StringUtils::WhiteSpace(pPlutoMediaAttribute->m_sName))
 				{
-					g_pPlutoLogger->Write(LV_WARNING,"PlutoMediaFile::SyncDbAttributes attribute type %d/%s is empty",
-						pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName.c_str());
-					continue;
-				}
+					if( (iPass==0 && pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_Album_CONST) || (iPass==1 && pPlutoMediaAttribute->m_nType!=ATTRIBUTETYPE_Album_CONST) )
+						continue; // See notes above
 
-				//already in the database?
-				if(NULL == m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
-					PK_File, pRow_Attribute->PK_Attribute_get(),
-					pPlutoMediaAttribute->m_nTrack, pPlutoMediaAttribute->m_nSection)
-					)
-				{
-					Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-					pRow_File_Attribute->FK_File_set(PK_File);
-					pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-					pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
-					pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
-					pRow_File_Attribute->Table_File_Attribute_get()->Commit();
+					MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
+					Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(m_nPK_MediaType,
+						pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName, PK_Attribute_Performer);
 
-					g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: Adding attribute to database: "
-						"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
-						PK_File, pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
-						pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack); 
+					if( pRow_Attribute==NULL )
+					{
+						g_pPlutoLogger->Write(LV_WARNING,"PlutoMediaFile::SyncDbAttributes attribute type %d/%s is empty",
+							pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName.c_str());
+						continue;
+					}
+
+					pPlutoMediaAttribute->m_nPK_Attribute = pRow_Attribute->PK_Attribute_get();
+					if( pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_Performer_CONST )
+						PK_Attribute_Performer = pPlutoMediaAttribute->m_nPK_Attribute;
+
+					//already in the database?
+					if(NULL == m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
+						PK_File, pRow_Attribute->PK_Attribute_get(),
+						pPlutoMediaAttribute->m_nTrack, pPlutoMediaAttribute->m_nSection)
+						)
+					{
+						Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+						pRow_File_Attribute->FK_File_set(PK_File);
+						pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+						pRow_File_Attribute->Section_set(pPlutoMediaAttribute->m_nSection);
+						pRow_File_Attribute->Track_set(pPlutoMediaAttribute->m_nTrack);
+						pRow_File_Attribute->Table_File_Attribute_get()->Commit();
+
+						g_pPlutoLogger->Write(LV_STATUS, "# SyncDbAttributes: Adding attribute to database: "
+							"for PK_File %d, AttrID %d, AttrType = %d with value %s, section %d, track %d", 
+							PK_File, pRow_Attribute->PK_Attribute_get(), pPlutoMediaAttribute->m_nType,
+							pPlutoMediaAttribute->m_sName.c_str(), pPlutoMediaAttribute->m_nSection, pPlutoMediaAttribute->m_nTrack); 
+					}
 				}
 			}
 		}
@@ -427,7 +445,7 @@ void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 				mapPlutoMediaAttributes.insert(
 					std::make_pair(
 						nFK_AttributeType, 
-						new PlutoMediaAttribute(nFK_AttributeType, sName)
+						new PlutoMediaAttribute(0, nFK_AttributeType, sName)
 					)
 				);
 			}
@@ -955,7 +973,7 @@ void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 			m_pPlutoMediaAttributes->m_mapAttributes.insert(
 				std::make_pair(
 					nType, 
-					new PlutoMediaAttribute(nType, sValue)
+					new PlutoMediaAttribute(0,nType, sValue)
 				)
 			);
 		else
@@ -1005,7 +1023,7 @@ void PlutoMediaFile::LoadLegacyAttributes(string sFullFileName)
 			m_pPlutoMediaAttributes->m_mapAttributes.insert(
 				std::make_pair(
 					nType, 
-					new PlutoMediaAttribute(nType, sValue)
+					new PlutoMediaAttribute(0,nType, sValue)
 				)
 			);
 		else
@@ -1036,6 +1054,7 @@ void PlutoMediaFile::LoadLegacyAttributes(string sFullFileName)
 				make_pair(
 					pPlutoMediaAttribute->m_nType, 
 					new PlutoMediaAttribute(
+						0,
 						pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName,
 						pPlutoMediaAttribute->m_nTrack, pPlutoMediaAttribute->m_nSection
 					)
@@ -1082,7 +1101,7 @@ void PlutoMediaFile::LoadShortAttributes()
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	string SQL = 
-		"SELECT FK_AttributeType, Name, Track, Section "
+		"SELECT PK_Attribute,FK_AttributeType, Name, Track, Section "
 		"FROM Attribute JOIN File_Attribute ON PK_Attribute = FK_Attribute "
 		"WHERE FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
 
@@ -1092,10 +1111,11 @@ void PlutoMediaFile::LoadShortAttributes()
 	{
 		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
 		{
-			int nFK_AttributeType = atoi(row[0]);
-			string sName = row[1];
-			int nTrack = NULL != row[2] ? atoi(row[2]) : 0;
-			int nSection = NULL != row[3] ? atoi(row[3]) : 0;
+			int nPK_Attribute = atoi(row[0]);
+			int nFK_AttributeType = atoi(row[1]);
+			string sName = row[2];
+			int nTrack = NULL != row[3] ? atoi(row[3]) : 0;
+			int nSection = NULL != row[4] ? atoi(row[4]) : 0;
 
 			g_pPlutoLogger->Write(LV_STATUS, "Attr in db : type %d\t\tvalue %s", nFK_AttributeType, sName.c_str());
 
@@ -1104,7 +1124,7 @@ void PlutoMediaFile::LoadShortAttributes()
 			if(m_MediaSyncMode == modeDbToFile) 
 			{
 				mapDBAttributes.insert(std::make_pair(nFK_AttributeType, 
-					new PlutoMediaAttribute(nFK_AttributeType, sName, nTrack, nSection)));
+					new PlutoMediaAttribute(nPK_Attribute,nFK_AttributeType, sName, nTrack, nSection)));
 			}
 
 			for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(),
@@ -1131,7 +1151,7 @@ void PlutoMediaFile::LoadShortAttributes()
 				m_pPlutoMediaAttributes->m_mapAttributes.insert(
 					std::make_pair(
 						nFK_AttributeType, 
-						new PlutoMediaAttribute(nFK_AttributeType, sName, nTrack, nSection)
+						new PlutoMediaAttribute(nPK_Attribute, nFK_AttributeType, sName, nTrack, nSection)
 					)
 				);
 			}
@@ -1213,7 +1233,7 @@ void PlutoMediaFile::LoadLongAttributes()
 
 			bool bAttributeAlreadyAdded = false;
 			if(m_MediaSyncMode == modeDbToFile) 
-				mapDbLongAttributes.insert(std::make_pair(nFK_AttributeType, new PlutoMediaAttribute(nFK_AttributeType, sName)));
+				mapDbLongAttributes.insert(std::make_pair(nFK_AttributeType, new PlutoMediaAttribute(0, nFK_AttributeType, sName)));
 
 			for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapLongAttributes.begin(),
 				end = m_pPlutoMediaAttributes->m_mapLongAttributes.end(); it != end; ++it)
@@ -1232,7 +1252,7 @@ void PlutoMediaFile::LoadLongAttributes()
 					nFK_AttributeType, AdjustLongAttributeForDisplay(sName).c_str());
 
 				m_pPlutoMediaAttributes->m_mapLongAttributes.insert(
-					std::make_pair(nFK_AttributeType, new PlutoMediaAttribute(nFK_AttributeType, sName))
+					std::make_pair(nFK_AttributeType, new PlutoMediaAttribute(0, nFK_AttributeType, sName))
 				);
 			}
 		}

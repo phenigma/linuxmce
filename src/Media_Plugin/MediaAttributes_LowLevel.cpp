@@ -536,7 +536,7 @@ void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional)
         dTarget.push_back(dAdditional[s]);
 }
 
-Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName)
+Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName,int PK_Attribute_Related)
 {
 	if( StringUtils::WhiteSpace(sName) )
 	{
@@ -549,7 +549,22 @@ Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_Medi
 		pMediaType_AttributeType = m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRow(MEDIATYPE_pluto_StoredAudio_CONST,PK_AttributeType);
 	else
 		pMediaType_AttributeType = m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRow(PK_MediaType,PK_AttributeType);
-	if( !pMediaType_AttributeType || pMediaType_AttributeType->CombineAsOne_get()==1 )
+
+	if( PK_AttributeType==ATTRIBUTETYPE_Album_CONST && PK_Attribute_Related )
+	{
+		// Find another file, disc, or download with the same name and the same performer
+		string sWhere =
+			"LEFT JOIN File_Attribute AS FA ON FA.FK_Attribute=PK_Attribute "
+			"LEFT JOIN File_Attribute AS FA2 ON FA.FK_File=FA2.FK_File AND FA2.FK_Attribute = " + StringUtils::itos(PK_Attribute_Related) + " "
+			"LEFT JOIN Disc_Attribute AS DA ON DA.FK_Attribute=PK_Attribute "
+			"LEFT JOIN Disc_Attribute AS DA2 ON DA.FK_Disc=DA2.FK_Disc AND DA2.FK_Attribute = " + StringUtils::itos(PK_Attribute_Related) + " "
+			"LEFT JOIN Download_Attribute AS LA ON LA.FK_Attribute=PK_Attribute "
+			"LEFT JOIN Download_Attribute AS LA2 ON LA.FK_Download=LA2.FK_Download AND LA2.FK_Attribute = " + StringUtils::itos(PK_Attribute_Related) + " "
+			"WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Album_CONST) " AND Name='" + StringUtils::SQLEscape(sName) + "' "
+			"AND (FA2.FK_Attribute IS NOT NULL OR DA2.FK_Attribute IS NOT NULL OR LA2.FK_Attribute IS NOT NULL)";
+		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
+	}
+	else if( !pMediaType_AttributeType || pMediaType_AttributeType->CombineAsOne_get()==1 )
 	{
 		string sWhere = "FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " AND Name='" + StringUtils::SQLEscape(sName) + "'";
 		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
@@ -693,6 +708,9 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 	int PK_Disc=0;
 	if( (PK_Disc=IsDiscAlreadyIdentified(vectAttributes[0],listMediaAttribute_))==0 )
 	{
+		string sAlbum;
+		int iAlbumTrack=0, iAlbumSection=0, PK_Attribute_Performer=0;
+
 		Row_Attribute *pRow_Attribute;
 	    pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Disc_ID_CONST,vectAttributes[0]); 
 		if( pRow_Attribute==NULL )
@@ -737,6 +755,14 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 				if( sName.size()==0 )
 					continue;
 
+				if( PK_AttributeType==ATTRIBUTETYPE_Album_CONST )
+				{
+					sAlbum=sName;
+					iAlbumTrack=Track;
+					iAlbumSection=Section;
+					continue;
+				}
+
 				pRow_Attribute = GetAttributeFromDescription(PK_MediaType,PK_AttributeType,sName);
 				if( pRow_Attribute==NULL )
 				{
@@ -744,11 +770,29 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 					return PK_Disc;
 				}
 
+				if( PK_AttributeType==ATTRIBUTETYPE_Performer_CONST )
+					PK_Attribute_Performer = pRow_Attribute->PK_Attribute_get();
+
 				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
-		pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
+					pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
 
 				listMediaAttribute_.push_back( new MediaAttribute(
 					Track,Section,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
+			}
+
+			if( sAlbum.empty()==false )
+			{
+				pRow_Attribute = GetAttributeFromDescription(PK_MediaType,PK_AttributeType,sName,PK_Attribute_Performer);
+				if( pRow_Attribute==NULL )
+				{
+					g_pPlutoLogger->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute %d is empty",PK_AttributeType);
+					return PK_Disc;
+				}
+				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
+					pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
+
+				listMediaAttribute_.push_back( new MediaAttribute(
+					iAlbumTrack,iAlbumSection,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
 			}
 		}
 		if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
@@ -783,6 +827,7 @@ int MediaAttributes_LowLevel::Parse_CDDB_Media_ID(int PK_MediaType,listMediaAttr
 
 	string sCDDBID = StringUtils::Tokenize(sValue,"\t",pos);
 	Row_Attribute *pRow_Attribute;
+	int PK_Attribute_Performer=0;
 
 	// Before proceeding, see if this disc is already in the database
 	int PK_Disc=0;
@@ -809,14 +854,17 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 		{
 			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Performer_CONST,s); 
 			if( pRow_Attribute )
+			{
 				listMediaAttribute_.push_back( new MediaAttribute(
 					0,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
+				PK_Attribute_Performer = pRow_Attribute->PK_Attribute_get();
+			}
 		}
 
 		s = StringUtils::Tokenize(sValue,"\t",pos);
 		if( s.size() )
 		{
-			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Album_CONST,s); 
+			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Album_CONST,s,PK_Attribute_Performer); 
 			if( pRow_Attribute )
 				listMediaAttribute_.push_back( new MediaAttribute(
 					0,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
@@ -989,7 +1037,20 @@ int MediaAttributes_LowLevel::AddIdentifiedDiscToDB(int PK_MediaType,string sIde
 		Row_Attribute *pRow_Attribute ;
 		if( !pMediaAttribute->m_PK_Attribute )
 		{
-			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,pMediaAttribute->m_PK_AttributeType,pMediaAttribute->m_sName);
+			int PK_Attribute_Performer=0;
+			if( pMediaAttribute->m_PK_AttributeType==ATTRIBUTETYPE_Album_CONST )
+			{
+				for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)
+				{
+					MediaAttribute *pMediaAttributePerformer = *it;
+					if( pMediaAttributePerformer->m_PK_AttributeType==ATTRIBUTETYPE_Album_CONST )
+					{
+						PK_Attribute_Performer = pMediaAttributePerformer->m_PK_Attribute;
+						break;
+					}
+				}
+			}
+			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,pMediaAttribute->m_PK_AttributeType,pMediaAttribute->m_sName,PK_Attribute_Performer);
 			if( pRow_Attribute )
 				pMediaAttribute->m_PK_Attribute=pRow_Attribute->PK_Attribute_get();
 		}

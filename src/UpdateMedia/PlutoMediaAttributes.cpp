@@ -10,13 +10,13 @@ using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaAttribute::PlutoMediaAttribute() : 
 	SerializeClass(), 
-	m_nType(0), m_nTrack(0), m_nSection(0)
+	m_nPK_Attribute(0), m_nType(0), m_nTrack(0), m_nSection(0)
 {
 }
 //-----------------------------------------------------------------------------------------------------
-PlutoMediaAttribute::PlutoMediaAttribute(int nType, string sName, int nTrack/* = 0*/, int nSection/* = 0*/) :
+PlutoMediaAttribute::PlutoMediaAttribute(int nPK_Attribute,int nType, string sName, int nTrack/* = 0*/, int nSection/* = 0*/) :
 	SerializeClass(), 
-	m_nType(nType), m_sName(sName), m_nTrack(nTrack), m_nSection(nSection)
+	m_nPK_Attribute(nPK_Attribute), m_nType(nType), m_sName(sName), m_nTrack(nTrack), m_nSection(nSection)
 {
 
 }

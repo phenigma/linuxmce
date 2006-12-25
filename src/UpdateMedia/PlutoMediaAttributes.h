@@ -15,13 +15,14 @@ class PlutoMediaAttribute : public SerializeClass
 {
 public:
 
+	int m_nPK_Attribute;
 	int m_nType;
 	string m_sName;
 	int m_nTrack;
 	int m_nSection;
 
 	PlutoMediaAttribute();
-	PlutoMediaAttribute(int nType, string sName, int nTrack = 0, int nSection = 0);
+	PlutoMediaAttribute(int nPK_Attribute,int nType, string sName, int nTrack = 0, int nSection = 0);
 	~PlutoMediaAttribute();
 
 	string SerializeClassClassName();
