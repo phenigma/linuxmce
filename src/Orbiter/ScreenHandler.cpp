@@ -1598,6 +1598,11 @@ bool ScreenHandler::AddSoftware_GridRendering(CallBackData *pData)
 	{
 		DataGridCell *pCell = it->second;
 		string sStatus = pCell->m_mapAttributes_Find("Installation_status");
+#ifdef DEBUG
+		string s = (pCell->GetText() ? pCell->GetText() : "*NO TEXT") + string("/") + (pCell->GetValue() ? pCell->GetValue() : "*NO VALUE");
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::AddSoftware_GridRendering %s=%s",s.c_str(),sStatus.c_str());
+#endif
+
 		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
 
 		// See if there is an object assigned for this column/row
