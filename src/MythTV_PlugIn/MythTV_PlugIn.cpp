@@ -869,6 +869,26 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 		}
 	}
 
+	// Find cards with invalid starting channels
+	sSQL = "SELECT cardinputid FROM cardinput LEFT JOIN channel on startchan=chanid WHERE chanid IS NULL";
+	PlutoSqlResult result_set2;
+	if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && result_set2.r->row_count>0 )
+	{
+		bModifiedRows=true;
+		string sChanNum="1";
+
+		sSQL = "SELECT min(channum) FROM channel";
+		PlutoSqlResult result_set3;
+		if( (result_set3.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set3.r)) && row[0] )
+			sChanNum = row[0];
+
+		while ((row = mysql_fetch_row(result_set2.r)))
+		{
+			sSQL = "UPDATE cardinput SET startchan='" + sChanNum + "' WHERE cardinputid='" + row[0] + "'";
+			m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
+		}
+	}
+
 	// We create /usr/pluto/bin/FillDbAndFetchIcons.start when we first start, and delete it when 
 	// the script finishes.  So if the file is still there, that means the user reloaded the router
 	// without letting the script finish, so we should restart it
