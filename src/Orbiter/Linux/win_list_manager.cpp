@@ -176,6 +176,7 @@ bool WinListManager::HideWindow(const string &sClassName)
 void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+	m_pWMController->ListWindows(listWinInfo);
 
 for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
 g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::GetWindows1 %d/%s",it->first,it->second.c_str());
@@ -184,8 +185,6 @@ for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end(); +
 {
 g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::GetWindows1b id %d desktop %d class %s title %s",it->ulWindowId,it->lDesktop,it->sClassName.c_str(),it->sTitle.c_str());
 }
-
-	m_pWMController->ListWindows(listWinInfo);
 
 	bool bChangesDetected=false;
 

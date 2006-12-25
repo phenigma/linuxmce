@@ -114,7 +114,9 @@ void PlutoHIDInterface::ProcessHIDEvents()
 						g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents [READER] %04i.%03i: read bytes: %d %x.%x.%x.%x.%x.%x", 
 							cnt/100, cnt%100, res, (int) pPtr[0],(int) pPtr[1],(int) pPtr[2],(int) pPtr[3],(int) pPtr[4],(int) pPtr[5]);
 
-						if( res==6 && inPacket[0]==8 )  // It's for us
+						if( !m_pOrbiter->m_pOrbiterFileBrowser_Collection )
+							g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents skipping until Orbiter finishes startup");
+						else if( res==6 && inPacket[0]==8 )  // It's for us
 						{
 							if( inPacket[1]==0x20 || inPacket[1]==0x26 )  // A bind request
 								ProcessBindRequest(inPacket);
