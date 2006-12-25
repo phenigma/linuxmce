@@ -246,7 +246,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid Notch 
 
 void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 {
-	m_LastX=X;
+	m_iLastX=X;
 #ifdef DEBUG
     g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativeMove(%d, %d, %d) bottom %d top %d direction %s",
 		X, Y, m_iLastNotch,m_Bottom,m_Top,m_eCapturingOffscreenMovement == cosm_UP ? "UP" : "DOWN");
@@ -325,9 +325,9 @@ g_pPlutoLogger->Write(LV_ACTION, "**stop**");
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
     RelativePointer_Clear();
 #ifdef WIN32
-	m_pMouseBehavior->SetMousePosition(m_LastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_Bottom-15 : m_Top+15);
+	m_pMouseBehavior->SetMousePosition(m_iLastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_Bottom-15 : m_Top+15);
 #else
-	m_pMouseBehavior->SetMousePosition(m_LastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_Bottom-1 : m_Top+1);
+	m_pMouseBehavior->SetMousePosition(m_iLastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_Bottom-1 : m_Top+1);
 #endif
 	m_pMouseBehavior->ConstrainMouse();
 	m_pMouseBehavior->ShowMouse(true);

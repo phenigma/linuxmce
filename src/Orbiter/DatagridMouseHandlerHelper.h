@@ -29,7 +29,7 @@ namespace DCE
 		class MouseHandler *m_pMouseHandler;
 		class MouseBehavior *m_pMouseBehavior;
 		int m_dwPK_Direction_ScrollGrid;
-		int m_NumNotches, m_Top, m_Bottom, m_iLastNotch, m_LastX;
+		int m_NumNotches, m_Top, m_Bottom, m_iLastNotch, m_iLastX;
 		int m_iLeft,m_iRight;
 		DesignObj_DataGrid *m_pObj_ScrollingGrid;
 		DesignObj_Orbiter *m_pObj_MediaBrowser_Alpha;

@@ -257,6 +257,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_iUiVersion = 0;
 	m_tLastMouseMove = 0;
 	m_iLastVideoObjectRendered = 0;
+	m_iLastX=m_iLastY=-1;
 
 	//initialize
 	m_pObj_NowPlayingOnScreen = NULL;
@@ -2790,7 +2791,6 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 //	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent1 type %d key %d",
 //					  event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
 #endif
-	static int LastX=-1,LastY=-1; // For some reason we keep getting move events with the same coordinates over and over
 	if ( event.type == Orbiter::Event::MOUSE_MOVE )
 	{
 #ifdef ENABLE_MOUSE_BEHAVIOR
@@ -2798,10 +2798,10 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 			m_pMouseBehavior->m_pLastPosition_set( event.data.region.m_iX, event.data.region.m_iY );
 #endif
 
-		if( event.data.region.m_iX==LastX && event.data.region.m_iY==LastY )
+		if( event.data.region.m_iX==m_iLastX && event.data.region.m_iY==m_iLastY )
 			return false;
-		LastX=event.data.region.m_iX;
-		LastY=event.data.region.m_iY;
+		m_iLastX=event.data.region.m_iX;
+		m_iLastY=event.data.region.m_iY;
 		m_tLastMouseMove=time(NULL);
 	}
 

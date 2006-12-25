@@ -1618,6 +1618,7 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
     for (i = 0; i < client_list_size / sizeof(Window); i++)
     {
         WinInfo itemWinInfo;
+		itemWinInfo.ulWindowId = client_list[i];
         gchar *title_utf8 = get_window_title(disp, client_list[i]); /* UTF8 */
         gchar *title_out = get_output_str(title_utf8, TRUE);
         gchar *client_machine;

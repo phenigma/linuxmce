@@ -57,12 +57,14 @@ struct WinInfo
 {
     WinInfo()
             : lDesktop(0)
+			, ulWindowId(0)
             , ulPid(0)
             , x(0)
             , y(0)
             , w(0)
             , h(0)
         {}
+	unsigned long ulWindowId;
     signed long lDesktop;
     unsigned long ulPid;
     int x;

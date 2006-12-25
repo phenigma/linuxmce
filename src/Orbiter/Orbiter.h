@@ -302,6 +302,8 @@ namespace DCE
 		int m_iRow_Floorplan_LastSelected;  // If we're using datagrids as floorplans, this is the last row
 		class DesignObj_Orbiter *m_pObj_SelectedLastScreen;   // The last object we selected.  Used by floorplans to toggle states
 
+		int m_iLastX,m_iLastY; // For some reason we keep getting move events with the same coordinates over and over.  Keep track of the last ones
+
 		// '0' - no item is selected until the user moves the arrows
 		// '1' - automatically highlight the first object when the screen changes
 		// '2' - selection/hightlighing routines disabled

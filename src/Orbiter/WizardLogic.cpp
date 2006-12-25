@@ -421,7 +421,7 @@ bool WizardLogic::SetLocation(string sLocation)
 		" WHERE PK_Installation=" + StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation);
 	threaded_mysql_query(sSQL);
 
-	SetLongLat(Longitude,Latitude);
+	SetLongLat(Latitude,Longitude);
 
 	DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
 	if( pDevice_Core )

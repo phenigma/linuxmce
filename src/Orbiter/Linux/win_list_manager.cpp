@@ -176,6 +176,15 @@ bool WinListManager::HideWindow(const string &sClassName)
 void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+
+for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
+g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::GetWindows1 %d/%s",it->first,it->second.c_str());
+
+for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end(); ++it)
+{
+g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::GetWindows1b id %d desktop %d class %s title %s",it->ulWindowId,it->lDesktop,it->sClassName.c_str(),it->sTitle.c_str());
+}
+
 	m_pWMController->ListWindows(listWinInfo);
 
 	bool bChangesDetected=false;
@@ -186,19 +195,23 @@ void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
 
 	for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end(); ++it)
 	{
-		map<unsigned long,string>::iterator itKnownWindows=m_mapKnownWindows.find( it->ulPid );
+		map<unsigned long,string>::iterator itKnownWindows=m_mapKnownWindows.find( it->ulWindowId );
 		if( itKnownWindows == m_mapKnownWindows.end() || itKnownWindows->second != it->sClassName )
 		{
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"WinListManager::GetWindows windows %d-%s is new",
-				it->ulPid,it->sClassName.c_str());
+				it->ulWindowId,it->sClassName.c_str());
 #endif
-			m_mapKnownWindows[it->ulPid] = it->sClassName;
+			m_mapKnownWindows[it->ulWindowId] = it->sClassName;
 			bChangesDetected=true;
 		}
 		else
-			mapFoundWindows[ it->ulPid ] = true;
+		{
+g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::GetWindows %d found %d",it->ulWindowId,itKnownWindows == m_mapKnownWindows.end());
+			mapFoundWindows[ it->ulWindowId ] = true;
+		}
 	}
+
 	for(map<unsigned long,bool>::iterator it=mapFoundWindows.begin();it!=mapFoundWindows.end();++it)
 	{
 		if( it->second==false )
@@ -211,6 +224,9 @@ void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
 			m_mapKnownWindows.erase( it->first );
 		}
 	}
+
+for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
+g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::GetWindows2 %d/%s",it->first,it->second.c_str());
 
 	if( bChangesDetected )
 	{
