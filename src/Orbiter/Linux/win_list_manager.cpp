@@ -258,7 +258,6 @@ void WinListManager::ApplyContext()
 	g_pPlutoLogger->Write(LV_STATUS,"WinListManager::ApplyContext m_bExternalChange %d",(int) m_bExternalChange);
 #endif
 	
-	bool bResult = true;  // Will be set to false if any of them fail
 	for(WindowsContext::iterator it_pending = m_PendingContext.begin(); it_pending != m_PendingContext.end(); ++it_pending)
 	{
 		string sWindowName = it_pending->first;
@@ -267,8 +266,9 @@ void WinListManager::ApplyContext()
 		if(sWindowName.empty())
 			continue;
 
+		bool bResult = true;  // Will be set to false if any of them fail
 		WindowsContext::iterator it_current = m_CurrentContext.find(sWindowName);
-		if(it_current != m_CurrentContext.end() && m_bExternalChange==false )
+		if(it_current != m_CurrentContext.end() && m_bExternalChange==false && pending_context.IsErrorFlag()==false )
 		{
 			WindowContext &current_context = it_current->second;
 
@@ -313,8 +313,8 @@ void WinListManager::ApplyContext()
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ApplyContext: applying whole context for '%s': %s (ExternalChange: %d)",
-				sWindowName.c_str(), pending_context.ToString().c_str(),(int) m_bExternalChange);
+			g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ApplyContext: applying whole context for '%s': %s (ExternalChange: %d ErrorFlag %d)",
+				sWindowName.c_str(), pending_context.ToString().c_str(),(int) m_bExternalChange,(int) pending_context.IsErrorFlag());
 
 			bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 			bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
@@ -331,14 +331,15 @@ void WinListManager::ApplyContext()
 			if(pending_context.IsActivated())
 				bResult = bResult && m_pWMController->ActivateWindow(sWindowName);
 		}
+		if( bResult==false )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::ApplyContext window manager is not responding!  Reset everything next time");
+			pending_context.ErrorFlag(true);
+		}
+		else
+			pending_context.ErrorFlag(false);
 	}
 
-	if( bResult==false )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::ApplyContext window manager is not responding!  Reset everything next time");
-		m_CurrentContext.clear();
-		return;
-	}
 	m_bExternalChange=false;
 	m_CurrentContext.clear();
 	m_CurrentContext = m_PendingContext;

@@ -17,6 +17,7 @@ WindowContext::WindowContext(string sWindowName) :
 	m_bFullScreen(false),
 	m_bVisible(true),
 	m_bActivated(false),
+	m_bErrorFlag(false)
 	m_rectPosition(-1, -1, -1, -1)
 {
 }
@@ -78,6 +79,18 @@ void WindowContext::Activate(bool bValue)
 {	
 	g_pPlutoLogger->Write(LV_STATUS, "WindowContext::Activate '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
 	m_bActivated = bValue;
+}
+
+//-----------------------------------------------------------------------------------------------------
+bool WindowContext::IsErrorFlag()
+{
+	return m_bErrorFlag;
+}
+//-----------------------------------------------------------------------------------------------------
+void WindowContext::ErrorFlag(bool bValue)
+{
+	g_pPlutoLogger->Write(LV_STATUS, "WindowContext::IsErrorFlag '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+	m_bErrorFlag = bValue;
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoRectangle WindowContext::Position()

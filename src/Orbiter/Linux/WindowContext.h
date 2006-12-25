@@ -30,6 +30,9 @@ public:
 	PlutoRectangle Position();
 	void Position(PlutoRectangle rectangle);
 
+	bool IsErrorFlag();
+	void ErrorFlag(bool bValue);
+
 	string ToString();
 
 	WindowContext& operator=(const WindowContext& context);
@@ -46,6 +49,7 @@ private:
 	bool m_bFullScreen;
 	bool m_bVisible;
 	bool m_bActivated;
+	bool m_bErrorFlag;
 	PlutoRectangle m_rectPosition;
 };
 //-----------------------------------------------------------------------------------------------------
