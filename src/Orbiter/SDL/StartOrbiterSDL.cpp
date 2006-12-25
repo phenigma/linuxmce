@@ -68,7 +68,7 @@ void* WatchDogRoutine(void* param)
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write(LV_CRITICAL,"Terminating Orbiter: %d watchdog detected hard deadlock, seems soft reload failed\n",(int) getpid());
 		fflush(stdout);
-		kill(getpid(), SIGTERM);
+		kill(getpid(), SIGKILL);
 	}
 		
 	return NULL;

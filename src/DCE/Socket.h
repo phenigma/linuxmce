@@ -167,7 +167,7 @@ namespace DCE
 		void m_bQuit_set(bool bQuit)
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"Socket m_Socket %d %s quit=%d",(int) m_Socket, m_sName.c_str(),(int) bQuit);
+			g_pPlutoLogger->Write(LV_STATUS,"Socket m_Socket %d/%p %s m_bQuit=%d",(int) m_Socket, this, m_sName.c_str(),(int) bQuit);
 #endif
 			m_bQuit=bQuit;
 		}

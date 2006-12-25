@@ -26,7 +26,7 @@ void* StreamWatchDogRoutine(void* param)
 	{
 		DCE::g_pPlutoLogger->Write(LV_CRITICAL,"Terminating Xine_Player: watchdog detected libxine deadlock\n");
 		fflush(stdout);
-		kill(getpid(), SIGTERM);
+		kill(getpid(), SIGKILL);
 	}
 		
 	return NULL;
@@ -255,7 +255,14 @@ bool Xine_Stream::ShutdownStream()
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineStreamEventQueue = NULL;
 	}
-	
+
+	// xine_stop can lock up, as can xine_close_xxxx_driver
+	pthread_t watchdog_thread;
+	bStreamWatchDogFlag = true;
+	iStreamWatchDogCounter++;
+	pthread_create(&watchdog_thread, NULL,StreamWatchDogRoutine, NULL);
+	pthread_detach(watchdog_thread);
+
 	if ( m_pXineStream )
 	{	
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
@@ -273,12 +280,6 @@ bool Xine_Stream::ShutdownStream()
 	}
 
 	g_pPlutoLogger->Write( LV_STATUS, "Going to call a %p and v %p", m_pXineAudioOutput, m_pXineVideoOutput );
-
-	pthread_t watchdog_thread;
-	bStreamWatchDogFlag = true;
-	iStreamWatchDogCounter++;
-	pthread_create(&watchdog_thread, NULL,StreamWatchDogRoutine, NULL);
-	pthread_detach(watchdog_thread);
 
 	if ( m_pXineAudioOutput )
 	{

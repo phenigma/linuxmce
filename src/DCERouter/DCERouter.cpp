@@ -74,7 +74,7 @@ void* WatchDogRoutine(void* param)
 		g_pPlutoLogger->Write(LV_CRITICAL,"Terminating DCERouter: watchdog detected hard deadlock, seems soft reload failed\n");
 #ifndef WIN32
 		fflush(stdout);
-		kill(getpid(), SIGTERM);
+		kill(getpid(), SIGKILL);
 #endif
 	}
 		

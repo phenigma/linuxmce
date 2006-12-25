@@ -28,7 +28,7 @@ void* WatchDogRoutine(void* param)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Terminating Xine_Player: watchdog detected hard deadlock, seems soft reload failed\n");
 		fflush(stdout);
-		kill(getpid(), SIGTERM);
+		kill(getpid(), SIGKILL);
 	}
 		
 	return NULL;
