@@ -549,12 +549,11 @@ void Event_Plugin::SetFirstSunriseSunset()
 void Event_Plugin::FireSunriseSunsetEvent()
 {
 	PLUTO_SAFETY_LOCK(em,m_EventMutex);
+	m_bIsDaytime=!m_bIsDaytime;
 	if( m_bIsDaytime )
 		EVENT_Sunrise();
 	else
 		EVENT_Sunset();
-
-	m_bIsDaytime=!m_bIsDaytime;
 
 	time_t tNow=time(NULL);
 	time_t tSunrise,tSunset,tSunriseTomorrow,tSunsetTomorrow;

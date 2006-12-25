@@ -111,7 +111,11 @@ void WinListManager::HideAllWindows()
 		it_pending->second.Visible(false);
 	
 	for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
+	{
+		if( StringUtils::StartsWith(it->second,"Orbiter",true) )  // Doesn't apply to orbiter
+			continue;
 		HideWindow(it->second);
+	}
 }
 
 string WinListManager::GetExternApplicationName()
