@@ -538,7 +538,7 @@ void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional)
 
 Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName,int PK_Attribute_Related)
 {
-	if( StringUtils::WhiteSpace(sName) )
+	if( StringUtils::OnlyWhiteSpace(sName) )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"MediaAttributes_LowLevel::GetAttributeFromDescription got a blank attribute");
 		return NULL;

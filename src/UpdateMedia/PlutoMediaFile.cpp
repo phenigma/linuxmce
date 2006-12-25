@@ -377,7 +377,7 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 
 			if(!bAttributeAlreadyAdded)
 			{
-				if(pPlutoMediaAttribute->m_nType > 0 && !StringUtils::WhiteSpace(pPlutoMediaAttribute->m_sName))
+				if(pPlutoMediaAttribute->m_nType > 0 && !StringUtils::OnlyWhiteSpace(pPlutoMediaAttribute->m_sName))
 				{
 					if( (iPass==0 && pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_Album_CONST) || (iPass==1 && pPlutoMediaAttribute->m_nType!=ATTRIBUTETYPE_Album_CONST) )
 						continue; // See notes above
@@ -483,7 +483,7 @@ void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 
 		if(!bAttributeAlreadyAdded)
 		{
-			if(pPlutoMediaAttribute->m_nType > 0 && !StringUtils::WhiteSpace(pPlutoMediaAttribute->m_sName))
+			if(pPlutoMediaAttribute->m_nType > 0 && !StringUtils::OnlyWhiteSpace(pPlutoMediaAttribute->m_sName))
 			{
 				Row_LongAttribute *pRow_LongAttribute = m_pDatabase_pluto_media->LongAttribute_get()->AddRow();
 				pRow_LongAttribute->FK_AttributeType_set(pPlutoMediaAttribute->m_nType);

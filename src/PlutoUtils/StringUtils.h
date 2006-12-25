@@ -223,10 +223,6 @@ namespace StringUtils
 	 * @brief escape bash pattern special characters in strings
 	 */
 	string BashPatternEscape(string sInput, string sCharsToNotEscape = "");
-
-	// returns true if sString is empty or contains only white space
-	bool WhiteSpace(string &sString);
-
 #endif //#ifndef SYMBIAN
 };
 

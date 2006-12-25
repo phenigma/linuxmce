@@ -1151,16 +1151,5 @@ string StringUtils::BashPatternEscape(string sInput, string sCharsToNotEscape)
 
     return sOutput;
 }
+
 #endif //#ifndef SYMBIAN
-
-bool StringUtils::WhiteSpace(string &sString)
-{
-	for(size_t i=0;i<sString.size();++i)
-	{
-		if( sString[i]!=' ' && sString[i]!='\t' && sString[i]!='\n' && sString[i]!='\r' )
-			return false;
-	}
-
-	return true;
-}
-
