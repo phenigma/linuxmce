@@ -109,13 +109,15 @@ void WinListManager::HideAllWindows()
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	for(WindowsContext::iterator it_pending = m_PendingContext.begin(); it_pending != m_PendingContext.end(); ++it_pending)
 		it_pending->second.Visible(false);
-	
+/*
+	Hmm...  This reports windows in a x.y, and we just use x, so we always re-hide windows even that are not supposed to be
 	for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
 	{
 		if( StringUtils::StartsWith(it->second,"Orbiter",true) )  // Doesn't apply to orbiter
 			continue;
 		HideWindow(it->second);
 	}
+*/
 }
 
 string WinListManager::GetExternApplicationName()
