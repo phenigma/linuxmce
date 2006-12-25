@@ -127,7 +127,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 		if( m_pDevice_MediaIdentifier )
 		{
 			DCE::CMD_Identify_Media CMD_Identify_Media(m_pCommand_Impl->m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
-				m_pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_discid),mrl,m_pCommand_Impl->m_dwPK_Device);
+				m_pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_pCommand_Impl->m_dwPK_Device);
 			m_pCommand_Impl->SendCommand(CMD_Identify_Media);
 		}
 

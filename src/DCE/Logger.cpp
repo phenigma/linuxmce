@@ -65,10 +65,6 @@ Logger::Logger( const char* pcName ) : m_Lock( "logger" )
 
 //  m_dwPK_Installation = atoi( StringUtils::get_pluto_parameter( "INSTALLATION" ).c_str() );
 
-#ifdef DEBUG
-	printf("Logger::Logger %p\n",this);   // Try to see why some devices are crashing when logging the final 'shutting down'
-#endif
-
     pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
     m_Lock.Init( &m_MutexAttr );
@@ -76,9 +72,6 @@ Logger::Logger( const char* pcName ) : m_Lock( "logger" )
 
 Logger::~Logger()
 {
-#ifdef DEBUG
-	printf("Logger::~Logger %p\n",this);   // Try to see why some devices are crashing when logging the final 'shutting down'
-#endif
     pthread_mutex_destroy(&m_Lock.mutex);
     pthread_mutexattr_destroy(&m_MutexAttr);
 }
