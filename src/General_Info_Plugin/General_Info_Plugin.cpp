@@ -3148,8 +3148,13 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Add_Software Starting Add software device %d software %d true %d cmd %d %s",
 		pDevice->m_dwPK_Device,iPK_Software,(int) bTrueFalse,sCommand.c_str(),sArguments.c_str());
-	
-	ProcessUtils::SpawnDaemon(sCommand, sArguments, true);
+
+	string sSystem = "/usr/bin/screen -d -m -S add_software " + sCommand + " \"" + pDevice->m_sIPAddress + "\" \"" + pRow_Software->PackageName_get() + "\" \"" + pRow_Software->Downloadurl_get() + "\" \"" + pRow_Software->RepositoryName_get() + "\"";
+g_pPlutoLogger->Write(LV_CRITICAL,"add software temp hack until spawn daemon is fixed: %s",sSystem.c_str());
+	system(sSystem.c_str());
+g_pPlutoLogger->Write(LV_CRITICAL,"add software temp hack done");
+
+//	ProcessUtils::SpawnDaemon(sCommand, sArguments, true);
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Finishing Add software");
