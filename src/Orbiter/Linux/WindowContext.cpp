@@ -17,7 +17,7 @@ WindowContext::WindowContext(string sWindowName) :
 	m_bFullScreen(false),
 	m_bVisible(true),
 	m_bActivated(false),
-	m_bErrorFlag(false)
+	m_bErrorFlag(false),
 	m_rectPosition(-1, -1, -1, -1)
 {
 }
