@@ -240,6 +240,11 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	if ( (prevStream != NULL) && (prevStream->m_bIsRendering)  )
 	{
 		string mPosition;
+		if( prevStream->m_iStreamID==iStreamID )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::CMD_Play_Media not firing the playback completed since it's still the same stream");
+			prevStream->m_bDontReportCompletion = true;
+		}
 		CMD_Stop_Media( prevStream->m_iStreamID, &mPosition);
 		if (prevStream->m_iMenuButtons!=0)
 			prevStream->FireMenuOnScreen( 0 );
