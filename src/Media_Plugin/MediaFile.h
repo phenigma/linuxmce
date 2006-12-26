@@ -15,6 +15,7 @@ public:
 		m_dwPK_Bookmark=m_dwPK_Disk=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
+		m_iTrack=0;
 		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 		CheckForStartPosition(pMediaAttributes_LowLevel);
@@ -26,6 +27,7 @@ public:
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
+		m_iTrack=0;
 		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 	}
 
@@ -35,6 +37,7 @@ public:
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
+		m_iTrack=0;
 		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sMRL));
 	}
@@ -46,6 +49,7 @@ public:
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
+		m_iTrack=0;
 		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 		CheckForStartPosition(pMediaAttributes_LowLevel);
@@ -64,6 +68,7 @@ public:
 		m_dwPK_Bookmark=pMediaFile_Copy->m_dwPK_Bookmark;
 		m_dwDuration=pMediaFile_Copy->m_dwDuration;
 		m_tTimeout=pMediaFile_Copy->m_tTimeout;
+		m_iTrack=pMediaFile_Copy->m_iTrack;
 	}
 
 
@@ -73,6 +78,7 @@ public:
 		m_dwPK_Bookmark=pRow_PlaylistEntry->FK_Bookmark_get();
 		m_dwDuration=pRow_PlaylistEntry->Duration_get();
 		m_tTimeout=0;
+		m_iTrack=0;
 		m_sPath=pRow_PlaylistEntry->Path_get();
 		m_sFilename=pRow_PlaylistEntry->Filename_get();
 		m_dwPK_CommandGroup_Start=pRow_PlaylistEntry->EK_CommandGroup_Start_get();
@@ -108,6 +114,7 @@ public:
 	int m_dwPK_File,m_dwPK_Disk;
 	unsigned long m_dwPK_Bookmark,m_dwDuration,m_dwPK_CommandGroup_Start,m_dwPK_CommandGroup_Stop;
 	time_t m_tTimeout;
+	int m_iTrack; // If this is a cd, the track to play
 	string m_sPath,m_sFilename,m_sDescription,m_sExtension;
 	string m_sStartPosition; /** Where to start the media the first time.  As soon as the media has begun MediaPlugin will reset this */
 

@@ -337,7 +337,8 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 			else
 				m_pOrbiter->StartScreenSaver(true);  
 		}
-		/*  This is confusing.  Use the power button to stop media, not the right mouse button
+#ifdef WIN32
+		/*  This is confusing.  Use the power button to stop media, not the right mouse button.  But for windows testing it's easiest since we don't have a power button */
 		else if( m_pOrbiter->m_iPK_MediaType && (PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_Remote || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_RemoteOSD) )
 		{
 			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
@@ -345,7 +346,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 			m_pOrbiter->m_iPK_Screen_RemoteOSD=m_pOrbiter->m_iPK_Screen_Remote=0;  // So the Clear below does't try to go to the remote as the main menu
 			Clear(true);
 		}
-		*/
+#endif
 		else
 			Clear(true);
 		return true;

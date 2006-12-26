@@ -119,7 +119,7 @@ void HorizMenuMouseHandler::Move(int X,int Y,int PK_Direction)
 		Y>m_pObj_ActiveMenuPad->m_rPosition.Y )
 	{
 		DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pMouseBehavior->m_pObj_Locked,X,
-			m_bDeactivateWhenOffPad || Y>m_pObj_ActiveMenuPad->m_rPosition.Y ? Y : -1);  // If m_bDeactivateWhenOffPad is true, we only activate a menu when we're on top of the pad
+			m_bDeactivateWhenOffPad || Y>m_pObj_ActiveMenuPad && m_pObj_ActiveMenuPad->m_rPosition.Y ? Y : -1);  // If m_bDeactivateWhenOffPad is true, we only activate a menu when we're on top of the pad
 
 		// The user has moved off the highlighted object.  Find the object under here to highlight
 		if( pObj_ToHighlight && pObj_ToHighlight!=m_pObj_ActiveMenuPad )

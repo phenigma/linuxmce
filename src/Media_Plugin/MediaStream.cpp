@@ -361,7 +361,10 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 			else
 				m_sMediaDescription = pRow_Attribute_Album->Name_get();
 
-			m_sSectionDescription = pMediaFile->m_sFilename;
+			if( pRow_Attribute_Title )
+				m_sSectionDescription = pRow_Attribute_Title->Name_get();
+			else
+				m_sSectionDescription = pMediaFile->m_sFilename;
 
 			if( pMediaFile )
 				pMediaFile->m_sDescription = m_sSectionDescription;

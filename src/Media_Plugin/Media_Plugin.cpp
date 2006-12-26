@@ -1024,14 +1024,16 @@ dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
 		pMediaStream_AllEAsPlaying=vectEntertainArea[s]->m_pMediaStream;
 	}
 
-       OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device_Orbiter);
+    OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device_Orbiter);
+
 	// See if we can queue it
     if( !bResume && pMediaStream_AllEAsPlaying && !pMediaStream_AllEAsPlaying->m_bResume &&
 		pMediaStream_AllEAsPlaying->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaHandlerInfo->m_pMediaHandlerBase &&
 		pMediaStream_AllEAsPlaying->m_iPK_MediaType == pMediaHandlerInfo->m_PK_MediaType &&
 		!pMediaStream_AllEAsPlaying->m_bContainsTitlesOrSections &&
 		!bContainsTitlesOrSections &&
-		pMediaStream_AllEAsPlaying->m_dequeMediaFile.size() )
+		pMediaStream_AllEAsPlaying->m_dequeMediaFile.size() &&
+		pMediaStream_AllEAsPlaying->m_dwPK_Disc==0 && pMediaStream_AllEAsPlaying->m_discid==0 /* don't resume disks */ )
     {
         pMediaStream = pMediaStream_AllEAsPlaying;
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
@@ -1426,7 +1428,13 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 		// Add some stuff to the message parameters
 		pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST] = StringUtils::itos(pEntertainArea->m_pMediaStream->m_iStreamID_get());
 
-		if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source &&
+		if( pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST )
+		{
+			string sResult;
+			CMD_MH_Stop_Media(0,0,0,StringUtils::itos(pEntertainArea->m_iPK_EntertainArea),sResult,pMessage);  // It expects to get a valid message
+			return rmr_NotProcessed;
+		}
+		else if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source &&
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->m_bPreProcessSpeedControl &&
 			pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND &&
 			(pMessage->m_dwID==COMMAND_Change_Playback_Speed_CONST ||
@@ -1450,6 +1458,8 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 			else if( pMessage->m_dwID==COMMAND_Play_Media_CONST && pMediaDevice->m_iLastPlaybackSpeed!=1000 )
 			{
 				MediaInfoChanged(pEntertainArea->m_pMediaStream,false);
+				pMessage->m_dwID=COMMAND_Change_Playback_Speed_CONST;
+				pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST] = "1000";
 				pMediaDevice->m_iLastPlaybackSpeed = 1000;
 			}
 			else if (pMessage->m_dwID==COMMAND_Play_Media_CONST)

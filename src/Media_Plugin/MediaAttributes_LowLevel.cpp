@@ -95,7 +95,15 @@ void MediaAttributes_LowLevel::TransformFilenameToDeque(string sFilename,deque<M
 		}	
 	}
 	else if( sFilename[1] == 'r' || sFilename[1] == 'R' )  // Removable media (ie a disc)
-		dequeFilenames.push_back(new MediaFile(atoi(sFilename.substr(2).c_str())));
+	{
+		MediaFile *pMediaFile = new MediaFile(atoi(sFilename.substr(2).c_str()));
+		string::size_type pos = sFilename.find('.');
+		if( pos!=string::npos )
+		{
+			pMediaFile->m_iTrack = atoi( sFilename.substr(pos+1).c_str() );
+		}
+		dequeFilenames.push_back(pMediaFile);
+	}
 	else
 	{
 		dequeFilenames.push_back(new MediaFile(this,sFilename));  // Just a normal file
@@ -704,13 +712,16 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 		g_pPlutoLogger->Write(LV_CRITICAL,"MediaAttributes_LowLevel::Parse_Misc_Media_ID -- empty");
 		return 0;
 	}
+
+	// Because we need to get the performers before the albums so we can consolidate the albums
+	// store pending albums in mapAlbum, and the corresponding performers in mapPerformer,
+	// and process all at once at the end of the loop
+	map< pair<int,int>, string > mapAlbum;
+	map< pair<int,int>, int > mapPerformer;
 	
 	int PK_Disc=0;
 	if( (PK_Disc=IsDiscAlreadyIdentified(vectAttributes[0],listMediaAttribute_))==0 )
 	{
-		string sAlbum;
-		int iAlbumTrack=0, iAlbumSection=0, PK_Attribute_Performer=0;
-
 		Row_Attribute *pRow_Attribute;
 	    pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Disc_ID_CONST,vectAttributes[0]); 
 		if( pRow_Attribute==NULL )
@@ -757,9 +768,7 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 
 				if( PK_AttributeType==ATTRIBUTETYPE_Album_CONST )
 				{
-					sAlbum=sName;
-					iAlbumTrack=Track;
-					iAlbumSection=Section;
+					mapAlbum[ make_pair<int,int> (Track,Section) ] = sName;
 					continue;
 				}
 
@@ -771,7 +780,7 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 				}
 
 				if( PK_AttributeType==ATTRIBUTETYPE_Performer_CONST )
-					PK_Attribute_Performer = pRow_Attribute->PK_Attribute_get();
+					mapPerformer[ make_pair<int,int> (Track,Section) ] = pRow_Attribute->PK_Attribute_get();
 
 				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
 					pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
@@ -779,21 +788,23 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 				listMediaAttribute_.push_back( new MediaAttribute(
 					Track,Section,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
 			}
+		}
 
-			if( sAlbum.empty()==false )
+		for(map< pair<int,int>, string >::iterator it=mapAlbum.begin();it!=mapAlbum.end();++it)
+		{
+			int PK_Attribute_Performer = mapPerformer[it->first];
+
+			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Album_CONST,it->second,PK_Attribute_Performer);
+			if( pRow_Attribute==NULL )
 			{
-				pRow_Attribute = GetAttributeFromDescription(PK_MediaType,PK_AttributeType,sName,PK_Attribute_Performer);
-				if( pRow_Attribute==NULL )
-				{
-					g_pPlutoLogger->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute %d is empty",PK_AttributeType);
-					return PK_Disc;
-				}
-				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
-					pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
-
-				listMediaAttribute_.push_back( new MediaAttribute(
-					iAlbumTrack,iAlbumSection,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
+				g_pPlutoLogger->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute ATTRIBUTETYPE_Album_CONST is empty");
+				return PK_Disc;
 			}
+			g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
+				pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), it->second.c_str());
+
+			listMediaAttribute_.push_back( new MediaAttribute(
+				it->first.first,it->first.second,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
 		}
 		if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
 		{

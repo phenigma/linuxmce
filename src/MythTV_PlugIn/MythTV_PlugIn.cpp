@@ -870,7 +870,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 	}
 
 	// Find cards with invalid starting channels
-	sSQL = "SELECT cardinputid FROM cardinput LEFT JOIN channel on startchan=chanid WHERE chanid IS NULL";
+	sSQL = "SELECT cardinputid FROM cardinput LEFT JOIN channel on startchan=channum WHERE channum IS NULL";
 	PlutoSqlResult result_set2;
 	if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && result_set2.r->row_count>0 )
 	{

@@ -379,6 +379,20 @@ bool GetSunriseSunset(time_t &tSunrise,time_t &tSunset,time_t &tSunriseTomorrow,
 		seconds+=calcSunsetUTC( JD,  latitude,  longitude)*60;
 		tSunset= seconds - delta*3600;
 	}
+	// Or doesn't return the next sunrise/sunset if we're close
+	else if( tSunrise>rawtime && tSunset>rawtime )
+	{
+		tseconds -= 86400;
+		JD-=1;
+
+		seconds=tseconds;
+		seconds= seconds + calcSunriseUTC( JD,  latitude,  longitude)*60;
+		tSunrise = seconds - delta*3600;
+
+		seconds=tseconds;
+		seconds+=calcSunsetUTC( JD,  latitude,  longitude)*60;
+		tSunset= seconds - delta*3600;
+	}
 
 	seconds=tseconds+86400; // 1 day forward
 	seconds= seconds + calcSunriseUTC( JD+1,  latitude,  longitude)*60;

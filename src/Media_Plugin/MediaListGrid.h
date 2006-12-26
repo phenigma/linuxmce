@@ -30,17 +30,26 @@ public:
 	enumTypeOfMedia m_enumTypeOfMedia;
 
 	// Constructor for file info
-	FileBrowserInfo(string sDisplayName, string sPath,int PK_File,int PK_FileFormat, char cMediaSource, bool bIsDirectory,bool bIsBack) 
+	FileBrowserInfo(string sDisplayName, string sPath,int PK_File_Or_Disc,int PK_FileFormat, char cMediaSource, bool bIsDirectory,bool bIsBack) 
 	{
 		if( sDisplayName.empty() )
 			m_sDisplayName=FileUtils::FilenameWithoutPath(sPath);
 		else
 			m_sDisplayName=sDisplayName;
 		m_enumTypeOfMedia=fbi_File;
-		m_PK_Disc=0;
+
+		if( cMediaSource=='D' )
+		{
+			m_PK_Disc=PK_File_Or_Disc;
+			m_PK_File=0;
+		}
+		else
+		{
+			m_PK_Disc=0;
+			m_PK_File=PK_File_Or_Disc;
+		}
 		m_PK_Picture=0;
 		m_PK_Attribute=0;
-		m_PK_File=PK_File;
 		m_bIsDirectory=bIsDirectory;
 		m_bIsBack=bIsBack;
 		m_PK_Bookmark=0;

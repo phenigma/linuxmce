@@ -391,7 +391,7 @@ void Media_Plugin::PopulateFileBrowserInfoForPlayList(MediaListGrid *pMediaListG
 
 void Media_Plugin::PopulateFileBrowserInfoForDisc(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort,string &sPK_Disk,map<int,int> &mapDisk_To_Pic)
 {
-	string sSQL_Sort = "SELECT PK_Disc,Name,FK_FileFormat FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE PK_Disc in (" + sPK_Disk + ")";
+	string sSQL_Sort = "SELECT PK_Disc,Name,FK_FileFormat,Track FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE PK_Disc in (" + sPK_Disk + ")";
 
     PlutoSqlResult result;
     MYSQL_ROW row;
@@ -401,7 +401,7 @@ void Media_Plugin::PopulateFileBrowserInfoForDisc(MediaListGrid *pMediaListGrid,
     if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
         while( ( row=mysql_fetch_row( result.r ) ) )
 		{
-			pFileBrowserInfo = new FileBrowserInfo(row[1],string("!r") + row[0],atoi(row[0]),row[2] ? atoi(row[2]) : 0,'D',false,false);
+			pFileBrowserInfo = new FileBrowserInfo(row[1],string("!r") + row[0] + (row[3] && atoi(row[3]) ? string(".") + row[3] : ""),atoi(row[0]),row[2] ? atoi(row[2]) : 0,'D',false,false);
 			if( (it=mapDisk_To_Pic.find( atoi(row[0]) ))!=mapDisk_To_Pic.end() )
 				pFileBrowserInfo->m_PK_Picture = it->second;
 			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
@@ -444,7 +444,12 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 
 void Media_Plugin::PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPK_File_Or_Disc,string sTable)
 {
-	string sSQL_Sort = "SELECT PK_Attribute,Name,min(FK_Picture) AS FK_Picture FROM " + sTable + " JOIN " + sTable + "_Attribute ON FK_" + sTable + "=PK_" + sTable + " JOIN Attribute ON " + sTable + "_Attribute.FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_" + sTable + " in (" + sPK_File_Or_Disc + ") GROUP BY PK_Attribute,Name";
+	string sSQL_Sort = "SELECT PK_Attribute,Name,min(FK_Picture) AS FK_Picture FROM " + sTable + " JOIN " + 
+		sTable + "_Attribute ON FK_" + sTable + "=PK_" + sTable + " JOIN Attribute ON " + 
+		sTable + "_Attribute.FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + 
+		" LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute WHERE " + 
+		(sTable=="File" ? "IsDirectory=0 AND " : "") +
+		"PK_" + sTable + " in (" + sPK_File_Or_Disc + ") GROUP BY PK_Attribute,Name";
 
 FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 
@@ -746,13 +751,13 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 	// First put the bookmarks at the top
 	string sBookmarks;
 	if( pMediaStream->m_dwPK_Disc )
-		sBookmarks = "FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(pMediaStream->m_iPK_Users)+")";
+		sBookmarks = "FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND IsAutoResume=0 AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(pMediaStream->m_iPK_Users)+")";
 	else if( pMediaStream->m_dequeMediaFile.size() &&
 		pMediaStream->m_iDequeMediaFile_Pos>=0 &&
 		pMediaStream->m_iDequeMediaFile_Pos<pMediaStream->m_dequeMediaFile.size() )
 	{
 		MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
-		sBookmarks = "FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(pMediaStream->m_iPK_Users)+")";
+		sBookmarks = "FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND IsAutoResume=0 AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(pMediaStream->m_iPK_Users)+")";
 	}
 	if( sBookmarks.empty()==false )
 	{
@@ -798,27 +803,32 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 
 	list<MediaSectionGrid *> listMediaSectionGrid;  // Store them here first so we can sort them
 	map< pair<int,int>,bool >::iterator itSections;
-	for(map< pair<int,int>,string >::iterator it = pMediaStream->m_mapSections.begin(); it!=pMediaStream->m_mapSections.end(); ++it)
+
+	// For CD's playback started may report sections, but it's really going to be files
+	if( pMediaStream->m_iPK_MediaType!=MEDIATYPE_pluto_CD_CONST )
 	{
-		itSections = mapSections.find( make_pair<int,int> ( it->first.first, it->first.second ) );
-		if( itSections==mapSections.end() )
+		for(map< pair<int,int>,string >::iterator it = pMediaStream->m_mapSections.begin(); it!=pMediaStream->m_mapSections.end(); ++it)
 		{
-			if( pMediaStream->m_bContainsTitlesOrSections ) // There's a title
+			itSections = mapSections.find( make_pair<int,int> ( it->first.first, it->first.second ) );
+			if( itSections==mapSections.end() )
 			{
-				string sCell;
-				if( it->first.second>=0 )
-					sCell += " TITLE:" + StringUtils::itos(it->first.second+1);
-				if( it->first.first>=0 )
-					sCell += " CHAPTER:" + StringUtils::itos(it->first.first+1);  // Internally we're zero based
+				if( pMediaStream->m_bContainsTitlesOrSections ) // There's a title
+				{
+					string sCell;
+					if( it->first.second>=0 )
+						sCell += " TITLE:" + StringUtils::itos(it->first.second+1);
+					if( it->first.first>=0 )
+						sCell += " CHAPTER:" + StringUtils::itos(it->first.first+1);  // Internally we're zero based
 
-				if( it->first.second==pMediaStream->m_iDequeMediaTitle_Pos && it->first.first==pMediaStream->m_iDequeMediaSection_Pos )
-					*sValue_To_Assign=sCell;
+					if( it->first.second==pMediaStream->m_iDequeMediaTitle_Pos && it->first.first==pMediaStream->m_iDequeMediaSection_Pos )
+						*sValue_To_Assign=sCell;
 
-				listMediaSectionGrid.push_back(new MediaSectionGrid(it->first.second,it->first.first,new DataGridCell(it->second,sCell)));
+					listMediaSectionGrid.push_back(new MediaSectionGrid(it->first.second,it->first.first,new DataGridCell(it->second,sCell)));
+				}
+				else
+					listMediaSectionGrid.push_back(new MediaSectionGrid(it->first.second,it->first.first,new DataGridCell(it->second, StringUtils::itos(it->first.first))));
+
 			}
-			else
-				listMediaSectionGrid.push_back(new MediaSectionGrid(it->first.second,it->first.first,new DataGridCell(it->second, StringUtils::itos(it->first.first))));
-
 		}
 	}
 

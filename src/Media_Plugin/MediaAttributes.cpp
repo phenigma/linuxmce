@@ -214,6 +214,14 @@ g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes::AddAttributeToStream %p %d",pR
 
 void MediaAttributes::LoadStreamAttributes(MediaStream *pMediaStream)
 {
+	MediaFile *pMediaFile_Current = pMediaStream->GetCurrentMediaFile();
+
+	if( pMediaFile_Current && pMediaFile_Current->m_dwPK_Disk )
+	{
+		pMediaStream->m_dwPK_Disc = pMediaFile_Current->m_dwPK_Disk;
+		pMediaStream->m_bIdentifiedDisc = true;
+	}
+
 	if( pMediaStream->m_dwPK_Disc )
 	{
 		LoadStreamAttributesForDisc(pMediaStream);
@@ -257,7 +265,25 @@ void MediaAttributes::LoadStreamAttributesForDisc(MediaStream *pMediaStream)
 		if( pRow_Attribute ) // should always be true
 		{
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST ) // Tracks are treated as files
-				AddAttributeToStream(pMediaStream,pRow_Attribute,pRow_Disc_Attribute->Track_get(),0,pRow_Disc_Attribute->Section_get());
+			{
+				// There are 2 ways this can happen.  The user can choose to play the whole cd, or just specific tracks from the browser grid
+				// If the former is true, then there will be a MediaFile with m_iTrack for the track, and we should only add matching tracks
+				bool bFoundMediaFilesWithTracks=false;
+				for(int File = 0; File<pMediaStream->m_dequeMediaFile.size(); ++File)
+				{
+					MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[File];
+					if( pMediaFile->m_iTrack )
+					{
+						bFoundMediaFilesWithTracks=true;
+						if( pRow_Disc_Attribute->Track_get()==0 )
+							AddAttributeToStream(pMediaStream,pRow_Attribute,0,0,pRow_Disc_Attribute->Section_get());
+						else if( pMediaFile->m_iTrack == pRow_Disc_Attribute->Track_get() )
+							AddAttributeToStream(pMediaStream,pRow_Attribute,File+1 /* track # means nothing now, it's the position in the deque we need */,0,pRow_Disc_Attribute->Section_get());
+					}
+				}
+				if( !bFoundMediaFilesWithTracks )
+					AddAttributeToStream(pMediaStream,pRow_Attribute,pRow_Disc_Attribute->Track_get(),0,pRow_Disc_Attribute->Section_get());
+			}
 			else
 				AddAttributeToStream(pMediaStream,pRow_Attribute,0,pRow_Disc_Attribute->Track_get(),pRow_Disc_Attribute->Section_get());
 		}

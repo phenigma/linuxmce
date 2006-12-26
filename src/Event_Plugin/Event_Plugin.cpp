@@ -539,8 +539,13 @@ void Event_Plugin::SetFirstSunriseSunset()
 			}
 		}
 
-		g_pPlutoLogger->Write(LV_STATUS,"Currently %s next event in %d:%d",
-			(m_bIsDaytime ? "daytime" : "night"), (m_tNextSunriseSunset-tNow)/60, (m_tNextSunriseSunset-tNow)%60);
+		int Seconds = m_tNextSunriseSunset-tNow;
+		int Hours = Seconds / 3600;
+		Seconds -= Hours * 3600;
+		int Minutes = Seconds / 60;
+		Seconds -= Minutes * 60;
+		g_pPlutoLogger->Write(LV_STATUS,"Currently %s next event in %d:%d:%d",
+			(m_bIsDaytime ? "daytime" : "night"), Hours, Minutes, Seconds);
 
 		m_pAlarmManager->AddAbsoluteAlarm( m_tNextSunriseSunset, this, ALARM_SUNRISE_SUNSET, NULL );
 	}

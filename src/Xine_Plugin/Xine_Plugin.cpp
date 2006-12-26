@@ -242,10 +242,6 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	mediaURL = sFileToPlay;
 
-	if ( FileUtils::FindExtension(mediaURL)=="dvd" ||
-		(mediaURL.size()>5 && mediaURL.substr(0,5)=="/dev/" && pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST) )
-			mediaURL = "dvd://" + mediaURL;
-
 	// If there's a \t(xxx)\t embedded in the file name, than this is a disc and xxx is the drive
 	string::size_type size = mediaURL.size();
 	string::size_type posDrive;
@@ -268,6 +264,16 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 		}
 	}
 
+	if ( FileUtils::FindExtension(mediaURL)=="dvd" ||
+		(mediaURL.size()>5 && mediaURL.substr(0,5)=="/dev/" && pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST) )
+			mediaURL = "dvd://" + mediaURL;
+	else if( mediaURL.size()>5 && mediaURL.substr(0,5)=="/dev/" && pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_CD_CONST )
+	{
+		mediaURL = "cdda://" + mediaURL;
+		if( pMediaFile && pMediaFile->m_iTrack )
+			mediaURL += "/" + StringUtils::itos(pMediaFile->m_iTrack);
+	}
+
 	// If the source is one ea and the destination in another, it could be remotely playing a disc, so 
 	// let ConfirmSourceIsADestination process it
 	// and see if it can still make it non-streaming by using network block
@@ -277,6 +283,10 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 		if( !ConfirmSourceIsADestination(mediaURL,pXineMediaStream) )
 			return false;
 	}
+
+#ifdef WIN32
+	mediaURL = StringUtils::Replace(mediaURL, "\\", "/"); // replacing all the \ in a windows path with /
+#endif
 
 	if( pXineMediaStream->SingleEaAndSameDestSource()==false )
 	{
