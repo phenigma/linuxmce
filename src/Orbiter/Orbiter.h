@@ -170,6 +170,7 @@ namespace DCE
 				struct {
 					int m_iPK_Button;
 					int m_iKeycode;  // The internal keycode, not Pluto's button code
+					bool m_bSimulated;
 				} button;
 
 				struct {

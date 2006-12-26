@@ -119,6 +119,8 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
             orbiterEvent->type = SDL_KEYDOWN != sdlEvent.type ? Orbiter::Event::BUTTON_UP :
                 Orbiter::Event::BUTTON_DOWN;
 
+			orbiterEvent->data.button.m_bSimulated = false;
+
             switch (sdlEvent.key.keysym.sym)
             {
                 case SDLK_LSHIFT:   case SDLK_RSHIFT:       kbdState->bShiftDown = SDL_KEYDOWN == sdlEvent.type;      break;

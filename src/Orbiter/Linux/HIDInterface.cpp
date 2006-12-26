@@ -270,6 +270,7 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 		pEvent->type=Orbiter::Event::BUTTON_UP;
 		pEvent->data.button.m_iPK_Button = 0;
 		pEvent->data.button.m_iKeycode = m_iHoldingDownButton + 100000;
+		pEvent->data.button.m_bSimulated = false;
 		m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 		if( p_Packet[3]==0 )
 		{
@@ -290,6 +291,7 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 	m_iHoldingDownButton=p_Packet[3];
 	Orbiter::Event *pEvent = new Orbiter::Event;
 	pEvent->type=Orbiter::Event::BUTTON_DOWN;
+	pEvent->data.button.m_bSimulated = false;
 	pEvent->data.button.m_iPK_Button = 0;
 	pEvent->data.button.m_iKeycode = m_iHoldingDownButton + 100000; // We're using especially high numbers, > 100000 for these special buttons
 

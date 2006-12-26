@@ -153,7 +153,13 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 			if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && iRepeat )
 				pMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST] = StringUtils::itos(iRepeat);
 
-			m_pCommand_Impl->QueueMessageToRouter(pMessage);
+			if( pMessage->m_dwPK_Device_To == m_pCommand_Impl->m_dwPK_Device )
+			{
+				m_pCommand_Impl->ReceivedMessage(pMessage);
+				delete pMessage;
+			}
+			else
+				m_pCommand_Impl->QueueMessageToRouter(pMessage);
 		}
 		else
 			g_pPlutoLogger->Write(LV_WARNING,"No mapping for code: %s device %d",pCode,PK_Device_Remote);

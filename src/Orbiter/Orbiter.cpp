@@ -2651,8 +2651,8 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing mouse x %d y %d",
 			pEvent->data.region.m_iX,pEvent->data.region.m_iY);
 	else
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d keycode %d",
-			pEvent->type, pEvent->data.button.m_iPK_Button, pEvent->data.button.m_iKeycode);
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d keycode %d (sim=%d)",
+			pEvent->type, pEvent->data.button.m_iPK_Button, pEvent->data.button.m_iKeycode, (int) pEvent->data.button.m_bSimulated);
 #endif
 
 	map< pair<int,int>,pair<int,int> >::iterator it = m_mapEventToSubstitute.find( make_pair<int,int> (pEvent->type,pEvent->data.button.m_iKeycode) );
@@ -2684,7 +2684,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 	}
 	m_TypeToIgnore=Orbiter::Event::NONE;
 
-	if( pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP )  // Use Type instead of pEvent->type since the user may have some mapping for this
+	if( pEvent->data.button.m_bSimulated==false && (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP) )  // Use Type instead of pEvent->type since the user may have some mapping for this
 	{
 		StopRepeatCode();  // In case the IRReceiverBase was repeating a key sequence
 
@@ -5675,6 +5675,7 @@ void Orbiter::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_
 {
 	Orbiter::Event orbiterEvent;
 	orbiterEvent.data.button.m_iPK_Button = atoi(sPK_Button.c_str());
+	orbiterEvent.data.button.m_bSimulated = true;
 
 	orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
 	ProcessEvent(orbiterEvent);
@@ -6770,6 +6771,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 	Orbiter::Event orbiterEvent;
 	orbiterEvent.data.button.m_iPK_Button = key;
+	orbiterEvent.data.button.m_bSimulated = true;
 
 	orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
 	ProcessEvent(orbiterEvent);

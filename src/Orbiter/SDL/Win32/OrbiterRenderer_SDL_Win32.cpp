@@ -124,6 +124,7 @@ void OrbiterRenderer_SDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM
 	Orbiter::Event orbiterEvent;
 	orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
 	orbiterEvent.data.button.m_iPK_Button = 0;
+	orbiterEvent.data.button.m_bSimulated = false;
 
 	if(uMsg == WM_KEYDOWN)
 	{

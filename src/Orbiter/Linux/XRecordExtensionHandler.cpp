@@ -273,6 +273,7 @@ g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::processXRecordToOrbit
 #ifdef DEBUG
     	                g_pPlutoLogger->Write(LV_WARNING, "Key %s with keycode %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail);
 #endif
+						orbiterEvent->data.button.m_bSimulated = false;
         	            orbiterEvent->data.button.m_iKeycode = pxEvent->u.u.detail;
         	            orbiterEvent->data.button.m_iPK_Button = 0;
 

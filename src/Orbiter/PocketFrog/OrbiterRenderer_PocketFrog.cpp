@@ -266,6 +266,7 @@ void OrbiterRenderer_PocketFrog::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARA
 	Orbiter::Event orbiterEvent;
     orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
     orbiterEvent.data.button.m_iPK_Button = 0;
+	orbiterEvent.data.button.m_bSimulated = false;
 
     if(uMsg == WM_KEYDOWN)
 	{
