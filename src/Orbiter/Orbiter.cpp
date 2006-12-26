@@ -2757,7 +2757,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		if( it!=m_mapScanCodeToRemoteButton.end() )
 		{
 			string sKey = it->second;
-			if( (m_cCurrentScreen=='N' || m_cCurrentScreen=='C' || m_cCurrentScreen=='f') &&
+			if( (m_cCurrentScreen=='N' || m_cCurrentScreen=='C') &&
 				(sKey=="UP" || sKey=="DOWN" || sKey=="LEFT" || sKey=="RIGHT") )
 			{
 #ifdef DEBUG
