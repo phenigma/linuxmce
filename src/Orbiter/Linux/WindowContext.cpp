@@ -68,6 +68,8 @@ void WindowContext::Visible(bool bValue)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "WindowContext::Visible '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
 	m_bVisible = bValue;
+	if( bValue==false )
+		m_bActivated = false; // If the window has become invisible, it should be activated the next time Activate(true) is set
 }
 //-----------------------------------------------------------------------------------------------------
 bool WindowContext::IsActivated()
