@@ -88,11 +88,6 @@ bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
 	if( m_pDatagridMouseHandlerHelper->CapturingMouse() )
 		return true;
 
-	if( PK_Button==BUTTON_Scroll_Down_CONST && m_pDatagridMouseHandlerHelper && m_pDatagridMouseHandlerHelper->m_pObj_ScrollingGrid )
-		m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pDatagridMouseHandlerHelper->m_pObj_ScrollingGrid->m_ObjectID,DIRECTION_Down_CONST);
-	else if( PK_Button==BUTTON_Scroll_Up_CONST && m_pDatagridMouseHandlerHelper && m_pDatagridMouseHandlerHelper->m_pObj_ScrollingGrid )
-		m_pMouseBehavior->m_pOrbiter->Scroll_Grid("",m_pDatagridMouseHandlerHelper->m_pObj_ScrollingGrid->m_ObjectID,DIRECTION_Up_CONST);
-
 	return false; // Keep processing
 }
 

@@ -16,6 +16,7 @@
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_DeviceCategory.h"
+#include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_MediaType.h"
@@ -215,6 +216,7 @@ void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_Render, new RenderScreenCallBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_DatagridSelected, new DatagridCellBackData());
 	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::FileList_GridRendering,	new DatagridAcquiredBackData());
+	RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::FileList_KeyDown, new KeyCallBackData());
 
 	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
 	if( pObj )
@@ -225,6 +227,19 @@ void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 		pObj->m_GraphicToDisplay_set("fmv2",GRAPHIC_NORMAL,false,true);
 
 	return;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::FileList_KeyDown(CallBackData *pData)
+{
+	KeyCallBackData *pKeyCallBackData = (KeyCallBackData *) pData;
+
+	if( pKeyCallBackData->m_nPlutoKey==BUTTON_Scroll_Down_CONST || pKeyCallBackData->m_nPlutoKey==BUTTON_Scroll_Up_CONST )
+	{
+		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_dgFileList2_CONST);
+		if( pObj && pObj->m_bOnScreen )
+			m_pOrbiter->Scroll_Grid("",pObj->m_ObjectID,pKeyCallBackData->m_nPlutoKey==BUTTON_Scroll_Down_CONST ? DIRECTION_Down_CONST : DIRECTION_Up_CONST);
+	}
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SetMediaSortFilterSelectedObjects()

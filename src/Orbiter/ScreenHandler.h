@@ -137,6 +137,8 @@ public:
 	bool MediaBrowser_Render(CallBackData *pData);
 	void SetMediaSortFilterSelectedObjects();
 	void GetAttributesForMediaFile(const char *pFilename);
+	bool FileList_KeyDown(CallBackData *pData);
+
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address, string sDescription, int iPK_PnpQueue);
 	virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address);
 	virtual void SCREEN_Pick_Room_For_Device(long PK_Screen, int iPK_Device, string sDescription, string ssComments);

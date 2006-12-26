@@ -247,8 +247,19 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 			PlutoPoint(), 255, "", sObjectID, sObjectID);
 	}
 
+	/*
+	ab 12/26/06 -- when there's a popup on screen (like the alert), OrbiterRenderer::RefreshScreen calls this function.
+	The 2 following lines cause the highlighted object to keep getting reset and becoming unavailable so you can't navigate
+	the system using arrows when there are popup messages on the screen.  Moving these to NeedToChangeScreens and instead
+	only setting them to NULL if the objects are off screen or hidden
 	OrbiterLogic()->m_pObj_Highlighted_Last = NULL;
 	OrbiterLogic()->m_pObj_Highlighted = NULL;
+	*/
+
+	if( OrbiterLogic()->m_pObj_Highlighted_Last && (OrbiterLogic()->m_pObj_Highlighted_Last->m_bOnScreen==false || OrbiterLogic()->m_pObj_Highlighted_Last->m_bHidden==true) )
+		OrbiterLogic()->m_pObj_Highlighted_Last = NULL;
+	if( OrbiterLogic()->m_pObj_Highlighted && (OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen==false || OrbiterLogic()->m_pObj_Highlighted->m_bHidden==true) )
+		OrbiterLogic()->m_pObj_Highlighted = NULL;
 
 	if ( OrbiterLogic()->m_pScreenHistory_Current  )
 	{
@@ -533,6 +544,8 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 		for(it=OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.rbegin();it!=OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.rend();++it)
 		{
 			PlutoPopup *pPopup = *it;
+			if( pPopup->m_sName=="popup_alert" )
+				continue;  // Don't block selecting of items under the popup alert
 			if( (pPopup->m_pObj->m_rPosition+pPopup->m_pObj->m_pPopupPoint).IntersectsWith(rect) && p->TopMostObject()!=pPopup->m_pObj )
 			{
 				bSkip=true;
@@ -546,6 +559,8 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 		for(it=OrbiterLogic()->m_listPopups.rbegin();it!=OrbiterLogic()->m_listPopups.rend();++it)
 		{
 			PlutoPopup *pPopup = *it;
+			if( pPopup->m_sName=="popup_alert" )
+				continue;  // Don't block selecting of items under the popup alert
 			if( (pPopup->m_pObj->m_rPosition+pPopup->m_pObj->m_pPopupPoint).IntersectsWith(rect) && p->TopMostObject()!=pPopup->m_pObj )
 			{
 				bSkip=true;

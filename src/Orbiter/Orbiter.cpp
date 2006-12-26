@@ -893,6 +893,8 @@ g_PlutoProfiler->DumpResults();
 	m_pObj_NowPlaying_TimeShort_OnScreen=NULL;
 	m_pObj_NowPlaying_TimeLong_OnScreen=NULL;
 	m_pObj_NowPlaying_Speed_OnScreen=NULL;
+	m_pObj_Highlighted_Last = NULL;
+	m_pObj_Highlighted = NULL;
 	dg.Release(  );
 
 	PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
