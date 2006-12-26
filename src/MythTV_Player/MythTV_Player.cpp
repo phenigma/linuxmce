@@ -1086,6 +1086,40 @@ void MythTV_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string 
 	case BUTTON_Enter_CONST:
 		sendMythCommand("key enter");
 		break;	
+	case BUTTON_0_CONST:
+		sendMythCommand("key 0");
+		break;	
+	case BUTTON_1_CONST:
+		sendMythCommand("key 1");
+		break;	
+	case BUTTON_2_CONST:
+		sendMythCommand("key 2");
+		break;	
+	case BUTTON_3_CONST:
+		sendMythCommand("key 3");
+		break;	
+	case BUTTON_4_CONST:
+		sendMythCommand("key 4");
+		break;	
+	case BUTTON_5_CONST:
+		sendMythCommand("key 5");
+		break;	
+	case BUTTON_6_CONST:
+		sendMythCommand("key 6");
+		break;	
+	case BUTTON_7_CONST:
+		sendMythCommand("key 7");
+		break;	
+	case BUTTON_8_CONST:
+		sendMythCommand("key 8");
+		break;	
+	case BUTTON_9_CONST:
+		sendMythCommand("key 9");
+		break;	
+	case BUTTON_Back_CONST:
+		sendMythCommand("key back");
+		sendMythCommand("key backspace");
+		break;
 		
 	}
 }
