@@ -109,7 +109,7 @@ void WinListManager::HideAllWindows()
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	for(WindowsContext::iterator it_pending = m_PendingContext.begin(); it_pending != m_PendingContext.end(); ++it_pending)
 	{
-		if( StringUtils::StartsWith(it->first,"Orbiter",true) )  // Doesn't apply to orbiter
+		if( StringUtils::StartsWith(it_pending->first,"Orbiter",true) )  // Doesn't apply to orbiter
 			continue;
 		it_pending->second.Visible(false);
 	}
