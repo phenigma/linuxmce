@@ -248,6 +248,8 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 		CMD_Stop_Media( prevStream->m_iStreamID, &mPosition);
 		if (prevStream->m_iMenuButtons!=0)
 			prevStream->FireMenuOnScreen( 0 );
+
+		prevStream->m_bDontReportCompletion = false;  // Put it back
 	}
 	
 	if ((prevStream != NULL) && (prevStream->m_iStreamID!=iStreamID))
