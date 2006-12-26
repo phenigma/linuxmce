@@ -61,10 +61,10 @@ char *MediaSyncModeStr[] =
 //  PlutoMediaFile class
 //
 //-----------------------------------------------------------------------------------------------------
-MediaSyncMode PlutoMediaFile::m_DefaultMediaSyncMode = modeBoth;
+MediaSyncMode PlutoMediaFile::m_DefaultMediaSyncMode = modeNone;
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
-	string sDirectory, string sFile) : m_MediaSyncMode(modeBoth), m_pPlutoMediaAttributes(NULL)
+	string sDirectory, string sFile) : m_MediaSyncMode(modeNone), m_pPlutoMediaAttributes(NULL)
 {
 	//initializations
     m_pDatabase_pluto_media = pDatabase_pluto_media;
