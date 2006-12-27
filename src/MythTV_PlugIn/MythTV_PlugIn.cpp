@@ -27,7 +27,12 @@ using namespace DCE;
 #include "../pluto_main/Define_Event.h"
 #include "../pluto_main/Define_DeviceData.h"
 #include "../pluto_main/Table_EventParameter.h"
+#include "../pluto_media/Table_LongAttribute.h"
 #include "../pluto_media/Table_MediaProvider.h"
+#include "../pluto_media/Define_FileFormat.h"
+#include "../pluto_media/Define_MediaSubType.h"
+#include "../pluto_media/Define_AttributeType.h"
+
 #include "../Gen_Devices/AllScreens.h"
 
 #include "DataGrid.h"
@@ -39,6 +44,7 @@ using namespace DCE;
 #endif
 
 #define MINIMUM_MYTH_SCHEMA		1123
+#define CHECK_FOR_NEW_RECORDINGS	1
 
 #include "../Orbiter_Plugin/OH_Orbiter.h"
 
@@ -52,6 +58,8 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 //	m_bPreProcessSpeedControl=false;  // We do some ridiculous hacks in Myth player to convert speed control commands to keystrokes
 //	m_pMythWrapper = NULL;
 	m_pMySqlHelper_Myth = NULL;
+	m_pAlarmManager=NULL;
+	m_dwPK_File_LastCheckedForNewRecordings=0;
 }
 
 //<-dceag-getconfig-b->
@@ -67,6 +75,10 @@ bool MythTV_PlugIn::GetConfig()
 	UpdateMythSetting("AutoRunUserJob1","1","");
 	UpdateMythSetting("UserJob1","/usr/pluto/bin/SaveMythRecording.sh %CHANID% %STARTTIME% %DIR% %FILE%","");
 	UpdateMythSetting("UserJobDesc1","Save the recorded show into Pluto's database","");
+
+	m_pAlarmManager = new AlarmManager();
+    m_pAlarmManager->Start(1);      //4 = number of worker threads
+	m_pAlarmManager->AddRelativeAlarm(30,this,CHECK_FOR_NEW_RECORDINGS,NULL);
 
 	return true;
 }
@@ -86,6 +98,13 @@ MythTV_PlugIn::~MythTV_PlugIn()
 
 	delete m_pMySqlHelper_Myth;
 	m_pMySqlHelper_Myth = NULL;
+}
+
+void MythTV_PlugIn::PrepareToDelete()
+{
+	Command_Impl::PrepareToDelete();
+	delete m_pAlarmManager;
+	m_pAlarmManager = NULL;
 }
 
 //<-dceag-reg-b->
@@ -964,3 +983,115 @@ void MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname)
 	m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 }
 
+void MythTV_PlugIn::CheckForNewRecordings()
+{
+	/* I haven't been able to find a clean way to get myth back end to notify us
+	when it has finished making new recordings.  So we'll do it the brute force way
+	and search for new files that have 'tv_shows' in the path but don't yet have any
+	attributes */
+
+	string sSQL = "SELECT max(PK_File) FROM File";
+	PlutoSqlResult result;
+    MYSQL_ROW row;
+    
+	int PK_File_Max=0;
+	if( ( result.r=m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
+		PK_File_Max = atoi(row[0]);
+
+	sSQL = "LEFT JOIN File_Attribute ON FK_File=PK_File WHERE Path like '%tv_shows_%' AND FK_File IS NULL AND PK_File>" + StringUtils::itos(m_dwPK_File_LastCheckedForNewRecordings);
+	vector<Row_File *> vectRow_File;
+	m_pMedia_Plugin->m_pDatabase_pluto_media->File_get()->GetRows( sSQL, &vectRow_File );
+
+	g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::CheckForNewRecordings PK_File_Max %d m_dwPK_File_LastCheckedForNewRecordings %d files: %d",
+		PK_File_Max, m_dwPK_File_LastCheckedForNewRecordings, (int) vectRow_File.size());
+
+	for(vector<Row_File *>::iterator it=vectRow_File.begin();it!=vectRow_File.end();++it)
+	{
+		Row_File *pRow_File = *it;
+		// Find the file in mythconverg.recorded and import the attributes
+
+		sSQL = 
+			"SELECT recorded.chanid,recorded.starttime,recorded.title,recorded.subtitle,recorded.stars,recorded.category,recorded.description,"
+			"recordedprogram.hdtv,recordedprogram.category_type,channel.name,recordedrating.rating FROM recorded "
+			"LEFT JOIN recordedprogram ON recorded.chanid=recordedprogram.chanid and recorded.starttime=recordedprogram.starttime "
+			"LEFT JOIN channel ON recorded.chanid=channel.chanid "
+			"LEFT JOIN recordedrating ON recorded.chanid=recordedrating.chanid and recorded.starttime=recordedrating.starttime "
+			"WHERE basename='" + pRow_File->Filename_get() + "'";
+
+		PlutoSqlResult result;
+		if( (result.r=m_pMySqlHelper_Myth->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+		{
+			if( row[2] )
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[2],0,"",ATTRIBUTETYPE_Title_CONST,"",pRow_File->PK_File_get());
+			if( row[3] )
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[3],0,"",ATTRIBUTETYPE_Episode_CONST,"",pRow_File->PK_File_get());
+			if( row[4] )
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[4],0,"",ATTRIBUTETYPE_Rating_CONST,"",pRow_File->PK_File_get());
+			if( row[5] )
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[5],0,"",ATTRIBUTETYPE_Genre_CONST,"",pRow_File->PK_File_get());
+			if( row[6] )
+			{
+				Row_LongAttribute *pRow_LongAttribute = m_pMedia_Plugin->m_pDatabase_pluto_media->LongAttribute_get()->AddRow();
+				pRow_LongAttribute->FK_File_set( pRow_File->PK_File_get() );
+				pRow_LongAttribute->FK_AttributeType_set( ATTRIBUTETYPE_Synopsis_CONST );
+				pRow_LongAttribute->Text_set( row[6] );
+				m_pMedia_Plugin->m_pDatabase_pluto_media->LongAttribute_get()->Commit();
+			}
+			if( row[7] && atoi(row[7]) )
+				pRow_File->FK_FileFormat_set(FILEFORMAT_HD_1080_CONST);
+			else
+				pRow_File->FK_FileFormat_set(FILEFORMAT_Standard_Def_CONST);
+			if( row[8] )
+			{
+				string sType = row[8];
+				if( sType=="tvshow" || sType=="series" )
+					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_TV_Shows_CONST);
+				else if( sType=="movie" )
+					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_Movies_CONST);
+				else if( sType=="sports" )
+					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_Sports_Events_CONST);
+			}
+			if( row[9] )
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[9],0,"",ATTRIBUTETYPE_Channel_CONST,"",pRow_File->PK_File_get());
+			if( row[10] )
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[10],0,"",ATTRIBUTETYPE_Rated_CONST,"",pRow_File->PK_File_get());
+
+			sSQL = 
+				"SELECT role,name FROM recordedcredits JOIN people on recordedcredits.person=people.person "
+				"WHERE chanid='" + string(row[0]) + "' AND starttime='" + row[1] + "'";
+
+			PlutoSqlResult result_person;
+			if( (result_person.r=m_pMySqlHelper_Myth->mysql_query_result( sSQL ) ) )
+			{
+				while( row=mysql_fetch_row( result_person.r ) )
+				{
+					string sRole = row[0];
+					if( sRole=="director" )
+						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Director_CONST,"",pRow_File->PK_File_get());
+					else if( sRole=="actor" )
+						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Performer_CONST,"",pRow_File->PK_File_get());
+					else if( sRole=="producer" )
+						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Producer_CONST,"",pRow_File->PK_File_get());
+					else if( sRole=="executive_producer" )
+						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Executive_Producer_CONST,"",pRow_File->PK_File_get());
+					else if( sRole=="writer" )
+						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Composer_Writer_CONST,"",pRow_File->PK_File_get());
+
+				}
+			}
+		}
+		else
+			g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CheckForNewRecordings couldn't locate file %s", pRow_File->Filename_get().c_str());
+	}
+	
+	m_pMedia_Plugin->m_pDatabase_pluto_media->File_get()->Commit();
+	m_pAlarmManager->AddRelativeAlarm(3600,this,CHECK_FOR_NEW_RECORDINGS,NULL);  /* check again in an hour */
+
+	m_dwPK_File_LastCheckedForNewRecordings = PK_File_Max;
+}
+
+void MythTV_PlugIn::AlarmCallback(int id, void* param)
+{
+	if( id==CHECK_FOR_NEW_RECORDINGS )
+		CheckForNewRecordings();
+}

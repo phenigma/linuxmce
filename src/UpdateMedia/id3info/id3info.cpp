@@ -98,7 +98,7 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
     else if(id == "WXXX")
 	    PK_Attr = ATTRIBUTETYPE_Website_CONST; 
 	else if(id == "TCOM")
-	    PK_Attr = ATTRIBUTETYPE_Composer_CONST;
+	    PK_Attr = ATTRIBUTETYPE_Composer_Writer_CONST;
 	else if(id == "TENC") //encoded by
         PK_Attr = -5; // todo ask
     else if(id == "TCOP") //copyright
@@ -525,7 +525,7 @@ void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
                 ID3_AddTrack(&myTag, atoi(sValue.c_str()), 0, true); 
                 break;
 
-            case ATTRIBUTETYPE_Composer_CONST:
+            case ATTRIBUTETYPE_Composer_Writer_CONST:
                 ID3_AddComposer(&myTag, sValue.c_str(), true);
 				break;
 			
@@ -568,7 +568,7 @@ void RemoveId3Tag(string sFilename, int nTagType, string sValue)
 			ID3_RemoveTracks(&myTag); 
 			break;
 
-		case ATTRIBUTETYPE_Composer_CONST:
+		case ATTRIBUTETYPE_Composer_Writer_CONST:
 			ID3_RemoveComposers(&myTag);
 			break;
 

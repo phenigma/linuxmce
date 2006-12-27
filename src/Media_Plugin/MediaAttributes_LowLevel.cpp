@@ -754,7 +754,7 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 				if( PK_AttributeType==ATTRIBUTETYPE_Director_CONST || 
 					PK_AttributeType==ATTRIBUTETYPE_Performer_CONST ||
 					PK_AttributeType==ATTRIBUTETYPE_Conductor_CONST ||
-					PK_AttributeType==ATTRIBUTETYPE_Composer_CONST )
+					PK_AttributeType==ATTRIBUTETYPE_Composer_Writer_CONST )
 						sName=StringUtils::Tokenize(sWholeName,";",pos);
 				else
 				{

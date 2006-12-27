@@ -20,6 +20,8 @@
 
 #include "MythTvMediaStream.h"
 
+#include "AlarmManager.h"
+
 class Database_FakeEPG;
 class Row_Listing;
 class EPGGrid;
@@ -31,7 +33,7 @@ namespace DCE
     using namespace std;
 
     //<-dceag-decl-b->!
-    class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaHandlerBase, public DataGridGeneratorPlugIn
+    class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaHandlerBase, public AlarmEvent, public DataGridGeneratorPlugIn
     {
 	//<-dceag-decl-e->
         // friend class MythTvStream;
@@ -43,6 +45,10 @@ namespace DCE
         map<int, int> m_mapDevicesToStreams;
 
         MythTvWrapper *m_pMythWrapper;
+
+		class AlarmManager *m_pAlarmManager;
+
+		int m_dwPK_File_LastCheckedForNewRecordings;
         // MythTvEPGWrapper *m_pAllShowsDataGrid;
 
         /** Private methods */
@@ -60,6 +66,8 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+
+		virtual void PrepareToDelete();
 
 		virtual void BuildAttachedInfraredTargetsMap();
     private:
@@ -92,6 +100,9 @@ public:
 
 		// Set a value in mythconverg's setting table.  If hostname=*, all known hosts will be set.  If it's empty, hostname will be NULL
 		void UpdateMythSetting(string value,string data,string hostname);
+
+		void AlarmCallback(int id, void* param);
+		void CheckForNewRecordings();
 
         //<-dceag-h-b->
 	/*
