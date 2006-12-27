@@ -2755,17 +2755,24 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		if( it!=m_mapScanCodeToRemoteButton.end() )
 		{
 			string sKey = it->second;
-/*
-Don't want this with UI2 since orbiter is on top.  Needed for UI1??
-			if( (m_cCurrentScreen=='N' || m_cCurrentScreen=='C') &&
-				(sKey=="UP" || sKey=="DOWN" || sKey=="LEFT" || sKey=="RIGHT") )
+			if( UsesUIVersion2()==false )
 			{
+				/* Temporary until all issues with the wm are resolved.  For now with UI1 the keys
+					are getting doubled since the app is on top it gets the keys once directly, and 
+					again from Orbiter's simulate keypress  -- todo -- hack
+				*/
+				if( (m_cCurrentScreen=='N' || m_cCurrentScreen=='C') &&
+					(sKey=="UP" || sKey=="DOWN" || sKey=="LEFT" || sKey=="RIGHT" || sKey=="1" ||
+					sKey=="2" || sKey=="3" || sKey=="4" || sKey=="5" || sKey=="6" || sKey=="7" || sKey=="8" ||
+					sKey=="9" || sKey=="0" || sKey=="ENTER" || sKey=="OK") )
+				{
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing skipping key %s because of osd",sKey.c_str());
+					g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing skipping key %s because of osd",sKey.c_str());
 #endif
-				return;
+					return;
+				}
 			}
-*/
+
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s repeat %s",sKey.c_str(),sRepeatKey.c_str());
 #endif
