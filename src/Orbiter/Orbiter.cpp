@@ -2755,6 +2755,8 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		if( it!=m_mapScanCodeToRemoteButton.end() )
 		{
 			string sKey = it->second;
+/*
+Don't want this with UI2 since orbiter is on top.  Needed for UI1??
 			if( (m_cCurrentScreen=='N' || m_cCurrentScreen=='C') &&
 				(sKey=="UP" || sKey=="DOWN" || sKey=="LEFT" || sKey=="RIGHT") )
 			{
@@ -2763,6 +2765,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 #endif
 				return;
 			}
+*/
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s repeat %s",sKey.c_str(),sRepeatKey.c_str());
 #endif
