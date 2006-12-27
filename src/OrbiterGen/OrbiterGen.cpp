@@ -1520,11 +1520,18 @@ loop_to_keep_looking_for_objs_to_include:
 
 	// Now include all the media sort options if this it UI version 2
 	Row_DesignObj *pRow_DesignObj_Array[5] = { NULL, NULL, NULL, NULL, NULL };
-	pRow_DesignObj_Array[0] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_Sort_CONST);
-	pRow_DesignObj_Array[1] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_Genres_CONST);
-	pRow_DesignObj_Array[2] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_PK_MediaSubType_CONST);
-	pRow_DesignObj_Array[3] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_MediaSource_CONST);
-	pRow_DesignObj_Array[4] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_More_CONST);
+	if( m_pRow_UI->PK_UI_get()==UI_V2_Normal_Horizontal_16_9_CONST )
+	{
+		pRow_DesignObj_Array[0] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_Sort_CONST);
+		pRow_DesignObj_Array[1] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_Genres_CONST);
+		pRow_DesignObj_Array[2] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_PK_MediaSubType_CONST);
+		pRow_DesignObj_Array[3] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_MediaSource_CONST);
+		pRow_DesignObj_Array[4] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_popFBSF_More_CONST);
+	}
+	else if( m_pRow_UI->PK_UI_get()==UI_Normal_Horizontal_3_4_CONST )
+	{
+		pRow_DesignObj_Array[0] = m_spDatabase_pluto_main->DesignObj_get()->GetRow(DESIGNOBJ_mnuFileList_SortOptions_CONST);
+	}
 
 	int iPK_MediaType_Searchable[] = {MEDIATYPE_pluto_StoredAudio_CONST,MEDIATYPE_pluto_StoredVideo_CONST,MEDIATYPE_pluto_Pictures_CONST,MEDIATYPE_np_Game_CONST,MEDIATYPE_misc_DocViewer_CONST};
 	for(int i=0;i<5;++i)
@@ -1538,8 +1545,14 @@ loop_to_keep_looking_for_objs_to_include:
 
 			m_mapDesignObj_WithArrays[ pRow_DesignObj->PK_DesignObj_get() ] = true;
 			DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
-			ocDesignObj->m_bIsPopup=true;
-			m_mapPopups[ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()]=true;
+			if( m_pRow_UI->PK_UI_get()==UI_V2_Normal_Horizontal_16_9_CONST )
+			{
+				ocDesignObj->m_bIsPopup=true;
+				m_mapPopups[ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()]=true;
+			}
+			else
+				ocDesignObj->Process();
+
 			if( ocDesignObj->m_bUsingCache )
 			{
 				SearchForGotos(ocDesignObj);
@@ -2374,9 +2387,9 @@ int k=2;
 	for(size_t s=0;s<ocDesignObj->m_alNonMPArrays.size();++s)
 	{
 		CGArray *oca = ocDesignObj->m_alNonMPArrays[s];
-		for(size_t s=0;s<oca->m_alChildDesignObjs.size();++s)
+		for(size_t s=0;s<oca->m_alChildDesignObjs_OfArray.size();++s)
 		{
-			DesignObj_Generator *oco = oca->m_alChildDesignObjs[s];
+			DesignObj_Generator *oco = oca->m_alChildDesignObjs_OfArray[s];
 			ocDesignObj->m_ChildObjects.push_back(oco);
 			oco->m_bContainsFloorplans = ocDesignObj->m_bContainsFloorplans;
 			OutputDesignObjs(oco,0,true,ParentScreen);
@@ -2386,9 +2399,9 @@ int k=2;
 	if( ((int)ocDesignObj->m_alMPArray.size())>ArrayPage )
 	{
 		CGArray *oca = ocDesignObj->m_alMPArray[ArrayPage];
-		for(size_t s=0;s<oca->m_alChildDesignObjs.size();++s)
+		for(size_t s=0;s<oca->m_alChildDesignObjs_OfArray.size();++s)
 		{
-			DesignObj_Generator *oco = oca->m_alChildDesignObjs[s];
+			DesignObj_Generator *oco = oca->m_alChildDesignObjs_OfArray[s];
 			ocDesignObj->m_ChildObjects.push_back(oco);
 			oco->m_bContainsFloorplans = ocDesignObj->m_bContainsFloorplans;
 			OutputDesignObjs(oco,ArrayPage,true,ParentScreen);
@@ -2591,15 +2604,18 @@ void OrbiterGenerator::ScaleCommandList(DesignObj_Generator *ocDesignObj,DesignO
 		{
 			if( oa->m_PK_Command==COMMAND_Goto_DesignObj_CONST && (*itParm).first==COMMANDPARAMETER_PK_DesignObj_CONST )
 			{
-				string Value="";
-				if( ocDesignObj->m_sDesignObjGoto.length()>0 )  // This must be going to another page in an array
-					Value = ocDesignObj->m_sDesignObjGoto;
-				else if( ocDesignObj->m_DesignObj_GeneratorGoto!=NULL )
-					Value = StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_iVersion) + ".0";
-//						else if( (*itParm).second.find("<%=")!=string::npos ) // ?? todo -- this means that screens, like the main menu that got skipped in handle goto were ignored
-				else
-					Value = (*itParm).second;
-				oa->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST]=Value;
+				if( (*itParm).second.find("<%=")==string::npos )
+				{
+					string Value="";
+					if( ocDesignObj->m_sDesignObjGoto.length()>0 )  // This must be going to another page in an array
+						Value = ocDesignObj->m_sDesignObjGoto;
+					else if( ocDesignObj->m_DesignObj_GeneratorGoto!=NULL )
+						Value = StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_iVersion) + ".0";
+	//						else if( (*itParm).second.find("<%=")!=string::npos ) // ?? todo -- this means that screens, like the main menu that got skipped in handle goto were ignored
+					else
+						Value = (*itParm).second;
+					oa->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST]=Value;
+				}
 			}
 			else if( (oa->m_PK_Command==COMMAND_Show_Popup_CONST || oa->m_PK_Command==COMMAND_Use_Popup_Remote_Controls_CONST || oa->m_PK_Command==COMMAND_Use_Popup_File_List_CONST || oa->m_PK_Command==COMMAND_Show_Floorplan_CONST ) 
 				&& ((*itParm).first==COMMANDPARAMETER_Position_X_CONST || (*itParm).first==COMMANDPARAMETER_Position_Y_CONST) )

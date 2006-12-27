@@ -137,7 +137,7 @@ g_pPlutoLogger->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK_DesignObj_get
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==5342 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5106 ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
+if( m_pRow_DesignObj->PK_DesignObj_get()==5363 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5106 ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -2022,9 +2022,9 @@ int k=2;
         if( pTopmostObject )
             pTopmostObject->m_bContainsArrays=true;
 
-        for(size_t s2=0;s2<oa->m_alChildDesignObjs.size();++s2)
+        for(size_t s2=0;s2<oa->m_alChildDesignObjs_OfArray.size();++s2)
         {
-            DesignObj_Generator *oc = oa->m_alChildDesignObjs[s2];
+            DesignObj_Generator *oc = oa->m_alChildDesignObjs_OfArray[s2];
             oc->ScaleAllValues(FactorX_Input,FactorY_Input,pTopmostObject);
         }
     }
@@ -2034,9 +2034,9 @@ int k=2;
         if( pTopmostObject )
             pTopmostObject->m_bContainsArrays=true;
 
-		for(size_t s2=0;s2<oa->m_alChildDesignObjs.size();++s2)
+		for(size_t s2=0;s2<oa->m_alChildDesignObjs_OfArray.size();++s2)
         {
-            DesignObj_Generator *oc = oa->m_alChildDesignObjs[s2];
+            DesignObj_Generator *oc = oa->m_alChildDesignObjs_OfArray[s2];
             oc->ScaleAllValues(FactorX_Input,FactorY_Input,pTopmostObject);
         }
     }
@@ -2084,7 +2084,7 @@ string DesignObj_Generator::GetParm(int PK_DesignObjParameter,Row_DesignObjVaria
 
 string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTimeVariables)
 {
-if( Text.find("RIL")!=string::npos )
+if( Text.find("MTB")!=string::npos )
 {
 int k=2;
 }

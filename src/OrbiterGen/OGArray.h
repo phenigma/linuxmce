@@ -30,7 +30,7 @@ class CGArray
 public:
 	bool m_bContainsMore,m_bExpandHorizontal,m_bExpandVertical;
 	int m_iLastVisibleArrayEntry,iScreenNum;
-	vector<class DesignObj_Generator *> m_alChildDesignObjs;
+	vector<class DesignObj_Generator *> m_alChildDesignObjs_OfArray;
 	vector<class ArrayValue *> *m_alValues;
 	int m_iStartingOffset,m_iPage,m_PK_Array;
 	class DesignObj_Generator *m_DesignObj_Generator_Parent,*m_ocBack,*m_ocFwd;

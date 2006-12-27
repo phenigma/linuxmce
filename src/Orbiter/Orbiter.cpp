@@ -2458,8 +2458,6 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 //--------------------------------------------------------------------------------------------------------------
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
-if( pObj->m_ObjectID.find("4911")!=string::npos )
-int k=2;
 	for(size_t s=0;s<pObj->m_vectDesignObjText.size();++s)
 		pObj->m_vectDesignObjText[s]->m_pObject = pObj;
 
@@ -4120,7 +4118,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += m_pLocationInfo->Description;
 		else if(  Variable=="LDGC"  )
 			Output += m_sLastSelectedDatagrid;
-		else if(  Variable=="ID"  )
+		else if(  Variable=="ID" && m_pScreenHistory_Current )
 			Output += m_pScreenHistory_Current->ScreenID();
 		else if(  Variable=="V" )
 			Output += string(VERSION) + "(" + g_szCompile_Date + ")";

@@ -104,7 +104,7 @@ int k=2;
 		if( m_ocBack->m_pRow_DesignObjVariation )
 		{
 			m_ocBack->m_sDesignObjGoto = m_ocBack->m_pOrbiterGenerator->m_iPK_DesignObj_Screen + "." + StringUtils::itos(m_ocBack->m_iVersion) + "." + StringUtils::itos(m_iPage-1);
-			m_alChildDesignObjs.push_back(m_ocBack);
+			m_alChildDesignObjs_OfArray.push_back(m_ocBack);
 		}
 		else
 			delete m_ocBack;
@@ -118,10 +118,10 @@ int k=2;
 		if( av->m_PK_Criteria_Orbiter!=0 )
 			m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_mapUsedOrbiterCriteria[av->m_PK_Criteria_Orbiter]=true;
 
-		if( m_alChildDesignObjs.size()>0 && !av->m_bSamePosition )  // Get the next position unless this is the first object, or this goes ontop of the prior
+		if( m_alChildDesignObjs_OfArray.size()>0 && !av->m_bSamePosition )  // Get the next position unless this is the first object, or this goes ontop of the prior
 		{
 			// We've already got some objects on this row/column.  Figure out the placement of the next object
-			DesignObj_Generator *ocLastDesignObj = m_alChildDesignObjs[m_alChildDesignObjs.size()-1];
+			DesignObj_Generator *ocLastDesignObj = m_alChildDesignObjs_OfArray[m_alChildDesignObjs_OfArray.size()-1];
 
 			if( bDownAcross )
 			{
@@ -222,17 +222,17 @@ int k=2;
 		{
 			if( m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_bIsMobilePhone )
 			{
-				if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==9 )
+				if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs_OfArray.size()==9 )
 					ocNextDesignObj->m_iPK_Button = BUTTON_Asterisk_CONST;
-				else if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==10 )
+				else if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs_OfArray.size()==10 )
 					ocNextDesignObj->m_iPK_Button = BUTTON_0_CONST;
-				else if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==11 )
+				else if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs_OfArray.size()==11 )
 					ocNextDesignObj->m_iPK_Button = BUTTON_Pound_CONST;
 				else
-					ocNextDesignObj->m_iPK_Button += int(m_alChildDesignObjs.size());
+					ocNextDesignObj->m_iPK_Button += int(m_alChildDesignObjs_OfArray.size());
 			}
 			else
-				ocNextDesignObj->m_iPK_Button += int(m_alChildDesignObjs.size());
+				ocNextDesignObj->m_iPK_Button += int(m_alChildDesignObjs_OfArray.size());
 		}
 		ocNextDesignObj->m_bCanBeHidden = av->m_bCanHide;
 		ocNextDesignObj->m_bHideByDefault = av->m_bHideByDefault;
@@ -272,7 +272,7 @@ int k=2;
 		}
 		ocNextDesignObj->m_ZoneList.insert(ocNextDesignObj->m_ZoneList.begin(),oz);
 
-		m_alChildDesignObjs.push_back(ocNextDesignObj);
+		m_alChildDesignObjs_OfArray.push_back(ocNextDesignObj);
 
 		m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_iID_Array="0";
 		m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_pRow_Icon=NULL;
@@ -283,7 +283,7 @@ void CGArray::CheckLastEntry()
 {
 	if( m_iLastVisibleArrayEntry<(int) m_alValues->size() && m_pRow_DesignObj_MoreFwd )
 	{
-		DesignObj_Generator *obPrevious = m_alChildDesignObjs[m_alChildDesignObjs.size()-1];
+		DesignObj_Generator *obPrevious = m_alChildDesignObjs_OfArray[m_alChildDesignObjs_OfArray.size()-1];
 		m_ocFwd = new DesignObj_Generator(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,
 			m_pRow_DesignObj_MoreFwd,
 			PlutoRectangle(obPrevious->m_rPosition.X,obPrevious->m_rPosition.Y,0,0),
@@ -310,7 +310,7 @@ void CGArray::CheckLastEntry()
 			m_ocFwd->m_sDesignObjGoto = m_ocFwd->m_pOrbiterGenerator->m_iPK_DesignObj_Screen + "." + StringUtils::itos(m_ocFwd->m_iVersion) + "." + StringUtils::itos(m_iPage+1);
 			m_bContainsMore=true; 
 		}
-		m_alChildDesignObjs[m_alChildDesignObjs.size()-1] = m_ocFwd;
+		m_alChildDesignObjs_OfArray[m_alChildDesignObjs_OfArray.size()-1] = m_ocFwd;
 		--m_iLastVisibleArrayEntry;
 	}
 }
