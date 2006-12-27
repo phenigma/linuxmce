@@ -46,7 +46,6 @@
 #include "PlutoUtils/FileUtils.h"
 
 #include "MediaFile.h"
-#include "UpdateMedia/PlutoMediaFile.h"
 
 using namespace DCE;
 
@@ -271,6 +270,8 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
 #else
 	*/
 
+	/* Don't use pluto media file.  It reads from id3 and takes too long
+
 	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation, FileUtils::BasePath(File),
 		FileUtils::FilenameWithoutPath(File));
 	int PK_File = PlutoMediaFile_.GetFileAttribute();
@@ -313,6 +314,7 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
     }
     else
 	{	// if no attributte is set then fall back to the windows functionality.
+	*/
 		string Path = FileUtils::BasePath(File);
 		if( Path.length() && Path[ Path.length()-1 ]=='/' )
 			Path = Path.substr(0,Path.length()-1);
@@ -323,7 +325,9 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
 			return atoi( row[0] );
 		else
 			return 0;
+		/*
 	}
+	*/
 //#endif
 }
 
@@ -1309,10 +1313,10 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::AddDiscAttributesToFile called with missing file %d disc %d",PK_File,PK_Disc);
 		return;
 	}
-
+/*
 	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation, pRow_File->Path_get(), pRow_File->Filename_get());
 	PlutoMediaFile_.SetFileAttribute(PK_File);
-
+*/
 	vector<Row_Picture_Disc *> vectRow_Picture_Disc;
 	pRow_Disc->Picture_Disc_FK_Disc_getrows(&vectRow_Picture_Disc);
 	for(size_t s=0;s<vectRow_Picture_Disc.size();++s)
@@ -1327,9 +1331,10 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 			pRow_Picture_File->FK_Picture_set( vectRow_Picture_Disc[s]->FK_Picture_get() );
 			m_pDatabase_pluto_media->Picture_File_get()->Commit();
 		}
-
+/*
 		PlutoMediaFile_.SetPicAttribute(pRow_Picture_File->FK_Picture_get(), 
 			pRow_Picture_File->FK_Picture_getrow()->URL_get());
+*/
 	}
 
 	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;

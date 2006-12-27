@@ -1684,8 +1684,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
 
 		string sFilePath = FileUtils::BasePath(pMediaFile->FullyQualifiedFile());
 		string sFileName = FileUtils::FilenameWithoutPath(pMediaFile->FullyQualifiedFile(), true);
-		PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), sFilePath, sFileName);
-		PK_Picture = PlutoMediaFile_.GetPicAttribute(pMediaFile->m_dwPK_File);
+		m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetPictureFromFileID(pMediaFile->m_dwPK_File,&PK_Picture);
 //#endif
 
 		if(PK_Picture)
@@ -3910,10 +3909,12 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 			pRow_File_Attribute->Section_set(atoi(sSection.c_str()));
 			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
 
+			/* Don't do this now.  It takes too long.  Let updatemedia do it later
             PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
                 pRow_File->Path_get(), pRow_File->Filename_get());
 			PlutoMediaFile_.SetSyncMode(modeDbToFile);
             PlutoMediaFile_.SetFileAttribute(iEK_File); //also updates id3tags
+			*/
 		}
 	}
 }
@@ -3940,6 +3941,7 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
 		pRow_Attribute->Table_Attribute_get()->Commit();
 		m_pMediaAttributes->m_pMediaAttributes_LowLevel->UpdateSearchTokens(pRow_Attribute);
 
+		/* Don't do this now.  It takes too long
         vector<Row_File *> vectRow_File;
         m_pDatabase_pluto_media->File_get()->GetRows(
             "JOIN File_Attribute ON File_Attribute.FK_File = File.PK_File "
@@ -3955,6 +3957,7 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
 			PlutoMediaFile_.RenameAttribute(pRow_Attribute->FK_AttributeType_get(), sOldValue, sValue_To_Assign);
             PlutoMediaFile_.SetFileAttribute(pRow_File->PK_File_get()); //also updates id3tags
         }
+		*/
 
 		for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
 		{
@@ -4460,9 +4463,11 @@ void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 	pRow_File->Table_File_get()->Commit();
 	pMediaFile->m_dwPK_File = pRow_File->PK_File_get();
 
+	/* don't do this now.  It takes too long.
 	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
 		pRow_File->Path_get(), pRow_File->Filename_get());
 	PlutoMediaFile_.SetFileAttribute(pRow_File->PK_File_get());
+	*/
 }
 
 //<-dceag-c412-b->

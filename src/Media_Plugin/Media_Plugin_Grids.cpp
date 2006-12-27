@@ -78,7 +78,6 @@ using namespace DCE;
 #include "SerializeClass/ShapesColors.h"
 #include "RippingJob.h"
 #include "../VFD_LCD/VFD_LCD_Base.h"
-#include "UpdateMedia/PlutoMediaFile.h"
 
 extern int UniqueColors[MAX_MEDIA_COLORS];
 
@@ -1727,8 +1726,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 			{
 				string sFilePath = pRow_File->Path_get();
 				string sFileName = pRow_File->Filename_get();
-				PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), sFilePath, sFileName);
-				PK_Picture = PlutoMediaFile_.GetPicAttribute(pRow_File->PK_File_get());
+				m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetPictureFromFileID(pRow_File->PK_File_get(),&PK_Picture);
 
 				if(PK_Picture > 0)
 				{
