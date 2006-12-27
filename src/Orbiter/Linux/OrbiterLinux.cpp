@@ -331,6 +331,7 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
     if(UsesUIVersion2())
 	{
 		m_pMouseBehavior = new MouseBehavior_Linux(this);
+		m_pWinListManager->KeepSdlWindowActive(true);
 	}
     m_pRecordHandler = new XRecordExtensionHandler(this, m_strDisplayName);
     m_pRecordHandler->enableRecording(true);

@@ -47,10 +47,18 @@ public:
 	void SetLayer(const string &sClassName, WindowLayer layer);
 
 	void ApplyContext();
+
+	void KeepSdlWindowActive( bool bKeepSdlWindowActive ) { m_bKeepSdlWindowActive=bKeepSdlWindowActive; }
+
 	
 private:
 
-	string m_sLastActivatedWindow;  // Even if a current window was previously activated, if something else was in the meantime, reactivate it
+	// With myth tv it happens that if we activate Orbiter and then activate Myth
+	// then even though Orbiter is topmost (ie add,above) it is not visible.  So we
+	// can set the sdl window to keep active and whenever another window is activated,
+	// this one will also be activated right after (m_bKeepSdlWindowActive)
+	bool m_bKeepSdlWindowActive;
+
 	WindowsContext m_CurrentContext;
 	WindowsContext m_PendingContext;
 

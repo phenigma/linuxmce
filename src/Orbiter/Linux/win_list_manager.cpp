@@ -16,6 +16,7 @@ WinListManager::WinListManager(const string &sSdlWindowName)
 
 	m_pWMController = new WMControllerImpl();
 	m_bExternalChange=false;
+	m_bKeepSdlWindowActive=false;
 }
 
 WinListManager::~WinListManager()
@@ -280,6 +281,10 @@ void WinListManager::ApplyContext()
 		if(it_current != m_CurrentContext.end() && m_bExternalChange==false && pending_context.IsErrorFlag()==false )
 		{
 			WindowContext &current_context = it_current->second;
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ApplyContext: applying partial context for '%s': %s vs %s",
+				sWindowName.c_str(), pending_context.ToString().c_str(), current_context.ToString().c_str());
+#endif
 
 			if(current_context != pending_context)
 				g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ApplyContext: applying diff context for '%s': %s",
@@ -311,14 +316,16 @@ void WinListManager::ApplyContext()
 			)
 				bResult = bResult && m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
 
-			if(pending_context.IsActivated() && (!current_context.IsActivated() || m_sLastActivatedWindow!=sWindowName) )
+			if(pending_context.IsActivated() && !current_context.IsActivated() )
 			{
-#ifdef DEBUG
-				if( m_sLastActivatedWindow!=sWindowName )
-					g_pPlutoLogger->Write(LV_STATUS,"WinListManager::ApplyContext m_sLastActivatedWindow %s, activating %s",m_sLastActivatedWindow.c_str(),sWindowName.c_str());
-#endif
 				bResult = bResult && m_pWMController->ActivateWindow(sWindowName);
-				m_sLastActivatedWindow=sWindowName;
+				if( m_bKeepSdlWindowActive && sWindowName!=m_sSdlWindowName )
+				{
+#ifdef DEBUG
+					g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ApplyContext: m_bKeepSdlWindowActive");
+#endif
+					bResult = bResult && m_pWMController->ActivateWindow(m_sSdlWindowName);
+				}
 			}
 
 			if(!pending_context.IsVisible())
@@ -329,7 +336,7 @@ void WinListManager::ApplyContext()
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "WinListManager::ApplyContext: applying whole context for '%s': %s (ExternalChange: %d ErrorFlag %d)",
+			g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ApplyContext: applying whole context for '%s': %s (ExternalChange: %d ErrorFlag %d)",
 				sWindowName.c_str(), pending_context.ToString().c_str(),(int) m_bExternalChange,(int) pending_context.IsErrorFlag());
 
 			bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
@@ -347,7 +354,13 @@ void WinListManager::ApplyContext()
 			if(pending_context.IsActivated())
 			{
 				bResult = bResult && m_pWMController->ActivateWindow(sWindowName);
-				m_sLastActivatedWindow=sWindowName;
+				if( m_bKeepSdlWindowActive && sWindowName!=m_sSdlWindowName )
+				{
+#ifdef DEBUG
+					g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ApplyContext: m_bKeepSdlWindowActive");
+#endif
+					bResult = bResult && m_pWMController->ActivateWindow(m_sSdlWindowName);
+				}
 			}
 		}
 		if( bResult==false )
