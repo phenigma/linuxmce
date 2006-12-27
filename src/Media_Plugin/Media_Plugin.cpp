@@ -3082,6 +3082,14 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 	// EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_From, 0);
 	// is this required here ?!
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	StringUtils::Replace( &sName, "'", "" );
+	StringUtils::Replace( &sName, "[", "" );
+	StringUtils::Replace( &sName, "]", "" );
+	StringUtils::Replace( &sDirectory, "'", "" );
+	StringUtils::Replace( &sDirectory, "[", "" );
+	StringUtils::Replace( &sDirectory, "]", "" );
+
 	vector<EntertainArea *> vectEntertainArea;
 	DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
 	if ( vectEntertainArea.size()!=1 )

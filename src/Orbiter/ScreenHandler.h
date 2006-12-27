@@ -210,6 +210,7 @@ public:
 	bool TV_Channels_GridRendering(CallBackData *pData);
 
 	virtual void SCREEN_Add_Software(long PK_Screen);
+	bool AddSoftware_ObjectSelected(CallBackData *pData);
 	bool AddSoftware_ObjectHighlighted(CallBackData *pData);
 	bool AddSoftware_GridRendering(CallBackData *pData);
 	bool AddSoftware_GridSelected(CallBackData *pData);

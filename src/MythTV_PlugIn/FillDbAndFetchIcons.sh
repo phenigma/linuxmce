@@ -8,6 +8,7 @@ echo "LOCK TABLE schemalock WRITE;" | mysql mythconverg  # Be sure we're not in 
 echo "update channel set icon=replace(icon,'/root/.mythtv','/home/mythtv')" | mysql mythconverg  # These should be shared
 mkdir -p /home/mythtv/channels
 mv /root/.mythtv/channels/* /home/mythtv/channels
+/usr/pluto/bin/fixMythTvSettings.sh
 invoke-rc.d mythtv-backend restart
 
 # Now that we have channels and icons, go ahead and fill the database.  If the user interrupts this now it's ok

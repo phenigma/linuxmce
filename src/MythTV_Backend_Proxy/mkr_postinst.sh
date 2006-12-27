@@ -1,3 +1,5 @@
+exit
+
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 
 mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";

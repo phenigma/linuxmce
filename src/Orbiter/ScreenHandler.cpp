@@ -1597,6 +1597,32 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 	RegisterCallBack(cbObjectHighlighted, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_ObjectHighlighted,	new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_GridSelected, new DatagridCellBackData());
 	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_GridRendering,	new DatagridAcquiredBackData());
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::AddSoftware_ObjectSelected,	new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::AddSoftware_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST || pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse2_CONST )
+	{
+		if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST && m_pOrbiter->m_pScreenHistory_Current )
+		{
+			string::size_type pos=0;
+			string sID = m_pOrbiter->m_pScreenHistory_Current->ScreenID();
+			int PK_Software = atoi( StringUtils::Tokenize( sID, ",", pos ).c_str() );
+			string sInstallation_Status = StringUtils::Tokenize( sID, ",", pos );
+
+			DCE::CMD_Add_Software CMD_Add_Software(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, 
+				m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector, sInstallation_Status!="Yes" ,PK_Software);
+			string sResponse;
+			m_pOrbiter->SendCommand(CMD_Add_Software,&sResponse); // Send with delivery confirmation so the command updates the installation status before the grid refreshes
+
+		}
+
+		m_pOrbiter->CMD_Go_back("","");
+		return true;
+	}
+	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::AddSoftware_ObjectHighlighted(CallBackData *pData)
@@ -1666,29 +1692,18 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 		int PK_Software = atoi(pCellInfoData->m_pDataGridCell->GetValue());
 		string sInstallation_Status = pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("Installation_status");
 		string sText,sCommand;
+		if( !PK_Software )
+			return false;
+
 		if( PK_Software && sInstallation_Status!="Yes" )
-		{
 			sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_Add_Software_CONST];
-			sCommand = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn)
-				+ " 1 " + TOSTRING(COMMAND_Add_Software_CONST) + " " + TOSTRING(COMMANDPARAMETER_PK_Software_CONST)
-				+ " " + pCellInfoData->m_pDataGridCell->GetValue() + " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " "
-				+ StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector) + " " TOSTRING(COMMANDPARAMETER_TrueFalse_CONST) " 1";
-		}
 		else if( PK_Software )
-		{
 			sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_delete_software_CONST];
-			sCommand = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn)
-				+ " 1 " + TOSTRING(COMMAND_Add_Software_CONST) + " " + TOSTRING(COMMANDPARAMETER_PK_Software_CONST)
-				+ " " + StringUtils::itos(PK_Software) + " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " "
-				+ StringUtils::itos(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector) + " " TOSTRING(COMMANDPARAMETER_TrueFalse_CONST) " 0";
-		}
-		else
-			return false; // No software was selected
 
 		DataGridCell *pCell = pCellInfoData->m_pDesignObj_DataGrid->DataGridTable_Get() ? pCellInfoData->m_pDesignObj_DataGrid->DataGridTable_Get()->GetData( 0, pCellInfoData->m_Row ) : NULL;
 		if( pCell )
 			sText+="\n" + pCell->m_mapAttributes["Title"];
-		DisplayMessageOnOrbiter(0,sText,false,"30",false,m_pOrbiter->m_mapTextString[TEXT_YES_CONST],sCommand,m_pOrbiter->m_mapTextString[TEXT_NO_CONST]);
+		DisplayMessageOnOrbiter(0,sText,false,"30",false,m_pOrbiter->m_mapTextString[TEXT_YES_CONST],"",m_pOrbiter->m_mapTextString[TEXT_NO_CONST],"","","","","",StringUtils::itos(PK_Software) + "," + sInstallation_Status);
 	}
 
 	return false; // Keep processing it

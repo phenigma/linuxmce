@@ -24,10 +24,11 @@ query="select count(*) from settings where hostname='`hostname`' AND value LIKE 
 function addEntries
 {
         if [ "$3" = "" ]; then
+				echo "delete from settings where hostname IS NULL AND value LIKE '$1'" | $mysql_command;
                 echo "insert into settings(value, data) values('$1', '$2')" | $mysql_command;
         else
-		echo "delete from settings where hostname='$3' AND value LIKE '$1'" | $mysql_command;
-                echo "insert into settings(value, data, hostname) values('$1', '$2', '$3')" | $mysql_command;
+			echo "delete from settings where hostname='$3' AND value LIKE '$1'" | $mysql_command;
+			echo "insert into settings(value, data, hostname) values('$1', '$2', '$3')" | $mysql_command;
         fi;
 }
 
