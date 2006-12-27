@@ -311,8 +311,15 @@ void WinListManager::ApplyContext()
 			)
 				bResult = bResult && m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
 
-			if(!current_context.IsActivated() && pending_context.IsActivated())
+			if(pending_context.IsActivated() && (!current_context.IsActivated() || m_sLastActivatedWindow!=sWindowName )
+			{
+#ifdef DEBUG
+				if( m_sLastActivatedWindow!=sWindowName )
+					g_pPlutoLogger->Write(LV_STATUS,"WinListManager::ApplyContext m_sLastActivatedWindow %s, activating %s",m_sLastActivatedWindow.c_str(),sWindowName.c_str());
+#endif
 				bResult = bResult && m_pWMController->ActivateWindow(sWindowName);
+				m_sLastActivatedWindow=sWindowName;
+			}
 
 			if(!pending_context.IsVisible())
 			{
@@ -338,7 +345,10 @@ void WinListManager::ApplyContext()
 				bResult = bResult && m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
 
 			if(pending_context.IsActivated())
+			{
 				bResult = bResult && m_pWMController->ActivateWindow(sWindowName);
+				m_sLastActivatedWindow=sWindowName;
+			}
 		}
 		if( bResult==false )
 		{

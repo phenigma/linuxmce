@@ -50,6 +50,7 @@ public:
 	
 private:
 
+	string m_sLastActivatedWindow;  // Even if a current window was previously activated, if something else was in the meantime, reactivate it
 	WindowsContext m_CurrentContext;
 	WindowsContext m_PendingContext;
 
