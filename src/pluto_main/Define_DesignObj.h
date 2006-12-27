@@ -2365,6 +2365,7 @@
 #define DESIGNOBJ_objLongFileName_CONST 5360
 #define DESIGNOBJ_butSetupWizard_CONST 5361
 #define DESIGNOBJ_mnuFileList_SortOptions_CONST 5362
+#define DESIGNOBJ_butFBSF_Go_CONST 5363
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
