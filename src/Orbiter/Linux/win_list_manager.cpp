@@ -311,7 +311,7 @@ void WinListManager::ApplyContext()
 			)
 				bResult = bResult && m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
 
-			if(pending_context.IsActivated() && (!current_context.IsActivated() || m_sLastActivatedWindow!=sWindowName )
+			if(pending_context.IsActivated() && (!current_context.IsActivated() || m_sLastActivatedWindow!=sWindowName) )
 			{
 #ifdef DEBUG
 				if( m_sLastActivatedWindow!=sWindowName )
