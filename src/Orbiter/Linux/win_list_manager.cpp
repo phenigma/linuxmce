@@ -191,7 +191,7 @@ g_pPlutoLogger->Write(LV_STATUS,"WinListManager::GetWindows1 %d/%s",it->first,it
 
 for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end(); ++it)
 {
-g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::GetWindows1b id %d desktop %d class %s title %s",it->ulWindowId,it->lDesktop,it->sClassName.c_str(),it->sTitle.c_str());
+g_pPlutoLogger->Write(LV_WARNING,"WinListManager::GetWindows1b id %d desktop %d class %s title %s",it->ulWindowId,it->lDesktop,it->sClassName.c_str(),it->sTitle.c_str());
 }
 #endif
 
@@ -216,7 +216,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::GetWindows1b id %d desktop %d
 		else
 		{
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::GetWindows %d found %d",it->ulWindowId,itKnownWindows == m_mapKnownWindows.end());
+g_pPlutoLogger->Write(LV_WARNING,"WinListManager::GetWindows %d found %d",it->ulWindowId,itKnownWindows == m_mapKnownWindows.end());
 #endif
 			mapFoundWindows[ it->ulWindowId ] = true;
 		}
@@ -237,7 +237,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::GetWindows %d found %d",it->u
 
 #ifdef DEBUG
 for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
-g_pPlutoLogger->Write(LV_CRITICAL,"WinListManager::GetWindows2 %d/%s",it->first,it->second.c_str());
+g_pPlutoLogger->Write(LV_WARNING,"WinListManager::GetWindows2 %d/%s",it->first,it->second.c_str());
 #endif
 	if( bChangesDetected )
 	{
