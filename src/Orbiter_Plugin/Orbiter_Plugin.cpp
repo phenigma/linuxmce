@@ -2842,6 +2842,11 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 				return;
 			}
 		}
+
+		// Also update our list of software while we're at it
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			"usr/pluto/bin/getxmls","getxmls","","","",false,false,false,false);
+		SendCommand(CMD_Spawn_Application);
 	}
 	m_pAlarmManager->AddRelativeAlarm(60 * 60 * 24 /* do again in 24 hours */,this,PROCESS_SCREEN_SAVER_PHOTOS,NULL);
 }

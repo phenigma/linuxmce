@@ -9,6 +9,8 @@ function printHelp()
 	Logging "$TYPE" "$SEVERITY_NORMAL" "Invalid paramters: ./Start_LocalDevices.sh [ -d DeviceID [-r RouterAddress ] ]" >&2
 }
 
+apt-get install id-my-disc libdvdcss  ## temp hack -- remove this
+
 /usr/pluto/bin/UpdateAvailableSerialPorts.sh
 /usr/pluto/bin/SoundCards_Setup.sh
 /usr/pluto/bin/CaptureCards_Setup.sh

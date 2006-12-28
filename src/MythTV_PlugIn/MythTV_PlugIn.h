@@ -99,7 +99,7 @@ public:
 		class DataGridTable *TvProviders(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
 		// Set a value in mythconverg's setting table.  If hostname=*, all known hosts will be set.  If it's empty, hostname will be NULL
-		void UpdateMythSetting(string value,string data,string hostname);
+		void UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting=false);
 
 		void AlarmCallback(int id, void* param);
 		void CheckForNewRecordings();

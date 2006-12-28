@@ -75,6 +75,7 @@ bool MythTV_PlugIn::GetConfig()
 	UpdateMythSetting("AutoRunUserJob1","1","");
 	UpdateMythSetting("UserJob1","/usr/pluto/bin/SaveMythRecording.sh %CHANID% %STARTTIME% %DIR% %FILE%","");
 	UpdateMythSetting("UserJobDesc1","Save the recorded show into Pluto's database","");
+	UpdateMythSetting("Language","EN","*",true);
 
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(1);      //4 = number of worker threads
@@ -839,6 +840,9 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 
 				sSQL = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Configuration_CONST);
 				if( sSQL.empty() )
+					sSQL = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->FK_Device_ControlledVia_get(),DEVICEDATA_Configuration_CONST);
+
+				if( sSQL.empty() )
 					sSQL = "INSERT INTO `capturecard`(cardtype,hostname) VALUES ('MPEG','" + sHostname + "');";
 				else
 					StringUtils::Replace(&sSQL,"<%=HOST%>",sHostname);
@@ -939,7 +943,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 	}
 }
 
-void MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname)
+void MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting)
 {
 	if( hostname=="*" )
 	{
@@ -960,7 +964,7 @@ void MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname)
 					if( mapExistingHosts[row[0]] )
 						continue;
 					mapExistingHosts[row[0]]=true;
-					UpdateMythSetting(value,data,row[0]);
+					UpdateMythSetting(value,data,row[0],bOnlyIfNotExisting);
 				}
 			}
 		}
@@ -976,6 +980,8 @@ void MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname)
 			+ (hostname.empty() ? "NULL" : "'" + StringUtils::SQLEscape(hostname) + "'") + ")";
 		m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 	}
+	else if( bOnlyIfNotExisting )
+		return;
 
 	sSQL = "UPDATE settings set data='" + StringUtils::SQLEscape(data) + "' WHERE value='" + StringUtils::SQLEscape(value) + "' "
 		" AND hostname " + (hostname.empty() ? "IS NULL" : "='" + StringUtils::SQLEscape(hostname) + "'");

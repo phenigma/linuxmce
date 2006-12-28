@@ -235,7 +235,9 @@ int main(int argc, char *argv[]){
 		return false;
 	}
 	for(uint noEngine=0;noEngine<url.size();noEngine++){
-		res=system(((string)"wget --timeout 2 --tries=1 -q "+UserAgent+" -O /tmp/search.html \""+url[noEngine]+"\"").c_str());
+		string sCmd = "wget --timeout 2 --tries=1 -q "+UserAgent+" -O /tmp/search.html \""+url[noEngine]+"\"";
+		cout << sCmd << endl;
+		res=system(sCmd.c_str());
 		if (!res){
 			FILE *fsearch,*fxml,*fpage;
 			dxml_element *packages,*package;
@@ -253,7 +255,7 @@ int main(int argc, char *argv[]){
 			string link,packageName,version;
 			int whatFind;
 			while ((whatFind=findURL(fsearch,link,noEngine))){
-//				cout<<link<<endl;
+				cout<<link<<endl;
 				res=system(link.c_str());
 				if(!res){
 					if(1==whatFind){
@@ -366,7 +368,7 @@ int main(int argc, char *argv[]){
 									delete pGoodData;
 							}
 						}
-//						cout<<query<<endl;
+						cout<<query<<endl;
 //						return false;
 						if(length){
 							if(mysql_real_query(mysql,query,(unsigned int) length)){
