@@ -2212,6 +2212,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		// Temporary hack until we get it working so keys are transparent when yield to screen is true
 		if( UsesUIVersion2() && m_mapScanCodeToRemoteButton.size()==0 )
 		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Hack in some basic keyboard navigation since ui2 yield keyboard isn't working");
 			m_mapScanCodeToRemoteButton[ make_pair<int,char> (10,'U') ] = "1";
 			m_mapScanCodeToRemoteButton[ make_pair<int,char> (11,'U') ] = "2";
 			m_mapScanCodeToRemoteButton[ make_pair<int,char> (12,'U') ] = "3";
