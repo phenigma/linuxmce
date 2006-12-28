@@ -427,6 +427,14 @@ MediaDevice *SlimServer_PlugIn::FindMediaDeviceForEntertainArea(EntertainArea *p
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 	MediaDevice *pMediaDevice;
 	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_SqueezeBox_Player_CONST);
+	if( !pMediaDevice )
+		pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_Sound_Bridge_CONST);
+
+	if( !pMediaDevice )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "SlimServer_PlugIn::FindMediaDeviceForEntertainArea no device in ea %d",pEntertainArea->m_iPK_EntertainArea);
+		return NULL;
+	}
 	g_pPlutoLogger->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 	return pMediaDevice;
