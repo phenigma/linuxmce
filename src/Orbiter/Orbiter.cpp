@@ -683,28 +683,6 @@ bool Orbiter::GetConfig()
 		}
 	}
 
-	// Temporary hack until we get it working so keys are transparent when yield to screen is true
-	if( UsesUIVersion2() && m_mapScanCodeToRemoteButton.size()==0 )
-	{
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (10,'U') ] = "1";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (11,'U') ] = "2";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (12,'U') ] = "3";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (13,'U') ] = "4";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (14,'U') ] = "5";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (15,'U') ] = "6";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (16,'U') ] = "7";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (17,'U') ] = "8";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (18,'U') ] = "9";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (19,'U') ] = "0";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (98,'U') ] = "UP";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (104,'U') ] = "DOWN";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (100,'U') ] = "LEFT";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (102,'U') ] = "RIGHT";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (10,'U') ] = "ENTER";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (36,'U') ] = "OK";
-		m_mapScanCodeToRemoteButton[ make_pair<int,char> (22,'U') ] = "CLEAR";
-	}
-
 	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
 		return false;
 	IRReceiverBase::GetConfig(m_pData);
@@ -2230,6 +2208,28 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 
 		m_pOrbiterRenderer->AdjustWindowSize(m_pScreenHistory_Current->GetObj()->m_rPosition.Width,
 			m_pScreenHistory_Current->GetObj()->m_rPosition.Height);
+
+		// Temporary hack until we get it working so keys are transparent when yield to screen is true
+		if( UsesUIVersion2() && m_mapScanCodeToRemoteButton.size()==0 )
+		{
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (10,'U') ] = "1";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (11,'U') ] = "2";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (12,'U') ] = "3";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (13,'U') ] = "4";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (14,'U') ] = "5";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (15,'U') ] = "6";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (16,'U') ] = "7";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (17,'U') ] = "8";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (18,'U') ] = "9";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (19,'U') ] = "0";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (98,'U') ] = "UP";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (104,'U') ] = "DOWN";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (100,'U') ] = "LEFT";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (102,'U') ] = "RIGHT";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (10,'U') ] = "ENTER";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (36,'U') ] = "OK";
+			m_mapScanCodeToRemoteButton[ make_pair<int,char> (22,'U') ] = "CLEAR";
+		}
 
 		m_bStartingUp=false;
 
