@@ -62,6 +62,7 @@ bool SlimServer_PlugIn::Register()
 
 	vector<int> vectPK_DeviceTemplate;
 	vectPK_DeviceTemplate.push_back(DEVICETEMPLATE_SqueezeBox_Player_CONST);
+	vectPK_DeviceTemplate.push_back(DEVICETEMPLATE_Sound_Bridge_CONST);
 	m_pMedia_Plugin->RegisterMediaPlugin( this, this, vectPK_DeviceTemplate, true );
 
 	// In our device data we will give ourselves a lower priority and set multipledestinations=true 
