@@ -372,6 +372,13 @@ void WinListManager::ApplyContext()
 			pending_context.ErrorFlag(false);
 	}
 
+
+	/* For some reason it's happened that even though the last 'R' command to the window manager WAS
+	to activate Orbiter, Orbiter STILL is invisible behind myth until re-actated.  It appears that 
+	constantly re-activating Orbiter doesn't cause a flicker or other undesired behavior */
+	if( m_bKeepSdlWindowActive )
+		bResult = bResult && m_pWMController->ActivateWindow(m_sSdlWindowName);
+
 	m_bExternalChange=false;
 	m_CurrentContext.clear();
 	m_CurrentContext = m_PendingContext;
