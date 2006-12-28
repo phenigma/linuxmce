@@ -759,6 +759,12 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage)
 //<-dceag-c824-e->
 {
+	if( DATA_Get_Dont_Auto_Configure() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- skipping because Don't Auto Configure is set");
+		return;
+	}
+
 	g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders");
     MYSQL_ROW row,row2;
 

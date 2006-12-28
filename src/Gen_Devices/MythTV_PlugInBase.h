@@ -111,6 +111,14 @@ public:
 			return atoi(m_mapParameters[DEVICEDATA_Priority_CONST].c_str());
 	}
 
+	bool Get_Dont_Auto_Configure()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Dont_Auto_Configure_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Dont_Auto_Configure_CONST]=="1" ? true : false);
+	}
+
 };
 
 
@@ -217,6 +225,7 @@ public:
 	//Data accessors
 	string DATA_Get_PK_Device() { return GetData()->Get_PK_Device(); }
 	int DATA_Get_Priority() { return GetData()->Get_Priority(); }
+	bool DATA_Get_Dont_Auto_Configure() { return GetData()->Get_Dont_Auto_Configure(); }
 	//Event accessors
 	void EVENT_Error_Occured(string sError_Message) { GetEvents()->Error_Occured(sError_Message.c_str()); }
 	void EVENT_PVR_Rec_Sched_Conflict() { GetEvents()->PVR_Rec_Sched_Conflict(); }

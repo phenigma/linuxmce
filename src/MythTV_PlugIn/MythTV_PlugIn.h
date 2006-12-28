@@ -114,6 +114,7 @@ public:
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_PK_Device();
 	int DATA_Get_Priority();
+	bool DATA_Get_Dont_Auto_Configure();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Error_Occured(string sError_Message);

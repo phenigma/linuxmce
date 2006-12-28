@@ -22372,5 +22372,41 @@ namespace DCE
 			COMMAND_Get_Network_Devices_Shares_CONST,
 			0 /* number of parameters */); }
 	};
+	class CMD_Control_Board_Generic : public PreformedCommand {
+	public:
+		CMD_Control_Board_Generic(long DeviceIDFrom, long DeviceIDTo,int iSource_Address,int iDestination_Address,string sPayload) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Control_Board_Generic_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Source_Address_CONST, StringUtils::itos(iSource_Address).c_str(),
+			COMMANDPARAMETER_Destination_Address_CONST, StringUtils::itos(iDestination_Address).c_str(),
+			COMMANDPARAMETER_Payload_CONST, sPayload.c_str()); }
+	};
+	class CMD_Control_Board_Generic_DL : public PreformedCommand {
+	public:
+		CMD_Control_Board_Generic_DL(long DeviceIDFrom, string DeviceIDTo,int iSource_Address,int iDestination_Address,string sPayload) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Control_Board_Generic_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Source_Address_CONST, StringUtils::itos(iSource_Address).c_str(),
+			COMMANDPARAMETER_Destination_Address_CONST, StringUtils::itos(iDestination_Address).c_str(),
+			COMMANDPARAMETER_Payload_CONST, sPayload.c_str()); }
+	};
+	class CMD_Control_Board_Generic_DT : public PreformedCommand {
+	public:
+		CMD_Control_Board_Generic_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iSource_Address,int iDestination_Address,string sPayload) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Control_Board_Generic_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Source_Address_CONST, StringUtils::itos(iSource_Address).c_str(),
+			COMMANDPARAMETER_Destination_Address_CONST, StringUtils::itos(iDestination_Address).c_str(),
+			COMMANDPARAMETER_Payload_CONST, sPayload.c_str()); }
+	};
+	class CMD_Control_Board_Generic_Cat : public PreformedCommand {
+	public:
+		CMD_Control_Board_Generic_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iSource_Address,int iDestination_Address,string sPayload) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Control_Board_Generic_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Source_Address_CONST, StringUtils::itos(iSource_Address).c_str(),
+			COMMANDPARAMETER_Destination_Address_CONST, StringUtils::itos(iDestination_Address).c_str(),
+			COMMANDPARAMETER_Payload_CONST, sPayload.c_str()); }
+	};
 }
 #endif
