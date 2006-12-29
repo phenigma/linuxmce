@@ -1915,36 +1915,12 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 		}
 	}
 
-	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
-	if( !pOH_Orbiter )
-	{
-		// Must be a new orbiter.  We should restart the orbiter
-		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
-		if( !pRow_Device )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Regenerate finished with unknown orbiter %d",iPK_Device);
-			return;
-		}
-
-		// Send this to all orbiters
-		//DisplayMessageOnOrbiter("",pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) +
-		//	"%>",true);
-
-		SCREEN_PopupMessage_DL SCREEN_PopupMessage_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters_AllowingPopups,
-			pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) + "%>", // Main message
-			"", // Command Line
-			"regen_done", // Description
-			"1", // sPromptToResetRouter
-			"0", // sTimeout
-			"1"); // sCannotGoBack
-		SendCommand(SCREEN_PopupMessage_DL);
-	}
-
 	g_pPlutoLogger->Write(LV_STATUS,"after Regen finished for: %d m_listRegenCommands size is: %d",iPK_Device,(int) m_listRegenCommands.size());
 	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
 		g_pPlutoLogger->Write(LV_STATUS,"Still generating %d",*it);
 
-	if( pOH_Orbiter )
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
+	if( pOH_Orbiter )  // It may be a new orbiter
 	{
 		pOH_Orbiter->m_tRegenTime = 0;
 		g_pPlutoLogger->Write(LV_STATUS,"Ready to reload the orbiter with id %d", iPK_Device);

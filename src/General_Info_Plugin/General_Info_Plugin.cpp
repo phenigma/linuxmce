@@ -104,6 +104,7 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 	m_bRerunConfigWhenDone=false;
 	m_pDatabase_pluto_main=NULL;
 	m_dwPK_Device_Prompting_For_A_Room=0;
+	m_bNewInstall=false;
 }
 
 //<-dceag-getconfig-b->
@@ -120,6 +121,13 @@ bool General_Info_Plugin::GetConfig()
 		m_bQuit_set(true);
 		return false;
 	}
+
+	if( !DatabaseUtils::AlreadyHasRooms(m_pDatabase_pluto_main,m_pRouter->iPK_Installation_get()) || !DatabaseUtils::AlreadyHasUsers(m_pDatabase_pluto_main,m_pRouter->iPK_Installation_get()) )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::GetConfig System has no rooms or users yet.");
+		m_bNewInstall=true;
+	}
+
 	return true;
 }
 
@@ -3045,7 +3053,7 @@ void General_Info_Plugin::PromptUserToReloadAfterNewDevices()
 			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices devvice %d doesn't need reload",pRow_Device->PK_Device_get());
 	}
 
-	if( bDevicesNeedingReload )
+	if( bDevicesNeedingReload && !m_bNewInstall )  // Don't ask this on a new install since the user will need to reload again anyway
 	{
 		SCREEN_PopupMessage_DL SCREEN_PopupMessage_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
 			"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", // Main message

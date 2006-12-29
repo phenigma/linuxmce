@@ -60,6 +60,7 @@ public:
 	list<Row_Device *> m_listRow_Device_NewAdditions;
 	int m_dwPK_Device_Prompting_For_A_Room;
 	time_t m_tTimePromptedForRoom;
+	bool m_bNewInstall;  // True when this is a new box that isn't setup yet
 
 	// Private methods
 	void SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot);
