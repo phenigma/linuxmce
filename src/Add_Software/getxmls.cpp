@@ -235,7 +235,7 @@ int main(int argc, char *argv[]){
 		return false;
 	}
 	for(uint noEngine=0;noEngine<url.size();noEngine++){
-		string sCmd = "wget --timeout 2 --tries=1 -q "+UserAgent+" -O /tmp/search.html \""+url[noEngine]+"\"";
+		string sCmd = string("wget --timeout 2 --tries=1 -q ")+UserAgent+" -O /tmp/search.html \""+url[noEngine]+"\"";
 		cout << sCmd << endl;
 		res=system(sCmd.c_str());
 		if (!res){
