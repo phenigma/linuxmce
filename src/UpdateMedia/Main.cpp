@@ -68,7 +68,7 @@ void SyncAttributes()
 		"JOIN File_Attribute ON File_Attribute.FK_Attribute=PK_Attribute "
 		"JOIN Picture_File ON Picture_File.FK_File=File_Attribute.FK_File "
 		"LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute "
-		"WHERE Picture_Attribute.FK_Picture is NULL AND FK_AttributeType IN (" +
+		"WHERE Picture_Attribute.FK_Picture is NULL AND FK_AttributeType IN (" 
 		TOSTRING(ATTRIBUTETYPE_Performer_CONST) ", "
 		TOSTRING(ATTRIBUTETYPE_Album_CONST) ", " 
 		TOSTRING(ATTRIBUTETYPE_Title_CONST) ") "
