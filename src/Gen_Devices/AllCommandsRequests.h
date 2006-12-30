@@ -22410,39 +22410,39 @@ namespace DCE
 	};
 	class CMD_Show_Media_Playback_State : public PreformedCommand {
 	public:
-		CMD_Show_Media_Playback_State(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,string sLevel,string sCaption) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Show_Media_Playback_State(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iPK_MediaType,string sLevel) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Show_Media_Playback_State_CONST,
 			3 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
-			COMMANDPARAMETER_Level_CONST, sLevel.c_str(),
-			COMMANDPARAMETER_Caption_CONST, sCaption.c_str()); }
+			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
+			COMMANDPARAMETER_Level_CONST, sLevel.c_str()); }
 	};
 	class CMD_Show_Media_Playback_State_DL : public PreformedCommand {
 	public:
-		CMD_Show_Media_Playback_State_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,string sLevel,string sCaption) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Show_Media_Playback_State_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iPK_MediaType,string sLevel) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Show_Media_Playback_State_CONST,
 			3 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
-			COMMANDPARAMETER_Level_CONST, sLevel.c_str(),
-			COMMANDPARAMETER_Caption_CONST, sCaption.c_str()); }
+			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
+			COMMANDPARAMETER_Level_CONST, sLevel.c_str()); }
 	};
 	class CMD_Show_Media_Playback_State_DT : public PreformedCommand {
 	public:
-		CMD_Show_Media_Playback_State_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,string sLevel,string sCaption) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Show_Media_Playback_State_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iPK_MediaType,string sLevel) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Show_Media_Playback_State_CONST,
 			3 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
-			COMMANDPARAMETER_Level_CONST, sLevel.c_str(),
-			COMMANDPARAMETER_Caption_CONST, sCaption.c_str()); }
+			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
+			COMMANDPARAMETER_Level_CONST, sLevel.c_str()); }
 	};
 	class CMD_Show_Media_Playback_State_Cat : public PreformedCommand {
 	public:
-		CMD_Show_Media_Playback_State_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,string sLevel,string sCaption) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Show_Media_Playback_State_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iPK_MediaType,string sLevel) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Show_Media_Playback_State_CONST,
 			3 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
-			COMMANDPARAMETER_Level_CONST, sLevel.c_str(),
-			COMMANDPARAMETER_Caption_CONST, sCaption.c_str()); }
+			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
+			COMMANDPARAMETER_Level_CONST, sLevel.c_str()); }
 	};
 }
 #endif
