@@ -367,7 +367,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if(NULL != pObj_CoverArt)
 			m_pOrbiter->Renderer()->RemoveGraphic(pObj_CoverArt->GenerateObjectHash(pObj_CoverArt->m_pPopupPoint, false));
 	}
-	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Play_CONST )
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Play_CONST || pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Purchase_CONST  )
 	{
 		if( !mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get() )
 			return false; //shouldn't happen
@@ -580,7 +580,12 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 			return true;
 		}
 
-		DesignObj_Orbiter *pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
+		DesignObj_Orbiter *pObj_Play = NULL;
+		if( pCell_List->m_mapAttributes_Find("Terms").empty() )
+			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
+		else
+			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFilePurchaseDetailsl_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Purchase_CONST) );
+
 		if( !pObj_Play || !pObj_Play->m_pParentObject )
 			return true; // Shouldn't happen
 

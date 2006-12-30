@@ -194,7 +194,7 @@ void UpdateMedia::DoIt()
 
 int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 {
-	if( sDirectory.size()==0 )
+	if( sDirectory.size()==0 || StringUtils::StartsWith(sDirectory,"/home/public/data/samples") )
 		return 0;
 	// Strip any trailing /
 	if( sDirectory[ sDirectory.size()-1 ] == '/' )

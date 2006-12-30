@@ -97,9 +97,8 @@ private:
 	map< int, pair<time_t,bool> > m_mapMediaDevicesOnline; // PK_Device (for NAS, drives, etc.) with the last time the status was checked and true if it's online
 	pair<time_t,bool> m_mapMediaDevicesOnline_Find(int iPK_Device) { map< int, pair<time_t,bool> >::iterator it = m_mapMediaDevicesOnline.find(iPK_Device); return it==m_mapMediaDevicesOnline.end() ? make_pair<time_t,bool> (0,false) : (*it).second; }
 
-#ifdef SIM_JUKEBOX
+//  Have to always include it so all plugins see the same header.  Delete the following when removing sim_jukebox #ifdef SIM_JUKEBOX
 	map< int, string > m_mapPK_FilesForSimulatedPurchase;   // Simulate downloadable premium content
-#endif
 
 	// mapping from disk drive to the job info
 	map<int, class RippingJob *> m_mapRippingJobs;

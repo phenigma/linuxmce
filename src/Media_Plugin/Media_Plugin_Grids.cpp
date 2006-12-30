@@ -423,32 +423,37 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 	if( PK_AttributeType_Sort==0 )
 		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory,FK_FileFormat,Filename FROM File WHERE PK_File in (" + sPK_File + ")";
 	else
-		sSQL_Sort = "SELECT PK_File,'',Name,0,FK_FileFormat,Filename FROM File LEFT JOIN File_Attribute ON FK_File=PK_File LEFT JOIN Attribute ON FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ") AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort);
+		sSQL_Sort = "SELECT PK_File,'',Name,0,FK_FileFormat,Filename FROM File LEFT JOIN File_Attribute ON FK_File=PK_File LEFT JOIN Attribute ON FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ") AND (FK_AttributeType IS NULL OR FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + ") ORDER BY PK_File";
 
     PlutoSqlResult result;
     MYSQL_ROW row;
 	map<int,int>::iterator it;
 	FileBrowserInfo *pFileBrowserInfo;
+	int iLastPK_File=0;  // if the there are 2 attributes of the same twice the file may appear more than once
 	// 0 =PK_File, 1=Path, 2=Name, 3=IsDirectory, 4=File Format
     if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
         while( ( row=mysql_fetch_row( result.r ) ) )
 		{
+			int PK_File = atoi(row[0]);
+			if( PK_File==iLastPK_File )
+				continue;
+			iLastPK_File=PK_File;
 			if( row[3][0]=='1' )
 			{
 				string sThisPath = string(row[1]) + "/" + row[2];
 				StringUtils::Replace(&sThisPath,"'","\\'");  // Make it , separated, ' quoted and escaped so it works as a sql in (path) clause
 				// sPath will be the sources (juke box, etc.) + \t + any prior directories
 				if( sPath.find("\t!D")==string::npos )  // !D 1 directory
-					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + "!D'" + sThisPath +"'",atoi(row[0]),row[4] ? atoi(row[4]) : 0,'F',true,false);
+					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + "!D'" + sThisPath +"'",PK_File,row[4] ? atoi(row[4]) : 0,'F',true,false);
 				else
-					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + ",'" + sThisPath +"'",atoi(row[0]),row[4] ? atoi(row[4]) : 0,'F',true,false);
+					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + ",'" + sThisPath +"'",PK_File,row[4] ? atoi(row[4]) : 0,'F',true,false);
 			}
 			else
 #ifdef SIM_JUKEBOX
-				pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string("!F") + row[0],atoi(row[0]),row[4] ? atoi(row[4]) : 0,
+				pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string("!F") + row[0],PK_File,row[4] ? atoi(row[4]) : 0,
 					row[5] && strstr(row[5],".dvd")!=NULL ? 'D' : 'F', false,false);
 #else
-				pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string("!F") + row[0],atoi(row[0]),row[4] ? atoi(row[4]) : 0,'F',false,false);
+				pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string("!F") + row[0],PK_File,row[4] ? atoi(row[4]) : 0,'F',false,false);
 #endif
 			if( (it=mapFile_To_Pic.find( atoi(row[0]) ))!=mapFile_To_Pic.end() )
 				pFileBrowserInfo->m_PK_Picture = it->second;

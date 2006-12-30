@@ -426,14 +426,14 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d checking for category",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 #endif
-		sSqlWhere = "Parms='CAT:" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->Category_get()) + "'";
+		sSqlWhere = "VendorModelID IS NULL AND Parms='CAT:" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->Category_get()) + "'";
 		m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sSqlWhere,&vectRow_DHCPDevice);
 		bMatchingCategory=true;
 	}
 
 	if( vectRow_DHCPDevice.size()==0 )  // Try one last time just to find anything in that category
 	{
-		sSqlWhere = "Category='" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->Category_get()) + "'";
+		sSqlWhere = "VendorModelID IS NULL AND Category='" + StringUtils::SQLEscape(pPnpQueueEntry->m_pRow_PnpQueue->Category_get()) + "'";
 		m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sSqlWhere,&vectRow_DHCPDevice);
 		bMatchingCategory=true;
 	}
