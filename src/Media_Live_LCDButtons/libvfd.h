@@ -118,9 +118,9 @@
 #define VFD_ICON_VIDEO   0
 #define VFD_ICON_CD      1   
 #define VFD_ICON_PLAY    2   
-#define VFD_ICON_FFWD    3   
+#define VFD_ICON_RWND    3   
 #define VFD_ICON_PAUSE   4   
-#define VFD_ICON_RWND    5   
+#define VFD_ICON_FFWD    5 
 #define VFD_ICON_SPEAKER 6   
 #define VFD_ICON_REC     7   
 #define VFD_ICON_VOLUME  8   

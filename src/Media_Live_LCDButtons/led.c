@@ -1273,7 +1273,8 @@ int StartLCD()
 	VFDClearString(VfdHandle, VFD_STR_REGION_1);
 	VFDClearString(VfdHandle, VFD_STR_REGION_3);
 	VFDEnableString(VfdHandle, VFD_STR_LAYOUT_2);
-	VFDSetScrollRegion(VfdHandle, VFD_SCROLL_REGION3);
+	VFDSetScrollRegion(VfdHandle, VFD_SCROLL_REGION1);
+//	VFDSetScrollRegion(VfdHandle, VFD_SCROLL_REGION3);
 	VFDSetScrollTime(VfdHandle, 500);
 
 	return VfdHandle;

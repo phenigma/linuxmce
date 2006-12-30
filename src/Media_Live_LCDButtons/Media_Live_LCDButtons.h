@@ -19,7 +19,7 @@ namespace DCE
 
 		// Private methods
 		pthread_t m_KeyboardLoopThread_Id;
-		int m_VfdHandle;
+		int m_VfdHandle,m_iPlayBackIcon_Last;
 public:
 		// Public member variables
 		DeviceData_Base *m_pDevice_Orbiter;

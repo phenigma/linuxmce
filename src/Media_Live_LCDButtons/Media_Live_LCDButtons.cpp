@@ -15,16 +15,21 @@ using namespace DCE;
 #include "led.h"
 #include "libvfd.h"
 
+#define	MAX_CHARS_PER_LINE	20
+#define MAX_CHARS_SCROLLABLE	40
+#define NUMLINES		2
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Media_Live_LCDButtons::Media_Live_LCDButtons(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Media_Live_LCDButtons_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, VFD_LCD_Base(40,2,20)
+	, VFD_LCD_Base(MAX_CHARS_SCROLLABLE,NUMLINES,MAX_CHARS_PER_LINE)
 {
 	m_pDevice_Orbiter=NULL;
 	m_KeyboardLoopThread_Id=0;
 	m_VfdHandle=0;
+	m_iPlayBackIcon_Last=0;
 }
 
 //<-dceag-const2-b->!
@@ -129,6 +134,10 @@ void Media_Live_LCDButtons::CMD_Display_Message(string sText,string sType,string
 	if( !m_VfdHandle )
 		return;
 	NewMessage(atoi(sType.c_str()),sName,sText,atoi(sTime.c_str()));
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Display_Message type %d name: %s text: %s time: %d",
+		atoi(sType.c_str()),sName.c_str(),sText.c_str(),atoi(sTime.c_str()));
+#endif
 }
 
 //<-dceag-c837-b->
@@ -143,15 +152,59 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 {
 	if( !m_VfdHandle )
 		return;
+	
+	int PlayBackIcon=0;
+	if( sValue_To_Assign.empty()==false )
+	{
+		int iSpeed=atoi( sValue_To_Assign.c_str() );
+		if( iSpeed==0 )
+			PlayBackIcon=VFD_ICON_PAUSE;
+		else if( iSpeed>0 && iSpeed<=1000 )
+			PlayBackIcon=VFD_ICON_PLAY;
+		else if( iSpeed>1000 )
+			PlayBackIcon=VFD_ICON_FFWD;
+		else if( iSpeed<0 )
+			PlayBackIcon=VFD_ICON_RWND;
+	}
+	
+	if( PlayBackIcon==m_iPlayBackIcon_Last )
+		return; // Nothing to do.  The state is unchanged
+
+	if( m_iPlayBackIcon_Last )
+		VFDIconOff(m_VfdHandle, m_iPlayBackIcon_Last);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Changing playback state from %d to %d",
+		m_iPlayBackIcon_Last,PlayBackIcon);
+#endif
+	m_iPlayBackIcon_Last=PlayBackIcon;
+	if( m_iPlayBackIcon_Last )
+		VFDIconOn(m_VfdHandle, m_iPlayBackIcon_Last);
 }
 
 void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 {
-	string s;
-	for(vector<string>::iterator it=vectString->begin();it!=vectString->end();++it)
-		s+= *it + "\n";
-s="This is line 1\nThis is line 2";
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay %s",s.c_str());
-	VFDSetString(m_VfdHandle, VFD_STR_REGION_1, 0, (unsigned char *) s.c_str());
+	size_t size1=0,size2=0;  // The length of each line
+	if( vectString->size()>=1 )
+	{
+		VFDSetString(m_VfdHandle, VFD_STR_REGION_1, 0, (unsigned char *) (*vectString)[0].c_str());
+		size1 = (*vectString)[0].size();
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 1 %d=%s", size1, (*vectString)[0].c_str());
+#endif
+	}
+	if( vectString->size()>=2 )
+	{
+		VFDSetString(m_VfdHandle, VFD_STR_REGION_3, 0, (unsigned char *) (*vectString)[1].c_str());
+		size2 = (*vectString)[1].size();
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 2 %d=%s", size2, (*vectString)[1].c_str());
+#endif
+	}
+	if( size1<=MAX_CHARS_PER_LINE && size2<=MAX_CHARS_PER_LINE )
+		VFDSetScrollRegion( m_VfdHandle, 0 );
+	else if( size1<=MAX_CHARS_PER_LINE )
+		VFDSetScrollRegion( m_VfdHandle, VFD_SCROLL_REGION3 );
+	else
+		VFDSetScrollRegion( m_VfdHandle, VFD_SCROLL_REGION1 );
 }
 
