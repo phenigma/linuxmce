@@ -65,9 +65,13 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	bool bFullScreen = false;//Simulator::GetInstance()->m_bFullScreen;
 	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(Width, Height, 32, bFullScreen, pOrbiterRenderer->m_pOrbiter->m_bUseComposite))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Thread -- GL.InitVideoMode FAILED");
+		g_pPlutoLogger->Write(LV_CRITICAL, "Thread -- GL.InitVideoMode FAILED Width: %d Height: %d Full Screen: %d Composite: %d",
+			Width, Height, (int) bFullScreen, (int) pOrbiterRenderer->m_pOrbiter->m_bUseComposite);
 		pOrbiterRenderer->OrbiterLogic()->OnReload();
-		pOrbiterRenderer->PromptUser("Orbiter failed to setup the transparency. Please check if the transparency manager is running!", 300);
+		if( pOrbiterRenderer->m_pOrbiter->m_bUseComposite )
+			pOrbiterRenderer->PromptUser("Orbiter failed to setup the transparency. Please check if the transparency manager is running!", 300);
+		else
+			pOrbiterRenderer->PromptUser("Orbiter failed to initialize OpenGL", 300);
 		pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
 		return NULL;
 	}
