@@ -36,6 +36,7 @@ public:
 //<-dceag-const-e->
 
 		void DoUpdateDisplay(vector<string> *vectString);  // Put this message on the VFD Display
+		void ButtonCallBack(int PK_Button);
 		
 //<-dceag-const2-b->!
 
@@ -48,6 +49,10 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Block_Device();
+	bool DATA_Get_Only_One_Per_PC();
+	bool DATA_Get_Autoassign_to_parents_room();
+	bool DATA_Get_PNP_Create_Without_Prompting();
+	bool DATA_Get_Immediate_Reload_Isnt_Necessar();
 
 			*****EVENT***** accessors inherited from base class
 
@@ -76,13 +81,13 @@ public:
 	/** Show the current state of the media playback */
 		/** @param #5 Value To Assign */
 			/** Empty = no media playing, otherwise a speed, 0=pause, 1000=normal forward, -4000 = 4x reverse, etc. */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
 		/** @param #76 Level */
 			/** The level of the volume, from 0-100.  empty means it's not known, or "MUTE" */
-		/** @param #162 Caption */
-			/** The type of media, if known.  Types are: DVD, Video, CD, Radio, TV */
 
-	virtual void CMD_Show_Media_Playback_State(string sValue_To_Assign,string sLevel,string sCaption) { string sCMD_Result; CMD_Show_Media_Playback_State(sValue_To_Assign.c_str(),sLevel.c_str(),sCaption.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Show_Media_Playback_State(string sValue_To_Assign,string sLevel,string sCaption,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Show_Media_Playback_State(string sValue_To_Assign,int iPK_MediaType,string sLevel) { string sCMD_Result; CMD_Show_Media_Playback_State(sValue_To_Assign.c_str(),iPK_MediaType,sLevel.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Show_Media_Playback_State(string sValue_To_Assign,int iPK_MediaType,string sLevel,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	};

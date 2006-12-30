@@ -70,6 +70,7 @@
 #define EVENT_Application_Exited_CONST 68
 #define EVENT_MythTV_Show_Recorded_CONST 69
 #define EVENT_UserPassword_Mismatch_CONST 70
+#define EVENT_Volume_Changed_CONST 71
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"

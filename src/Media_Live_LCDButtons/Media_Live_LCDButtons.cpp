@@ -14,10 +14,22 @@ using namespace DCE;
 
 #include "led.h"
 #include "libvfd.h"
+#include "pluto_main/Define_MediaType.h"
 
 #define	MAX_CHARS_PER_LINE	20
 #define MAX_CHARS_SCROLLABLE	40
 #define NUMLINES		2
+
+Media_Live_LCDButtons *g_pMedia_Live_LCDButtons = NULL;
+
+extern void (*g_ButtonCallBackFn)(int PK_Button);
+extern int g_QuitButtonThread;
+
+void ButtonCallBackFn(int PK_Button)
+{
+	if( g_pMedia_Live_LCDButtons )
+		g_pMedia_Live_LCDButtons->ButtonCallBack(PK_Button);
+}
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -30,6 +42,8 @@ Media_Live_LCDButtons::Media_Live_LCDButtons(int DeviceID, string ServerAddress,
 	m_KeyboardLoopThread_Id=0;
 	m_VfdHandle=0;
 	m_iSourceIcon_Last=m_iPlayBackIcon_Last=0;
+	g_pMedia_Live_LCDButtons=this;
+	g_ButtonCallBackFn=ButtonCallBackFn;
 }
 
 //<-dceag-const2-b->!
@@ -38,6 +52,8 @@ Media_Live_LCDButtons::Media_Live_LCDButtons(int DeviceID, string ServerAddress,
 Media_Live_LCDButtons::~Media_Live_LCDButtons()
 //<-dceag-dest-e->
 {
+	g_QuitButtonThread=true;
+	g_pMedia_Live_LCDButtons=NULL;
 	g_pPlutoLogger->Write( LV_STATUS, "Joining Keyboard Loop Thread" );
 	if( m_KeyboardLoopThread_Id )
 		pthread_join(m_KeyboardLoopThread_Id,NULL);
@@ -146,12 +162,12 @@ void Media_Live_LCDButtons::CMD_Display_Message(string sText,string sType,string
 	/** Show the current state of the media playback */
 		/** @param #5 Value To Assign */
 			/** Empty = no media playing, otherwise a speed, 0=pause, 1000=normal forward, -4000 = 4x reverse, etc. */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
 		/** @param #76 Level */
 			/** The level of the volume, from 0-100.  empty means it's not known, or "MUTE" */
-		/** @param #162 Caption */
-			/** The type of media, if known.  Types are: DVD, Video, CD, Radio, TV */
 
-void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assign,string sLevel,string sCaption,string &sCMD_Result,Message *pMessage)
+void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assign,int iPK_MediaType,string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c837-e->
 {
 	if( !m_VfdHandle )
@@ -186,18 +202,29 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 	}
 	
 	int iSourceIcon_Last=0;
-	if( sCaption.empty()==false )
+	switch( iPK_MediaType )
 	{
-		if( sCaption=="DVD" )
+		case MEDIATYPE_pluto_DVD_CONST:
+		case MEDIATYPE_np_DVD_CONST:
 			iSourceIcon_Last=VFD_ICON_DVD;
-		else if( sCaption=="Video" )
+			break;
+
+		case MEDIATYPE_pluto_LiveTV_CONST:
+		case MEDIATYPE_pluto_StoredVideo_CONST:
 			iSourceIcon_Last=VFD_ICON_VIDEO;
-		else if( sCaption=="CD" )
+			break;
+			
+		case MEDIATYPE_pluto_CD_CONST:
+		case MEDIATYPE_pluto_StoredAudio_CONST:
 			iSourceIcon_Last=VFD_ICON_CD;
-		else if( sCaption=="Radio" )
+			break;
+	
+		case MEDIATYPE_pluto_LiveRadio_CONST:
+		case MEDIATYPE_np_OTARadio_CONST:
+		case MEDIATYPE_np_SatelliteRadio_CONST:
+		case MEDIATYPE_np_CableRadio_CONST:
 			iSourceIcon_Last=VFD_ICON_RADIO;
-		else if( sCaption=="TV" )
-			iSourceIcon_Last=VFD_ICON_VIDEO; // No icon for TV
+			break;		
 	}
 	if( PlayBackIcon==m_iPlayBackIcon_Last && m_iSourceIcon_Last==iSourceIcon_Last )
 		return; // Nothing to do.  The state is unchanged
@@ -245,5 +272,12 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 		VFDSetScrollRegion( m_VfdHandle, VFD_SCROLL_REGION3 );
 	else
 		VFDSetScrollRegion( m_VfdHandle, VFD_SCROLL_REGION1 );
+}
+
+void Media_Live_LCDButtons::ButtonCallBack(int PK_Button)
+{
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::ButtonCallBackFn Button %d",PK_Button);
+	DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_dwPK_Device,m_pDevice_Orbiter->m_dwPK_Device,StringUtils::itos(PK_Button),"keypad");
+	SendCommand(CMD_Simulate_Keypress);
 }
 

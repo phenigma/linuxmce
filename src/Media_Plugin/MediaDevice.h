@@ -46,6 +46,8 @@ namespace DCE
 		// to simultaneously come on
 		time_t m_tLastPowerCommand;
 		int m_dwPK_Command_LastPower;
+		int m_iLastVolume;  // The last known volume for this device, -1 means unknown
+		bool m_bMute;  // True if the device was last muted
 
 		int FindUltimateDestinationViaPipe(class Pipe *pPipe,int PK_Pipe);
 

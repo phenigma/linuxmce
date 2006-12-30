@@ -27,6 +27,9 @@
 //#include <libvfd.h>
 #define test_bit(bit, array) (array[bit/8] & (1<<(bit%8)))
 
+void (*g_ButtonCallBackFn)(int PK_Button)=NULL;
+int g_QuitButtonThread=0;
+
 void* KeyboardLoop(void* param)
 {
 	const char *pDev = (const char *) param;
@@ -129,7 +132,7 @@ void* KeyboardLoop(void* param)
 		}
 	}
 
-	while(1)
+	while(!g_QuitButtonThread)
 	{
 		read_bytes = read(fd,&event,sizeof(struct input_event)*64);
 
@@ -150,22 +153,23 @@ void* KeyboardLoop(void* param)
 				switch(event[yalv].code)
 				{
 				case KEY_PLAYPAUSE	: PK_Button=BUTTON_Pause_CONST; break;
-				case KEY_STOPCD	: PK_Button=BUTTON_Pause_CONST; break;
-				case KEY_PREVIOUSSONG	: PK_Button=BUTTON_Pause_CONST; break;
-				case KEY_NEXTSONG	: PK_Button=BUTTON_Pause_CONST; break;
-				case KEY_FASTFORWARD	: PK_Button=BUTTON_Pause_CONST; break;
-				case KEY_REWIND	: PK_Button=BUTTON_Pause_CONST; break;
+				case KEY_STOPCD	: PK_Button=BUTTON_Stop_CONST; break;
+				case KEY_PREVIOUSSONG	: PK_Button=BUTTON_Skip_Prior_CONST; break;
+				case KEY_NEXTSONG	: PK_Button=BUTTON_Skip_Next_CONST; break;
+				case KEY_FASTFORWARD	: PK_Button=BUTTON_Fast_Forward_CONST; break;
+				case KEY_REWIND	: PK_Button=BUTTON_Rewind_CONST; break;
 				default:		printf("Unknown button"); break;
 				}
 				if( PK_Button )
 				{
 					printf("Got button %d\n",PK_Button);
-//					DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(pMedia_Live_LCDButtons->m_dwPK_Device,pMedia_Live_LCDButtons->m_pDevice_Orbiter->m_dwPK_Device,StringUtils::itos(PK_Button),"keypad");
-//					pMedia_Live_LCDButtons->SendCommand(CMD_Simulate_Keypress);
+					if( g_ButtonCallBackFn )
+						(*g_ButtonCallBackFn)(PK_Button);
 				}
 			}
 		}
 	}
+	printf("Closing button thread\n");
 	close(fd);
 	return NULL;
 }

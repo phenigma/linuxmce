@@ -125,6 +125,9 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_iPK_MediaProvider=atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_EK_MediaProvider_CONST).c_str());
 	m_bCaptureCardActive=false;
 	m_iDelayForCaptureCard=0;
+	m_iLastVolume=-1;
+	m_bMute=false;
+
 	int PK_Device_CaptureCard = atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_FK_Device_Capture_Card_Port_CONST).c_str());
 	if( PK_Device_CaptureCard )
         m_pDevice_CaptureCard = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_CaptureCard);
@@ -482,6 +485,9 @@ bool Media_Plugin::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::AvInputChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_AV_Input_Changed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaDescriptionChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Description_Changed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::RippingAborted ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Abort_Ripping_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::VolumeChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Volume_Changed_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::VolumeChanged ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Set_Volume_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::VolumeChanged ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Mute_CONST );
 
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
@@ -3589,6 +3595,73 @@ bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessag
 	}
 
 	return false;
+}
+
+bool Media_Plugin::VolumeChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	MediaDevice *pMediaDevice = m_mapMediaDevice_Find( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT ? pMessage->m_dwPK_Device_From : pMessage->m_dwPK_Device_To );
+	if( !pMediaDevice )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::VolumeChanged message from %d to %d involves unknown media device",
+			pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To);
+		return false;
+	}
+
+	if( pMessage->m_dwID == COMMAND_Mute_CONST )
+		pMediaDevice->m_bMute=!pMediaDevice->m_bMute;
+	else if( pMessage->m_dwID == EVENT_Volume_Changed_CONST )
+	{
+		string sValue = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
+		if( sValue=="MUTE" )
+			pMediaDevice->m_bMute=true;
+		else
+		{
+			pMediaDevice->m_bMute=false;
+			pMediaDevice->m_iLastVolume=atoi(pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST].c_str());;
+		}
+	}
+	else if( pMessage->m_dwID == COMMAND_Set_Volume_CONST )
+	{
+		pMediaDevice->m_bMute=false;
+		pMediaDevice->m_iLastVolume=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());;
+	}
+
+	for(map<int,class EntertainArea *>::iterator it=pMediaDevice->m_mapEntertainArea.begin();it!=pMediaDevice->m_mapEntertainArea.end();++it)
+	{
+		EntertainArea *pEntertainArea = it->second;
+		if( pEntertainArea->m_listVFD_LCD_Displays.size() )
+			ShowMediaPlaybackState(pEntertainArea);
+	}
+	return false;
+}
+
+void Media_Plugin::ShowMediaPlaybackState(EntertainArea *pEntertainArea)
+{
+	string sVolume,sLastPlaybackState;
+	if( pEntertainArea->m_pMediaStream )
+	{
+		if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio )
+		{
+			MediaDevice *pMediaDevice_Audio = m_mapMediaDevice_Find( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_dwPK_Device );
+			if( pMediaDevice_Audio )
+			{
+				if( pMediaDevice_Audio->m_bMute )
+					sVolume = "MUTE";
+				else
+					sVolume = StringUtils::itos(pMediaDevice_Audio->m_iLastVolume);
+			}
+		}
+		sLastPlaybackState = StringUtils::itos( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_iLastPlaybackSpeed );
+	}
+
+	for(ListMediaDevice::iterator itVFD=pEntertainArea->m_listVFD_LCD_Displays.begin();itVFD!=pEntertainArea->m_listVFD_LCD_Displays.end();++itVFD)
+	{
+		MediaDevice *pMediaDevice = *itVFD;
+
+		DCE::CMD_Show_Media_Playback_State CMD_Show_Media_Playback_State(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+			sLastPlaybackState, pEntertainArea->m_pMediaStream ? pEntertainArea->m_pMediaStream->m_iPK_MediaType : 0, sVolume);
+		SendCommand(CMD_Show_Media_Playback_State);
+	}
 }
 
 bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)

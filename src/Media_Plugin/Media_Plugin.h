@@ -419,6 +419,10 @@ public:
 	 */
 	bool MediaDescriptionChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
+	/**
+	 * @brief Interceptor for set volume and mute commands, and volume changed event
+	 */
+	bool VolumeChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 	// Sometimes when MediaHanderBase::GetRenderDevices is called, only the top-level render devices (ie the media source)
 	// is desired.  However, HandleOnOffs wants everything in the pipe, and the following function
@@ -443,6 +447,8 @@ public:
 	void MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent=true);
 
 	virtual bool PendingTasks(vector<string> *vectPendingTasks=NULL);
+
+	void ShowMediaPlaybackState(EntertainArea *pEntertainArea);  // Update any VFD displays with the new playback state in this entertainment area
 
 	// Given pMediaDevice, this function will find out if that device is presently being used by any media streams
 	// and return a 1 if it's involved as the source, and 2 if the destination, or 0 if there's no involvement.
