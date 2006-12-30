@@ -29,7 +29,7 @@ Media_Live_LCDButtons::Media_Live_LCDButtons(int DeviceID, string ServerAddress,
 	m_pDevice_Orbiter=NULL;
 	m_KeyboardLoopThread_Id=0;
 	m_VfdHandle=0;
-	m_iPlayBackIcon_Last=0;
+	m_iSourceIcon_Last=m_iPlayBackIcon_Last=0;
 }
 
 //<-dceag-const2-b->!
@@ -143,15 +143,33 @@ void Media_Live_LCDButtons::CMD_Display_Message(string sText,string sType,string
 //<-dceag-c837-b->
 
 	/** @brief COMMAND: #837 - Show Media Playback State */
-	/**  */
+	/** Show the current state of the media playback */
 		/** @param #5 Value To Assign */
 			/** Empty = no media playing, otherwise a speed, 0=pause, 1000=normal forward, -4000 = 4x reverse, etc. */
+		/** @param #76 Level */
+			/** The level of the volume, from 0-100.  empty means it's not known, or "MUTE" */
+		/** @param #162 Caption */
+			/** The type of media, if known.  Types are: DVD, Video, CD, Radio, TV */
 
-void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assign,string sLevel,string sCaption,string &sCMD_Result,Message *pMessage)
 //<-dceag-c837-e->
 {
 	if( !m_VfdHandle )
 		return;
+	
+	if( sLevel.empty() )
+	{
+		VFDIconOff(m_VfdHandle, VFD_ICON_VOLUME);
+		VFDIconOff(m_VfdHandle, VFD_ICON_SPEAKER);
+	}
+	else if( sLevel=="MUTE" )
+		VFDIconOn(m_VfdHandle, VFD_ICON_SPEAKER);
+	else
+	{
+		VFDIconOff(m_VfdHandle, VFD_ICON_SPEAKER);
+		VFDIconOn(m_VfdHandle, VFD_ICON_VOLUME);
+		VFDSetVolume(m_VfdHandle, atoi(sLevel.c_str())/8); // We use 0-100, the display uses 0-12
+	}
 	
 	int PlayBackIcon=0;
 	if( sValue_To_Assign.empty()==false )
@@ -167,18 +185,39 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 			PlayBackIcon=VFD_ICON_RWND;
 	}
 	
-	if( PlayBackIcon==m_iPlayBackIcon_Last )
+	int iSourceIcon_Last=0;
+	if( sCaption.empty()==false )
+	{
+		if( sCaption=="DVD" )
+			iSourceIcon_Last=VFD_ICON_DVD;
+		else if( sCaption=="Video" )
+			iSourceIcon_Last=VFD_ICON_VIDEO;
+		else if( sCaption=="CD" )
+			iSourceIcon_Last=VFD_ICON_CD;
+		else if( sCaption=="Radio" )
+			iSourceIcon_Last=VFD_ICON_RADIO;
+		else if( sCaption=="TV" )
+			iSourceIcon_Last=VFD_ICON_VIDEO; // No icon for TV
+	}
+	if( PlayBackIcon==m_iPlayBackIcon_Last && m_iSourceIcon_Last==iSourceIcon_Last )
 		return; // Nothing to do.  The state is unchanged
 
 	if( m_iPlayBackIcon_Last )
 		VFDIconOff(m_VfdHandle, m_iPlayBackIcon_Last);
+	
+	if( m_iSourceIcon_Last )
+		VFDIconOff(m_VfdHandle, m_iSourceIcon_Last);
+
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Changing playback state from %d to %d",
-		m_iPlayBackIcon_Last,PlayBackIcon);
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Changing playback state from %d to %d source from %d to %d",
+		m_iPlayBackIcon_Last,PlayBackIcon,m_iSourceIcon_Last,iSourceIcon_Last);
 #endif
 	m_iPlayBackIcon_Last=PlayBackIcon;
+	m_iSourceIcon_Last=iSourceIcon_Last;
 	if( m_iPlayBackIcon_Last )
 		VFDIconOn(m_VfdHandle, m_iPlayBackIcon_Last);
+	if( m_iSourceIcon_Last )
+		VFDIconOn(m_VfdHandle, m_iSourceIcon_Last);
 }
 
 void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)

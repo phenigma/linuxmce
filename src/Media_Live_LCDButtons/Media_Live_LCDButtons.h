@@ -2,14 +2,14 @@
 #ifndef Media_Live_LCDButtons_h
 #define Media_Live_LCDButtons_h
 
-//	DCE Implemenation for #1859 Media Live LCD/Buttons
+//	DCE Implemenation for #1860 Media Live LCD/Buttons
 
 #include "Gen_Devices/Media_Live_LCDButtonsBase.h"
 //<-dceag-d-e->
 
 #include "../VFD_LCD/VFD_LCD_Base.h"
 
-//<-dceag-decl-b->
+//<-dceag-decl-b->!
 namespace DCE
 {
 	class Media_Live_LCDButtons : public Media_Live_LCDButtons_Command, public VFD_LCD_Base
@@ -19,7 +19,7 @@ namespace DCE
 
 		// Private methods
 		pthread_t m_KeyboardLoopThread_Id;
-		int m_VfdHandle,m_iPlayBackIcon_Last;
+		int m_VfdHandle,m_iPlayBackIcon_Last,m_iSourceIcon_Last;
 public:
 		// Public member variables
 		DeviceData_Base *m_pDevice_Orbiter;
@@ -73,12 +73,16 @@ public:
 
 
 	/** @brief COMMAND: #837 - Show Media Playback State */
-	/**  */
+	/** Show the current state of the media playback */
 		/** @param #5 Value To Assign */
 			/** Empty = no media playing, otherwise a speed, 0=pause, 1000=normal forward, -4000 = 4x reverse, etc. */
+		/** @param #76 Level */
+			/** The level of the volume, from 0-100.  empty means it's not known, or "MUTE" */
+		/** @param #162 Caption */
+			/** The type of media, if known.  Types are: DVD, Video, CD, Radio, TV */
 
-	virtual void CMD_Show_Media_Playback_State(string sValue_To_Assign) { string sCMD_Result; CMD_Show_Media_Playback_State(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Show_Media_Playback_State(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Show_Media_Playback_State(string sValue_To_Assign,string sLevel,string sCaption) { string sCMD_Result; CMD_Show_Media_Playback_State(sValue_To_Assign.c_str(),sLevel.c_str(),sCaption.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Show_Media_Playback_State(string sValue_To_Assign,string sLevel,string sCaption,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	};
