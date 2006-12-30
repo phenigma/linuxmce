@@ -156,6 +156,12 @@
 #define BUTTON_Mouse_10_CONST 212
 #define BUTTON_Scroll_Left_CONST 213
 #define BUTTON_Scroll_Right_CONST 214
+#define BUTTON_Pause_CONST 215
+#define BUTTON_Stop_CONST 216
+#define BUTTON_Rewind_CONST 217
+#define BUTTON_Fast_Forward_CONST 218
+#define BUTTON_Skip_Next_CONST 219
+#define BUTTON_Skip_Prior_CONST 220
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"

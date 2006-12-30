@@ -1,0 +1,9 @@
+<-dceag-p-b->
+Package = DCE_Destination_Package
+Dir = 
+desc = DCE Implemenation for #1859 Media Live LCD/Buttons
+Maintainer = aarnoName
+Email = 
+Depend = DCE_Dependencies
+<-dceag-p-e->
+

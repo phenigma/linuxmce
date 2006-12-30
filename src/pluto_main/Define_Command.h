@@ -757,6 +757,7 @@
 #define COMMAND_Execute_Shortcut_CONST 834
 #define COMMAND_Get_Network_Devices_Shares_CONST 835
 #define COMMAND_Control_Board_Generic_CONST 836
+#define COMMAND_Show_Media_Playback_State_CONST 837
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

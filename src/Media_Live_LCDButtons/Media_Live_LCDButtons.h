@@ -1,0 +1,89 @@
+//<-dceag-d-b->
+#ifndef Media_Live_LCDButtons_h
+#define Media_Live_LCDButtons_h
+
+//	DCE Implemenation for #1859 Media Live LCD/Buttons
+
+#include "Gen_Devices/Media_Live_LCDButtonsBase.h"
+//<-dceag-d-e->
+
+#include "../VFD_LCD/VFD_LCD_Base.h"
+
+//<-dceag-decl-b->
+namespace DCE
+{
+	class Media_Live_LCDButtons : public Media_Live_LCDButtons_Command, public VFD_LCD_Base
+	{
+//<-dceag-decl-e->
+		// Private member variables
+
+		// Private methods
+		pthread_t m_KeyboardLoopThread_Id;
+		int m_VfdHandle;
+public:
+		// Public member variables
+		DeviceData_Base *m_pDevice_Orbiter;
+
+//<-dceag-const-b->
+public:
+		// Constructors/Destructor
+		Media_Live_LCDButtons(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+		virtual ~Media_Live_LCDButtons();
+		virtual bool GetConfig();
+		virtual bool Register();
+		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
+		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
+//<-dceag-const-e->
+
+		void DoUpdateDisplay(vector<string> *vectString);  // Put this message on the VFD Display
+		
+//<-dceag-const2-b->!
+
+//<-dceag-h-b->
+	/*
+				AUTO-GENERATED SECTION
+				Do not change the declarations
+	*/
+
+	/*
+			*****DATA***** accessors inherited from base class
+	string DATA_Get_Block_Device();
+
+			*****EVENT***** accessors inherited from base class
+
+			*****COMMANDS***** we need to implement
+	*/
+
+
+	/** @brief COMMAND: #406 - Display Message */
+	/** Display a message on the lcd/vfd display */
+		/** @param #9 Text */
+			/** The message to display */
+		/** @param #14 Type */
+			/** For devices implementing VFD_LCD_Base, this is the message type defined in the header */
+		/** @param #50 Name */
+			/** you can give the message a name, such as "status", "error", etc */
+		/** @param #102 Time */
+			/** Number of seconds to display the message for */
+		/** @param #103 List PK Device */
+			/** If going to a plugin that wil relay messages to other devices (ie orbiter_plugin and orbiter), A comma delimited list of devices to display this message on.  If going to a display device directly (like vfd/lcd) this is ignored. */
+
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sList_PK_Device) { string sCMD_Result; CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sList_PK_Device.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sList_PK_Device,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #837 - Show Media Playback State */
+	/**  */
+		/** @param #5 Value To Assign */
+			/** Empty = no media playing, otherwise a speed, 0=pause, 1000=normal forward, -4000 = 4x reverse, etc. */
+
+	virtual void CMD_Show_Media_Playback_State(string sValue_To_Assign) { string sCMD_Result; CMD_Show_Media_Playback_State(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Show_Media_Playback_State(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+//<-dceag-h-e->
+	};
+
+//<-dceag-end-b->
+}
+#endif
+//<-dceag-end-e->

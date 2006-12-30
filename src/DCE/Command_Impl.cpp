@@ -770,8 +770,15 @@ void Command_Impl::ProcessMessageQueue()
 				// If the connection between this device and dcerouter is still ok, we will have always gotten a true,
 				// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 				// let the framework restart us
-				g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Going to quit");
-				OnReload();
+#ifndef WINCE
+				if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
+					g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+				else
+#endif
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Going to quit");
+					OnReload();
+				}
 			}
 		}
 		mq.Relock();
@@ -838,9 +845,16 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done id %d con
 			// If the connection between this device and dcerouter is still ok, we will have always gotten a response,
 			// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 			// let the framework restart us
-			g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send message type %d id %d to %d with confirmation.  Going to quit",
-				Type,ID,PK_Device_To);
-			OnReload();
+#ifndef WINCE
+			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
+				g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+			else
+#endif
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send message type %d id %d to %d with confirmation.  Going to quit",
+					Type,ID,PK_Device_To);
+				OnReload();
+			}
 		}
 		return bResult && *p_sResponse == "OK";
 	}
@@ -879,9 +893,16 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done id %d conf %d resp
 			// If the connection between this device and dcerouter is still ok, we will have always gotten a response,
 			// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 			// let the framework restart us
-			g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send with return message.  type %d id %d to %d Going to quit",
-				Type,ID,PK_Device_To);
-			OnReload();
+#ifndef WINCE
+			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
+				g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+			else
+#endif
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send with return message.  type %d id %d to %d Going to quit",
+					Type,ID,PK_Device_To);
+				OnReload();
+			}
 		}
 
 		return false;
