@@ -132,6 +132,16 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 			pCell = new DataGridCell(pFileBrowserInfo->m_sDisplayName);
 		pCell->m_mapAttributes["PK_FileFormat"] = StringUtils::itos(pFileBrowserInfo->m_PK_FileFormat);
 		sSource[0] = pFileBrowserInfo->m_cMediaSource ? pFileBrowserInfo->m_cMediaSource : '?';
+
+#ifdef SIM_JUKEBOX
+		map< int, string >::iterator itPurch;
+		if( (itPurch=m_mapPK_FilesForSimulatedPurchase.find( pFileBrowserInfo->m_PK_File ) ) != m_mapPK_FilesForSimulatedPurchase.end() )
+		{
+			sSource = "L";
+			pCell->m_mapAttributes["Terms"] = itPurch->second;
+		}
+#endif
+
 		pCell->m_mapAttributes["Source"] = sSource;
 		pCell->SetValue(pFileBrowserInfo->m_sMRL);
 		pMediaListGrid->SetData(0,iRow++,pCell);
@@ -411,9 +421,9 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 {
 	string sSQL_Sort;
 	if( PK_AttributeType_Sort==0 )
-		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory,FK_FileFormat FROM File WHERE PK_File in (" + sPK_File + ")";
+		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory,FK_FileFormat,Filename FROM File WHERE PK_File in (" + sPK_File + ")";
 	else
-		sSQL_Sort = "SELECT PK_File,'',Name,0,FK_FileFormat FROM File JOIN File_Attribute ON FK_File=PK_File JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ")";
+		sSQL_Sort = "SELECT PK_File,'',Name,0,FK_FileFormat,Filename FROM File LEFT JOIN File_Attribute ON FK_File=PK_File LEFT JOIN Attribute ON FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ") AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort);
 
     PlutoSqlResult result;
     MYSQL_ROW row;
@@ -434,7 +444,12 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + ",'" + sThisPath +"'",atoi(row[0]),row[4] ? atoi(row[4]) : 0,'F',true,false);
 			}
 			else
-				pFileBrowserInfo = new FileBrowserInfo(row[2],string("!F") + row[0],atoi(row[0]),row[4] ? atoi(row[4]) : 0,'F',false,false);
+#ifdef SIM_JUKEBOX
+				pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string("!F") + row[0],atoi(row[0]),row[4] ? atoi(row[4]) : 0,
+					row[5] && strstr(row[5],".dvd")!=NULL ? 'D' : 'F', false,false);
+#else
+				pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string("!F") + row[0],atoi(row[0]),row[4] ? atoi(row[4]) : 0,'F',false,false);
+#endif
 			if( (it=mapFile_To_Pic.find( atoi(row[0]) ))!=mapFile_To_Pic.end() )
 				pFileBrowserInfo->m_PK_Picture = it->second;
 			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);

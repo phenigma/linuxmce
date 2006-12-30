@@ -38,6 +38,7 @@
 #define ATTRIBUTETYPE_Synopsis_CONST 37
 #define ATTRIBUTETYPE_Producer_CONST 38
 #define ATTRIBUTETYPE_Executive_Producer_CONST 39
+#define ATTRIBUTETYPE_Purchase_Info_CONST 40
 
 #define ATTRIBUTETYPE_TABLE "AttributeType"
 #define ATTRIBUTETYPE_PK_ATTRIBUTETYPE_FIELD "PK_AttributeType"

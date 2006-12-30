@@ -1294,8 +1294,23 @@ void *ImageLoadThread(void *p)
 			continue;
 		}
 		vm.Release();
-		size_t GraphicLength;
-		char *pGraphicData = FileUtils::ReadFileIntoBuffer(pBackgroundImage->m_sPic, GraphicLength);
+
+		size_t GraphicLength=0;
+		char *pGraphicData=NULL;
+
+		if (pRenderer->m_pOrbiter->m_bIsOSD)
+			pGraphicData = FileUtils::ReadFileIntoBuffer(pBackgroundImage->m_sPic, GraphicLength);
+		else
+		{
+			int Length=0;
+
+			DCE::CMD_Request_File CMD_Request_File( pRenderer->m_pOrbiter->m_dwPK_Device, pRenderer->m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, pBackgroundImage->m_sPic,
+				&pGraphicData, &Length );
+			pRenderer->m_pOrbiter->SendCommand( CMD_Request_File );
+			if (Length > 0)
+				GraphicLength = Length;
+		}
+
 		PLUTO_SAFETY_LOCK(M, pRenderer->m_pOrbiter->m_DatagridMutex);
 		vm.Relock();
 

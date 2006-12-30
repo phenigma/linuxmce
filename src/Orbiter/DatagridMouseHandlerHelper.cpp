@@ -60,112 +60,7 @@ void DatagridMouseHandlerHelper::Stop()
 {
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
 }
-
-// todo -- delete this
-bool DatagridMouseHandlerHelper::StayInGrid(int PK_Direction,int X,int Y)
-{
-	if( (m_pObj_ScrollingGrid->m_rPosition + m_pObj_ScrollingGrid->m_pPopupPoint).Contains(X,Y) )
-	{
-		if( !m_pObj_ScrollingGrid->DataGridTable_Get() )
-			return true;  // Must be in the middle of rendering
-
-		// We're still inside the grid, just highlight whatever cell is underneath us, figure that out
-		int Row_Before = m_pObj_ScrollingGrid->m_iHighlightedRow;
-		int Column_Before = m_pObj_ScrollingGrid->m_iHighlightedColumn;
-
-		int DeltaY=0,DeltaX=0;
-		if ( m_pObj_ScrollingGrid->m_FirstRowHeight > 0 && ( m_pObj_ScrollingGrid->m_GridCurRow == 0 || m_pObj_ScrollingGrid->m_bKeepRowHeader )  )
-			DeltaY = m_pObj_ScrollingGrid->m_FirstRowHeight - m_pObj_ScrollingGrid->m_FixedRowHeight;
-		if ( m_pObj_ScrollingGrid->m_FirstColumnWidth > 0 && ( m_pObj_ScrollingGrid->m_GridCurCol == 0 || m_pObj_ScrollingGrid->m_bKeepColHeader )  )
-			DeltaX = m_pObj_ScrollingGrid->m_FirstColumnWidth - m_pObj_ScrollingGrid->m_FixedColumnWidth;
-
-		int X2 = X - m_pObj_ScrollingGrid->m_rPosition.X - m_pObj_ScrollingGrid->m_pPopupPoint.X - DeltaX;
-		int Y2 = Y - m_pObj_ScrollingGrid->m_rPosition.Y - m_pObj_ScrollingGrid->m_pPopupPoint.Y - DeltaY;
-		
-		int Row = Y2 / (m_pObj_ScrollingGrid->m_FixedRowHeight);
-		int Column = X2 / (m_pObj_ScrollingGrid->m_FixedColumnWidth);
-		if( m_pObj_ScrollingGrid->m_iHighlightedRow!=-1 )
-			m_pObj_ScrollingGrid->m_iHighlightedRow = Row;
-		if( m_pObj_ScrollingGrid->m_iHighlightedColumn!=-1 )
-			m_pObj_ScrollingGrid->m_iHighlightedColumn = Column;
-
-		if( m_pObj_ScrollingGrid->m_iHighlightedRow > m_pObj_ScrollingGrid->m_MaxRow - 1 )
-			m_pObj_ScrollingGrid->m_iHighlightedRow = m_pObj_ScrollingGrid->m_MaxRow - 1;
-		if( m_pObj_ScrollingGrid->m_iHighlightedColumn > m_pObj_ScrollingGrid->m_MaxCol - 1 )
-			m_pObj_ScrollingGrid->m_iHighlightedColumn = m_pObj_ScrollingGrid->m_MaxCol - 1;
-
-		if( m_pObj_ScrollingGrid->m_iHighlightedRow!=-1 && m_pObj_ScrollingGrid->m_GridCurRow + m_pObj_ScrollingGrid->m_iHighlightedRow >= m_pObj_ScrollingGrid->DataGridTable_Get()->GetRows() )
-			m_pObj_ScrollingGrid->m_iHighlightedRow = m_pObj_ScrollingGrid->DataGridTable_Get()->GetRows() - m_pObj_ScrollingGrid->m_GridCurRow - 1;
-
-		if( m_pObj_ScrollingGrid->m_iHighlightedColumn!=-1 && m_pObj_ScrollingGrid->m_GridCurCol + m_pObj_ScrollingGrid->m_iHighlightedColumn >= m_pObj_ScrollingGrid->DataGridTable_Get()->GetCols() )
-			m_pObj_ScrollingGrid->m_iHighlightedColumn = m_pObj_ScrollingGrid->DataGridTable_Get()->GetCols() - m_pObj_ScrollingGrid->m_GridCurCol - 1;
-g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::StayInGrid %d-%d,%d  old row:%d col %d, now row:%d,col:%d",PK_Direction,X,Y,Row_Before,Column_Before,Row,Column);
-if( Row_Before==Row && Column_Before==Column )
-int k=2;
-		if( m_pObj_ScrollingGrid->m_iHighlightedRow!=Row_Before || m_pObj_ScrollingGrid->m_iHighlightedColumn!=Column_Before )
-		{
-			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_ScrollingGrid);
-
-//m_pMouseBehavior->m_pOrbiter->HighlightNextObject(PK_Direction);
-			m_pMouseBehavior->m_pOrbiter->Renderer()->RedrawObjects();  // We may have scrolled past the end of a grid and need to re-render
-		}
-		return true;
-	}
-
-	if( (PK_Direction==DIRECTION_Up_CONST || PK_Direction==DIRECTION_Down_CONST) &&
-		MovedPastTopBottomOfDataGrid((DesignObj_DataGrid *) m_pObj_ScrollingGrid,PK_Direction,Y) )
-			return true; // We're now iterator mode
-	return false;
-}
-		
-// todo -- delete this
-bool DatagridMouseHandlerHelper::MovedPastTopBottomOfDataGrid(DesignObj_DataGrid *pObj,int PK_Direction,int Y)
-{
-	// Moving past the bottom causes it to start the iterator and begin first scrolling
-	// at up to 5 speeds, and then paging at up to 5 speeds by continually moving in the same direction.  As
-	// soon as the direction changes, or the user moves back to the top, reset everything.
-	if( PK_Direction==DIRECTION_Up_CONST )
-	{ 
-		if( Y >=pObj->m_rPosition.Y + pObj->m_pPopupPoint.Y || pObj->m_GridCurRow==0 )
-			return false;  // We've still got room to go up
-		m_dwPK_Direction_ScrollGrid = DIRECTION_Up_CONST;
-		pObj->m_iHighlightedRow=0;
-
-		// Move to the bottom of the grid, since all up movements are now setting the iterator
-		m_pMouseBehavior->SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Bottom() + pObj->m_pPopupPoint.Y );
-	}
-	else
-	{
-		// Down is trickier since the last visible cell may not extend all the way to the bottom (the top cell is always the top)
-		// So get the coorindates of the last visible cell
-		PlutoRectangle r;
-		pObj->GetGridCellDimensions(
-			1, // col span
-			1, // row span
-			0, // column
-			pObj->m_MaxRow - 1 /* 0 based */, // We only care about the position of the last visible row, whether or not anything is there
-			r.X,  r.Y,  r.Width,  r.Height );
-
-		r = r + pObj->m_pPopupPoint;
-
-		if( Y<r.Bottom() )
-			return false;
-
-		m_dwPK_Direction_ScrollGrid = DIRECTION_Down_CONST;
-		pObj->m_iHighlightedRow=pObj->m_MaxRow-1;
-		if( pObj->m_iHighlightedRow!=-1 && pObj->m_GridCurRow + pObj->m_iHighlightedRow >= pObj->DataGridTable_Get()->GetRows() )
-			pObj->m_iHighlightedRow = pObj->DataGridTable_Get()->GetRows() - pObj->m_GridCurRow - 1;
-
-		// Move to the top of the grid, since all up movements are now setting the iterator
-		m_pMouseBehavior->SetMousePosition( pObj->m_rPosition.X + pObj->m_pPopupPoint.X + pObj->m_rPosition.Width/2 , pObj->m_rPosition.Y + pObj->m_pPopupPoint.Y );
-	}
-
-	m_pObj_ScrollingGrid = (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
-	m_pMouseHandler->m_iLastNotch = -999; // Start with no movement
-
-	return true;
-}
-
+	
 void DatagridMouseHandlerHelper::ScrollGrid(int dwPK_Direction,int X,int Y)
 {
 	if( dwPK_Direction!=m_dwPK_Direction_ScrollGrid)
@@ -356,6 +251,11 @@ g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move Y %d m_Bottom
 	{
 g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move ****GO**** Y %d m_Bottom %d m_eCapturingOffscreenMovement %d m_bHitBottom %d currow %d",
 					  Y,m_Bottom,(int) m_eCapturingOffscreenMovement,(int) m_bHitBottom,m_pObj_ScrollingGrid->m_GridCurRow);
+
+#ifndef WIN32
+		m_pMouseBehavior->ShowMouse(false,MouseBehavior::smb_TurnOnRemote);
+#endif
+
 #ifdef WIN32
 		if( Y <= m_Top+6 ) 
 #else
@@ -384,9 +284,6 @@ g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move ****GO**** Y 
 
 		PlutoRectangle r(m_iLeft,m_Top,m_iRight-m_iLeft,m_Bottom-m_Top);
 		m_pMouseBehavior->ConstrainMouse(r);
-#ifndef WIN32
-		m_pMouseBehavior->ShowMouse(false,MouseBehavior::smb_TurnOnRemote);
-#endif
 		return true;
 	}
 	return false;

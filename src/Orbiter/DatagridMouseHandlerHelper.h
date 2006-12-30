@@ -54,9 +54,6 @@ namespace DCE
 		virtual ~DatagridMouseHandlerHelper();
 		void Start(DesignObj_DataGrid *pObj_ScrollingGrid,int NumNotches,int Top,int Bottom);
 		void Stop();
-		bool StayInGrid(int PK_Direction,int X,int Y);
-
-		bool MovedPastTopBottomOfDataGrid(DesignObj_DataGrid *pObj,int PK_Direction,int Y);
 		void ScrollGrid(int dwPK_Direction,int X,int Y);
 
 		bool DoIteration();

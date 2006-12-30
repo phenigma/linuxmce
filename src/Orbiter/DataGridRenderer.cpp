@@ -307,9 +307,9 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 			{
 				int Length=0;
 
-				DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_pObj_Owner_DataGrid->m_pOrbiter->m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, pPath,
+				DCE::CMD_Request_File CMD_Request_File( m_pObj_Owner_DataGrid->m_pOrbiter->m_dwPK_Device, m_pObj_Owner_DataGrid->m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, pPath,
 					&pCell->m_pGraphicData, &Length );
-				m_pObj_Owner_DataGrid->m_pOrbiter->SendCommand( CMD_Request_File_Cat );
+				m_pObj_Owner_DataGrid->m_pOrbiter->SendCommand( CMD_Request_File );
 				if (Length > 0)
 				{
 					pCell->m_GraphicLength = Length;

@@ -362,6 +362,17 @@ continue;
 		m_mapMediaType_Bookmarkable[PK_MediaType]=true;
 	}
 
+#ifdef SIM_JUKEBOX
+	{
+		string sSQL = "SELECT FK_File,Name FROM File_Attribute JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Purchase_Info_CONST);
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		if( (result.r = m_pDatabase_pluto_media->mysql_query_result(sSQL))  )
+			while( (row = mysql_fetch_row( result.r )) )
+				m_mapPK_FilesForSimulatedPurchase[ atoi(row[0]) ] = row[1];
+	}
+#endif
+
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(1);      // number of worker threads
 	CMD_Refresh_List_of_Online_Devices();

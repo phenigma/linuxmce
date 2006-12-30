@@ -191,9 +191,26 @@ g_PlutoProfiler->Stop("send command");
 					const char *pPath = pCell->GetImagePath();
 					if (pPath && !pCell->m_pGraphicData && !pCell->m_pGraphic)
 					{
-size_t size;
-pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pPath,size);
-pCell->m_GraphicLength=size;
+						if (m_pOrbiter->m_bIsOSD)
+						{
+							size_t size;
+							pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pPath,size);
+							pCell->m_GraphicLength=size;
+						}
+						else
+						{
+							int Length=0;
+
+							DCE::CMD_Request_File CMD_Request_File( m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, pPath,
+								&pCell->m_pGraphicData, &Length );
+							m_pOrbiter->SendCommand( CMD_Request_File );
+							if (Length > 0)
+							{
+								pCell->m_GraphicLength = Length;
+								pCell->m_GraphicFormat = GR_JPG;
+							}
+						}
+
 //				M.Release();
 #ifdef DEBUG
 						g_pPlutoLogger->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,pDataGridTable->CovertColRowType(it->first).first,pDataGridTable->CovertColRowType(it->first).second);

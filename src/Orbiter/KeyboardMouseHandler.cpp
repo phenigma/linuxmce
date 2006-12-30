@@ -120,7 +120,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed directio
 	{
 g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highlight %d at %d,%d",PK_Direction,X,Y);
 		DesignObj_Orbiter *pObj_Before = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
-
+/*
 		// Let's see if we've been highlighting a datagrid and moved past the top or bottom
 		// If so, we're going to engage special behavior where we start the iterator to do scroll
 		if( pObj_Before->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
@@ -131,7 +131,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highli
 				return;
 			}
 		}
-		
+*/		
 		if( !m_pMouseBehavior->m_pOrbiter->Renderer()->HighlightNextObject(PK_Direction) )
 		{
 /*
