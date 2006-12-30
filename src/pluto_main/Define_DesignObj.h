@@ -2367,9 +2367,9 @@
 #define DESIGNOBJ_mnuFileList_SortOptions_CONST 5362
 #define DESIGNOBJ_butFBSF_Go_CONST 5363
 #define DESIGNOBJ_butRepeatFinal_CONST 5364
-#define DESIGNOBJ_popFilePurchaseDetailsl_CONST 5366
+#define DESIGNOBJ_Power_UI2_menu_CONST 5365
+#define DESIGNOBJ_popFilePurchaseDetails_CONST 5366
 #define DESIGNOBJ_butFBSF_Purchase_CONST 5367
-
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

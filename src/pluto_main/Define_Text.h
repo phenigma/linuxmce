@@ -1157,6 +1157,8 @@
 #define TEXT_TU_CONST 1875
 #define TEXT_VW_CONST 1876
 #define TEXT_XYZ_CONST 1877
+#define TEXT_Purchase_CONST 1879
+#define TEXT_Terms_CONST 1880
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
