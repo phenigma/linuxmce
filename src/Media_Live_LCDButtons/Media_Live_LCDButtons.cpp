@@ -52,6 +52,7 @@ Media_Live_LCDButtons::Media_Live_LCDButtons(int DeviceID, string ServerAddress,
 	m_iVfdScrollRegionLast=m_iSourceIcon_Last=m_iPlayBackIcon_Last=0;
 	g_pMedia_Live_LCDButtons=this;
 	g_ButtonCallBackFn=ButtonCallBackFn;
+	m_pKeyboardDevice=NULL;
 }
 
 //<-dceag-const2-b->!
@@ -68,7 +69,7 @@ Media_Live_LCDButtons::~Media_Live_LCDButtons()
 		pthread_cancel(m_KeyboardLoopThread_Id);
 		pthread_join(m_KeyboardLoopThread_Id,NULL);
 	}
-
+	delete m_pKeyboardDevice;
 	g_pPlutoLogger->Write( LV_STATUS, "Done" );
 }
 
@@ -82,9 +83,9 @@ bool Media_Live_LCDButtons::GetConfig()
 	m_pDevice_Orbiter = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Standard_Orbiter_CONST);
 	if( m_pDevice_Orbiter )
 	{
-		string sBlockDevice = DATA_Get_Block_Device();
+		m_pKeyboardDevice = strdup( DATA_Get_Block_Device().c_str() );
 		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::GetConfig Orbiter: %d dev: %s", m_pDevice_Orbiter->m_dwPK_Device, sBlockDevice.c_str());
-		if(pthread_create( &m_KeyboardLoopThread_Id, NULL, KeyboardLoop, (void*) sBlockDevice.c_str()) )
+		if(pthread_create( &m_KeyboardLoopThread_Id, NULL, KeyboardLoop, (void*) m_pKeyboardDevice) )
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create PNP thread" );
 		}

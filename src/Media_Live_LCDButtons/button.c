@@ -32,7 +32,7 @@ int g_QuitButtonThread=0;
 
 void* KeyboardLoop(void* param)
 {
-	const char *pDev = (const char *) param;
+	char *pDev = (char *) param;
 //	Media_Live_LCDButtons *pMedia_Live_LCDButtons = (Media_Live_LCDButtons *) param;
 	int ret,i;
 	extern int errno;
@@ -47,38 +47,52 @@ void* KeyboardLoop(void* param)
 	unsigned int key_bitmask[KEY_MAX/8+1];
 	int read_bytes;
 
-	// Find the keyboard device
-	fd = open(pDev,O_RDWR);
-	if(fd==0)
+	// The /dev/event can jump all around and we have
+	// to hunt for it each time.  Start with the value we get
+	// from the database, then try replacing the end with a '0' - '9'
+	for(int iRetry=-1;iRetry<=9;++iRetry)
 	{
-		printf("Couldn't open the VFD device on %s",pDev);
-		return NULL;
-	}
+		// The first time we'll leave the device alone
+		if( iRetry!=-1 )
+			pDev[ strlen(pDev)-1 ] = '0' + iRetry;
 
-	ioctl(fd, EVIOCGVERSION, &version);
-	printf("evdev driver version is %d.%d.%d", version >>16, (version>>8)&0xff,version &0xff);
+		printf("Looking for keyboard on %s\n", pDev);
+
+		// Find the keyboard device
+		fd = open(pDev,O_RDWR);
+		if(fd==0)
+		{
+			printf("Couldn't open the VFD device on %s",pDev);
+			return NULL;
+		}
+
+		ioctl(fd, EVIOCGVERSION, &version);
+		printf("evdev driver version is %d.%d.%d", version >>16, (version>>8)&0xff,version &0xff);
 
 
-	ioctl(fd, EVIOCGID, &device_info);
-	printf("vendor 0x%04hx product 0x%04hx version 0x%04hx is on",
-		device_info.vendor, device_info.product, device_info.version);
-	switch(device_info.bustype)
-	{
-	case BUS_USB: printf(" a Universal Serial Bus\n"); break;
-	default: printf(" an unknown bus type: 0x%04hx\n", device_info.bustype);
-	}
+		ioctl(fd, EVIOCGID, &device_info);
+		printf("vendor 0x%04hx product 0x%04hx version 0x%04hx is on",
+			device_info.vendor, device_info.product, device_info.version);
+		switch(device_info.bustype)
+		{
+		case BUS_USB: printf(" a Universal Serial Bus\n"); break;
+		default: printf(" an unknown bus type: 0x%04hx\n", device_info.bustype);
+		}
 
-	memset(name,0,sizeof(name));  
-	if(ioctl(fd, EVIOCGNAME(sizeof(name)),name)<0) 
-	{
-		perror("evdev ioctl");
-	}
+		memset(name,0,sizeof(name));  
+		if(ioctl(fd, EVIOCGNAME(sizeof(name)),name)<0) 
+		{
+			perror("evdev ioctl");
+		}
 
-	if( strstr(name,"DM-140GINK")==NULL )
-	{
-		printf("No keyboard -- The device on %s says it's name is %s",pDev,name);
-		close(fd);
-		return NULL;
+		if( strstr(name,"DM-140GINK")==NULL )
+		{
+			printf("No keyboard -- The device on %s says it's name is %s",pDev,name);
+			close(fd);
+			continue;
+		}
+		else
+			break;
 	}
 
 	printf("Using keyboard on %s", pDev);
