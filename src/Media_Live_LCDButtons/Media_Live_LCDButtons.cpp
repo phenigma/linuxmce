@@ -64,7 +64,10 @@ Media_Live_LCDButtons::~Media_Live_LCDButtons()
 	g_pMedia_Live_LCDButtons=NULL;
 	g_pPlutoLogger->Write( LV_STATUS, "Joining Keyboard Loop Thread" );
 	if( m_KeyboardLoopThread_Id )
+	{
+		pthread_cancel(m_KeyboardLoopThread_Id);
 		pthread_join(m_KeyboardLoopThread_Id,NULL);
+	}
 
 	g_pPlutoLogger->Write( LV_STATUS, "Done" );
 }
