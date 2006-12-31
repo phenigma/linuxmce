@@ -191,50 +191,53 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 	int iVfdVolumeLevel_Last=m_iVfdVolumeLevel_Last;
 	bool bSpeakerIcon_Last=m_bSpeakerIcon_Last, bVolumeIcon_Last=m_bVolumeIcon_Last;
 
-	if( sLevel.empty() )
+	if( sLevel!="UNKNOWN" )
 	{
-		bSpeakerIcon_Last=bVolumeIcon_Last=false;
-	}
-	else if( sLevel=="MUTE" )
-		bSpeakerIcon_Last=true;
-	else
-	{
-		bSpeakerIcon_Last=false;
-		bVolumeIcon_Last=true;
-		iVfdVolumeLevel_Last=atoi(sLevel.c_str())/8;
-	}
-
-	if( bSpeakerIcon_Last!=m_bSpeakerIcon_Last )
-	{
-		m_bSpeakerIcon_Last=bSpeakerIcon_Last;
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State speaker icon to: %d", (int) m_bSpeakerIcon_Last);
-#endif
-		if( m_bSpeakerIcon_Last )
-			VFDIconOn(m_VfdHandle, VFD_ICON_SPEAKER);
+		if( sLevel.empty() )
+		{
+			bSpeakerIcon_Last=bVolumeIcon_Last=false;
+		}
+		else if( sLevel=="MUTE" )
+			bSpeakerIcon_Last=true;
 		else
-			VFDIconOff(m_VfdHandle, VFD_ICON_SPEAKER);
-	}
+		{
+			bSpeakerIcon_Last=false;
+			bVolumeIcon_Last=true;
+			iVfdVolumeLevel_Last=atoi(sLevel.c_str())/8;
+		}
 
-	if( bVolumeIcon_Last!=m_bVolumeIcon_Last )
-	{
-		m_bVolumeIcon_Last=bVolumeIcon_Last;
+		if( bSpeakerIcon_Last!=m_bSpeakerIcon_Last )
+		{
+			m_bSpeakerIcon_Last=bSpeakerIcon_Last;
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume icon to: %d", (int) m_bVolumeIcon_Last);
+			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State speaker icon to: %d", (int) m_bSpeakerIcon_Last);
 #endif
-		if( m_bVolumeIcon_Last )
-			VFDIconOn(m_VfdHandle, VFD_ICON_VOLUME);
-		else
-			VFDIconOff(m_VfdHandle, VFD_ICON_VOLUME);
-	}
+			if( m_bSpeakerIcon_Last )
+				VFDIconOn(m_VfdHandle, VFD_ICON_SPEAKER);
+			else
+				VFDIconOff(m_VfdHandle, VFD_ICON_SPEAKER);
+		}
 
-	if( iVfdVolumeLevel_Last!=m_iVfdVolumeLevel_Last )
-	{
-		m_iVfdVolumeLevel_Last=iVfdVolumeLevel_Last;
+		if( bVolumeIcon_Last!=m_bVolumeIcon_Last )
+		{
+			m_bVolumeIcon_Last=bVolumeIcon_Last;
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume level: %d", (int) m_bVolumeIcon_Last);
+			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume icon to: %d", (int) m_bVolumeIcon_Last);
 #endif
-		VFDSetVolume(m_VfdHandle, m_iVfdVolumeLevel_Last);
+			if( m_bVolumeIcon_Last )
+				VFDIconOn(m_VfdHandle, VFD_ICON_VOLUME);
+			else
+				VFDIconOff(m_VfdHandle, VFD_ICON_VOLUME);
+		}
+
+		if( iVfdVolumeLevel_Last!=m_iVfdVolumeLevel_Last )
+		{
+			m_iVfdVolumeLevel_Last=iVfdVolumeLevel_Last;
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume level: %d", (int) m_bVolumeIcon_Last);
+#endif
+			VFDSetVolume(m_VfdHandle, m_iVfdVolumeLevel_Last);
+		}
 	}
 
 	int PlayBackIcon=m_iPlayBackIcon_Last;
