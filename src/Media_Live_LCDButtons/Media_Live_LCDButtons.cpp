@@ -49,7 +49,7 @@ Media_Live_LCDButtons::Media_Live_LCDButtons(int DeviceID, string ServerAddress,
 	m_pDevice_Orbiter=NULL;
 	m_KeyboardLoopThread_Id=0;
 	m_VfdHandle=0;
-	m_iSourceIcon_Last=m_iPlayBackIcon_Last=0;
+	m_iVfdScrollRegionLast=m_iSourceIcon_Last=m_iPlayBackIcon_Last=0;
 	g_pMedia_Live_LCDButtons=this;
 	g_ButtonCallBackFn=ButtonCallBackFn;
 }
@@ -242,22 +242,27 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 	if( PlayBackIcon==m_iPlayBackIcon_Last && m_iSourceIcon_Last==iSourceIcon_Last )
 		return; // Nothing to do.  The state is unchanged
 
-	if( m_iPlayBackIcon_Last )
-		VFDIconOff(m_VfdHandle, m_iPlayBackIcon_Last);
-	
-	if( m_iSourceIcon_Last )
-		VFDIconOff(m_VfdHandle, m_iSourceIcon_Last);
-
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Changing playback state from %d to %d source from %d to %d",
 		m_iPlayBackIcon_Last,PlayBackIcon,m_iSourceIcon_Last,iSourceIcon_Last);
 #endif
-	m_iPlayBackIcon_Last=PlayBackIcon;
-	m_iSourceIcon_Last=iSourceIcon_Last;
-	if( m_iPlayBackIcon_Last )
+
+	if( m_iPlayBackIcon_Last!=PlayBackIcon )
+	{
+		if( m_iPlayBackIcon_Last )
+			VFDIconOff(m_VfdHandle, m_iPlayBackIcon_Last);
+		m_iPlayBackIcon_Last=PlayBackIcon;
 		VFDIconOn(m_VfdHandle, m_iPlayBackIcon_Last);
-	if( m_iSourceIcon_Last )
+	}
+
+
+	if( m_iSourceIcon_Last!=iSourceIcon_Last )
+	{
+		if( m_iSourceIcon_Last )
+			VFDIconOff(m_VfdHandle, m_iSourceIcon_Last);
+		m_iSourceIcon_Last=iSourceIcon_Last;
 		VFDIconOn(m_VfdHandle, m_iSourceIcon_Last);
+	}
 #endif
 }
 
@@ -267,26 +272,50 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 	size_t size1=0,size2=0;  // The length of each line
 	if( vectString->size()>=1 )
 	{
-		VFDSetString(m_VfdHandle, VFD_STR_REGION_1, 0, (unsigned char *) (*vectString)[0].c_str());
-		size1 = (*vectString)[0].size();
+		string sLine1 = (*vectString)[0];
+
+		if( sLine1!=m_sLine1Last )
+		{
+			VFDSetString(m_VfdHandle, VFD_STR_REGION_1, 0, (unsigned char *) sLine1.c_str());
+			size1 = sLine1.size();
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 1 %d=%s", size1, (*vectString)[0].c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 1 %d=%s", size1, sLine1.c_str());
 #endif
+			m_sLine1Last=sLine1;
+		}
 	}
 	if( vectString->size()>=2 )
 	{
-		VFDSetString(m_VfdHandle, VFD_STR_REGION_3, 0, (unsigned char *) (*vectString)[1].c_str());
-		size2 = (*vectString)[1].size();
+		string sLine2 = (*vectString)[2];
+
+		if( sLine2!=m_sLine2Last )
+		{
+			VFDSetString(m_VfdHandle, VFD_STR_REGION_3, 0, (unsigned char *) sLine2.c_str());
+			size2 = sLine2.size();
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 2 %d=%s", size2, (*vectString)[1].c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 2 %d=%s", size2, sLine2.c_str());
 #endif
+			m_sLine2Last = sLine2;
+		}
 	}
+
+	int iVfdScrollRegionLast;
+
 	if( size1<=MAX_CHARS_PER_LINE && size2<=MAX_CHARS_PER_LINE )
-		VFDSetScrollRegion( m_VfdHandle, 0 );
+		iVfdScrollRegionLast = 0;
 	else if( size1<=MAX_CHARS_PER_LINE )
-		VFDSetScrollRegion( m_VfdHandle, VFD_SCROLL_REGION3 );
+		iVfdScrollRegionLast = VFD_SCROLL_REGION3;
 	else
-		VFDSetScrollRegion( m_VfdHandle, VFD_SCROLL_REGION1 );
+		iVfdScrollRegionLast = VFD_SCROLL_REGION1;
+
+	if( iVfdScrollRegionLast!=m_iVfdScrollRegionLast )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay m_iVfdScrollRegionLast %d iVfdScrollRegionLast %d",m_iVfdScrollRegionLast, iVfdScrollRegionLast);
+#endif
+		m_iVfdScrollRegionLast = iVfdScrollRegionLast;
+		VFDSetScrollRegion( m_VfdHandle, m_iVfdScrollRegionLast );
+	}
 #endif
 }
 

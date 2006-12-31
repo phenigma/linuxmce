@@ -20,6 +20,8 @@ namespace DCE
 		// Private methods
 		pthread_t m_KeyboardLoopThread_Id;
 		int m_VfdHandle,m_iPlayBackIcon_Last,m_iSourceIcon_Last;
+		string m_sLine1Last,m_sLine2Last; // Cache this so we don't have to re-update if the text hasn't changed since that disturbs the scrolling
+		int m_iVfdScrollRegionLast; // Also cache this
 public:
 		// Public member variables
 		DeviceData_Base *m_pDevice_Orbiter;

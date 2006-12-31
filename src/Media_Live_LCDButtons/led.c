@@ -488,6 +488,9 @@ int VFDIconSet(int fd, int icon, int state)
 //**************************************************************
 int VFDIconOn(int fd, int icon)
 {
+#ifdef DEBUG
+	print("VFDIconOff %d\n",icon);
+VFDIconOn
   return VFDIconSet(fd, icon, 1);
 }
 
@@ -505,6 +508,9 @@ int VFDIconOn(int fd, int icon)
 //**************************************************************
 int VFDIconOff(int fd, int icon)
 {
+#ifdef DEBUG
+	print("VFDIconOff %d\n",icon);
+#endif
   return VFDIconSet(fd, icon, 0);
 }
 
@@ -521,6 +527,9 @@ int VFDIconOff(int fd, int icon)
 //**************************************************************
 int VFDTurnOffIcons(int fd)
 {
+#ifdef DEBUG
+	print("VFDTurnOffIcons\n");
+#endif
   int err;
   const unsigned char panelCmd[]  = {0x01, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00};
   const unsigned char iconCmd[]   = {0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};  //icon command
