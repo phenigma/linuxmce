@@ -257,7 +257,7 @@ void PlutoHIDInterface::LegacyBind()
 	if( !m_bRunning )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"PlutoHIDInterface::LegacyBind m_bRunning==false");
-		return false;
+		return;
 
 	}
 	char write_packet[5];
@@ -270,10 +270,10 @@ void PlutoHIDInterface::LegacyBind()
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::LegacyBind  usb_control_msg %d\n",(int) ctrl);
 		perror("error: ");
-		return false;
+		return;
 	}
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::LegacyBind done");
-	return true;
+	return;
 
 }
 
