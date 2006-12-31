@@ -489,8 +489,8 @@ int VFDIconSet(int fd, int icon, int state)
 int VFDIconOn(int fd, int icon)
 {
 #ifdef DEBUG
-	print("VFDIconOff %d\n",icon);
-VFDIconOn
+	print("VFDIconOn %d\n",icon);
+#endif
   return VFDIconSet(fd, icon, 1);
 }
 
