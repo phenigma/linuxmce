@@ -70,9 +70,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -87,8 +87,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
 				OutputFile="../bin/Media_Live_LCDButtons.exe"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -123,6 +123,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\Vfd_lcd\CoreMenuStructure.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File
@@ -130,6 +133,12 @@
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Media_Live_LCDButtonsBase.cpp">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\MenuNode.cpp">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\VFD_LCD_Base.cpp">
 			</File>
 		</Filter>
 		<Filter

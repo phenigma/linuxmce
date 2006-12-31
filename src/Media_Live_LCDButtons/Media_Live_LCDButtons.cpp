@@ -12,8 +12,18 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#include "led.h"
-#include "libvfd.h"
+#ifdef WIN32
+	void* KeyboardLoop(void* param) { return NULL; }
+	int StartLCD() { return 0; }
+	void (*g_ButtonCallBackFn)(int PK_Button);
+	int g_QuitButtonThread;
+#else
+	#include "led.h"
+	#include "libvfd.h"
+	extern void (*g_ButtonCallBackFn)(int PK_Button);
+	extern int g_QuitButtonThread;
+#endif
+
 #include "pluto_main/Define_MediaType.h"
 
 #define	MAX_CHARS_PER_LINE	20
@@ -22,8 +32,6 @@ using namespace DCE;
 
 Media_Live_LCDButtons *g_pMedia_Live_LCDButtons = NULL;
 
-extern void (*g_ButtonCallBackFn)(int PK_Button);
-extern int g_QuitButtonThread;
 
 void ButtonCallBackFn(int PK_Button)
 {
@@ -71,8 +79,9 @@ bool Media_Live_LCDButtons::GetConfig()
 	m_pDevice_Orbiter = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Standard_Orbiter_CONST);
 	if( m_pDevice_Orbiter )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::GetConfig Orbiter: %d", m_pDevice_Orbiter->m_dwPK_Device);
-		if(pthread_create( &m_KeyboardLoopThread_Id, NULL, KeyboardLoop, (void*)"/dev/input/event0") )
+		string sBlockDevice = DATA_Get_Block_Device();
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::GetConfig Orbiter: %d dev: %s", m_pDevice_Orbiter->m_dwPK_Device, sBlockDevice.c_str());
+		if(pthread_create( &m_KeyboardLoopThread_Id, NULL, KeyboardLoop, (void*) sBlockDevice.c_str()) )
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create PNP thread" );
 		}
@@ -170,6 +179,7 @@ void Media_Live_LCDButtons::CMD_Display_Message(string sText,string sType,string
 void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assign,int iPK_MediaType,string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c837-e->
 {
+#ifndef WIN32
 	if( !m_VfdHandle )
 		return;
 	
@@ -245,10 +255,12 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		VFDIconOn(m_VfdHandle, m_iPlayBackIcon_Last);
 	if( m_iSourceIcon_Last )
 		VFDIconOn(m_VfdHandle, m_iSourceIcon_Last);
+#endif
 }
 
 void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 {
+#ifndef WIN32
 	size_t size1=0,size2=0;  // The length of each line
 	if( vectString->size()>=1 )
 	{
@@ -272,6 +284,7 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 		VFDSetScrollRegion( m_VfdHandle, VFD_SCROLL_REGION3 );
 	else
 		VFDSetScrollRegion( m_VfdHandle, VFD_SCROLL_REGION1 );
+#endif
 }
 
 void Media_Live_LCDButtons::ButtonCallBack(int PK_Button)
