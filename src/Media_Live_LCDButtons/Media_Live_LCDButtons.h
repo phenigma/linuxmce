@@ -21,7 +21,8 @@ namespace DCE
 		pthread_t m_KeyboardLoopThread_Id;
 		int m_VfdHandle,m_iPlayBackIcon_Last,m_iSourceIcon_Last;
 		string m_sLine1Last,m_sLine2Last; // Cache this so we don't have to re-update if the text hasn't changed since that disturbs the scrolling
-		int m_iVfdScrollRegionLast; // Also cache this
+		int m_iVfdScrollRegionLast,m_iVfdVolumeLevel_Last; // Also cache this
+		bool m_bSpeakerIcon_Last,m_bVolumeIcon_Last;
 		char *m_pKeyboardDevice;
 public:
 		// Public member variables

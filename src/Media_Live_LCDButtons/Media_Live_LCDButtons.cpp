@@ -49,7 +49,8 @@ Media_Live_LCDButtons::Media_Live_LCDButtons(int DeviceID, string ServerAddress,
 	m_pDevice_Orbiter=NULL;
 	m_KeyboardLoopThread_Id=0;
 	m_VfdHandle=0;
-	m_iVfdScrollRegionLast=m_iSourceIcon_Last=m_iPlayBackIcon_Last=0;
+	m_iVfdVolumeLevel_Last=m_iVfdScrollRegionLast=m_iSourceIcon_Last=m_iPlayBackIcon_Last=0;
+	m_bSpeakerIcon_Last=m_bVolumeIcon_Last=false;
 	g_pMedia_Live_LCDButtons=this;
 	g_ButtonCallBackFn=ButtonCallBackFn;
 	m_pKeyboardDevice=NULL;
@@ -187,21 +188,59 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 	if( !m_VfdHandle )
 		return;
 	
+	m_iVfdVolumeLevel_Last=m_iVfdScrollRegionLast=m_iSourceIcon_Last=m_iPlayBackIcon_Last=0;
+	m_bSpeakerIcon_Last=m_bVolumeIcon_Last=false;
+
+	int iVfdVolumeLevel_Last=m_iVfdVolumeLevel_Last;
+	bool bSpeakerIcon_Last=m_bSpeakerIcon_Last, bVolumeIcon_Last=m_bVolumeIcon_Last;
+
 	if( sLevel.empty() )
 	{
-		VFDIconOff(m_VfdHandle, VFD_ICON_VOLUME);
-		VFDIconOff(m_VfdHandle, VFD_ICON_SPEAKER);
+		bSpeakerIcon_Last=bVolumeIcon_Last=false;
 	}
 	else if( sLevel=="MUTE" )
-		VFDIconOn(m_VfdHandle, VFD_ICON_SPEAKER);
+		bSpeakerIcon_Last=true;
 	else
 	{
-		VFDIconOff(m_VfdHandle, VFD_ICON_SPEAKER);
-		VFDIconOn(m_VfdHandle, VFD_ICON_VOLUME);
-		VFDSetVolume(m_VfdHandle, atoi(sLevel.c_str())/8); // We use 0-100, the display uses 0-12
+		bSpeakerIcon_Last=false;
+		bVolumeIcon_Last=true;
+		iVfdVolumeLevel_Last=atoi(sLevel.c_str())/8;
 	}
-	
-	int PlayBackIcon=0;
+
+	if( bSpeakerIcon_Last!=m_bSpeakerIcon_Last )
+	{
+		m_bSpeakerIcon_Last=bSpeakerIcon_Last;
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State speaker icon to: %d", (int) m_bSpeakerIcon_Last);
+#endif
+		if( m_bSpeakerIcon_Last )
+			VFDIconOn(m_VfdHandle, VFD_ICON_SPEAKER);
+		else
+			VFDIconOff(m_VfdHandle, VFD_ICON_SPEAKER);
+	}
+
+	if( bVolumeIcon_Last!=m_bVolumeIcon_Last )
+	{
+		m_bVolumeIcon_Last=bVolumeIcon_Last;
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume icon to: %d", (int) m_bVolumeIcon_Last);
+#endif
+		if( m_bVolumeIcon_Last )
+			VFDIconOn(m_VfdHandle, VFD_ICON_VOLUME);
+		else
+			VFDIconOff(m_VfdHandle, VFD_ICON_VOLUME);
+	}
+
+	if( iVfdVolumeLevel_Last!=m_iVfdVolumeLevel_Last )
+	{
+		m_iVfdVolumeLevel_Last=iVfdVolumeLevel_Last;
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume level: %d", (int) m_bVolumeIcon_Last);
+#endif
+		VFDSetVolume(m_VfdHandle, m_iVfdVolumeLevel_Last);
+	}
+
+	int PlayBackIcon=m_iPlayBackIcon_Last;
 	if( sValue_To_Assign.empty()==false )
 	{
 		int iSpeed=atoi( sValue_To_Assign.c_str() );
@@ -215,7 +254,7 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 			PlayBackIcon=VFD_ICON_RWND;
 	}
 	
-	int iSourceIcon_Last=0;
+	int iSourceIcon_Last=m_iSourceIcon_Last;
 	switch( iPK_MediaType )
 	{
 		case MEDIATYPE_pluto_DVD_CONST:
@@ -278,7 +317,6 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 		if( sLine1!=m_sLine1Last )
 		{
 			VFDSetString(m_VfdHandle, VFD_STR_REGION_1, 0, (unsigned char *) sLine1.c_str());
-			size1 = sLine1.size();
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 1 %d=%s", size1, sLine1.c_str());
 #endif
@@ -292,7 +330,6 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 		if( sLine2!=m_sLine2Last )
 		{
 			VFDSetString(m_VfdHandle, VFD_STR_REGION_3, 0, (unsigned char *) sLine2.c_str());
-			size2 = sLine2.size();
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 2 %d=%s", size2, sLine2.c_str());
 #endif
@@ -301,6 +338,9 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 	}
 
 	int iVfdScrollRegionLast;
+
+	size1 = sLine1.size();
+	size2 = sLine2.size();
 
 	if( size1<=MAX_CHARS_PER_LINE && size2<=MAX_CHARS_PER_LINE )
 		iVfdScrollRegionLast = 0;
