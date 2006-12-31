@@ -12,7 +12,7 @@ case "$Param" in
 			exit 0 # No change required
 		fi
 		kill -USR2 $PPID
-		"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480'
+		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480' | tee /var/log/pluto/Xconfigure.log
 		echo '640x480 60 640 480' >/tmp/avwizard-resolution.txt
 	;;
 	set_resolution)
@@ -32,7 +32,7 @@ case "$Param" in
 
 		kill -USR1 $PPID
 
-		"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution "$VideoResolution_Size@$RequestedRefresh"
+		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution "$VideoResolution_Size@$RequestedRefresh" | tee /var/log/pluto/Xconfigure.log
 		WindowWidth="${VideoResolution_Size%x*}"
 		WindowHeight="${VideoResolution_Size#*x}"
 		echo "$VideoResolution_Name $RequestedRefresh $WindowWidth $WindowHeight" >/tmp/avwizard-resolution.txt

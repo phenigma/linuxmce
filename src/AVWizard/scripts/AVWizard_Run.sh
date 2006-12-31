@@ -52,7 +52,7 @@ CleanUp()
 
 SetDefaults()
 {
-	"$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480@60'
+	bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480@60' | tee /var/log/pluto/Xconfigure.log
 	WizSet Video_Ratio '4_3'
 	WizSet Resolution '640x480'
 	WizSet VideoResolution '640x480'
@@ -271,5 +271,5 @@ alsactl store
 UpdateAudioSettings
 UpdateOrbiterDimensions
 UpdateOrbiterUI
-/usr/pluto/bin/Xconfigure.sh # needed when changing between UI versions
+bash -x /usr/pluto/bin/Xconfigure.sh | tee /var/log/pluto/Xconfigure.log # needed when changing between UI versions
 set +x

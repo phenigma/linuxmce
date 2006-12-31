@@ -18,7 +18,7 @@ computerIP=$2
 exit
 #<-mkr_b_via_e->
 
-	/usr/pluto/bin/Xconfigure.sh --keep-resolution --update-video-driver
+	bash -x /usr/pluto/bin/Xconfigure.sh --keep-resolution --update-video-driver | tee /var/log/pluto/Xconfigure.log
 	cp /etc/X11/xorg.conf{,.test}
 	#kill $(ps ax|grep 'X :0 -ignoreABI -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
 	/usr/pluto/bin/Xres_config_end.sh y" &

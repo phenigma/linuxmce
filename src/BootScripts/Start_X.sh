@@ -31,7 +31,7 @@ function assureXorgSane()
 		width=$(echo $resolution | cut -d' ' -f1)
 		height=$(echo $resolution | cut -d' ' -f2)
 
-		/usr/pluto/bin/Xconfigure.sh --defaults --resolution "${width}x${height}@${refresh}"
+		bash -x /usr/pluto/bin/Xconfigure.sh --defaults --resolution "${width}x${height}@${refresh}" | tee /var/log/pluto/Xconfigure.log
 	fi
 }
 

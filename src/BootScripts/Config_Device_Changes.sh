@@ -194,7 +194,7 @@ CleanupVideo()
 	echo "$(date -R) <-- Performing package purges"
 
 	echo "$(date -R) --> Configuring X"
-	/usr/pluto/bin/Xconfigure.sh --update-video-driver
+	bash -x /usr/pluto/bin/Xconfigure.sh --update-video-driver | tee /var/log/pluto/Xconfigure.log
 	echo "$(date -R) <-- Configuring X"
 	
 	echo "$(date -R) <-- CleanupVideo"
