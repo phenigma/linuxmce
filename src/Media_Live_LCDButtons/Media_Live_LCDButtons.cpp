@@ -286,7 +286,7 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 	}
 	if( vectString->size()>=2 )
 	{
-		string sLine2 = (*vectString)[2];
+		string sLine2 = (*vectString)[1];
 
 		if( sLine2!=m_sLine2Last )
 		{
