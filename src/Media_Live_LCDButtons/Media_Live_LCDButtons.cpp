@@ -280,8 +280,8 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		return; // Nothing to do.  The state is unchanged
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Changing playback state from %d to %d source from %d to %d",
-		m_iPlayBackIcon_Last,PlayBackIcon,m_iSourceIcon_Last,iSourceIcon_Last);
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Changing playback state %s from %d to %d source %d from %d to %d",
+		sValue_To_Assign.c_str(),m_iPlayBackIcon_Last,PlayBackIcon,iPK_MediaType,m_iSourceIcon_Last,iSourceIcon_Last);
 #endif
 
 	if( m_iPlayBackIcon_Last!=PlayBackIcon )
