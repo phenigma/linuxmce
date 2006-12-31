@@ -188,9 +188,6 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 	if( !m_VfdHandle )
 		return;
 	
-	m_iVfdVolumeLevel_Last=m_iVfdScrollRegionLast=m_iSourceIcon_Last=m_iPlayBackIcon_Last=0;
-	m_bSpeakerIcon_Last=m_bVolumeIcon_Last=false;
-
 	int iVfdVolumeLevel_Last=m_iVfdVolumeLevel_Last;
 	bool bSpeakerIcon_Last=m_bSpeakerIcon_Last, bVolumeIcon_Last=m_bVolumeIcon_Last;
 
