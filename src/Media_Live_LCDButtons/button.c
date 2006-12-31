@@ -29,7 +29,6 @@
 
 void (*g_ButtonCallBackFn)(int PK_Button)=NULL;
 int g_QuitButtonThread=0;
-int g_ButtonFileDescriptor=0;
 
 void* KeyboardLoop(void* param)
 {
@@ -37,6 +36,7 @@ void* KeyboardLoop(void* param)
 //	Media_Live_LCDButtons *pMedia_Live_LCDButtons = (Media_Live_LCDButtons *) param;
 	int ret,i;
 	extern int errno;
+	int fd=0;
 	char name[256]="Unknown";
 	FILE *fp;
 	int version;
@@ -48,18 +48,18 @@ void* KeyboardLoop(void* param)
 	int read_bytes;
 
 	// Find the keyboard device
-	g_ButtonFileDescriptor = open(pDev,O_RDWR);
-	if(g_ButtonFileDescriptor==0)
+	fd = open(pDev,O_RDWR);
+	if(fd==0)
 	{
 		printf("Couldn't open the VFD device on %s",pDev);
 		return NULL;
 	}
 
-	ioctl(g_ButtonFileDescriptor, EVIOCGVERSION, &version);
+	ioctl(fd, EVIOCGVERSION, &version);
 	printf("evdev driver version is %d.%d.%d", version >>16, (version>>8)&0xff,version &0xff);
 
 
-	ioctl(g_ButtonFileDescriptor, EVIOCGID, &device_info);
+	ioctl(fd, EVIOCGID, &device_info);
 	printf("vendor 0x%04hx product 0x%04hx version 0x%04hx is on",
 		device_info.vendor, device_info.product, device_info.version);
 	switch(device_info.bustype)
@@ -69,7 +69,7 @@ void* KeyboardLoop(void* param)
 	}
 
 	memset(name,0,sizeof(name));  
-	if(ioctl(g_ButtonFileDescriptor, EVIOCGNAME(sizeof(name)),name)<0) 
+	if(ioctl(fd, EVIOCGNAME(sizeof(name)),name)<0) 
 	{
 		perror("evdev ioctl");
 	}
@@ -77,15 +77,14 @@ void* KeyboardLoop(void* param)
 	if( strstr(name,"DM-140GINK")==NULL )
 	{
 		printf("No keyboard -- The device on %s says it's name is %s",pDev,name);
-		close(g_ButtonFileDescriptor);
-		g_ButtonFileDescriptor=0;
+		close(fd);
 		return NULL;
 	}
 
 	printf("Using keyboard on %s", pDev);
 
 	memset(evtype_bitmask,0,sizeof(evtype_bitmask));  
-	if(ioctl(g_ButtonFileDescriptor, EVIOCGBIT(0, sizeof(evtype_bitmask)), evtype_bitmask) < 0)
+	if(ioctl(fd, EVIOCGBIT(0, sizeof(evtype_bitmask)), evtype_bitmask) < 0)
 	{
 		perror("evdev ioctl");
 	}
@@ -108,7 +107,7 @@ void* KeyboardLoop(void* param)
 	}
 
 	memset(key_bitmask,0,sizeof(key_bitmask));
-	if(ioctl(g_ButtonFileDescriptor,EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask)<0)
+	if(ioctl(fd,EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask)<0)
 	{
 		perror("evdev ioctl");
 	}
@@ -135,7 +134,7 @@ void* KeyboardLoop(void* param)
 
 	while(!g_QuitButtonThread)
 	{
-		read_bytes = read(g_ButtonFileDescriptor,&event,sizeof(struct input_event)*64);
+		read_bytes = read(fd,&event,sizeof(struct input_event)*64);
 
 		if( read_bytes < (int)sizeof(struct input_event) || g_QuitButtonThread )
 		{
@@ -171,7 +170,6 @@ void* KeyboardLoop(void* param)
 		}
 	}
 	printf("Closing button thread\n");
-	close(g_ButtonFileDescriptor);
-	g_ButtonFileDescriptor=0;
+	close(fd);
 	return NULL;
 }

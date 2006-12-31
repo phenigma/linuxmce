@@ -17,13 +17,11 @@ using namespace DCE;
 	int StartLCD() { return 0; }
 	void (*g_ButtonCallBackFn)(int PK_Button);
 	int g_QuitButtonThread;
-	int g_ButtonFileDescriptor=0;
 #else
 	#include "led.h"
 	#include "libvfd.h"
 	extern void (*g_ButtonCallBackFn)(int PK_Button);
 	extern int g_QuitButtonThread;
-	extern int g_ButtonFileDescriptor;
 #endif
 
 #include "pluto_main/Define_MediaType.h"
@@ -65,8 +63,6 @@ Media_Live_LCDButtons::~Media_Live_LCDButtons()
 	g_QuitButtonThread=true;
 	g_pMedia_Live_LCDButtons=NULL;
 	g_pPlutoLogger->Write( LV_STATUS, "Joining Keyboard Loop Thread" );
-	if( g_ButtonFileDescriptor )
-		close(g_ButtonFileDescriptor);  // Make the read() terminate
 	if( m_KeyboardLoopThread_Id )
 		pthread_join(m_KeyboardLoopThread_Id,NULL);
 
