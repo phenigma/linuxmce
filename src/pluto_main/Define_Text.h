@@ -1159,6 +1159,7 @@
 #define TEXT_XYZ_CONST 1877
 #define TEXT_Purchase_CONST 1879
 #define TEXT_Terms_CONST 1880
+#define TEXT_Add_RF_Keyboard_or_Mouse_CONST 1881
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
