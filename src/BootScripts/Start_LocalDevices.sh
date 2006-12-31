@@ -12,8 +12,8 @@ function printHelp()
 apt-get install id-my-disc libdvdcss  ## temp hack -- remove this
 
 /usr/pluto/bin/UpdateAvailableSerialPorts.sh
-/usr/pluto/bin/SoundCards_Setup.sh
-/usr/pluto/bin/CaptureCards_Setup.sh
+bash -x /usr/pluto/bin/SoundCards_Setup.sh | tee /var/log/pluto/SoundCards_Setup.log
+bash -x /usr/pluto/bin/CaptureCards_Setup.sh | tee /var/log/pluto/CaptureCards_Setup.log
 
 [[ $# -ne 4 && $# -ne 2 && $# -ne 0 ]] && printHelp && exit
 CurrentDevice=$PK_Device
