@@ -9584,3 +9584,16 @@ void Orbiter::CMD_Execute_Shortcut(int iValue,string &sCMD_Result,Message *pMess
 			QueueMessageToRouter(new Message(pMessage));
 	}
 }
+//<-dceag-c838-b->
+
+	/** @brief COMMAND: #838 - Bind to Wireless Keyboard */
+	/** If the USB RF dongle is attached it causes it to do a bind request and add a remote. */
+
+void Orbiter::CMD_Bind_to_Wireless_Keyboard(string &sCMD_Result,Message *pMessage)
+//<-dceag-c838-e->
+{
+#ifdef HID_REMOTE
+    if( m_pHIDInterface )
+		m_pHIDInterface->LegacyBind();
+#endif
+}

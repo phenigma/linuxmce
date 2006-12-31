@@ -250,6 +250,33 @@ bool PlutoHIDInterface::SetActiveRemote(int iRemoteID,bool bFollowMe)
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::SetActiveRemote new remote %d device %d",m_iRemoteID,m_iPK_Device_Remote );
 }
 
+void PlutoHIDInterface::LegacyBind()
+{
+	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::LegacyBind");
+	PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
+	if( !m_bRunning )
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"PlutoHIDInterface::LegacyBind m_bRunning==false");
+		return false;
+
+	}
+	char write_packet[5];
+	write_packet[0]=8;
+	write_packet[1]=0x40;
+	write_packet[2]=(char) m_iRemoteID;
+	write_packet[3]=0;
+	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
+	if (ctrl<0)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::LegacyBind  usb_control_msg %d\n",(int) ctrl);
+		perror("error: ");
+		return false;
+	}
+	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::LegacyBind done");
+	return true;
+
+}
+
 bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 {
 	unsigned char *p_Packet = (unsigned char *) inPacket;

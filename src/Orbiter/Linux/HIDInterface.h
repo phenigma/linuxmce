@@ -40,6 +40,7 @@ public:
 	void StopMouse() { PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex); m_MouseStartStop=mssStop; }
 	bool DoStartMouse();
 	bool DoStopMouse();
+	void LegacyBind();
 };
 
 #endif // PlutoHIDInterface_h

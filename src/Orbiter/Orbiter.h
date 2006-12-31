@@ -1840,6 +1840,13 @@ light, climate, media, security, telecom */
 	virtual void CMD_Execute_Shortcut(int iValue) { string sCMD_Result; CMD_Execute_Shortcut(iValue,sCMD_Result,NULL);};
 	virtual void CMD_Execute_Shortcut(int iValue,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #838 - Bind to Wireless Keyboard */
+	/** If the USB RF dongle is attached it causes it to do a bind request and add a remote. */
+
+	virtual void CMD_Bind_to_Wireless_Keyboard() { string sCMD_Result; CMD_Bind_to_Wireless_Keyboard(sCMD_Result,NULL);};
+	virtual void CMD_Bind_to_Wireless_Keyboard(string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 
 		/** temporary solution only */
