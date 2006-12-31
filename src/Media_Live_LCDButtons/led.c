@@ -745,6 +745,9 @@ int VFDGlobalUpdateDisplay(fd)
 //**************************************************************
 int VFDSetScrollRegion(int fd, int region)
 {
+#ifdef DEBUG
+	print("VFDSetScrollRegion region %d\n",region);
+#endif
   gFlags &= ~0x0F;
   gFlags |= (region & 0x0F);
   VFDUpdateDisplay(fd, VFD_MODE_STR, gLayout, gScrollTime, gFlags | VFD_SCROLL_ENABLE);
