@@ -50,7 +50,8 @@ void* KeyboardLoop(void* param)
 	// The /dev/event can jump all around and we have
 	// to hunt for it each time.  Start with the value we get
 	// from the database, then try replacing the end with a '0' - '9'
-	for(int iRetry=-1;iRetry<=9;++iRetry)
+	int iRetry;
+	for(iRetry=-1;iRetry<=9;++iRetry)
 	{
 		// The first time we'll leave the device alone
 		if( iRetry!=-1 )

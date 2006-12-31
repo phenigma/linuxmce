@@ -26,7 +26,7 @@ using namespace DCE;
 
 #include "pluto_main/Define_MediaType.h"
 
-#define	MAX_CHARS_PER_LINE	20
+#define	MAX_CHARS_PER_LINE	18
 #define MAX_CHARS_SCROLLABLE	40
 #define NUMLINES		2
 
@@ -84,7 +84,7 @@ bool Media_Live_LCDButtons::GetConfig()
 	if( m_pDevice_Orbiter )
 	{
 		m_pKeyboardDevice = strdup( DATA_Get_Block_Device().c_str() );
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::GetConfig Orbiter: %d dev: %s", m_pDevice_Orbiter->m_dwPK_Device, sBlockDevice.c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::GetConfig Orbiter: %d dev: %s", m_pDevice_Orbiter->m_dwPK_Device, m_pKeyboardDevice);
 		if(pthread_create( &m_KeyboardLoopThread_Id, NULL, KeyboardLoop, (void*) m_pKeyboardDevice) )
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create PNP thread" );
