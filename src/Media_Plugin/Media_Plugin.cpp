@@ -5254,8 +5254,18 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		{
 			string sSynopsis = vectRow_LongAttribute[0]->Text_get();
 			StringUtils::Replace(&sSynopsis,"\t","");
-			*sValue_To_Assign += "SYNOPSIS\t" + sSynopsis;
+			*sValue_To_Assign += "SYNOPSIS\t" + sSynopsis + "\t";
 		}
+
+#ifdef SIM_JUKEBOX
+		if( pMediaFile->m_dwPK_File )
+		{
+			string sTerms;
+			int PK_Attribute = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeFromFile(pMediaFile->m_dwPK_File,ATTRIBUTETYPE_Purchase_Info_CONST,sTerms);
+			if( sTerms.empty()==false )
+				*sValue_To_Assign += "TERMS\t" + sTerms;
+		}
+#endif
 	}
 }
 //<-dceag-c817-b->

@@ -77,6 +77,9 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Username(PnpQueueEntry *pPnpQueueE
 		if( bHasUserName==false ||
 			pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Password_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() )
 		{
+			if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+				return false; // No orbiters.  Skip this one for now
+
 			// We need to get it and block until we do
 			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 
@@ -110,6 +113,9 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Room(PnpQueueEntry *pPnpQueueEntry
 	if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
 		return true; // We will automatically pick the room in create device
 	
+	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+		return false; // No orbiters.  Skip this one for now
+
 	// We need to ask the user for the room
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 	if( pPnpQueueEntry->m_pOH_Orbiter )
@@ -153,6 +159,9 @@ bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntr
 		return true;  // The user specified both options
 	}
 
+	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+		return false; // No orbiters.  Skip this one for now
+
 	if( bUserSpecified && !bPhoneSpecified && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
 	{
 		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
@@ -161,7 +170,7 @@ bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntr
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
 		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
-	
+
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 
 	if( pPnpQueueEntry->m_pOH_Orbiter )
@@ -195,6 +204,9 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
 		return true;  // The user specified both options
 	}
+
+	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+		return false; // No orbiters.  Skip this one for now
 
 	if( bUseAutoSpecified && !bUseDirectorySpecified && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
 	{
@@ -239,6 +251,9 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 	bool bHasLights = ( (result_set_lights.r=m_pDatabase_pluto_main->mysql_query_result(sSqlLights)) && result_set_lights.r->row_count );
 	if( !bHasSensors && !bHasLights )
 		return true;
+
+	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+		return false; // No orbiters.  Skip this one for now
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
 		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters

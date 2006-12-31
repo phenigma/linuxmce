@@ -22444,5 +22444,29 @@ namespace DCE
 			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
 			COMMANDPARAMETER_Level_CONST, sLevel.c_str()); }
 	};
+	class CMD_Bind_to_Wireless_Keyboard : public PreformedCommand {
+	public:
+		CMD_Bind_to_Wireless_Keyboard(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Bind_to_Wireless_Keyboard_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_Bind_to_Wireless_Keyboard_DL : public PreformedCommand {
+	public:
+		CMD_Bind_to_Wireless_Keyboard_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Bind_to_Wireless_Keyboard_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_Bind_to_Wireless_Keyboard_DT : public PreformedCommand {
+	public:
+		CMD_Bind_to_Wireless_Keyboard_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Bind_to_Wireless_Keyboard_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_Bind_to_Wireless_Keyboard_Cat : public PreformedCommand {
+	public:
+		CMD_Bind_to_Wireless_Keyboard_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Bind_to_Wireless_Keyboard_CONST,
+			0 /* number of parameters */); }
+	};
 }
 #endif

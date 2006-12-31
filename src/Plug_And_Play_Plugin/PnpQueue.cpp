@@ -95,9 +95,11 @@ void PnpQueue::Run()
 	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_pPlug_And_Play_Plugin->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse);
 	m_pPlug_And_Play_Plugin->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
 
+	/* no, then auto create are blocked
 	// we don't do this during the read phase above because the orbiter plugin may not have registered, nor the orbiters
 	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
 		DetermineOrbitersForPrompting(it->second);
+*/
 
 	bool bOnlyBlockedEntries=false;  // Set this to true if every entry in the list is blocked and we don't need to process anymore until something happens
 	while( !m_pPlug_And_Play_Plugin->m_bQuit_get())
@@ -413,7 +415,12 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 		sSqlWhere = StringUtils::i64tos(pd.m_iMacAddress) + ">=Mac_Range_Low AND " + StringUtils::i64tos(pd.m_iMacAddress) + "<=Mac_Range_High";
 	}
 	else if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )  // It's usb or similar that has a vendor/model ID
-		sSqlWhere = string("'") + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + string("' like concat(VendorModelID,'%') and VendorModelID != ''");
+	{
+		sSqlWhere = string("'") + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + "' like concat(VendorModelID,'%') and VendorModelID != '' ";
+		string sCategory = pPnpQueueEntry->m_pRow_PnpQueue->Category_get();
+		if( sCategory.empty()==false )
+            sSqlWhere += " AND (category IS NULL or category='" + sCategory + "')";
+	}
 	else // Brute force, like RS232 or similar, where we have to check every device that matches the com method
 		sSqlWhere = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PnpDetectionScript IS NOT NULL AND FK_CommMethod=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get());
 
@@ -444,7 +451,8 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 	if( vectRow_DHCPDevice.size()>0 )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d could be %d devices",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) vectRow_DHCPDevice.size());
+		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d could be %d devices 1st is PK_DHCPDevice %d",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) vectRow_DHCPDevice.size(),vectRow_DHCPDevice[0]->PK_DHCPDevice_get());
 #endif
 		for(vector<Row_DHCPDevice *>::iterator it=vectRow_DHCPDevice.begin();it!=vectRow_DHCPDevice.end();++it)
 		{
@@ -625,10 +633,10 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT user didn't respond to queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 #endif
-
-		if( DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
-			return false; // No orbiters.  Skip this one for now
 	}
+
+	if( DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+		return false; // No orbiters.  Skip this one for now
 
 	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_waiting_for_orbiters && DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
 		return false; // No orbiters.  Skip this one for now
@@ -793,8 +801,6 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pP
 		if( time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
 			return false; // We're waiting for user input.  Give the user more time.
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_Options user didn't respond to queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-		if( DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
-			return false; // No orbiters.  Skip this one for now
 	}
 
 	if( m_Pnp_PreCreateOptions.OkayToCreateDevice(pPnpQueueEntry)==false )  // See if the user needs to specify some options

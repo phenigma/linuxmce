@@ -115,6 +115,7 @@ public:
     int GetAttributeFromFileID(int PK_File);
     int GetAttributeFromFilePath(string File);
     int GetFileIDFromAttributeID(int PK_Attribute);
+	int GetAttributeFromFile(int PK_File,int PK_AttributeType,string &sAttribute);  // Get the attribute of PK_AttributeType for PK_File
 	string GetDefaultDescriptionForMediaFile(MediaFile *pMediaFile);
 	
 	// First name can either be a separate parameter, or part of Name delimited by a tab

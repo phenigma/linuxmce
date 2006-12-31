@@ -1399,3 +1399,16 @@ string MediaAttributes_LowLevel::GetDefaultDescriptionForMediaFile(MediaFile *pM
 		return pMediaFile->m_sFilename;
 }
 
+
+int MediaAttributes_LowLevel::GetAttributeFromFile(int PK_File,int PK_AttributeType,string &sAttribute)
+{
+	string sSQL = "JOIN File_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " and FK_File=" + StringUtils::itos(PK_File) + " limit 1";
+	vector<Row_Attribute *> vectRow_Attribute;
+	m_pDatabase_pluto_media->Attribute_get()->GetRows(sSQL,&vectRow_Attribute);
+	if( vectRow_Attribute.empty() )
+		return 0;
+
+	sAttribute = vectRow_Attribute[0]->Name_get();
+	return vectRow_Attribute[0]->PK_Attribute_get();
+}
+
