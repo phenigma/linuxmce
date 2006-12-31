@@ -586,6 +586,10 @@ int VFDSetVolume(int fd, int level)
 //**************************************************************
 int VFDSetString(int fd, int region, int offset, unsigned char *buffer)
 {
+#ifdef DEBUG
+	print("VFDSetString region %d offset %d buffer %s\n",region,offset,buffer);
+#endif
+
   int i,size;
   int len = strlen(buffer) + 1;// make sure we make room for the NULL
   unsigned char stringCmd[8];
