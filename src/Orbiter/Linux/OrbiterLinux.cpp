@@ -349,11 +349,11 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
 		event.data.button.m_iKeycode = iScanCode;
 		event.data.button.m_iPK_Button = 0;
 		PreprocessEvent(event);
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"OrbiterLinux::Initialize scancode %d is button %d", iScanCode, event.data.button.m_iPK_Button);
+#endif
 		if( event.data.button.m_iPK_Button )
 		{
-#ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"OrbiterLinux::Initialize scancode %d is button %d", iScanCode, event.data.button.m_iPK_Button);
-#endif
 			if( m_mapHardKeys.find( event.data.button.m_iPK_Button )!=m_mapHardKeys.end() )
 			{
 #ifdef DEBUG
@@ -633,7 +633,9 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode,int Type)
     kevent.keycode = Keycode;
     XLookupString(&kevent, buf, sizeof(buf), &keysym, 0);
 
-	printf("KEYCode: %d %x \n", (int)keysym, (unsigned int)keysym);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"OrbiterLinux::TranslateXKeyCodeToPlutoButton Keycode %d = keysym %d/%d", Keycode, (int)keysym, (unsigned int)keysym);
+#endif
 
     switch ( keysym )
     {

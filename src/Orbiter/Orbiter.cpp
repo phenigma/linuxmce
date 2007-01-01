@@ -2487,6 +2487,9 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 			pMessage->m_dwPK_Device_To = TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
 		if( !pMessage->m_dwPK_Device_From )
 			pMessage->m_dwPK_Device_From = m_dwPK_Device;
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS, "Orbiter::ParseHardKeys key %d = message %s", iKey, sToken.c_str() );
+#endif
 		m_mapHardKeys[iKey] = pMessage;
 	}
 }
