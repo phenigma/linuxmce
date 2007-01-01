@@ -3255,6 +3255,9 @@ bool Orbiter::ButtonUp( int iPK_Button )
 
 	if( m_mapHardKeys.find(iPK_Button)!=m_mapHardKeys.end() )
 	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ButtonUp HardKey %d", iPK_Button);
+#endif
 		Message *pMessage = m_mapHardKeys[iPK_Button];
 		if( pMessage->m_dwPK_Device_To==m_dwPK_Device )
 			ReceivedMessage( pMessage );
