@@ -338,6 +338,34 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
 
     reinitGraphics();
 
+	// Now see if there are any scancode entries that conflict with the hard keys
+	for(map< pair<int,char>,string>::iterator it=m_mapScanCodeToRemoteButton.begin();it!=m_mapScanCodeToRemoteButton.end();++it)
+	{
+		int iScanCode = it->fisrt.first;
+
+		// Store a NULL entry in m_mapHardKeys so we don't also process this as a hard key
+		Orbiter::Event event;
+		event.type = Orbiter::Event::BUTTON_DOWN;
+		event.data.button.m_iKeycode = ScanCode;
+		event.data.button.m_iPK_Button = 0;
+		PreprocessEvent(event);
+		if( event.data.button.m_iPK_Button )
+		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"OrbiterLinux::Initialize scancode %d is button %d", iScanCode, event.data.button.m_iPK_Button);
+#endif
+			if( m_mapHardKeys.find( event.data.button.m_iPK_Button )!=m_mapHardKeys.end() )
+			{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"OrbiterLinux::Initialize removing hardkey %d", event.data.button.m_iPK_Button);
+#endif
+				Message *pMessage = m_mapHardKeys[event.data.button.m_iPK_Button];
+				m_mapHardKeys.erase(event.data.button.m_iPK_Button);
+				delete pMessage;
+			}
+		}
+	}
+
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Initialize() : done");
 }
 

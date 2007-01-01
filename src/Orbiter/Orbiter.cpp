@@ -653,17 +653,8 @@ bool Orbiter::GetConfig()
 					string sCode;
 					m_mapScanCodeToRemoteButton[ make_pair<int,char> (ScanCode,Action) ] = StringUtils::ToUpper(it2->substr(0,pos));
 
-					// Store a NULL entry in m_mapHardKeys so we don't also process this as a hard key
-					Orbiter::Event event;
-					event.type = Orbiter::Event::BUTTON_DOWN;
-					event.data.button.m_iKeycode = ScanCode;
-					event.data.button.m_iPK_Button = 0;
-					PreprocessEvent(event);
-					if( event.data.button.m_iPK_Button )
-						m_mapHardKeys[event.data.button.m_iPK_Button] = NULL;
-
-					g_pPlutoLogger->Write(LV_STATUS, "Added scan code %d -> %s button %d", 
-						atoi( it2->substr(pos + 1).c_str()), StringUtils::ToUpper(it2->substr(0,pos)).c_str(), event.data.button.m_iPK_Button);
+					g_pPlutoLogger->Write(LV_STATUS, "Added scan code %d -> %s", 
+						atoi( it2->substr(pos + 1).c_str()), StringUtils::ToUpper(it2->substr(0,pos)).c_str());
 				}
 			}
 
@@ -2490,12 +2481,6 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 		int iKey = atoi( StringUtils::Tokenize(sToken,"\t",pos2).c_str() );
 		if( !iKey )
 			continue;
-
-		if( m_mapHardKeys.find(iKey)!=m_mapHardKeys.end() )
-		{
-			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ParseHardKeys Skipping %d because we already have a handler for it", iKey);
-			continue;
-		}
 
 		Message *pMessage = new Message(StringUtils::Tokenize(sToken,"\t",pos2));
 		if( pMessage->m_dwPK_Device_To<0 )
