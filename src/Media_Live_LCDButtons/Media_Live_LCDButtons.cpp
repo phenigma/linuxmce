@@ -84,7 +84,10 @@ bool Media_Live_LCDButtons::GetConfig()
 	m_pDevice_Orbiter = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Standard_Orbiter_CONST);
 	if( m_pDevice_Orbiter )
 	{
-		m_pKeyboardDevice = strdup( DATA_Get_Block_Device().c_str() );
+		string sBlockDevice = DATA_Get_Block_Device();
+		if( sBlockDevice.empty() )
+			sBlockDevice = "/dev/input/event0";
+		m_pKeyboardDevice = strdup( sBlockDevice.c_str() );
 		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::GetConfig Orbiter: %d dev: %s", m_pDevice_Orbiter->m_dwPK_Device, m_pKeyboardDevice);
 		if(pthread_create( &m_KeyboardLoopThread_Id, NULL, KeyboardLoop, (void*) m_pKeyboardDevice) )
 		{
