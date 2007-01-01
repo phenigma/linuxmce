@@ -320,7 +320,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		Clear(true);
 		return true;
 	}
-	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST )
+	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST || (m_iPK_Button_Mouse_Last==BUTTON_escape_CONST && PK_Screen_OnScreen==SCREEN_Main_CONST && m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() != m_pOrbiter->m_pDesignObj_Orbiter_ScreenSaveMenu) )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown stopping media %d %d==%d | %d",m_pOrbiter->m_iPK_MediaType,PK_Screen_OnScreen,m_pOrbiter->m_iPK_Screen_Remote,m_pOrbiter->m_iPK_Screen_RemoteOSD);
