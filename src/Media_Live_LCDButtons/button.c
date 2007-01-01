@@ -175,7 +175,7 @@ void* KeyboardLoop(void* param)
 				case KEY_REWIND	: PK_Button=BUTTON_Rewind_CONST; break;
 				default:		printf("Unknown button"); break;
 				}
-				if( PK_Button )
+				if( PK_Button && event[yalv].value )  // Only the down
 				{
 					printf("Got button %d\n",PK_Button);
 					if( g_ButtonCallBackFn )
