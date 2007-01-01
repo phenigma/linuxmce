@@ -627,6 +627,37 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode,int Type)
     KeySym   keysym;
     char   buf[1];
 
+	// First check for some media playback keys that don't seem to be in the X11 headers
+	switch( Keycode )
+	{
+	case 153:
+		iPK_Button = BUTTON_Skip_Next_CONST;
+		break;
+	case 144:
+		iPK_Button =  BUTTON_Skip_Prior_CONST;
+		break;
+	case 180:
+		iPK_Button =  BUTTON_Fast_Forward_CONST;
+		break;
+	case 152:
+		iPK_Button =  BUTTON_Rewind_CONST;
+		break;
+	case 162:
+		iPK_Button =  BUTTON_Pause_CONST;
+		break;
+	case 164:
+		iPK_Button =  BUTTON_Stop_CONST;
+		break;
+	};
+
+	if( iPK_Button )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"OrbiterLinux::TranslateXKeyCodeToPlutoButton Keycode %d = media button %d", Keycode, iPK_Button);
+#endif
+		return iPK_Button;
+	}
+
     kevent.type = KeyPress;
     kevent.display = GetDisplay();
     kevent.state = 0;
