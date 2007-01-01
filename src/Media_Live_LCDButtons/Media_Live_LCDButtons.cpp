@@ -313,9 +313,10 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 {
 #ifndef WIN32
 	size_t size1=0,size2=0;  // The length of each line
+	string sLine1,sLine2;
 	if( vectString->size()>=1 )
 	{
-		string sLine1 = (*vectString)[0];
+		sLine1 = (*vectString)[0];
 
 		if( sLine1!=m_sLine1Last )
 		{
@@ -328,7 +329,7 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 	}
 	if( vectString->size()>=2 )
 	{
-		string sLine2 = (*vectString)[1];
+		sLine2 = (*vectString)[1];
 
 		if( sLine2!=m_sLine2Last )
 		{
