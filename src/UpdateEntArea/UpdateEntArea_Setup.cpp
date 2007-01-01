@@ -447,7 +447,7 @@ void UpdateEntArea::AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 	{
 		Row_Device *pRow_Device = vectRow_Device[s];
 		// Check up 3 generations of DeviceCategories to see if this is av equipment
-		if( DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_AV_CONST) )
+		if( DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_AV_CONST) || pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_App_Server_CONST )
 		{
 			Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
 			if( !pRow_Device_EntertainArea )
