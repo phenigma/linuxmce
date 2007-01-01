@@ -256,6 +256,8 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		else if( iSpeed<0 )
 			PlayBackIcon=VFD_ICON_RWND;
 	}
+	else
+		PlayBackIcon=0;
 	
 	int iSourceIcon_Last=m_iSourceIcon_Last;
 	switch( iPK_MediaType )
@@ -280,7 +282,9 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		case MEDIATYPE_np_SatelliteRadio_CONST:
 		case MEDIATYPE_np_CableRadio_CONST:
 			iSourceIcon_Last=VFD_ICON_RADIO;
-			break;		
+			break;	
+		default:
+			iSourceIcon_Last=0;
 	}
 	if( PlayBackIcon==m_iPlayBackIcon_Last && m_iSourceIcon_Last==iSourceIcon_Last )
 		return; // Nothing to do.  The state is unchanged
@@ -295,7 +299,8 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		if( m_iPlayBackIcon_Last )
 			VFDIconOff(m_VfdHandle, m_iPlayBackIcon_Last);
 		m_iPlayBackIcon_Last=PlayBackIcon;
-		VFDIconOn(m_VfdHandle, m_iPlayBackIcon_Last);
+		if( m_iPlayBackIcon_Last )
+			VFDIconOn(m_VfdHandle, m_iPlayBackIcon_Last);
 	}
 
 
@@ -304,7 +309,8 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		if( m_iSourceIcon_Last )
 			VFDIconOff(m_VfdHandle, m_iSourceIcon_Last);
 		m_iSourceIcon_Last=iSourceIcon_Last;
-		VFDIconOn(m_VfdHandle, m_iSourceIcon_Last);
+		if( m_iSourceIcon_Last )
+			VFDIconOn(m_VfdHandle, m_iSourceIcon_Last);
 	}
 #endif
 }
