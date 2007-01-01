@@ -960,25 +960,6 @@ Powerfile: 0, 1, ... */
 	virtual void CMD_Shuffle(string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #689 - Update Time Code */
-	/** Updates the current running time for a media stream. */
-		/** @param #41 StreamID */
-			/** The Stream to update */
-		/** @param #102 Time */
-			/** The current time.  If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
-		/** @param #132 Total */
-			/** If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
-		/** @param #133 Speed */
-			/** The current speed */
-		/** @param #134 Title */
-			/** For DVD's, the title */
-		/** @param #135 Section */
-			/** For DVD's, the section */
-
-	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection) { string sCMD_Result; CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #742 - Media Identified */
 	/** A disc has been identified */
 		/** @param #2 PK_Device */

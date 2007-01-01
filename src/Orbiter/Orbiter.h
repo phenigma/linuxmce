@@ -200,6 +200,7 @@ namespace DCE
 		bool m_bFullScreen,m_bUseOpenGL,m_bUseComposite,m_bReportTimeCode;
 		bool m_bLoadDatagridImagesInBackground;
 		bool m_bShowingSpeedBar; // For UI2 this means we temporarily are displaying the speed bar because we're not at normal 1x speed
+		bool m_bSpeedIconsOnVfd; // True if there's a VFD that can show speed icons
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 		map< pair<int,char>,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin */
 		map< pair<int,int>,pair<int,int> > m_mapEventToSubstitute; /** < Replace a combination of event,button with event,button */

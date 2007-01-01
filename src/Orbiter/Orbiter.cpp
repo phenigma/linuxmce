@@ -73,6 +73,7 @@ using namespace DCE;
 #include "Simulator.h"
 
 #include "Xine_Player/AskXine_Socket.h"
+#include "VFD_LCD/VFD_LCD_Base.h"
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #include "MouseBehavior.h"
@@ -709,7 +710,7 @@ bool Orbiter::GetConfig()
 			pMessage->m_dwPK_Device_To = TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
 		m_mapShortcut[ sCharacter[0] ] = pMessage;
 	}
-
+	
 	return true;
 }
 
@@ -2119,6 +2120,13 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"Setting current location and initial screen %s",m_sInitialScreen.c_str());
 #endif
+
+			if( m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD )
+			{
+				string sCapabilities = m_pEvent->GetDeviceDataFromDatabase( m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD, DEVICEDATA_Capabilities_CONST );
+				m_bSpeedIconsOnVfd = sCapabilities.find("SPEED_ICONS")!=string::npos;
+			}
+
 			CMD_Set_Current_Location(m_pLocationInfo_Initial->iLocation);
 			m_pLocationInfo = m_pLocationInfo_Initial;
 			m_dwPK_Users = DATA_Get_PK_Users();
@@ -2475,6 +2483,8 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 		Message *pMessage = new Message(StringUtils::Tokenize(sToken,"\t",pos2));
 		if( pMessage->m_dwPK_Device_To<0 )
 			pMessage->m_dwPK_Device_To = TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
+		if( !pMessage->m_dwPK_Device_From )
+			pMessage->m_dwPK_Device_From = m_dwPK_Device;
 		m_mapHardKeys[iKey] = pMessage;
 	}
 }
@@ -9462,6 +9472,38 @@ void Orbiter::UpdateTimeCodeLoop()
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode calling CMD_Update_Time_Code");
 #endif
+
+		if( m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD )
+		{
+			DCE::CMD_Display_Message CMD_Display_Message_TC(m_dwPK_Device,m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD,
+				sTime, //pos_TimeCode==string::npos ? sTime : sTime.substr(0,pos_TimeCode),
+				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_TIME_CODE),"tc","","");
+
+			if( m_bSpeedIconsOnVfd==false )
+			{
+				// Don't display the speed as a message if the device will show it iconically
+				DCE::CMD_Display_Message CMD_Display_Message_SP(m_dwPK_Device,m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD,
+					sSpeed,
+					StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_SPEED),"tc","","");
+				CMD_Display_Message_TC.m_pMessage->m_vectExtraMessages.push_back(CMD_Display_Message_SP.m_pMessage);
+			}
+
+			static int s_iSpeed=-9999;
+			static int s_PK_MediaType=-9999;
+
+			if( iSpeed!=s_iSpeed || m_iPK_MediaType!=s_PK_MediaType )
+			{
+				DCE::CMD_Show_Media_Playback_State CMD_Show_Media_Playback_State(m_dwPK_Device,m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD,
+					StringUtils::itos(iSpeed), m_iPK_MediaType, "UNKNOWN");
+				CMD_Display_Message_TC.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Media_Playback_State.m_pMessage);
+				s_iSpeed=iSpeed;
+				s_PK_MediaType=m_iPK_MediaType;
+			}
+
+			SendCommand(CMD_Display_Message_TC);
+
+		}
+
 		CMD_Update_Time_Code(iStreamID,sTime,sTotalTime,sSpeed,sTitle,sChapter);
 		Sleep(50);
 	}

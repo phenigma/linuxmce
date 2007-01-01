@@ -178,6 +178,7 @@
 #define DEVICEDATA_RAID_Status_CONST 204
 #define DEVICEDATA_Shortcut_CONST 205
 #define DEVICEDATA_Dont_Auto_Configure_CONST 206
+#define DEVICEDATA_Capabilities_CONST 207
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

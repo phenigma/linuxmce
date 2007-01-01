@@ -12,7 +12,6 @@ using namespace DCE;
 void *VL_Thread(void *p)
 {
 	VFD_LCD_Base *pVFD_LCD_Base = (VFD_LCD_Base *) p;
-	pVFD_LCD_Base->m_bVL_ThreadRunning=true;
 	pVFD_LCD_Base->RunThread();
 	pVFD_LCD_Base->m_bVL_ThreadRunning=false;
 	return NULL;
@@ -31,19 +30,29 @@ VFD_LCD_Base::VFD_LCD_Base(int iNumColumns,int iNumLines,int iNumVisibleColumns)
 	pthread_cond_init(&m_VL_MessageCond, NULL);
 	m_VL_MessageMutex.Init(NULL,&m_VL_MessageCond);
 
-	pthread_create(&m_ptVL_Thread, NULL, VL_Thread, (void*)this);
+	m_bVL_ThreadRunning=true;
+	if( pthread_create(&m_ptVL_Thread, NULL, VL_Thread, (void*)this) )
+	{
+		m_bVL_ThreadRunning=false;
+		g_pPlutoLogger->Write(LV_CRITICAL, "VFD_LCD_Base::VFD_LCD_Base failed to create thread");
+	}
 }
 
 VFD_LCD_Base::~VFD_LCD_Base()
 {
 	m_bQuit_VL=true;
+	g_pPlutoLogger->Write(LV_STATUS,"VFD_LCD_Base::~VFD_LCD_Base waiting for thread to exit");
 	while( m_bVL_ThreadRunning )
 	{
 		pthread_cond_broadcast(&m_VL_MessageCond);
 		Sleep(100);
 	}
+	g_pPlutoLogger->Write(LV_STATUS,"VFD_LCD_Base::~VFD_LCD_Base joining thread");
+	if( m_ptVL_Thread )
+		pthread_join( m_ptVL_Thread, NULL );
 	delete m_pMenuStructure;
 	m_pMenuStructure=NULL;
+	g_pPlutoLogger->Write(LV_STATUS,"VFD_LCD_Base::~VFD_LCD_Base done");
 }
 
 void VFD_LCD_Base::RunThread()

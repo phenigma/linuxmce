@@ -1540,7 +1540,7 @@ pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 							StringUtils::itos(pMediaDevice->m_iLastPlaybackSpeed);
 					}
 					else
-						pMediaDevice->m_iLastPlaybackSpeed = pMediaDevice->m_iLastPlaybackSpeed;
+						pMediaDevice->m_iLastPlaybackSpeed = iValue;
 				}
 			}
 g_pPlutoLogger->Write(LV_STATUS,"Playback speed now %d for device %d %s",
@@ -1973,6 +1973,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbite
 		SendCommand(SCREEN_Main);
 
     }
+	ShowMediaPlaybackState(pEntertainArea);
 }
 
 //<-dceag-c74-b->
@@ -4850,97 +4851,6 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 
 //<-dceag-sample-b->!
 
-//<-dceag-c689-b->
-
-	/** @brief COMMAND: #689 - Update Time Code */
-	/** Updates the current running time for a media stream. */
-		/** @param #41 StreamID */
-			/** The Stream to update */
-		/** @param #102 Time */
-			/** The current time.  If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
-		/** @param #132 Total */
-			/** If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
-		/** @param #133 Speed */
-			/** The current speed */
-		/** @param #134 Title */
-			/** For DVD's, the title */
-		/** @param #135 Section */
-			/** For DVD's, the section */
-
-void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage)
-//<-dceag-c689-e->
-{
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Update_Time_Code stream %d time %s total %s speed %s title %s section %s",
-		iStreamID,sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str());
-#endif
-    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-    MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID, pMessage ? pMessage->m_dwPK_Device_From : 0 );
-
-    if ( pMediaStream == NULL )
-	{
-        g_pPlutoLogger->Write(LV_WARNING, "CMD_Update_Time_Code - Stream ID %d is not mapped to a media stream object", iStreamID);
-        return;
-    }
-
-	string::size_type pos_TimeCode = sTime.find('\t');
-	string::size_type pos_Total = sTotal.find('\t');
-
-	pMediaStream->m_sTimecode = sTime;
-	pMediaStream->m_sTotalTime = sTotal;
-	bool bSpeedChanged = pMediaStream->m_sPlaybackSpeed != sSpeed;
-	if( bSpeedChanged )
-		pMediaStream->m_sPlaybackSpeed = sSpeed;
-
-	for( map<int,class EntertainArea *>::iterator itEntAreas=pMediaStream->m_mapEntertainArea.begin(); itEntAreas != pMediaStream->m_mapEntertainArea.end(); itEntAreas++)
-	{
-		EntertainArea *pEntertainArea = itEntAreas->second;
-		for(ListMediaDevice::iterator itVFD=pEntertainArea->m_listVFD_LCD_Displays.begin();itVFD!=pEntertainArea->m_listVFD_LCD_Displays.end();++itVFD)
-		{
-			MediaDevice *pMediaDevice = *itVFD;
-			DCE::CMD_Display_Message CMD_Display_Message_TC(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-				pos_TimeCode==string::npos ? sTime : sTime.substr(0,pos_TimeCode),
-				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_TIME_CODE),"tc","","");
-
-			DCE::CMD_Display_Message CMD_Display_Message_SP(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-				sSpeed,
-				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_SPEED),"tc","","");
-			CMD_Display_Message_SP.m_pMessage->m_vectExtraMessages.push_back(CMD_Display_Message_TC.m_pMessage);
-			SendCommand(CMD_Display_Message_SP);
-		}
-
-		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
-		{
-			BoundRemote *pBoundRemote = ( *itBR ).second;
-			if( !bSpeedChanged )
-			{
-				if( pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Mobile_Orbiter_CONST )
-					continue;  // No mobile phones
-
-				// No embedded orbiters, like those in phones
-				if( pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia &&
-					pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory!=DEVICECATEGORY_Media_Director_CONST )
-						continue;
-			}
-
-			Message *pMessageOut = new Message(pMessage);
-			pMessageOut->m_dwPK_Device_To = pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
-			QueueMessageToRouter(pMessageOut);
-		}
-	}
-
-	int iTitle=atoi(sTitle.c_str()),iSection=atoi(sSection.c_str());
-	if( iTitle<0 )
-		iTitle=0;
-	if( iSection<0 )
-		iSection=0;
-	if( iTitle-1!=pMediaStream->m_iDequeMediaTitle_Pos || iSection-1!=pMediaStream->m_iDequeMediaSection_Pos )
-	{
-		pMediaStream->m_iDequeMediaTitle_Pos = iTitle-1;
-		pMediaStream->m_iDequeMediaSection_Pos = iSection-1;
-		MediaInfoChanged( pMediaStream, true );
-	}
-}
 //<-dceag-c623-b->
 
 	/** @brief COMMAND: #623 - Shuffle */
