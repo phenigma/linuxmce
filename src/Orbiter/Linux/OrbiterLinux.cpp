@@ -341,12 +341,12 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
 	// Now see if there are any scancode entries that conflict with the hard keys
 	for(map< pair<int,char>,string>::iterator it=m_mapScanCodeToRemoteButton.begin();it!=m_mapScanCodeToRemoteButton.end();++it)
 	{
-		int iScanCode = it->fisrt.first;
+		int iScanCode = it->first.first;
 
 		// Store a NULL entry in m_mapHardKeys so we don't also process this as a hard key
 		Orbiter::Event event;
 		event.type = Orbiter::Event::BUTTON_DOWN;
-		event.data.button.m_iKeycode = ScanCode;
+		event.data.button.m_iKeycode = iScanCode;
 		event.data.button.m_iPK_Button = 0;
 		PreprocessEvent(event);
 		if( event.data.button.m_iPK_Button )
