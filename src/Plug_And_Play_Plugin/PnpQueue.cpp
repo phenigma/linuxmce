@@ -296,6 +296,8 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 	Row_Device *pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow() : NULL;  // This will be NULL if it's a new device
 	if( pRow_Device_Created )
 	{
+		DetermineOrbitersForPrompting(pPnpQueueEntry,false); // For the Display Alert
+
 		pPnpQueueEntry->AssignDeviceData(pRow_Device_Created);
 		int PK_Device_Topmost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get());
 		// See if this is a local device that has since moved from one system to another, like rs232 or usb
@@ -320,9 +322,12 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			m_pDatabase_pluto_main->Device_get()->Commit();
 
 			string sMessage = StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " Moved existing device: " + pRow_Device_Created->Description_get();
-			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-				sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
-			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+			if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
+			{
+				DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+					sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+				m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+			}
 			
 			Message *pMessage_Kill = new Message(m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get(),PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
 			m_pPlug_And_Play_Plugin->QueueMessageToRouter(pMessage_Kill); // Kill the device at the old location
@@ -337,10 +342,12 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		else
 		{
 			string sMessage = StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " Existing device already enabled: " + pRow_Device_Created->Description_get();
-			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-				sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
-			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
-
+			if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
+			{
+				DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+					sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+				m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+			}
 			if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
 				DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get());
 
@@ -635,10 +642,7 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 #endif
 	}
 
-	if( DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
-		return false; // No orbiters.  Skip this one for now
-
-	if( pPnpQueueEntry->m_EBlockedState == PnpQueueEntry::pnpqe_blocked_waiting_for_orbiters && DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+	if( DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 		return false; // No orbiters.  Skip this one for now
 
 	if( BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
@@ -921,10 +925,14 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 		SetDisableFlagForDeviceAndChildren(pRow_Device_Created,true);
 		m_pDatabase_pluto_main->Device_get()->Commit();
 
+		DetermineOrbitersForPrompting(pPnpQueueEntry,false); // For the Display Alert
 		string sMessage = StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " Disabled: " + pRow_Device_Created->Description_get();
-		DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-			sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
-		m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+		if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
+		{
+			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+				sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+		}
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Remove_Stage_Removed killing queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 #endif
@@ -1200,6 +1208,8 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 		}
 	}
 
+	DetermineOrbitersForPrompting(pPnpQueueEntry,false); // For the Display Alert
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d has %d possibilities",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size());
 #endif
@@ -1265,10 +1275,12 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			}
 
 			string sAlert = "Running detection script: " + pRow_DHCPDevice_To_Detect->PnpDetectionScript_get();
-			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-				sAlert,"pnp_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"60");
-			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
-
+			if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
+			{
+				DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+					sAlert,"pnp_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"60");
+				m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+			}
 			// The arguments are this device, the queue ie, the path where to find the device, the pnp script name
 			string sArguments = StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device) + "\t" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + 
 				"\t" + sPath + "\t" + pRow_DHCPDevice_To_Detect->PnpDetectionScript_get();
@@ -1371,7 +1383,7 @@ void PnpQueue::ReadOutstandingQueueEntries()
 	}
 }
 
-bool PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
+bool PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry,bool bBlockIfNone)
 {
 	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_Ethernet_CONST ) // This is universal, could be anywhere, ask on all orbiters
 	{
@@ -1436,7 +1448,8 @@ bool PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry)
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d no orbiters",
 			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_waiting_for_orbiters);
+		if( bBlockIfNone )
+			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_waiting_for_orbiters);
 		return false;
 	}
 
@@ -1568,10 +1581,14 @@ bool PnpQueue::ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Dev
 	m_pDatabase_pluto_main->Device_get()->Commit();
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_ADD_SOFTWARE);
 
+	DetermineOrbitersForPrompting(pPnpQueueEntry,false); // For the Display Alert
 	string sMessage = StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " Enabled existing device: " + pRow_Device->Description_get();
-	DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-		sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
-	m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+	if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
+	{
+		DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+			sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+		m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+	}
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::ReenableDevice queue %d was existing device, but disabled",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());

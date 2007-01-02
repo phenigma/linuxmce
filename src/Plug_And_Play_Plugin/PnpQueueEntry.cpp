@@ -164,9 +164,12 @@ void PnpQueueEntry::Stage_set(int Stage)
 			sMessage += " Added: " + pRow_Device->Description_get();
 		else if( m_pRow_PnpQueue->FK_DeviceTemplate_get() && (pRow_DeviceTemplate=m_pRow_PnpQueue->FK_DeviceTemplate_getrow()) )
 			sMessage += pRow_DeviceTemplate->Description_get();
-		DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(m_pRow_Device_Reported->PK_Device_get(),m_sPK_Orbiter_List_For_Prompts,sMessage,
-			"pnp_" + StringUtils::itos(m_pRow_PnpQueue->PK_PnpQueue_get()),(Stage==PNP_DETECT_STAGE_DONE || Stage==PNP_REMOVE_STAGE_DONE) ? "2" : "3");
-		m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+		if( m_sPK_Orbiter_List_For_Prompts.empty()==false )
+		{
+			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(m_pRow_Device_Reported->PK_Device_get(),m_sPK_Orbiter_List_For_Prompts,sMessage,
+				"pnp_" + StringUtils::itos(m_pRow_PnpQueue->PK_PnpQueue_get()),(Stage==PNP_DETECT_STAGE_DONE || Stage==PNP_REMOVE_STAGE_DONE) ? "2" : "3");
+			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+		}
 	}
 }
 

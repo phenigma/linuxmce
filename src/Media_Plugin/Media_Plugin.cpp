@@ -1788,7 +1788,7 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 	}
 }
 
-void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement,vector<EntertainArea *> *p_vectEntertainArea,bool bNoAutoResume)
+void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement,vector<EntertainArea *> *p_vectEntertainArea,bool bNoAutoResume,bool bTurnOnOSD)
 {
 	if ( pMediaStream == NULL )
 	{
@@ -1879,7 +1879,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 
 		if( bSendOff )
 			HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
-		if( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD )
+		if( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD && bTurnOnOSD )
 		{
 			MediaDevice *pMediaDevice_MD = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device);
 			if( pMediaDevice_MD && pMediaDevice_MD->m_bDontSendOffIfOSD_ON )
@@ -2641,7 +2641,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 		// Don't bother stopping the media if it's already parked.  This media is not parked
 		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
 		g_pPlutoLogger->Write( LV_STATUS, "Media_Plugin::CMD_MH_Move_Media Called StopMedia" );
-		StreamEnded(pMediaStream,true,false,NULL,&vectEntertainArea);
+		StreamEnded(pMediaStream,true,false,NULL,&vectEntertainArea,false,false);  // In the case of a move the user likely doesn't want to still use this system, so the final false means dont leave the osd on
 	}
 
 	if( bNothingMoreToPlay )
@@ -3498,7 +3498,10 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 	{
 		// We're only playing in 1 EA.  Just shut it off
 		if( pMediaStream->m_mapEntertainArea.size()<2 )
-			StreamEnded(pMediaStream);
+		{
+			pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
+			StreamEnded(pMediaStream,true,true,NULL,NULL,false,false);  // Final false = don't turn back on the a/v equipment to re-activate the OSD
+		}
 
 		// We turned off the destination in an entertainment area
 		else if( pEntertainArea )
@@ -3511,7 +3514,10 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 
 		// We can't turn off just 1 area -- shut down the whole stream
 		else
-			StreamEnded(pMediaStream);
+		{
+			pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
+			StreamEnded(pMediaStream,true,true,NULL,NULL,false,false);  // Final false = don't turn back on the a/v equipment to re-activate the OSD
+		}
 	}
 	else if( pMediaDevice->m_pCommandGroup )
 	{

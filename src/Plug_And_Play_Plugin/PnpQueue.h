@@ -67,7 +67,7 @@ namespace DCE
 		void ReleaseQueuesBlockedFromPromptingState(PnpQueueEntry *pPnpQueueEntry);
 		bool BlockIfOtherQueuesAtPromptingState(PnpQueueEntry *pPnpQueueEntry);
 		void ReadOutstandingQueueEntries();
-		bool DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry);
+		bool DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry,bool bBlockIfNone);
 		string GetDescription(PnpQueueEntry *pPnpQueueEntry);
 		string GetDeviceName(PnpQueueEntry *pPnpQueueEntry);  // Get the default name to use for this device
 		bool DeviceMatchesCriteria(Row_Device *pRow_Device,PnpQueueEntry *pPnpQueueEntry);

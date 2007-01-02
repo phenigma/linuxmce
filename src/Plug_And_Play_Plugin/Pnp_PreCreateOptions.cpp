@@ -77,7 +77,7 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Username(PnpQueueEntry *pPnpQueueE
 		if( bHasUserName==false ||
 			pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Password_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() )
 		{
-			if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+			if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 				return false; // No orbiters.  Skip this one for now
 
 			// We need to get it and block until we do
@@ -113,7 +113,7 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Room(PnpQueueEntry *pPnpQueueEntry
 	if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
 		return true; // We will automatically pick the room in create device
 	
-	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 		return false; // No orbiters.  Skip this one for now
 
 	// We need to ask the user for the room
@@ -159,7 +159,7 @@ bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntr
 		return true;  // The user specified both options
 	}
 
-	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 		return false; // No orbiters.  Skip this one for now
 
 	if( bUserSpecified && !bPhoneSpecified && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
@@ -205,7 +205,7 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 		return true;  // The user specified both options
 	}
 
-	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 		return false; // No orbiters.  Skip this one for now
 
 	if( bUseAutoSpecified && !bUseDirectorySpecified && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
@@ -252,7 +252,7 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 	if( !bHasSensors && !bHasLights )
 		return true;
 
-	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry)==false )
+	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 		return false; // No orbiters.  Skip this one for now
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )

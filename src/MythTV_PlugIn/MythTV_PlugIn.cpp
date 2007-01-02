@@ -857,7 +857,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
 			}
 
-			sSQL = "UPDATE `capturecard` set videodevice='" + sBlockDevice + "', defaultinput='" + sPortName + "'";
+			sSQL = "UPDATE `capturecard` set videodevice='" + sBlockDevice + "', defaultinput='" + sPortName + "' WHERE cardid=" + StringUtils::itos(cardid);
 			if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
 				bModifiedRows=true;
 
@@ -876,7 +876,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 				sourceid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 			}
 
-			sSQL = "UPDATE `videosource` SET userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "'";
+			sSQL = "UPDATE `videosource` SET userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE name='" + sProviderName + "'";
 			if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
 				bModifiedRows=true;
 
@@ -892,7 +892,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 				cardinputid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 			}
 
-			sSQL = "UPDATE `cardinput` set inputname='" + sPortName + "'";
+			sSQL = "UPDATE `cardinput` set inputname='" + sPortName + "' WHERE cardinputid=" + StringUtils::itos(cardinputid);
 			if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
 				bModifiedRows=true;
 		}
