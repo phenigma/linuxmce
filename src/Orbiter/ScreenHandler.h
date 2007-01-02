@@ -215,6 +215,8 @@ public:
 	bool AddSoftware_GridRendering(CallBackData *pData);
 	bool AddSoftware_GridSelected(CallBackData *pData);
 
+	virtual void SCREEN_Halt_System(long PK_Screen);
+
 	virtual void SCREEN_FileSave(long PK_Screen, string sCaption, string sCommand, bool bAdvanced_options);
 	bool FileSave_ObjectSelected(CallBackData *pData);
 	bool FileSave_GridSelected(CallBackData *pData);

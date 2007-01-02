@@ -1946,3 +1946,11 @@ void ScreenHandler::SaveFile_SendCommand()
 	m_pOrbiter->GotoDesignObj(sPK_DesignObj);
 }
 
+/*virtual*/ void ScreenHandler::SCREEN_Halt_System(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_Halt_System(PK_Screen);
+	DesignObj_Orbiter *pDesignObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuSystemHalt_CONST) ".0.0." TOSTRING(DESIGNOBJ_butReset_AsOtherOS_CONST) );
+	if( pDesignObj )
+		pDesignObj->m_bHidden = m_pOrbiter->m_sOperatingSystem.empty();
+}
+

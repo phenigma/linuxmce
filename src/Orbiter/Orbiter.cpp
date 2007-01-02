@@ -692,6 +692,7 @@ bool Orbiter::GetConfig()
 	m_pOrbiterRenderer->Configure();
 
 	m_pDevice_ScreenSaver = m_pData->FindSelfOrChildWithinCategory(DEVICECATEGORY_Screen_Savers_CONST);
+	m_sOperatingSystem = m_pEvent->GetDeviceDataFromDatabase( m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_Operating_System_CONST );
 
 	vector<string> vectShortcuts;
 	string sShortcuts=DATA_Get_Shortcut();
@@ -4161,6 +4162,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			else if( m_bIsOSD )
 				Output += StringUtils::itos( m_pData->m_dwPK_Device_ControlledVia );
 		}
+		else if(  Variable=="OS" )
+			Output += m_sOperatingSystem;
 		else if(  Variable=="MDH"  )
 			Output += StringUtils::itos( m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector );
 		else if(  Variable=="L:0" && m_pLocationInfo  )
@@ -8048,7 +8051,11 @@ void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessa
 		DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_dwPK_Device,m_dwPK_Device_MediaPlugIn,0,0,0,StringUtils::itos( m_pLocationInfo->PK_EntertainArea ));
 		SendCommand(CMD_MH_Stop_Media);
 	}
-	else if( m_bDisplayOn )
+	else
+		CMD_Goto_Screen( "", SCREEN_Halt_System_CONST );
+	/*
+	{
+		if( m_bDisplayOn )
 	{
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Powering off monitor");
@@ -8061,12 +8068,12 @@ void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessa
 		g_pPlutoLogger->Write(LV_STATUS,"Monitor already off");
 #endif
 		CMD_Display_OnOff("0",false);
-		/*  TODO -- This makes it too easy to power off accidentally by hitting the button multiple times
+	  TODO -- This makes it too easy to power off accidentally by hitting the button multiple times
 		For now the user will just hit the 'power' option
 		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,m_dwPK_Device_LocalAppServer,m_dwPK_Device,"0");
 		SendCommand(CMD_Halt_Device);
-		*/
 	}
+		*/
 }
 
 //<-dceag-c240-b->
@@ -8827,8 +8834,11 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
-	if( iPK_Screen==SCREEN_Main_CONST && m_bNewOrbiter && atoi(m_sInitialScreen.c_str())==SCREEN_VideoWizard_CONST )
-		iPK_Screen=SCREEN_VideoWizard_CONST;
+	if( iPK_Screen==SCREEN_Main_CONST )
+	{
+		if( m_bNewOrbiter && atoi(m_sInitialScreen.c_str())==SCREEN_VideoWizard_CONST )
+			iPK_Screen=SCREEN_VideoWizard_CONST;
+	}
 
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnGotoScreen);
 	if(pCallBackData)
@@ -9597,8 +9607,7 @@ void Orbiter::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Menu display %d",(int) m_bDisplayOn);
 #endif
 
-	if( !GotActivity(0) )
-		return;
+	GotActivity(0);  // Keep processing this regardless
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pMouseBehavior )
