@@ -179,6 +179,7 @@
 #define DEVICEDATA_Shortcut_CONST 205
 #define DEVICEDATA_Dont_Auto_Configure_CONST 206
 #define DEVICEDATA_Capabilities_CONST 207
+#define DEVICEDATA_Initial_Volume_Level_CONST 208
 #define DEVICEDATA_Operating_System_CONST 209
 
 #define DEVICEDATA_TABLE "DeviceData"

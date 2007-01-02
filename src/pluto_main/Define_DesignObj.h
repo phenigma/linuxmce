@@ -2370,8 +2370,10 @@
 #define DESIGNOBJ_Power_UI2_menu_CONST 5365
 #define DESIGNOBJ_popFilePurchaseDetails_CONST 5366
 #define DESIGNOBJ_butFBSF_Purchase_CONST 5367
-#define DESIGNOBJ_butReset_AsOtherOS_CONST 5371
 #define DESIGNOBJ_butAddRFKeyboardMouse_CONST 5368
+#define DESIGNOBJ_butDisplayOff_This_CONST 5369
+#define DESIGNOBJ_butHalt_This_CONST 5370
+#define DESIGNOBJ_butReset_AsOtherOS_CONST 5371
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
