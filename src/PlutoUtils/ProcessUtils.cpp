@@ -382,16 +382,18 @@ bool ProcessUtils::SpawnDaemon(string sPath, string sArguments, bool bLogOutput)
 {
 	vector<string> vectArguments;
 	StringUtils::Tokenize(sArguments,"\t",vectArguments);
-	char **pArgs = new char*[vectArguments.size()+1];
-	pArgs[vectArguments.size()+1]=NULL;
+	size_t iSize = vectArguments.size();
+	char **pArgs = new char*[iSize + 2]; // enough to include 1 path, n arguments and a NULL pointer at the end (space for n+2 elements numbered 0..n+1)
 	
+	// args[0]
 	pArgs[0] = (char *) sPath.c_str();
 
-	int i=1;
-	for(vector<string>::iterator it = vectArguments.begin();it != vectArguments.end();++it)
-		pArgs[i++] = (char *) it->c_str();
+	// args[1..n], n == vectArguments.size() == iSize
+	for (int i = 0; i < iSize; i++)
+		pArgs[i + 1] = (char *) vectArguments[i].c_str();
+	pArgs[iSize + 1] = NULL; // NULL pointer in the last element, args[n+1]
 
-	bool bResult = SpawnDaemon(sPath.c_str(),pArgs,bLogOutput);
+	bool bResult = SpawnDaemon(pArgs[0], pArgs, bLogOutput);
 	delete [] pArgs; // Not PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS because the strings are c_str and not allocated on the heap
 	return bResult;
 }
