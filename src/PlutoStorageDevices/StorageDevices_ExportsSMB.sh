@@ -37,6 +37,9 @@ done
 
 PopulateSection "/etc/samba/smb.conf" "InternalStorageDevices" "$Exports_InternalStorageDevices"
 
+## Run SetupUsers_Homes so it readds the sambahelper user to smbpasswd file
+/usr/pluto/bin/SetupUsers_Homes.sh
+
 ## Check and start/reload the nfs-kernel-server
 if [[ "$(pidof smbd)" == "" ]] ;then
 	invoke-rc.d samba start
