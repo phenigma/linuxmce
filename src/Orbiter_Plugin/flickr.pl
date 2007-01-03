@@ -89,8 +89,8 @@ if (!-d $dest) {
 
 $api = new Flickr::API({'key' => $fKey});
 my ($max_number, $picture_nr);
-$max_number = 30;
-#$max_number = getMaxNrFiles();
+#$max_number = 30;
+$max_number = getMaxNrFiles();
 $picture_nr = 0;
 
 if ($search_string){
@@ -357,7 +357,7 @@ sub delete_old {
 				print TEST "$test_date Removing file: $_ \n";
 				`rm -f $_`;
 				$count--;
-				last if ($count == 0);
+				last if ($count <= 0);
 			}
 		}
 	}
