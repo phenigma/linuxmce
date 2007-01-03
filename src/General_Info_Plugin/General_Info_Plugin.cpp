@@ -510,10 +510,52 @@ void General_Info_Plugin::CMD_Wake_Device(int iPK_Device,string &sCMD_Result,Mes
 			/** The device to halt */
 		/** @param #21 Force */
 			/** If Force is not specified this will do a suspend if the device supports suspend/resume, otherwise it will do a halt.  Force:  "H"=halt, "S"=suspend, "D"=Display off, "R"=reboot, "N"=net boot, "V"=hard drive boot */
+		/** @param #47 Mac address */
+			/** If PK_Device is not specified (is 0), we'll use the mac address to determine the device id */
 
-void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string sMac_address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c323-e->
-{
+{	
+	if ( 0 == iPK_Device ) // iPK_Device=0 => find device by MAC Address
+	{		
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		string sSQL = 
+			"SELECT PK_Device "
+			"FROM Device "
+			"WHERE MACaddress = '" + sMac_address +"'";
+
+		enum FieldNames
+		{
+			fnDeviceID			
+		};
+
+		int iDeviceID = 0;
+		// Execute query
+		if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+		{
+			while((row = mysql_fetch_row(result.r)))	
+			{
+				if(NULL != row[fnDeviceID]) // device found
+				{
+					 iDeviceID = atoi(row[fnDeviceID]);
+					 break;
+				}
+			}
+			if ( 0 == iDeviceID ){
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot halt device %s - device not found in database", sMac_address.c_str() );
+				return;
+			}
+			else iPK_Device = iDeviceID;
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot halt device %s - error executing SQL", sMac_address.c_str());
+			return;
+		}
+	}
+
+
 	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
 	if( !pDevice )
 		pDevice = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
@@ -550,7 +592,7 @@ void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string &s
 	if( sForce=="V" || sForce=="N" )
 	{
 		SetNetBoot(pDevice,sForce=="N");
-		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,pDevice->m_dwPK_Device,sForce.c_str());
+		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,pDevice->m_dwPK_Device,sForce.c_str(), "");
 		SendCommand(CMD_Halt_Device);
 	}
 	else

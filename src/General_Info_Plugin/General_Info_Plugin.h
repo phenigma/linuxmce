@@ -253,9 +253,11 @@ public:
 			/** The device to halt */
 		/** @param #21 Force */
 			/** If Force is not specified this will do a suspend if the device supports suspend/resume, otherwise it will do a halt.  Force:  "H"=halt, "S"=suspend, "D"=Display off, "R"=reboot, "N"=net boot, "V"=hard drive boot */
+		/** @param #47 Mac address */
+			/** If PK_Device is not specified (is 0), we'll use the mac address to determine the device id */
 
-	virtual void CMD_Halt_Device(int iPK_Device,string sForce) { string sCMD_Result; CMD_Halt_Device(iPK_Device,sForce.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string sMac_address) { string sCMD_Result; CMD_Halt_Device(iPK_Device,sForce.c_str(),sMac_address.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string sMac_address,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #365 - Get Room Description */

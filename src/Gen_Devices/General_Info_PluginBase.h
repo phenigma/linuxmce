@@ -195,7 +195,7 @@ public:
 	virtual void CMD_Restart_DCERouter(string sForce,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Wake_Device(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Room_Description(int iPK_Device,string *sText,int *iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_for_updates(string &sCMD_Result,class Message *pMessage) {};
@@ -500,7 +500,8 @@ public:
 						string sCMD_Result="OK";
 						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
 						string sForce=pMessage->m_mapParameters[COMMANDPARAMETER_Force_CONST];
-						CMD_Halt_Device(iPK_Device,sForce.c_str(),sCMD_Result,pMessage);
+						string sMac_address=pMessage->m_mapParameters[COMMANDPARAMETER_Mac_address_CONST];
+						CMD_Halt_Device(iPK_Device,sForce.c_str(),sMac_address.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -517,7 +518,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Halt_Device(iPK_Device,sForce.c_str(),sCMD_Result,pMessage);
+								CMD_Halt_Device(iPK_Device,sForce.c_str(),sMac_address.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
