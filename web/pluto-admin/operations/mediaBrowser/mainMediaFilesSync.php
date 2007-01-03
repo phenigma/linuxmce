@@ -355,7 +355,7 @@ function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
 		SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
 		FROM File 
 		LEFT JOIN Picture_File ON FK_File=PK_File
-		WHERE (Path=? OR Path=?) AND Filename NOT IN (\''.join('\',\'',$physicalFiles).'\') AND Missing=1
+		WHERE (Path=? OR Path=?) AND Filename NOT IN (\''.join('\',\'',array_map('addslashes',$physicalFiles)).'\') AND Missing=1
 		GROUP BY PK_File';
 	$rs=$mediadbADO->Execute($queryDBFiles,array($path,$path.'/'));
 	$dbFiles=array();
