@@ -15,7 +15,7 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_DeviceTemplate_DeviceTemplate_Related : public TableBase , DoubleLongKeyBase
+class DECLSPECIFIER Table_DeviceTemplate_DeviceTemplate_Related : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -32,11 +32,10 @@ private:
 	struct Key
 	{
 		friend class Row_DeviceTemplate_DeviceTemplate_Related;
-		long int pk_FK_DeviceTemplate;
-long int pk_FK_DeviceTemplate_Related;
+		long int pk_PK_DeviceTemplate_DeviceTemplate_Related;
 
 		
-		Key(long int in_FK_DeviceTemplate, long int in_FK_DeviceTemplate_Related);
+		Key(long int in_PK_DeviceTemplate_DeviceTemplate_Related);
 	
 		Key(class Row_DeviceTemplate_DeviceTemplate_Related *pRow);
 	};
@@ -60,13 +59,13 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_DeviceTemplate_DeviceTemplate_Related* GetRow(long int in_FK_DeviceTemplate, long int in_FK_DeviceTemplate_Related);
+	class Row_DeviceTemplate_DeviceTemplate_Related* GetRow(long int in_PK_DeviceTemplate_DeviceTemplate_Related);
 	
 
 private:	
 	
 		
-	class Row_DeviceTemplate_DeviceTemplate_Related* FetchRow(DoubleLongKey &key);
+	class Row_DeviceTemplate_DeviceTemplate_Related* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -78,7 +77,8 @@ class DECLSPECIFIER Row_DeviceTemplate_DeviceTemplate_Related : public TableRow,
 	private:
 		Table_DeviceTemplate_DeviceTemplate_Related *table;
 		
-		long int m_FK_DeviceTemplate;
+		long int m_PK_DeviceTemplate_DeviceTemplate_Related;
+long int m_FK_DeviceTemplate;
 long int m_FK_DeviceTemplate_Related;
 string m_Value;
 long int m_psc_id;
@@ -88,10 +88,11 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[9];
+		bool is_null[10];
 	
 	public:
-		long int FK_DeviceTemplate_get();
+		long int PK_DeviceTemplate_DeviceTemplate_Related_get();
+long int FK_DeviceTemplate_get();
 long int FK_DeviceTemplate_Related_get();
 string Value_get();
 long int psc_id_get();
@@ -102,7 +103,8 @@ string psc_mod_get();
 long int psc_restrict_get();
 
 		
-		void FK_DeviceTemplate_set(long int val);
+		void PK_DeviceTemplate_DeviceTemplate_Related_set(long int val);
+void FK_DeviceTemplate_set(long int val);
 void FK_DeviceTemplate_Related_set(long int val);
 void Value_set(string val);
 void psc_id_set(long int val);
@@ -148,12 +150,13 @@ class Row_DeviceTemplate* FK_DeviceTemplate_Related_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_DeviceTemplate+ m_FK_DeviceTemplate_Related+ m_Value+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DeviceTemplate_DeviceTemplate_Related+ m_FK_DeviceTemplate+ m_FK_DeviceTemplate_Related+ m_Value+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string FK_DeviceTemplate_asSQL();
+		string PK_DeviceTemplate_DeviceTemplate_Related_asSQL();
+string FK_DeviceTemplate_asSQL();
 string FK_DeviceTemplate_Related_asSQL();
 string Value_asSQL();
 string psc_id_asSQL();
