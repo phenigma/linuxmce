@@ -117,11 +117,11 @@ function raid($output,$dbADO) {
 					</tr>
 					<tr>
 						<td><B>'.$TEXT_USE_AUTOMATICALLY_CONST.'</B></td>
-						<td><input type="checkbox" name="use_automaticly" value="1"></td>
+						<td><input type="checkbox" name="use_automaticly" value="1" checked></td>
 					</tr>
 					<tr>
 						<td><B>'.$TEXT_USE_PLUTO_DIRECTORY_STRUCTURE_CONST.'</B></td>
-						<td><input type="checkbox" name="use_pluto_directory_structure" value="1"></td>
+						<td><input type="checkbox" name="use_pluto_directory_structure" value="1" checked></td>
 					</tr>
 					
 					<tr>
