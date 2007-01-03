@@ -53,13 +53,13 @@ for i in "$@"; do
 	echo "Parameter: $i"
 done
 
-diskDriveDeviceID=$1
-mediaPluginDeviceID=$2
-targetFileName=$3
-sourceDevice=$4
-diskType=$5
-ownerID=$6
-ripFormatString=$7 # mp3, ogg, flac, wav
+diskDriveDeviceID="$1"
+mediaPluginDeviceID="$2"
+targetFileName="$3"
+sourceDevice="$4"
+diskType="$5"
+ownerID="$6"
+ripFormatString="$7" # mp3, ogg, flac, wav
 trackList="$8"
 
 ripFormat=${ripFormatString%%;*}
@@ -71,7 +71,7 @@ ripFormat=${ripFormatString%%;*}
 #	6 DISCTYPE_CD_MIXED 
 #	7 DISCTYPE_CD_VCD
 
-echo "Ripping $sourceDevice to \"$targetFileName\" with a disk of type $diskType for $ownerID";
+echo "Ripping $sourceDevice to \"$targetFileName\" with a disk of type $diskType for user $ownerID";
 
 command="";
 result=$ERR_NONE;
@@ -113,7 +113,7 @@ case $diskType in
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
 esac
 
-echo "$command"
+echo "Command: $command"
 if [[ "$command" == "" ]]; then 
 	exit 1;
 fi
@@ -122,7 +122,7 @@ trap "/usr/pluto/bin/cdop '$sourceDevice' unlock" EXIT # unlock tray on exit
 /usr/pluto/bin/cdop "$sourceDevice" lock # lock tray
 
 if [[ "$diskType" == 2 ]]; then
-	if eval $command; then
+	if eval "$command"; then
 		echo "Ripping successful"
 		touch "$targetFileName.dvd.lock"
 		mv -f "$targetFileName.dvd"{.in-progress,}
