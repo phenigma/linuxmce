@@ -443,10 +443,11 @@ $installationID = (int)@$_SESSION['installationID'];
 					
 	<table>
 	';
-	$selectRelatedDevices = 'SELECT Device_Device_Related.Value,FK_Device_Related,Device.Description,DeviceTemplate.Description as  DT_Desc FROM 
-		Device_Device_Related 			
-			INNER JOIN Device ON FK_Device_Related = PK_Device
-			INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
+	$selectRelatedDevices = '
+		SELECT Device_Device_Related.Value,FK_Device_Related,Device.Description,DeviceTemplate.Description as  DT_Desc 
+		FROM Device_Device_Related 			
+		INNER JOIN Device ON FK_Device_Related = PK_Device
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
 		WHERE FK_Device = ?
 	';
 	$resRelatedDevices = $dbADO->Execute($selectRelatedDevices,array($deviceID));
@@ -454,7 +455,8 @@ $installationID = (int)@$_SESSION['installationID'];
 	$deviceRelatedData = array();
 	$deviceRelatedData[]=0;
 	if ($resRelatedDevices) {	
-		if ($resRelatedDevices->RecordCount()==0){
+		$relatedDevicesCount=$resRelatedDevices->RecordCount();
+		if ($relatedDevicesCount==0){
 			$out.='<tr><td colspan="2">No related devices</a></td></tr>';
 		} 
 			
@@ -471,12 +473,14 @@ $installationID = (int)@$_SESSION['installationID'];
 		}
 	}
 	
-	$selectAddNewRelatedDevices = "SELECT Device.Description,PK_Device,DeviceTemplate.Description as DT_Desc FROM Device 
+	$selectAddNewRelatedDevices = "
+		SELECT Device.Description,PK_Device,DeviceTemplate.Description as DT_Desc 
+		FROM Device 
 		INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
-		WHERE FK_Installation = ? and PK_Device != ? 
-		AND PK_Device NOT IN (".join(",",$deviceRelatedData).") ORDER BY Description ASC";
+		WHERE FK_Installation = ? and PK_Device != ? AND PK_Device NOT IN (".join(",",$deviceRelatedData).") AND FK_DeviceTemplate=?
+		ORDER BY Description ASC";
 	
-	$resAddNewRelatedDevices = $dbADO->Execute($selectAddNewRelatedDevices,array($installationID,$deviceID));
+	$resAddNewRelatedDevices = $dbADO->Execute($selectAddNewRelatedDevices,array($installationID,$deviceID,$DeviceTemplate));
 	$newDeviceRelated='<option value="0">-please select-</option>';
 	if ($resAddNewRelatedDevices) {
 		while ($rowAddNewRelatedDevices = $resAddNewRelatedDevices->FetchRow()) {
@@ -485,7 +489,10 @@ $installationID = (int)@$_SESSION['installationID'];
 	}
 	$out.='
 		
-		<tr><td><select name="addNewDeviceRelated">'.$newDeviceRelated.'</select></td><td><input type="submit" class="button" name="submitX" value="Add"  ></td></tr>
+		<tr>
+			<td>'.(($relatedDevicesCount!=0)?'&nbsp;':'<select name="addNewDeviceRelated">'.$newDeviceRelated.'</select>').' <input type="submit" class="button" name="submitX" value="Add"  ></td>
+			<td>&nbsp;</td>
+		</tr>
 	
 		<input type="hidden" name="selectedRelatedDevice" value="'.(join(",",$deviceRelatedData)).'">
 		<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td></tr>
