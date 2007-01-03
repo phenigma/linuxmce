@@ -190,7 +190,7 @@ bool ServerSocket::ServeClient()
 #else
 			string sMacAddress="WINDOWS";
 #endif
-			SendString("OK " + sMacAddress);
+			SendString("OK IP:" + m_sIPAddress + " MAC:" + sMacAddress);
 		}
 
 		if ( sMessage.length() >= 5 && (sMessage.substr(0,5) == "EVENT" || /* TODO - REMVOE HELLO ONCE ALL DEVICES USE EVENT */ sMessage.substr(0,5)=="HELLO") )
