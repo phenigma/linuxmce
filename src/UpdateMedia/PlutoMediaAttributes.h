@@ -74,6 +74,8 @@ public:
 	MapPictures m_mapCoverarts;
 	MapPictures m_mapCoverartsThumbs;
 	ListBookmarks m_listBookmarks;
+	int m_nFileFormat;
+	int m_nMediaSubType;
 
 	PlutoMediaAttributes();
 	~PlutoMediaAttributes();

@@ -102,7 +102,8 @@ PlutoMediaBookmark& PlutoMediaBookmark::operator =(PlutoMediaBookmark& bookmark)
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaAttributes::PlutoMediaAttributes() : 
 	SerializeClass(), 
-	m_nInstallationID(0), m_nFileID(0), m_nPictureID(0)
+	m_nInstallationID(0), m_nFileID(0), m_nPictureID(0),
+	m_nFileFormat(0), m_nMediaSubType(0)
 {
 	m_iSC_Version = SERIALIZE_PLUTO_MEDIA_ATTRIBUTES_VERSION;
 }
@@ -149,6 +150,10 @@ void PlutoMediaAttributes::SetupSerialization(int /*iSC_Version*/)
 	
 	//bookmarks
 	(*this) + m_listBookmarks;
+
+	//misc
+	(*(static_cast<SerializeClass *>(this))) + m_nFileFormat;
+	(*(static_cast<SerializeClass *>(this))) + m_nMediaSubType;
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaAttributes &PlutoMediaAttributes::operator+ (MapPlutoMediaAttributes &i) 

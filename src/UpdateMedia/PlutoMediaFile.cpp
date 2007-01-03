@@ -278,6 +278,7 @@ void PlutoMediaFile::SaveEveryThingToDb()
 	SaveLongAttributesInDb(false);
 	SaveCoverarts();
 	SaveBookmarkPictures();
+	SaveMiscInfo();
 	AssignPlutoDevice();
 }
 //-----------------------------------------------------------------------------------------------------
@@ -556,6 +557,26 @@ void PlutoMediaFile::SaveBookmarkPictures()
 			pRow_Bookmark->Table_Bookmark_get()->Commit();
 		}
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::SaveMiscInfo()
+{
+	g_pPlutoLogger->Write(LV_STATUS, "# SaveMiscInfo: FK_FileFormat %d, FK_MediaSubType %d", 
+		m_pPlutoMediaAttributes->m_nFileFormat, m_pPlutoMediaAttributes->m_nMediaSubType);
+
+	string sSQL = "UPDATE File ";
+
+	if(m_pPlutoMediaAttributes->m_nFileFormat != 0)
+		sSQL += "FK_FileFormat = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileFormat) + " AND ";
+	else
+		sSQL += "FK_FileFormat = NULL AND ";
+
+	if(m_pPlutoMediaAttributes->m_nMediaSubType != 0)
+		sSQL += "FK_MediaSubType = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nMediaSubType) + " ";
+	else
+		sSQL += "FK_MediaSubType = NULL ";
+
+	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveCoverarts()
@@ -1101,6 +1122,7 @@ void PlutoMediaFile::LoadEverythingFromDb()
 	LoadLongAttributes();
 	LoadCoverarts();
 	LoadBookmarkPictures();
+	LoadMiscInfo();
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadStartPosition()
@@ -1369,6 +1391,27 @@ void PlutoMediaFile::LoadBookmarkPictures()
 			m_pPlutoMediaAttributes->m_listBookmarks.push_back(pBookmark);
 		}
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::LoadMiscInfo()
+{
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	string SQL = 
+		"SELECT FK_MediaSubType, FK_FileFormat FROM File WHERE "
+		"FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
+
+	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	{
+		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
+		{
+			m_pPlutoMediaAttributes->m_nMediaSubType = atoi(row[0]);
+			m_pPlutoMediaAttributes->m_nFileFormat = atoi(row[1]);
+		}
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "# SaveMiscInfo: FK_FileFormat %d, FK_MediaSubType %d", 
+		m_pPlutoMediaAttributes->m_nFileFormat, m_pPlutoMediaAttributes->m_nMediaSubType);
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadCoverarts()

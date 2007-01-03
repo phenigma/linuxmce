@@ -54,13 +54,15 @@ private:
 	void LoadLongAttributes();
 	void LoadCoverarts();
 	void LoadBookmarkPictures();
+	void LoadMiscInfo();
 	void LoadEverythingFromDb();
 	//db operations - save:
 	void SaveStartPosition();
 	void SaveShortAttributesInDb(bool bAddAllToDb);
 	void SaveLongAttributesInDb(bool bAddAllToDb);
-	void SaveBookmarkPictures();
 	void SaveCoverarts();
+	void SaveBookmarkPictures();
+	void SaveMiscInfo();
 	void SaveEveryThingToDb();
 
 	//misc helpers
