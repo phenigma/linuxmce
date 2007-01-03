@@ -906,6 +906,8 @@ void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 		return;
 	}
 
+	GetPicAttribute(m_pPlutoMediaAttributes->m_nFileID);
+
 	//Temporary map with attributes for common tags
 	map<int, string> mapAttributes;
 	for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(), 

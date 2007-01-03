@@ -276,8 +276,11 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
         PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation,
             sDirectory, sFile);
 
-		if(PlutoMediaFile::GetDefaultSyncMode() != modeBoth)
-            sync_mode = PlutoMediaFile::GetDefaultSyncMode();
+		//adjust sync mode
+		if(PlutoMediaFile::GetDefaultSyncMode() == modeFileToDb && sync_mode == modeBoth)
+            sync_mode = modeFileToDb;
+		if(PlutoMediaFile::GetDefaultSyncMode() == modeDbToFile && sync_mode == modeBoth)
+			sync_mode = modeDbToFile;
 
 		PlutoMediaFile_.SetSyncMode(sync_mode);
 
@@ -359,8 +362,11 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		spPlutoMediaParentFolder.reset(new PlutoMediaFile(m_pDatabase_pluto_media, m_nPK_Installation,
 			sBaseDirectory, sDirectoryName));
 
-		if(PlutoMediaFile::GetDefaultSyncMode() != modeBoth)
-			dir_sync_mode = PlutoMediaFile::GetDefaultSyncMode();
+		//adjust sync mode
+		if(PlutoMediaFile::GetDefaultSyncMode() == modeFileToDb && dir_sync_mode == modeBoth)
+			dir_sync_mode = modeFileToDb;
+		if(PlutoMediaFile::GetDefaultSyncMode() == modeDbToFile && dir_sync_mode == modeBoth)
+			dir_sync_mode = modeDbToFile;
 
 		spPlutoMediaParentFolder->SetSyncMode(dir_sync_mode);
 	}
