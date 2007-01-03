@@ -181,6 +181,7 @@
 #define DEVICEDATA_Capabilities_CONST 207
 #define DEVICEDATA_Initial_Volume_Level_CONST 208
 #define DEVICEDATA_Operating_System_CONST 209
+#define DEVICEDATA_Channel_List_CONST 210
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
