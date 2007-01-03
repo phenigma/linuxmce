@@ -55,6 +55,10 @@ function matchCoverArt($output,$mediadbADO) {
 				$itemType=$_POST['itemType_'.$id];
 				$itemValue=$_POST['itemValue_'.$id];
 
+				if((int)@$_POST['remove_old']==1 && $itemType=='File'){
+					remove_cover_arts($itemValue,$mediadbADO);
+				}
+								
 				$urls=getAssocArray('CoverArtScanEntry','PK_CoverArtScanEntry','URL',$mediadbADO,'WHERE FK_CoverArtScan='.$id);
 				
 				$mediadbADO->Execute('INSERT INTO Picture (Extension,URL) VALUES (?,?)',array('jpg',$urls[$selPic]));
@@ -71,7 +75,6 @@ function matchCoverArt($output,$mediadbADO) {
 					syncAttributes($itemType,$itemValue,$selPic,$mediadbADO);
 				}
 				deleteScans($id,$mediadbADO);
-				
 			}
 		}
 		
@@ -167,7 +170,9 @@ function formatScannedItems($scannedArray){
 	}
 	$out.='
 		<tr>
-			<td align="center" class="alternate_back"><input type="submit" class="button" name="match" value="'.$TEXT_MATCHCOVERART_CONST.'"></td>
+			<td align="center" class="alternate_back"> 
+			<input type="checkbox" name="remove_old" value="1"> '.$TEXT_REMOVE_EXISITING_COVERARTS_CONST.'<br>
+			<input type="submit" class="button" name="match" value="'.$TEXT_MATCHCOVERART_CONST.'"></td>
 		</tr>	
 	</table>
 	<input type="hidden" name="ids" value="'.join(',',$displayedArray).'">';
@@ -175,6 +180,14 @@ function formatScannedItems($scannedArray){
 	return $out;
 }
 
-
-
+function remove_cover_arts($fileID,$mediadbADO){
+	$picsArray=getAssocArray('Picture_File','FK_Picture','FK_Picture',$mediadbADO,'WHERE FK_File='.$fileID);
+	
+	foreach ($picsArray as $key=>$value) {
+		exec_batch_command('sudo -u root rm '.$GLOBALS['mediaPicsPath'].$key.'_tn.jpg');
+		exec_batch_command('sudo -u root rm '.$GLOBALS['mediaPicsPath'].$key.'.jpg');
+	}
+	
+	$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File='.$fileID.' AND FK_Picture IN ('.join(',',array_values($picsArray)).')');
+}
 ?>
