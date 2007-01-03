@@ -33,6 +33,8 @@
 #include "id3info/id3info.h"
 #include "MediaIdentifier.h"
 #include "FileUtils/file_utils.h"
+#include "DCE/Message.h"
+#include "DCE/DeviceData_Impl.h"
 
 #ifdef UPDATE_MEDIA
 #include "MediaState.h"
@@ -112,6 +114,26 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::~PlutoMediaFile()
 {
+	if(m_bNewFileToDb)
+	{
+		if(
+			m_pPlutoMediaAttributes->m_mapAttributes.size() == 0 && 
+			m_pPlutoMediaAttributes->m_mapLongAttributes.size() == 0
+		)
+		{
+			//broadcast a message to identify this file 
+
+			//Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, "dcerouter");
+			//Message* pMessage = new Message(0, 0 /*device template*/, BL_SameHouse, 
+			//	MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			//	99999 /*command id*/, 
+			//	0 /* number of parameters */);
+			//pEvent->SendMessage(pMessage);
+			//delete pEvent;
+		}
+	}
+
+
 	if(m_MediaSyncMode == modeDbToFile || m_MediaSyncMode == modeBoth)
 	{
 		//Save everything in id3 file
