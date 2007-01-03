@@ -3204,7 +3204,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"add software temp hack until spawn daemon is 
 	system(sSystem.c_str());
 g_pPlutoLogger->Write(LV_CRITICAL,"add software temp hack done");
 
-//	ProcessUtils::SpawnDaemon(sCommand, sArguments, true);
+	ProcessUtils::SpawnDaemon(sCommand, sArguments, true);
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Finishing Add software");
