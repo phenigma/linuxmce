@@ -29,4 +29,5 @@ $TEXT_DEINTERLACE_QUALITY_CONST='Deinterlace Quality';
 $TEXT_SCREEN_SAVER_CONST='Screen saver';
 $TEXT_SOFTWARE_MODULES_CONST='Software modules';
 $TEXT_UI_CONST='UI';
+$TEXT_OS_ON_HARD_DRIVE_CONST='OS on hard drive';
 ?>

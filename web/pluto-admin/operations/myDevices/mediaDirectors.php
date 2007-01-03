@@ -32,7 +32,13 @@ function mediaDirectors($output,$dbADO) {
 		'104'=>'UI2 without alpha blending'
 	);	
 	$infraredReceiversArray=getDescendantsForCategory($GLOBALS['InfraredReceivers'],$dbADO);
-		
+	$osOnHardArray=array(
+		''=>'None',
+		'Windows'=>'Windows',
+		'Mac'=>'Mac',
+		'Linux'=>'Linux',
+		'Other'=>'Other'
+	);
 	
 	$deviceCategory=$GLOBALS['rootMediaDirectors'];
 	$specificFloorplanType=$GLOBALS['EntertainmentZone'];
@@ -273,6 +279,8 @@ function mediaDirectors($output,$dbADO) {
 						$raw_diq=get_child_device_data($orbiterMDChild,$GLOBALS['DeinterlacingMode'],$dbADO);
 						$diq=(!in_array($raw_diq,array_keys($deinterlaceQualityArray)))?'*':$raw_diq;
 
+						$osOnHardDrive=getDeviceData($rowD['PK_Device'],$GLOBALS['DD_OS_ON_HARD_DRIVE'],$dbADO);
+						
 						$out.='
 							<input type="hidden" name="oldSound_'.$rowD['PK_Device'].'" value="'.$soundDevice.'">
 							<input type="hidden" name="oldVideo_'.$rowD['PK_Device'].'" value="'.$videoDevice.'">
@@ -320,8 +328,8 @@ function mediaDirectors($output,$dbADO) {
 											<td><B>'.$TEXT_DEINTERLACE_QUALITY_CONST.'</B></td>
 											<td>'.pulldownFromArray($deinterlaceQualityArray,'diq_'.$rowD['PK_Device'],$diq,'','key','').'</td>
 											<td>&nbsp;</td>
-											<td>&nbsp;</td>
-											<td>&nbsp;</td>
+											<td><B>'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_OS_ON_HARD_DRIVE_CONST:'&nbsp;').'</B></td>
+											<td>'.((is_null($rowD['FK_Device_ControlledVia']))?pulldownFromArray($osOnHardArray,'osOnHardDrive_'.$rowD['PK_Device'],$osOnHardDrive,'','key',''):'&nbsp;').'</td>
 										</tr>
 										<tr>
 											<td><B>'.$TEXT_COMPUTING_APPLICATIONS_CONST.'</B></td>
@@ -531,6 +539,9 @@ function mediaDirectors($output,$dbADO) {
 					// removed screensaver since it's optional device for MD
 					// processScreenSavers($orbiterMDChild,$dbADO);
 					$err=processAudioSettings($value,$dbADO);
+					if(isset($_POST['osOnHardDrive_'.$value])){
+						set_device_data($value,$GLOBALS['DD_OS_ON_HARD_DRIVE'],$_POST['osOnHardDrive_'.$value],$dbADO);
+					}
 				}
 			}
 			

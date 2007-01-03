@@ -215,6 +215,7 @@
 	$GLOBALS['BlockDevice']=152;				// Block device
 	$GLOBALS['use_automaticly_dd']=134;			// Use automaticly
 	$GLOBALS['use_pluto_directory_structure_dd']=130;	// use pluto directory structure
+	$GLOBALS['DD_OS_ON_HARD_DRIVE']=211;		// OS on hard drive
 	
 	
 	// PK_FloorplanType from table FloorplanType 
