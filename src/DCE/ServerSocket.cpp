@@ -183,6 +183,16 @@ bool ServerSocket::ServeClient()
 			continue;
 		}
 
+		if ( sMessage.length() >= 5 && (sMessage.substr(0,5) == "MY_IP") )
+		{
+#ifndef WIN32
+			string sMacAddress=arpcache_MACfromIP(m_sIPAddress);
+#else
+			string sMacAddress="WINDOWS";
+#endif
+			SendString("OK " + sMacAddress);
+		}
+
 		if ( sMessage.length() >= 5 && (sMessage.substr(0,5) == "EVENT" || /* TODO - REMVOE HELLO ONCE ALL DEVICES USE EVENT */ sMessage.substr(0,5)=="HELLO") )
 		{
 #ifdef LL_DEBUG
