@@ -1087,7 +1087,7 @@ void MythTV_PlugIn::CheckForNewRecordings()
 					else if( sRole=="executive_producer" )
 						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Executive_Producer_CONST,"",pRow_File->PK_File_get());
 					else if( sRole=="writer" )
-						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Composer_Writer_CONST,"",pRow_File->PK_File_get());
+						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_ComposerWriter_CONST,"",pRow_File->PK_File_get());
 
 				}
 			}
