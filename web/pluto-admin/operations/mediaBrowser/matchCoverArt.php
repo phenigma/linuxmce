@@ -182,6 +182,9 @@ function formatScannedItems($scannedArray){
 
 function remove_cover_arts($fileID,$mediadbADO){
 	$picsArray=getAssocArray('Picture_File','FK_Picture','FK_Picture',$mediadbADO,'WHERE FK_File='.$fileID);
+	if(count($picsArray)==0){
+		return false;
+	}
 	
 	foreach ($picsArray as $key=>$value) {
 		exec_batch_command('sudo -u root rm '.$GLOBALS['mediaPicsPath'].$key.'_tn.jpg');
