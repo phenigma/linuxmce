@@ -192,12 +192,12 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 {
 	// The user must answer 2 questions before we create a network storage device: 1) use it automatically, 2) use our directory structure.  See which questions were answered
 	bool bUseAutoSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Use_Automatically_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
-	bool bUseDirectorySpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Use_Pluto_Directory_Structure_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
+	bool bDirectoryStructSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_PK_Users_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage %d/%d",(int) bUseAutoSpecified,(int) bUseDirectorySpecified);
 #endif
-	if( bUseAutoSpecified && bUseDirectorySpecified )
+	if( bUseAutoSpecified && bDirectoryStructSpecified )
 	{
 		DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 			 m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,  m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NAS_Options_CONST);
@@ -208,7 +208,7 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 		return false; // No orbiters.  Skip this one for now
 
-	if( bUseAutoSpecified && !bUseDirectorySpecified && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
+	if( bUseAutoSpecified && !bDirectoryStructSpecified && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
 	{
 		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 		return false;  // The user specified only 1 option.  Give him TIMEOUT_PROMPTING_USER seconds to specify the other

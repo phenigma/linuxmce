@@ -389,8 +389,8 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			 if(NULL != spPlutoMediaParentFolder.get())
 			 {
 				 // Add this directory like it were a file
-				 int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(MEDIATYPE_pluto_DVD_CONST);
-				 g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory MEDIATYPE_pluto_DVD_CONST PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
+				 int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(MEDIATYPE_pluto_StoredVideo_CONST);
+				 g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory MEDIATYPE_pluto_StoredVideo_CONST PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
 				 Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
 				 pRow_File->IsDirectory_set(false);
 				 m_pDatabase_pluto_media->File_get()->Commit();

@@ -277,7 +277,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
 		}
 	}
-	else if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="storage" || pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="volume" )
+	else if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="storage" || pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="volume" || pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="scsi_host")
 	{
 		// The serial ports on this box probably changed
 		DeviceData_Router *pDevice_AppServer=NULL,*pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());

@@ -78,7 +78,12 @@ void MediaAttributes_LowLevel::TransformFilenameToDeque(string sFilename,deque<M
 		}
 	}
 	else if( sFilename[1] == 'F' || sFilename[1] == 'f' )
-		dequeFilenames.push_back(new MediaFile(this,atoi(sFilename.substr(2).c_str()),GetFilePathFromFileID(atoi(sFilename.substr(2).c_str()))));
+	{
+		int PK_MediaType=0;
+		MediaFile *pMediaFile = new MediaFile(this,atoi(sFilename.substr(2).c_str()),GetFilePathFromFileID(atoi(sFilename.substr(2).c_str()),&PK_MediaType));
+		pMediaFile->m_dwPK_MediaType=PK_MediaType;
+		dequeFilenames.push_back(pMediaFile);
+	}
 	else if( sFilename[1] == 'B' || sFilename[1] == 'b' )
 	{
 		Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->GetRow(atoi(sFilename.substr(2).c_str()));
@@ -187,18 +192,21 @@ string MediaAttributes_LowLevel::PicturesToString( listMediaPicture *plistMediaP
     return Result;
 }
 
-string MediaAttributes_LowLevel::GetFilePathFromFileID( int PK_File )
+string MediaAttributes_LowLevel::GetFilePathFromFileID( int PK_File, int *PK_MediaType )
 {
-    string SQL = "SELECT Path,Filename FROM File WHERE PK_File=" + StringUtils::itos( PK_File );
+    string SQL = "SELECT Path,Filename,EK_MediaType FROM File WHERE PK_File=" + StringUtils::itos( PK_File );
     PlutoSqlResult result;
     MYSQL_ROW row;
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
         string strPath = row[0];
         string strFile = row[1];
+		if( PK_MediaType && row[2] )
+			*PK_MediaType = atoi(row[2]);
         return strPath + "/" + strFile;
     }
 
+	*PK_MediaType = 0;
     return "";
 }
 

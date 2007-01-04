@@ -105,7 +105,7 @@ public:
     void ScanDirectory(string Path);
 
     // Utility functions
-    string GetFilePathFromFileID(int PK_File);
+	string GetFilePathFromFileID( int PK_File, int *PK_MediaType=NULL ); // If PK_MediaType is specified it will have the media type
     string GetFilePathsFromAttributeID(int PK_Atribute);
     int GetFileIDFromFilePath(string File);
     string GetAnyPictureUnderDirectory(string File,int *PK_Picture,int MaxDepthToSearch);

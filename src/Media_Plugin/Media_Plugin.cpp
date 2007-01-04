@@ -920,16 +920,13 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 
 		if( !iPK_MediaType )
 		{
+			MediaFile *pMediaFile = (*p_dequeMediaFile)[0];
 			// This could be a DVD in a directory we're supposed to play as a file
-			string sDirectory1 = (*p_dequeMediaFile)[0]->FullyQualifiedFile() + "/video_ts";
-			string sDirectory2 = (*p_dequeMediaFile)[0]->FullyQualifiedFile() + "/VIDEO_TS";
-			if( FileUtils::DirExists(sDirectory1) || FileUtils::DirExists(sDirectory2) )
+			if( pMediaFile->m_dwPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST && FileUtils::DirExists( pMediaFile->FullyQualifiedFile() ) )
 			{
-				(*p_dequeMediaFile)[0]->m_sPath = "dvd:/" + (*p_dequeMediaFile)[0]->m_sPath;
+				pMediaFile->m_sPath = "dvd:/" + pMediaFile->m_sPath;
+				iPK_MediaType=MEDIATYPE_pluto_StoredVideo_CONST;
 			}
-			else
-				g_pPlutoLogger->Write(LV_CRITICAL,"Found nothing in %d ent areas to play files of %s",
-					(int) vectEntertainArea.size(),pMediaFile->FullyQualifiedFile().c_str());
 		}
 	}
 

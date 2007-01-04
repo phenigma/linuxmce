@@ -16,7 +16,7 @@ public:
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_iTrack=0;
-		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
+		m_dwPK_MediaType=m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 		CheckForStartPosition(pMediaAttributes_LowLevel);
 	}
@@ -28,7 +28,7 @@ public:
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_iTrack=0;
-		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
+		m_dwPK_MediaType=m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 	}
 
 	MediaFile(string sMRL)	{
@@ -38,7 +38,7 @@ public:
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_iTrack=0;
-		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
+		m_dwPK_MediaType=m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sMRL));
 	}
 
@@ -50,7 +50,7 @@ public:
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_iTrack=0;
-		m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
+		m_dwPK_MediaType=m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 		CheckForStartPosition(pMediaAttributes_LowLevel);
 	}
@@ -65,6 +65,7 @@ public:
 		m_sExtension=pMediaFile_Copy->m_sExtension;
 		m_dwPK_CommandGroup_Start=pMediaFile_Copy->m_dwPK_CommandGroup_Start;
 		m_dwPK_CommandGroup_Stop=pMediaFile_Copy->m_dwPK_CommandGroup_Stop;
+		m_dwPK_MediaType=pMediaFile_Copy->m_dwPK_MediaType;
 		m_dwPK_Bookmark=pMediaFile_Copy->m_dwPK_Bookmark;
 		m_dwDuration=pMediaFile_Copy->m_dwDuration;
 		m_tTimeout=pMediaFile_Copy->m_tTimeout;
@@ -79,6 +80,7 @@ public:
 		m_dwDuration=pRow_PlaylistEntry->Duration_get();
 		m_tTimeout=0;
 		m_iTrack=0;
+		m_dwPK_MediaType=0;
 		m_sPath=pRow_PlaylistEntry->Path_get();
 		m_sFilename=pRow_PlaylistEntry->Filename_get();
 		m_dwPK_CommandGroup_Start=pRow_PlaylistEntry->EK_CommandGroup_Start_get();
@@ -111,7 +113,7 @@ public:
 	deque<MediaTitle *> m_dequeMediaTitle;
 	map< int,int > m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
     int m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : (*it).second; }
-	int m_dwPK_File,m_dwPK_Disk;
+	int m_dwPK_File,m_dwPK_Disk,m_dwPK_MediaType;
 	unsigned long m_dwPK_Bookmark,m_dwDuration,m_dwPK_CommandGroup_Start,m_dwPK_CommandGroup_Stop;
 	time_t m_tTimeout;
 	int m_iTrack; // If this is a cd, the track to play
