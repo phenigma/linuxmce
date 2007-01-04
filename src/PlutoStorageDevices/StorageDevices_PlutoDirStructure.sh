@@ -5,7 +5,7 @@
 
 
 TPL_STORAGE_DEVICES="1790, 1794, 1768, 1769, 1854, 1851, 1849"
-DD_USE_PLUTO_DIR_STRUCTURE=130
+DD_USERS=3
 
 Params=("$@")
 for ((i = 0; i < ${#Params[@]}; i++)); do
@@ -33,9 +33,9 @@ if [[ "$CommaSeparatedDeviceList" == "" ]]; then
 	WHERE 
 		FK_DeviceTemplate IN ($TPL_STORAGE_DEVICES)
 		AND
-		FK_DeviceData = $DD_USE_PLUTO_DIR_STRUCTURE
+		FK_DeviceData = $DD_USERS
 		AND
-		IK_DeviceData LIKE '%1%'
+		IK_DeviceData LIKE '%-1%'
 		AND
 		FK_Device_ControlledVia = '$PK_Device'
 	"
@@ -50,9 +50,9 @@ else
         WHERE
                 FK_DeviceTemplate IN ($TPL_STORAGE_DEVICES)
                 AND
-                FK_DeviceData = $DD_USE_PLUTO_DIR_STRUCTURE
+                FK_DeviceData = $DD_USERS
                 AND
-                IK_DeviceData LIKE '%1%'
+                IK_DeviceData LIKE '%-1%'
                 AND
 		PK_Device IN ($CommaSeparatedDeviceList)
         "

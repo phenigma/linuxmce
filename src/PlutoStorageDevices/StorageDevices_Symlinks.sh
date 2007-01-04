@@ -17,7 +17,6 @@ TPL_RAID_1=1851
 TPL_RAID_5=1849
 
 
-DD_USE_PLUTO_DIR_STRUCTURE=130
 DD_DIRECTORIES=153
 DD_USERS=3
 
@@ -34,8 +33,6 @@ for Device in $InternalOwnStorageDevices; do
 	Device_ID=$(Field 1 "$Device")
 	Device_Description=$(Field 2 "$Device")
 	Device_MountPoint="/mnt/device/$Device_ID"
-	
-	Device_UsePlutoDirStructure=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_USE_PLUTO_DIR_STRUCTURE")
 	
 	Device_Directories=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_DIRECTORIES")
 	Device_Directories=$(Field "1" "$Device_Directories")
@@ -61,15 +58,36 @@ for Device in $InternalOwnStorageDevices; do
 	Device_Users=$(echo $Device_Users | sed 's/ *, */,/g')
 	Device_Users=$(echo $Device_Users | sed 's/^ *//g')
 	Device_Users=$(echo $Device_Users | sed 's/ *$//g')
+
 	
-	
-	## Create the symlinks
+	Device_Description=$(echo $Device_Description | tr '/' '-')	# Prevent / char to get in a file name
+
+	## Count dirs and users
 	countDirs=$(echo $Device_Directories | sed 's/,/\n/g' | wc -l)
 	countUsers=$(echo $Device_Users | sed 's/,/\n/g' | wc -l)
-	
-	for i in `seq 1 $countDirs`; do
-		mediaDir=$(echo $Device_Directories | cut -d',' -f$i)
+
+	## If we use a pluto directory structure
+	if [[ "$Device_Users" == "-1" ]] ;then
+		for i in `seq 1 $countDirs`; do
+			mediaDir=$(echo $Device_Directories | cut -d',' -f$i)
 		
+			for userDir in /home/user_* /home/public ;do
+				userDir=$(basename $userDir)
+
+				symlinkDestination="$/home/${userDir}/data/${mediaDir}/${Device_Description} [${Device_ID}]"
+				symlinkSource="/mnt/device/${Device_ID}/${userDir}/data/${mediaDir}"
+				
+				if [[ -h "$symlinkDestination" ]] ;then
+					rm -f $symlinkDestination 
+				fi
+				
+				ln -sn "$symlinkSource" "$symlinkDestination"
+				echo "$symlinkDestination -> $symlinkSource"
+			done
+		done
+
+	## If the share is private without a directory structure
+	else
 		for j in `seq 1 $countUsers`; do
 			user=$(echo $Device_Users | cut -d',' -f$j)
 			
@@ -78,15 +96,16 @@ for Device in $InternalOwnStorageDevices; do
 			else
 				userDir="user_$user"
 			fi
-	
-			Device_Description=$(echo $Device_Description | tr '/' '-')	# Prevent / char to get in a file name
-	
-			symlinkDestination="/home/$userDir/data/$mediaDir/$Device_Description [$Device_ID]"
-			if [[ "$Device_UsePlutoDirStructure" == "1" ]]; then
-				symlinkSource="/mnt/device/$Device_ID/$userDir/data/$mediaDir"
+
+			if [[ -d "/home/${userDir}" ]] ;then	
+				mkdir -p "/home/${userDir}/other"
 			else
-				symlinkSource="/mnt/device/$Device_ID/"
+				echo "Warning: /home/$userDir does not exist, skiping"
+				continue
 			fi
+
+			symlinkDestination="/home/${userDir}/other/${Device_Description} [${Device_ID}]"
+			symlinkSource="/mnt/device/${Device_ID}/"
 			
 			if [[ -h "$symlinkDestination" ]] ;then
 				rm -f $symlinkDestination 
@@ -95,6 +114,6 @@ for Device in $InternalOwnStorageDevices; do
 			ln -sn "$symlinkSource" "$symlinkDestination"
 			echo "$symlinkDestination -> $symlinkSource"
 		done
-	done
+	fi
 
 done
