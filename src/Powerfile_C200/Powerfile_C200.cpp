@@ -1426,7 +1426,7 @@ void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign
 	if( sFormat=="CDDB-TAB" )
 		PK_Disc = m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(iMediaType, listMediaAttribute_, sValue_To_Assign);
 	if( sFormat=="MISC-TAB" )
-		PK_Disc = m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(iMediaType, listMediaAttribute_, sValue_To_Assign);
+		PK_Disc = m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(iMediaType, listMediaAttribute_, sValue_To_Assign, 0);
 
 	if( PK_Disc )
 	{
