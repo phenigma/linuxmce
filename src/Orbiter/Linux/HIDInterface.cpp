@@ -71,16 +71,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 					return;
 				}
 
-				char outPacket[4] = { 0x08, 0x40, 0x00, 0x00 };
 				char inPacket[6];
-
-				res = usb_control_msg(m_p_usb_dev_handle, 0x21, 9, 8+(0x03<<8) /*int value*/, 1 /* int index */, outPacket, 4, 250);
-				if (res<0)
-				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDEvents first usb_control_msg: %i\n", res);
-					perror("err: ");
-				}
-
 				int cnt=0;
 				while(!m_pOrbiter->m_bQuit_get())
 				{
