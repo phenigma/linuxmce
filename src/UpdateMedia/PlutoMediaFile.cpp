@@ -1379,7 +1379,7 @@ void PlutoMediaFile::LoadMiscInfo()
 	MYSQL_ROW row;
 	string SQL = 
 		"SELECT FK_MediaSubType, FK_FileFormat FROM File WHERE "
-		"FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
+		"PK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
 
 	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
 	{
