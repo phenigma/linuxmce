@@ -30,6 +30,11 @@
 #include "PlutoMediaFile.h"
 #include "pluto_media/Define_AttributeType.h"
 
+#include "DCE/Message.h"
+#include "DCE/DeviceData_Impl.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_DeviceTemplate.h"
+
 #define  VERSION "<=version=>"
 
 using namespace std;
@@ -108,6 +113,8 @@ void *UpdateMediaThread(void *)
 			PLUTO_SAFETY_LOCK(cm, g_ConnectionMutex );
 			g_pPlutoLogger->Write(LV_STATUS, "Synchronizing '%s'...", sItem.c_str());	
 
+			PlutoMediaFile::ResetNewFilesAddedStatus();
+				
 			UpdateMedia engine(g_pDatabase_pluto_media, g_pDatabase_pluto_main, sItem);
 			engine.LoadExtensions();
 			engine.DoIt();
@@ -120,10 +127,26 @@ void *UpdateMediaThread(void *)
 
 			g_pPlutoLogger->Write(LV_STATUS, "Synchronized '%s'.", sItem.c_str());
 
+			if(PlutoMediaFile::NewFilesAdded())
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "New files were added to db for '%s'.", sItem.c_str());
+
+				SyncAttributes();
+
+				g_pPlutoLogger->Write(LV_STATUS, "Sending \"Check for new files\" command to Media_Plugin...");
+				Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, "dcerouter");
+				Message* pMessage = new Message(0, DEVICETEMPLATE_Media_Plugin_CONST, BL_SameHouse, 
+					MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+					COMMAND_Check_For_New_Files_CONST, 0);
+				pEvent->SendMessage(pMessage);
+				delete pEvent;
+				pEvent = NULL;
+
+				g_pPlutoLogger->Write(LV_STATUS, "Command \"Check for new files\" sent!");
+			}
+
 			flm.Relock();
 			vectModifiedFolders.erase(vectModifiedFolders.begin());
-
-			SyncAttributes();
 		}
 
 		g_pPlutoLogger->Write(LV_WARNING, "Nothing to process, sleeping 2 minute...");        

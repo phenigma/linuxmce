@@ -62,6 +62,7 @@ char *MediaSyncModeStr[] =
 //
 //-----------------------------------------------------------------------------------------------------
 MediaSyncMode PlutoMediaFile::m_DefaultMediaSyncMode = modeNone;
+bool PlutoMediaFile::m_bNewFilesAdded = false;
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
 	string sDirectory, string sFile) : m_MediaSyncMode(modeNone), m_pPlutoMediaAttributes(NULL)
@@ -701,6 +702,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->PK_File_get());
 
 	m_bNewFileToDb = true;
+	m_bNewFilesAdded = true;
 
     return pRow_File->PK_File_get();
 }

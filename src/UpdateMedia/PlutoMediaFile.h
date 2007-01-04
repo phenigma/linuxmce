@@ -41,6 +41,7 @@ private:
 
 	Database_pluto_media *m_pDatabase_pluto_media;
 	static MediaSyncMode m_DefaultMediaSyncMode;
+	static bool m_bNewFilesAdded;
 
 	//id3 operations - load:
 	void LoadPlutoAttributes(string sFullFileName);
@@ -86,6 +87,10 @@ public:
 	void SetSyncMode(MediaSyncMode mode) { m_MediaSyncMode = mode; }
 	static void SetDefaultSyncMode(MediaSyncMode mode) { m_DefaultMediaSyncMode = mode; }
 	static MediaSyncMode GetDefaultSyncMode() { return m_DefaultMediaSyncMode; }
+
+	//new file added status
+	static bool NewFilesAdded() { return m_bNewFilesAdded; }
+	static void ResetNewFilesAddedStatus() { m_bNewFilesAdded = false; }
 
 	void SetFileAttribute(int PK_File);
     int GetFileAttribute();
