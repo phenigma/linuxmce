@@ -598,10 +598,11 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 				int nDeviceID = NULL != row[sfDeviceID] ? atoi(row[sfDeviceID]) : 0;
 
 				string sFilePath = sPath + "/" + sFilename;
-				bool bFileIsMissing = !FileUtils::FileExists(sFilePath);
 
 				if(bDeviceOnline)
 				{
+					bool bFileIsMissing = !FileUtils::FileExists(sFilePath);
+
 					if(bFileIsMissing && !bDbFileMissing) 
 					{
 						if(ConfirmDeviceIsOnline(nDeviceID))
