@@ -49,7 +49,7 @@ if ! /usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/xorg.conf.test --resolutio
 	exit 10
 fi
 
-X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.test </dev/null &>/dev/null &
+X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.test -logverbose 9 </dev/null &>/dev/null &
 pidOfX=
 Timeout=5
 while [[ -z "$pidOfX" && $Timeout > 0 ]]; do
