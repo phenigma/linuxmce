@@ -2374,6 +2374,7 @@
 #define DESIGNOBJ_butDisplayOff_This_CONST 5369
 #define DESIGNOBJ_butHalt_This_CONST 5370
 #define DESIGNOBJ_butReset_AsOtherOS_CONST 5371
+#define DESIGNOBJ_dgUsersForDirectory_CONST 5372
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
