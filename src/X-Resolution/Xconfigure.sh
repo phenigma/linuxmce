@@ -43,6 +43,7 @@ Modeline_720x576_60='"720x576" 27.000 720 732 796 864 576 581 586 625 -hsync -vs
 Modeline_1920x1080i_50='"1920x1080" 74.250 1920 2448 2492 2640 1080 1148 1158 1124 interlace +hsync +vsync'
 Modeline_1920x1080i_60='"1920x1080" 74.250 1920 2008 2052 2200 1080 1084 1094 1124 interlace +hsync +vsync'
 Modeline_1024x768_60='"1024x768" 60.80 1024 1056 1128 1272 768 768 770 796'
+Modeline_640x480_60='"640x480" 25.18 640 656 752 800 480 490 492 525'
 
 TestConfig()
 {
@@ -272,7 +273,7 @@ if [[ -n "$Resolution" ]]; then
 
 	Modeline=
 	# Use modeline for HD modes, non-standard VESA modes (60, 75 Hz are considered standard by X), 1024x768@60
-	if [[ -n "$nvHD" || ( -z "$nvHD" && " 60 75 " != *" $Refresh "* ) || ( "$Resolution@$Refresh" == "1024x768@60" ) ]]; then
+	if [[ -n "$nvHD" || ( -z "$nvHD" && " 60 75 " != *" $Refresh "* ) || ( " 1024x768@60 640x480@60 " ==  *" $Resolution@$Refresh "* ) ]]; then
 		Modeline="$(GenModeline "$ResX" "$ResY" "$Refresh" "$ScanType")"
 	fi
 
