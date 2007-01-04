@@ -22496,5 +22496,109 @@ namespace DCE
 			COMMAND_Check_For_New_Files_CONST,
 			0 /* number of parameters */); }
 	};
+	class CMD_SetWakeUp : public PreformedCommand {
+	public:
+		CMD_SetWakeUp(long DeviceIDFrom, long DeviceIDTo,int iValue,int iNodeID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_SetWakeUp_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str()); }
+	};
+	class CMD_SetWakeUp_DL : public PreformedCommand {
+	public:
+		CMD_SetWakeUp_DL(long DeviceIDFrom, string DeviceIDTo,int iValue,int iNodeID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_SetWakeUp_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str()); }
+	};
+	class CMD_SetWakeUp_DT : public PreformedCommand {
+	public:
+		CMD_SetWakeUp_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iValue,int iNodeID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_SetWakeUp_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str()); }
+	};
+	class CMD_SetWakeUp_Cat : public PreformedCommand {
+	public:
+		CMD_SetWakeUp_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iValue,int iNodeID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_SetWakeUp_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str()); }
+	};
+	class CMD_Set_Config_Param : public PreformedCommand {
+	public:
+		CMD_Set_Config_Param(long DeviceIDFrom, long DeviceIDTo,int iValue,int iNodeID,int iParameter_ID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Set_Config_Param_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
+			COMMANDPARAMETER_Parameter_ID_CONST, StringUtils::itos(iParameter_ID).c_str()); }
+	};
+	class CMD_Set_Config_Param_DL : public PreformedCommand {
+	public:
+		CMD_Set_Config_Param_DL(long DeviceIDFrom, string DeviceIDTo,int iValue,int iNodeID,int iParameter_ID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Config_Param_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
+			COMMANDPARAMETER_Parameter_ID_CONST, StringUtils::itos(iParameter_ID).c_str()); }
+	};
+	class CMD_Set_Config_Param_DT : public PreformedCommand {
+	public:
+		CMD_Set_Config_Param_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iValue,int iNodeID,int iParameter_ID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Config_Param_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
+			COMMANDPARAMETER_Parameter_ID_CONST, StringUtils::itos(iParameter_ID).c_str()); }
+	};
+	class CMD_Set_Config_Param_Cat : public PreformedCommand {
+	public:
+		CMD_Set_Config_Param_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iValue,int iNodeID,int iParameter_ID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Config_Param_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
+			COMMANDPARAMETER_Parameter_ID_CONST, StringUtils::itos(iParameter_ID).c_str()); }
+	};
+	class CMD_Set_Association : public PreformedCommand {
+	public:
+		CMD_Set_Association(long DeviceIDFrom, long DeviceIDTo,int iNodeID,int iGroup_ID,string sNodes_List) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Set_Association_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
+			COMMANDPARAMETER_Group_ID_CONST, StringUtils::itos(iGroup_ID).c_str(),
+			COMMANDPARAMETER_Nodes_List_CONST, sNodes_List.c_str()); }
+	};
+	class CMD_Set_Association_DL : public PreformedCommand {
+	public:
+		CMD_Set_Association_DL(long DeviceIDFrom, string DeviceIDTo,int iNodeID,int iGroup_ID,string sNodes_List) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Association_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
+			COMMANDPARAMETER_Group_ID_CONST, StringUtils::itos(iGroup_ID).c_str(),
+			COMMANDPARAMETER_Nodes_List_CONST, sNodes_List.c_str()); }
+	};
+	class CMD_Set_Association_DT : public PreformedCommand {
+	public:
+		CMD_Set_Association_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iNodeID,int iGroup_ID,string sNodes_List) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Association_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
+			COMMANDPARAMETER_Group_ID_CONST, StringUtils::itos(iGroup_ID).c_str(),
+			COMMANDPARAMETER_Nodes_List_CONST, sNodes_List.c_str()); }
+	};
+	class CMD_Set_Association_Cat : public PreformedCommand {
+	public:
+		CMD_Set_Association_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iNodeID,int iGroup_ID,string sNodes_List) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Set_Association_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_NodeID_CONST, StringUtils::itos(iNodeID).c_str(),
+			COMMANDPARAMETER_Group_ID_CONST, StringUtils::itos(iGroup_ID).c_str(),
+			COMMANDPARAMETER_Nodes_List_CONST, sNodes_List.c_str()); }
+	};
 }
 #endif
