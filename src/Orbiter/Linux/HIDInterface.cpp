@@ -44,87 +44,97 @@ void PlutoHIDInterface::ProcessHIDEvents()
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents starting");
 #endif
-	for (bus = busses; bus; bus = bus->next) 
+
+	while(!m_pOrbiter->m_bQuit_get())  // an outer loop so this will retry a connect if the remote is removed and reconnected
 	{
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents bus %s",bus->dirname);
-#endif
-		struct usb_device *dev;
+		for (bus = busses; bus; bus = bus->next) 
+		{
+	#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents bus %s",bus->dirname);
+	#endif
+			struct usb_device *dev;
 
-		for (dev = bus->devices; dev; dev = dev->next) {
+			for (dev = bus->devices; dev; dev = dev->next) {
 
-#ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents %04x:%04x\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
-#endif
-			if ( (dev->descriptor.idVendor==0x0c16) && (dev->descriptor.idProduct==0x0006) )  // The gyration remote
-			{
-				g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents device found!");
-
-				m_p_usb_dev_handle = usb_open(dev);
-
-				int res = 0;
-				res = usb_claim_interface(m_p_usb_dev_handle, 1);
-				if (res<0)
-				{ 
-					g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDEvents claim interface: %i\n", res);
-					perror("error: ");
-					return;
-				}
-
-				char inPacket[6];
-				int cnt=0;
-				while(!m_pOrbiter->m_bQuit_get())
+	#ifdef DEBUG
+				g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents %04x:%04x\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
+	#endif
+				if ( (dev->descriptor.idVendor==0x0c16) && (dev->descriptor.idProduct==0x0006) )  // The gyration remote
 				{
-					PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
-					m_bRunning=true;
-					res = usb_interrupt_read(m_p_usb_dev_handle, 0x82, inPacket, 6, 250);
-					if (res<0&&res!=-110) break;
-					if (res<=0)
-					{
-						if (cnt%100==20) 
-							g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents .", cnt++);
+					g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents device found!");
 
-						if( m_MouseStartStop!=mssNone )
-						{
-							PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex);
-							if( m_MouseStartStop==mssStart )
-								DoStartMouse();
-							else
-								DoStopMouse();
-							m_MouseStartStop=mssNone;
-						}
+					m_p_usb_dev_handle = usb_open(dev);
 
-						hm.Release();  
-						usleep(10000);  // Give somebody else a chance to use this
-						hm.Relock();
-						cnt++;
+					int res = 0;
+					res = usb_claim_interface(m_p_usb_dev_handle, 1);
+					if (res<0)
+					{ 
+						g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDEvents claim interface: %i\n", res);
+						perror("error: ");
+						return;
 					}
-					else
-					{
-						unsigned char *pPtr = (unsigned char *) inPacket;
-						g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents [READER] %04i.%03i: read bytes: %d %x.%x.%x.%x.%x.%x", 
-							cnt/100, cnt%100, res, (int) pPtr[0],(int) pPtr[1],(int) pPtr[2],(int) pPtr[3],(int) pPtr[4],(int) pPtr[5]);
 
-						if( !m_pOrbiter->m_pOrbiterFileBrowser_Collection )
-							g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents skipping until Orbiter finishes startup");
-						else if( res==6 && inPacket[0]==8 )  // It's for us
+					char inPacket[6];
+					int cnt=0;
+					while(!m_pOrbiter->m_bQuit_get())
+					{
+						PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
+						m_bRunning=true;
+						res = usb_interrupt_read(m_p_usb_dev_handle, 0x82, inPacket, 6, 250);
+						if (res<0&&res!=-110) break;
+						if (res<=0)
 						{
-							if( inPacket[1]==0x20 || inPacket[1]==0x26 )  // A bind request
-								ProcessBindRequest(inPacket);
-							else if( inPacket[1]==0x25 )  // A button
-								ProcessHIDButton(inPacket);
+							if (cnt%100==20) 
+								g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents .", cnt++);
+
+							if( m_MouseStartStop!=mssNone )
+							{
+								PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex);
+								if( m_MouseStartStop==mssStart )
+									DoStartMouse();
+								else
+									DoStopMouse();
+								m_MouseStartStop=mssNone;
+							}
+
+							hm.Release();  
+							usleep(10000);  // Give somebody else a chance to use this
+							hm.Relock();
+							cnt++;
+						}
+						else
+						{
+							unsigned char *pPtr = (unsigned char *) inPacket;
+							g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents [READER] %04i.%03i: read bytes: %d %x.%x.%x.%x.%x.%x", 
+								cnt/100, cnt%100, res, (int) pPtr[0],(int) pPtr[1],(int) pPtr[2],(int) pPtr[3],(int) pPtr[4],(int) pPtr[5]);
+
+							if( !m_pOrbiter->m_pOrbiterFileBrowser_Collection )
+								g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents skipping until Orbiter finishes startup");
+							else if( res==6 && inPacket[0]==8 )  // It's for us
+							{
+								if( inPacket[1]==0x20 || inPacket[1]==0x26 )  // A bind request
+									ProcessBindRequest(inPacket);
+								else if( inPacket[1]==0x25 )  // A button
+									ProcessHIDButton(inPacket);
+							}
 						}
 					}
+
+					g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents quit %d", (int) m_pOrbiter->m_bQuit_get());
+					usb_release_interface(m_p_usb_dev_handle, 1);
+					usb_close(m_p_usb_dev_handle);
 				}
-
-				g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents quit %d", (int) m_pOrbiter->m_bQuit_get());
-				m_bRunning=false;
-				usb_release_interface(m_p_usb_dev_handle, 1);
-				usb_close(m_p_usb_dev_handle);
 			}
+		}
+
+		if( !m_pOrbiter->m_bQuit_get() )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents didn't get remote.  Sleep 2 seconds and try again");
+			Sleep(2000);
 		}
 	}
 
+	m_bRunning=false;
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents Exiting");
 }
 
