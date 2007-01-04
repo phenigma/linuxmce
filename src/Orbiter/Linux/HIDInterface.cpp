@@ -31,22 +31,22 @@ void PlutoHIDInterface::ProcessHIDEvents()
 	usb_set_debug(255);
 
 	usb_init();
-	usb_find_busses();
-	usb_find_devices();
-
-	busses = usb_get_busses();
-
-	struct usb_bus *bus;
-	int c, i, a;
-
-	/* ... */
-
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents starting");
 #endif
 
 	while(!m_pOrbiter->m_bQuit_get())  // an outer loop so this will retry a connect if the remote is removed and reconnected
 	{
+		usb_find_busses();
+		usb_find_devices();
+
+		busses = usb_get_busses();
+
+		struct usb_bus *bus;
+		int c, i, a;
+
+		/* ... */
+
 		for (bus = busses; bus; bus = bus->next) 
 		{
 	#ifdef DEBUG
@@ -71,7 +71,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 					{ 
 						g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDEvents claim interface: %i\n", res);
 						perror("error: ");
-						return;
+						break;
 					}
 
 					char inPacket[6];
