@@ -263,9 +263,9 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:PlutoRebootSetup"
+        "ProductName" = "8:Pluto Switcher"
         "ProductCode" = "8:{5E7ED44F-6B84-4A96-9526-796518866C12}"
-        "PackageCode" = "8:{1CC36EC8-06F6-4DA0-B8AF-AE2A383D8E85}"
+        "PackageCode" = "8:{86EACD94-F4B2-4BF4-A40B-473882452DF4}"
         "UpgradeCode" = "8:{6B33BC9C-2B4E-485D-8820-C6AF01834EBB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -317,6 +317,14 @@
                                 }
                                 "Values"
                                 {
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_234D23156BE343C08616B92F3630D508"
+                                    {
+                                    "Name" = "8:DCERouter"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:1"
+                                    "Value" = "8:"
+                                    }
                                 }
                             }
                         }
@@ -386,7 +394,7 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_859F92C2F26F49029C7574A991A0EE46"
             {
-            "Name" = "8:PlutoRebootToMediaDirector"
+            "Name" = "8:Pluto switcher"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -400,7 +408,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_A6F6F7A86FC34A868F493E0669F3DF4E"
             {
-            "Name" = "8:PlutoRebootToMediaDirector"
+            "Name" = "8:Pluto switcher"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"

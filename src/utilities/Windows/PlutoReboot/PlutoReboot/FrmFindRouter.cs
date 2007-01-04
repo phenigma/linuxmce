@@ -141,12 +141,12 @@ namespace PlutoReboot
         {
             try
             {
-                RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"Software\PlutoReboot", true);
+                RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"Software\Pluto", true);
                 try
                 {
                     if (reg == null)
                     {
-                        reg = Registry.LocalMachine.CreateSubKey(@"Software\PlutoReboot");
+                        reg = Registry.LocalMachine.CreateSubKey(@"Software\Pluto");
                         if (reg == null)
                             return false;
 

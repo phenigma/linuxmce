@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Management;
 using Microsoft.Win32;
+using Org.Mentalis.Utilities;
 
 namespace PlutoReboot
 {
@@ -46,6 +47,7 @@ namespace PlutoReboot
                     ShellCommands shCmds = new ShellCommands();
                     if (shCmds.Exec_HaltDevice(m_sRegIP, sMACAddress))
                     {
+                        WindowsController.ExitWindows(RestartOptions.Reboot, false);
                     }
                     else
                     {
@@ -63,7 +65,7 @@ namespace PlutoReboot
         {
             try
             {
-                RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"Software\PlutoReboot", false);
+                RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"Software\Pluto", false);
                 if (reg == null)
                     return false;
 
