@@ -54,12 +54,12 @@ function orbitersWin($output,$dbADO) {
 			<td><a href="fdownload.php?filepath=installers/OutlookSync.msi" target="_blank">(download)</a></td>
 		</tr>				
 		<tr>
-			<td>Pluto Backup & Share</td>
+			<td>Pluto Backup & Share (see <a href="'.$wikiHost.'index.php/PlutoBaS">Wiki help</a>)</td>
 			<td>Windows XP</td>
 			<td><a href="fdownload.php?filepath=installers/PlutoBaSInstaller.msi" target="_blank">(download)</a></td>
 		</tr>		
 		<tr bgcolor="#F0F3F8">
-			<td>Pluto Reboot application (see <a href="'.$wikiHost.'index.php/PlutoReboot">Wiki help</a>)</td>
+			<td>Pluto Switcher</td>
 			<td>Windows XP</td>
 			<td><a href="fdownload.php?filepath=installers/PlutoRebootSetup.msi" target="_blank">(download)</a></td>
 		</tr>		
