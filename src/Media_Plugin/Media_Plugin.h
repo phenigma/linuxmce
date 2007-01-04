@@ -89,6 +89,7 @@ private:
     class Orbiter_Plugin *m_pOrbiter_Plugin;
     class File_Grids_Plugin *m_pFile_Grids_Plugin;
     int m_iStreamID;
+	int m_iPK_File_Last_Scanned_For_New;
     pthread_mutexattr_t m_MutexAttr;
     MapMediaStream m_mapMediaStream; // All active streams
 	string m_sPK_Devices_Online; // List of available storage devices, comma separated
@@ -1071,6 +1072,13 @@ Powerfile: 0, 1, ... */
 
 	virtual void CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_List) { string sCMD_Result; CMD_Report_Discs_in_Drive(iPK_Device,ssEK_Disc_List.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_List,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #839 - Check For New Files */
+	/** Check to see if there are any new files that have been picked up by UpdateMedia that we should do some post processing on */
+
+	virtual void CMD_Check_For_New_Files() { string sCMD_Result; CMD_Check_For_New_Files(sCMD_Result,NULL);};
+	virtual void CMD_Check_For_New_Files(string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };

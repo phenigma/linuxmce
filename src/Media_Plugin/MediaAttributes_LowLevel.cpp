@@ -327,6 +327,10 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
 		if( Path.length() && Path[ Path.length()-1 ]=='/' )
 			Path = Path.substr(0,Path.length()-1);
 
+#ifdef WIN32
+		Path = StringUtils::Replace(Path, "\\", "/"); // replacing all the \ in a windows path with /
+#endif
+
 		string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) +
 			"' AND Filename='" + StringUtils::SQLEscape( FileUtils::FilenameWithoutPath(File) ) + "'";
 		if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
@@ -709,7 +713,7 @@ void MediaAttributes_LowLevel::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot update tokens for %d", PK_Attribute );
 }
 
-int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttribute &listMediaAttribute_,string sValue)
+int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttribute &listMediaAttribute_,string sValue,int PK_File)
 {
 	// The format is as follows.  Each line (\n terminated) contains the following:
 	// The first line only is the disc id
@@ -732,7 +736,7 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 	map< pair<int,int>, int > mapPerformer;
 	
 	int PK_Disc=0;
-	if( (PK_Disc=IsDiscAlreadyIdentified(vectAttributes[0],listMediaAttribute_))==0 )
+	if( PK_File || (PK_Disc=IsDiscAlreadyIdentified(vectAttributes[0],listMediaAttribute_))==0 )
 	{
 		Row_Attribute *pRow_Attribute;
 	    pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Disc_ID_CONST,vectAttributes[0]); 
@@ -835,7 +839,10 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 				}
 			}
 		}
-		PK_Disc = AddIdentifiedDiscToDB(PK_MediaType,vectAttributes[0],listMediaAttribute_);
+		if( PK_File )
+			AddIdentifiedFileToDB(PK_MediaType,PK_File,listMediaAttribute_);
+		else
+			PK_Disc = AddIdentifiedDiscToDB(PK_MediaType,vectAttributes[0],listMediaAttribute_);
 	}
 	
 	int Tracks;
@@ -1099,6 +1106,57 @@ int MediaAttributes_LowLevel::AddIdentifiedDiscToDB(int PK_MediaType,string sIde
 	return pRow_Disc->PK_Disc_get();
 }
 
+int MediaAttributes_LowLevel::AddIdentifiedFileToDB(int PK_MediaType,int PK_File,listMediaAttribute &listMediaAttribute_)
+{
+	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+	if( !pRow_File )
+		return 0; // Shouldnt happen
+
+	for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)
+	{
+		MediaAttribute *pMediaAttribute = *it;
+		Row_Attribute *pRow_Attribute ;
+		if( !pMediaAttribute->m_PK_Attribute )
+		{
+			int PK_Attribute_Performer=0;
+			if( pMediaAttribute->m_PK_AttributeType==ATTRIBUTETYPE_Album_CONST )
+			{
+				for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)
+				{
+					MediaAttribute *pMediaAttributePerformer = *it;
+					if( pMediaAttributePerformer->m_PK_AttributeType==ATTRIBUTETYPE_Album_CONST )
+					{
+						PK_Attribute_Performer = pMediaAttributePerformer->m_PK_Attribute;
+						break;
+					}
+				}
+			}
+			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,pMediaAttribute->m_PK_AttributeType,pMediaAttribute->m_sName,PK_Attribute_Performer);
+			if( pRow_Attribute )
+				pMediaAttribute->m_PK_Attribute=pRow_Attribute->PK_Attribute_get();
+		}
+		else
+			pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(pMediaAttribute->m_PK_Attribute);
+		if( !pRow_Attribute )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"MediaAttributes_LowLevel::AddIdentifiedFileToDB now can't find attribute %d",pMediaAttribute->m_PK_Attribute);
+			continue;
+		}
+		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->GetRow(pRow_File->PK_File_get(),pRow_Attribute->PK_Attribute_get(),pMediaAttribute->m_Title_Track,pMediaAttribute->m_Section);
+		if( !pRow_File_Attribute )
+		{
+			pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+			pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
+			pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get()); 
+			pRow_File_Attribute->Track_set(pMediaAttribute->m_Title_Track);
+			pRow_File_Attribute->Section_set(pMediaAttribute->m_Section);
+			pRow_File_Attribute->Table_File_Attribute_get()->Commit();
+		}
+	}
+
+	return pRow_File->PK_File_get();
+}
+
 int MediaAttributes_LowLevel::AddPictureToDisc(int PK_Disc,char *pPictureData,size_t sizePicture,string sURL)
 {
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(PK_Disc);
@@ -1120,6 +1178,46 @@ int MediaAttributes_LowLevel::AddPictureToDisc(int PK_Disc,char *pPictureData,si
 			" JOIN MediaType_AttributeType ON Attribute.FK_AttributeType=MediaType_AttributeType.FK_AttributeType"
 			" AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : pRow_Disc->EK_MediaType_get()) +
 			" WHERE PK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get()) + " AND Identifier=1";
+		vector<Row_Attribute *> vectRow_Attribute;
+		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
+		for(size_t s=0;s<vectRow_Attribute.size();++s)
+		{
+			Row_Attribute *pRow_Attribute = vectRow_Attribute[s];
+			Row_Picture_Attribute *pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->GetRow(pRow_Picture->PK_Picture_get(),pRow_Attribute->PK_Attribute_get());
+			if( !pRow_Picture_Attribute )
+			{
+				pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->AddRow();
+				pRow_Picture_Attribute->FK_Picture_set(pRow_Picture->PK_Picture_get());
+				pRow_Picture_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+				m_pDatabase_pluto_media->Picture_Attribute_get()->Commit();
+			}
+		}
+		return pRow_Picture->PK_Picture_get();
+	}
+	return 0;
+}
+
+int MediaAttributes_LowLevel::AddPictureToFile(int PK_File,char *pPictureData,size_t sizePicture,string sURL)
+{
+	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+	if( pPictureData && sizePicture && pRow_File )
+	{
+		Row_Picture *pRow_Picture = AddPicture(pPictureData, int(sizePicture), "jpg",sURL);
+		if( !pRow_Picture )
+			return 0;
+
+		Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
+		pRow_Picture_File->FK_File_set( pRow_File->PK_File_get() );
+		pRow_Picture_File->FK_Picture_set( pRow_Picture->PK_Picture_get() );
+		m_pDatabase_pluto_media->Picture_File_get()->Commit();
+
+		// Find all attributes that we added that identify this File and need the same picture
+		string sWhere="SELECT Attribute.* FROM Attribute"
+			" JOIN File_Attribute ON FK_Attribute=PK_Attribute"
+			" JOIN File ON FK_File=PK_File"
+			" JOIN MediaType_AttributeType ON Attribute.FK_AttributeType=MediaType_AttributeType.FK_AttributeType"
+			" AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(pRow_File->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : pRow_File->EK_MediaType_get()) +
+			" WHERE PK_File=" + StringUtils::itos(pRow_File->PK_File_get()) + " AND Identifier=1";
 		vector<Row_Attribute *> vectRow_Attribute;
 		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
 		for(size_t s=0;s<vectRow_Attribute.size();++s)

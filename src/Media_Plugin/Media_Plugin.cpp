@@ -208,6 +208,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 	srand((int) time(NULL)); // Shuffle uses a random generator
 
     m_iStreamID=0;
+	m_iPK_File_Last_Scanned_For_New=0;
 	m_pDatabase_pluto_main=NULL;
 	m_pDatabase_pluto_media=NULL;
 	m_pMediaAttributes=NULL;
@@ -4932,11 +4933,18 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 	if( pDevice_ID )
 		Priority = atoi( pDevice_ID->m_mapParameters_Find(DEVICEDATA_Priority_CONST).c_str() );
 
+	int PK_File=0;
+
 	DeviceData_Router *pDevice_Disk_Drive = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
 	if( !pDevice_Disk_Drive )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find the disk drive device identified");
-		return;
+		// There's no disk drive involved.  See if there's a file
+		PK_File = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetFileIDFromFilePath( sMediaURL );
+		if( !PK_File )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find the disk drive device identified, or a matching file");
+			return;
+		}
 	}
 
 	// Find the media stream
@@ -4956,14 +4964,19 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 
 	listMediaAttribute listMediaAttribute_;
 	int PK_Disc=0;
-	if( sFormat=="CDDB-TAB" && pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+	if( sFormat=="CDDB-TAB" && pMediaStream && pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
 	if( sFormat=="MISC-TAB" )
-		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
+		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(iPK_MediaType,listMediaAttribute_,sValue_To_Assign,PK_File);
 	*iEK_Disc = PK_Disc;
 
 	if( pData && iData_Size )
-		m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size,sURL);
+	{
+		if( PK_File )
+			m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToFile(PK_File,pData,iData_Size,sURL);
+		else
+			m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size,sURL);
+	}
 
 	if( !pMediaStream )
 	{
@@ -5424,4 +5437,14 @@ string Media_Plugin::GetMRLFromDiscID( int PK_Disc )
     }
 
     return "/dev/cdrom";
+}
+
+//<-dceag-c839-b->
+
+	/** @brief COMMAND: #839 - Check For New Files */
+	/** Check to see if there are any new files that have been picked up by UpdateMedia that we should do some post processing on */
+
+void Media_Plugin::CMD_Check_For_New_Files(string &sCMD_Result,Message *pMessage)
+//<-dceag-c839-e->
+{
 }

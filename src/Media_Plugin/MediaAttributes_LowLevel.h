@@ -157,11 +157,13 @@ public:
 	int IsDiscAlreadyIdentified(int PK_Device,int Slot,listMediaAttribute &listMediaAttribute_);
 	int IsDiscAlreadyIdentified(Row_Disc *pRow_Disc,listMediaAttribute &listMediaAttribute_);
 	int Parse_CDDB_Media_ID(int PK_MediaType,listMediaAttribute &listMediaAttribute_,string sValue);
-	int Parse_Misc_Media_ID(int PK_MediaType,listMediaAttribute &listMediaAttribute_,string sValue);
+	int Parse_Misc_Media_ID(int PK_MediaType,listMediaAttribute &listMediaAttribute_,string sValue,int PK_File);
 	MediaAttribute *GetMediaAttribute(int Title_Track,int Section,int PK_AttributeType,listMediaAttribute &listMediaAttribute_);
 	int GetMaxTracks(listMediaAttribute &listMediaAttribute_);
 	int AddIdentifiedDiscToDB(int PK_MediaType,string sIdentifiedDisc,listMediaAttribute &listMediaAttribute_);
+	int AddIdentifiedFileToDB(int PK_MediaType,int PK_File,listMediaAttribute &listMediaAttribute_);
 	int AddPictureToDisc(int PK_Disc,char *pPictureData,size_t sizePicture,string sURL);
+	int AddPictureToFile(int PK_File,char *pPictureData,size_t sizePicture,string sURL);
 	void PurgeListMediaAttribute(listMediaAttribute &listMediaAttribute_)
 	{
 		for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)

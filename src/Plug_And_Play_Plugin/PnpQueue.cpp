@@ -24,6 +24,7 @@
 #include "BD/PhoneDevice.h"
 #include "General_Info_Plugin/Web_DHCP_Query.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
+#include "Media_Plugin/Media_Plugin.h"
 #include "Gen_Devices/AllScreens.h"
 #include "DCERouter.h"
 #include "pluto_main/Database_pluto_main.h"
@@ -94,6 +95,12 @@ void PnpQueue::Run()
 	
 	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_pPlug_And_Play_Plugin->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse);
 	m_pPlug_And_Play_Plugin->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
+
+	if( m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin && m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_pMedia_Plugin )
+	{
+		DCE::CMD_Check_For_New_Files CMD_Check_For_New_Files(m_pPlug_And_Play_Plugin->m_dwPK_Device,m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_pMedia_Plugin->m_dwPK_Device);
+		m_pPlug_And_Play_Plugin->SendCommand(CMD_Check_For_New_Files);
+	}
 
 	/* no, then auto create are blocked
 	// we don't do this during the read phase above because the orbiter plugin may not have registered, nor the orbiters
