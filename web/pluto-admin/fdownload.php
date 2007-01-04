@@ -11,7 +11,8 @@ $allowedFiles=array(
 	'binaries/logo.gif',
 	'binaries/Orbiter.MD5',
 	'binaries/OrbiterCE.exe',
-	'PlutoBaSInstaller.msi'
+	'PlutoBaSInstaller.msi',
+	'PlutoRebootSetup.msi'
 );
 
 $allowedDirectories=array(

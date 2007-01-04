@@ -4,7 +4,7 @@ function orbitersWin($output,$dbADO) {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/orbitersWin.lang.php');
 	
-	global $dbPlutoMainDatabase;
+	global $dbPlutoMainDatabase,$wikiHost;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -57,6 +57,11 @@ function orbitersWin($output,$dbADO) {
 			<td>Pluto Backup & Share</td>
 			<td>Windows XP</td>
 			<td><a href="fdownload.php?filepath=installers/PlutoBaSInstaller.msi" target="_blank">(download)</a></td>
+		</tr>		
+		<tr bgcolor="#F0F3F8">
+			<td>Pluto Reboot application (see <a href="'.$wikiHost.'index.php/PlutoReboot">Wiki help</a>)</td>
+			<td>Windows XP</td>
+			<td><a href="fdownload.php?filepath=installers/PlutoRebootSetup.msi" target="_blank">(download)</a></td>
 		</tr>		
 	</table>
 		
