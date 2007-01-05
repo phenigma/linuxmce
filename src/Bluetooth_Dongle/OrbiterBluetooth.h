@@ -8,6 +8,7 @@ using namespace std;
 #include "../Orbiter/Orbiter.h"
 //-----------------------------------------------------------------------------------------------------
 #include "../VIPShared/MenuData.h"
+#include "../VIPShared/MenuItemInfo.h"
 #include "../VIPShared/PhoneConfig.h"
 //-----------------------------------------------------------------------------------------------------
 class BDCommandProcessor;
@@ -51,6 +52,7 @@ public:
 	PhoneConfig& GetPhoneConfig( void ){ return m_Cfg; }
 	void HandleMouseEvent( int iX, int iY, int EventType );
 	void ShowMenu( );
+	void GetMenuImages( MenuItemInfo::ItemType nItemsType, vector<MenuItemInfo>& vItems );
 
 protected:
 	void GetMenuData( MenuData& data );

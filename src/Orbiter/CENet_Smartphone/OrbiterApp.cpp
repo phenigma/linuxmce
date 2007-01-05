@@ -17,6 +17,7 @@
 #include "VIPShared/BD_PC_Configure.h"
 #include "VIPShared/BD_PC_SelectedItem.h"
 #include "VIPShared/BD_PC_MouseEvent.h"
+#include "VIPShared/BD_PC_GetMenuImages.h"
 #include "Win32/DrawTextExUTF8.h"
 #include "PlutoUtils/PlutoDefs.h"
 
@@ -27,6 +28,7 @@ using namespace DCE;
 using namespace std;
 
 #include "LRMenu.h"
+#include "LRPhoneMenu.h"
 
 #include <aygshell.h>
 
@@ -396,6 +398,7 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 
 	// Handle keys on local rendered menus
 	if ( m_pMainMenu ) {
+		//PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 		if ( m_pMainMenu->HandleKeys( nPK_Button, uMsg == WM_KEYUP ) ) return;
 	}
 
@@ -1587,8 +1590,8 @@ void OrbiterApp::SetCaptureKeyboard(bool bOnOff, bool bDataGrid, bool bReset, in
 	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
 
 	RECT rectLocation = { r.left, r.top, r.right, r.bottom };
-	DrawTextExUTF8(hdc, Text, -1, &rectLocation, 
-		DT_WORDBREAK | DT_NOPREFIX, NULL); 
+	//DrawTextExUTF8(hdc, Text, -1, &rectLocation, 
+	//	DT_WORDBREAK | DT_NOPREFIX, NULL); 
 
 	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
 	return true;
@@ -1638,8 +1641,9 @@ void OrbiterApp::RenderEditBox()
 }
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::Hide()
-{
-	
+{	
+	LocalRenderer::Enable( false );
+
 	::MessageBeep(MB_ICONQUESTION);
 	Sleep(50);
 	::MessageBeep(MB_ICONHAND);
@@ -1659,7 +1663,7 @@ void OrbiterApp::Hide()
 }
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::Show()
-{
+{	
 	Sleep(50);
 	::ShowWindow(::GetDesktopWindow(), SW_HIDE);
 	::SetForegroundWindow(m_hWnd);
@@ -1670,6 +1674,8 @@ void OrbiterApp::Show()
 	::MessageBeep(MB_ICONHAND);
 	Sleep(50);
 	::MessageBeep(MB_ICONQUESTION);
+
+	LocalRenderer::Enable( );
 
 	#if defined(SMARTPHONE2005) && defined(_TEST_KEYBOARD_HOOK) 	//--- CHANGED4WM5 ----//
 		SetKeybdHook( );
@@ -1894,7 +1900,7 @@ void OrbiterApp::SetMenuData( MenuData& data )
 		m_pMainMenu = data.CreateMainMenu();
 		if ( m_pMainMenu ) {
 			RECT rr = {0, 0, APP_WIDTH, APP_HEIGHT};
-			RECT r = {10,10,APP_WIDTH-10,APP_HEIGHT-10};
+			RECT r = {5,5,APP_WIDTH-5,APP_HEIGHT-5};
 			LocalRenderer::SetAppViewport( rr );
 			m_pMainMenu->SetViewport( r );
 			m_pMainMenu->Show(0,0);
@@ -2062,10 +2068,47 @@ void OrbiterApp::ShowMenu( long nCrtRoom )
 				m_pBkgndImage_Repaint = true;
 				RefreshScreen();
 			}
+			LocalRenderer::Enable( );
+
 			LRPhoneMenu* pPhoneMenu = dynamic_cast<LRPhoneMenu*>(m_pMainMenu);
 			if ( pPhoneMenu ) {
 				pPhoneMenu->SetCrtRoom( nCrtRoom );
 			}
 		}
 	
+}
+//-----------------------------------------------------------------------------------------------------------------
+void OrbiterApp::GetMenuImages( MenuItemInfo::ItemType nItemsType, vector<MenuItemInfo>& vItems )
+{
+	
+	if(!m_pBDCommandProcessor->m_bClientConnected )
+		return;
+
+	BDCommand *pCommand = new BD_PC_GetMenuImages( nItemsType, vItems );
+	m_pBDCommandProcessor->AddCommand(pCommand);		
+}
+//-----------------------------------------------------------------------------------------------------------------
+void OrbiterApp::SetMenuImages( MenuItemInfo::ItemType nItemsType, vector<MenuItemInfo*>& vItems )
+{
+	g_pPlutoLogger->Write(LV_STATUS,"SetMenuImages %d %d",nItemsType, vItems.size() );
+	if ( m_pMainMenu ) {
+		//PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+		((LRPhoneMenu*)m_pMainMenu)->SetMenuImages( nItemsType, vItems );
+	}
+
+}
+//-----------------------------------------------------------------------------------------------------------------
+
+LRESULT OrbiterApp::OnActivate( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
+{
+	BOOL fActive = LOWORD(wparam);
+	LocalRenderer::Enable( fActive );
+	if ( fActive ) {
+		if ( m_pMainMenu && m_pMainMenu->IsShowing() ) {
+			m_pMainMenu->SetDirty();
+			m_pMainMenu->Paint();
+		}
+	}
+
+	return 0;
 }

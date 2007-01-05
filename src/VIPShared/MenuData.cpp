@@ -1,8 +1,14 @@
 #include "MenuData.h"
 #include <algorithm>
+#include "PlutoUtils/PlutoDefs.h"
+
+#include "DCE/Logger.h"
+
+using namespace DCE;
 
 #ifdef SMARTPHONE
 	#include "LRMenu.h"
+	#include "LRPhoneMenu.h"
 #endif
 
 //---------------------------------------------------------------------------------------------------------
@@ -211,8 +217,12 @@ LRMenu* MenuData::CreateMainMenu()
 		pCrtRoomItem->AddItem( pItem );
 		iterRoom->CreateMenu( pItem );
 	}
+	LRSystemItem* pSysItem = new LRSystemItem( LRSystemItem::sitMinimize );
+	pMainMenu->AddItem( pSysItem );
+	pSysItem = new LRSystemItem( LRSystemItem::sitSysClose );		
+	pMainMenu->AddItem( pSysItem );
 
-	pCrtRoomItem->SelectRoom( m_iCrtRoom );
+	pCrtRoomItem->SelectRoom( m_iCrtRoom );	
 
 	LRPhoneMenu::SetColor( LRPhoneMenu::tbcFore, RGB( m_tsItemText.m_ForeColor.R(), m_tsItemText.m_ForeColor.G(),
 													  m_tsItemText.m_ForeColor.B() ) );
@@ -227,5 +237,5 @@ LRMenu* MenuData::CreateMainMenu()
 
 	return pMainMenu;
 }
-//---------------------------------------------------------------------------------------------------------
+
 #endif

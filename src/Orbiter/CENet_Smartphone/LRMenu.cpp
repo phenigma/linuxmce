@@ -1,6 +1,8 @@
 #include "LRMenu.h"
 #include "../../pluto_main/Define_Button.h"
 #include "PlutoUtils/PlutoDefs.h"
+#include "VIPShared/MenuData.h"
+#include "Win32/DrawTextExUTF8.h"
 
 //---------------------------------------------------------------------------------------------------------
 #if defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)		//--- CHANGED4WM5 ----//
@@ -26,6 +28,22 @@
  *
  */
 //---------------------------------------------------------------------------------------------------------
+LRMenuItemData::~LRMenuItemData( )
+{
+	PLUTO_SAFE_DELETE(m_pImage);
+}
+//---------------------------------------------------------------------------------------------------------
+/*virtual*/ void LRMenuItemData::SetImage( unsigned char ImageType,unsigned long ImageSize,const char *pImage )
+{
+	m_nImageType = ImageType;
+	m_nImageSize = ImageSize;
+	PLUTO_SAFE_DELETE(m_pImage);
+	if ( NULL != pImage ) {
+		m_pImage = new char[m_nImageSize];
+		memcpy(m_pImage, pImage, m_nImageSize);
+	}
+}
+//---------------------------------------------------------------------------------------------------------
 void LRMenuItemData::SetCaptionToString( string sCaption )
 {
 	#if defined UNICODE || defined _UNICODE
@@ -33,6 +51,16 @@ void LRMenuItemData::SetCaptionToString( string sCaption )
 		copy( sCaption.begin(), sCaption.end(), m_sCaption.begin() );
 	#else
 		m_sCaption = sCaption;
+	#endif
+}
+//---------------------------------------------------------------------------------------------------------
+/*virtual*/ void LRMenuItemData::GetStringCaption( string& sCaption )
+{
+	#if defined UNICODE || defined _UNICODE
+		sCaption.resize( m_sCaption.length() );
+		copy( m_sCaption.begin(), m_sCaption.end(), sCaption.begin() );
+	#else
+		sCaption = m_sCaption;
 	#endif
 }
 
@@ -44,12 +72,28 @@ void LRMenuItemData::SetCaptionToString( string sCaption )
  */
 //---------------------------------------------------------------------------------------------------------
 
-Rect LocalRenderer::m_rViewport;
-Rect LocalRenderer::m_rAppViewport;
+/*static*/ Rect LocalRenderer::m_rViewport;
+/*static*/ Rect LocalRenderer::m_rAppViewport;
+/*static*/ pluto_pthread_mutex_t LocalRenderer::m_RenderMutex( "RenderMenu" );
+/*static*/ pthread_mutexattr_t LocalRenderer::m_MutexAttr;
+/*static*/ bool LocalRenderer::m_bEnable = false;
+
+/*static*/ void LocalRenderer::CheckMutex( void )
+{
+	if ( !m_RenderMutex.m_bInitialized ) {
+		pthread_mutexattr_init( &m_MutexAttr );
+		pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+		m_RenderMutex.Init( &m_MutexAttr );
+	}
+}
+
 
 //---------------------------------------------------------------------------------------------------------
-void LocalRenderer::DrawText( LPCTSTR Text, Rect &r, COLORREF color, BOOL bBold )
+
+/*static*/ void LocalRenderer::DrawSmallText( LPCTSTR Text, Rect &r, COLORREF color, int iPointSize, BOOL bBold )
 {
+	if ( !m_bEnable ) return; 
+
 	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
 
  	::SetTextColor(hdc, color);
@@ -57,27 +101,87 @@ void LocalRenderer::DrawText( LPCTSTR Text, Rect &r, COLORREF color, BOOL bBold 
 
 	RECT rectLocation = { r.left, r.top, r.right, r.bottom };
 
-	if ( bBold ) { // if bold -> create new font from the current one
-		LOGFONT lf;
-		memset(&lf, 0, sizeof(LOGFONT));
-		lf.lfWeight = FW_BOLD;
-		::GetTextFace( hdc, LF_FACESIZE, lf.lfFaceName );
-		HFONT hFont = ::CreateFontIndirect(&lf);
-		if ( hFont ) {
-			HFONT hOldFont = (HFONT) ::SelectObject(hdc, hFont);		
-			::DrawText(hdc, Text, _tcslen( Text ), &rectLocation, DT_WORDBREAK | DT_NOPREFIX); 
-			::SelectObject(hdc, hOldFont);
-			::DeleteObject(hFont);
-		}				
+	tstring tsCaption = Text;
+	string sCaption;
+	#if defined(UNICODE) || defined(_UNICODE)		
+		sCaption.resize( tsCaption.length() );		
+		copy( tsCaption.begin(), tsCaption.end(), sCaption.begin() );
+	#else
+		sCaption = tsCaption;
+	#endif
+	LOGFONT lf;
+	memset(&lf, 0, sizeof(LOGFONT));
+	lf.lfHeight = -(iPointSize  *  GetDeviceCaps(hdc,  LOGPIXELSY))  /  72;
+
+	if ( bBold ) lf.lfWeight = FW_BOLD;
+				
+	::GetTextFace( hdc, LF_FACESIZE, lf.lfFaceName );
+	HFONT hFont = ::CreateFontIndirect(&lf);
+	if ( hFont ) {
+		HFONT hOldFont = (HFONT) ::SelectObject(hdc, hFont);		
+		DrawTextExUTF8(hdc, sCaption.c_str(), -1, &rectLocation, DT_WORDBREAK | DT_NOPREFIX | DT_VCENTER, NULL); 			
+		::SelectObject(hdc, hOldFont);
+		::DeleteObject(hFont);
+	}				
 		
-	} 
-	else ::DrawText(hdc, Text, _tcslen( Text ), &rectLocation, DT_WORDBREAK | DT_NOPREFIX); 
 
 	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+}
+
+void LocalRenderer::DrawText( LPCTSTR Text, Rect &r, COLORREF color, BOOL bBold )
+{
+	if ( !m_bEnable ) return; 
+
+	RECT rectLocation = { r.left, r.top, r.right, r.bottom };
+
+	tstring tsCaption = Text;
+	string sCaption;
+	#if defined(UNICODE) || defined(_UNICODE)		
+		sCaption.resize( tsCaption.length() );		
+		copy( tsCaption.begin(), tsCaption.end(), sCaption.begin() );
+	#else
+		sCaption = tsCaption;
+	#endif
+
+	RECT rectText=rectLocation;
+	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+	DrawTextExUTF8(hdc, sCaption.c_str(), -1, &rectText, DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT, NULL);
+	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+
+	Rect rt( rectText );
+	Rect rl( rectLocation );
+	if ( rt.GetHeight()>rl.GetHeight() ) {
+		LocalRenderer::DrawSmallText( Text, r, color, DEFAULT_SMALLFONT_POINT_TEXT, bBold );
+	}
+	else {
+		HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+
+ 		::SetTextColor(hdc, color);
+		::SetBkMode(hdc, TRANSPARENT);	
+		if ( bBold ) { // if bold -> create new font from the current one
+			LOGFONT lf;
+			memset(&lf, 0, sizeof(LOGFONT));
+			lf.lfWeight = FW_BOLD;
+			::GetTextFace( hdc, LF_FACESIZE, lf.lfFaceName );
+			HFONT hFont = ::CreateFontIndirect(&lf);
+			if ( hFont ) {
+				HFONT hOldFont = (HFONT) ::SelectObject(hdc, hFont);		
+				DrawTextExUTF8(hdc, sCaption.c_str(), -1, &rectLocation, DT_WORDBREAK | DT_NOPREFIX | DT_VCENTER, NULL); 			
+				::SelectObject(hdc, hOldFont);
+				::DeleteObject(hFont);
+			}				
+			
+		} 
+		else DrawTextExUTF8(hdc, sCaption.c_str(), -1, &rectLocation, DT_WORDBREAK | DT_NOPREFIX | DT_VCENTER, NULL); 
+
+		GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+	}
 }
 //---------------------------------------------------------------------------------------------------------
 void LocalRenderer::DrawImage( char *pData,int nSize, Rect &r )
 {
+	if ( !m_bEnable ) return; 
+
 	Surface *pSurface = LoadImage( GetDisplay(), (pf_uint8_t*)pData, (pf_uint8_t*)(pData + nSize));
 
 	if(pSurface)
@@ -104,11 +208,15 @@ void LocalRenderer::DrawImage( char *pData,int nSize, Rect &r )
 //---------------------------------------------------------------------------------------------------------
 void LocalRenderer::FillRect( Rect &r, COLORREF color )
 {
+	if ( !m_bEnable ) return; 
+
 	GetDisplay()->FillRect(r.left, r.top, r.right, r.bottom, Color( color ) );
 }
 //---------------------------------------------------------------------------------------------------------
 void LocalRenderer::Update( Rect* r )
 {
+	if ( !m_bEnable ) return; 
+
 	if ( r ) {
 		GetDisplay()->Update( r );
 	}
@@ -120,6 +228,8 @@ void LocalRenderer::Update( Rect* r )
 //---------------------------------------------------------------------------------------------------------
 Surface* LocalRenderer::SaveRect( Rect r )
 {
+	if ( !m_bEnable ) return NULL; 
+
 #if defined(_VC80_UPGRADE) // different implementation for PocketFrog versions
 	Surface* copy = new Surface( r.GetWidth(), r.GetHeight() );
 	if (copy){
@@ -137,23 +247,26 @@ Surface* LocalRenderer::SaveRect( Rect r )
 #endif
 }
 //---------------------------------------------------------------------------------------------------------
-void LocalRenderer::RestoreRect( int iX, int iY, Surface* pSurface )
+void LocalRenderer::RestoreRect( int iX, int iY, Surface* pSurface, Rect* srcRect )
 {
+	if ( !m_bEnable ) return; 
+
 #if defined(_VC80_UPGRADE) // different implementation for PocketFrog versions
 	Rasterizer rasterizer( GetDisplay()->GetBackBuffer() );
-	rasterizer.Blit( iX, iY, pSurface );	
+	rasterizer.Blit( iX, iY, pSurface, srcRect );	
 #else	
 	DisplayDevice *pDisplayDevice = GetDisplay();
 	Surface *pLocalSurface = pDisplayDevice->GetBackBuffer();
 	Rasterizer* pRasterizer =  pDisplayDevice->CreateRasterizer( pLocalSurface );			
-	pRasterizer->Blit( iX, iY, pSurface );
+	pRasterizer->Blit( iX, iY, pSurface, srcRect );
 	delete pRasterizer;
 #endif
-
 }
 //---------------------------------------------------------------------------------------------------------
 void LocalRenderer::DrawRect( RECT r, COLORREF color )
 {
+	if ( !m_bEnable ) return; 
+
 	Pixel cc(color);
 	Rect rr(r);
 	GetDisplay()->DrawRect( rr.left, rr.top, rr.right, rr.bottom, cc );
@@ -161,16 +274,20 @@ void LocalRenderer::DrawRect( RECT r, COLORREF color )
 //---------------------------------------------------------------------------------------------------------
 void LocalRenderer::DrawHRect( RECT r, COLORREF color )
 {
+	if ( !m_bEnable ) return; 
+
 	Pixel cc(color);
 	Rect rr(r);
 	GetDisplay()->DrawHLine( rr.left, rr.top, rr.GetWidth(), cc );
 	GetDisplay()->DrawHLine( rr.left, rr.bottom-1, rr.GetWidth(), cc );
-	GetDisplay()->DrawVLine( rr.left, rr.top, rr.GetHeight(), cc );
-	GetDisplay()->DrawVLine( rr.right-1, rr.top, rr.GetHeight(), cc );
+	GetDisplay()->DrawVLine( rr.left, rr.top, rr.GetHeight()-1, cc );
+	GetDisplay()->DrawVLine( rr.right-1, rr.top, rr.GetHeight()-1, cc );
 }
 //---------------------------------------------------------------------------------------------------------
 void LocalRenderer::FillTriangle( int iX1, int iY1, int iX2, int iY2, int iX3, int iY3, COLORREF color )
 {
+	if ( !m_bEnable ) return; 
+
 	Point points[3];
 	points[0] = Point( iX1, iY1 );
 	points[1] = Point( iX2, iY2 );
@@ -180,6 +297,8 @@ void LocalRenderer::FillTriangle( int iX1, int iY1, int iX2, int iY2, int iX3, i
 //---------------------------------------------------------------------------------------------------------
 void LocalRenderer::DrawHLine( int iX, int iY, int iW, COLORREF color )
 {
+	if ( !m_bEnable ) return; 
+
 	Pixel cc(color);
 	GetDisplay()->DrawHLine( iX, iY, iW, cc );
 }
@@ -272,8 +391,11 @@ bool LRMenu::KeyPress( uchar ucKey )
 
 	if ( ucKey>='0' && ucKey<='9' ) {
 		if ( !m_pDisplayMenu->SelectItem( ucKey ) ) return true;
+		if ( ( ucKey==DEFAULT_PAGEUP_SHORTCUT || ucKey==DEFAULT_PAGEDOWN_SHORTCUT ) && m_pDisplayMenu->HasScroll() ) {
+			m_pDisplayMenu->MoveCursor( -1 );
+		}
+		else ucKey = MENU_EXEC_KEY;
 		m_pDisplayMenu->PaintSubmenu( );
-		ucKey = MENU_EXEC_KEY;
 	}
 	switch( ucKey ){
 		case MENU_UP_KEY:{			
@@ -393,6 +515,13 @@ bool LRMenu::HandleStylus( int iX, int iY )
 	return true;
 }
 
+void LRMenu::SetDirty( bool bDirty /* = true*/ )
+{
+	if ( NULL != m_pDisplayMenu ) {
+		m_pDisplayMenu->MakeSubmenuDirty( bDirty );
+	}
+}
+
 
 //---------------------------------------------------------------------------------------------------------
 /*
@@ -403,13 +532,32 @@ bool LRMenu::HandleStylus( int iX, int iY )
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ bool LRMenuItem::SelectItem( TCHAR ucShortcut )
 {
-	map<TCHAR, int>::iterator iterPos = m_mShotcuts.find( ucShortcut );
-	if ( iterPos == m_mShotcuts.end() ) return false;
-	if ( m_iHighlight>=0 && m_iHighlight<m_vMenuItems.size() ) 
-		m_vMenuItems[m_iHighlight]->SetDirty();
-	m_iHighlight = iterPos->second;	
-	if ( m_iHighlight>=0 && m_iHighlight<m_vMenuItems.size() ) 
-		m_vMenuItems[m_iHighlight]->SetDirty();	
+	if ( !HasScroll() || 
+		 ( ucShortcut!=DEFAULT_PAGEUP_SHORTCUT && ucShortcut!=DEFAULT_PAGEDOWN_SHORTCUT ) ){
+		map<TCHAR, int>::iterator iterPos = m_mShotcuts.find( ucShortcut );
+		if ( iterPos == m_mShotcuts.end() ) return false;
+		if ( m_iHighlight>=0 && m_iHighlight<m_vMenuItems.size() ) 
+			m_vMenuItems[m_iHighlight]->SetDirty();
+		m_iHighlight = iterPos->second;	
+		if ( m_iHighlight>=0 && m_iHighlight<m_vMenuItems.size() ) 
+			m_vMenuItems[m_iHighlight]->SetDirty();	
+	}
+	else {
+		//'0' -> up
+		//'9' -> down
+		if ( ucShortcut==DEFAULT_PAGEUP_SHORTCUT ) { //up
+			m_iHighlight = m_iStart - m_iItemsCount;
+			if ( m_iHighlight<0 ) m_iHighlight = 0;
+		}
+		else if ( ucShortcut==DEFAULT_PAGEDOWN_SHORTCUT ) { //down
+			m_iHighlight = m_iStart + m_iItemsCount;
+			if ( m_iHighlight>m_vMenuItems.size()-m_iItemsCount ) {
+				m_iHighlight=m_vMenuItems.size()-m_iItemsCount;
+				if (m_iHighlight<0 ) m_iHighlight = 0;
+			}
+		}
+
+	}
 
 	return true;
 }
@@ -465,6 +613,19 @@ void LRMenuItem::AddItem( LRMenuItem* pMenuItem )
 	m_uiItemsHeight = m_uiItemsWidth = 0;
 }
 //---------------------------------------------------------------------------------------------------------
+/*virtual*/ void LRMenuItem::InsertItem( unsigned int uiWhere, LRMenuItem* pMenuItem )
+{
+	if ( !pMenuItem ) return;
+	pMenuItem->SetParent( this );
+	vector<LRMenuItem*>::iterator iter = m_vMenuItems.begin();
+	iter += uiWhere;
+	if ( iter != m_vMenuItems.begin() ) {
+		m_vMenuItems.insert( iter, pMenuItem );
+	}
+	else m_vMenuItems.push_back( pMenuItem );
+	m_uiItemsHeight = m_uiItemsWidth = 0;
+}
+//---------------------------------------------------------------------------------------------------------
 bool LRMenuItem::Exec( )
 {
 	if ( HasSubMenu() ) {
@@ -480,6 +641,8 @@ void LRMenuItem::MoveCursor( int iDir )
 {
 	if ( m_iHighlight<0 ) return;
 
+	PLUTO_SAFETY_LOCK(cm, LocalRenderer::Mutex() );
+
 	switch( iDir ){
 		case 0: // Up
 			if ( m_iHighlight==0 ) break;
@@ -492,14 +655,17 @@ void LRMenuItem::MoveCursor( int iDir )
 			if ( m_iHighlight == m_iEnd )	++m_iStart;
 			m_vMenuItems[m_iHighlight++]->SetDirty();
 			m_vMenuItems[m_iHighlight]->SetDirty();
-
 			break;
+		case -1: // set start at m_iHighlight
+			m_iStart = m_iHighlight;
+			break;
+
 	}
 }
 //---------------------------------------------------------------------------------------------------------
 bool LRMenuItem::BeginPaint( RECT r, bool bForceRepaint )
 {
-	if ( m_bPainting ) return true;
+	if ( m_bPainting ) return false;
 
 	if ( !m_bDirty && !bForceRepaint ) return false;
 
@@ -545,9 +711,9 @@ void LRMenuItem::CalcSubmenuLayout( RECT rViewport )
 
 	if ( GetSubmenuHeight()>r.GetHeight() ) {
 		m_bHasScroll = true;
-		m_rSubmenu.top = rViewport.top;
-		m_rSubmenu.bottom = m_rSubmenu.top+GetSubmenuHeight( rViewport.bottom-DEFAULT_SCROLLBAR_HEIGHT )
-			+DEFAULT_SCROLLBAR_HEIGHT;
+		m_rSubmenu.top = rViewport.top+4;
+		m_rSubmenu.bottom = m_rSubmenu.top+GetSubmenuHeight( rViewport.bottom-m_rSubmenu.top+1-DEFAULT_SCROLLBAR_HEIGHT*2 )
+			+DEFAULT_SCROLLBAR_HEIGHT*2;
 	}
 	else {				
 		m_rSubmenu.top = iY;
@@ -556,7 +722,7 @@ void LRMenuItem::CalcSubmenuLayout( RECT rViewport )
 		m_rSubmenu.bottom = m_rSubmenu.top+GetSubmenuHeight();
 	}
 	if ( GetSubmenuWidth()>r.GetWidth() ){
-		m_rSubmenu.left = rViewport.left;
+		m_rSubmenu.left = rViewport.left+2;
 		m_rSubmenu.right = rViewport.right;
 	}
 	else {
@@ -608,18 +774,52 @@ void LRMenuItem::PaintSubmenu( bool bForceRepaint )
 {
 	if ( !m_bIsShowing ) return;
 
-	Rect r(m_rSubmenu );	
-	// Draw contour
+	PLUTO_SAFETY_LOCK(cm, LocalRenderer::Mutex() );
+
+	Rect r(m_rSubmenu );
+	bool bUpScroll = false, bDownScroll= false;
+	int i=0, iFirstVisible=0, iLastVisible=0;
+
+	// Get first/last visible items
+	iFirstVisible = m_vMenuItems.size();
+	iLastVisible = -1;
+	for ( i=0; i<m_vMenuItems.size(); ++i ) {
+		if ( m_vMenuItems[i]->GetVisible() ) {
+			if ( i < iFirstVisible ) iFirstVisible = i;
+			if ( i > iLastVisible )  iLastVisible = i;
+		}
+	}
+
+	// has scroll up if first drawn item is not the first visible one
+	bUpScroll = m_bHasScroll && ( m_iStart != iFirstVisible );
+	// has scroll down if last drawn item is not the last visible one
+	bDownScroll = m_bHasScroll && ( m_iStart+m_iItemsCount <= iLastVisible );
+	// if there's only one scroll adjust rect
+	if ( bUpScroll ^ bDownScroll )	r.bottom -= DEFAULT_SCROLLBAR_HEIGHT;	
+
+	if ( m_bHasScroll ) bForceRepaint = true;
+	
+	// Draw contour	
 	LocalRenderer::DrawHRect( r, DEFAULT_BORDER_COLOR );
 
-	// Draw scroll if there's one
-	if ( m_bHasScroll ) {
-		// To DO:
-		//		Paint scroll
-		//
-		//-------------
-		r.bottom -= DEFAULT_SCROLLBAR_HEIGHT;
+	if ( bUpScroll ) { // paint up scroll
+		Rect rr(r);
+		rr.bottom = rr.top+DEFAULT_SCROLLBAR_HEIGHT+1;		
+
+		LocalRenderer::FillRect( rr, DRAW_SCROLLBAR_COLOR );
+		LocalRenderer::DrawHRect( rr, DEFAULT_BORDER_COLOR );
+
+		rr.left += DRAW_ITEMTEXT_MARGIN;
+		tstring sShortcut = _T("");
+		sShortcut += DEFAULT_PAGEUP_SHORTCUT;
+		LocalRenderer::DrawText( sShortcut.c_str(), rr, RGB(0, 0, 0 ) );		
+		rr.left += 10;
+		sShortcut = DEFAULT_PAGEUP_TEXT;
+		LocalRenderer::DrawSmallText( sShortcut.c_str(), rr, RGB(0, 0, 0 ), DEFAULT_SMALLFONT_POINT_SCROLL, true );
+		r.top += DEFAULT_SCROLLBAR_HEIGHT;		
 	}
+
+	if ( bDownScroll )	r.bottom -= DEFAULT_SCROLLBAR_HEIGHT+1;	
 
 	// Adjust margins
 	r.left +=1; r.top +=1;r.right -=1; r.bottom -=1;
@@ -631,15 +831,16 @@ void LRMenuItem::PaintSubmenu( bool bForceRepaint )
 	m_mShotcuts.clear();
 	TCHAR ucShortcut=_T('1');
 
-	// Paint dirty/visible submenu items
-	for ( int i=m_iStart ; i<m_vMenuItems.size() && uiCrtPos<r.bottom; ++i )
+	// Paint dirty/visible submenu items	
+	for ( i=m_iStart ; i<m_vMenuItems.size() && uiCrtPos<r.bottom && i-m_iStart<=m_iItemsCount; ++i ) {
 		if ( m_vMenuItems[i]->GetVisible() ) {
 			Rect rItem( r.left, uiCrtPos, r.right, 
 				uiCrtPos+m_vMenuItems[i]->GetHeight() );
-			m_iEnd = i;
-			if ( rItem.bottom>=r.bottom ) {
-				rItem.bottom = r.bottom;			
+			if ( rItem.bottom>r.bottom ) {
+				//rItem.bottom = r.bottom;							
+				break;
 			}
+			m_iEnd = i;
 			AddShortcut( i, ucShortcut );
 			m_vMenuItems[i]->Paint( rItem, m_iHighlight==i, bForceRepaint );
 
@@ -647,6 +848,41 @@ void LRMenuItem::PaintSubmenu( bool bForceRepaint )
 			uiCrtPos += m_vMenuItems[i]->GetHeight()+1;						
 			++ucShortcut;
 		}
+	}		
+
+	r.bottom = uiCrtPos;
+	r.top = r.bottom;	
+
+	if ( bDownScroll ) { // paint down scroll
+		/*
+		r.bottom += DEFAULT_SCROLLBAR_HEIGHT+2;	
+		Rect rr(r);
+		rr.top = rr.bottom - DEFAULT_SCROLLBAR_HEIGHT-2;
+		*/
+		r.bottom += DEFAULT_SCROLLBAR_HEIGHT+1;	
+
+		Rect rr(r);
+		rr.top--;
+
+		tstring sShortcut = _T("0");
+		//Scroll down				
+		rr.left -=1;rr.right +=1;
+		LocalRenderer::FillRect( rr, DRAW_SCROLLBAR_COLOR );		
+		LocalRenderer::DrawHRect( rr, DEFAULT_BORDER_COLOR );
+		rr.left += DRAW_ITEMTEXT_MARGIN;
+		sShortcut = _T("9");
+		LocalRenderer::DrawText( sShortcut.c_str(), rr, RGB(0, 0, 0 ) );
+		rr.left += 10;
+		sShortcut = _T("Page down");
+		LocalRenderer::DrawSmallText( sShortcut.c_str(), rr, RGB(0, 0, 0 ), DEFAULT_SMALLFONT_POINT_SCROLL, true );
+	}
+	if ( bDownScroll || bUpScroll ){				
+		Rect rr(m_rSubmenu);
+		rr.top = r.bottom;						
+		Rect rrr( 0, m_pClone->GetHeight()-rr.GetHeight(), m_pClone->GetWidth(), m_pClone->GetHeight() );
+		LocalRenderer::RestoreRect( rr.left, rr.top, m_pClone, &rrr );
+	}
+	
 
 	//Update Dispaly Device
 	LocalRenderer::Update( &m_rSubmenu );
@@ -663,10 +899,13 @@ UINT LRMenuItem::GetSubmenuHeight( int iLimit )
 	// Calculate submenu height by adding all items heights	
 	if ( iLimit<0 ){
 		if ( !m_uiItemsHeight && m_vMenuItems.size() ) {
+			m_iItemsCount = 0;
 			m_uiItemsHeight = 1;
 			for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end(); ++iter )
-				if ( (*iter)->GetVisible() )
+				if ( (*iter)->GetVisible() ) {
 					m_uiItemsHeight += (*iter)->GetHeight()+1;
+					++m_iItemsCount;
+				}
 		}
 		return m_uiItemsHeight;
 	}
@@ -674,12 +913,16 @@ UINT LRMenuItem::GetSubmenuHeight( int iLimit )
 	// if iLimit>=0 limit submenu height to first height smaller than iLimit
 	UINT uiItemsHeight = 1;
 	vector<LRMenuItem*>::iterator iter;
+	m_iItemsCount = 0;
 	for ( iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end() && uiItemsHeight<iLimit ; ++iter ) {
-		if ( (*iter)->GetVisible() )
-			uiItemsHeight += (*iter)->GetHeight()+1;
+		if ( (*iter)->GetVisible() ) {
+			++m_iItemsCount;
+			uiItemsHeight += (*iter)->GetHeight()+1;			
+		}
 	}
 	if ( uiItemsHeight>iLimit && iter!=m_vMenuItems.end() ){
 		uiItemsHeight -= (*iter)->GetHeight()+1;
+		--m_iItemsCount;
 	}
 	return uiItemsHeight;
 }
@@ -720,191 +963,4 @@ bool LRMenuItem::PointIn( int iX, int iY )
 	if ( iY<m_rClientRect.top || iY>m_rClientRect.bottom ) return false;
 	return true;
 }
-
-//---------------------------------------------------------------------------------------------------------
-/*
- *
- *	class LRPhoneMenu
- *
- */
-//---------------------------------------------------------------------------------------------------------
-COLORREF LRPhoneMenu::m_clTextColor[tbcNone] = { RGB(0,0,0), RGB(0,0,0), RGB(0,0,0), RGB(0,0,0) };
-
-LRPhoneMenu* LRPhoneMenu::Create()
-{	
-	LRPhoneMenu* pMenu = new LRPhoneMenu;
-	pMenu->CreateMenuRoot();
-	return pMenu;
-}
-//---------------------------------------------------------------------------------------------------------
-void LRPhoneMenu::SetCrtRoom( long nCrtRoom )
-{
-	if ( m_pCrtRoomItem ) {
-
-		if ( IsShowing() ) {
-			Hide();
-		}		
-		m_pCrtRoomItem->SelectRoom( nCrtRoom );
-		Show( 0, 0);
-	}
-}
-//---------------------------------------------------------------------------------------------------------
-/*virtual*/ void LRPhoneMenu::AddItem( LRMenuItem* pMenuItem )
-{
-	LRMenu::AddItem( pMenuItem );
-	m_pCrtRoomItem = dynamic_cast<LRCrtRoomItem*>(pMenuItem);
-}
-
-//---------------------------------------------------------------------------------------------------------
-/*
- *
- *	class LRPhoneMenuItem
- *
- */
-//---------------------------------------------------------------------------------------------------------
-void LRPhoneMenuItem::Paint( RECT r, bool bHighlight, bool bForceRepaint )
-{
-	if ( !BeginPaint( r, bForceRepaint ) ) return;
-	
-	// Set background color
-	COLORREF clFillColor, clTextColor;
-	if ( !bHighlight ) {
-		clFillColor = LRPhoneMenu::GetColor( LRPhoneMenu::tbcBack );
-		clTextColor = LRPhoneMenu::GetColor( LRPhoneMenu::tbcFore );
-	}
-	else {
-		clFillColor = LRPhoneMenu::GetColor( LRPhoneMenu::tbcHlBack );
-		clTextColor = LRPhoneMenu::GetColor( LRPhoneMenu::tbcHlFore );
-	}
-
-	Rect rr(r);
-
-	// Paint background
-	LocalRenderer::FillRect( rr, clFillColor );
-
-	rr.left += DRAW_ITEMTEXT_MARGIN;
-	rr.right -= DRAW_ITEMTEXT_MARGIN;
-	rr.top += DRAW_ITEMTEXT_MARGIN;
-	rr.bottom -= DRAW_ITEMTEXT_MARGIN;
-
-	// Paint shorcut if he's got one
-	if ( m_ucShortcut ) {
-		tstring sShortcut;
-		sShortcut += m_ucShortcut;		
-		LocalRenderer::DrawText( sShortcut.c_str(), rr, DRAW_SHORTCUT_COLOR );
-		rr.left += DRAW_SHORTCUT_WIDTH;
-	}
-
-	// Draw a triangle if it has submenu
-	if ( HasSubMenu() ) {
-		LocalRenderer::FillTriangle( rr.right-DRAW_SUBMENUMARK_WIDTH, (rr.top+rr.bottom)/2 - DRAW_SUBMENUMARK_HEIGHT/2, 
-									 rr.right-DRAW_SUBMENUMARK_WIDTH, (rr.top+rr.bottom)/2 + DRAW_SUBMENUMARK_HEIGHT/2, 
-									 rr.right, (rr.top+rr.bottom)/2, DRAW_SUBMENUMARK_COLOR );
-		rr.right -= DRAW_SUBMENUMARK_WIDTH+2;
-	}
-
-	// Draw caption
-	LocalRenderer::DrawText( m_sCaption.c_str(), rr, clTextColor, m_bStyleBold );
-
-	EndPaint();
-}
-
-//---------------------------------------------------------------------------------------------------------
-/*
- *
- *	class LRPhoneMenuItemRoot
- *
- */
-//---------------------------------------------------------------------------------------------------------
-void LRPhoneMenuItemRoot::RemoveLinks( void )
-{
-	if ( m_vMenuItems.size()<=1 ) return;
-
-	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin()+1 ; iter!=m_vMenuItems.end(); ++iter ){
-		PLUTO_SAFE_DELETE( *iter );
-	}
-	m_vMenuItems.erase( m_vMenuItems.begin()+1, m_vMenuItems.end() );
-}
-
-//---------------------------------------------------------------------------------------------------------
-/*
- *
- *	class LRRoomItem
- *
- */
-//---------------------------------------------------------------------------------------------------------
-bool LRRoomItem::DoAction( void )
-{
-	m_pParent->SetCaption( m_sCaption );
-	CreateLinks();
-	return true;
-}
-//---------------------------------------------------------------------------------------------------------
-void LRRoomItem::CreateLinks( void )
-{
-	LRCrtRoomItem* pCrtRoom = dynamic_cast<LRCrtRoomItem*>(m_pParent);;
-	LRPhoneMenuItemRoot* pRootItem = dynamic_cast<LRPhoneMenuItemRoot*>(pCrtRoom->GetParent());
-	if ( !pCrtRoom || !pRootItem ) return;
-
-	pRootItem->RemoveLinks();
-	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin(); iter!=m_vMenuItems.end(); ++iter ) {
-		LRMenuItemLink* pLink = new LRMenuItemLink( *iter, NULL );
-		pRootItem->AddItem( pLink );
-	}	
-}
-
-//---------------------------------------------------------------------------------------------------------
-/*
- *
- *	class LRCrtRoomItem
- *
- */
-//---------------------------------------------------------------------------------------------------------
-void LRCrtRoomItem::SelectRoom( int iRoomId )
-{
-	if ( iRoomId<0 ) return;
-
-	for ( vector<LRMenuItem*>::iterator iter=m_vMenuItems.begin() ; iter!=m_vMenuItems.end(); ++iter ) {
-		LRRoomItem* pRoomItem = dynamic_cast<LRRoomItem*>( *iter );
-		if ( !pRoomItem ) return;
-		if ( pRoomItem->GetRoomId()==iRoomId ) { // RoomId found
-			// Set CrtRoomItem caption  = Room caption
-			SetCaption( pRoomItem->GetCaption() );
-			// Create links in root menu
-			pRoomItem->CreateLinks();
-			break;
-		}
-	}
-}
-//---------------------------------------------------------------------------------------------------------
-void LRCrtRoomItem::Paint( RECT r, bool bHighlight, bool bForceRepaint )
-{
-	if ( !BeginPaint( r, bForceRepaint) ) return;
-		
-	Rect rr( r );
-	// Draw a double contour
-	LocalRenderer::DrawHRect( rr, DEFAULT_BORDER_COLOR );
-	rr.left++;rr.top++;rr.right--;rr.bottom--;
-
-	// Draw text in bold
-	LRPhoneMenuItem::Paint( rr, bHighlight, bForceRepaint );
-
-	EndPaint();
-}
-
-//---------------------------------------------------------------------------------------------------------
-/*
- *
- *	class LRSubScenarioItem
- *
- */
-//---------------------------------------------------------------------------------------------------------
-bool LRSubScenarioItem::DoAction( void )
-{
-	if ( OrbiterApp::GetInstance() ) {
-		OrbiterApp::GetInstance()->SendSelectedItem( m_sId );
-	}
-	return true;
-}
-//---------------------------------------------------------------------------------------------------------
 

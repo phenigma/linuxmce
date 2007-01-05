@@ -41,6 +41,7 @@
 #include "../VIPShared/BD_CP_SetBkgndImage.h"
 #include "../VIPShared/BD_PC_MouseEvent.h"
 #include "../VIPShared/BD_CP_ShowMenu.h"
+#include "../VIPShared/BD_CP_SetMenuImages.h"
 #include "Orbiter/TextStyle.h"
 
 #include "pluto_main/Define_Variable.h"
@@ -272,27 +273,34 @@ void OrbiterBluetooth::SelectedItem( string& sItemId )
 void OrbiterBluetooth::GetMenuData( MenuData& data  )
 {
 	int iObjects[] = { DESIGNOBJ_mnuLights_CONST, DESIGNOBJ_mnuMedia_CONST, 
-		DESIGNOBJ_mnuClimate_CONST, DESIGNOBJ_mnuSecurity_CONST, DESIGNOBJ_mnuTelephony_CONST };
-	string sScenarioDescs[] = { "Lights", "Media", "Climate", "Security", "Telephony" };	
+		DESIGNOBJ_mnuClimate_CONST, DESIGNOBJ_mnuSecurity_CONST, DESIGNOBJ_mnuTelephony_CONST,
+		DESIGNOBJ_mnuAdvancedOptions_CONST
+	};
+	string sScenarioDescs[] = { "Lights", "Media", "Climate", "Security", "Telephony", "Advanced Options" };	
 	for(deque<LocationInfo *>::iterator itl = m_dequeLocation.begin(), end = m_dequeLocation.end(); itl != end; ++itl)
 	{
 		LocationInfo *pLocationInfo = *itl;
 		string sRoomDesc = pLocationInfo->Description;
 		int nRoomID = pLocationInfo->iLocation;
 
+		g_pPlutoLogger->Write(LV_WARNING, "#	Add room: %s", sRoomDesc.c_str() );
 		// Add room
 		data.AddRoom( nRoomID, sRoomDesc );				
 		for(int i = 0; i < sizeof(iObjects) / sizeof(int); ++i) {
 
+			g_pPlutoLogger->Write(LV_WARNING, "#	Add scenario: %s", sScenarioDescs[i].c_str() );
 			// Add scenario for room nRoomID
 			data.AddScenario( nRoomID, sScenarioDescs[i] );	
 
-			DesignObj_Orbiter *pObj = FindObject(StringUtils::ltos(iObjects[i]) + "." + 
-				StringUtils::itos(pLocationInfo->iLocation) + ".0");
-			if(NULL == pObj)
+			string sScenarioObjID = StringUtils::ltos(iObjects[i]) + "." + 
+				(iObjects[i] == DESIGNOBJ_mnuAdvancedOptions_CONST ? "0" : StringUtils::itos(pLocationInfo->iLocation)) + ".0";
+			DesignObj_Orbiter *pObj = FindObject(sScenarioObjID);
+			if(NULL == pObj) {
+				g_pPlutoLogger->Write(LV_WARNING, "#	Scenario not found!" );
 				continue;
-			DesignObj_DataList::iterator it;
-			
+			}
+
+			DesignObj_DataList::iterator it;				
 			for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it) {
 				// Here are all the buttons
 				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)(*it);
@@ -303,6 +311,41 @@ void OrbiterBluetooth::GetMenuData( MenuData& data  )
 				string sScenarioDesc = pDesignObj_Orbiter->GetVariableAssignment( VARIABLE_Array_Desc_CONST );				
 				// Add subscenario for nRoomID, sScenarioDescs[i]
 				data.AddSubScenario( nRoomID, sScenarioDescs[i], sObjectID, sScenarioDesc );
+			}
+
+		   //advanced options extra stuff
+			if(iObjects[i] == DESIGNOBJ_mnuAdvancedOptions_CONST)
+			{
+				int iSubscenarios[] = 
+				{
+					DESIGNOBJ_butRestartDCERouter_CONST, DESIGNOBJ_objExitController2_CONST, 
+					DESIGNOBJ_objResetUniverse2_CONST, DESIGNOBJ_butRegenAllOrbiters_CONST,
+					DESIGNOBJ_butRegenOrbiter_CONST, DESIGNOBJ_butPendingTasks_CONST
+				};
+
+				string sSubscenariosDesc[] = 
+				{
+					"Quick reload router", "Exit Orbiter", "Reboot Core",
+					"Regen All", "Regen Orbiter", "Pending Tasks"
+				};
+
+				for(int nIndex = 0; nIndex < sizeof(iSubscenarios) / sizeof(int); ++nIndex)
+				{
+					string sSubScenarioID = StringUtils::ltos(iObjects[i]) + ".0.0." + StringUtils::ltos(iSubscenarios[nIndex]);
+					DesignObj_Orbiter *pDesignObj_Orbiter = FindObject(sSubScenarioID, pObj);
+
+					g_pPlutoLogger->Write(LV_WARNING, "#	Subscen %s Id %s!", 
+						sSubscenariosDesc[nIndex].c_str(),	sSubScenarioID.c_str() );
+					if(NULL == pDesignObj_Orbiter) {
+						g_pPlutoLogger->Write(LV_WARNING, "#	Subscen not found!" );
+						continue;
+					}
+
+					string sScenarioDesc = sSubscenariosDesc[nIndex];
+					string sObjectID = pDesignObj_Orbiter->m_ObjectID;
+					// Add subscenario for nRoomID, sScenarioDescs[i]					
+					data.AddSubScenario( nRoomID, sScenarioDescs[i], sObjectID, sScenarioDesc );
+				}
 			}
 
 		}
@@ -357,5 +400,71 @@ void OrbiterBluetooth::ShowMenu( )
 		BD_CP_ShowMenu *pBD_CP_ShowMenu = new BD_CP_ShowMenu( nCrtRoom );
 		m_pBDCommandProcessor->AddCommand( pBD_CP_ShowMenu );
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+void OrbiterBluetooth::GetMenuImages( MenuItemInfo::ItemType nItemsType, vector<MenuItemInfo>& vItems )
+{
+	g_pPlutoLogger->Write(LV_WARNING, "#	GetMenuImages: %d", vItems.size() );
+	//string sImageFileName = "/usr/pluto/orbiter/C" + StringUtils::ltos(m_dwPK_Device) + "/" + 
+	//		StringUtils::ltos(DESIGNOBJ_objBackground_CONST) + ".0.0.png";
+	string sImageFileName = "/usr/pluto/orbiter/skins/Basic/Phone/Smartphone_menu_test.png";
+
+	char *pImage = NULL;
+	size_t iImageSize;	
+	if(FileUtils::FileExists(sImageFileName) && ( m_pBDCommandProcessor ) ) {		
+		pImage = FileUtils::ReadFileIntoBuffer(sImageFileName, iImageSize);		
+	}
+	switch ( nItemsType ) {
+		case MenuItemInfo::stSubScenarios:
+			{
+				for ( vector<MenuItemInfo>::iterator iter=vItems.begin(); iter!=vItems.end(); ++iter ) {
+					if ( pImage ) {						
+						(*iter).SetImage( 0, (unsigned long)iImageSize, pImage );
+					}
+					/*
+					DesignObj_Orbiter *pObj = FindObject( rItem.m_sObjectId );
+					if ( NULL != pObj ){
+						// Set image
+					}
+					*/
+				}				
+			}
+			break;
+		case MenuItemInfo::stScenarios:
+			{
+				for ( vector<MenuItemInfo>::iterator iter=vItems.begin(); iter!=vItems.end(); ++iter ) {										
+					if ( pImage ) {						
+						(*iter).SetImage( 0, (unsigned long)iImageSize, pImage );
+					}
+					/*
+					DesignObj_Orbiter *pObj = FindObject( rItem.m_sObjectId );
+					if ( NULL != pObj ){
+						// Set image
+					}
+					*/
+				}				
+			}
+			break;
+		case MenuItemInfo::stRooms:
+			{
+				for ( vector<MenuItemInfo>::iterator iter=vItems.begin(); iter!=vItems.end(); ++iter ) {
+					if ( pImage ) {						
+						(*iter).SetImage( 0, (unsigned long)iImageSize, pImage );
+					}
+					/*
+					DesignObj_Orbiter *pObj = FindObject( rItem.m_sObjectId );
+					if ( NULL != pObj ){
+						// Set image
+					}
+					*/
+				}				
+			}
+			break;
+	}
+	if( m_pBDCommandProcessor ) {
+		BD_CP_SetMenuImages *pBD_CP_SetMenuImages = new BD_CP_SetMenuImages( nItemsType, vItems );
+		m_pBDCommandProcessor->AddCommand( pBD_CP_SetMenuImages );
+	}
+	PLUTO_SAFE_DELETE_ARRAY(pImage);
 }
 //-----------------------------------------------------------------------------------------------------

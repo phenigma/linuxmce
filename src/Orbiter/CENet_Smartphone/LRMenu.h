@@ -12,7 +12,8 @@ using namespace Frog;
 //---------------------------------------------------------------------------------------------------------
 #include "OrbiterApp.h"
 //---------------------------------------------------------------------------------------------------------
-
+#include "VIPShared/MenuItemInfo.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
 
 //---------------------------------------------------------------------------------------------------------
 #define _LOCAL_RENDERED_OBJECTS_
@@ -32,39 +33,36 @@ using namespace Frog;
 typedef unsigned char uchar;
 
 //---------------------------------------------------------------------------------------------------------
-#define DEFAULT_CRTROOMITEM_CAPTION "Rooms"
 #define DEFAULT_MENUITEM_WIDTH	150
-#define DEFAULT_MENUITEM_HEIGHT	27
-#define DEFAULT_SCROLLBAR_HEIGHT 15
+#define DEFAULT_MENUITEM_HEIGHT	23
 #define DEFAULT_BORDER_COLOR RGB( 0, 0, 0 )
 #define DRAW_ITEMTEXT_MARGIN 3
-#define DRAW_SHORTCUT_WIDTH  15
-#define DRAW_SHORTCUT_COLOR  RGB(255,136,136)
-#define DRAW_SUBMENUMARK_WIDTH 5
-#define DRAW_SUBMENUMARK_HEIGHT 10
-#define DRAW_SUBMENUMARK_COLOR RGB(0,0,0)
+#define DEFAULT_SMALLFONT_POINT_TEXT 9
+
+#define DEFAULT_PAGEUP_SHORTCUT '0'
+#define DEFAULT_PAGEDOWN_SHORTCUT '9'
+#define DEFAULT_PAGEUP_TEXT _T("Page up")
+
+#define DEFAULT_SCROLLBAR_HEIGHT 23
+#define DRAW_SCROLLBAR_COLOR  RGB(238,232,170)
+#define DEFAULT_SMALLFONT_POINT_SCROLL 10
+
+#define DEFAULT_CRTROOMITEM_CAPTION "Rooms"
+
 //---------------------------------------------------------------------------------------------------------
+
 #define MENU_UP_KEY		'w'
 #define MENU_DOWN_KEY	's'
 #define MENU_LEFT_KEY	'a'
 #define MENU_RIGHT_KEY	'd'
 #define MENU_EXEC_KEY	'x'
 #define MENU_BACK_KEY	'b'
-//---------------------------------------------------------------------------------------------------------
 
-/*
-#define SAFE_DELETE( pointer ) { \
-							if ( pointer ) { \
-								delete pointer; \
-								pointer = NULL; \
-							} \
-		}
-*/
+//---------------------------------------------------------------------------------------------------------
 #define RETURN_ON_TRUE( test ) { \
 							if ( test ) \
 								return; \
 		}
-
 #define CHECK_UPDATING( ) RETURN_ON_TRUE( m_bChanging )
 //---------------------------------------------------------------------------------------------------------
 
@@ -77,9 +75,14 @@ class LocalRenderer {
 protected:
 	static Rect m_rViewport;
 	static Rect m_rAppViewport;
+	static pluto_pthread_mutex_t m_RenderMutex;
+	static pthread_mutexattr_t m_MutexAttr;
+	static void CheckMutex( void );
+	static bool m_bEnable;
 public:
 	// Draw text - for bold creates new font from the current one
 	static void DrawText( LPCTSTR Text, Rect &r, COLORREF color, BOOL bBold=false );
+	static void DrawSmallText( LPCTSTR Text, Rect &r, COLORREF color, int iPointSize, BOOL bBold=false );
 
 	// Draw an image
 	static void DrawImage( char *pData,int nSize, Rect &r );
@@ -93,7 +96,7 @@ public:
 	// Save/restore a rectangle from/to the Display Device
 	//		- used for saving/restoring area behinf submenus
 	static Surface* SaveRect( Rect r );
-	static void RestoreRect( int iX, int iY, Surface* pSurface );
+	static void RestoreRect( int iX, int iY, Surface* pSurface, Rect* srcRect=NULL );
 
 	// Draws a rectangle
 	static void DrawRect( RECT r, COLORREF color );
@@ -120,6 +123,13 @@ public:
 	static void SetAppViewport( Rect rViewport ) { m_rAppViewport = rViewport; }
 	static Rect& GetAppViewport( ) { return m_rAppViewport; }
 
+	static pluto_pthread_mutex_t& Mutex(){
+		CheckMutex();
+		return m_RenderMutex;
+	}
+
+	static void Enable( bool bEnable=true ) { m_bEnable = bEnable; }
+
 };
 
 /*
@@ -132,14 +142,29 @@ protected:
 	bool m_bVisible;
 	tstring m_sCaption;
 	UINT m_uiWidth, m_uiHeight;	
+	unsigned char m_nImageType;
+	char *m_pImage;
+	unsigned long m_nImageSize;
 
 public:	
-	LRMenuItemData(){
+	LRMenuItemData() /*: m_RenderItemMutex( "RenderItem" )*/
+	{
 		m_sCaption = _T("");
 		m_uiWidth = DEFAULT_MENUITEM_WIDTH; m_uiHeight = DEFAULT_MENUITEM_HEIGHT;
 		m_bVisible = true;
+		m_nImageType = 0;
+		m_nImageSize = 0;
+		m_pImage = NULL;
 	}
-	LRMenuItemData( LRMenuItemData& ItemData ){
+	LRMenuItemData( LRMenuItemData& ItemData )/* : m_RenderItemMutex( "RenderItem" )*/
+	{
+		m_sCaption = _T("");
+		m_uiWidth = DEFAULT_MENUITEM_WIDTH; m_uiHeight = DEFAULT_MENUITEM_HEIGHT;
+		m_bVisible = true;
+		m_nImageType = 0;
+		m_nImageSize = 0;
+		m_pImage = NULL;
+
 		*this = ItemData;
 	}
 	LRMenuItemData& operator=( LRMenuItemData& ItemData ){
@@ -147,8 +172,10 @@ public:
 		m_uiWidth = ItemData.m_uiWidth;
 		m_uiHeight = ItemData.m_uiHeight;
 		m_bVisible = ItemData.m_bVisible;
+		SetImage(ItemData.m_nImageType, ItemData.m_nImageSize, ItemData.m_pImage);
 		return *this;
 	}
+	virtual ~LRMenuItemData( );
 
 	// Item width/height
 	virtual UINT GetWidth() { return m_uiWidth; }
@@ -160,10 +187,13 @@ public:
 	virtual void SetCaption( tstring sCaption ) { m_sCaption = sCaption; }
 	virtual void SetCaptionToString( string sCaption );
 	virtual tstring& GetCaption( ) { return m_sCaption; }
+	virtual void GetStringCaption( string& sCaption );
 
 	// Visible/Invisible item
 	virtual void SetVisible( bool bVisible ) { m_bVisible = bVisible; }
 	virtual bool GetVisible( ) { return m_bVisible; }
+
+	virtual void SetImage( unsigned char ImageType,unsigned long ImageSize,const char *pImage );
 
 };
 
@@ -203,6 +233,9 @@ protected:
 	bool BeginPaint( RECT r, bool bForceRepaint );
 	bool EndPaint() { m_bDirty = false; m_bPainting = false; return true; }
 
+	int m_iItemsCount;
+	
+
 public:	
 	LRMenuItem( LRMenuItem* pParent=NULL ){ 
 		m_pParent = pParent; 
@@ -216,6 +249,7 @@ public:
 		m_iHighlight = -1;
 		m_rClientRect = Rect(0,0,0,0);
 		m_bPainting = false;
+		m_iItemsCount = 0;
 	}
 	LRMenuItem( LRMenuItemData& ItemData, LRMenuItem* pParent=NULL )
 		:LRMenuItemData(ItemData)
@@ -231,6 +265,7 @@ public:
 		m_iHighlight = -1;
 		m_rClientRect = Rect(0,0,0,0);
 		m_bPainting = false;
+		m_iItemsCount = 0;
 	}
 	virtual ~LRMenuItem();
 
@@ -279,6 +314,7 @@ public:
 	//Add new submenu item
 	virtual LRMenuItem* AddItem( LRMenuItemData& ItemData );
 	virtual void AddItem( LRMenuItem* pMenuItem );
+	virtual void InsertItem( unsigned int uiWhere, LRMenuItem* pMenuItem );
 
 	//Get current selected submenu item
 	virtual LRMenuItem* GetCrtItem( void ) { 
@@ -333,7 +369,9 @@ public:
 	virtual bool IsLink() { return false; }
 
 	virtual bool PointInSubmenu( int iX, int iY );
-	virtual bool PointIn( int iX, int iY );
+	virtual bool PointIn( int iX, int iY );	
+
+	virtual bool HasScroll() { return m_bHasScroll; }
 
 };
 
@@ -353,6 +391,7 @@ protected:
 public:
 	LRMenuItemLink( LRMenuItem* pItem, LRMenuItem* pParent=NULL ){ m_pOrigItem = pItem; m_pParent=pParent; }
 	virtual ~LRMenuItemLink(){ m_pOrigItem = NULL; }
+	LRMenuItem* GetOrigItem() { return m_pOrigItem; }
 
 	virtual UINT GetWidth() { return m_pOrigItem->GetWidth(); }
 	virtual UINT GetHeight() { return m_pOrigItem->GetHeight(); }
@@ -361,6 +400,7 @@ public:
 	virtual void SetCaption( tstring sCaption ) { m_pOrigItem->SetCaption( sCaption ); }
 	virtual void SetCaptionToString( string sCaption ) { m_pOrigItem->SetCaptionToString( sCaption ); }
 	virtual tstring& GetCaption( ) { return m_pOrigItem->GetCaption(); }
+	virtual void GetStringCaption( string& sCaption ) { m_pOrigItem->GetStringCaption( sCaption ); }
 	virtual void SetVisible( bool bVisible ) { m_pOrigItem->SetVisible( bVisible ); }
 	virtual bool GetVisible( ) { return true; } // The only one changed
 
@@ -375,6 +415,7 @@ public:
 	virtual bool Exec() { return m_pOrigItem->Exec(); }
 	virtual LRMenuItem* AddItem( LRMenuItemData& ItemData ) { return m_pOrigItem->AddItem( ItemData ); }
 	virtual void AddItem( LRMenuItem* pMenuItem ) { m_pOrigItem->AddItem( pMenuItem ); }
+	virtual void InsertItem( unsigned int uiWhere, LRMenuItem* pMenuItem ) { m_pOrigItem->InsertItem( uiWhere, pMenuItem ); }
 	virtual LRMenuItem* GetCrtItem( void ) { return m_pOrigItem->GetCrtItem(); }
 	virtual UINT GetSubmenuHeight( int iLimit=-1 )  { return m_pOrigItem->GetSubmenuHeight( iLimit ); }
 	virtual UINT GetSubmenuWidth( void ) { return m_pOrigItem->GetSubmenuWidth(); }
@@ -395,6 +436,11 @@ public:
 
 	virtual bool PointInSubmenu( int iX, int iY ){ return m_pOrigItem->PointInSubmenu( iX, iY ); }
 	virtual bool PointIn( int iX, int iY ) { return m_pOrigItem->PointIn( iX, iY ); }
+	virtual void SetImage( unsigned char ImageType,unsigned long ImageSize,const char *pImage ) {
+		m_pOrigItem->SetImage( ImageType, ImageSize, pImage );
+	}
+
+	virtual bool HasScroll() { return m_pOrigItem->HasScroll(); }
 
 	// GetParent/SetParent won't be rewritten
 	//virtual void SetParent( LRMenuItem* pParent ) { m_pParent = pParent; }
@@ -419,6 +465,7 @@ protected:
 		m_pDisplayMenu = m_pMenuRoot;
 		m_bIsShowing = false;
 	}
+
 public:
 	LRMenu();
 	~LRMenu();
@@ -451,173 +498,13 @@ public:
 
 	//Menu viewport
 	void SetViewport( RECT rViewport ) { LocalRenderer::SetViewport( Rect(rViewport) );  } //repaint
+
+	void SetDirty( bool bDirty = true );
 };
 
 
-/*
- *
- *	LRPhoneMenuItemRoot - phone menu root item
- *
- */
-class LRPhoneMenuItemRoot : public LRMenuItem {
-public:
-	//Remove links to scenarios
-	void RemoveLinks( void );
-};
 
-/*
- *
- *	LRPhoneMenu - Phone menu
- *
- */
-class LRCrtRoomItem;
-class LRPhoneMenu: public LRMenu {
-protected:
-	LRCrtRoomItem* m_pCrtRoomItem;
-private:
-	LRPhoneMenu(){m_pCrtRoomItem = NULL;}
-public:
-	typedef enum { tbcFore=0, tbcBack, tbcHlFore, tbcHlBack, tbcNone } TextBitsColor;
-protected:
-	static COLORREF m_clTextColor[ tbcNone ];	
-	virtual void CreateMenuRoot() { 
-		m_pMenuRoot = new LRPhoneMenuItemRoot; 
-		m_pDisplayMenu = m_pMenuRoot;
-		m_bIsShowing = false;
-	}
-	
 
-public:		
-	// Constructor blocked so we can use CreateMenuRoot with LRPhoneMenuItemRoot
-	static LRPhoneMenu* Create();
-
-	// Set/Get (highlighted/foreground/background)items color
-	static void SetColor( TextBitsColor ColorIdx, COLORREF Color ){
-		if ( ColorIdx<tbcNone )	m_clTextColor[ColorIdx] = Color;
-	}
-	static COLORREF GetColor( TextBitsColor ColorIdx ){
-		if ( ColorIdx==tbcNone ) return RGB(0,0,0);
-		else return m_clTextColor[ColorIdx];
-	}
-
-	virtual void AddItem( LRMenuItem* pMenuItem );
-
-	// Set current room
-	void SetCrtRoom( long nCrtRoom );
-};
-
-/*
- *
- *	LRPhoneMenuItem - base class for phone menu items
- *
- */
-class LRPhoneMenuItem : public LRMenuItem {
-protected:
-	bool m_bStyleBold;
-public:
-	LRPhoneMenuItem( LRMenuItem* pParent=NULL ) { 
-		m_bStyleBold = false;
-	}
-	LRPhoneMenuItem( LRMenuItemData& ItemData, LRMenuItem* pParent=NULL ){
-		m_bStyleBold = false;
-	}
-
-	// reimplemented to draw phone menu items using received styles
-	virtual void Paint( RECT r, bool bHighlight, bool bForceRepaint=false );
-};
-
-/*
- *
- *	LRCrtRoomItem - Current room item ( first item in menu )
- *
- */
-class LRCrtRoomItem : public LRPhoneMenuItem {
-public:
-	LRCrtRoomItem( LRMenuItem* pParent=NULL ) { 
-		m_bStyleBold = true;
-	}
-	LRCrtRoomItem( LRMenuItemData& ItemData, LRMenuItem* pParent=NULL ){
-		m_bStyleBold = true;
-	}
-	
-	// Select current room
-	void SelectRoom( int iRoomId );
-
-	// reimplemented do draw current room item in a different way
-	virtual void Paint( RECT r, bool bHighlight, bool bForceRepaint=false );
-};
-
-/*
- *
- *	LRRoomItem - Rooms items
- *
- */
-class LRRoomItem : public LRPhoneMenuItem {
-protected:
-	int m_iRoomId;
-
-	// reimplemented to add links in root menu when choosing a room
-	virtual bool DoAction( void );
-public:
-	LRRoomItem( LRMenuItem* pParent=NULL ):LRPhoneMenuItem(pParent) { 
-		m_iRoomId = -1;
-	}
-	LRRoomItem( LRMenuItemData& ItemData, LRMenuItem* pParent=NULL ):LRPhoneMenuItem( ItemData, pParent ){		
-		m_iRoomId = -1;
-	}
-	virtual LRMenuItem* AddItem( LRMenuItemData& ItemData ) { 
-		LRMenuItem* pItem = LRMenuItem::AddItem( ItemData ); 
-		pItem->SetVisible( false );
-		return pItem;
-	}
-
-	// All Scenarios are invisible - they'll be linked in root menu
-	virtual void AddItem( LRMenuItem* pMenuItem ) { 		
-		LRMenuItem::AddItem( pMenuItem ); 		
-		pMenuItem->SetVisible( false );
-	}
-
-	// Room Id - for selecting current room
-	void SetRoomId( int iRoomId ) { m_iRoomId = iRoomId; }
-	int  GetRoomId() { return m_iRoomId; }
-
-	// Create links to scenarios in root menu
-	void CreateLinks( void );
-
-};
-
-/*
- *
- *	LRScenarioItem - Scenario items
- *
- */
-class LRScenarioItem : public LRPhoneMenuItem {
-	// nothing specific
-};
-
-/*
- *
- *	LRSubScenarioItem - SubScenario items
- *
- */
-class LRSubScenarioItem : public LRPhoneMenuItem {
-protected:
-	string m_sId;
-
-	// reimplemented to send SelectedItem on choosing a SubScenario
-	virtual bool DoAction( void );
-public:		
-	LRSubScenarioItem( LRMenuItem* pParent=NULL ) { 
-		m_sId = "";
-	}
-	LRSubScenarioItem( LRMenuItemData& ItemData, LRMenuItem* pParent=NULL ){
-		m_sId = "";
-	}
-
-	// SubScenario Id - sent to SelectedItem
-	void SetId( string sId ) { m_sId = sId; }
-	string& GetId( ) { return m_sId; }
-};
 
 #endif
 

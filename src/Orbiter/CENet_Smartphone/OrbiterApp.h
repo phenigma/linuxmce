@@ -11,6 +11,8 @@ using namespace Frog;
 #include "Orbiter/PocketFrog/PocketFrogWrapper.h"
 #include "VIPShared/RenderMenu.h"
 #include "VIPShared/MenuData.h"
+#include "VIPShared/MenuItemInfo.h"
+
 class LRMenu;
 //---------------------------------------------------------------------------------------------------------
 
@@ -32,8 +34,6 @@ class LRMenu;
 	#define DisplayDevice Display
 #endif
 
-
-
 class CSmartphone2003Favorites;
 
 class OrbiterApp: public PlutoGame, public RenderMenu
@@ -41,9 +41,12 @@ class OrbiterApp: public PlutoGame, public RenderMenu
 private:
 	BEGIN_MSG_MAP( OrbiterApp )
 		MESSAGE_HANDLER( WM_TIMER,		 OnTimer )
+		// used WM_ACTIVATE because it seems like it doesn't receive WM_SHOWWINDOW
+		MESSAGE_HANDLER( WM_ACTIVATE,	 OnActivate )
 		CHAIN_MSG_MAP( Game )
 	END_MSG_MAP()
 
+	LRESULT OnActivate( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled );
 	LRESULT OnTimer( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled );
 	bool m_bTimerUp;
 
@@ -234,6 +237,10 @@ public:
 	void SendMouseEvent( int iX, int iY, int EventType );
 	// - received: Shows Menu
 	void ShowMenu( long nCrtRoom );
+	// - send: Get Menu Items Images
+	void GetMenuImages( MenuItemInfo::ItemType nItemsType, vector<MenuItemInfo>& vItems );
+	// - received: Set Menu Items Images
+	void SetMenuImages( MenuItemInfo::ItemType nItemsType, vector<MenuItemInfo*>& vItems );
 
 	// - outgoing
 	void SendKey(int nKeyCode, int nEventType);

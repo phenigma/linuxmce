@@ -5,8 +5,9 @@
 #ifdef WINCE
 #define LPDRAWTEXTPARAMS void *
 #endif
+
 //-----------------------------------------------------------------------------------------------------
-LPWSTR ToWide(LPCSTR lpString, int cbString, int* sz)
+inline LPWSTR ToWide(LPCSTR lpString, int cbString, int* sz)
 {
 	LPWSTR lpwString;
 
@@ -29,7 +30,7 @@ LPWSTR ToWide(LPCSTR lpString, int cbString, int* sz)
 	return lpwString;
 }
 //-----------------------------------------------------------------------------------------------------
-int DrawTextExUTF8(HDC hdc, LPCSTR lpchText, int cchText, LPRECT lprc, UINT dwDTFormat, LPDRAWTEXTPARAMS lpDTParams)
+inline int DrawTextExUTF8(HDC hdc, LPCSTR lpchText, int cchText, LPRECT lprc, UINT dwDTFormat, LPDRAWTEXTPARAMS lpDTParams)
 {
 	int sz;
 	LPWSTR lpwchText;
