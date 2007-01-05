@@ -56,6 +56,7 @@ sources += \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
 	../VIPShared/PlutoPhoneCommands.cpp \
+	../VIPShared/MenuItemInfo.cpp \
 	../LIRC_DCE/IRReceiverBase.cpp 
 
 #<-dceag-mf-b->
