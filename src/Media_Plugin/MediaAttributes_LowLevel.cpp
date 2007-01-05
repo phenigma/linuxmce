@@ -444,7 +444,13 @@ string MediaAttributes_LowLevel::GetPictureFromFilePath( string File, int *PK_Pi
 
 string MediaAttributes_LowLevel::GetPictureFromFileID( int PK_File, int *PK_Picture )
 {
-    string SQL = "select PK_Picture, Extension FROM Picture_File JOIN Picture ON "\
+	if( !PK_File )
+	{
+		*PK_Picture=0;
+		return "";
+	}
+
+	string SQL = "select PK_Picture, Extension FROM Picture_File JOIN Picture ON "\
         "FK_Picture=PK_Picture "\
         "WHERE FK_File=" + StringUtils::itos( PK_File );
 

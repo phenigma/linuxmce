@@ -249,6 +249,7 @@ bool PlutoHIDInterface::SetActiveRemote(int iRemoteID,bool bFollowMe)
 			bFollowMe,m_pOrbiter->m_dwPK_Device);
 	m_pOrbiter->SendCommand(CMD_Set_Active_Remote);
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::SetActiveRemote new remote %d device %d",m_iRemoteID,m_iPK_Device_Remote );
+	return true;
 }
 
 void PlutoHIDInterface::LegacyBind()
