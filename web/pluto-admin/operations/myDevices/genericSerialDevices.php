@@ -146,16 +146,16 @@ function genericSerialDevices($output,$dbADO) {
 						ShowInWizard,ShortDescription,
 						AllowedToModify,
 						DeviceTemplate_DeviceData.Description AS Tooltip 
-					FROM DeviceData 
-					INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
-					INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
-					INNER JOIN Device ON FK_Device=PK_Device
+					FROM Device 
+					LEFT JOIN Device_DeviceData ON Device_DeviceData.FK_Device=PK_Device
+					LEFT JOIN DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData
+					LEFT JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
 					LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate
 					INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
 					LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate 
 					INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
 					INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 			
-					WHERE PK_Device IN ('.join(',',$displayedGSDDevices).')';	
+					WHERE PK_Device IN ('.join(',',$displayedGSDDevices).')';
 				$resDevice=$dbADO->Execute($queryDevice);
 				$childOf=array();
 				$firstDevice=0;
@@ -164,12 +164,15 @@ function genericSerialDevices($output,$dbADO) {
 				while($rowD=$resDevice->FetchRow()){
 					if($rowD['FK_Device_ControlledVia']==$rowD['FK_Device_RouteTo'])
 						$childOf[$rowD['PK_Device']]=$rowD['FK_Device_ControlledVia'];
-					$displayedDevices[$rowD['PK_Device']]=$rowD['Description'];
+					if(!in_array($rowD['PK_Device'],$displayedDevices)){
+						$displayedDevices[]=$rowD['PK_Device'];
+					}
 					
 					// fill in the device data array
 					if($rowD['PK_Device']!=$firstDevice){
 						$firstDevice=$rowD['PK_Device'];
 						$deviceDataArray[$firstDevice]=array();
+						$deviceDataArray[$firstDevice][]=$rowD;
 					}else{
 						$deviceDataArray[$firstDevice][]=$rowD;
 					}

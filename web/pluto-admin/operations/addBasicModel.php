@@ -97,7 +97,7 @@
 				}else{
 				$redirectJS='
 				<script>
-					self.location=\'index.php?section=genericSerialDevices&msg=The device was added.\';
+					opener.location=\'index.php?section=genericSerialDevices&msg=The device was added.\';
 				</script>
 				';
 

@@ -3025,7 +3025,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 
 		$ddValue=$rowDDforDevice['IK_DeviceData'];
 
-		if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='')){
+		if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='') && $rowDDforDevice['FK_DeviceData']!=''){
 			$formElementName='deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'];
 			$deviceDataBox.='
 				<tr>
@@ -4167,7 +4167,7 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 			}elseif(count($dspmodeCommandsArray)>0){
 				$out.='DSP Mode commands not implemented: ';
 				foreach ($dspmodeCommandsArray AS $dspmId=>$dspmName){
-					$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
+					$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,heighght=310,toolbars=true,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
 				}
 				$out.='<b>'.join(', ',$dspmodeCommandsArray).'</b> <em>(Click to add)</em>';
 			}
@@ -4804,7 +4804,7 @@ function irrigationCommandGroupCommandsTable($cgID,$section,$dbADO){
 		LEFT JOIN Room ON FK_Room=PK_Room 
 		INNER JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup 
 		WHERE PK_CommandGroup=?
-		ORDER BY FK_Device,OrderNum ASC',array($cgID));	
+		ORDER BY FK_Device,OrderNum ASC',ar,array($cgID));	
 	$pos=0;	
 	if($res->RecordCount()!=0){
 		while($row=$res->FetchRow()){
@@ -6546,5 +6546,3 @@ function updateEAForEmbeddedDevices($deviceID,$eaID,$dbADO){
 		}
 	}
 }
-
-?>

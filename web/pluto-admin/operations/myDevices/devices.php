@@ -147,10 +147,10 @@ function devices($output,$dbADO) {
 						AllowedToModify,
 						DeviceTemplate_DeviceData.Description AS Tooltip,
 						Parent.Description AS PDescription 
-					FROM DeviceData 
-					INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
-					INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
-					INNER JOIN Device ON FK_Device=Device.PK_Device
+					FROM Device 
+					LEFT JOIN Device_DeviceData ON Device_DeviceData.FK_Device=Device.PK_Device
+					LEFT JOIN DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData
+					LEFT JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
 					LEFT JOIN Device Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia
 					LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate
 					INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
