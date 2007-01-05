@@ -28,6 +28,13 @@ Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const s
 	m_bNbdServerRunning=false;
 	m_DiskMutex.Init(NULL);
 	m_pDevice_MediaIdentifier = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Identifiers_CONST,m_pCommand_Impl);
+	if( !m_pDevice_MediaIdentifier )
+	{
+		m_pDevice_MediaIdentifier = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Identifiers_CONST);  // Try again ignoring registration.  Maybe it will register later
+		if( m_pDevice_MediaIdentifier )
+			g_pPlutoLogger->Write(LV_WARNING,"Disk_Drive_Functions::Disk_Drive_Functions warning m_pDevice_MediaIdentifier %d isn't registered",m_pDevice_MediaIdentifier->m_dwPK_Device);
+	}
+
 	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive_Functions::Disk_Drive_Functions m_pDevice_MediaIdentifier %d",m_pDevice_MediaIdentifier ? m_pDevice_MediaIdentifier->m_dwPK_Device : 0);
 
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);

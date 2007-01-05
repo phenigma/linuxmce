@@ -374,6 +374,10 @@ continue;
 	}
 #endif
 
+	DeviceData_Base *pDevice = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Identifiers_CONST);
+	if( pDevice )
+		m_dwPK_Device_MediaIdentification = pDevice->m_dwPK_Device;
+
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(1);      // number of worker threads
 	CMD_Refresh_List_of_Online_Devices();
@@ -5455,4 +5459,43 @@ string Media_Plugin::GetMRLFromDiscID( int PK_Disc )
 void Media_Plugin::CMD_Check_For_New_Files(string &sCMD_Result,Message *pMessage)
 //<-dceag-c839-e->
 {
+	if( !m_dwPK_Device_MediaIdentification || !m_pRouter->DeviceIsRegistered(m_dwPK_Device_MediaIdentification) )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Check_For_New_Files no media id device %d", m_dwPK_Device_MediaIdentification);
+#endif
+		return;
+	}
+	int PK_File_Last=0;
+	string sSQL = "SELECT max(PK_File) FROM File";
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
+		PK_File_Last = atoi(row[0]);
+
+	string sFileList;
+	vector<Row_File *> vectRow_File;
+	m_pDatabase_pluto_media->File_get()->GetRows("PK_File>" + StringUtils::itos(m_iPK_File_Last_Scanned_For_New) + " AND EK_MediaType=" TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) + " AND IsNew=1",&vectRow_File);
+	if( vectRow_File.size()==0 )
+		return; // Nothing to do
+	for(vector<Row_File *>::iterator it=vectRow_File.begin();it!=vectRow_File.end();++it)
+	{
+		Row_File *pRow_File = *it;
+		sFileList += pRow_File->Path_get() + "/" + pRow_File->Filename_get() + "\n";
+	}
+	
+	DCE::CMD_Identify_Media CMD_Identify_Media(m_dwPK_Device,m_dwPK_Device_MediaIdentification,
+		0,"",sFileList,m_dwPK_Device);
+	if( !SendCommand(CMD_Identify_Media) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Check_For_New_Files Failed to send ID command");
+		return;
+	}
+	else
+	{
+		for(vector<Row_File *>::iterator it=vectRow_File.begin();it!=vectRow_File.end();++it)
+			(*it)->IsNew_set(false);
+	}
+	m_pDatabase_pluto_media->File_get()->Commit();
+	m_iPK_File_Last_Scanned_For_New=PK_File_Last;
 }

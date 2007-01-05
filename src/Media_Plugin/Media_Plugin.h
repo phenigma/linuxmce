@@ -90,6 +90,7 @@ private:
     class File_Grids_Plugin *m_pFile_Grids_Plugin;
     int m_iStreamID;
 	int m_iPK_File_Last_Scanned_For_New;
+	int m_dwPK_Device_MediaIdentification;
     pthread_mutexattr_t m_MutexAttr;
     MapMediaStream m_mapMediaStream; // All active streams
 	string m_sPK_Devices_Online; // List of available storage devices, comma separated
