@@ -74,7 +74,7 @@ for Device in $InternalOwnStorageDevices; do
 			for userDir in /home/user_* /home/public ;do
 				userDir=$(basename $userDir)
 
-				symlinkDestination="$/home/${userDir}/data/${mediaDir}/${Device_Description} [${Device_ID}]"
+				symlinkDestination="/home/${userDir}/data/${mediaDir}/${Device_Description} [${Device_ID}]"
 				symlinkSource="/mnt/device/${Device_ID}/${userDir}/data/${mediaDir}"
 				
 				if [[ -h "$symlinkDestination" ]] ;then
