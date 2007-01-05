@@ -1079,6 +1079,14 @@ dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
     }
 
+	if( !pOH_Orbiter )
+	{
+		pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia );
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::StartMedia assuming parent of %d started media", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
+#endif
+	}
+
 	if( pOH_Orbiter )
 	{
 	    pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;

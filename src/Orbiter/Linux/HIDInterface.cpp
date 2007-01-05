@@ -85,7 +85,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 						if (res<=0)
 						{
 							if (cnt%100==20) 
-								g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents .", cnt++);
+								g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents %d .", cnt++);
 
 							if( m_MouseStartStop!=mssNone )
 							{

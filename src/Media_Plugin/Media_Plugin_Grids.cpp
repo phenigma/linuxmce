@@ -135,7 +135,7 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 
 #ifdef SIM_JUKEBOX
 		map< int, string >::iterator itPurch;
-		if( (itPurch=m_mapPK_FilesForSimulatedPurchase.find( pFileBrowserInfo->m_PK_File ) ) != m_mapPK_FilesForSimulatedPurchase.end() )
+		if( pFileBrowserInfo->m_PK_File && (itPurch=m_mapPK_FilesForSimulatedPurchase.find( pFileBrowserInfo->m_PK_File ) ) != m_mapPK_FilesForSimulatedPurchase.end() )
 		{
 			sSource = "L";
 			pCell->m_mapAttributes["Terms"] = itPurch->second;

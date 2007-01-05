@@ -319,6 +319,7 @@ bool USB_UIRT_0038::GetConfig()
 
 		unLoadDLL();
 
+		EnableDevice( m_dwPK_Device, false );
 		return 0;
 	}
 	

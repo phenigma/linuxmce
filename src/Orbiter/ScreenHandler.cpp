@@ -584,7 +584,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 		if( pCell_List->m_mapAttributes_Find("Terms").empty() )
 			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
 		else
-			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFilePurchaseDetailsl_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Purchase_CONST) );
+			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFilePurchaseDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Purchase_CONST) );
 
 		if( !pObj_Play || !pObj_Play->m_pParentObject )
 			return true; // Shouldn't happen
