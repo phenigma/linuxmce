@@ -235,7 +235,7 @@ function getScanResults($fileID,$mediadbADO){
 	}	
 	$out.='
 		<tr>
-			<td valign="top" colspan="2" align="center" class="alternate_back"><input type="submit" class="button" name="syncAttributes" value="Get attributes & cover art"> <input type="button" class="button" name="syncAttributes" value="Back to file" onClick="self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'\'"></td>
+			<td valign="top" colspan="2" align="center" class="alternate_back"><input type="checkbox" name="includeAttributes" value="1" checked> Include Amazon attributes <input type="submit" class="button" name="syncAttributes" value="Get cover art"> <input type="button" class="button" name="syncAttributes" value="Back to file" onClick="self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'\'"></td>
 		</tr>	
 	</table>
 	<input type="hidden" name="scanID" value="'.$scanID.'">';
@@ -266,7 +266,9 @@ function processScan($fileData,$mediadbADO){
 
 	$mediadbADO->Execute('INSERT INTO Picture_File (FK_File,FK_Picture) VALUES (?,?)',array($fileData['PK_File'][0],$pictureID));
 
-	syncAttributes('File',$fileData['PK_File'][0],$matched,$mediadbADO);
+	if((int)@$_POST['includeAttributes']==1){
+		syncAttributes('File',$fileData['PK_File'][0],$matched,$mediadbADO);
+	}
 
 	deleteScans($scanID,$mediadbADO);
 }

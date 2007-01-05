@@ -11,10 +11,16 @@ function coverArt($output,$mediadbADO) {
 	
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
-	$type=@$_REQUEST['type'];
+	$type=(isset($_REQUEST['ftype']))?$_REQUEST['ftype']:'filesNoCover';
 	$mediaType=(isset($_REQUEST['mediaType']))?(int)$_REQUEST['mediaType']:4;
 	$searchIndex=$mediaTypes[$mediaType];
-	$ipp=((int)@$_REQUEST['ipp']<=0 || (int)@$_REQUEST['ipp']>100)?10:(int)@$_REQUEST['ipp'];
+	
+	$ipp=10;
+	$ipp=(isset($_REQUEST['ipp']))?(int)$_REQUEST['ipp']:$ipp;
+	if($ipp<=0 || $ipp>100){
+		@$_REQUEST['error'].=$TEXT_RECORDS_PER_PAGE_EXCEEDED_CONST;
+		$ipp=10;
+	}
 	
 	if(automaticGrabStatus()){
 		$automatic_label=$TEXT_STOP_CONST;
@@ -23,16 +29,26 @@ function coverArt($output,$mediadbADO) {
 		$automatic_label=$TEXT_START_CONST;
 	}
 	
+	// filter selecetion array
+	$filterArray=array(
+		'allFiles'=>$TEXT_SHOW_ALL_FILES_CONST,
+		'filesNoCover'=>$TEXT_SHOW_FILES_NO_COVERART_CONST,
+		'allDiscs'=>$TEXT_SHOW_ALL_DISCS_CONST,
+		'discsNoCover'=>$TEXT_SHOW_DISCS_WITH_NO_COVER_ART_CONST,
+		'allAttributes'=>$TEXT_SHOW_ALL_ATTRIBUTES_CONST,
+		'attributesNoCover'=>$TEXT_SHOW_ALL_ATTRIBUTES_WITH_NO_COVER_ART_CONST
+	);
+	
 	if($action=='form'){
 		
 		$out.='
 		<script>
 		function showType(val){
-			self.location="index.php?section=coverArt&type="+val+"&ipp="+parseInt(document.coverArt.items_per_page.value)+"&mediaType="+document.coverArt.mediaType.value;
+			self.location="index.php?section=coverArt&ftype="+val+"&ipp="+parseInt(document.coverArt.items_per_page.value)+"&mediaType="+document.coverArt.mediaType.value;
 		}
 		
 		function reloadPage(){
-			self.location="index.php?section=coverArt&type='.$type.'&ipp="+parseInt(document.coverArt.items_per_page.value)+"&mediaType="+document.coverArt.mediaType.value+"&filterPath="+document.coverArt.filterPath.value+"&filterFile="+document.coverArt.filterFile.value;
+			self.location="index.php?section=coverArt&ftype='.$type.'&ipp="+parseInt(document.coverArt.items_per_page.value)+"&mediaType="+document.coverArt.mediaType.value+"&filterPath="+document.coverArt.filterPath.value+"&filterFile="+document.coverArt.filterFile.value;
 		}
 		
 		</script>
@@ -46,16 +62,11 @@ function coverArt($output,$mediadbADO) {
 
 		<table width="700">
 			<tr>
-				<td width="250">
-					<a href="javascript:showType(\'allFiles\');">['.$TEXT_SHOW_ALL_FILES_CONST.']</a><br>
-					<a href="javascript:showType(\'filesNoCover\');">['.$TEXT_SHOW_FILES_NO_COVERART_CONST.']</a><br>
-					<a href="javascript:showType(\'allDiscs\');">['.$TEXT_SHOW_ALL_DISCS_CONST.']</a><br>
-					<a href="javascript:showType(\'discsNoCover\');">['.$TEXT_SHOW_DISCS_WITH_NO_COVER_ART_CONST.']</a><br>
-					<a href="javascript:showType(\'allAttributes\');">['.$TEXT_SHOW_ALL_ATTRIBUTES_CONST.']</a><br>
-					<a href="javascript:showType(\'attributesNoCover\');">['.$TEXT_SHOW_ALL_ATTRIBUTES_WITH_NO_COVER_ART_CONST.']</a><br>
+				<td width="250" valign="top" class="alternate_back">
+					'.pulldownFromArray($filterArray,'ftype',$type,'onChange="showType(document.coverArt.ftype.value);"','key','').'<br>
 					<a href="index.php?section=matchCoverArt">['.$TEXT_MATCH_FILES_TO_COVER_ART_CONST.']</a><br>
 				</td>
-				<td align="right" valign="top" width="250">
+				<td align="right" valign="top" width="250" class="alternate_back">
 					<table>
 						<tr>
 							<td>'.$TEXT_ITEMS_PER_PAGE_CONST.'</td>
@@ -70,7 +81,7 @@ function coverArt($output,$mediadbADO) {
 						</tr>						
 					</table>
 				</td>
-				<td valign="top">Auto scan all media *&nbsp; <input type="submit" class="button" name="automatic" value="'.$automatic_label.'"><br><br>
+				<td valign="top" class="alternate_back">Auto scan all media *&nbsp; <input type="submit" class="button" name="automatic" value="'.$automatic_label.'"><br><br>
 				<em>* Automatic process will scan all media files, both audio and video.</em></td>
 			</tr>		
 		</table>	
@@ -128,7 +139,7 @@ function coverArt($output,$mediadbADO) {
 	}
 
 	$output->setMenuTitle($TEXT_FILES_AND_MEDIA_CONST.' |');
-	$output->setPageTitle($TEXT_COVERART_CONST);
+	$output->setPageTitle($TEXT_COVERART_CONST.' - '.$filterArray[$type]);
 	$output->setNavigationMenu(array($TEXT_COVERART_CONST=>'index.php?section=coverArt'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_COVERART_CONST);
@@ -203,7 +214,7 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 	
 
 	
-	$out='<div align="center"><b>'.$title.'</b></div><br><br>';
+	$out='<br><br>';
 	$out.= multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaType,$mediadbADO);
 	return $out;
 }
@@ -235,12 +246,12 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 	
 	$links='';
 	for($i=1;$i<=$noPages;$i++){
-		$links.=($i==$page)?$i.'&nbsp; ':'<a href="index.php?section=coverArt&type='.$type.'&ipp='.$ipp.'&page='.$i.'&mediaType='.$mediaType.'">'.$i.'</a>&nbsp; ';
+		$links.=($i==$page)?$i.'&nbsp; ':'<a href="index.php?section=coverArt&ftype='.$type.'&ipp='.$ipp.'&page='.$i.'&mediaType='.$mediaType.'&filterPath='.cleanString(@$_REQUEST['filterPath']).'&filterFile='.cleanString(@$_REQUEST['filterFile']).'">'.$i.'</a>&nbsp; ';
 	}
 	
 	// set path and filename filters
 	// filterPathPulldown('filterPath',@$_REQUEST['filterPath'],$mediadbADO) - removed due slow loading time
-	$filterBox='<b>'.$TEXT_SEARCH_FOR_PATH_CONST.' <input type="text" name="filterPath" value="'.@$_REQUEST['filterPath'].'"> '.$TEXT_AND_OR_FILENAME_CONST.'</b> <input type="text" name="filterFile" value="'.@$_REQUEST['filterFile'].'">';
+	$filterBox='<b>'.$TEXT_SEARCH_FOR_PATH_CONST.' <input type="text" name="filterPath" value="'.cleanString(@$_REQUEST['filterPath']).'"> '.$TEXT_AND_OR_FILENAME_CONST.'</b> <input type="text" name="filterFile" value="'.cleanString(@$_REQUEST['filterFile']).'">';
 	$filterBox.=' <input type="button" class="button" name="searchBtn" value="'.$TEXT_GO_CONST.'" onClick="reloadPage();">';
 	
 	$out='
@@ -272,7 +283,7 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 					
 	';
 	
-	//get title and performer for media
+	//get title and performer for audio media
 	$filters=array();	
 	if(($type=='filesNoCover' || $type=='allFiles') && $mediaType==4 && count($dataArray)>0){
 		$rs=$mediadbADO->Execute('SELECT * FROM File_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType IN (2,3) AND FK_File IN ('.join(',',array_keys($dataArray)).')');
@@ -280,7 +291,21 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 			$filters[$row['FK_File']][$row['FK_AttributeType']]=$row['Name'];
 		}
 	}
+
+	//get title video media
+	if(($type=='filesNoCover' || $type=='allFiles') && $mediaType==3 && count($dataArray)>0){
+		$rs=$mediadbADO->Execute('SELECT * FROM File_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=13 AND FK_File IN ('.join(',',array_keys($dataArray)).')');
+		while($row=$rs->FetchRow()){
+			$filters[$row['FK_File']][$row['FK_AttributeType']]=$row['Name'];
+		}
+	}
+
 	
+	// if type = "All files" get existing cover arts to display clickable thumbnails
+	if($type=='allFiles'){
+		$thumbsArray=count($dataArray)?getAssocArray('Picture_File','FK_File','FK_Picture',$mediadbADO,'WHERE FK_File IN ('.join(',',array_keys($dataArray)).')'):array();
+	}
+
 	$pos=0;
 	$ids=array();
 	foreach ($dataArray AS $id=>$label){
@@ -310,10 +335,20 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 				$toSearch='';
 			}
 
+			if(isset($filters[$id][13]) && $mediaType==3){
+				
+				if(@trim($filters[$id][13])!=''){
+					$filter2=@$filters[$id][13];	
+					$filterSelected2='Title';
+				}
+			}			
+			
+			$thumbnail=($type=='allFiles' && isset($thumbsArray[$id]))?'<a href="mediapics/'.$thumbsArray[$id].'.jpg" target="_blank"><img src="mediapics/'.$thumbsArray[$id].'_tn.jpg" border="0" align="middle"></a> ':'';
+			
 			$out.='
 			<tr class="'.$class.'">
 				<td align="center"><input type="checkbox" name="item_'.$id.'" value="'.$id.'" checked></td>
-				<td title="'.$label.'" align="left">'.$recordLabel.'</td>
+				<td title="'.$label.'" align="left">'.$thumbnail.$recordLabel.'</td>
 				<td align="left"><input type="text" name="Keyword1Search_'.$id.'" value="'.$toSearch.'"></td>
 				<td align="left">'.pulldownFromArray($filterOptions,'Keyword2Type_'.$id,$filterSelected2).'</td>
 				<td align="left"><input type="text" name="Keyword2Search_'.$id.'" value="'.@$filter2.'"></td>

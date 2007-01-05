@@ -71,7 +71,7 @@ function matchCoverArt($output,$mediadbADO) {
 				exec_batch_command($cmd);
 				
 				$mediadbADO->Execute('INSERT INTO Picture_'.$itemType.' (FK_'.$itemType.',FK_Picture) VALUES (?,?)',array($itemValue,$pictureID));
-				if($itemType=='File' || $itemType=='Disc'){
+				if(($itemType=='File' || $itemType=='Disc') && (int)@$_POST['includeAttributes']==1){
 					syncAttributes($itemType,$itemValue,$selPic,$mediadbADO);
 				}
 				deleteScans($id,$mediadbADO);
@@ -171,7 +171,16 @@ function formatScannedItems($scannedArray){
 	$out.='
 		<tr>
 			<td align="center" class="alternate_back"> 
-			<input type="checkbox" name="remove_old" value="1"> '.$TEXT_REMOVE_EXISITING_COVERARTS_CONST.'<br>
+				<table>
+					<tr>
+						<td><input type="checkbox" name="remove_old" value="1"></td>
+						<td>'.$TEXT_REMOVE_EXISITING_COVERARTS_CONST.'</td>
+					</tr>
+					<tr>
+						<td><input type="checkbox" name="includeAttributes" value="1" checked></td>
+						<td>'.$TEXT_INCLUDE_AMAZON_ATTRIBUTES_CONST.'</td>
+					</tr>
+				</table>
 			<input type="submit" class="button" name="match" value="'.$TEXT_MATCHCOVERART_CONST.'"></td>
 		</tr>	
 	</table>
