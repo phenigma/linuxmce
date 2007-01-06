@@ -2377,6 +2377,7 @@
 #define DESIGNOBJ_butReset_AsOtherOS_CONST 5371
 #define DESIGNOBJ_dgUsersForDirectory_CONST 5372
 #define DESIGNOBJ_dgUpcomingShows_CONST 5373
+#define DESIGNOBJ_cellTVProgram_CONST 5374
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
