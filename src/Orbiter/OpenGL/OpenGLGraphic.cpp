@@ -160,8 +160,11 @@ void OpenGLGraphic::Prepare()
 		return;
 	}
 	
-	//TODO: check if LocalSurface is transparent after blit
+#ifndef VIA	
 	SDL_SetAlpha(Surface, SDL_SRCALPHA | SDL_RLEACCEL , SDL_ALPHA_TRANSPARENT);
+#else
+	SDL_SetAlpha(Surface, 0, 0);
+#endif
 
 	SDL_BlitSurface(Surface, NULL, LocalSurface, NULL);
 
