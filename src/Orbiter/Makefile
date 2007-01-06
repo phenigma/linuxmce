@@ -60,6 +60,7 @@ sources += \
 	SpeedMouseHandler.cpp \
 	VolumeMouseHandler.cpp \
 	MediaMouseHandler.cpp \
+	EPGMouseHandler.cpp \
 	LockedMouseHandler.cpp \
 	KeyboardMouseHandler.cpp \
 	HorizMenuMouseHandler.cpp \

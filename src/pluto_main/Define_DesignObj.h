@@ -2333,6 +2333,7 @@
 #define DESIGNOBJ_ChooseProvider_CONST 5323
 #define DESIGNOBJ_Floorplan_CONST 5324
 #define DESIGNOBJ_FinalHouseSetup_CONST 5325
+#define DESIGNOBJ_butFloorplan_vp_CONST 5326
 #define DESIGNOBJ_butFinalHouseSetup_CONST 5327
 #define DESIGNOBJ_dgcell_CaptureCardPort_CONST 5330
 #define DESIGNOBJ_DevicesForCaptureCardPort_CONST 5332
@@ -2375,6 +2376,7 @@
 #define DESIGNOBJ_butHalt_This_CONST 5370
 #define DESIGNOBJ_butReset_AsOtherOS_CONST 5371
 #define DESIGNOBJ_dgUsersForDirectory_CONST 5372
+#define DESIGNOBJ_dgUpcomingShows_CONST 5373
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

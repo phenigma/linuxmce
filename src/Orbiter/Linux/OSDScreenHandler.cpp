@@ -2001,7 +2001,7 @@ bool OSDScreenHandler::VOIP_CapturedKeyboardBufferChanged(CallBackData *pData)
 		case DESIGNOBJ_VoipPassword_CONST:
 		{
 			string sPassword = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
-			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butMediaWizard_CONST),0,"","",sPassword.size()==0 ? "0" : "1");
+			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_butFloorplan_vp_CONST),0,"","",sPassword.size()==0 ? "0" : "1");
 		}
 		break;
 	}

@@ -92,9 +92,9 @@ for Device in $InternalOwnStorageDevices; do
 			user=$(echo $Device_Users | cut -d',' -f$j)
 			
 			if [[ $user == 0 ]]; then
-				userDir="public"
+				userDir="public/data"
 			else
-				userDir="user_$user"
+				userDir="user_$user/data"
 			fi
 
 			if [[ -d "/home/${userDir}" ]] ;then	

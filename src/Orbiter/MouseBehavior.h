@@ -96,6 +96,7 @@ namespace DCE
 		friend class SpeedMouseHandler;
 		friend class VolumeMouseHandler;
 		friend class MediaMouseHandler;
+		friend class EPGMouseHandler;
 		friend class LockedMouseHandler;
 		friend class KeyboardMouseHandler;
 		friend class DatagridMouseHandlerHelper;

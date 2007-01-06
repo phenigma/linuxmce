@@ -410,6 +410,9 @@
 					RelativePath="..\DatagridMouseHandlerHelper.cpp">
 				</File>
 				<File
+					RelativePath="..\EPGMouseHandler.cpp">
+				</File>
+				<File
 					RelativePath="..\HorizMenuMouseHandler.cpp">
 				</File>
 				<File

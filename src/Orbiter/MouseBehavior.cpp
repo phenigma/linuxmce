@@ -20,6 +20,7 @@
 #include "LightMouseHandler.h"
 #include "VolumeMouseHandler.h"
 #include "MediaMouseHandler.h"
+#include "EPGMouseHandler.h"
 #include "LockedMouseHandler.h"
 #include "KeyboardMouseHandler.h"
 #include "OrbiterRenderer.h"
@@ -156,6 +157,9 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s
 		break;
 	case 'T':
 		m_pMouseHandler=new MediaMouseHandler(pObj,sOptions,this);
+		break;
+	case 'E':
+		m_pMouseHandler=new EPGMouseHandler(pObj,sOptions,this);
 		break;
 	case 'K':
 		m_pMouseHandler=new KeyboardMouseHandler(pObj,sOptions,this);

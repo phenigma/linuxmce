@@ -247,6 +247,9 @@
 					RelativePath=".\MediaMouseHandler.cpp">
 				</File>
 				<File
+					RelativePath=".\EPGMouseHandler.cpp">
+				</File>
+				<File
 					RelativePath=".\MouseBehavior.cpp">
 				</File>
 				<File
