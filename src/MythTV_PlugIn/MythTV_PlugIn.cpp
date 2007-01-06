@@ -464,52 +464,61 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 
 class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,Message *pMessage)
 {
-    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
-
-	return NULL;
-	return m_pEPGGrid;
-
-//	g_pPlutoLogger->Write(LV_STATUS, "Current Shows datagrid called");
+    int nWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	DataGridTable *pDataGridTable = new DataGridTable();
+	if( Parms.empty() )
+		return pDataGridTable;
 	
-//s	MythTvMediaStream *pMythTvMediaStream = NULL;
+	time_t tNow = time(NULL);
+	struct tm *t = localtime(&tNow);
+	int Month = t->tm_mon;
+	int Day = t->tm_mday;
 
-/*	if ( (pMythTvMediaStream = ConvertToMythMediaStream(m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From), "MythTV_PlugIn::CurrentShows() ")) == NULL)
-	    return new DataGridTable();
-
-    	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
-	if( !m_pMySqlHelper_Myth || !m_pMySqlHelper_Myth->m_bConnected )
-		return pDataGrid;
 
-	string::size_type pos=0;
-	string sPK_PostalCode = StringUtils::Tokenize(Parms,",",pos);
-	bool bInternalTuner = StringUtils::Tokenize(Parms,",",pos)=="1";
-	string sSQL = "SELECT channel.chanid, channum, callsign, title, description, icon FROM channel LEFT JOIN program on (channel.chanid=program.chanid) WHERE NOW() > program.starttime AND NOW() < program.endtime ORDER BY CAST(channum AS SIGNED)";
-	PlutoSqlResult result_set;
+	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
+    g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
+    
+	string sProvider;
+
+	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
+	string sSQL =
+		"SELECT  p.title, p.starttime, p.endtime, p.description "
+		"FROM program p JOIN channel c ON p.chanid=c.chanid "
+		"WHERE c.channum=" + Parms + " "
+		"AND endtime>'" + StringUtils::SQLDateTime() + "' "
+		"ORDER BY endtime";
+
+	PlutoSqlResult result;
 	MYSQL_ROW row;
-	pCell = new DataGridCell("None","0");
-	pDataGrid->SetData(0,0,pCell);
 	int iRow=0;
-	if( (result_set.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) )
+	if( (result.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))!=NULL )
 	{
-		while ((row = mysql_fetch_row(result_set.r)))
+		while((row = mysql_fetch_row(result.r)))
 		{
-			pCell = new DataGridCell(row[1]+string("\n")+row[2], row[1]);
-			size_t fSize;
-			char *fLogo;
-			fLogo=FileUtils::ReadFileIntoBuffer(row[5], fSize);
-			pDataGrid->SetData(0,iRow,pCell);
-			pCell = new DataGridCell("");
-			if (fLogo)		
-				pCell->SetImage(fLogo, fSize, GR_JPG);
-	
-			pDataGrid->SetData(1,iRow,pCell);
-			pCell = new DataGridCell(row[3]);
-			pDataGrid->SetData(2,iRow++,pCell);
+			pCell = new DataGridCell(row[0] ? row[0] : "",Parms);
+			time_t tStart = StringUtils::SQLDateTime( row[1] );
+			time_t tStop = StringUtils::SQLDateTime( row[2] );
+			
+			struct tm *t = localtime(&tStart);
+			string sDate;
+			if( t->tm_mon==Month && t->tm_mday==Day )
+				sDate = "Today";
+			else
+				sDate = StringUtils::itos(t->tm_mon+1) + "/" + StringUtils::itos(t->tm_mday);
+
+			string sTime = StringUtils::HourMinute(tStart) + " - " + StringUtils::HourMinute(tStop);
+
+			pCell->m_mapAttributes["Date"] = sDate;
+			pCell->m_mapAttributes["Time"] = sTime;
+			if( row[3] )
+				pCell->m_mapAttributes["Synopsis"] = row[3];
+
+			pDataGridTable->SetData(0,iRow++,pCell);
 		}
 	}
-	
-    return pDataGrid;*/
+ 
+	return pDataGridTable;
 }
 
 bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )

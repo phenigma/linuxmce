@@ -1561,33 +1561,42 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 	// and also find the child object for the icon and assign it the picture associated with the cell.
 	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
 
-	// Iterate through all the cells
-	for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+	if( pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid==DATAGRID_EPG_All_Shows_CONST )
 	{
-		DataGridCell *pCell = it->second;
-		string sIcon = pCell->m_mapAttributes_Find("Icon");
-		if( sIcon.empty() )
-			continue;
-		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+		string sSelected = m_pOrbiter->m_mapVariable_Find( pDatagridAcquiredBackData->m_pObj->m_iPK_Variable );
 
-		// See if there is an object assigned for this column/row
-		map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
-		if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+		// Iterate through all the cells
+		for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
 		{
-			DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
-			DesignObj_DataList::iterator iHao;
+			DataGridCell *pCell = it->second;
 
-			// Iterate through all the object's children
-			for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+			bool bSelected = pCell->m_Value && pCell->m_Value == sSelected;
+			string sIcon = pCell->m_mapAttributes_Find("Icon");
+			if( sIcon.empty() )
+				continue;
+			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+
+			// See if there is an object assigned for this column/row
+			map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+			if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
 			{
-				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
-				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconTVChannels_CONST )
+				DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+				DesignObj_DataList::iterator iHao;
+
+				pObj->m_GraphicToDisplay_set("tvcharend", bSelected ? GRAPHIC_SELECTED : GRAPHIC_NORMAL);
+
+				// Iterate through all the object's children
+				for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
 				{
-					size_t GraphicLength;
-					char *pGraphicData = FileUtils::ReadFileIntoBuffer(sIcon, GraphicLength);
-					if( pGraphicData )
-						m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, FileUtils::FindExtension(sIcon),
-							pGraphicData, int(GraphicLength), "0");  // Store the icon, which is cell's picture
+					DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+					if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconTVChannels_CONST )
+					{
+						size_t GraphicLength;
+						char *pGraphicData = FileUtils::ReadFileIntoBuffer(sIcon, GraphicLength);
+						if( pGraphicData )
+							m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, FileUtils::FindExtension(sIcon),
+								pGraphicData, int(GraphicLength), "0");  // Store the icon, which is cell's picture
+					}
 				}
 			}
 		}
