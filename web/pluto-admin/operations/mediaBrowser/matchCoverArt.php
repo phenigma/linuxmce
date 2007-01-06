@@ -15,7 +15,9 @@ function matchCoverArt($output,$mediadbADO) {
 	if($action=='form'){
 		$scannedArray=array();
 		$rs=$mediadbADO->Execute('
-			SELECT FK_CoverArtScan,PK_CoverArtScanEntry,FK_File,FK_Disc,FK_Attribute,File.Path,File.Filename,Disc.Slot,Attribute.Name,Engine 
+			SELECT 
+			Keyword1Type,Keyword1Search,Keyword2Type,Keyword2Search,Keyword3Type,Keyword3Search,
+			FK_CoverArtScan,PK_CoverArtScanEntry,FK_File,FK_Disc,FK_Attribute,File.Path,File.Filename,Disc.Slot,Attribute.Name,Engine 
 			FROM CoverArtScanEntry 
 			INNER JOIN CoverArtScan ON FK_CoverArtScan=PK_CoverArtScan
 			LEFT JOIN File ON FK_File=PK_File
@@ -32,6 +34,9 @@ function matchCoverArt($output,$mediadbADO) {
 			$scannedArray[$row['FK_CoverArtScan']]['Name']=$row['Name'];
 			$scannedArray[$row['FK_CoverArtScan']]['Engine']=$row['Engine'];
 			$scannedArray[$row['FK_CoverArtScan']]['Entries'][]=$row['PK_CoverArtScanEntry'];
+			$scannedArray[$row['FK_CoverArtScan']]['Filters']=(!is_null($row['Keyword1Type']))?$row['Keyword1Type'].': '.urldecode($row['Keyword1Search']):'';
+			$scannedArray[$row['FK_CoverArtScan']]['Filters'].=(!is_null($row['Keyword2Type']))?$row['Keyword2Type'].': '.urldecode($row['Keyword2Search']):'';
+			$scannedArray[$row['FK_CoverArtScan']]['Filters'].=(!is_null($row['Keyword3Type']))?$row['Keyword3Type'].': '.urldecode($row['Keyword3Search']):'';
 		}
 		
 		$out.='
@@ -159,7 +164,7 @@ function formatScannedItems($scannedArray){
 			<input type="hidden" name="itemType_'.$id.'" value="'.$itemType.'">
 			<input type="hidden" name="itemValue_'.$id.'" value="'.$itemValue.'">
 			<tr>
-				<td class="alternate_back">'.$itemLabel.': '.$data['Path'].$data['Filename'].$data['Slot'].$data['Name'].'</td>
+				<td class="alternate_back">'.$itemLabel.': '.$data['Path'].$data['Filename'].$data['Slot'].$data['Name'].' ('.$data['Filters'].')</td>
 			</tr>
 			<tr>
 				<td>'.$picsTable.'</td>

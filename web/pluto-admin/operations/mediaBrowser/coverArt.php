@@ -17,7 +17,7 @@ function coverArt($output,$mediadbADO) {
 	
 	$ipp=10;
 	$ipp=(isset($_REQUEST['ipp']))?(int)$_REQUEST['ipp']:$ipp;
-	if($ipp<=0 || $ipp>100){
+	if($ipp<=0 || $ipp>10000){
 		@$_REQUEST['error'].=$TEXT_RECORDS_PER_PAGE_EXCEEDED_CONST;
 		$ipp=10;
 	}
@@ -154,15 +154,15 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 		
 	// if parameter is not specified, show files without cover arts
 	$type=($type=='')?'filesNoCover':$type;
-	$ipp=((int)@$_REQUEST['ipp']<=0 || (int)@$_REQUEST['ipp']>100)?10:(int)@$_REQUEST['ipp'];
+	$ipp=((int)@$_REQUEST['ipp']<=1 || (int)@$_REQUEST['ipp']>10000)?10:(int)@$_REQUEST['ipp'];
 
 	switch ($type){
 		case 'allFiles':
 			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
 			$pathSqlFilter=(@$_REQUEST['filterPath']!='')?' AND Path LIKE \'%'.$_REQUEST['filterPath'].'%\'':'';
 			$fileSqlFilter=(@$_REQUEST['filterFile']!='')?' AND Filename LIKE \'%'.$_REQUEST['filterFile'].'%\'':'';
-			
-			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType ='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) AND Missing=0 '.$pathSqlFilter.$fileSqlFilter.' LIMIT 0,200');
+	
+			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType ='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) AND Missing=0 '.$pathSqlFilter.$fileSqlFilter);
 			$itemName='fileID';
 			$title=$TEXT_SHOW_ALL_FILES_CONST;
 		break;
@@ -182,7 +182,7 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
 			$pathSqlFilter=(@$_REQUEST['filterPath']!='')?' AND Path LIKE \'%'.$_REQUEST['filterPath'].'%\'':'';
 			$fileSqlFilter=(@$_REQUEST['filterFile']!='')?' AND Filename LIKE \'%'.$_REQUEST['filterFile'].'%\'':'';
-			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) AND Missing=0 '.$pathSqlFilter.$fileSqlFilter.' GROUP BY PK_File HAVING count(FK_Picture)=0 ORDER BY PK_File DESC LIMIT 0,200');
+			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) AND Missing=0 '.$pathSqlFilter.$fileSqlFilter.' GROUP BY PK_File HAVING count(FK_Picture)=0 ORDER BY PK_File DESC');
 
 			$itemName='fileID';
 			$title=$TEXT_SHOW_FILES_NO_COVERART_CONST;
@@ -314,14 +314,14 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 			$ids[]=$id;
 			$class=($pos%2!=0)?'':'alternate_back';
 			$recordLabel=($type=='allFiles' || $type=='filesNoCover')?substr($label,strrpos($label,'/')+1):$label;
-			$toSearch=substr($recordLabel,0,strrpos($recordLabel,'.'));
-			$toSearch=str_replace(array('-','(',')'),' ',$toSearch);
+			$toSearch=(strrpos($recordLabel,'.')!==false)?substr($recordLabel,0,strrpos($recordLabel,'.')):$recordLabel;
+			$toSearch=str_replace(array('-','(',')','_'),' ',$toSearch);
 			
 			$filter2='';
 			$filterSelected2='';
 			$filter3='';
 			$filterSelected3='';
-			
+
 			if(isset($filters[$id][2]) && isset($filters[$id][3]) && $mediaType==4){
 				
 				if(@trim($filters[$id][2])!=''){
@@ -336,11 +336,12 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 			}
 
 			if(isset($filters[$id][13]) && $mediaType==3){
-				
+
 				if(@trim($filters[$id][13])!=''){
 					$filter2=@$filters[$id][13];	
 					$filterSelected2='Title';
 				}
+				$toSearch='';
 			}			
 			
 			$thumbnail=($type=='allFiles' && isset($thumbsArray[$id]))?'<a href="mediapics/'.$thumbsArray[$id].'.jpg" target="_blank"><img src="mediapics/'.$thumbsArray[$id].'_tn.jpg" border="0" align="middle"></a> ':'';
