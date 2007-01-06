@@ -33,7 +33,7 @@
 #include "BD_PC_SelectedItem.h"
 #include "BD_PC_MouseEvent.h"
 
-#ifndef SYMBIAN
+#if !defined(SYMBIAN) && !defined(PLUTOVIP)
 #include "BD_PC_GetMenuImages.h"
 #endif
 
@@ -52,7 +52,7 @@
 #include "BD_CP_SetBkgndImage.h"
 #include "BD_CP_ShowMenu.h"
 
-#ifndef SYMBIAN
+#if !defined(SYMBIAN) && !defined(PLUTOVIP)
 #include "BD_CP_SetMenuImages.h"
 #endif
 
@@ -89,7 +89,7 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 	case BD_PC_MOUSE_EVENT:
 		return new BD_PC_MouseEvent();
 
-#ifndef SYMBIAN
+#if !defined(SYMBIAN) && !defined(PLUTOVIP)
 	case BD_PC_GETMENUIMAGES:
 		return new BD_PC_GetMenuImages();
 #endif
@@ -123,7 +123,7 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 	case BD_CP_SHOW_MENU:
 		return new BD_CP_ShowMenu();
 
-#ifndef SYMBIAN
+#if !defined(SYMBIAN) && !defined(PLUTOVIP)
 	case BD_CP_SETMENUIMAGES:
 		return new BD_CP_SetMenuImages();
 #endif
