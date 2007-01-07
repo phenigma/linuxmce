@@ -1217,6 +1217,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		string sExtension = FileUtils::FindExtension(pMediaFile->m_sFilename);
 		if( StringUtils::ToUpper(sExtension)=="DVD" && pMediaStream->m_pOH_Orbiter_StartedMedia )
 		{
+			bToggle=!bToggle;
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,47,"/home/JukeBoxSimulate.sh","simjukebox",
 				bToggle ? "100" : "2", "", "", false, false, false, true);
 			SendCommand(CMD_Spawn_Application);
