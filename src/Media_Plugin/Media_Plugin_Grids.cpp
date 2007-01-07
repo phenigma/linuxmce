@@ -84,6 +84,11 @@ extern int UniqueColors[MAX_MEDIA_COLORS];
 // Parms = PK_MediaType | , sep PK_MediaSubType | , sep PK_FileFormat | Genres to include, or empty for all (, sep PK_Attribute) |
 // , sep of sources -- hardcoded strings (below) or a path if sort=0 (sort by filename) | , sep PK_Users (0=public, empty=public only) | PK_AttributeType (sort by) | PK_Users (for ratings)
 
+#ifdef SIM_JUKEBOX
+	// These are set in a sub-function
+	bool g_bInclFiles,g_bInclDiscs,g_bInclDownload;
+#endif
+
 class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 	string::size_type pos=0;
@@ -100,6 +105,11 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	int PK_Attribute = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 	if( sPK_Sources.size()==0 )
 		sPK_Sources = TOSTRING(MEDIASOURCE_File_CONST) "," TOSTRING(MEDIASOURCE_Jukebox_CONST) "," TOSTRING(MEDIASOURCE_Local_Disc_CONST);
+
+#ifdef SIM_JUKEBOX
+	// These are set in a sub-function
+	g_bInclFiles=g_bInclDiscs=g_bInclDownload=true;
+#endif
 
 	MediaListGrid *pMediaListGrid = new MediaListGrid(m_pDatagrid_Plugin,this);
 	if( sPK_Sources.size()==0 || !PK_MediaType )
@@ -122,27 +132,47 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	string sDisplayGroupPrior;
 	int iRow=0;
 	string sSource = " "; // Convert to a 1 character string
+#ifdef SIM_JUKEBOX
+	string sTerms;
+#endif
 	for(list<FileBrowserInfo *>::iterator it=pMediaListGrid->m_listFileBrowserInfo.begin();it!=pMediaListGrid->m_listFileBrowserInfo.end();++it)
 	{
 		FileBrowserInfo *pFileBrowserInfo = *it;
 		pMediaListGrid->m_pFileBrowserInfoPtr[iRow] = pFileBrowserInfo;  // Store in an array for fast retrieval by row
-		if( pFileBrowserInfo->m_sDisplayGroup.size() && pFileBrowserInfo->m_sDisplayGroup!=sDisplayGroupPrior )
-			pCell = new DataGridCell(pFileBrowserInfo->m_sDisplayGroup + " : " + pFileBrowserInfo->m_sDisplayName);
-		else 
-			pCell = new DataGridCell(pFileBrowserInfo->m_sDisplayName);
-		pCell->m_mapAttributes["PK_FileFormat"] = StringUtils::itos(pFileBrowserInfo->m_PK_FileFormat);
-		sSource[0] = pFileBrowserInfo->m_cMediaSource ? pFileBrowserInfo->m_cMediaSource : '?';
 
+		sSource[0] = pFileBrowserInfo->m_cMediaSource ? pFileBrowserInfo->m_cMediaSource : '?';
 #ifdef SIM_JUKEBOX
 		map< int, string >::iterator itPurch;
 		if( pFileBrowserInfo->m_PK_File && (itPurch=m_mapPK_FilesForSimulatedPurchase.find( pFileBrowserInfo->m_PK_File ) ) != m_mapPK_FilesForSimulatedPurchase.end() )
 		{
 			sSource = "L";
-			pCell->m_mapAttributes["Terms"] = itPurch->second;
+			pFileBrowserInfo->m_cMediaSource = 'L';
+			sTerms=itPurch->second;
 		}
+
+		if( !g_bInclFiles && pFileBrowserInfo->m_cMediaSource=='F' )
+			continue;
+		
+		if( !g_bInclDiscs && pFileBrowserInfo->m_cMediaSource=='D' )
+			continue;
+
+		if( !g_bInclDownload && pFileBrowserInfo->m_cMediaSource=='L' )
+			continue;
 #endif
 
+		if( pFileBrowserInfo->m_sDisplayGroup.size() && pFileBrowserInfo->m_sDisplayGroup!=sDisplayGroupPrior )
+			pCell = new DataGridCell(pFileBrowserInfo->m_sDisplayGroup + " : " + pFileBrowserInfo->m_sDisplayName);
+		else 
+			pCell = new DataGridCell(pFileBrowserInfo->m_sDisplayName);
+		pCell->m_mapAttributes["PK_FileFormat"] = StringUtils::itos(pFileBrowserInfo->m_PK_FileFormat);
+
 		pCell->m_mapAttributes["Source"] = sSource;
+
+#ifdef SIM_JUKEBOX
+		if( pFileBrowserInfo->m_cMediaSource == 'L' )
+			pCell->m_mapAttributes["Terms"] = sSource;
+#endif
+
 		pCell->SetValue(pFileBrowserInfo->m_sMRL);
 		pMediaListGrid->SetData(0,iRow++,pCell);
 	}
@@ -198,6 +228,12 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 			else if( PK_MediaSource==MEDIASOURCE_Downloadable_CONST )
 				bDownload=true;
 		}
+#ifdef SIM_JUKEBOX
+		// These are set in a sub-function
+		g_bInclFiles=bFile;
+		g_bInclDiscs=bDiscs;
+		g_bInclDownload=bDownload;
+#endif
 		sPK_Sources = sPK_Sources + "\t";  // Put a tab before this which is the indicator up above that this is the topmost source when the user tabs back
 		if( bFile && PK_AttributeType_Sort==0 )
 		{
@@ -223,7 +259,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 // temp hack to simulate the jukebox functionality
 #ifdef SIM_JUKEBOX
 	bool bFile_Original = bFile;
-	if( bDiscs )
+	if( bDiscs || bDownload )
 		bFile=true;  // We're treating files as discs
 #endif
 
@@ -287,13 +323,6 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 
 	if( iLastViewed!=2 )
 		sSQL_Where += string(" AND DateLastViewed IS ") + (iLastViewed==1 ? "NOT" : "") + " NULL ";
-// temp hack to simulate the jukebox functionality
-#ifdef SIM_JUKEBOX
-	if( bFile && bDiscs==false )
-		sSQL_Where += " AND Filename NOT LIKE '%.dvd'";
-	if( bFile && bFile_Original==false )
-		sSQL_Where += " AND Filename NOT LIKE '%.mpg'";
-#endif
 
 	string sPK_File,sPK_Disc;
     PlutoSqlResult resultf,resultd;

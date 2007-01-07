@@ -640,36 +640,39 @@ bool ScreenHandler::FileList_GridRendering(CallBackData *pData)
 	// and also find the child object for the icon and assign it the picture associated with the cell.
 	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
 
-	// Iterate through all the cells
-	for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+	if( pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid )
 	{
-		DataGridCell *pCell = it->second;
-		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
-
-		int PK_FileFormat = atoi(pCell->m_mapAttributes_Find("PK_FileFormat").c_str());
-		char cMediaSource = pCell->m_mapAttributes_Find("Source").c_str()[0];
-
-		// See if there is an object assigned for this column/row
-		map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
-		if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+		// Iterate through all the cells
+		for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
 		{
-			DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
-			DesignObj_DataList::iterator iHao;
+			DataGridCell *pCell = it->second;
+			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
 
-			// Iterate through all the object's children
-			for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+			int PK_FileFormat = atoi(pCell->m_mapAttributes_Find("PK_FileFormat").c_str());
+			char cMediaSource = pCell->m_mapAttributes_Find("Source").c_str()[0];
+
+			// See if there is an object assigned for this column/row
+			map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+			if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
 			{
-				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
-				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_HighDef_CONST && (PK_FileFormat==FILEFORMAT_HD_720_CONST || PK_FileFormat==FILEFORMAT_HD_1080_CONST || PK_FileFormat==FILEFORMAT_Highdef_audio_CONST) )
-					pDesignObj_Orbiter->m_bHidden = false;
-				if( pDesignObj_Orbiter->m_iBaseObjectID==FILEFORMAT_Standard_Def_CONST && (PK_FileFormat==FILEFORMAT_DVD_CONST || PK_FileFormat==FILEFORMAT_MP3_CONST || PK_FileFormat==FILEFORMAT_CD_Quality_CONST) )
-					pDesignObj_Orbiter->m_bHidden = false;
-				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_LocalFile_CONST && cMediaSource=='F' )
-					pDesignObj_Orbiter->m_bHidden = false;
-				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_Download_CONST && cMediaSource=='L' )
-					pDesignObj_Orbiter->m_bHidden = false;
-				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_Disc_CONST && cMediaSource=='D' )
-					pDesignObj_Orbiter->m_bHidden = false;
+				DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+				DesignObj_DataList::iterator iHao;
+
+				// Iterate through all the object's children
+				for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+				{
+					DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+					if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_HighDef_CONST )
+						pDesignObj_Orbiter->m_bHidden = (PK_FileFormat!=FILEFORMAT_HD_720_CONST && PK_FileFormat!=FILEFORMAT_HD_1080_CONST && PK_FileFormat!=FILEFORMAT_Highdef_audio_CONST);
+					if( pDesignObj_Orbiter->m_iBaseObjectID==FILEFORMAT_Standard_Def_CONST )
+						pDesignObj_Orbiter->m_bHidden = (PK_FileFormat!=FILEFORMAT_DVD_CONST || PK_FileFormat!=FILEFORMAT_MP3_CONST || PK_FileFormat!=FILEFORMAT_CD_Quality_CONST);
+					if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_LocalFile_CONST )
+						pDesignObj_Orbiter->m_bHidden = cMediaSource!='F';
+					if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_Download_CONST )
+						pDesignObj_Orbiter->m_bHidden = cMediaSource!='L';
+					if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_fbico_Disc_CONST )
+						pDesignObj_Orbiter->m_bHidden = cMediaSource!='D';
+				}
 			}
 		}
 	}
