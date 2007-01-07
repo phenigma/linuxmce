@@ -1210,16 +1210,21 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
 
 #ifdef SIM_JUKEBOX
+	static bool bToggle=false;
 	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
 	if( pMediaFile )
 	{
 		string sExtension = FileUtils::FindExtension(pMediaFile->m_sFilename);
 		if( StringUtils::ToUpper(sExtension)=="DVD" && pMediaStream->m_pOH_Orbiter_StartedMedia )
 		{
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,47,"/home/JukeBoxSimulate.sh","simjukebox",
+				bToggle ? "100" : "2", "", "", false, false, false, true);
+			SendCommand(CMD_Spawn_Application);
+
 			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
 				"Please wait up to 20 seconds while I load that disc","","load_jukebox","0","10","1");
 			SendCommand(SCREEN_PopupMessage);
-			Sleep(3000);   // Not good.  We're holding the mutex, but it's a temporary simulation
+			Sleep(5000);   // Not good.  We're holding the mutex, but it's a temporary simulation
 		}
 	}
 #endif
