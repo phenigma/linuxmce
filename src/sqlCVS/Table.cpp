@@ -70,7 +70,7 @@ itmp_RowsToDelete=0;
 	{
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
-		if( ( result_set.r=m_pDatabase->mysql_query_result("SELECT max( psc_id ) FROM " + m_sName) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+		if( ( result_set.r=m_pDatabase->mysql_query_result("SELECT max( psc_id ) FROM `" + m_sName + "`") ) && ( row = mysql_fetch_row( result_set.r ) ) )
 			m_psc_id_next = row[0] ? atoi( row[0] )+1 : 1;
 	}
 }
@@ -221,7 +221,7 @@ void Table::HasFullHistory_set( bool bOn )
 
 		PlutoSqlResult result_set2;
 		MYSQL_ROW row=NULL;
-		if( !( result_set2.r=m_pDatabase->mysql_query_result( ( "DESCRIBE " +m_sName ).c_str( ) ) ) )
+		if( !( result_set2.r=m_pDatabase->mysql_query_result( ( "DESCRIBE `" +m_sName+"`" ).c_str( ) ) ) )
 			throw "Error getting table info";
 
 		while( ( row = mysql_fetch_row( result_set2.r ) ) )
@@ -395,7 +395,7 @@ void Table::MatchUpHistory( )
 					// to worry about keeping our own map to go from FieldInfo to a valid descriptor.
 					PlutoSqlResult result_set;
 					MYSQL_ROW row=NULL;
-					if( !( result_set.r=m_pDatabase->mysql_query_result( ( "DESCRIBE " +pTable->Name_get() ).c_str( ) ) ) )
+					if( !( result_set.r=m_pDatabase->mysql_query_result( ( "DESCRIBE `" + pTable->Name_get() + "`" ).c_str( ) ) ) )
 						throw "Error getting table info";
 
 					while( ( row = mysql_fetch_row( result_set.r ) ) )
