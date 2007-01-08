@@ -159,6 +159,16 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 		FileName=${FileName//\//-}
 		
 		echo "Track: $Track; Filename: $FileName"
+		if /usr/pluto/bin/IsDataTrack "$sourceDevice" "$Track"; then
+			echo "Skipping track '$Track' because it is a data track on a audio CD"
+			continue
+		fi
+		
+		if [[ -z "$FileName" ]]; then
+			echo "Skipping track '$Track'. Empty filename"
+			continue
+		fi
+
 		displaycmd="$command"
 		displaycmd="${displaycmd//\\\"/\\\"}"
 		echo "Executing: $(eval echo "\"$displaycmd\"")"
