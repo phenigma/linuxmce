@@ -59,7 +59,7 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
     m_ImageQuality = 70;
 	m_bDisplayOn=true;  // Override the default behavior -- when the phone starts the display is already on
 
-    m_sInternalServerAddress = "192.168.80.1";
+    m_sInternalServerAddress = "dcerouter";
     m_sBaseUrl = "http://" + m_sInternalServerAddress + "/pluto-admin/";
 
     pthread_cond_init( &m_ActionCond, NULL );
