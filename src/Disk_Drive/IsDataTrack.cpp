@@ -39,7 +39,7 @@ int main(int argc, char * argv[])
 	int nTrack = atoi(argv[2]);
 	if (nTrack < 1 || nTrack > hdr.cdth_trk1)
 	{
-		cout << "ERROR: Track number outside of disk range" << endl;
+		cout << "ERROR: Track number outside of disk range: 1-" << nTrack << endl;
 		return -1;
 	}
 
