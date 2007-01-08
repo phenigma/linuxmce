@@ -15,9 +15,10 @@ ERR_NONE=0
 
 function isFullDisk
 {
-	file="$1"
+	file="/${1%/*}"
 	blocks=$(stat --format=%a -f "$file")
-	let "size=($blocks*4096)/1024/1024"
+	block_size=$(stat --format=%S -f "$file")
+	size=$((blocks * block_size / 1024 / 1024))
 	if [[ "$size" -gt 1 ]]; then
 		echo '0'
 	else
