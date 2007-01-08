@@ -1993,7 +1993,7 @@ bool Table::Dump( SerializeableStrings &str )
 	str.m_vectString.push_back( m_sName );
 
 	std::ostringstream sSQL;
-	sSQL << "DESCRIBE " << m_sName;
+	sSQL << "DESCRIBE `" << m_sName << "`";
 	PlutoSqlResult result_set2;
 	MYSQL_ROW row=NULL;
 	if( !( result_set2.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
@@ -2022,7 +2022,7 @@ bool Table::Dump( SerializeableStrings &str )
 	}
 
 	sSQL.str( "" );
-	sSQL << "SHOW INDEX FROM " << m_sName;
+	sSQL << "SHOW INDEX FROM `" << m_sName << "`";
 	PlutoSqlResult result_set3;
 	if( !( result_set3.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
 		return false;
@@ -2066,7 +2066,7 @@ bool Table::Dump( SerializeableStrings &str )
 
 	StringUtils::Replace(&m_sFilter,"<%=U%>",g_GlobalConfig.csvUserID());
 	sSQL.str( "" );
-	sSQL << "SELECT " << sFieldList << " FROM " << m_sName << (m_sFilter.length() && StringUtils::ToUpper(m_sFilter).find("WHERE")==string::npos ? " WHERE " : " " ) << m_sFilter;
+	sSQL << "SELECT " << sFieldList << " FROM " << "`" << m_sName << "`" << (m_sFilter.length() && StringUtils::ToUpper(m_sFilter).find("WHERE")==string::npos ? " WHERE " : " " ) << m_sFilter;
 	if( TrackChanges_get() )
 		sSQL << (m_sFilter.length() ? " AND " : " WHERE ") << g_GlobalConfig.GetRestrictionClause(m_sName);
 
