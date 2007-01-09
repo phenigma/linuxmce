@@ -1,14 +1,15 @@
 #!/bin/bash -x
 
-flavor="pluto_debug"
+flavor="ubuntu"
+flavor_master="pluto"
 build_dir="/var/plutobuild"
 svn_dir="${build_dir}/svn"
 svn_url="http://10.0.0.170/"
 
 sql_master_host="10.0.0.150"
 sql_master_db="pluto_main"
-sql_master_db_mainsqlcvs="main_sqlcvs_$flavor"
-sql_master_db_mythsqlcvs="myth_sqlcvs_$flavor"
+sql_master_db_mainsqlcvs="main_sqlcvs_${flavor_master}"
+sql_master_db_mythsqlcvs="myth_sqlcvs_${flavor_master}"
 sql_master_db_media="pluto_media"
 sql_master_db_security="pluto_security"
 sql_master_db_telecom="pluto_telecom"
@@ -103,7 +104,7 @@ function Build_Pluto_Stuff {
 
 	MakeRelease="${mkr_dir}/MakeRelease"
 	MakeRelease_PrepFiles="${mkr_dir}/MakeRelease_PrepFiles"
-	#$MakeRelease_PrepFiles -p ${svn_dir}/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk" -c ${build_dir}/${flavor}.conf
+	$MakeRelease_PrepFiles -p ${svn_dir}/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk" -c ${build_dir}/${flavor}.conf
 
 	rm -rf $out_dir
 	mkdir -p $out_dir
@@ -121,9 +122,8 @@ function Build_Pluto_Stuff {
 #	607 	Pluto ATI Video Drivers Source
 #	543  	Pluto vloopback Kernel Module
 #	542 	Pluto vloopback Kernel Module Source
-	$MakeRelease -b -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 1 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
-#-b
-	#$MakeRelease -h 10.0.0.150 -u root -O $out_dir -D main_sqlcvs_$flavor -c -a -o 1 -r 20 -m 1 -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log) -d 
+# 	-b
+	$MakeRelease -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 1 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
 }
 
 function Create_Fake_Windows_Binaries {
@@ -155,6 +155,9 @@ function Create_Fake_Windows_Binaries {
 	touch ${svn_dir}/trunk/src/bin/PthreadsCE.dll
 	touch ${svn_dir}/trunk/src/bin/Orbiter.MD5
 	touch ${svn_dir}/trunk/src/bin/logo.gif
+
+	touch ${svn_dir}/trunk/src/bin/PlutoBaSInstaller.msi
+	touch ${svn_dir}/trunk/src/bin/PlutoRebootSetup.msi
 }
 
 function Create_Local_Repository {
@@ -229,14 +232,14 @@ function Import_Pluto_Skins {
 	popd
 }
 
-#Import_Build_Database
-#Import_Pluto_Skins
-#Install_Build_Needed_Packages
-#Build_Pluto_Replacements
-#Checkout_Pluto_Svn
-#Build_MakeRelease_Binary
-#Create_Fake_Windows_Binaries
-#Build_Pluto_Stuff
+Import_Build_Database
+Import_Pluto_Skins
+Install_Build_Needed_Packages
+Build_Pluto_Replacements
+Checkout_Pluto_Svn
+Build_MakeRelease_Binary
+Create_Fake_Windows_Binaries
+Build_Pluto_Stuff
 Create_Local_Repository
 
 

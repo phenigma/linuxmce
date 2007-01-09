@@ -109,7 +109,6 @@ DCERouter = localhost
 MySqlPort = 3306
 DCERouterPort = 3450
 UseVideoWizard = 1
-TestInstallation = <-mkr_t_test_installation->
 PK_Device = 1
 Activation_Code = 1111
 PK_Installation = 1
@@ -245,7 +244,7 @@ Ask_Questions_Zenity
 Setup_Apt_Conffiles
 Setup_Offline_Mode
 Setup_Pluto_Conf
-#Install_DCERouter
+Install_DCERouter
 Create_And_Config_Devices
 Configure_Network_Options
 
