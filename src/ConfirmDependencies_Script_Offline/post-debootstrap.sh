@@ -6,7 +6,7 @@ cp -f /cdrom/Pluto-Install/pkgsel /target/usr/lib/base-config/menu/
 # copy install scripts to /usr/pluto/install
 DIR=/target/usr/pluto/install
 mkdir -p "$DIR"
-SCRIPTS="Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh ConfirmDependencies_Debian.sh Common.sh PreseedStage2.sh preseed.cfg BonusCdMenu.sh Initial_Network_Config.sh Initial_DHCP_Config.sh VIA_Setup.sh"
+SCRIPTS="Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh ConfirmDependencies_Debian.sh Common.sh PreseedStage2.sh preseed.cfg BonusCdMenu.sh Initial_Network_Config.sh Initial_DHCP_Config.sh VIA_Setup.sh post-grub-install.sh"
 for S in $SCRIPTS; do
 	cp -f /cdrom/Pluto-Install/"$S" "$DIR"
 done
@@ -36,7 +36,3 @@ Acquire::ftp::timeout "10";
 APT::Get::AllowUnauthenticated "true";
 '
 echo -n "$pluto_apt_conf" >/target/etc/apt/apt.conf.d/30pluto
-
-#<-mkr_b_via_b->
-chroot /target /usr/pluto/install/VIA_Setup.sh
-#<-mkr_b_via_e->
