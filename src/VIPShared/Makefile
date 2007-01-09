@@ -41,7 +41,8 @@ sources = \
     PhoneDetection_Simulate.cpp \
     PlutoPhoneCommands.cpp \
     VIPIncludes.cpp \
-    MenuData.cpp 
+    MenuData.cpp \
+    MenuItemInfo.cpp
 
 all: libVIPCommon.so all-recursive
 
