@@ -83,7 +83,7 @@ for module in $modules; do
 	if ! grep -q "$module" /etc/modules; then
 		echo "$module" >>/etc/modules
 	fi
-	modprobe $module || ::
+	modprobe $module || :
 done
 
 echo "Updating IR codes for all devices"
