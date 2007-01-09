@@ -117,7 +117,7 @@ function infraredCommands($output,$publicADO) {
 				}
 			}else{
 				if(in_array($commandID,$oldCheckedCommands)){
-					$publicADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_InfraredGroup=? FK_Command=? ',array($GLOBALS['infraredGroup'],$commandID));
+					$publicADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_InfraredGroup=? AND FK_Command=? ',array($GLOBALS['infraredGroup'],$commandID));
 				}
 			}
 		}
