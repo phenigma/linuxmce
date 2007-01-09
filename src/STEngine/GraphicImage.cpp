@@ -126,13 +126,17 @@ void GraphicImage::ScaleImage(int nScreenWidth, int nScreenHeight)
 		return;
 	}
 
-#ifdef VIA	
-//	SDL_SetAlpha(Surface, SDL_SRCALPHA | SDL_RLEACCEL , SDL_ALPHA_TRANSPARENT);
-//#else
-	SDL_SetAlpha(Surface, 0, 0);
-#endif
+	Uint32 saved_flags = Surface->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
+	Uint8  saved_alpha = Surface->format->alpha;
+
+	if ((saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA) 
+		SDL_SetAlpha(Surface, 0, 0);
 
 	SDL_BlitSurface(Surface, NULL, LocalSurface, NULL);
+
+	if ((saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA) 
+		SDL_SetAlpha(LocalSurface, saved_flags, saved_alpha);
+
 	SDL_FreeSurface(Surface);  
 }
 
