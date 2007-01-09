@@ -29,6 +29,7 @@ if [[ ! -f /usr/pluto/var/sambaCredentials.secret ]] ;then
 	. /usr/pluto/bin/Utils.sh
 	smbUser="sambahelper"
 	smbPass=$(GeneratePassword)
+	mkdir -p /usr/pluto/var
 	echo "
 username=$smbUser
 password=$smbPass
