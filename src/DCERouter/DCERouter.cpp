@@ -69,7 +69,7 @@ void* WatchDogRoutine(void* param)
 {
     g_pPlutoLogger->Write(LV_STATUS,"DCERouter Started watchdog routine\n");
     Sleep(20000);
-	if (g_WatchDogFlag)
+	if (g_WatchDogFlag && NULL != g_pPlutoLogger)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Terminating DCERouter: watchdog detected hard deadlock, seems soft reload failed\n");
 #ifndef WIN32
