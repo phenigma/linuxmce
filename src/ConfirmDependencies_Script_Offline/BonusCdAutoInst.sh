@@ -12,6 +12,6 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	        apt-get -f -y install monster-nucleus
         	apt-get -f -y install bootsplash-theme-monster
         fi
-	apt-get install id-my-disc || :
+	apt-get -f -y install id-my-disc || :
 fi
 
