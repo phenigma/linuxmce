@@ -16,7 +16,7 @@ function matchCoverArt($output,$mediadbADO) {
 		$scannedArray=array();
 		$rs=$mediadbADO->Execute('
 			SELECT 
-			Keyword1Type,Keyword1Search,Keyword2Type,Keyword2Search,Keyword3Type,Keyword3Search,
+			Keyword1Type,Keyword1Search,Keyword2Type,Keyword2Search,Keyword3Type,Keyword3Search,Attributes,
 			FK_CoverArtScan,PK_CoverArtScanEntry,FK_File,FK_Disc,FK_Attribute,File.Path,File.Filename,Disc.Slot,Attribute.Name,Engine 
 			FROM CoverArtScanEntry 
 			INNER JOIN CoverArtScan ON FK_CoverArtScan=PK_CoverArtScan
@@ -37,6 +37,7 @@ function matchCoverArt($output,$mediadbADO) {
 			$scannedArray[$row['FK_CoverArtScan']]['Filters']=(!is_null($row['Keyword1Type']))?$row['Keyword1Type'].': '.urldecode($row['Keyword1Search']):'';
 			$scannedArray[$row['FK_CoverArtScan']]['Filters'].=(!is_null($row['Keyword2Type']))?$row['Keyword2Type'].': '.urldecode($row['Keyword2Search']):'';
 			$scannedArray[$row['FK_CoverArtScan']]['Filters'].=(!is_null($row['Keyword3Type']))?$row['Keyword3Type'].': '.urldecode($row['Keyword3Search']):'';
+			$scannedArray[$row['FK_CoverArtScan']]['Attributes']=$row['Attributes'];
 		}
 		
 		$out.='
@@ -134,7 +135,7 @@ function formatScannedItems($scannedArray){
 				foreach ($data['Entries'] AS $pic){
 					$pos++;
 					if(file_exists('/home/coverartscan/'.$pic.'_tn.jpg')){
-						$picsTable.='<td align="center"><input type="radio" name="pic_'.$id.'" value="'.$pic.'"><br><a href="coverartscan/'.$pic.'.jpg" target="_blank"><img src="coverartscan/'.$pic.'_tn.jpg" border="0"></a></td>';
+						$picsTable.='<td align="center"><input type="radio" name="pic_'.$id.'" value="'.$pic.'"><br><a href="coverartscan/'.$pic.'.jpg" target="_blank" title="'.$data['Attributes'].'"><img src="coverartscan/'.$pic.'_tn.jpg" border="0"></a></td>';
 					}
 					if($pos==6){
 						$picsTable.='</tr><tr>';
