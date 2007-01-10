@@ -70,8 +70,7 @@
 				$commandLine=NULL;
 				$redirectJS='
 				<script>
-					opener.location=\'index.php?section=editMasterDevice&model=\';
-					window.open(\''.$PlutoSupportHost.'index.php?section=document&docID='.$writeCodeDocument.'\',\'_blank\',\'\')
+					window.open(\'index.php?section=editMasterDevice&model=&msg=The device template was added.\',\'_blank\',\'\')
 					self.close();
 				</script>
 				';
@@ -90,7 +89,7 @@
 						opener.location=\'index.php?section=genericSerialDevices&msg=The device was added.\';
 						self.close();
 					}catch(e){
-						self.location=\'index.php?section=deviceTemplates&msg=The device was added.\';
+						self.location=\'index.php?section=deviceTemplates&msg=The device template was added.\';
 					}
 					</script>
 					';
@@ -111,8 +110,7 @@
 				$redirectJS='
 				<script>
 					try{
-						opener.location=\'index.php?section=editMasterDevice&model=\';
-						window.open(\''.$PlutoSupportHost.'index.php?section=document&docID='.$virtualDeviceDocument.'\',\'_blank\',\'\')
+						window.open(\'index.php?section=editMasterDevice&model=&msg=The device template was added.\',\'_blank\',\'\')
 						self.close();
 					}catch(e){
 						//
@@ -139,6 +137,7 @@
 				
 		}else{
 			header('Location: index.php?section=addModel&dcID='.$dcID.'&mID='.$mID.'&from='.$from.'&error=Please type the description.');
+			exit();
 		}
 	}
 ?>
