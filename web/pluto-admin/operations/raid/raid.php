@@ -89,6 +89,8 @@ function raid($output,$dbADO) {
 			</tr>';
 		}
 		
+		$usersArray=array(-1=>$TEXT_USE_PLUTO_DIRECTORY_STRUCTURE_CONST)+getAssocArray('Users','PK_Users','Username',$dbADO,'','ORDER BY Username ASC');
+		
 		$out.='
 		</table>
 			<input type="hidden" name="raidDevices" value="'.join(',',$raidDevices).'">
@@ -121,7 +123,7 @@ function raid($output,$dbADO) {
 					</tr>
 					<tr>
 						<td><B>'.$TEXT_USE_PLUTO_DIRECTORY_STRUCTURE_CONST.'</B></td>
-						<td><input type="checkbox" name="use_pluto_directory_structure" value="1" checked></td>
+						<td>'.pulldownFromArray($usersArray,'use_pluto_directory_structure',-1,'','key','Public').'</td>
 					</tr>
 					
 					<tr>
@@ -154,7 +156,7 @@ function raid($output,$dbADO) {
 			$raidID=createDevice((int)@$_POST['template'],$installationID,$parent,NULL,$dbADO);
 			$dbADO->Execute('UPDATE Device SET Description=? WHERE PK_Device=?',array($description,$raidID));
 			set_device_data($raidID,$GLOBALS['use_automaticly_dd'],$use_automaticly,$dbADO);
-			set_device_data($raidID,$GLOBALS['use_pluto_directory_structure_dd'],$use_pluto_directory_structure,$dbADO);
+			set_device_data($raidID,$GLOBALS['DD_PK_Users'],$use_pluto_directory_structure,$dbADO);
 			
 			header("Location: index.php?section=raidDrives&deviceID=$raidID&msg=".urlencode(@$TEXT_RAID_ADDED_CONST));
 			exit();

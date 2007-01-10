@@ -37,6 +37,7 @@
 	$GLOBALS['ScreenSavers']=163;				// Screen Savers
 	$GLOBALS['RaidCategory']=165;				// RAID devices
 	$GLOBALS['RaidDrives']=167;					// RAID drives
+	$GLOBALS['StorageDevices']=155;				// Storage devices
 	
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	
@@ -216,6 +217,7 @@
 	$GLOBALS['use_automaticly_dd']=134;			// Use automaticly
 	$GLOBALS['use_pluto_directory_structure_dd']=130;	// use pluto directory structure
 	$GLOBALS['DD_OS_ON_HARD_DRIVE']=211;		// OS on hard drive
+	$GLOBALS['DD_PK_Users']=3;					// PK_Users
 	
 	
 	// PK_FloorplanType from table FloorplanType 
