@@ -228,7 +228,7 @@ function devices($output,$dbADO) {
 				$zoneBtn=($type=='security')?' <input type="button" class="button" name="gotoZones" value="Security Zones" onClick="self.location=\'index.php?section=zones&type=security\'">':'';
 				$updateCancelBtns='<input type="submit" class="button" name="update" value="Update"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">';
 			}
-			$addGC100Btn=($type=='interfaces')?' <input type="submit" class="button" name="addGC100" value="Add gc100">':'';
+			$addGC100Btn=($type=='interfaces')?'<input type="submit" class="button" name="addGC100" value="Add gc100"> ':'';
 			
 			$out.='
 				<tr>
