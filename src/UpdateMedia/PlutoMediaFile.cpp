@@ -566,6 +566,8 @@ void PlutoMediaFile::SaveCoverarts()
 		MapPictures::iterator end = m_pPlutoMediaAttributes->m_mapCoverarts.end();
 		MapPictures::iterator it_thumb = m_pPlutoMediaAttributes->m_mapCoverartsThumbs.begin();
 		MapPictures::iterator end_thumb = m_pPlutoMediaAttributes->m_mapCoverartsThumbs.end();
+
+		int nCounter = 0;
 		for( ; it != end && it_thumb != end_thumb; ++it, ++it_thumb)
 		{
 			Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
@@ -579,6 +581,11 @@ void PlutoMediaFile::SaveCoverarts()
 
             SavePicture(make_pair(it->first, it->second), pRow_Picture->PK_Picture_get());
 			SavePicture(make_pair(it_thumb->first, it_thumb->second), pRow_Picture->PK_Picture_get(), true);
+
+			++nCounter;
+
+			if(nCounter > 20)
+				return;
 		}
 	}
 }
