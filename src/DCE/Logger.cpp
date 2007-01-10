@@ -151,6 +151,8 @@ FileLogger::FileLogger( const char* file )
         m_bNeedToClose = false;
         m_LogFile = stderr;
     }
+	else
+		m_sFilename = file;
 }
 
 FileLogger::~FileLogger()
@@ -192,6 +194,18 @@ void FileLogger::ClearConsole()
 #if (defined WIN32) && !defined(UNDER_CE) && !defined(UNICODE)
     clrscr();
 #endif
+}
+
+void FileLogger::Rotate()
+{
+	PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures.
+
+	if(!m_sFilename.empty() && m_LogFile != stderr)
+	{
+		//the file will be moved, but the inode remains
+		fclose(m_LogFile);
+		m_LogFile = fopen(m_sFilename.c_str(), "a");
+	}
 }
 
 void FileLogger::WriteEntry( Entry& Entry )

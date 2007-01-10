@@ -654,6 +654,11 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 		OnReload();
 		return rmr_Processed;
 	}
+	if(pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_ROTATE && pMessage->m_dwPK_Device_To==m_dwPK_Device)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Going to rotate logs...");
+		g_pPlutoLogger->Rotate();
+	}
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_START_PING)
 	{
 		if( !m_pEvent->m_pClientSocket->m_bUsePingToKeepAlive )

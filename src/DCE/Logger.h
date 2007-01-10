@@ -142,6 +142,10 @@ namespace DCE
 		* @brief writes an entry to the log
 		*/
 		virtual void WriteEntry( class Logger::Entry& entry ) = 0;
+		/**
+		* @bried rotates the log
+		*/
+		virtual void Rotate() {}
 	
 		/**
 		* @brief an entry to the logger
@@ -216,7 +220,9 @@ namespace DCE
 	protected:
 	
 		FILE* m_LogFile; /** < the file to write the log to */
-		
+
+		string m_sFilename;
+
 		bool m_bNeedToClose; /** < set to truth if the file needs to be closed, default value false */
 	
 	public:
@@ -262,6 +268,8 @@ namespace DCE
 		virtual void WriteEntry( class Logger::Entry& entry );
 
 		virtual int GetType() { return LT_LOGGER_FILE; }
+
+		virtual void Rotate();
 
 	};
 
