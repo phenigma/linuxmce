@@ -356,6 +356,8 @@ clear
 sleep 0.5
 exec 3>&1 1>/dev/tty
 while :; do
+	echo
+	echo
 	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
 	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
 		while :; do
