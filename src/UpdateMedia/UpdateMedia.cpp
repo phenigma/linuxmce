@@ -128,6 +128,15 @@ UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media,
     m_sDirectory = FileUtils::ExcludeTrailingSlash(sDirectory);
 }
 
+UpdateMedia::~UpdateMedia()
+{
+	if(!m_bAsDaemon)
+	{
+		delete m_pDatabase_pluto_media;
+		delete m_pDatabase_pluto_main;
+	}
+}
+
 void UpdateMedia::ReadConfigFile()
 {
 	ifstream fUpdateMediaConfig;

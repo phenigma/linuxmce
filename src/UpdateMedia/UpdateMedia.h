@@ -27,6 +27,7 @@ public:
 	UpdateMedia(string host, string user, string pass, int port,string sDirectory,bool bSyncFilesOnly);
     UpdateMedia(Database_pluto_media *pDatabase_pluto_media, Database_pluto_main *pDatabase_pluto_main, 
         string sDirectory);
+	~UpdateMedia();
 
 	void DoIt();
 

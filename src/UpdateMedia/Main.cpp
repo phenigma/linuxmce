@@ -4,6 +4,7 @@
 #include "DCEConfig.h"
 #include "Logger.h"
 #include "UpdateMedia.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
 
 #include <iostream>
 #include <sstream>
@@ -325,8 +326,19 @@ int main(int argc, char *argv[])
 
         pthread_mutex_destroy(&g_ConnectionMutex.mutex);
 		pthread_mutex_destroy(&g_FoldersListMutex.mutex);
+
+		delete g_pDatabase_pluto_media;
+		g_pDatabase_pluto_media = NULL;
+		delete g_pDatabase_pluto_main;
+		g_pDatabase_pluto_main = NULL;
 	}
 
+	extern map<int,PlutoLock *> *g_pmapLocks;
+	delete g_pmapLocks;
+	g_pmapLocks = NULL;
+
+	delete g_pPlutoLogger;
+	g_pPlutoLogger = NULL;
 	return 0;
 }
 

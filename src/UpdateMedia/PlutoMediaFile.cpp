@@ -421,6 +421,9 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 			}
 		}
 	}
+
+	for(MapPlutoMediaAttributes::iterator itdb = mapPlutoMediaAttributes.begin(); itdb != mapPlutoMediaAttributes.end(); ++itdb)
+		delete itdb->second;
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
@@ -501,6 +504,9 @@ void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 			}
 		}
 	}
+
+	for(MapPlutoMediaAttributes::iterator itdb = mapPlutoMediaAttributes.begin(); itdb != mapPlutoMediaAttributes.end(); ++itdb)
+		delete itdb->second;
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveBookmarkPictures()

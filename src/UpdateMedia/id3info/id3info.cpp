@@ -58,6 +58,7 @@ void SetUserDefinedInformation(string sFilename, char *pData, size_t& Size)
 		uchar *pFieldData = new uchar[Size];
 		memcpy(pFieldData, pData, Size);
 		fld->Set(pFieldData, Size);
+		delete []pFieldData;
 	}
 
     tag.Update(ID3TT_ID3); 
