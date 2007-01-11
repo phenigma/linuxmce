@@ -35,8 +35,8 @@ function deviceStatus($output,$dbADO) {
 			SELECT PK_Device, Device.Description AS DeviceName, State,Status, IPaddress,MACaddress,Room.Description AS RoomName, 
 			Manufacturer.Description AS ManufName, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName
 			FROM Device
-			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
 			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 			LEFT JOIN Room ON FK_Room=PK_Room
 			WHERE Device.FK_Installation=?

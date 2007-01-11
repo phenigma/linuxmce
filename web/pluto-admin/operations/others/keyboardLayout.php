@@ -168,6 +168,10 @@ function extractCleanLayouts($arr){
 function getVariants($arr){
 
 	$retArr=array();
+	if(count($arr)==0){
+		return $retArr;
+	}
+	
 	foreach ($arr AS $id=>$item){
 		if(isset($item[0]['children'][0]['tagData']) && isset($item[0]['children'][1]['tagData'])){
 			$key=$item[0]['children'][0]['tagData'];

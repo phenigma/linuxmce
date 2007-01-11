@@ -3118,11 +3118,11 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 			<input type="hidden" name="oldMAC_'.$deviceID.'" value="'.@$rowDDforDevice['MACaddress'].'">
 			<tr>
 				<td align="left"><B>IP</B></td>
-				<td><input type="text" name="ip_'.$deviceID.'" value="'.@$rowDDforDevice['IPaddress'].'"></td>
+				<td align="right"><input type="text" name="ip_'.$deviceID.'" value="'.@$rowDDforDevice['IPaddress'].'"></td>
 			</tr>
 			<tr>
 				<td align="left"><B>MAC</B></td>
-				<td><input type="text" name="mac_'.$deviceID.'" value="'.@$rowDDforDevice['MACaddress'].'"></td>
+				<td align="right"><input type="text" name="mac_'.$deviceID.'" value="'.@$rowDDforDevice['MACaddress'].'"></td>
 			</tr>';
 		if($boolJsValidation==1){
 			$jsValidation.=' frmvalidator.addValidation("mac_'.$deviceID.'","mac","'.$TEXT_INVALID_MAC_ADDRESS_CONST.'");';
@@ -5877,9 +5877,8 @@ function is_dir64($file){
 */
 function addScenarioCommandParameters($cgcID,$commandID,$dbADO,$values=array()){
 	$cmdParams=array_keys(getAssocArray('Command_CommandParameter','FK_CommandParameter','Description',$dbADO,'WHERE FK_Command='.$commandID));
-	
 	$insertCG_C_CP='
-		INSERT INTO CommandGroup_Command_CommandParameter 
+		INSERT IGNORE INTO CommandGroup_Command_CommandParameter 
 			(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
 		VALUES
 			(?,?,?)';

@@ -250,6 +250,7 @@ function telecomScenarios($output,$dbADO) {
 		}
 		
 		if(isset($_POST['addSpeedDial'])){
+
 			$telecomPluginID=getTelecomPlugin($installationID,$dbADO);
 			if($telecomPluginID!==null){
 				$description=$_POST['description'];
