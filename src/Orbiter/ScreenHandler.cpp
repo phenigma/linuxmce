@@ -1572,14 +1572,9 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 		for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
 		{
 			DataGridCell *pCell = it->second;
-
 			bool bSelected = pCell->m_Value && pCell->m_Value == sSelected;
-
 			g_pPlutoLogger->Write(LV_STATUS, "TV_Channels_GridRendering: Cell %s", pCell->m_Value);
 
-			string sIcon = pCell->m_mapAttributes_Find("Icon");
-			if( sIcon.empty() )
-				continue;
 			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
 			if(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size() != 0)
 				colRow.second = colRow.second % pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size();
@@ -1599,13 +1594,17 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 					DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
 					if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconTVChannels_CONST )
 					{
+						string sIcon = pCell->m_mapAttributes_Find("Icon");
 						g_pPlutoLogger->Write(LV_STATUS, "TV_Channels_GridRendering: Loading icon for guide cell: '%s'", sIcon.c_str());
 
-						size_t GraphicLength;
-						char *pGraphicData = FileUtils::ReadFileIntoBuffer(sIcon, GraphicLength);
-						if( pGraphicData )
-							m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, FileUtils::FindExtension(sIcon),
-								pGraphicData, int(GraphicLength), "0");  // Store the icon, which is cell's picture
+						size_t GraphicLength = 0;
+						char *pGraphicData = NULL;
+						
+						if(!sIcon.empty())
+							pGraphicData = FileUtils::ReadFileIntoBuffer(sIcon, GraphicLength);
+
+						m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, FileUtils::FindExtension(sIcon),
+							pGraphicData, int(GraphicLength), "0");  // Store the icon, which is cell's picture
 					}
 				}
 			}
