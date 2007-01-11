@@ -58,6 +58,9 @@ if [[ "${Answer:0:1}" == "y" || "${Answer:0:1}" == "Y" ]]; then
 	RunSQL "$Q"
 
 	pidOfX=$(ps ax|grep 'X :0 -ignoreABI -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
+	if [[ -z "$pidOfX" ]] ;then
+		pidOfX=$(ps ax|grep 'X :0 -br -audit 0 -auth /var/lib/gdm/:0.Xauth -nolisten tcp vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
+	fi						
 	mv /etc/X11/xorg.conf{.test,}
 	echo "Killing real X (to restart it with new config)"
 	kill $pidOfX
