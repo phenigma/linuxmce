@@ -253,7 +253,7 @@ void WinListManager::SetSdlWindowVisibility(bool bValue)
 	PendingContext(m_sSdlWindowName).Visible(bValue);
 }
 
-void WinListManager::ApplyContext()
+void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 {
 #ifdef MAEMO_NOKIA770
 	//no window manager action with nokia 770
@@ -274,6 +274,9 @@ void WinListManager::ApplyContext()
 		WindowContext &pending_context = it_pending->second;
 
 		if(sWindowName.empty())
+			continue;
+
+		if(!sExternalWindowName.empty() && sWindowName != sExternalWindowName)
 			continue;
 
 		bool bResult = true;  // Will be set to false if any of them fail

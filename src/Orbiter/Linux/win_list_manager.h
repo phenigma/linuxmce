@@ -46,7 +46,7 @@ public:
 
 	void SetLayer(const string &sClassName, WindowLayer layer);
 
-	void ApplyContext();
+	void ApplyContext(string sExternalWindowName = ""); //if empty, apply to all
 
 	void KeepSdlWindowActive( bool bKeepSdlWindowActive ) { m_bKeepSdlWindowActive=bKeepSdlWindowActive; }
 

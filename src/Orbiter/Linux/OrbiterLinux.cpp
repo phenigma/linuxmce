@@ -260,16 +260,30 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 	m_pWinListManager->ShowSdlWindow(bApplicationInBackground, m_bYieldInput);
     if (pObj->m_ObjectType == DESIGNOBJTYPE_App_Desktop_CONST)
     {
-        //g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::RenderDesktop rendering of %s",pObj->m_ObjectID.c_str());
-        {
-            // TODO : Set now playing is not sent in video wizard
-            // we'll assume this is a xine for now
-            //if (m_pWinListManager->GetExternApplicationName() == "")
-            //    m_pWinListManager->SetExternApplicationName("pluto-xine-playback-window.pluto-xine-playback-window");
-        }
-
 		m_pWinListManager->SetExternApplicationPosition(rectTotal);
-		ActivateExternalWindowAsync(NULL);
+
+		string sWindowName = m_pWinListManager->GetExternApplicationName();
+		bool bIsWindowAvailable = m_pWinListManager->IsWindowAvailable(sWindowName);
+		if (bIsWindowAvailable)
+		{
+			if ( (rectTotal.Width == -1) && (rectTotal.Height == -1) )
+			{
+#ifdef DEBUG
+				g_pPlutoLogger->Write(LV_STATUS, "RenderDesktop : maximize sWindowName='%s'", sWindowName.c_str());
+#endif
+				m_pWinListManager->MaximizeWindow(sWindowName);
+			}
+			else
+			{
+#ifdef DEBUG
+				g_pPlutoLogger->Write(LV_STATUS, "RenderDesktop : position sWindowName='%s'", sWindowName.c_str());
+#endif
+				m_pWinListManager->PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
+			}
+			m_pWinListManager->ActivateWindow(m_pWinListManager->GetExternApplicationName());
+		}
+		else
+			ActivateExternalWindowAsync(NULL);
 
 		//the keyboard is released to OS, so this is firefox, dvd menu or maybe mythtv-setup 
 		//we'll apply a mask with xshape
@@ -307,12 +321,10 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 #ifdef DEBUG
             g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::ActivateExternalWindowAsync() : position sWindowName='%s'", sWindowName.c_str());
 #endif
-            // HACK: stop activating xine or wxdialog several times per second
-            // TODO: do the proper activating code for windows
             m_pWinListManager->PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
         }
         m_pWinListManager->ActivateWindow(m_pWinListManager->GetExternApplicationName());
-		m_pWinListManager->ApplyContext();
+		m_pWinListManager->ApplyContext(m_pWinListManager->GetExternApplicationName());
     }
     else
         CallMaintenanceInMiliseconds( bIsWindowAvailable ? 1000 : 200, (OrbiterCallBack)&OrbiterLinux::ActivateExternalWindowAsync, NULL, pe_ALL );

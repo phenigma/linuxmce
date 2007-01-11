@@ -17,10 +17,10 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 
 */
 #include "MeshFrame.h"
-
 #include "MeshPainter.h"
-
 #include "DCE/Logger.h"
+
+//#define DEBUG_MESH_FRAMES
 
 MeshFrame::MeshFrame(string Name, MeshContainer* Mesh) 
 	: 
@@ -37,7 +37,7 @@ MeshFrame::MeshFrame(string Name, MeshContainer* Mesh)
 
 MeshFrame::~MeshFrame(void)
 {
-#ifdef DEBUG
+#ifdef DEBUG_MESH_FRAMES
 	if(m_bDontReleaseTexture)
 		DCE::g_pPlutoLogger->Write(LV_STATUS, "Not releasing texture for %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
 #endif
@@ -51,7 +51,7 @@ MeshFrame::~MeshFrame(void)
 	if(!m_bVolatile)
 		TextureManager::Instance()->InvalidateItem(this);
 
-#ifdef DEBUG
+#ifdef DEBUG_MESH_FRAMES
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame destructor %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
 #endif
 }
@@ -63,7 +63,7 @@ void MeshFrame::MarkAsVolatile()
 
 /*virtual*/ void MeshFrame::CleanUp(bool VolatilesOnly/* = false*/)
 {
-#ifdef DEBUG
+#ifdef DEBUG_MESH_FRAMES
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::CleanUp: %p/%s", this, m_sName.c_str());	
 #endif
 
@@ -108,7 +108,7 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 		//throw "Frame already has a parent";
 	}
 
-#ifdef DEBUG
+#ifdef DEBUG_MESH_FRAMES
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p/%s to %p/%s", Frame, Frame->m_sName.c_str(),
 		this, m_sName.c_str());	
 #endif
@@ -142,7 +142,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 		{
 			Frame->m_pParent->Children.erase(Child);
 
-#ifdef DEBUG
+#ifdef DEBUG_MESH_FRAMES
 			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p/%s from parent %p/%s", 
 				Frame, Frame->m_sName.c_str(), Frame->m_pParent, Frame->m_pParent->m_sName.c_str());
 #endif
@@ -189,7 +189,7 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 			NewFrame->m_pParent = OldFrame->m_pParent;
 			*Child = NewFrame;
 
-#ifdef DEBUG
+#ifdef DEBUG_MESH_FRAMES
 			DCE::g_pPlutoLogger->Write(LV_STATUS, "ttt MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
 				OldFrame, OldFrame->m_sName.c_str(), OldFrame->m_pParent, OldFrame->m_pParent->m_sName.c_str(),
 				NewFrame, NewFrame->m_sName.c_str());
