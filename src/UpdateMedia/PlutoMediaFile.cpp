@@ -47,6 +47,8 @@ using namespace UpdateMediaFileUtils;
 using namespace std;
 using namespace DCE;
 
+#define MAX_PICTURES 20
+
 #include "pluto_media/Database_pluto_media.h"
 //-----------------------------------------------------------------------------------------------------
 char *MediaSyncModeStr[] =
@@ -513,9 +515,12 @@ void PlutoMediaFile::SaveBookmarkPictures()
 {
 	if(m_bNewFileToDb)
 	{
+		int nCounter = 0;
 		for(ListBookmarks::iterator it = m_pPlutoMediaAttributes->m_listBookmarks.begin(), 
 			end = m_pPlutoMediaAttributes->m_listBookmarks.end(); it != end; ++it)
 		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "SaveBookmarkPictures: saving bookmark...");
+
 			PlutoMediaBookmark *pBookmark = *it;
 
 			int PK_Picture = 0;
@@ -540,6 +545,12 @@ void PlutoMediaFile::SaveBookmarkPictures()
 				pRow_Bookmark->FK_Picture_set(PK_Picture);
 
 			pRow_Bookmark->Table_Bookmark_get()->Commit();
+
+			if(++nCounter > MAX_PICTURES)
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "SaveBookmarkPictures: too many bookmarks...");
+				break;
+			}
 		}
 	}
 }
@@ -576,6 +587,8 @@ void PlutoMediaFile::SaveCoverarts()
 		int nCounter = 0;
 		for( ; it != end && it_thumb != end_thumb; ++it, ++it_thumb)
 		{
+			g_pPlutoLogger->Write(LV_STATUS, "SaveCoverarts : saving coverart...");
+
 			Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
 			pRow_Picture->Extension_set("jpg");
 			pRow_Picture->Table_Picture_get()->Commit();
@@ -588,10 +601,11 @@ void PlutoMediaFile::SaveCoverarts()
             SavePicture(make_pair(it->first, it->second), pRow_Picture->PK_Picture_get());
 			SavePicture(make_pair(it_thumb->first, it_thumb->second), pRow_Picture->PK_Picture_get(), true);
 
-			++nCounter;
-
-			if(nCounter > 20)
-				return;
+			if(++nCounter > MAX_PICTURES)
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "SaveCoverarts : too many coverarts...");
+				break;
+			}
 		}
 	}
 }
@@ -1362,6 +1376,7 @@ void PlutoMediaFile::LoadBookmarkPictures()
 
 	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
 	{
+		int nCounter = 0;
 		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1] && NULL != row[2])
 		{
 			int nFK_Picture = atoi(row[0]);
@@ -1371,6 +1386,9 @@ void PlutoMediaFile::LoadBookmarkPictures()
 			//skip start position
 			if(sDescription == "START")
 				continue;
+
+			g_pPlutoLogger->Write(LV_STATUS, "LoadBookmarkPictures: Adding bookmark desc %s, pos %s", sDescription.c_str(),
+				sPosition.c_str());
 
 			pair<unsigned long, char *> picture_data = LoadPicture(nFK_Picture);
 			pair<unsigned long, char *> thumb_picture_data = LoadPicture(nFK_Picture, true);
@@ -1382,6 +1400,12 @@ void PlutoMediaFile::LoadBookmarkPictures()
 			pBookmark->m_dataPictureThumb.m_pBlock = thumb_picture_data.second;
 
 			m_pPlutoMediaAttributes->m_listBookmarks.push_back(pBookmark);
+
+			if(++nCounter > MAX_PICTURES)
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "LoadBookmarkPictures : too many bookmarks...");
+				break;
+			}
 		}
 	}
 }
@@ -1417,11 +1441,20 @@ void PlutoMediaFile::LoadCoverarts()
 
 	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
 	{
+		int nCounter = 0;
 		while((row = mysql_fetch_row(result.r)) && NULL != row[0])
 		{
 			int nFK_Picture = atoi(row[0]);
+
+			g_pPlutoLogger->Write(LV_STATUS, "LoadCoverarts: Adding coverarts, picture id %d...", nFK_Picture);
 			m_pPlutoMediaAttributes->m_mapCoverarts.insert(LoadPicture(nFK_Picture));
 			m_pPlutoMediaAttributes->m_mapCoverartsThumbs.insert(LoadPicture(nFK_Picture, true));
+
+			if(++nCounter > MAX_PICTURES)
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "LoadCoverarts : too many coverarts...");
+				break;
+			}
 		}
 	}
 }

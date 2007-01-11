@@ -19,6 +19,8 @@ using std::endl;
 #include <map>
 using namespace std;
 
+#define MAX_TAG_SIZE_ALLOWED 10 * 1024 * 1024 //10MB
+
 void GetUserDefinedInformation(string sFilename, char *&pData, size_t& Size)
 {
  	pData = NULL;
@@ -34,6 +36,15 @@ void GetUserDefinedInformation(string sFilename, char *&pData, size_t& Size)
 		if(NULL != fld)
 		{
 			Size = fld->Size();
+			if(Size > MAX_TAG_SIZE_ALLOWED)
+			{
+				cout << "ERROR! Field size too big: " << int(Size) << endl;
+				tag.RemoveFrame(frame);
+				tag.Update(ID3TT_ID3); 
+				return;
+			}
+
+
 			pData = new char[Size];
 			memcpy(pData, fld->GetRawBinary(), Size);
 		}
