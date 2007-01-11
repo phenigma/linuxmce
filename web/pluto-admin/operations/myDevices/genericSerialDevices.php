@@ -234,9 +234,10 @@ function genericSerialDevices($output,$dbADO) {
 					</tr>';					
 				}
 			}
+			
 			$out.='
-				<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$DeviceDataToDisplay).'">
-				<input type="hidden" name="displayedDevices" value="'.join(',',array_keys($displayedDevices)).'">';
+				<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',cleanArray($GLOBALS['DeviceDataToDisplay'])).'">
+				<input type="hidden" name="displayedDevices" value="'.join(',',array_values($displayedDevices)).'">';
 
 			if($resDevice->RecordCount()!=0){
 				$updateBtns='<input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">';
@@ -326,8 +327,9 @@ function genericSerialDevices($output,$dbADO) {
 						$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
 					}
 					foreach($DeviceDataToDisplayArray as $ddValue){
-						$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;
+						$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:'';
 						$oldDeviceData=@$_POST['oldDeviceData_'.$value.'_'.$ddValue];
+
 						if($oldDeviceData!=$deviceData){
 							if($oldDeviceData=='NULL'){
 								$insertDDD='
