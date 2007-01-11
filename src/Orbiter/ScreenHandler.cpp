@@ -1574,10 +1574,15 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 			DataGridCell *pCell = it->second;
 
 			bool bSelected = pCell->m_Value && pCell->m_Value == sSelected;
+
+			g_pPlutoLogger->Write(LV_STATUS, "TV_Channels_GridRendering: Cell %s", pCell->m_Value);
+
 			string sIcon = pCell->m_mapAttributes_Find("Icon");
 			if( sIcon.empty() )
 				continue;
 			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+			if(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size() != 0)
+				colRow.second = colRow.second % pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size();
 
 			// See if there is an object assigned for this column/row
 			map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
@@ -1594,6 +1599,8 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 					DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
 					if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconTVChannels_CONST )
 					{
+						g_pPlutoLogger->Write(LV_STATUS, "TV_Channels_GridRendering: Loading icon for guide cell: '%s'", sIcon.c_str());
+
 						size_t GraphicLength;
 						char *pGraphicData = FileUtils::ReadFileIntoBuffer(sIcon, GraphicLength);
 						if( pGraphicData )

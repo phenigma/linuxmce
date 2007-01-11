@@ -188,6 +188,7 @@ void OpenGLGraphic::Convert()
 	glBindTexture(GL_TEXTURE_2D, Texture);
 
 	if(LocalSurface->format->BytesPerPixel == 4)
+	{
 		// Generate The Texture 
 		glTexImage2D( GL_TEXTURE_2D, 
 		0, 4, 
@@ -195,7 +196,9 @@ void OpenGLGraphic::Convert()
 		0, GL_RGBA,
 		GL_UNSIGNED_BYTE, 
 		LocalSurface->pixels );
-	else
+	}
+	else if(LocalSurface->format->BytesPerPixel == 3)
+	{
 		// Generate The Texture 
 		glTexImage2D( GL_TEXTURE_2D, 
 			0, 3, 
@@ -203,6 +206,30 @@ void OpenGLGraphic::Convert()
 			0, GL_RGB,
 			GL_UNSIGNED_BYTE, 
 			LocalSurface->pixels );
+	}
+	else 
+	{
+		SDL_PixelFormat RGBAFormat;
+		RGBAFormat.palette = 0; RGBAFormat.colorkey = 0; RGBAFormat.alpha = 255;
+		RGBAFormat.BitsPerPixel = 24; RGBAFormat.BytesPerPixel = 3;
+		RGBAFormat.Rloss = 0; RGBAFormat.Gloss = 0; RGBAFormat.Bloss = 0; RGBAFormat.Aloss = 0; 
+		RGBAFormat.Rshift = 0; RGBAFormat.Gshift = 8; RGBAFormat.Bshift = 16; RGBAFormat.Ashift = 24; 
+		RGBAFormat.Rmask = 0; RGBAFormat.Gmask = 1 << 8; RGBAFormat.Bmask = 1 << 16; RGBAFormat.Amask = 1 << 24; 
+
+		SDL_Surface *LocalSurfaceConverted = SDL_ConvertSurface(LocalSurface, &RGBAFormat, SDL_SWSURFACE);
+		SDL_SetAlpha(LocalSurfaceConverted, 0, 0);
+
+		// Generate The Texture 
+		glTexImage2D( GL_TEXTURE_2D, 
+			0, LocalSurfaceConverted->format->BytesPerPixel, 
+			LocalSurfaceConverted->w, LocalSurface->h, 
+			0, GL_RGB,
+			GL_UNSIGNED_BYTE, 
+			LocalSurfaceConverted->pixels );   
+
+		SDL_FreeSurface(LocalSurface);
+		LocalSurface = LocalSurfaceConverted;
+	}
 
 #ifdef DEBUG
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "Freeing surface %p" , LocalSurface);
