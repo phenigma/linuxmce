@@ -45,7 +45,7 @@ bool DatagridAnimationManager::Update()
 	if(bAnimationFinished)
 		OnStopAnimation();
 
-	return !bAnimationFinished;
+	return true;
 }
 
 void DatagridAnimationManager::Cleanup()

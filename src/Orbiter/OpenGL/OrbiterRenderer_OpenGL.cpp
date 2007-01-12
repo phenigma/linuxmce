@@ -101,7 +101,6 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		if(!pOrbiterRenderer->NeedToUpdateScreen())
 			Sleep(15);
 
-		//TODO: don't paint the screen if not needed
 		if(!pOrbiterRenderer->Engine->NeedUpdateScreen())
 			pOrbiterRenderer->ScreenUpdated();
 
@@ -470,6 +469,7 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
 {
 	NeedToUpdateScreen_ = true;
 	Engine->EndModifyGeometry();
+	Engine->RefreshScreen();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::UpdateRect(PlutoRectangle rect, PlutoPoint point/*= PlutoPoint(0,0)*/)
@@ -583,11 +583,12 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::EventLoop()
 {
+	SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE);
+	SDL_EventState(SDL_VIDEORESIZE, SDL_ENABLE);
+
 	int SDL_Event_Pending = 0;
 
 	SDL_Event Event;
-
-	// For now I'll assume that shift + arrows scrolls a grid
 	while (!OrbiterLogic()->m_bQuit_get()&& !OrbiterLogic()->m_bReload)
 	{
 		SDL_Event_Pending = SDL_PollEvent(&Event);
@@ -602,6 +603,10 @@ void OrbiterRenderer_OpenGL::OnIdle()
 				g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
 				break;
 			} 
+			else if(Event.type == SDL_VIDEOEXPOSE && Event.type == SDL_VIDEORESIZE)
+			{
+				Engine->RefreshScreen();
+			}
 		}
 		else
 		{
@@ -876,4 +881,9 @@ void OrbiterRenderer_OpenGL::HandleRefreshCommand(string sDataGrid_ID)
 		RenderObjectAsync(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
 
 	NeedToRender render( OrbiterLogic(), "CMD_Refresh" );  // Redraw anything that was changed by this command
+}
+
+void OrbiterRenderer_OpenGL::ProcessingInputEvent()
+{
+	Engine->RefreshScreen();
 }

@@ -24,6 +24,7 @@
 
 #ifdef ORBITER_OPENGL
 	#define BASE_CLASS OrbiterRenderer_OpenGL
+	#include "../OpenGL/OpenGL3DEngine.h"
 #else
 	#define BASE_CLASS OrbiterRenderer_SDL
 #endif
@@ -427,6 +428,8 @@ void OrbiterRenderer_Linux::EventLoop()
 	int SDL_Event_Pending = 0;
 
 	SDL_Event Event;
+	SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE);
+	SDL_EventState(SDL_VIDEORESIZE, SDL_ENABLE);
 
 	// For now I'll assume that shift + arrows scrolls a grid
 	while (!OrbiterLogic()->m_bQuit_get()&& !OrbiterLogic()->m_bReload)
@@ -445,6 +448,12 @@ void OrbiterRenderer_Linux::EventLoop()
 				g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
 				break;
 			}
+#ifdef ORBITER_OPENGL
+			else if(Event.type == SDL_VIDEOEXPOSE && Event.type == SDL_VIDEORESIZE)
+			{
+				Engine->RefreshScreen();
+			}
+#endif
 		}
 		else
 		{

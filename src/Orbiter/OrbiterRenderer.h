@@ -275,6 +275,11 @@ public:
 	 *	Orbiter's internal event - it will be fired as soon as the we've finished rendering the screen
 	 */
 	virtual void ScreenRendered() {}
+
+	/*
+	 *	Orbiter is processing an event
+	 */
+	virtual void ProcessingInputEvent() {}
 };
 
 #endif //__ORBITER_RENDERER_H__

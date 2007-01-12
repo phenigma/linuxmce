@@ -40,6 +40,8 @@ ExtensionManager::ExtensionManager(void)
 
 ExtensionManager::~ExtensionManager(void)
 {
+	SDL_FreeSurface(Screen);
+	Screen = NULL;
 }
 
 /*virtual*/ void ExtensionManager::SetClearColor(float Red, float Green, float Blue)

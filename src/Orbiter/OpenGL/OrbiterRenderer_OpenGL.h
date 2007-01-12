@@ -122,6 +122,8 @@ namespace DCE
 
 		virtual void OnQuit();
 
+		virtual void ProcessingInputEvent();
+
 		OpenGL3DEngine* Engine;	
 		pthread_cond_t Condition;
 		pluto_pthread_mutex_t Mutex; 

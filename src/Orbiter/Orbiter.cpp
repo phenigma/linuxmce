@@ -2832,6 +2832,8 @@ bool Orbiter::PreprocessEvent(Orbiter::Event &event)
 #include "MediaBrowserMouseHandler.h"
 bool Orbiter::ProcessEvent( Orbiter::Event &event )
 {
+	Renderer()->ProcessingInputEvent();
+
 	if ( (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::REGION_DOWN)
 		&& !GotActivity( event.type == Orbiter::Event::BUTTON_DOWN ? event.data.button.m_iPK_Button : 0 ) )
 			return true;

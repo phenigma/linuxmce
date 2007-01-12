@@ -46,6 +46,7 @@ class OpenGL3DEngine
 	MeshFrame* HighLightFrame;
 	MeshFrame* HighLightPopup;
 	MeshFrame* FrameBuilder, *FrameDatagrid;
+	
 
 	/**
 	 *	Remove selection object
@@ -70,6 +71,7 @@ class OpenGL3DEngine
 
 	//setup
 	int MilisecondsHighLight;
+	bool m_bNeedToRefresh;
 
 	virtual void Finalize(void);
 public:
@@ -175,6 +177,11 @@ public:
 	 *	Get the scene mutex to sync with screen operations
 	 */
 	pluto_pthread_mutex_t& GetSceneMutex() { return SceneMutex; }
+
+	/**
+	 *  Notify the engine that it needs to update the screen	
+	 */
+	void RefreshScreen() { m_bNeedToRefresh = true; }
 };
 
 #endif

@@ -52,7 +52,8 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	FrameDatagrid(NULL),
 	HighLightPopup(NULL),
 	ModifyGeometry(0),
-	MilisecondsHighLight(0)
+	MilisecondsHighLight(0),
+	m_bNeedToRefresh(true)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -136,7 +137,8 @@ bool OpenGL3DEngine::Paint()
 	GL.EnableZBuffer(false);
 
 	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
-	if(m_spDatagridAnimationManager->Update())
+	bool bDatagridAnimation = m_spDatagridAnimationManager->Update();
+	if(bDatagridAnimation)
 	{
 		//baga cod acilea
 	}
@@ -172,15 +174,18 @@ bool OpenGL3DEngine::Paint()
 	UpdateTopMostObjects();
 
 	Compose->Paint();
-	
-	GL.Flip();
 
+	if(bDatagridAnimation || NeedUpdateScreen())
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Flip!");
+		GL.Flip();
+	}
 
-	bool Status = NULL != Compose && Compose->HasEffects() && AnimationRemain;
 	if (Compose->HasEffects() == false)
 		AnimationRemain = false;
 
-	return Status;
+	m_bNeedToRefresh = false;
+	return true;
 }
 
 /*virtual*/ int OpenGL3DEngine::GetTick()
@@ -190,6 +195,8 @@ bool OpenGL3DEngine::Paint()
 
 void OpenGL3DEngine::NewScreen(string ScreenName)
 {
+	RefreshScreen();
+
 	UnHighlight();
 	UnSelect();
 	m_spDatagridAnimationManager->StopAnimations();
@@ -455,7 +462,7 @@ inline void OpenGL3DEngine::DumpScene()
 
 bool OpenGL3DEngine::NeedUpdateScreen()
 {
-	return Compose->HasEffects() || HighLightFrame != NULL;
+	return Compose->HasEffects() || HighLightFrame != NULL || m_bNeedToRefresh;
 }
 
 MeshFrame* OpenGL3DEngine::GetMeshFrameFromDesktop(string ObjectID)
