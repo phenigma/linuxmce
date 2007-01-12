@@ -185,7 +185,7 @@ if [[ -n "$GDB" ]]; then
 	fi
 fi
 
-ulimit -c 3145728 # 512 byte blocks
+ulimit -c unlimited
 ulimit -n 4096
 shopt -s nullglob
 export HOME=/root
