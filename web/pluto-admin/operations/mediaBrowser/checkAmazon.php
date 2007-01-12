@@ -97,7 +97,7 @@ function amazonSearchBox($fileData,$searchIndex,$mediadbADO){
 	$mediaType=$fileData['EK_MediaType'][0];
 	
 	$filters=array();
-	$rs=$mediadbADO->Execute('SELECT * FROM File_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType IN (2,3) AND FK_File=?',array($fileData['PK_File'][0]));
+	$rs=$mediadbADO->Execute('SELECT * FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType WHERE FK_AttributeType IN (2,3) AND FK_File=?',array($fileData['PK_File'][0]));
 	while($row=$rs->FetchRow()){
 		$filters[$row['FK_File']][$row['FK_AttributeType']]=$row['Name'];
 	}
