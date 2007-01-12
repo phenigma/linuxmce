@@ -62,7 +62,7 @@ endif
 CONFIGURE_FLAGS := --prefix=/usr \
 	--mandir=\$${prefix}/share/man \
 	--with-external-libmad \
-	--with-external-ffmpeg \
+	--without-external-ffmpeg \
 	--with-external-a52dec \
 	--with-external-libdts \
 	--disable-cacatest \
