@@ -8,6 +8,12 @@ function XorgConfLogging() {
         local message="$1"
         local xorgLog="/var/log/pluto/xorg.conf.log"
         local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
+
+		#<-mkr_b_ubuntu_b->
+        local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
+        local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
+		#<-mkr_b_ubuntu_e->
+		
         local myPid=$$
 
         echo "$myPid $(date -R) $message [$xorgLines]"  >> $xorgLog
@@ -43,7 +49,12 @@ ShowDialog()
 	kill "$pidOfX"
 }
 
-cp /etc/X11/xorg.conf{,.test}
+EXT=
+#<-mkr_b_ubuntu_b->
+EXT=".pluto"
+#<-mkr_b_ubuntu_e->	
+cp /etc/X11/xorg.conf{"$EXT",.test}
+
 if ! /usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/xorg.conf.test --resolution "${Width}x${Height}@${Refresh}" $Force $Type; then
 	echo "X configuration script exited with error"
 	exit 10

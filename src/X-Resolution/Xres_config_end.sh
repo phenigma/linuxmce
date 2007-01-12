@@ -12,6 +12,12 @@ function XorgConfLogging() {
         local message="$1"
         local xorgLog="/var/log/pluto/xorg.conf.log"
         local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
+
+		#<-mkr_b_ubuntu_b->
+        local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
+        local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
+		#<-mkr_b_ubuntu_e->
+		 
         local myPid=$$
 
         echo "$myPid $(date -R) $message [$xorgLines]"  >> $xorgLog
@@ -58,10 +64,14 @@ if [[ "${Answer:0:1}" == "y" || "${Answer:0:1}" == "Y" ]]; then
 	RunSQL "$Q"
 
 	pidOfX=$(ps ax|grep 'X :0 -ignoreABI -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
-	if [[ -z "$pidOfX" ]] ;then
-		pidOfX=$(ps ax|grep 'X :0 -br -audit 0 -auth /var/lib/gdm/:0.Xauth -nolisten tcp vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
-	fi						
-	mv /etc/X11/xorg.conf{.test,}
+	#<-mkr_b_ubuntu_b->
+	pidOfX=$(ps ax|grep 'X :5 -br -audit 0 -auth /var/lib/gdm/:0.Xauth -nolisten tcp vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
+	#<-mkr_b_ubuntu_e->	
+	EXT=
+	#<-mkr_b_ubuntu_b->
+	EXT=".pluto"
+	#<-mkr_b_ubuntu_e->	
+	mv /etc/X11/xorg.conf{.test,"$EXT"}
 	echo "Killing real X (to restart it with new config)"
 	kill $pidOfX
 	sleep 5
