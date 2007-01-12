@@ -116,14 +116,31 @@ PlutoMediaAttributes::~PlutoMediaAttributes()
 		delete it->second;
 
 	//coverarts
+	ClearCoverarts();
+	
+	//bookmarks
+	ClearBookmarks();
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaAttributes::ClearBookmarks()
+{
+	//bookmarks
+	for(ListBookmarks::iterator itb = m_listBookmarks.begin(), endb = m_listBookmarks.end(); itb != endb; ++itb)
+		delete *itb;
+	
+	m_listBookmarks.clear();
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaAttributes::ClearCoverarts()
+{
+	//coverarts
 	for(MapPictures::iterator itp = m_mapCoverarts.begin(), endp = m_mapCoverarts.end(); itp != endp; ++itp)
 		delete [] itp->second;
 	for(MapPictures::iterator itp = m_mapCoverartsThumbs.begin(), endp = m_mapCoverartsThumbs.end(); itp != endp; ++itp)
 		delete [] itp->second;
-	
-	//bookmarks
-	for(ListBookmarks::iterator itb = m_listBookmarks.begin(), endb = m_listBookmarks.end(); itb != endb; ++itb)
-		delete *itb;
+
+	m_mapCoverarts.clear();
+	m_mapCoverartsThumbs.clear();
 }
 //-----------------------------------------------------------------------------------------------------
 string PlutoMediaAttributes::SerializeClassClassName() 

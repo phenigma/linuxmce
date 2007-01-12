@@ -1367,6 +1367,9 @@ void PlutoMediaFile::LoadLongAttributes()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadBookmarkPictures()
 {
+	if(!m_bNewFileToDb)
+		m_pPlutoMediaAttributes->ClearBookmarks();
+
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	string SQL = 
@@ -1433,6 +1436,9 @@ void PlutoMediaFile::LoadMiscInfo()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadCoverarts()
 {
+	if(!m_bNewFileToDb)
+		m_pPlutoMediaAttributes->ClearCoverarts();
+
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	string SQL = 

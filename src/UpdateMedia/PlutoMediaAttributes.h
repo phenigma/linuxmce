@@ -80,6 +80,9 @@ public:
 	PlutoMediaAttributes();
 	~PlutoMediaAttributes();
 
+	void ClearBookmarks();
+	void ClearCoverarts();
+
 	bool OkayToDeserialize(int iSC_Version);
 	string SerializeClassClassName();
 	void SetupSerialization(int iSC_Version);
