@@ -4,6 +4,12 @@ function XorgConfLogging() {
         local message="$1"
         local xorgLog="/var/log/pluto/xorg.conf.log"
         local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
+		
+		#<-mkr_b_ubuntu_b>
+        local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
+        local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
+		#<-mkr_b_ubuntu_e->
+		
         local myPid=$$
 
         echo "$myPid $(date -R) $message [$xorgLines]"  >> $xorgLog
@@ -265,7 +271,11 @@ done
 set -x
 # Finalize wizard: save settings
 ConfSet "AVWizardDone" "1"
-mv "$XF86Config" /etc/X11/xorg.conf
+ConfFile="/etc/X11/xorg.conf"
+#<-mkr_b_ubuntu_b->
+ConfFile="/etc/X11/xorg.conf.pluto"
+#<-mkr_b_ubuntu_e->
+mv "$XF86Config" "$ConfFile"
 mv "$XineConf" /etc/pluto/xine.conf
 alsactl store
 UpdateAudioSettings

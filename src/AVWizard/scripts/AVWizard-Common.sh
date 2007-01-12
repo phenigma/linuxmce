@@ -4,6 +4,12 @@ function XorgConfLogging() {
         local message="$1"
         local xorgLog="/var/log/pluto/xorg.conf.log"
         local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
+
+		#<-mkr_b_ubuntu_b->
+	    local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
+		local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
+		#<-mkr_b_ubuntu_e->
+
         local myPid=$$
 
         echo "$myPid $(date -R) $message [$xorgLines]"  >> $xorgLog
