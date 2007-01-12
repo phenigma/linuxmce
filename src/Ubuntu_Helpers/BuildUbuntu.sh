@@ -8,8 +8,6 @@ svn_url="http://10.0.0.170/"
 
 sql_master_host="10.0.0.150"
 sql_master_db="pluto_main"
-sql_master_db_mainsqlcvs="main_sqlcvs_${flavor_master}"
-sql_master_db_mythsqlcvs="myth_sqlcvs_${flavor_master}"
 sql_master_db_media="pluto_media"
 sql_master_db_security="pluto_security"
 sql_master_db_telecom="pluto_telecom"
@@ -26,6 +24,7 @@ sql_slave_user="root"
 
 out_dir="${build_dir}/out"
 mkr_dir="${build_dir}/MakeRelease"
+
 
 function Install_Build_Needed_Packages {
 	local pkgs="subversion build-essential dh-make libmysqlclient12-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf1.2-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client"
@@ -174,6 +173,7 @@ function Create_Local_Repository {
 }
 
 function Import_Build_Database {
+	local temp_sqlcvsdir=$(mktemp -d)
 	local temp_file=$(mktemp)
 	local temp_file_main=$(mktemp)
 	local temp_file_myth=$(mktemp)
@@ -181,9 +181,23 @@ function Import_Build_Database {
 	local temp_file_security=$(mktemp)
 	local temp_file_telecom=$(mktemp)
 
-	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db > $temp_file
-	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db_mainsqlcvs > $temp_file_main
-	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db_mythsqlcvs > $temp_file_myth
+	## Import sqlcvs repositories from plutohome.com
+	ssh uploads@plutohome.com "
+                set -x;
+                rm -f /tmp/main_sqlcvs.dump /tmp/myth_sqlcvs /home/uploads/sqlcvs_dumps.tar.gz;
+                mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs.dump;
+                mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata myth_sqlcvs > /tmp/myth_sqlcvs.dump;
+                cd /tmp;
+                tar zcvf /home/uploads/sqlcvs_dumps.tar.gz main_sqlcvs.dump myth_sqlcvs.dump"
+        scp uploads@plutohome.com:/home/uploads/sqlcvs_dumps.tar.gz $temp_sqlcvsdir
+        pushd $temp_sqlcvsdir
+	        tar zxvf sqlcvs_dumps.tar.gz
+		mv main_sqlcvs.dump $temp_file_main
+		mv myth_sqlcvs.dump $temp_file_myth 
+	popd
+
+	## Import other datanases from 150
+	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db > $temp_file        
 	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db_media > $temp_file_media
 	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db_security > $temp_file_security
 	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db_telecom > $temp_file_telecom
@@ -213,12 +227,12 @@ function Import_Build_Database {
 	cat $temp_file_security | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_security
 	cat $temp_file_telecom | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_telecom
 
-	rm -rf $temp_file $temp_file_main $temp_file_myth $temp_file_media $temp_file_security $temp_file_telecom
+	rm -rf $temp_file $temp_file_main $temp_file_myth $temp_file_media $temp_file_security $temp_file_telecom $temp_sqlcvsdir
 }
 
 function Import_Pluto_Skins {
 	local skins_dir=/home/samba/www_docs/graphics
-	
+
 	mkdir -p /usr/pluto/orbiter/
 	rm -f /usr/pluto/orbiter/skins
 	ln -s $skins_dir /usr/pluto/orbiter/skins
@@ -226,18 +240,17 @@ function Import_Pluto_Skins {
 	rm -rf $skins_dir
 	mkdir -p $skins_dir
 
-#pushd $skins_dir
 	pushd /
 	ssh root@10.0.0.150 tar -c $skins_dir | tar -x
 	popd
 }
 
-Import_Build_Database
-Import_Pluto_Skins
-Install_Build_Needed_Packages
-Build_Pluto_Replacements
+#Import_Build_Database
+#Import_Pluto_Skins
+#Install_Build_Needed_Packages
+#Build_Pluto_Replacements
 Checkout_Pluto_Svn
-Build_MakeRelease_Binary
+#Build_MakeRelease_Binary
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
 Create_Local_Repository
