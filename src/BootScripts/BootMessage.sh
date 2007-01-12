@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 ## Check if we are in silent mode else exit
 grep -q "silent" /proc/splash 2>/dev/null || exit 0

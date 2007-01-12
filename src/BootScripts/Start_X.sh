@@ -5,6 +5,9 @@
 function assureXorgSane()
 {
 	xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
+	#<-mkr_b_ubuntu_b->
+	xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
+	#<-mkr_b_ubuntu_e->
 	if [ $xorgLines -le 15 ] ;then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "File xorg.conf has only $xorgLines lines, rebuilding"
 		EVICETEMPLATE_OnScreen_Orbiter=62
@@ -43,6 +46,9 @@ XClientParm=()
 XServerParm=(-logverbose 9 -br)
 Background=y
 XDisplay=:0
+#<-mkr_b_ubuntu_b->
+XDisplay=:5
+#<-mkr_b_ubuntu_e->
 
 #Xcompmgr=/usr/bin/xcompmgr
 Xcompmgr=/bin/true
