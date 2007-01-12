@@ -1,4 +1,9 @@
 #!/bin/bash
 
-awk '/Section..*"Files"/,/EndSection/ { if ($1 == "ModulePath") print "\tModulePath\t\"/usr/lib/xorg/modules\""; else print; next } { print }' /etc/X11/xorg.conf >/etc/X11/xorg.conf.$$
-mv /etc/X11/xorg.conf{.$$,}
+EXT=
+#<-mkr_b_ubuntu_b->
+EXT=".pluto"
+#<-mkr_b_ubuntu_e->
+
+awk '/Section..*"Files"/,/EndSection/ { if ($1 == "ModulePath") print "\tModulePath\t\"/usr/lib/xorg/modules\""; else print; next } { print }' /etc/X11/xorg.conf"$EXT" >/etc/X11/xorg.conf.$$
+mv /etc/X11/xorg.conf{.$$,"$EXT"}
