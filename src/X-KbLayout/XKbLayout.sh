@@ -72,6 +72,11 @@ else
 fi
 
 XConfFile="$XConfPath/etc/X11/xorg.conf"
+
+#<-mkr_b_ubuntu_b->
+XConfFile="$XConfPath/etc/X11/xorg.conf.pluto"
+#<-mkr_b_ubuntu_e->
+
 case "$Action" in
 	get)
 		getCurrentLayout
