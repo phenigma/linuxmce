@@ -325,3 +325,11 @@ function GeneratePassword() {
         echo $pass
 }
 
+Log()
+{
+	local File="$1"; shift
+	local Msg="$*"
+
+	echo "LOG: $Msg"
+	echo "$Msg" >>"$File"
+}

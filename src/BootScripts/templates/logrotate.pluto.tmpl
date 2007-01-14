@@ -2,8 +2,8 @@
 	rotate 7
 	daily
 	compress
+	delaycompress
 	missingok
-	copytruncate
 	
 	sharedscripts
 	prerotate
@@ -30,5 +30,8 @@
 
 			rm -f "$logfile"
 		done
+	endscript
+	postrotate
+		/usr/pluto/bin/MessageSend localhost 0 -1000 7 10 || :
 	endscript
 }

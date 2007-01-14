@@ -2,47 +2,55 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/PlutoVersion.h
+. /usr/pluto/bin/Utils.sh
 
 LogFile="/var/log/pluto/DCERouter.log";
-exec &> >(tee -a "$LogFile")
 
 echo "== FRESH START =="
 Logging "$TYPE" "$SEVERITY_WARNING" "$0 $module" "Writing Version: $Version"
+Logging "$TYPE" "$SEVERITY_WARNING" "$0 $module" "Writing Version: $Version" "$LogFile"
 echo "$Version" >/home/pluto-version
 
 cd /usr/pluto/bin
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting DCERouter"
+Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting DCERouter" "$LogFile"
 
 module=DCERouter
 device_name="$module"
 
+MAX_LOOP_COUNT=200
+
 i=1
-while [ "$i" -le 200 ]; do
-	echo "$LogSectionDelimiter"
+while [ "$i" -le "$MAX_LOOP_COUNT" ]; do
+	Log "$LogFile" "$LogSectionDelimiter"
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
-	echo "$(date) Starting"
+	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i" "$LogFile"
+	Log "$LogFile" "$(date) Starting"
 
 	/usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.log)
 	mysqldump pluto_main Device > /var/log/pluto/device.$(date +%F-%T)
 	if [ "${Valgrind/DCERouter}" != "$Valgrind" ]; then
-		/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost
+		/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost -l "$LogFile"
 	else
-		/usr/pluto/bin/Spawn_Wrapper.sh /usr/pluto/bin/DCERouter -h localhost
+		/usr/pluto/bin/Spawn_Wrapper.sh /usr/pluto/bin/DCERouter -h localhost -l "$LogFile"
 	fi
 
 	Ret="$?"
-	echo "Return code: $Ret"
+	Log "$LogFile" "Return code: $Ret"
 	if [ "$Ret" -eq 3 ]; then
 		# Abort
-		Logging $TYPE $SEVERITY_NORMAL "$module" "Shutting down... $i $device_name"
-		echo "$(date) Shutdown"
+		Logging $TYPE $SEVERITY_NORMAL "$module" "Shutting down... count=$i/$MAX_LOOP_COUNT dev=$device_name"
+		Logging $TYPE $SEVERITY_NORMAL "$module" "Shutting down... count=$i/$MAX_LOOP_COUNT dev=$device_name" "$LogFile"
+		Log "$LogFile" "$(date) Shutdown"
 		exit
 	elif [ "$Ret" -eq 2 ]; then
-		Logging $TYPE $SEVERITY_NORMAL "$module" "Device requests restart... $i $device_name"
-		echo "$(date) Restart"
+		Logging $TYPE $SEVERITY_NORMAL "$module" "Device requests restart... count=$i/$MAX_LOOP_COUNT dev=$device_name"
+		Logging $TYPE $SEVERITY_NORMAL "$module" "Device requests restart... count=$i/$MAX_LOOP_COUNT dev=$device_name" "$LogFile"
+		Log "$LogFile" "$(date) Restart"
 	else
-		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... $i $device_name"
-		echo "$(date) died"
+		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... count=$i/$MAX_LOOP_COUNT dev=$device_name"
+		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... count=$i/$MAX_LOOP_COUNT dev=$device_name" "$LogFile"
+		Log "$LogFile" "$(date) died"
 		echo $(date) $device_name died >> /var/log/pluto/deaths
 		echo $(date) died >> /var/log/pluto/died_${device_id}_$device_name
 		sleep 5

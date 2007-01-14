@@ -33,30 +33,35 @@ ReloadWatcher_Background()
 	/usr/pluto/bin/Config_Device_Changes.sh
 	/usr/pluto/bin/Start_LocalDevices.sh
 }
-exec &> >(tee -a "$LogFile")
 
-echo "== ATTEMPT FRESH START =="
+Log "$LogFile" "== ATTEMPT FRESH START =="
 AlreadyRunning="/usr/pluto/locks/pluto_spawned_local_devices.txt"
+AlreadyRunningPids="$(cat "$AlreadyRunning" | tr '\n' ',')"
 WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
-Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Dev: $device_id; Already Running list: $(cat $AlreadyRunning | tr '\n' ',')"
+Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Dev: $device_id; Already Running list: $AlreadyRunningPids"
+Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Dev: $device_id; Already Running list: $AlreadyRunningPids" "$LogFile"
 if grep -q "^$device_id$" "$AlreadyRunning" 2>/dev/null; then
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Device $device_id was marked as 'running'. Not starting"
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Device $device_id was marked as 'running'. Not starting" "$LogFile"
 	echo "$(date) Already running: $device_id" >>/var/log/pluto/Spawn_Device.log
 	Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
-	Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Dev: $device_id; Exiting"
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Dev: $device_id; Exiting because not starting"
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "$$ Dev: $device_id; Exiting because not starting" "$LogFile"
 	exit
 fi
-echo "== FRESH START =="
+Log "$LogFile" "== FRESH START =="
 echo "$device_id" >>"$AlreadyRunning"
 echo "$(date) About to be run: $device_id" >>/var/log/pluto/Spawn_Device.log
 Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "device: $device_id ip: $ip_of_router cmd_line: $cmd_line"
+Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "device: $device_id ip: $ip_of_router cmd_line: $cmd_line" "$LogFile"
 
 [[ -n "$VGcmd" ]] && VGcmd="$VGcmd --log-file=$valgrind_LogFile "
 
 if [[ -z "$cmd_line" ]]; then
 	Logging "$TYPE" "$SEVERITY_WARNING" "$0 $module" "Empty command line"
+	Logging "$TYPE" "$SEVERITY_WARNING" "$0 $module" "Empty command line" "$LogFile"
 	exit 1
 fi
 
@@ -73,6 +78,7 @@ elif [[ -x "$cmd_line" ]]; then
 	OK=1
 else
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0 $module" "Can't execute $cmd_line"
+	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0 $module" "Can't execute $cmd_line" "$LogFile"
 	exit 1
 fi
 
@@ -83,6 +89,7 @@ fi
 [[ -z "$DISPLAY" ]] && export DISPLAY=:0
 
 Logging $TYPE $SEVERITY_STAGE "$module" "Entering $module"
+Logging $TYPE $SEVERITY_STAGE "$module" "Entering $module" "$LogFile"
 
 # wait for the package to be installed if this is the case
 while [[ -f /usr/pluto/locks/installing."$device_id" ]]; do
@@ -95,22 +102,24 @@ Tab=$(printf "\t") # to prevent any smart masses from converting this tab to 4 o
 i=1
 ReloadWatcher=0
 while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
-	echo "$LogSectionDelimiter"
+	Log "$LogFile" "$LogSectionDelimiter"
 	rm -f /var/log/pluto/spawned_devices_$device_id
 
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
-	echo $(date) Starting
+	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i" "$LogFile"
 
 	ReloadLock=/usr/pluto/locks/reload_watcher
 	if [[ -f "$ReloadLock" ]] && grep -q "$device_id" "$ReloadLock"; then
 		if [[ "$ReloadWatcher" -eq 0 ]]; then
 			Logging $TYPE $SEVERITY_WARNING "$module" 'Reload watcher: I am the one, but did not know it! Assuming position'
+			Logging $TYPE $SEVERITY_WARNING "$module" 'Reload watcher: I am the one, but did not know it! Assuming position' "$LogFile"
 		fi
 		ReloadWatcher=1
 	fi
 
 	if [[ "$ReloadWatcher" -eq 1 ]]; then
 		Logging $TYPE $SEVERITY_WARNING "$module" "Reload watcher: running Start_LocalDevices"
+		Logging $TYPE $SEVERITY_WARNING "$module" "Reload watcher: running Start_LocalDevices" "$LogFile"
 		/usr/pluto/bin/UpdateAvailableSerialPorts.sh
 		ReloadWatcher_Background &
 		disown -a
@@ -121,16 +130,18 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 			echo "Device: $device_id" >"$ReloadLock"
 			ReloadWatcher=1
 			Logging $TYPE $SEVERITY_WARNING "$module" "Reload watcher: I, $device_id, have just been assigned as the reload watcher"
+			Logging $TYPE $SEVERITY_WARNING "$module" "Reload watcher: I, $device_id, have just been assigned as the reload watcher" "$LogFile"
 			# We don't unlock this one, ever
 		fi
 	fi
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Found $Path$cmd_line"
+	Logging $TYPE $SEVERITY_NORMAL "$module" "Found $Path$cmd_line" "$LogFile"
 	if [[ "$cmd_line" != *Spawn_Device* && "$Valgrind" == *"$cmd_line"* ]]; then
 #		(/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router"; echo $? >"/tmp/pluto_exitcode_$device_id")
-		/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router"
+		/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router" -l "$LogFile"
 	else
 #		(/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router"; echo $? >"/tmp/pluto_exitcode_$device_id")
-		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router"
+		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router" -l "$LogFile"
 	fi
 
 #	Ret="$(cat /tmp/pluto_exitcode_$device_id)"
@@ -144,30 +155,34 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 #	fi
 #	screen -wipe &>/dev/null
 	
-	echo "Return code: $Ret"
+	Log "$LogFile" "Return code: $Ret"
 	if [[ "$Ret" -eq 3 ]]; then
 		# Abort
 		WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 		sed -i "/^[^0-9]*$device_id[^0-9]*\$/ d" "$AlreadyRunning"
-		Logging $TYPE $SEVERITY_WARNING "$module" "Shutting down... $i $device_name"
+		Logging $TYPE $SEVERITY_WARNING "$module" "Shutting down... count=$i/$MAX_RESPAWN_COUNT dev=$device_name"
+		Logging $TYPE $SEVERITY_WARNING "$module" "Shutting down... count=$i/$MAX_RESPAWN_COUNT dev=$device_name" "$LogFile"
 		sed -i "/^$device_id$/ d" "$AlreadyRunning"
-		echo "$(date) Shutdown"
+		Log "$LogFile" "$(date) Shutdown"
 		Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 		break
 	elif [[ "$Ret" -eq 2 || "$Ret" -eq 0 ]]; then
-		Logging $TYPE $SEVERITY_WARNING "$module" "Device requests restart... $i $device_name"
+		Logging $TYPE $SEVERITY_WARNING "$module" "Device requests restart... count=$i/$MAX_RESPAWN_COUNT dev=$device_name"
+		Logging $TYPE $SEVERITY_WARNING "$module" "Device requests restart... count=$i/$MAX_RESPAWN_COUNT dev=$device_name" "$LogFile"
 		if DeviceIsDisabled "$device_id"; then
 			WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 			Logging $TYPE $SEVERITY_WARNING "$module" "Device was disabled or removed. Stopping and marking as not running."
+			Logging $TYPE $SEVERITY_WARNING "$module" "Device was disabled or removed. Stopping and marking as not running." "$LogFile"
 			sed -i "/^$device_id$/ d" "$AlreadyRunning"
 			Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 			break
 		fi
-		echo "$(date) Restart"
+		Log "$LogFile" "$(date) Restart"
 		sleep 8
 	else
-		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... $i $device_name"
-		echo "$(date) died"
+		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... count=$i/$MAX_RESPAWN_COUNT dev=$device_name"
+		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... count=$i/$MAX_RESPAWN_COUNT dev=$device_name" "$LogFile"
+		Log "$LogFile" "$(date) died"
 		echo $(date) $device_name died >> /var/log/pluto/deaths
 		echo $(date) died >> /var/log/pluto/died_${device_id}_$device_name
 
@@ -179,7 +194,8 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 			fi
 		done
 		if [[ "$count" -gt 3 ]]; then
-			Logging $TYPE $SEVERITY_WARNING "$module" "Found $count cores. Deleted all but latest 3. $i $device_name"
+			Logging $TYPE $SEVERITY_WARNING "$module" "Found $count cores. Deleted all but latest 3. count=$i/$MAX_RESPAWN_COUNT dev=$device_name"
+			Logging $TYPE $SEVERITY_WARNING "$module" "Found $count cores. Deleted all but latest 3. count=$i/$MAX_RESPAWN_COUNT dev=$device_name" "$LogFile"
 		fi
 		sleep 10
 		((i++))
@@ -188,4 +204,5 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 done
 if [[ "$i" -gt "$MAX_RESPAWN_COUNT"  ]]; then
 	Logging $TYPE $SEVERITY_CRITICAL $module "Aborting restart of device $device_id..."
+	Logging $TYPE $SEVERITY_CRITICAL $module "Aborting restart of device $device_id..." "$LogFile"
 fi
