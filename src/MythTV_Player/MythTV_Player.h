@@ -97,6 +97,7 @@ public:
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
 	void EVENT_Error_Occured(string sError_Message);
+	void EVENT_MythTV_Show_Recorded(int iMythTV_ChannelID,string sName,string sDateTime);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -253,6 +254,15 @@ public:
 	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #91 - Input Select */
+	/** toggle inputs */
+		/** @param #71 PK_Command_Input */
+			/** The Input to select */
+
+	virtual void CMD_Input_Select(int iPK_Command_Input) { string sCMD_Result; CMD_Input_Select(iPK_Command_Input,sCMD_Result,NULL);};
+	virtual void CMD_Input_Select(int iPK_Command_Input,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #102 - Record */
 	/** Record the current show */
 
@@ -270,7 +280,7 @@ public:
 
 
 	/** @brief COMMAND: #126 - Guide */
-	/** Go to the Guide */
+	/** Show guide information.  For a dvd this may be the menu, just like the menu command */
 
 	virtual void CMD_Guide() { string sCMD_Result; CMD_Guide(sCMD_Result,NULL);};
 	virtual void CMD_Guide(string &sCMD_Result,Message *pMessage);
@@ -413,6 +423,23 @@ public:
 	virtual void CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #249 - Start Streaming */
+	/** Like play media, but it means the destination device is not the same as the source */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #41 StreamID */
+			/** Identifier for this streaming session. */
+		/** @param #42 MediaPosition */
+			/** Where to start playing from */
+		/** @param #59 MediaURL */
+			/** The url to use to play this stream. */
+		/** @param #105 StreamingTargets */
+			/** Target destinations for streaming. Semantics dependent on the target device. */
+
+	virtual void CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets) { string sCMD_Result; CMD_Start_Streaming(iPK_MediaType,iStreamID,sMediaPosition.c_str(),sMediaURL.c_str(),sStreamingTargets.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #259 - Report Playback Position */
 	/** This will report the playback position of the current stream. */
 		/** @param #9 Text */
@@ -468,7 +495,7 @@ public:
 
 
 	/** @brief COMMAND: #777 - Recorded TV Menu */
-	/**  */
+	/** go to the recorded tv menu */
 
 	virtual void CMD_Recorded_TV_Menu() { string sCMD_Result; CMD_Recorded_TV_Menu(sCMD_Result,NULL);};
 	virtual void CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage);

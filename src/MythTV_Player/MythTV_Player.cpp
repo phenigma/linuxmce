@@ -1194,7 +1194,7 @@ void MythTV_Player::CMD_Info(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c126-b->
 
 	/** @brief COMMAND: #126 - Guide */
-	/** Go to the Guide */
+	/** Show guide information.  For a dvd this may be the menu, just like the menu command */
 
 void MythTV_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
 //<-dceag-c126-e->
@@ -1294,7 +1294,7 @@ void MythTV_Player::CMD_Record(string &sCMD_Result,Message *pMessage)
 //<-dceag-c777-b->
 
 	/** @brief COMMAND: #777 - Recorded TV Menu */
-	/**  */
+	/** go to the recorded tv menu */
 
 void MythTV_Player::CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage)
 //<-dceag-c777-e->
@@ -1324,3 +1324,37 @@ void MythTV_Player::ReleaseOrbiterPointer()
 	SendCommand(CMD_Remove_Popup);
 }
 
+//<-dceag-c91-b->
+
+	/** @brief COMMAND: #91 - Input Select */
+	/** toggle inputs */
+		/** @param #71 PK_Command_Input */
+			/** The Input to select */
+
+void MythTV_Player::CMD_Input_Select(int iPK_Command_Input,string &sCMD_Result,Message *pMessage)
+//<-dceag-c91-e->
+{
+#ifndef WIN32
+	sendMythCommand("key I");
+#endif
+}
+
+//<-dceag-c249-b->
+
+	/** @brief COMMAND: #249 - Start Streaming */
+	/** Like play media, but it means the destination device is not the same as the source */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #41 StreamID */
+			/** Identifier for this streaming session. */
+		/** @param #42 MediaPosition */
+			/** Where to start playing from */
+		/** @param #59 MediaURL */
+			/** The url to use to play this stream. */
+		/** @param #105 StreamingTargets */
+			/** Target destinations for streaming. Semantics dependent on the target device. */
+
+void MythTV_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
+//<-dceag-c249-e->
+{
+}
