@@ -658,6 +658,7 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Going to rotate logs...");
 		g_pPlutoLogger->Rotate();
+		return rmr_Processed;
 	}
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_START_PING)
 	{

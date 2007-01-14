@@ -203,7 +203,9 @@ void FileLogger::Rotate()
 	if(!m_sFilename.empty() && m_LogFile != stderr)
 	{
 		//the file will be moved, but the inode remains
+		Write(LV_STATUS,"Renaming file: %s",m_sFilename.c_str());
 		fclose(m_LogFile);
+		rename(m_sFilename.c_str(),(m_sFilename + ".old").c_str()
 		m_LogFile = fopen(m_sFilename.c_str(), "a");
 	}
 }

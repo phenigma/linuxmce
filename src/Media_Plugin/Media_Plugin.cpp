@@ -1221,7 +1221,6 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			DCE::CMD_Spawn_Application_DT CMD_Spawn_Application_DT(m_dwPK_Device,DEVICETEMPLATE_App_Server_CONST,BL_SameHouse,"/home/JukeBoxSimulate.sh","simjukebox",
 				bToggle ? "100" : "2", "", "", false, false, false, true);
 			SendCommand(CMD_Spawn_Application_DT);
-									
 			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
 				"Please wait up to 20 seconds while I load that disc","","load_jukebox","0","10","1");
 			SendCommand(SCREEN_PopupMessage);
