@@ -644,17 +644,22 @@ bool Orbiter::GetConfig()
 			vector<string>::iterator it2;
 			for(it2=vectTokens.begin();it2!=vectTokens.end();++it2)
 			{
+				// The string has the format keyname, scan code, [U|D|H for Up/Down/Hold], [Y|anything else] Y=Ignore this when yield to screen is active
 				string::size_type pos = it2->find(',');
 				string::size_type pos2 = (pos!=string::npos) ? it2->find(',',pos+1) : string::npos;
+				string::size_type pos3 = (pos2!=string::npos) ? it2->find(',',pos2+1) : string::npos;
 				if( pos!=string::npos && pos<it2->size() )
 				{
 					int ScanCode = atoi(it2->substr(pos + 1).c_str());
 					char Action = (pos2!=string::npos && pos2<it2->size()) ? (*it2)[pos2+1] : 'D'; // Default to down
+					if( pos3!=string::npos && pos3+1<it2->size() && (*it2)[pos3+1]=='Y' )
+						m_mapScanCodeToIgnoreOnYield[ScanCode]=true;
+
 					string sCode;
 					m_mapScanCodeToRemoteButton[ make_pair<int,char> (ScanCode,Action) ] = StringUtils::ToUpper(it2->substr(0,pos));
 
-					g_pPlutoLogger->Write(LV_STATUS, "Added scan code %d -> %s", 
-						atoi( it2->substr(pos + 1).c_str()), StringUtils::ToUpper(it2->substr(0,pos)).c_str());
+					g_pPlutoLogger->Write(LV_STATUS, "Added scan code %d -> %s Action: %d", 
+						atoi( it2->substr(pos + 1).c_str()), StringUtils::ToUpper(it2->substr(0,pos)).c_str(),(int) Action);
 				}
 			}
 
@@ -2219,29 +2224,6 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		m_pOrbiterRenderer->AdjustWindowSize(m_pScreenHistory_Current->GetObj()->m_rPosition.Width,
 			m_pScreenHistory_Current->GetObj()->m_rPosition.Height);
 
-		// Temporary hack until we get it working so keys are transparent when yield to screen is true
-		if( UsesUIVersion2() && m_mapScanCodeToRemoteButton.size()==0 )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Hack in some basic keyboard navigation since ui2 yield keyboard isn't working");
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (10,'U') ] = "1";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (11,'U') ] = "2";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (12,'U') ] = "3";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (13,'U') ] = "4";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (14,'U') ] = "5";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (15,'U') ] = "6";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (16,'U') ] = "7";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (17,'U') ] = "8";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (18,'U') ] = "9";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (19,'U') ] = "0";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (98,'U') ] = "UP";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (104,'U') ] = "DOWN";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (100,'U') ] = "LEFT";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (102,'U') ] = "RIGHT";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (10,'U') ] = "ENTER";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (36,'U') ] = "OK";
-			m_mapScanCodeToRemoteButton[ make_pair<int,char> (22,'U') ] = "CLEAR";
-		}
-
 		m_bStartingUp=false;
 
 		m_pOrbiterRenderer->PostInitializeActions();
@@ -2721,7 +2703,8 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 	}
 	m_TypeToIgnore=Orbiter::Event::NONE;
 
-	if( pEvent->data.button.m_bSimulated==false && (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP) )  // Use Type instead of pEvent->type since the user may have some mapping for this
+	if( pEvent->data.button.m_bSimulated==false && (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP) 
+		&& (m_bYieldInput==false || m_mapScanCodeToIgnoreOnYield.find( pEvent->data.button.m_iKeycode ) == m_mapScanCodeToIgnoreOnYield.end()) )  // Use Type instead of pEvent->type since the user may have some mapping for this
 	{
 		StopRepeatCode();  // In case the IRReceiverBase was repeating a key sequence
 
@@ -2794,24 +2777,6 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		if( it!=m_mapScanCodeToRemoteButton.end() )
 		{
 			string sKey = it->second;
-			if( UsesUIVersion2()==false )
-			{
-				/* Temporary until all issues with the wm are resolved.  For now with UI1 the keys
-					are getting doubled since the app is on top it gets the keys once directly, and 
-					again from Orbiter's simulate keypress  -- todo -- hack
-				*/
-				if( (m_cCurrentScreen=='N' || m_cCurrentScreen=='C') &&
-					(sKey=="UP" || sKey=="DOWN" || sKey=="LEFT" || sKey=="RIGHT" || sKey=="1" ||
-					sKey=="2" || sKey=="3" || sKey=="4" || sKey=="5" || sKey=="6" || sKey=="7" || sKey=="8" ||
-					sKey=="9" || sKey=="0" || sKey=="ENTER" || sKey=="OK") )
-				{
-#ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing skipping key %s because of osd",sKey.c_str());
-#endif
-					return;
-				}
-			}
-
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s repeat %s",sKey.c_str(),sRepeatKey.c_str());
 #endif

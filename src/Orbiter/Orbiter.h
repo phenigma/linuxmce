@@ -204,7 +204,8 @@ namespace DCE
 		bool m_bSpeedIconsOnVfd; // True if there's a VFD that can show speed icons
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 		string m_sOperatingSystem; // If this is an OSD for a dual-boot media director this contains the type of o/s
-		map< pair<int,char>,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin */
+		map< pair<int,char>,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin.  The char is the action (Up,Down,Hold meaning repeat). */
+		map< int, bool > m_mapScanCodeToIgnoreOnYield; /** Map of scan codes (=true) where they should be ignored when yield screen is true */
 		map< pair<int,int>,pair<int,int> > m_mapEventToSubstitute; /** < Replace a combination of event,button with event,button */
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
