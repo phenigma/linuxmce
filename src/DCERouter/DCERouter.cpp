@@ -1029,7 +1029,8 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
     case DEVICEID_DCEROUTER:
         if ((*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND)
         {
-            switch((*SafetyMessage)->m_dwID)
+			int iMessageID = (*SafetyMessage)->m_dwID;
+            switch(iMessageID)
             {
             case SYSCOMMAND_QUIT:
                 m_bQuit=true;
@@ -1081,6 +1082,12 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
                     PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
 					slCore.m_bReleased=true; // So it never gets released
 				}
+				break;
+			case SYSCOMMAND_ROTATE:
+				DoLogRotation();
+				break;
+			default:
+				g_pPlutoLogger->Write(LV_WARNING, "Received unknown SYSCOMMAND %d", iMessageID);
 				break;
 			}
             return;
@@ -1470,6 +1477,21 @@ void Router::DoReload()
 
     m_bClosed=false;
     m_bReload=false;
+}
+
+void Router::DoLogRotation()
+{
+	g_pPlutoLogger->Write(LV_CRITICAL, "Starting log rotation...");
+	PLUTO_SAFETY_LOCK(lm,m_ListenerMutex); // I don't know if this is needed, but DoReload uses it...
+    ServerSocketMap::iterator iDC;
+    for(iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
+    {
+        ServerSocket *pServerSocket = (*iDC).second;
+        PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
+        {
+            pServerSocket->SendMessage(new Message(0, (*iDC).first, PRIORITY_URGENT, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_ROTATE, 0));
+        }
+    }
 }
 
 bool Router::Run()

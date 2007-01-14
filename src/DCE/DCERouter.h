@@ -327,6 +327,7 @@ namespace DCE
         void CreatedDevice(DeviceData_Router *pDevice);
         void ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceData_Impl *pDevice);
         void DoReload();
+		void DoLogRotation();
 		bool RequestReload(int PK_Device_Requesting)
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Received reload command from %d",PK_Device_Requesting);
