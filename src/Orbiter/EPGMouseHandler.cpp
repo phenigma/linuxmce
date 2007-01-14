@@ -71,7 +71,7 @@ void EPGMouseHandler::Start()
 		DataGridTable *pDataGridTable = m_pDesignObj_DataGrid_Active->DataGridTable_Get();
 		if( pDataGridTable )
 		{
-			int Rows = pDataGridTable->DataGridTable_Get()->GetRows();
+			int Rows = pDataGridTable->GetRows();
 			int CurrentRow = m_pDesignObj_DataGrid_Active->m_iHighlightedRow>0 ? m_pDesignObj_DataGrid_Active->m_iHighlightedRow : 0;
 			double RowHeight = (double) m_pDesignObj_DataGrid_Active->m_rPosition.Height / Rows;
 			int Y = int(CurrentRow * RowHeight + m_pDesignObj_DataGrid_Active->m_rPosition.Y + m_pDesignObj_DataGrid_Active->m_pPopupPoint.Y);
