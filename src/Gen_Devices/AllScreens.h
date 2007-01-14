@@ -9749,6 +9749,86 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_ExternalDeviceFullScreen : public PreformedCommand
+	{
+	public:
+		SCREEN_ExternalDeviceFullScreen(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "252" /* screen ID */);
+		}
+	};
+
+	class SCREEN_ExternalDeviceFullScreen_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_ExternalDeviceFullScreen_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "252" /* screen ID */);
+		}
+	};
+
+	class SCREEN_ExternalDeviceFullScreen_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_ExternalDeviceFullScreen_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "252" /* screen ID */);
+		}
+	};
+
+	class SCREEN_ExternalDeviceFullScreen_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_ExternalDeviceFullScreen_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "252" /* screen ID */);
+		}
+	};
+
+	class SCREEN_ExternalDeviceFullScreen_Opts : public PreformedCommand
+	{
+	public:
+		SCREEN_ExternalDeviceFullScreen_Opts(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "253" /* screen ID */);
+		}
+	};
+
+	class SCREEN_ExternalDeviceFullScreen_Opts_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_ExternalDeviceFullScreen_Opts_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "253" /* screen ID */);
+		}
+	};
+
+	class SCREEN_ExternalDeviceFullScreen_Opts_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_ExternalDeviceFullScreen_Opts_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "253" /* screen ID */);
+		}
+	};
+
+	class SCREEN_ExternalDeviceFullScreen_Opts_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_ExternalDeviceFullScreen_Opts_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "253" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -10010,6 +10090,8 @@ namespace DCE
 		virtual void SCREEN_Halt_System(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Floorplan_Editor(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Final_House_Setup(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_ExternalDeviceFullScreen(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_ExternalDeviceFullScreen_Opts(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11494,6 +11576,18 @@ namespace DCE
 				{
 					ResetCallBacks();
 					SCREEN_Final_House_Setup(nPK_Screen);
+					break;
+				}
+				case 252:
+				{
+					ResetCallBacks();
+					SCREEN_ExternalDeviceFullScreen(nPK_Screen);
+					break;
+				}
+				case 253:
+				{
+					ResetCallBacks();
+					SCREEN_ExternalDeviceFullScreen_Opts(nPK_Screen);
 					break;
 				}
 
