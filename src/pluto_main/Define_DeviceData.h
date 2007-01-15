@@ -182,6 +182,7 @@
 #define DEVICEDATA_Operating_System_CONST 209
 #define DEVICEDATA_Channel_List_CONST 210
 #define DEVICEDATA_OS_On_Hard_Drive_CONST 211
+#define DEVICEDATA_Remote_Assistance_Port_CONST 212
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

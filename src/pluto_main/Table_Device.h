@@ -95,6 +95,7 @@ string m_Status;
 short int m_PingTest;
 long int m_EK_LicensedDevice;
 short int m_IsNewDevice;
+short int m_ManuallyConfigureEA;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -102,7 +103,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[24];
+		bool is_null[25];
 	
 	public:
 		long int PK_Device_get();
@@ -123,6 +124,7 @@ string Status_get();
 short int PingTest_get();
 long int EK_LicensedDevice_get();
 short int IsNewDevice_get();
+short int ManuallyConfigureEA_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -149,6 +151,7 @@ void Status_set(string val);
 void PingTest_set(short int val);
 void EK_LicensedDevice_set(long int val);
 void IsNewDevice_set(short int val);
+void ManuallyConfigureEA_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -236,7 +239,7 @@ void UnknownDevices_FK_Device_PC_getrows(vector <class Row_UnknownDevices*> *row
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Device+ m_Disabled+ m_FK_Room+ m_FK_Installation+ m_FK_DesignObj+ m_Description+ m_FK_DeviceTemplate+ m_FK_Device_ControlledVia+ m_IPaddress+ m_MACaddress+ m_IgnoreOnOff+ m_FK_Device_RouteTo+ m_NeedConfigure+ m_State+ m_Status+ m_PingTest+ m_EK_LicensedDevice+ m_IsNewDevice+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Device+ m_Disabled+ m_FK_Room+ m_FK_Installation+ m_FK_DesignObj+ m_Description+ m_FK_DeviceTemplate+ m_FK_Device_ControlledVia+ m_IPaddress+ m_MACaddress+ m_IgnoreOnOff+ m_FK_Device_RouteTo+ m_NeedConfigure+ m_State+ m_Status+ m_PingTest+ m_EK_LicensedDevice+ m_IsNewDevice+ m_ManuallyConfigureEA+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -259,6 +262,7 @@ string Status_asSQL();
 string PingTest_asSQL();
 string EK_LicensedDevice_asSQL();
 string IsNewDevice_asSQL();
+string ManuallyConfigureEA_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
