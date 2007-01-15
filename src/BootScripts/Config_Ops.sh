@@ -116,6 +116,7 @@ ConfDel()
 	local EscVariable="${Variable//\\\\/\\\\}"
 	WaitLock "pluto.conf" "Config_Ops-ConfDel" nolog
 	sed -i "/^$EscVariable.*=/ d" /etc/pluto.conf
+	eval "unset $Variable"
 	Unlock "pluto.conf" "Config_Ops-ConfDel" nolog
 }
 
