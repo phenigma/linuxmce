@@ -25,7 +25,6 @@
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
-#include <sstream>
 using namespace std;
 using namespace DCE;
 
@@ -3404,3 +3403,25 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 	g_pPlutoLogger->Write(LV_STATUS,"Finishing Get_Network_Devices_Shares");
 }
 
+//<-dceag-c843-b->
+
+	/** @brief COMMAND: #843 - RemoteAssistance_SetStatus */
+	/** Change the state of Remote Assistance */
+		/** @param #208 Enable */
+			/** Desired state of Remote Assistance */
+
+void General_Info_Plugin::CMD_RemoteAssistance_SetStatus(bool bEnable,string &sCMD_Result,Message *pMessage)
+//<-dceag-c843-e->
+{
+}
+//<-dceag-c844-b->
+
+	/** @brief COMMAND: #844 - RemoteAssistance_GetStatus */
+	/** Get the state of Remote Assistance */
+		/** @param #208 Enable */
+			/** The state of Remote Assistance */
+
+void General_Info_Plugin::CMD_RemoteAssistance_GetStatus(bool *bEnable,string &sCMD_Result,Message *pMessage)
+//<-dceag-c844-e->
+{
+}

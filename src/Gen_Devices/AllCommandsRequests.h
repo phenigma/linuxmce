@@ -22600,5 +22600,93 @@ namespace DCE
 			COMMANDPARAMETER_Group_ID_CONST, StringUtils::itos(iGroup_ID).c_str(),
 			COMMANDPARAMETER_Nodes_List_CONST, sNodes_List.c_str()); }
 	};
+	class CMD_RemoteAssistance_SetStatus : public PreformedCommand {
+	public:
+		CMD_RemoteAssistance_SetStatus(long DeviceIDFrom, long DeviceIDTo,bool bEnable) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_RemoteAssistance_SetStatus_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Enable_CONST, (bEnable ? "1" : "0")); }
+	};
+	class CMD_RemoteAssistance_SetStatus_DL : public PreformedCommand {
+	public:
+		CMD_RemoteAssistance_SetStatus_DL(long DeviceIDFrom, string DeviceIDTo,bool bEnable) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_RemoteAssistance_SetStatus_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Enable_CONST, (bEnable ? "1" : "0")); }
+	};
+	class CMD_RemoteAssistance_SetStatus_DT : public PreformedCommand {
+	public:
+		CMD_RemoteAssistance_SetStatus_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,bool bEnable) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_RemoteAssistance_SetStatus_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Enable_CONST, (bEnable ? "1" : "0")); }
+	};
+	class CMD_RemoteAssistance_SetStatus_Cat : public PreformedCommand {
+	public:
+		CMD_RemoteAssistance_SetStatus_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,bool bEnable) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_RemoteAssistance_SetStatus_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Enable_CONST, (bEnable ? "1" : "0")); }
+	};
+	class RESP_RemoteAssistance_GetStatus : public PreformedCommandResponse {
+		bool *m_bEnable;
+	public:
+		RESP_RemoteAssistance_GetStatus(bool *bEnable) { 
+		m_bEnable=bEnable; }
+		void ParseResponse(Message *pMessage) {
+			*m_bEnable=(pMessage->m_mapParameters[COMMANDPARAMETER_Enable_CONST]=="1" ? true : false); };
+	};
+	class CMD_RemoteAssistance_GetStatus : public PreformedCommand {
+	public:
+		CMD_RemoteAssistance_GetStatus(long DeviceIDFrom, long DeviceIDTo,bool *bEnable) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_RemoteAssistance_GetStatus_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Enable_CONST, (*bEnable ? "1" : "0"));		m_pcResponse = new RESP_RemoteAssistance_GetStatus(bEnable); }
+	};
+	class CMD_RemoteAssistance_GetStatus_DL : public PreformedCommand {
+	public:
+		CMD_RemoteAssistance_GetStatus_DL(long DeviceIDFrom, string DeviceIDTo,bool *bEnable) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_RemoteAssistance_GetStatus_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Enable_CONST, (*bEnable ? "1" : "0"));		m_pcResponse = new RESP_RemoteAssistance_GetStatus(bEnable); }
+	};
+	class CMD_RemoteAssistance_GetStatus_DT : public PreformedCommand {
+	public:
+		CMD_RemoteAssistance_GetStatus_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,bool *bEnable) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_RemoteAssistance_GetStatus_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Enable_CONST, (*bEnable ? "1" : "0"));		m_pcResponse = new RESP_RemoteAssistance_GetStatus(bEnable); }
+	};
+	class CMD_RemoteAssistance_GetStatus_Cat : public PreformedCommand {
+	public:
+		CMD_RemoteAssistance_GetStatus_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,bool *bEnable) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_RemoteAssistance_GetStatus_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Enable_CONST, (*bEnable ? "1" : "0"));		m_pcResponse = new RESP_RemoteAssistance_GetStatus(bEnable); }
+	};
+	class CMD_NOREP_RemoteAssistance_GetStatus : public PreformedCommand {
+	public:
+		CMD_NOREP_RemoteAssistance_GetStatus(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_RemoteAssistance_GetStatus_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_RemoteAssistance_GetStatus_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_RemoteAssistance_GetStatus_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_RemoteAssistance_GetStatus_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_RemoteAssistance_GetStatus_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_RemoteAssistance_GetStatus_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_RemoteAssistance_GetStatus_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_RemoteAssistance_GetStatus_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_RemoteAssistance_GetStatus_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_RemoteAssistance_GetStatus_CONST,
+			0 /* number of parameters */); }
+	};
 }
 #endif

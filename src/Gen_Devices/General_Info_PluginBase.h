@@ -213,6 +213,8 @@ public:
 	virtual void CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iPK_Software,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_User_Name(int iPK_Users,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Network_Devices_Shares(char **pCustom_Response,int *iCustom_Response_Size,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_RemoteAssistance_SetStatus(bool bEnable,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_RemoteAssistance_GetStatus(bool *bEnable,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -992,6 +994,59 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Get_Network_Devices_Shares(&pCustom_Response,&iCustom_Response_Size,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_RemoteAssistance_SetStatus_CONST:
+					{
+						string sCMD_Result="OK";
+						bool bEnable=(pMessage->m_mapParameters[COMMANDPARAMETER_Enable_CONST]=="1" ? true : false);
+						CMD_RemoteAssistance_SetStatus(bEnable,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_RemoteAssistance_SetStatus(bEnable,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_RemoteAssistance_GetStatus_CONST:
+					{
+						string sCMD_Result="OK";
+						bool bEnable=(pMessage->m_mapParameters[COMMANDPARAMETER_Enable_CONST]=="1" ? true : false);
+						CMD_RemoteAssistance_GetStatus(&bEnable,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Enable_CONST]=(bEnable ? "1" : "0");
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_RemoteAssistance_GetStatus(&bEnable,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

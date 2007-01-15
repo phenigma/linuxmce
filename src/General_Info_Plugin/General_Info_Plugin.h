@@ -458,6 +458,23 @@ Delimiter: '\n' */
 	virtual void CMD_Get_Network_Devices_Shares(char **pCustom_Response,int *iCustom_Response_Size,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #843 - RemoteAssistance_SetStatus */
+	/** Change the state of Remote Assistance */
+		/** @param #208 Enable */
+			/** Desired state of Remote Assistance */
+
+	virtual void CMD_RemoteAssistance_SetStatus(bool bEnable) { string sCMD_Result; CMD_RemoteAssistance_SetStatus(bEnable,sCMD_Result,NULL);};
+	virtual void CMD_RemoteAssistance_SetStatus(bool bEnable,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #844 - RemoteAssistance_GetStatus */
+	/** Get the state of Remote Assistance */
+		/** @param #208 Enable */
+			/** The state of Remote Assistance */
+
+	virtual void CMD_RemoteAssistance_GetStatus(bool *bEnable) { string sCMD_Result; CMD_RemoteAssistance_GetStatus(bEnable,sCMD_Result,NULL);};
+	virtual void CMD_RemoteAssistance_GetStatus(bool *bEnable,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;
