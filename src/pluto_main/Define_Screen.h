@@ -236,6 +236,8 @@
 #define SCREEN_Halt_System_CONST 249
 #define SCREEN_Floorplan_Editor_CONST 250
 #define SCREEN_Final_House_Setup_CONST 251
+#define SCREEN_ExternalDeviceFullScreen_CONST 252
+#define SCREEN_ExternalDeviceFullScreen_Opts_CONST 253
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

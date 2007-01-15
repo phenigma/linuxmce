@@ -1161,6 +1161,10 @@
 #define TEXT_Terms_CONST 1880
 #define TEXT_Add_RF_Keyboard_or_Mouse_CONST 1881
 #define TEXT_Use_Plutos_Directory_Struct_CONST 1882
+#define TEXT_Which_Rooms_for_External_Device_CONST 1883
+#define TEXT_Use_in_the_selected_rooms_CONST 1884
+#define TEXT_Every_room_with_a_media_director_CONST 1885
+#define TEXT_Only_the_room_its_located_in_CONST 1886
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

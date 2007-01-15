@@ -2378,6 +2378,13 @@
 #define DESIGNOBJ_dgUsersForDirectory_CONST 5372
 #define DESIGNOBJ_dgUpcomingShows_CONST 5373
 #define DESIGNOBJ_cellTVProgram_CONST 5374
+#define DESIGNOBJ_External_Device_FS_CONST 5375
+#define DESIGNOBJ_External_Device_FS_Options_CONST 5376
+#define DESIGNOBJ_RoomsForExternalDevice_CONST 5377
+#define DESIGNOBJ_butJustTheRoomItsIn_CONST 5378
+#define DESIGNOBJ_butEveryRoomWithMD_CONST 5379
+#define DESIGNOBJ_butNext_RoomsForExternalDevice_CONST 5380
+#define DESIGNOBJ_dgRoomsWithAmd_CONST 5381
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
