@@ -134,6 +134,9 @@ g_pPlutoLogger->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK_DesignObj_get
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
+	if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
+		m_iFloorplanPage = m_pOrbiterGenerator->m_iFloorplanPage;
+
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
 
@@ -315,7 +318,6 @@ void DesignObj_Generator::Process()
         {
             if( GraphicType==1 )
             {
-                m_iFloorplanPage = m_pOrbiterGenerator->m_iFloorplanPage;
                 o = "/../../floorplans/inst" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + "/" + StringUtils::itos(m_iFloorplanPage) + ".png";
 /*
                 string[] sFiles = Directory.GetFiles(m_pOrbiterGenerator->m_GraphicsBasePath + "/Floorplans/I" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + "/","Page" + StringUtils::itos(m_iFloorplanPage) + ".*");
@@ -902,7 +904,7 @@ int k=2;
                     int Y = atoi(StringUtils::Tokenize(FPInfo_Value,",",pos).c_str());
 					if( X<0 || Y<0 )
 						continue;
-                    if( atoi(sFloorplan.c_str())==m_pOrbiterGenerator->m_iFloorplanPage )
+                    if( atoi(sFloorplan.c_str())==m_iFloorplanPage )
                     {
                         m_VariableMap[VARIABLE_Array_ID_CONST] = pRow_FloorplanObjectType->Description_get();
                         m_VariableMap[VARIABLE_Array_Desc_CONST] = Description;
