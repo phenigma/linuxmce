@@ -842,7 +842,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 		}
 		else
 		{
-			pOpenGLGraphic->ReleaseTexture();
+			pOpenGLGraphic->Clear();
 		}
 
 		RenderObjectAsync(pObj);
