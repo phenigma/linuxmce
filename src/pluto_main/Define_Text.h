@@ -1165,6 +1165,11 @@
 #define TEXT_Use_in_the_selected_rooms_CONST 1884
 #define TEXT_Every_room_with_a_media_director_CONST 1885
 #define TEXT_Only_the_room_its_located_in_CONST 1886
+#define TEXT_RAEnable_CONST 1887
+#define TEXT_Remote_Assistance_CONST 1888
+#define TEXT_RADisable_CONST 1889
+#define TEXT_RA_is_enable_CONST 1890
+#define TEXT_RA_is_disable_CONST 1891
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

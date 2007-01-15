@@ -763,6 +763,8 @@
 #define COMMAND_SetWakeUp_CONST 840
 #define COMMAND_Set_Config_Param_CONST 841
 #define COMMAND_Set_Association_CONST 842
+#define COMMAND_RemoteAssistance_SetStatus_CONST 843
+#define COMMAND_RemoteAssistance_GetStatus_CONST 844
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
