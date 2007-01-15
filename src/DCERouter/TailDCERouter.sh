@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd /var/log/pluto
-tail -f DCERouter.log.new | grep '^01\|^07\|^08'
+tail -f DCERouter.log | grep '^01\|^07\|^08'
