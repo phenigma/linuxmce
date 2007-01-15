@@ -8,9 +8,17 @@ fi
 PK_Installation=$(grep '^PK_Installation.*=' /etc/pluto.conf)
 PK_Installation=${PK_Installation#*=}
 
+if [[ -z "$PK_Installation" "$PK_Installation" == 1 ]]; then
+	echo "Incorrect installation number: '$PK_Installation'"
+	exit 1
+fi
+
 if grep -q '^remote.*=' /etc/pluto.conf; then
 	password=$(grep '^remote.*=' /etc/pluto.conf)
 	password=${password#*=}
+elif [[ -f /usr/pluto/bin/Utils.sh ]]; then
+	. /usr/pluto/bin/Utils.sh
+	password="$(GeneratePassword)"
 else
 	password=
 	while [[ -z "$password" ]]; do
