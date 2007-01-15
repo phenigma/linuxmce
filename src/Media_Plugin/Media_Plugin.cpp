@@ -1390,6 +1390,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 			string sArguments = pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_mapParameters_Find(DEVICEDATA_Extra_Parameters_CONST);
 
 			StringUtils::Replace(&sArguments,"<%=BLOCK%>",sDevice);
+			StringUtils::Replace(&sArguments," ","\t");  // The database uses spaces to separate the arguments, we need tabs
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 				sPortSelectUtility,"setinput",sArguments,"","",false,false,false,true);
 			SendCommand(CMD_Spawn_Application);

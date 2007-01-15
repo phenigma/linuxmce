@@ -1335,7 +1335,7 @@ void MythTV_Player::CMD_Input_Select(int iPK_Command_Input,string &sCMD_Result,M
 //<-dceag-c91-e->
 {
 #ifndef WIN32
-	sendMythCommand("key I");
+	sendMythCommand("key C");
 #endif
 }
 

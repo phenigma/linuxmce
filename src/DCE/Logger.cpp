@@ -144,7 +144,9 @@ FileLogger::FileLogger( FILE* log )
 
 FileLogger::FileLogger( const char* file )
 {
-    m_LogFile = fopen(file, "a");
+	string sFilename = file;
+	sFilename += ".new";
+    m_LogFile = fopen(sFilename.c_str(), "a");
     m_bNeedToClose = true;
     if( m_LogFile == NULL )
     {
@@ -205,7 +207,7 @@ void FileLogger::Rotate()
 		//the file will be moved, but the inode remains
 		Write(LV_STATUS,"Renaming file: %s",m_sFilename.c_str());
 		fclose(m_LogFile);
-		rename(m_sFilename.c_str(),(m_sFilename + ".old").c_str());
+		rename((m_sFilename + ".new").c_str(),m_sFilename.c_str());
 		m_LogFile = fopen(m_sFilename.c_str(), "a");
 	}
 }
