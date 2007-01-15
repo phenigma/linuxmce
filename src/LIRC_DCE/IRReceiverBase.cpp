@@ -170,9 +170,6 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 	// See if we've got a code to repeat
 	if( pRepeat && *pRepeat )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Temporarily disabling repeat %s because some usb key downs/ups are getting lost",pRepeat);
-		return;
-
 		if( m_pt_Repeat )
 			StopRepeatCode();
 

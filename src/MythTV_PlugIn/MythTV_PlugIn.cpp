@@ -812,6 +812,18 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 			string sLineup = StringUtils::Tokenize(sMediaProviderID,"\t",pos);
 
 			// We only care about capture cards
+			Row_Device *pRow_Device_External = NULL;
+			Row_Device_DeviceData *pRow_Device_DeviceData = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_FK_Device_Capture_Card_Port_CONST);
+			if( pRow_Device_DeviceData )
+			{
+				pRow_Device_External=pRow_Device;
+				pRow_Device = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+				if( !pRow_Device )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find capture card for %d", pRow_Device->PK_Device_get());
+					continue;
+				}
+			}
 			Row_Device *pRow_Device_CaptureCard = pRow_Device;
 			if( !DatabaseUtils::DeviceIsWithinCategory(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICECATEGORY_Capture_Cards_CONST) )
 			{
@@ -828,7 +840,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 			// We need to add configure scripts for each model of card, or the sql statement to insert for each card. 
 
 			// We have a capture card.  See if it's in the database already.  We use DEVICEDATA_Port_CONST for the port
-			int cardid = atoi(DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Port_CONST).c_str());
+			int cardid = atoi(DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST).c_str());
 			string sPortName = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Name_CONST);
 			string sBlockDevice = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
 			if( sPortName.empty() )
@@ -858,15 +870,18 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 					sSQL = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->FK_Device_ControlledVia_get(),DEVICEDATA_Configuration_CONST);
 
 				if( sSQL.empty() )
-					sSQL = "INSERT INTO `capturecard`(cardtype,hostname) VALUES ('MPEG','" + sHostname + "');";
+					sSQL = "INSERT INTO `capturecard`(cardtype,hostname,defaultinput) VALUES ('MPEG','" + sHostname + "','" + sPortName + "');";
 				else
+				{
 					StringUtils::Replace(&sSQL,"<%=HOST%>",sHostname);
+					StringUtils::Replace(&sSQL,"<%=PORT%>",sPortName);
+				}
 
 				cardid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
-				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
+				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
 			}
 
-			sSQL = "UPDATE `capturecard` set videodevice='" + sBlockDevice + "', defaultinput='" + sPortName + "' WHERE cardid=" + StringUtils::itos(cardid);
+			sSQL = "UPDATE `capturecard` set videodevice='" + sBlockDevice + "' WHERE cardid=" + StringUtils::itos(cardid);
 			if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
 				bModifiedRows=true;
 
@@ -890,20 +905,23 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 				bModifiedRows=true;
 
 			int cardinputid=0;
-			sSQL = "SELECT cardinputid FROM `cardinput` WHERE cardid='" + StringUtils::itos(cardid) + "' AND sourceid='" + StringUtils::itos(sourceid) + "'";
+			sSQL = "SELECT cardinputid FROM `cardinput` WHERE cardid='" + StringUtils::itos(cardid) + "' AND sourceid='" + StringUtils::itos(sourceid) + "' AND inputname='" + sPortName + "'";
 			PlutoSqlResult result_set3;
 			if( (result_set3.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set3.r)) && atoi(row2[0]) )
 				cardinputid = atoi(row2[0]);
 			else
 			{
 				bModifiedRows=true;
-				sSQL = "INSERT INTO `cardinput`(cardid,sourceid,inputname) VALUES (" + StringUtils::itos(cardid) + "," + StringUtils::itos(sourceid) + ",'')";
+				sSQL = "INSERT INTO `cardinput`(cardid,sourceid,inputname) VALUES (" + StringUtils::itos(cardid) + "," + StringUtils::itos(sourceid) + ",'" + sPortName + "')";
 				cardinputid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 			}
 
-			sSQL = "UPDATE `cardinput` set inputname='" + sPortName + "' WHERE cardinputid=" + StringUtils::itos(cardinputid);
-			if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
-				bModifiedRows=true;
+			if( pRow_Device_External )
+			{
+				sSQL = "UPDATE cardinput SET externalcommand='/usr/pluto/bin/TuneToChannel.sh " + StringUtils::itos(pRow_Device_External->PK_Device_get()) + "' WHERE cardinputid=" + StringUtils::itos(cardinputid);
+				if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
+					bModifiedRows=true;
+			}
 		}
 	}
 
