@@ -17,6 +17,7 @@
  
  */
 
+#include <sstream>
 //<-dceag-d-b->
 #include "General_Info_Plugin.h"
 #include "DCE/Logger.h"
@@ -3413,6 +3414,9 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 void General_Info_Plugin::CMD_RemoteAssistance_SetStatus(bool bEnable,string &sCMD_Result,Message *pMessage)
 //<-dceag-c843-e->
 {
+	string sParm = bEnable ? "--enable" : "--disable";
+	char * args[] = { "/usr/pluto/bin/RA-handler.sh", (char *) sParm.c_str() };
+	ProcessUtils::SpawnDaemon(args[0], args);
 }
 //<-dceag-c844-b->
 
@@ -3424,4 +3428,18 @@ void General_Info_Plugin::CMD_RemoteAssistance_SetStatus(bool bEnable,string &sC
 void General_Info_Plugin::CMD_RemoteAssistance_GetStatus(bool *bEnable,string &sCMD_Result,Message *pMessage)
 //<-dceag-c844-e->
 {
+	FILE * f;
+	char buffer[1024];
+	* bEnable = false;
+
+	f = fopen("/etc/pluto.conf", "r");
+	while (fgets(buffer, 1024, f) != NULL)
+	{
+		if (strncmp(buffer, "remote", 5) == 0)
+		{
+			* bEnable = true;
+			break;
+		}
+	}
+	fclose(f);
 }
