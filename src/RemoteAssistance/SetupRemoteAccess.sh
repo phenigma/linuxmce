@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/SQL_Ops.sh
 
 cronCmd="/usr/pluto/bin/SetupRemoteAccess.sh"
 cronCmd_Special="/usr/pluto/bin/SetupRA-Special.sh"
@@ -9,7 +10,24 @@ cronEntry="*/1 * * * * root $cronCmd"
 cronEntry_Special="*/10 * * * * root $cronCmd_Special"
 screenName="RemoteAssistance"
 
-PortBase=$((PK_Installation*4+10000))
+DEVICEDATA_Remote_Assistance_Ports=212
+
+Q="
+	SELECT IK_DeviceData
+	FROM Device_DeviceData
+	WHERE
+		FK_Device='$PK_Device'
+		AND FK_DeviceData='$DEVICEDATA_Remote_Assistance_Ports'
+"
+Ports="$(RunSQL "$Q")"
+
+for Port in ${Ports//,/ }; do
+	if [[ "$Port" == "nomon_"* ]]; then
+		eval "PortNoMon_${Port#nomon_}"
+	else
+		eval "Port_$Port"
+	fi
+done
 
 if [[ ! -L "$cronCmd_Special" ]]; then
 	rm -f "$cronCmd_Special"
@@ -21,7 +39,7 @@ RAKey="/usr/pluto/keys/id_dsa_remoteassistance"
 
 shopt -s nullglob
 
-#screen -wipe &>/dev/null
+
 
 AddCronEntry()
 {
@@ -136,22 +154,45 @@ CreateTunnels()
 {
 	/usr/pluto/bin/RA_ChangePassword.sh
 
-	CreateTunnel "SSH" 22 $PortBase
-	CreateTunnel "Web" 80 $((PortBase+1))
-	CreateTunnel "Web" 80 $((PortBase+1)) "" pf2.plutohome.com
+	local Var PortName PortTunnel PortNameDest PortDest
+
+	for Var in ${!Port_*}; do
+		PortNameDest="${Var#Port_}"
+		PortName="${PortNameDest%_*}"
+		PortDest="${PortNameDest##*_}"
+		PortTunnel="${!Var}"
+		CreateTunnel "${PortName}_pf" "$PortDest" "$PortTunnel"
+		CreateTunnel "${PortName}_ph" "$PortDest" "$PortTunnel" "" pf2.plutohome.com
+	done
+
 	CreateTunnels_Special
 }
 
 CreateTunnels_Special()
 {
-	CreateTunnel "SSH_NoMon_pf" 22 $((PortBase+2)) "" "" 22 no
-	CreateTunnel "SSH_NoMon_ph" 22 $((PortBase+3)) "" pf2.plutohome.com 22 no
+	local Var PortName PortTunnel PortNameDest PortDest
+
+	for Var in ${!PortNoMon_*}; do
+		PortNameDest="${Var#PortNoMon_}"
+		PortName="${PortNameDest%_*}"
+		PortDest="${PortNameDest##*_}"
+		PortTunnel="${!Var}"
+		CreateTunnel "${PortName}_NoMon_pf" "$PortDest" "$PortTunnel" "" "" 22 no
+		CreateTunnel "${PortName}_NoMon_ph" "$PortDest" "$PortTunnel" "" pf2.plutohome.com 22 no
+	done
 }
 
 RemoveTunnels()
 {
-	RemoveTunnel "SSH"
-	RemoveTunnel "Web"
+	local Var PortName PortNameDest
+
+	for Var in ${!Port_*}; do
+		PortNameDest="${Var#Port_}"
+		PortName="${PortNameDest%_*}"
+		RemoveTunnel "${PortName}_pf"
+		RemoveTunnel "${PortName}_ph"
+	done
+
 	RemoveTunnels_Special
 	
 	/usr/pluto/bin/RA_ChangePassword.sh
@@ -159,13 +200,19 @@ RemoveTunnels()
 
 RemoveTunnels_Special()
 {
-	RemoveTunnel "SSH_NoMon_pf"
-	RemoveTunnel "SSH_NoMon_ph"
+	local Var PortName PortNameDest
+
+	for Var in ${!PortNoMon_*}; do
+		PortNameDest="${Var#PortNoMon_}"
+		PortName="${PortNameDest%_*}"
+		RemoveTunnel "${PortName}_NoMon_pf"
+		RemoveTunnel "${PortName}_NoMon_ph"
+	done
 }
 
 DeleteHostKey()
 {
-	sed -i '/pf2\?\.plutohome\.com/d' /root/.ssh/known_hosts
+	sed -ri '/pf2?\.plutohome\.com/d' /root/.ssh/known_hosts
 }
 
 Me="$(basename "$0")"

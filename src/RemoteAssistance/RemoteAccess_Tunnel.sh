@@ -5,15 +5,9 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Config_Ops.sh
 
-shopt -s extglob
-
 if [[ "$#" -lt 3 || "$#" -gt 6 ]]; then
 	Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Called with wrong number of parameters: $#"
 	exit 1
-fi
-
-if [[ -z "$RAport" || "$RAport" != +([0-9]) ]]; then
-	RAport=80
 fi
 
 RemotePort="$1"
@@ -28,6 +22,10 @@ fi
 
 if [[ -n "$6" ]]; then
 	RAport="$6"
+fi
+
+if [[ -z "$RAport" || "${RAport//[0-9]}" != "" ]]; then
+	RAport=80
 fi
 
 if [[ -z "$Host" ]]; then
