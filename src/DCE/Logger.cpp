@@ -207,7 +207,9 @@ void FileLogger::Rotate()
 		//the file will be moved, but the inode remains
 		Write(LV_STATUS,"Renaming file: %s",m_sFilename.c_str());
 		fclose(m_LogFile);
+#ifndef WINCE
 		rename((m_sFilename + ".new").c_str(),m_sFilename.c_str());
+#endif
 		m_LogFile = fopen(m_sFilename.c_str(), "a");
 	}
 }
