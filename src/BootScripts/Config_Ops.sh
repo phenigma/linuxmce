@@ -85,10 +85,10 @@ ConfSet()
 
 	local Line="$Variable = $Value"
 	local EscLine="${Line//\\\\/\\\\}"
-	if ! grep "$EscVariable.*=" /etc/pluto.conf &>/dev/null; then
+	if ! grep "^$EscVariable.*=" /etc/pluto.conf &>/dev/null; then
 		echo "$Line" >> /etc/pluto.conf
 	else
-		sed -i "s/^.*$EscVariable.*=.*$/$EscLine/g" /etc/pluto.conf
+		sed -i "s/^$EscVariable.*=.*$/$EscLine/g" /etc/pluto.conf
 	fi
 	eval "export $EscVariable=\"$EscValue\"" &>/dev/null
 	Unlock "pluto.conf" "Config_Ops-ConfSet" nolog
@@ -100,14 +100,23 @@ ConfGet()
 	local Ret=0
 	WaitLock "pluto.conf" "Config_Ops-ConfGet" nolog
 	local Variable="$1" Line
-	if ! grep "$Variable.*=" /etc/pluto.conf &>/dev/null; then
+	if ! grep "^$Variable.*=" /etc/pluto.conf &>/dev/null; then
 		Ret=1
 	else
-		Line=$(grep "$Variable.*=" /etc/pluto.conf 2>/dev/null | head -1 | sed "$NoSpace")
+		Line=$(grep "^$Variable.*=" /etc/pluto.conf 2>/dev/null | head -1 | sed "$NoSpace")
 		eval "export $Line"
 	fi
 	Unlock "pluto.conf" "Config_Ops-ConfGet" nolog
 	return $Ret
+}
+
+ConfDel()
+{
+	local Variable="$1"
+	local EscVariable="${Variable//\\\\/\\\\}"
+	WaitLock "pluto.conf" "Config_Ops-ConfDel" nolog
+	sed -i "/^$EscVariable.*=/ d" /etc/pluto.conf
+	Unlock "pluto.conf" "Config_Ops-ConfDel" nolog
 }
 
 ReplaceVars()
