@@ -39,6 +39,7 @@ namespace DatabaseUtils
 	string GetDescriptionFromTable(MySqlHelper *pMySqlHelper,string sTable,int PK);
 	void SetDescriptionForDevice(MySqlHelper *pMySqlHelper,int PK_Device,string sDescription);
 	bool SetDeviceInRoom(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Room);
+	bool AddDeviceToEntertainArea(MySqlHelper *pMySqlHelper,int PK_Device,int PK_EntertainArea);
 	bool SetDeviceControlledVia(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Device_ControlledVia);
 	int GetCommMethodForDeviceTemplate(MySqlHelper *pMySqlHelper,int PK_DeviceTemplate);
 	int FindControlledViaCandidate(MySqlHelper *pMySqlHelper,int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo,int iPK_Installation);

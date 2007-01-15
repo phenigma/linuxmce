@@ -282,6 +282,20 @@ bool DatabaseUtils::SetDeviceInRoom(MySqlHelper *pMySqlHelper,int PK_Device,int 
 	return true;
 }
 
+bool DatabaseUtils::AddDeviceToEntertainArea(MySqlHelper *pMySqlHelper,int PK_Device,int PK_EntertainArea)
+{
+	string sSQL = "SELECT FK_Device FROM Device_EntertainArea WHERE FK_Device=" + StringUtils::itos(PK_Device) + " AND FK_EntertainArea=" + StringUtils::itos(PK_EntertainArea);
+
+	PlutoSqlResult result_room;
+	if( ( result_room.r=pMySqlHelper->mysql_query_result( sSQL ) )==NULL || result_room.r->row_count==0 )
+	{
+		sSQL = "INSERT INTO Device_EntertainArea(FK_Device,FK_EntertainArea) VALUES(" + StringUtils::itos(PK_Device) + "," + StringUtils::itos(PK_EntertainArea) + ")";
+		pMySqlHelper->threaded_mysql_query(sSQL);
+		return true;
+	}
+	return false;
+}
+
 bool DatabaseUtils::SetDeviceControlledVia(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Device_ControlledVia)
 {
 	string sSQL = "SELECT PK_Device FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device_ControlledVia);

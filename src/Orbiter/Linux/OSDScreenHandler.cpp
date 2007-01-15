@@ -2395,6 +2395,9 @@ void OSDScreenHandler::ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessa
 void OSDScreenHandler::SCREEN_Get_Capture_Card_Port(long PK_Screen)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butInputs_CONST));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::CaptureCardPort_ObjectSelected,	new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::CaptureCardPort_DatagridSelected, new DatagridCellBackData());
 	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &OSDScreenHandler::CaptureCardPort_GridRendering,	new DatagridAcquiredBackData());
@@ -2425,6 +2428,15 @@ bool OSDScreenHandler::CaptureCardPort_ObjectSelected(CallBackData *pData)
 		m_pOrbiter->SendCommand(CMD_Specify_Capture_Card_Port,&sResponse);
 		m_pOrbiter->CMD_Go_back("","");
 	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butJustTheRoomItsIn_CONST )
+		m_pWizardLogic->SetExternalDeviceInRoom(atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str()),"0");
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butEveryRoomWithMD_CONST )
+		m_pWizardLogic->SetExternalDeviceInRoom(atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str()),"*");
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butNext_RoomsForExternalDevice_CONST )
+		m_pWizardLogic->SetExternalDeviceInRoom(atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str()),
+			m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST));
+
+
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -2433,25 +2445,30 @@ bool OSDScreenHandler::CaptureCardPort_GridRendering(CallBackData *pData)
 	// This is called every time a new section of the grid is to be rendered.  We want to find the child object for the check and hide/show it
 	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
 
-	// Iterate through all the cells
-	for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+	if( pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid==DATAGRID_Capture_Card_Ports_CONST )
 	{
-		DataGridCell *pCell = it->second;
-		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
-
-		// See if there is an object assigned for this column/row
-		map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
-		if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+		// Iterate through all the cells
+		for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
 		{
-			DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
-			DesignObj_DataList::iterator iHao;
+			DataGridCell *pCell = it->second;
+			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+			colRow.first -= pDatagridAcquiredBackData->m_pObj->m_GridCurCol;
+			colRow.second -= pDatagridAcquiredBackData->m_pObj->m_GridCurRow;
 
-			// Iterate through all the object's children
-			for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+			// See if there is an object assigned for this column/row
+			map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+			if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
 			{
-				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
-				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconCheckMark_CONST )
-					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("InUse_PK_Device").empty()==true;
+				DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+				DesignObj_DataList::iterator iHao;
+
+				// Iterate through all the object's children
+				for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+				{
+					DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+					if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconCheckMark_CONST )
+						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("InUse_PK_Device").empty()==true;
+				}
 			}
 		}
 	}
@@ -2467,7 +2484,8 @@ bool OSDScreenHandler::CaptureCardPort_DatagridSelected(CallBackData *pData)
 			atoi(pCellInfoData->m_sValue.c_str()),atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST).c_str()));
 		string sResponse;  // Send with return confirmation so the grid doesn't refresh until this command is done
 		m_pOrbiter->SendCommand(CMD_Specify_Capture_Card_Port,&sResponse);
-		m_pOrbiter->CMD_Go_back("","");
+
+		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_RoomsForExternalDevice_CONST),"","",false,true);
 	}
 
 	return false;
@@ -2858,6 +2876,8 @@ bool OSDScreenHandler::ChooseProvider_GridRendering(CallBackData *pData)
 	{
 		DataGridCell *pCell = it->second;
 		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+		colRow.first -= pDatagridAcquiredBackData->m_pObj->m_GridCurCol;
+		colRow.second -= pDatagridAcquiredBackData->m_pObj->m_GridCurRow;
 
 		// See if there is an object assigned for this column/row
 		map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );

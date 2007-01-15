@@ -78,6 +78,7 @@ public:
 	void AddRoomOfType(int PK_RoomType); //Helper function
 	void RemoveRoomOfType(int PK_RoomType); //Helper function
 	void ChangeRoomName(int PK_Room,string sName);
+	void SetExternalDeviceInRoom(int PK_Device, string sPK_Room);
 	int WhatRoomIsThisDeviceIn(int PK_Device);
 
 	/*

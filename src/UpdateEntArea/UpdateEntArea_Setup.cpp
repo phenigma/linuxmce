@@ -312,11 +312,19 @@ void UpdateEntArea::SetEAInRooms()
 
 		vector<Row_EntertainArea *> vectEntertainArea;
 		m_pDatabase_pluto_main->EntertainArea_get()->GetRows("FK_Room=" + StringUtils::itos(it->first),&vectEntertainArea);
+
+		if( it->second.first!=lomContainsMD && vectEntertainArea.size() )
+		{
+			Row_EntertainArea *pRow_EntertainArea = vectEntertainArea[0];
+
+			// Delete any 'put this device in all rooms with a md' if there's no m/d
+			string sSQL = "DELETE Device_EntertainArea FROM Device_EntertainArea JOIN Device ON FK_Device=PK_Device WHERE ManuallyConfigureEA=-1 AND FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get());
+			m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+		}
+
 		if( it->second.first==lomNone )
 		{
-			// There is no media in here.  Delete any EA's
-			for(size_t s=0;s<vectEntertainArea.size();++s)
-				DeleteEntertainArea(vectEntertainArea[s]);
+			continue;  // The user may have manually put a device in here
 		}
 		else
 		{
@@ -358,6 +366,9 @@ void UpdateEntArea::SetEAInRooms()
 				Row_Device_EntertainArea *pRow_Device_EntertainArea = vectRow_Device_EntertainArea[s];
 				if( pRow_Device_EntertainArea )
 				{
+					Row_Device *pRow_Device = pRow_Device_EntertainArea->FK_Device_getrow();
+					if( !pRow_Device || pRow_Device->ManuallyConfigureEA_get()!=0 )
+						continue;
 					vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea2;
 					m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRows("WHERE FK_EntertainArea<>" +
 						StringUtils::itos(pRow_Device_EntertainArea->FK_EntertainArea_get()) + " AND FK_Device=" + StringUtils::itos(pRow_Device_EntertainArea->FK_Device_get()),
@@ -446,6 +457,9 @@ void UpdateEntArea::AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
 		Row_Device *pRow_Device = vectRow_Device[s];
+		if( pRow_Device->ManuallyConfigureEA_get()!=0 )
+			continue;
+
 		// Check up 3 generations of DeviceCategories to see if this is av equipment
 		if( DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_AV_CONST) || pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_App_Server_CONST )
 		{
@@ -474,10 +488,29 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea
 		if( DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Media_Director_CONST) )
 			AddMDsDevicesToEntArea(pRow_Device,pRow_EntertainArea); // This will recurse
 	}
+
+	vectRow_Device.clear();
+	m_pDatabase_pluto_main->Device_get()->GetRows("ManuallyConfigureEA=-1",&vectRow_Device);
+	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
+	{
+		Row_Device *pRow_Device = *it;
+		Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
+		if( !pRow_Device_EntertainArea )
+		{
+			g_pPlutoLogger->Write( LV_CRITICAL, "adding device %d %s to all ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
+			pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
+			pRow_Device_EntertainArea->FK_Device_set(pRow_Device->PK_Device_get());
+			pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
+			m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+		}
+	}
 }
 
 void UpdateEntArea::AddMDsDevicesToEntArea(Row_Device *pRow_Device,Row_EntertainArea *pRow_EntertainArea)
 {
+	if( pRow_Device->ManuallyConfigureEA_get()!=0 )  // The user is manually specifying this
+		return;
+
 	// If it's not an embedded device (ie route to is null), and the parent is an interface, then this is something like a light switch or sensor which doesn't inherit the parent's room
 	if( pRow_Device->FK_Device_ControlledVia_get() && pRow_Device->FK_Device_RouteTo_isNull()==true && DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->FK_Device_ControlledVia_get(),DEVICECATEGORY_Interfaces_CONST) )
 		return;

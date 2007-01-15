@@ -26,7 +26,7 @@ WizardLogic::~WizardLogic()
 bool WizardLogic::Setup()
 {
 #ifdef WIN32
-	if( !MySQLConnect("192.168.80.1", "root", "", "pluto_main") )
+	if( !MySQLConnect("192.168.90.1", "root", "", "pluto_main") )
 //	if( !MySQLConnect(m_pOrbiter->m_sIPAddress, "root", "", "pluto_main") )
 #else
     const char *pMySqlHost = getenv("MySqlHost");
@@ -312,6 +312,53 @@ void WizardLogic::ChangeRoomName(int PK_Room, string sName)
 	{
 		string sSQL = "UPDATE Room SET Description = '" + sName + "' WHERE PK_Room = " + StringUtils::ltos(PK_Room);
 		threaded_mysql_query(sSQL);
+	}
+}
+
+void WizardLogic::SetExternalDeviceInRoom(int PK_Device, string sPK_Room)
+{
+	if( sPK_Room=="*" )
+	{
+		string sSQL = "UPDATE Device SET ManuallyConfigureEA=-1 WHERE PK_Device=" + StringUtils::itos(PK_Device);
+		threaded_mysql_query(sSQL);
+		return;
+	}
+	else if( sPK_Room=="0" )
+	{
+		string sSQL = "UPDATE Device SET ManuallyConfigureEA=0 WHERE PK_Device=" + StringUtils::itos(PK_Device);
+		threaded_mysql_query(sSQL);
+		return;
+	}
+
+	string sSQL = "UPDATE Device SET ManuallyConfigureEA=1 WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	threaded_mysql_query(sSQL);
+
+	sSQL = "DELETE FROM Device_EntertainArea WHERE FK_Device=" + StringUtils::itos(PK_Device);
+	threaded_mysql_query(sSQL);
+
+	string::size_type pos=0;
+	while( true )
+	{
+		string sOneRoom = StringUtils::Tokenize(sPK_Room,"|",pos);
+		if( sOneRoom.empty() )
+			break;
+
+		MYSQL_ROW row;
+
+		sSQL = "SELECT PK_EntertainArea FROM EntertainArea WHERE FK_Room=" + sOneRoom;
+		PlutoSqlResult result_set_EA;
+		if( (result_set_EA.r=mysql_query_result(sSQL))==NULL || result_set_EA.r->row_count==0 )
+		{
+			sSQL = "INSERT INTO EntertainArea(FK_Room,Description) SELECT PK_Room,Description FROM Room WHERE PK_Room=" + sOneRoom;
+			int PK_EntertainArea = threaded_mysql_query_withID(sSQL);
+			if( PK_EntertainArea )
+				DatabaseUtils::AddDeviceToEntertainArea(this,PK_Device,PK_EntertainArea);
+		}
+		else
+		{
+			while ((row = mysql_fetch_row(result_set_EA.r)))
+				DatabaseUtils::AddDeviceToEntertainArea(this,PK_Device,atoi(row[0]));
+		}
 	}
 }
 
