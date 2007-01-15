@@ -38,7 +38,8 @@ $installationID = (int)@$_SESSION['installationID'];
 			Device.Status,
 			DeviceTemplate.ImplementsDCE,
 			Parent.FK_DeviceTemplate AS ParentDT,
-			Device.Disabled
+			Device.Disabled,
+			Device.ManuallyConfigureEA
 		FROM Device
 		LEFT JOIN Device Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device
 		INNER JOIN DeviceTemplate on Device.FK_DeviceTemplate = PK_DeviceTemplate
@@ -68,6 +69,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$deviceDisabled=$row['Disabled'];
 		$IsIPBased=$row['IsIPBased'];
 		$dcID=$row['FK_DeviceCategory'];
+		$ManuallyConfigureEA=$row['ManuallyConfigureEA'];
 
 		$coreSystemLog=($row['FK_DeviceCategory']==$GLOBALS['CategoryCore'])?'&nbsp;&nbsp;&nbsp;<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'&system_log=1\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">System log</a>':'';
 
@@ -241,6 +243,10 @@ $installationID = (int)@$_SESSION['installationID'];
 					<input type="hidden" name="oldEntAreas" value="'.join(',',$oldEntAreas).'">
 				</td>
 			</tr>					
+			<tr>
+				<td>Manually Configure EA</td>
+				<td><input name="ManuallyConfigureEA" type="checkbox" value="1" '.(($ManuallyConfigureEA==1)?'checked':'').'></td>
+			</tr>			
 			<tr>
 				<td>IP Address</td>
 				<td><input name="ipAddress" value="'.$ipAddress.'" class="input_big"></td>
@@ -631,6 +637,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$room=(@$_POST['Room']!='0')?@$_POST['Room']:NULL;	
 		$deviceDisabled= (isset($_POST['deviceDisabled']))?cleanInteger($_POST['deviceDisabled']):0;
 		$isOrbiter=isOrbiter($deviceID,$dbADO);
+		$ManuallyConfigureEA=(int)@$_REQUEST['ManuallyConfigureEA'];
 		
 		if(isMediaDirector($deviceID,$dbADO,1) && $usedBy=roomIsUsed($room,$deviceID,$dbADO)){
 			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error='.$TEXT_ROOM_USED_BY_ANOTHER_MD_CONST.urlencode(': '.$usedBy));
@@ -718,9 +725,20 @@ $installationID = (int)@$_SESSION['installationID'];
 			
 			$query = "
 				UPDATE Device 
-				SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,NeedConfigure=?,FK_Room=?,PingTest=?,State=?,`Status`=?,Disabled=? 
+				SET 
+					Description=?,
+					IPaddress=?,
+					MACaddress=?,
+					IgnoreOnOff=?,
+					NeedConfigure=?,
+					FK_Room=?,
+					PingTest=?,
+					State=?,
+					`Status`=?,
+					Disabled=?,
+					ManuallyConfigureEA=?
 				WHERE PK_Device = ?";
-			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$needConfigure,$room,$PingTest,$State,$Status,$deviceDisabled,$deviceID));
+			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$needConfigure,$room,$PingTest,$State,$Status,$deviceDisabled,$ManuallyConfigureEA,$deviceID));
 			
 			updateRoomForEmbeddedDevices($deviceID,$room,$dbADO);
 			
