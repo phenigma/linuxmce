@@ -122,7 +122,8 @@ function Build_Pluto_Stuff {
 #	543  	Pluto vloopback Kernel Module
 #	542 	Pluto vloopback Kernel Module Source
 # 	-b
-	$MakeRelease -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 1 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
+
+	$MakeRelease -b -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 1 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
 }
 
 function Create_Fake_Windows_Binaries {
@@ -212,6 +213,7 @@ function Import_Build_Database {
 		DROP DATABASE $sql_slave_db_media;
 		DROP DATABASE $sql_slave_db_security;
 		DROP DATABASE $sql_slave_db_telecom;
+		DROP DATABASE pluto_main;
 	" | mysql -f -h $sql_slave_host -u $sql_slave_user
 	echo "CREATE DATABASE $sql_slave_db;
 		CREATE DATABASE $sql_slave_db_mainsqlcvs;
@@ -219,8 +221,10 @@ function Import_Build_Database {
 		CREATE DATABASE $sql_slave_db_media;
 		CREATE DATABASE $sql_slave_db_security;
 		CREATE DATABASE $sql_slave_db_telecom;
+		CREATE DATABASE pluto_main;
 	" | mysql -f -h $sql_slave_host -u $sql_slave_user
 	cat $temp_file | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db
+	cat $temp_file | mysql -h $sql_slave_host -u $sql_slave_user "pluto_main"
 	cat $temp_file_main | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_mainsqlcvs
 	cat $temp_file_myth | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_mythsqlcvs
 	cat $temp_file_media | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_media
@@ -245,12 +249,12 @@ function Import_Pluto_Skins {
 	popd
 }
 
-#Import_Build_Database
+Import_Build_Database
 #Import_Pluto_Skins
 #Install_Build_Needed_Packages
-#Build_Pluto_Replacements
+Build_Pluto_Replacements
 Checkout_Pluto_Svn
-#Build_MakeRelease_Binary
+Build_MakeRelease_Binary
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
 Create_Local_Repository
