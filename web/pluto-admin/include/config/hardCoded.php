@@ -218,7 +218,7 @@
 	$GLOBALS['use_pluto_directory_structure_dd']=130;	// use pluto directory structure
 	$GLOBALS['DD_OS_ON_HARD_DRIVE']=211;		// OS on hard drive
 	$GLOBALS['DD_PK_Users']=3;					// PK_Users
-	
+	$GLOBALS['DD_RemoteAssistancePorts']=212;	// Remote Assistance Ports
 	
 	// PK_FloorplanType from table FloorplanType 
 

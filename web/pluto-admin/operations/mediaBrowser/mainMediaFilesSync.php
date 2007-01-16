@@ -228,11 +228,10 @@ function delete_file_from_db($dfile,$mediadbADO){
 }
 
 function delete_directory_from_db($directoryPath,$mediadbADO){
-	$mediadbADO->debug=true;
-	$res=$mediadbADO->Execute("SELECT * FROM File WHERE Path LIKE '$directoryPath/%'");
+	$res=$mediadbADO->_Execute("SELECT * FROM File WHERE Path LIKE '".addslashes($directoryPath)."/%' OR Path='".addslashes($directoryPath)."'");
 	
 	while($row=$res->FetchRow()){
-		if($row['IsDirectory']==1){
+		if($row['IsDirectory']==1 && $directoryPath!=$row['Path']){
 			delete_directory_from_db($row['Path'],$mediadbADO);
 		}
 		delete_file_from_db($row['PK_File'],$mediadbADO);
@@ -351,7 +350,7 @@ function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');	
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mainMediaFilesSync.lang.php');
 	$dpage=((int)@$_REQUEST['dpage']>0)?(int)$_REQUEST['dpage']:1;
-	
+
 	$queryDBFiles='
 		SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
 		FROM File 
@@ -397,7 +396,7 @@ function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
 		$out.='
 			<tr class="'.(($dbkey%2==0)?'alternate_back':'').'">
 				<td><img src=include/images/db.gif align=middle border=0> <a href="index.php?section=editMediaFile&fileID='.@$dbPKFiles[$dbkey].'"><B>'.$filename.'</B></a></td>
-				<td align="right"><input type="button" class="button" name="del" value="'.$TEXT_DELETE_FILE_FROM_DATABASE_CONST.'" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_FILE_FROM_DATABASE_CONST.'\'))self.location=\'index.php?section=mainMediaFilesSync&action=delfile&dfile='.@$dbPKFiles[$dbkey].'&path='.$path.'\';"></td>
+				<td align="right"><input type="button" class="button" name="del" value="'.$TEXT_DELETE_FILE_FROM_DATABASE_CONST.'" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_FILE_FROM_DATABASE_CONST.'\'))self.location=\'index.php?section=mainMediaFilesSync&action=delfile&dfile='.@$dbPKFiles[$dbkey].'&path='.urlencode($path).'\';"></td>
 			</tr>
 			<tr class="'.(($dbkey%2==0)?'alternate_back':'').'">
 				<td colspan="2">'.@$attributes.'</td>

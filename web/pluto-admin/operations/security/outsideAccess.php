@@ -76,7 +76,11 @@ function outsideAccess($output,$dbADO) {
 	<form action="index.php" method="post" name="outsideAccess" onSubmit="return validateInput();">
 	<input type="hidden" name="section" value="outsideAccess">
 	<input type="hidden" name="action" value="add">
+	<span class="err"><B>'.(isset($remote)?$TEXT_PROVIDE_PASSWORD_AND_INSTALLATION_CONST.' '.$installationID.'-'.$remote:'').'</B></span>
 	<table width="600">
+		<tr>
+			<td colspan="3">'.$TEXT_REMOTE_ASSISTANCE_CONST.': <B>'.(isset($remote)?$TEXT_ENABLED_CONST:$TEXT_DISABLED_CONST).'</B> <input type="submit" name="'.(isset($remote)?'deactivate':'activate').'" class="button" value="'.(isset($remote)?$TEXT_DISABLE_CONST:$TEXT_ENABLE_CONST).'"></td>
+		</tr>	
 		<tr>
 			<td><input type="checkbox" name="allow80" value="1" '.(($allowAccessOn80==1)?'checked':'').'></td>
 			<td>'.$TEXT_ALLOW_OUTSIDE_ACCESS_80_CONST.'</td>
@@ -88,16 +92,6 @@ function outsideAccess($output,$dbADO) {
 			<td><input type="text" name="port" value="'.@$port.'"></td>
 		</tr>
 		<tr>
-			<td><input type="checkbox" name="allowOnPassword" value="1" '.(isset($remote)?'checked':'').' onClick="setAntiHanging();"></td>
-			<td>'.$TEXT_ALLOW_PLUTO_ACCESS_CONST.'</td>
-			<td><input type="password" name="password" value="'.(isset($remote)?$remote:'').'"></td>
-		</tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td>'.$TEXT_CONFIRM_PASSWORD_CONST.'</td>
-			<td><input type="password" name="password1" value="'.(isset($remote)?$remote:'').'"></td>
-		</tr>
-		<tr>
 			<td><input type="checkbox" name="RAport" value="1" '.(((int)@$RAport==22)?'checked':'').'></td>
 			<td>'.$TEXT_USE_PORT_22_FOR_REMOTE_ASSISTANCE_CONST.'</td>
 			<td>&nbsp;</td>
@@ -107,9 +101,6 @@ function outsideAccess($output,$dbADO) {
 			<td>'.$TEXT_ENABLE_ANTI_HANGING_MEASURE_CONST.'</td>
 			<td>&nbsp;</td>
 		</tr>		
-		<tr>
-			<td colspan="3">'.$TEXT_PROVIDE_PASSWORD_AND_INSTALLATION_CONST.' <b>'.$_SESSION['installationID'].'</b></td>
-		</tr>
 		<tr>
 			<td><input type="checkbox" name="sendErrorsToPluto" value="1" '.((@$sendErrorsToPluto==1)?'checked':'').'></td>
 			<td>'.$TEXT_SEND_ERRORS_TO_PLUTO_CONST.'</td>
@@ -134,6 +125,17 @@ function outsideAccess($output,$dbADO) {
 			header("Location: index.php?section=outsideAcces&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
+		
+		if(isset($_POST['activate'])){
+			// /usr/pluto/bin/RA-handler.sh {--enable|--disable
+			$cmd='sudo -u root /usr/pluto/bin/RA-handler.sh --enable';
+			exec_batch_command($cmd);
+		}
+
+		if(isset($_POST['deactivate'])){
+			$cmd='sudo -u root /usr/pluto/bin/RA-handler.sh --disable';
+			exec_batch_command($cmd);
+		}		
 		
 		if(isset($_POST['save'])){
 			
@@ -186,17 +188,6 @@ function outsideAccess($output,$dbADO) {
 				}
 			}
 			exec('sudo -u root /usr/pluto/bin/Network_Firewall.sh');
-
-			if(isset($_POST['allowOnPassword'])){
-				$password=$_POST['password'];
-				writeToFile($accessFile, 'remote',@$remote,$password);
-				if(isset($remote) && $remote!=$password){
-					$cmd='sudo -u root /usr/pluto/bin/RA_ChangePassword.sh';
-					exec($cmd);
-				}
-			}else {
-				removeFromFile('remote',$accessFile);
-			}
 
 			if(isset($_POST['RAport'])){
 				if(@$RAport!=22){
@@ -296,4 +287,25 @@ function removeFromFile($variable,$accessFile)
 	fclose($handle);
 }
 
+
+function getRemotePorts($installationID){
+	global $PlutoHomeHost;
+	$cmd='wget \''.$PlutoHomeHost.'get_ra_ports.php?installationID='.$installationID.'\' --header=\'User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4\' -O -';
+	$out=exec_batch_command($cmd,1);	
+	
+	// output like Ports=SSH=10003&Web=10004&SSHnomon=10005#
+	if(substr($out,0,5)!='Ports' && substr($out,-1)!='#'){
+		return false;
+	}
+	return substr($out,6,-1);
+}
+
+function freeRemotePorts($installationID){
+	global $PlutoHomeHost;
+	$cmd='wget \''.$PlutoHomeHost.'get_ra_ports.php?installationID='.$installationID.'&action=del\' --header=\'User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4\' -O -';
+	$out=exec_batch_command($cmd,1);	
+	
+	return ($out=='Success')?true:false;
+	
+}
 ?>
