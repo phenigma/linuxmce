@@ -159,7 +159,7 @@ MythTV_Player::~MythTV_Player()
 bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 {
 #ifndef WIN32
-	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "", MYTH_WINDOW_NAME);
+	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "-w", MYTH_WINDOW_NAME);
 	
 	if( bSelectWindow )
 	{
