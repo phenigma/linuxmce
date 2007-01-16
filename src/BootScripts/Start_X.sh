@@ -40,7 +40,7 @@ AlphaBlending=$(AlphaBlendingEnabled)
 #XClient=/usr/pluto/bin/Start_IceWM.sh
 XClient=/usr/bin/xfwm4
 XClientParm=()
-XServerParm=(-logverbose 9 -br)
+XServerParm=(-logverbose 9 -br -config /etc/X11/xorg.conf.pluto)
 Background=y
 XDisplay=:0
 #<-mkr_b_ubuntu_b->
@@ -85,5 +85,5 @@ if [[ "$Background" == y ]]; then
 	fi
 else
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "X server: foreground"
-	xinit "$XClient" "${XClientParm[@]}" -- "$XDisplay" -ac -ignoreABI -config /etc/X11/xorg.conf.pluto -allowMouseOpenFail "$VT" "${XServerParm[@]}"
+	xinit "$XClient" "${XClientParm[@]}" -- "$XDisplay" -ac -ignoreABI -allowMouseOpenFail "$VT" "${XServerParm[@]}"
 fi
