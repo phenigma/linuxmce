@@ -268,6 +268,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 	g_pPlutoLogger->Write(LV_STATUS,"WinListManager::ApplyContext m_bExternalChange %d",(int) m_bExternalChange);
 #endif
 	
+	string sExternalWindowToActivate;
 	for(WindowsContext::iterator it_pending = m_PendingContext.begin(); it_pending != m_PendingContext.end(); ++it_pending)
 	{
 		string sWindowName = it_pending->first;
@@ -321,7 +322,11 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 
 			if(pending_context.IsActivated() && !current_context.IsActivated() )
 			{
+				if(sWindowName != m_sSdlWindowName)
+					sExternalWindowToActivate = sWindowName;
+
 				bResult = bResult && m_pWMController->ActivateWindow(sWindowName);
+/*
 				if( m_bKeepSdlWindowActive && sWindowName!=m_sSdlWindowName )
 				{
 #ifdef DEBUG
@@ -329,6 +334,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 #endif
 					bResult = bResult && m_pWMController->ActivateWindow(m_sSdlWindowName);
 				}
+*/
 			}
 
 			if(!pending_context.IsVisible())
@@ -356,7 +362,11 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 
 			if(pending_context.IsActivated())
 			{
+				if(sWindowName != m_sSdlWindowName)
+					sExternalWindowToActivate = sWindowName;
+
 				bResult = bResult && m_pWMController->ActivateWindow(sWindowName);
+/*
 				if( m_bKeepSdlWindowActive && sWindowName!=m_sSdlWindowName )
 				{
 #ifdef DEBUG
@@ -364,6 +374,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 #endif
 					bResult = bResult && m_pWMController->ActivateWindow(m_sSdlWindowName);
 				}
+*/
 			}
 		}
 		if( bResult==false )
@@ -375,12 +386,18 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 			pending_context.ErrorFlag(false);
 	}
 
+	if(!sExternalWindowToActivate.empty())
+		m_pWMController->ActivateWindow(sExternalWindowToActivate);
 
 	/* For some reason it's happened that even though the last 'R' command to the window manager WAS
 	to activate Orbiter, Orbiter STILL is invisible behind myth until re-actated.  It appears that 
 	constantly re-activating Orbiter doesn't cause a flicker or other undesired behavior */
 	if( m_bKeepSdlWindowActive )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "KeepSdlWindowActive executed!");
 		m_pWMController->ActivateWindow(m_sSdlWindowName);
+		m_bKeepSdlWindowActive = false;
+	}
 
 	m_bExternalChange=false;
 	m_CurrentContext.clear();
