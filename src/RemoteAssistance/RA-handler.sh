@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#PlutoHome="plutohome.com"
-PlutoHome="10.0.0.175/plutohome-com"
+PlutoHome="plutohome.com"
+#PlutoHome="10.0.0.175/plutohome-com"
 
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
