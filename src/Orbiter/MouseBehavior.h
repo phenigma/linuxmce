@@ -166,7 +166,6 @@ namespace DCE
 		virtual bool SetMouseCursorImage(const string &sPath, const string &sPathMask) { return false;}
 		virtual void CaptureRelativeMovements();
 		virtual void ReleaseRelativeMovements();
-		virtual void ActivateOrbiterWindow() {}
     };
 
 }
