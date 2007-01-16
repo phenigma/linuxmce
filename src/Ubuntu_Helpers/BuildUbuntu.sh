@@ -80,20 +80,33 @@ function Build_MakeRelease_Binary {
 }
 
 function Build_Pluto_Replacements {
-	apt-get -y install quilt nasm libxv-dev libarts1-dev debhelper fakeroot
+	temp_dir="${out_dir}/tmp"
+	mkdir -p $temp_dir
 
+	#Package: liibsdl
+	apt-get -y install quilt nasm libxv-dev libarts1-dev debhelper fakeroot
 	pushd ${svn_dir}/trunk/ubuntu/libsdl1.2-1.2.10
 		dpkg-buildpackage -us -uc -rfakeroot -b
 		dpkg -i ../libsdl1.2debian-all_1.2.10-3ubuntu2pluto1_i386.deb
 		dpkg -i ../libsdl1.2debian_1.2.10-3ubuntu2pluto1_i386.deb
 		dpkg -i ../libsdl1.2-dev_1.2.10-3ubuntu2pluto1_i386.deb
+		cp ../libsdl1.2*.deb ${temp_dir}
 	popd
 
+	#Package: libxine
 	apt-get -y install libcaca-dev liblircclient-dev libtheora-dev libflac-dev libmodplug-dev libgnomevfs2-dev libsmbclient-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch
 	pushd ${svn_dir}/trunk/ubuntu/xine-lib-1.1.2+repacked1
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		dpkg -i ../libxine1_1.1.2+repacked1-0ubuntu3pluto1_i386.deb
 		dpkg -i ../libxine-dev_1.1.2+repacked1-0ubuntu3pluto1_i386.deb
+		cp ../libxine*.deb ${temp_dir}
+	popd
+
+	#Package: pluto-asterisk
+	apt-get -y install linux-headers-`uname -r`
+	pushd ${svn_dir}/trunk/external/asterisk
+		./make_package_ubuntu.sh `uname -r`
+		cp -r asterisk-pluto_*.deb ${temp_dir}
 	popd
 }
 
@@ -123,7 +136,7 @@ function Build_Pluto_Stuff {
 #	542 	Pluto vloopback Kernel Module Source
 # 	-b
 
-	$MakeRelease -b -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 1 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
+	$MakeRelease -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 1 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
 }
 
 function Create_Fake_Windows_Binaries {
@@ -205,7 +218,7 @@ function Import_Build_Database {
 
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
 	MakeRelease_PrepFiles="${mkr_dir}/MakeRelease_PrepFiles"
-	$MakeRelease_PrepFiles -p $(dirname $temp_file) -e "$(basename $temp_file),$(basename $temp_file_main),$(basename $temp_file_myth),$(basename $temp_file_media),$(basename $temp_file_security),$(basename $temp_file_telecom)" -c ${mkr_dir}/${flavor}.conf
+	$MakeRelease_PrepFiles -p $(dirname $temp_file) -e "$(basename $temp_file),$(basename $temp_file_main),$(basename $temp_file_myth),$(basename $temp_file_media),$(basename $temp_file_security),$(basename $temp_file_telecom)" -c ${build_dir}/${flavor}.conf
 
 	echo "DROP DATABASE $sql_slave_db;
 		DROP DATABASE $sql_slave_db_mainsqlcvs;
@@ -252,9 +265,9 @@ function Import_Pluto_Skins {
 Import_Build_Database
 #Import_Pluto_Skins
 #Install_Build_Needed_Packages
-Build_Pluto_Replacements
-Checkout_Pluto_Svn
-Build_MakeRelease_Binary
+#Build_Pluto_Replacements
+#Checkout_Pluto_Svn
+#Build_MakeRelease_Binary
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
 Create_Local_Repository
