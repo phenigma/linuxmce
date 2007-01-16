@@ -6,14 +6,9 @@ exit
 
 function XorgConfLogging() {
 	local message="$1"
-	local xorgLog="/var/log/pluto/xorg.conf.log"
-	local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
-	
-	#<-mkr_b_ubuntu_b->
-    local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
+	local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
 	local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
-	#<-mkr_b_ubuntu_e->
-
+	
 	local myPid=$$
 
 	echo "$myPid $(date -R) $message [$xorgLines]"	>> $xorgLog
@@ -82,10 +77,7 @@ GenModeline()
 }
 
 OrigParams=("$@")
-ConfigFile="/etc/X11/xorg.conf"
-#<-mkr_b_ubuntu_b->
 ConfigFile="/etc/X11/xorg.conf.pluto"
-#<-mkr_b_ubuntu_e->
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		--defaults) Defaults=y ;;
@@ -219,8 +211,8 @@ Logging "$TYPE" "$SEVERITY_STATUS" "Xconfigure" "Display Driver: $DisplayDriver"
 
 CurrentDisplayDriver=$(awk -f/usr/pluto/bin/X-GetDisplayDriver.awk "$ConfigFile")
 if [[ "$Defaults" == y ]]; then
-	if [[ ! -f /usr/pluto/templates/xorg.conf.in ]]; then
-		Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/templates/xorg.conf.in. Can't setup defaults"
+	if [[ ! -f /usr/pluto/templates/xorg.conf.pluto.in ]]; then
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/templates/xorg.conf.pluto.in. Can't setup defaults"
 		exit 1
 	fi
 	cat /usr/pluto/templates/xorg.conf.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"

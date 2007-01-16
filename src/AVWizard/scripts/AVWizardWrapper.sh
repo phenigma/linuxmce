@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/AVWizard-Common.sh
+. /usr/pluto/bin/Config_Ops.sh 2>/dev/null || exit 1  ## So the orbiter can get the environment variable for the mysql server
 
 SpcField()
 {
@@ -11,7 +12,7 @@ SpcField()
 
 Done=0
 NextStep=$STEP_Welcome
-export DISPLAY=:1
+export DISPLAY=:$(( $Display  + 1 ))
 while [[ "$Done" -eq 0 ]]; do
 	echo "Running Wizard from step '$NextStep'"
 	StartX -step "$NextStep"

@@ -19,6 +19,6 @@ computerIP=$2
 	#<-mkr_b_ubuntu_b->
 	EXT=".pluto"
 	#<-mkr_b_ubuntu_e->
-	cp /etc/X11/xorg.conf{"$EXT",.test}
+	cp /etc/X11/xorg.conf.pluto{"$EXT",.test}
 	#kill $(ps ax|grep 'X :0 -ignoreABI -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
 	/usr/pluto/bin/Xres_config_end.sh y" &

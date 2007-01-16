@@ -2,13 +2,8 @@
 
 function XorgConfLogging() {
         local message="$1"
-        local xorgLog="/var/log/pluto/xorg.conf.log"
-        local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
-
-		#<-mkr_b_ubuntu_b->
-	    local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
-		local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
-		#<-mkr_b_ubuntu_e->
+        local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
+        local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
 
         local myPid=$$
 
@@ -64,7 +59,7 @@ Refresh_Rates=(
 	'120'
 )
 
-XF86Config="/etc/X11/xorg.conf.avwizard"
+XF86Config="/etc/X11/xorg.conf.pluto.avwizard"
 XineConf="/etc/pluto/xine.conf.avwizard"
 
 GetAudioMixerSettings()

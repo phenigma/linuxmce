@@ -426,7 +426,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	string sSQL = "SELECT c.chanid, c.channum, c.name, c.icon, p.title, p.starttime, p.endtime "
 		"FROM program p "
 		"INNER JOIN channel c ON c.chanid = p.chanid "
-		"WHERE '" + StringUtils::SQLDateTime() + "' BETWEEN p.starttime and p.endtime " + sProvider +
+		"WHERE p.starttime < '" + StringUtils::SQLDateTime() + "' AND p.endtime>'" + StringUtils::SQLDateTime() + "' " + sProvider +
 		" ORDER BY cast(c.channum as unsigned)";
 	PlutoSqlResult result;
 	MYSQL_ROW row;

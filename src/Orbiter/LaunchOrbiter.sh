@@ -31,7 +31,7 @@ fi
 isX11Running=$(ps -A | grep Xorg | wc -l)
 if [[ "$isX11Running" != "1" ]]; then
 	/usr/pluto/bin/Start_X.sh
-	export DISPLAY=:0
+	export DISPLAY=:$Display
 fi
 
 Counter=0

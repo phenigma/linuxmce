@@ -200,6 +200,7 @@ Activation_Code = $Activation_Code
 PK_Installation = 1
 PK_Users = 1
 OfflineMode = $OfflineMode
+Display = 0
 "
 echo "$PlutoConf" >/etc/pluto.conf
 

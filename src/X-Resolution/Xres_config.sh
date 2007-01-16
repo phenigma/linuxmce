@@ -6,13 +6,8 @@ exit
 
 function XorgConfLogging() {
         local message="$1"
-        local xorgLog="/var/log/pluto/xorg.conf.log"
-        local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
-
-		#<-mkr_b_ubuntu_b->
         local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
         local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
-		#<-mkr_b_ubuntu_e->
 		
         local myPid=$$
 
@@ -53,18 +48,18 @@ EXT=
 #<-mkr_b_ubuntu_b->
 EXT=".pluto"
 #<-mkr_b_ubuntu_e->	
-cp /etc/X11/xorg.conf{"$EXT",.test}
+cp /etc/X11/xorg.conf.pluto{"$EXT",.test}
 
-if ! /usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/xorg.conf.test --resolution "${Width}x${Height}@${Refresh}" $Force $Type; then
+if ! /usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/xorg.conf.pluto.test --resolution "${Width}x${Height}@${Refresh}" $Force $Type; then
 	echo "X configuration script exited with error"
 	exit 10
 fi
 
-X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.test -logverbose 9 </dev/null &>/dev/null &
+X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.pluto.test -logverbose 9 </dev/null &>/dev/null &
 pidOfX=
 Timeout=5
 while [[ -z "$pidOfX" && $Timeout > 0 ]]; do
-	pidOfX="$(ps ax|grep 'X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.test'|grep -v grep|awk '{print $1}')"
+	pidOfX="$(ps ax|grep 'X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.pluto.test'|grep -v grep|awk '{print $1}')"
 	((Timeout--))
 	sleep 1
 done

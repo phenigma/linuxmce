@@ -16,7 +16,7 @@ bash -x /usr/pluto/bin/CaptureCards_Setup.sh | tee /var/log/pluto/CaptureCards_S
 [[ $# -ne 4 && $# -ne 2 && $# -ne 0 ]] && printHelp && exit
 CurrentDevice=$PK_Device
 
-export DISPLAY=:0
+export DISPLAY=:$Display
 
 [[ $# -eq 2 || $# -eq 4 && "$1" != "-d" ]] && printHelp && exit
 [[ $# -eq 2 || $# -eq 4 ]] && CurrentDevice="$2"

@@ -152,13 +152,13 @@ X :1 -ac &
 
 # launching the window manager
 su
-export DISPLAY=':1'
+export DISPLAY=:$(( $Display  + 1 ))
 ratpoison &
 # or
 icewm-session &
 
 # in another console:
-export DISPLAY=':1'
+export DISPLAY=:$(( $Display  + 1 ))
 cd /usr/pluto/bin/
 ./DCERouter .....
 ./Orbiter .....

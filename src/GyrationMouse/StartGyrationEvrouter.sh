@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Config_Ops.sh 2>/dev/null || exit 1  ## So the orbiter can get the environment variable for the mysql server
+
 function LogMsg {
 	echo $(date -R) $*
 }
@@ -21,7 +23,7 @@ if [[ -h /dev/input/gyration ]] && [[ "$(pidof X)" != "" ]] && [[ "$(pidof evrou
 	LogMsg "Removing everouter lock file"
 	rm -f /tmp/.evrouter*
 	LogMsg "Starting evrouter for /dev/input/gyration"
-	export DISPLAY=:0
+	export DISPLAY=:$Display
 	/usr/bin/evrouter /dev/input/gyration
 	sleep 5s
 fi 

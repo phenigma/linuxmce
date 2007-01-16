@@ -4,12 +4,9 @@
 
 function assureXorgSane()
 {
-	xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
-	#<-mkr_b_ubuntu_b->
 	xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
-	#<-mkr_b_ubuntu_e->
 	if [ $xorgLines -le 15 ] ;then
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "File xorg.conf has only $xorgLines lines, rebuilding"
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "File xorg.conf.pluto has only $xorgLines lines, rebuilding"
 		EVICETEMPLATE_OnScreen_Orbiter=62
 		DEVICETEMPLATE_OrbiterPlugin=12
 		DEVICECATEGORY_Media_Director=8
@@ -88,5 +85,5 @@ if [[ "$Background" == y ]]; then
 	fi
 else
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "X server: foreground"
-	xinit "$XClient" "${XClientParm[@]}" -- "$XDisplay" -ac -ignoreABI -allowMouseOpenFail "$VT" "${XServerParm[@]}"
+	xinit "$XClient" "${XClientParm[@]}" -- "$XDisplay" -ac -ignoreABI -config /etc/X11/xorg.conf.pluto -allowMouseOpenFail "$VT" "${XServerParm[@]}"
 fi

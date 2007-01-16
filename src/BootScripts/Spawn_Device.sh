@@ -86,7 +86,7 @@ if [[ -z "$display" ]]; then
 	display=":0"
 fi
 
-[[ -z "$DISPLAY" ]] && export DISPLAY=:0
+[[ -z "$DISPLAY" ]] && export DISPLAY=:$Display
 
 Logging $TYPE $SEVERITY_STAGE "$module" "Entering $module"
 Logging $TYPE $SEVERITY_STAGE "$module" "Entering $module" "$LogFile"

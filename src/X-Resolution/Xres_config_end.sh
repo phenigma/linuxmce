@@ -10,14 +10,9 @@ DEVICEDATA_Video_settings=89
 
 function XorgConfLogging() {
         local message="$1"
-        local xorgLog="/var/log/pluto/xorg.conf.log"
-        local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
-
-		#<-mkr_b_ubuntu_b->
         local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
         local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
-		#<-mkr_b_ubuntu_e->
-		 
+
         local myPid=$$
 
         echo "$myPid $(date -R) $message [$xorgLines]"  >> $xorgLog
@@ -32,11 +27,11 @@ Answer="$1"
 . /usr/pluto/bin/Utils.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-pidOfX="$(ps ax|grep 'X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.test'|grep -v grep|awk '{print $1}')"
+pidOfX="$(ps ax|grep 'X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.pluto.test'|grep -v grep|awk '{print $1}')"
 if [[ -z "$pidOfX" ]]; then
 	echo "test X not running. nothing to kill"
 fi
-if [[ ! -f "/etc/X11/xorg.conf.test" ]]; then
+if [[ ! -f "/etc/X11/xorg.conf.pluto.test" ]]; then
 	echo "test config not found. no new settings to apply"
 	exit 10
 fi
@@ -71,13 +66,13 @@ if [[ "${Answer:0:1}" == "y" || "${Answer:0:1}" == "Y" ]]; then
 	#<-mkr_b_ubuntu_b->
 	EXT=".pluto"
 	#<-mkr_b_ubuntu_e->	
-	mv /etc/X11/xorg.conf{.test,"$EXT"}
+	mv /etc/X11/xorg.conf.pluto{.test,"$EXT"}
 	echo "Killing real X (to restart it with new config)"
 	kill $pidOfX
 	sleep 5
 	/usr/pluto/bin/Start_X.sh
 	rm -f /tmp/Pluto_VideoSetting.txt
 else
-	rm -f /etc/X11/xorg.conf.test /tmp/Pluto_VideoSetting.txt
+	rm -f /etc/X11/xorg.conf.pluto.test /tmp/Pluto_VideoSetting.txt
 fi
 echo

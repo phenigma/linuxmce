@@ -12,7 +12,7 @@ MysqlCommand="mysql -D mythconverg -h $MySqlHost -u mythtv -p$MythPass";
 
 QueryResult=`echo $QueryIsConfigured | $MysqlCommand | tail -n 1`;
 
-export DISPLAY=:0;
+export DISPLAY=:$Display;
 if [ $QueryResult -eq 0 ]; then
         echo "Need to launch the setup";
         echo -e "\n\n" | mythtv-setup;
