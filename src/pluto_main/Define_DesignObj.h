@@ -2385,10 +2385,10 @@
 #define DESIGNOBJ_butEveryRoomWithMD_CONST 5379
 #define DESIGNOBJ_butNext_RoomsForExternalDevice_CONST 5380
 #define DESIGNOBJ_dgRoomsWithAmd_CONST 5381
-#define DESIGNOBJ_mnuRemoteAssistance_CONST 5382
-#define DESIGNOBJ_butRAEnable_CONST 5383
-#define DESIGNOBJ_butRemoteAssistance_CONST 5384
-#define DESIGNOBJ_butRADisable_CONST 5385
+#define DESIGNOBJ_mnuRemoteAssistance_CONST 5386
+#define DESIGNOBJ_butRAEnable_CONST 5387
+#define DESIGNOBJ_butRemoteAssistance_CONST 5388
+#define DESIGNOBJ_butRADisable_CONST 5389
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
