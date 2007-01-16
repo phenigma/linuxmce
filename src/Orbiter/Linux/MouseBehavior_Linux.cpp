@@ -201,3 +201,9 @@ bool MouseBehavior_Linux::SetMouseCursorImage(const string &sPath, const string 
     }
     return true;
 }
+
+void MouseBehavior_Linux::ActivateOrbiterWindow()
+{
+	ptrOrbiterLinux()->m_pWinListManager->ActivateSdlWindow();
+	ptrOrbiterLinux()->m_pWinListManager->ApplyContext("Orbiter");
+}

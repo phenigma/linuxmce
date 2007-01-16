@@ -262,6 +262,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
 		ShowMouse(true);
 		SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
+		ActivateOrbiterWindow();
 		return true;
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST && !m_bMouseKilled )
