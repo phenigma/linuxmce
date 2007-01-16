@@ -68,7 +68,7 @@ function SetKidsOnline() {
 	local R=""
 	local Device_Child=""
 	
-	Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia = '$Device_ID'"
+	Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia = '$Device_ID' AND FK_DeviceTemplate IN ($TPL_INTERNAL_DRIVE, $TPL_WINDOWS_SHARE, $TPL_NFS_SHARE)"
 	R=$(RunSQL "$Q")
 	for Device_Child in $R ;do
 		Device_Child=$(Field 1 "$Device_Child")
