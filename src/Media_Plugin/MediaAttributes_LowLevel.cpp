@@ -206,7 +206,9 @@ string MediaAttributes_LowLevel::GetFilePathFromFileID( int PK_File, int *PK_Med
         return strPath + "/" + strFile;
     }
 
-	*PK_MediaType = 0;
+	if(NULL != PK_MediaType)
+		*PK_MediaType = 0;
+
     return "";
 }
 
