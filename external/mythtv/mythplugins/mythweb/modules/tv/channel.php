@@ -2,10 +2,10 @@
 /**
  * Show the current lineup for a specific channel
  *
- * @url         $URL$
- * @date        $Date: 2006-01-25 05:41:36 +0200 (Wed, 25 Jan 2006) $
- * @version     $Revision: 8709 $
- * @author      $Author: xris $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/tv/channel.php $
+ * @date        $Date: 2006-09-10 00:18:32 +0300 (Sun, 10 Sep 2006) $
+ * @version     $Revision: 11095 $
+ * @author      $Author: stuartm $
  * @license     GPL
  *
  * @package     MythWeb
@@ -19,8 +19,8 @@
 // Path-based
     if ($Path[2]) {
         $_GET['chanid'] = $Path[2];
-        if (!$_GET['time'])
-            $_GET['time'] = $Path[3];
+        if (!$_GET['date'])
+            $_GET['date'] = $Path[3];
     }
 
 // Chanid?
@@ -33,10 +33,10 @@
         exit;
     }
 
-// New list time?
-    $_GET['time'] or $_GET['time'] = $_POST['time'];
-    if ($_GET['time'])
-        $_SESSION['list_time'] = $_GET['time'];
+// New list date?
+    $_GET['date'] or $_GET['date'] = $_POST['date'];
+    if ($_GET['date'])
+        $_SESSION['list_time'] = unixtime(sprintf('%08d000000', $_GET['date']));
 
 // Load the programs for today
     $this_channel->programs = load_all_program_data(mktime(0, 0, 0, date('n', $_SESSION['list_time']), date('j', $_SESSION['list_time']), date('Y', $_SESSION['list_time'])),
@@ -44,7 +44,7 @@
                                                     $this_channel->chanid);
 
 // Load the class for this page
-    require_once theme_dir.'tv/channel.php';
+    require_once tmpl_dir.'channel.php';
 
 // Exit
     exit;
@@ -55,7 +55,7 @@
 /**/
     function channel_select() {
         global $Channels;
-        echo '<select name="chanid" onchange="submit_form()">';
+        echo '<select name="chanid" onchange="submit_form(\'\',\'\',\'program_listing\')">';
         foreach ($Channels as $channel) {
         // Not visible?
             if (empty($channel->visible))
@@ -73,23 +73,24 @@
     }
 
 /**
- * Prints a <select> of the available date range
+ * Prints a <select> of the available date range.
+ * reused almost verbatim from modules/tv/list.php
 /**/
     function date_select() {
+        global $db;
     // Get the available date range
-        $result = mysql_query('SELECT TO_DAYS(max(starttime)) - TO_DAYS(NOW()) FROM program')
-            or trigger_error('SQL Error: '.mysql_error(), FATAL);
-        list($max_days) = mysql_fetch_row($result);
-        mysql_free_result($result);
+        $min_days = $db->query_col('SELECT TO_DAYS(min(starttime)) - TO_DAYS(NOW()) FROM program');
+        $max_days = $db->query_col('SELECT TO_DAYS(max(starttime)) - TO_DAYS(NOW()) FROM program');
     // Print out the list
-        echo '<select name="time" onchange="submit_form()">';
-        for ($i=-1; $i<=$max_days; $i++) {
+        echo '<select name="date" onchange="get_element(\'program_listing\').submit()">';
+        for ($i=$min_days; $i<=$max_days; $i++) {
             $time = mktime(0,0,0, date('m'), date('d') + $i, date('Y'));
             $date = date('Ymd', $time);
-            echo "<option value=\"$time\"";
-            if ($date == date("Ymd", $_SESSION['list_time']))
-                echo " selected";
+            echo "<option value=\"$date\"";
+            if ($date == date('Ymd', $_SESSION['list_time']))
+                echo ' SELECTED';
             echo '>'.strftime($_SESSION['date_channel_jump'] , $time).'</option>';
         }
+        echo '</select>';
     }
 

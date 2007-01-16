@@ -17,6 +17,9 @@ using namespace std;
 #include "dvbchannel.h"
 #include "dvbtypes.h"
 #else // if ! USING_DVB
+//#define QPSK     0
+#define QAM_16   1
+#define QAM_32   2
 #define QAM_64   3
 #define QAM_128  4
 #define QAM_256  5
@@ -38,6 +41,9 @@ freq_table_list_t get_matching_freq_tables(
 
 long long get_center_frequency(
     QString format, QString modulation, QString country, int freqid);
+
+int get_closest_freqid(
+    QString format, QString modulation, QString country, long long centerfreq);
 
 class FrequencyTable
 {
@@ -116,6 +122,14 @@ class TransportScanItem
     TransportScanItem(int sourceid, const QString &std,
                       const QString &name, int mplexid,
                       uint tuneTimeout);
+#ifdef USING_DVB
+    TransportScanItem(int            _sourceid,
+                      const QString &_std,
+                      const QString &_name,
+                      DVBTuning     &_tuning,
+                      uint           _timeoutTune);
+#endif // USING_DVB
+
     TransportScanItem(int sourceid,           /* source id in DB */
                       const QString &std,     /* atsc/dvb */
                       const QString &strFmt,  /* fmt for info shown to user  */
@@ -128,6 +142,8 @@ class TransportScanItem
         { return (freq_offsets[2]) ? 3 : ((freq_offsets[1]) ? 2 : 1); }
 
     uint freq_offset(uint i) const;
+
+    QString ModulationDB(void) const;
 
   private:
     int GetMultiplexIdFromDB() const;

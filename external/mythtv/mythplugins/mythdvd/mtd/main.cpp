@@ -13,8 +13,6 @@
 #include <qfile.h>
 #include <qtextstream.h>
 
-#include <iostream>
-using namespace std;
 #include <unistd.h>
 
 #include <mythtv/exitcodes.h>
@@ -22,18 +20,13 @@ using namespace std;
 #include <mythtv/mythdbcon.h>
 #include <mythtv/langsettings.h>
 
-#include "../mythdvd/config.h"
 #include "../mythdvd/dbcheck.h"
-#if TRANSCODE_SUPPORT
 #include "mtd.h"
-#endif
 
 #define MTD_EXIT_DEAMONIZING_ERROR                FRONTEND_EXIT_START-1
-#define MTD_EXIT_NO_TRANSCODE_SUPPORT             FRONTEND_EXIT_START-2
 
 int main(int argc, char **argv)
 {
-#if TRANSCODE_SUPPORT
     QApplication a(argc, argv, false);
     bool daemon_mode = false;
     int  special_port = -1;    
@@ -73,6 +66,21 @@ int main(int argc, char **argv)
             {
                 cerr << "mtd: Missing argument to -p/--port option\n";
                 return FRONTEND_EXIT_INVALID_CMDLINE;
+            }
+        }
+        else if (!strcmp(a.argv()[argpos],"-v"))
+        {
+            if (++argpos >= argc) {
+                cerr << "Error: -v requires parameters (try -v help)" <<
+                        std::endl;
+                return GENERIC_EXIT_INVALID_CMDLINE;
+            }
+
+            int err;
+            if ((err = parse_verbose_arg(a.argv()[argpos])) !=
+                GENERIC_EXIT_OK)
+            {
+                return err;
             }
         }
         else
@@ -160,11 +168,5 @@ int main(int argc, char **argv)
                                 
     delete gContext;
     return FRONTEND_EXIT_OK;
-#else
-    argc = argc;
-    *argv = *argv; // -Wall
-    cerr << "main.o: mtd was built without transcode support. It won't do anything." << endl;
-    return MTD_EXIT_NO_TRANSCODE_SUPPORT;
-#endif
 }
 

@@ -13,20 +13,18 @@
 using namespace std;
 
 #include "recorderbase.h"
+#include "h264utils.h"
 
+class MPEGStreamData;
 class TSPacket;
 
 class DTVRecorder: public RecorderBase
 {
-    Q_OBJECT
   public:
-    DTVRecorder(TVRec *rec, const char *name = "DTVRecorder");
+    DTVRecorder(TVRec *rec);
     ~DTVRecorder();
 
-    void SetOption(const QString &opt, const QString &value)
-    {
-        RecorderBase::SetOption(opt, value);
-    }
+    virtual void SetOption(const QString &opt, const QString &value);
     virtual void SetOption(const QString &name, int value);
 
     virtual void StopRecording(void) { _request_recording = false; }
@@ -41,20 +39,31 @@ class DTVRecorder: public RecorderBase
     int GetVideoFd(void) { return _stream_fd; }
 
     virtual void SetNextRecording(const ProgramInfo*, RingBuffer*);
+    virtual void SetStreamData(MPEGStreamData*) {}
+    virtual MPEGStreamData *GetStreamData(void) { return NULL; }
 
     virtual void Reset();
+
   protected:
     void FinishRecording(void);
     void ResetForNewFile(void);
 
-    bool FindKeyframes(const TSPacket* tspacket);
     void HandleKeyframe();
     void SavePositionMap(bool force);
 
     void BufferedWrite(const TSPacket &tspacket);
 
+    // MPEG2 support
+    bool FindMPEG2Keyframes(const TSPacket* tspacket);
+
+    // MPEG4 AVC / H.264 support
+    bool FindH264Keyframes(const TSPacket* tspacket);
+    void HandleH264Keyframe(void);
+
     // file handle for stream
     int _stream_fd;
+
+    QString _recording_type;
 
     // used for scanning pes headers for keyframes
     uint      _header_pos;
@@ -62,6 +71,11 @@ class DTVRecorder: public RecorderBase
     unsigned long long _last_gop_seen;
     unsigned long long _last_seq_seen;
     unsigned long long _last_keyframe_seen;
+
+    // H.264 support
+    bool _pes_synced;
+    bool _seen_sps;
+    H264::KeyframeSequencer _h264_kf_seq;
 
     /// True if API call has requested a recording be [re]started
     bool _request_recording;

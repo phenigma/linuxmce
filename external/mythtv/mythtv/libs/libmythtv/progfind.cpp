@@ -22,6 +22,7 @@
 
 #include "progfind.h"
 #include "proglist.h"
+#include "customedit.h"
 #include "infostructs.h"
 #include "programinfo.h"
 #include "oldsettings.h"
@@ -71,13 +72,15 @@ void RunProgramFind(bool thread, bool ggActive)
 }
 
 ProgFinder::ProgFinder(MythMainWindow *parent, const char *name, bool gg)
-          : MythDialog(parent, name)
+          : MythDialog(parent, name),
+            arrowAccel(true)
 {
     curSearch = 10;
     searchCount = 37;
     ggActive = gg;
 
     channelFormat = gContext->GetSetting("ChannelFormat", "<num> <sign>");
+    arrowAccel = gContext->GetNumSetting("UseArrowAccels", 1);
 }
 
 void ProgFinder::Initialize(void)
@@ -189,6 +192,8 @@ void ProgFinder::keyPressEvent(QKeyEvent *e)
             pageDown();
         else if (action == "SELECT" || action == "INFO")
             select();
+        else if (action == "CUSTOMEDIT")
+            customEdit();
         else if (action == "UPCOMING")
             upcoming();
         else if (action == "DETAILS")
@@ -512,7 +517,7 @@ void ProgFinder::update_timeout()
 void ProgFinder::cursorLeft()
 {
     inSearch--;
-    if (inSearch == -1)
+    if (inSearch == -1 && arrowAccel)
         escape();
     else
     {
@@ -559,6 +564,9 @@ void ProgFinder::cursorRight()
                 inSearch = 1;
         }
     }
+    else if (inSearch == 2 && arrowAccel)
+        getInfo();
+
     update(infoRect);
     update(listRect);
 }
@@ -567,6 +575,24 @@ void ProgFinder::select()
 {
     if (inSearch == 2)
         getInfo();
+    else
+        cursorRight();
+}
+
+void ProgFinder::customEdit()
+{
+    if (inSearch == 2)
+    {
+        ProgramInfo *curPick = showData[curShow];
+
+        if (!curPick)
+            return;
+
+        CustomEdit *ce = new CustomEdit(gContext->GetMainWindow(),
+                                        "customedit", curPick);
+        ce->exec();
+        delete ce;
+    }
     else
         cursorRight();
 }

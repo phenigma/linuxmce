@@ -80,32 +80,8 @@ Pressing SPACE/Enter on a selected entry removes it from the listview.</source>
         <translation>MythBrowser-meny</translation>
     </message>
     <message>
-        <source>         Back         </source>
-        <translation type="obsolete">         Bakover         </translation>
-    </message>
-    <message>
-        <source>       Next Tab       </source>
-        <translation type="obsolete">       Neste fane       </translation>
-    </message>
-    <message>
-        <source>       Prev Tab       </source>
-        <translation type="obsolete">       Forrige fane       </translation>
-    </message>
-    <message>
-        <source>      Remove Tab      </source>
-        <translation type="obsolete">      Fjern fane      </translation>
-    </message>
-    <message>
         <source>Save Link in Bookmarks</source>
         <translation>Lagre kobling som bokmerke</translation>
-    </message>
-    <message>
-        <source>       Zoom Out       </source>
-        <translation type="obsolete">       Forminske       </translation>
-    </message>
-    <message>
-        <source>       Zoom In        </source>
-        <translation type="obsolete">       Forstørre        </translation>
     </message>
     <message>
         <source>Enter URL</source>
@@ -121,43 +97,43 @@ Pressing SPACE/Enter on a selected entry removes it from the listview.</source>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilbake</translation>
     </message>
     <message>
         <source>Next Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Neste fane</translation>
     </message>
     <message>
         <source>Prev Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Forrige fane</translation>
     </message>
     <message>
         <source>Remove Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjern fane</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Reduser størrelse</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Øk størrelse</translation>
     </message>
     <message>
         <source>Add New Bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til bokmerke</translation>
     </message>
     <message>
         <source>Group:</source>
-        <translation type="unfinished">Gruppe:</translation>
+        <translation>Gruppe:</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation type="unfinished">Beskrivelse:</translation>
+        <translation>Beskrivelse:</translation>
     </message>
     <message>
         <source>URL:</source>
-        <translation type="unfinished">URL:</translation>
+        <translation>URL:</translation>
     </message>
 </context>
 </TS>

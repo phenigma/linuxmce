@@ -14,6 +14,7 @@
 #include <mythtv/mythdialogs.h>
 #include <mythtv/mythplugin.h>
 #include <mythtv/dialogbox.h>
+#include <mythtv/mythmedia.h>
 
 extern "C" {
 int mythplugin_init(const char *libversion);
@@ -21,23 +22,30 @@ int mythplugin_run(void);
 int mythplugin_config(void);
 }
 
-void runGallery(void)
+static void run(MythMediaDevice *dev)
 {
-    gContext->addCurrentLocation("mythgallery");
     QString startdir = gContext->GetSetting("GalleryDir");
-    QDir dir(startdir);
-    if (!dir.exists() || !dir.isReadable()) {
-        DialogBox diag(gContext->GetMainWindow(),
-                       QObject::tr("Gallery Directory does not exist"
-                                   " or is unreadable."));
+    IconView icv(startdir, dev, gContext->GetMainWindow());
+    if (icv.GetError().isEmpty())
+        icv.exec();
+    else
+    {
+        DialogBox diag(gContext->GetMainWindow(), icv.GetError());
         diag.AddButton(QObject::tr("Ok"));
         diag.exec();
     }
-    else {
-        IconView icv(startdir, gContext->GetMainWindow(), "IconView");
-        icv.exec();
-    }
+}
+
+void runGallery(void)
+{
+    gContext->addCurrentLocation("mythgallery");
+    run(NULL);
     gContext->removeCurrentLocation();
+}
+
+void handleMedia(MythMediaDevice *dev)
+{
+    run(dev);
 }
 
 void setupKeys(void)
@@ -67,7 +75,13 @@ void setupKeys(void)
     REG_KEY("Gallery", "LOWRIGHT", "Go to the lower-right corner of the image",
             "PgDown");
     REG_KEY("Gallery", "INFO", "Toggle Showing Information about Image", "I");
-    REG_KEY("Gallery", "DELETE", "Delete current image", "D");
+    REG_KEY("Gallery", "DELETE", "Delete marked images or current image if none are marked", "D");
+    REG_KEY("Gallery", "MARK", "Mark image", "T");
+
+    REG_MEDIA_HANDLER("MythGallery Media Handler 1/2", "", "", handleMedia,
+                      MEDIATYPE_DATA | MEDIATYPE_MIXED, QString::null);
+    REG_MEDIA_HANDLER("MythGallery Media Handler 2/2", "", "", handleMedia,
+                      MEDIATYPE_MGALLERY, "gif,jpg,png");
 }
 
 int mythplugin_init(const char *libversion)

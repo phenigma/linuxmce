@@ -1,3 +1,5 @@
+// -*- Mode: c++ -*-
+
 #ifndef VIDEOOUTBASE_H_
 #define VIDEOOUTBASE_H_
 
@@ -41,6 +43,7 @@ enum MythCodecID
     kCodec_MPEG2,
     kCodec_H263,
     kCodec_MPEG4,
+    kCodec_H264,
     
     kCodec_NORMAL_END,
 
@@ -48,11 +51,13 @@ enum MythCodecID
     kCodec_MPEG2_XVMC,
     kCodec_H263_XVMC,
     kCodec_MPEG4_XVMC,
+    kCodec_H264_XVMC,
 
     kCodec_MPEG1_IDCT,
     kCodec_MPEG2_IDCT,
     kCodec_H263_IDCT,
     kCodec_MPEG4_IDCT,
+    kCodec_H264_IDCT,
 
     kCodec_STD_XVMC_END,
 
@@ -60,20 +65,9 @@ enum MythCodecID
     kCodec_MPEG2_VLD,
     kCodec_H263_VLD,
     kCodec_MPEG4_VLD,
+    kCodec_H264_VLD,
 
     kCodec_SPECIAL_END,
-};
-
-enum PictureAttribute
-{
-    kPictureAttribute_None = 0,
-    kPictureAttribute_MIN = 1,
-    kPictureAttribute_Brightness = 1,
-    kPictureAttribute_Contrast,
-    kPictureAttribute_Colour,
-    kPictureAttribute_Hue,
-    kPictureAttribute_Volume,
-    kPictureAttribute_MAX
 };
 
 enum PIPLocations
@@ -95,7 +89,7 @@ enum ZoomDirections
     kZoomRight
 };
 
-enum letterboxModes
+enum LetterboxModes
 {
     kLetterbox_Toggle = -1,
     kLetterbox_Off = 0,
@@ -108,13 +102,54 @@ enum letterboxModes
     kLetterbox_END
 };
 
-enum FrameScanType {
+enum FrameScanType
+{
     kScan_Ignore      = -1,
-    kScan_Progressive =  0,
-    kScan_Interlaced  =  1,
-    kScan_Intr2ndField=  2,
-    kScan_Detect      =  3
+    kScan_Detect      =  0,
+    kScan_Interlaced  =  1, // == XVMC_TOP_PICTURE
+    kScan_Intr2ndField=  2, // == XVMC_BOTTOM_PICTURE
+    kScan_Progressive =  3, // == XVMC_FRAME_PICTURE
 };
+
+static inline bool is_interlaced(FrameScanType scan)
+{
+    return (kScan_Interlaced == scan) || (kScan_Intr2ndField == scan);
+}
+
+static inline bool is_progressive(FrameScanType scan)
+{
+    return (kScan_Progressive == scan);
+}
+
+static inline QString frame_scan_to_string(FrameScanType scan,
+                                           bool brief = false)
+{
+    QString ret = QObject::tr("Unknown");
+    switch (scan)
+    {
+        case kScan_Ignore:
+            ret = QObject::tr("Ignore"); break;
+        case kScan_Detect:
+            ret = QObject::tr("Detect"); break;
+        case kScan_Interlaced:
+            if (brief)
+                ret = QObject::tr("Interlaced");
+            else
+                ret = QObject::tr("Interlaced (Normal)");
+            break;
+        case kScan_Intr2ndField:
+            if (brief)
+                ret = QObject::tr("Interlaced");
+            else
+                ret = QObject::tr("Interlaced (Reversed)");
+            break;
+        case kScan_Progressive:
+            ret = QObject::tr("Progressive"); break;
+        default:
+            break;
+    }
+    return ret;
+}
 
 class VideoOutput
 {
@@ -129,6 +164,7 @@ class VideoOutput
                       WId winid, int winx, int winy, int winw, 
                       int winh, WId embedid = 0);
 
+    virtual bool SetDeinterlacingEnabled(bool);
     virtual bool SetupDeinterlace(bool i, const QString& ovrf="");
     virtual bool NeedsDoubleFramerate(void) const;
     virtual bool ApproveDeintFilter(const QString& filtername) const;
@@ -136,7 +172,8 @@ class VideoOutput
     virtual void PrepareFrame(VideoFrame *buffer, FrameScanType) = 0;
     virtual void Show(FrameScanType) = 0;
 
-    virtual void InputChanged(int width, int height, float aspect);
+    virtual void InputChanged(int width, int height, float aspect,
+                              MythCodecID av_codec_id);
     virtual void VideoAspectRatioChanged(float aspect);
 
     virtual void EmbedInWidget(WId wid, int x, int y, int w, int h);
@@ -149,6 +186,8 @@ class VideoOutput
     virtual void GetOSDBounds(QRect &visible, QRect &total,
                               float &pixelAspect, float &fontScale) const;
 
+    /// \brief Returns current display's frame refresh period in microseconds.
+    ///        e.g. 1000000 / frame_rate_in_Hz
     virtual int GetRefreshRate(void) = 0;
 
     virtual void DrawSlice(VideoFrame *frame, int x, int y, int w, int h);
@@ -174,19 +213,10 @@ class VideoOutput
     /// \brief Tells video output that a full repaint is needed.
     void ExposeEvent(void) { needrepaint = true; }
 
-    int ChangeBrightness(bool up);
-    int ChangeContrast(bool up);
-    int ChangeColour(bool up);
-    int ChangeHue(bool up);
-
-    /// \brief Returns current playback brightness
-    int GetCurrentBrightness(void) { return brightness; }
-    /// \brief Returns current playback contrast
-    int GetCurrentContrast(void) { return contrast; }
-    /// \brief Returns current playback colour
-    int GetCurrentColour(void) { return colour; }
-    /// \brief Returns current playback hue
-    int GetCurrentHue(void) { return hue; }
+    int         ChangePictureAttribute(int attributeType, bool direction);
+    virtual int SetPictureAttribute(int attributeType, int newValue);
+    int         GetPictureAttribute(int attributeType) const;
+    void        InitPictureAttributes(void);
 
     bool AllowPreviewEPG(void) { return allowpreviewepg; }
 
@@ -256,6 +286,8 @@ class VideoOutput
     ///        onto the queue of frames ready for decoding onto.
     virtual void DiscardFrames(bool kf) { vbuffers.DiscardFrames(kf); }
 
+    virtual void CheckFrameStates(void) { }
+
     /// \bug not implemented correctly. vpos is not updated.
     VideoFrame *GetLastDecodedFrame(void) { return vbuffers.GetLastDecodedFrame(); }
 
@@ -269,6 +301,9 @@ class VideoOutput
     /// \brief Updates frame displayed when video is paused.
     virtual void UpdatePauseFrame(void) = 0;
 
+    /// \brief Tells the player to resize the video frame (used for ITV)
+    void SetVideoResize(const QRect &videoRect);
+
   protected:
     void InitBuffers(int numdecode, bool extra_for_pause, int need_free,
                      int needprebuffer_normal, int needprebuffer_small,
@@ -277,7 +312,7 @@ class VideoOutput
     virtual void ShowPip(VideoFrame *frame, NuppelVideoPlayer *pipplayer);
     int DisplayOSD(VideoFrame *frame, OSD *osd, int stride = -1, int revision = -1);
 
-    virtual int ChangePictureAttribute(int attributeType, int newValue);
+    virtual void SetPictureAttributeDBValue(int attributeType, int newValue);
     virtual QRect GetVisibleOSDBounds(float&, float&) const;
     virtual QRect GetTotalOSDBounds(void) const;
 
@@ -286,69 +321,71 @@ class VideoOutput
     void DoPipResize(int pipwidth, int pipheight);
     void ShutdownPipResize(void);
 
+    void ResizeVideo(VideoFrame *frame);
+    void DoVideoResize(const QSize &inDim, const QSize &outDim);
+    void ShutdownVideoResize(void);
+
     void SetVideoAspectRatio(float aspect);
 
-    /// Physical width of playback window in millimeters, used to compute display_aspect
-    int w_mm;
-    /// Physical height of playback window in millimeters, used to compute display_aspect
-    int h_mm;
-    /// Physical aspect ratio of playback window
-    float display_aspect;
+    void ApplyManualScaleAndMove(void);
+    void ApplyDBScaleAndMove(void);
+    void ApplyLetterboxing(void);
+    void ApplySnapToVideoRect(void);
+    void PrintMoveResizeDebug(void);
 
-    /// Physical width according to database. (deprecated?)
-    int myth_dsw;
-    /// Physical height according to database. (deprecated?)
-    int myth_dsh;
+    QSize   db_display_dim;   ///< Screen dimensions in millimeters from DB
+    QPoint  db_move;          ///< Percentage move from database
+    float   db_scale_horiz;   ///< Horizontal Overscan/Underscan percentage
+    float   db_scale_vert;    ///< Vertical Overscan/Underscan percentage
+    int     db_pip_location;
+    int     db_pip_size;      ///< percentage of full window to use for PiP
+    QMap<int,int> db_pict_attr; ///< Picture settings
+    int     db_letterbox;
+    QString db_deint_filtername;
 
+    // Manual Zoom
+    int     mz_scale;         ///< Manually applied percentage scaling.
+    QPoint  mz_move;          ///< Manually applied percentage move.
 
-    /// Width of video in pixels
-    int XJ_width;
-    /// Height of video window in pixels
-    int XJ_height;
-    /// Aspect ratio of video
-    float videoAspect;
+    // Physical dimensions
+    QSize   display_dim;      ///< Screen dimensions of playback window in mm
+    float   display_aspect;   ///< Physical aspect ratio of playback window
+
+    // Video dimensions
+    QSize   video_dim;        ///< Pixel dimensions of video
+    float   video_aspect;     ///< Physical aspect ratio of video
 
     /// Normally this is the same as videoAspect, but may not be
     /// if the user has toggled to a different "letterbox" mode.
-    float XJ_aspect;
+    float   letterboxed_video_aspect;
+    /// LetterboxMode to use to modify letterboxed_video_aspect
+    int     letterbox;
 
-    /// letterboxMode to use to modify XJ_aspect
-    int letterbox;
-
-    /// Horizontal video displacement
-    int img_xoff;
-    /// Vertical video displacement
-    int img_yoff;
-    /// Horizontal Overscan/Underscan percentage
-    float img_hscanf;
-    /// Vertical Overscan/Underscan percentage
-    float img_vscanf;
-
-    int imgx, imgy, imgw, imgh;
-    int dispxoff, dispyoff, dispwoff, disphoff;
-
-    int dispx, dispy, dispw, disph;
-    int olddispx, olddispy, olddispw, olddisph;
-
-    // Picture settings
-    int brightness, contrast, colour, hue;
-
-    // Zoom
-    int ZoomedIn;
-    int ZoomedUp;
-    int ZoomedRight;
+    /// Pixel rectangle in video frame to display
+    QRect   video_rect;
+    /// Pixel rectangle in display window into which video_rect maps to
+    QRect   display_video_rect;
+    /// Visible portion of display window in pixels.
+    /// This may be bigger or smaller than display_video_rect.
+    QRect   display_visible_rect;
+    /// Used to save the display_visible_rect for
+    /// restoration after video embedding ends.
+    QRect   tmp_display_visible_rect;
 
     // Picture-in-Picture
-    int PIPLocation;
-    int desired_pipsize; ///< percentage of full window to use for PiP
-    int desired_piph;
-    int desired_pipw;
-    int piph_in;
-    int pipw_in;
-    int piph_out;
-    int pipw_out;
-    unsigned char      *piptmpbuf;
-    ImgReSampleContext *pipscontext;
+    QSize   pip_desired_display_size;
+    QSize   pip_display_size;
+    QSize   pip_video_size;
+    unsigned char      *pip_tmp_buf;
+    ImgReSampleContext *pip_scaling_context;
+
+    // Video resizing (for ITV)
+    bool    vsz_enabled;
+    QRect   vsz_desired_display_rect;
+    QSize   vsz_display_size;
+    QSize   vsz_video_size;
+    unsigned char      *vsz_tmp_buf;
+    ImgReSampleContext *vsz_scale_context;
 
     // Deinterlacing
     bool           m_deinterlacing;
@@ -361,12 +398,11 @@ class VideoOutput
     VideoBuffers vbuffers;
 
     // Various state variables
-    bool embedding;
-    bool needrepaint;
-    bool allowpreviewepg;
+    bool    embedding;
+    bool    needrepaint;
+    bool    allowpreviewepg;
+    bool    errored;
     long long framesPlayed;
-
-    bool errored;
 };
 
 #endif

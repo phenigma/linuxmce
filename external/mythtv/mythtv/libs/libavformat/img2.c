@@ -19,9 +19,6 @@
  */
 #include "avformat.h"
 
-/* XXX: this is a hack */
-extern int loop_input;
-
 typedef struct {
     int img_first;
     int img_last;
@@ -187,13 +184,13 @@ static int img_read_header(AVFormatContext *s1, AVFormatParameters *ap)
         st->need_parsing= 1;
     }
 
-    if (!ap || !ap->time_base.num) {
+    if (!ap->time_base.num) {
         av_set_pts_info(st, 60, 1, 25);
     } else {
         av_set_pts_info(st, 60, ap->time_base.num, ap->time_base.den);
     }
 
-    if(ap && ap->width && ap->height){
+    if(ap->width && ap->height){
         st->codec->width = ap->width;
         st->codec->height= ap->height;
     }
@@ -236,7 +233,7 @@ static int img_read_packet(AVFormatContext *s1, AVPacket *pkt)
 
     if (!s->is_pipe) {
         /* loop over input */
-        if (loop_input && s->img_number > s->img_last) {
+        if (s1->loop_input && s->img_number > s->img_last) {
             s->img_number = s->img_first;
         }
         if (get_frame_filename(filename, sizeof(filename),
@@ -291,6 +288,7 @@ static int img_read_close(AVFormatContext *s1)
     return 0;
 }
 
+#ifdef CONFIG_MUXERS
 /******************************************************/
 /* image output */
 
@@ -360,9 +358,11 @@ static int img_write_trailer(AVFormatContext *s)
     return 0;
 }
 
-/* input */
+#endif /* CONFIG_MUXERS */
 
-static AVInputFormat image2_iformat = {
+/* input */
+#ifdef CONFIG_IMAGE2_DEMUXER
+AVInputFormat image2_demuxer = {
     "image2",
     "image2 sequence",
     sizeof(VideoData),
@@ -374,8 +374,9 @@ static AVInputFormat image2_iformat = {
     NULL,
     AVFMT_NOFILE,
 };
-
-static AVInputFormat image2pipe_iformat = {
+#endif
+#ifdef CONFIG_IMAGE2PIPE_DEMUXER
+AVInputFormat image2pipe_demuxer = {
     "image2pipe",
     "piped image2 sequence",
     sizeof(VideoData),
@@ -385,11 +386,11 @@ static AVInputFormat image2pipe_iformat = {
     img_read_close,
     NULL,
 };
-
+#endif
 
 /* output */
-
-static AVOutputFormat image2_oformat = {
+#ifdef CONFIG_IMAGE2_MUXER
+AVOutputFormat image2_muxer = {
     "image2",
     "image2 sequence",
     "",
@@ -402,8 +403,9 @@ static AVOutputFormat image2_oformat = {
     img_write_trailer,
     AVFMT_NOFILE,
 };
-
-static AVOutputFormat image2pipe_oformat = {
+#endif
+#ifdef CONFIG_IMAGE2PIPE_MUXER
+AVOutputFormat image2pipe_muxer = {
     "image2pipe",
     "piped image2 sequence",
     "",
@@ -415,14 +417,4 @@ static AVOutputFormat image2pipe_oformat = {
     img_write_packet,
     img_write_trailer,
 };
-
-int img2_init(void)
-{
-    av_register_input_format(&image2_iformat);
-    av_register_output_format(&image2_oformat);
-
-    av_register_input_format(&image2pipe_iformat);
-    av_register_output_format(&image2pipe_oformat);
-
-    return 0;
-}
+#endif

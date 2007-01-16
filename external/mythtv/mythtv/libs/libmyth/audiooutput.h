@@ -18,16 +18,21 @@ class AudioOutput : public VolumeBase, public OutputListeners
 {
  public:
     // opens one of the concrete subclasses
-    static AudioOutput *OpenAudio(QString audiodevice, int audio_bits, 
-                                 int audio_channels, int audio_samplerate,
-                                 AudioOutputSource source, bool set_initial_vol);
+    static AudioOutput *OpenAudio(QString audiodevice, QString passthrudevice,
+                                  int audio_bits,
+                                  int audio_channels, int audio_samplerate,
+                                  AudioOutputSource source,
+                                  bool set_initial_vol, bool audio_passthru);
 
-    AudioOutput() : VolumeBase(), OutputListeners() { lastError = QString::null; };
+    AudioOutput() :
+        VolumeBase(),             OutputListeners(),
+        lastError(QString::null), lastWarn(QString::null) {}
+
     virtual ~AudioOutput() { };
 
     // reconfigure sound out for new params
-    virtual void Reconfigure(int audio_bits, 
-                             int audio_channels, int audio_samplerate) = 0;
+    virtual void Reconfigure(int audio_bits, int audio_channels,
+                             int audio_samplerate, bool audio_passthru) = 0;
     
     virtual void SetStretchFactor(float factor);
 
@@ -55,19 +60,30 @@ class AudioOutput : public VolumeBase, public OutputListeners
 
     virtual void SetSourceBitrate(int ) { }
 
-    QString GetError() { return lastError; };
+    QString GetError(void)   const { return lastError; }
+    QString GetWarning(void) const { return lastWarn; }
 
     //  Only really used by the AudioOutputNULL object
     
     virtual void bufferOutputData(bool y) = 0;
     virtual int readOutputData(unsigned char *read_buffer, int max_length) = 0;
 
- protected:
-    void Error(QString msg) 
-     { lastError = msg; VERBOSE(VB_IMPORTANT, lastError); };
+  protected:
+    void Error(QString msg)
+    {
+        lastError = msg;
+        VERBOSE(VB_IMPORTANT, "AudioOutput Error: " + lastError);
+    }
 
- private:
+    void Warn(QString msg)
+    {
+        lastWarn  = msg;
+        VERBOSE(VB_IMPORTANT, "AudioOutput Warning: " + lastWarn);
+    }
+
+  protected:
     QString lastError;
+    QString lastWarn;
 };
 
 #endif

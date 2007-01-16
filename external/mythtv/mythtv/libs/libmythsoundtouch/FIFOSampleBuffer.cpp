@@ -10,15 +10,15 @@
 /// whenever necessary.
 ///
 /// Author        : Copyright (c) Olli Parviainen
-/// Author e-mail : oparviai @ iki.fi
-/// SoundTouch WWW: http://www.iki.fi/oparviai/soundtouch
+/// Author e-mail : oparviai 'at' iki.fi
+/// SoundTouch WWW: http://www.surina.net/soundtouch
 ///
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Last changed  : $Date: 2004-11-14 00:29:45 +0200 (Sun, 14 Nov 2004) $
-// File revision : $Revision: 4714 $
+// Last changed  : $Date: 2006-05-23 20:40:36 +0300 (Tue, 23 May 2006) $
+// File revision : $Revision: 9996 $
 //
-// $Id: FIFOSampleBuffer.cpp 4714 2004-11-13 22:29:45Z ijr $
+// $Id: FIFOSampleBuffer.cpp 9996 2006-05-23 17:40:36Z danielk $
 //
 ////////////////////////////////////////////////////////////////////////////////
 //

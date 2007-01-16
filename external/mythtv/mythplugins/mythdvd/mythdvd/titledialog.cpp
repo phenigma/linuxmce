@@ -35,7 +35,7 @@ TitleDialog::TitleDialog(QSocket *a_socket,
     disc_name = d_name;
     if(disc_name.length() < 1)
     {
-        disc_name = tr("Unkown");
+        disc_name = tr("Unknown");
     }
     dvd_titles = titles;
 
@@ -410,10 +410,18 @@ void TitleDialog::ripTitles()
             //  we need to ask mythvideo stuff where it lives
             //
            
-            QString destination_directory = gContext->GetSetting("mythdvd.LocalRipDirectory");
+            QString destination_directory =
+                    gContext->GetSetting("mythdvd.LocalRipDirectory");
 
-            if (!destination_directory.length()) {
-                destination_directory = gContext->GetSetting("VideoStartupDir");
+            if (!destination_directory.length())
+            {
+                // Assume import directory is first video scan directory
+                QStringList videodirs =
+                        QStringList::split(":", gContext->
+                                           GetSetting("VideoStartupDir"),
+                                           false);
+                if (videodirs.size())
+                    destination_directory = videodirs[0];
             }
  
             if(destination_directory.length() < 1)

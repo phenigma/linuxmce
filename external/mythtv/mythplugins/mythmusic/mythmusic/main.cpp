@@ -23,11 +23,12 @@ using namespace std;
 #include "globalsettings.h"
 #include "dbcheck.h"
 
-#include <mythtv/themedmenu.h>
 #include <mythtv/mythcontext.h>
 #include <mythtv/mythplugin.h>
 #include <mythtv/mythmedia.h>
 #include <mythtv/mythdbcon.h>
+
+#include <mythtv/libmythui/myththemedmenu.h>
 
 void CheckFreeDBServerFile(void)
 {
@@ -67,7 +68,7 @@ Decoder *getDecoder(const QString &filename)
     return decoder;
 }
 
-void AddFileToDB(const QString &directory, const QString &filename)
+void AddFileToDB(const QString &filename)
 {
     Decoder *decoder = getDecoder(filename);
 
@@ -75,7 +76,7 @@ void AddFileToDB(const QString &directory, const QString &filename)
     {
         Metadata *data = decoder->getMetadata();
         if (data) {
-            data->dumpToDatabase(directory);
+            data->dumpToDatabase();
             delete data;
         }
 
@@ -86,16 +87,17 @@ void AddFileToDB(const QString &directory, const QString &filename)
 // Remove a file from the database
 void RemoveFileFromDB (const QString &directory, const QString &filename)
 {
-    QString name(filename);
-    name.remove(0, directory.length());
+    QString sqlfilename(filename);
+    // We know that the filename will not contain :// as the SQL limits this
+    sqlfilename.remove(0, directory.length());
     MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare("DELETE FROM musicmetadata WHERE "
+    query.prepare("DELETE FROM music_songs WHERE "
                   "filename = :NAME ;");
-    query.bindValue(":NAME", name.utf8());
+    query.bindValue(":NAME", sqlfilename.utf8());
     query.exec();
 }
 
-void UpdateFileInDB(const QString &directory, const QString &filename)
+void UpdateFileInDB(const QString &filename)
 {
     Decoder *decoder = getDecoder(filename);
 
@@ -108,7 +110,7 @@ void UpdateFileInDB(const QString &directory, const QString &filename)
         {
             disk_meta->setID(db_meta->ID());
             disk_meta->setRating(db_meta->Rating());
-            disk_meta->updateDatabase(directory);
+            disk_meta->dumpToDatabase();
         }
 
         if (disk_meta)
@@ -259,7 +261,7 @@ void SearchDir(QString &directory)
 
     MSqlQuery query(MSqlQuery::InitCon());
     query.exec("SELECT filename, date_modified "
-               "FROM musicmetadata "
+               "FROM music_songs "
                "WHERE filename NOT LIKE ('%://%')");
 
     int counter = 0;
@@ -316,11 +318,11 @@ void SearchDir(QString &directory)
     for (iter = music_files.begin(); iter != music_files.end(); iter++)
     {
         if (*iter == kFileSystem)
-            AddFileToDB(directory, iter.key());
+            AddFileToDB(iter.key());
         else if (*iter == kDatabase)
             RemoveFileFromDB(directory, iter.key ());
         else if (*iter == kNeedUpdate)
-            UpdateFileInDB(directory, iter.key());
+            UpdateFileInDB(iter.key());
 
         file_checking->setProgress(++counter);
     }
@@ -374,6 +376,7 @@ struct MusicData
     QString startdir;
     PlaylistsContainer *all_playlists;
     AllMusic *all_music;
+    bool runPost;
 };
 
 void RebuildMusicTree(MusicData *mdata)
@@ -389,6 +392,8 @@ void RebuildMusicTree(MusicData *mdata)
     mdata->all_playlists->postLoad();
     busy.Close();
 }
+
+static void postMusic(MusicData *mdata);
 
 void MusicCallback(void *data, QString &selection)
 {
@@ -435,13 +440,21 @@ void MusicCallback(void *data, QString &selection)
         MusicRipperSettings settings;
         settings.exec();
     }
+    else if (sel == "exiting_menu")
+    {
+        if (mdata->runPost)
+            postMusic(mdata);
+        delete mdata;
+    }
 }
 
 void runMenu(MusicData *mdata, QString which_menu)
 {
     QString themedir = gContext->GetThemeDir();
-    ThemedMenu *diag = new ThemedMenu(themedir.ascii(), which_menu, 
-                                      gContext->GetMainWindow(), "music menu");
+
+    MythThemedMenu *diag = new MythThemedMenu(themedir.ascii(), which_menu,
+                                              GetMythMainWindow()->GetMainStack(),
+                                              "music menu");
 
     diag->setCallback(MusicCallback, mdata);
     diag->setKillable();
@@ -449,15 +462,16 @@ void runMenu(MusicData *mdata, QString which_menu)
     if (diag->foundTheme())
     {
         if (class LCD * lcd = LCD::Get())
+        {
             lcd->switchToTime();
-        diag->exec();
+        }
+        GetMythMainWindow()->GetMainStack()->AddScreen(diag);
     }
     else
     {
         cerr << "Couldn't find theme " << themedir << endl;
+        delete diag;
     }
-
-    delete diag;
 }
 
 extern "C" {
@@ -469,6 +483,7 @@ int mythplugin_config(void);
 void runMusicPlayback(void);
 void runMusicSelection(void);
 void runRipCD(void);
+void runScan(void);
 
 
 void handleMedia(MythMediaDevice *) 
@@ -484,6 +499,7 @@ void setupKeys(void)
     REG_JUMP("Play music",             "", "", runMusicPlayback);
     REG_JUMP("Select music playlists", "", "", runMusicSelection);
     REG_JUMP("Rip CD",                 "", "", runRipCD);
+    REG_JUMP("Scan music",             "", "", runScan);
 
     REG_KEY("Music", "DELETE",     "Delete track from playlist", "D");
     REG_KEY("Music", "NEXTTRACK",  "Move to the next track",     ">,.,Z,End");
@@ -504,8 +520,10 @@ void setupKeys(void)
     REG_KEY("Music", "INCSEARCH",     "Show incremental search dialog",     "Ctrl+S");
     REG_KEY("Music", "INCSEARCHNEXT", "Incremental search find next match", "Ctrl+N");
 
-    REG_MEDIA_HANDLER("MythMusic Media Handler", "", "", handleMedia,
-                      MEDIATYPE_AUDIO | MEDIATYPE_MIXED);
+    REG_MEDIA_HANDLER("MythMusic Media Handler 1/2", "", "", handleMedia,
+                      MEDIATYPE_AUDIO | MEDIATYPE_MIXED, QString::null);
+    REG_MEDIA_HANDLER("MythMusic Media Handler 2/2", "", "", handleMedia,
+                      MEDIATYPE_MMUSIC, "ogg,mp3,aac,flac");
 }
 
 int mythplugin_init(const char *libversion)
@@ -543,7 +561,7 @@ static void preMusic(MusicData *mdata)
 
 
     MSqlQuery count_query(MSqlQuery::InitCon());
-    count_query.exec("SELECT COUNT(*) FROM musicmetadata;");
+    count_query.exec("SELECT COUNT(*) FROM music_songs;");
 
     bool musicdata_exists = false;
     if (count_query.isActive())
@@ -590,7 +608,6 @@ static void preMusic(MusicData *mdata)
 static void postMusic(MusicData *mdata)
 {
     // Automagically save all playlists and metadata (ratings) that have changed
-
     if (mdata->all_music->cleanOutThreads())
     {
         mdata->all_music->save();
@@ -609,30 +626,32 @@ static void postMusic(MusicData *mdata)
 
 int mythplugin_run(void)
 {
-    MusicData mdata;
+    MusicData *mdata = new MusicData();
+    mdata->runPost = true;
 
-    preMusic(&mdata);
-    runMenu(&mdata, "musicmenu.xml");
-    postMusic(&mdata);
+    preMusic(mdata);
+    runMenu(mdata, "musicmenu.xml");
+    //postMusic(&mdata);
 
     return 0;
 }
 
 int mythplugin_config(void)
 {
-    MusicData mdata;
-    mdata.paths = gContext->GetSetting("TreeLevels");
-    mdata.startdir = gContext->GetSetting("MusicLocation");
-    mdata.startdir = QDir::cleanDirPath(mdata.startdir);
+    MusicData *mdata = new MusicData();
+    mdata->runPost = false;
+    mdata->paths = gContext->GetSetting("TreeLevels");
+    mdata->startdir = gContext->GetSetting("MusicLocation");
+    mdata->startdir = QDir::cleanDirPath(mdata->startdir);
     
-    if (!mdata.startdir.endsWith("/"))
-        mdata.startdir += "/";
+    if (!mdata->startdir.endsWith("/"))
+        mdata->startdir += "/";
 
-    Metadata::SetStartdir(mdata.startdir);
+    Metadata::SetStartdir(mdata->startdir);
 
     Decoder::SetLocationFormatUseTags();
 
-    runMenu(&mdata, "music_settings.xml");
+    runMenu(mdata, "music_settings.xml");
 
     return 0;
 }
@@ -647,8 +666,6 @@ void runMusicPlayback(void)
     postMusic(&mdata);
     gContext->removeCurrentLocation();
 }
-
-
 
 void runMusicSelection(void)
 {
@@ -676,4 +693,19 @@ void runRipCD(void)
     }
     postMusic(&mdata);
     gContext->removeCurrentLocation();
+}
+
+void runScan(void)
+{
+    MusicData mdata;
+
+    preMusic(&mdata);
+
+    if ("" != mdata.startdir)
+    {
+        SearchDir(mdata.startdir);
+        RebuildMusicTree(&mdata);
+    }
+
+    postMusic(&mdata);
 }

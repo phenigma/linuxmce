@@ -9,23 +9,40 @@ using namespace std;
 #include <qmap.h>
 #include "tspacket.h"
 #include "util.h"
+#include "streamlisteners.h"
+#include "eitscanner.h"
 
-class ProgramAssociationTable;
-class ProgramMapTable;
-class HDTVRecorder;
+class EITHelper;
 class PSIPTable;
 class RingBuffer;
 class PESPacket;
 
-typedef QMap<unsigned int, PESPacket*> pid_pes_map_t;
-typedef QMap<const PSIPTable*, int>    psip_refcnt_map_t;
-typedef vector<const ProgramMapTable*> pmt_vec_t;
-typedef QMap<uint, const ProgramMapTable*> pmt_map_t;
-typedef QMap<uint, ProgramMapTable*>   pmt_cache_t;
+typedef vector<uint>                    uint_vec_t;
 
-class MPEGStreamData : public QObject
+typedef QMap<unsigned int, PESPacket*>  pid_pes_map_t;
+typedef QMap<const PSIPTable*, int>     psip_refcnt_map_t;
+
+typedef ProgramAssociationTable*               pat_ptr_t;
+typedef vector<const ProgramAssociationTable*> pat_vec_t;
+typedef QMap<uint, pat_vec_t>                  pat_map_t;
+typedef QMap<uint, ProgramAssociationTable*>   pat_cache_t;
+
+typedef ProgramMapTable*                pmt_ptr_t;
+typedef vector<const ProgramMapTable*>  pmt_vec_t;
+typedef QMap<uint, pmt_vec_t>           pmt_map_t;
+typedef QMap<uint, ProgramMapTable*>    pmt_cache_t;
+
+typedef vector<unsigned char>           uchar_vec_t;
+typedef uchar_vec_t                     sections_t;
+typedef QMap<uint, sections_t>          sections_map_t;
+
+typedef vector<MPEGStreamListener*>     mpeg_listener_vec_t;
+typedef vector<MPEGSingleProgramStreamListener*> mpeg_sp_listener_vec_t;
+
+void init_sections(sections_t &sect, uint last_section);
+
+class MPEGStreamData : public EITSource
 {
-    Q_OBJECT
   public:
     MPEGStreamData(int desiredProgram, bool cacheTables);
     virtual ~MPEGStreamData();
@@ -33,9 +50,19 @@ class MPEGStreamData : public QObject
     void SetCaching(bool cacheTables) { _cache_tables = cacheTables; }
     virtual void Reset(int desiredProgram);
 
+    // EIT Source
+    virtual void SetEITHelper(EITHelper *eit_helper);
+    virtual void SetEITRate(float rate);
+    virtual bool HasEITPIDChanges(const uint_vec_t& /*in_use_pids*/) const
+        { return false; }
+    virtual bool GetEITPIDChanges(const uint_vec_t& /*in_use_pids*/,
+                                  uint_vec_t& /*add_pids*/,
+                                  uint_vec_t& /*del_pids*/) const
+        { return false; }
+
     // Table processing
     void SetIgnoreCRC(bool haveCRCbug) { _have_CRC_bug = haveCRCbug; }
-    virtual bool IsRedundant(const PSIPTable&) const;
+    virtual bool IsRedundant(uint pid, const PSIPTable&) const;
     virtual bool HandleTables(uint pid, const PSIPTable &psip);
     virtual void HandleTSTables(const TSPacket* tspacket);
     virtual bool ProcessTSPacket(const TSPacket& tspacket);
@@ -59,37 +86,90 @@ class MPEGStreamData : public QObject
     virtual bool IsWritingPID(uint pid) const;
     virtual bool IsAudioPID(uint pid) const;
 
-    virtual const QMap<uint, bool>& ListeningPIDs(void) const
+    virtual QMap<uint, bool> ListeningPIDs(void) const
         { return _pids_listening; }
 
     // Table versions
-    virtual void SetVersionPAT(int version) { _pat_version = version;  }
-    virtual int  VersionPAT(void) const     { return _pat_version;     }
-    virtual void SetVersionPMT(uint program_num, int ver)
-        { _pmt_version[program_num] = ver; }
-    virtual inline int VersionPMT(uint program_num) const;
+    void SetVersionPAT(uint tsid, int version, uint last_section)
+    {
+        if (VersionPAT(tsid) == version)
+            return;
+        _pat_version[tsid] = version;
+        init_sections(_pat_section_seen[tsid], last_section);
+    }
+    int  VersionPAT(uint tsid) const
+    {
+        const QMap<uint, int>::const_iterator it = _pat_version.find(tsid);
+        if (it == _pat_version.end())
+            return -1;
+        return *it;
+    }
+
+    void SetVersionPMT(uint program_num, int version, uint last_section)
+    {
+        if (VersionPMT(program_num) == version)
+            return;
+        _pmt_version[program_num] = version;
+        init_sections(_pmt_section_seen[program_num], last_section);
+    }
+    int  VersionPMT(uint prog_num) const
+    {
+        const QMap<uint, int>::const_iterator it = _pmt_version.find(prog_num);
+        if (it == _pmt_version.end())
+            return -1;
+        return *it;
+    }
+
+    // Sections seen
+    void SetPATSectionSeen(uint tsid, uint section);
+    bool PATSectionSeen(   uint tsid, uint section) const;
+    bool HasAllPATSections(uint tsid) const;
+
+    void SetPMTSectionSeen(uint prog_num, uint section);
+    bool PMTSectionSeen(   uint prog_num, uint section) const;
+    bool HasAllPMTSections(uint prog_num) const;
 
     // Caching
-    virtual bool HasCachedPAT(void) const;
-    virtual bool HasCachedPMT(uint program_num) const;
-    virtual bool HasAllPMTsCached(void) const;
+    bool HasProgram(uint progNum) const;
 
-    virtual const ProgramAssociationTable *GetCachedPAT(void) const;
-    virtual const ProgramMapTable *GetCachedPMT(uint program_num) const;
-    virtual pmt_vec_t GetCachedPMTs(void) const;
-    virtual pmt_map_t GetCachedPMTMap(void) const;
+    bool HasCachedAllPAT(uint tsid) const;
+    bool HasCachedAnyPAT(uint tsid) const;
+    bool HasCachedAnyPAT(void) const;
+    
+    bool HasCachedAllPMT(uint program_num) const;
+    bool HasCachedAnyPMT(uint program_num) const;
+    bool HasCachedAllPMTs(void) const;
+
+    const pat_ptr_t GetCachedPAT(uint tsid, uint section_num) const;
+    pat_vec_t       GetCachedPATs(void) const;
+    pat_map_t       GetCachedPATMap(void) const;
+
+    const pmt_ptr_t GetCachedPMT(uint program_num, uint section_num) const;
+    pmt_vec_t GetCachedPMTs(void) const;
+    pmt_map_t GetCachedPMTMap(void) const;
 
     virtual void ReturnCachedTable(const PSIPTable *psip) const;
-    virtual void ReturnCachedTables(pmt_vec_t&) const;
-    virtual void ReturnCachedTables(pmt_map_t&) const;
+    virtual void ReturnCachedPATTables(pat_vec_t&) const;
+    virtual void ReturnCachedPATTables(pat_map_t&) const;
+    virtual void ReturnCachedPMTTables(pmt_vec_t&) const;
+    virtual void ReturnCachedPMTTables(pmt_map_t&) const;
 
-  signals:
+    // "signals"
+    void AddMPEGListener(MPEGStreamListener*);
+    void RemoveMPEGListener(MPEGStreamListener*);
     void UpdatePAT(const ProgramAssociationTable*);
+    void UpdateCAT(const ConditionalAccessTable*);
     void UpdatePMT(uint program_num, const ProgramMapTable*);
+
+    // Single Program Stuff, signals with processed tables
+    void AddMPEGSPListener(MPEGSingleProgramStreamListener*);
+    void RemoveMPEGSPListener(MPEGSingleProgramStreamListener*);
+    void UpdatePATSingleProgram(ProgramAssociationTable*);
+    void UpdatePMTSingleProgram(ProgramMapTable*);
 
   public:
     // Single program stuff, sets
-    void SetDesiredProgram(int p)           { _desired_program = p;    }
+    void SetDesiredProgram(int p);
     inline void SetPATSingleProgram(ProgramAssociationTable*);
     inline void SetPMTSingleProgram(ProgramMapTable*);
     void SetVideoStreamsRequired(uint num)
@@ -122,11 +202,6 @@ class MPEGStreamData : public QObject
     bool CreatePATSingleProgram(const ProgramAssociationTable&);
     bool CreatePMTSingleProgram(const ProgramMapTable&);
 
-  signals:
-    // Single Program Stuff, signals with processed tables
-    void UpdatePATSingleProgram(ProgramAssociationTable*);
-    void UpdatePMTSingleProgram(ProgramMapTable*);
-
   protected:
     // Table processing -- for internal use
     PSIPTable* AssemblePSIP(const TSPacket* tspacket, bool& moreTablePackets);
@@ -138,18 +213,22 @@ class MPEGStreamData : public QObject
         { _partial_pes_packet_cache.remove(pid); }
     void DeletePartialPES(uint pid);
     void ProcessPAT(const ProgramAssociationTable *pat);
-    void ProcessPMT(const uint pid, const ProgramMapTable *pmt);
+    void ProcessPMT(const ProgramMapTable *pmt);
 
     static int ResyncStream(unsigned char *buffer, int curr_pos, int len);
 
     // Caching
     void IncrementRefCnt(const PSIPTable *psip) const;
     virtual void DeleteCachedTable(PSIPTable *psip) const;
-    void CachePAT(ProgramAssociationTable *pat);
-    void CachePMT(uint program_num, ProgramMapTable *pmt);
+    void CachePAT(const ProgramAssociationTable *pat);
+    void CachePMT(const ProgramMapTable *pmt);
 
   protected:
     bool                      _have_CRC_bug;
+
+    // Generic EIT stuff used for ATSC and DVB
+    EITHelper                *_eit_helper;
+    float                     _eit_rate;
 
     // Listening
     QMap<uint, bool>          _pids_listening;
@@ -157,9 +236,17 @@ class MPEGStreamData : public QObject
     QMap<uint, bool>          _pids_writing;
     QMap<uint, bool>          _pids_audio;
 
+    // Signals
+    mutable QMutex            _listener_lock;
+    mpeg_listener_vec_t       _mpeg_listeners;
+    mpeg_sp_listener_vec_t    _mpeg_sp_listeners;
+
     // Table versions
-    int                       _pat_version;
+    QMap<uint, int>           _pat_version;
     QMap<uint, int>           _pmt_version;
+
+    sections_map_t            _pat_section_seen;
+    sections_map_t            _pmt_section_seen;
 
     // PSIP construction 
     pid_pes_map_t             _partial_pes_packet_cache;
@@ -167,7 +254,7 @@ class MPEGStreamData : public QObject
     // Caching
     bool                             _cache_tables;
     mutable QMutex                   _cache_lock;
-    mutable ProgramAssociationTable *_cached_pat;
+    mutable pat_cache_t              _cached_pats;
     mutable pmt_cache_t              _cached_pmts;
     mutable psip_refcnt_map_t        _cached_ref_cnt;
     mutable psip_refcnt_map_t        _cached_slated_for_deletion;
@@ -186,6 +273,9 @@ class MPEGStreamData : public QObject
     bool                      _invalid_pat_seen;
     bool                      _invalid_pat_warning;
     MythTimer                 _invalid_pat_timer;
+
+  protected:
+    static const unsigned char bit_sel[8];
 };
 
 #include "mpegtables.h"
@@ -218,12 +308,6 @@ inline void MPEGStreamData::HandleAdaptationFieldControl(const TSPacket*)
 {
     // TODO
     //AdaptationFieldControl afc(tspacket.data()+4);
-}
-
-inline int MPEGStreamData::VersionPMT(uint prog_num) const
-{
-    const QMap<uint, int>::const_iterator it = _pmt_version.find(prog_num);
-    return (it == _pmt_version.end()) ? -1 : *it;
 }
 
 #endif 

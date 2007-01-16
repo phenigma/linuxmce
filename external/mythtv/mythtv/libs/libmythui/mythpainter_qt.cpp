@@ -3,6 +3,7 @@
 #include <qpixmap.h>
 #include "mythpainter_qt.h"
 #include "mythfontproperties.h"
+#include "mythmainwindow.h"
 
 class MythQtImage : public MythImage
 {
@@ -39,17 +40,35 @@ void MythQtPainter::Begin(QWidget *parent)
 
     MythPainter::Begin(parent);
 
+    // Oddly enough, caching these makes drawing slower.
     mainPainter = new QPainter(parent);
-
     drawPixmap = new QPixmap(parent->size());
     painter = new QPainter(drawPixmap);
+
+    clipRegion = QRegion(QRect(0, 0, 0, 0));
 }
 
 void MythQtPainter::End(void)
 {
     painter->end();
 
-    mainPainter->drawPixmap(0, 0, *drawPixmap);
+    if (!clipRegion.isEmpty() && !clipRegion.isNull())
+    {
+        QMemArray<QRect> rects = clipRegion.rects();
+
+        for (unsigned int i = 0; i < rects.size(); i++)
+        {
+            QRect rect = rects[i];
+
+            if (rect.width() == 0 || rect.height() == 0)
+                continue;
+
+            mainPainter->drawPixmap(rect.topLeft(), *drawPixmap, rect);
+        }
+    }
+    else
+        mainPainter->drawPixmap(0, 0, *drawPixmap);
+
     mainPainter->end();
 
     delete painter;
@@ -61,18 +80,20 @@ void MythQtPainter::End(void)
 
 void MythQtPainter::SetClipRect(const QRect &clipRect)
 {
+    if (clipRect.size() == drawPixmap->size())
+        return;
+
     painter->setClipRect(clipRect);
-    mainPainter->setClipRect(clipRect);
     if (clipRect != QRect())
     {
         painter->setClipping(true);
-        mainPainter->setClipping(true);
+        if (clipRegion.isNull() || clipRegion.isEmpty())
+            clipRegion = QRegion(clipRect);
+        else
+            clipRegion = clipRegion.unite(clipRect);
     }
     else
-    {
         painter->setClipping(false);
-        mainPainter->setClipping(false);
-    }
 }
 
 void MythQtPainter::DrawImage(const QRect &r, MythImage *im,
@@ -93,51 +114,65 @@ void MythQtPainter::DrawText(const QRect &r, const QString &msg,
     assert(painter);
     (void)alpha;
 
-    painter->setFont(font.face);
+    painter->setFont(font.face());
 
-    if (font.hasShadow)
+    if (font.hasShadow())
     {
-        QRect a = r;
-        a.moveBy(font.shadowOffset.x(), font.shadowOffset.y());
+        QPoint shadowOffset;
+        QColor shadowColor;
+        int shadowAlpha;
 
-        painter->setPen(font.shadowColor);
+        font.GetShadow(shadowOffset, shadowColor, shadowAlpha);
+
+        QRect a = r;
+        a.moveBy(shadowOffset.x(), shadowOffset.y());
+
+        painter->setPen(shadowColor);
         painter->drawText(a, flags, msg);
     }
 
-    if (font.hasOutline && alpha > 128)
+    if (font.hasOutline() && alpha > 128)
     {
-        painter->setPen(font.outlineColor);
+        QColor outlineColor;
+        int outlineSize, outlineAlpha;
+
+        font.GetOutline(outlineColor, outlineSize, outlineAlpha);
+
+        if (GetMythMainWindow()->GetUIScreenRect().height() > 700)
+            outlineSize = 1;
+
+        painter->setPen(outlineColor);
 
         QRect a = r;
-        a.moveBy(0 - font.outlineSize, 0 - font.outlineSize);
+        a.moveBy(0 - outlineSize, 0 - outlineSize);
         painter->drawText(a, flags, msg);
 
-        for (int i = (0 - font.outlineSize + 1); i <= font.outlineSize; i++)
+        for (int i = (0 - outlineSize + 1); i <= outlineSize; i++)
         {
             a.moveBy(1, 0);
             painter->drawText(a, flags, msg);
         }
 
-        for (int i = (0 - font.outlineSize + 1); i <= font.outlineSize; i++)
+        for (int i = (0 - outlineSize + 1); i <= outlineSize; i++)
         {
             a.moveBy(0, 1);
             painter->drawText(a, flags, msg);
         }
 
-        for (int i = (0 - font.outlineSize + 1); i <= font.outlineSize; i++)
+        for (int i = (0 - outlineSize + 1); i <= outlineSize; i++)
         {
             a.moveBy(-1, 0);
             painter->drawText(a, flags, msg);
         }
 
-        for (int i = (0 - font.outlineSize + 1); i <= font.outlineSize; i++)
+        for (int i = (0 - outlineSize + 1); i <= outlineSize; i++)
         {
             a.moveBy(0, -1);
             painter->drawText(a, flags, msg);
         }
     }
 
-    painter->setPen(font.color);
+    painter->setPen(font.color());
     painter->drawText(r, flags, msg);
 }
 

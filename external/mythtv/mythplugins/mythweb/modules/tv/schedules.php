@@ -2,9 +2,9 @@
 /**
  * View all recording schedules
  *
- * @url         $URL$
- * @date        $Date: 2006-01-01 00:26:52 +0200 (Sun, 01 Jan 2006) $
- * @version     $Revision: 8456 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/tv/schedules.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -20,7 +20,7 @@
     }
 
 // Load the sorting routines
-    require_once "includes/sorting.php";
+    require_once 'includes/sorting.php';
 
 // Load the recordings
     global $Schedules;
@@ -50,7 +50,7 @@
         sort_programs($the_schedules, 'schedules_sortby');
 
 // Load the class for this page
-    require_once theme_dir.'tv/schedules.php';
+    require_once tmpl_dir.'schedules.php';
 
 // Exit
     exit;

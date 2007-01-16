@@ -22,8 +22,7 @@
 
 using namespace std;
 
-static bool insert_program(MSqlQuery&,
-                           const ProgramInfo*,
+static bool insert_program(const ProgramInfo*,
                            const ScheduledRecording*);
 
 /** \fn StripHTMLTags(const QString&)
@@ -67,6 +66,11 @@ ProgramInfo::ProgramInfo(void)
     startCol = -1;
     isVideo = false;
     lenMins = 0;
+
+    title = "";
+    subtitle = "";
+    description = "";
+    category = "";
     chanstr = "";
     chansign = "";
     channame = "";
@@ -305,6 +309,7 @@ void ProgramInfo::ToStringList(QStringList &list) const
     INT_TO_LIST(hasAirDate)     
     STR_TO_LIST((playgroup != "") ? playgroup : "Default")
     INT_TO_LIST(recpriority2)
+    INT_TO_LIST(parentid)
 }
 
 /** \fn ProgramInfo::FromStringList(QStringList&,int)
@@ -403,6 +408,7 @@ bool ProgramInfo::FromStringList(QStringList &list, QStringList::iterator &it)
     INT_FROM_LIST(hasAirDate);
     STR_FROM_LIST(playgroup)
     INT_FROM_LIST(recpriority2)
+    INT_FROM_LIST(parentid)
 
     return true;
 }
@@ -455,10 +461,9 @@ void ProgramInfo::ToMap(QMap<QString, QString> &progMap,
         }
         else
         {
-            progMap["starttime"] = startts.toString("yyyy");
-            progMap["recstarttime"] = startts.toString("yyyy");
+            progMap["startdate"] = startts.toString("yyyy");
+            progMap["recstartdate"] = startts.toString("yyyy");
         }
-        
     }
     else
     {
@@ -513,28 +518,30 @@ void ProgramInfo::ToMap(QMap<QString, QString> &progMap,
     progMap["rec_str"] = RecTypeText();
     if (rectype != kNotRecording)
     {
+        QString tmp_rec;
         if (recendts > timeNow && recstatus <= rsWillRecord || 
             recstatus == rsConflict || recstatus == rsLaterShowing)
         {
-            int totalpri =  recpriority + recpriority2;
-            if (totalpri >= 0)       
-                progMap["rec_str"] += QString(" +%1 ").arg(totalpri);
-            else
-                progMap["rec_str"] += QString(" %1 ").arg(totalpri);
+            tmp_rec += QString().sprintf(" %+d", recpriority);
+            if (recpriority2)
+                tmp_rec += QString().sprintf("/%+d", recpriority2);
+            tmp_rec += " ";
         }
         else
         {
-            progMap["rec_str"] += " -- ";
+            tmp_rec += " -- ";
         }
         if (showrerecord && recstatus == rsRecorded && !duplicate)
-            progMap["rec_str"] += QObject::tr("Re-Record");
+            tmp_rec += QObject::tr("Re-Record");
         else
-            progMap["rec_str"] += RecStatusText();
+            tmp_rec += RecStatusText();
+        progMap["rec_str"] += tmp_rec;
     }
     progMap["recordingstatus"] = progMap["rec_str"];
     progMap["type"] = progMap["rec_str"];
 
-    progMap["recpriority"] = recpriority + recpriority2;
+    progMap["recpriority"] = recpriority;
+    progMap["recpriority2"] = recpriority2;
     progMap["recgroup"] = recgroup;
     progMap["playgroup"] = playgroup;
     progMap["programflags"] = programflags;
@@ -596,7 +603,7 @@ void ProgramInfo::ToMap(QMap<QString, QString> &progMap,
     }
     else
         progMap["stars"] = "";
-        
+
     if (hasAirDate)
     {
         progMap["originalairdate"] = originalAirDate.toString(dateFormat);
@@ -636,13 +643,15 @@ int ProgramInfo::SecsTillStart(void) const
  *  \param channel %Channel ID on which to search for program.
  *  \param dtime   Date and Time for which we desire the program.
  *  \param genUnknown Generate a full entry for live-tv if unknown
+ *  \param clampHoursMax Clamp the maximum time to X hours from dtime.
  *  \return Pointer to a ProgramInfo from database if it succeeds,
  *          Pointer to an "Unknown" ProgramInfo if it does not find
  *          anything in database.
  */
 ProgramInfo *ProgramInfo::GetProgramAtDateTime(const QString &channel, 
                                                const QDateTime &dtime,
-                                               bool genUnknown)
+                                               bool genUnknown,
+                                               int clampHoursMax)
 {
     ProgramList schedList;
     ProgramList progList;
@@ -658,8 +667,20 @@ ProgramInfo *ProgramInfo::GetProgramAtDateTime(const QString &channel,
     progList.FromProgram(querystr, bindings, schedList);
 
     if (!progList.isEmpty())
-        return progList.take(0);
+    {
+        ProgramInfo *pginfo = progList.take(0);
 
+        if (clampHoursMax > 0)
+        {
+            if (dtime.secsTo(pginfo->endts) > clampHoursMax * 3600)
+            {
+                pginfo->endts = dtime.addSecs(clampHoursMax * 3600);
+                pginfo->recendts = pginfo->endts;
+            }
+        }
+    
+        return pginfo;
+    }
     ProgramInfo *p = new ProgramInfo;
 
     MSqlQuery query(MSqlQuery::InitCon());
@@ -830,6 +851,7 @@ ProgramInfo *ProgramInfo::GetProgramFromRecorded(const QString &channel,
             proginfo->hasAirDate = true;
         }
         proginfo->hostname = query.value(18).toString();
+        proginfo->recstatus = rsRecorded;
         proginfo->recordid = query.value(19).toInt();
         proginfo->transcoder = query.value(20).toInt();
 
@@ -1019,7 +1041,11 @@ void ProgramInfo::ApplyRecordRecID(void)
     query.prepare("UPDATE recorded "
                   "SET recordid = :RECID "
                   "WHERE chanid = :CHANID AND starttime = :START");
-    query.bindValue(":RECID",  getRecordID());
+
+    if (rectype == kOverrideRecord && parentid > 0)
+        query.bindValue(":RECID", parentid);
+    else
+        query.bindValue(":RECID",  getRecordID());
     query.bindValue(":CHANID", chanid);
     query.bindValue(":START",  recstartts);
 
@@ -1117,7 +1143,7 @@ void ProgramInfo::ApplyRecordRecTitleChange(const QString &newTitle, const QStri
     query.bindValue(":TITLE", newTitle.utf8());
     query.bindValue(":SUBTITLE", newSubtitle.utf8());
     query.bindValue(":CHANID", chanid);
-    query.bindValue(":START", recstartts.toString("yyyyMMddhhmm00"));
+    query.bindValue(":START", recstartts.toString("yyyyMMddhhmmss"));
 
     if (!query.exec())
         MythContext::DBError("RecTitle update", query);
@@ -1126,6 +1152,59 @@ void ProgramInfo::ApplyRecordRecTitleChange(const QString &newTitle, const QStri
     subtitle = newSubtitle;
 }
 
+/* \fn ProgramInfo::ApplyTranscoderProfileChange(QString profile) 
+ * \brief Sets the transcoder profile for a recording
+ * \param profile Descriptive name of the profile. ie: Autodetect
+ */
+void ProgramInfo::ApplyTranscoderProfileChange(QString profile)
+{
+    if(profile == "Default") // use whatever is already in the transcoder
+        return;
+
+    MSqlQuery query(MSqlQuery::InitCon());
+    
+    if(profile == "Autodetect")
+    {
+        query.prepare("UPDATE recorded "
+                      "SET transcoder = 0 "
+                      "WHERE chanid = :CHANID "
+                      "AND starttime = :START");
+        query.bindValue(":CHANID",  chanid);
+        query.bindValue(":START",  recstartts);
+    
+        if (!query.exec())
+            MythContext::DBError("ProgramInfo: unable to update transcoder "
+                                 "in recorded table", query);
+    }
+    else
+    {
+        MSqlQuery pidquery(MSqlQuery::InitCon());
+        pidquery.prepare("SELECT r.id "
+                         "FROM recordingprofiles r, profilegroups p "
+                         "WHERE r.profilegroup = p.id "
+                             "AND p.name = 'Transcoders' "
+                             "AND r.name = :PROFILE ");
+        pidquery.bindValue(":PROFILE",  profile);
+
+        if (pidquery.exec() && pidquery.isActive() && pidquery.next())
+        {
+            query.prepare("UPDATE recorded "
+                          "SET transcoder = :TRANSCODER "
+                          "WHERE chanid = :CHANID "
+                              "AND starttime = :START");
+            query.bindValue(":TRANSCODER", pidquery.value(0).toInt());
+            query.bindValue(":CHANID",  chanid);
+            query.bindValue(":START",  recstartts);
+    
+            if (!query.exec())
+                MythContext::DBError("ProgramInfo: unable to update transcoder "
+                                     "in recorded table", query);
+        }
+        else
+            MythContext::DBError("PlaybackBox: unable to query transcoder "
+                                 "profile ID", query);
+    }
+}
 
 /** \fn ProgramInfo::ToggleRecord(void)
  *  \brief Cycles through recording types.
@@ -1151,6 +1230,30 @@ void ProgramInfo::ToggleRecord(void)
 
     switch (curType) 
     {
+        case kNotRecording:
+            ApplyRecordStateChange(kSingleRecord);
+            break;
+        case kSingleRecord:
+            ApplyRecordStateChange(kFindOneRecord);
+            break;
+        case kFindOneRecord:
+            ApplyRecordStateChange(kAllRecord);
+            break;
+        case kAllRecord:
+            ApplyRecordStateChange(kSingleRecord);
+            break;
+
+        case kOverrideRecord:
+            ApplyRecordStateChange(kDontRecord);
+            break;
+        case kDontRecord:
+            ApplyRecordStateChange(kOverrideRecord);
+            break;
+
+        default:
+            ApplyRecordStateChange(kAllRecord);
+            break;
+/*
         case kNotRecording:
             ApplyRecordStateChange(kSingleRecord);
             break;
@@ -1185,6 +1288,7 @@ void ProgramInfo::ToggleRecord(void)
         case kDontRecord:
             ApplyRecordStateChange(kOverrideRecord);
             break;
+*/
     }
 }
 
@@ -1321,15 +1425,15 @@ bool ProgramInfo::SetRecordBasename(QString basename)
     return true;
 }               
 
-/** \fn ProgramInfo::GetRecordBasename(void) const
+/** \fn ProgramInfo::GetRecordBasename() const
  *  \brief Returns a filename for a recording based on the
  *         recording channel and date.
  */
-QString ProgramInfo::GetRecordBasename(void) const
+QString ProgramInfo::GetRecordBasename(bool fromDB) const
 {
     QString retval = "";
 
-    if (!pathname.isEmpty())
+    if (!fromDB && !pathname.isEmpty())
         retval = pathname.section('/', -1);
     else
     {
@@ -1354,13 +1458,13 @@ QString ProgramInfo::GetRecordBasename(void) const
     return retval;
 }               
 
-/** \fn ProgramInfo::GetRecordFilename(const QString&) const
+/** \fn ProgramInfo::GetRecordFilename() const
  *  \brief Returns prefix+"/"+GetRecordBasename()
  *  \param prefix Prefix to apply to GetRecordBasename().
  */
-QString ProgramInfo::GetRecordFilename(const QString &prefix) const
+QString ProgramInfo::GetRecordFilename(const QString &prefix, bool fromDB) const
 {
-    return QString("%1/%2").arg(prefix).arg(GetRecordBasename());
+    return QString("%1/%2").arg(prefix).arg(GetRecordBasename(fromDB));
 }               
 
 /** \fn ProgramInfo::GetPlaybackURL(QString) const
@@ -1415,8 +1519,6 @@ QString ProgramInfo::GetPlaybackURL(QString playbackHost) const
  */
 void ProgramInfo::StartedRecording(QString prefix, QString ext)
 {
-    MSqlQuery query(MSqlQuery::InitCon());
-
     if (!record)
     {
         record = new ScheduledRecording();
@@ -1425,12 +1527,32 @@ void ProgramInfo::StartedRecording(QString prefix, QString ext)
 
     hostname = gContext->GetHostName();
     pathname = CreateRecordBasename(ext);
-    while (!insert_program(query, this, record))
+
+    int count = 0;
+    while (!insert_program(this, record) && count < 50)
     {
         recstartts = recstartts.addSecs(1);
         pathname = CreateRecordBasename(ext);
+        count++;
     }
+
+    if (count >= 50)
+    {
+        VERBOSE(VB_IMPORTANT, "Couldn't insert program");
+        return;
+    }
+
     pathname = prefix + "/" + pathname;
+
+    MSqlQuery query(MSqlQuery::InitCon());
+
+    query.prepare("DELETE FROM recordedseek WHERE chanid = :CHANID"
+                  " AND starttime = :START;");
+    query.bindValue(":CHANID", chanid);
+    query.bindValue(":START", recstartts);
+
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("Clear seek info on record", query);
 
     query.prepare("DELETE FROM recordedmarkup WHERE chanid = :CHANID"
                   " AND starttime = :START;");
@@ -1450,9 +1572,11 @@ void ProgramInfo::StartedRecording(QString prefix, QString ext)
 
     query.prepare("REPLACE INTO recordedprogram"
                  " SELECT * from program"
-                 " WHERE chanid = :CHANID AND starttime = :START;");
+                 " WHERE chanid = :CHANID AND starttime = :START"
+                 " AND title = :TITLE;");
     query.bindValue(":CHANID", chanid);
     query.bindValue(":START", startts);
+    query.bindValue(":TITLE", title);
     if (!query.exec() || !query.isActive())
         MythContext::DBError("Copy program data on record", query);
 
@@ -1465,10 +1589,11 @@ void ProgramInfo::StartedRecording(QString prefix, QString ext)
         MythContext::DBError("Copy program ratings on record", query);    
 }
 
-static bool insert_program(MSqlQuery                &query,
-                           const ProgramInfo        *pg,
+static bool insert_program(const ProgramInfo        *pg,
                            const ScheduledRecording *schd)
 {
+    MSqlQuery query(MSqlQuery::InitCon());
+
     query.prepare("LOCK TABLES recorded WRITE");
     if (!query.exec())
     {
@@ -1515,6 +1640,11 @@ static bool insert_program(MSqlQuery                &query,
         "   0) "
         );
 
+    if (pg->rectype == kOverrideRecord)
+        query.bindValue(":RECORDID",    pg->parentid);
+    else
+        query.bindValue(":RECORDID",    pg->recordid);
+
     query.bindValue(":CHANID",      pg->chanid);
     query.bindValue(":STARTS",      pg->recstartts);
     query.bindValue(":ENDS",        pg->recendts);
@@ -1525,7 +1655,6 @@ static bool insert_program(MSqlQuery                &query,
     query.bindValue(":CATEGORY",    pg->category.utf8());
     query.bindValue(":RECGROUP",    pg->recgroup.utf8());
     query.bindValue(":AUTOEXP",     schd->GetAutoExpire());
-    query.bindValue(":RECORDID",    pg->recordid);
     query.bindValue(":SERIESID",    pg->seriesid.utf8());
     query.bindValue(":PROGRAMID",   pg->programid.utf8());
     query.bindValue(":FINDID",      pg->findid);
@@ -1541,11 +1670,28 @@ static bool insert_program(MSqlQuery                &query,
     query.bindValue(":PROFILE",     schd->getProfileName());
 
     bool ok = query.exec() && (query.numRowsAffected() > 0);
-    if (!ok && !query.isActive())
-        MythContext::DBError("insert_program -- insert", query);
+    bool active = query.isActive();
 
     query.prepare("UNLOCK TABLES");
     query.exec();
+
+    if (!ok && !active)
+        MythContext::DBError("insert_program -- insert", query);
+    else
+    {
+        query.prepare("UPDATE record SET last_record = NOW() "
+                      "WHERE recordid = :RECORDID");
+        query.bindValue(":RECORDID", pg->recordid);
+        query.exec();
+
+        if (pg->rectype == kOverrideRecord && pg->parentid > 0)
+        {
+            query.prepare("UPDATE record SET last_record = NOW() "
+                          "WHERE recordid = :PARENTID");
+            query.bindValue(":PARENTID", pg->parentid);
+            query.exec();
+        }
+    }
 
     return ok;
 }
@@ -1583,12 +1729,11 @@ void ProgramInfo::FinishedRecording(bool prematurestop)
 void ProgramInfo::UpdateRecordingEnd(void)
 {
     MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare("UPDATE recorded SET endtime = :ENDTIME, "
-                  "    recordid = :RECORDID "
+    query.prepare("UPDATE recorded SET endtime = :ENDTIME "
                   "WHERE chanid = :CHANID AND "
                   "    starttime = :STARTTIME ");
     query.bindValue(":ENDTIME", recendts);
-    query.bindValue(":RECORDID", recordid);
+
     query.bindValue(":CHANID", chanid);
     query.bindValue(":STARTTIME", recstartts);
 
@@ -1646,93 +1791,57 @@ long long ProgramInfo::GetFilesize(void)
 /** \fn ProgramInfo::SetBookmark(long long pos) const
  *  \brief Sets a bookmark position in database.
  *
- *   If this is a %MythTV recording the bookmark is put in the "recorded"
- *   table, if not it is put in the "videobookmarks" table.
  */
 void ProgramInfo::SetBookmark(long long pos) const
 {
-    MSqlQuery query(MSqlQuery::InitCon());
+    ClearMarkupMap(MARK_BOOKMARK);
+    frm_dir_map_t bookmarkmap;
+    bookmarkmap[pos] = MARK_BOOKMARK;
+    SetMarkupMap(bookmarkmap);
 
-    // When using mythtv to play files not recorded by myth the title is empty
-    // so bookmark is saved to videobookmarks rather than recorded
-    if (isVideo) 
+    if (!isVideo)
     {
-        //delete any existing bookmark for this file
-        query.prepare("DELETE from videobookmarks"                      
-                      " WHERE filename = :FILENAME ;");                   
-        query.bindValue(":FILENAME", pathname);        
-        if (!query.exec() || !query.isActive())
-        MythContext::DBError("Save position update",
-                             query);
-        //insert new bookmark
-        query.prepare("INSERT into videobookmarks (filename, bookmark)"
-                      "VALUES (:FILENAME , :BOOKMARK);");
-        query.bindValue(":FILENAME", pathname);                                    
-    }
-    else
-    {
+        MSqlQuery query(MSqlQuery::InitCon());
+    
+        // For the time being, note whether a bookmark
+        // exists in the recorded table
         query.prepare("UPDATE recorded"
-                    " SET bookmark = :BOOKMARK"
-                    " WHERE chanid = :CHANID"
-                    " AND starttime = :STARTTIME ;");
+                      " SET bookmark = :BOOKMARKFLAG"
+                      " WHERE chanid = :CHANID"
+                      " AND starttime = :STARTTIME ;");
+
+        query.bindValue(":BOOKMARKFLAG", pos == 0 ? 0 : 1);
         query.bindValue(":CHANID", chanid);
         query.bindValue(":STARTTIME", recstartts);
+
+        if (!query.exec() || !query.isActive())
+            MythContext::DBError("bookmark flag update", query);
     }
-        
-    if (pos > 0)
-    {
-        char posstr[128];
-        sprintf(posstr, "%lld", pos);
-        query.bindValue(":BOOKMARK", posstr);
-    }
-    else
-        query.bindValue(":BOOKMARK", QString::null);
-    
-    if (!query.exec() || !query.isActive())
-        MythContext::DBError("Save position update",
-                             query);
 }
 
 /** \fn ProgramInfo::GetBookmark(void) const
  *  \brief Gets any bookmark position in database,
  *         unless "ignoreBookmark" is set.
  *
- *   If this is a %MythTV recording the bookmark is queried from the "recorded"
- *   table, if not it is queried from the "videobookmarks" table.
  *  \return Bookmark position in bytes if the query is executed and succeeds,
  *          zero otherwise.
  */
 long long ProgramInfo::GetBookmark(void) const
 {
-    MSqlQuery query(MSqlQuery::InitCon());
+    QMap<long long, int>::Iterator i;
     long long pos = 0;
 
     if (ignoreBookmark)
         return pos;
+
+    frm_dir_map_t bookmarkmap;
+    GetMarkupMap(bookmarkmap, MARK_BOOKMARK);
     
-    // When using mythtv to play files not recorded by myth the title is empty
-    // so bookmark comes from videobookmarks rather than recorded
-    if (isVideo) 
-    {
-        query.prepare("SELECT bookmark FROM videobookmarks"
-                      " WHERE filename = :FILENAME;");                  
-        query.bindValue(":FILENAME", pathname);        
-    } 
-    else 
-    {
-        query.prepare("SELECT bookmark FROM recorded"
-                    " WHERE chanid = :CHANID"
-                    " AND starttime = :STARTTIME ;");
-        query.bindValue(":CHANID", chanid);
-        query.bindValue(":STARTTIME", recstartts);
-    }
-    if (query.exec() && query.isActive() && query.size() > 0)
-    {
-        query.next();
-        QString result = query.value(0).toString();
-        if (!result.isEmpty())
-            sscanf(result.ascii(), "%lld", &pos);
-    }
+    if (bookmarkmap.isEmpty())
+        return pos;
+
+    i = bookmarkmap.begin();
+    pos = i.key();
     
     return pos;
 }
@@ -1879,6 +1988,27 @@ bool ProgramInfo::IsInUse(QString &byWho) const
     return false;
 }
 
+/** \fn ProgramInfo::SetTranscoded(int transFlag) const
+ *  \brief Set "transcoded" field in "recorded" table to "transFlag".
+ *  \param transFlag value to set transcoded field to.
+ */
+void ProgramInfo::SetTranscoded(int transFlag) const
+{
+    MSqlQuery query(MSqlQuery::InitCon());
+
+    query.prepare("UPDATE recorded"
+                 " SET transcoded = :FLAG"
+                 " WHERE chanid = :CHANID"
+                 " AND starttime = :STARTTIME ;");
+    query.bindValue(":FLAG", transFlag);
+    query.bindValue(":CHANID", chanid);
+    query.bindValue(":STARTTIME", recstartts);
+
+    if(!query.exec() || !query.isActive())
+        MythContext::DBError("Transcoded status update",
+                             query);
+}
+
 /** \fn ProgramInfo::SetCommFlagged(int) const
  *  \brief Set "commflagged" field in "recorded" table to "flag".
  *  \param flag value to set commercial flagging field to.
@@ -2007,88 +2137,33 @@ bool ProgramInfo::UsesMaxEpisodes(void) const
 
 void ProgramInfo::GetCutList(frm_dir_map_t &delMap) const
 {
-//    GetMarkupMap(delMap, db, MARK_CUT_START);
-//    GetMarkupMap(delMap, db, MARK_CUT_END, true);
-
-    delMap.clear();
-    MSqlQuery query(MSqlQuery::InitCon());
-
-    query.prepare("SELECT cutlist FROM recorded"
-                  " WHERE chanid = :CHANID"
-                  " AND starttime = :STARTTIME ;");
-    query.bindValue(":CHANID", chanid);
-    query.bindValue(":STARTTIME", recstartts);
-
-    if (query.exec() && query.isActive() && query.size() > 0)
-    {
-        query.next();
-
-        QString cutlist = query.value(0).toString();
-
-        if (cutlist.length() > 1)
-        {
-            QStringList strlist = QStringList::split("\n", cutlist);
-            QStringList::Iterator i;
-
-            for (i = strlist.begin(); i != strlist.end(); ++i)
-            {
-                long long start = 0, end = 0;
-                if (sscanf((*i).ascii(), "%lld - %lld", &start, &end) != 2)
-                {
-                    VERBOSE(VB_IMPORTANT,
-                            QString("Malformed cutlist list: %1").arg(*i));
-                }
-                else
-                {
-                    delMap[start] = 1;
-                    delMap[end] = 0;
-                }
-            }
-        }
-    }
+    GetMarkupMap(delMap, MARK_CUT_START);
+    GetMarkupMap(delMap, MARK_CUT_END, true);
 }
 
 void ProgramInfo::SetCutList(frm_dir_map_t &delMap) const
 {
-//    ClearMarkupMap(db, MARK_CUT_START);
-//    ClearMarkupMap(db, MARK_CUT_END);
-//    SetMarkupMap(delMap, db);
+    ClearMarkupMap(MARK_CUT_START);
+    ClearMarkupMap(MARK_CUT_END);
+    SetMarkupMap(delMap);
 
-    QString cutdata;
-    char tempc[256];
-
-    QMap<long long, int>::Iterator i;
-
-    for (i = delMap.begin(); i != delMap.end(); ++i)
+    if (!isVideo)
     {
-        long long frame = i.key();
-        int direction = i.data();
+        MSqlQuery query(MSqlQuery::InitCon());
+    
+        // Flag the existence of a cutlist
+        query.prepare("UPDATE recorded"
+                      " SET cutlist = :CUTLIST"
+                      " WHERE chanid = :CHANID"
+                      " AND starttime = :STARTTIME ;");
+    
+        query.bindValue(":CUTLIST", delMap.isEmpty() ? 0 : 1);
+        query.bindValue(":CHANID", chanid);
+        query.bindValue(":STARTTIME", recstartts);
 
-        if (direction == 1)
-        {
-            sprintf(tempc, "%lld - ", frame);
-            cutdata += tempc;
-        }
-        else if (direction == 0)
-        {
-            sprintf(tempc, "%lld\n", frame);
-            cutdata += tempc;
-        }
+        if (!query.exec() || !query.isActive())
+            MythContext::DBError("cutlist flag update", query);
     }
-
-    MSqlQuery query(MSqlQuery::InitCon());
-
-    query.prepare("UPDATE recorded"
-                  " SET cutlist = :CUTLIST"
-                  " WHERE chanid = :CHANID"
-                  " AND starttime = :STARTTIME ;");
-    query.bindValue(":CUTLIST", cutdata);
-    query.bindValue(":CHANID", chanid);
-    query.bindValue(":STARTTIME", recstartts);
-
-    if (!query.exec() || !query.isActive())
-        MythContext::DBError("cutlist update", 
-                             query);
 }
 
 void ProgramInfo::SetCommBreakList(frm_dir_map_t &frames) const
@@ -2146,8 +2221,7 @@ void ProgramInfo::ClearMarkupMap(int type, long long min_frame,
     query.bindValue(":TYPE", type);
     
     if (!query.exec() || !query.isActive())
-        MythContext::DBError("ClearMarkupMap deleting", 
-                             query);
+        MythContext::DBError("ClearMarkupMap deleting", query);
 }
 
 void ProgramInfo::SetMarkupMap(frm_dir_map_t &marks,
@@ -2167,8 +2241,7 @@ void ProgramInfo::SetMarkupMap(frm_dir_map_t &marks,
         query.bindValue(":STARTTIME", recstartts);
 
         if (!query.exec() || !query.isActive())
-            MythContext::DBError("SetMarkupMap checking record table",
-                                 query);
+            MythContext::DBError("SetMarkupMap checking record table", query);
 
         if (query.size() < 1 || !query.next())
             return;
@@ -2213,8 +2286,7 @@ void ProgramInfo::SetMarkupMap(frm_dir_map_t &marks,
         query.bindValue(":TYPE", mark_type);
        
         if (!query.exec() || !query.isActive())
-            MythContext::DBError("SetMarkupMap inserting", 
-                                 query);
+            MythContext::DBError("SetMarkupMap inserting", query);
     }
 }
 
@@ -2291,7 +2363,7 @@ void ProgramInfo::GetPositionMap(frm_pos_map_t &posMap,
     }
     else
     {
-        query.prepare("SELECT mark, offset FROM recordedmarkup"
+        query.prepare("SELECT mark, offset FROM recordedseek"
                       " WHERE chanid = :CHANID"
                       " AND starttime = :STARTTIME"
                       " AND type = :TYPE ;");
@@ -2321,7 +2393,7 @@ void ProgramInfo::ClearPositionMap(int type) const
     }
     else
     {
-        query.prepare("DELETE FROM recordedmarkup"
+        query.prepare("DELETE FROM recordedseek"
                       " WHERE chanid = :CHANID"
                       " AND starttime = :STARTTIME"
                       " AND type = :TYPE ;");
@@ -2366,7 +2438,7 @@ void ProgramInfo::SetPositionMap(frm_pos_map_t &posMap, int type,
     }
     else
     {
-        query.prepare("DELETE FROM recordedmarkup"
+        query.prepare("DELETE FROM recordedseek"
                       " WHERE chanid = :CHANID"
                       " AND starttime = :STARTTIME"
                       " AND type = :TYPE"
@@ -2409,7 +2481,7 @@ void ProgramInfo::SetPositionMap(frm_pos_map_t &posMap, int type,
         }
         else
         {        
-            query.prepare("INSERT INTO recordedmarkup"
+            query.prepare("INSERT INTO recordedseek"
                           " (chanid, starttime, mark, type, offset)"
                           " VALUES"
                           " ( :CHANID , :STARTTIME , :MARK , :TYPE , :OFFSET );");
@@ -2455,7 +2527,7 @@ void ProgramInfo::SetPositionMapDelta(frm_pos_map_t &posMap,
         }
         else
         {
-            query.prepare("INSERT INTO recordedmarkup"
+            query.prepare("INSERT INTO recordedseek"
                           " (chanid, starttime, mark, type, offset)"
                           " VALUES"
                           " ( :CHANID , :STARTTIME , :MARK , :TYPE , :OFFSET );");
@@ -2769,10 +2841,14 @@ QString ProgramInfo::RecStatusChar(void) const
         return QObject::tr("K", "RecStatusChar rsLowDiskSpace");
     case rsTunerBusy:
         return QObject::tr("B", "RecStatusChar rsTunerBusy");
+    case rsFailed:
+        return QObject::tr("f", "RecStatusChar rsFailed");
     case rsNotListed:
         return QObject::tr("N", "RecStatusChar rsNotListed");
     case rsNeverRecord:
         return QObject::tr("V", "RecStatusChar rsNeverRecord");
+    case rsOffLine:
+        return QObject::tr("F", "RecStatusChar rsOffLine");
     default:
         return "-";
     }
@@ -2823,10 +2899,14 @@ QString ProgramInfo::RecStatusText(void) const
             return QObject::tr("Low Disk Space");
         case rsTunerBusy:
             return QObject::tr("Tuner Busy");
+        case rsFailed:
+            return QObject::tr("Recorder Failed");
         case rsNotListed:
             return QObject::tr("Not Listed");
         case rsNeverRecord:
             return QObject::tr("Never Record");
+        case rsOffLine:
+            return QObject::tr("Recorder Off-Line");
         default:
             return QObject::tr("Unknown");
         }
@@ -2873,6 +2953,9 @@ QString ProgramInfo::RecStatusDesc(void) const
             break;
         case rsTunerBusy:
             message += QObject::tr("the tuner card was already being used.");
+            break;
+        case rsFailed:
+            message += QObject::tr("the recording failed.");
             break;
         default:
             message = QObject::tr("The status of this showing is unknown.");
@@ -2930,6 +3013,9 @@ QString ProgramInfo::RecStatusDesc(void) const
         case rsNeverRecord:
             message += QObject::tr("it was marked to never be recorded.");
             break;            
+        case rsOffLine:
+            message += QObject::tr("the backend recorder is off-line.");
+            break;
         default:
             message += QObject::tr("you should never see this.");
             break;
@@ -3124,7 +3210,7 @@ void ProgramInfo::showDetails(void) const
             generic = query.value(10).toInt();
             showtype = query.value(11).toString();
             colorcode = query.value(12).toString();
-            title_pronounce = query.value(13).toString();
+            title_pronounce = QString::fromUtf8(query.value(13).toString());
         }
         else if (!query.isActive())
             MythContext::DBError("ProgramInfo::showDetails", query);
@@ -3204,7 +3290,7 @@ void ProgramInfo::showDetails(void) const
     if (hdtv)
         attr += QObject::tr("HDTV") + ", ";
     if (closecaptioned)
-        attr += QObject::tr("CC","Close Captioned") + ", ";
+        attr += QObject::tr("CC","Closed Captioned") + ", ";
     if (subtitled)
         attr += QObject::tr("Subtitled") + ", ";
     if (stereo)
@@ -3225,7 +3311,7 @@ void ProgramInfo::showDetails(void) const
 
     if (category != "")
     {
-        s = qApp->translate("Category", category);
+        s = category;
 
         query.prepare("SELECT genre FROM programgenres "
                       "WHERE chanid = :CHANID AND starttime = :STARTTIME "
@@ -3470,10 +3556,13 @@ int ProgramInfo::getProgramFlags(void) const
 {
     int flags = 0;
     MSqlQuery query(MSqlQuery::InitCon());
-    
+
     query.prepare("SELECT commflagged, cutlist, autoexpire, "
-                  "editing, bookmark FROM recorded WHERE "
-                  "chanid = :CHANID AND starttime = :STARTTIME ;");
+                  "editing, bookmark, stereo, closecaptioned, hdtv "
+                  "FROM recorded LEFT JOIN recordedprogram ON "
+                  "(recorded.chanid = recordedprogram.chanid AND "
+                  "recorded.starttime = recordedprogram.starttime) "
+                  "WHERE recorded.chanid = :CHANID AND recorded.starttime = :STARTTIME ;");
     query.bindValue(":CHANID", chanid);
     query.bindValue(":STARTTIME", recstartts);
 
@@ -3482,12 +3571,15 @@ int ProgramInfo::getProgramFlags(void) const
         query.next();
 
         flags |= (query.value(0).toInt() == COMM_FLAG_DONE) ? FL_COMMFLAG : 0;
-        flags |= query.value(1).toString().length() > 1 ? FL_CUTLIST : 0;
+        flags |= (query.value(1).toInt() == 1) ? FL_CUTLIST : 0;
         flags |= query.value(2).toInt() ? FL_AUTOEXP : 0;
         if ((query.value(3).toInt()) ||
             (query.value(0).toInt() == COMM_FLAG_PROCESSING))
             flags |= FL_EDITING;
-        flags |= query.value(4).toString().length() > 1 ? FL_BOOKMARK : 0;
+        flags |= (query.value(4).toInt() == 1) ? FL_BOOKMARK : 0;
+        flags |= (query.value(5).toInt() == 1) ? FL_STEREO : 0;
+        flags |= (query.value(6).toInt() == 1) ? FL_CC : 0;
+        flags |= (query.value(7).toInt() == 1) ? FL_HDTV : 0;
     }
 
     return flags;
@@ -3675,10 +3767,15 @@ void ProgramInfo::ShowRecordingDialog(void)
 
         if (rectype == kOverrideRecord || rectype == kDontRecord)
         {
-            diag.AddButton(QObject::tr("Edit Override"));
-            ednorm = button++;
-            if (recstatus != rsRecording)
+            if (recstatus == rsRecording)
             {
+                diag.AddButton(QObject::tr("Change Ending Time"));
+                edend = button++;
+            }
+            else
+            {
+                diag.AddButton(QObject::tr("Edit Override"));
+                ednorm = button++;
                 diag.AddButton(QObject::tr("Clear Override"));
                 clearov = button++;
             }
@@ -3782,7 +3879,7 @@ void ProgramInfo::ShowNotRecordingDialog(void)
     QDateTime now = QDateTime::currentDateTime();
 
     if (recstartts < now && recendts > now &&
-        recstatus != rsDontRecord)
+        recstatus != rsDontRecord && recstatus != rsNotListed)
     {
         diag.AddButton(QObject::tr("Reactivate"));
         react = button++;
@@ -3813,11 +3910,12 @@ void ProgramInfo::ShowNotRecordingDialog(void)
         {
             if (rectype != kSingleRecord &&
                 recstatus != rsPreviousRecording &&
-                recstatus != rsCurrentRecording)
+                recstatus != rsCurrentRecording &&
+                recstatus != rsNotListed)
             {
                 if (recstartts > now)
                 {
-                    diag.AddButton(QObject::tr("Absolutely don't record"));
+                    diag.AddButton(QObject::tr("Don't record"));
                     addov1 = button++;
                 }
                 if (rectype != kFindOneRecord &&
@@ -3837,7 +3935,8 @@ void ProgramInfo::ShowNotRecordingDialog(void)
             diag.AddButton(QObject::tr("Edit Options"));
             ednorm = button++;
 
-            if (rectype != kSingleRecord && rectype != kFindOneRecord)
+            if (rectype != kSingleRecord && rectype != kFindOneRecord &&
+                recstatus != rsNotListed)
             {
                 diag.AddButton(QObject::tr("Add Override"));
                 edcust = button++;
@@ -3977,8 +4076,14 @@ bool ProgramList::FromProgram(const QString &sql, MSqlBindings &bindings,
         querystr += " GROUP BY program.starttime, channel.channum, "
             "  channel.callsign, program.title ";
     if (!sql.contains(" ORDER BY "))
-        querystr += QString(" ORDER BY program.starttime, ") + 
-                    gContext->GetSetting("ChannelOrdering", "channum+0") + " ";
+    {
+        querystr += " ORDER BY program.starttime, ";
+        QString chanorder = gContext->GetSetting("ChannelOrdering", "channum");
+        if (chanorder != "channum")
+            querystr += chanorder + " ";
+        else // approximation which the DB can handle
+            querystr += "atsc_major_chan,atsc_minor_chan,channum,callsign ";
+    }
     if (!sql.contains(" LIMIT "))
         querystr += " LIMIT 1000 ";
 
@@ -4060,6 +4165,211 @@ bool ProgramList::FromProgram(const QString &sql, MSqlBindings &bindings,
 
     return true;
 }
+
+bool ProgramList::FromRecorded( bool bDescending, ProgramList *pSchedList ) 
+{
+    clear();
+                
+    QString     fs_db_name = "";
+    QDateTime   rectime    = QDateTime::currentDateTime().addSecs(
+                              -gContext->GetNumSetting("RecordOverTime"));
+
+    QString ip        = gContext->GetSetting("BackendServerIP");
+    QString port      = gContext->GetSetting("BackendServerPort");
+
+    // ----------------------------------------------------------------------
+
+    QMap<QString, int> inUseMap;
+
+    QString     inUseKey;
+    QString     inUseForWhat;
+    QDateTime   oneHourAgo = QDateTime::currentDateTime().addSecs(-61 * 60);
+
+    MSqlQuery   query(MSqlQuery::InitCon());
+
+    query.prepare("SELECT DISTINCT chanid, starttime, recusage "
+                  " FROM inuseprograms WHERE lastupdatetime >= :ONEHOURAGO ;");
+    query.bindValue(":ONEHOURAGO", oneHourAgo);
+
+    if (query.exec() && query.isActive() && query.size() > 0)
+    {
+        while (query.next())
+        {
+            inUseKey = query.value(0).toString() + " " +
+                       query.value(1).toDateTime().toString(Qt::ISODate);
+            inUseForWhat = query.value(2).toString();
+
+            if (!inUseMap.contains(inUseKey))
+                inUseMap[inUseKey] = 0;
+
+            if ((inUseForWhat == "player") ||
+                (inUseForWhat == "preview player") ||
+                (inUseForWhat == "PIP player"))
+                inUseMap[inUseKey] = inUseMap[inUseKey] | FL_INUSEPLAYING;
+            else if (inUseForWhat == "recorder")
+                inUseMap[inUseKey] = inUseMap[inUseKey] | FL_INUSERECORDING;
+        }
+    }
+
+    // ----------------------------------------------------------------------
+
+    QString thequery =
+        "SELECT recorded.chanid,recorded.starttime,recorded.endtime,"
+        "recorded.title,recorded.subtitle,recorded.description,"
+        "recorded.hostname,channum,name,callsign,commflagged,cutlist,"
+        "recorded.autoexpire,editing,bookmark,recorded.category,"
+        "recorded.recgroup,record.dupin,record.dupmethod,"
+        "record.recordid,outputfilters,"
+        "recorded.seriesid,recorded.programid,recorded.filesize, "
+        "recorded.lastmodified, recorded.findid, "
+        "recorded.originalairdate, recorded.playgroup, "
+        "recorded.basename, recorded.progstart, "
+        "recorded.progend, recorded.stars, "
+        "recordedprogram.stereo, recordedprogram.hdtv, "
+        "recordedprogram.closecaptioned "
+        "FROM recorded "
+        "LEFT JOIN record ON recorded.recordid = record.recordid "
+        "LEFT JOIN channel ON recorded.chanid = channel.chanid "
+        "LEFT JOIN recordedprogram ON "
+        " ( recorded.chanid    = recordedprogram.chanid AND "
+        "   recorded.starttime = recordedprogram.starttime ) "
+        "WHERE ( recorded.deletepending = 0 OR "
+        "        DATE_ADD(recorded.lastmodified,  INTERVAL 5 MINUTE) <= NOW() "
+        "      ) "
+        "ORDER BY recorded.starttime";
+
+    if ( bDescending )
+        thequery += " DESC";
+
+    QString chanorder = gContext->GetSetting("ChannelOrdering", "channum");
+    if (chanorder != "channum")
+        thequery += ", " + chanorder;
+    else // approximation which the DB can handle
+        thequery += ",atsc_major_chan,atsc_minor_chan,channum,callsign";
+
+    query.prepare(thequery);
+
+    if (!query.exec() || !query.isActive())
+    {
+        MythContext::DBError("ProgramList::FromRecorded", query);
+        return true;
+    }
+    else
+    {
+        while (query.next())
+        {
+            ProgramInfo *proginfo = new ProgramInfo;
+
+            proginfo->chanid        = query.value(0).toString();
+            proginfo->startts       = query.value(29).toDateTime();
+            proginfo->endts         = query.value(30).toDateTime();
+            proginfo->recstartts    = query.value(1).toDateTime();
+            proginfo->recendts      = query.value(2).toDateTime();
+            proginfo->title         = QString::fromUtf8(query.value(3).toString());
+            proginfo->subtitle      = QString::fromUtf8(query.value(4).toString());
+            proginfo->description   = QString::fromUtf8(query.value(5).toString());
+            proginfo->hostname      = query.value(6).toString();
+
+            proginfo->dupin         = RecordingDupInType(query.value(17).toInt());
+            proginfo->dupmethod     = RecordingDupMethodType(query.value(18).toInt());
+            proginfo->recordid      = query.value(19).toInt();
+            proginfo->chanOutputFilters = query.value(20).toString();
+            proginfo->seriesid      = query.value(21).toString();
+            proginfo->programid     = query.value(22).toString();
+            proginfo->filesize      = stringToLongLong(query.value(23).toString());
+            proginfo->lastmodified  = QDateTime::fromString(query.value(24).toString(), Qt::ISODate);
+            proginfo->findid        = query.value(25).toInt();
+
+            if (query.value(26).isNull())
+            {
+                proginfo->originalAirDate = proginfo->startts.date();
+                proginfo->hasAirDate      = false;
+            }
+            else
+            {
+                proginfo->originalAirDate = QDate::fromString(query.value(26).toString(),Qt::ISODate);
+                proginfo->hasAirDate      = true;
+            }
+
+            proginfo->pathname = query.value(28).toString();
+
+
+            if (proginfo->hostname.isEmpty() || proginfo->hostname.isNull())
+                proginfo->hostname = gContext->GetHostName();
+
+            if (!query.value(7).toString().isEmpty())
+            {
+                proginfo->chanstr  = query.value(7).toString();
+                proginfo->channame = QString::fromUtf8(query.value(8).toString());
+                proginfo->chansign = QString::fromUtf8(query.value(9).toString());
+            }
+            else
+            {
+                proginfo->chanstr  = "#" + proginfo->chanid;
+                proginfo->channame = "#" + proginfo->chanid;
+                proginfo->chansign = "#" + proginfo->chanid;
+            }
+
+            int flags = 0;
+
+            flags |= (query.value(10).toInt() == 1)           ? FL_COMMFLAG : 0;
+            flags |=  query.value(11).toString().length() > 1 ? FL_CUTLIST  : 0;
+            flags |=  query.value(12).toInt()                 ? FL_AUTOEXP  : 0;
+            flags |=  query.value(14).toString().length() > 1 ? FL_BOOKMARK : 0;
+            flags |= (query.value(32).toInt() == 1)           ? FL_STEREO   : 0;
+            flags |= (query.value(34).toInt() == 1)           ? FL_CC       : 0;
+            flags |= (query.value(33).toInt() == 1)           ? FL_HDTV     : 0;
+
+            inUseKey = query.value(0).toString() + " " +
+                       query.value(1).toDateTime().toString(Qt::ISODate);
+
+            if (inUseMap.contains(inUseKey))
+                flags |= inUseMap[inUseKey];
+
+            if (query.value(13).toInt())
+            {
+                flags |= FL_EDITING;
+            }
+            else if (query.value(10).toInt() == COMM_FLAG_PROCESSING)
+            {
+                if (JobQueue::IsJobRunning(JOB_COMMFLAG, proginfo))
+                    flags |= FL_EDITING;
+                else
+                    proginfo->SetCommFlagged(COMM_FLAG_NOT_FLAGGED);
+            }
+
+            proginfo->programflags = flags;
+            proginfo->category     = QString::fromUtf8(query.value(15).toString());
+            proginfo->recgroup     = query.value(16).toString();
+            proginfo->playgroup    = query.value(27).toString();
+            proginfo->recstatus    = rsRecorded;
+
+            if ((pSchedList != NULL) && (proginfo->recendts > rectime))
+            {
+                ProgramInfo *s;
+
+                for (s = pSchedList->first(); s; s = pSchedList->next())
+                {
+                    if (s && s->recstatus    == rsRecording &&
+                        proginfo->chanid     == s->chanid   &&
+                        proginfo->recstartts == s->recstartts)
+                    {
+                        proginfo->recstatus = rsRecording;
+                        break;
+                    }
+                }
+            }
+
+            proginfo->stars = query.value(31).toDouble();
+
+            append(proginfo);
+
+        }
+    }
+
+    return true;
+}
+
 
 bool ProgramList::FromOldRecorded(const QString &sql, MSqlBindings &bindings)
 {

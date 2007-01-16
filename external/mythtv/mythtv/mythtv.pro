@@ -14,8 +14,8 @@ include ( settings.pro )
 # Directories
 SUBDIRS += libs filters programs themes i18n
 
-using_backend {
-    SUBDIRS += setup
+using_bindings_* {
+    SUBDIRS += bindings
 }
 
 # clean up config on distclean, this must be the last sub-directory

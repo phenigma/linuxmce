@@ -49,7 +49,7 @@ int ring_init (ringbuffer *rbuf, int size)
 
 int ring_reinit (ringbuffer *rbuf, int size)
 {
-	if (size > rbuf->size) {
+	if (size > (int)(rbuf->size)) {
 		uint8_t *tmpalloc = (uint8_t *) realloc(rbuf->buffer,
 							sizeof(uint8_t)*size);
 		if (! tmpalloc)
@@ -422,4 +422,19 @@ int dummy_delete(dummy_buffer *dbuf, uint64_t time)
 //	fprintf(stderr,"%d\n",dummy_space(dbuf));    
 
 	return dsize;
+}
+void dummy_print(dummy_buffer *dbuf)
+{
+   int i;
+   uint64_t rtime;
+   uint32_t size;
+   int avail = ring_avail(&dbuf->time_index) / sizeof(uint64_t);
+   for(i = 0; i < avail; i++) {
+       ring_peek(&dbuf->time_index,(uint8_t *) &rtime, 
+			      sizeof(uint64_t), i * sizeof(uint64_t));
+       ring_peek(&dbuf->data_index,(uint8_t *) &size, 
+			      sizeof(uint32_t), i * sizeof(uint32_t));
+       printf("%d : %llu %u\n", i, rtime, size);
+   }
+   printf("Used: %d Free: %d data-free: %d\n", avail, 1000-avail, dbuf->size - dbuf->fill);
 }

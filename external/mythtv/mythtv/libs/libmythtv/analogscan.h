@@ -1,5 +1,5 @@
 /*
- * $Id: analogscan.h 8901 2006-02-07 21:56:06Z danielk $
+ * $Id: analogscan.h 10540 2006-07-15 20:13:46Z ijr $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -35,6 +35,8 @@
 
 #include <qobject.h>
 #include <qstring.h>
+#include <qmutex.h>
+#include <qwaitcondition.h>
 #include <pthread.h>
 #include "frequencies.h"
 
@@ -89,6 +91,10 @@ protected:
                     const QString& name, int frequency);
     /** @brief Scanning thread*/
     pthread_t thread;
+
+    /** @brief Condition to signal that the scanning thread is running */
+    QWaitCondition scanThreadCond;
+    QMutex scanThreadCondLock;
 
     /** @brief Actual scanning proc */
     void doScan();

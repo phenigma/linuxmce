@@ -24,6 +24,7 @@
 #include "libmythtv/remoteencoder.h"
 #include "libmyth/mythdbcon.h"
 
+#include "CommDetector.h"
 #include "CommDetectorBase.h"
 #include "CommDetectorFactory.h"
 #include "SlotRelayer.h"
@@ -43,7 +44,7 @@ bool watchingRecording = false;
 CommDetectorBase* commDetector = NULL;
 RemoteEncoder* recorder = NULL;
 ProgramInfo* program_info = NULL;
-int commDetectMethod = -1;
+enum SkipTypes commDetectMethod = COMM_DETECT_UNINIT;
 int recorderNum = -1;
 bool dontSubmitCommbreakListToDB =  false;
 QString outputfilename;
@@ -153,78 +154,82 @@ int CopySkipListToCutList(QString chanid, QString starttime)
     return COMMFLAG_EXIT_NO_ERROR_WITH_NO_BREAKS;
 }
 
-int ClearCutList(QString chanid, QString starttime)
-{
-    MSqlQuery query(MSqlQuery::InitCon());
-
-    query.prepare("UPDATE recorded "
-                  "SET cutlist = NULL "
-                  "WHERE chanid = :CHANID "
-                      "AND starttime = :STARTTIME;");
-    query.bindValue(":CHANID", chanid);
-    query.bindValue(":STARTTIME", starttime);
-
-    if (!query.exec() || !query.isActive())
-        MythContext::DBError("clear cutlist",
-                             query);
-
-    VERBOSE(VB_IMPORTANT, "Cutlist cleared");
-
-    return COMMFLAG_EXIT_NO_ERROR_WITH_NO_BREAKS;
-}
-
 int SetCutList(QString chanid, QString starttime, QString newCutList)
 {
-    newCutList.replace(QRegExp(","), "\n");
-    newCutList.replace(QRegExp("-"), " - ");
+    QMap<long long, int> cutlist;
 
-    MSqlQuery query(MSqlQuery::InitCon());
+    newCutList.replace(QRegExp(" "), "");
 
-    query.prepare("UPDATE recorded "
-                  "SET cutlist = :CUTLIST "
-                  "WHERE chanid = :CHANID "
-                      "AND starttime = :STARTTIME ;");
-    query.bindValue(":CUTLIST", newCutList);
-    query.bindValue(":CHANID", chanid);
-    query.bindValue(":STARTTIME", starttime);
+    QStringList tokens = QStringList::split(",", newCutList);
 
-    if (!query.exec() || !query.isActive())
-        MythContext::DBError("clear cutlist",
-                             query);
+    for (unsigned int i = 0; i < tokens.size(); i++)
+    {
+        QStringList cutpair = QStringList::split("-", tokens[i]);
+        cutlist[cutpair[0].toInt()] = MARK_CUT_START;
+        cutlist[cutpair[1].toInt()] = MARK_CUT_END;
+    }
 
-    newCutList.replace(QRegExp("\n"), ",");
-    newCutList.replace(QRegExp(" - "), "-");
+    ProgramInfo *pginfo =
+        ProgramInfo::GetProgramFromRecorded(chanid, starttime);
+
+    if (!pginfo)
+    {
+        VERBOSE(VB_IMPORTANT,
+                QString("No program data exists for channel %1 at %2")
+                .arg(chanid.ascii()).arg(starttime.ascii()));
+        return COMMFLAG_BUGGY_EXIT_NO_CHAN_DATA;
+    }
+
+    pginfo->SetCutList(cutlist);
 
     VERBOSE(VB_IMPORTANT, QString("Cutlist set to: %1").arg(newCutList));
 
     return COMMFLAG_EXIT_NO_ERROR_WITH_NO_BREAKS;
 }
 
-int GetCutList(QString chanid, QString starttime)
+int GetMarkupList(QString list, QString chanid, QString starttime)
 {
+    QMap<long long, int> cutlist;
+    QMap<long long, int>::Iterator it;
     QString result;
 
-    MSqlQuery query(MSqlQuery::InitCon());
+    ProgramInfo *pginfo =
+        ProgramInfo::GetProgramFromRecorded(chanid, starttime);
 
-    query.prepare("SELECT cutlist FROM recorded "
-                  "WHERE chanid = :CHANID "
-                      "AND starttime = :STARTTIME ;");
-    query.bindValue(":CHANID", chanid);
-    query.bindValue(":STARTTIME", starttime);
+    if (!pginfo)
+    {
+        VERBOSE(VB_IMPORTANT,
+                QString("No program data exists for channel %1 at %2")
+                .arg(chanid.ascii()).arg(starttime.ascii()));
+        return COMMFLAG_BUGGY_EXIT_NO_CHAN_DATA;
+    }
 
-    if (query.exec() && query.isActive() && query.size() > 0 && query.next())
-        result = query.value(0).toString();
+    if (list == "cutlist")
+        pginfo->GetCutList(cutlist);
     else
-        MythContext::DBError("get cutlist",
-                             query);
+        pginfo->GetCommBreakList(cutlist);
 
-    result.replace(QRegExp("\n"), ",");
-    result.replace(QRegExp(" - "), "-");
+    for (it = cutlist.begin(); it != cutlist.end(); ++it)
+    {
+        if ((it.data() == MARK_COMM_START) ||
+            (it.data() == MARK_CUT_START))
+        {
+            if (result != "")
+                result += ",";
+            result += QString("%1-").arg(it.key());
+        }
+        else
+            result += QString("%1").arg(it.key());
+    }
 
-    cout << QString("Cutlist: %1\n").arg(result);
+    if (list == "cutlist")
+        cout << QString("Cutlist: %1\n").arg(result);
+    else
+        cout << QString("Commercial Skip List: %1\n").arg(result);
 
     return COMMFLAG_EXIT_NO_ERROR_WITH_NO_BREAKS;
 }
+
 void streamOutCommercialBreakList(ostream& output,
                                   QMap<long long, int>& commercialBreakList)
 {
@@ -270,7 +275,7 @@ void commDetectorBreathe()
                 }
                 case JOB_RESUME:
                 {
-                    JobQueue::ChangeJobStatus(jobID, JOB_PAUSED,
+                    JobQueue::ChangeJobStatus(jobID, JOB_RUNNING,
                                               QObject::tr("Running"));
                     commDetector->resume();
                     break;
@@ -367,11 +372,12 @@ void incomingCustomEvent(QCustomEvent* e)
 }
 
 int DoFlagCommercials(bool showPercentage, bool fullSpeed, bool inJobQueue,
-                      NuppelVideoPlayer* nvp, int commDetectMethod)
+                      NuppelVideoPlayer* nvp, enum SkipTypes commDetectMethod)
 {
     CommDetectorFactory factory;
     commDetector = factory.makeCommDetector(commDetectMethod, showPercentage,
                                             fullSpeed, nvp,
+                                            program_info->chanid.toInt(),
                                             program_info->startts,
                                             program_info->endts,
                                             program_info->recstartts,
@@ -407,7 +413,6 @@ int DoFlagCommercials(bool showPercentage, bool fullSpeed, bool inJobQueue,
                program_info->recstartts.toString(Qt::ISODate);
     RemoteSendMessage(message);
 
-
     bool result = commDetector->go();
     int comms_found = 0;
 
@@ -428,7 +433,10 @@ int DoFlagCommercials(bool showPercentage, bool fullSpeed, bool inJobQueue,
             fstream outputstream(outputfilename, ios::app | ios::out );
             outputstream << "commercialBreakListFor: " << program_info->title
                          << " on " << program_info->chanid << " @ "
-                         << program_info->recstartts.toString(Qt::ISODate) << endl;
+                         << program_info->recstartts.toString(Qt::ISODate)
+                         << endl;
+            outputstream << "totalframecount: " << nvp->GetTotalFrameCount()
+                         << endl;
             streamOutCommercialBreakList(outputstream, commBreakList);
         }
     }
@@ -446,9 +454,9 @@ int DoFlagCommercials(bool showPercentage, bool fullSpeed, bool inJobQueue,
 int FlagCommercials(QString chanid, QString starttime)
 {
     int breaksFound = 0;
-    if (commDetectMethod==-1)
-        commDetectMethod = gContext->GetNumSetting("CommercialSkipMethod",
-                                                   COMM_DETECT_BLANKS);
+    if (commDetectMethod == COMM_DETECT_UNINIT)
+        commDetectMethod = (enum SkipTypes)gContext->GetNumSetting(
+                                    "CommercialSkipMethod", COMM_DETECT_ALL);
     QMap<long long, int> blanks;
     recorder = NULL;
     program_info = ProgramInfo::GetProgramFromRecorded(chanid, starttime);
@@ -616,25 +624,22 @@ int main(int argc, char *argv[])
     QString starttime;
     QString allStart = "19700101000000";
     QString allEnd   = QDateTime::currentDateTime().toString("yyyyMMddhhmmss");
+    int jobID = -1;
+    int jobType = JOB_NONE;
+    QDir fullfile;
     time_t time_now;
     bool allRecorded = false;
     bool queueJobInstead = false;
     bool copyToCutlist = false;
     bool clearCutlist = false;
     bool getCutlist = false;
-    QString newCutList = "";
+    bool getSkipList = false;
+    QString newCutList = QString::null;
+    QMap<QString, QString> settingsOverride;
 
     QFileInfo finfo(a.argv()[0]);
 
     QString binname = finfo.baseName();
-
-    gContext = NULL;
-    gContext = new MythContext(MYTH_BINARY_VERSION);
-    if (!gContext->Init(false))
-    {
-        VERBOSE(VB_IMPORTANT, "Failed to init MythContext, exiting.");
-        return COMMFLAG_EXIT_NO_MYTHCONTEXT;
-    }
 
     print_verbose_messages = VB_IMPORTANT;
     verboseString = "important";
@@ -669,28 +674,7 @@ int main(int argc, char *argv[])
         }
         else if (!strcmp(a.argv()[argpos],"-f") ||
                  !strcmp(a.argv()[argpos],"--file"))
-        {
-            QDir fullfile(a.argv()[++argpos]);
-
-            MSqlQuery query(MSqlQuery::InitCon());
-            query.prepare("SELECT chanid, starttime FROM recorded "
-                          "WHERE basename = :BASENAME ;");
-            query.bindValue(":BASENAME", fullfile.dirName());
-
-            if (query.exec() && query.isActive() && query.size() > 0 &&
-                query.next())
-            {
-                chanid = query.value(0).toString();
-                starttime =
-                    query.value(1).toDateTime().toString("yyyyMMddhhmmss");
-            }
-            else
-            {
-                cerr << "mythcommflag: ERROR: Unable to find DB info for "
-                     << fullfile.dirName() << endl;
-                return COMMFLAG_EXIT_NO_PROGRAM_DATA;
-            }
-        }
+            fullfile = a.argv()[++argpos];
         else if (!strcmp(a.argv()[argpos],"--video"))
         {
             filename = (a.argv()[++argpos]);
@@ -703,9 +687,9 @@ int main(int argc, char *argv[])
         {
             QString method = (a.argv()[++argpos]);
             bool ok;
-            commDetectMethod = method.toInt(&ok);
+            commDetectMethod = (enum SkipTypes)method.toInt(&ok);
             if (!ok)
-                commDetectMethod = -1;
+                commDetectMethod = COMM_DETECT_UNINIT;
         }
         else if (!strcmp(a.argv()[argpos], "--gencutlist"))
             copyToCutlist = true;
@@ -713,23 +697,12 @@ int main(int argc, char *argv[])
             clearCutlist = true;
         else if (!strcmp(a.argv()[argpos], "--getcutlist"))
             getCutlist = true;
+        else if (!strcmp(a.argv()[argpos], "--getskiplist"))
+            getSkipList = true;
         else if (!strcmp(a.argv()[argpos], "--setcutlist"))
             newCutList = (a.argv()[++argpos]);
         else if (!strcmp(a.argv()[argpos], "-j"))
-        {
-            int jobID = QString(a.argv()[++argpos]).toInt();
-            int jobType = JOB_NONE;
-
-            if ( !JobQueue::GetJobInfoFromID(jobID, jobType, chanid, starttime))
-            {
-                cerr << "mythcommflag: ERROR: Unable to find DB info for "
-                     << "JobQueue ID# " << jobID << endl;
-                return COMMFLAG_EXIT_NO_PROGRAM_DATA;
-            }
-
-            inJobQueue = true;
-            force = true;
-        }
+            jobID = QString(a.argv()[++argpos]).toInt();
         else if (!strcmp(a.argv()[argpos], "--all"))
         {
             allRecorded = true;
@@ -768,6 +741,10 @@ int main(int argc, char *argv[])
         else if (!strcmp(a.argv()[argpos], "--sleep"))
         {
             fullSpeed = false;
+        }
+        else if (!strcmp(a.argv()[argpos], "--nopercentage"))
+        {
+            showPercentage = false;
         }
         else if (!strcmp(a.argv()[argpos], "--rebuild"))
         {
@@ -836,6 +813,39 @@ int main(int argc, char *argv[])
                 return COMMFLAG_EXIT_INVALID_CMDLINE;
             }
         }
+        else if (!strcmp(a.argv()[argpos],"-O") ||
+                 !strcmp(a.argv()[argpos],"--override-setting"))
+        {
+            if ((a.argc() - 1) > argpos)
+            {
+                QString tmpArg = a.argv()[argpos+1];
+                if (tmpArg.startsWith("-"))
+                {
+                    cerr << "Invalid or missing argument to "
+                            "-O/--override-setting option\n";
+                    return BACKEND_EXIT_INVALID_CMDLINE;
+                } 
+ 
+                QStringList pairs = QStringList::split(",", tmpArg);
+                for (unsigned int index = 0; index < pairs.size(); ++index)
+                {
+                    QStringList tokens = QStringList::split("=", pairs[index]);
+                    tokens[0].replace(QRegExp("^[\"']"), "");
+                    tokens[0].replace(QRegExp("[\"']$"), "");
+                    tokens[1].replace(QRegExp("^[\"']"), "");
+                    tokens[1].replace(QRegExp("[\"']$"), "");
+                    settingsOverride[tokens[0]] = tokens[1];
+                }
+            }
+            else
+            { 
+                cerr << "Invalid or missing argument to -O/--override-setting "
+                        "option\n";
+                return GENERIC_EXIT_INVALID_CMDLINE;
+            }
+
+            ++argpos;
+        }
         else if (!strcmp(a.argv()[argpos],"-h") ||
                  !strcmp(a.argv()[argpos],"--help"))
         {
@@ -846,12 +856,14 @@ int main(int argc, char *argv[])
                     "-f OR --file filename        Flag recording with specific filename\n"
                     "--video filename             Rebuild the seektable for a video (non-recording) file\n"
                     "--sleep                      Give up some CPU time after processing each frame\n"
+                    "--nopercentage               Don't print percentage done\n"
                     "--rebuild                    Do not flag commercials, just rebuild seektable\n"
                     "--gencutlist                 Copy the commercial skip list to the cutlist\n"
                     "--clearcutlist               Clear the cutlist\n"
                     "--setcutlist CUTLIST         Set a new cutlist.  CUTLIST is of the form:\n"
                     "                             #-#[,#-#]...  (ie, 1-100,1520-3012,4091-5094\n"
                     "--getcutlist                 Display the current cutlist\n"
+                    "--getskiplist                Display the current Commercial Skip list\n"
                     "-v or --verbose debug-level  Use '-v help' for level info\n"
                     "--queue                      Insert flagging job into the JobQueue rather than\n"
                     "                             running flagging in the foreground\n"
@@ -887,6 +899,61 @@ int main(int argc, char *argv[])
         ++argpos;
     }
 
+    gContext = NULL;
+    gContext = new MythContext(MYTH_BINARY_VERSION);
+    if (!gContext->Init(false))
+    {
+        VERBOSE(VB_IMPORTANT, "Failed to init MythContext, exiting.");
+        return COMMFLAG_EXIT_NO_MYTHCONTEXT;
+    }
+
+    if (settingsOverride.size())
+    {
+        QMap<QString, QString>::iterator it;
+        for (it = settingsOverride.begin(); it != settingsOverride.end(); ++it)
+        {
+            VERBOSE(VB_IMPORTANT, QString("Setting '%1' being forced to '%2'")
+                                          .arg(it.key()).arg(it.data()));
+            gContext->OverrideSettingForSession(it.key(), it.data());
+        }
+    }
+
+    if (jobID != -1)
+    {
+        if (JobQueue::GetJobInfoFromID(jobID, jobType, chanid, starttime))
+        {
+            inJobQueue = true;
+            force = true;
+        }
+        else
+        {
+            cerr << "mythcommflag: ERROR: Unable to find DB info for "
+                 << "JobQueue ID# " << jobID << endl;
+            return COMMFLAG_EXIT_NO_PROGRAM_DATA;
+        }
+    }
+
+    if (fullfile.path() != ".")
+    {
+        MSqlQuery query(MSqlQuery::InitCon());
+        query.prepare("SELECT chanid, starttime FROM recorded "
+                      "WHERE basename = :BASENAME ;");
+        query.bindValue(":BASENAME", fullfile.dirName());
+
+        if (query.exec() && query.isActive() && query.size() > 0 &&
+            query.next())
+        {
+            chanid = query.value(0).toString();
+            starttime = query.value(1).toDateTime().toString("yyyyMMddhhmmss");
+        }
+        else
+        {
+            cerr << "mythcommflag: ERROR: Unable to find DB info for "
+                 << fullfile.dirName() << endl;
+            return COMMFLAG_EXIT_NO_PROGRAM_DATA;
+        }
+    }
+
     if ((chanid.isEmpty() && !starttime.isEmpty()) ||
         (!chanid.isEmpty() && starttime.isEmpty()))
     {
@@ -899,13 +966,16 @@ int main(int argc, char *argv[])
         return CopySkipListToCutList(chanid, starttime);
 
     if (clearCutlist)
-        return ClearCutList(chanid, starttime);
+        return SetCutList(chanid, starttime, "");
+
+    if (!newCutList.isNull())
+        return SetCutList(chanid, starttime, newCutList);
 
     if (getCutlist)
-        return GetCutList(chanid, starttime);
+        return GetMarkupList("cutlist", chanid, starttime);
 
-    if (newCutList != "")
-        return SetCutList(chanid, starttime, newCutList);
+    if (getSkipList)
+        return GetMarkupList("commflag", chanid, starttime);
 
     if (inJobQueue)
     {
@@ -980,7 +1050,10 @@ int main(int argc, char *argv[])
     }
     else if (!chanid.isEmpty() && !starttime.isEmpty())
     {
-        result = FlagCommercials(chanid, starttime);
+        if (queueJobInstead)
+            QueueCommFlagJob(chanid, starttime);
+        else
+            result = FlagCommercials(chanid, starttime);
     }
     else
     {

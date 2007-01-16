@@ -14,26 +14,33 @@ class SimpleSRSetting: public SimpleDBStorage
         SimpleSRSetting(ScheduledRecording *_parent, QString name)
                       : SimpleDBStorage("record", name),
                         parent(_parent)
-       {
+        {
             parent->addChild(this);
             setName(name);
         }
 
-        virtual QString setClause(void)
+        virtual QString setClause(MSqlBindings& bindings)
         {
-            QString value = getValue();
-            value.replace(QChar('\''), "''");
-            value.replace("\\", "\\\\");
+            QString recordidTag(":SETRECORDID");
+            QString colTag(":SET" + getColumn().upper());
 
-            return QString("recordid = %1, %2 = '%3'")
-                .arg(parent->getRecordID())
-                .arg(getColumn())
-                .arg(value.utf8());
+            QString query("recordid = " + recordidTag + ", " + 
+                    getColumn() + " = " + colTag);
+
+            bindings.insert(recordidTag, parent->getRecordID());
+            bindings.insert(colTag, getValue().utf8());
+
+            return query;
         }
 
-        virtual QString whereClause(void)
+        virtual QString whereClause(MSqlBindings& bindings)
         {
-            return QString("recordid = %1").arg(parent->getRecordID());
+            QString recordidTag(":WHERERECORDID");
+            QString query("recordid = " + recordidTag);
+
+            bindings.insert(recordidTag, parent->getRecordID());
+
+            return query;
         }
 
         ScheduledRecording *parent;
@@ -51,20 +58,30 @@ class SRSetting: public ManagedListSetting
             setName(name);
         }
 
-        virtual QString setClause(void) {
-            QString value = getValue();
-            value.replace(QChar('\''), "''");
-            value.replace("\\", "\\\\");
+        virtual QString setClause(MSqlBindings& bindings)
+        {
+            QString recordidTag(":SETRECORDID");
+            QString colTag(":SET" + getColumn().upper());
 
-            return QString("recordid = %1, %2 = '%3'")
-                .arg(parent->getRecordID())
-                .arg(getColumn())
-                .arg(value.utf8());
-        };
+            QString query("recordid = " + recordidTag + ", " + 
+                    getColumn() + " = " + colTag);
 
-        virtual QString whereClause(void) {
-            return QString("recordid = %1").arg(parent->getRecordID());
-            }
+            bindings.insert(recordidTag, parent->getRecordID());
+            bindings.insert(colTag, getValue().utf8());
+
+            return query;
+        }
+
+        virtual QString whereClause(MSqlBindings& bindings)
+        {
+            QString recordidTag(":WHERERECORDID");
+            
+            QString query("recordid = " + recordidTag);
+
+            bindings.insert(recordidTag, parent->getRecordID());
+
+            return query;
+        }
 
         ScheduledRecording *parent;
 };
@@ -82,20 +99,32 @@ class SRSelectSetting : public SelectManagedListSetting
             parent->addChild(this);
             setName(_column);
         }
-        virtual QString setClause(void) {
-            QString value = getValue();
-            value.replace(QChar('\''), "''");
-            value.replace("\\", "\\\\");
 
-            return QString("recordid = %1, %2 = '%3'")
-                .arg(parent->getRecordID())
-                .arg(getColumn())
-                .arg(value.utf8());
-        };
+        virtual QString setClause(MSqlBindings& bindings)
+        {
+            QString recordidTag(":SETRECORDID");
+            QString colTag(":SET" + getColumn().upper());
 
-        virtual QString whereClause(void) {
-            return QString("recordid = %1").arg(parent->getRecordID());
-            }
+            QString query("recordid = " + recordidTag + ", " + 
+                    getColumn() + " = " + colTag);
+
+            bindings.insert(recordidTag, parent->getRecordID());
+            bindings.insert(colTag, getValue().utf8());
+
+            return query;
+        }
+
+        virtual QString whereClause(MSqlBindings& bindings)
+        {
+            QString recordidTag(":WHERERECORDID");
+            
+            QString query("recordid = " + recordidTag);
+
+            bindings.insert(recordidTag, parent->getRecordID());
+
+            return query;
+        }
+
         ScheduledRecording *parent;
 };
 
@@ -105,28 +134,38 @@ class SRBoolSetting : public BoolManagedListSetting
         SRBoolSetting(ScheduledRecording *_parent, const QString& trueText, const QString& falseText,
                       const QString& ItemName, QString _column, ManagedListGroup* _group,
                       ManagedList* _parentList=NULL)
-            : BoolManagedListSetting(trueText, falseText, ItemName, "record", _column, _group, _parentList),
-              parent(_parent)
-
+            : BoolManagedListSetting(trueText, falseText, ItemName, "record", _column,
+                                     _group, _parentList), parent(_parent)
         {
             parent->addChild(this);
             setName(_column);
         }
 
-        virtual QString setClause(void) {
-            QString value = getValue();
-            value.replace(QChar('\''), "''");
-            value.replace("\\", "\\\\");
+        virtual QString setClause(MSqlBindings& bindings)
+        {
+            QString recordidTag(":SETRECORDID");
+            QString colTag(":SET" + getColumn().upper());
 
-            return QString("recordid = %1, %2 = '%3'")
-                .arg(parent->getRecordID())
-                .arg(getColumn())
-                .arg(value.utf8());
-        };
+            QString query("recordid = " + recordidTag + ", " + getColumn()
+                    + " = " + colTag);
 
-        virtual QString whereClause(void) {
-            return QString("recordid = %1").arg(parent->getRecordID());
-            }
+            bindings.insert(recordidTag, parent->getRecordID());
+            bindings.insert(colTag, getValue().utf8());
+
+            return query;
+        }
+
+        virtual QString whereClause(MSqlBindings& bindings)
+        {
+            QString recordidTag(":WHERERECORDID");
+            
+            QString query("recordid = " + recordidTag);
+
+            bindings.insert(recordidTag, parent->getRecordID());
+
+            return query;
+        }
+
         ScheduledRecording *parent;
 };
 
@@ -145,21 +184,30 @@ class SRBoundedIntegerSetting : public BoundedIntegerManagedListSetting
             parent->addChild(this);
             setName(_column);
         }
-        virtual QString setClause(void)
-        {
-            QString value = getValue();
-            value.replace(QChar('\''), "''");
-            value.replace("\\", "\\\\");
 
-            return QString("recordid = %1, %2 = '%3'")
-                .arg(parent->getRecordID())
-                .arg(getColumn())
-                .arg(value.utf8());
-        };
-
-        virtual QString whereClause(void)
+        virtual QString setClause(MSqlBindings& bindings)
         {
-            return QString("recordid = %1").arg(parent->getRecordID());
+            QString recordidTag(":SETRECORDID");
+            QString colTag(":SET" + getColumn().upper());
+
+            QString query("recordid = " + recordidTag + ", " + 
+                    getColumn() + " = " + colTag);
+
+            bindings.insert(recordidTag, parent->getRecordID());
+            bindings.insert(colTag, getValue().utf8());
+
+            return query;
+        }
+
+        virtual QString whereClause(MSqlBindings& bindings)
+        {
+            QString recordidTag(":WHERERECORDID");
+            
+            QString query("recordid = " + recordidTag);
+
+            bindings.insert(recordidTag, parent->getRecordID());
+
+            return query;
         }
 
         ScheduledRecording *parent;
@@ -330,12 +378,13 @@ class SRSchedOptionsGroup : public ManagedListGroup
     protected:
 
         friend class SRRootGroup;
-        class SRInactive* inactive;
         class SRRecPriority* recPriority;
         class SRStartOffset* startOffset;
         class SREndOffset* endOffset;
         class SRDupMethod* dupMethItem;
         class SRDupIn* dupLocItem;
+        class SRInput* prefInput;
+        class SRInactive* inactive;
 
         ScheduledRecording *schedRec;
 };
@@ -374,6 +423,7 @@ class SRSchedInfoGroup : public ManagedListGroup
         ManagedListItem* detailsButton;
         ManagedListItem* previousButton;
         ManagedListItem* upcomingButton;
+        ManagedListItem* upcomingRuleButton;
 
         ScheduledRecording *schedRec;
 };
@@ -864,5 +914,30 @@ class SRPlayGroup: public SRSelectSetting
         virtual void fillSelections();
 };
 
-#endif
+class SRInput: public SRSelectSetting
+{
+    Q_OBJECT
 
+    public:
+        SRInput(ScheduledRecording *_parent, ManagedList* _list, ManagedListGroup* _group)
+            : SRSelectSetting(_parent, "inputList", QString("[ %1 ]")
+                              .arg(QObject::tr("Select Preferred Input")),
+                              _group, "prefinput", _list )
+        {
+            setValue(0);
+            _parent->setInputObj(this);
+        }
+
+        virtual void load() {
+            fillSelections();
+            SRSelectSetting::load();
+        }
+
+        virtual QString getValue(void) const {
+            return settingValue;
+        }
+
+        virtual void fillSelections();
+};
+
+#endif

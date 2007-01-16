@@ -3,7 +3,7 @@
    <button>
      <type>SETTINGS_MUSIC</type>
      <text>Music Settings</text>
-     <text lang="ES">Configurar Música</text>
+     <text lang="ES">Música</text>
      <text lang="FR">Musique</text>
      <text lang="CA">Configurar Música</text>
      <text lang="DE">Musik</text>
@@ -16,8 +16,10 @@
      <text lang="FI">Musiikkiasetukset</text>
      <text lang="ZH_TW">音樂設定</text>
      <text lang="SI">Glasbene nastavitve</text>
-     <text lang="ET">Muusika seaded</text>
+     <text lang="ET">Muusika sätted</text>
      <text lang="NB">Musikkinnstillinger</text>
+     <text lang="CZ">Nastavení muziky</text>
+     <text lang="RU">Настройки музыки</text>
      <action>CONFIGPLUGIN mythmusic</action>
      <depends>mythmusic</depends>
    </button>
@@ -25,7 +27,7 @@
    <button>
        <type>SETTINGS_VIDEO</type>
        <text>Videos Settings</text>
-       <text lang="ES">Configurar Vídeos</text>
+       <text lang="ES">Videos</text>
        <text lang="CA">Configurar Videos</text>
        <text lang="FR">Vidéos</text>
        <text lang="DE">Videos</text>
@@ -38,8 +40,10 @@
        <text lang="FI">Videoasetukset</text>
        <text lang="ZH_TW">電影設定</text>
        <text lang="SI">Video nastavitve</text>
-       <text lang="ET">Video seaded</text>
+       <text lang="ET">Video sätted</text>
        <text lang="NB">Videoinnstillinger</text>
+       <text lang="CZ">Nastavení videa</text>
+       <text lang="RU">Настройки фильмов</text>
        <action>CONFIGPLUGIN mythvideo</action>
        <depends>mythvideo</depends>
    </button>
@@ -49,7 +53,7 @@
      <text>DVD Settings</text>
      <text lang="DE">DVD</text>
      <text lang="PT">Configurar DVD</text>
-     <text lang="ES">Configurar DVD</text>
+     <text lang="ES">DVD</text>
      <text lang="CA">Configurar DVD</text>
      <text lang="FR">DVD</text>
      <text lang="IS">Stillingar DVD</text>
@@ -59,8 +63,10 @@
      <text lang="FI">DVD Asetukset</text>
      <text lang="ZH_TW">DVD設定</text>
      <text lang="SI">DVD nastavitve</text>
-     <text lang="ET">DVD seaded</text>
+     <text lang="ET">DVD sätted</text>
      <text lang="NB">DVD-innstillinger</text>
+     <text lang="CZ">Nastavení DVD</text>
+     <text lang="RU">Настройки DVD</text>
      <action>CONFIGPLUGIN mythdvd</action>
      <depends>mythdvd</depends>
    </button>
@@ -68,7 +74,7 @@
    <button>
       <type>SETTINGS_IMAGES</type>
       <text>Images Settings</text>
-      <text lang="ES">Configurar Fotos</text>
+      <text lang="ES">Fotos</text>
       <text lang="CA">Configurar Imatges</text>
       <text lang="FR">Images</text>
       <text lang="DE">Bilder</text>
@@ -81,8 +87,10 @@
       <text lang="FI">Kuva-asetukset</text>
       <text lang="ZH_TW">照相館設定</text>
       <text lang="SI">Nastavitve slik</text>
-      <text lang="ET">Galerii seaded</text>
+      <text lang="ET">Galerii sätted</text>
       <text lang="NB">Bildeinnstillinger</text>
+      <text lang="CZ">Nastavení obrázků</text>
+      <text lang="RU">Настройки изображений</text>
       <action>CONFIGPLUGIN mythgallery</action>
       <depends>mythgallery</depends>
    </button>
@@ -90,7 +98,7 @@
    <button>
      <type>SETTINGS_GAME</type>
      <text>Game Settings</text>
-     <text lang="ES">Configurar Juegos</text>
+     <text lang="ES">Juegos</text>
      <text lang="CA">Configurar Jocs</text>
      <text lang="DE">Spiele</text>
      <text lang="FR">Jeux</text>
@@ -103,8 +111,9 @@
      <text lang="FI">Peliasetukset</text>
      <text lang="ZH_TW">遊戲設定</text>
      <text lang="SI">Nastavitve iger</text>
-     <text lang="ET">Mängude seaded</text>
+     <text lang="ET">Mängude sätted</text>
      <text lang="NB">Spillinnstillinger</text>
+     <text lang="RU">Настройки игр</text>
      <action>CONFIGPLUGIN mythgame</action>
      <depends>mythgame</depends>
    </button>
@@ -119,12 +128,13 @@
      <text lang="FR">Radio</text>
      <text lang="FI">Radioasetukset</text>
      <text lang="SI">Radio nastavitve</text>
-     <text lang="ET">Raadio seaded</text>
+     <text lang="ET">Raadio sätted</text>
      <text lang="NB">Radioinnstillinger</text>
      <text lang="DK">Radioindstillinger</text>
-     <text lang="ES">Configurar Radio</text>
+     <text lang="ES">Radio</text>
      <text lang="PT">Configurar Rádio</text>
      <text lang="NL">Radio Instellingen</text>
+     <text lang="RU">Настройки радио</text>
      <action>CONFIGPLUGIN mythfm</action>
      <depends>mythfm</depends>
    </button>
@@ -137,8 +147,22 @@
       <text lang="PT">Conf. Grav. de DVDs</text>
       <text lang="DE">DVD brennen</text>
       <text lang="NL">DVD Branden Instellingen</text>
+      <text lang="ET">DVD kirjutamise sätted</text>
+      <text lang="SV">DVD-bränning</text>
+      <text lang="RU">Настройки прожига DVD</text>
       <action>CONFIGPLUGIN mythburn</action>
       <depends>mythburn</depends>
+   </button>
+
+   <button>
+      <type>SETTINGS_ARCHIVE</type>
+      <text>Archive Files Settings</text>
+      <text lang="ET">Arhiveerimise sätted</text>
+      <text lang="SV">Filarkivering</text>
+      <text lang="ES">Archivado Ficheros</text>
+      <text lang="RU">Настройки архива</text>
+      <action>CONFIGPLUGIN mytharchive</action>
+      <depends>mytharchive</depends>
    </button>
 
 </mythmenu>

@@ -49,7 +49,7 @@ typedef struct Wmv2Context{
     int hshift;
 
     ScanTable abt_scantable[2];
-    DCTELEM abt_block2[6][64] __align8;
+    DECLARE_ALIGNED_8(DCTELEM, abt_block2[6][64]);
 }Wmv2Context;
 
 static void wmv2_common_init(Wmv2Context * w){
@@ -207,7 +207,6 @@ void ff_wmv2_encode_mb(MpegEncContext * s,
 
     if (!s->mb_intra) {
         /* compute cbp */
-        set_stat(ST_INTER_MB);
         cbp = 0;
         for (i = 0; i < 6; i++) {
             if (s->block_last_index[i] >= 0)
@@ -244,7 +243,6 @@ void ff_wmv2_encode_mb(MpegEncContext * s,
 #endif
 
         if (s->pict_type == I_TYPE) {
-            set_stat(ST_INTRA_MB);
             put_bits(&s->pb,
                      ff_msmp4_mb_i_table[coded_cbp][1], ff_msmp4_mb_i_table[coded_cbp][0]);
         } else {
@@ -252,7 +250,6 @@ void ff_wmv2_encode_mb(MpegEncContext * s,
                      wmv2_inter_table[w->cbp_table_index][cbp][1],
                      wmv2_inter_table[w->cbp_table_index][cbp][0]);
         }
-        set_stat(ST_INTRA_MB);
         put_bits(&s->pb, 1, 0);         /* no AC prediction yet */
         if(s->inter_intra_pred){
             s->h263_aic_dir=0;

@@ -1,5 +1,5 @@
 /*
- * $Id: dvbtransporteditor.h 7936 2005-11-19 21:32:10Z ijr $
+ * $Id: dvbtransporteditor.h 9209 2006-02-28 21:40:53Z danielk $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -32,17 +32,8 @@
 #ifndef DVBTRANSPORTEDITOR_H
 #define DVBTRANSPORTEDITOR_H
 
-#include <qwidget.h>
-#include <qsqldatabase.h>
-
-#include <cstdlib>
-
+#include <qobject.h>
 #include "settings.h"
-#include "mythwidgets.h"
-#include "mythwizard.h"
-#include "mythcontext.h"
-#include "mythdbcon.h"
-#include "videosource.h"
 
 class DTVTStandard;
 class DvbTATSCModulation;
@@ -118,6 +109,7 @@ public:
 public slots:
     void menu(int);
     void del();
+    void del(int);
     void edit();
     void edit(int);
     void videoSource(const QString& str);

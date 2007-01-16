@@ -2,6 +2,7 @@
 #include <qsqldatabase.h>
 #include <qfile.h>
 #include <qmap.h>
+#include <qregexp.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -19,7 +20,7 @@
 #include <fstream>
 using namespace std;
 
-#include "tv.h"
+#include "tv_rec.h"
 #include "autoexpire.h"
 #include "scheduler.h"
 #include "mainserver.h"
@@ -33,6 +34,11 @@ using namespace std;
 #include "libmythtv/programinfo.h"
 #include "libmythtv/dbcheck.h"
 #include "libmythtv/jobqueue.h"
+#include "libmythupnp/upnp.h"
+
+#include "upnpcdstv.h"
+#include "upnpcdsmusic.h"
+#include "httpstatus.h"
 
 QMap<int, EncoderLink *> tvList;
 AutoExpire *expirer = NULL;
@@ -42,6 +48,9 @@ QString pidfile;
 QString lockfile_location;
 HouseKeeper *housekeeping = NULL;
 QString logfile = "";
+
+HttpServer *g_pHttpServer = NULL;
+UPnp       *g_pUPnp       = NULL;
 
 bool setupTVs(bool ismaster, bool &error)
 {
@@ -108,57 +117,79 @@ bool setupTVs(bool ismaster, bool &error)
         }
     }
 
-    query.exec("SELECT cardid,hostname FROM capturecard ORDER BY cardid;");
+    query.exec("SELECT cardid, hostname "
+               "FROM capturecard "
+               "WHERE parentid = '0' "
+               "ORDER BY cardid");
 
-    if (query.isActive() && query.size())
+    while (query.isActive() && query.next())
     {
-        while (query.next())
+        uint    cardid = query.value(0).toUInt();
+        QString host   = query.value(1).toString();
+        QString cidmsg = QString("Card %1").arg(cardid);
+
+        if (host.isEmpty())
         {
-            int cardid = query.value(0).toInt();
-            QString host = query.value(1).toString();
+            QString msg = cidmsg + " does not have a hostname defined.\n"
+                "Please run setup and confirm all of the capture cards.\n";
 
-            if (host.isNull() || host.isEmpty())
+            cerr << msg;
+            gContext->LogEntry("mythbackend", LP_CRITICAL,
+                               "Problem with capture cards", msg);
+            continue;
+        }
+
+        if (!ismaster)
+        {
+            if (host == localhostname)
             {
-                QString msg = "One of your capturecard entries does not have a "
-                              "hostname.\n  Please run setup and confirm all "
-                              "of the capture cards.\n";
-
-                cerr << msg;
-                gContext->LogEntry("mythbackend", LP_CRITICAL,
-                                   "Problem with capture cards", msg);
-                error = true;
-            }
-
-            if (!ismaster)
-            {
-                if (host == localhostname)
+                TVRec *tv = new TVRec(cardid);
+                if (tv->Init())
                 {
-                    TVRec *tv = new TVRec(cardid);
-                    tv->Init();
-                    EncoderLink *enc = new EncoderLink(cardid, tv);
-                    tvList[cardid] = enc;
-                }
-            }
-            else
-            {
-                if (host == localhostname)
-                {
-                    TVRec *tv = new TVRec(cardid);
-                    tv->Init();
                     EncoderLink *enc = new EncoderLink(cardid, tv);
                     tvList[cardid] = enc;
                 }
                 else
                 {
-                    EncoderLink *enc = new EncoderLink(cardid, NULL, host);
-                    tvList[cardid] = enc;
+                    gContext->LogEntry("mythbackend", LP_CRITICAL,
+                                       "Problem with capture cards",
+                                       cidmsg + "failed init");
+                    delete tv;
+                    // The master assumes card comes up so we need to
+                    // set error and exit if a non-master card fails.
+                    error = true;
                 }
             }
         }
+        else
+        {
+            if (host == localhostname)
+            {
+                TVRec *tv = new TVRec(cardid);
+                if (tv->Init())
+                {
+                    EncoderLink *enc = new EncoderLink(cardid, tv);
+                    tvList[cardid] = enc;
+                }
+                else
+                {
+                    gContext->LogEntry("mythbackend", LP_CRITICAL,
+                                       "Problem with capture cards",
+                                       cidmsg + "failed init");
+                    delete tv;
+                }
+            }
+            else
+            {
+                EncoderLink *enc = new EncoderLink(cardid, NULL, host);
+                tvList[cardid] = enc;
+            }
+        }
     }
-    else
+
+    if (tvList.empty())
     {
-        cerr << "ERROR: no capture cards are defined in the database.\n";
+        cerr << "ERROR: no valid capture cards are defined in the database.\n";
         cerr << "Perhaps you should read the installation instructions?\n";
         gContext->LogEntry("mythbackend", LP_CRITICAL,
                            "No capture cards are defined", 
@@ -175,6 +206,12 @@ void cleanup(void)
 
     if (sched)
         delete sched;
+
+    if (g_pUPnp)
+        delete g_pUPnp;
+
+    if (g_pHttpServer)
+        delete g_pHttpServer;
 
     if (pidfile != "")
         unlink(pidfile.ascii());
@@ -223,7 +260,7 @@ int main(int argc, char **argv)
 
     QApplication a(argc, argv, false);
 
-    
+    QMap<QString, QString> settingsOverride;
     QString binname = basename(a.argv()[0]);
 
     bool daemonize = false;
@@ -231,7 +268,9 @@ int main(int argc, char **argv)
     bool testsched = false;
     bool resched = false;
     bool nosched = false;
+    bool noupnp = false;
     bool nojobqueue = false;
+    bool nohousekeeper = false;
     bool noexpirer = false;
     bool printexpire = false;
     for (int argpos = 1; argpos < a.argc(); ++argpos)
@@ -276,6 +315,37 @@ int main(int argc, char **argv)
             daemonize = true;
 
         }
+        else if (!strcmp(a.argv()[argpos],"-O") ||
+                 !strcmp(a.argv()[argpos],"--override-setting"))
+        {
+            if (a.argc()-1 > argpos)
+            {
+                QString tmpArg = a.argv()[argpos+1];
+                if (tmpArg.startsWith("-"))
+                {
+                    cerr << "Invalid or missing argument to -O/--override-setting option\n";
+                    return BACKEND_EXIT_INVALID_CMDLINE;
+                } 
+ 
+                QStringList pairs = QStringList::split(",", tmpArg);
+                for (unsigned int index = 0; index < pairs.size(); ++index)
+                {
+                    QStringList tokens = QStringList::split("=", pairs[index]);
+                    tokens[0].replace(QRegExp("^[\"']"), "");
+                    tokens[0].replace(QRegExp("[\"']$"), "");
+                    tokens[1].replace(QRegExp("^[\"']"), "");
+                    tokens[1].replace(QRegExp("[\"']$"), "");
+                    settingsOverride[tokens[0]] = tokens[1];
+                }
+            }
+            else
+            {
+                cerr << "Invalid or missing argument to -O/--override-setting option\n";
+                return BACKEND_EXIT_INVALID_CMDLINE;
+            }
+
+            ++argpos;
+        }
         else if (!strcmp(a.argv()[argpos],"-v") ||
                  !strcmp(a.argv()[argpos],"--verbose"))
         {
@@ -309,9 +379,17 @@ int main(int argc, char **argv)
         {
             nosched = true;
         } 
+        else if (!strcmp(a.argv()[argpos],"--noupnp"))
+        {
+            noupnp = true;
+        } 
         else if (!strcmp(a.argv()[argpos],"--nojobqueue"))
         {
             nojobqueue = true;
+        } 
+        else if (!strcmp(a.argv()[argpos],"--nohousekeeper"))
+        {
+            nohousekeeper = true;
         } 
         else if (!strcmp(a.argv()[argpos],"--noautoexpire"))
         {
@@ -349,7 +427,9 @@ int main(int argc, char **argv)
                     "--testsched                    Test run scheduler (ignore existing schedule)" << endl <<
                     "--resched                      Force the scheduler to update" << endl <<
                     "--nosched                      Do not perform any scheduling" << endl <<
+                    "--noupnp                       Do not enable the UPNP server" << endl <<
                     "--nojobqueue                   Do not start the JobQueue" << endl <<
+                    "--nohousekeeper                Do not start the Housekeeper" << endl <<
                     "--noautoexpire                 Do not start the AutoExpire thread" << endl <<
                     "--version                      Version information" << endl;
             return BACKEND_EXIT_INVALID_CMDLINE;
@@ -403,6 +483,17 @@ int main(int argc, char **argv)
     gContext->SetBackend(true);
 
     close(0);
+
+    if (settingsOverride.size())
+    {
+        QMap<QString, QString>::iterator it;
+        for (it = settingsOverride.begin(); it != settingsOverride.end(); ++it)
+        {
+            VERBOSE(VB_IMPORTANT, QString("Setting '%1' being forced to '%2'")
+                                          .arg(it.key()).arg(it.data()));
+            gContext->OverrideSettingForSession(it.key(), it.data());
+        }
+    }
 
     gContext->ActivateSettingsCache(false);
     if (!UpgradeTVDatabaseSchema())
@@ -497,7 +588,11 @@ int main(int argc, char **argv)
     }
 
     // Get any initial housekeeping done before we fire up anything else
-    housekeeping = new HouseKeeper(true, ismaster);
+    if (nohousekeeper)
+        cerr << "****** The Housekeeper has been DISABLED with "
+                "the --nohousekeeper option ******\n";
+    else
+        housekeeping = new HouseKeeper(true, ismaster);
 
     bool fatal_error = false;
     bool runsched = setupTVs(ismaster, fatal_error);
@@ -520,6 +615,40 @@ int main(int argc, char **argv)
                 "the --nojobqueue option *********\n";
     else
         jobqueue = new JobQueue(ismaster);
+
+    // Initialize & Start the Mini HttpServer
+    VERBOSE(VB_IMPORTANT, "Main::Starting HttpServer");
+
+    g_pHttpServer = new HttpServer(statusport);
+
+    if (!g_pHttpServer->ok())
+    { 
+        VERBOSE(VB_IMPORTANT, "Main::HttpServer Create Error");
+        // exit(BACKEND_BUGGY_EXIT_NO_BIND_STATUS);
+    }
+
+    VERBOSE(VB_IMPORTANT, "Main::Registering HttpStatus Extension");
+
+    g_pHttpServer->RegisterExtension(new HttpStatus(&tvList, sched, expirer, ismaster ));
+
+    // Start UPnP Services For Master Backends Only
+    if (ismaster && noupnp)
+        cerr << "********* The UPNP service has been DISABLED with the "
+                "--noupnp option *********\n";
+
+    if (ismaster && !noupnp)
+    {
+        g_pUPnp = new UPnp(ismaster, g_pHttpServer);
+
+        VERBOSE(VB_UPNP, "Main::Registering UPnpCDSTv Extension");
+
+        g_pUPnp->RegisterExtension(new UPnpCDSTv());
+
+        VERBOSE(VB_UPNP, "Main::Registering UPnpCDSMusic Extension");
+
+        g_pUPnp->RegisterExtension(new UPnpCDSMusic());
+    }
+    // End uPnP &  Mini HttpServer Initialization
 
     VERBOSE(VB_IMPORTANT, QString("%1 version: %2 www.mythtv.org")
                             .arg(binname).arg(MYTH_BINARY_VERSION));
@@ -567,3 +696,5 @@ int main(int argc, char **argv)
 
     return BACKEND_EXIT_OK;
 }
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

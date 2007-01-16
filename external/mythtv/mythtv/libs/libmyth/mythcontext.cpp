@@ -11,7 +11,6 @@
 #include <qwaitcondition.h>
 #include <qregexp.h>
 
-#include <qsocketdevice.h>
 #include <qhostaddress.h>
 
 #include <cmath>
@@ -21,7 +20,6 @@
 #include "mythcontext.h"
 #include "exitcodes.h"
 #include "oldsettings.h"
-#include "themedmenu.h"
 #include "util.h"
 #include "remotefile.h"
 #include "dialogbox.h"
@@ -33,6 +31,9 @@
 #include "langsettings.h"
 #include "mythdbcon.h"
 #include "util-x11.h"
+#include "mythsocket.h"
+
+#include "libmythui/mythmainwindow.h"
 
 // These defines provide portability for different
 // plugin file names.
@@ -186,6 +187,7 @@ class MythContextPrivate
     Settings *m_qtThemeSettings;
 
     QString m_installprefix;
+    QString m_installlibdir;
 
     bool m_gui;
     bool m_backend;
@@ -216,6 +218,8 @@ class MythContextPrivate
 
     MythMainWindow *mainWindow;
 
+    QString m_x11_display;
+
     float m_wmult, m_hmult;
 
     // The part of the screen(s) allocated for the GUI. Unless
@@ -231,8 +235,8 @@ class MythContextPrivate
 
     int bigfontsize, mediumfontsize, smallfontsize;
 
-    QSocketDevice *serverSock;
-    QSocket *eventSock;
+    MythSocket *serverSock;
+    MythSocket *eventSock;
 
     bool disablelibrarypopup;
 
@@ -251,6 +255,11 @@ class MythContextPrivate
     QMutex *m_priv_mutex;
     queue<MythPrivRequest> m_priv_requests;
     QWaitCondition m_priv_queued;
+
+    bool useSettingsCache;
+    QMutex settingsCacheLock;
+    QMap <QString, QString> settingsCache;      // permanent settings in the DB
+    QMap <QString, QString> overriddenSettings; // overridden this session only
 };
 
 
@@ -258,7 +267,7 @@ class MythContextPrivate
 MythContextPrivate::MythContextPrivate(MythContext *lparent)
     : parent(lparent),
       m_settings(new Settings()), m_qtThemeSettings(new Settings()),
-      m_installprefix(PREFIX),
+      m_installprefix(PREFIX), m_installlibdir(LIBDIR),
       m_gui(false), m_backend(false), m_themeloaded(false),
       m_menuthemepathname(QString::null), m_themepathname(QString::null),
       m_backgroundimage(NULL),
@@ -269,19 +278,21 @@ MythContextPrivate::MythContextPrivate(MythContext *lparent)
       attemptingToConnect(false),
       language(""),
       mainWindow(NULL),
+      m_x11_display(QString::null),
       m_wmult(1.0), m_hmult(1.0),
       m_screenxbase(0), m_screenybase(0), m_screenwidth(0), m_screenheight(0),
       m_geometry_x(0), m_geometry_y(0), m_geometry_w(0), m_geometry_h(0),
       themecachedir(QString::null),
       bigfontsize(0), mediumfontsize(0), smallfontsize(0),
-      serverSock(NULL), eventSock(new QSocket(0, "event socket")),
+      serverSock(NULL), eventSock(NULL),
       disablelibrarypopup(false),
       pluginmanager(NULL),
       screensaver(NULL),
       m_logenable(-1), m_logmaxcount(-1), m_logprintlevel(-1),
       screensaverEnabled(false),
       display_res(NULL),
-      m_priv_mutex(new QMutex(true))
+      m_priv_mutex(new QMutex(true)),
+      useSettingsCache(false)
 {
     char *tmp_installprefix = getenv("MYTHTVDIR");
     if (tmp_installprefix)
@@ -307,6 +318,8 @@ MythContextPrivate::MythContextPrivate(MythContext *lparent)
         prefixDir.cd("../Resources");
         if (QDir(prefixDir.canonicalPath() + "/share").exists())
             m_installprefix = prefixDir.canonicalPath();
+        if (QDir(prefixDir.canonicalPath() + "/lib").exists())
+            m_installlibdir = prefixDir.canonicalPath() + "/lib";
     }
     VERBOSE(VB_IMPORTANT, QString("Using runtime prefix = %1")
             .arg(m_installprefix));
@@ -441,9 +454,9 @@ MythContextPrivate::~MythContextPrivate()
     if (m_qtThemeSettings)
         delete m_qtThemeSettings;
     if (serverSock)
-        delete serverSock;
+        serverSock->DownRef();
     if (eventSock)
-        delete eventSock;
+        eventSock->DownRef();
     if (m_priv_mutex)
         delete m_priv_mutex;
     if (screensaver)
@@ -501,6 +514,14 @@ void MythContextPrivate::StoreGUIsettings()
 
     m_wmult = m_screenwidth  / (float)m_baseWidth;
     m_hmult = m_screenheight / (float)m_baseHeight;
+
+    QFont font = QFont("Arial");
+    if (!font.exactMatch())
+        font = QFont();
+    font.setStyleHint(QFont::SansSerif, QFont::PreferAntialias);
+    font.setPointSize((int)(14.0 * m_hmult));
+
+    QApplication::setFont(font);
     
     //VERBOSE(VB_IMPORTANT, QString("GUI multipliers are: width %1, height %2").arg(m_wmult).arg(m_hmult));
 }
@@ -721,7 +742,7 @@ bool MythContextPrivate::PromptForDatabaseParams(void)
 #endif
         parent->LoadQtConfig();
    
-        MythMainWindow *mainWindow = new MythMainWindow();
+        MythMainWindow *mainWindow = GetMythMainWindow();
         parent->SetMainWindow(mainWindow);
 
         // ask user for language settings
@@ -736,7 +757,7 @@ bool MythContextPrivate::PromptForDatabaseParams(void)
 
         // tear down temporary main window
         parent->SetMainWindow(NULL);
-        delete mainWindow;
+        DestroyMythMainWindow();
     }
     else
     {
@@ -788,8 +809,7 @@ bool MythContextPrivate::PromptForDatabaseParams(void)
 }
 
 MythContext::MythContext(const QString &binversion)
-    : QObject(), d(NULL), app_binary_version(binversion),
-      useSettingsCache(false)
+    : QObject(), d(NULL), app_binary_version(binversion)
 {
     qInitNetworkProtocols();
 }
@@ -812,13 +832,6 @@ bool MythContext::Init(bool gui)
     if (!d->Init(gui))
         return false;
 
-    connect(d->eventSock, SIGNAL(connected()), 
-            this, SLOT(EventSocketConnected()));
-    connect(d->eventSock, SIGNAL(readyRead()), 
-            this, SLOT(EventSocketRead()));
-    connect(d->eventSock, SIGNAL(connectionClosed()), 
-            this, SLOT(EventSocketClosed()));
-
     ActivateSettingsCache(true);
 
     return true;
@@ -834,17 +847,25 @@ bool MythContext::ConnectToMasterServer(bool blockingClient)
 {
     QString server = gContext->GetSetting("MasterServerIP", "localhost");
     int port = gContext->GetNumSetting("MasterServerPort", 6543);
+
+    if (!d->eventSock)
+        d->eventSock = new MythSocket();
+
     if (!d->serverSock)
         d->serverSock = ConnectServer(d->eventSock, server, port, blockingClient);
+
+    if (d->eventSock)
+        d->eventSock->setCallbacks(this);
+
     return (bool) (d->serverSock);
 }
 
-QSocketDevice *MythContext::ConnectServer(QSocket *eventSock,
-                                          const QString &hostname,
-                                          int port,
-                                          bool blockingClient)
+MythSocket *MythContext::ConnectServer(MythSocket *eventSock,
+                                       const QString &hostname,
+                                       int port,
+                                       bool blockingClient)
 {
-    QSocketDevice *serverSock = NULL;
+    MythSocket *serverSock = NULL;
     int cnt = 1;
 
     int sleepTime = GetNumSetting("WOLbackendReconnectWaitTime", 0);
@@ -857,11 +878,11 @@ QSocketDevice *MythContext::ConnectServer(QSocket *eventSock,
                                     .arg(hostname).arg(port).arg(cnt)
                                     .arg(maxConnTry));
 
-        serverSock = new QSocketDevice(QSocketDevice::Stream);
+        serverSock = new MythSocket();
 
-        if (!connectSocket(serverSock, hostname, port))
+        if (!serverSock->connect(hostname, port))
         {
-            delete serverSock;
+            serverSock->DownRef();
             serverSock = NULL;
         
             if (d->attemptingToConnect)
@@ -924,7 +945,7 @@ QSocketDevice *MythContext::ConnectServer(QSocket *eventSock,
 #ifndef IGNORE_PROTO_VER_MISMATCH
     if (serverSock && !CheckProtoVersion(serverSock))
     {
-        delete serverSock;
+        serverSock->DownRef();
         serverSock = NULL;
         return false;
     }
@@ -937,12 +958,25 @@ QSocketDevice *MythContext::ConnectServer(QSocket *eventSock,
             .arg(blockingClient ? "Playback" : "Monitor")
             .arg(d->m_localhostname).arg(false);
         QStringList strlist = str;
-        WriteStringList(serverSock, strlist);
-        ReadStringList(serverSock, strlist, true);
+        serverSock->writeStringList(strlist);
+        serverSock->readStringList(strlist, true);
 
-        if (eventSock &&
-            eventSock->state() == QSocket::Idle)    
-            eventSock->connectToHost(hostname, port);
+        if (eventSock && eventSock->state() == MythSocket::Idle)    
+        {
+            // Assume that since we _just_ connected the one socket, this one
+            // will work, too.
+            eventSock->connect(hostname, port);
+
+            eventSock->Lock();
+            
+            QString str = QString("ANN Monitor %1 %2")
+                                 .arg(d->m_localhostname).arg(true);
+            QStringList strlist = str;
+            eventSock->writeStringList(strlist);
+            eventSock->readStringList(strlist);
+
+            eventSock->Unlock();
+        }
     }
     return serverSock;
 }
@@ -960,23 +994,21 @@ void MythContext::BlockShutdown(void)
         return;
     
     strlist << "BLOCK_SHUTDOWN";
-    WriteStringList(d->serverSock, strlist);
-    ReadStringList(d->serverSock, strlist);
+    d->serverSock->writeStringList(strlist);
+    d->serverSock->readStringList(strlist);
 
-    // wait for the event socket to finish connecting if necessary
-    while (d->eventSock->state() == QSocket::HostLookup ||     
-           d->eventSock->state() == QSocket::Connecting)
-    {
-        qApp->processEvents();
-    }        
-    
-    if (d->eventSock->state() != QSocket::Connected)
+    if (d->eventSock == NULL || d->eventSock->state() != MythSocket::Connected)
         return;
 
     strlist.clear();
     strlist << "BLOCK_SHUTDOWN";
-    WriteStringList(d->eventSock, strlist);
-    ReadStringList(d->eventSock, strlist);
+
+    d->eventSock->Lock();
+    
+    d->eventSock->writeStringList(strlist);
+    d->eventSock->readStringList(strlist);
+
+    d->eventSock->Unlock();
 }
 
 void MythContext::AllowShutdown(void)
@@ -987,23 +1019,21 @@ void MythContext::AllowShutdown(void)
         return;        
     
     strlist << "ALLOW_SHUTDOWN";
-    WriteStringList(d->serverSock, strlist);
-    ReadStringList(d->serverSock, strlist);
+    d->serverSock->writeStringList(strlist);
+    d->serverSock->readStringList(strlist);
     
-    // wait for the eventSocket to finish connecting if necessary
-    while (d->eventSock->state() == QSocket::HostLookup ||     
-           d->eventSock->state() == QSocket::Connecting)
-    {
-        qApp->processEvents();
-    }        
-    
-    if (d->eventSock->state() != QSocket::Connected)
+    if (d->eventSock == NULL || d->eventSock->state() != MythSocket::Connected)
         return;
 
     strlist.clear();
     strlist << "ALLOW_SHUTDOWN";
-    WriteStringList(d->eventSock, strlist);
-    ReadStringList(d->eventSock, strlist);
+
+    d->eventSock->Lock();
+    
+    d->eventSock->writeStringList(strlist);
+    d->eventSock->readStringList(strlist);
+
+    d->eventSock->Unlock();
 }
 
 void MythContext::SetBackend(bool backend)
@@ -1054,30 +1084,36 @@ QString MythContext::GetMasterHostPrefix(void)
 
 void MythContext::ClearSettingsCache(QString myKey, QString newVal)
 {
-    cacheLock.lock();
-    if (myKey != "" && settingsCache.contains(myKey))
+    if (!d)
+        return;
+
+    d->settingsCacheLock.lock();
+    if (myKey != "" && d->settingsCache.contains(myKey))
     {
         VERBOSE(VB_DATABASE, QString("Clearing Settings Cache for '%1'.")
                                     .arg(myKey));
-        settingsCache.remove(myKey);
-        settingsCache[myKey] = newVal;
+        d->settingsCache.remove(myKey);
+        d->settingsCache[myKey] = newVal;
     }
     else
     {
         VERBOSE(VB_DATABASE, "Clearing Settings Cache.");
-        settingsCache.clear();
+        d->settingsCache.clear();
     }
-    cacheLock.unlock();
+    d->settingsCacheLock.unlock();
 }
 
 void MythContext::ActivateSettingsCache(bool activate)
 {
+    if (!d)
+        return;
+
     if (activate)
         VERBOSE(VB_DATABASE, "Enabling Settings Cache.");
     else
         VERBOSE(VB_DATABASE, "Disabling Settings Cache.");
 
-    useSettingsCache = activate;
+    d->useSettingsCache = activate;
     ClearSettingsCache();
 }
 
@@ -1120,7 +1156,7 @@ QString MythContext::GetShareDir(void)
 
 QString MythContext::GetLibraryDir(void) 
 { 
-    return d->m_installprefix + "/lib/mythtv/"; 
+    return d->m_installlibdir + "/mythtv/"; 
 }
 
 QString MythContext::GetThemesParentDir(void) 
@@ -1346,13 +1382,13 @@ void MythContext::RemoveCacheDir(const QString &dirname)
     
 void MythContext::CacheThemeImages(void)
 {
-    QString baseDir = d->m_installprefix + "/share/mythtv/themes/default/";
-
     if (d->m_screenwidth == d->m_baseWidth && d->m_screenheight == d->m_baseHeight)
         return;
 
     CacheThemeImagesDirectory(d->m_themepathname);
-    CacheThemeImagesDirectory(baseDir);
+    if (d->IsWideMode())
+        CacheThemeImagesDirectory(GetThemesParentDir() + "default-wide/");
+    CacheThemeImagesDirectory(GetThemesParentDir() + "default/");
 }
 
 void MythContext::CacheThemeImagesDirectory(const QString &dirname,
@@ -1601,20 +1637,23 @@ bool MythContext::ParseGeometryOverride(const QString geometry)
         return false;
     }
 
-    d->m_geometry_x = geo[3].toInt(&parsed);
-    if (longForm && !parsed)
+    if (longForm)
     {
-        VERBOSE(VB_IMPORTANT,
-                "Could not parse horizontal offset of geometry override");
-        return false;
-    }
+        d->m_geometry_x = geo[3].toInt(&parsed);
+        if (!parsed)
+        {
+            VERBOSE(VB_IMPORTANT,
+                    "Could not parse horizontal offset of geometry override");
+            return false;
+        }
 
-    d->m_geometry_y = geo[4].toInt(&parsed);
-    if (longForm && !parsed)
-    {
-        VERBOSE(VB_IMPORTANT,
-                "Could not parse vertical offset of geometry override");
-        return false;
+        d->m_geometry_y = geo[4].toInt(&parsed);
+        if (!parsed)
+        {
+            VERBOSE(VB_IMPORTANT,
+                    "Could not parse vertical offset of geometry override");
+            return false;
+        }
     }
 
     VERBOSE(VB_IMPORTANT, QString("Overriding GUI, width=%1,"
@@ -1632,7 +1671,7 @@ QString MythContext::FindThemeDir(const QString &themename)
     if (dir.exists())
         return testdir;
 
-    testdir = d->m_installprefix + "/share/mythtv/themes/" + themename;
+    testdir = GetThemesParentDir() + themename;
     dir.setPath(testdir);
     if (dir.exists())
         return testdir;
@@ -1646,13 +1685,13 @@ QString MythContext::FindThemeDir(const QString &themename)
     // Don't complain about the "default" theme being missing
     if (themename == QObject::tr("Default"))
     {
-        testdir = d->m_installprefix + "/share/mythtv/";
+        testdir = GetShareDir();
         dir.setPath(testdir);
         if (dir.exists())
             return testdir;
     }
 
-    testdir = d->m_installprefix + "/share/mythtv/themes/G.A.N.T.";
+    testdir = GetThemesParentDir() + "G.A.N.T.";
     dir.setPath(testdir);
     if (dir.exists())
         return testdir;
@@ -1670,6 +1709,18 @@ QString MythContext::GetThemeDir(void)
     return d->m_themepathname;
 }
 
+QValueList<QString> MythContext::GetThemeSearchPath(void)
+{
+    QValueList<QString> searchpath;
+
+    searchpath.append(GetThemeDir());
+    if (d->IsWideMode())
+        searchpath.append(GetThemesParentDir() + "default-wide/");
+    searchpath.append(GetThemesParentDir() + "default/");
+    searchpath.append("/tmp/");
+    return searchpath;
+}
+
 MDBManager *MythContext::GetDBManager(void)
 {
     return &d->m_dbmanager;
@@ -1682,11 +1733,11 @@ void MythContext::DBError(const QString &where, const QSqlQuery& query)
 #if QT_VERSION >= 0x030200
     str += "Query was:\n";
     str += query.executedQuery() + "\n";
-    str += DBErrorMessage(query.lastError());
+    str += QString::fromUtf8(DBErrorMessage(query.lastError()));
 #else
     str += "Your version of Qt is too old to provide proper debugging\n";
     str += "Query may have been:\n";
-    str += query.lastQuery() + "\n";
+    str += QString::fromUtf8(query.lastQuery()) + "\n";
     str += DBErrorMessage(query.lastError());
 #endif
     VERBOSE(VB_IMPORTANT, str);
@@ -1766,23 +1817,28 @@ QString MythContext::GetSetting(const QString &key, const QString &defaultval)
     bool found = false;
     QString value;
 
-    if (useSettingsCache)
+    if (d && d->overriddenSettings.contains(key)) {
+        value = d->overriddenSettings[key];
+        return value;
+    }
+
+    if (d && d->useSettingsCache)
     {
-        cacheLock.lock();
-        if (settingsCache.contains(key))
+        d->settingsCacheLock.lock();
+        if (d->settingsCache.contains(key))
         {
-            value = settingsCache[key];
-            cacheLock.unlock();
+            value = d->settingsCache[key];
+            d->settingsCacheLock.unlock();
             return value;
         }
-        cacheLock.unlock();
+        d->settingsCacheLock.unlock();
     }
 
     MSqlQuery query(MSqlQuery::InitCon());
     if (query.isConnected())
     {
         query.prepare("SELECT data FROM settings WHERE value "
-                      " = :KEY AND hostname = :HOSTNAME ;");
+                      "= :KEY AND hostname = :HOSTNAME ;");
         query.bindValue(":KEY", key);
         query.bindValue(":HOSTNAME", d->m_localhostname);
         query.exec();
@@ -1818,11 +1874,11 @@ QString MythContext::GetSetting(const QString &key, const QString &defaultval)
     if (!found)
         value = d->m_settings->GetSetting(key, defaultval); 
 
-    if (useSettingsCache)
+    if (d && d->useSettingsCache)
     {
-        cacheLock.lock();
-        settingsCache[key] = value;
-        cacheLock.unlock();
+        d->settingsCacheLock.lock();
+        d->settingsCache[key] = value;
+        d->settingsCacheLock.unlock();
     }
 
     return value;
@@ -1849,18 +1905,34 @@ QString MythContext::GetSettingOnHost(const QString &key, const QString &host,
 {
     bool found = false;
     QString value = defaultval;
+    QString myKey = host + " " + key;
 
-    if (useSettingsCache)
+    if (d)
     {
-        QString myKey = host + " " + key;
-        cacheLock.lock();
-        if (settingsCache.contains(myKey))
+        if (d->overriddenSettings.contains(myKey))
         {
-            value = settingsCache[myKey];
-            cacheLock.unlock();
+            value = d->overriddenSettings[myKey];
             return value;
         }
-        cacheLock.unlock();
+
+        if ((host == d->m_localhostname) &&
+            (d->overriddenSettings.contains(key)))
+        {
+            value = d->overriddenSettings[key];
+            return value;
+        }
+    }
+
+    if (d && d->useSettingsCache)
+    {
+        d->settingsCacheLock.lock();
+        if (d->settingsCache.contains(myKey))
+        {
+            value = d->settingsCache[myKey];
+            d->settingsCacheLock.unlock();
+            return value;
+        }
+        d->settingsCacheLock.unlock();
     }
 
     MSqlQuery query(MSqlQuery::InitCon());
@@ -1885,11 +1957,11 @@ QString MythContext::GetSettingOnHost(const QString &key, const QString &host,
                                 .arg(key));
     }
 
-    if (found && useSettingsCache)
+    if (found && d && d->useSettingsCache)
     {
-        cacheLock.lock();
-        settingsCache[host + " " + key] = value;
-        cacheLock.unlock();
+        d->settingsCacheLock.lock();
+        d->settingsCache[host + " " + key] = value;
+        d->settingsCacheLock.unlock();
     }
 
     return value;
@@ -2019,52 +2091,29 @@ void MythContext::ThemeWidget(QWidget *widget)
 
 bool MythContext::FindThemeFile(QString &filename)
 {
-    QString baseDir = d->m_installprefix + "/share/mythtv/themes/default/";
-    QString file;
+    // Given a full path, or in current working directory?
+    if (QFile::exists(filename))
+        return true;
+
     int pathStart = filename.findRev('/');
-    bool bFound = false;
+    QString basename;
+    if (pathStart > 0)
+        basename = filename.mid(pathStart + 1);
 
-    // Given a full path?
-    file = filename;
-    bFound = QFile::exists(file);
-
-    // look in theme directory first including any sub directory
-    if (!bFound)
+    QString file;
+    QValueList<QString> searchpath = GetThemeSearchPath();
+    for (QValueList<QString>::const_iterator ii = searchpath.begin();
+        ii != searchpath.end(); ii++)
     {
-        file = d->m_themepathname + filename;
-        bFound = QFile::exists(file);
+        if (QFile::exists((file = *ii + filename)))
+            goto found;
+        if (pathStart > 0 && QFile::exists((file = *ii + basename)))
+            goto found;
     }
 
-    if (!bFound && pathStart > 0)
-    {
-        // look in theme directory minus any sub directories
-        file = d->m_themepathname + filename.mid(pathStart + 1);
-        bFound = QFile::exists(file);
-    }
+    return false;
 
-    // look in default theme directory
-    if (!bFound)
-    {
-        file = baseDir + filename;
-        bFound = QFile::exists(file);
-    }
-
-    if (!bFound && pathStart > 0)
-    {
-        file = baseDir + filename.mid(pathStart + 1);
-        bFound = QFile::exists(file);
-    }
-
-    // look in tmp directory
-    if (!bFound)
-    {
-        file = "/tmp/" + filename;
-        bFound = QFile::exists(file);
-    }
-
-    if (!bFound)
-        return false;
-
+found:
     filename = file;
     return true;
 }
@@ -2073,7 +2122,6 @@ QImage *MythContext::LoadScaleImage(QString filename, bool fromcache)
 {
     if (filename.left(5) == "myth:")
         return NULL;
-    QString baseDir = d->m_installprefix + "/share/mythtv/themes/default/";
 
     if (d->themecachedir != "" && fromcache)
     {
@@ -2167,7 +2215,6 @@ QPixmap *MythContext::LoadScalePixmap(QString filename, bool fromcache)
 {
     if (filename.left(5) == "myth:")
         return NULL;
-    QString baseDir = d->m_installprefix + "/share/mythtv/themes/default/";
 
     if (d->themecachedir != "" && fromcache)
     {
@@ -2265,7 +2312,7 @@ QImage *MythContext::CacheRemotePixmap(const QString &url, bool reCache)
     if ((d->imageCache.contains(url)) && (reCache == false))
         return &(d->imageCache[url]);
 
-    RemoteFile *rf = new RemoteFile(url);
+    RemoteFile *rf = new RemoteFile(url, false, 0);
 
     QByteArray data;
     bool ret = rf->SaveAs(data);
@@ -2291,6 +2338,19 @@ void MythContext::SetSetting(const QString &key, const QString &newValue)
     ClearSettingsCache(key, newValue);
 }
 
+/** \fn MythContext::OverrideSettingForSession()
+ *  \brief Overrides the given setting for the execution time of the process.
+ *
+ * This allows defining settings for the session only, without touching the
+ * settings in the data base.
+ */
+void MythContext::OverrideSettingForSession(const QString &key, 
+                                            const QString &value)
+{
+    d->overriddenSettings[key] = value;
+}
+
+
 bool MythContext::SendReceiveStringList(QStringList &strlist, bool quickTimeout, bool block)
 {
     d->serverSockLock.lock();
@@ -2305,15 +2365,22 @@ bool MythContext::SendReceiveStringList(QStringList &strlist, bool quickTimeout,
     
     if (d->serverSock)
     {
-        WriteStringList(d->serverSock, strlist);
-        ok = ReadStringList(d->serverSock, strlist, quickTimeout);
+        d->serverSock->writeStringList(strlist);
+        ok = d->serverSock->readStringList(strlist, quickTimeout);
 
         if (!ok)
         {
             VERBOSE(VB_IMPORTANT, QString("Connection to backend server lost"));
+            d->serverSock->DownRef();
+            d->serverSock = NULL;
+
             ConnectToMasterServer(false);
-            WriteStringList(d->serverSock, strlist);
-            ok = ReadStringList(d->serverSock, strlist, quickTimeout);
+
+            if (d->serverSock)
+            {
+                d->serverSock->writeStringList(strlist);
+                ok = d->serverSock->readStringList(strlist, quickTimeout);
+            }
         }
 
         // this should not happen
@@ -2327,14 +2394,17 @@ bool MythContext::SendReceiveStringList(QStringList &strlist, bool quickTimeout,
             MythEvent me(message, extra);
             dispatch(me);
 
-            ok = ReadStringList(d->serverSock, strlist, quickTimeout);
+            ok = d->serverSock->readStringList(strlist, quickTimeout);
         }
         // .
 
         if (!ok)
         {
-            delete d->serverSock;
-            d->serverSock = NULL;
+            if (d->serverSock)
+            {
+                d->serverSock->DownRef();
+                d->serverSock = NULL;
+            }
 
             qApp->lock();
             if (!block)
@@ -2357,18 +2427,20 @@ bool MythContext::SendReceiveStringList(QStringList &strlist, bool quickTimeout,
     return ok;
 }
 
-void MythContext::EventSocketRead(void)
+void MythContext::readyRead(MythSocket *sock)
 {
-    while (d->eventSock->state() == QSocket::Connected &&
+    (void)sock;
+
+    while (d->eventSock->state() == MythSocket::Connected &&
            d->eventSock->bytesAvailable() > 0)
     {
         QStringList strlist;
-        if (!ReadStringList(d->eventSock, strlist))
+        if (!d->eventSock->readStringList(strlist))
             continue;
 
         QString prefix = strlist[0];
         QString message = strlist[1];
-        
+
         if (prefix == "OK")
         {
         }
@@ -2394,12 +2466,12 @@ void MythContext::EventSocketRead(void)
     }
 }
 
-bool MythContext::CheckProtoVersion(QSocketDevice* socket)
+bool MythContext::CheckProtoVersion(MythSocket* socket)
 {
     QStringList strlist = QString("MYTH_PROTO_VERSION %1")
                                  .arg(MYTH_PROTO_VERSION);
-    WriteStringList(socket, strlist);
-    ReadStringList(socket, strlist, true);
+    socket->writeStringList(strlist);
+    socket->readStringList(strlist, true);
         
     if (strlist[0] == "REJECT")
     {
@@ -2437,50 +2509,59 @@ bool MythContext::CheckProtoVersion(QSocketDevice* socket)
     return false;
 }
 
-bool MythContext::CheckProtoVersion(QSocket* socket) 
+void MythContext::connected(MythSocket *sock)
 {
-    return CheckProtoVersion(socket->socketDevice());
+    (void)sock;
 }
 
-void MythContext::EventSocketConnected(void)
+void MythContext::connectionClosed(MythSocket *sock)
 {
-/* Unnecessary, just checked on the serverSock connect */
-#if 0
-    if (!CheckProtoVersion(d->eventSock))
-        return;
-#endif
+    (void)sock;
 
-    QString str = QString("ANN Monitor %1 %2")
-                         .arg(d->m_localhostname).arg(true);
-    QStringList strlist = str;
-    WriteStringList(d->eventSock, strlist);
-    ReadStringList(d->eventSock, strlist);
-}
-
-void MythContext::EventSocketClosed(void)
-{
     VERBOSE(VB_IMPORTANT, QString("Event socket closed. "
             "No connection to the backend."));
 
-    delete d->serverSock;
-    d->serverSock = NULL;
+    d->serverSockLock.lock();
+    if (d->serverSock)
+    {
+        d->serverSock->DownRef();
+        d->serverSock = NULL;
+    }
+
+    if (d->eventSock)
+    {
+        d->eventSock->DownRef();
+        d->eventSock = NULL;
+    }
+
+    d->serverSockLock.unlock();
 }
 
 QFont MythContext::GetBigFont(void)
 {
-    return QFont("Arial", (int)floor(d->bigfontsize * d->m_hmult), QFont::Bold);
+    QFont font = QApplication::font();
+    font.setPointSize((int)floor(d->bigfontsize * d->m_hmult));
+    font.setWeight(QFont::Bold);
+
+    return font;
 }
 
 QFont MythContext::GetMediumFont(void)
 {
-    return QFont("Arial", (int)floor(d->mediumfontsize * d->m_hmult), 
-                 QFont::Bold);
+    QFont font = QApplication::font();
+    font.setPointSize((int)floor(d->mediumfontsize * d->m_hmult));
+    font.setWeight(QFont::Bold);
+
+    return font;
 }
 
 QFont MythContext::GetSmallFont(void)
 {
-    return QFont("Arial", (int)floor(d->smallfontsize * d->m_hmult), 
-                 QFont::Bold);
+    QFont font = QApplication::font();
+    font.setPointSize((int)floor(d->smallfontsize * d->m_hmult));
+    font.setWeight(QFont::Bold);
+
+    return font;
 }
 
 /** \fn MythContext::GetLanguage()
@@ -2819,3 +2900,21 @@ QString MythContext::getCurrentLocation(void)
     return currentLocation.last();
 }
 
+bool MythContext::GetScreenIsAsleep(void)
+{
+    if (!d->screensaver)
+        return false;
+    return d->screensaver->Asleep();
+}
+
+void MythContext::SetX11Display(const QString &display)
+{
+    d->m_x11_display = QDeepCopy<QString>(display);
+}
+
+QString MythContext::GetX11Display(void) const
+{
+    return QDeepCopy<QString>(d->m_x11_display);
+}
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

@@ -7,65 +7,61 @@
 #ifndef FIREWIRERECORDER_H_
 #define FIREWIRERECORDER_H_
 
-#include "dtvrecorder.h"
-#include "mpeg/tspacket.h"
+#include "firewirerecorderbase.h"
+#include "tsstats.h"
 #include <libraw1394/raw1394.h>
 #include <libiec61883/iec61883.h>
 
-#include <time.h>
-
-#define FIREWIRE_TIMEOUT 15
-
-#define FIREWIRE_CONNECTION_P2P		0
-#define FIREWIRE_CONNECTION_BROADCAST	1
-
-#define FIREWIRE_CHANNEL_BROADCAST	63
-
 /** \class FirewireRecorder
- *  \brief This is a specialization of DTVRecorder used to
- *         handle DVB and ATSC streams from a firewire input.
+ *  \brief Linux FirewireRFecorder
  *
- *  \sa DTVRecorder
+ *  \sa FirewireRecorderBase
  */
-class FirewireRecorder : public DTVRecorder
+class FirewireRecorder : public FirewireRecorderBase
 {
+    friend int fw_tspacket_handler(unsigned char*,int,uint,void*);
+
   public:
-    FirewireRecorder(TVRec *rec) :
-        DTVRecorder(rec, "FirewireRecorder"),
-        fwport(-1),     fwchannel(-1), fwspeed(-1),   fwbandwidth(-1),
-        fwfd(-1),       fwconnection(FIREWIRE_CONNECTION_P2P),
-        fwoplug(-1),    fwiplug(-1),   fwmodel(""),   fwnode(0),
-        fwhandle(NULL), fwmpeg(NULL),  isopen(false), lastpacket(0) {;}
-        
-    ~FirewireRecorder() { Close(); }
+    FirewireRecorder(TVRec *rec) 
+        : FirewireRecorderBase(rec),
+        fwport(-1),     fwchannel(-1), fwspeed(-1),   fwbandwidth(-1), 
+        fwfd(-1),       fwconnection(kConnectionP2P), 
+        fwoplug(-1),    fwiplug(-1),   fwmodel(""),   fwnode(0), 
+        fwhandle(NULL), fwmpeg(NULL),  isopen(false) { } 
+   ~FirewireRecorder() { Close(); }
 
-    void StartRecording(void);
+    // Commands
     bool Open(void); 
-    void ProcessTSPacket(const TSPacket &tspacket);
-    void SetOptionsFromProfile(RecordingProfile *profile,
-                               const QString &videodev,
-                               const QString &audiodev,
-                               const QString &vbidev);
 
+    // Sets
     void SetOption(const QString &name, const QString &value);
     void SetOption(const QString &name, int value);
-    QString FirewireSpeedString(int speed);
 
-    bool PauseAndWait(int timeout = 100);
-
-  public slots:
-    void deleteLater(void);
-        
   private:
     void Close(void);
-    int fwport, fwchannel, fwspeed, fwbandwidth, fwfd, fwconnection;
-    int fwoplug, fwiplug;
-    QString fwmodel;
-    nodeid_t fwnode;
-    raw1394handle_t fwhandle;
+    void start() { iec61883_mpeg2_recv_start(fwmpeg, fwchannel); } 
+    void stop() { iec61883_mpeg2_recv_stop(fwmpeg); } 
+    bool grab_frames();
+
+  private:
+    int              fwport;
+    int              fwchannel;
+    int              fwspeed;
+    int              fwbandwidth;
+    int              fwfd;
+    int              fwconnection;
+    int              fwoplug;
+    int              fwiplug;
+    QString          fwmodel;
+    nodeid_t         fwnode;
+    raw1394handle_t  fwhandle;
     iec61883_mpeg2_t fwmpeg;
-    bool isopen;
-    time_t lastpacket;
+    bool             isopen;
+
+    static const int kBroadcastChannel;
+    static const int kConnectionP2P;
+    static const int kConnectionBroadcast;
+    static const uint kMaxBufferedPackets;
 };
 
 #endif

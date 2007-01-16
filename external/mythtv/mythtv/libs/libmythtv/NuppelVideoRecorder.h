@@ -30,7 +30,7 @@ using namespace std;
 // MythTV headers
 #include "recorderbase.h"
 #include "format.h"
-#include "ccdecoder.h"
+#include "cc608decoder.h"
 
 struct video_audio;
 struct VBIData;
@@ -41,7 +41,7 @@ class ChannelBase;
 class FilterManager;
 class FilterChain;
 
-class NuppelVideoRecorder : public RecorderBase, public CCReader
+class NuppelVideoRecorder : public RecorderBase, public CC608Reader
 {
  public:
     NuppelVideoRecorder(TVRec *rec, ChannelBase *channel);
@@ -99,8 +99,7 @@ class NuppelVideoRecorder : public RecorderBase, public CCReader
     void WriteAudio(unsigned char *buf, int fnum, int timecode);
     void WriteText(unsigned char *buf, int len, int timecode, int pagenr);
 
- public slots:
-    void deleteLater(void);
+    void SetNewVideoParams(double newaspect);
 
  protected:
     static void *WriteThread(void *param);
@@ -113,6 +112,8 @@ class NuppelVideoRecorder : public RecorderBase, public CCReader
 
  private:
     inline void WriteFrameheader(rtframeheader *fh);
+
+    void WriteFileHeader(void);
 
     void SavePositionMap(bool force);
 
@@ -141,7 +142,6 @@ class NuppelVideoRecorder : public RecorderBase, public CCReader
     
     int fd; // v4l input file handle
     signed char *strm;
-    long dropped;
     unsigned int lf, tf;
     int M1, M2, Q;
     int w, h;
@@ -157,8 +157,6 @@ class NuppelVideoRecorder : public RecorderBase, public CCReader
     int audio_samplerate; // rate we request from sounddevice
     int effectivedsp; // actual measured rate
 
-    int quiet;
-    int rawmode;
     int usebttv;
     float video_aspect;
 
@@ -284,7 +282,7 @@ class NuppelVideoRecorder : public RecorderBase, public CCReader
 
     int volume;
 
-    CCDecoder *ccd;
+    CC608Decoder *ccd;
 
     bool go7007;
     bool resetcapture;

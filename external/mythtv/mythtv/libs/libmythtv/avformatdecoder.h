@@ -7,7 +7,8 @@
 #include "programinfo.h"
 #include "format.h"
 #include "decoderbase.h"
-#include "ccdecoder.h"
+#include "vbilut.h"
+#include "h264utils.h"
 
 extern "C" {
 #include "frame.h"
@@ -15,23 +16,14 @@ extern "C" {
 #include "../libavformat/avformat.h"
 }
 
+class TeletextDecoder;
+class CC608Decoder;
+class CC708Decoder;
+class InteractiveTV;
 class ProgramInfo;
 class MythSqlDatabase;
 
 extern "C" void HandleStreamChange(void*);
-
-class StreamInfo
-{
-  public:
-    StreamInfo() : av_stream_index(-1), language(-2), language_index(0) {}
-    StreamInfo(int a, int b, uint c)
-        : av_stream_index(a), language(b), language_index(c) {}
-  public:
-    int  av_stream_index;
-    int  language; ///< ISO639 canonical language key
-    uint language_index;
-};
-typedef vector<StreamInfo> sinfo_vec_t;
 
 class AudioInfo
 {
@@ -76,7 +68,7 @@ class AudioInfo
 /// The AvFormatDecoder is used to decode non-NuppleVideo files.
 /// It's used a a decoder of last resort after trying the NuppelDecoder
 /// and IvtvDecoder (if "USING_IVTV" is defined).
-class AvFormatDecoder : public DecoderBase, public CCReader
+class AvFormatDecoder : public DecoderBase
 {
     friend void HandleStreamChange(void*);
   public:
@@ -84,16 +76,21 @@ class AvFormatDecoder : public DecoderBase, public CCReader
                     bool use_null_video_out, bool allow_libmpeg2 = true);
    ~AvFormatDecoder();
 
+    void CloseCodecs();
     void CloseContext();
     void Reset(void);
     void Reset(bool reset_video_data = true, bool seek_reset = true);
 
     /// Perform an av_probe_input_format on the passed data to see if we
     /// can decode it with this class.
-    static bool CanHandle(char testbuf[2048], const QString &filename);
+    static bool CanHandle(char testbuf[kDecoderProbeBufferSize], 
+                          const QString &filename,
+                          int testbufsize = kDecoderProbeBufferSize);
 
     /// Open our file and set up or audio and video parameters.
-    int OpenFile(RingBuffer *rbuffer, bool novideo, char testbuf[2048]);
+    int OpenFile(RingBuffer *rbuffer, bool novideo, 
+                 char testbuf[kDecoderProbeBufferSize],
+                 int testbufsize = kDecoderProbeBufferSize);
 
     /// Decode a frame of video/audio. If onlyvideo is set, 
     /// just decode the video portion.
@@ -120,37 +117,37 @@ class AvFormatDecoder : public DecoderBase, public CCReader
     /// This is a No-op for this class.
     long UpdateStoredFrameNum(long frame) { (void)frame; return 0;}
 
-    QString GetEncodingType(void) const { return QString("MPEG-2"); }
-
+    QString GetEncodingType(void) const;
     MythCodecID GetVideoCodecID() const { return video_codec_id; }
 
     virtual void SetDisablePassThrough(bool disable);
-    virtual void incCurrentAudioTrack();
-    virtual void decCurrentAudioTrack();
-    virtual bool setCurrentAudioTrack(int trackNo);    
-    virtual QStringList listAudioTracks() const;
-
     void AddTextData(unsigned char *buf, int len, long long timecode, char type);
 
-    virtual void incCurrentSubtitleTrack();
-    virtual void decCurrentSubtitleTrack();
-    virtual bool setCurrentSubtitleTrack(int trackNo);    
-    virtual QStringList listSubtitleTracks() const;
+    virtual QString GetTrackDesc(uint type, uint trackNo) const;
+    virtual int SetTrack(uint type, int trackNo);
 
     int ScanStreams(bool novideo);
 
     virtual bool DoRewind(long long desiredFrame, bool doflush = true);
     virtual bool DoFastForward(long long desiredFrame, bool doflush = true);
 
+    virtual int  GetTeletextDecoderType(void) const;
+    virtual void SetTeletextDecoderViewer(TeletextViewer*);
+
+    virtual QString GetXDS(const QString&) const;
+
+    // MHEG stuff
+    virtual bool SetAudioByComponentTag(int tag);
+    virtual bool SetVideoByComponentTag(int tag);
+
   protected:
-    /// Attempt to find the optimal audio stream to use based on the number of channels,
-    /// and if we're doing AC3/DTS passthrough.  This will select the highest stream
-    /// number that matches our criteria.
-    bool autoSelectAudioTrack();
-
-    bool autoSelectSubtitleTrack();
-
     RingBuffer *getRingBuf(void) { return ringBuffer; }
+
+    virtual int AutoSelectTrack(uint type);
+
+    void ScanATSCCaptionStreams(int av_stream_index);
+    void ScanTeletextCaptions(int av_stream_index);
+    int AutoSelectAudioTrack(void);
 
   private:
     friend int get_avf_buffer(struct AVCodecContext *c, AVFrame *pic);
@@ -162,7 +159,6 @@ class AvFormatDecoder : public DecoderBase, public CCReader
                                   int offset[4], int y, int type, int height);
 
     friend void decode_cc_dvd(struct AVCodecContext *c, const uint8_t *buf, int buf_size);
-    friend void decode_cc_atsc(struct AVCodecContext *c, const uint8_t *buf, int buf_size);
 
     friend int open_avf(URLContext *h, const char *filename, int flags);
     friend int read_avf(URLContext *h, uint8_t *buf, int buf_size);
@@ -170,15 +166,18 @@ class AvFormatDecoder : public DecoderBase, public CCReader
     friend offset_t seek_avf(URLContext *h, offset_t offset, int whence);
     friend int close_avf(URLContext *h);
 
+    void DecodeDTVCC(const uint8_t *buf);
     void InitByteContext(void);
-    void InitVideoCodec(AVCodecContext *enc);
+    void InitVideoCodec(AVStream *stream, AVCodecContext *enc,
+                        bool selectedStream = false);
 
     /// Preprocess a packet, setting the video parms if nessesary.
-    /// Also feeds HandleGopStart for MPEG2 files.
     void MpegPreProcessPkt(AVStream *stream, AVPacket *pkt);
+    void H264PreProcessPkt(AVStream *stream, AVPacket *pkt);
 
     void ProcessVBIDataPacket(const AVStream *stream, const AVPacket *pkt);
     void ProcessDVBDataPacket(const AVStream *stream, const AVPacket *pkt);
+    void ProcessDSMCCPacket(const AVStream *stream, const AVPacket *pkt);
 
     float GetMpegAspect(AVCodecContext *context, int aspect_ratio_info,
                         int width, int height);
@@ -187,10 +186,12 @@ class AvFormatDecoder : public DecoderBase, public CCReader
 
     bool SetupAudioStream(void);
 
-    // Update our position map, keyframe distance, and the like.  Called for key frame packets.
+    /// Update our position map, keyframe distance, and the like.
+    /// Called for key frame packets.
     void HandleGopStart(AVPacket *pkt);
 
     class AvFormatDecoderPrivate *d;
+    H264::KeyframeSequencer *h264_kf_seq;
 
     AVFormatContext *ic;
     AVFormatParameters params;
@@ -222,8 +223,6 @@ class AvFormatDecoder : public DecoderBase, public CCReader
     long long lastvpts;
     long long lastapts;
     long long lastccptsu;
-    unsigned int save_cctc[2];
-    int save_ccdata[2];
 
     bool using_null_videoout;
     MythCodecID video_codec_id;
@@ -231,7 +230,14 @@ class AvFormatDecoder : public DecoderBase, public CCReader
     int maxkeyframedist;
 
     // Caption/Subtitle/Teletext decoders
-    CCDecoder        *ccd;
+    CC608Decoder     *ccd608;
+    CC708Decoder     *ccd708;
+    TeletextDecoder  *ttd;
+    int               cc608_parity_table[256];
+
+    // MHEG
+    InteractiveTV    *itv;                ///< MHEG/MHP decoder
+    int               selectedVideoIndex; ///< MHEG/MHP video stream to use.
 
     // Audio
     short int        *audioSamples;
@@ -242,18 +248,14 @@ class AvFormatDecoder : public DecoderBase, public CCReader
     AudioInfo         audioIn;
     AudioInfo         audioOut;
 
-    // Audio stream selection
-    sinfo_vec_t       audioStreams;
-    StreamInfo        wantedAudioStream;
-    StreamInfo        selectedAudioStream;
+    // DVD
+    int  lastdvdtitle;
+    uint lastcellstart;
+    bool dvdmenupktseen;
+    bool dvdvideopause;
 
-    // Subtitle stream selection
-    sinfo_vec_t       subtitleStreams;
-    StreamInfo        wantedSubtitleStream;
-    StreamInfo        selectedSubtitleStream;
-
-    // language preferences for auto-selection of streams
-    vector<int>       languagePreference;
 };
 
 #endif
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

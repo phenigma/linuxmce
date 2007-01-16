@@ -7,8 +7,8 @@
 # See http://www.mythtv.org/ for information about MythTV itself.
 #
 # @url       $URL$
-# @date      $Date: 2006-04-02 12:38:41 +0300 (Sun, 02 Apr 2006) $
-# @version   $Revision: 9607 $
+# @date      $Date: 2006-06-28 21:33:11 +0300 (Wed, 28 Jun 2006) $
+# @version   $Revision: 10338 $
 # @author    $Author: xris $
 #
 
@@ -20,17 +20,25 @@
 #
 #    AuthType           Digest
 #    AuthName           "MythTV"
-#    AuthDigestFile     /var/www/htdigest
+#    AuthUserFile       /var/www/htdigest
 #    Require            valid-user
 #    BrowserMatch       "MSIE"      AuthDigestEnableQueryStringHack=On
+#
+#  * If you're running Apache earlier than 2.2, you will need to use
+#    AuthDigestFile instead of AuthUserFile.
 
 # MythTV now uses the correct file suffix for mpeg files, so all .nuv files
 # should actually be NuppleVideo.  However, apache probably doesn't know what
 # those are, so we should tell it.
-    AddType video/nuppelvideo .nuv
+    AddType video/nuppelvideo   .nuv
+
+# Specify the MIME type for favicon.ico in case the server configuration
+# doesn't or in case the server configuration uses the IANA-approved MIME type
+# (image/vnd.microsoft.icon)--which most browsers won't recognize.
+    AddType image/x-icon        .ico
 
 # Some special instructions for the PHP files of MythWeb.
-    <FilesMatch "\.php$">
+    <Files mythweb.*>
 
     #
     # Use the following environment settings to tell MythWeb where you want it to
@@ -59,6 +67,18 @@
     #
     #   setenv include_path      "/usr/share/mythweb"
 
+    # If you want MythWeb to email php/database errors (and a backtrace) to you,
+    # uncomment and set the email address below.
+    #
+    #   setenv error_email       "mythweb_errors@example.com"
+    #
+
+    # If your local file system is something other than UTF-8, set this variable
+    # so that the music and video portions of MythWeb can provide proper links
+    # to your downloadable files.
+    #
+    #   setenv fs_encoding       "ISO-8859-1"
+
     #  These settings are intended for apache 2.x.  If your version of apache
     #  doesn't support php_value, or things like memory_limit aren't working
     #  as expected, then use these settings as examples for your own php.ini
@@ -86,34 +106,44 @@
         php_flag output_handler                 "NULL"
         php_flag short_open_tag                 "On"
 
-    </FilesMatch>
+    </Files>
+
+# Execute perl scripts in cgi mode (so we can stream properly)
+    <Files *.pl>
+        SetHandler cgi-script
+        Options    +ExecCGI
+    </Files>
 
 #
 # The settings below relate specifically to mod_rewrite and the rewrite engine
 # used to make the MythWeb user experience a little easier to deal with by
 # simplifying the URL's neeced to access the various sections.  Do not touch
-# these settings.
+# these settings unless you really know what you're doing..
 #
+
+# Turn on the rewrite engine
+    RewriteEngine  on
 
 # If MythWeb is installed outside of the document root (eg. using Alias) then
 # you will need to set this directive to the base URL that MythWeb is visible
 # from externally.  If you do not, the web server will return 'not found'.  eg.
 #    RewriteBase    /mythweb
 
-# Turn on the rewrite engine
-    RewriteEngine  on
-
 # Skip out early if we've already been through rewrites,
 # or if this is a /css/, /js/ or /cache/ directory request.
-    RewriteRule    ^(css|data|images|js|themes|skins|[a-z_]+\.php)(/|$)     -     [L]
+    RewriteRule    ^(css|data|images|js|themes|skins|[a-z_]+\.(php|pl))(/|$)     -     [L]
 
-# Redirect most of the remaining URL requests to the main cooktools script.
+# Redirect /pl/ requests to the perl cgi handler.
+    RewriteRule     ^(pl(/.*)?)$            mythweb.pl/$1               [QSA,L]
+
+# Redirect most of the remaining URL requests to the main mythweb script.
 # It will then handle any requests given to it.
     RewriteRule     ^(.+)$                  mythweb.php/$1              [QSA,L]
 
-# If you're experiencing trouble with the previous line in your copy of apache,
-# you could instead use something like:
-#    RewriteRule     ^([\w\-]+(/.*)?)?$      mythweb.php?PATH_INFO=/$1   [L,QSA]
+# If you're experiencing trouble with the previous two lines in your copy of
+# apache, you could instead use something like:
+#    RewriteRule     ^(pl(/.*)?)$           mythweb.pl?PATH_INFO=/$1    [L,QSA]
+#    RewriteRule     ^(.+)$                 mythweb.php?PATH_INFO=/$1   [L,QSA]
 
 # Catch anything else that comes through and send it to mythweb.php with no parameters.
     RewriteRule     ^(.*)$                  mythweb.php                 [QSA,L]

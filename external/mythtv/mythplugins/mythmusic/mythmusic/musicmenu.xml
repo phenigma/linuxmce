@@ -15,6 +15,8 @@
       <text lang="JA">ミュージック再生</text>
       <text lang="FI">Soita Musiikkia</text>
       <text lang="SI">Predvajaj glasbo</text>
+      <text lang="ET">Muusika mängimine</text>
+      <text lang="RU">Слушать музыку</text>
       <action>MUSIC_PLAY</action>
    </button>
 
@@ -33,6 +35,8 @@
       <text lang="JA">ミュージック選択</text>
       <text lang="FI">Valitse Musiikkia</text>
       <text lang="SI">Izberi glasbo</text>
+      <text lang="ET">Muusika valimine</text>
+      <text lang="RU">Выбрать музыку</text>
       <action>MUSIC_CREATE_PLAYLIST</action>
    </button>
 
@@ -51,6 +55,8 @@
       <text lang="JA">CD取込</text>
       <text lang="FI">Tuo CD</text>
       <text lang="SI">Importiranje CD</text>
+      <text lang="ET">CD importimine</text>
+      <text lang="RU">Импортировать CD</text>
       <action>MUSIC_RIP</action>
    </button>
 
@@ -69,6 +75,8 @@
       <text lang="JA">新しいミュージックを検索</text>
       <text lang="FI">Hae Uutta Musiikkia</text>
       <text lang="SI">Iskanje nove glasbe</text>
+      <text lang="ET">Uue muusika skaneerimine</text>
+      <text lang="RU">Искать новую музыку</text>
       <action>SETTINGS_SCAN</action>
    </button>
 

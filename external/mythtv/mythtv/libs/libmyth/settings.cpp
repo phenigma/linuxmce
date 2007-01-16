@@ -126,49 +126,32 @@ QWidget* VerticalConfigurationGroup::configWidget(ConfigurationGroup *cg,
     if (!useframe)
         widget->setFrameShape(QFrame::NoFrame);
 
-    QVBoxLayout *layout = NULL;
-
     float wmult = 0, hmult = 0;
-
     gContext->GetScreenSettings(wmult, hmult);
 
+    int space  = (zeroSpace) ? 4 : -1;
+    int margin = (int) ((uselabel) ? (28 * hmult) : (10 * hmult));
+    margin = (zeroMargin) ? 4 : margin;
+
+    QVBoxLayout *layout = new QVBoxLayout(widget, margin, space);
+
     if (uselabel)
-    {
-        int space = -1;
-        int margin = (int)(28 * hmult);
-        if (zeroSpace)
-            space = 4;
-        if (zeroMargin)
-            margin = 4;
-
-        layout = new QVBoxLayout(widget, margin, space);
-        // This makes weird and bad things happen in qt -mdz 2002/12/28
-        //widget->setInsideMargin(20);
         widget->setTitle(getLabel());
-    }
-    else
-    {
-        int space = -1;
-        int margin = (int)(10 * hmult);
-        if (zeroSpace)
-            space = 4;
-        if (zeroMargin)
-            margin = 4;
-        layout = new QVBoxLayout(widget, margin, space);
-    }
 
-    for(unsigned i = 0 ; i < children.size() ; ++i)
+    for (uint i = 0; i < children.size(); i++)
+    {
         if (children[i]->isVisible())
         {
             QWidget *child = children[i]->configWidget(cg, widget, NULL);
             layout->add(child);
             children[i]->setEnabled(children[i]->isEnabled());
         }
+    }
       
     if (cg)
     {
-        connect(this, SIGNAL(changeHelpText(QString)), cg,
-                SIGNAL(changeHelpText(QString)));
+        connect(this, SIGNAL(changeHelpText(QString)),
+                cg,   SIGNAL(changeHelpText(QString)));
     } 
 
     return widget;
@@ -976,13 +959,78 @@ MythDialog* ConfigurationWizard::dialogWidget(MythMainWindow *parent,
     return wizard;
 }
 
+JumpPane::JumpPane(const QStringList &labels, const QStringList &helptext) :
+    ConfigurationGroup(true, false, true, true),
+    VerticalConfigurationGroup(true, false, true, true)
+{
+    //setLabel(tr("Jump To Buttons"));
+    for (uint i = 0; i < labels.size(); i++)
+    {
+        TransButtonSetting *button =
+            new TransButtonSetting(QString::number(i));
+        button->setLabel(labels[i]);
+        button->setHelpText(helptext[i]);
+        connect(button, SIGNAL(pressed(QString)),
+                this,   SIGNAL(pressed(QString)));
+        addChild(button);
+    }
+}
+
+MythDialog *JumpConfigurationWizard::dialogWidget(MythMainWindow *parent,
+                                                  const char *widgetName)
+{
+    MythJumpWizard *wizard = new MythJumpWizard(parent, widgetName);
+    dialog = wizard;
+
+    connect(this,   SIGNAL(changeHelpText(QString)),
+            wizard, SLOT(  setHelpText(   QString)));
+
+    childWidgets.clear();
+    QStringList labels, helptext;
+    for (uint i = 0; i < children.size(); i++)
+    {
+        if (children[i]->isVisible())
+        {
+            childWidgets.push_back(children[i]->configWidget(this, parent));
+            labels.push_back(children[i]->getLabel());
+            helptext.push_back(children[i]->getHelpText());
+        }
+    }
+
+    JumpPane *jumppane = new JumpPane(labels, helptext);
+    QWidget  *widget   = jumppane->configWidget(this, parent);
+    wizard->addPage(widget, "");
+    wizard->setFinishEnabled(widget, true);
+    connect(jumppane, SIGNAL(pressed( QString)),
+            this,     SLOT(  showPage(QString)));
+
+    for (uint i = 0; i < childWidgets.size(); i++)
+    {
+        wizard->addPage(childWidgets[i], labels[i]);
+        wizard->setFinishEnabled(childWidgets[i], true);
+    }
+
+    return wizard;
+}
+
+void JumpConfigurationWizard::showPage(QString page)
+{
+    uint pagenum = page.toUInt();
+    if (pagenum >= childWidgets.size() || !dialog)
+        return;
+    ((MythJumpWizard*)(dialog))->showPage(childWidgets[pagenum]);
+}
+
 void SimpleDBStorage::load() 
 {
-    QString querystr = QString("SELECT %1 FROM %2 WHERE %3;")
-        .arg(column).arg(table).arg(whereClause());
+    MSqlBindings bindings;
+    QString querystr = QString("SELECT " + column + " FROM "
+           + table + " WHERE " + whereClause(bindings) + ";");
     
     MSqlQuery query(MSqlQuery::InitCon());
-    query.exec(querystr);
+    query.prepare(querystr);
+    query.bindValues(bindings);
+    query.exec();
 
     if (query.isActive() && query.size() > 0) 
     {
@@ -1002,26 +1050,40 @@ void SimpleDBStorage::save(QString table)
     if (!isChanged())
         return;
 
-    QString querystr = QString("SELECT * FROM %1 WHERE %2;")
-        .arg(table).arg(whereClause());
+    MSqlBindings bindings;
+    QString querystr = QString("SELECT * FROM " + table + " WHERE "
+            + whereClause(bindings) + ";");
 
     MSqlQuery query(MSqlQuery::InitCon());
-    query.exec(querystr);
+    query.prepare(querystr);
+    query.bindValues(bindings);
+    query.exec();
 
     if (query.isActive() && query.size() > 0) {
         // Row already exists
         // Don"t change this QString. See the CVS logs rev 1.91.
-        querystr = QString("UPDATE " + table + " SET " + setClause() + 
-                           " WHERE " + whereClause() + ";");
-        // cerr << querystr << endl;
-        query.exec(querystr);
+        MSqlBindings bindings;
+
+        querystr = QString("UPDATE " + table + " SET " + setClause(bindings) + 
+                           " WHERE " + whereClause(bindings) + ";");
+
+        query.prepare(querystr);
+        query.bindValues(bindings);
+        query.exec();
+
         if (!query.isActive())
             MythContext::DBError("simpledbstorage update", querystr);
     } else {
         // Row does not exist yet
-        querystr = QString("INSERT INTO %1 SET %2;")
-            .arg(table).arg(setClause());
-        query.exec(querystr);
+        MSqlBindings bindings;
+
+        querystr = QString("INSERT INTO " + table + " SET "
+                + setClause(bindings) + ";");
+
+        query.prepare(querystr);
+        query.bindValues(bindings);
+        query.exec();
+
         if (!query.isActive())
             MythContext::DBError("simpledbstorage update", querystr);
     }
@@ -1036,8 +1098,8 @@ void AutoIncrementStorage::save(QString table) {
     if (intValue() == 0) 
     {
         // Generate a new, unique ID
-        QString querystr = QString("INSERT INTO %1 (%2) VALUES (0);")
-                                .arg(table).arg(column);
+        QString querystr = QString("INSERT INTO " + table + " (" 
+                + column + ") VALUES (0);");
 
         MSqlQuery query(MSqlQuery::InitCon());
         query.exec(querystr);
@@ -1047,15 +1109,7 @@ void AutoIncrementStorage::save(QString table) {
             MythContext::DBError("inserting row", query);
             return;
         }
-        query.exec("SELECT LAST_INSERT_ID();");
-        if (!query.isActive() || query.size() < 1) 
-        {
-            MythContext::DBError("selecting last insert id", query);
-            return;
-        }
-
-        query.next();
-        setValue(query.value(0).toInt());
+        setValue(query.lastInsertId().toInt());
     }
 }
 
@@ -1101,10 +1155,14 @@ QWidget* ListBoxSetting::configWidget(ConfigurationGroup *cg, QWidget* parent,
             this, SIGNAL(accepted(int)));
     connect(widget, SIGNAL(menuButtonPressed(int)),
             this, SIGNAL(menuButtonPressed(int)));
+    connect(widget, SIGNAL(editButtonPressed(int)),
+            this, SIGNAL(editButtonPressed(int)));
+    connect(widget, SIGNAL(deleteButtonPressed(int)),
+            this, SIGNAL(deleteButtonPressed(int)));
     connect(this, SIGNAL(valueChanged(const QString&)),
             widget, SLOT(setCurrentItem(const QString&)));
-    connect(widget, SIGNAL(highlighted(const QString&)),
-            this, SLOT(setValueByLabel(const QString&)));
+    connect(widget, SIGNAL(highlighted(int)),
+            this, SLOT(setValueByIndex(int)));
 
     if (cg)
         connect(widget, SIGNAL(changeHelpText(QString)), cg,
@@ -1123,13 +1181,10 @@ void ListBoxSetting::setSelectionMode(MythListBox::SelectionMode mode)
        widget->setSelectionMode(selectionMode);
 }
 
-void ListBoxSetting::setValueByLabel(const QString& label) {
-    for(unsigned i = 0 ; i < labels.size() ; ++i)
-        if (labels[i] == label) {
-            setValue(values[i]);
-            return;
-        }
-    cerr << "BUG: ListBoxSetting::setValueByLabel called for unknown label " << label << endl;
+void ListBoxSetting::setValueByIndex(int index)
+{
+    if (((uint)index) < values.size())
+        setValue(values[index]);
 }
 
 void ImageSelectSetting::addImageSelection(const QString& label,
@@ -1268,12 +1323,18 @@ QWidget* ButtonSetting::configWidget(ConfigurationGroup* cg, QWidget* parent,
     //button->setHelpText(getHelpText());
 
     connect(button, SIGNAL(pressed()), this, SIGNAL(pressed()));
+    connect(button, SIGNAL(pressed()), this, SLOT(SendPressedString()));
 
     if (cg)
         connect(button, SIGNAL(changeHelpText(QString)),
                 cg, SIGNAL(changeHelpText(QString)));
 
     return button;
+}
+
+void ButtonSetting::SendPressedString(void)
+{
+    emit pressed(name);
 }
 
 void ButtonSetting::setEnabled(bool fEnabled)
@@ -1359,26 +1420,67 @@ int ConfigurationPopupDialog::exec(bool saveOnAccept)
     return ret;
 }
 
-QString HostSetting::whereClause(void)
+QString SimpleDBStorage::setClause(MSqlBindings& bindings)
 {
-    return QString("value = '%1' AND hostname = '%2'")
-                   .arg(getName()).arg(gContext->GetHostName());
+    QString tagname(":SET" + column.upper());
+    QString clause(column + " = " + tagname);
+
+    bindings.insert(tagname, getValue().utf8());
+
+    return clause;
 }
 
-QString HostSetting::setClause(void)
+QString HostSetting::whereClause(MSqlBindings& bindings)
 {
-    return QString("value = '%1', data = '%2', hostname = '%3'")
-                   .arg(getName()).arg(getValue().utf8())
-                   .arg(gContext->GetHostName());
+    /* Returns a where clause of the form:
+     * "value = :VALUE AND hostname = :HOSTNAME"
+     * The necessary bindings are added to the MSQLBindings&
+     */
+    QString valueTag(":WHEREVALUE");
+    QString hostnameTag(":WHEREHOSTNAME");
+
+    QString clause("value = " + valueTag + " AND hostname = " + hostnameTag);
+
+    bindings.insert(valueTag, getName());
+    bindings.insert(hostnameTag, gContext->GetHostName());
+
+    return clause;
 }
 
-QString GlobalSetting::whereClause(void)
+QString HostSetting::setClause(MSqlBindings& bindings)
 {
-    return QString("value = '%1'").arg(getName().utf8());
+    QString valueTag(":SETVALUE");
+    QString dataTag(":SETDATA");
+    QString hostnameTag(":SETHOSTNAME");
+    QString clause("value = " + valueTag + ", data = " + dataTag
+            + ", hostname = " + hostnameTag);
+
+    bindings.insert(valueTag, getName());
+    bindings.insert(dataTag, getValue().utf8());
+    bindings.insert(hostnameTag, gContext->GetHostName());
+
+    return clause;
 }
 
-QString GlobalSetting::setClause(void)
+QString GlobalSetting::whereClause(MSqlBindings& bindings)
 {
-    return QString("value = '%1', data = '%2'")
-                   .arg(getName()).arg(getValue());
+    QString valueTag(":WHEREVALUE");
+    QString clause("value = " + valueTag);
+
+    bindings.insert(valueTag, getName());
+
+    return clause;
+}
+
+QString GlobalSetting::setClause(MSqlBindings& bindings)
+{
+    QString valueTag(":SETVALUE");
+    QString dataTag(":SETDATA");
+
+    QString clause("value = " + valueTag + ", data = " + dataTag);
+
+    bindings.insert(valueTag, getName());
+    bindings.insert(dataTag, getValue().utf8());
+
+    return clause;
 }

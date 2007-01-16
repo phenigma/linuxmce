@@ -22,7 +22,7 @@ using namespace std;
 #include "manualschedule.h"
 #include "playbackbox.h"
 #include "previouslist.h"
-#include "customrecord.h"
+#include "customedit.h"
 #include "viewscheduled.h"
 #include "programrecpriority.h"
 #include "channelrecpriority.h"
@@ -32,7 +32,6 @@ using namespace std;
 #include "networkcontrol.h"
 
 #include "exitcodes.h"
-#include "themedmenu.h"
 #include "programinfo.h"
 #include "mythcontext.h"
 #include "mythdbcon.h"
@@ -47,11 +46,15 @@ using namespace std;
 #include "lcddevice.h"
 #include "langsettings.h"
 
+#include "libmythui/myththemedmenu.h"
+#include "libmythui/myththemebase.h"
+
 #define NO_EXIT  0
 #define QUIT     1
 #define HALT     2
 
-ThemedMenu *menu;
+static MythThemedMenu *menu;
+static MythThemeBase *themeBase;
 XBox *xbox = NULL;
 
 void startGuide(void)
@@ -213,9 +216,9 @@ void startPrevious(void)
     qApp->lock();
 }
 
-void startCustomRecord(void)
+void startCustomEdit(void)
 {
-    CustomRecord custom(gContext->GetMainWindow(), "custom record");
+    CustomEdit custom(gContext->GetMainWindow(), "custom record");
 
     qApp->unlock();
     custom.exec();
@@ -341,7 +344,7 @@ void TVMenuCallback(void *data, QString &selection)
     else if (sel == "tv_manualschedule")
         startManualSchedule();
     else if (sel == "tv_custom_record")
-        startCustomRecord();
+        startCustomEdit();
     else if (sel == "tv_fix_conflicts")
         startManaged();
     else if (sel == "tv_set_recpriorities")
@@ -373,20 +376,7 @@ void TVMenuCallback(void *data, QString &selection)
         AppearanceSettings settings;
         settings.exec();
 
-        LanguageSettings::reload();
-
-        gContext->LoadQtConfig();
-        gContext->GetMainWindow()->Init();
-        gContext->UpdateImageCache();
-        menu->ReloadTheme();
-        if (!menu->foundTheme())
-            exit(FRONTEND_BUGGY_EXIT_NO_THEME);
-
-        LCD::SetupLCD ();
-        if (class LCD * lcd = LCD::Get()) {
-            lcd->setupLEDs(RemoteGetRecordingMask);
-            lcd->resetServer();
-        }
+        GetMythMainWindow()->JumpTo("Reload Theme");
     } 
     else if (sel == "settings recording") 
     {
@@ -425,7 +415,6 @@ void TVMenuCallback(void *data, QString &selection)
     {
         GeneralRecPrioritiesSettings settings;
         settings.exec();
-        ScheduledRecording::signalChange(0);
     } 
     else if (sel == "settings channelrecpriorities") 
     {
@@ -447,6 +436,10 @@ void TVMenuCallback(void *data, QString &selection)
 
         gContext->ActivateSettingsCache(true);
         RemoteSendMessage("CLEAR_SETTINGS_CACHE");
+
+        if (sel == "settings general" ||
+            sel == "settings generalrecpriorities")
+            ScheduledRecording::signalChange(0);
     }
 }
 
@@ -484,28 +477,20 @@ void haltnow()
         system(halt_cmd.ascii());
 }
 
-int RunMenu(QString themedir)
+bool RunMenu(QString themedir)
 {
-    menu = new ThemedMenu(themedir.ascii(), "mainmenu.xml", 
-                          gContext->GetMainWindow(), "mainmenu");
+    menu = new MythThemedMenu(themedir.ascii(), "mainmenu.xml", 
+                              GetMythMainWindow()->GetMainStack(), "mainmenu");
     menu->setCallback(TVMenuCallback, gContext);
    
-    int exitstatus = NO_EXIT;
- 
     if (menu->foundTheme())
     {
-        do {
-            menu->exec();
-        } while (!(exitstatus = handleExit()));
-    }
-    else
-    {
-        cerr << "Couldn't find theme " << themedir << endl;
+        GetMythMainWindow()->GetMainStack()->AddScreen(menu);
+        return true;
     }
 
-    delete menu;
-    menu = NULL;
-    return exitstatus;
+    cerr << "Couldn't find theme " << themedir << endl;
+    return false;
 }   
 
 // If any settings are missing from the database, this will write
@@ -572,11 +557,25 @@ QString RandTheme(QString &themename)
     return themename;
 }
 
-int internal_play_media(const char *mrl, const char* plot, const char* title, 
-                        const char* director, int lenMins, const char* year) 
+int internal_play_media(const QString &mrl, const QString &plot, 
+                        const QString &title, const QString &director, 
+                        int lenMins, const QString &year) 
 {
     int res = -1; 
-   
+  
+    QFile checkFile(mrl);
+    if (!checkFile.exists() && !mrl.startsWith("dvd:"))
+    {
+        QString errorText = QObject::tr("Failed to open \n '%1' in %2 \n"
+                                        "Check if the video exists")
+                                        .arg(mrl.section("/", -1))
+                                        .arg(mrl.section("/", 0, -2));
+        MythPopupBox::showOkPopup(gContext->GetMainWindow(),
+                                    "Open Failed",
+                                    errorText);
+        return res;
+    }
+    
     TV *tv = new TV();
 
     if (!tv->Init())
@@ -595,23 +594,23 @@ int internal_play_media(const char *mrl, const char* plot, const char* title,
     pginfo->isVideo = true;
     pginfo->pathname = mrl;
     
-    if (pginfo->pathname.find(".iso", 0, false) != -1)
+    QDir d(mrl + "/VIDEO_TS");
+    if (mrl.findRev(".iso", -1, false) == (int)mrl.length() - 4 ||
+        mrl.findRev(".img", -1, false) == (int)mrl.length() - 4 ||
+        d.exists())
     {
         pginfo->pathname = QString("dvd:%1").arg(mrl);
     }
     
     pginfo->description = plot;
     
-    
     if (strlen(director))
         pginfo->subtitle = QString( "%1: %2" ).arg(QObject::tr("Directed By")).arg(director);
     
     pginfo->title = title;
 
-        
     if (tv->Playback(pginfo))
     {
-        
         while (tv->GetState() != kState_None)
         {
             qApp->unlock();
@@ -622,7 +621,6 @@ int internal_play_media(const char *mrl, const char* plot, const char* title,
         }
     }
     
-
     res = 0;
     
     sleep(1);
@@ -641,8 +639,31 @@ void gotoMainMenu(void)
     QApplication::postEvent((QObject*)(gContext->GetMainWindow()), event);
 }
 
+void reloadTheme(void)
+{
+    LanguageSettings::reload();
+
+    gContext->LoadQtConfig();
+    gContext->GetMainWindow()->Init();
+    gContext->UpdateImageCache();
+
+    themeBase->Reload();
+    menu->ReloadTheme();
+
+    if (!menu->foundTheme())
+        exit(FRONTEND_BUGGY_EXIT_NO_THEME);
+
+    LCD::SetupLCD();
+    if (LCD *lcd = LCD::Get()) 
+    {
+        lcd->setupLEDs(RemoteGetRecordingMask);
+        lcd->resetServer();
+    }
+}
+
 void InitJumpPoints(void)
 {
+    REG_JUMP("Reload Theme", "", "", reloadTheme);
     REG_JUMP("Main Menu", "", "", gotoMainMenu);
     REG_JUMP("Program Guide", "", "", startGuide);
     REG_JUMP("Program Finder", "", "", startFinder);
@@ -737,12 +758,18 @@ void CleanupMyOldInUsePrograms(void)
 
 int main(int argc, char **argv)
 {
-    QString geometry = "";
+    QString geometry = QString::null;
+    QString display  = QString::null;
 #ifdef Q_WS_X11
-    // Remember any -geometry argument which QApplication init will remove
+    // Remember any -display or -geometry argument
+    // which QApplication init will remove.
     for(int argpos = 1; argpos + 1 < argc; ++argpos)
+    {
         if (!strcmp(argv[argpos],"-geometry"))
             geometry = argv[argpos+1];
+        else if (!strcmp(argv[argpos],"-display"))
+            display = argv[argpos+1];
+    }
 #endif
 
 #ifdef Q_WS_MACX
@@ -755,6 +782,7 @@ int main(int argc, char **argv)
     QString logfile = "";
 
     QString pluginname = "";
+    QMap<QString, QString> settingsOverride;
 
     QFileInfo finfo(a.argv()[0]);
 
@@ -764,6 +792,13 @@ int main(int argc, char **argv)
 
     if (binname != "mythfrontend")
         pluginname = binname;
+
+    gContext = new MythContext(MYTH_BINARY_VERSION);
+    if (!gContext->Init())
+    {   
+        VERBOSE(VB_IMPORTANT, "Failed to init MythContext, exiting.");
+        return FRONTEND_EXIT_NO_MYTHCONTEXT;
+    }
 
     for(int argpos = 1; argpos < a.argc(); ++argpos)
     {
@@ -820,6 +855,97 @@ int main(int argc, char **argv)
         {
             ResetSettings = true;
         }
+        else if (!strcmp(a.argv()[argpos],"-w") ||
+                 !strcmp(a.argv()[argpos],"--windowed"))
+        {
+            settingsOverride["RunFrontendInWindow"] = "1";
+        }
+        else if (!strcmp(a.argv()[argpos],"-nw") ||
+                 !strcmp(a.argv()[argpos],"--no-windowed"))
+        {
+            settingsOverride["RunFrontendInWindow"] = "0";
+        }
+        else if (!strcmp(a.argv()[argpos],"-O") ||
+                 !strcmp(a.argv()[argpos],"--override-setting"))
+        {
+            if (a.argc()-1 > argpos)
+            {
+                QString tmpArg = a.argv()[argpos+1];
+                if (tmpArg.startsWith("-"))
+                {
+                    cerr << "Invalid or missing argument to -O/--override-setting option\n";
+                    return BACKEND_EXIT_INVALID_CMDLINE;
+                } 
+ 
+                QStringList pairs = QStringList::split(",", tmpArg);
+                for (unsigned int index = 0; index < pairs.size(); ++index)
+                {
+                    QStringList tokens = QStringList::split("=", pairs[index]);
+                    tokens[0].replace(QRegExp("^[\"']"), "");
+                    tokens[0].replace(QRegExp("[\"']$"), "");
+                    tokens[1].replace(QRegExp("^[\"']"), "");
+                    tokens[1].replace(QRegExp("[\"']$"), "");
+                    settingsOverride[tokens[0]] = tokens[1];
+                }
+            }
+            else
+            {
+                cerr << "Invalid or missing argument to -O/--override-setting option\n";
+                return BACKEND_EXIT_INVALID_CMDLINE;
+            }
+
+            ++argpos;
+        }
+        else if (!strcmp(a.argv()[argpos],"-G") ||
+                 !strcmp(a.argv()[argpos],"--get-setting"))
+        {
+            if (a.argc()-1 > argpos)
+            {
+                QString tmpArg = a.argv()[argpos+1];
+                if (tmpArg.startsWith("-"))
+                {
+                    cerr << "Invalid or missing argument to -G/--get-setting option\n";
+                    return FRONTEND_EXIT_INVALID_CMDLINE;
+                } 
+ 
+                QStringList pairs = QStringList::split(",", tmpArg);
+                QString value;
+                for (unsigned int index = 0; index < pairs.size(); ++index)
+                {
+                    value = gContext->GetSetting(pairs[index]);
+                    cerr << "\tSettings Value : " << pairs[index];
+                    cerr <<  " = " << value << endl;
+                }
+                return FRONTEND_EXIT_OK;
+            }
+            else
+            {
+                cerr << "Invalid or missing argument to -G/--get-setting option\n";
+                return FRONTEND_EXIT_INVALID_CMDLINE;
+            }
+
+            ++argpos;
+        }
+        else if (!strcmp(a.argv()[argpos],"-display") ||
+                 !strcmp(a.argv()[argpos],"--display"))
+        {
+            if (a.argc()-1 > argpos)
+            {
+                display = a.argv()[argpos+1];
+                if (display.startsWith("-"))
+                {
+                    cerr << "Invalid or missing argument to -display option\n";
+                    return FRONTEND_EXIT_INVALID_CMDLINE;
+                }
+                else
+                    ++argpos;
+            }
+            else
+            {
+                cerr << "Missing argument to -display option\n";
+                return FRONTEND_EXIT_INVALID_CMDLINE;
+            }
+        }
         else if (!strcmp(a.argv()[argpos],"-geometry") ||
                  !strcmp(a.argv()[argpos],"--geometry"))
         {
@@ -859,6 +985,14 @@ int main(int argc, char **argv)
                     "--geometry WxH+X+Y             Override window size and position\n" <<
                     "-l or --logfile filename       Writes STDERR and STDOUT messages to filename" << endl <<
                     "-r or --reset                  Resets frontend appearance settings and language" << endl <<
+                    "-w or --windowed               Run in windowed mode" << endl <<
+                    "-nw or --no-windowed           Run in non-windowed mode " << endl <<
+                    "-O or " << endl <<
+                    "  --override-setting KEY=VALUE Force the setting named 'KEY' to value 'VALUE'" << endl <<
+                    "                               This option may be repeated multiple times" << endl <<
+                    "-G or " << endl <<
+                    "  --get-setting KEY[,KEY2,etc] Returns the current database setting for 'KEY'" << endl <<
+                    "                               Use a comma seperated list to return multiple values" << endl <<
                     "-v or --verbose debug-level    Use '-v help' for level info" << endl <<
 
                     "--version                      Version information" << endl <<
@@ -904,14 +1038,6 @@ int main(int argc, char **argv)
     if (!dir.exists())
         dir.mkdir(fileprefix);
 
-    gContext = NULL;
-    gContext = new MythContext(MYTH_BINARY_VERSION);
-    if (!gContext->Init())
-    {
-        VERBOSE(VB_IMPORTANT, "Failed to init MythContext, exiting.");
-        return FRONTEND_EXIT_NO_MYTHCONTEXT;
-    }
-
     if (ResetSettings)
     {
        AppearanceSettings as;
@@ -926,11 +1052,27 @@ int main(int argc, char **argv)
        return FRONTEND_EXIT_OK;
     }
 
-    if (geometry != "" && !gContext->ParseGeometryOverride(geometry))
+    if (!display.isEmpty())
+    {
+        gContext->SetX11Display(display);
+    }
+
+    if (!geometry.isEmpty() && !gContext->ParseGeometryOverride(geometry))
     {
         VERBOSE(VB_IMPORTANT,
                 QString("Illegal -geometry argument '%1' (ignored)")
                 .arg(geometry));
+    }
+
+    if (settingsOverride.size())
+    {
+        QMap<QString, QString>::iterator it;
+        for (it = settingsOverride.begin(); it != settingsOverride.end(); ++it)
+        {
+            VERBOSE(VB_IMPORTANT, QString("Setting '%1' being forced to '%2'")
+                                          .arg(it.key()).arg(it.data()));
+            gContext->OverrideSettingForSession(it.key(), it.data());
+        }
     }
 
     // Create priveleged thread, then drop privs
@@ -962,16 +1104,15 @@ int main(int argc, char **argv)
 
     VERBOSE(VB_IMPORTANT, QString("Enabled verbose msgs: %1").arg(verboseString));
 
-    LCD::SetupLCD ();
-    if (class LCD *lcd = LCD::Get ()) {
-            lcd->setupLEDs(RemoteGetRecordingMask);
-    }
+    LCD::SetupLCD();
+    if (LCD *lcd = LCD::Get())
+        lcd->setupLEDs(RemoteGetRecordingMask);
 
     LanguageSettings::load("mythfrontend");
 
     WriteDefaults();
 
-    QString themename = gContext->GetSetting("Theme", "blue");
+    QString themename = gContext->GetSetting("Theme", "G.A.N.T.");
     bool randomtheme = gContext->GetNumSetting("RandomTheme", 0);
 
     if (randomtheme)
@@ -986,8 +1127,11 @@ int main(int argc, char **argv)
 
     gContext->LoadQtConfig();
 
-    MythMainWindow *mainWindow = new MythMainWindow();
+    MythMainWindow *mainWindow = GetMythMainWindow();
     gContext->SetMainWindow(mainWindow);
+
+    themeBase = new MythThemeBase();
+
     LanguageSettings::prompt();
 
     InitJumpPoints();
@@ -1020,6 +1164,9 @@ int main(int argc, char **argv)
     {
         if (pmanager->run_plugin(pluginname))
         {
+            qApp->setMainWidget(mainWindow);
+            qApp->exec();
+
             qApp->unlock();
             return FRONTEND_EXIT_OK;
         }
@@ -1028,6 +1175,9 @@ int main(int argc, char **argv)
             pluginname = "myth" + pluginname;
             if (pmanager->run_plugin(pluginname))
             {
+                qApp->setMainWidget(mainWindow);
+                qApp->exec();
+
                 qApp->unlock();
                 return FRONTEND_EXIT_OK;
             }
@@ -1037,12 +1187,11 @@ int main(int argc, char **argv)
     qApp->unlock();
 
 #ifndef _WIN32
-    MediaMonitor *mon = NULL;
-    mon = MediaMonitor::getMediaMonitor();
+    MediaMonitor *mon = MediaMonitor::GetMediaMonitor();
     if (mon)
     {
         VERBOSE(VB_IMPORTANT, QString("Starting media monitor."));
-        mon->startMonitoring();
+        mon->StartMonitoring();
     }
 #endif
 
@@ -1059,7 +1208,24 @@ int main(int argc, char **argv)
 
     gContext->addCurrentLocation("MainMenu");
 
-    int exitstatus = RunMenu(themedir);
+    int exitstatus = NO_EXIT;
+
+    do
+    {
+        themename = gContext->GetSetting("Theme", "blue");
+        themedir = gContext->FindThemeDir(themename);
+        if (themedir == "")
+        {
+            cerr << "Couldn't find theme " << themename << endl;
+            return FRONTEND_EXIT_NO_THEME;
+        }
+
+        if (!RunMenu(themedir))
+            break;
+
+        qApp->setMainWidget(mainWindow);
+        qApp->exec();
+    } while (!(exitstatus = handleExit()));
 
     if (exitstatus == HALT)
         haltnow();
@@ -1069,7 +1235,7 @@ int main(int argc, char **argv)
 #ifndef _WIN32
     if (mon)
     {
-        mon->stopMonitoring();
+        mon->StopMonitoring();
         delete mon;
     }
 #endif
@@ -1084,7 +1250,8 @@ int main(int argc, char **argv)
     if (networkControl)
         delete networkControl;
 
-    delete mainWindow;
+    DestroyMythMainWindow();
+    delete themeBase;
     delete gContext;
     return FRONTEND_EXIT_OK;
 }

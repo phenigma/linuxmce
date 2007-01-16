@@ -7,6 +7,10 @@
 // C headers
 #include <pthread.h>
 
+// C++ headers
+#include <algorithm>
+using namespace std;
+
 // Qt headers
 #include <qobject.h>
 #include <qmutex.h>
@@ -14,7 +18,7 @@
 // MythTV headers
 #include "signalmonitorvalue.h"
 #include "channelbase.h"
-#include "videosource.h"
+#include "cardutil.h"
 
 #define DBG_SM(FUNC, MSG) VERBOSE(VB_CHANNEL, \
     "SM("<<channel->GetDevice()<<")::"<<FUNC<<": "<<MSG);
@@ -51,6 +55,7 @@ enum {
     kDVBSigMon_WaitForSNR = 0x01000000,
     kDVBSigMon_WaitForBER = 0x02000000,
     kDVBSigMon_WaitForUB  = 0x04000000,
+    kDVBSigMon_WaitForPos = 0x08000000, ///< Wait for rotor
 };
 
 inline QString sm_flags_to_string(uint);
@@ -125,7 +130,8 @@ class SignalMonitor: virtual public QObject
      *   Defaults to 25 milliseconds.
      *  \param msec Milliseconds between signal monitoring events.
      */
-    void SetUpdateRate(int msec) { update_rate = msec; }
+    void SetUpdateRate(int msec)
+        { update_rate = max(msec, (int)minimum_update_rate); }
 
   public slots:
     virtual void deleteLater(void);
@@ -164,6 +170,7 @@ class SignalMonitor: virtual public QObject
     int          capturecardnum;
     uint         flags;
     int          update_rate;
+    uint         minimum_update_rate;
     bool         running;
     bool         exit;
     bool         update_done;
@@ -242,12 +249,10 @@ inline QString sm_flags_to_string(uint flags)
 
 inline bool SignalMonitor::IsSupported(QString cardtype)
 {
-    if (CardUtil::IsDVBCardType(cardtype))
-        return true;
-    if (cardtype.upper() == "HDTV")
-        return true;
-
-    return false;
+    return (CardUtil::IsDVBCardType(cardtype) ||
+            (cardtype.upper() == "HDTV")      ||
+            (cardtype.upper() == "HDHOMERUN") ||
+            (cardtype.upper() == "FREEBOX"));
 }
 
 

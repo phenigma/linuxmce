@@ -27,9 +27,7 @@
 #include <unistd.h>
 #include "common.h"
 #include "avcodec.h"
-#ifdef CONFIG_WIN32
-#include <fcntl.h>
-#endif
+#include "internal.h"
 
 /**
  * Buffer management macros.
@@ -229,39 +227,7 @@ int ff_xvid_encode_init(AVCodecContext *avctx)  {
         rc2pass2.version = XVID_VERSION;
         rc2pass2.bitrate = avctx->bit_rate;
 
-#ifdef CONFIG_WIN32 /* Ugly work around */
-        {
-           char *tempname;
-
-           tempname = tempnam(".", "xvidff");
-            fd = -1;
-            if( tempname &&
-                (fd = open(tempname, _O_RDWR | _O_BINARY)) != -1 ) {
-                x->twopassfile = av_strdup(tempname);
-#undef free
-                free(tempname);
-#define free please_use_av_free
-                if( x->twopassfile == NULL ) {
-                    av_log(avctx, AV_LOG_ERROR,
-                        "XviD: Cannot allocate 2-pass buffer\n");
-                    return -1;
-                }
-            }
-       }
-#else
-        x->twopassfile = av_malloc(BUFFER_SIZE);
-        if( x->twopassfile == NULL ) {
-            av_log(avctx, AV_LOG_ERROR,
-                "XviD: Cannot allocate 2-pass buffer\n");
-            return -1;
-        }
-        strcpy(x->twopassfile, "/tmp/xvidff.XXXXXX");
-        fd = mkstemp(x->twopassfile);
-        if(fd < 0){
-            strcpy(x->twopassfile, "./xvidff.XXXXXX");
-            fd = mkstemp(x->twopassfile);
-        }
-#endif
+        fd = av_tempfile("xvidff.", &(x->twopassfile));
         if( fd == -1 ) {
             av_log(avctx, AV_LOG_ERROR,
                 "XviD: Cannot write 2-pass pipe\n");
@@ -372,7 +338,7 @@ int ff_xvid_encode_init(AVCodecContext *avctx)  {
 
     /* Bframes */
     xvid_enc_create.max_bframes = avctx->max_b_frames;
-    xvid_enc_create.bquant_offset = avctx->b_quant_offset;
+    xvid_enc_create.bquant_offset = 100 * avctx->b_quant_offset;
     xvid_enc_create.bquant_ratio = 100 * avctx->b_quant_factor;
     if( avctx->max_b_frames > 0  && !x->quicktime_format ) xvid_enc_create.global |= XVID_GLOBAL_PACKED;
 
@@ -794,5 +760,6 @@ AVCodec xvid_encoder = {
     sizeof(xvid_context_t),
     ff_xvid_encode_init,
     ff_xvid_encode_frame,
-    ff_xvid_encode_close
+    ff_xvid_encode_close,
+    .pix_fmts= (enum PixelFormat[]){PIX_FMT_YUV420P, -1},
 };

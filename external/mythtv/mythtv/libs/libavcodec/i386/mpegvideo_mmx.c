@@ -23,7 +23,7 @@
 #include "../dsputil.h"
 #include "../mpegvideo.h"
 #include "../avcodec.h"
-#include "mmx.h"
+#include "x86_cpu.h"
 
 extern uint8_t zigzag_direct_noperm[64];
 extern uint16_t inv_zigzag_direct16[64];
@@ -66,7 +66,7 @@ asm volatile(
                 "packssdw %%mm5, %%mm5          \n\t"
                 "psubw %%mm5, %%mm7             \n\t"
                 "pxor %%mm4, %%mm4              \n\t"
-                ".balign 16                     \n\t"
+                ASMALIGN(4)
                 "1:                             \n\t"
                 "movq (%0, %3), %%mm0           \n\t"
                 "movq 8(%0, %3), %%mm1          \n\t"
@@ -129,7 +129,7 @@ asm volatile(
                 "packssdw %%mm5, %%mm5          \n\t"
                 "psubw %%mm5, %%mm7             \n\t"
                 "pxor %%mm4, %%mm4              \n\t"
-                ".balign 16                     \n\t"
+                ASMALIGN(4)
                 "1:                             \n\t"
                 "movq (%0, %3), %%mm0           \n\t"
                 "movq 8(%0, %3), %%mm1          \n\t"
@@ -222,7 +222,7 @@ asm volatile(
                 "packssdw %%mm6, %%mm6          \n\t"
                 "packssdw %%mm6, %%mm6          \n\t"
                 "mov %3, %%"REG_a"              \n\t"
-                ".balign 16                     \n\t"
+                ASMALIGN(4)
                 "1:                             \n\t"
                 "movq (%0, %%"REG_a"), %%mm0    \n\t"
                 "movq 8(%0, %%"REG_a"), %%mm1   \n\t"
@@ -285,7 +285,7 @@ asm volatile(
                 "packssdw %%mm6, %%mm6          \n\t"
                 "packssdw %%mm6, %%mm6          \n\t"
                 "mov %3, %%"REG_a"              \n\t"
-                ".balign 16                     \n\t"
+                ASMALIGN(4)
                 "1:                             \n\t"
                 "movq (%0, %%"REG_a"), %%mm0    \n\t"
                 "movq 8(%0, %%"REG_a"), %%mm1   \n\t"
@@ -357,7 +357,7 @@ asm volatile(
                 "packssdw %%mm6, %%mm6          \n\t"
                 "packssdw %%mm6, %%mm6          \n\t"
                 "mov %3, %%"REG_a"              \n\t"
-                ".balign 16                     \n\t"
+                ASMALIGN(4)
                 "1:                             \n\t"
                 "movq (%0, %%"REG_a"), %%mm0    \n\t"
                 "movq 8(%0, %%"REG_a"), %%mm1   \n\t"
@@ -418,7 +418,7 @@ asm volatile(
                 "packssdw %%mm6, %%mm6          \n\t"
                 "packssdw %%mm6, %%mm6          \n\t"
                 "mov %3, %%"REG_a"              \n\t"
-                ".balign 16                     \n\t"
+                ASMALIGN(4)
                 "1:                             \n\t"
                 "movq (%0, %%"REG_a"), %%mm0    \n\t"
                 "movq 8(%0, %%"REG_a"), %%mm1   \n\t"
@@ -699,7 +699,8 @@ void MPV_common_init_mmx(MpegEncContext *s)
         s->dct_unquantize_h263_inter = dct_unquantize_h263_inter_mmx;
         s->dct_unquantize_mpeg1_intra = dct_unquantize_mpeg1_intra_mmx;
         s->dct_unquantize_mpeg1_inter = dct_unquantize_mpeg1_inter_mmx;
-        s->dct_unquantize_mpeg2_intra = dct_unquantize_mpeg2_intra_mmx;
+        if(!(s->flags & CODEC_FLAG_BITEXACT))
+            s->dct_unquantize_mpeg2_intra = dct_unquantize_mpeg2_intra_mmx;
         s->dct_unquantize_mpeg2_inter = dct_unquantize_mpeg2_inter_mmx;
 
         draw_edges = draw_edges_mmx;

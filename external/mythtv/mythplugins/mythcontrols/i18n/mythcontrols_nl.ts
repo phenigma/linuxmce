@@ -94,19 +94,23 @@
     <name>UnsavedMenu</name>
     <message>
         <source>Unsaved Changes</source>
-        <translation>Niet opgeslagen aanpassingen</translation>
+        <translation>Niet opgeslagen wijzigingen</translation>
     </message>
     <message>
-        <source>Would you like to save now?</source>
-        <translation>Wilt u nu opslaan?</translation>
+        <source>Exiting...</source>
+        <translation>Bezig met afsluiten...</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation>Opslaan</translation>
+        <source>Save Changes?</source>
+        <translation>Wijzigingen Opslaan?</translation>
     </message>
     <message>
-        <source>Exit</source>
-        <translation>Afsluiten</translation>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nee</translation>
     </message>
 </context>
 </TS>

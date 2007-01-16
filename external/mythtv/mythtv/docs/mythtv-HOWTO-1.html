@@ -31,7 +31,8 @@ messages - I will simply delete your mail.</CAPTION>
 
 <P>MythTV is a GPL licensed suite of programs that allow you to build the
 mythical home media convergence box on your own using Open Source software
-and operating systems.</P>
+and operating systems.  MythTV is known to work on Linux and Mac OS X
+(PowerPC and Intel).  It does not run on Windows.</P>
 <P>MythTV has a number of capabilities.  The television portion allows you to
 do the following:
 <UL>
@@ -43,36 +44,43 @@ them.  All servers are centrally managed and all programs are scheduled by the
 Master backend.</LI>
 <LI>You can have multiple clients (called "frontends" in MythTV parlance),
 each with a common view of all available programs.  Any client can watch any
-program that was recorded by any of the servers.  Clients can be diskless
-and controlled entirely by a remote control.</LI>
+program that was recorded by any of the servers, assuming that they have the
+hardware capabilities to view the content; a low-powered frontend will not
+be able to watch HDTV, for example.  Clients can be diskless and controlled
+entirely by a remote control.</LI>
 <LI>You may use any combination of standard analog capture card, MPEG-2,
-MJPEG, DVB or HDTV capture devices.  With appropriate hardware, MythTV can
-control set top boxes, often found in digital cable and satellite TV
-systems.</LI>
+MJPEG, DVB, HDTV, USB and firewire capture devices.  With appropriate
+hardware, MythTV can control set top boxes, often found in digital cable and
+satellite TV systems.</LI>
 <LI>Program Guide Data in North America is downloaded from Zap2It.com, a
 subsidiary of Tribune Media Services.  This free service is called
 DataDirect, and provides MythTV almost two weeks of scheduling information. 
 Program Guide Data in other countries is obtained using XMLTV.  MythTV uses
 this information to create a schedule that maximizes the number of programs
 that can be recorded if you don't have enough tuners.</LI>
+<LI>MythTV implements a UPNP server, so a UPNP client should automatically
+see content from your MythTV system.</LI>
 </UL>
  
 Other modules in MythTV include:
 <UL>
-<LI>MythGallery, a picture-viewing application</LI>
-<LI>MythVideo, a media-viewer for content not created within MythTV</LI>
+<LI>MythArchive, a tool to create DVDs</LI>
+<LI>MythBrowser, a web browser</LI>
+<LI>MythControls, an application to configure your remote control</LI>
 <LI>MythDVD, a DVD viewer / ripper</LI>
+<LI>MythFlix, a Netflix module</LI>
+<LI>MythGallery, a picture-viewing application</LI>
+<LI>MythGame</LI>
 <LI>MythMusic, a music playing / ripping application which supports MP3
 and FLAC</LI>
-<LI>MythGame</LI>
-<LI>MythWeather</LI>
 <LI>MythNews, a RSS news grabber</LI>
-<LI>MythBrowser, a web browser</LI>
+<LI>MythPhone, phone and videophone using SIP.</LI>
+<LI>MythVideo, a media-viewer for content not created within MythTV</LI>
+<LI>MythWeather</LI>
 <LI>MythWeb, which allows you to control your MythTV system using a web
-browser.  With MythWeb, you can schedule recordings, delete files, change
+browser.  With MythWeb, you can schedule and delete recordings, change
 keybindings and more.  With proper security, you may even schedule a program
 over the Internet and have it immediately acted on by the scheduler.</LI>
-<LI>MythPhone, phone and videophone using SIP.</LI>
 </UL>
 </P>
 <H2><A NAME="ss1.2">1.2</A> <A HREF="mythtv-HOWTO.html#toc1.2">QuickStart</A>
@@ -86,14 +94,17 @@ you use one of the big-name OS packages.</P>
 <A HREF="http://mysettopbox.tv">http://mysettopbox.tv</A> if you'd
 like to install a custom version of Knoppix optimized for MythTV.</P>
 <P>See 
-<A HREF="http://linpvr.org/">http://linpvr.org/</A> if you'd like
+<A HREF="http://linpvr.org">http://linpvr.org</A> if you'd like
 to install MythTV onto a VIA Epia M machine.</P>
 <P>See 
-<A HREF="http://bit.blkbk.com/">http://bit.blkbk.com/</A> if you'd
+<A HREF="http://bit.blkbk.com">http://bit.blkbk.com</A> if you'd
 like to install MythTV on a Xbox.</P>
 <P>See 
 <A HREF="http://wilsonet.com/mythtv/">http://wilsonet.com/mythtv/</A> for instructions tailored to RedHat's
 Fedora Core distribution.</P>
+<P>There is a MythTV wiki at 
+<A HREF="http://wiki.mythtv.org">http://wiki.mythtv.org</A>.</P>
+
 <H2><A NAME="ss1.3">1.3</A> <A HREF="mythtv-HOWTO.html#toc1.3">Upgrading from previous versions</A>
 </H2>
 
@@ -115,7 +126,7 @@ Kulagowski
 <A HREF="http://www.mythtv.org/docs/mythtv-HOWTO-singlehtml.html">http://www.mythtv.org/docs/mythtv-HOWTO-singlehtml.html</A> or as a PDF
 at 
 <A HREF="http://www.mythtv.org/docs/mythtv-HOWTO.pdf">http://www.mythtv.org/docs/mythtv-HOWTO.pdf</A>.</P>
-<P>This HOWTO is for MythTV v0.19</P>
+<P>This HOWTO is for MythTV v0.20</P>
 
 <H2><A NAME="ss1.5">1.5</A> <A HREF="mythtv-HOWTO.html#toc1.5">Document conventions</A>
 </H2>
@@ -194,7 +205,10 @@ ticketing system at
 <P>The bug database is not a chat room, so restrict your entries to what is
 relevant.  It's also not a repository of feature requests; a feature request
 without an accompanying patch file to implement that feature will be quickly
-closed.</P>
+closed.  There is a feature wishlist on the wiki at 
+<A HREF="http://www.mythtv.org/wiki/index.php/Feature_Wishlist">http://www.mythtv.org/wiki/index.php/Feature_Wishlist</A>.  There is no
+guarantee that anything on the wishlist will ever get code written to
+implement it.</P>
 <P>If a developer closes out your bug, it's likely you didn't provide enough
 information.  Don't re-open a bug without providing additional information.</P>
 

@@ -1,10 +1,10 @@
 #!/usr/bin/perl -w
 #
-# $Date: 2005-08-20 23:21:40 +0300 (Sat, 20 Aug 2005) $
-# $Revision: 7095 $
+# $Date: 2006-08-06 00:51:46 +0300 (Sun, 06 Aug 2006) $
+# $Revision: 10685 $
 # $Author: xris $
 #
-#  epair_optimize.pl:
+#  optimize_mythdb.pl:
 #
 #   Connects to the mythtv database and repairs/optimizes the tables that it
 #   finds.  Suggested use is to cron it to run once per day.
@@ -56,7 +56,7 @@
     die "Unable to locate mysql.txt:  $!\n\n" unless ($found && $db_host);
 
 # Connect to the database
-    $dbh = DBI->connect("dbi:mysql:database=$db_name:host=$db_host", $db_user, $db_pass)
+    $dbh = DBI->connect("dbi:mysql:database=$db_name:host=$db_host;mysql_emulated_prepare=1", $db_user, $db_pass)
         or die "Cannot connect to database: $!\n\n";
 
 # Repair and optimize each table

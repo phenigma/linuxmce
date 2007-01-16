@@ -1,14 +1,4 @@
-#include "config.h"
-#include "mythcontext.h"
-#include "mythdbcon.h"
-#include "dbsettings.h"
-#include "langsettings.h"
-#include "mpeg/iso639.h"
-#include "globalsettings.h"
-#include "recordingprofile.h"
-#include "scheduledrecording.h"
-#include "util-x11.h"
-#include "DisplayRes.h"
+// -*- Mode: c++ -*-
 #include <qstylefactory.h>
 #include <qsqldatabase.h>
 #include <qfile.h>
@@ -16,6 +6,19 @@
 #include <qcursor.h>
 #include <qdir.h>
 #include <qimage.h>
+
+#include "mythconfig.h"
+#include "mythcontext.h"
+#include "mythdbcon.h"
+#include "dbsettings.h"
+#include "langsettings.h"
+#include "mpeg/iso639.h"
+#include "playbackbox.h"
+#include "globalsettings.h"
+#include "recordingprofile.h"
+#include "scheduledrecording.h"
+#include "util-x11.h"
+#include "DisplayRes.h"
 #include "uitypes.h"
 
 static HostComboBox *AudioOutputDevice()
@@ -37,6 +40,21 @@ static HostComboBox *AudioOutputDevice()
         gc->fillSelectionsFromDir(dev);
     }
 
+    return gc;
+}
+
+static HostComboBox *PassThroughOutputDevice()
+{
+    HostComboBox *gc = new HostComboBox("PassThruOutputDevice", true);
+
+    gc->setLabel(QObject::tr("Passthrough output device"));
+    gc->addSelection(QObject::tr("Default"), "Default");
+    gc->addSelection("ALSA:iec958:{ AES0 0x02 }", "ALSA:iec958:{ AES0 0x02 }");
+
+    gc->setHelpText(QObject::tr("Audio output device to use for AC3 and "
+                    "DTS passthrough. Default is the same as Audio output "
+                    "device. This value is currently only used with ALSA "
+                    "sound output."));
     return gc;
 }
 
@@ -175,7 +193,8 @@ class DeinterlaceSettings: public HorizontalConfigurationGroup,
                            public TriggeredConfigurationGroup {
 public:
     DeinterlaceSettings():
-        HorizontalConfigurationGroup(false, false),
+        ConfigurationGroup(false, false, false, false),
+        HorizontalConfigurationGroup(false, false, false, false),
         TriggeredConfigurationGroup(false) {
         setLabel(QObject::tr("Deinterlace settings"));
         setUseLabel(false);
@@ -302,13 +321,21 @@ static HostComboBox *DefaultView()
     HostComboBox *gc = new HostComboBox("DisplayGroupDefaultView");
     gc->setLabel(QObject::tr("Default View"));
 
-    gc->addSelection(QObject::tr("Show Titles only"), "0");
-    gc->addSelection(QObject::tr("Show Titles and Categories"), "1");
-    gc->addSelection(QObject::tr("Show Titles, Categories, and Recording Groups"), "2");
-    gc->addSelection(QObject::tr("Show Titles and Recording Groups"), "3");
-    gc->addSelection(QObject::tr("Show Categories only"), "4");
-    gc->addSelection(QObject::tr("Show Categories and Recording Groups"), "5");
-    gc->addSelection(QObject::tr("Show Recording Groups only"), "6");
+    gc->addSelection(QObject::tr("Show Titles only"),
+            QString::number(PlaybackBox::TitlesOnly));
+    gc->addSelection(QObject::tr("Show Titles and Categories"),
+            QString::number(PlaybackBox::TitlesCategories));
+    gc->addSelection(QObject::tr(
+                "Show Titles, Categories, and Recording Groups"),
+            QString::number(PlaybackBox::TitlesCategoriesRecGroups));
+    gc->addSelection(QObject::tr("Show Titles and Recording Groups"),
+            QString::number(PlaybackBox::TitlesRecGroups));
+    gc->addSelection(QObject::tr("Show Categories only"),
+            QString::number(PlaybackBox::Categories));
+    gc->addSelection(QObject::tr("Show Categories and Recording Groups"),
+            QString::number(PlaybackBox::CategoriesRecGroups));
+    gc->addSelection(QObject::tr("Show Recording Groups only"),
+            QString::number(PlaybackBox::RecGroups));
 
     gc->setHelpText(QObject::tr("Select what type of grouping to show on the Watch Recordings screen "
                     "by default."));
@@ -386,15 +413,14 @@ static GlobalComboBox *CommercialSkipMethod()
 {
     GlobalComboBox *bc = new GlobalComboBox("CommercialSkipMethod");
     bc->setLabel(QObject::tr("Commercial Skip Method"));
-    bc->addSelection(QObject::tr("Blank Frame Detection (default)"), "1");
+    bc->addSelection(QObject::tr("All Available Methods"), "255");
+    bc->addSelection(QObject::tr("Blank Frame Detection"), "1");
     bc->addSelection(QObject::tr("Blank Frame + Scene Change Detection"), "3");
     bc->addSelection(QObject::tr("Scene Change Detection"), "2");
     bc->addSelection(QObject::tr("Logo Detection"), "4");
-    bc->addSelection(QObject::tr("All"), "255");
+    bc->addSelection(QObject::tr("Experimental"), "511");
     bc->setHelpText(QObject::tr("This determines the method used by MythTV to "
-                    "detect when commercials start and end.  You must have "
-                    "'Automatically Flag Commercials' enabled to use "
-                    "anything other than 'Blank Frame'." ));
+                    "detect when commercials start and end."));
     return bc;
 }
 
@@ -503,6 +529,19 @@ static HostSpinBox *CommNotifyAmount()
     return gs;
 }
 
+static GlobalSpinBox *MaximumCommercialSkip()
+{
+    GlobalSpinBox *bs = new GlobalSpinBox("MaximumCommercialSkip", 0, 3600, 10);
+    bs->setLabel(QObject::tr("Maximum commercial skip (in seconds)"));
+    bs->setHelpText(QObject::tr("MythTV will discourage long manual commercial "
+                    "skips.  Skips which are longer than this will require the "
+                    "user to hit the SKIP key twice.  Automatic commercial "
+                    "skipping is not affected by this limit."));
+    bs->setValue(3600);
+    return bs;
+}
+
+
 static GlobalSpinBox *AutoExpireExtraSpace()
 {
     GlobalSpinBox *bs = new GlobalSpinBox("AutoExpireExtraSpace", 0, 200, 1);
@@ -522,6 +561,7 @@ static GlobalComboBox *AutoExpireMethod()
     bc->setLabel(QObject::tr("Auto Expire Method"));
     bc->addSelection(QObject::tr("Oldest Show First"), "1");
     bc->addSelection(QObject::tr("Lowest Priority First"), "2");
+    bc->addSelection(QObject::tr("Weighted Time/Priority Combination"), "3");
     bc->setHelpText(QObject::tr("Method used to determine which recorded "
                                 "shows to delete first.  LiveTV recordings "
                                 "will always expire before normal "
@@ -529,6 +569,17 @@ static GlobalComboBox *AutoExpireMethod()
     bc->setValue(1);
     return bc;
 }
+
+static GlobalSpinBox *AutoExpireDayPriority()
+{
+    GlobalSpinBox *bs = new GlobalSpinBox("AutoExpireDayPriority", 1, 400, 1);
+    bs->setLabel(QObject::tr("Auto Expire Priority Weight"));
+    bs->setHelpText(QObject::tr("The number of days bonus a program gets for "
+                    "each priority point. This is only used when the Weighted "
+                    "Time/Priority Auto Expire Method is selected."));
+    bs->setValue(3);
+    return bs;
+};
 
 static GlobalCheckBox *AutoExpireDefault()
 {
@@ -803,6 +854,121 @@ static HostComboBox *OSDCCFont()
     return gc;
 }
 
+static HostSpinBox *OSDCC708TextZoomPercentage(void)
+{
+    HostSpinBox *gs = new HostSpinBox("OSDCC708TextZoom", 50, 200, 5);
+    gs->setLabel(QObject::tr("Text zoom percentage"));
+    gs->setValue(100);
+    gs->setHelpText(QObject::tr("Use this to enlage or shrink captions."));
+
+    return gs;
+}
+
+static HostComboBox *OSDCC708DefaultFontType(void)
+{
+    HostComboBox *hc = new HostComboBox("OSDCC708DefaultFontType");
+    hc->setLabel(QObject::tr("Default Caption Font Type"));
+    hc->setHelpText(
+        QObject::tr("This allows you to set which font type to use "
+                    "when the broadcaster does not specify a font."));
+
+    QString types[] =
+    {
+        "MonoSerif", "PropSerif", "MonoSansSerif", "PropSansSerif",
+        "Casual",    "Cursive",   "Capitals",
+    };
+    QString typeNames[] =
+    {
+        QObject::tr("Monospaced serif"),
+        QObject::tr("Proportional serif"),
+        QObject::tr("Monospaced sans serif"),
+        QObject::tr("Proportional sans serif"),
+        QObject::tr("Casual"),
+        QObject::tr("Cursive"),
+        QObject::tr("Capitals"),
+    };
+    for (uint i = 0; i < 7; i++)
+        hc->addSelection(typeNames[i], types[i]);
+    return hc;
+}
+
+static VerticalConfigurationGroup *OSDCC708Settings(void)
+{
+    VerticalConfigurationGroup *grp =
+        new VerticalConfigurationGroup(true, false, true, true);
+    grp->setLabel(QObject::tr("ATSC caption settings"));
+
+// default text zoom 1.0
+    grp->addChild(OSDCC708TextZoomPercentage());
+
+// force X lines of captions
+// force caption character color
+// force caption character border color
+// force background color
+// force background opacity
+
+// set default font type
+    grp->addChild(OSDCC708DefaultFontType());
+
+    return grp;
+}
+
+static HostComboBox *OSDCC708Font(QString subtype, QString subtypeName)
+{
+    HostComboBox *gc = new HostComboBox(
+        QString("OSDCC708%1Font").arg(subtype));
+
+    gc->setLabel(subtypeName);
+    QDir ttf(gContext->GetFontsDir(), gContext->GetFontsNameFilter());
+    gc->fillSelectionsFromDir(ttf, false);
+    gc->setHelpText(QObject::tr("ATSC closed caption font"));
+
+    return gc;
+}
+
+static HorizontalConfigurationGroup *OSDCC708Fonts(void)
+{
+    HorizontalConfigurationGroup *grpmain =
+        new HorizontalConfigurationGroup(true, false, true, true);
+    grpmain->setLabel(QObject::tr("ATSC caption fonts"));
+    VerticalConfigurationGroup *col[] =
+    {
+        new VerticalConfigurationGroup(false, false, true, true),
+        new VerticalConfigurationGroup(false, false, true, true),
+    };
+    QString types[] =
+    {
+        "MonoSerif", "PropSerif", "MonoSansSerif", "PropSansSerif",
+        "Casual",    "Cursive",   "Capitals",
+    };
+    QString typeNames[] =
+    {
+        QObject::tr("Monospaced serif"),
+        QObject::tr("Proportional serif"),
+        QObject::tr("Monospaced sans serif"),
+        QObject::tr("Proportional sans serif"),
+        QObject::tr("Casual"),
+        QObject::tr("Cursive"),
+        QObject::tr("Capitals"),
+    };
+    QString subtypes[] = { "%1", "%1Italic", };
+
+    uint i = 0;
+    for (uint j = 0; j < 7; j++)
+    {
+        col[i]->addChild(OSDCC708Font(subtypes[i].arg(types[j]),
+                                      typeNames[j]));
+    }
+    grpmain->addChild(col[i]);
+
+    i = 1;
+    for (uint j = 0; j < 7; j++)
+        col[i]->addChild(OSDCC708Font(subtypes[i].arg(types[j]), "(italic)"));
+    grpmain->addChild(col[i]);
+
+    return grpmain;
+}
+
 static HostComboBox *OSDThemeFontSizeType()
 {
     HostComboBox *gc = new HostComboBox("OSDThemeFontSizeType");
@@ -818,11 +984,8 @@ static HostComboBox *ChannelOrdering()
 {
     HostComboBox *gc = new HostComboBox("ChannelOrdering");
     gc->setLabel(QObject::tr("Channel ordering"));
-    gc->addSelection(QObject::tr("channel number (numeric)"), "channum + 0");
-    gc->addSelection(QObject::tr("channel number (alpha)"), "channum");
-    gc->addSelection(QObject::tr("database order"), "chanid");
-    gc->addSelection(QObject::tr("channel name"), "callsign");
-    gc->addSelection(QObject::tr("ATSC channel"), "atscsrcid");
+    gc->addSelection(QObject::tr("channel number"), "channum");
+    gc->addSelection(QObject::tr("channel name"),   "callsign");
     return gc;
 }
 
@@ -877,6 +1040,9 @@ static HostComboBox *PreferredMPEG2Decoder()
 #ifdef USING_XVMC_VLD
     gc->addSelection(QObject::tr("VIA XvMC"), "xvmc-vld");
 #endif // USING_XVMC_VLD    
+#ifdef CONFIG_MAC_ACCEL
+    gc->addSelection(QObject::tr("Mac hardware acceleration"), "macaccel");
+#endif // CONFIG_MAC_ACCEL
     gc->setHelpText(
         QObject::tr("Decoder to use to play back MPEG2 video.") + " " +
         QObject::tr("Standard will use ffmpeg library.") + " " +
@@ -892,6 +1058,11 @@ static HostComboBox *PreferredMPEG2Decoder()
         + " " +
         QObject::tr("VIA XvMC will use the VIA VLD XvMC extension.")
 #endif // USING_XVMC_VLD
+#ifdef CONFIG_MAC_ACCEL
+        + " " +
+        QObject::tr("Mac hardware will try to use the graphics "
+                    "processor - this may hang or crash your Mac!")
+#endif
         );
     return gc;
 }
@@ -909,23 +1080,37 @@ static HostCheckBox *UseVideoTimebase()
 static HostCheckBox *CCBackground()
 {
     HostCheckBox *gc = new HostCheckBox("CCBackground");
-    gc->setLabel(QObject::tr("Black background for Closed Captioning"));
+    gc->setLabel(QObject::tr("Black background for analog closed captioning"));
     gc->setValue(false);
-    gc->setHelpText(QObject::tr("If enabled, captions will be displayed "
-                    "over a black space for maximum contrast. Otherwise, "
-                    "captions will use outlined text over the picture."));
+    gc->setHelpText(QObject::tr(
+                        "If enabled, analog captions will be displayed "
+                        "over a black space for maximum contrast. Otherwise, "
+                        "captions will use outlined text over the picture."));
     return gc;
 }
 
 static HostCheckBox *DefaultCCMode()
 {
     HostCheckBox *gc = new HostCheckBox("DefaultCCMode");
-    gc->setLabel(QObject::tr("Always display Closed Captioning"));
+    gc->setLabel(QObject::tr("Always display closed captioning or subtitles"));
     gc->setValue(false);
-    gc->setHelpText(QObject::tr("If enabled, captions will be displayed "
-                    "when playing back recordings or watching "
-                    "live TV.  Closed Captioning can be turned on or off "
-                    "by pressing \"T\" during playback."));
+    gc->setHelpText(QObject::tr(
+                        "If enabled, captions will be displayed "
+                        "when playing back recordings or watching "
+                        "live TV.  Closed Captioning can be turned on or off "
+                        "by pressing \"T\" during playback."));
+    return gc;
+}
+
+static HostCheckBox *EnableMHEG()
+{
+    HostCheckBox *gc = new HostCheckBox("EnableMHEG");
+    gc->setLabel(QObject::tr("Enable Interactive TV"));
+    gc->setValue(false);
+    gc->setHelpText(QObject::tr(
+                        "If enabled, interactive TV applications (MHEG) will "
+                        "be activated.  This is used for teletext and logos for "
+                        "radio and channels that are currently off-air."));
     return gc;
 }
 
@@ -978,6 +1163,7 @@ static HostCheckBox *AltClearSavedPosition()
     return gc;
 }
 
+#ifdef USING_XV
 static HostCheckBox *UsePicControls()
 {
     HostCheckBox *gc = new HostCheckBox("UseOutputPictureControls");
@@ -990,6 +1176,7 @@ static HostCheckBox *UsePicControls()
                     "some systems."));
     return gc;
 }
+#endif
 
 static HostCheckBox *AudioNagSetting()
 {
@@ -1042,7 +1229,7 @@ static HostCheckBox *EndOfRecordingExitPrompt()
 static HostCheckBox *GeneratePreviewPixmaps()
 {
     HostCheckBox *gc = new HostCheckBox("GeneratePreviewPixmaps");
-    gc->setLabel(QObject::tr("Generate thumbnail preview images of "
+    gc->setLabel(QObject::tr("Display thumbnail preview images of "
                  "recordings"));
     gc->setValue(false);
     gc->setHelpText(QObject::tr("If enabled, a static image of the recording will "
@@ -1483,7 +1670,8 @@ class VideoModeSettings: public VerticalConfigurationGroup,
                          public TriggeredConfigurationGroup {
   public:
     VideoModeSettings():
-        VerticalConfigurationGroup(false),
+        ConfigurationGroup(false, true, false, false),
+        VerticalConfigurationGroup(false, true, false, false),
         TriggeredConfigurationGroup(false) {
         setLabel(QObject::tr("Video Mode Settings"));
         setUseLabel(false);
@@ -1589,6 +1777,7 @@ static HostComboBox *MythDateFormat()
     gc->addSelection(sampdate.toString("M/d/yyyy"), "M/d/yyyy");
     gc->addSelection(sampdate.toString("dd.MM.yyyy"), "dd.MM.yyyy");
     gc->addSelection(sampdate.toString("yyyy-MM-dd"), "yyyy-MM-dd");
+    gc->addSelection(sampdate.toString("ddd MMM d yyyy"), "ddd MMM d yyyy"); 
     gc->addSelection(sampdate.toString("ddd yyyy-MM-dd"), "ddd yyyy-MM-dd");
     gc->setHelpText(QObject::tr("Your preferred date format.") + " " +
                     sampleStr);
@@ -1619,6 +1808,7 @@ static HostComboBox *MythShortDateFormat()
     gc->addSelection(sampdate.toString("d.M."), "d.M.");
     gc->addSelection(sampdate.toString("dd.MM."), "dd.MM.");
     gc->addSelection(sampdate.toString("MM-dd"), "MM-dd");
+    gc->addSelection(sampdate.toString("MMM d"), "MMM d"); 
     gc->addSelection(sampdate.toString("ddd d"), "ddd d");
     gc->addSelection(sampdate.toString("d ddd"), "d ddd");
     gc->addSelection(sampdate.toString("ddd M/d"), "ddd M/d");
@@ -1655,6 +1845,16 @@ static HostComboBox *ThemeFontSizeType()
     gc->addSelection(QObject::tr("small"), "small");
     gc->addSelection(QObject::tr("big"), "big");
     gc->setHelpText(QObject::tr("default: TV, small: monitor, big:"));
+    return gc;
+}
+
+static HostComboBox *ThemePainter()
+{
+    HostComboBox *gc = new HostComboBox("ThemePainter");
+    gc->setLabel(QObject::tr("Paint Engine"));
+    gc->addSelection(QObject::tr("Qt"), "qt");
+    gc->addSelection(QObject::tr("OpenGL"), "opengl");
+    gc->setHelpText(QObject::tr("This selects what Myth uses to draw.  If you have decent hardware, select OpenGL. Changing this requires a restart."));
     return gc;
 }
 
@@ -1949,8 +2149,94 @@ static GlobalCheckBox *GRSchedMoveHigher()
                     "can be used to record lower priority programs that "
                     "would otherwise not be recorded, but risks missing "
                     "a higher priority program if the schedule changes."));
+    bc->setValue(true);
+    return bc;
+}
+
+static GlobalSpinBox *GRDefaultStartOffset()
+{
+    GlobalSpinBox *bs = new GlobalSpinBox("DefaultStartOffset",
+                                          -10, 30, 5, true);
+    bs->setLabel(QObject::tr("Default 'Start Early' minutes for new "
+                             "recording rules"));
+    bs->setHelpText(QObject::tr("Set this to '0' unless you expect that the "
+                    "majority of your show times will not match your TV "
+                    "listings. This sets the initial start early or start "
+                    "late time when rules are created. These can then be "
+                    "adjusted per recording rule."));
+    bs->setValue(0);
+    return bs;
+}
+
+static GlobalSpinBox *GRDefaultEndOffset()
+{
+    GlobalSpinBox *bs = new GlobalSpinBox("DefaultEndOffset",
+                                          -10, 30, 5, true);
+    bs->setLabel(QObject::tr("Default 'End Late' minutes for new "
+                             "recording rules"));
+    bs->setHelpText(QObject::tr("Set this to '0' unless you expect that the "
+                    "majority of your show times will not match your TV "
+                    "listings. This sets the initial end late or end early "
+                    "time when rules are created. These can then be adjusted "
+                    "per recording rule."));
+    bs->setValue(0);
+    return bs;
+}
+
+static GlobalCheckBox *GRComplexPriority()
+{
+    GlobalCheckBox *bc = new GlobalCheckBox("ComplexPriority");
+    bc->setLabel(QObject::tr("Complex Prioritization"));
+    bc->setHelpText(QObject::tr("If set, per rule plus type priorities "
+                    "will be used for primary prioritization with all other "
+                    "priorities having a secondary effect. Unset so that all "
+                    "are treated equally in a single total priority as "
+                    "described in the HOWTO."));
     bc->setValue(false);
     return bc;
+}
+
+static GlobalSpinBox *GRPrefInputRecPriority()
+{
+    GlobalSpinBox *bs = new GlobalSpinBox("PrefInputPriority", 1, 99, 1);
+    bs->setLabel(QObject::tr("Preferred Input Priority"));
+    bs->setHelpText(QObject::tr("Additional priority when a showing "
+                    "matches the preferred input selected in the 'Scheduling "
+                    "Options' section of the recording rule."));
+    bs->setValue(2);
+    return bs;
+}
+
+static GlobalSpinBox *GROnceRecPriority()
+{
+    GlobalSpinBox *bs = new GlobalSpinBox("OnceRecPriority", 0, 99, 1);
+    bs->setLabel(QObject::tr("Priority When Shown Once"));
+    bs->setHelpText(QObject::tr("Additional priority when a showing of "
+                    "an episode, special or movie only appears once in "
+                    "the current TV listing. This improves the chance that "
+                    "a show will record in it's only available time slot."));
+    bs->setValue(0);
+    return bs;
+}
+
+static GlobalSpinBox *GRHDTVRecPriority()
+{
+    GlobalSpinBox *bs = new GlobalSpinBox("HDTVRecPriority", -99, 99, 1);
+    bs->setLabel(QObject::tr("HDTV Recording Priority"));
+    bs->setHelpText(QObject::tr("Additional priority when a showing "
+                    "is marked as an HDTV broadcast in the TV listings."));
+    bs->setValue(0);
+    return bs;
+}
+
+static GlobalSpinBox *GRCCRecPriority()
+{
+    GlobalSpinBox *bs = new GlobalSpinBox("CCRecPriority", -99, 99, 1);
+    bs->setLabel(QObject::tr("Close Captioned Priority"));
+    bs->setHelpText(QObject::tr("Additional priority when a showing "
+                    "is marked as Close Captioned in the TV listings."));
+    bs->setValue(0);
+    return bs;
 }
 
 static GlobalSpinBox *GRSingleRecordRecPriority()
@@ -2086,34 +2372,54 @@ class AudioSettings: public VerticalConfigurationGroup,
                      public TriggeredConfigurationGroup {
 public:
      AudioSettings():
-         VerticalConfigurationGroup(false),
+         ConfigurationGroup(false, true, false, false),
+         VerticalConfigurationGroup(false, true, false, false),
          TriggeredConfigurationGroup(false) {
          setLabel(QObject::tr("Audio"));
          setUseLabel(false);
 
          addChild(AudioOutputDevice());
-         addChild(AC3PassThrough());
+         addChild(PassThroughOutputDevice());
+
+         // General boolean settings
+         VerticalConfigurationGroup *vgrp0 =
+             new VerticalConfigurationGroup(false, false, true, true);
+         vgrp0->addChild(AC3PassThrough());
 #ifdef CONFIG_DTS
-         addChild(DTSPassThrough());
+         vgrp0->addChild(DTSPassThrough());
 #endif
-         addChild(AggressiveBuffer());
+
+         VerticalConfigurationGroup *vgrp1 =
+             new VerticalConfigurationGroup(false, false, true, true);
+         vgrp1->addChild(AggressiveBuffer());
 
          Setting* volumeControl = MythControlsVolume();
-         addChild(volumeControl);
+         vgrp1->addChild(volumeControl);
+
+         HorizontalConfigurationGroup *tgrp =
+             new HorizontalConfigurationGroup(false, false, true, true);
+         tgrp->addChild(vgrp0);
+         tgrp->addChild(vgrp1);
+         addChild(tgrp);
+
+         // Make volume control trigger for mixer settings
          setTrigger(volumeControl);
 
-         ConfigurationGroup* settings = new VerticalConfigurationGroup(false);
-         HorizontalConfigurationGroup *lr = new HorizontalConfigurationGroup(false, false);
-         lr->addChild(MixerDevice());
-         lr->addChild(MixerControl());
-         settings->addChild(lr);
+         // Mixer settings
+         ConfigurationGroup *settings =
+             new VerticalConfigurationGroup(false, false, false, false);
+         HorizontalConfigurationGroup *mixgrp =
+             new HorizontalConfigurationGroup(false, false, false, false);
+         mixgrp->addChild(MixerDevice());
+         mixgrp->addChild(MixerControl());
+         settings->addChild(mixgrp);
          settings->addChild(MixerVolume());
          settings->addChild(PCMVolume());
          settings->addChild(IndividualMuteControl());
-         addTarget("1", settings);
 
-         // show nothing if volumeControl is off
+         // Show Mixer config only if internal volume controls enabled
          addTarget("0", new VerticalConfigurationGroup(false, false));
+         addTarget("1", settings);
      };
 };
 
@@ -2132,10 +2438,12 @@ static void ISO639_fill_selections(SelectSetting *widget, uint i)
     widget->clearSelections();
     QString q = QString("ISO639Language%1").arg(i);
     QString lang = gContext->GetSetting(q, "").lower();
-    VERBOSE(VB_IMPORTANT, "lang"<<i<<": "<<lang);
-    if (lang.isEmpty() && !gContext->GetSetting("Language", "").isEmpty())
+
+    if ((lang.isEmpty() || lang == "aar") && 
+        !gContext->GetSetting("Language", "").isEmpty())
+    {
         lang = iso639_str2_to_str3(gContext->GetLanguage().lower());
-    VERBOSE(VB_IMPORTANT, "lang: "<<lang);
+    }
 
     QMap<int,QString>::iterator it  = _iso639_key_to_english_name.begin();
     QMap<int,QString>::iterator ite = _iso639_key_to_english_name.end();
@@ -2269,6 +2577,38 @@ static HostCheckBox *EnableMediaMon()
     return gc;
 }
 
+class DefaultViewSettings: public VerticalConfigurationGroup,
+                           public TriggeredConfigurationGroup {
+public:
+    DefaultViewSettings():
+            VerticalConfigurationGroup(false, false, true, true),
+            TriggeredConfigurationGroup(false) {
+
+        TriggeredConfigurationGroup::setOptions(false, false, true, true);
+        VerticalConfigurationGroup::setOptions(false, false, true, true);
+
+        HostComboBox *defaultView = DefaultView();
+        addChild(defaultView);
+        setTrigger(defaultView);
+
+        HostComboBox *titleSort = new HostComboBox("DisplayGroupTitleSort");
+        titleSort->setLabel(QObject::tr("Sort Titles"));
+        titleSort->addSelection(QObject::tr("Alphabetically"),
+                QString::number(PlaybackBox::TitleSortAlphabetical));
+        titleSort->addSelection(QObject::tr("By Recording Priority"),
+                QString::number(PlaybackBox::TitleSortRecPriority));
+
+        for (unsigned int ii = 0; ii < PlaybackBox::ViewTypes; ii++)
+        {
+            if (ii == PlaybackBox::TitlesOnly)
+                addTarget(QString::number(ii), titleSort);
+            else
+                addTarget(QString::number(ii),
+                        new VerticalConfigurationGroup(false, false));
+        }
+    }
+};
+
 static HostCheckBox *PVR350OutputEnable()
 {
     HostCheckBox *gc = new HostCheckBox("PVR350OutputEnable");
@@ -2329,7 +2669,8 @@ class HwDecSettings: public  VerticalConfigurationGroup,
                      public TriggeredConfigurationGroup {
 public:
      HwDecSettings():
-         VerticalConfigurationGroup(false),
+         ConfigurationGroup(false, true, false, false),
+         VerticalConfigurationGroup(false, true, false, false),
          TriggeredConfigurationGroup(false) {
          setLabel(QObject::tr("Hardware Decoding Settings"));
          setUseLabel(false);
@@ -2526,7 +2867,8 @@ class MythLogSettings: public VerticalConfigurationGroup,
                        public TriggeredConfigurationGroup {
 public:
     MythLogSettings():
-         VerticalConfigurationGroup(false),
+         ConfigurationGroup(false, true, false, false),
+         VerticalConfigurationGroup(false, true, false, false),
          TriggeredConfigurationGroup(false) {
          setLabel(QObject::tr("Myth Database Logging"));
 //         setUseLabel(false);
@@ -2553,7 +2895,8 @@ class MythFillSettings: public VerticalConfigurationGroup,
                         public TriggeredConfigurationGroup {
 public:
      MythFillSettings():
-         VerticalConfigurationGroup(false),
+         ConfigurationGroup(false, true, false, false),
+         VerticalConfigurationGroup(false, true, false, false),
          TriggeredConfigurationGroup(false) {
          setLabel(QObject::tr("Mythfilldatabase"));
          setUseLabel(false);
@@ -2682,6 +3025,15 @@ static HostCheckBox *LCDHeartBeatOn()
     return gc;
 }
 
+static HostCheckBox *LCDBigClock()
+{
+    HostCheckBox *gc = new HostCheckBox("LCDBigClock");
+    gc->setLabel(QObject::tr("Display Large Clock"));
+    gc->setHelpText(QObject::tr("On multiline displays try and display the time as large as possible."));
+    gc->setValue(false);
+    return gc;
+}
+
 static HostLineEdit *LCDKeyString()
 {
     HostLineEdit *ge = new HostLineEdit("LCDKeyString");
@@ -2709,7 +3061,8 @@ class LcdSettings: public  VerticalConfigurationGroup,
                    public TriggeredConfigurationGroup {
 public:
      LcdSettings():
-         VerticalConfigurationGroup(false),
+         ConfigurationGroup(false, true, false, false),
+         VerticalConfigurationGroup(false, true, false, false),
          TriggeredConfigurationGroup(false) {
          setLabel(QObject::tr("LCD device display"));
          setUseLabel(false);
@@ -2728,11 +3081,12 @@ public:
          setLeft->addChild(LCDShowMusic());
          setLeft->addChild(LCDShowMusicItems());
          setLeft->addChild(LCDShowChannel());
-         setRight->addChild(LCDShowRecStatus());
+         setLeft->addChild(LCDShowRecStatus());
          setRight->addChild(LCDShowVolume());
          setRight->addChild(LCDShowGeneric());
          setRight->addChild(LCDBacklightOn());
          setRight->addChild(LCDHeartBeatOn());
+         setRight->addChild(LCDBigClock());
          setRight->addChild(LCDKeyString());
          setHoriz->addChild(setLeft);
          setHoriz->addChild(setRight);
@@ -2761,14 +3115,15 @@ static HostCheckBox *MacGammaCorrect()
 static HostCheckBox *MacYuvConversion()
 {
     HostCheckBox *gc = new HostCheckBox("MacYuvConversion");
-    gc->setLabel(QObject::tr("Use Altivec-enhanced color space conversion"));
-#ifdef HAVE_ALTIVEC
+    gc->setLabel(QObject::tr("Use Vector-enhanced color space conversion"));
+#if defined(HAVE_ALTIVEC) || defined(MMX)
     gc->setValue(true);
 #else
     gc->setValue(false);
 #endif
     gc->setHelpText(QObject::tr("If checked, YUV 4:2:0 will be converted to "
-                    "UYVY 4:2:2 in an Altivec-enabled routine.  If unchecked, "
+                    "UYVY 4:2:2 in an Altivec/MMX enabled routine.  "
+                    "If unchecked, "
                     "QuickTime will handle the conversion instead."));
     return gc;
 }
@@ -2836,7 +3191,8 @@ class MacMainSettings: public HorizontalConfigurationGroup,
                        public TriggeredConfigurationGroup {
 public:
     MacMainSettings():
-        HorizontalConfigurationGroup(false, false),
+        ConfigurationGroup(false, false, false, false),
+        HorizontalConfigurationGroup(false, false, false, false),
         TriggeredConfigurationGroup(false) {
         setLabel(QObject::tr("Video in main window"));
         setUseLabel(false);
@@ -2892,7 +3248,8 @@ class MacFloatSettings: public HorizontalConfigurationGroup,
                         public TriggeredConfigurationGroup {
 public:
     MacFloatSettings():
-        HorizontalConfigurationGroup(false, false),
+        ConfigurationGroup(false, false, false, false),
+        HorizontalConfigurationGroup(false, false, false, false),
         TriggeredConfigurationGroup(false) {
         setLabel(QObject::tr("Video in floating window"));
         setUseLabel(false);
@@ -2937,7 +3294,8 @@ class MacDockSettings: public HorizontalConfigurationGroup,
                        public TriggeredConfigurationGroup {
 public:
     MacDockSettings():
-        HorizontalConfigurationGroup(false, false),
+        ConfigurationGroup(false, false, false, false),
+        HorizontalConfigurationGroup(false, false, false, false),
         TriggeredConfigurationGroup(false) {
         setLabel(QObject::tr("Video in the dock"));
         setUseLabel(false);
@@ -2978,7 +3336,8 @@ class MacDesktopSettings: public HorizontalConfigurationGroup,
                           public TriggeredConfigurationGroup {
 public:
     MacDesktopSettings():
-        HorizontalConfigurationGroup(false, false),
+        ConfigurationGroup(false, false, false, false),
+        HorizontalConfigurationGroup(false, false, false, false),
         TriggeredConfigurationGroup(false) {
         setLabel(QObject::tr("Video on the desktop"));
         setUseLabel(false);
@@ -3059,7 +3418,9 @@ PlaybackSettings::PlaybackSettings()
     gen2->addChild(EndOfRecordingExitPrompt());
     gen2->addChild(ClearSavedPosition());
     gen2->addChild(AltClearSavedPosition());
+#ifdef USING_XV
     gen2->addChild(UsePicControls());
+#endif
     gen2->addChild(AudioNagSetting());
     gen2->addChild(UDPNotifyPort());
     addChild(gen2);
@@ -3085,7 +3446,7 @@ PlaybackSettings::PlaybackSettings()
     pbox2->addChild(RememberRecGroup());
     pbox2->addChild(UseGroupNameAsAllPrograms());
     pbox2->addChild(LiveTVInAllPrograms());
-    pbox2->addChild(DefaultView());
+    pbox2->addChild(new DefaultViewSettings());
     addChild(pbox2);
 
     addChild(new HwDecSettings());
@@ -3104,6 +3465,7 @@ PlaybackSettings::PlaybackSettings()
     comms->addChild(AutoCommercialSkip());
     comms->addChild(CommRewindAmount());
     comms->addChild(CommNotifyAmount());
+    comms->addChild(MaximumCommercialSkip());
     comms->addChild(CommSkipAllBlanks());
     addChild(comms);
 
@@ -3139,7 +3501,11 @@ PlaybackSettings::PlaybackSettings()
     osd->addChild(CCBackground());
     osd->addChild(DefaultCCMode());
     osd->addChild(PersistentBrowseMode());
+    osd->addChild(EnableMHEG());
     addChild(osd);
+
+    addChild(OSDCC708Settings());
+    addChild(OSDCC708Fonts());
 
 #ifdef CONFIG_DARWIN
     VerticalConfigurationGroup* mac1 = new VerticalConfigurationGroup(false);
@@ -3169,10 +3535,16 @@ GeneralSettings::GeneralSettings()
     general->addChild(LongChannelFormat());
     general->addChild(SmartChannelChange());
     general->addChild(LastFreeCard());
-    general->addChild(AutoExpireMethod());
-    general->addChild(AutoExpireDefault());
-    general->addChild(AutoExpireLiveTVMaxAge());
     addChild(general);
+
+    VerticalConfigurationGroup* autoexp = new VerticalConfigurationGroup(false);
+    autoexp->setLabel(QObject::tr("General (AutoExpire)"));
+    autoexp->addChild(AutoExpireMethod());
+    autoexp->addChild(AutoExpireDayPriority());
+    autoexp->addChild(AutoExpireDefault());
+    autoexp->addChild(AutoExpireLiveTVMaxAge());
+    autoexp->addChild(AutoExpireExtraSpace());
+    addChild(autoexp);
 
     VerticalConfigurationGroup* jobs = new VerticalConfigurationGroup(false);
     jobs->setLabel(QObject::tr("General (Jobs)"));
@@ -3187,7 +3559,6 @@ GeneralSettings::GeneralSettings()
 
     VerticalConfigurationGroup* general2 = new VerticalConfigurationGroup(false);
     general2->setLabel(QObject::tr("General (Advanced)"));
-    general2->addChild(AutoExpireExtraSpace());
     general2->addChild(RecordPreRoll());
     general2->addChild(RecordOverTime());
     general2->addChild(CategoryOverTimeSettings());
@@ -3226,18 +3597,30 @@ EPGSettings::EPGSettings()
 
 GeneralRecPrioritiesSettings::GeneralRecPrioritiesSettings()
 {
-    VerticalConfigurationGroup* gr = new VerticalConfigurationGroup(false);
-    gr->setLabel(QObject::tr("General Recording Priorities Settings"));
+    VerticalConfigurationGroup* sched = new VerticalConfigurationGroup(false);
+    sched->setLabel(QObject::tr("Scheduler Options"));
 
-    gr->addChild(GRSchedMoveHigher());
-    gr->addChild(GRSingleRecordRecPriority());
-    gr->addChild(GROverrideRecordRecPriority());
-    gr->addChild(GRFindOneRecordRecPriority());
-    gr->addChild(GRWeekslotRecordRecPriority());
-    gr->addChild(GRTimeslotRecordRecPriority());
-    gr->addChild(GRChannelRecordRecPriority());
-    gr->addChild(GRAllRecordRecPriority());
-    addChild(gr);
+    sched->addChild(GRSchedMoveHigher());
+    sched->addChild(GRDefaultStartOffset());
+    sched->addChild(GRDefaultEndOffset());
+    sched->addChild(GRComplexPriority());
+    sched->addChild(GRPrefInputRecPriority());
+    sched->addChild(GROnceRecPriority());
+    sched->addChild(GRHDTVRecPriority());
+    sched->addChild(GRCCRecPriority());
+    addChild(sched);
+
+    VerticalConfigurationGroup* rtype = new VerticalConfigurationGroup(false);
+    rtype->setLabel(QObject::tr("Recording Type Priority Settings"));
+
+    rtype->addChild(GRSingleRecordRecPriority());
+    rtype->addChild(GROverrideRecordRecPriority());
+    rtype->addChild(GRFindOneRecordRecPriority());
+    rtype->addChild(GRWeekslotRecordRecPriority());
+    rtype->addChild(GRTimeslotRecordRecPriority());
+    rtype->addChild(GRChannelRecordRecPriority());
+    rtype->addChild(GRAllRecordRecPriority());
+    addChild(rtype);
 }
 
 AppearanceSettings::AppearanceSettings()
@@ -3246,6 +3629,7 @@ AppearanceSettings::AppearanceSettings()
     theme->setLabel(QObject::tr("Theme"));
 
     theme->addChild(new ThemeSelector());
+    theme->addChild(ThemePainter());
     theme->addChild(new StyleSetting());
     theme->addChild(ThemeFontSizeType());
     theme->addChild(RandomTheme());
@@ -3310,3 +3694,4 @@ XboxSettings::XboxSettings()
     addChild(xboxset);
 }
 
+// vim:set sw=4 ts=4 expandtab:

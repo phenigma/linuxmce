@@ -18,14 +18,19 @@ protected:
         setName(_name);
     };
 
-    virtual QString whereClause(void);
+    virtual QString whereClause(MSqlBindings& bindings);
 
     const PlayGroup &parent;
 };
 
-QString PlayGroupSetting::whereClause(void)
+QString PlayGroupSetting::whereClause(MSqlBindings& bindings)
 {
-    return QString("name = '%1'").arg(parent.getName());
+    QString nameTag(":WHERENAME");
+    QString query("name = " + nameTag);
+
+    bindings.insert(nameTag, parent.getName().utf8());
+
+    return query;
 }
 
 class TitleMatch: public LineEditSetting, public PlayGroupSetting {
@@ -142,7 +147,7 @@ QStringList PlayGroup::GetNames(void)
     else
     {
         while (query.next())
-            names << query.value(0).toString();
+            names << QString::fromUtf8(query.value(0).toString());
     }
 
     return names;
@@ -154,18 +159,18 @@ QString PlayGroup::GetInitialName(const ProgramInfo *pi)
 
     MSqlQuery query(MSqlQuery::InitCon());
     query.prepare("SELECT name FROM playgroup "
-                  "WHERE :TITLE = name OR "
-                  "      :CATEGORY = name OR "
+                  "WHERE name = :TITLE OR "
+                  "      name = :CATEGORY OR "
                   "      (titlematch <> '' AND "
-                  "        :TITLE REGEXP titlematch) ");
-    query.bindValue(":TITLE", pi->title);
-    query.bindValue(":CATEGORY", pi->category);
+                  "       :TITLE REGEXP titlematch) ");
+    query.bindValue(":TITLE", pi->title.utf8());
+    query.bindValue(":CATEGORY", pi->category.utf8());
     query.exec();
 
     if (!query.exec())
         MythContext::DBError("GetInitialName", query);
     else if (query.next())
-        res = query.value(0).toString();
+        res = QString::fromUtf8(query.value(0).toString());
 
     return res;
 }
@@ -181,7 +186,7 @@ int PlayGroup::GetSetting(const QString &name, const QString &field,
                           "      AND %2 <> 0 "
                           "ORDER BY name = 'Default';")
                   .arg(field).arg(field));
-    query.bindValue(":NAME", name);
+    query.bindValue(":NAME", name.utf8());
     if (!query.exec())
         MythContext::DBError("PlayGroup::GetSetting", query);
     else if (query.next())
@@ -212,7 +217,7 @@ void PlayGroupEditor::open(QString name)
 
         MSqlQuery query(MSqlQuery::InitCon());
         query.prepare("INSERT INTO playgroup (name) VALUES (:NAME);");
-        query.bindValue(":NAME", name);
+        query.bindValue(":NAME", name.utf8());
         if (!query.exec())
             MythContext::DBError("PlayGroupEditor::open", query);
         else
@@ -226,7 +231,7 @@ void PlayGroupEditor::open(QString name)
     {
         MSqlQuery query(MSqlQuery::InitCon());
         query.prepare("DELETE FROM playgroup WHERE name = :NAME;");
-        query.bindValue(":NAME", name);
+        query.bindValue(":NAME", name.utf8());
         if (!query.exec())
             MythContext::DBError("PlayGroupEditor::open", query);
     }
@@ -250,7 +255,7 @@ void PlayGroupEditor::doDelete(void)
     {
         MSqlQuery query(MSqlQuery::InitCon());
         query.prepare("DELETE FROM playgroup WHERE name = :NAME;");
-        query.bindValue(":NAME", name);
+        query.bindValue(":NAME", name.utf8());
         if (!query.exec())
             MythContext::DBError("PlayGroupEditor::doDelete", query);
 

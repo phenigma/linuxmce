@@ -7,34 +7,24 @@ using namespace std;
 #include "RingBuffer.h"
 #include "programinfo.h"
 #include "recordingprofile.h"
+#include "util.h"
 
 #define LOC QString("RecBase(%1): ").arg(videodevice)
 #define LOC_ERR QString("RecBase(%1) Error: ").arg(videodevice)
 
-RecorderBase::RecorderBase(TVRec *rec, const char *name)
-    : QObject(NULL, name),
-      tvrec(rec), ringBuffer(NULL), weMadeBuffer(true), codec("rtjpeg"),
+RecorderBase::RecorderBase(TVRec *rec)
+    : tvrec(rec), ringBuffer(NULL), weMadeBuffer(true), codec("rtjpeg"),
       audiodevice("/dev/dsp"), videodevice("/dev/video"), vbidevice("/dev/vbi"),
       vbimode(0), ntsc(true), ntsc_framerate(true), video_frame_rate(29.97),
       curRecording(NULL), request_pause(false), paused(false),
       nextRingBuffer(NULL), nextRecording(NULL)
 {
+    QMutexLocker locker(&avcodeclock);
+    avcodec_init(); // init CRC's
 }
 
 RecorderBase::~RecorderBase(void)
 {
-    if (weMadeBuffer && ringBuffer)
-        delete ringBuffer;
-    if (curRecording)
-        delete curRecording;
-}
-
-/** \fn RecorderBase::deleteLater(void)
- *  \brief Safer alternative to just deleting recorder directly.
- */
-void RecorderBase::deleteLater(void)
-{
-    disconnect(); // disconnect signals we may be sending...
     if (weMadeBuffer && ringBuffer)
     {
         delete ringBuffer;
@@ -45,7 +35,6 @@ void RecorderBase::deleteLater(void)
         delete curRecording;
         curRecording = NULL;
     }
-    QObject::deleteLater();
 }
 
 void RecorderBase::SetRingBuffer(RingBuffer *rbuf)
@@ -140,6 +129,16 @@ void RecorderBase::SetIntOption(RecordingProfile *profile, const QString &name)
     else
         VERBOSE(VB_IMPORTANT, LOC_ERR + QString(
                     "SetIntOption(...%1): Option not in profile.").arg(name));
+}
+
+void RecorderBase::SetStrOption(RecordingProfile *profile, const QString &name)
+{
+    const Setting *setting = profile->byName(name);
+    if (setting)
+        SetOption(name, setting->getValue());
+    else
+        VERBOSE(VB_IMPORTANT, LOC_ERR + QString(
+                    "SetStrOption(...%1): Option not in profile.").arg(name));
 }
 
 /** \fn RecorderBase::WaitForPause(int)

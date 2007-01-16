@@ -95,22 +95,34 @@ DEFINE_GUID( _KSDATAFORMAT_SUBTYPE_PCM, WAVE_FORMAT_PCM, 0x0000, 0x0010, 0x80, 0
 DEFINE_GUID( _KSDATAFORMAT_SUBTYPE_DOLBY_AC3_SPDIF, WAVE_FORMAT_DOLBY_AC3_SPDIF, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71 );
 
 
-AudioOutputDX::AudioOutputDX(QString audiodevice, int audio_bits, 
-                             int audio_channels, int audio_samplerate,
-                             AudioOutputSource source, bool set_initial_vol)
+AudioOutputDX::AudioOutputDX(
+    QString laudio_main_device,  QString           laudio_passthru_device,
+    int     laudio_bits,         int               laudio_channels,
+    int     laudio_samplerate,   AudioOutputSource lsource,
+    bool    lset_initial_vol,    bool              laudio_passthru) :
+    AudioOutputBase(laudio_main_device, laudio_passthru_device,
+                    laudio_bits,        laudio_channels,
+                    laudio_samplerate,  lsource,
+                    lset_initial_vol,   laudio_passthru),
+    dsound_dll(NULL),
+    dsobject(NULL),
+    dsbuffer(NULL),
+    write_cursor(0),
+    buffer_size(0),
+    blocking(false),
+    awaiting_data(false),
+    effdsp(0),                 /* Should this be audio_bits ? */
+    audio_bytes_per_sample(0), /* ACK! hides version in AudioOutputBase */
+    audio_bits(0),             /* ACK! hides version in AudioOutputBase */
+    audio_channels(0),         /* ACK! hides version in AudioOutputBase */
+    audbuf_timecode(0),
+    can_hw_pause(false),
+    paused(false)
 {
-    this->audiodevice = audiodevice;
-    
-    dsound_dll = NULL;
-    dsobject = NULL;
-    dsbuffer = NULL;
-    
-    effdsp = 0;
-    paused = false;
-    
     InitDirectSound();
     
-    Reconfigure(audio_bits, audio_channels, audio_samplerate);
+    Reconfigure(laudio_bits,       laudio_channels,
+                laudio_samplerate, laudio_passthru);
 }
 
 void AudioOutputDX::SetBlocking(bool blocking)
@@ -118,8 +130,8 @@ void AudioOutputDX::SetBlocking(bool blocking)
     // FIXME: kedl: not sure what else could be required here?
 }
 
-void AudioOutputDX::Reconfigure(int audio_bits, 
-                                  int audio_channels, int audio_samplerate)
+void AudioOutputDX::Reconfigure(int audio_bits, int audio_channels,
+                                int audio_samplerate, int audio_passthru)
 {
     if (dsbuffer)
         DestroyDSBuffer();
@@ -132,6 +144,7 @@ void AudioOutputDX::Reconfigure(int audio_bits,
     effdsp = audio_samplerate;
     this->audio_bits = audio_bits;
     this->audio_channels = audio_channels;
+    this->audio_passthru = audio_passthru;
 }
 
 AudioOutputDX::~AudioOutputDX()

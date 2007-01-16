@@ -3,10 +3,8 @@
 #include "mpegtables.h"
 #include "atscdescriptors.h"
 
-const unsigned char init_patheader[9] =
+const unsigned char DEFAULT_PAT_HEADER[8] =
 {
-    0x00,
-
     0x00, // TableID::PAT
     0xb0, // Syntax indicator
     0x00, // Length (set seperately)
@@ -18,10 +16,8 @@ const unsigned char init_patheader[9] =
     0x00, // Last Section
 };
 
-const unsigned char DEFAULT_PMT_HEADER[9] =
+const unsigned char DEFAULT_PMT_HEADER[12] =
 {
-    0x00,
-
     0x02, // TableID::PMT
     0xb0, // Syntax indicator
     0x00, // Length (set seperately)
@@ -31,6 +27,16 @@ const unsigned char DEFAULT_PMT_HEADER[9] =
     0xc1, // Version + Current/Next
     0x00, // Current Section
     0x00, // Last Section
+    0xff, 0xff, // PCR pid
+    0x00, 0x00, // Program Info Length
+};
+
+static const uint len_for_alloc[] =
+{
+    TSPacket::PAYLOAD_SIZE
+    - 1 /* for start of field pointer */
+    - 3 /* for data before data last byte of pes length */,
+    4000,
 };
 
 uint StreamID::Normalize(uint stream_id, const desc_list_t &desc)
@@ -59,6 +65,22 @@ uint StreamID::Normalize(uint stream_id, const desc_list_t &desc)
     return stream_id;
 }
 
+ProgramAssociationTable* ProgramAssociationTable::CreateBlank(bool small)
+{
+    (void) small; // currently always a small packet..
+    TSPacket *tspacket = TSPacket::CreatePayloadOnlyPacket();
+    memcpy(tspacket->data() + sizeof(TSHeader) + 1/* start of field pointer */,
+           DEFAULT_PAT_HEADER, sizeof(DEFAULT_PAT_HEADER));
+    PSIPTable psip = PSIPTable::View(*tspacket);
+    psip.SetLength(TSPacket::PAYLOAD_SIZE
+                   - 1 /* for start of field pointer */
+                   - 3 /* for data before data last byte of pes length */);
+    ProgramAssociationTable *pat = new ProgramAssociationTable(psip);
+    pat->SetTotalLength(sizeof(DEFAULT_PAT_HEADER));
+    delete tspacket;
+    return pat;
+}
+
 ProgramAssociationTable* ProgramAssociationTable::Create(
     uint tsid, uint version,
     const vector<uint>& pnum, const vector<uint>& pid)
@@ -67,10 +89,10 @@ ProgramAssociationTable* ProgramAssociationTable::Create(
     ProgramAssociationTable* pat = CreateBlank();
     pat->SetVersionNumber(version);
     pat->SetTranportStreamID(tsid);
-    pat->SetLength(PSIP_OFFSET+(count*4));
+    pat->SetTotalLength(PSIP_OFFSET + (count * 4));
 
     // create PAT data
-    if ((count * 4) >= (184 - PSIP_OFFSET))
+    if ((count * 4) >= (184 - (PSIP_OFFSET+1)))
     { // old PAT must be in single TS for this create function
         VERBOSE(VB_IMPORTANT, "PAT::Create: Error, old "
                 "PAT size exceeds maximum PAT size.");
@@ -78,7 +100,7 @@ ProgramAssociationTable* ProgramAssociationTable::Create(
     }
 
     uint offset = PSIP_OFFSET;
-    for (uint i=0; i<count; i++)
+    for (uint i = 0; i < count; i++)
     {
         // pnum
         pat->pesdata()[offset++] = pnum[i]>>8;
@@ -93,12 +115,37 @@ ProgramAssociationTable* ProgramAssociationTable::Create(
     return pat;
 }
 
+ProgramMapTable* ProgramMapTable::CreateBlank(bool small)
+{
+    ProgramMapTable *pmt = NULL;
+    TSPacket *tspacket = TSPacket::CreatePayloadOnlyPacket();
+    memcpy(tspacket->data() + sizeof(TSHeader) + 1/* start of field pointer */,
+           DEFAULT_PMT_HEADER, sizeof(DEFAULT_PMT_HEADER));
+
+    if (small)
+    {
+        PSIPTable psip = PSIPTable::View(*tspacket);
+        psip.SetLength(len_for_alloc[0]);
+        pmt = new ProgramMapTable(psip);
+    }
+    else 
+    {
+        PSIPTable psip(*tspacket);
+        psip.SetLength(len_for_alloc[1]);
+        pmt = new ProgramMapTable(psip);
+    }
+
+    pmt->SetTotalLength(sizeof(DEFAULT_PMT_HEADER));
+    delete tspacket;
+    return pmt;
+}
+
 ProgramMapTable* ProgramMapTable::Create(
     uint programNumber, uint basepid, uint pcrpid, uint version,
     vector<uint> pids, vector<uint> types)
 {
     const uint count = min(pids.size(), types.size());
-    ProgramMapTable* pmt = CreateBlank();
+    ProgramMapTable* pmt = CreateBlank(false);
     pmt->tsheader()->SetPID(basepid);
 
     pmt->RemoveAllStreams();
@@ -121,7 +168,7 @@ ProgramMapTable* ProgramMapTable::Create(
     const vector<desc_list_t> &prog_desc)
 {
     const uint count = min(pids.size(), types.size());
-    ProgramMapTable* pmt = CreateBlank();
+    ProgramMapTable* pmt = CreateBlank(false);
     pmt->tsheader()->SetPID(basepid);
 
     pmt->RemoveAllStreams();
@@ -137,10 +184,10 @@ ProgramMapTable* ProgramMapTable::Create(
     }
     pmt->SetProgramInfo(&gdesc[0], gdesc.size());
 
-    for (uint i=0; i<count; i++)
+    for (uint i = 0; i < count; i++)
     {
         vector<unsigned char> pdesc;
-        for (uint j=0; j<prog_desc[i].size(); j++)
+        for (uint j = 0; j < prog_desc[i].size(); j++)
         {
             uint len = prog_desc[i][j][1] + 2;
             pdesc.insert(pdesc.end(),
@@ -151,21 +198,25 @@ ProgramMapTable* ProgramMapTable::Create(
     }
     pmt->Finalize();
 
+    VERBOSE(VB_SIPARSER, "Created PMT \n"<<pmt->toString());
+
     return pmt;
 }
 
-void  ProgramMapTable::Parse() const
+void ProgramMapTable::Parse() const
 {
     _ptrs.clear();
-    unsigned char *pos =
-      const_cast<unsigned char*>
-        (pesdata() + PSIP_OFFSET + pmt_header + ProgramInfoLength());
-    for (uint i=0; pos < pesdata()+Length(); i++) {
+    const unsigned char *cpos = psipdata() + pmt_header + ProgramInfoLength();
+    unsigned char *pos = const_cast<unsigned char*>(cpos);
+    for (uint i = 0; pos < psipdata() + Length() - 9; i++)
+    {
         _ptrs.push_back(pos);
         pos += 5 + StreamInfoLength(i);
+        //VERBOSE(VB_SIPARSER, "Parsing PMT("<<this<<") i("<<i<<") "
+        //        <<"len("<<StreamInfoLength(i)<<")");
     }
     _ptrs.push_back(pos);
-    VERBOSE(VB_SIPARSER, "Parsed PMT(0x"<<this<<") "<<this->toString());
+    //VERBOSE(VB_SIPARSER, "Parsed PMT("<<this<<")\n"<<this->toString());
 }
 
 void ProgramMapTable::AppendStream(
@@ -173,14 +224,13 @@ void ProgramMapTable::AppendStream(
     unsigned char* streamInfo, uint infoLength)
 {
     if (!StreamCount())
-        _ptrs.push_back(pesdata() + PSIP_OFFSET +
-                        pmt_header + ProgramInfoLength());
+        _ptrs.push_back(psipdata() + pmt_header + ProgramInfoLength());
     memset(_ptrs[StreamCount()], 0xff, 5);
     SetStreamPID(StreamCount(), pid);
     SetStreamType(StreamCount(), type);
     SetStreamProgramInfo(StreamCount(), streamInfo, infoLength);
     _ptrs.push_back(_ptrs[StreamCount()]+5+StreamInfoLength(StreamCount()));
-    SetLength(_ptrs[StreamCount()] - pesdata());
+    SetTotalLength(_ptrs[StreamCount()] - pesdata());
 }
 
 /** \fn ProgramMapTable::IsAudio(uint) const
@@ -323,16 +373,35 @@ uint ProgramMapTable::FindPIDs(uint type, vector<uint>& pids,
     return pids.size();
 }
 
+uint ProgramMapTable::FindUnusedPID(uint desired_pid)
+{
+    uint pid = desired_pid;
+    while (FindPID(pid) >= 0)
+        pid += 0x10;
+
+    if (desired_pid <= 0x1fff)
+        return pid;
+
+    pid = desired_pid;
+    while (FindPID(desired_pid) >= 0)
+        desired_pid += 1;
+
+    if (desired_pid <= 0x1fff)
+        return pid;
+
+    pid = 0x20;
+    while (FindPID(desired_pid) >= 0)
+        desired_pid += 1;
+
+    return desired_pid & 0x1fff;
+}
+
 const QString PSIPTable::toString() const
 {
     QString str;
-    //for (uint i=0; i<9; i++)
-    //str.append(QString(" 0x%1").arg(int(pesdata()[i]), 0, 16));
-    //str.append("\n");
-    str.append(QString(" PSIP prefix(0x%1) tableID(0x%1) "
-                       "length(%2) extension(0x%3)\n")
-               .arg(StartCodePrefix(), 0, 16).arg(TableID(), 0, 16)
-               .arg(Length()).arg(TableIDExtension(), 0, 16));
+    str.append(QString(" PSIP tableID(0x%1) length(%2) extension(0x%3)\n")
+               .arg(TableID(), 0, 16).arg(Length())
+               .arg(TableIDExtension(), 0, 16));
     str.append(QString("      version(%1) current(%2) "
                        "section(%3) last_section(%4)\n")
                .arg(Version()).arg(IsCurrent())
@@ -348,8 +417,9 @@ const QString ProgramAssociationTable::toString() const
     str.append(static_cast<const PSIPTable*>(this)->toString());
     str.append(QString("         tsid: %1\n").arg(TransportStreamID()));
     str.append(QString(" programCount: %1\n").arg(ProgramCount()));
-    for (uint i=0; i<ProgramCount(); i++) {
-        const unsigned char* p=pesdata()+PSIP_OFFSET+(i<<2);
+    for (uint i = 0; i < ProgramCount(); i++)
+    {
+        const unsigned char* p = psipdata() + (i<<2);
         str.append(QString("  program number %1").arg(int(ProgramNumber(i)))).
             append(QString(" has PID 0x%1   data ").arg(ProgramPID(i),4,16)).
             append(QString(" 0x%1 0x%2").arg(int(p[0])).arg(int(p[1]))).
@@ -361,9 +431,9 @@ const QString ProgramAssociationTable::toString() const
 const QString ProgramMapTable::toString() const
 {
     QString str = 
-        QString("Program Map Table ver(%1) pid(0x%2) pnum(%3)\n")
+        QString("Program Map Table ver(%1) pid(0x%2) pnum(%3) len(%4)\n")
         .arg(Version()).arg(tsheader()->PID(), 0, 16)
-        .arg(ProgramNumber());
+        .arg(ProgramNumber()).arg(Length());
 
     if (0 != StreamCount())
     {
@@ -374,7 +444,7 @@ const QString ProgramMapTable::toString() const
                        .arg(MPEGDescriptor(desc[i]).toString()));
     }
     str.append("\n");
-    for (uint i=0; i<StreamCount(); i++)
+    for (uint i = 0; i < StreamCount(); i++)
     {
         str.append(QString(" Stream #%1 pid(0x%2) type(%3  0x%4)\n")
                    .arg(i).arg(StreamPID(i), 0, 16)
@@ -455,7 +525,31 @@ const char *StreamID::toString(uint streamID)
     return retval;
 }
 
-const QString ProgramMapTable::StreamTypeString(uint i) const
+QString ProgramMapTable::GetLanguage(uint i) const
 {
-    return QString( StreamID::toString(StreamType(i)) );
+    const desc_list_t list = MPEGDescriptor::Parse(
+        StreamInfo(i), StreamInfoLength(i));
+    const unsigned char *lang_desc = MPEGDescriptor::Find(
+        list, DescriptorID::ISO_639_language);
+
+    if (!lang_desc)
+        return QString::null;
+
+    ISO639LanguageDescriptor iso_lang(lang_desc);
+    return iso_lang.CanonicalLanguageString();
+}
+
+QString ProgramMapTable::StreamDescription(uint i) const
+{
+    desc_list_t list;
+
+    list         = MPEGDescriptor::Parse(StreamInfo(i), StreamInfoLength(i));
+    uint    type = StreamID::Normalize(StreamType(i), list);
+    QString desc = StreamID::toString(type);
+    QString lang = GetLanguage(i);
+
+    if (!lang.isEmpty())
+        desc += QString(" (%1)").arg(lang);
+
+    return desc;
 }

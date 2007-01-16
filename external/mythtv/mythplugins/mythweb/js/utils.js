@@ -1,9 +1,9 @@
 /**
  * A random assortment of javascript utility routines
  *
- * @url         $URL$
- * @date        $Date: 2005-10-22 20:32:26 +0300 (Sat, 22 Oct 2005) $
- * @version     $Revision: 7561 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/js/utils.js $
+ * @date        $Date: 2006-07-08 09:05:05 +0300 (Sat, 08 Jul 2006) $
+ * @version     $Revision: 10427 $
  * @author      $Author: xris $
  * @license     LGPL
  *
@@ -143,7 +143,7 @@
             var hidden = document.createElement('input');
             hidden.type  = 'hidden';
             hidden.name  = newvar;
-            hidden.value = val ? val : 1;
+            hidden.value = val != null ? val : 1;
             form.appendChild(hidden);
         }
     // Submit

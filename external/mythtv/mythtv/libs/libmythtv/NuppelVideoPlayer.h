@@ -13,15 +13,24 @@
 #include "jitterometer.h"
 #include "recordingprofile.h"
 #include "videooutbase.h"
+#include "teletextdecoder.h"
+#include "textsubtitleparser.h"
 #include "tv_play.h"
 #include "yuv2rgb.h"
+#include "cc608decoder.h"
+#include "cc708decoder.h"
+#include "cc708window.h"
 
 extern "C" {
 #include "filter.h"
 }
 using namespace std;
 
-#define MAXTBUFFER 21
+#define MAXTBUFFER 60
+
+#ifndef LONG_LONG_MIN
+#define LONG_LONG_MIN LLONG_MIN
+#endif
 
 class VideoOutput;
 class OSDSet;
@@ -36,6 +45,7 @@ class VideoSync;
 class LiveTVChain;
 class TV;
 struct AVSubtitle;
+class InteractiveTV;
 
 struct TextContainer
 {
@@ -57,7 +67,37 @@ enum TCTypes
 };
 #define TCTYPESMAX 4
 
-class NuppelVideoPlayer
+/// Track types
+enum
+{
+    kTrackTypeAudio = 0,
+    kTrackTypeSubtitle,
+    kTrackTypeCC608,
+    kTrackTypeCC708,
+    kTrackTypeTeletextCaptions,
+    kTrackTypeCount,
+
+    kTrackTypeTeletextMenu,
+};
+QString track_type_to_string(uint type);
+int type_string_to_track_type(const QString &str);
+
+// Caption Display modes
+enum
+{
+    kDisplayNone                = 0x00,
+    kDisplayNUVTeletextCaptions = 0x01,
+    kDisplayTeletextCaptions    = 0x02,
+    kDisplayAVSubtitle          = 0x04,
+    kDisplayCC608               = 0x08,
+    kDisplayCC708               = 0x10,
+    kDisplayNUVCaptions         = kDisplayNUVTeletextCaptions | kDisplayCC608,
+    kDisplayTextSubtitle        = 0x20,
+    kDisplayAllCaptions         = 0x3f,
+    kDisplayTeletextMenu        = 0x40,
+};
+
+class NuppelVideoPlayer : public CC608Reader, public CC708Reader
 {
  public:
     NuppelVideoPlayer(QString inUseID = "Unknown",
@@ -69,29 +109,32 @@ class NuppelVideoPlayer
     bool InitVideo(void);
     int  OpenFile(bool skipDsp = false, uint retries = 4,
                   bool allow_libmpeg2 = true);
+    void OpenDummy(void);
 
     // Windowing stuff
     void EmbedInWidget(WId wid, int x, int y, int w, int h);
     void StopEmbedding(void);
     void ExposeEvent(void);
 
+    // Audio Sets
+    void SetNoAudio(void)                     { no_audio_out = true; }
+    void SetAudioStretchFactor(float factor)  { audio_stretchfactor = factor; }
+    void SetAudioOutput(AudioOutput *ao)      { audioOutput = ao; }
+    void SetAudioInfo(const QString &main, const QString &passthru, uint rate);
+    void SetAudioParams(int bits, int channels, int samplerate, bool passthru);
+    void SetEffDsp(int dsprate);
+
     // Sets
     void SetParentWidget(QWidget *widget)     { parentWidget = widget; }
     void SetAsPIP(void)                       { SetNoAudio(); SetNullVideo(); }
-    void SetNoAudio(void)                     { no_audio_out = true; }
     void SetNullVideo(void)                   { using_null_videoout = true; }
-    void SetAudioDevice(QString device)       { audiodevice = device; }
     void SetFileName(QString lfilename)       { filename = lfilename; }
     void SetExactSeeks(bool exact)            { exactseeks = exact; }
     void SetAutoCommercialSkip(int autoskip);
-    void SetCommercialSkipMethod(int m)       { commercialskipmethod = m; }
     void SetCommBreakMap(QMap<long long, int> &newMap);
     void SetRingBuffer(RingBuffer *rbuf)      { ringBuffer = rbuf; }
     void SetLiveTVChain(LiveTVChain *tvchain) { livetvchain = tvchain; }
-    void SetAudioSampleRate(int rate)         { audio_samplerate = rate; }
-    void SetAudioStretchFactor(float factor)  { audio_stretchfactor = factor; }
     void SetLength(int len)                   { totalLength = len; }
-    void SetAudioOutput (AudioOutput *ao)     { audioOutput = ao; }
     void SetVideoFilters(QString &filters)    { videoFilterList = filters; }
     void SetFramesPlayed(long long played)    { framesPlayed = played; }
     void SetEof(void)                         { eof = true; }
@@ -106,11 +149,20 @@ class NuppelVideoPlayer
     void SetKeyframeDistance(int keyframedistance);
     void SetVideoParams(int w, int h, double fps, int keydist,
                         float a = 1.33333, FrameScanType scan = kScan_Ignore);
-    void SetAudioParams(int bits, int channels, int samplerate);
-    void SetEffDsp(int dsprate);
     void SetFileLength(int total, int frames);
     void Zoom(int direction);
     void ClearBookmark(void);
+    void SetForcedAspectRatio(int mpeg2_aspect_value, int letterbox_permission);
+
+    void NextScanType(void)
+        { SetScanType((FrameScanType)(((int)m_scan + 1) & 0x3)); }
+    void SetScanType(FrameScanType);
+    FrameScanType GetScanType(void) const { return m_scan; }
+    bool IsScanTypeLocked(void) const { return m_scan_locked; }
+
+    void SetOSDFontName(const QString osdfonts[22], const QString &prefix);
+    void SetOSDThemeName(const QString themename);
+    void SetVideoResize(const QRect &videoRect);
 
     // Toggle Sets
     void ToggleLetterbox(int letterboxMode = -1);
@@ -131,6 +183,7 @@ class NuppelVideoPlayer
     long long GetFramesPlayed(void) const     { return framesPlayed; }
     long long GetBookmark(void) const;
     QString   GetEncodingType(void) const;
+    QString   GetXDS(const QString &key) const;
 
     // Bool Gets
     bool    GetRawAudioState(void) const;
@@ -160,6 +213,7 @@ class NuppelVideoPlayer
     char        *GetScreenGrab(int secondsin, int &buflen,
                                int &vw, int &vh, float &ar);
     LiveTVChain *GetTVChain(void)             { return livetvchain; }
+    InteractiveTV *GetInteractiveTV(void);
 
     // Start/Reset/Stop playing
     void StartPlaying(void);
@@ -194,10 +248,6 @@ class NuppelVideoPlayer
         RingBuffer *outRingBuffer, bool writevideo, long timecodeOffset);
     long UpdateStoredFrameNum(long curFrameNum);
 
-    // Closed caption and teletext stuff
-    void ToggleCC(uint mode, uint arg);
-    void FlushTxtBuffers(void) { rtxt = wtxt; }
-
     // Edit mode stuff
     bool EnableEdit(void);
     bool DoKeypress(QKeyEvent *e);
@@ -229,22 +279,85 @@ class NuppelVideoPlayer
     void AddAudioData(char *buffer, int len, long long timecode);
     void AddAudioData(short int *lbuffer, short int *rbuffer, int samples,
                       long long timecode);
-    void AddTextData(char *buffer, int len, long long timecode, char type);
-    void AddSubtitle(const AVSubtitle& subtitle);
+    void AddTextData(unsigned char *buffer, int len,
+                     long long timecode, char type);
+    void AddAVSubtitle(const AVSubtitle& subtitle);
 
-    // Audio Track Selection
-    void incCurrentAudioTrack(void);
-    void decCurrentAudioTrack(void);
-    bool setCurrentAudioTrack(int trackNo);
-    int  getCurrentAudioTrack(void) const;
-    QStringList listAudioTracks(void) const;
+    // Closed caption and teletext stuff
+    uint GetCaptionMode(void) const { return textDisplayMode; }
+    void ResetCaptions(uint mode_override = 0);
+    void DisableCaptions(uint mode, bool osd_msg=true);
+    void EnableCaptions(uint mode, bool osd_msg=true);
+    bool ToggleCaptions(void);
+    bool ToggleCaptions(uint mode);
+    void SetCaptionsEnabled(bool, bool osd_msg=true);
+    bool LoadExternalSubtitles(const QString &subtitleFileName);
 
-    // Subtitle Track Selection
-    void incCurrentSubtitleTrack(void);
-    void decCurrentSubtitleTrack(void);
-    bool setCurrentSubtitleTrack(int trackNo);
-    int  getCurrentSubtitleTrack(void) const;
-    QStringList listSubtitleTracks(void) const;
+    // Teletext Menu and non-NUV teletext decoder
+    void EnableTeletext(void);
+    void DisableTeletext(void);
+    void ResetTeletext(void);
+    bool HandleTeletextAction(const QString &action);
+
+    // Teletext NUV Captions
+    void SetTeletextPage(uint page);
+
+    // ATSC/NTSC EIA-608 captions and PAL Teletext NUV captions
+    void FlushTxtBuffers(void) { rtxt = wtxt; }
+
+    // ATSC EIA-708 Captions
+    CC708Window &GetCCWin(uint service_num, uint window_id)
+        { return CC708services[service_num].windows[window_id]; }
+    CC708Window &GetCCWin(uint svc_num)
+        { return GetCCWin(svc_num, CC708services[svc_num].current_window); }
+
+    void SetCurrentWindow(uint service_num, int window_id);
+    void DefineWindow(uint service_num,     int window_id,
+                      int priority,         int visible,
+                      int anchor_point,     int relative_pos,
+                      int anchor_vertical,  int anchor_horizontal,
+                      int row_count,        int column_count,
+                      int row_lock,         int column_lock,
+                      int pen_style,        int window_style);
+    void DeleteWindows( uint service_num,   int window_map);
+    void DisplayWindows(uint service_num,   int window_map);
+    void HideWindows(   uint service_num,   int window_map);
+    void ClearWindows(  uint service_num,   int window_map);
+    void ToggleWindows( uint service_num,   int window_map);
+    void SetWindowAttributes(uint service_num,
+                             int fill_color,     int fill_opacity,
+                             int border_color,   int border_type,
+                             int scroll_dir,     int print_dir,
+                             int effect_dir,
+                             int display_effect, int effect_speed,
+                             int justify,        int word_wrap);
+    void SetPenAttributes(uint service_num, int pen_size,
+                          int offset,       int text_tag,  int font_tag,
+                          int edge_type,    int underline, int italics);
+    void SetPenColor(uint service_num,
+                     int fg_color, int fg_opacity,
+                     int bg_color, int bg_opacity,
+                     int edge_color);
+    void SetPenLocation(uint service_num, int row, int column);
+
+    void Delay(uint service_num, int tenths_of_seconds);
+    void DelayCancel(uint service_num);
+    void Reset(uint service_num);
+    void TextWrite(uint service_num, short* unicode_string, short len);
+
+    // Audio/Subtitle/EIA-608/EIA-708 stream selection
+    QStringList GetTracks(uint type) const;
+    int SetTrack(uint type, int trackNo);
+    int GetTrack(uint type) const;
+    int ChangeTrack(uint type, int dir);
+    void ChangeCaptionTrack(int dir);
+    void TracksChanged(uint trackType);
+
+    // MHEG/MHI stream selection
+    bool ITVHandleAction(const QString &action);
+    void ITVRestart(uint chanid, uint cardid, bool isLiveTV);
+    bool SetAudioByComponentTag(int tag);
+    bool SetVideoByComponentTag(int tag);
 
     // Time Code adjustment stuff
     long long AdjustAudioTimecodeOffset(long long v)
@@ -255,6 +368,8 @@ class NuppelVideoPlayer
         { tc_wrap[TC_AUDIO] = LONG_LONG_MIN; return 0L; }
     long long GetAudioTimecodeOffset(void) const 
         { return tc_wrap[TC_AUDIO]; }
+    void SaveAudioTimecodeOffset(long long v)
+        { savedAudioTimecodeOffset = v; }
 
     // LiveTV public stuff
     void CheckTVChain();
@@ -262,6 +377,13 @@ class NuppelVideoPlayer
 
     // DVD public stuff
     void ChangeDVDTrack(bool ffw);
+    void ActivateDVDButton(void);
+    void GoToDVDMenu(QString str);
+    void GoToDVDProgram(bool direction);
+    void HideDVDButton(bool hide) 
+    { 
+        hidedvdbutton = hide;
+    }
 
   protected:
     void DisplayPauseFrame(void);
@@ -276,6 +398,7 @@ class NuppelVideoPlayer
     void InitFilters(void);
     FrameScanType detectInterlace(FrameScanType newScan, FrameScanType scan,
                                   float fps, int video_height);
+    void AutoDeint(VideoFrame*);
 
     // Private Sets
     void SetPrebuffering(bool prebuffer);
@@ -298,6 +421,7 @@ class NuppelVideoPlayer
     bool DecodeFrame(struct rtframeheader *frameheader,
                      unsigned char *strm, unsigned char *outbuf);
 
+    bool PrebufferEnoughFrames(void);
     void CheckPrebuffering(void);
     bool GetFrameNormal(int onlyvideo);
     bool GetFrameFFREW(void);
@@ -308,9 +432,10 @@ class NuppelVideoPlayer
     void DoPlay(void);
     bool DoFastForward(void);
     bool DoRewind(void);
+    void DoChangeDVDTrack(void);
 
     // Private seeking stuff
-    void ClearAfterSeek(void);
+    void ClearAfterSeek(bool clearvideobuffers = true);
     bool FrameIsInMap(long long frameNumber, QMap<long long, int> &breakMap);
     void JumpToFrame(long long frame);
     void JumpToNetFrame(long long net) { JumpToFrame(framesPlayed + net); }
@@ -335,7 +460,7 @@ class NuppelVideoPlayer
     void SetCommBreakIter(void);
 
     void HandleArbSeek(bool right);
-    void HandleSelect(void);
+    void HandleSelect(bool allowSelectNear = false);
     void HandleResponse(void);
 
     void UpdateTimeDisplay(void);
@@ -358,17 +483,23 @@ class NuppelVideoPlayer
     void  UpdateCC(unsigned char *inpos);
 
     // Private subtitle stuff
-    void  DisplaySubtitles(void);
+    void  DisplayAVSubtitles(void);
+    void  DisplayTextSubtitles(void);
     void  ClearSubtitles(void);
+    void  ExpireSubtitles(void);
 
     // Private LiveTV stuff
     void  SwitchToProgram(void);
     void  JumpToProgram(void);
 
+    // Private DVD stuff
+    void DisplayDVDButton(void);
+
   private:
     VideoOutputType forceVideoOutput;
 
     DecoderBase   *decoder;
+    QMutex         decoder_change_lock;
     VideoOutput   *videoOutput;
     RemoteEncoder *nvr_enc;
     ProgramInfo   *m_playbackinfo;
@@ -442,8 +573,13 @@ class NuppelVideoPlayer
     int      video_size;      ///< Video (input) buffer size in bytes
     double   video_frame_rate;///< Video (input) Frame Rate (often inaccurate)
     float    video_aspect;    ///< Video (input) Apect Ratio
+    float    forced_video_aspect; 
     /// Video (input) Scan Type (interlaced, progressive, detect, ignore...)
     FrameScanType m_scan;
+    /// Set when the user selects a scan type, overriding the detected one
+    bool     m_scan_locked;
+    /// Used for tracking of scan type for auto-detection of interlacing
+    int      m_scan_tracker;
     /// Video (input) Number of frames between key frames (often inaccurate)
     int keyframedist;
 
@@ -458,10 +594,13 @@ class NuppelVideoPlayer
     bool       prebuffering;    ///< Iff true, don't play until done prebuf
     int        prebuffer_tries; ///< Number of times prebuf wait attempted
 
+    // General Caption/Teletext/Subtitle support
+    uint     textDisplayMode;
+    uint     prevTextDisplayMode;
+
     // Support for analog captions and teletext
     // (i.e. Vertical Blanking Interval (VBI) encoded data.)
     uint     vbimode;         ///< VBI decoder to use
-    bool     subtitlesOn;     ///< true iff cc/tt display is enabled
     int      ttPageNum;       ///< VBI page to display when in PAL vbimode
     int      ccmode;          ///< VBI text to display when in NTSC vbimode
 
@@ -477,9 +616,36 @@ class NuppelVideoPlayer
 
     // Support for captions, teletext, etc. decoded by libav
     QMutex    subtitleLock;
+    /// This allows us to enable captions/subtitles later if the streams
+    /// are not immediately available when the video starts playing.
+    bool      textDesired;
     bool      osdHasSubtitles;
     long long osdSubtitlesExpireAt;
-    MythDeque<AVSubtitle> nonDisplayedSubtitles;
+
+    /// Subtitles loaded from the video stream by libavcodec.
+    /// This should contain only undisplayed subtitles, old
+    /// ones are deleted after displayed.
+    MythDeque<AVSubtitle> nonDisplayedAVSubtitles;
+
+    /// Subtitles loaded from an external subtitle file.
+    /// This contains all subtitles in textual format. No
+    /// subtitles are deleted after displaying (so they can
+    /// be displayed again after seeking). The list is ordered
+    /// by the subtitle display start time.
+    TextSubtitles textSubtitles;
+
+    CC708Service CC708services[64];
+    QString    osdfontname;
+    QString    osdccfontname;
+    QString    osd708fontnames[20];
+    QString    osdprefix;
+    QString    osdtheme;
+
+    // Support for MHEG/MHI
+    bool       itvVisible;
+    InteractiveTV *interactiveTV;
+    bool       itvEnabled;
+    QMutex     itvLock;
 
     // OSD stuff
     OSD      *osd;
@@ -489,11 +655,13 @@ class NuppelVideoPlayer
 
     // Audio stuff
     AudioOutput *audioOutput;
-    QString  audiodevice;
+    QString  audio_main_device;
+    QString  audio_passthru_device;
     int      audio_channels;
     int      audio_bits;
     int      audio_samplerate;
     float    audio_stretchfactor;
+    bool     audio_passthru;
 
     // Picture-in-Picture
     NuppelVideoPlayer *pipplayer;
@@ -526,7 +694,6 @@ class NuppelVideoPlayer
     QMutex     commBreakMapLock;
     int        skipcommercials;
     int        autocommercialskip;
-    int        commercialskipmethod;
     int        commrewindamount;
     int        commnotifyamount;
     int        lastCommSkipDirection;
@@ -544,6 +711,7 @@ class NuppelVideoPlayer
     QMap<long long, int>::Iterator deleteIter;
     QMap<long long, int>::Iterator blankIter;
     QMap<long long, int>::Iterator commBreakIter;
+    QDateTime  lastIgnoredManualSkip;
     bool       forcePositionMapSync;
 
     // Playback (output) speed control
@@ -571,6 +739,7 @@ class NuppelVideoPlayer
     bool       m_playing_slower;
     bool       decode_extra_audio;
     float      m_stored_audio_stretchfactor;
+    bool       audio_paused;
 
     // Audio warping stuff
     bool       usevideotimebase;
@@ -586,13 +755,22 @@ class NuppelVideoPlayer
     long long  tc_wrap[TCTYPESMAX];
     long long  tc_lastval[TCTYPESMAX];
     long long  tc_diff_estimate;
+    long long  savedAudioTimecodeOffset;
 
     // LiveTV
     LiveTVChain *livetvchain;
     TV *m_tv;
+    bool isDummy;
+
+    // DVD
+    bool indvdstillframe;
+    bool hidedvdbutton;
+    int need_change_dvd_track;
 
     // Debugging variables
     Jitterometer *output_jmeter;
 };
 
 #endif
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

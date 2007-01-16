@@ -26,6 +26,7 @@ void UpdatePositionMap(QMap <long long, long long> &posMap, QString mapfile,
                        ProgramInfo *pginfo);
 int BuildKeyframeIndex(MPEG2fixup *m2f, QString &infile,
                         QMap <long long, long long> &posMap, int jobID);
+void CompleteJob(int jobID, ProgramInfo *pginfo, bool useCutlist, int &resultCode);
 
 void usage(char *progname) 
 {
@@ -33,6 +34,7 @@ void usage(char *progname)
     cerr << "\t<--starttime <starttime>> <--profile <profile>>\n";
     cerr << "\t[options]\n\n";
     cerr << "\t--mpeg2          or -m: Perform MPEG2 to MPEG2 transcode.\n";
+    cerr << "\t--ostream <type> or -e: Output stream type.  Options: dvd, ps.\n";
     cerr << "\t--chanid         or -c: Takes a channel id. REQUIRED\n";
     cerr << "\t--starttime      or -s: Takes a starttime for the\n";
     cerr << "\t                        recording. REQUIRED\n";
@@ -60,8 +62,12 @@ int main(int argc, char *argv[])
     QString profilename = QString("autodetect");
     QString fifodir = NULL;
     int jobID = -1;
+    QDateTime startts;
+    int jobType = JOB_NONE;
+    int otype = REPLEX_MPEG2;
     bool useCutlist = false, keyframesonly = false;
     bool build_index = false, fifosync = false, showprogress = false, mpeg2 = false;
+    QMap<QString, QString> settingsOverride;
     QMap<long long, int> deleteMap;
     QMap<long long, long long> posMap;
     srand(time(NULL));
@@ -70,15 +76,6 @@ int main(int argc, char *argv[])
 
     print_verbose_messages = VB_IMPORTANT;
     verboseString = "important";
-
-    //  Load the context
-    gContext = NULL;
-    gContext = new MythContext(MYTH_BINARY_VERSION);
-    if (!gContext->Init(false))
-    {
-        VERBOSE(VB_IMPORTANT, "Failed to init MythContext, exiting.");
-        return TRANSCODE_EXIT_NO_MYTHCONTEXT;
-    }
 
     int found_starttime = 0;
     int found_chanid = 0;
@@ -120,21 +117,7 @@ int main(int argc, char *argv[])
             }
         } 
         else if (!strcmp(a.argv()[argpos], "-j"))
-        { 
-            QDateTime startts;
             jobID = QString(a.argv()[++argpos]).toInt();
-            int jobType = JOB_NONE;
-            
-            if ( !JobQueue::GetJobInfoFromID(jobID, jobType, chanid, startts))
-            {
-                cerr << "mythtranscode: ERROR: Unable to find DB info for "
-                     << "JobQueue ID# " << jobID << endl;
-                return TRANSCODE_EXIT_NO_RECORDING_DATA;
-            }
-            starttime = startts.toString(Qt::ISODate);
-            found_starttime = 1;
-            found_chanid = 1;
-        }
         else if (!strcmp(a.argv()[argpos],"-i") ||
                  !strcmp(a.argv()[argpos],"--infile")) 
         {
@@ -272,11 +255,96 @@ int main(int argc, char *argv[])
         {
             mpeg2 = true;
         }
+        else if (!strcmp(a.argv()[argpos],"-e") ||
+                 !strcmp(a.argv()[argpos],"--ostream")) 
+        {
+            if (a.argc() > argpos)
+            {
+                if(!strcmp(a.argv()[argpos + 1], "dvd"))
+                    otype = REPLEX_DVD;
+                ++argpos;
+            }
+            else
+            {
+                cerr << "Missing argument to -e/--ostream option\n";
+                usage(a.argv()[0]);
+                return TRANSCODE_EXIT_INVALID_CMDLINE;
+            }
+        }
+        else if (!strcmp(a.argv()[argpos],"-O") ||
+                 !strcmp(a.argv()[argpos],"--override-setting"))
+        {
+            if ((a.argc() - 1) > argpos)
+            {
+                QString tmpArg = a.argv()[argpos+1];
+                if (tmpArg.startsWith("-"))
+                {
+                    cerr << "Invalid or missing argument to "
+                            "-O/--override-setting option\n";
+                    return BACKEND_EXIT_INVALID_CMDLINE;
+                } 
+ 
+                QStringList pairs = QStringList::split(",", tmpArg);
+                for (unsigned int index = 0; index < pairs.size(); ++index)
+                {
+                    QStringList tokens = QStringList::split("=", pairs[index]);
+                    tokens[0].replace(QRegExp("^[\"']"), "");
+                    tokens[0].replace(QRegExp("[\"']$"), "");
+                    tokens[1].replace(QRegExp("^[\"']"), "");
+                    tokens[1].replace(QRegExp("[\"']$"), "");
+                    settingsOverride[tokens[0]] = tokens[1];
+                }
+            }
+            else
+            { 
+                cerr << "Invalid or missing argument to -O/--override-setting "
+                        "option\n";
+                return GENERIC_EXIT_INVALID_CMDLINE;
+            }
+
+            ++argpos;
+        }
         else if (!strcmp(a.argv()[argpos],"-h") ||
                  !strcmp(a.argv()[argpos],"--help")) 
         {
             usage(a.argv()[0]);
             return TRANSCODE_EXIT_OK;
+        }
+    }
+
+    //  Load the context
+    gContext = NULL;
+    gContext = new MythContext(MYTH_BINARY_VERSION);
+    if (!gContext->Init(false))
+    {
+        VERBOSE(VB_IMPORTANT, "Failed to init MythContext, exiting.");
+        return TRANSCODE_EXIT_NO_MYTHCONTEXT;
+    }
+
+    if (settingsOverride.size())
+    {
+        QMap<QString, QString>::iterator it;
+        for (it = settingsOverride.begin(); it != settingsOverride.end(); ++it)
+        {
+            VERBOSE(VB_IMPORTANT, QString("Setting '%1' being forced to '%2'")
+                                          .arg(it.key()).arg(it.data()));
+            gContext->OverrideSettingForSession(it.key(), it.data());
+        }
+    }
+
+    if (jobID != -1)
+    {
+        if (JobQueue::GetJobInfoFromID(jobID, jobType, chanid, startts))
+        {
+            starttime = startts.toString(Qt::ISODate);
+            found_starttime = 1;
+            found_chanid = 1;
+        }
+        else
+        {
+            cerr << "mythtranscode: ERROR: Unable to find DB info for "
+                 << "JobQueue ID# " << jobID << endl;
+            return TRANSCODE_EXIT_NO_RECORDING_DATA;
         }
     }
 
@@ -318,13 +386,12 @@ int main(int argc, char *argv[])
     ProgramInfo *pginfo = NULL;
     if (!found_infile)
     {
-        QDateTime startts = QDateTime::fromString(starttime, Qt::ISODate);
-        pginfo = ProgramInfo::GetProgramFromRecorded(chanid, startts);
+        pginfo = ProgramInfo::GetProgramFromRecorded(chanid, starttime);
 
         if (!pginfo)
         {
-            cerr << "Couldn't find recording " << chanid << " " 
-                 << startts.toString() << endl;
+            cerr << "Couldn't find recording for chanid " << chanid << " @ " 
+                 << starttime << endl;
             return TRANSCODE_EXIT_NO_RECORDING_DATA;
         }
 
@@ -401,7 +468,7 @@ int main(int argc, char *argv[])
        
         MPEG2fixup *m2f = new MPEG2fixup(infile.ascii(), outfile.ascii(),
                                          &deleteMap, NULL, false, false, 20,
-                                         showprogress);
+                                         showprogress, otype);
         if (build_index)
         {
             int err = BuildKeyframeIndex(m2f, infile, posMap, jobID);
@@ -459,6 +526,9 @@ int main(int argc, char *argv[])
         exitcode = TRANSCODE_EXIT_UNKNOWN_ERROR;
     }
 
+    if (jobID >= 0)
+        CompleteJob(jobID, pginfo, useCutlist, exitcode);
+
     delete transcode;
     delete pginfo;
     delete gContext;
@@ -502,4 +572,150 @@ int BuildKeyframeIndex(MPEG2fixup *m2f, QString &infile,
     }
     return 0;
 }
+
+void CompleteJob(int jobID, ProgramInfo *pginfo, bool useCutlist, int &resultCode)
+{
+    int status = JobQueue::GetJobStatus(jobID);
+
+    if (!pginfo)
+    {
+        JobQueue::ChangeJobStatus(jobID, JOB_ERRORED,
+                  "Job errored, unable to find Program Info for job");
+        return;
+    }
+
+    QString filename = pginfo->GetPlaybackURL();
+
+    if (status == JOB_STOPPING)
+    {
+        QString tmpfile = filename + ".tmp";
+
+        // To save the original file...
+        QString oldfile = filename + ".old";
+        QString newfile = filename;
+        QString jobArgs = JobQueue::GetJobArgs(jobID);
+
+        if ((jobArgs == "RENAME_TO_NUV") &&
+            (filename.contains(QRegExp("mpg$"))))
+        {
+            QString newbase = pginfo->GetRecordBasename();
+
+            newfile.replace(QRegExp("mpg$"), "nuv");
+            newbase.replace(QRegExp("mpg$"), "nuv");
+            pginfo->SetRecordBasename(newbase);
+        }
+
+        if (rename(filename, oldfile) == -1)
+            perror(QString("mythtranscode: Error Renaming '%1' to '%2'")
+                   .arg(filename).arg(oldfile).ascii());
+
+        if (rename(tmpfile, newfile) == -1)
+            perror(QString("mythtranscode: Error Renaming '%1' to '%2'")
+                   .arg(tmpfile).arg(newfile).ascii());
+
+        if (!gContext->GetNumSetting("SaveTranscoding", 0))
+        {
+            int err;
+            bool followLinks = gContext->GetNumSetting("DeletesFollowLinks", 0);
+
+            VERBOSE(VB_FILE, QString("mythtranscode: About to unlink/delete "
+                                     "file: %1").arg(oldfile));
+            if (followLinks)
+            {
+                QFileInfo finfo(oldfile);
+                if ((finfo.isSymLink()) &&
+                    (err = unlink(finfo.readLink().local8Bit())))
+                {
+                     VERBOSE(VB_IMPORTANT,
+                             QString("Error deleting '%1' link pointing to "
+                                     "'%2', %3").arg(oldfile)
+                                     .arg(finfo.readLink().local8Bit())
+                                     .arg(strerror(errno)));
+                }
+            }
+ 
+            if ((err = unlink(oldfile.local8Bit())))
+                VERBOSE(VB_IMPORTANT, QString("mythtranscode: Error deleting "
+                                              "'%1', %2").arg(oldfile)
+                                              .arg(strerror(errno)));
+        }
+
+        oldfile = filename + ".png";
+        newfile += ".png";
+
+        QFile checkFile(oldfile);
+        if ((oldfile != newfile) && (checkFile.exists()))
+            rename(oldfile, newfile);
+
+        MSqlQuery query(MSqlQuery::InitCon());
+
+        if (useCutlist)
+        {
+            query.prepare("DELETE FROM recordedmarkup "
+                          "WHERE chanid = :CHANID "
+                          "AND starttime = :STARTTIME ");
+            query.bindValue(":CHANID", pginfo->chanid);
+            query.bindValue(":STARTTIME", pginfo->recstartts);
+            query.exec();
+
+            if (!query.isActive())
+                MythContext::DBError("Error in mythtranscode", query);
+
+            query.prepare("UPDATE recorded "
+                          "SET cutlist = :CUTLIST, bookmark = :BOOKMARK "
+                          "WHERE chanid = :CHANID "
+                          "AND starttime = :STARTTIME ;");
+            query.bindValue(":CUTLIST", "0");
+            query.bindValue(":BOOKMARK", "0");
+            query.bindValue(":CHANID", pginfo->chanid);
+            query.bindValue(":STARTTIME", pginfo->recstartts);
+            query.exec();
+
+            if (!query.isActive())
+                MythContext::DBError("Error in mythtranscode", query);
+
+            pginfo->SetCommFlagged(COMM_FLAG_NOT_FLAGGED);
+        }
+        else
+        {
+            query.prepare("DELETE FROM recordedmarkup "
+                          "WHERE chanid = :CHANID "
+                          "AND starttime = :STARTTIME "
+                          "AND type not in ( :COMM_START, "
+                          "    :COMM_END, :BOOKMARK, "
+                          "    :CUTLIST_START, :CUTLIST_END) ;");
+            query.bindValue(":CHANID", pginfo->chanid);
+            query.bindValue(":STARTTIME", pginfo->recstartts);
+            query.bindValue(":COMM_START", MARK_COMM_START);
+            query.bindValue(":COMM_END", MARK_COMM_END);
+            query.bindValue(":BOOKMARK", MARK_BOOKMARK);
+            query.bindValue(":CUTLIST_START", MARK_CUT_START);
+            query.bindValue(":CUTLIST_END", MARK_CUT_END);
+            query.exec();
+
+            if (!query.isActive())
+                MythContext::DBError("Error in mythtranscode", query);
+        }
+
+        JobQueue::ChangeJobStatus(jobID, JOB_FINISHED);
+
+    } else {
+        // Not a successful run, so remove the files we created
+        filename += ".tmp";
+        VERBOSE(VB_IMPORTANT, QString("Deleting %1").arg(filename));
+        unlink(filename);
+
+        filename += ".map";
+        unlink(filename);
+
+        if (status == JOB_ABORTING)                     // Stop command was sent
+            JobQueue::ChangeJobStatus(jobID, JOB_ABORTED, "Job Aborted");
+        else if (status != JOB_ERRORING)                // Recoverable error
+            resultCode = TRANSCODE_EXIT_RESTART;
+        else                                            // Unrecoverable error
+            JobQueue::ChangeJobStatus(jobID, JOB_ERRORED,
+                                      "Unrecoverable error");
+    }
+}
+
 /* vim: set expandtab tabstop=4 shiftwidth=4: */

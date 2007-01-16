@@ -42,6 +42,7 @@ PlaybackBoxMusic::PlaybackBoxMusic(MythMainWindow *parent, QString window_name,
     mainvisual = NULL;
     visual_mode_timer = NULL;
     lcd_update_timer = NULL;
+    banner_timer = NULL;
     waiting_for_playlists_timer = NULL;
     playlist_tree = NULL;
     playlist_popup = NULL;    
@@ -61,6 +62,9 @@ PlaybackBoxMusic::PlaybackBoxMusic(MythMainWindow *parent, QString window_name,
     curSmartPlaylistCategory = "";
     curSmartPlaylistName = "";
     
+    banner_timer = new QTimer(this);
+    connect(banner_timer, SIGNAL(timeout()), this, SLOT(bannerDisable()));
+
     menufilters = gContext->GetNumSetting("MusicMenuFilters", 0);
 
     cd_reader_thread = NULL;
@@ -107,6 +111,8 @@ PlaybackBoxMusic::PlaybackBoxMusic(MythMainWindow *parent, QString window_name,
         setShuffleMode(SHUFFLE_RANDOM);
     else if (playmode.lower() == "intelligent")
         setShuffleMode(SHUFFLE_INTELLIGENT);
+    else if (playmode.lower() == "album")
+        setShuffleMode(SHUFFLE_ALBUM);
     else
         setShuffleMode(SHUFFLE_OFF);
 
@@ -233,6 +239,8 @@ PlaybackBoxMusic::~PlaybackBoxMusic(void)
         gContext->SaveSetting("PlayMode", "intelligent");
     else if (shufflemode == SHUFFLE_RANDOM)
         gContext->SaveSetting("PlayMode", "random");
+    else if (shufflemode == SHUFFLE_ALBUM)
+        gContext->SaveSetting("PlayMode", "album");
     else
         gContext->SaveSetting("PlayMode", "none");
 
@@ -363,7 +371,10 @@ void PlaybackBoxMusic::keyPressEvent(QKeyEvent *e)
             showMenu();
         }
         else if (action == "INFO")
-            showEditMetadataDialog();
+            if (visualizer_status == 2) 
+                bannerToggle(curMeta);
+            else
+                showEditMetadataDialog();
         else
             handled = false;
     }
@@ -397,7 +408,10 @@ void PlaybackBoxMusic::keyPressEvent(QKeyEvent *e)
                                             160, 160);
                 setUpdatesEnabled(true);
                 mainvisual->setVisual(visual_workaround);
-                handled = true;
+                bannerDisable();
+
+                if (!m_parent->IsExitingToMain())
+                    handled = true;
             }
         }
     }
@@ -535,7 +549,7 @@ void PlaybackBoxMusic::allTracks()
         return;
 
    closePlaylistPopup();
-   updatePlaylistFromQuickPlaylist("ORDER BY artist, album, tracknum");
+   updatePlaylistFromQuickPlaylist("ORDER BY music_artists.artist_name, album_name, track");
 }
 
 void PlaybackBoxMusic::fromCD()
@@ -591,8 +605,8 @@ void PlaybackBoxMusic::byArtist()
         return;
 
     QString value = formattedFieldValue(curMeta->Artist().utf8());
-    QString whereClause = "WHERE artist = " + value +
-                          " ORDER BY album, tracknum"; 
+    QString whereClause = "WHERE music_artists.artist_name = " + value +
+                          " ORDER BY album_name, track"; 
 
     closePlaylistPopup();
     updatePlaylistFromQuickPlaylist(whereClause);
@@ -604,8 +618,8 @@ void PlaybackBoxMusic::byAlbum()
         return;
 
     QString value = formattedFieldValue(curMeta->Album().utf8());
-    QString whereClause = "WHERE album = " + value + 
-                          " ORDER BY tracknum";
+    QString whereClause = "WHERE album_name = " + value + 
+                          " ORDER BY track";
     closePlaylistPopup();
     updatePlaylistFromQuickPlaylist(whereClause);
 }
@@ -617,7 +631,7 @@ void PlaybackBoxMusic::byGenre()
 
     QString value = formattedFieldValue(curMeta->Genre().utf8()); 
     QString whereClause = "WHERE genre = " + value +
-                          " ORDER BY artist, album, tracknum";   
+                          " ORDER BY music_artists.artist_name, album_name, track";   
     closePlaylistPopup();
     updatePlaylistFromQuickPlaylist(whereClause);
 }
@@ -628,8 +642,8 @@ void PlaybackBoxMusic::byYear()
         return;
 
     QString value = formattedFieldValue(curMeta->Year()); 
-    QString whereClause = "WHERE year = " + value + 
-                          " ORDER BY artist, album, tracknum";
+    QString whereClause = "WHERE music_songs.year = " + value + 
+                          " ORDER BY music_artists.artist_name, album_name, track";
     closePlaylistPopup();
     updatePlaylistFromQuickPlaylist(whereClause);
 }
@@ -1116,6 +1130,7 @@ void PlaybackBoxMusic::play()
 
         decoder->start();
 
+        bannerEnable(curMeta);
         isplaying = true;
         curMeta->setLastPlay();
         curMeta->incPlayCount();    
@@ -1129,7 +1144,35 @@ void PlaybackBoxMusic::visEnable()
         setUpdatesEnabled(false);
         mainvisual->setGeometry(0, 0, screenwidth, screenheight);
         visualizer_status = 2;
+    } 
+    else 
+    {
+        bannerDisable();
     }
+}
+
+void PlaybackBoxMusic::bannerEnable(Metadata *mdata)
+{
+    if (visualizer_status != 2) 
+        return;
+    
+    banner_timer->start(8000);
+    mainvisual->addInformation("\"" + mdata->Title() + "\"\n" + 
+                               mdata->Artist() + " - " + mdata->Album());
+}
+
+void PlaybackBoxMusic::bannerToggle(Metadata *mdata) 
+{
+    if (banner_timer->isActive())
+        bannerDisable();
+    else
+        bannerEnable(mdata);
+}
+
+void PlaybackBoxMusic::bannerDisable()
+{
+    banner_timer->stop();
+    mainvisual->addInformation("");
 }
 
 void PlaybackBoxMusic::CycleVisualizer()
@@ -1415,6 +1458,19 @@ void PlaybackBoxMusic::setShuffleMode(unsigned int mode)
             if (class LCD *lcd = LCD::Get())
                 lcd->setMusicShuffle(LCD::MUSIC_SHUFFLE_RAND);
             break;
+        case SHUFFLE_ALBUM:
+            if(shuffle_button)
+            {
+                if (keyboard_accelerators)
+                    shuffle_button->setText(tr("1 Shuffle: Album"));
+                else
+                    shuffle_button->setText(tr("Shuffle: Album"));
+            }
+            music_tree_list->scrambleParents(true);
+
+            if (class LCD *lcd = LCD::Get())
+                lcd->setMusicShuffle(LCD::MUSIC_SHUFFLE_ALBUM);
+            break;
         default:
             if(shuffle_button)
             {
@@ -1532,7 +1588,7 @@ void PlaybackBoxMusic::constructPlaylistTree()
     // We ask the playlist object to write out the whole tree (all playlists 
     // and all music). It will set attributes for nodes in the tree, such as 
     // whether a node is selectable, how it can be ordered (normal, random, 
-    // intelligent), etc. 
+    // intelligent, album), etc. 
 
     all_playlists->writeTree(playlist_tree);
     music_tree_list->assignTreeData(playlist_tree);
@@ -1796,8 +1852,9 @@ void PlaybackBoxMusic::openOutputDevice(void)
         adevice = gContext->GetSetting("MusicAudioDevice");
  
     // TODO: Error checking that device is opened correctly!
-    output = AudioOutput::OpenAudio(adevice, 16, 2, 44100, 
-                                    AUDIOOUTPUT_MUSIC, true ); 
+    output = AudioOutput::OpenAudio(adevice, "default", 16, 2, 44100,
+                                    AUDIOOUTPUT_MUSIC, true,
+                                    false /* AC3/DTS pass through */);
     output->setBufferSize(outputBufferSize * 1024);
     output->SetBlocking(false);
     output->addListener(this);
@@ -1885,6 +1942,7 @@ void PlaybackBoxMusic::toggleFullBlankVisualizer()
             mainvisual->setGeometry(screenwidth + 10, screenheight + 10, 
                                     160, 160);
         mainvisual->setVisual(visual_mode);
+        bannerDisable();
         visualizer_status = 1;
         if(visual_mode_delay > 0)
         {

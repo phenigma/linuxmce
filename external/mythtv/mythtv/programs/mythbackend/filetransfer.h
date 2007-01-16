@@ -13,19 +13,23 @@ using namespace std;
 #include <qmutex.h>
 
 class RingBuffer;
-class QSocket;
+class MythSocket;
 
 class FileTransfer
 {
   public:
-    FileTransfer(QString &filename, QSocket *remote);
-   ~FileTransfer();
+    FileTransfer(QString &filename, MythSocket *remote);
+    FileTransfer(QString &filename, MythSocket *remote,
+                 bool usereadahead, int retries);
 
-    QSocket *getSocket() { return sock; }
+    MythSocket *getSocket() { return sock; }
 
     bool isOpen(void);
 
     void Stop(void);
+
+    void UpRef(void);
+    bool DownRef(void);
 
     void Pause(void);
     void Unpause(void);
@@ -38,14 +42,18 @@ class FileTransfer
     void SetTimeout(bool fast);
 
   private:
+   ~FileTransfer();
+
     bool readthreadlive;
     QMutex readthreadLock;
 
     RingBuffer *rbuffer;
-    QSocket *sock;
+    MythSocket *sock;
     bool ateof;
 
     vector<char> requestBuffer;
+
+    int refCount;
 };
 
 #endif

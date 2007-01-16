@@ -480,7 +480,7 @@ int get_audio_info(ringbuffer *rbuf, audio_frame_t *af, int off, int le)
 {
 	int c = 0;
 	int fr =0;
-	uint8_t headr[4];
+	uint8_t headr[7];
 
 	af->set=0;
 
@@ -517,10 +517,10 @@ int get_audio_info(ringbuffer *rbuf, audio_frame_t *af, int off, int le)
 	af->off = c;
 	af->set = 1;
 
+	af->frametime = ((samples [3-af->layer] * 27000000ULL) / af->frequency);
 	af->framesize = af->bit_rate *slots [3-af->layer]/ af->frequency;
 	fprintf(stderr," frame size: %d (", af->framesize);
-	printpts( ((samples [3-af->layer] * 27000000ULL) 
-		   / af->frequency));
+	printpts(af->frametime);
 	fprintf(stderr,") ");
 
 	return c;
@@ -529,7 +529,7 @@ int get_audio_info(ringbuffer *rbuf, audio_frame_t *af, int off, int le)
 int get_ac3_info(ringbuffer *rbuf, audio_frame_t *af, int off, int le)
 {
 	int c=0;
-	uint8_t headr[6];
+	uint8_t headr[7];
 	uint8_t frame;
 	int half = 0;
 	int fr;
@@ -572,7 +572,11 @@ int get_ac3_info(ringbuffer *rbuf, audio_frame_t *af, int off, int le)
 
 	af->off = c;
 	af->set = 1;
-	return c;
+
+	//FIXME calculate frametime
+	af->frametime = 0;
+
+    return c;
 }
 
 

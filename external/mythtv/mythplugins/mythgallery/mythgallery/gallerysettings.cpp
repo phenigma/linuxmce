@@ -30,6 +30,19 @@ static HostCheckBox *MythGalleryThumbnailLocation()
     return gc;
 };
 
+static HostComboBox *MythGallerySortOrder()
+{
+    HostComboBox *gc = new HostComboBox("GallerySortOrder");
+    gc->setLabel(QObject::tr("Sort order when browsing"));
+    gc->addSelection("Name (A-Z alpha)", QString::number(QDir::Name | QDir::DirsFirst | QDir::IgnoreCase));
+    gc->addSelection("Reverse Name (Z-A alpha)", QString::number(QDir::Name | QDir::DirsFirst | QDir::IgnoreCase | QDir::Reversed));
+    gc->addSelection("Mod Time (earliest first)", QString::number(QDir::Time | QDir::DirsFirst | QDir::IgnoreCase | QDir::Reversed));
+    gc->addSelection("Reverse Mod Time (most recent first)", QString::number(QDir::Time | QDir::DirsFirst | QDir::IgnoreCase));
+    gc->setHelpText(QObject::tr("This is the sort order for the displayed "
+                    "picture thumbnails."));
+    return gc;
+};
+
 static HostLineEdit *MythGalleryMoviePlayerCmd()
 {
     HostLineEdit *gc = new HostLineEdit("GalleryMoviePlayerCmd");
@@ -61,7 +74,7 @@ static HostLineEdit *MythGalleryImportDirs()
     return gc;
 };
 
-#ifdef OPENGL_SUPPORT
+#ifdef USING_OPENGL
 
 static HostCheckBox *SlideshowUseOpenGL()
 {
@@ -92,7 +105,16 @@ static HostComboBox *SlideshowOpenGLTransition()
     return gc;
 };
 
-#endif /* OPENGL_SUPPORT */
+static HostSpinBox *SlideshowOpenGLTransitionLength()
+{
+    HostSpinBox *gc = new HostSpinBox(
+        "SlideshowOpenGLTransitionLength", 500, 10000, 500);
+    gc->setLabel(QObject::tr("Duration of OpenGL Transition (milliseconds)"));
+    gc->setValue(2000);
+    return gc;
+};
+
+#endif /* USING_OPENGL */
 
 static HostComboBox *SlideshowTransition()
 {
@@ -156,37 +178,29 @@ public:
     GalleryConfigurationGroup():
         VerticalConfigurationGroup(false),
         TriggeredConfigurationGroup(false) {
-        setLabel(QObject::tr("MythGallery Settings"));
+        setLabel(QObject::tr("MythGallery Settings (Slideshow)"));
         setUseLabel(false);
 
-        addChild(MythGalleryDir());
-        addChild(MythGalleryThumbnailLocation());
-        addChild(MythGalleryImportDirs());
-        addChild(MythGalleryMoviePlayerCmd());
-
-#ifdef OPENGL_SUPPORT
-        
+#ifdef USING_OPENGL
         HostCheckBox* useOpenGL = SlideshowUseOpenGL();
         addChild(useOpenGL);
         setTrigger(useOpenGL);
     
         ConfigurationGroup* openGLConfig = new VerticalConfigurationGroup(false);
         openGLConfig->addChild(SlideshowOpenGLTransition());
+        openGLConfig->addChild(SlideshowOpenGLTransitionLength());
         addTarget("1", openGLConfig);
 
         ConfigurationGroup* regularConfig = new VerticalConfigurationGroup(false);
+        regularConfig->addChild(MythGalleryOverlayCaption());
         regularConfig->addChild(SlideshowTransition());
         regularConfig->addChild(SlideshowBackground());
         addTarget("0", regularConfig);
-
 #else
         addChild(MythGalleryOverlayCaption());
         addChild(SlideshowTransition());
         addChild(SlideshowBackground());
-        
 #endif
-
-        
         
         addChild(SlideshowDelay());
         addChild(SlideshowRecursive());
@@ -197,6 +211,15 @@ public:
 
 GallerySettings::GallerySettings()
 {
+    VerticalConfigurationGroup* general = new VerticalConfigurationGroup(false);
+    general->setLabel(QObject::tr("MythGallery Settings (General)"));
+    general->addChild(MythGalleryDir());
+    general->addChild(MythGalleryThumbnailLocation());
+    general->addChild(MythGallerySortOrder());
+    general->addChild(MythGalleryImportDirs());
+    general->addChild(MythGalleryMoviePlayerCmd());
+    addChild(general);
+
     GalleryConfigurationGroup* config = new GalleryConfigurationGroup();
     addChild(config);
 }

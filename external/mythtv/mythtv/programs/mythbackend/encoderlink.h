@@ -4,7 +4,9 @@
 #include <qstring.h>
 
 #include "tv.h"
+#include "programinfo.h"
 
+class TVRec;
 class MainServer;
 class PlaybackSock;
 class LiveTVChain;
@@ -76,14 +78,16 @@ class EncoderLink
     void StopLiveTV(void);
     void PauseRecorder(void);
     void SetLiveRecording(int);
-    void ToggleInputs(void);
+    QStringList GetConnectedInputs(void) const;
+    QString GetInput(void) const;
+    QString SetInput(QString);
     void ToggleChannelFavorite(void);
     void ChangeChannel(int channeldirection);
     void SetChannel(const QString &name);
-    int ChangeContrast(bool direction);
-    int ChangeBrightness(bool direction);
-    int ChangeColour(bool direction);
-    int ChangeHue(bool direction);
+    int  GetPictureAttribute(PictureAttribute attr);
+    int  ChangePictureAttribute(PictureAdjustType type,
+                                PictureAttribute  attr,
+                                bool              direction);
     bool CheckChannel(const QString &name);
     bool ShouldSwitchToAnotherCard(const QString &channelid);
     bool CheckChannelPrefix(const QString&,uint&,bool&,QString&);
@@ -93,6 +97,13 @@ class EncoderLink
                         QString &endtime, QString &callsign, QString &iconpath,
                         QString &channelname, QString &chanid,
                         QString &seriesid, QString &programid);
+    bool GetChannelInfo(uint &chanid, uint &sourceid,
+                        QString &callsign, QString &channum,
+                        QString &channame, QString &xmltv) const;
+    bool SetChannelInfo(uint chanid, uint sourceid,
+                        QString oldchannum,
+                        QString callsign, QString channum,
+                        QString channame, QString xmltv);
 
     char *GetScreenGrab(const ProgramInfo *pginfo, const QString &filename,
                         int secondsin, int &bufferlen,

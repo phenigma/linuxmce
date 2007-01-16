@@ -1,4 +1,5 @@
 // -*- Mode: c++ -*-
+// vim:set sw=4 ts=4 expandtab:
 #ifndef PLAYBACKBOX_H_
 #define PLAYBACKBOX_H_
 
@@ -30,6 +31,7 @@ class LayerSet;
 typedef QMap<QString,ProgramList>       ProgramMap;
 typedef QMap<QString,QString>           Str2StrMap;
 typedef QMap<QString,PreviewGenerator*> PreviewMap;
+typedef QMap<QString,MythTimer>         LastCheckedMap;
 
 class PlaybackBox : public MythDialog
 {
@@ -41,16 +43,32 @@ class PlaybackBox : public MythDialog
         Delete,
     } BoxType;
 
-    typedef enum
-    {
-        TitlesOnly,
-        TitlesCategories,
-        TitlesCategoriesRecGroups,
-        TitlesRecGroups,
-        Categories,
-        CategoriesRecGroups,
-        RecGroups,
+    // ViewType values cannot change; they are stored in the database.
+    typedef enum {
+        TitlesOnly = 0,
+        TitlesCategories = 1,
+        TitlesCategoriesRecGroups = 2,
+        TitlesRecGroups = 3,
+        Categories = 4,
+        CategoriesRecGroups = 5,
+        RecGroups = 6,
+        ViewTypes,                  // placeholder value, not in database
     } ViewType;
+
+    // Sort function when TitlesOnly. Values are stored in database.
+    typedef enum {
+        TitleSortAlphabetical = 0,
+        TitleSortRecPriority = 1,
+        TitleSortMethods,           // placeholder value, not in database
+    } ViewTitleSort;
+
+    typedef enum {
+        VIEW_NONE       =  0x00,
+        VIEW_TITLES     =  0x01,
+        VIEW_CATEGORIES =  0x02,
+        VIEW_RECGROUPS  =  0x04,
+        VIEW_ALL        = ~0x00,
+    } ViewMask;
 
     typedef enum
     {
@@ -94,6 +112,7 @@ class PlaybackBox : public MythDialog
     void cursorUp(bool page = false, bool newview = false);
     void pageDown() { cursorDown(true); }
     void pageUp() { cursorUp(true); }
+    void customEdit();
     void upcoming();
     void details();
     void selected();
@@ -111,6 +130,16 @@ class PlaybackBox : public MythDialog
     void showPlayFromPopup();
     void showRecordingPopup();
     void showJobPopup();
+    void showTranscodingProfiles();
+    void changeProfileAndTranscode(QString profile);
+    void changeProfileAndTranscodeAuto()
+             { changeProfileAndTranscode("Autodetect"); }
+    void changeProfileAndTranscodeHigh()
+             { changeProfileAndTranscode("High Quality"); }
+    void changeProfileAndTranscodeMedium()
+             { changeProfileAndTranscode("Medium Quality"); }
+    void changeProfileAndTranscodeLow()
+             { changeProfileAndTranscode("Low Quality"); }
     void showStoragePopup();
     void showPlaylistPopup();
     void showPlaylistJobPopup();
@@ -189,8 +218,7 @@ class PlaybackBox : public MythDialog
     void doPlayList(void);
     void showViewChanger(void);
 
-    void previewThreadDone(const QString &fn, bool &success)
-        { success = SetPreviewGenerator(fn, NULL); }
+    void previewThreadDone(const QString &fn, bool &success);
     void previewReady(const ProgramInfo *pginfo);
 
   protected:
@@ -199,6 +227,7 @@ class PlaybackBox : public MythDialog
 
     bool SetPreviewGenerator(const QString &fn, PreviewGenerator *g);
     bool IsGeneratingPreview(const QString &fn) const;
+    uint IncPreviewGeneratorAttempts(const QString &fn);
 
   private:
     bool FillList(void);
@@ -237,6 +266,7 @@ class PlaybackBox : public MythDialog
     void promptEndOfRecording(ProgramInfo *);
     void showDeletePopup(ProgramInfo *, deletePopupType);
     void showActionPopup(ProgramInfo *program);
+    void showFileNotFoundActionPopup(ProgramInfo *program);
     void initPopup(MythPopupBox *popup, ProgramInfo *program, 
                    QString message, QString message2);
     void cancelPopup();
@@ -260,7 +290,7 @@ class PlaybackBox : public MythDialog
     void updateCurGroup(QPainter *p);
     void updateGroupInfo(QPainter *p, QRect& pr, QPixmap& pix,
                          QString cont_name = "group_info");
-    void setDefaultView(int defaultView);
+    void setDefaultView(ViewType defaultView);
 
     // Settings ///////////////////////////////////////////////////////////////
     /// If "Play"  this is a recording playback selection UI,
@@ -292,6 +322,7 @@ class PlaybackBox : public MythDialog
     QString             recGroup;
     QString             recGroupPassword;
     QString             curGroupPassword;
+    ViewMask            viewMask;
 
     // Theme parsing variables
     XMLParse           *theme;
@@ -390,14 +421,17 @@ class PlaybackBox : public MythDialog
 
     // Preview Pixmap Variables ///////////////////////////////////////////////
     bool                previewPixmapEnabled;
+    bool                previewFromBookmark;
     QPixmap            *previewPixmap;
     QDateTime           previewLastModified;
+    LastCheckedMap      previewLastModifyCheck;
     QDateTime           previewFilets;
     QDateTime           previewStartts;
     bool                previewSuspend;
     QString             previewChanid;
     mutable QMutex      previewGeneratorLock;
     PreviewMap          previewGenerator;
+    QMap<QString,uint>  previewGeneratorAttempts;
 
     // Network Control Variables //////////////////////////////////////////////
     mutable QMutex      ncLock;
@@ -406,3 +440,4 @@ class PlaybackBox : public MythDialog
 };
 
 #endif
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

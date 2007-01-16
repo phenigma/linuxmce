@@ -18,13 +18,10 @@
 #include <qdir.h>
 #include <qimage.h>
 
-#include "config.h"
-
 /*
 --------------- General Settings ---------------
 */
 
-#ifdef VCD_SUPPORT
 static HostLineEdit *SetVCDDevice()
 {
     HostLineEdit *gc = new HostLineEdit("VCDDeviceLocation");
@@ -34,8 +31,7 @@ static HostLineEdit *SetVCDDevice()
                     "running MythDVD needs to have read permission "
                     "on the device."));
     return gc;
-};
-#endif
+}
 
 static HostLineEdit *SetDVDDevice()
 {
@@ -46,7 +42,7 @@ static HostLineEdit *SetDVDDevice()
                     "running MythDVD needs to have read permission "
                     "on the device."));
     return gc;
-};
+}
 
 static HostComboBox *SetOnInsertDVD()
 {
@@ -55,22 +51,18 @@ static HostComboBox *SetOnInsertDVD()
     gc->addSelection(QObject::tr("Display mythdvd menu"),"1");
     gc->addSelection(QObject::tr("Do nothing"),"0");
     gc->addSelection(QObject::tr("Play DVD"),"2");
-#ifdef TRANSCODE_SUPPORT       
     gc->addSelection(QObject::tr("Rip DVD"),"3");
-#endif
     gc->setHelpText(QObject::tr("Media Monitoring should be turned on to "
                    "allow this feature (Setup -> General -> CD/DVD Monitor"));
     return gc;
-};
+}
 
 DVDGeneralSettings::DVDGeneralSettings()
 {
     VerticalConfigurationGroup* general = new VerticalConfigurationGroup(false);
     general->setLabel(QObject::tr("General Settings"));
     general->addChild(SetDVDDevice());
-#ifdef VCD_SUPPORT
     general->addChild(SetVCDDevice());
-#endif
     general->addChild(SetOnInsertDVD());
     addChild(general);
 }
@@ -84,16 +76,17 @@ DVDGeneralSettings::DVDGeneralSettings()
 
 static HostLineEdit *PlayerCommand()
 {
-    HostLineEdit *gc = new HostLineEdit("DVDPlayerCommand");
+    HostLineEdit *gc = new HostLineEdit("mythdvd.DVDPlayerCommand");
     gc->setLabel(QObject::tr("DVD Player Command"));
-    gc->setValue("mplayer dvd:// -dvd-device %d -fs -zoom -vo xv");
-    gc->setHelpText(QObject::tr("This can be any command to launch a DVD player "
+//    gc->setValue("mplayer dvd:// -dvd-device %d -fs -zoom -vo xv");
+    gc->setValue("Internal");
+    gc->setHelpText(
+        QObject::tr("This can be any command to launch a DVD player "
                     "(e.g. MPlayer, ogle, etc.). If present, %d will "
                     "be substituted for the DVD device (e.g. /dev/dvd)."));
     return gc;
-};
+}
 
-#ifdef VCD_SUPPORT
 static HostLineEdit *VCDPlayerCommand()
 {
     HostLineEdit *gc = new HostLineEdit("VCDPlayerCommand");
@@ -103,8 +96,7 @@ static HostLineEdit *VCDPlayerCommand()
                     "(e.g. MPlayer, xine, etc.). If present, %d will "
                     "be substituted for the VCD device (e.g. /dev/cdrom)."));
     return gc;
-};
-#endif
+}
 
 
 DVDPlayerSettings::DVDPlayerSettings()
@@ -112,15 +104,11 @@ DVDPlayerSettings::DVDPlayerSettings()
     VerticalConfigurationGroup* playersettings = new VerticalConfigurationGroup(false);
     playersettings->setLabel(QObject::tr("DVD Player Settings"));
     playersettings->addChild(PlayerCommand());
-#ifdef VCD_SUPPORT
     VerticalConfigurationGroup* VCDplayersettings = new VerticalConfigurationGroup(false);
     VCDplayersettings->setLabel(QObject::tr("VCD Player Settings"));
     VCDplayersettings->addChild(VCDPlayerCommand());
-#endif
     addChild(playersettings);
-#ifdef VCD_SUPPORT
     addChild(VCDplayersettings);
-#endif
 }
 
 /*
@@ -136,7 +124,7 @@ static HostLineEdit *SetRipDirectory()
                     "running MythDVD needs to have write permission "
                     "to the directory."));
     return gc;
-};
+}
 
 static HostLineEdit *TitlePlayCommand()
 {
@@ -148,7 +136,7 @@ static HostLineEdit *TitlePlayCommand()
                     "to the title, %d for device, %a for audio "
                     "track, %c for audio channels."));
     return gc;
-};
+}
 
 static HostLineEdit *SubTitleCommand()
 {
@@ -160,7 +148,7 @@ static HostLineEdit *SubTitleCommand()
                     "Command to allow previewing of subtitles. If  "
                     "present %s will be set to the subtitle track. "));
     return gc;
-};
+}
 
 static HostLineEdit *TranscodeCommand()
 {
@@ -170,7 +158,7 @@ static HostLineEdit *TranscodeCommand()
     gc->setHelpText(QObject::tr("This is the base (without arguments) command "
                     "to run transcode on your system."));
     return gc;
-};
+}
 
 static HostSpinBox *MTDPortNumber()
 {
@@ -181,7 +169,7 @@ static HostSpinBox *MTDPortNumber()
                     "communicating with the MTD (Myth Transcoding "
                     "Daemon)"));
     return gc;
-};
+}
 
 static HostCheckBox *MTDLogFlag()
 {
@@ -193,7 +181,7 @@ static HostCheckBox *MTDLogFlag()
                     "Otherwise, it will write to a file called  "
                     "mtd.log in the top level ripping directory."));
     return gc;
-};
+}
 
 
 static HostCheckBox *MTDac3Flag()
@@ -205,7 +193,7 @@ static HostCheckBox *MTDac3Flag()
                     "will, by default, preserve AC3 (Dolby "
                     "Digital) audio in transcoded files. "));
     return gc;
-};
+}
 
 
 static HostCheckBox *MTDxvidFlag()
@@ -217,7 +205,7 @@ static HostCheckBox *MTDxvidFlag()
                     "xvid codec rather than divx whenever "
                     "possible."));
     return gc;
-};
+}
 
 
 static HostSpinBox *MTDNiceLevel()
@@ -229,7 +217,7 @@ static HostSpinBox *MTDNiceLevel()
                     "Transcoding Daemon. Higher numbers mean "
                     "lower priority (more CPU to other tasks)."));
     return gc;
-};
+}
 
 static HostSpinBox *MTDConcurrentTranscodes()
 {
@@ -240,7 +228,7 @@ static HostSpinBox *MTDConcurrentTranscodes()
                     "transcode jobs. If set at 1 (the default), "
                     "there will only be one active job at a time."));
     return gc;
-};
+}
 
 static HostSpinBox *MTDRipSize()
 {
@@ -253,7 +241,7 @@ static HostSpinBox *MTDRipSize()
                     "quality recordings and intermediate files "
                     "used for transcoding."));
     return gc;
-};
+}
 
 DVDRipperSettings::DVDRipperSettings()
 {

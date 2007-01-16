@@ -14,6 +14,7 @@ using namespace std;
 
 #include "viewscheduled.h"
 #include "scheduledrecording.h"
+#include "customedit.h"
 #include "proglist.h"
 #include "tv.h"
 
@@ -63,6 +64,7 @@ ViewScheduled::ViewScheduled(MythMainWindow *parent, const char *name)
     inFill = false;
     needFill = false;
 
+    curcard = 0;
     listPos = 0;
     FillList();
  
@@ -100,6 +102,8 @@ void ViewScheduled::keyPressEvent(QKeyEvent *e)
                 selected();
             else if (action == "MENU" || action == "INFO")
                 edit();
+            else if (action == "CUSTOMEDIT")
+                customEdit();
             else if (action == "UPCOMING")
                 upcoming();
             else if (action == "DETAILS")
@@ -120,6 +124,8 @@ void ViewScheduled::keyPressEvent(QKeyEvent *e)
                 setShowAll(false);
             else if (action == "PREVVIEW" || action == "NEXTVIEW")
                 setShowAll(!showAll);
+            else if (action == "VIEWCARD")
+                viewCards();
             else
                 handled = false;
         }
@@ -259,14 +265,25 @@ void ViewScheduled::FillList(void)
 
     QDateTime now = QDateTime::currentDateTime();
 
+    QMap<int, int> toomanycounts;
+
     ProgramInfo *p = recList.first();
     while (p)
     {
         if ((p->recendts >= now || p->endts >= now) && 
             (showAll || p->recstatus <= rsWillRecord || 
              p->recstatus == rsDontRecord ||
-             (p->recstatus > rsEarlierShowing && p->recstatus != rsRepeat)))
+             (p->recstatus == rsTooManyRecordings && 
+              ++toomanycounts[p->recordid] <= 1) ||
+             (p->recstatus > rsTooManyRecordings && 
+              p->recstatus != rsRepeat)))
+        {
+            cardref[p->cardid]++;
+            if (p->cardid > maxcard)
+                maxcard = p->cardid;
+
             p = recList.next();
+        }
         else
         {
             recList.remove();
@@ -353,10 +370,14 @@ void ViewScheduled::updateList(QPainter *p)
                 if (p->recstatus == rsRecording)
                     ltype->EnableForcedFont(i, "recording");
                 else if (p->recstatus == rsConflict ||
+                         p->recstatus == rsOffLine ||
                          p->recstatus == rsAborted)
                     ltype->EnableForcedFont(i, "conflictingrecording");
                 else if (p->recstatus == rsWillRecord)
-                    ltype->EnableForcedFont(i, "record");
+                    {
+                    if (curcard == 0 || p->cardid == curcard)
+                        ltype->EnableForcedFont(i, "record");
+                    }
                 else if (p->recstatus == rsRepeat ||
                          (p->recstatus != rsDontRecord &&
                           p->recstatus <= rsEarlierShowing))
@@ -529,6 +550,18 @@ void ViewScheduled::edit()
     p->EditScheduled();
 }
 
+void ViewScheduled::customEdit()
+{
+    ProgramInfo *p = recList[listPos];
+    if (!p)
+        return;
+
+    CustomEdit *ce = new CustomEdit(gContext->GetMainWindow(),
+                                    "customedit", p);
+    ce->exec();
+    delete ce;
+}
+
 void ViewScheduled::upcoming()
 {
     ProgramInfo *p = recList[listPos];
@@ -593,4 +626,18 @@ void ViewScheduled::setShowAll(bool all)
     showAll = all;
 
     needFill = true;
+}
+
+void ViewScheduled::viewCards()
+{
+    needFill = true;
+
+    curcard++;
+    while (curcard <= maxcard)
+    {
+        if (cardref[curcard] > 0)
+            return;
+        curcard++;
+    }
+    curcard = 0;
 }

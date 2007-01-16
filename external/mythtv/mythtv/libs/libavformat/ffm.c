@@ -44,6 +44,7 @@ typedef struct FFMContext {
 
     /* read and write */
     int first_packet; /* true if first packet, needed to set the discontinuity tag */
+    int first_frame_in_packet; /* true if first frame in packet, needed to know if PTS information is valid */
     int packet_size;
     int frame_offset;
     int64_t pts;
@@ -347,6 +348,7 @@ static int ffm_read_data(AVFormatContext *s,
             get_be16(pb); /* PACKET_ID */
             fill_size = get_be16(pb);
             ffm->pts = get_be64(pb);
+            ffm->first_frame_in_packet = 1;
             frame_offset = get_be16(pb);
             get_buffer(pb, ffm->packet, ffm->packet_size - FFM_HEADER_SIZE);
             ffm->packet_end = ffm->packet + (ffm->packet_size - FFM_HEADER_SIZE - fill_size);
@@ -614,7 +616,11 @@ static int ffm_read_packet(AVFormatContext *s, AVPacket *pkt)
             av_free_packet(pkt);
             return -EAGAIN;
         }
-        pkt->pts = ffm->pts;
+        if (ffm->first_frame_in_packet)
+        {
+            pkt->pts = ffm->pts;
+            ffm->first_frame_in_packet = 0;
+        }
         pkt->duration = duration;
         break;
     }
@@ -700,6 +706,7 @@ static int ffm_seek(AVFormatContext *s, int stream_index, int64_t wanted_pts, in
     return 0;
 }
 
+#ifdef CONFIG_FFSERVER
 offset_t ffm_read_write_index(int fd)
 {
     uint8_t buf[8];
@@ -731,6 +738,7 @@ void ffm_set_write_index(AVFormatContext *s, offset_t pos, offset_t file_size)
     ffm->write_index = pos;
     ffm->file_size = file_size;
 }
+#endif // CONFIG_FFSERVER
 
 static int ffm_read_close(AVFormatContext *s)
 {
@@ -753,7 +761,8 @@ static int ffm_probe(AVProbeData *p)
     return 0;
 }
 
-static AVInputFormat ffm_iformat = {
+#ifdef CONFIG_FFM_DEMUXER
+AVInputFormat ffm_demuxer = {
     "ffm",
     "ffm format",
     sizeof(FFMContext),
@@ -763,9 +772,9 @@ static AVInputFormat ffm_iformat = {
     ffm_read_close,
     ffm_seek,
 };
-
-#ifdef CONFIG_MUXERS
-static AVOutputFormat ffm_oformat = {
+#endif
+#ifdef CONFIG_FFM_MUXER
+AVOutputFormat ffm_muxer = {
     "ffm",
     "ffm format",
     "",
@@ -778,13 +787,4 @@ static AVOutputFormat ffm_oformat = {
     ffm_write_packet,
     ffm_write_trailer,
 };
-#endif //CONFIG_MUXERS
-
-int ffm_init(void)
-{
-    av_register_input_format(&ffm_iformat);
-#ifdef CONFIG_MUXERS
-    av_register_output_format(&ffm_oformat);
-#endif //CONFIG_MUXERS
-    return 0;
-}
+#endif //CONFIG_FFM_MUXER

@@ -665,62 +665,35 @@
         <font>grayinfo</font>
         <value>]</value>
       </textarea>
-      <textarea name="infochannel" draworder="6">
-        <area>0,110,160,30</area>
-        <font>info</font>
-        <value>Channel:</value>
-      </textarea>
-      <textarea name="longchannel" draworder="6">
-        <area>180,110,400,30</area>
-        <font>info</font>
-      </textarea>
-      <textarea name="channelbracketA" draworder="6">
-        <area>620,110,100,30</area>
-        <font>grayinfo</font>
-        <value>[</value>
-      </textarea>
-      <textarea name="channelsign" draworder="6">
-        <area>630,110,100,30</area>
-        <font>grayinfo</font>
-      </textarea>
-      <textarea name="channelrecpriority" draworder="6">
-        <area>643,110,100,30</area>
-        <font>grayinfo</font>
-      </textarea>
-      <textarea name="channelbracketB" draworder="6">
-        <area>668,110,100,30</area>
-        <font>grayinfo</font>
-        <value>]</value>
-      </textarea>
       <textarea name="inforecpriority" draworder="6">
-        <area>0,140,160,30</area>
+        <area>0,110,160,30</area>
         <font>info</font>
         <value>Priority:</value>
       </textarea>
       <textarea name="recpriority" draworder="6">
-        <area>180,140,400,30</area>
+        <area>180,110,400,30</area>
         <font>info</font>
       </textarea>
       <textarea name="recprioritybracketA" draworder="6">
-        <area>620,140,100,30</area>
+        <area>620,110,100,30</area>
         <font>grayinfo</font>
         <value>[</value>
       </textarea>
       <textarea name="recprioritysign" draworder="6">
-        <area>630,140,100,30</area>
+        <area>630,110,100,30</area>
         <font>grayinfo</font>
       </textarea>
       <textarea name="recpriorityB" draworder="6">
-        <area>643,140,100,30</area>
+        <area>643,110,100,30</area>
         <font>grayinfo</font>
       </textarea>
       <textarea name="recprioritybracketB" draworder="6">
-        <area>668,140,100,30</area>
+        <area>668,110,100,30</area>
         <font>grayinfo</font>
         <value>]  = </value>
       </textarea>
       <textarea name="finalrecpriority" draworder="6">
-        <area>709,140,150,30</area>
+        <area>709,110,150,30</area>
         <font>yellowinfo</font>
       </textarea>
     </container>
@@ -897,6 +870,18 @@
       <image name="cutlist" draworder="6">
         <filename>cutlist.png</filename>
         <position>148,106</position>
+      </image>
+      <image name="stereo" draworder="6">
+        <filename>type/stereo.png</filename>
+        <position>180,106</position>
+      </image>
+      <image name="cc" draworder="6">
+        <filename>type/cc.png</filename>
+        <position>212,106</position>
+      </image>
+      <image name="hdtv" draworder="6">
+        <filename>type/hd.png</filename>
+        <position>257,106</position>
       </image>
 
       <image name="processing" draworder="6">
@@ -1168,7 +1153,8 @@
         <columnpadding>5</columnpadding>
         <column number="1" width="160" context="-1"></column>
         <column number="2" width="120" context="-1"></column>
-        <column number="3" width="440" context="-1"></column>
+        <column number="3" width="420" context="-1"></column>
+        <column number="4" width="20" context="-1"></column>
         <items>8</items>
         <image function="selectionbar" filename="cr-selectbar.png" location="-15,-5"></image>
         <image function="uparrow" filename="uparrow.png" location="745,13"></image>

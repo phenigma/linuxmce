@@ -22,6 +22,13 @@ using namespace std;
 #include "jobqueue.h"
 #include "util.h"
 #include "mythdbcon.h"
+#include "cardutil.h"
+
+#define REC_CAN_BE_DELETED(rec) \
+    ((((rec)->programflags & FL_INUSEPLAYING) == 0) && \
+     ((((rec)->programflags & FL_INUSERECORDING) == 0) || \
+      ((rec)->recgroup != "LiveTV")))
+
 
 /** \class StatusBox
  *  \brief Reports on various status items.
@@ -73,11 +80,12 @@ StatusBox::StatusBox(MythMainWindow *parent, const char *name)
 
     max_icons = item_count;
     inContent = false;
+    doScroll = false;
     contentPos = 0;
     contentTotalLines = 0;
     contentSize = 0;
     contentMid = 0;
-    min_level = gContext->GetNumSetting("LogDefaultView",1);
+    min_level = gContext->GetNumSetting("LogDefaultView",5);
     my_parent = parent;
     clicked();
 
@@ -407,7 +415,8 @@ void StatusBox::keyPressEvent(QKeyEvent *e)
         }
         else if ((action == "RIGHT") &&
                  (!inContent) &&
-                 ((contentTotalLines > contentSize) ||
+                 (((contentSize > 0) &&
+                   (contentTotalLines > contentSize)) ||
                   (doScroll)))
         {
             clicked();
@@ -610,7 +619,43 @@ void StatusBox::clicked()
                 }
             }
         }
+        else if (currentItem == QObject::tr("AutoExpire List"))
+        {
+            ProgramInfo* rec;
 
+            rec = expList[contentPos];
+
+            if (rec) 
+            {
+                QStringList msgs;
+                int retval;
+
+                msgs << QObject::tr("Delete Now");
+                msgs << QObject::tr("Disable AutoExpire");
+                msgs << QObject::tr("No Change");
+                
+                retval = MythPopupBox::showButtonPopup(my_parent,
+                             QString("AutoExpirePopup"),
+                             QObject::tr("AutoExpire Actions:"),
+                             msgs, 2);
+
+                if (retval == 0 && REC_CAN_BE_DELETED(rec))
+                {
+                    RemoteDeleteRecording(rec, false, false);
+                }
+                else if (retval == 1)
+                {
+                    rec->SetAutoExpire(0);
+                    if ((rec)->recgroup == "LiveTV")
+                        rec->ApplyRecordRecGroupChange("Default");
+                }
+
+                // Update list, prevent selected item going off bottom
+                doAutoExpireList();
+                if (contentPos >= (int)expList.size())  
+                    contentPos = max((int)expList.size()-1,0);
+            }
+        }
         return;
     }
     
@@ -671,8 +716,10 @@ void StatusBox::doListingsStatus()
 
     mfdNextRunStart.replace("T", " ");
 
+    extern const char *myth_source_version;
     contentLines[count++] = QObject::tr("Myth version:") + " " +
-                                        MYTH_BINARY_VERSION;
+                                        MYTH_BINARY_VERSION + "   " +
+                                        myth_source_version;
     contentLines[count++] = QObject::tr("Last mythfilldatabase guide update:");
     contentLines[count++] = QObject::tr("Started:   ") + mfdLastRunStart;
 
@@ -730,60 +777,69 @@ void StatusBox::doListingsStatus()
 
 void StatusBox::doTunerStatus()
 {
-    int count = 0;
     doScroll = true;
-
-    MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare("SELECT cardid FROM capturecard;");
-    query.exec();
-
     contentLines.clear();
     contentDetail.clear();
     contentFont.clear();
 
-    if (query.isActive() && query.size())
+    MSqlQuery query(MSqlQuery::InitCon());
+    query.prepare(
+        "SELECT cardid, cardtype, videodevice "
+        "FROM capturecard WHERE parentid='0' ORDER BY cardid");
+
+    if (!query.exec() || !query.isActive())
     {
-        while(query.next())
-        {
-            int cardid = query.value(0).toInt();
+        MythContext::DBError("StatusBox::doTunerStatus()", query);
+        contentTotalLines = 0;
+        update(ContentRect);
+        return;
+    }
 
-            QString cmd = QString("QUERY_REMOTEENCODER %1").arg(cardid);
-            QStringList strlist = cmd;
-            strlist << "GET_STATE";
+    uint count = 0;
+    while (query.next())
+    {
+        int cardid = query.value(0).toInt();
 
-            gContext->SendReceiveStringList(strlist);
-            int state = strlist[0].toInt();
+        QString cmd = QString("QUERY_REMOTEENCODER %1").arg(cardid);
+        QStringList strlist = cmd;
+        strlist << "GET_STATE";
+
+        gContext->SendReceiveStringList(strlist);
+        int state = strlist[0].toInt();
   
-            QString Status = QString(tr("Tuner %1 ")).arg(cardid);
-            if (state==kState_Error)
-                Status += tr("is not available");
-            else if (state==kState_WatchingLiveTV)
-                Status += tr("is watching live TV");
-            else if (state==kState_RecordingOnly ||
-                     state==kState_WatchingRecording)
-                Status += tr("is recording");
-            else 
-                Status += tr("is not recording");
+        QString status = "";
+        if (state == kState_Error)
+            status = tr("is unavailable");
+        else if (state == kState_WatchingLiveTV)
+            status = tr("is watching live TV");
+        else if (state == kState_RecordingOnly ||
+                 state == kState_WatchingRecording)
+            status = tr("is recording");
+        else 
+            status = tr("is not recording");
 
-            contentLines[count] = Status;
-            contentDetail[count] = Status;
+        QString tun = tr("Tuner %1 ").arg(cardid);
+        QString devlabel = CardUtil::GetDeviceLabel(
+            cardid, query.value(1).toString(), query.value(2).toString());
 
-            if (state==kState_RecordingOnly ||
-                state==kState_WatchingRecording)
-            {
-                strlist = QString("QUERY_RECORDER %1").arg(cardid);
-                strlist << "GET_RECORDING";
-                gContext->SendReceiveStringList(strlist);
-                ProgramInfo *proginfo = new ProgramInfo;
-                proginfo->FromStringList(strlist, 0);
+        contentLines[count]  = tun + status;
+        contentDetail[count] = tun + devlabel + " " + status;
+
+        if (state == kState_RecordingOnly ||
+            state == kState_WatchingRecording)
+        {
+            strlist = QString("QUERY_RECORDER %1").arg(cardid);
+            strlist << "GET_RECORDING";
+            gContext->SendReceiveStringList(strlist);
+            ProgramInfo *proginfo = new ProgramInfo;
+            proginfo->FromStringList(strlist, 0);
    
-                Status += " " + proginfo->title;
-                Status += "\n";
-                Status += proginfo->subtitle;
-                contentDetail[count] = Status;
-            }
-            count++;
+            status += " " + proginfo->title;
+            status += "\n";
+            status += proginfo->subtitle;
+            contentDetail[count] = tun + devlabel + " " + status;
         }
+        count++;
     }
     contentTotalLines = count;
     update(ContentRect);
@@ -851,6 +907,9 @@ void StatusBox::doLogEntries(void)
     }
       
     contentTotalLines = count;
+    if (contentPos > (contentTotalLines - 1))
+        contentPos = contentTotalLines - 1;
+
     update(ContentRect);
 }
 
@@ -1276,7 +1335,6 @@ void StatusBox::doMachineStatus()
 void StatusBox::doAutoExpireList()
 {
     int                   count(0);
-    vector<ProgramInfo *> expList;
     ProgramInfo*          pginfo;
     QString               contentLine;
     QString               detailInfo;
@@ -1290,9 +1348,13 @@ void StatusBox::doAutoExpireList()
     contentFont.clear();
     doScroll = true;
 
+    vector<ProgramInfo *>::iterator it;
+    for (it = expList.begin(); it != expList.end(); it++)
+        delete *it;
+    expList.clear();
+
     RemoteGetAllExpiringRecordings(expList);
 
-    vector<ProgramInfo *>::iterator it;
     for (it = expList.begin(); it != expList.end(); it++)
     {
         pginfo = *it;
@@ -1317,21 +1379,27 @@ void StatusBox::doAutoExpireList()
     for (it = expList.begin(); it != expList.end(); it++)
     {
         pginfo = *it;
-        contentLine = pginfo->recstartts.toString(dateFormat) + " - " +
-                      pginfo->title + " (" + sm_str(pginfo->filesize / 1024) +
-                      ")";
-        detailInfo = staticInfo + pginfo->title;
+        contentLine = pginfo->recstartts.toString(dateFormat) + " - ";
+
+        if (pginfo->recgroup == "LiveTV")
+            contentLine += "(" + tr("LiveTV") + ") ";
+
+        contentLine += pginfo->title +
+                       " (" + sm_str(pginfo->filesize / 1024) + ")";
+
+        detailInfo = staticInfo;
+        detailInfo += pginfo->recstartts.toString(timeDateFormat) + " - " +
+                      pginfo->recendts.toString(timeDateFormat);
+
+        detailInfo += " (" + sm_str(pginfo->filesize / 1024) + ")";
+
+        if (pginfo->recgroup == "LiveTV")
+            detailInfo += " (" + tr("LiveTV") + ")";
+
+        detailInfo += "\n" + pginfo->title;
 
         if (pginfo->subtitle != "")
             detailInfo += " - " + pginfo->subtitle + "";
-
-        detailInfo += " (" + sm_str(pginfo->filesize / 1024) + ")\n";
-
-        if (pginfo->recgroup == "LiveTV")
-            contentLine += " (" + tr("LiveTV") + ")";
-
-        detailInfo += pginfo->recstartts.toString(timeDateFormat) + " - " +
-                      pginfo->recendts.toString(timeDateFormat) + "\n";
 
         contentLines[count] = contentLine;
         contentDetail[count] = detailInfo;

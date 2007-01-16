@@ -1,52 +1,5 @@
 <!DOCTYPE TS><TS>
 <context>
-    <name>GLSingleView</name>
-    <message>
-        <source>Folder: </source>
-        <translation>Katalog: </translation>
-    </message>
-    <message>
-        <source>Created: </source>
-        <translation>Opprettet: </translation>
-    </message>
-    <message>
-        <source>Modified: </source>
-        <translation>Endret: </translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation>Byte</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Bredde</translation>
-    </message>
-    <message>
-        <source>pixels</source>
-        <translation>piksler</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Høyde</translation>
-    </message>
-    <message>
-        <source>Pixel Count</source>
-        <translation>Antall piksler</translation>
-    </message>
-    <message>
-        <source>megapixels</source>
-        <translation>megapiksler</translation>
-    </message>
-    <message>
-        <source>Rotation Angle</source>
-        <translation>Roteringsvinkel</translation>
-    </message>
-    <message>
-        <source>degrees</source>
-        <translation>grader</translation>
-    </message>
-</context>
-<context>
     <name>IconView</name>
     <message>
         <source>Error</source>
@@ -102,7 +55,95 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Slett</translation>
+    </message>
+    <message>
+        <source>MythGallery Directory &apos;%1&apos; does not exist or is unreadable.</source>
+        <translation>Myth-galleris katalog «%1» finnes ikke eller er utilgjengelig.</translation>
+    </message>
+    <message>
+        <source>MythGallery failed to load theme, see console for details.</source>
+        <translation>Myth-galleri klarte ikke laste tema, se i konsollet for detaljer.</translation>
+    </message>
+    <message>
+        <source>The selected device is no longer available</source>
+        <translation>Den valgte enheten er ikke lenger tilgjengelig</translation>
+    </message>
+    <message>
+        <source>Meta Data...</source>
+        <translation>Metadata . . .</translation>
+    </message>
+    <message>
+        <source>Marking...</source>
+        <translation>Merker . . .</translation>
+    </message>
+    <message>
+        <source>File...</source>
+        <translation>Fil . . .</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Enter</translation>
+    </message>
+    <message>
+        <source>Clear Marked</source>
+        <translation>Merk ingen</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Merk alle</translation>
+    </message>
+    <message>
+        <source>Show Devices</source>
+        <translation>Vis enheter</translation>
+    </message>
+    <message>
+        <source>Copy here</source>
+        <translation>Kopier her</translation>
+    </message>
+    <message>
+        <source>Move here</source>
+        <translation>Flytt her</translation>
+    </message>
+    <message>
+        <source>Create Dir</source>
+        <translation>Lag katalog</translation>
+    </message>
+    <message>
+        <source>Delete Current File or Folder</source>
+        <translation>Slett gjeldende fil eller mappe</translation>
+    </message>
+    <message>
+        <source>Deleting 1 folder, including any subfolders and files.</source>
+        <translation>Sletter én mappe, inkludert undermapper og filer.</translation>
+    </message>
+    <message>
+        <source>Deleting 1 image.</source>
+        <translation>Sletter ett bilde.</translation>
+    </message>
+    <message>
+        <source>Delete Marked Files</source>
+        <translation>Slett markerte filer</translation>
+    </message>
+    <message>
+        <source>Deleting %1 images and folders, including any subfolders and files.</source>
+        <translation>Sletter %1 bilder og mapper, inkludert undermapper og filer.</translation>
+    </message>
+    <message>
+        <source>New Folder</source>
+        <translation>Ny mappe</translation>
+    </message>
+    <message>
+        <source>Create New Folder</source>
+        <translation>Lag ny mappe</translation>
+    </message>
+    <message>
+        <source>Moving marked images...</source>
+        <translation>Flytt markerte bilder . . .</translation>
+    </message>
+    <message>
+        <source>Copying marked images...</source>
+        <translation>Kopier markerte bilder . . .</translation>
     </message>
 </context>
 <context>
@@ -189,11 +230,7 @@
     </message>
     <message>
         <source>MythGallery Settings</source>
-        <translation>Innstillinger for MythGallery</translation>
-    </message>
-    <message>
-        <source>Gallery Directory does not exist or is unreadable.</source>
-        <translation>Galleri-katalogen finnes ikke eller er utilgjengelig.</translation>
+        <translation type="obsolete">Innstillinger for MythGallery</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -201,58 +238,31 @@
     </message>
     <message>
         <source>Overlay caption</source>
-        <translation type="unfinished"></translation>
+        <translation>Overskrift oppå</translation>
     </message>
     <message>
         <source>This is the number of seconds to show a caption on top of a full size picture.</source>
+        <translation>Antall sekunder en overskrift skal vises oppå et bilde i full størrelse.</translation>
+    </message>
+    <message>
+        <source>Sort order when browsing</source>
+        <translation>Sorteringsrekkefølge for blaing</translation>
+    </message>
+    <message>
+        <source>This is the sort order for the displayed picture thumbnails.</source>
+        <translation>Dette er sorteringsrekkefølgen for de viste forhåndsvisningene av bilder.</translation>
+    </message>
+    <message>
+        <source>Duration of OpenGL Transition (milliseconds)</source>
+        <translation>Varighet for OpenGL-overgang (millisekunder)</translation>
+    </message>
+    <message>
+        <source>MythGallery Settings (Slideshow)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SingleView</name>
     <message>
-        <source>Folder: </source>
-        <translation>Katalog: </translation>
-    </message>
-    <message>
-        <source>Created: </source>
-        <translation>Opprettet: </translation>
-    </message>
-    <message>
-        <source>Modified: </source>
-        <translation>Endret: </translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation>Byte</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Bredde</translation>
-    </message>
-    <message>
-        <source>pixels</source>
-        <translation>piksler</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Høyde</translation>
-    </message>
-    <message>
-        <source>Pixel Count</source>
-        <translation>Antall piksler</translation>
-    </message>
-    <message>
-        <source>megapixels</source>
-        <translation>megapiksler</translation>
-    </message>
-    <message>
-        <source>Rotation Angle</source>
-        <translation>Roteringsvinkel</translation>
-    </message>
-    <message>
-        <source>degrees</source>
-        <translation>grader</translation>
+        <source>MythGallery Settings (General)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

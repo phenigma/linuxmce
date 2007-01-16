@@ -2,9 +2,9 @@
 /**
  * Initialization routines for the MythWeb settings module
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/modules/settings/init.php $
- * @date        $Date: 2005-12-31 02:08:13 +0200 (Sat, 31 Dec 2005) $
- * @version     $Revision: 8440 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/settings/init.php $
+ * @date        $Date: 2006-03-30 11:06:53 +0300 (Thu, 30 Mar 2006) $
+ * @version     $Revision: 9558 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -15,10 +15,13 @@
 
 // The settings module is always enabled.
     $Modules['settings'] = array('path'        => 'settings',
+                                 'sort'        => 999,
                                  'name'        => t('Settings'),
                                  'description' => t('settings'),
-                                 'links'       => array('channels'  => t('MythTV channel info'),
+                                 'links'       => array('session'   => t('MythWeb session settings'),
+                                                        'mythweb'   => t('MythTV global defaults'),
+                                                        'channels'  => t('MythTV channel info'),
                                                         'keys'      => t('MythTV key bindings'),
-                                                        'session'   => t('MythWeb session settings'),
+                                                        'settings'  => t('MythTV settings table'),
                                                        ),
                                 );

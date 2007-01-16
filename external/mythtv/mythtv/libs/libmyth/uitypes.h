@@ -168,6 +168,7 @@ class UIBarType : public UIType
 
     void SetJustification(int jst) { m_justification = jst; }
     void SetSize(int size) { m_size = size; LoadImage(); }
+    int GetNums(void) { return m_size; }
     void SetScreen(double w, double h) { m_wmult = w; m_hmult = h; }
     void SetFont(fontProp *font) { m_font = font; }
     void SetOrientation(int ori) { m_orientation = ori; }
@@ -340,7 +341,9 @@ class UIGuideType : public UIType
 
 class UIListType : public UIType
 {
-  public:
+    Q_OBJECT
+
+    public:
     UIListType(const QString &, QRect, int);
     ~UIListType();
 
@@ -395,6 +398,12 @@ class UIListType : public UIType
     void Draw(QPainter *, int drawlayer, int);
     bool ShowSelAlways() const { return m_showSelAlways; }
     void ShowSelAlways(bool bnew) { m_showSelAlways = bnew; }
+    void calculateScreenArea();
+
+  public slots:
+    bool takeFocus();
+    void looseFocus();
+
   private:
     //QString cutDown(QString, QFont *, int);
     int m_selheight;
@@ -444,14 +453,20 @@ class UIImageType : public UIType
     void SetFlex(bool flex) { m_flex = flex; }
     void ResetFilename() { m_filename = orig_filename; };
     void SetImage(QString file) { m_filename = file; }
-    void SetImage(QPixmap imgdata) { img = imgdata; }
+    void SetImage(const QPixmap &imgdata) { img = imgdata; m_show = true; }
     void SetSize(int x, int y) { m_force_x = x; m_force_y = y; }
     void SetSkip(int x, int y) { m_drop_x = x; m_drop_y = y; }
 
     void ResetImage() { img = QPixmap(); }
     void LoadImage();
-    QPixmap GetImage() { return img; }
-    int GetSize() { return m_force_x; }
+    const QPixmap &GetImage() { return img; }
+    QSize GetSize(bool scaled = false)
+    {
+        return scaled ?
+                QSize(int(m_force_x * m_wmult), int(m_force_y * m_hmult)) :
+                QSize(m_force_x, m_force_y);
+    }
+
     virtual void Draw(QPainter *, int, int);
 
     const QString& GetImageFilename() const { return m_filename; }

@@ -2,11 +2,11 @@
 #define REMOTEENCODER_H_
 
 #include <qstringlist.h>
-#include <pthread.h>
+#include <qmutex.h>
 #include <qmap.h>
 
 class ProgramInfo;
-class QSocketDevice;
+class MythSocket;
 
 class RemoteEncoder
 {
@@ -39,16 +39,17 @@ class RemoteEncoder
     void CancelNextRecording(bool cancel);
 
     void SetLiveRecording(bool recording);
-    void ToggleInputs(void);
-    int ChangeContrast(bool direction);
-    int ChangeBrightness(bool direction);
-    int ChangeColour(bool direction);
-    int ChangeHue(bool direction);
+    QStringList GetInputs(void);
+    QString GetInput(void);
+    QString SetInput(QString);
+    int  GetPictureAttribute(int attr);
+    int  ChangePictureAttribute(int type, int attr, bool direction);
     void ChangeChannel(int channeldirection);
     void ChangeDeinterlacer(int deint_mode);
     void ToggleChannelFavorite(void);
     void SetChannel(QString channel);
-    int SetSignalMonitoringRate(int msec, bool notifyFrontend = true);
+    int  SetSignalMonitoringRate(int msec, bool notifyFrontend = true);
+    uint GetSignalLockTimeout(QString input);
     bool CheckChannel(QString channel);
     bool ShouldSwitchToAnotherCard(QString channelid);
     bool CheckChannelPrefix(const QString&,uint&,bool&,QString&);
@@ -58,26 +59,29 @@ class RemoteEncoder
                         QString &callsign, QString &iconpath,
                         QString &channelname, QString &chanid,
                         QString &seriesid, QString &programid);
-                        
+    void GetChannelInfo(QMap<QString, QString> &infoMap, uint chanid = 0);
+    bool SetChannelInfo(const QMap<QString, QString> &infoMap);
     bool GetErrorStatus(void) { bool v = backendError; backendError = false; 
                                 return v; }
  
   private:
-    QSocketDevice *openControlSocket(const QString &host, short port);
+    MythSocket *openControlSocket(const QString &host, short port);
     void SendReceiveStringList(QStringList &strlist);
 
     int recordernum;
 
-    QSocketDevice *controlSock;
-    pthread_mutex_t lock;
+    MythSocket *controlSock;
+    QMutex lock;
 
     QString remotehost;
     short remoteport;
 
     QString lastchannel;
+    QString lastinput;
 
     bool backendError;
     long long cachedFramesWritten;
+    QMap<QString,uint> cachedTimeout;
 };
 
 #endif

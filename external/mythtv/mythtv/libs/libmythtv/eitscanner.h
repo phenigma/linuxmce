@@ -6,34 +6,40 @@
 #include <pthread.h>
 
 // Qt includes
+#include <qmutex.h>
 #include <qobject.h>
 #include <qdatetime.h>
 #include <qstringlist.h>
 #include <qwaitcondition.h>
 
 class TVRec;
-class DVBChannel;
+class ChannelBase;
 class DVBSIParser;
 class EITHelper;
-class dvb_channel_t;
-class PMTObject;
+class ProgramMapTable;
 
-class EITScanner : public QObject
+class EITSource
 {
-    Q_OBJECT
+  protected:
+    virtual ~EITSource() {}
+  public:
+    virtual void SetEITHelper(EITHelper*) = 0;
+    virtual void SetEITRate(float rate) = 0;
+};
+
+class EITScanner
+{
   public:
     EITScanner();
     ~EITScanner() { TeardownAll(); }
 
-    void StartPassiveScan(DVBChannel*, DVBSIParser*);
+    void StartPassiveScan(ChannelBase*, EITSource*, bool ignore_source);
     void StopPassiveScan(void);
 
-    void StartActiveScan(TVRec*, uint max_seconds_per_source);
-    void StopActiveScan(void);        
+    void StartActiveScan(TVRec*, uint max_seconds_per_source,
+                         bool ignore_source);
 
-  public slots:
-    void SetPMTObject(const PMTObject*);
-    void deleteLater(void);
+    void StopActiveScan(void);        
 
   private:
     void TeardownAll(void);
@@ -41,8 +47,10 @@ class EITScanner : public QObject
     static void *SpawnEventLoop(void*);
     static void RescheduleRecordings(void);
 
-    DVBChannel      *channel;
-    DVBSIParser     *parser;
+    QMutex           lock;
+    ChannelBase     *channel;
+    EITSource       *eitSource;
+
     EITHelper       *eitHelper;
     pthread_t        eventThread;
     bool             exitThread;
@@ -54,6 +62,8 @@ class EITScanner : public QObject
     uint             activeScanTrigTime;
     QStringList      activeScanChannels;
     QStringList::iterator activeScanNextChan;
+
+    bool             ignore_source;
 
     static QMutex    resched_lock;
     static QDateTime resched_next_time;

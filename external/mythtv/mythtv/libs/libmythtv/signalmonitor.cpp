@@ -10,6 +10,9 @@
 #include "mythcontext.h"
 #include "signalmonitor.h"
 
+#include "libavcodec/avcodec.h"
+#include "libmyth/util.h"
+
 #ifdef USING_DVB
 #   include "dvbsignalmonitor.h"
 #   include "dvbchannel.h"
@@ -18,6 +21,16 @@
 #ifdef USING_V4L
 #   include "pchdtvsignalmonitor.h"
 #   include "channel.h"
+#endif
+
+#ifdef USING_HDHOMERUN
+#   include "hdhrsignalmonitor.h"
+#   include "hdhrchannel.h"
+#endif
+
+#ifdef USING_FREEBOX
+#   include "freeboxsignalmonitor.h"
+#   include "freeboxchannel.h"
 #endif
 
 #undef DBG_SM
@@ -55,6 +68,11 @@ SignalMonitor *SignalMonitor::Init(QString cardtype, int db_cardnum,
 
     SignalMonitor *signalMonitor = NULL;
 
+    {
+        QMutexLocker locker(&avcodeclock);
+        avcodec_init();
+    }
+
 #ifdef USING_DVB
     if (CardUtil::IsDVBCardType(cardtype))
     {
@@ -72,6 +90,25 @@ SignalMonitor *SignalMonitor::Init(QString cardtype, int db_cardnum,
             signalMonitor = new pcHDTVSignalMonitor(db_cardnum, hdtvc);
     }
 #endif
+
+#ifdef USING_HDHOMERUN
+    if (cardtype.upper() == "HDHOMERUN")
+    {
+        HDHRChannel *hdhrc = dynamic_cast<HDHRChannel*>(channel);
+        if (hdhrc)
+            signalMonitor = new HDHRSignalMonitor(db_cardnum, hdhrc);
+    }
+#endif
+
+#ifdef USING_FREEBOX
+    if (cardtype.upper() == "FREEBOX")
+    {
+        FreeboxChannel *fbc = dynamic_cast<FreeboxChannel*>(channel);
+        if (fbc)
+            signalMonitor = new FreeboxSignalMonitor(db_cardnum, fbc);
+    }
+#endif
+
     if (!signalMonitor)
     {
         VERBOSE(VB_IMPORTANT,
@@ -100,9 +137,9 @@ SignalMonitor::SignalMonitor(int _capturecardnum, ChannelBase *_channel,
                              uint wait_for_mask,  const char *name)
     : QObject(NULL, name),             channel(_channel),
       capturecardnum(_capturecardnum), flags(wait_for_mask),
-      update_rate(25),                 running(false),
-      exit(false),                     update_done(false),
-      notify_frontend(true),
+      update_rate(25),                 minimum_update_rate(5),
+      running(false),                  exit(false),
+      update_done(false),              notify_frontend(true),
       signalLock    (QObject::tr("Signal Lock"),  "slock",
                      1, true, 0,   1, 0),
       signalStrength(QObject::tr("Signal Power"), "signal",

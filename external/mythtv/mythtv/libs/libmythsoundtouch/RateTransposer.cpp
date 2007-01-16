@@ -5,15 +5,15 @@
 /// alias filtering should be quite adequate for this application)
 ///
 /// Author        : Copyright (c) Olli Parviainen
-/// Author e-mail : oparviai @ iki.fi
-/// SoundTouch WWW: http://www.iki.fi/oparviai/soundtouch
+/// Author e-mail : oparviai 'at' iki.fi
+/// SoundTouch WWW: http://www.surina.net/soundtouch
 ///
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Last changed  : $Date: 2004-11-14 00:29:45 +0200 (Sun, 14 Nov 2004) $
-// File revision : $Revision: 4714 $
+// Last changed  : $Date: 2006-05-23 22:14:24 +0300 (Tue, 23 May 2006) $
+// File revision : $Revision: 9998 $
 //
-// $Id: RateTransposer.cpp 4714 2004-11-13 22:29:45Z ijr $
+// $Id: RateTransposer.cpp 9998 2006-05-23 19:14:24Z danielk $
 //
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -49,7 +49,6 @@
 using namespace soundtouch;
 
 
-
 /// A linear samplerate transposer class that uses integer arithmetics.
 /// for the transposing.
 class RateTransposerInteger : public RateTransposer
@@ -57,15 +56,15 @@ class RateTransposerInteger : public RateTransposer
 protected:
     int iSlopeCount;
     uint uRate;
-    soundtouch::SAMPLETYPE sPrevSampleL, sPrevSampleR;
+    SAMPLETYPE sPrevSampleL, sPrevSampleR;
 
     virtual void resetRegisters();
 
-    virtual uint transposeStereo(soundtouch::SAMPLETYPE *dest, 
-                         const soundtouch::SAMPLETYPE *src, 
+    virtual uint transposeStereo(SAMPLETYPE *dest, 
+                         const SAMPLETYPE *src, 
                          uint numSamples);
-    virtual uint transposeMono(soundtouch::SAMPLETYPE *dest, 
-                       const soundtouch::SAMPLETYPE *src, 
+    virtual uint transposeMono(SAMPLETYPE *dest, 
+                       const SAMPLETYPE *src, 
                        uint numSamples);
 
 public:
@@ -86,15 +85,15 @@ class RateTransposerFloat : public RateTransposer
 protected:
     float fSlopeCount;
     float fRateStep;
-    soundtouch::SAMPLETYPE sPrevSampleL, sPrevSampleR;
+    SAMPLETYPE sPrevSampleL, sPrevSampleR;
 
     virtual void resetRegisters();
 
-    virtual uint transposeStereo(soundtouch::SAMPLETYPE *dest, 
-                         const soundtouch::SAMPLETYPE *src, 
+    virtual uint transposeStereo(SAMPLETYPE *dest, 
+                         const SAMPLETYPE *src, 
                          uint numSamples);
-    virtual uint transposeMono(soundtouch::SAMPLETYPE *dest, 
-                       const soundtouch::SAMPLETYPE *src, 
+    virtual uint transposeMono(SAMPLETYPE *dest, 
+                       const SAMPLETYPE *src, 
                        uint numSamples);
 
 public:
@@ -330,7 +329,11 @@ void RateTransposer::setChannels(const uint numchannels)
 {
     if (uChannels == numchannels) return;
 
+#ifdef MULTICHANNEL
+    assert(numchannels >= 1 && numchannels <= MULTICHANNEL);
+#else
     assert(numchannels == 1 || numchannels == 2);
+#endif
     uChannels = numchannels;
 
     storeBuffer.setChannels(uChannels);
@@ -441,7 +444,7 @@ end:
 
 
 // Transposes the sample rate of the given samples using linear interpolation. 
-// 'Mono' version of the routine. Returns the number of samples returned in 
+// 'Stereo' version of the routine. Returns the number of samples returned in 
 // the "dest" buffer
 uint RateTransposerInteger::transposeStereo(SAMPLETYPE *dest, const SAMPLETYPE *src, uint numSamples)
 {
@@ -553,6 +556,8 @@ uint RateTransposerFloat::transposeMono(SAMPLETYPE *dest, const SAMPLETYPE *src,
     }
     fSlopeCount -= 1.0f;
 
+    if (numSamples == 1) goto end;
+
     while (1)
     {
         while (fSlopeCount > 1.0f) 
@@ -595,6 +600,8 @@ uint RateTransposerFloat::transposeStereo(SAMPLETYPE *dest, const SAMPLETYPE *sr
     }
     // now always (iSlopeCount > 1.0f)
     fSlopeCount -= 1.0f;
+
+    if (numSamples == 1) goto end;
 
     while (1)
     {

@@ -17,6 +17,7 @@ using namespace std;
 
 #include "programrecpriority.h"
 #include "scheduledrecording.h"
+#include "customedit.h"
 #include "proglist.h"
 #include "tv.h"
 
@@ -31,7 +32,6 @@ using namespace std;
 // have to hit the db mulitiple times
 ProgramRecPriorityInfo::ProgramRecPriorityInfo(void) : ProgramInfo()
 {
-    channelRecPriority = 0;
     recTypeRecPriority = 0;
     recType = kNotRecording;
 }
@@ -39,7 +39,6 @@ ProgramRecPriorityInfo::ProgramRecPriorityInfo(void) : ProgramInfo()
 ProgramRecPriorityInfo::ProgramRecPriorityInfo(const ProgramRecPriorityInfo &other) 
                       : ProgramInfo::ProgramInfo(other)
 {
-    channelRecPriority = other.channelRecPriority;
     recTypeRecPriority = other.recTypeRecPriority;
     recType = other.recType;
 }
@@ -91,9 +90,6 @@ ProgramRecPriority::ProgramRecPriority(MythMainWindow *parent,
     curitem = NULL;
     bgTransBackup = NULL;
     pageDowner = false;
-
-    channelFormat = gContext->GetSetting("ChannelFormat", "<num> <sign>");
-    longChannelFormat = gContext->GetSetting("LongChannelFormat", "<num> <name>");
 
     listCount = 0;
     dataCount = 0;
@@ -242,6 +238,34 @@ void ProgramRecPriority::keyPressEvent(QKeyEvent *e)
                 SortList();
                 update(fullRect);
             }
+            else if (action == "5")
+            {
+                if (sortType != byCount)
+                {
+                    sortType = byCount;
+                    reverseSort = false;
+                }
+                else
+                {
+                    reverseSort = !reverseSort;
+                }
+                SortList();
+                update(fullRect);
+            }
+            else if (action == "6")
+            {
+                if (sortType != byRecCount)
+                {
+                    sortType = byRecCount;
+                    reverseSort = false;
+                }
+                else
+                {
+                    reverseSort = !reverseSort;
+                }
+                SortList();
+                update(fullRect);
+            }
             else if (action == "PREVVIEW" || action == "NEXTVIEW")
             {
                 reverseSort = false;
@@ -259,6 +283,11 @@ void ProgramRecPriority::keyPressEvent(QKeyEvent *e)
             {
                 saveRecPriority();
                 edit();
+            }
+            else if (action == "CUSTOMEDIT")
+            {
+                saveRecPriority();
+                customEdit();
             }
             else if (action == "UPCOMING")
             {
@@ -559,8 +588,23 @@ void ProgramRecPriority::edit(void)
         else
             MythContext::DBError("Get new recording priority query", query);
 
+        countMatches();
         update(fullRect);
     }
+}
+
+void ProgramRecPriority::customEdit(void)
+{
+    if (!curitem)
+        return;
+
+    ScheduledRecording record;
+    record.loadByID(curitem->recordid);
+
+    CustomEdit *ce = new CustomEdit(gContext->GetMainWindow(),
+                                        "customedit", curitem);
+    ce->exec();
+    delete ce;
 }
 
 void ProgramRecPriority::deactivate(void)
@@ -625,7 +669,7 @@ void ProgramRecPriority::upcoming(void)
     ScheduledRecording record;
 
     record.loadByID(curitem->recordid);
-    record.runProgList();
+    record.runRuleList();
 }
 
 void ProgramRecPriority::changeRecPriority(int howMuch) 
@@ -720,24 +764,20 @@ void ProgramRecPriority::FillList(void)
     rtRecPriors[kFindWeeklyRecord] = 
         gContext->GetNumSetting("FindOneRecordRecPriority", -1);
     
-    // get channel recording priorities and recording types associated with each
-    // program from db
+    // get recording types associated with each program from db
     // (hope this is ok to do here, it's so much lighter doing
     // it all at once than once per program)
 
     MSqlQuery result(MSqlQuery::InitCon());
     result.prepare("SELECT recordid, record.title, record.chanid, "
                    "record.starttime, record.startdate, "
-                   "record.type, channel.recpriority,  "
-                   "record.inactive "
-                   "FROM record "
-                   "LEFT JOIN channel ON "
-                   "(record.chanid = channel.chanid);");
+                   "record.type, record.inactive "
+                   "FROM record;");
    
-    int matches = 0;
-
     if (result.exec() && result.isActive() && result.size() > 0)
     {
+        countMatches();
+
         while (result.next()) 
         {
             int recordid = result.value(0).toInt();
@@ -746,16 +786,11 @@ void ProgramRecPriority::FillList(void)
             QString tempTime = result.value(3).toString();
             QString tempDate = result.value(4).toString();
             RecordingType recType = (RecordingType)result.value(5).toInt();
-            int channelRecPriority = result.value(6).toInt();
             int recTypeRecPriority = rtRecPriors[recType];
-            int inactive = result.value(7).toInt();
-
-            if (recType == kAllRecord || recType == kFindOneRecord ||
-                recType == kFindDailyRecord || recType == kFindWeeklyRecord)
-                channelRecPriority = 0;
+            int inactive = result.value(6).toInt();
 
             // find matching program in programData and set
-            // channelRecPriority, recTypeRecPriority and recType
+            // recTypeRecPriority and recType
             QMap<QString, ProgramRecPriorityInfo>::Iterator it;
             for (it = programData.begin(); it != programData.end(); ++it)
             {
@@ -766,11 +801,11 @@ void ProgramRecPriority::FillList(void)
                     progInfo->sortTitle = progInfo->title;
                     progInfo->sortTitle.remove(QRegExp(tr("^(The |A |An )")));
 
-                    progInfo->channelRecPriority = channelRecPriority;
                     progInfo->recTypeRecPriority = recTypeRecPriority;
                     progInfo->recType = recType;
                     progInfo->recstatus = inactive ? rsInactive : rsWillRecord;
-                    matches++;
+                    progInfo->matchCount = listMatch[progInfo->recordid];
+                    progInfo->recCount = recMatch[progInfo->recordid];
                     break;
                 }
             }
@@ -778,7 +813,11 @@ void ProgramRecPriority::FillList(void)
     }
     else
         MythContext::DBError("Get program recording priorities query", result);
+}
 
+void ProgramRecPriority::countMatches()
+{
+    listMatch.clear();
     conMatch.clear();
     nowMatch.clear();
     recMatch.clear();
@@ -789,10 +828,11 @@ void ProgramRecPriority::FillList(void)
     ProgramInfo *s;
     for (s = schedList.first(); s; s = schedList.next())
     {
-        if (s->recendts > now)
+        if (s->recendts > now && s->recstatus != rsNotListed)
         {
             listMatch[s->recordid]++;
-            if (s->recstatus == rsConflict)
+            if (s->recstatus == rsConflict ||
+                s->recstatus == rsOffLine)
                 conMatch[s->recordid]++;
             else if (s->recstatus == rsWillRecord)
                 recMatch[s->recordid]++;
@@ -818,10 +858,38 @@ class titleSort
 
         bool operator()(const RecPriorityInfo a, const RecPriorityInfo b) 
         {
+            if (a.prog->sortTitle != b.prog->sortTitle)
+            {
+                if (m_reverse)
+                    return (a.prog->sortTitle < b.prog->sortTitle);
+                else
+                    return (a.prog->sortTitle > b.prog->sortTitle);
+            }
+
+            int finalA = a.prog->recpriority + a.prog->recTypeRecPriority;
+            int finalB = b.prog->recpriority + b.prog->recTypeRecPriority;
+            if (finalA != finalB)
+            {
+                if (m_reverse)
+                    return finalA > finalB;
+                else
+                    return finalA < finalB;
+            }
+
+            int typeA = RecTypePriority(a.prog->recType);
+            int typeB = RecTypePriority(b.prog->recType);
+            if (typeA != typeB)
+            {
+                if (m_reverse)
+                    return typeA < typeB;
+                else
+                    return typeA > typeB;
+            }
+
             if (m_reverse)
-                return (a.prog->sortTitle < b.prog->sortTitle);
+                return a.prog->recordid < b.prog->recordid;
             else
-                return (a.prog->sortTitle > b.prog->sortTitle);
+                return a.prog->recordid > b.prog->recordid;
         }
 
     private:
@@ -836,32 +904,30 @@ class programRecPrioritySort
 
         bool operator()(const RecPriorityInfo a, const RecPriorityInfo b) 
         {
-            int finalA = a.prog->recpriority + 
-                         a.prog->channelRecPriority +
-                         a.prog->recTypeRecPriority;
-            int finalB = b.prog->recpriority + 
-                         b.prog->channelRecPriority +
-                         b.prog->recTypeRecPriority;
-
-            if (finalA == finalB)
+            int finalA = a.prog->recpriority + a.prog->recTypeRecPriority;
+            int finalB = b.prog->recpriority + b.prog->recTypeRecPriority;
+            if (finalA != finalB)
             {
-                int typeA = RecTypePriority(a.prog->recType);
-                int typeB = RecTypePriority(b.prog->recType);
-                if (typeA == typeB)
-                    if (m_reverse)
-                        return (a.prog->sortTitle < b.prog->sortTitle);
-                    else
-                        return (a.prog->sortTitle > b.prog->sortTitle);
-
                 if (m_reverse)
-                    return (typeA < typeB);
+                    return finalA > finalB;
                 else
-                    return (typeA > typeB);
+                    return finalA < finalB;
             }
+
+            int typeA = RecTypePriority(a.prog->recType);
+            int typeB = RecTypePriority(b.prog->recType);
+            if (typeA != typeB)
+            {
+                if (m_reverse)
+                    return typeA < typeB;
+                else
+                    return typeA > typeB;
+            }
+
             if (m_reverse)
-                return (finalA > finalB);
+                return a.prog->recordid < b.prog->recordid;
             else
-                return (finalA < finalB);
+                return a.prog->recordid > b.prog->recordid;
         }
 
     private:
@@ -878,16 +944,94 @@ class programRecTypeSort
         {
             int typeA = RecTypePriority(a.prog->recType);
             int typeB = RecTypePriority(b.prog->recType);
-            if (typeA == typeB)
+            if (typeA != typeB)
+            {
                 if (m_reverse)
-                    return (a.prog->sortTitle < b.prog->sortTitle);
+                    return (typeA < typeB);
                 else
-                    return (a.prog->sortTitle > b.prog->sortTitle);
+                    return (typeA > typeB);
+            }
+
+            int finalA = a.prog->recpriority + a.prog->recTypeRecPriority;
+            int finalB = b.prog->recpriority + b.prog->recTypeRecPriority;
+            if (finalA != finalB)
+            {
+                if (m_reverse)
+                    return finalA > finalB;
+                else
+                    return finalA < finalB;
+            }
 
             if (m_reverse)
-                return (typeA < typeB);
+                return a.prog->recordid < b.prog->recordid;
             else
-                return (typeA > typeB);
+                return a.prog->recordid > b.prog->recordid;
+        }
+
+    private:
+        bool m_reverse;
+};
+
+class programCountSort 
+{
+    public:
+        programCountSort(bool reverseSort = false) {m_reverse = reverseSort;}
+
+        bool operator()(const RecPriorityInfo a, const RecPriorityInfo b) 
+        {
+            int countA = a.prog->matchCount;
+            int countB = b.prog->matchCount;
+            int recCountA = a.prog->recCount;
+            int recCountB = b.prog->recCount;
+
+            if (countA != countB)
+            {
+                if (m_reverse)
+                    return countA > countB;
+                else
+                    return countA < countB;
+            }
+            if (recCountA != recCountB)
+            {
+                if (m_reverse)
+                    return recCountA > recCountB;
+                else
+                    return recCountA < recCountB;
+            }
+            return (a.prog->sortTitle > b.prog->sortTitle);
+        }
+
+    private:
+        bool m_reverse;
+};
+
+class programRecCountSort 
+{
+    public:
+        programRecCountSort(bool reverseSort=false) {m_reverse = reverseSort;}
+
+        bool operator()(const RecPriorityInfo a, const RecPriorityInfo b) 
+        {
+            int countA = a.prog->matchCount;
+            int countB = b.prog->matchCount;
+            int recCountA = a.prog->recCount;
+            int recCountB = b.prog->recCount;
+
+            if (recCountA != recCountB)
+            {
+                if (m_reverse)
+                    return recCountA > recCountB;
+                else
+                    return recCountA < recCountB;
+            }
+            if (countA != countB)
+            {
+                if (m_reverse)
+                    return countA > countB;
+                else
+                    return countA < countB;
+            }
+            return (a.prog->sortTitle > b.prog->sortTitle);
         }
 
     private:
@@ -940,6 +1084,22 @@ void ProgramRecPriority::SortList()
                  else
                      sort(sortedList.begin(), sortedList.end(), 
                           programRecTypeSort());
+                 break;
+        case byCount :
+                 if (reverseSort)
+                     sort(sortedList.begin(), sortedList.end(), 
+                          programCountSort(true));
+                 else
+                     sort(sortedList.begin(), sortedList.end(), 
+                          programCountSort());
+                 break;
+        case byRecCount :
+                 if (reverseSort)
+                     sort(sortedList.begin(), sortedList.end(), 
+                          programRecCountSort(true));
+                 else
+                     sort(sortedList.begin(), sortedList.end(), 
+                          programRecCountSort());
                  break;
     }
 
@@ -1015,7 +1175,6 @@ void ProgramRecPriority::updateList(QPainter *p)
 
                         int progRecPriority = progInfo->recpriority;
                         int finalRecPriority = progRecPriority + 
-                                        progInfo->channelRecPriority +
                                         progInfo->recTypeRecPriority;
         
                         QString tempSubTitle = progInfo->title;
@@ -1052,15 +1211,15 @@ void ProgramRecPriority::updateList(QPainter *p)
                         ltype->SetItemText(cnt, 6, 
                                 QString::number(abs(finalRecPriority)));
 
-                        if (conMatch[progInfo->recordid] > 0)
+                        if (progInfo->recType == kDontRecord ||
+                            progInfo->recstatus == rsInactive)
+                            ltype->EnableForcedFont(cnt, "inactive");
+                        else if (conMatch[progInfo->recordid] > 0)
                             ltype->EnableForcedFont(cnt, "conflicting");
                         else if (nowMatch[progInfo->recordid] > 0)
                             ltype->EnableForcedFont(cnt, "recording");
                         else if (recMatch[progInfo->recordid] > 0)
                             ltype->EnableForcedFont(cnt, "record");
-                        else if (progInfo->recType == kDontRecord ||
-                            progInfo->recstatus == rsInactive)
-                            ltype->EnableForcedFont(cnt, "inactive");
 
                         cnt++;
                         listCount++;
@@ -1108,13 +1267,12 @@ void ProgramRecPriority::updateInfo(QPainter *p)
 
     if (programData.count() > 0 && curitem)
     {  
-        int progRecPriority, chanrecpriority, rectyperecpriority, finalRecPriority;
+        int progRecPriority, rectyperecpriority, finalRecPriority;
         RecordingType rectype; 
 
         progRecPriority = curitem->recpriority;
-        chanrecpriority = curitem->channelRecPriority;
         rectyperecpriority = curitem->recTypeRecPriority;
-        finalRecPriority = progRecPriority + chanrecpriority + rectyperecpriority;
+        finalRecPriority = progRecPriority + rectyperecpriority;
 
         rectype = curitem->recType;
 
@@ -1129,7 +1287,8 @@ void ProgramRecPriority::updateInfo(QPainter *p)
 
         QString matchInfo;
         if (curitem->recstatus == rsInactive)
-            matchInfo = curitem->RecStatusText();
+            matchInfo = QString("%1 %2").arg(listMatch[curitem->recordid])
+                                        .arg(curitem->RecStatusText());
         else
             matchInfo = QString(tr("Recording %1 of %2"))
                                    .arg(recMatch[curitem->recordid])
@@ -1201,37 +1360,6 @@ void ProgramRecPriority::updateInfo(QPainter *p)
             type = (UITextType *)container->GetType("typesign");
             if (type) {
                 if (rectyperecpriority >= 0)
-                    type->SetText("+");
-                else
-                    type->SetText("-");
-            }
-
-            type = (UITextType *)container->GetType("channel");
-            if (type) {
-                if (rectype != kAllRecord && rectype != kFindOneRecord &&
-                    rectype != kFindDailyRecord && rectype != kFindWeeklyRecord)
-                    type->SetText(curitem->ChannelText(channelFormat));
-                else
-                    type->SetText(tr("Any"));
-            }
-
-            type = (UITextType *)container->GetType("longchannel");
-            if (type) {
-                if (rectype != kAllRecord && rectype != kFindOneRecord &&
-                    rectype != kFindDailyRecord && rectype != kFindWeeklyRecord)
-                    type->SetText(curitem->ChannelText(longChannelFormat));
-                else
-                    type->SetText(tr("Any"));
-            }
-
-            type = (UITextType *)container->GetType("channelrecpriority");
-            if (type) {
-                type->SetText(QString::number(abs(chanrecpriority)));
-            }
-
-            type = (UITextType *)container->GetType("channelsign");
-            if (type) {
-                if (chanrecpriority >= 0)
                     type->SetText("+");
                 else
                     type->SetText("-");

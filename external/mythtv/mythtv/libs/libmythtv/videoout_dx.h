@@ -1,10 +1,15 @@
 #ifndef VIDEOOUT_DX_H_
 #define VIDEOOUT_DX_H_
 
-#include "videooutbase.h"
+/* ACK! <windows.h> and <ddraw.h> should only be in cpp's compiled in
+ * windows only. Some of the variables in VideoOutputDX need to be
+ * moved to a private class before removing these includes though.
+ */
+#include <windows.h> // HACK HACK HACK
+#include <ddraw.h>   // HACK HACK HACK
 
-#include <windows.h>
-#include <ddraw.h>
+// MythTV headers
+#include "videooutbase.h"
 
 class VideoOutputDX : public VideoOutput
 {
@@ -17,7 +22,8 @@ class VideoOutputDX : public VideoOutput
     void PrepareFrame(VideoFrame *buffer, FrameScanType);
     void Show(FrameScanType );
 
-    void InputChanged(int width, int height, float aspect);
+    void InputChanged(int width, int height, float aspect,
+                      MythCodecID av_codec_id);
     void Zoom(int direction);
 
     void EmbedInWidget(WId wid, int x, int y, int w, int h);
@@ -33,7 +39,7 @@ class VideoOutputDX : public VideoOutput
                       NuppelVideoPlayer *pipPlayer);
 
     void MoveResize(void);
-    int ChangePictureAttribute(int attribute, int newValue);
+    int  SetPictureAttribute(int attribute, int newValue);
  
     float GetDisplayAspect(void) const { return ((float) dispw)/disph; }
     

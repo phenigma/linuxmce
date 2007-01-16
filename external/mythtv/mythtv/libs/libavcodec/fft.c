@@ -54,20 +54,34 @@ int ff_fft_init(FFTContext *s, int nbits, int inverse)
         s->exptab[i].im = s1;
     }
     s->fft_calc = ff_fft_calc_c;
+    s->imdct_calc = ff_imdct_calc;
     s->exptab1 = NULL;
 
     /* compute constant table for HAVE_SSE version */
-#if (defined(HAVE_MMX) && defined(HAVE_BUILTIN_VECTOR)) || defined(HAVE_ALTIVEC)
+#if defined(HAVE_MMX) \
+    || (defined(HAVE_ALTIVEC) && !defined(ALTIVEC_USE_REFERENCE_C_CODE))
     {
-        int has_vectors = 0;
+        int has_vectors = mm_support();
 
-#if defined(HAVE_MMX)
-        has_vectors = mm_support() & MM_SSE;
-#endif
-#if defined(HAVE_ALTIVEC) && !defined(ALTIVEC_USE_REFERENCE_C_CODE)
-        has_vectors = mm_support() & MM_ALTIVEC;
-#endif
         if (has_vectors) {
+#if defined(HAVE_MMX)
+            if (has_vectors & MM_3DNOWEXT)
+                s->imdct_calc = ff_imdct_calc_3dn2;
+            if (has_vectors & MM_3DNOWEXT)
+                /* 3DNowEx for K7/K8 */
+                s->fft_calc = ff_fft_calc_3dn2;
+            else if (has_vectors & MM_3DNOW)
+                /* 3DNow! for K6-2/3 */
+                s->fft_calc = ff_fft_calc_3dn;
+            else if (has_vectors & MM_SSE)
+                /* SSE for P3/P4 */
+                s->fft_calc = ff_fft_calc_sse;
+#else /* HAVE_MMX */
+            if (has_vectors & MM_ALTIVEC)
+                s->fft_calc = ff_fft_calc_altivec;
+#endif
+        }
+        if (s->fft_calc != ff_fft_calc_c) {
             int np, nblocks, np2, l;
             FFTComplex *q;
 
@@ -93,11 +107,6 @@ int ff_fft_init(FFTContext *s, int nbits, int inverse)
                 nblocks = nblocks >> 1;
             } while (nblocks != 0);
             av_freep(&s->exptab);
-#if defined(HAVE_MMX)
-            s->fft_calc = ff_fft_calc_sse;
-#else
-            s->fft_calc = ff_fft_calc_altivec;
-#endif
         }
     }
 #endif

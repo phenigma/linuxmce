@@ -1,24 +1,20 @@
+// -*- Mode: c++ -*-
+
 #ifndef DTVSIGNALMONITOR_H
 #define DTVSIGNALMONITOR_H
 
+#include <vector>
+using namespace std;
+
 #include "signalmonitor.h"
 #include "signalmonitorvalue.h"
+#include "streamlisteners.h"
 
-class MPEGStreamData;
-class ATSCStreamData;
-class DVBStreamData;
-class ScanStreamData;
-
-class TSPacket;
-class ProgramAssociationTable;
-class ProgramMapTable;
-class MasterGuideTable;
-class TerrestrialVirtualChannelTable;
-class CableVirtualChannelTable;
-class NetworkInformationTable;
-class ServiceDescriptionTable;
-
-class DTVSignalMonitor: public SignalMonitor
+class DTVSignalMonitor : public SignalMonitor,
+                         public MPEGStreamListener,
+                         public ATSCMainStreamListener,
+                         public ATSCAuxStreamListener,
+                         public DVBMainStreamListener
 {
     Q_OBJECT
   public:
@@ -26,7 +22,12 @@ class DTVSignalMonitor: public SignalMonitor
                      ChannelBase *_channel,
                      uint wait_for_mask,
                      const char *name = "DTVSignalMonitor");
+    ~DTVSignalMonitor();
 
+  public slots:
+    void deleteLater(void);
+
+  public:
     virtual QStringList GetStatusList(bool kick = true);
 
     void SetChannel(int major, int minor);
@@ -36,8 +37,19 @@ class DTVSignalMonitor: public SignalMonitor
     void SetProgramNumber(int progNum);
     int  GetProgramNumber() const { return programNumber; }
 
+    void SetDVBService(uint network_id, uint transport_id, int service_id);
+    uint GetTransportID(void) const { return transportID;   }
+    uint GetNetworkID(void)   const { return networkID;     }
+    int  GetServiceID(void)   const { return programNumber; }
+
+    uint GetDetectedNetworkID(void)   const  { return detectedNetworkID; }
+    uint GetDetectedTransportID(void) const  { return detectedTransportID; }
+
     void SetFTAOnly(bool fta)    { ignoreEncrypted = fta;  }
     bool GetFTAOnly() const      { return ignoreEncrypted; }
+
+    /// Sets rotor target pos from 0.0 to 1.0
+    virtual void SetRotorTarget(float) {}
 
     void AddFlags(uint _flags);
     void RemoveFlags(uint _flags);
@@ -68,18 +80,33 @@ class DTVSignalMonitor: public SignalMonitor
 
     bool WaitForLock(int timeout=-1);
 
-  private slots:
-    void SetPAT(const ProgramAssociationTable*);
-    void SetPMT(uint, const ProgramMapTable*);
-    void SetMGT(const MasterGuideTable*);
-    void SetVCT(uint, const TerrestrialVirtualChannelTable*);
-    void SetVCT(uint, const CableVirtualChannelTable*);
-    void SetNIT(const NetworkInformationTable*);
-    void SetSDT(uint, const ServiceDescriptionTable*);
+    // MPEG
+    void HandlePAT(const ProgramAssociationTable*);
+    void HandleCAT(const ConditionalAccessTable*) {}
+    void HandlePMT(uint, const ProgramMapTable*);
 
-  private:
-    void UpdateMonitorValues();
+    // ATSC Main
+    void HandleSTT(const SystemTimeTable*) {}
+    void HandleVCT(uint /*tsid*/, const VirtualChannelTable*) {}
+    void HandleMGT(const MasterGuideTable*);
+
+    // ATSC Aux
+    void HandleTVCT(uint, const TerrestrialVirtualChannelTable*);
+    void HandleCVCT(uint, const CableVirtualChannelTable*);
+    void HandleRRT(const RatingRegionTable*) {}
+    void HandleDCCT(const DirectedChannelChangeTable*) {}
+    void HandleDCCSCT(
+        const DirectedChannelChangeSelectionCodeTable*) {}
+
+    // DVB Main
+    void HandleNIT(const NetworkInformationTable*);
+    void HandleSDT(uint, const ServiceDescriptionTable*);
+
+  protected:
+    void UpdateMonitorValues(void);
+    void UpdateListeningForEIT(void);
     MPEGStreamData    *stream_data;
+    vector<uint>       eit_pids;
     SignalMonitorValue seenPAT;
     SignalMonitorValue seenPMT;
     SignalMonitorValue seenMGT;
@@ -92,9 +119,19 @@ class DTVSignalMonitor: public SignalMonitor
     SignalMonitorValue matchingVCT;
     SignalMonitorValue matchingNIT;
     SignalMonitorValue matchingSDT;
+
+    // ATSC tuning info
     int                majorChannel;
     int                minorChannel;
+    // DVB tuning info
+    uint               networkID;
+    uint               transportID;
+    // DVB scanning info
+    uint               detectedNetworkID;
+    uint               detectedTransportID;
+    // MPEG/DVB/ATSC tuning info
     int                programNumber;
+
     bool               ignoreEncrypted;
     QString            error;
 };

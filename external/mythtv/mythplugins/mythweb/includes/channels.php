@@ -2,9 +2,9 @@
 /**
  * The Channel object, and a couple of related subroutines.
  *
- * @url         $URL$
- * @date        $Date: 2006-02-10 08:15:17 +0200 (Fri, 10 Feb 2006) $
- * @version     $Revision: 8914 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/includes/channels.php $
+ * @date        $Date: 2006-09-11 00:08:56 +0300 (Mon, 11 Sep 2006) $
+ * @version     $Revision: 11113 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -20,28 +20,34 @@
     global $Channels;
     $Channels = array();
 
+// Initialize the callsign hash
+    global $Callsigns;
+    $Callsigns = array();
+
 /**
  * Loads all of the channels into channel objects, AND returns the global array $Channels
 /**/
     function load_all_channels() {
+        global $db;
         global $Channels;
         $Channels = array();
+    // Initialize the query
         if ($_SESSION['guide_favonly'])
             $sql = 'SELECT channel.* FROM channel, favorites WHERE channel.chanid = favorites.chanid AND';
         else
             $sql = 'SELECT * FROM channel WHERE';
         $sql .= ' channel.visible=1';
-    // Sort.
+    // Sort
         $sql .= ' ORDER BY '
                 .(sortby_channum ? '' : 'channel.callsign, ')
-                .'(channel.channum + 0), channel.chanid';
+                .'(channel.channum + 0), channel.channum, channel.chanid';  // sort by channum as both int and string to grab subchannels
     // Query
-        $result = mysql_query($sql)
-            or trigger_error('SQL Error: '.mysql_error(), FATAL);
-        while ($channel_data = mysql_fetch_assoc($result))  {
-            $Channels[$channel_data['chanid']] = new Channel($channel_data);
+        $sh = $db->query($sql);
+        while ($channel_data = $sh->fetch_assoc())  {
+            $Channels[$channel_data['chanid']]    = new Channel($channel_data);
+            $Callsigns[$channel_data['callsign']] = $channel_data['chanid'];
         }
-        mysql_free_result($result);
+        $sh->finish();
     // No channels returned?
         if (empty($Channels)) {
             unset($_SESSION['guide_favonly']);
@@ -157,7 +163,7 @@ class Channel {
                 $length = (($program_starts - $start_time) / $timeslot_size);
                 if ($length >= 0.5) {
                     $timeslots_used = ceil($length);
-                    require theme_dir.'/tv/list_cell_nodata.php';
+                    require tmpl_dir.'list_cell_nodata.php';
                     $start_time += $timeslots_used * timeslot_size;
                     if ($timeslots_left < $timeslots_used)
                         $timeslots_used = $timeslots_left;
@@ -175,14 +181,14 @@ class Channel {
                 $timeslots_used = $timeslots_left;
             $timeslots_left -= $timeslots_used;
             #if ($timeslots_left > 0)
-            require theme_dir.'/tv/list_cell_program.php';
+            require tmpl_dir.'list_cell_program.php';
         // Cleanup is good
             unset($program);
         }
     // Uh oh, there are leftover timeslots - display a no data message
         if ($timeslots_left > 0) {
             $timeslots_left = $timeslots_used;
-            require theme_dir.'/tv/list_cell_nodata.php';
+            require tmpl_dir.'list_cell_nodata.php';
         }
     }
 }

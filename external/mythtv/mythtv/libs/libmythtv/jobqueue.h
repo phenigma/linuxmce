@@ -140,10 +140,11 @@ class JobQueue : public QObject
     static bool StopJob(int jobID);
     static bool DeleteJob(int jobID);
 
-    static int GetJobCmd(int jobID);
-    static int GetJobFlags(int jobID);
-    static int GetJobStatus(int jobID);
-    static int GetJobStatus(int jobType, QString chanid, QDateTime starttime);
+    static enum JobCmds GetJobCmd(int jobID);
+    static enum JobFlags GetJobFlags(int jobID);
+    static enum JobStatus GetJobStatus(int jobID);
+    static enum JobStatus GetJobStatus(int jobType, QString chanid,
+                        QDateTime starttime);
     static QString GetJobArgs(int jobID);
     static int UserJobTypeToIndex(int JobType);
 
@@ -183,7 +184,7 @@ class JobQueue : public QObject
     static QString GetJobQueueKey(ProgramInfo *pginfo);
 
     QString GetJobDescription(int jobType);
-    QString GetJobCommand(int jobType, ProgramInfo *tmpInfo);
+    QString GetJobCommand(int id, int jobType, ProgramInfo *tmpInfo);
 
     static void *TranscodeThread(void *param);
     static QString PrettyPrint(off_t bytes);
@@ -213,8 +214,9 @@ class JobQueue : public QObject
     bool childThreadStarted;
     bool isMaster;
 
-    bool queuePoll;
     pthread_t queueThread;
+    QWaitCondition queueThreadCond;
+    QMutex queueThreadCondLock;
 };
 
 #endif

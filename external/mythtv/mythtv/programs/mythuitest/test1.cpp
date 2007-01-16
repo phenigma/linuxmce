@@ -6,21 +6,18 @@
 #include "mythuitext.h"
 #include "mythmainwindow.h"
 #include "mythlistbutton.h"
-#include "dialogbox.h"
+#include "mythdialogbox.h"
 #include "mythfontproperties.h"
 #include "mythcontext.h"
-#include "themedmenu.h"
+#include "myththemedmenu.h"
 
 TestScreen1::TestScreen1(MythScreenStack *parent, const char *name)
            : MythScreenType(parent, name)
 {
     MythFontProperties fontProp1;
-    fontProp1.face = CreateFont("Arial", 48, QFont::Bold);
-    fontProp1.color = QColor(Qt::white);
-    fontProp1.hasShadow = true;
-    fontProp1.shadowOffset = NormPoint(QPoint(4, 4));
-    fontProp1.shadowColor = QColor(Qt::black);
-    fontProp1.shadowAlpha = 64;
+    fontProp1.SetFace(CreateFont("Arial", 48, QFont::Bold));
+    fontProp1.SetColor(QColor(Qt::white));
+    fontProp1.SetShadow(true, NormPoint(QPoint(4, 4)), QColor(Qt::black), 64);
 
     QRect mainRect = GetMythMainWindow()->GetUIScreenRect();
     MythUIText *main = new MythUIText("Welcome to MythTV", fontProp1, mainRect,
@@ -28,12 +25,9 @@ TestScreen1::TestScreen1(MythScreenStack *parent, const char *name)
     main->SetJustification(Qt::AlignCenter);
 
     MythFontProperties fontProp;
-    fontProp.face = CreateFont("Arial", 14);
-    fontProp.color = QColor(Qt::white);
-    fontProp.hasShadow = true;
-    fontProp.shadowOffset = NormPoint(QPoint(1, 1));
-    fontProp.shadowColor = QColor(Qt::black);
-    fontProp.shadowAlpha = 64;
+    fontProp.SetFace(CreateFont("Arial", 14));
+    fontProp.SetColor(QColor(Qt::white));
+    fontProp.SetShadow(true, NormPoint(QPoint(1, 1)), QColor(Qt::black), 64);
 
     QRect textRect = NormRect(QRect(0, mainRect.height() * 2 / 3, 
                                     mainRect.width(), mainRect.height() / 3));
@@ -146,8 +140,9 @@ void TestScreen1::LaunchMenu(void)
         return;
     }
 
-    ThemedMenu *menu = new ThemedMenu(themedir.local8Bit(), "mainmenu.xml",
-                                      m_ScreenStack, "mainmenu");
+    MythThemedMenu *menu = new MythThemedMenu(themedir.local8Bit(), 
+                                              "mainmenu.xml", m_ScreenStack, 
+                                              "mainmenu");
     if (menu->foundTheme())
     {
         menu->setKillable();
@@ -164,6 +159,7 @@ void TestScreen1::Launch1(void)
     QString diagText = "Hi!\nThis is a test of the new rendering backend for "
                        "MythTV.\nHave fun or something.";
     MythDialogBox *diag = new MythDialogBox(diagText, m_ScreenStack, "startdialog");
+    diag->Create();
     diag->SetReturnEvent(this, "FIRST_DIALOG");
     diag->AddButton("Ok, let's continue this insanity");
     diag->AddButton("Let's see the menu (no return)");
@@ -178,6 +174,7 @@ void TestScreen1::Launch2(void)
                        "methods can be implemented.  For instance, OpenGL and "
                        "Qt (Xlib / XRENDER) paint engines have been written. ";
     MythDialogBox *diag = new MythDialogBox(diagText, m_ScreenStack, "2dialog");
+    diag->Create();
     diag->SetReturnEvent(this, "SECOND_DIALOG");
     diag->AddButton("Ok, but what can it do?");
 
@@ -193,6 +190,7 @@ void TestScreen1::Launch3(void)
                        "lower left is also continually changing its "
                        "transparency.";
     MythDialogBox *diag = new MythDialogBox(diagText, m_ScreenStack, "3dialog");
+    diag->Create();
     diag->SetReturnEvent(this, "THIRD_DIALOG");
     diag->AddButton("Neat, but what else?");
 
@@ -203,6 +201,7 @@ void TestScreen1::Launch4(void)
 {
     QString diagText = "Well, how about movement?";
     MythDialogBox *diag = new MythDialogBox(diagText, m_ScreenStack, "4dialog");
+    diag->Create();
     diag->SetReturnEvent(this, "FOURTH_DIALOG");
     diag->AddButton("Anything else?");
 
@@ -216,6 +215,7 @@ void TestScreen1::Launch5(void)
 {
     QString diagText = "Animation is also supported.. (when using OpenGL)";
     MythDialogBox *diag = new MythDialogBox(diagText, m_ScreenStack, "5dialog");
+    diag->Create();
     diag->SetReturnEvent(this, "FIFTH_DIALOG");
     diag->AddButton("Sweet.");
 
@@ -233,6 +233,7 @@ void TestScreen1::Launch6(void)
                        "slower systems and drawing methods, and all effects "
                        "can be combined easily. ";
     MythDialogBox *diag = new MythDialogBox(diagText, m_ScreenStack, "6dialog");
+    diag->Create();
     diag->SetReturnEvent(this, "SIXTH_DIALOG");
     diag->AddButton("Ok, sounds great.");
 
@@ -246,6 +247,7 @@ void TestScreen1::Launch7(void)
                        "but to enable subtle effects that add to the "
                        "overall user experience.";
     MythDialogBox *diag = new MythDialogBox(diagText, m_ScreenStack, "7dialog");
+    diag->Create();
     diag->SetReturnEvent(this, "SEVENTH_DIALOG");
     diag->AddButton("Ok.");
 
@@ -257,6 +259,7 @@ void TestScreen1::Launch8(void)
     QString diagText = "That concludes this short tour of the new MythTV "
                        "UI backend.";
     MythDialogBox *diag = new MythDialogBox(diagText, m_ScreenStack, "8dialog");
+    diag->Create();
     diag->SetReturnEvent(this, "FINAL_DIALOG");
     diag->AddButton("Good-bye");
 
@@ -280,10 +283,8 @@ TestMove::TestMove(MythUIType *parent, const char *name)
     QFont fontFace = CreateFont("Arial", 28, QFont::Bold);
 
     MythFontProperties fontProp;
-    fontProp.face = fontFace;
-    fontProp.color = QColor(qRgba(255, 255, 255, 255));
-    fontProp.hasShadow = false;
-    fontProp.hasOutline = false;
+    fontProp.SetFace(fontFace);
+    fontProp.SetColor(QColor(qRgba(255, 255, 255, 255)));
 
     new MythUIText("Hello!", fontProp,
                    NormRect(QRect(0, 0, 200, 200)),

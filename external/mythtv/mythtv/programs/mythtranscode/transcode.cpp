@@ -13,10 +13,10 @@
 #include <iostream>
 using namespace std;
 
+#include "osdtypes.h"
 #include "transcode.h"
 #include "audiooutput.h"
 #include "recordingprofile.h"
-#include "osdtypes.h"
 #include "remoteutil.h"
 #include "mythcontext.h"
 #include "jobqueue.h"
@@ -34,7 +34,7 @@ class AudioReencodeBuffer : public AudioOutput
     AudioReencodeBuffer(int audio_bits, int audio_channels)
     {
         Reset();
-        Reconfigure(audio_bits, audio_channels, 0);
+        Reconfigure(audio_bits, audio_channels, 0, 0);
         bufsize = 512000;
         audiobuffer = new unsigned char[bufsize];
     }
@@ -45,10 +45,11 @@ class AudioReencodeBuffer : public AudioOutput
     }
 
     // reconfigure sound out for new params
-    virtual void Reconfigure(int audio_bits,
-                        int audio_channels, int audio_samplerate)
+    virtual void Reconfigure(int audio_bits, int audio_channels,
+                             int audio_samplerate, bool audio_passthru)
     {
         (void)audio_samplerate;
+        (void)audio_passthru;
         bits = audio_bits;
         channels = audio_channels;
         bytes_per_sample = bits * channels / 8;
@@ -297,6 +298,8 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
                               bool honorCutList, bool framecontrol,
                               int jobID, QString fifodir)
 { 
+    QDateTime curtime = QDateTime::currentDateTime();
+    QDateTime statustime = curtime;
     int audioframesize;
     int audioFrame = 0;
 
@@ -305,20 +308,6 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
 
     nvp = new NuppelVideoPlayer("transcoder", m_proginfo);
     nvp->SetNullVideo();
-
-    QDateTime curtime = QDateTime::currentDateTime();
-    QDateTime statustime = curtime;
-    if (honorCutList && m_proginfo)
-    {
-        if ((m_proginfo->IsEditing()) ||
-            (JobQueue::IsJobRunning(JOB_COMMFLAG, m_proginfo)))
-        {
-            VERBOSE(VB_IMPORTANT, "Transcoding aborted, cutlist changed");
-            return REENCODE_CUTLIST_CHANGE;
-        }
-        m_proginfo->SetMarkupFlag(MARK_UPDATED_CUT, false);
-        curtime = curtime.addSecs(60);
-    }
 
     if (showprogress)
     {
@@ -340,17 +329,62 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
         return REENCODE_ERROR;
     }
 
+    long long total_frame_count = nvp->GetTotalFrameCount();
+    long long new_frame_count = total_frame_count;
+    if (honorCutList && m_proginfo)
+    {
+        VERBOSE(VB_GENERAL, "Honoring the cutlist while transcoding");
+
+        QMap<long long, int> delMap;
+        QMap<long long, int>::Iterator it;
+        QString cutStr = "";
+        long long lastStart = 0;
+
+        m_proginfo->GetCutList(delMap);
+
+        for (it = delMap.begin(); it != delMap.end(); ++it)
+        {
+            if (it.data())
+            {
+                if (cutStr != "")
+                    cutStr += ",";
+                cutStr += QString("%1-").arg((long)it.key());
+                lastStart = it.key();
+            }
+            else
+            {
+                cutStr += QString("%1").arg((long)it.key());
+                new_frame_count -= (it.key() - lastStart);
+            }
+        }
+        if (cutStr == "")
+            cutStr = "Is Empty";
+        VERBOSE(VB_GENERAL, QString("Cutlist        : %1").arg(cutStr));
+        VERBOSE(VB_GENERAL, QString("Original Length: %1 frames")
+                                    .arg((long)total_frame_count));
+        VERBOSE(VB_GENERAL, QString("New Length     : %1 frames")
+                                    .arg((long)new_frame_count));
+
+        if ((m_proginfo->IsEditing()) ||
+            (JobQueue::IsJobRunning(JOB_COMMFLAG, m_proginfo)))
+        {
+            VERBOSE(VB_IMPORTANT, "Transcoding aborted, cutlist changed");
+            return REENCODE_CUTLIST_CHANGE;
+        }
+        m_proginfo->SetMarkupFlag(MARK_UPDATED_CUT, false);
+        curtime = curtime.addSecs(60);
+    }
+
     nvp->ReinitAudio();
     QString encodingType = nvp->GetEncodingType();
     bool copyvideo = false, copyaudio = false;
 
-    QString vidsetting = NULL, audsetting = NULL;
+    QString vidsetting = NULL, audsetting = NULL, vidfilters = NULL;
 
     int video_width = nvp->GetVideoWidth();
     int video_height = nvp->GetVideoHeight();
     float video_aspect = nvp->GetVideoAspect();
     float video_frame_rate = nvp->GetFrameRate();
-    long long total_frame_count = nvp->GetTotalFrameCount();
     int newWidth = video_width;
     int newHeight = video_height;
 
@@ -364,6 +398,7 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
         }
         vidsetting = profile.byName("videocodec")->getValue();
         audsetting = profile.byName("audiocodec")->getValue();
+        vidfilters = profile.byName("transcodefilters")->getValue();
 
         if (encodingType == "MPEG-2" &&
             profile.byName("transcodelossless")->getValue().toInt())
@@ -380,11 +415,25 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
         }
         else if (profile.byName("transcoderesize")->getValue().toInt())
         {
+            nvp->SetVideoFilters(vidfilters);
             newWidth = profile.byName("width")->getValue().toInt();
             newHeight = profile.byName("height")->getValue().toInt();
 
-            if (profile.byName("transcodepreserveaspect")->getValue().toInt())
+            // If height or width are 0, then we need to calculate them
+            if (newHeight == 0 && newWidth > 0)
                 newHeight = (int)(1.0 * newWidth * video_height / video_width);
+            else if (newWidth == 0 && newHeight > 0)
+                newWidth = (int)(1.0 * newHeight * video_width / video_height);
+            else if (newWidth == 0 && newHeight == 0)
+            {
+                newHeight = 480;
+                newWidth = (int)(1.0 * 480 * video_width / video_height);
+                if (newWidth > 640)
+                {
+                    newWidth = 640;
+                    newHeight = (int)(1.0 * 640 * video_height / video_width);
+                }
+            }
 
             if (encodingType.left(4).lower() == "mpeg")
             {
@@ -397,6 +446,8 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
                     .arg(video_width).arg(video_height)
                     .arg(newWidth).arg(newHeight));
         }
+        else  // lossy and no resize
+            nvp->SetVideoFilters(vidfilters);
 
         // this is ripped from tv_rec SetupRecording. It'd be nice to merge
         nvr->SetOption("inpixfmt", FMT_YV12);
@@ -479,6 +530,16 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
         return REENCODE_ERROR;
     }
 
+    int vidSize = 0;
+
+    // 1920x1080 video is actually 1920x1088 because of the 16x16 blocks so
+    // we have to fudge the output size here.  nuvexport knows how to handle
+    // this and as of right now it is the only app that uses the fifo ability.
+    if (video_height == 1080 && video_width == 1920)
+        vidSize = (1088 * 1920) * 3 / 2;
+    else
+        vidSize = (video_height * video_width) * 3 / 2;
+
     VideoFrame frame;
     frame.codec = FMT_YV12;
     frame.width = newWidth;
@@ -495,7 +556,7 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
             VERBOSE(VB_GENERAL, "Enforcing sync on fifos");
         fifow = new FIFOWriter::FIFOWriter(2, framecontrol);
 
-        if (!fifow->FIFOInit(0, QString("video"), vidfifo, frame.size, 50) ||
+        if (!fifow->FIFOInit(0, QString("video"), vidfifo, vidSize, 50) ||
             !fifow->FIFOInit(1, QString("audio"), audfifo, audio_size, 25))
         {
             VERBOSE(VB_IMPORTANT, "Error initializing fifo writer.  Aborting");
@@ -538,10 +599,15 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
     AVPicture imageIn, imageOut;
     ImgReSampleContext *scontext;
 
-    if (video_width != newWidth || video_height != newHeight)
-        VERBOSE(VB_GENERAL, QString("Resizing video from %1x%2 to %3x%4")
-                                    .arg(video_width).arg(video_height)
-                                    .arg(newWidth).arg(newHeight));
+    if (fifow)
+        VERBOSE(VB_GENERAL, "Dumping Video and Audio data to fifos");
+    else if (copyaudio)
+        VERBOSE(VB_GENERAL, "Copying Audio while transcoding Video");
+    else
+        VERBOSE(VB_GENERAL, "Transcoding Video and Audio");
+
+    QTime flagTime;
+    flagTime.start();
 
     while (nvp->TranscodeGetNextFrame(dm_iter, &did_ff, &is_key, honorCutList))
     {
@@ -589,7 +655,7 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
                     int count = 0;
                     while (delta > vidFrameTime)
                     {
-                        fifow->FIFOWrite(0, frame.buf, frame.size);
+                        fifow->FIFOWrite(0, frame.buf, vidSize);
                         count++;
                         delta -= (int)vidFrameTime;
                     }
@@ -622,10 +688,10 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
             }
             else
             {
-                fifow->FIFOWrite(0, frame.buf, frame.size);
+                fifow->FIFOWrite(0, frame.buf, vidSize);
                 if (dropvideo)
                 {
-                    fifow->FIFOWrite(0, frame.buf, frame.size);
+                    fifow->FIFOWrite(0, frame.buf, vidSize);
                     curFrameNum++;
                     dropvideo--;
                 }
@@ -685,6 +751,24 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
             if (! nvp->WriteStoredData(outRingBuffer, (did_ff == 0),
                                        timecodeOffset))
             {
+                if (video_aspect != nvp->GetVideoAspect())
+                {
+                    video_aspect = nvp->GetVideoAspect();
+                    nvr->SetNewVideoParams(video_aspect);
+                }
+
+                if (video_width != nvp->GetVideoWidth() ||
+                    video_height != nvp->GetVideoHeight())
+                {
+                    video_width = nvp->GetVideoWidth();
+                    video_height = nvp->GetVideoHeight();
+
+                    VERBOSE(VB_IMPORTANT, QString("Resizing from %1x%2 to %3x%4")
+                        .arg(video_width).arg(video_height)
+                        .arg(newWidth).arg(newHeight));
+
+                }
+
                 if (did_ff == 1)
                 {
                   // Create a new 'I' frame if we just processed a cut.
@@ -720,6 +804,22 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
                 did_ff = 2;
                 timecodeOffset +=
                     (frame.timecode - lasttimecode - (int)vidFrameTime);
+            }
+
+            if (video_aspect != nvp->GetVideoAspect())
+            {
+                video_aspect = nvp->GetVideoAspect();
+                nvr->SetNewVideoParams(video_aspect);
+            }
+
+            if (video_width != nvp->GetVideoWidth() || 
+                video_height != nvp->GetVideoHeight())
+            {
+                video_width = nvp->GetVideoWidth();
+                video_height = nvp->GetVideoHeight(); 
+                VERBOSE(VB_IMPORTANT, QString("Resizing from %1x%2 to %3x%4")
+                        .arg(video_width).arg(video_height)
+                        .arg(newWidth).arg(newHeight));
             }
 
             if ((video_width == newWidth) && (video_height == newHeight))
@@ -783,7 +883,7 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
                 return REENCODE_CUTLIST_CHANGE;
             }
 
-            if (jobID >= 0)
+            if ((jobID >= 0) || (print_verbose_messages & VB_IMPORTANT))
             {
                 if (JobQueue::GetJobCmd(jobID) == JOB_STOP)
                 {
@@ -792,10 +892,23 @@ int Transcode::TranscodeFile(char *inputname, char *outputname,
                     VERBOSE(VB_IMPORTANT, "Transcoding STOPped by JobQueue");
                     return REENCODE_STOPPED;
                 }
-                int percentage = curFrameNum * 100 / total_frame_count;
-                JobQueue::ChangeJobComment(jobID,
-                                           QString("%1% ").arg(percentage) + 
-                                           QObject::tr("Completed"));
+
+                float flagFPS = 0.0;
+                float elapsed = flagTime.elapsed() / 1000.0;
+                if (elapsed)
+                    flagFPS = curFrameNum / elapsed;
+
+                int percentage = curFrameNum * 100 / new_frame_count;
+
+                if (jobID >= 0)
+                    JobQueue::ChangeJobComment(jobID,
+                              QObject::tr("%1% Completed @ %2 fps.")
+                                          .arg(percentage).arg(flagFPS));
+                else
+                    VERBOSE(VB_IMPORTANT, QString(
+                            "mythtranscode: %1% Completed @ %2 fps.")
+                            .arg(percentage).arg(flagFPS));
+
             }
             curtime = QDateTime::currentDateTime();
             curtime = curtime.addSecs(20);

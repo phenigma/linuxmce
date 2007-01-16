@@ -9,6 +9,46 @@
         <source>Unknown</source>
         <translation>Ukendt</translation>
     </message>
+    <message>
+        <source>Edit Site Details</source>
+        <translation>Ændre site detaljer</translation>
+    </message>
+    <message>
+        <source>Enter Site Details</source>
+        <translation>Indtast site detaljer</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Navn:</translation>
+    </message>
+    <message>
+        <source>URL:</source>
+        <translation>URL:</translation>
+    </message>
+    <message>
+        <source>Icon:</source>
+        <translation>Ikon:</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>Ok</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Afbryd</translation>
+    </message>
+    <message>
+        <source>Edit News Site</source>
+        <translation>Ændre nyheds site</translation>
+    </message>
+    <message>
+        <source>Add News Site</source>
+        <translation>Tilføj Nyhedssite</translation>
+    </message>
+    <message>
+        <source>Delete News Site</source>
+        <translation>Slet Nyhedssite</translation>
+    </message>
 </context>
 <context>
     <name>MythNewsConfig</name>
@@ -48,6 +88,21 @@ Minimum tilladte værdi er 30 minutter.</translation>
     <message>
         <source>Showing Cached News</source>
         <translation>Viser cached Nyheder</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>MythNews</source>
+        <translation>MythNews</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this news site
+
+%1</source>
+        <translation>Er du sikker på at du vil slette denne site
+
+%1</translation>
     </message>
 </context>
 <context>

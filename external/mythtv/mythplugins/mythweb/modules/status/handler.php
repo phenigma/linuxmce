@@ -3,9 +3,9 @@
  * A straight passthrough for the mythbackend status web page (usually on
  * port 6544)
  *
- * @url         $URL$
- * @date        $Date: 2006-02-24 05:02:31 +0200 (Fri, 24 Feb 2006) $
- * @version     $Revision: 9130 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/status/handler.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -43,7 +43,7 @@
               );
 
 // Print the status page template
-    require_once theme_dir.'/status/status.php';
+    require_once tmpl_dir.'status.php';
 
 // Yup, that really is it.
     exit;

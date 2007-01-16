@@ -23,11 +23,13 @@ using namespace std;
 #include "videodev_myth.h"
 #include "channel.h"
 #include "frequencies.h"
-#include "tv.h"
+#include "tv_rec.h"
 #include "mythcontext.h"
 #include "mythdbcon.h"
 #include "channelutil.h"
-#include "videosource.h" // for CardUtil
+#include "cardutil.h"
+
+#define DEBUG_ATTRIB 1
 
 #define LOC QString("Channel(%1): ").arg(device)
 #define LOC_ERR QString("Channel(%1) Error: ").arg(device)
@@ -41,10 +43,12 @@ static QString mode_to_format(int mode, int v4l_version);
  */
 
 Channel::Channel(TVRec *parent, const QString &videodevice)
-    : ChannelBase(parent), device(videodevice), videofd(-1),
-      curList(NULL), totalChannels(0),
-      currentFormat(""), is_dtv(false), usingv4l2(false),
-      defaultFreqTable(1)
+    : ChannelBase(parent),
+      device(videodevice),          videofd(-1),
+      device_name(QString::null),   driver_name(QString::null),
+      curList(NULL),                totalChannels(0),
+      currentFormat(""),            is_dtv(false),
+      usingv4l2(false),             defaultFreqTable(1)
 {
 }
 
@@ -71,8 +75,16 @@ bool Channel::Open(void)
     }
 
     usingv4l2 = CardUtil::hasV4L2(videofd);
+    CardUtil::GetV4LInfo(videofd, device_name, driver_name);
+    VERBOSE(VB_CHANNEL, LOC + QString("Device name '%1' driver '%2'.")
+            .arg(device_name).arg(driver_name));
 
-    InitializeInputs();
+    if (!InitializeInputs())
+    {
+        Close();
+        return false;
+    }
+
     SetFormat("Default");
 
     return true;
@@ -210,54 +222,51 @@ static QString mode_to_format(int mode, int v4l_version)
  *  if the parent pointer is valid retrieves the
  *  channels from the database.
  */
-void Channel::InitializeInputs(void)
+bool Channel::InitializeInputs(void)
 {
-    bool ok = false;
-    InputNames inputs = CardUtil::probeV4LInputs(videofd, ok);
+    // Get Inputs from DB
+    if (!ChannelBase::InitializeInputs())
+        return false;
 
-    // clear everything in case this has been run before.
-    channelnames.clear();
-    inputChannel.clear();
-    inputTuneTo.clear();
-    externalChanger.clear();
-    sourceid.clear();
-    videomode_v4l1.clear();
-    videomode_v4l2.clear();
-
-    // set global setting...
+    // Get global TVFormat setting
     QString fmt = gContext->GetSetting("TVFormat");
     VERBOSE(VB_CHANNEL, QString("Global TVFormat Setting '%1'").arg(fmt));
-    videomode_v4l1[-1] = format_to_mode(fmt.upper(), 1);
-    videomode_v4l2[-1] = format_to_mode(fmt.upper(), 2);
+    int videomode_v4l1 = format_to_mode(fmt.upper(), 1);
+    int videomode_v4l2 = format_to_mode(fmt.upper(), 2);
 
-    // insert info from hardware
-    InputNames::const_iterator it = inputs.begin();
-    for (;it != inputs.end(); ++it)
+    bool ok = false;
+    InputNames v4l_inputs = CardUtil::probeV4LInputs(videofd, ok);
+
+    // Insert info from hardware
+    uint valid_cnt = 0;
+    InputMap::const_iterator it;
+    for (it = inputs.begin(); it != inputs.end(); ++it)
     {
-        int inputNum = it.key();
-        channelnames[inputNum]    = *it;
-        inputChannel[inputNum]    = "";
-        inputTuneTo[inputNum]     = "";
-        externalChanger[inputNum] = "";
-        sourceid[inputNum]        = "";
-        videomode_v4l1[inputNum]  = videomode_v4l1[-1];
-        videomode_v4l2[inputNum]  = videomode_v4l2[-1];
+        InputNames::const_iterator v4l_it = v4l_inputs.begin();
+        for (; v4l_it != v4l_inputs.end(); ++v4l_it)
+        {
+            if (*v4l_it == (*it)->name)
+            {
+                (*it)->inputNumV4L   = v4l_it.key();
+                (*it)->videoModeV4L1 = videomode_v4l1;
+                (*it)->videoModeV4L2 = videomode_v4l2;
+                valid_cnt++;
+            }
+        }
     }
-
-    // get info from DB
-    RetrieveInputChannels(inputChannel, inputTuneTo,
-                          externalChanger, sourceid);
 
     // print em
-    for (it = channelnames.begin(); it != channelnames.end(); ++it)
+    for (it = inputs.begin(); it != inputs.end(); ++it)
     {
-        VERBOSE(VB_CHANNEL, QString("Input #%1: '%2' schan(%3) tun(%4) "
-                                    "v4l1(%5) v4l2(%6)")
-                .arg(it.key()).arg(*it)
-                .arg(inputChannel[it.key()]).arg(inputTuneTo[it.key()])
-                .arg(mode_to_format(videomode_v4l1[it.key()],1))
-                .arg(mode_to_format(videomode_v4l2[it.key()],2)));
+        VERBOSE(VB_CHANNEL, LOC + QString("Input #%1: '%2' schan(%3) "
+                                          "tun(%4) v4l1(%5) v4l2(%6)")
+                .arg(it.key()).arg((*it)->name).arg((*it)->startChanNum)
+                .arg((*it)->tuneToChannel)
+                .arg(mode_to_format((*it)->videoModeV4L1,1))
+                .arg(mode_to_format((*it)->videoModeV4L1,2)));
     }
+
+    return valid_cnt;
 }
 
 /** \fn Channel::SetFormat(const QString &format)
@@ -274,13 +283,17 @@ void Channel::SetFormat(const QString &format)
     if (!Open())
         return;
 
-    int inputNum = currentcapchannel;
-    if (currentcapchannel < 0)
-        inputNum = GetNextInput();
+    int inputNum = currentInputID;
+    if (currentInputID < 0)
+        inputNum = GetNextInputNum();
 
     QString fmt = format;
     if ((fmt == "Default") || format.isEmpty())
-        fmt = mode_to_format(videomode_v4l2[inputNum], 2);
+    {
+        InputMap::const_iterator it = inputs.find(inputNum);
+        if (it != inputs.end())
+            fmt = mode_to_format((*it)->videoModeV4L2, 2);
+    }
 
     VERBOSE(VB_CHANNEL, LOC + QString("SetFormat(%1) fmt(%2) input(%3)")
             .arg(format).arg(fmt).arg(inputNum));
@@ -349,28 +362,6 @@ int Channel::GetCurrentChannelNum(const QString &channame)
     return -1;
 }
 
-int Channel::GetChanID() const
-{
-    MSqlQuery query(MSqlQuery::InitCon());
-
-    query.prepare("SELECT chanid FROM channel "
-                  "WHERE channum = :CHANNUM AND channel.sourceid = :SOURCEID ;");
-    query.bindValue(":CHANNUM", curchannelname);
-    query.bindValue(":SOURCEID", sourceid[currentcapchannel]);
-
-    if (!query.exec() || !query.isActive())
-    {
-        MythContext::DBError("fetching chanid", query);
-        return -1;
-    }
-
-    if (query.size() <= 0)
-        return -1;
-
-    query.next();
-    return query.value(0).toInt();
-}
-
 void Channel::SaveCachedPids(const pid_cache_t &pid_cache) const
 {
     int chanid = GetChanID();
@@ -411,7 +402,8 @@ bool Channel::SetChannelByDirection(ChannelChangeDirection dir)
 
         if (chancount > totalChannels)
         {
-            VERBOSE(VB_IMPORTANT, "Error, couldn't find any available channels."
+            VERBOSE(VB_IMPORTANT, LOC_ERR +
+                    "Couldn't find any available channels."
                     "\n\t\t\tYour database is most likely setup incorrectly.");
             break;
         }
@@ -419,26 +411,27 @@ bool Channel::SetChannelByDirection(ChannelChangeDirection dir)
     return finished;
 }
 
-bool Channel::SetChannelByString(const QString &chan)
+bool Channel::SetChannelByString(const QString &channum)
 {
-    VERBOSE(VB_CHANNEL, QString("Channel(%1)::SetChannelByString(%2)")
-            .arg(device).arg(chan));
+    QString loc = LOC + QString("SetChannelByString(%1)").arg(channum);
+    QString loc_err = loc + ", Error: ";
+    VERBOSE(VB_CHANNEL, loc);
     
     if (!Open())
     {
-        VERBOSE(VB_IMPORTANT, QString(
-                    "Channel(%1)::SetChannelByString(): Channel object "
-                    "wasn't open, can't change channels").arg(device));
+        VERBOSE(VB_IMPORTANT, loc_err + "Channel object "
+                "will not open, can not change channels.");
+
         return false;
     }
 
     QString inputName;
-    if (pParent && !pParent->CheckChannel(this, chan, inputName))
+    if (!CheckChannel(channum, inputName))
     {
-        VERBOSE(VB_IMPORTANT, QString(
-                    "Channel(%1): CheckChannel failed. Please verify "
-                    "channel \"%2\" in the \"mythtv-setup\" Channel Editor.").
-                arg(device).arg(chan));
+        VERBOSE(VB_IMPORTANT, loc_err +
+                "CheckChannel failed.\n\t\t\tPlease verify the channel "
+                "in the 'mythtv-setup' Channel Editor.");
+
         return false;
     }
 
@@ -446,44 +439,32 @@ bool Channel::SetChannelByString(const QString &chan)
     // change inputs and return, since the act of changing
     // inputs will change the channel as well.
     if (!inputName.isEmpty())
-        return ChannelBase::SwitchToInput(inputName, chan);
+        return ChannelBase::SwitchToInput(inputName, channum);
 
     SetCachedATSCInfo("");
 
-    MSqlQuery query(MSqlQuery::InitCon());
+    InputMap::const_iterator it = inputs.find(currentInputID);
+    if (it == inputs.end())
+        return false;
 
-    QString thequery = QString(
-        "SELECT finetune, freqid, tvformat, freqtable, "
-        "       atscsrcid, commfree, mplexid "
-        "FROM channel, videosource "
-        "WHERE videosource.sourceid = channel.sourceid AND "
-        "      channum = '%1' AND channel.sourceid = '%2'")
-        .arg(chan).arg(sourceid[currentcapchannel]);
+    // Fetch tuning data from the database.
+    QString tvformat, modulation, freqtable, freqid;
+    int finetune;
+    uint64_t frequency;
+    int mpeg_prog_num;
+    uint atsc_major, atsc_minor, mplexid, tsid, netid;
 
-    query.prepare(thequery);
-
-    if (!query.exec() || !query.isActive())
-        MythContext::DBError("fetchtuningparams", query);
-    if (query.size() <= 0)
+    if (!ChannelUtil::GetChannelData(
+        (*it)->sourceid, channum,
+        tvformat, modulation, freqtable, freqid,
+        finetune, frequency,
+        mpeg_prog_num, atsc_major, atsc_minor, tsid, netid,
+        mplexid, commfree))
     {
-        VERBOSE(VB_IMPORTANT, QString(
-                    "Channel(%1): CheckChannel failed because it could not\n"
-                    "\t\t\tfind channel number '%2' in DB for source '%3'.")
-                .arg(device).arg(chan).arg(sourceid[currentcapchannel]));
         return false;
     }
-    query.next();
 
-    int finetune      = query.value(0).toInt();
-    QString freqid    = query.value(1).toString();
-    QString tvformat  = query.value(2).toString();
-    QString freqtable = query.value(3).toString();
-    uint atscsrcid    = query.value(4).toInt();
-    commfree          = query.value(5).toBool();
-    uint mplexid      = query.value(6).toInt();
-
-    QString modulation;
-    int frequency = ChannelUtil::GetTuningParams(mplexid, modulation);
+    // If the frequency is zeroed out, don't use it directly.
     bool ok = (frequency > 0);
 
     if (!ok)
@@ -493,30 +474,26 @@ bool Channel::SetChannelByString(const QString &chan)
     }
     bool isFrequency = ok && (frequency > 10000000);
 
+    // If we are tuning to a freqid, rather than an actual frequency,
+    // we need to set the frequency table to use.
     if (!isFrequency)
     {
-        if (freqtable == "default" || freqtable.isNull() || freqtable.isEmpty())
+        if (freqtable == "default" || freqtable.isEmpty())
             SetFreqTable(defaultFreqTable);
         else
             SetFreqTable(freqtable);
     }
 
+    // Set NTSC, PAL, ATSC, etc.
     SetFormat(tvformat);
 
-    curchannelname = chan;
-
+    // Setup filters & recording picture attributes for framegrabing recorders.
     if (pParent)
-        pParent->SetVideoFiltersForChannel(this, chan);
+        pParent->SetVideoFiltersForChannel(GetCurrentSourceID(), channum);
+    InitPictureAttributes();
 
-    SetContrast();
-    SetColour();
-    SetBrightness();
-    SetHue();
-
-    inputChannel[currentcapchannel] = curchannelname;
-
-    // Tune
-    if (externalChanger[currentcapchannel].isEmpty())
+    // Tune to proper frequency
+    if ((*it)->externalChanger.isEmpty())
     {
         if (isFrequency)
         {
@@ -532,12 +509,17 @@ bool Channel::SetChannelByString(const QString &chan)
     else if (!ChangeExternalChannel(freqid))
         return false;
 
-    QString min_maj = QString("%1_0").arg(chan);
-    if (atscsrcid > 255)
-        min_maj = QString("%1_%2")
-            .arg(atscsrcid >> 8).arg(atscsrcid & 0xff);
+    // Set the current channum to the new channel's channum
+    curchannelname = QDeepCopy<QString>(channum);
 
-    SetCachedATSCInfo(min_maj);
+    // Set the major and minor channel for any additional multiplex tuning
+    if (atsc_major || atsc_minor)
+        SetCachedATSCInfo(QString("%1_%2").arg(atsc_major).arg(atsc_minor));
+    else
+        SetCachedATSCInfo(QString("%1_0").arg(channum));
+
+    // Set this as the future start channel for this source
+    inputs[currentInputID]->startChanNum = curchannelname;
 
     return true;
 }
@@ -678,6 +660,43 @@ bool Channel::Tune(uint frequency, QString inputname, QString modulation)
     return true;
 }
 
+/** \fn Channel::Retune(void)
+ *  \brief Retunes to last tuned frequency.
+ *
+ *  NOTE: This only works for V4L2 and only for analog tuning.
+ */
+bool Channel::Retune(void)
+{
+    if (usingv4l2)
+    {
+        struct v4l2_frequency vf;
+        bzero(&vf, sizeof(vf));
+
+        vf.tuner = 0; // use first tuner
+        vf.type = V4L2_TUNER_ANALOG_TV;
+
+        // Get the last tuned frequency
+        int ioctlval = ioctl(videofd, VIDIOC_G_FREQUENCY, &vf);
+        if (ioctlval < 0)
+        {
+            VERBOSE(VB_IMPORTANT, LOC_ERR + "Retune failed (1)" + ENO);
+            return false;
+        }
+
+        // Set the last tuned frequency again...
+        ioctlval = ioctl(videofd, VIDIOC_S_FREQUENCY, &vf);
+        if (ioctlval < 0)
+        {
+            VERBOSE(VB_IMPORTANT, LOC_ERR + "Retune failed (2)" + ENO);
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 bool Channel::IsTuned() const
 {
     if (usingv4l2)
@@ -697,14 +716,6 @@ bool Channel::IsTuned() const
              return false;
         return tuner.signal ? true : false;
     }
-}
-
-int Channel::GetCardID() const
-{
-    if (pParent)
-        return pParent->GetCaptureCardNum();
-    else
-        return CardUtil::GetCardID(GetDevice());
 }
 
 /** \fn Channel::TuneMultiplex(uint mplexid)
@@ -784,48 +795,88 @@ QString Channel::GetFormatForChannel(QString channum, QString inputname)
     return fmt;
 }
 
-bool Channel::SetInputAndFormat(int newcapchannel, QString newFmt)
+bool Channel::SetInputAndFormat(int inputNum, QString newFmt)
 {
+    InputMap::const_iterator it = inputs.find(inputNum);
+    if (it == inputs.end() || (*it)->inputNumV4L < 0)
+        return false;
+
+    int inputNumV4L = (*it)->inputNumV4L;
     bool usingv4l1 = !usingv4l2;
     bool ok = true;
 
+    QString msg =
+        QString("SetInputAndFormat(%1, %2) ").arg(inputNum).arg(newFmt);
+
     if (usingv4l2)
     {
-        int ioctlval = ioctl(videofd, VIDIOC_S_INPUT, &newcapchannel);
-        if (ioctlval < 0)
+        VERBOSE(VB_CHANNEL, LOC + msg + "(v4l v2)");
+
+        int ioctlval = ioctl(videofd, VIDIOC_S_INPUT, &inputNumV4L);
+
+        // ConvertX (wis-go7007) requires streaming to be disabled
+        // before an input switch, do this if initial switch failed.
+        bool streamingDisabled = false;
+        int  streamType = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        if ((ioctlval < 0) && (errno == EBUSY))
         {
-            VERBOSE(VB_IMPORTANT, LOC_ERR + QString(
-                        "SetInputAndFormat(%1, %2) "
-                        "\n\t\t\twhile setting input (v4l v2)")
-                    .arg(newcapchannel).arg(newFmt) + ENO);
-            ok = false;
+            ioctlval = ioctl(videofd, VIDIOC_STREAMOFF, &streamType);
+            if (ioctlval < 0)
+            {
+                VERBOSE(VB_IMPORTANT, LOC_ERR + msg +
+                        "\n\t\t\twhile disabling streaming (v4l v2)" + ENO);
+
+                ok = false;
+                ioctlval = 0;
+            }
+            else
+            {
+                streamingDisabled = true;
+
+                // Resend the input switch ioctl.
+                ioctlval = ioctl(videofd, VIDIOC_S_INPUT, &inputNumV4L);
+            }
         }
 
-        VERBOSE(VB_CHANNEL, LOC + QString(
-                    "SetInputAndFormat(%1, %2) v4l v2")
-                .arg(newcapchannel).arg(newFmt));
+        if (ioctlval < 0)
+        {
+            VERBOSE(VB_IMPORTANT, LOC_ERR + msg +
+                    "\n\t\t\twhile setting input (v4l v2)" + ENO);
+
+            ok = false;
+        }
 
         v4l2_std_id vid_mode = format_to_mode(newFmt, 2);
         ioctlval = ioctl(videofd, VIDIOC_S_STD, &vid_mode);
         if (ioctlval < 0)
         {
-            VERBOSE(VB_IMPORTANT, LOC_ERR + QString(
-                        "SetInputAndFormat(%1, %2) "
-                        "\n\t\t\twhile setting format (v4l v2)")
-                    .arg(newcapchannel).arg(newFmt) + ENO);
+            VERBOSE(VB_IMPORTANT, LOC_ERR + msg +
+                    "\n\t\t\twhile setting format (v4l v2)" + ENO);
 
             // Fall through to try v4l version 1, pcHDTV 1.4 (for HD-2000)
             // drivers don't work with VIDIOC_S_STD ioctl.
             usingv4l1 = true;
             ok = false;
         }
+
+        // ConvertX (wis-go7007) requires streaming to be disabled
+        // before an input switch, here we try to re-enable streaming.
+        if (streamingDisabled)
+        {
+            ioctlval = ioctl(videofd, VIDIOC_STREAMON, &streamType);
+            if (ioctlval < 0)
+            {
+                VERBOSE(VB_IMPORTANT, LOC_ERR + msg +
+                        "\n\t\t\twhile reenabling streaming (v4l v2)" + ENO);
+
+                ok = false;
+            }
+        }
     }
 
     if (usingv4l1)
     {
-        VERBOSE(VB_CHANNEL, LOC + QString(
-                    "SetInputAndFormat(%1, %2) v4l v1")
-                .arg(newcapchannel).arg(newFmt));
+        VERBOSE(VB_CHANNEL, LOC + msg + "(v4l v1)");
 
         // read in old settings
         struct video_channel set;
@@ -833,41 +884,40 @@ bool Channel::SetInputAndFormat(int newcapchannel, QString newFmt)
         ioctl(videofd, VIDIOCGCHAN, &set);
 
         // set new settings
-        set.channel = newcapchannel;
+        set.channel = inputNumV4L;
         set.norm    = format_to_mode(newFmt, 1);
         int ioctlval = ioctl(videofd, VIDIOCSCHAN, &set);
 
-        if (ioctlval < 0)
+        ok = (ioctlval >= 0);
+        if (!ok)
         {
-            VERBOSE(VB_IMPORTANT, LOC_ERR + QString(
-                        "SetInputAndFormat(%1, %2) "
-                        "\n\t\t\twhile setting format (v4l v1)")
-                    .arg(newcapchannel).arg(newFmt) + ENO);
-            ok = false;
+            VERBOSE(VB_IMPORTANT, LOC_ERR + msg + 
+                    "\n\t\t\twhile setting format (v4l v1)" + ENO);
         }
         else if (usingv4l2)
         {
-            VERBOSE(VB_IMPORTANT, LOC + QString(
-                        "SetInputAndFormat(%1, %2) "
-                        "\n\t\t\tSetting video mode with v4l version 1 worked")
-                    .arg(newcapchannel).arg(newFmt));
-            ok = true;
+            VERBOSE(VB_IMPORTANT, LOC + msg +
+                    "\n\t\t\tSetting video mode with v4l version 1 worked");
         }
     }
     return ok;
 }
 
-bool Channel::SwitchToInput(int newcapchannel, bool setstarting)
+bool Channel::SwitchToInput(int inputnum, bool setstarting)
 {
-    QString tuneFreqId = inputTuneTo[newcapchannel];
-    QString channum    = inputChannel[newcapchannel];
-    QString inputname  = channelnames[newcapchannel];
+    InputMap::const_iterator it = inputs.find(inputnum);
+    if (it == inputs.end())
+        return false;
+
+    QString tuneFreqId = (*it)->tuneToChannel;
+    QString channum    = (*it)->startChanNum;
+    QString inputname  = (*it)->name;
 
     VERBOSE(VB_CHANNEL, QString("Channel(%1)::SwitchToInput(in %2, '%3')")
-            .arg(device).arg(newcapchannel)
+            .arg(device).arg(inputnum)
             .arg(setstarting ? channum : QString("")));
 
-    QString newFmt = mode_to_format(videomode_v4l2[newcapchannel], 2);
+    QString newFmt = mode_to_format((*it)->videoModeV4L2, 2);
 
     // If we are setting a channel, get its video mode...
     bool chanValid  = (channum != "Undefined") && !channum.isEmpty();
@@ -878,11 +928,11 @@ bool Channel::SwitchToInput(int newcapchannel, bool setstarting)
             newFmt = tmp;
     }
 
-    bool ok = SetInputAndFormat(newcapchannel, newFmt);
+    bool ok = SetInputAndFormat(inputnum, newFmt);
 
     // Try to set ATSC mode if NTSC fails
     if (!ok && newFmt == "NTSC")
-        ok = SetInputAndFormat(newcapchannel, "ATSC");
+        ok = SetInputAndFormat(inputnum, "ATSC");
 
     if (!ok)
     {
@@ -892,7 +942,7 @@ bool Channel::SwitchToInput(int newcapchannel, bool setstarting)
 
     currentFormat     = newFmt;
     is_dtv            = newFmt == "ATSC";
-    currentcapchannel = newcapchannel;
+    currentInputID = inputnum;
     curchannelname    = ""; // this will be set by SetChannelByString
 
     if (setstarting && !tuneFreqId.isEmpty() && tuneFreqId != "Undefined")
@@ -906,7 +956,7 @@ bool Channel::SwitchToInput(int newcapchannel, bool setstarting)
     else if (setstarting && !chanValid)
     {
         VERBOSE(VB_IMPORTANT, LOC +
-                QString("SwitchToInput(in %2, set ch): ").arg(newcapchannel) +
+                QString("SwitchToInput(in %2, set ch): ").arg(inputnum) +
                 QString("\n\t\t\tDefault channel '%1' is not valid.")
                 .arg(channum));
         ok = false;
@@ -915,9 +965,10 @@ bool Channel::SwitchToInput(int newcapchannel, bool setstarting)
     return ok;
 }
 
-unsigned short *Channel::GetV4L1Field(int attrib, struct video_picture &vid_pic)
+static unsigned short *get_v4l1_field(
+    int v4l2_attrib, struct video_picture &vid_pic)
 {
-    switch (attrib)
+    switch (v4l2_attrib)
     {
         case V4L2_CID_CONTRAST:
             return &vid_pic.contrast;
@@ -928,283 +979,340 @@ unsigned short *Channel::GetV4L1Field(int attrib, struct video_picture &vid_pic)
         case V4L2_CID_HUE:
             return &vid_pic.hue;
         default:
-            VERBOSE(VB_IMPORTANT,
-                    QString("Channel(%1)::SetColourAttribute(): "
-                            "invalid attribute argument: %2\n").
-                    arg(device).arg(attrib));
+            VERBOSE(VB_IMPORTANT, "get_v4l1_field: "
+                    "invalid attribute argument "<<v4l2_attrib);
     }
     return NULL;
 }
 
-void Channel::SetColourAttribute(int attrib, const char *name)
+static int get_v4l2_attribute(const QString &db_col_name)
+{
+    if ("brightness" == db_col_name)
+        return V4L2_CID_BRIGHTNESS;
+    else if ("contrast" == db_col_name)
+        return V4L2_CID_CONTRAST;
+    else if ("colour" == db_col_name)
+        return V4L2_CID_SATURATION;
+    else if ("hue" == db_col_name)
+        return V4L2_CID_HUE;
+    return -1;
+}
+
+bool Channel::InitPictureAttribute(const QString db_col_name)
 {
     if (!pParent || is_dtv)
-        return;
+        return false;
 
-    QString field_name = name;
-    int field = pParent->GetChannelValue(field_name, this, curchannelname);
+    int v4l2_attrib = get_v4l2_attribute(db_col_name);
+    if (v4l2_attrib == -1)
+        return false;
+
+    int cfield = ChannelUtil::GetChannelValueInt(
+        db_col_name, GetCurrentSourceID(), curchannelname);
+    int sfield = CardUtil::GetValueInt(
+        db_col_name, GetCardID(), GetCurrentSourceID());
+
+    if ((cfield == -1) || (sfield == -1))
+        return false;
+
+    int field = (cfield + sfield) & 0xFFFF;
+
+    QString loc = LOC +
+        QString("InitPictureAttribute(%1): ").arg(db_col_name, 10);
+    QString loc_err = LOC_ERR +
+        QString("InitPictureAttribute(%1): ").arg(db_col_name, 10);
 
     if (usingv4l2)
     {
         struct v4l2_control ctrl;
         struct v4l2_queryctrl qctrl;
-        memset(&ctrl, 0, sizeof(ctrl));
-        memset(&qctrl, 0, sizeof(qctrl));
+        bzero(&ctrl, sizeof(ctrl));
+        bzero(&qctrl, sizeof(qctrl));
 
-        if (field != -1)
+        ctrl.id = qctrl.id = v4l2_attrib;
+        if (ioctl(videofd, VIDIOC_QUERYCTRL, &qctrl) < 0)
         {
-            ctrl.id = qctrl.id = attrib;
-            if (ioctl(videofd, VIDIOC_QUERYCTRL, &qctrl) < 0)
+            VERBOSE(VB_IMPORTANT, loc_err + "failed to query controls." + ENO);
+            return false;
+        }
+
+        float new_range = qctrl.maximum - qctrl.minimum;
+        float old_range = 65535 - 0;
+        float scl_range = new_range / old_range;
+        float dfl       = (qctrl.default_value - qctrl.minimum) / new_range;
+        int   norm_dfl  = (0x10000 + (int)(dfl * old_range) - 32768) & 0xFFFF;
+
+        if (pict_attr_default.find(db_col_name) == pict_attr_default.end())
+        {
+            if (device_name == "pcHDTV HD3000 HDTV")
             {
-                VERBOSE(VB_IMPORTANT,
-                        QString("Channel(%1)::SetColourAttribute(): "
-                                "failed to query controls, error: %2").
-                        arg(device).arg(strerror(errno)));
-                return;
+                pict_attr_default["brightness"] = 9830;
+                pict_attr_default["contrast"]   = 39322;
+                pict_attr_default["colour"]     = 45875;
+                pict_attr_default["hue"]        = 0;
             }
-            ctrl.value = (int)((qctrl.maximum - qctrl.minimum) 
-                               / 65535.0 * field + qctrl.minimum);
-            ctrl.value = ctrl.value > qctrl.maximum
-                              ? qctrl.maximum
-                                  : ctrl.value < qctrl.minimum
-                                       ? qctrl.minimum
-                                            : ctrl.value;
-            if (ioctl(videofd, VIDIOC_S_CTRL, &ctrl) < 0)
+            else
             {
-                VERBOSE(VB_IMPORTANT,
-                        QString("Channel(%1)::SetColourAttribute(): "
-                                "failed to set controls, error: %2").
-                        arg(device).arg(strerror(errno)));
-                return;
+                pict_attr_default[db_col_name] = norm_dfl;
             }
+        }
+
+        int dfield = pict_attr_default[db_col_name];
+        field      = (cfield + sfield + dfield) & 0xFFFF;
+        int value0 = (int) ((scl_range * field) + qctrl.minimum);
+        int value1 = min(value0, (int)qctrl.maximum);
+        ctrl.value = max(value1, (int)qctrl.minimum);
+
+#if DEBUG_ATTRIB
+        VERBOSE(VB_CHANNEL, loc + QString("\n\t\t\t[%1,%2] dflt(%3, %4, %5)")
+                .arg(qctrl.minimum, 5).arg(qctrl.maximum, 5)
+                .arg(qctrl.default_value, 5).arg(dfl, 4, 'f', 2)
+                .arg(norm_dfl));
+#endif
+
+        if (ioctl(videofd, VIDIOC_S_CTRL, &ctrl) < 0)
+        {
+            VERBOSE(VB_IMPORTANT, loc_err + "failed to set controls" + ENO);
+            return false;
+        }
+
+        return true;
+    }
+
+    // V4L1
+    unsigned short *setfield;
+    struct video_picture vid_pic;
+    bzero(&vid_pic, sizeof(vid_pic));
+
+    if (ioctl(videofd, VIDIOCGPICT, &vid_pic) < 0)
+    {
+        VERBOSE(VB_IMPORTANT, loc_err + "failed to query controls." + ENO);
+        return false;
+    }
+    setfield = get_v4l1_field(v4l2_attrib, vid_pic);
+
+    if (!setfield)
+        return false;
+
+    *setfield = field;
+    if (ioctl(videofd, VIDIOCSPICT, &vid_pic) < 0)
+    {
+        VERBOSE(VB_IMPORTANT, loc_err + "failed to set controls." + ENO);
+        return false;
+    }
+
+    return true;
+}
+
+bool Channel::InitPictureAttributes(void)
+{
+    return (InitPictureAttribute("brightness") &&
+            InitPictureAttribute("contrast")   &&
+            InitPictureAttribute("colour")     &&
+            InitPictureAttribute("hue"));
+}
+
+int Channel::GetPictureAttribute(const QString db_col_name) const
+{
+    int cfield = ChannelUtil::GetChannelValueInt(
+        db_col_name, GetCurrentSourceID(), curchannelname);
+    int sfield = CardUtil::GetValueInt(
+        db_col_name, GetCardID(), GetCurrentSourceID());
+    int dfield = 0;
+
+    if (pict_attr_default.find(db_col_name) != pict_attr_default.end())
+        dfield = pict_attr_default[db_col_name];
+
+    int val = (cfield + sfield + dfield) & 0xFFFF;
+
+#if DEBUG_ATTRIB
+    VERBOSE(VB_CHANNEL, QString(
+                "GetPictureAttribute(%1) -> cdb %2 rdb %3 d %4 -> %5")
+            .arg(db_col_name).arg(cfield).arg(sfield)
+            .arg(dfield).arg(val));
+#endif
+
+    return val;
+}
+
+static int get_v4l2_attribute_value(int videofd, int v4l2_attrib)
+{
+    struct v4l2_control ctrl;
+    struct v4l2_queryctrl qctrl;
+    bzero(&ctrl, sizeof(ctrl));
+    bzero(&qctrl, sizeof(qctrl));
+
+    ctrl.id = qctrl.id = v4l2_attrib;
+    if (ioctl(videofd, VIDIOC_QUERYCTRL, &qctrl) < 0)
+    {
+        VERBOSE(VB_IMPORTANT, "get_v4l2_attribute_value: "
+                "failed to query controls (1)" + ENO);
+        return -1;
+    }
+
+    if (ioctl(videofd, VIDIOC_G_CTRL, &ctrl) < 0)
+    {
+        VERBOSE(VB_IMPORTANT, "get_v4l2_attribute_value: "
+                "failed to get controls (2)" + ENO);
+        return -1;
+    }
+
+    return (int)(65535.0 / (qctrl.maximum - qctrl.minimum) * ctrl.value);
+}
+
+static int get_v4l1_attribute_value(int videofd, int v4l2_attrib)
+{
+    struct video_picture vid_pic;
+    bzero(&vid_pic, sizeof(vid_pic));
+
+    if (ioctl(videofd, VIDIOCGPICT, &vid_pic) < 0)
+    {
+        VERBOSE(VB_IMPORTANT, "get_v4l1_attribute_value: "
+                "failed to get picture control (1)" + ENO);
+        return -1;
+    }
+
+    unsigned short *setfield = get_v4l1_field(v4l2_attrib, vid_pic);
+    if (setfield)
+        return *setfield;
+
+    return -1;
+}
+
+static int get_attribute_value(bool usingv4l2, int videofd, int v4l2_attrib)
+{
+    if (usingv4l2)
+        return get_v4l2_attribute_value(videofd, v4l2_attrib);
+    return get_v4l1_attribute_value(videofd, v4l2_attrib);
+}
+
+static int set_v4l2_attribute_value(int videofd, int v4l2_attrib, int newvalue)
+{
+    struct v4l2_control ctrl;
+    struct v4l2_queryctrl qctrl;
+    bzero(&ctrl, sizeof(ctrl));
+    bzero(&qctrl, sizeof(qctrl));
+
+    ctrl.id = qctrl.id = v4l2_attrib;
+    if (ioctl(videofd, VIDIOC_QUERYCTRL, &qctrl) < 0)
+    {
+        VERBOSE(VB_IMPORTANT, "set_v4l2_attribute_value: "
+                "failed to query control" + ENO);
+        return -1;
+    }
+
+    float mult = (qctrl.maximum - qctrl.minimum) / 65535.0;
+    ctrl.value = (int)(mult * newvalue + qctrl.minimum);
+    ctrl.value = min(ctrl.value, qctrl.maximum);
+    ctrl.value = max(ctrl.value, qctrl.minimum);
+
+    if (ioctl(videofd, VIDIOC_S_CTRL, &ctrl) < 0)
+    {
+        VERBOSE(VB_IMPORTANT, "set_v4l2_attribute_value: "
+                "failed to set control" + ENO);
+        return -1;
+    }
+
+    return 0;
+}
+
+static int set_v4l1_attribute_value(int videofd, int v4l2_attrib, int newvalue)
+{
+    unsigned short *setfield;
+    struct video_picture vid_pic;
+    bzero(&vid_pic, sizeof(vid_pic));
+
+    if (ioctl(videofd, VIDIOCGPICT, &vid_pic) < 0)
+    {
+        VERBOSE(VB_IMPORTANT, "set_v4l1_attribute_value: "
+                "failed to get picture control." + ENO);
+        return -1;
+    }
+    setfield = get_v4l1_field(v4l2_attrib, vid_pic);
+    if (newvalue != -1 && setfield)
+    {
+        *setfield = newvalue;
+        if (ioctl(videofd, VIDIOCSPICT, &vid_pic) < 0)
+        {
+            VERBOSE(VB_IMPORTANT, "set_v4l1_attribute_value: "
+                    "failed to set picture control." + ENO);
+            return -1;
         }
     }
     else
     {
-        unsigned short *setfield;
-        struct video_picture vid_pic;
-        memset(&vid_pic, 0, sizeof(vid_pic));
-
-        if (ioctl(videofd, VIDIOCGPICT, &vid_pic) < 0)
-        {
-            VERBOSE(VB_IMPORTANT,
-                    QString("Channel(%1)::SetColourAttribute(): failed "
-                            "to get picture controls, error: %2").
-                    arg(device).arg(strerror(errno)));
-            return;
-        }
-        setfield = GetV4L1Field(attrib, vid_pic);
-        if (field != -1 && setfield)
-        {
-            *setfield = field;
-            if (ioctl(videofd, VIDIOCSPICT, &vid_pic) < 0)
-            {
-                VERBOSE(VB_IMPORTANT,
-                        QString("Channel(%1)::SetColourAttribute(): failed "
-                                "to set picture controls, error: %2").
-                        arg(device).arg(strerror(errno)));
-                return;
-            }
-        }
+        // ???
+        return -1;
     }
-    return;
+
+    return 0;
 }
 
-void Channel::SetContrast(void)
+static int set_attribute_value(bool usingv4l2, int videofd,
+                               int v4l2_attrib, int newvalue)
 {
-    SetColourAttribute(V4L2_CID_CONTRAST, "contrast");
-    return;
+    if (usingv4l2)
+        return set_v4l2_attribute_value(videofd, v4l2_attrib, newvalue);
+    return set_v4l1_attribute_value(videofd, v4l2_attrib, newvalue);
 }
 
-void Channel::SetBrightness()
-{
-    SetColourAttribute(V4L2_CID_BRIGHTNESS, "brightness");
-    return;
-}
-
-void Channel::SetColour()
-{
-    SetColourAttribute(V4L2_CID_SATURATION, "colour");
-    return;
-}
-
-void Channel::SetHue(void)
-{
-    SetColourAttribute(V4L2_CID_HUE, "hue");
-    return;
-}
-
-int Channel::ChangeColourAttribute(int attrib, const char *name, bool up)
+int Channel::ChangePictureAttribute(
+    int type, const QString db_col_name, bool up)
 {
     if (!pParent || is_dtv)
         return -1;
 
-    int newvalue;    // The int should have ample space to avoid overflow
-                     // in the case that we're just over or under 65535
+    int v4l2_attrib = get_v4l2_attribute(db_col_name);
+    if (v4l2_attrib == -1)
+        return -1;
 
-    QString channel_field = name;
-    int current_value = pParent->GetChannelValue(channel_field, this, 
-                                                 curchannelname);
+    // get the old attribute value from the hardware, this is
+    // just a sanity check on whether this attribute exists
+    if (get_attribute_value(usingv4l2, videofd, v4l2_attrib) < 0)
+        return -1;
 
-    int card_value;
+    int old_value = GetPictureAttribute(db_col_name);
+    int new_value = old_value + ((up) ? 655 : -655);
 
-    if (usingv4l2)
+    // make sure we are within bounds (wrap around for hue)
+    if (V4L2_CID_HUE == v4l2_attrib)
+        new_value &= 0xffff;
+    new_value = min(max(new_value, 0), 65535);
+
+#if DEBUG_ATTRIB
+    VERBOSE(VB_CHANNEL, QString(
+                "ChangePictureAttribute(%1,%2,%3) cur %4 -> new %5")
+            .arg(type).arg(db_col_name).arg(up)
+            .arg(old_value).arg(new_value));
+#endif
+
+    // actually set the new attribute value on the hardware
+    if (set_attribute_value(usingv4l2, videofd, v4l2_attrib, new_value) < 0)
+        return -1;
+
+    // tell the DB about the new attribute value
+    if (kAdjustingPicture_Channel == type)
     {
-        struct v4l2_control ctrl;
-        struct v4l2_queryctrl qctrl;
-        memset(&ctrl, 0, sizeof(ctrl));
-        memset(&qctrl, 0, sizeof(qctrl));
+        int adj_value = ChannelUtil::GetChannelValueInt(
+            db_col_name, GetCurrentSourceID(), curchannelname);
 
-        ctrl.id = qctrl.id = attrib;
-        if (ioctl(videofd, VIDIOC_QUERYCTRL, &qctrl) < 0)
-        {
-            VERBOSE(VB_IMPORTANT,
-                    QString("Channel(%1)::ChangeColourAttribute(): "
-                            "failed to query controls (1), error: %2").
-                    arg(device).arg(strerror(errno)));
-            return -1;
-        }
-
-        if (ioctl(videofd, VIDIOC_G_CTRL, &ctrl) < 0)
-        {
-            VERBOSE(VB_IMPORTANT,
-                    QString("Channel(%1)::ChangeColourAttribute(): "
-                            "failed to get control, error: %2").
-                    arg(device).arg(strerror(errno)));
-            return -1;
-        }
-        card_value = (int)(65535.0 / (qctrl.maximum - qctrl.minimum) * 
-                           ctrl.value);
+        int tmp = new_value - old_value + adj_value;
+        tmp = (tmp < 0)      ? tmp + 0x10000 : tmp;
+        tmp = (tmp > 0xffff) ? tmp - 0x10000 : tmp;
+        ChannelUtil::SetChannelValue(db_col_name, QString::number(tmp),
+                                     GetCurrentSourceID(), curchannelname);
     }
-    else
+    else if (kAdjustingPicture_Recording == type)
     {
-        unsigned short *setfield;
-        struct video_picture vid_pic;
-        memset(&vid_pic, 0, sizeof(vid_pic));
+        int adj_value = CardUtil::GetValueInt(
+            db_col_name, GetCardID(), GetCurrentSourceID());
 
-        if (ioctl(videofd, VIDIOCGPICT, &vid_pic) < 0)
-        {
-            VERBOSE(VB_IMPORTANT,
-                    QString("Channel(%1)::ChangeColourAttribute(): "
-                            "failed to get picture control (1), error: %2").
-                    arg(device).arg(strerror(errno)));
-            return -1;
-        }
-
-        setfield = GetV4L1Field(attrib, vid_pic);
-        if (!setfield)
-        {
-            return -1;
-        }
-
-        card_value = *setfield;
+        int tmp = new_value - old_value + adj_value;
+        tmp = (tmp < 0)      ? tmp + 0x10000 : tmp;
+        tmp = (tmp > 0xffff) ? tmp - 0x10000 : tmp;
+        CardUtil::SetValue(db_col_name, GetCardID(),
+                           GetCurrentSourceID(), tmp);
     }
 
-    newvalue  = (current_value < 0) ? card_value : current_value;
-    newvalue += (up) ? 655 : -655;
-
-    if (V4L2_CID_HUE == attrib)
-    {
-        // wrap around for hue
-        newvalue = (newvalue > 65535) ? newvalue - 65535 : newvalue;
-        newvalue = (newvalue < 0)     ? newvalue + 65535 : newvalue;
-    }
-
-    // make sure we are within bounds
-    newvalue  = min(newvalue, 65535);
-    newvalue  = max(newvalue, 0);
-
-    if (current_value >= 0)
-    {
-        // tell the DB about the new attributes
-        pParent->SetChannelValue(channel_field, newvalue,
-                                 this, curchannelname);
-    }
-
-    if (usingv4l2)
-    {
-        struct v4l2_control ctrl;
-        struct v4l2_queryctrl qctrl;
-        memset(&ctrl, 0, sizeof(ctrl));
-        memset(&qctrl, 0, sizeof(qctrl));
-
-        ctrl.id = qctrl.id = attrib;
-        if (ioctl(videofd, VIDIOC_QUERYCTRL, &qctrl) < 0)
-        {
-            VERBOSE(VB_IMPORTANT,
-                    QString("Channel(%1)::ChangeColourAttribute(): "
-                            "failed to query controls (2), error: %2").
-                    arg(device).arg(strerror(errno)));
-            return -1;
-        }
-        float mult = (qctrl.maximum - qctrl.minimum) / 65535.0;
-        ctrl.value = (int)(mult * newvalue + qctrl.minimum);
-        ctrl.value = min(ctrl.value, qctrl.maximum);
-        ctrl.value = max(ctrl.value, qctrl.minimum);
-
-        if (ioctl(videofd, VIDIOC_S_CTRL, &ctrl) < 0)
-        {
-            VERBOSE(VB_IMPORTANT,
-                    QString("Channel(%1)::ChangeColourAttribute(): "
-                            "failed to set control, error: %2").
-                    arg(device).arg(strerror(errno)));
-            return -1;
-        }
-    }
-    else
-    {
-        unsigned short *setfield;
-        struct video_picture vid_pic;
-        memset(&vid_pic, 0, sizeof(vid_pic));
-
-        if (ioctl(videofd, VIDIOCGPICT, &vid_pic) < 0)
-        {
-            VERBOSE(VB_IMPORTANT,
-                    QString("Channel(%1)::ChangeColourAttribute(): "
-                            "failed to get picture control (2), error: %2").
-                    arg(device).arg(strerror(errno)));
-            return -1;
-        }
-        setfield = GetV4L1Field(attrib, vid_pic);
-        if (newvalue != -1 && setfield)
-        {
-            *setfield = newvalue;
-            if (ioctl(videofd, VIDIOCSPICT, &vid_pic) < 0)
-            {
-                VERBOSE(VB_IMPORTANT,
-                        QString("Channel(%1)::ChangeColourAttribute(): "
-                                "failed to set picture control, error: %2").
-                        arg(device).arg(strerror(errno)));
-                return -1;
-            }
-        }
-        else
-        {
-            // ???
-            return -1;
-        }
-    }
-
-    return newvalue / 655;
+    return new_value;
 }
-
-int Channel::ChangeContrast(bool up)
-{
-    return ChangeColourAttribute(V4L2_CID_CONTRAST, "contrast", up);
-}
-
-int Channel::ChangeBrightness(bool up)
-{
-    return ChangeColourAttribute(V4L2_CID_BRIGHTNESS, "brightness", up);
-}
-
-int Channel::ChangeColour(bool up)
-{
-    return ChangeColourAttribute(V4L2_CID_SATURATION, "colour", up);
-}
-
-int Channel::ChangeHue(bool up)
-{
-    return ChangeColourAttribute(V4L2_CID_HUE, "hue", up);
-}
-

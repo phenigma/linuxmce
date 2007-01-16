@@ -33,22 +33,16 @@ bool XMLParse::LoadTheme(QDomElement &ele, QString winName, QString specialfile)
 
     fontSizeType = gContext->GetSetting("ThemeFontSizeType", "default");
 
-    
-    // first try to load the theme from the current theme directory
-    QString themepath = gContext->GetThemeDir();
-    QString themefile = themepath + specialfile + "ui.xml";
-     
-    if (doLoadTheme(ele, winName, themefile))
-        return true;
-        
-    // not found so now try the default theme directory
-    themepath = gContext->GetShareDir() + "themes/default/";
-    themefile = themepath + specialfile + "ui.xml";
-
-    if (doLoadTheme(ele, winName, themefile))
-    {    
-        //cout << "XMLParse::LoadTheme(): Using default theme file" << endl;
-        return true;
+    QValueList<QString> searchpath = gContext->GetThemeSearchPath();
+    for (QValueList<QString>::const_iterator ii = searchpath.begin();
+        ii != searchpath.end(); ii++)
+    {
+        QString themefile = *ii + specialfile + "ui.xml";
+        if (doLoadTheme(ele, winName, themefile))
+        {
+            VERBOSE(VB_GENERAL, "XMLParse::LoadTheme using " << themefile);
+            return true;
+        }
     }
     
     return false;
@@ -98,7 +92,7 @@ bool XMLParse::doLoadTheme(QDomElement &ele, QString winName, QString themeFile)
 
                 if (name == winName)
                 {
-            ele = e;
+                    ele = e;
                     return true;
                 }
             }
@@ -141,7 +135,7 @@ void XMLParse::parseFont(QDomElement &element)
     QString color = "#ffffff";
     QString dropcolor = "#000000";
     QString hint;
-    QFont::StyleHint styleHint = QFont::AnyStyle;    
+    QFont::StyleHint styleHint = QFont::Helvetica;    
     
     bool haveSizeSmall = false;
     bool haveSizeBig = false;
@@ -156,8 +150,6 @@ void XMLParse::parseFont(QDomElement &element)
     
     fontProp *baseFont = NULL;
     
-    
-    
     name = element.attribute("name", "");
     if (name.isNull() || name.isEmpty())
     {
@@ -165,8 +157,6 @@ void XMLParse::parseFont(QDomElement &element)
         return;
     }
 
-    
-    
     QString base =  element.attribute("base", "");
     if (!base.isNull() && !base.isEmpty())
     {
@@ -192,15 +182,12 @@ void XMLParse::parseFont(QDomElement &element)
         haveFace = true;
     }
     
-   
     hint = element.attribute("stylehint", "");
     if (!hint.isNull() && !hint.isEmpty())
     {
         styleHint = (QFont::StyleHint)hint.toInt();
     }
 
-    
-    
     for (QDomNode child = element.firstChild(); !child.isNull();
          child = child.nextSibling())
     {
@@ -291,14 +278,10 @@ void XMLParse::parseFont(QDomElement &element)
         return;
     }
 
-    
-    
-    
     if (baseFont && !haveSize)
         size = baseFont->face.pointSize();
     else    
         size = (int)ceil(size * hmult);
-    
     
     // If we don't have to, don't load the font.
     if (!haveFace && baseFont)
@@ -310,7 +293,11 @@ void XMLParse::parseFont(QDomElement &element)
     else
     {
         QFont temp(face, size);
-        temp.setStyleHint(styleHint);
+        temp.setStyleHint(styleHint, QFont::PreferAntialias);
+
+        if (!temp.exactMatch())
+            temp = QFont(QFontInfo(QApplication::font()).family(), size);
+
         newFont.face = temp;
     }
     
@@ -343,8 +330,6 @@ void XMLParse::parseFont(QDomElement &element)
         else
             newFont.face.setUnderline(false);
     }    
-
-    
     
     if (haveColor)
     {
@@ -665,28 +650,32 @@ void XMLParse::parseRepeatedImage(LayerSet *container, QDomElement &element)
 
 bool XMLParse::parseDefaultCategoryColors(QMap<QString, QString> &catColors)
 {
-    QString catColorFile = gContext->GetThemesParentDir() + "default/categories.xml";
-    
-    QDomDocument doc;
-    QFile f(catColorFile);
-    
-    if (!f.open(IO_ReadOnly))
+    QFile f;
+    QValueList<QString> searchpath = gContext->GetThemeSearchPath();
+    for (QValueList<QString>::const_iterator ii = searchpath.begin();
+        ii != searchpath.end(); ii++)
     {
-        cerr << "Error: Unable to open " << catColorFile << endl;
+        f.setName(*ii + "categories.xml");
+        if (f.open(IO_ReadOnly))
+            break;
+    }
+    if (f.handle() == -1)
+    {
+        VERBOSE(VB_IMPORTANT, "Error: Unable to open " << f.name());
         return false;
     }
-    
+
+    QDomDocument doc;
     QString errorMsg;
     int errorLine = 0;
     int errorColumn = 0;
     
     if (!doc.setContent(&f, false, &errorMsg, &errorLine, &errorColumn))
     {
-        cerr << "Error parsing: " << catColorFile << endl;
-        cerr << "at line: " << errorLine << "  column: " << errorColumn << endl;
-        cerr << errorMsg << endl;
+        VERBOSE(VB_IMPORTANT, "Error parsing: " << f.name()
+                << " line: " << errorLine << "  column: " << errorColumn
+                << ": " << errorMsg);
         f.close();
-        
         return false;
     }
     
@@ -902,6 +891,8 @@ void XMLParse::parseGuideGrid(LayerSet *container, QDomElement &element)
             guide->SetJustification(Qt::AlignCenter | jst);
         else if (align.lower() == "right")
             guide->SetJustification(Qt::AlignRight | jst);
+        else if (align.lower() == "left")
+            guide->SetJustification(Qt::AlignLeft | jst);
         else if (align.lower() == "allcenter")
             guide->SetJustification(Qt::AlignHCenter | Qt::AlignVCenter | jst);
         else if (align.lower() == "vcenter")
@@ -1027,6 +1018,8 @@ void XMLParse::parseBar(LayerSet *container, QDomElement &element)
             bar->SetJustification(Qt::AlignCenter);
         else if (align.lower() == "right")
             bar->SetJustification(Qt::AlignRight);
+        else if (align.lower() == "left")
+            bar->SetJustification(Qt::AlignLeft);
         else if (align.lower() == "allcenter")
             bar->SetJustification(Qt::AlignHCenter | Qt::AlignVCenter);
         else if (align.lower() == "vcenter")
@@ -1362,6 +1355,8 @@ void XMLParse::parseTextArea(LayerSet *container, QDomElement &element)
             text->SetJustification(jst | Qt::AlignCenter);
         else if (align.lower() == "right")
             text->SetJustification(jst | Qt::AlignRight);
+        else if (align.lower() == "left")
+            text->SetJustification(jst | Qt::AlignLeft);
         else if (align.lower() == "allcenter")
             text->SetJustification(jst | Qt::AlignHCenter | Qt::AlignVCenter);
         else if (align.lower() == "vcenter")
@@ -2132,8 +2127,12 @@ void XMLParse::parseListArea(LayerSet *container, QDomElement &element)
     if (colCnt == -1)
         list->SetColumnContext(1, -1);
 
+    list->SetParent(container);
+    list->calculateScreenArea();
     container->AddType(list);
 
+    // the selection image is only drawn on layer 8
+    container->bumpUpLayers(8);
 }
 
 LayerSet *XMLParse::GetSet(const QString &text)
@@ -3849,3 +3848,5 @@ void XMLParse::parseKeyboard(LayerSet *container, QDomElement &element)
         }
     }
 }
+
+// vim:set sw=4 expandtab:

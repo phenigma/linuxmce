@@ -33,7 +33,8 @@
 #include <limits.h>
 #include "avformat.h"
 #include "mpegaudio.h"
-#include "avi.h"
+#include "riff.h"
+#include "adler32.h"
 
 #undef NDEBUG
 #include <assert.h>
@@ -330,7 +331,7 @@ static int get_packetheader(NUTContext *nut, ByteIOContext *bc, int calculate_ch
 
     size= get_v(bc);
 
-    init_checksum(bc, calculate_checksum ? update_adler32 : NULL, 0);
+    init_checksum(bc, calculate_checksum ? av_adler32_update : NULL, 1);
 
     nut->packet_start[2] = start;
     nut->written_packet_size= size;
@@ -392,6 +393,12 @@ static int64_t find_startcode(ByteIOContext *bc, uint64_t code, int64_t pos){
             return -1;
         pos=-1;
     }
+}
+
+static int64_t lsb2full(StreamContext *stream, int64_t lsb){
+    int64_t mask = (1<<stream->msb_timestamp_shift)-1;
+    int64_t delta= stream->last_pts - mask/2;
+    return  ((lsb - delta)&mask) + delta;
 }
 
 #ifdef CONFIG_MUXERS
@@ -469,7 +476,7 @@ static int put_packetheader(NUTContext *nut, ByteIOContext *bc, int max_size, in
     put_v(bc, nut->written_packet_size); /* forward ptr */
 
     if(calculate_checksum)
-        init_checksum(bc, update_adler32, 0);
+        init_checksum(bc, av_adler32_update, 1);
 
     return 0;
 }
@@ -512,6 +519,11 @@ static int nut_write_header(AVFormatContext *s)
     ByteIOContext *bc = &s->pb;
     AVCodecContext *codec;
     int i, j, tmp_time, tmp_flags,tmp_stream, tmp_mul, tmp_size, tmp_fields;
+
+    if (strcmp(s->filename, "./data/b-libav.nut")) {
+        av_log(s, AV_LOG_ERROR, " libavformat NUT is non-compliant and disabled\n");
+        return -1;
+    }
 
     nut->avf= s;
 
@@ -688,12 +700,6 @@ static int nut_write_header(AVFormatContext *s)
     put_flush_packet(bc);
 
     return 0;
-}
-
-static int64_t lsb2full(StreamContext *stream, int64_t lsb){
-    int64_t mask = (1<<stream->msb_timestamp_shift)-1;
-    int64_t delta= stream->last_pts - mask/2;
-    return  ((lsb - delta)&mask) + delta;
 }
 
 static int nut_write_packet(AVFormatContext *s, AVPacket *pkt)
@@ -1192,6 +1198,7 @@ static int decode_frame_header(NUTContext *nut, int *key_frame_ret, int64_t *pts
             s->streams[stream_id],
             frame_start,
             pts,
+            0,
             frame_start - nut->stream[stream_id].last_sync_pos,
             AVINDEX_KEYFRAME);
         nut->stream[stream_id].last_sync_pos= frame_start;
@@ -1407,17 +1414,14 @@ static int nut_read_seek(AVFormatContext *s, int stream_index, int64_t target_ts
 static int nut_read_close(AVFormatContext *s)
 {
     NUTContext *nut = s->priv_data;
-    int i;
 
-    for(i=0;i<s->nb_streams;i++) {
-        av_freep(&s->streams[i]->codec->extradata);
-    }
     av_freep(&nut->stream);
 
     return 0;
 }
 
-static AVInputFormat nut_iformat = {
+#ifdef CONFIG_NUT_DEMUXER
+AVInputFormat nut_demuxer = {
     "nut",
     "nut format",
     sizeof(NUTContext),
@@ -1429,9 +1433,9 @@ static AVInputFormat nut_iformat = {
     nut_read_timestamp,
     .extensions = "nut",
 };
-
-#ifdef CONFIG_MUXERS
-static AVOutputFormat nut_oformat = {
+#endif
+#ifdef CONFIG_NUT_MUXER
+AVOutputFormat nut_muxer = {
     "nut",
     "nut format",
     "video/x-nut",
@@ -1450,13 +1454,4 @@ static AVOutputFormat nut_oformat = {
     nut_write_trailer,
     .flags = AVFMT_GLOBALHEADER,
 };
-#endif //CONFIG_MUXERS
-
-int nut_init(void)
-{
-    av_register_input_format(&nut_iformat);
-#ifdef CONFIG_MUXERS
-    av_register_output_format(&nut_oformat);
-#endif //CONFIG_MUXERS
-    return 0;
-}
+#endif

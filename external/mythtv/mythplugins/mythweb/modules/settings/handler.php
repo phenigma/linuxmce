@@ -2,9 +2,9 @@
 /**
  * Handler for all MythWeb Settings routines
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/modules/settings/handler.php $
- * @date        $Date: 2005-12-15 09:33:52 +0200 (Thu, 15 Dec 2005) $
- * @version     $Revision: 8273 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/settings/handler.php $
+ * @date        $Date: 2006-03-30 06:25:32 +0300 (Thu, 30 Mar 2006) $
+ * @version     $Revision: 9548 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -22,4 +22,4 @@
         require_once 'modules/settings/'.$Path[1].'.php';
 
 // Otherwise, just show the settings index page
-    require_once theme_dir.'settings/settings.php';
+    require_once tmpl_dir.'overview.php';

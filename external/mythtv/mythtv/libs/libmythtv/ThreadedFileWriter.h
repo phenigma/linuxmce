@@ -46,12 +46,14 @@ class ThreadedFileWriter
     bool            flush;
     bool            write_is_blocked;
     bool            in_dtor;
-    unsigned long   tfw_min_write_size;
+    bool            ignore_writes;
+    long long       tfw_min_write_size;
 
     // buffer position state
     uint            rpos;    ///< points to end of data written to disk
     uint            wpos;    ///< points to end of data added to buffer
     QMutex          buflock; ///< lock needed to update rpos and wpos
+    long long       written;
 
     // buffer
     char           *buf;

@@ -58,7 +58,7 @@ AVRtpPayloadType_t AVRtpPayloadTypes[]=
   {9, "G722",        CODEC_TYPE_AUDIO,   CODEC_ID_NONE, 8000, 1},
   {10, "L16",        CODEC_TYPE_AUDIO,   CODEC_ID_PCM_S16BE, 44100, 2},
   {11, "L16",        CODEC_TYPE_AUDIO,   CODEC_ID_PCM_S16BE, 44100, 1},
-  {12, "QCELP",      CODEC_TYPE_AUDIO,   CODEC_ID_NONE, 8000, 1},
+  {12, "QCELP",      CODEC_TYPE_AUDIO,   CODEC_ID_QCELP, 8000, 1},
   {13, "CN",         CODEC_TYPE_AUDIO,   CODEC_ID_NONE, 8000, 1},
   {14, "MPA",        CODEC_TYPE_AUDIO,   CODEC_ID_MP2, 90000, -1},
   {15, "G728",       CODEC_TYPE_AUDIO,   CODEC_ID_NONE, 8000, 1},
@@ -218,7 +218,7 @@ int rtp_get_codec_info(AVCodecContext *codec, int payload_type)
 {
     if (AVRtpPayloadTypes[payload_type].codec_id != CODEC_ID_NONE) {
         codec->codec_type = AVRtpPayloadTypes[payload_type].codec_type;
-        codec->codec_id = AVRtpPayloadTypes[payload_type].codec_type;
+        codec->codec_id = AVRtpPayloadTypes[payload_type].codec_id;
         if (AVRtpPayloadTypes[payload_type].audio_channels > 0)
             codec->channels = AVRtpPayloadTypes[payload_type].audio_channels;
         if (AVRtpPayloadTypes[payload_type].clock_rate > 0)
@@ -402,9 +402,11 @@ int rtp_parse_packet(RTPDemuxContext *s, AVPacket *pkt,
     /* NOTE: we can handle only one payload type */
     if (s->payload_type != payload_type)
         return -1;
+
+    st = s->st;
 #if defined(DEBUG) || 1
     if (seq != ((s->seq + 1) & 0xffff)) {
-        av_log(s->st->codec, AV_LOG_ERROR, "RTP: PT=%02x: bad cseq %04x expected=%04x\n",
+        av_log(st?st->codec:NULL, AV_LOG_ERROR, "RTP: PT=%02x: bad cseq %04x expected=%04x\n",
                payload_type, seq, ((s->seq + 1) & 0xffff));
     }
 #endif
@@ -412,7 +414,6 @@ int rtp_parse_packet(RTPDemuxContext *s, AVPacket *pkt,
     len -= 12;
     buf += 12;
 
-    st = s->st;
     if (!st) {
         /* specific MPEG2TS demux support */
         ret = mpegts_parse_packet(s->ts, pkt, buf, len);
@@ -531,9 +532,10 @@ static int rtp_write_header(AVFormatContext *s1)
         payload_type = RTP_PT_PRIVATE; /* private payload type */
     s->payload_type = payload_type;
 
-    s->base_timestamp = random();
+// following 2 FIXMies could be set based on the current time, theres normaly no info leak, as rtp will likely be transmitted immedeatly
+    s->base_timestamp = 0; /* FIXME: was random(), what should this be? */
     s->timestamp = s->base_timestamp;
-    s->ssrc = random();
+    s->ssrc = 0; /* FIXME: was random(), what should this be? */
     s->first_packet = 1;
 
     max_packet_size = url_fget_max_packet_size(&s1->pb);
@@ -858,7 +860,7 @@ static int rtp_write_trailer(AVFormatContext *s1)
     return 0;
 }
 
-AVOutputFormat rtp_mux = {
+AVOutputFormat rtp_muxer = {
     "rtp",
     "RTP output format",
     NULL,
@@ -870,9 +872,3 @@ AVOutputFormat rtp_mux = {
     rtp_write_packet,
     rtp_write_trailer,
 };
-
-int rtp_init(void)
-{
-    av_register_output_format(&rtp_mux);
-    return 0;
-}

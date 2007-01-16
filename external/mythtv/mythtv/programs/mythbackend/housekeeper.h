@@ -17,9 +17,13 @@ class HouseKeeper
     HouseKeeper(bool runthread, bool master);
    ~HouseKeeper();
 
+    
   protected:
     void RunHouseKeeping(void);
     static void *doHouseKeepingThread(void *param);
+
+    void RunMFD(void);
+    static void *runMFDThread(void *param);
 
   private:
 
@@ -30,6 +34,7 @@ class HouseKeeper
     void runFillDatabase();
     void CleanupMyOldRecordings(void);
     void CleanupAllOldInUsePrograms(void);
+    void CleanupRecordedTables(void);
     bool threadrunning;
     bool filldbRunning;
     bool isMaster;

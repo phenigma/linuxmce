@@ -3,9 +3,9 @@
  * This allows you to create inline help items - popup tables linked to
  * mouseover events.  It requires the mouseovers.js file.
  *
- * @url         $URL$
- * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
- * @version     $Revision: 8830 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-19-fixes/mythplugins/mythweb/includes/mouseovers.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     GPL
  *

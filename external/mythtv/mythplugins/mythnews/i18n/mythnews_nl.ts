@@ -9,6 +9,46 @@
         <source>Unknown</source>
         <translation>Onbekend</translation>
     </message>
+    <message>
+        <source>Edit Site Details</source>
+        <translation>Bewerk Site Details</translation>
+    </message>
+    <message>
+        <source>Enter Site Details</source>
+        <translation>Geef Site Details</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Naam:</translation>
+    </message>
+    <message>
+        <source>URL:</source>
+        <translation>URL:</translation>
+    </message>
+    <message>
+        <source>Icon:</source>
+        <translation>Icoon:</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleer</translation>
+    </message>
+    <message>
+        <source>Edit News Site</source>
+        <translation>Bewerk Nieuws Site</translation>
+    </message>
+    <message>
+        <source>Add News Site</source>
+        <translation>Voeg Nieuws Site Toe</translation>
+    </message>
+    <message>
+        <source>Delete News Site</source>
+        <translation>Verwijder Nieuws Site</translation>
+    </message>
 </context>
 <context>
     <name>MythNewsConfig</name>
@@ -48,6 +88,21 @@ De minimumwaarde is 30 minuten.</translation>
     <message>
         <source>Showing Cached News</source>
         <translation>Nieuws in geheugen wordt getoond</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>MythNews</source>
+        <translation>MythNieuws</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this news site
+
+%1</source>
+        <translation>Weet u zeker dat u onderstaande nieuws site wilt verwijderen?
+
+%1</translation>
     </message>
 </context>
 <context>

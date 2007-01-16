@@ -4,7 +4,7 @@ include ( ../../settings.pro )
 TEMPLATE = lib
 TARGET = mythavcodec-$$LIBVERSION
 CONFIG += thread dll warn_off
-target.path = $${PREFIX}/lib
+target.path = $${LIBDIR}
 INSTALLS = target
 
 INCLUDEPATH = ../ ../../ ../libavutil
@@ -22,14 +22,15 @@ QMAKE_CFLAGS_DEBUG += -O
 QMAKE_CLEAN += $(TARGET) $(TARGETA) $(TARGETD) $(TARGET0) $(TARGET1) $(TARGET2)
 
 # Input
-SOURCES += bitstream.c utils.c mem.c allcodecs.c mpegvideo.c jrevdct.c 
+SOURCES += bitstream.c utils.c allcodecs.c mpegvideo.c jrevdct.c 
 SOURCES += jfdctfst.c jfdctint.c mpegaudio.c ac3enc.c mjpeg.c audresample.c
 SOURCES += resample2.c dsputil.c motion_est.c imgconvert.c imgresample.c
 SOURCES += mpeg12.c mpegaudiodec.c pcm.c simple_idct.c ratecontrol.c adpcm.c
 SOURCES += eval.c error_resilience.c fft.c mdct.c raw.c golomb.c cabac.c
-SOURCES += dpcm.c adx.c faandct.c parser.c g726.c vp3dsp.c 
+SOURCES += dpcm.c adx.c faandct.c parser.c g726.c vp3dsp.c bitstream_filter.c
 SOURCES += h264idct.c rangecoder.c pnm.c h263.c msmpeg4.c h263dec.c dvdsub.c 
 SOURCES += dvbsub.c dvbsubdec.c dvdsubenc.c opt.c lzo.c myth_utils.c
+SOURCES += audioconvert.c
 
 inc.path = $${PREFIX}/include/mythtv/ffmpeg/
 inc.files = avcodec.h i386/mmx.h opt.h
@@ -50,6 +51,14 @@ contains( CONFIG_ALAC_DECODER, yes ) {
 DO_ASV1 = $$CONFIG_ASV1_DECODER $$CONFIG_ASV1_ENCODER $$CONFIG_ASV2_DECODER $$CONFIG_ASV2_ENCODER
 contains( DO_ASV1, yes ) {
     SOURCES += asv1.c
+}
+
+contains( CONFIG_AVS_DECODER, yes ) {
+    SOURCES += avs.c
+}
+
+contains( CONFIG_CAVS_DECODER, yes ) {
+    SOURCES += cavs.c cavsdsp.c
 }
 
 contains( CONFIG_CINEPAK_DECODER, yes ) {
@@ -85,6 +94,14 @@ contains( DO_FFV1, yes ) {
 
 contains( CONFIG_FLAC_DECODER, yes ) {
     SOURCES += flac.c
+}
+
+contains( CONFIG_FLAC_ENCODER, yes ) {
+    SOURCES += flacenc.c
+}
+
+contains( CONFIG_FLASHSV_DECODER, yes ) {
+    SOURCES += flashsv.c
 }
 
 contains( CONFIG_FLIC_DECODER, yes ) {
@@ -128,6 +145,10 @@ contains( CONFIG_INDEO3_DECODER, yes ) {
 
 contains( CONFIG_INTERPLAY_VIDEO_DECODER, yes ) {
     SOURCES += interplayvideo.c
+}
+
+contains( CONFIG_KMVC_DECODER, yes ) {
+    SOURCES += kmvc.c
 }
 
 DO_LCL = $$CONFIG_MSZH_DECODER $$CONFIG_ZLIB_DECODER $$CONFIG_ZLIB_ENCODER
@@ -198,6 +219,11 @@ contains( CONFIG_SHORTEN_DECODER, yes ) {
     SOURCES += shorten.c
 }
 
+DO_SMACKER = $$CONFIG_SMACKER_DECODER $$CONFIG_SMACKAUD_DECODER
+contains( DO_SMACKER, yes ) {
+    SOURCES += smacker.c
+}
+
 contains( CONFIG_SMC_DECODER, yes ) {
     SOURCES += smc.c
 }
@@ -229,6 +255,10 @@ contains( CONFIG_TRUESPEECH_DECODER, yes ) {
     SOURCES += truespeech.c
 }
 
+contains( CONFIG_TTA_DECODER, yes ) {
+    SOURCES += tta.c
+}
+
 contains( CONFIG_TSCC_DECODER, yes ) {
     SOURCES += tscc.c
 }
@@ -237,13 +267,17 @@ contains( CONFIG_CSCD_DECODER, yes) {
     SOURCES += cscd.c
 }
 
+contains( CONFIG_NUV_DECODER, yes) {
+    SOURCES += nuv.c rtjpeg.c
+}
+
 contains( CONFIG_ULTI_DECODER, yes ) {
     SOURCES += ulti.c
 }
 
-DO_VC9 = $$CONFIG_VC9_DECODER $$CONFIG_WMV3_DECODER 
-contains( DO_VC9, yes ) {
-    SOURCES += vc9.c
+DO_VC1 = $$CONFIG_VC1_DECODER $$CONFIG_WMV3_DECODER 
+contains( DO_VC1, yes ) {
+    SOURCES += vc1.c vc1dsp.c
 }
 
 DO_VCR1 = $$CONFIG_VCR1_DECODER $$CONFIG_VCR1_ENCODER
@@ -293,6 +327,14 @@ contains( CONFIG_XL_DECODER, yes ) {
 
 contains( CONFIG_BMP_DECODER, yes ) {
     SOURCES += bmp.c
+}
+
+contains( CONFIG_MMVIDEO_DECODER, yes ) {
+    SOURCES += mmvideo.c
+}
+
+contains( CONFIG_ZMBV_DECODER, yes ) {
+    SOURCES += zmbv.c
 }
 
 contains( HAVE_PTHREADS, yes ) {
@@ -352,7 +394,7 @@ contains( CONFIG_FAAC, yes ) {
 }
 
 contains( CONFIG_XVID, yes ) {
-    SOURCES += xvidff.c
+    SOURCES += xvidff.c xvid_rc.c
     LIBS += -lxvidcore
 }
 
@@ -365,10 +407,6 @@ contains( CONFIG_LIBOGG, yes ) {
     contains( CONFIG_LIBVORBIS, yes ) {
         SOURCES += oggvorbis.c
         LIBS += -lvorbisenc -lvorbis
-    }
-    contains( CONFIG_LIBTHEORA, yes ) {
-        SOURCES += oggtheora.c
-        LIBS += -ltheora
     }
     LIBS += -logg
 }
@@ -387,7 +425,9 @@ contains( TARGET_MMX, yes ) {
     SOURCES += i386/fdct_mmx.c i386/cputest.c i386/dsputil_mmx.c
     SOURCES += i386/mpegvideo_mmx.c i386/idct_mmx.c i386/motion_est_mmx.c
     SOURCES += i386/simple_idct_mmx.c i386/fft_sse.c i386/vp3dsp_mmx.c
-    SOURCES += i386/vp3dsp_sse2.c i386/idct_mmx_xvid.c
+    SOURCES += i386/vp3dsp_sse2.c i386/idct_mmx_xvid.c i386/fft_3dn.c
+    SOURCES += i386/fft_3dn2.c #i386/snowdsp_mmx.c
+    SOURCES += i386/cavsdsp_mmx.c
 #    contains( TARGET_BUILTIN_VECTOR, yes ) {
 #        QMAKE_CFLAGS_RELEASE += -msse
 #        QMAKE_CFLAGS_DEBUG += -msse
@@ -406,6 +446,7 @@ contains( HAVE_MLIB, yes ) {
 contains( TARGET_ARCH_ALPHA, yes ) {
     SOURCES += alpha/dsputil_alpha.c alpha/mpegvideo_alpha.c 
     SOURCES += alpha/motion_est_alpha.c alpha/dsputil_alpha_asm.S
+    SOURCES += alpha/simple_idct_alpha.c alpha/motion_est_mvi_asm.S
     QMAKE_CFLAGS_RELEASE += -fforce-addr -freduce-all-givs
 }
 
@@ -416,7 +457,8 @@ contains( TARGET_ARCH_POWERPC, yes ) {
 contains( TARGET_ALTIVEC, yes ) {
     SOURCES += ppc/dsputil_altivec.c ppc/mpegvideo_altivec.c ppc/idct_altivec.c
     SOURCES += ppc/gmc_altivec.c ppc/fdct_altivec.c ppc/fft_altivec.c
-    SOURCES += ppc/dsputil_h264_altivec.c
+    SOURCES += ppc/h264_altivec.c ppc/snow_altivec.c ppc/vc1dsp_altivec.c
+    SOURCES += ppc/float_altivec.c
   macx {
     QMAKE_CFLAGS_RELEASE += -faltivec
     QMAKE_CFLAGS_DEBUG   += -faltivec
@@ -431,4 +473,8 @@ macx {
     QMAKE_LFLAGS_SHLIB += -single_module
     QMAKE_LFLAGS_SHLIB += -seg1addr 0xC3000000
     QMAKE_LFLAGS_SHLIB += -read_only_relocs warning
+}
+
+contains( TARGET_ARCH_SPARC, yes ) {
+    SOURCES+=sparc/dsputil_vis.c
 }

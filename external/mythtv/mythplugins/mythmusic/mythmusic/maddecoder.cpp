@@ -112,7 +112,7 @@ bool MadDecoder::initialize()
 
     if (output())
     {
-        output()->Reconfigure(16, channels, freq);
+        output()->Reconfigure(16, channels, freq, false /*AC3/DTS passthru*/);
         output()->SetSourceBitrate(bitrate);
     }
 
@@ -476,7 +476,7 @@ enum mad_flow MadDecoder::madOutput()
 
     if (output())
     {
-        output()->Reconfigure(16, channels, freq);
+        output()->Reconfigure(16, channels, freq, false /*AC3/DTS passthru*/);
         output()->SetSourceBitrate(bitrate);
     }
 

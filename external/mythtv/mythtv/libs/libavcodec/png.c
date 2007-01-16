@@ -346,7 +346,7 @@ static void convert_from_rgba32(uint8_t *dst, const uint8_t *src, int width)
 
     d = dst;
     for(j = 0; j < width; j++) {
-        v = ((uint32_t *)src)[j];
+        v = ((const uint32_t *)src)[j];
         d[0] = v >> 16;
         d[1] = v >> 8;
         d[2] = v;
@@ -507,7 +507,7 @@ static int decode_frame(AVCodecContext *avctx,
         tag32 = get32(&s->bytestream);
         tag = bswap_32(tag32);
 #ifdef DEBUG
-        printf("png: tag=%c%c%c%c length=%u\n",
+        av_log(avctx, AV_LOG_DEBUG, "png: tag=%c%c%c%c length=%u\n",
                (tag & 0xff),
                ((tag >> 8) & 0xff),
                ((tag >> 16) & 0xff),
@@ -531,7 +531,7 @@ static int decode_frame(AVCodecContext *avctx,
             crc = get32(&s->bytestream);
             s->state |= PNG_IHDR;
 #ifdef DEBUG
-            printf("width=%d height=%d depth=%d color_type=%d compression_type=%d filter_type=%d interlace_type=%d\n",
+            av_log(avctx, AV_LOG_DEBUG, "width=%d height=%d depth=%d color_type=%d compression_type=%d filter_type=%d interlace_type=%d\n",
                    s->width, s->height, s->bit_depth, s->color_type,
                    s->compression_type, s->filter_type, s->interlace_type);
 #endif
@@ -589,7 +589,7 @@ static int decode_frame(AVCodecContext *avctx,
                     s->crow_size = s->pass_row_size + 1;
                 }
 #ifdef DEBUG
-                printf("row_size=%d crow_size =%d\n",
+                av_log(avctx, AV_LOG_DEBUG, "row_size=%d crow_size =%d\n",
                        s->row_size, s->crow_size);
 #endif
                 s->image_buf = p->data[0];

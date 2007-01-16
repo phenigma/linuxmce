@@ -1,158 +1,239 @@
 // -*- Mode: c++ -*-
 
+#include <algorithm>
+#include <set>
+using namespace std;
+
+#include <qdeepcopy.h>
 #include <qregexp.h>
+#include <stdint.h>
 
 #include "channelutil.h"
 #include "mythdbcon.h"
 #include "dvbtables.h"
+#include "tv.h" // for CHANNEL_DIRECTION
 
-static bool insert_dtv_multiplex(int db_source_id, QString sistandard,
-                                 uint frequency,   QString modulation,
-                                 // DVB specific
-                                 int transport_id,      int network_id,
-                                 bool set_odfm_info,
-                                 int symbol_rate,       char bandwidth,
-                                 char polarity,         char inversion,
-                                 char trans_mode,
-                                 QString inner_FEC,     QString constellation,
-                                 char hierarchy,        QString hp_code_rate,
-                                 QString lp_code_rate,  QString guard_interval)
+#define LOC QString("ChanUtil: ")
+#define LOC_ERR QString("ChanUtil, Error: ")
+
+DBChannel::DBChannel(const DBChannel &other)
 {
-    MSqlQuery query(MSqlQuery::InitCon());
-    // If transport not present add it, and move on to the next
-    query.prepare(
-        "INSERT INTO dtv_multiplex "
-        "  (transportid, networkid, frequency, symbolrate, "
-        "   fec, polarity, modulation, constellation, bandwidth, "
-        "   hierarchy, hp_code_rate, lp_code_rate, guard_interval, "
-        "   transmission_mode, inversion, sourceid, sistandard) "
-        "VALUES "
-        "  (:TRANSPORTID, :NETWORKID, :FREQUENCY, :SYMBOLRATE, "
-        "   :FEC, :POLARITY, :MODULATION, :CONSTELLATION, :BANDWIDTH, "
-        "   :HIERARCHY, :HP_CODE_RATE, :LP_CODE_RATE, :GUARD_INTERVAL, "
-        "   :TRANS_MODE, :INVERSION, :SOURCEID, :SISTANDARD);");
+    (*this) = other;
+}
 
-    query.bindValue(":SOURCEID",       db_source_id);
-    if (transport_id > 0)
-        query.bindValue(":TRANSPORTID",transport_id);
-    if (network_id > 0)
-        query.bindValue(":NETWORKID",  network_id);
-    query.bindValue(":FREQUENCY",      frequency);
-    if (modulation != QString::null)
-        query.bindValue(":MODULATION", modulation);
-    query.bindValue(":SISTANDARD",     sistandard);
+DBChannel& DBChannel::operator=(const DBChannel &other)
+{
+    channum    = QDeepCopy<QString>(other.channum);
+    callsign   = QDeepCopy<QString>(other.callsign);
+    chanid     = other.chanid;
+    major_chan = other.major_chan;
+    minor_chan = other.minor_chan;
+    favorite   = other.favorite;
+    visible    = other.visible;
+    name       = QDeepCopy<QString>(other.name);
+    icon       = QDeepCopy<QString>(other.icon);
 
-    if (symbol_rate >= 0)
-        query.bindValue(":SYMBOLRATE", symbol_rate);
-    if (polarity >= 0)
-        query.bindValue(":POLARITY",   QString("%1").arg(polarity));
-    if (inner_FEC != QString::null)
-        query.bindValue(":FEC",        inner_FEC);
+    return *this;
+}
 
-    if (set_odfm_info)
+static uint get_dtv_multiplex(int  db_source_id,  QString sistandard,
+                              uint frequency,
+                              // DVB specific
+                              int  transport_id,  int     network_id)
+{
+    QString qstr = 
+        "SELECT mplexid "
+        "FROM dtv_multiplex "
+        "WHERE sourceid     = :SOURCEID   "
+        "  AND sistandard   = :SISTANDARD ";
+
+    if (sistandard.lower() != "dvb")
+        qstr += "AND frequency    = :FREQUENCY   ";
+    else
     {
-        query.bindValue(":INVERSION",      QString("%1").arg(inversion));
-        query.bindValue(":BANDWIDTH",      QString("%1").arg(bandwidth));
-        query.bindValue(":HP_CODE_RATE",   hp_code_rate);
-        query.bindValue(":LP_CODE_RATE",   lp_code_rate);
-        query.bindValue(":CONSTELLATION",  constellation);
-        query.bindValue(":TRANS_MODE",     QString("%1").arg(trans_mode));
-        query.bindValue(":GUARD_INTERVAL", guard_interval);
-        query.bindValue(":HIERARCHY",      QString("%1").arg(hierarchy));
+        qstr += "AND transportid  = :TRANSPORTID ";
+        qstr += "AND networkid    = :NETWORKID   ";
+    }
+
+    MSqlQuery query(MSqlQuery::InitCon());
+    query.prepare(qstr);
+
+    query.bindValue(":SOURCEID",          db_source_id);
+    query.bindValue(":SISTANDARD",        sistandard);
+
+    if (sistandard.lower() != "dvb")
+        query.bindValue(":FREQUENCY",     frequency);
+    else
+    {
+        query.bindValue(":TRANSPORTID",   transport_id);
+        query.bindValue(":NETWORKID",     network_id);
     }
 
     if (!query.exec() || !query.isActive())
     {
-        MythContext::DBError("Adding transport to Database.", query);
-        return false;
+        MythContext::DBError("get_dtv_multiplex", query);
+        return 0;
     }
 
-    return true;
+    if (query.next())
+        return query.value(0).toUInt();
+
+    return 0;
 }
 
-static int get_max_mplex_id()
+static uint insert_dtv_multiplex(
+    int         db_source_id,  QString     sistandard,
+    uint        frequency,     QString     modulation,
+    // DVB specific
+    int         transport_id,  int         network_id,
+    int         symbol_rate,   signed char bandwidth,
+    signed char polarity,      signed char inversion,
+    signed char trans_mode,
+    QString     inner_FEC,     QString      constellation,
+    signed char hierarchy,     QString      hp_code_rate,
+    QString     lp_code_rate,  QString      guard_interval)
 {
-    // Query for mplexid of new multiplex
     MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare("SELECT max(mplexid) FROM dtv_multiplex;");
 
-    if (!query.exec() || !query.isActive() || !query.size())
+    VERBOSE(VB_SIPARSER, QString("insert_dtv_multiplex(%1, %2, %3, %4...)")
+            .arg(db_source_id).arg(sistandard)
+            .arg(frequency).arg(modulation));
+
+    // If transport is already present, skip insert
+    int mplex = get_dtv_multiplex(
+        db_source_id,  sistandard,    frequency,
+        // DVB specific
+        transport_id,  network_id);
+
+    QString updateStr =
+        "UPDATE dtv_multiplex "
+        "SET sourceid         = :SOURCEID,      sistandard   = :SISTANDARD, "
+        "    frequency        = :FREQUENCY,     modulation   = :MODULATION, "
+        "    transportid      = :TRANSPORTID,   networkid    = :NETWORKID, "
+        "    symbolrate       = :SYMBOLRATE,    bandwidth    = :BANDWIDTH, "
+        "    polarity         = :POLARITY,      inversion    = :INVERSION, "
+        "    transmission_mode= :TRANS_MODE,    fec          = :INNER_FEC, "
+        "    constellation    = :CONSTELLATION, hierarchy    = :HIERARCHY, "
+        "    hp_code_rate     = :HP_CODE_RATE,  lp_code_rate = :LP_CODE_RATE, "
+        "    guard_interval   = :GUARD_INTERVAL "
+        "WHERE sourceid    = :SOURCEID     AND "
+        "      sistandard  = :SISTANDARD   AND "
+        "      transportid = :TRANSPORTID  AND "
+        "      networkid   = :NETWORKID ";
+
+    if (sistandard.lower() != "dvb")
+        updateStr += " AND frequency = :FREQUENCY ";
+
+    QString insertStr =
+        "INSERT INTO dtv_multiplex "
+        "  (sourceid,        sistandard,        frequency,  "
+        "   modulation,      transportid,       networkid,  "
+        "   symbolrate,      bandwidth,         polarity,   "
+        "   inversion,       transmission_mode,             "
+        "   fec,             constellation,     hierarchy,  "
+        "   hp_code_rate,    lp_code_rate,      guard_interval) "
+        "VALUES "
+        "  (:SOURCEID,       :SISTANDARD,       :FREQUENCY, "
+        "   :MODULATION,     :TRANSPORTID,      :NETWORKID, "
+        "   :SYMBOLRATE,     :BANDWIDTH,        :POLARITY,  "
+        "   :INVERSION,      :TRANS_MODE,                   "
+        "   :INNER_FEC,      :CONSTELLATION,    :HIERARCHY, "
+        "   :HP_CODE_RATE,   :LP_CODE_RATE,     :GUARD_INTERVAL);";
+
+    query.prepare((mplex) ? updateStr : insertStr);
+
+    VERBOSE(VB_SIPARSER, "insert_dtv_multiplex -- "
+            <<((mplex) ? "update" : "insert") << " " << mplex);
+
+    query.bindValue(":SOURCEID",          db_source_id);
+    query.bindValue(":SISTANDARD",        sistandard);
+    query.bindValue(":FREQUENCY",         frequency);
+
+    if (!modulation.isNull())
+        query.bindValue(":MODULATION",    modulation);
+    if (transport_id > 0)
+        query.bindValue(":TRANSPORTID",   transport_id);
+    if (network_id > 0)
+        query.bindValue(":NETWORKID",     network_id);
+
+    if (symbol_rate >= 0)
+        query.bindValue(":SYMBOLRATE",    symbol_rate);
+    if (bandwidth >= 0)
+        query.bindValue(":BANDWIDTH",     QString("%1").arg((char)bandwidth));
+    if (polarity >= 0)
+        query.bindValue(":POLARITY",      QString("%1").arg((char)polarity));
+    if (inversion >= 0)
+        query.bindValue(":INVERSION",     QString("%1").arg((char)inversion));
+    if (trans_mode >= 0)
+        query.bindValue(":TRANS_MODE",    QString("%1").arg((char)trans_mode));
+
+    if (!inner_FEC.isNull())
+        query.bindValue(":INNER_FEC",     inner_FEC);
+    if (!constellation.isNull())
+        query.bindValue(":CONSTELLATION", constellation);
+    if (hierarchy >= 0)
+        query.bindValue(":HIERARCHY",     QString("%1").arg((char)hierarchy));
+    if (!hp_code_rate.isNull())
+        query.bindValue(":HP_CODE_RATE",  hp_code_rate);
+    if (!lp_code_rate.isNull())
+        query.bindValue(":LP_CODE_RATE",  lp_code_rate);
+    if (!guard_interval.isNull())
+        query.bindValue(":GUARD_INTERVAL",guard_interval);
+
+    if (!query.exec() || !query.isActive())
     {
-        MythContext::DBError("Getting multiplex ID of new Transport", query);
-        return -1;
+        MythContext::DBError("Adding transport to Database.", query);
+        return 0;
     }
 
-    query.next();
-    return query.value(0).toInt();
+    if (mplex)
+        return mplex;
+
+    mplex = get_dtv_multiplex(
+        db_source_id,  sistandard,    frequency,
+        // DVB specific
+        transport_id,  network_id);
+
+    VERBOSE(VB_SIPARSER, QString("insert_dtv_multiplex -- ") +
+            QString("inserted %1").arg(mplex));
+
+    return mplex;
 }
 
-int ChannelUtil::CreateMultiplex(int sourceid,   const QString &sistandard,
-                                 uint frequency, const QString &modulation)
-{
-    insert_dtv_multiplex(
-        sourceid,                   sistandard,
-        frequency,                  modulation,
-        -1,                         -1,
-        false,
-        -1,                         -1,
-        -1,                         -1,
-        -1,
-        QString::null, QString::null,
-        -1,            QString::null,
-        QString::null, QString::null);
-    
-    return get_max_mplex_id();
-}
-
-int ChannelUtil::CreateMultiplex(int sourceid, const QString &sistandard,
-                                 uint freq,    const QString &modulation,
-                                 // DVB specific
-                                 int transport_id,      int network_id,
-                                 bool set_odfm_info,
-                                 int symbol_rate,       signed char bandwidth,
-                                 signed char polarity,  signed char inversion,
-                                 signed char trans_mode,
-                                 QString inner_FEC,     QString constellation,
-                                 signed char hierarchy, QString hp_code_rate,
-                                 QString lp_code_rate,  QString guard_interval)
-{
-    insert_dtv_multiplex(sourceid,           sistandard,
-                         freq,               modulation,
-                         // DVB specific
-                         transport_id,       network_id,
-                         set_odfm_info,
-                         symbol_rate,        bandwidth,
-                         polarity,           inversion,
-                         trans_mode,
-                         inner_FEC,          constellation,
-                         hierarchy,          hp_code_rate,
-                         lp_code_rate,       guard_interval);
-
-    return get_max_mplex_id();
-}
-
-void HandleTransportDescriptor(vector<uint> &muxes, const MPEGDescriptor &desc,
-                               uint sourceid, uint tsid, uint netid)
+void handle_transport_desc(vector<uint> &muxes, const MPEGDescriptor &desc,
+                           uint sourceid, uint tsid, uint netid)
 {
     uint tag = desc.DescriptorTag();
 
     if (tag == DescriptorID::terrestrial_delivery_system)
     {
         const TerrestrialDeliverySystemDescriptor cd(desc);
-        int mux = ChannelUtil::CreateMultiplex(
+        uint64_t freq = cd.FrequencyHz();
+
+        // Use the frequency we already have for this mplex
+        // as it may be one of the other_frequencies for this mplex
+        int mux = ChannelUtil::GetMplexID(sourceid, tsid, netid);
+        if (mux > 0)
+        {
+            QString dummy_mod;
+            uint dummy_tsid, dummy_netid;
+            ChannelUtil::GetTuningParams(mux, dummy_mod, freq,
+                                         dummy_tsid, dummy_netid);
+        }
+
+        mux = ChannelUtil::CreateMultiplex(
             sourceid,            "dvb",
-            cd.FrequencyHz(),     QString::null,
+            freq,                 QString::null,
             // DVB specific
             tsid,                 netid,
-            true,
             -1,                   QChar(cd.BandwidthString()[0]),
-            -1,                   -1,
+            -1,                   'a',
             QChar(cd.TransmissionModeString()[0]),
-            QString::null,        cd.ConstellationString(),
+            QString::null,                  cd.ConstellationString(),
             QChar(cd.HierarchyString()[0]), cd.CodeRateHPString(),
-            cd.CodeRateLPString(),cd.GuardIntervalString());
+            cd.CodeRateLPString(),          cd.GuardIntervalString());
 
-        if (mux >= 0)
+        if (mux)
             muxes.push_back(mux);
 
         /* unused
@@ -161,26 +242,25 @@ void HandleTransportDescriptor(vector<uint> &muxes, const MPEGDescriptor &desc,
            IsMPE_FECUsed()
            NativeInterleaver()
            Alpha()
-           OtherFrequencyInUse()
         */
     }
     else if (tag == DescriptorID::satellite_delivery_system)
     {
         const SatelliteDeliverySystemDescriptor cd(desc);
-        int mux = ChannelUtil::CreateMultiplex(
+
+        uint mux = ChannelUtil::CreateMultiplex(
             sourceid,             "dvb",
             cd.FrequencyHz(),     cd.ModulationString(),
             // DVB specific
             tsid,                 netid,
-            false,
             cd.SymbolRateHz(),    -1,
-            QChar(cd.PolarizationString()[0]), -1,
+            QChar(cd.PolarizationString()[0]), 'a',
             -1,
             cd.FECInnerString(),  QString::null,
             -1,                   QString::null,
             QString::null,        QString::null);
 
-        if (mux >= 0)
+        if (mux)
             muxes.push_back(mux);
 
         /* unused
@@ -190,12 +270,12 @@ void HandleTransportDescriptor(vector<uint> &muxes, const MPEGDescriptor &desc,
     else if (tag == DescriptorID::cable_delivery_system)
     {
         const CableDeliverySystemDescriptor cd(desc);
-        int mux = ChannelUtil::CreateMultiplex(
+
+        uint mux = ChannelUtil::CreateMultiplex(
             sourceid,             "dvb",
             cd.FrequencyHz(),     cd.ModulationString(),
             // DVB specific
             tsid,                 netid,
-            false,
             cd.SymbolRateHz(),    -1,
             -1,                   -1,
             -1,
@@ -203,32 +283,50 @@ void HandleTransportDescriptor(vector<uint> &muxes, const MPEGDescriptor &desc,
             -1,                   QString::null,
             QString::null,        QString::null);
 
-        if (mux >= 0)
+        if (mux)
             muxes.push_back(mux);
     }
-    else if (tag == DescriptorID::frequency_list)
-    {
-        const FrequencyListDescriptor cd(desc);
-        //uint ct = cd.CodingType(); //nd,sat,cable,terra
-        for (uint i = 0; i<cd.FrequencyCount(); i++)
-        {
-            int mux = ChannelUtil::CreateMultiplex(
-                sourceid,             "dvb",
-                cd.FrequencyHz(i),    QString::null/*modulation*/,
-                // DVB specific
-                tsid,                 netid,
-                false,
-                -1,                   -1,
-                -1,                   -1,
-                -1,
-                QString::null,        QString::null,
-                -1,                   QString::null,
-                QString::null,        QString::null);
+}
 
-            if (mux >= 0)
-                muxes.push_back(mux);
-        }
-    }
+uint ChannelUtil::CreateMultiplex(int  sourceid,     QString sistandard,
+                                  uint frequency,    QString modulation,
+                                  int  transport_id, int     network_id)
+{
+    return CreateMultiplex(
+        sourceid,           sistandard,
+        frequency,          modulation,
+        transport_id,       network_id,
+        -1,                 -1,
+        -1,                 -1,
+        -1,
+        QString::null,      QString::null,
+        -1,                 QString::null,
+        QString::null,      QString::null);
+}
+
+uint ChannelUtil::CreateMultiplex(
+    int         sourceid,     QString     sistandard,
+    uint        freq,         QString     modulation,
+    // DVB specific
+    int         transport_id, int         network_id,
+    int         symbol_rate,  signed char bandwidth,
+    signed char polarity,     signed char inversion,
+    signed char trans_mode,
+    QString     inner_FEC,    QString     constellation,
+    signed char hierarchy,    QString     hp_code_rate,
+    QString     lp_code_rate, QString     guard_interval)
+{
+    return insert_dtv_multiplex(
+        sourceid,           sistandard,
+        freq,               modulation,
+        // DVB specific
+        transport_id,       network_id,
+        symbol_rate,        bandwidth,
+        polarity,           inversion,
+        trans_mode,
+        inner_FEC,          constellation,
+        hierarchy,          hp_code_rate,
+        lp_code_rate,       guard_interval);
 }
 
 /** \fn ChannelUtil::CreateMultiplexes(int, const NetworkInformationTable*)
@@ -253,40 +351,70 @@ vector<uint> ChannelUtil::CreateMultiplexes(
         for (uint j = 0; j < list.size(); ++j)
         {
             const MPEGDescriptor desc(list[j]);
-            HandleTransportDescriptor(muxes, desc, sourceid, tsid, netid);
+            handle_transport_desc(muxes, desc, sourceid, tsid, netid);
         }
     }
     return muxes;
 }
 
-int ChannelUtil::GetMplexID(int sourceid, uint freq)
+uint ChannelUtil::GetMplexID(uint sourceid, const QString &channum)
 {
     MSqlQuery query(MSqlQuery::InitCon());
     /* See if mplexid is already in the database */
-    QString theQuery = QString("SELECT mplexid FROM dtv_multiplex "
-                               "WHERE sourceid = %1 AND frequency = %2")
-        .arg(sourceid).arg(freq);
+    query.prepare(
+        "SELECT mplexid "
+        "FROM channel "
+        "WHERE sourceid  = :SOURCEID  AND "
+        "      channum   = :CHANNUM");
 
-    query.prepare(theQuery);
+    query.bindValue(":SOURCEID",  sourceid);
+    query.bindValue(":CHANNUM",   channum);
 
     if (!query.exec() || !query.isActive())
-        MythContext::DBError("Check for existing transport", query);
+        MythContext::DBError("GetMplexID 0", query);
+    else if (query.next())
+        return query.value(0).toInt();
 
-    if (query.size() <= 0)
-        return -1;
-
-    query.next();
-    return query.value(0).toInt();
+    return 0;
 }
 
-int ChannelUtil::GetMplexID(int sourceid, uint frequency,
-                            int transport_id, int network_id)
+int ChannelUtil::GetMplexID(uint sourceid, uint frequency)
+{
+    MSqlQuery query(MSqlQuery::InitCon());
+    /* See if mplexid is already in the database */
+    query.prepare(
+        "SELECT mplexid "
+        "FROM dtv_multiplex "
+        "WHERE sourceid  = :SOURCEID  AND "
+        "      frequency = :FREQUENCY");
+
+    query.bindValue(":SOURCEID",  sourceid);
+    query.bindValue(":FREQUENCY", frequency);
+
+    if (!query.exec() || !query.isActive())
+    {
+        MythContext::DBError("GetMplexID 1", query);
+        return -1;
+    }
+
+    if (query.next())
+        return query.value(0).toInt();
+
+    return -1;
+}
+
+int ChannelUtil::GetMplexID(uint sourceid,     uint frequency,
+                            uint transport_id, uint network_id)
 {
     MSqlQuery query(MSqlQuery::InitCon());
     // See if transport already in database
-    query.prepare("SELECT mplexid FROM dtv_multiplex "
-                  "WHERE networkid=:NETWORKID AND transportid=:TRANSPORTID AND "
-                  "      frequency=:FREQUENCY AND sourceid=:SOURCEID");
+    query.prepare(
+        "SELECT mplexid "
+        "FROM dtv_multiplex "
+        "WHERE networkid   = :NETWORKID   AND "
+        "      transportid = :TRANSPORTID AND "
+        "      frequency   = :FREQUENCY   AND "
+        "      sourceid    = :SOURCEID");
 
     query.bindValue(":SOURCEID",    sourceid);
     query.bindValue(":NETWORKID",   network_id);
@@ -295,11 +423,41 @@ int ChannelUtil::GetMplexID(int sourceid, uint frequency,
     
     if (!query.exec() || !query.isActive())
     {
-        MythContext::DBError("Selecting transports", query);
+        MythContext::DBError("GetMplexID 2", query);
         return -1;
     }
-    if (query.size())
+
+    if (query.next())
         return query.value(0).toInt();
+
+    return -1;
+}
+
+int ChannelUtil::GetMplexID(uint sourceid,
+                            uint transport_id, uint network_id)
+{
+    MSqlQuery query(MSqlQuery::InitCon());
+    // See if transport already in database
+    query.prepare(
+        "SELECT mplexid "
+        "FROM dtv_multiplex "
+        "WHERE networkid   = :NETWORKID   AND "
+        "      transportid = :TRANSPORTID AND "
+        "      sourceid    = :SOURCEID");
+
+    query.bindValue(":SOURCEID",    sourceid);
+    query.bindValue(":NETWORKID",   network_id);
+    query.bindValue(":TRANSPORTID", transport_id);
+
+    if (!query.exec() || !query.isActive())
+    {
+        MythContext::DBError("GetMplexID 3", query);
+        return -1;
+    }
+
+    if (query.next())
+        return query.value(0).toInt();
+
     return -1;
 }
 
@@ -431,29 +589,37 @@ int ChannelUtil::GetBetterMplexID(int current_mplexid,
     return -1;
 }
 
-int ChannelUtil::GetTuningParams(int mplexid, QString &modulation)
+bool ChannelUtil::GetTuningParams(uint      mplexid,
+                                  QString  &modulation,
+                                  uint64_t &frequency,
+                                  uint     &dvb_transportid,
+                                  uint     &dvb_networkid)
 {
-    if (mplexid <= 0)
-        return -1;
+    if (!mplexid || (mplexid == 32767)) /* 32767 deals with old lineups */
+        return false;
 
     MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare(QString("SELECT frequency, modulation "
-                          "FROM dtv_multiplex "
-                          "WHERE mplexid=%1").arg(mplexid));
+    query.prepare(
+        "SELECT transportid, networkid, frequency, modulation "
+        "FROM dtv_multiplex "
+        "WHERE mplexid = :MPLEXID");
+    query.bindValue(":MPLEXID", mplexid);
 
     if (!query.exec() || !query.isActive())
     {
         MythContext::DBError("GetTuningParams failed ", query);
-        return -1;
+        return false;
     }
 
-    if (!query.size())
-        return -1;
+    if (!query.next())
+        return false;
 
-    query.next();
+    dvb_transportid = query.value(0).toUInt();
+    dvb_networkid   = query.value(1).toUInt();
+    frequency       = (uint64_t) query.value(2).toDouble(); // Qt 3.1 compat
+    modulation      = query.value(3).toString();
 
-    modulation = query.value(1).toString();
-    return query.value(0).toInt(); 
+    return true;
 }
 
 QString ChannelUtil::GetChannelStringField(int chan_id, const QString &field)
@@ -515,6 +681,7 @@ int ChannelUtil::GetSourceID(int db_mplexid)
 
 /** \fn ChannelUtil::GetInputName(int)
  *  \brief Returns input name for a card input
+ *  NOTE: This is BROKEN, it does not specify which card the input is on.
  */
 QString ChannelUtil::GetInputName(int source_id)
 {
@@ -534,86 +701,259 @@ QString ChannelUtil::GetInputName(int source_id)
     return inputname;
 }
 
+int ChannelUtil::GetInputID(int source_id, int card_id)
+{
+    int input_id = -1;
+
+    MSqlQuery query(MSqlQuery::InitCon());
+    query.prepare("SELECT cardinputid"
+                  " FROM cardinput"
+                  " WHERE sourceid = :SOURCEID"
+                  " AND cardid = :CARDID");
+    query.bindValue(":SOURCEID", source_id);
+    query.bindValue(":CARDID", card_id);
+
+    if (query.exec() && query.isActive() && query.next())
+        input_id = query.value(0).toInt();
+
+    return input_id;
+}
+
+QString ChannelUtil::GetChannelValueStr(const QString &channel_field,
+                                        uint           cardid,
+                                        const QString &input,
+                                        const QString &channum)
+{
+    QString retval = QString::null;
+
+    MSqlQuery query(MSqlQuery::InitCon());
+
+    query.prepare(
+        QString(
+            "SELECT channel.%1 "
+            "FROM channel, capturecard, cardinput "
+            "WHERE channel.channum      = :CHANNUM           AND "
+            "      channel.sourceid     = cardinput.sourceid AND "
+            "      cardinput.inputname  = :INPUT             AND "
+            "      cardinput.cardid     = capturecard.cardid AND "
+            "      capturecard.cardid   = :CARDID ")
+        .arg(channel_field));
+
+    query.bindValue(":CARDID",   cardid);
+    query.bindValue(":INPUT",    input);
+    query.bindValue(":CHANNUM",  channum);
+
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("getchannelvalue", query);
+    else if (query.next())
+        retval = query.value(0).toString();
+
+    return retval;
+}
+
+QString ChannelUtil::GetChannelValueStr(const QString &channel_field,
+                                        uint           sourceid,
+                                        const QString &channum)
+{
+    QString retval = QString::null;
+
+    MSqlQuery query(MSqlQuery::InitCon());
+
+    query.prepare(
+        QString(
+            "SELECT channel.%1 "
+            "FROM channel "
+            "WHERE channum  = :CHANNUM AND "
+            "      sourceid = :SOURCEID")
+        .arg(channel_field));
+
+    query.bindValue(":SOURCEID", sourceid);
+    query.bindValue(":CHANNUM",  channum);
+
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("getchannelvalue", query);
+    else if (query.next())
+        retval = query.value(0).toString();
+
+    return retval;
+}
+
+int ChannelUtil::GetChannelValueInt(const QString &channel_field,
+                                    uint           cardid,
+                                    const QString &input,
+                                    const QString &channum)
+{
+    QString val = GetChannelValueStr(channel_field, cardid, input, channum);
+
+    int retval = 0;
+    if (!val.isEmpty())
+        retval = val.toInt();
+
+    return (retval) ? retval : -1;
+}
+
+int ChannelUtil::GetChannelValueInt(const QString &channel_field,
+                                    uint           sourceid,
+                                    const QString &channum)
+{
+    QString val = GetChannelValueStr(channel_field, sourceid, channum);
+
+    int retval = 0;
+    if (!val.isEmpty())
+        retval = val.toInt();
+
+    return (retval) ? retval : -1;
+}
+
+bool ChannelUtil::IsOnSameMultiplex(uint srcid,
+                                    const QString &new_channum,
+                                    const QString &old_channum)
+{
+    if (new_channum.isEmpty() || old_channum.isEmpty())
+        return false;
+
+    if (new_channum == old_channum)
+        return true;
+
+    uint old_mplexid = GetMplexID(srcid, old_channum);
+    if (!old_mplexid)
+        return false;
+
+    uint new_mplexid = GetMplexID(srcid, new_channum);
+    if (!new_mplexid)
+        return false;
+
+    return old_mplexid == new_mplexid;
+}
+
+bool ChannelUtil::SetChannelValue(const QString &field_name,
+                                  QString        value,
+                                  uint           sourceid,
+                                  const QString &channum)
+{
+    MSqlQuery query(MSqlQuery::InitCon());
+
+    query.prepare(
+        QString("UPDATE channel SET channel.%1=:VALUE "
+                "WHERE channel.channum  = :CHANNUM AND "
+                "      channel.sourceid = :SOURCEID").arg(field_name));
+
+    query.bindValue(":VALUE",    value);
+    query.bindValue(":CHANNUM",  channum);
+    query.bindValue(":SOURCEID", sourceid);
+
+    return query.exec();
+}
+
 int ChannelUtil::GetChanID(int mplexid,       int service_transport_id,
                            int major_channel, int minor_channel,
                            int program_number)
 {
-    // Currently we don't use the service transport id,
-    // but we should use it according to ATSC std 65.
-    (void) service_transport_id;
-    
     MSqlQuery query(MSqlQuery::InitCon());
 
-    // This works for transports inserted by a scan
-    query.prepare(QString("SELECT chanid FROM channel "
-                          "WHERE serviceID=%1 AND mplexid=%2")
-                  .arg(program_number).arg(mplexid));
-    
-    if (!query.exec() || !query.isActive())
-    {
-        MythContext::DBError("Selecting channel/dtv_multiplex 1", query);
-        return -1;
-    }
-    if (query.size())
-    {
-        query.next();
-        return query.value(0).toInt();
-    }
-
-    if (major_channel <= 0)
-        return -1;
-
     // find source id, so we can find manually inserted ATSC channels
-    query.prepare(QString("SELECT sourceid FROM dtv_multiplex "
-                          "WHERE mplexid=%2").arg(mplexid));
+    query.prepare("SELECT sourceid "
+                  "FROM dtv_multiplex "
+                  "WHERE mplexid = :MPLEXID");
+    query.bindValue(":MPLEXID", mplexid);
     if (!query.exec() || !query.isActive() || !query.size())
     {
         MythContext::DBError("Selecting channel/dtv_multiplex 2", query);
         return -1;
     }
-    query.next();
+    if (!query.next())
+        return -1;
+
     int source_id = query.value(0).toInt();
 
-    uint atsc_src_id = (major_channel << 8) | (minor_channel & 0xff);
-
-    // Find manually inserted/edited channels...
     QString qstr[] = 
     {
-        // find based on pcHDTV formatted major and minor channels
+        // find a proper ATSC channel
+        QString("SELECT chanid FROM channel,dtv_multiplex "
+                "WHERE channel.sourceid          = %1 AND "
+                "      atsc_major_chan           = %2 AND "
+                "      atsc_minor_chan           = %3 AND "
+                "      dtv_multiplex.transportid = %4 AND "
+                "      dtv_multiplex.mplexid     = %5 AND "
+                "      dtv_multiplex.sourceid    = channel.sourceid AND "
+                "      dtv_multiplex.mplexid     = channel.mplexid")
+        .arg(source_id).arg(major_channel).arg(minor_channel)
+        .arg(service_transport_id).arg(mplexid),
+
+        // Find manually inserted/edited channels in order of scariness.
+
+        // find renamed channel, where atsc is valid
+        QString("SELECT chanid FROM channel "
+                "WHERE sourceid=%1 AND "
+                "atsc_major_chan=%2 AND "
+                "atsc_minor_chan=%3")
+        .arg(source_id).arg(major_channel).arg(minor_channel),
+        // find based on mpeg program number and mplexid alone
+        QString("SELECT chanid FROM channel "
+                "WHERE sourceid=%1 AND serviceID=%1 AND mplexid=%2")
+        .arg(source_id).arg(program_number).arg(mplexid),
+        // find based on OLD pcHDTV formatted major and minor channels
         QString("SELECT chanid FROM channel "
                 "WHERE sourceid=%1 AND channum='%2_%3'")
         .arg(source_id).arg(major_channel).arg(minor_channel),
-        // find based on pcHDTV formatted major channel and program number
-        // really old format, still used in freq_id, but we don't check that.
+        // find based on OLD pcHDTV formatted major channel and program number
         QString("SELECT chanid FROM channel "
                 "WHERE sourceid=%1 AND channum='%2-%3'")
         .arg(source_id).arg(major_channel).arg(program_number),
-        // find based on DVB formatted major and minor channels
+        // find based on OLD DVB formatted major and minor channels
         QString("SELECT chanid FROM channel "
                 "WHERE sourceid=%1 AND channum='%2%3'")
         .arg(source_id).arg(major_channel).arg(minor_channel),
-        // find renamed channel, where atscsrcid is valid
-        QString("SELECT chanid FROM channel "
-                "WHERE sourceid=%1 AND atscsrcid=%2")
-        .arg(source_id).arg(atsc_src_id),
     };
 
-    for (uint i = 0; i < 4; i++)
+    for (uint i = 0; i < 6; i++)
     {
         query.prepare(qstr[i]);
         if (!query.exec() || !query.isActive())
-        {
             MythContext::DBError("Selecting channel/dtv_multiplex 3", query);
-            return -1;
-        }
-        if (query.size())
-        {
-            query.next();
+        if (query.next())
             return query.value(0).toInt();
-        }
     }
 
     return -1;
+}
+
+static uint get_max_chanid(uint sourceid)
+{
+    QString qstr = "SELECT MAX(chanid) FROM channel ";
+    qstr += (sourceid) ? "WHERE sourceid = :SOURCEID" : "";
+
+    MSqlQuery query(MSqlQuery::DDCon());
+    query.prepare(qstr);
+
+    if (sourceid)
+        query.bindValue(":SOURCEID", sourceid);
+
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("Getting chanid for new channel (2)", query);
+    else if (!query.next())
+        VERBOSE(VB_IMPORTANT, "Error getting chanid for new channel.");
+    else
+        return query.value(0).toUInt();
+
+    return 0;
+}
+
+static bool chanid_available(uint chanid)
+{
+    MSqlQuery query(MSqlQuery::DDCon());
+    query.prepare(
+        "SELECT chanid "
+        "FROM channel "
+        "WHERE chanid = :CHANID");
+    query.bindValue(":CHANID", chanid);
+
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("is_chan_id_available", query);
+    else if (query.size() == 0)
+        return true;
+
+    return false;
 }
 
 /** \fn ChannelUtil::CreateChanID(uint, const QString&)
@@ -622,51 +962,38 @@ int ChannelUtil::GetChanID(int mplexid,       int service_transport_id,
  */
 int ChannelUtil::CreateChanID(uint sourceid, const QString &chan_num)
 {
-    MSqlQuery query(MSqlQuery::DDCon());
-
-    uint desired_chanid = 0;
+    // first try to base it on the channel number for human readability
+    uint chanid = 0;
     int chansep = chan_num.find(QRegExp("\\D"));
     if (chansep > 0)
     {
-        desired_chanid =
+        chanid =
             sourceid * 1000 +
             chan_num.left(chansep).toInt() * 10 +
             chan_num.right(chan_num.length()-chansep-1).toInt();
     }
     else
     {
-        desired_chanid = sourceid * 1000 + chan_num.toInt();
+        chanid = sourceid * 1000 + chan_num.toInt();
     }
 
-    if (desired_chanid > sourceid * 1000)
-    {
-        query.prepare(
-            QString("SELECT chanid FROM channel "
-                    "WHERE chanid = '%1'").arg(desired_chanid));
-        if (!query.exec() || !query.isActive())
-        {
-            MythContext::DBError("Getting chanid for new channel (1)", query);
-            return -1;
-        }
-        if (query.size() == 0)
-            return desired_chanid;
-    }
+    if ((chanid > sourceid * 1000) && (chanid_available(chanid)))
+        return chanid;
 
-    query.prepare("SELECT MAX(chanid) FROM channel "
-                  "WHERE sourceid = :SOURCEID");
-    query.bindValue(":SOURCEID", sourceid);
-    if (!query.exec() || !query.isActive())
-    {
-        MythContext::DBError("Getting chanid for new channel (2)", query);
-        return -1;
-    }
-    if (!query.next())
-    {
-        VERBOSE(VB_IMPORTANT, "Error getting chanid for new channel.");
-        return -1;
-    }
-    uint max_db_val = query.value(0).toInt() + 1;    
-    return max(max_db_val, desired_chanid = sourceid * 1000 + 1);
+    // try to at least base it on the sourceid for human readability
+    chanid = max(get_max_chanid(sourceid) + 1, sourceid * 1000);
+    
+    if (chanid_available(chanid))
+        return chanid;
+
+    // just get a chanid we know should work
+    chanid = get_max_chanid(0) + 1;
+
+    if (chanid_available(chanid))
+        return chanid;
+
+    // failure
+    return -1;
 }
 
 bool ChannelUtil::CreateChannel(uint db_mplexid,
@@ -691,17 +1018,17 @@ bool ChannelUtil::CreateChannel(uint db_mplexid,
     QString chanNum = (chan_num == "-1") ?
         QString::number(service_id) : chan_num;
 
-    uint atsc_src_id = (atsc_major_channel << 8) | (atsc_minor_channel & 0xff);
-
     query.prepare(
         "INSERT INTO channel "
         "  (chanid,        channum,    sourceid,   callsign,  "
-        "   name,          mplexid,    serviceid,  atscsrcid, "
+        "   name,          mplexid,    serviceid,             "
+        "   atsc_major_chan,           atsc_minor_chan,       "
         "   useonairguide, visible,    freqid,     tvformat,  "
         "   icon,          xmltvid) "
         "VALUES "
         "  (:CHANID,       :CHANNUM,   :SOURCEID,  :CALLSIGN,  "
-        "   :NAME,         :MPLEXID,   :SERVICEID, :ATSCSRCID, "
+        "   :NAME,         :MPLEXID,   :SERVICEID,             "
+        "   :MAJORCHAN,                :MINORCHAN,             "
         "   :USEOAG,       :VISIBLE,   :FREQID,    :TVFORMAT,  "
         "   :ICON,         :XMLTVID)");
 
@@ -715,7 +1042,8 @@ bool ChannelUtil::CreateChannel(uint db_mplexid,
         query.bindValue(":MPLEXID",   db_mplexid);
 
     query.bindValue(":SERVICEID", service_id);
-    query.bindValue(":ATSCSRCID", atsc_src_id);
+    query.bindValue(":MAJORCHAN", atsc_major_channel);
+    query.bindValue(":MINORCHAN", atsc_minor_channel);
     query.bindValue(":USEOAG",    use_on_air_guide);
     query.bindValue(":VISIBLE",   !hidden);
     (void) hidden_in_guide; // MythTV can't hide the channel in just the guide.
@@ -750,19 +1078,19 @@ bool ChannelUtil::UpdateChannel(uint db_mplexid,
 {
     MSqlQuery query(MSqlQuery::InitCon());
 
-    uint atsc_src_id = (atsc_major_channel << 8) | (atsc_minor_channel & 0xff);
-
-    query.prepare("UPDATE channel "
-                  "SET mplexid=:MPLEXID,     serviceid=:SERVICEID, "
-                  "    atscsrcid=:ATSCSRCID, callsign=:CALLSIGN, "
-                  "    name=:NAME,           channum=:CHANNUM, "
-                  "    freqid=:FREQID,       tvformat=:TVFORMAT, "
-                  "    sourceid=:SOURCEID "
-                  "WHERE chanid=:CHANID");
+    query.prepare(
+        "UPDATE channel "
+        "SET mplexid         = :MPLEXID,   serviceid       = :SERVICEID, "
+        "    atsc_major_chan = :MAJORCHAN, atsc_minor_chan = :MINORCHAN, "
+        "    callsign        = :CALLSIGN,  name            = :NAME,      "
+        "    channum         = :CHANNUM,   freqid          = :FREQID,    "
+        "    tvformat        = :TVFORMAT,  sourceid        = :SOURCEID   "
+        "WHERE chanid=:CHANID");
 
     query.bindValue(":MPLEXID",   db_mplexid);
     query.bindValue(":SERVICEID", service_id);
-    query.bindValue(":ATSCSRCID", atsc_src_id);
+    query.bindValue(":MAJORCHAN", atsc_major_channel);
+    query.bindValue(":MINORCHAN", atsc_minor_channel);
     query.bindValue(":CALLSIGN",  callsign.utf8());
     query.bindValue(":NAME",      service_name.utf8());
     query.bindValue(":SOURCEID",  source_id);
@@ -771,7 +1099,7 @@ bool ChannelUtil::UpdateChannel(uint db_mplexid,
         query.bindValue(":CHANNUM",   chan_num);
     if (freqid > 0)
         query.bindValue(":FREQID",    freqid);
-    if (atsc_major_channel > 0)
+    if (atsc_minor_channel > 0)
         query.bindValue(":TVFORMAT",  "ATSC");
 
     if (!query.exec() || !query.isActive())
@@ -848,3 +1176,302 @@ QString ChannelUtil::GetDTVPrivateType(uint network_id,
 
     return query.value(0).toString();
 }
+                    
+bool ChannelUtil::GetATSCChannel(uint sourceid, const QString &channum,
+                                 uint &major,   uint          &minor)
+{
+    major = minor = 0;
+
+    MSqlQuery query(MSqlQuery::InitCon());
+    query.prepare(
+        "SELECT atsc_major_chan, atsc_minor_chan "
+        "FROM channel "
+        "WHERE channum  = :CHANNUM AND "
+        "      sourceid = :SOURCEID");
+
+    query.bindValue(":SOURCEID", sourceid);
+    query.bindValue(":CHANNUM",  channum);
+
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("getatscchannel", query);
+    else if (query.next())
+    {
+        major = query.value(0).toUInt();
+        minor = query.value(1).toUInt();
+        return true;
+    }
+
+    return false;
+}
+
+bool ChannelUtil::GetChannelData(
+    uint    sourceid,         const QString &channum,
+    QString &tvformat,        QString       &modulation,
+    QString &freqtable,       QString       &freqid,
+    int     &finetune,        uint64_t      &frequency,
+    int     &mpeg_prog_num,
+    uint    &atsc_major,      uint          &atsc_minor,
+    uint    &dvb_transportid, uint          &dvb_networkid,
+    uint    &mplexid,
+    bool    &commfree)
+{
+    tvformat      = modulation = freqtable = freqid = QString::null;
+    finetune      = 0;
+    frequency     = 0;
+    mpeg_prog_num = -1;
+    atsc_major    = atsc_minor = mplexid = 0;
+    commfree      = false;
+
+    MSqlQuery query(MSqlQuery::InitCon());
+    query.prepare(
+        "SELECT finetune, freqid, tvformat, freqtable, "
+        "       commfree, mplexid, "
+        "       atsc_major_chan, atsc_minor_chan, serviceid "
+        "FROM channel, videosource "
+        "WHERE videosource.sourceid = channel.sourceid AND "
+        "      channum              = :CHANNUM         AND "
+        "      channel.sourceid     = :SOURCEID");
+    query.bindValue(":CHANNUM",  channum);
+    query.bindValue(":SOURCEID", sourceid);
+
+    if (!query.exec() || !query.isActive())
+    {
+        MythContext::DBError("GetChannelData", query);
+        return false;
+    }
+    else if (!query.next())
+    {
+        VERBOSE(VB_IMPORTANT, QString(
+                    "GetChannelData() failed because it could not\n"
+                    "\t\t\tfind channel number '%1' in DB for source '%2'.")
+                .arg(channum).arg(sourceid));
+        return false;
+    }
+
+    finetune      = query.value(0).toInt();
+    freqid        = query.value(1).toString();
+    tvformat      = query.value(2).toString();
+    freqtable     = query.value(3).toString();
+    commfree      = query.value(4).toBool();
+    mplexid       = query.value(5).toUInt();
+    atsc_major    = query.value(6).toUInt();
+    atsc_minor    = query.value(7).toUInt();
+    mpeg_prog_num = query.value(8).toUInt();
+
+    if (!mplexid || (mplexid == 32767)) /* 32767 deals with old lineups */
+        return true;
+
+    return GetTuningParams(mplexid, modulation, frequency,
+                           dvb_transportid, dvb_networkid);
+}
+
+DBChanList ChannelUtil::GetChannels(uint sourceid, bool vis_only, QString grp)
+{
+    DBChanList list;
+    QMap<uint,uint> favorites;
+    MSqlQuery query(MSqlQuery::InitCon());
+    query.prepare(
+        "SELECT chanid, favid "
+        "FROM favorites");
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("get channels -- favorites", query);
+    else
+    {
+        while (query.next())
+            favorites[query.value(0).toUInt()] = query.value(1).toUInt();
+    }
+
+    QString qstr =
+        "SELECT channum, callsign, chanid, "
+        "       atsc_major_chan, atsc_minor_chan, "
+        "       name, icon, visible "
+        "FROM channel ";
+
+    if (sourceid)
+        qstr += QString("WHERE sourceid='%1' ").arg(sourceid);
+    else
+        qstr += ",cardinput,capturecard "
+            "WHERE cardinput.sourceid = channel.sourceid   AND "
+            "      cardinput.cardid   = capturecard.cardid     ";
+
+    if (vis_only)
+        qstr += "AND visible=1 ";
+
+    if (!grp.isEmpty())
+        qstr += QString("GROUP BY %1 ").arg(grp);
+
+    query.prepare(qstr);
+    if (!query.exec() || !query.isActive())
+    {
+        MythContext::DBError("get channels -- sourceid", query);
+        return list;
+    }
+
+    while (query.next())
+    {
+        if (query.value(0).toString().isEmpty() || !query.value(2).toUInt())
+            continue; // skip if channum blank, or chanid empty
+
+        DBChannel chan(
+            query.value(0).toString(),                    /* channum    */
+            QString::fromUtf8(query.value(1).toString()), /* callsign   */
+            query.value(2).toUInt(),                      /* chanid     */
+            query.value(3).toUInt(),                      /* ATSC major */
+            query.value(4).toUInt(),                      /* ATSC minor */
+            favorites[query.value(2).toUInt()],           /* favid      */
+            query.value(7).toBool(),                      /* visible    */
+            QString::fromUtf8(query.value(5).toString()), /* name       */
+            query.value(6).toString());                   /* icon       */
+
+        list.push_back(chan);
+    }
+
+    return list;
+}
+
+inline bool lt_callsign(const DBChannel &a, const DBChannel &b)
+{
+    return QString::localeAwareCompare(a.callsign, b.callsign) < 0;
+}
+
+inline bool lt_smart(const DBChannel &a, const DBChannel &b)
+{
+    int cmp = 0;
+
+    bool isIntA, isIntB;
+    int a_int = a.channum.toUInt(&isIntA);
+    int b_int = b.channum.toUInt(&isIntB);
+
+    // one of the channels is an ATSC channel, and the other
+    // is either ATSC or is numeric.
+    if ((a.minor_chan || b.minor_chan) &&
+        (a.minor_chan || isIntA) && (b.minor_chan || isIntB))
+    {
+        int a_maj = (!a.minor_chan && isIntA) ? a_int : a.major_chan;
+        int b_maj = (!b.minor_chan && isIntB) ? b_int : b.major_chan;
+        if ((cmp = a_maj - b_maj))
+            return cmp < 0;
+        
+        if ((cmp = a.minor_chan - b.minor_chan))
+            return cmp < 0;
+    }
+
+    if (isIntA && isIntB)
+    {
+        // both channels have a numeric channum
+        cmp = a_int - b_int;
+        if (cmp)
+            return cmp < 0;
+    }
+    else if (isIntA ^ isIntB)
+    {
+        // if only one is channel numeric always consider it less than
+        return isIntA;
+    }
+    else
+    {
+        // one of channels does not have a numeric channum
+        cmp = QString::localeAwareCompare(a.channum, b.channum);
+        if (cmp)
+            return cmp < 0;
+    }
+
+    return lt_callsign(a,b);
+}
+
+void ChannelUtil::SortChannels(DBChanList &list, const QString &order,
+                               bool eliminate_duplicates)
+{
+    bool cs = order.lower() == "callsign";
+    if (cs)
+        stable_sort(list.begin(), list.end(), lt_callsign);
+    else /* if (sortorder == "channum") */
+        stable_sort(list.begin(), list.end(), lt_smart);
+
+    if (eliminate_duplicates && !list.empty())
+    {
+        DBChanList tmp;
+        tmp.push_back(list[0]);
+        for (uint i = 1; i < list.size(); i++)
+        {
+            if ((cs && lt_callsign(tmp.back(), list[i])) ||
+                (!cs && lt_smart(tmp.back(), list[i])))
+            {
+                tmp.push_back(list[i]);
+            }
+        }
+
+        list = tmp;
+    }
+}
+
+void ChannelUtil::EliminateDuplicateChanNum(DBChanList &list)
+{
+    typedef std::set<QString> seen_set;
+    seen_set seen;
+
+    DBChanList::iterator it = list.begin();
+
+    while (it != list.end())
+    {
+        QString tmp = QDeepCopy<QString>(it->channum);
+        std::pair<seen_set::iterator, bool> insret = seen.insert(tmp);
+        if (insret.second)
+            ++it;
+        else
+            it = list.erase(it);
+    }
+}
+
+uint ChannelUtil::GetNextChannel(const DBChanList &sorted,
+                                 uint old_chanid, int direction)
+{
+    DBChanList::const_iterator it =
+        find(sorted.begin(), sorted.end(), old_chanid);
+
+    if (it == sorted.end())
+        it = sorted.begin(); // not in list, pretend we are on first channel
+
+    if (it == sorted.end())
+        return 0; // no channels..
+
+    DBChanList::const_iterator start = it;
+    bool skip_non_visible = true; // TODO make DB selectable
+
+    if (CHANNEL_DIRECTION_DOWN == direction)
+    {
+        do
+        {
+            if (it == sorted.begin())
+                it = find(sorted.begin(), sorted.end(),
+                          sorted.rbegin()->chanid);
+            else
+                it--;
+        } while ((it != start) && skip_non_visible && !it->visible);
+
+    }
+    else if (CHANNEL_DIRECTION_UP == direction)
+    {
+        do
+        {
+            it++;
+            if (it == sorted.end())
+                it = sorted.begin();
+        } while ((it != start) && skip_non_visible && !it->visible);
+    }
+    else if (CHANNEL_DIRECTION_FAVORITE == direction)
+    {
+        do
+        {
+            it++;
+            if (it == sorted.end())
+                it = sorted.begin();
+
+        } while ((it != start) &&
+                 (!it->favorite || (skip_non_visible && !it->visible)));
+    }
+
+    return it->chanid;
+}
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

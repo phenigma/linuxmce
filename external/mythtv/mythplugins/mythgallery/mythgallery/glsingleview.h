@@ -21,12 +21,21 @@
 
 #ifndef GLSINGLEVIEW_H
 #define GLSINGLEVIEW_H
+#ifdef USING_OPENGL
 
+// Qt headers
 #include <qgl.h>
 #include <qmap.h>
+#include <qsize.h>
 
+// MythTV plugin headers
+#include <mythtv/util.h>
+
+// MythGallery headers
+#include "imageview.h"
 #include "iconview.h"
 #include "sequence.h"
+#include "gltexture.h"
 
 class QImage;
 class QTimer;
@@ -35,111 +44,94 @@ class GLSingleView;
 
 class GLSDialog : public MythDialog
 {
-public:
-    
-    GLSDialog(const ThumbList& itemList, int pos, int slideShow, 
+  public:  
+    GLSDialog(const ThumbList& itemList,
+              int pos, int slideShow, int sortOrder,
               MythMainWindow *parent, const char *name=0);
 
-protected:
-
+  protected:
     void closeEvent(QCloseEvent *e);
     
-private:
-
+  private:
     GLSingleView *m_view;
 };
 
-class GLSingleView : public QGLWidget
+class GLSingleView : public QGLWidget, public ImageView
 {
     Q_OBJECT
 
-public:
-
-    GLSingleView(ThumbList itemList, int pos, int slideShow, QWidget *parent);
+  public:
+    GLSingleView(ThumbList itemList, int pos, int slideShow, int sordorder,
+                 QWidget *parent);
     ~GLSingleView();
 
-    void cleanUp();
+    void CleanUp(void);
 
-protected:
+  protected:
+    void initializeGL(void);
 
-    void initializeGL();
-    void resizeGL( int w, int h );
-    void paintGL();
+    // Commands
+    virtual void Rotate(int angle);
+    virtual void DisplayNext(bool reset, bool loadImage);
+    virtual void DisplayPrev(bool reset, bool loadImage);
+    virtual void LoadImage(void);
+    void resizeGL(int w, int h);
+    void paintGL(void);
+    void paintTexture(void);
+    void createTexInfo(void);
+    virtual void keyPressEvent(QKeyEvent *e);
 
-    void keyPressEvent(QKeyEvent *e);
+    // Sets
+    virtual void SetZoom(float zoom);
+    void SetTransitionTimeout(int timeout);
 
-private:
+    // Gets
+    int GetNearestGLTextureSize(int) const;
 
-    typedef struct {
-        GLuint        tex;
-        float         cx, cy;
-        int           width, height;
-        int           angle;
-        ThumbItem    *item;
-    } TexItem;
+    virtual void RegisterEffects(void);
+    virtual void RunEffect(const QString &effect);
 
-    int           m_pos;
-    ThumbList     m_itemList;
+    void EffectNone(void);
+    void EffectBlend(void);
+    void EffectZoomBlend(void);
+    void EffectFade(void);
+    void EffectRotate(void);
+    void EffectBend(void);
+    void EffectInOut(void);
+    void EffectSlide(void);
+    void EffectFlutter(void);
+    void EffectCube(void);
 
-    int           m_movieState;
-    int           screenwidth, screenheight;
-    float         wmult, hmult;
-    int           m_w, m_h;
+  private slots:
+    void SlideTimeout(void);
 
-    TexItem       m_texItem[2];
-    int           m_curr;
+  private:
+    // General
+    float         m_source_x;
+    float         m_source_y;
+
+    // Texture variables (for display and effects)
+    int           m_texMaxDim;
+    QSize         m_texSize;
+    GLTexture     m_texItem[2];
+    int           m_texCur;
     bool          m_tex1First;
 
-    float         m_zoom;
-    float         m_sx, m_sy;
-
-    QTimer       *m_timer;
-    int           m_tmout;
-    int           m_delay;
-    bool          m_effectRunning;
-    bool          m_running;
-    int           m_slideShow;
-
+    // Info variables
     GLuint        m_texInfo;
-    bool          m_showInfo;
     
-    int           m_i;
-    int           m_dir;
-    float         m_points[40][40][3];
+    // Common effect state variables
+    int           m_effect_rotate_direction;
+    MythTimer 	  m_effect_frame_time;
+    int           m_effect_transition_timeout;
+    float         m_effect_transition_timeout_inv;
 
-    typedef void               (GLSingleView::*EffectMethod)();
-    EffectMethod                m_effectMethod;
-    QMap<QString,EffectMethod>  m_effectMap;
-    bool                        m_effectRandom;
-    SequenceBase               *m_sequence;
-
-private:
-    
-    void  advanceFrame();
-    void  retreatFrame();
-    void  loadImage();
-    void  paintTexture();
-    void  rotate(int angle);
-    void  createTexInfo();
-
-    void  registerEffects();
-    EffectMethod getRandomEffect();
-
-    void effectNone();
-    void effectBlend();
-    void effectZoomBlend();
-    void effectFade();
-    void effectRotate();
-    void effectBend();
-    void effectInOut();
-    void effectSlide();
-    void effectFlutter();
-    void effectCube();
-
-private slots:
-
-    void slotTimeOut();
-    
+    // Unshared effect state variables
+    float         m_effect_flutter_points[40][40][3];
+    float         m_effect_cube_xrot;
+    float         m_effect_cube_yrot;
+    float         m_effect_cube_zrot;
 };
 
-#endif /* GLSINGLEVIEW_H */
+#endif // USING_OPENGL
+#endif // GLSINGLEVIEW_H

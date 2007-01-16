@@ -2,9 +2,9 @@
 /**
  * Edit MythVideo file information
  *
- * @url         $URL$
- * @date        $Date: 2006-01-25 05:41:36 +0200 (Wed, 25 Jan 2006) $
- * @version     $Revision: 8709 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-19-fixes/mythplugins/mythweb/modules/video/edit.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  *
  * @package     MythWeb

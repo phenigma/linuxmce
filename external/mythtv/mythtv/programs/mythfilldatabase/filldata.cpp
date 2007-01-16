@@ -25,18 +25,21 @@
 #include <ctime>
 #include <cerrno>
 
-#include "libmyth/exitcodes.h"
-#include "libmyth/mythcontext.h"
-#include "libmythtv/scheduledrecording.h"
-#include "libmythtv/datadirect.h"
-#include "libmythtv/channelutil.h"
-#include "libmyth/mythdbcon.h"
-#include "libmythtv/programinfo.h"
-#include "libmythtv/frequencytables.h"
-#include "libmythtv/channelutil.h"
-#include "libmythtv/videosource.h"
-#include "libmythtv/remoteutil.h"
-#include "libmyth/util.h"
+// libmyth headers
+#include "exitcodes.h"
+#include "mythcontext.h"
+#include "mythdbcon.h"
+#include "util.h"
+
+// libmythtv headers
+#include "scheduledrecording.h"
+#include "datadirect.h"
+#include "channelutil.h"
+#include "programinfo.h"
+#include "frequencytables.h"
+#include "cardutil.h"
+#include "sourceutil.h"
+#include "remoteutil.h"
 
 using namespace std;
 
@@ -60,6 +63,12 @@ bool dd_grab_all = false;
 bool dddataretrieved = false;
 bool mark_repeats = true;
 bool channel_updates = false;
+bool channel_update_run = false;
+bool remove_new_channels = false;
+bool only_update_channels = false;
+bool need_post_grab_proc = true;
+QString logged_in = "";
+int raw_lineup = 0;
 
 int maxDays = 0;
 int listing_wrap_offset = 0;
@@ -67,6 +76,7 @@ int listing_wrap_offset = 0;
 QString lastdduserid;
 DataDirectProcessor ddprocessor;
 QString graboptions = "";
+QString cardtype = QString::null;
 
 class ChanInfo
 {
@@ -225,37 +235,55 @@ unsigned int ELFHash(const char *s)
 
 void clearDataByChannel(int chanid, QDateTime from, QDateTime to) 
 {
+    int secs;
+    QDateTime newFrom, newTo;
+
     MSqlQuery query(MSqlQuery::InitCon());
+
+    query.prepare("SELECT tmoffset FROM channel where chanid = :CHANID ;");
+    query.bindValue(":CHANID", chanid);
+    query.exec();
+    if (!query.isActive() || query.size() != 1)
+    {
+        MythContext::DBError("clearDataByChannel", query);
+        return;
+    }
+    query.next();
+    secs = query.value(0).toInt();
+
+    secs *= 60;
+    newFrom = from.addSecs(secs);
+    newTo = to.addSecs(secs);
 
     query.prepare("DELETE FROM program "
                   "WHERE starttime >= :FROM AND starttime < :TO "
                   "AND chanid = :CHANID ;");
-    query.bindValue(":FROM", from);
-    query.bindValue(":TO", to);
+    query.bindValue(":FROM", newFrom);
+    query.bindValue(":TO", newTo);
     query.bindValue(":CHANID", chanid);
     query.exec();
 
     query.prepare("DELETE FROM programrating "
                   "WHERE starttime >= :FROM AND starttime < :TO "
                   "AND chanid = :CHANID ;");
-    query.bindValue(":FROM", from);
-    query.bindValue(":TO", to);
+    query.bindValue(":FROM", newFrom);
+    query.bindValue(":TO", newTo);
     query.bindValue(":CHANID", chanid);
     query.exec();
 
     query.prepare("DELETE FROM credits "
                   "WHERE starttime >= :FROM AND starttime < :TO "
                   "AND chanid = :CHANID ;");
-    query.bindValue(":FROM", from);
-    query.bindValue(":TO", to);
+    query.bindValue(":FROM", newFrom);
+    query.bindValue(":TO", newTo);
     query.bindValue(":CHANID", chanid);
     query.exec();
 
     query.prepare("DELETE FROM programgenres "
                   "WHERE starttime >= :FROM AND starttime < :TO "
                   "AND chanid = :CHANID ;");
-    query.bindValue(":FROM", from);
-    query.bindValue(":TO", to);
+    query.bindValue(":FROM", newFrom);
+    query.bindValue(":TO", newTo);
     query.bindValue(":CHANID", chanid);
     query.exec();
 }
@@ -767,7 +795,6 @@ void get_atsc_stuff(QString channum, int sourceid, int freqid,
     minor = channum.right(channum.length() - (chansep + 1)).toInt();
 
     freq = get_center_frequency("atsc", "vsb8", "us", freqid);
-    cerr<<"centre_freq: "<<freq<<endl;
 
     // Check if this is connected to an HDTV card.
     MSqlQuery query(MSqlQuery::DDCon());
@@ -785,195 +812,84 @@ void get_atsc_stuff(QString channum, int sourceid, int freqid,
     }
 }
 
-// DataDirect stuff
-void DataDirectStationUpdate(Source source)
+static bool insert_chan(uint sourceid)
 {
-    MSqlQuery no_xmltvid_q(MSqlQuery::DDCon());
-    MSqlQuery query(MSqlQuery::DDCon());
-    MSqlQuery chan_update_q(MSqlQuery::DDCon());
-    QString querystr;
-
-    ddprocessor.updateStationViewTable();
-
-    // Find all the channels in the dd_v_station temp table
-    // where there is no channel with the same xmltvid in the
-    // DB using the same source.
-    no_xmltvid_q.prepare(
-        "SELECT dd_v_station.stationid,        dd_v_station.callsign,"
-        "       dd_v_station.stationname,      dd_v_station.channel,"
-        "       dd_v_station.fccchannelnumber, dd_v_station.channelMinor "
-        "FROM dd_v_station LEFT JOIN channel ON "
-        "     dd_v_station.stationid = channel.xmltvid AND "
-        "     channel.sourceid = :SOURCEID "
-        "WHERE channel.chanid IS NULL;");
-    no_xmltvid_q.bindValue(":SOURCEID", source.id);
-
-    if (!no_xmltvid_q.exec())
-        MythContext::DBError("Selecting new channels", no_xmltvid_q);
-
-    if (no_xmltvid_q.isActive() && no_xmltvid_q.size() > 0)
+    bool insert_channels = channel_updates;
+    if (!insert_channels)
     {
-        while (no_xmltvid_q.next())
+        bool isEncoder, isUnscanable;
+        if (cardtype.isEmpty())
         {
-            // Get the important info from our first query
-            QString xmltvid  = no_xmltvid_q.value(0).toString();
-            QString callsign = no_xmltvid_q.value(1).toString();
-            QString name     = no_xmltvid_q.value(2).toString();
-            QString channum  = no_xmltvid_q.value(3).toString();
-            int     freqid   = no_xmltvid_q.value(4).toInt();
-            QString minor    = no_xmltvid_q.value(5).toString();
-            QString tvformat = "Default";
-            callsign = (callsign == "") ? name : callsign;
-
-            int major = 0, atscsrcid = -9999;
-            if (minor != "") 
-            {
-                major = channum.toInt();
-                atscsrcid = (major << 8) | minor.toInt();
-                tvformat = "atsc";
-                // default channum number
-                channum += SourceUtil::GetChannelSeparator(source.id) + minor;
-            }
-            else
-            {
-                freqid = channum.toInt();
-            }
-
-            // First check if channel already in DB, but without xmltvid
-            query.prepare("SELECT chanid FROM channel "
-                          "WHERE sourceid = :SOURCEID AND "
-                          "      (channum=:CHANNUM OR atscsrcid=:ATSCSRCID)");
-            query.bindValue(":SOURCEID",  source.id);
-            query.bindValue(":CHANNUM",   channum);
-            query.bindValue(":ATSCSRCID", atscsrcid);
-
-            if (!query.exec() || !query.isActive())
-            {
-                MythContext::DBError(
-                    "Getting chanid of existing channel", query);
-                continue; // go on to next channel without xmltv
-            }
-
-            if (query.size() > 0)
-            {
-                // The channel already exists in DB, at least once,
-                // so set the xmltvid..
-                chan_update_q.prepare(
-                    "UPDATE channel "
-                    "SET xmltvid = :XMLTVID "
-                    "WHERE chanid = :CHANID AND sourceid = :SOURCEID");
-
-                while (query.next())
-                {
-                    uint chanid = query.value(0).toInt();
-                    chan_update_q.bindValue(":CHANID",    chanid);
-                    chan_update_q.bindValue(":XMLTVID",   xmltvid);
-                    chan_update_q.bindValue(":SOURCEID",  source.id);
-                    if (!chan_update_q.exec() || !chan_update_q.isActive())
-                    {
-                        MythContext::DBError(
-                            "Updating XMLTVID of existing channel", chan_update_q);
-                        continue; // go on to next instance of this channel
-                    }
-                }
-                continue; // go on to next channel without xmltv
-            }
-
-            // The channel doesn't exist in the DB, insert it...
-            int mplexid = -1, majorC, minorC, chanid = 0;
-            long long freq;
-            get_atsc_stuff(channum, source.id, freqid,
-                           majorC, minorC, freq);
-
-            if (minorC > 0 && freq >= 0)
-            {
-                mplexid = ChannelUtil::CreateMultiplex(
-                    source.id, "atsc", freq, "8vsb");
-            }
-
-            if ((mplexid > 0) || (minorC == 0))
-                chanid = ChannelUtil::CreateChanID(source.id, channum);
-
-            if (chanid > 0)
-            {
-                QString icon   = "";
-                int  serviceid = 0;
-                bool oag       = false; // use on air guide
-                bool hidden    = false;
-                bool hidden_in_guide = false;
-
-                ChannelUtil::CreateChannel(
-                    mplexid,   source.id, chanid, 
-                    callsign,  name,      channum,
-                    serviceid, majorC,    minorC,
-                    oag,       hidden,    hidden_in_guide,
-                    freqid,    icon,      tvformat,
-                    xmltvid);
-            }
+            isEncoder    = SourceUtil::IsEncoder(sourceid);
+            isUnscanable = SourceUtil::IsUnscanable(sourceid);
         }
+        else
+        {
+            isEncoder    = CardUtil::IsEncoder(cardtype);
+            isUnscanable = CardUtil::IsUnscanable(cardtype);
+        }
+        insert_channels = (isEncoder || isUnscanable) && !remove_new_channels;
     }
 
+    return insert_channels;
+}
+
+// DataDirect stuff
+void DataDirectStationUpdate(Source source, bool update_icons = true)
+{
+    DataDirectProcessor::UpdateStationViewTable(source.lineupid);
+
+    bool insert_channels = insert_chan(source.id);
+    int new_channels = DataDirectProcessor::UpdateChannelsSafe(
+        source.id, insert_channels);
+
+    //  User must pass "--do-channel-updates" for these updates
     if (channel_updates)
+        DataDirectProcessor::UpdateChannelsUnsafe(source.id);
+    // TODO delete any channels which no longer exist in listings source
+
+    if (update_icons)
+        UpdateSourceIcons(source.id);
+
+    // Unselect channels not in users lineup for DVB, HDTV
+    if (!insert_channels && (new_channels > 0))
     {
-        //
-        //  User must pass "--do_channel_update" for this block of code to
-        //  execute
-        //
-
-        MSqlQuery dd_station_info(MSqlQuery::DDCon());
-        dd_station_info.prepare(
-            "SELECT callsign, stationname,      stationid,"
-            "       channel,  fccchannelnumber, channelMinor "
-            "FROM dd_v_station");
-        dd_station_info.exec();
-
-        if (dd_station_info.size() > 0)
+        bool ok0 = (logged_in == source.userid);
+        bool ok1 = (raw_lineup == source.id);
+        if (!ok0)
         {
-            chan_update_q.prepare(
-                "UPDATE channel "
-                "SET callsign  = :CALLSIGN,  name   = :NAME, "
-                "    channum   = :CHANNEL,   freqid = :FREQID, "
-                "    atscsrcid = :ATSCSRCID "
-                "WHERE xmltvid = :STATIONID AND sourceid = :SOURCEID;");
+            VERBOSE(VB_GENERAL, "Grabbing login cookies for listing update");
+            ok0 = ddprocessor.GrabLoginCookiesAndLineups();
         }
-        while (dd_station_info.next())        
+        if (ok0 && !ok1)
         {
-            QString channel = dd_station_info.value(3).toString();
-            QString freqid = dd_station_info.value(4).toString();
-            QString minor = dd_station_info.value(5).toString();
-
-            uint atscsrcid = 0;
-            if (minor != "")
-            {
-                atscsrcid = (channel.toInt() << 8) | minor.toInt();
-                // default channel number
-                channel += SourceUtil::GetChannelSeparator(source.id) + minor;
-            }
-            else
-            {
-                freqid = channel;
-            }
-
-            chan_update_q.bindValue(":CALLSIGN",  dd_station_info.value(0));
-            chan_update_q.bindValue(":NAME",      dd_station_info.value(1));
-            chan_update_q.bindValue(":STATIONID", dd_station_info.value(2));
-            chan_update_q.bindValue(":CHANNEL",   channel);
-            chan_update_q.bindValue(":SOURCEID",  source.id);
-            chan_update_q.bindValue(":FREQID",    freqid);
-            chan_update_q.bindValue(":ATSCSRCID", atscsrcid);
-
-            if (!chan_update_q.exec())
-            {
-                MythContext::DBError("Updating channel table",
-                                     chan_update_q.lastQuery());
-            }
+            VERBOSE(VB_GENERAL, "Grabbing listing for listing update");
+            ok1 = ddprocessor.GrabLineupForModify(source.lineupid);
+        }
+        if (ok1)
+        {
+            ddprocessor.UpdateListings(source.id);
+            VERBOSE(VB_GENERAL, QString("Removed %1 channel(s) from lineup.")
+                    .arg(new_channels));
         }
     }
+}
 
-    UpdateSourceIcons(source.id);
+bool DataDirectUpdateChannels(Source source)
+{
+    ddprocessor.SetListingsProvider(DD_ZAP2IT);
+    ddprocessor.SetUserID(source.userid);
+    ddprocessor.SetPassword(source.password);
 
-    // Now, delete any channels which no longer exist
-    // (Not currently done in standard program -- need to verify if required)
+    bool ok    = ddprocessor.GrabFullLineup(
+        source.lineupid, true, insert_chan(source.id)/*only sel*/);
+    logged_in  = source.userid;
+    raw_lineup = source.id;
+
+    if (ok)
+        DataDirectStationUpdate(source, false);
+
+    return ok;
 }
 
 void DataDirectProgramUpdate() 
@@ -988,29 +904,39 @@ void DataDirectProgramUpdate()
                     "hdtv, closecaptioned, partnumber, parttotal, seriesid, "
                     "originalairdate, colorcode, syndicatedepisodenumber, "
                     "programid) "
-                    "SELECT chanid, starttime, endtime, "
+                    "SELECT dd_v_program.chanid, "
+                    "DATE_ADD(starttime, INTERVAL channel.tmoffset MINUTE), "
+                    "DATE_ADD(endtime, INTERVAL channel.tmoffset MINUTE), "
                     "title, subtitle, description, "
                     "showtype, dd_genre.class, category_type, "
                     "airdate, stars, previouslyshown, stereo, subtitled, "
                     "hdtv, closecaptioned, partnumber, parttotal, seriesid, "
                     "originalairdate, colorcode, syndicatedepisodenumber, "
-                    "dd_v_program.programid FROM dd_v_program "
+                    "dd_v_program.programid FROM (dd_v_program, channel) "
                     "LEFT JOIN dd_genre ON ("
                     "dd_v_program.programid = dd_genre.programid AND "
-                    "dd_genre.relevance = '0');"))
+                    "dd_genre.relevance = '0') "
+                    "WHERE dd_v_program.chanid = channel.chanid;"))
         MythContext::DBError("Inserting into program table", query);
 
     //cerr << "Finished adding rows to main program table...\n";
     //cerr << "Adding program ratings...\n";
 
     if (!query.exec("INSERT IGNORE INTO programrating (chanid, starttime, "
-                    "system, rating) SELECT chanid, starttime, 'MPAA', "
-                    "mpaarating FROM dd_v_program WHERE mpaarating != '';"))
+                    "system, rating) SELECT dd_v_program.chanid, "
+                    "DATE_ADD(starttime, INTERVAL channel.tmoffset MINUTE), "
+                    " 'MPAA', "
+                    "mpaarating FROM dd_v_program, channel WHERE "
+                    "mpaarating != '' AND dd_v_program.chanid = "
+                    "channel.chanid"))
         MythContext::DBError("Inserting into programrating table", query);
 
     if (!query.exec("INSERT IGNORE INTO programrating (chanid, starttime, "
-                    "system, rating) SELECT chanid, starttime, 'VCHIP', "
-                    "tvrating FROM dd_v_program WHERE tvrating != '';"))
+                    "system, rating) SELECT dd_v_program.chanid, "
+                    "DATE_ADD(starttime, INTERVAL channel.tmoffset MINUTE), "
+                    "'VCHIP', "
+                    "tvrating FROM dd_v_program, channel WHERE tvrating != ''"
+                    " AND dd_v_program.chanid = channel.chanid"))
         MythContext::DBError("Inserting into programrating table", query);
 
     //cerr << "Finished adding program ratings...\n";
@@ -1024,20 +950,25 @@ void DataDirectProgramUpdate()
     //cerr << "Adding credits entries from production crew list...\n";
 
     if (!query.exec("INSERT IGNORE INTO credits (chanid, starttime, person, "
-                    "role) SELECT chanid, starttime, person, role "
-                    "FROM dd_productioncrew, dd_v_program, people "
+                    "role) SELECT dd_v_program.chanid, "
+                    "DATE_ADD(starttime, INTERVAL channel.tmoffset MINUTE), "
+                    "person, role "
+                    "FROM dd_productioncrew, dd_v_program, channel, people "
                     "WHERE "
                     "((dd_productioncrew.programid = dd_v_program.programid) "
-                    "AND (dd_productioncrew.fullname = people.name));"))
+                    "AND (dd_productioncrew.fullname = people.name)) "
+                    "AND dd_v_program.chanid = channel.chanid;"))
         MythContext::DBError("Inserting into credits table", query);
 
     //cerr << "Finished inserting credits...\n";
     //cerr << "Adding genres...\n";
 
     if (!query.exec("INSERT IGNORE INTO programgenres (chanid, starttime, "
-                    "relevance, genre) SELECT chanid, starttime, "
-                    "relevance, class FROM dd_v_program, dd_genre "
-                    "WHERE (dd_v_program.programid = dd_genre.programid);"))
+                    "relevance, genre) SELECT dd_v_program.chanid, "
+                    "DATE_ADD(starttime, INTERVAL channel.tmoffset MINUTE), "
+                    "relevance, class FROM dd_v_program, dd_genre, channel "
+                    "WHERE (dd_v_program.programid = dd_genre.programid) "
+                    "AND dd_v_program.chanid = channel.chanid"))
         MythContext::DBError("Inserting into programgenres table",query);
 
     //cerr << "Done...\n";
@@ -1045,10 +976,9 @@ void DataDirectProgramUpdate()
 
 bool grabDDData(Source source, int poffset, QDate pdate, int ddSource) 
 {
-    ddprocessor.setLineup(source.lineupid);
-    ddprocessor.setUserID(source.userid);
-    ddprocessor.setPassword(source.password);
-    ddprocessor.setSource(ddSource);
+    ddprocessor.SetListingsProvider(ddSource);
+    ddprocessor.SetUserID(source.userid);
+    ddprocessor.SetPassword(source.password);
     
     bool needtoretrieve = true;
 
@@ -1072,7 +1002,7 @@ bool grabDDData(Source source, int poffset, QDate pdate, int ddSource)
         if (dd_grab_all) 
         {
             VERBOSE(VB_GENERAL, "Grabbing ALL available data.");
-            if (!ddprocessor.grabAllData())
+            if (!ddprocessor.GrabAllData())
             {
                 VERBOSE(VB_IMPORTANT, "Encountered error in grabbing data.");
                 return false;
@@ -1093,7 +1023,7 @@ bool grabDDData(Source source, int poffset, QDate pdate, int ddSource)
                                           .arg(fromdatetime.toString())
                                           .arg(todatetime.toString()));
 
-            if (!ddprocessor.grabData(false, fromdatetime, todatetime))
+            if (!ddprocessor.GrabData(fromdatetime, todatetime))
             {
                 VERBOSE(VB_IMPORTANT, "Encountered error in grabbing data.");
                 return false;
@@ -1110,8 +1040,8 @@ bool grabDDData(Source source, int poffset, QDate pdate, int ddSource)
 
     VERBOSE(VB_GENERAL,
             QString("Grab complete.  Actual data from %1 to %2 (UTC)")
-                    .arg(ddprocessor.getActualListingsFrom().toString())
-                    .arg(ddprocessor.getActualListingsTo().toString()));
+            .arg(ddprocessor.GetDDProgramsStartAt().toString())
+            .arg(ddprocessor.GetDDProgramsEndAt().toString()));
 
     qdtNow = QDateTime::currentDateTime();
     query.exec(QString("UPDATE settings SET data ='%1' "
@@ -1119,12 +1049,16 @@ bool grabDDData(Source source, int poffset, QDate pdate, int ddSource)
                        .arg(qdtNow.toString("yyyy-MM-dd hh:mm")));
 
     VERBOSE(VB_GENERAL, "Main temp tables populated.");
-    VERBOSE(VB_GENERAL, "Updating myth channels.");
-    DataDirectStationUpdate(source);
-    VERBOSE(VB_GENERAL, "Channels updated.");
+    if (!channel_update_run)
+    {
+        VERBOSE(VB_GENERAL, "Updating myth channels.");
+        DataDirectStationUpdate(source);
+        VERBOSE(VB_GENERAL, "Channels updated.");
+        channel_update_run = true;
+    }
 
     //cerr << "Creating program view table...\n";
-    ddprocessor.updateProgramViewTable(source.id);
+    DataDirectProcessor::UpdateProgramViewTable(source.id);
     //cerr <<  "Finished creating program view table...\n";
 
     query.exec("SELECT count(*) from dd_v_program;");
@@ -1144,8 +1078,8 @@ bool grabDDData(Source source, int poffset, QDate pdate, int ddSource)
     }
 
     VERBOSE(VB_GENERAL, "Clearing data for source.");
-    QDateTime fromlocaldt = MythUTCToLocal(ddprocessor.getActualListingsFrom());
-    QDateTime tolocaldt = MythUTCToLocal(ddprocessor.getActualListingsTo());
+    QDateTime fromlocaldt = ddprocessor.GetDDProgramsStartAt(true);
+    QDateTime tolocaldt = ddprocessor.GetDDProgramsEndAt(true);
 
     VERBOSE(VB_GENERAL, QString("Clearing from %1 to %2 (localtime)")
                                   .arg(fromlocaldt.toString())
@@ -1271,6 +1205,9 @@ int TimezoneToInt (QString timezone)
 {
     // we signal an error by setting it invalid (> 840min = 14hr)
     int result = 841;
+    
+    if (timezone.upper() == "UTC" || timezone.upper() == "GMT")
+        return 0;
 
     if (timezone.length() == 5)
     {
@@ -2174,7 +2111,8 @@ void handleChannels(int id, QValueList<ChanInfo> *chanlist)
                         0 /*service id*/, major,            minor,
                         false /*use on air guide*/, false /*hidden*/,
                         false /*hidden in guide*/,
-                        freqid,           localfile,        (*i).tvformat))
+                        freqid,           localfile,        (*i).tvformat,
+                        (*i).xmltvid))
                 {
                     cout << "### " << endl;
                     cout << "### Channel inserted" << endl;
@@ -2644,7 +2582,8 @@ bool grabData(Source source, int offset, QDate *qCurrentDate = 0)
         command.sprintf("nice %s --config-file '%s' --output %s",
                         xmltv_grabber.ascii(), configfile.ascii(),
                         filename.ascii());
-    else if (xmltv_grabber == "tv_grab_es")
+    else if (xmltv_grabber == "tv_grab_es" ||
+             xmltv_grabber == "tv_grab_es_laguiatv")
         // Use fixed interval of 3 days for Spanish grabber
         command.sprintf("nice %s --days=4  --config-file '%s' --output %s",
                         xmltv_grabber.ascii(), 
@@ -2688,6 +2627,16 @@ bool grabData(Source source, int offset, QDate *qCurrentDate = 0)
         command.sprintf("nice %s --output %s",
                         xmltv_grabber.ascii(),
                         filename.ascii());
+    else if (xmltv_grabber == "tv_grab_il")
+        // Israeli grabber returns all known data by default
+        command.sprintf("nice %s --config-file '%s' --output %s",
+                        xmltv_grabber.ascii(), configfile.ascii(),
+                        filename.ascii());
+    else if (xmltv_grabber == "tv_grab_ru")
+        // Russian grabber returns all known data by default
+        command.sprintf("nice %s --config-file '%s' --output %s",
+                        xmltv_grabber.ascii(), configfile.ascii(),
+                        filename.ascii());
     else
     {
         isNorthAmerica = true;
@@ -2701,6 +2650,7 @@ bool grabData(Source source, int offset, QDate *qCurrentDate = 0)
          xmltv_grabber == "tv_grab_de_tvtoday" ||
          xmltv_grabber == "tv_grab_fi" ||
          xmltv_grabber == "tv_grab_es" ||
+         xmltv_grabber == "tv_grab_es_laguiatv" ||
          xmltv_grabber == "tv_grab_se_swedb" ||
          xmltv_grabber == "tv_grab_no" ||
          xmltv_grabber == "tv_grab_dk" ||
@@ -2713,7 +2663,8 @@ bool grabData(Source source, int offset, QDate *qCurrentDate = 0)
          xmltv_grabber == "tv_grab_pt" ||
          xmltv_grabber == "tv_grab_be_tvb" ||
          xmltv_grabber == "tv_grab_be_tlm" ||
-         xmltv_grabber == "tv_grab_ee"))
+         xmltv_grabber == "tv_grab_ee" ||
+         xmltv_grabber == "tv_grab_ru"))
          command += " --quiet";
 
 
@@ -2777,7 +2728,7 @@ void grabDataFromDDFile(int id, int offset, const QString &filename,
     if (!currentd)
         currentd = &qcd;
 
-    ddprocessor.setInputFile(filename);
+    ddprocessor.SetInputFile(filename);
     Source s;
     s.id = id;
     s.name = "";
@@ -2881,6 +2832,8 @@ bool fillData(QValueList<Source> &sourcelist)
     MSqlQuery query(MSqlQuery::InitCon());
     QDateTime GuideDataBefore, GuideDataAfter;
     int failures = 0;
+    int externally_handled = 0;
+    int total_sources = sourcelist.size();
 
     query.exec(QString("SELECT MAX(endtime) FROM program WHERE manualid=0;"));
     if (query.isActive() && query.size() > 0)
@@ -2894,14 +2847,21 @@ bool fillData(QValueList<Source> &sourcelist)
 
     QString sidStr = QString("Updating source #%1 (%2) with grabber %3");
 
-    for (it = sourcelist.begin(); it != sourcelist.end(); ++it) {
+    need_post_grab_proc = false;
+
+    for (it = sourcelist.begin(); it != sourcelist.end(); ++it)
+    {
+        channel_update_run = false;
         VERBOSE(VB_GENERAL, sidStr.arg((*it).id)
                                   .arg((*it).name)
                                   .arg((*it).xmltvgrabber));
 
         QString xmltv_grabber = (*it).xmltvgrabber;
+        need_post_grab_proc |= (xmltv_grabber != "datadirect");
+
         if (xmltv_grabber == "tv_grab_uk" || xmltv_grabber == "tv_grab_uk_rt" ||
             xmltv_grabber == "tv_grab_fi" || xmltv_grabber == "tv_grab_es" ||
+            xmltv_grabber == "tv_grab_es_laguiatv" ||
             xmltv_grabber == "tv_grab_nl" || xmltv_grabber == "tv_grab_au" ||
             xmltv_grabber == "tv_grab_fr" || xmltv_grabber == "tv_grab_jp" ||
             xmltv_grabber == "tv_grab_pt" || xmltv_grabber == "tv_grab_ee" ||
@@ -2914,9 +2874,13 @@ bool fillData(QValueList<Source> &sourcelist)
         }
         else if ((xmltv_grabber == "datadirect") && dd_grab_all)
         {
-            QDate qCurrentDate = QDate::currentDate();
-
-            grabData(*it, 0, &qCurrentDate);
+            if (only_update_channels)
+                DataDirectUpdateChannels(*it);
+            else
+            {
+                QDate qCurrentDate = QDate::currentDate();
+                grabData(*it, 0, &qCurrentDate);
+            }
         }
         else if (xmltv_grabber == "datadirect" ||
                  xmltv_grabber == "tv_grab_se_swedb" ||
@@ -2926,7 +2890,8 @@ bool fillData(QValueList<Source> &sourcelist)
                  xmltv_grabber == "tv_grab_be_tlm" ||
                  xmltv_grabber == "tv_grab_is" ||
                  xmltv_grabber == "tv_grab_br" ||
-                 xmltv_grabber == "tv_grab_cz")
+                 xmltv_grabber == "tv_grab_cz" ||
+                 xmltv_grabber == "tv_grab_ru")
         {
             // Grabbers supporting the --offset option
 
@@ -2952,8 +2917,16 @@ bool fillData(QValueList<Source> &sourcelist)
                      xmltv_grabber == "tv_grab_be_tlm")
                 grabdays = 5;
 
+            grabdays = (only_update_channels) ? 1 : grabdays;
+
             if (grabdays == 1)
                 refresh_today = true;
+
+            if ((xmltv_grabber == "datadirect") && only_update_channels)
+            {
+                DataDirectUpdateChannels(*it);
+                grabdays = 0;
+            }
 
             for (int i = 0; i < grabdays; i++)
             {
@@ -2972,9 +2945,9 @@ bool fillData(QValueList<Source> &sourcelist)
                 QString prevDate(qCurrentDate.addDays(i-1).toString());
                 QString currDate(qCurrentDate.addDays(i).toString());
 
-                VERBOSE(VB_GENERAL,
-                        QString("Checking day @ offset %1, date: ").arg(i) +
-                        currDate);
+                VERBOSE(VB_GENERAL, ""); // add a space between days
+                VERBOSE(VB_GENERAL, "Checking day @ " <<
+                        QString("offset %1, date: %2").arg(i).arg(currDate));
 
                 bool download_needed = false;
 
@@ -3136,6 +3109,28 @@ bool fillData(QValueList<Source> &sourcelist)
                 }
             }
         }
+        else if (xmltv_grabber == "eitonly")
+        {
+            VERBOSE(VB_IMPORTANT, "Source configured to use only the "
+                    "broadcasted guide data. Skipping.");
+            externally_handled++;
+            query.exec(QString("UPDATE settings SET data ='%1' "
+                               "WHERE value='mythfilldatabaseLastRunStart' OR "
+                               "value = 'mythfilldatabaseLastRunEnd'")
+                       .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
+        }
+        else if (xmltv_grabber == "/bin/true" ||
+                 xmltv_grabber == "none" ||
+                 xmltv_grabber == "")
+        {
+            VERBOSE(VB_IMPORTANT,
+                    "Source configured with no grabber. Nothing to do.");
+            externally_handled++;
+            query.exec(QString("UPDATE settings SET data ='%1' "
+                               "WHERE value='mythfilldatabaseLastRunStart' OR "
+                               "value = 'mythfilldatabaseLastRunEnd'")
+                       .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm")));
+        }
         else
         {
             VERBOSE(VB_IMPORTANT,
@@ -3149,6 +3144,9 @@ bool fillData(QValueList<Source> &sourcelist)
         }
     }
 
+    if (only_update_channels && !need_post_grab_proc)
+        return true;
+
     query.exec(QString("SELECT MAX(endtime) FROM program WHERE manualid=0;"));
     if (query.isActive() && query.size() > 0)
     {
@@ -3161,7 +3159,8 @@ bool fillData(QValueList<Source> &sourcelist)
 
     if (failures == 0)
     {
-        if (GuideDataAfter == GuideDataBefore)
+        if ((GuideDataAfter == GuideDataBefore) &&
+            (total_sources != externally_handled))
             status = "mythfilldatabase ran, but did not insert "
                      "any new data into the Guide.  This can indicate a "
                      "potential grabber failure."; 
@@ -3436,9 +3435,14 @@ int main(int argc, char *argv[])
                  cout << "### reading channels from xawtv configfile\n";
             from_xawfile = true;
         }
-        else if (!strcmp(a.argv()[argpos], "--do_channel_updates"))
+        else if ((!strcmp(a.argv()[argpos], "--do-channel-updates")) ||
+                 (!strcmp(a.argv()[argpos], "--do_channel_updates")))
         {
             channel_updates = true;
+        }
+        else if (!strcmp(a.argv()[argpos], "--remove-new-channels"))
+        {
+            remove_new_channels = true;
         }
         else if (!strcmp(a.argv()[argpos], "--graboptions"))
         {
@@ -3459,6 +3463,22 @@ int main(int argc, char *argv[])
             }
 
             sourceid = QString(a.argv()[++argpos]).toInt();
+        }
+        else if (!strcmp(a.argv()[argpos], "--cardtype"))
+        {
+            if (!sourceid)
+            {
+                printf("--cardtype option must follow a --sourceid option\n");
+                return FILLDB_EXIT_INVALID_CMDLINE;
+            }
+
+            if (((argpos + 1) >= a.argc()))
+            {
+                printf("missing parameter for --cardtype option\n");
+                return FILLDB_EXIT_INVALID_CMDLINE;
+            }
+
+            cardtype = QString(a.argv()[++argpos]).stripWhiteSpace().upper();
         }
         else if (!strcmp(a.argv()[argpos], "--max-days"))
         {
@@ -3495,6 +3515,10 @@ int main(int argc, char *argv[])
         else if (!strcmp(a.argv()[argpos], "--dont-refresh-tba"))
         {
             refresh_tba = false;
+        }
+        else if (!strcmp(a.argv()[argpos], "--only-update-channels"))
+        {
+            only_update_channels = true;
         }
         else if (!strcmp(a.argv()[argpos],"-v") ||
                  !strcmp(a.argv()[argpos],"--verbose"))
@@ -3638,12 +3662,23 @@ int main(int argc, char *argv[])
             cout << "   <sourceid>    = cardinput\n";
             cout << "   <xawtvrcfile> = file to read\n";
             cout << "\n";
-            cout << "--do_channel_updates\n";
+            cout << "--do-channel-updates\n";
             cout << "   When using DataDirect, ask mythfilldatabase to\n";
             cout << "   overwrite channel names, frequencies, etc. with the\n";
             cout << "   values available from the data source. This will \n";
             cout << "   override custom channel names, which is why it is\n";
             cout << "   off by default.\n";
+            cout << "\n";
+            cout << "--remove-new-channels\n";
+            cout << "   When using DataDirect, ask mythfilldatabase to\n";
+            cout << "   remove new channels (those not in the database)\n";
+            cout << "   from the DataDirect lineup.  These channels are\n";
+            cout << "   removed from the lineup as if you had done so\n";
+            cout << "   via the DataDirect website's Lineup Wizard, but\n";
+            cout << "   may be re-added manually and incorporated into\n";
+            cout << "   MythTV by running mythfilldatabase without this\n";
+            cout << "   option.  New channels are automatically removed\n";
+            cout << "   for DVB and HDTV sources that use DataDirect.\n";
             cout << "\n";
             cout << "--graboptions <\"options\">\n";
             cout << "   Pass options to grabber\n";
@@ -3654,6 +3689,8 @@ int main(int argc, char *argv[])
             cout << "--max-days <number>\n";
             cout << "   Force the maximum number of days, counting today,\n";
             cout << "   for the grabber to check for future listings\n";
+            cout << "--only-update-channels\n";
+            cout << "   Get as little listings data as possible to update channels\n";
             cout << "--refresh-today\n";
             cout << "--refresh-second\n";
             cout << "--refresh-all\n";
@@ -3856,6 +3893,12 @@ int main(int argc, char *argv[])
             VERBOSE(VB_IMPORTANT, "Data fetching complete.");
     }
 
+    if (only_update_channels && !need_post_grab_proc)
+    {
+        delete gContext;
+        return FILLDB_EXIT_OK;
+    }
+
     if (reset_iconmap)
     {
         ResetIconMap(reset_iconmap_icons);
@@ -3939,6 +3982,99 @@ int main(int argc, char *argv[])
                 QString("    Found %1").arg(query.numRowsAffected()));
     }
 
+    // Mark first and last showings
+
+    if (grab_data)
+    {
+        MSqlQuery updt(MSqlQuery::InitCon());
+        updt.exec("UPDATE program SET first = 0, last = 0;");
+
+        VERBOSE(VB_GENERAL, "Marking episode first showings.");
+
+        MSqlQuery query(MSqlQuery::InitCon());
+        query.exec("SELECT MIN(starttime),programid FROM program "
+                   "WHERE programid > '' GROUP BY programid;");
+
+        if (query.isActive() && query.size() > 0)
+        {
+            while(query.next())
+            {
+                updt.prepare("UPDATE program set first = 1 "
+                             "WHERE starttime = :STARTTIME "
+                             "  AND programid = :PROGRAMID;");
+                updt.bindValue(":STARTTIME", query.value(0).toDateTime());
+                updt.bindValue(":PROGRAMID", query.value(1).toString());
+                updt.exec();
+            }
+        }
+        int found = query.numRowsAffected();
+
+        query.exec("SELECT MIN(starttime),title,subtitle,description "
+                   "FROM program WHERE programid = '' "
+                   "GROUP BY title,subtitle,description;");
+
+        if (query.isActive() && query.size() > 0)
+        {
+            while(query.next())
+            {
+                updt.prepare("UPDATE program set first = 1 "
+                             "WHERE starttime = :STARTTIME "
+                             "  AND title = :TITLE "
+                             "  AND subtitle = :SUBTITLE "
+                             "  AND description = :DESCRIPTION");
+                updt.bindValue(":STARTTIME", query.value(0).toDateTime());
+                updt.bindValue(":TITLE", query.value(1).toString());
+                updt.bindValue(":SUBTITLE", query.value(2).toString());
+                updt.bindValue(":DESCRIPTION", query.value(3).toString());
+                updt.exec();
+            }
+        }
+        found += query.numRowsAffected();
+        VERBOSE(VB_GENERAL, QString("    Found %1").arg(found));
+
+        VERBOSE(VB_GENERAL, "Marking episode last showings.");
+
+        query.exec("SELECT MAX(starttime),programid FROM program "
+                   "WHERE programid > '' GROUP BY programid;");
+
+        if (query.isActive() && query.size() > 0)
+        {
+            while(query.next())
+            {
+                updt.prepare("UPDATE program set last = 1 "
+                             "WHERE starttime = :STARTTIME "
+                             "  AND programid = :PROGRAMID;");
+                updt.bindValue(":STARTTIME", query.value(0).toDateTime());
+                updt.bindValue(":PROGRAMID", query.value(1).toString());
+                updt.exec();
+            }
+        }
+        found = query.numRowsAffected();
+
+        query.exec("SELECT MAX(starttime),title,subtitle,description "
+                   "FROM program WHERE programid = '' "
+                   "GROUP BY title,subtitle,description;");
+
+        if (query.isActive() && query.size() > 0)
+        {
+            while(query.next())
+            {
+                updt.prepare("UPDATE program set last = 1 "
+                             "WHERE starttime = :STARTTIME "
+                             "  AND title = :TITLE "
+                             "  AND subtitle = :SUBTITLE "
+                             "  AND description = :DESCRIPTION");
+                updt.bindValue(":STARTTIME", query.value(0).toDateTime());
+                updt.bindValue(":TITLE", query.value(1).toString());
+                updt.bindValue(":SUBTITLE", query.value(2).toString());
+                updt.bindValue(":DESCRIPTION", query.value(3).toString());
+                updt.exec();
+            }
+        }
+        found += query.numRowsAffected();
+        VERBOSE(VB_GENERAL, QString("    Found %1").arg(found));
+    }
+
     if (1) // limit MSqlQuery's lifetime
     {
         MSqlQuery query(MSqlQuery::InitCon());
@@ -3955,7 +4091,9 @@ int main(int argc, char *argv[])
 
     if ((usingDataDirect) &&
         (gContext->GetNumSetting("MythFillGrabberSuggestsTime", 1)))
-        ddprocessor.getNextSuggestedTime();
+    {
+        ddprocessor.GrabNextSuggestedTime();
+    }
 
     VERBOSE(VB_IMPORTANT, "\n"
             "===============================================================\n"

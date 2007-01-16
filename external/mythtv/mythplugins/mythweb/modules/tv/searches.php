@@ -2,9 +2,9 @@
 /**
  * An index for handy SQL searches in the listings data
  *
- * @url         $URL$
- * @date        $Date: 2005-12-08 06:35:19 +0200 (Thu, 08 Dec 2005) $
- * @version     $Revision: 8169 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/tv/searches.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -14,10 +14,10 @@
 /**/
 
 // Load the canned searches
-    require_once 'config/canned_searches.php';
+    require_once 'modules/tv/canned_searches.conf.php';
 
 // Load the class for this page
-    require_once theme_dir.'tv/searches.php';
+    require_once tmpl_dir.'searches.php';
 
 // Exit
     exit;

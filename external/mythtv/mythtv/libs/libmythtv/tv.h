@@ -1,6 +1,8 @@
 #ifndef TV_H
 #define TV_H
 
+#include <qstring.h>
+
 /** \brief ChannelChangeDirection is an enumeration of possible channel
  *         changing directions.
  */
@@ -50,9 +52,29 @@ typedef enum
 
 const int kLiveTVAutoExpire = 10000;
 
-#include "tv_play.h"
-#include "tv_rec.h"
-
 QString StateToString(TVState state);
+
+typedef enum PictureAdjustType
+{
+    kAdjustingPicture_None = 0,
+    kAdjustingPicture_Playback,
+    kAdjustingPicture_Channel,
+    kAdjustingPicture_Recording,
+} PictureAdjustType;
+QString toTypeString(PictureAdjustType type);
+QString toTitleString(PictureAdjustType type);
+
+typedef enum PictureAttribute
+{
+    kPictureAttribute_None = 0,
+    kPictureAttribute_MIN = 1,
+    kPictureAttribute_Brightness = 1,
+    kPictureAttribute_Contrast,
+    kPictureAttribute_Colour,
+    kPictureAttribute_Hue,
+    kPictureAttribute_Volume,
+    kPictureAttribute_MAX
+} PictureAttribute;
+QString toString(PictureAttribute index);
 
 #endif

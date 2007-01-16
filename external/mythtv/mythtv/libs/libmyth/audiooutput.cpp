@@ -6,6 +6,12 @@ using namespace std;
 
 #include "config.h"
 #include "audiooutput.h"
+
+/* Required to define BOOL first with friendly _WINDEF_H */
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "audiooutputnull.h"
 #ifdef USING_DIRECTX
 #include "audiooutputdx.h"
@@ -26,42 +32,55 @@ using namespace std;
 #include "audiooutputjack.h"
 #endif
 
-AudioOutput *AudioOutput::OpenAudio(QString audiodevice, int audio_bits, 
+AudioOutput *AudioOutput::OpenAudio(QString main_device,
+                                    QString passthru_device,
+                                    int audio_bits,
                                     int audio_channels, int audio_samplerate,
-                                    AudioOutputSource source, bool set_initial_vol)
+                                    AudioOutputSource source,
+                                    bool set_initial_vol, bool audio_passthru)
 {
-    if (audiodevice.startsWith("ALSA:"))
+    if (passthru_device.isEmpty() || passthru_device.lower() == "default")
+        passthru_device = main_device;
+
+    if (main_device.startsWith("ALSA:"))
     {
 #ifdef USE_ALSA
-        return new AudioOutputALSA(audiodevice.remove(0, 5), audio_bits,
-                                   audio_channels, audio_samplerate, source, set_initial_vol);
+        return new AudioOutputALSA(main_device.remove(0, 5),
+                                   passthru_device.remove(0, 5), audio_bits,
+                                   audio_channels, audio_samplerate, source,
+                                   set_initial_vol, audio_passthru);
 #else
         VERBOSE(VB_IMPORTANT, "Audio output device is set to an ALSA device "
                               "but ALSA support is not compiled in!");
         return NULL;
 #endif
     }
-    else if (audiodevice.startsWith("NULL"))
+    else if (main_device.startsWith("NULL"))
     {
-        return new AudioOutputNULL(audiodevice, audio_bits,
-                                   audio_channels, audio_samplerate, source, set_initial_vol);
+        return new AudioOutputNULL(main_device, passthru_device, audio_bits,
+                                   audio_channels, audio_samplerate, source,
+                                   set_initial_vol, audio_passthru);
     }
-    else if (audiodevice.startsWith("ARTS:"))
+    else if (main_device.startsWith("ARTS:"))
     {
 #ifdef USE_ARTS
-        return new AudioOutputARTS(audiodevice.remove(0, 5), audio_bits,
-                                   audio_channels, audio_samplerate, source, set_initial_vol);
+        return new AudioOutputARTS(main_device.remove(0, 5),
+                                   passthru_device.remove(0, 5), audio_bits,
+                                   audio_channels, audio_samplerate, source,
+                                   set_initial_vol, audio_passthru);
 #else
         VERBOSE(VB_IMPORTANT, "Audio output device is set to an ARTS device "
                               "but ARTS support is not compiled in!");
         return NULL;
 #endif
     }
-    else if (audiodevice.startsWith("JACK:"))
+    else if (main_device.startsWith("JACK:"))
     {
 #ifdef USE_JACK
-        return new AudioOutputJACK(audiodevice.remove(0, 5), audio_bits,
-                                   audio_channels, audio_samplerate, source, set_initial_vol);
+        return new AudioOutputJACK(main_device.remove(0, 5),
+                                   passthru_device.remove(0, 5), audio_bits,
+                                   audio_channels, audio_samplerate, source,
+                                   set_initial_vol, audio_passthru);
 #else
         VERBOSE(VB_IMPORTANT, "Audio output device is set to a JACK device "
                               "but JACK support is not compiled in!");
@@ -70,16 +89,19 @@ AudioOutput *AudioOutput::OpenAudio(QString audiodevice, int audio_bits,
     }
 #if defined(USING_DIRECTX)
     else
-        return new AudioOutputDX(audiodevice, audio_bits,
-                                  audio_channels, audio_samplerate, source, set_initial_vol);
+        return new AudioOutputDX(main_device, passthru_device, audio_bits,
+                                 audio_channels, audio_samplerate, source,
+                                 set_initial_vol, audio_passthru);
 #elif defined(USING_OSS)
     else
-        return new AudioOutputOSS(audiodevice, audio_bits,
-                                  audio_channels, audio_samplerate, source, set_initial_vol);
+        return new AudioOutputOSS(main_device, passthru_device, audio_bits,
+                                  audio_channels, audio_samplerate, source,
+                                  set_initial_vol, audio_passthru);
 #elif defined(CONFIG_DARWIN)
     else
-        return new AudioOutputCA(audiodevice, audio_bits,
-                                 audio_channels, audio_samplerate, source, set_initial_vol);
+        return new AudioOutputCA(main_device, passthru_device, audio_bits,
+                                 audio_channels, audio_samplerate, source,
+                                 set_initial_vol, audio_passthru);
 #endif
 
     VERBOSE(VB_IMPORTANT, "No useable audio output driver found.");

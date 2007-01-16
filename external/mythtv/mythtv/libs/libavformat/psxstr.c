@@ -80,7 +80,7 @@ typedef struct StrDemuxContext {
     AVPacket tmp_pkt;
 } StrDemuxContext;
 
-const static char sync_header[12] = {0x00,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00};
+static const char sync_header[12] = {0x00,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00};
 
 static int str_probe(AVProbeData *p)
 {
@@ -351,7 +351,7 @@ static int str_read_close(AVFormatContext *s)
     return 0;
 }
 
-static AVInputFormat str_iformat = {
+AVInputFormat str_demuxer = {
     "psxstr",
     "Sony Playstation STR format",
     sizeof(StrDemuxContext),
@@ -360,9 +360,3 @@ static AVInputFormat str_iformat = {
     str_read_packet,
     str_read_close,
 };
-
-int str_init(void)
-{
-    av_register_input_format(&str_iformat);
-    return 0;
-}

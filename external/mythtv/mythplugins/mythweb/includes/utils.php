@@ -2,9 +2,18 @@
 /**
  * Utility routines used throughout mythweb
  *
- * @url         $URL$
- * @date        $Date: 2006-03-21 10:27:25 +0200 (Tue, 21 Mar 2006) $
- * @version     $Revision: 9437 $
+ * This file was originally written by Chris Petersen for several different open
+ * source projects.  It is distrubuted under the GNU General Public License.
+ * I (Chris Petersen) have also granted a special LGPL license for *portions* of
+ * this code to several companies I do work for on the condition that these
+ * companies will release any changes to this back to me and the open source
+ * community as GPL, thus continuing to improve the open source version of the
+ * library.  If you would like to inquire about the status of this arrangement,
+ * please contact me personally.
+ *
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/includes/utils.php $
+ * @date        $Date: 2006-09-17 03:11:56 +0300 (Sun, 17 Sep 2006) $
+ * @version     $Revision: 11219 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -20,23 +29,49 @@
 
 /**
  * Get or set a database setting.
+ *
+ * @param string $field     The field (settings.value) to retrieve/set.
+ * @param string $hostname  Hostname (or null) associated with $field.
+ * @param string $new_value New value (settings.data) to set.
+ *
+ * @return string The value (settings.data) associated with $field and $hostname.
 /**/
-    function setting($field, $new_value = "old\0old") {
+    function setting($field, $hostname=null, $new_value = "old\0old") {
         global $db;
         static $cache = array();
+    // Best not to have an array index that's null
+        $h = is_null($hostname) ? '-null-' : $hostname;
+        if (!is_array($cache[$h]))
+            $cache[$h] = array();
     // Assigning a new value
         if ($new_value !== "old\0old") {
-            $db->query('REPLACE INTO settings (value, data) VALUES (?,?)',
-                       $field, $new_value);
-            $cache[$field] = $new_value;
+            if (is_null($hostname))
+                $db->query('DELETE FROM settings
+                                  WHERE value=? AND hostname IS NULL',
+                           $field);
+            else
+                $db->query('DELETE FROM settings
+                                  WHERE value=? AND hostname=?',
+                           $field, $hostname);
+            $db->query('INSERT INTO settings (value, data, hostname) VALUES (?,?,?)',
+                       $field, $new_value, $hostname);
+            $cache[$h][$field] = $new_value;
         }
     // Not cached?
-        elseif (!array_key_exists($field, $cache)) {
-            $cache[$field] = $db->query_col('SELECT data FROM settings WHERE value=?',
-                                            $field);
+        elseif (!array_key_exists($field, $cache[$h])) {
+            if (is_null($hostname))
+                $cache[$h][$field] = $db->query_col('SELECT data
+                                                       FROM settings
+                                                      WHERE value=? AND hostname IS NULL',
+                                                    $field);
+            else
+                $cache[$h][$field] = $db->query_col('SELECT data
+                                                       FROM settings
+                                                      WHERE value=? AND hostname=?',
+                                                    $field, $hostname);
         }
     // Return the cached value
-        return $cache[$field];
+        return $cache[$h][$field];
     }
 
 /**
@@ -113,6 +148,14 @@
 	}
 
 /**
+ * Strips slashes ONLY before quotes, to get around php adding slashes in
+ * preg_replace //e but not in such a way that stripslashes works properly.
+/*/
+    function strip_quote_slashes($str) {
+        return preg_replace("/\\\\([\"'])/", '$1', $str);
+    }
+
+/**
  * Print a redirect header and exit
 /**/
     function redirect_browser($url) {
@@ -140,13 +183,26 @@
             return t('$1 TB', t(round($size / tb, ($size < 10 * tb))));
     }
 
+/**
+ * Convert a unix timestamp into an day/hour/minute string
+ *
+ * @param int $length time to convert.
+ *
+ * @return string Translated hour/minute string.
+/**/
     function nice_length($length) {
-        $mins  = (int) (($length % 3600) / 60);
-        $hours = (int) ($length / 3600);
-        if ($hours)
-            $ret = tn('$1 hr', '$1 hrs', $hours);
+        $days  = intVal($length  / (24 * 3600));
+        $hours = intVal(($length % (24 * 3600)) / 3600);
+        $mins  = intVal(($length % 3600) / 60);
+        if ($days > 0)
+            $ret = tn('$1 day', '$1 days', $days);
         else
             $ret = '';
+        if ($hours > 0) {
+            if ($ret)
+                $ret .= ' ';
+            $ret .= tn('$1 hr', '$1 hrs', $hours);
+        }
         if ($mins > 0) {
             if ($ret)
                 $ret .= ' ';
@@ -211,6 +267,41 @@
     }
 
 /**
+ * Start/display a microtime timer
+ *
+ * @param mixed $message The message to echo, or another value (see return)
+ * @param int   $index   The index value of the cache to store the timer.
+ *                       Useful for handling multiple simultaneous timers.
+ *
+ * @return mixed If $message is ommitted or null, the current time is returned.
+ *               If a string, the string is returned after being passed through
+ *               sprintf() with the current time delta (float) as an argument.
+ *               If anything else, the current time differential is returned.
+/**/
+    function timer($message=null, $index=0) {
+        static $cache = array();
+    // Get the current time
+        if (intVal(phpversion()) >= 5) {
+            $time = microtime(true);
+        }
+        else {
+            list($usec, $sec) = explode(' ', microtime());
+            $time = floatVal($usec) + floatVal($sec);
+        }
+    // Print a string
+        if (is_string($message))
+            $ret = sprintf($message, $time - $cache[$index]);
+        elseif (is_null($message))
+            $ret = $time;
+        else
+            $ret = $time - $cache[$index];
+    // Start/update the timer
+        $cache[$index] = $time;
+    // Return
+        return $ret;
+    }
+
+/**
  * returns $this or $or_this
  * if $gt is set to true, $this will only be returned if it's > 0
  * if $gt is set to a number, $this will only be returned if it's > $gt
@@ -224,51 +315,51 @@
     }
 
 /**
- * @return video_url constant, or sets it according to the browser type
+ * Someday, we may even be able to pass in a recording and get back a specific
+ * hostname.  For now, you get either the hard-coded global video_url, or one
+ * determined based on the browser.
+ *
+ * @return string URL to access recordings
 /**/
-    function video_url() {
-    // Not defined?
-        if (!video_url || video_url == 'video_url') {
-        // Mac and Linux just get a link to the direectory
-            if (preg_match('/\b(?:linux|macintosh|mac\s+os\s*x)\b/i', $_SERVER['HTTP_USER_AGENT']))
-                define('video_url', root.'data/recordings');
-        // Windows likely gets a myth:// url
-            else {
-                global $Master_Host, $Master_Port;
-            // Is either the browser xor the master in an rfc 1918 zone?
-                if (preg_match('/^(?:10|192\.168|172\.(?:1[6-9]|2[0-9]|3[0-6]))\./', $Master_Host)
-                        xor preg_match('/^(?:10|192\.168|172\.(?:1[6-9]|2[0-9]|3[0-6]))\./', $_SERVER['REMOTE_ADDR'])) {
-                    define('video_url', root.'data/recordings');
-                }
-            // Send the myth url
-                else {
-                    define('video_url', "myth://$Master_Host:$Master_Port");
-                }
-            }
+    function video_url($show) {
+    // Global override?
+        $video_url = setting('WebVideo_URL');
+        if ($video_url)
+            return $video_url.str_replace('%2F', '/', rawurlencode(basename($show->filename)));
+    // Mac and Linux just get a link to the streaming module
+        if (preg_match('/\b(?:linux|macintosh|mac\s+os\s*x)\b/i', $_SERVER['HTTP_USER_AGENT']))
+            return root."pl/stream/$show->chanid/$show->recstartts";
+    // Windows likely gets a myth:// url -- grab the master host and port
+        global $Master_Host, $Master_Port;
+    // Is either the browser xor the master in an rfc 1918 zone?
+        if (preg_match('/^(?:10|192\.168|172\.(?:1[6-9]|2[0-9]|3[0-6]))\./', $Master_Host)
+                xor preg_match('/^(?:10|192\.168|172\.(?:1[6-9]|2[0-9]|3[0-6]))\./', $_SERVER['REMOTE_ADDR'])) {
+            return root."pl/stream/$show->chanid/$show->recstartts";
         }
-    // Return
-        return video_url;
+    // Send the myth url
+        else {
+            return "myth://$Master_Host:$Master_Port/"
+                   .str_replace('%2F', '/', rawurlencode(basename($show->filename)));
+        }
     }
 
 /**
  * @return $str converted UTF-8 to local encoding
 /**/
     function utf8tolocal($str) {
-        if (!defined("fs_encoding") || fs_encoding == '')
+        if (empty($_SERVER['fs_encoding']))
             return $str;
         if (function_exists('mb_convert_encoding'))
-            return mb_convert_encoding($str, fs_encoding, 'UTF-8');
+            return mb_convert_encoding($str, $_SERVER['fs_encoding'], 'UTF-8');
         if (function_exists('iconv'))
-            return iconv($int_encoding, fs_encoding, $str);
+            return iconv('UTF-8', $_SERVER['fs_encoding'], $str);
         if (function_exists('recode_string'))
-            return recode_string("UTF-8.." . fs_encoding, $str);
-
+            return recode_string('UTF-8..' . $_SERVER['fs_encoding'], $str);
         return $str;
     }
 
 /**
- * DEBUG:
- *  prints out a piece of data
+ * Prints out a piece of data to a popup window.
 /**/
     function debug($data, $file = false, $force = false) {
         if(!dev_domain && !$force)
@@ -276,7 +367,7 @@
         static $first_run=true;
         if($first_run) {
             $first_run=false;
-            echo '<script type="text/javascript" src="'.root.'js/debug.js"></script>';
+            echo '<script type="text/javascript" src="/js/debug.js"></script>';
         }
     // Put our data into a string
         if (is_array($data) || is_object($data))

@@ -16,6 +16,7 @@
 #include "config.h"
 #include "dsputil.h"
 
+#undef ABS
 #define ABS(A) ( (A) > 0 ? (A) : -(A) )
 #define CLAMP(A,L,U) ((A)>(U)?(U):((A)<(L)?(L):(A)))
 
@@ -35,20 +36,14 @@ typedef struct ThisFilter
 {
     VideoFilter vf;
 
-    int width;
-    int height;
-    int uoff;
-    int voff;
-    int cwidth;
-    int cheight;
     int threshold;
     int skipchroma;
     int mm_flags;
-    int size;
     void (*filtfunc)(uint8_t*, uint8_t*, int, int, int);
     mmx_t threshold_low;
     mmx_t threshold_high;
     uint8_t *line;
+    int linesize;
     TF_STRUCT;
 } ThisFilter;
 
@@ -255,20 +250,43 @@ KernelDeint (VideoFilter * f, VideoFrame * frame)
     ThisFilter *filter = (ThisFilter *) f;
     TF_VARS;
 
-    TF_START;
-    (filter->filtfunc)(frame->buf, filter->line, filter->width,
-                           filter->height, filter->threshold);
-    if (!filter->skipchroma)
+    if (frame->pitches[0] > filter->linesize)
     {
-        (filter->filtfunc)(frame->buf + filter->uoff, filter->line,
-                           filter->cwidth, filter->cheight, filter->threshold);
-        (filter->filtfunc)(frame->buf + filter->voff, filter->line,
-                           filter->cwidth, filter->cheight, filter->threshold);
+        if (filter->line)
+            free(filter->line);
+        filter->line = malloc(frame->pitches[0]);
+        filter->linesize = frame->pitches[0];
     }
+
+    if (!filter->line)
+    {
+        fprintf (stderr, "KernelDeint: failed to allocate line buffer.\n");
+        return -1;
+    }
+
+    TF_START;
+    {
+        unsigned char *ybeg = frame->buf + frame->offsets[0];
+        unsigned char *ubeg = frame->buf + frame->offsets[1];
+        unsigned char *vbeg = frame->buf + frame->offsets[2];
+        int cheight = (frame->codec == FMT_YV12) ?
+            (frame->height >> 1) : frame->height;
+
+        (filter->filtfunc)(ybeg, filter->line, frame->pitches[0],
+                           frame->height, filter->threshold);
+
+        if (!filter->skipchroma)
+        {
+            (filter->filtfunc)(ubeg, filter->line, frame->pitches[1],
+                               cheight, filter->threshold);
+            (filter->filtfunc)(vbeg, filter->line, frame->pitches[2],
+                               cheight, filter->threshold);
+        }
 #ifdef MMX
-    if (filter->mm_flags)
-        emms();
+        if (filter->mm_flags)
+            emms();
 #endif
+    }
     TF_END(filter, "KernelDeint: ");
     return 0;
 }
@@ -276,7 +294,8 @@ KernelDeint (VideoFilter * f, VideoFrame * frame)
 void
 CleanupKernelDeintFilter (VideoFilter * filter)
 {
-    free (((ThisFilter *)filter)->line);
+    if (((ThisFilter *)filter)->line)
+        free (((ThisFilter *)filter)->line);
 }
 
 VideoFilter *
@@ -285,6 +304,7 @@ NewKernelDeintFilter (VideoFrameType inpixfmt, VideoFrameType outpixfmt,
 {
     ThisFilter *filter;
     int numopts;
+    (void) height;
 
     if ( inpixfmt != outpixfmt ||
         (inpixfmt != FMT_YV12 && inpixfmt != FMT_YUV422P) )
@@ -307,10 +327,6 @@ NewKernelDeintFilter (VideoFrameType inpixfmt, VideoFrameType outpixfmt,
     if (numopts < 1)
         filter->threshold = 12;
 
-    filter->width = *width;
-    filter->height = *height;
-    filter->cwidth = *width / 2;
-    filter->uoff = *width * *height;
 #ifdef MMX
     filter->mm_flags = mm_support();
     if (filter->mm_flags & MM_MMX)
@@ -321,23 +337,9 @@ NewKernelDeintFilter (VideoFrameType inpixfmt, VideoFrameType outpixfmt,
 #endif
         filter->filtfunc = &KDP;
 
-    switch (inpixfmt)
-    {
-        case FMT_YUV422P:
-            filter->voff = filter->uoff + *width * *height / 2;
-            filter->size = *width * *height * 2;
-            filter->cheight = *height;
-            break;
-        case FMT_YV12:
-            filter->voff = filter->uoff + *width * *height / 4;
-            filter->size = *width * *height * 3 / 2;
-            filter->cheight = *height / 2;
-            break;
-        default:
-            ;
-    }
-
     filter->line = malloc(*width);
+    filter->linesize = *width;
+
     if (filter->line == NULL)
     {
         fprintf (stderr, "KernelDeint: failed to allocate line buffer.\n");

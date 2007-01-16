@@ -8,7 +8,7 @@
 #include <qptrlist.h>
 
 class ProgramInfo;
-class QSocket;
+class MythSocket;
 
 struct LiveTVChainEntry
 {
@@ -61,13 +61,14 @@ class LiveTVChain
         { return (m_switchid >= 0 && m_jumppos != 0); }
     QString GetChannelName(int pos = -1) const;
     QString GetInputName(int pos = -1) const;
+    QString GetCardType(int pos = -1) const;
 
     // sets/gets program to switch to
     void SetProgram(ProgramInfo *pginfo);
     void SwitchTo(int num);
     void SwitchToNext(bool up);
     void ClearSwitch(void);
-    ProgramInfo *GetSwitchProgram(bool &discont, bool &newtype);
+    ProgramInfo *GetSwitchProgram(bool &discont, bool &newtype, int &newid);
 
     // sets/gets program to jump to
     void JumpTo(int num, int pos);
@@ -75,10 +76,10 @@ class LiveTVChain
     int  GetJumpPos(void);
 
     // socket stuff
-    void SetHostSocket(QSocket *sock);
-    bool IsHostSocket(QSocket *sock);
+    void SetHostSocket(MythSocket *sock);
+    bool IsHostSocket(MythSocket *sock);
     int HostSocketCount(void);
-    void DelHostSocket(QSocket *sock);
+    void DelHostSocket(MythSocket *sock);
  
   private:
     void BroadcastUpdate();
@@ -103,7 +104,7 @@ class LiveTVChain
     int m_jumppos;
 
     QMutex m_sockLock;
-    QPtrList<QSocket> m_inUseSocks;
+    QPtrList<MythSocket> m_inUseSocks;
 };
 
 #endif

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-### osx-packager.pl
+### osx-packager.pl $Id$
 ### Tool for automating frontend builds on Mac OS X.
 ### Run "osx-packager.pl -man" for full documentation.
 
@@ -21,16 +21,21 @@ our $svn = `which svn`; chomp $svn;
 # That probably ensures a safe build, but when rebuilding adds minutes to
 # the total build time, and prevents us skipping some parts of a full build
 #
-our $cleanLibs = 0;
+our $cleanLibs = 1;
 
 # By default, only the frontend is built (i.e. no backend or transcoding)
 #
 our $backend = 0;
 our $jobtools = 0;
 
+# Parallel makes?
+#
+#$ENV{'DISTCC_HOSTS'}   = "localhost 192.168.0.6";
+#$ENV{'DISTCC_VERBOSE'} = '1';
+
 # For faster downloads, change this to a local mirror.
 #
-our $sourceforge = 'http://internap.dl.sf.net';
+our $sourceforge = 'http://umn.dl.sourceforge.net';
 
 # At the moment, there is mythtv plus these two
 our @components = ( 'myththemes', 'mythplugins' );
@@ -40,6 +45,10 @@ our @targetsJT = ( 'MythCommFlag',  'MythJobQueue');
 our @targetsBE = ( 'MythBackend',   'MythFillDatabase',
                    'MythTranscode', 'MythTV-Setup');
 
+# Patches for MythTV source
+our %patches = (
+);
+
 our %depend_order = (
   'mythtv'
   =>  [
@@ -47,14 +56,26 @@ our %depend_order = (
         'lame',
         'mysqlclient',
         'qt-mt',
-        'dvdnav'
+        # Not needed since SVN -r8965. Kept here for 0.19 builds
+        #'dvdnav'
       ],
   'mythplugins'
   =>  [
         'tiff',
         'exif',
         'dvdcss',
-        'dvdread',
+        # MythDVD used to use this to build mtd.
+        # Not needed since SVN -r8965. Kept here for 0.19 builds
+        # 'dvdread',
+# MythMusic needs these seven things:
+#        'libmad',
+#        'libid3tag',
+#        'libogg',
+#        'vorbis',
+#        'flac',
+# These CD ones don't compile on OS X. I doubt that they ever will.
+# MythMusic probably needs to have native OS X code to assess CDs
+#        'cddaparanoia',
 #        'cdaudio'
       ],
 );
@@ -68,13 +89,12 @@ our %depend = (
     =>  "$sourceforge/sourceforge/freetype/freetype-2.1.10.tar.gz",
   },
 
-  'dvdnav'
-  =>
+  # SVN head doesn't need this, but 0.19-fixes and earlier do
+  'dvdnav' =>
   {
-    'url'
-    =>  "$sourceforge/sourceforge/dvd/libdvdnav-0.1.10.tar.gz",
+    'url' => "$sourceforge/sourceforge/dvd/libdvdnav-0.1.10.tar.gz",
   },
-  
+
   'lame'
   =>
   {
@@ -86,12 +106,40 @@ our %depend = (
         ],
   },
 
-#  'cdaudio'
-#  =>
-#  {
-#    'url'
-#    =>  "$sourceforge/sourceforge/libcdaudio/libcdaudio-0.99.12.tar.gz"
-#  },
+  'cdaudio' =>
+  {
+    'url' => "$sourceforge/sourceforge/libcdaudio/libcdaudio-0.99.12.tar.gz"
+  },
+
+  'libmad' =>
+  {
+    'url' => 'ftp://ftp.mars.org/pub/mpeg/libmad-0.15.0b.tar.gz'
+  },
+
+  'libid3tag' =>
+  {
+    'url' => 'ftp://ftp.mars.org/pub/mpeg/libid3tag-0.15.0b.tar.gz'
+  },
+
+  'cddaparanoia' =>
+  {
+    'url' => 'http://www.buserror.net/cdparanoia/cdparanoia-osx-5.tar.gz',
+  },
+
+  'libogg' =>
+  {
+    'url' => 'http://downloads.xiph.org/releases/ogg/libogg-1.1.2.tar.gz'
+  },   
+
+  'vorbis' =>
+  {
+    'url' => 'http://downloads.xiph.org/releases/vorbis/libvorbis-1.1.1.tar.gz'
+  },
+
+  'flac' =>
+  {
+    'url' => "$sourceforge/sourceforge/flac/flac-1.1.2.tar.gz"
+  },
 
   'dvdcss'
   =>
@@ -116,7 +164,7 @@ our %depend = (
   =>
   {
     'url' 
-    => 'http://ftp.snt.utwente.nl/pub/software/mysql/Downloads/MySQL-4.1/mysql-4.1.12.tar.gz',
+    => 'http://mysql.binarycompass.org/Downloads/MySQL-4.1/mysql-4.1.21.tar.gz',
     'conf'
     =>  [
           '--without-debug',
@@ -159,7 +207,7 @@ our %depend = (
 #   },
   {
     'url'
-    =>  'ftp://ftp.iasi.roedu.net/mirrors/ftp.trolltech.com/qt/sources/qt-mac-free-3.3.4.tar.gz',
+    =>  'http://ftp.iasi.roedu.net/mirrors/ftp.trolltech.com/qt/source/qt-mac-free-3.3.6.tar.gz',
     'conf-cmd'
     =>  'echo yes | ./configure',
     'conf'
@@ -171,7 +219,6 @@ our %depend = (
           '-qt-sql-mysql',
           '-no-style-cde',
           '-no-style-compact',
-          '-no-style-mac',
           '-no-style-motif',
           '-no-style-motifplus',
           '-no-style-platinum',
@@ -198,21 +245,18 @@ our %depend = (
   'tiff'
   =>
   {
-    'url'
-    =>  'ftp://ftp.remotesensing.org/pub/libtiff/old/tiff-3.7.1.tar.gz',
+    'url' => 'http://dl.maptools.org/dl/libtiff/tiff-3.8.2.tar.gz'
   },
   
   'exif'
   =>
   {
-    'url'
-    =>  "$sourceforge/sourceforge/libexif/libexif-0.6.12.tar.gz",
-    'conf'
-    =>  [
-          '--disable-nls',
-        ],
-  },
-  
+    'url'  => "$sourceforge/sourceforge/libexif/libexif-0.6.13.tar.bz2",
+    'conf' => [ '--disable-nls' ],
+    'post-conf' => 'echo "install-apidocs:
+install-apidocs-internals:
+" >> doc/Makefile.in'
+  }
 );
 
 
@@ -411,8 +455,13 @@ our %conf = (
         '--disable-mythphone',
         '--enable-mythweather',
       ],
+  'myththemes'
+  =>  [
+        '--prefix=' . $PREFIX,
+      ],
   'mythtv'
   =>  [
+#        '--compile-type=debug',
         '--prefix=' . $PREFIX,
       ],
 );
@@ -448,6 +497,29 @@ my $qt_vers = $depend{'qt-mt'}{'url'};
 $qt_vers =~ s|^.*/([^/]+)\.tar\.gz$|$1|;
 $ENV{'QTDIR'} = "$SRCDIR/$qt_vers";
 
+# If environment is setup to use distcc, take advantage of it
+our $standard_make = '/usr/bin/make';
+our $parallel_make = $standard_make;
+
+if ( $ENV{'DISTCC_HOSTS'} )
+{
+  my @hosts = split m/\s+/, $ENV{'DISTCC_HOSTS'};
+  my $numhosts = $#hosts + 1;
+  &Verbose("Using ", $numhosts * 2, " DistCC jobs on $numhosts build hosts:",
+           join ', ', @hosts);
+  $parallel_make .= ' -j' . $numhosts * 2;
+}
+
+# Ditto for multi-cpu setups:
+my $cmd = "/usr/bin/hostinfo | grep 'processors\$'";
+&Verbose($cmd);
+my $cpus = `$cmd`; chomp $cpus;
+$cpus =~ s/.*, (\d+) processors$/$1/;
+if ( $cpus gt 1 )
+{
+  &Verbose("Using $cpus parallel CPUs");
+  $parallel_make .= " -j$cpus";
+}
 
 ### Distclean?
 if ($OPT{'distclean'})
@@ -587,7 +659,9 @@ foreach my $sw (@build_depends)
     &Verbose("Making $sw");
     my (@make);
     
-    push(@make, '/usr/bin/make');
+    # I would like to use $parallel_make here, but several
+    # of the packages don't compile correctly then.
+    push(@make, $standard_make);
     if ($pkg->{'make'})
     {
       push(@make, @{ $pkg->{'make'} });
@@ -705,6 +779,13 @@ foreach my $comp (@comps)
   my $compdir = "$svndir/$comp/" ;
 
   chdir $compdir;
+
+  if ( ! -e "$comp.pro" )
+  {
+    &Complain("$compdir/$comp.pro does not exist.",
+              'You must be building really old source?');
+    next;
+  }
   
   if ($comp eq 'mythtv')
   {
@@ -715,18 +796,24 @@ foreach my $comp (@comps)
   if ($OPT{'clean'} && -e 'Makefile')
   {
     &Verbose("Cleaning $comp");
-    &Syscall([ '/usr/bin/make', 'distclean' ]) or die;
+    &Syscall([ $standard_make, 'distclean' ]) or die;
   }
   else
   {
     # clean the Makefiles, as process requires PREFIX hacking
     &CleanMakefiles();
   }
+ 
+  # Apply any nasty mac-specific patches 
+  if ($patches{$comp})
+  {
+    &Syscall([ "echo '$patches{$comp}' | patch -p0 --forward" ]);
+  }
   
   # configure and make
   if ( $makecleanopt{$comp} && -e 'Makefile' )
   {
-    my @makecleancom= '/usr/bin/make';
+    my @makecleancom = $standard_make;
     push(@makecleancom, @{ $makecleanopt{$comp} }) if $makecleanopt{$comp};
     &Syscall([ @makecleancom ]) or die;
   }
@@ -738,6 +825,10 @@ foreach my $comp (@comps)
     if ( $comp eq 'mythtv' && $backend )
     {
       push @config, '--enable-backend'
+    }
+    if ( $comp eq 'mythtv' && ! $ENV{'DISTCC_HOSTS'} )
+    {
+      push @config, '--disable-distcc'
     }
     &Syscall([ @config ]) or die;
   }
@@ -754,13 +845,12 @@ foreach my $comp (@comps)
 
   if ($comp eq 'mythtv')
   {
-    # Remove Nigel's frontend speedup hack
-    &DoSpeedupHacks('programs/programs.pro', 'mythfrontend');
-    &DoSpeedupHacks('mythtv.pro', 'libs filters programs themes i18n');
+    # Remove/add Nigel's frontend building speedup hack
+    &DoSpeedupHacks('programs/programs.pro', 'mythfrontend mythtv');
   }
   
   &Verbose("Making $comp");
-  &Syscall([ '/usr/bin/make' ]) or die;
+  &Syscall([ $parallel_make ]) or die;
   # install
   # This requires a change from the compiled-in relative
   # PREFIX to our absolute path of the temp install location.
@@ -771,8 +861,22 @@ foreach my $comp (@comps)
              @qmake_opts,
              "$comp.pro" ]) or die;
   &Verbose("Installing $comp");
-  &Syscall([ '/usr/bin/make',
+  &Syscall([ $standard_make,
              'install' ]) or die;
+
+  if ($cleanLibs && $comp eq 'mythtv')
+  {
+    # If we cleaned the libs, make install will have recopied them,
+    # which means any dynamic libraries that the static libraries depend on
+    # are newer than the table of contents. Hence we need to regenerate it:
+    my @mythlibs = glob "$PREFIX/lib/libmyth*.a";
+    if (scalar @mythlibs)
+    {
+      &Verbose("Running ranlib on reinstalled static libraries");
+      foreach my $lib (@mythlibs)
+      { &Syscall("ranlib $lib") or die }
+    }
+  }
 }
 
 ### Build version string
@@ -784,7 +888,7 @@ $VERS .= '.' . $OPT{'version'} if $OPT{'version'};
 ### Create each package.
 ### Note that this is a bit of a waste of disk space,
 ### because there are now multiple copies of each library.
-my @targets = ('MythFrontend');
+my @targets = ('MythFrontend', 'MythTV');
 
 if ( $jobtools )
 {   push @targets, @targetsJT   }
@@ -810,7 +914,7 @@ foreach my $target ( @targets )
   &Verbose("Installing frameworks into $target");
   &PackagedExecutable($finalTarget, $builtTarget);
   
- if ( $target eq "MythFrontend" or $target eq "MythTV-Setup" )
+ if ( $target eq "MythFrontend" or $target =~ m/^MythTV/ )
  {
   # Install themes, filters, etc.
   &Verbose("Installing resources into $target");
@@ -822,19 +926,32 @@ foreach my $target ( @targets )
   &RecursiveCopy("$PREFIX/share/mythtv",
                  "$finalTarget/Contents/Resources/share");
  }
+
+  if ( $target eq "MythFrontend" )
+  {
+     my $mtd = "$svndir/mythplugins/mythdvd/mtd/mtd.app/Contents/MacOS/mtd";
+     if ( -e $mtd )
+     {
+       &Verbose("Installing $mtd into $target");
+       &Syscall([ 'cp', $mtd, "$finalTarget/Contents/MacOS" ]) or die;
+       &AddFakeBinDir($finalTarget);
+     }
+  }
 }
 
 if ( $backend )
 {
+  my $BE = "$SCRIPTDIR/MythBackend.app";
+
   # The backend gets all the useful binaries it might call:
   foreach my $binary ( 'mythjobqueue', 'mythcommflag', 'mythtranscode' )
   {
     my $SRC  = "$PREFIX/bin/$binary.app/Contents/MacOS/$binary";
     if ( -e $SRC )
     {
-      &Syscall([ '/bin/cp', $SRC,
-                 "$SCRIPTDIR/MythBackend.app/Contents/MacOS" ]) or die;
-      &PackagedExecutable("$SCRIPTDIR/MythBackend.app", $binary);
+      &Syscall([ '/bin/cp', $SRC, "$BE/Contents/MacOS" ]) or die;
+      &PackagedExecutable($BE, $binary);
+      &AddFakeBinDir($BE);
     }
   }
 }
@@ -842,17 +959,19 @@ if ( $backend )
 if ( $jobtools )
 {
   # JobQueue also gets some binaries it might call:
-  my $DEST = "$SCRIPTDIR/MythJobQueue.app/Contents/MacOS";
+  my $JQ   = "$SCRIPTDIR/MythJobQueue.app";
+  my $DEST = "$JQ/Contents/MacOS";
   my $SRC  = "$PREFIX/bin/mythcommflag.app/Contents/MacOS/mythcommflag";
 
   &Syscall([ '/bin/cp', $SRC, $DEST ]) or die;
-  &PackagedExecutable("$SCRIPTDIR/MythJobQueue.app", 'mythcommflag');
+  &PackagedExecutable($JQ, 'mythcommflag');
 
   $SRC  = "$PREFIX/bin/mythtranscode.app/Contents/MacOS/mythtranscode";
   if ( -e $SRC )
   {
       &Syscall([ '/bin/cp', $SRC, $DEST ]) or die;
-      &PackagedExecutable("$SCRIPTDIR/MythJobQueue.app", 'mythtranscode');
+      &PackagedExecutable($JQ, 'mythtranscode');
+      &AddFakeBinDir($JQ);
   }
 }
 
@@ -917,7 +1036,6 @@ sub PackagedExecutable($$)
     while (scalar @deps)
     {
         my $dep = shift @deps;
-        next if $dep =~ m/executable_path/;
 
         my $file = &MakeFramework(&FindLibraryFile($dep), $fw_dir);
         if ( $file )
@@ -1258,7 +1376,7 @@ sub MountHDImage
     {
         if (! -e "$SCRIPTDIR/.osx-packager.dmg")
         {
-            Syscall(['hdiutil', 'create', '-size', '1200m',
+            Syscall(['hdiutil', 'create', '-size', '1300m',
                      "$SCRIPTDIR/.osx-packager.dmg", '-volname',
                      'MythTvPackagerHDImage', '-fs', 'UFS', '-quiet']);
         }
@@ -1279,7 +1397,7 @@ sub UnmountHDImage
     my $device = HDImageDevice();
     if ($device)
     {
-        Syscall(['hdiutil', 'detach', $device, '-force']);
+        &Syscall(['hdiutil', 'detach', $device, '-force']);
     }
 }
 
@@ -1329,6 +1447,19 @@ sub DoSpeedupHacks($$)
   }
   close IN; close OUT;
   rename("$file.orig", $file);
+}
+
+#######################################################
+## Parts of MythTV try to call helper apps like this:
+## gContext->GetInstallPrefix() + "/bin/mythtranscode";
+## which means we need a bin directory.
+#######################################################
+
+sub AddFakeBinDir($)
+{
+  my ($target) = @_;
+
+  &Syscall(['ln', '-sf', '../MacOS', "$target/Contents/Resources/bin"]);
 }
 
 ### end file

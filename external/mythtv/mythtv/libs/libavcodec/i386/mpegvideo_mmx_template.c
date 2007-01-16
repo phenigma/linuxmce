@@ -19,6 +19,7 @@
  */
 #undef SPREADW
 #undef PMAXW
+#undef PMAX
 #ifdef HAVE_MMX2
 #define SPREADW(a) "pshufw $0, " #a ", " #a " \n\t"
 #define PMAXW(a,b) "pmaxsw " #a ", " #b "     \n\t"
@@ -51,7 +52,7 @@ static int RENAME(dct_quantize)(MpegEncContext *s,
     long last_non_zero_p1;
     int level=0, q; //=0 is cuz gcc says uninitalized ...
     const uint16_t *qmat, *bias;
-    __align8 int16_t temp_block[64];
+    DECLARE_ALIGNED_8(int16_t, temp_block[64]);
 
     assert((7&(int)(&temp_block[0])) == 0); //did gcc align it correctly?
 
@@ -112,7 +113,7 @@ static int RENAME(dct_quantize)(MpegEncContext *s,
             "pxor %%mm6, %%mm6                  \n\t"
             "psubw (%3), %%mm6                  \n\t" // -bias[0]
             "mov $-128, %%"REG_a"               \n\t"
-            ".balign 16                         \n\t"
+            ASMALIGN(4)
             "1:                                 \n\t"
             "pxor %%mm1, %%mm1                  \n\t" // 0
             "movq (%1, %%"REG_a"), %%mm0        \n\t" // block[i]
@@ -158,7 +159,7 @@ static int RENAME(dct_quantize)(MpegEncContext *s,
             "pxor %%mm7, %%mm7                  \n\t" // 0
             "pxor %%mm4, %%mm4                  \n\t" // 0
             "mov $-128, %%"REG_a"               \n\t"
-            ".balign 16                         \n\t"
+            ASMALIGN(4)
             "1:                                 \n\t"
             "pxor %%mm1, %%mm1                  \n\t" // 0
             "mov %1, %%"REG_c"         #HERE    \n\t"

@@ -32,7 +32,7 @@ typedef struct {
     int ds_data_size;
     int ds_silence_data;
 
-    int packet_pos;
+    int64_t packet_pos;
 
 } ASFStream;
 
@@ -98,6 +98,8 @@ typedef struct {
     ByteIOContext pb;
     /* only for reading */
     uint64_t data_offset; /* begining of the first data packet */
+    uint64_t data_object_offset; /* data object offset (excl. GUID & size)*/
+    uint64_t data_object_size;   /* size of the data object */
 
     ASFMainHeader hdr;
 
@@ -117,7 +119,7 @@ typedef struct {
     int packet_obj_size;
     int packet_time_delta;
     int packet_time_start;
-    int packet_pos;
+    int64_t packet_pos;
 
     int stream_index;
 
@@ -141,6 +143,10 @@ static const GUID file_header = {
 
 static const GUID stream_header = {
     0xB7DC0791, 0xA9B7, 0x11CF, { 0x8E, 0xE6, 0x00, 0xC0, 0x0C, 0x20, 0x53, 0x65 },
+};
+
+static const GUID ext_stream_header = {
+    0x14E6A5CB, 0xC672, 0x4332, { 0x83, 0x99, 0xA9, 0x69, 0x52, 0x06, 0x5B, 0x5A },
 };
 
 static const GUID audio_stream = {
@@ -198,6 +204,14 @@ static const GUID extended_content_header = {
 
 static const GUID simple_index_header = {
         0x33000890, 0xE5B1, 0x11CF, { 0x89, 0xF4, 0x00, 0xA0, 0xC9, 0x03, 0x49, 0xCB },
+};
+
+static const GUID ext_stream_embed_stream_header = {
+        0x3afb65e2, 0x47ef, 0x40f2, { 0xac, 0x2c, 0x70, 0xa9, 0x0d, 0x71, 0xd3, 0x43}
+};
+
+static const GUID ext_stream_audio_stream = {
+        0x31178c9d, 0x03e1, 0x4528, { 0xb5, 0x82, 0x3d, 0xf9, 0xdb, 0x22, 0xf5, 0x03}
 };
 
 /* I am not a number !!! This GUID is the one found on the PC used to

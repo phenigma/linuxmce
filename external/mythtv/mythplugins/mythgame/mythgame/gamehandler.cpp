@@ -104,7 +104,7 @@ void GameHandler::InitMetaDataMap(QString GameType)
     MSqlQuery query(MSqlQuery::InitCon());
     QString thequery = QString("SELECT crc, category, year, country, name, "
                                "description, publisher, platform, version, "
-                               "binfile FROM romdb WHERE platform = \"%1\"; ")
+                               "binfile FROM romdb WHERE platform = \"%1\";")
                               .arg(GameType);
     query.exec(thequery);
 
@@ -127,7 +127,10 @@ void GameHandler::InitMetaDataMap(QString GameType)
         }
     }
 
-
+    if (romDB.count() == 0)
+        cerr << "No romDB data read from database. Not imported?" << endl;
+    else
+        cerr << "Loaded " << romDB.count() << " items from romDB Database" << endl;
 
 }
 
@@ -135,17 +138,12 @@ void GameHandler::GetMetadata(GameHandler *handler, QString rom, QString* Genre,
                               QString* Country, QString* CRC32, QString* GameName,
                               QString *Publisher, QString *Version)
 {
-    uLong crc;
     QString key;
+    QString tmpcrc;
 
-    crc = crcinfo(rom, handler->GameType(), &key, &romDB);
+    *CRC32 = crcinfo(rom, handler->GameType(), &key, &romDB);
 
     //cerr << "Key = " << key << endl;
-
-    *CRC32 = QString("%1").arg( crc, 0, 16 );
-    if (*CRC32 == "0")
-        *CRC32 = "";
-
 
     // Set our default values
     *Year = QObject::tr("19xx");
@@ -479,6 +477,11 @@ int GameHandler::buildFileCount(QString directory, GameHandler *handler)
 {
     int filecount = 0;
     QDir RomDir(directory);
+
+				// If we can't read it's contents move on
+    if (!RomDir.isReadable()) 
+        return 0;
+
     const QFileInfoList* List = RomDir.entryInfoList();
     for (QFileInfoListIterator it(*List); it; ++it)
     {   
@@ -546,6 +549,11 @@ void GameHandler::buildFileList(QString directory, GameHandler *handler,
                                 MythProgressDialog *pdial, int* filecount)
 {
     QDir RomDir(directory);
+
+                                // If we can't read it's contents move on
+    if (!RomDir.isReadable()) 
+        return;
+
     RomDir.setSorting( QDir:: DirsFirst | QDir::Name );
     const QFileInfoList* List = RomDir.entryInfoList();
     for (QFileInfoListIterator it(*List); it; ++it)

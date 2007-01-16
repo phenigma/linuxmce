@@ -28,6 +28,7 @@ Only mono files are supported.
 static const unsigned char AMR_header [] = "#!AMR\n";
 static const unsigned char AMRWB_header [] = "#!AMR-WB\n";
 
+#ifdef CONFIG_MUXERS
 static int amr_write_header(AVFormatContext *s)
 {
     ByteIOContext *pb = &s->pb;
@@ -62,6 +63,7 @@ static int amr_write_trailer(AVFormatContext *s)
 {
     return 0;
 }
+#endif /* CONFIG_MUXERS */
 
 static int amr_probe(AVProbeData *p)
 {
@@ -133,7 +135,7 @@ static int amr_read_packet(AVFormatContext *s,
 
     if (enc->codec_id == CODEC_ID_AMR_NB)
     {
-        const static uint8_t packed_size[16] = {12, 13, 15, 17, 19, 20, 26, 31, 5, 0, 0, 0, 0, 0, 0, 0};
+        static const uint8_t packed_size[16] = {12, 13, 15, 17, 19, 20, 26, 31, 5, 0, 0, 0, 0, 0, 0, 0};
         uint8_t toc, q, ft;
         int read;
         int size;
@@ -213,7 +215,8 @@ static int amr_read_close(AVFormatContext *s)
     return 0;
 }
 
-static AVInputFormat amr_iformat = {
+#ifdef CONFIG_AMR_DEMUXER
+AVInputFormat amr_demuxer = {
     "amr",
     "3gpp amr file format",
     0, /*priv_data_size*/
@@ -222,8 +225,10 @@ static AVInputFormat amr_iformat = {
     amr_read_packet,
     amr_read_close,
 };
+#endif
 
-static AVOutputFormat amr_oformat = {
+#ifdef CONFIG_AMR_MUXER
+AVOutputFormat amr_muxer = {
     "amr",
     "3gpp amr file format",
     "audio/amr",
@@ -235,10 +240,4 @@ static AVOutputFormat amr_oformat = {
     amr_write_packet,
     amr_write_trailer,
 };
-
-int amr_init(void)
-{
-    av_register_input_format(&amr_iformat);
-    av_register_output_format(&amr_oformat);
-    return 0;
-}
+#endif

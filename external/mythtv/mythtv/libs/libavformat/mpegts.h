@@ -33,11 +33,15 @@ extern "C" {
 
 /* table ids */
 #define PAT_TID   0x00
-#define PMT_TID   0x02 
+#define PMT_TID   0x02
 #define SDT_TID   0x42
 
 /* descriptor ids */
+#define DVB_CAROUSEL_ID             0x13
+#define DVB_VBI_DESCID              0x56
 #define DVB_SUBT_DESCID             0x59
+#define DVB_BROADCAST_ID            0x66
+#define DVB_DATA_STREAM             0x52
 
 #define STREAM_TYPE_VIDEO_MPEG1     0x01
 #define STREAM_TYPE_VIDEO_MPEG2     0x02
@@ -45,6 +49,7 @@ extern "C" {
 #define STREAM_TYPE_AUDIO_MPEG2     0x04
 #define STREAM_TYPE_PRIVATE_SECTION 0x05
 #define STREAM_TYPE_PRIVATE_DATA    0x06
+#define STREAM_TYPE_DSMCC_B         0x0b
 #define STREAM_TYPE_AUDIO_AAC       0x0f
 #define STREAM_TYPE_VIDEO_MPEG4     0x10
 #define STREAM_TYPE_VIDEO_H264      0x1b
@@ -53,9 +58,9 @@ extern "C" {
 #define STREAM_TYPE_AUDIO_DTS       0x8a
 
 #define STREAM_TYPE_SUBTITLE_DVB    0x100
+#define STREAM_TYPE_VBI_DVB         0x101
 
-unsigned int mpegts_crc32(const uint8_t *data, int len);
-extern AVOutputFormat mpegts_mux;
+extern AVOutputFormat mpegts_muxer;
 
 typedef struct MpegTSContext MpegTSContext;
 

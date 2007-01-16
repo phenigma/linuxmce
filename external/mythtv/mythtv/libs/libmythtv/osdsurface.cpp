@@ -1,7 +1,9 @@
 #include "osdsurface.h"
 #include "dithertable.h"
+#include "mythcontext.h"
 
 #include <algorithm>
+using namespace std;
 
 #ifdef MMX
 
@@ -82,6 +84,7 @@ OSDSurface::~OSDSurface()
 
 void OSDSurface::Clear(void)
 {
+    QMutexLocker lock(&usedRegionsLock);
     memset(y, 0, size);
     memset(u, 127, size / 4);
     memset(v, 127, size / 4);
@@ -91,6 +94,7 @@ void OSDSurface::Clear(void)
 
 void OSDSurface::ClearUsed(void)
 {
+    QMutexLocker lock(&usedRegionsLock);
     QMemArray<QRect> rects = usedRegions.rects();
     QMemArray<QRect>::Iterator it = rects.begin();
     QRect drawRect;
@@ -133,6 +137,7 @@ void OSDSurface::ClearUsed(void)
 
 bool OSDSurface::IntersectsDrawn(QRect &newrect)
 {
+    QMutexLocker lock(&usedRegionsLock);
     QMemArray<QRect> rects = usedRegions.rects();
     QMemArray<QRect>::Iterator it = rects.begin();
     for (; it != rects.end(); ++it)
@@ -143,6 +148,7 @@ bool OSDSurface::IntersectsDrawn(QRect &newrect)
 
 void OSDSurface::AddRect(QRect &newrect)
 {
+    QMutexLocker lock(&usedRegionsLock);
     usedRegions = usedRegions.unite(newrect);
 }
 
@@ -545,106 +551,99 @@ void delete_dithertoia44_8_context(dither8_context *context)
     delete context;
 }
 
-/** \fn OSDSurface::BlendToYV12(unsigned char *) const
+/** \fn OSDSurface::BlendToYV12(unsigned char*,unsigned char*,unsigned char*,int,int,int) const
  *  \brief Alpha blends OSDSurface to yuv buffer of the same size.
- *  \param yuvptr Pointer to YUV buffer to blend OSD to.
+ *  \param yptrdest Pointer to Y buffer to blend OSD to.
+ *  \param uptrdest Pointer to U buffer to blend OSD to.
+ *  \param vptrdest Pointer to V buffer to blend OSD to.
  */
-void OSDSurface::BlendToYV12(unsigned char *yuvptr) const
+void OSDSurface::BlendToYV12(unsigned char *yptrdest,
+                             unsigned char *uptrdest,
+                             unsigned char *vptrdest,
+                             int ystride, int ustride, int vstride) const
 {
+    QMutexLocker lock(&usedRegionsLock);
     const OSDSurface *surface = this;
     blendtoyv12_8_fun blender = blendtoyv12_8_init(surface);
-
-    unsigned char *uptrdest = yuvptr + surface->width * surface->height;
-    unsigned char *vptrdest = uptrdest + surface->width * surface->height / 4;
 
     QMemArray<QRect> rects = surface->usedRegions.rects();
     QMemArray<QRect>::Iterator it = rects.begin();
     for (; it != rects.end(); ++it)
     {
-        QRect drawRect = *it;
+        int begx = max((*it).left(),   0);
+        int begy = max((*it).top(),    0);
+        int endx = min((*it).right(),  width  - 1);
+        int endy = min((*it).bottom(), height - 1);
 
-        int startcol, startline, endcol, endline;
-        startcol = drawRect.left();
-        startline = drawRect.top();
-        endcol = drawRect.right();
-        endline = drawRect.bottom();
-
-        if (startline < 0) startline = 0;
-        if (endline >= height) endline = height - 1;
-        if (startcol < 0) endcol = 0;
-        if (endcol >= width) endcol = width - 1;
-
-        unsigned char *src, *usrc, *vsrc;
-        unsigned char *dest, *udest, *vdest;
-        unsigned char *alpha;
-
-        int yoffset;
-
-        for (int y = startline; y <= endline; y++)
+        for (int y = begy; y <= endy; y++)
         {
-            yoffset = y * surface->width;
+            int ysrcoff = y * surface->width;
+            int ydstoff = y * ystride;
 
-            src = surface->y + yoffset + startcol;
-            dest = yuvptr + yoffset + startcol;
-            alpha = surface->alpha + yoffset + startcol;
+            unsigned char *src   = surface->y     + ysrcoff + begx;
+            unsigned char *alpha = surface->alpha + ysrcoff + begx;
+            unsigned char *dest  = yptrdest       + ydstoff + begx;
 
-            for (int x = startcol; x <= endcol; x++)
+            for (int x = begx; x <= endx;)
             {
-                if (x + 8 >= endcol)
+                if (x + 8 >= endx)
                 {
                     if (*alpha != 0)
                         *dest = blendColorsAlpha(*src, *dest, *alpha);
                     src++;
                     dest++;
                     alpha++;
+                    x++;
                 }
                 else
                 {
                     blender(src, dest, alpha, false);
-                    src += 8;
-                    dest += 8;
+                    src   += 8;
+                    dest  += 8;
                     alpha += 8;
-                    x += 7;
+                    x     += 8;
                 }
             }
 
-            alpha = surface->alpha + yoffset + startcol;
+            if ((y & 1) == 1)
+                continue;
 
-            if (y % 2 == 0)
+            int uvbegx   = begx >> 1;
+            int uvsrcoff = (y >> 1) * (surface->width >> 1);
+            int udestoff = (y >> 1) * ustride;
+            int vdestoff = (y >> 1) * vstride;
+
+            unsigned char *usrc  = surface->u + uvsrcoff + uvbegx;
+            unsigned char *udest = uptrdest   + udestoff + uvbegx;
+            unsigned char *vsrc  = surface->v + uvsrcoff + uvbegx;
+            unsigned char *vdest = vptrdest   + vdestoff + uvbegx;
+
+            for (int x = begx; x <= endx;)
             {
-                usrc = surface->u + yoffset / 4 + startcol / 2;
-                udest = uptrdest + yoffset / 4 + startcol / 2;
-
-                vsrc = surface->v + yoffset / 4 + startcol / 2;
-                vdest = vptrdest + yoffset / 4 + startcol / 2;
-
-                for (int x = startcol; x <= endcol; x += 2)
+                alpha = surface->alpha + ysrcoff + x;
+                if (x + 16 >= endx)
                 {
-                    alpha = surface->alpha + yoffset + x;
-
-                    if (x + 16 >= endcol)
+                    if (*alpha != 0)
                     {
-                        if (*alpha != 0)
-                        {
-                            *udest = blendColorsAlpha(*usrc, *udest, *alpha);
-                            *vdest = blendColorsAlpha(*vsrc, *vdest, *alpha);
-                        }
+                        *udest = blendColorsAlpha(*usrc, *udest, *alpha);
+                        *vdest = blendColorsAlpha(*vsrc, *vdest, *alpha);
+                    }
 
-                        usrc++;
-                        udest++;
-                        vsrc++;
-                        vdest++;
-                    }
-                    else
-                    {
-                        blender(usrc, udest, alpha, true);
-                        blender(vsrc, vdest, alpha, true);
-                        usrc += 8;
-                        udest += 8;
-                        vsrc += 8;
-                        vdest += 8;
-                        x += 14;
-                    }
+                    usrc++;
+                    udest++;
+                    vsrc++;
+                    vdest++;
+                    x += 2;
+                }
+                else
+                {
+                    blender(usrc, udest, alpha, true);
+                    blender(vsrc, vdest, alpha, true);
+                    usrc += 8;
+                    udest += 8;
+                    vsrc += 8;
+                    vdest += 8;
+                    x += 16;
                 }
             }
         }
@@ -686,6 +685,7 @@ void OSDSurface::BlendToARGB(unsigned char *argbptr, uint stride,
                              uint outheight, bool blend_to_black,
                              uint threshold) const
 {
+    QMutexLocker lock(&usedRegionsLock);
     const OSDSurface *surface = this;
     blendtoargb_8_fun blender = blendtoargb_8_init(surface);
     const unsigned char *cm = surface->cm;
@@ -772,6 +772,7 @@ void OSDSurface::BlendToARGB(unsigned char *argbptr, uint stride,
 void OSDSurface::DitherToI44(unsigned char *outbuf, bool ifirst,
                              uint stride, uint outheight) const
 {
+    QMutexLocker lock(&usedRegionsLock);
     const OSDSurface *surface = this;
     int ashift = ifirst ? 0 : 4;
     int amask = ifirst ? 0x0f : 0xf0;

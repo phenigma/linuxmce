@@ -25,9 +25,9 @@
 class VideoOutput;
 
 typedef unsigned long GLXDrawable;
-#ifdef USING_OPENGL_VSYNC
+#ifdef USING_OPENGL
 typedef struct __GLXcontextRec *GLXContext;
-#else 
+#else
 typedef void *GLXContext;
 #endif
 
@@ -214,6 +214,8 @@ class OpenGLVideoSync : public VideoSync
   private:
     GLXDrawable m_drawable;
     GLXContext  m_context;
+  private:
+    class OpenGLVideoSyncPrivate *m_imp;
 };
 
 #ifdef __linux__

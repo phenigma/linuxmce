@@ -27,11 +27,10 @@ class RecordingProfile;
  *
  *  \sa TVRec
  */
-class RecorderBase : public QObject
+class RecorderBase
 {
-    Q_OBJECT
   public:
-    RecorderBase(TVRec *rec, const char *name = "RecorderBase");
+    RecorderBase(TVRec *rec);
     virtual ~RecorderBase();
 
     /// \brief Sets the video frame rate.
@@ -205,14 +204,15 @@ class RecorderBase : public QObject
      */
     virtual void CheckForRingBufferSwitch(void);
 
-  public slots:
-    virtual void deleteLater(void);
-
   protected:
-    /** \brief Convenience function used to set integer options.
-     *  \sa SetOption(const QString&, const QString&)
+    /** \brief Convenience function used to set integer options from a profile.
+     *  \sa SetOption(const QString&, int)
      */
     void SetIntOption(RecordingProfile *profile, const QString &name);
+    /** \brief Convenience function used to set QString options from a profile.
+     *  \sa SetOption(const QString&, const QString&)
+     */
+    void SetStrOption(RecordingProfile *profile, const QString &name);
     virtual bool PauseAndWait(int timeout = 100);
 
     virtual void ResetForNewFile(void) = 0;

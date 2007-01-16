@@ -23,12 +23,22 @@ using namespace std;
 #include "osdtypes.h"
 #include "osdsurface.h"
 #include "mythcontext.h"
+#include "textsubtitleparser.h"
 #include "libmyth/oldsettings.h"
 #include "udpnotify.h"
 
+#include "osdtypeteletext.h"
 #include "osdlistbtntype.h"
 
+static char  *cc708_default_font_names[16];
+static bool   cc708_defaults_initialized = false;
+static QMutex cc708_init_lock;
+static void initialize_osd_fonts(void);
+
 static float sq(float a) { return a*a; }
+
+#define LOC QString("OSD: ")
+#define LOC_ERR QString("OSD, Error: ")
 
 OSD::OSD(const QRect &osd_bounds, int   frameRate,
          const QRect &vis_bounds, float visibleAspect, float fontScaling)
@@ -48,6 +58,12 @@ OSD::OSD(const QRect &osd_bounds, int   frameRate,
       changed(false),                     runningTreeMenu(NULL),
       treeMenuContainer("")
 {
+    if (!cc708_defaults_initialized)
+        initialize_osd_fonts();
+
+    for (uint i = 0; i < 16; i++)
+        cc708fontnames[i] = cc708_default_font_names[i];
+
     needPillarBox = visibleAspect > 1.51f;
     wscale = visibleAspect / 1.3333f;
     // adjust for wscale font size scaling
@@ -57,7 +73,7 @@ OSD::OSD(const QRect &osd_bounds, int   frameRate,
     {
         VERBOSE(VB_IMPORTANT, "Couldn't find OSD theme: "
                 <<gContext->GetSetting("OSDTheme"));
-        SetDefaults();
+        InitDefaults();
         return;
     }
 
@@ -67,9 +83,9 @@ OSD::OSD(const QRect &osd_bounds, int   frameRate,
         VERBOSE(VB_IMPORTANT, "Couldn't load OSD theme: "
                 <<gContext->GetSetting("OSDTheme")<<" at "<<themepath);
     }
-    SetDefaults();
+    InitDefaults();
 
-    // Reinit since LoadThemes and SetDefaults() appear to mess things up.
+    // Reinit since LoadThemes and InitDefaults() appear to mess things up.
     Reinit(osd_bounds, frameRate, vis_bounds, visibleAspect, fontScaling);
 }
 
@@ -113,7 +129,20 @@ void OSD::SetFrameInterval(int frint)
     }
 }
 
-void OSD::SetDefaults(void)
+bool OSD::InitDefaults(void)
+{
+    bool ok = true;
+    ok &= InitCC608();
+    ok &= InitCC708();
+    ok &= InitTeletext();
+    ok &= InitMenu();
+    ok &= InitSubtitles();
+    ok &= InitInteractiveTV();
+    return ok;
+}
+
+// EIA-608 "analog" captions
+bool OSD::InitCC608(void)
 {
     TTFFont *ccfont = GetFont("cc_font");
     if (!ccfont)
@@ -128,99 +157,337 @@ void OSD::SetDefaults(void)
     }
 
     if (!ccfont)
+        return false;
+
+    if (GetSet("cc_page"))
+        return true;
+
+    QString name = "cc_page";
+    OSDSet *container =
+        new OSDSet(name, true,
+                   osdBounds.width(), osdBounds.height(),
+                   wmult, hmult, frameint);
+    container->SetPriority(30);
+    AddSet(container, name);
+
+    int sub_dispw = displaywidth;
+    int sub_disph = displayheight;
+    int sub_xoff = xoffset;
+    int sub_yoff = yoffset;
+    if (needPillarBox)
+    {
+        // widescreen -- need to "pillarbox" captions
+        sub_dispw = (int)(wscale * 4.0f*displayheight/3.0f);
+        sub_disph = displayheight;
+        sub_xoff = xoffset + (displaywidth-sub_dispw)/2;
+        sub_yoff = yoffset;
+    }
+
+    OSDTypeCC *ccpage =
+        new OSDTypeCC(name, ccfont, sub_xoff, sub_yoff,
+                      sub_dispw, sub_disph, wmult, hmult);
+    container->AddType(ccpage);
+    return true;
+}
+
+// EIA-708 "digital" captions
+bool OSD::InitCC708(void)
+{
+    VERBOSE(VB_VBI, LOC + "InitCC708() -- begin");
+    // Check if cc708 osd already exits, exit early if it does
+    QString name = "cc708_page";
+    if (GetSet(name))
+    {
+        VERBOSE(VB_IMPORTANT, LOC + "InitCC708() -- end (already exits)");
+        return true;
+    }
+
+    // Create fonts...
+    TTFFont* ccfonts[48];
+    uint z = gContext->GetNumSetting("OSDCC708TextZoom", 100) * 480;
+    uint fontsizes[3] = { z / 3600, z / 2900, z / 2200 };
+    for (uint i = 0; i < 48; i++)
+    {
+	TTFFont *ccfont = GetFont(QString("cc708_font%1").arg(i));
+	if (!ccfont)
+	{
+	    QString name = QString("cc708_font%1").arg(i);
+            int fontsize = fontsizes[i%3];
+	    ccfont = LoadFont(cc708fontnames[i/3], fontsize);
+	    if (ccfont)
+		fontMap[name] = ccfont;
+	    if (!ccfont)
+            {
+                VERBOSE(VB_IMPORTANT, LOC_ERR + "A CC708 font is missing");
+		return false;
+            }
+	}
+        ccfonts[i] = ccfont;
+    }
+
+    // Create a container for one service
+    OSDSet *container =
+        new OSDSet(
+            name, true, osdBounds.width(), osdBounds.height(),
+            wmult, hmult, frameint);
+    container->SetPriority(30);
+
+    AddSet(container, name);
+    OSDType708CC *ccpage = 
+        new OSDType708CC(name, ccfonts, xoffset, yoffset, 
+                         displaywidth, displayheight);
+    container->AddType(ccpage);
+
+    VERBOSE(VB_VBI, LOC + "InitCC708() -- end");
+    return true;
+}
+
+bool OSD::InitTeletext(void)
+{
+    if (GetSet("teletext"))
+        return true;
+
+    QString name = "teletext";
+    OSDSet *container =
+        new OSDSet(name, true, osdBounds.width(), osdBounds.height(),
+                   wmult, hmult, frameint);
+    container->SetAllowFade(false);
+    container->SetWantsUpdates(true);
+    AddSet(container, name);
+    QRect area = QRect(20, 20, 620, 440);
+    normalizeRect(area);
+    // XXX TODO use special teletextfont
+    QString fontname = "teletextfont";
+    TTFFont *font = GetFont(fontname);
+    if (!font)
+    {
+        int fontsize = 440 / 26;
+        font = LoadFont(gContext->GetSetting("OSDCCFont"), fontsize);
+
+        if (font)
+            fontMap[fontname] = font;
+    }
+
+    OSDTypeTeletext *ttpage = new OSDTypeTeletext(
+        name, font, area, wmult, hmult, this);
+  
+    container->SetPriority(30);
+    container->AddType(ttpage);
+    return true;
+}   
+
+void OSD::UpdateTeletext(void)
+{
+    QMutexLocker locker(&osdlock);
+
+    OSDSet *container = GetSet("teletext");
+    if (!container)
         return;
 
-    OSDSet *container = GetSet("cc_page");
-    if (!container)
+    OSDType *type = container->GetType("teletext");
+    OSDTypeTeletext *ttpage = dynamic_cast<OSDTypeTeletext*>(type);
+    if (ttpage)
     {
-        QString name = "cc_page";
-        container = new OSDSet(name, true,
-                               osdBounds.width(), osdBounds.height(),
-                               wmult, hmult, frameint);
-        container->SetPriority(30);
-        AddSet(container, name);
+        container->Display(1);
+        m_setsvisible = true;
+        changed = true;
+    }
+}
 
-        int sub_dispw = displaywidth;
-        int sub_disph = displayheight;
-        int sub_xoff = xoffset;
-        int sub_yoff = yoffset;
-        if (needPillarBox)
+void OSD::SetTextSubtitles(const QStringList &lines)
+{
+    const uint SUBTITLE_FONT_SIZE     = 20;
+    const float SUBTITLE_LINE_SPACING = 1.1;
+    const uint MAX_CHARACTERS_PER_ROW = 50;    
+    // how many pixels of empty space at the bottom
+    const uint BOTTOM_PAD = SUBTITLE_FONT_SIZE;
+
+    OSDSet *subtitleSet = GetSet("subtitles");
+    if (!subtitleSet)
+        return;
+
+    // wrap long lines to multiple lines
+    QString subText = "";
+    int subLines = 0;
+    QStringList::const_iterator it = lines.begin();
+    for (; it != lines.end(); ++it)
+    {
+        const QString line = *it;
+
+        if (line.length() <= MAX_CHARACTERS_PER_ROW)
         {
-            // widescreen -- need to "pillarbox" captions
-            sub_dispw = (int)(wscale * 4.0f*displayheight/3.0f);
-            sub_disph = displayheight;
-            sub_xoff = xoffset + (displaywidth-sub_dispw)/2;
-            sub_yoff = yoffset;
+            subText.append(line);
+            subText.append("\n");
+            ++subLines;
+            continue;
         }
 
-        OSDTypeCC *ccpage = new OSDTypeCC(name, ccfont, sub_xoff, sub_yoff,
-                                          sub_dispw, sub_disph,
-                                          wmult, hmult);
-        container->AddType(ccpage);
-    }
+        // wrap long lines at word spaces
+        QStringList words = QStringList::split(" ", line);
+        QString newString = "";
 
-    container = GetSet("menu");
-    if (!container)
-    {
-        QString name = "menu";
-        container = new OSDSet(name, true,
-                               osdBounds.width(), osdBounds.height(),
-                               wmult, hmult, frameint);
-        AddSet(container, name);
- 
-        QRect area = QRect(20, 40, 620, 300);
-        QRect listarea = QRect(0, 0, 274, 260);
-
-        normalizeRect(area);
-        normalizeRect(listarea);
-        listarea.moveBy((int)(-xoffset*hmult+0.5), (int)(-yoffset*hmult+0.5));
-
-        OSDListTreeType *lb = new OSDListTreeType("menu", area, listarea, 10,
-                                                  wmult, hmult);
- 
-        lb->SetItemRegColor(QColor("#505050"), QColor("#000000"), 100);
-        lb->SetItemSelColor(QColor("#52CA38"), QColor("#349838"), 255);
- 
-        lb->SetSpacing(2);
-        lb->SetMargin(3);
-
-        TTFFont *actfont = GetFont("infofont");
-        TTFFont *inactfont = GetFont("infofont");
-
-        if (!actfont)
+        do
         {
-            actfont = LoadFont(gContext->GetSetting("OSDFont"), 16);
+            QString word = words.first();
+            words.pop_front();
 
-            if (actfont)
-                fontMap["treemenulistfont"] = actfont;
+            uint totLen = newString.length() + word.length() + 1;
+            if (totLen > MAX_CHARACTERS_PER_ROW)
+            {
+                // next word won't fit anymore, create a new line
+                subText.append(newString + "\n");
+                ++subLines;
+                newString = "";
+            }
+            newString.append(word + " ");
         }
+        while (!words.empty());
 
-        if (!actfont)
-        {
-            QMap<QString, TTFFont *>::Iterator it = fontMap.begin();
-            actfont = it.data();
-        }
-
-        if (!inactfont)
-            inactfont = actfont;
-
-        lb->SetFontActive(actfont);
-        lb->SetFontInactive(inactfont);
-
-        container->AddType(lb);
+        subText.append(newString);
+        subText.append("\n");
+        ++subLines;
     }
 
-    // Create container for subtitles
-    container = GetSet("subtitles");
-    if (!container)
+    ClearAll("subtitles");
+
+    QString name = "text_subtitles";
+
+
+    // I couldn't get the space using the LineSpacing accurately 
+    // (getting it through (SUBTITLE_LINE_SPACING - 1)*H resulted
+    // in too small space. Just hard code it, it should work as
+    // the variance in the count of subtitle lines is so low.
+    const int totalSpaceBetweenLines = (subLines - 1) * 5;
+    const int subtitleTotalHeight = 
+        subLines * SUBTITLE_FONT_SIZE + totalSpaceBetweenLines;
+
+    // put the subtitles to the bottom of the screen
+    QRect area(0, displayheight - (int)((subtitleTotalHeight + BOTTOM_PAD)*hmult),
+               displaywidth, displayheight);
+
+    QString fontname = "text_subtitle_font";
+    TTFFont *font = GetFont(fontname);
+    if (!font)
     {
-        QString name = "subtitles";
-        container = new OSDSet(name, true,
-                               osdBounds.width(), osdBounds.height(),
-                               wmult, hmult, frameint);
-        container->SetPriority(30);
-        AddSet(container, name);
+        font = LoadFont(gContext->GetSetting("OSDCCFont"), SUBTITLE_FONT_SIZE);
+
+        if (font) 
+        {
+            // set outline so we can see the font in white background video
+            font->setOutline(true);
+            fontMap[fontname] = font;
+        } 
+        else 
+        {
+            VERBOSE(VB_IMPORTANT, "Cannot load font for text subtitles.");
+            return;
+        }
     }
+
+    OSDTypeText *text = new OSDTypeText(name, font, "", area, wmult, hmult);
+  
+    text->SetCentered(true);
+    text->SetMultiLine(true);
+    text->SetText(subText);
+    text->SetSelected(false);
+    text->SetLineSpacing(SUBTITLE_LINE_SPACING);
+    subtitleSet->AddType(text);
+    SetVisible(subtitleSet, 0);
+}   
+
+void OSD::ClearTextSubtitles() 
+{
+    HideSet("subtitles");
+    ClearAll("subtitles");
+}
+
+bool OSD::InitMenu(void)
+{
+    if (GetSet("menu"))
+        return true;
+
+    QString name = "menu";
+    OSDSet *container = 
+        new OSDSet(name, true,
+                   osdBounds.width(), osdBounds.height(),
+                   wmult, hmult, frameint);
+    AddSet(container, name);
+ 
+    QRect area = QRect(20, 40, 620, 300);
+    QRect listarea = QRect(0, 0, 274, 260);
+
+    normalizeRect(area);
+    normalizeRect(listarea);
+    listarea.moveBy((int)(-xoffset*hmult+0.5), (int)(-yoffset*hmult+0.5));
+
+    OSDListTreeType *lb = new OSDListTreeType("menu", area, listarea, 10,
+                                              wmult, hmult);
+ 
+    lb->SetItemRegColor(QColor("#505050"), QColor("#000000"), 100);
+    lb->SetItemSelColor(QColor("#52CA38"), QColor("#349838"), 255);
+ 
+    lb->SetSpacing(2);
+    lb->SetMargin(3);
+
+    TTFFont *actfont = GetFont("infofont");
+    TTFFont *inactfont = GetFont("infofont");
+
+    if (!actfont)
+    {
+        actfont = LoadFont(gContext->GetSetting("OSDFont"), 16);
+
+        if (actfont)
+            fontMap["treemenulistfont"] = actfont;
+    }
+
+    if (!actfont)
+    {
+        QMap<QString, TTFFont *>::Iterator it = fontMap.begin();
+        actfont = it.data();
+    }
+
+    if (!inactfont)
+        inactfont = actfont;
+
+    lb->SetFontActive(actfont);
+    lb->SetFontInactive(inactfont);
+
+    container->AddType(lb);
+
+    return true;
+}
+
+bool OSD::InitSubtitles(void)
+{
+    // Create container for subtitles (DVB, DVD and external subs)
+    if (GetSet("subtitles"))
+        return true;
+
+    QString name = "subtitles";
+    OSDSet *container =
+        new OSDSet(name, true,
+                   osdBounds.width(), osdBounds.height(),
+                   wmult, hmult, frameint);
+
+    container->SetPriority(30);
+    AddSet(container, name);
+    return true;
+}
+
+bool OSD::InitInteractiveTV(void)
+{
+    // Create container for interactive TV
+    if  (GetSet("interactive"))
+        return true;
+    QString name = "interactive";
+    OSDSet *container =
+        new OSDSet(name, true,
+                   osdBounds.width(), osdBounds.height(),
+                   wmult, hmult, frameint);
+    container->SetPriority(25);
+    container->Display(true);
+    AddSet(container, name);
+    return true;
 }
 
 void OSD::Reinit(const QRect &totalBounds,   int   frameRate,
@@ -335,9 +602,9 @@ TTFFont *OSD::LoadFont(QString name, int size)
                            wscale, hmult*fscale);
         if (font->isValid())
             return font;
-    }
 
-    delete font;
+        delete font;
+    }
 
     fullname = name;
     font = new TTFFont((char *)fullname.ascii(), size,
@@ -350,7 +617,9 @@ TTFFont *OSD::LoadFont(QString name, int size)
                                   "No OSD will be displayed.").arg(name));
 
     delete font;
-    return NULL;
+    font = NULL;
+
+    return font;
 }
 
 QString OSD::getFirstText(QDomElement &element)
@@ -690,6 +959,18 @@ void OSD::parseTextArea(OSDSet *container, QDomElement &element)
         else if (align.lower() == "right")
             text->SetRightJustified(true);
     }
+
+    QString entry = element.attribute("entry", "");
+    if (!entry.isEmpty())
+    {
+        int entrynum = entry.toInt();
+        text->SetEntryNum(entrynum);
+        text->SetSelected(entrynum == 0);
+    }
+
+    QString button = element.attribute("button", "");
+    if (!button.isEmpty() && (button.lower() == "yes"))
+        text->SetButton(true);
 
     if (scroller)
     {
@@ -1665,6 +1946,53 @@ void OSD::UpdateCCText(vector<ccText*> *ccbuf,
     osdlock.unlock();
 }
 
+void OSD::SetCC708Service(const CC708Service *service)
+{
+    QMutexLocker locker(&osdlock);
+
+    OSDSet *container = GetSet("cc708_page");
+    if (!container)
+        return;
+
+    OSDType *type = container->GetType("cc708_page");
+    OSDType708CC *ccpage = (OSDType708CC*) type;
+    if (!ccpage)
+        return;
+
+    ccpage->SetCCService(service);
+    container->Display(1/*visible*/);
+    m_setsvisible = true;
+    changed = true;
+}
+
+void OSD::CC708Updated(void)
+{
+    QMutexLocker locker(&osdlock);
+
+    OSDSet *container = GetSet("cc708_page");
+    if (!container)
+        return;
+
+    OSDType *type = container->GetType("cc708_page");
+    OSDType708CC *ccpage = dynamic_cast<OSDType708CC*>(type);
+    if (ccpage)
+    {
+        container->Display(1/*visible*/);
+        m_setsvisible = true;
+        changed = true;
+    }
+}
+
+TeletextViewer *OSD::GetTeletextViewer(void)
+{
+    OSDSet *oset = GetSet("teletext");
+    if (!oset)
+        return NULL;
+
+    OSDType *traw = oset->GetType("teletext");
+    return dynamic_cast<TeletextViewer*>(traw);
+}
+
 void OSD::SetSettingsText(const QString &text, int length)
 {
     HideAllExcept("settings");
@@ -1727,6 +2055,14 @@ void OSD::NewDialogBox(const QString &name, const QString &message,
     while (text);
 
     int numoptions = options.size();
+
+    if (availoptions < numoptions)
+    {
+        VERBOSE(VB_IMPORTANT, QString("Theme allows %1 options, "
+        "menu contains %2 options").arg(availoptions).arg(numoptions));
+        return;
+    }
+
     int offset = availoptions - numoptions;
     initial_selection = max(min(numoptions - 1, initial_selection), 0);
 
@@ -1756,7 +2092,7 @@ void OSD::NewDialogBox(const QString &name, const QString &message,
     opr->SetOffset(offset);
     opr->SetPosition(initial_selection);
 
-    dialogResponseList[name] = 0;
+    dialogResponseList[name] = initial_selection;
 
     HighlightDialogSelection(container, offset + initial_selection);
 
@@ -1897,9 +2233,9 @@ void OSD::ShowEditArrow(long long number, long long totalframes, int type)
     char name[128];
     sprintf(name, "%lld-%d", number, type);
 
-    int xpos = (int)((editarrowRect.width() * 1.0 / totalframes) * number);
-    xpos = (editarrowRect.left() + xpos) * wmult;
-    int ypos = editarrowRect.top() * hmult;
+    int xtmp = (int)((editarrowRect.width() * 1.0 / totalframes) * number);
+    int xpos = (int) round((editarrowRect.left() + xtmp) * wmult);
+    int ypos = (int) round(editarrowRect.top() * hmult);
 
     osdlock.lock();
 
@@ -1963,7 +2299,9 @@ bool OSD::HideAllExcept(const QString &other)
         if (*i && (*i)->Displaying())
         {
             QString name = (*i)->GetName();
-            if (name != "cc_page" && name != "menu" && name != "subtitles" &&
+            if (name != "cc_page" && name != "cc708_page" &&
+                name != "menu"    && name != "subtitles"  &&
+                name != "interactive" &&
                 name != other && (!oset || !oset->CanShowWith(name)))
             {
                 (*i)->Hide();
@@ -2180,19 +2518,14 @@ OSDSurface *OSD::Display(void)
                 }
             }
 
-            if (container->Fading())
-                changed = true;
+            int fadetime = container->GetFadeTime();
+            if (!container->IsFading() && (totalfadetime != fadetime))
+                container->SetFadeTime(totalfadetime);
 
             container->Draw(drawSurface, actuallydraw);
             anytodisplay = true;
-            if (container->GetTimeLeft() == 0 && totalfadetime > 0)
-            {
-                container->FadeFor(totalfadetime);
-                changed = true;
-            }
 
-            if (container->NeedsUpdate())
-                changed = true;
+            changed |= container->IsFading() || container->NeedsUpdate();
         }
         else if (container->HasDisplayed())
         {
@@ -2413,4 +2746,63 @@ bool OSD::HasSet(const QString &name)
 QRect OSD::GetSubtitleBounds()
 {
     return QRect(xoffset, yoffset, displaywidth, displayheight);
+}
+
+static void initialize_osd_fonts(void)
+{
+    QMutexLocker locker(&cc708_init_lock);
+    if (cc708_defaults_initialized)
+        return;
+    cc708_defaults_initialized = true;
+
+    QString default_font_type = gContext->GetSetting(
+        "OSDCC708DefaultFontType", "MonoSerif");
+
+    // 0
+    cc708_default_font_names[0]  = strdup(gContext->GetSetting(
+        QString("OSDCC708%1Font").arg(default_font_type)));
+    cc708_default_font_names[1]  = strdup(gContext->GetSetting(
+        QString("OSDCC708%1ItalicFont").arg(default_font_type)));
+
+    // 1
+    cc708_default_font_names[2]  = strdup(gContext->GetSetting(
+        "OSDCC708MonoSerifFont"));
+    cc708_default_font_names[3]  = strdup(gContext->GetSetting(
+        "OSDCC708MonoSerifItalicFont"));
+
+    // 2
+    cc708_default_font_names[4]  = strdup(gContext->GetSetting(
+        "OSDCC708PropSerifFont"));
+    cc708_default_font_names[5]  = strdup(gContext->GetSetting(
+        "OSDCC708PropSerifItalicFont"));
+
+    // 3
+    cc708_default_font_names[6]  = strdup(gContext->GetSetting(
+        "OSDCC708MonoSansSerifFont"));
+    cc708_default_font_names[7]  = strdup(gContext->GetSetting(
+        "OSDCC708MonoSansSerifItalicFont"));
+
+    // 4
+    cc708_default_font_names[8]  = strdup(gContext->GetSetting(
+        "OSDCC708PropSansSerifFont"));
+    cc708_default_font_names[9]  = strdup(gContext->GetSetting(
+        "OSDCC708PropSansSerifItalicFont"));
+
+    // 5
+    cc708_default_font_names[10]  = strdup(gContext->GetSetting(
+        "OSDCC708CasualFont"));
+    cc708_default_font_names[11]  = strdup(gContext->GetSetting(
+        "OSDCC708CasualItalicFont"));
+
+    // 6
+    cc708_default_font_names[12] = strdup(gContext->GetSetting(
+        "OSDCC708CursiveFont"));
+    cc708_default_font_names[13] = strdup(gContext->GetSetting(
+        "OSDCC708CursiveItalicFont"));
+
+    // 7
+    cc708_default_font_names[14] = strdup(gContext->GetSetting(
+        "OSDCC708CapitalsFont"));
+    cc708_default_font_names[15] = strdup(gContext->GetSetting(
+        "OSDCC708CapitalsItalicFont"));
 }

@@ -7,13 +7,13 @@
     implementation for dvd probing (libdvdread)
 */
 
-#include <iostream>
-using namespace std;
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
+#if defined(__linux__) || defined(__FreeBSD__)
 #include <linux/cdrom.h>
+#endif
 #include <fcntl.h>
 #include <unistd.h>
 #include "dvdprobe.h"
@@ -68,7 +68,7 @@ void DVDAudio::fill(audio_attr_t *audio_attributes)
     char a_string[1025];
 
     //
-    //  this just travels down the audio_attributes stuct
+    //  this just travels down the audio_attributes struct
     //  (defined in libdvdread) and ticks off the right
     //  information
     //
@@ -218,7 +218,7 @@ DVDTitle::DVDTitle()
     aspect_ratio = "";
 
     letterbox = false;
-    video_format = "unkown";
+    video_format = "unknown";
     
     dvdinput_id = 0;
 }
@@ -231,7 +231,7 @@ void DVDTitle::setTime(uint h, uint m, uint s, double fr)
     frame_rate = fr;
     
     //
-    //  These are transocde frame rate codes
+    //  These are transcode frame rate codes
     //
     
     if(fr > 23.0 && fr < 24.0)
@@ -289,7 +289,9 @@ void DVDTitle::setTime(uint h, uint m, uint s, double fr)
     else
     {
         fr_code = 0;
-        cerr << "dvdprobe.o: Could not find a frame rate code given a frame rate of " << fr << endl ;
+        VERBOSE(VB_IMPORTANT,
+                QString("dvdprobe.o: Could not find a frame rate code given a"
+                        " frame rate of %1").arg(fr));
     }
     
     
@@ -401,23 +403,24 @@ void DVDTitle::determineInputID()
     }
     else
     {
-        cerr << "dvdprobe.o: You have a title on your dvd in a format myth doesn't understand." << endl;
-        cerr << "dvdprobe.o: Either that, or you haven't installed the dvdinput table." << endl;
-        cerr << "dvdprobe.o: You probably want to report this to a mailing list or something: " << endl;
-        cerr << "                  height = " << hsize << endl;
-        cerr << "                   width = " << vsize << endl;
-        cerr << "            aspect ratio = " << aspect_ratio << " (" << ar_numerator << "/"<< ar_denominator << ")" << endl;
-        cerr << "              frame rate = " << frame_rate << endl;
-        cerr << "                 fr_code = " << fr_code << endl;
-        if(letterbox)
-        {
-            cerr << "             letterboxed = true " << endl;
-        }
-        else
-        {
-            cerr << "             letterboxed = false " << endl;
-        }
-        cerr << "                  format = " << video_format << endl;
+        QString msg =
+                QString("You have a title on your dvd in a format myth doesn't"
+                    " understand.\n"
+                    "Either that, or you haven't installed the dvdinput"
+                    " table.\n"
+                    "You probably want to report this to a mailing list or"
+                    " something:\n"
+                    "                  height = %1\n"
+                    "                   width = %2\n"
+                    "            aspect ratio = %3 (%4/%5)\n"
+                    "              frame rate = %6\n"
+                    "                 fr_code = %7\n"
+                    "             letterboxed = %8\n"
+                    "                  format = %9")
+                .arg(hsize).arg(vsize)
+                .arg(aspect_ratio).arg(ar_numerator).arg(ar_denominator)
+                .arg(frame_rate).arg(fr_code).arg(letterbox).arg(video_format);
+        VERBOSE(VB_IMPORTANT, msg);
     }    
 }
 
@@ -442,13 +445,12 @@ DVDProbe::DVDProbe(const QString &dvd_device)
     device = dvd_device;
     dvd = NULL;
     titles.setAutoDelete(true);
-    titles.clear();
-    volume_name = QObject::tr("Unknown");
-    first_time = true;
+    wipeClean();
 }
 
 void DVDProbe::wipeClean()
 {
+    first_time = true;
     titles.clear();
     volume_name = QObject::tr("Unknown");
 }
@@ -474,6 +476,7 @@ bool DVDProbe::probe()
         return false;
     }
 
+#if defined(__linux__) || defined(__FreeBSD__)
     //
     //  I have no idea if the following code block
     //  is anywhere close to the "right way" of doing
@@ -481,7 +484,22 @@ bool DVDProbe::probe()
     //
 
     int drive_handle = open(device, O_RDONLY | O_NONBLOCK);
-    int status = ioctl(drive_handle, CDROM_DRIVE_STATUS, NULL);
+
+    if (drive_handle == -1)
+    {
+        wipeClean();
+        return false;
+    }
+
+    // Sometimes the first result following an open is a lie. Often the
+    // first call will return 4, however an immediate second call will
+    // return 2. Anecdotally the first result after an open has only
+    // a 1 in 8 chance of detecting changes from 4 to 2, while a second call
+    // (in an admittedly small test number) seems to make it much more
+    // accurate (with only a 1 in 6 chance that the first result was more
+    // accurate than the second).
+    ioctl(drive_handle, CDROM_DRIVE_STATUS, CDSL_CURRENT);
+    int status = ioctl(drive_handle, CDROM_DRIVE_STATUS, CDSL_CURRENT);
     if(status < 4)
     {
         //
@@ -522,6 +540,7 @@ bool DVDProbe::probe()
             }
         }
     }
+#endif
 
     //
     //  Try to open the disc
@@ -529,8 +548,8 @@ bool DVDProbe::probe()
     //  could be a path, file, whatever).
     //
     
-    first_time = false;
     wipeClean();
+    first_time = false;
     dvd = DVDOpen(device);
     if(dvd)
     {
@@ -538,7 +557,7 @@ bool DVDProbe::probe()
         //  Grab the title of this DVD
         //
         
-        int arbitrary = 1024;
+        const int arbitrary = 1024;
         char volume_name_buffr[arbitrary + 1];
         unsigned char set_name[arbitrary + 1];
         
@@ -548,7 +567,8 @@ bool DVDProbe::probe()
         }
         else
         {
-            cerr << "dvdprobe.o: Error getting volume name, setting to \"Unknown\"" << endl;
+            VERBOSE(VB_IMPORTANT, "Error getting volume name, setting to"
+                    "\"Unknown\"");
         }
         
         ifo_handle_t *ifo_file = ifoOpen(dvd, 0);
@@ -574,7 +594,9 @@ bool DVDProbe::probe()
                 video_transport_file = ifoOpen(dvd, title_info->title[i].title_set_nr);
                 if(!video_transport_file)
                 {
-                    cerr << "dvdprobe.o: Can't get video transport for track " << i+1 << endl;
+                    VERBOSE(VB_IMPORTANT,
+                            QString("Can't get video transport for track %1")
+                            .arg(i+1));
                 }
                 else
                 {
@@ -603,7 +625,9 @@ bool DVDProbe::probe()
                             framerate = 24000/1001.0;  // NTSC_FILM
                             break;
                         default:
-                            cerr << "dvdprobe.o: For some odd reason (!), I couldn't get a video frame rate" << endl;
+                            VERBOSE(VB_IMPORTANT,
+                                    "For some odd reason (!), I couldn't get a"
+                                    " video frame rate");
                             break;
                     }
                     
@@ -688,7 +712,8 @@ bool DVDProbe::probe()
                                 new_title->setAR(16, 9, "16:9");
                                 break;
                             default:
-                                cerr << "dvdprobe.o: couldn't get aspect ratio for a title" << endl;
+                                VERBOSE(VB_IMPORTANT, "couldn't get aspect"
+                                        " ratio for a title");
                         }
                         
                         switch(video_attributes->video_format)
@@ -700,7 +725,8 @@ bool DVDProbe::probe()
                                 new_title->setVFormat("pal");
                                 break;
                             default:
-                                cerr << "dvdprobe.o: Could not get video format for a title" << endl;
+                                VERBOSE(VB_IMPORTANT, "Could not get video"
+                                        " format for a title");
                         }
                         
                         if(video_attributes->letterboxed)
@@ -728,13 +754,16 @@ bool DVDProbe::probe()
                                 new_title->setSize(352, c_height / 2);
                                 break;
                             default:
-                                cerr << "dvdprobe.o: Could not determine for video size for a title." << endl ;
+                                VERBOSE(VB_IMPORTANT, "Could not determine for"
+                                        " video size for a title.");
                         }
                         ifoClose(video_transport_file);
                     }
                     else
                     {
-                        cerr << "Couldn't find any audio or video information for track " << i+1 << endl;
+                        VERBOSE(VB_IMPORTANT,
+                                QString("Couldn't find any audio or video"
+                                        " information for track %1").arg(i+1));
                     }            
                 }
                 
@@ -803,4 +832,3 @@ DVDProbe::~DVDProbe()
     }
     wipeClean();
 }
-

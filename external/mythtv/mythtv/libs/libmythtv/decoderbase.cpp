@@ -1,5 +1,8 @@
 #include <unistd.h>
 
+#include <algorithm>
+using namespace std;
+
 #include "NuppelVideoPlayer.h"
 #include "remoteencoder.h"
 #include "mythcontext.h"
@@ -7,6 +10,8 @@
 #include "decoderbase.h"
 #include "programinfo.h"
 #include "livetvchain.h"
+#include "DVDRingBuffer.h"
+#include "iso639.h"
 
 #define LOC QString("Dec: ")
 #define LOC_ERR QString("Dec, Error: ")
@@ -26,15 +31,22 @@ DecoderBase::DecoderBase(NuppelVideoPlayer *parent, ProgramInfo *pginfo)
 
       hasFullPositionMap(false), recordingHasPositionMap(false),
       posmapStarted(false), positionMapType(MARK_UNSET),
+      dontSyncPositionMap(false),
 
       exactseeks(false), livetv(false), watchingrecording(false),
 
       hasKeyFrameAdjustTable(false), lowbuffers(false),
       getrawframes(false), getrawvideo(false),
-      currentAudioTrack(-1), currentSubtitleTrack(-1),
       errored(false), waitingForChange(false), readAdjust(0),
-      justAfterChange(false)
+      justAfterChange(false),
+      // language preference
+      languagePreference(iso639_get_language_key_list())
 {
+    ResetTracks();
+    tracks[kTrackTypeAudio].push_back(StreamInfo(0, 0, 0, 0));
+    tracks[kTrackTypeCC608].push_back(StreamInfo(0, 0, 0, 1));
+    tracks[kTrackTypeCC608].push_back(StreamInfo(0, 0, 2, 3));
+
     if (pginfo)
         m_playbackinfo = new ProgramInfo(*pginfo);
 }
@@ -96,10 +108,11 @@ bool DecoderBase::PosMapFromDb(void)
     {
         long long totframes;
         keyframedist = 15;
+        fps = ringBuffer->DVD()->GetFrameRate();
         if (fps < 26 && fps > 24)
            keyframedist = 12;
-        totframes = (long long)(ringBuffer->GetTotalTimeOfTitle() * fps);
-        posMap[totframes] = ringBuffer->GetTotalReadPosition();
+        totframes = (long long)(ringBuffer->DVD()->GetTotalTimeOfTitle() * fps);
+        posMap[totframes] = ringBuffer->DVD()->GetTotalReadPosition();
     }
     else if ((positionMapType == MARK_UNSET) ||
         (keyframedist == -1))
@@ -270,6 +283,9 @@ bool DecoderBase::SyncPositionMap(void)
             << (int) posmapStarted << " livetv(" << livetv << ") "
             << "watchingRec(" << watchingrecording << ")");
 
+    if (dontSyncPositionMap)
+        return false;
+
     unsigned int old_posmap_size = m_positionMap.size();
     
     if (livetv || watchingrecording)
@@ -316,7 +332,7 @@ bool DecoderBase::SyncPositionMap(void)
         if (ringBuffer->isDVD())
         { 
             totframes = m_positionMap[m_positionMap.size() - 1].index;
-            length = ringBuffer->GetTotalTimeOfTitle();
+            length = ringBuffer->DVD()->GetTotalTimeOfTitle();
         }
         else
         { 
@@ -677,36 +693,38 @@ bool DecoderBase::GetWaitForChange(void)
 
 void DecoderBase::ChangeDVDTrack(bool ffw)
 {
-    bool result = true;
     if (!ringBuffer->isDVD())
         return;
-
-    uint prevcellstart = ringBuffer->GetCellStart();
+    
+    bool result = true;
+    int prevcellstart = ringBuffer->DVD()->GetCellStart();
+    int prevcellid = ringBuffer->DVD()->GetCellID();
+    int prevvobid  = ringBuffer->DVD()->GetVobID();
 
     if (ffw)
-        result = ringBuffer->nextTrack();
+        result = ringBuffer->DVD()->nextTrack();
     else
-        ringBuffer->prevTrack();
+        ringBuffer->DVD()->prevTrack();
 
     if (result)
     {
         if ((prevcellstart == 0 && ffw) || (prevcellstart != 0))
         {
-            while (prevcellstart == ringBuffer->GetCellStart())
+            int limit = 0;
+            while (ringBuffer->DVD()->IsSameChapter(prevcellid, prevvobid)
+                    && limit < 50)
+            {
+                limit++;
                 usleep(10000);
+            }
         } 
 
-        uint elapsed = ringBuffer->GetCellStart();
+        uint elapsed = ringBuffer->DVD()->GetCellStart();
+
+        UpdateDVDFramesPlayed();
 
         if (elapsed == 0)
             SeekReset(framesPlayed, 0, true, true);
-
-        // update frames played
-        long long played = (int)(elapsed * fps);
-
-        framesPlayed = played;
-        GetNVP()->getVideoOutput()->SetFramesPlayed(played + 1);
-        GetNVP()->SetFramesPlayed(played + 1);
     }
 }
 
@@ -719,5 +737,213 @@ long long DecoderBase::DVDFindPosition(long long desiredFrame)
     int multiplier = m_positionMap[size].pos / m_positionMap[size].index ;
     return (long long)(desiredFrame * multiplier);
 } 
+
+long long DecoderBase::DVDCurrentFrameNumber(void)
+{
+    int size = m_positionMap.size() - 1;
+    if (!ringBuffer->isDVD() || size < 0)
+        return 0;
+
+    long long currentpos = ringBuffer->GetReadPosition();
+    long long multiplier = (currentpos * m_positionMap[size].index);
+    long long currentframe = multiplier / m_positionMap[size].pos;
+    return currentframe;
+}
+
+void DecoderBase::UpdateDVDFramesPlayed(void)
+{
+    long long currentpos = DVDCurrentFrameNumber();
+    framesPlayed = framesRead = currentpos ;
+    GetNVP()->getVideoOutput()->SetFramesPlayed(currentpos + 1);
+    GetNVP()->SetFramesPlayed(currentpos + 1);
+}
+
+QStringList DecoderBase::GetTracks(uint type) const
+{
+    QStringList list;
+
+    QMutexLocker locker(&avcodeclock);
+
+    for (uint i = 0; i < tracks[type].size(); i++)
+        list += GetTrackDesc(type, i);
+
+    return list;
+}
+
+int DecoderBase::GetTrackLanguageIndex(uint type, uint trackNo) const
+{
+    if (trackNo >= tracks[type].size())
+        return 0;
+
+    return tracks[type][trackNo].language_index;
+}
+
+QString DecoderBase::GetTrackDesc(uint type, uint trackNo) const
+{
+    if (trackNo >= tracks[type].size())
+        return "";
+
+    QMutexLocker locker(&avcodeclock);
+
+    QString type_msg = track_type_to_string(type);
+    int lang = tracks[type][trackNo].language;
+    int hnum = trackNo + 1;
+    if (kTrackTypeCC608 == type)
+        hnum = tracks[type][trackNo].stream_id;
+
+    if (!lang)
+        return type_msg + QString("-%1").arg(hnum);
+    else
+    {
+        QString lang_msg = iso639_key_toName(lang);
+        return type_msg + QString(" %1: %2").arg(hnum).arg(lang_msg);
+    }
+}
+
+int DecoderBase::SetTrack(uint type, int trackNo)
+{
+    if (trackNo >= (int)tracks[type].size())
+        return false;
+
+    QMutexLocker locker(&avcodeclock);
+
+    currentTrack[type] = max(-1, trackNo);
+
+    if (currentTrack[type] < 0)
+        selectedTrack[type].av_stream_index = -1;
+    else
+    {
+        wantedTrack[type]   = tracks[type][currentTrack[type]];
+        selectedTrack[type] = tracks[type][currentTrack[type]];
+    }
+
+    return currentTrack[type];
+}
+
+StreamInfo DecoderBase::GetTrackInfo(uint type, uint trackNo) const
+{
+    QMutexLocker locker(&avcodeclock);
+
+    if (trackNo >= tracks[type].size())
+    {
+        StreamInfo si;
+        return si;
+    }
+
+    return tracks[type][trackNo];
+}
+
+bool DecoderBase::InsertTrack(uint type, const StreamInfo &info)
+{
+    QMutexLocker locker(&avcodeclock);
+
+    for (uint i = 0; i < tracks[type].size(); i++)
+        if (info.stream_id == tracks[type][i].stream_id)
+            return false;
+
+    tracks[type].push_back(info);
+
+    if (GetNVP())
+	GetNVP()->TracksChanged(type);
+
+    return true;
+}
+
+/** \fn DecoderBase::AutoSelectTrack(uint)
+ *  \brief Select best track.
+ *
+ *   In case there's only one track available, always choose it.
+ *
+ *   If there is a user selected track we try to find it.
+ *
+ *   If we can't find the user selected track we try to
+ *   picked according to the ISO639Language[0..] settings.
+ *
+ *   In case there are no ISOLanguage[0..] settings, or no preferred language
+ *   is found, the first found track stream is chosen
+ *
+ *  \return track if a track was selected, -1 otherwise
+ */
+int DecoderBase::AutoSelectTrack(uint type)
+{
+    uint numStreams = tracks[type].size();
+
+    if ((currentTrack[type] >= 0) && 
+        (currentTrack[type] < (int)numStreams))
+    {
+        return true; // track already selected
+    }
+
+    if (!numStreams)
+    {
+        currentTrack[type] = -1;
+        selectedTrack[type].av_stream_index = -1;
+        return false; // no tracks available
+    }
+
+    int selTrack = (1 == numStreams) ? 0 : -1;
+
+    if ((selTrack < 0) &&
+        wantedTrack[type].language>=-1 && numStreams)
+    {
+        VERBOSE(VB_PLAYBACK, LOC + "Trying to reselect track");
+        // Try to reselect user selected track stream.
+        // This should find the stream after a commercial
+        // break and in some cases after a channel change.
+        int  wlang = wantedTrack[type].language;
+        uint windx = wantedTrack[type].language_index;
+        for (uint i = 0; i < numStreams; i++)
+        {
+            if (wlang == tracks[type][i].language)
+                selTrack = i;
+            if (windx == tracks[type][i].language_index)
+                break;
+        }
+    }
+
+    if (selTrack < 0 && numStreams)
+    {
+        VERBOSE(VB_PLAYBACK, LOC + "Trying to select track (w/lang)");
+        // Find first track stream that matches a language in
+        // order of most preferred to least preferred language.
+        vector<int>::iterator it = languagePreference.begin();
+        for (; it != languagePreference.end() && (selTrack < 0); ++it)
+        {
+            for (uint i = 0; i < numStreams; i++)
+            {
+                if (*it == tracks[type][i].language)
+                {
+                    selTrack = i;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (selTrack < 0 && numStreams)
+    {
+        VERBOSE(VB_PLAYBACK, LOC + "Selecting first track");
+        selTrack = 0;
+    }
+
+    int oldTrack = currentTrack[type];
+    currentTrack[type] = (selTrack < 0) ? -1 : selTrack;
+    StreamInfo tmp = tracks[type][currentTrack[type]];
+    selectedTrack[type] = tmp;
+
+    if (wantedTrack[type].av_stream_index < 0)
+        wantedTrack[type] = tmp;
+     
+    int lang = tracks[type][currentTrack[type]].language;
+    VERBOSE(VB_PLAYBACK, LOC + 
+            QString("Selected track #%1 in the %2 language(%3)")
+            .arg(currentTrack[type]+1)
+            .arg(iso639_key_toName(lang)).arg(lang));
+
+    if (GetNVP() && (oldTrack != currentTrack[type]))
+        GetNVP()->TracksChanged(type);
+
+    return selTrack;
+}
 
 /* vim: set expandtab tabstop=4 shiftwidth=4: */

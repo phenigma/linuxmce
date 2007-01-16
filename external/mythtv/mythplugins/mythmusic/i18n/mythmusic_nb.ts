@@ -90,6 +90,26 @@
         <translation>Tøm CD-RW</translation>
     </message>
     <message>
+        <source>Compilation Artist:</source>
+        <translation type="obsolete">Samling laget av:</translation>
+    </message>
+    <message>
+        <source>Artist:</source>
+        <translation type="obsolete">Artist:</translation>
+    </message>
+    <message>
+        <source>Album:</source>
+        <translation type="obsolete">Album:</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation type="obsolete">Tittel:</translation>
+    </message>
+    <message>
+        <source>Length:</source>
+        <translation type="obsolete">Lengde:</translation>
+    </message>
+    <message>
         <source>Compilation Artist:<byte value="x9"/></source>
         <translation type="unfinished"></translation>
     </message>
@@ -285,7 +305,7 @@
     </message>
     <message>
         <source>ch</source>
-        <translation type="unfinished"></translation>
+        <translation>ka</translation>
     </message>
     <message>
         <source>Output error.</source>
@@ -305,47 +325,55 @@
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Søk</translation>
     </message>
     <message>
         <source>From CD</source>
-        <translation type="unfinished"></translation>
+        <translation>Fra CD</translation>
     </message>
     <message>
         <source>Change Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Endre filter</translation>
     </message>
     <message>
         <source>Update Playlist Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Oppdater spillelisteinnstillinger</translation>
     </message>
     <message>
         <source>Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstatt</translation>
     </message>
     <message>
         <source>Insert after current track</source>
-        <translation type="unfinished"></translation>
+        <translation>Sett inn etter gjeldende spor</translation>
     </message>
     <message>
         <source>Append to end</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til på slutten</translation>
     </message>
     <message>
         <source>Continue playing current track</source>
-        <translation type="unfinished"></translation>
+        <translation>Fortsett å spille gjeldende spor</translation>
     </message>
     <message>
         <source>Play first track</source>
-        <translation type="unfinished"></translation>
+        <translation>Spill første spor</translation>
     </message>
     <message>
         <source>Play first new track</source>
-        <translation type="unfinished"></translation>
+        <translation>Spill første nye spor</translation>
     </message>
     <message>
         <source>Remove Duplicates</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjern duplikater</translation>
+    </message>
+    <message>
+        <source>1 Shuffle: Album</source>
+        <translation>1 Tilfeldig: Album</translation>
+    </message>
+    <message>
+        <source>Shuffle: Album</source>
+        <translation>Tilfeldig: Album</translation>
     </message>
 </context>
 <context>
@@ -385,10 +413,6 @@
     <message>
         <source>Audio device</source>
         <translation>Lydenhet</translation>
-    </message>
-    <message>
-        <source>Audio Device used for playback.</source>
-        <translation>Lydenhet for avspilling.</translation>
     </message>
     <message>
         <source>CD device</source>
@@ -799,10 +823,6 @@
         <translation>Ukjent sjanger</translation>
     </message>
     <message>
-        <source>Artists</source>
-        <translation>Artister</translation>
-    </message>
-    <message>
         <source>CD -- none</source>
         <translation>CD -- ingen</translation>
     </message>
@@ -872,31 +892,43 @@
     </message>
     <message>
         <source>Automatically play CDs</source>
-        <translation type="unfinished"></translation>
+        <translation>Spill CD&apos;er automatisk</translation>
     </message>
     <message>
         <source>Automatically put a new CD on the playlist and start playing the CD.</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg en ny CD automatisk i spillelisten og start spilling av den.</translation>
     </message>
     <message>
         <source>Scanning music files</source>
-        <translation type="unfinished"></translation>
+        <translation>Søker gjennom musikkfiler</translation>
     </message>
     <message>
         <source>Rebuilding music tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Bygger musikktre på nytt</translation>
     </message>
     <message>
         <source>Only Import new music.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bare importer ny musikk.</translation>
     </message>
     <message>
         <source>Checks the database for duplicates when importing/ripping CDs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ser etter duplikater i databasen når CD&apos;er importeres/rippes.</translation>
     </message>
     <message>
         <source>Loading Music</source>
-        <translation type="unfinished"></translation>
+        <translation>Laster inn musikk</translation>
+    </message>
+    <message>
+        <source>default</source>
+        <translation>standard</translation>
+    </message>
+    <message>
+        <source>Audio Device used for playback. &apos;default&apos; will use the device specified in MythTV</source>
+        <translation>Lydenhet for avspilling. «standard» bruker enheten valg i MythTV</translation>
+    </message>
+    <message>
+        <source>Unknown Title</source>
+        <translation>Ukjent tittel</translation>
     </message>
 </context>
 <context>

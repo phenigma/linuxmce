@@ -30,6 +30,9 @@
 #  include <machine/ioctl_meteor.h>
 #  include <machine/ioctl_bt848.h>
 # endif
+#elif defined(__FreeBSD_kernel__)
+# include <dev/bktr/ioctl_meteor.h>
+# include <dev/bktr/ioctl_bt848.h>
 #elif defined(__DragonFly__)
 # include <dev/video/meteor/ioctl_meteor.h>
 # include <dev/video/bktr/ioctl_bt848.h>
@@ -229,7 +232,7 @@ static int grab_read_packet(AVFormatContext *s1, AVPacket *pkt)
 
     bktr_getframe(s->per_frame);
 
-    pkt->pts = av_gettime() & ((1LL << 48) - 1);
+    pkt->pts = av_gettime();
     memcpy(pkt->data, video_buf, video_buf_size);
 
     return video_buf_size;
@@ -245,7 +248,7 @@ static int grab_read_header(AVFormatContext *s1, AVFormatParameters *ap)
     int format = -1;
     const char *video_device;
 
-    if (!ap || ap->width <= 0 || ap->height <= 0 || ap->time_base.den <= 0)
+    if (ap->width <= 0 || ap->height <= 0 || ap->time_base.den <= 0)
         return -1;
 
     width = ap->width;
@@ -260,7 +263,7 @@ static int grab_read_header(AVFormatContext *s1, AVFormatParameters *ap)
     st = av_new_stream(s1, 0);
     if (!st)
         return -ENOMEM;
-    av_set_pts_info(st, 48, 1, 1000000); /* 48 bits pts in use */
+    av_set_pts_info(st, 64, 1, 1000000); /* 64 bits pts in use */
 
     s->width = width;
     s->height = height;
@@ -313,7 +316,7 @@ static int grab_read_close(AVFormatContext *s1)
     return 0;
 }
 
-AVInputFormat video_grab_device_format = {
+AVInputFormat video_grab_device_demuxer = {
     "bktr",
     "video grab",
      sizeof(VideoData),
@@ -323,9 +326,3 @@ AVInputFormat video_grab_device_format = {
     grab_read_close,
     .flags = AVFMT_NOFILE,
 };
-
-int video_grab_init(void)
-{
-    av_register_input_format(&video_grab_device_format);
-    return 0;
-}

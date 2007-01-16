@@ -1,8 +1,11 @@
+#include <unistd.h>
+
 #include <qapplication.h>
 #include <qsqldatabase.h>
 #include <qstring.h>
-#include <unistd.h>
-#include "tv.h"
+#include <qregexp.h>
+
+#include "tv_play.h"
 #include "programinfo.h"
 
 #include "libmyth/exitcodes.h"
@@ -12,8 +15,6 @@
 
 #include <iostream>
 using namespace std;
-
-MythContext *gContext;
 
 static void *run_priv_thread(void *data)
 {
@@ -69,7 +70,108 @@ static void *run_priv_thread(void *data)
 
 int main(int argc, char *argv[])
 {
+    QString geometry = QString::null;
+    QString display  = QString::null;
+#ifdef Q_WS_X11
+    // Remember any -display or -geometry argument
+    // which QApplication init will remove.
+    for(int argpos = 1; argpos + 1 < argc; ++argpos)
+    {
+        if (!strcmp(argv[argpos],"-geometry"))
+            geometry = argv[argpos+1];
+        else if (!strcmp(argv[argpos],"-display"))
+            display = argv[argpos+1];
+    }
+#endif
+
     QApplication a(argc, argv);
+
+    print_verbose_messages |= VB_PLAYBACK | VB_LIBAV;// | VB_AUDIO;
+
+    QMap<QString, QString> settingsOverride;
+    int argpos = 1;
+    QString filename = "";
+
+    while (argpos < a.argc())
+    {
+        if (!strcmp(a.argv()[argpos],"-v") ||
+            !strcmp(a.argv()[argpos],"--verbose"))
+        {
+            if ((a.argc() - 1) > argpos)
+            {
+                if (parse_verbose_arg(a.argv()[argpos+1]) ==
+                        GENERIC_EXIT_INVALID_CMDLINE)
+                    return GENERIC_EXIT_INVALID_CMDLINE;
+
+                ++argpos;
+            }
+            else
+            {
+                VERBOSE(VB_IMPORTANT,
+                        "Missing argument to -v/--verbose option");
+                return COMMFLAG_EXIT_INVALID_CMDLINE;
+            }
+        }
+        else if (!strcmp(a.argv()[argpos],"-O") ||
+                 !strcmp(a.argv()[argpos],"--override-setting"))
+        {
+            if ((a.argc() - 1) > argpos)
+            {
+                QString tmpArg = a.argv()[argpos+1];
+                if (tmpArg.startsWith("-"))
+                {
+                    cerr << "Invalid or missing argument to "
+                            "-O/--override-setting option\n";
+                    return BACKEND_EXIT_INVALID_CMDLINE;
+                } 
+ 
+                QStringList pairs = QStringList::split(",", tmpArg);
+                for (unsigned int index = 0; index < pairs.size(); ++index)
+                {
+                    QStringList tokens = QStringList::split("=", pairs[index]);
+                    tokens[0].replace(QRegExp("^[\"']"), "");
+                    tokens[0].replace(QRegExp("[\"']$"), "");
+                    tokens[1].replace(QRegExp("^[\"']"), "");
+                    tokens[1].replace(QRegExp("[\"']$"), "");
+                    settingsOverride[tokens[0]] = tokens[1];
+                }
+            }
+            else
+            { 
+                cerr << "Invalid or missing argument to -O/--override-setting "
+                        "option\n";
+                return GENERIC_EXIT_INVALID_CMDLINE;
+            }
+
+            ++argpos;
+        }
+        else if (!strcmp(a.argv()[argpos],"-display") ||
+                 !strcmp(a.argv()[argpos],"--display"))
+        {
+            if (a.argc()-1 > argpos)
+            {
+                display = a.argv()[argpos+1];
+                if (display.startsWith("-"))
+                {
+                    cerr << "Invalid or missing argument to -display option\n";
+                    return FRONTEND_EXIT_INVALID_CMDLINE;
+                }
+                else
+                    ++argpos;
+            }
+            else
+            {
+                cerr << "Missing argument to -display option\n";
+                return FRONTEND_EXIT_INVALID_CMDLINE;
+            }
+        }
+        else if (a.argv()[argpos][0] != '-')
+        {
+            filename = a.argv()[argpos];
+        }
+
+        ++argpos;
+    }
 
     gContext = NULL;
     gContext = new MythContext(MYTH_BINARY_VERSION);
@@ -77,6 +179,29 @@ int main(int argc, char *argv[])
     {
         VERBOSE(VB_IMPORTANT, "Failed to init MythContext, exiting.");
         return TV_EXIT_NO_MYTHCONTEXT;
+    }
+
+    if (!display.isEmpty())
+    {
+        gContext->SetX11Display(display);
+    }
+
+    if (!geometry.isEmpty() && !gContext->ParseGeometryOverride(geometry))
+    {
+        VERBOSE(VB_IMPORTANT,
+                QString("Illegal -geometry argument '%1' (ignored)")
+                .arg(geometry));
+    }
+
+    if (settingsOverride.size())
+    {
+        QMap<QString, QString>::iterator it;
+        for (it = settingsOverride.begin(); it != settingsOverride.end(); ++it)
+        {
+            VERBOSE(VB_IMPORTANT, QString("Setting '%1' being forced to '%2'")
+                                          .arg(it.key()).arg(it.data()));
+            gContext->OverrideSettingForSession(it.key(), it.data());
+        }
     }
 
     // Create priveleged thread, then drop privs
@@ -102,6 +227,9 @@ int main(int argc, char *argv[])
     
     gContext->LoadQtConfig();
 
+#if defined(Q_OS_MACX)
+    // Mac OS X doesn't define the AudioOutputDevice setting
+#else
     QString auddevice = gContext->GetSetting("AudioOutputDevice");
     if (auddevice == "" || auddevice == QString::null)
     {
@@ -109,10 +237,9 @@ int main(int argc, char *argv[])
                 "to run 'mythfrontend', not 'mythtv'.");
         return TV_EXIT_NO_AUDIO;
     }
+#endif
 
-    print_verbose_messages |= VB_PLAYBACK | VB_LIBAV;// | VB_AUDIO;
-
-    MythMainWindow *mainWindow = new MythMainWindow();
+    MythMainWindow *mainWindow = GetMythMainWindow();
     mainWindow->Init();
     gContext->SetMainWindow(mainWindow);
 
@@ -125,13 +252,11 @@ int main(int argc, char *argv[])
         return TV_EXIT_NO_TV;
     }
 
-    if (a.argc() > 1)
+    if (filename != "")
     {
-        QString filename = a.argv()[1];
-
         ProgramInfo *pginfo = new ProgramInfo();
         pginfo->endts = QDateTime::currentDateTime().addSecs(-180);
-        pginfo->pathname = filename;
+        pginfo->pathname = QString::fromLocal8Bit(filename);
         pginfo->isVideo = true;
     
         tv->Playback(pginfo);
@@ -159,3 +284,5 @@ int main(int argc, char *argv[])
 
     return TV_EXIT_OK;
 }
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

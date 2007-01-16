@@ -36,15 +36,15 @@
 ///   combining the two other controls.
 ///
 /// Author        : Copyright (c) Olli Parviainen
-/// Author e-mail : oparviai @ iki.fi
-/// SoundTouch WWW: http://www.iki.fi/oparviai/soundtouch
+/// Author e-mail : oparviai 'at' iki.fi
+/// SoundTouch WWW: http://www.surina.net/soundtouch
 ///
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Last changed  : $Date: 2005-11-12 01:19:13 +0200 (Sat, 12 Nov 2005) $
-// File revision : $Revision: 7850 $
+// Last changed  : $Date: 2006-05-24 13:48:15 +0300 (Wed, 24 May 2006) $
+// File revision : $Revision: 10003 $
 //
-// $Id: SoundTouch.cpp 7850 2005-11-11 23:19:13Z danielk $
+// $Id: SoundTouch.cpp 10003 2006-05-24 10:48:15Z danielk $
 //
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -140,7 +140,11 @@ uint SoundTouch::getVersionId()
 // Sets the number of channels, 1 = mono, 2 = stereo
 void SoundTouch::setChannels(uint numChannels)
 {
+#ifdef MULTICHANNEL
+    if (numChannels < 1 || numChannels > MULTICHANNEL)
+#else
     if (numChannels != 1 && numChannels != 2) 
+#endif
     {
         throw std::runtime_error("Illegal number of channels");
     }
@@ -298,6 +302,10 @@ void SoundTouch::putSamples(const SAMPLETYPE *samples, uint numSamples)
     }
 
     // Transpose the rate of the new samples if necessary
+    /* Bypass the nominal setting - can introduce a click in sound when tempo/pitch control crosses the nominal value...
+     */
+    // NOTE: Removed the bypass change in soundtouch 1.3.1 for MythTV, this
+    //       caused clipping for Cougar with our MMX implementation. -- dtk
     if (rate == 1.0f) 
     {
         // The rate value is same as the original, simply evaluate the tempo changer. 
@@ -310,7 +318,7 @@ void SoundTouch::putSamples(const SAMPLETYPE *samples, uint numSamples)
         }
         pTDStretch->putSamples(samples, numSamples);
     } 
-    else if (rate < 1.0f) 
+    else if (rate <= 1.0f) 
     {
         // transpose the rate down, output the transposed sound to tempo changer buffer
         assert(output == pTDStretch);

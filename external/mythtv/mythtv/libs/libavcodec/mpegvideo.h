@@ -70,6 +70,8 @@ enum OutputFormat {
 
 #define MAX_MB_BYTES (30*16*16*3/8 + 120)
 
+#define INPLACE_OFFSET 16
+
 typedef struct Predictor{
     double coeff;
     double count;
@@ -83,12 +85,14 @@ typedef struct RateControlEntry{
     int i_tex_bits;
     int p_tex_bits;
     int misc_bits;
+    int header_bits;
     uint64_t expected_bits;
     int new_pict_type;
     float new_qscale;
     int mc_mb_var_sum;
     int mb_var_sum;
     int i_count;
+    int skip_count;
     int f_code;
     int b_code;
 }RateControlEntry;
@@ -116,6 +120,10 @@ typedef struct RateControlContext{
     uint64_t qscale_sum[5];
     int frame_count[5];
     int last_non_b_pict_type;
+
+    void *non_lavc_opaque;        ///< context for non lavc rc code (for example xvid)
+    float dry_run_qscale;         ///< for xvid rc
+    int last_picture_number;      ///< for xvid rc
 }RateControlContext;
 
 /**
@@ -127,7 +135,7 @@ typedef struct ScanTable{
     uint8_t raster_end[64];
 #ifdef ARCH_POWERPC
                 /** Used by dct_quantise_alitvec to find last-non-zero */
-    uint8_t __align8 inverse[64];
+    DECLARE_ALIGNED_8(uint8_t, inverse[64]);
 #endif
 } ScanTable;
 
@@ -189,7 +197,7 @@ typedef struct ParseContext{
     uint8_t *buffer;
     int index;
     int last_index;
-    int buffer_size;
+    unsigned int buffer_size;
     uint32_t state;             ///< contains the last few bytes in MSB order
     int frame_start_found;
     int overread;               ///< the number of bytes which where irreversibly read from the next frame
@@ -422,6 +430,7 @@ typedef struct MpegEncContext {
     int field_select[2][2];
     int last_mv[2][2][2];             ///< last MV, used for MV prediction in MPEG1 & B-frame MPEG4
     uint8_t *fcode_tab;               ///< smallest fcode needed for each MV
+    int16_t direct_scale_mv[2][64];   ///< precomputed to avoid divisions in ff_mpeg4_set_direct_mv
 
     MotionEstContext me;
 
@@ -477,7 +486,7 @@ typedef struct MpegEncContext {
     uint8_t *chroma_dc_vlc_length;
 #define UNI_AC_ENC_INDEX(run,level) ((run)*128 + (level))
 
-    int coded_score[6];
+    int coded_score[8];
 
     /** precomputed matrix (combine qscale and DCT renorm) */
     int (*q_intra_matrix)[64];
@@ -487,7 +496,7 @@ typedef struct MpegEncContext {
     uint16_t (*q_inter_matrix16)[2][64];
     int block_last_index[12];  ///< last non zero coefficient in block
     /* scantables */
-    ScanTable __align8 intra_scantable;
+    DECLARE_ALIGNED_8(ScanTable, intra_scantable);
     ScanTable intra_h_scantable;
     ScanTable intra_v_scantable;
     ScanTable inter_scantable; ///< if inter == intra then intra should be used to reduce tha cache usage
@@ -593,6 +602,7 @@ typedef struct MpegEncContext {
     int vo_type;
     int vol_control_parameters;      ///< does the stream contain the low_delay flag, used to workaround buggy encoders
     int intra_dc_threshold;          ///< QP above whch the ac VLC should be used for intra dc
+    int use_intra_dc_vlc;
     PutBitContext tex_pb;            ///< used for data partitioned VOPs
     PutBitContext pb2;               ///< used for data partitioned VOPs
     int mpeg_quant;
@@ -605,7 +615,7 @@ typedef struct MpegEncContext {
     int divx_packed;
     uint8_t *bitstream_buffer; //Divx 5.01 puts several frames in a single one, this is used to reorder them
     int bitstream_buffer_size;
-    int allocated_bitstream_buffer_size;
+    unsigned int allocated_bitstream_buffer_size;
 
     int xvid_build;
 
@@ -689,7 +699,14 @@ typedef struct MpegEncContext {
     short * pblocks[12];
 
     DCTELEM (*block)[64]; ///< points to one of the following blocks
-    DCTELEM (*blocks)[6][64]; // for HQ mode we need to keep the best block
+    DCTELEM (*blocks)[8][64]; // for HQ mode we need to keep the best block
+
+#define ATSC_CC_BUF_SIZE 1024
+    /// Used to hold cached user_data about caption packets before the
+    /// frame for these packets has been created in MPV_frame_start().
+    uint8_t tmp_atsc_cc_buf[ATSC_CC_BUF_SIZE];
+    int     tmp_atsc_cc_len;
+
     int (*decode_mb)(struct MpegEncContext *s, DCTELEM block[6][64]); // used by some codecs to avoid a switch()
 #define SLICE_OK         0
 #define SLICE_ERROR     -1
@@ -767,6 +784,7 @@ void ff_write_quant_matrix(PutBitContext *pb, int16_t *matrix);
 int ff_find_unused_picture(MpegEncContext *s, int shared);
 void ff_denoise_dct(MpegEncContext *s, DCTELEM *block);
 void ff_update_duplicate_context(MpegEncContext *dst, MpegEncContext *src);
+const uint8_t *ff_find_start_code(const uint8_t *p, const uint8_t *end, uint32_t *state);
 
 void ff_er_frame_start(MpegEncContext *s);
 void ff_er_frame_end(MpegEncContext *s);
@@ -899,7 +917,11 @@ void mpeg4_pred_ac(MpegEncContext * s, DCTELEM *block, int n,
                    int dir);
 void ff_set_mpeg4_time(MpegEncContext * s, int picture_number);
 void mpeg4_encode_picture_header(MpegEncContext *s, int picture_number);
+#ifdef CONFIG_ENCODERS
 void h263_encode_init(MpegEncContext *s);
+#else
+static void h263_encode_init(MpegEncContext *s) {assert(0);}
+#endif
 void h263_decode_init_vlc(MpegEncContext *s);
 int h263_decode_picture_header(MpegEncContext *s);
 int ff_h263_decode_gob_header(MpegEncContext *s);
@@ -983,5 +1005,9 @@ double ff_eval(char *s, double *const_value, const char **const_name,
                void *opaque);
 int ff_vbv_update(MpegEncContext *s, int frame_size);
 void ff_get_2pass_fcode(MpegEncContext *s);
+
+int ff_xvid_rate_control_init(MpegEncContext *s);
+void ff_xvid_rate_control_uninit(MpegEncContext *s);
+float ff_xvid_rate_estimate_qscale(MpegEncContext *s, int dry_run);
 
 #endif /* AVCODEC_MPEGVIDEO_H */

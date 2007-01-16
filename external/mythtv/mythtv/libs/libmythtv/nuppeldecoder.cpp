@@ -65,8 +65,11 @@ NuppelDecoder::NuppelDecoder(NuppelVideoPlayer *parent, ProgramInfo *pginfo)
     int format = RTJ_YUV420;
     rtjd->SetFormat(&format);
 
+    avcodeclock.lock();
     avcodec_init();
     avcodec_register_all();
+    avcodeclock.unlock();
+
     if (lzo_init() != LZO_E_OK)
     {
         VERBOSE(VB_IMPORTANT, "NuppelDecoder: lzo_init() failed, aborting");
@@ -96,7 +99,8 @@ NuppelDecoder::~NuppelDecoder()
     CloseAVCodec();
 }
 
-bool NuppelDecoder::CanHandle(char testbuf[2048])
+bool NuppelDecoder::CanHandle(char testbuf[kDecoderProbeBufferSize],
+                              int)
 {
     if (!strncmp(testbuf, "NuppelVideo", 11) ||
         !strncmp(testbuf, "MythTVVideo", 11))
@@ -155,7 +159,8 @@ bool NuppelDecoder::ReadFrameheader(struct rtframeheader *fh)
 }
 
 int NuppelDecoder::OpenFile(RingBuffer *rbuffer, bool novideo, 
-                            char testbuf[2048])
+                            char testbuf[kDecoderProbeBufferSize],
+                            int)
 {
     (void)testbuf;
 
@@ -202,7 +207,7 @@ int NuppelDecoder::OpenFile(RingBuffer *rbuffer, bool novideo,
 
     GetNVP()->SetVideoParams(fileheader.width, fileheader.height,
                              fileheader.fps, fileheader.keyframedist,
-                             fileheader.aspect, kScan_Detect);
+                             fileheader.aspect);
 
     video_width = fileheader.width;
     video_height = fileheader.height;
@@ -474,7 +479,8 @@ int NuppelDecoder::OpenFile(RingBuffer *rbuffer, bool novideo,
 #endif
         GetNVP()->SetAudioParams(extradata.audio_bits_per_sample,
                                  extradata.audio_channels, 
-                                 extradata.audio_sample_rate);
+                                 extradata.audio_sample_rate,
+                                 false /* AC3/DTS pass through */);
         GetNVP()->ReinitAudio();
         foundit = 1;
     }
@@ -564,16 +570,13 @@ int get_nuppel_buffer(struct AVCodecContext *c, AVFrame *pic)
 {
     NuppelDecoder *nd = (NuppelDecoder *)(c->opaque);
 
-    int width = c->width;
-    int height = c->height;
+    int i;
 
-    pic->data[0] = nd->directframe->buf;
-    pic->data[1] = pic->data[0] + width * height;
-    pic->data[2] = pic->data[1] + width * height / 4;
-
-    pic->linesize[0] = width;
-    pic->linesize[1] = width / 2;
-    pic->linesize[2] = width / 2;
+    for (i = 0; i < 3; i++)
+    {
+        pic->data[i] = nd->directframe->buf + nd->directframe->offsets[i];
+        pic->linesize[i] = nd->directframe->pitches[i];
+    }
 
     pic->opaque = nd->directframe;
     pic->type = FF_BUFFER_TYPE_USER;
@@ -685,6 +688,22 @@ void NuppelDecoder::CloseAVCodec(void)
     }
 }
 
+static void CopyToVideo(unsigned char *buf, int video_width,
+                        int video_height, VideoFrame *frame)
+{
+    uint ysize = video_width * video_height;
+    uint uvsize = ysize >> 2;
+
+    unsigned char *planes[3];
+    planes[0] = buf;
+    planes[1] = planes[0] + ysize;
+    planes[2] = planes[1] + uvsize;
+
+    memcpy(frame->buf + frame->offsets[0], planes[0], ysize);
+    memcpy(frame->buf + frame->offsets[1], planes[1], uvsize);
+    memcpy(frame->buf + frame->offsets[2], planes[2], uvsize);
+}
+      
 bool NuppelDecoder::DecodeFrame(struct rtframeheader *frameheader,
                                 unsigned char *lstrm, VideoFrame *frame)
 {
@@ -713,11 +732,11 @@ bool NuppelDecoder::DecodeFrame(struct rtframeheader *frameheader,
     if (frameheader->comptype == 'L') {
         switch(lastct) {
             case '0': case '3':
-                memcpy(outbuf, buf2, video_size);
+                CopyToVideo(buf2, video_width, video_height, frame);
                 break;
             case '1': case '2':
             default:
-                memcpy(outbuf, buf, video_size);
+                CopyToVideo(buf, video_width, video_height, frame);
                 break;
         }
         return true;
@@ -741,13 +760,13 @@ bool NuppelDecoder::DecodeFrame(struct rtframeheader *frameheader,
 
     if (frameheader->comptype == '0')
     {
-        memcpy(outbuf, lstrm, video_size);
+        CopyToVideo(lstrm, video_width, video_height, frame);
         return true;
     }
 
     if (frameheader->comptype == '3')
     {
-        memcpy(outbuf, buf2, video_size);
+        CopyToVideo(buf2, video_width, video_height, frame);
         return true;
     }
 
@@ -758,7 +777,7 @@ bool NuppelDecoder::DecodeFrame(struct rtframeheader *frameheader,
         else
             rtjd->Decompress((int8_t*)buf2, planes);
 
-        memcpy(outbuf, buf, video_size);
+        CopyToVideo(buf, video_width, video_height, frame);
     }
     else
     {
@@ -1148,8 +1167,35 @@ bool NuppelDecoder::GetFrame(int avignore)
             if (getrawframes)
                 StoreRawData(strm);
 
-            GetNVP()->AddTextData((char *)strm, frameheader.packetlength,
+            GetNVP()->AddTextData(strm, frameheader.packetlength,
                                   frameheader.timecode, frameheader.comptype);
+        }
+
+        if (frameheader.frametype == 'S' && frameheader.comptype == 'M')
+        {
+            struct rtfileheader *fh = &fileheader;
+            memcpy(fh, strm, frameheader.packetlength);
+
+#ifdef WORDS_BIGENDIAN
+            fh->width         = bswap_32(fh->width);
+            fh->height        = bswap_32(fh->height);
+            fh->desiredwidth  = bswap_32(fh->desiredwidth);
+            fh->desiredheight = bswap_32(fh->desiredheight);
+            fh->aspect        = bswap_dbl(fh->aspect);
+            fh->fps           = bswap_dbl(fh->fps);
+            fh->videoblocks   = bswap_32(fh->videoblocks);
+            fh->audioblocks   = bswap_32(fh->audioblocks);
+            fh->textsblocks   = bswap_32(fh->textsblocks);
+            fh->keyframedist  = bswap_32(fh->keyframedist);
+#endif
+
+            if (fileheader.aspect > .999 && fileheader.aspect < 1.001)
+                fileheader.aspect = 4.0 / 3;
+            current_aspect = fileheader.aspect;
+
+            GetNVP()->SetVideoParams(fileheader.width, fileheader.height,
+                                     fileheader.fps, fileheader.keyframedist,
+                                     fileheader.aspect);
         }
     }
 

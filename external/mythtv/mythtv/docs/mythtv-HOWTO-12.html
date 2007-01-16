@@ -123,13 +123,13 @@ is -1.</P>
 <P>Per channel -- Setup->TV Settings->Recording Priorities->Channel Priorities
 can be useful if you believe that you prefer any of the shows on certain
 channels. This would give all shows on a channel an advantage by default.</P>
-<P>Input preference -- in the MythTV "setup" program, the "Input Connections"
-section allows you to add additional priority in the "Input preference".
+<P>Input priority -- in the "mythtv-setup" program, the "Input Connections"
+section allows you to add additional priority in the "Input priority".
 This is simply another priority factor but has an interesting effect. If a
 card input has a higher value than the other cards, the scheduler will see
-that you would rather record showings of episodes on this card rather than a
+that you would rather record showings of episodes on this input rather than a
 showing on another card. If you have multiple cards of different quality,
-you may want to set input preference to encourage the scheduler to record
+you may want to set input priority to encourage the scheduler to record
 shows on your best card(s) whenever possible. This can also be useful if you
 have multiple video sources which include the same stations. For example,
 with digital and analog cable you could increase the digital cable input
@@ -449,7 +449,15 @@ time in ISO 8601 format.</LI>
 <H2><A NAME="ss12.5">12.5</A> <A HREF="mythtv-HOWTO.html#toc12.5">Advanced Recording Options</A>
 </H2>
 
-<H3>Creating Power Search rules with Custom RecordMythTV's "Custom Record" feature gives you unlimited control for creatingspecialized search recording rules to meet your needs. It allows you tochoose your criteria to search for matching shows based on any of theinformation in the program listings, channel information, time functions andmore. This goes beyond the capabilities of any other DVR system and it isunlikely that this level of scheduling customization will ever be availablein any commercial DVR system.</H3>
+<H3>Creating Power Search rules with Custom Record</H3>
+
+<P>MythTV's "Custom Record" feature gives you unlimited control for creating
+specialized search recording rules to meet your needs. It allows you to
+choose your criteria to search for matching shows based on any of the
+information in the program listings, channel information, time functions and
+more. This goes beyond the capabilities of any other DVR system and it is
+unlikely that this level of scheduling customization will ever be available
+in any commercial DVR system.</P>
 
 <H3>Getting Started</H3>
 
@@ -475,15 +483,14 @@ box should now show:
 
 As you have probably guessed, this says that we want to search for all
 programs with the title "Nova" regardless of the time, day, channel, etc.</P>
-<P>If you do not receive a PBS station that carries "Nova" or would like to
-use another title, edit the title by pressing the down arrow to highlight
-the text box and right arrow over the the word "Nova". If you are using a
+<P>If you do not receive a PBS station that carries "Nova" or would like to use
+another title, edit the title by pressing the down arrow to highlight the
+text box and right arrow over the the word "Nova". If you are using a
 keyboard you can simply delete the four letters and type a different title
 between the quotes. With a remote control, you can do 'cell phone' style
 text entry with the number pad. The delete key is the "X" in the grouping
-for "1", zero is grouped with "9" and "0" acts as the "Caps Lock" key.
-With MythTV version 0.19 or later, you can press ENTER in the text box
-to popup a virtual keyboard.</P>
+for "1", zero is grouped with "9" and "0" acts as the "Caps Lock" key. You
+can press ENTER in the text box to popup a virtual keyboard.</P>
 <P>Note: the text box honors many familiar Emacs control keys. It is also
 possible to cut and paste text into the text box so you can edit with a
 favorite editor or insert a rule sent in email or from other sources.</P>
@@ -636,6 +643,22 @@ determine if a showing is more than 14 days after its original air date or
 if the show was marked as a repeat and did not have a date for the first
 airing. If this is "0" it usually means that this is a brand new show or a
 rebroadcast within the first two weeks.
+</LI>
+<LI>"program.generic" is a field created by MythTV to try mark
+showings for a series where the specific episode information is not
+included. When these generic showings appear, it is impossible for the
+system to determine if they are repeats of the same episode(s) or if
+they are all different episodes.
+</LI>
+<LI>"program.first" is a field created by MythTV to mark the first
+showing in the current listings for each episode, movie or special.
+Choosing to match only the "first" showing can be useful for sports
+that are brodcast live then repeated.
+</LI>
+<LI>"program.last" is a field created by MythTV to mark the last
+showing in the current listings for each episode, movie or special.
+If a showing is marked both "first" and "last" then it is the only
+showing of that program in the current TV listings.
 </LI>
 <LI>"program.programid" is the Tribune Media Service database record
 identifier for each program description. In general, these start with a two

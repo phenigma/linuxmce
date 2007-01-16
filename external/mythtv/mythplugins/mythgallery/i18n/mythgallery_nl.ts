@@ -1,52 +1,5 @@
 <!DOCTYPE TS><TS>
 <context>
-    <name>GLSingleView</name>
-    <message>
-        <source>Folder: </source>
-        <translation>Map: </translation>
-    </message>
-    <message>
-        <source>Created: </source>
-        <translation>Gemaakt: </translation>
-    </message>
-    <message>
-        <source>Modified: </source>
-        <translation>Aangepast: </translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation>Bytes</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Breedte</translation>
-    </message>
-    <message>
-        <source>pixels</source>
-        <translation>punten</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Hoogte</translation>
-    </message>
-    <message>
-        <source>Pixel Count</source>
-        <translation>Aantal pixels</translation>
-    </message>
-    <message>
-        <source>megapixels</source>
-        <translation>megapixels</translation>
-    </message>
-    <message>
-        <source>Rotation Angle</source>
-        <translation>Draaihoek</translation>
-    </message>
-    <message>
-        <source>degrees</source>
-        <translation>graden</translation>
-    </message>
-</context>
-<context>
     <name>IconView</name>
     <message>
         <source>Import pictures?</source>
@@ -104,6 +57,94 @@
         <source>Delete</source>
         <translation>Verwijderen</translation>
     </message>
+    <message>
+        <source>MythGallery Directory &apos;%1&apos; does not exist or is unreadable.</source>
+        <translation>De MythGallery map &apos;%1&apos; bestaat niet, of kan niet worden gelezen.</translation>
+    </message>
+    <message>
+        <source>MythGallery failed to load theme, see console for details.</source>
+        <translation>MythGallery kon het thema niet laden, zie de console voor meer informatie.</translation>
+    </message>
+    <message>
+        <source>The selected device is no longer available</source>
+        <translation>Het geselecteerde apparaat niet langer beschikbaar</translation>
+    </message>
+    <message>
+        <source>Meta Data...</source>
+        <translation>Meta Data...</translation>
+    </message>
+    <message>
+        <source>Marking...</source>
+        <translation>Markeren...</translation>
+    </message>
+    <message>
+        <source>File...</source>
+        <translation>Bestand...</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Terug</translation>
+    </message>
+    <message>
+        <source>Clear Marked</source>
+        <translation>Deselecteer Alles</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Selecteer Alles</translation>
+    </message>
+    <message>
+        <source>Show Devices</source>
+        <translation>Toon Apparaten</translation>
+    </message>
+    <message>
+        <source>Copy here</source>
+        <translation>Kopieer naar hier</translation>
+    </message>
+    <message>
+        <source>Move here</source>
+        <translation>Verplaats naar hier</translation>
+    </message>
+    <message>
+        <source>Create Dir</source>
+        <translation>Maak Map</translation>
+    </message>
+    <message>
+        <source>Delete Current File or Folder</source>
+        <translation>Verwijder huidige bestand of map</translation>
+    </message>
+    <message>
+        <source>Deleting 1 folder, including any subfolders and files.</source>
+        <translation>Bezig met verwijderen van 1 map, inclusief alle sub-mappen en bestanden.</translation>
+    </message>
+    <message>
+        <source>Deleting 1 image.</source>
+        <translation>Bezig met verwijderen van 1 afbeelding.</translation>
+    </message>
+    <message>
+        <source>Delete Marked Files</source>
+        <translation>Verwijder gemarkeerde bestanden</translation>
+    </message>
+    <message>
+        <source>Deleting %1 images and folders, including any subfolders and files.</source>
+        <translation>Bezig met verwijderen van %1 afbeeldingen en mappen, inclusief alle sub-mappen en bestanden.</translation>
+    </message>
+    <message>
+        <source>New Folder</source>
+        <translation>Nieuwe Map</translation>
+    </message>
+    <message>
+        <source>Create New Folder</source>
+        <translation>Maak een Nieuwe Map</translation>
+    </message>
+    <message>
+        <source>Moving marked images...</source>
+        <translation>Bezig met verplaatsen van de gemarkeerde afbeeldingen</translation>
+    </message>
+    <message>
+        <source>Copying marked images...</source>
+        <translation>Bezig met kopieren van de gemarkeerde afbeeldingen</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -133,7 +174,7 @@
     </message>
     <message>
         <source>MythGallery Settings</source>
-        <translation>Foto instellingen</translation>
+        <translation type="obsolete">Foto instellingen</translation>
     </message>
     <message>
         <source>This is a colon separated list of paths. If the path in the list is a directory, its contents will be copied. If it is an executable, it will be run.</source>
@@ -166,10 +207,6 @@
     <message>
         <source>This is the type of OpenGL transition used between pictures in slideshow mode.</source>
         <translation>Type OpenGL-overgang gebruikt in diashow modus.</translation>
-    </message>
-    <message>
-        <source>Gallery Directory does not exist or is unreadable.</source>
-        <translation>Fotomap bestaat niet of is onleesbaar.</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -207,52 +244,25 @@
         <source>This is the number of seconds to show a caption on top of a full size picture.</source>
         <translation>Aantal seconden dat informatie over een afbeelding wordt getoond.</translation>
     </message>
-</context>
-<context>
-    <name>SingleView</name>
     <message>
-        <source>Bytes</source>
-        <translation>Bytes</translation>
+        <source>Sort order when browsing</source>
+        <translation>Sorteer volgorde tijdens het bladeren</translation>
     </message>
     <message>
-        <source>Width</source>
-        <translation>Breedte</translation>
+        <source>This is the sort order for the displayed picture thumbnails.</source>
+        <translation>Dit is de sorteer volgorde van de getoonde miniaturen.</translation>
     </message>
     <message>
-        <source>Height</source>
-        <translation>Hoogte</translation>
+        <source>Duration of OpenGL Transition (milliseconds)</source>
+        <translation>Duur van de OpenGL overgangen (in milisecondes)</translation>
     </message>
     <message>
-        <source>Pixel Count</source>
-        <translation>Pixels</translation>
+        <source>MythGallery Settings (Slideshow)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rotation Angle</source>
-        <translation>Draaihoek</translation>
-    </message>
-    <message>
-        <source>pixels</source>
-        <translation>punten</translation>
-    </message>
-    <message>
-        <source>megapixels</source>
-        <translation>megapixels</translation>
-    </message>
-    <message>
-        <source>degrees</source>
-        <translation>graden</translation>
-    </message>
-    <message>
-        <source>Created: </source>
-        <translation>Gemaakt: </translation>
-    </message>
-    <message>
-        <source>Modified: </source>
-        <translation>Aangepast: </translation>
-    </message>
-    <message>
-        <source>Folder: </source>
-        <translation>Map: </translation>
+        <source>MythGallery Settings (General)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

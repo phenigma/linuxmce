@@ -12,13 +12,14 @@ struct GameTypes {
     QString   extensions;
 };
 
-#define MAX_GAME_TYPES 11
+#define MAX_GAME_TYPES 12
 
 const GameTypes GameTypeList[MAX_GAME_TYPES] =
 {   
     { QObject::tr("OTHER"),   "OTHER",  "" },
     { QObject::tr("AMIGA"),   "AMIGA",  "adf,ipf" },
     { QObject::tr("ATARI"),   "ATARI",  "bin,a26" },
+    { QObject::tr("GAMEGEAR"),    "GAMEGEAR",   "gg" },
     { QObject::tr("GENESIS/MEGADRIVE"), "GENESIS", "smd,bin,md" },
     { QObject::tr("MAME"),    "MAME",   "" },
     { QObject::tr("N64"),     "N64",    "v64,n64" },
@@ -44,8 +45,8 @@ protected:
         setName(name);
     };
 
-    virtual QString setClause(void);
-    virtual QString whereClause(void);
+    virtual QString setClause(MSqlBindings &bindings);
+    virtual QString whereClause(MSqlBindings &bindings);
 
     const MythGamePlayerSettings& parent;
 };

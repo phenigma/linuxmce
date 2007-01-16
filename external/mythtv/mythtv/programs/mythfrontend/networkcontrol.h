@@ -44,7 +44,7 @@ class NetworkControl : public QServerSocket
     void notifyDataAvailable(void);
     void customEvent(QCustomEvent *e);
 
-    QString listRecordings(void);
+    QString listRecordings(QString chanid = "", QString starttime = "");
 
     void processNetworkControlCommand(QString command);
 
@@ -66,8 +66,6 @@ class NetworkControl : public QServerSocket
     QMutex nrLock;
 
     pthread_t command_thread;
-    bool runCommandThread;
-    bool commandThreadRunning;
 };
 
 #endif

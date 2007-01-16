@@ -1,5 +1,5 @@
 /*
- * $Id: dvbtransporteditor.cpp 7936 2005-11-19 21:32:10Z ijr $
+ * $Id: dvbtransporteditor.cpp 9646 2006-04-07 19:14:30Z danielk $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -30,6 +30,9 @@
  */
 
 #include "dvbtransporteditor.h"
+#include "cardutil.h"
+#include "mythcontext.h"
+#include "mythdbcon.h"
 
 void DVBTransportList::fillSelections(void)
 {
@@ -88,8 +91,9 @@ public:
     };
 };
 
-DVBTransportsEditor::DVBTransportsEditor():
-    VerticalConfigurationGroup(false)
+DVBTransportsEditor::DVBTransportsEditor() :
+    ConfigurationGroup(false, true, false, false),
+    VerticalConfigurationGroup(false, true, false, false)
 {
     setLabel(tr("DVB Transport Editor"));
     setUseLabel(true);
@@ -101,8 +105,10 @@ DVBTransportsEditor::DVBTransportsEditor():
     connect(m_videoSource,SIGNAL(valueChanged(const QString&)),
             this,SLOT(videoSource(const QString&)));
 
-    connect(m_list, SIGNAL(accepted(int)), this, SLOT(edit(int)));
-    connect(m_list, SIGNAL(menuButtonPressed(int)), this, SLOT(menu(int)));
+    connect(m_list, SIGNAL(accepted(int)),            this, SLOT(edit(int)));
+    connect(m_list, SIGNAL(menuButtonPressed(int)),   this, SLOT(menu(int)));
+    connect(m_list, SIGNAL(editButtonPressed(int)),   this, SLOT(edit(int)));
+    connect(m_list, SIGNAL(deleteButtonPressed(int)), this, SLOT(del(int)));
     m_nID =0;
 }
 
@@ -151,28 +157,37 @@ void DVBTransportsEditor::edit(int /*tid*/)
     edit();
 }
 
-void DVBTransportsEditor::del() {
-    int val = MythPopupBox::show2ButtonPopup(gContext->GetMainWindow(), "",
-                                             tr("Are you sure you would like to"
-                                             " delete this transport?"),
-                                             tr("Yes, delete the transport"),
-                                             tr("No, don't"), 2);
+void DVBTransportsEditor::del(void)
+{
+    int val = MythPopupBox::show2ButtonPopup(
+        gContext->GetMainWindow(), "",
+        tr("Are you sure you would like to delete this transport?"),
+        tr("Yes, delete the transport"),
+        tr("No, don't"), 2);
 
-    if (val == 0) 
-    {
-        MSqlQuery query(MSqlQuery::InitCon());
-        query.prepare("DELETE FROM dtv_multiplex WHERE mplexid = :MPLEX");
-        query.bindValue(":MPLEX", m_nID);
+    if (val == 1)
+        return;
 
-        if (!query.exec() || !query.isActive())
-            MythContext::DBError("TransportEditor Delete DVBTransport", query);
+    MSqlQuery query(MSqlQuery::InitCon());
+    query.prepare("DELETE FROM dtv_multiplex WHERE mplexid = :MPLEX");
+    query.bindValue(":MPLEX", m_nID);
 
-        query.prepare("DELETE FROM channel WHERE mplexid = :MPLEX");
-        query.bindValue(":MPLEX", m_nID);
-        if (!query.exec() || !query.isActive())
-            MythContext::DBError("TransportEditor Delete associated channels", query);
-        m_list->fillSelections();
-    }
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("TransportEditor -- delete multiplex", query);
+
+    query.prepare("DELETE FROM channel WHERE mplexid = :MPLEX");
+    query.bindValue(":MPLEX", m_nID);
+
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("TransportEditor -- delete channels", query);
+
+    m_list->fillSelections();
+}
+
+void DVBTransportsEditor::del(int /*tid*/)
+{
+    m_nID = m_list->getValue().toInt();
+    del();
 }
 
 void DVBTransportsEditor::menu(int /*iSelected*/) {
@@ -203,19 +218,32 @@ protected:
         setName(name);
     };
 
-    virtual QString setClause(void);
-    virtual QString whereClause(void);
+    virtual QString setClause(MSqlBindings& bindings);
+    virtual QString whereClause(MSqlBindings& bindings);
 
     const DVBTID& id;
 };
 
-QString DvbTransSetting::whereClause(void) {
-    return QString("%1=%2").arg(id.getField()).arg(id.getValue());
+QString DvbTransSetting::whereClause(MSqlBindings& bindings) {
+    QString fieldTag(":WHERE" + id.getField().upper());
+    QString query(id.getField() + " = " + fieldTag);
+    
+    bindings.insert(fieldTag, id.getValue());
+
+    return query;
 }
 
-QString DvbTransSetting::setClause(void) {
-    return QString("%1=%2, %3='%4'").arg(id.getField()).arg(id.getValue())
-                   .arg(getName()).arg(getValue());
+QString DvbTransSetting::setClause(MSqlBindings& bindings) {
+    QString fieldTag = (":SET" + id.getField().upper());
+    QString nameTag = (":SET" + getName().upper());
+
+    QString query(id.getField() + " = " + fieldTag + ", " +
+                  getName() + " = " + nameTag);
+
+    bindings.insert(fieldTag, id.getValue());
+    bindings.insert(nameTag, getValue());
+
+    return query;
 }
 
 
@@ -439,73 +467,92 @@ DVBTransportWizard::DVBTransportWizard(int id, unsigned _nVideoSourceID) :
     addChild(dvbtid);
     addChild(new DvbTVideoSourceID(*dvbtid,_nVideoSourceID));
 
-    int iCardID = -1;
+    uint cardid = 0;
 
-    //Work out what kind of card we've got
+    // Work out what card we have.. (doesn't always work well)
     MSqlQuery query(MSqlQuery::InitCon());
-    QString querystr = QString(
-           "SELECT capturecard.cardid FROM cardinput,capturecard "
-           " WHERE capturecard.cardid = cardinput.cardid "
-           " AND cardinput.sourceid=%1 "
-           " AND capturecard.cardtype=\"DVB\"").arg(_nVideoSourceID);
-    query.prepare(querystr);
+    query.prepare(
+        "SELECT capturecard.cardid "
+        "FROM cardinput, capturecard "
+        "WHERE capturecard.cardid   = cardinput.cardid AND "
+        "      cardinput.sourceid   = :SOURCEID");
+    query.bindValue(":SOURCEID", _nVideoSourceID);
 
-    if (query.exec() && query.isActive() && query.size() > 0)
-    {
-        query.next();
-        iCardID = query.value(0).toInt();
-    }
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("DVBTransportWizard()", query);
+    else if (query.next())
+        cardid = query.value(0).toUInt();
 
     CardUtil::CARD_TYPES nType = CardUtil::ERROR_PROBE;
-    if (iCardID >= 0)
-        nType = CardUtil::GetCardType(iCardID);
-
-     addChild(new DVBTransportPage(*dvbtid,nType));
+    QString inputname = CardUtil::GetInputName(cardid, _nVideoSourceID);
+    if (cardid && !inputname.isEmpty())
+    {
+        QString subtype = CardUtil::ProbeSubTypeName(cardid, inputname);
+        nType = CardUtil::toCardType(subtype);
+    }
+    addChild(new DVBTransportPage(*dvbtid, nType));
 }
 
-DVBTransportPage::DVBTransportPage(const DVBTID& id, unsigned nType)
-                 : HorizontalConfigurationGroup(false,true), id(id)
+DVBTransportPage::DVBTransportPage(const DVBTID &_id, unsigned nType) :
+    ConfigurationGroup(false, true, false, false),
+    HorizontalConfigurationGroup(false, true, false, false), id(_id)
 {
     setLabel(QObject::tr("Transport Options"));
     setUseLabel(false);
-    VerticalConfigurationGroup* left = new VerticalConfigurationGroup(false,true);
-    VerticalConfigurationGroup* right = new VerticalConfigurationGroup(false,true);
-    left->addChild(dtvStandard  = new DTVTStandard(id));
-    switch (nType)
-    {
-    case CardUtil::OFDM:
-        left->addChild(frequency  = new DvbTFrequency(id));
-        left->addChild(bandwidth = new DvbTBandwidth(id));
-        left->addChild(inversion = new DvbTInversion(id));
-        left->addChild(constellation = new DvbTConstellation(id));
-        right->addChild(coderate_lp = new DvbTCoderateLP(id));
-        right->addChild(coderate_hp = new DvbTCoderateHP(id));
-        right->addChild(trans_mode = new DvbTTransmissionMode(id));
-        right->addChild(guard_interval = new DvbTGuardInterval(id));
-        right->addChild(hierarchy = new DvbTHierarchy(id));
-        break;
-    case CardUtil::QPSK:
-        left->addChild(frequency  = new DvbTFrequency(id));
-        left->addChild(symbolrate = new DvbTSymbolrate(id));
-        right->addChild(inversion = new DvbTInversion(id));
-        right->addChild(fec = new DvbTFec(id));
-        right->addChild(polarity = new DvbTPolarity(id));
-        break;
-    case CardUtil::QAM:
-        left->addChild(frequency  = new DvbTFrequency(id));
-        left->addChild(symbolrate = new DvbTSymbolrate(id));
-        right->addChild(modulation = new DvbTModulation(id));
-        right->addChild(inversion = new DvbTInversion(id));
-        right->addChild(fec = new DvbTFec(id));
-        break;
-    case CardUtil::ATSC:
-        left->addChild(frequency  = new DvbTFrequency(id));
-        right->addChild(atscmodulation = new DvbTATSCModulation(id));
-        break;
-    default:
-        cerr << "card detection error\n";
-    }
-    addChild(left);
-    addChild(right);
 
+    VerticalConfigurationGroup *left, *right;
+    left  = new VerticalConfigurationGroup(false, true);
+    right = new VerticalConfigurationGroup(false, true);
+
+    bool use_right = true;
+    if (CardUtil::OFDM == nType)
+    {
+        left->addChild(dtvStandard     = new DTVTStandard(id));
+        left->addChild(frequency       = new DvbTFrequency(id));
+        left->addChild(bandwidth       = new DvbTBandwidth(id));
+        left->addChild(inversion       = new DvbTInversion(id));
+        left->addChild(constellation   = new DvbTConstellation(id));
+        right->addChild(coderate_lp    = new DvbTCoderateLP(id));
+        right->addChild(coderate_hp    = new DvbTCoderateHP(id));
+        right->addChild(trans_mode     = new DvbTTransmissionMode(id));
+        right->addChild(guard_interval = new DvbTGuardInterval(id));
+        right->addChild(hierarchy      = new DvbTHierarchy(id));
+    }
+    else if (CardUtil::QPSK == nType)
+    {
+        left->addChild(dtvStandard     = new DTVTStandard(id));
+        left->addChild(frequency       = new DvbTFrequency(id));
+        left->addChild(symbolrate      = new DvbTSymbolrate(id));
+        right->addChild(inversion      = new DvbTInversion(id));
+        right->addChild(fec            = new DvbTFec(id));
+        right->addChild(polarity       = new DvbTPolarity(id));
+    }
+    else if (CardUtil::QAM == nType)
+    {
+        left->addChild(dtvStandard     = new DTVTStandard(id));
+        left->addChild(frequency       = new DvbTFrequency(id));
+        left->addChild(symbolrate      = new DvbTSymbolrate(id));
+        right->addChild(modulation     = new DvbTModulation(id));
+        right->addChild(inversion      = new DvbTInversion(id));
+        right->addChild(fec            = new DvbTFec(id));
+    }
+    else if (CardUtil::ATSC == nType)
+    {
+        left->addChild(dtvStandard     = new DTVTStandard(id));
+        left->addChild(frequency       = new DvbTFrequency(id));
+        left->addChild(atscmodulation  = new DvbTATSCModulation(id));
+        use_right = false;
+    }
+    else
+    {
+        left->addChild(frequency       = new DvbTFrequency(id));
+        use_right = false;
+    }
+
+    addChild(left);
+
+    if (use_right)
+        addChild(right);
+    else
+        delete right;
 };

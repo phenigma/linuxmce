@@ -40,7 +40,21 @@ enum BufferType
     kVideoBuffer_used      = 0x00000004,
     kVideoBuffer_pause     = 0x00000008,
     kVideoBuffer_displayed = 0x00000010,
+    kVideoBuffer_decode    = 0x00000020,
     kVideoBuffer_all       = 0x0000001F,
+};
+
+class YUVInfo
+{
+  public:
+    YUVInfo(uint w, uint h, uint size, const int *p, const int *o);
+
+  public:
+    uint width;
+    uint height;
+    uint size;
+    uint pitches[3];
+    uint offsets[3];
 };
 
 class VideoBuffers
@@ -54,7 +68,9 @@ class VideoBuffers
               uint needprebuffer_small, uint keepprebuffer,
               bool enable_frame_locking = false);
 
-    bool CreateBuffers(int width, int height, vector<unsigned char*> bufs);
+    bool CreateBuffers(int width, int height,
+                       vector<unsigned char*> bufs,
+                       vector<YUVInfo>        yuvinfo);
     bool CreateBuffers(int width, int height);
     void DeleteBuffers(void);
 
@@ -119,6 +135,9 @@ class VideoBuffers
     frame_queue_t Children(const VideoFrame *frame);
     bool HasChildren(const VideoFrame *frame);
 
+    void Clear(uint i, int fourcc);
+    void Clear(int fourcc);
+
 #ifdef USING_XVMC
     VideoFrame* PastFrame(const VideoFrame *frame);
     VideoFrame* FutureFrame(const VideoFrame *frame);
@@ -136,6 +155,8 @@ class VideoBuffers
   private:
     frame_queue_t         *queue(BufferType type);
     const frame_queue_t   *queue(BufferType type) const;
+    VideoFrame            *GetNextFreeFrameInternal(
+        bool with_lock, bool allow_unsafe, BufferType enqueue_to);
 
     frame_queue_t          available, used, limbo, pause, displayed, decode;
     vbuffer_map_t          vbufferMap; // videobuffers to buffer's index
@@ -159,7 +180,6 @@ class VideoBuffers
     uint                   vpos;
 
     mutable QMutex         global_lock;
-    QMutex                 inheritence_lock;
 
     bool                   use_frame_locks;
     QMutex                 frame_lock;

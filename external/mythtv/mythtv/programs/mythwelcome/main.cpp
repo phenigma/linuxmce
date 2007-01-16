@@ -80,9 +80,7 @@ int main(int argc, char **argv)
 
     LanguageSettings::load("mythfrontend");
 
-    MythMainWindow *mainWindow = new MythMainWindow();
-    mainWindow->Init();
-    mainWindow->Show();
+    MythMainWindow *mainWindow = GetMythMainWindow();
     gContext->SetMainWindow(mainWindow);
     
     initKeys();

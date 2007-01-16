@@ -2,9 +2,9 @@
 /**
  * Schedule a custom recording by manually specifying starttime and length
  *
- * @url         $URL$
- * @date        $Date: 2006-02-10 08:15:17 +0200 (Fri, 10 Feb 2006) $
- * @version     $Revision: 8914 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/tv/schedules_manual.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  *
  * @package     MythWeb
@@ -161,7 +161,7 @@
         $schedule->length = 120;
 
 // Load the class for this page
-    require_once theme_dir.'tv/schedules_manual.php';
+    require_once tmpl_dir.'schedules_manual.php';
 
 // Exit
     exit;

@@ -5,6 +5,8 @@
 #include <sys/types.h> // for stat
 #include <sys/stat.h>  // for stat
 #include <unistd.h>    // for stat
+#include <sys/time.h>
+#include <sys/resource.h>
 
 // Qt headers
 #include <qfileinfo.h>
@@ -15,9 +17,11 @@
 #include "NuppelVideoPlayer.h"
 #include "previewgenerator.h"
 #include "tv_rec.h"
+#include "mythsocket.h"
 
 #define LOC QString("Preview: ")
 #define LOC_ERR QString("Preview Error: ")
+#define LOC_WARN QString("Preview Warning: ")
 
 /** \class Preview Generator
  *  \brief This class creates a preview image of a recording.
@@ -53,7 +57,7 @@
 PreviewGenerator::PreviewGenerator(const ProgramInfo *pginfo,
                                    bool local_only)
     : programInfo(*pginfo), localOnly(local_only), isConnected(false),
-      createSockets(false), eventSock(NULL), serverSock(NULL)
+      createSockets(false), serverSock(NULL)
 {
     if (IsLocal())
         return;
@@ -63,7 +67,12 @@ PreviewGenerator::PreviewGenerator(const ProgramInfo *pginfo,
     QString prefix   = gContext->GetSetting("RecordFilePrefix");
     QString localFN  = QString("%1/%2").arg(prefix).arg(baseName);
     if (!QFileInfo(localFN).exists())
-        return; // didn't find file locally, must use remote backend
+    {
+        // GetPlaybackURL tries to return a local filename if one exists
+        localFN = programInfo.GetPlaybackURL();
+        if (!(localFN.left(1) == "/" && QFileInfo(localFN).exists()))
+            return; // didn't find file locally, must use remote backend
+    }
 
     // Found file locally, so set the new pathname..
     QString msg = QString(
@@ -81,6 +90,9 @@ PreviewGenerator::~PreviewGenerator()
 
 void PreviewGenerator::TeardownAll(void)
 {
+    if (!isConnected)
+        return;
+
     const QString filename = programInfo.pathname + ".png";
 
     MythTimer t;
@@ -132,9 +144,6 @@ void PreviewGenerator::disconnectSafe(void)
 void PreviewGenerator::Start(void)
 {
     pthread_create(&previewThread, NULL, PreviewRun, this);
-    // Lower scheduling priority, to avoid problems with recordings.
-    struct sched_param sp = {9 /* lower than normal */};
-    pthread_setschedparam(previewThread, SCHED_OTHER, &sp);
     // detach, so we don't have to join thread to free thread local mem.
     pthread_detach(previewThread);
 }
@@ -161,6 +170,9 @@ void PreviewGenerator::Run(void)
 
 void *PreviewGenerator::PreviewRun(void *param)
 {
+    // Lower scheduling priority, to avoid problems with recordings.
+    if (setpriority(PRIO_PROCESS, 0, 9))
+        VERBOSE(VB_IMPORTANT, LOC + "Setting priority failed." + ENO);
     PreviewGenerator *gen = (PreviewGenerator*) param;
     gen->createSockets = true;
     gen->Run();
@@ -173,22 +185,8 @@ bool PreviewGenerator::RemotePreviewSetup(void)
     QString server = gContext->GetSetting("MasterServerIP", "localhost");
     int port       = gContext->GetNumSetting("MasterServerPort", 6543);
 
-    eventSock  = new QSocket(0, "preview event socket");
-
-    QObject::connect(eventSock, SIGNAL(connected()), 
-                     this,      SLOT(  EventSocketConnected()));
-    QObject::connect(eventSock, SIGNAL(readyRead()), 
-                     this,      SLOT(  EventSocketRead()));
-    QObject::connect(eventSock, SIGNAL(connectionClosed()), 
-                     this,      SLOT(  EventSocketClosed()));
-
-    serverSock = gContext->ConnectServer(NULL/*eventSock*/, server, port);
-    if (!serverSock)
-    {
-        eventSock->deleteLater();
-        return false;
-    }
-    return true;
+    serverSock = gContext->ConnectServer(NULL, server, port);
+    return serverSock;
 }
 
 void PreviewGenerator::RemotePreviewRun(void)
@@ -206,10 +204,10 @@ void PreviewGenerator::RemotePreviewRun(void)
         }
 
         if (serverSock)
-            WriteStringList(serverSock, strlist);
-
-        if (serverSock)
-            ok = ReadStringList(serverSock, strlist, false);
+        {
+            serverSock->writeStringList(strlist);
+            ok = serverSock->readStringList(strlist, false);
+        }
 
         RemotePreviewTeardown();
     }
@@ -229,11 +227,9 @@ void PreviewGenerator::RemotePreviewTeardown(void)
 {
     if (serverSock)
     {
-        delete serverSock;
+        serverSock->DownRef();
         serverSock = NULL;
     }
-    if (eventSock)
-        eventSock->deleteLater();;
 }
 
 bool PreviewGenerator::SavePreview(QString filename,
@@ -259,7 +255,24 @@ bool PreviewGenerator::SavePreview(QString filename,
 
     QImage small_img = img.smoothScale((int) ppw, (int) pph);
 
-    return small_img.save(filename.ascii(), "PNG");
+    if (small_img.save(filename.ascii(), "PNG"))
+    {
+        chmod(filename.ascii(), 0666); // Let anybody update it
+        return true;
+    }
+
+    // Save failed; if file exists, try saving to .new and moving over
+    QString newfile = filename + ".new";
+    if (QFileInfo(filename.ascii()).exists() &&
+        small_img.save(newfile.ascii(), "PNG"))
+    {
+        chmod(newfile.ascii(), 0666);
+        rename(newfile.ascii(), filename.ascii());
+        return true;
+    }
+
+    // Couldn't save, nothing else I can do?
+    return false;
 }
 
 void PreviewGenerator::LocalPreviewRun(void)
@@ -275,8 +288,10 @@ void PreviewGenerator::LocalPreviewRun(void)
     unsigned char *data = (unsigned char*)
         GetScreenGrab(&programInfo, programInfo.pathname, secsin,
                       sz, width, height, aspect);
-
-    if (SavePreview(programInfo.pathname+".png", data, width, height, aspect))
+    
+    bool ok = SavePreview(programInfo.pathname + ".png",
+                          data, width, height, aspect);
+    if (ok)
     {
         QMutexLocker locker(&previewLock);
         emit previewReady(&programInfo);
@@ -286,42 +301,22 @@ void PreviewGenerator::LocalPreviewRun(void)
         delete[] data;
 
     programInfo.MarkAsInUse(false);
+
+    // local update failed, try remote...
+    if (!ok && !localOnly)
+    {
+        VERBOSE(VB_IMPORTANT, LOC_WARN + "Failed to save preview."
+                "\n\t\t\tYou may need to check user and group ownership"
+                "\n\t\t\ton your frontend and backend for quicker previews."
+                "\n\n\t\t\tAttempting to regenerate preview on backend.\n");
+
+        RemotePreviewRun();
+    }
 }
 
 bool PreviewGenerator::IsLocal(void) const
 {
     return QFileInfo(programInfo.pathname).exists();
-}
-
-void PreviewGenerator::EventSocketConnected(void)
-{
-    QString str = QString("ANN Playback %1 %2")
-        .arg(gContext->GetHostName()).arg(true);
-    QStringList strlist = str;
-    WriteStringList(eventSock, strlist);
-    ReadStringList(eventSock, strlist);
-}
-
-void PreviewGenerator::EventSocketClosed(void)
-{
-    VERBOSE(VB_IMPORTANT, LOC_ERR + "Event socket closed.");
-    if (serverSock)
-    {
-        QSocketDevice *tmp = serverSock;
-        serverSock = NULL;
-        delete tmp;
-    }
-}
-
-void PreviewGenerator::EventSocketRead(void)
-{
-    while (eventSock->state() == QSocket::Connected &&
-           eventSock->bytesAvailable() > 0)
-    {
-        QStringList strlist;
-        if (!ReadStringList(eventSock, strlist))
-            continue;
-    }
 }
 
 /** \fn PreviewGenerator::GetScreenGrab(const ProgramInfo*,const QString&,int,int&,int&,int&,float&)

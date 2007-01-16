@@ -3,47 +3,39 @@
     <name>GLSingleView</name>
     <message>
         <source>Folder: </source>
-        <translation>Carpeta: </translation>
+        <translation type="obsolete">Carpeta: </translation>
     </message>
     <message>
         <source>Created: </source>
-        <translation>Creado: </translation>
+        <translation type="obsolete">Creado: </translation>
     </message>
     <message>
         <source>Modified: </source>
-        <translation>Modificado: </translation>
+        <translation type="obsolete">Modificado: </translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bytes</translation>
+        <translation type="obsolete">Bytes</translation>
     </message>
     <message>
         <source>Width</source>
-        <translation>Ancho</translation>
-    </message>
-    <message>
-        <source>pixels</source>
-        <translation></translation>
+        <translation type="obsolete">Ancho</translation>
     </message>
     <message>
         <source>Height</source>
-        <translation>Alto</translation>
+        <translation type="obsolete">Alto</translation>
     </message>
     <message>
         <source>Pixel Count</source>
-        <translation>Número de Píxels</translation>
-    </message>
-    <message>
-        <source>megapixels</source>
-        <translation></translation>
+        <translation type="obsolete">Número de Píxels</translation>
     </message>
     <message>
         <source>Rotation Angle</source>
-        <translation>Ángulo de rotación</translation>
+        <translation type="obsolete">Ángulo de rotación</translation>
     </message>
     <message>
         <source>degrees</source>
-        <translation>grados</translation>
+        <translation type="obsolete">grados</translation>
     </message>
 </context>
 <context>
@@ -104,6 +96,94 @@
         <source>Delete</source>
         <translation>Borrar</translation>
     </message>
+    <message>
+        <source>MythGallery Directory &apos;%1&apos; does not exist or is unreadable.</source>
+        <translation>El Directorio de MythGallery &apos;%1&apos; no existe o es ilegible.</translation>
+    </message>
+    <message>
+        <source>MythGallery failed to load theme, see console for details.</source>
+        <translation>MythGallery falló al cargar el tema, vea la consola para detalles.</translation>
+    </message>
+    <message>
+        <source>The selected device is no longer available</source>
+        <translation>El dispositivo seleccionado ya no está disponible</translation>
+    </message>
+    <message>
+        <source>Meta Data...</source>
+        <translation>MetaDatos...</translation>
+    </message>
+    <message>
+        <source>Marking...</source>
+        <translation>Marcando...</translation>
+    </message>
+    <message>
+        <source>File...</source>
+        <translation>Fichero...</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Volver</translation>
+    </message>
+    <message>
+        <source>Clear Marked</source>
+        <translation>Borrar Marcas</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Seleccionar Todo</translation>
+    </message>
+    <message>
+        <source>Show Devices</source>
+        <translation>Mostrar Dispositivos</translation>
+    </message>
+    <message>
+        <source>Copy here</source>
+        <translation>Copiar Aquí</translation>
+    </message>
+    <message>
+        <source>Move here</source>
+        <translation>Mover Aquí</translation>
+    </message>
+    <message>
+        <source>Create Dir</source>
+        <translation>Crear Dir</translation>
+    </message>
+    <message>
+        <source>Delete Current File or Folder</source>
+        <translation>Borrar Fichero o Carpeta Actual</translation>
+    </message>
+    <message>
+        <source>Deleting 1 folder, including any subfolders and files.</source>
+        <translation>Borrando 1 carpeta, incluyendo las subcarpetas y ficheros.</translation>
+    </message>
+    <message>
+        <source>Deleting 1 image.</source>
+        <translation>Borrando 1 imagen.</translation>
+    </message>
+    <message>
+        <source>Delete Marked Files</source>
+        <translation>Borrar Ficheros Marcados</translation>
+    </message>
+    <message>
+        <source>Deleting %1 images and folders, including any subfolders and files.</source>
+        <translation>Borrando %1 imágenes y carpetas, incluyendo subcarpetas y ficheros.</translation>
+    </message>
+    <message>
+        <source>New Folder</source>
+        <translation>Nueva Carpeta</translation>
+    </message>
+    <message>
+        <source>Create New Folder</source>
+        <translation>Crear Nueva Carpeta</translation>
+    </message>
+    <message>
+        <source>Moving marked images...</source>
+        <translation>Moviendo imágenes marcadas...</translation>
+    </message>
+    <message>
+        <source>Copying marked images...</source>
+        <translation>Copiando imágenes marcadas...</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -133,7 +213,7 @@
     </message>
     <message>
         <source>MythGallery Settings</source>
-        <translation>Configuración de MythGallery</translation>
+        <translation type="obsolete">Configuración de MythGallery</translation>
     </message>
     <message>
         <source>This is a colon separated list of paths. If the path in the list is a directory, its contents will be copied. If it is an executable, it will be run.</source>
@@ -169,7 +249,7 @@
     </message>
     <message>
         <source>Gallery Directory does not exist or is unreadable.</source>
-        <translation>El directorio de la galería no existe o no es leíble.</translation>
+        <translation type="obsolete">El directorio de la galería no existe o no es leíble.</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -207,52 +287,64 @@
         <source>This is the number of seconds to show a caption on top of a full size picture.</source>
         <translation>Número de segundos a mostrar la leyenda encima de una foto a tamaño completo.</translation>
     </message>
+    <message>
+        <source>Sort order when browsing</source>
+        <translation>Órden durante la navegación</translation>
+    </message>
+    <message>
+        <source>This is the sort order for the displayed picture thumbnails.</source>
+        <translation>Este es el órden para las miniaturas mostradas.</translation>
+    </message>
+    <message>
+        <source>Duration of OpenGL Transition (milliseconds)</source>
+        <translation>Duración de la transición OpenGL (milisegundos)</translation>
+    </message>
+    <message>
+        <source>MythGallery Settings (Slideshow)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MythGallery Settings (General)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SingleView</name>
     <message>
         <source>Bytes</source>
-        <translation>Bytes</translation>
+        <translation type="obsolete">Bytes</translation>
     </message>
     <message>
         <source>Width</source>
-        <translation>Ancho</translation>
+        <translation type="obsolete">Ancho</translation>
     </message>
     <message>
         <source>Height</source>
-        <translation>Alto</translation>
+        <translation type="obsolete">Alto</translation>
     </message>
     <message>
         <source>Pixel Count</source>
-        <translation>Número de Píxels</translation>
+        <translation type="obsolete">Número de Píxels</translation>
     </message>
     <message>
         <source>Rotation Angle</source>
-        <translation>Angulo de rotación</translation>
-    </message>
-    <message>
-        <source>pixels</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>megapixels</source>
-        <translation></translation>
+        <translation type="obsolete">Angulo de rotación</translation>
     </message>
     <message>
         <source>degrees</source>
-        <translation>grados</translation>
+        <translation type="obsolete">grados</translation>
     </message>
     <message>
         <source>Created: </source>
-        <translation>Creado:</translation>
+        <translation type="obsolete">Creado:</translation>
     </message>
     <message>
         <source>Modified: </source>
-        <translation>Modificado:</translation>
+        <translation type="obsolete">Modificado:</translation>
     </message>
     <message>
         <source>Folder: </source>
-        <translation>Carpeta:</translation>
+        <translation type="obsolete">Carpeta:</translation>
     </message>
 </context>
 </TS>

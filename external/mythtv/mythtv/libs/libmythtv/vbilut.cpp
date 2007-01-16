@@ -1,5 +1,6 @@
 #include <vbilut.h>
 
+extern "C" {
 const uint8_t lang_chars[1+8+8][16] =
 {
     { 0, 0x23,0x24,0x40,0x5b,0x5c,0x5d,0x5e,0x5f,0x60,0x7b,0x7c,0x7d,0x7e },
@@ -9,6 +10,8 @@ const uint8_t lang_chars[1+8+8][16] =
     { 0,  '£', '$', '@', '«', '½', '»', '¬', '#', '­', '¼', '¦', '¾', '÷' },
     // German (100%)
     { 0,  '#', '$', '§', 'Ä', 'Ö', 'Ü', '^', '_', '°', 'ä', 'ö', 'ü', 'ß' },
+    // Swedish/Finnish/Hungarian (100%)
+    { 0,  '#', '¤', 'É', 'Ä', 'Ö', 'Å', 'Ü', '_', 'é', 'ä', 'ö', 'å', 'ü' },
     // Italian (100%)
     { 0,  '£', '$', 'é', '°', 'ç', '»', '¬', '#', 'ù', 'à', 'ò', 'è', 'ì' },
     // French (100%)
@@ -38,16 +41,12 @@ const uint8_t lang_chars[1+8+8][16] =
     // Rumanian (95%)
     { 0,  '#', '¢', 'Þ', 'Â', 'ª', 'Ã', 'Î', 'i', 'þ', 'â', 'º', 'ã', 'î' },
 };
+}
 
 // TODO - Add the rest...page 107
 const char chartab_original[13] =
 {
     '#', '¤', '@', '[', '\\', ']', '^', '_', '\'', '{', '|', '}', '~'
-};
-
-const char chartab_swedish[13] =
-{
-    '#', '¤', 'É', 'Ä', 'Ö',  'Å', 'Ü', '_', 'é', 'ä', 'ö', 'å', 'ü'
 };
 
 const unsigned short hammtab[256] =
@@ -325,3 +324,29 @@ const int hamm24cor[64] =
     0x00000, 0x00800, 0x01000, 0x02000, 0x04000, 0x08000, 0x10000, 0x20000,
     0x00000, 0x00000, 0x00000, 0x00000, 0x00000, 0x00000, 0x00000, 0x00000,
 };
+
+int hamm8(const uint8_t *p, int *err)
+{
+    int a = hammtab[p[0]];
+    *err += a;
+    return a & 15;
+}
+
+int hamm84(const uint8_t *p, int *err)
+{
+    int a = hamm84tab[p[0]];
+
+    if (a == 255)
+        *err = 1;
+
+    return a;
+}
+
+int hamm16(const uint8_t *p, int *err)
+{
+    int a = hammtab[p[0]];
+    int b = hammtab[p[1]];
+    *err += a;
+    *err += b;
+    return (a & 15) | (b & 15) * 16;
+}

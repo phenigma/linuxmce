@@ -19,6 +19,7 @@ class ViewScheduled : public MythDialog
 
   protected slots:
     void edit();
+    void customEdit();
     void upcoming();
     void details();
     void selected();
@@ -35,6 +36,7 @@ class ViewScheduled : public MythDialog
   private:
     void FillList(void);
     void setShowAll(bool all);
+    void viewCards(void);
 
     void updateBackground(void);
     void updateList(QPainter *);
@@ -72,6 +74,10 @@ class ViewScheduled : public MythDialog
 
     int listPos;
     ProgramList recList;
+
+    QMap<int, int> cardref;
+    int maxcard;
+    int curcard;
 };
 
 #endif

@@ -1,30 +1,42 @@
 #ifndef AUDIOOUTPUTBASE
 #define AUDIOOUTPUTBASE
 
-#include <iostream>
+// POSIX headers
 #include <pthread.h>
+#include <sys/time.h> // for struct timeval
+
+// C++ headers
+#include <iostream>
 using namespace std;
 
+// Qt headers
 #include <qstring.h>
 #include <qmutex.h>
 
+// MythTV headers
 #include "audiooutput.h"
 #include "samplerate.h"
 #include "SoundTouch.h"
 
 #define AUDBUFSIZE 768000
+#define AUDIO_SRC_IN_SIZE   16384
+#define AUDIO_SRC_OUT_SIZE (16384*6)
+#define AUDIO_TMP_BUF_SIZE (16384*6)
 
 class AudioOutputBase : public AudioOutput
 {
  public:
-    AudioOutputBase(QString audiodevice, int laudio_bits,
+    AudioOutputBase(QString laudio_main_device,
+                    QString laudio_passthru_device,
+                    int laudio_bits,
                     int laudio_channels, int laudio_samplerate,
-                    AudioOutputSource source, bool set_initial_vol);
+                    AudioOutputSource lsource,
+                    bool lset_initial_vol, bool laudio_passthru);
     virtual ~AudioOutputBase();
 
     // reconfigure sound out for new params
-    virtual void Reconfigure(int audio_bits, 
-                             int audio_channels, int audio_samplerate);
+    virtual void Reconfigure(int audio_bits, int audio_channels,
+                             int audio_samplerate, bool audio_passthru);
     
     // do AddSamples calls block?
     virtual void SetBlocking(bool blocking);
@@ -51,8 +63,6 @@ class AudioOutputBase : public AudioOutput
 
     // Send output events showing current progress
     virtual void Status(void);
-
-    QString GetError() { return lastError; };
 
     virtual void SetSourceBitrate(int rate);
 
@@ -104,7 +114,10 @@ class AudioOutputBase : public AudioOutput
     int audio_buffer_unused;
     int fragment_size;
     long soundcard_buffer_size;
-    QString audiodevice;
+    QString audio_main_device;
+    QString audio_passthru_device;
+
+    bool audio_passthru;
 
     float audio_stretchfactor;
     AudioOutputSource source;
@@ -116,14 +129,13 @@ class AudioOutputBase : public AudioOutput
     bool buffer_output_data_for_use; //  used by AudioOutputNULL
     
  private:
-    QString lastError;
-
     // resampler
     bool need_resampler;
     SRC_STATE *src_ctx;
     SRC_DATA src_data;
-    float src_in[16384], src_out[16384*6];
-    short tmp_buff[16384*6];
+    float src_in[AUDIO_SRC_IN_SIZE];
+    float src_out[AUDIO_SRC_OUT_SIZE];
+    short tmp_buff[AUDIO_TMP_BUF_SIZE];
 
     // timestretch
     soundtouch::SoundTouch * pSoundStretch;
@@ -131,7 +143,8 @@ class AudioOutputBase : public AudioOutput
     bool blocking; // do AddSamples calls block?
 
     int lastaudiolen;
-
+    long long samples_buffered;
+    
     pthread_t output_audio;
     pthread_mutex_t audio_buflock; /* adjustments to audiotimecode, waud, and
                                       raud can only be made while holding this

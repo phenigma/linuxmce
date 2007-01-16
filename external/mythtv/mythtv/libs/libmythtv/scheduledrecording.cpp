@@ -20,7 +20,8 @@
 // NOTE: if this changes, you _MUST_ update the RecTypePriority function 
 // in recordingtypes.cpp.
 
-ScheduledRecording::ScheduledRecording() 
+ScheduledRecording::ScheduledRecording() :
+    ConfigurationGroup(true, true, false, false)
 {
     m_pginfo = NULL;
     type = NULL;
@@ -44,6 +45,7 @@ ScheduledRecording::ScheduledRecording()
     recpriority = NULL;
     recgroup = NULL;
     playgroup = NULL;
+    prefinput = NULL;
     inactive = NULL;
     searchType = "";
     searchForWhat = "";
@@ -450,11 +452,10 @@ void ScheduledRecording::save(bool sendSig)
         MSqlQuery query(MSqlQuery::InitCon());
         query.prepare(
             "UPDATE recorded "
-                "SET recpriority = :RECPRIORITY, recgroup = :RECGROUP, "
+                "SET recpriority = :RECPRIORITY, "
                     "transcoder = :TRANSCODER, playgroup = :PLAYGROUP "
                 "WHERE recordid = :RECORDID ;");
         query.bindValue(":RECPRIORITY", getRecPriority());
-        query.bindValue(":RECGROUP", recgroup->getValue());
         query.bindValue(":TRANSCODER", transcoder->getValue().toInt());
         query.bindValue(":PLAYGROUP", playgroup->getValue());
         query.bindValue(":RECORDID", getRecordID());
@@ -530,46 +531,49 @@ void ScheduledRecording::doneRecording(ProgramInfo& proginfo)
     gContext->LogEntry("scheduler", LP_NOTICE, msg, details);
 }
 
-void ScheduledRecording::runProgList(void)
+void ScheduledRecording::runTitleList(void)
 {
     ProgLister *pl = NULL;
 
-    if (search->intValue() && getRecordID())
+    if (search->intValue())
     {
-        ScheduledRecording rule;
-        rule.loadByID(getRecordID());
-
-        switch (search->intValue())
+        if (m_pginfo)
         {
-        case kTitleSearch:
-            pl = new ProgLister(plTitleSearch,
-                                rule.description->getValue(), "",
+            pl = new ProgLister(plTitle, m_pginfo->title, "",
                                 gContext->GetMainWindow(), "proglist");
-            break;
-        case kKeywordSearch:
-            pl = new ProgLister(plKeywordSearch,
-                                rule.description->getValue(), "",
+        }
+        else
+        {
+            QString trimTitle = title->getValue();
+            trimTitle.remove(QRegExp(" \\(.*\\)$"));
+            pl = new ProgLister(plTitle, trimTitle, "",
                                 gContext->GetMainWindow(), "proglist");
-            break;
-        case kPeopleSearch:
-            pl = new ProgLister(plPeopleSearch,
-                                rule.description->getValue(), "",
-                                gContext->GetMainWindow(), "proglist");
-            break;
-        case kPowerSearch:
-            pl = new ProgLister(plSQLSearch, rule.description->getValue(),
-                                rule.subtitle->getValue(),
-                                gContext->GetMainWindow(), "proglist");
-            break;
-        default:
-            pl = new ProgLister(plTitle, title->getValue(), "",
-                                gContext->GetMainWindow(), "proglist");
-            break;
         }
     }
     else
+    {
         pl = new ProgLister(plTitle, title->getValue(), "",
                             gContext->GetMainWindow(), "proglist");
+    }
+    pl->exec();
+    delete pl;
+}
+
+void ScheduledRecording::runRuleList(void)
+{
+    ProgLister *pl = NULL;
+
+    if (getRecordID())
+    {
+        pl = new ProgLister(plRecordid,
+                            QString("%1").arg(getRecordID()), "",
+                            gContext->GetMainWindow(), "proglist");
+    }
+    else
+    {
+        pl = new ProgLister(plTitle, title->getValue(), "",
+                            gContext->GetMainWindow(), "proglist");
+    }
     pl->exec();
     delete pl;
 }
@@ -703,6 +707,10 @@ void ScheduledRecording::setRecGroup(const QString& newrecgroup) {
     recgroup->setValue(newrecgroup);
 }
 
+QString ScheduledRecording::GetRecGroup(void) const {
+    return recgroup->getValue();
+}
+
 void ScheduledRecording::setPlayGroup(const QString& newplaygroup) {
     playgroup->setValue(newplaygroup);
 }
@@ -782,8 +790,8 @@ void ScheduledRecording::setDefault(bool haschannel)
     dupin->setValue(kDupsInAll);
     dupmethod->setValue(kDupCheckSubDesc);
     maxepisodes->setValue(0);
-    startoffset->setValue(0);
-    endoffset->setValue(0);   
+    startoffset->setValue(gContext->GetNumSetting("DefaultStartOffset", 0));
+    endoffset->setValue(gContext->GetNumSetting("DefaultEndOffset", 0));
     maxnewest->setValue(0);
     recpriority->setValue(0);
     
@@ -803,6 +811,8 @@ void ScheduledRecording::setDefault(bool haschannel)
     recgroup->setValue("Default");
     playgroup->fillSelections();    
     playgroup->setValue("Default");
+    prefinput->fillSelections();    
+    prefinput->setValue(0);
 
     inactive->setValue(0);
 }

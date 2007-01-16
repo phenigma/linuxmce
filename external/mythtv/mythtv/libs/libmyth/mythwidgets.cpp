@@ -14,6 +14,7 @@ using namespace std;
 #include "util.h"
 #include "mythdialogs.h"
 #include "virtualkeyboard.h"
+#include "libmythui/mythmainwindow.h"
 
 void MythComboBox::keyPressEvent(QKeyEvent *e)
 {
@@ -1324,6 +1325,10 @@ void MythListBox::keyPressEvent(QKeyEvent* e)
             }
             else if (action == "MENU")
                 emit menuButtonPressed(currentItem());
+            else if (action == "EDIT")
+                emit editButtonPressed(currentItem());
+            else if (action == "DELETE")
+                emit deleteButtonPressed(currentItem());
             else if (action == "SELECT")
                 emit accepted(currentItem());
         }

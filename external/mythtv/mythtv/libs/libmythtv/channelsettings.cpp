@@ -1,12 +1,25 @@
 #include "channelsettings.h"
 
-QString CSetting::whereClause(void) {
-    return QString("%1=%2").arg(id.getField()).arg(id.getValue());
+QString CSetting::whereClause(MSqlBindings& bindings) {
+    QString fieldTag = (":WHERE" + id.getField().upper());
+    QString query(id.getField() + " = " + fieldTag);
+
+    bindings.insert(fieldTag, id.getValue());
+
+    return query;
 }
 
-QString CSetting::setClause(void) {
-    return QString("%1=%2, %3='%4'").arg(id.getField()).arg(id.getValue())
-                   .arg(getName()).arg(getValue());
+QString CSetting::setClause(MSqlBindings& bindings) {
+    QString fieldTag = (":SET" + id.getField().upper());
+    QString nameTag = (":SET" + getName().upper());
+
+    QString query(id.getField() + " = " + fieldTag + ", " +
+                  getName() + " = " + nameTag);
+
+    bindings.insert(fieldTag, id.getValue());
+    bindings.insert(nameTag, getValue());
+
+    return query;
 }
 
 /*****************************************************************************
@@ -82,15 +95,28 @@ public:
     };
 };
 
-class Rank: public SpinBoxSetting, public CSetting {
+class TimeOffset: public SpinBoxSetting, public CSetting {
 public:
-    Rank(const ChannelID& id):
-        SpinBoxSetting(-99,99,1), CSetting(id, "rank") {
-        setLabel(QObject::tr("Rank"));
+    TimeOffset(const ChannelID& id):
+        SpinBoxSetting(-1440, 1440, 1), CSetting(id, "tmoffset") {
+        setLabel(QObject::tr("DataDirect") + " " + QObject::tr("Time Offset"));
+        setHelpText(QObject::tr("Offset (in minutes) to apply to the program "
+                    "guide data during import.  This can be used when the "
+                    "listings for a particular channel are in a different "
+                    "time zone.") + " " +
+                    QObject::tr("(Works for DataDirect listings only.)"));
+    };
+};
+
+class Priority: public SpinBoxSetting, public CSetting {
+public:
+    Priority(const ChannelID& id):
+        SpinBoxSetting(-99,99,1), CSetting(id, "recpriority") {
+        setLabel(QObject::tr("Priority"));
         setHelpText(
-            QObject::tr("Number of bonus points to be added to any "
+            QObject::tr("Number of priority points to be added to any "
                         "recording on this channel during scheduling.")+" "+
-            QObject::tr("Use a positive number as the rank if you "
+            QObject::tr("Use a positive number as the priority if you "
                         "want this to be a preferred channel, a "
                         "negative one to deprecate this channel."));
     };
@@ -239,8 +265,9 @@ public:
     };
 };
 
-ChannelOptionsCommon::ChannelOptionsCommon(const ChannelID& id)
-                    : VerticalConfigurationGroup(false,true)
+ChannelOptionsCommon::ChannelOptionsCommon(const ChannelID& id) :
+    ConfigurationGroup(false, true, false, false),
+    VerticalConfigurationGroup(false, true, false, false)
 {
     setLabel(QObject::tr("Channel Options - Common"));
     setUseLabel(false);
@@ -249,13 +276,13 @@ ChannelOptionsCommon::ChannelOptionsCommon(const ChannelID& id)
 
     Source *source;
 
-    HorizontalConfigurationGroup* group1 = new HorizontalConfigurationGroup(false,true);
+    HorizontalConfigurationGroup* group1 = new HorizontalConfigurationGroup(false,false,true,true);
 
     VerticalConfigurationGroup* left = new VerticalConfigurationGroup(false,true);
     left->addChild(new Channum(id));
     left->addChild(new Callsign(id));
 
-    HorizontalConfigurationGroup *lefthoz = new HorizontalConfigurationGroup(false,true);
+    HorizontalConfigurationGroup *lefthoz = new HorizontalConfigurationGroup(false,false,true,true);
 
     lefthoz->addChild(new Visible(id));
     lefthoz->addChild(new CommFree(id));
@@ -265,7 +292,7 @@ ChannelOptionsCommon::ChannelOptionsCommon(const ChannelID& id)
     VerticalConfigurationGroup* right = new VerticalConfigurationGroup(false, true);
     right->addChild(source = new Source(id));
     right->addChild(new ChannelTVFormat(id));
-    right->addChild(new Rank(id));
+    right->addChild(new Priority(id));
     group1->addChild(right);
 
     addChild(group1);
@@ -274,17 +301,18 @@ ChannelOptionsCommon::ChannelOptionsCommon(const ChannelID& id)
     addChild(new VideoFilters(id));
     addChild(new OutputFilters(id));
 
-#ifdef USING_DVB_EIT
-    HorizontalConfigurationGroup *bottomhoz = new HorizontalConfigurationGroup(false,true);
+    HorizontalConfigurationGroup *bottomhoz =
+        new HorizontalConfigurationGroup(false, true);
+
     bottomhoz->addChild(onairguide = new OnAirGuide(id));
     bottomhoz->addChild(xmltvID = new XmltvID(id));
+    bottomhoz->addChild(new TimeOffset(id));
     addChild(bottomhoz);
 
-    connect(onairguide,SIGNAL(valueChanged(bool)),this,SLOT(onAirGuideChanged(bool)));
-    connect(source,SIGNAL(valueChanged(const QString&)),this,SLOT(sourceChanged(const QString&)));
-#else
-    addChild(new XmltvID(id));
-#endif
+    connect(onairguide, SIGNAL(valueChanged(     bool)),
+            this,       SLOT(  onAirGuideChanged(bool)));
+    connect(source,     SIGNAL(valueChanged( const QString&)),
+            this,       SLOT(  sourceChanged(const QString&)));
 };
 
 void ChannelOptionsCommon::load()
@@ -335,8 +363,10 @@ void ChannelOptionsCommon::sourceChanged(const QString& sourceid)
     xmltvID->setEnabled(!uses_eit_only);
 }
 
-ChannelOptionsV4L::ChannelOptionsV4L(const ChannelID& id)
-                 : VerticalConfigurationGroup(false,true) {
+ChannelOptionsV4L::ChannelOptionsV4L(const ChannelID& id) :
+    ConfigurationGroup(false, true, false, false),
+    VerticalConfigurationGroup(false, true, false, false)
+{
     setLabel(QObject::tr("Channel Options - Video 4 Linux"));
     setUseLabel(false);
 
@@ -347,3 +377,5 @@ ChannelOptionsV4L::ChannelOptionsV4L(const ChannelID& id)
     addChild(new Colour(id));
     addChild(new Hue(id));
 };
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

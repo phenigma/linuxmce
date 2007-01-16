@@ -2,9 +2,9 @@
 /**
  * View and fix scheduling conflicts.
  *
- * @url         $URL$
- * @date        $Date: 2006-02-28 06:54:08 +0200 (Tue, 28 Feb 2006) $
- * @version     $Revision: 9181 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/tv/upcoming.php $
+ * @date        $Date: 2006-09-11 00:08:56 +0300 (Mon, 11 Sep 2006) $
+ * @version     $Revision: 11113 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -14,7 +14,7 @@
 /**/
 
 // Load the sorting routines
-    require_once "includes/sorting.php";
+    require_once 'includes/sorting.php';
 
 // Make sure we get the form data
     isset($_GET['chanid'])    or $_GET['chanid']    = $_POST['chanid'];
@@ -76,7 +76,7 @@
 // Parse the list of scheduled recordings
     global $Scheduled_Recordings;
     $all_shows = array();
-    foreach ($Scheduled_Recordings as $channum => $shows) {
+    foreach ($Scheduled_Recordings as $callsign => $shows) {
     // Now the shows in this channel
         foreach ($shows as $starttime => $show_group) {
         // Parse each show group
@@ -85,7 +85,7 @@
                 if ($starttime <= time() && $show->recstatus != 'Recording')
                     continue;
             // Make sure this is a valid show (ie. skip in-progress recordings and other junk)
-                if (!$channum || $show->length < 1)
+                if (!$callsign || $show->length < 1)
                     continue;
             // Skip scheduled shows?
                 if (in_array($show->recstatus, array('WillRecord', 'ForceRecord'))) {
@@ -108,7 +108,7 @@
                         continue;
                 }
             // Assign a reference to this show to the various arrays
-                $all_shows[] =& $Scheduled_Recordings[$channum][$starttime][$key];
+                $all_shows[] =& $Scheduled_Recordings[$callsign][$starttime][$key];
             }
         }
     }
@@ -118,7 +118,7 @@
         sort_programs($all_shows, 'scheduled_sortby');
 
 // Load the class for this page
-    require_once theme_dir.'tv/upcoming.php';
+    require tmpl_dir.'upcoming.php';
 
 // Exit
     exit;

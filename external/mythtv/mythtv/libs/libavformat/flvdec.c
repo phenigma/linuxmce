@@ -34,7 +34,7 @@ static int flv_probe(AVProbeData *p)
 static int flv_read_header(AVFormatContext *s,
                            AVFormatParameters *ap)
 {
-    int offset, flags;
+    int offset, flags, size;
 
     s->ctx_flags |= AVFMTCTX_NOHEADER; //ok we have a header but theres no fps, codec type, sample_rate, ...
 
@@ -42,6 +42,17 @@ static int flv_read_header(AVFormatContext *s,
     flags = get_byte(&s->pb);
 
     offset = get_be32(&s->pb);
+
+    if(!url_is_streamed(&s->pb)){
+        const int fsize= url_fsize(&s->pb);
+        url_fseek(&s->pb, fsize-4, SEEK_SET);
+        size= get_be32(&s->pb);
+        url_fseek(&s->pb, fsize-3-size, SEEK_SET);
+        if(size == get_be24(&s->pb) + 11){
+            s->duration= get_be24(&s->pb) * (int64_t)AV_TIME_BASE / 1000;
+        }
+    }
+
     url_fseek(&s->pb, offset, SEEK_SET);
 
     return 0;
@@ -172,6 +183,7 @@ static int flv_read_packet(AVFormatContext *s, AVPacket *pkt)
             st->codec->codec_type = CODEC_TYPE_VIDEO;
             switch(flags & 0xF){
             case 2: st->codec->codec_id = CODEC_ID_FLV1; break;
+            case 3: st->codec->codec_id = CODEC_ID_FLASHSV; break;
             default:
                     av_log(s, AV_LOG_INFO, "Unsupported video codec (%x)\n", flags & 0xf);
                 st->codec->codec_tag= flags & 0xF;
@@ -199,7 +211,7 @@ static int flv_read_close(AVFormatContext *s)
     return 0;
 }
 
-AVInputFormat flv_iformat = {
+AVInputFormat flv_demuxer = {
     "flv",
     "flv format",
     0,
@@ -210,9 +222,3 @@ AVInputFormat flv_iformat = {
     .extensions = "flv",
     .value = CODEC_ID_FLV1,
 };
-
-int flvdec_init(void)
-{
-    av_register_input_format(&flv_iformat);
-    return 0;
-}

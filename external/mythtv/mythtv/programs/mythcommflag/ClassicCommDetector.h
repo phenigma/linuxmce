@@ -1,16 +1,21 @@
 #ifndef _CLASSIC_COMMDETECTOR_H_
 #define _CLASSIC_COMMDETECTOR_H_
 
+#include "CommDetector.h"
 #include "CommDetectorBase.h"
 #include "libmythtv/frame.h"
 #include "qdatetime.h"
 
 class NuppelVideoPlayer;
+class LogoDetectorBase;
+class SceneChangeDetectorBase;
 
 class ClassicCommDetector : public CommDetectorBase
 {
+    Q_OBJECT
+
     public:
-        ClassicCommDetector(int commDetectMethod, bool showProgress,
+        ClassicCommDetector(enum SkipTypes commDetectMethod, bool showProgress,
                             bool fullSpeed, NuppelVideoPlayer* nvp,
                             const QDateTime& startedAt_in,
                             const QDateTime& stopsAt_in,
@@ -22,17 +27,10 @@ class ClassicCommDetector : public CommDetectorBase
         void recordingFinished(long long totalFileSize);
         void requestCommBreakMapUpdate(void);
 
-    private:
+        void logoDetectorBreathe();
 
-        typedef struct edgemaskentry
-        {
-            int isedge;
-            int horiz;
-            int vert;
-            int rdiag;
-            int ldiag;
-        }
-        EdgeMaskEntry;
+        friend class ClassicLogoDetector;
+    private:
 
         typedef struct frameinfo
         {
@@ -81,18 +79,12 @@ class ClassicCommDetector : public CommDetectorBase
         void MergeBlankCommList(void);
         bool FrameIsInBreakMap(long long f, QMap<long long, int> &breakMap);
         void DumpMap(QMap<long long, int> &map);
-        void DumpLogo(bool fromCurrentFrame);
-        void SetLogoMaskArea();
-        void SetLogoMask(unsigned char *mask);
         void CondenseMarkMap(QMap<long long, int>&map, int spacing, int length);
         void ConvertShowMapToCommMap(QMap<long long, int>&map);
-        bool CheckEdgeLogo(void);
-        void SearchForLogo();
         void CleanupFrameInfo(void);
-        void DetectEdges(VideoFrame *frame, EdgeMaskEntry *edges, int edgeDiff);
         void GetLogoCommBreakMap(QMap<long long, int> &map);
 
-        int commDetectMethod;
+        enum SkipTypes commDetectMethod;
         bool showProgress;
         bool fullSpeed;
         NuppelVideoPlayer *nvp;
@@ -114,12 +106,7 @@ class ClassicCommDetector : public CommDetectorBase
         int commDetectMinCommBreakLength;
         int commDetectMinShowLength;
         int commDetectMaxCommLength;
-        int commDetectLogoSamplesNeeded;
-        int commDetectLogoSampleSpacing;
-        int commDetectLogoSecondsNeeded;
         bool commDetectBlankCanHaveLogo;
-        double commDetectLogoGoodEdgeThreshold;
-        double commDetectLogoBadEdgeThreshold;
 
         bool verboseDebugging;
 
@@ -146,23 +133,10 @@ class ClassicCommDetector : public CommDetectorBase
         bool detectSceneChanges;
         bool detectStationLogo;
 
-        bool skipAllBlanks;
-
-        EdgeMaskEntry *edgeMask;
-
-        unsigned char *logoMaxValues;
-        unsigned char *logoMinValues;
-        unsigned char *logoFrame;
-        unsigned char *logoMask;
-        unsigned char *logoCheckMask;
-        unsigned char *tmpBuf;
         bool logoInfoAvailable;
-        int logoEdgeDiff;
-        int logoFrameCount;
-        int logoMinX;
-        int logoMaxX;
-        int logoMinY;
-        int logoMaxY;
+        LogoDetectorBase* logoDetector;
+
+        bool skipAllBlanks;
 
         unsigned char *framePtr;
 
@@ -183,8 +157,10 @@ class ClassicCommDetector : public CommDetectorBase
         bool lastFrameWasSceneChange;
         bool decoderFoundAspectChanges;
 
-        int histogram[256];
-        int lastHistogram[256];
+        SceneChangeDetectorBase* sceneChangeDetector;
+
+public slots:
+        void sceneChangeDetectorHasNewInformation(unsigned int framenum, bool isSceneChange,float debugValue);
 };
 
 #endif

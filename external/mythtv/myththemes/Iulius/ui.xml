@@ -484,8 +484,8 @@
         <column number="4" width="20" context="-1"></column>
         <items>9</items>
         <image function="selectionbar" filename="cr-selectbar.png" location="-14,-5"></image>
-        <image function="uparrow" filename="uparrow.png" location="755,22"></image>
-        <image function="downarrow" filename="downarrow.png" location="755,230"></image>
+        <image function="uparrow" filename="uparrow.png" location="760,20"></image>
+        <image function="downarrow" filename="downarrow.png" location="760,220"></image>
       </listarea>
       <image name="showinglines" draworder="5" fleximage="no">
         <filename>cr-lines.png</filename>
@@ -676,8 +676,8 @@
         <column number="5" width="20" context="-1"></column>
         <items>9</items>
         <image function="selectionbar" filename="cr-selectbar.png" location="-14,-5"></image>
-        <image function="uparrow" filename="uparrow.png" location="755,22"></image>
-        <image function="downarrow" filename="downarrow.png" location="755,230"></image>
+        <image function="uparrow" filename="uparrow.png" location="760,20"></image>
+        <image function="downarrow" filename="downarrow.png" location="760,220"></image>
       </listarea>
       <image name="showinglines" draworder="5" fleximage="no">
         <filename>cr-lines.png</filename>
@@ -805,8 +805,8 @@
         <column number="3" width="50" context="-1"></column>
         <items>11</items>
         <image function="selectionbar" filename="rk-selectbar.png" location="-6,-2"></image>
-        <image function="uparrow" filename="uparrow.png" location="755,22"></image>
-        <image function="downarrow" filename="downarrow.png" location="755,290"></image>
+        <image function="uparrow" filename="uparrow.png" location="760,20"></image>
+        <image function="downarrow" filename="downarrow.png" location="760,290"></image>
       </listarea>
       <image name="showinglines" draworder="5" fleximage="no">
         <filename>rk-lines.png</filename>
@@ -1004,8 +1004,8 @@
         <column number="6" width="50" context="-1"></column>
         <items>11</items>
         <image function="selectionbar" filename="rk-selectbar.png" location="-6,-2"></image>
-        <image function="uparrow" filename="uparrow.png" location="755,22"></image>
-        <image function="downarrow" filename="downarrow.png" location="755,290"></image>
+        <image function="uparrow" filename="uparrow.png" location="760,20"></image>
+        <image function="downarrow" filename="downarrow.png" location="760,290"></image>
       </listarea>
       <image name="showinglines" draworder="5" fleximage="no">
         <filename>rk-lines.png</filename>
@@ -1050,62 +1050,35 @@
         <font>grayinfo</font>
         <value>]</value>
       </textarea>
-      <textarea name="infochannel" draworder="6">
-        <area>0,100,160,30</area>
-        <font>info</font>
-        <value>Channel:</value>
-      </textarea>
-      <textarea name="longchannel" draworder="6">
-        <area>180,100,400,30</area>
-        <font>info</font>
-      </textarea>
-      <textarea name="channelbracketA" draworder="6">
-        <area>620,100,100,30</area>
-        <font>grayinfo</font>
-        <value>[</value>
-      </textarea>
-      <textarea name="channelsign" draworder="6">
-        <area>630,100,100,30</area>
-        <font>grayinfo</font>
-      </textarea>
-      <textarea name="channelrecpriority" draworder="6">
-        <area>643,100,100,30</area>
-        <font>grayinfo</font>
-      </textarea>
-      <textarea name="channelbracketB" draworder="6">
-        <area>668,100,100,30</area>
-        <font>grayinfo</font>
-        <value>]</value>
-      </textarea>
       <textarea name="inforecpriority" draworder="6">
-        <area>0,130,160,30</area>
+        <area>0,100,160,30</area>
         <font>info</font>
         <value>Priority:</value>
       </textarea>
       <textarea name="recpriority" draworder="6">
-        <area>180,130,400,30</area>
+        <area>180,100,400,30</area>
         <font>info</font>
       </textarea>
       <textarea name="recprioritybracketA" draworder="6">
-        <area>620,130,100,30</area>
+        <area>620,100,100,30</area>
         <font>grayinfo</font>
         <value>[</value>
       </textarea>
       <textarea name="recprioritysign" draworder="6">
-        <area>630,130,100,30</area>
+        <area>630,100,100,30</area>
         <font>grayinfo</font>
       </textarea>
       <textarea name="recpriorityB" draworder="6">
-        <area>643,130,100,30</area>
+        <area>643,100,100,30</area>
         <font>grayinfo</font>
       </textarea>
       <textarea name="recprioritybracketB" draworder="6">
-        <area>668,130,100,30</area>
+        <area>668,100,100,30</area>
         <font>grayinfo</font>
         <value>]  = </value>
       </textarea>
       <textarea name="finalrecpriority" draworder="6">
-        <area>709,130,150,30</area>
+        <area>709,100,150,30</area>
         <font>yellowinfo</font>
       </textarea>
     </container>
@@ -1257,8 +1230,8 @@
         <column number="4" width="110" context="1"></column>
         <items>7</items>
         <image function="selectionbar" filename="bar.png" location="-13,-2"></image>
-        <image function="uparrow" filename="uparrow.png" location="755,22"></image>
-        <image function="downarrow" filename="downarrow.png" location="755,230"></image>
+        <image function="uparrow" filename="uparrow.png" location="760,20"></image>
+        <image function="downarrow" filename="downarrow.png" location="760,220"></image>
       </listarea>
       <image name="showinglines" draworder="5" fleximage="yes">
         <filename>showings.png</filename>
@@ -1331,6 +1304,19 @@
         <filename>type/processing.png</filename>
         <position>160,195</position>
       </image>
+      <image name="stereo" draworder="6">
+        <filename>type/stereo.png</filename>
+        <position>195,195</position>
+      </image>
+      <image name="cc" draworder="6">
+        <filename>type/cc.png</filename>
+        <position>230,195</position>
+      </image>
+      <image name="hdtv" draworder="6">
+        <filename>type/hd.png</filename>
+        <position>275,195</position>
+      </image>
+
 
     </container>
 
@@ -1706,11 +1692,12 @@
         <columnpadding>10</columnpadding>
         <column number="1" width="160" context="-1"></column>
         <column number="2" width="120" context="-1"></column>
-        <column number="3" width="420" context="-1"></column>
+        <column number="3" width="400" context="-1"></column>
+        <column number="4" width="20" context="-1"></column>
         <items>11</items>
         <image function="selectionbar" filename="rk-selectbar.png" location="-6,-2"></image>
-        <image function="uparrow" filename="uparrow.png" location="755,22"></image>
-        <image function="downarrow" filename="downarrow.png" location="755,290"></image>
+        <image function="uparrow" filename="uparrow.png" location="760,20"></image>
+        <image function="downarrow" filename="downarrow.png" location="760,290"></image>
       </listarea>
       <image name="showinglines" draworder="5" fleximage="no">
         <filename>rk-lines.png</filename>

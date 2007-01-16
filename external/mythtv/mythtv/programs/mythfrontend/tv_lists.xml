@@ -17,6 +17,8 @@
       <text lang="DK">Nye titler</text>
       <text lang="ES">Títulos Nuevos</text>
       <text lang="PT">Por Novos Títulos</text>
+      <text lang="CZ">Nové názvy</text>
+      <text lang="RU">Новые заголовки</text>
       <action>TV_SEARCH_NEW</action>
    </button>
 
@@ -38,6 +40,8 @@
       <text lang="ES">Películas</text>
       <text lang="EN_GB">Films</text>
       <text lang="PT">Por Filme</text>
+      <text lang="CZ">Filmy</text>
+      <text lang="RU">Фильмы</text>
       <action>TV_SEARCH_MOVIE</action>
    </button>
 
@@ -58,6 +62,8 @@
       <text lang="DK">Kategorier</text>
       <text lang="ES">Categorías</text>
       <text lang="PT">Por Categoria</text>
+      <text lang="CZ">Kategorie</text>
+      <text lang="RU">Категории</text>
       <action>TV_SEARCH_CATEGORY</action>
    </button>
    
@@ -78,6 +84,8 @@
       <text lang="DK">Kanaler</text>
       <text lang="ES">Canales</text>
       <text lang="PT">Por Canal</text>
+      <text lang="CZ">Kanály</text>
+      <text lang="RU">Каналы</text>
       <action>TV_SEARCH_CHANNEL</action>
    </button>
 
@@ -98,6 +106,8 @@
       <text lang="DK">Tid</text>
       <text lang="ES">Hora</text>
       <text lang="PT">Por Data e Hora</text>
+      <text lang="CZ">Čas</text>
+      <text lang="RU">Время</text>
       <action>TV_SEARCH_TIME</action>
    </button>
 

@@ -14,28 +14,31 @@
 #include "programinfo.h"
 #include "tv.h"
 
-class QSocket;
+#include "mythconfig.h"
+
 class NuppelVideoRecorder;
 class RingBuffer;
 class EITScanner;
-class DVBSIParser;
-class DummyDTVRecorder;
 class RecordingProfile;
 class LiveTVChain;
 
 class RecorderBase;
+class DTVRecorder;
 class DVBRecorder;
 class HDTVRecorder;
+class HDHRRecorder;
 
 class SignalMonitor;
 class DTVSignalMonitor;
 
 class ChannelBase;
 class DBox2Channel;
+class HDHRChannel;
 class DVBChannel;
 class Channel;
 
-class PMTObject;
+class MPEGStreamData;
+class ProgramMapTable;
 
 /// Used to request ProgramInfo for channel browsing.
 typedef enum
@@ -73,13 +76,9 @@ class GeneralDBOptions
 class DVBDBOptions
 {
   public:
-    DVBDBOptions() :
-        hw_decoder(0),        recordts(1),
-        dvb_on_demand(false) {;}
-
-    int hw_decoder;
-    int recordts;
+    DVBDBOptions() : dvb_on_demand(false), dvb_tuning_delay(0) {;}
     bool dvb_on_demand;
+    uint dvb_tuning_delay;
 };
 
 class FireWireDBOptions
@@ -110,19 +109,26 @@ class TuningRequest
   public:
     TuningRequest(uint f) :
         flags(f), program(NULL), channel(QString::null),
-        input(QString::null) {;}
+        input(QString::null), majorChan(0), minorChan(0), progNum(-1) {;}
     TuningRequest(uint f, ProgramInfo *p) :
-        flags(f), program(p), channel(QString::null), input(QString::null) {;}
+        flags(f), program(p), channel(QString::null),
+        input(QString::null), majorChan(0), minorChan(0), progNum(-1) {;}
     TuningRequest(uint f, QString ch, QString in = QString::null) :
-        flags(f), program(NULL), channel(ch), input(in) {;}
+        flags(f), program(NULL), channel(ch),
+        input(in), majorChan(0), minorChan(0), progNum(-1) {;}
 
     QString toString(void) const;
+
+    bool IsOnSameMultiplex(void) const { return minorChan || (progNum >= 0); }
 
   public:
     uint         flags;
     ProgramInfo *program;
     QString      channel;
     QString      input;
+    uint         majorChan;
+    uint         minorChan;
+    int          progNum;
 };
 typedef MythDeque<TuningRequest> TuningQueue;
 
@@ -159,18 +165,7 @@ class TVRec : public QObject
     /// \sa IsReallyRecording()
     bool IsRecording(void) { return StateIsRecording(internalState); }
 
-    bool CheckChannel(ChannelBase *chan, const QString &channum, 
-                      QString& inputID); 
-    void SetChannelValue(QString &field_name,int value, ChannelBase *chan,
-                         const QString &channum);
-    int GetChannelValue(const QString &channel_field, ChannelBase *chan, 
-                        const QString &channum);
-    bool SetVideoFiltersForChannel(ChannelBase *chan, const QString &channum);
-    QString GetNextChannel(ChannelBase *chan, int channeldirection);
-    QString GetNextRelativeChanID(QString channum, int channeldirection);
-    void DoGetNextChannel(QString &channum, QString channelinput,
-                          int cardid, QString channelorder,
-                          int channeldirection, QString &chanid);
+    bool SetVideoFiltersForChannel(uint sourceid, const QString &channum);
 
     bool IsBusy(void);
     bool IsReallyRecording(void);
@@ -187,19 +182,21 @@ class TVRec : public QObject
     void ToggleChannelFavorite(void);
 
     void SetLiveRecording(int recording);
-    /// Toggles between inputs on current capture card.
-    void ToggleInputs(void)     { SetChannel("ToggleInputs"); }
+
+    QStringList GetConnectedInputs(void) const;
+    QString     GetInput(void) const;
+    QString     SetInput(QString input, uint requestType = kFlagDetect);
+
     /// Changes to a channel in the 'dir' channel change direction.
     void ChangeChannel(ChannelChangeDirection dir)
         { SetChannel(QString("NextChannel %1").arg((int)dir)); }
     void SetChannel(QString name, uint requestType = kFlagDetect);
 
     int SetSignalMonitoringRate(int msec, int notifyFrontend = 1);
-    int ChangeColour(bool direction);
-    int ChangeContrast(bool direction);
-    int ChangeBrightness(bool direction);
-    int ChangeHue(bool direction);
-    bool CheckChannel(QString name);
+    int  GetPictureAttribute(PictureAttribute attr);
+    int  ChangePictureAttribute(PictureAdjustType type, PictureAttribute attr,
+                                bool direction);
+    bool CheckChannel(QString name) const;
     bool ShouldSwitchToAnotherCard(QString chanid);
     bool CheckChannelPrefix(const QString&,uint&,bool&,QString&);
     void GetNextProgram(int direction,
@@ -209,6 +206,12 @@ class TVRec : public QObject
                         QString &callsign,    QString &iconpath,
                         QString &channelname, QString &chanid,
                         QString &seriesid,    QString &programid);
+    bool GetChannelInfo(uint &chanid, uint &sourceid,
+                        QString &callsign, QString &channum,
+                        QString &channame, QString &xmltvid) const;
+    bool SetChannelInfo(uint chanid, uint sourceid, QString oldchannum,
+                        QString callsign, QString channum,
+                        QString channame, QString xmltvid);
 
     /// \brief Returns the caputure card number
     int GetCaptureCardNum(void) { return cardid; }
@@ -220,8 +223,6 @@ class TVRec : public QObject
 
   public slots:
     void SignalMonitorAllGood() { triggerEventLoop.wakeAll(); }
-    void SetPMTObject(const PMTObject*) 
-        { QMutexLocker lock(&stateChangeLock); triggerEventLoop.wakeAll(); }
     void deleteLater(void);
 
   protected:
@@ -246,12 +247,15 @@ class TVRec : public QObject
 
     bool SetupRecorder(RecordingProfile& profile);
     void TeardownRecorder(bool killFile = false);
-    HDTVRecorder *GetHDTVRecorder(void);
+    DTVRecorder  *GetDTVRecorder(void);
+    HDHRRecorder *GetHDHRRecorder(void);
     DVBRecorder  *GetDVBRecorder(void);
     
+    bool CreateChannel(const QString &startChanNum);
     void InitChannel(const QString &inputname, const QString &startchannel);
     void CloseChannel(void);
     DBox2Channel *GetDBox2Channel(void);
+    HDHRChannel  *GetHDHRChannel(void);
     DVBChannel   *GetDVBChannel(void);
     Channel      *GetV4LChannel(void);
 
@@ -259,9 +263,6 @@ class TVRec : public QObject
     bool SetupDTVSignalMonitor(void);
     void TeardownSignalMonitor(void);
     DTVSignalMonitor *GetDTVSignalMonitor(void);
-
-    void CreateSIParser(int num);
-    void TeardownSIParser(void);
 
     bool HasFlags(uint f) const { return (stateFlags & f) == f; }
     void SetFlags(uint f);
@@ -271,10 +272,15 @@ class TVRec : public QObject
     void HandleTuning(void);
     void TuningShutdowns(const TuningRequest&);
     void TuningFrequency(const TuningRequest&);
-    bool TuningSignalCheck(void);
-    bool TuningPMTCheck(void);
-    void TuningNewRecorder(void);
+    MPEGStreamData *TuningSignalCheck(void);
+
+    void TuningNewRecorder(MPEGStreamData*);
     void TuningRestartRecorder(void);
+    QString TuningGetChanNum(const TuningRequest&, QString &input) const;
+    uint TuningCheckForHWChange(const TuningRequest&,
+                                QString &channum,
+                                QString &inputname);
+    bool TuningOnSameMultiplex(TuningRequest &request);
 
     void HandleStateChange(void);
     void ChangeState(TVState nextState);
@@ -300,8 +306,6 @@ class TVRec : public QObject
     ChannelBase      *channel;
     SignalMonitor    *signalMonitor;
     EITScanner       *scanner;
-    DVBSIParser      *dvbsiparser;
-    DummyDTVRecorder *dummyRecorder;
 
     // Various threads
     /// Event processing thread, runs RunTV().
@@ -310,9 +314,12 @@ class TVRec : public QObject
     pthread_t recorder_thread;
 
     // Configuration variables from database
+    bool    eitIgnoresSource;
     bool    transcodeFirst;
     bool    earlyCommFlag;
     bool    runJobOnHostOnly;
+    int     eitCrawlIdleStart;
+    int     eitTransportTimeout;
     int     audioSampleRateDB;
     int     overRecordSecNrml;
     int     overRecordSecCat;
@@ -323,10 +330,10 @@ class TVRec : public QObject
     bool              ispip;
 
     // Configuration variables from database, based on cardid
-    GeneralDBOptions  genOpt;
-    DVBDBOptions      dvbOpt;
-    FireWireDBOptions fwOpt;
-    DBox2DBOptions    dboxOpt;
+    GeneralDBOptions   genOpt;
+    DVBDBOptions       dvbOpt;
+    FireWireDBOptions  fwOpt;
+    DBox2DBOptions     dboxOpt;
 
     // State variables
     QMutex         stateChangeLock;
@@ -363,7 +370,6 @@ class TVRec : public QObject
     QString      rbFileExt;
 
   public:
-    static const uint kEITScanStartTimeout;
     static const uint kSignalMonitoringRate;
 
     // General State flags
@@ -398,13 +404,11 @@ class TVRec : public QObject
     // Waiting stuff
     static const uint kFlagWaitingForRecPause   = 0x00100000;
     static const uint kFlagWaitingForSignal     = 0x00200000;
-    static const uint kFlagWaitingForSIParser   = 0x00400000;
     static const uint kFlagNeedToStartRecorder  = 0x00800000;
     static const uint kFlagPendingActions       = 0x00F00000;
 
     // Running stuff
     static const uint kFlagSignalMonitorRunning = 0x01000000;
-    static const uint kFlagSIParserRunning      = 0x02000000;
     static const uint kFlagEITScannerRunning    = 0x04000000;
 
     static const uint kFlagDummyRecorderRunning = 0x10000000;

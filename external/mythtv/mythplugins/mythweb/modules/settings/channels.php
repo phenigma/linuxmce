@@ -2,9 +2,9 @@
 /**
  * Configure MythTV Channels
  *
- * @url         $URL$
- * @date        $Date: 2005-12-31 02:21:51 +0200 (Sat, 31 Dec 2005) $
- * @version     $Revision: 8441 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/settings/channels.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -82,7 +82,7 @@
     $sh->finish();
 
 // Load the class for this page
-    require_once theme_dir.'settings/channels.php';
+    require_once tmpl_dir.'channels.php';
 
 // Exit
     exit;

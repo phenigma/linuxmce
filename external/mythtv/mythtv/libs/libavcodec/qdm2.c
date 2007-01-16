@@ -230,7 +230,7 @@ static float noise_samples[128];
 static MPA_INT mpa_window[512] __attribute__((aligned(16)));
 
 
-static void softclip_table_init() {
+static void softclip_table_init(void) {
     int i;
     double dfl = SOFTCLIP_THRESHOLD - 32767;
     float delta = 1.0 / -dfl;
@@ -240,7 +240,7 @@ static void softclip_table_init() {
 
 
 // random generated table
-static void rnd_table_init() {
+static void rnd_table_init(void) {
     int i,j;
     uint32_t ldw,hdw;
     uint64_t tmp64_1;
@@ -276,7 +276,7 @@ static void rnd_table_init() {
 }
 
 
-static void init_noise_samples() {
+static void init_noise_samples(void) {
     int i;
     int random_seed = 0;
     float delta = 1.0 / 16384.0;
@@ -287,7 +287,7 @@ static void init_noise_samples() {
 }
 
 
-static void qdm2_init_vlc()
+static void qdm2_init_vlc(void)
 {
     init_vlc (&vlc_tab_level, 8, 24,
         vlc_tab_level_huffbits, 1, 1,
@@ -525,7 +525,7 @@ static void build_sb_samples_from_noise (QDM2Context *q, int sb)
  * @param channels         number of channels
  * @param coding_method    q->coding_method[0][0][0]
  */
- void fix_coding_method_array (int sb, int channels, sb_int8_array coding_method)
+static void fix_coding_method_array (int sb, int channels, sb_int8_array coding_method)
 {
     int j,k;
     int ch;
@@ -538,7 +538,7 @@ static void build_sb_samples_from_noise (QDM2Context *q, int sb)
                 run = 1;
                 case_val = 8;
             } else {
-                switch (switchtable[coding_method[ch][sb][j]]) {
+                switch (switchtable[coding_method[ch][sb][j]-8]) {
                     case 0: run = 10; case_val = 10; break;
                     case 1: run = 1; case_val = 16; break;
                     case 2: run = 5; case_val = 24; break;
@@ -1470,13 +1470,13 @@ static void qdm2_decode_fft_packets (QDM2Context *q)
             if (duration >= 0 && duration < 4)
                 qdm2_fft_decode_tones(q, duration, &gb, unknown_flag);
         } else if (type == 31) {
-            for (i=0; i < 4; i++)
-                qdm2_fft_decode_tones(q, i, &gb, unknown_flag);
+            for (j=0; j < 4; j++)
+                qdm2_fft_decode_tones(q, j, &gb, unknown_flag);
         } else if (type == 46) {
-            for (i=0; i < 6; i++)
-                q->fft_level_exp[i] = get_bits(&gb, 6);
-            for (i=0; i < 4; i++)
-            qdm2_fft_decode_tones(q, i, &gb, unknown_flag);
+            for (j=0; j < 6; j++)
+                q->fft_level_exp[j] = get_bits(&gb, 6);
+            for (j=0; j < 4; j++)
+            qdm2_fft_decode_tones(q, j, &gb, unknown_flag);
         }
     } // Loop on B packets
 
@@ -1690,7 +1690,7 @@ static void qdm2_synthesis_filter (QDM2Context *q, int index)
  *
  * @param q    context
  */
-void qdm2_init(QDM2Context *q) {
+static void qdm2_init(QDM2Context *q) {
     static int inited = 0;
 
     if (inited != 0)
@@ -1942,7 +1942,7 @@ static int qdm2_decode_close(AVCodecContext *avctx)
 }
 
 
-void qdm2_decode (QDM2Context *q, uint8_t *in, int16_t *out)
+static void qdm2_decode (QDM2Context *q, uint8_t *in, int16_t *out)
 {
     int ch, i;
     const int frame_size = (q->frame_size * q->channels);
@@ -2008,8 +2008,10 @@ static int qdm2_decode_frame(AVCodecContext *avctx,
 {
     QDM2Context *s = avctx->priv_data;
 
-    if((buf == NULL) || (buf_size < s->checksum_size))
+    if(!buf)
         return 0;
+    if(buf_size < s->checksum_size)
+        return -1;
 
     *data_size = s->channels * s->frame_size * sizeof(int16_t);
 

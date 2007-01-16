@@ -3,9 +3,9 @@
  * This displays details about a program, as well as provides recording
  * commands.
  *
- * @url         $URL$
- * @date        $Date: 2006-02-07 04:57:11 +0200 (Tue, 07 Feb 2006) $
- * @version     $Revision: 8887 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/tv/detail.php $
+ * @date        $Date: 2006-09-11 00:08:56 +0300 (Mon, 11 Sep 2006) $
+ * @version     $Revision: 11113 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -39,13 +39,10 @@
     else
         $schedule = new Schedule(NULL);
 
-// Handle custom search schedules
-    $schedule_note = '';
+// Handle custom search schedules.  This will cause the "cancel" or "don't"
+// option to be selected as "schedule via custom search"
     if ($schedule->search && $schedule->search != searchtype_manual) {
-        $schedule_note = t('This program is already scheduled to be recorded via a $1custom search$2.',
-                           '<a href='.root.'tv/schedules/custom/'.$schedule->recordid.'>',
-                           '</a>');
-        unset($schedule);
+        $schedule->type = null;
     }
 
 // Make sure this is a valid program.  If not, forward the user back to the listings page
@@ -64,6 +61,10 @@
 
 // If there is a program for this, import its values into the schedule
     if ($program) {
+    // Back up the search title
+        if ($schedule->search) {
+            $schedule->search_title = $schedule->title;
+        }
         $schedule->chanid            = $program->chanid;
         $schedule->starttime         = $program->starttime;
         $schedule->endtime           = $program->endtime;
@@ -96,7 +97,7 @@
     // Cancelling a schedule?
         if ($type == 0) {
         // Cancel this schedule
-            if ($schedule && $schedule->recordid) {
+            if ($schedule && $schedule->recordid && !$schedule->search) {
             // Delete the schedule
                 $schedule->delete();
             // Deleted a schedule but not editing a specific program?  Redirect back to the schedule list
@@ -107,7 +108,7 @@
                     exit;
                 }
             // Relocate back to the program details page
-                header('Location: '.root.'tv/detail?chanid='.$schedule->chanid.'&starttime='.$schedule->starttime);
+                redirect_browser(root.'tv/detail?chanid='.$schedule->chanid.'&starttime='.$schedule->starttime);
             }
         }
     // Modifying an existing schedule, or adding a new one
@@ -132,9 +133,36 @@
             $schedule->autotranscode = $_POST['autotranscode'] ? 1 : 0;
             $schedule->transcoder    = $_POST['transcoder'];
             $schedule->tsdefault     = $_POST['timestretch'];
+        // Keep track of the parent recording for overrides
+            if ($_POST['record'] == rectype_override) {
+                $schedule->parentid = $schedule->recordid;
+            }
+        // Search schedules saved here will create a new schedule
+            if ($schedule->search) {
+                $schedule->recordid = null;
+            }
+            $schedule->search = 0;
         // Back up the program type, and save the schedule
             $schedule->save($type);
         }
+    }
+    elseif (isset($_GET['forget_old']) || isset($_POST['forget_old'])) {
+        $program->rec_forget_old();
+    // Wait for a second so the backend can catch up
+        sleep(1);
+
+    // Redirect back to the page again, but without the query string, so reloads are cleaner
+        header('Location: '.root.'tv/detail/'.$program->chanid.'/'.$program->starttime);
+        exit;
+    }
+    elseif (isset($_GET['never_record']) || isset($_POST['never_record'])) {
+        $program->rec_never_record();
+    // Wait for a second so the backend can catch up
+        sleep(1);
+
+    // Redirect back to the page again, but without the query string, so reloads are cleaner
+        header('Location: '.root.'tv/detail/'.$program->chanid.'/'.$program->starttime);
+        exit;
     }
 // Load default settings for recpriority, autoexpire etc
     else {
@@ -179,7 +207,7 @@
 // Parse the list of scheduled recordings for possible conflicts
     global $Scheduled_Recordings;
     $conflicting_shows = array();
-    foreach ($Scheduled_Recordings as $channum => $shows) {
+    foreach ($Scheduled_Recordings as $callsign => $shows) {
     // Now the shows in this channel
         foreach ($shows as $starttime => $show_group) {
         // Clearly not a match
@@ -191,13 +219,13 @@
                 if ($show->chanid == $program->chanid && $show->starttime == $program->starttime)
                     continue;
             // Make sure this is a valid show (ie. skip in-progress recordings and other junk)
-                if (!$channum || $show->length < 1)
+                if (!$callsign || $show->length < 1)
                     continue;
             // Not a conflict
                 if ($show->endtime < $program->starttime)
                     continue;
             // Assign a reference to this show to the various arrays
-                $conflicting_shows[] =& $Scheduled_Recordings[$channum][$starttime][$key];
+                $conflicting_shows[] =& $Scheduled_Recordings[$callsign][$starttime][$key];
             }
         }
     }
@@ -212,7 +240,7 @@
     }
 
 // Display the page
-    require_once theme_dir.'tv/detail.php';
+    require_once tmpl_dir.'detail.php';
 
 // Exit
     exit;

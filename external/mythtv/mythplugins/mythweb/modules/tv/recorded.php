@@ -2,9 +2,9 @@
 /**
  * view and manipulate recorded programs.
  *
- * @url         $URL$
- * @date        $Date: 2006-03-23 09:17:32 +0200 (Thu, 23 Mar 2006) $
- * @version     $Revision: 9477 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/tv/recorded.php $
+ * @date        $Date: 2006-07-04 22:36:23 +0300 (Tue, 04 Jul 2006) $
+ * @version     $Revision: 10388 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -20,9 +20,8 @@
     if (file_exists('data/recordings')) {
     // File is not a directory or a symlink
         if (!is_dir('data/recordings') && !is_link('data/recordings')) {
-            $Error = 'An invalid file exists at data/recordings.  Please remove it in'
-                    .' order to use the tv portions of MythWeb.';
-            require_once 'templates/_error.php';
+            custom_error('An invalid file exists at data/recordings.  Please remove it in'
+                        .' order to use the tv portions of MythWeb.');
         }
     }
 // Create the symlink, if possible.
@@ -40,24 +39,41 @@
         if ($dir) {
             $ret = @symlink($dir, 'data/recordings');
             if (!$ret) {
-                #$Error = "Could not create a symlink to $dir, the local recordings directory"
-                #        .' for this hostname ('.hostname.').  Please create a symlink to your'
-                #        .' recordings directory at data/recordings in order to use the tv'
-                #        .' portions of MythWeb.';
-                #require_once 'templates/_error.php';
+                #custom_error("Could not create a symlink to $dir, the local recordings directory"
+                #            .' for this hostname ('.hostname.').  Please create a symlink to your'
+                #            .' recordings directory at data/recordings in order to use the tv'
+                #            .' portions of MythWeb.');
             }
         }
         else {
-            #$Error = 'Could not find a value in the database for the recordings directory'
-            #        .' for this hostname ('.hostname.').  Please create a symlink to your'
-            #        .' recordings directory at data/recordings in order to use the tv'
-            #        .' portions of MythWeb.';
-            #require_once 'templates/_error.php';
+            #custom_error('Could not find a value in the database for the recordings directory'
+            #            .' for this hostname ('.hostname.').  Please create a symlink to your'
+            #            .' recordings directory at data/recordings in order to use the tv'
+            #            .' portions of MythWeb.');
         }
     }
 
 // Load the sorting routines
     require_once "includes/sorting.php";
+
+// Auto-expire
+    isset($_GET['autoexpire']) or $_GET['autoexpire'] = $_POST['autoexpire'];
+    if (isset($_GET['autoexpire']) && $_GET['chanid'] && $_GET['starttime']) {
+        $sh = $db->query('UPDATE recorded
+                             SET autoexpire = ?
+                           WHERE chanid = ? AND starttime = FROM_UNIXTIME(?)',
+                         $_GET['autoexpire'] ? 1 : 0,
+                         $_GET['chanid'],
+                         $_GET['starttime']);
+    // Exit early if we're in AJAX mode.
+        if (isset($_GET['ajax'])) {
+            echo 'success';
+            exit;
+        }
+    }
+    else {
+        /** @todo need some sort of handler here for the non-ajax stuff */
+    }
 
 // Delete a program?
     isset($_GET['forget_old']) or $_GET['forget_old'] = $_POST['forget_old'];
@@ -72,7 +88,7 @@
             if (($_SESSION['recorded_title'] == $row[0]) || ($_SESSION['recorded_title'] == ''))
                 $prev_row++;
         // This row isn't the one we're looking for
-            if ($row[8] != $_GET['file'])
+            if ($row[4] != $_GET['chanid'] || $row[26] != $_GET['starttime'])
                 continue;
         // Forget all knowledge of old recordings
             if (isset($_GET['forget_old'])) {
@@ -149,8 +165,8 @@
         // Hide LiveTV recordings from the title list
             if (($_GET['recgroup'] && $_GET['recgroup'] == $record[30]) || (!$_GET['recgroup'] && $record[30] != 'LiveTV'))
                 $Program_Titles[$record[0]]++;
-        // Skip files with no chanid, or with zero length
-            if (!$record[4] || $length < 1)
+        // Skip files with no chanid
+            if (!$record[4])
                 continue;
         // Skip programs the user doesn't want to look at
             if ($_GET['title'] && $_GET['title'] != $record[0])
@@ -203,7 +219,7 @@
         // Create a new program object
             $show =& new Program($record);
         // Generate any thumbnail images we might need
-            if (show_recorded_pixmaps) {
+            if ($_SESSION['recorded_pixmaps']) {
                 generate_preview_pixmap($show);
             }
         // Assign a reference to this show to the various arrays
@@ -215,7 +231,7 @@
     }
 
 // Sort the program titles
-    ksort($Program_Titles);
+    uksort($Program_Titles, 'by_no_articles');
     ksort($Groups);
 
 // Keep track of the program/title the user wants to view
@@ -259,7 +275,7 @@
     }
 
 // Load the class for this page
-    require_once theme_dir.'tv/recorded.php';
+    require_once tmpl_dir.'recorded.php';
 
 // Exit
     exit;

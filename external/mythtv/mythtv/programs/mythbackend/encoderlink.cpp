@@ -9,7 +9,7 @@ using namespace std;
 #include "mythcontext.h"
 #include "encoderlink.h"
 #include "playbacksock.h"
-#include "tv.h"
+#include "tv_rec.h"
 #include "programinfo.h"
 #include "util.h"
 #include "previewgenerator.h"
@@ -265,7 +265,8 @@ long long EncoderLink::GetFreeDiskSpace(long long &totalKB, long long &usedKB,
  */
 long long EncoderLink::GetFreeDiskSpace(bool use_cache)
 {
-    long long totalKB, usedKB;
+    long long totalKB = 0LL;
+    long long usedKB  = 0LL;
     return GetFreeDiskSpace(totalKB, usedKB, use_cache);
 }
 
@@ -655,18 +656,56 @@ void EncoderLink::SetLiveRecording(int recording)
         VERBOSE(VB_IMPORTANT, "Should be local only query: SetLiveRecording");
 }
 
-/** \fn EncoderLink::ToggleInputs(void)
- *  \brief Tells TVRec's recorder to change to the next input.
+/** \fn EncoderLink::GetConnectedInputs(void) const
+ *  \brief Returns TVRec's recorders connected inputs.
+ *         <b>This only works on local recorders.</b>
+ *
+ *  \sa TVRec::GetConnectedInputs(void) const
+ */
+QStringList EncoderLink::GetConnectedInputs(void) const
+{
+    QStringList list;
+
+    if (local)
+        list = tv->GetConnectedInputs();
+    else
+        VERBOSE(VB_IMPORTANT, "Should be local only query: GetConnectedInputs");
+
+    return list;
+}
+
+/** \fn EncoderLink::GetInput(void) const
+ *  \brief Returns TVRec's recorders current input.
+ *         <b>This only works on local recorders.</b>
+ *
+ *  \sa TVRec::GetInput(void) const
+ */
+QString EncoderLink::GetInput(void) const
+{
+    if (local)
+        return tv->GetInput();
+
+    VERBOSE(VB_IMPORTANT, "Should be local only query: GetInput");
+    return QString::null;
+}
+
+/** \fn EncoderLink::SetInput(QString)
+ *  \brief Tells TVRec's recorder to change to the specified input.
  *         <b>This only works on local recorders.</b>
  *
  *   You must call PauseRecorder(void) before calling this.
+ *
+ *  \param input Input to switch to, or "SwitchToNectInput".
+ *  \return input we have switched to
+ *  \sa TVRec::SetInput(QString)
  */
-void EncoderLink::ToggleInputs(void)
+QString EncoderLink::SetInput(QString input)
 {
     if (local)
-        tv->ToggleInputs();
-    else
-        VERBOSE(VB_IMPORTANT, "Should be local only query: ToggleInputs");
+        return tv->SetInput(input);
+
+    VERBOSE(VB_IMPORTANT, "Should be local only query: SetInput");
+    return QString::null;
 }
 
 /** \fn EncoderLink::ToggleChannelFavorite(void)
@@ -712,84 +751,46 @@ void EncoderLink::SetChannel(const QString &name)
         VERBOSE(VB_IMPORTANT, "Should be local only query: SetChannel");
 }
 
-/** \fn EncoderLink::ChangeContrast(bool)
- *  \brief Changes contrast of a recording.
+/** \fn EncoderLink::GetPictureAttribute(PictureAttribute)
+ *  \brief Changes brightness/contrast/colour/hue of a recording.
  *         <b>This only works on local recorders.</b>
  *
  *  Note: In practice this only works with frame grabbing recorders.
  *
- *  \return contrast if it succeeds, -1 otherwise.
+ *  \return current value if it succeeds, -1 otherwise.
  */
-int EncoderLink::ChangeContrast(bool direction)
+int EncoderLink::GetPictureAttribute(PictureAttribute attr)
 {
-    int ret = -1;
+    if (!local)
+    {
+        VERBOSE(VB_IMPORTANT, "Should be local only query: "
+                "GetPictureAttribute");
+        return -1;
+    }
 
-    if (local)
-        ret = tv->ChangeContrast(direction);
-    else
-        VERBOSE(VB_IMPORTANT, "Should be local only query: ChangeContrast");
-
-    return ret;
+    return tv->GetPictureAttribute(attr);
 }
 
-/** \fn EncoderLink::ChangeBrightness(bool)
- *  \brief Changes the brightness of a recording.
+/** \fn EncoderLink::ChangePictureAttribute(PictureAdjustType,PictureAttribute,bool)
+ *  \brief Changes brightness/contrast/colour/hue of a recording.
  *         <b>This only works on local recorders.</b>
  *
  *  Note: In practice this only works with frame grabbing recorders.
  *
- *  \return brightness if it succeeds, -1 otherwise.
+ *  \return current value if it succeeds, -1 otherwise.
  */
-int EncoderLink::ChangeBrightness(bool direction)
+int EncoderLink::ChangePictureAttribute(PictureAdjustType type,
+                                        PictureAttribute  attr,
+                                        bool              direction)
 {
-    int ret = -1;
+    if (!local)
+    {
+        VERBOSE(VB_IMPORTANT, "Should be local only query: "
+                "ChangePictureAttribute");
+        return -1;
+    }
 
-    if (local)
-        ret = tv->ChangeBrightness(direction);
-    else
-        VERBOSE(VB_IMPORTANT, "Should be local only query: ChangeBrightness");
-
-    return ret;
-}
-
-/** \fn EncoderLink::ChangeColour(bool)
- *  \brief Changes the colour phase of a recording.
- *         <b>This only works on local recorders.</b>
- *
- *  Note: In practice this only works with frame grabbing recorders.
- *
- *  \return colour if it succeeds, -1 otherwise.
- */
-int EncoderLink::ChangeColour(bool direction)
-{
-    int ret = -1;
-
-    if (local)
-        ret = tv->ChangeColour(direction);
-    else
-        VERBOSE(VB_IMPORTANT, "Should be local only query: ChangeColor");
-
-    return ret;
-}
-
-/** \fn EncoderLink::ChangeHue(bool)
- *  \brief Changes the hue of a recording.
- *         <b>This only works on local recorders.</b>
- *
- *  Note: In practice this only works with frame grabbing recorders.
- *
- *  \return hue if it succeeds, -1 otherwise.
- */
-int EncoderLink::ChangeHue(bool direction)
-{
-    int ret = -1;
-
-    if (local)
-        ret = tv->ChangeHue(direction);
-    else
-        VERBOSE(VB_IMPORTANT, "Should be local only query: ChangeHue");
-
-    return ret;
+    return tv->ChangePictureAttribute(type, attr, direction);
 }
 
 /** \fn EncoderLink::CheckChannel(const QString&)
@@ -875,6 +876,35 @@ void EncoderLink::GetNextProgram(int direction,
                            seriesid, programid);
     else
         VERBOSE(VB_IMPORTANT, "Should be local only query: GetNextProgram");
+}
+
+bool EncoderLink::GetChannelInfo(uint &chanid, uint &sourceid,
+                                 QString &callsign, QString &channum,
+                                 QString &channame, QString &xmltv) const
+{
+    if (!local)
+    {
+        VERBOSE(VB_IMPORTANT, "Should be local only query: GetChannelInfo");
+        return false;
+    }
+
+    return tv->GetChannelInfo(chanid, sourceid,
+                              callsign, channum, channame, xmltv);
+}
+
+bool EncoderLink::SetChannelInfo(uint chanid, uint sourceid,
+                                 QString oldchannum,
+                                 QString callsign, QString channum,
+                                 QString channame, QString xmltv)
+{
+    if (!local)
+    {
+        VERBOSE(VB_IMPORTANT, "Should be local only query: SetChannelInfo");
+        return false;
+    }
+
+    return tv->SetChannelInfo(chanid, sourceid, oldchannum,
+                              callsign, channum, channame, xmltv);
 }
 
 /** \fn EncoderLink::GetScreenGrab(const ProgramInfo*,const QString&,int,int&,int&,int&,float&)

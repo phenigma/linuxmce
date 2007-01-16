@@ -91,7 +91,7 @@ RingBuffer::RingBuffer(const QString &lfilename,
       rbrpos(0),                rbwpos(0),
       internalreadpos(0),       ateof(false),
       readsallowed(false),      wantseek(false), setswitchtonext(false),
-      rawbitrate(8000),         playspeed(1.0f),
+      rawbitrate(4000),         playspeed(1.0f),
       fill_threshold(-1),       fill_min(-1),
       readblocksize(128000),    wanttoread(0),
       numfailures(0),           commserror(false),
@@ -115,7 +115,8 @@ RingBuffer::RingBuffer(const QString &lfilename,
         return;
     }
 
-    OpenFile(filename, read_retries);
+    if (read_retries != (uint)-1)
+        OpenFile(filename, read_retries);
 }
 
 /** \fn check_permissions(const QString&)
@@ -145,12 +146,6 @@ void RingBuffer::OpenFile(const QString &lfilename, uint retryCount)
     VERBOSE(VB_PLAYBACK, LOC + QString("OpenFile(%1, %1)")
             .arg(lfilename).arg(retryCount));
 
-    if ((filename.right(4).lower() == ".png") ||
-        (filename.right(4).lower() == ".gif"))
-    {
-        retryCount = 0;
-    }
-
     uint openAttempts = retryCount + 1;
 
     filename = lfilename;
@@ -168,6 +163,7 @@ void RingBuffer::OpenFile(const QString &lfilename, uint retryCount)
 
     bool is_local = false;
     bool is_dvd = false;
+    (void) is_dvd; // not used when frontend is disabled.
 
     if ((filename.left(7) == "myth://") &&
         (filename.length() > 7 ))
@@ -187,6 +183,7 @@ void RingBuffer::OpenFile(const QString &lfilename, uint retryCount)
             }
         }
     }
+#ifdef USING_FRONTEND
     else if (filename.left(4) == "dvd:")
     {
         is_dvd = true;
@@ -208,51 +205,66 @@ void RingBuffer::OpenFile(const QString &lfilename, uint retryCount)
             filename = "/dev/dvd";
         }
     }
+#endif // USING_FRONTEND
     else
         is_local = true;
 
     if (is_local)
     {
         char buf[kReadTestSize];
-        while (openAttempts > 0)
+        int timetowait = 500 * openAttempts;
+        int lasterror = 0;
+
+        MythTimer openTimer;
+        openTimer.start();
+
+        while (openTimer.elapsed() < timetowait)
         {
-            openAttempts--;
-                
-            fd2 = open(filename.ascii(), O_RDONLY|O_LARGEFILE|O_STREAMING);
+            lasterror = 0;
+            fd2 = open(filename.local8Bit(), O_RDONLY|O_LARGEFILE|O_STREAMING);
                 
             if (fd2 < 0)
             {
                 if (!check_permissions(filename))
                     break;
 
-                VERBOSE(VB_IMPORTANT,
-                        QString("Could not open %1.  %2 retries remaining.")
-                        .arg(filename).arg(openAttempts));
-
-                usleep(500000);
+                lasterror = 1;
+                usleep(1000);
             }
             else
             {
                 int ret = read(fd2, buf, kReadTestSize);
                 if (ret != (int)kReadTestSize)
                 {
-                    VERBOSE(VB_IMPORTANT, LOC +
-                            QString("Invalid file (fd %1) when opening '%2'.")
-                            .arg(fd2).arg(filename) + 
-                            QString(" %2 retries remaining.")
-                            .arg(openAttempts));
-
+                    lasterror = 2;
                     close(fd2);
                     fd2 = -1;
-                    usleep(500000);
+                    usleep(1000);
                 }
                 else
                 {
                     lseek(fd2, 0, SEEK_SET);
                     openAttempts = 0;
+                    break;
                 }
             }
         }
+
+        switch (lasterror)
+        {
+            case 1:
+                VERBOSE(VB_IMPORTANT, LOC +
+                        QString("Could not open %1.").arg(filename));
+                break;
+            case 2:
+                VERBOSE(VB_IMPORTANT, LOC +
+                        QString("Invalid file (fd %1) when opening '%2'.")
+                        .arg(fd2).arg(filename));
+                break;
+            default:
+                break;
+        }
+
 
         QFileInfo fileInfo(filename);
         if (fileInfo.lastModified().secsTo(QDateTime::currentDateTime()) >
@@ -261,11 +273,13 @@ void RingBuffer::OpenFile(const QString &lfilename, uint retryCount)
             oldfile = true;
         }
     }
+#ifdef USING_FRONTEND
     else if (is_dvd)
     {
         dvdPriv->OpenFile(filename);
         readblocksize = DVD_BLOCK_SIZE * 62;
     }
+#endif // USING_FRONTEND
     else
     {
         remotefile = new RemoteFile(filename);
@@ -283,6 +297,9 @@ void RingBuffer::OpenFile(const QString &lfilename, uint retryCount)
     ateof = false;
     commserror = false;
     numfailures = 0;
+
+    rawbitrate = 4000;
+    CalcReadAheadThresh();
 }
 
 /** \fn RingBuffer::IsOpen(void) const
@@ -290,11 +307,11 @@ void RingBuffer::OpenFile(const QString &lfilename, uint retryCount)
  */
 bool RingBuffer::IsOpen(void) const
 { 
-#ifdef HAVE_DVDNAV
+#ifdef USING_FRONTEND
     return tfw || (fd2 > -1) || remotefile || (dvdPriv && dvdPriv->IsOpen());
-#else // if !HAVE_DVDNAV
-    return tfw || (fd2 > -1) || remotefile; 
-#endif // !HAVE_DVDNAV
+#else // if !USING_FRONTEND
+    return tfw || (fd2 > -1) || remotefile;
+#endif // !USING_FRONTEND
 }
 
 /** \fn RingBuffer::~RingBuffer(void)
@@ -323,11 +340,12 @@ RingBuffer::~RingBuffer(void)
         fd2 = -1;
     }
     
+#ifdef USING_FRONTEND
     if (dvdPriv)
     {
         delete dvdPriv;
     }
-    
+#endif // USING_FRONTEND    
 }
 
 /** \fn RingBuffer::Start(void)
@@ -426,7 +444,7 @@ int RingBuffer::safe_read(int fd, void *data, uint sz)
 
             // 3 second timeout with usleep(60000), 
             // or 0.12 seconds if it's an old, unmodified file.
-            if (zerocnt >= ((oldfile) ? 2 : (livetvchain) ? 6 : 50))
+            if (zerocnt >= ((oldfile) ? 2 : (livetvchain) ? 6 : 40))
             {
                 break;
             }
@@ -517,6 +535,7 @@ void RingBuffer::UpdatePlaySpeed(float play_speed)
 void RingBuffer::CalcReadAheadThresh(void)
 {
     const uint KB32  =  32*1024;
+    const uint KB64  =  64*1024;
     const uint KB128 = 128*1024;
     const uint KB256 = 256*1024;
     const uint KB512 = 512*1024;
@@ -530,7 +549,9 @@ void RingBuffer::CalcReadAheadThresh(void)
     wantseek       = false;
     readsallowed   = false;
     fill_min       = 1;
-    readblocksize  = (estbitrate > 9000)  ? KB256 : KB128;
+    readblocksize  = (estbitrate > 2500)  ? KB64  : KB32;
+    readblocksize  = (estbitrate > 5000)  ? KB128 : readblocksize;
+    readblocksize  = (estbitrate > 9000)  ? KB256 : readblocksize;
     readblocksize  = (estbitrate > 18000) ? KB512 : readblocksize;
 
     uint  secs_thr = 300; // seconds of buffering desired
@@ -608,10 +629,10 @@ void RingBuffer::StartupReadAheadThread(void)
 {
     readaheadrunning = false;
 
+    readAheadRunningCondLock.lock();
     pthread_create(&reader, NULL, StartReader, this);
-
-    while (!readaheadrunning)
-        usleep(50);
+    readAheadRunningCond.wait(&readAheadRunningCondLock);
+    readAheadRunningCondLock.unlock();
 }
 
 /** \fn RingBuffer::KillReadAheadThread(void)
@@ -709,6 +730,9 @@ void RingBuffer::ReadAheadThread(void)
     totfree = ReadBufFree();
 
     readaheadrunning = true;
+    readAheadRunningCondLock.lock();
+    readAheadRunningCond.wakeAll();
+    readAheadRunningCondLock.unlock();
     while (readaheadrunning)
     {
         if (pausereadthread || writemode)
@@ -747,6 +771,9 @@ void RingBuffer::ReadAheadThread(void)
             if (rbwpos + totfree > kBufferSize)
                 totfree = kBufferSize - rbwpos;
 
+            if (internalreadpos == 0)
+                totfree = fill_min;
+
             if (remotefile)
             {
                 if (livetvchain && livetvchain->HasNext())
@@ -756,11 +783,13 @@ void RingBuffer::ReadAheadThread(void)
                                 totfree);
                 internalreadpos += ret;
             }
+#ifdef USING_FRONTEND
             else if (dvdPriv)
             {                        
                 ret = dvdPriv->safe_read(readAheadBuffer + rbwpos, totfree);
                 internalreadpos += ret;
             }
+#endif // USING_FRONTEND
             else
             {
                 ret = safe_read(fd2, readAheadBuffer + rbwpos, totfree);
@@ -803,19 +832,19 @@ void RingBuffer::ReadAheadThread(void)
         if (!readsallowed && (used >= fill_min || setswitchtonext))
         {
             readsallowed = true;
-            VERBOSE(VB_PLAYBACK, QString("reads allowed (%1 %2)").arg(used)
-                                                                .arg(fill_min));
+            //VERBOSE(VB_PLAYBACK, QString("reads allowed (%1 %2)").arg(used)
+            //                                                    .arg(fill_min));
         }
-        else if (!readsallowed)
-            VERBOSE(VB_PLAYBACK, QString("buffering (%1 %2 %3)").arg(used)
-                                                                .arg(fill_min)
-                                                                .arg(ret));
+        //else if (!readsallowed)
+        //    VERBOSE(VB_PLAYBACK, QString("buffering (%1 %2 %3)").arg(used)
+        //                                                        .arg(fill_min)
+        //                                                        .arg(ret));
 
         if (readsallowed && used < fill_min && !ateof && !setswitchtonext)
         {
             readsallowed = false;
-            VERBOSE(VB_GENERAL, QString ("rebuffering (%1 %2)").arg(used)
-                                                               .arg(fill_min));
+            //VERBOSE(VB_GENERAL, QString ("rebuffering (%1 %2)").arg(used)
+            //                                                   .arg(fill_min));
         }
 
         if (readsallowed || stopreads)
@@ -850,14 +879,28 @@ long long RingBuffer::SetAdjustFilesize(void)
     return readAdjust;
 }
 
+int RingBuffer::Peek(void *buf, int count)
+{
+    // really only works with readahead, but DVD doesn't readahead
+    if (!readaheadrunning)
+    {
+        int ret = Read(buf, count);
+        Seek(0, SEEK_SET);
+        return ret;
+    }
+
+    return ReadFromBuf(buf, count, true);
+}
+
 /** \fn RingBuffer::ReadFromBuf(void*, int)
  *  \brief Reads from the read-ahead buffer, this is called by
  *         Read(void*, int) when the read-ahead thread is running.
  *  \param buf   Pointer to where data will be written
  *  \param count Number of bytes to read
+ *  \param peek  If true, don't increment read count
  *  \return Returns number of bytes read
  */
-int RingBuffer::ReadFromBuf(void *buf, int count)
+int RingBuffer::ReadFromBuf(void *buf, int count, bool peek)
 {
     if (commserror)
         return 0;
@@ -881,7 +924,7 @@ int RingBuffer::ReadFromBuf(void *buf, int count)
                  readErr++;
 
                  // HACK Sometimes the readhead thread gets borked on startup.
-                 if ((readErr > 2 && readErr % 2) && (rbrpos ==0))
+                 if ((readErr > 4 && readErr % 2) && (rbrpos ==0))
                  {
                     VERBOSE(VB_IMPORTANT, "restarting readhead thread..");
                     KillReadAheadThread();
@@ -914,12 +957,14 @@ int RingBuffer::ReadFromBuf(void *buf, int count)
         if (!availWait.wait(&availWaitMutex, 250))
         {
             int elapsed = t.elapsed();
-            if (((elapsed > 2000) && (elapsed < 2250)) ||
-                ((elapsed > 4000) && (elapsed < 4250)) ||
-                ((elapsed > 8000) && (elapsed < 8250)))
+            if  (/*((elapsed > 500)  && (elapsed < 750))  ||*/
+                 ((elapsed > 1000) && (elapsed < 1250)) ||
+                 ((elapsed > 2000) && (elapsed < 2250)) ||
+                 ((elapsed > 4000) && (elapsed < 4250)) ||
+                 ((elapsed > 8000) && (elapsed < 8250)))
             {
                 VERBOSE(VB_IMPORTANT, LOC + "Waited " +
-                        QString("%1").arg(elapsed/1000) +
+                        QString("%1").arg((elapsed / 500) * 0.5f, 3, 'f', 1) +
                         " seconds for data to become available...");
                 if (livetvchain)
                 {
@@ -976,9 +1021,12 @@ int RingBuffer::ReadFromBuf(void *buf, int count)
     else
         memcpy(buf, readAheadBuffer + rbrpos, count);
 
-    readAheadLock.lock();
-    rbrpos = (rbrpos + count) % kBufferSize;
-    readAheadLock.unlock();
+    if (!peek)
+    {
+        readAheadLock.lock();
+        rbrpos = (rbrpos + count) % kBufferSize;
+        readAheadLock.unlock();
+    }
 
     if (readone)
     {
@@ -1016,11 +1064,13 @@ int RingBuffer::Read(void *buf, int count)
             ret = safe_read(remotefile, buf, count);
             readpos += ret;
         }
+#ifdef USING_FRONTEND
         else if (dvdPriv)
         {                        
             ret = dvdPriv->safe_read(buf, count);
             readpos += ret;
         }
+#endif // USING_FRONTEND
         else
         {
             ret = safe_read(fd2, buf, count);
@@ -1107,10 +1157,12 @@ long long RingBuffer::Seek(long long pos, int whence)
     long long ret = -1;
     if (remotefile)
         ret = remotefile->Seek(pos, whence, readpos);
+#ifdef USING_FRONTEND
     else if (dvdPriv)
     {
         dvdPriv->Seek(pos, whence);
     }
+#endif // USING_FRONTEND
     else
     {
         if (whence == SEEK_SET)
@@ -1187,8 +1239,10 @@ void RingBuffer::SetWriteBufferMinWriteSize(int newMinSize)
  */
 long long RingBuffer::GetReadPosition(void) const
 {
+#ifdef USING_FRONTEND
     if (dvdPriv)
         return dvdPriv->GetReadPosition();
+#endif // USING_FRONTEND
 
     return readpos;
 }
@@ -1234,70 +1288,11 @@ void RingBuffer::SetLiveMode(LiveTVChain *chain)
     livetvchain = chain;
 }
 
-/** \fn RingBuffer::getPartAndTitle(int&,int&)
- *  \brief Calls DVDRingBufferPriv::GetPartAndTitle(int&,int&)
- */
-void RingBuffer::getPartAndTitle(int &title, int &part)
+bool RingBuffer::InDVDMenuOrStillFrame(void)
 {
+#ifdef USING_FRONTEND
     if (dvdPriv)
-        dvdPriv->GetPartAndTitle(title, part);
-}
-
-/** \fn RingBuffer::getDescForPos(QString&)
- *  \brief Calls DVDRingBufferPriv::GetDescForPos(QString&)
- */
-void RingBuffer::getDescForPos(QString &desc)
-{
-    if (dvdPriv)
-        dvdPriv->GetDescForPos(desc);
-}
-
-/** \fn RingBuffer::nextTrack(void)
- *  \brief Calls DVDRingBufferPriv::nextTrack(void)
- */
-bool RingBuffer::nextTrack(void)
-{
-    if (dvdPriv)
-        return dvdPriv->nextTrack();
+        return (dvdPriv->IsInMenu() || dvdPriv->InStillFrame());
+#endif // USING_FRONTEND
     return false;
 }
-
-/** \fn RingBuffer::prevTrack(void)
- *  \brief Calls DVDRingBufferPriv::prevTrack(void)
- */
-void RingBuffer::prevTrack(void)
-{
-    if (dvdPriv)
-        dvdPriv->prevTrack();
-}
-
-/** \fn RingBuffer::GetTotalTimeOfTitle(void)
- *  \brief Calls DVDRingBufferPriv::GetTotalTimeOfTitle(void)
- */
-uint RingBuffer::GetTotalTimeOfTitle(void)
-{
-    if (dvdPriv)
-        return dvdPriv->GetTotalTimeOfTitle();
-    return 0;
-}
-
-/** \fn RingBuffer::GetCellStart(void)
- *  \brief Calls DVDRingBufferPriv::GetCellStart(void)
- */
-uint RingBuffer::GetCellStart(void)
-{
-    if (dvdPriv)
-        return dvdPriv->GetCellStart();
-    return 0;
-}
-
-/** \fn RingBuffer::GetTotalReadPosition(void)
- *  \brief Calls DVDRingBufferPriv::GetTotalReadPosition(void)
- */
-long long RingBuffer::GetTotalReadPosition(void)
-{
-    if (dvdPriv)
-        return dvdPriv->GetTotalReadPosition();
-    return 0;
-}
-

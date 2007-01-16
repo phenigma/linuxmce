@@ -4,7 +4,7 @@
  *
  * = DESCRIPTION
  * Basic video for Mac OS X, using an unholy amalgamation of QuickTime,
- * QuickDraw, and Quartz/Core Graphics.
+ * QuickDraw, Quartz/Core Graphics, and undocumented DVD playback APIs.
  *
  * = POSSIBLE ENHANCEMENTS
  * - Expand choices for the possibility of multiple displays
@@ -17,7 +17,7 @@
  *   a second time, may cause a crash (backtraces appreciated)
  * 
  * = REVISION
- * $Id: videoout_quartz.cpp 8043 2005-11-26 16:38:42Z nigel $
+ * $Id: videoout_quartz.cpp 11013 2006-09-01 03:25:59Z nigel $
  *
  * = AUTHORS
  * Nigel Pearson, Jeremiah Morris
@@ -56,6 +56,13 @@ using namespace std;
 #import <CoreGraphics/CGImage.h>
 #import <Carbon/Carbon.h>
 #import <QuickTime/QuickTime.h>
+
+#include "osd.h"
+#include "osdsurface.h"
+#include "mythconfig.h"
+#ifdef CONFIG_MAC_ACCEL
+#include "videoout_accel_utils.h"
+#endif
 
 class VideoOutputQuartzView;
 
@@ -125,7 +132,8 @@ class VideoOutputQuartzView
     virtual void SetFrameSkip(int numskip);
     virtual void Show(void);
 
-    virtual void InputChanged(int width, int height, float aspect);
+    virtual void InputChanged(int width, int height, float aspect,
+                              MythCodecID av_codec_id);
     virtual void VideoAspectRatioChanged(float aspect);
     virtual void Zoom(int direction);
 
@@ -168,7 +176,7 @@ VideoOutputQuartzView::VideoOutputQuartzView(QuartzData *pData)
 
     thePort = NULL;
     desiredWidth = desiredHeight = desiredXoff = desiredYoff = 0;
-    theCodec = NULL;
+    theCodec = 0;
     theMask = NULL;
 
     frameSkip = 1;
@@ -264,7 +272,7 @@ void VideoOutputQuartzView::End(void)
     if (theCodec)
     {
         CDSequenceEnd(theCodec);
-        theCodec = NULL;
+        theCodec = 0;
         if (theMask)
         {
             DisposeRgn(theMask);
@@ -393,6 +401,15 @@ void VideoOutputQuartzView::Transform(void)
                                     .arg(name).arg((w - sw)/2.0).arg((h - sh)/2.0));
         TranslateMatrix(&matrix, X2Fix((w - sw) / 2.0), X2Fix((h - sh) / 2.0));
     }
+
+// apply the basic sizing to AccelUtils
+#ifdef CONFIG_MAC_ACCEL
+    AccelUtils *accel = AccelUtils::singleton();
+    if (accel)
+      accel->MoveResize(0, 0, parentData->srcWidth, parentData->srcHeight,
+                        (int)((w - sw) / 2.0), (int)((h - sh) / 2.0),
+                        sw, sh);
+#endif
 
     // apply over/underscan
     int hscan = gContext->GetNumSetting("HorizScanPercentage", 5);
@@ -524,12 +541,14 @@ void VideoOutputQuartzView::Show(void)
     viewLock.lock();
     if (theCodec && thePort && parentData->pixmap)
     {
+      CodecFlags outFlags;
+
       // tell QuickTime to draw the current frame
       if (DecompressSequenceFrameWhen(theCodec,
                                       (Ptr)parentData->pixmap,
                                       parentData->pixmapSize,
                                       0,
-                                      NULL,
+                                      &outFlags,
                                       NULL,
                                       NULL))
       {
@@ -539,11 +558,13 @@ void VideoOutputQuartzView::Show(void)
     viewLock.unlock();
 }
 
-void VideoOutputQuartzView::InputChanged(int width, int height, float aspect)
+void VideoOutputQuartzView::InputChanged(int width, int height, float aspect,
+                                         MythCodecID av_codec_id)
 {
     (void)width;
     (void)height;
     (void)aspect;
+    (void)av_codec_id;
 
     // need to redo codec, but not the port
     End();
@@ -1150,7 +1171,7 @@ VideoOutputQuartz::VideoOutputQuartz(void)
 {
     Started = 0; 
 
-    pauseFrame.buf = NULL;
+    init(&pauseFrame, FMT_YV12, NULL, 0, 0, 0, 0);
 
     data = new QuartzData();
     data->views.setAutoDelete(true);
@@ -1173,7 +1194,7 @@ void VideoOutputQuartz::VideoAspectRatioChanged(float aspect)
     VideoOutput::VideoAspectRatioChanged(aspect);
 
     data->srcAspect = aspect;
-    data->srcMode   = letterbox;
+    data->srcMode   = db_letterbox;
 
     VideoOutputQuartzView *view = NULL;
     for (view = data->views.first(); view; view = data->views.next())
@@ -1187,9 +1208,9 @@ void VideoOutputQuartz::Zoom(int direction)
 
     VideoOutput::Zoom(direction);
     MoveResize();
-    data->ZoomedIn = ZoomedIn;
-    data->ZoomedUp = ZoomedUp;
-    data->ZoomedRight = ZoomedRight;
+    data->ZoomedIn    = mz_scale;
+    data->ZoomedUp    = mz_move.y();
+    data->ZoomedRight = mz_move.x();
 
     for (VideoOutputQuartzView *view = data->views.first();
          view;
@@ -1199,20 +1220,21 @@ void VideoOutputQuartz::Zoom(int direction)
     }
 }
 
-void VideoOutputQuartz::InputChanged(int width, int height, float aspect)
+void VideoOutputQuartz::InputChanged(int width, int height, float aspect,
+                                     MythCodecID av_codec_id)
 {
     VERBOSE(VB_PLAYBACK,
             QString("VideoOutputQuartz::InputChanged(width=%1, height=%2, aspect=%3")
                    .arg(width).arg(height).arg(aspect));
 
-    VideoOutput::InputChanged(width, height, aspect);
+    VideoOutput::InputChanged(width, height, aspect, av_codec_id);
 
     DeleteQuartzBuffers();
 
     data->srcWidth  = width;
     data->srcHeight = height;
     data->srcAspect = aspect;
-    data->srcMode   = letterbox;
+    data->srcMode   = db_letterbox;
 
     CreateQuartzBuffers();
 
@@ -1220,7 +1242,7 @@ void VideoOutputQuartz::InputChanged(int width, int height, float aspect)
          view;
          view = data->views.next())
     {
-        view->InputChanged(width, height, aspect);
+        view->InputChanged(width, height, aspect, av_codec_id);
     }
 
     MoveResize();    
@@ -1232,7 +1254,7 @@ int VideoOutputQuartz::GetRefreshRate(void)
             QString("VideoOutputQuartz::GetRefreshRate() [returning %1]")
                    .arg((int)data->refreshRate));
 
-    return (int)data->refreshRate;
+    return (int) (1000000 / data->refreshRate);
 }
 
 bool VideoOutputQuartz::Init(int width, int height, float aspect,
@@ -1260,7 +1282,7 @@ bool VideoOutputQuartz::Init(int width, int height, float aspect,
     data->srcWidth  = width;
     data->srcHeight = height;
     data->srcAspect = aspect;
-    data->srcMode   = letterbox;
+    data->srcMode   = db_letterbox;
     
     data->ZoomedIn = 0;
     data->ZoomedUp = 0;
@@ -1306,8 +1328,9 @@ bool VideoOutputQuartz::Init(int width, int height, float aspect,
     CFDictionaryRef m;
     m = CGDisplayCurrentMode(data->screen);
     data->refreshRate = get_float_CF(m, kCGDisplayRefreshRate);
-    if (data->refreshRate == 0.0)	// LCD display?
-        data->refreshRate = 150;
+    if (data->refreshRate == 0.0)    // LCD display?
+        data->refreshRate = 150.0;   // Divisible by 25Hz and 30Hz
+                                     // to minimise AV sync waiting
 
     // Global configuration options
     data->scaleUpVideo = gContext->GetNumSetting("MacScaleUp", 1);
@@ -1316,7 +1339,7 @@ bool VideoOutputQuartz::Init(int width, int height, float aspect,
     data->correctGamma = gContext->GetNumSetting("MacGammaCorrect", 0);
     
     if (gContext->GetNumSetting("MacYuvConversion", 1))
-        data->yuvConverter = yuv2vuy_init_altivec();
+        data->yuvConverter = get_yuv2vuy_conv();
     else
         data->yuvConverter = NULL;
 
@@ -1399,27 +1422,19 @@ bool VideoOutputQuartz::Init(int width, int height, float aspect,
 
 bool VideoOutputQuartz::CreateQuartzBuffers(void)
 {
-    for (int i = 0; i < vbuffers.allocSize(); i++)
-    {
-        vbuffers.at(i)->width  = XJ_width;
-        vbuffers.at(i)->height = XJ_height;
-        vbuffers.at(i)->bpp    = 12;
-        vbuffers.at(i)->size   = XJ_width * XJ_height * vbuffers.at(i)->bpp / 8;
-        vbuffers.at(i)->codec  = FMT_YV12;
+    vbuffers.CreateBuffers(video_dim.width(), video_dim.height());
 
-        vbuffers.at(i)->buf = new unsigned char[vbuffers.at(i)->size + 64];
-    }
-
-    // Set up pause and scratch frames
+    // Set up pause frame
     if (pauseFrame.buf)
         delete [] pauseFrame.buf;
 
-    pauseFrame.height = vbuffers.GetScratchFrame()->height;
-    pauseFrame.width  = vbuffers.GetScratchFrame()->width;
-    pauseFrame.bpp    = vbuffers.GetScratchFrame()->bpp;
-    pauseFrame.size   = vbuffers.GetScratchFrame()->size;
-    pauseFrame.buf    = new unsigned char[pauseFrame.size];
-    pauseFrame.frameNumber = vbuffers.GetScratchFrame()->frameNumber;
+    VideoFrame *scratch = vbuffers.GetScratchFrame();
+
+    init(&pauseFrame, FMT_YV12, new unsigned char[scratch->size], 
+         scratch->width, scratch->height, scratch->bpp, scratch->size);
+
+    pauseFrame.frameNumber = scratch->frameNumber;
+
 
     // Set up pixel storage and image description for source
     data->pixelLock.lock();
@@ -1438,7 +1453,11 @@ bool VideoOutputQuartz::CreateQuartzBuffers(void)
     ImageDescription *desc = *data->imgDesc;
 
     desc->idSize = sizeof(ImageDescription);
+#ifdef WORDS_BIGENDIAN
     desc->cType = kYUV420CodecType;
+#else
+    desc->cType = kComponentVideoCodecType;  // Wrong, but prevents Intel crash
+#endif
     desc->version = 1;
     desc->revisionLevel = 0;
     desc->spatialQuality = codecNormalQuality;
@@ -1471,22 +1490,21 @@ bool VideoOutputQuartz::CreateQuartzBuffers(void)
     else
     {
         // YUV420 uses a descriptive header
-        data->pixelSize = (width * height * 3) / 2;
-        data->pixmapSize = sizeof(PlanarPixmapInfoYUV420) + data->pixelSize;
+        uint hdrSize = sizeof(PlanarPixmapInfoYUV420);
+
+        data->pixelSize  = scratch->size;
+        data->pixmapSize = hdrSize + data->pixelSize;
         data->pixmap = (PlanarPixmapInfoYUV420 *) new char[data->pixmapSize];
-        data->pixelData = &(data->pixmap[1]);
-    
-        long offset = sizeof(PlanarPixmapInfoYUV420);
-        data->pixmap->componentInfoY.offset = offset;
-        data->pixmap->componentInfoY.rowBytes = width;
-    
-        offset += width * height;
-        data->pixmap->componentInfoCb.offset = offset;
-        data->pixmap->componentInfoCb.rowBytes = width / 2;
-    
-        offset += (width * height) / 4;
-        data->pixmap->componentInfoCr.offset = offset;
-        data->pixmap->componentInfoCr.rowBytes = width / 2;
+
+        // Jump past the header:
+        data->pixelData = (char *)data->pixmap + hdrSize;
+
+        data->pixmap->componentInfoY.offset    = scratch->offsets[0] + hdrSize;
+        data->pixmap->componentInfoY.rowBytes  = scratch->pitches[0];
+        data->pixmap->componentInfoCb.offset   = scratch->offsets[1] + hdrSize;
+        data->pixmap->componentInfoCb.rowBytes = scratch->pitches[1];
+        data->pixmap->componentInfoCr.offset   = scratch->offsets[2] + hdrSize;
+        data->pixmap->componentInfoCr.rowBytes = scratch->pitches[2];
     }
     
     data->pixelLock.unlock();
@@ -1536,13 +1554,12 @@ void VideoOutputQuartz::DeleteQuartzBuffers()
     data->pixelLock.unlock();
 
     if (pauseFrame.buf)
-        delete [] pauseFrame.buf;
-
-    for (int i = 0; i < vbuffers.allocSize(); i++)
     {
-        delete [] vbuffers.at(i)->buf;
-        vbuffers.at(i)->buf = NULL;
+        delete [] pauseFrame.buf;
+        init(&pauseFrame, FMT_YV12, NULL, 0, 0, 0, 0);
     }
+
+    vbuffers.DeleteBuffers();
 }
 
 void VideoOutputQuartz::EmbedInWidget(WId wid, int x, int y, int w, int h)
@@ -1615,6 +1632,12 @@ void VideoOutputQuartz::PrepareFrame(VideoFrame *buffer, FrameScanType t)
 {
     (void)t;
 
+#ifdef CONFIG_MAC_ACCEL
+    AccelUtils *accel = AccelUtils::singleton();
+    if (accel && buffer)
+        accel->DecodeFrame(buffer);
+#endif // CONFIG_MAC_ACCEL
+
     if (!buffer)
         buffer = vbuffers.GetScratchFrame();
 
@@ -1624,6 +1647,15 @@ void VideoOutputQuartz::PrepareFrame(VideoFrame *buffer, FrameScanType t)
 void VideoOutputQuartz::Show(FrameScanType t)
 {
     (void)t;
+
+#ifdef CONFIG_MAC_ACCEL
+    AccelUtils *accel = AccelUtils::singleton();
+    if (accel)
+    {
+        accel->ShowFrame();
+        return;
+    }
+#endif // CONFIG_MAC_ACCEL
 
     data->pixelLock.lock();
     for (VideoOutputQuartzView *view = data->views.first();
@@ -1641,6 +1673,12 @@ void VideoOutputQuartz::DrawUnusedRects(bool)
 
 void VideoOutputQuartz::UpdatePauseFrame(void)
 {
+    if (!pauseFrame.buf)
+    {
+        puts("VideoOutputQuartz::UpdatePauseFrame() - no buffers?");
+        return;
+    }
+
     VideoFrame *pauseb = vbuffers.GetScratchFrame();
     VideoFrame *pauseu = vbuffers.head(kVideoBuffer_used);
     if (pauseu)
@@ -1658,6 +1696,27 @@ void VideoOutputQuartz::ProcessFrame(VideoFrame *frame, OSD *osd,
         frame = vbuffers.GetScratchFrame();
         CopyFrame(vbuffers.GetScratchFrame(), &pauseFrame);
     }
+
+#ifdef CONFIG_MAC_ACCEL
+    AccelUtils *accel = AccelUtils::singleton();
+    if (accel)
+    {
+        if (osd && osd->Visible())
+        {
+            OSDSurface *surface = osd->Display();
+            if (surface && surface->Changed())
+            {
+              accel->DrawOSD(surface->y, surface->u, surface->v,
+                             surface->alpha);
+            }
+        }
+        else
+        {
+          accel->DrawOSD(NULL, NULL, NULL, NULL);
+        }
+        return;   // no need to process frame, it won't be used
+    }
+#endif // CONFIG_MAC_ACCEL
 
     if (filterList)
         filterList->ProcessFrame(frame);
@@ -1685,13 +1744,14 @@ void VideoOutputQuartz::ProcessFrame(VideoFrame *frame, OSD *osd,
     {
         if (data->yuvConverter)
         {
-            int frameSize = frame->width * frame->height;
             data->yuvConverter((uint8_t *)(data->pixelData),
-                               frame->buf,
-                               &frame->buf[frameSize],
-                               &frame->buf[frameSize * 5 / 4],
+                               frame->buf + frame->offsets[0], // Y
+                               frame->buf + frame->offsets[1], // U
+                               frame->buf + frame->offsets[2], // V
                                frame->width, frame->height,
                                (frame->width % 2), (frame->width % 2), 0);
+            // FIXME - These values (stride) should be calculated
+            //         from frame->pitches and frame->width ?
         }
         else
             memcpy(data->pixelData, frame->buf, frame->size);

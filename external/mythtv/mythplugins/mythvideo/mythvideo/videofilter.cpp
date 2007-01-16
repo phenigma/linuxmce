@@ -1,68 +1,192 @@
 /*
-    editmetadata.cpp
+    videofilter.cpp
     (c) 2003 Thor Sigvaldason, Isaac Richards, and ?? ??
     Part of the mythTV project
 */
 
 #include <mythtv/mythcontext.h>
-#include <mythtv/mythdbcon.h>
 #include <mythtv/uitypes.h>
-#include "videofilter.h"
 
-VideoFilterSettings::VideoFilterSettings(bool loaddefaultsettings, const QString& _prefix)
+#include "globals.h"
+#include "videofilter.h"
+#include "videolist.h"
+#include "dbaccess.h"
+#include "metadata.h"
+#include "metadatalistmanager.h"
+#include "videoutils.h"
+
+#include <set>
+
+enum GenreFilter {
+    kGenreFilterAll = -1,
+    kGenreFilterUnknown = 0
+};
+
+enum CountryFilter {
+    kCountryFilterAll = -1,
+    kCountryFilterUnknown = 0
+};
+
+enum CategoryFilter {
+    kCategoryFilterAll = -1,
+    kCategoryFilterUnknown = 0
+};
+
+enum YearFilter {
+    kYearFilterAll = -1,
+    kYearFilterUnknown = 0
+};
+
+enum RuntimeFilter {
+    kRuntimeFilterAll = -2,
+    kRuntimeFilterUnknown = -1
+};
+
+enum UserRatingFilter {
+    kUserRatingFilterAll = -1
+};
+
+enum BrowseFilter {
+    kBrowseFilterAll = -1
+};
+
+enum InetRefFilter {
+    kInetRefFilterAll = -1,
+    kInetRefFilterUnknown = 0
+};
+
+enum CoverFileFilter {
+    kCoverFileFilterAll = -1,
+    kCoverFileFilterNone = 0
+};
+
+const unsigned int VideoFilterSettings::FILTER_MASK;
+const unsigned int VideoFilterSettings::SORT_MASK;
+
+VideoFilterSettings::VideoFilterSettings(bool loaddefaultsettings,
+                                         const QString& _prefix) :
+    category(kCategoryFilterAll), genre(kGenreFilterAll),
+    country(kCountryFilterAll), year(kYearFilterAll),
+    runtime(kRuntimeFilterAll), userrating(kUserRatingFilterAll),
+    browse(kBrowseFilterAll), m_inetref(kInetRefFilterAll),
+    m_coverfile(kCoverFileFilterAll), orderby(kOrderByTitle),
+    m_parental_level(0), m_changed_state(0)
 {
-    if ( !_prefix )
+    if (!_prefix)
         prefix = "VideoDefault";
     else
         prefix = _prefix + "Default";
-    
+
     // do nothing yet
     if (loaddefaultsettings)
     {
-        category = gContext->GetNumSetting( QString("%1Category").arg(prefix),-1);
-        genre = gContext->GetNumSetting( QString("%1Genre").arg(prefix),-1);
-        country = gContext->GetNumSetting( QString("%1Country").arg(prefix),-1);
-        year = gContext->GetNumSetting( QString("%1Year").arg(prefix),-1);
-        runtime = gContext->GetNumSetting( QString("%1Runtime").arg(prefix),-2);
-        userrating = gContext->GetNumSetting( QString("%1Userrating").arg(prefix),-1);
-        browse = gContext->GetNumSetting( QString("%1Browse").arg(prefix),-1);
-        orderby = (enum ordering)gContext->GetNumSetting(
-                QString("%1Orderby").arg(prefix),kOrderByTitle);
+        category = gContext->GetNumSetting(QString("%1Category").arg(prefix),
+                                           kCategoryFilterAll);
+        genre = gContext->GetNumSetting(QString("%1Genre").arg(prefix),
+                                        kGenreFilterAll);
+        country = gContext->GetNumSetting(QString("%1Country").arg(prefix),
+                                          kCountryFilterAll);
+        year = gContext->GetNumSetting(QString("%1Year").arg(prefix),
+                                       kYearFilterAll);
+        runtime = gContext->GetNumSetting(QString("%1Runtime").arg(prefix),
+                                          kRuntimeFilterAll);
+        userrating =
+                gContext->GetNumSetting(QString("%1Userrating").arg(prefix),
+                                        kUserRatingFilterAll);
+        browse = gContext->GetNumSetting(QString("%1Browse").arg(prefix),
+                                         kBrowseFilterAll);
+        m_inetref = gContext->GetNumSetting(QString("%1InetRef").arg(prefix),
+                kInetRefFilterAll);
+        m_coverfile = gContext->GetNumSetting(QString("%1CoverFile")
+                .arg(prefix), kCoverFileFilterAll);
+        orderby = (ordering)gContext->GetNumSetting(QString("%1Orderby")
+                                                    .arg(prefix),
+                                                    kOrderByTitle);
     }
-    else
+}
+
+VideoFilterSettings::VideoFilterSettings(const VideoFilterSettings &rhs) :
+    m_changed_state(0)
+{
+    *this = rhs;
+}
+
+VideoFilterSettings &
+VideoFilterSettings::operator=(const VideoFilterSettings &rhs)
+{
+    prefix = rhs.prefix;
+
+    if (category != rhs.category)
     {
-        category = -1;
-        genre = -1;
-        country = -1;
-        year = -1;
-        runtime = -2;
-        userrating = -1;
-        browse = -1;
-        orderby = kOrderByTitle;
+        m_changed_state |= kFilterCategoryChanged;
+        category = rhs.category;
     }
 
+    if (genre != rhs.genre)
+    {
+        m_changed_state |= kFilterGenreChanged;
+        genre = rhs.genre;
+    }
+
+    if (country != rhs.country)
+    {
+        m_changed_state |= kFilterCountryChanged;
+        country = rhs.country;
+    }
+
+    if (year != rhs.year)
+    {
+        m_changed_state |= kFilterYearChanged;
+        year = rhs.year;
+    }
+
+    if (runtime != rhs.runtime)
+    {
+        m_changed_state |= kFilterRuntimeChanged;
+        runtime = rhs.runtime;
+    }
+
+    if (userrating != rhs.userrating)
+    {
+        m_changed_state |= kFilterUserRatingChanged;
+        userrating = rhs.userrating;
+    }
+
+    if (browse != rhs.browse)
+    {
+        m_changed_state |= kFilterBrowseChanged;
+        browse = rhs.browse;
+    }
+
+    if (m_inetref != rhs.m_inetref)
+    {
+        m_changed_state |= kFilterInetRefChanged;
+        m_inetref = rhs.m_inetref;
+    }
+
+    if (m_coverfile != rhs.m_coverfile)
+    {
+        m_changed_state |= kFilterCoverFileChanged;
+        m_coverfile = rhs.m_coverfile;
+    }
+
+    if (orderby != rhs.orderby)
+    {
+        m_changed_state |= kSortOrderChanged;
+        orderby = rhs.orderby;
+    }
+
+    if (m_parental_level != rhs.m_parental_level)
+    {
+        m_changed_state |= kFilterParentalLevelChanged;
+        m_parental_level = rhs.m_parental_level;
+    }
+
+    return *this;
 }
 
-VideoFilterSettings::VideoFilterSettings(VideoFilterSettings *other)
-{
-    category = other->category;
-    genre = other->genre;
-    country = other->country;
-    year = other->year;
-    runtime = other->runtime;
-    userrating = other->userrating;
-    browse = other->browse;
-    orderby = other->orderby;
-    prefix = other->prefix;
-}
-
-VideoFilterSettings::~VideoFilterSettings()
-{
-        
-}
 void VideoFilterSettings::saveAsDefault()
 {
-
     gContext->SaveSetting(QString("%1Category").arg(prefix), category);
     gContext->SaveSetting(QString("%1Genre").arg(prefix), genre);
     gContext->SaveSetting(QString("%1Country").arg(prefix), country);
@@ -70,314 +194,388 @@ void VideoFilterSettings::saveAsDefault()
     gContext->SaveSetting(QString("%1Runtime").arg(prefix), runtime);
     gContext->SaveSetting(QString("%1Userrating").arg(prefix), userrating);
     gContext->SaveSetting(QString("%1Browse").arg(prefix), browse);
+    gContext->SaveSetting(QString("%1InetRef").arg(prefix), m_inetref);
+    gContext->SaveSetting(QString("%1CoverFile").arg(prefix), m_coverfile);
     gContext->SaveSetting(QString("%1Orderby").arg(prefix), orderby);
 }
 
-VideoFilterDialog::VideoFilterDialog(VideoFilterSettings * settings,
-                                 MythMainWindow *parent, 
+bool VideoFilterSettings::matches_filter(const Metadata &mdata) const
+{
+    bool matches = true;
+
+    if (genre != kGenreFilterAll)
+    {
+        bool found_genre = false;
+        const Metadata::genre_list &gl = mdata.Genres();
+        for (Metadata::genre_list::const_iterator p = gl.begin();
+             p != gl.end(); ++p)
+        {
+            found_genre = p->first == genre;
+        }
+        matches = found_genre;
+    }
+
+    if (matches && country != kCountryFilterAll)
+    {
+        bool found_country = false;
+        const Metadata::country_list &cl = mdata.Countries();
+        for (Metadata::country_list::const_iterator p = cl.begin();
+             p != cl.end(); ++p)
+        {
+            found_country = p->first == country;
+        }
+        matches = found_country;
+    }
+
+    if (matches && category != kCategoryFilterAll)
+    {
+        matches = category == mdata.getCategoryID();
+    }
+
+    if (matches && year != kYearFilterAll)
+    {
+        if (year == kYearFilterUnknown)
+        {
+            matches = (mdata.Year() == 0) ||
+                    (mdata.Year() == VIDEO_YEAR_DEFAULT);
+        }
+        else
+        {
+            matches = year == mdata.Year();
+        }
+    }
+
+    if (matches && runtime != kRuntimeFilterAll)
+    {
+        if (runtime == kRuntimeFilterUnknown)
+        {
+            matches = mdata.Length() < 0;
+        }
+        else
+        {
+            matches = runtime == (mdata.Length() / 30);
+        }
+    }
+
+    if (matches && userrating != kUserRatingFilterAll)
+    {
+        matches = mdata.UserRating() >= userrating;
+    }
+
+    if (matches && browse != kBrowseFilterAll)
+    {
+        matches = mdata.Browse() == browse;
+    }
+
+    if (matches && m_inetref != kInetRefFilterAll)
+    {
+        matches = mdata.InetRef() == VIDEO_INETREF_DEFAULT;
+    }
+
+    if (matches && m_coverfile != kCoverFileFilterAll)
+    {
+        matches = isDefaultCoverFile(mdata.CoverFile());
+    }
+
+    if (matches && m_parental_level)
+    {
+        matches = (mdata.ShowLevel() != 0) &&
+                (mdata.ShowLevel() <= m_parental_level);
+    }
+
+    return matches;
+}
+
+/// Compares two Metadata instances
+bool VideoFilterSettings::meta_less_than(const Metadata &lhs,
+                                         const Metadata &rhs) const
+{
+    bool ret = false;
+    switch (orderby)
+    {
+        case kOrderByTitle:
+        {
+            QString lhs_key;
+            QString rhs_key;
+            if (lhs.hasSortKey() && rhs.hasSortKey())
+            {
+                lhs_key = lhs.getSortKey();
+                rhs_key = rhs.getSortKey();
+            }
+            else
+            {
+                lhs_key = Metadata::GenerateDefaultSortKey(lhs);
+                rhs_key = Metadata::GenerateDefaultSortKey(rhs);
+            }
+            ret = QString::localeAwareCompare(lhs_key, rhs_key) < 0;
+            break;
+        }
+        case kOrderByYearDescending:
+        {
+            ret = lhs.Year() > rhs.Year();
+            break;
+        }
+        case kOrderByUserRatingDescending:
+        {
+            ret = lhs.UserRating() > rhs.UserRating();
+            break;
+        }
+        case kOrderByLength:
+        {
+            ret = lhs.Length() < rhs.Length();
+            break;
+        }
+        case kOrderByFilename:
+        {
+            // TODO: honor case setting
+            ret = QString::localeAwareCompare(lhs.Filename(),
+                                              rhs.Filename()) < 0;
+            break;
+        }
+        case kOrderByID:
+        {
+            ret = lhs.ID() < rhs.ID();
+            break;
+        }
+        default:
+        {
+            VERBOSE(VB_IMPORTANT, QString("Error: unknown sort type %1")
+                    .arg(orderby));
+        }
+    }
+
+    return ret;
+}
+
+/////////////////////////////////
+// VideoFilterDialog
+/////////////////////////////////
+VideoFilterDialog::VideoFilterDialog(FilterSettingsProxy *fsp,
+                                 MythMainWindow *parent_,
                                  QString window_name,
                                  QString theme_filename,
-                                 const char* name)
-                :MythThemedDialog(parent, window_name, theme_filename, name)
+                                 const VideoList &video_list,
+                                 const char *name_) :
+    MythThemedDialog(parent_, window_name, theme_filename, name_),
+    browse_select(0), orderby_select(0), year_select(0), userrating_select(0),
+    category_select(0), country_select(0), genre_select(0), runtime_select(0),
+    save_button(0), done_button(0), numvideos_text(0), m_intetref_select(0),
+    m_coverfile_select(0), m_fsp(fsp), m_video_list(video_list)
 {
     //
     //  The only thing this screen does is let the
     //  user set (some) metadata information. It only
     //  works on a single metadata entry.
     //
-    
-    originalSettings = settings;
-    if (originalSettings){
-        //Save data settings before changing them
-        currentSettings = new VideoFilterSettings (settings);
-    }else{
-        currentSettings = new VideoFilterSettings ();
-    }
 
-    // Widgets
-    year_select = NULL;
-    userrating_select = NULL;
-    category_select = NULL;
-    country_select = NULL;
-    genre_select = NULL;
-    runtime_select = NULL;
-    numvideos_text=NULL;
+    m_settings = m_fsp->getSettings();
 
     wireUpTheme();
     fillWidgets();
     update_numvideo();
     assignFirstFocus();
 }
-QString VideoFilterSettings::BuildClauseFrom(){
-    QString from (" videometadata ");
-    if (genre!=-1)
-    {
-        if (genre==0)
-            from = QString("( %1 LEFT JOIN videometadatagenre ON "
-                           "videometadata.intid = videometadatagenre.idvideo)").arg(from);
-        else
-            from = QString("( %1 INNER JOIN videometadatagenre ON "
-                           "videometadata.intid = videometadatagenre.idvideo)").arg(from);
-    }
-    
-    if (country!=-1)
-    {
-        if (country==0)
-            from = QString("( %1 LEFT JOIN videometadatacountry ON "
-                           "videometadata.intid = videometadatacountry.idvideo)").arg(from);
-        else
-            from = QString("( %1 INNER JOIN videometadatacountry ON "
-                           "videometadata.intid = videometadatacountry.idvideo)").arg(from);
-    }
-    return from;
-}
-
-QString VideoFilterSettings::BuildClauseWhere(int parental_level)
-{
-    QString where = "WHERE 1";
-    QString condition;
-
-    if (genre != -1)
-    {
-        condition = genre ? QString("= %1").arg(genre) : QString("IS NULL");
-        where += QString(" AND videometadatagenre.idgenre %1").arg(condition);
-    }
-    
-    if (country != -1)
-    {
-        condition = country ? QString("= %1").arg(country) : QString("IS NULL");
-        where += QString(" AND videometadatacountry.idcountry %1")
-                                .arg(condition);
-    }
-    
-    if (category != -1)
-        where += QString(" AND category = %1").arg(category);
-    
-    if (year != -1)
-        where += QString(" AND year = %1").arg(year);
-    
-    if (runtime != -2)
-        where += QString(" AND FLOOR((length-1)/30) = %1").arg(runtime);
-    
-    if (userrating != -1)
-        where += QString(" AND userrating >= %1").arg(userrating);
-
-    if (browse != -1)
-        where += QString(" AND browse = %1").arg(browse);
-
-    if (parental_level)
-    {
-        where += QString(" AND showlevel != 0 AND showlevel <= %1")
-                                .arg(parental_level);
-    }
-
-    return where;
-}
-
-QString VideoFilterSettings::BuildClauseOrderBy()
-{
-    switch (orderby)
-    {
-        case kOrderByTitle : 
-            return " ORDER BY title";
-        case kOrderByYearDescending : 
-            return " ORDER BY year DESC";
-        case kOrderByUserRatingDescending : 
-            return " ORDER BY userrating DESC";
-        case kOrderByLength : 
-            return " ORDER BY length";
-        default:
-            return "";        
-    }
-}
 
 void VideoFilterDialog::update_numvideo()
 {
-    
     if (numvideos_text)
     {
-        QString from = currentSettings->BuildClauseFrom();
-        QString where = currentSettings->BuildClauseWhere(0);
-        QString q_string = QString("SELECT NULL FROM %1 %2")
-                           .arg(from).arg(where);
-        
+        int video_count = m_video_list.test_filter(m_settings);
 
-        MSqlQuery a_query(MSqlQuery::InitCon());
-        a_query.exec(q_string);
-        
-        if((a_query.isActive()) && (a_query.size()>0))
+        if (video_count > 0)
         {
             numvideos_text->SetText(
                     QString(tr("Result of this filter : %1 video(s)"))
-                            .arg(a_query.size()));
+                    .arg(video_count));
         }
         else
         {
-            numvideos_text->SetText(QString(
-                            tr("Result of this filter : No Videos")));
+            numvideos_text->SetText(
+                    QString(tr("Result of this filter : No Videos")));
         }
     }
 }
 
 void VideoFilterDialog::fillWidgets()
 {
+    bool have_unknown_year = false;
+    bool have_unknown_runtime = false;
+
+    typedef std::set<int> int_list;
+    int_list years;
+    int_list runtimes;
+    int_list user_ratings;
+
+    const MetadataListManager::metadata_list &mdl =
+            m_video_list.getListCache().getList();
+    for (MetadataListManager::metadata_list::const_iterator p = mdl.begin();
+         p != mdl.end(); ++p)
+    {
+        int year = (*p)->Year();
+        if ((year == 0) || (year == VIDEO_YEAR_DEFAULT))
+            have_unknown_year = true;
+        else
+            years.insert(year);
+
+        int runtime = (*p)->Length();
+        if (runtime == 0)
+            have_unknown_runtime = true;
+        else
+            runtimes.insert(runtime / 30);
+
+        user_ratings.insert(static_cast<int>((*p)->UserRating()));
+    }
+
     if (category_select)
     {
-        category_select->addItem(-1, "All");
-        QString q_string = QString("SELECT intid, category FROM videocategory "
-                                   "ORDER BY category");
-        MSqlQuery a_query(MSqlQuery::InitCon());
-        a_query.exec(q_string);
+        category_select->addItem(kCategoryFilterAll, QObject::tr("All"));
 
-        if (a_query.isActive() && a_query.size()>0)
+        const VideoCategory::entry_list &vcl =
+                VideoCategory::getCategory().getList();
+        for (VideoCategory::entry_list::const_iterator p = vcl.begin();
+             p != vcl.end(); ++p)
         {
-            while (a_query.next())
-            {
-                QString cat = QString::fromUtf8(a_query.value(1).toString());
-                category_select->addItem(a_query.value(0).toInt(), cat);
-            }
+            category_select->addItem(p->first, p->second);
         }
-        category_select->addItem(0,tr("Unknown"));
-        category_select->setToItem(currentSettings->getCategory());
 
+        category_select->addItem(kCategoryFilterUnknown,
+                                 VIDEO_CATEGORY_UNKNOWN);
+        category_select->setToItem(m_settings.getCategory());
     }
+
     if (genre_select)
     {
-        genre_select->addItem(-1,"All");
-        QString q_string = QString("Select intid, genre FROM videogenre "
-                                   "INNER JOIN videometadatagenre "
-                                   "ON intid = idgenre "
-                                   "GROUP BY intid , genre "
-                                   "ORDER BY genre;");
-        MSqlQuery a_query(MSqlQuery::InitCon());
-        a_query.exec(q_string);
+        genre_select->addItem(kGenreFilterAll, QObject::tr("All"));
 
-        if (a_query.isActive() && a_query.size()>0)
+        const VideoGenre::entry_list &gl = VideoGenre::getGenre().getList();
+        for (VideoGenre::entry_list::const_iterator p = gl.begin();
+             p != gl.end(); ++p)
         {
-            while (a_query.next())
-            {
-                QString genre = QString::fromUtf8(a_query.value(1).toString());
-                genre_select->addItem(a_query.value(0).toInt(), genre);
-            }
+            genre_select->addItem(p->first, p->second);
         }
-        genre_select->addItem(0,tr("Unknown"));
-        genre_select->setToItem(currentSettings->getGenre());
+
+        genre_select->addItem(kGenreFilterUnknown, VIDEO_GENRE_UNKNOWN);
+        genre_select->setToItem(m_settings.getGenre());
     }
-    
+
     if (country_select)
     {
-        country_select->addItem(-1,"All");
-        QString q_string = QString("Select intid, country FROM videocountry "
-                                   "INNER JOIN videometadatacountry "
-                                   "ON intid = idcountry "
-                                   "GROUP BY intid, country "
-                                   "ORDER BY country;");
-        MSqlQuery a_query(MSqlQuery::InitCon());
-        a_query.exec(q_string);
-        if (a_query.isActive() && a_query.size()>0)
+        country_select->addItem(kCountryFilterAll, QObject::tr("All"));
+
+        const VideoCountry::entry_list &cl =
+                VideoCountry::getCountry().getList();
+        for (VideoCountry::entry_list::const_iterator p = cl.begin();
+             p != cl.end(); ++p)
         {
-            while(a_query.next())
-            {
-                QString country = QString::fromUtf8(a_query.value(1).toString());
-                country_select->addItem(a_query.value(0).toInt(), country);
-            }
+            country_select->addItem(p->first, p->second);
         }
-        country_select->addItem(0,tr("Unknown"));
-        country_select->setToItem(currentSettings->getCountry());
+
+        country_select->addItem(kCountryFilterUnknown, VIDEO_COUNTRY_UNKNOWN);
+        country_select->setToItem(m_settings.getCountry());
     }
 
-    if(year_select)
+    if (year_select)
     {
-        year_select->addItem(-1,"All");
-        QString q_string = QString("SELECT year FROM videometadata "
-                                   "GROUP BY year ORDER BY year DESC;");
-        MSqlQuery a_query(MSqlQuery::InitCon());
-        a_query.exec(q_string);
+        year_select->addItem(kYearFilterAll, QObject::tr("All"));
 
-        if(a_query.isActive() && a_query.size()>0)
+        for (int_list::const_reverse_iterator p = years.rbegin();
+             p != years.rend(); ++p)
         {
-            while(a_query.next())
-            {
-                if (a_query.value(0).toInt() == 0) 
-                {
-                    year_select->addItem(0,tr("Unknown"));
-                }
-                else
-                {
-                    year_select->addItem(a_query.value(0).toInt(),
-                                         a_query.value(0).toString());
-                }
-            }
+            year_select->addItem(*p, QString::number(*p));
         }
-        year_select->setToItem(currentSettings->getYear());
 
+        if (have_unknown_year)
+        {
+            year_select->addItem(kYearFilterUnknown, VIDEO_YEAR_UNKNOWN);
+        }
+
+        year_select->setToItem(m_settings.getYear());
     }
-    
+
     if (runtime_select)
     {
-        runtime_select->addItem(-2,"All");
-        QString q_string = QString("SELECT FLOOR((length-1)/30) "
-                                   "FROM videometadata "
-                                   "GROUP BY FLOOR((length-1)/30);");
-        MSqlQuery a_query(MSqlQuery::InitCon());
-        a_query.exec(q_string);
+        runtime_select->addItem(kRuntimeFilterAll, QObject::tr("All"));
 
-        if (a_query.isActive() && a_query.size()>0)
+        if (have_unknown_runtime)
         {
-           while (a_query.next())
-           {
-                if (a_query.value(0).toInt()<0)
-                {
-                    runtime_select->addItem(a_query.value(0).toInt(),tr("Unknown"));
-                }
-                else
-                {
-                    QString s = QString("%1 ").arg(a_query.value(0).toInt()*30);
-                    s += tr("minutes");
-                    s += " ~ " + QString("%1 ").arg((a_query.value(0).toInt()+1)*30);
-                    s += tr("minutes");
-                    runtime_select->addItem(a_query.value(0).toInt(), s);
-                }
-           }
+            runtime_select->addItem(kRuntimeFilterUnknown,
+                                    VIDEO_RUNTIME_UNKNOWN);
         }
-        runtime_select->setToItem(currentSettings->getRuntime());
-   }
+
+        for (int_list::const_iterator p = runtimes.begin();
+             p != runtimes.end(); ++p)
+        {
+            QString s = QString("%1 %2 ~ %3 %4").arg(*p * 30).arg(tr("minutes"))
+                    .arg((*p + 1) * 30).arg(tr("minutes"));
+            runtime_select->addItem(*p, s);
+        }
+
+        runtime_select->setToItem(m_settings.getRuntime());
+    }
 
     if (userrating_select)
     {
-        userrating_select->addItem(-1,tr("All"));
-        QString q_string = QString("SELECT FLOOR(userrating) "
-                                   "FROM videometadata "
-                                   "GROUP BY FLOOR(userrating) DESC;");
-        MSqlQuery a_query(MSqlQuery::InitCon());
-        a_query.exec(q_string);
+        userrating_select->addItem(kUserRatingFilterAll, QObject::tr("All"));
 
-        if(a_query.isActive()&&a_query.size()>0)
+        for (int_list::const_reverse_iterator p = user_ratings.rbegin();
+             p != user_ratings.rend(); ++p)
         {
-            while(a_query.next())
-            {
-                userrating_select->addItem(a_query.value(0).toInt(),
-                                           ">= " + a_query.value(0).toString());
-            }
+            userrating_select->addItem(*p, QString(">= %1")
+                                       .arg(QString::number(*p)));
         }
-        userrating_select->setToItem(currentSettings->getUserrating());
+
+        userrating_select->setToItem(m_settings.getUserrating());
     }
-    
+
     if (browse_select)
     {
-        browse_select->addItem(-1,"All");
-        browse_select->addItem(1,"Yes");
-        browse_select->addItem(0,"No");
-        browse_select->setToItem(currentSettings->getBrowse());
+        browse_select->addItem(kBrowseFilterAll, QObject::tr("All"));
+        browse_select->addItem(1, QObject::tr("Yes"));
+        browse_select->addItem(0, QObject::tr("No"));
+        browse_select->setToItem(m_settings.getBrowse());
     }
-    
+
+    if (m_intetref_select)
+    {
+        m_intetref_select->addItem(kInetRefFilterAll, QObject::tr("All"));
+        m_intetref_select->addItem(kInetRefFilterUnknown,
+                QObject::tr("Unknown"));
+        m_intetref_select->setToItem(m_settings.getInteRef());
+    }
+
+    if (m_coverfile_select)
+    {
+        m_coverfile_select->addItem(kCoverFileFilterAll, QObject::tr("All"));
+        m_coverfile_select->addItem(kCoverFileFilterNone,
+                QObject::tr("None"));
+        m_coverfile_select->setToItem(m_settings.getCoverFile());
+    }
+
     if (orderby_select)
     {
-        orderby_select->addItem(0,"title");
-        orderby_select->addItem(1,"year");
-        orderby_select->addItem(2,"userrating");
-        orderby_select->addItem(3,"runtime");
-        orderby_select->setToItem(currentSettings->getOrderby());
+        orderby_select->addItem(VideoFilterSettings::kOrderByTitle,
+                                QObject::tr("Title"));
+        orderby_select->addItem(VideoFilterSettings::kOrderByYearDescending,
+                                QObject::tr("Year"));
+        orderby_select->addItem(
+                VideoFilterSettings::kOrderByUserRatingDescending,
+                QObject::tr("User Rating"));
+        orderby_select->addItem(VideoFilterSettings::kOrderByLength,
+                                QObject::tr("Runtime"));
+        orderby_select->addItem(VideoFilterSettings::kOrderByFilename,
+                                QObject::tr("Filename"));
+        orderby_select->addItem(VideoFilterSettings::kOrderByID,
+                                QObject::tr("Video ID"));
+        orderby_select->setToItem(m_settings.getOrderby());
+    }
+}
+
+namespace
+{
+    void widget_testset(UISelectorType *&ret, UIType *current,
+            UISelectorType *sel)
+    {
+        if (sel && current == sel) ret = sel;
     }
 }
 
@@ -401,28 +599,26 @@ void VideoFilterDialog::keyPressEvent(QKeyEvent *e)
         else if ((action == "LEFT") || (action == "RIGHT"))
         {
             something_pushed = false;
+
             UISelectorType *currentSelector = NULL;
-           if ((category_select)&&(getCurrentFocusWidget() == category_select)) 
-                currentSelector = category_select;
-           if ((genre_select)&&(getCurrentFocusWidget() == genre_select))
-                currentSelector = genre_select;
-            if ((country_select)&&(getCurrentFocusWidget() == country_select))
-                currentSelector = country_select;
-           if ((year_select) && (getCurrentFocusWidget() == year_select)) 
-                currentSelector = year_select;
-           if ((runtime_select)&&(getCurrentFocusWidget() == runtime_select))
-                currentSelector = runtime_select;   
-           if ((userrating_select)&&(getCurrentFocusWidget() == userrating_select)) 
-                currentSelector = userrating_select;
-            if ((browse_select)&&(getCurrentFocusWidget() == browse_select)) 
-                currentSelector = browse_select;
-            if ((orderby_select)&&(getCurrentFocusWidget() == orderby_select))
-                currentSelector = orderby_select;
-            if(currentSelector)
+            UIType *focued = getCurrentFocusWidget();
+            widget_testset(currentSelector, focued, category_select);
+            widget_testset(currentSelector, focued, genre_select);
+            widget_testset(currentSelector, focued, country_select);
+            widget_testset(currentSelector, focued, year_select);
+            widget_testset(currentSelector, focued, runtime_select);
+            widget_testset(currentSelector, focued, userrating_select);
+            widget_testset(currentSelector, focued, browse_select);
+            widget_testset(currentSelector, focued, m_intetref_select);
+            widget_testset(currentSelector, focued, m_coverfile_select);
+            widget_testset(currentSelector, focued, orderby_select);
+
+            if (currentSelector)
             {
-                currentSelector->push(action=="RIGHT");
+                currentSelector->push(action == "RIGHT");
                 something_pushed = true;
             }
+
             if (!something_pushed)
             {
                 activateCurrent();
@@ -431,113 +627,107 @@ void VideoFilterDialog::keyPressEvent(QKeyEvent *e)
         else if (action == "SELECT")
             activateCurrent();
         else if (action == "0")
-        {    
+        {
             if (done_button)
                 done_button->push();
         }
         else
             handled = false;
     }
-    
+
     if (!handled)
         MythThemedDialog::keyPressEvent(e);
 }
 
-
 void VideoFilterDialog::takeFocusAwayFromEditor(bool up_or_down)
 {
     nextPrevWidgetFocus(up_or_down);
-    
+
     MythRemoteLineEdit *which_editor = (MythRemoteLineEdit *)sender();
 
-    if(which_editor)
+    if (which_editor)
     {
         which_editor->clearFocus();
     }
 }
+
 void VideoFilterDialog::saveAsDefault()
 {
-     currentSettings->saveAsDefault();
+     m_settings.saveAsDefault();
      this->saveAndExit();
 }
 
-
 void VideoFilterDialog::saveAndExit()
 {
-    if (originalSettings)
-    {
-        originalSettings->setCategory(currentSettings->getCategory());
-        originalSettings->setGenre(currentSettings->getGenre());
-        originalSettings->setCountry(currentSettings->getCountry());
-        originalSettings->setYear(currentSettings->getYear());
-        originalSettings->setRuntime(currentSettings->getRuntime());
-        originalSettings->setUserrating(currentSettings->getUserrating());
-        originalSettings->setBrowse(currentSettings->getBrowse());
-        originalSettings->setOrderby(currentSettings->getOrderby());
-    }
+    m_fsp->setSettings(m_settings);
     done(0);
 }
 
 void VideoFilterDialog::setYear(int new_year)
 {
-        currentSettings->setYear(new_year);
+        m_settings.setYear(new_year);
         update_numvideo();
 }
-
 
 void VideoFilterDialog::setUserRating(int new_userrating)
 {
-        currentSettings->setUserrating(new_userrating);
+        m_settings.setUserrating(new_userrating);
         update_numvideo();
 }
-
 
 void VideoFilterDialog::setCategory(int new_category)
 {
-        currentSettings->setCategory(new_category);
+        m_settings.setCategory(new_category);
         update_numvideo();
 }
 
-
 void VideoFilterDialog::setCountry(int new_country)
 {
-        currentSettings->setCountry(new_country);
+        m_settings.setCountry(new_country);
         update_numvideo();
 }
 
 void VideoFilterDialog::setGenre(int new_genre)
 {
-        currentSettings->setGenre(new_genre);
+        m_settings.setGenre(new_genre);
         update_numvideo();
 }
-
 
 void VideoFilterDialog::setRunTime(int new_runtime)
 {
-        currentSettings->setRuntime(new_runtime);
+        m_settings.setRuntime(new_runtime);
         update_numvideo();
 }
-
 
 void VideoFilterDialog::setBrowse(int new_browse)
 {
-        currentSettings->setBrowse(new_browse);
+        m_settings.setBrowse(new_browse);
         update_numvideo();
 }
 
+void VideoFilterDialog::setInetRef(int new_inetref)
+{
+    m_settings.setInetRef(new_inetref);
+    update_numvideo();
+}
+
+void VideoFilterDialog::setCoverFile(int new_coverfile)
+{
+    m_settings.setCoverFile(new_coverfile);
+    update_numvideo();
+}
 
 void VideoFilterDialog::setOrderby(int new_orderby)
 {
-        currentSettings->setOrderby(
-                (enum VideoFilterSettings::ordering)new_orderby);
+        m_settings.setOrderby(
+                (VideoFilterSettings::ordering)new_orderby);
         update_numvideo();
 }
-
 
 void VideoFilterDialog::wireUpTheme()
 {
     year_select = getUISelectorType("year_select");
-    if(year_select)
+    if (year_select)
         connect(year_select, SIGNAL(pushed(int)),
                 this, SLOT(setYear(int)));
 
@@ -566,12 +756,20 @@ void VideoFilterDialog::wireUpTheme()
         connect(runtime_select, SIGNAL(pushed(int)),
                 this, SLOT(setRunTime(int)));
 
-   
     browse_select = getUISelectorType("browse_select");
     if (browse_select)
         connect(browse_select, SIGNAL(pushed(int)),
                 this, SLOT(setBrowse(int)));
-   
+
+    m_intetref_select = getUISelectorType("inetref_select");
+    if (m_intetref_select)
+        connect(m_intetref_select, SIGNAL(pushed(int)),
+                this, SLOT(setInetRef(int)));
+
+    m_coverfile_select = getUISelectorType("coverfile_select");
+    if (m_coverfile_select)
+        connect(m_coverfile_select, SIGNAL(pushed(int)),
+                this, SLOT(setCoverFile(int)));
 
     orderby_select = getUISelectorType("orderby_select");
     if (orderby_select)
@@ -579,27 +777,24 @@ void VideoFilterDialog::wireUpTheme()
                 this, SLOT(setOrderby(int)));
 
     save_button = getUITextButtonType("save_button");
-    
+
     if (save_button)
     {
         save_button->setText(tr("Save as default"));
         connect(save_button, SIGNAL(pushed()), this, SLOT(saveAsDefault()));
     }
-  
+
     done_button = getUITextButtonType("done_button");
-    if(done_button)
+    if (done_button)
     {
         done_button->setText(tr("Done"));
         connect(done_button, SIGNAL(pushed()), this, SLOT(saveAndExit()));
     }
-    
+
     numvideos_text = getUITextType("numvideos_text");
     buildFocusList();
 }
 
-
 VideoFilterDialog::~VideoFilterDialog()
 {
 }
-
-/* vim: set expandtab tabstop=4 shiftwidth=4: */

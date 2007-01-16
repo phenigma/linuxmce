@@ -1,23 +1,32 @@
+// -*- Mode: c++ -*-
+
+// Std C headers
 #include <cstdio>
 #include <cstdlib>
-#include <unistd.h>
-#include <fcntl.h>
 #include <cassert>
 #include <cerrno>
-#include <sys/time.h>
 #include <ctime>
 #include <cmath>
-#include <qapplication.h>
-#include <qstringlist.h>
-#include <qmap.h>
-#include <sched.h>
 
+// POSIX headers
+#include <unistd.h>
+#include <fcntl.h>
+#include <sched.h>
+#include <sys/time.h>
 #include <sys/ioctl.h>
 
+// C++ headers
 #include <algorithm>
 #include <iostream>
 using namespace std;
 
+// Qt headers
+#include <qapplication.h>
+#include <qstringlist.h>
+#include <qdeepcopy.h>
+#include <qmap.h>
+
+// MythTV headers
 #include "config.h"
 #include "mythdbcon.h"
 #include "dialogbox.h"
@@ -26,6 +35,7 @@ using namespace std;
 #include "recordingprofile.h"
 #include "osdtypes.h"
 #include "osdsurface.h"
+#include "osdtypeteletext.h"
 #include "remoteutil.h"
 #include "programinfo.h"
 #include "mythcontext.h"
@@ -36,10 +46,12 @@ using namespace std;
 #include "decoderbase.h"
 #include "nuppeldecoder.h"
 #include "avformatdecoder.h"
+#include "dummydecoder.h"
 #include "jobqueue.h"
-
+#include "DVDRingBuffer.h"
 #include "NuppelVideoRecorder.h"
 #include "tv_play.h"
+#include "interactivetv.h"
 
 extern "C" {
 #include "vbitext/vbi.h"
@@ -75,9 +87,60 @@ int isnan(double);
 #define LOC QString("NVP: ")
 #define LOC_ERR QString("NVP, Error: ")
 
+QString track_type_to_string(uint type)
+{
+    QString str = QObject::tr("Track");
+
+    if (kTrackTypeAudio == type)
+        str = QObject::tr("Audio track");
+    else if (kTrackTypeSubtitle == type)
+        str = QObject::tr("Subtitle track");
+    else if (kTrackTypeCC608 == type)
+        str = QObject::tr("CC", "EIA-608 closed captions");
+    else if (kTrackTypeCC708 == type)
+        str = QObject::tr("ATSC CC", "EIA-708 closed captions");
+    else if (kTrackTypeTeletextCaptions == type)
+        str = QObject::tr("TT CC", "Teletext closed captions");
+    else if (kTrackTypeTeletextMenu == type)
+        str = QObject::tr("TT Menu", "Teletext Menu");
+    return str;
+}
+
+int type_string_to_track_type(const QString &str)
+{
+    int ret = -1;
+
+    if (str.left(5) == "AUDIO")
+        ret = kTrackTypeAudio;
+    else if (str.left(8) == "SUBTITLE")
+        ret = kTrackTypeSubtitle;
+    else if (str.left(5) == "CC608")
+        ret = kTrackTypeCC608;
+    else if (str.left(5) == "CC708")
+        ret = kTrackTypeCC708;
+    else if (str.left(3) == "TTC")
+        ret = kTrackTypeTeletextCaptions;
+    else if (str.left(3) == "TTM")
+        ret = kTrackTypeTeletextMenu;
+    return ret;
+}
+
+uint track_type_to_display_mode[kTrackTypeCount+2] =
+{
+    kDisplayNone,
+    kDisplayAVSubtitle,
+    kDisplayCC608,
+    kDisplayCC708,
+    kDisplayTeletextCaptions,
+    kDisplayNone,
+    kDisplayNUVTeletextCaptions,
+};
+
 NuppelVideoPlayer::NuppelVideoPlayer(QString inUseID, const ProgramInfo *info)
     : forceVideoOutput(kVideoOutput_Default),
-      decoder(NULL), videoOutput(NULL), nvr_enc(NULL), m_playbackinfo(NULL),
+      decoder(NULL),                decoder_change_lock(true),
+      videoOutput(NULL),            nvr_enc(NULL), 
+      m_playbackinfo(NULL),
       // Window stuff
       parentWidget(NULL), embedid(0), embx(-1), emby(-1), embw(-1), embh(-1),
       // State
@@ -106,22 +169,38 @@ NuppelVideoPlayer::NuppelVideoPlayer(QString inUseID, const ProgramInfo *info)
       // Input Video Attributes
       video_width(0), video_height(0), video_size(0),
       video_frame_rate(29.97f), video_aspect(4.0f / 3.0f),
-      m_scan(kScan_Detect), keyframedist(30),
+      forced_video_aspect(-1),
+      m_scan(kScan_Interlaced),     m_scan_locked(false),
+      m_scan_tracker(0),
+      keyframedist(30),
       // RingBuffer stuff
       filename("output.nuv"), weMadeBuffer(false), ringBuffer(NULL),
       // Prebuffering (RingBuffer) control
       prebuffering(false), prebuffer_tries(0),
+
+      // General Caption/Teletext/Subtitle support
+      textDisplayMode(kDisplayNone),
+      prevTextDisplayMode(kDisplayNone),
       // Support for analog captions and teletext
-      vbimode(VBIMode::None),       subtitlesOn(false),
+      vbimode(VBIMode::None),       
       ttPageNum(0x888),             ccmode(CC_CC1),
       wtxt(0), rtxt(0), text_size(0), ccline(""), cccol(0), ccrow(0),
       // Support for captions, teletext, etc. decoded by libav
+      textDesired(false),
       osdHasSubtitles(false),       osdSubtitlesExpireAt(-1),
+
+      // MHEG/MHI Interactive TV visible in OSD
+      itvVisible(false),
+      interactiveTV(NULL),
+      itvEnabled(false),
+
       // OSD stuff
       osd(NULL),                    timedisplay(NULL),
       dialogname(""),               dialogtype(0),
       // Audio stuff
-      audioOutput(NULL),            audiodevice("/dev/dsp"),
+      audioOutput(NULL),
+      audio_main_device(QString::null),
+      audio_passthru_device(QString::null),
       audio_channels(2),            audio_bits(-1),
       audio_samplerate(44100),      audio_stretchfactor(1.0f),
       // Picture-in-Picture
@@ -138,7 +217,7 @@ NuppelVideoPlayer::NuppelVideoPlayer(QString inUseID, const ProgramInfo *info)
       videoFilters(NULL),           FiltMan(new FilterManager()),
       // Commercial filtering
       skipcommercials(0),           autocommercialskip(0),
-      commercialskipmethod(0),      commrewindamount(0),
+      commrewindamount(0),
       commnotifyamount(0),          lastCommSkipDirection(0),
       lastCommSkipTime(0/*1970*/),  lastCommSkipStart(0),
       lastSkipTime(0 /*1970*/),
@@ -160,6 +239,7 @@ NuppelVideoPlayer::NuppelVideoPlayer(QString inUseID, const ProgramInfo *info)
       avsync_oldavg(0),             refreshrate(0),
       lastsync(false),              m_playing_slower(false),
       m_stored_audio_stretchfactor(1.0),
+      audio_paused(false),
       // Audio warping stuff
       usevideotimebase(false), 
       warpfactor(1.0f),             warpfactor_avg(1.0f),
@@ -168,11 +248,18 @@ NuppelVideoPlayer::NuppelVideoPlayer(QString inUseID, const ProgramInfo *info)
       // Time Code stuff
       prevtc(0),
       tc_avcheck_framecounter(0),   tc_diff_estimate(0),
+      savedAudioTimecodeOffset(0),
       // LiveTVChain stuff
-      livetvchain(NULL), m_tv(NULL),
+      livetvchain(NULL),            m_tv(NULL), 
+      isDummy(false),               
+      // DVD stuff
+      indvdstillframe(false), hidedvdbutton(true),
+      need_change_dvd_track(0),
       // Debugging variables
       output_jmeter(NULL)
 {
+    vbimode = VBIMode::Parse(gContext->GetSetting("VbiFormat"));
+
     if (info)
     {
         m_playbackinfo = new ProgramInfo(*info);
@@ -183,6 +270,9 @@ NuppelVideoPlayer::NuppelVideoPlayer(QString inUseID, const ProgramInfo *info)
     commnotifyamount = gContext->GetNumSetting("CommNotifyAmount",0);
     m_DeintSetting   = gContext->GetNumSetting("Deinterlace", 0);
     decode_extra_audio=gContext->GetNumSetting("DecodeExtraAudio", 0);
+    itvEnabled       = gContext->GetNumSetting("EnableMHEG", 0);
+
+    lastIgnoredManualSkip = QDateTime::currentDateTime().addSecs(-10);
 
     bzero(&txtbuffers, sizeof(txtbuffers));
     bzero(&tc_lastval, sizeof(tc_lastval));
@@ -193,6 +283,10 @@ NuppelVideoPlayer::NuppelVideoPlayer(QString inUseID, const ProgramInfo *info)
     bool valid = false;
     uint tmp = mypage.toInt(&valid, 16);
     ttPageNum = (valid) ? tmp : ttPageNum;
+
+    text_size = 8 * (sizeof(teletextsubtitle) + VT_WIDTH);
+    for (int i = 0; i < MAXTBUFFER; i++)
+        txtbuffers[i].buffer = new unsigned char[text_size + 1];
 }
 
 NuppelVideoPlayer::~NuppelVideoPlayer(void)
@@ -209,7 +303,7 @@ NuppelVideoPlayer::~NuppelVideoPlayer(void)
     if (weMadeBuffer)
         delete ringBuffer;
 
-    if (osdHasSubtitles || nonDisplayedSubtitles.size() > 0)
+    if (osdHasSubtitles || !nonDisplayedAVSubtitles.empty())
         ClearSubtitles();
 
     if (osd)
@@ -222,6 +316,9 @@ NuppelVideoPlayer::~NuppelVideoPlayer(void)
     }
 
     SetDecoder(NULL);
+
+    if (interactiveTV)
+        delete interactiveTV;
 
     if (FiltMan)
         delete FiltMan;
@@ -241,11 +338,16 @@ NuppelVideoPlayer::~NuppelVideoPlayer(void)
         argb_buf = NULL;
     }
 
+    if (output_jmeter)
+        delete output_jmeter;
+
     ShutdownYUVResize();
 }
 
 void NuppelVideoPlayer::SetWatchingRecording(bool mode)
 {
+    QMutexLocker locker(&decoder_change_lock);
+
     watchingrecording = mode;
     if (GetDecoder())
         GetDecoder()->setWatchingRecording(mode);
@@ -256,6 +358,21 @@ void NuppelVideoPlayer::SetRecorder(RemoteEncoder *recorder)
     nvr_enc = recorder;
     if (GetDecoder())
         GetDecoder()->setRecorder(recorder);
+}
+
+void NuppelVideoPlayer::SetAudioInfo(const QString &main_device,
+                                     const QString &passthru_device,
+                                     uint           samplerate)
+{
+    audio_main_device = audio_passthru_device = QString::null;
+
+    if (!main_device.isEmpty())
+        audio_main_device     = QDeepCopy<QString>(main_device);
+
+    if (!passthru_device.isEmpty())
+        audio_passthru_device = QDeepCopy<QString>(passthru_device);
+
+    audio_samplerate      = (int)samplerate;
 }
 
 void NuppelVideoPlayer::PauseDecoder(void)
@@ -283,9 +400,14 @@ void NuppelVideoPlayer::Pause(bool waitvideo)
     //cout << "stopping other threads" << endl;
     PauseVideo(waitvideo);
     if (audioOutput)
+    {
+        audio_paused = true;
         audioOutput->Pause(true);
+    }
     if (ringBuffer)
         ringBuffer->Pause();
+
+    QMutexLocker locker(&decoder_change_lock);
 
     if (GetDecoder() && videoOutput)
     {
@@ -305,7 +427,7 @@ bool NuppelVideoPlayer::Play(float speed, bool normal, bool unpauseaudio)
 
     UnpauseVideo();
     if (audioOutput && unpauseaudio)
-        audioOutput->Pause(false);
+        audio_paused = false;
     if (ringBuffer)
         ringBuffer->Unpause();
 
@@ -353,7 +475,11 @@ void NuppelVideoPlayer::SetPrebuffering(bool prebuffer)
     {
         prebuffering = prebuffer;
         if (audioOutput && !paused)
-            audioOutput->Pause(prebuffering);
+        {
+            if (prebuffering)
+                audioOutput->Pause(prebuffering);
+            audio_paused = prebuffering;
+        }
     }
 
     if (!prebuffering)
@@ -440,17 +566,26 @@ bool NuppelVideoPlayer::InitVideo(void)
         videoOutput->EmbedInWidget(embedid, embx, emby, embw, embh);
     }
 
+    SetCaptionsEnabled(gContext->GetNumSetting("DefaultCCMode"), false);
+
     return true;
 }
 
 void NuppelVideoPlayer::ReinitOSD(void)
 {
-    if (osd)
+    if (videoOutput && !using_null_videoout)
     {
         QRect visible, total;
         float aspect, scaling;
         videoOutput->GetOSDBounds(total, visible, aspect, scaling);
-        osd->Reinit(total, frame_interval, visible, aspect, scaling);
+        if (osd)
+            osd->Reinit(total, frame_interval, visible, aspect, scaling);
+
+        if (GetInteractiveTV())
+        {
+            GetInteractiveTV()->Reinit(total);
+            itvVisible = false;
+        }
     }
 }
 
@@ -461,7 +596,9 @@ void NuppelVideoPlayer::ReinitVideo(void)
     vidExitLock.lock();
     videofiltersLock.lock();
 
-    videoOutput->InputChanged(video_width, video_height, video_aspect);
+    float aspect = (forced_video_aspect > 0) ? forced_video_aspect : video_aspect;
+    videoOutput->InputChanged(video_width, video_height, aspect, 
+                              GetDecoder()->GetVideoCodecID());
     if (videoOutput->IsErrored())
     {
         VERBOSE(VB_IMPORTANT, "ReinitVideo(): videoOutput->IsErrored()");
@@ -482,6 +619,12 @@ void NuppelVideoPlayer::ReinitVideo(void)
     vidExitLock.unlock();
 
     ClearAfterSeek();
+
+    if (textDisplayMode)
+    {
+        DisableCaptions(textDisplayMode, false);
+        SetCaptionsEnabled(true, false);
+    }
 }
 
 QString NuppelVideoPlayer::ReinitAudio(void)
@@ -508,10 +651,12 @@ QString NuppelVideoPlayer::ReinitAudio(void)
     if (!audioOutput && !using_null_videoout)
     {
         bool setVolume = gContext->GetNumSetting("MythControlsVolume", 1);
-        audioOutput = AudioOutput::OpenAudio(audiodevice, audio_bits,
-                                             audio_channels, audio_samplerate, 
+        audioOutput = AudioOutput::OpenAudio(audio_main_device,
+                                             audio_passthru_device,
+                                             audio_bits, audio_channels,
+                                             audio_samplerate,
                                              AUDIOOUTPUT_VIDEO,
-                                             setVolume);
+                                             setVolume, audio_passthru);
         if (!audioOutput)
             errMsg = QObject::tr("Unable to create AudioOutput.");
         else
@@ -537,7 +682,8 @@ QString NuppelVideoPlayer::ReinitAudio(void)
 
     if (audioOutput)
     {
-        audioOutput->Reconfigure(audio_bits, audio_channels, audio_samplerate);
+        audioOutput->Reconfigure(audio_bits, audio_channels,
+                                 audio_samplerate, audio_passthru);
         errMsg = audioOutput->GetError();
         if (!errMsg.isEmpty())
             audioOutput->SetStretchFactor(audio_stretchfactor);
@@ -606,6 +752,100 @@ void NuppelVideoPlayer::FallbackDeint(void)
      }
 }
 
+void NuppelVideoPlayer::AutoDeint(VideoFrame *frame)
+{
+    if (!frame || m_scan_locked)
+        return;
+
+    if (frame->interlaced_frame) 
+    {
+        if (m_scan_tracker < 0) 
+        {
+            VERBOSE(VB_PLAYBACK, LOC + "interlaced frame seen after "
+                    << abs(m_scan_tracker) << " progressive frames");
+            m_scan_tracker = 0;
+        }
+        m_scan_tracker++;
+    } 
+    else 
+    {
+        if (m_scan_tracker > 0) 
+        {
+            VERBOSE(VB_PLAYBACK, LOC + "progressive frame seen after "
+                    << m_scan_tracker << " interlaced  frames");
+            m_scan_tracker = 0;
+        }
+        m_scan_tracker--;
+    }
+        
+    if ((m_scan_tracker % 400) == 0) 
+    {
+        QString type = (m_scan_tracker < 0) ? "progressive" : "interlaced";
+        VERBOSE(VB_PLAYBACK, LOC + QString("%1 %2 frames seen.")
+                .arg(abs(m_scan_tracker)).arg(type));
+    }
+
+    if (abs(m_scan_tracker) <= 2)
+        return;
+
+    SetScanType((m_scan_tracker >  2) ? kScan_Interlaced : kScan_Progressive);
+    m_scan_locked  = false;
+}
+
+void NuppelVideoPlayer::SetScanType(FrameScanType scan)
+{
+    QMutexLocker locker(&videofiltersLock);
+
+    if (!videoOutput || !videosync)
+        return; // hopefully this will be called again later...
+
+    m_scan_locked = (scan != kScan_Detect);
+
+    if (scan == m_scan)
+        return;
+
+    bool interlaced = scan == kScan_Interlaced || kScan_Intr2ndField == scan;
+    if (interlaced && !m_DeintSetting)
+    {
+        m_scan = scan;
+        return;
+    }
+
+    if (interlaced)
+    {
+        videoOutput->SetDeinterlacingEnabled(true);
+        if (videoOutput->NeedsDoubleFramerate())
+        {
+            m_double_framerate = true;
+            m_can_double = true;
+            videosync->SetFrameInterval(frame_interval, true);
+            // Make sure video sync can double frame rate
+            if (videosync->UsesFrameInterval())
+            {
+                VERBOSE(VB_IMPORTANT, "Video sync method can't support double "
+                        "framerate (refresh rate too low for bob deint)");
+                FallbackDeint();
+                m_double_framerate = false;
+            }
+        }
+        VERBOSE(VB_PLAYBACK, "Enabled deinterlacing");
+    }
+
+    if (kScan_Progressive == scan)
+    {
+        if (m_double_framerate) 
+        {
+            m_double_framerate = false;
+            m_can_double = false;
+            videosync->SetFrameInterval(frame_interval, false);
+        }
+        videoOutput->SetDeinterlacingEnabled(false);
+        VERBOSE(VB_PLAYBACK, "Disabled deinterlacing");
+    }
+
+    m_scan = scan;
+}
+
 void NuppelVideoPlayer::SetVideoParams(int width, int height, double fps,
                                        int keyframedistance, float aspect,
                                        FrameScanType scan)
@@ -640,41 +880,9 @@ void NuppelVideoPlayer::SetVideoParams(int width, int height, double fps,
     if (IsErrored())
         return;
 
-    videofiltersLock.lock();
-
-    m_scan = detectInterlace(scan, m_scan, video_frame_rate, video_height);
-    VERBOSE(VB_PLAYBACK, QString("Interlaced: %1  video_height: %2  fps: %3")
-            .arg(toQString(m_scan)).arg(video_height)
-            .arg(fps));
-
-    // Set up deinterlacing in the video output method
-    m_double_framerate = false;
-    if (videoOutput)
-    {
-        videoOutput->SetupDeinterlace(false);
-        if ((m_scan == kScan_Interlaced)        &&
-            m_DeintSetting                      &&
-            videoOutput->SetupDeinterlace(true) &&
-            videoOutput->NeedsDoubleFramerate())
-        {
-            m_double_framerate = true;
-            m_can_double = true;
-        }
-    }
-
-    // Make sure video sync can double frame rate
-    if (videosync && m_double_framerate)
-    {
-        videosync->SetFrameInterval(frame_interval, m_double_framerate);
-        if (videosync->UsesFrameInterval())
-        {
-            VERBOSE(VB_IMPORTANT, "Video sync method can't support double "
-                    "framerate (refresh rate too low for bob deint)");
-            FallbackDeint();
-        }
-    }
-
-    videofiltersLock.unlock();
+    SetScanType(detectInterlace(scan, m_scan, video_frame_rate, video_height));
+    m_scan_locked  = false;
+    m_scan_tracker = (m_scan == kScan_Interlaced) ? 2 : 0;
 }
 
 void NuppelVideoPlayer::SetFileLength(int total, int frames)
@@ -683,9 +891,32 @@ void NuppelVideoPlayer::SetFileLength(int total, int frames)
     totalFrames = frames;
 }
 
+void NuppelVideoPlayer::OpenDummy(void)
+{
+    isDummy = true;
+
+    if (!videoOutput)
+    {
+        SetVideoParams(720, 576, 25.00, 15);
+    }
+
+    SetDecoder(new DummyDecoder(this, m_playbackinfo));
+}
+
 int NuppelVideoPlayer::OpenFile(bool skipDsp, uint retries,
                                 bool allow_libmpeg2)
 {
+    isDummy = false;
+
+    if (livetvchain)
+    {
+        if (livetvchain->GetCardType(livetvchain->GetCurPos()) == "DUMMY")
+        {
+            OpenDummy();
+            return 0;
+        }
+    }
+
     if (!skipDsp)
     {
         if (!ringBuffer)
@@ -719,10 +950,15 @@ int NuppelVideoPlayer::OpenFile(bool skipDsp, uint retries,
         }
     }
 
+    if (!ringBuffer)
+        return -1;
+
     ringBuffer->Start();
-    char testbuf[2048];
+    char testbuf[kDecoderProbeBufferSize];
     ringBuffer->Unpause(); // so we can read testbuf if we were paused
-    if (ringBuffer->Read(testbuf, 2048) != 2048)
+
+    int readsize = 2048;
+    if (ringBuffer->Peek(testbuf, readsize) != readsize)
     {
         VERBOSE(VB_IMPORTANT,
                 QString("NVP::OpenFile(): Error, couldn't read file: %1")
@@ -730,20 +966,14 @@ int NuppelVideoPlayer::OpenFile(bool skipDsp, uint retries,
         return -1;
     }
 
-    // Seek back to begining so that OpenFile can find PAT/PMT more quickly
-    ringBuffer->Pause();
-    ringBuffer->WaitForPause();
-    ringBuffer->Seek(0, SEEK_SET);
-    ringBuffer->Unpause();
-
     // delete any pre-existing recorder
     SetDecoder(NULL);
 
-    if (NuppelDecoder::CanHandle(testbuf))
+    if (NuppelDecoder::CanHandle(testbuf, readsize))
         SetDecoder(new NuppelDecoder(this, m_playbackinfo));
 #ifdef USING_IVTV
     else if (!using_null_videoout && IvtvDecoder::CanHandle(
-                 testbuf, ringBuffer->GetFilename()))
+                 testbuf, ringBuffer->GetFilename(), readsize))
     {
         SetDecoder(new IvtvDecoder(this, m_playbackinfo));
         no_audio_out = true; // no audio with ivtv.
@@ -759,7 +989,8 @@ int NuppelVideoPlayer::OpenFile(bool skipDsp, uint retries,
         return -1;
     }
 #endif
-    else if (AvFormatDecoder::CanHandle(testbuf, ringBuffer->GetFilename()))
+    else if (AvFormatDecoder::CanHandle(testbuf, ringBuffer->GetFilename(),
+                                        readsize))
         SetDecoder(new AvFormatDecoder(this, m_playbackinfo,
                                        using_null_videoout, allow_libmpeg2));
 
@@ -786,14 +1017,15 @@ int NuppelVideoPlayer::OpenFile(bool skipDsp, uint retries,
     GetDecoder()->SetLowBuffers(decode_extra_audio && !using_null_videoout);
 
     eof = false;
-    text_size = 8 * (sizeof(teletextsubtitle) + VT_WIDTH);
 
     // Set 'no_video_decode' to true for audio only decodeing
     bool no_video_decode = false;
 
     // We want to locate decoder for video even if using_null_videoout
     // is true, only disable if no_video_decode is true.
-    int ret = GetDecoder()->OpenFile(ringBuffer, no_video_decode, testbuf);
+    int ret = GetDecoder()->OpenFile(ringBuffer, no_video_decode, testbuf,
+                                     readsize);
+
     if (ret < 0)
     {
         VERBOSE(VB_IMPORTANT, QString("Couldn't open decoder for: %1")
@@ -816,7 +1048,10 @@ int NuppelVideoPlayer::OpenFile(bool skipDsp, uint retries,
             deleteIter = deleteMap.begin();
         }
     }
-    bookmarkseek = GetBookmark();
+  
+    // need this til proper DVD bookmarking is implemented
+    if (!ringBuffer->isDVD())
+        bookmarkseek = GetBookmark();
 
     return IsErrored() ? -1 : 0;
 }
@@ -887,7 +1122,8 @@ VideoFrame *NuppelVideoPlayer::GetNextVideoFrame(bool allow_unsafe)
 void NuppelVideoPlayer::ReleaseNextVideoFrame(VideoFrame *buffer,
                                               long long timecode)
 {
-    WrapTimecode(timecode, TC_VIDEO);
+    if (!ringBuffer->isDVD())
+        WrapTimecode(timecode, TC_VIDEO);
     buffer->timecode = timecode;
 
     videoOutput->ReleaseFrame(buffer);
@@ -924,32 +1160,32 @@ void NuppelVideoPlayer::DrawSlice(VideoFrame *frame, int x, int y, int w, int h)
     videoOutput->DrawSlice(frame, x, y, w, h);
 }
 
-void NuppelVideoPlayer::AddTextData(char *buffer, int len,
+void NuppelVideoPlayer::AddTextData(unsigned char *buffer, int len,
                                     long long timecode, char type)
 {
     WrapTimecode(timecode, TC_CC);
 
-    if (subtitlesOn)
+    if (!(textDisplayMode & kDisplayNUVCaptions))
+        return;
+
+    if (!tbuffer_numfree())
     {
-        if (!tbuffer_numfree())
-        {
-            VERBOSE(VB_IMPORTANT, "NVP::AddTextData(): Text buffer overflow");
-            return;
-        }
-
-        if (len > text_size)
-            len = text_size;
-
-        txtbuffers[wtxt].timecode = timecode;
-        txtbuffers[wtxt].type = type;
-        txtbuffers[wtxt].len = len;
-        memset(txtbuffers[wtxt].buffer, 0, text_size);
-        memcpy(txtbuffers[wtxt].buffer, buffer, len);
-
-        text_buflock.lock();
-        wtxt = (wtxt+1) % MAXTBUFFER;
-        text_buflock.unlock();
+        VERBOSE(VB_IMPORTANT, "NVP::AddTextData(): Text buffer overflow");
+        return;
     }
+
+    if (len > text_size)
+        len = text_size;
+
+    txtbuffers[wtxt].timecode = timecode;
+    txtbuffers[wtxt].type = type;
+    txtbuffers[wtxt].len = len;
+    memset(txtbuffers[wtxt].buffer, 0, text_size);
+    memcpy(txtbuffers[wtxt].buffer, buffer, len);
+
+    text_buflock.lock();
+    wtxt = (wtxt+1) % MAXTBUFFER;
+    text_buflock.unlock();
 }
 
 void NuppelVideoPlayer::CheckPrebuffering(void)
@@ -1002,8 +1238,8 @@ bool NuppelVideoPlayer::GetFrameFFREW(void)
         {
             long long frame = GetDecoder()->GetFramesRead() + real_skip;
             GetDecoder()->DoFastForward(frame, false);
-            stopFFREW = (CalcMaxFFTime(100, false) < 100);
         }
+        stopFFREW = (CalcMaxFFTime(100, false) < 100);
     }
     else if (CalcRWTime(-ffrew_skip) >= 0)
     {
@@ -1049,6 +1285,9 @@ bool NuppelVideoPlayer::GetFrame(int onlyvideo, bool unsafe)
         }
         videobuf_retries = 0;
     }
+
+    if (framesPlayed < 5 && play_speed > 1 && ringBuffer->isDVD())
+        next_play_speed = 1;
 
     // Decode the correct frame
     if (!GetDecoder())
@@ -1188,84 +1427,325 @@ void NuppelVideoPlayer::StopEmbedding(void)
     }
 }
 
-/** \fn NuppelVideoPlayer::ToggleCC(uint, uint)
- *  \brief Sets vbimode. If arg is zero, toggles subtitlesOn,
- *         otherwise it turns subtitles on and sets a specific
- *         teletext page or cc text.
- *
- *  \param mode VBIMode expressing which VBI decoder to use.
- *  \param arg  if 0 toggles cc/teletext mode, otherwise specifies
- *              teletext page or cc text to use.
- */
-void NuppelVideoPlayer::ToggleCC(uint mode, uint arg)
+void NuppelVideoPlayer::ResetCaptions(uint mode_override)
 {
-    QString msg;
+    uint origMode   = textDisplayMode;
+    uint mode       = (mode_override) ? mode_override : origMode;
+    textDisplayMode = kDisplayNone;
 
-    vbimode = mode;
-    if (subtitlesOn && !arg)
-    {
-        subtitlesOn = false;
-        ResetCC();
-        bool tt = (vbimode == VBIMode::PAL_TT);
-        msg = tt ? QObject::tr("TXT off") : QObject::tr("CC off");
-        if (osd)
-            osd->SetSettingsText(msg, 3);
-        return;
-    }
-
-    subtitlesOn = true;
-    if (vbimode == VBIMode::PAL_TT)
-    {
-        ttPageNum = (arg) ? arg : ttPageNum;
-        msg = QObject::tr("TXT") + QString(" %1").arg(ttPageNum,3,16);
-    }
-    else if (vbimode == VBIMode::NTSC_CC)
-    {
-        static const uint lk[8] =
-        {
-            CC_CC1,  CC_CC2,  CC_CC3,  CC_CC4,
-            CC_TXT1, CC_TXT2, CC_TXT3, CC_TXT4,
-        };
-        if ((1 <= arg) && (arg <= 8))
-            ccmode = lk[arg-1];
-
+    // resets EIA-608 and Teletext NUV Captions
+    if (mode & kDisplayNUVCaptions)
         ResetCC();
 
-        switch (ccmode)
-        {
-            case CC_CC2 :
-                msg = QString("%1%2").arg(QObject::tr("CC")).arg(2);
-                break;
-            case CC_CC3 :
-                msg = QString("%1%2").arg(QObject::tr("CC")).arg(3);
-                break;
-            case CC_CC4 :
-                msg = QString("%1%2").arg(QObject::tr("CC")).arg(4);
-                break;
-            case CC_TXT1:
-                msg = QString("%1%2").arg(QObject::tr("TXT")).arg(1);
-                break;
-            case CC_TXT2:
-                msg = QString("%1%2").arg(QObject::tr("TXT")).arg(2);
-                break;
-            case CC_TXT3:
-                msg = QString("%1%2").arg(QObject::tr("TXT")).arg(3);
-                break;
-            case CC_TXT4:
-                msg = QString("%1%2").arg(QObject::tr("TXT")).arg(4);
-                break;
-            default     :
-                msg = QString("%1%2").arg(QObject::tr("CC")).arg(1);
-                break;
-        }
-    }
-    else
-        msg = QString(QObject::tr("CC/TXT enabled"));
+    // resets EIA-708
+    uint i = (mode & kDisplayCC708) ? 1 : 64;
+    for (; i < 64; i++)
+        DeleteWindows(i, 0xff);
 
-    if (osd)
-        osd->SetSettingsText(msg, 3);
+    textDisplayMode = origMode;
 }
 
+// caller has decoder_changed_lock
+void NuppelVideoPlayer::DisableCaptions(uint mode, bool osd_msg)
+{
+    textDisplayMode &= ~mode;
+
+    ResetCaptions(mode);
+
+    if (!osd || !osd_msg)
+        return;
+
+    QString msg = " ";
+    if (kDisplayNUVTeletextCaptions & mode)
+        msg += QObject::tr("TXT CAP");
+    if (kDisplayTeletextCaptions & mode)
+    {
+        msg += decoder->GetTrackDesc(kTrackTypeTeletextCaptions,
+                                     GetTrack(kTrackTypeTeletextCaptions));
+
+        DisableTeletext();
+    }
+    if (kDisplayAVSubtitle & mode)
+    {
+        msg += decoder->GetTrackDesc(kTrackTypeSubtitle,
+                                     GetTrack(kTrackTypeSubtitle));
+    }
+    if (kDisplayTextSubtitle & mode)
+    {
+        msg += QObject::tr("Text subtitles");
+    }
+    if (kDisplayCC608 & mode)
+    {
+        msg += decoder->GetTrackDesc(kTrackTypeCC608,
+                                     GetTrack(kTrackTypeCC608));
+    }
+    if (kDisplayCC708 & mode)
+    {
+        msg += decoder->GetTrackDesc(kTrackTypeCC708,
+                                     GetTrack(kTrackTypeCC708));
+    }
+
+    if (msg != " ")
+    {
+        msg += " " + QObject::tr("Off");
+        osd->SetSettingsText(msg, 3 /* seconds until message timeout */);
+    }
+}
+
+// caller has decoder_changed_lock
+void NuppelVideoPlayer::EnableCaptions(uint mode, bool osd_msg)
+{
+    QString msg = "";
+    if (kDisplayAVSubtitle & mode)
+    {
+        msg += decoder->GetTrackDesc(kTrackTypeSubtitle,
+                                     GetTrack(kTrackTypeSubtitle));
+    }
+    if (kDisplayTextSubtitle & mode)
+    {
+        msg += QObject::tr("Text Subtitles");
+    }
+    if (kDisplayNUVTeletextCaptions & mode)
+        msg += QObject::tr("TXT") + QString(" %1").arg(ttPageNum, 3, 16);
+    if (kDisplayCC608 & mode)
+    {
+        msg += decoder->GetTrackDesc(kTrackTypeCC608,
+                                     GetTrack(kTrackTypeCC608));
+    }
+    if (kDisplayCC708 & mode)
+    {
+        msg += decoder->GetTrackDesc(kTrackTypeCC708,
+                                     GetTrack(kTrackTypeCC708));
+    }
+    if (kDisplayTeletextCaptions & mode)
+    {
+        msg += decoder->GetTrackDesc(kTrackTypeTeletextCaptions,
+                                     GetTrack(kTrackTypeTeletextCaptions));
+
+        int page = decoder->GetTrackLanguageIndex(
+            kTrackTypeTeletextCaptions,
+            GetTrack(kTrackTypeTeletextCaptions));
+
+        TeletextViewer *tt_view = NULL;
+        if (osd && (tt_view = osd->GetTeletextViewer()) && (page > 0))
+        {
+            EnableTeletext();
+            tt_view->SetPage(page, -1);
+            textDisplayMode = kDisplayTeletextCaptions;
+        }
+    }
+
+    msg += " " + QObject::tr("On");
+
+    textDisplayMode = mode;
+    if (osd && osd_msg)
+        osd->SetSettingsText(msg, 3 /* seconds until message timeout */);
+
+}
+
+void NuppelVideoPlayer::EnableTeletext(void)
+{
+    if (!GetOSD())
+        return;
+
+    OSDSet         *oset    = GetOSD()->GetSet("teletext");
+    TeletextViewer *tt_view = GetOSD()->GetTeletextViewer();
+    if (oset && tt_view)
+    {
+        decoder->SetTeletextDecoderViewer(tt_view);
+        tt_view->SetDisplaying(true);
+        tt_view->SetPage(0x100, -1);
+        oset->Display();
+        osd->SetVisible(oset, 0);
+        prevTextDisplayMode = textDisplayMode;
+        textDisplayMode = kDisplayTeletextMenu;
+    }
+}
+
+void NuppelVideoPlayer::DisableTeletext(void)
+{
+    if (!GetOSD())
+        return;
+
+    TeletextViewer *tt_view = GetOSD()->GetTeletextViewer();
+    if (tt_view)
+        tt_view->SetDisplaying(false);
+    GetOSD()->HideSet("teletext");
+
+    textDisplayMode = kDisplayNone;
+
+    /* If subtitles are enabled before the teletext menu was displayed,
+       re-enabled them. */
+    if (prevTextDisplayMode & kDisplayAllCaptions)
+        EnableCaptions(prevTextDisplayMode, false);
+}
+
+void NuppelVideoPlayer::ResetTeletext(void)
+{
+    if (!GetOSD())
+        return;
+
+    TeletextViewer *tt_view = GetOSD()->GetTeletextViewer();
+    if (tt_view)
+        tt_view->Reset();
+}
+
+bool NuppelVideoPlayer::ToggleCaptions(void)
+{
+    SetCaptionsEnabled(!((bool)textDisplayMode));
+    return textDisplayMode;
+}
+
+bool NuppelVideoPlayer::ToggleCaptions(uint type)
+{
+    uint mode = track_type_to_display_mode[type];
+    uint origMode = textDisplayMode;
+
+    QMutexLocker locker(&decoder_change_lock);
+
+    if (ringBuffer->isDVD() && GetCaptionMode() > 0)
+        ringBuffer->DVD()->SetTrack(kTrackTypeSubtitle, -1);
+
+    if (textDisplayMode)
+        DisableCaptions(textDisplayMode, origMode & mode);
+
+    if (origMode & mode)
+        return textDisplayMode;
+
+    if (kDisplayNUVTeletextCaptions & mode)
+        EnableCaptions(kDisplayNUVTeletextCaptions);
+
+    if (kDisplayCC608 & mode)
+        EnableCaptions(kDisplayCC608);
+
+    if (kDisplayCC708 & mode)
+        EnableCaptions(kDisplayCC708);
+
+    if (kDisplayAVSubtitle & mode)
+        EnableCaptions(kDisplayAVSubtitle);
+    
+    if (kDisplayTextSubtitle & mode)
+        EnableCaptions(kDisplayTextSubtitle);
+    
+    if (kDisplayTeletextCaptions & mode)
+        EnableCaptions(kDisplayTeletextCaptions);
+
+    return textDisplayMode;
+}
+
+void NuppelVideoPlayer::SetCaptionsEnabled(bool enable, bool osd_msg)
+{
+    uint origMode = textDisplayMode;
+
+    textDesired = enable;
+
+    QMutexLocker locker(&decoder_change_lock);
+
+    if (!enable)
+    {
+        DisableCaptions(origMode, osd_msg);
+        return;
+    }
+    
+    // figure out which text type to enable..
+    bool captions_found = true;
+    if (decoder->GetTrackCount(kTrackTypeSubtitle))
+        EnableCaptions(kDisplayAVSubtitle, osd_msg);
+    else if (textSubtitles.GetSubtitleCount() > 0)
+        EnableCaptions(kDisplayTextSubtitle, osd_msg);
+    else if (decoder->GetTrackCount(kTrackTypeCC708))
+        EnableCaptions(kDisplayCC708, osd_msg);
+    else if (decoder->GetTrackCount(kTrackTypeTeletextCaptions))
+        EnableCaptions(kDisplayTeletextCaptions, osd_msg);
+    else if (vbimode == VBIMode::PAL_TT)
+        EnableCaptions(kDisplayNUVTeletextCaptions, osd_msg);
+    else if (vbimode == VBIMode::NTSC_CC)
+    {
+        if (decoder->GetTrackCount(kTrackTypeCC608))
+            EnableCaptions(kDisplayCC608, osd_msg);
+        else
+            captions_found = false;
+    }
+    else 
+        captions_found = false;
+
+    if (!captions_found && osd && osd_msg)
+    {
+        QString msg = QObject::tr(
+            "No captions", "CC/Teletext/Subtitle text not available");
+        osd->SetSettingsText(msg, 3 /* seconds until message timeout */);
+    }
+
+
+    // Reset captions, disable old captions on change
+    ResetCaptions(origMode);
+    if (origMode != textDisplayMode)
+        DisableCaptions(origMode, false);
+}
+
+/** \fn NuppelVideoPlayer::SetTeletextPage(uint)
+ *  \brief Set Teletext NUV Caption page
+ */
+void NuppelVideoPlayer::SetTeletextPage(uint page)
+{
+    QMutexLocker locker(&decoder_change_lock);
+
+    DisableCaptions(textDisplayMode);
+    ttPageNum = page;
+    textDisplayMode &= ~kDisplayAllCaptions;
+    textDisplayMode |= kDisplayNUVTeletextCaptions;
+}
+
+bool NuppelVideoPlayer::HandleTeletextAction(const QString &action)
+{
+    if (!(textDisplayMode & kDisplayTeletextMenu) || !GetOSD())
+        return false;
+
+    bool handled = true;
+
+    TeletextViewer *tt = GetOSD()->GetTeletextViewer();
+    if (!tt)
+        return false;
+
+    if (action == "NEXTPAGE")
+        tt->KeyPress(TTKey::kNextPage);
+    else if (action == "PREVPAGE")
+        tt->KeyPress(TTKey::kPrevPage);
+    else if (action == "NEXTSUBPAGE")
+        tt->KeyPress(TTKey::kNextSubPage);
+    else if (action == "PREVSUBPAGE")
+        tt->KeyPress(TTKey::kPrevSubPage);
+    else if (action == "TOGGLEBACKGROUND")
+        tt->KeyPress(TTKey::kTransparent);
+    else if (action == "MENURED")
+        tt->KeyPress(TTKey::kFlofRed);
+    else if (action == "MENUGREEN")
+        tt->KeyPress(TTKey::kFlofGreen);
+    else if (action == "MENUYELLOW")
+        tt->KeyPress(TTKey::kFlofYellow);
+    else if (action == "MENUBLUE")
+        tt->KeyPress(TTKey::kFlofBlue);
+    else if (action == "MENUWHITE")
+        tt->KeyPress(TTKey::kFlofWhite);
+    else if (action == "REVEAL")
+        tt->KeyPress(TTKey::kRevealHidden);
+    else if (action == "0" || action == "1" || action == "2" ||
+             action == "3" || action == "4" || action == "5" ||
+             action == "6" || action == "7" || action == "8" ||
+             action == "9")
+        tt->KeyPress(action.toInt());
+    else if (action == "MENU" || action == "TOGGLETT" ||
+             action == "ESCAPE")
+        DisableTeletext();
+    else
+        handled = false;
+
+    return handled;
+}
+
+/** \fn NuppelVideoPlayer::ShowText(void)
+ *  \brief Displays Teletext and EIA-608 style text captions.
+ */
 void NuppelVideoPlayer::ShowText(void)
 {
     VideoFrame *last = videoOutput->GetLastShownFrame();
@@ -1317,6 +1797,9 @@ void NuppelVideoPlayer::ShowText(void)
     }
 }
 
+/** \fn NuppelVideoPlayer::ResetCC(void)
+ *  \brief Resets Teletext and EIA-608 style text caption buffers.
+ */
 void NuppelVideoPlayer::ResetCC(void)
 {
     ccline = "";
@@ -1326,6 +1809,9 @@ void NuppelVideoPlayer::ResetCC(void)
         osd->ClearAllCCText();
 }
 
+/** \fn NuppelVideoPlayer::ResetCC(void)
+ *  \brief Adds EIA-608 style text caption to buffers.
+ */
 void NuppelVideoPlayer::UpdateCC(unsigned char *inpos)
 {
     struct ccsubtitle subtitle;
@@ -1533,9 +2019,11 @@ float NuppelVideoPlayer::WarpFactor(void)
     warpfactor_avg = (warpfactor + (warpfactor_avg * (WARPAVLEN - 1))) /
                       WARPAVLEN;
 
-    //cerr << "Divergence: " << divergence << "  Rate: " << rate
-    //<< "  Warpfactor: " << warpfactor << "  warpfactor_avg: "
-    //<< warpfactor_avg << endl;
+    VERBOSE(VB_PLAYBACK|VB_TIMESTAMP,
+            LOC + QString("A/V Divergence: %1, Rate: %2, Warpfactor: %3, "
+                          "warpfactor_avg: %4")
+            .arg(divergence).arg(rate).arg(warpfactor).arg(warpfactor_avg));
+
     return divergence;
 }
 
@@ -1612,11 +2100,14 @@ void NuppelVideoPlayer::AVSync(void)
         diverge = min(diverge, +DIVERGELIMIT);
     }
 
-    FrameScanType ps = (m_double_framerate) ? kScan_Interlaced : kScan_Ignore;
+    FrameScanType ps = m_scan;
+    if (kScan_Detect == m_scan || kScan_Ignore == m_scan)
+        ps = kScan_Progressive;
+
     if (diverge < -MAXDIVERGE)
     {
-        // If video is way ahead of audio, adjust for it...
-        QString dbg = QString("Video is %1 frames ahead of audio, ")
+        // If video is way behind of audio, adjust for it...
+        QString dbg = QString("Video is %1 frames behind audio (too slow), ")
             .arg(-diverge);
 
         // Reset A/V Sync
@@ -1629,14 +2120,14 @@ void NuppelVideoPlayer::AVSync(void)
         {
             // If we are using hardware decoding, so we've already done the
             // decoding; display the frame, but don't wait for A/V Sync.
-            videoOutput->PrepareFrame(buffer, ps);
-            videoOutput->Show(m_scan);
+            videoOutput->PrepareFrame(buffer, kScan_Intr2ndField);
+            videoOutput->Show(kScan_Intr2ndField);
             VERBOSE(VB_PLAYBACK, LOC + dbg + "skipping A/V wait.");
         }
         else
         {
             // If we are using software decoding, skip this frame altogether.
-            VERBOSE(VB_PLAYBACK, LOC + dbg + "dropping frame.");
+            VERBOSE(VB_PLAYBACK, LOC + dbg + "dropping frame to catch up.");
         }
     }
     else if (!using_null_videoout)
@@ -1647,7 +2138,7 @@ void NuppelVideoPlayer::AVSync(void)
 
         videosync->WaitForFrame(avsync_adjustment);
         if (!resetvideo)
-            videoOutput->Show(m_scan);
+            videoOutput->Show(ps);
 
         if (videoOutput->IsErrored())
         {
@@ -1659,15 +2150,19 @@ void NuppelVideoPlayer::AVSync(void)
 
         if (m_double_framerate)
         {
-            // XvMC does not need the frame again
-            if (!videoOutput->hasMCAcceleration() && buffer)
-                videoOutput->PrepareFrame(buffer, kScan_Intr2ndField);
+            ps = (kScan_Intr2ndField == ps) ?
+                kScan_Interlaced : kScan_Intr2ndField;
+
+            if (buffer)
+                videoOutput->PrepareFrame(buffer, ps);
 
             // Display the second field
             videosync->AdvanceTrigger();
             videosync->WaitForFrame(0);
             if (!resetvideo)
-                videoOutput->Show(kScan_Intr2ndField);
+            {
+                videoOutput->Show(ps);
+            }
         }
     }
     else
@@ -1677,10 +2172,10 @@ void NuppelVideoPlayer::AVSync(void)
 
     if (output_jmeter && output_jmeter->RecordCycleTime())
     {
-        //cerr << "avsync_delay: " << avsync_delay / 1000
-        //     << ", avsync_avg: " << avsync_avg / 1000
-        //     << ", warpfactor: " << warpfactor
-        //     << ", warpfactor_avg: " << warpfactor_avg << endl;
+        VERBOSE(VB_PLAYBACK|VB_TIMESTAMP, QString("A/V avsync_delay: %1, "
+                "avsync_avg: %2, warpfactor: %3, warpfactor_avg: %4")
+                .arg(avsync_delay / 1000).arg(avsync_avg / 1000)
+                .arg(warpfactor).arg(warpfactor_avg));
     }
 
     videosync->AdvanceTrigger();
@@ -1688,21 +2183,21 @@ void NuppelVideoPlayer::AVSync(void)
 
     if (diverge > MAXDIVERGE)
     {
-        // If audio is way ahead of video, adjust for it...
+        // If audio is way behind of video, adjust for it...
         // by cutting the frame rate in half for the length of this frame
 
         avsync_adjustment = frame_interval;
         lastsync = true;
         VERBOSE(VB_PLAYBACK, LOC + 
-                QString("Audio is %1 frames ahead of video,\n"
-                        "\t\t\tdoubling video frame interval.").arg(diverge));
+                QString("Video is %1 frames ahead of audio,\n"
+                        "\t\t\tdoubling video frame interval to slow down.").arg(diverge));
     }
 
     if (audioOutput && normal_speed)
     {
         long long currentaudiotime = audioOutput->GetAudiotime();
 #if 0
-        VERBOSE(VB_PLAYBACK, QString(
+        VERBOSE(VB_PLAYBACK|VB_TIMESTAMP, QString(
                     "A/V timecodes audio %1 video %2 frameinterval %3 "
                     "avdel %4 avg %5 tcoffset %6")
                 .arg(currentaudiotime)
@@ -1805,6 +2300,9 @@ void NuppelVideoPlayer::DisplayPauseFrame(void)
         return;
     }
 
+    if (ringBuffer->InDVDMenuOrStillFrame())
+        DisplayDVDButton();
+
     videofiltersLock.lock();
     videoOutput->ProcessFrame(NULL, osd, videoFilters, pipplayer);
     videofiltersLock.unlock();
@@ -1814,14 +2312,18 @@ void NuppelVideoPlayer::DisplayPauseFrame(void)
     videosync->Start();
 }
 
-void NuppelVideoPlayer::DisplayNormalFrame(void)
+bool NuppelVideoPlayer::PrebufferEnoughFrames(void)
 {
-    video_actually_paused = false;
-    resetvideo = false;
-
     prebuffering_lock.lock();
     if (prebuffering)
     {
+        if (!audio_paused && audioOutput)
+        {
+           if (prebuffering)
+                audioOutput->Pause(prebuffering);
+            audio_paused = prebuffering;
+        }
+
         VERBOSE(VB_PLAYBACK, LOC + QString("Waiting for prebuffer.. %1 %2")
                 .arg(prebuffer_tries).arg(videoOutput->GetFrameStatus()));
         if (!prebuffering_wait.wait(&prebuffering_lock,
@@ -1846,7 +2348,8 @@ void NuppelVideoPlayer::DisplayNormalFrame(void)
         }
         prebuffering_lock.unlock();
         videosync->Start();
-        return;
+
+        return false;
     }
     prebuffering_lock.unlock();
 
@@ -1854,6 +2357,9 @@ void NuppelVideoPlayer::DisplayNormalFrame(void)
     if (!videoOutput->EnoughPrebufferedFrames())
     {
         VERBOSE(VB_GENERAL, LOC + "prebuffering pause");
+        if (videoOutput)
+            videoOutput->CheckFrameStates();
+
         SetPrebuffering(true);
 #if FAST_RESTART
         if (!m_playing_slower && audio_channels <= 2)
@@ -1864,7 +2370,7 @@ void NuppelVideoPlayer::DisplayNormalFrame(void)
             VERBOSE(VB_GENERAL, "playing slower due to falling behind...");
         }
 #endif
-        return;
+        return false;
     }
 
 #if FAST_RESTART
@@ -1879,6 +2385,28 @@ void NuppelVideoPlayer::DisplayNormalFrame(void)
     prebuffering_lock.lock();
     prebuffer_tries = 0;
     prebuffering_lock.unlock();
+
+    return true;
+}
+
+void NuppelVideoPlayer::DisplayNormalFrame(void)
+{
+    video_actually_paused = false;
+    resetvideo = false;
+
+    if (!ringBuffer->InDVDMenuOrStillFrame())
+    {
+        if (!PrebufferEnoughFrames())
+        {
+            // When going to switch channels
+            if (paused)
+            {
+                usleep(frame_interval);
+                DisplayPauseFrame();
+            }
+            return;
+        }
+    }
 
     videoOutput->StartDisplayingFrame();
 
@@ -1918,19 +2446,64 @@ void NuppelVideoPlayer::DisplayNormalFrame(void)
         yuv_wait.wakeAll();
     }
 
-    if (subtitlesOn)
+    if (ringBuffer->InDVDMenuOrStillFrame())
+        DisplayDVDButton();
+
+    // handle Interactive TV
+    if (GetInteractiveTV() && GetDecoder())
     {
-        ShowText();
-        DisplaySubtitles();
-    }
-    else if (osdHasSubtitles)
-    {
-        ClearSubtitles();
+        QMutexLocker locker(&itvLock);
+
+        OSD *osd = GetOSD();
+        if (osd)
+        {
+            OSDSet *itvosd = osd->GetSet("interactive");
+
+            if (itvosd)
+            {
+                bool visible = false;
+                if (interactiveTV->ImageHasChanged() || !itvVisible)
+                {
+                    interactiveTV->UpdateOSD(itvosd);
+                    visible = true;
+                    itvVisible = true;
+                }
+
+                if (visible)
+                    osd->SetVisible(itvosd, 0);
+            }
+        }
     }
 
+    // handle EIA-608 and Teletext
+    if (textDisplayMode & kDisplayNUVCaptions)
+        ShowText();
+
+    // handle DVB/DVD subtitles decoded by ffmpeg (in AVSubtitle format)
+    if (textDisplayMode & kDisplayAVSubtitle) 
+        DisplayAVSubtitles();
+    else if (textDisplayMode & kDisplayTextSubtitle)
+        DisplayTextSubtitles();
+    else if (osdHasSubtitles) 
+        ClearSubtitles();
+    else
+        ExpireSubtitles();
+
+    // handle scan type changes
+    AutoDeint(frame);
+
     videofiltersLock.lock();
-    videoOutput->ProcessFrame(frame, osd, videoFilters, pipplayer);
+    if (ringBuffer->isDVD() && ringBuffer->DVD()->InStillFrame() 
+            && videoOutput->ValidVideoFrames() < 3)
+    {
+        videoOutput->ProcessFrame(frame, NULL, NULL, pipplayer);
+    }
+    else
+        videoOutput->ProcessFrame(frame, osd, videoFilters, pipplayer);
     videofiltersLock.unlock();
+
+    if (audioOutput && !audio_paused && audioOutput->GetPause())
+        audioOutput->Pause(false);
 
     AVSync();
 
@@ -1961,6 +2534,16 @@ void NuppelVideoPlayer::OutputVideoLoop(void)
     if (videoOutput)
         rf_int = videoOutput->GetRefreshRate();
 
+    // Default to Interlaced playback to allocate the deinterlacer structures
+    // Enable autodetection of interlaced/progressive from video stream
+    // And initialoze m_scan_tracker to 2 which will immediately switch to
+    // progressive if the first frame is progressive in AutoDeint().
+    m_scan             = kScan_Interlaced;
+    m_scan_locked      = false;
+    m_double_framerate = false;
+    m_can_double       = false;
+    m_scan_tracker     = 2;
+
     if (using_null_videoout)
     {
         videosync = new USleepVideoSync(videoOutput, (int)fr_int, 0, false);
@@ -1968,14 +2551,10 @@ void NuppelVideoPlayer::OutputVideoLoop(void)
     else if (videoOutput)
     {
         // Set up deinterlacing in the video output method
-        m_double_framerate = false;
-        if (m_scan == kScan_Interlaced && m_DeintSetting &&
-            videoOutput->SetupDeinterlace(true) &&
-            videoOutput->NeedsDoubleFramerate())
-        {
-            m_double_framerate = true;
-            m_can_double       = true;
-        }
+        m_double_framerate = m_can_double =
+            (m_DeintSetting &&
+             videoOutput->SetupDeinterlace(true) &&
+             videoOutput->NeedsDoubleFramerate());
 
         videosync = VideoSync::BestMethod(
             videoOutput, fr_int, rf_int, m_double_framerate);
@@ -2010,7 +2589,46 @@ void NuppelVideoPlayer::OutputVideoLoop(void)
             needsetpipplayer = false;
         }
 
-        if (pausevideo)
+        if (ringBuffer->isDVD())
+        {
+            int nbframes = videoOutput->ValidVideoFrames();
+            if (nbframes < 2) 
+            {
+                if (ringBuffer->DVD()->IsWaiting())
+                {
+                    ringBuffer->DVD()->WaitSkip();
+                    continue;
+                }
+
+                if (ringBuffer->InDVDMenuOrStillFrame())
+                {
+                    if (nbframes == 0)
+                    {
+                        ringBuffer->DVD()->IgnoreStillOrWait(true);
+                        if (pausevideo)
+                            UnpauseVideo();
+                        usleep(10000);
+                        ringBuffer->DVD()->IgnoreStillOrWait(false);
+                        continue;
+                    }
+                    if (!pausevideo && nbframes == 1)
+                    {
+                        videoOutput->SetDeinterlacingEnabled(false);
+                        indvdstillframe = true;
+                        PauseVideo(false);
+                    }
+                }
+            }
+
+            if (indvdstillframe && nbframes > 1)
+            {
+                UnpauseVideo();
+                indvdstillframe = false;
+                continue;
+            } 
+        }
+
+        if (pausevideo || isDummy)
         {
             usleep(frame_interval);
             DisplayPauseFrame();
@@ -2067,8 +2685,10 @@ void NuppelVideoPlayer::IvtvVideoLoop(void)
         }
         else
         {
-            if (subtitlesOn)
+            // handle EIA-608 and Teletext
+            if (textDisplayMode & kDisplayNUVCaptions)
                 ShowText();
+
             videofiltersLock.lock();
             videoOutput->ProcessFrame(NULL, osd, videoFilters, pipplayer);
             videofiltersLock.unlock();
@@ -2104,7 +2724,7 @@ bool NuppelVideoPlayer::FastForward(float seconds)
     if (fftime <= 0)
         fftime = (int)(seconds * video_frame_rate);
 
-    if (osdHasSubtitles || nonDisplayedSubtitles.size() > 0)
+    if (osdHasSubtitles || !nonDisplayedAVSubtitles.empty())
        ClearSubtitles();
 
     return fftime > CalcMaxFFTime(fftime, false);
@@ -2118,7 +2738,7 @@ bool NuppelVideoPlayer::Rewind(float seconds)
     if (rewindtime <= 0)
         rewindtime = (int)(seconds * video_frame_rate);
 
-    if (osdHasSubtitles || nonDisplayedSubtitles.size() > 0)
+    if (osdHasSubtitles || !nonDisplayedAVSubtitles.empty())
        ClearSubtitles();
 
     return rewindtime >= framesPlayed;
@@ -2134,7 +2754,8 @@ void NuppelVideoPlayer::ResetPlaying(void)
 {
     ClearAfterSeek();
 
-    framesPlayed = 0;
+    if (!ringBuffer->isDVD())
+        framesPlayed = 0;
 
     GetDecoder()->Reset();
     errored |= GetDecoder()->IsErrored();
@@ -2153,9 +2774,13 @@ void NuppelVideoPlayer::SwitchToProgram(void)
     VERBOSE(VB_PLAYBACK, "SwitchToProgram(void)");
 
     bool discontinuity = false, newtype = false;
-    ProgramInfo *pginfo = livetvchain->GetSwitchProgram(discontinuity, newtype);
+    int newid = -1;
+    ProgramInfo *pginfo = livetvchain->GetSwitchProgram(discontinuity, newtype,
+                                                        newid);
     if (!pginfo)
         return;
+
+    bool newIsDummy = livetvchain->GetCardType(newid) == "DUMMY";
 
     if (m_playbackinfo)
     {
@@ -2169,6 +2794,15 @@ void NuppelVideoPlayer::SwitchToProgram(void)
     ringBuffer->Pause();
     ringBuffer->WaitForPause();
 
+    if (newIsDummy)
+    {
+        OpenDummy();
+        ResetPlaying();
+        DoPause();
+        eof = false;
+        return;
+    }
+
     ringBuffer->OpenFile(pginfo->pathname, 10 /* retries -- about 5 seconds */);
     if (!ringBuffer->IsOpen())
     {
@@ -2179,7 +2813,10 @@ void NuppelVideoPlayer::SwitchToProgram(void)
     }
 
     if (eof)
+    {
         discontinuity = true;
+        ClearSubtitles();
+    }
 
     livetvchain->SetProgram(pginfo);
 
@@ -2251,11 +2888,14 @@ void NuppelVideoPlayer::JumpToProgram(void)
 {
     VERBOSE(VB_PLAYBACK, "JumpToProgram(void)");
     bool discontinuity = false, newtype = false;
-    ProgramInfo *pginfo = livetvchain->GetSwitchProgram(discontinuity, newtype);
+    int newid = -1;
+    ProgramInfo *pginfo = livetvchain->GetSwitchProgram(discontinuity, newtype,
+                                                        newid);
     if (!pginfo)
         return;
 
     long long nextpos = livetvchain->GetJumpPos();
+    bool newIsDummy = livetvchain->GetCardType(newid) == "DUMMY";
     
     if (m_playbackinfo)
     {
@@ -2269,9 +2909,21 @@ void NuppelVideoPlayer::JumpToProgram(void)
     ringBuffer->Pause();
     ringBuffer->WaitForPause();
 
+    ClearSubtitles();
+
     livetvchain->SetProgram(pginfo);
 
     ringBuffer->Reset(true);
+
+    if (newIsDummy)
+    {
+        OpenDummy();
+        ResetPlaying();
+        DoPause();
+        eof = false;
+        return;
+    }
+
     ringBuffer->OpenFile(pginfo->pathname);
     if (!ringBuffer->IsOpen())
     {
@@ -2281,10 +2933,14 @@ void NuppelVideoPlayer::JumpToProgram(void)
         return;
     }
 
-    if (newtype)
+    bool wasDummy = isDummy;
+    if (newtype || wasDummy)
         errored = (OpenFile() >= 0) ? errored : true;
     else
         ResetPlaying();
+
+    if (wasDummy)
+        DoPlay();
 
     if (errored || !GetDecoder())
     {
@@ -2329,6 +2985,9 @@ void NuppelVideoPlayer::StartPlaying(void)
     if (OpenFile() < 0)
         return;
 
+    if (ringBuffer->isDVD())
+        ringBuffer->DVD()->SetParent(this);
+
     if (!no_audio_out ||
         (forceVideoOutput == kVideoOutput_IVTV &&
          !gContext->GetNumSetting("PVR350InternalAudioOnly")))
@@ -2366,7 +3025,12 @@ void NuppelVideoPlayer::StartPlaying(void)
     }
 
     if (audioOutput)
+    {
+        audio_paused = true;
+        audioOutput->Pause(true);
         audioOutput->SetStretchFactor(audio_stretchfactor);
+    }
+
     next_play_speed = audio_stretchfactor;
 
     if (!InitVideo())
@@ -2402,15 +3066,24 @@ void NuppelVideoPlayer::StartPlaying(void)
         {            
             osd->DisableFade();
         }
+        osd->SetCC708Service(&CC708services[1]);
+    
+        TeletextViewer *tt_view = GetOSD()->GetTeletextViewer();
+        if (tt_view)
+        {
+            decoder->SetTeletextDecoderViewer(tt_view);
+            tt_view->SetDisplaying(false);
+        }
+        GetOSD()->HideSet("teletext");
+
+        if (GetInteractiveTV())
+            GetInteractiveTV()->Reinit(total);
     }
 
     playing = true;
 
     rewindtime = fftime = 0;
     skipcommercials = 0;
-
-    for (int i = 0; i < MAXTBUFFER; i++)
-        txtbuffers[i].buffer = new unsigned char[text_size];
 
     ClearAfterSeek();
 
@@ -2424,7 +3097,7 @@ void NuppelVideoPlayer::StartPlaying(void)
     decoder_thread = pthread_self();
     pthread_create(&output_video, NULL, kickoffOutputVideoLoop, this);
 
-    if (!using_null_videoout)
+    if (!using_null_videoout && !ringBuffer->isDVD())
     {
         // Request that the video output thread run with realtime priority.
         // If mythyv/mythfrontend was installed SUID root, this will work.
@@ -2463,17 +3136,31 @@ void NuppelVideoPlayer::StartPlaying(void)
     }
     commBreakMapLock.unlock();
 
+    if (isDummy)
+    {
+        DoPause();
+    }
+
     while (!killplayer && !errored)
     {
         if (m_playbackinfo)
             m_playbackinfo->UpdateInUseMark();
 
-        if ((!paused || eof) && livetvchain && !GetDecoder()->GetWaitForChange())
+        if (isDummy && livetvchain && livetvchain->HasNext())
+        {
+            livetvchain->JumpToNext(true, 1);
+            JumpToProgram();
+        }
+        else if ((!paused || eof) && livetvchain && !GetDecoder()->GetWaitForChange())
         {
             if (livetvchain->NeedsToSwitch())
                 SwitchToProgram();
-            else if (livetvchain->NeedsToJump())
-                JumpToProgram();
+        }
+
+        if (livetvchain && livetvchain->NeedsToJump() && 
+            !GetDecoder()->GetWaitForChange())
+        {
+            JumpToProgram();
         }
 
         if (forcePositionMapSync)
@@ -2489,13 +3176,17 @@ void NuppelVideoPlayer::StartPlaying(void)
             break;
         }
 
-        if (play_speed != next_play_speed)
+        if (play_speed != next_play_speed && 
+            (!livetvchain || (livetvchain && !livetvchain->NeedsToJump())))
         {
             decoder_lock.lock();
 
             play_speed = next_play_speed;
             normal_speed = next_normal_speed;
             VERBOSE(VB_PLAYBACK, LOC + "Changing speed to " << play_speed);
+
+            if (ringBuffer->isDVD())
+                GetDecoder()->UpdateDVDFramesPlayed();
 
             if (play_speed == 0.0)
             {
@@ -2522,10 +3213,19 @@ void NuppelVideoPlayer::StartPlaying(void)
                     livetvchain->JumpToNext(true, 1);
                     continue;
                 }
-                VERBOSE(VB_PLAYBACK, "Ignoring livetv eof in decoder loop");
+                if (!paused)
+                    VERBOSE(VB_PLAYBACK, "Ignoring livetv eof in decoder loop");
+                usleep(50000);
             }
             else
                 break;
+        }
+
+        if (isDummy)
+        {
+            decoderThreadPaused.wakeAll();
+            usleep(500);
+            continue;
         }
 
         if (rewindtime < 0)
@@ -2547,7 +3247,7 @@ void NuppelVideoPlayer::StartPlaying(void)
                     GetFrame(audioOutput == NULL || !normal_speed);
                     resetvideo = true;
                     while (resetvideo)
-                        usleep(50);
+                        usleep(1000);
                 }
                 rewindtime = 0;
             }
@@ -2561,9 +3261,18 @@ void NuppelVideoPlayer::StartPlaying(void)
                     GetFrame(audioOutput == NULL || !normal_speed);
                     resetvideo = true;
                     while (resetvideo)
-                        usleep(50);
+                        usleep(1000);
                 }
                 fftime = 0;
+            }
+            else if (need_change_dvd_track)
+            {
+                DoChangeDVDTrack();
+                GetFrame(audioOutput == NULL || !normal_speed);
+                resetvideo = true;
+                while (resetvideo)
+                    usleep(1000);
+                need_change_dvd_track = 0;
             }
             else if (livetvchain && livetvchain->NeedsToJump())
             {
@@ -2572,7 +3281,7 @@ void NuppelVideoPlayer::StartPlaying(void)
                 GetFrame(audioOutput == NULL || !normal_speed);
                 resetvideo = true;
                 while (resetvideo)
-                    usleep(50);
+                    usleep(1000);
             }
             else
             {
@@ -2594,7 +3303,7 @@ void NuppelVideoPlayer::StartPlaying(void)
 
                 UnpauseVideo();
                 while (GetVideoPause())
-                    usleep(50);
+                    usleep(1000);
             }
             rewindtime = 0;
         }
@@ -2615,10 +3324,23 @@ void NuppelVideoPlayer::StartPlaying(void)
 
                 UnpauseVideo();
                 while (GetVideoPause())
-                    usleep(50);
+                    usleep(1000);
             }
 
             fftime = 0;
+        }
+
+        if (need_change_dvd_track)
+        {
+            PauseVideo();
+
+            DoChangeDVDTrack();
+
+            UnpauseVideo();
+            while (GetVideoPause())
+                usleep(1000);
+
+            need_change_dvd_track = 0;
         }
 
         if (skipcommercials != 0 && ffrew_skip == 1)
@@ -2628,7 +3350,7 @@ void NuppelVideoPlayer::StartPlaying(void)
             DoSkipCommercials(skipcommercials);
             UnpauseVideo();
             while (GetVideoPause())
-                usleep(50);
+                usleep(1000);
 
             skipcommercials = 0;
             continue;
@@ -2659,7 +3381,7 @@ void NuppelVideoPlayer::StartPlaying(void)
                 JumpToFrame(deleteIter.key());
                 UnpauseVideo();
                 while (GetVideoPause())
-                    usleep(50);
+                    usleep(1000);
             }
         }
     }
@@ -2676,6 +3398,8 @@ void NuppelVideoPlayer::StartPlaying(void)
         delete audioOutput;
     audioOutput = NULL;
 
+    if (ringBuffer->isDVD())
+        ringBuffer->DVD()->SetParent(NULL);
 /*
     if (!using_null_videoout)
     {
@@ -2703,11 +3427,13 @@ void NuppelVideoPlayer::StartPlaying(void)
     }
 }
 
-void NuppelVideoPlayer::SetAudioParams(int bps, int channels, int samplerate)
+void NuppelVideoPlayer::SetAudioParams(int bps, int channels,
+                                       int samplerate, bool passthru)
 {
     audio_bits = bps;
     audio_channels = channels;
     audio_samplerate = samplerate;
+    audio_passthru = passthru;
 }
 
 void NuppelVideoPlayer::SetEffDsp(int dsprate)
@@ -2762,6 +3488,7 @@ void NuppelVideoPlayer::WrapTimecode(long long &timecode, TCTypes tc_type)
             {
                 long long newaudio;
                 newaudio = tc_lastval[TC_VIDEO] - tc_diff_estimate;
+                timecode -= tc_wrap[TC_AUDIO];
                 tc_wrap[TC_AUDIO] = newaudio - timecode;
                 timecode = newaudio;
                 tc_lastval[TC_AUDIO] = timecode;
@@ -2785,13 +3512,20 @@ void NuppelVideoPlayer::WrapTimecode(long long &timecode, TCTypes tc_type)
  */
 void NuppelVideoPlayer::AddAudioData(char *buffer, int len, long long timecode)
 {
-    WrapTimecode(timecode, TC_AUDIO);
+    if (!ringBuffer->isDVD())
+        WrapTimecode(timecode, TC_AUDIO);
 
     int samplesize = (audio_channels * audio_bits) / 8; // bytes per sample
     if ((samplesize <= 0) || !audioOutput)
         return;
 
     int samples = len / samplesize;
+
+    if (ringBuffer->InDVDMenuOrStillFrame())
+    {
+        audioOutput->Pause(false);
+        audioOutput->Drain();
+    }
 
     // If there is no warping, just send it to the audioOutput.
     if (!usevideotimebase)
@@ -2899,19 +3633,19 @@ void NuppelVideoPlayer::AddAudioData(short int *lbuffer, short int *rbuffer,
 
 void NuppelVideoPlayer::SetBookmark(void)
 {
-    if (livetv)
-        return;
     if (!m_playbackinfo || !osd)
         return;
 
     m_playbackinfo->SetBookmark(framesPlayed);
     osd->SetSettingsText(QObject::tr("Position Saved"), 1);
+
+    struct StatusPosInfo posInfo;
+    calcSliderPos(posInfo);
+    osd->ShowStatus(posInfo, false, QObject::tr("Position"), 2);
 }
 
 void NuppelVideoPlayer::ClearBookmark(void)
 {
-    if (livetv)
-        return;
     if (!m_playbackinfo || !osd)
         return;
 
@@ -2998,7 +3732,8 @@ void NuppelVideoPlayer::DoPlay(void)
 #endif
 
         GetDecoder()->setExactSeeks(exactseeks && ffrew_skip == 1);
-        GetDecoder()->DoRewind(framesPlayed);
+        if (!ringBuffer->isDVD())
+            GetDecoder()->DoRewind(framesPlayed);
         ClearAfterSeek();
     }
 
@@ -3064,10 +3799,13 @@ void NuppelVideoPlayer::DoPlay(void)
                     .arg((disable) ? "disable" : "allow"));
             decoder->SetDisablePassThrough(disable);
         }
-        audioOutput->SetStretchFactor(play_speed);
+        if (audioOutput)
+        {
+            audioOutput->SetStretchFactor(play_speed);
 #ifdef USING_DIRECTX
-        audioOutput->Reset();
+            audioOutput->Reset();
 #endif
+        }
     }
 
     //cout << "setting unpaused" << endl << endl;
@@ -3076,6 +3814,9 @@ void NuppelVideoPlayer::DoPlay(void)
 
 bool NuppelVideoPlayer::DoRewind(void)
 {
+    // Save Audio Sync setting before seeking 
+    SaveAudioTimecodeOffset(GetAudioTimecodeOffset()); 
+
     long long number = rewindtime + 1;
     long long desiredFrame = framesPlayed - number;
 
@@ -3249,6 +3990,9 @@ bool NuppelVideoPlayer::IsNearEnd(long long margin) const
 
 bool NuppelVideoPlayer::DoFastForward(void)
 {
+    // Save Audio Sync setting before seeking
+    SaveAudioTimecodeOffset(GetAudioTimecodeOffset());
+
     long long number = fftime - 1;
     long long desiredFrame = framesPlayed + number;
 
@@ -3257,7 +4001,10 @@ bool NuppelVideoPlayer::DoFastForward(void)
     GetDecoder()->DoFastForward(desiredFrame);
     GetDecoder()->setExactSeeks(exactseeks);
 
-    ClearAfterSeek();
+    // Note: The video output will be reset by what the the decoder 
+    //       does, so we only need to reset the audio, subtitles, etc.
+    ClearAfterSeek(false);
+
     lastSkipTime = time(NULL);
     return true;
 }
@@ -3302,19 +4049,24 @@ bool NuppelVideoPlayer::IsSkipTooCloseToEnd(int frames) const
 }
 #endif
 
-/** \fn NuppelVideoPlayer::ClearAfterSeek(void)
+/** \fn NuppelVideoPlayer::ClearAfterSeek(bool)
  *  \brief This is to support seeking...
  *
  *   This resets the output classes and discards all
  *   frames no longer being used by the decoder class.
  *
  *   Note: caller should not hold any locks
+ *
+ *  \param clearvideobuffers This clears the videooutput buffers as well,
+ *                           this is only safe if no old frames are
+ *                           required to continue decoding.
  */
-void NuppelVideoPlayer::ClearAfterSeek(void)
+void NuppelVideoPlayer::ClearAfterSeek(bool clearvideobuffers)
 {
-    VERBOSE(VB_PLAYBACK, LOC + "ClearAfterSeek()");
+    VERBOSE(VB_PLAYBACK, LOC + "ClearAfterSeek("<<clearvideobuffers<<")");
 
-    videoOutput->ClearAfterSeek();
+    if (clearvideobuffers)
+        videoOutput->ClearAfterSeek();
 
     for (int i = 0; i < MAXTBUFFER; i++)
         txtbuffers[i].timecode = 0;
@@ -3328,6 +4080,12 @@ void NuppelVideoPlayer::ClearAfterSeek(void)
         tc_wrap[j] = tc_lastval[j] = 0;
     }
     tc_avcheck_framecounter = 0;
+
+    if (savedAudioTimecodeOffset)
+    {
+        tc_wrap[TC_AUDIO] = savedAudioTimecodeOffset;
+        savedAudioTimecodeOffset = 0;
+    }
 
     SetPrebuffering(true);
     if (audioOutput)
@@ -3397,6 +4155,20 @@ bool NuppelVideoPlayer::EnableEdit(void)
 {
     editmode = false;
 
+    if (!hasFullPositionMap)
+    {
+        VERBOSE(VB_IMPORTANT, "Cannot edit - no full position map");
+
+        if (osd)
+        {
+            struct StatusPosInfo posInfo;
+            calcSliderPos(posInfo);
+            osd->ShowStatus(posInfo, false, QObject::tr("No Seektable"), 2);
+        }
+
+        return false;
+    }
+
     if (!hasFullPositionMap || !m_playbackinfo || !osd)
         return false;
 
@@ -3412,7 +4184,7 @@ bool NuppelVideoPlayer::EnableEdit(void)
     editmode = true;
     Pause();
     while (!GetPause())
-        usleep(50);
+        usleep(1000);
 
     seekamount = keyframedist;
     seekamountpos = 3;
@@ -3522,7 +4294,7 @@ bool NuppelVideoPlayer::DoKeypress(QKeyEvent *e)
             {
                 rewindtime = seekamount;
                 while (rewindtime != 0)
-                    usleep(50);
+                    usleep(1000);
                 UpdateEditSlider();
             }
             else
@@ -3535,7 +4307,7 @@ bool NuppelVideoPlayer::DoKeypress(QKeyEvent *e)
             {
                 fftime = seekamount;
                 while (fftime != 0)
-                    usleep(50);
+                    usleep(1000);
                 UpdateEditSlider();
             }
             else
@@ -3618,7 +4390,7 @@ bool NuppelVideoPlayer::DoKeypress(QKeyEvent *e)
                 rewindtime = fps * FFREW_MULTICOUNT / 2;
             }
             while (rewindtime != 0)
-                usleep(50);
+                usleep(1000);
             UpdateEditSlider();
             UpdateTimeDisplay();
         }
@@ -3632,7 +4404,7 @@ bool NuppelVideoPlayer::DoKeypress(QKeyEvent *e)
                 fftime = fps * FFREW_MULTICOUNT / 2;
             }
             while (fftime != 0)
-                usleep(50);
+                usleep(1000);
             UpdateEditSlider();
             UpdateTimeDisplay();
         }
@@ -3655,6 +4427,26 @@ int NuppelVideoPlayer::GetLetterbox(void) const
     if (videoOutput)
         return videoOutput->GetLetterbox();
     return false;
+}
+
+void NuppelVideoPlayer::SetForcedAspectRatio(int mpeg2_aspect_value, int letterbox_permission)
+{
+    (void)letterbox_permission;
+
+    float forced_aspect_old = forced_video_aspect;
+
+    if (mpeg2_aspect_value == 2) // 4:3
+        forced_video_aspect = 4.0f / 3.0f;
+    else if (mpeg2_aspect_value == 3) // 16:9
+        forced_video_aspect = 16.0f / 9.0f;
+    else
+        forced_video_aspect = -1;
+
+    if (videoOutput && forced_video_aspect != forced_aspect_old)
+    {
+        float aspect = (forced_video_aspect > 0) ? forced_video_aspect : video_aspect;
+        videoOutput->VideoAspectRatioChanged(aspect);
+    }
 }
 
 void NuppelVideoPlayer::ToggleLetterbox(int letterboxMode)
@@ -3690,21 +4482,19 @@ void NuppelVideoPlayer::UpdateSeekAmount(bool up)
 
     QString text = "";
 
-    int fps = (int)ceil(video_frame_rate);
-
     switch (seekamountpos)
     {
         case 0: text = QObject::tr("cut point"); seekamount = -2; break;
         case 1: text = QObject::tr("keyframe"); seekamount = -1; break;
         case 2: text = QObject::tr("1 frame"); seekamount = 1; break;
-        case 3: text = QObject::tr("0.5 seconds"); seekamount = fps / 2; break;
-        case 4: text = QObject::tr("1 second"); seekamount = fps; break;
-        case 5: text = QObject::tr("5 seconds"); seekamount = fps * 5; break;
-        case 6: text = QObject::tr("20 seconds"); seekamount = fps * 20; break;
-        case 7: text = QObject::tr("1 minute"); seekamount = fps * 60; break;
-        case 8: text = QObject::tr("5 minutes"); seekamount = fps * 300; break;
-        case 9: text = QObject::tr("10 minutes"); seekamount = fps * 600; break;
-        default: text = QObject::tr("error"); seekamount = fps; break;
+        case 3: text = QObject::tr("0.5 seconds"); seekamount = (int)roundf(video_frame_rate / 2); break;
+        case 4: text = QObject::tr("1 second"); seekamount = (int)roundf(video_frame_rate); break;
+        case 5: text = QObject::tr("5 seconds"); seekamount = (int)roundf(video_frame_rate * 5); break;
+        case 6: text = QObject::tr("20 seconds"); seekamount = (int)roundf(video_frame_rate * 20); break;
+        case 7: text = QObject::tr("1 minute"); seekamount = (int)roundf(video_frame_rate * 60); break;
+        case 8: text = QObject::tr("5 minutes"); seekamount = (int)roundf(video_frame_rate * 300); break;
+        case 9: text = QObject::tr("10 minutes"); seekamount = (int)roundf(video_frame_rate * 600); break;
+        default: text = QObject::tr("error"); seekamount = (int)roundf(video_frame_rate); break;
     }
 
     QMap<QString, QString> infoMap;
@@ -3714,22 +4504,19 @@ void NuppelVideoPlayer::UpdateSeekAmount(bool up)
 
 void NuppelVideoPlayer::UpdateTimeDisplay(void)
 {
-    int hours = 0;
-    int mins = 0;
-    int secs = 0;
-    int frames = 0;
+    int secs, frames, ss, mm, hh;
 
-    int fps = (int)ceil(video_frame_rate);
+    secs = (int)(framesPlayed / video_frame_rate);
+    frames = framesPlayed - (int)(secs * video_frame_rate);
 
-    hours = (framesPlayed / fps) / 60 / 60;
-    mins = (framesPlayed / fps) / 60 - (hours * 60);
-    secs = (framesPlayed / fps) - (mins * 60) - (hours * 60 * 60);
-    frames = framesPlayed - ((secs * fps) + (mins * 60 * fps) +
-                             (hours * 60 * 60 * fps));
+    ss = secs;
+    mm = ss / 60;
+    ss %= 60;
+    hh = mm / 60;
+    mm %= 60;
 
     char timestr[128];
-    sprintf(timestr, "%1d:%02d:%02d.%02d",
-        hours, mins, secs, frames);
+    sprintf(timestr, "%d:%02d:%02d.%02d", hh, mm, ss, frames);
 
     char framestr[128];
     sprintf(framestr, "%lld", framesPlayed);
@@ -3745,38 +4532,59 @@ void NuppelVideoPlayer::UpdateTimeDisplay(void)
     osd->SetText("editmode", infoMap, -1);
 }
 
-void NuppelVideoPlayer::HandleSelect(void)
+void NuppelVideoPlayer::HandleSelect(bool allowSelectNear)
 {
     bool deletepoint = false;
-    QMap<long long, int>::Iterator i;
+    bool cut_after = false;
     int direction = 0;
 
-    for (i = deleteMap.begin(); i != deleteMap.end(); ++i)
+    if(!deleteMap.isEmpty())
     {
-        long long pos = framesPlayed - i.key();
-        if (pos < 0)
-            pos = 0 - pos;
-        if (pos < (int)ceil(20 * video_frame_rate))
+        QMap<long long, int>::ConstIterator iter = deleteMap.begin();
+
+        while((iter != deleteMap.end()) && (iter.key() < framesPlayed))
+            ++iter;
+
+        if (iter == deleteMap.end())
+        {
+            --iter;
+            cut_after = !iter.data();
+        }
+        else if((iter != deleteMap.begin()) && (iter.key() != framesPlayed))
+        {
+            long long value = iter.key();
+            if((framesPlayed - (--iter).key()) > (value - framesPlayed))
+            {
+                cut_after = !iter.data();
+                ++iter;
+            }
+            else
+                cut_after = !iter.data();
+        }
+
+        direction = iter.data();
+        deleteframe = iter.key();
+
+        if ((absLongLong(deleteframe - framesPlayed) <
+                   (int)ceil(20 * video_frame_rate)) && !allowSelectNear)
         {
             deletepoint = true;
-            deleteframe = i.key();
-            direction = i.data();
-            break;
         }
     }
 
     if (deletepoint)
     {
-        QString message = QObject::tr("You are close to an existing cut point.  Would you "
-                          "like to:");
+        QString message = QObject::tr("You are close to an existing cut point. "
+                                      "Would you like to:");
         QString option1 = QObject::tr("Delete this cut point");
-        QString option2 = QObject::tr("Move this cut point to the current position");
+        QString option2 = QObject::tr("Move this cut point to the current "
+                                      "position");
         QString option3 = QObject::tr("Flip directions - delete to the ");
         if (direction == 0)
             option3 += QObject::tr("right");
         else
             option3 += QObject::tr("left");
-        QString option4 = QObject::tr("Cancel");
+        QString option4 = QObject::tr("Insert a new cut point");
 
         dialogname = "deletemark";
         dialogtype = 0;
@@ -3794,7 +4602,6 @@ void NuppelVideoPlayer::HandleSelect(void)
         QString message = QObject::tr("Insert a new cut point?");
         QString option1 = QObject::tr("Delete before this frame");
         QString option2 = QObject::tr("Delete after this frame");
-        QString option3 = QObject::tr("Cancel");
 
         dialogname = "addmark";
         dialogtype = 1;
@@ -3802,9 +4609,8 @@ void NuppelVideoPlayer::HandleSelect(void)
         QStringList options;
         options += option1;
         options += option2;
-        options += option3;
 
-        osd->NewDialogBox(dialogname, message, options, -1);
+        osd->NewDialogBox(dialogname, message, options, -1, cut_after);
     }
 }
 
@@ -3827,6 +4633,9 @@ void NuppelVideoPlayer::HandleResponse(void)
                 break;
             case 3:
                 ReverseMark(deleteframe);
+                break;
+            case 4:
+                HandleSelect(true);
                 break;
             default:
                 break;
@@ -3900,7 +4709,7 @@ void NuppelVideoPlayer::HandleArbSeek(bool right)
 
             fftime = framenum - framesPlayed;
             while (fftime > 0)
-                usleep(50);
+                usleep(1000);
         }
         else
         {
@@ -3915,7 +4724,7 @@ void NuppelVideoPlayer::HandleArbSeek(bool right)
 
             rewindtime = framesPlayed - framenum;
             while (rewindtime > 0)
-                usleep(50);
+                usleep(1000);
         }
     }
     else
@@ -3930,14 +4739,14 @@ void NuppelVideoPlayer::HandleArbSeek(bool right)
             GetDecoder()->setExactSeeks(false);
             fftime = (long long)(editKeyFrameDist * 1.1);
             while (fftime > 0)
-                usleep(50);
+                usleep(1000);
         }
         else
         {
             GetDecoder()->setExactSeeks(false);
             rewindtime = 2;
             while (rewindtime > 0)
-                usleep(50);
+                usleep(1000);
         }
     }
 
@@ -4166,9 +4975,6 @@ char *NuppelVideoPlayer::GetScreenGrab(int secondsin, int &bufflen,
         return NULL;
     }
 
-    for (int i = 0; i < MAXTBUFFER; i++)
-        txtbuffers[i].buffer = new unsigned char[text_size];
-
     ClearAfterSeek();
 
     number = (long long) (secondsin * video_frame_rate);
@@ -4292,6 +5098,13 @@ bool NuppelVideoPlayer::GetRawAudioState(void) const
     return GetDecoder()->GetRawAudioState();
 }
 
+QString NuppelVideoPlayer::GetXDS(const QString &key) const
+{
+    if (!GetDecoder())
+        return QString::null;
+    return GetDecoder()->GetXDS(key);
+}
+
 void NuppelVideoPlayer::TranscodeWriteText(void (*func)
                                            (void *, unsigned char *, int, int, int), void * ptr)
 {
@@ -4326,9 +5139,6 @@ void NuppelVideoPlayer::InitForTranscode(bool copyaudio, bool copyvideo)
         return;
     }
 
-    for (int i = 0; i < MAXTBUFFER; i++)
-        txtbuffers[i].buffer = new unsigned char[text_size];
-
     framesPlayed = 0;
     ClearAfterSeek();
 
@@ -4357,7 +5167,11 @@ bool NuppelVideoPlayer::TranscodeGetNextFrame(QMap<long long, int>::Iterator &dm
 
     if (honorCutList && (!deleteMap.isEmpty()))
     {
-        if (videoOutput->GetLastDecodedFrame()->frameNumber >= dm_iter.key())
+        long long lastDecodedFrameNumber =
+            videoOutput->GetLastDecodedFrame()->frameNumber;
+
+        if ((lastDecodedFrameNumber >= dm_iter.key()) ||
+            (lastDecodedFrameNumber == -1 && dm_iter.key() == 0))
         {
             while((dm_iter.data() == 1) && (dm_iter != deleteMap.end()))
             {
@@ -4366,6 +5180,10 @@ bool NuppelVideoPlayer::TranscodeGetNextFrame(QMap<long long, int>::Iterator &dm
                 dm_iter++;
                 msg += QString(" to %1").arg((int)dm_iter.key());
                 VERBOSE(VB_GENERAL, msg);
+
+                if(dm_iter.key() == totalFrames)
+                   return false;
+
                 GetDecoder()->DoFastForward(dm_iter.key());
                 GetDecoder()->ClearStoredData();
                 ClearAfterSeek();
@@ -4439,9 +5257,6 @@ bool NuppelVideoPlayer::RebuildSeekTable(bool showPercentage, StatusCallback cb,
         playing = false;
         return 0;
     }
-
-    for (int i = 0; i < MAXTBUFFER; i++)
-        txtbuffers[i].buffer = new unsigned char[text_size];
 
     ClearAfterSeek();
 
@@ -4562,12 +5377,12 @@ void NuppelVideoPlayer::calcSliderPos(struct StatusPosInfo &posInfo,
     posInfo.progBefore = false;
     posInfo.progAfter = false;
 
-    if (ringBuffer->isDVD())
+    if (ringBuffer->isDVD() && ringBuffer->DVD()->IsInMenu())
     {
         long long rPos = ringBuffer->GetReadPosition();
         long long tPos = 1;//ringBuffer->GetTotalReadPosition();
         
-        ringBuffer->getDescForPos(posInfo.desc);
+        ringBuffer->DVD()->GetDescForPos(posInfo.desc);
 
         if (rPos)
             posInfo.position = (int)((rPos / tPos) * 1000.0);
@@ -4587,7 +5402,15 @@ void NuppelVideoPlayer::calcSliderPos(struct StatusPosInfo &posInfo,
         playbackLen =
             (int)(((float)nvr_enc->GetFramesWritten() / video_frame_rate));
 
-    float secsplayed = ((float)framesPlayed / video_frame_rate);
+    float secsplayed;
+    if (ringBuffer->isDVD())
+    {
+        if (!ringBuffer->DVD()->IsInMenu())
+            secsplayed = ringBuffer->DVD()->GetCurrentTime();
+    }
+    else
+        secsplayed = ((float)framesPlayed / video_frame_rate);
+
     playbackLen = max(playbackLen, 1);
     secsplayed  = min((float)playbackLen, max(secsplayed, 0.0f));
 
@@ -4716,7 +5539,7 @@ void NuppelVideoPlayer::AutoCommercialSkip(void)
                         (int)(commrewindamount * video_frame_rate));
                     UnpauseVideo();
                     while (GetVideoPause())
-                        usleep(50);
+                        usleep(1000);
 
                     GetFrame(1, true);
                 }
@@ -4864,11 +5687,21 @@ bool NuppelVideoPlayer::DoSkipCommercials(int direction)
     {
         int skipped_seconds = (int)((commBreakIter.key() -
                 framesPlayed) / video_frame_rate);
+        int maxskip = gContext->GetNumSetting("MaximumCommercialSkip", 3600);
         QString skipTime;
         skipTime.sprintf("%d:%02d", skipped_seconds / 60,
                          abs(skipped_seconds) % 60);
         struct StatusPosInfo posInfo;
         calcSliderPos(posInfo);
+        if ((lastIgnoredManualSkip.secsTo(QDateTime::currentDateTime()) > 3) &&
+            (abs(skipped_seconds) >= maxskip))
+        {
+            osd->ShowStatus(posInfo, false,
+                            QObject::tr("Too Far %1").arg(skipTime), 2);
+            commBreakMapLock.unlock();
+            lastIgnoredManualSkip = QDateTime::currentDateTime();
+            return false;
+        }
         osd->ShowStatus(posInfo, false,
                         QObject::tr("Skip %1").arg(skipTime), 2);
     }
@@ -4885,82 +5718,285 @@ bool NuppelVideoPlayer::DoSkipCommercials(int direction)
     return true;
 }
 
-void NuppelVideoPlayer::incCurrentAudioTrack()
+QStringList NuppelVideoPlayer::GetTracks(uint type) const
 {
+    // needs lock?
     if (GetDecoder())
-        GetDecoder()->incCurrentAudioTrack();
+        return GetDecoder()->GetTracks(type);
+    return QStringList();
 }
 
-void NuppelVideoPlayer::decCurrentAudioTrack()
+int NuppelVideoPlayer::SetTrack(uint type, int trackNo)
 {
-    if (GetDecoder())
-        GetDecoder()->decCurrentAudioTrack();
+    int ret = -1;
+
+    QMutexLocker locker(&decoder_change_lock);
+
+    if (decoder)
+        ret = decoder->SetTrack(type, trackNo);
+
+    if (ringBuffer->isDVD())
+        ringBuffer->DVD()->SetTrack(type, trackNo);
+
+    if (kTrackTypeSubtitle == type)
+    {
+        DisableCaptions(textDisplayMode, false);
+        EnableCaptions(kDisplayAVSubtitle);
+    }
+    else if (kTrackTypeCC708 == type)
+    {
+        if (osd && decoder)
+        {
+            int sid = decoder->GetTrackInfo(type, trackNo).stream_id;
+            if (sid >= 0)
+                osd->SetCC708Service(&CC708services[sid]);
+        }
+        DisableCaptions(textDisplayMode, false);
+        EnableCaptions(kDisplayCC708);
+    }
+    else if (kTrackTypeCC608 == type)
+    {
+        if (decoder)
+        {
+            int sid = decoder->GetTrackInfo(type, trackNo).stream_id;
+            ccmode = (sid <= 2) ?
+                ((sid == 1) ? CC_CC1 : CC_CC2) :
+                ((sid == 3) ? CC_CC3 : CC_CC4);
+        }
+        DisableCaptions(textDisplayMode, false);
+        EnableCaptions(kDisplayCC608, false);
+    }
+    else if (kTrackTypeTeletextCaptions == type)
+    {
+        DisableCaptions(textDisplayMode, false);
+        EnableCaptions(kDisplayTeletextCaptions);
+    }
+    return ret;
 }
 
-bool NuppelVideoPlayer::setCurrentAudioTrack(int trackNo)
+/** \fn NuppelVideoPlayer::TracksChanged(uint)
+ *  \brief This tries to re-enable captions/subtitles if the user
+ *         wants them and one of the captions/subtitles tracks has
+ *         changed.
+ */
+void NuppelVideoPlayer::TracksChanged(uint trackType)
 {
-    if (GetDecoder())
-        return GetDecoder()->setCurrentAudioTrack(trackNo);
-    else
+    if (trackType >= kTrackTypeSubtitle &&
+        trackType <= kTrackTypeTeletextCaptions && textDesired)
+    {
+        SetCaptionsEnabled(true, false);
+    }
+}
+
+InteractiveTV *NuppelVideoPlayer::GetInteractiveTV(void)
+{
+    if (!interactiveTV && osd && itvEnabled)
+        interactiveTV = new InteractiveTV(this);
+    return interactiveTV;
+}
+
+bool NuppelVideoPlayer::ITVHandleAction(const QString &action)
+{
+    if (!GetInteractiveTV())
         return false;
+
+    QMutexLocker locker(&decoder_change_lock);
+
+    if (GetDecoder())
+    {
+        QMutexLocker locker(&itvLock);
+        if (GetInteractiveTV())
+            return interactiveTV->OfferKey(action);
+    }
+
+    return false;
 }
 
+/** \fn NuppelVideoPlayer::ITVRestart(uint chanid, uint cardid, bool isLive)
+ *  \brief Restart the MHEG/MHP engine.
+ */
+void NuppelVideoPlayer::ITVRestart(uint chanid, uint cardid, bool isLiveTV)
+{
+    QMutexLocker locker(&decoder_change_lock);
 
-int NuppelVideoPlayer::getCurrentAudioTrack() const
+    OSD *osd = GetOSD();
+    if (!GetDecoder() || !osd)
+        return;
+
+    OSDSet *itvosd = osd->GetSet("interactive");
+    if (!itvosd)
+    {
+        VERBOSE(VB_IMPORTANT, LOC_ERR + "No interactive TV set available");
+        return;
+    }
+
+    {
+        QMutexLocker locker(&itvLock);
+        if (GetInteractiveTV())
+            interactiveTV->Restart(chanid, cardid, isLiveTV);
+    }
+       
+    osd->ClearAll("interactive");
+    itvosd->Display();
+    osd->SetVisible(itvosd, 0);
+}
+
+void NuppelVideoPlayer::SetVideoResize(const QRect &videoRect)
+{
+    if (videoOutput)
+        videoOutput->SetVideoResize(videoRect);
+}
+
+/** \fn NuppelVideoPlayer::SetAudioByComponentTag(int tag)
+ *  \brief Selects the audio stream using the DVB component tag.
+ */
+bool NuppelVideoPlayer::SetAudioByComponentTag(int tag)
 {
     if (GetDecoder())
-        return GetDecoder()->getCurrentAudioTrack() + 1;
-    else
-        return 0;
+        return GetDecoder()->SetAudioByComponentTag(tag);
+
+    return false;
 }
 
-QStringList NuppelVideoPlayer::listAudioTracks() const
+/** \fn NuppelVideoPlayer::SetVideoByComponentTag(int tag)
+ *  \brief Selects the video stream using the DVB component tag.
+ */
+bool NuppelVideoPlayer::SetVideoByComponentTag(int tag)
 {
-    if (decoder)
-        return decoder->listAudioTracks();
-    else
-        return QStringList();
+    if (GetDecoder())
+        return GetDecoder()->SetVideoByComponentTag(tag);
+
+    return false;
 }
 
-void NuppelVideoPlayer::incCurrentSubtitleTrack()
+int NuppelVideoPlayer::GetTrack(uint type) const
 {
-    if (decoder)
-        decoder->incCurrentSubtitleTrack();
+    // needs lock?
+    if (GetDecoder())
+        return GetDecoder()->GetTrack(type);
+    return -1;
 }
 
-void NuppelVideoPlayer::decCurrentSubtitleTrack()
+int NuppelVideoPlayer::ChangeTrack(uint type, int dir)
 {
-    if (decoder)
-        decoder->decCurrentSubtitleTrack();
+    QMutexLocker locker(&decoder_change_lock);
+
+    if (GetDecoder())
+        return GetDecoder()->ChangeTrack(type, dir);
+    return -1;
 }
 
-bool NuppelVideoPlayer::setCurrentSubtitleTrack(int trackNo)
+// Cycles through all available caption/subtitle types
+// so far only dir > 0 implemented
+void NuppelVideoPlayer::ChangeCaptionTrack(int dir)
 {
-    subtitlesOn = false;
-    if ((trackNo >= 0) && decoder)
-        subtitlesOn = decoder->setCurrentSubtitleTrack(trackNo);
-    return subtitlesOn;
+    QMutexLocker locker(&decoder_change_lock);
+
+    if (!decoder || (dir < 0))
+        return;
+
+    if (!textDisplayMode)
+    {
+        if (vbimode == VBIMode::PAL_TT)
+        {
+            if (decoder->GetTrackCount(kTrackTypeSubtitle))
+                SetTrack(kTrackTypeSubtitle, 0);
+            else if (decoder->GetTrackCount(kTrackTypeTeletextCaptions))
+                SetTrack(kTrackTypeTeletextCaptions, 0);
+            else
+                EnableCaptions(kDisplayNUVTeletextCaptions);
+        }
+        else
+        {
+            if (decoder->GetTrackCount(kTrackTypeCC708))
+                SetTrack(kTrackTypeCC708, 0);
+            else if (decoder->GetTrackCount(kTrackTypeCC608))
+                SetTrack(kTrackTypeCC608, 0);
+            else if (decoder->GetTrackCount(kTrackTypeSubtitle))
+                SetTrack(kTrackTypeSubtitle, 0);
+        }
+    }
+    else if ((textDisplayMode & kDisplayAVSubtitle) &&
+             (vbimode == VBIMode::PAL_TT))
+    {
+        if ((uint)GetTrack(kTrackTypeSubtitle) + 1 <
+            decoder->GetTrackCount(kTrackTypeSubtitle))
+        {
+            SetTrack(kTrackTypeSubtitle, GetTrack(kTrackTypeSubtitle) + 1);
+        }
+        else
+        {
+            DisableCaptions(textDisplayMode, false);
+            if (decoder->GetTrackCount(kTrackTypeTeletextCaptions))
+                SetTrack(kTrackTypeTeletextCaptions, 0);
+            else
+                EnableCaptions(kDisplayNUVTeletextCaptions);
+        }
+    }
+    else if ((textDisplayMode & kDisplayTeletextCaptions) &&
+             (vbimode == VBIMode::PAL_TT))
+    {
+        if ((uint)GetTrack(kTrackTypeTeletextCaptions) + 1 <
+            decoder->GetTrackCount(kTrackTypeTeletextCaptions))
+        {
+            SetTrack(kTrackTypeTeletextCaptions,
+                     GetTrack(kTrackTypeTeletextCaptions) + 1);
+        }
+        else
+        {
+            DisableCaptions(textDisplayMode, false),
+            EnableCaptions(kDisplayNUVTeletextCaptions);
+        }
+    }
+    else if (textDisplayMode & kDisplayNUVTeletextCaptions)
+        SetCaptionsEnabled(false);
+    else if (textDisplayMode & kDisplayCC708)
+    {
+        if ((uint)GetTrack(kTrackTypeCC708) + 1 <
+            decoder->GetTrackCount(kTrackTypeCC708))
+        {
+            SetTrack(kTrackTypeCC708, GetTrack(kTrackTypeCC708) + 1);
+        }
+        else if (decoder->GetTrackCount(kTrackTypeCC608))
+            SetTrack(kTrackTypeCC608, 0);
+        else if (decoder->GetTrackCount(kTrackTypeSubtitle))
+            SetTrack(kTrackTypeSubtitle, 0);
+        else
+            SetCaptionsEnabled(false);
+    }
+    else if (textDisplayMode & kDisplayCC608)
+    {
+        if ((uint)GetTrack(kTrackTypeCC608) + 1 <
+            decoder->GetTrackCount(kTrackTypeCC608))
+        {
+            SetTrack(kTrackTypeCC608, GetTrack(kTrackTypeCC608) + 1);
+        }
+        else if (decoder->GetTrackCount(kTrackTypeSubtitle))
+            SetTrack(kTrackTypeSubtitle, 0);
+        else
+            SetCaptionsEnabled(false);
+    }
+    else if ((textDisplayMode & kDisplayAVSubtitle) &&
+             (vbimode == VBIMode::NTSC_CC))
+    {
+        if ((uint)GetTrack(kTrackTypeSubtitle) + 1 <
+            decoder->GetTrackCount(kTrackTypeSubtitle))
+        {
+            SetTrack(kTrackTypeSubtitle, GetTrack(kTrackTypeSubtitle) + 1);
+        }
+        else
+            SetCaptionsEnabled(false);
+    }
 }
 
-
-int NuppelVideoPlayer::getCurrentSubtitleTrack() const
-{
-    int trackNo = 0;
-    if (subtitlesOn && decoder)
-        trackNo = decoder->getCurrentSubtitleTrack() + 1;
-    return trackNo;
-}
-
-QStringList NuppelVideoPlayer::listSubtitleTracks() const
-{
-    QStringList list;
-    if (decoder)
-        list = decoder->listSubtitleTracks();
-    return list;
-}
-
-// updates new subtitles to the screen and clears old ones
-void NuppelVideoPlayer::DisplaySubtitles()
+#define MAX_SUBTITLE_DISPLAY_TIME_MS 4500
+/** \fn NuppelVideoPlayer::DisplayAVSubtitles(void)
+ *  \brief Displays new subtitles and removes old ones. 
+ *
+ *  This version is for AVSubtitles which are added with AddAVSubtitles()
+ *  when found in the input stream.
+ */
+void NuppelVideoPlayer::DisplayAVSubtitles(void)
 {
     OSDSet *subtitleOSD;
     bool setVisible = false;
@@ -4984,14 +6020,14 @@ void NuppelVideoPlayer::DisplaySubtitles()
         osdHasSubtitles = false;
     }
 
-    while (nonDisplayedSubtitles.size() > 0)
+    while (!nonDisplayedAVSubtitles.empty())
     {
-        const AVSubtitle subtitlePage = nonDisplayedSubtitles.front();
+        const AVSubtitle subtitlePage = nonDisplayedAVSubtitles.front();
 
         if (subtitlePage.start_display_time > currentFrame->timecode)
             break;
 
-        nonDisplayedSubtitles.pop_front();
+        nonDisplayedAVSubtitles.pop_front();
 
         // clear old subtitles
         if (osdHasSubtitles) 
@@ -5007,8 +6043,8 @@ void NuppelVideoPlayer::DisplaySubtitles()
             AVSubtitleRect* rect = &subtitlePage.rects[i];
 
             bool displaysub = true;
-            if (nonDisplayedSubtitles.size() > 0 &&
-                nonDisplayedSubtitles.front().start_display_time < 
+            if (nonDisplayedAVSubtitles.size() > 0 &&
+                nonDisplayedAVSubtitles.front().end_display_time < 
                 currentFrame->timecode)
             {
                 displaysub = false;
@@ -5032,21 +6068,39 @@ void NuppelVideoPlayer::DisplaySubtitles()
 
                 // scale the subtitle images which are scaled and positioned for
                 // a 720x576 video resolution to fit the current OSD resolution
+                float vsize = 576.0;
+                if (ringBuffer->isDVD())
+                    vsize = (float)video_height;
+
                 float hmult = osd->GetSubtitleBounds().width() / 720.0;
-                float vmult = osd->GetSubtitleBounds().height() / 576.0;
+                float vmult = osd->GetSubtitleBounds().height() / vsize;
+
                 rect->x = (int)(rect->x * hmult);
                 rect->y = (int)(rect->y * vmult);
                 rect->w = (int)(rect->w * hmult);
                 rect->h = (int)(rect->h * vmult);
-                QImage scaledImage = qImage.smoothScale(rect->w, rect->h);
+                
+                if (hmult < 0.98 || hmult > 1.02 || vmult < 0.98 || hmult > 1.02)
+                    qImage = qImage.smoothScale(rect->w, rect->h);
 
                 OSDTypeImage* image = new OSDTypeImage();
                 image->SetPosition(QPoint(rect->x, rect->y), hmult, vmult);
-                image->LoadFromQImage(scaledImage);
+                image->LoadFromQImage(qImage);
 
                 subtitleOSD->AddType(image);
 
                 osdSubtitlesExpireAt = subtitlePage.end_display_time;
+                // fix subtitles that don't display for very long (if at all).
+                if (subtitlePage.end_display_time <= 
+                    subtitlePage.start_display_time)
+                {
+                    if (nonDisplayedAVSubtitles.size() > 0)
+                        osdSubtitlesExpireAt = 
+                            nonDisplayedAVSubtitles.front().start_display_time;
+                    else
+                        osdSubtitlesExpireAt += MAX_SUBTITLE_DISPLAY_TIME_MS;
+                }
+
                 setVisible = true;
                 osdHasSubtitles = true;
             }
@@ -5064,20 +6118,103 @@ void NuppelVideoPlayer::DisplaySubtitles()
     if (setVisible)
     {
         VERBOSE(VB_PLAYBACK,
-                QString("Setting subtitles visible, frame_timecode=%1")
-                .arg(currentFrame->timecode));
+                QString("Setting subtitles visible, frame_timecode=%1 "
+                        "expires=%2")
+                .arg(currentFrame->timecode).arg(osdSubtitlesExpireAt));
         osd->SetVisible(subtitleOSD, 0);
     }
 }
 
-// hide subtitles and free the undisplayed subtitles
-void NuppelVideoPlayer::ClearSubtitles() 
+/** \fn NuppelVideoPlayer::DisplayTextSubtitles(void)
+ *  \brief Displays subtitles in textual format.
+ *
+ *  This version is for subtitles that are loaded from an external subtitle
+ *  file by using the LoadExternalSubtitles() method. Subtitles are not 
+ *  deleted after displaying so they can be displayed again after seeking.
+ */
+void NuppelVideoPlayer::DisplayTextSubtitles(void)
+{
+    VideoFrame *currentFrame = videoOutput->GetLastShownFrame();
+
+    if (!osd || !currentFrame)
+    {
+        VERBOSE(VB_PLAYBACK, "osd or current video frame not found");
+        return;
+    }
+    
+    QMutexLocker locker(&subtitleLock);
+
+    // frame time code in frames shown or millisecs from the start
+    // depending on the timing type of the subtitles
+    uint64_t playPos = 0;
+    if (textSubtitles.IsFrameBasedTiming())
+    {
+        // frame based subtitles get out of synch after running mythcommflag
+        // for the file, i.e., the following number is wrong and does not
+        // match the subtitle frame numbers:
+        playPos = currentFrame->frameNumber;
+    }
+    else
+    {
+        playPos = currentFrame->timecode;
+    }
+
+    if (!textSubtitles.HasSubtitleChanged(playPos)) 
+        return;
+
+    QStringList subtitlesToShow = textSubtitles.GetSubtitles(playPos);
+
+    osdHasSubtitles = !subtitlesToShow.empty();
+    if (osdHasSubtitles)
+        osd->SetTextSubtitles(subtitlesToShow);
+    else
+        osd->ClearTextSubtitles();
+}
+
+/** \fn NuppelVideoPlayer::ExpireSubtitles(void)
+ *  \brief Discard non-displayed subtitles.
+ */
+void NuppelVideoPlayer::ExpireSubtitles(void)
+{
+    QMutexLocker locker(&subtitleLock);
+
+    if (!videoOutput)
+        return;
+
+    VideoFrame *currentFrame = videoOutput->GetLastShownFrame();
+
+    while (!nonDisplayedAVSubtitles.empty())
+    {
+        const AVSubtitle subtitlePage = nonDisplayedAVSubtitles.front();
+
+        // Stop when we hit one old enough
+        if (subtitlePage.end_display_time > currentFrame->timecode)
+            break;
+
+        nonDisplayedAVSubtitles.pop_front();
+
+        for (std::size_t i = 0; i < subtitlePage.num_rects; ++i)
+        {
+            AVSubtitleRect* rect = &subtitlePage.rects[i];
+            av_free(rect->rgba_palette);
+            av_free(rect->bitmap);
+        }
+
+        if (subtitlePage.num_rects > 0)
+            av_free(subtitlePage.rects);
+    }
+}
+
+/** \fn NuppelVideoPlayer::ClearSubtitles(void)
+ *  \brief Hide subtitles and free the undisplayed subtitles.
+ */
+void NuppelVideoPlayer::ClearSubtitles(void)
 {
     subtitleLock.lock();
 
-    while (nonDisplayedSubtitles.size() > 0) 
+    while (!nonDisplayedAVSubtitles.empty())
     {
-        AVSubtitle& subtitle = nonDisplayedSubtitles.front();
+        AVSubtitle& subtitle = nonDisplayedAVSubtitles.front();
 
         // Because the subtitles were not displayed, OSDSet does not
         // free the OSDTypeImages in ClearAll(), so we have to free
@@ -5092,7 +6229,7 @@ void NuppelVideoPlayer::ClearSubtitles()
         if (subtitle.num_rects > 0)
             av_free(subtitle.rects);
 
-        nonDisplayedSubtitles.pop_front();
+        nonDisplayedAVSubtitles.pop_front();
     }
 
     subtitleLock.unlock();
@@ -5109,12 +6246,17 @@ void NuppelVideoPlayer::ClearSubtitles()
     }
 }
 
-// adds a new subtitle to be shown
-// FIXME: Need to fix subtitles to use a 64bit timestamp
-void NuppelVideoPlayer::AddSubtitle(const AVSubtitle &subtitle) 
+/** \fn void NuppelVideoPlayer::AddAVSubtitle(const AVSubtitle&)
+ *  \brief Adds a new AVSubtitle to be shown.
+ *
+ *  NOTE: Assumes the subtitles are pushed in the order they should be shown.
+ *
+ *  FIXME: Need to fix subtitles to use a 64bit timestamp
+ */
+void NuppelVideoPlayer::AddAVSubtitle(const AVSubtitle &subtitle) 
 {
     subtitleLock.lock();
-    nonDisplayedSubtitles.push_back(subtitle);
+    nonDisplayedAVSubtitles.push_back(subtitle);
     subtitleLock.unlock();
 }
 
@@ -5124,6 +6266,8 @@ void NuppelVideoPlayer::AddSubtitle(const AVSubtitle &subtitle)
 void NuppelVideoPlayer::SetDecoder(DecoderBase *dec)
 {
     //VERBOSE(VB_IMPORTANT, "SetDecoder("<<dec<<") was "<<decoder);
+    QMutexLocker locker(&decoder_change_lock);
+
     if (!decoder)
         decoder = dec;
     else
@@ -5134,13 +6278,416 @@ void NuppelVideoPlayer::SetDecoder(DecoderBase *dec)
     }
 }
 
+/** \fn NuppelVideoPlayer::LoadExternalSubtitles(const QString&)
+ *  \brief Loads subtitles from an external file.
+ *
+ *  \return true iff the subtitle subtitles were loaded successfully.
+ */
+bool NuppelVideoPlayer::LoadExternalSubtitles(const QString &subtitleFileName)
+{
+    QMutexLocker locker(&subtitleLock);
+    textSubtitles.Clear();
+    return TextSubtitleParser::LoadSubtitles(subtitleFileName, textSubtitles);
+}
+
 void NuppelVideoPlayer::ChangeDVDTrack(bool ffw)
 {
     if (!ringBuffer->isDVD())
        return;
 
-    GetDecoder()->ChangeDVDTrack(ffw);
-    usleep(100000);
-    ClearAfterSeek();
+    need_change_dvd_track = (ffw ? 1 : -1);
 }
 
+void NuppelVideoPlayer::DoChangeDVDTrack(void)
+{
+    GetDecoder()->ChangeDVDTrack(need_change_dvd_track > 0);
+    ClearAfterSeek(false);
+}
+
+void NuppelVideoPlayer::DisplayDVDButton(void)
+{
+    if (!ringBuffer->InDVDMenuOrStillFrame())
+        return;
+
+    VideoFrame *buffer = videoOutput->GetLastShownFrame();
+
+    int numbuttons = ringBuffer->DVD()->NumMenuButtons();
+    bool osdshown = osd->IsSetDisplaying("subtitles");
+    long long menupktpts = ringBuffer->DVD()->GetMenuPktPts();
+
+    if ((numbuttons == 0) || 
+        (osdshown) ||
+        (indvdstillframe && buffer->timecode > 0) ||
+        ((!osdshown) && 
+            (!indvdstillframe) &&
+            (hidedvdbutton) &&
+            (buffer->timecode > 0) && 
+            (menupktpts != buffer->timecode)))
+    {
+        return; 
+    }
+
+    OSDSet *subtitleOSD = NULL;
+    AVSubtitleRect *highlightButton = ringBuffer->DVD()->GetMenuButton();
+
+    if (highlightButton != NULL)
+    {
+        osd->HideSet("subtitles");
+        osd->ClearAll("subtitles");
+        subtitleLock.lock();
+        int h = highlightButton->h;
+        int w = highlightButton->w;
+        int linesize = highlightButton->linesize;
+        int x1 = highlightButton->x;
+        int y1 = highlightButton->y;
+        uint btnX = ringBuffer->DVD()->ButtonPosX();
+        uint btnY = ringBuffer->DVD()->ButtonPosY();
+        subtitleOSD = osd->GetSet("subtitles");
+
+        QImage hl_button(w, h, 32);
+        hl_button.setAlphaBuffer(true);
+        for (int y = 0; y < h; y++)
+        {
+            for (int x = 0; x < w; x++)
+            {
+                uint8_t color = highlightButton->bitmap[(y+y1)*linesize+(x+x1)];
+                uint32_t pixel = highlightButton->rgba_palette[color];
+                hl_button.setPixel(x, y, pixel);
+            }
+        }
+
+        // scale highlight image to match OSD size, if required
+        float hmult = osd->GetSubtitleBounds().width() / (float)video_width;
+        float vmult = osd->GetSubtitleBounds().height() / (float)video_height;
+
+        if ((hmult < 0.99) || (hmult > 1.01) || (vmult < 0.99) || (vmult > 1.01)) 
+        {
+            btnX = (int)    (btnX * hmult);
+            btnY = (int)    (btnY * vmult);
+            w    = (int)ceil(w    * hmult);
+            h    = (int)ceil(h    * vmult);
+
+            hl_button = hl_button.smoothScale(w, h);
+        } 
+        else 
+            hmult = vmult = 1.0;
+
+        OSDTypeImage* image = new OSDTypeImage();
+        image->SetPosition(QPoint(btnX, btnY), hmult, vmult);
+        image->LoadFromQImage(hl_button);
+        image->SetDontRoundPosition(true);
+
+        subtitleOSD->AddType(image);
+        osd->SetVisible(subtitleOSD, 0);
+
+        hidedvdbutton = false;
+        subtitleLock.unlock();
+    }
+
+    ringBuffer->DVD()->ReleaseMenuButton();
+}
+
+void NuppelVideoPlayer::ActivateDVDButton(void)
+{
+    if (!ringBuffer->isDVD())
+        return;
+
+    ringBuffer->DVD()->ActivateButton();
+}
+
+void NuppelVideoPlayer::GoToDVDMenu(QString str)
+{
+    if (!ringBuffer->isDVD())
+        return;
+
+    textDisplayMode = kDisplayNone;
+    ringBuffer->DVD()->GoToMenu(str);
+}
+
+/** \fn NuppelVideoPlayer::GoToDVDProgram(bool direction)
+ *  \brief Go forward or back by one DVD program
+*/
+void NuppelVideoPlayer::GoToDVDProgram(bool direction)
+{
+    if (!ringBuffer->isDVD())
+        return;
+ 
+    if (direction == 0)
+        ringBuffer->DVD()->GoToPreviousProgram();
+    else
+        ringBuffer->DVD()->GoToNextProgram();
+}
+
+// EIA-708 caption support -- begin
+void NuppelVideoPlayer::SetCurrentWindow(uint service_num, int window_id)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("SetCurrentWindow(%1, %2)")
+            .arg(service_num).arg(window_id));
+    CC708services[service_num].current_window = window_id;
+}
+
+void NuppelVideoPlayer::DefineWindow(
+    uint service_num,     int window_id,
+    int priority,         int visible,
+    int anchor_point,     int relative_pos,
+    int anchor_vertical,  int anchor_horizontal,
+    int row_count,        int column_count,
+    int row_lock,         int column_lock,
+    int pen_style,        int window_style)
+{
+    if (decoder)
+    {
+        StreamInfo si(-1, 0, 0, service_num, false, false);
+        decoder->InsertTrack(kTrackTypeCC708, si);
+    }
+
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("DefineWindow(%1, %2,\n\t\t\t\t\t")
+            .arg(service_num).arg(window_id) +
+            QString("  prio %1, vis %2, ap %3, rp %4, av %5, ah %6")
+            .arg(priority).arg(visible).arg(anchor_point).arg(relative_pos)
+            .arg(anchor_vertical).arg(anchor_horizontal) +
+            QString("\n\t\t\t\t\t  row_cnt %1, row_lck %2, "
+                    "col_cnt %3, col_lck %4 ")
+            .arg(row_count).arg(row_lock)
+            .arg(column_count).arg(column_lock) +
+            QString("\n\t\t\t\t\t  pen style %1, win style %2)")
+            .arg(pen_style).arg(window_style));
+
+    GetCCWin(service_num, window_id)
+        .DefineWindow(priority,         visible,
+                      anchor_point,     relative_pos,
+                      anchor_vertical,  anchor_horizontal,
+                      row_count,        column_count,
+                      row_lock,         column_lock,
+                      pen_style,        window_style);
+
+    CC708services[service_num].current_window = window_id;
+}
+
+void NuppelVideoPlayer::DeleteWindows(uint service_num, int window_map)
+{
+    VERBOSE(VB_VBI, LOC + QString("DeleteWindows(%1, 0x%2)")
+            .arg(service_num).arg(window_map,0,16));
+
+    for (uint i=0; i<8; i++)
+    {
+        if ((1<<i) & window_map)
+        {
+            CC708Window &win = GetCCWin(service_num, i);
+            win.exists = false;
+            if (win.text)
+            {
+                delete [] win.text;
+                win.text = NULL;
+            }
+        }
+    }
+}
+
+void NuppelVideoPlayer::DisplayWindows(uint service_num, int window_map)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("DisplayWindows(%1, 0x%2)")
+            .arg(service_num).arg(window_map,0,16));
+
+    for (uint i=0; i<8; i++)
+    {
+        if ((1<<i) & window_map)
+            GetCCWin(service_num, i).visible = true;
+    }
+}
+
+void NuppelVideoPlayer::HideWindows(uint service_num, int window_map)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("HideWindows(%1, 0x%2)")
+            .arg(service_num).arg(window_map,0,16));
+
+    for (uint i=0; i<8; i++)
+    {
+        if ((1<<i) & window_map)
+            GetCCWin(service_num, i).visible = false;
+    }
+}
+
+void NuppelVideoPlayer::ClearWindows(uint service_num, int window_map)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("ClearWindows(%1, 0x%2)")
+            .arg(service_num).arg(window_map,0,16));
+
+    for (uint i=0; i<8; i++)
+    {
+        if ((1<<i) & window_map)
+            GetCCWin(service_num, i).Clear();
+    }
+}
+
+void NuppelVideoPlayer::ToggleWindows(uint service_num, int window_map)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("ToggleWindows(%1, 0x%2)")
+            .arg(service_num).arg(window_map,0,16));
+
+    for (uint i=0; i<8; i++)
+    {
+        if ((1<<i) & window_map)
+        {
+            GetCCWin(service_num, i).visible =
+                !GetCCWin(service_num, i).visible;
+        }
+    }
+}
+
+void NuppelVideoPlayer::SetWindowAttributes(
+    uint service_num,
+    int fill_color,     int fill_opacity,
+    int border_color,   int border_type,
+    int scroll_dir,     int print_dir,
+    int effect_dir,
+    int display_effect, int effect_speed,
+    int justify,        int word_wrap)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("SetWindowAttributes(%1...)")
+            .arg(service_num));
+
+    CC708Window &win = GetCCWin(service_num);
+
+    win.fill_color     = fill_color   & 0x3f;
+    win.fill_opacity   = fill_opacity;
+    win.border_color   = border_color & 0x3f;
+    win.border_type    = border_type;
+    win.scroll_dir     = scroll_dir;
+    win.print_dir      = print_dir;
+    win.effect_dir     = effect_dir;
+    win.display_effect = display_effect;
+    win.effect_speed   = effect_speed;
+    win.justify        = justify;
+    win.word_wrap      = word_wrap;
+}
+
+void NuppelVideoPlayer::SetPenAttributes(
+    uint service_num, int pen_size,
+    int offset,       int text_tag,  int font_tag,
+    int edge_type,    int underline, int italics)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("SetPenAttributes(%1, %2,")
+            .arg(service_num).arg(CC708services[service_num].current_window) +
+            QString("\n\t\t\t\t\t      pen_size %1, offset %2, text_tag %3, "
+                    "font_tag %4,"
+                    "\n\t\t\t\t\t      edge_type %5, underline %6, italics %7")
+            .arg(pen_size).arg(offset).arg(text_tag).arg(font_tag)
+            .arg(edge_type).arg(underline).arg(italics));
+
+    GetCCWin(service_num).pen.SetAttributes(
+        pen_size, offset, text_tag, font_tag, edge_type, underline, italics);
+}
+
+void NuppelVideoPlayer::SetPenColor(
+    uint service_num,
+    int fg_color, int fg_opacity,
+    int bg_color, int bg_opacity,
+    int edge_color)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("SetPenColor(%1...)")
+            .arg(service_num));
+
+    CC708CharacterAttribute &attr = GetCCWin(service_num).pen.attr;
+
+    attr.fg_color   = fg_color;
+    attr.fg_opacity = fg_opacity;
+    attr.bg_color   = bg_color;
+    attr.bg_opacity = bg_opacity;
+    attr.edge_color = edge_color;
+}
+
+void NuppelVideoPlayer::SetPenLocation(uint service_num, int row, int column)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("SetPenLocation(%1, (c %2, r %3))")
+            .arg(service_num).arg(column).arg(row));
+    GetCCWin(service_num).SetPenLocation(row, column);
+}
+
+void NuppelVideoPlayer::Delay(uint service_num, int tenths_of_seconds)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("Delay(%1, %2 seconds)")
+            .arg(service_num).arg(tenths_of_seconds * 0.1f));
+}
+
+void NuppelVideoPlayer::DelayCancel(uint service_num)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("DelayCancel(%1)").arg(service_num));
+}
+
+void NuppelVideoPlayer::Reset(uint service_num)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    VERBOSE(VB_VBI, LOC + QString("Reset(%1)").arg(service_num));
+    DeleteWindows(service_num, 0x7);
+    DelayCancel(service_num);
+}
+
+void NuppelVideoPlayer::TextWrite(uint service_num,
+                                  short* unicode_string, short len)
+{
+    if (!(textDisplayMode & kDisplayCC708))
+        return;
+
+    for (uint i = 0; i < (uint)len; i++)
+        GetCCWin(service_num).AddChar(QChar(unicode_string[i]));
+
+    if (GetOSD())
+        GetOSD()->CC708Updated();
+}
+
+void NuppelVideoPlayer::SetOSDFontName(const QString osdfonts[22],
+                                       const QString &prefix)
+{
+    osdfontname   = QDeepCopy<QString>(osdfonts[0]);
+    osdccfontname = QDeepCopy<QString>(osdfonts[1]); 
+    for (int i = 2; i < 22; i++)
+        osd708fontnames[i - 2] = QDeepCopy<QString>(osdfonts[i]);
+    osdprefix = QDeepCopy<QString>(prefix);
+}
+
+void NuppelVideoPlayer::SetOSDThemeName(const QString themename)
+{
+    osdtheme = QDeepCopy<QString>(themename);
+}
+// EIA-708 caption support -- end
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

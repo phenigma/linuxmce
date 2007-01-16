@@ -44,11 +44,11 @@ typedef struct ASV1Context{
     int mb_height;
     int mb_width2;
     int mb_height2;
-    DCTELEM __align8 block[6][64];
-    uint16_t __align8 intra_matrix[64];
-    int __align8 q_intra_matrix[64];
+    DECLARE_ALIGNED_8(DCTELEM, block[6][64]);
+    DECLARE_ALIGNED_8(uint16_t, intra_matrix[64]);
+    DECLARE_ALIGNED_8(int, q_intra_matrix[64]);
     uint8_t *bitstream_buffer;
-    int bitstream_buffer_size;
+    unsigned int bitstream_buffer_size;
 } ASV1Context;
 
 static const uint8_t scantab[64]={
@@ -289,6 +289,7 @@ static inline void asv2_encode_block(ASV1Context *a, DCTELEM block[64]){
         if( (block[index + 1] = (block[index + 1]*a->q_intra_matrix[index + 1] + (1<<15))>>16) ) ccp |= 2;
         if( (block[index + 9] = (block[index + 9]*a->q_intra_matrix[index + 9] + (1<<15))>>16) ) ccp |= 1;
 
+        assert(i || ccp<8);
         if(i) put_bits(&a->pb, ac_ccp_tab[ccp][1], ac_ccp_tab[ccp][0]);
         else  put_bits(&a->pb, dc_ccp_tab[ccp][1], dc_ccp_tab[ccp][0]);
 

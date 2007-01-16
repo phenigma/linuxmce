@@ -1,5 +1,5 @@
 /* -*- Mode: c++ -*-
- * $Id: scanwizardhelpers.h 9685 2006-04-12 14:21:41Z danielk $
+ * $Id: scanwizardhelpers.h 10645 2006-07-26 13:10:21Z danielk $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -204,16 +204,24 @@ class ScanTypeSetting : public ComboBoxSetting, public TransientStorage
   public:
     enum Type
     {
-        Error_Open,
+        Error_Open = 0,
         Error_Probe,
+        // Scans that check each frequency in a predefined list
         FullScan_Analog,
         FullScan_ATSC,
         FullScan_OFDM,
-        FullTunedScan_OFDM,
-        FullTunedScan_QPSK,
-        FullTunedScan_QAM,
+        // Scans starting on one frequency that adds each transport
+        // seen in the Network Information Tables to the scan.
+        NITAddScan_OFDM,
+        NITAddScan_QPSK,
+        NITAddScan_QAM,
+        // Scan of all transports already in the database
         FullTransportScan,
+        // Scan of one transport already in the database
         TransportScan,
+        // Freebox import of channels from M3U URL
+        FreeBoxImport,
+        // Imports lists from dvb-utils scanners
         Import
     };
     ScanTypeSetting() : nCaptureCard(-1)
@@ -273,18 +281,22 @@ class ScanFrequencyTable: public ComboBoxSetting, public TransientStorage
     ScanFrequencyTable()
     {
         addSelection(QObject::tr("Broadcast"),        "us",          true);
-        addSelection(QObject::tr("Cable")    +" 78+", "uscablehigh", false);
-        addSelection(QObject::tr("Cable HRC")+" 67+", "ushrchigh",   false);
-        addSelection(QObject::tr("Cable IRC")+" 67+", "usirchigh",   false);
+        addSelection(QObject::tr("Cable")     + " " +
+                     QObject::tr("High"),             "uscablehigh", false);
+        addSelection(QObject::tr("Cable HRC") + " " +
+                     QObject::tr("High"),             "ushrchigh",   false);
+        addSelection(QObject::tr("Cable IRC") + " " +
+                     QObject::tr("High"),             "usirchigh",   false);
         addSelection(QObject::tr("Cable"),            "uscable",     false);
         addSelection(QObject::tr("Cable HRC"),        "ushrc",       false);
         addSelection(QObject::tr("Cable IRC"),        "usirc",       false);
 
         setLabel(QObject::tr("Frequency Table"));
         setHelpText(QObject::tr("Frequency table to use.") + " " +
-                    QObject::tr("The option of scanning only at channel 78 "
-                                "and above is provided because most "
-                                "digital channels are in that range."));
+                    QObject::tr(
+                        "The option of scanning only \"High\" "
+                        "frequency channels is useful because most "
+                        "digital channels are on the higher frequencies."));
     }
 };
 
@@ -412,6 +424,9 @@ class ScanModulationSetting: public ComboBoxSetting
     {
         addSelection(QObject::tr("Auto"),"auto",true);
         addSelection("QPSK","qpsk");
+#ifdef FE_GET_EXTENDED_INFO
+        addSelection("8PSK","8psk");
+#endif
         addSelection("QAM 16","qam_16");
         addSelection("QAM 32","qam_32");
         addSelection("QAM 64","qam_64");
@@ -542,7 +557,9 @@ class ScanHierarchy: public ComboBoxSetting, public TransientStorage
 class OFDMPane : public HorizontalConfigurationGroup
 {
   public:
-    OFDMPane() : HorizontalConfigurationGroup(false,false,true,true)
+    OFDMPane() :
+        ConfigurationGroup(false,false,true,true),
+        HorizontalConfigurationGroup(false,false,true,true)
     {
         setUseFrame(false);
         VerticalConfigurationGroup *left =
@@ -583,11 +600,50 @@ class OFDMPane : public HorizontalConfigurationGroup
     ScanGuardInterval    *pguard_interval;
     ScanHierarchy        *phierarchy;
 };
+#ifdef FE_GET_EXTENDED_INFO
+class DVBS2Pane : public HorizontalConfigurationGroup
+{
+  public:
+    DVBS2Pane() : HorizontalConfigurationGroup(false,false,true,false) 
+    {
+        setUseFrame(false);
+        VerticalConfigurationGroup *left =
+            new VerticalConfigurationGroup(false,true);
+        VerticalConfigurationGroup *right =
+            new VerticalConfigurationGroup(false,true);
+        left->addChild( pfrequency  = new ScanFrequency());
+        left->addChild( ppolarity   = new ScanPolarity());
+        left->addChild( psymbolrate = new ScanSymbolRate());
+        right->addChild(pfec        = new ScanFec());
+        right->addChild(pmodulation = new ScanModulation());
+        right->addChild(pinversion  = new ScanInversion());
+        addChild(left);
+        addChild(right);     
+    }
+
+    QString frequency(void)  const { return pfrequency->getValue();  }
+    QString symbolrate(void) const { return psymbolrate->getValue(); }
+    QString inversion(void)  const { return pinversion->getValue();  }
+    QString fec(void)        const { return pfec->getValue();        }
+    QString polarity(void)   const { return ppolarity->getValue();   }
+    QString modulation(void) const { return pmodulation->getValue(); }
+
+  protected:
+    ScanFrequency  *pfrequency;
+    ScanSymbolRate *psymbolrate;
+    ScanInversion  *pinversion;
+    ScanFec        *pfec;
+    ScanPolarity   *ppolarity;
+    ScanModulation *pmodulation;
+};
+#endif
 
 class QPSKPane : public HorizontalConfigurationGroup
 {
   public:
-    QPSKPane() : HorizontalConfigurationGroup(false,false,true,false) 
+    QPSKPane() :
+        ConfigurationGroup(false,false,true,false),
+        HorizontalConfigurationGroup(false,false,true,false)
     {
         setUseFrame(false);
         VerticalConfigurationGroup *left =
@@ -620,7 +676,9 @@ class QPSKPane : public HorizontalConfigurationGroup
 class QAMPane : public HorizontalConfigurationGroup
 {
   public:
-    QAMPane() : HorizontalConfigurationGroup(false,false,true,false) 
+    QAMPane() :
+        ConfigurationGroup(false,false,true,false),
+        HorizontalConfigurationGroup(false,false,true,false)
     {
         setUseFrame(false);
         VerticalConfigurationGroup *left =
@@ -653,7 +711,9 @@ class QAMPane : public HorizontalConfigurationGroup
 class ATSCPane : public VerticalConfigurationGroup
 {
   public:
-    ATSCPane() : VerticalConfigurationGroup(false,false,true,false)
+    ATSCPane() :
+        ConfigurationGroup(false,false,true,false),
+        VerticalConfigurationGroup(false,false,true,false)
     {
         addChild(atsc_table            = new ScanFrequencyTable());
         addChild(atsc_modulation       = new ScanATSCModulation());
@@ -687,6 +747,7 @@ class STPane : public VerticalConfigurationGroup
     Q_OBJECT
   public:
     STPane() :
+        ConfigurationGroup(false,false,true,false),
         VerticalConfigurationGroup(false,false,true,false),
         transport_setting(new MultiplexSetting()),
         atsc_format(new ScanATSCChannelFormat()),
@@ -723,10 +784,10 @@ class STPane : public VerticalConfigurationGroup
 class ErrorPane : public HorizontalConfigurationGroup
 {
   public:
-    ErrorPane(const QString& error)
-        : HorizontalConfigurationGroup(false, false, true, false)
+    ErrorPane(const QString& error) :
+        ConfigurationGroup(false, false, true, false),
+        HorizontalConfigurationGroup(false, false, true, false)
     {
-        setUseFrame(false);
         TransLabelSetting* label = new TransLabelSetting();
         label->setValue(error);
         addChild(label);

@@ -45,6 +45,7 @@ struct replex {
 	int otype;
 	int ignore_pts; 
 	int keep_pts;
+	int fix_sync;
 	uint64_t inflength;
 	uint64_t finread;
 	int lastper;
@@ -69,6 +70,13 @@ struct replex {
 	int audiobuf;
 	int ac3buf;
 	int videobuf;
+
+    int ext_count;
+    int exttype[N_AUDIO];
+    int exttypcnt[N_AUDIO];
+    audio_frame_t extframe[N_AUDIO];
+    ringbuffer extrbuffer[N_AUDIO];
+    ringbuffer index_extrbuffer[N_AUDIO];
 
   //ac3 
 	int ac3n;

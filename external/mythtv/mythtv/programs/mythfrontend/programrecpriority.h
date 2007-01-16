@@ -19,9 +19,10 @@ class ProgramRecPriorityInfo : public ProgramInfo
     ProgramRecPriorityInfo& operator=(const ProgramInfo&);
 
 
-    int channelRecPriority;
     int recTypeRecPriority;
     RecordingType recType;
+    int matchCount;
+    int recCount;
 };
 
 class ProgramRecPriority : public MythDialog
@@ -32,7 +33,9 @@ class ProgramRecPriority : public MythDialog
     {
         byTitle,
         byRecPriority,
-        byRecType
+        byRecType,
+        byCount,
+        byRecCount
     };
 
     ProgramRecPriority(MythMainWindow *parent, const char *name = 0);
@@ -46,6 +49,7 @@ class ProgramRecPriority : public MythDialog
     void changeRecPriority(int howMuch);
     void saveRecPriority(void);
     void edit();
+    void customEdit();
     void deactivate();
     void upcoming();
 
@@ -55,9 +59,11 @@ class ProgramRecPriority : public MythDialog
 
   private:
     void FillList(void);
-    void SortList();
+    void SortList(void);
     QMap<QString, ProgramRecPriorityInfo> programData;
     QMap<int, int> origRecPriorityData;
+
+    void countMatches(void);
     QMap<int, int> conMatch;
     QMap<int, int> nowMatch;
     QMap<int, int> recMatch;
@@ -71,9 +77,6 @@ class ProgramRecPriority : public MythDialog
     void parseContainer(QDomElement &);
     XMLParse *theme;
     QDomElement xmldata;
-
-    QString channelFormat;
-    QString longChannelFormat;
 
     ProgramRecPriorityInfo *curitem;
 

@@ -873,7 +873,7 @@ typedef struct MJpegDecodeContext {
     AVFrame picture; /* picture structure */
     int linesize[MAX_COMPONENTS];                   ///< linesize << interlaced
     int8_t *qscale_table;
-    DCTELEM block[64] __align8;
+    DECLARE_ALIGNED_8(DCTELEM, block[64]);
     ScanTable scantable;
     void (*idct_put)(uint8_t *dest/*align 8*/, int line_size, DCTELEM *block/*align 16*/);
 
@@ -885,6 +885,8 @@ typedef struct MJpegDecodeContext {
     int interlace_polarity;
 
     int mjpb_skiptosod;
+
+    int cur_scan; /* current scan, used by JPEG-LS */
 } MJpegDecodeContext;
 
 #include "jpeg_ls.c" //FIXME make jpeg-ls more independant
@@ -892,13 +894,23 @@ typedef struct MJpegDecodeContext {
 static int mjpeg_decode_dht(MJpegDecodeContext *s);
 
 static int build_vlc(VLC *vlc, const uint8_t *bits_table, const uint8_t *val_table,
-                      int nb_codes, int use_static)
+                      int nb_codes, int use_static, int is_ac)
 {
-    uint8_t huff_size[256];
-    uint16_t huff_code[256];
+    uint8_t huff_size[256+16];
+    uint16_t huff_code[256+16];
+
+    assert(nb_codes <= 256);
 
     memset(huff_size, 0, sizeof(huff_size));
     build_huffman_codes(huff_size, huff_code, bits_table, val_table);
+
+    if(is_ac){
+        memmove(huff_size+16, huff_size, sizeof(uint8_t)*nb_codes);
+        memmove(huff_code+16, huff_code, sizeof(uint16_t)*nb_codes);
+        memset(huff_size, 0, sizeof(uint8_t)*16);
+        memset(huff_code, 0, sizeof(uint16_t)*16);
+        nb_codes += 16;
+    }
 
     return init_vlc(vlc, 9, nb_codes, huff_size, 1, 1, huff_code, 2, 2, use_static);
 }
@@ -928,10 +940,10 @@ static int mjpeg_decode_init(AVCodecContext *avctx)
     s->first_picture = 1;
     s->org_height = avctx->coded_height;
 
-    build_vlc(&s->vlcs[0][0], bits_dc_luminance, val_dc_luminance, 12, 0);
-    build_vlc(&s->vlcs[0][1], bits_dc_chrominance, val_dc_chrominance, 12, 0);
-    build_vlc(&s->vlcs[1][0], bits_ac_luminance, val_ac_luminance, 251, 0);
-    build_vlc(&s->vlcs[1][1], bits_ac_chrominance, val_ac_chrominance, 251, 0);
+    build_vlc(&s->vlcs[0][0], bits_dc_luminance, val_dc_luminance, 12, 0, 0);
+    build_vlc(&s->vlcs[0][1], bits_dc_chrominance, val_dc_chrominance, 12, 0, 0);
+    build_vlc(&s->vlcs[1][0], bits_ac_luminance, val_ac_luminance, 251, 0, 1);
+    build_vlc(&s->vlcs[1][1], bits_ac_chrominance, val_ac_chrominance, 251, 0, 1);
 
     if (avctx->flags & CODEC_FLAG_EXTERN_HUFF)
     {
@@ -1082,7 +1094,7 @@ static int mjpeg_decode_dht(MJpegDecodeContext *s)
         free_vlc(&s->vlcs[class][index]);
         dprintf("class=%d index=%d nb_codes=%d\n",
                class, index, code_max + 1);
-        if(build_vlc(&s->vlcs[class][index], bits_table, val_table, code_max + 1, 0) < 0){
+        if(build_vlc(&s->vlcs[class][index], bits_table, val_table, code_max + 1, 0, class > 0) < 0){
             return -1;
         }
     }
@@ -1104,6 +1116,11 @@ static int mjpeg_decode_sof(MJpegDecodeContext *s)
         av_log(s->avctx, AV_LOG_ERROR, "only 8 bits/component accepted\n");
         return -1;
     }
+    if (s->bits > 8 && s->ls){
+        av_log(s->avctx, AV_LOG_ERROR, "only <= 8 bits/component accepted for JPEG-LS\n");
+        return -1;
+    }
+
     height = get_bits(&s->gb, 16);
     width = get_bits(&s->gb, 16);
 
@@ -1135,6 +1152,11 @@ static int mjpeg_decode_sof(MJpegDecodeContext *s)
             s->v_count[i], s->component_id[i], s->quant_index[i]);
     }
 
+    if(s->ls && (s->h_max > 1 || s->v_max > 1)) {
+        av_log(s->avctx, AV_LOG_ERROR, "Subsampling in JPEG-LS is not supported.\n");
+        return -1;
+    }
+
     if(s->v_max==1 && s->h_max==1 && s->lossless==1) s->rgb=1;
 
     /* if different size, realloc/alloc picture */
@@ -1144,7 +1166,6 @@ static int mjpeg_decode_sof(MJpegDecodeContext *s)
 
         s->width = width;
         s->height = height;
-        avcodec_set_dimensions(s->avctx, width, height);
 
         /* test interlaced mode */
         if (s->first_picture &&
@@ -1153,8 +1174,10 @@ static int mjpeg_decode_sof(MJpegDecodeContext *s)
             s->interlaced = 1;
 //            s->bottom_field = (s->interlace_polarity) ? 1 : 0;
             s->bottom_field = 0;
-            s->avctx->height *= 2;
+            height *= 2;
         }
+
+        avcodec_set_dimensions(s->avctx, width, height);
 
         s->qscale_table= av_mallocz((s->width+15)/16);
 
@@ -1181,6 +1204,12 @@ static int mjpeg_decode_sof(MJpegDecodeContext *s)
     case 0x22:
         s->avctx->pix_fmt = s->cs_itu601 ? PIX_FMT_YUV420P : PIX_FMT_YUVJ420P;
         break;
+    }
+    if(s->ls){
+        if(s->nb_components > 1)
+            s->avctx->pix_fmt = PIX_FMT_RGB24;
+        else
+            s->avctx->pix_fmt = PIX_FMT_GRAY8;
     }
 
     if(s->picture.data[0])
@@ -1227,11 +1256,9 @@ static inline int mjpeg_decode_dc(MJpegDecodeContext *s, int dc_index)
 
 /* decode block and dequantize */
 static int decode_block(MJpegDecodeContext *s, DCTELEM *block,
-                        int component, int dc_index, int ac_index, int quant_index)
+                        int component, int dc_index, int ac_index, int16_t *quant_matrix)
 {
     int code, i, j, level, val;
-    VLC *ac_vlc;
-    int16_t *quant_matrix;
 
     /* DC coef */
     val = mjpeg_decode_dc(s, dc_index);
@@ -1239,39 +1266,48 @@ static int decode_block(MJpegDecodeContext *s, DCTELEM *block,
         dprintf("error dc\n");
         return -1;
     }
-    quant_matrix = s->quant_matrixes[quant_index];
     val = val * quant_matrix[0] + s->last_dc[component];
     s->last_dc[component] = val;
     block[0] = val;
     /* AC coefs */
-    ac_vlc = &s->vlcs[1][ac_index];
-    i = 1;
+    i = 0;
+    {OPEN_READER(re, &s->gb)
     for(;;) {
-        code = get_vlc2(&s->gb, s->vlcs[1][ac_index].table, 9, 2);
+        UPDATE_CACHE(re, &s->gb);
+        GET_VLC(code, re, &s->gb, s->vlcs[1][ac_index].table, 9, 2)
 
-        if (code < 0) {
-            dprintf("error ac\n");
-            return -1;
-        }
         /* EOB */
-        if (code == 0)
+        if (code == 0x10)
             break;
-        if (code == 0xf0) {
-            i += 16;
-        } else {
-            level = get_xbits(&s->gb, code & 0xf);
-            i += code >> 4;
-            if (i >= 64) {
+        i += ((unsigned)code) >> 4;
+        if(code != 0x100){
+            code &= 0xf;
+            if(code > MIN_CACHE_BITS - 16){
+                UPDATE_CACHE(re, &s->gb)
+            }
+            {
+                int cache=GET_CACHE(re,&s->gb);
+                int sign=(~cache)>>31;
+                level = (NEG_USR32(sign ^ cache,code) ^ sign) - sign;
+            }
+
+            LAST_SKIP_BITS(re, &s->gb, code)
+
+            if (i >= 63) {
+                if(i == 63){
+                    j = s->scantable.permutated[63];
+                    block[j] = level * quant_matrix[j];
+                    break;
+                }
                 dprintf("error count: %d\n", i);
                 return -1;
             }
             j = s->scantable.permutated[i];
             block[j] = level * quant_matrix[j];
-            i++;
-            if (i >= 64)
-                break;
         }
     }
+    CLOSE_READER(re, &s->gb)}
+
     return 0;
 }
 
@@ -1448,7 +1484,7 @@ static int mjpeg_decode_scan(MJpegDecodeContext *s){
                     memset(s->block, 0, sizeof(s->block));
                     if (decode_block(s, s->block, i,
                                      s->dc_index[i], s->ac_index[i],
-                                     s->quant_index[c]) < 0) {
+                                     s->quant_matrixes[ s->quant_index[c] ]) < 0) {
                         dprintf("error y=%d x=%d\n", mb_y, mb_x);
                         return -1;
                     }
@@ -1495,7 +1531,7 @@ static int mjpeg_decode_sos(MJpegDecodeContext *s)
         return -1;
     }
     /* XXX: only interleaved scan accepted */
-    if (nb_components != s->nb_components)
+    if ((nb_components != s->nb_components) && !s->ls)
     {
         dprintf("decode_sos: components(%d) mismatch\n", nb_components);
         return -1;
@@ -1559,7 +1595,7 @@ static int mjpeg_decode_sos(MJpegDecodeContext *s)
         /* interleaved stream */
         s->mb_width  = (s->width  + s->h_max * block_size - 1) / (s->h_max * block_size);
         s->mb_height = (s->height + s->v_max * block_size - 1) / (s->v_max * block_size);
-    } else {
+    } else if(!s->ls) { /* skip this for JPEG-LS */
         h = s->h_max / s->h_scount[s->comp_index[0]];
         v = s->v_max / s->v_scount[s->comp_index[0]];
         s->mb_width  = (s->width  + h * block_size - 1) / (h * block_size);
@@ -1582,6 +1618,9 @@ static int mjpeg_decode_sos(MJpegDecodeContext *s)
     if(s->lossless){
         if(s->ls){
 //            for(){
+//            reset_ls_coding_parameters(s, 0);
+
+            ls_decode_picture(s, predictor, point_transform, ilv);
         }else{
             if(s->rgb){
                 if(ljpeg_decode_rgb_scan(s, predictor, point_transform) < 0)
@@ -1878,8 +1917,8 @@ static int mjpeg_decode_frame(AVCodecContext *avctx,
                         s->buffer_size);
                 }
 
-                /* unescape buffer of SOS */
-                if (start_code == SOS)
+                /* unescape buffer of SOS, use special treatment for JPEG-LS */
+                if (start_code == SOS && !s->ls)
                 {
                     uint8_t *src = buf_ptr;
                     uint8_t *dst = s->buffer;
@@ -1905,6 +1944,45 @@ static int mjpeg_decode_frame(AVCodecContext *avctx,
                     dprintf("escaping removed %d bytes\n",
                         (buf_end - buf_ptr) - (dst - s->buffer));
                 }
+                else if(start_code == SOS && s->ls){
+                    uint8_t *src = buf_ptr;
+                    uint8_t *dst = s->buffer;
+                    int bit_count = 0;
+                    int t = 0, b = 0;
+                    PutBitContext pb;
+
+                    s->cur_scan++;
+
+                    /* find marker */
+                    while (src + t < buf_end){
+                        uint8_t x = src[t++];
+                        if (x == 0xff){
+                            while((src + t < buf_end) && x == 0xff)
+                                x = src[t++];
+                            if (x & 0x80) {
+                                t -= 2;
+                                break;
+                            }
+                        }
+                    }
+                    bit_count = t * 8;
+
+                    init_put_bits(&pb, dst, t);
+
+                    /* unescape bitstream */
+                    while(b < t){
+                        uint8_t x = src[b++];
+                        put_bits(&pb, 8, x);
+                        if(x == 0xFF){
+                            x = src[b++];
+                            put_bits(&pb, 7, x);
+                            bit_count--;
+                        }
+                    }
+                    flush_put_bits(&pb);
+
+                    init_get_bits(&s->gb, dst, bit_count);
+                }
                 else
                     init_get_bits(&s->gb, buf_ptr, (buf_end - buf_ptr)*8);
 
@@ -1927,7 +2005,6 @@ static int mjpeg_decode_frame(AVCodecContext *avctx,
                 switch(start_code) {
                 case SOI:
                     s->restart_interval = 0;
-                    reset_ls_coding_parameters(s, 1);
 
                     s->restart_count = 0;
                     /* nothing to do on SOI */

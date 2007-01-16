@@ -7,6 +7,9 @@ using namespace std;
 #include "mythimage.h"
 #include "mythpainter.h"
 #include "mythmainwindow.h"
+#include "mythfontproperties.h"
+
+#include "mythcontext.h"
 
 MythUIType::MythUIType(QObject *parent, const char *name)
           : QObject(parent, name)
@@ -29,34 +32,15 @@ MythUIType::MythUIType(QObject *parent, const char *name)
         if (m_Parent)
             m_Parent->AddChild(this);
     }
-    
-    //
-    //  Optional elements that draw a frame around any MythUIType if user sets
-    //  debug true in the xml
-    //
 
-    m_debug_mode = false;
-    m_debug_hor_line = NULL;
-    m_debug_ver_line = NULL;
-    m_debug_color = QColor(0,0,255);    // blue by default
+    m_DirtyRegion = QRegion(QRect(0, 0, 0, 0));
+
+    m_Fonts = new FontMap();
 }
 
 MythUIType::~MythUIType()
 {
-    //
-    //  delete debugging images if they exist
-    //
-    
-    if (m_debug_hor_line)
-    {
-        m_debug_hor_line->DownRef();
-        m_debug_hor_line = NULL;
-    }
-    if (m_debug_ver_line)
-    {
-        m_debug_ver_line->DownRef();
-        m_debug_ver_line = NULL;
-    }
+    delete m_Fonts;
 }
 
 void MythUIType::AddChild(MythUIType *child)
@@ -80,6 +64,17 @@ MythUIType *MythUIType::GetChild(const char *name, const char *inherits)
 QValueVector<MythUIType *> *MythUIType::GetAllChildren(void)
 {
     return &m_ChildrenList;
+}
+
+void MythUIType::DeleteAllChildren(void)
+{
+    QValueVector<MythUIType*>::iterator it;
+    for (it = m_ChildrenList.begin(); it != m_ChildrenList.end(); ++it)
+    {
+        (*it)->deleteLater();
+    }
+
+    m_ChildrenList.clear();
 }
 
 MythUIType *MythUIType::GetChildAt(const QPoint &p)
@@ -112,28 +107,29 @@ bool MythUIType::NeedsRedraw(void)
 
 void MythUIType::SetRedraw(void)
 {
+    if (m_Area.width() == 0 || m_Area.height() == 0)
+        return;
+
     m_NeedsRedraw = true;
-    m_DirtyRect = m_Area;
+    m_DirtyRegion = QRegion(m_Area);
     if (m_Parent)
         m_Parent->SetChildNeedsRedraw(this);
 }
 
 void MythUIType::SetChildNeedsRedraw(MythUIType *child)
 {
+    QRegion childRegion = child->GetDirtyArea();
+    if (childRegion.isEmpty())
+        return;
+
+    childRegion.translate(m_Area.x(), m_Area.y());
+
     m_NeedsRedraw = true;
 
-    QRect childRect = child->GetDirtyArea();
-    childRect.moveBy(m_Area.x(), m_Area.y());
-
-    if (m_DirtyRect != QRect())
-        m_DirtyRect = m_DirtyRect.unite(childRect);
+    if (m_DirtyRegion.isEmpty())
+        m_DirtyRegion = childRegion;
     else
-        m_DirtyRect = childRect;
-
-    // For poorly defined items
-    QSize aSize = m_Area.size();
-    aSize = aSize.expandedTo(m_DirtyRect.size());
-    m_Area.setSize(aSize);
+        m_DirtyRegion = m_DirtyRegion.unite(childRegion);
 
     if (m_Parent)
         m_Parent->SetChildNeedsRedraw(this);
@@ -151,6 +147,9 @@ void MythUIType::SetCanTakeFocus(bool set)
 
 void MythUIType::HandleMovementPulse(void)
 {
+    if (!GetMythPainter()->SupportsAnimation())
+        return;
+
     if (!m_Moving)
         return;
 
@@ -189,6 +188,9 @@ void MythUIType::HandleMovementPulse(void)
 
 void MythUIType::HandleAlphaPulse(void)
 {
+    if (!GetMythPainter()->SupportsAlpha())
+        return;
+
     if (m_AlphaChangeMode == 0)
         return;
 
@@ -229,26 +231,6 @@ int MythUIType::CalcAlpha(int alphamod)
     return (int)(m_Alpha * (alphamod / 255.0));
 }
 
-void MythUIType::setDebugColor(QColor c)
-{
-    m_debug_color = c;
-}
-
-void MythUIType::makeDebugImages()
-{
-    //
-    //  MythImage::FromQImage() deletes the QImage's
-    //
-
-    QImage *temp_image = new QImage(m_Area.width(), 1, 32);
-    temp_image->fill(m_debug_color.rgb());
-    m_debug_hor_line = MythImage::FromQImage(&temp_image);
-
-    temp_image = new QImage(1, m_Area.height(), 32);
-    temp_image->fill(m_debug_color.rgb());
-    m_debug_ver_line = MythImage::FromQImage(&temp_image);
-}
-
 void MythUIType::DrawSelf(MythPainter *, int, int, int, QRect)
 {
 }
@@ -256,10 +238,11 @@ void MythUIType::DrawSelf(MythPainter *, int, int, int, QRect)
 void MythUIType::Draw(MythPainter *p, int xoffset, int yoffset, int alphaMod,
                       QRect clipRect)
 {
+    m_NeedsRedraw = false;
+    m_DirtyRegion = QRegion(QRect(0, 0, 0, 0));
+
     if (!m_Visible)
-    {
         return;
-    }
 
     QRect realArea = m_Area;
     realArea.moveBy(xoffset, yoffset);
@@ -274,37 +257,6 @@ void MythUIType::Draw(MythPainter *p, int xoffset, int yoffset, int alphaMod,
     {
         (*it)->Draw(p, xoffset + m_Area.x(), yoffset + m_Area.y(), 
                     CalcAlpha(alphaMod), clipRect);
-    }
-
-    m_NeedsRedraw = false;
-    m_DirtyRect = QRect();
- 
-    //
-    //  If I'm in debugging mode, draw a frame at the edge of my area
-    //
-    
-    if (m_debug_mode && m_Area.width() > 0 && m_Area.height() > 0)
-    {
-        if (!m_debug_hor_line || !m_debug_ver_line)
-        {
-            makeDebugImages();
-        }
-        
-        //
-        //  This is slow, but is only called when debug is set in the xml
-        //
-
-        QRect area = QRect(m_Area.left() + xoffset, m_Area.top() + yoffset, 1, m_Area.height());
-        p->DrawImage(area, m_debug_ver_line, m_debug_ver_line->rect(), CalcAlpha(alphaMod)); 
-
-        area = QRect(m_Area.right() + xoffset, m_Area.top() + yoffset, 1, m_Area.height());
-        p->DrawImage(area, m_debug_ver_line, m_debug_ver_line->rect(), CalcAlpha(alphaMod)); 
-
-        area = QRect(m_Area.left() + xoffset, m_Area.top() + yoffset, m_Area.width(), 1);
-        p->DrawImage(area, m_debug_hor_line, m_debug_ver_line->rect(), CalcAlpha(alphaMod)); 
-
-        area = QRect(m_Area.left() + xoffset, m_Area.bottom() + yoffset, m_Area.width(), 1);
-        p->DrawImage(area, m_debug_hor_line, m_debug_ver_line->rect(), CalcAlpha(alphaMod)); 
     }
 }
 
@@ -336,9 +288,9 @@ QRect MythUIType::GetArea(void) const
     return m_Area;
 }
 
-QRect MythUIType::GetDirtyArea(void) const
+QRegion MythUIType::GetDirtyArea(void) const
 {
-    return m_DirtyRect;
+    return m_DirtyRegion;
 }
 
 QString MythUIType::cutDown(const QString &data, QFont *font,
@@ -450,6 +402,12 @@ void MythUIType::customEvent(QCustomEvent *)
     return;
 }
 
+void MythUIType::gestureEvent(MythUIType *origtype, MythGestureEvent *ge)
+{
+    if (m_Parent)
+        m_Parent->gestureEvent(origtype, ge);
+}
+
 void MythUIType::LoseFocus(void)
 {
     if (!m_CanHaveFocus || !m_HasFocus)
@@ -537,5 +495,75 @@ int MythUIType::NormX(const int x)
 int MythUIType::NormY(const int y)
 {
     return GetMythMainWindow()->NormY(y);
+}
+
+void MythUIType::CopyFrom(MythUIType *base)
+{
+    m_Visible = base->m_Visible;
+    m_CanHaveFocus = base->m_CanHaveFocus;
+
+    m_Area = base->m_Area;
+    m_Alpha = base->m_Alpha;
+    m_AlphaChangeMode = base->m_AlphaChangeMode;
+    m_AlphaChange = base->m_AlphaChange;
+    m_AlphaMin = base->m_AlphaMin;
+    m_AlphaMax = base->m_AlphaMax;
+
+    m_Moving = base->m_Moving;
+    m_XYDestination = base->m_XYDestination;
+    m_XYSpeed = base->m_XYSpeed;
+
+    QValueVector<MythUIType *>::Iterator it;
+    for (it = base->m_ChildrenList.begin(); it != base->m_ChildrenList.end(); 
+         ++it)
+    {
+         (*it)->CreateCopy(this);
+    }
+}
+
+void MythUIType::CreateCopy(MythUIType *)
+{
+    VERBOSE(VB_IMPORTANT, "Copy called on base type?");
+}
+
+//FIXME add alpha/movement/etc.
+bool MythUIType::ParseElement(QDomElement &element)
+{
+    if (element.tagName() == "position")
+        SetPosition(parsePoint(element));
+    else if (element.tagName() == "alpha")
+    {
+        m_Alpha = getFirstText(element).toInt();
+        m_AlphaChangeMode = 0;
+    }
+    else if (element.tagName() == "alphapulse")
+    {
+        m_AlphaChangeMode = 2;
+        m_AlphaMin = element.attribute("min", "0").toInt();
+        m_AlphaMax = element.attribute("max", "255").toInt();
+        m_AlphaChange = element.attribute("change", "5").toInt();
+    }
+    else
+        return false;
+
+    return true;
+}
+
+void MythUIType::Finalize(void)
+{
+}
+
+MythFontProperties *MythUIType::GetFont(const QString &text)
+{
+    MythFontProperties *ret = m_Fonts->GetFont(text);
+    if (!ret && m_Parent)
+        return m_Parent->GetFont(text);
+
+    return ret;
+}
+
+bool MythUIType::AddFont(const QString &text, MythFontProperties *fontProp)
+{
+    return m_Fonts->AddFont(text, fontProp);
 }
 

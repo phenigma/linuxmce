@@ -5,32 +5,6 @@
 #ifndef AVCODEC_I386MMX_H
 #define AVCODEC_I386MMX_H
 
-#ifdef ARCH_X86_64
-#  define REGa  rax
-#  define REGc  rcx
-#  define REGd  rdx
-#  define REG_a "rax"
-#  define REG_b "rbx"
-#  define REG_c "rcx"
-#  define REG_d "rdx"
-#  define REG_D "rdi"
-#  define REG_S "rsi"
-#  define REG_SP "rsp"
-#  define ALIGN_MASK "$0xFFFFFFFFFFFFFFF8"
-#else
-#  define REGa  eax
-#  define REGc  ecx
-#  define REGd  edx
-#  define REG_a "eax"
-#  define REG_b "ebx"
-#  define REG_c "ecx"
-#  define REG_d "edx"
-#  define REG_D "edi"
-#  define REG_S "esi"
-#  define REG_SP "esp"
-#  define ALIGN_MASK "$0xFFFFFFF8"
-#endif
-
 /*
  * The type of an value that fits in an MMX register (note that long
  * long constant values MUST be suffixed by LL and unsigned long long
@@ -234,16 +208,16 @@ typedef        union {
 #define         mmx_m2ri(op,mem,reg,imm) \
         __asm__ __volatile__ (#op " %1, %0, %%" #reg \
                               : /* nothing */ \
-                              : "X" (mem), "X" (imm))
+                              : "m" (mem), "i" (imm))
 #define         mmx_r2ri(op,regs,regd,imm) \
         __asm__ __volatile__ (#op " %0, %%" #regs ", %%" #regd \
                               : /* nothing */ \
-                              : "X" (imm) )
+                              : "i" (imm) )
 
 #define         mmx_fetch(mem,hint) \
         __asm__ __volatile__ ("prefetch" #hint " %0" \
                               : /* nothing */ \
-                              : "X" (mem))
+                              : "m" (mem))
 
 
 #define         maskmovq(regs,maskreg)      mmx_r2ri (maskmovq, regs, maskreg)

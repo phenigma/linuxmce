@@ -1,6 +1,7 @@
 #include "mythcdrom.h"
 #include <sys/stat.h>
 
+#include "mythconfig.h"
 #include "mythcontext.h"
 
 // For testing
@@ -31,6 +32,8 @@ MythCDROM* MythCDROM::get(QObject* par, const char* devicePath, bool SuperMount,
     return new MythCDROMLinux(par, devicePath, SuperMount, AllowEject);
 #elif defined(__FreeBSD__)
     return new MythCDROMFreeBSD(par, devicePath, SuperMount, AllowEject);
+#elif defined(CONFIG_DARWIN)
+    return new MythCDROM(par, devicePath, SuperMount, AllowEject);
 #else
     return NULL;
 #endif
@@ -60,11 +63,6 @@ void MythCDROM::onDeviceMounted()
 {
     QString DetectPath, DetectPath2;
 
-    // We should do some fine-grained checking using
-    // extensions or true filetype verification to determine
-    // what kind of data this is.  It could be audio or
-    // video data on an iso9660 fs, for example.
-    //
     // Default is data media
     m_MediaType = MEDIATYPE_DATA;
 
@@ -98,6 +96,10 @@ void MythCDROM::onDeviceMounted()
         performMountCmd(false);
         m_Status = MEDIASTAT_USEABLE; 
     }
+
+    // If not DVB or VCD, use parent to check file ext to determine media type
+    if (MEDIATYPE_DATA == m_MediaType)
+        MythMediaDevice::onDeviceMounted();
 
     if (m_AllowEject)
         unlock();

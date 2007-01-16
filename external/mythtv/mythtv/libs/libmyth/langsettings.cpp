@@ -146,6 +146,7 @@ QStringList LanguageSettings::getLanguages(void)
           << QString::fromUtf8("Islenska")    << "IS"   // Icelandic
           << QString::fromUtf8("Norsk (bokmål)") << "NB" // Norwegian (Bokmål)
           << QString::fromUtf8("Svenska")     << "SV"   // Swedish
+          << QString::fromUtf8("Polski")      << "PL"   // Polish
           << QString::fromUtf8("Português")  << "PT"   // Portuguese
           << QString::fromUtf8("Nihongo")     << "JA"   // Japanese
           << QString::fromUtf8("Slovenski")   << "SI"   // Slovenian
@@ -156,7 +157,9 @@ QStringList LanguageSettings::getLanguages(void)
           << QString::fromUtf8("Português Brasileiro")
               << "PT_BR"                               // Brazilian Portuguese
           << QString::fromUtf8("English (British)") << "EN_GB"   // British English
-          << QString::fromUtf8("Česky")       << "CZ";   // Czech
+          << QString::fromUtf8("Česky")       << "CZ"    // Czech
+          << QString::fromUtf8("Türkçe")      << "TR"   // Turkish
+          << QString::fromUtf8("Русский")    << "RU";     // Russian
     return langs;
 }
 

@@ -14,6 +14,7 @@ using namespace std;
 #else
 #include <sys/param.h>
 #include <sys/mount.h>
+#include <sys/resource.h>
 #endif
 
 #include <sys/stat.h>
@@ -25,6 +26,7 @@ using namespace std;
 #include "encoderlink.h"
 #include "mainserver.h"
 #include "remoteutil.h"
+#include "libmyth/util.h"
 #include "libmyth/exitcodes.h"
 #include "libmyth/mythcontext.h"
 #include "libmyth/mythdbcon.h"
@@ -70,10 +72,6 @@ Scheduler::Scheduler(bool runthread, QMap<int, EncoderLink *> *tvList,
     {
         pthread_t scthread;
         pthread_create(&scthread, NULL, SchedulerThread, this);
-
-        // Lower scheduling priority, to avoid problems with recordings.
-        struct sched_param sp = {9 /* lower than normal */};
-        pthread_setschedparam(scthread, SCHED_OTHER, &sp);
     }
 }
 
@@ -250,9 +248,16 @@ static bool comp_timechannel(ProgramInfo *a, ProgramInfo *b)
 
 void Scheduler::FillEncoderFreeSpaceCache()
 {
+    long long frsp;
+
     QMap<int, EncoderLink *>::Iterator enciter = m_tvList->begin();
     for (; enciter != m_tvList->end(); ++enciter)
-        enciter.data()->GetFreeDiskSpace(false); // update cache value
+    {
+        frsp = enciter.data()->GetFreeDiskSpace(false); // update cache value
+        VERBOSE(VB_SCHEDULE, QString("Encoder card %1 free space %2")
+                                     .arg(enciter.data()->GetCardID())
+                                     .arg(frsp));
+    }
 }
 
 bool Scheduler::FillRecordList(void)
@@ -378,7 +383,7 @@ void Scheduler::PrintList(bool onlyFutureRecordings)
 
     cout << "--- print list start ---\n";
     cout << "Title - Subtitle                    Chan ChID Day Start  End   "
-        "S C I  T N Pri" << endl;
+        "C I  T N   Pri" << endl;
 
     RecIter i = reclist.begin();
     for ( ; i != reclist.end(); i++)
@@ -416,11 +421,10 @@ void Scheduler::PrintRec(ProgramInfo *p, const char *prefix)
          << p->chanstr.rightJustify(4, ' ') << " " << p->chanid 
          << p->recstartts.toString("  dd hh:mm-").local8Bit()
          << p->recendts.toString("hh:mm  ").local8Bit()
-         << p->sourceid << " " << p->cardid << " "
-         << p->inputid << "  " << p->RecTypeChar() << " "
-         << p->RecStatusChar() << " "
-         << QString::number(p->recpriority + p->recpriority2)
-                           .rightJustify(3, ' ')
+         << p->cardid << " " << p->inputid << "  " 
+         << p->RecTypeChar() << " " << p->RecStatusChar() << " "
+         << (QString::number(p->recpriority) + "/" + 
+             QString::number(p->recpriority2)).rightJustify(5, ' ')
          << endl;
 }
 
@@ -760,6 +764,8 @@ void Scheduler::RestoreRecStatus(void)
 
 bool Scheduler::TryAnotherShowing(ProgramInfo *p)
 {
+    PrintRec(p, "     >");
+
     if (p->recstatus == rsRecording)
         return false;
 
@@ -770,6 +776,7 @@ bool Scheduler::TryAnotherShowing(ProgramInfo *p)
         p->rectype == kFindWeeklyRecord)
         showinglist = &recordidlistmap[p->recordid];
 
+    RecStatusType oldstatus = p->recstatus;
     p->recstatus = rsLaterShowing;
 
     RecIter j = showinglist->begin();
@@ -780,7 +787,8 @@ bool Scheduler::TryAnotherShowing(ProgramInfo *p)
             continue;
 
         if (q->recstatus != rsEarlierShowing &&
-            q->recstatus != rsLaterShowing)
+            q->recstatus != rsLaterShowing &&
+            q->recstatus != rsUnknown)
             continue;
         if (!p->IsSameTimeslot(*q))
         {
@@ -793,10 +801,14 @@ bool Scheduler::TryAnotherShowing(ProgramInfo *p)
                 continue;
         }
 
+        PrintRec(q, "     #");
         RecList &cardlist = cardlistmap[q->cardid];
         RecIter k = cardlist.begin();
         if (FindNextConflict(cardlist, q, k))
+        {
+            PrintRec(*k, "        !");
             continue;
+        }
 
         q->recstatus = rsWillRecord;
         MarkOtherShowings(q);
@@ -805,7 +817,7 @@ bool Scheduler::TryAnotherShowing(ProgramInfo *p)
         return true;
     }
 
-    p->recstatus = rsWillRecord;
+    p->recstatus = oldstatus;
     return false;
 }
 
@@ -830,7 +842,11 @@ void Scheduler::SchedNewRecords(void)
                 PrintRec(p, "  +");
             }
             else
+            {
                 retrylist.push_front(p);
+                PrintRec(p, "  #");
+                PrintRec(*k, "     !");
+            }
         }
 
         int lastpri = p->recpriority;
@@ -853,6 +869,9 @@ void Scheduler::MoveHigherRecords(void)
             continue;
 
         PrintRec(p, "  ?");
+
+        if (TryAnotherShowing(p))
+            continue;
 
         BackupRecStatus();
         p->recstatus = rsWillRecord;
@@ -1360,15 +1379,26 @@ void Scheduler::RunScheduler(void)
             statuschanged = true;
 
             bool is_rec = (nextRecording->recstatus == rsRecording);
-            msg = is_rec ? "Started recording" : "Canceled recording"; 
+            msg = is_rec ? "Started recording" : "Canceled recording (" +
+                nextRecording->RecStatusText() + ")"; 
+
             VERBOSE(VB_GENERAL, msg << ": " << details);
             gContext->LogEntry("scheduler", LP_NOTICE, msg, details);
+
+            if (nextRecording->recstatus == rsFailed)
+            {
+                MythEvent me(QString("FORCE_DELETE_RECORDING %1 %2")
+                         .arg(nextRecording->chanid)
+                         .arg(nextRecording->recstartts.toString(Qt::ISODate)));
+                gContext->dispatch(me);
+            }
         }
 
         if (statuschanged)
         {
             MythEvent me("SCHEDULE_CHANGE");
             gContext->dispatch(me);
+            idleSince = QDateTime();
         }
 
         // if idletimeout is 0, the user disabled the auto-shutdown feature
@@ -1503,6 +1533,9 @@ bool Scheduler::CheckShutdownServer(int prerollseconds, QDateTime &idleSince,
             }
         }
     }
+    else
+        retval = true; // allow shutdown if now command is set.
+
     return retval;
 }
 
@@ -1567,6 +1600,9 @@ void Scheduler::ShutdownServer(int prerollseconds)
 
 void *Scheduler::SchedulerThread(void *param)
 {
+    // Lower scheduling priority, to avoid problems with recordings.
+    if (setpriority(PRIO_PROCESS, 0, 9))
+        VERBOSE(VB_IMPORTANT, LOC + "Setting priority failed." + ENO);
     Scheduler *sched = (Scheduler *)param;
     sched->RunScheduler();
  
@@ -1911,6 +1947,12 @@ void Scheduler::AddNewRecords(void)
     QMap<RecordingType, int> recTypeRecPriorityMap;
     RecList tmpList;
 
+    int complexpriority = gContext->GetNumSetting("ComplexPriority", 0);
+    int prefinputpri    = gContext->GetNumSetting("PrefInputPriority", 2);
+    int oncepriority    = gContext->GetNumSetting("OnceRecPriority", 0);
+    int hdtvpriority    = gContext->GetNumSetting("HDTVRecPriority", 0);
+    int ccpriority      = gContext->GetNumSetting("CCRecPriority", 0);
+
     QMap<int, bool> cardMap;
     QMap<int, EncoderLink *>::Iterator enciter = m_tvList->begin();
     for (; enciter != m_tvList->end(); ++enciter)
@@ -2006,7 +2048,9 @@ void Scheduler::AddNewRecords(void)
 "program.airdate, program.stars, program.originalairdate, RECTABLE.inactive, "
 "RECTABLE.parentid, ") + progfindid + ", RECTABLE.playgroup, "
 "oldrecstatus.recstatus, oldrecstatus.reactivate, " 
-"channel.recpriority + cardinput.preference "
+"channel.recpriority + cardinput.recpriority, "
+"RECTABLE.prefinput, program.hdtv, program.closecaptioned, "
+"program.first, program.last, program.stereo "
 + QString(
 "FROM recordmatch "
 
@@ -2108,11 +2152,6 @@ void Scheduler::AddNewRecords(void)
 
     while (result.next())
     {
-        // Don't bother if the tuner card isn't on-line
-        int cardid = result.value(24).toInt();
-        if ((threadrunning || specsched) && !cardMap.contains(cardid))
-            continue;
-
         ProgramInfo *p = new ProgramInfo;
         p->reactivate = result.value(38).toInt();
         p->oldrecstatus = RecStatusType(result.value(37).toInt());
@@ -2133,7 +2172,6 @@ void Scheduler::AddNewRecords(void)
         p->channame = QString::fromUtf8(result.value(9).toString());
         p->category = QString::fromUtf8(result.value(11).toString());
         p->recpriority = result.value(12).toInt();
-        p->recpriority2 = result.value(39).toInt();
         p->dupin = RecordingDupInType(result.value(13).toInt());
         p->dupmethod = RecordingDupMethodType(result.value(22).toInt());
         p->rectype = RecordingType(result.value(16).toInt());
@@ -2145,7 +2183,7 @@ void Scheduler::AddNewRecords(void)
         p->recgroup = result.value(21).toString();
         p->playgroup = result.value(36).toString();
         p->chancommfree = result.value(23).toInt();
-        p->cardid = cardid;
+        p->cardid = result.value(24).toInt();
         p->inputid = result.value(25).toInt();
         p->shareable = result.value(26).toInt();
         p->seriesid = result.value(27).toString();
@@ -2153,7 +2191,6 @@ void Scheduler::AddNewRecords(void)
         p->catType = result.value(29).toString();
         p->year = result.value(30).toString();
         p->stars =  result.value(31).toDouble();
-
 
         if (result.value(32).isNull())
         {
@@ -2174,6 +2211,34 @@ void Scheduler::AddNewRecords(void)
             recTypeRecPriorityMap[p->rectype] = 
                 p->GetRecordingTypeRecPriority(p->rectype);
         p->recpriority += recTypeRecPriorityMap[p->rectype];
+
+        p->recpriority2 += result.value(39).toInt();
+
+        if (prefinputpri != 0 && p->inputid == result.value(40).toInt())
+            p->recpriority2 += prefinputpri;
+
+        if (hdtvpriority != 0 && result.value(41).toInt() > 0)
+            p->recpriority2 += hdtvpriority;
+
+        if (ccpriority != 0 && result.value(42).toInt() > 0)
+            p->recpriority2 += ccpriority;
+
+        if (oncepriority != 0 && result.value(43).toInt() > 0 && 
+                                 result.value(44).toInt() > 0)
+            p->recpriority2 += oncepriority;
+
+        if (result.value(41).toInt())
+            p->programflags |= FL_HDTV;
+        if (result.value(45).toInt())
+            p->programflags |= FL_STEREO;
+        if (result.value(42).toInt())
+            p->programflags |= FL_CC;
+
+        if (complexpriority == 0)
+        {
+            p->recpriority += p->recpriority2;
+            p->recpriority2 = 0;
+        }
 
         if (p->recstartts >= p->recendts)
         {
@@ -2208,6 +2273,10 @@ void Scheduler::AddNewRecords(void)
         }
         if (p == NULL)
             continue;
+
+        // Check for rsOffLine
+        if ((threadrunning || specsched) && !cardMap.contains(p->cardid))
+            p->recstatus = rsOffLine;
 
         // Check for rsTooManyRecordings
         if (checkTooMany && tooManyMap[p->recordid] && !p->reactivate)
@@ -2267,8 +2336,11 @@ void Scheduler::AddNotListed(void) {
 "FROM RECTABLE "
 " INNER JOIN channel ON (channel.chanid = RECTABLE.chanid) "
 " LEFT JOIN recordmatch on RECTABLE.recordid = recordmatch.recordid "
-"WHERE (type = %1 OR type = %2) AND recordmatch.chanid IS NULL")
+"WHERE (type = %1 OR type = %2 OR type = %3 OR type = %4) "
+" AND recordmatch.chanid IS NULL")
         .arg(kSingleRecord)
+        .arg(kTimeslotRecord)
+        .arg(kWeekslotRecord)
         .arg(kOverrideRecord);
 
     while (1)
@@ -2297,6 +2369,8 @@ void Scheduler::AddNotListed(void) {
             .arg(((dbend.tv_sec  - dbstart.tv_sec) * 1000000 +
                   (dbend.tv_usec - dbstart.tv_usec)) / 1000000.0));
 
+    QDateTime now = QDateTime::currentDateTime();
+
     while (result.next())
     {
         ProgramInfo *p = new ProgramInfo;
@@ -2309,6 +2383,33 @@ void Scheduler::AddNotListed(void) {
         p->startts.setDate(result.value(4).toDate());
         p->endts.setTime(result.value(5).toTime());
         p->endts.setDate(result.value(6).toDate());
+
+        if (p->rectype == kTimeslotRecord)
+        {
+            int days = p->startts.daysTo(now);
+
+            p->startts = p->startts.addDays(days);
+            p->endts   = p->endts.addDays(days);
+
+            if (p->endts < now)
+            {
+                p->startts = p->startts.addDays(1);
+                p->endts   = p->endts.addDays(1);
+            }
+        }
+        else if (p->rectype == kWeekslotRecord)
+        {
+            int weeks = (p->startts.daysTo(now) + 6) / 7; 
+
+            p->startts = p->startts.addDays(weeks * 7);
+            p->endts   = p->endts.addDays(weeks * 7);
+
+            if (p->endts < now)
+            {
+                p->startts = p->startts.addDays(7);
+                p->endts   = p->endts.addDays(7);
+            }
+        }
 
         p->recstartts = p->startts.addSecs(result.value(7).toInt() * -60);
         p->recendts = p->endts.addSecs(result.value(8).toInt() * 60);
@@ -2328,9 +2429,12 @@ void Scheduler::AddNotListed(void) {
         }
 
         p->title = QString::fromUtf8(result.value(9).toString());
-        p->subtitle = QString::fromUtf8(result.value(10).toString());
-        p->description = QString::fromUtf8(result.value(11).toString());
 
+        if (p->rectype == kSingleRecord || p->rectype == kOverrideRecord)
+        {
+            p->subtitle = QString::fromUtf8(result.value(10).toString());
+            p->description = QString::fromUtf8(result.value(11).toString());
+        }
         p->chanstr = result.value(12).toString();
         p->chansign = QString::fromUtf8(result.value(13).toString());
         p->channame = QString::fromUtf8(result.value(14).toString());
@@ -2411,16 +2515,19 @@ void Scheduler::findAllScheduledPrograms(list<ProgramInfo *> &proglist)
 
             proginfo->title = QString::fromUtf8(result.value(5).toString());
             proginfo->subtitle =
-                    QString::fromUtf8(result.value(6).toString());
+                QString::fromUtf8(result.value(6).toString());
             proginfo->description =
                 QString::fromUtf8(result.value(7).toString());
 
             proginfo->recpriority = result.value(8).toInt();
-            proginfo->channame = QString::fromUtf8(result.value(10).toString());
+            proginfo->channame = 
+                QString::fromUtf8(result.value(10).toString());
             if (proginfo->channame.isNull())
                 proginfo->channame = "";
-            proginfo->recgroup = result.value(12).toString();
-            proginfo->playgroup = result.value(22).toString();
+            proginfo->recgroup = 
+                QString::fromUtf8(result.value(12).toString());
+            proginfo->playgroup = 
+                QString::fromUtf8(result.value(22).toString());
             proginfo->dupin = RecordingDupInType(result.value(13).toInt());
             proginfo->dupmethod =
                 RecordingDupMethodType(result.value(14).toInt());
@@ -2428,10 +2535,12 @@ void Scheduler::findAllScheduledPrograms(list<ProgramInfo *> &proglist)
             proginfo->chanstr = result.value(16).toString();
             if (proginfo->chanstr.isNull())
                 proginfo->chanstr = "";
-            proginfo->chansign = QString::fromUtf8(result.value(17).toString());
+            proginfo->chansign = 
+                QString::fromUtf8(result.value(17).toString());
             proginfo->seriesid = result.value(18).toString();
             proginfo->programid = result.value(19).toString();
-            proginfo->category = result.value(20).toString();
+            proginfo->category = 
+                QString::fromUtf8(result.value(20).toString());
             proginfo->findid = result.value(21).toInt();
             
             proginfo->recstartts = proginfo->startts;

@@ -1,95 +1,16 @@
 #ifndef VIDEOSOURCE_H
 #define VIDEOSOURCE_H
 
-#include "libmyth/settings.h"
-#include <qregexp.h>
 #include <vector>
-#include <qdir.h>
-#include <qstringlist.h>
+using namespace std;
 
-#include "channelsettings.h"
+#include "settings.h"
 #include "datadirect.h"
-
-#ifdef USING_DVB
-#include "dvbchannel.h"
-#endif
+#include "diseqcsettings.h"
 
 class SignalTimeout;
 class ChannelTimeout;
 class UseEIT;
-
-typedef QMap<int,QString> InputNames;
-
-/** \class CardUtil
- *  \brief Collection of helper utilities for capture card DB use
- */
-class CardUtil
-{
-  public:
-    /// \brief all the different capture cards
-    enum CARD_TYPES
-    {
-        ERROR_OPEN,
-        ERROR_PROBE,
-        QPSK,
-        QAM,
-        OFDM,
-        ATSC,
-        V4L,
-        MPEG,
-        HDTV,
-        FIREWIRE,
-    };
-    /// \brief all the different dvb DiSEqC devices
-    enum DISEQC_TYPES
-    {
-        SINGLE=0,
-        MINI_2,
-        SWITCH_2_1_0,
-        SWITCH_2_1_1,
-        SWITCH_4_1_0,
-        SWITCH_4_1_1,
-        POSITIONER_1_2,
-        POSITIONER_X,
-        POSITIONER_1_2_SWITCH_2,
-        POSITIONER_X_SWITCH_2,
-    };
-    /// \brief dvb card type
-    static const QString DVB;
-
-    static int          GetCardID(const QString &videodevice,
-                                  QString hostname = QString::null);
-
-    static bool         IsCardTypePresent(const QString &strType);
-
-    static CARD_TYPES   GetCardType(uint cardid, QString &name, QString &card_type);
-    static CARD_TYPES   GetCardType(uint cardid, QString &name);
-    static CARD_TYPES   GetCardType(uint cardid);
-    static bool         IsDVBCardType(const QString card_type);
-
-    static bool         GetVideoDevice(uint cardid, QString& device, QString& vbi);
-    static bool         GetVideoDevice(uint cardid, QString& device);
-
-    static bool         IsDVB(uint cardid);
-    static DISEQC_TYPES GetDISEqCType(uint cardid);
-
-    static CARD_TYPES   GetDVBType(uint device, QString &name, QString &card_type);
-    static bool         HasDVBCRCBug(uint device);
-    static QString      GetDefaultInput(uint cardid);
-
-    static bool         IgnoreEncrypted(uint cardid, const QString &inputname);
-
-    static bool         hasV4L2(int videofd);
-    static InputNames   probeV4LInputs(int videofd, bool &ok);
-};
-
-class SourceUtil
-{
-  public:
-    static QString GetChannelSeparator(uint sourceid);
-    static QString GetChannelFormat(uint sourceid);
-    static uint    GetChannelCount(uint sourceid);
-};
 
 class VideoSource;
 class VSSetting: public SimpleDBStorage {
@@ -100,8 +21,8 @@ protected:
         setName(name);
     };
 
-    virtual QString setClause(void);
-    virtual QString whereClause(void);
+    virtual QString setClause(MSqlBindings& bindings);
+    virtual QString whereClause(MSqlBindings& bindings);
 
     const VideoSource& parent;
 };
@@ -185,6 +106,18 @@ protected:
     UseEIT *useeit;
 };
 
+class NoGrabber_config: public VerticalConfigurationGroup
+{
+public:
+    NoGrabber_config(const VideoSource& _parent);
+
+    virtual void save();
+    virtual void save(QString) { save(); }
+
+protected:
+    UseEIT *useeit;
+};
+
 class XMLTVConfig: public VerticalConfigurationGroup, 
                    public TriggeredConfigurationGroup {
 public:
@@ -239,10 +172,8 @@ private:
     };
 
 private:
-    ID* id;
-    Name* name;
-
-protected:
+    ID   *id;
+    Name *name;
 };
 
 class CaptureCard;
@@ -257,21 +188,52 @@ protected:
     int getCardID(void) const;
 
 protected:
-    virtual QString setClause(void);
-    virtual QString whereClause(void);
+    virtual QString setClause(MSqlBindings& bindings);
+    virtual QString whereClause(MSqlBindings& bindings);
 private:
     const CaptureCard& parent;
 };
 
-class TunerCardInput: public ComboBoxSetting, public CCSetting {
+class TunerCardInput: public ComboBoxSetting, public CCSetting
+{
     Q_OBJECT
-public:
-    TunerCardInput(const CaptureCard& parent):
-        CCSetting(parent, "defaultinput") {
-        setLabel(QObject::tr("Default input"));
-    };
+  public:
+    TunerCardInput(const CaptureCard &parent,
+                   QString dev  = QString::null,
+                   QString type = QString::null);
 
-public slots:
+  public slots:
+    void fillSelections(const QString &device);
+
+  private:
+    QString last_device;
+    QString last_cardtype;
+    int     last_diseqct;
+};
+
+class HDHRCardInput: public TunerCardInput
+{
+    Q_OBJECT
+  public:
+    HDHRCardInput(const CaptureCard& parent) : TunerCardInput(parent)
+    {
+        addSelection("MPEG2TS");
+    }
+
+  public slots:
+    void fillSelections(const QString& device);
+};
+
+class CRCIpNetworkRecorderInput: public TunerCardInput
+{
+    Q_OBJECT
+  public:
+    CRCIpNetworkRecorderInput(const CaptureCard& parent) : TunerCardInput(parent)
+    {
+        addSelection("MPEG2TS");
+    }
+
+  public slots:
     void fillSelections(const QString& device);
 };
 
@@ -314,53 +276,91 @@ public:
     };
 };
 
-class DVBDiSEqCInputList
-{
-  public:
-    DVBDiSEqCInputList() { clearValues(); }
-    DVBDiSEqCInputList(const QString& in, const QString& prt, 
-                       const QString& pos)
-        : input(in), port(prt), position(pos)
-    {}
-
-    void clearValues() 
-    {
-        input = "";
-        port = "";
-        position = "";
-    }
-
-    QString input;
-    QString port;
-    QString position;
-};
-
 class CardType: public ComboBoxSetting, public CCSetting {
 public:
     CardType(const CaptureCard& parent);
     static void fillSelections(SelectSetting* setting);
 };
 
+class VBIDevice;
+
+class V4LConfigurationGroup : public VerticalConfigurationGroup
+{
+   Q_OBJECT
+
+  public:
+     V4LConfigurationGroup(CaptureCard &parent);
+
+  public slots:
+    void probeCard(const QString &device);
+
+  private:
+    CaptureCard       &parent;
+    TransLabelSetting *cardinfo;
+    VBIDevice         *vbidev;
+    TunerCardInput    *input;
+};
+
+class MPEGConfigurationGroup: public VerticalConfigurationGroup
+{
+   Q_OBJECT
+
+  public:
+    MPEGConfigurationGroup(CaptureCard &parent);
+
+  public slots:
+    void probeCard(const QString &device);
+
+  private:
+    CaptureCard       &parent;
+    TransLabelSetting *cardinfo;
+    TunerCardInput    *input;
+};
+
+class pcHDTVConfigurationGroup: public VerticalConfigurationGroup
+{
+    Q_OBJECT
+
+  public:
+    pcHDTVConfigurationGroup(CaptureCard& a_parent);
+
+  public slots:
+    void probeCard(const QString &device);
+
+  private:
+    CaptureCard       &parent;
+    TransLabelSetting *cardinfo;
+    TunerCardInput    *input;
+};
+
+class DVBInput;
 class DVBCardName;
 class DVBCardType;
-class DVBDiseqcType;
+class DVBTuningDelay;
 
 class DVBConfigurationGroup: public VerticalConfigurationGroup {
     Q_OBJECT
 public:
     DVBConfigurationGroup(CaptureCard& a_parent);
 
+    virtual void load(void);
+    virtual void save(void);
+    
 public slots:
     void probeCard(const QString& cardNumber);
-
+    void DiSEqCPanel(void);
+    
 private:
     CaptureCard        &parent;
 
-    TunerCardInput     *defaultinput;
+    DVBInput           *defaultinput;
     DVBCardName        *cardname;
     DVBCardType        *cardtype;
     SignalTimeout      *signal_timeout;
     ChannelTimeout     *channel_timeout;
+    TransButtonSetting *buttonAnalog;
+    DVBTuningDelay     *tuning_delay;
+    DiSEqCDevTree       tree;
 };
 
 class CaptureCardGroup: public VerticalConfigurationGroup,
@@ -376,28 +376,24 @@ protected slots:
 class CaptureCard: public ConfigurationWizard {
     Q_OBJECT
 public:
-    CaptureCard();
+    CaptureCard(bool use_card_group = true);
 
-    int getCardID(void) const {
-        return id->intValue();
-    };
-
-    QString getDvbCard() { return dvbCard; };
+    int  getCardID(void) const { return id->intValue(); }
 
     void loadByID(int id);
+    void setParentID(int id);
 
     static void fillSelections(SelectSetting* setting);
+    static void fillSelections(SelectSetting* setting, bool no_children);
 
-    void load() {
-        ConfigurationWizard::load();
-    };
+    void reload(void);
 
 public slots:
-    void DiSEqCPanel();
+    void analogPanel();
     void recorderOptionsPanel();
-    void setDvbCard(const QString& card) { dvbCard = card; };
 
 private:
+
     class ID: virtual public IntegerSetting,
               public AutoIncrementStorage {
     public:
@@ -408,14 +404,24 @@ private:
         };
     };
 
+    class ParentID: public CCSetting
+    {
+      public:
+        ParentID(const CaptureCard &parent) : CCSetting(parent, "parentid")
+        {
+            setValue("0");
+            setVisible(false);
+        }
+    };
+
     class Hostname: public HostnameSetting, public CCSetting {
     public:
         Hostname(const CaptureCard& parent): CCSetting(parent, "hostname") {};
     };
 
 private:
-    ID* id;
-    QString dvbCard;
+    ID       *id;
+    ParentID *parentid;
 };
 
 class CardInput;
@@ -432,8 +438,8 @@ protected:
     void fillSelections();
 
 protected:
-    virtual QString setClause(void);
-    virtual QString whereClause(void);
+    virtual QString setClause(MSqlBindings& bindings);
+    virtual QString whereClause(MSqlBindings& bindings);
 private:
     const CardInput& parent;
 };
@@ -517,20 +523,15 @@ class StartingChannel : public ComboBoxSetting, public CISetting
 };
 
 class CardID;
+class ChildID;
 class InputName;
 class SourceID;
-class DVBLNBChooser;
-class DiSEqCPos;
-class DiSEqCPort;
-class LNBLofSwitch;
-class LNBLofLo;
-class LNBLofHi;
 
 class CardInput: public ConfigurationWizard
 {
     Q_OBJECT
   public:
-    CardInput(bool is_dvb_card);
+    CardInput(bool is_dvb_card, int cardid);
 
     int getInputID(void) const { return id->intValue(); };
 
@@ -538,7 +539,7 @@ class CardInput: public ConfigurationWizard
     void loadByInput(int cardid, QString input);
     QString getSourceName(void) const;
 
-    void fillDiseqcSettingsInput(QString _pos, QString _port);
+    void SetChildCardID(uint);
 
     virtual void save();
     virtual void save(QString /*destination*/) { save(); }
@@ -546,6 +547,7 @@ class CardInput: public ConfigurationWizard
   public slots:
     void channelScanner();
     void sourceFetch();
+    void diseqcConfig();
 
   private:
     class ID: virtual public IntegerSetting,
@@ -568,15 +570,11 @@ class CardInput: public ConfigurationWizard
 
     ID              *id;
     CardID          *cardid;
+    ChildID         *childid;
     InputName       *inputname;
     SourceID        *sourceid;
-    DVBLNBChooser   *lnbsettings;
-    DiSEqCPos       *diseqcpos;
-    DiSEqCPort      *diseqcport;
-    LNBLofSwitch    *lnblofswitch;
-    LNBLofLo        *lnbloflo;
-    LNBLofHi        *lnblofhi;
     StartingChannel *startchan;
+    DiSEqCDevSettings  settings;
 };
 
 #endif

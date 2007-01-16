@@ -9,7 +9,6 @@
 #include <qptrlist.h>
 #include <qevent.h>
 #include <qmutex.h>
-#include <qsocketdevice.h>
 #include <qstringlist.h>
 #include <qnetwork.h> 
 #include <qmap.h>
@@ -20,6 +19,7 @@
 #include <vector>
 
 #include "mythobservable.h"
+#include "mythsocket.h"
 
 using namespace std;
 
@@ -31,8 +31,6 @@ class Settings;
 class QSqlDatabase;
 class QSqlQuery;
 class QSqlError;
-class QSocket;
-class QSocketDevice;
 class MythMainWindow;
 class MythPluginManager;
 class MediaMonitor;
@@ -93,6 +91,14 @@ class MythContextPrivate;
       "VBI related messages")                    \
     F(VB_DATABASE,  0x00010000, "database",  1,  \
       "Display all SQL commands executed")       \
+    F(VB_DSMCC,     0x00020000, "dsmcc",     1,  \
+      "DSMCC carousel related messages")         \
+    F(VB_MHEG,      0x00040000, "mheg",      1,  \
+      "MHEG debugging messages")                 \
+    F(VB_UPNP,      0x00080000, "upnp",      1,  \
+      "upnp debugging messages")                 \
+    F(VB_SOCKET,    0x00100000, "socket",    1,  \
+      "socket debugging messages")               \
     F(VB_TIMESTAMP, 0x80000000, "timestamp", 1,  \
       "Conditional data driven messages")        \
     F(VB_NONE,      0x00000000, "none",      0,  \
@@ -216,14 +222,14 @@ class MythPrivRequest
 
 /// Update this whenever the plug-in API changes.
 /// Including changes in the libmythtv class methods used by plug-ins.
-#define MYTH_BINARY_VERSION "0.19.20060121-2"
+#define MYTH_BINARY_VERSION "0.20.20060828-3"
 
 /** \brief Increment this whenever the MythTV network protocol changes.
  *
  *   You must also update this value in
  *   mythplugins/mythweb/includes/mythbackend.php
  */
-#define MYTH_PROTO_VERSION "26"
+#define MYTH_PROTO_VERSION "31"
 
 /** \class MythContext
  *  \brief This class contains the runtime context for MythTV.
@@ -235,7 +241,7 @@ class MythPrivRequest
  *   It also contains support for database error printing, and
  *   database message logging.
  */
-class MythContext : public QObject, public MythObservable
+class MythContext : public QObject, public MythObservable, public MythSocketCBs
 {
     Q_OBJECT
   public:
@@ -250,12 +256,13 @@ class MythContext : public QObject, public MythObservable
 
     void ClearSettingsCache(QString myKey = "", QString newVal = "");
     void ActivateSettingsCache(bool activate = true);
+    void OverrideSettingForSession(const QString &key, const QString &newValue);
 
     bool ConnectToMasterServer(bool blockingClient = true);
-    QSocketDevice *ConnectServer(QSocket *eventSocket,
-                                 const QString &hostname,
-                                 int port,
-                                 bool blockingClient = false);
+    MythSocket *ConnectServer(MythSocket *eventSocket,
+                              const QString &hostname,
+                              int port,
+                              bool blockingClient = false);
     bool IsConnectedToMaster(void);
     void SetBackend(bool backend);
     bool IsBackend(void);
@@ -293,6 +300,7 @@ class MythContext : public QObject, public MythObservable
 
     QString FindThemeDir(const QString &themename);
     QString GetThemeDir(void);
+    QValueList<QString> GetThemeSearchPath(void);
 
     QString GetMenuThemeDir(void);
 
@@ -378,8 +386,7 @@ class MythContext : public QObject, public MythObservable
     void SetPluginManager(MythPluginManager *pmanager);
     MythPluginManager *getPluginManager(void);
 
-    bool CheckProtoVersion(QSocketDevice* socket);
-    bool CheckProtoVersion(QSocket* socket);
+    bool CheckProtoVersion(MythSocket* socket);
 
     // event wrappers
     void DisableScreensaver(void);
@@ -395,6 +402,7 @@ class MythContext : public QObject, public MythObservable
 
     // get the current status
     bool GetScreensaverEnabled(void);
+    bool GetScreenIsAsleep(void);
 
     void addPrivRequest(MythPrivRequest::Type t, void *data);
     void waitPrivRequest() const;
@@ -404,12 +412,10 @@ class MythContext : public QObject, public MythObservable
     QString removeCurrentLocation(void);
     QString getCurrentLocation(void);
 
-    static QMutex verbose_mutex;
+    void SetX11Display(const QString &display);
+    QString GetX11Display(void) const;
 
-  private slots:
-    void EventSocketRead();
-    void EventSocketConnected();
-    void EventSocketClosed();
+    static QMutex verbose_mutex;
 
   private:
     void SetPalette(QWidget *widget);
@@ -421,12 +427,13 @@ class MythContext : public QObject, public MythObservable
                                    const QString &subdirname = "");
     void RemoveCacheDir(const QString &dirname);
 
+    void connected(MythSocket *sock);
+    void connectionClosed(MythSocket *sock);
+    void readyRead(MythSocket *sock);
+    void connectionFailed(MythSocket *sock) { (void)sock; }
+
     MythContextPrivate *d;
     QString app_binary_version;
-
-    bool useSettingsCache;
-    QMutex cacheLock;
-    QMap <QString, QString> settingsCache;
 
     QMutex locationLock;
     QValueList <QString> currentLocation;
@@ -439,3 +446,5 @@ extern MythContext *gContext;
 extern QMutex avcodeclock;
 
 #endif
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

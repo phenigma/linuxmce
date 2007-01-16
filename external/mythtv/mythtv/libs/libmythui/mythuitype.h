@@ -8,13 +8,18 @@
 #include <qvaluevector.h>
 #include <qfont.h>
 
+#include "xmlparsebase.h"
+
 class MythImage;
 class MythPainter;
+class MythGestureEvent;
+class FontMap;
+class MythFontProperties;
 
 /**
  * Base UI type.  Children are drawn/processed in order added
  */
-class MythUIType : public QObject
+class MythUIType : public QObject, public XMLParseBase
 {
     Q_OBJECT
 
@@ -26,6 +31,8 @@ class MythUIType : public QObject
     MythUIType *GetChild(const char *name, const char *inherits = 0);
     MythUIType *GetChildAt(const QPoint &p);
     QValueVector<MythUIType *> *GetAllChildren(void);
+
+    void DeleteAllChildren(void);
 
     // Check set dirty status
     bool NeedsRedraw(void);
@@ -48,7 +55,7 @@ class MythUIType : public QObject
     virtual void SetArea(const QRect &rect);
     virtual QRect GetArea(void) const;
 
-    virtual QRect GetDirtyArea(void) const;
+    virtual QRegion GetDirtyArea(void) const;
 
     QString cutDown(const QString &data, QFont *font,
                     bool multiline = false, int overload_width = -1,
@@ -58,15 +65,17 @@ class MythUIType : public QObject
     void SetVisible(bool visible);
 
     void MoveTo(QPoint destXY, QPoint speedXY);
-    // make mode enum
+    //FIXME: make mode enum
     void AdjustAlpha(int mode, int alphachange, int minalpha = 0,
                      int maxalpha = 255);
     void SetAlpha(int newalpha);
     int GetAlpha(void);
 
     virtual bool keyPressEvent(QKeyEvent *);
-    void setDebug(bool y_or_n){ m_debug_mode = y_or_n; }
-    void setDebugColor(QColor c);
+    virtual void gestureEvent(MythUIType *origtype, MythGestureEvent *ge);
+
+    MythFontProperties *GetFont(const QString &text);
+    bool AddFont(const QString &text, MythFontProperties *fontProp);
 
   protected:
     virtual void customEvent(QCustomEvent *);
@@ -97,7 +106,6 @@ class MythUIType : public QObject
     void AddFocusableChildrenToList(QPtrList<MythUIType> &focusList);
     void HandleAlphaPulse();
     void HandleMovementPulse();
-    void makeDebugImages();
 
     int CalcAlpha(int alphamod);
 
@@ -108,6 +116,11 @@ class MythUIType : public QObject
     int NormX(const int width);
     int NormY(const int height);
 
+    virtual bool ParseElement(QDomElement &element);
+    virtual void CopyFrom(MythUIType *base);
+    virtual void CreateCopy(MythUIType *parent);
+    virtual void Finalize(void);
+
     QValueVector<MythUIType *> m_ChildrenList;
 
     bool m_Visible;
@@ -116,7 +129,7 @@ class MythUIType : public QObject
 
     QRect m_Area;
 
-    QRect m_DirtyRect;
+    QRegion m_DirtyRegion;
     bool m_NeedsRedraw;
 
     int m_Alpha;
@@ -129,12 +142,12 @@ class MythUIType : public QObject
     QPoint m_XYDestination;
     QPoint m_XYSpeed;
 
+    FontMap *m_Fonts;
+
     MythUIType *m_Parent;
 
-    bool        m_debug_mode;
-    MythImage  *m_debug_hor_line;
-    MythImage  *m_debug_ver_line;
-    QColor      m_debug_color;
+    friend class XMLParseBase;
 };
+
 
 #endif

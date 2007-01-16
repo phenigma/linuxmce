@@ -1,7 +1,7 @@
 This is the README file for the MythWeb package.
-March 6, 2006
+September 8, 2006
 
-Version: .19
+Version: .20
 (c) 2002-2006  Chris Petersen   <mythweb(a)forevermore(o)net>
                Isaac Richards   <ijr(a)po(o)cwru(o)edu>
                Thor Sigvaldason <mythtv(a)lamedomainname(o)com>
@@ -93,19 +93,28 @@ directory.  This should be as simple as:  **
        that you may need to consult your /etc/httpd/httpd.conf file to verify
        which user/group apache is set to run as.
 
-    Finally, and THIS IS VERY VERY IMPORTANT, you should then edit the files
-config/conf.php and .htaccess (instructions for what to set are included in
-the file). That's it. Point your web browser at
-http://your_machine_name/your_mythweb_path/ What could be simpler?
+    Finally, and THIS IS VERY VERY IMPORTANT, you should then edit the included
+.htaccess file (instructions for what to set are included in the file). That's
+it. Point your web browser at http://your_machine_name/your_mythweb_path/
+What could be simpler?
 
     Did you read the THIS IS VERY VERY IMPORTANT note in the previous paragraph?
-People seem to skip over the config file and for some reason assume that
+People seem to skip over the .htaccess file and for some reason assume that
 mythweb will just work with no configuration.  While I've tried to make it
 as auto-detecting as possible, it often still needs some hand-editing.
 
 
 3.0 FAQs
 ========
+
+Q: Why do a bunch of the images have little X's over them when using IE?
+A: The hack used to make IE display transparent PNG's relies on a hard-coded
+    image address in js/pngbehavior.htc.  If your MythWeb installation is
+    anywhere other than the root directory, the default won't work and you will
+    have to hand-edit the file with the correct path.  Look for the line that
+    contains "/skins/default/img/spacer.gif" -- usually adding a /mythweb at the
+    start of the string will solve your problem.  You will also need to edit
+    the alpha_png class in each of the style.css files in the skin directories.
 
 Q: Why don't my sessions stick?  (often manifests as sorting issues or settings
     not storing properly)
@@ -159,6 +168,17 @@ A: First, create your patch against mythweb SVN with `svn diff`, having made
     As long as you follow these instructions, I will at least get back to you
     one way or another -- eventually.
 
+Q: Why are some of these files licensed as LGPL and others as GPL?
+A: I (Chris Petersen) share a lot of my work between open source projects and
+    my paying job and contracts.  In an effort to keep things straight when
+    porting changes back and forth between libraries, I changed the license
+    on some files (particularly javascript libraries) to LGPL.  There are also
+    a handful of files that are licensed as GPL, but are licensed elsewhere as
+    LGPL (these are documented).
+
+Q: Where did the config files go?
+A: All configuration was moved either into the .htaccess file or into the
+   settings section of mythweb itself.
 
 4.0 Plan/TODO
 =============

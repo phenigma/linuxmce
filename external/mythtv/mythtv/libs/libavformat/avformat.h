@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-#define LIBAVFORMAT_VERSION_INT ((50<<16)+(0<<8)+0)
-#define LIBAVFORMAT_VERSION     50.0.0
+#define LIBAVFORMAT_VERSION_INT ((50<<16)+(5<<8)+0)
+#define LIBAVFORMAT_VERSION     50.5.0
 #define LIBAVFORMAT_BUILD       LIBAVFORMAT_VERSION_INT
 
 #define LIBAVFORMAT_IDENT       "Lavf" AV_STRINGIFY(LIBAVFORMAT_VERSION)
@@ -79,11 +79,7 @@ static inline void av_free_packet(AVPacket *pkt)
    is assumed to be such as 0 <= num < den */
 typedef struct AVFrac {
     int64_t val, num, den;
-} AVFrac;
-
-void av_frac_init(AVFrac *f, int64_t val, int64_t num, int64_t den);
-void av_frac_add(AVFrac *f, int64_t incr);
-void av_frac_set(AVFrac *f, int64_t val);
+} AVFrac attribute_deprecated;
 
 /*************************************************/
 /* input/output formats */
@@ -126,6 +122,7 @@ typedef struct AVFormatParameters {
 #define AVFMT_RAWPICTURE    0x0020 /* format wants AVPicture structure for
                                       raw picture data */
 #define AVFMT_GLOBALHEADER  0x0040 /* format wants global header */
+#define AVFMT_NOTIMESTAMPS  0x0080 /* format doesnt need / has any timestamps */
 
 typedef struct AVOutputFormat {
     const char *name;
@@ -208,8 +205,8 @@ typedef struct AVIndexEntry {
     int64_t pos;
     int64_t timestamp;
 #define AVINDEX_KEYFRAME 0x0001
-/* the following 2 flags indicate that the next/prev keyframe is known, and scaning for it isnt needed */
-    int flags;
+    int flags:2;
+    int size:30; //yeah trying to keep the size of this small to reduce memory requirements (its 24 vs 32 byte due to possible 8byte align)
     int min_distance;         /* min distance between this and the previous keyframe, used to avoid unneeded searching */
 } AVIndexEntry;
 
@@ -271,12 +268,14 @@ typedef struct AVStream {
 
     int got_frame;
     int64_t cur_frame_startpos;
+
+    int component_tag; ///< Component tag given in PMT, for MythTV MHEG
 } AVStream;
 
 #define AVFMTCTX_NOHEADER      0x0001 /* signal that no header is present
                                          (streams are added dynamically) */
 
-#define MAX_STREAMS 20
+#define MAX_STREAMS 40
 
 /* format I/O context */
 typedef struct AVFormatContext {
@@ -338,8 +337,12 @@ typedef struct AVFormatContext {
     int max_delay;
 
     int build_index;
+
+    /* mpeg-ts support */
     void (*streams_changed)(void*);
     void *stream_change_data;
+    const uint8_t *cur_pmt_sect;
+    int cur_pmt_sect_len;
 
 #define AVFMT_NOOUTPUTLOOP -1
 #define AVFMT_INFINITEOUTPUTLOOP 0
@@ -348,6 +351,8 @@ typedef struct AVFormatContext {
 
     int flags;
 #define AVFMT_FLAG_GENPTS       0x0001 ///< generate pts if missing even if it requires parsing future frames
+
+    int loop_input;
 } AVFormatContext;
 
 typedef struct AVPacketList {
@@ -359,8 +364,8 @@ extern AVInputFormat *first_iformat;
 extern AVOutputFormat *first_oformat;
 
 /* still image support */
-struct AVInputImageContext;
-typedef struct AVInputImageContext AVInputImageContext;
+struct AVInputImageContext attribute_deprecated;
+typedef struct AVInputImageContext AVInputImageContext attribute_deprecated;
 
 typedef struct AVImageInfo {
     enum PixelFormat pix_fmt; /* requested pixel format */
@@ -368,7 +373,7 @@ typedef struct AVImageInfo {
     int height; /* requested height */
     int interleaved; /* image is interleaved (e.g. interleaved GIF) */
     AVPicture pict; /* returned allocated image */
-} AVImageInfo;
+} AVImageInfo attribute_deprecated;
 
 /* AVImageFormat.flags field constants */
 #define AVIMAGE_INTERLEAVED 0x0001 /* image format support interleaved output */
@@ -389,179 +394,28 @@ typedef struct AVImageFormat {
     int (*img_write)(ByteIOContext *, AVImageInfo *);
     int flags;
     struct AVImageFormat *next;
-} AVImageFormat;
+} AVImageFormat attribute_deprecated;
 
-void av_register_image_format(AVImageFormat *img_fmt);
-AVImageFormat *av_probe_image_format(AVProbeData *pd);
-AVImageFormat *guess_image_format(const char *filename);
+void av_register_image_format(AVImageFormat *img_fmt) attribute_deprecated;
+AVImageFormat *av_probe_image_format(AVProbeData *pd) attribute_deprecated;
+AVImageFormat *guess_image_format(const char *filename) attribute_deprecated;
 enum CodecID av_guess_image2_codec(const char *filename);
 int av_read_image(ByteIOContext *pb, const char *filename,
                   AVImageFormat *fmt,
-                  int (*alloc_cb)(void *, AVImageInfo *info), void *opaque);
-int av_write_image(ByteIOContext *pb, AVImageFormat *fmt, AVImageInfo *img);
+                  int (*alloc_cb)(void *, AVImageInfo *info), void *opaque) attribute_deprecated;
+int av_write_image(ByteIOContext *pb, AVImageFormat *fmt, AVImageInfo *img) attribute_deprecated;
 
-extern AVImageFormat *first_image_format;
-
-extern AVImageFormat pnm_image_format;
-extern AVImageFormat pbm_image_format;
-extern AVImageFormat pgm_image_format;
-extern AVImageFormat ppm_image_format;
-extern AVImageFormat pam_image_format;
-extern AVImageFormat pgmyuv_image_format;
-extern AVImageFormat yuv_image_format;
-#ifdef CONFIG_ZLIB
-extern AVImageFormat png_image_format;
-#endif
-extern AVImageFormat jpeg_image_format;
-extern AVImageFormat gif_image_format;
-extern AVImageFormat sgi_image_format;
+extern AVImageFormat *first_image_format attribute_deprecated;
 
 /* XXX: use automatic init with either ELF sections or C file parser */
 /* modules */
-
-/* mpeg.c */
-extern AVInputFormat mpegps_demux;
-int mpegps_init(void);
-
-/* mpegts.c */
-extern AVInputFormat mpegts_demux;
-int mpegts_init(void);
-
-/* rm.c */
-int rm_init(void);
-
-/* crc.c */
-int crc_init(void);
-
-/* img.c */
-int img_init(void);
-
-/* img2.c */
-int img2_init(void);
-
-/* asf.c */
-int asf_init(void);
-
-/* avienc.c */
-int avienc_init(void);
-
-/* avidec.c */
-int avidec_init(void);
-
-/* swf.c */
-int swf_init(void);
-
-/* mov.c */
-int mov_init(void);
-
-/* movenc.c */
-int movenc_init(void);
-
-/* flvenc.c */
-int flvenc_init(void);
-
-/* flvdec.c */
-int flvdec_init(void);
-
-/* jpeg.c */
-int jpeg_init(void);
-
-/* gif.c */
-int gif_init(void);
-
-/* au.c */
-int au_init(void);
-
-/* amr.c */
-int amr_init(void);
-
-/* wav.c */
-int ff_wav_init(void);
-
-/* mmf.c */
-int ff_mmf_init(void);
-
-/* raw.c */
-int pcm_read_seek(AVFormatContext *s,
-                  int stream_index, int64_t timestamp, int flags);
-int raw_init(void);
-
-/* mp3.c */
-int mp3_init(void);
-
-/* yuv4mpeg.c */
-int yuv4mpeg_init(void);
-
-/* ogg2.c */
-int ogg_init(void);
-
-/* ogg.c */
-int libogg_init(void);
-
-/* dv.c */
-int ff_dv_init(void);
-
-/* ffm.c */
-int ffm_init(void);
-
-/* rtsp.c */
-extern AVInputFormat redir_demux;
-int redir_open(AVFormatContext **ic_ptr, ByteIOContext *f);
-
-/* 4xm.c */
-int fourxm_init(void);
-
-/* psxstr.c */
-int str_init(void);
-
-/* idroq.c */
-int roq_init(void);
-
-/* ipmovie.c */
-int ipmovie_init(void);
-
-/* nut.c */
-int nut_init(void);
-
-/* wc3movie.c */
-int wc3_init(void);
-
-/* westwood.c */
-int westwood_init(void);
-
-/* segafilm.c */
-int film_init(void);
-
-/* idcin.c */
-int idcin_init(void);
-
-/* flic.c */
-int flic_init(void);
-
-/* sierravmd.c */
-int vmd_init(void);
-
-/* matroska.c */
-int matroska_init(void);
-
-/* sol.c */
-int sol_init(void);
-
-/* electronicarts.c */
-int ea_init(void);
-
-/* nsvdec.c */
-int nsvdec_init(void);
-
-/* daud.c */
-int daud_init(void);
 
 #include "rtp.h"
 
 #include "rtsp.h"
 
 /* yuv4mpeg.c */
-extern AVOutputFormat yuv4mpegpipe_oformat;
+extern AVOutputFormat yuv4mpegpipe_muxer;
 
 /* utils.c */
 void av_register_input_format(AVInputFormat *format);
@@ -587,7 +441,7 @@ int fifo_init(FifoBuffer *f, int size);
 void fifo_free(FifoBuffer *f);
 int fifo_size(FifoBuffer *f, uint8_t *rptr);
 int fifo_read(FifoBuffer *f, uint8_t *buf, int buf_size, uint8_t **rptr_ptr);
-void fifo_write(FifoBuffer *f, uint8_t *buf, int size, uint8_t **wptr_ptr);
+void fifo_write(FifoBuffer *f, const uint8_t *buf, int size, uint8_t **wptr_ptr);
 int put_fifo(ByteIOContext *pb, FifoBuffer *f, int buf_size, uint8_t **rptr_ptr);
 void fifo_realloc(FifoBuffer *f, unsigned int size);
 
@@ -635,14 +489,16 @@ void av_remove_stream(AVFormatContext *s, int id, int remove_ts);
 int av_find_default_stream_index(AVFormatContext *s);
 int av_index_search_timestamp(AVStream *st, int64_t timestamp, int flags);
 int av_add_index_entry(AVStream *st,
-                       int64_t pos, int64_t timestamp, int distance, int flags);
+                       int64_t pos, int64_t timestamp, int size, int distance, int flags);
 int av_seek_frame_binary(AVFormatContext *s, int stream_index, int64_t target_ts, int flags);
+void av_update_cur_dts(AVFormatContext *s, AVStream *ref_st, int64_t timestamp);
 
 /* media file output */
 int av_set_parameters(AVFormatContext *s, AVFormatParameters *ap);
 int av_write_header(AVFormatContext *s);
 int av_write_frame(AVFormatContext *s, AVPacket *pkt);
 int av_interleaved_write_frame(AVFormatContext *s, AVPacket *pkt);
+int av_interleave_packet_per_dts(AVFormatContext *s, AVPacket *out, AVPacket *pkt, int flush);
 
 int av_write_trailer(AVFormatContext *s);
 

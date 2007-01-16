@@ -2,9 +2,9 @@
 /**
  * View the logs
  *
- * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-19-fixes/mythplugins/mythweb/modules/backend_log/handler.php $
- * @date        $Date: 2006-02-28 09:28:00 +0200 (Tue, 28 Feb 2006) $
- * @version     $Revision: 9196 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/backend_log/handler.php $
+ * @date        $Date: 2006-03-26 13:09:14 +0300 (Sun, 26 Mar 2006) $
+ * @version     $Revision: 9493 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -32,7 +32,7 @@
     $sh->finish();
 
 // Print the status page template
-    require_once theme_dir.'/backend_log/backend_log.php';
+    require_once tmpl_dir.'backend_log.php';
 
 // Yup, that really is it.
     exit;

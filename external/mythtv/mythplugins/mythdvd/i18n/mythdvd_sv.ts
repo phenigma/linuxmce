@@ -343,10 +343,6 @@ Du har ingen DVD-enhet definierad.</translation>
 <context>
     <name>TitleDialog</name>
     <message>
-        <source>Unkown</source>
-        <translation>Okänd</translation>
-    </message>
-    <message>
         <source>%1 - Title %2</source>
         <translation>%1 - Titel %2</translation>
     </message>
@@ -373,6 +369,10 @@ Du har ingen DVD-enhet definierad.</translation>
     <message>
         <source>ISO Image</source>
         <translation>ISO-avbildning</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Okänd</translation>
     </message>
 </context>
 </TS>

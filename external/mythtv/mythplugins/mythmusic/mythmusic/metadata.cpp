@@ -11,52 +11,7 @@ using namespace std;
 #include <mythtv/mythdbcon.h>
 
 #include "metadata.h"
-
-struct FieldSplitInfo {
-   QString testStr;
-   QString dispStr;
-};
-
-static FieldSplitInfo splitArray4[] =
-{ 
-  {"ABCDE", " (A B C D E)"},
-  {"FGHIJ", " (F G H I J)"},
-  {"KLMNO", " (K L M N O)"},
-  {"PQRST", " (P Q R S T)"},
-  {"UVWXYZ", " (U V W X Y Z)"}
-};
-const int kSplitArray4_Max = sizeof splitArray4 / sizeof splitArray4[0];
-
-static FieldSplitInfo splitArray1[] =
-{ 
-  {"A", " (A)"},
-  {"B", " (B)"},
-  {"C", " (C)"},
-  {"D", " (D)"},
-  {"E", " (E)"},
-  {"F", " (F)"},
-  {"G", " (G)"},
-  {"H", " (H)"},
-  {"I", " (I)"},
-  {"J", " (J)"},
-  {"K", " (K)"},
-  {"L", " (L)"},
-  {"M", " (M)"},
-  {"N", " (N)"},
-  {"O", " (O)"},
-  {"P", " (P)"},
-  {"Q", " (Q)"},
-  {"R", " (R)"},
-  {"S", " (S)"},
-  {"T", " (T)"},
-  {"U", " (U)"},
-  {"V", " (V)"},
-  {"W", " (W)"},
-  {"X", " (X)"},
-  {"Y", " (Y)"},
-  {"Z", " (Z)"},
-};
-const int kSplitArray1_Max = sizeof splitArray1 / sizeof splitArray1[0];
+#include "treebuilders.h"
 
 static QString thePrefix = "the ";
 
@@ -76,23 +31,23 @@ bool operator!=(const Metadata& a, const Metadata& b)
 
 Metadata& Metadata::operator=(Metadata *rhs)
 {
-    artist = rhs->Artist();
-    compilation_artist = rhs->CompilationArtist();
-    album = rhs->Album();
-    title = rhs->Title();
-    formattedartist = rhs->FormatArtist();
-    formattedtitle = rhs->FormatTitle();
-    genre = rhs->Genre();
-    year = rhs->Year();
-    tracknum = rhs->Track();
-    length = rhs->Length();
-    rating = rhs->Rating();
-    lastplay = rhs->LastPlayStr();
-    playcount = rhs->Playcount();
-    compilation = rhs->Compilation();
-    id = rhs->ID();
-    filename = rhs->Filename();
-    changed = rhs->hasChanged();
+    artist = rhs->artist;
+    compilation_artist = rhs->compilation_artist;
+    album = rhs->album;
+    title = rhs->title;
+    formattedartist = rhs->formattedartist;
+    formattedtitle = rhs->formattedtitle;
+    genre = rhs->genre;
+    year = rhs->year;
+    tracknum = rhs->tracknum;
+    length = rhs->length;
+    rating = rhs->rating;
+    lastplay = rhs->lastplay;
+    playcount = rhs->playcount;
+    compilation = rhs->compilation;
+    id = rhs->id;
+    filename = rhs->filename;
+    changed = rhs->changed;
 
     return *this;
 }
@@ -107,9 +62,9 @@ void Metadata::SetStartdir(const QString &dir)
 void Metadata::persist()
 {
     MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare("UPDATE musicmetadata set rating = :RATING , "
-                  "playcount = :PLAYCOUNT , lastplay = :LASTPLAY "
-                  "where intid = :ID ;");
+    query.prepare("UPDATE music_songs set rating = :RATING , "
+                  "numplays = :PLAYCOUNT , lastplay = :LASTPLAY "
+                  "where song_id = :ID ;");
     query.bindValue(":RATING", rating);
     query.bindValue(":PLAYCOUNT", playcount);
     query.bindValue(":LASTPLAY", lastplay);
@@ -123,11 +78,10 @@ int Metadata::compare(Metadata *other)
 {
     if (format == "cast") 
     {
-        int artist_cmp = qstrcmp (Artist(), other->Artist());
-        int title_cmp = qstrcmp (Title(), other->Title());
+        int artist_cmp = Artist().lower().localeAwareCompare(other->Artist().lower());
         
         if (artist_cmp == 0) 
-            return title_cmp;
+            return Title().lower().localeAwareCompare(other->Title().lower());
         
         return artist_cmp;
     } 
@@ -137,17 +91,26 @@ int Metadata::compare(Metadata *other)
     }
 }
 
-bool Metadata::isInDatabase(QString startdir)
+bool Metadata::isInDatabase()
 {
     bool retval = false;
 
-    QString sqlfilename = filename;
-    sqlfilename = filename.remove(0, startdir.length());
+    QString sqlfilename(filename);
+    if (!sqlfilename.contains("://"))
+        sqlfilename.remove(0, m_startdir.length());
 
     MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare("SELECT artist,compilation_artist,album,title,genre,year,tracknum,"
-                  "length,intid,rating,playcount,lastplay,compilation,format FROM "
-                  "musicmetadata WHERE filename = :FILENAME ;");
+    query.prepare("SELECT music_artists.artist_name, music_comp_artists.artist_name AS compilation_artist, "
+                  "music_albums.album_name, music_songs.name, music_genres.genre, music_songs.year, "
+                  "music_songs.track, music_songs.length, music_songs.song_id, music_songs.rating, "
+                  "music_songs.numplays, music_songs.lastplay, music_albums.compilation, "
+                  "music_songs.format "
+                  "FROM music_songs "
+                  "LEFT JOIN music_artists ON music_songs.artist_id=music_artists.artist_id "
+                  "LEFT JOIN music_albums ON music_songs.album_id=music_albums.album_id "
+                  "LEFT JOIN music_artists AS music_comp_artists ON music_albums.artist_id=music_comp_artists.artist_id "
+                  "LEFT JOIN music_genres ON music_songs.genre_id=music_genres.genre_id "
+                  "WHERE music_songs.filename = :FILENAME ;");
     query.bindValue(":FILENAME", sqlfilename.utf8());
 
     if (query.exec() && query.isActive() && query.size() > 0)
@@ -175,7 +138,7 @@ bool Metadata::isInDatabase(QString startdir)
     return retval;
 }
 
-void Metadata::dumpToDatabase(QString startdir)
+void Metadata::dumpToDatabase()
 {
     if (artist == "")
         artist = QObject::tr("Unknown Artist");
@@ -188,20 +151,29 @@ void Metadata::dumpToDatabase(QString startdir)
     if (genre == "")
         genre = QObject::tr("Unknown Genre");
 
-    QString sqlfilename = filename;
-    sqlfilename = filename.remove(0, startdir.length());
+    QString sqlfilename(filename);
+    if (!sqlfilename.contains("://"))
+        sqlfilename.remove(0, m_startdir.length());
 
     // Don't update the database if a song with the exact same
     // metadata is already there
     MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare("SELECT filename FROM musicmetadata WHERE "
-                  "( ( artist = :ARTIST ) AND "
-                  "( compilation_artist = :COMPILATION_ARTIST ) "
-                  "( album = :ALBUM ) AND ( title = :TITLE ) "
-                  "AND ( genre = :GENRE ) AND "
-                  "( year = :YEAR ) AND ( tracknum = :TRACKNUM ) "
-                  "AND ( length = :LENGTH ) "
-                  "AND ( format = :FORMAT) );");
+    query.prepare("SELECT music_songs.filename "
+                  "FROM music_songs "
+                  "LEFT JOIN music_artists ON music_songs.artist_id=music_artists.artist_id "
+                  "LEFT JOIN music_albums ON music_songs.album_id=music_albums.album_id "
+                  "LEFT JOIN music_artists AS music_comp_artists ON music_albums.artist_id=music_comp_artists.artist_id "
+                  "LEFT JOIN music_genres ON music_songs.genre_id=music_genres.genre_id "
+                  "WHERE music_artists.artist_name = :ARTIST"
+                  " AND music_comp_artists.artist_name = :COMPILATION_ARTIST"
+                  " AND music_albums.album_name = :ALBUM"
+                  " AND music_songs.name = :TITLE"
+                  " AND music_genres.genre = :GENRE"
+                  " AND music_songs.year = :YEAR"
+                  " AND music_songs.track = :TRACKNUM"
+                  " AND music_songs.length = :LENGTH"
+                  " AND music_songs.format = :FORMAT ;");
+
     query.bindValue(":ARTIST", artist.utf8());
     query.bindValue(":COMPILATION_ARTIST", compilation_artist.utf8());
     query.bindValue(":ALBUM", album.utf8());
@@ -215,34 +187,189 @@ void Metadata::dumpToDatabase(QString startdir)
     if (query.exec() && query.isActive() && query.size() > 0)
         return;
 
-    query.prepare("INSERT INTO musicmetadata "
-                  "(artist,   compilation_artist, album,      title,  "
-                  " genre,    year,               tracknum,   length, "
-                  " filename, compilation,        date_added, date_modified, "
-                  " format ) "
-                  "VALUES "
-                  "(:ARTIST,  :COMPILATION_ARTIST,:ALBUM,     :TITLE,   "
-                  " :GENRE,   :YEAR,              :TRACKNUM,  :LENGTH,  "
-                  " :FILENAME,:COMPILATION,       :DATE_ADDED,:DATE_MOD,"
-                  " :FORMAT)");
+    // Load the artist id or insert it and get the id
+    unsigned int artistId;
+    query.prepare("SELECT artist_id FROM music_artists "
+                  "WHERE artist_name = :ARTIST ;");
     query.bindValue(":ARTIST", artist.utf8());
-    query.bindValue(":COMPILATION_ARTIST", compilation_artist.utf8());
+
+    if (!query.exec() || !query.isActive())
+    {
+        MythContext::DBError("music select artist id", query);
+        return;
+    }
+    if (query.size() > 0)
+    {
+        query.next();
+        artistId = query.value(0).toInt();
+    }
+    else
+    {
+        query.prepare("INSERT INTO music_artists (artist_name) VALUES (:ARTIST);");
+        query.bindValue(":ARTIST", artist.utf8());
+
+        if (!query.exec() || !query.isActive() || query.numRowsAffected() <= 0)
+        {
+            MythContext::DBError("music insert artist", query);
+            return;
+        }
+        artistId = query.lastInsertId().toInt();
+    }
+
+    // Compilation Artist
+    unsigned int compilationArtistId;
+    query.prepare("SELECT artist_id FROM music_artists "
+                  "WHERE artist_name = :ARTIST ;");
+    query.bindValue(":ARTIST", compilation_artist.utf8());
+    if (!query.exec() || !query.isActive())
+    {
+        MythContext::DBError("music select compilation artist id", query);
+        return;
+    }
+    if (query.size() > 0)
+    {
+        query.next();
+        compilationArtistId = query.value(0).toInt();
+    }
+    else
+    {
+        query.prepare("INSERT INTO music_artists (artist_name) VALUES (:ARTIST);");
+        query.bindValue(":ARTIST", compilation_artist.utf8());
+
+        if (!query.exec() || !query.isActive() || query.numRowsAffected() <= 0)
+        {
+            MythContext::DBError("music insert compilation artist", query);
+            return;
+        }
+        compilationArtistId = query.lastInsertId().toInt();
+    }
+
+    // Album
+    unsigned int albumId;
+    query.prepare("SELECT album_id FROM music_albums "
+                  "WHERE artist_id = :COMP_ARTIST_ID "
+                  " AND album_name = :ALBUM ;");
+    query.bindValue(":COMP_ARTIST_ID", compilationArtistId);
     query.bindValue(":ALBUM", album.utf8());
-    query.bindValue(":TITLE", title.utf8());
+    if (!query.exec() || !query.isActive())
+    {
+        MythContext::DBError("music select album id", query);
+        return;
+    }
+    if (query.size() > 0)
+    {
+        query.next();
+        albumId = query.value(0).toInt();
+    }
+    else
+    {
+        query.prepare("INSERT INTO music_albums (artist_id, album_name, compilation, year) VALUES (:COMP_ARTIST_ID, :ALBUM, :COMPILATION, :YEAR);");
+        query.bindValue(":COMP_ARTIST_ID", compilationArtistId);
+        query.bindValue(":ALBUM", album.utf8());
+        query.bindValue(":COMPILATION", compilation);
+        query.bindValue(":YEAR", year);
+
+        if (!query.exec() || !query.isActive() || query.numRowsAffected() <= 0)
+        {
+            MythContext::DBError("music insert album", query);
+            return;
+        }
+        albumId = query.lastInsertId().toInt();
+    }
+
+    // Genres
+    unsigned int genreId;
+    query.prepare("SELECT genre_id FROM music_genres "
+                  "WHERE genre = :GENRE ;");
     query.bindValue(":GENRE", genre.utf8());
+    if (!query.exec() || !query.isActive())
+    {
+        MythContext::DBError("music select genre id", query);
+        return;
+    }
+    if (query.size() > 0)
+    {
+        query.next();
+        genreId = query.value(0).toInt();
+    }
+    else
+    {
+        query.prepare("INSERT INTO music_genres (genre) VALUES (:GENRE);");
+        query.bindValue(":GENRE", genre.utf8());
+
+        if (!query.exec() || !query.isActive() || query.numRowsAffected() <= 0)
+        {
+            MythContext::DBError("music insert genre", query);
+            return;
+        }
+        genreId = query.lastInsertId().toInt();
+    }
+
+    // We have all the id's now. We can insert it.
+    QString strQuery;
+    if (id < 1)
+    {
+        strQuery = "INSERT INTO music_songs ("
+                   " artist_id, album_id,  name,         genre_id,"
+                   " year,      track,     length,       filename,"
+                   " rating,    format,    date_entered, date_modified ) "
+                   "VALUES ("
+                   " :ARTIST,   :ALBUM,    :TITLE,       :GENRE,"
+                   " :YEAR,     :TRACKNUM, :LENGTH,      :FILENAME,"
+                   " :RATING,   :FORMAT,   :DATE_ADD,    :DATE_MOD );";
+    }
+    else
+    {
+        strQuery = "UPDATE music_songs SET"
+                   "  artist_id = :ARTIST"
+                   ", album_id = :ALBUM"
+                   ", name = :TITLE"
+                   ", genre_id = :GENRE"
+                   ", year = :YEAR"
+                   ", track = :TRACKNUM"
+                   ", length = :LENGTH"
+                   ", filename = :FILENAME"
+                   ", rating = :RATING"
+                   ", format = :FORMAT"
+                   ", date_modified = :DATE_MOD "
+                   "WHERE song_id= :ID ;";
+    }
+
+    query.prepare(strQuery);
+    /*
+    query.prepare("INSERT INTO music_songs "
+                  "  (artist_id, album_id,     name,"
+                  "   genre_id,  year,         track,                length,"
+                  "   filename,  date_entered, date_modified,"
+                  "   format,    size,         bitrate) "
+                  "VALUES "
+                  "  (:ARTIST,   :ALBUM,       :TITLE,"
+                  "   :GENRE,    :YEAR,        :TRACKNUM,            :LENGTH,"
+                  "   :FILENAME, :DATE_ADDED,  :DATE_MOD,"
+                  "   :FORMAT,   :FILESIZE,    :BITRATE)"
+                  );
+    */
+    query.bindValue(":ARTIST", artistId);
+    query.bindValue(":ALBUM", albumId);
+    query.bindValue(":TITLE", title.utf8());
+    query.bindValue(":GENRE", genreId);
     query.bindValue(":YEAR", year);
     query.bindValue(":TRACKNUM", tracknum);
     query.bindValue(":LENGTH", length);
     query.bindValue(":FILENAME", sqlfilename.utf8());
-    query.bindValue(":COMPILATION", compilation);
-    query.bindValue(":DATE_ADDED",  QDateTime::currentDateTime());
-    query.bindValue(":DATE_MOD",    QDateTime::currentDateTime());
+    query.bindValue(":RATING", rating);
     query.bindValue(":FORMAT", format);
-    
+    query.bindValue(":DATE_MOD", QDateTime::currentDateTime());
+
+    if (id < 1)
+        query.bindValue(":DATE_ADDED",  QDateTime::currentDateTime());
+    else
+        query.bindValue(":ID", id);
+
     query.exec();
 
-    // easiest way to ensure we've got 'id' filled.
-    fillData();
+    if (id < 1 && query.isActive() && 1 == query.numRowsAffected())
+        id = query.lastInsertId().toInt();
 }
 
 // Default values for formats
@@ -306,10 +433,10 @@ bool Metadata::determineIfCompilation(bool cd)
 inline QString Metadata::formatReplaceSymbols(const QString &format)
 {
   QString rv = format;
-  rv.replace(QRegExp("COMPARTIST"), compilation_artist);
-  rv.replace(QRegExp("ARTIST"), artist);
-  rv.replace(QRegExp("TITLE"), title);
-  rv.replace(QRegExp("TRACK"), QString("%1").arg(tracknum, 2));
+  rv.replace("COMPARTIST", compilation_artist);
+  rv.replace("ARTIST", artist);
+  rv.replace("TITLE", title);
+  rv.replace("TRACK", QString("%1").arg(tracknum, 2));
   return rv;
 }
 
@@ -372,55 +499,6 @@ QString Metadata::FormatTitle()
 }
 
 
-void Metadata::updateDatabase(QString startdir)
-{
-    startdir = startdir; 
-    // only save to DB if something changed
-    //if (!hasChanged())
-    //    return;
-
-    if (artist == "")
-        artist = QObject::tr("Unknown Artist");
-    if (album == "")
-        album = QObject::tr("Unknown Album");
-    if (title == "")
-        title = filename;
-    if (genre == "")
-        genre = QObject::tr("Unknown Genre");
-
-    MSqlQuery query(MSqlQuery::InitCon());
-
-    query.prepare("UPDATE musicmetadata    "
-                  "SET artist   = :ARTIST,   "
-                  "    album    = :ALBUM,    "
-                  "    title    = :TITLE,    "
-                  "    genre    = :GENRE,    "
-                  "    year     = :YEAR,     "
-                  "    tracknum = :TRACKNUM, "
-                  "    rating   = :RATING,   " 
-                  "    date_modified      = :DATE_MODIFIED, "
-                  "    compilation        = :COMPILATION,   "
-                  "    compilation_artist = :COMPILATION_ARTIST, "
-                  "    format             = :FORMAT "
-                  "WHERE intid = :ID;");
-    query.bindValue(":ARTIST",             artist.utf8());
-    query.bindValue(":ALBUM",              album.utf8());
-    query.bindValue(":TITLE",              title.utf8());
-    query.bindValue(":GENRE",              genre.utf8());
-    query.bindValue(":YEAR",               year);
-    query.bindValue(":TRACKNUM",           tracknum);
-    query.bindValue(":RATING",             rating);
-    query.bindValue(":DATE_MODIFIED",      QDateTime::currentDateTime());
-    query.bindValue(":COMPILATION",        compilation);
-    query.bindValue(":COMPILATION_ARTIST", compilation_artist.utf8());
-    query.bindValue(":FORMAT", format);
-    query.bindValue(":ID", id);
-
-    if (!query.exec())
-         MythContext::DBError("Update musicmetadata", query);
-}
-
-
 void Metadata::setField(const QString &field, const QString &data)
 {
     if (field == "artist")
@@ -454,51 +532,6 @@ void Metadata::setField(const QString &field, const QString &data)
     }
 }
 
-bool Metadata::areYouFinished(uint depth, uint treedepth, const QString &paths, const QString &startdir)
-{
-    if(paths == "directory")
-    {
-        //  have we made it to directory just above the file name?
-
-        QString working = filename;
-        working.replace(QRegExp(startdir), QString(""));
-        working = working.section('/', depth);
-        if(working.contains('/') < 1)
-        {
-            return true;
-        }
-    }
-    else
-    {
-        if(depth + 1 >= treedepth)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-void Metadata::getField(const QStringList &tree_levels, QString *data, const QString &paths, const QString &startdir, uint depth)
-{
-    if(paths == "directory")
-    {
-        //  Return directory values as if they were 
-        //  real metadata/TAG values
-        
-        QString working = filename;
-        working.replace(QRegExp(startdir), QString(""));
-        working.replace(QRegExp("/[^/]*$"), QString(""));
-
-        working = working.section('/', depth, depth);        
-        
-        *data = working;
-    }
-    else
-    {
-        getField(tree_levels[depth], data);
-    }
-}
-
 void Metadata::getField(const QString &field, QString *data)
 {
     if (field == "artist")
@@ -509,138 +542,10 @@ void Metadata::getField(const QString &field, QString *data)
         *data = FormatTitle();
     else if (field == "genre")
         *data = genre;
-    else if (field == "splitartist")
-    {
-        bool set = false;
-        QString firstchar;
-        if (FormatArtist().left(4).lower() == thePrefix)
-            firstchar = FormatArtist().mid(4, 1).upper();
-        else
-            firstchar = FormatArtist().left(1).upper();
-
-        for (int i = 0; i < kSplitArray4_Max; i++)
-        {
-            if (splitArray4[i].testStr.contains(firstchar))
-            {
-                set = true;
-                *data = QObject::tr("Artists") + splitArray4[i].dispStr;
-            }
-        }
-
-        if (!set)
-            *data = QObject::tr("Artists") + " (" + firstchar + ")";
-    }
-    else if (field == "splitartist1")
-    {
-        bool set = false;
-        QString firstchar;
-        if (FormatArtist().left(4).lower() == thePrefix)
-            firstchar = FormatArtist().mid(4, 1).upper();
-        else
-            firstchar = FormatArtist().left(1).upper();
-
-        for (int i = 0; i < kSplitArray1_Max; i++)
-        {
-            if (splitArray1[i].testStr.contains(firstchar))
-            {
-                set = true;
-                *data = QObject::tr("Artists") + splitArray1[i].dispStr;
-            }
-        }
-
-        if (!set)
-            *data = QObject::tr("Artists") + " (" + firstchar + ")";
-    }
     else
     {
         cerr << "metadata.o: Something asked me to return data about a field called " << field << endl ;
         *data = "I Dunno";
-    }
-}
-
-void Metadata::fillData()
-{
-    if (title == "")
-        return;
-
-    QString thequery = "SELECT artist,compilation_artist,album,title,genre,year,tracknum,length,"
-                       "filename,intid,rating,playcount,lastplay,compilation,format "
-                       "FROM musicmetadata WHERE title = :TITLE";
-
-    if (album != "")
-        thequery += " AND album = :ALBUM";
-    if (artist != "")
-        thequery += " AND artist = :ARTIST";
-    if (compilation_artist != "")
-        thequery += " AND compilation_artist = :COMPILATION_ARTIST";
-
-    thequery += ";";
-
-    MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare(thequery);
-    query.bindValue(":TITLE", title.utf8());
-    query.bindValue(":ALBUM", album.utf8());
-    query.bindValue(":ARTIST", artist.utf8());
-    query.bindValue(":COMPILATION_ARTIST", compilation_artist.utf8());
-
-    if (query.exec() && query.isActive() && query.size() > 0)
-    {
-        query.next();
-
-        artist = QString::fromUtf8(query.value(0).toString());
-        compilation_artist = QString::fromUtf8(query.value(1).toString());
-        album = QString::fromUtf8(query.value(2).toString());
-        title = QString::fromUtf8(query.value(3).toString());
-        genre = QString::fromUtf8(query.value(4).toString());
-        year = query.value(5).toInt();
-        tracknum = query.value(6).toInt();
-        length = query.value(7).toInt();
-        filename = QString::fromUtf8(query.value(8).toString());
-        id = query.value(9).toUInt();
-        rating = query.value(10).toInt();
-        playcount = query.value(11).toInt();
-        lastplay = query.value(12).toString();
-        compilation = (query.value(13).toInt() > 0);
-        format = query.value(14).toString();
-
-        if (!filename.contains("://"))
-            filename = m_startdir + filename;
-    }
-}
-
-void Metadata::fillDataFromID()
-{       
-    if (id == 0)
-        return; 
-        
-    MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare("SELECT title,artist,compilation_artist,album,title,genre,year,tracknum,"
-                  "length,filename,rating,playcount,lastplay,compilation,format FROM "
-                  "musicmetadata WHERE intid = :ID ;");
-    query.bindValue(":ID", id);
-        
-    if (query.exec() && query.isActive() && query.numRowsAffected() > 0)
-    {
-        query.next();
-
-        title = QString::fromUtf8(query.value(0).toString());
-        artist = QString::fromUtf8(query.value(1).toString());
-        compilation_artist = QString::fromUtf8(query.value(2).toString());
-        album = QString::fromUtf8(query.value(3).toString());
-        title = QString::fromUtf8(query.value(4).toString());
-        genre = QString::fromUtf8(query.value(5).toString());
-        year = query.value(6).toInt();
-        tracknum = query.value(7).toInt();
-        length = query.value(8).toInt();
-        filename = QString::fromUtf8(query.value(9).toString());
-        rating = query.value(10).toInt();
-        playcount = query.value(11).toInt();
-        lastplay = query.value(12).toString();
-        compilation = (query.value(13).toInt() > 0);
-        format = query.value(14).toString();
-
-        if (!filename.contains("://"))
-            filename = m_startdir + filename;
     }
 }
 
@@ -685,6 +590,48 @@ void Metadata::incPlayCount()
     changed = true;
 }
 
+QStringList Metadata::fillFieldList(QString field)
+{
+    QStringList searchList;
+    searchList.clear();
+
+    MSqlQuery query(MSqlQuery::InitCon());
+    if ("artist" == field)
+    {
+        query.prepare("SELECT artist_name FROM music_artists ORDER BY artist_name;");
+    }
+    else if ("compilation_artist" == field)
+    {
+        query.prepare("SELECT DISTINCT artist_name FROM music_artists, music_albums where "  
+                "music_albums.artist_id=music_artists.artist_id ORDER BY artist_name");
+    }
+    else if ("album" == field)
+    {
+        query.prepare("SELECT album_name FROM music_albums ORDER BY album_name;");
+    }
+    else if ("title" == field)
+    {
+        query.prepare("SELECT name FROM music_songs ORDER BY name;");
+    }
+    else if ("genre" == field)
+    {
+        query.prepare("SELECT genre FROM music_genres ORDER BY genre;");
+    }
+    else
+    {
+        return searchList;
+    }
+
+    if (query.exec() && query.isActive() && query.size())
+    {
+        while (query.next())
+        {
+            searchList << QString::fromUtf8(query.value(0).toString());
+        }
+    }
+    return searchList;
+}
+
 MetadataLoadingThread::MetadataLoadingThread(AllMusic *parent_ptr)
 {
     parent = parent_ptr;
@@ -708,9 +655,7 @@ AllMusic::AllMusic(QString path_assignment, QString a_startdir)
     //  How should we sort?
     setSorting(path_assignment);
 
-    MusicNode::SetStaticData(startdir, paths);
-
-    root_node = new MusicNode("root", tree_levels, 0);
+    root_node = new MusicNode(QObject::tr("All My Music"), paths);
 
     //
     //  Start a thread to do data
@@ -721,7 +666,6 @@ AllMusic::AllMusic(QString path_assignment, QString a_startdir)
     startLoading();
 
     all_music.setAutoDelete(true);
-    top_nodes.setAutoDelete(true);
     
     last_listed = -1;
 }
@@ -729,7 +673,6 @@ AllMusic::AllMusic(QString path_assignment, QString a_startdir)
 AllMusic::~AllMusic()
 {
     all_music.clear();
-    top_nodes.clear();
 
     delete root_node;
 
@@ -784,21 +727,25 @@ bool AllMusic::startLoading(void)
 void AllMusic::resync()
 {
     done_loading = false;
-    QString aquery =    "SELECT intid, artist, compilation_artist, album, title, genre, "
-                        "year, tracknum, length, filename, rating, "
-                        "lastplay, playcount, compilation, format "
-                        "FROM musicmetadata "
-                        "ORDER BY intid;";
 
-    QString filename;
-    QString startdir = gContext->GetSetting("MusicLocation");
-    startdir = QDir::cleanDirPath(startdir);
-    if (!startdir.endsWith("/"));
-        startdir += "/";
+    QString aquery = "SELECT music_songs.song_id, music_artists.artist_name, music_comp_artists.artist_name AS compilation_artist, "
+                     "music_albums.album_name, music_songs.name, music_genres.genre, music_songs.year, "
+                     "music_songs.track, music_songs.length, music_songs.filename, "
+                     "music_songs.rating, music_songs.numplays, music_songs.lastplay, music_albums.compilation, "
+                     "music_songs.format "
+                     "FROM music_songs "
+                     "LEFT JOIN music_artists ON music_songs.artist_id=music_artists.artist_id "
+                     "LEFT JOIN music_albums ON music_songs.album_id=music_albums.album_id "
+                     "LEFT JOIN music_artists AS music_comp_artists ON music_albums.artist_id=music_comp_artists.artist_id "
+                     "LEFT JOIN music_genres ON music_songs.genre_id=music_genres.genre_id "
+                     "ORDER BY music_songs.song_id;";
+
+    QString filename, artist, album, title;
 
     MSqlQuery query(MSqlQuery::InitCon());
     query.exec(aquery);
 
+    root_node->clear();
     all_music.clear();
 
     numPcs = query.size() * 2;
@@ -812,23 +759,35 @@ void AllMusic::resync()
             if (!filename.contains("://"))
                 filename = startdir + filename;
 
+            artist = QString::fromUtf8(query.value(1).toString());
+            if (artist.isEmpty())
+                artist = QObject::tr("Unknown Artist");
+
+            album = QString::fromUtf8(query.value(3).toString());
+            if (album.isEmpty())
+                album = QObject::tr("Unknown Album");
+
+            title = QString::fromUtf8(query.value(4).toString());
+            if (title.isEmpty())
+                title = QObject::tr("Unknown Title");
+
             Metadata *temp = new Metadata(
                 filename,
-                QString::fromUtf8(query.value(1).toString()),
+                artist,
                 QString::fromUtf8(query.value(2).toString()),
-                QString::fromUtf8(query.value(3).toString()),
-                QString::fromUtf8(query.value(4).toString()),
+                album,
+                title,
                 QString::fromUtf8(query.value(5).toString()),
                 query.value(6).toInt(),
                 query.value(7).toInt(),
                 query.value(8).toInt(),
                 query.value(0).toInt(),
-                query.value(10).toInt(),
-                query.value(12).toInt(),
-                query.value(11).toString(),
-                (query.value(13).toInt() > 0),
-                query.value(14).toString());
-            
+                query.value(10).toInt(), //rating
+                query.value(11).toInt(), //playcount
+                query.value(12).toString(), //lastplay
+                (query.value(13).toInt() > 0), //compilation
+                query.value(14).toString()); //format
+
             //  Don't delete temp, as PtrList now owns it
             all_music.append(temp);
 
@@ -882,21 +841,6 @@ void AllMusic::resync()
 void AllMusic::sortTree()
 {
     root_node->sort();
-
-    //  sort top level nodes
-    
-    top_nodes.sort();
-    
-    //  tell top level nodes to sort from themselves 
-    //  downwards
-
-    QPtrListIterator<MusicNode> iter(top_nodes);
-    MusicNode *crawler;
-    while ( (crawler = iter.current()) != 0 )
-    {
-        crawler->sort();
-        ++iter;
-    }
 }
 
 void AllMusic::printTree()
@@ -905,13 +849,6 @@ void AllMusic::printTree()
 
     cout << "Whole Music Tree" << endl;
     root_node->printYourself(0);
-    QPtrListIterator<MusicNode> iter( top_nodes );
-    MusicNode *printer;
-    while ( (printer = iter.current()) != 0 )
-    {
-        printer->printYourself(1);
-        ++iter;
-    }
 }
 
 void AllMusic::buildTree()
@@ -926,12 +863,9 @@ void AllMusic::buildTree()
     //  Select Music screen
     //
     
-    top_nodes.clear();
-    root_node->clearTracks();
-    
     QPtrListIterator<Metadata> an_iterator( all_music );
     Metadata *inserter;
-    QPtrList<Metadata> list;
+    MetadataPtrList list;
 
     while ( (inserter = an_iterator.current()) != 0 )
     {
@@ -942,81 +876,20 @@ void AllMusic::buildTree()
         numLoaded++;
     }
 
-    intoTree(list);
+    MusicTreeBuilder *builder = MusicTreeBuilder::createBuilder (paths);
+    builder->makeTree (root_node, list);
+    delete builder;
 }
 
 void AllMusic::writeTree(GenericTree *tree_to_write_to)
 {
-    GenericTree *sub_node = tree_to_write_to->addNode(QObject::tr("All My Music"), 0);
-    sub_node->setAttribute(0, 0);
-    sub_node->setAttribute(1, 0);
-    sub_node->setAttribute(2, 0);
-    sub_node->setAttribute(3, 0);
-    
-
-    QPtrListIterator<MusicNode> iter( top_nodes );
-    MusicNode *traverse;
-    iter.toFirst();
-    int a_counter = 0;
-    while ( (traverse = iter.current()) != 0 )
-    {
-        traverse->setPlayCountMin(playcountMin);
-        traverse->setPlayCountMax(playcountMax);
-        traverse->setLastPlayMin(lastplayMin);
-        traverse->setLastPlayMax(lastplayMax);
-        traverse->writeTree(sub_node, a_counter);
-        ++a_counter;
-        ++iter;
-    }
+    root_node->writeTree(tree_to_write_to, 0);
 }
 
-bool AllMusic::putYourselfOnTheListView(TreeCheckItem *where, int how_many)
+bool AllMusic::putYourselfOnTheListView(TreeCheckItem *where)
 {
     root_node->putYourselfOnTheListView(where, false);
-
-    if (how_many < 0)
-    {
-        QPtrListIterator<MusicNode> iter(top_nodes);
-        MusicNode *traverse;
-        while ((traverse = iter.current()) != 0)
-        {
-            traverse->putYourselfOnTheListView(where, true);
-            ++iter;
-        }
-        return true;
-    }
-    else
-    {
-        if (last_listed < 0)
-            last_listed = 0;
-        
-        QPtrListIterator<MusicNode> iter(top_nodes);
-        MusicNode *traverse;
-        iter += last_listed;
-        int numb_this_round = 0;
-
-        while (true)
-        {
-            traverse = iter.current();
-            if (traverse)
-            {
-                traverse->putYourselfOnTheListView(where, true);
-                ++iter;
-                ++last_listed;
-                ++numb_this_round;
-                if(numb_this_round >= how_many)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return true;
-            }
-        }
-    }
-    cerr << "metadata.o: Control defied all possible logic and jumped way out here. World may end shortly. " << endl;
-    return false;
+    return true;
 }
 
 void AllMusic::putCDOnTheListView(CDCheckItem *where)
@@ -1039,52 +912,6 @@ void AllMusic::putCDOnTheListView(CDCheckItem *where)
                                                 -(*anit).Track());
         new_item->setCheck(false); //  Avoiding -Wall     
     }  
-}
-
-
-void AllMusic::intoTree(QPtrList<Metadata> &list)
-{
-    uint depth = 0;
-    QString a_field = "";
-
-    QDict<MetadataPtrList> mapping;
-    QPtrListIterator<Metadata> iter( list );
-    MetadataPtrList *curList;
-    mapping.setAutoDelete(true);
-
-    Metadata *cur;
-    while ((cur = iter.current()) != 0)
-    {
-        if (cur->areYouFinished(depth, tree_levels.count(), paths, startdir))
-        {
-            //  special case, track is at root level
-            //  e.g. an mp3 in the root directory and
-            //  paths=directory
-            root_node->insert(cur);
-            ++iter;
-            continue;
-        }
-
-        cur->getField(tree_levels.first(), &a_field, paths, startdir, depth);
-        curList = mapping.find(a_field);
-        if (!curList)
-        {
-            curList = new MetadataPtrList;
-            mapping.insert(a_field, curList);
-        }
-        curList->append(cur);
-        ++iter;
-    }
-
-    QDictIterator<MetadataPtrList> rest(mapping);
-    while ((curList = rest.current()) != 0)
-    {
-        a_field = rest.currentKey();
-        MusicNode *new_one = new MusicNode(a_field, tree_levels, 0);
-        top_nodes.append(new_one);
-        new_one->intoTree(tree_levels, *curList, depth + 1);
-        ++rest;
-    }
 }
 
 QString AllMusic::getLabel(int an_id, bool *error_flag)
@@ -1232,12 +1059,13 @@ bool AllMusic::getCDMetadata(int the_track, Metadata *some_metadata)
 void AllMusic::setSorting(QString a_paths)
 {
     paths = a_paths;
+    MusicNode::SetStaticData(startdir, paths);
+
     if (paths == "directory")
         return;
-    else
-        tree_levels = QStringList::split(" ", paths);
 
     //  Error checking
+    QStringList tree_levels = QStringList::split(" ", paths);
     QStringList::const_iterator it = tree_levels.begin();
     for (; it != tree_levels.end(); ++it)
     {
@@ -1265,26 +1093,15 @@ void AllMusic::setAllVisible(bool visible)
     }
 }
 
-MusicNode::MusicNode(QString a_title, QStringList tree_levels, uint depth)
+MusicNode::MusicNode(const QString &a_title, const QString &tree_level)
 {
     my_title = a_title;
-    if (m_paths == "directory")
-    {
-        my_level = "directory";
-    }
-    else
-    {
-        if (depth < tree_levels.count())
-            my_level = tree_levels[depth];
-        else
-        {
-            my_level = "I am confused";
-            cerr << "metadata.o: Something asked me to look up a StringList entry that doesn't exist" << endl ;
-        }
-       
-    }
-
+    my_level = tree_level;
     my_subnodes.setAutoDelete(true);
+    setPlayCountMin(0);
+    setPlayCountMax(0);
+    setLastPlayMin(0);
+    setLastPlayMax(0);
 }
 
 MusicNode::~MusicNode()
@@ -1311,74 +1128,6 @@ void MusicNode::SetStaticData(const QString &startdir, const QString &paths)
     m_RandomWeight = gContext->GetNumSetting("IntelliRandomWeight", 2);
 }
     
-void MusicNode::insert(Metadata* inserter)
-{
-    my_tracks.append(inserter);
-}
-
-void MusicNode::intoTree(QStringList tree_levels, 
-                         MetadataPtrList &list, uint depth)
-{
-    QString a_field = "";
-    QString a_lowercase_field = "";
-    QString a_title = "";
-    bool usesPath = false;
-
-    if (m_paths == "directory") 
-        usesPath = true;
-    else
-    {
-        if (depth + 1 >= tree_levels.count())
-        {
-            my_tracks = list;
-            return;
-        }
-    }
-
-    //  Search and create from my node downards
-
-    QDict<MetadataPtrList> mapping;
-    QPtrListIterator<Metadata> iter(list);
-    MetadataPtrList *curList;
-    mapping.setAutoDelete(true);
-
-    Metadata *cur;
-    while ((cur = iter.current()) != 0)
-    {
-        if (usesPath && cur->areYouFinished(depth, tree_levels.count(), m_paths, m_startdir))
-        {
-            insert(cur);
-            ++iter;
-            continue;
-        }
- 
-        cur->getField(tree_levels, &a_field, m_paths, m_startdir, depth);
-  
-        a_lowercase_field = a_field.lower();
-        if (a_lowercase_field.left(4) == "the ")
-            a_field = a_field.mid(4);
-  
-        curList = mapping.find(a_field);
-        if (!curList)
-        {
-            curList = new MetadataPtrList;
-            mapping.insert(a_field, curList);
-        }
-        curList->append(cur);
-        ++iter;
-    }
-  
-    QDictIterator<MetadataPtrList> rest(mapping);
-    while ((curList = rest.current()) != 0)
-    {
-        a_field = rest.currentKey();
-        MusicNode *new_one = new MusicNode(a_field, tree_levels, depth);
-        my_subnodes.append(new_one);
-        new_one->intoTree(tree_levels, *curList, depth + 1);
-        ++rest;
-    }
-}
-
 void MusicNode::putYourselfOnTheListView(TreeCheckItem *parent, bool show_node)
 {
     TreeCheckItem *current_parent;
@@ -1448,10 +1197,16 @@ void MusicNode::writeTree(GenericTree *tree_to_write_to, int a_counter)
         double lastplaydbl = a_track->LastPlay();
         double ratingValue = (double)(rating) / 10;
         double playcountValue, lastplayValue;
-        if (playcountMax == playcountMin) { playcountValue = 0; }
-        else { playcountValue = ((playcountMin - (double)playcount) / (playcountMax - playcountMin) + 1); }
-        if (lastplayMax == lastplayMin) { lastplayValue = 0; }
-        else { lastplayValue = ((lastplayMin - lastplaydbl) / (lastplayMax - lastplayMin) + 1); }
+
+        if (playcountMax == playcountMin) 
+            playcountValue = 0; 
+        else 
+            playcountValue = ((playcountMin - (double)playcount) / (playcountMax - playcountMin) + 1); 
+        if (lastplayMax == lastplayMin) 
+            lastplayValue = 0;
+        else 
+            lastplayValue = ((lastplayMin - lastplaydbl) / (lastplayMax - lastplayMin) + 1);
+
         double rating_value =  (m_RatingWeight * ratingValue + m_PlayCountWeight * playcountValue +
                                 m_LastPlayWeight * lastplayValue + m_RandomWeight * (double)rand() /
                                 (RAND_MAX + 1.0));
@@ -1546,8 +1301,10 @@ int MusicNodePtrList::compareItems (QPtrCollection::Item item1,
     QString title2 = itemB->getTitle().lower();
     
     // Cut "the " off the front of titles
-    title1 = (title1.lower().left(4) == thePrefix) ? title1.mid(4) : title1;
-    title2 = (title2.lower().left(4) == thePrefix) ? title2.mid(4) : title2;
+    if (title1.left(4) == thePrefix) 
+        title1 = title1.mid(4);
+    if (title2.left(4) == thePrefix) 
+        title2 = title2.mid(4);
 
-    return qstrcmp(title1, title2);
+    return title1.localeAwareCompare(title2);
 }

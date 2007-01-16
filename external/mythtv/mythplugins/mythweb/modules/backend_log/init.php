@@ -2,9 +2,9 @@
 /**
  * Initialization routines for the MythWeb Backend Logs module
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/modules/backend_log/init.php $
- * @date        $Date: 2005-12-16 08:55:02 +0200 (Fri, 16 Dec 2005) $
- * @version     $Revision: 8285 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/backend_log/init.php $
+ * @date        $Date: 2006-03-24 07:55:11 +0200 (Fri, 24 Mar 2006) $
+ * @version     $Revision: 9485 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -19,6 +19,7 @@
 // The TV module is always enabled.
     if ($enabled > 0)
         $Modules['backend_log'] = array('path'        => 'backend_log',
+                                        'sort'        => 550,
                                         'name'        => t('Logs'),
                                        );
 

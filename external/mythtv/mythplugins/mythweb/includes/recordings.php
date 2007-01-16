@@ -2,9 +2,9 @@
 /**
  * The Recording object, and a couple of related subroutines.
  *
- * @url         $URL$
- * @date        $Date: 2006-02-10 08:15:17 +0200 (Fri, 10 Feb 2006) $
- * @version     $Revision: 8914 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-19-fixes/mythplugins/mythweb/includes/recordings.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     GPL
  *

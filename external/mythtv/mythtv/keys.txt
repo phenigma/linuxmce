@@ -8,14 +8,18 @@ mythfrontend
 - Space or Enter to take action on the item under the highlight point.
 - P to play in both "Watch a Recording" and "Delete a Recording".
 - D to delete in both "Watch a Recording" and "Delete a Recording".
+- E to enter the Custom Record editor for the selected title on the EPG,
+    "Program Finder", "Upcoming Recordings" and search results screens.
 - U to view details for the currently selected show on the Watch or
-    Delete screens, EPG, "Program Finder", "Fix Scheduling Conflicts"
+    Delete screens, EPG, "Program Finder", "Upcoming Recordings"
     and search results screens.
 - O to list the upcoming episodes for the currently selected show
     on any page where a show title may be highlighed.
 - I to edit recording options from any of the pages for scheduling
     recordings. From the Watch and Delete screens, 'I' presents options
     for recorded shows such as Auto Expire or Stop Recording.
+- Y on the "Upcoming Recordings" page switches which capture cards'
+    items are displayed in the highlight color.
 
 Watching TV or a recording
 --------------------------
@@ -36,12 +40,15 @@ Watching TV or a recording
       While Picture Adjustment is on-screen, use Left and Right arrows
       to adjust. These settings adjust the look of the video playback,
       and are independent of the G-key settings used at record-time.
+      The Xv picture controls must be enabled in the Playback settings.
 - U   Increase the play speed [muted]
 - J   Decrease the play speed [muted]
 - A   Adjust time stretch (speed up or slow down play speed [with audio])
       Use the arrow keys to make adjustment.
 - W   Cycle through zoom and fill modes: force 4:3 aspect ratio, force 16:9
       aspect ratio, 4:3 Zoom (like Pan and Scan), 16:9 Zoom, 16:9 Stretch.
+- S   Display the Program Guide (EPG).
+- F6  Display the Program Finder.
 - F8  Cycle through sleep timer settings Off->30m->1hr->1hr30m->2hr->Off
 - Left arrow  Skip back
 - Right arrow Skip ahead
@@ -90,21 +97,24 @@ With the video paused:
 
 Watching TV only:
 
-- 0-9 Enter a channel number...
-      If the channel is not unique or smart channel change is disabled
-      press Return/OK when done, to commit the channel change.
-- G   Rotate between the various Picture Adjustments (Colour, Hue, etc.)
-      for recording.  These values affect the look of the resulting .nuv file,
-      and are independent of the playback picture settings. While Picture 
-      Adjustment is on-screen, use Left and Right arrows to adjust.
-- H   Channel history. Each repeat steps back through the previous channels.
-- O   Turns on 'Browse' mode, allowing user to browse channels and program
-      info while watching current show FullScreen.
-- /   Change to the next "favorite" channel
-- ?   Mark/Unmark the current channel as a "favorite" channel
-- Y   Switch Capture Cards
-- C   Change inputs on TV Tuner card
-- F7  Monitor signal on a card capable of signal monitoring.
+- 0-9    Enter a channel number...
+         If the channel is not unique or smart channel change is disabled
+         press Return/OK when done, to commit the channel change.
+- G      Rotate between the various Picture Adjustments (Colour, Hue, etc.)
+         for recording.  These values affect the look for all recordings made
+         with the current capture card and are independent of the playback
+         picture settings. While Picture Adjustment is on-screen, use Left and
+         Right arrows to adjust.
+- Ctrl-G The same as G, except it affects the look for all recordings made
+         on the current channel, independent of the capture card used.
+- H      Channel history. Each repeat steps back through the previous channels.
+- O      Turns on 'Browse' mode, allowing user to browse channels and program
+         info while watching current show FullScreen.
+- /      Change to the next "favorite" channel
+- ?      Mark/Unmark the current channel as a "favorite" channel
+- Y      Switch capture cards
+- C      Change inputs on current capture card
+- F7     Monitor signal quality on a card capable of signal monitoring
 
 LiveTV while not in Browse Mode:
 - Up/Down arrows  Change the channel.
@@ -119,6 +129,10 @@ LiveTV Browse Mode:
 - Space/Enter   change channel to channel of current listed program.
 - R             Toggle recording of current program (cycles through types)
 - ESC/O         Exit Browse mode.
+
+Playback Recording
+- Y   Adjust Audio Sync
+- R   Cycle Commercial-Skip Mode
 
 Playback Recording Zoom Mode:
 - Left          Move video to Left

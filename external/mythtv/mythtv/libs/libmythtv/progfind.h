@@ -48,6 +48,7 @@ class ProgFinder : public MythDialog
     void pageUp();
     void pageDown();
     void select();
+    void customEdit();
     void upcoming();
     void details();
     void quickRecord();
@@ -87,6 +88,7 @@ class ProgFinder : public MythDialog
     bool running;
     int *gotInitData;
     bool ggActive;
+    bool arrowAccel;
 
     QTimer *update_Timer;
 

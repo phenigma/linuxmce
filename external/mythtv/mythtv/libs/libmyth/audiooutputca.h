@@ -8,6 +8,7 @@
 
 using namespace std;
 
+#undef AUDBUFSIZE
 #define AUDBUFSIZE 512000
 
 // We hide Core Audio-specific items, to avoid
@@ -17,9 +18,12 @@ struct CoreAudioData;
 class AudioOutputCA : public AudioOutputBase
 {
 public:
-    AudioOutputCA(QString audiodevice, int laudio_bits, 
+    AudioOutputCA(QString laudio_main_device,
+                  QString laudio_passthru_device,
+                  int laudio_bits,
                   int laudio_channels, int laudio_samplerate,
-                  AudioOutputSource source, bool set_initial_vol);
+                  AudioOutputSource lsource,
+                  bool lset_initial_vol, bool laudio_passthru);
     virtual ~AudioOutputCA();
     
     // callback for delivering audio to output device

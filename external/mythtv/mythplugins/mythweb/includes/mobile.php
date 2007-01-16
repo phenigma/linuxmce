@@ -23,9 +23,9 @@
  * development of very detailed themes/layouts for mobile devices. This
  * code is intented to be easily re-usable in different applications.
  *
- * @url         $URL$
- * @date        $Date: 2006-02-24 04:15:27 +0200 (Fri, 24 Feb 2006) $
- * @version     $Revision: 9122 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-19-fixes/mythplugins/mythweb/includes/mobile.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     GPL
  *

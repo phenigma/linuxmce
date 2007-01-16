@@ -26,6 +26,7 @@ class PreviousList : public MythDialog
     void setViewFromList(void);
     void select(void);
     void edit(void);
+    void customEdit(void);
     void upcoming(void);
     void details(void);
     void chooseView(void);
@@ -48,7 +49,6 @@ class PreviousList : public MythDialog
     QString hourFormat;
     QString timeFormat;
     QString fullDateFormat;
-    QString channelOrdering;
     QString channelFormat;
 
     RecSearchType searchtype;

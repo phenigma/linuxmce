@@ -2,9 +2,9 @@
 /**
  * Handler for the Weather module.
  *
- * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-19-fixes/mythplugins/mythweb/modules/weather/handler.php $
- * @date        $Date: 2006-03-07 06:15:13 +0200 (Tue, 07 Mar 2006) $
- * @version     $Revision: 9280 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/weather/handler.php $
+ * @date        $Date: 2006-04-02 10:40:11 +0300 (Sun, 02 Apr 2006) $
+ * @version     $Revision: 9601 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -18,6 +18,19 @@
         $_SESSION['siunits'] = setting('SIUnits');
     }
 
+/**
+ * @global  array   $GLOBALS['Weather_Types']
+ * @name    $Weather_Types
+/**/
+    global $Weather_Types;
+    $Weather_Types = array();
+
+// Load the weather data
+    foreach (file(modules_path.'/'.module.'/weathertypes.dat') as $line) {
+        list($id, $name, $img) = explode(',', $line);
+        $Weather_Types[$id] = array($img, $name);
+    }
+
 // Build a list of the known weather sites
     $WeatherSites = array();
 
@@ -25,8 +38,7 @@
     while (list($data, $host) = $sh->fetch_row()) {
     // New data site
         if (empty($WeatherSites[$data])) {
-            $weather_site["use_metric"] = $use_metric;
-            $WeatherSites[$weather_site["data"]] = new WeatherSite($data, $hostname, $_SESSION['siunits']);
+            $WeatherSites[$data] = new WeatherSite($data, $hostname, $_SESSION['siunits']);
         }
     // Add the hostname to sites we've already seen
         else {
@@ -37,12 +49,13 @@
     $sh->finish();
 
 // Print the weather page template
-    require_once theme_dir.'/weather/weather.php';
+    require_once tmpl_dir.'weather.php';
 
 // Exit
     exit;
 
 class WeatherSite {
+
     var $acid;
     var $host;
 
@@ -69,17 +82,6 @@ class WeatherSite {
     var $RadarImage;
 
     var $LastUpdated;
-
-    function ChooseThemeImage($theme, $image) {
-        $image = str_replace("\n", "", $image);
-        $image_test=dirname($_SERVER['PATH_TRANSLATED'])."/images/weather/".$theme."/".$image;
-
-        if (file_exists($image_test))
-            $image = "images/weather/".$theme."/".$image;
-        else
-            $image = "images/weather/Default/".$image;
-        return($image);
-    }
 
     function WeatherSite($data, $hostname, $use_metric) {
         $this->acid       = $data;
@@ -244,23 +246,16 @@ class WeatherSite {
     }
 }
 
-function getImageAndDescFromId($myid) {
-    $data = file("config/weathertypes.dat");
-    foreach($data as $line) {
-    list($id, $name, $img) = explode(",", $line);
-    if($id != $myid) continue;
-
-    return array($img, $name);
-    }
+function getImageAndDescFromId($my_id) {
+    global $Weather_Types;
+    return $Weather_Types[$my_id];
 }
 
-function getImageFromName($myname) {
-    $data = file("config/weathertypes.dat");
-    foreach($data as $line) {
-    list($id, $name, $img) = explode(",", $line);
-    if($name != $myname) continue;
-
-    return $img;
+function getImageFromName($my_name) {
+    global $Weather_Types;
+    foreach ($Weather_Types as $pair) {
+        if ($pair[1] == $my_name)
+            return $pair[0];
     }
 }
 

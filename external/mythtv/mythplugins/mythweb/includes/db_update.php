@@ -2,9 +2,9 @@
 /**
  * Make sure the database is at the most recent version
  *
- * @url         $URL$
- * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
- * @version     $Revision: 8830 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/includes/db_update.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -35,11 +35,12 @@
                                 data            BLOB NOT NULL DEFAULT "",
                                 INDEX (modified)
                             )');
-                setting('WebDBSchemaVer', ++$db_vers);
+                setting('WebDBSchemaVer', null, ++$db_vers);
+        // Moving settings into the database
+            case 1:
+                setting('WebPrefer_Channum', null, 1);
+                setting('WebDBSchemaVer',    null, ++$db_vers);
         // All other numbers should run their changes sequentially
-            #case 1:
-            #    # do something to upgrade the database here
-            #    $db_vers++;
             #case 2:
             #    # do something to upgrade the database here
             #    $db_vers++;

@@ -13,8 +13,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <iostream>
-using namespace std;
+#include <algorithm>
 
 #include <qdatetime.h>
 #include <qdir.h>
@@ -29,6 +28,15 @@ using namespace std;
 #include "mtd.h"
 #include "threadevents.h"
 #include "dvdprobe.h"
+
+namespace {
+    struct delete_file {
+        bool operator()(const QString &filename) {
+            VERBOSE(VB_GENERAL, QString("Deleting file: %1").arg(filename));
+            return QDir::current().remove(filename);
+        }
+    };
+}
 
 JobThread::JobThread(MTD *owner, const QString &start_string, int nice_priority)
           :QThread()
@@ -47,7 +55,8 @@ JobThread::JobThread(MTD *owner, const QString &start_string, int nice_priority)
 
 void JobThread::run()
 {
-    cerr << "jobthread.o: Somebody ran an actual (base class) JobThread. I don't think that's supposed to happen." << endl;
+    VERBOSE(VB_IMPORTANT, "Somebody ran an actual (base class) JobThread. I"
+            " don't think that's supposed to happen.");
 }
 
 bool JobThread::keepGoing()
@@ -218,8 +227,9 @@ namespace
         {
             if (!(m_mutex && m_mutex->locked()))
             {
-                cerr << __FILE__ << ": Invalid mutext passed to MutexUnlocker"
-                        << endl;
+                VERBOSE(VB_IMPORTANT,
+                        QString("%1: Invalid mutex passed to MutexUnlocker")
+                        .arg(__FILE__));
             }
         }
 
@@ -232,20 +242,41 @@ namespace
         QMutex *m_mutex;
     };
 
-    template <typename HTYPE, typename CLEANF_RET = void>
+    template <typename HTYPE>
+    struct is_handle_null
+    {
+        bool operator()(HTYPE handle)
+        {
+            return handle == NULL;
+        }
+    };
+
+    template <typename HTYPE>
+    struct is_bad_stdio_handle
+    {
+        bool operator()(HTYPE handle)
+        {
+            return handle == -1;
+        }
+    };
+
+
+    template <typename HTYPE, typename CLEANF_RET = void,
+             typename handle_checker = is_handle_null<HTYPE> >
     class SmartHandle
     {
       private:
         typedef CLEANF_RET (*clean_fun_t)(HTYPE);
 
       public:
-        SmartHandle(HTYPE handle, clean_fun_t cleaner) : m_handle(handle), 
-                m_cleaner(cleaner)
+        SmartHandle(HTYPE handle, clean_fun_t cleaner) : m_handle(handle),
+                                                         m_cleaner(cleaner)
         {
         }
 
         ~SmartHandle() {
-            if (m_handle)
+            handle_checker hc;
+            if (!hc(m_handle))
             {
                 m_cleaner(m_handle);
             }
@@ -285,14 +316,16 @@ DVDThread::DVDThread(MTD *owner,
 
 void DVDThread::run()
 {
-    cerr << "jobthread.o: Somebody ran an actual (base class) DVDThread. I don't think that's supposed to happen." << endl;
+    VERBOSE(VB_IMPORTANT, "Somebody ran an actual (base class) DVDThread. I"
+            " don't think that's supposed to happen.");
 }
 
 
 bool DVDThread::ripTitle(int title_number,
                          const QString &to_location,
                          const QString &extension,
-                         bool multiple_files)
+                         bool multiple_files,
+                         QStringList *output_files)
 {
     //
     //  Can't do much until I have a
@@ -477,7 +510,8 @@ bool DVDThread::ripTitle(int title_number,
                                     &video_data[0]);
             if( len != 1)
             {
-                problem(QString("DVDPerfectThread read failed for block %1").arg(cur_pack));
+                problem(QString("DVDPerfectThread read failed for block %1")
+                        .arg(cur_pack));
                 return false;
             }
             
@@ -560,7 +594,9 @@ bool DVDThread::ripTitle(int title_number,
     //  Wow, we're done.
     //
 
-    ripfile.close();
+    QStringList sl = ripfile.close();
+    if (output_files) *output_files = sl;
+
     sendLoggingEvent("job thread finished ripping dvd title");
     return true;
 }
@@ -652,17 +688,19 @@ bool DVDISOCopyThread::copyFullDisc(void)
 
     sendLoggingEvent(QString("ISO DVD image copy to: %1").arg(ripfile.name()));
 
-    int file = open( dvd_device_location, O_RDONLY );
-    if(file == -1)
+    SmartHandle<int, int, is_bad_stdio_handle<int> > file(
+            open(dvd_device_location, O_RDONLY), close);
+    if(file.get() == -1)
     {
-        problem(QString("DVDISOCopyThread could not open dvd device: %1").arg(dvd_device_location));
+        problem(QString("DVDISOCopyThread could not open dvd device: %1")
+                .arg(dvd_device_location));
         return false;
     }
 
-    off_t dvd_size = lseek(file, 0, SEEK_END);
-    lseek(file, 0, SEEK_SET);
+    off_t dvd_size = lseek(file.get(), 0, SEEK_END);
+    lseek(file.get(), 0, SEEK_SET);
 
-    const int buf_size = 4098;
+    const int buf_size = 1024 * 1024;
     unsigned char buffer[buf_size];
     long long total_bytes(0);
 
@@ -671,7 +709,7 @@ bool DVDISOCopyThread::copyFullDisc(void)
 
     while( 1 )
     {
-        int bytes_read = read(file, buffer, buf_size);
+        int bytes_read = read(file.get(), buffer, buf_size);
         if(bytes_read == -1)
         {
             perror("read");
@@ -851,10 +889,11 @@ void DVDTranscodeThread::run()
     //  Rip VOB to working directory
     //
 
+    QStringList output_files;
     if(keepGoing())
     {
         QString rip_file_string = QString("%1/vob/%2").arg(working_directory->path()).arg(rip_name);
-        if(!ripTitle(dvd_title, rip_file_string, ".vob", true))
+        if(!ripTitle(dvd_title, rip_file_string, ".vob", true, &output_files))
         {
             cleanUp(); 
             return;
@@ -886,7 +925,7 @@ void DVDTranscodeThread::run()
             }
             else
             {
-                problem("abandonded job because master control said we need to shut down");
+                problem("abandoned job because master control said we need to shut down");
                 return;
             }
         }
@@ -916,7 +955,13 @@ void DVDTranscodeThread::run()
                 wipeClean();
             }
         }
-    }    
+    }
+
+    if (!gContext->GetNumSetting("mythdvd.mtd.SaveTranscodeIntermediates", 0)) {
+        // remove any temporary titles that are now transcoded
+        std::for_each(output_files.begin(), output_files.end(), delete_file());
+    }
+
     cleanUp();
 }
 
@@ -1007,7 +1052,8 @@ bool DVDTranscodeThread::buildTranscodeCommandLine(int which_run)
                                      " a_bitrate,   "
                                      " input,       "
                                      " name,        "
-                                     " two_pass     "
+                                     " two_pass,    "
+                                     " tc_param     "
                                      
                                      " FROM dvdtranscode WHERE intid = %1 ;")
                                      .arg(quality);
@@ -1053,6 +1099,7 @@ bool DVDTranscodeThread::buildTranscodeCommandLine(int which_run)
     int   input_setting = a_query.value(21).toInt();
     QString        name = a_query.value(22).toString();
                two_pass = a_query.value(23).toBool();
+    QString    tc_param = a_query.value(24).toString();
     
     //
     //  And now, another query to get frame rate code and
@@ -1181,10 +1228,15 @@ bool DVDTranscodeThread::buildTranscodeCommandLine(int which_run)
     else
         tc_arguments.append(codec);
 
-    if(codec_param.length() > 0)
+    if(codec_param.length())
     {
         tc_arguments.append("-F");
         tc_arguments.append(codec_param);
+    }
+
+    if(tc_param.length())
+    {
+        tc_arguments += QStringList::split(" ", tc_param);
     }
     
     if(bitrate > 0)
@@ -1430,8 +1482,7 @@ void DVDTranscodeThread::wipeClean()
     //  partially created
     //
     cleanUp();
-    QDir d("stupid");
-    d.remove(QString("%1.avi").arg(destination_file_string));
+    QDir::current().remove(QString("%1.avi").arg(destination_file_string));
 }
 
 DVDTranscodeThread::~DVDTranscodeThread()

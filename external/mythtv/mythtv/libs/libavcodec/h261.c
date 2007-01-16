@@ -264,6 +264,7 @@ void ff_h261_encode_mb(MpegEncContext * s,
     h->previous_mba = h->current_mba;
 
     if(HAS_CBP(h->mtype)){
+        assert(cbp>0);
         put_bits(&s->pb,h261_cbp_tab[cbp-1][1],h261_cbp_tab[cbp-1][0]);
     }
     for(i=0; i<6; i++) {
@@ -762,7 +763,7 @@ static int h261_decode_block(H261Context * h, DCTELEM * block,
  * decodes the H261 picture header.
  * @return <0 if no startcode found
  */
-int h261_decode_picture_header(H261Context *h){
+static int h261_decode_picture_header(H261Context *h){
     MpegEncContext * const s = &h->s;
     int format, i;
     uint32_t startcode= 0;
@@ -780,7 +781,14 @@ int h261_decode_picture_header(H261Context *h){
     }
 
     /* temporal reference */
-    s->picture_number = get_bits(&s->gb, 5); /* picture timestamp */
+    i= get_bits(&s->gb, 5); /* picture timestamp */
+    if(i < (s->picture_number&31))
+        i += 32;
+    s->picture_number = (s->picture_number&~31) + i;
+
+    s->avctx->time_base= (AVRational){1001, 30000};
+    s->current_picture.pts= s->picture_number;
+
 
     /* PTYPE starts here */
     skip_bits1(&s->gb); /* split screen off */
@@ -846,6 +854,7 @@ static int h261_decode_gob(H261Context *h){
     return -1;
 }
 
+#ifdef CONFIG_H261_PARSER
 static int h261_find_frame_end(ParseContext *pc, AVCodecContext* avctx, const uint8_t *buf, int buf_size){
     int vop_found, i, j;
     uint32_t state;
@@ -857,7 +866,6 @@ static int h261_find_frame_end(ParseContext *pc, AVCodecContext* avctx, const ui
         state= (state<<8) | buf[i];
         for(j=0; j<8; j++){
             if(((state>>j)&0xFFFFF) == 0x00010){
-                i++;
                 vop_found=1;
                 break;
             }
@@ -899,6 +907,7 @@ static int h261_parse(AVCodecParserContext *s,
     *poutbuf_size = buf_size;
     return next;
 }
+#endif
 
 /**
  * returns the number of bytes consumed for building the current frame
@@ -921,8 +930,8 @@ static int h261_decode_frame(AVCodecContext *avctx,
     AVFrame *pict = data;
 
 #ifdef DEBUG
-    printf("*****frame %d size=%d\n", avctx->frame_number, buf_size);
-    printf("bytes=%x %x %x %x\n", buf[0], buf[1], buf[2], buf[3]);
+    av_log(avctx, AV_LOG_DEBUG, "*****frame %d size=%d\n", avctx->frame_number, buf_size);
+    av_log(avctx, AV_LOG_DEBUG, "bytes=%x %x %x %x\n", buf[0], buf[1], buf[2], buf[3]);
 #endif
     s->flags= avctx->flags;
     s->flags2= avctx->flags2;
@@ -996,10 +1005,6 @@ assert(s->current_picture.pict_type == s->pict_type);
     *pict= *(AVFrame*)s->current_picture_ptr;
     ff_print_debug_info(s, pict);
 
-    /* Return the Picture timestamp as the frame number */
-    /* we substract 1 because it is added on utils.c    */
-    avctx->frame_number = s->picture_number - 1;
-
     *data_size = sizeof(AVFrame);
 
     return get_consumed_bytes(s, buf_size);
@@ -1038,6 +1043,7 @@ AVCodec h261_decoder = {
     CODEC_CAP_DR1,
 };
 
+#ifdef CONFIG_H261_PARSER
 AVCodecParser h261_parser = {
     { CODEC_ID_H261 },
     sizeof(ParseContext),
@@ -1045,3 +1051,4 @@ AVCodecParser h261_parser = {
     h261_parse,
     ff_parse_close,
 };
+#endif

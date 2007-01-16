@@ -3,10 +3,12 @@
 
 #include <qobject.h>
 #include <qstring.h>
+#include <qstringlist.h>
 
 typedef enum {
     MEDIASTAT_ERROR,
     MEDIASTAT_UNKNOWN,
+    MEDIASTAT_UNPLUGGED,
     MEDIASTAT_OPEN,
     MEDIASTAT_USEABLE,    
     MEDIASTAT_NOTMOUNTED,
@@ -14,12 +16,16 @@ typedef enum {
 } MediaStatus;
 
 typedef enum {
-    MEDIATYPE_UNKNOWN=1,
-    MEDIATYPE_DATA=2,
-    MEDIATYPE_MIXED=4,
-    MEDIATYPE_AUDIO=8,
-    MEDIATYPE_DVD=16,
-    MEDIATYPE_VCD=32
+    MEDIATYPE_UNKNOWN  = 0x0001,
+    MEDIATYPE_DATA     = 0x0002,
+    MEDIATYPE_MIXED    = 0x0004,
+    MEDIATYPE_AUDIO    = 0x0008,
+    MEDIATYPE_DVD      = 0x0010,
+    MEDIATYPE_VCD      = 0x0020,
+    MEDIATYPE_MMUSIC   = 0x0040,
+    MEDIATYPE_MVIDEO   = 0x0080,
+    MEDIATYPE_MGALLERY = 0x0100,
+    MEDIATYPE_END      = 0x0200,
 } MediaType;
 
 typedef enum {
@@ -27,6 +33,9 @@ typedef enum {
     MEDIAERR_FAILED,
     MEDIAERR_UNSUPPORTED
 } MediaError;
+
+typedef QMap<QString,uint> ext_cnt_t;
+typedef QMap<QString,uint> ext_to_media_t;
 
 class MythMediaDevice : public QObject
 {
@@ -45,6 +54,8 @@ class MythMediaDevice : public QObject
     MediaStatus getStatus() const { return m_Status; }
 
     const QString& getVolumeID() const { return m_VolumeID; }
+    void  setVolumeID(const char *vol)  { m_VolumeID = vol; }
+
     const QString& getKeyID() const { return m_KeyID; }
 
     bool getAllowEject() const { return m_AllowEject; }
@@ -65,7 +76,7 @@ class MythMediaDevice : public QObject
     virtual bool openDevice();
     virtual bool closeDevice();
     virtual MediaStatus checkMedia() = 0; // Derived classes MUST implement this.
-    virtual MediaError eject() { return MEDIAERR_UNSUPPORTED; }
+    virtual MediaError eject(bool open_close = true);
     virtual MediaError lock();
     virtual MediaError unlock();
     virtual bool performMountCmd( bool DoMount );    
@@ -73,18 +84,34 @@ class MythMediaDevice : public QObject
     bool mount() {  return performMountCmd(true); }
     bool unmount() { return performMountCmd(false); }
     bool isMounted(bool bVerify = false);
+
+    void RegisterMediaExtensions(uint mediatype,
+                                 const QString& extensions);
+
     
     static const char* MediaStatusStrings[];
     static const char* MediaTypeStrings[];
     static const char* MediaErrorStrings[];
 
+    void clearData();
+
  signals:
     void statusChanged(MediaStatus oldStatus, MythMediaDevice* pMedia);
 
  protected:
-    /// Override this to perform any post mount/unmount logic.
-    virtual void onDeviceMounted() {};
+    /// Override this to perform any post mount logic.
+    virtual void onDeviceMounted(void)
+    {
+        MediaType type = DetectMediaType();
+        if (type != MEDIATYPE_UNKNOWN)
+            m_MediaType = type;
+    }
+
+    /// Override this to perform any post unmount logic.
     virtual void onDeviceUnmounted() {};
+
+    MediaType DetectMediaType(void);
+    bool ScanMediaType(const QString &directory, ext_cnt_t &counts);
 
     MediaStatus setStatus(MediaStatus newStat, bool CloseIt=false);
 
@@ -99,6 +126,7 @@ class MythMediaDevice : public QObject
     int m_DeviceHandle;         ///< A file handle for opening and closing the device.
     MediaType m_MediaType;      ///< The type of media
     bool m_SuperMount;          ///< Is this a supermount device?
+    ext_to_media_t m_ext_to_media; ///< Map of extension to media type.
 };
 
 #endif

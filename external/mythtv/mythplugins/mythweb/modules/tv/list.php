@@ -5,9 +5,9 @@
  *
  * This is the default viewing mode, and shows the current program listings.
  *
- * @url         $URL$
- * @date        $Date: 2005-11-11 09:25:35 +0200 (Fri, 11 Nov 2005) $
- * @version     $Revision: 7840 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/tv/list.php $
+ * @date        $Date: 2006-11-02 09:25:23 +0200 (Thu, 02 Nov 2006) $
+ * @version     $Revision: 11671 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -49,5 +49,26 @@
     load_all_program_data($list_starttime, $list_endtime);
 
 // Load the class for this page
-    require_once theme_dir.'/tv/list.php';
+    require_once tmpl_dir.'list.php';
+
+/**
+ * Prints a <select> of the available date range
+/**/
+    function date_select() {
+        global $db;
+    // Get the available date range
+        $min_days = max(-7, $db->query_col('SELECT TO_DAYS(min(starttime)) - TO_DAYS(NOW()) FROM program'));
+        $max_days = min(30, $db->query_col('SELECT TO_DAYS(max(starttime)) - TO_DAYS(NOW()) FROM program'));
+    // Print out the list
+        echo '<select name="date" onchange="get_element(\'program_listing\').submit()">';
+        for ($i=$min_days; $i<=$max_days; $i++) {
+            $time = mktime(0,0,0, date('m'), date('d') + $i, date('Y'));
+            $date = date('Ymd', $time);
+            echo "<option value=\"$date\"";
+            if ($date == date('Ymd', $_SESSION['list_time']))
+                echo ' SELECTED';
+            echo '>'.strftime($_SESSION['date_listing_jump'] , $time).'</option>';
+        }
+        echo '</select>';
+    }
 

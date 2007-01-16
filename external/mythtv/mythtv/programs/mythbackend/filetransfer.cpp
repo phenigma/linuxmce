@@ -8,26 +8,54 @@
 using namespace std;
 
 #include "filetransfer.h"
-
+#include "server.h"
 #include "RingBuffer.h"
 #include "libmyth/util.h"
+#include "libmyth/mythsocket.h"
 
-FileTransfer::FileTransfer(QString &filename, QSocket *remote)
+FileTransfer::FileTransfer(QString &filename, MythSocket *remote,
+                           bool usereadahead, int retries) :
+    readthreadlive(true),
+    rbuffer(new RingBuffer(filename, false, usereadahead, retries)),
+    sock(remote), ateof(false), refCount(0)
+{
+}
+
+FileTransfer::FileTransfer(QString &filename, MythSocket *remote)
 {
     rbuffer = new RingBuffer(filename, false);
     sock = remote;
     readthreadlive = true;
     ateof = false;
+    refCount = 0;
 }
 
 FileTransfer::~FileTransfer()
 {
-    Stop();
+    sock->DownRef();
+}
 
-    if (rbuffer)
-        delete rbuffer;
+void FileTransfer::UpRef(void)
+{
+    refCount++;
+}
 
-    readthreadLock.unlock();
+bool FileTransfer::DownRef(void)
+{
+    refCount--;
+
+    if (refCount < 0)
+    {
+        Stop();
+
+        if (rbuffer)
+            delete rbuffer;
+
+        readthreadLock.unlock();
+        delete this;
+        return true;
+    }
+    return false;
 }
 
 bool FileTransfer::isOpen(void)
@@ -79,7 +107,7 @@ int FileTransfer::RequestBlock(int size)
         if (rbuffer->GetStopReads() || ret <= 0)
             break;
 
-        if (!WriteBlock(sock->socketDevice(), buf, (uint)ret))
+        if (!sock->writeData(buf, (uint)ret))
         {
             tot = -1;
             break;

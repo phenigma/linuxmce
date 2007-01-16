@@ -2,9 +2,9 @@
 /**
  * Initialization routines for the MythWeb Video module
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/modules/video/init.php $
- * @date        $Date: 2006-01-29 05:19:02 +0200 (Sun, 29 Jan 2006) $
- * @version     $Revision: 8758 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/video/init.php $
+ * @date        $Date: 2006-03-23 09:46:57 +0200 (Thu, 23 Mar 2006) $
+ * @version     $Revision: 9478 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -23,6 +23,7 @@
 // If video is enabled, add it to the list.
     if ($has_video)
         $Modules['video'] = array('path'        => 'video',
+                                  'sort'        => 3,
                                   'name'        => t('Video'),
                                   'description' => t('')
                                  );

@@ -19,25 +19,21 @@ using namespace std;
 #include <qapplication.h>
 #include <qmutex.h>
 #include <qregexp.h>
-#include <mythtv/themedmenu.h>
 #include <mythtv/mythcontext.h>
 #include <mythtv/mythplugin.h>
 #include <mythtv/dialogbox.h>
 #include <mythtv/util.h>
 #include <mythtv/mythmedia.h>
 #include <mythtv/lcddevice.h>
+#include <mythtv/libmythui/myththemedmenu.h>
 
-#include "config.h"
 #include "settings.h"
-#ifdef TRANSCODE_SUPPORT
 #include "dvdripbox.h"
-#endif
 #include "dbcheck.h"
 
 //
 //  Transcode stuff only if we were ./configure'd for it
 //
-#ifdef TRANSCODE_SUPPORT
 void startDVDRipper(void)
 {
     DVDRipBox *drb = new DVDRipBox(gContext->GetMainWindow(),
@@ -52,12 +48,7 @@ void startDVDRipper(void)
 
     delete drb;
 }
-#endif
 
-//
-//  VCD Playing only if we were ./configure's for it.
-//
-#ifdef VCD_SUPPORT
 void playVCD()
 {
     //
@@ -111,32 +102,33 @@ void playVCD()
         myth_system(command_string);
         gContext->GetMainWindow()->raise();
         gContext->GetMainWindow()->setActiveWindow();
-        gContext->GetMainWindow()->currentWidget()->setFocus();
+        if (gContext->GetMainWindow()->currentWidget())
+            gContext->GetMainWindow()->currentWidget()->setFocus();
     }
     gContext->removeCurrentLocation();
 }
-#endif
 
 void playDVD(void)
 {
     //
     //  Get the command string to play a DVD
     //
-    
-    QString command_string = gContext->GetSetting("DVDPlayerCommand");
+
+    QString command_string = gContext->GetSetting("mythdvd.DVDPlayerCommand");
+//    , "Internal");
 
     gContext->addCurrentLocation("playdvd");
 
     if ( (command_string.find("internal", 0, false) > -1)||
          (command_string.length() < 1))
     {
-        QString filename = QString("dvd:/%1" ).arg(gContext->GetSetting("DVDDeviceLocation"));
+        QString filename = QString("dvd:/%1" )
+                .arg(gContext->GetSetting("DVDDeviceLocation"));
         command_string = "Internal";
         gContext->GetMainWindow()->HandleMedia(command_string, filename);
         gContext->removeCurrentLocation();
         return;
     }
-    
     else
     {
         if(command_string.contains("%d"))
@@ -165,10 +157,13 @@ void playDVD(void)
             }
         }
         myth_system(command_string);
-        gContext->GetMainWindow()->raise();
-        gContext->GetMainWindow()->setActiveWindow();
-        gContext->GetMainWindow()->currentWidget()->setFocus();
-        
+        if (gContext->GetMainWindow())
+        {
+            gContext->GetMainWindow()->raise();
+            gContext->GetMainWindow()->setActiveWindow();
+            if (gContext->GetMainWindow()->currentWidget())
+                gContext->GetMainWindow()->currentWidget()->setFocus();
+        }
     }
     gContext->removeCurrentLocation();
 }
@@ -182,19 +177,13 @@ void DVDCallback(void *data, QString &selection)
     {
         playDVD();
     }
-#ifdef VCD_SUPPORT
     if (sel == "vcd_play")
     {
         playVCD();
     }
-#endif
     else if (sel == "dvd_rip")
     {
-#ifdef TRANSCODE_SUPPORT
         startDVDRipper();
-#else
-        cerr << "main.o: TRANSCODE_SUPPORT is not on, but I still got asked to start the DVD ripper" << endl ;
-#endif
     }
     else if (sel == "dvd_settings_general")
     {
@@ -217,8 +206,9 @@ void runMenu(QString which_menu)
 {
     QString themedir = gContext->GetThemeDir();
 
-    ThemedMenu *diag = new ThemedMenu(themedir.ascii(), which_menu, 
-                                      gContext->GetMainWindow(), "dvd menu");
+    MythThemedMenu *diag = new MythThemedMenu(themedir.ascii(), which_menu, 
+                                              GetMythMainWindow()->GetMainStack(), 
+                                              "dvd menu");
 
     diag->setCallback(DVDCallback, NULL);
     diag->setKillable();
@@ -229,14 +219,13 @@ void runMenu(QString which_menu)
         {
             lcd->switchToTime();
         }
-        diag->exec();
+        GetMythMainWindow()->GetMainStack()->AddScreen(diag);
     }
     else
     {
         cerr << "Couldn't find theme " << themedir << endl;
+        delete diag;
     }
-
-    delete diag;
 }
 
 extern "C" {
@@ -257,18 +246,15 @@ void handleDVDMedia(MythMediaDevice *)
         case 2 : // play DVD
             playDVD();    
             break;
-#ifdef TRANSCODE_SUPPORT
         case 3 : //Rip DVD
             startDVDRipper();
             break;
-#endif
         default:
             cerr << "mythdvd main.o: handleMedia() does not know what to do"
                  << endl;
     }
 }
 
-#ifdef VCD_SUPPORT
 void handleVCDMedia(MythMediaDevice *) 
 {
     switch (gContext->GetNumSetting("DVDOnInsertDVD", 1))
@@ -285,20 +271,19 @@ void handleVCDMedia(MythMediaDevice *)
            break;
     }
 }
-#endif
 
 void initKeys(void)
 {
     REG_JUMP("Play DVD", "Play a DVD", "", playDVD);
-    REG_MEDIA_HANDLER("MythDVD DVD Media Handler", "", "", handleDVDMedia, MEDIATYPE_DVD);
-#ifdef VCD_SUPPORT
+    REG_MEDIA_HANDLER("MythDVD DVD Media Handler", "", "",
+                      handleDVDMedia, MEDIATYPE_DVD, QString::null);
+
     REG_JUMP("Play VCD", "Play a VCD", "", playVCD);
-    REG_MEDIA_HANDLER("MythDVD VCD Media Handler", "", "", handleVCDMedia, MEDIATYPE_VCD);
-#endif
-#ifdef TRANSCODE_SUPPORT
+    REG_MEDIA_HANDLER("MythDVD VCD Media Handler", "", "",
+                      handleVCDMedia, MEDIATYPE_VCD, QString::null);
+
     REG_JUMP("Rip DVD", "Import a DVD into your MythVideo database", "", 
              startDVDRipper);
-#endif
 }
 
 int mythplugin_init(const char *libversion)
@@ -317,11 +302,9 @@ int mythplugin_init(const char *libversion)
     DVDPlayerSettings psettings;
     psettings.load();
     psettings.save();
-#ifdef TRANSCODE_SUPPORT
     DVDRipperSettings rsettings;
     rsettings.load();
     rsettings.save();
-#endif
 
     initKeys();
 

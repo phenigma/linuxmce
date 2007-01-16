@@ -113,9 +113,6 @@ static void gif_put_bits_rev(PutBitContext *s, int n, unsigned int value)
     unsigned int bit_buf;
     int bit_cnt;
 
-#ifdef STATS
-    st_out_bit_counts[st_current_index] += n;
-#endif
     //    printf("put_bits=%d %x\n", n, value);
     assert(n == 32 || value < (1U << n));
 
@@ -187,7 +184,7 @@ static int gif_image_write_header(ByteIOContext *pb,
 
     /* the global palette */
     if (!palette) {
-        put_buffer(pb, (unsigned char *)gif_clut, 216*3);
+        put_buffer(pb, (const unsigned char *)gif_clut, 216*3);
         for(i=0;i<((256-216)*3);i++)
             put_byte(pb, 0);
     } else {
@@ -342,8 +339,10 @@ static int gif_write_header(AVFormatContext *s)
 //        rate = video_enc->time_base.den;
     }
 
-    /* XXX: is it allowed ? seems to work so far... */
-    video_enc->pix_fmt = PIX_FMT_RGB24;
+    if (video_enc->pix_fmt != PIX_FMT_RGB24) {
+        av_log(s, AV_LOG_ERROR, "ERROR: gif only handles the rgb24 pixel format. Use -pix_fmt rgb24.\n");
+        return AVERROR_IO;
+    }
 
     gif_image_write_header(pb, width, height, loop_count, NULL);
 
@@ -417,7 +416,7 @@ int gif_write(ByteIOContext *pb, AVImageInfo *info)
     return 0;
 }
 
-static AVOutputFormat gif_oformat = {
+AVOutputFormat gif_muxer = {
     "gif",
     "GIF Animation",
     "image/gif",
@@ -429,12 +428,3 @@ static AVOutputFormat gif_oformat = {
     gif_write_packet,
     gif_write_trailer,
 };
-
-extern AVInputFormat gif_iformat;
-
-int gif_init(void)
-{
-    av_register_output_format(&gif_oformat);
-    av_register_input_format(&gif_iformat);
-    return 0;
-}

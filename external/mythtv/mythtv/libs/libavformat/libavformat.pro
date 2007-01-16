@@ -4,7 +4,7 @@ include ( ../../settings.pro )
 TEMPLATE = lib
 TARGET = mythavformat-$$LIBVERSION
 CONFIG += thread dll warn_off
-target.path = $${PREFIX}/lib
+target.path = $${LIBDIR}
 INSTALLS = target
 
 INCLUDEPATH += ../ ../../ ../libavcodec ../libavutil ../libmythtv
@@ -17,6 +17,7 @@ QMAKE_CLEAN += $(TARGET) $(TARGETA) $(TARGETD) $(TARGET0) $(TARGET1) $(TARGET2)
 
 # Input
 HEADERS += asf.h avformat.h avi.h avio.h dv.h mpegts.h os_support.h qtpalette.h
+HEADERS += riff.h
 
 SOURCES += 4xm.c allformats.c asf.c au.c avidec.c avienc.c avio.c aviobuf.c 
 SOURCES += crc.c cutils.c dv.c ffm.c file.c flvdec.c flvenc.c idcin.c idroq.c
@@ -25,20 +26,12 @@ SOURCES += mpjpeg.c nut.c os_support.c rm.c psxstr.c raw.c flic.c audio.c
 SOURCES += segafilm.c swf.c utils.c wav.c wc3movie.c westwood.c yuv4mpeg.c
 SOURCES += sierravmd.c asf-enc.c matroska.c img2.c electronicarts.c sol.c
 SOURCES += nsvdec.c ogg2.c oggparsevorbis.c oggparsetheora.c oggparseflac.c
-SOURCES += mmf.c gif.c gifdec.c jpeg.c png.c pnm.c sgi.c yuv.c daud.c
+SOURCES += mmf.c gif.c gifdec.c jpeg.c png.c pnm.c sgi.c yuv.c daud.c adtsenc.c
+SOURCES += aiff.c avs.c mm.c tta.c voc.c smacker.c oggparseogm.c nuv.c
+SOURCES += gxf.c gxfenc.c riff.c amr.c mxf.c isom.c
 
 # not using:  barpainet.* beosaudio.cpp, dv1394.*, dc1394.c, framehook.*
-# not using:  grab.c
-
-contains( AMR_NB, yes ) {
-    SOURCES += amr.c
-}
-contains( AMR_NB_FIXED, yes ) {
-    SOURCES += amr.c
-}
-contains( AMR_WB, yes ) {
-    SOURCES += amr.c
-}
+# not using:  grab.c v4l2.c
 
 contains( CONFIG_VORBIS, yes ) {
     SOURCES += ogg.c

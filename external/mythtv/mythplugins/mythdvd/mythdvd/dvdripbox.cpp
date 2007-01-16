@@ -16,7 +16,6 @@ using namespace std;
 #include <mythtv/mythcontext.h>
 #include <mythtv/uitypes.h>
 
-#include "config.h"
 #include "dvdripbox.h"
 #include "titledialog.h"
 
@@ -254,7 +253,8 @@ void DVDRipBox::connectToMtd(bool try_to_run_mtd)
         //
         //  it should daemonize itself and then return
         //
-        system("mtd -d");
+        system(QString("%1/bin/mtd -d").arg(gContext->GetInstallPrefix()));
+
         //
         //  but we need to wait a wee bit for the
         //  socket to open up

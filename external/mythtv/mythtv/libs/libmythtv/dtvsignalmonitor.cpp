@@ -35,10 +35,23 @@ DTVSignalMonitor::DTVSignalMonitor(int db_cardnum,
       matchingVCT(tr("Matching")+" VCT", "matching_vct", 1, true, 0, 1, 0),
       matchingNIT(tr("Matching")+" NIT", "matching_nit", 1, true, 0, 1, 0),
       matchingSDT(tr("Matching")+" SDT", "matching_sdt", 1, true, 0, 1, 0),
-      majorChannel(-1), minorChannel(-1), programNumber(-1),
+      majorChannel(-1), minorChannel(-1),
+      networkID(0), transportID(0),
+      detectedNetworkID(0), detectedTransportID(0),
+      programNumber(-1),
       ignoreEncrypted(true),
       error("")
 {
+}
+
+DTVSignalMonitor::~DTVSignalMonitor()
+{
+    SetStreamData(NULL);
+}
+
+void DTVSignalMonitor::deleteLater(void)
+{
+    SetStreamData(NULL);
 }
 
 QStringList DTVSignalMonitor::GetStatusList(bool kick)
@@ -112,7 +125,7 @@ void DTVSignalMonitor::RemoveFlags(uint _flags)
     UpdateMonitorValues();
 }
 
-void DTVSignalMonitor::UpdateMonitorValues()
+void DTVSignalMonitor::UpdateMonitorValues(void)
 {
     QMutexLocker locker(&statusLock);
     seenPAT.SetValue(    (flags & kDTVSigMon_PATSeen)  ? 1 : 0);
@@ -127,6 +140,30 @@ void DTVSignalMonitor::UpdateMonitorValues()
     matchingVCT.SetValue((flags & kDTVSigMon_VCTMatch) ? 1 : 0);
     matchingNIT.SetValue((flags & kDTVSigMon_NITMatch) ? 1 : 0);
     matchingSDT.SetValue((flags & kDTVSigMon_SDTMatch) ? 1 : 0);
+}
+
+void DTVSignalMonitor::UpdateListeningForEIT(void)
+{
+    vector<uint> add_eit, del_eit;
+
+    if (GetStreamData()->HasEITPIDChanges(eit_pids) &&
+        GetStreamData()->GetEITPIDChanges(eit_pids, add_eit, del_eit))
+    {
+        for (uint i = 0; i < del_eit.size(); i++)
+        {
+            uint_vec_t::iterator it;
+            it = find(eit_pids.begin(), eit_pids.end(), del_eit[i]);
+            if (it != eit_pids.end())
+                eit_pids.erase(it);
+            GetStreamData()->RemoveListeningPID(del_eit[i]);
+        }
+
+        for (uint i = 0; i < add_eit.size(); i++)
+        {
+            eit_pids.push_back(add_eit[i]);
+            GetStreamData()->AddListeningPID(add_eit[i]);
+        }
+    }
 }
 
 void DTVSignalMonitor::SetChannel(int major, int minor)
@@ -157,46 +194,66 @@ void DTVSignalMonitor::SetProgramNumber(int progNum)
     }
 }
 
+void DTVSignalMonitor::SetDVBService(uint netid, uint tsid, int serviceid)
+{
+    DBG_SM(QString("SetDVBService(transport_id: %1, network_id: %2, "
+                   "service_id: %3)").arg(tsid).arg(netid).arg(serviceid), "");
+
+    if (netid == networkID && tsid == transportID &&
+        serviceid == programNumber)
+    {
+        return;
+    }
+
+    RemoveFlags(kDTVSigMon_PMTSeen | kDTVSigMon_PMTMatch |
+                kDTVSigMon_SDTSeen | kDTVSigMon_SDTMatch);
+
+    transportID   = tsid;
+    networkID     = netid;
+    programNumber = serviceid;
+
+    if (GetDVBStreamData())
+    {
+        GetDVBStreamData()->SetDesiredService(tsid, netid, programNumber);
+        AddFlags(kDTVSigMon_WaitForPMT | kDTVSigMon_WaitForSDT);
+        GetDVBStreamData()->AddListeningPID(DVB_SDT_PID);
+    }
+}
+
 void DTVSignalMonitor::SetStreamData(MPEGStreamData *data)
 {
+    if (stream_data)
+        stream_data->RemoveMPEGListener(this);
+
+    ATSCStreamData *atsc = GetATSCStreamData();
+    DVBStreamData  *dvb  = GetDVBStreamData();
+    if (atsc)
+    {
+        atsc->RemoveATSCMainListener(this);
+        atsc->RemoveATSCAuxListener(this);
+    }
+    if (dvb)
+        dvb->RemoveDVBMainListener(this);
+
     stream_data = data;
     if (!data)
         return;
 
-    connect(data, SIGNAL(UpdatePAT(const ProgramAssociationTable*)),
-            this, SLOT(SetPAT(const ProgramAssociationTable*)));
-    
-    connect(data, SIGNAL(UpdatePMT(uint, const ProgramMapTable*)),
-            this, SLOT(SetPMT(uint, const ProgramMapTable*)));
+    data->AddMPEGListener(this);
 
-    ATSCStreamData *atsc = GetATSCStreamData();
+    atsc = GetATSCStreamData();
+    dvb  = GetDVBStreamData();
     if (atsc)
     {
-        connect(atsc, SIGNAL(UpdateMGT(const MasterGuideTable*)),
-                this, SLOT(SetMGT(const MasterGuideTable*)));
-
-        connect(
-            atsc,
-            SIGNAL(UpdateTVCT(uint, const TerrestrialVirtualChannelTable*)),
-            this, SLOT(SetVCT(uint, const TerrestrialVirtualChannelTable*)));
-
-        connect(
-            atsc, SIGNAL(UpdateCVCT(uint, const CableVirtualChannelTable*)),
-            this, SLOT(  SetVCT(    uint, const CableVirtualChannelTable*)));
+        atsc->AddATSCMainListener(this);
+        atsc->AddATSCAuxListener(this);
     }
-
-    DVBStreamData *dvbc = GetDVBStreamData();
-    if (dvbc)
-    {
-        connect(dvbc, SIGNAL(UpdateNIT(const NetworkInformationTable*)),
-                this, SLOT(  SetNIT(   const NetworkInformationTable*)));
-
-        connect(dvbc, SIGNAL(UpdateSDT(uint, const ServiceDescriptionTable*)),
-                this, SLOT(  SetSDT(   uint, const ServiceDescriptionTable*)));
-    }
+    if (dvb)
+        dvb->AddDVBMainListener(this);
 }
 
-void DTVSignalMonitor::SetPAT(const ProgramAssociationTable *pat)
+
+void DTVSignalMonitor::HandlePAT(const ProgramAssociationTable *pat)
 {
     AddFlags(kDTVSigMon_PATSeen);
     int pmt_pid = pat->FindPID(programNumber);
@@ -204,9 +261,19 @@ void DTVSignalMonitor::SetPAT(const ProgramAssociationTable *pat)
     {
         AddFlags(kDTVSigMon_PATMatch);
         GetStreamData()->AddListeningPID(pmt_pid);
+        return;
     }
-    else if (programNumber >= 0)
+
+    if (programNumber >= 0)
     {
+        // BEGIN HACK HACK HACK
+        // Reset version in case we're physically on the wrong transport
+        // due to tuning hardware being in a transitional state or we
+        // are in the middle of something like a DiSEqC rotor turn.
+        uint tsid = pat->TransportStreamID();
+        GetStreamData()->SetVersionPAT(tsid, -1,0);
+        // END HACK HACK HACK
+
         QString errStr = QString("Program #%1 not found in PAT!")
             .arg(programNumber);
         VERBOSE(VB_IMPORTANT, errStr<<endl<<pat->toString()<<endl);
@@ -221,7 +288,7 @@ void DTVSignalMonitor::SetPAT(const ProgramAssociationTable *pat)
     }
 }
 
-void DTVSignalMonitor::SetPMT(uint, const ProgramMapTable *pmt)
+void DTVSignalMonitor::HandlePMT(uint, const ProgramMapTable *pmt)
 {
     AddFlags(kDTVSigMon_PMTSeen);
 
@@ -268,7 +335,7 @@ void DTVSignalMonitor::SetPMT(uint, const ProgramMapTable *pmt)
     }
 }
 
-void DTVSignalMonitor::SetMGT(const MasterGuideTable* mgt)
+void DTVSignalMonitor::HandleMGT(const MasterGuideTable* mgt)
 {
     AddFlags(kDTVSigMon_MGTSeen);
 
@@ -286,7 +353,8 @@ void DTVSignalMonitor::SetMGT(const MasterGuideTable* mgt)
     }
 }
 
-void DTVSignalMonitor::SetVCT(uint, const TerrestrialVirtualChannelTable* tvct)
+void DTVSignalMonitor::HandleTVCT(
+    uint, const TerrestrialVirtualChannelTable* tvct)
 { 
     AddFlags(kDTVSigMon_VCTSeen | kDTVSigMon_TVCTSeen);
     int idx = tvct->Find(majorChannel, minorChannel);
@@ -299,6 +367,7 @@ void DTVSignalMonitor::SetVCT(uint, const TerrestrialVirtualChannelTable* tvct)
         VERBOSE(VB_IMPORTANT, "Could not find channel "
                 <<majorChannel<<"_"<<minorChannel<<" in TVCT");
         VERBOSE(VB_IMPORTANT, endl<<tvct->toString());
+        GetATSCStreamData()->SetVersionTVCT(tvct->TransportStreamID(),-1);
         return;
     }
 
@@ -309,7 +378,7 @@ void DTVSignalMonitor::SetVCT(uint, const TerrestrialVirtualChannelTable* tvct)
     AddFlags(kDTVSigMon_VCTMatch | kDTVSigMon_TVCTMatch);
 }
 
-void DTVSignalMonitor::SetVCT(uint, const CableVirtualChannelTable* cvct)
+void DTVSignalMonitor::HandleCVCT(uint, const CableVirtualChannelTable* cvct)
 {
     AddFlags(kDTVSigMon_VCTSeen | kDTVSigMon_CVCTSeen);
     int idx = cvct->Find(majorChannel, minorChannel);
@@ -319,6 +388,7 @@ void DTVSignalMonitor::SetVCT(uint, const CableVirtualChannelTable* cvct)
         VERBOSE(VB_IMPORTANT, "Could not find channel "
                 <<majorChannel<<"_"<<minorChannel<<" in CVCT");
         VERBOSE(VB_IMPORTANT, endl<<cvct->toString());
+        GetATSCStreamData()->SetVersionCVCT(cvct->TransportStreamID(),-1);
         return;
     }
 
@@ -329,7 +399,7 @@ void DTVSignalMonitor::SetVCT(uint, const CableVirtualChannelTable* cvct)
     AddFlags(kDTVSigMon_VCTMatch | kDTVSigMon_CVCTMatch);
 }
 
-void DTVSignalMonitor::SetNIT(const NetworkInformationTable *nit)
+void DTVSignalMonitor::HandleNIT(const NetworkInformationTable *nit)
 {
     DBG_SM("SetNIT()", QString("net_id = %1").arg(nit->NetworkID()));
     AddFlags(kDTVSigMon_NITSeen);
@@ -337,13 +407,23 @@ void DTVSignalMonitor::SetNIT(const NetworkInformationTable *nit)
         return;
 }
 
-void DTVSignalMonitor::SetSDT(uint, const ServiceDescriptionTable *sdt)
+void DTVSignalMonitor::HandleSDT(uint, const ServiceDescriptionTable *sdt)
 {
-    DBG_SM("SetSDT()", QString("tsid = %1 orig_net_id = %2")
-           .arg(sdt->TSID()).arg(sdt->OriginalNetworkID()));
     AddFlags(kDTVSigMon_SDTSeen);
-    if (!GetDVBStreamData())
-        return;
+
+    detectedNetworkID = sdt->OriginalNetworkID();
+    detectedTransportID = sdt->TSID();
+
+    if (sdt->OriginalNetworkID() != networkID || sdt->TSID() != transportID)
+    {
+        GetDVBStreamData()->SetVersionSDT(sdt->TSID(), -1, 0);
+    }
+    else
+    {
+        DBG_SM("SetSDT()", QString("tsid = %1 orig_net_id = %2")
+               .arg(sdt->TSID()).arg(sdt->OriginalNetworkID()));
+        AddFlags(kDTVSigMon_SDTMatch);
+    }
 }
 
 ATSCStreamData *DTVSignalMonitor::GetATSCStreamData()
@@ -353,8 +433,6 @@ ATSCStreamData *DTVSignalMonitor::GetATSCStreamData()
 
 DVBStreamData *DTVSignalMonitor::GetDVBStreamData()
 {
-    if (GetScanStreamData())
-        return &(GetScanStreamData()->dvb);
     return dynamic_cast<DVBStreamData*>(stream_data);
 }
 
@@ -370,8 +448,6 @@ const ATSCStreamData *DTVSignalMonitor::GetATSCStreamData() const
 
 const DVBStreamData *DTVSignalMonitor::GetDVBStreamData() const
 {
-    if (GetScanStreamData())
-        return &(GetScanStreamData()->dvb);
     return dynamic_cast<const DVBStreamData*>(stream_data);
 }
 

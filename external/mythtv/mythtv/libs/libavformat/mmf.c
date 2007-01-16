@@ -17,14 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include "avformat.h"
-#include "avi.h"
+#include "allformats.h"
+#include "riff.h"
 
 typedef struct {
     offset_t atrpos, atsqpos, awapos;
     offset_t data_size;
 } MMFContext;
 
-#ifdef CONFIG_MUXERS
 static int mmf_rates[] = { 4000, 8000, 11025, 22050, 44100 };
 
 static int mmf_rate_code(int rate)
@@ -43,6 +43,7 @@ static int mmf_rate(int code)
     return mmf_rates[code];
 }
 
+#ifdef CONFIG_MUXERS
 /* Copy of end_tag() from avienc.c, but for big-endian chunk size */
 static void end_tag_be(ByteIOContext *pb, offset_t start)
 {
@@ -202,6 +203,10 @@ static int mmf_read_header(AVFormatContext *s,
     }
 
     /* Tag = "ATRx", where "x" = track number */
+    if ((tag & 0xffffff) == MKTAG('M', 'T', 'R', 0)) {
+        av_log(s, AV_LOG_ERROR, "MIDI like format found, unsupported\n");
+        return -1;
+    }
     if ((tag & 0xffffff) != MKTAG('A', 'T', 'R', 0)) {
         av_log(s, AV_LOG_ERROR, "Unsupported SMAF chunk %08x\n", tag);
         return -1;
@@ -296,8 +301,8 @@ static int mmf_read_seek(AVFormatContext *s,
     return pcm_read_seek(s, stream_index, timestamp, flags);
 }
 
-
-static AVInputFormat mmf_iformat = {
+#ifdef CONFIG_MMF_DEMUXER
+AVInputFormat mmf_demuxer = {
     "mmf",
     "mmf format",
     sizeof(MMFContext),
@@ -307,9 +312,9 @@ static AVInputFormat mmf_iformat = {
     mmf_read_close,
     mmf_read_seek,
 };
-
-#ifdef CONFIG_MUXERS
-static AVOutputFormat mmf_oformat = {
+#endif
+#ifdef CONFIG_MMF_MUXER
+AVOutputFormat mmf_muxer = {
     "mmf",
     "mmf format",
     "application/vnd.smaf",
@@ -321,14 +326,4 @@ static AVOutputFormat mmf_oformat = {
     mmf_write_packet,
     mmf_write_trailer,
 };
-#endif //CONFIG_MUXERS
-
-int ff_mmf_init(void)
-{
-    av_register_input_format(&mmf_iformat);
-#ifdef CONFIG_MUXERS
-    av_register_output_format(&mmf_oformat);
-#endif //CONFIG_MUXERS
-    return 0;
-}
-
+#endif

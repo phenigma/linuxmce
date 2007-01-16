@@ -88,32 +88,100 @@
   -->
   </container>
 
+ <container name="channel_editor">
+    <image name="background">
+      <filename>osd-channel-edit.png</filename>
+      <position>102,99</position>
+    </image>
+    <textarea name="dialog_label" align="center">
+      <area>105,106,450,40</area>
+      <font>infofont</font>
+      <value>Channel Editor</value>
+    </textarea>
+    <textarea name="callsign_label" align="right">
+      <area>120,151,155,40</area>
+      <font>infofont</font>
+      <value>Callsign</value>
+    </textarea>
+    <textarea name="callsign" entry="0">
+      <area>310,151,220,40</area>
+      <font>infofontgray</font>
+      <altfont>infofont</altfont>
+      <value></value>
+    </textarea>
+    <textarea name="channum_label" align="right">
+      <area>120,200,155,40</area>
+      <font>infofont</font>
+      <value>Channel #</value>
+    </textarea>
+    <textarea name="channum" entry="1">
+      <area>310,200,220,40</area>
+      <font>infofontgray</font>
+      <altfont>infofont</altfont>
+      <value></value>
+    </textarea>
+    <textarea name="channame_label" align="right">
+      <area>120,246,155,40</area>
+      <font>infofont</font>
+      <value>Channel Name</value>
+    </textarea>
+    <textarea name="channame" entry="2">
+      <area>310,246,220,40</area>
+      <font>infofontgray</font>
+      <altfont>infofont</altfont>
+      <value></value>
+    </textarea>
+    <textarea name="XMLTV_label" align="right">
+      <area>120,295,155,40</area>
+      <font>infofont</font>
+      <value>XMLTV ID</value>
+    </textarea>
+    <textarea name="XMLTV" entry="3">
+      <area>310,295,220,40</area>
+      <font>infofontgray</font>
+      <altfont>infofont</altfont>
+      <value></value>
+    </textarea>
+    <textarea name="probe_all" entry="4" button="yes" align="center">
+      <area>120,342,185,40</area>
+      <font>infofontgray</font>
+      <altfont>infofont</altfont>
+      <value>[P]robe</value>
+    </textarea>
+    <textarea name="ok" entry="5" button="yes" align="center">
+      <area>330,342,185,40</area>
+      <font>infofontgray</font>
+      <altfont>infofont</altfont>
+      <value>[O]k</value>
+    </textarea>
+  </container>
+
   <container name="browse_info">
     <image name="background">
       <filename>osd-browse.png</filename>
-      <position>30,335</position>
+      <position>30,35</position>
     </image>
     <textarea name="title">
-      <area>212,349,290,27</area>
+      <area>212,49,290,27</area>
       <font>infofont</font>
     </textarea>
     <textarea name="description">
       <multiline>yes</multiline>
-      <area>44,399,555,122</area>
+      <area>44,99,555,122</area>
       <font>infofont</font>
       <value>%DESCRIPTION%%BR%(%STARTTIME% - %LENMINS%)</value>
     </textarea>
     <image name="channelicon">
-      <position>37,343</position>
+      <position>37,43</position>
       <staticsize>36,36</staticsize>
     </image>
     <textarea name="callsign">
-       <area>78,349,112,27</area>
+       <area>78,49,112,27</area>
        <font>infofont</font>
        <value>%CALLSIGN% - %CHANNUM%</value>
     </textarea>
     <textarea name="time">
-       <area>538,349,60,27</area>
+       <area>538,49,60,27</area>
        <font>infofont</font>
     </textarea>
   </container>

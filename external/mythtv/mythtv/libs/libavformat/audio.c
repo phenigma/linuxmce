@@ -217,7 +217,7 @@ static int audio_read_header(AVFormatContext *s1, AVFormatParameters *ap)
     AVStream *st;
     int ret;
 
-    if (!ap || ap->sample_rate <= 0 || ap->channels <= 0)
+    if (ap->sample_rate <= 0 || ap->channels <= 0)
         return -1;
 
     st = av_new_stream(s1, 0);
@@ -239,7 +239,7 @@ static int audio_read_header(AVFormatContext *s1, AVFormatParameters *ap)
     st->codec->sample_rate = s->sample_rate;
     st->codec->channels = s->channels;
 
-    av_set_pts_info(st, 48, 1, 1000000);  /* 48 bits pts in us */
+    av_set_pts_info(st, 64, 1, 1000000);  /* 64 bits pts in us */
     return 0;
 }
 
@@ -271,7 +271,7 @@ static int audio_read_packet(AVFormatContext *s1, AVPacket *pkt)
         if (ret == -1 && (errno == EAGAIN || errno == EINTR)) {
             av_free_packet(pkt);
             pkt->size = 0;
-            pkt->pts = av_gettime() & ((1LL << 48) - 1);
+            pkt->pts = av_gettime();
             return 0;
         }
         if (!(ret == 0 || (ret == -1 && (errno == EAGAIN || errno == EINTR)))) {
@@ -291,7 +291,7 @@ static int audio_read_packet(AVFormatContext *s1, AVPacket *pkt)
     cur_time -= (bdelay * 1000000LL) / (s->sample_rate * s->channels);
 
     /* convert to wanted units */
-    pkt->pts = cur_time & ((1LL << 48) - 1);
+    pkt->pts = cur_time;
 
     if (s->flip_left && s->channels == 2) {
         int i;
@@ -313,7 +313,8 @@ static int audio_read_close(AVFormatContext *s1)
     return 0;
 }
 
-static AVInputFormat audio_in_format = {
+#ifdef CONFIG_AUDIO_DEMUXER
+AVInputFormat audio_demuxer = {
     "audio_device",
     "audio grab and output",
     sizeof(AudioData),
@@ -323,8 +324,10 @@ static AVInputFormat audio_in_format = {
     audio_read_close,
     .flags = AVFMT_NOFILE,
 };
+#endif
 
-static AVOutputFormat audio_out_format = {
+#ifdef CONFIG_AUDIO_MUXER
+AVOutputFormat audio_muxer = {
     "audio_device",
     "audio grab and output",
     "",
@@ -344,10 +347,4 @@ static AVOutputFormat audio_out_format = {
     audio_write_trailer,
     .flags = AVFMT_NOFILE,
 };
-
-int audio_init(void)
-{
-    av_register_input_format(&audio_in_format);
-    av_register_output_format(&audio_out_format);
-    return 0;
-}
+#endif

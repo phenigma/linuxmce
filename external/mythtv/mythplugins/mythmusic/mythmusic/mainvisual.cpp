@@ -50,6 +50,7 @@ static void checkVisFactories(void)
         MainVisual::registerVisFactory(new SynaesthesiaFactory);
         MainVisual::registerVisFactory(new SpectrumFactory);
         MainVisual::registerVisFactory(new AlbumArtFactory);
+        MainVisual::registerVisFactory(new SquaresFactory);
 #ifdef OPENGL_SUPPORT
         MainVisual::registerVisFactory(new GearsFactory);
 #endif
@@ -70,6 +71,36 @@ VisualBase::VisualBase(bool screensaverenable)
         gContext->DoDisableScreensaver();
 }
 
+VisualBase::~VisualBase()
+{
+    //
+    //	This is only here so 
+    //	that derived classes
+    //	can destruct properly
+    //
+    if (!xscreensaverenable)
+        gContext->DoRestoreScreensaver();
+}
+
+void VisualBase::drawWarning(QPainter *p, const QColor &back, const QSize &size, QString warning)
+{
+    p->fillRect(0, 0, size.width(), size.height(), back);
+    p->setPen(Qt::white);
+    p->setFont(gContext->GetMediumFont());
+
+    QFontMetrics fm(p->font());
+    int width = fm.width(warning);
+    int height = fm.height() * (warning.contains("\n") + 1);
+    int x = size.width() / 2 - width / 2;
+    int y = size.height() / 2 - height / 2;
+
+    for (int offset = 0; offset < height; offset += fm.height()) {
+        QString l = warning.left(warning.find("\n"));
+        p->drawText(x, y + offset, width, height, Qt::AlignCenter, l);
+        warning.remove(0, l.length () + 1);
+    }
+}
+
 MainVisual::MainVisual(QWidget *parent, const char *name)
     : QWidget( parent, name ), vis( 0 ), playing( FALSE ), fps( 20 )
 {
@@ -84,6 +115,8 @@ MainVisual::MainVisual(QWidget *parent, const char *name)
     setFont(gContext->GetBigFont());
     setCursor(QCursor(Qt::BlankCursor));
 
+    info_widget = new InfoWidget(this);
+
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timeout()));
     timer->start(1000 / fps);
@@ -96,6 +129,9 @@ MainVisual::~MainVisual()
         delete vis;
         vis = 0;
     }
+
+    delete info_widget;
+    info_widget = 0;
 
     nodes.setAutoDelete(TRUE);
     nodes.clear();
@@ -243,26 +279,26 @@ void MainVisual::timeout()
     }
 
     VisualNode *node = 0;
-
+    
     if (playing && output()) {
         long synctime = output()->GetAudiotime();
-	mutex()->lock();
-	VisualNode *prev = 0;
-	while ((node = nodes.first())) {
-	    if (node->offset > synctime)
-		break;
-
-	    delete prev;
-	    nodes.removeFirst();
-	    prev = node;
-	}
-	mutex()->unlock();
-	node = prev; 
+        mutex()->lock();
+        VisualNode *prev = 0;
+        while ((node = nodes.first())) {
+            if (node->offset > synctime)
+                break;
+            
+            delete prev;
+            nodes.removeFirst();
+            prev = node;
+        }
+        mutex()->unlock();
+        node = prev; 
     }
 
     bool stop = TRUE;
     if (vis && process)
-	stop = vis->process(node);
+        stop = vis->process(node);
     if (node)
         delete node;
 
@@ -270,11 +306,13 @@ void MainVisual::timeout()
     {
         QPainter p(&pixmap);
         if (vis->draw(&p, Qt::black))
+        {
             bitBlt(this, 0, 0, &pixmap);
+        }
     } 
 
     if (!playing && stop)
-	timer->stop();
+        timer->stop();
 }
 
 void MainVisual::paintEvent(QPaintEvent *)
@@ -289,6 +327,9 @@ void MainVisual::resizeEvent( QResizeEvent *event )
     QWidget::resizeEvent( event );
     if ( vis )
         vis->resize( size() );
+
+    info_widget->resize((int)(pixmap.width() * 0.8), (int)(pixmap.height() * 0.15));
+    info_widget->move((int)(pixmap.width() * 0.1), (int)(pixmap.height() * 0.8));
 }
 
 void MainVisual::customEvent(QCustomEvent *event)
@@ -326,6 +367,10 @@ void MainVisual::hideEvent(QHideEvent *e)
 void MainVisual::registerVisFactory(VisFactory *vis)
 {
     visfactories->append(vis);
+}
+
+void MainVisual::addInformation(const QString &new_info) {
+    info_widget->addInformation(new_info);
 }
 
 VisualBase *MainVisual::createVis(const QString &name, MainVisual *parent,
@@ -370,6 +415,60 @@ VisualBase *MainVisual::randomVis(MainVisual *parent, long int winid)
     return vis;
 }
 */
+
+InfoWidget::InfoWidget(QWidget *parent)
+    : QWidget( parent)
+{
+    hide();
+}
+
+void InfoWidget::addInformation(const QString &new_info) {
+    if (new_info == info)
+        return;
+    
+    info = new_info;
+    if (info.isEmpty())
+    {        
+        hide();
+        return;
+    }
+
+    info_pixmap = QPixmap(width(), height()/*, pixmap.depth ()*/);
+    QPainter p(&info_pixmap);
+
+    int indent = int(info_pixmap.width() * 0.02);
+
+    p.fillRect(0, 0,
+               info_pixmap.width(), info_pixmap.height(),
+               QColor ("darkblue"));
+
+
+    p.setFont(gContext->GetMediumFont());
+
+    QFontMetrics fm(p.font());
+    int width = fm.width(info);
+    int height = fm.height() * (info.contains("\n") + 1);
+    int x = indent;
+    int y = indent;
+
+    QString info_copy = info;
+    for (int offset = 0; offset < height; offset += fm.height()) {
+        QString l = info_copy.left(info_copy.find("\n"));
+        p.setPen(Qt::black);
+        p.drawText(x + 2, y + offset + 2, width, height, Qt::AlignLeft, l);
+        p.setPen(Qt::white);
+        p.drawText(x, y + offset, width, height, Qt::AlignLeft, l);
+        info_copy.remove(0, l.length () + 1);
+    }
+
+    show();
+    repaint();
+}
+
+void InfoWidget::paintEvent ( QPaintEvent * ) 
+{
+    bitBlt(this, 0, 0, &info_pixmap); 
+}
 
 StereoScope::StereoScope()
 {
@@ -837,13 +936,3 @@ int LogScale::operator[](int index)
     return indices[index];
 }
 
-VisualBase::~VisualBase()
-{
-    //
-    //	This is only here so 
-    //	that derived classes
-    //	can destruct properly
-    //
-    if (!xscreensaverenable)
-        gContext->DoRestoreScreensaver();
-}

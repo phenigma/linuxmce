@@ -13,7 +13,7 @@ using namespace std;
 typedef QMap<long long, long long> frm_pos_map_t;
 typedef QMap<long long, int> frm_dir_map_t;
 
-#define NUMPROGRAMLINES 41
+#define NUMPROGRAMLINES 42
 
 typedef enum {
     MARK_UNSET = -10,
@@ -38,29 +38,28 @@ enum CommFlagStatuses {
     COMM_FLAG_COMMFREE = 3
 };
 
-enum TranscoderStatus {
-    TRANSCODE_QUEUED      = 0x01,
-    TRANSCODE_RETRY       = 0x02,
-    TRANSCODE_FAILED      = 0x03,
-    TRANSCODE_LAUNCHED    = 0x04,
-    TRANSCODE_STARTED     = 0x05,
-    TRANSCODE_FINISHED    = 0x06,
-    TRANSCODE_USE_CUTLIST = 0x10,
-    TRANSCODE_STOP        = 0x20,
-    TRANSCODE_FLAGS       = 0xF0
+enum TranscodingStatuses {
+    TRANSCODING_NOT_TRANSCODED = 0,
+    TRANSCODING_COMPLETE       = 1,
+    TRANSCODING_RUNNING        = 2
 };
 
 enum FlagMask {
-    FL_COMMFLAG       = 0x01,
-    FL_CUTLIST        = 0x02,
-    FL_AUTOEXP        = 0x04,
-    FL_EDITING        = 0x08,
-    FL_BOOKMARK       = 0x10,
-    FL_INUSERECORDING = 0x20,
-    FL_INUSEPLAYING   = 0x40
+    FL_COMMFLAG       = 0x001,
+    FL_CUTLIST        = 0x002,
+    FL_AUTOEXP        = 0x004,
+    FL_EDITING        = 0x008,
+    FL_BOOKMARK       = 0x010,
+    FL_INUSERECORDING = 0x020,
+    FL_INUSEPLAYING   = 0x040,
+    FL_STEREO         = 0x080,
+    FL_CC             = 0x100,
+    FL_HDTV           = 0x200,
+    FL_TRANSCODED     = 0x400
 };
 
 enum RecStatusType {
+    rsFailed = -9,
     rsTunerBusy = -8,
     rsLowDiskSpace = -7,
     rsCancelled = -6,
@@ -80,7 +79,8 @@ enum RecStatusType {
     rsLaterShowing = 8,
     rsRepeat = 9,
     rsInactive = 10,
-    rsNeverRecord = 11
+    rsNeverRecord = 11,
+    rsOffLine = 12
 };
 
 enum AvailableStatusType {
@@ -100,7 +100,8 @@ class ProgramInfo
     ProgramInfo(const ProgramInfo &other);
     static ProgramInfo *GetProgramAtDateTime(const QString &channel, 
                                              const QDateTime &dtime, 
-                                             bool genUnknown = false);
+                                             bool genUnknown = false, 
+                                             int clampHoursMax = 0);
     static ProgramInfo *GetProgramFromRecorded(const QString &channel, 
                                                const QString &starttime);
     static ProgramInfo *GetProgramFromRecorded(const QString &channel, 
@@ -153,11 +154,12 @@ class ProgramInfo
     void ApplyRecordPlayGroupChange(const QString &newrecgroup);
     void ApplyRecordRecTitleChange(const QString &newTitle,
                                    const QString &newSubtitle);
+    void ApplyTranscoderProfileChange(QString);
 
     // Quick gets
     bool SetRecordBasename(QString basename);
-    QString GetRecordBasename(void) const;
-    QString GetRecordFilename(const QString &prefix) const;
+    QString GetRecordBasename(bool fromDB = false) const;
+    QString GetRecordFilename(const QString &prefix, bool fromDB = false) const;
     QString GetPlaybackURL(QString playbackHost = "") const;
     QString MakeUniqueKey(void) const;
     int CalculateLength(void) const;
@@ -193,6 +195,7 @@ class ProgramInfo
     void SetFilesize(long long fsize);
     void SetBookmark(long long pos) const;
     void SetEditing(bool edit) const;
+    void SetTranscoded(int transFlag) const;
     void SetDeleteFlag(bool deleteFlag) const;
     void SetCommFlagged(int flag) const; // 1 = flagged, 2 = processing
     void SetAutoExpire(int autoExpire) const;
@@ -287,6 +290,7 @@ class ProgramInfo
     RecStatusType recstatus;
     RecStatusType oldrecstatus;
     RecStatusType savedrecstatus;
+    int prefinput;
     int recpriority2;
     int reactivate;
 
@@ -350,6 +354,8 @@ class ProgramList: public QPtrList<ProgramInfo> {
         return FromProgram(sql, bindings, dummySched);
     }
 
+    bool FromRecorded( bool bDescending, ProgramList *pSchedList );
+
     bool FromOldRecorded(const QString &sql, MSqlBindings &bindings);
 
     typedef int (*CompareFunc)(ProgramInfo *p1, ProgramInfo *p2);
@@ -368,3 +374,4 @@ class ProgramList: public QPtrList<ProgramInfo> {
 
 #endif
 
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

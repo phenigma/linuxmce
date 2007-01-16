@@ -7,15 +7,19 @@
 #ifndef DVBTYPES_H
 #define DVBTYPES_H
 
+// POSIX headers
+#include <sys/poll.h>
+#include <sys/ioctl.h>
+#include <sys/param.h>
+#include <stdint.h>
+#include <unistd.h>
+
+// C++ headers
 #include <vector>
 #include <map>
 using namespace std;
 
-#include <sys/poll.h>
-#include <sys/ioctl.h>
-#include <sys/param.h>
-#include <cerrno>
-#include <unistd.h>
+// Qt headers
 #include <qdatetime.h>
 #include <qstringlist.h>
 #include <qmutex.h>
@@ -35,7 +39,8 @@ using namespace std;
 #if (DVB_API_VERSION >= 3 && DVB_API_VERSION_MINOR >= 1)
 #    define USE_ATSC
 #else
-#warning DVB API version < 3.1, ATSC over DVB will not be supported.
+#warning DVB API version < 3.1
+#warning ATSC will not be supported using the Linux DVB drivers
 #    define FE_ATSC       (FE_OFDM+1)
 #    define FE_CAN_8VSB   0x200000
 #    define FE_CAN_16VSB  0x400000
@@ -43,16 +48,22 @@ using namespace std;
 #    define VSB_16        (fe_modulation)(QAM_AUTO+2)
 #endif
 
-#include "transform.h"
-#include "sitypes.h"
+#include "mpegdescriptors.h"
+#include "mpegtables.h"
 
 #define MPEG_TS_PKT_SIZE 188
 #define DEF_DMX_BUF_SIZE  64 * 1024
 #define MAX_SECTION_SIZE 4096
 #define DMX_DONT_FILTER 0x2000
 
+#ifdef FE_GET_EXTENDED_INFO
+  #define dvb_fe_params dvb_frontend_parameters_new
+#else
+  #define dvb_fe_params dvb_frontend_parameters
+#endif
+
 QString toString(const fe_type_t);
-QString toString(const struct dvb_frontend_parameters&, const fe_type_t);
+QString toString(const struct dvb_fe_params&, const fe_type_t);
 QString toString(fe_status);
 QString toString(const struct dvb_frontend_event&, const fe_type_t);
 
@@ -282,42 +293,37 @@ typedef vector<uint16_t> dvb_pid_t;
 typedef vector<uint16_t> dvb_caid_t;
 
 extern bool equal_qpsk(
-    const struct dvb_frontend_parameters &p,
-    const struct dvb_frontend_parameters &op, uint range);
+    const struct dvb_fe_params &p,
+    const struct dvb_fe_params &op, uint range);
+#ifdef FE_GET_EXTENDED_INFO
+extern bool equal_dvbs2(
+    const struct dvb_fe_params &p,
+    const struct dvb_fe_params &op, uint range);
+#endif
 extern bool equal_atsc(
-    const struct dvb_frontend_parameters &p,
-    const struct dvb_frontend_parameters &op, uint range);
+    const struct dvb_fe_params &p,
+    const struct dvb_fe_params &op, uint range);
 extern bool equal_qam(
-    const struct dvb_frontend_parameters &p,
-    const struct dvb_frontend_parameters &op, uint range);
+    const struct dvb_fe_params &p,
+    const struct dvb_fe_params &op, uint range);
 extern bool equal_ofdm(
-    const struct dvb_frontend_parameters &p,
-    const struct dvb_frontend_parameters &op, uint range);
+    const struct dvb_fe_params &p,
+    const struct dvb_fe_params &op, uint range);
 extern bool equal_type(
-    const struct dvb_frontend_parameters &p,
-    const struct dvb_frontend_parameters &op,
+    const struct dvb_fe_params &p,
+    const struct dvb_fe_params &op,
     fe_type_t type, uint freq_range);
 
 class DVBTuning
 {
   public:
-    DVBTuning()
-      : voltage(SEC_VOLTAGE_OFF), tone(SEC_TONE_OFF), 
-        diseqc_type(0), diseqc_port(0), diseqc_pos(0.0f),
-        lnb_lof_switch(0), lnb_lof_hi(0), lnb_lof_lo(0)
+    DVBTuning() : polariz('v')
     {
-        bzero(&params, sizeof(dvb_frontend_parameters));
+        bzero(&params, sizeof(dvb_fe_params));
     }
 
-    struct dvb_frontend_parameters params;
-    fe_sec_voltage_t    voltage;
-    fe_sec_tone_mode_t  tone;
-    unsigned int        diseqc_type;
-    unsigned int        diseqc_port;
-    float               diseqc_pos;
-    unsigned int        lnb_lof_switch;
-    unsigned int        lnb_lof_hi;
-    unsigned int        lnb_lof_lo;
+    struct dvb_fe_params params;
+    char                 polariz;
 
     bool equalQPSK(const DVBTuning& other, uint range = 0) const
         { return equal_qpsk(params, other.params, range);  }
@@ -332,6 +338,7 @@ class DVBTuning
 
     // Helper functions to get the paramaters as DB friendly strings
     char InversionChar() const;
+    char PolarityChar() const;
     char TransmissionModeChar() const;
     char BandwidthChar() const;
     char HierarchyChar() const;
@@ -340,7 +347,6 @@ class DVBTuning
 
     // Helper functions to parse params from DB friendly strings
     static fe_bandwidth      parseBandwidth(    const QString&, bool &ok);
-    static fe_sec_voltage    parsePolarity(     const QString&, bool &ok);
     static fe_guard_interval parseGuardInterval(const QString&, bool &ok);
     static fe_transmit_mode  parseTransmission( const QString&, bool &ok);
     static fe_hierarchy      parseHierarchy(    const QString&, bool &ok);
@@ -359,10 +365,13 @@ class DVBTuning
     QString HPCodeRateString() const;
     QString LPCodeRateString() const;
     QString QAMInnerFECString() const;
+    QString QPSKInnerFECString() const;
     QString ModulationString() const;
     QString ConstellationString() const;
     QString HierarchyString() const;
     QString toString(fe_type_t type) const;
+
+    bool FillFromDB(fe_type_t type, uint mplexid);
 
     bool parseATSC(const QString& frequency,      const QString modulation);
 
@@ -372,97 +381,31 @@ class DVBTuning
                    const QString& trans_mode,     const QString& guard_interval,
                    const QString& hierarchy);
 
-    bool parseOFDM(const TransportObject&);
-
     bool parseQPSK(const QString& frequency,      const QString& inversion,
                    const QString& symbol_rate,    const QString& fec_inner,
-                   const QString& pol,            const QString& diseqc_type,
-                   const QString& diseqc_port,    const QString& diseqc_pos,
-                   const QString& lnb_lof_switch, const QString& lnb_lof_hi,
-                   const QString& lnb_lof_lo);
-
-    bool parseQAM(const TransportObject&);
+                   const QString& pol);
 
     bool parseQAM(const QString& frequency,       const QString& inversion,
                   const QString& symbol_rate,     const QString& fec_inner,
                   const QString& modulation);
-};
 
-class dvb_channel_t
-{
-  public:
-    dvb_channel_t() : PMTSet(false), serviceID(0xffff), networkID(0xffff),
-        providerID(0xffff), transportID(0xffff), sistandard(""), version(255) {;}
+#ifdef FE_GET_EXTENDED_INFO
+    bool equalDVBS2(const DVBTuning& other, uint range = 0) const
+        { return equal_dvbs2(params, other.params, range);  }
+    uint DVBS2SymbolRate() const { return params.u.qpsk2.symbol_rate; }
+    bool parseDVBS2(const QString& frequency,      const QString& inversion,
+                    const QString& symbol_rate,    const QString& fec_inner,
+                    const QString& pol,            const QString& modulation);
+#endif
 
-    bool IsPMTSet() const
-    {
-        lock.lock();
-        bool is_set = PMTSet;
-        lock.unlock();
-        return is_set;
-    }
-
-    void SetPMT(const PMTObject *_pmt)
-    {
-        lock.lock();
-        if (_pmt)
-        {
-            pmt = *_pmt;
-            PMTSet = true;
-        }
-        else
-            PMTSet = false;
-        lock.unlock();
-    }
-
-    bool Parse(
-        fe_type_t type,
-        QString frequency,         QString inversion,      QString symbolrate,
-        QString fec,               QString polarity,       QString dvb_diseqc_type,
-        QString diseqc_port,       QString diseqc_pos,     QString lnb_lof_switch,
-        QString lnb_lof_hi,        QString lnb_lof_lo,     QString _sistandard,
-        QString hp_code_rate,      QString lp_code_rate,   QString constellation,
-        QString transmission_mode, QString guard_interval, QString hierarchy,
-        QString modulation,        QString bandwidth,      QString _input_id);
-
-    DVBTuning       tuning;
-
-    PMTObject       pmt;
-    bool            PMTSet;
-
-    uint16_t        serviceID; /// program number in PAT
-    uint16_t        networkID; /// network ID from PAT
-    uint16_t        providerID;
-    uint16_t        transportID;
-
-    QString         sistandard;
-    int             input_id;
-    uint8_t         version;
   private:
-    mutable QMutex  lock;
+    bool ParseTuningParams(
+        fe_type_t type,
+        QString frequency,    QString inversion,      QString symbolrate,
+        QString fec,          QString polarity,
+        QString hp_code_rate, QString lp_code_rate,   QString constellation,
+        QString trans_mode,   QString guard_interval, QString hierarchy,
+        QString modulation,   QString bandwidth);
 };
-
-typedef map<uint16_t, ipack*> pid_ipack_t;
-
-#define ERROR(args...) \
-    VERBOSE(VB_IMPORTANT, QString("DVB#%1 ERROR - ").arg(cardnum) << args);
-
-#define ERRNO(args...) \
-    VERBOSE(VB_IMPORTANT, QString("DVB#%1 ERROR - ").arg(cardnum) << args\
-               << endl << QString("          (%1) ").arg(errno) << strerror(errno));
-
-#define WARNING(args...) \
-    VERBOSE(VB_GENERAL, QString("DVB#%1 WARNING - ").arg(cardnum) << args);
-
-#define GENERAL(args...) \
-    VERBOSE(VB_GENERAL, QString("DVB#%1 ").arg(cardnum) << args);
-
-#define CHANNEL(args...) \
-    VERBOSE(VB_CHANNEL, QString("DVB#%1 ").arg(cardnum) << args);
-
-#define ERROR_TUNING(args...) \
-    VERBOSE(VB_IMPORTANT, QString("DVB ERROR - ")<< args);
-#define WARNING_TUNING(args...) \
-    VERBOSE(VB_GENERAL, QString("DVB WARNING - ") << args);
 
 #endif // DVB_TYPES_H

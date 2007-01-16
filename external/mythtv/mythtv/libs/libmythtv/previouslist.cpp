@@ -20,6 +20,7 @@ using namespace std;
 #include "previouslist.h"
 #include "proglist.h"
 #include "scheduledrecording.h"
+#include "customedit.h"
 #include "dialogbox.h"
 #include "mythcontext.h"
 #include "mythdbcon.h"
@@ -40,7 +41,6 @@ PreviousList::PreviousList(MythMainWindow *parent, const char *name,
     hourFormat = gContext->GetSetting("TimeFormat");
     timeFormat = gContext->GetSetting("ShortDateFormat") + " " + hourFormat;
     fullDateFormat = dayFormat + " " + hourFormat;
-    channelOrdering = gContext->GetSetting("ChannelOrdering", "channum + 0");
     channelFormat = gContext->GetSetting("ChannelFormat", "<num> <sign>");
 
     allowEvents = true;
@@ -150,6 +150,8 @@ void PreviousList::keyPressEvent(QKeyEvent *e)
             accept();
         else if (action == "INFO")
             edit();
+        else if (action == "CUSTOMEDIT")
+            customEdit();
         else if (action == "UPCOMING")
             upcoming();
         else if (action == "DETAILS")
@@ -383,6 +385,19 @@ void PreviousList::edit()
     pi->EditScheduled();
 }
 
+void PreviousList::customEdit()
+{
+    ProgramInfo *pi = itemList.at(curItem);
+
+    if (!pi)
+        return;
+
+    CustomEdit *ce = new CustomEdit(gContext->GetMainWindow(),
+                                    "customedit", pi);
+    ce->exec();
+    delete ce;
+}
+
 void PreviousList::upcoming()
 {
     ProgramInfo *pi = itemList.at(curItem);
@@ -590,11 +605,13 @@ void PreviousList::updateList(QPainter *p)
                 }
 
                 ltype->SetItemText(i, 3, tmptitle);
+                ltype->SetItemText(i, 4, pi->RecStatusChar());
 
                 if (pi->recstatus == rsRecording)
                     ltype->EnableForcedFont(i, "recording");
                 else if (pi->recstatus < rsRecorded ||
-                         pi->recstatus == rsConflict)
+                         pi->recstatus == rsConflict ||
+                         pi->recstatus == rsOffLine)
                     ltype->EnableForcedFont(i, "conflicting");
                 else if (pi->recstatus > rsRecorded)
                     ltype->EnableForcedFont(i, "inactive");

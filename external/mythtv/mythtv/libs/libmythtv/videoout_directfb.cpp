@@ -3,21 +3,32 @@
 * Use DirectFB for video output while watvhing TV
 * Most of this is ripped from videoout_* and mplayer's vo_directfb */
 
-#include <iostream>
-
-using namespace std;
-
-#include <qapplication.h>
-#include <qwidget.h>
-#include <qevent.h>
-#include "mythcontext.h"
-#include "videoout_directfb.h"
-#include "filtermanager.h"
-#include <linux/fb.h>
+// POSIX headers
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+// Linux headers
+#include <linux/fb.h>
 #include <directfb_version.h>
+
+// C++ headers
+#include <algorithm>
+#include <iostream>
+using namespace std;
+
+// Qt headers
+#include <qapplication.h>
+#include <qwidget.h>
+#include <qevent.h>
+#include <qmutex.h>
+
+// MythTV headers
+#include "mythcontext.h"
+#include "filtermanager.h"
+#include "videoout_directfb.h"
+#include "frame.h"
+#include "tv.h"
 
 #define DFBCHECKFAIL(dfbcommand, returnstmt...)\
 {\
@@ -188,30 +199,47 @@ const int kPrebufferFramesSmall = 4;
 const int kKeepPrebuffer = 2;
 typedef map<unsigned char *, IDirectFBSurface *> BufferMap;
 
-struct DirectfbData
+class DirectfbData
 {
+  public:
+    DirectfbData::DirectfbData()
+      : dfb(NULL),            primaryLayer(NULL),
+        primarySurface(NULL), videoLayer(NULL),
+        videoSurface(NULL),   inputbuf(NULL),
+        screen_width(0),      screen_height(0),
+        bufferLock(true)
+    {
+        bzero(&videoLayerDesc,           sizeof(DFBDisplayLayerDescription));
+        bzero(&videoLayerConfig,         sizeof(DFBDisplayLayerConfig));
+        bzero(&videoSurfaceCapabilities, sizeof(DFBSurfaceCapabilities));
+#if (DIRECTFB_MINOR_VERSION <= 9) && (DIRECTFB_MICRO_VERSION <= 22)
+        bzero(&cardCapabilities, sizeof(DFBCardCapabilities));
+#else
+        bzero(&cardDescription,  sizeof(DFBGraphicsDeviceDescription));
+#endif
+    }
+
     //DirectFB hook
-    IDirectFB *dfb;
+    IDirectFB                   *dfb;
+    IDirectFBDisplayLayer       *primaryLayer;
+    IDirectFBSurface            *primarySurface;
+    IDirectFBDisplayLayer       *videoLayer;
+    IDirectFBSurface            *videoSurface;
+    IDirectFBEventBuffer        *inputbuf;
+    int                          screen_width;
+    int                          screen_height;
+    BufferMap                    buffers;
+    QMutex                       bufferLock;
+    DFBDisplayLayerDescription   videoLayerDesc;
+    DFBDisplayLayerConfig        videoLayerConfig;
+    DFBSurfaceCapabilities       videoSurfaceCapabilities;
+
     //video output
 #if (DIRECTFB_MINOR_VERSION <= 9) && (DIRECTFB_MICRO_VERSION <= 22)
-    DFBCardCapabilities cardCapabilities;
+    DFBCardCapabilities          cardCapabilities;
 #else
     DFBGraphicsDeviceDescription cardDescription;
 #endif
-    IDirectFBDisplayLayer *primaryLayer;
-    IDirectFBSurface *primarySurface;
-    IDirectFBDisplayLayer *videoLayer;
-    DFBDisplayLayerDescription videoLayerDesc;
-    DFBDisplayLayerConfig videoLayerConfig;
-    IDirectFBSurface *videoSurface;
-    DFBSurfaceCapabilities videoSurfaceCapabilities;
-    //input handling
-    IDirectFBEventBuffer *inputbuf;
-    //buffers
-    BufferMap buffers;
-    //screen
-    int screen_width;
-    int screen_height;
 };
 
 static struct {
@@ -223,14 +251,11 @@ static struct {
     unsigned short volume;
 } adj = {0, 0x8000, 0x8000, 0x8000, 0x8000, 50};
 
-IDirectFBSurface *tempYV12Surface;
-
 VideoOutputDirectfb::VideoOutputDirectfb(void)
-        :VideoOutput()
+    : VideoOutput(), XJ_started(0), widget(NULL), data(NULL)
 {
-    XJ_started = 0;
+    init(&pauseFrame, FMT_YV12, NULL, 0, 0, 0, 0);
     data = new DirectfbData();
-    pauseFrame.buf = NULL;
 }
 
 VideoOutputDirectfb::~VideoOutputDirectfb()
@@ -242,8 +267,6 @@ VideoOutputDirectfb::~VideoOutputDirectfb()
         data->inputbuf->Release(data->inputbuf);
     if (data->videoSurface)
         data->videoSurface->Release(data->videoSurface);
-    if (tempYV12Surface)
-        tempYV12Surface->Release(tempYV12Surface);
     if (data->primarySurface)
         data->primarySurface->Release(data->primarySurface);
     if (data->primaryLayer)
@@ -254,13 +277,21 @@ VideoOutputDirectfb::~VideoOutputDirectfb()
         data->dfb->Release(data->dfb);
 
     if (pauseFrame.buf)
+    {
         delete [] pauseFrame.buf;
+        init(&pauseFrame, FMT_YV12, NULL, 0, 0, 0, 0);
+    }
 
     if (XJ_started)
     {
         XJ_started = false;
     }
-    delete data;
+
+    if (data)
+    {
+        delete data;
+        data = NULL;
+    }
 }
 
 int VideoOutputDirectfb::GetRefreshRate(void)
@@ -344,12 +375,12 @@ bool VideoOutputDirectfb::Init(int width, int height, float aspect, WId winid,
     //determine output card capacities
 #if (DIRECTFB_MINOR_VERSION <= 9) && (DIRECTFB_MICRO_VERSION <= 22)
     DFBCHECKFAIL(data->dfb->GetCardCapabilities(data->dfb, &(data->cardCapabilities)), false);
-    VERBOSE(VB_GENERAL, QString("DirectFB output : card : %1")
+    VERBOSE(VB_PLAYBACK, QString("DirectFB output : card : %1")
             .arg((data->cardCapabilities.acceleration_mask & DFXL_BLIT) > 0 ?
                  "hardware blit support" : "NO hardware blit support"));
 #else
     DFBCHECKFAIL(data->dfb->GetDeviceDescription(data->dfb, &(data->cardDescription)), false);
-    VERBOSE(VB_GENERAL, QString("DirectFB output : card : %1")
+    VERBOSE(VB_PLAYBACK, QString("DirectFB output : card : %1")
             .arg((data->cardDescription.acceleration_mask & DFXL_BLIT) > 0 ?
                  "hardware blit support" : "NO hardware blit support"));
 #endif
@@ -409,7 +440,7 @@ bool VideoOutputDirectfb::Init(int width, int height, float aspect, WId winid,
 
     DFBCHECKFAIL(data->videoLayer->SetConfiguration(data->videoLayer, &(data->videoLayerConfig)), false);
 
-    VERBOSE(VB_GENERAL, QString("DirectFB output : videoLayer : %1 : %2x%3, %4, %5 buffering")
+    VERBOSE(VB_PLAYBACK, QString("DirectFB output : videoLayer : %1 : %2x%3, %4, %5 buffering")
             .arg(data->videoLayerDesc.name)
             .arg(data->videoLayerConfig.width)
             .arg(data->videoLayerConfig.height)
@@ -427,7 +458,7 @@ bool VideoOutputDirectfb::Init(int width, int height, float aspect, WId winid,
 
     DFBCHECKFAIL(data->videoSurface->GetCapabilities(data->videoSurface, &data->videoSurfaceCapabilities), false);
 
-    VERBOSE(VB_GENERAL, QString("DirectFB output : videoSurface : %1, %2, %3")
+    VERBOSE(VB_PLAYBACK, QString("DirectFB output : videoSurface : %1, %2, %3")
             .arg((data->videoSurfaceCapabilities & DSCAPS_VIDEOONLY) > 0 ? "in video memory" : "in sytem memory")
             .arg((data->videoSurfaceCapabilities & DSCAPS_PRIMARY) > 0 ? "primary surface" : "no primary surface")
             .arg((data->videoSurfaceCapabilities & DSCAPS_INTERLACED) > 0 ? "interlaced" : "not interlaced")
@@ -440,30 +471,17 @@ bool VideoOutputDirectfb::Init(int width, int height, float aspect, WId winid,
     desc.flags = (DFBSurfaceDescriptionFlags)(DSDESC_HEIGHT | DSDESC_WIDTH | DSDESC_PIXELFORMAT);
     desc.width = width;
     desc.height = height;
-    //can this change ?
-    desc.pixelformat = DSPF_I420;
+    desc.pixelformat = data->videoLayerConfig.pixelformat;
 
     if (!CreateDirectfbBuffers(desc))
         return false;
 
-    VERBOSE(VB_GENERAL, QString("DirectFB input : %1 videoSurface buffers : %1x%2, %3")
+    VERBOSE(VB_PLAYBACK, QString("DirectFB input : %1 videoSurface buffers : %1x%2, %3")
             .arg(kNumBuffers)
             .arg(desc.width)
             .arg(desc.height)
             .arg(desc.pixelformat == DSPF_I420 ? "I420 : Yuv" : "YV12 : Yvu")
            );
-    //prepare to do a software conversion when the output format is Yvu
-    //(DirectFB does not support software conversion from Yuv -> Yvu yet)
-    if (data->videoLayerConfig.pixelformat == DSPF_YV12)
-    {
-        desc.flags = (DFBSurfaceDescriptionFlags)(DSDESC_HEIGHT | DSDESC_WIDTH | DSDESC_PIXELFORMAT | DSDESC_CAPS);
-        desc.width = width;
-        desc.height = height;
-        desc.pixelformat = DSPF_YV12;
-        //allocate in system memory
-        desc.caps=DSCAPS_SYSTEMONLY;
-        DFBCHECKFAIL(data->dfb->CreateSurface(data->dfb, &desc, &tempYV12Surface), false);
-    }
 
     //setup input handling
     DFBCHECK(data->dfb->CreateInputEventBuffer(data->dfb, DICAPS_KEYS, (DFBBoolean)1, &(data->inputbuf)));
@@ -471,33 +489,30 @@ bool VideoOutputDirectfb::Init(int width, int height, float aspect, WId winid,
     //this stuff is right from Xv - look at this sometime
     //first frame of the buffers
 
-    pauseFrame.height = vbuffers.GetScratchFrame()->height;
-    pauseFrame.width  = vbuffers.GetScratchFrame()->width;
-    pauseFrame.bpp    = vbuffers.GetScratchFrame()->bpp;
-    pauseFrame.size   = vbuffers.GetScratchFrame()->size;
-    pauseFrame.buf    = new unsigned char[pauseFrame.size];
+    init(&pauseFrame, vbuffers.GetScratchFrame()->codec,
+         new unsigned char[pauseFrame.size + 64],
+         vbuffers.GetScratchFrame()->width, vbuffers.GetScratchFrame()->height,
+         vbuffers.GetScratchFrame()->bpp, vbuffers.GetScratchFrame()->size);
+
     pauseFrame.frameNumber = vbuffers.GetScratchFrame()->frameNumber;
 
     VideoOutput::Init(width, height, aspect, winid, winx, winy, data->screen_width, data->screen_height,
                       embedid);
 
-    VERBOSE(VB_GENERAL, QString("DirectFB output : screen size %1x%2").arg(data->screen_width).arg(data->screen_height));
+    VERBOSE(VB_PLAYBACK, QString("DirectFB output : screen size %1x%2").arg(data->screen_width).arg(data->screen_height));
     MoveResize();
 
-    if (gContext->GetNumSetting("UseOutputPictureControls", 0))
-    {
-        ChangePictureAttribute(kPictureAttribute_Brightness, brightness);
-        ChangePictureAttribute(kPictureAttribute_Contrast, contrast);
-        ChangePictureAttribute(kPictureAttribute_Colour, colour);
-        ChangePictureAttribute(kPictureAttribute_Hue, hue);
-    }
+    InitPictureAttributes();
 
     //display video output
     DFBCHECK(data->videoLayer->SetOpacity(data->videoLayer, 0xff));
 
-    w_mm = (myth_dsw != 0) ? myth_dsw : data->screen_width;
-    h_mm = (myth_dsh != 0) ? myth_dsh : data->screen_height;
-    display_aspect = ((float)w_mm) / ((float)h_mm);
+    display_dim = QSize(data->screen_width, data->screen_height);
+    if (db_display_dim.width() > 0 && db_display_dim.height() > 0)
+        display_dim = db_display_dim;
+
+    display_aspect = (((float)display_dim.width()) /
+                      ((float)display_dim.height()));
 
     XJ_started = true;
     return true;
@@ -505,6 +520,8 @@ bool VideoOutputDirectfb::Init(int width, int height, float aspect, WId winid,
 
 void VideoOutputDirectfb::PrepareFrame(VideoFrame *buffer, FrameScanType)
 {
+    QMutexLocker locker(&data->bufferLock);
+
     if (!buffer)
         buffer = vbuffers.GetScratchFrame();
 
@@ -512,30 +529,6 @@ void VideoOutputDirectfb::PrepareFrame(VideoFrame *buffer, FrameScanType)
 
     IDirectFBSurface *bufferSurface = data->buffers[buffer->buf];
 
-    if (data->videoLayerConfig.pixelformat == DSPF_YV12)
-    {
-        //do a software conversion in a temporary memory buffer, since DirectFB does not handle this (yet ?)
-        int pitch;
-        int width, height;
-        unsigned char *src, *dst;
-
-        width = buffer->width;
-        height = buffer->height;
-        src = buffer->buf;
-
-        DFBCHECKFAIL(tempYV12Surface->Lock(tempYV12Surface, DSLF_WRITE, (void **)&dst, &pitch));
-        //! pitch is not considered : since the videoSurface is in memory, normally there is no pitch
-        //src Yuv -> dst Yvu
-        //src Y -> dst Y
-        memcpy(dst, src, width * height);
-        //src v -> dst v
-        memcpy(dst + width * height, src + width * height * 5 / 4, width * height / 4);
-        //src u -> dst u
-        memcpy(dst + width * height * 5 / 4, src + width * height, width * height / 4);
-
-        DFBCHECK(tempYV12Surface->Unlock(tempYV12Surface));
-        bufferSurface = tempYV12Surface;
-    }
     if (!bufferSurface)
         return;
 #if (DIRECTFB_MINOR_VERSION <= 9) && (DIRECTFB_MICRO_VERSION <= 22)
@@ -548,30 +541,65 @@ void VideoOutputDirectfb::PrepareFrame(VideoFrame *buffer, FrameScanType)
     }
     else
     {
-        //unaccelerated hardware - probably you do not want this !
-        int pitchsrc;
-        int pitchdst;
-        int width, height;
-        unsigned char *src, *dst;
+        unsigned char *src = NULL;
+        int y_src_pitch = 0;
+        DFBCHECKFAIL(bufferSurface->Lock(
+                         bufferSurface, DSLF_READ,
+                         (void**) &src, &y_src_pitch));
 
-        width = buffer->width;
-        height = buffer->height;
-        DFBCHECKFAIL(bufferSurface->Lock(bufferSurface, DSLF_READ, (void **)&src, &pitchsrc));
-        DFBCHECKFAIL(data->videoSurface->Lock(data->videoSurface, DSLF_WRITE, (void **)&dst, &pitchdst));
-        //Y
-        memcpy_pic(dst, src, width, height, pitchdst, pitchsrc);
-        dst += pitchdst * height;
-        src += pitchsrc * height;
-        //u (I420) or v (YV12)
-        width /= 2;
-        height /= 2;
-        pitchsrc /= 2;
-        pitchdst /= 2;
-        memcpy_pic(dst, src, width, height, pitchdst, pitchsrc);
-        dst += pitchdst * height;
-        src += pitchsrc * height;
-        //v (I420) or y (YV12)
-        memcpy_pic(dst, src, width, height, pitchdst, pitchsrc);
+        unsigned char *dst = NULL;
+        int y_dst_pitch = 0;
+        DFBCHECKFAIL(data->videoSurface->Lock(
+                         data->videoSurface, DSLF_WRITE,
+                         (void **)&dst, &y_dst_pitch));
+
+        DFBSurfacePixelFormat fmt;
+        data->videoSurface->GetPixelFormat(data->videoSurface, &fmt);
+
+        unsigned char *y_src = src;
+        unsigned char *u_src = NULL;
+        unsigned char *v_src = NULL;
+        unsigned char *y_dst = dst;
+        unsigned char *u_dst = NULL;
+        unsigned char *v_dst = NULL;
+
+        int y_width      = buffer->width;
+        int y_height     = buffer->height;
+        int uv_src_pitch = y_src_pitch >> 1;
+        int uv_dst_pitch = y_dst_pitch >> 1;
+        int uv_width     = uv_width    >> 1;
+        int uv_height    = y_height    >> 1;
+
+        if (DSPF_YV12 == fmt)
+        {
+            v_src = y_src + ( y_src_pitch *  y_height);
+            u_src = v_src + (uv_src_pitch * uv_height);
+            v_dst = y_dst + ( y_dst_pitch *  y_height);
+            u_dst = v_dst + (uv_dst_pitch * uv_height);
+        }
+        else if (DSPF_I420 == fmt)
+        {
+            u_src = y_src + ( y_src_pitch  * y_height);
+            v_src = u_src + (uv_src_pitch * uv_height);
+            u_dst = y_dst + ( y_dst_pitch  * y_height);
+            v_dst = u_dst + (uv_dst_pitch * uv_height);
+        }
+
+        if (y_src && v_src && u_src)
+        {
+            // copy Y-plane
+            memcpy_pic(y_dst, y_src, y_width, y_height,
+                       y_dst_pitch, y_src_pitch);
+
+            // copy U-plane
+            memcpy_pic(u_dst, u_src, uv_width, uv_height,
+                       uv_dst_pitch, uv_src_pitch);
+
+            // copy V-plane
+            memcpy_pic(v_dst, v_src, uv_width, uv_height,
+                       uv_dst_pitch, uv_src_pitch);
+        }
+
         DFBCHECK(bufferSurface->Unlock(bufferSurface));
         DFBCHECK(data->videoSurface->Unlock(data->videoSurface));
     }
@@ -632,29 +660,34 @@ void VideoOutputDirectfb::ProcessFrame(VideoFrame *frame, OSD *osd,
 
 }
 
-void VideoOutputDirectfb::InputChanged(int width, int height, float aspect)
+void VideoOutputDirectfb::InputChanged(int width, int height, float aspect,
+                                       MythCodecID av_codec_id)
 {
-    VideoOutput::InputChanged(width, height, aspect);
+    VideoOutput::InputChanged(width, height, aspect, av_codec_id);
 
     DFBSurfaceDescription desc;
     desc.flags = (DFBSurfaceDescriptionFlags)(DSDESC_HEIGHT | DSDESC_WIDTH | DSDESC_PIXELFORMAT);
     desc.width = width;
     desc.height = height;
-    //can this change ?
-    desc.pixelformat = DSPF_I420;
+    desc.pixelformat = data->videoLayerConfig.pixelformat;
 
     DeleteDirectfbBuffers();
     CreateDirectfbBuffers(desc);
     MoveResize();
 
     if (pauseFrame.buf)
+    {
         delete [] pauseFrame.buf;
+        pauseFrame.buf = NULL;
+    }
 
-    pauseFrame.height = vbuffers.GetScratchFrame()->height;
-    pauseFrame.width  = vbuffers.GetScratchFrame()->width;
-    pauseFrame.bpp    = vbuffers.GetScratchFrame()->bpp;
-    pauseFrame.size   = vbuffers.GetScratchFrame()->size;
-    pauseFrame.buf    = new unsigned char[pauseFrame.size];
+    init(&pauseFrame, vbuffers.GetScratchFrame()->codec,
+         new unsigned char[vbuffers.GetScratchFrame()->size + 64],
+         vbuffers.GetScratchFrame()->width,
+         vbuffers.GetScratchFrame()->height,
+         vbuffers.GetScratchFrame()->bpp,
+         vbuffers.GetScratchFrame()->size);
+
     pauseFrame.frameNumber = vbuffers.GetScratchFrame()->frameNumber;
 }
 
@@ -668,55 +701,119 @@ void VideoOutputDirectfb::MoveResize(void)
 {
     VideoOutput::MoveResize();
 
-    VERBOSE(VB_GENERAL, QString("DirectFB MoveResize : screen size %1x%2, proposed x : %3, y : %4, w : %5, h : %6")
-            .arg(data->screen_width)
-            .arg(data->screen_height)
-            .arg(dispxoff)
-            .arg(dispyoff)
-            .arg(dispwoff)
-            .arg(disphoff));
-    //**FIXME support for zooming when dispwoff > screenwidth || disphoff > screenheight
-    if (data->videoLayerDesc.caps & DLCAPS_SCREEN_LOCATION) {
+    VERBOSE(VB_PLAYBACK,
+            QString("DirectFB MoveResize : screen size %1x%2, "
+                    "proposed x : %3, y : %4, w : %5, h : %6")
+            .arg(data->screen_width).arg(data->screen_height)
+            .arg(display_video_rect.left()).arg(display_video_rect.top())
+            .arg(display_video_rect.width()).arg(display_video_rect.height()));
+
+    // TODO FIXME support for zooming when 
+    // dispwoff > screenwidth || disphoff > screenheight
+
+    if (data->videoLayerDesc.caps & DLCAPS_SCREEN_LOCATION)
+    {
+        float dispxoff = display_video_rect.left();
+        float dispyoff = display_video_rect.top();
+        float dispwoff = display_video_rect.width();
+        float disphoff = display_video_rect.height();
         DFBCHECK(data->videoLayer->SetScreenLocation(data->videoLayer,
-                 (float)dispxoff/(float)data->screen_width,
-                 (float)dispyoff/(float)data->screen_height,
-                 (float)dispwoff/(float)data->screen_width,
-                 (float)disphoff/(float)data->screen_height));
+                 dispxoff/data->screen_width, dispyoff/data->screen_height,
+                 dispwoff/data->screen_width, disphoff/data->screen_height));
     }
 }
 
-
-
 bool VideoOutputDirectfb::CreateDirectfbBuffers(DFBSurfaceDescription desc)
 {
-    int pitch;
-    //allocate each surface in system memory
+    VERBOSE(VB_IMPORTANT, "CreateDirectfbBuffers");
+
+    QMutexLocker locker(&data->bufferLock);
+
+    if (!data || !data->dfb)
+        return false;
+
+    // allocate each surface in system memory
     desc.flags = (DFBSurfaceDescriptionFlags)(desc.flags | DSDESC_CAPS);
-    desc.caps=DSCAPS_SYSTEMONLY;
+    desc.caps  = DSCAPS_SYSTEMONLY;
+
+    vector<unsigned char*> bufs;
+    vector<YUVInfo>        yuvinfo;
+
+    DFBResult err = DFB_OK;
 
     for (uint i = 0; i < vbuffers.allocSize(); i++)
     {
-        IDirectFBSurface *bufferSurface;
-        unsigned char *bufferSurfaceData;
-        DFBCHECKFAIL(data->dfb->CreateSurface(data->dfb, &desc, &bufferSurface), false);
-        DFBCHECKFAIL(bufferSurface->Lock(bufferSurface, DSLF_WRITE, (void **)&bufferSurfaceData, &pitch), false);
+        IDirectFBSurface *bufferSurface     = NULL;
+        unsigned char    *bufferSurfaceData = NULL;
+        int pitches[3];
+        int offsets[4];
+
+        err = data->dfb->CreateSurface(
+            data->dfb, &desc, &bufferSurface);
+
+        if (err != DFB_OK)
+        {
+            DirectFBError("CreateDirectfbBuffers -- CreateSurface", err);
+            break;
+        }
+
+        err = bufferSurface->Lock(
+            bufferSurface, DSLF_WRITE, (void **)&bufferSurfaceData, pitches);
+
+        if (err != DFB_OK)
+        {
+            DirectFBError("CreateDirectfbBuffers -- Lock", err);
+            DFBCHECK(bufferSurface->Release(bufferSurface));
+            break;
+        }
+
         data->buffers[bufferSurfaceData] = bufferSurface;
 
-        vbuffers.at(i)->height = desc.height;
-        vbuffers.at(i)->width  = desc.width;
-        //**FIXME set the three following parameters correctly
-        vbuffers.at(i)->bpp    = 12;
-        vbuffers.at(i)->size   = desc.height * desc.width * 3 / 2;
-        //The format FMT_YV12 is a I420 ???? - Can the buffer format change ????
-        vbuffers.at(i)->codec  = FMT_YV12;
-        vbuffers.at(i)->buf    = bufferSurfaceData;
+        pitches[0] = desc.width;
+        pitches[1] = pitches[0] >> 1;
+        pitches[2] = pitches[0] >> 1;
+
+        offsets[0] = 0;
+        offsets[1] = pitches[0] * desc.height;
+        offsets[2] = offsets[1] + pitches[1] * (desc.height >> 1);
+        offsets[3] = offsets[2] + pitches[2] * (desc.height >> 1);
+
+        if (DSPF_YV12 == desc.pixelformat)
+        {
+            swap(pitches[1], pitches[2]);
+            swap(offsets[1], offsets[2]);
+        }
+
+        YUVInfo tmp(desc.width, desc.height, offsets[3], pitches, offsets);
+
+        bufs.push_back(bufferSurfaceData);
+        yuvinfo.push_back(tmp);
     }
 
-    return true;
+    if (err != DFB_OK)
+    {
+        for (uint i = 0; i < bufs.size(); i++)
+        {
+            BufferMap::iterator it = data->buffers.find(bufs[i]);
+            if (it != data->buffers.end())
+            {
+                DFBCHECK(it->second->Unlock(it->second));
+                DFBCHECK(it->second->Release(it->second));
+                data->buffers.erase(it);
+            }
+        }
+        return false;
+    }
+
+    bool ok = vbuffers.CreateBuffers(desc.width, desc.height, bufs, yuvinfo);
+
+    return ok;
 }
 
 void VideoOutputDirectfb::DeleteDirectfbBuffers(void)
 {
+    QMutexLocker locker(&data->bufferLock);
+
     for (uint i = 0; i < vbuffers.allocSize(); i++)
     {
         vbuffers.at(i)->buf = NULL;
@@ -738,44 +835,48 @@ void VideoOutputDirectfb::DeleteDirectfbBuffers(void)
     data->buffers.clear();
 }
 
-int VideoOutputDirectfb::ChangePictureAttribute(int attribute, int newValue)
+int VideoOutputDirectfb::SetPictureAttribute(int attribute, int newValue)
 {
-    data->videoLayer->GetColorAdjustment(data->videoLayer, (DFBColorAdjustment*) &adj);
+    data->videoLayer->GetColorAdjustment(data->videoLayer,
+                                         (DFBColorAdjustment*) &adj);
     adj.flags = 0;
 
-    switch (attribute) {
-    case kPictureAttribute_Brightness:
-        if (data->videoLayerDesc.caps & DLCAPS_BRIGHTNESS ) {
-            adj.flags = DCAF_BRIGHTNESS;
-            adj.brightness = (unsigned short)(0xffff*newValue/100);
-        }
-        break;
-    case kPictureAttribute_Contrast:
-        if (data->videoLayerDesc.caps & DLCAPS_CONTRAST ) {
-            adj.flags = DCAF_CONTRAST;
-            adj.contrast = (unsigned short)(0xffff*newValue/100);
-        }
-        break;
-    case kPictureAttribute_Colour:
-        if (data->videoLayerDesc.caps & DLCAPS_SATURATION ) {
-            adj.flags = DCAF_SATURATION;
-            adj.saturation = (unsigned short)(0xffff*newValue/100);
-        }
-        break;
-    case kPictureAttribute_Hue:
-        if (data->videoLayerDesc.caps & DLCAPS_HUE ) {
-            adj.flags = DCAF_HUE;
-            adj.hue = (unsigned short)(0xffff*newValue/100);
-        }
-        break;
+    newValue   = min(max(newValue, 0), 100);
+    uint value = (0xffff * newValue) / 100;
+
+    if ((kPictureAttribute_Brightness == attribute) &&
+        (data->videoLayerDesc.caps & DLCAPS_BRIGHTNESS))
+    {
+        adj.flags = DCAF_BRIGHTNESS;
+        adj.brightness = value;
+    }
+    else if ((kPictureAttribute_Contrast == attribute) &&
+             (data->videoLayerDesc.caps & DLCAPS_CONTRAST))
+    {
+        adj.flags = DCAF_CONTRAST;
+        adj.contrast = value;
+    }
+    else if ((kPictureAttribute_Colour == attribute) &&
+             (data->videoLayerDesc.caps & DLCAPS_SATURATION))
+    {
+        adj.flags = DCAF_SATURATION;
+        adj.saturation = value;
+    }
+    else if ((kPictureAttribute_Hue == attribute) &&
+             (data->videoLayerDesc.caps & DLCAPS_HUE))
+    {
+        adj.flags = DCAF_HUE;
+        adj.hue = value;
     }
 
-    if (adj.flags) {
-        if (newValue < 0) newValue = 0;
-        if (newValue >= 100) newValue = 99;
-        data->videoLayer->SetColorAdjustment(data->videoLayer, (DFBColorAdjustment*) &adj);
+    if (adj.flags)
+    {
+        data->videoLayer->SetColorAdjustment(data->videoLayer,
+                                             (DFBColorAdjustment*) &adj);
+        SetPictureAttributeDBValue(attribute, newValue);
         return newValue;
     }
+
     return -1;
 }
 
@@ -790,43 +891,43 @@ DFBEnumerationResult LayerCallback(unsigned int id,
         return DFENUM_OK;
 
     DFBCHECKFAIL(vodata->dfb->GetDisplayLayer(vodata->dfb, id, &(vodata->videoLayer)), DFENUM_OK);
-    VERBOSE(VB_GENERAL, QString("DirectFB Layer %1 %2:").arg(id).arg(desc.name));
+    VERBOSE(VB_PLAYBACK, QString("DirectFB Layer %1 %2:").arg(id).arg(desc.name));
 
     if (desc.caps & DLCAPS_SURFACE)
-        VERBOSE(VB_GENERAL, "  - Has a surface.");
+        VERBOSE(VB_PLAYBACK, "  - Has a surface.");
 
     if (desc.caps & DLCAPS_ALPHACHANNEL)
-        VERBOSE(VB_GENERAL, "  - Supports blending based on alpha channel.");
+        VERBOSE(VB_PLAYBACK, "  - Supports blending based on alpha channel.");
 
     if (desc.caps & DLCAPS_SRC_COLORKEY)
-        VERBOSE(VB_GENERAL, "  - Supports source color keying.");
+        VERBOSE(VB_PLAYBACK, "  - Supports source color keying.");
 
     if (desc.caps & DLCAPS_DST_COLORKEY)
-        VERBOSE(VB_GENERAL, "  - Supports destination color keying.");
+        VERBOSE(VB_PLAYBACK, "  - Supports destination color keying.");
 
     if (desc.caps & DLCAPS_FLICKER_FILTERING)
-        VERBOSE(VB_GENERAL, "  - Supports flicker filtering.");
+        VERBOSE(VB_PLAYBACK, "  - Supports flicker filtering.");
 
     if (desc.caps & DLCAPS_DEINTERLACING)
-        VERBOSE(VB_GENERAL, "  - Can deinterlace interlaced video for progressive display.  ");
+        VERBOSE(VB_PLAYBACK, "  - Can deinterlace interlaced video for progressive display.  ");
 
     if (desc.caps & DLCAPS_OPACITY)
-        VERBOSE(VB_GENERAL, "  - Supports blending based on global alpha factor.");
+        VERBOSE(VB_PLAYBACK, "  - Supports blending based on global alpha factor.");
 
     if (desc.caps & DLCAPS_SCREEN_LOCATION)
-        VERBOSE(VB_GENERAL, "  - Can be positioned on the screen.");
+        VERBOSE(VB_PLAYBACK, "  - Can be positioned on the screen.");
 
     if (desc.caps & DLCAPS_BRIGHTNESS)
-        VERBOSE(VB_GENERAL, "  - Brightness can be adjusted.");
+        VERBOSE(VB_PLAYBACK, "  - Brightness can be adjusted.");
 
     if (desc.caps & DLCAPS_CONTRAST)
-        VERBOSE(VB_GENERAL, "  - Contrast can be adjusted.");
+        VERBOSE(VB_PLAYBACK, "  - Contrast can be adjusted.");
 
     if (desc.caps & DLCAPS_HUE)
-        VERBOSE(VB_GENERAL, "  - Hue can be adjusted.");
+        VERBOSE(VB_PLAYBACK, "  - Hue can be adjusted.");
 
     if (desc.caps & DLCAPS_SATURATION)
-        VERBOSE(VB_GENERAL, "  - Saturation can be adjusted.");
+        VERBOSE(VB_PLAYBACK, "  - Saturation can be adjusted.");
 
     ret = vodata->videoLayer->TestConfiguration(vodata->videoLayer, &(vodata->videoLayerConfig), NULL);
 

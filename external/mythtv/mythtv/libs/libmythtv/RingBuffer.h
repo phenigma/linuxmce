@@ -7,6 +7,7 @@
 #include <qwaitcondition.h>
 #include <qmutex.h>
 #include <pthread.h>
+#include "avcodec.h"
 
 class RemoteFile;
 class RemoteEncoder;
@@ -49,6 +50,8 @@ class RingBuffer
     // General Commands
     void OpenFile(const QString &lfilename, uint retryCount = 12/*4*/);
     int  Read(void *buf, int count);
+    int  Peek(void *buf, int count); // only works with readahead
+
     void Reset(bool full          = false,
                bool toAdjust      = false,
                bool resetInternal = false);
@@ -81,14 +84,9 @@ class RingBuffer
 
     // DVDRingBuffer proxies
     /// Returns true if this is a DVD backed RingBuffer.
-    bool isDVD(void) const { return dvdPriv; }
-    void getPartAndTitle(int &title, int &part);
-    void getDescForPos(QString &desc);
-    bool nextTrack(void);
-    void prevTrack(void);
-    uint GetTotalTimeOfTitle(void);
-    uint GetCellStart(void);
-    long long GetTotalReadPosition(void);
+    inline bool isDVD(void) const { return dvdPriv; }
+    DVDRingBufferPriv *DVD() { return dvdPriv; }
+    bool InDVDMenuOrStillFrame(void);
 
     long long SetAdjustFilesize(void);
     void SetTimeout(bool fast) { oldfile = fast; }
@@ -103,7 +101,7 @@ class RingBuffer
     int safe_read(int fd, void *data, uint sz);
     int safe_read(RemoteFile *rf, void *data, uint sz);
 
-    int ReadFromBuf(void *buf, int count);
+    int ReadFromBuf(void *buf, int count, bool peek = false);
 
     int ReadBufFree(void) const;
     int ReadBufAvail(void) const;
@@ -175,6 +173,10 @@ class RingBuffer
 
     long long readAdjust;
 
+    /// Condition to signal that the read ahead thread is running
+    QWaitCondition readAheadRunningCond;
+    QMutex readAheadRunningCondLock;
+ 
     // constants
     static const uint kBufferSize;
     static const uint kReadTestSize;

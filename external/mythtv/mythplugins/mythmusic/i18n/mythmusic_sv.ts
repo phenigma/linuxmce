@@ -349,6 +349,14 @@ Nästa skärm kommer att vara tom, använd Escape för att komma tillbaka till m
         <source>Remove Duplicates</source>
         <translation>Ta bort dubbletter</translation>
     </message>
+    <message>
+        <source>1 Shuffle: Album</source>
+        <translation>1 Ordning: Album</translation>
+    </message>
+    <message>
+        <source>Shuffle: Album</source>
+        <translation>Ordning: Album</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -383,10 +391,6 @@ Nästa skärm kommer att vara tom, använd Escape för att komma tillbaka till m
     <message>
         <source>Audio device</source>
         <translation>Ljudenhet</translation>
-    </message>
-    <message>
-        <source>Audio Device used for playback.</source>
-        <translation>Ljudenhet som används för avspelning.</translation>
     </message>
     <message>
         <source>CD device</source>
@@ -845,10 +849,6 @@ Nästa skärm kommer att vara tom, använd Escape för att komma tillbaka till m
         <translation>CD-bränningsinställningar</translation>
     </message>
     <message>
-        <source>Artists</source>
-        <translation>Artister</translation>
-    </message>
-    <message>
         <source>Creating CD File System</source>
         <translation>Skapar filsystem för CD</translation>
     </message>
@@ -901,6 +901,18 @@ Nästa skärm kommer att vara tom, använd Escape för att komma tillbaka till m
     <message>
         <source>Loading Music</source>
         <translation>Laddar musik</translation>
+    </message>
+    <message>
+        <source>default</source>
+        <translation>förvald</translation>
+    </message>
+    <message>
+        <source>Audio Device used for playback. &apos;default&apos; will use the device specified in MythTV</source>
+        <translation>Ljudenhet för uppspelning. &apos;förvald&apos; använder enheten angiven i MythTV</translation>
+    </message>
+    <message>
+        <source>Unknown Title</source>
+        <translation>Okänd titel</translation>
     </message>
 </context>
 <context>

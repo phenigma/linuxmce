@@ -83,7 +83,7 @@
     </message>
     <message>
         <source>The theme you are using does not contain any info lines in the music element.  Please contact the theme creator and ask if they could please update it.&lt;br&gt;&lt;br&gt;The next screen will be empty.  Escape out of it to return to the menu.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det tema du bruger indeholder ikke information om musik elementet. Kontakt venligst den som har lavet temaet og bed om en opdatering.&lt;br&gt;&lt;br&gt;Den næste skærm er blank. Tryk ESC for vende tilbage til menuen. </translation>
     </message>
     <message>
         <source>Artist:<byte value="x9"/></source>
@@ -313,38 +313,46 @@
     </message>
     <message>
         <source>Change Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Skift filter</translation>
     </message>
     <message>
         <source>Update Playlist Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opdatér Playlist opsætningen</translation>
     </message>
     <message>
         <source>Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstat</translation>
     </message>
     <message>
         <source>Insert after current track</source>
-        <translation type="unfinished"></translation>
+        <translation>Indsæt efter aktuelle nummer</translation>
     </message>
     <message>
         <source>Append to end</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilføj efter sidste nummer</translation>
     </message>
     <message>
         <source>Continue playing current track</source>
-        <translation type="unfinished"></translation>
+        <translation>Fortsæt med at afspille nummeret</translation>
     </message>
     <message>
         <source>Play first track</source>
-        <translation type="unfinished"></translation>
+        <translation>Spil første nummer</translation>
     </message>
     <message>
         <source>Play first new track</source>
-        <translation type="unfinished"></translation>
+        <translation>Spil først det nye nummer</translation>
     </message>
     <message>
         <source>Remove Duplicates</source>
+        <translation>Fjern dubletter</translation>
+    </message>
+    <message>
+        <source>1 Shuffle: Album</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shuffle: Album</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -392,7 +400,7 @@
     </message>
     <message>
         <source>Audio Device used for playback.</source>
-        <translation>Lyd-enhed, der anvendes til afspilning</translation>
+        <translation type="obsolete">Lyd-enhed, der anvendes til afspilning</translation>
     </message>
     <message>
         <source>CD device</source>
@@ -880,7 +888,7 @@
     </message>
     <message>
         <source>Artists</source>
-        <translation>Kunstnere</translation>
+        <translation type="obsolete">Kunstnere</translation>
     </message>
     <message>
         <source>Creating CD File System</source>
@@ -924,14 +932,26 @@
     </message>
     <message>
         <source>Only Import new music.</source>
-        <translation type="unfinished"></translation>
+        <translation>Importér kun nyt musik.</translation>
     </message>
     <message>
         <source>Checks the database for duplicates when importing/ripping CDs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Check databsen for dubletter når der importéres/rippes cd&apos;er.</translation>
     </message>
     <message>
         <source>Loading Music</source>
+        <translation>Henter Musik</translation>
+    </message>
+    <message>
+        <source>default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Audio Device used for playback. &apos;default&apos; will use the device specified in MythTV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown Title</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1245,7 +1265,7 @@
     </message>
     <message>
         <source>Match</source>
-        <translation>Matche</translation>
+        <translation>Find</translation>
     </message>
     <message>
         <source>All</source>
@@ -1265,15 +1285,11 @@
     </message>
     <message>
         <source>Matches:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fundet:</translation>
     </message>
     <message>
         <source>Limit:</source>
         <translation>Grænse:</translation>
-    </message>
-    <message>
-        <source></source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Cancel</source>

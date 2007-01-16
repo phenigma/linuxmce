@@ -6,9 +6,9 @@
  * Initialization routines.  This file basically loads all of the necessary
  * shared files for the entire program.
  *
- * @url         $URL$
- * @date        $Date: 2006-02-24 10:04:16 +0200 (Fri, 24 Feb 2006) $
- * @version     $Revision: 9134 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/includes/init.php $
+ * @date        $Date: 2006-07-15 09:21:36 +0300 (Sat, 15 Jul 2006) $
+ * @version     $Revision: 10527 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -36,13 +36,13 @@
 
 // Figure out the root path for this mythweb installation.  We need this in order
 // to cleanly reference things like the /js directory from subpaths.
-    define('root', str_replace('//', '/', dirname($_SERVER['SCRIPT_NAME']).'/'));;
+    define('root', str_replace('//', '/', dirname($_SERVER['SCRIPT_NAME']).'/'));
 
 // Several sections of this program require the current hostname
     define('hostname', empty($_SERVER['hostname']) ? trim(`hostname`) : $_SERVER['hostname']);
 
-// Load the user-defined configuration settings
-    require_once 'config/conf.php';
+// Define the error email, or set it to a null string if there isn't a valid one
+    define('error_email', strstr($_SERVER['error_email'], '@') ? $_SERVER['error_email'] : '');
 
 // Load the generic utilities so we have access to stuff like DEBUG()
     require_once 'includes/utils.php';
@@ -58,6 +58,7 @@
 // Clean up input data
     fix_crlfxy($_GET);
     fix_crlfxy($_POST);
+    fix_crlfxy($_REQUEST);
     if (get_magic_quotes_gpc()) {
         fix_magic_quotes($_COOKIE);
         fix_magic_quotes($_ENV);
@@ -69,16 +70,13 @@
 
 // No MySQL libraries installed in PHP
     if (!function_exists('mysql_connect')) {
-        $Error = "Please install the MySQL libraries for PHP.\n"
-                .'The package is usually called something like php-mysql.';
-        require_once 'templates/_error.php';
-        exit;
+        custom_error("Please install the MySQL libraries for PHP.\n"
+                    .'The package is usually called something like php-mysql.');
     }
 
 // No database connection info defined?
     if (empty($_SERVER['db_server']) || empty($_SERVER['db_name']) || empty($_SERVER['db_login'])) {
-        require_once 'templates/_db_vars_error.php';
-        exit;
+        tailored_error('db_vars_error');
     }
 
 /**
@@ -104,8 +102,17 @@
                          ))
                    );
 
+// Handy reference to the current module
+    define('module', $Path[0]);
+
+// Find the modules path
+    $path = dirname(dirname(find_in_path('modules/tv/init.php')));
+    define('modules_path', $path);
+
 // Load the database connection routines
-    require_once 'includes/db.php';
+    foreach (get_sorted_files('includes/objects/', '/^Database/') as $file) {
+        require_once "includes/objects/$file";
+    }
 
 /**
  * All database connections should now go through this object.
@@ -116,15 +123,17 @@
     global $db;
 
 // Connect to the database
-    $db = new Database($_SERVER['db_name'],
-                       $_SERVER['db_login'],
-                       $_SERVER['db_password'],
-                       $_SERVER['db_server']);
+    if (!is_object($db)) {
+        $db = Database::connect($_SERVER['db_name'],
+                                $_SERVER['db_login'],
+                                $_SERVER['db_password'],
+                                $_SERVER['db_server'],
+                                NULL, 'mysql');
+    }
 
 // Access denied -- probably means that there is no database
     if ($db->errno == 1045) {
-        require_once 'templates/_db_access_denied.php';
-        exit;
+        tailored_error('db_access_denied');
     }
 
 // We don't need these security risks hanging around taking up memory.
@@ -153,10 +162,9 @@
         if (strstr(error_email, '@'))
             mail(error_email, "Database Connection Error" ,
                  $db->error,
-                 'From:  PHP Error <php_errors@'.server_domain.">\n");
+                 'From:  MythWeb Error <'.error_email.">\n");
     // Let the user know in a nice way that something's wrong
-        require_once 'templates/_site_down.php';
-        exit;
+        tailored_error('site_down');
     }
 
 // Make sure the database is up to date
@@ -167,42 +175,6 @@
 
 // Load the translation routines so the modules can translate their descriptions
     require_once 'includes/translate.php';
-
-/**
- * Define each module individually in order because it's easier than storing a
- * sort-order setting in each module.
- *
- * @global  array       $GLOBALS['Modules']
- * @name    $Modules    A list of the available MythWeb modules
-/**/
-    $Modules = array('tv'          => null,
-                     'video'       => null,
-                     'music'       => null,
-                     'weather'     => null,
-                     'movietimes'  => null,
-                     'settings'    => null,
-                     'status'      => null,
-                     'backend_log' => null,
-                     'stream'      => null,
-                    );
-
-// Load the various modules (search for the "tv" subdirectory in case it might
-// find some other "modules" directory, too.
-    $path = find_in_path('modules/tv/init.php');
-    if ($path) {
-        $path = dirname(dirname($path));
-        foreach (array_keys($Modules) as $module) {
-            if (!file_exists("$path/$module/init.php"))
-                continue;
-            require_once "$path/$module/init.php";
-            if (empty($Modules[$module]))
-                unset($Modules[$module]);
-        }
-    }
-    if (empty($Modules)) {
-        require_once 'templates/_no_modules.php';
-        exit;
-    }
 
 // Include a few useful functions
     require_once "includes/css.php";
@@ -215,63 +187,85 @@
 #    if (strpos($_SERVER['HTTP_USER_AGENT'], 'MythPhone') !== false) {
 #        define('Theme', 'vxml');
 #    }
-// Load theme from session if it exists and the user is not resetting the theme.
-    if (file_exists('themes/'.$_SESSION['Theme'].'/theme.php')
-            && !$_REQUEST['RESET_THEME']) {
-        define('Theme', $_SESSION['Theme']);
-    }
-// Now that we've tried a few things, we can load the mobile library
-    else {
+
+// Reset the template?
+    if ($_REQUEST['RESET_TMPL'] || $_REQUEST['RESET_TEMPLATE'])
+        $_SESSION['tmpl'] = 'default';
+// If the requested template is missing the welcome file, look for other options
+    else if (!file_exists(modules_path.'/_shared/tmpl/'.$_SESSION['tmpl'].'/welcome.php')) {
     // Detect different types of browsers and set the theme accordingly.
         require_once "includes/mobile.php";
         if (isMobileUser()) {
         // Browser is mobile but does it accept HTML? If not, use the WML theme.
             if (browserAcceptsMediaType(array('text/html', '\*/\*')))
-                define('Theme', 'wap');
+                 $_SESSION['tmpl'] = 'wap';
             else
-                define('Theme', 'wml');
+                 $_SESSION['tmpl'] = 'wml';
+        // Make sure the skin is set to the appropriate phone-template type
+        /** @todo eventually, we'll put all of this in the skins section */
+            $_SESSION['skin'] = $_SESSION['tmpl'];
+            define('skin', $_SESSION['skin']);
         }
     // Otherwise set the default theme.
         else {
-            define('Theme', 'default');
+             $_SESSION['tmpl'] = 'default';
         }
     }
 
-// Update the session variable
-    $_SESSION['Theme'] = Theme;
-
 // Is there a preferred skin?
-    if (file_exists('skins/'.$_SESSION['Skin'].'/img/') && !$_REQUEST['RESET_SKIN']) {
-        define('Skin', $_SESSION['Skin']);
+    if (file_exists('skins/'.$_SESSION['skin'].'/img/') && !$_REQUEST['RESET_SKIN']) {
+        define('skin', $_SESSION['skin']);
     }
     else {
-        define('Skin', 'default');
+        define('skin', 'default');
     }
-    $_SESSION['Skin'] = Skin;
+    $_SESSION['skin'] = skin;
 
 // Set up some handy constants
-    define('skin_dir', 'skins/'.Skin);
-    define('skin_url', root.skin_dir);
-    define('theme_dir', 'themes/'.Theme.'/');
-    define('theme_url', root.theme_dir);
+    define('skin_dir', 'skins/'.skin);
+    define('skin_url', root.skin_dir.'/');
+    define('tmpl',     $_SESSION['tmpl']);
+    define('tmpl_dir', 'modules/'.module.'/tmpl/'.tmpl.'/');
 
-// Load the theme config
-    if (file_exists('config/theme_'.Theme.'.php')) {
-        require_once 'config/theme_'.Theme.'.php';
+/**
+ * @global  array       $GLOBALS['Modules']
+ * @name    $Modules    A list of the available MythWeb modules
+/**/
+    $Modules = array();
+
+// Load the various modules (search for the "tv" subdirectory in case it might
+// find some other "modules" directory, too.
+    if (modules_path && modules_path != 'modules_path') {
+        foreach (get_sorted_files(modules_path) as $module) {
+            if (preg_match('/^_/', $module))
+                continue;
+            if (!file_exists(modules_path."/$module/init.php"))
+                continue;
+            if (!file_exists(modules_path."/$module/tmpl/".tmpl))
+                continue;
+            require_once modules_path."/$module/init.php";
+        }
+    }
+    if (empty($Modules)) {
+        tailored_error('no_modules');
     }
 
+// Sort the modules
+    uasort($Modules, 'by_module_sort');
+    function by_module_sort(&$a, &$b) {
+        if ($a['sort'] == $b['sort']) return strcasecmp($a['name'], $b['name']);
+        if (is_null($a['sort']))      return 99999;
+        if (is_null($b['sort']))      return -99999;
+        return ($a['sort'] > $b['sort']) ? 1 : -1;
+    }
 
 // Make sure the data directory exists and is writable
     if (!is_dir('data') && !mkdir('data', 0755)) {
-        $Error = 'Error creating the data directory. Please check permissions.';
-        require_once 'templates/_error.php';
-        exit;
+        custom_error('Error creating the data directory. Please check permissions.');
     }
     if (!is_writable('data')) {
         $process_user = posix_getpwuid(posix_geteuid());
-        $Error = 'data directory is not writable by '.$process_user['name'].'. Please check permissions.';
-        require_once 'templates/_error.php';
-        exit;
+        custom_error('data directory is not writable by '.$process_user['name'].'. Please check permissions.');
     }
 
 // New hard-coded cache directory
@@ -279,15 +273,11 @@
 
 // Make sure the image cache path exists and is writable
     if (!is_dir(cache_dir) && !mkdir(cache_dir, 0755)) {
-        $Error = 'Error creating '.cache_dir.': Please check permissions on the data directory.';
-        require_once 'templates/_error.php';
-        exit;
+        custom_error('Error creating '.cache_dir.': Please check permissions on the data directory.');
     }
     if (!is_writable(cache_dir)) {
         $process_user = posix_getpwuid(posix_geteuid());
-        $Error = cache_dir.' directory is not writable by '.$process_user['name'].'. Please check permissions.';
-        require_once 'templates/_error.php';
-        exit;
+        custom_error(cache_dir.' directory is not writable by '.$process_user['name'].'. Please check permissions.');
     }
 
 // Clean out stale thumbnails
@@ -305,27 +295,5 @@
         }
     }
 
-// Upgrading from an earlier version?  Wipe the session date data
-    if (!strstr($_SESSION['date_statusbar'], '%')) {
-        unset($_SESSION['date_statusbar'],
-              $_SESSION['date_scheduled'],
-              $_SESSION['date_scheduled_popup'],
-              $_SESSION['date_recorded'],
-              $_SESSION['date_search'],
-              $_SESSION['date_listing_key'],
-              $_SESSION['date_listing_jump'],
-              $_SESSION['date_channel_jump'],
-              $_SESSION['time_format']);
-    }
-
-// Load/set default session data
-    if (!$_SESSION['date_statusbar'])       $_SESSION['date_statusbar']       = t('generic_date') . ', '  . t('generic_time');
-    if (!$_SESSION['date_scheduled'])       $_SESSION['date_scheduled']       = t('generic_date') . ' ('  . t('generic_time') . ')';
-    if (!$_SESSION['date_scheduled_popup']) $_SESSION['date_scheduled_popup'] = t('generic_date');
-    if (!$_SESSION['date_recorded'])        $_SESSION['date_recorded']        = t('generic_date') . '<br />('.t('generic_time').')';
-    if (!$_SESSION['date_search'])          $_SESSION['date_search']          = t('generic_date') . ', '  . t('generic_time');
-    if (!$_SESSION['date_listing_key'])     $_SESSION['date_listing_key']     = t('generic_date') . ', '  . t('generic_time');
-    if (!$_SESSION['date_listing_jump'])    $_SESSION['date_listing_jump']    = t('generic_date');
-    if (!$_SESSION['date_channel_jump'])    $_SESSION['date_channel_jump']    = t('generic_date');
-    if (!$_SESSION['time_format'])          $_SESSION['time_format']          = t('generic_time');
-
+// Load the session defaults and other config info
+    require_once 'includes/config.php';

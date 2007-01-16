@@ -27,7 +27,7 @@ static always_inline uint16_t bswap_16(uint16_t x)
 
 static always_inline uint32_t bswap_32(uint32_t x)
 {
-#if __CPU__ > 386
+#if __CPU__ != 386
  __asm("bswap   %0":
       "=r" (x)     :
 #else
@@ -138,11 +138,11 @@ static inline double bswap_dbl(double x)
     union {
         uint32_t l[2];
         double   d;
-    } t;
-    t.d = x;
-    t.l[0] = bswap_32(t.l[1]);
-    t.l[1] = bswap_32(t.l[0]);
-    return t.d;
+    } w, r;
+    w.d = x;
+    r.l[0] = bswap_32(w.l[1]);
+    r.l[1] = bswap_32(w.l[0]);
+    return r.d;
 }
 
 // be2me ... BigEndian to MachineEndian

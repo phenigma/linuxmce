@@ -2,9 +2,9 @@
 /**
  * The main brain script for all of MythWeb.
  *
- * @url         $URL: http://svn.mythtv.org/svn/trunk/mythplugins/mythweb/mythweb.php $
- * @date        $Date: 2006-01-31 02:05:51 +0200 (Tue, 31 Jan 2006) $
- * @version     $Revision: 8793 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/mythweb.php $
+ * @date        $Date: 2006-03-23 09:08:29 +0200 (Thu, 23 Mar 2006) $
+ * @version     $Revision: 9473 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -24,7 +24,7 @@
         require_once 'modules/'.$Path[0].'/handler.php';
     }
     elseif (!empty($Path[0]) && preg_match('/\w/', $Path[0])) {
-        require_once 'templates/_unknown_module.php';
+        tailored_error('unknown_module');
     }
     else {
         require_once 'modules/welcome.php';

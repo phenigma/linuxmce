@@ -2,9 +2,9 @@
 /**
  * Schedule a custom recording by manually specifying various search options
  *
- * @url         $URL$
- * @date        $Date: 2006-02-02 06:03:21 +0200 (Thu, 02 Feb 2006) $
- * @version     $Revision: 8828 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/tv/schedules_custom.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  *
  * @package     MythWeb
@@ -202,7 +202,7 @@
         $schedule->length = 120;
 
 // Load the class for this page
-    require_once theme_dir.'tv/schedules_custom.php';
+    require_once tmpl_dir.'schedules_custom.php';
 
 // Exit
     exit;

@@ -2,16 +2,16 @@ include ( ../config.mak )
 include ( ../settings.pro )
 
 TEMPLATE = subdirs
-
+ 
 # Directories
 using_frontend {
     SUBDIRS += mythtv mythfrontend mythcommflag
     SUBDIRS += mythtvosd mythjobqueue mythuitest mythlcdserver
-    SUBDIRS += mythwelcome mythshutdown
+    SUBDIRS += mythwelcome mythshutdown mythtranscode/replex
 }
 
 using_backend {
-    SUBDIRS += mythbackend mythfilldatabase
+    SUBDIRS += mythbackend mythfilldatabase mythtv-setup
 }
 
 using_frontend:using_backend {

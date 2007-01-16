@@ -2,6 +2,7 @@
 #define OSDSURFACE_H_
 
 #include <qregion.h>
+#include <qmutex.h>
 #include "blend.h"
 
 #define MAX_NEG_CROP 1024
@@ -36,7 +37,10 @@ class OSDSurface
     }
     int GetRevision() { return revision; }
 
-    void BlendToYV12(unsigned char *yuvptr) const;
+    void BlendToYV12(unsigned char *yptr,
+                     unsigned char *uptr,
+                     unsigned char *vptr,
+                     int ystride, int ystride, int vstride) const;
     void BlendToARGB(unsigned char *argbptr,
                      uint stride, uint height, bool blendtoblack=false,
                      uint threshold = 0) const;
@@ -61,6 +65,7 @@ class OSDSurface
     int size;
 
     QRegion usedRegions;
+    mutable QMutex usedRegionsLock;
 
 #ifdef MMX
     short int rec_lut[256];

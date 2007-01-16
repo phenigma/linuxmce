@@ -5,9 +5,9 @@
  * It also uses the global variable $db, so it must be called from init.php
  * *after* the database connection has been established.
  *
- * @url         $URL$
- * @date        $Date: 2006-04-03 18:52:53 +0300 (Mon, 03 Apr 2006) $
- * @version     $Revision: 9616 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-19-fixes/mythplugins/mythweb/includes/session.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     GPL
  *

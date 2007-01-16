@@ -1,22 +1,22 @@
 // -*- Mode: c++ -*-
 
-#ifndef USING_DVB
-#error USING_DVB must be defined to compile eitscanner.cpp
-#endif
+// POSIX headers
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #include "tv_rec.h"
-#include "dvbchannel.h"
-#include "dvbsiparser.h"
-#include "dvbtypes.h"
 
+#include "channelbase.h"
+#include "iso639.h"
 #include "eitscanner.h"
 #include "eithelper.h"
 #include "scheduledrecording.h"
+#include "util.h"
 
 #define LOC QString("EITScanner: ")
 
 /** \class EITScanner
- *  \brief Acts as glue between DVBChannel, DVBSIParser, and EITHelper.
+ *  \brief Acts as glue between ChannelBase, EITSource, and EITHelper.
  *
  *   This is the class where the "EIT Crawl" is implemented.
  *
@@ -27,15 +27,13 @@ QDateTime  EITScanner::resched_next_time      = QDateTime::currentDateTime();
 const uint EITScanner::kMinRescheduleInterval = 150;
 
 EITScanner::EITScanner()
-    : QObject(NULL, "EITScanner"),
-      channel(NULL), parser(NULL), eitHelper(new EITHelper()),
+    : channel(NULL), eitSource(NULL), eitHelper(new EITHelper()),
       exitThread(false), rec(NULL), activeScan(false)
 {
-    pthread_create(&eventThread, NULL, SpawnEventLoop, this);
+    QStringList langPref = iso639_get_language_list();
+    eitHelper->SetLanguagePreferences(langPref);
 
-    // Lower scheduling priority, to avoid problems with recordings.
-    struct sched_param sp = {19 /* very low priority */};
-    pthread_setschedparam(eventThread, SCHED_OTHER, &sp);
+    pthread_create(&eventThread, NULL, SpawnEventLoop, this);
 }
 
 void EITScanner::TeardownAll(void)
@@ -50,20 +48,9 @@ void EITScanner::TeardownAll(void)
 
     if (eitHelper)
     {
-        eitHelper->deleteLater();
+        delete eitHelper;
         eitHelper = NULL;
     }
-}
-
-void EITScanner::deleteLater(void)
-{
-    TeardownAll();
-    QObject::deleteLater();
-}
-
-void EITScanner::SetPMTObject(const PMTObject *)
-{
-    eitHelper->ClearList();
 }
 
 /** \fn EITScanner::SpawnEventLoop(void*)
@@ -72,6 +59,9 @@ void EITScanner::SetPMTObject(const PMTObject *)
  */
 void *EITScanner::SpawnEventLoop(void *param)
 {
+    // Lower scheduling priority, to avoid problems with recordings.
+    if (setpriority(PRIO_PROCESS, 0, 19))
+        VERBOSE(VB_IMPORTANT, LOC + "Setting priority failed." + ENO);
     EITScanner *scanner = (EITScanner*) param;
     scanner->RunEventLoop();
     return NULL;
@@ -82,6 +72,9 @@ void *EITScanner::SpawnEventLoop(void *param)
  */
 void EITScanner::RunEventLoop(void)
 {
+    static const uint  sz[] = { 2000, 1800, 1600, 1400, 1200, };
+    static const float rt[] = { 0.0f, 0.2f, 0.4f, 0.6f, 0.8f, };
+
     exitThread = false;
 
     MythTimer t;
@@ -89,14 +82,27 @@ void EITScanner::RunEventLoop(void)
     
     while (!exitThread)
     {
-        if (channel)
+        uint list_size = eitHelper->GetListSize();
+
+        float rate = 1.0f;
+        for (uint i = 0; i < 5; i++)
         {
-            int mplex = channel->GetMultiplexID();
-            if ((mplex > 0) && parser && eitHelper->GetListSize())
+            if (list_size >= sz[i])
             {
-                eitCount += eitHelper->ProcessEvents(mplex);
-                t.start();
+                rate = rt[i];
+                break;
             }
+        }
+
+        lock.lock();
+        if (eitSource)
+            eitSource->SetEITRate(rate);
+        lock.unlock();
+
+        if (list_size)
+        {
+            eitCount += eitHelper->ProcessEvents();
+            t.start();
         }
 
         // If there have been any new events and we haven't
@@ -125,16 +131,20 @@ void EITScanner::RunEventLoop(void)
             {
                 rec->SetChannel(*activeScanNextChan, TVRec::kFlagEITScan);
                 VERBOSE(VB_GENERAL, LOC + 
-                        QString("Now looking for EIT data on channel %1")
+                        QString("Now looking for EIT data on "
+                                "multiplex of channel %1")
                         .arg(*activeScanNextChan));
             }
 
             activeScanNextTrig = QDateTime::currentDateTime()
                 .addSecs(activeScanTrigTime);
             activeScanNextChan++;
+
+            // 24 hours ago
+            eitHelper->PruneCache(activeScanNextTrig.toTime_t() - 86400);
         }
 
-        exitThreadCond.wait(200); // sleep up to 200 ms.
+        exitThreadCond.wait(400); // sleep up to 400 ms.
     }
 }
 
@@ -163,19 +173,27 @@ void EITScanner::RescheduleRecordings(void)
     ScheduledRecording::signalChange(-1);
 }
 
-/** \fn EITScanner::StartPassiveScan(DVBChannel*, DVBSIParser*)
+/** \fn EITScanner::StartPassiveScan(ChannelBase*, EITSource*, bool)
  *  \brief Start inserting Event Information Tables from the multiplex
  *         we happen to be tuned to into the database.
  */
-void EITScanner::StartPassiveScan(DVBChannel *_channel, DVBSIParser *_parser)
+void EITScanner::StartPassiveScan(ChannelBase *_channel,
+                                  EITSource *_eitSource,
+                                  bool _ignore_source)
 {
-    eitHelper->ClearList();
-    parser  = _parser;
-    channel = _channel;
-    connect(parser,    SIGNAL(EventsReady(QMap_Events*)),
-            eitHelper, SLOT(HandleEITs(QMap_Events*)));
-    connect(channel,   SIGNAL(UpdatePMTObject(const PMTObject *)),
-            this,      SLOT(SetPMTObject(const PMTObject *)));
+    QMutexLocker locker(&lock);
+    
+    uint sourceid = (_ignore_source) ? 0 : _channel->GetCurrentSourceID();
+    eitSource     = _eitSource;
+    channel       = _channel;
+    ignore_source = _ignore_source;
+
+    if (ignore_source)
+        VERBOSE(VB_EIT, LOC + "EIT scan ignoring sourceid..");
+
+    eitHelper->SetSourceID(sourceid);
+    eitSource->SetEITHelper(eitHelper);
+    eitSource->SetEITRate(1.0f);
 }
 
 /** \fn EITScanner::StopPassiveScan(void)
@@ -183,22 +201,30 @@ void EITScanner::StartPassiveScan(DVBChannel *_channel, DVBSIParser *_parser)
  */
 void EITScanner::StopPassiveScan(void)
 {
-    eitHelper->disconnect();
-    eitHelper->ClearList();
+    QMutexLocker locker(&lock);
 
+    if (eitSource)
+    {
+        eitSource->SetEITHelper(NULL);
+        eitSource  = NULL;
+    }
     channel = NULL;
-    parser  = NULL;
+
+    eitHelper->SetSourceID(0);
 }
 
-void EITScanner::StartActiveScan(TVRec *_rec, uint max_seconds_per_source)
+void EITScanner::StartActiveScan(TVRec *_rec, uint max_seconds_per_source,
+                                 bool _ignore_source)
 {
-    rec = _rec;
+    rec           = _rec;
+    ignore_source = _ignore_source;
 
     if (!activeScanChannels.size())
     {
+        // TODO get input name and use it in crawl.
         MSqlQuery query(MSqlQuery::InitCon());
         query.prepare(
-            "SELECT channum, mplexid "
+            "SELECT min(channum) "
             "FROM channel, cardinput, capturecard, videosource "
             "WHERE cardinput.sourceid   = channel.sourceid AND "
             "      videosource.sourceid = channel.sourceid AND "
@@ -206,8 +232,11 @@ void EITScanner::StartActiveScan(TVRec *_rec, uint max_seconds_per_source)
             "      channel.mplexid        IS NOT NULL      AND "
             "      useonairguide        = 1                AND "
             "      useeit               = 1                AND "
+            "      channum             != ''               AND "
             "      cardinput.cardid     = :CARDID "
-            "ORDER BY cardinput.sourceid, atscsrcid");
+            "GROUP BY mplexid "
+            "ORDER BY cardinput.sourceid, mplexid, "
+            "         atsc_major_chan, atsc_minor_chan ");
         query.bindValue(":CARDID", rec->GetCaptureCardNum());
 
         if (!query.exec() || !query.isActive())
@@ -216,49 +245,24 @@ void EITScanner::StartActiveScan(TVRec *_rec, uint max_seconds_per_source)
             return;
         }
 
-        // TODO make scan work with cards with multiple inputs
-        QMap<uint, MythDeque<QString> > chanByMplex;
         while (query.next())
-        {
-            uint mplexid = query.value(1).toUInt();
-            QString channum = query.value(0).toString();
-            chanByMplex[mplexid].push_back(channum);
-        }
+            activeScanChannels.push_back(query.value(0).toString());
 
-        // This creates a list of channels that visit each multiplex 
-        // as often and as soon as possible, but still ensures that
-        // each channel is visited individually.
-        QValueList<uint> keyList = chanByMplex.keys();
-        QValueList<uint>::iterator curMplex = keyList.begin();
-        int i = 0;
-        while (i < query.size())
-        {
-            if (chanByMplex[*curMplex].size() != 0)
-            {
-                activeScanChannels << chanByMplex[*curMplex].front();
-                chanByMplex[*curMplex].pop_front();
-                i++;
-            }
-            if (++curMplex == keyList.end())
-                curMplex = keyList.begin();
-        }
         activeScanNextChan = activeScanChannels.begin();
     }
 
-    VERBOSE(VB_EIT, "StartActiveScan called with "<<
-            activeScanChannels.size()<<" channels");
+    VERBOSE(VB_EIT, LOC +
+            QString("StartActiveScan called with %1 multiplexes")
+            .arg(activeScanChannels.size()));
 
-    // Start at a random channel.This is so that multiple cards with
+    // Start at a random channel. This is so that multiple cards with
     // the same source don't all scan the same channels in the same 
     // order when the backend is first started up.
     if (activeScanChannels.size())
     {
         uint randomStart = random() % activeScanChannels.size();
         activeScanNextChan = activeScanChannels.at(randomStart);
-    }
 
-    if (activeScanChannels.size())
-    {
         activeScanNextTrig = QDateTime::currentDateTime();
         activeScanTrigTime = max_seconds_per_source;
         // Add a little randomness to trigger time so multiple 

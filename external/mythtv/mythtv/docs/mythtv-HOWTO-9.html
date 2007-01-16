@@ -47,7 +47,7 @@ directory structure setup yet.  See the
 <A HREF="mythtv-HOWTO-24.html#advancedpartitionformatting">Advanced Partition Formatting</A> section for hints on creating a
 partition for MythTV.</P>
 <P>If you create a <CODE>/var/video</CODE> subdirectory, change
-<CODE>/mnt/store/</CODE> to <CODE>/var/video/</CODE> in the setup screens.
+<CODE>/mnt/store/</CODE> to <CODE>/var/video/</CODE> in the mythtv-setup screens.
 <BLOCKQUOTE><CODE>
 <PRE>
 $ su
@@ -63,11 +63,11 @@ running multiple backend systems, the Master backend will make all
 decisions about which programs will be recorded on which tuners.  If you
 have only one backend, then it will be its own master.</P>
 <P>The Master backend will always choose the first available tuner in the same
-order as you add cards through "setup". In other words, the second card you
-add will only be used when there are two overlapping recordings, the third
-when there are three, and so on. Therefore, you will want to have the
-greatest amount of disk space on the Master backend because its tuner will
-always be the first choice. You will then want to add your 
+order as you add cards through "mythtv-setup". In other words, the second
+card you add will only be used when there are two overlapping recordings, 
+the third when there are three, and so on. Therefore, you will want to have
+the greatest amount of disk space on the Master backend because its tuner
+will always be the first choice. You will then want to add your 
 <A HREF="#nonmaster_backend">other backends</A> in the order of your
 preference for recording.</P>
 <P>
@@ -135,8 +135,8 @@ option you wish to configure.</P>
 <H3>General</H3>
 
 <P>The first screen of the General configuration deals with IP addresses of the
-system that you're running setup on and any master backend you may have.  If
-you've only got one machine, then the default values are fine and you can
+system that you're running mythtv-setup on and any master backend you may have.
+If you've only got one machine, then the default values are fine and you can
 move to the next page by pressing the space bar.  If you need to move around
 the screen, use the arrow keys to move focus between settings, not the
 mouse.</P>
@@ -147,8 +147,9 @@ not</EM> use the "127.0.0.1" IP address.</P>
 address, you must use real IP addresses in both fields, otherwise your
 frontend machines will generate "Unexpected response to MYTH_PROTO_VERSION"
 errors.</P>
-<P>It is very strongly discouraged that you make any changes to the port
-settings from the defaults.</P>
+<P>Changing any of the port settings is very strongly discouraged.
+(If you do accidentally change them, the defaults are 6543 for
+the master/backend server, and 6544 for the HTTP requests)</P>
 <P>Once you're satisfied with the values, move the focus down to Next and hit
 the space bar.</P>
 <P>The next screen details the Host-specific Backend setup.  This is where you
@@ -176,6 +177,17 @@ when the highlight is on the (New Capture Card) row to define another card. </P>
 pressing the 'D' key, or you can highlight it and press the RETURN or 'E'
 key to edit it.</P>
 <P>Once you have no additional cards to setup, press ESC.</P>
+<P>
+<FIGURE>
+<EPS FILE="stop.eps">
+<IMG SRC="stop.png">
+<CAPTION><B>NOTE</B>: If you have a dual digital/analog card, such as the pcHDTV
+cards and some DViCO cards, then you should not configure this as two
+separate cards. Configure the digital portion as a DVB card, then click
+on the "Analog Options" button within the DVB configuration panel for
+the card and configure the analog portion of the card there.</CAPTION>
+</FIGURE>
+</P>
 
 <H3><A NAME="VideoSources"></A> Video Sources </H3>
 
@@ -189,14 +201,15 @@ username and password that you have established with DataDirect, then move
 to the "Retrieve Listings" button and press the space bar.  </P>
 <P><B>NOTE</B>: You need <B>wget</B> version 1.9.1 or higher to use
 DataDirect.</P>
-<P>The setup program will contact the Zap2It servers and get your account
+<P>The mythtv-setup program will contact the Zap2It servers and get your account
 information.  Once you're done, you may click the Finish button and skip the
 next few paragraphs in this document since they only apply to users that are
 using the external XMLTV script to get their guide data.</P>
 <P>If you wish to continue using the XMLTV grabber, then move to the Zip/postal
 code field and put in the appropriate value.</P>
 <P>If you're outside of North America, then some manual interaction will be
-required with XMLTV.</P>
+required with XMLTV. You may need to switch from the MythTV setup program
+to the console it was run on to interact with XMLTV.</P>
 <P>Once you have chosen your provider, press RETURN to continue.  XMLTV will
 now begin collecting the initial data for your location.  The screen may
 blank for a few seconds to several minutes, depending on the load of the
@@ -224,11 +237,22 @@ with an "Antenna" source you defined in Video Sources, you would move to the
 Using the left and right arrow keys will show you the various choices you
 have already created for video source.  In our case, you would use the
 left/right cursor keys until "Antenna" was shown in the Video Source field. 
-Press down to move to the next setting, all of which should be
-self-explanatory.</P>
-<P>If you have multiple input connection types (Such as Tuner 0 and Tuner 1),
-it's very, very likely that it is the lowest numbered input that is actually
-available on the device.</P>
+Press down to move to the next setting.</P>
+<P>On the connection pane there is a "Scan for channels" button, if you are
+configuring a digital source such as a DVB card, you need scan for channels
+and you must do this before pressing the "Fetch channels from listings
+source" button. You may scan for analog channels on an analog input, but
+this is not needed.</P>
+
+<P>The other button is called "Fetch channels from listings source". As long as
+you have a real listings source you should fetch channels from them for
+analog channels. You can do this for digital sources as well (unless the
+listing source is transmitted EIT data). If you are using XMLTV, you may need
+to switch from the MythTV setup program to the console it was run on to
+interact with XMLTV after pressing this button. It is possible to fetch the
+channels on the command line using mythfilldatabase. But if you need to do
+this, you will probably need to re-enter the MythTV setup program to
+configure the "Starting channel" setting for this source->input connection.</P>
 <P>
 <FIGURE>
 <EPS FILE="stop.eps">
@@ -259,8 +283,8 @@ further items to configure, thereby returning you to the command line.</P>
 
 <P>The channel editor is used to globally alter channel information,
 including items like hue, contrast, fine tuning and others.  Users in North
-America shouldn't run the channel editor until after completing initial
-setup and running <B>mythfilldatabase</B> at least once to populate the
+America shouldn't run the channel editor until you've completed the initial
+mythtv-setup and ran <B>mythfilldatabase</B> at least once to populate the
 database.</P>
 
 <H2><A NAME="ss9.2">9.2</A> <A HREF="mythtv-HOWTO.html#toc9.2">Post-configuration</A>
@@ -309,7 +333,7 @@ $ mythbackend
 <P>mythbackend will print information about connections and what it's doing to
 the console.  If you'd like to see the options that are available for
 mythbackend, type <CODE>mythbackend -h</CODE> for help.</P>
-<P>As of MythTV v0.19, the available options are:
+<P>As of MythTV v0.20, the available options are:
 <BLOCKQUOTE><CODE>
 <PRE>
 $ mythbackend --help
@@ -331,10 +355,10 @@ Valid options are:
 </CODE></BLOCKQUOTE>
 </P>
 <P>Running mythbackend as a daemon and using the logfile option will allow you
-to have mythbackend automatically start up during the boot process.  For
-example, you may add this to your <CODE>rc.local</CODE> file, or you can follow
-the steps outlined in the section called 
-<A HREF="mythtv-HOWTO-23.html#mythbackend_autostart">Automatically starting mythbackend at system boot time</A>.</P>
+to have mythbackend automatically start up during boot.  You can follow the
+steps outlined in the section called 
+<A HREF="mythtv-HOWTO-23.html#mythbackend_autostart">Automatically starting mythbackend at system boot time</A> for
+configuration steps.</P>
 
 <H2><A NAME="nonmaster_backend"></A> <A NAME="ss9.3">9.3</A> <A HREF="mythtv-HOWTO.html#toc9.3">Configuring a non-master backend </A>
 </H2>
@@ -343,7 +367,7 @@ the steps outlined in the section called
 backends as discussed in the section titled 
 <A HREF="mythtv-HOWTO-6.html#modify_perm_mysql">Modifying access to the MySQL database for multiple systems</A> and that
 you have the correct IP address for the database server in the "Database
-Configuration" screen of the setup application on this slave backend.</P>
+Configuration" screen of the mythtv-setup application on this slave backend.</P>
 <P>
 <FIGURE>
 <EPS FILE="stop.eps">
@@ -388,8 +412,7 @@ best to just let the program run to completion.</CAPTION>
 available.  </P>
 <P><B>mythfilldatabase --manual</B> is another option; the manual option will
 allow you to fine tune channel frequencies and specify which channels will
-be added to the database.  If you are not using the tv_grab_na grabber, you
-must use the <B>--manual</B> option.</P>
+be added to the database.  </P>
 <P><B>mythfilldatabase --file</B> is an option if there isn't an XMLTV grabber
 for your country, but you <B>do</B> have an XML formatted listings file
 created by some other program.</P>
@@ -405,7 +428,7 @@ today (in case of late-breaking changes to the schedule).</P>
 <P>In order to keep your database filled, <B>mythfilldatabase</B> should be
 run once a day.</P>
 <P>To use MythTV's built-in capability, you'll need to run the
-<B>mythfrontend</B> Setup option.  From the MythFrontend, enter the
+<B>mythfrontend</B> Setup option.  From the mythfrontend, enter the
 Setup>General screen and advance to "Mythfilldatabase", the fourth screen.
 Select the checkbox, then complete the options as you see fit.  The
 <B>mythbackend</B> program will now run <B>mythfilldatabase</B> for you.</P>

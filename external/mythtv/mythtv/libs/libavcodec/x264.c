@@ -142,13 +142,18 @@ X264_init(AVCodecContext *avctx)
     x4->params.rc.b_stat_write = (avctx->flags & CODEC_FLAG_PASS1);
     if(avctx->flags & CODEC_FLAG_PASS2) x4->params.rc.b_stat_read = 1;
     else{
-        if(avctx->crf) x4->params.rc.i_rf_constant = avctx->crf;
-        else if(avctx->cqp > -1) x4->params.rc.i_qp_constant = avctx->cqp;
+        if(avctx->crf){
+            x4->params.rc.i_rc_method = X264_RC_CRF;
+            x4->params.rc.i_rf_constant = avctx->crf;
+        }else if(avctx->cqp > -1){
+            x4->params.rc.i_rc_method = X264_RC_CQP;
+            x4->params.rc.i_qp_constant = avctx->cqp;
+        }
     }
 
     // if neither crf nor cqp modes are selected we have to enable the RC
     // we do it this way because we cannot check if the bitrate has been set
-    if(!(avctx->crf || (avctx->cqp > -1))) x4->params.rc.b_cbr = 1;
+    if(!(avctx->crf || (avctx->cqp > -1))) x4->params.rc.i_rc_method = X264_RC_ABR;
 
     x4->params.i_bframe = avctx->max_b_frames;
     x4->params.b_cabac = avctx->coder_type == FF_CODER_TYPE_AC;
@@ -222,10 +227,11 @@ X264_init(AVCodecContext *avctx)
     x4->params.analyse.b_fast_pskip = (avctx->flags2 & CODEC_FLAG2_FASTPSKIP);
 
     x4->params.analyse.i_trellis = avctx->trellis;
+    x4->params.analyse.i_noise_reduction = avctx->noise_reduction;
 
     if(avctx->level > 0) x4->params.i_level_idc = avctx->level;
 
-    x4->params.rc.f_rate_tolerance = 
+    x4->params.rc.f_rate_tolerance =
         (float)avctx->bit_rate_tolerance/avctx->bit_rate;
 
     if((avctx->rc_buffer_size != 0) &&
@@ -247,11 +253,29 @@ X264_init(AVCodecContext *avctx)
 
     x4->params.i_threads = avctx->thread_count;
 
+    if(avctx->flags & CODEC_FLAG_GLOBAL_HEADER){
+        x4->params.b_repeat_headers = 0;
+    }
+
     x4->enc = x264_encoder_open(&x4->params);
     if(!x4->enc)
         return -1;
 
     avctx->coded_frame = &x4->out_pic;
+
+    if(avctx->flags & CODEC_FLAG_GLOBAL_HEADER){
+        x264_nal_t *nal;
+        int nnal, i, s = 0;
+
+        x264_encoder_headers(x4->enc, &nal, &nnal);
+
+        /* 5 bytes NAL header + worst case escaping */
+        for(i = 0; i < nnal; i++)
+            s += 5 + nal[i].i_payload * 4 / 3;
+
+        avctx->extradata = av_malloc(s);
+        avctx->extradata_size = encode_nals(avctx->extradata, s, nal, nnal);
+    }
 
     return 0;
 }

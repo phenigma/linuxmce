@@ -15,6 +15,10 @@ using namespace std;
 #include <OpenGL/glext.h>
 #endif
 
+#ifdef _WIN32
+#include <GL/glext.h>
+#endif
+
 #include "mythcontext.h"
 #include "mythpainter_ogl.h"
 #include "mythfontproperties.h"
@@ -63,6 +67,12 @@ void MythOpenGLPainter::Begin(QWidget *parent)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     //glTranslatef(0.2, 0.2, 0.0);
+
+    GLint param;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &param);
+    m_maxTexDim = param;
+    if (m_maxTexDim == 0)
+        m_maxTexDim = 512;
 }
 
 void MythOpenGLPainter::End(void)
@@ -82,8 +92,9 @@ void MythOpenGLPainter::End(void)
 int MythOpenGLPainter::NearestGLTextureSize(int v)
 {
     int n = 0, last = 0;
+    int s;
 
-    for (int s = 0; s < 32; ++s) 
+    for (s = 0; s < 32; ++s) 
     {
         if (((v >> s) & 1) == 1) 
         {
@@ -93,9 +104,11 @@ int MythOpenGLPainter::NearestGLTextureSize(int v)
     }
 
     if (n > 1)
-        return 1 << (last + 1);
+        s = 1 << (last + 1);
+    else
+        s = 1 << last;
 
-    return 1 << last;
+    return min(s, m_maxTexDim);
 }
 
 void MythOpenGLPainter::RemoveImageFromCache(MythImage *im)
@@ -273,17 +286,20 @@ int MythOpenGLPainter::CalcAlpha(int alpha1, int alpha2)
     return (int)(alpha1 * (alpha2 / 255.0));
 }
 
-// XXX: Need to hash string with font properties
 MythImage *MythOpenGLPainter::GetImageFromString(const QString &msg, 
                                                  int flags, const QRect &r, 
                                                  const MythFontProperties &font)
 {
-    if (m_StringToImageMap.contains(msg))
-    {
-        m_StringExpireList.remove(msg);
-        m_StringExpireList.push_back(msg);
+    QString incoming = font.GetHash() + QString::number(r.width()) + 
+                       QString::number(r.height()) + QString::number(flags) +
+                       msg;
 
-        return m_StringToImageMap[msg];
+    if (m_StringToImageMap.contains(incoming))
+    {
+        m_StringExpireList.remove(incoming);
+        m_StringExpireList.push_back(incoming);
+
+        return m_StringToImageMap[incoming];
     }
 
     MythImage *im = GetFormatImage();
@@ -307,7 +323,7 @@ MythImage *MythOpenGLPainter::GetImageFromString(const QString &msg,
     pm.fill();
 
     QPainter tmp(&pm);
-    tmp.setFont(font.face);
+    tmp.setFont(font.face());
     tmp.setPen(Qt::black);
     tmp.drawText(0, 0, r.width(), r.height(), flags, msg);
     tmp.end();
@@ -327,8 +343,8 @@ MythImage *MythOpenGLPainter::GetImageFromString(const QString &msg,
         colorTable[i] = qRgba(0, 0, 0, alpha);
     }
 
-    m_StringToImageMap[msg] = im;
-    m_StringExpireList.push_back(msg);
+    m_StringToImageMap[incoming] = im;
+    m_StringExpireList.push_back(incoming);
 
     if (m_StringExpireList.size() > MAX_STRING_ITEMS)
     {
@@ -407,50 +423,62 @@ void MythOpenGLPainter::DrawText(const QRect &r, const QString &msg,
     newRect.setWidth(im->width());
     newRect.setHeight(im->height());
 
-    if (font.hasShadow)
+    if (font.hasShadow())
     {
-        QRect a = newRect;
-        a.moveBy(font.shadowOffset.x(), font.shadowOffset.y());
+        QPoint shadowOffset;
+        QColor shadowColor;
+        int shadowAlpha;
 
-        ReallyDrawText(font.shadowColor, a, CalcAlpha(font.shadowAlpha, alpha));
+        font.GetShadow(shadowOffset, shadowColor, shadowAlpha);
+
+        QRect a = newRect;
+        a.moveBy(shadowOffset.x(), shadowOffset.y());
+
+        ReallyDrawText(shadowColor, a, CalcAlpha(shadowAlpha, alpha));
     }
 
-    if (font.hasOutline)
+    if (font.hasOutline())
     {
+        QColor outlineColor;
+        int outlineSize, outlineAlpha;
+
+        font.GetOutline(outlineColor, outlineSize, outlineAlpha);
+
+        /* FIXME: use outlineAlpha */
         int outalpha = alpha;
         //if (alpha < 255)
             outalpha /= 16;
 
         QRect a = newRect;
-        a.moveBy(0 - font.outlineSize, 0 - font.outlineSize);
-        ReallyDrawText(font.outlineColor, a, outalpha);
+        a.moveBy(0 - outlineSize, 0 - outlineSize);
+        ReallyDrawText(outlineColor, a, outalpha);
 
-        for (int i = (0 - font.outlineSize + 1); i <= font.outlineSize; i++)
+        for (int i = (0 - outlineSize + 1); i <= outlineSize; i++)
         {
             a.moveBy(1, 0);
-            ReallyDrawText(font.outlineColor, a, outalpha);
+            ReallyDrawText(outlineColor, a, outalpha);
         }
 
-        for (int i = (0 - font.outlineSize + 1); i <= font.outlineSize; i++)
+        for (int i = (0 - outlineSize + 1); i <= outlineSize; i++)
         {
             a.moveBy(0, 1);
-            ReallyDrawText(font.outlineColor, a, outalpha);
+            ReallyDrawText(outlineColor, a, outalpha);
         }
 
-        for (int i = (0 - font.outlineSize + 1); i <= font.outlineSize; i++)
+        for (int i = (0 - outlineSize + 1); i <= outlineSize; i++)
         {
             a.moveBy(-1, 0);
-            ReallyDrawText(font.outlineColor, a, outalpha);
+            ReallyDrawText(outlineColor, a, outalpha);
         }
 
-        for (int i = (0 - font.outlineSize + 1); i <= font.outlineSize; i++)
+        for (int i = (0 - outlineSize + 1); i <= outlineSize; i++)
         {
             a.moveBy(0, -1);
-            ReallyDrawText(font.outlineColor, a, outalpha);
+            ReallyDrawText(outlineColor, a, outalpha);
         }
     }
 
-    ReallyDrawText(font.color, newRect, alpha);
+    ReallyDrawText(font.color(), newRect, alpha);
 }
 
 MythImage *MythOpenGLPainter::GetFormatImage()

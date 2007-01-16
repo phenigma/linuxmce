@@ -25,17 +25,20 @@ QMAKE_CLEAN += $(TARGET)
 # Input
 HEADERS += manualbox.h playbackbox.h viewscheduled.h globalsettings.h
 HEADERS += manualschedule.h programrecpriority.h channelrecpriority.h
-HEADERS += statusbox.h customrecord.h
-HEADERS += networkcontrol.h
+HEADERS += statusbox.h networkcontrol.h
 
 SOURCES += main.cpp manualbox.cpp playbackbox.cpp viewscheduled.cpp
 SOURCES += globalsettings.cpp manualschedule.cpp programrecpriority.cpp 
-SOURCES += channelrecpriority.cpp statusbox.cpp customrecord.cpp
-SOURCES += networkcontrol.cpp
+SOURCES += channelrecpriority.cpp statusbox.cpp networkcontrol.cpp
 
 macx {
     RC_FILE += mythfrontend.icns
     LIBS += `freetype-config --libs`
+
+    using_mac_accel : LIBS += -lobjc
+
+    # OS X has no ldconfig
+    setting.extra -= -ldconfig
 }
 
 # OpenBSD ldconfig expects different arguments than the Linux one
@@ -44,6 +47,7 @@ openbsd {
     setting.extra += -ldconfig -R
 }
 
+using_xv:DEFINES += USING_XV
 using_xvmc:DEFINES += USING_XVMC
 using_xvmc_vld:DEFINES += USING_XVMC_VLD
 using_xrandr:DEFINES += USING_XRANDR

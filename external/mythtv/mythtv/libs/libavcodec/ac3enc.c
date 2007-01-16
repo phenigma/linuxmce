@@ -25,6 +25,7 @@
 //#define DEBUG_BITALLOC
 #include "avcodec.h"
 #include "bitstream.h"
+#include "crc.h"
 #include "ac3.h"
 
 typedef struct AC3EncodeContext {
@@ -37,6 +38,8 @@ typedef struct AC3EncodeContext {
     unsigned int bsid;
     unsigned int frame_size_min; /* minimum frame size in case rounding is necessary */
     unsigned int frame_size; /* current frame size in words */
+    unsigned int bits_written;
+    unsigned int samples_written;
     int halfratecod;
     unsigned int frmsizecod;
     unsigned int fscod; /* frequency */
@@ -66,7 +69,6 @@ typedef struct AC3EncodeContext {
 #define EXP_DIFF_THRESHOLD 1000
 
 static void fft_init(int ln);
-static void ac3_crc_init(void);
 
 static inline int16_t fix15(float a)
 {
@@ -739,7 +741,7 @@ static int compute_bit_allocation(AC3EncodeContext *s,
            bit_alloc(s, bap, encoded_exp, exp_strategy, frame_bits, csnroffst, 0) < 0)
         csnroffst -= SNR_INC1;
     if (csnroffst < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Yack, Error !!!\n");
+        av_log(NULL, AV_LOG_ERROR, "Bit allocation failed, try increasing the bitrate, -ab 384 for example!\n");
         return -1;
     }
     while ((csnroffst + SNR_INC1) <= 63 &&
@@ -859,7 +861,8 @@ static int AC3_encode_init(AVCodecContext *avctx)
     s->bit_rate = bitrate;
     s->frmsizecod = i << 1;
     s->frame_size_min = (bitrate * 1000 * AC3_FRAME_SIZE) / (freq * 16);
-    /* for now we do not handle fractional sizes */
+    s->bits_written = 0;
+    s->samples_written = 0;
     s->frame_size = s->frame_size_min;
 
     /* bit allocation init */
@@ -885,8 +888,6 @@ static int AC3_encode_init(AVCodecContext *avctx)
         xcos1[i] = fix15(-cos(alpha));
         xsin1[i] = fix15(-sin(alpha));
     }
-
-    ac3_crc_init();
 
     avctx->coded_frame= avcodec_alloc_frame();
     avctx->coded_frame->key_frame= 1;
@@ -1236,34 +1237,7 @@ static void output_audio_block(AC3EncodeContext *s,
     }
 }
 
-/* compute the ac3 crc */
-
 #define CRC16_POLY ((1 << 0) | (1 << 2) | (1 << 15) | (1 << 16))
-
-static void ac3_crc_init(void)
-{
-    unsigned int c, n, k;
-
-    for(n=0;n<256;n++) {
-        c = n << 8;
-        for (k = 0; k < 8; k++) {
-            if (c & (1 << 15))
-                c = ((c << 1) & 0xffff) ^ (CRC16_POLY & 0xffff);
-            else
-                c = c << 1;
-        }
-        crc_table[n] = c;
-    }
-}
-
-static unsigned int ac3_crc(uint8_t *data, int n, unsigned int crc)
-{
-    int i;
-    for(i=0;i<n;i++) {
-        crc = (crc_table[data[i] ^ (crc >> 8)] ^ (crc << 8)) & 0xffff;
-    }
-    return crc;
-}
 
 static unsigned int mul_poly(unsigned int a, unsigned int b, unsigned int poly)
 {
@@ -1342,14 +1316,14 @@ static int output_frame_end(AC3EncodeContext *s)
     /* Now we must compute both crcs : this is not so easy for crc1
        because it is at the beginning of the data... */
     frame_size_58 = (frame_size >> 1) + (frame_size >> 3);
-    crc1 = ac3_crc(frame + 4, (2 * frame_size_58) - 4, 0);
+    crc1 = bswap_16(av_crc(av_crc8005, 0, frame + 4, 2 * frame_size_58 - 4));
     /* XXX: could precompute crc_inv */
     crc_inv = pow_poly((CRC16_POLY >> 1), (16 * frame_size_58) - 16, CRC16_POLY);
     crc1 = mul_poly(crc_inv, crc1, CRC16_POLY);
     frame[2] = crc1 >> 8;
     frame[3] = crc1;
 
-    crc2 = ac3_crc(frame + 2 * frame_size_58, (frame_size - frame_size_58) * 2 - 2, 0);
+    crc2 = bswap_16(av_crc(av_crc8005, 0, frame + 2 * frame_size_58, (frame_size - frame_size_58) * 2 - 2));
     frame[2*frame_size - 2] = crc2 >> 8;
     frame[2*frame_size - 1] = crc2;
 
@@ -1403,7 +1377,7 @@ static int AC3_encode_frame(AVCodecContext *avctx,
             v = 14 - log2_tab(input_samples, N);
             if (v < 0)
                 v = 0;
-            exp_samples[i][ch] = v - 8;
+            exp_samples[i][ch] = v - 9;
             lshift_tab(input_samples, N, v);
 
             /* do the MDCT */
@@ -1450,6 +1424,15 @@ static int AC3_encode_frame(AVCodecContext *avctx,
             i = j;
         }
     }
+
+    /* adjust for fractional frame sizes */
+    while(s->bits_written >= s->bit_rate*1000 && s->samples_written >= s->sample_rate) {
+        s->bits_written -= s->bit_rate*1000;
+        s->samples_written -= s->sample_rate;
+    }
+    s->frame_size = s->frame_size_min + (s->bits_written * s->sample_rate < s->samples_written * s->bit_rate*1000);
+    s->bits_written += s->frame_size * 16;
+    s->samples_written += AC3_FRAME_SIZE;
 
     compute_bit_allocation(s, bap, encoded_exp, exp_strategy, frame_bits);
     /* everything is known... let's output the frame */

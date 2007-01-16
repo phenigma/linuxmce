@@ -24,11 +24,14 @@ using namespace std;
 #include "infostructs.h"
 #include "programinfo.h"
 #include "oldsettings.h"
-#include "tv.h"
+#include "tv_play.h"
+#include "tv_rec.h"
 #include "progfind.h"
 #include "proglist.h"
+#include "customedit.h"
 #include "util.h"
 #include "remoteutil.h"
+#include "channelutil.h"
 
 bool RunProgramGuide(uint &chanid, QString &channum,
                      bool thread, TV *player,
@@ -177,7 +180,7 @@ GuideGrid::GuideGrid(MythMainWindow *parent,
             container->SetDrawFontShadow(false);
     }
 
-    channelOrdering = gContext->GetSetting("ChannelOrdering", "channum + 0");
+    channelOrdering = gContext->GetSetting("ChannelOrdering", "channum");
     dateformat = gContext->GetSetting("ShortDateFormat", "ddd d");
     unknownTitle = gContext->GetSetting("UnknownTitle", "Unknown");
     unknownCategory = gContext->GetSetting("UnknownCategory", "Unknown");
@@ -228,13 +231,13 @@ GuideGrid::GuideGrid(MythMainWindow *parent,
     m_currentRow = (int)(desiredDisplayChans / 2);
     m_currentCol = 0;
 
-    for (int y = 0; y < DISPLAY_CHANS; y++)
+    for (int y = 0; y < MAX_DISPLAY_CHANS; y++)
         m_programs[y] = NULL;
 
-    for (int x = 0; x < DISPLAY_TIMES; x++)
+    for (int x = 0; x < MAX_DISPLAY_TIMES; x++)
     {
         m_timeInfos[x] = NULL;
-        for (int y = 0; y < DISPLAY_CHANS; y++)
+        for (int y = 0; y < MAX_DISPLAY_CHANS; y++)
             m_programInfos[y][x] = NULL;
     }
 
@@ -247,8 +250,7 @@ GuideGrid::GuideGrid(MythMainWindow *parent,
     maxchannel = max((int)m_channelInfos.size() - 1, 0);
     setStartChannel((int)(m_currentStartChannel) - 
                     (int)(desiredDisplayChans / 2));
-    if (DISPLAY_CHANS > maxchannel)
-        DISPLAY_CHANS = maxchannel;
+    DISPLAY_CHANS = min(DISPLAY_CHANS, maxchannel + 1);
 
     //int fillchannels = clock.elapsed();
     //clock.restart();
@@ -275,13 +277,13 @@ GuideGrid::GuideGrid(MythMainWindow *parent,
 GuideGrid::~GuideGrid()
 {
     gContext->removeListener(this);
-    for (int x = 0; x < DISPLAY_TIMES; x++)
+    for (int x = 0; x < MAX_DISPLAY_TIMES; x++)
     {
         if (m_timeInfos[x])
             delete m_timeInfos[x];
     }
 
-    for (int y = 0; y < DISPLAY_CHANS; y++)
+    for (int y = 0; y < MAX_DISPLAY_CHANS; y++)
     {
         if (m_programs[y])
             delete m_programs[y];
@@ -413,6 +415,8 @@ void GuideGrid::keyPressEvent(QKeyEvent *e)
             }
             else if (action == "INFO")
                 editScheduled();
+            else if (action == "CUSTOMEDIT")
+                customEdit();
             else if (action == "UPCOMING")
                 upcoming();
             else if (action == "DETAILS")
@@ -556,70 +560,36 @@ void GuideGrid::timeout()
 
 void GuideGrid::fillChannelInfos(bool gotostartchannel)
 {
-    MSqlQuery query(MSqlQuery::InitCon());
-
     m_channelInfos.clear();
+
+    DBChanList channels = ChannelUtil::GetChannels(0, true,
+                                                   "channum, callsign");
+    ChannelUtil::SortChannels(channels, channelOrdering, true);
 
     if (showFavorites)
     {
-        query.prepare(
-            "SELECT channel.channum, channel.callsign, "
-            "       channel.icon,    channel.chanid, "
-            "       favorites.favid, channel.name "
-            "FROM videosource, cardinput, favorites, channel "
-            "WHERE channel.chanid       = favorites.chanid     AND "
-            "      visible              = 1                    AND "
-            "      channel.sourceid     = videosource.sourceid AND "
-            "      videosource.sourceid = cardinput.sourceid "
-            "GROUP BY channum, callsign "
-            "ORDER BY " + channelOrdering);
-
-        if (query.exec() && query.isActive())
-            showFavorites = query.size();
-        else
-            MythContext::DBError("fillChannelInfos -- favorites", query);
-    }
-
-    if (!showFavorites)
-    {
-        query.prepare(
-            "SELECT channel.channum, channel.callsign, "
-            "       channel.icon,    channel.chanid, "
-            "       favorites.favid, channel.name "
-            "FROM videosource, cardinput, "
-            "       channel LEFT JOIN favorites "
-            "       ON favorites.chanid = channel.chanid "
-            "WHERE visible              = 1                    AND "
-            "      channel.sourceid     = videosource.sourceid AND "
-            "      videosource.sourceid = cardinput.sourceid "
-            "GROUP BY channum, callsign "
-            "ORDER BY " + channelOrdering);
-
-        if (!query.exec() || !query.isActive())
+        DBChanList tmp;
+        for (uint i = 0; i < channels.size(); i++)
         {
-            MythContext::DBError("fillChannelInfos -- all connected", query);
-            return;
+            if (channels[i].favorite)
+                tmp.push_back(channels[i]);
         }
+
+        if (!tmp.empty())
+            channels = tmp;
     }
- 
+
     bool startingset = false;
-    while (query.next())
+    for (uint i = 0; i < channels.size(); i++)
     {
         ChannelInfo val;
-
-        val.chanstr  = query.value(0).toString();
-        val.chanid   = query.value(3).toInt();
-
-        // validate the channum and chanid, skip channel if these are invalid
-        if (val.chanstr == "" || !val.chanid)
-            continue;
-
-        // fill in the rest of the data...
-        val.callsign = QString::fromUtf8(query.value(1).toString());
-        val.iconpath = query.value(2).toString();
-        val.favid    = query.value(4).toInt();
-        val.channame = QString::fromUtf8(query.value(5).toString());
-        val.icon     = NULL;
+        val.chanstr  = channels[i].channum;
+        val.chanid   = channels[i].chanid;
+        val.callsign = channels[i].callsign;
+        val.favid    = channels[i].favorite;
+        val.channame = channels[i].name;
+        val.iconpath = channels[i].icon;
+        val.iconload = false;
 
         // set starting channel index if it hasn't been set
         bool match   = gotostartchannel && !startingset;
@@ -630,12 +600,14 @@ void GuideGrid::fillChannelInfos(bool gotostartchannel)
             m_currentStartChannel = m_channelInfos.size();
             startingset = true;
         }
-                
+
         // add the new channel to the list
         m_channelInfos.push_back(val);
     }
+ 
     // set starting channel index to 0 if it hasn't been set
-    m_currentStartChannel = (startingset) ? m_currentStartChannel : 0;
+    if (gotostartchannel)
+        m_currentStartChannel = (startingset) ? m_currentStartChannel : 0;
 
     if (m_channelInfos.empty())
     {
@@ -932,7 +904,8 @@ void GuideGrid::fillProgramRowInfos(unsigned int row)
                 }
 
                 int recStat;
-                if (proginfo->recstatus == rsConflict)
+                if (proginfo->recstatus == rsConflict ||
+                    proginfo->recstatus == rsOffLine)
                     recStat = 2;
                 if (proginfo->recstatus <= rsWillRecord)
                     recStat = 1;
@@ -1116,6 +1089,9 @@ void GuideGrid::paintChannels(QPainter *p)
     if (infocontainer)
         itype = (UIImageType *)container->GetType("icon");
 
+    if (type && type->GetNums() != DISPLAY_CHANS)
+        type->SetSize(DISPLAY_CHANS);
+
     ChannelInfo *chinfo = &(m_channelInfos[m_currentStartChannel]);
 
     for (unsigned int y = 0; y < (unsigned int)DISPLAY_CHANS; y++)
@@ -1130,17 +1106,22 @@ void GuideGrid::paintChannels(QPainter *p)
         if ((y == (unsigned int)2 && scrolltype != 1) || 
             ((signed int)y == m_currentRow && scrolltype == 1))
         {
-            if (chinfo->iconpath != "none" && chinfo->iconpath != "")
+            if (!chinfo->iconpath.isEmpty() && chinfo->iconpath != "none")
             {
                 int iconsize = 0;
                 if (itype)
-                    iconsize = itype->GetSize();
+                    iconsize = itype->GetSize().width();
                 else if (type)
                     iconsize = type->GetSize();
-                if (!chinfo->icon)
+                if (!chinfo->iconload)
                     chinfo->LoadIcon(iconsize);
-                if (chinfo->icon && itype)
-                    itype->SetImage(*(chinfo->icon));
+                if (chinfo->iconload)
+                {
+                    if (itype)
+                        itype->SetImage(chinfo->icon);
+                }
+                else
+                    chinfo->iconpath = QString::null;
             }
         }
 
@@ -1157,10 +1138,15 @@ void GuideGrid::paintChannels(QPainter *p)
             {
                 int iconsize = 0;
                 iconsize = type->GetSize();
-                if (!chinfo->icon)
+                if (!chinfo->iconload)
                     chinfo->LoadIcon(iconsize);
-                if (chinfo->icon)
-                    type->SetIcon(y, *(chinfo->icon));
+                if (chinfo->iconload)
+                    type->SetIcon(y, chinfo->icon);
+                else
+                {
+                    chinfo->iconpath = QString::null;
+                    type->ResetImage(y);
+                }
             }
             else
             {
@@ -1235,6 +1221,9 @@ void GuideGrid::paintPrograms(QPainter *p)
 
 void GuideGrid::paintInfo(QPainter *p)
 {
+    if (m_currentRow < 0 || m_currentCol < 0)
+        return;
+
     ProgramInfo *pginfo = m_programInfos[m_currentRow][m_currentCol];
     if (!pginfo)
         return;
@@ -1263,17 +1252,18 @@ void GuideGrid::paintInfo(QPainter *p)
         container->ClearAllText();
         container->SetText(infoMap);
 
-        UITextType *type;
-
-        type = (UITextType *)container->GetType("misicon");
-        if (type)
-            type->SetText(chinfo->callsign);
-
         UIImageType *itype = (UIImageType *)container->GetType("icon");
         if (itype)
         {
             itype->SetImage(chinfo->iconpath);
             itype->LoadImage();
+        }
+
+        if (!itype || chinfo->iconpath.isEmpty() || chinfo->iconpath == "none")
+        {
+            UITextType *type = (UITextType *)container->GetType("misicon");
+            if (type)
+                type->SetText(chinfo->callsign);
         }
 
         container->Draw(&tmp, 1, m_context);
@@ -1305,8 +1295,7 @@ void GuideGrid::generateListings()
     DISPLAY_CHANS = desiredDisplayChans;
     fillChannelInfos();
     maxchannel = max((int)m_channelInfos.size() - 1, 0);
-    if (DISPLAY_CHANS > maxchannel)
-        DISPLAY_CHANS = maxchannel;
+    DISPLAY_CHANS = min(DISPLAY_CHANS, maxchannel + 1);
 
     m_recList.FromScheduler();
     fillProgramInfos();
@@ -1351,8 +1340,7 @@ void GuideGrid::toggleChannelFavorite()
         DISPLAY_CHANS = desiredDisplayChans;
         fillChannelInfos(false);
         maxchannel = max((int)m_channelInfos.size() - 1, 0);
-        if (DISPLAY_CHANS > maxchannel)
-            DISPLAY_CHANS = maxchannel;
+        DISPLAY_CHANS = min(DISPLAY_CHANS, maxchannel + 1);
 
         repaint(channelRect, false);
     }
@@ -1721,6 +1709,19 @@ void GuideGrid::editScheduled()
     fillProgramInfos();
 
     repaint(fullRect, false);
+}
+
+void GuideGrid::customEdit()
+{
+    ProgramInfo *pginfo = m_programInfos[m_currentRow][m_currentCol];
+
+    if (!pginfo)
+        return;
+
+    CustomEdit *ce = new CustomEdit(gContext->GetMainWindow(),
+                                    "customedit", pginfo);
+    ce->exec();
+    delete ce;
 }
 
 void GuideGrid::upcoming()

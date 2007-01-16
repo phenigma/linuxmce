@@ -1,3 +1,10 @@
+mythplugins (0.20-1) unstable; urgency=low
+
+  * Built against Upstream release 0.20 with fixed from release-0-20-fixes
+    revision 12546
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Tue, 16 Jan 2007 17:49:49 +0200
+
 mythplugins (0.19-7) unstable; urgency=low
 
   * Built against Upstream release 0.19 with fixes from release-0-19-fixes

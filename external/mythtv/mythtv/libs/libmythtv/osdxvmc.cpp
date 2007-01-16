@@ -3,6 +3,7 @@
 
 #ifdef USING_XVMC
 
+#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <unistd.h>
@@ -27,6 +28,7 @@ XvMCOSD::XvMCOSD(Display *disp, int port, int surface_type_id,
       osd_subpict_mode(NO_SUBPICTURE), osd_subpict_clear_color(0),
       osd_subpict_alloc(false)
 {
+    bzero(&osd_subpict, sizeof(osd_subpict));
     // subpicture init
     int num = 0;
     XvImageFormatValues *xvfmv = NULL;

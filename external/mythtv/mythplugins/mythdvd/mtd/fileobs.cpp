@@ -10,8 +10,6 @@
 */
 
 #include <unistd.h>
-#include <iostream>
-using namespace std;
 
 #include <mythtv/mythcontext.h>
 #include "fileobs.h"
@@ -19,14 +17,12 @@ using namespace std;
 
 RipFile::RipFile(const QString &a_base, const QString &an_extension,
         bool auto_remove_bad) : base_name(a_base), extension(an_extension),
+                                   active_file(NULL), bytes_written(0),
+                                   use_multiple_files(true),
                                    auto_remove_bad_rips(auto_remove_bad)
 {
     filesize = gContext->GetNumSetting("MTDRipSize", 0) * 1024 * 1024;
-    active_file = NULL;
-    files.clear();
     files.setAutoDelete(true);
-    bytes_written = 0;
-    use_multiple_files = true;
 }
 
 bool RipFile::open(int mode, bool multiple_files)
@@ -34,9 +30,8 @@ bool RipFile::open(int mode, bool multiple_files)
     use_multiple_files = multiple_files;
     access_mode = mode;
     QString filename = base_name + "_001of"; 
-    QFile *new_file = new QFile(filename);
-    files.append(new_file);
-    active_file = new_file;
+    active_file = new QFile(filename);
+    files.append(active_file);
     return active_file->open(mode);
 /*
     if(!use_multiple_files)
@@ -46,8 +41,10 @@ bool RipFile::open(int mode, bool multiple_files)
 */
 }
 
-void RipFile::close()
+QStringList RipFile::close()
 {
+    QStringList output_file_names;
+
     auto_remove_bad_rips = false;
     if(active_file)
     {
@@ -56,35 +53,41 @@ void RipFile::close()
     if(files.count() == 1)
     {
         QString new_name = base_name + extension;
-        QDir stupid_qdir("this_is_stupid");
-        if(!stupid_qdir.rename(active_file->name(), new_name))
+        if(!QDir::current().rename(active_file->name(), new_name))
         {
-            cerr << "fileobs.o: Couldn't rename a ripped file on close ... that sucks." << endl;
-            cerr << "   old name: \"" << active_file->name() << "\"" << endl;
-            cerr << "   new name: \"" << new_name << "\"" << endl;
+            VERBOSE(VB_IMPORTANT,
+                    QString("Couldn't rename a ripped file on close ... "
+                            " that sucks.\n"
+                            "   old name: \"%1\"\n"
+                            "   new name: \"%1\"")
+                    .arg(active_file->name()).arg(new_name));
         }
         else
         {
             active_file->setName(new_name);
+            output_file_names.push_back(new_name);
         }
     }
     else
     {
-        QDir stupid_qdir("this_is_stupid");
         QFile *iter;
         for(iter = files.first(); iter; iter = files.next())
         {
-            QString new_name = iter->name() + QString("%1").arg(files.count()) + extension;
-            if(!stupid_qdir.rename(iter->name(), new_name))
+            QString new_name = iter->name() + QString("%1").arg(files.count()) +
+                    extension;
+            if(!QDir::current().rename(iter->name(), new_name))
             {
-                cerr << "fileobs.o: Couldn't rename \"" << iter->name() << "\" to \"" << new_name << "\"" << endl;
+                VERBOSE(VB_IMPORTANT, QString("Couldn't rename '%1' to '%2'")
+                        .arg(iter->name()).arg(new_name));
             }
             else
             {
                 iter->setName(new_name);
+                output_file_names.push_back(new_name);
             }
         }
     }
+    return output_file_names;
 }
 
 void RipFile::remove()
@@ -124,7 +127,8 @@ bool RipFile::writeBlocks(unsigned char *the_data, int how_much)
         files.append(new_file);
         if(!active_file->open(access_mode))
         {
-            cerr << "fileobs.o: couldn't open another file in a set of rip files." << endl;
+            VERBOSE(VB_IMPORTANT,
+                    "couldn't open another file in a set of rip files.");
             return false;               
         }
         bytes_written = 0;
@@ -132,24 +136,29 @@ bool RipFile::writeBlocks(unsigned char *the_data, int how_much)
     int result = write(active_file->handle(), the_data, how_much);
     if(result < 0)
     {
-        cerr << "fileobs.o: Got a negative result while writing blocks. World may end shortly." << endl;
+        VERBOSE(VB_IMPORTANT, "Got a negative result while writing blocks."
+                " World may end shortly.");
         return false;
     }
     if(result == 0)
     {
         if(how_much == 0)
         {
-            cerr << "fileobs.o: Ripfile wrote 0 bytes, but that's all it was asked to. Unlikely coincidence?" << endl;
+            VERBOSE(VB_IMPORTANT, "Ripfile wrote 0 bytes, but that's all it"
+                    " was asked to. Unlikely coincidence?");
         }
         else
         {
-            cerr << "fileobs.o: Ripfile writing 0 bytes of data. That's probably not a good sign." << endl;
+            VERBOSE(VB_IMPORTANT, "Ripfile writing 0 bytes of data. That's"
+                    " probably not a good sign.");
             return false;
         }
     }
     if(result != how_much)
     {
-        cerr << "fileobs.o: Ripfile tried to write " << how_much << " bytes, but only managed to write " << result << endl ;
+        VERBOSE(VB_IMPORTANT, QString("Ripfile tried to write %1 bytes, but"
+                                      " only managed to write %2")
+                                      .arg(how_much).arg(result));
         return false;
     }
     bytes_written += result;

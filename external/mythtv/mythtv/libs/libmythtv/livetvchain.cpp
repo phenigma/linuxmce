@@ -1,9 +1,8 @@
-#include <qsocket.h>
-
 #include "livetvchain.h"
 #include "mythcontext.h"
 #include "mythdbcon.h"
 #include "programinfo.h"
+#include "mythsocket.h"
 
 #define LOC QString("LiveTVChain(%1): ").arg(m_id)
 
@@ -372,7 +371,8 @@ void LiveTVChain::ClearSwitch(void)
  *
  *   NOTE: The caller is resposible for deleting the ProgramInfo
  */
-ProgramInfo *LiveTVChain::GetSwitchProgram(bool &discont, bool &newtype)
+ProgramInfo *LiveTVChain::GetSwitchProgram(bool &discont, bool &newtype, 
+                                           int &newid)
 {
     QMutexLocker lock(&m_lock);
 
@@ -400,6 +400,21 @@ ProgramInfo *LiveTVChain::GetSwitchProgram(bool &discont, bool &newtype)
     if (!pginfo)
         return NULL;
 
+    // Skip dummy recordings, if possible.
+    if (entry.cardtype == "DUMMY")
+    {
+        if (m_switchid > m_curpos && m_switchid + 1 < (int)m_chain.count())
+            m_switchid++;
+        else if (m_switchid < m_curpos && m_switchid > 0)
+            m_switchid--;
+
+        GetEntryAt(m_switchid, entry);
+        pginfo = EntryToProgram(entry);
+    }
+
+    if (!pginfo)
+        return NULL;
+
     discont = true;
     if (m_curpos == m_switchid - 1)
         discont = entry.discontinuity;
@@ -414,8 +429,10 @@ ProgramInfo *LiveTVChain::GetSwitchProgram(bool &discont, bool &newtype)
         newtype |= entry.cardtype == "HDTV";
         newtype |= entry.cardtype == "FIREWIRE";
         newtype |= entry.cardtype == "DBOX2";
+        newtype |= entry.cardtype == "HDHOMERUN";
     }
 
+    newid = m_switchid;
     m_switchid = -1;
 
     return pginfo;
@@ -505,7 +522,15 @@ QString LiveTVChain::GetInputName(int pos) const
     return entry.inputname;
 }
 
-void LiveTVChain::SetHostSocket(QSocket *sock)
+QString LiveTVChain::GetCardType(int pos) const
+{
+    LiveTVChainEntry entry;
+    GetEntryAt(pos, entry);
+
+    return entry.cardtype;
+}
+
+void LiveTVChain::SetHostSocket(MythSocket *sock)
 {
     QMutexLocker lock(&m_sockLock);
 
@@ -513,7 +538,7 @@ void LiveTVChain::SetHostSocket(QSocket *sock)
         m_inUseSocks.append(sock);
 }
 
-bool LiveTVChain::IsHostSocket(QSocket *sock)
+bool LiveTVChain::IsHostSocket(MythSocket *sock)
 {
     QMutexLocker lock(&m_sockLock);
     return m_inUseSocks.containsRef(sock);
@@ -524,10 +549,9 @@ int LiveTVChain::HostSocketCount(void)
     return m_inUseSocks.count();
 }
 
-void LiveTVChain::DelHostSocket(QSocket *sock)
+void LiveTVChain::DelHostSocket(MythSocket *sock)
 {
     QMutexLocker lock(&m_sockLock);
-
     m_inUseSocks.removeRef(sock);
 }
 

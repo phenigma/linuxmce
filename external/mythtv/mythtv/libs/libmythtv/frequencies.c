@@ -11,8 +11,10 @@ static struct CHANLIST ntsc_bcast[] = {
     { "2",	 55250 },
     { "3",	 61250 },
     { "4",	 67250 },
+
     { "5",	 77250 },
     { "6",	 83250 },
+
     { "7",	175250 },
     { "8",	181250 },
     { "9",	187250 },
@@ -20,6 +22,7 @@ static struct CHANLIST ntsc_bcast[] = {
     { "11",	199250 },
     { "12",	205250 },
     { "13",	211250 },
+
     { "14",	471250 },
     { "15",	477250 },
     { "16",	483250 },
@@ -95,7 +98,6 @@ static struct CHANLIST ntsc_bcast[] = {
 
 /* US cable */
 static struct CHANLIST ntsc_cable[] = {
-    { "1",	 73250 },
     { "2",	 55250 },
     { "3",	 61250 },
     { "4",	 67250 },
@@ -224,14 +226,14 @@ static struct CHANLIST ntsc_cable[] = {
     { "124",	793250 },
     { "125",	799250 },
  
-    { "T7", 	  8250 },
-    { "T8",	 14250 },
-    { "T9",	 20250 },
-    { "T10",	 26250 },
-    { "T11",	 32250 },
-    { "T12",	 38250 },
-    { "T13",	 44250 },
-    { "T14",	 50250 }
+    { "T7", 	  7000 },
+    { "T8",	 13000 },
+    { "T9",	 19000 },
+    { "T10",	 25000 },
+    { "T11",	 31000 },
+    { "T12",	 37000 },
+    { "T13",	 43000 },
+    { "T14",	 49000 }
 };
 
 /* US HRC */
@@ -366,15 +368,6 @@ static struct CHANLIST ntsc_hrc[] = {
     { "123",	 786000 },
     { "124",	 792000 },
     { "125",	 798000 },
- 
-    { "T7",	   7000 },  
-    { "T8",	  13000 }, 
-    { "T9",	  19000 }, 
-    { "T10",	  25000 }, 
-    { "T11",	  31000 }, 
-    { "T12",	  37000 }, 
-    { "T13",	  43000 }, 
-    { "T14",	  49000 }, 
 };
 
 /** US IRC http://www.jneuhaus.com/fccindex/cablech.html */
@@ -507,15 +500,6 @@ static struct CHANLIST ntsc_irc[] = {
     { "123",	787250 },
     { "124",	793250 },
     { "125",	799250 },
- 
-    { "T7", 	  8250 },
-    { "T8",	 14250 },
-    { "T9",	 20250 },
-    { "T10",	 26250 },
-    { "T11",	 32250 },
-    { "T12",	 38250 },
-    { "T13",	 44250 },
-    { "T14",	 50250 }
 };
 
 /* --------------------------------------------------------------------- */
@@ -1188,6 +1172,18 @@ static struct CHANLIST pal_bcast_za[] ={
 };
 
 /* --------------------------------------------------------------------- */
+/* Singapore broadcast added by Teo En Ming on 16 July 2006 */
+static struct CHANLIST pal_bcast_sg[] = {
+    { "1", 175250 },
+    { "2", 196250 },
+    { "3", 224250 },
+    { "4", 487250 },
+    { "5", 495250 },
+    { "6", 543250 },
+    { "7", 743250 },
+};
+
+/* --------------------------------------------------------------------- */
 
 static struct CHANLIST argentina[] = {
     { "001",   56250 },
@@ -1305,5 +1301,6 @@ struct CHANLISTS chanlists[] = {
     { "southafrica",      pal_bcast_za,      CHAN_COUNT(pal_bcast_za)      },
     { "argentina",        argentina,         CHAN_COUNT(argentina)         },
     { "australia-optus",  pal_australia_optus, CHAN_COUNT(pal_australia_optus) },
+    { "singapore",        pal_bcast_sg,      CHAN_COUNT(pal_bcast_sg)      },
     { NULL, NULL, 0 } /* EOF */
 };

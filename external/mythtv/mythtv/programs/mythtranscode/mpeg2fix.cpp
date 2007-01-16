@@ -199,7 +199,7 @@ int64_t PTSOffsetQueue::UpdateOrigPTS(int idx, int64_t &origPTS, AVPacket &pkt)
 MPEG2fixup::MPEG2fixup(const char *inf, const char *outf,
                        QMap<long long, int> *deleteMap,
                        const char *fmt, int norp, int fixPTS, int maxf,
-                       bool showprog)
+                       bool showprog, int otype)
 {
     displayFrame = new QPtrListIterator<MPEG2frame> (vFrame);
 
@@ -210,6 +210,7 @@ MPEG2fixup::MPEG2fixup(const char *inf, const char *outf,
     no_repeat = norp;
     fix_PTS = fixPTS;
     maxframes = maxf;
+    rx.otype = otype;
 
     real_file_end = file_end = false;
 
@@ -509,8 +510,6 @@ void MPEG2replex::Start()
     int video_delay = 0, audio_delay = 0;
     int fd_out;
 
-    int otype = REPLEX_MPEG2;
-
     memset(&mx, 0, sizeof(mx));
     memset(ext_ok, 0, sizeof(ext_ok));
 
@@ -727,7 +726,8 @@ int MPEG2fixup::InitAV(const char *inputfile, const char *type, int64_t offset)
         {
 
             case CODEC_TYPE_VIDEO:
-                vid_id = i;
+                if(vid_id == -1)
+                    vid_id = i;
                 break;
 
             case CODEC_TYPE_AUDIO:
@@ -1135,6 +1135,12 @@ int MPEG2fixup::GetFrame(AVPacket *pkt)
             if (ret < 0)
             {
                 //insert a bogus frame (this won't be written out)
+                if(vFrame.isEmpty())
+                {
+                    VERBOSE(MPF_IMPORTANT, "Found end of file without finding "
+                                           " any frames");
+                    return TRANSCODE_EXIT_UNKNOWN_ERROR;
+                }
                 MPEG2frame *tmpFrame = GetPoolFrame(&vFrame.last()->pkt);
                 if (tmpFrame == NULL)
                     return TRANSCODE_EXIT_UNKNOWN_ERROR;
@@ -1147,6 +1153,8 @@ int MPEG2fixup::GetFrame(AVPacket *pkt)
             if (pkt->stream_index == vid_id ||
                     aFrame.contains(pkt->stream_index))
                 done = 1;
+            else 
+                av_free_packet(pkt);
         }
         pkt->duration = framenum++;
         if (showprogress && QDateTime::currentDateTime() > statustime)
@@ -1189,6 +1197,7 @@ int MPEG2fixup::GetFrame(AVPacket *pkt)
 
             default:
                 framePool.enqueue(tmpFrame);
+                av_free_packet(pkt);
                 return -1;
         }
     }
@@ -1206,7 +1215,6 @@ bool MPEG2fixup::FindStart()
     {
         if (GetFrame(&pkt))
             return false;
-
         if (vid_id == pkt.stream_index)
         {
             while (! vFrame.isEmpty())
@@ -1252,9 +1260,42 @@ bool MPEG2fixup::FindStart()
                                          vFrame.first()->pkt.pts);
                 if (delta < -180000 || delta > 180000) //2 seconds
                 {
+                    //Check all video sequence packets against current
+                    //audio packet
+                    MPEG2frame *found = NULL;
+		    while (vFrame.current())
+                    {
+                        if(vFrame.current()->isSequence)
+                        {
+                            int64_t dlta1 = diff2x33(af->first()->pkt.pts,
+                                                     vFrame.current()->pkt.pts);
+                            if (dlta1 >= -180000 && dlta1 <= 180000)
+                            {
+				found = vFrame.current();
+                                delta = dlta1;
+                                break;
+                            }
+                        }
+                        vFrame.next();
+                    }
+                    if (found)
+                    {
+                        while (vFrame.first() != found)
+                        {
+                            framePool.enqueue( vFrame.first());
+                            vFrame.removeFirst();
+                        }
+                    }
+                }
+                if (delta < -180000 || delta > 180000) //2 seconds
+                {
                         VERBOSE(MPF_PROCESS,
                                 QString("Dropping A packet from stream %1")
                                        .arg(it.key()));
+                        VERBOSE(MPF_PROCESS,
+                                QString("     A:%1 V:%2")
+                                        .arg(PtsTime(af->first()->pkt.pts))
+                                        .arg(PtsTime(vFrame.first()->pkt.pts)));
                         framePool.enqueue( af->first());
                         af->removeFirst();
                         continue;
@@ -1860,7 +1901,7 @@ int MPEG2fixup::Start()
                                     PTSdiscrep = 0;
                                     break;
                                 }
-                                if (tmpPTSdiscrep != AV_NOPTS_VALUE &&
+                                if (tmpPTSdiscrep != (int64_t)AV_NOPTS_VALUE &&
                                     tmpPTSdiscrep != PTSdiscrep)
                                     PTSdiscrep = tmpPTSdiscrep;
                             }
@@ -2279,6 +2320,7 @@ void usage(char *s)
     fprintf(stderr, "\t--cutlist \"start - end\" -c : Apply a cutlist.  Specify on e'-c' per cut\n");
     fprintf(stderr, "\t--no3to2           -t        : Remove 3:2 pullup\n");
     fprintf(stderr, "\t--fixup            -f        : make PTS contiuous\n");
+    fprintf(stderr, "\t--ostream <dvd|ps> -e        : Output stream type (defaults to ps)\n");
     fprintf(stderr, "\t--showprogress     -p        : show progress\n");
     fprintf(stderr, "\t--help             -h        : This screen\n");
     exit(0);
@@ -2289,7 +2331,7 @@ int main(int argc, char **argv)
     QStringList cutlist;
     QStringList savelist;
     char *infile = NULL, *outfile = NULL, *format = NULL;
-    int no_repeat = 0, fix_PTS = 0, max_frames = 20;
+    int no_repeat = 0, fix_PTS = 0, max_frames = 20, otype = REPLEX_MPEG2;
     bool showprogress = 0;
     const struct option long_options[] =
         {
@@ -2300,6 +2342,7 @@ int main(int argc, char **argv)
             {"dbg_lvl", required_argument, NULL, 'd'},
             {"cutlist", required_argument, NULL, 'c'},
             {"saveframe", required_argument, NULL, 's'},
+            {"ostream", required_argument, NULL, 'e'},
             {"no3to2", no_argument, NULL, 't'},
             {"fixup", no_argument, NULL, 'f'},
             {"showprogress", no_argument, NULL, 'p'},
@@ -2311,7 +2354,7 @@ int main(int argc, char **argv)
     {
         int option_index = 0;
         char c;
-        c = getopt_long (argc, argv, "i:o:d:r:m:c:s:tfph",
+        c = getopt_long (argc, argv, "i:o:d:r:m:c:s:e:tfph",
                          long_options, &option_index);
 
         if (c == -1)
@@ -2332,6 +2375,11 @@ int main(int argc, char **argv)
                 format = optarg;
                 break;
 
+            case 'e':
+		if (strlen(optarg) == 3 && strncmp(optarg, "dvd", 3) == 0)
+                    otype = REPLEX_DVD;
+                break;
+
             case 'd':
                 print_verbose_messages = atoi(optarg);
                 break;
@@ -2350,6 +2398,7 @@ int main(int argc, char **argv)
             case 'f':
                 fix_PTS = 1;
                 break;
+
             case 's':
                 savelist.append(optarg);
                 break;
@@ -2372,7 +2421,7 @@ int main(int argc, char **argv)
 
     MPEG2fixup m2f(infile, outfile, NULL, format, 
                    no_repeat, fix_PTS, max_frames,
-                   showprogress);
+                   showprogress, otype);
 
     if (cutlist.count())
         m2f.AddRangeList(cutlist, MPF_TYPE_CUTLIST);
@@ -2404,6 +2453,7 @@ int MPEG2fixup::BuildKeyframeIndex(QString &file,
                 posMap[count] = pkt.pos;
             count++;
         }
+        av_free_packet(&pkt);
     }
 
     // Close input file

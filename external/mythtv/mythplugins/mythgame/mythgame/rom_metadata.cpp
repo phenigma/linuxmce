@@ -14,24 +14,57 @@
 #include "rom_metadata.h"
 #include "unzip.h"
 
+int calcOffset(QString GameType, uLong filesize) {
+    int result;
+    uLong rom_size;
+
+    result = 0;
+
+    if (GameType == "NES") {
+        result = 16;
+    }
+    else if (GameType == "SNES") {
+         rom_size = (filesize / 0x2000) * 0x2000;
+
+         if (rom_size < filesize)
+             result = filesize - rom_size;
+    }
+    else if (GameType == "PCE") {
+         if (filesize & 0x0FFF)
+             result = filesize & 0x0FFF;
+
+    }
+
+    return result;
+}
+
+QString crcStr(uLong crc) {
+    QString tmpcrc("");
+
+    tmpcrc = QString("%1").arg( crc, 0, 16 );
+    if (tmpcrc == "0")
+        tmpcrc = "";
+    else
+        tmpcrc = tmpcrc.rightJustify( 8,'0');
+
+    return tmpcrc;
+}
+
 // Return the crc32 info for this rom. (ripped mostly from the old neshandler.cpp source)
-uLong crcinfo(QString romname, QString GameType, QString *key, RomDBMap *romDB)
+QString crcinfo(QString romname, QString GameType, QString *key, RomDBMap *romDB)
 {
     // Get CRC of file
     char block[32768];
     uLong crc = crc32(0, Z_NULL, 0);
-
+    QString crcRes;
     char filename_inzip[256];
     unz_file_info file_info;    
     int err;
-
     int offset;
     unzFile zf;
+    int blocksize;
 
-    if (GameType == "NES") 
-        offset = 16;
-    else
-        offset = 0;
+    blocksize = 8192;
 
     if ((zf = unzOpen(romname)))
     {
@@ -43,19 +76,20 @@ uLong crcinfo(QString romname, QString GameType, QString *key, RomDBMap *romDB)
             {
                 err = unzGetCurrentFileInfo(zf,&file_info,filename_inzip,sizeof(filename_inzip),NULL,0,NULL,0);
 
-                // Skip past iNes header
+                offset = calcOffset(GameType, file_info.uncompressed_size);
+
                 if (offset > 0)
                     unzReadCurrentFile(zf, block, offset);
 
                 // Get CRC of rom data
                 int count;
-                while ((count = unzReadCurrentFile(zf, block, 32768)) > 0)
+                while ((count = unzReadCurrentFile(zf, block, blocksize)) > 0)
                 {
                     crc = crc32(crc, (Bytef *)block, (uInt)count);
                 }   
-
+                crcRes = crcStr(crc);
                 *key = QString("%1:%2")
-                             .arg(crc, 0, 16)
+                             .arg(crcRes)
                              .arg(filename_inzip);
 
                 if (romDB->contains(*key)) 
@@ -72,22 +106,27 @@ uLong crcinfo(QString romname, QString GameType, QString *key, RomDBMap *romDB)
     else
     {
         QFile f(romname);
+
         if (f.open(IO_ReadOnly))
         {
+            offset = calcOffset(GameType, f.size());
+
             if (offset > 0)
                 f.readBlock(block, offset);
 
             // Get CRC of rom data
             Q_LONG count;
-            while ((count = f.readBlock(block, 32768)))
+            while ((count = f.readBlock(block, blocksize)) > 0)
             {
                 crc = crc32(crc, (Bytef *)block, (uInt)count);
             }   
-            *key = QString("%1:").arg(crc, 0, 16);
+
+            crcRes = crcStr(crc);
+            *key = QString("%1:").arg(crcRes);
             f.close();
         }   
     }   
 
-    return crc;
+    return crcRes;
 }
 

@@ -646,13 +646,13 @@ void ChannelRecPriority::updateInfo(QPainter *p)
         {
             itype = (UIImageType *)container->GetType("icon");
             if (itype) {
-                int iconsize = itype->GetSize();
+                int iconsize = itype->GetSize().width();
                 if (curitem->iconpath == "none" || curitem->iconpath == "")
                     curitem->iconpath = "blankicon.jpg";
-                if (!curitem->icon)
+                if (!curitem->iconload)
                     curitem->LoadIcon(iconsize);
-                if (curitem->icon)
-                    itype->SetImage(*(curitem->icon));
+                if (curitem->iconload)
+                    itype->SetImage(curitem->icon);
             }
 
             UITextType *type = (UITextType *)container->GetType("title");

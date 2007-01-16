@@ -15,6 +15,7 @@
 #include <qdialog.h>
 #include <qmemarray.h>
 #include <qpixmap.h>
+#include <qimage.h>
 #include <qptrlist.h>
 #include <qstringlist.h>
 
@@ -24,6 +25,7 @@ class VisualNode;
 class LogScale;
 class QTimer;
 class VisFactory;
+class InfoWidget;
 
 class VisualNode
 {
@@ -37,8 +39,8 @@ public:
 
     ~VisualNode()
     {
-	delete [] left;
-	delete [] right;
+        delete [] left;
+        delete [] right;
     }
 
     short *left, *right;
@@ -57,6 +59,7 @@ class VisualBase
     virtual bool draw( QPainter *, const QColor & ) = 0;
     virtual void resize( const QSize &size ) = 0;
     virtual int getDesiredFPS(void) { return fps; }
+    void drawWarning(QPainter *, const QColor &, const QSize &, QString);
 
   protected:
     int fps;
@@ -94,6 +97,8 @@ public:
     void setFrameRate( int newfps );
     int frameRate() const { return fps; }
 
+    void addInformation(const QString &);
+
     static void registerVisFactory(VisFactory *);
     static VisualBase *createVis(const QString &name,
                                  MainVisual *parent, long int winid);
@@ -106,6 +111,7 @@ signals:
 
 private:
     VisualBase *vis;
+    InfoWidget* info_widget;
     QPixmap pixmap;
     QPtrList<VisualNode> nodes;
     QTimer *timer;
@@ -114,6 +120,20 @@ private:
 
     QString current_visual_name;
     QStringList allowed_modes;
+};
+
+class InfoWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    InfoWidget(QWidget *parent = 0);
+    void addInformation(const QString &);
+    void paintEvent(QPaintEvent *);
+
+private:
+    QString info;
+    QPixmap info_pixmap;
 };
 
 class VisFactory

@@ -97,16 +97,20 @@
         <translation>Osparade ändringar</translation>
     </message>
     <message>
-        <source>Would you like to save now?</source>
-        <translation>Vill du spara?</translation>
+        <source>Exiting...</source>
+        <translation>Avslutar...</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation>Spara</translation>
+        <source>Save Changes?</source>
+        <translation>Spara ändringar?</translation>
     </message>
     <message>
-        <source>Exit</source>
-        <translation>Avsluta</translation>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nej</translation>
     </message>
 </context>
 </TS>

@@ -41,9 +41,13 @@ class IvtvDecoder : public DecoderBase
     IvtvDecoder(NuppelVideoPlayer *parent, ProgramInfo *pginfo);
    ~IvtvDecoder();
 
-    static bool CanHandle(char testbuf[2048], const QString &filename);
+    static bool CanHandle(char testbuf[kDecoderProbeBufferSize], 
+                          const QString &filename,
+                          int testbufsize = kDecoderProbeBufferSize);
 
-    int OpenFile(RingBuffer *rbuffer, bool novideo, char testbuf[2048]);
+    int OpenFile(RingBuffer *rbuffer, bool novideo, 
+                 char testbuf[kDecoderProbeBufferSize],
+                 int testbufsize = kDecoderProbeBufferSize);
     bool GetFrame(int onlyvideo);
 
     bool DoFastForward(long long desiredFrame, bool doflush = true);

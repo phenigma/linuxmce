@@ -10,7 +10,7 @@ include (config.pro)
 TEMPLATE = lib
 CONFIG += plugin thread
 TARGET = mythgallery
-target.path = $${PREFIX}/lib/mythtv/plugins
+target.path = $${LIBDIR}/mythtv/plugins
 INSTALLS += target
 LIBS += -ltiff
 
@@ -22,10 +22,24 @@ installimages.files = images/*.png
 INSTALLS += installimages uifiles
 
 # Input
-HEADERS += iconview.h singleview.h gallerysettings.h dbcheck.h 
-HEADERS += thumbgenerator.h qtiffio.h galleryutil.h constants.h
-SOURCES += iconview.cpp main.cpp singleview.cpp gallerysettings.cpp dbcheck.cpp
-SOURCES += thumbgenerator.cpp qtiffio.cpp galleryutil.cpp
+HEADERS += iconview.h          singleview.h
+HEADERS += imageview.h
+HEADERS += gallerysettings.h   dbcheck.h 
+HEADERS += qtiffio.h           galleryutil.h
+HEADERS += constants.h
+HEADERS += thumbgenerator.h    thumbview.h
+SOURCES += iconview.cpp        singleview.cpp
+SOURCES += imageview.cpp
+SOURCES += gallerysettings.cpp dbcheck.cpp
+SOURCES += qtiffio.cpp         galleryutil.cpp
+SOURCES += thumbgenerator.cpp  thumbview.cpp
+SOURCES += main.cpp
+
+opengl {
+    SOURCES *= glsingleview.cpp gltexture.cpp
+    HEADERS *= glsingleview.h   gltexture.h
+    DEFINES += USING_OPENGL
+}
 
 macx {
     QMAKE_LFLAGS += -flat_namespace -undefined suppress

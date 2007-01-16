@@ -2,9 +2,9 @@
 /**
  * Configure MythTV Key Bindings
  *
- * @url         $URL$
- * @date        $Date: 2006-01-14 21:52:53 +0200 (Sat, 14 Jan 2006) $
- * @version     $Revision: 8607 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/settings/keys.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -85,7 +85,7 @@
     $sh->finish();
 
 // Load the class for this page
-    require_once theme_dir.'settings/keys.php';
+    require_once tmpl_dir.'keys.php';
 
 // Exit
     exit;

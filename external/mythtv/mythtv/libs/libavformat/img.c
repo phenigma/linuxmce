@@ -18,9 +18,6 @@
  */
 #include "avformat.h"
 
-/* XXX: this is a hack */
-int loop_input = 0;
-
 typedef struct {
     int width;
     int height;
@@ -116,11 +113,10 @@ static int img_read_header(AVFormatContext *s1, AVFormatParameters *ap)
 
     st = av_new_stream(s1, 0);
     if (!st) {
-        av_free(s);
         return -ENOMEM;
     }
 
-    if (ap && ap->image_format)
+    if (ap->image_format)
         s->img_fmt = ap->image_format;
 
     pstrcpy(s->path, sizeof(s->path), s1->filename);
@@ -133,7 +129,7 @@ static int img_read_header(AVFormatContext *s1, AVFormatParameters *ap)
     else
         s->is_pipe = 1;
 
-    if (!ap || !ap->time_base.num) {
+    if (!ap->time_base.num) {
         st->codec->time_base= (AVRational){1,25};
     } else {
         st->codec->time_base= ap->time_base;
@@ -178,7 +174,6 @@ static int img_read_header(AVFormatContext *s1, AVFormatParameters *ap)
     if (!s->is_pipe)
         url_fclose(f);
  fail:
-    av_free(s);
     return AVERROR_IO;
 }
 
@@ -202,7 +197,7 @@ static int img_read_packet(AVFormatContext *s1, AVPacket *pkt)
 
     if (!s->is_pipe) {
         /* loop over input */
-        if (loop_input && s->img_number > s->img_last) {
+        if (s1->loop_input && s->img_number > s->img_last) {
             s->img_number = s->img_first;
         }
         if (get_frame_filename(filename, sizeof(filename),
@@ -255,7 +250,7 @@ static int img_set_parameters(AVFormatContext *s, AVFormatParameters *ap)
     int i;
 
     /* find output image format */
-    if (ap && ap->image_format) {
+    if (ap->image_format) {
         img_fmt = ap->image_format;
     } else {
         img_fmt = guess_image_format(s->filename);
@@ -341,8 +336,8 @@ static int img_write_trailer(AVFormatContext *s)
 }
 
 /* input */
-
-static AVInputFormat image_iformat = {
+#ifdef CONFIG_IMAGE_DEMUXER
+AVInputFormat image_demuxer = {
     "image",
     "image sequence",
     sizeof(VideoData),
@@ -354,8 +349,9 @@ static AVInputFormat image_iformat = {
     NULL,
     AVFMT_NOFILE | AVFMT_NEEDNUMBER,
 };
-
-static AVInputFormat imagepipe_iformat = {
+#endif
+#ifdef CONFIG_IMAGEPIPE_DEMUXER
+AVInputFormat imagepipe_demuxer = {
     "imagepipe",
     "piped image sequence",
     sizeof(VideoData),
@@ -365,11 +361,11 @@ static AVInputFormat imagepipe_iformat = {
     img_read_close,
     NULL,
 };
-
+#endif
 
 /* output */
-
-static AVOutputFormat image_oformat = {
+#ifdef CONFIG_IMAGE_MUXER
+AVOutputFormat image_muxer = {
     "image",
     "image sequence",
     "",
@@ -383,8 +379,9 @@ static AVOutputFormat image_oformat = {
     AVFMT_NOFILE | AVFMT_NEEDNUMBER | AVFMT_RAWPICTURE,
     img_set_parameters,
 };
-
-static AVOutputFormat imagepipe_oformat = {
+#endif
+#ifdef CONFIG_IMAGEPIPE_MUXER
+AVOutputFormat imagepipe_muxer = {
     "imagepipe",
     "piped image sequence",
     "",
@@ -398,14 +395,4 @@ static AVOutputFormat imagepipe_oformat = {
     AVFMT_RAWPICTURE,
     img_set_parameters,
 };
-
-int img_init(void)
-{
-    av_register_input_format(&image_iformat);
-    av_register_output_format(&image_oformat);
-
-    av_register_input_format(&imagepipe_iformat);
-    av_register_output_format(&imagepipe_oformat);
-
-    return 0;
-}
+#endif

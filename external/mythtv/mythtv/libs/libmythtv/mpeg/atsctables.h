@@ -43,24 +43,28 @@
  *   updated version_number for that EIT, updating the data.
  */
 
-#define secs_Between_1Jan1970_6Jan1980 315982800
+/** Seconds between start of GPS time and the start of UNIX time. */
+#define secs_Between_1Jan1970_6Jan1980 315964800
+
+/** Leap seconds as of Jan 1st, 2006. */
+#define GPS_LEAP_SECONDS 14
 
 class TableClass
 {
   public:
     typedef enum
     {
-        UNKNOWN=-1,
-        TVCTc=0,
-        TVCTnc,
-        CVCTc,
-        CVCTnc,
-        ETTc,
-        DCCSCT,
-        EIT,
-        ETTe,
-        DCCT,
-        RRT,
+        UNKNOWN = -1,
+        TVCTc   =  0,
+        TVCTnc  =  1,
+        CVCTc   =  2,
+        CVCTnc  =  3,
+        ETTc    =  4,
+        DCCSCT  =  5,
+        EIT     =  6,
+        ETTe    =  7,
+        DCCT    =  8,
+        RRT     =  9,
     };
 };
 
@@ -71,27 +75,34 @@ class TableClass
 class MasterGuideTable : public PSIPTable
 {
   public:
+    MasterGuideTable(const MasterGuideTable& table) : PSIPTable(table)
+    {
+        assert(TableID::MGT == TableID());
+        Parse();        
+    }
     MasterGuideTable(const PSIPTable& table) : PSIPTable(table)
     {
-    // start_code_prefix        8   0.0          0
-    // table_id                 8   1.0       0xC7
         assert(TableID::MGT == TableID());
         Parse();
-    // section_syntax_indicator 1   2.0          1
-    // private_indicator        1   2.1          1
-    // reserved                 2   2.2          3
-    // table_id_extension      16   4.0     0x0000
-    // reserved                 2   6.0          3
-    // current_next_indicator   1   6.7          1
-    // section_number           8   7.0       0x00
-    // last_section_number      8   8.0       0x00
     }
     ~MasterGuideTable() { ; }
 
-    // tables_defined          16  10.0, 6-370 valid OTA, 2-370 valid w/Cable
+    //       Name             bits  loc  expected value
+    // table_id                 8   0.0       0xC7
+    // section_syntax_indicator 1   1.0          1
+    // private_indicator        1   1.1          1
+    // reserved                 2   1.2          3
+    // table_id_extension      16   3.0     0x0000
+    // reserved                 2   5.0          3
+    // current_next_indicator   1   5.7          1
+    // section_number           8   6.0       0x00
+    // last_section_number      8   7.0       0x00
+    // protocol_version         8   8.0       0x00 for now
+
+    // tables_defined          16   9.0, 6-370 valid OTA, 2-370 valid w/Cable
     uint TableCount() const
     {
-         return (pesdata()[10]<<8) | pesdata()[11];
+         return (pesdata()[9]<<8) | pesdata()[10];
     }
     // for (i=0; i<tableCount(); i++) {
     //   table_type                    16  0.0
@@ -166,22 +177,36 @@ class MasterGuideTable : public PSIPTable
 class VirtualChannelTable : public PSIPTable
 {
   public:
-    VirtualChannelTable(const PSIPTable& table) : PSIPTable(table)
+    VirtualChannelTable(const VirtualChannelTable &table) : PSIPTable(table)
     {
-    //       Name             bits  loc  expected value
-    // start_code_prefix        8   0.0          0
-    // table_id                 8   1.0      0xC8/0xC9
+        assert(TableID::TVCT == TableID() || TableID::CVCT == TableID());
+        Parse();
+    }
+    VirtualChannelTable(const PSIPTable &table) : PSIPTable(table)
+    {
         assert(TableID::TVCT == TableID() || TableID::CVCT == TableID());
         Parse();
     }
 
     ~VirtualChannelTable() { ; }
 
-    // transport_stream_id     16   4.0
+    //       Name             bits  loc  expected value
+    // table_id                 8   0.0      0xC8/0xC9
+    // section_syntax_indicator 1   1.0          1
+    // private_indicator        1   1.1          1
+    // reserved                 2   1.2          3
+    // table_id_extension      16   3.0     0x0000
+    // reserved                 2   5.0          3
+    // current_next_indicator   1   5.7          1
+    // section_number           8   6.0       0x00
+    // last_section_number      8   7.0       0x00
+    // protocol_version         8   8.0       0x00 for now
+
+    // transport_stream_id     16   3.0
     uint TransportStreamID() const { return TableIDExtension(); }
 
-    // num_channels_in_section  8  10.0
-    uint ChannelCount()      const { return pesdata()[10]; }
+    // num_channels_in_section  8   9.0
+    uint ChannelCount()      const { return pesdata()[9]; }
 
     // for(i=0; i<num_channels_in_section; i++) {
     //   short_name          7*16   0.0 (7 UTF-16 chars padded by 0x0000)
@@ -197,70 +222,70 @@ class VirtualChannelTable : public PSIPTable
         }
         return str;
     }
-    //   reserved               4  14.0        0xf
+    //   reserved               4  13.0        0xf
 
-    //   major_channel_number  10  14.4
+    //   major_channel_number  10  13.4
     // 14 RRRR JJJJ 15 jjjj jjmm  16 MMMM MMMM
     //              JJ JJjj jjjj  mm MMMM MMMM
     uint MajorChannel(uint i) const
     {
         return (((_ptrs[i][14])<<6)&0x3c0) | (_ptrs[i][15]>>2);
     }
-    //   minor_channel_number  10  15.6
+    //   minor_channel_number  10  14.6
     uint MinorChannel(uint i) const
     {
         return (((_ptrs[i][15])<<8)&0x300) | _ptrs[i][16];
     }
-    //   modulation_mode        8  17.0
+    //   modulation_mode        8  16.0
     uint ModulationMode(uint i) const
     {
         return _ptrs[i][17];
     }
-    //   carrier_frequency     32  18.0 deprecated
-    //   channel_TSID          16  22.0
+    //   carrier_frequency     32  17.0 deprecated
+    //   channel_TSID          16  21.0
     uint ChannelTransportStreamID(uint i) const
     {
         return ((_ptrs[i][22]<<8) | _ptrs[i][23]);
     }
-    //   program_number        16  24.0
+    //   program_number        16  23.0
     uint ProgramNumber(uint i) const
     {
         return ((_ptrs[i][24]<<8) | _ptrs[i][25]);
     }
-    //   ETM_location           2  26.0
+    //   ETM_location           2  25.0
     uint ETMlocation(uint i) const
     {
         return (_ptrs[i][26]>>6) & 0x03;
     }
-    //   access_controlled      1  26.2
+    //   access_controlled      1  25.2
     bool IsAccessControlled(uint i) const
     {
         return bool(_ptrs[i][26] & 0x20);
     }
-    //   hidden                 1  26.3
+    //   hidden                 1  25.3
     bool IsHidden(uint i) const
     {
         return bool(_ptrs[i][26] & 0x10);
     }
-    //   reserved               2  26.4          3
-    //   hide_guide             1  26.6
+    //   reserved               2  25.4          3
+    //   hide_guide             1  25.6
     bool IsHiddenInGuide(uint i) const
     {
         return bool(_ptrs[i][26] & 0x2);
     }
-    //   reserved               6  26.7       0x3f 
-    //   service_type           6  27.2
+    //   reserved               6  25.7       0x3f 
+    //   service_type           6  26.2
     uint ServiceType(uint i) const
     {
         return _ptrs[i][27] & 0x3f;
     }
-    //   source_id             16  28.0
+    //   source_id             16  27.0
     uint SourceID(uint i) const
     {
         return ((_ptrs[i][28]<<8) | _ptrs[i][29]);
     }
-    //   reserved               6  30.0       0xfb
-    //   descriptors_length    10  30.6-31
+    //   reserved               6  29.0       0xfb
+    //   descriptors_length    10  29.6
     uint DescriptorsLength(uint i) const
     {
         return ((_ptrs[i][30]<<8) | _ptrs[i][31]) & 0x03ff;
@@ -299,18 +324,32 @@ class VirtualChannelTable : public PSIPTable
 class TerrestrialVirtualChannelTable : public VirtualChannelTable
 {
   public:
-    TerrestrialVirtualChannelTable(const PSIPTable& table)
+    TerrestrialVirtualChannelTable(const TerrestrialVirtualChannelTable &table)
         : VirtualChannelTable(table)
     {
-    //       Name             bits  loc  expected value
-    // start_code_prefix        8   0.0          0
-    // table_id                 8   1.0       0xC8
+        assert(TableID::TVCT == TableID());
+    }
+    TerrestrialVirtualChannelTable(const PSIPTable &table)
+        : VirtualChannelTable(table)
+    {
         assert(TableID::TVCT == TableID());
     }
     ~TerrestrialVirtualChannelTable() { ; }
 
-    // transport_stream_id     16   4.0
-    // num_channels_in_section  8  10.0
+    //       Name             bits  loc  expected value
+    // table_id                 8   0.0       0xC8
+    // section_syntax_indicator 1   1.0          1
+    // private_indicator        1   1.1          1
+    // reserved                 2   1.2          3
+    // table_id_extension      16   3.0     0x0000
+    // reserved                 2   5.0          3
+    // current_next_indicator   1   5.7          1
+    // section_number           8   6.0       0x00
+    // last_section_number      8   7.0       0x00
+    // protocol_version         8   8.0       0x00 for now
+
+    // transport_stream_id     16   3.0
+    // num_channels_in_section  8   9.0
 
     // for (i=0; i<num_channels_in_section; i++)
     // {
@@ -354,15 +393,29 @@ class TerrestrialVirtualChannelTable : public VirtualChannelTable
 class CableVirtualChannelTable : public VirtualChannelTable
 {
   public:
-    CableVirtualChannelTable(const PSIPTable& table)
+    CableVirtualChannelTable(const CableVirtualChannelTable &table)
         : VirtualChannelTable(table)
     {
-    //       Name             bits  loc  expected value
-    // start_code_prefix        8   0.0          0
-    // table_id                 8   1.0       0xC9
+        assert(TableID::CVCT == TableID());
+    }
+    CableVirtualChannelTable(const PSIPTable &table)
+        : VirtualChannelTable(table)
+    {
         assert(TableID::CVCT == TableID());
     }
     ~CableVirtualChannelTable() { ; }
+
+    //       Name             bits  loc  expected value
+    // table_id                 8   0.0       0xC9
+    // section_syntax_indicator 1   1.0          1
+    // private_indicator        1   1.1          1
+    // reserved                 2   1.2          3
+    // table_id_extension      16   3.0     0x0000
+    // reserved                 2   5.0          3
+    // current_next_indicator   1   5.7          1
+    // section_number           8   6.0       0x00
+    // last_section_number      8   7.0       0x00
+    // protocol_version         8   8.0       0x00 for now
 
     // for (i=0; i<num_channels_in_section; i++)
     // {
@@ -414,20 +467,36 @@ class CableVirtualChannelTable : public VirtualChannelTable
 class EventInformationTable : public PSIPTable
 {
   public:
-    EventInformationTable(const PSIPTable& table) : PSIPTable(table)
+    EventInformationTable(const EventInformationTable &table)
+        : PSIPTable(table)
     {
-    //       Name             bits  loc  expected value
-    // start_code_prefix        8   0.0          0
-    // table_id                 8   1.0       0xCB
+        assert(TableID::EIT == TableID());
+        Parse();
+    }
+    EventInformationTable(const PSIPTable &table) : PSIPTable(table)
+    {
         assert(TableID::EIT == TableID());
         Parse();
     }
     ~EventInformationTable() { ; }
-    // source_id               16   4.0     0x0000
+
+    //       Name             bits  loc  expected value
+    // table_id                 8   0.0       0xCB
+    // section_syntax_indicator 1   1.0          1
+    // private_indicator        1   1.1          1
+    // reserved                 2   1.2          3
+    // table_id_extension      16   3.0     0x0000
+    // reserved                 2   5.0          3
+    // current_next_indicator   1   5.7          1
+    // section_number           8   6.0       0x00
+    // last_section_number      8   7.0       0x00
+    // protocol_version         8   8.0       0x00 for now
+
+    // source_id               16   3.0     0x0000
     uint SourceID() const { return TableIDExtension(); }
 
-    // num_events_in_section    8  10.0
-    uint EventCount() const { return pesdata()[10]; }
+    // num_events_in_section    8   9.0
+    uint EventCount() const { return psipdata()[1]; }
     // for (j = 0; j< num_events_in_section;j++)
     // {
     //   reserved               2   0.0    3
@@ -437,13 +506,16 @@ class EventInformationTable : public PSIPTable
         return ((_ptrs[i][0]<<8) | _ptrs[i][1])&0x3fff;
     }
     //   start_time            32   2.0
+    uint StartTimeRaw(uint i) const
+    {
+        return ((_ptrs[i][2]<<24) | (_ptrs[i][3]<<16) |
+                (_ptrs[i][4]<<8)  | (_ptrs[i][5]));
+    }
     QDateTime StartTimeGPS(uint i) const
     {
         // Time in GPS seconds since 00:00:00 on January 6th, 1980 UTC
-        uint t = ((_ptrs[i][2]<<24) | (_ptrs[i][3]<<16) |
-                  (_ptrs[i][4]<<8)  | (_ptrs[i][5]));
         QDateTime dt;
-        dt.setTime_t(secs_Between_1Jan1970_6Jan1980 + t);
+        dt.setTime_t(secs_Between_1Jan1970_6Jan1980 + StartTimeRaw(i));
         return dt;
     }
     //   reserved               2   6.0    3
@@ -497,44 +569,48 @@ class EventInformationTable : public PSIPTable
 class ExtendedTextTable : public PSIPTable
 {
   public:
-    ExtendedTextTable(const PSIPTable& table) : PSIPTable(table)
+    ExtendedTextTable(const ExtendedTextTable &table) : PSIPTable(table)
     {
-    //       Name             bits  loc  expected value
-    // start_code_prefix        8   0.0          0
-    // table_id                 8   1.0       0xCC
         assert(TableID::ETT == TableID());
-    // section_syntax_indicator 1   2.0          1
-    // private_indicator        1   2.1          1
-    // reserved                 2   2.2          3
-    // section_length          12   2.4
-    // ETT_table_id_extension  16   4.0     unique per pid
-    // section_syntax_indicator 1   2.0          1
-    // private_indicator        1   2.1          1
-    // reserved                 2   2.2          3
-    // reserved                 2   6.0          3
-    // current_next_indicator   1   6.7          1
-    // section_number           8   7.0       0x00
-    // last_section_number      8   8.0       0x00
-    // protocol_version         8   9.0
+    }
+    ExtendedTextTable(const PSIPTable &table) : PSIPTable(table)
+    {
+        assert(TableID::ETT == TableID());
     }
     ~ExtendedTextTable() { ; }
 
+    //       Name             bits  loc  expected value
+    // table_id                 8   0.0       0xCC
+    // section_syntax_indicator 1   1.0          1
+    // private_indicator        1   1.1          1
+    // reserved                 2   1.2          3
+    // section_length          12   1.4
+    // ETT_table_id_extension  16   3.0  unique per pid
+    // reserved                 2   5.0          3
+    // current_next_indicator   1   5.7          1
+    // section_number           8   6.0       0x00
+    // last_section_number      8   7.0       0x00
+    // protocol_version         8   8.0       0x00 for now
+
     uint ExtendedTextTableID() const { return TableIDExtension(); }
-    void SetExtendedTextTableID(uint id) { SetTableIDExtension(id); }
+    void SetExtendedTextTableID(uint id)
+        { SetTableIDExtension(id); }
 
     // ETM_id                  32  10.0
     //                    31..16      15..2 iff  1..0
     // channel ETM_id   source_id       0         00
     // event   ETM_id   source_id   event_id      10
-    bool IsChannelETM() const { return 0==(pesdata()[13]&3); }
-    bool IsEventETM() const   { return 2==(pesdata()[13]&3); }
-    int SourceID() const { return (pesdata()[10]<<8) | pesdata()[11]; }
-    int EventID() const  { return (pesdata()[12]<<6) | (pesdata()[13]>>2); }
+    bool IsChannelETM(void)    const { return 0 == (psipdata()[4] & 3); }
+    bool IsEventETM(void)      const { return 2 == (psipdata()[4] & 3); }
+    uint SourceID(void) const
+        { return (psipdata()[1] << 8) | psipdata()[2]; }
+    uint EventID(void) const
+        { return (psipdata()[3] << 6) | (psipdata()[4] >> 2); }
 
     // extended_text_message    *  14.0  multiple string structure a/65b p81
     const MultipleStringStructure ExtendedTextMessage() const
     {
-        return MultipleStringStructure(pesdata()+14);
+        return MultipleStringStructure(psipdata() + 5);
     }
 
     QString toString() const;
@@ -551,46 +627,50 @@ class ExtendedTextTable : public PSIPTable
 class SystemTimeTable : public PSIPTable
 {
   public:
-    SystemTimeTable(const PSIPTable& table) : PSIPTable(table)
+    SystemTimeTable(const SystemTimeTable &table) : PSIPTable(table)
     {
-    //       Name             bits  loc  expected value
-    // start_code_prefix        8   0.0          0
-    // table_id                 8   1.0       0xCD
         assert(TableID::STT == TableID());
-    // section_syntax_indicator 1   2.0          1
-    // private_indicator        1   2.1          1
-    // reserved                 2   2.2          3
-    // section_length          12   2.4
-    // table_id_extension      16   4.0          0
-    // reserved                 2   6.0          3
-    // version_number           5   6.2          0  
-    // current_next_indicator   1   6.7          1  
-    // section_number           8   7.0       0x00 
-    // last_section_number      8   8.0       0x00
-    // protocol_version         8   9.0
+    }
+    SystemTimeTable(const PSIPTable &table) : PSIPTable(table)
+    {
+        assert(TableID::STT == TableID());
     }
 
-    // system_time             32  10.0
+    //       Name             bits  loc  expected value
+    // table_id                 8   0.0       0xCD
+    // section_syntax_indicator 1   1.0          1
+    // private_indicator        1   1.1          1
+    // reserved                 2   1.2          3
+    // section_length          12   1.4
+    // table_id_extension      16   3.0          0
+    // reserved                 2   5.0          3
+    // version_number           5   5.2          0  
+    // current_next_indicator   1   5.7          1  
+    // section_number           8   6.0       0x00 
+    // last_section_number      8   7.0       0x00
+    // protocol_version         8   8.0       0x00 for now
+
+    // system_time             32   9.0
     QDateTime SystemTimeGPS() const
     {
-        uint t = ((pesdata()[10]<<24) | (pesdata()[11]<<16) |
-                  (pesdata()[12]<< 8) |  pesdata()[13]);
+        uint t = ((pesdata()[9]<<24)  | (pesdata()[10]<<16) |
+                  (pesdata()[11]<< 8) |  pesdata()[12]);
         QDateTime dt;
         dt.setTime_t(secs_Between_1Jan1970_6Jan1980 + t);
         return dt;
     }
-    // GPS_UTC_offset           8  14.0 
-    uint GPSOffset() const { return pesdata()[14]; }
-    // daylight_savings        16  15.0
-    //   DS_status              1  15.0
-    //   reserved               2  15.1          3
-    //   DS_day_of_month        5  15.3
-    //   DS_hour                8  16.0
-    bool InDaylightSavingsTime()     const { return pesdata()[15]&0x80; }
-    uint DayDaylightSavingsStarts()  const { return pesdata()[15]&0x1f; }
-    uint HourDaylightSavingsStarts() const { return pesdata()[16]; }
+    // GPS_UTC_offset           8  13.0 
+    uint GPSOffset() const { return pesdata()[13]; }
+    // daylight_savings        16  14.0
+    //   DS_status              1  14.0
+    //   reserved               2  14.1          3
+    //   DS_day_of_month        5  14.3
+    //   DS_hour                8  15.0
+    bool InDaylightSavingsTime()     const { return pesdata()[14]&0x80; }
+    uint DayDaylightSavingsStarts()  const { return pesdata()[14]&0x1f; }
+    uint HourDaylightSavingsStarts() const { return pesdata()[15]; }
     // for (I = 0;I< N;I++) { descriptor() } 
-    // CRC_32 32 rpchof
+    // CRC_32                  32
 
     QString toString() const
     {
@@ -611,7 +691,11 @@ class SystemTimeTable : public PSIPTable
 class RatingRegionTable : public PSIPTable
 {
   public:
-    RatingRegionTable(const PSIPTable& table) : PSIPTable(table)
+    RatingRegionTable(const RatingRegionTable &table) : PSIPTable(table)
+    {
+        assert(TableID::RRT == TableID());
+    }
+    RatingRegionTable(const PSIPTable &table) : PSIPTable(table)
     {
         assert(TableID::RRT == TableID());
     }
@@ -623,7 +707,12 @@ class RatingRegionTable : public PSIPTable
 class DirectedChannelChangeTable : public PSIPTable
 {
   public:
-    DirectedChannelChangeTable(const PSIPTable& table) : PSIPTable(table)
+    DirectedChannelChangeTable(const DirectedChannelChangeTable &table)
+        : PSIPTable(table)
+    {
+        assert(TableID::DCCT == TableID());
+    }
+    DirectedChannelChangeTable(const PSIPTable &table) : PSIPTable(table)
     {
         assert(TableID::DCCT == TableID());
     }
@@ -635,12 +724,17 @@ class DirectedChannelChangeTable : public PSIPTable
 class DirectedChannelChangeSelectionCodeTable : public PSIPTable
 {
   public:
-    DirectedChannelChangeSelectionCodeTable(const PSIPTable& table)
+    DirectedChannelChangeSelectionCodeTable(
+        const DirectedChannelChangeSelectionCodeTable &table)
+        : PSIPTable(table)
+    {
+        assert(TableID::DCCSCT == TableID());
+    }
+    DirectedChannelChangeSelectionCodeTable(const PSIPTable &table)
         : PSIPTable(table)
     {
         assert(TableID::DCCSCT == TableID());
     }
 };
-
 
 #endif // _ATSC_TABLES_H_

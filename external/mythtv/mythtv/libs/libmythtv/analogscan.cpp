@@ -1,5 +1,5 @@
 /*
- * $Id: analogscan.cpp 8901 2006-02-07 21:56:06Z danielk $
+ * $Id: analogscan.cpp 10540 2006-07-15 20:13:46Z ijr $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -31,7 +31,6 @@
  */
 
 #include <pthread.h>
-#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -39,7 +38,7 @@
 #include <fcntl.h>
 
 #include "mythcontext.h"
-#include "videosource.h"
+#include "cardutil.h"
 #include "frequencies.h"
 #include "channel.h"
 #include "channelutil.h"
@@ -77,32 +76,46 @@ void *AnalogScan::spawn(void *param)
 void AnalogScan::doScan()
 {
     fRunning = true;
-    QString device;
-    if (CardUtil::GetVideoDevice(cardid, device))
+    scanThreadCondLock.lock();
+    scanThreadCond.wakeAll();
+    scanThreadCondLock.unlock();
+
+    Channel         *channel = NULL;
+    struct CHANLIST *flist   = NULL;
+    uint count               = 0;
+
+    QString device = CardUtil::GetVideoDevice(cardid, sourceid);
+    QString input  = CardUtil::GetInputName(cardid, sourceid);
+    if (device.isEmpty() || input.isEmpty())
+        goto do_scan_end;
+
+    VERBOSE(VB_SIPARSER, "AnalogScan::doScan() " +
+            QString("dev(%1) input(%2)").arg(device).arg(input));
+
+    channel = new Channel(NULL, device);
+    if (!channel->Open())
+        goto do_scan_end;
+
+    flist = chanlists[nTable].list;
+    count = chanlists[nTable].count;
+    for (uint i = 0; i < count && !fStop; i++, flist++)
     {
-         Channel channel(NULL,device);
-         if (channel.Open())
-         {
-             QString input = CardUtil::GetDefaultInput(cardid);
-             struct CHANLIST *l = chanlists[nTable].list;
-             int count = chanlists[nTable].count;
-             for (int i = 0; i < count && !fStop; i++,l++)
-             {
-                 unsigned frequency = l->freq*1000;
-                 channel.Tune(frequency,input);
-                 usleep(200000); /* 0.2 sec */
-                 if (channel.IsTuned())
-                 {
-                      //cerr << i << " " << l->name << " " << frequency <<  " Tuned " << endl;
-                      QString name = QObject::tr("Channel %1").arg(l->name);
-                      addChannel(i,l->name,name,l->freq);
-                      emit serviceScanUpdateText(name);
-                 }
-                 emit serviceScanPCTComplete((i*100)/count);
-             }
-             channel.Close();
+        unsigned frequency = flist->freq * 1000;
+        channel->Tune(frequency,input);
+        usleep(200000); /* 0.2 sec */
+        if (channel->IsTuned())
+        {
+            QString name = QObject::tr("Adding Channel %1").arg(flist->name);
+            addChannel(i, flist->name, name, flist->freq);
+            emit serviceScanUpdateText(name);
         }
+        emit serviceScanPCTComplete((i * 100) / count);
     }
+    channel->Close();
+
+  do_scan_end:
+    if (channel)
+        delete channel;
     emit serviceScanComplete();
 }
 
@@ -114,15 +127,17 @@ bool AnalogScan::scan()
 
     MSqlQuery query(MSqlQuery::InitCon());
 
-    query.prepare("SELECT freqtable FROM videosource WHERE "
-                  "sourceid = :SOURCEID ;");
+    query.prepare(
+        "SELECT freqtable "
+        "FROM videosource "
+        "WHERE sourceid = :SOURCEID");
     query.bindValue(":SOURCEID", sourceid);
 
     if (!query.exec() || !query.isActive())
         MythContext::DBError("analog scan freqtable", query);
-    if (query.size() <= 0)
+
+    if (!query.next())
          return false;
-    query.next();
 
     QString freqtable = query.value(0).toString();
 //        cerr << "frequency table = " << freqtable.ascii() << endl; 
@@ -145,9 +160,13 @@ bool AnalogScan::scan()
     }
 
     if (!fRunning)
+    {
+        scanThreadCondLock.lock();
         pthread_create(&thread, NULL, spawn, this);
-    while (!fRunning)
-        usleep(50);
+        scanThreadCond.wait(&scanThreadCondLock);
+        scanThreadCondLock.unlock();
+    }
+
     return true;
 }
 
@@ -174,9 +193,6 @@ void AnalogScan::addChannel(int number,const QString& channumber,
     query.bindValue(":NAME",name);
     query.bindValue(":FREQID",frequency);
 
-    if (!query.exec())
-        MythContext::DBError("Adding new Channel", query);
-
-    if (!query.isActive())
+    if (!query.exec() || !query.isActive())
         MythContext::DBError("Adding new Channel", query);
 }

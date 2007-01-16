@@ -2,9 +2,9 @@
 /**
  * Display/save mythweb session settings
  *
- * @url         $URL$
- * @date        $Date: 2006-01-28 21:36:32 +0200 (Sat, 28 Jan 2006) $
- * @version     $Revision: 8744 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/modules/settings/session.php $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -15,6 +15,7 @@
 
 // Save?
     if ($_POST['save']) {
+        $redirect = false;
     // Save the date formats
         if ($_POST['date_statusbar'])       $_SESSION['date_statusbar']       = $_POST['date_statusbar'];
         if ($_POST['date_scheduled'])       $_SESSION['date_scheduled']       = $_POST['date_scheduled'];
@@ -25,73 +26,79 @@
         if ($_POST['date_listing_jump'])    $_SESSION['date_listing_jump']    = $_POST['date_listing_jump'];
         if ($_POST['date_channel_jump'])    $_SESSION['date_channel_jump']    = $_POST['date_channel_jump'];
         if ($_POST['time_format'])          $_SESSION['time_format']          = $_POST['time_format'];
-    // Save the theme
-        if ($_POST['theme'])                $_SESSION['Theme']                = $_POST['theme'];
+    // Save the template
+        if ($_POST['tmpl'])                 $_SESSION['tmpl']                 = $_POST['tmpl'];
+    // Save the skin
+        if ($_POST['skin'] && $_POST['skin'] != $_SESSION['skin']) {
+            $_SESSION['skin'] = $_POST['skin'];
+            $redirect = true;
+        }
     // Use SI units?
         if ($_POST['siunits'])              $_SESSION['siunits']              = $_POST['siunits'];
-    // Save the weather icon set
-        if ($_POST['weathericonset'])       $_SESSION['weathericonset']       = $_POST['weathericonset'];
     // Recorded Programs
         $_SESSION['recorded_descunder'] = $_POST['recorded_descunder'] ? true : false;
+        $_SESSION['recorded_pixmaps']   = $_POST['recorded_pixmaps']   ? true : false;
     // Guide Settings
-        $_SESSION['guide_favonly'] = $_POST['guide_favonly'] ? true : false;
+        $_SESSION['guide_favonly']    = $_POST['guide_favonly'] ? true : false;
+        $_SESSION['timeslot_size']    = max(5, intVal($_POST['timeslot_size'])) * 60;
+        $_SESSION['num_time_slots']   = max(3, intVal($_POST['num_time_slots']));
+        $_SESSION['timeslot_blocks']  = max(1, intVal($_POST['timeslot_blocks']));
+        $_SESSION['timeslotbar_skip'] = max(1, intVal($_POST['timeslotbar_skip']));
+        $_SESSION['max_stars']        = max(3, intVal($_POST['max_stars']));
+        $_SESSION['star_character']   = $_POST['star_character'];
     // Change language?  Make sure we load the new translation file, too.
         if ($_POST['language'] && $_POST['language'] != $_SESSION['language']) {
             $_SESSION['language'] = $_POST['language'];
-            require_once 'languages/'.$_SESSION['language'].'.php';
+            $redirect = true;
         }
 
+    // Skin change requires a redirect because certain constants have already been defined.
+        if ($redirect)
+            redirect_browser(root.module.'/session');
     }
 
 // Load the class for this page
-    require_once theme_dir.'settings/session.php';
+    require_once tmpl_dir.'session.php';
 
 // Exit
     exit;
 
+/**
+ * Displays a <select> of the available templates
+/**/
+    function template_select() {
+        echo '<select name="tmpl">';
+        foreach (array('default', 'compact') as $tmpl) {
+        // Print the option
+            echo '<option value="'.html_entities($tmpl).'"';
+            if ($_SESSION['tmpl'] == $tmpl)
+                echo ' SELECTED';
+            echo '>'.html_entities(str_replace('_', ' ', $tmpl)).'</option>';
+        }
+        echo '</select>';
+    }
 
 /**
- * displays a <select> of the available themes
+ * Displays a <select> of the available skins
 /**/
-    function theme_select() {
-        echo '<select name="theme">';
-        foreach (get_sorted_files("themes/") as $theme) {
+    function skin_select() {
+        echo '<select name="skin">';
+        foreach (get_sorted_files("skins/") as $skin) {
         // Skip the svn directory and the non-browser themes
-            if (in_array($theme, array('.svn', 'wap', 'wml', 'vxml'))) continue;
+            if (in_array($skin, array('.svn', 'wap', 'wml', 'vxml'))) continue;
         // Ignore non-directories
-            if (!is_dir("themes/$theme")) continue;
+            if (!is_dir("skins/$skin")) continue;
         // Print the option
-            echo '<option value="'.html_entities($theme).'"';
-            if ($_SESSION['Theme'] == $theme)
+            echo '<option value="'.html_entities($skin).'"';
+            if ($_SESSION['skin'] == $skin)
                 echo ' SELECTED';
-            $theme = ereg_replace('_', ' ', $theme);
-            echo '>'.html_entities($theme).'</option>';
+            echo '>'.html_entities(str_replace('_', ' ', $skin)).'</option>';
         }
         echo '</select>';
     }
 
 /**
- * displays a <select> of available weather icon sets
-/**/
-    function weathericonset_select() {
-        echo '<select name="weathericonset">';
-        foreach (get_sorted_files("images/weather/") as $theme) {
-        // Skip the CVS directory and the non-browser themes
-            if (in_array($theme, array('CVS', '.svn'))) continue;
-        // Ignore non-directories
-            if (!is_dir("images/weather/$theme")) continue;
-        // Print the option
-            echo '<option value="'.html_entities($theme).'"';
-            if ($_SESSION['weathericonset'] == $theme)
-                echo ' SELECTED';
-            $theme = str_replace('_', ' ', $theme);
-            echo '>'.html_entities($theme).'</option>';
-        }
-        echo '</select>';
-    }
-
-/**
- * displays a <select> of the available languages
+ * Displays a <select> of the available languages
 /**/
     function language_select() {
         echo '<select name="language">';

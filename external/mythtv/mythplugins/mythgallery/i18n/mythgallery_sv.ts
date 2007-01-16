@@ -1,52 +1,5 @@
 <!DOCTYPE TS><TS>
 <context>
-    <name>GLSingleView</name>
-    <message>
-        <source>Folder: </source>
-        <translation>Katalog: </translation>
-    </message>
-    <message>
-        <source>Created: </source>
-        <translation>Skapad: </translation>
-    </message>
-    <message>
-        <source>Modified: </source>
-        <translation>Modifierad: </translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation>Bytes</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Bredd</translation>
-    </message>
-    <message>
-        <source>pixels</source>
-        <translation>pixlar</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Höjd</translation>
-    </message>
-    <message>
-        <source>Pixel Count</source>
-        <translation>Pixelantal</translation>
-    </message>
-    <message>
-        <source>megapixels</source>
-        <translation>megapixels</translation>
-    </message>
-    <message>
-        <source>Rotation Angle</source>
-        <translation>Rotationsvinkel</translation>
-    </message>
-    <message>
-        <source>degrees</source>
-        <translation>grader</translation>
-    </message>
-</context>
-<context>
     <name>IconView</name>
     <message>
         <source>Import pictures?</source>
@@ -104,6 +57,94 @@
         <source>Delete</source>
         <translation>Ta bort</translation>
     </message>
+    <message>
+        <source>MythGallery Directory &apos;%1&apos; does not exist or is unreadable.</source>
+        <translation>MythGallery-katalog &apos;%1&apos; finns inte eller är oläsbar.</translation>
+    </message>
+    <message>
+        <source>MythGallery failed to load theme, see console for details.</source>
+        <translation>MythGallery kunde inte ladda tema, se konsol för detaljer.</translation>
+    </message>
+    <message>
+        <source>The selected device is no longer available</source>
+        <translation>Vald enhet är inte längre tillgänglig</translation>
+    </message>
+    <message>
+        <source>Meta Data...</source>
+        <translation>Metadata...</translation>
+    </message>
+    <message>
+        <source>Marking...</source>
+        <translation>Märkning...</translation>
+    </message>
+    <message>
+        <source>File...</source>
+        <translation>Fil...</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Återgå</translation>
+    </message>
+    <message>
+        <source>Clear Marked</source>
+        <translation>Rensa märkning</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Välj alla</translation>
+    </message>
+    <message>
+        <source>Show Devices</source>
+        <translation>Visa enheter</translation>
+    </message>
+    <message>
+        <source>Copy here</source>
+        <translation>Kopiera hit</translation>
+    </message>
+    <message>
+        <source>Move here</source>
+        <translation>Flytta hit</translation>
+    </message>
+    <message>
+        <source>Create Dir</source>
+        <translation>Skapa katalog</translation>
+    </message>
+    <message>
+        <source>Delete Current File or Folder</source>
+        <translation>Ta bort aktuell fil eller katalog</translation>
+    </message>
+    <message>
+        <source>Deleting 1 folder, including any subfolders and files.</source>
+        <translation>Tar bort 1 katalog, inklusive underkataloger och filer.</translation>
+    </message>
+    <message>
+        <source>Deleting 1 image.</source>
+        <translation>Tar bort 1 bild.</translation>
+    </message>
+    <message>
+        <source>Delete Marked Files</source>
+        <translation>Ta bort märkta filer</translation>
+    </message>
+    <message>
+        <source>Deleting %1 images and folders, including any subfolders and files.</source>
+        <translation>Tar bort %1 bilder och kataloger, inklusive underkataloger och filer.</translation>
+    </message>
+    <message>
+        <source>New Folder</source>
+        <translation>Ny katalog</translation>
+    </message>
+    <message>
+        <source>Create New Folder</source>
+        <translation>Skapa ny katalog</translation>
+    </message>
+    <message>
+        <source>Moving marked images...</source>
+        <translation>Flyttar märkta bilder...</translation>
+    </message>
+    <message>
+        <source>Copying marked images...</source>
+        <translation>Kopierar märkta bilder...</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -144,10 +185,6 @@
         <translation>Detta är antalet sekunder som varje bild visas i ett bildspel.</translation>
     </message>
     <message>
-        <source>MythGallery Settings</source>
-        <translation>Inställningar för Galleriet</translation>
-    </message>
-    <message>
         <source>Slideshow Delay</source>
         <translation>Visningstid vid bildspel</translation>
     </message>
@@ -166,10 +203,6 @@
     <message>
         <source>This is the type of OpenGL transition used between pictures in slideshow mode.</source>
         <translation>Detta är den typ av OpenGL-övergångseffekt som används mellan bilder vid uppspelning av bildspel.</translation>
-    </message>
-    <message>
-        <source>Gallery Directory does not exist or is unreadable.</source>
-        <translation>Katalogen med bilder existerar inte eller är oläsbar.</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -207,52 +240,25 @@
         <source>This is the number of seconds to show a caption on top of a full size picture.</source>
         <translation>Antal sekunder att visa en beskrivning ovanpå en fullstor bild.</translation>
     </message>
-</context>
-<context>
-    <name>SingleView</name>
     <message>
-        <source>Created: </source>
-        <translation>Skapad:</translation>
+        <source>Sort order when browsing</source>
+        <translation>Sorteringsordning vid bläddring</translation>
     </message>
     <message>
-        <source>Modified: </source>
-        <translation>Modifierad:</translation>
+        <source>This is the sort order for the displayed picture thumbnails.</source>
+        <translation>Sorteringsordning för de visade bildminiatyrerna.</translation>
     </message>
     <message>
-        <source>Bytes</source>
-        <translation>Bytes</translation>
+        <source>Duration of OpenGL Transition (milliseconds)</source>
+        <translation>Längd på OpenGL-övergång (millisekunder)</translation>
     </message>
     <message>
-        <source>Width</source>
-        <translation>Bredd</translation>
+        <source>MythGallery Settings (Slideshow)</source>
+        <translation>Inställningar för Galleriet (Bildspel)</translation>
     </message>
     <message>
-        <source>pixels</source>
-        <translation>pixlar</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Höjd</translation>
-    </message>
-    <message>
-        <source>Pixel Count</source>
-        <translation>Pixelantal</translation>
-    </message>
-    <message>
-        <source>megapixels</source>
-        <translation>megapixels</translation>
-    </message>
-    <message>
-        <source>Rotation Angle</source>
-        <translation>Rotationsvinkel</translation>
-    </message>
-    <message>
-        <source>degrees</source>
-        <translation>grader</translation>
-    </message>
-    <message>
-        <source>Folder: </source>
-        <translation>Katalog:</translation>
+        <source>MythGallery Settings (General)</source>
+        <translation>Inställningar för Galleriet (Generellt)</translation>
     </message>
 </context>
 </TS>

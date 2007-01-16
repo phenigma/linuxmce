@@ -2,6 +2,7 @@
 #define RECORDINGPROFILE_H
 
 #include "libmyth/settings.h"
+#include "libmyth/mythdbcon.h"
 #include "libmyth/mythwidgets.h"
 
 const QString availProfiles[] =
@@ -32,12 +33,13 @@ protected:
         setName(name);
     };
 
-    virtual QString whereClause(void);
+    virtual QString whereClause(MSqlBindings& bindings);
 };
 
 class ImageSize;
 class TranscodeResize;
 class TranscodeLossless;
+class TranscodeFilters;
 
 class RecordingProfile: public ConfigurationWizard
 {
@@ -60,27 +62,40 @@ class RecordingProfile: public ConfigurationWizard
         };
     };
 
-    class Name: public LineEditSetting, public RecordingProfileParam {
+    class Name: public LineEditSetting, public RecordingProfileParam
+    {
       public:
         Name(const RecordingProfile& parent):
             LineEditSetting(false),
-            RecordingProfileParam(parent, "name") {
-
+            RecordingProfileParam(parent, "name")
+        {
+            setEnabled(false);
             setLabel(QObject::tr("Profile name"));
-        };
+        }
+
+      public slots:
+        virtual void setValue(const QString &newValue)
+        {
+            bool editable = (newValue != "Default") && (newValue != "Live TV");
+            setRW(editable);
+            setEnabled(editable);
+
+            LineEditSetting::setValue(newValue);
+        }
     };
 
   public:
     // initializers
     RecordingProfile(QString profName = NULL);
     virtual void loadByID(int id);
-    virtual bool loadByCard(QString name, int cardid);
+    virtual bool loadByType(QString name, QString cardtype);
     virtual bool loadByGroup(QString name, QString group);
     virtual int exec();
 
     // sets
     void setCodecTypes();
-    void setName(const QString& newName);
+    void setName(const QString& newName)
+        { name->setValue(newName); }
 
     // gets
     const ImageSize& getImageSize(void) const { return *imageSize;       }
@@ -102,6 +117,7 @@ class RecordingProfile: public ConfigurationWizard
   private slots:
     void ResizeTranscode(bool resize); 
     void SetLosslessTranscode(bool lossless);
+    void FiltersChanged(const QString &val);
 
   private:
     ID                       *id;
@@ -109,6 +125,7 @@ class RecordingProfile: public ConfigurationWizard
     ImageSize                *imageSize;
     TranscodeResize          *tr_resize;
     TranscodeLossless        *tr_lossless;
+    TranscodeFilters         *tr_filters;
     VideoCompressionSettings *videoSettings;
     AudioCompressionSettings *audioSettings;
     QString                   profileName;

@@ -11,7 +11,7 @@
     </message>
     <message>
         <source>No Cover</source>
-        <translation>Ingen plakat</translation>
+        <translation type="obsolete">Ingen plakat</translation>
     </message>
     <message>
         <source>Done</source>
@@ -205,7 +205,7 @@
     </message>
     <message>
         <source>Parental Pin:</source>
-        <translation>Forelder-kode:</translation>
+        <translation type="obsolete">Forelder-kode:</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -217,11 +217,11 @@
     </message>
     <message>
         <source>Unknown Rating</source>
-        <translation>Ukjent grense</translation>
+        <translation type="obsolete">Ukjent grense</translation>
     </message>
     <message>
         <source>No Cover</source>
-        <translation>Intet bilde</translation>
+        <translation type="obsolete">Intet bilde</translation>
     </message>
     <message>
         <source>Could not retrieve poster</source>
@@ -258,10 +258,74 @@
     </message>
     <message>
         <source>Video List Loads Video Meta Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Videolisten laster videodata</translation>
     </message>
     <message>
         <source>If set along with Browse Files, this will cause the Video List to load any known video metadata from the database. Turning this off can greatly  speed up how long it takes to load the Video List tree</source>
+        <translation>Hvis dette og bla i filer er på, laster videolisten all kjent videodata fra databasen. Å slå dette på kan gjøre det mye raskere å laste inn videoliste-treet</translation>
+    </message>
+    <message>
+        <source>Sorting ignores case</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If set, case is ignored when sorting entries in a view.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show folders for database views</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If set, sub folders of your video directory will be shown in supported views.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image cache size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This setting determines the number of images MythVideo will cache for views.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>^(The |A |An )</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished">Alle</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="unfinished">Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation type="unfinished">Nei</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Year</source>
+        <translation type="unfinished">År</translation>
+    </message>
+    <message>
+        <source>User Rating</source>
+        <translation type="unfinished">Rangering</translation>
+    </message>
+    <message>
+        <source>Runtime</source>
+        <translation type="unfinished">Spilletid</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Video ID</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -508,11 +572,11 @@
     </message>
     <message>
         <source>No rating available.</source>
-        <translation>Ingen tilgjengelig aldersgrense.</translation>
+        <translation type="obsolete">Ingen tilgjengelig aldersgrense.</translation>
     </message>
     <message>
         <source>minutes</source>
-        <translation>minutter</translation>
+        <translation type="obsolete">minutter</translation>
     </message>
 </context>
 <context>
@@ -539,7 +603,7 @@
     </message>
     <message>
         <source>Parental Pin:</source>
-        <translation>Forelder-kode:</translation>
+        <translation type="obsolete">Forelder-kode:</translation>
     </message>
 </context>
 <context>
@@ -554,7 +618,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Ukjent</translation>
+        <translation type="obsolete">Ukjent</translation>
     </message>
     <message>
         <source>minutes</source>
@@ -562,7 +626,7 @@
     </message>
     <message>
         <source>All</source>
-        <translation>Alle</translation>
+        <translation type="obsolete">Alle</translation>
     </message>
     <message>
         <source>Save as default</source>
@@ -600,15 +664,15 @@
     <name>VideoManager</name>
     <message>
         <source>minutes</source>
-        <translation>minutter</translation>
+        <translation type="obsolete">minutter</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation>Ja</translation>
+        <translation type="obsolete">Ja</translation>
     </message>
     <message>
         <source>No</source>
-        <translation>Nei</translation>
+        <translation type="obsolete">Nei</translation>
     </message>
     <message>
         <source>Select action:</source>
@@ -648,19 +712,19 @@
     </message>
     <message>
         <source>No Cover</source>
-        <translation>Ingen plakat</translation>
+        <translation type="obsolete">Ingen plakat</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Ukjent</translation>
+        <translation type="obsolete">Ukjent</translation>
     </message>
     <message>
         <source>None</source>
-        <translation>Ingen</translation>
+        <translation type="obsolete">Ingen</translation>
     </message>
     <message>
         <source>NR</source>
-        <translation>Ingen aldersgrense</translation>
+        <translation type="obsolete">Ingen aldersgrense</translation>
     </message>
     <message>
         <source>Delete this file?</source>
@@ -675,18 +739,18 @@
     <name>VideoSelected</name>
     <message>
         <source>No rating available.</source>
-        <translation>Ingen aldersgrense tilgjengelig.</translation>
+        <translation type="obsolete">Ingen aldersgrense tilgjengelig.</translation>
     </message>
     <message>
         <source>minutes</source>
-        <translation>minutter</translation>
+        <translation type="obsolete">minutter</translation>
     </message>
 </context>
 <context>
     <name>VideoTree</name>
     <message>
         <source>Parental Pin:</source>
-        <translation>Forelder-kode:</translation>
+        <translation type="obsolete">Forelder-kode:</translation>
     </message>
     <message>
         <source>Select action</source>

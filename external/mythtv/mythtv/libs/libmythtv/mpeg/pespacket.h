@@ -9,16 +9,9 @@
 */
 
 #include "tspacket.h"
-extern "C" {
-#include "../libavcodec/avcodec.h"
-#include "../libavformat/avformat.h"
-#include "../libavformat/mpegts.h"
-}
 
 unsigned char *pes_alloc(uint size);
 void pes_free(unsigned char *ptr);
-inline unsigned int pes_length(const unsigned char* pesbuf)
-    { return (pesbuf[2] & 0x0f) << 8 | pesbuf[3]; }
 
 /** \class PESPacket
  *  \brief Allows us to transform TS packets to PES packets, which
@@ -34,13 +27,16 @@ class PESPacket
             _psiOffset = tspacket.AFCOffset() + tspacket.StartOfFieldPointer();
         else
         {
-            cerr<<"Started PESPacket, but !payloadStart()"<<endl;
+            VERBOSE(VB_IMPORTANT, "Started PESPacket, but !payloadStart()");
             _psiOffset = tspacket.AFCOffset();
         }
-        _pesdata = tspacket.data() + tspacket.AFCOffset();
+        _pesdata = tspacket.data() + _psiOffset + 1;
 
         _badPacket = true;
-        if ((_pesdata - tspacket.data()) < (188-3-4))
+        // first check if Length() will return something useful and
+        // than check if the packet ends in the first TSPacket
+        if ((_pesdata - tspacket.data()) <= (188-3) &&
+            (_pesdata + Length() - tspacket.data()) <= (188-3))
         {
             _badPacket = !VerifyCRC();
         }
@@ -49,10 +45,20 @@ class PESPacket
   protected:
     // does not create it's own data
     PESPacket(const TSPacket* tspacket, bool)
-        : _pesdata(0), _fullbuffer(0), _pesdataSize(188), _allocSize(0)
+        : _pesdata(NULL), _fullbuffer(NULL), _pesdataSize(184), _allocSize(0)
     {
         InitPESPacket(const_cast<TSPacket&>(*tspacket));
         _fullbuffer = const_cast<unsigned char*>(tspacket->data());
+        _pesdataSize = TSPacket::SIZE - (_pesdata - _fullbuffer);
+    }
+    // does not create it's own data
+    PESPacket(const unsigned char *pesdata, bool)
+        : _pesdata(const_cast<unsigned char*>(pesdata)),
+          _fullbuffer(const_cast<unsigned char*>(pesdata)),
+          _pesdataSize(0), _allocSize(0)
+    {
+        _badPacket = !VerifyCRC();
+        _pesdataSize = max(((int)Length())-1 + (HasCRC() ? 4 : 0), (int)0);
     }
 
   private:
@@ -62,13 +68,16 @@ class PESPacket
   public:
     // may be modified
     PESPacket(const PESPacket& pkt)
-        : _pesdata(0),
+        : _pesdata(NULL),
           _psiOffset(pkt._psiOffset),
           _ccLast(pkt._ccLast),
           _pesdataSize(pkt._pesdataSize),
-          _allocSize((pkt._allocSize) ? pkt._allocSize : 188),
+          _allocSize(pkt._allocSize),
           _badPacket(pkt._badPacket)
     { // clone
+        if (!_allocSize)
+            _allocSize = pkt._pesdataSize + (pkt._pesdata - pkt._fullbuffer);
+
         _fullbuffer = pes_alloc(_allocSize);
         memcpy(_fullbuffer, pkt._fullbuffer, _allocSize);
         _pesdata = _fullbuffer + (pkt._pesdata - pkt._fullbuffer);
@@ -81,11 +90,10 @@ class PESPacket
         InitPESPacket(const_cast<TSPacket&>(tspacket)); // sets _psiOffset
 
         int len     = (4*1024) - 256; /* ~4KB */
-        /* make alloc size multiple of 188 */
-        _allocSize  = ((len+_psiOffset+187)/188)*188;
+        _allocSize  = len + _psiOffset;
         _fullbuffer = pes_alloc(_allocSize);
-        _pesdata    = _fullbuffer + _psiOffset;
-        memcpy(_fullbuffer, tspacket.data(), 188);
+        _pesdata    = _fullbuffer + _psiOffset + 1;
+        memcpy(_fullbuffer, tspacket.data(), TSPacket::SIZE);
     }
 
     // At this point we should have the entire VCT table in buffer
@@ -95,8 +103,8 @@ class PESPacket
         //VirtualChannelTable vct;
 
     // may be modified
-    PESPacket(const TSPacket &tspacket, int start_code_prefix,
-              const unsigned char *pesdata_plus_one, uint pes_size)
+    PESPacket(const TSPacket &tspacket,
+              const unsigned char *pesdata, uint pes_size)
         : _ccLast(tspacket.ContinuityCounter()), _pesdataSize(pes_size)
     { // clone
         InitPESPacket(const_cast<TSPacket&>(tspacket)); // sets _psiOffset
@@ -104,18 +112,18 @@ class PESPacket
         /* make alloc size multiple of 188 */
         _allocSize  = ((len+_psiOffset+187)/188)*188;
         _fullbuffer = pes_alloc(_allocSize);
-        _pesdata    = _fullbuffer + _psiOffset;
+        _pesdata    = _fullbuffer + _psiOffset + 1;
         memcpy(_fullbuffer, tspacket.data(), 188);
-        _pesdata[0] = start_code_prefix;
-        memcpy(_fullbuffer + _psiOffset + 1, pesdata_plus_one, pes_size-1);
+        memcpy(_pesdata, pesdata, pes_size-1);
     }
 
     virtual ~PESPacket()
     {
         if (IsClone())
             pes_free(_fullbuffer);
-        _fullbuffer = 0;
-        _pesdata = 0;
+
+        _fullbuffer = NULL;
+        _pesdata    = NULL;
     }
 
     static const PESPacket View(const TSPacket& tspacket)
@@ -124,10 +132,13 @@ class PESPacket
     static PESPacket View(TSPacket& tspacket)
         { return PESPacket(&tspacket, false); }
 
+    static const PESPacket ViewData(const unsigned char* pesdata)
+        { return PESPacket(pesdata, false); }
+
     bool IsClone() const { return bool(_allocSize); }
 
     // return true if complete or broken
-    bool AddTSPacket(const TSPacket* tspacket);
+    bool AddTSPacket(const TSPacket* tspacket, bool &broken);
 
     bool IsGood() const { return !_badPacket; }
 
@@ -136,109 +147,103 @@ class PESPacket
     TSHeader* tsheader()
         { return reinterpret_cast<TSHeader*>(_fullbuffer); }
 
-    // _pesdata[-2] == 0, _pesdata[-1] == 0, _pesdata[0] == 1
-    unsigned int StartCodePrefix() const { return _pesdata[0]; }
-    unsigned int StreamID() const { return _pesdata[1]; }
-    unsigned int Length() const
-        { return (pesdata()[2] & 0x0f) << 8 | pesdata()[3]; }
+    uint WriteAsTSPackets(unsigned char *buf, uint &cc) const;
+
+    // _pesdata[-3] == 0, _pesdata[-2] == 0, _pesdata[-1] == 1
+    uint StreamID()   const { return _pesdata[0]; }
+    uint Length()     const
+        { return (_pesdata[1] & 0x0f) << 8 | _pesdata[2]; }
     // 2 bits "10"
     // 2 bits "PES_scrambling_control (0 not scrambled)
-    unsigned int ScramblingControl() const
-        { return (pesdata()[4] & 0x30) >> 4; }
+    uint ScramblingControl() const
+        { return (_pesdata[3] & 0x30) >> 4; }
     /// 1 bit  Indicates if this is a high priority packet
-    bool HighPriority() const { return (pesdata()[4] & 0x8) >> 3; }
+    bool HighPriority()       const { return (_pesdata[3] & 0x8) >> 3; }
     /// 1 bit  Data alignment indicator (must be 0 for video)
-    bool DataAligned()  const { return (pesdata()[4] & 0x4) >> 2; }
+    bool DataAligned()        const { return (_pesdata[3] & 0x4) >> 2; }
     /// 1 bit  If true packet may contain copy righted material and is
     ///        known to have once contained materiale with copy rights.
     ///        If false packet may contain copy righted material but is
     ///        not known to have ever contained materiale with copy rights.
-    bool CopyRight()    const { return (pesdata()[4] & 0x2) >> 1; }
+    bool CopyRight()          const { return (_pesdata[3] & 0x2) >> 1; }
     /// 1 bit  Original Recording
-    bool OriginalRecording() const { return pesdata()[4] & 0x1; }
+    bool OriginalRecording()  const { return _pesdata[3] & 0x1; }
 
     /// 1 bit  Presentation Time Stamp field is present
-    bool HasPTS()       const { return (pesdata()[5] & 0x80) >> 7; }
+    bool HasPTS()             const { return (_pesdata[4] & 0x80) >> 7; }
     /// 1 bit  Decoding Time Stamp field is present
-    bool HasDTS()       const { return (pesdata()[5] & 0x40) >> 6; }
+    bool HasDTS()             const { return (_pesdata[4] & 0x40) >> 6; }
     /// 1 bit  Elementary Stream Clock Reference field is present
-    bool HasESCR()      const { return (pesdata()[5] & 0x20) >> 5; }
+    bool HasESCR()            const { return (_pesdata[4] & 0x20) >> 5; }
     /// 1 bit  Elementary Stream Rate field is present
-    bool HasESR()       const { return (pesdata()[5] & 0x10) >> 4; }
+    bool HasESR()             const { return (_pesdata[4] & 0x10) >> 4; }
     /// 1 bit  DSM field present (should always be false for broadcasts)
-    bool HasDSM()       const { return (pesdata()[5] & 0x8) >> 3; }
+    bool HasDSM()             const { return (_pesdata[4] & 0x8) >> 3; }
     /// 1 bit  Additional Copy Info field is present
-    bool HasACI() const { return (pesdata()[5] & 0x4) >> 2; }
+    bool HasACI()             const { return (_pesdata[4] & 0x4) >> 2; }
     /// 1 bit  Cyclic Redundancy Check present
-    bool HasCRC()        const { return (pesdata()[5] & 0x2) >> 1; }
+    bool HasCRC()             const { return (_pesdata[4] & 0x2) >> 1; }
     /// 1 bit  Extension flags are present
-    bool HasExtensionFlags() const { return pesdata()[5] & 0x1; }
+    bool HasExtensionFlags()  const { return _pesdata[4] & 0x1; }
 
     // 8 bits PES Header Length
     // variable length -- pes header fields
     // variable length -- pes data block
 
-    unsigned int TSSizeInBuffer() const { return _pesdataSize; }
-    unsigned int PSIOffset() const { return _psiOffset; }
+    uint TSSizeInBuffer()     const { return _pesdataSize; }
+    uint PSIOffset()          const { return _psiOffset; }
 
     const unsigned char* pesdata() const { return _pesdata; }
-    unsigned char* pesdata() { return _pesdata; }
+    unsigned char* pesdata()             { return _pesdata; }
 
-    const unsigned char* dvbParseableData() const { return _pesdata+1; }
-    /// \brief You can call SIParser::ParseTable(data, size, pid)
-    ///        where data = pes.dvbParseableData(), size = pes.length()+12,
-    ///        and pid = pes.tspacket()->PID().
-    unsigned char* dvbParseableData() { return _pesdata+1; }
+    const unsigned char* data() const { return _fullbuffer; }
+    unsigned char* data() { return _fullbuffer; }
 
-    void SetStartCodePrefix(unsigned int val) { _pesdata[0]=val&0xff; }
-    void SetStreamID(unsigned int id) { _pesdata[1]=id; }
-    void SetLength(unsigned int len)
+    void SetStreamID(uint id) { _pesdata[0] = id; }
+    void SetLength(uint len)
     {
-        pesdata()[2] = (pesdata()[2] & 0xf0) | ((len>>8) & 0x0f);
-        pesdata()[3] = len & 0xff;
+        _pesdata[1] = (_pesdata[1] & 0xf0) | ((len>>8) & 0x0f);
+        _pesdata[2] = len & 0xff;
+    }
+    void SetTotalLength(uint len)
+    {
+        len += 4 /* for CRC */;
+        len -= 3 /* for data before data last byte of length */;
+        SetLength(len);
     }
 
-    unsigned int CRC() const 
-    {
-        unsigned int offset = Length();
-        return ((_pesdata[offset+0]<<24) |
-                (_pesdata[offset+1]<<16) |
-                (_pesdata[offset+2]<<8) |
-                (_pesdata[offset+3]));
-    }
-
-    unsigned int CalcCRC() const
-        { return mpegts_crc32(dvbParseableData(), Length()-1); }
-
-    void SetCRC(unsigned int crc)
-    {
-        _pesdata[Length()+0] = (crc & 0xff000000) >> 24;
-        _pesdata[Length()+1] = (crc & 0x00ff0000) >> 16;
-        _pesdata[Length()+2] = (crc & 0x0000ff00) >> 8;
-        _pesdata[Length()+3] = (crc & 0x000000ff);
-    }
-
-    void SetPSIOffset(unsigned int offset)
+    void SetPSIOffset(uint offset)
     {
         _psiOffset = offset;
-        _pesdata = _fullbuffer + _psiOffset;
+        _pesdata = _fullbuffer + _psiOffset + 1;
     }
 
-    bool VerifyCRC() const { return CalcCRC() == CRC(); }
-
-    /*
-    // for testing
-    unsigned int t_CRC32(int offset) const {
+    uint CRC(void) const
+    {
+        if (!HasCRC() || (Length() < 1))
+            return 0x0;
+        uint offset = Length() - 1;
         return ((_pesdata[offset+0]<<24) |
                 (_pesdata[offset+1]<<16) |
                 (_pesdata[offset+2]<<8) |
                 (_pesdata[offset+3]));
     }
-    // for testing
-    unsigned int t_calcCRC32(int offset) const {
-        return mpegts_crc32(_pesdata+1, offset-1);
+
+    void SetCRC(uint crc)
+    {
+        if (Length() < 1)
+            return;
+
+        uint offset = Length() - 1;
+        _pesdata[offset+0] = (crc & 0xff000000) >> 24;
+        _pesdata[offset+1] = (crc & 0x00ff0000) >> 16;
+        _pesdata[offset+2] = (crc & 0x0000ff00) >> 8;
+        _pesdata[offset+3] = (crc & 0x000000ff);
     }
-    */
+
+    uint CalcCRC(void) const;
+    bool VerifyCRC(void) const;
+
   protected:
     void Finalize() { SetCRC(CalcCRC()); }
 
@@ -247,7 +252,7 @@ class PESPacket
   private:
     uint _psiOffset;    ///< AFCOffset + StartOfFieldPointer
     uint _ccLast;       ///< Continuity counter of last inserted TS Packet
-    uint _pesdataSize;  ///< Number of bytes containing PES data
+    uint _pesdataSize;  ///< Number of data bytes (TS header + PES data)
     uint _allocSize;    ///< Total number of bytes we allocated
     bool _badPacket;    ///< true if a CRC is not good yet
 };

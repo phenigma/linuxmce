@@ -1,4 +1,5 @@
 #include "recordingprofile.h"
+#include "cardutil.h"
 #include "libmyth/mythcontext.h"
 #include "libmyth/mythdbcon.h"
 #include "libmyth/mythwizard.h"
@@ -10,8 +11,13 @@
 
 #include "managedlist.h"
 
-QString RecordingProfileParam::whereClause(void) {
-  return QString("id = %1").arg(parentProfile.getProfileNum());
+QString RecordingProfileParam::whereClause(MSqlBindings& bindings) {
+    QString idTag(":WHEREID");
+    QString query("id = " + idTag);
+
+    bindings.insert(idTag, parentProfile.getProfileNum());
+
+    return query;
 }
 
 class CodecParam: public SimpleDBStorage,
@@ -24,20 +30,35 @@ protected:
         setName(name);
     };
 
-    virtual QString setClause(void);
-    virtual QString whereClause(void);
+    virtual QString setClause(MSqlBindings& bindings);
+    virtual QString whereClause(MSqlBindings& bindings);
 };
 
-QString CodecParam::setClause(void) {
-  return QString("profile = %1, name = '%2', value = '%3'")
-    .arg(parentProfile.getProfileNum())
-    .arg(getName())
-    .arg(getValue());
+QString CodecParam::setClause(MSqlBindings& bindings) {
+    QString profileTag(":SETPROFILE");
+    QString nameTag(":SETNAME");
+    QString valueTag(":SETVALUE");
+
+    QString query("profile = " + profileTag + ", name = " + nameTag
+            + ", value = " + valueTag);
+
+    bindings.insert(profileTag, parentProfile.getProfileNum());
+    bindings.insert(nameTag, getName());
+    bindings.insert(valueTag, getValue());
+
+    return query;
 }
 
-QString CodecParam::whereClause(void) {
-  return QString("profile = %1 AND name = '%2'")
-    .arg(parentProfile.getProfileNum()).arg(getName());
+QString CodecParam::whereClause(MSqlBindings& bindings) {
+    QString profileTag(":WHEREPROFILE");
+    QString nameTag(":WHERENAME");
+
+    QString query("profile = " + profileTag + " AND name = " + nameTag);
+
+    bindings.insert(profileTag, parentProfile.getProfileNum());
+    bindings.insert(nameTag, getName());
+
+    return query;
 }
 
 class AudioCodecName: public ComboBoxSetting, public RecordingProfileParam {
@@ -55,7 +76,7 @@ public:
         SliderSetting(1,9,1) {
         setLabel(QObject::tr("MP3 Quality"));
         setValue(7);
-	setHelpText(QObject::tr("The higher the slider number, the lower the "
+        setHelpText(QObject::tr("The higher the slider number, the lower the "
                     "quality of the audio.  Better quality audio (lower "
                     "numbers) requires more CPU."));
     };
@@ -89,7 +110,7 @@ public:
             //addSelection("44100");
             //addSelection("32000");
         }
-	setHelpText(QObject::tr("Sets the audio sampling rate for your DSP. "
+        setHelpText(QObject::tr("Sets the audio sampling rate for your DSP. "
                     "Ensure that you choose a sampling rate appropriate "
                     "for your device.  btaudio may only allow 32000."));
     };
@@ -100,7 +121,7 @@ public:
    MPEG2audType(const RecordingProfile& parent):
         CodecParam(parent, "mpeg2audtype") {
         setLabel(QObject::tr("Type"));
-	setHelpText(QObject::tr("Sets the audio type"));
+        setHelpText(QObject::tr("Sets the audio type"));
     };
 };
 
@@ -169,11 +190,11 @@ public:
 class MPEG2AudioBitrateSettings: public VerticalConfigurationGroup,
                                  public TriggeredConfigurationGroup {
 public:
-    MPEG2AudioBitrateSettings(const RecordingProfile& parent)
-           : VerticalConfigurationGroup(false)
+    MPEG2AudioBitrateSettings(const RecordingProfile& parent) :
+        ConfigurationGroup(false, true, false, false),
+        VerticalConfigurationGroup(false, true, false, false)
     {
         setLabel(QObject::tr("Bitrate Settings"));
-        setUseLabel(false);
         MPEG2audType* audType = new MPEG2audType(parent);
         addChild(audType);
         setTrigger(audType);
@@ -196,8 +217,9 @@ public:
 class AudioCompressionSettings: public VerticalConfigurationGroup,
                                 public TriggeredConfigurationGroup {
 public:
-    AudioCompressionSettings(const RecordingProfile& parent, QString profName)
-           : VerticalConfigurationGroup(false)
+    AudioCompressionSettings(const RecordingProfile& parent, QString profName) :
+        ConfigurationGroup(false, true, false, false),
+        VerticalConfigurationGroup(false, true, false, false)
     {
         QString labelName;
         if (profName.isNull())
@@ -205,7 +227,6 @@ public:
         else
             labelName = profName + "->" + QObject::tr("Audio Quality");
         setName(labelName);
-        setUseLabel(false);
 
         codecName = new AudioCodecName(parent);
         addChild(codecName);
@@ -271,7 +292,7 @@ public:
         SliderSetting(1,255,1) {
         setLabel(QObject::tr("RTjpeg Quality"));
         setValue(170);
-	setHelpText(QObject::tr("Higher is better quality."));
+        setHelpText(QObject::tr("Higher is better quality."));
     };
 };
 
@@ -282,7 +303,7 @@ public:
         SpinBoxSetting(0,31,1) {
         setLabel(QObject::tr("Luma filter"));
         setValue(0);
-	setHelpText(QObject::tr("Lower is better."));
+        setHelpText(QObject::tr("Lower is better."));
     };
 };
 
@@ -293,7 +314,7 @@ public:
         SpinBoxSetting(0,31,1) {
         setLabel(QObject::tr("Chroma filter"));
         setValue(0);
-	setHelpText(QObject::tr("Lower is better."));
+        setHelpText(QObject::tr("Lower is better."));
     };
 };
 
@@ -305,7 +326,7 @@ public:
 
         setLabel(QObject::tr("Bitrate"));
         setValue(2200);
-	setHelpText(QObject::tr("Bitrate in kilobits/second.  2200Kbps is "
+        setHelpText(QObject::tr("Bitrate in kilobits/second.  2200Kbps is "
                     "approximately 1 Gigabyte per hour."));
     };
 };
@@ -316,7 +337,7 @@ public:
         CodecParam(parent, "mpeg4scalebitrate") {
         setLabel(QObject::tr("Scale bitrate for frame size"));
         setValue(true);
-	setHelpText(QObject::tr("If set, the MPEG4 bitrate will be used for "
+        setHelpText(QObject::tr("If set, the MPEG4 bitrate will be used for "
                     "640x480.  If other resolutions are used, the "
                     "bitrate will be scaled appropriately."));
     };
@@ -330,7 +351,7 @@ public:
 
         setLabel(QObject::tr("Minimum quality"));
         setValue(15);
-	setHelpText(QObject::tr("Modifying the default may have severe "
+        setHelpText(QObject::tr("Modifying the default may have severe "
                     "consequences."));
     };
 };
@@ -343,7 +364,7 @@ public:
 
         setLabel(QObject::tr("Maximum quality"));
         setValue(2);
-	setHelpText(QObject::tr("Modifying the default may have severe "
+        setHelpText(QObject::tr("Modifying the default may have severe "
                     "consequences."));
     };
 };
@@ -367,9 +388,10 @@ public:
         CodecParam(parent, "mpeg4optionidct") {
         setLabel(QObject::tr("Enable interlaced DCT encoding"));
         setValue(false);
-        setHelpText(QObject::tr("If set, the MPEG4 encoder will use interlaced "
-                    "DCT encoding.  You probably want this when encoding "
-                    "interlaced video."));
+        setHelpText(QObject::tr("If set, the MPEG4 encoder will use "
+                    "interlaced DCT encoding. You may want this when encoding "
+                    "interlaced video, however, this is experimental and may "
+                    "cause damaged video."));
     };
 };
 
@@ -379,9 +401,10 @@ public:
         CodecParam(parent, "mpeg4optionime") {
         setLabel(QObject::tr("Enable interlaced motion estimation"));
         setValue(false);
-        setHelpText(QObject::tr("If set, the MPEG4 encoder will use interlaced "
-                    "motion estimation.  You probably want this when encoding "
-                    "interlaced video."));
+        setHelpText(QObject::tr("If set, the MPEG4 encoder will use "
+                    "interlaced motion estimation. You may want this when "
+                    "encoding interlaced video, however, this is experimental "
+                    "and may cause damaged video."));
     };
 };
 
@@ -527,9 +550,10 @@ public:
 class VideoCompressionSettings: public VerticalConfigurationGroup,
                                 public TriggeredConfigurationGroup {
 public:
-    VideoCompressionSettings(const RecordingProfile& parent, QString profName)
-             : VerticalConfigurationGroup(false),
-               TriggeredConfigurationGroup(false)
+    VideoCompressionSettings(const RecordingProfile& parent, QString profName) :
+        ConfigurationGroup(false, true, false, false),
+        VerticalConfigurationGroup(false, true, false, false),
+        TriggeredConfigurationGroup(false)
     {
         QString labelName;
         if (profName.isNull())
@@ -537,7 +561,6 @@ public:
         else
             labelName = profName + "->" + QObject::tr("Video Compression");
         setName(labelName);
-        setUseLabel(false);
 
         codecName = new VideoCodecName(parent);
         addChild(codecName);
@@ -570,7 +593,7 @@ public:
         inter->addChild(new MPEG4OptionIDCT(parent));
         inter->addChild(new MPEG4OptionIME(parent));
         params->addChild(inter);
-#ifdef HAVE_PTHREADS
+#ifdef USING_FFMPEG_THREADS
         params->addChild(new EncodingThreadCount(parent));
 #endif
         addTarget("MPEG-4", params);
@@ -585,7 +608,7 @@ public:
         //params->addChild(new MPEG4ScaleBitrate(parent));
         //params->addChild(new MPEG4OptionVHQ(parent));
         //params->addChild(new MPEG4Option4MV(parent));
-#ifdef HAVE_PTHREADS
+#ifdef USING_FFMPEG_THREADS
         params->addChild(new EncodingThreadCount(parent));
 #endif
         addTarget("MPEG-2", params);
@@ -644,7 +667,7 @@ public:
         CodecParam(parent, "autotranscode") {
         setLabel(QObject::tr("Enable auto-transcode after recording"));
         setValue(false);
-	    setHelpText(QObject::tr("Automatically transcode when a recording is "
+        setHelpText(QObject::tr("Automatically transcode when a recording is "
                                 "made using this profile and the recording's "
                                 "schedule is configurd to allow transcoding."));
     };
@@ -676,16 +699,40 @@ public:
     };
 };
 
-class TranscodePreserveAspect: public CodecParam, public CheckBoxSetting {
+class RecordingType : public CodecParam, public ComboBoxSetting
+{
+  public:
+    RecordingType(const RecordingProfile& parent) :
+        CodecParam(parent, "recordingtype")
+    {
+        setLabel(QObject::tr("Recording Type"));
+
+        QString msg = QObject::tr(
+            "This option allows you to filter out unwanted streams. "
+            "'Normal' will record all relevant streams including "
+            "interactive television data. 'TV Only' will record only "
+            "audio, video and subtitle streams. ");
+        setHelpText(msg);
+
+        addSelection(QObject::tr("Normal"),     "all");
+        addSelection(QObject::tr("TV Only"),    "tv");
+        addSelection(QObject::tr("Audio Only"), "audio");
+        setValue(0);
+    };
+};
+
+
+class TranscodeFilters: public CodecParam, public LineEditSetting {
 public:
-    TranscodePreserveAspect(const RecordingProfile& parent):
-        CodecParam(parent, "transcodepreserveaspect") {
-        setLabel(QObject::tr("Preserve Aspect Ratio of Video when resizing"));
-        setValue(false);
-        setHelpText(QObject::tr("Preserve the aspect ratio of the original "
-                                "recording file by ignoring the height "
-                                "setting above, and calculating the new height "
-                                "based on the aspect ratio and width."));
+    TranscodeFilters(const RecordingProfile& parent):
+        CodecParam(parent, "transcodefilters"),
+        LineEditSetting() {
+        setLabel(QObject::tr("Custom Filters"));
+        setHelpText(QObject::tr("Filters used when transcoding with this "
+                                "profile. This value must be blank to perform "
+                                "lossless transcoding.  Format: "
+                                "[[<filter>=<options>,]...]"
+                                ));
     };
 };
 
@@ -693,27 +740,42 @@ class ImageSize: public VerticalConfigurationGroup {
 public:
     class Width: public SpinBoxSetting, public CodecParam {
     public:
-        Width(const RecordingProfile& parent, int maxwidth=704):
-            SpinBoxSetting(160,maxwidth,16),
+        Width(const RecordingProfile& parent, int maxwidth=704,
+              bool transcoding = false):
+            SpinBoxSetting(transcoding ? 0 : 160,
+                           maxwidth, 16, false,
+                           transcoding ? QObject::tr("Auto") : ""),
             CodecParam(parent, "width") {
             setLabel(QObject::tr("Width"));
             setValue(480);
+            if (transcoding)
+                setHelpText(QObject::tr("If the width is set to 'Auto', "
+                            "the width will be calculated based on the height "
+                            "and the recording's physical aspect ratio."));
         };
     };
 
     class Height: public SpinBoxSetting, public CodecParam {
     public:
-        Height(const RecordingProfile& parent, int maxheight=576):
-            SpinBoxSetting(160,maxheight,16),
+        Height(const RecordingProfile& parent, int maxheight=576,
+               bool transcoding = false):
+            SpinBoxSetting(transcoding ? 0 : 160,
+                           maxheight, 16, false,
+                           transcoding ? QObject::tr("Auto") : ""),
             CodecParam(parent, "height") {
             setLabel(QObject::tr("Height"));
             setValue(480);
+            if (transcoding)
+                setHelpText(QObject::tr("If the height is set to 'Auto', "
+                            "the height will be calculated based on the width "
+                            "and the recording's physical aspect ratio."));
         };
     };
 
     ImageSize(const RecordingProfile& parent, QString tvFormat,
-              QString profName) 
-         : VerticalConfigurationGroup(false) 
+              QString profName) :
+        ConfigurationGroup(false, true, false, false),
+        VerticalConfigurationGroup(false, true, false, false)
     {
         ConfigurationGroup* imgSize = new HorizontalConfigurationGroup(false);
         QString labelName;
@@ -723,13 +785,13 @@ public:
             labelName = profName + "->" + QObject::tr("Image size");
         setLabel(labelName);
 
-        setUseLabel(false);
-
         QString fullsize, halfsize;
         int maxwidth, maxheight;
+        bool transcoding = false;
         if (profName.left(11) == "Transcoders") {
             maxwidth = 1920;
             maxheight = 1088;
+            transcoding = true;
         } else if ((tvFormat.lower() == "ntsc") ||
                    (tvFormat.lower() == "ntsc-jp")) {
             maxwidth = 720;
@@ -742,19 +804,9 @@ public:
             maxheight = 576;
         }
 
-        imgSize->addChild(new Width(parent,maxwidth));
-        imgSize->addChild(new Height(parent,maxheight));
+        imgSize->addChild(new Width(parent, maxwidth, transcoding));
+        imgSize->addChild(new Height(parent, maxheight, transcoding));
         addChild(imgSize);
-
-        if (profName != NULL)
-        {
-            if (profName.left(11) == "Transcoders")
-                addChild(new TranscodePreserveAspect(parent));
-        }
-        else
-        {
-            addChild(new TranscodePreserveAspect(parent));
-        }
     };
 };
 
@@ -776,6 +828,7 @@ RecordingProfile::RecordingProfile(QString profName)
     profile->setLabel(labelName);
     profile->addChild(name);
 
+    tr_filters = NULL;
     tr_lossless = NULL;
     tr_resize = NULL;
 
@@ -783,8 +836,10 @@ RecordingProfile::RecordingProfile(QString profName)
     {
         if (profName.left(11) == "Transcoders")
         {
+            tr_filters = new TranscodeFilters(*this);
             tr_lossless = new TranscodeLossless(*this);
             tr_resize = new TranscodeResize(*this);
+            profile->addChild(tr_filters);
             profile->addChild(tr_lossless);
             profile->addChild(tr_resize);
         }
@@ -793,8 +848,10 @@ RecordingProfile::RecordingProfile(QString profName)
     }
     else
     {
+        tr_filters = new TranscodeFilters(*this);
         tr_lossless = new TranscodeLossless(*this);
         tr_resize = new TranscodeResize(*this);
+        profile->addChild(tr_filters);
         profile->addChild(tr_lossless);
         profile->addChild(tr_resize);
         profile->addChild(new AutoTranscode(*this));
@@ -806,6 +863,8 @@ RecordingProfile::RecordingProfile(QString profName)
 void RecordingProfile::ResizeTranscode(bool resize)
 {
     MythWizard *wizard = (MythWizard *)dialog;
+    if (!wizard)
+        return;
     //page '1' is the Image Size page
     QWidget *size_page = wizard->page(1);
     wizard->setAppropriate(size_page, resize);
@@ -814,6 +873,8 @@ void RecordingProfile::ResizeTranscode(bool resize)
 void RecordingProfile::SetLosslessTranscode(bool lossless)
 {
     MythWizard *wizard = (MythWizard *)dialog;
+    if (!wizard)
+        return;
 
     bool show_size = (lossless) ? false : tr_resize->boolValue();
     wizard->setAppropriate(wizard->page(1), show_size);
@@ -823,6 +884,8 @@ void RecordingProfile::SetLosslessTranscode(bool lossless)
     wizard->setNextEnabled(wizard->page(0), ! lossless);
     wizard->setFinishEnabled(wizard->page(0), lossless);
     
+    if (tr_filters)
+        tr_filters->setEnabled(!lossless);
 }
 
 void RecordingProfile::loadByID(int profileId) 
@@ -835,12 +898,13 @@ void RecordingProfile::loadByID(int profileId)
         "      recordingprofiles.id = :PROFILEID");
     result.bindValue(":PROFILEID", profileId);
 
+    QString type = "";
     if (!result.exec() || !result.isActive())
         MythContext::DBError("RecordingProfile::loadByID -- cardtype", result);
     else if (result.next())
     {
-        QString type = result.value(0).toString();
-        isEncoder = (type != "DVB" && type != "HDTV");
+        type = result.value(0).toString();
+        isEncoder = CardUtil::IsEncoder(type);
     }
 
     if (isEncoder)
@@ -859,15 +923,35 @@ void RecordingProfile::loadByID(int profileId)
             connect(tr_resize, SIGNAL(valueChanged   (bool)),
                     this,      SLOT(  ResizeTranscode(bool)));
             connect(tr_lossless, SIGNAL(valueChanged        (bool)),
-                    this,        SLOT(  SetLosslessTranscode(bool)));
+                    this,      SLOT(  SetLosslessTranscode(bool)));
+            connect(tr_filters, SIGNAL(valueChanged(const QString &)),
+                    this,      SLOT(FiltersChanged(const QString &)));
         }
+    }
+    else if (type.upper() == "DVB")
+    {
+        addChild(new RecordingType(*this));
     }
 
     id->setValue(profileId);
     load();
 }
 
-bool RecordingProfile::loadByCard(QString name, int cardid) 
+void RecordingProfile::FiltersChanged(const QString &val)
+{
+    if (!tr_filters || !tr_lossless)
+      return;
+   
+    // If there are filters, we can not do lossless transcoding 
+    if (val.stripWhiteSpace().length() > 0) {
+       tr_lossless->setValue(false);
+       tr_lossless->setEnabled(false);
+    } else {
+       tr_lossless->setEnabled(true);
+    }
+}
+
+bool RecordingProfile::loadByType(QString name, QString cardtype) 
 {
     QString hostname = gContext->GetHostName();
     int recid = 0;
@@ -878,24 +962,26 @@ bool RecordingProfile::loadByCard(QString name, int cardid)
         "       profilegroups.is_default "
         "FROM recordingprofiles, profilegroups, capturecard "
         "WHERE profilegroups.id       = recordingprofiles.profilegroup AND "
-        "      capturecard.cardtype   = profilegroups.cardtype         AND "
-        "      capturecard.cardid     = :CARDID                        AND "
+        "      profilegroups.cardtype = :CARDTYPE                      AND "
         "      recordingprofiles.name = :NAME");
-    result.bindValue(":CARDID", cardid);
+    result.bindValue(":CARDTYPE", cardtype);
     result.bindValue(":NAME", name);
 
-    if (result.exec() && result.isActive() && result.size() > 0)
+    if (!result.exec() || !result.isActive())
     {
-        while (result.next())
+        MythContext::DBError("RecordingProfile::loadByType()", result);
+        return false;
+    }
+
+    while (result.next())
+    {
+        if (result.value(1).toString() == hostname)
         {
-            if (result.value(1).toString() == hostname)
-            {
-                recid = result.value(0).toInt();
-                break;
-            }
-            else if (result.value(2).toInt() == 1)
-                recid = result.value(0).toInt();
+            recid = result.value(0).toInt();
+            break;
         }
+        else if (result.value(2).toInt() == 1)
+            recid = result.value(0).toInt();
     }
     if (recid)
     {
@@ -933,19 +1019,19 @@ void RecordingProfile::setCodecTypes()
         audioSettings->selectCodecs(groupType());
 }
 
-void RecordingProfile::setName(const QString& newName)
-{
-    name->setValue(newName);
-    name->setRW(isEncoder);
-}
-
 int RecordingProfile::exec()
 {
     MythDialog* dialog = dialogWidget(gContext->GetMainWindow());
+
     dialog->Show();
     if (tr_lossless)
         SetLosslessTranscode(tr_lossless->boolValue());
-
+    if (tr_resize)
+        ResizeTranscode(tr_resize->boolValue());
+    // Filters should be set last because it might disable lossless
+    if (tr_filters)
+        FiltersChanged(tr_filters->getValue());
+    
     int ret = dialog->exec();
 
     delete dialog;
@@ -991,116 +1077,118 @@ int RecordingProfileEditor::exec() {
     return QDialog::Rejected;
 }
 
-void RecordingProfile::fillSelections(SelectSetting* setting, int group,
+void RecordingProfile::fillSelections(SelectSetting *setting, int group,
                                       bool foldautodetect)
 {
-    if (group == 0)
+    if (!group)
     {
-       for(int i = 0; availProfiles[i] != ""; i++)
+       for (uint i = 0; !availProfiles[i].isEmpty(); i++)
            setting->addSelection(availProfiles[i], availProfiles[i]);
+       return;
     }
-    else
-    {
-        MSqlQuery result(MSqlQuery::InitCon());
-        QString querystr = QString("SELECT name, id FROM recordingprofiles "
-                                "WHERE profilegroup = %1 ORDER BY id;")
-                                .arg(group);
-        result.prepare(querystr);
 
-        if (result.exec() && result.isActive() && result.size() > 0)
+    MSqlQuery result(MSqlQuery::InitCon());
+    result.prepare(
+        "SELECT name, id "
+        "FROM recordingprofiles "
+        "WHERE profilegroup = :GROUP "
+        "ORDER BY id");
+    result.bindValue(":GROUP", group);
+
+    if (!result.exec() || !result.isActive())
+    {
+        MythContext::DBError("RecordingProfile::fillSelections 1", result);
+        return;
+    }
+    else if (!result.size())
+        return;
+
+    if (group == RecordingProfile::TranscoderGroup && foldautodetect)
+    {
+        QString id = QString::number(RecordingProfile::TranscoderAutodetect);
+        setting->addSelection(QObject::tr("Autodetect"), id);
+    }
+
+    while (result.next())
+    {
+        QString name = result.value(0).toString();
+        QString id   = result.value(1).toString();
+
+        if (group == RecordingProfile::TranscoderGroup)
         {
-            if (group == RecordingProfile::TranscoderGroup && foldautodetect)
+            if (name == "RTjpeg/MPEG4" || name == "MPEG2")
             {
-                setting->addSelection(QObject::tr("Autodetect"),
-                                      QString::number(
-                                      RecordingProfile::TranscoderAutodetect));
-            }
-            while (result.next())
-            {
-                if (group == RecordingProfile::TranscoderGroup)
+                if (!foldautodetect)
                 {
-                    if (result.value(0).toString() == "RTjpeg/MPEG4" ||
-                        result.value(0).toString() == "MPEG2")
-                    {
-                        if (foldautodetect)
-                        {
-                            /* Hide; used by "Autodetect". */
-                        }
-                        else
-                        {
-                            setting->addSelection(QObject::tr("Autodetect from %1")
-                                              .arg(result.value(0).toString()),
-                                              result.value(1).toString());
-                        }
-                    }
-                    else
-                    {
-                        setting->addSelection(result.value(0).toString(),
-                                              result.value(1).toString());
-                    }
-                }
-                else
-                {
-                    setting->addSelection(result.value(0).toString(),
-                                          result.value(1).toString());    
+                    setting->addSelection(
+                        QObject::tr("Autodetect from %1").arg(name), id);
                 }
             }
+            else
+            {
+                setting->addSelection(name, id);
+            }
+            continue;
         }
+
+        setting->addSelection(name, id);
     }
 }
 
-void RecordingProfile::fillSelections(SelectManagedListItem* setting, int group)
+void RecordingProfile::fillSelections(SelectManagedListItem *setting,
+                                      int group)
 {
-    if (group == 0)
+    if (!group)
     {
-       for(int i = 0; availProfiles[i] != ""; i++)
-       {
-          QString tempLabel(QObject::tr("Record using the \"%1\" profile"));
-          setting->addSelection(QString(tempLabel).arg(availProfiles[i]), availProfiles[i], false);
-       }
-    }
-    else
-    {
-        MSqlQuery result(MSqlQuery::InitCon());
-        QString querystr = QString("SELECT name, id FROM recordingprofiles "
-                                "WHERE profilegroup = %1 ORDER BY id;")
-                                .arg(group);
-        result.prepare(querystr);
-
-        if (result.exec() && result.isActive() && result.size() > 0)
+        for (uint i = 0; !availProfiles[i].isEmpty(); i++)
         {
-            if (group == RecordingProfile::TranscoderGroup)
-            {
-                setting->addSelection(QObject::tr("Transcode using Autodetect"),
-                                      QString::number(
-                                      RecordingProfile::TranscoderAutodetect));
-            }
-            while (result.next())
-            {
-                if (group == RecordingProfile::TranscoderGroup)
-                {
-                    /* RTjpeg/MPEG4 and MPEG2 are used by "Autodetect". */
-                    if (result.value(0).toString() != "RTjpeg/MPEG4" &&
-                        result.value(0).toString() != "MPEG2")
-                    {
-                        QString tempLabel(QObject::tr(
-                                          "Transcode using \"%1\""));
-                        setting->addSelection(QString(tempLabel)
-                                              .arg(result.value(0).toString()),
-                                              result.value(1).toString(),
-                                              false);
-                    }
-                }
-                else
-                {
-                    QString tempLabel(QObject::tr(
-                                      "Record using the \"%1\" profile"));
-                    setting->addSelection(QString(tempLabel)
-                                          .arg(result.value(0).toString()),
-                                          result.value(1).toString(), false);
-                }
-            }
+            QString lbl = QObject::tr("Record using the \"%1\" profile")
+                .arg(availProfiles[i]);
+            setting->addSelection(lbl, availProfiles[i], false);
         }
+        return;
+    }
+
+    MSqlQuery result(MSqlQuery::InitCon());
+    result.prepare(
+        "SELECT name, id "
+        "FROM recordingprofiles "
+        "WHERE profilegroup = :GROUP "
+        "ORDER BY id");
+    result.bindValue(":GROUP", group);
+
+    if (!result.exec() || !result.isActive())
+    {
+        MythContext::DBError("RecordingProfile::fillSelections 2", result);
+        return;
+    }
+    else if (!result.size())
+        return;
+
+    if (group == RecordingProfile::TranscoderGroup)
+    {
+        QString id = QString::number(RecordingProfile::TranscoderAutodetect);
+        setting->addSelection(QObject::tr("Transcode using Autodetect"), id);
+    }
+
+    while (result.next())
+    {
+        QString name = result.value(0).toString();
+        QString id   = result.value(1).toString();
+
+        if (group == RecordingProfile::TranscoderGroup)
+        {
+            /* RTjpeg/MPEG4 and MPEG2 are used by "Autodetect". */
+            if (name != "RTjpeg/MPEG4" && name != "MPEG2")
+            {
+                QString lbl = QObject::tr("Transcode using \"%1\"").arg(name);
+                setting->addSelection(lbl, id, false);
+            }
+            continue;
+        }
+
+        QString lbl = QObject::tr("Record using the \"%1\" profile").arg(name);
+        setting->addSelection(lbl, result.value(1).toString(), false);
     }
 }
 
@@ -1139,3 +1227,4 @@ QString RecordingProfile::getName(int id)
     return NULL;
 }
 
+/* vim: set expandtab tabstop=4 shiftwidth=4: */

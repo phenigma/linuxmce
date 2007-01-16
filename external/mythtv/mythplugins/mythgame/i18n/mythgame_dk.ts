@@ -153,7 +153,7 @@
     </message>
     <message>
         <source>List of all file extensions to be used for this emulator. Blank means any file under ROM PATH is considered to be used with this emulator</source>
-        <translation>Liste med alle fil endelser som bruges til denne emulator. Blank gør at alle filer under denne sti kan bruges til denne emulator</translation>
+        <translation type="obsolete">Liste med alle fil endelser som bruges til denne emulator. Blank gør at alle filer under denne sti kan bruges til denne emulator</translation>
     </message>
     <message>
         <source>ScreenShots</source>
@@ -226,49 +226,60 @@
     </message>
     <message>
         <source>19xx</source>
-        <translation type="unfinished"></translation>
+        <translation>19xx</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>Nej</translation>
     </message>
     <message>
         <source>No to all</source>
-        <translation type="unfinished"></translation>
+        <translation>Nej til alt</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ja</translation>
     </message>
     <message>
         <source>Yes to all</source>
-        <translation type="unfinished"></translation>
+        <translation>Ja til alt</translation>
     </message>
     <message>
         <source>File Missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen mangler</translation>
     </message>
     <message>
         <source>%1 appears to be missing.
 Remove it from the database?</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ser ud til at mangle
+Fjern den fra databasen?</translation>
     </message>
     <message>
         <source>Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Er du sikker?</translation>
     </message>
     <message>
         <source>This will clear all Game Meta Data
 from the database. Are you sure you
 want to do this?</source>
-        <translation type="unfinished"></translation>
+        <translation>Dette vil slette alt Spil Meta Data
+fra databsen. Er du sikker
+at du vil gøre det?</translation>
     </message>
     <message>
         <source>SEGA/MASTER SYSYTEM</source>
+        <translation>SEGA/MASTER SYSYTEM</translation>
+    </message>
+    <message>
+        <source>A Comma seperated list of all file extensions for this emulator. Blank means any file under ROM PATH is considered to be used with this emulator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GAMEGEAR</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

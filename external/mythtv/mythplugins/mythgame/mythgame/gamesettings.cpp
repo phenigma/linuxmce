@@ -92,15 +92,26 @@ MythGameGeneralSettings::MythGameGeneralSettings()
 }
 
 // Player Settings
-QString MGSetting::whereClause(void) {
-    return QString("gameplayerid = %1").arg(parent.getGamePlayerID());
+QString MGSetting::whereClause(MSqlBindings &bindings) {
+    QString playerId(":PLAYERID");
+    QString query("gameplayerid = " + playerId);
+
+    bindings.insert(playerId, parent.getGamePlayerID());
+
+    return query;
 }
 
-QString MGSetting::setClause(void) {
-    return QString("gameplayerid = %1, %2 = '%3'")
-        .arg(parent.getGamePlayerID())
-        .arg(getColumn())
-        .arg(getValue());
+QString MGSetting::setClause(MSqlBindings &bindings) {
+    QString playerID(":SETPLAYERID");
+    QString colTag(":SET" + getColumn().upper());
+
+    QString query("gameplayerid = " + playerID + ", " +
+                  getColumn() + " = " + colTag);
+
+    bindings.insert(playerID, parent.getGamePlayerID());
+    bindings.insert(colTag, getValue());
+
+    return query;
 }
 
 class AllowMultipleRoms: virtual public MGSetting, virtual public CheckBoxSetting {
@@ -158,7 +169,7 @@ public:
     Extensions(const MythGamePlayerSettings& parent):
         MGSetting(parent, "extensions") {
         setLabel(QObject::tr("File Extensions"));
-        setHelpText(QObject::tr("List of all file extensions to be used for this emulator. Blank means any file under ROM PATH is considered to be used with this emulator"));
+        setHelpText(QObject::tr("A Comma seperated list of all file extensions for this emulator. Blank means any file under ROM PATH is considered to be used with this emulator"));
     };
 };
 

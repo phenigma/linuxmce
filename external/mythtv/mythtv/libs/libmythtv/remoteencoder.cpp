@@ -8,19 +8,21 @@ using namespace std;
 #include "programinfo.h"
 #include "util.h"
 #include "mythcontext.h"
+#include "signalmonitor.h"
+#include "videooutbase.h"
+#include "mythsocket.h"
 
 RemoteEncoder::RemoteEncoder(int num, const QString &host, short port)
     : recordernum(num),       controlSock(NULL),      remotehost(host),
-      remoteport(port),       lastchannel(""),        backendError(false),
-      cachedFramesWritten(0)
+      remoteport(port),       lastchannel(""),        lastinput(""),
+      backendError(false),    cachedFramesWritten(0)
 {
-    pthread_mutex_init(&lock, NULL); 
 }
 
 RemoteEncoder::~RemoteEncoder()
 {
     if (controlSock)
-        delete controlSock;
+        controlSock->DownRef();
 }
 
 void RemoteEncoder::Setup(void)
@@ -43,32 +45,29 @@ int RemoteEncoder::GetRecorderNumber(void)
 
 void RemoteEncoder::SendReceiveStringList(QStringList &strlist)
 {
+    QMutexLocker locker(&lock);
     if (!controlSock)
         return;
 
-    pthread_mutex_lock(&lock);
-
     backendError = false;
 
-    WriteStringList(controlSock, strlist);
-    if (!ReadStringList(controlSock, strlist, true))
+    controlSock->writeStringList(strlist);
+    if (!controlSock->readStringList(strlist, true))
     {
         VERBOSE(VB_IMPORTANT,
                 "RemoteEncoder::SendReceiveStringList(): No response.");
         backendError = true;
     }
-
-    pthread_mutex_unlock(&lock);
 }
 
-QSocketDevice *RemoteEncoder::openControlSocket(const QString &host, short port)
+MythSocket *RemoteEncoder::openControlSocket(const QString &host, short port)
 {
-    QSocketDevice *sock = new QSocketDevice(QSocketDevice::Stream);
-    if (!connectSocket(sock, host, port))
+    MythSocket *sock = new MythSocket();
+    if (!sock->connect(host, port))
     {
         VERBOSE(VB_IMPORTANT,
                 "RemoteEncoder::openControlSocket(): Connection timed out.");
-        delete sock;
+        sock->DownRef();
         sock = NULL;
     }
     else
@@ -77,12 +76,12 @@ QSocketDevice *RemoteEncoder::openControlSocket(const QString &host, short port)
         {
             QString hostname = gContext->GetHostName();
             QStringList strlist = QString("ANN Playback %1 %2").arg(hostname).arg(false);
-            WriteStringList(sock, strlist);
-            ReadStringList(sock, strlist, true);
+            sock->writeStringList(strlist);
+            sock->readStringList(strlist, true);
         }
         else
         {
-            delete sock;
+            sock->DownRef();
             sock = NULL;
         }
     }    
@@ -295,6 +294,8 @@ void RemoteEncoder::PauseRecorder(void)
     strlist << "PAUSE";
 
     SendReceiveStringList(strlist);
+
+    lastinput = "";
 }
 
 void RemoteEncoder::FinishRecording(void)
@@ -314,14 +315,42 @@ void RemoteEncoder::SetLiveRecording(bool recording)
     SendReceiveStringList(strlist);
 }
 
-void RemoteEncoder::ToggleInputs(void)
+QStringList RemoteEncoder::GetInputs(void)
 {
     QStringList strlist = QString("QUERY_RECORDER %1").arg(recordernum);
-    strlist << "TOGGLE_INPUTS";
+    strlist << "GET_CONNECTED_INPUTS";
+
+    SendReceiveStringList(strlist);
+
+    return strlist;
+}
+
+QString RemoteEncoder::GetInput(void)
+{
+    if (lastinput.length() > 2)
+        return lastinput;
+
+    QStringList strlist = QString("QUERY_RECORDER %1").arg(recordernum);
+    strlist << "GET_INPUT";
+
+    SendReceiveStringList(strlist);
+
+    lastinput = strlist[0];
+    return lastinput; 
+}
+
+QString RemoteEncoder::SetInput(QString input)
+{
+    QStringList strlist = QString("QUERY_RECORDER %1").arg(recordernum);
+    strlist << "SET_INPUT";
+    strlist << input;
 
     SendReceiveStringList(strlist);
 
     lastchannel = "";
+    lastinput = "";
+
+    return strlist[0];
 }
 
 void RemoteEncoder::ToggleChannelFavorite(void)
@@ -341,6 +370,7 @@ void RemoteEncoder::ChangeChannel(int channeldirection)
     SendReceiveStringList(strlist);
 
     lastchannel = "";
+    lastinput = "";
 }
 
 void RemoteEncoder::SetChannel(QString channel)
@@ -352,6 +382,7 @@ void RemoteEncoder::SetChannel(QString channel)
     SendReceiveStringList(strlist);
 
     lastchannel = "";
+    lastinput = "";
 }
 
 /** \fn RemoteEncoder::SetSignalMonitoringRate(int,bool)
@@ -383,75 +414,89 @@ int RemoteEncoder::SetSignalMonitoringRate(int rate, bool notifyFrontend)
     return retval;
 }
 
-/** \fn RemoteEncoder::ChangeContrast(bool)
- *  \brief Changes contrast of a recording.
+uint RemoteEncoder::GetSignalLockTimeout(QString input)
+{
+    QMutexLocker locker(&lock);
+
+    QMap<QString,uint>::const_iterator it = cachedTimeout.find(input);
+    if (it != cachedTimeout.end())
+        return *it;
+
+    uint cardid  = recordernum;
+    uint timeout = 0xffffffff;
+    MSqlQuery query(MSqlQuery::InitCon());
+    query.prepare(
+        "SELECT channel_timeout, cardtype "
+        "FROM cardinput, capturecard "
+        "WHERE cardinput.inputname = :INNAME AND "
+        "      cardinput.cardid    = :CARDID AND "
+        "      ( ( cardinput.childcardid =  '0' AND "
+        "          cardinput.cardid = capturecard.cardid) OR "
+        "        ( cardinput.childcardid != '0' AND "
+        "          cardinput.childcardid = capturecard.cardid) )");
+    query.bindValue(":INNAME", input);
+    query.bindValue(":CARDID", cardid);
+    if (!query.exec() || !query.isActive())
+        MythContext::DBError("Getting timeout", query);
+    else if (query.next() &&
+             SignalMonitor::IsSupported(query.value(1).toString()))
+        timeout = max(query.value(0).toInt(), 500);
+
+/*
+    VERBOSE(VB_PLAYBACK, "RemoteEncoder: " +
+            QString("GetSignalLockTimeout(%1): Set lock timeout to %2 ms")
+            .arg(cardid).arg(timeout));
+*/
+    cachedTimeout[input] = timeout;
+    return timeout;
+}
+
+
+int RemoteEncoder::GetPictureAttribute(int attr)
+{
+    QStringList strlist = QString("QUERY_RECORDER %1").arg(recordernum);
+
+    if (kPictureAttribute_Contrast == attr)
+        strlist << "GET_CONTRAST";
+    else if (kPictureAttribute_Brightness == attr)
+        strlist << "GET_BRIGHTNESS";
+    else if (kPictureAttribute_Colour == attr)
+        strlist << "GET_COLOUR";
+    else if (kPictureAttribute_Hue == attr)
+        strlist << "GET_HUE";
+    else
+        return -1;
+
+    SendReceiveStringList(strlist);
+
+    int retval = strlist[0].toInt();
+    return retval;
+}
+
+/** \fn RemoteEncoder::ChangeContrast(int, int, bool)
+ *  \brief Changes brightness/contrast/colour/hue of a recording.
  *
  *  Note: In practice this only works with frame grabbing recorders.
  *
  *  \return contrast if it succeeds, -1 otherwise.
  */
-int RemoteEncoder::ChangeContrast(bool direction)
+int RemoteEncoder::ChangePictureAttribute(int type, int attr, bool up)
 {
     QStringList strlist = QString("QUERY_RECORDER %1").arg(recordernum);
-    strlist << "CHANGE_CONTRAST";
-    strlist << QString::number((int)direction);
 
-    SendReceiveStringList(strlist);
+    if (kPictureAttribute_Contrast == attr)
+        strlist << "CHANGE_CONTRAST";
+    else if (kPictureAttribute_Brightness == attr)
+        strlist << "CHANGE_BRIGHTNESS";
+    else if (kPictureAttribute_Colour == attr)
+        strlist << "CHANGE_COLOUR";
+    else if (kPictureAttribute_Hue == attr)
+        strlist << "CHANGE_HUE";
+    else
+        return -1;
 
-    int retval = strlist[0].toInt();
-    return retval;
-}
-
-/** \fn RemoteEncoder::ChangeBrightness(bool)
- *  \brief Changes the brightness of a recording.
- *
- *   Note: In practice this only works with frame grabbing recorders.
- *
- *  \return brightness if it succeeds, -1 otherwise.
- */
-int RemoteEncoder::ChangeBrightness(bool direction)
-{
-    QStringList strlist = QString("QUERY_RECORDER %1").arg(recordernum);
-    strlist << "CHANGE_BRIGHTNESS";
-    strlist << QString::number((int)direction);
-
-    SendReceiveStringList(strlist);
-
-    int retval = strlist[0].toInt();
-    return retval;
-}
-
-/** \fn RemoteEncoder::ChangeColour(bool)
- *  \brief Changes the colour phase of a recording.
- *
- *   Note: In practice this only works with frame grabbing recorders.
- *
- *  \return colour if it succeeds, -1 otherwise.
- */
-int RemoteEncoder::ChangeColour(bool direction)
-{
-    QStringList strlist = QString("QUERY_RECORDER %1").arg(recordernum);
-    strlist << "CHANGE_COLOUR";
-    strlist << QString::number((int)direction);
-
-    SendReceiveStringList(strlist);
-
-    int retval = strlist[0].toInt();
-    return retval;
-}
-
-/** \fn RemoteEncoder::ChangeHue(bool)
- *  \brief Changes the hue of a recording.
- *
- *   Note: In practice this only works with frame grabbing recorders.
- *
- *  \return hue if it succeeds, -1 otherwise.
- */
-int RemoteEncoder::ChangeHue(bool direction)
-{
-    QStringList strlist = QString("QUERY_RECORDER %1").arg(recordernum);
-    strlist << "CHANGE_HUE";
-    strlist << QString::number((int)direction);
+    strlist << QString::number(type);
+    strlist << QString::number((int)up);
 
     SendReceiveStringList(strlist);
 
@@ -538,6 +583,20 @@ bool RemoteEncoder::CheckChannelPrefix(
     return strlist[0].toInt();
 }
 
+static QString cleanup(const QString &str)
+{
+    if (str == " ")
+        return "";
+    return str;
+}
+
+static QString make_safe(const QString &str)
+{
+    if (str.isEmpty())
+        return " ";
+    return str;
+}
+
 /** \fn RemoteEncoder::GetNextProgram(int,QString&,QString&,QString&,QString&,QString&,QString&,QString&,QString&,QString&,QString&,QString&,QString&)
  *  \brief Returns information about the program that would be seen if we changed
  *         the channel using ChangeChannel(int) with "direction".
@@ -561,42 +620,51 @@ void RemoteEncoder::GetNextProgram(int direction,
 
     SendReceiveStringList(strlist);
 
-    title = strlist[0];
-    subtitle = strlist[1];
-    desc = strlist[2];
-    category = strlist[3];
-    starttime = strlist[4];
-    endtime = strlist[5];
-    callsign = strlist[6];
-    iconpath = strlist[7];
-    channelname = strlist[8];
-    chanid = strlist[9];
-    seriesid = strlist[10];
-    programid = strlist[11];
-
-    if (title == " ")
-        title = "";
-    if (subtitle == " ")
-        subtitle = "";
-    if (desc == " ")
-        desc = "";
-    if (category == " ")
-        category = "";
-    if (starttime == " ")
-        starttime = "";
-    if (endtime == " ")
-        endtime = "";
-    if (callsign == " ")
-        callsign = "";
-    if (iconpath == " ")
-        iconpath = "";
-    if (channelname == " ")
-        channelname = "";
-    if (chanid == " ")
-        chanid = "";
-    if (seriesid == " ")
-        seriesid = "";
-    if (programid == " ")
-        programid = "";
+    title       = cleanup(strlist[0]);
+    subtitle    = cleanup(strlist[1]);
+    desc        = cleanup(strlist[2]);
+    category    = cleanup(strlist[3]);
+    starttime   = cleanup(strlist[4]);
+    endtime     = cleanup(strlist[5]);
+    callsign    = cleanup(strlist[6]);
+    iconpath    = cleanup(strlist[7]);
+    channelname = cleanup(strlist[8]);
+    chanid      = cleanup(strlist[9]);
+    seriesid    = cleanup(strlist[10]);
+    programid   = cleanup(strlist[11]);
 }
 
+void RemoteEncoder::GetChannelInfo(QMap<QString, QString> &infoMap,
+                                   uint chanid)
+{
+    QStringList strlist = QString("QUERY_RECORDER %1").arg(recordernum);
+    strlist << "GET_CHANNEL_INFO";
+    strlist << QString::number(chanid);
+
+    SendReceiveStringList(strlist);
+
+    infoMap["chanid"]   = cleanup(strlist[0]);
+    infoMap["sourceid"] = cleanup(strlist[1]);
+    infoMap["callsign"] = cleanup(strlist[2]);
+    infoMap["channum"]  = cleanup(strlist[3]);
+    infoMap["channame"] = cleanup(strlist[4]);
+    infoMap["XMLTV"]    = cleanup(strlist[5]);
+
+    infoMap["oldchannum"] =  infoMap["channum"];
+}
+
+bool RemoteEncoder::SetChannelInfo(const QMap<QString, QString> &infoMap)
+{
+    QStringList strlist = "SET_CHANNEL_INFO";
+    strlist << make_safe(infoMap["chanid"]);
+    strlist << make_safe(infoMap["sourceid"]);
+    strlist << make_safe(infoMap["oldchannum"]);
+    strlist << make_safe(infoMap["callsign"]);
+    strlist << make_safe(infoMap["channum"]);
+    strlist << make_safe(infoMap["channame"]);
+    strlist << make_safe(infoMap["XMLTV"]);
+
+    SendReceiveStringList(strlist);
+
+    return strlist[0].toInt();
+}

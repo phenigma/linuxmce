@@ -2,9 +2,9 @@
  * Functions to show/hide sections of the page (for mouseovers).
  * Primarily used for interactive menus
  *
- * @url         $URL: svn+ssh://xris@svn.siliconmechanics.com/var/svn/web/trunk/shared_code/js/mouseovers.js $
- * @date        $Date: 2006-01-25 05:27:24 +0200 (Wed, 25 Jan 2006) $
- * @version     $Revision: 8708 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/js/mouseovers.js $
+ * @date        $Date: 2006-06-24 22:03:10 +0300 (Sat, 24 Jun 2006) $
+ * @version     $Revision: 10290 $
  * @author      $Author: xris $
  * @license     LGPL
  *

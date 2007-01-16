@@ -15,6 +15,7 @@
 #include "mythdeque.h"
 #include "tv.h"
 #include "util.h"
+#include "programinfo.h"
 
 #include <qobject.h>
 
@@ -33,8 +34,10 @@ class OSDListTreeType;
 class OSDGenericTree;
 class LiveTVChain;
 
-typedef QValueVector<QString> str_vec_t;
-typedef QMap<QString, QString> InfoMap;
+typedef QValueVector<QString>    str_vec_t;
+typedef QMap<QString,QString>    InfoMap;
+typedef QMap<QString,InfoMap>    DDValueMap;
+typedef QMap<QString,DDValueMap> DDKeyMap;
 
 class VBIMode
 {
@@ -62,6 +65,12 @@ typedef enum
     kPseudoRecording     = 2,
 } PseudoState;
 
+enum scheduleEditTypes {
+    kScheduleProgramGuide = 0,
+    kScheduleProgramFinder,
+    kScheduledRecording
+};
+
 class TV : public QObject
 {
     Q_OBJECT
@@ -85,6 +94,7 @@ class TV : public QObject
     void ProcessKeypress(QKeyEvent *e);
     void processNetworkControlCommand(QString command);
     void customEvent(QCustomEvent *e);
+    bool HandleTrackAction(const QString &action);
 
     // LiveTV commands
     int  LiveTV(bool showDialogs = true, bool startInGuide = false);
@@ -102,7 +112,8 @@ class TV : public QObject
     // Recording commands
     int  PlayFromRecorder(int recordernum);
     int  Playback(ProgramInfo *rcinfo);
-    void setLastProgram(ProgramInfo *rcinfo);
+    void setLastProgram(ProgramInfo *rcinfo) { lastProgram = rcinfo; }
+    ProgramInfo *getLastProgram(void) { return lastProgram; }
 
     // Various commands
     void ShowNoRecorderDialog(void);
@@ -148,13 +159,6 @@ class TV : public QObject
 
     void GetNextProgram(RemoteEncoder *enc, int direction,
                         InfoMap &infoMap);
-    void GetNextProgram(RemoteEncoder *enc, int direction,
-                        QString &title,     QString &subtitle,
-                        QString &desc,      QString &category,
-                        QString &starttime, QString &endtime,
-                        QString &callsign,  QString &iconpath,
-                        QString &channame,  QString &chanid,
-                        QString &seriesid,  QString &programid);
 
     // static functions
     static void InitKeys(void);
@@ -174,8 +178,10 @@ class TV : public QObject
     void TreeMenuSelected(OSDListTreeType *tree, OSDGenericTree *item);
 
   protected:
-    void doLoadMenu(void);
-    static void *MenuHandler(void *param);
+    void doEditSchedule(int editType = kScheduleProgramGuide);
+    static void *EPGMenuHandler(void *param);
+    static void *FinderMenuHandler(void *param);
+    static void *ScheduleMenuHandler(void *param);
 
     void RunTV(void);
     static void *EventThread(void *param);
@@ -186,7 +192,6 @@ class TV : public QObject
     bool RequestNextRecorder(bool showDialogs);
     void DeleteRecorder();
 
-    static uint GetLockTimeout(uint cardid);
     bool StartRecorder(RemoteEncoder *rec, int maxWait=-1);
     bool StartPlayer(bool isWatchingRecording, int maxWait=-1);
     void StartOSD(void);
@@ -203,21 +208,15 @@ class TV : public QObject
     void ChangeVolume(bool up);
     void ToggleMute(void);
     void ToggleLetterbox(int letterboxMode = -1);
-    void ChangeContrast(bool up, bool recorder);
-    void ChangeBrightness(bool up, bool recorder);
-    void ChangeColour(bool up, bool recorder);
-    void ChangeHue(bool up, bool recorder);
 
-    void ChangeAudioTrack(int dir);
-    void SetAudioTrack(int track);
-
-    void ChangeSubtitleTrack(int dir);
-    void SetSubtitleTrack(int track);
+    bool FillMenuTracks(OSDGenericTree*, uint type);
+    void ChangeTrack(uint type, int dir);
+    void SetTrack(uint type, int trackNo);
 
     // key queue commands
     void AddKeyToInputQueue(char key);
     void ClearInputQueues(bool hideosd = false); 
-    void CommitQueuedInput(void);
+    bool CommitQueuedInput(void);
     bool ProcessSmartChannel(QString&);
 
     // query key queues
@@ -252,29 +251,53 @@ class TV : public QObject
     void DoArbSeek(ArbSeekWhence whence);
     void NormalSpeed(void);
     void ChangeSpeed(int direction);
+    void ToggleTimeStretch(void);
     void ChangeTimeStretch(int dir, bool allowEdit = true);
     void ChangeAudioSync(int dir, bool allowEdit = true);
     float StopFFRew(void);
     void ChangeFFRew(int direction);
     void SetFFRew(int index);
     void DoSkipCommercials(int direction);
-    void DoEditMode(void);
+    void StartProgramEditMode(void);
 
-    void DoQueueTranscode(void);  
+    // Channel editing support
+    void StartChannelEditMode(void);
+    void ChannelEditKey(const QKeyEvent*);
+    void ChannelEditAutoFill(InfoMap&) const;
+    void ChannelEditAutoFill(InfoMap&, const QMap<QString,bool>&) const;
+    void ChannelEditXDSFill(InfoMap&) const;
+    void ChannelEditDDFill(InfoMap&, const QMap<QString,bool>&, bool) const;
+    QString GetDataDirect(QString key,   QString value,
+                          QString field, bool    allow_partial = false) const;
+    bool LoadDDMap(uint sourceid);
+    void RunLoadDDMap(uint sourceid);
+    static void *load_dd_map_thunk(void*);
+    static void *load_dd_map_post_thunk(void*);
 
-    void SetAutoCommercialSkip(int skipMode = 0);
+    void DoQueueTranscode(QString profile);  
+
+    enum commSkipMode {
+        CommSkipOff = 0,
+        CommSkipOn = 1,
+        CommSkipNotify = 2,
+        CommSkipModes = 3,      /* placeholder */
+    };
+    void SetAutoCommercialSkip(enum commSkipMode skipMode = CommSkipOff);
     void SetManualZoom(bool zoomON = false);
+
+    void DoDisplayJumpMenu(void);
+    void SetJumpToProgram(QString progKey = "", int progIndex = 0);
  
     bool ClearOSD(void);
     void ToggleOSD(bool includeStatusOSD); 
     void UpdateOSDProgInfo(const char *whichInfo);
     void UpdateOSDSeekMessage(const QString &mesg, int disptime);
-    void UpdateOSDInput(void);
+    void UpdateOSDInput(QString inputname = QString::null);
     void UpdateOSDTextEntry(const QString &message);
     void UpdateOSDSignal(const QStringList& strlist);
     void UpdateOSDTimeoutMessage(void);
 
-    void LoadMenu(void);
+    void EditSchedule(int editType = kScheduleProgramGuide);
 
     void SetupPlayer(bool isWatchingRecording);
     void TeardownPlayer(void);
@@ -290,6 +313,7 @@ class TV : public QObject
     void ToggleActiveWindow(void);
     void SwapPIP(void);
     void SwapPIPSoon(void) { needToSwapPIP = true; }
+    void DisplayJumpMenuSoon(void) { needToJumpMenu = true; }
 
     void ToggleAutoExpire(void);
 
@@ -299,9 +323,8 @@ class TV : public QObject
     void ToggleRecord(void);
     void BrowseChannel(const QString &channum);
 
-    void DoTogglePictureAttribute(void);
-    void DoToggleRecPictureAttribute(void);
-    void DoChangePictureAttribute(int control, bool up, bool rec);
+    void DoTogglePictureAttribute(int type);
+    void DoChangePictureAttribute(int type, int control, bool up);
 
     void BuildOSDTreeMenu(void);
     void ShowOSDTreeMenu(void);
@@ -314,6 +337,15 @@ class TV : public QObject
     void GetPlayGroupSettings(const QString &group);
 
     void SetPseudoLiveTV(uint, const ProgramInfo*, PseudoState);
+
+    void ITVRestart(bool isLive);
+
+    //dvd functions
+    void DVDJumpBack(void);
+    void DVDJumpForward(void);       
+
+    static bool LoadExternalSubtitles(NuppelVideoPlayer *nvp,
+                                      const QString &videoFile);
 
     static QStringList GetValidRecorderList(uint chanid);
     static QStringList GetValidRecorderList(const QString &channum);
@@ -328,17 +360,19 @@ class TV : public QObject
   private:
     // Configuration variables from database
     QString baseFilters;
+    QString db_time_format;
+    QString db_short_date_format;
     int     fftime;
     int     rewtime;
     int     jumptime;
-    bool    usePicControls;
+    bool    db_use_picture_attr;
     bool    smartChannelChange;
     bool    MuteIndividualChannels;
     bool    arrowAccel;
     int     osd_general_timeout;
     int     osd_prog_info_timeout;
 
-    int     autoCommercialSkip;
+    enum commSkipMode autoCommercialSkip;
     bool    tryUnflaggedSkip;
 
     bool    smartForward;
@@ -372,11 +406,21 @@ class TV : public QObject
     bool doSmartForward;
     bool queuedTranscode;
     bool getRecorderPlaybackInfo; ///< Main loop should get recorderPlaybackInfo
-    int picAdjustment;   ///< Player pict attr to modify (on arrow left or right)
-    int recAdjustment;   ///< Which recorder picture attribute to modify...
+    int adjustingPicture;
+    ; ///< picture attribute to modify (on arrow left or right)
+    int adjustingPictureAttribute;
 
     bool ignoreKeys;
     bool needToSwapPIP;
+    bool needToJumpMenu;
+    QMap<QString,ProgramList> progLists;
+
+    mutable QMutex chanEditMapLock; ///< Lock for chanEditMap and ddMap
+    InfoMap   chanEditMap;          ///< Channel Editing initial map
+    DDKeyMap  ddMap;                ///< DataDirect channel map
+    uint      ddMapSourceId;        ///< DataDirect channel map sourceid
+    bool      ddMapLoaderRunning;   ///< Is DataDirect loader thread running
+    pthread_t ddMapLoader;          ///< DataDirect map loader thread
 
     /// Vector or sleep timer sleep times in seconds,
     /// with the appropriate UI message.
@@ -425,8 +469,6 @@ class TV : public QObject
     mutable QString queuedChanNum;
     /// Queued ChanID (from EPG channel selector)
     uint            queuedChanID;
-    /// Used to strip unwanted characters from queuedChanNum
-    QRegExp         queuedChanNumExpr;
     /// Lock used so that input QStrings can be used across threads, and so
     /// that queuedChanNumExpr can be used safely in Qt 3.2 and earlier.
     mutable QMutex  queuedInputLock;
@@ -436,7 +478,6 @@ class TV : public QObject
     // Channel changing timeout notification variables
     QTime   lockTimer;
     bool    lockTimerOn;
-    QMap<uint,uint> lockTimeout;
 
     // Previous channel functionality state variables
     str_vec_t prevChan;       ///< Previous channels
@@ -495,6 +536,7 @@ class TV : public QObject
     // OSD info
     QString         dialogname; ///< Name of current OSD dialog
     OSDGenericTree *treeMenu;   ///< OSD menu, 'm' using default keybindings
+
     /// UDPNotify instance which shows messages sent
     /// to the "UDPNotifyPort" in an OSD dialog.
     UDPNotify      *udpnotify;
@@ -514,9 +556,9 @@ class TV : public QObject
     MythDialog *myWindow;   ///< Our MythDialog window, if it exists
     WId   embedWinID;       ///< Window ID when embedded in another widget
     QRect embedBounds;      ///< Bounds when embedded in another widget
-    ///< player bounds, for after doLoadMenu() returns to normal playing.
+    ///< player bounds, for after doEditSchedule() returns to normal playing.
     QRect player_bounds;
-    ///< Prior GUI window bounds, for doLoadMenu() and player exit().
+    ///< Prior GUI window bounds, for doEditSchedule() and player exit().
     QRect saved_gui_bounds;
 
     // Various threads
@@ -527,6 +569,10 @@ class TV : public QObject
     /// Picture-in-Picture video decoder thread,
     /// runs pipnvp's NuppelVideoPlayer::StartPlaying().
     pthread_t pipdecode;
+
+    /// Condition to signal that the Event thread is up and running
+    QWaitCondition mainLoopCond;
+    QMutex mainLoopCondLock;
 
     // Constants
     static const int kInitFFRWSpeed; ///< 1x, default to normal speed

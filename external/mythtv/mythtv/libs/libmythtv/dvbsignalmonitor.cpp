@@ -2,6 +2,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <cmath>
 
 #include <pthread.h>
 #include <fcntl.h>
@@ -15,13 +16,10 @@
 #include "atscstreamdata.h"
 #include "mpegtables.h"
 #include "atsctables.h"
+#include "cardutil.h"
 
-#include "transform.h"
-#include "dvbtypes.h"
-#include "dvbdev.h"
 #include "dvbchannel.h"
 #include "dvbrecorder.h"
-#include "dvbtypes.h"
 
 #undef DBG_SM
 #define DBG_SM(FUNC, MSG) VERBOSE(VB_CHANNEL, \
@@ -57,6 +55,8 @@ DVBSignalMonitor::DVBSignalMonitor(int db_cardnum, DVBChannel* _channel,
                         65535,  false,     0, 65535, 0),
       uncorrectedBlocks(tr("Uncorrected Blocks"), "ucb",
                         65535,  false,     0, 65535, 0),
+      rotorPosition    (tr("Rotor Progress"),     "pos",
+                        100,    true,      0,   100, 0),
       useSectionReader(false),
       dtvMonitorRunning(false)
 {
@@ -100,6 +100,10 @@ DVBSignalMonitor::DVBSignalMonitor(int db_cardnum, DVBChannel* _channel,
 #undef DVB_IO
     AddFlags(newflags);
     DBG_SM("constructor()", QString("initial flags 0x%1").arg(newflags,0,16));
+
+    minimum_update_rate = _channel->GetMinSignalMonitorDelay();
+    if (minimum_update_rate > 30)
+        usleep(minimum_update_rate * 1000);
 }
 
 /** \fn DVBSignalMonitor::~DVBSignalMonitor()
@@ -115,6 +119,13 @@ void DVBSignalMonitor::deleteLater(void)
     disconnect(); // disconnect signals we may be sending...
     Stop();
     DTVSignalMonitor::deleteLater();
+}
+
+// documented in dtvsignalmonitor.h
+void DVBSignalMonitor::SetRotorTarget(float target)
+{
+    QMutexLocker locker(&statusLock);
+    rotorPosition.SetThreshold((int)roundf(100 * target));
 }
 
 /** \fn DVBSignalMonitor::GetDVBCardNum(void) const
@@ -150,6 +161,8 @@ QStringList DVBSignalMonitor::GetStatusList(bool kick)
         list<<bitErrorRate.GetName()<<bitErrorRate.GetStatus();
     if (HasFlags(kDVBSigMon_WaitForUB))
         list<<uncorrectedBlocks.GetName()<<uncorrectedBlocks.GetStatus();
+    if (HasFlags(kDVBSigMon_WaitForPos))
+        list<<rotorPosition.GetName()<<rotorPosition.GetStatus();
     statusLock.unlock();
     return list;
 }
@@ -167,13 +180,13 @@ bool DVBSignalMonitor::AddPIDFilter(uint pid)
 { 
     DBG_SM(QString("AddPIDFilter(0x%1)").arg(pid, 0, 16), "");
 
-    QString demux_fname = dvbdevice(DVB_DEV_DEMUX, GetDVBCardNum());
-    int mux_fd = open(demux_fname.ascii(), O_RDWR | O_NONBLOCK);
+    QString demux_fn = CardUtil::GetDeviceName(DVB_DEV_DEMUX, GetDVBCardNum());
+    int mux_fd = open(demux_fn.ascii(), O_RDWR | O_NONBLOCK);
     if (mux_fd == -1)
     {
         VERBOSE(VB_IMPORTANT, LOC +
                 QString("Failed to open demux device %1 for filter on pid %2")
-                .arg(demux_fname).arg(pid));
+                .arg(demux_fn).arg(pid));
         return false;
     }
 
@@ -199,29 +212,44 @@ bool DVBSignalMonitor::AddPIDFilter(uint pid)
     {
         struct dmx_sct_filter_params sctFilterParams;
         bzero(&sctFilterParams, sizeof(struct dmx_sct_filter_params));
-        // TODO as is this will break for ATSC streams, where the
-        // MGT is on pid 0x1ffb and the VCTs can be on any pid like
-        // PMTs, but is usually on 0x1ffb.
         switch ( (__u16) pid )
         {
             case 0x0: // PAT
                 sctFilterParams.filter.filter[0] = 0;
+                sctFilterParams.filter.mask[0]   = 0xff;
                 break;
-            case 0x0010: // assume this is for an NIT
-                // With this filter we can only ever get NIT for this network
-                // because other networks nit need a filter of 0x41
-                sctFilterParams.filter.filter[0] = 0x40;
+            case 0x0010: // assume this is for an NIT, NITo, PMT
+                // This filter will give us table ids 0x00-0x03, 0x40-0x43
+                // we expect to see table ids 0x02, 0x40 and 0x41 on this PID
+                // NOTE: In theory, this will break with ATSC when PID 0x10
+                //       is used for ATSC/MPEG tables. This is frowned upon,
+                //       but PMTs have been seen on in the wild.
+                sctFilterParams.filter.filter[0] = 0x00;
+                sctFilterParams.filter.mask[0]   = 0xbc;
                 break;
-            case 0x0011: // assume this is for an SDT
-                sctFilterParams.filter.filter[0] = 0x42;
-                break;
-            default: // otherwise assume we are looking for a PMT
+            case 0x0011: // assume this is for an SDT, SDTo, PMT
+                // This filter will give us table ids 0x02, 0x06, 0x42 and 0x46
+                // All but 0x06 are ones we want to see.
+                // NOTE: In theory this will break with ATSC when pid 0x11
+                //       is used for random ATSC tables. In practice only
+                //       video data has been seen on 0x11.
                 sctFilterParams.filter.filter[0] = 0x02;
+                sctFilterParams.filter.mask[0]   = 0xbb;
+                break;
+            case 0x1ffb: // assume this is for various ATSC tables
+                // MGT 0xC7, Terrestrial VCT 0xC8, Cable VCT 0xC9, RRT 0xCA,
+                // STT 0xCD, DCCT 0xD3, DCCSCT 0xD4, Caption 0x86
+                sctFilterParams.filter.filter[0] = 0x80;
+                sctFilterParams.filter.mask[0]   = 0xa0;
+                break;
+            default:
+                // otherwise assume it could be any table
+                sctFilterParams.filter.filter[0] = 0x00;
+                sctFilterParams.filter.mask[0]   = 0x00;
                 break;
         }
         sctFilterParams.pid            = (__u16) pid;
         sctFilterParams.timeout        = 0;
-        sctFilterParams.filter.mask[0] = 0xff;
         sctFilterParams.flags          = DMX_IMMEDIATE_START; 
 
         if (ioctl(mux_fd, DMX_SET_FILTER, &sctFilterParams) < 0)
@@ -258,13 +286,13 @@ bool DVBSignalMonitor::RemovePIDFilter(uint pid)
 
 bool DVBSignalMonitor::UpdateFiltersFromStreamData(void)
 {
-    vector<int> add_pids;
-    vector<int> del_pids;
-
     if (!GetStreamData())
         return false;
 
+    UpdateListeningForEIT();
+
     const QMap<uint, bool> &listening = GetStreamData()->ListeningPIDs();
+    vector<uint> add_pids, del_pids;
 
     // PIDs that need to be added..
     QMap<uint, bool>::const_iterator lit = listening.constBegin();
@@ -280,12 +308,12 @@ bool DVBSignalMonitor::UpdateFiltersFromStreamData(void)
 
     // Remove PIDs
     bool ok = true;
-    vector<int>::iterator dit = del_pids.begin();
+    vector<uint>::iterator dit = del_pids.begin();
     for (; dit != del_pids.end(); ++dit)
         ok &= RemovePIDFilter(*dit);
 
     // Add PIDs
-    vector<int>::iterator ait = add_pids.begin();
+    vector<uint>::iterator ait = add_pids.begin();
     for (; ait != add_pids.end(); ++ait)
         ok &= AddPIDFilter(*ait);
 
@@ -311,11 +339,11 @@ void DVBSignalMonitor::RunTableMonitorTS(void)
         return;
     bzero(buffer, buffer_size);
 
-    QString dvr_fname = dvbdevice(DVB_DEV_DVR, GetDVBCardNum());
+    QString dvr_fname = CardUtil::GetDeviceName(DVB_DEV_DVR, GetDVBCardNum());
     int dvr_fd = open(dvr_fname.ascii(), O_RDONLY | O_NONBLOCK);
     if (dvr_fd < 0)
     {
-        VERBOSE(VB_IMPORTANT,
+        VERBOSE(VB_IMPORTANT, LOC +
                 QString("Failed to open DVR device %1 : %2")
                 .arg(dvr_fname).arg(strerror(errno)));
         delete[] buffer;
@@ -331,6 +359,7 @@ void DVBSignalMonitor::RunTableMonitorTS(void)
     FD_SET (dvr_fd, &fd_select_set);
     while (dtvMonitorRunning && GetStreamData())
     {
+        RetuneMonitor();
         UpdateFiltersFromStreamData();
 
         // timeout gets reset by select, so we need to create new one
@@ -347,9 +376,16 @@ void DVBSignalMonitor::RunTableMonitorTS(void)
         }
 
         len += remainder;
+
+        if (len < 10) // 10 bytes = 4 bytes TS header + 6 bytes PES header
+        {
+            remainder = len;
+            continue;
+        }
+
         remainder = GetStreamData()->ProcessData(buffer, len);
-        if (remainder > 0) // leftover bytes
-            memmove(buffer, &(buffer[buffer_size - remainder]), remainder);
+        if (remainder > 0 && (len > remainder)) // leftover bytes
+            memmove(buffer, &(buffer[len - remainder]), remainder);
     }
     VERBOSE(VB_CHANNEL, LOC + "RunTableMonitorTS(): " + "shutdown");
 
@@ -379,59 +415,39 @@ void DVBSignalMonitor::RunTableMonitorTS(void)
  */
 void DVBSignalMonitor::RunTableMonitorSR(void)
 {
-    int remainder   = 0;
     int buffer_size = 4192;  // maximum size of Section we handle
-    int header_size = 5;     // TSPacket::HEADER_SIZE + 1 for data pointer
-    unsigned char *buffer = new unsigned char[header_size + buffer_size];
+    unsigned char *buffer = new unsigned char[buffer_size];
     if (!buffer)
         return;
-
-    // "Constant" parts of stream header
-    buffer[0] = SYNC_BYTE;
-    buffer[3] = 0x10;   // Adaptation = 01 Scrambled = 00
-    buffer[4] = 0x00;   // Pointer to data in buffer
 
     VERBOSE(VB_CHANNEL, LOC + "RunTableMonitorSR(): " +
             QString("begin (# of pids %1)")
             .arg(GetStreamData()->ListeningPIDs().size()));
 
-    int len = 0;
     while (dtvMonitorRunning && GetStreamData())
     {
+        RetuneMonitor();
         UpdateFiltersFromStreamData();
 
         bool readSomething = false;
-        FilterMap::iterator fit = filters.begin();
+        FilterMap::const_iterator fit = filters.begin();
         for (; fit != filters.end(); ++fit)
         {
-            int mux_fd = fit.data();
-            len = read(mux_fd, &(buffer[header_size]),
-                       buffer_size - header_size);
-
+            int len = read(fit.data() /* mux_fd */, buffer, buffer_size);
             if (len <= 0)
                 continue;
 
             readSomething = true;
-            // set pid and section start flag
-            // then pad buffer to next 188 byte boundary
-            buffer[1] = ( fit.key() >> 8 ) | 0x40;
-            buffer[2] = ( fit.key() & 0xff );
-            int pktEnd = ((len + 188 + header_size) / 188) * 188 ; 
-            memset(&buffer[header_size + len], 0xFF, pktEnd - len);
 
-            remainder = GetStreamData()->ProcessData(buffer, pktEnd);
-            if (remainder > 0)
-            {
-                // only happens on fragmented packet reads
-                VERBOSE(VB_CHANNEL, LOC + "RunTableMonitorSR(): " +
-                        QString("unhandled data (# bytes: %1)")
-                        .arg(remainder));
-            }
+            const PESPacket pes = PESPacket::ViewData(buffer);
+            const PSIPTable psip(pes);
+
+            if (psip.SectionSyntaxIndicator())
+                GetStreamData()->HandleTables(fit.key() /* pid */, psip);
         }
+
         if (!readSomething)
-        {
-            usleep(300);   // feed is slower than TS stream
-        }
+            usleep(3000);
     }
     VERBOSE(VB_CHANNEL, LOC + "RunTableMonitorSR(): " + "shutdown");
 
@@ -476,7 +492,7 @@ bool DVBSignalMonitor::SupportsTSMonitoring(void)
             return *it;
     }
 
-    QString dvr_fname = dvbdevice(DVB_DEV_DVR, GetDVBCardNum());
+    QString dvr_fname = CardUtil::GetDeviceName(DVB_DEV_DVR, GetDVBCardNum());
     int dvr_fd = open(dvr_fname.ascii(), O_RDONLY | O_NONBLOCK);
     if (dvr_fd < 0)
     {
@@ -497,6 +513,44 @@ bool DVBSignalMonitor::SupportsTSMonitoring(void)
     QMutexLocker locker(&_rec_supports_ts_monitoring_lock);
     _rec_supports_ts_monitoring[GetDVBCardNum()] = supports_ts;
     return supports_ts;
+}
+
+void DVBSignalMonitor::RetuneMonitor(void)
+{
+    DVBChannel *dvbchan = dynamic_cast<DVBChannel*>(channel);
+
+    // Rotor position
+    if (HasFlags(kDVBSigMon_WaitForPos))
+    {
+        const DiSEqCDevRotor *rotor = dvbchan->GetRotor();
+        if (rotor)
+        {
+            bool was_moving, is_moving;
+            {
+                QMutexLocker locker(&statusLock);
+                was_moving = rotorPosition.GetValue() < 100;
+                int pos    = (int)truncf(rotor->GetProgress() * 100);
+                rotorPosition.SetValue(pos);
+                is_moving  = rotorPosition.GetValue() < 100;
+            }
+            
+            // Retune if move completes normally
+            if (was_moving && !is_moving)
+            {
+                DBG_SM("UpdateValues", "Retuning for rotor completion");
+                dvbchan->Retune();
+
+                // (optionally) No need to wait for SDT anymore...
+                // RemoveFlags(kDTVSigMon_WaitForSDT);
+            }
+        }
+        else 
+        {
+            // If no rotor is present, pretend the movement is completed
+            QMutexLocker locker(&statusLock);
+            rotorPosition.SetValue(100);
+        }
+    }
 }
 
 void DVBSignalMonitor::RunTableMonitor(void)
@@ -534,6 +588,8 @@ void DVBSignalMonitor::UpdateValues(void)
         update_done = true;
         return;
     }
+
+    RetuneMonitor();
 
     bool wasLocked = false, isLocked = false;
     // We use uint16_t for sig & snr because this is correct for DVB API 4.0,
@@ -589,6 +645,7 @@ void DVBSignalMonitor::UpdateValues(void)
     // Start table monitoring if we are waiting on any table
     // and we have a lock.
     if (isLocked && GetStreamData() &&
+        (!HasFlags(kDVBSigMon_WaitForPos) || rotorPosition.IsGood()) &&
         HasAnyFlag(kDTVSigMon_WaitForPAT | kDTVSigMon_WaitForPMT |
                    kDTVSigMon_WaitForMGT | kDTVSigMon_WaitForVCT |
                    kDTVSigMon_WaitForNIT | kDTVSigMon_WaitForSDT))
@@ -625,6 +682,8 @@ void DVBSignalMonitor::EmitDVBSignals(void)
         EMIT(StatusBitErrorRate, bitErrorRate);
     if (HasFlags(kDVBSigMon_WaitForUB))
         EMIT(StatusUncorrectedBlocks, uncorrectedBlocks);
+    if (HasFlags(kDVBSigMon_WaitForPos))
+        EMIT(StatusRotorPosition, rotorPosition);
 }
 
 #undef EMIT

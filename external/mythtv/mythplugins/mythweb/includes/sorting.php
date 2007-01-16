@@ -2,9 +2,9 @@
 /**
  * Routines for sorting Program objects
  *
- * @url         $URL$
- * @date        $Date: 2006-02-02 06:32:34 +0200 (Thu, 02 Feb 2006) $
- * @version     $Revision: 8830 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/includes/sorting.php $
+ * @date        $Date: 2006-07-09 09:52:57 +0300 (Sun, 09 Jul 2006) $
+ * @version     $Revision: 10443 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -15,25 +15,34 @@
 // A global variable to track the last-used session;
     global $last_sort_session;
 
-/*
-    get_sort_link:
-    returns a formatted link to the specified sort field
-*/
+/**
+ * Returns a formatted link to the specified sort field
+/**/
     function get_sort_link($field, $string) {
-        $status = sort_status($field);
-        $link = '<a href="'.$_SERVER['PHP_SELF'].'?sortby='.urlencode($field).'">'
-               .$string
-               .'</a>';
-        if ($status == 1)
-            $link .= ' <span class="large">&darr;</span>';
-        elseif ($status == -1)
-            $link .= ' <span class="large">&uarr;</span>';
+    // Get the URL
+        $url = $_SERVER['PATH_INFO'];
+        if (empty($url))
+            $url = str_replace('mythweb.php/', '', $_SERVER['PHP_SELF']);
+        else
+            $url = str_replace('//', '/', root.$url);
+    // Build the link
+        $link = '<a href="'.$url.'?sortby='.urlencode($field).'">'
+                .$string
+                .'</a>';
+        switch (sort_status($field)) {
+            case 1:
+                $link .= ' <span class="large">&darr;</span>';
+                break;
+            case -1:
+                $link .= ' <span class="large">&uarr;</span>';
+                break;
+        }
         return $link;
     }
-/*
-    sort_status:
-    returns the sort status of
-*/
+
+/**
+ * Returns the sort status of
+/**/
     function sort_status($field, $session = NULL) {
     // Null session means to load the last sorted session
         if (!$session)
@@ -60,10 +69,9 @@
         return false;
     }
 
-/*
-    sort_programs:
-    sorts a list of programs by the user's session preferences
-*/
+/**
+ * Sorts a list of programs by the user's session preferences
+/**/
     function sort_programs(&$programs, $session) {
         $GLOBALS['last_sort_session'] = $session;
     // First, check for a sort variable passed in by the user
@@ -125,16 +133,25 @@
         }
     }
 
+/**
+ * Sort strings but ignore definite articles.
+/**/
+    function by_no_articles(&$a, &$b) {
+        return strcasecmp(preg_replace('/^(?:'.t('regex: articles').')\s+/i', '', $a),
+                          preg_replace('/^(?:'.t('regex: articles').')\s+/i', '', $b)
+                         );
+    }
+
     function by_title(&$a, &$b) {
-        return strcasecmp($a->title, $b->title);
+        return by_no_articles($a->title, $b->title);
+    }
+
+    function by_subtitle(&$a, &$b) {
+        return by_no_articles($a->subtitle, $b->subtitle);
     }
 
     function by_type(&$a, &$b) {
         return strcasecmp($a->texttype, $b->texttype);
-    }
-
-    function by_subtitle(&$a, &$b) {
-        return strcasecmp($a->subtitle, $b->subtitle);
     }
 
     function by_description(&$a, &$b) {

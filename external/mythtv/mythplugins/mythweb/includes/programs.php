@@ -2,9 +2,9 @@
 /**
  * This contains the Program class
  *
- * @url         $URL$
- * @date        $Date: 2006-04-11 07:29:41 +0300 (Tue, 11 Apr 2006) $
- * @version     $Revision: 9667 $
+ * @url         $URL: http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythplugins/mythweb/includes/programs.php $
+ * @date        $Date: 2006-09-11 00:08:56 +0300 (Mon, 11 Sep 2006) $
+ * @version     $Revision: 11113 $
  * @author      $Author: xris $
  * @license     GPL
  *
@@ -121,26 +121,12 @@
         $query = 'SELECT program.*,
                          UNIX_TIMESTAMP(program.starttime) AS starttime_unix,
                          UNIX_TIMESTAMP(program.endtime) AS endtime_unix,
-                         CONCAT(repeat(?, program.stars * ?),
-                                IF((program.stars * ? * 10) % 10,
-                                   "&frac12;", "")) AS starstring,
                          IFNULL(programrating.system, "") AS rater,
                          IFNULL(programrating.rating, "") AS rating,
-                         oldrecorded.recstatus,
+                         channel.callsign,
                          channel.channum
                   FROM program
                        LEFT JOIN programrating USING (chanid, starttime)
-                       LEFT JOIN oldrecorded
-                                 ON oldrecorded.recstatus IN (-3, 11)
-                                    AND IF(oldrecorded.programid AND oldrecorded.seriesid,
-                                           oldrecorded.programid = program.programid
-                                             AND oldrecorded.seriesid = program.seriesid,
-                                           oldrecorded.title AND oldrecorded.subtitle
-                                             AND oldrecorded.description
-                                             AND oldrecorded.title       = program.title
-                                             AND oldrecorded.subtitle    = program.subtitle
-                                             AND oldrecorded.description = program.description
-                                          )
                        LEFT JOIN channel ON program.chanid = channel.chanid
                  WHERE';
     // Only loading a single channel worth of information
@@ -161,30 +147,64 @@
         if ($extra_query)
             $query .= ' AND '.$extra_query;
     // Group and sort
-        $query .= ' GROUP BY program.chanid, program.starttime ORDER BY program.starttime';
+        $query .= "\nGROUP BY program.chanid, program.starttime, channel.callsign ORDER BY program.starttime";
     // Limit
         if ($single_program)
-            $query .= ' LIMIT 1';
+            $query .= "\n LIMIT 1";
     // Query
-        $sh = $db->query($query,
-                         star_character, max_stars, max_stars);
+        $sh = $db->query($query);
     // No results
         if ($sh->num_rows() < 1) {
             $sh->finish();
             return NULL;
         }
+    // Build two separate queries for optimized selecting of recstatus
+        $sh2 = $db->prepare('SELECT recstatus
+                               FROM oldrecorded
+                              WHERE recstatus IN (-3, 11)
+                                    AND programid = ?
+                                    AND seriesid  = ?
+                             LIMIT 1');
+        $sh3 = $db->prepare('SELECT recstatus
+                               FROM oldrecorded
+                              WHERE recstatus IN (-3, 11)
+                                    AND title       = ?
+                                    AND subtitle    = ?
+                                    AND description = ?
+                             LIMIT 1');
     // Load in all of the programs (if any?)
         global $Scheduled_Recordings;
         $these_programs = array();
         while ($data = $sh->fetch_assoc()) {
             if (!$data['chanid'])
                 continue;
+        // Generate the star string, since mysql has issues with REPEAT() and decimals
+            $data['starstring'] = str_repeat(star_character, intVal($data['stars'] * max_stars));
+            $frac = ($data['stars'] * max_stars) - intVal($data['stars'] * max_stars);
+            if ($frac >= .75)
+                $data['starstring'] .= '&frac34;';
+            elseif ($frac >= .5)
+                $data['starstring'] .= '&frac12;';
+            elseif ($frac >= .25)
+                $data['starstring'] .= '&frac14;';
         // This program has already been loaded, and is attached to a recording schedule
-            if ($Scheduled_Recordings[$data['channum']][$data['starttime_unix']]) {
-                $program =& $Scheduled_Recordings[$data['channum']][$data['starttime_unix']][0];
+            if (!empty($data['title']) && $Scheduled_Recordings[$data['callsign']][$data['starttime_unix']][0]->title == $data['title']) {
+                $program =& $Scheduled_Recordings[$data['callsign']][$data['starttime_unix']][0];
+            // merge in data fetched from DB
+                $program->merge(new Program($data));
             }
         // Otherwise, create a new instance of the program
             else {
+            // Load the recstatus now that we can use an index
+                if ($data['programid'] && $data['seriesid']) {
+                   $sh2->execute($data['programid'], $data['seriesid']);
+                   list($data['recstatus']) = $sh2->fetch_row();
+                }
+                elseif ($data['category_type'] == 'movie' || ($data['title'] && $data['subtitle'] && $data['description'])) {
+                   $sh3->execute($data['title'], $data['subtitle'], $data['description']);
+                   list($data['recstatus']) = $sh3->fetch_row();
+                }
+            // Create a new instance
                 $program =& new Program($data);
             }
         // Add this program to the channel hash, etc.
@@ -194,6 +214,8 @@
             unset($program);
         }
     // Cleanup
+        $sh3->finish();
+        $sh2->finish();
         $sh->finish();
     // If channel-specific information was requested, return an array of those programs, or just the first/only one
         if ($chanid && $single_program)
@@ -264,45 +286,26 @@ class Program {
 
     var $credits = array();
 
+    var $url;
+    var $thumb_url;
+
     function Program($data) {
     // This is a mythbackend-formatted program - info about this data structure is stored in libs/libmythtv/programinfo.cpp
         if (!isset($data['chanid']) && isset($data[0])) {
-        // Grab some initial data so we can see if extra information is needed
-            $this->chanid      = $data[4];   # mysql chanid
-            $this->filename    = $data[8];   # filename
-            $fs_high           = $data[9];   # high-word of file size
-            $fs_low            = $data[10];  # low-word of file size
-            $this->starttime   = $data[11];  # show start-time
-            $this->endtime     = $data[12];  # show end-time
-        // Is this a previously-recorded program?  Calculate the filesize
-            if (!empty($this->filename)) {
-                if (function_exists('gmp_add')) {
-                // GMP functions should work better with 64 bit numbers.
-                    $size = gmp_add($fs_low,
-                                     gmp_mul('4294967296',
-                                             gmp_add($fs_high, $fs_low < 0 ? '1' : '0'))
-                                   );
-                    $this->filesize = gmp_strval($size);
-                }
-                else {
-                // This is inaccurate, but it's the best we can get without GMP.
-                    $this->filesize = ($fs_high + ($fs_low < 0)) * 4294967296 + $fs_low;
-                }
-            }
         // Load the remaining info we got from mythbackend
-            $this->title           = $data[0];                  # program name/title
-            $this->subtitle        = $data[1];                  # episode name
-            $this->description     = $data[2];                  # episode description
+            $this->title           = $data[0];      # program name/title
+            $this->subtitle        = $data[1];      # episode name
+            $this->description     = $data[2];      # episode description
             $this->category        = $data[3];
-            #$chanid               = $data[4];   # Extracted a few lines earlier
+            $this->chanid          = $data[4];      # mysql chanid
             $this->channum         = $data[5];
             $this->callsign        = $data[6];
             $this->channame        = $data[7];
-            #$pathname             = $data[8];   # Extracted a few lines earlier
-            #$fs_high              = $data[9];   # Extracted a few lines earlier
-            #$fs_low               = $data[10];  # Extracted a few lines earlier
-            #$this->starttime      = $data[11];  # Extracted a few lines earlier
-            #$this->endtime        = $data[12];  # Extracted a few lines earlier
+            $this->filename        = $data[8];
+            $fs_high               = $data[9];      # high-word of file size
+            $fs_low                = $data[10];     # low-word of file size
+            $this->starttime       = $data[11];     # show start-time
+            $this->endtime         = $data[12];     # show end-time
             $this->hostname        = $data[16];
             #$this->sourceid       = $data[17];
             $this->cardid          = $data[18];
@@ -313,7 +316,7 @@ class Program {
             $this->rectype         = $data[23];
             $this->dupin           = $data[24];
             $this->dupmethod       = $data[25];
-            $this->recstartts      = $data[26];     # ACTUAL start time
+            $this->recstartts      = $data[26];     # ACTUAL start time (also maps to recorded.starttime)
             $this->recendts        = $data[27];     # ACTUAL end time
             $this->previouslyshown = $data[28];     # "repeat" field
             $progflags             = $data[29];
@@ -328,12 +331,37 @@ class Program {
             $this->hasairdate      = $data[38];
             $this->timestretch     = $data[39];
             $this->recpriority2    = $data[40];
+        // Is this a previously-recorded program?
+            if (!empty($this->filename)) {
+            // Calculate the filesize
+                if (function_exists('gmp_add')) {
+                // GMP functions should work better with 64 bit numbers.
+                    $size = gmp_add($fs_low,
+                                     gmp_mul('4294967296',
+                                             gmp_add($fs_high, $fs_low < 0 ? '1' : '0'))
+                                   );
+                    $this->filesize = gmp_strval($size);
+                }
+                else {
+                // This is inaccurate, but it's the best we can get without GMP.
+                    $this->filesize = ($fs_high + ($fs_low < 0)) * 4294967296 + $fs_low;
+                }
+            // And get some download info
+                $this->url       = video_url($this);
+                $this->thumb_url = root.cache_dir.'/'.str_replace('%2F', '/', rawurlencode(basename($this->filename)));
+            }
         // Assign the program flags
-            $this->has_commflag = ($progflags & 0x01) ? true : false;    // FL_COMMFLAG  = 0x01
-            $this->has_cutlist  = ($progflags & 0x02) ? true : false;    // FL_CUTLIST   = 0x02
-            $this->auto_expire  = ($progflags & 0x04) ? true : false;    // FL_AUTOEXP   = 0x04
-            $this->is_editing   = ($progflags & 0x08) ? true : false;    // FL_EDITING   = 0x08
-            $this->bookmark     = ($progflags & 0x10) ? true : false;    // FL_BOOKMARK  = 0x10
+            $this->has_commflag   = ($progflags & 0x001) ? true : false;    // FL_COMMFLAG       = 0x001
+            $this->has_cutlist    = ($progflags & 0x002) ? true : false;    // FL_CUTLIST        = 0x002
+            $this->auto_expire    = ($progflags & 0x004) ? true : false;    // FL_AUTOEXP        = 0x004
+            $this->is_editing     = ($progflags & 0x008) ? true : false;    // FL_EDITING        = 0x008
+            $this->bookmark       = ($progflags & 0x010) ? true : false;    // FL_BOOKMARK       = 0x010
+                                                                            // FL_INUSERECORDING = 0x020
+                                                                            // FL_INUSEPLAYING   = 0x040
+            $this->stereo         = ($progflags & 0x080) ? true : false;    // FL_STEREO         = 0x080
+            $this->closecaptioned = ($progflags & 0x100) ? true : false;    // FL_CC             = 0x100
+            $this->hdtv           = ($progflags & 0x200) ? true : false;    // FL_HDTV           = 0x200
+                                                                            // FL_TRANSCODED     = 0x400
         // Add a generic "will record" variable, too
             $this->will_record = ($this->rectype && $this->rectype != rectype_dontrec) ? true : false;
         }
@@ -380,7 +408,7 @@ class Program {
             $this->recording   = ($this->recstatus == 'WillRecord'); # scheduled to record?
         }
     // No longer a null column, so check for blank entries
-        if ($this->airdate == '0000-00-00')
+        if ($this->airdate == '0000-00-00' || $this->airdate == '0000')
             $this->airdate = NULL;
     // Do we have a chanid?  Load some info about it
         if ($this->chanid && !isset($this->channel)) {
@@ -412,8 +440,22 @@ class Program {
     // Find out which css category this program falls into
         if ($this->chanid != '')
             $this->class = category_class($this);
+    // Create the fancy description
+        $this->update_fancy_desc();
+    }
 
-    // Get a nice description with the full details
+    function merge($prog) {
+        foreach (get_object_vars($prog) as $name => $value) {
+            if ($value && !$this->$name) {
+                $this->$name = $value;
+            }
+        }
+    // update fancy description in case a part of it changed
+        $this->update_fancy_desc();
+    }
+
+    function update_fancy_desc() {
+        // Get a nice description with the full details
         $details = array();
         if ($this->hdtv)
             $details[] = t('HDTV');
@@ -433,7 +475,6 @@ class Program {
         $this->fancy_description = $this->description;
         if (count($details) > 0)
             $this->fancy_description .= ' ('.implode(', ', $details).')';
-
     }
 
 /**
@@ -604,6 +645,38 @@ class Program {
         $schedule->search      = 0;
     // Save the schedule -- it'll know what to do about the override
         $schedule->save($rectype);
+    }
+
+/**
+ * Intended to be called as program::category_types()
+ *
+ * @return array sorted list of category_type fields from the program table
+/**/
+    function category_types() {
+        static $cache = array();
+        if (empty($cache)) {
+            global $db;
+            $cache = $db->query_list('SELECT DISTINCT category_type
+                                        FROM program
+                                    ORDER BY category_type');
+        }
+        return $cache;
+    }
+
+/**
+ * Intended to be called as program::categories()
+ *
+ * @return array sorted list of category fields from the program table
+/**/
+    function categories() {
+        static $cache = array();
+        if (empty($cache)) {
+            global $db;
+            $cache = $db->query_list('SELECT DISTINCT category
+                                        FROM program
+                                    ORDER BY category');
+        }
+        return $cache;
     }
 
 }

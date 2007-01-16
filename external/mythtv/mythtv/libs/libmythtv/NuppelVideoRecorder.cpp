@@ -26,6 +26,9 @@ using namespace std;
 #include "channelbase.h"
 #include "filtermanager.h"
 #include "recordingprofile.h"
+#include "tv_rec.h"
+#include "tv_play.h"
+#include "bswap.h"
 
 extern "C" {
 #include "vbitext/vbi.h"
@@ -33,10 +36,6 @@ extern "C" {
 
 #include "videodev_myth.h"
 #include "go7007_myth.h"
-
-#ifdef WORDS_BIGENDIAN
-#include "bswap.h"
-#endif
 
 #ifndef MJPIOC_S_PARAMS
 #include "videodev_mjpeg.h"
@@ -53,7 +52,7 @@ extern "C" {
 #define LOC_ERR QString("NVR(%1) Error: ").arg(videodevice)
 
 NuppelVideoRecorder::NuppelVideoRecorder(TVRec *rec, ChannelBase *channel)
-                   : RecorderBase(rec, "NuppelVideoRecorder")
+    : RecorderBase(rec)
 {
     channelObj = channel;
 
@@ -66,7 +65,6 @@ NuppelVideoRecorder::NuppelVideoRecorder(TVRec *rec, ChannelBase *channel)
     inputchannel = 1;
     compression = 1;
     compressaudio = 1;
-    rawmode = 0;
     usebttv = 1;
     w = 352;
     h = 240;
@@ -120,7 +118,6 @@ NuppelVideoRecorder::NuppelVideoRecorder(TVRec *rec, ChannelBase *channel)
 
     picture_format = PIX_FMT_YUV420P;
 
-    avcodec_init();
     avcodec_register_all();
 
     mpa_codec = 0;
@@ -164,7 +161,7 @@ NuppelVideoRecorder::NuppelVideoRecorder(TVRec *rec, ChannelBase *channel)
 
     volume = 100;
 
-    ccd = new CCDecoder(this);
+    ccd = new CC608Decoder(this);
 
     go7007 = false;
     resetcapture = false;
@@ -231,16 +228,6 @@ NuppelVideoRecorder::~NuppelVideoRecorder(void)
         delete FiltMan;
     if (ccd)
         delete ccd;
-}
-
-void NuppelVideoRecorder::deleteLater(void)
-{
-    if (fd >= 0)
-    {
-        close(fd);
-        fd = -1;
-    }
-    RecorderBase::deleteLater();
 }
 
 void NuppelVideoRecorder::SetOption(const QString &opt, int value)
@@ -342,11 +329,13 @@ void NuppelVideoRecorder::SetOptionsFromProfile(RecordingProfile *profile,
         SetIntOption(profile, "mpeg4maxquality");
         SetIntOption(profile, "mpeg4minquality");
         SetIntOption(profile, "mpeg4qualdiff");
-#ifdef HAVE_PTHREADS
+#ifdef USING_FFMPEG_THREADS
         SetIntOption(profile, "encodingthreadcount");
 #endif
         SetIntOption(profile, "mpeg4optionvhq");
         SetIntOption(profile, "mpeg4option4mv");
+        SetIntOption(profile, "mpeg4optionidct");
+        SetIntOption(profile, "mpeg4optionime");
     }
     else if (setting == "RTjpeg")
     {
@@ -535,7 +524,7 @@ bool NuppelVideoRecorder::SetupAVCodec(void)
 
     QMutexLocker locker(&avcodeclock);
 
-#ifdef HAVE_PTHREADS
+#ifdef USING_FFMPEG_THREADS
     if ((encoding_thread_count > 1) &&
         avcodec_thread_init(mpa_ctx, encoding_thread_count))
     {
@@ -940,7 +929,7 @@ bool NuppelVideoRecorder::Open(void)
             correct_bttv = true;
 
         QString driver = (char *)vcap.driver;
-        if (driver == "cx8800" || driver == "go7007")
+        if (driver == "cx8800" || driver == "go7007" || driver == "em28xx")
         {
             channelfd = open(videodevice.ascii(), O_RDWR);
             if (channelfd < 0)
@@ -1430,7 +1419,15 @@ again:
         vbuf.memory = V4L2_MEMORY_MMAP;
         if (ioctl(fd, VIDIOC_DQBUF, &vbuf) < 0)
         {
-            perror("VIDIOC_DQBUF");
+            VERBOSE(VB_IMPORTANT, LOC_ERR + "DQBUF ioctl failed." + ENO);
+
+            // EIO failed DQBUF de-tunes post 2.6.15.3 for cx88
+            if (errno == EIO && channelObj)
+            {
+                channelObj->Retune();
+                continue;
+            }
+
             if (errno == -EINVAL)
             {
                 for (int i = 0; i < numbuffers; i++)
@@ -1699,7 +1696,7 @@ void NuppelVideoRecorder::KillChildren(void)
     pthread_join(audio_tid, NULL);
     if (vbimode)
         pthread_join(vbi_tid, NULL);
-#ifdef HAVE_PTHREADS
+#ifdef USING_FFMPEG_THREADS
     if (useavcodec && encoding_thread_count > 1)
         avcodec_thread_free(mpa_ctx); 
 #endif
@@ -1780,16 +1777,31 @@ inline void NuppelVideoRecorder::WriteFrameheader(rtframeheader *fh)
     ringBuffer->Write(fh, FRAMEHEADERSIZE);
 }
 
-void NuppelVideoRecorder::WriteHeader(void)
+void NuppelVideoRecorder::SetNewVideoParams(double newaspect)
+{
+    if (newaspect == video_aspect)
+        return;
+
+    video_aspect = newaspect;
+
+    struct rtframeheader frameheader;
+    memset(&frameheader, 0, sizeof(frameheader));
+
+    frameheader.frametype = 'S';
+    frameheader.comptype = 'M';
+    frameheader.packetlength = sizeof(struct rtfileheader);
+
+    WriteFrameheader(&frameheader);
+
+    WriteFileHeader();
+}
+
+void NuppelVideoRecorder::WriteFileHeader(void)
 {
     struct rtfileheader fileheader;
-    struct rtframeheader frameheader;
-    static unsigned long int tbls[128];
     static const char finfo[12] = "MythTVVideo";
     static const char vers[5]   = "0.07";
-    
-    if (!videoFilters)
-        InitFilters();
+
     memset(&fileheader, 0, sizeof(fileheader));
     memcpy(fileheader.finfo, finfo, sizeof(fileheader.finfo));
     memcpy(fileheader.version, vers, sizeof(fileheader.version));
@@ -1819,6 +1831,17 @@ void NuppelVideoRecorder::WriteHeader(void)
     fileheader.keyframedist  = bswap_32(fileheader.keyframedist);
 #endif
     ringBuffer->Write(&fileheader, FILEHEADERSIZE);
+}
+
+void NuppelVideoRecorder::WriteHeader(void)
+{
+    struct rtframeheader frameheader;
+    static unsigned long int tbls[128];
+    
+    if (!videoFilters)
+        InitFilters();
+
+    WriteFileHeader();
 
     memset(&frameheader, 0, sizeof(frameheader));
     frameheader.frametype = 'D'; // compressor data
@@ -2607,6 +2630,8 @@ void NuppelVideoRecorder::doVbiThread(void)
         ntsc_cc->samples_per_line = vfmt.samples_per_line;
         ntsc_cc->start_line       = vfmt.start[0];
         ntsc_cc->line_count       = vfmt.count[0];
+        ntsc_cc->scale0           = (vfmt.sampling_rate + 503488 / 2) / 503488;
+        ntsc_cc->scale1           = (ntsc_cc->scale0 * 2 + 3) / 5; /* 40% */
         ptr_end = ntsc_cc->buffer + sz;
         if (sz > CC_VBIBUFSIZE)
         {
@@ -2735,11 +2760,10 @@ void NuppelVideoRecorder::doWriteThread(void)
             case ACTION_VIDEO:
             {
                 VideoFrame frame;
-                frame.codec = FMT_YV12;
-                frame.width = w;
-                frame.height = h;
-                frame.buf = videobuffer[act_video_encode]->buffer;
-                frame.size = videobuffer[act_video_encode]->bufferlen;
+                init(&frame,
+                     FMT_YV12, videobuffer[act_video_encode]->buffer,
+                     w, h, 12, videobuffer[act_video_encode]->bufferlen);
+
                 frame.frameNumber = videobuffer[act_video_encode]->sample;
                 frame.timecode = videobuffer[act_video_encode]->timecode;
                 frame.forcekey = videobuffer[act_video_encode]->forcekey;  
@@ -2863,11 +2887,9 @@ void NuppelVideoRecorder::FinishRecording(void)
 void NuppelVideoRecorder::WriteVideo(VideoFrame *frame, bool skipsync, 
                                      bool forcekey)
 {
-    int tmp = 0, r = 0, out_len = OUT_LEN;
+    int tmp = 0, out_len = OUT_LEN;
     struct rtframeheader frameheader;
-    int xaa, freecount = 0, compressthis;
-    int raw = 0;
-    int timeperframe = 40;
+    int raw = 0, compressthis = compression;
     uint8_t *planes[3];
     int len = frame->size;
     int fnum = frame->frameNumber;
@@ -2878,11 +2900,8 @@ void NuppelVideoRecorder::WriteVideo(VideoFrame *frame, bool skipsync,
 
     planes[0] = buf;
     planes[1] = planes[0] + frame->width * frame->height;
-    if (picture_format == PIX_FMT_YUV422P)
-        planes[2] = planes[1] + (frame->width * frame->height) / 2;
-    else
-        planes[2] = planes[1] + (frame->width * frame->height) / 4;
-    compressthis = compression;
+    planes[2] = planes[1] + (frame->width * frame->height) /
+                            (picture_format == PIX_FMT_YUV422P ? 2 : 4);
 
     if (lf == 0) 
     {   // this will be triggered every new file
@@ -2891,35 +2910,6 @@ void NuppelVideoRecorder::WriteVideo(VideoFrame *frame, bool skipsync,
         lasttimecode = 0;
         frameofgop = 0;
         forcekey = true;
-    }
-
-    // count free buffers -- FIXME this can be done with less CPU time!!
-    for (xaa = 0; xaa < video_buffer_count; xaa++) 
-    {
-        if (videobuffer[xaa]->freeToBuffer) 
-            freecount++;
-    }
-
-    if (freecount < (video_buffer_count / 3)) 
-        compressthis = 0; // speed up the encode process
-    
-    if (freecount < 5 || rawmode)
-        raw = 1; // speed up the encode process
-    
-    if (raw==1 || compressthis==0) 
-    {
-        if (ringBuffer->IsIOBound())
-        {
-            /* need to compress, the disk can't handle any more bandwidth*/
-            raw=0;
-            compressthis=1;
-        }
-    }
-
-    if (transcoding)
-    {
-        raw = 0;
-        compressthis = 1;
     }
 
     // see if it's time for a seeker header, sync information and a keyframe
@@ -2993,6 +2983,33 @@ void NuppelVideoRecorder::WriteVideo(VideoFrame *frame, bool skipsync,
     }
     else
     {
+        int freecount = 0; 
+        freecount = act_video_buffer > act_video_encode ? 
+                    video_buffer_count - (act_video_buffer - act_video_encode) :
+                    act_video_encode - act_video_buffer; 
+
+        if (freecount < (video_buffer_count / 3))  
+            compressthis = 0; // speed up the encode process 
+
+        if (freecount < 5) 
+            raw = 1; // speed up the encode process 
+
+        if (raw == 1 || compressthis == 0)  
+        { 
+            if (ringBuffer->IsIOBound()) 
+            { 
+                /* need to compress, the disk can't handle any more bandwidth*/ 
+                raw=0; 
+                compressthis=1; 
+            } 
+        } 
+ 
+        if (transcoding) 
+        { 
+            raw = 0; 
+            compressthis = 1; 
+        }
+
         if (!raw) 
         {
             if (wantkeyframe)
@@ -3003,7 +3020,9 @@ void NuppelVideoRecorder::WriteVideo(VideoFrame *frame, bool skipsync,
             tmp = len;
 
         // here is lzo compression afterwards
-        if (compressthis) {
+        if (compressthis)
+        {
+            int r = 0;
             if (raw) 
                 r = lzo1x_1_compress((unsigned char*)buf, len, 
                                      out, (lzo_uint *)&out_len, wrkmem);
@@ -3016,34 +3035,6 @@ void NuppelVideoRecorder::WriteVideo(VideoFrame *frame, bool skipsync,
                 return;
             }
         }
-    }
-
-    dropped = (((fnum-lf)>>1) - 1); // should be += 0 ;-)
-    
-    if (dropped>0)
-    {
-        if (ntsc_framerate)
-            timeperframe = (int)(1000 / (30 * framerate_multiplier));
-        else
-            timeperframe = (int)(1000 / (25 * framerate_multiplier));
-    }
-   
-    // if we have lost frames we insert "copied" frames until we have the
-    // exact count because of that we should have no problems with audio 
-    // sync, as long as we don't loose audio samples :-/
-  
-    while (0 && dropped > 0) 
-    {
-        frameheader.timecode = lasttimecode + timeperframe;
-        lasttimecode = frameheader.timecode;
-        frameheader.keyframe  = frameofgop;             // no keyframe defaulted
-        frameheader.packetlength =  0;   // no additional data needed
-        frameheader.frametype    = 'V';  // last frame (or nullframe if first)
-        frameheader.comptype    = 'L';
-        WriteFrameheader(&frameheader);
-        // we don't calculate sizes for lost frames for compression computation
-        dropped--;
-        frameofgop++;
     }
 
     frameheader.frametype = 'V'; // video frame
@@ -3112,6 +3103,15 @@ void NuppelVideoRecorder::WriteVideo(VideoFrame *frame, bool skipsync,
     lf = fnum;
 }
 
+static void bswap_16_buf(short int *buf, int buf_cnt, int audio_channels)
+    __attribute__ ((unused)); /* <- suppress compiler warning */
+
+static void bswap_16_buf(short int *buf, int buf_cnt, int audio_channels)
+{
+    for (int i = 0; i < audio_channels * buf_cnt; i++)
+        buf[i] = bswap_16(buf[i]);
+}
+
 void NuppelVideoRecorder::WriteAudio(unsigned char *buf, int fnum, int timecode)
 {
     struct rtframeheader frameheader;
@@ -3166,21 +3166,23 @@ void NuppelVideoRecorder::WriteAudio(unsigned char *buf, int fnum, int timecode)
         int gaplesssize = 0;
         int lameret = 0;
 
+        int sample_cnt = audio_buffer_size / audio_bytes_per_sample;
+
+#ifdef WORDS_BIGENDIAN
+        bswap_16_buf((short int*) buf, sample_cnt, audio_channels);
+#endif
+
         if (audio_channels == 2)
         {
-            lameret = lame_encode_buffer_interleaved(gf, (short int *)buf,
-                                                     audio_buffer_size / 
-                                                     audio_bytes_per_sample,
-                                                     (unsigned char *)mp3buf,
-                                                     mp3buf_size);
+            lameret = lame_encode_buffer_interleaved(
+                gf, (short int*) buf, sample_cnt,
+                (unsigned char*) mp3buf, mp3buf_size);
         }
         else
         {
-            lameret = lame_encode_buffer(gf, (short int *)buf, (short int *)buf,
-                                         audio_buffer_size / 
-                                         audio_bytes_per_sample,
-                                         (unsigned char *)mp3buf,
-                                         mp3buf_size);
+            lameret = lame_encode_buffer(
+                gf, (short int*) buf, (short int*) buf, sample_cnt,
+                (unsigned char*) mp3buf, mp3buf_size);
         }
 
         if (lameret < 0)
@@ -3264,3 +3266,6 @@ void NuppelVideoRecorder::WriteText(unsigned char *buf, int len, int timecode,
         ringBuffer->Write(buf, len);
     }
 }
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */
+
