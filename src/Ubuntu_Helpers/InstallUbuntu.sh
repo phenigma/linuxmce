@@ -114,6 +114,7 @@ Activation_Code = 1111
 PK_Installation = 1
 PK_Users = 1
 PK_Distro = 14
+Display = 4
 "
 	echo "$PlutoConf" >/etc/pluto.conf
 	if [[ "$question_use_internet_connection" == "1" ]] ;then
