@@ -211,8 +211,8 @@ Logging "$TYPE" "$SEVERITY_STATUS" "Xconfigure" "Display Driver: $DisplayDriver"
 
 CurrentDisplayDriver=$(awk -f/usr/pluto/bin/X-GetDisplayDriver.awk "$ConfigFile")
 if [[ "$Defaults" == y ]]; then
-	if [[ ! -f /usr/pluto/templates/xorg.conf.pluto.in ]]; then
-		Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/templates/xorg.conf.pluto.in. Can't setup defaults"
+	if [[ ! -f /usr/pluto/templates/xorg.conf.in ]]; then
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/templates/xorg.conf.in. Can't setup defaults"
 		exit 1
 	fi
 	cat /usr/pluto/templates/xorg.conf.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
