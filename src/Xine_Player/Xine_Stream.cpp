@@ -1331,7 +1331,7 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 
 	if ( seekTime < 0 )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "aborting seek, we are at the beginning" );
+		g_pPlutoLogger->Write( LV_WARNING, "aborting seek, we are at the beginning" );
 		changePlaybackSpeed( PLAYBACK_FF_1 );
 		ReportTimecode();
 		return;
@@ -1805,7 +1805,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 						sAudioTracks += string( pXineStream->TranslateLanguage( lang ) ) + "\n";
 					}
 					if ( i >= 100 )
-						g_pPlutoLogger->Write( LV_CRITICAL, "Something went wrong audio tracks>100" );
+						g_pPlutoLogger->Write( LV_WARNING, "Something went wrong audio tracks>100" );
 					
 					pXineStream->m_pFactory->ReportAudioTracks( sAudioTracks );
 				}
@@ -1827,7 +1827,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 						sSubtitles += string( pXineStream->TranslateLanguage( lang ) ) + "\n";
 					}
 					if ( i >= 100 )
-						g_pPlutoLogger->Write( LV_CRITICAL, "Something went wrong subitltes>100" );
+						g_pPlutoLogger->Write( LV_WARNING, "Something went wrong subitltes>100" );
 					
 					pXineStream->m_pFactory->ReportSubtitles( sSubtitles );
 				}

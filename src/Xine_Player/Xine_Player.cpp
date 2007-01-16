@@ -167,7 +167,7 @@ void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &s
 //<-dceag-c28-e->
 {
 	int PK_Button = atoi(sPK_Button.c_str());
-	g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::CMD_Simulate_Keypress %d",PK_Button);
+	g_pPlutoLogger->Write(LV_WARNING,"Xine_Player::CMD_Simulate_Keypress %d",PK_Button);
 	switch(PK_Button)
 	{
 		case BUTTON_Up_Arrow_CONST:
@@ -186,7 +186,7 @@ void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &s
 			CMD_EnterGo();
 			break;
 		default:
-			g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::CMD_Simulate_Keypress -- Can't handle %d",PK_Button);
+			g_pPlutoLogger->Write(LV_WARNING,"Xine_Player::CMD_Simulate_Keypress -- Can't handle %d",PK_Button);
 			break;
 	}
 }
@@ -306,7 +306,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Player::CMD_Play_Media() failed to play -- retrying without starting position info");
+			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() failed to play -- retrying without starting position info");
 			if (pStream->playStream( sMediaPosition))
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
@@ -314,7 +314,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Player::CMD_Play_Media() failed to play %s without position info",sMediaURL.c_str());
+				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() failed to play %s without position info",sMediaURL.c_str());
 				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", iStreamID);
 				StopNbdDevice();
 				EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
