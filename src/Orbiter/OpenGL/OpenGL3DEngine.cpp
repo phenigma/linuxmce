@@ -177,7 +177,7 @@ bool OpenGL3DEngine::Paint()
 
 	if(bDatagridAnimation || NeedUpdateScreen())
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Flip!");
+//		g_pPlutoLogger->Write(LV_WARNING, "Flip!");
 		GL.Flip();
 	}
 
