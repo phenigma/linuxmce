@@ -285,7 +285,7 @@ public:
     {
         vector<class EntertainArea *> vectEntertainArea;
 		DetermineEntArea(iPK_Device_Orbiter,0,"",vectEntertainArea);
-        if( (vectEntertainArea.size()!=1 || !vectEntertainArea[0]->m_pMediaStream) && bErrorIfNotFound ) g_pPlutoLogger->Write(LV_CRITICAL,"No stream on orbiter: %d",iPK_Device_Orbiter);
+        if( (vectEntertainArea.size()!=1 || !vectEntertainArea[0]->m_pMediaStream) && bErrorIfNotFound ) g_pPlutoLogger->Write(LV_WARNING,"No stream on orbiter: %d",iPK_Device_Orbiter);
         return vectEntertainArea.size()==1 ? vectEntertainArea[0]->m_pMediaStream : NULL;
     }
 

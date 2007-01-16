@@ -253,7 +253,7 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 		else
 			m_eLastError=cs_err_CannotConnect;
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d last error %d", 
+			g_pPlutoLogger->Write( m_eLastError==cs_err_NeedReload ? LV_WARNING : LV_CRITICAL, "Connection for client socket reported %s, device %d last error %d", 
 				sResponse.c_str(), m_dwPK_Device,(int) m_eLastError );
 
 		if( m_eLastError!=cs_err_NeedReload )

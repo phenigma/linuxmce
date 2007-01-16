@@ -2262,7 +2262,7 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 	
 	if( pDevice_HardPhone==NULL && pDevice_SoftPhone==NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Telecom_Plugin::FollowMe_EnteredRoom no phones in room %d",iPK_RoomOrEntArea);
+		g_pPlutoLogger->Write(LV_WARNING,"Telecom_Plugin::FollowMe_EnteredRoom no phones in room %d",iPK_RoomOrEntArea);
 		return;
 	}
 

@@ -176,7 +176,7 @@ namespace DCE
 			// (rob.r) m_iDequeMediaFile_Pos is an unsigned int, can't be < 0 
 			if( m_iDequeMediaFile_Pos >= m_dequeMediaFile.size() )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"MediaFile::GetCurrentMediaFile - no file");
+				g_pPlutoLogger->Write(LV_WARNING,"MediaStream::GetCurrentMediaFile - no file");
 				return NULL;
 			}
 

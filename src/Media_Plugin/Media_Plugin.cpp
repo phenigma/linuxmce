@@ -958,11 +958,11 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 	{
 		if( iPK_Device )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find any media handlers for device %d trying without",iPK_Device);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find any media handlers for type %d device %d trying without",iPK_MediaType, iPK_Device);
 			GetMediaHandlersForEA(iPK_MediaType, iPK_MediaProvider, 0, iPK_DeviceTemplate, vectEntertainArea, vectEA_to_MediaHandler);
 		}
 		if( vectEA_to_MediaHandler.size()==0 )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find any media handlers for this");
+			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find any media handlers for type %d", iPK_MediaType);
 	}
 
 	// If there are 2 or more stream and we have a deque of mediafiles, make copies of them
@@ -1452,7 +1452,8 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 				return rmr_Processed;
 			}
 
-			g_pPlutoLogger->Write( LV_CRITICAL, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
+			// Could be a timing issue that the stream finished and Orbiter didn't change the screen yet
+			g_pPlutoLogger->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
 			return rmr_NotProcessed;
         }
 
@@ -2088,7 +2089,6 @@ g_pPlutoLogger->Write(LV_WARNING,"EA %d %s bound %d remotes was at screen %d sen
 
 void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea, int *p_iStreamID )
 {
-    g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea1");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	MediaStream *pMediaStream = NULL;
@@ -2141,10 +2141,9 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 				}
 			}
 
-			g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea4");
 			if( vectEntertainArea.size()==0 )
 			{
-				g_pPlutoLogger->Write( LV_CRITICAL, "Received a DetermineEntArea from an orbiter %p %d with no entertainment area (%p) %d %d %s",
+				g_pPlutoLogger->Write( LV_WARNING, "Received a DetermineEntArea from an orbiter %p %d with no entertainment area (%p) %d %d %s",
 					pOH_Orbiter,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pEntertainArea,
 					iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
 				return; // Don't know what area it should be played in
@@ -2163,7 +2162,9 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 		}
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Found the proper ent area: %d", (int) vectEntertainArea.size());
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "Found the proper ent area: %d", (int) vectEntertainArea.size());
+#endif
 	string::size_type pos=0;
 	while( pos<sPK_EntertainArea.size() )
 	{
@@ -4606,7 +4607,8 @@ void Media_Plugin::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,st
 	EntertainArea *pEntertainArea;
 	if( vectEntertainArea.size()==0 || (pEntertainArea=vectEntertainArea[0])==NULL || !pEntertainArea->m_pMediaStream || !pRow_Bookmark )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Can't go to media position -- no EA or stream");
+		// Could be a timing issue that the stream finished and Orbiter didn't change the screen yet
+		g_pPlutoLogger->Write(LV_WARNING,"Can't go to media position -- no EA or stream");
 		return;
 	}
 

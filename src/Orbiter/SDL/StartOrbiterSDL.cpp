@@ -348,7 +348,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 					pCLinux->CMD_Regen_Screen();
 			}
 
-			g_pPlutoLogger->Write(LV_CRITICAL, "About to initialize after relatives...");
+			g_pPlutoLogger->Write(LV_STATUS, "About to initialize after relatives...");
         
 			OrbiterRenderer_Linux *pOrbiterRenderer_Linux = dynamic_cast<OrbiterRenderer_Linux *>(pCLinux->Renderer());
 			if(pOrbiterRenderer_Linux != NULL)

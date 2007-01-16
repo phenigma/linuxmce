@@ -713,7 +713,7 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 
     if( !pMythTvMediaStream )
 	{
-	    g_pPlutoLogger->Write(LV_CRITICAL, "MythTV_PlugIn::CMD_Set_Active_Menu stream is NULL");
+	    g_pPlutoLogger->Write(LV_WARNIN, "MythTV_PlugIn::CMD_Set_Active_Menu stream is NULL");
         return;  /** Can't do anything */
 	}
 

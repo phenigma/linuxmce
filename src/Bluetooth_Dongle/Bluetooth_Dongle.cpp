@@ -425,7 +425,7 @@ bool Bluetooth_Dongle::Connect(int iPK_DeviceTemplate)
 	DCE::CMD_Get_EntAreas_For_Device_Cat CMD_Get_EntAreas_For_Device_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,&sPK_EntertainArea);
 	SendCommand(CMD_Get_EntAreas_For_Device_Cat);
 	m_dwPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
-g_pPlutoLogger->Write(LV_CRITICAL,"Set EA to %d",m_dwPK_EntertainArea);
+	g_pPlutoLogger->Write(LV_STATUS,"Set EA to %d",m_dwPK_EntertainArea);
 
 	return true;
 }

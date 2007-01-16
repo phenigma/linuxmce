@@ -1311,8 +1311,9 @@ void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butDoneMediaSetup_CONST));
 	ScreenHandler::SCREEN_Wizard_Done(PK_Screen);
-
-g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::SCREEN_Wizard_Done selected DESIGNOBJ_Final_CONST already played %d",(int) m_bAlreadyPlayFinalGreeting);
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::SCREEN_Wizard_Done selected DESIGNOBJ_Final_CONST already played %d",(int) m_bAlreadyPlayFinalGreeting);
+#endif
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizardDone_OnScreen, new RenderScreenCallBackData());
 }
 
@@ -1330,13 +1331,11 @@ bool OSDScreenHandler::VideoWizardDone_OnScreen(CallBackData *pData)
 
 void OSDScreenHandler::SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line)
 {
-g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::SCREEN_House_Setup_Popup_Message text %s cmd line %s",sText.c_str(),sCommand_Line.c_str());
 	SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, "", "", "", "1");
 }
 
 void OSDScreenHandler::SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line)
 {
-g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::SCREEN_Media_Player_Setup_Popup_Message text %s cmd line %s",sText.c_str(),sCommand_Line.c_str());
 	SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, "", "", "", "1");
 }
 

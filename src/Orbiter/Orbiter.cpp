@@ -4932,14 +4932,18 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 		string sCMD_Result;
 		if( m_mapPK_Screen_GoBackToScreen.find(m_pScreenHistory_Current->PK_Screen())!=m_mapPK_Screen_GoBackToScreen.end() )
 		{
-g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Go_back to %d is a gobacktoscreen",m_pScreenHistory_Current->PK_Screen());
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"CMD_Go_back to %d is a gobacktoscreen",m_pScreenHistory_Current->PK_Screen());
+#endif
 			Message *pMessageTemp=NULL;
 			if( pScreenHistory->m_mapParameters.size() )
 			{
 				pMessageTemp = new Message();
 				for(map<long, string>::iterator it = pScreenHistory->m_mapParameters.begin(); it != pScreenHistory->m_mapParameters.end(); it++)
 				{
-g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Go_back to %d with %d=%s",pScreenHistory->PK_Screen(),it->first,it->second.c_str());
+#ifdef DEBUG
+					g_pPlutoLogger->Write(LV_STATUS,"CMD_Go_back to %d with %d=%s",pScreenHistory->PK_Screen(),it->first,it->second.c_str());
+#endif
 					pMessageTemp->m_mapParameters[it->first]=it->second;
 				}
 
@@ -5640,10 +5644,7 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sText,string sTy
 
 	DesignObj_DataList *pDesignObj_DataList = m_mapObj_Bound_Find(sType);
 	if( !pDesignObj_DataList )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Got SetBoundIcon for unknown type: %s size: %d",sType.c_str(),(int) m_mapObj_Bound.size());
-		return;
-	}
+		return;  // Happens when an Orbiter doesn't have the screen with the bound icon, like the mobile phone
 
 	int iValue = atoi(sValue_To_Assign.c_str());
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
