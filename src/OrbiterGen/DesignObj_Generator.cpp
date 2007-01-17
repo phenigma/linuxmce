@@ -139,8 +139,15 @@ g_pPlutoLogger->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK_DesignObj_get
 
 if( m_pOrbiterGenerator->m_iLocation )
 int k=2;
+	if( (ocoParent && ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==5362) || 
+		m_pRow_DesignObj->PK_DesignObj_get()==5363 ||  m_pRow_DesignObj->PK_DesignObj_get()==5362 )
+	{
+g_pPlutoLogger->Write(LV_WARNING,"Outputing %d parent %d",
+					  m_pRow_DesignObj->PK_DesignObj_get(), ocoParent ? ocoParent->m_pRow_DesignObj->PK_DesignObj_get() : -1);
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==5363 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5106 ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
+	}
+
+if( m_pRow_DesignObj->PK_DesignObj_get()==5363 ||  m_pRow_DesignObj->PK_DesignObj_get()==5362 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
