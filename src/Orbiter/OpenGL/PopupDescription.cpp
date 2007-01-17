@@ -34,6 +34,11 @@ PopupDescription::PopupDescription(OpenGL3DEngine* Engine, string ID, string Obj
 
 PopupDescription::~PopupDescription(void)
 {
+	Engine->RemoveMeshFrameFromDesktop(PopupFrame);
+
+	PopupFrame->CleanUp(true);
+	delete PopupFrame;
+	PopupFrame = NULL;
 }
 
 void PopupDescription::Hide()

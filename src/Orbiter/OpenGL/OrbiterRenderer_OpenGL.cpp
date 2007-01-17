@@ -129,15 +129,14 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterRenderer_OpenGL::~OrbiterRenderer_OpenGL()
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "");
+	delete Popups;
+	Popups = NULL;
 
 	if(NULL != Engine)
 		Engine->m_bQuit=true;
 
 	if(GLThread != 0)
 		pthread_join(GLThread, NULL);
-
-	delete Popups;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::Configure()
