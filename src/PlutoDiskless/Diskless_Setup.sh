@@ -224,6 +224,7 @@ for Client in $R; do
 			pluto_conf="OfflineMode = $OfflineMode \n"
 			pluto_conf="${pluto_conf}PlutoVersion = $PlutoVersion \n"
 			pluto_conf="${pluto_conf}Vendor = $Vendor \n"
+			pluto_conf="${pluto_conf}Display = $Display \n"
 			echo -e $pluto_conf > $DlPath/etc/pluto.conf
 		fi
 		
