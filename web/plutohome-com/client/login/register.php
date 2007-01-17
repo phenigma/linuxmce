@@ -111,8 +111,9 @@ function register($output,$conn){
   		}
   		
   		$res = captcha::check();
+
    		if(isset($res)){
-  			if(!$res){
+  			if($res!==true){
   			$out.='
   				<table align="center">
   					<tr>
