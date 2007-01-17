@@ -21,6 +21,12 @@ function Log {
 	echo "$SEVERITY $(date) $UNIQUE_ID $*" >> /var/log/pluto/StorageDevices.log
 }
 
+if [[ "$1" == */* ]] ; then
+	Log $LOG_ERR "AUTOMOUNT PASSED WRONG PARAMS : $1"
+	#Uncoment next line for debuging automount
+	#kill -INT $(pidof automount) 
+	exit 1
+fi
 
 Log $LOG_NOTE "CALLED TO MOUNT DEVICE $StorageDevice"
 
