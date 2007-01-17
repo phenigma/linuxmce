@@ -511,7 +511,6 @@ void OpenGL3DEngine::StartDatagridDrawing(string ObjectHash)
 
 	FrameDatagrid = CurrentLayer;
 	CurrentLayer = new MeshFrame(ObjectHash);
-	CurrentLayer->MarkAsVolatile();
 }
 
 MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
@@ -521,10 +520,10 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
 #endif
 	MeshFrame* Result = CurrentLayer;
-
 	CurrentLayer = FrameDatagrid;
-
 	FrameDatagrid = NULL;
+
+	Result->MarkAsVolatileRecursively();
 	return Result;
 }
 

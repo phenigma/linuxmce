@@ -20,7 +20,12 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "MeshPainter.h"
 #include "DCE/Logger.h"
 
-//#define DEBUG_MESH_FRAMES
+#define DEBUG_MESH_FRAMES
+
+#ifdef DEBUG_MESH_FRAMES
+	static int nMeshCounter = 0;
+	static int nCloneMeshCounter = 0;
+#endif
 
 MeshFrame::MeshFrame(string Name, MeshContainer* Mesh) 
 	: 
@@ -33,6 +38,13 @@ MeshFrame::MeshFrame(string Name, MeshContainer* Mesh)
 {
 	m_pMeshContainer = Mesh;
 	m_sName = Name;
+
+#ifdef DEBUG_MESH_FRAMES
+	if(m_sName.find("clone") != string::npos)
+		++nCloneMeshCounter;
+
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "aaa MeshFrame constructor %p/%s, (count %d), (clones %d)", this, m_sName.c_str(), ++nMeshCounter, nCloneMeshCounter);
+#endif
 }
 
 MeshFrame::~MeshFrame(void)
@@ -52,13 +64,28 @@ MeshFrame::~MeshFrame(void)
 		TextureManager::Instance()->InvalidateItem(this);
 
 #ifdef DEBUG_MESH_FRAMES
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame destructor %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
+	if(m_sName.find("clone") != string::npos)
+		--nCloneMeshCounter;
+
+	DCE::g_pPlutoLogger->Write(LV_WARNING, "aaa MeshFrame destructor %p/%s, volatile %d, (count %d), (clones %d)", this, m_sName.c_str(), m_bVolatile, --nMeshCounter, nCloneMeshCounter);
 #endif
 }
 
 void MeshFrame::MarkAsVolatile() 
 { 
 	m_bVolatile = true; 
+}
+
+void MeshFrame::MarkAsVolatileRecursively() 
+{ 
+	m_bVolatile = true; 
+
+	vector<MeshFrame*>::iterator Child;
+	for(Child = Children.begin(); Child!=Children.end();++Child)
+	{
+		MeshFrame *pMeshFrame = *Child;
+		pMeshFrame->MarkAsVolatileRecursively();
+	}
 }
 
 /*virtual*/ void MeshFrame::CleanUp(bool VolatilesOnly/* = false*/)
@@ -321,10 +348,7 @@ MeshFrame *MeshFrame::Clone()
 	MeshFrame *Result = new MeshFrame(m_sName + " clone");
 
 	Result->MarkAsVolatile();
-
-	if(!m_bVolatile && m_sName.find("datagrid-thumb") == string::npos)
-		Result->m_bDontReleaseTexture = true;
-
+	Result->m_bDontReleaseTexture = true;
 	Result->m_bVisible = m_bVisible;
 
 	if(NULL != m_pMeshContainer)

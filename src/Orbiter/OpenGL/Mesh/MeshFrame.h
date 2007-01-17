@@ -182,10 +182,15 @@ public:
 	 *	Set volatile flag, means that should be deleted in special cleanup case
 	 */
 	void MarkAsVolatile();
+	void MarkAsVolatileRecursively();
 	/**
 	 *	Check volatile flag
 	 */
 	bool IsVolatile() { return m_bVolatile; }
+	/*
+	 *	Don't release textures for this mesh frame
+	 */
+	void DontReleaseTexture() { m_bDontReleaseTexture = true; }
 };
 
 #endif

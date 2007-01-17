@@ -111,8 +111,6 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 
     sm.Release();
 
-	PostRenderActions(pObj_Screen, point);
-
 	g_pPlutoLogger->Write(LV_STATUS, "abc DataGridRenderer_OpenGL::RenderObject ENDED %s", DatagridFrameID.c_str());
 }
 

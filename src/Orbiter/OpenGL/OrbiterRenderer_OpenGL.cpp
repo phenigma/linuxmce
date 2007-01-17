@@ -453,7 +453,10 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 		point.X, point.Y, rectTotal.Width, rectTotal.Height);
 #endif
 
-	TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
+	if(TextureManager::Instance()->CacheEnabled())
+		TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
+	else
+		Frame->DontReleaseTexture();
 
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
 g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
