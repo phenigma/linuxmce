@@ -1,82 +1,63 @@
-#! /bin/sh
+#!/bin/sh
 
 set -e
 
-# summary of how this script can be called:
-#        * <postinst> `configure' <most-recently-configured-version>
-#        * <old-postinst> `abort-upgrade' <new version>
-#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
-#          <new-version>
-#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
-#          <failed-install-package> <version> `removing'
-#          <conflicting-package> <version>
-
-CONFIG=/etc/mythtv/mythweb-settings.php
-
-add_default_define() {
-    variable="$1"
-    value="$2"
-
-    if ! grep -q "^[ 	]*define([ 	]*$variable[ 	]*,.*" $CONFIG; then
-        sed -e "s/^\?>.*\$/    define($variable, $value);\n?>/" < $CONFIG > $CONFIG.new
-        chown --reference=$CONFIG $CONFIG.new
-        chmod --reference=$CONFIG $CONFIG.new
-        mv $CONFIG.new $CONFIG
+reload_apache()
+{
+    if apache2ctl configtest 2>/dev/null; then
+        invoke-rc.d apache2 force-reload || true
+    else
+        echo "Your apache2 configuration is broken, so we're not restarting it for you."
     fi
-}
-
-remove_define() {
-    variable="$1"
-
-    sed -e "/^[ 	]*define([ 	]*$variable[ 	]*/d" < $CONFIG > $CONFIG.new
-    chown --reference=$CONFIG $CONFIG.new
-    chmod --reference=$CONFIG $CONFIG.new
-    mv $CONFIG.new $CONFIG
 }
 
 case "$1" in
     configure)
 
-        # XXX - this should get settings from mythweb-settings.php if
-        # it exists
+        # like mythtv-common.postinst
+        . /usr/share/debconf/confmodule
 
-        MYSQL_CONFIG=/etc/mythtv/mysql.txt
-        db_host="`sed -n -e 's/^\(str  *\)\?DBHostName=\(.*\)$/\2/gp;' $MYSQL_CONFIG`"
-        db_username="`sed -n -e 's/^\(str  *\)\?DBUserName=\(.*\)$/\2/gp;' $MYSQL_CONFIG`"
-        db_password="`sed -n -e 's/^\(str  *\)\?DBPassword=\(.*\)$/\2/gp;' $MYSQL_CONFIG`"
-        db_dbname="`sed -n -e 's/^\(str  *\)\?DBName=\(.*\)$/\2/gp;' $MYSQL_CONFIG`"
+        db_get mythtv/mysql_host
+        hostname="$RET"
+        db_get mythtv/mysql_mythtv_dbname
+        database="$RET"
+        db_get mythtv/mysql_mythtv_user
+        mythtv_username="$RET"
+        db_get mythtv/mysql_mythtv_password
+        mythtv_password="$RET"
 
-        if [ -n "$2" -a -e $CONFIG ] && dpkg --compare-versions "$2" lt 0.13-1; then
-            echo "$CONFIG is too old; changes will be lost"
-            echo "preserving old configuration in $CONFIG.old"
-            mv $CONFIG $CONFIG.old
-        fi
+        db_stop
 
-        touch $CONFIG.new
-        chmod 600 $CONFIG.new
-        if [ -e $CONFIG ]; then
-            INPUT=$CONFIG
+        HTACCESS=/etc/mythtv/mythweb-htaccess
+        NEW=${HTACCESS}.new
+        touch $NEW
+
+        if [ -s $HTACCESS ]; then
+            INPUT=$HTACCESS
+            chown --reference=$INPUT $NEW
+            chmod --reference=$INPUT $NEW
         else
-            # Temporary, to avoid password exposure, real perms set below
-            INPUT=/usr/share/mythtv/mythweb/config/conf.php.dist
+            INPUT=/usr/share/mythtv/mythweb/.htaccess.dist
+            chown mythtv:www-data $NEW
+            chmod 640 $NEW
         fi
-
-#         define('db_host',     'localhost');
-#        define('db_username', 'mythtv');
-#        define('db_password', 'mythtv');
-#        define('db_dbname',   'mythconverg');
 
         cat $INPUT | sed -e "
-s/\(define('db_host', *'\)[^']*\('\)/\1$db_host\2/;
-s/\(define('db_username', *'\)[^']*\('\)/\1$db_username\2/;
-s/\(define('db_password', *'\)[^']*\('\)/\1$db_password\2/;
-s/\(define('db_dbname', *'\)[^']*\('\)/\1$db_dbname\2/;
-" > $CONFIG.new
-        mv $CONFIG.new $CONFIG
+s/\(^[ \t]*setenv[ \t]\+db_server[ \t]\+\"\)[^\"]*\"/\1$hostname\"/g;
+s/\(^[ \t]*setenv[ \t]\+db_name[ \t]\+\"\)[^\"]*\"/\1$database\"/g;
+s/\(^[ \t]*setenv[ \t]\+db_login[ \t]\+\"\)[^\"]*\"/\1$mythtv_username\"/g;
+s/\(^[ \t]*setenv[ \t]\+db_password[ \t]\+\"\)[^\"]*\"/\1$mythtv_password\"/g;
+            " > $NEW
+        mv $NEW $HTACCESS
 
-        if ! dpkg-statoverride --list $CONFIG; then
-            chown mythtv:www-data $CONFIG
-            chmod 640 $CONFIG
+        ACCESS=/etc/mythtv/mythweb-htaccess.conf
+        if test -f $ACCESS; then
+            mv $ACCESS ${ACCESS}.dpkg-old
+        fi
+
+        CONFIG=/etc/mythtv/mythweb-settings.php
+        if test -f $CONFIG; then
+            mv $CONFIG ${CONFIG}.dpkg-old
         fi
 
         cachedir=/var/cache/mythweb/image_cache
@@ -85,12 +66,29 @@ s/\(define('db_dbname', *'\)[^']*\('\)/\1$db_dbname\2/;
             chmod 1775 $cachedir
         fi
 
-        if [ -n "$2" ] && dpkg --compare-versions "$2" lt 0.15-2; then
-            add_default_define "'default_language'" "'English'"
-            remove_define "'generic_date'"
-            remove_define "'generic_time'"
-        fi
+        LINKS='
+/var/lib/music^/usr/share/mythtv/mythweb/data/music
+/var/lib/mythtv^/usr/share/mythtv/mythweb/data/recordings
+/var/lib/mythvideo^/usr/share/mythtv/mythweb/data/video
+/var/lib/mythvideo^/usr/share/mythtv/mythweb/data/video_covers
+/var/cache/mythweb/image_cache^/usr/share/mythtv/mythweb/data/tv_icons
+/var/cache/mythweb/image_cache^/usr/share/mythtv/mythweb/data/cache'
+        for LINK in $LINKS; do
+            TARGET=${LINK%^*}
+            NAME=${LINK#*^}
+            if ! [ -L $NAME ]; then
+                if ! [ -e $NAME ]; then
+                    ln -s $TARGET $NAME
+                fi
+            fi
+        done
 
+        if [ -e /etc/apache2/apache2.conf ]; then
+            # Enable rewrite_module and reload apache.
+            a2enmod rewrite >/dev/null || true
+            a2ensite mythwebdir >/dev/null || true
+            reload_apache
+        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
@@ -103,11 +101,6 @@ s/\(define('db_dbname', *'\)[^']*\('\)/\1$db_dbname\2/;
     ;;
 esac
 
-# dh_installdeb will replace this with shell code automatically
-# generated by other debhelper scripts.
-
 #DEBHELPER#
 
 exit 0
-
-

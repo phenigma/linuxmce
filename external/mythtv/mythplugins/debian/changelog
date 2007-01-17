@@ -2,6 +2,7 @@ mythplugins (0.20-1) unstable; urgency=low
 
   * Built against Upstream release 0.20 with fixed from release-0-20-fixes
     revision 12546
+  * Update debian directory with files from from debian-mutimedia.org
 
  -- Radu Cristescu <radu.c@plutohome.com>  Tue, 16 Jan 2007 17:49:49 +0200
 
