@@ -870,8 +870,20 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 		return true; // Delete this, something went terribly wrong
 	}
 	pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(iPK_Device);
+
 	if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get());
+
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	if( pRow_Device )  // Should always be the case,
+	{
+		pRow_Device->Reload();
+		if( pRow_Device->Disabled_get()==1 )  // It's possible this is a 'only one per pc' that was already there but disabled, like a Bluetooth Dongle
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Add_Device: enable device %d: %s", pRow_Device->PK_Device_get(), pPnpQueueEntry->ToString().c_str());
+			ReenableDevice(pPnpQueueEntry,pRow_Device);
+		}
+	}
 
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);   // CreateDevice already adds the software and starts it, so we're done
 	return true; 
