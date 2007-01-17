@@ -348,9 +348,11 @@ MeshFrame *MeshFrame::Clone()
 	MeshFrame *Result = new MeshFrame(m_sName + " clone");
 
 	Result->MarkAsVolatile();
-	Result->m_bDontReleaseTexture = true;
-	Result->m_bVisible = m_bVisible;
+	
+	if(m_sName.find("datagrid-thumb") == string::npos)
+		Result->m_bDontReleaseTexture = true;
 
+	Result->m_bVisible = m_bVisible;
 	if(NULL != m_pMeshContainer)
 		Result->m_pMeshContainer = m_pMeshContainer->Clone();
 
