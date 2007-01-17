@@ -3,25 +3,7 @@
 Message() {
     echo -e "\033[1m# $*"
     tput sgr0
-
-    # Update boot splash progress bar
-    progress=$(( $progress + 1 ))
-
-    grep -q "silent" /proc/splash 2>/dev/null
-    if [[ $? -eq 0 ]] ;then
-        echo "show $(( 65534 * ( $progress + 1 ) / 28 ))" > /proc/splash
-	echo "$(( 65534  * ( $progress + 1 ) / 28 ))" > /var/run/bootsplash_progress 2>/dev/null || /bin/true
-        if [ "$text_x" != "" -a "$text_y" != "" -a "$text_color" != "" -a "$text_size" != "" ] ;then
-            text_font="/etc/bootsplash/fonts/VeraBd.ttf"
-            /sbin/fbtruetype -x$(($text_x + 1)) -y$(($text_y + 1)) -t000000 -s$text_size -f$text_font "$*"
-            /sbin/fbtruetype -x$text_x -y$text_y -t$text_color -s$text_size -f$text_font "$*"
-        fi
-    fi
 }
-
-##########################################
-#### Starting Pluto Specific services ####
-##########################################
 
 ## Start stuff that makes the dcerouter act as a internet router
 if [[ -x /etc/init.d/dhcp3-server ]] ;then
@@ -37,19 +19,8 @@ if [[ -x /etc/init.d/mysql ]] ;then
 	/etc/init.d/mysql start
 fi
 
-#if [[ -x /etc/init.d/Pluto_Network_Firewall.sh ]] ;then
-#	/etc/init.d/Pluto_Network_Firewall.sh 1>/dev/null 2>/dev/null &
-#fi
-
 if [[ -x /usr/pluto/bin/Network_Firewall.sh ]] ;then
 	/usr/pluto/bin/Network_Firewall.sh 1>/dev/null 2>/dev/null &
-fi
-
-## Check to see if pluto finished installing else exit
-## works only on MDs
-if grep -q "^1:23:once:/usr/pluto/install/Initial_Config.sh" /etc/inittab ;then
-	Message "Installing Pluto System"
-	exit 0
 fi
 
 if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
@@ -92,9 +63,6 @@ rm -f /usr/pluto/locks/*                 # clean up locks
 rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
 
 if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
-	Message "Generating pluto bootscripts for the first time"
-	/usr/pluto/bin/generateRcScripts.sh
-
 	if [[ ! -f /etc/diskless.conf ]] ;then
 		Message "Updating software database (getxmls)"
 		/usr/pluto/bin/getxmls
@@ -103,70 +71,23 @@ if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
 	ConfSet "FirstBoot" "false" 2>/dev/null 1>/dev/null
 fi
 
-#if [[ -x /etc/init.d/Pluto_SSH_Keys.sh ]]; then
-#	Message "Setting ssh keys"
-#	/etc/init.d/Pluto_SSH_Keys.sh &
-#fi
-
 if [[ -x /usr/pluto/bin/SSH_Keys.sh ]] ;then 
 	Message "Setting ssh keys"
 	/usr/pluto/bin/SSH_Keys.sh &
 fi
-
-#if [ -x /etc/init.d/Pluto_ConfirmInstallation.sh ] ;then
-#    Message "Confirm Installation"
-#    /etc/init.d/Pluto_ConfirmInstallation.sh
-#fi
 
 if [[ -x /usr/pluto/bin/ConfirmInstallation.sh ]] ;then
 	Message "Confirm Instalation"
 	/usr/pluto/bin/ConfirmInstallation.sh
 fi
 
-#f [ -x  /etc/init.d/Pluto_Update_Packages.sh ] ;then
-#   Message "Checking for Updates"
-#   /etc/init.d/Pluto_Update_Packages.sh
-#i
-if [ -x /usr/pluto/bin/ApplyUpdates.sh ]; then
-	rm -f /var/run/screen/S-root/*.BkgSS-ApplyUpdates
-	
-	Message "Updating system"
-	/usr/pluto/bin/ApplyUpdates.sh
-
-	sleep 0.1
-	
-    file=$(echo /var/run/screen/S-root/*.BkgSS-ApplyUpdates);
-    if [[ "$file" == "" ]]; then
-		done="true"
-	else
-		done="false"
-    fi
-	
-	while [[ "$done" == "false" ]]; do
-		file=$(echo /var/run/screen/S-root/*.BkgSS-ApplyUpdates);
-		if [[ "$file" == "" ]]; then
-			done="true"
-		fi
-	done
-fi
-
 Message "Running depmod"
 /sbin/depmod
-
-#if [ -x /etc/init.d/Pluto_Start_DCERouter.sh ] ;then
-#    Message "Starting DCE Router"
-#    /etc/init.d/Pluto_Start_DCERouter.sh
-#fi
 
 if [ -x /usr/pluto/bin/Start_DCERouter.sh ] ;then
 	Message "Starting DCE Router"
 	/usr/pluto/bin/Start_DCERouter.sh
 fi
-
-#if [ -x /etc/init.d/Pluto_Config_Device_Changes.sh ]; then
-#    Message "Configure Device Changes"
-#    /etc/init.d/Pluto_Config_Device_Changes.sh
-#fi
 
 if [ -x /usr/pluto/bin/Config_Device_Changes.sh ] ;then
 	Message "Configure Device Changes"
@@ -195,20 +116,10 @@ if [[ "$AVWizardDone" != "1" || "$ShiftState" == 1 ]] ;then
 	fi
 fi
 
-#if [ -x /etc/init.d/Pluto_Start_OrbiterGen.sh ] ;then
-#    Message "Starting OrbiterGen"
-#    /etc/init.d/Pluto_Start_OrbiterGen.sh
-#fi
-
 if [ -x /usr/pluto/bin/Start_OrbiterGen.sh ] ;then
 	Message "Starting OrbiterGen"
 	/usr/pluto/bin/Start_OrbiterGen.sh
 fi
-
-#if [ -x /etc/init.d/Pluto_Start_X.sh ] ;then
-#    Message "Starting X Server"
-#    /etc/init.d/Pluto_Start_X.sh
-#fi
 
 if [ -x /usr/pluto/bin/Start_X.sh ] ;then
 	Message "Starting X Server"
@@ -220,11 +131,6 @@ if [ -x /usr/pluto/bin/Firewire2Video4Linux.sh ] ;then
 	/usr/pluto/bin/Firewire2Video4Linux.sh
 fi
 
-#if [ -x /etc/init.d/Pluto_Start_LocalDevices.sh ] ;then
-#    Message "Starting Local Devices"
-#    /etc/init.d/Pluto_Start_LocalDevices.sh
-#fi
-
 if [ -x /usr/pluto/bin/Start_LocalDevices.sh ] ;then
 	Message "Starting Local Devices"
 	/usr/pluto/bin/Start_LocalDevices.sh
@@ -234,11 +140,4 @@ if [[ -x /usr/pluto/bin/StorageDevices_Setup.sh ]]; then
 	/usr/pluto/bin/StorageDevices_Setup.sh 1>/dev/null 2>/dev/null &
 fi
 
-# reinstall pluto-local-databases if restorepoint is found
-
-if [[ "$RestorePoint" == "1" ]]; then
-	apt-get update 1>/dev/null 2>/dev/null
-	apt-get -f install --reinstall pluto-local-database 1>/dev/null 2>/dev/null
-
-fi
 
