@@ -434,6 +434,7 @@ g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play
 			break;
 		case DESIGNOBJ_popFBSF_Sort_CONST:
 			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,ARRAY_Media_Sort_Options_CONST,mediaFileBrowserOptions.m_PK_AttributeType_Sort);
+			m_pOrbiter->m_mapPK_MediaType_PK_Attribute_Sort[mediaFileBrowserOptions.m_PK_MediaType]=mediaFileBrowserOptions.m_PK_AttributeType_Sort;
 			bChangedSortFilter=true;
 			break;
 		case DESIGNOBJ_popFBSF_MediaSource_CONST:

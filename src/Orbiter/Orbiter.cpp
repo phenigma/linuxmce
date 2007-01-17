@@ -3083,7 +3083,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 			bHandled=true;
 		}
 	}
-	if(  !( bHandled=ClickedButton( m_pScreenHistory_Current->GetObj(),  PK_Button ) )  )
+	if(  bHandled==false && (bHandled=ClickedButton( m_pScreenHistory_Current->GetObj(),  PK_Button ))==false  )
 	{
 		if(  PK_Button>=BUTTON_Up_Arrow_CONST && PK_Button<=BUTTON_Right_Arrow_CONST  ) // up,  down,  left or right
 		{
