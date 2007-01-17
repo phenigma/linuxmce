@@ -1,29 +1,29 @@
 Template: mythtv/mysql_mythtv_dbname
 Type: string
-Default: mythconverg
-Description: What database should be used to hold MythTV data?
+_Default: mythconverg
+_Description: What database should be used to hold MythTV data:
  If a database with this name already exists, it will be used.
 
 Template: mythtv/mysql_mythtv_user
 Type: string
-Default: mythtv
-Description: What username should MythTV use to access its database?
- This user will automatically be granted appropriate permissions to
- the database.
+_Default: mythtv
+_Description: What username should MythTV use to access its database:
+ This user will automatically be granted appropriate permissions to the
+ database.
 
 Template: mythtv/mysql_mythtv_password
 Type: password
-Description: What password should MythTV use to access its database?
+_Description: What password should MythTV use to access its database:
  If you give an empty password, a random one will be generated.
 
 Template: mythtv/mysql_host
 Type: string
-Default: localhost
-Description: On what host does the MySQL server reside?
+_Default: localhost
+_Description: On what host does the MySQL server reside:
 
 Template: mythtv/run_setup
 Type: note
-Description: mythtv-setup must be run in order to complete MythTV installation
+_Description: mythtv-setup must be run in order to complete MythTV installation
  You must run mythtv-setup as the 'mythtv' user in order to complete mythtv
  configuration.  For example, as root:
  .
@@ -34,9 +34,9 @@ Description: mythtv-setup must be run in order to complete MythTV installation
 
 Template: mythtv/grabber
 Type: select
-Choices: tv_grab_de, tv_grab_na, tv_grab_sn, tv_grab_uk, tv_grab_uk_rt
+_Choices: tv_grab_de, tv_grab_na, tv_grab_sn, tv_grab_uk, tv_grab_uk_rt
 Default: tv_grab_na
-Description: Which XMLTV grabber should be used to retrieve program listings?
+_Description: Which XMLTV grabber should be used to retrieve program listings:
   - tv_grab_na retrieves listings for North America (US and Canada)
   - tv_grab_de retrieves listings for Germany and Austria
   - tv_grab_sn retrieves listings for Sweden or Norway
@@ -45,24 +45,23 @@ Description: Which XMLTV grabber should be used to retrieve program listings?
 
 Template: mythtv/tv_format
 Type: select
-Choices: NTSC, PAL, SECAM, PAL-NC, PAL-M, PAL-N, NTSC-JP
+_Choices: NTSC, PAL, SECAM, PAL-NC, PAL-M, PAL-N, NTSC-JP
 Default: NTSC
-Description: Which television standard should be used by MythTV?
+_Description: Which television standard should be used by MythTV:
 
 Template: mythtv/freqtable
 Type: select
-Choices: us-bcast, us-cable, us-cable-hrc, japan-bcast, japan-cable, europe-west, europe-east, italy, newzealand, australia, ireland, france, china-bcast, southafrica, argentina, canada-cable, australia-optus
+_Choices: us-bcast, us-cable, us-cable-hrc, japan-bcast, japan-cable, europe-west, europe-east, italy, newzealand, australia, ireland, france, china-bcast, southafrica, argentina, canada-cable, australia-optus
 Default: us-cable
-Description: Which channel frequency table should be used by MythTV?
+_Description: Which channel frequency table should be used by MythTV:
 
 Template: mythtv/old_bins
 Type: note
-Description: WARNING: old MythTV binaries found
+_Description: WARNING: old MythTV binaries found
  It appears that you have installed mythtv from source previously, and some
  files remain from the previous installation, including at least:
  .
  ${files}
  .
- Installation of these packages should succeed, but you MUST remove
- these files in order for the packaged version of MythTV to work
- properly.
+ Installation of these packages should succeed, but you MUST remove these
+ files in order for the packaged version of MythTV to work properly.

@@ -2,6 +2,8 @@ mythtv (0.20-1) unstable; urgency=low
 
   * Built against Upstream release 0.20 with fixed from release-0-20-fixes
     revision 12546
+  * Updated debian directory with files from the debian-multimedia.org mythtv
+    sources
 
  -- Radu Cristescu <radu.c@plutohome.com>  Tue, 16 Jan 2007 17:49:49 +0200
 
