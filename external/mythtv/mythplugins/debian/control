@@ -8,7 +8,7 @@ Build-Depends: debhelper (>> 4), libmyth-0.20-dev (>= 0.20-0.2), kdelibs4-dev,
  dpatch, xlibmesa-gl-dev | xlibmesa-dev | libgl-dev, libdvdread3-dev, fftw-dev,
  libvorbis-dev (>= 1.0.0-1), libflac-dev (>= 1.0.4-4), libmad0-dev, ccache,
  libcdaudio-dev, libcdparanoia0-dev, libid3tag0-dev, libsdl1.2-dev, liblame-dev,
- libfaad-dev, libexif-dev (>= 0.6.9-6), libjack-dev, libfaac-dev,
+ libfaad2-dev, libexif-dev (>= 0.6.9-6), libjack-dev, libfaac-dev,
  libxvmc-dev | xlibs-static-dev (<< 6.8.1-1), libtiff4-dev | libtiff-dev,
  libiec61883-dev, libxv-dev, libavc1394-dev, libxxf86vm-dev | xlibs-static-dev (<< 6.8.1-1)
 
