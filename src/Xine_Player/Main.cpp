@@ -229,12 +229,14 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
+		g_pDeadlockHandler=DeadlockHandler;
+		g_pSocketCrashHandler=SocketCrashHandler;
+		
 		Xine_Player *pXine_Player = new Xine_Player(PK_Device, sRouter_IP,true,bLocalMode);
 		if ( pXine_Player->GetConfig() && pXine_Player->Connect(pXine_Player->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pXine_Player;
-			g_pDeadlockHandler=DeadlockHandler;
-			g_pSocketCrashHandler=SocketCrashHandler;
+			
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pXine_Player->CreateChildren();
 			if( bLocalMode )
