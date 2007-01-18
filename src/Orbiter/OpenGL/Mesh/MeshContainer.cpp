@@ -93,8 +93,6 @@ MeshContainer* MeshContainer::Clone(bool bShareGraphic)
 	for(int Counter = 0; Counter < NoVertexes; Counter++)
 		Result->Vertexes[Counter] = Vertexes[Counter];
 
-	map<OpenGLGraphic*, OpenGLGraphic*> TextureClones;
-
 	Result->Triangles = new MeshTriangle[NoTriangles];
 	Result->NoTriangles = NoTriangles;
 
@@ -104,8 +102,11 @@ MeshContainer* MeshContainer::Clone(bool bShareGraphic)
 
 		if(!bShareGraphic)
 		{
+			map<OpenGLGraphic*, OpenGLGraphic*> TextureClones;
+			
 			OpenGLGraphic* Texture = Triangles[Counter].Texture;
 			OpenGLGraphic* GraphicClone = NULL;
+			
 			if(NULL != Texture)
 			{
 				map<OpenGLGraphic*, OpenGLGraphic*>::iterator TextureIterator = TextureClones.find(Texture);

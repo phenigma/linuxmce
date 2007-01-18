@@ -389,6 +389,12 @@ void DataGridTable::ToData(string GridID,int &Size, char* &Data)
 	ToData(GridID, Size, Data, 0, 0, GetCols(), GetRows());
 }
 
+void DataGridTable::DetachGraphics()
+{
+	for(MemoryDataTable::iterator iDR = m_MemoryDataTable.begin();iDR != m_MemoryDataTable.end(); ++iDR)
+		(*iDR).second->m_pGraphic = NULL;
+}
+
 void DataGridTable::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
 #ifdef DEBUG

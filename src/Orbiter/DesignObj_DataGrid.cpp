@@ -332,7 +332,12 @@ void DesignObj_DataGrid::DataGridTable_Set(DataGridTable *pDataGridTable,int Cur
 	DesignObj_Orbiter::Flush(bFlushGraphics);
 	m_pDataGridTable_Current=NULL;
 	for(map< pair<int,int>, DataGridTable *>::iterator itm=m_mapDataGridTable_Cache.begin();itm!=m_mapDataGridTable_Cache.end();++itm)
+	{
+#ifdef ORBITER_OPENGL
+		itm->second->DetachGraphics();
+#endif
 		delete itm->second;
+	}
 	m_mapDataGridTable_Cache.clear();
 	m_PagesCached = make_pair<int,int> (0,0);
 	m_CurrentLocation = make_pair<int,int> (0,0);

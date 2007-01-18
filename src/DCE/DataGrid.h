@@ -123,6 +123,9 @@ namespace DCE
 		// Serialize just a chunk of the data.
 		virtual void ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount);
 
+		//used by opengl; the engine will handle cells' graphic objects
+		virtual void DetachGraphics();
+
 		static pair<int,int> CovertColRowType(ColRowType colRowType) { return make_pair<int,int> (colRowType >> 14,colRowType & 0x3FFF); };
 	};
 }
