@@ -108,6 +108,11 @@ function Build_Pluto_Replacements {
 		./make_package_ubuntu.sh `uname -r`
 		cp -r asterisk-pluto_*.deb ${temp_dir}
 	popd
+
+	pushd ${svn_dir}/trunk/external/lshwd-2.0-rc4
+		dpkg-buildpackage -rfakeroot -uc -uc -b
+		cp ../lshwd_2.0-rc4*.deb ${temp_dir}
+	popd
 }
 
 function Build_Pluto_Stuff {
@@ -262,14 +267,14 @@ function Import_Pluto_Skins {
 	popd
 }
 
-Import_Build_Database
+#Import_Build_Database
 #Import_Pluto_Skins
 #Install_Build_Needed_Packages
 #Build_Pluto_Replacements
 #Checkout_Pluto_Svn
 #Build_MakeRelease_Binary
-Create_Fake_Windows_Binaries
-Build_Pluto_Stuff
+#Create_Fake_Windows_Binaries
+#Build_Pluto_Stuff
 Create_Local_Repository
 
 
