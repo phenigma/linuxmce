@@ -124,7 +124,7 @@ config.status: configure
 config-modules: configure
 	dh_testdir
 	$(MAKE) clean || :
-	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-sandboxed --with-driver=all --with-kerneldir="$(KSRC)" --with-moduledir="$(KMODDIR)" $(DRIVERS)
+	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-sandboxed --with-kerneldir="$(KSRC)" --with-moduledir="$(KMODDIR)" $(DRIVERS)
 
 build-modules: config-modules
 	dh_testdir
