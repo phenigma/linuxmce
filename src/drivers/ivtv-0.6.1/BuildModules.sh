@@ -34,6 +34,9 @@ fi
 
 echo "#!/bin/bash" > mkr_postinst.sh
 for KERN in ${MakeRelease_Kernel} ;do
+	if [[ "$KERN" == 2.6.18-3-686 ]]; then
+		continue
+	fi
 	BuildModules "$KERN"
 	echo "depmod \"$KERN\" 2>/dev/null || /bin/true" >> mkr_postinst.sh
 done
