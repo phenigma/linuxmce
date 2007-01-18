@@ -4,6 +4,9 @@
 exit
 #<-mkr_b_via_e->
 
+. /usr/pluto/bin/Config_Ops.sh
+XDisplay=":$(($Display+1))"
+
 DEVICECATEGORY_Media_Director=8
 DEVICETEMPLATE_OnScreen_Orbiter=62
 DEVICEDATA_Video_settings=89
@@ -23,11 +26,10 @@ trap 'XorgConfLogging "Ending"' EXIT
 
 Answer="$1"
 
-. /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-pidOfX="$(ps ax|grep 'X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.pluto.test'|grep -v grep|awk '{print $1}')"
+pidOfX="$(ps ax|grep "X $XDisplay -ignoreABI -ac -config /etc/X11/xorg.conf.test"|grep -v grep|awk '{print $1}')"
 if [[ -z "$pidOfX" ]]; then
 	echo "test X not running. nothing to kill"
 fi

@@ -4,6 +4,9 @@
 exit
 #<-mkr_b_via_e->
 
+. /usr/pluto/bin/Config_Ops.sh
+XDisplay=":$(($Display+1))"
+
 function XorgConfLogging() {
         local message="$1"
         local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
@@ -39,8 +42,8 @@ ShowDialog()
 	local pidOfX="$1"
 	local Msg="$2"
 
-	DISPLAY=:1 xsetbg -tile /usr/pluto/share/resolutions.png
-	DISPLAY=:1 Xdialog --ignore-eof --cancel-label "Close" --infobox "$Msg" 0x0 0
+	DISPLAY=$XDisplay xsetbg -tile /usr/pluto/share/resolutions.png
+	DISPLAY=$XDisplay Xdialog --ignore-eof --cancel-label "Close" --infobox "$Msg" 0x0 0
 	kill "$pidOfX"
 }
 
@@ -55,11 +58,11 @@ if ! /usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/xorg.conf.pluto.test --res
 	exit 10
 fi
 
-X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.pluto.test -logverbose 9 </dev/null &>/dev/null &
+X $XDisplay  -ignoreABI -ac -config /etc/X11/xorg.conf.test -logverbose 9 </dev/null &>/dev/null &
 pidOfX=
 Timeout=5
 while [[ -z "$pidOfX" && $Timeout > 0 ]]; do
-	pidOfX="$(ps ax|grep 'X :1 -ignoreABI -ac -config /etc/X11/xorg.conf.pluto.test'|grep -v grep|awk '{print $1}')"
+	pidOfX="$(ps ax|grep "X $XDisplay -ignoreABI -ac -config /etc/X11/xorg.conf.test"|grep -v grep|awk '{print $1}')"
 	((Timeout--))
 	sleep 1
 done
@@ -69,10 +72,9 @@ if [[ -z "$pidOfX" ]]; then
 	exit 10
 fi
 
-setting="$(xrandr -d :1 -q|grep '^\*')"
+setting="$(xrandr -d $XDisplay -q|grep '^\*')"
 resolution="${setting:5:11}"
 refresh="${setting:39:4}"
-#DISPLAY=:1 Xdialog --default-no --yesno "Current resolution: $resolution @ $refresh Hz\nIs this OK?" 0x0
 Msg="Current resolution: $resolution @ $refresh Hz"
 echo "$Msg"
 ShowDialog "$pidOfX" "$Msg" </dev/null &>/dev/null &
