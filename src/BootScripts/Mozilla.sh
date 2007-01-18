@@ -1,5 +1,8 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Config_Ops.sh
+export DISPLAY=":${Display}"
+
 User="$1"
 URL="$2"
 
