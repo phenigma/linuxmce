@@ -1,4 +1,4 @@
-/*      $Id: irrecord.c,v 5.55 2005/08/26 20:01:00 lirc Exp $      */
+/*      $Id: irrecord.c,v 5.58 2006/10/08 10:42:05 lirc Exp $      */
 
 /****************************************************************************
  ** irrecord.c **************************************************************
@@ -136,29 +136,32 @@ int daemonized=0;
 
 void logprintf(int prio,char *format_str, ...)
 {
-	time_t current;
-	char *currents;
 	va_list ap;  
 	
-	current=time(&current);
-	currents=ctime(&current);
-	
-	if(lf) fprintf(lf,"%15.15s %s %s: ",currents+4,hostname,progname);
-	if(!daemonized) fprintf(stderr,"%s: ",progname);
-	va_start(ap,format_str);
 	if(lf)
 	{
+		time_t current;
+		char *currents;
+		
+		current=time(&current);
+		currents=ctime(&current);
+		
+		fprintf(lf,"%15.15s %s %s: ",currents+4,hostname,progname);
+		va_start(ap,format_str);
 		if(prio==LOG_WARNING) fprintf(lf,"WARNING: ");
 		vfprintf(lf,format_str,ap);
 		fputc('\n',lf);fflush(lf);
+		va_end(ap);
 	}
 	if(!daemonized)
 	{
+		fprintf(stderr,"%s: ",progname);
+		va_start(ap,format_str);
 		if(prio==LOG_WARNING) fprintf(stderr,"WARNING: ");
 		vfprintf(stderr,format_str,ap);
 		fputc('\n',stderr);fflush(stderr);
+		va_end(ap);
 	}
-	va_end(ap);
 }
 
 void logperror(int prio,const char *s)
@@ -1921,7 +1924,7 @@ int get_lead_length(struct ir_remote *remote)
 {
 	unsigned int sum,max_count;
 	struct lengths *first_lead,*max_length,*max2_length;
-	lirc_t a,b;
+	lirc_t a,b,swap;
 	
 	if(!is_biphase(remote)) return(1);
 	if(is_rc6(remote)) return(1);
@@ -1945,7 +1948,10 @@ int get_lead_length(struct ir_remote *remote)
 
 	a=calc_signal(max_length);
 	b=calc_signal(max2_length);
-	if(a>b)	b^=a^=b^=a;
+	if(a>b)
+	{
+		swap=a; a=b; b=swap;
+	}
 	if(abs(2*a-b)<b*EPS/100 || abs(2*a-b)<AEPS)
 	{
 		printf("Found hidden lead pulse: %lu\n",

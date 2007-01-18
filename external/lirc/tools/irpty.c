@@ -1,4 +1,4 @@
-/*      $Id: irpty.c,v 5.9 2005/03/11 11:03:00 lirc Exp $      */
+/*      $Id: irpty.c,v 5.11 2006/12/11 08:32:55 lirc Exp $      */
 
 /****************************************************************************
  ** irpty.c *****************************************************************
@@ -51,7 +51,7 @@
 
 #define	BUFFSIZE 512
 
-char *progname;
+const char *progname="irpty";
 
 struct lirc_config *lconfig;
 
@@ -318,10 +318,7 @@ int main(int argc, char *argv[])
 	char *config, slave_name[20];
 	struct termios orig_termios;
 	struct winsize size;
-	char *sname = LIRCD;
 	int flags;
-
-	progname=argv[0];
 
 	interactive = isatty(STDIN_FILENO);
 	ignoreeof = 0;
@@ -337,8 +334,6 @@ int main(int argc, char *argv[])
 					"program [args ...]\n",argv[0]);
 			printf("\t -h --help \t\tdisplay usage summary\n");
 			printf("\t -V --version \t\tdisplay version\n");
-			printf("\t -s --socket=socket \tselect a non-default "
-					"socket location\n");
 			printf("\t -e --no-echo \t\tdisable echo\n");
 			printf("\t -i --ignore-eof \tignore EOF\n");
 			printf("\t -n --non-interactive \tforce non-interactive mode\n");
@@ -347,9 +342,6 @@ int main(int argc, char *argv[])
 		case 'V':
 			printf("%s %s\n", progname, VERSION);
 			return(EXIT_SUCCESS);
-		case 's':
-			sname = optarg;
-			break;
 
 		case 'e':
 			noecho = 1;

@@ -1,7 +1,7 @@
 /*
  *   lirc_imon.c:  LIRC plugin/VFD driver for Ahanix/Soundgraph IMON IR/VFD
  *
- *   $Id: lirc_imon.c,v 1.10 2006/03/04 22:36:38 lirc Exp $
+ *   $Id: lirc_imon.c,v 1.14 2006/12/29 10:00:07 lirc Exp $
  *
  *   Version 0.3 
  *   		Supports newer iMON models that send decoded IR signals.
@@ -49,7 +49,7 @@
 #error "*** Sorry, this driver requires kernel version 2.4.22 or higher"
 #endif
 
-#include <linux/config.h>
+#include <linux/autoconf.h>
 
 #include <linux/errno.h>
 #include <linux/init.h>
@@ -58,10 +58,9 @@
 #include <linux/slab.h>
 #include <asm/uaccess.h>
 #include <linux/usb.h>
-#include <linux/devfs_fs_kernel.h>
 
-#include "drivers/lirc.h"
 #include "drivers/kcompat.h"
+#include "drivers/lirc.h"
 #include "drivers/lirc_dev/lirc_dev.h"
 
 
@@ -922,7 +921,7 @@ static void * imon_probe (struct usb_device * dev, unsigned int intf,
 		unsigned short product_id;
 		unsigned short *id_list_item;
 
-		product_id = dev ->descriptor.idProduct;
+		product_id = cpu_to_le16(dev ->descriptor.idProduct);
 		id_list_item = ir_onboard_decode_product_list;
 		while (*id_list_item) {
 			if (*id_list_item++ == product_id) {
@@ -940,7 +939,7 @@ static void * imon_probe (struct usb_device * dev, unsigned int intf,
 		unsigned short vendor_id;
 		unsigned short *id_list_item;
 
-		vendor_id = dev ->descriptor.idVendor;
+		vendor_id = cpu_to_le16(dev ->descriptor.idVendor);
 		id_list_item = vfd_proto_6p_vendor_list;
 		while (*id_list_item) {
 			if (*id_list_item++ == vendor_id) {

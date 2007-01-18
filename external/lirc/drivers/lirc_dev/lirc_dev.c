@@ -17,7 +17,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * $Id: lirc_dev.c,v 1.45 2005/12/03 15:18:07 lirc Exp $
+ * $Id: lirc_dev.c,v 1.50 2006/12/29 10:00:07 lirc Exp $
  *
  */
 
@@ -32,7 +32,7 @@
 #error "**********************************************************"
 #endif
 
-#include <linux/config.h>
+#include <linux/autoconf.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -49,16 +49,14 @@
 #endif
 #define __KERNEL_SYSCALLS__
 #include <linux/unistd.h>
-/* DevFS header */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
-#include <linux/devfs_fs_kernel.h>
-#endif
+
+#include "drivers/kcompat.h"
+
 /* SysFS header */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+#if defined(LIRC_HAVE_SYSFS)
 #include <linux/device.h>
 #endif
 
-#include "drivers/kcompat.h"
 #include "drivers/lirc.h"
 #include "lirc_dev.h"
 
@@ -81,7 +79,6 @@ struct irctl
 
 	struct semaphore buffer_sem;
 	struct lirc_buffer *buf;
-	unsigned int chunk_size;
 
 	int tpid;
 	struct semaphore *t_notify;
@@ -362,7 +359,6 @@ int lirc_register_plugin(struct lirc_plugin *p)
 			goto out_lock;
 		}
 	}
-	ir->chunk_size = ir->buf->chunk_size;
 
 	if (p->features==0)
 		p->features = (p->code_length > 8) ?
@@ -729,7 +725,7 @@ static ssize_t irctl_read(struct file *file,
 			  loff_t *ppos)     
 {
 	struct irctl *ir = &irctls[MINOR(file->f_dentry->d_inode->i_rdev)];
-	unsigned char buf[ir->chunk_size];
+	unsigned char buf[ir->buf->chunk_size];
 	int ret=0, written=0;
 	DECLARE_WAITQUEUE(wait, current);
 
@@ -806,6 +802,22 @@ static ssize_t irctl_read(struct file *file,
 	return ret ? ret : written;
 }
 
+
+void *lirc_get_pdata(struct file *file)
+{
+	void *data=NULL;
+
+	if (file && file->f_dentry && file->f_dentry->d_inode &&
+	    file->f_dentry->d_inode->i_rdev )
+	{
+		struct irctl *ir = &irctls[MINOR(file->f_dentry->d_inode->i_rdev)];
+		data=ir->p.data;
+	}
+
+	return data;
+}
+
+
 static ssize_t irctl_write(struct file *file, const char *buffer,
 			   size_t length, loff_t * ppos)
 {
@@ -836,7 +848,7 @@ static struct file_operations fops = {
 };
 
 
-
+EXPORT_SYMBOL(lirc_get_pdata);
 EXPORT_SYMBOL(lirc_register_plugin);
 EXPORT_SYMBOL(lirc_unregister_plugin);
 

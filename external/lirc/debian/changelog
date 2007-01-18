@@ -1,3 +1,9 @@
+lirc-pluto (0.8.1-1) unstable; urgency=low
+
+  * Updated sources to version 0.8.1
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Thu, 18 Jan 2007 17:09:36 +0200
+
 lirc-pluto (0.8.0r+1modules2.6.16.20-2) unstable; urgency=low
 
   * modules for 2.6.16.20-pluto-2-686 and 2.6.16.20-pluto-2-smp

@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 5.48 2005/05/29 11:54:52 lirc Exp $
+## $Id: Makefile.am,v 5.50 2006/10/05 03:02:48 lirc Exp $
 
 ## Process this file with automake to produce Makefile.in 
 
@@ -12,7 +12,7 @@ sbin_PROGRAMS = lircd lircmd
 lircd_SOURCES = lircd.c ir_remote.c config_file.c \
 		lircd.h ir_remote.h ir_remote_types.h config_file.h \
 		hw-types.c hw-types.h hardware.h
-lircd_LDADD = @hw_module@ @irman_lib@ @caraca_lib@ @portaudio_lib@ @alsa_lib@ @atilibusb_lib@ @daemon@
+lircd_LDADD = @hw_module@ @daemon@ @alsa_lib@ @atilibusb_lib@ @caraca_lib@ @iguanaIR_lib@ @irman_lib@ @portaudio_lib@
 lircd_DEPENDENCIES = @hw_module@
 EXTRA_lircd_SOURCES = \
 			hw_alsa_usb.c \
@@ -28,6 +28,7 @@ EXTRA_lircd_SOURCES = \
 			hw_dsp.c \
 			hw_ea65.c hw_ea65.h \
 			hw_hiddev.c \
+			hw_iguanaIR.c \
 			hw_irman.c hw_irman.h \
 			hw_livedrive_common.c hw_livedrive_common.h \
 			hw_livedrive_midi.c hw_livedrive_seq.c \
@@ -55,7 +56,7 @@ bin_PROGRAMS = irrecord
 irrecord_SOURCES = irrecord.c dump_config.c dump_config.h \
 		config_file.c config_file.h hardware.h \
 		hw-types.c hw-types.h ir_remote.c ir_remote.h ir_remote_types.h
-irrecord_LDADD = @hw_module@ @irman_lib@ @caraca_lib@ @portaudio_lib@ @alsa_lib@ @atilibusb_lib@
+irrecord_LDADD = @hw_module@ @irman_lib@ @caraca_lib@ @portaudio_lib@ @alsa_lib@ @atilibusb_lib@ @iguanaIR_lib@
 irrecord_DEPENDENCIES = @hw_module@
 EXTRA_irrecord_SOURCES = \
 			hw_alsa_usb.c \
@@ -71,6 +72,7 @@ EXTRA_irrecord_SOURCES = \
 			hw_dsp.c \
 			hw_ea65.c hw_ea65.h \
 			hw_hiddev.c \
+			hw_iguanaIR.c \
 			hw_irman.c hw_irman.h \
 			hw_livedrive_common.c hw_livedrive_common.h \
 			hw_livedrive_midi.c hw_livedrive_seq.c \

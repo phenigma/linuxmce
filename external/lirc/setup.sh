@@ -1,6 +1,6 @@
 #! /bin/sh
 
-LIRC_VERSION="0.8.1-CVS"
+LIRC_VERSION="0.8.1"
 
 #############################################################################
 ## Default Values
@@ -318,6 +318,7 @@ SaveConfig ()
     echo "LIRC_IRQ=$LIRC_IRQ" >>$CONFIG
     echo "LIRC_MAJOR=$LIRC_MAJOR" >>$CONFIG
     echo "IRTTY=$IRTTY" >>$CONFIG
+    echo "DRIVER_PARAM_TYPE=$DRIVER_PARAM_TYPE" >>$CONFIG
     echo "DRIVER_PARAMETER=$DRIVER_PARAMETER" >>$CONFIG
     echo "SOFT_CARRIER=$SOFT_CARRIER" >>$CONFIG
     echo "TRANSMITTER=$TRANSMITTER" >>$CONFIG

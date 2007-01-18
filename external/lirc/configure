@@ -463,7 +463,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE mknod mkfifo depmod LIBUSB_CONFIG LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS USE_FIFOS_TRUE USE_FIFOS_FALSE ac_pkss_mktemp kerneldir kernelcc kernelext SANDBOXED_TRUE SANDBOXED_FALSE daemon forkpty devdir moduledir lirc_major driver lirc_driver irman_lib caraca_lib portaudio_lib alsa_lib atilibusb_lib vga_progs x_progs hw_module irtty lircd_conf lircmd_conf maintmode_daemons_extra LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA PACKAGE VERSION EXEEXT OBJEXT ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh INSTALL_STRIP_PROGRAM AWK SET_MAKE AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH DEPDIR CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC am__include am__quote CCDEPMODE mknod mkfifo depmod LIBUSB_CONFIG LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS USE_FIFOS_TRUE USE_FIFOS_FALSE ac_pkss_mktemp kerneldir kernelcc kernelext SANDBOXED_TRUE SANDBOXED_FALSE daemon forkpty devdir moduledir lirc_major driver lirc_driver irman_lib caraca_lib portaudio_lib alsa_lib atilibusb_lib iguanaIR_lib vga_progs x_progs hw_module irtty lircd_conf lircmd_conf maintmode_daemons_extra LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1063,20 +1063,20 @@ Optional Packages:
                           devinput, digimatrix, dsp, dvico, ea65,
                           exaudio, flyvideo, gvbctv5pci, hauppauge,
                           hauppauge_dvb, hercules_smarttv_stereo,
-                          igorplugusb, imon, imon_pad, imon_rsc,
-                          irdeo, irdeo_remote, irman, irreal, it87,
-                          knc_one, kworld, leadtek_0007, leadtek_0010,
-                          leadtek_pvr2000, livedrive_midi,
-                          livedrive_seq, logitech, lptX, mceusb,
-                          mceusb2, mediafocusI, mouseremote,
-                          mouseremote_ps2, mp3anywhere, nslu2,
-                          packard_bell, parallel, pcmak, pcmak_usb,
-                          pctv, pixelview_bt878, pixelview_pak,
-                          pixelview_pro, provideo, realmagic,
-                          remotemaster, sa1100, sasem, serial,
-                          silitek, sir, slinke, streamzap, tekram,
-                          tekram_bt829, tira, tvbox, udp, uirt2,
-                          uirt2_raw
+                          igorplugusb, iguanaIR, imon, imon_knob,
+                          imon_pad, imon_rsc, irdeo, irdeo_remote,
+                          irman, irreal, it87, knc_one, kworld,
+                          leadtek_0007, leadtek_0010, leadtek_pvr2000,
+                          livedrive_midi, livedrive_seq, logitech,
+                          lptX, mceusb, mceusb2, mediafocusI,
+                          mouseremote, mouseremote_ps2, mp3anywhere,
+                          nslu2,packard_bell, parallel, pcmak,
+                          pcmak_usb, pctv, pixelview_bt878,
+                          pixelview_pak, pixelview_pro, provideo,
+                          realmagic, remotemaster, sa1100, sasem,
+                          serial, silitek, sir, slinke, streamzap,
+                          tekram, tekram_bt829, tira, tvbox, udp,
+                          uirt2, uirt2_raw, usb_uirt_raw
   --with-devdir=DIR       Install device files in DIR (/dev)
   --with-moduledir=DIR    kernel modules in DIR (/lib/modules/`uname -r`/misc)
   --with-major=value      specify the device major for the driver (61)
@@ -1551,7 +1551,6 @@ if test "$#" = "0"; then
   exit 0
 fi
 
-am__api_version="1.6"
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
   if test -f $ac_dir/install-sh; then
@@ -1716,7 +1715,7 @@ rm conftest.sed
 
 
 # expand $ac_aux_dir to an absolute path
-am_aux_dir=`cd $ac_aux_dir && pwd`
+am_aux_dir=`CDPATH=:; cd $ac_aux_dir && pwd`
 
 test x"${MISSING+set}" = xset || MISSING="\${SHELL} $am_aux_dir/missing"
 # Use eval to expand $SHELL
@@ -1724,8 +1723,9 @@ if eval "$MISSING --run true"; then
   am_missing_run="$MISSING --run "
 else
   am_missing_run=
-  { echo "$as_me:$LINENO: WARNING: \`missing' script is too old or missing" >&5
-echo "$as_me: WARNING: \`missing' script is too old or missing" >&2;}
+  am_backtick='`'
+  { echo "$as_me:$LINENO: WARNING: ${am_backtick}missing' script is too old or missing" >&5
+echo "$as_me: WARNING: ${am_backtick}missing' script is too old or missing" >&2;}
 fi
 
 for ac_prog in gawk mawk nawk awk
@@ -1797,8 +1797,41 @@ echo "${ECHO_T}no" >&6
   SET_MAKE="MAKE=${MAKE-make}"
 fi
 
- # test to see if srcdir already configured
-if test "`cd $srcdir && pwd`" != "`pwd`" &&
+# Check whether --enable-dependency-tracking or --disable-dependency-tracking was given.
+if test "${enable_dependency_tracking+set}" = set; then
+  enableval="$enable_dependency_tracking"
+
+fi;
+if test "x$enable_dependency_tracking" != xno; then
+  am_depcomp="$ac_aux_dir/depcomp"
+  AMDEPBACKSLASH='\'
+fi
+
+
+if test "x$enable_dependency_tracking" != xno; then
+  AMDEP_TRUE=
+  AMDEP_FALSE='#'
+else
+  AMDEP_TRUE='#'
+  AMDEP_FALSE=
+fi
+
+
+
+
+rm -f .deps 2>/dev/null
+mkdir .deps 2>/dev/null
+if test -d .deps; then
+  DEPDIR=.deps
+else
+  # MS-DOS does not allow filenames that begin with a dot.
+  DEPDIR=_deps
+fi
+rmdir .deps 2>/dev/null
+
+
+# test to see if srcdir already configured
+if test "`CDPATH=:; cd $srcdir && pwd`" != "`pwd`" &&
    test -f $srcdir/config.status; then
   { { echo "$as_me:$LINENO: error: source directory already configured; run \"make distclean\" there first" >&5
 echo "$as_me: error: source directory already configured; run \"make distclean\" there first" >&2;}
@@ -1806,9 +1839,8 @@ echo "$as_me: error: source directory already configured; run \"make distclean\"
 fi
 
 # Define the identity of the package.
- PACKAGE=lirc
- VERSION=0.8.1-CVS
-
+PACKAGE=lirc
+VERSION=0.8.1
 
 cat >>confdefs.h <<_ACEOF
 #define PACKAGE "$PACKAGE"
@@ -1819,15 +1851,28 @@ cat >>confdefs.h <<_ACEOF
 #define VERSION "$VERSION"
 _ACEOF
 
+
+# Autoconf 2.50 wants to disallow AM_ names.  We explicitly allow
+# the ones we care about.
+
+# Autoconf 2.50 always computes EXEEXT.  However we need to be
+# compatible with 2.13, for now.  So we always define EXEEXT, but we
+# don't compute it.
+
+# Similar for OBJEXT -- only we only use OBJEXT if the user actually
+# requests that it be used.  This is a bit dumb.
+: ${OBJEXT=o}
+
+
 # Some tools Automake needs.
 
-ACLOCAL=${ACLOCAL-"${am_missing_run}aclocal-${am__api_version}"}
+ACLOCAL=${ACLOCAL-"${am_missing_run}aclocal"}
 
 
 AUTOCONF=${AUTOCONF-"${am_missing_run}autoconf"}
 
 
-AUTOMAKE=${AUTOMAKE-"${am_missing_run}automake-${am__api_version}"}
+AUTOMAKE=${AUTOMAKE-"${am_missing_run}automake"}
 
 
 AUTOHEADER=${AUTOHEADER-"${am_missing_run}autoheader"}
@@ -1840,92 +1885,6 @@ AMTAR=${AMTAR-"${am_missing_run}tar"}
 
 install_sh=${install_sh-"$am_aux_dir/install-sh"}
 
-# Installed binaries are usually stripped using `strip' when the user
-# run `make install-strip'.  However `strip' might not be the right
-# tool to use in cross-compilation environments, therefore Automake
-# will honor the `STRIP' environment variable to overrule this program.
-if test "$cross_compiling" != no; then
-  if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}strip", so it can be a program name with args.
-set dummy ${ac_tool_prefix}strip; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_STRIP+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$STRIP"; then
-  ac_cv_prog_STRIP="$STRIP" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_STRIP="${ac_tool_prefix}strip"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-fi
-fi
-STRIP=$ac_cv_prog_STRIP
-if test -n "$STRIP"; then
-  echo "$as_me:$LINENO: result: $STRIP" >&5
-echo "${ECHO_T}$STRIP" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-fi
-if test -z "$ac_cv_prog_STRIP"; then
-  ac_ct_STRIP=$STRIP
-  # Extract the first word of "strip", so it can be a program name with args.
-set dummy strip; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_ac_ct_STRIP+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$ac_ct_STRIP"; then
-  ac_cv_prog_ac_ct_STRIP="$ac_ct_STRIP" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_ac_ct_STRIP="strip"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-  test -z "$ac_cv_prog_ac_ct_STRIP" && ac_cv_prog_ac_ct_STRIP=":"
-fi
-fi
-ac_ct_STRIP=$ac_cv_prog_ac_ct_STRIP
-if test -n "$ac_ct_STRIP"; then
-  echo "$as_me:$LINENO: result: $ac_ct_STRIP" >&5
-echo "${ECHO_T}$ac_ct_STRIP" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-  STRIP=$ac_ct_STRIP
-else
-  STRIP="$ac_cv_prog_STRIP"
-fi
-
-fi
 INSTALL_STRIP_PROGRAM="\${SHELL} \$(install_sh) -c -s"
 
 # We need awk for the "check" target.  The system "awk" is bad on
@@ -1933,14 +1892,11 @@ INSTALL_STRIP_PROGRAM="\${SHELL} \$(install_sh) -c -s"
 
 
 
-# Add the stamp file to the list of files AC keeps track of,
-# along with our hook.
-          ac_config_headers="$ac_config_headers config.h"
+
+		    		    		              ac_config_headers="$ac_config_headers config.h"
 
 
-
-
-CFLAGS="-O2 -g -Wall"
+CFLAGS="${CFLAGS--O2 -g -Wall}"
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -2865,19 +2821,8 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
-rm -f .deps 2>/dev/null
-mkdir .deps 2>/dev/null
-if test -d .deps; then
-  DEPDIR=.deps
-else
-  # MS-DOS does not allow filenames that begin with a dot.
-  DEPDIR=_deps
-fi
-rmdir .deps 2>/dev/null
 
-
-          ac_config_commands="$ac_config_commands depfiles"
-
+          ac_config_commands="$ac_config_commands default-1"
 
 am_make=${MAKE-make}
 cat > confinc << 'END'
@@ -2887,7 +2832,7 @@ END
 # If we don't find an include directive, just comment out the code.
 echo "$as_me:$LINENO: checking for style of include used by $am_make" >&5
 echo $ECHO_N "checking for style of include used by $am_make... $ECHO_C" >&6
-am__include="#"
+am__include='#'
 am__quote=
 _am_result=none
 # First try GNU make style include.
@@ -2907,7 +2852,7 @@ if test "$am__include" = "#"; then
    echo '.include "confinc"' > confmf
    if test "`$am_make -s -f confmf 2> /dev/null`" = "done"; then
       am__include=.include
-      am__quote="\""
+      am__quote='"'
       _am_result=BSD
    fi
 fi
@@ -2916,27 +2861,6 @@ fi
 echo "$as_me:$LINENO: result: $_am_result" >&5
 echo "${ECHO_T}$_am_result" >&6
 rm -f confinc confmf
-
-# Check whether --enable-dependency-tracking or --disable-dependency-tracking was given.
-if test "${enable_dependency_tracking+set}" = set; then
-  enableval="$enable_dependency_tracking"
-
-fi;
-if test "x$enable_dependency_tracking" != xno; then
-  am_depcomp="$ac_aux_dir/depcomp"
-  AMDEPBACKSLASH='\'
-fi
-
-
-if test "x$enable_dependency_tracking" != xno; then
-  AMDEP_TRUE=
-  AMDEP_FALSE='#'
-else
-  AMDEP_TRUE='#'
-  AMDEP_FALSE=
-fi
-
-
 
 
 depcc="$CC"   am_compiler_list=
@@ -3005,7 +2929,7 @@ fi
 fi
 echo "$as_me:$LINENO: result: $am_cv_CC_dependencies_compiler_type" >&5
 echo "${ECHO_T}$am_cv_CC_dependencies_compiler_type" >&6
-CCDEPMODE=depmode=$am_cv_CC_dependencies_compiler_type
+CCDEPMODE="depmode=$am_cv_CC_dependencies_compiler_type"
 
 
 # Find a good install program.  We prefer a C program (faster),
@@ -3875,7 +3799,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 3878 "configure"' > conftest.$ac_ext
+  echo '#line 3802 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5073,7 +4997,7 @@ fi
 fi
 echo "$as_me:$LINENO: result: $am_cv_CXX_dependencies_compiler_type" >&5
 echo "${ECHO_T}$am_cv_CXX_dependencies_compiler_type" >&6
-CXXDEPMODE=depmode=$am_cv_CXX_dependencies_compiler_type
+CXXDEPMODE="depmode=$am_cv_CXX_dependencies_compiler_type"
 
 
 ac_ext=cc
@@ -5399,7 +5323,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:5402:" \
+echo "$as_me:5326:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -6431,11 +6355,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6434: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6358: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6438: \$? = $ac_status" >&5
+   echo "$as_me:6362: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -6664,11 +6588,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6667: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6591: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6671: \$? = $ac_status" >&5
+   echo "$as_me:6595: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -6724,11 +6648,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6727: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6651: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:6731: \$? = $ac_status" >&5
+   echo "$as_me:6655: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8912,7 +8836,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 8915 "configure"
+#line 8839 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9010,7 +8934,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9013 "configure"
+#line 8937 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11187,11 +11111,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11190: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11114: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:11194: \$? = $ac_status" >&5
+   echo "$as_me:11118: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -11247,11 +11171,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11250: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11174: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:11254: \$? = $ac_status" >&5
+   echo "$as_me:11178: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -12616,7 +12540,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12619 "configure"
+#line 12543 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12714,7 +12638,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12717 "configure"
+#line 12641 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13541,11 +13465,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13544: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13468: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13548: \$? = $ac_status" >&5
+   echo "$as_me:13472: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -13601,11 +13525,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13604: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13528: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13608: \$? = $ac_status" >&5
+   echo "$as_me:13532: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15646,11 +15570,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15649: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15573: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15653: \$? = $ac_status" >&5
+   echo "$as_me:15577: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -15879,11 +15803,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15882: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15806: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15886: \$? = $ac_status" >&5
+   echo "$as_me:15810: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -15939,11 +15863,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15942: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15866: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15946: \$? = $ac_status" >&5
+   echo "$as_me:15870: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -18127,7 +18051,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18130 "configure"
+#line 18054 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -18225,7 +18149,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18228 "configure"
+#line 18152 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -22819,7 +22743,6 @@ fi
 
 
 
-
   # Extract the first word of "mktemp", so it can be a program name with args.
 set dummy mktemp; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -23020,6 +22943,7 @@ possible_drivers="(none) \
 	(tira) \
 	(uirt2) \
 	(uirt2_raw) \
+	(usb_uirt_raw) \
 	(udp)"
 
 if test x${no_kernel} != xyes; then
@@ -23121,6 +23045,152 @@ _ACEOF
   possible_drivers="${possible_drivers} (caraca)"
 
 fi
+
+if test "${ac_cv_header_iguanaIR_h+set}" = set; then
+  echo "$as_me:$LINENO: checking for iguanaIR.h" >&5
+echo $ECHO_N "checking for iguanaIR.h... $ECHO_C" >&6
+if test "${ac_cv_header_iguanaIR_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+fi
+echo "$as_me:$LINENO: result: $ac_cv_header_iguanaIR_h" >&5
+echo "${ECHO_T}$ac_cv_header_iguanaIR_h" >&6
+else
+  # Is the header compilable?
+echo "$as_me:$LINENO: checking iguanaIR.h usability" >&5
+echo $ECHO_N "checking iguanaIR.h usability... $ECHO_C" >&6
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#include <iguanaIR.h>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_header_compiler=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_header_compiler=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+echo "${ECHO_T}$ac_header_compiler" >&6
+
+# Is the header present?
+echo "$as_me:$LINENO: checking iguanaIR.h presence" >&5
+echo $ECHO_N "checking iguanaIR.h presence... $ECHO_C" >&6
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <iguanaIR.h>
+_ACEOF
+if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
+  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null; then
+  if test -s conftest.err; then
+    ac_cpp_err=$ac_c_preproc_warn_flag
+    ac_cpp_err=$ac_cpp_err$ac_c_werror_flag
+  else
+    ac_cpp_err=
+  fi
+else
+  ac_cpp_err=yes
+fi
+if test -z "$ac_cpp_err"; then
+  ac_header_preproc=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  ac_header_preproc=no
+fi
+rm -f conftest.err conftest.$ac_ext
+echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+echo "${ECHO_T}$ac_header_preproc" >&6
+
+# So?  What about this header?
+case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+  yes:no: )
+    { echo "$as_me:$LINENO: WARNING: iguanaIR.h: accepted by the compiler, rejected by the preprocessor!" >&5
+echo "$as_me: WARNING: iguanaIR.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { echo "$as_me:$LINENO: WARNING: iguanaIR.h: proceeding with the compiler's result" >&5
+echo "$as_me: WARNING: iguanaIR.h: proceeding with the compiler's result" >&2;}
+    ac_header_preproc=yes
+    ;;
+  no:yes:* )
+    { echo "$as_me:$LINENO: WARNING: iguanaIR.h: present but cannot be compiled" >&5
+echo "$as_me: WARNING: iguanaIR.h: present but cannot be compiled" >&2;}
+    { echo "$as_me:$LINENO: WARNING: iguanaIR.h:     check for missing prerequisite headers?" >&5
+echo "$as_me: WARNING: iguanaIR.h:     check for missing prerequisite headers?" >&2;}
+    { echo "$as_me:$LINENO: WARNING: iguanaIR.h: see the Autoconf documentation" >&5
+echo "$as_me: WARNING: iguanaIR.h: see the Autoconf documentation" >&2;}
+    { echo "$as_me:$LINENO: WARNING: iguanaIR.h:     section \"Present But Cannot Be Compiled\"" >&5
+echo "$as_me: WARNING: iguanaIR.h:     section \"Present But Cannot Be Compiled\"" >&2;}
+    { echo "$as_me:$LINENO: WARNING: iguanaIR.h: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: iguanaIR.h: proceeding with the preprocessor's result" >&2;}
+    { echo "$as_me:$LINENO: WARNING: iguanaIR.h: in the future, the compiler will take precedence" >&5
+echo "$as_me: WARNING: iguanaIR.h: in the future, the compiler will take precedence" >&2;}
+    (
+      cat <<\_ASBOX
+## ------------------------------------------ ##
+## Report this to the AC_PACKAGE_NAME lists.  ##
+## ------------------------------------------ ##
+_ASBOX
+    ) |
+      sed "s/^/$as_me: WARNING:     /" >&2
+    ;;
+esac
+echo "$as_me:$LINENO: checking for iguanaIR.h" >&5
+echo $ECHO_N "checking for iguanaIR.h... $ECHO_C" >&6
+if test "${ac_cv_header_iguanaIR_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_cv_header_iguanaIR_h=$ac_header_preproc
+fi
+echo "$as_me:$LINENO: result: $ac_cv_header_iguanaIR_h" >&5
+echo "${ECHO_T}$ac_cv_header_iguanaIR_h" >&6
+
+fi
+if test $ac_cv_header_iguanaIR_h = yes; then
+  cat >>confdefs.h <<\_ACEOF
+#define HAVE_IGUANAIR 1
+_ACEOF
+
+  possible_drivers="${possible_drivers} (iguanaIR)"
+
+fi
+
 
 echo "$as_me:$LINENO: checking for ir_strerror in -lirman" >&5
 echo $ECHO_N "checking for ir_strerror in -lirman... $ECHO_C" >&6
@@ -24263,6 +24333,7 @@ fi;
 lirc_driver="$driver"
 lircd_conf=""
 lircmd_conf=""
+iguanaIR_lib=""
 irman_lib=""
 caraca_lib=""
 portaudio_lib=""
@@ -24336,6 +24407,10 @@ _ACEOF
 		hw_module="${hw_module} hw_ea65.o serial.o"
 		;;
 	exaudio)
+		;;
+	iguanaIR)
+		hw_module="${hw_module} hw_iguanaIR.o transmit.o receive.o"
+		iguanaIR_lib=-liguanaIR
 		;;
 	irman)
 		hw_module="${hw_module} hw_irman.o serial.o"
@@ -24428,7 +24503,7 @@ _ACEOF
 	uirt2)
 		hw_module="${hw_module} hw_uirt2.o serial.o"
 		;;
-	uirt2_raw)
+	uirt2_raw|usb_uirt_raw)
 		hw_module="${hw_module} hw_uirt2_raw.o hw_uirt2_common.o serial.o receive.o transmit.o"
 		;;
   esac
@@ -24638,6 +24713,8 @@ if test "$driver" = "devinput"; then
   lirc_driver="none"
   hw_module="hw_devinput.o"
   HW_DEFAULT="hw_devinput"
+# for table.html (unset later)
+  lircd_conf='<A HREF="http://linux.bytesex.org/v4l2/faq.html#lircd">generic config file for Linux input layer</A>'
 fi
 
 if test "$driver" = "digimatrix"; then
@@ -24708,9 +24785,21 @@ if test "$driver" = "igorplugusb"; then
   lirc_driver="lirc_dev lirc_igorplugusb"
 fi
 
+if test "$driver" = "iguanaIR"; then
+  lirc_driver="iguanaIR"
+  hw_module="hw_iguanaIR.o transmit.o receive.o"
+  HW_DEFAULT="hw_iguanaIR"
+  iguanaIR_lib=-liguanaIR
+fi
+
 if test "$driver" = "imon"; then
   lirc_driver="lirc_dev lirc_imon"
   lircd_conf="imon/lircd.conf.imon"
+fi
+
+if test "$driver" = "imon_knob"; then
+  lirc_driver="lirc_dev lirc_imon"
+  lircd_conf="imon/lircd.conf.imon-knob"
 fi
 
 if test "$driver" = "imon_pad"; then
@@ -24903,7 +24992,7 @@ fi
 
 if test "$driver" = "pixelview_bt878"; then
   lirc_driver="lirc_dev lirc_i2c"
-  lircd_conf="pixelview/lircd.conf.pixelview_bt878"
+  lircd_conf="pixelview/lircd.conf.playtv_bt878"
 #  lircmd_conf="pixelview/lircmd.conf.pixelview_bt878"
 fi
 
@@ -25033,8 +25122,18 @@ if test "$driver" = "uirt2_raw"; then
   hw_module="hw_uirt2_raw.o hw_uirt2_common.o serial.o receive.o transmit.o"
   HW_DEFAULT="hw_uirt2_raw"
 fi
+if test "$driver" = "usb_uirt_raw"; then
+  lirc_driver="none"
+  hw_module="hw_uirt2_raw.o hw_uirt2_common.o serial.o receive.o transmit.o"
+  HW_DEFAULT="hw_usb_uirt_raw"
+fi
 
 #END HARDWARE HEURISTIC
+
+if test "$driver" = "devinput"; then
+  lircd_conf=""
+fi
+
 
 cat >>confdefs.h <<_ACEOF
 #define HW_DEFAULT ${HW_DEFAULT}
@@ -25117,6 +25216,13 @@ echo "$as_me: error: *** you need to have the ALSA libraries and drivers
 	from at least version 1.0.9 for this driver" >&2;}
    { (exit 1); exit 1; }; }
     ;;
+  iguanaIR)
+    { { echo "$as_me:$LINENO: error: *** you need to have the iguanaIR headers and
+        libraries for this driver" >&5
+echo "$as_me: error: *** you need to have the iguanaIR headers and
+        libraries for this driver" >&2;}
+   { (exit 1); exit 1; }; }
+    ;;
   *)
     { { echo "$as_me:$LINENO: error: *** it is not possible to install the specified driver
 	on this system" >&5
@@ -25135,6 +25241,7 @@ if test "$lirc_driver" = "none" || \
 	test "$lirc_driver" = "audio" || \
 	test "$lirc_driver" = "audio_alsa" || \
 	test "$lirc_driver" = "caraca" || \
+	test "$lirc_driver" = "iguanaIR" || \
 	test "$lirc_driver" = "irman" || \
 	test "$lirc_driver" = "irman_sw"; then
   lirc_driver=
@@ -25196,7 +25303,6 @@ else
   SANDBOXED_TRUE='#'
   SANDBOXED_FALSE=
 fi
-
 
 
 # Check whether --with-devdir or --without-devdir was given.
@@ -25412,6 +25518,7 @@ prefix=$cur_prefix
 
 
 
+
 cat >>confdefs.h <<_ACEOF
 #define DEVDIR "$devdir"
 _ACEOF
@@ -25561,27 +25668,6 @@ LIBOBJS=$ac_libobjs
 LTLIBOBJS=$ac_ltlibobjs
 
 
-if test -z "${AMDEP_TRUE}" && test -z "${AMDEP_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"AMDEP\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"AMDEP\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${USE_FIFOS_TRUE}" && test -z "${USE_FIFOS_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"USE_FIFOS\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"USE_FIFOS\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${SANDBOXED_TRUE}" && test -z "${SANDBOXED_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"SANDBOXED\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"SANDBOXED\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
 
 : ${CONFIG_STATUS=./config.status}
 ac_clean_files_save=$ac_clean_files
@@ -26015,7 +26101,8 @@ cat >>$CONFIG_STATUS <<_ACEOF
 # INIT-COMMANDS section.
 #
 
-AMDEP_TRUE="$AMDEP_TRUE" ac_aux_dir="$ac_aux_dir"
+AMDEP_TRUE="$AMDEP_TRUE"
+ac_aux_dir="$ac_aux_dir"
 
 _ACEOF
 
@@ -26048,7 +26135,7 @@ do
   "tools/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
   "doc/man/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/man/Makefile" ;;
-  "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
+  "default-1" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default-1" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -26140,6 +26227,8 @@ s,@INSTALL_SCRIPT@,$INSTALL_SCRIPT,;t t
 s,@INSTALL_DATA@,$INSTALL_DATA,;t t
 s,@PACKAGE@,$PACKAGE,;t t
 s,@VERSION@,$VERSION,;t t
+s,@EXEEXT@,$EXEEXT,;t t
+s,@OBJEXT@,$OBJEXT,;t t
 s,@ACLOCAL@,$ACLOCAL,;t t
 s,@AUTOCONF@,$AUTOCONF,;t t
 s,@AUTOMAKE@,$AUTOMAKE,;t t
@@ -26147,24 +26236,20 @@ s,@AUTOHEADER@,$AUTOHEADER,;t t
 s,@MAKEINFO@,$MAKEINFO,;t t
 s,@AMTAR@,$AMTAR,;t t
 s,@install_sh@,$install_sh,;t t
-s,@STRIP@,$STRIP,;t t
-s,@ac_ct_STRIP@,$ac_ct_STRIP,;t t
 s,@INSTALL_STRIP_PROGRAM@,$INSTALL_STRIP_PROGRAM,;t t
 s,@AWK@,$AWK,;t t
 s,@SET_MAKE@,$SET_MAKE,;t t
+s,@AMDEP_TRUE@,$AMDEP_TRUE,;t t
+s,@AMDEP_FALSE@,$AMDEP_FALSE,;t t
+s,@AMDEPBACKSLASH@,$AMDEPBACKSLASH,;t t
+s,@DEPDIR@,$DEPDIR,;t t
 s,@CC@,$CC,;t t
 s,@CFLAGS@,$CFLAGS,;t t
 s,@LDFLAGS@,$LDFLAGS,;t t
 s,@CPPFLAGS@,$CPPFLAGS,;t t
 s,@ac_ct_CC@,$ac_ct_CC,;t t
-s,@EXEEXT@,$EXEEXT,;t t
-s,@OBJEXT@,$OBJEXT,;t t
-s,@DEPDIR@,$DEPDIR,;t t
 s,@am__include@,$am__include,;t t
 s,@am__quote@,$am__quote,;t t
-s,@AMDEP_TRUE@,$AMDEP_TRUE,;t t
-s,@AMDEP_FALSE@,$AMDEP_FALSE,;t t
-s,@AMDEPBACKSLASH@,$AMDEPBACKSLASH,;t t
 s,@CCDEPMODE@,$CCDEPMODE,;t t
 s,@mknod@,$mknod,;t t
 s,@mkfifo@,$mkfifo,;t t
@@ -26185,6 +26270,8 @@ s,@AR@,$AR,;t t
 s,@ac_ct_AR@,$ac_ct_AR,;t t
 s,@RANLIB@,$RANLIB,;t t
 s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
+s,@STRIP@,$STRIP,;t t
+s,@ac_ct_STRIP@,$ac_ct_STRIP,;t t
 s,@CPP@,$CPP,;t t
 s,@CXX@,$CXX,;t t
 s,@CXXFLAGS@,$CXXFLAGS,;t t
@@ -26219,6 +26306,7 @@ s,@caraca_lib@,$caraca_lib,;t t
 s,@portaudio_lib@,$portaudio_lib,;t t
 s,@alsa_lib@,$alsa_lib,;t t
 s,@atilibusb_lib@,$atilibusb_lib,;t t
+s,@iguanaIR_lib@,$iguanaIR_lib,;t t
 s,@vga_progs@,$vga_progs,;t t
 s,@x_progs@,$x_progs,;t t
 s,@hw_module@,$hw_module,;t t
@@ -26691,7 +26779,7 @@ echo "$as_me: error: cannot create directory \"$ac_dir\"" >&2;}
   # Run the commands associated with the file.
   case $ac_file in
     config.h ) # update the timestamp
-echo 'timestamp for config.h' >"./stamp-h1"
+echo timestamp >"./stamp-h1"
  ;;
   esac
 done
@@ -26810,31 +26898,14 @@ esac
   { echo "$as_me:$LINENO: executing $ac_dest commands" >&5
 echo "$as_me: executing $ac_dest commands" >&6;}
   case $ac_dest in
-    depfiles ) test x"$AMDEP_TRUE" != x"" || for mf in $CONFIG_FILES; do
-  # Strip MF so we end up with the name of the file.
-  mf=`echo "$mf" | sed -e 's/:.*$//'`
-  # Check whether this is an Automake generated Makefile or not.
-  # We used to match only the files named `Makefile.in', but
-  # some people rename them; so instead we look at the file content.
-  # Grep'ing the first line is not enough: some people post-process
-  # each Makefile.in and add a new line on top of each file to say so.
-  # So let's grep whole file.
-  if grep '^#.*generated by automake' $mf > /dev/null 2>&1; then
-    dirpart=`(dirname "$mf") 2>/dev/null ||
-$as_expr X"$mf" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"$mf" : 'X\(//\)[^/]' \| \
-	 X"$mf" : 'X\(//\)$' \| \
-	 X"$mf" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"$mf" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-  else
-    continue
-  fi
+    default-1 )
+test x"$AMDEP_TRUE" != x"" ||
+for mf in $CONFIG_FILES; do
+  case "$mf" in
+  Makefile) dirpart=.;;
+  */Makefile) dirpart=`echo "$mf" | sed -e 's|/[^/]*$||'`;;
+  *) continue;;
+  esac
   grep '^DEP_FILES *= *[^ #]' < "$mf" > /dev/null || continue
   # Extract the definition of DEP_FILES from the Makefile without
   # running `make'.
@@ -26859,43 +26930,8 @@ echo X"$mf" |
        sed -e 's/\$(DEPDIR)/'"$DEPDIR"'/g' -e 's/\$U/'"$U"'/g'`; do
     # Make sure the directory exists.
     test -f "$dirpart/$file" && continue
-    fdir=`(dirname "$file") 2>/dev/null ||
-$as_expr X"$file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"$file" : 'X\(//\)[^/]' \| \
-	 X"$file" : 'X\(//\)$' \| \
-	 X"$file" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"$file" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-    { if $as_mkdir_p; then
-    mkdir -p $dirpart/$fdir
-  else
-    as_dir=$dirpart/$fdir
-    as_dirs=
-    while test ! -d "$as_dir"; do
-      as_dirs="$as_dir $as_dirs"
-      as_dir=`(dirname "$as_dir") 2>/dev/null ||
-$as_expr X"$as_dir" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"$as_dir" : 'X\(//\)[^/]' \| \
-	 X"$as_dir" : 'X\(//\)$' \| \
-	 X"$as_dir" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"$as_dir" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-    done
-    test ! -n "$as_dirs" || mkdir $as_dirs
-  fi || { { echo "$as_me:$LINENO: error: cannot create directory $dirpart/$fdir" >&5
-echo "$as_me: error: cannot create directory $dirpart/$fdir" >&2;}
-   { (exit 1); exit 1; }; }; }
-
+    fdir=`echo "$file" | sed -e 's|/[^/]*$||'`
+    $ac_aux_dir/mkinstalldirs "$dirpart/$fdir" > /dev/null 2>&1
     # echo "creating $dirpart/$file"
     echo '# dummy' > "$dirpart/$file"
   done
@@ -26940,7 +26976,7 @@ if test "$driver" = "all"; then
   echo "All kernel modules will be built."
 elif test "$driver" = "mediafocusI"; then
   echo "You will have to use the MediaFocus driver from:"
-  echo "http://people.freenet.de/mediafocus/"
+  echo "http://freenet-homepage.de/mediafocus/"
 elif test "$driver" = "exaudio"; then
   echo "You will have to use the Exaudio driver from:"
   echo "http://exaudio.sourceforge.net/"
@@ -26951,7 +26987,11 @@ elif test "$driver" = "hauppauge_dvb"; then
   echo "You will have to use the DVB driver from:"
   echo "http://www.linuxtv.org"
 elif test "$kernel_module" = ""; then
-  echo "Your hardware does not require a kernel module."
+  echo "Your hardware does not require a special LIRC kernel module."
+  if test "${irtty}" != ""; then
+    echo
+    echo "You will have to use the suitable kernel driver to access ${irtty}."
+  fi
 else
   echo "You will have to use the $kernel_module kernel module."
 fi

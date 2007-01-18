@@ -1,4 +1,4 @@
-/*      $Id: kcompat.h,v 5.26 2006/03/04 23:16:02 lirc Exp $      */
+/*      $Id: kcompat.h,v 5.30 2007/01/02 21:45:08 lirc Exp $      */
 
 #ifndef _KCOMPAT_H
 #define _KCOMPAT_H
@@ -15,8 +15,11 @@
 
 #include <linux/device.h>
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
 #define LIRC_HAVE_DEVFS
 #define LIRC_HAVE_DEVFS_26
+#endif
+
 #define LIRC_HAVE_SYSFS
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
@@ -110,6 +113,11 @@ static inline void del_timer_sync(struct timer_list * timerlist)
 #else
 #include <linux/moduleparam.h>
 #endif /* Linux < 2.6.0 */
+
+/* DevFS header */
+#if defined(LIRC_HAVE_DEVFS)
+#include <linux/devfs_fs_kernel.h>
+#endif
 
 #ifdef LIRC_HAVE_DEVFS_24
 #ifdef register_chrdev
@@ -309,5 +317,16 @@ static inline int usb_kill_urb(struct urb *urb)
 #define BTTV_BOARD_GVBCTV5PCI      BTTV_GVBCTV5PCI
 #endif
 #endif  /* end BTTV_* -> BTTV_BOARD_* */
+
+
+/******************************* pm.h *********************************/
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 11)
+typedef u32 pm_message_t;
+#endif
+
+#endif
 
 #endif /* _KCOMPAT_H */

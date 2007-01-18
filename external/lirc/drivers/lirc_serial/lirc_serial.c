@@ -1,4 +1,4 @@
-/*      $Id: lirc_serial.c,v 5.70 2006/01/21 17:43:36 lirc Exp $      */
+/*      $Id: lirc_serial.c,v 5.72 2006/12/27 20:59:25 lirc Exp $      */
 
 /****************************************************************************
  ** lirc_serial.c ***********************************************************
@@ -61,7 +61,7 @@
 #error "**********************************************************"
 #endif
 
-#include <linux/config.h>
+#include <linux/autoconf.h>
 
 #if defined(CONFIG_SERIAL) || defined(CONFIG_SERIAL_8250)
 #warning "******************************************"
@@ -417,8 +417,7 @@ static inline void on(void)
 	   status LED and ground */
 	if(type == LIRC_NSLU2)
 	{
-		writel(readl(IXP4XX_GPIO_GPOUTR) & ~(1<<NSLU2_LED_GRN),
-		       IXP4XX_GPIO_GPOUTR);
+		gpio_line_set(NSLU2_LED_GRN, IXP4XX_GPIO_LOW);
 		return;
 	}
 #endif
@@ -437,8 +436,7 @@ static inline void off(void)
 #if defined(LIRC_SERIAL_NSLU2)
 	if(type == LIRC_NSLU2)
 	{
-		writel(readl(IXP4XX_GPIO_GPOUTR) | (1<<NSLU2_LED_GRN),
-		       IXP4XX_GPIO_GPOUTR);
+		gpio_line_set(NSLU2_LED_GRN, IXP4XX_GPIO_HIGH);
 		return;
 	}
 #endif

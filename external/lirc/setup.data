@@ -13,8 +13,8 @@ hw_menu_entry: @any
 
 hw_menu_entry: @hw-soundcard
 	dsp: "Simple IR diode (EXPERIMENTAL)"
-	audio: "IR receiver IC connected to auido input (EXPERIMENTAL)"
-	audio_alsa: "IR receiver IC connected to auido input using ALSA (EXPERIMENTAL)"
+	audio: "IR receiver IC connected to audio input (EXPERIMENTAL)"
+	audio_alsa: "IR receiver IC connected to audio input using ALSA (EXPERIMENTAL)"
 
 hw_menu_entry: @hw-other
 	ea65: "AOpen XC Cube EA65, EA65-II"
@@ -37,6 +37,7 @@ hw_menu_entry: @hw-other-serial
 	pctv: "Miro PCTV receiver"
 	packard_bell: "Packard Bell receiver"
 	pctv: "Pinnacle Systems PCTV (pro) receiver"
+	pctv: "Pinnacle Systems PCTV Sat receiver"
 	remotemaster: "PixelView RemoteMaster RC2000/RC3000"
 	realmagic: "REALmagic (bundled with Hollywood Plus DVD card)"
 	slinke: "Slink-e (receive only)"
@@ -74,6 +75,7 @@ hw_menu_entry: @hw-tv-card
 	pixelview_pak: "Lenco MXTV-9578 CP (card=50)"
 	pctv: "Miro PCTV serial port receiver"
 	cph06x: "Phoebe Tv Master + FM (card=22)"
+	pctv: "Pinnacle Systems PCTV Sat receiver"
 	pixelview_pro: "Pixelview PlayTV MPEG2"
 	pixelview_pak: "PixelView PlayTV PAK (card=50)"
 	pixelview_pro: "Pixelview PlayTV pro (card=37)"
@@ -113,15 +115,18 @@ hw_menu_entry: @hw-usb
 	dvico: "DViCO USB Remote"
 	tira: "Home Electronics Tira USB device"
 	igorplugusb: "Igor Cesko's USB IR Receiver"
+	iguanaIR: "Iguanaworks USB IR Transceiver"
 	pcmak_usb: "PCMAK USB receiver"
 	bw6130: "Remotec Multimedia PC Remote BW6130"
 	sasem: "Sasem OnAir Remocon-V"
 	exaudio: "Sound Blaster Extigy USB sound card (exaudio)"
 	alsa_usb: "Sound Blaster Extigy/Audigy 2 NX (ALSA snd-usb-audio)"
 	imon: "Soundgraph iMON MultiMedian IR/VFD"
+	imon_knob: "Soundgraph iMON Knob"
 	imon_pad: "Soundgraph iMON PAD IR/VFD"
 	imon_rsc: "Soundgraph iMON RSC"
 	streamzap: "Streamzap PC Remote"
+	usb_uirt_raw: "USB-UIRT"
 	mceusb: "Windows Media Center Remotes (old version, MicroSoft USB ID)"
 	mceusb2: "Windows Media Center Remotes (new version, Philips et al.)"
 
@@ -160,7 +165,8 @@ param_type: \
 
 param_type: \
 	pcmak_usb \
-	tira
+	tira \
+	usb_uirt_raw
         ttyUSB:
 
 param_type: \
@@ -194,7 +200,9 @@ param_type: \
 	hauppauge_dvb \
 	hercules_smarttv_stereo \
 	igorplugusb \
+	iguanaIR \
 	imon \
+	imon_knob \
 	imon_pad \
 	imon_rsc \
 	it87 \
@@ -253,7 +261,9 @@ default_param: \
 	hauppauge_dvb \
 	hercules_smarttv_stereo \
 	igorplugusb \
+	iguanaIR \
 	imon \
+	imon_knob \
 	imon_pad \
 	imon_rsc \
 	it87 \
@@ -327,5 +337,6 @@ default_param: bte
 
 default_param: \
 	pcmak_usb \
-	tira
+	tira \
+	usb_uirt_raw
 	ttyUSB1:

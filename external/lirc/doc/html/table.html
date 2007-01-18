@@ -45,15 +45,15 @@
 <tr><th colspan="5"><a href="#@hw-other">Other (MIDI, Bluetooth, etc.)</a></th></tr>
 <tr><th colspan="5"><a name="@hw-soundcard">Home-brew (soundcard input)</a></th></tr>
 <tr><td>Simple IR diode (EXPERIMENTAL)</td><td align="center">dsp</td><td align="center">none</td><td align="center">dsp</td><td><br></td></tr>
-<tr><td>IR receiver IC connected to auido input (EXPERIMENTAL)</td><td align="center">audio</td><td align="center">none</td><td align="center">audio</td><td><br></td></tr>
-<tr><td>IR receiver IC connected to auido input using ALSA (EXPERIMENTAL)</td><td align="center"><A HREF="audio-alsa.html">audio_alsa</A></td><td align="center">none</td><td align="center">audio_alsa</td><td><br></td></tr>
+<tr><td>IR receiver IC connected to audio input (EXPERIMENTAL)</td><td align="center">audio</td><td align="center">none</td><td align="center">audio</td><td><br></td></tr>
+<tr><td>IR receiver IC connected to audio input using ALSA (EXPERIMENTAL)</td><td align="center"><A HREF="audio-alsa.html">audio_alsa</A></td><td align="center">none</td><td align="center">audio_alsa</td><td><br></td></tr>
 <tr><th colspan="5"><a name="@hw-other">Other (MIDI, Bluetooth, etc.)</a></th></tr>
 <tr><td>AOpen XC Cube EA65, EA65-II</td><td align="center">ea65</td><td align="center">none</td><td align="center">ea65</td><td>ea65/lircd.conf.ea65<br></td></tr>
 <tr><td>Creative LiveDrive midi</td><td align="center">livedrive_midi</td><td align="center">none</td><td align="center">livedrive_midi</td><td>creative/lircd.conf.livedrive<br></td></tr>
 <tr><td>Creative LiveDrive sequencer</td><td align="center">livedrive_seq</td><td align="center">none</td><td align="center">livedrive_seq</td><td>creative/lircd.conf.livedrive<br></td></tr>
 <tr><td>Creative iNFRA CDROM</td><td align="center">creative_infracd</td><td align="center">none</td><td align="center">creative_infracd</td><td>creative/lircd.conf.infracd<br></td></tr>
 <tr><td>Ericsson mobile phone via Bluetooth</td><td align="center">bte</td><td align="center">none</td><td align="center">bte</td><td>ericsson/lircd.conf.bte<br></td></tr>
-<tr><td>Linux input layer (/dev/input/eventX)</td><td align="center">devinput</td><td align="center">none</td><td align="center">devinput</td><td><br></td></tr>
+<tr><td>Linux input layer (/dev/input/eventX)</td><td align="center">devinput</td><td align="center">none</td><td align="center">devinput</td><td><A HREF="http://linux.bytesex.org/v4l2/faq.html#lircd">generic config file for Linux input layer</A><br></td></tr>
 <tr><th colspan="5"><a name="@hw-other-serial">Other serial port devices</a></th></tr>
 <tr><td>Anir Multimedia Magic</td><td align="center">animax</td><td align="center">lirc_dev lirc_serial</td><td align="center">default</td><td>animax/lircd.conf.animax<br>animax/lircmd.conf.animax</td></tr>
 <tr><td>CARACA</td><td align="center">caraca</td><td align="center">none</td><td align="center">caraca</td><td>caraca/lircd.conf.caraca<br></td></tr>
@@ -67,6 +67,7 @@
 <tr><td>Miro PCTV receiver</td><td align="center">pctv</td><td align="center">none</td><td align="center">pinsys</td><td>pinnacle_systems/lircd.conf.pctv<br></td></tr>
 <tr><td>Packard Bell receiver</td><td align="center">packard_bell</td><td align="center">lirc_dev lirc_serial</td><td align="center">default</td><td>packard_bell/lircd.conf.packard_bell<br></td></tr>
 <tr><td>Pinnacle Systems PCTV (pro) receiver</td><td align="center">pctv</td><td align="center">none</td><td align="center">pinsys</td><td>pinnacle_systems/lircd.conf.pctv<br></td></tr>
+<tr><td>Pinnacle Systems PCTV Sat receiver</td><td align="center">pctv</td><td align="center">none</td><td align="center">pinsys</td><td>pinnacle_systems/lircd.conf.pctv<br></td></tr>
 <tr><td>PixelView RemoteMaster RC2000/RC3000</td><td align="center">remotemaster</td><td align="center">none</td><td align="center">pixelview</td><td>pixelview/lircd.conf.remotemaster<br>pixelview/lircmd.conf.remotemaster</td></tr>
 <tr><td>REALmagic (bundled with Hollywood Plus DVD card)</td><td align="center">realmagic</td><td align="center">none</td><td align="center">pixelview</td><td>sigma_designs/lircd.conf.realmagic<br></td></tr>
 <tr><td>Slink-e (receive only)</td><td align="center">slinke</td><td align="center">none</td><td align="center">slinke</td><td><br></td></tr>
@@ -103,6 +104,7 @@
 <tr><td>Lenco MXTV-9578 CP (card=50)</td><td align="center">pixelview_pak</td><td align="center">lirc_dev lirc_gpio</td><td align="center">default</td><td>pixelview/lircd.conf.playtv_pro<br>pixelview/lircmd.conf.playtv_pro</td></tr>
 <tr><td>Miro PCTV serial port receiver</td><td align="center">pctv</td><td align="center">none</td><td align="center">pinsys</td><td>pinnacle_systems/lircd.conf.pctv<br></td></tr>
 <tr><td>Phoebe Tv Master + FM (card=22)</td><td align="center">cph06x</td><td align="center">lirc_dev lirc_gpio</td><td align="center">default</td><td>cph03x/lircd.conf.cph03x<br></td></tr>
+<tr><td>Pinnacle Systems PCTV Sat receiver</td><td align="center">pctv</td><td align="center">none</td><td align="center">pinsys</td><td>pinnacle_systems/lircd.conf.pctv<br></td></tr>
 <tr><td>Pixelview PlayTV MPEG2</td><td align="center">pixelview_pro</td><td align="center">lirc_dev lirc_gpio</td><td align="center">default</td><td>pixelview/lircd.conf.playtv_pro<br>pixelview/lircmd.conf.playtv_pro</td></tr>
 <tr><td>PixelView PlayTV PAK (card=50)</td><td align="center">pixelview_pak</td><td align="center">lirc_dev lirc_gpio</td><td align="center">default</td><td>pixelview/lircd.conf.playtv_pro<br>pixelview/lircmd.conf.playtv_pro</td></tr>
 <tr><td>Pixelview PlayTV pro (card=37)</td><td align="center">pixelview_pro</td><td align="center">lirc_dev lirc_gpio</td><td align="center">default</td><td>pixelview/lircd.conf.playtv_pro<br>pixelview/lircmd.conf.playtv_pro</td></tr>
@@ -135,15 +137,18 @@
 <tr><td>DViCO USB Remote</td><td align="center">dvico</td><td align="center">none</td><td align="center">dvico</td><td>dvico/lircd.conf.fusionHDTV<br></td></tr>
 <tr><td>Home Electronics Tira USB device</td><td align="center">tira</td><td align="center">none</td><td align="center">tira</td><td><br></td></tr>
 <tr><td>Igor Cesko's USB IR Receiver</td><td align="center">igorplugusb</td><td align="center">lirc_dev lirc_igorplugusb</td><td align="center">default</td><td><br></td></tr>
+<tr><td>Iguanaworks USB IR Transceiver</td><td align="center">iguanaIR</td><td align="center">none</td><td align="center">iguanaIR</td><td><br></td></tr>
 <tr><td>PCMAK USB receiver</td><td align="center">pcmak_usb</td><td align="center">none</td><td align="center">pcmak</td><td>pcmak/lircd.conf.pcmak<br>pcmak/lircmd.conf.pcmak</td></tr>
 <tr><td>Remotec Multimedia PC Remote BW6130</td><td align="center">bw6130</td><td align="center">none</td><td align="center">bw6130</td><td>remotec/lircd.conf.BW6130<br>remotec/lircmd.conf.BW6130</td></tr>
 <tr><td>Sasem OnAir Remocon-V</td><td align="center">sasem</td><td align="center">lirc_dev lirc_sasem</td><td align="center">default</td><td>sasem/lircd.conf.sasem<br></td></tr>
 <tr><td>Sound Blaster Extigy USB sound card (exaudio)</td><td align="center">exaudio</td><td align="center">none</td><td align="center">default</td><td><br></td></tr>
 <tr><td>Sound Blaster Extigy/Audigy 2 NX (ALSA snd-usb-audio)</td><td align="center"><A HREF="alsa-usb.html">alsa_usb</A></td><td align="center">none</td><td align="center">alsa_usb</td><td>creative/lircd.conf.alsa_usb<br></td></tr>
 <tr><td>Soundgraph iMON MultiMedian IR/VFD</td><td align="center">imon</td><td align="center">lirc_dev lirc_imon</td><td align="center">default</td><td>imon/lircd.conf.imon<br></td></tr>
+<tr><td>Soundgraph iMON Knob</td><td align="center">imon_knob</td><td align="center">lirc_dev lirc_imon</td><td align="center">default</td><td>imon/lircd.conf.imon-knob<br></td></tr>
 <tr><td>Soundgraph iMON PAD IR/VFD</td><td align="center">imon_pad</td><td align="center">lirc_dev lirc_imon</td><td align="center">default</td><td>imon/lircd.conf.imon-pad<br></td></tr>
 <tr><td>Soundgraph iMON RSC</td><td align="center">imon_rsc</td><td align="center">lirc_dev lirc_imon</td><td align="center">default</td><td>imon/lircd.conf.imon-rsc<br></td></tr>
 <tr><td>Streamzap PC Remote</td><td align="center">streamzap</td><td align="center">lirc_dev lirc_streamzap</td><td align="center">default</td><td>streamzap/lircd.conf.streamzap<br></td></tr>
+<tr><td>USB-UIRT</td><td align="center">usb_uirt_raw</td><td align="center">none</td><td align="center">usb_uirt_raw</td><td><br></td></tr>
 <tr><td>Windows Media Center Remotes (old version, MicroSoft USB ID)</td><td align="center">mceusb</td><td align="center">lirc_dev lirc_mceusb</td><td align="center">default</td><td>mceusb/lircd.conf.mceusb<br></td></tr>
 <tr><td>Windows Media Center Remotes (new version, Philips et al.)</td><td align="center">mceusb2</td><td align="center">lirc_dev lirc_mceusb2</td><td align="center">default</td><td>mceusb/lircd.conf.mceusb<br></td></tr>
 </table>

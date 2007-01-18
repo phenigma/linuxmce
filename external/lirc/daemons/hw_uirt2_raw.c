@@ -1,4 +1,4 @@
-/*      $Id: hw_uirt2_raw.c,v 5.5 2005/07/10 08:34:12 lirc Exp $   */
+/*      $Id: hw_uirt2_raw.c,v 5.10 2006/12/07 01:05:55 lirc Exp $   */
 
 /****************************************************************************
  ** hw_uirt2_raw.c **********************************************************
@@ -95,6 +95,25 @@ struct hardware hw_uirt2_raw =
 	"uirt2_raw"
 };
 
+struct hardware hw_usb_uirt_raw =
+{
+	LIRC_DRIVER_DEVICE,       /* default device */
+	-1,                       /* fd */
+	LIRC_CAN_REC_MODE2 | LIRC_CAN_SEND_PULSE, /* features */
+	LIRC_MODE_PULSE,          /* send_mode */
+	LIRC_MODE_MODE2,          /* rec_mode */
+	0,                        /* code_length */
+	uirt2_raw_init,           /* init_func */
+	NULL,                     /* config_func */
+	uirt2_raw_deinit,         /* deinit_func */
+	uirt2_send,               /* send_func */
+	uirt2_raw_rec,            /* rec_func */
+	uirt2_raw_decode,         /* decode_func */
+	NULL,                     /* ioctl_func */
+	uirt2_raw_readdata,       /* readdata */
+	"usb_uirt_raw"
+};
+
 /*
  * queue
  */
@@ -182,6 +201,8 @@ static lirc_t uirt2_raw_readdata(lirc_t timeout)
 
 static int uirt2_raw_init(void)
 {
+	int version;
+	
 	if(!tty_create_lock(hw.device))
 	{
 		logprintf(LOG_ERR,"uirt2_raw: could not create lock files");
@@ -231,6 +252,21 @@ static int uirt2_raw_init(void)
 		return(0);
 	}
 
+	if(uirt2_getversion(dev, &version) < 0)
+	{
+		uirt2_raw_deinit();
+		return(0);
+	}
+	if(version >= 0x0905)
+	{
+		if(!tty_setdtr(hw.fd, 0))
+		{
+			logprintf(LOG_ERR, "uirt2_raw: could not set DTR");
+			uirt2_raw_deinit();
+			return(0);
+		}
+	}
+
 	init_rec_buffer();
 	init_send_buffer();
 
@@ -243,6 +279,12 @@ static int uirt2_raw_init(void)
 
 static int uirt2_raw_deinit(void)
 {
+	int version;
+	
+	if(uirt2_getversion(dev, &version) >= 0 && version >= 0x0905)
+	{
+		tty_setdtr(hw.fd, 1);
+	}
 	uirt2_uninit(dev);
 	dev = NULL;
 	close(hw.fd);
@@ -322,7 +364,7 @@ static int uirt2_send_mode2_raw(uirt2_t *dev, struct ir_remote *remote,
 	int i;
 	int ir_length = 0;
 	int res;
-	int repeat = 7;
+	int repeats = 1;
 
 	if (length > 48) {
 		logprintf(LOG_ERR, 
@@ -342,7 +384,7 @@ static int uirt2_send_mode2_raw(uirt2_t *dev, struct ir_remote *remote,
 		ir_length += buf[i];
 	}
 
-	tmp[2 + length] = uirt2_calc_freq(remote->freq) + (repeat & 0x1f);
+	tmp[2 + length] = uirt2_calc_freq(remote->freq) + (repeats & 0x1f);
 
 	res = uirt2_send_raw(dev, tmp, length + 3);
 
@@ -374,7 +416,7 @@ static void set_data_bit(byte_t *dest, int offset, int bit)
 }
 
 static int calc_data_bit(struct ir_remote *remote,
-                         int table[], int table_len, int signal)
+                         int table[], int table_len, int signal, int tUnit)
 {
         int i;
 
@@ -382,22 +424,22 @@ static int calc_data_bit(struct ir_remote *remote,
         {
                 if (table[i] == 0)
                 {
-                        table[i] = signal / UIRT2_UNIT;
+                        table[i] = signal / tUnit;
                         
                         LOGPRINTF(2, "table[%d] = %d\n", i, table[i]);
 
                         return i;
                 }
 
-                if (expect(remote, signal, table[i] * UIRT2_UNIT))
+                if (expect(remote, signal, table[i] * tUnit))
                 {
                         LOGPRINTF(2, "expect %d, table[%d] = %d\n",
-                                  signal / UIRT2_UNIT, i, table[i]);
+                                  signal / tUnit, i, table[i]);
                         return i;
                 }
         }
 
-        LOGPRINTF(2, "Couldn't find %d\n", signal/UIRT2_UNIT);
+        LOGPRINTF(2, "Couldn't find %d\n", signal/tUnit);
 
         return -1;
 }
@@ -406,25 +448,50 @@ static int uirt2_send_mode2_struct1(uirt2_t *dev,
                                     struct ir_remote *remote,
                                     lirc_t *buf, int length)
 {
-	const int REPEAT_COUNT = 3;
         const int TABLE_LEN = 2;
-        remstruct1_t rem;
+        remstruct1_data_t rem;
 	int res;
         int table[2][TABLE_LEN];
 	int bits = 0;
-        int i;
-
-        if (length - 2 > UIRT2_MAX_BITS)
-                return 0;
+        int i, j;
+	int tUnit;
+	int freq;
+	int bFrequency;
+	int version;
+	int repeats = 1;
 
 	memset(&rem, 0, sizeof(rem));
 
         memset(table[0], 0, sizeof(table[0]));
         memset(table[1], 0, sizeof(table[1]));
 
+	res = uirt2_getversion(dev, &version);
+	if(res < 0) {
+		return res;
+	}
+	logprintf(LOG_INFO, "uirt2_raw: UIRT version %04x", 
+		  version);
+	freq = remote->freq;
+	if(freq == 0) freq = DEFAULT_FREQ;
+	if(version >= 0x0905)
+	{
+		if(((5000000 / freq) + 1)/2 >= 0x80)
+		{
+			bFrequency = 0x80;
+		}
+		else
+		{
+			bFrequency = ((5000000 / freq) + 1)/2;
+		}
+		tUnit = (bFrequency * 100)/125;
+	}
+	else
+	{
+		tUnit = UIRT2_UNIT;
+	}
         for (i = 0; i < length; i++) {
                 int bit;
-                int len = buf[i] / UIRT2_UNIT;
+                int len = buf[i] / tUnit;
 
                 if (i == 0)
                 {
@@ -437,29 +504,58 @@ static int uirt2_send_mode2_struct1(uirt2_t *dev,
                         continue;
                 }
 
-                bit = calc_data_bit(remote, table[i % 2], TABLE_LEN, buf[i]);
+                bit = calc_data_bit(remote, table[i % 2], TABLE_LEN, buf[i], tUnit);
 
                 if (bit < 0)
                 {
-                        return 0;
+        		int part_length = i+1;
+        		
+                	/* is this a repeated signal sequence? */
+                	if(!(i%2 /* space */ && buf[i] == remote->remaining_gap))
+                	{                		
+                		return 0;
+                	}
+        		
+        		if((length+1)%part_length != 0)
+        		{
+        			return 0;
+        		}
+        		
+			repeats = (length+1)/part_length;
+			
+			for(j=1; j<repeats; j++)
+			{
+				if(memcmp(&buf[0], &buf[j*part_length], (j+1 == repeats ? part_length-1:part_length)*sizeof(*buf)) != 0)
+				{
+					return 0;
+				}
+			}
+                	break;
                 }
 
+	        if (i - 2 > UIRT2_MAX_BITS)
+		{
+			logprintf(LOG_ERR, "uirt2_raw: UIRT tried to send %d bits, "
+				  "max is %d", length-2, UIRT2_MAX_BITS );
+	
+	                return 0;
+		}
+	
                 set_data_bit(rem.bDatBits, i - 2, bit);
                 bits++;
 	}
 
-	rem.bCmd = uirt2_calc_freq(remote->freq) + REPEAT_COUNT;
-	rem.bISDlyHi = remote->gap / UIRT2_UNIT / 256;
-	rem.bISDlyLo = (remote->gap / UIRT2_UNIT) & 255;
+	LOGPRINTF(2, "bits %d", bits);
+	
+	rem.bISDlyHi = remote->remaining_gap / tUnit / 256;
+	rem.bISDlyLo = (remote->remaining_gap / tUnit) & 255;
 	rem.bBits = bits;
 	rem.bOff0 = table[1][0];
 	rem.bOff1 = table[1][1];
 	rem.bOn0 = table[0][0];
 	rem.bOn1 = table[0][1];
-
-	LOGPRINTF(2, "bits %d", bits);
-
-	res = uirt2_send_struct1(dev, &rem);
+	
+	res = uirt2_send_struct1(dev, freq, repeats, &rem);
 
 	return res;
 }

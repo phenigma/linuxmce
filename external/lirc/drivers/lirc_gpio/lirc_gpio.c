@@ -25,7 +25,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * $Id: lirc_gpio.c,v 1.44 2006/01/01 13:43:46 lirc Exp $
+ * $Id: lirc_gpio.c,v 1.48 2006/07/06 06:42:44 lirc Exp $
  *
  */
 
@@ -48,9 +48,12 @@
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
 #include "../drivers/char/bttv.h"
 #include "../drivers/char/bttvp.h"
-#else
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(2,6,17)
 #include "../drivers/media/video/bttv.h"
 #include "../drivers/media/video/bttvp.h"
+#else
+#include "../drivers/media/video/bt8xx/bttv.h"
+#include "../drivers/media/video/bt8xx/bttvp.h"
 #endif
 
 #if BTTV_VERSION_CODE < KERNEL_VERSION(0,7,45)
@@ -99,6 +102,9 @@ static struct rcv_info rcv_infos[] = {
 	{BTTV_BOARD_PXELVWPLTVPRO,          0, 0x00001f00,          0, 0x0008000,          0, 500, 12, 32},
 	{BTTV_BOARD_PV_BT878P_9B,           0, 0x00001f00,          0, 0x0008000,          0, 500, 12, 32},
 	{BTTV_BOARD_PV_BT878P_PLUS,         0, 0x00001f00,          0, 0x0008000,          0, 500, 12, 32},
+#ifdef BTTV_BOARD_PV_M4900
+	{BTTV_BOARD_PV_M4900,               0, 0x00001f00,          0, 0x0008000,          0, 500, 12, 32},
+#endif
 	{BTTV_BOARD_AVERMEDIA,              0, 0x00f88000,          0, 0x0010000, 0x00010000,   0, 10, 32},
 	{BTTV_BOARD_AVPHONE98,     0x00011461, 0x003b8000, 0x00004000, 0x0800000, 0x00800000,   0, 10,  0}, /*mapped to Capture98*/
 	{BTTV_BOARD_AVERMEDIA98,   0x00021461, 0x003b8000, 0x00004000, 0x0800000, 0x00800000,   0, 10,  0}, /*mapped to Capture98*/
@@ -114,6 +120,9 @@ static struct rcv_info rcv_infos[] = {
 	/* MIRO was just a work-around */
 	{BTTV_BOARD_MIRO,                   0, 0x00001f00,          0, 0x0004000,          0,   0, 10, 32},
 	{BTTV_BOARD_DYNALINK,               0, 0x00001f00,          0, 0x0004000,          0,   0, 10, 32},
+#ifdef BTTV_BOARD_ASKEY_CPH03X
+	{BTTV_BOARD_ASKEY_CPH03X,           0, 0x00001f00,          0, 0x0004000,          0,   0, 10, 32},
+#endif
 	{BTTV_BOARD_WINVIEW_601,            0, 0x00001f00,          0, 0x0004000,          0,   0,  0, 32},
 #ifdef BTTV_BOARD_KWORLD
 	{BTTV_BOARD_KWORLD,                 0, 0x00007f00,          0, 0x0004000,          0,   0, 12, 32},
@@ -141,6 +150,7 @@ static struct rcv_info rcv_infos[] = {
 	 * based on the card id: */
 	{BTTV_BOARD_WINFAST2000,   0x6606107d, 0x000008f8,          0, 0x0000100,          0,   0,  0, 32},
 	{BTTV_BOARD_WINFAST2000,   0x6609107d, 0x000008f8,          0, 0x0000100,          0,   0,  0, 32},
+	{BTTV_BOARD_WINFAST2000,   0xff06107d, 0x000008f8,          0, 0x0000100,          0,   0,  0, 32},
 	/* default: */
 	{BTTV_BOARD_WINFAST2000,            0, 0x000000f8,          0, 0x0000100,          0,   0,  0, 32},
 #ifdef BTTV_BOARD_GVBCTV5PCI
@@ -265,10 +275,16 @@ static int build_key(unsigned long gpio_val, unsigned char codes[MAX_BYTES])
 		/* FALLTHROUGH */
 	case BTTV_BOARD_MIRO:
 	case BTTV_BOARD_DYNALINK:
+#ifdef BTTV_BOARD_ASKEY_CPH03X
+	case BTTV_BOARD_ASKEY_CPH03X:
+#endif
 	case BTTV_BOARD_PXELVWPLTVPAK:
 	case BTTV_BOARD_PXELVWPLTVPRO:
 	case BTTV_BOARD_PV_BT878P_9B:
 	case BTTV_BOARD_PV_BT878P_PLUS:
+#ifdef BTTV_BOARD_PV_M4900
+	case BTTV_BOARD_PV_M4900:
+#endif
 #ifdef BTTV_BOARD_KWORLD
 	case BTTV_BOARD_KWORLD:
 #endif
