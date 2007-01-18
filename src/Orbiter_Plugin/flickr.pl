@@ -363,6 +363,7 @@ sub delete_old {
 	}
 	#print TEST "\n\n-------------DELETING END---------------------\n\n";
 	close(TEST);
+	qx | /usr/pluto/bin/MessageSend dcerouter 0 999 1 999 |;
 }
 
 sub isFileInList {
