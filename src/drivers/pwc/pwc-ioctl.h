@@ -53,6 +53,12 @@
  */
 
 #include <linux/types.h>
+#include <linux/version.h>
+
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 10)
+/* Compatibility for older kernel */
+typedef __u16 __le16;
+#endif
 
  /* Enumeration of image sizes */
 #define PSZ_SQCIF	0x00
@@ -314,7 +320,8 @@ struct pwc_table_init_buffer {
 struct pwc_raw_frame {
    __le16 type;		/* type of the webcam */
    __le16 vbandlength;	/* Size of 4lines compressed (used by the decompressor) */
-   __u8   cmd[4];	/* the four byte of the command (in case of nala version, only the first 3 bytes is filled) */
+   __u8   cmd[4];	/* the four byte of the command (in case of nala,
+			   only the first 3 bytes is filled) */
    __u8   rawframe[0];	/* frame_size = H/4*vbandlength */
 } __attribute__ ((packed));
 

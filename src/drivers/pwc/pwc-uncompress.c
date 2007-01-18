@@ -48,9 +48,8 @@ int pwc_decompress(struct pwc_device *pdev)
 	fbuf = pdev->read_frame;
 	if (fbuf == NULL)
 		return -EFAULT;
-	image = pdev->images[pdev->fill_image].bufmem;
-	if (!image)
-		return -EFAULT;
+	image  = pdev->image_data;
+	image += pdev->images[pdev->fill_image].offset;
 
 	yuv = fbuf->data + pdev->frame_header_size;  /* Skip header */
 
@@ -130,11 +129,7 @@ int pwc_decompress(struct pwc_device *pdev)
 		return -ENXIO; /* No such device or address: missing decompressor */
 
 	} else {
-		pwc_dec23_decompress(&pdev->image, &pdev->view, &pdev->offset,
-				yuv, image,
-				PWCX_FLAG_PLANAR,
-				pdev->decompress_data, pdev->vbandlength);
-
+		pwc_dec23_decompress(pdev, yuv, image, PWCX_FLAG_PLANAR);
 	}
 	return 0;
 }

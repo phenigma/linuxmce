@@ -20,7 +20,7 @@ pwc-objs	+= pwc-dec1.o pwc-dec23.o pwc-kiara.o pwc-timon.o
 
 obj-$(CONFIG_USB_PWC) += pwc.o
 
-EXTRA_CFLAGS=-Wall -DXAWTV_HAS_BEEN_FIXED=1
+EXTRA_CFLAGS=-Wall -I$(PWD)
 
 ifeq ($(CONFIG_PWC_DEBUG),y)
 EXTRA_CFLAGS += -DCONFIG_PWC_DEBUG=1
@@ -29,11 +29,11 @@ EXTRA_CFLAGS += -DCONFIG_PWC_DEBUG=0
 endif
 
 else
-KVER  ?= $(shell uname -r)
-KLINK ?= $(shell test -e /lib/modules/${KVER}/source/ && echo source || echo build)
-KSRC  ?= /lib/modules/$(KVER)/$(KLINK)
-KMISC ?= /lib/modules/$(KVER)/kernel/drivers/usb/media
-PWD ?= $(shell pwd)
+KVER  := $(shell uname -r)
+KLINK := $(shell test -e /lib/modules/${KVER}/source/ && echo source || echo "build")
+KSRC  := /lib/modules/$(KVER)/$(KLINK)
+KMISC := /lib/modules/$(KVER)/kernel/drivers/usb/media
+PWD := $(shell pwd)
 
 # Fix some problem with suse < 9.2 and suse >= 9.2
 is_suse := $(shell test -e /etc/SuSE-release && echo 1 || echo 0)

@@ -48,9 +48,9 @@
 /* Version block */
 #define PWC_MAJOR	10
 #define PWC_MINOR	0
-#define PWC_EXTRAMINOR	11
+#define PWC_EXTRAMINOR	12
 #define PWC_VERSION_CODE KERNEL_VERSION(PWC_MAJOR,PWC_MINOR,PWC_EXTRAMINOR)
-#define PWC_VERSION 	"10.0.11-unofficial"
+#define PWC_VERSION 	"10.0.12-rc1"
 #define PWC_NAME 	"pwc"
 #define PFX		PWC_NAME ": "
 
@@ -64,7 +64,6 @@
 #define PWC_DEBUG_LEVEL_FLOW	(1<<5)
 #define PWC_DEBUG_LEVEL_SIZE	(1<<6)
 #define PWC_DEBUG_LEVEL_IOCTL	(1<<7)
-#define PWC_DEBUG_LEVEL_SEQ	(1<<8)
 #define PWC_DEBUG_LEVEL_TRACE	(1<<8)
 
 #define PWC_DEBUG_MODULE(fmt, args...) PWC_DEBUG(MODULE, fmt, ##args)
@@ -75,7 +74,6 @@
 #define PWC_DEBUG_FLOW(fmt, args...) PWC_DEBUG(FLOW, fmt, ##args)
 #define PWC_DEBUG_SIZE(fmt, args...) PWC_DEBUG(SIZE, fmt, ##args)
 #define PWC_DEBUG_IOCTL(fmt, args...) PWC_DEBUG(IOCTL, fmt, ##args)
-#define PWC_DEBUG_SEQ(fmt, args...) PWC_DEBUG(SEQ, fmt, ##args)
 #define PWC_DEBUG_TRACE(fmt, args...) PWC_DEBUG(TRACE, fmt, ##args)
 
 
@@ -84,7 +82,7 @@
 #define PWC_DEBUG_LEVEL	(PWC_DEBUG_LEVEL_MODULE)
 
 #define PWC_DEBUG(level, fmt, args...) do {\
-	  if ((PWC_DEBUG_LEVEL_ ##level) & PWC_DEBUG_LEVEL) \
+	  if ((PWC_DEBUG_LEVEL_ ##level) & pwc_trace) \
 	     printk(KERN_DEBUG PFX fmt, ##args); \
 	  } while(0)
 
@@ -100,6 +98,8 @@
 #define PWC_INFO(fmt, args...) printk(KERN_INFO PFX fmt, ##args)
 #define PWC_TRACE(fmt, args...) do { } while(0)
 #define PWC_DEBUG(level, fmt, args...) do { } while(0)
+
+#define pwc_trace 0
 
 #endif
 
@@ -163,7 +163,7 @@ struct pwc_frame_buf
 /* additionnal informations used when dealing image between kernel and userland */
 struct pwc_imgbuf
 {
-	void *bufmem;		/* addr of this buffer in kernel space */
+	unsigned long offset;	/* offset of this buffer in the big array of image_data */
 	int   vma_use_count;	/* count the number of time this memory is mapped */
 };
 
@@ -271,7 +271,9 @@ extern "C" {
 #endif
 
 /* Global variables */
+#if CONFIG_PWC_DEBUG
 extern int pwc_trace;
+#endif
 extern int pwc_preferred_compression;
 extern int pwc_mbufs;
 
@@ -279,6 +281,8 @@ extern int pwc_mbufs;
 int pwc_try_video_mode(struct pwc_device *pdev, int width, int height, int new_fps, int new_compression, int new_snapshot);
 int pwc_handle_frame(struct pwc_device *pdev);
 void pwc_next_image(struct pwc_device *pdev);
+int pwc_isoc_init(struct pwc_device *pdev);
+void pwc_isoc_cleanup(struct pwc_device *pdev);
 
 /** Functions in pwc-misc.c */
 /* sizes in pixels */

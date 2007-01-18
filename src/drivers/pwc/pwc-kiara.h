@@ -37,8 +37,8 @@ struct Kiara_table_entry
 	unsigned char mode[12];		/* precomputed mode settings for cam */
 };
 
-const extern struct Kiara_table_entry Kiara_table[PSZ_MAX][6][4];
-const extern unsigned int KiaraRomTable[8][2][16][8];
+extern const struct Kiara_table_entry Kiara_table[PSZ_MAX][6][4];
+extern const unsigned int KiaraRomTable[8][2][16][8];
 
 #endif
 

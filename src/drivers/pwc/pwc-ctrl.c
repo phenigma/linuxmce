@@ -60,6 +60,10 @@
 #define GET_STATUS_CTL			0x06
 #define SET_EP_STREAM_CTL		0x07
 #define GET_EP_STREAM_CTL		0x08
+#define GET_XX_CTL			0x09
+#define SET_XX_CTL			0x0A
+#define GET_XY_CTL			0x0B
+#define SET_XY_CTL			0x0C
 #define SET_MPT_CTL			0x0D
 #define GET_MPT_CTL			0x0E
 
@@ -96,6 +100,7 @@
 #define READ_SHUTTER_FORMATTER			0x0600
 #define READ_RED_GAIN_FORMATTER			0x0700
 #define READ_BLUE_GAIN_FORMATTER		0x0800
+#define GET_STATUS_B00				0x0B00
 #define SENSOR_TYPE_FORMATTER1			0x0C00
 #define GET_STATUS_3000				0x3000
 #define READ_RAW_Y_MEAN_FORMATTER		0x3100
@@ -105,7 +110,10 @@
 #define LOWLIGHT				0x3500
 #define GET_STATUS_3600				0x3600
 #define SENSOR_TYPE_FORMATTER2			0x3700
+#define GET_STATUS_3800				0x3800
+#define GET_STATUS_4000				0x4000
 #define GET_STATUS_4100				0x4100	/* Get */
+#define CTL_STATUS_4200				0x4200	/* [GS] 1 */
 
 /* Formatters for the Video Endpoint controls [GS]ET_EP_STREAM_CTL */
 #define VIDEO_OUTPUT_CONTROL_FORMATTER		0x0100
@@ -216,16 +224,11 @@ static int set_video_mode_Nala(struct pwc_device *pdev, int size, int frames)
 	memcpy(buf, pEntry->mode, 3);	
 	ret = send_video_command(pdev->udev, pdev->vendpoint, buf, 3);
 	if (ret < 0) {
-	      PWC_DEBUG_MODULE("Failed to send video command... %d\n", ret);
-	      return ret;
+		PWC_DEBUG_MODULE("Failed to send video command... %d\n", ret);
+		return ret;
 	}
-	if (pEntry->compressed && pdev->vpalette != VIDEO_PALETTE_RAW) {
-	      if (DEVICE_USE_CODEC1(pdev->type)) 
-		    pwc_dec1_init(pdev->type, pdev->release, buf, pdev->decompress_data);
-	      else
-		    pwc_dec23_init(pdev->type, pdev->release, buf, pdev->decompress_data);
-	}
-
+	if (pEntry->compressed && pdev->vpalette != VIDEO_PALETTE_RAW)
+		pwc_dec1_init(pdev->type, pdev->release, buf, pdev->decompress_data);
  
 	pdev->cmd_len = 3;
 	memcpy(pdev->cmd_buf, buf, 3);
@@ -285,7 +288,7 @@ static int set_video_mode_Timon(struct pwc_device *pdev, int size, int frames, i
 		return ret;
 
 	if (pChoose->bandlength > 0 && pdev->vpalette != VIDEO_PALETTE_RAW)
-	   pwc_dec23_init(pdev->type, pdev->release, buf, pdev->decompress_data);
+		pwc_dec23_init(pdev, pdev->type, buf);
 
 	pdev->cmd_len = 13;
 	memcpy(pdev->cmd_buf, buf, 13);
@@ -325,7 +328,7 @@ static int set_video_mode_Kiara(struct pwc_device *pdev, int size, int frames, i
 		   we have the decompressor available. This mode is 
 		   only available in compressed form 
 		*/
-		PWC_DEBUG_SIZE("Choosing VGA/5 BAYER mode (%d).\n", pdev->vpalette);
+		PWC_DEBUG_SIZE("Choosing VGA/5 BAYER mode.\n");
 		pChoose = &RawEntry;
 	}
 	else
@@ -334,6 +337,7 @@ static int set_video_mode_Kiara(struct pwc_device *pdev, int size, int frames, i
 		   if the preferred ratio is not available.
                    Skip this step when using RAW modes.
 		*/
+		snapshot = 0;
 		while (compression <= 3) {
 			pChoose = &Kiara_table[size][fps][compression];
 			if (pChoose->alternate != 0)
@@ -357,7 +361,7 @@ static int set_video_mode_Kiara(struct pwc_device *pdev, int size, int frames, i
 		return ret;
 
 	if (pChoose->bandlength > 0 && pdev->vpalette != VIDEO_PALETTE_RAW)
-	  pwc_dec23_init(pdev->type, pdev->release, buf, pdev->decompress_data);
+		pwc_dec23_init(pdev, pdev->type, buf);
 
 	pdev->cmd_len = 12;
 	memcpy(pdev->cmd_buf, buf, 12);
@@ -420,21 +424,22 @@ int pwc_set_video_mode(struct pwc_device *pdev, int width, int height, int frame
 	return 0;
 }
 
+#define BLACK_Y 0
+#define BLACK_U 128
+#define BLACK_V 128
 
 static void pwc_set_image_buffer_size(struct pwc_device *pdev)
 {
-	int i, factor = 0, filler = 0;
+	int i, factor = 0;
 
 	/* for PALETTE_YUV420P */
 	switch(pdev->vpalette)
 	{
 	case VIDEO_PALETTE_YUV420P:
 		factor = 6;
-		filler = 128;
 		break;
 	case VIDEO_PALETTE_RAW:
 		factor = 6; /* can be uncompressed YUV420P */
-		filler = 0;
 		break;
 	}
 
@@ -450,10 +455,14 @@ static void pwc_set_image_buffer_size(struct pwc_device *pdev)
 	pdev->offset.x = ((pdev->view.x - pdev->image.x) / 2) & 0xFFFC;
 	pdev->offset.y = ((pdev->view.y - pdev->image.y) / 2) & 0xFFFE;
 
-	/* Fill buffers with gray or black */
+	/* Fill buffers with black colors */
 	for (i = 0; i < pwc_mbufs; i++) {
-		if (pdev->images[i].bufmem != NULL)
-			memset(pdev->images[i].bufmem, filler, pdev->view.size);
+		unsigned char *p = pdev->image_data + pdev->images[i].offset;
+		memset(p, BLACK_Y, pdev->view.x * pdev->view.y);
+		p += pdev->view.x * pdev->view.y;
+		memset(p, BLACK_U, pdev->view.x * pdev->view.y/4);
+		p += pdev->view.x * pdev->view.y/4;
+		memset(p, BLACK_V, pdev->view.x * pdev->view.y/4);
 	}
 }
 

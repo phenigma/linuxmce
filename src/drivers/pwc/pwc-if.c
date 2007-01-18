@@ -88,6 +88,7 @@ static const struct usb_device_id pwc_device_table [] = {
 	{ USB_DEVICE(0x0471, 0x0311) }, /* Philips ToUcam PRO II */
 	{ USB_DEVICE(0x0471, 0x0312) },
 	{ USB_DEVICE(0x0471, 0x0313) }, /* the 'new' 720K */
+	{ USB_DEVICE(0x0471, 0x0329) }, /* Philips SPC 900NC PC Camera */
 	{ USB_DEVICE(0x069A, 0x0001) }, /* Askey */
 	{ USB_DEVICE(0x046D, 0x08B0) }, /* Logitech QuickCam Pro 3000 */
 	{ USB_DEVICE(0x046D, 0x08B1) }, /* Logitech QuickCam Notebook Pro */
@@ -98,8 +99,9 @@ static const struct usb_device_id pwc_device_table [] = {
 	{ USB_DEVICE(0x046D, 0x08B6) }, /* Logitech (reserved) */
 	{ USB_DEVICE(0x046D, 0x08B7) }, /* Logitech (reserved) */
 	{ USB_DEVICE(0x046D, 0x08B8) }, /* Logitech (reserved) */
-	{ USB_DEVICE(0x055D, 0x9000) }, /* Samsung */
-	{ USB_DEVICE(0x055D, 0x9001) },
+	{ USB_DEVICE(0x055D, 0x9000) }, /* Samsung MPC-C10 */
+	{ USB_DEVICE(0x055D, 0x9001) }, /* Samsung MPC-C30 */
+	{ USB_DEVICE(0x055D, 0x9002) },	/* Samsung SNC-35E (Ver3.0) */
 	{ USB_DEVICE(0x041E, 0x400C) }, /* Creative Webcam 5 */
 	{ USB_DEVICE(0x041E, 0x4011) }, /* Creative Webcam Pro Ex */
 	{ USB_DEVICE(0x04CC, 0x8116) }, /* Afina Eye */
@@ -220,12 +222,27 @@ static unsigned long kvirt_to_pa(unsigned long adr)
 }
 #endif
 
-static void * pwc_rvmalloc(unsigned long size)
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,14)
+/**
+ * kzalloc - allocate memory. The memory is set to zero.
+ * @size: how many bytes of memory are required.
+ * @flags: the type of memory to allocate.
+ */
+void *kzalloc(size_t size, int flags)
+{
+        void *ret = kmalloc(size, flags);
+        if (ret)
+                memset(ret, 0, size);
+        return ret;
+}
+#endif
+
+static void *pwc_rvmalloc(unsigned long size)
 {
 	void * mem;
 	unsigned long adr;
 
-	size=PAGE_ALIGN(size);
         mem=vmalloc_32(size);
 	if (!mem)
 		return NULL;
@@ -274,27 +291,25 @@ static int pwc_allocate_buffers(struct pwc_device *pdev)
 	/* Allocate Isochronuous pipe buffers */
 	for (i = 0; i < MAX_ISO_BUFS; i++) {
 		if (pdev->sbuf[i].data == NULL) {
-			kbuf = kmalloc(ISO_BUFFER_SIZE, GFP_KERNEL);
+			kbuf = kzalloc(ISO_BUFFER_SIZE, GFP_KERNEL);
 			if (kbuf == NULL) {
 				PWC_ERROR("Failed to allocate iso buffer %d.\n", i);
 				return -ENOMEM;
 			}
 			PWC_DEBUG_MEMORY("Allocated iso buffer at %p.\n", kbuf);
 			pdev->sbuf[i].data = kbuf;
-			memset(kbuf, 0, ISO_BUFFER_SIZE);
 		}
 	}
 
 	/* Allocate frame buffer structure */
 	if (pdev->fbuf == NULL) {
-		kbuf = kmalloc(default_fbufs * sizeof(struct pwc_frame_buf), GFP_KERNEL);
+		kbuf = kzalloc(default_fbufs * sizeof(struct pwc_frame_buf), GFP_KERNEL);
 		if (kbuf == NULL) {
 			PWC_ERROR("Failed to allocate frame buffer structure.\n");
 			return -ENOMEM;
 		}
 		PWC_DEBUG_MEMORY("Allocated frame buffer structure at %p.\n", kbuf);
 		pdev->fbuf = kbuf;
-		memset(kbuf, 0, default_fbufs * sizeof(struct pwc_frame_buf));
 	}
 
 	/* create frame buffers, and make circular ring */
@@ -307,7 +322,7 @@ static int pwc_allocate_buffers(struct pwc_device *pdev)
 			}
 			PWC_DEBUG_MEMORY("Allocated frame buffer %d at %p.\n", i, kbuf);
 			pdev->fbuf[i].data = kbuf;
-			memset(kbuf, 128, PWC_FRAME_SIZE);
+			memset(kbuf, 0, PWC_FRAME_SIZE);
 		}
 	}
 	
@@ -318,25 +333,25 @@ static int pwc_allocate_buffers(struct pwc_device *pdev)
 		err = pwc_dec23_alloc(pdev);
 
 	if (err) {
-	   PWC_ERROR("Failed to allocate decompress table.\n");
-	   return -ENOMEM;
+		PWC_ERROR("Failed to allocate decompress table.\n");
+		return err;
 	}
 
 	/* Allocate image buffer; double buffer for mmap() */
-	kbuf = pwc_rvmalloc(pwc_mbufs * PAGE_ALIGN(pdev->len_per_image));
+	kbuf = pwc_rvmalloc(pwc_mbufs * pdev->len_per_image);
 	if (kbuf == NULL) {
-		PWC_ERROR("Failed to allocate image buffer(s). needed (%ld)\n",
-				pwc_mbufs * PAGE_ALIGN(pdev->len_per_image));
+		PWC_ERROR("Failed to allocate image buffer(s). needed (%d)\n",
+				pwc_mbufs * pdev->len_per_image);
 		return -ENOMEM;
 	}
 	PWC_DEBUG_MEMORY("Allocated image buffer at %p.\n", kbuf);
 	pdev->image_data = kbuf;
 	for (i = 0; i < pwc_mbufs; i++) {
-		pdev->images[i].bufmem = kbuf + i * PAGE_ALIGN(pdev->len_per_image);
+		pdev->images[i].offset = i * pdev->len_per_image;
 		pdev->images[i].vma_use_count = 0;
 	}
 	for (; i < MAX_IMAGES; i++) {
-		pdev->images[i].bufmem = NULL;
+		pdev->images[i].offset = 0;
 	}
 
 	kbuf = NULL;
@@ -384,7 +399,7 @@ static void pwc_free_buffers(struct pwc_device *pdev)
 	/* Release image buffers */
 	if (pdev->image_data != NULL) {
 		PWC_DEBUG_MEMORY("Freeing image buffer at %p.\n", pdev->image_data);
-		pwc_rvfree(pdev->image_data, pwc_mbufs * PAGE_ALIGN(pdev->len_per_image));
+		pwc_rvfree(pdev->image_data, pwc_mbufs * pdev->len_per_image);
 	}
 	pdev->image_data = NULL;
 	
@@ -498,6 +513,8 @@ static void pwc_reset_buffers(struct pwc_device *pdev)
 {
 	int i;
 	unsigned long flags;
+	
+	PWC_DEBUG_MEMORY(">> %s __enter__\n", __FUNCTION__);
 
 	spin_lock_irqsave(&pdev->ptrlock, flags);
 	pdev->full_frames = NULL;
@@ -518,6 +535,8 @@ static void pwc_reset_buffers(struct pwc_device *pdev)
 	pdev->image_read_pos = 0;
 	pdev->fill_image = 0;
 	spin_unlock_irqrestore(&pdev->ptrlock, flags);
+
+	PWC_DEBUG_MEMORY("<< %s __leaving__\n", __FUNCTION__);
 }
 
 
@@ -535,37 +554,39 @@ int pwc_handle_frame(struct pwc_device *pdev)
 	if (pdev->read_frame != NULL) {
 		/* This can't theoretically happen */
 		PWC_ERROR("Huh? Read frame still in use?\n");
+		spin_unlock_irqrestore(&pdev->ptrlock, flags);
+		return ret;
+	}
+
+
+	if (pdev->full_frames == NULL) {
+		PWC_ERROR("Woops. No frames ready.\n");
 	}
 	else {
-		if (pdev->full_frames == NULL) {
-			PWC_ERROR("Woops. No frames ready.\n");
+		pdev->read_frame = pdev->full_frames;
+		pdev->full_frames = pdev->full_frames->next;
+		pdev->read_frame->next = NULL;
+	}
+
+	if (pdev->read_frame != NULL) {
+		/* Decompression is a lenghty process, so it's outside of the lock.
+		   This gives the isoc_handler the opportunity to fill more frames
+		   in the mean time.
+		*/
+		spin_unlock_irqrestore(&pdev->ptrlock, flags);
+		ret = pwc_decompress(pdev);
+		spin_lock_irqsave(&pdev->ptrlock, flags);
+
+		/* We're done with read_buffer, tack it to the end of the empty buffer list */
+		if (pdev->empty_frames == NULL) {
+			pdev->empty_frames = pdev->read_frame;
+			pdev->empty_frames_tail = pdev->empty_frames;
 		}
 		else {
-			pdev->read_frame = pdev->full_frames;
-			pdev->full_frames = pdev->full_frames->next;
-			pdev->read_frame->next = NULL;
+			pdev->empty_frames_tail->next = pdev->read_frame;
+			pdev->empty_frames_tail = pdev->read_frame;
 		}
-
-		if (pdev->read_frame != NULL) {
-			/* Decompression is a lenghty process, so it's outside of the lock.
-			   This gives the isoc_handler the opportunity to fill more frames
-			   in the mean time.
-			*/
-			spin_unlock_irqrestore(&pdev->ptrlock, flags);
-			ret = pwc_decompress(pdev);
-			spin_lock_irqsave(&pdev->ptrlock, flags);
-
-			/* We're done with read_buffer, tack it to the end of the empty buffer list */
-			if (pdev->empty_frames == NULL) {
-				pdev->empty_frames = pdev->read_frame;
-				pdev->empty_frames_tail = pdev->empty_frames;
-			}
-			else {
-				pdev->empty_frames_tail->next = pdev->read_frame;
-				pdev->empty_frames_tail = pdev->read_frame;
-			}
-			pdev->read_frame = NULL;
-		}
+		pdev->read_frame = NULL;
 	}
 	spin_unlock_irqrestore(&pdev->ptrlock, flags);
 	return ret;
@@ -578,6 +599,23 @@ void pwc_next_image(struct pwc_device *pdev)
 {
 	pdev->image_used[pdev->fill_image] = 0;
 	pdev->fill_image = (pdev->fill_image + 1) % pwc_mbufs;
+}
+
+/**
+ * Print debug information when a frame is discarded because all of our buffer
+ * is full
+ */
+static void pwc_frame_dumped(struct pwc_device *pdev)
+{
+	pdev->vframes_dumped++;
+	if (pdev->vframe_count < FRAME_LOWMARK)
+		return;
+
+	if (pdev->vframes_dumped < 20)
+		PWC_DEBUG_FLOW("Dumping frame %d\n", pdev->vframe_count);
+	else if (pdev->vframes_dumped == 20)
+		PWC_DEBUG_FLOW("Dumping frame %d (last message)\n",
+				pdev->vframe_count);
 }
 
 static int pwc_rcv_short_packet(struct pwc_device *pdev, const struct pwc_frame_buf *fbuf)
@@ -624,7 +662,7 @@ static int pwc_rcv_short_packet(struct pwc_device *pdev, const struct pwc_frame_
 		if (fbuf->filled == 4)
 			pdev->drop_frames++;
 	}
-	else if (pdev->type == 740) {
+	else if (pdev->type == 740 || pdev->type == 720) {
 		unsigned char *ptr = (unsigned char *)fbuf->data;
 		if ((ptr[0] ^ pdev->vmirror) & 0x01) {
 			if (ptr[0] & 0x01) {
@@ -634,6 +672,7 @@ static int pwc_rcv_short_packet(struct pwc_device *pdev, const struct pwc_frame_
 			else
 				PWC_TRACE("Snapshot button released.\n");
 		}
+		pdev->vmirror = ptr[0] & 0x03;
 	}
 
 	/* In case we were instructed to drop the frame, do so silently.
@@ -656,12 +695,9 @@ static int pwc_rcv_short_packet(struct pwc_device *pdev, const struct pwc_frame_
 			 * nick a frame from either empty or full list, but if we had to
 			 * take it from the full list, it means a frame got dropped.
 			 */
-			if (pwc_next_fill_frame(pdev)) {
-				pdev->vframes_dumped++;
-				if (pdev->vframe_count > FRAME_LOWMARK)
-					PWC_DEBUG_FLOW("Dumping frame %d%s.\n", pdev->vframe_count,
-							pdev->vframes_dumped>=20?  " (last message)":"");
-			}
+			if (pwc_next_fill_frame(pdev))
+				pwc_frame_dumped(pdev);
+
 		}
 	} /* !drop_frames */
 	pdev->vframe_count++;
@@ -796,7 +832,7 @@ handler_end:
 }
 
 
-static int pwc_isoc_init(struct pwc_device *pdev)
+int pwc_isoc_init(struct pwc_device *pdev)
 {
 	struct usb_device *udev;
 	struct urb *urb;
@@ -907,12 +943,14 @@ static int pwc_isoc_init(struct pwc_device *pdev)
 	return 0;
 }
 
-static void pwc_isoc_cleanup(struct pwc_device *pdev)
+void pwc_isoc_cleanup(struct pwc_device *pdev)
 {
 	int i;
 
 	PWC_DEBUG_OPEN(">> pwc_isoc_cleanup()\n");
 	if (pdev == NULL)
+		return;
+	if (pdev->iso_init == 0)
 		return;
 
 	/* Unlinking ISOC buffers one by one */
@@ -1079,8 +1117,10 @@ static int pwc_video_open(struct inode *inode, struct file *file)
 	pdev = (struct pwc_device *)vdev->priv;
 	if (pdev == NULL)
 		BUG();
-	if (pdev->vopen)
+	if (pdev->vopen) {
+		PWC_DEBUG_OPEN("I'm busy, someone is using the device.\n");
 		return -EBUSY;
+	}
 	
 	down(&pdev->modlock);
 	if (!pdev->usb_init) {
@@ -1113,6 +1153,7 @@ static int pwc_video_open(struct inode *inode, struct file *file)
 	i = pwc_allocate_buffers(pdev);
 	if (i < 0) {
 		PWC_DEBUG_OPEN("Failed to allocate buffers memory.\n");
+		pwc_free_buffers(pdev);
 		up(&pdev->modlock);
 		return i;
 	}
@@ -1153,6 +1194,7 @@ static int pwc_video_open(struct inode *inode, struct file *file)
 	}
 	if (i) {
 		PWC_DEBUG_OPEN("Second attempt at set_video_mode failed.\n");
+		pwc_free_buffers(pdev);
 		up(&pdev->modlock);
 		return i;
 	}
@@ -1160,6 +1202,8 @@ static int pwc_video_open(struct inode *inode, struct file *file)
 	i = pwc_isoc_init(pdev);
 	if (i) {
 		PWC_DEBUG_OPEN("Failed to init ISOC stuff = %d.\n", i);
+		pwc_isoc_cleanup(pdev);
+		pwc_free_buffers(pdev);
 		up(&pdev->modlock);
 		return i;
 	}
@@ -1214,8 +1258,8 @@ static int pwc_video_close(struct inode *inode, struct file *file)
 				PWC_ERROR("Failed to power down camera (%d)\n", i);
 		}
 	}
-	pdev->vopen = 0;
-	PWC_DEBUG_OPEN("<< video_close()\n");
+	pdev->vopen--;
+	PWC_DEBUG_OPEN("<< video_close() vopen=%d\n", pdev->vopen);
 	return 0;
 }
 
@@ -1239,6 +1283,7 @@ static ssize_t pwc_video_read(struct file *file, char __user *buf,
 	int noblock = file->f_flags & O_NONBLOCK;
 	DECLARE_WAITQUEUE(wait, current);
         int bytes_to_read;
+	void *image_buffer_addr;
 
 	PWC_DEBUG_READ("pwc_video_read(vdev=0x%p, buf=%p, count=%zd) called.\n",
 		       	vdev, buf, count);
@@ -1291,7 +1336,10 @@ static ssize_t pwc_video_read(struct file *file, char __user *buf,
 	/* copy bytes to user space; we allow for partial reads */
 	if (count + pdev->image_read_pos > bytes_to_read)
 		count = bytes_to_read - pdev->image_read_pos;
-	if (copy_to_user(buf, pdev->images[pdev->fill_image].bufmem + pdev->image_read_pos, count))
+	image_buffer_addr = pdev->image_data;
+	image_buffer_addr += pdev->images[pdev->fill_image].offset;
+	image_buffer_addr += pdev->image_read_pos;
+	if (copy_to_user(buf, image_buffer_addr, count))
 		return -EFAULT;
 	pdev->image_read_pos += count;
 	if (pdev->image_read_pos >= bytes_to_read) { /* All data has been read */
@@ -1331,25 +1379,42 @@ static int pwc_video_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	struct video_device *vdev = file->private_data;
 	struct pwc_device *pdev;
-	unsigned long start = vma->vm_start;
-	unsigned long size  = vma->vm_end-vma->vm_start;
-	unsigned long page, pos;
+	unsigned long start;
+	unsigned long size;
+	unsigned long page, pos = 0;
 	int index;
 	
-	PWC_DEBUG_MEMORY("mmap(0x%p, 0x%lx, %lu) called.\n", vdev, start, size);
+	PWC_DEBUG_MEMORY(">> %s\n", __FUNCTION__);
 	pdev = vdev->priv;
+	size = vma->vm_end - vma->vm_start;
+	start = vma->vm_start;
 
 	/* Find the idx buffer for this mapping */
 	for (index = 0; index < pwc_mbufs; index++) {
-		if (((index*PAGE_ALIGN(pdev->len_per_image))>>PAGE_SHIFT) == vma->vm_pgoff)
+		pos = pdev->images[index].offset;
+		if ((pos>>PAGE_SHIFT) == vma->vm_pgoff)
 			break;
 	}
 	if (index == MAX_IMAGES)
 		return -EINVAL;
+	if (index == 0) {	
+		/*
+		 * Special case for v4l1. In v4l1, we map only one big buffer,
+		 * but in v4l2 each buffer is mapped  
+		 */
+		unsigned long total_size;
+		total_size = pwc_mbufs * pdev->len_per_image;
+		if (size != pdev->len_per_image && size != total_size) {
+			PWC_ERROR("Wrong size (%lu) needed to be len_per_image=%d or total_size=%lu\n",
+				   size, pdev->len_per_image, total_size);
+			return -EINVAL;
+		}
+	} else if (size > pdev->len_per_image)
+		return -EINVAL;
 
 	vma->vm_flags |= VM_IO;	/* from 2.6.9-acX */
 
-	pos = (unsigned long)pdev->image_data;
+	pos += (unsigned long)pdev->image_data;
 	while (size > 0) {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
 		page = kvirt_to_pa(pos);
@@ -1459,6 +1524,11 @@ static int usb_pwc_probe(struct usb_interface *intf, const struct usb_device_id 
 			name = "Philips 720K/40 webcam";
 			type_id = 720;
 			break;
+		case 0x0329:
+			PWC_INFO("Philips SPC 900NC USB webcam detected.\n");
+			name = "Philips SPC 900NC webcam";
+			type_id = 720;
+			break;
 		default:
 			return -ENODEV;
 			break;
@@ -1538,6 +1608,11 @@ static int usb_pwc_probe(struct usb_interface *intf, const struct usb_device_id 
 			name = "Samsung MPC-C30";
 			type_id = 675;
 			break;
+		case 0x9002:
+			PWC_INFO("Samsung SNC-35E (v3.0) USB webcam detected.\n");
+			name = "Samsung MPC-C30";
+			type_id = 740;
+			break;
 		default:
 			return -ENODEV;
 			break;
@@ -1614,12 +1689,11 @@ static int usb_pwc_probe(struct usb_interface *intf, const struct usb_device_id 
 		PWC_WARNING("Warning: more than 1 configuration available.\n");
 
 	/* Allocate structure, initialize pointers, mutexes, etc. and link it to the usb_device */
-	pdev = kmalloc(sizeof(struct pwc_device), GFP_KERNEL);
+	pdev = kzalloc(sizeof(struct pwc_device), GFP_KERNEL);
 	if (pdev == NULL) {
 		PWC_ERROR("Oops, could not allocate memory for pwc_device.\n");
 		return -ENOMEM;
 	}
-	memset(pdev, 0, sizeof(struct pwc_device));
 	pdev->type = type_id;
 	pdev->vsize = default_size;
 	pdev->vframes = default_fps;

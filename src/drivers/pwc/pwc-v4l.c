@@ -213,7 +213,8 @@ static struct v4l2_queryctrl pwc_controls[] = {
 #endif
 };
 
-#if CONFIG_PWC_DEBUG
+#if CONFIG_PWC_DEBUG 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,16)
 static const char *v4l1_ioctls[] = {
         "?", "CGAP", "GCHAN", "SCHAN", "GTUNER", "STUNER", "GPICT", "SPICT",
         "CCAPTURE", "GWIN", "SWIN", "GFBUF", "SFBUF", "KEY", "GFREQ",
@@ -221,13 +222,17 @@ static const char *v4l1_ioctls[] = {
         "GCAPTURE", "SCAPTURE", "SPLAYMODE", "SWRITEMODE", "GPLAYINFO",
         "SMICROCODE", "GVBIFMT", "SVBIFMT" };
 #define V4L1_IOCTLS ARRAY_SIZE(v4l1_ioctls)
+#else
+/* In 2.6.16-rc1 v4l_printk_ioctl is not defined but exported */
+extern void v4l_printk_ioctl(unsigned int cmd);
+#endif
 #endif
 
 static void pwc_vidioc_fill_fmt(const struct pwc_device *pdev, struct v4l2_format *f)
 {
 	memset(&f->fmt.pix, 0, sizeof(struct v4l2_pix_format));
-	f->fmt.pix.width        = pdev->image.x;
-	f->fmt.pix.height       = pdev->image.y;
+	f->fmt.pix.width        = pdev->view.x;
+	f->fmt.pix.height       = pdev->view.y;
 	f->fmt.pix.field        = V4L2_FIELD_NONE;
 	if (pdev->vpalette == VIDEO_PALETTE_YUV420P) {
 		f->fmt.pix.pixelformat  = V4L2_PIX_FMT_YUV420;
@@ -267,13 +272,13 @@ static int pwc_vidioc_try_fmt(struct pwc_device *pdev, struct v4l2_format *f)
 			break;
 		case V4L2_PIX_FMT_PWC1:
 			if (DEVICE_USE_CODEC23(pdev->type)) {
-				PWC_DEBUG_IOCTL("codec23 is only supported for new pwc webcam\n");
+				PWC_DEBUG_IOCTL("codec1 is only supported for old pwc webcam\n");
 				return -EINVAL;
 			}
 			break;
 		case V4L2_PIX_FMT_PWC2:
 			if (DEVICE_USE_CODEC1(pdev->type)) {
-				PWC_DEBUG_IOCTL("codec1 is only supported for old pwc webcam\n");
+				PWC_DEBUG_IOCTL("codec23 is only supported for new pwc webcam\n");
 				return -EINVAL;
 			}
 			break;
@@ -311,11 +316,16 @@ static int pwc_vidioc_set_fmt(struct pwc_device *pdev, struct v4l2_format *f)
 	fps = pdev->vframes;
 	if (f->fmt.pix.priv) {
 		compression = (f->fmt.pix.priv & PWC_QLT_MASK) >> PWC_QLT_SHIFT;
-		snapshot = f->fmt.pix.priv & PWC_FPS_SNAPSHOT;
+		snapshot = !!(f->fmt.pix.priv & PWC_FPS_SNAPSHOT);
 		fps = (f->fmt.pix.priv & PWC_FPS_FRMASK) >> PWC_FPS_SHIFT;
 		if (fps == 0)
 			fps = pdev->vframes;
 	}
+
+	if (pixelformat == V4L2_PIX_FMT_YUV420)
+		pdev->vpalette = VIDEO_PALETTE_YUV420P;
+	else
+		pdev->vpalette = VIDEO_PALETTE_RAW;
 
 	PWC_DEBUG_IOCTL("Try to change format to: width=%d height=%d fps=%d "
 			"compression=%d snapshot=%d format=%c%c%c%c\n",
@@ -338,11 +348,6 @@ static int pwc_vidioc_set_fmt(struct pwc_device *pdev, struct v4l2_format *f)
 	if (ret)
 		return ret;
 
-	if (pixelformat == V4L2_PIX_FMT_YUV420)
-		pdev->vpalette = VIDEO_PALETTE_YUV420P;
-	else
-		pdev->vpalette = VIDEO_PALETTE_RAW;
-
 	pwc_vidioc_fill_fmt(pdev, f);
 
 	return 0;
@@ -362,6 +367,8 @@ int pwc_video_do_ioctl(struct inode *inode, struct file *file,
 	if (pdev == NULL)
 		return -EFAULT;
 
+#if CONFIG_PWC_DEBUG
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,16)
 	switch (_IOC_TYPE(cmd)) {
 		case 'v':
 			PWC_DEBUG_IOCTL("ioctl 0x%x (v4l1, VIDIOC%s)\n", cmd,
@@ -374,6 +381,11 @@ int pwc_video_do_ioctl(struct inode *inode, struct file *file,
 		default:
 			PWC_DEBUG_IOCTL("ioctl 0x%x (unknown)\n", cmd);
 	}
+#else
+	if (PWC_DEBUG_LEVEL_IOCTL & pwc_trace)
+		v4l_printk_ioctl(cmd);
+#endif
+#endif
 
 
 	switch (cmd) {
@@ -531,10 +543,10 @@ int pwc_video_do_ioctl(struct inode *inode, struct file *file,
 			int i;
 
 			memset(vm, 0, sizeof(*vm));
-			vm->size = pwc_mbufs * PAGE_ALIGN(pdev->len_per_image);
+			vm->size = pwc_mbufs * pdev->len_per_image;
 			vm->frames = pwc_mbufs; /* double buffering should be enough for most applications */
 			for (i = 0; i < pwc_mbufs; i++)
-				vm->offsets[i] = i * PAGE_ALIGN(pdev->len_per_image);
+				vm->offsets[i] = i * pdev->len_per_image;
 			break;
 		}
 
@@ -701,7 +713,7 @@ int pwc_video_do_ioctl(struct inode *inode, struct file *file,
 	    	{
 		    struct v4l2_capability *cap = arg;
 
-		    PWC_DEBUG_IOCTL("ioctl(VIDIOC_QUERYCAP) This application"\
+		    PWC_DEBUG_IOCTL("ioctl(VIDIOC_QUERYCAP) This application "\
 				       "try to use the v4l2 layer\n");
 		    strcpy(cap->driver,PWC_NAME);
 		    strlcpy(cap->card, vdev->name, sizeof(cap->card));
@@ -1083,18 +1095,24 @@ int pwc_video_do_ioctl(struct inode *inode, struct file *file,
 			int index;
 
 			PWC_DEBUG_IOCTL("ioctl(VIDIOC_QUERYBUF) index=%d\n",buf->index);
-			if (buf->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+			if (buf->type != V4L2_BUF_TYPE_VIDEO_CAPTURE) {
+				PWC_DEBUG_IOCTL("ioctl(VIDIOC_QUERYBUF) Bad type\n");
 				return -EINVAL;
-			if (buf->memory != V4L2_MEMORY_MMAP)
+			}
+			if (buf->memory != V4L2_MEMORY_MMAP) {
+				PWC_DEBUG_IOCTL("ioctl(VIDIOC_QUERYBUF) Bad memory type\n");
 				return -EINVAL;
+			}
 			index = buf->index;
-			if (index < 0 || index >= pwc_mbufs)
+			if (index < 0 || index >= pwc_mbufs) {
+				PWC_DEBUG_IOCTL("ioctl(VIDIOC_QUERYBUF) Bad index %d\n", buf->index);
 				return -EINVAL;
+			}
 
 			memset(buf, 0, sizeof(struct v4l2_buffer));
 			buf->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 			buf->index = index;
-			buf->m.offset = index * PAGE_ALIGN(pdev->len_per_image);
+			buf->m.offset = index * pdev->len_per_image;
 			if (pdev->vpalette == VIDEO_PALETTE_RAW)
 				buf->bytesused = pdev->frame_size + sizeof(struct pwc_raw_frame);
 			else
@@ -1164,12 +1182,12 @@ int pwc_video_do_ioctl(struct inode *inode, struct file *file,
 			remove_wait_queue(&pdev->frameq, &wait);
 			set_current_state(TASK_RUNNING);
 				
-			PWC_DEBUG_READ("VIDIOC_DQBUF: frame ready.\n");
+			PWC_DEBUG_IOCTL("VIDIOC_DQBUF: frame ready.\n");
 			/* Decompress data in pdev->images[pdev->fill_image] */
 			ret = pwc_handle_frame(pdev);
 			if (ret)
 				return -EFAULT;
-			PWC_DEBUG_READ("VIDIOC_DQBUF: after pwc_handle_frame\n");
+			PWC_DEBUG_IOCTL("VIDIOC_DQBUF: after pwc_handle_frame\n");
 
 			buf->index = pdev->fill_image;
 			if (pdev->vpalette == VIDEO_PALETTE_RAW)
@@ -1181,27 +1199,29 @@ int pwc_video_do_ioctl(struct inode *inode, struct file *file,
 			do_gettimeofday(&buf->timestamp);
 			buf->sequence = 0;
 			buf->memory = V4L2_MEMORY_MMAP;
-			buf->m.offset = pdev->fill_image * PAGE_ALIGN(pdev->len_per_image);
+			buf->m.offset = pdev->fill_image * pdev->len_per_image;
 			buf->length = buf->bytesused;
-			PWC_DEBUG_READ("VIDIOC_DQBUF: buf->index=%d\n",buf->index);
-			PWC_DEBUG_READ("VIDIOC_DQBUF: buf->length=%d\n",buf->length);
-			PWC_DEBUG_READ("VIDIOC_DQBUF: m.offset=%d\n",buf->m.offset);
-			PWC_DEBUG_READ("VIDIOC_DQBUF: bytesused=%d\n",buf->bytesused);
-
-
 			pwc_next_image(pdev);
-			PWC_DEBUG_READ("VIDIOC_DQBUF: leaving\n");
+
+			PWC_DEBUG_IOCTL("VIDIOC_DQBUF: buf->index=%d\n",buf->index);
+			PWC_DEBUG_IOCTL("VIDIOC_DQBUF: buf->length=%d\n",buf->length);
+			PWC_DEBUG_IOCTL("VIDIOC_DQBUF: m.offset=%d\n",buf->m.offset);
+			PWC_DEBUG_IOCTL("VIDIOC_DQBUF: bytesused=%d\n",buf->bytesused);
+			PWC_DEBUG_IOCTL("VIDIOC_DQBUF: leaving\n");
 			return 0;
 
 		}
 
 		case VIDIOC_STREAMON:
 	       	{
+			/* WARNING: pwc_try_video_mode() called pwc_isoc_init */
+			pwc_isoc_init(pdev);
 			return 0;
 		}
 
 		case VIDIOC_STREAMOFF:
 	       	{
+			pwc_isoc_cleanup(pdev);
 			return 0;
 		}
 	

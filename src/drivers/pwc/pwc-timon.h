@@ -52,8 +52,8 @@ struct Timon_table_entry
 	unsigned char mode[13];		/* precomputed mode settings for cam */
 };
 
-const extern struct Timon_table_entry Timon_table[PSZ_MAX][6][4];
-const extern unsigned int TimonRomTable [16][2][16][8];
+extern const struct Timon_table_entry Timon_table[PSZ_MAX][6][4];
+extern const unsigned int TimonRomTable [16][2][16][8];
 
 
 #endif
