@@ -457,7 +457,7 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 		TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
 	else
 	{
-		if(Frame->Name().find("datagrid-thumb") == string::npos)
+		//if(Frame->Name().find("datagrid-thumb") == string::npos)
 			Frame->DontReleaseTexture();
 	}
 
