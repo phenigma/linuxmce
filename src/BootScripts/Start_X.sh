@@ -40,15 +40,19 @@ AlphaBlending=$(AlphaBlendingEnabled)
 #XClient=/usr/pluto/bin/Start_IceWM.sh
 XClient=/usr/bin/xfwm4
 XClientParm=()
+
+#<-mkr_b_ubuntu_b->
+XClientParm=(--conpositor=off)
+#<-mkr_b_ununtu_e->
+
 XServerParm=(-logverbose 9 -br -config /etc/X11/xorg.conf.pluto)
 Background=y
-XDisplay=:0
-#<-mkr_b_ubuntu_b->
-XDisplay=:5
-#<-mkr_b_ubuntu_e->
+XDisplay=":$Display"
 
-#Xcompmgr=/usr/bin/xcompmgr
 Xcompmgr=/bin/true
+#<-mkr_b_ubuntu_b->
+Xcompmgr=/usr/bin/xcompmgr
+#<-mkr_b_ununtu_e->
 
 if [[ "$AlphaBlending" != 1 ]]; then
 	XClientParm=(--compositor=off)
