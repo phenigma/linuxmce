@@ -26,95 +26,6 @@ endif
 
 KMODDIR=/lib/modules/$(KVERS)/misc
 
-DRIVERS=
-DRIVERS+=--with-driver=act200l
-DRIVERS+=--with-driver=act220l
-DRIVERS+=--with-driver=adaptec
-DRIVERS+=--with-driver=alsa_usb
-DRIVERS+=--with-driver=animax
-DRIVERS+=--with-driver=atilibusb
-DRIVERS+=--with-driver=atiusb
-DRIVERS+=--with-driver=audio
-#DRIVERS+=--with-driver=avermedia
-#DRIVERS+=--with-driver=avermedia_vdomate
-#DRIVERS+=--with-driver=avermedia98
-#DRIVERS+=--with-driver=bestbuy
-#DRIVERS+=--with-driver=bestbuy2
-DRIVERS+=--with-driver=breakoutbox
-DRIVERS+=--with-driver=bte
-DRIVERS+=--with-driver=bw6130
-DRIVERS+=--with-driver=caraca
-#DRIVERS+=--with-driver=chronos
-DRIVERS+=--with-driver=cmdir
-DRIVERS+=--with-driver=comX
-#DRIVERS+=--with-driver=cph06x
-DRIVERS+=--with-driver=creative
-DRIVERS+=--with-driver=creative_infracd
-DRIVERS+=--with-driver=devinput
-DRIVERS+=--with-driver=digimatrix
-DRIVERS+=--with-driver=dsp
-DRIVERS+=--with-driver=dvico
-DRIVERS+=--with-driver=ea65
-DRIVERS+=--with-driver=exaudio
-#DRIVERS+=--with-driver=flyvideo
-#DRIVERS+=--with-driver=gvbctv5pci
-DRIVERS+=--with-driver=hauppauge
-DRIVERS+=--with-driver=hauppauge_dvb
-DRIVERS+=--with-driver=hercules_smarttv_stereo
-DRIVERS+=--with-driver=igorplugusb
-DRIVERS+=--with-driver=iguanaIR
-DRIVERS+=--with-driver=imon
-DRIVERS+=--with-driver=imon_knob
-DRIVERS+=--with-driver=imon_pad
-DRIVERS+=--with-driver=imon_rsc
-DRIVERS+=--with-driver=irdeo
-DRIVERS+=--with-driver=irdeo_remote
-DRIVERS+=--with-driver=irman
-DRIVERS+=--with-driver=irreal
-DRIVERS+=--with-driver=it87
-DRIVERS+=--with-driver=knc_one
-#DRIVERS+=--with-driver=kworld
-#DRIVERS+=--with-driver=leadtek_0007
-#DRIVERS+=--with-driver=leadtek_0010
-DRIVERS+=--with-driver=leadtek_pvr2000
-DRIVERS+=--with-driver=livedrive_midi
-DRIVERS+=--with-driver=livedrive_seq
-DRIVERS+=--with-driver=logitech
-DRIVERS+=--with-driver=lptX
-DRIVERS+=--with-driver=mceusb
-DRIVERS+=--with-driver=mceusb2
-DRIVERS+=--with-driver=mediafocusI
-DRIVERS+=--with-driver=mouseremote
-DRIVERS+=--with-driver=mouseremote_ps2
-DRIVERS+=--with-driver=mp3anywhere
-DRIVERS+=--with-driver=nslu2
-DRIVERS+=--with-driver=packard_bell
-DRIVERS+=--with-driver=parallel
-DRIVERS+=--with-driver=pcmak
-DRIVERS+=--with-driver=pcmak_usb
-DRIVERS+=--with-driver=pctv
-DRIVERS+=--with-driver=pixelview_bt878
-#DRIVERS+=--with-driver=pixelview_pak
-#DRIVERS+=--with-driver=pixelview_pro
-DRIVERS+=--with-driver=provideo
-DRIVERS+=--with-driver=realmagic
-DRIVERS+=--with-driver=remotemaster
-DRIVERS+=--with-driver=sa1100
-DRIVERS+=--with-driver=sasem
-DRIVERS+=--with-driver=serial
-DRIVERS+=--with-driver=silitek
-DRIVERS+=--with-driver=sir
-DRIVERS+=--with-driver=slinke
-DRIVERS+=--with-driver=streamzap
-DRIVERS+=--with-driver=tekram
-DRIVERS+=--with-driver=tekram_bt829
-DRIVERS+=--with-driver=tira
-DRIVERS+=--with-driver=tvbox
-DRIVERS+=--with-driver=udp
-DRIVERS+=--with-driver=uirt2
-DRIVERS+=--with-driver=uirt2_raw
-DRIVERS+=--with-driver=usb_uirt_raw
-
 config.status: configure
 	dh_testdir
 	# Add here commands to configure the package.
@@ -124,7 +35,7 @@ config.status: configure
 config-modules: configure
 	dh_testdir
 	$(MAKE) clean || :
-	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-sandboxed --with-kerneldir="$(KSRC)" --with-moduledir="$(KMODDIR)" $(DRIVERS)
+	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-sandboxed --with-kerneldir="$(KSRC)" --with-moduledir="$(KMODDIR)" --with-driver=all
 
 build-modules: config-modules
 	dh_testdir
