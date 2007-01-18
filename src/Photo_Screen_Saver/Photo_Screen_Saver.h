@@ -18,6 +18,7 @@ namespace DCE
 		// Private member variables
 		pthread_t ThreadID;
 		string m_sFileList;
+		bool m_bIsOn;
 		// Private methods
 public:
 		// Public member variables
@@ -62,6 +63,20 @@ public:
 	*/
 
 
+	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
+	/** Go forward in the list */
+
+	virtual void CMD_Skip_Fwd_ChannelTrack_Greater() { string sCMD_Result; CMD_Skip_Fwd_ChannelTrack_Greater(sCMD_Result,NULL);};
+	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
+	/** Go back in the list */
+
+	virtual void CMD_Skip_Back_ChannelTrack_Lower() { string sCMD_Result; CMD_Skip_Back_ChannelTrack_Lower(sCMD_Result,NULL);};
+	virtual void CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #192 - On */
 	/** Turn on the device */
 		/** @param #97 PK_Pipe */
@@ -81,6 +96,12 @@ public:
 	virtual void CMD_Off(int iPK_Pipe) { string sCMD_Result; CMD_Off(iPK_Pipe,sCMD_Result,NULL);};
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #606 - Reload */
+	/** Reloads the list of screen saver files */
+
+	virtual void CMD_Reload() { string sCMD_Result; CMD_Reload(sCMD_Result,NULL);};
+	virtual void CMD_Reload(string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	};

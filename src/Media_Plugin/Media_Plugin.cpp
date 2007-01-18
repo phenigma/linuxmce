@@ -2067,10 +2067,13 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
 		if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 		{
 g_pPlutoLogger->Write(LV_STATUS,"embedding set now playing");
-			Message *pMessage_Response;
+			Message *pMessage_Response=NULL;
 	        pBoundRemote->UpdateOrbiter( pEntertainArea->m_pMediaStream, false, &pMessage_Response ); // So that it will put the picture back on this remote
-			pMessage->m_bRespondedToMessage=true;
-			SendMessage(pMessage_Response);
+			if( pMessage_Response )
+			{
+				pMessage->m_bRespondedToMessage=true;
+				SendMessage(pMessage_Response);
+			}
 		}
 		else
 	        pBoundRemote->UpdateOrbiter( pEntertainArea->m_pMediaStream, false ); // So that it will put the picture back on this remote

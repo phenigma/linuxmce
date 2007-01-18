@@ -47,18 +47,27 @@ void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream, bool bRefreshScreen,
 
     // TODO -- Figure out the media information, like track, timecode, picture, etc. For now just update the text object. Also need to update the pictures
 //  size_t size; char *pPic = FileUtils::ReadFileIntoBuffer( "/image.jpg", size );
-    DCE::CMD_Update_Object_Image CMD_Update_Object_Image( 0, m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, m_sPK_DesignObj_GraphicImage, "jpg", pMediaStream->m_pPictureData, pMediaStream->m_iPictureSize, "0" );
+	Message *pMessage_Out=NULL;
+	if( m_sPK_DesignObj_GraphicImage.empty()==false )
+	{
+		DCE::CMD_Update_Object_Image CMD_Update_Object_Image( 0, m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, m_sPK_DesignObj_GraphicImage, "jpg", pMediaStream->m_pPictureData, pMediaStream->m_iPictureSize, "0" );
+		pMessage_Out = CMD_Update_Object_Image.m_pMessage;
+	}
 
     if( m_iPK_Text_Synopsis )
     {
         DCE::CMD_Set_Text CMD_Set_Text( m_pMedia_Plugin->m_dwPK_Device, m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "",
             ( pMediaStream ? pMediaStream->m_sMediaSynopsis : "* no media *" ), m_iPK_Text_Synopsis );
-        CMD_Update_Object_Image.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
+
+		if( pMessage_Out )
+			pMessage_Out->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
+		else
+			pMessage_Out = CMD_Set_Text.m_pMessage;
     }
 
-	m_pMedia_Plugin->SetNowPlaying(m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream, bRefreshScreen, false, CMD_Update_Object_Image.m_pMessage );
+	m_pMedia_Plugin->SetNowPlaying(m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream, bRefreshScreen, false, pMessage_Out );
 	if( p_pMessage )
-		*p_pMessage = CMD_Update_Object_Image.m_pMessage;
-	else
-		m_pMedia_Plugin->QueueMessageToRouter( CMD_Update_Object_Image.m_pMessage );
+		*p_pMessage = pMessage_Out;
+	else if( pMessage_Out )
+		m_pMedia_Plugin->QueueMessageToRouter( pMessage_Out );
 }

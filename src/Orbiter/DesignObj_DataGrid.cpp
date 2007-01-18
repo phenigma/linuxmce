@@ -73,8 +73,9 @@ bool DesignObj_DataGrid::HasMoreDown()
 //-------------------------------------------------------------------------------------------------------
 /*virtual*/ void DesignObj_DataGrid::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-g_PlutoProfiler->Start("send command");
+g_PlutoProfiler->Start("DesignObj_DataGrid::RenderObject");
 	m_pObjectRenderer->RenderObject(pObj_Screen, point);
+g_PlutoProfiler->Stop("DesignObj_DataGrid::RenderObject");
 }
 //-------------------------------------------------------------------------------------------------------
 /*virtual*/ void DesignObj_DataGrid::PrepareRenderDataGrid(string& delSelections )
@@ -256,6 +257,7 @@ g_PlutoProfiler->Stop("send command");
 				g_pPlutoLogger->Write( LV_CRITICAL,  "Error loading grid ID: %d (not implemented?)",  m_pOrbiter->m_dwIDataGridRequestCounter );
 			}
 		}
+		g_PlutoProfiler->Stop("send command");
 	}
 	return pDataGridTable;
 }

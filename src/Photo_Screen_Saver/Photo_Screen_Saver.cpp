@@ -44,12 +44,10 @@ bool Photo_Screen_Saver::GetConfig()
 	if( !Photo_Screen_Saver_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
+	
+	m_bIsOn=false;
+	CMD_Reload();
 
-	DCE::CMD_Get_Screen_Saver_Files_DT CMD_Get_Screen_Saver_Files_DT(m_dwPK_Device,DEVICETEMPLATE_Orbiter_Plugin_CONST,BL_SameHouse,m_pData->m_dwPK_Device_ControlledVia,&m_sFileList);
-	SendCommand(CMD_Get_Screen_Saver_Files_DT);
-
-	// Put your code here to initialize the data in this class
-	// The configuration parameters DATA_ are now populated
 	return true;
 }
 
@@ -193,6 +191,7 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 		Gallery::Instance()->m_bQuit_set(false);
 		pthread_create(&ThreadID, NULL, ThreadAnimation, SetupInfo);
 	}
+	m_bIsOn=true;
 }
 
 //<-dceag-c193-b->
@@ -206,6 +205,7 @@ void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMess
 //<-dceag-c193-e->
 {
 	Terminate();
+	m_bIsOn=false;
 }
 
 void Photo_Screen_Saver::Terminate()
@@ -244,3 +244,42 @@ void* ThreadAnimation(void* ThreadInfo)
 	return NULL;
 }
 
+//<-dceag-c63-b->
+
+	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
+	/** Go forward in the list */
+
+void Photo_Screen_Saver::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
+//<-dceag-c63-e->
+{
+	// TODO -- make it go through the list
+}
+
+//<-dceag-c64-b->
+
+	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
+	/** Go back in the list */
+
+void Photo_Screen_Saver::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
+//<-dceag-c64-e->
+{
+	// TODO -- make it go through the list
+}
+
+//<-dceag-c606-b->
+
+	/** @brief COMMAND: #606 - Reload */
+	/** Reloads the list of screen saver files */
+
+void Photo_Screen_Saver::CMD_Reload(string &sCMD_Result,Message *pMessage)
+//<-dceag-c606-e->
+{
+	DCE::CMD_Get_Screen_Saver_Files_DT CMD_Get_Screen_Saver_Files_DT(m_dwPK_Device,DEVICETEMPLATE_Orbiter_Plugin_CONST,BL_SameHouse,m_pData->m_dwPK_Device_ControlledVia,&m_sFileList);
+	SendCommand(CMD_Get_Screen_Saver_Files_DT);
+	if( m_bIsOn )
+	{
+		// Restart it so it gets the new list
+		CMD_Off(0);
+		CMD_On(0,"");
+	}
+}
