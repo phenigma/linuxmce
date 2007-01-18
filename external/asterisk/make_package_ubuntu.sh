@@ -198,7 +198,7 @@ mkdir -p ${PKGFOLDER}/usr/local/amp/install/
 
 echo "Copy files for build deb packages...."
 #copy files needed for dpkg-buildpackage
-cp ${ADDFOLDER}/debian/* ${PKGFOLDER}/../debian
+cp ${ADDFOLDER}/debian-ubuntu/* ${PKGFOLDER}/../debian
 cp ${ADDFOLDER}/Makefile ${PKGFOLDER}/../
 
 #copy what we need in right places
