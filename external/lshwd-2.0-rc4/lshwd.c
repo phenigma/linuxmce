@@ -18,7 +18,7 @@
 #include <unistd.h>
 
 #include "utilities.h"
-#include "usb.h"
+//#include "usb.h"
 #include "psaux.h"
 
 #define LSHWD_VERSION "2.0-rc4"
@@ -301,106 +301,6 @@ dump_devices(void)
 /*
  * list usb devices according to /proc/bus/usb
  */
-
-void
-scan_procfs_usb(void)
-{
-	unsigned char buf[256];
-	char desc[128],module[128],businfo[8]={0}, filename[256]={0};
-	int bus_cnt, dev_cnt, fd;
-	struct dirent **buslist, **devlist;
-	static const char *procbususb = "/proc/bus/usb";
-	struct lshwd_device dev;
-	
-	dev.module = module;
-	dev.desc = desc;
-	dev.devicenode = "";
-	dev.businfo = businfo;
-	dev.bustype = BUS_USB;
-	dev.func = dev.classid = dev.subvendorid = dev.subproductid = 0;
-
-	bus_cnt = scandir(procbususb, &buslist, 0, NULL);
-	if (bus_cnt == -1) bus_cnt = 0;
-
-	init_lookup_block("usbtable");
-
-	/* executing mount command just to make sure we have /proc/bus/usb mounted.
-	* if its not mounted, devices cant be browsed...
-	* and if usb module wasnt loaded on system-startup, mount doesnt exists yet -
-	* at least not on my computer...
-	*/
-	char *mountargs[] = { "/bin/mount", "-t", "usbfs", "none", "/proc/bus/usb", NULL };
-	execCommand(mountargs);
-
-	while (bus_cnt--)
-	{
-		if (buslist[bus_cnt]->d_name[0] < '0' || buslist[bus_cnt]->d_name[0] > '9') { free(buslist[bus_cnt]); continue; }
-
-		snprintf(filename, sizeof(filename), "%s/%s/", procbususb, buslist[bus_cnt]->d_name);
-
-		dev_cnt = scandir(filename, &devlist, 0, NULL);
-		if (dev_cnt == -1) dev_cnt = 0;
-		while (dev_cnt--)
-		{
-			if (devlist[dev_cnt]->d_name[0] == '.') { free(devlist[dev_cnt]); continue; }
-
-			snprintf(filename, sizeof(filename), "%s/%s/%s",
-				 procbususb, buslist[bus_cnt]->d_name, devlist[dev_cnt]->d_name);
-			if (((fd = open(filename, O_RDWR)) == -1) && ((fd = open(filename, O_RDONLY)) == -1))
-			{
-				DEBUG( "cannot open %s, %s (%d)\n", filename, strerror(errno), errno);
-				free(devlist[dev_cnt]);
-				continue;
-			}
-			/* do u notice a pattern here? 42?... ??? ...oh dear Douglas Adams... */
-			if (read(fd, buf, 42) != 42)
-			{
-				DEBUG( "cannot read device descriptor %s (%d)\n", strerror(errno), errno);
-				free(devlist[dev_cnt]);
-				continue;
-			}
-			dev.devicenode = "";
-			
-			dev.bus = strtoul(buslist[bus_cnt]->d_name, NULL, 0);
-			dev.device = strtoul(devlist[dev_cnt]->d_name, NULL, 0);
-			sprintf(dev.businfo, "%s:%s", buslist[bus_cnt]->d_name, devlist[dev_cnt]->d_name);
-			
-			dev.vendorid = buf[USB_SUBSYSTEM_VENDOR_ID] | (buf[USB_SUBSYSTEM_VENDOR_ID+1] << 8);
-			dev.productid = buf[USB_SUBSYSTEM_PRODUCT_ID] | (buf[USB_SUBSYSTEM_PRODUCT_ID+1] << 8);
-			
-			dev.classid = (buf[USB_CLASS_ID] << 16) | (buf[USB_CLASS_ID+1] << 8) | buf[USB_CLASS_ID+2];
-			if (!dev.classid)
-				dev.classid = (buf[USB_SUBSYSTEM_CLASS_ID] << 16) | (buf[USB_SUBSYSTEM_CLASS_ID+1] << 8) | buf[USB_SUBSYSTEM_CLASS_ID+2];
-			dev.classname = get_usb_classname(dev.classid);
-			lookup_module(dev.vendorid, dev.productid, 0, 0,
-				      module, sizeof(module),
-				      desc, sizeof(desc));
-			/* get module using ioctl if needed */
-			if (!*module || !strcasecmp(module, "unknown"))
-				usb_get_procfs_driver(fd, 0,  module);
-			/* if we need to get description, use buf[15] which is the description-offset */
-			if (!*desc || disdefdesc) 
-				usb_get_string(fd, desc, sizeof(desc), buf[15], 0);
-			if (dev.classid == USB_BASE_CLASS_NETWORK)
-				dev.devicenode = find_network_devices(dev.module);
-			if ((dev.classid == USB_BASE_CLASS_HID_MOUSE) || (dev.classid == USB_BASE_CLASS_HID_BOOT_MOUSE))
-			{
-				dev.devicenode = "/dev/input/mice";
-				usbmousefound = 1;
-			}
-			add_device(&dev);
-			*desc = *module = *businfo = 0;
-			
-			close(fd);
-			free(devlist[dev_cnt]);
-		}
-		free(devlist);
-		free(buslist[bus_cnt]);
-	}
-	free(buslist);
-	cleanup_lookup_block();     /* free table file   */
-	return;
-}
 
 /* ---------------------------------------------------------------------- */
 
@@ -692,152 +592,6 @@ begin_sysfs_pci_scan:
 
 /* ---------------------------------------------------------------------- */
 
-void
-usb_get_sysfs_driver(char *businfo, char *module)
-{
-	int drv_cnt, dev_cnt,tmp_drv_cnt, tmp_dev_cnt;
-	char subdirname[256]={0};
-	struct dirent **drvlist,**devlist;
-
-	drv_cnt = scandir("/sys/bus/usb/drivers", &drvlist, 0, NULL);
-	if (drv_cnt == -1) drv_cnt = 0;
-	tmp_drv_cnt = drv_cnt;
-	while (drv_cnt--)
-	{
-		if (drvlist[drv_cnt]->d_name[0] == '.') continue;// { free(drvlist[drv_cnt]); continue; }
-		
-		sprintf(subdirname, "/sys/bus/usb/drivers/%s", drvlist[drv_cnt]->d_name);
-		dev_cnt = scandir(subdirname, &devlist, 0, NULL);
-		if (dev_cnt == -1) dev_cnt = 0;
-		tmp_dev_cnt = dev_cnt;
-		while (dev_cnt--)
-		{
-			if (devlist[dev_cnt]->d_name[0] == '.') continue;// { free(drvlist[drv_cnt]); continue; }
-			if (!strcmp(businfo, devlist[dev_cnt]->d_name)) 
-			{
-				strcpy(module, drvlist[drv_cnt]->d_name);
-				/* ugly way to bail out from both loops */
-				dev_cnt = drv_cnt = 0;
-			}
-		}
-		while (tmp_dev_cnt--) free(devlist[tmp_dev_cnt]);
-		free(devlist);
-
-	}
-	while (tmp_drv_cnt--) free(drvlist[tmp_drv_cnt]);
-	free(drvlist);
-}
-
-/* ---------------------------------------------------------------------- */
-
-void 
-scan_sysfs_usb()
-{
-	int dev_cnt, sub_dev_cnt, tmpint;
-	char desc[128],module[30], businfo_org[14], businfo[14], subdirname[256], manufacturer[256], product[256];
-	char *sysbususb = "/sys/bus/usb/devices";
-	struct dirent **devlist, **subdevlist;
-	struct lshwd_device dev;
-
-	dev.module = module;
-	dev.desc = desc;
-	dev.devicenode = "";
-	dev.bustype = BUS_PCI;
-	dev.func = dev.classid = dev.subvendorid = dev.subproductid = 0;
-	
-	init_lookup_block("usbtable");
-
-	dev_cnt = scandir(sysbususb, &devlist, 0, NULL);
-	if (dev_cnt == -1) dev_cnt = 0;
-	while (dev_cnt--)
-	{
-		if (devlist[dev_cnt]->d_name[0] == '.') { free(devlist[dev_cnt]); continue; }
-		if (!get_hexvalue_from_file(sysbususb, devlist[dev_cnt]->d_name,"devnum")) { free(devlist[dev_cnt]); continue; }
-
-		*desc = *module = *businfo = *businfo_org = *manufacturer= *product = 0;
-		dev.devicenode = "";
-
-		dev.vendorid = get_hexvalue_from_file(sysbususb, devlist[dev_cnt]->d_name,"idVendor");
-		dev.productid = get_hexvalue_from_file(sysbususb, devlist[dev_cnt]->d_name,"idProduct");
-
-		sprintf(subdirname,"%s/%s",sysbususb, devlist[dev_cnt]->d_name);
-		sub_dev_cnt = scandir(subdirname, &subdevlist, 0, NULL);
-		if (sub_dev_cnt == -1) sub_dev_cnt = 0;
-		tmpint = sub_dev_cnt;
-		while (sub_dev_cnt--)
-		{
-			if (subdevlist[sub_dev_cnt]->d_name[0] < '0' || subdevlist[sub_dev_cnt]->d_name[0] > '9')
-					continue;
-			strcpy(businfo_org, subdevlist[sub_dev_cnt]->d_name);
-			sprintf(subdirname,"%s/%s",devlist[dev_cnt]->d_name,businfo_org);
-			sscanf(businfo_org, "%x:%x.%x.0", &dev.bus, &dev.device, &dev.func);
-			sprintf(businfo, "0000:%s", businfo_org);
-			break;
-		}
-		sub_dev_cnt = tmpint;
-		while (sub_dev_cnt--) free(subdevlist[sub_dev_cnt]);
-		free(subdevlist);
-		dev.businfo = businfo;
-
-		/* check if this is a hub */
-		if (get_hexvalue_from_file(sysbususb, devlist[dev_cnt]->d_name,"maxchild"))
-			dev.classid = get_hexvalue_from_file(sysbususb, devlist[dev_cnt]->d_name,"bDeviceClass") << 16 |
-					get_hexvalue_from_file(sysbususb, devlist[dev_cnt]->d_name,"bDeviceSubClass") << 8 | 
-					get_hexvalue_from_file(sysbususb, devlist[dev_cnt]->d_name,"bDeviceProtocol");
-		else
-			dev.classid = get_hexvalue_from_file(sysbususb, subdirname,"bInterfaceClass") << 16 |
-					get_hexvalue_from_file(sysbususb, subdirname,"bInterfaceSubClass") << 8 | 
-					get_hexvalue_from_file(sysbususb, subdirname,"bInterfaceProtocol");
-
-		dev.classname = get_usb_classname(dev.classid);
-
-		lookup_module(dev.vendorid, dev.productid, dev.subvendorid, dev.subproductid,
-				module, sizeof(module),
-				desc, sizeof(desc));
-
-		/* get module using ioctl if needed */
-		if (!*module || !strcasecmp(module, "unknown"))
-		{
-//			/* format to procfs name using "devnum" */
-//			sprintf(filename, "/proc/bus/usb/%03x/%03x", 
-//				dev.bus, get_hexvalue_from_file(sysbususb, devlist[dev_cnt]->d_name,"devnum"));
-//			if ((f = open(filename, O_RDWR)))
-//			{
-//				usb_get_procfs_driver(f, 0,  module);
-//				close(f);
-//			}
-//			/* if not root, lets try using sysfs files */
-//			else 
-				usb_get_sysfs_driver(businfo_org, module);
-
-		}
-
-		if (!*desc || disdefdesc) 
-		{
-			get_string_from_file(sysbususb, devlist[dev_cnt]->d_name,"manufacturer", manufacturer, sizeof(manufacturer));
-			get_string_from_file(sysbususb, devlist[dev_cnt]->d_name,"product", product, sizeof(product));
-			sprintf(desc,"%s|%s", manufacturer, product);
-		}
-
-		if (dev.classid == USB_BASE_CLASS_NETWORK)
-			dev.devicenode = find_network_devices(dev.module);
-		if ((dev.classid == USB_BASE_CLASS_HID_MOUSE) || (dev.classid == USB_BASE_CLASS_HID_BOOT_MOUSE))
-		{
-			dev.devicenode = "/dev/input/mice";
-			usbmousefound = 1;
-		}
-		add_device(&dev);
-
-		free(devlist[dev_cnt]);
-	}
-	free(devlist);
-
-	cleanup_lookup_block();     /* free table file   */
-	return;
-}
-
-/* ---------------------------------------------------------------------- */
-
 void 
 scan_sysfs_firewire()
 {
@@ -934,13 +688,11 @@ main(int argc, char **argv)
 	if (sysfsmode)
 	{
 		scan_sysfs_pci();
-		scan_sysfs_usb();
 		scan_sysfs_firewire();
 	}
 	else
 	{
 		scan_procfs_pci();
-		scan_procfs_usb();
 		scan_procfs_firewire();
 	}
 

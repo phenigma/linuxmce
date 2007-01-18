@@ -1,9 +1,9 @@
 # simple makefile for lshwd
 #
-CFLAGS =-I. -Wall -O2 #-DDEBUG -ggdb3 #-D_GNU_SOURCE
+CFLAGS =-I. -I/usr/src/linux-headers-`uname -r`/include -Wall -O2 #-DDEBUG -ggdb3 #-D_GNU_SOURCE -I/usr/src/linux-headers-`uname -r`
 INSTALL = install
 
-OBJFILES = lshwd.c utilities.c usb.c psaux.c
+OBJFILES = lshwd.c utilities.c psaux.c
 #OBJFILES = lshwd.o utilities.o psaux.o
 
 all: lshwd

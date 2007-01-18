@@ -1,3 +1,10 @@
+lshwd (2.0-rc4-1pluto11) unstable; urgency=low
+
+  * Removed buggy USB bus scanning part as is not used by us and causes only
+    problems + it won't compile using the new kernel headers.
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Thu, 18 Jan 2007 15:02:32 +0200
+
 lshwd (2.0-rc4-1pluto10) unstable; urgency=low
 
   * Updated some pcitable video card that didn't work with nv but do work with
