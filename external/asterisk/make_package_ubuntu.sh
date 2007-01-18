@@ -139,7 +139,6 @@ cd ${SRCFOLDER}/asterisk-addons-*/
 sed -r -i "s/^CFLAGS\+\=\-I\.\.\/asterisk/CFLAGS\+\=\-I\.\.\/asterisk\/include/" Makefile
 sed -r -i "s/^INSTALL_PREFIX=//" Makefile
 echo "patching asterisk-addons"
-read
 patch -p1 <  ${SRCFOLDER}/../asterisk-addons-1.2.3-ubuntu.patch
 make clean
 make || exit
