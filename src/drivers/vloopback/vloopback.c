@@ -153,6 +153,10 @@
  #include <asm/uaccess.h>
  #include <linux/init.h>
  #include <linux/device.h>
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 18)
+  #include <media/v4l2-common.h>
+  #include <media/v4l2-dev.h>
+ #endif
 #else
  #include <linux/mm.h>
  #include <linux/slab.h>
