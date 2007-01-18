@@ -456,7 +456,10 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	if(TextureManager::Instance()->CacheEnabled())
 		TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
 	else
-		Frame->DontReleaseTexture();
+	{
+		if(Frame->Name().find("datagrid-thumb") == string::npos)
+			Frame->DontReleaseTexture();
+	}
 
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
 g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
