@@ -6,6 +6,7 @@ $allowedFiles=array(
 	'installers/Orbiter_CeNet4_x86.CAB',
 	'installers/mysql2outlooksetup.msi',
 	'installers/ImportContacts.zip',
+	'installers/OutlookSync.msi',
 	'binaries/AYGSHELL.DLL',
 	'binaries/PthreadsCE.dll',
 	'binaries/logo.gif',
