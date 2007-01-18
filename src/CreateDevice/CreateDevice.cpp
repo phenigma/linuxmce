@@ -500,6 +500,19 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 					sDeviceData = pDeviceData + 1;
 			}
 
+			string sPort;  // We can have multiple children of the same type, but with different ports
+			string::size_type pos=0;
+			while(pos<sDeviceData.size())
+			{
+				int PK_DeviceData = atoi( StringUtils::Tokenize( sDeviceData, "|", pos ).c_str() );
+				string sValue = StringUtils::Tokenize( sDeviceData, "|", pos );
+				if( PK_DeviceData==DEVICEDATA_PortChannel_Number_CONST )
+				{
+					sPort = sValue;
+					break;
+				}
+			}
+
 			// 1 = Sister device same controlled via
 			// 2 = child of the core (dce router's parent)
 			// 3 = plugin
@@ -509,13 +522,16 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 			{
 				// We need this device too.  See if we already have it
 				if( iRelation==1 )
-					SQL = "SELECT FK_DeviceTemplate FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_Parent);
+					SQL = "SELECT FK_DeviceTemplate FROM Device LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_PortChannel_Number_CONST) " WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_Parent);
 				else if( iRelation==2 )
-					SQL = "SELECT FK_DeviceTemplate FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_Core);
+					SQL = "SELECT FK_DeviceTemplate FROM Device LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_PortChannel_Number_CONST) " WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_Core);
 				else if( iRelation==3 )
-					SQL = "SELECT FK_DeviceTemplate FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_DCERouter);
+					SQL = "SELECT FK_DeviceTemplate FROM Device LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_PortChannel_Number_CONST) " WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_DCERouter);
 				else if( iRelation==5 )
-					SQL = "SELECT FK_DeviceTemplate FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device);
+					SQL = "SELECT FK_DeviceTemplate FROM Device LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_PortChannel_Number_CONST) " WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device);
+
+				if( sPort.empty()==false )
+					SQL += " AND IK_DeviceData='" + sPort + "'";
 
 				if( (result_related2.r=mysql_query_result(SQL)) && result_related2.r->row_count>0 )
 					continue;  // It's ok.  We got it

@@ -2162,9 +2162,6 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 		}
     }
 
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Found the proper ent area: %d", (int) vectEntertainArea.size());
-#endif
 	string::size_type pos=0;
 	while( pos<sPK_EntertainArea.size() )
 	{
@@ -2191,6 +2188,9 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 			g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea past in stream id %d but found %d",*p_iStreamID,pMediaStream->m_iStreamID_get());
 		*p_iStreamID = pMediaStream->m_iStreamID_get();
 	}
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS, "Found the proper ent area: %d", (int) vectEntertainArea.size());
+#endif
 }
 
 int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
