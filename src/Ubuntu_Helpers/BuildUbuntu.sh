@@ -22,6 +22,7 @@ sql_slave_db_security="pluto_security"
 sql_slave_db_telecom="pluto_telecom"
 sql_slave_user="root"
 
+replacements_dir="${build_dir}/replacements"
 out_dir="${build_dir}/out"
 mkr_dir="${build_dir}/MakeRelease"
 
@@ -80,7 +81,7 @@ function Build_MakeRelease_Binary {
 }
 
 function Build_Pluto_Replacements {
-	temp_dir="${out_dir}/tmp"
+	temp_dir="${replacements_dir}"
 	mkdir -p $temp_dir
 
 	#Package: liibsdl
@@ -109,9 +110,18 @@ function Build_Pluto_Replacements {
 		cp -r asterisk-pluto_*.deb ${temp_dir}
 	popd
 
+	#Package: lshwd
 	pushd ${svn_dir}/trunk/external/lshwd-2.0-rc4
 		dpkg-buildpackage -rfakeroot -uc -uc -b
 		cp ../lshwd_2.0-rc4*.deb ${temp_dir}
+	popd
+
+	#Download arch independent packages from 150
+	pushd $temp_dir
+		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libflickr-api-perl_1_all.deb
+		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libxml-parser-lite-tree-perl_1_all.deb
+		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-sample-media_3_i386.deb
+		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/asterisk-perl_0.08-1_i386.deb
 	popd
 }
 
@@ -184,8 +194,8 @@ function Create_Local_Repository {
 	mkdir -p $local_mirror_dir
 
 	cp ${out_dir}/tmp/*.deb $local_mirror_dir
+	cp ${replacements_dir}/*.deb $local_mirror_dir
 	pushd $local_mirror_dir
-		#dpkg-scanpackages . /dev/null | sed 's,\./,dists/replacements/main/binary-i386/,g' | gzip -9c > Packages.gz
 		dpkg-scanpackages . /dev/null > Packages
 		cat Packages | gzip -9c > Packages.gz
 	popd
@@ -270,7 +280,7 @@ function Import_Pluto_Skins {
 #Import_Build_Database
 #Import_Pluto_Skins
 #Install_Build_Needed_Packages
-#Build_Pluto_Replacements
+Build_Pluto_Replacements
 #Checkout_Pluto_Svn
 #Build_MakeRelease_Binary
 #Create_Fake_Windows_Binaries
