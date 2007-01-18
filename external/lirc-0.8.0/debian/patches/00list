@@ -1,8 +1,0 @@
-01_irxevent.dpatch
-02_Makefile.in.dpatch
-03_extra_files.dpatch
-04_man_pages.dpatch
-05_non_linux.dpatch
-06_libtool_kfreebsd.dpatch
-07_lirc_drivers_2.6.16_compatibility.dpatch
-08_min_code_repeat.dpatch
