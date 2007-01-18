@@ -30,6 +30,32 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 class PlutoRectangle;
 class PlutoColor;
 
+#define DETECT_LEAKS
+
+#ifdef DETECT_LEAKS
+class LeaksDetector
+{
+	int m_nGraphicObjectsCounter;
+
+	list<string> m_listMeshFrames;
+	list<string> m_listClones;
+
+	LeaksDetector() : m_nGraphicObjectsCounter(0) {}
+	~LeaksDetector();
+	static LeaksDetector m_Instance;
+
+public:
+
+	static LeaksDetector& Instance() { return m_Instance; }
+	void NewMeshFrame(string sName);
+	void NewClone(string sName);
+	void NewGraphicObject();
+	void DestroyedMeshFrame(string sName);
+	void DestroyedClone(string sName);
+	void DestroyedGraphicObject();
+};
+#endif
+
 class OpenGLGraphic : public PlutoGraphic
 {
 	/**
@@ -77,3 +103,4 @@ public:
 };
 
 #endif /*OPENGLGRAPHIC_H_*/
+

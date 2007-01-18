@@ -67,7 +67,7 @@ public:
 	/**
 	 *	Creates a geometry clone
 	 */
-	MeshContainer* Clone();
+	MeshContainer* Clone(bool bShareGraphic);
 	/**
 	*	Makes a list with all texture mapped on its triangles and release them
 	*/

@@ -191,6 +191,7 @@ public:
 	 *	Don't release textures for this mesh frame
 	 */
 	void DontReleaseTexture() { m_bDontReleaseTexture = true; }
+	void AllowReleaseTexture() { m_bDontReleaseTexture = false; }
 };
 
 #endif

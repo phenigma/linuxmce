@@ -98,10 +98,17 @@ OpenGLGraphic::~OpenGLGraphic()
 
 	pthread_mutex_destroy(&m_OpenGlMutex.mutex);
 
+#if defined(DETECT_LEAKS)
+	LeaksDetector::Instance().DestroyedGraphicObject();
+#endif
 }
 
 void OpenGLGraphic::Initialize()
 {
+#if defined(DETECT_LEAKS)
+	LeaksDetector::Instance().NewGraphicObject();
+#endif
+
 	pthread_mutexattr_t m_MutexAttr;
 	pthread_mutexattr_init(&m_MutexAttr);
 	pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
@@ -464,3 +471,55 @@ OpenGLGraphic* OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, Pluto
 	return Result;
 }
 
+#ifdef DETECT_LEAKS
+
+LeaksDetector LeaksDetector::m_Instance;
+
+LeaksDetector::~LeaksDetector()
+{
+	FileLogger *pLeaksDetectorLogger = new FileLogger("/var/log/pluto/orbiter_detected_leaks.log");
+
+	pLeaksDetectorLogger->Write(LV_STATUS, "Dumping leaks:");
+
+	pLeaksDetectorLogger->Write(LV_STATUS, "Mesh frames: %d", m_listMeshFrames.size());
+	for(list<string>::iterator it = m_listMeshFrames.begin(); it != m_listMeshFrames.end(); ++it)
+		pLeaksDetectorLogger->Write(LV_STATUS, "\t- mesh frame: %s", (*it).c_str());
+
+	pLeaksDetectorLogger->Write(LV_STATUS, "Clones: %d", m_listClones.size());
+	for(list<string>::iterator it = m_listClones.begin(); it != m_listClones.end(); ++it)
+		pLeaksDetectorLogger->Write(LV_STATUS, "\t- clones: %s", (*it).c_str());
+
+	pLeaksDetectorLogger->Write(LV_STATUS, "Graphic objects/textures: %d", m_nGraphicObjectsCounter);
+
+	delete pLeaksDetectorLogger;
+	pLeaksDetectorLogger = NULL;
+}
+void LeaksDetector::NewMeshFrame(string sName)
+{
+	m_listMeshFrames.push_back(sName);
+}
+void LeaksDetector::NewClone(string sName)
+{
+	m_listClones.push_back(sName);
+}
+void LeaksDetector::NewGraphicObject()
+{
+	++m_nGraphicObjectsCounter;
+}
+void LeaksDetector::DestroyedMeshFrame(string sName)
+{
+	list<string>::iterator it = find(m_listMeshFrames.begin(), m_listMeshFrames.end(), sName);
+	if(it != m_listMeshFrames.end())
+		m_listMeshFrames.erase(it);
+}
+void LeaksDetector::DestroyedClone(string sName)
+{
+	list<string>::iterator it = find(m_listClones.begin(), m_listClones.end(), sName);
+	if(it != m_listClones.end())
+		m_listClones.erase(it);
+}
+void LeaksDetector::DestroyedGraphicObject()
+{
+	--m_nGraphicObjectsCounter;
+}
+#endif

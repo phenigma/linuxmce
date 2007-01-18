@@ -20,12 +20,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "MeshPainter.h"
 #include "DCE/Logger.h"
 
-#define DEBUG_MESH_FRAMES
-
-#ifdef DEBUG_MESH_FRAMES
-	static int nMeshCounter = 0;
-	static int nCloneMeshCounter = 0;
-#endif
+//#define DEBUG_MESH_FRAMES
 
 MeshFrame::MeshFrame(string Name, MeshContainer* Mesh) 
 	: 
@@ -39,11 +34,15 @@ MeshFrame::MeshFrame(string Name, MeshContainer* Mesh)
 	m_pMeshContainer = Mesh;
 	m_sName = Name;
 
-#ifdef DEBUG_MESH_FRAMES
-	if(m_sName.find("clone") != string::npos)
-		++nCloneMeshCounter;
+#if defined(DEBUG_MESH_FRAMES)
+	DCE::g_pPlutoLogger->Write(LV_STATUS, "aaa MeshFrame constructor %p/%s", this, m_sName.c_str());
+#endif
 
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "aaa MeshFrame constructor %p/%s, (count %d), (clones %d)", this, m_sName.c_str(), ++nMeshCounter, nCloneMeshCounter);
+#if defined(DETECT_LEAKS)
+	if(m_sName.find("clone") != string::npos)
+		LeaksDetector::Instance().NewClone(m_sName);
+	else
+		LeaksDetector::Instance().NewMeshFrame(m_sName);
 #endif
 }
 
@@ -63,11 +62,15 @@ MeshFrame::~MeshFrame(void)
 	if(!m_bVolatile)
 		TextureManager::Instance()->InvalidateItem(this);
 
-#ifdef DEBUG_MESH_FRAMES
-	if(m_sName.find("clone") != string::npos)
-		--nCloneMeshCounter;
+#if defined(DEBUG_MESH_FRAMES)
+	DCE::g_pPlutoLogger->Write(LV_WARNING, "aaa MeshFrame destructor %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
+#endif
 
-	DCE::g_pPlutoLogger->Write(LV_WARNING, "aaa MeshFrame destructor %p/%s, volatile %d, (count %d), (clones %d)", this, m_sName.c_str(), m_bVolatile, --nMeshCounter, nCloneMeshCounter);
+#if defined(DETECT_LEAKS)
+	if(m_sName.find("clone") != string::npos)
+		LeaksDetector::Instance().DestroyedClone(m_sName);
+	else
+		LeaksDetector::Instance().DestroyedMeshFrame(m_sName);
 #endif
 }
 
@@ -347,14 +350,14 @@ MeshFrame *MeshFrame::Clone()
 {
 	MeshFrame *Result = new MeshFrame(m_sName + " clone");
 
-	Result->MarkAsVolatile();
-	
-	if(m_sName.find("datagrid-thumb") == string::npos)
+	if(m_bDontReleaseTexture)
 		Result->m_bDontReleaseTexture = true;
+
+	Result->MarkAsVolatile();
 
 	Result->m_bVisible = m_bVisible;
 	if(NULL != m_pMeshContainer)
-		Result->m_pMeshContainer = m_pMeshContainer->Clone();
+		Result->m_pMeshContainer = m_pMeshContainer->Clone(Result->m_bDontReleaseTexture);
 
 	Result->Transform = Transform;
 	Result->TextureTransform = TextureTransform;

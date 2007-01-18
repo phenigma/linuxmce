@@ -85,7 +85,7 @@ void MeshContainer::SetColor(Point3D& Color)
 
 }
 
-MeshContainer* MeshContainer::Clone()
+MeshContainer* MeshContainer::Clone(bool bShareGraphic)
 {
 	MeshContainer* Result = new MeshContainer();
 	Result->Vertexes = new MeshVertex[NoVertexes];
@@ -102,21 +102,28 @@ MeshContainer* MeshContainer::Clone()
 	{
 		Result->Triangles[Counter] = Triangles[Counter];
 
-		OpenGLGraphic* Texture = Triangles[Counter].Texture;
-		OpenGLGraphic* GraphicClone = NULL;
-		if(NULL != Texture)
+		if(!bShareGraphic)
 		{
-			map<OpenGLGraphic*, OpenGLGraphic*>::iterator TextureIterator = TextureClones.find(Texture);
-			if(TextureIterator == TextureClones.end())
+			OpenGLGraphic* Texture = Triangles[Counter].Texture;
+			OpenGLGraphic* GraphicClone = NULL;
+			if(NULL != Texture)
 			{
-				GraphicClone = new OpenGLGraphic();
-				GraphicClone->Texture = Triangles[Counter].Texture->Texture;
-				TextureClones[Texture] = GraphicClone;
+				map<OpenGLGraphic*, OpenGLGraphic*>::iterator TextureIterator = TextureClones.find(Texture);
+				if(TextureIterator == TextureClones.end())
+				{
+					GraphicClone = new OpenGLGraphic();
+					GraphicClone->Texture = Triangles[Counter].Texture->Texture;
+					TextureClones[Texture] = GraphicClone;
+				}
+				else
+					GraphicClone = TextureIterator->second;
 			}
-			else
-				GraphicClone = TextureIterator->second;
+			Result->Triangles[Counter].Texture = GraphicClone;
 		}
-		Result->Triangles[Counter].Texture = GraphicClone;
+		else
+		{
+			Result->Triangles[Counter].Texture = Triangles[Counter].Texture;
+		}
 	}
 
 	Result->Blended_ = Blended_;
