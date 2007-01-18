@@ -1,27 +1,60 @@
 #!/bin/bash
 
 Message() {
-    echo -e "\033[1m# $*"
+    echo -en "\033[1m# $*"
     tput sgr0
 }
 
-## Start stuff that makes the dcerouter act as a internet router
-if [[ -x /etc/init.d/dhcp3-server ]] ;then
-	/etc/init.d/dhcp3-server start 1>/dev/null 2>/dev/null &
-fi
-if [[ -x /etc/init.d/bind9 ]] ;then
-	/etc/init.d/bind9 start 1>/dev/null 2>/dev/null &
-fi
+StartService() {
+	ServiceDescription=$1
+	ServiceCmd=$2
+	ServiceBkg=$3
 
-#Start MySQL Server
-if [[ -x /etc/init.d/mysql ]] ;then
-	Message "Starting MySQL Server"
-	/etc/init.d/mysql start
-fi
+	if [[ -x $(echo $ServiceCmd | cut -d ' ' -f1) ]] ;then
+		echo -n "$ServiceDescription ... "
+		$ServiceCmd 1>/dev/null 2>/dev/null $ServiceBkg
+		err=$?
 
-if [[ -x /usr/pluto/bin/Network_Firewall.sh ]] ;then
-	/usr/pluto/bin/Network_Firewall.sh 1>/dev/null 2>/dev/null &
-fi
+		if [[ "$err" == "0" ]] ;then
+			echo "ok"
+		else
+			echo "fail"
+		fi
+	fi
+
+	return $err
+}
+
+StartDaemon() {
+	ServiceDescription=$1
+	ServiceCmd=$2
+	ServiceScreen=$3
+
+	if [[ -x $(echo $ServiceCmd | cut -d ' ' -f1) ]] ;then
+		echo -n "$ServiceDescription ... "
+		screen -d -m -S "$ServiceScreen" $ServiceCmd 
+		err=$?
+
+		if [[ "$err" == "0" ]] ;then
+			echo "ok"
+		else
+			echo "fail"
+		fi
+	fi
+
+	return $err
+}
+
+setterm -blank >/dev/console             # disable console blanking
+chmod 777 /etc/pluto.conf 2>/dev/null    # ensure access rights on pluto.conf
+rm /var/log/pluto/running.pids 2>/dev/null
+chmod 777 /var/log/pluto 2>/dev/null
+rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s) entries from /dev
+mkdir -p /usr/pluto/locks                # clean up locks
+rm -f /usr/pluto/locks/*                 # clean up locks
+rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
+
+
 
 if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
 	 . /usr/pluto/bin/Config_Ops.sh
@@ -33,15 +66,13 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 	. /usr/pluto/bin/SQL_Ops.sh
 fi
 
-## Load the modules listed media director's device data
-if [[ -x /usr/pluto/bin/LoadMDModules.sh ]] ;then
-	/usr/pluto/bin/LoadMDModules.sh
-fi
 
-# assure some settings
-if [[ -x /usr/pluto/bin/Report_Machine_Status.sh ]]; then
-	/usr/pluto/bin/Report_Machine_Status.sh  &
-fi
+StartService "Starting MySQL Server" "/etc/init.d/mysql start"
+StartService "Starting DHCP Server" "/etc/init.d/dhcp3-server start"
+StartService "Starting DNS Server" "/etc/init.d/bind9 start"
+StartService "Configuring Network Firewall" "/usr/pluto/bin/Network_Firewall.sh"
+StartService "Loading Kernel Modules" "/usr/pluto/bin/LoadModules.sh"
+StartService "Reporting Machine Status" "/usr/pluto/bin/Report_Machine_Status.sh" "&"
 
 if [[ -f /usr/pluto/bin/SQL_Ops.sh  && -f /usr/pluto/bin/Config_Ops.sh ]] ;then
 	Q="SELECT FK_Installation FROM Device WHERE PK_Device='$PK_Device'"
@@ -53,91 +84,45 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh  && -f /usr/pluto/bin/Config_Ops.sh ]] ;then
 	ConfSet PK_Users "$R"
 fi
 
-setterm -blank >/dev/console             # disable console blanking
-chmod 777 /etc/pluto.conf 2>/dev/null    # ensure access rights on pluto.conf
-rm /var/log/pluto/running.pids 2>/dev/null
-chmod 777 /var/log/pluto 2>/dev/null
-rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s) entries from /dev
-mkdir -p /usr/pluto/locks                # clean up locks
-rm -f /usr/pluto/locks/*                 # clean up locks
-rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
 
 if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
-	if [[ ! -f /etc/diskless.conf ]] ;then
-		Message "Updating software database (getxmls)"
-		/usr/pluto/bin/getxmls
-	fi
-
+	StartService "Updating Software Database" "/usr/pluto/bin/getxmls"
 	ConfSet "FirstBoot" "false" 2>/dev/null 1>/dev/null
 fi
 
-if [[ -x /usr/pluto/bin/SSH_Keys.sh ]] ;then 
-	Message "Setting ssh keys"
-	/usr/pluto/bin/SSH_Keys.sh &
+StartService "Setting SSH Keys" "/usr/pluto/bin/SSH_Keys.sh" "&"
+StartService "Confirm Installation" "/usr/pluto/bin/ConfirmInstallation.sh"
+StartService "Starting DCE Router" "/usr/pluto/bin/Start_DCERouter.sh"
+StartService "Configure Device Changes" "/usr/pluto/bin/Config_Device_Changes.sh"
+StartService "Setting Coredump Location" "/usr/pluto/bin/corefile.sh"
+StartService "Starting Pluto HAL daemon" "/usr/pluto/bin/StartHAL.sh"
+
+if [[ "$AVWizardDone" != "1" ]] ;then
+	StartService "Starting Audio/Video Wizard" "/usr/pluto/bin/AVWizard_Run.sh"
 fi
 
-if [[ -x /usr/pluto/bin/ConfirmInstallation.sh ]] ;then
-	Message "Confirm Instalation"
-	/usr/pluto/bin/ConfirmInstallation.sh
-fi
+StartService "Generating Orbiter Screens" "/usr/pluto/bin/Start_OrbiterGen.sh"
+StartService "Starting X11 Server" "/usr/pluto/bin/Start_X.sh"
+StartService "Creating Firewire 2 Video4Linux Pipes" "/usr/pluto/bin/Firewire2Video4Linux.sh"
+StartService "Starting Local Devices" "/usr/pluto/bin/Start_LocalDevices.sh"
+StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
+StartDaemon  "Starting Update Media Daemon" "/usr/pluto/bin/UpdateMediaDaemon.sh" "UpdateMedia"
+StartDaemon  "Starting Dhcp Plugin" "/usr/pluto/bin/Dhcp-Plugin.sh" "DhcpPlugin"
 
-Message "Running depmod"
-/sbin/depmod
-
-if [ -x /usr/pluto/bin/Start_DCERouter.sh ] ;then
-	Message "Starting DCE Router"
-	/usr/pluto/bin/Start_DCERouter.sh
-fi
-
-if [ -x /usr/pluto/bin/Config_Device_Changes.sh ] ;then
-	Message "Configure Device Changes"
-	/usr/pluto/bin/Config_Device_Changes.sh
-fi
-
-if [[ -x /usr/pluto/bin/shift_state ]]; then
-	ShiftState=$(/usr/pluto/bin/shift_state) # Shift=1; Ctrl=4; LAlt=8; RAlt=2; -- OR flags
-	if [[ "$ShiftState" == 1 ]]; then
-		ShiftMsg=" (shift pressed)"
-	fi
-fi
-
-if [[ -x /usr/pluto/bin/corefile.sh ]]; then
-	Message "Setting core file"
-	/usr/pluto/bin/corefile.sh
-fi
-
-Message "Starting Pluto HAL daemon"
-/usr/pluto/bin/StartHAL.sh
-
-if [[ "$AVWizardDone" != "1" || "$ShiftState" == 1 ]] ;then
-	if [[ -x /usr/pluto/bin/AVWizard_Run.sh ]]; then	
-		Message "Starting Audio/Video Wizard${ShiftMsg}"
-		/usr/pluto/bin/AVWizard_Run.sh
-	fi
-fi
-
-if [ -x /usr/pluto/bin/Start_OrbiterGen.sh ] ;then
-	Message "Starting OrbiterGen"
-	/usr/pluto/bin/Start_OrbiterGen.sh
-fi
-
-if [ -x /usr/pluto/bin/Start_X.sh ] ;then
-	Message "Starting X Server"
-	/usr/pluto/bin/Start_X.sh
-fi
-
-if [ -x /usr/pluto/bin/Firewire2Video4Linux.sh ] ;then
-	Message "Creating Firewire 2 Video4Linux Pipes"
-	/usr/pluto/bin/Firewire2Video4Linux.sh
-fi
-
-if [ -x /usr/pluto/bin/Start_LocalDevices.sh ] ;then
-	Message "Starting Local Devices"
-	/usr/pluto/bin/Start_LocalDevices.sh
-fi
-
-if [[ -x /usr/pluto/bin/StorageDevices_Setup.sh ]]; then
-	/usr/pluto/bin/StorageDevices_Setup.sh 1>/dev/null 2>/dev/null &
-fi
-
+#StartService "Detecting Timezone" "/usr/pluto/bin/Pluto_Timezone_Detect.sh" "&"
+#Pluto_alsaconf-noninteractive \
+#Pluto_Diskless_Setup.sh \
+#Pluto_Restart_DHCP.sh \
+#Pluto_Restart_MythBackend.sh \
+#Pluto_Setup_ExportsNFS.sh \
+#Pluto_Start_NewMD_interactor.sh \
+#Pluto_VoiceMailMonitor.sh \
+#Pluto_kpanic.sh \
+#Pluto_qos.pl \
+#Pluto_Report_MachineOn.sh \
+#Pluto_Net_Mount_All.sh \
+#Pluto_WakeMDs.sh \
+#Pluto_fixMythTvSettings.sh \
+#Pluto_Backup_Database.sh \
+#Pluto_Share_IRCodes.sh \
 
