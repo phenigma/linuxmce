@@ -20,7 +20,7 @@ tar cjf $www/lineup.fsf.tar.bz2 lineup.fsf
 rm lineup.fsf headend.fsf
 wget -O - "$url/statrec.txt.Z"|uncompress>statrec.txt
 tar cjf $www/statrec.txt.tar.bz2 statrec.txt
-mv statrec.txt /tmp/statrec.txt
+mv statrec.txt /statrec.txt
 
 # getting programm data
 wget -O - "$url/progrec.txt.Z"|uncompress>/tmp/progrec.txt
@@ -70,7 +70,7 @@ mv $progs/genres.txt $old/genres.txt
 
 
 # cutting schedules to stations
-for i in `cat /tmp/statrec.txt`; do
+for i in `cat /statrec.txt`; do
 	# can we optimize this?
 	station=`echo $i|cut -f1 -d'|'`
 	
@@ -94,4 +94,4 @@ for i in `cat /tmp/statrec.txt`; do
 done
 
 # removing temporary files
-rm $dirdiff/progplus.diff $dirdiff/progminus.diff $dirdiff/genres.diff $dirdiff/crew.diff /tmp/skedrec.txt /tmp/statrec.txt /tmp/progrec.txt /tmp/headend.fsf
+rm $dirdiff/progplus.diff $dirdiff/progminus.diff $dirdiff/genres.diff $dirdiff/crew.diff /tmp/skedrec.txt /statrec.txt /tmp/progrec.txt /tmp/headend.fsf
