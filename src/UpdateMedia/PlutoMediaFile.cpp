@@ -147,7 +147,7 @@ PlutoMediaFile::~PlutoMediaFile()
 /*static*/ bool PlutoMediaFile::IsSupported(string sFileName)
 {
 	const string csSupportedExtensions("mp3:ogg:aac");
-	string sExtension = StringUtils::ToLower(FileUtils::FindExtension(sFileName));
+	string sExtension = StringUtils::ToLower(StringUtils::ToLower(FileUtils::FindExtension(sFileName)));
 
 	if(sExtension.empty())
 		return false;
@@ -1536,7 +1536,7 @@ map<string,int> PlutoMediaIdentifier::m_mapExtensions;
         string::size_type pos=0;
         string sExtensions = pRow_MediaType->Extensions_get();
         while(pos < sExtensions.size() )
-            m_mapExtensions[StringUtils::Tokenize(sExtensions,",",pos)] = pRow_MediaType->PK_MediaType_get();
+			m_mapExtensions[StringUtils::ToLower(StringUtils::Tokenize(sExtensions,",",pos))] = pRow_MediaType->PK_MediaType_get();
     }
 
     vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
@@ -1547,7 +1547,7 @@ map<string,int> PlutoMediaIdentifier::m_mapExtensions;
         string::size_type pos=0;
         string sExtensions = pRow_DeviceTemplate_MediaType->Extensions_get();
         while(pos < sExtensions.size() )
-            m_mapExtensions[StringUtils::Tokenize(sExtensions,",",pos)] = pRow_DeviceTemplate_MediaType->FK_MediaType_get();
+            m_mapExtensions[StringUtils::ToLower(StringUtils::Tokenize(sExtensions,",",pos))] = pRow_DeviceTemplate_MediaType->FK_MediaType_get();
     }
 
 	g_pPlutoLogger->Write(LV_STATUS, "Pluto Media Identifier activated. Extensions %d", m_mapExtensions.size());
@@ -1571,7 +1571,7 @@ map<string,int> PlutoMediaIdentifier::m_mapExtensions;
 	if(sExtension.empty())
 		return 0;
 
-    map<string, int>::iterator it = m_mapExtensions.find(sExtension);
+    map<string, int>::iterator it = m_mapExtensions.find(StringUtils::ToLower(sExtension));
     return it != m_mapExtensions.end() ? it->second : 0 /*MediaIdentifier::GetFileMediaType(sFilename)*/;
 }
 //-----------------------------------------------------------------------------------------------------
