@@ -113,7 +113,7 @@ function Build_Pluto_Replacements {
 	#Package: lshwd
 	pushd ${svn_dir}/trunk/external/lshwd-2.0-rc4
 		dpkg-buildpackage -rfakeroot -uc -uc -b
-		cp ../lshwd_2.0-rc4*.deb ${temp_dir}
+		cp ../lshwd_2.0*.deb ${temp_dir}
 	popd
 
 	#Download arch independent packages from 150
@@ -280,7 +280,7 @@ function Import_Pluto_Skins {
 #Import_Build_Database
 #Import_Pluto_Skins
 #Install_Build_Needed_Packages
-Build_Pluto_Replacements
+#Build_Pluto_Replacements
 #Checkout_Pluto_Svn
 #Build_MakeRelease_Binary
 #Create_Fake_Windows_Binaries
