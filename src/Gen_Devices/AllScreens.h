@@ -9829,6 +9829,86 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Remote_Assistance : public PreformedCommand
+	{
+	public:
+		SCREEN_Remote_Assistance(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "255" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Remote_Assistance_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Remote_Assistance_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "255" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Remote_Assistance_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Remote_Assistance_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "255" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Remote_Assistance_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Remote_Assistance_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "255" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Legacy_AV_Speed_Control : public PreformedCommand
+	{
+	public:
+		SCREEN_Legacy_AV_Speed_Control(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "256" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Legacy_AV_Speed_Control_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Legacy_AV_Speed_Control_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "256" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Legacy_AV_Speed_Control_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Legacy_AV_Speed_Control_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "256" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Legacy_AV_Speed_Control_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Legacy_AV_Speed_Control_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "256" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -10092,6 +10172,8 @@ namespace DCE
 		virtual void SCREEN_Final_House_Setup(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_ExternalDeviceFullScreen(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_ExternalDeviceFullScreen_Opts(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Remote_Assistance(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Legacy_AV_Speed_Control(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11588,6 +11670,18 @@ namespace DCE
 				{
 					ResetCallBacks();
 					SCREEN_ExternalDeviceFullScreen_Opts(nPK_Screen);
+					break;
+				}
+				case 255:
+				{
+					ResetCallBacks();
+					SCREEN_Remote_Assistance(nPK_Screen);
+					break;
+				}
+				case 256:
+				{
+					ResetCallBacks();
+					SCREEN_Legacy_AV_Speed_Control(nPK_Screen);
 					break;
 				}
 

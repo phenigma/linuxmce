@@ -309,9 +309,9 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 
 	if( PK_Attribute )
 	{
-		sSQL_File += "LEFT JOIN File_Attribute AS FA_Attr ON FA_Attr.FK_File=PK_File ";
-		sSQL_Disc += "LEFT JOIN Disc_Attribute AS DA_Attr ON DA_Attr.FK_Disc=PK_Disc ";
-		sSQL_Where += " AND FK_Attribute=" + StringUtils::itos(PK_Attribute);
+		sSQL_File += "LEFT JOIN File_Attribute AS FDA_Attr ON FDA_Attr.FK_File=PK_File ";
+		sSQL_Disc += "LEFT JOIN Disc_Attribute AS FDA_Attr ON FDA_Attr.FK_Disc=PK_Disc ";
+		sSQL_Where += " AND FDA_Attr.FK_Attribute=" + StringUtils::itos(PK_Attribute);
 	}
 
 	if( time(NULL)-m_tLastScanOfOnlineDevices>300 )

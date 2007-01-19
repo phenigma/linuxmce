@@ -980,6 +980,74 @@ void ScreenHandler::SCREEN_GenericAppFullScreen(long PK_Screen)
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Computing_ObjectSelected, new ObjectInfoBackData());
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Power(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_Power(PK_Screen);
+	int PK_DesignObj = m_p_MapDesignObj_Find(PK_Screen);
+	string sPK_DesignObj = StringUtils::itos(PK_DesignObj) + ".0.0.";
+
+	if( !m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector || m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector==DEVICEID_NULL )
+	{
+		m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "0" );
+		m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "0" );
+		m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
+		m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "0" );
+		m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_mnuBootHD_CONST), 0, "", "",  "0" );
+		m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_mnuBootNet_CONST), 0, "", "",  "0" );
+	}
+	else
+	{
+		// We know we've got an m/d and it's not us.  Find out the state and status
+		string sState = m_pOrbiter->GetState(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector);
+		string sStatus = m_pOrbiter->GetStatus(m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector);
+
+		if( sStatus.length()>1 && sStatus.substr(0,2)=="MD" )
+		{
+			if( m_pOrbiter->m_sOperatingSystem.empty() )
+			{
+				m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_mnuBootHD_CONST), 0, "", "",  "0" );
+				m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_mnuBootNet_CONST), 0, "", "",  "0" );
+			}
+			else
+			{
+				m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_mnuBootHD_CONST), 0, "", "",  "1" );
+				m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_mnuBootNet_CONST), 0, "", "",  "0" );
+			}
+			// See if we've got media playing
+			if( m_pOrbiter->m_sNowPlaying.length() )
+				m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "1" );
+			else
+				m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "0" );
+		}
+		else
+		{
+			if( m_pOrbiter->m_sOperatingSystem.empty() )
+			{
+				m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_mnuBootHD_CONST), 0, "", "",  "0" );
+				m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_mnuBootNet_CONST), 0, "", "",  "0" );
+			}
+			else
+			{
+				m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_mnuBootHD_CONST), 0, "", "",  "0" );
+				m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_mnuBootNet_CONST), 0, "", "",  "1" );
+			}
+			m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "0" );
+		}
+
+		// See if it's on.  If so, enable the halt and displayoff buttons
+		if( sStatus.length()>3 && (sStatus.substr(3) == "ON" || sStatus.substr(3) == "BLACK") )
+		{
+			m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "1" );
+			m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "1" );
+		}
+		else
+		{
+			m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "0" );
+			m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;

@@ -210,8 +210,11 @@ g_pPlutoLogger->Write(LV_ACTION, "Frequency: %d Y: %d notch %d",Frequency,Y,Notc
 }
 
 
-void DatagridMouseHandlerHelper::ReleaseRelative()
+bool DatagridMouseHandlerHelper::ReleaseRelative()
 {
+	if( m_eCapturingOffscreenMovement==cosm_NO )
+		return false;
+
 g_pPlutoLogger->Write(LV_ACTION, "**stop**");
 	m_iLastNotch=-1;
 #ifdef DEBUG
@@ -227,6 +230,8 @@ g_pPlutoLogger->Write(LV_ACTION, "**stop**");
 	m_pMouseBehavior->ConstrainMouse();
 	m_pMouseBehavior->ShowMouse(true);
 	m_eCapturingOffscreenMovement=cosm_NO;
+
+	return true;
 }
 
 bool DatagridMouseHandlerHelper::Move(int X,int Y,int PK_Direction)

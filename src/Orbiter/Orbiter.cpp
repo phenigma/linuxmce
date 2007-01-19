@@ -1650,53 +1650,6 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 		Message *pMessage = new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_STOP_PING,m_dwPK_Device,0);
 		QueueMessageToRouter(pMessage);
 	}
-	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuPower_CONST)
-	{
-		if( !m_pLocationInfo->m_dwPK_Device_MediaDirector || m_pLocationInfo->m_dwPK_Device_MediaDirector==DEVICEID_NULL )
-		{
-			CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "0" );
-			CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "0" );
-			CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
-			CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "0" );
-			CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootHD_CONST), 0, "", "",  "0" );
-			CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootNet_CONST), 0, "", "",  "0" );
-		}
-		else
-		{
-			// We know we've got an m/d and it's not us.  Find out the state and status
-			string sState = GetState(m_pLocationInfo->m_dwPK_Device_MediaDirector);
-			string sStatus = GetStatus(m_pLocationInfo->m_dwPK_Device_MediaDirector);
-
-			if( sStatus.length()>1 && sStatus.substr(0,2)=="MD" )
-			{
-				CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootHD_CONST), 0, "", "",  "1" );
-				CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootNet_CONST), 0, "", "",  "0" );
-				// See if we've got media playing
-				if( m_sNowPlaying.length() )
-					CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "1" );
-				else
-					CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "0" );
-			}
-			else
-			{
-				CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootHD_CONST), 0, "", "",  "0" );
-				CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootNet_CONST), 0, "", "",  "1" );
-				CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "0" );
-			}
-
-			// See if it's on.  If so, enable the halt and displayoff buttons
-			if( sStatus.length()>3 && (sStatus.substr(3) == "ON" || sStatus.substr(3) == "BLACK") )
-			{
-				CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "1" );
-				CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "1" );
-			}
-			else
-			{
-				CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "0" );
-				CMD_Show_Object( m_pScreenHistory_Current->GetObj()->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
-			}
-		}
-	}
 	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_objHouseStatusIndicator_CONST )
 	{
 		// This is actually at startup time.  Figure out what device group this is controlling

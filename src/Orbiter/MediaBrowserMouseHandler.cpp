@@ -86,7 +86,11 @@ bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
 	if( m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID!=DESIGNOBJ_popFileList_CONST )
 		return false; // Keep processing
 	if( m_pDatagridMouseHandlerHelper->CapturingMouse() )
+	{
+		if( PK_Button==BUTTON_Mouse_2_CONST )
+			m_pDatagridMouseHandlerHelper->ReleaseRelative();
 		return true;
+	}
 
 	return false; // Keep processing
 }

@@ -91,7 +91,11 @@ void EPGMouseHandler::Stop()
 bool EPGMouseHandler::ButtonDown(int PK_Button)
 {
 	if( m_pDatagridMouseHandlerHelper->CapturingMouse() )
+	{
+		if( PK_Button==BUTTON_Mouse_2_CONST )
+			m_pDatagridMouseHandlerHelper->ReleaseRelative();
 		return true;
+	}
 
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{

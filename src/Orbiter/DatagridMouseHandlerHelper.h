@@ -59,7 +59,7 @@ namespace DCE
 		bool DoIteration();
 		bool Move(int X,int Y,int PK_Direction);
 		void RelativeMove(int X, int Y);
-		void ReleaseRelative();
+		bool ReleaseRelative();
 
 		bool CapturingMouse() { return m_eCapturingOffscreenMovement != cosm_NO; }
 

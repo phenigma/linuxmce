@@ -189,7 +189,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 	}
 	else
 	{
-// chris //		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Got no parent! :(");
+		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Got no parent! :(");
 		//throw "Got no parent! :( I'm all alone!";
 	}
 }
