@@ -156,7 +156,7 @@ Upgrade_Essential()
 		libklibc
 		klibc-utils
 		libvolume-id0
-		udev=0.086-1
+		udev=0.091-0bpo1pluto1
 		initramfs-tools
 		gzip=1.3.5-14
 	"
