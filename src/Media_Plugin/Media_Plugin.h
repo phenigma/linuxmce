@@ -575,7 +575,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d 
 
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
 				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, 
-				pMediaStream->m_iPK_MediaType, iDequeMediaFile, pMediaStream->m_sAppName, 
+				pMediaStream->m_iPK_MediaType, pMediaStream->m_iStreamID_get(), iDequeMediaFile, pMediaStream->m_sAppName, 
 				sMediaDevices, bRefreshScreen);
 
 			if( pMessage )
@@ -600,7 +600,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d 
 		else
 		{
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
-				"", "", "", 0, 0, "", "", bRefreshScreen);
+				"", "", "", 0, 0, 0, "", "", bRefreshScreen);
 			if( pMessage )
 			{
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);

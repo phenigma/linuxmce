@@ -367,7 +367,7 @@ namespace DCE
 		string m_sNowPlaying_MediaType,m_sNowPlaying,m_sNowPlaying_Section,m_sNowPlaying_TimeShort,m_sNowPlaying_TimeLong,m_sNowPlaying_Speed,m_sDefaultRippingName,m_sApplicationName,m_sNowPlaying_Window; /** < set by the media engine, this is whatever media is currently playing */
 		int m_nDefaultStorageDeviceForRipping;
 		string m_sDefaultStorageDeviceForRippingName;
-		int m_iPK_MediaType;
+		int m_iPK_MediaType,m_iStreamID;
 		int m_dwPK_Device_NowPlaying,m_dwPK_Device_NowPlaying_Video,m_dwPK_Device_NowPlaying_Audio,m_dwPK_Device_CaptureCard;  /** < set by the media engine, this is whatever media device is currently playing.  Capture Card is non null if we're displaying media via this card */
 		bool m_bPK_Device_NowPlaying_Audio_DiscreteVolume,m_bContainsVideo;
 
@@ -1474,6 +1474,8 @@ namespace DCE
 			/** The description of the current section (ie chapter in a dvd, etc.) */
 		/** @param #29 PK_MediaType */
 			/** The type of media playing */
+		/** @param #41 StreamID */
+			/** The ID of the current stream */
 		/** @param #48 Value */
 			/** The track number or position in the playlist */
 		/** @param #50 Name */
@@ -1483,8 +1485,8 @@ namespace DCE
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-	virtual void CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),iPK_MediaType,iValue,sName.c_str(),sList_PK_Device.c_str(),bRetransmit,sCMD_Result,NULL);};
-	virtual void CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iStreamID,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),iPK_MediaType,iStreamID,iValue,sName.c_str(),sList_PK_Device.c_str(),bRetransmit,sCMD_Result,NULL);};
+	virtual void CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iStreamID,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #254 - Bind Icon */

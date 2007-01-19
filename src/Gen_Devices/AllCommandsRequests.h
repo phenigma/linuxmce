@@ -7018,13 +7018,14 @@ namespace DCE
 	};
 	class CMD_Set_Now_Playing : public PreformedCommand {
 	public:
-		CMD_Set_Now_Playing(long DeviceIDFrom, long DeviceIDTo,string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Set_Now_Playing(long DeviceIDFrom, long DeviceIDTo,string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iStreamID,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Set_Now_Playing_CONST,
-			8 /* number of parameters */,
+			9 /* number of parameters */,
 			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
 			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
+			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
 			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_List_PK_Device_CONST, sList_PK_Device.c_str(),
@@ -7032,13 +7033,14 @@ namespace DCE
 	};
 	class CMD_Set_Now_Playing_DL : public PreformedCommand {
 	public:
-		CMD_Set_Now_Playing_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Set_Now_Playing_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iStreamID,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Set_Now_Playing_CONST,
-			8 /* number of parameters */,
+			9 /* number of parameters */,
 			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
 			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
+			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
 			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_List_PK_Device_CONST, sList_PK_Device.c_str(),
@@ -7046,13 +7048,14 @@ namespace DCE
 	};
 	class CMD_Set_Now_Playing_DT : public PreformedCommand {
 	public:
-		CMD_Set_Now_Playing_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Set_Now_Playing_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iStreamID,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Set_Now_Playing_CONST,
-			8 /* number of parameters */,
+			9 /* number of parameters */,
 			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
 			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
+			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
 			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_List_PK_Device_CONST, sList_PK_Device.c_str(),
@@ -7060,13 +7063,14 @@ namespace DCE
 	};
 	class CMD_Set_Now_Playing_Cat : public PreformedCommand {
 	public:
-		CMD_Set_Now_Playing_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Set_Now_Playing_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iStreamID,int iValue,string sName,string sList_PK_Device,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Set_Now_Playing_CONST,
-			8 /* number of parameters */,
+			9 /* number of parameters */,
 			COMMANDPARAMETER_PK_DesignObj_CONST, sPK_DesignObj.c_str(),
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
 			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
+			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
 			COMMANDPARAMETER_Value_CONST, StringUtils::itos(iValue).c_str(),
 			COMMANDPARAMETER_Name_CONST, sName.c_str(),
 			COMMANDPARAMETER_List_PK_Device_CONST, sList_PK_Device.c_str(),

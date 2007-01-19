@@ -47,6 +47,7 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 	m_bMouseConstrained=false;
 	m_bMouseKilled=false;
 	m_bMouseVisible=true;
+	m_bHasTimeline=false;  // Indicates if the last set media info
 	Clear();
 }
 
@@ -219,8 +220,9 @@ DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *p
 	return NULL;
 }
 
-void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection)
+void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection,bool bHasTimeline)
 {
+	m_bHasTimeline = bHasTimeline;
 	if( m_pMouseHandler && m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_Speed )
 	{
 		SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseHandler;

@@ -19,6 +19,8 @@ using namespace DCE;
 #define SPEED_STYLE_TIMELINE_SEEK	3
 #define SPEED_STYLE_SPEED_ONLY		4
 
+// One screen has a popup object for both the relative and absolute positioning, alternate versions of the same object
+// CMD_Update_Time_Code will call m_pMouseBehavior->SetMediaInfo if there is a time received
 
 namespace DCE
 {
@@ -31,7 +33,6 @@ namespace DCE
 	{
 		friend class MouseBehavior;
 
-		bool m_bHasTimeline;
 		static const int m_iSpeeds[MAX_SPEEDS];
 		int m_CurrentMedia_Start,m_CurrentMedia_Stop,m_CurrentMedia_Pos;  // The start and stop values in seconds of the media, and where we are now
 		int m_iLastGoodPosition;

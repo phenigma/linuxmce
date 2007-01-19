@@ -296,6 +296,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bLoadDatagridImagesInBackground=true;
 	m_iPK_Screen_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_Screen_FileList=m_iPK_Screen_RemoteOSD=m_iPK_Screen_OSD_Speed=m_iPK_Screen_OSD_Track=m_PK_Screen_ActiveApp_OSD=m_PK_Screen_ActiveApp_Remote=0;
 	m_iPK_MediaType=0;
+	m_iStreamID=0;
 	m_pScreenHistory_Current=NULL;
 	m_pObj_LastSelected=m_pObj_Highlighted=m_pObj_Highlighted_Last=NULL;
 	m_iRow_Floorplan_LastSelected=-1;
@@ -6377,6 +6378,8 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 			/** The description of the current section (ie chapter in a dvd, etc.) */
 		/** @param #29 PK_MediaType */
 			/** The type of media playing */
+		/** @param #41 StreamID */
+			/** The ID of the current stream */
 		/** @param #48 Value */
 			/** The track number or position in the playlist */
 		/** @param #50 Name */
@@ -6386,7 +6389,7 @@ void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScree
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iStreamID,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,Message *pMessage)
 //<-dceag-c242-e->
 {
 	if(m_bQuit_get())
@@ -6398,6 +6401,12 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	if( m_pMouseBehavior && m_iStreamID!=iStreamID )  // If we're changing media
+		m_pMouseBehavior->SetMediaInfo("","","","","",false);
+#endif
+
+	m_iStreamID=iStreamID;
 	m_iPK_MediaType=iPK_MediaType;
 	m_sNowPlaying_Window = sName;
 	m_sNowPlaying = SubstituteVariables(sValue_To_Assign, NULL, 0, 0);
@@ -8281,7 +8290,7 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 			g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code SetMediaInfo-%s-%s-%s-%s-%s",
 				sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str());
 #endif
-			m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection);
+			m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection,true);
 		}
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code SetMediaInfo np:%s showing %d",

@@ -20,7 +20,6 @@ const int SpeedMouseHandler::m_iSpeeds[] = {0,250,500,1000,2000,3000,4000,6000,8
 SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior) 
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
-	m_bHasTimeline = false;
 	m_CurrentMedia_Start = m_CurrentMedia_Stop = m_CurrentMedia_Pos = 0;
 	m_iLastGoodPosition = 0;
 
@@ -29,10 +28,6 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler setting playback speed to 0 device %d",m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying);
 #endif
-
-	string sText,sMediaPosition;
-	DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,&sText,&sMediaPosition);
-	m_bHasTimeline = m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying && m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Report_Playback_Position) && ParsePosition(sMediaPosition);
 
 	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","1","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0,0);  // 0 for the screen means don't send us to the real remote if we're on the wrong one
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
@@ -52,7 +47,7 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 		return;
 	}
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,0,true);
-	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed,&sResponse);
+	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 }
 
 SpeedMouseHandler::~SpeedMouseHandler() 
@@ -88,15 +83,15 @@ void SpeedMouseHandler::Start()
 	m_pMouseBehavior->ConstrainMouse(rect);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::Start timeline %d m_iTime_Last_Mouse_Up); %d",(int) m_bHasTimeline, (int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::Start timeline %d m_iTime_Last_Mouse_Up); %d",(int) m_pMouseBehavior->m_bHasTimeline, (int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
 #endif
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(500);
-	if( !m_bHasTimeline || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
+	if( !m_pMouseBehavior->m_bHasTimeline || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 		m_bTapAndRelease=true;
 	else
 		m_bTapAndRelease=false;  // Can only do this if we have the timeline, and the user is holding down
 
-	if( m_bHasTimeline && m_bTapAndRelease==false )
+	if( m_pMouseBehavior->m_bHasTimeline && m_bTapAndRelease==false )
 	{
 		m_iLastNotch=m_CurrentMedia_Pos;
 		float Percentage = m_CurrentMedia_Pos==0 ? 0 : ((float) m_CurrentMedia_Pos)/(m_CurrentMedia_Stop-m_CurrentMedia_Start);
@@ -135,7 +130,7 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 #endif
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
-		if( PK_Button==BUTTON_Mouse_2_CONST && m_bHasTimeline )
+		if( PK_Button==BUTTON_Mouse_2_CONST && m_pMouseBehavior->m_bHasTimeline )
 		{
 			DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0," dm_" + StringUtils::itos(m_iCancelLevel*1000));
 			m_pMouseBehavior->m_pOrbiter->SendMessage(CMD_Set_Media_Position.m_pMessage);
@@ -181,7 +176,7 @@ void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 	}
 	m_iLastGoodPosition = X;
 	int XStart = m_pObj->m_rPosition.X+m_pObj->m_pPopupPoint.X+m_pObj->m_rPosition.Width/2;
-	if( m_bTapAndRelease || !m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
+	if( m_bTapAndRelease || !m_pMouseBehavior->m_bHasTimeline )  // holding button down, change speed, or this stream doesn't support absolute positioning anyway
 	{
 		int NotchWidth = m_pObj->m_rPosition.Width/2/MAX_SPEEDS;
 		int Notch = abs(X-XStart) / NotchWidth;
@@ -260,7 +255,7 @@ void SpeedMouseHandler::DrawInfo()
 	int SeekPosition = -1;  // Option #5, the current seek to position.  -1 = none
 
     //g_pPlutoLogger->Write(LV_CRITICAL,"SpeedMouseHandler::DrawInfo()");
-    if( m_bHasTimeline )
+    if( m_pMouseBehavior->m_bHasTimeline )
 	{
 		if( m_bTapAndRelease )
 			Style = SPEED_STYLE_TIMELINE_SPEED;
@@ -323,7 +318,7 @@ void SpeedMouseHandler::DrawInfo()
 	else if( pText )
 		pText->m_sText="";  // No speed control
 
-	if( m_bHasTimeline )
+	if( m_pMouseBehavior->m_bHasTimeline )
 	{
 		DesignObjText *pText = m_pMouseBehavior->m_pOrbiter->FindText(m_pObj,TEXT_Current_Time_CONST);
 		if( pText && m_CurrentMedia_Pos>0 )

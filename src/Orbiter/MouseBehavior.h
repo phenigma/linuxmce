@@ -122,6 +122,7 @@ namespace DCE
 		unsigned long m_iTime_Last_Mouse_Down,m_iTime_Last_Mouse_Up; // When it was pressed
 		unsigned long m_dwTime_Last_Notch;
 		bool m_bMouseConstrained,m_bMouseVisible;
+		bool m_bHasTimeline; // True if the last set media position indicated we could directly set media position (ie a timeline)
 		DesignObj_Orbiter *m_pObj_Previously_Highlighted;
 
 	public:
@@ -155,7 +156,7 @@ namespace DCE
 		virtual void ShowMouse(bool bShow, SetMouseBehaviorRemote setMouseBehaviorRemote=smb_Default) { }
 		void m_pLastPosition_set(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; }
 
-		void SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection);
+		void SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection,bool bHasTimeline);
 
 		const MouseHandler* GetMouseHandler() const;
 
