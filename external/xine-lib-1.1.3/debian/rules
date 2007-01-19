@@ -63,6 +63,7 @@ CONFIGURE_FLAGS := --prefix=/usr \
 	--mandir=\$${prefix}/share/man \
 	--with-external-libmad \
 	--without-external-ffmpeg \
+	--with-xv-path=/usr/lib
 	--with-external-a52dec \
 	--with-external-libdts \
 	--disable-cacatest \
