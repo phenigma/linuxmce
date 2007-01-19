@@ -335,9 +335,6 @@ void DesignObj_DataGrid::DataGridTable_Set(DataGridTable *pDataGridTable,int Cur
 	m_pDataGridTable_Current=NULL;
 	for(map< pair<int,int>, DataGridTable *>::iterator itm=m_mapDataGridTable_Cache.begin();itm!=m_mapDataGridTable_Cache.end();++itm)
 	{
-#ifdef ORBITER_OPENGL
-		itm->second->DetachGraphics();
-#endif
 		delete itm->second;
 	}
 	m_mapDataGridTable_Cache.clear();
@@ -546,8 +543,8 @@ void DesignObj_DataGrid::m_pDataGridTable_Current_set(DataGridTable *pDataGridTa
 #ifndef ORBITER_OPENGL
 				g_pPlutoLogger->Write(LV_STATUS,"delete2 m_pCell->m_pGraphic %p:%p",pCell,pCell->m_pGraphic);
 				delete pCell->m_pGraphic;
-#endif
 				pCell->m_pGraphic=NULL;
+#endif
 			}
 		}
 	}
