@@ -1170,6 +1170,7 @@
 #define TEXT_RADisable_CONST 1894
 #define TEXT_RA_is_enable_CONST 1895
 #define TEXT_RA_is_disable_CONST 1896
+#define TEXT_confirm_file_delete_CONST 1897
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

@@ -1612,7 +1612,7 @@ g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
 						)
 					{
 						MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD); // We have an app server to control the volume
-						if( pMediaDevice && pMediaDevice->m_pDevice_Audio )  // We have an MD and it uses appserver for the volume
+						if( pMediaDevice && pMediaDevice->m_pDevice_Audio && pMediaDevice->m_pDevice_Audio->m_dwPK_DeviceTemplate==DEVICETEMPLATE_App_Server_CONST )  // We have an MD and it uses appserver for the volume
 						{
 							Message *pNewMessage = new Message( pMessage );
 							pNewMessage->m_dwPK_Device_To = pMediaDevice->m_pDevice_Audio->m_dwPK_Device;

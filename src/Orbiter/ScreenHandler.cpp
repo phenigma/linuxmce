@@ -323,12 +323,6 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 			}
 		}
 	}
-	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-	}
-	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butClosePopup_CONST )
-	{
-	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_More_ViewedOnly_CONST )
 	{
 		mediaFileBrowserOptions.m_iLastViewed = mediaFileBrowserOptions.m_iLastViewed!=1 ? 1 : 2;
@@ -384,6 +378,33 @@ g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play
 		DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
 			0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
 		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
+	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Delete_CONST )
+	{
+		string sFile,sFilename;
+		DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get();
+		if( pDataGridTable )
+		{
+			DataGridCell *pCell = pDataGridTable->GetData( 0, mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow );
+			if( pCell && pCell->GetText() )
+			{
+				sFile = pCell->GetText();
+				sFilename = m_mapKeywords["FILE"];
+			}
+		}
+
+		string sMessage = m_pOrbiter->m_mapTextString[TEXT_confirm_file_delete_CONST];
+		StringUtils::Replace(&sMessage,"<%=FILE%>",sFile);
+		StringUtils::Replace(&sMessage,"<%=FILENAME%>",sFilename);
+
+		DisplayMessageOnOrbiter(0, sMessage,
+			false, "0", true,
+			m_pOrbiter->m_mapTextString[TEXT_YES_CONST],
+			//"Delete file"
+			StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn) + " 1 " TOSTRING(COMMAND_Delete_File_CONST)
+				" " TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"" + sFilename + "\"",
+			m_pOrbiter->m_mapTextString[TEXT_NO_CONST]
+		);
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFileBrowserBack_CONST )
 	{

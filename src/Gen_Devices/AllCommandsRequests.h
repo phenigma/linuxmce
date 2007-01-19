@@ -22692,5 +22692,33 @@ namespace DCE
 			COMMAND_RemoteAssistance_GetStatus_CONST,
 			0 /* number of parameters */); }
 	};
+	class CMD_Delete_File : public PreformedCommand {
+	public:
+		CMD_Delete_File(long DeviceIDFrom, long DeviceIDTo,string sFilename) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Delete_File_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Filename_CONST, sFilename.c_str()); }
+	};
+	class CMD_Delete_File_DL : public PreformedCommand {
+	public:
+		CMD_Delete_File_DL(long DeviceIDFrom, string DeviceIDTo,string sFilename) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Delete_File_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Filename_CONST, sFilename.c_str()); }
+	};
+	class CMD_Delete_File_DT : public PreformedCommand {
+	public:
+		CMD_Delete_File_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Delete_File_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Filename_CONST, sFilename.c_str()); }
+	};
+	class CMD_Delete_File_Cat : public PreformedCommand {
+	public:
+		CMD_Delete_File_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Delete_File_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Filename_CONST, sFilename.c_str()); }
+	};
 }
 #endif
