@@ -352,10 +352,12 @@ sub delete_old {
 				my $test_date = `date`;
 				print TEST "$test_date Removing file: $_ \n";
 				`rm -f $_`;
+				`rm -f $_.id3` if (-e "$_.id3");
 			}else {
 				my $test_date = `date`;
 				print TEST "$test_date Removing file: $_ \n";
 				`rm -f $_`;
+				`rm -f $_.id3` if (-e "$_.id3");
 				$count--;
 				last if ($count <= 0);
 			}
