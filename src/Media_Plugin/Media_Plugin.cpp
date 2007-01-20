@@ -4375,12 +4375,18 @@ int k=2;
 
 	/** @brief COMMAND: #409 - Save Bookmark */
 	/** Save the current position as a bookmark */
-		/** @param #39 Options */
-			/** For TV, CHAN: or PROG: indicating if it's the channel or program to bookmark */
+		/** @param #19 Data */
+			/** The picture to save as the thumbnail, in jpg format.  If not specified the plugin will try to grab a frame from the media player */
 		/** @param #45 PK_EntertainArea */
 			/** The entertainment area with the media */
+		/** @param #163 Description */
+			/** The description for this bookmark. */
+		/** @param #188 Position */
+			/** The position to save as.  For TV, CHAN: or PROG: or SERIES:.  Leave blank and the plugin will grab the current value */
+		/** @param #225 Always */
+			/** If true, then this is the start position */
 
-void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways,string &sCMD_Result,Message *pMessage)
 //<-dceag-c409-e->
 {
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -4432,25 +4438,29 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 		return;
 	}
 */
-	string sPosition,sText;
-	DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-		pMediaStream->m_iStreamID_get(),&sText,&sPosition);
-
-	if( !SendCommand(CMD_Report_Playback_Position) || sPosition.size()==0 )
+	string sText;
+	if( sPosition.empty() )
 	{
-		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%>");
-		SCREEN_DialogCannotBookmark SCREEN_DialogCannotBookmark(m_dwPK_Device, pMessage->m_dwPK_Device_From, "");
-		SendCommand(SCREEN_DialogCannotBookmark);
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get current position from %d",pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
-		return;
+		DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+			pMediaStream->m_iStreamID_get(),&sText,&sPosition);
+
+		if( !SendCommand(CMD_Report_Playback_Position) || sPosition.size()==0 )
+		{
+			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%>");
+			SCREEN_DialogCannotBookmark SCREEN_DialogCannotBookmark(m_dwPK_Device, pMessage->m_dwPK_Device_From, "");
+			SendCommand(SCREEN_DialogCannotBookmark);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get current position from %d",pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+			return;
+		}
 	}
 
-	char *pData=NULL;
-	int iData_Size=0;
-	string sFormat;
-	DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-		"0",pMediaStream->m_iStreamID_get(),800,800,&pData,&iData_Size,&sFormat);
-	SendCommand(CMD_Get_Video_Frame);
+	string sFormat="JPG";
+	if( pData==NULL )
+	{
+		DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+			"0",pMediaStream->m_iStreamID_get(),800,800,&pData,&iData_Size,&sFormat);
+		SendCommand(CMD_Get_Video_Frame);
+	}
 
 	Row_Picture *pRow_Picture = NULL;
 	if( pData && iData_Size )
@@ -4461,7 +4471,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	Row_Bookmark *pRow_Bookmark;
 	string sName;
 	bool bIsStart=false;
-	if( sOptions=="START" )
+	if( bAlways )
 	{
 		vector<Row_Bookmark *> vectRow_Bookmark;
 		if( pMediaStream->m_dwPK_Disc )
@@ -4486,6 +4496,8 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 		pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
 	}
 
+	pRow_Bookmark->Description_set( sDescription );
+
 	if( pMediaStream->m_dwPK_Disc )
 		pRow_Bookmark->FK_Disc_set(pMediaStream->m_dwPK_Disc);
 	else
@@ -4498,12 +4510,12 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 
 	int PK_Screen = pMediaStream->GetRemoteControlScreen(pMessage->m_dwPK_Device_From);
-	string sCmdToRenameBookmark= "<%=!%> -300 1 741 159 " + StringUtils::itos(PK_Screen) + 
-		"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()) +
-		" " + StringUtils::ltos(COMMANDPARAMETER_DriveID_CONST) + " <%=" + StringUtils::ltos(VARIABLE_Device_List_CONST) + "%>";
-
-	if( !bIsStart )
+	if( sDescription.empty() && !bIsStart )
 	{
+		string sCmdToRenameBookmark= "<%=!%> -300 1 741 159 " + StringUtils::itos(PK_Screen) + 
+			"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()) +
+			" " + StringUtils::ltos(COMMANDPARAMETER_DriveID_CONST) + " <%=" + StringUtils::ltos(VARIABLE_Device_List_CONST) + "%>";
+
 		DCE::SCREEN_FileSave SCREEN_FileSave(m_dwPK_Device,pMessage->m_dwPK_Device_From, 
 			"<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>", sCmdToRenameBookmark, false);
 		SendCommand(SCREEN_FileSave);

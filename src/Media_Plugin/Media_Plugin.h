@@ -900,13 +900,19 @@ Powerfile: 0, 1, ... */
 
 	/** @brief COMMAND: #409 - Save Bookmark */
 	/** Save the current position as a bookmark */
-		/** @param #39 Options */
-			/** For TV, CHAN: or PROG: indicating if it's the channel or program to bookmark */
+		/** @param #19 Data */
+			/** The picture to save as the thumbnail, in jpg format.  If not specified the plugin will try to grab a frame from the media player */
 		/** @param #45 PK_EntertainArea */
 			/** The entertainment area with the media */
+		/** @param #163 Description */
+			/** The description for this bookmark. */
+		/** @param #188 Position */
+			/** The position to save as.  For TV, CHAN: or PROG: or SERIES:.  Leave blank and the plugin will grab the current value */
+		/** @param #225 Always */
+			/** If true, then this is the start position */
 
-	virtual void CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea) { string sCMD_Result; CMD_Save_Bookmark(sOptions.c_str(),sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways) { string sCMD_Result; CMD_Save_Bookmark(pData,iData_Size,sPK_EntertainArea.c_str(),sDescription.c_str(),sPosition.c_str(),bAlways,sCMD_Result,NULL);};
+	virtual void CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #410 - Delete Bookmark */

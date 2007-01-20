@@ -76,6 +76,25 @@ public:
 	void SelectedArray(DesignObj_Orbiter *pObj,int PK_Array,int &iValue);
 };
 
+class TVShowBookmark
+{
+public:
+	char *m_pData;
+	int m_iData_Size;
+	bool m_bThumbnailChannel,m_bThumbnailShow;
+	string m_sPosition;
+
+	TVShowBookmark()
+	{
+		m_pData=NULL;
+		m_iData_Size=0;
+	}
+	~TVShowBookmark()
+	{
+		delete m_pData;
+	}
+};
+
 class ScreenHandler : public ScreenHandlerBase
 {
 protected:
@@ -88,6 +107,8 @@ protected:
 	time_t m_tLastDeviceAdded;
 
 	pluto_pthread_mutex_t m_MapMutex; /** < Protected the access to our maps */
+
+	TVShowBookmark m_TVShowBookmark;
 
 	virtual void DisplayMessageOnOrbiter(int PK_Screen,
 		string sMessage, bool bPromptToResetRouter = false,
@@ -221,6 +242,9 @@ public:
 	virtual void SCREEN_FileSave(long PK_Screen, string sCaption, string sCommand, bool bAdvanced_options);
 	bool FileSave_ObjectSelected(CallBackData *pData);
 	bool FileSave_GridSelected(CallBackData *pData);
+
+	void SCREEN_CreateViewBookmarksTV(long PK_Screen);
+	bool CreateViewBookmarksTV_ObjectSelected(CallBackData *pData);
 
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();

@@ -55,6 +55,11 @@ namespace DCE
     public:
         /** Public member variables */
         int m_dwTargetDevice;
+		
+		// Map of PK_User to bookmarked channel,series,program, where bookmark is a comma delimited list
+		// populated by RefreshBookmarks
+		map<int,string> m_mapChannelBookmarks,m_mapSeriesBookmarks,m_mapProgramBookmarks;
+
 
         //<-dceag-const-b->
 public:
@@ -104,6 +109,8 @@ public:
 		void AlarmCallback(int id, void* param);
 		void CheckForNewRecordings();
 
+		bool RefreshBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
         //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -140,17 +147,6 @@ public:
 
 	virtual void CMD_Schedule_Recording(string sProgramID) { string sCMD_Result; CMD_Schedule_Recording(sProgramID.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #409 - Save Bookmark */
-	/** Save the current channel or program as a bookmark.  Text should have CHAN: or PROG: in there */
-		/** @param #39 Options */
-			/** For TV, CHAN: or PROG: indicating if it's the channel or program to bookmark */
-		/** @param #45 PK_EntertainArea */
-			/** The entertainment area with the media */
-
-	virtual void CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea) { string sCMD_Result; CMD_Save_Bookmark(sOptions.c_str(),sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #698 - Get Extended Media Data */

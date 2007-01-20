@@ -2389,6 +2389,9 @@
 #define DESIGNOBJ_butRAEnable_CONST 5387
 #define DESIGNOBJ_butRemoteAssistance_CONST 5388
 #define DESIGNOBJ_butRADisable_CONST 5389
+#define DESIGNOBJ_butThumbnailShow_CONST 5392
+#define DESIGNOBJ_butThumbnailChannel_CONST 5393
+
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

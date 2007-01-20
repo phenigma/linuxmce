@@ -125,24 +125,6 @@ bool MythTV_PlugIn::Register()
 
     m_pMedia_Plugin->RegisterMediaPlugin(this, this, DEVICETEMPLATE_MythTV_Player_CONST, true);
 
-/*
-	string SQL = "SELECT FK_Device,IK_DeviceData FROM Device_DeviceData JOIN Device ON PK_Device=FK_Device WHERE FK_Installation="
-		+ StringUtils::itos(m_pRouter->m_Installation_get()) + " AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_MythTV_PVR_Input_CONST);
-
-    PlutoSqlResult result;
-    MYSQL_ROW row;
-	m_pMedia_Plugin->m_pMedia_Plugin->m_pDatabase_pluto_main->threaded_mysql_query(SQL);
-    if( ( result.r=m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
-    {
-        while( ( row=mysql_fetch_row( result.r ) ) )
-        {
-			int PK_Device = atoi(row[0]);
-			int PK_Device = atoi(row[0]);
-
-		}
-	}
-*/
-
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::CurrentShows))
                                                 ,DATAGRID_EPG_Current_Shows_CONST,PK_DeviceTemplate_get());
 
@@ -153,7 +135,7 @@ bool MythTV_PlugIn::Register()
 												,DATAGRID_TV_Providers_CONST,PK_DeviceTemplate_get());
 
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Channel_Changed_CONST );
-	// RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Info_Changed_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::RefreshBookmarks ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
 
 	// Get all the backend ip's so we can match the hostname myth uses to our own device id
 	map<string,int> mapIpToDevice;
@@ -189,7 +171,9 @@ bool MythTV_PlugIn::Register()
 			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
 		}
 	}
-	
+		
+	RefreshBookmarks(NULL,NULL,NULL,NULL); // Populate this with the initial values
+
 	BuildAttachedInfraredTargetsMap();
     return Connect(PK_DeviceTemplate_get());
 }
@@ -423,7 +407,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 //			sProvider = " AND sourceid='" + pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider->ID_get() + "'";
 
 	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
-	string sSQL = "SELECT c.chanid, c.channum, c.name, c.icon, p.title, p.starttime, p.endtime "
+	string sSQL = "SELECT c.chanid, c.channum, c.name, c.icon, p.title, p.starttime, p.endtime, p.seriesid, p.programid "
 		"FROM program p "
 		"INNER JOIN channel c ON c.chanid = p.chanid "
 		"WHERE p.starttime < '" + StringUtils::SQLDateTime() + "' AND p.endtime>'" + StringUtils::SQLDateTime() + "' " + sProvider +
@@ -452,6 +436,10 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			pCell->m_mapAttributes["Name"] = sChannelName;
 			pCell->m_mapAttributes["Time"] = sTime;
 			pCell->m_mapAttributes["Info"] = sInfo;
+			if( row[7] )
+				pCell->m_mapAttributes["Series"] = row[7];
+			if( row[8] )
+				pCell->m_mapAttributes["Program"] = row[8];
 
 			//g_pPlutoLogger->Write(LV_WARNING, "Number %s, name %s, time %s, info %s", 
 			//	sNumber.c_str(), sChannelName.c_str(), sDesc.c_str(), sInfo.c_str());
@@ -664,19 +652,6 @@ class DataGridTable *MythTV_PlugIn::TvProviders(string GridID,string Parms,void 
 	}*/
 
 	return pDataGrid;
-}
-//<-dceag-c409-b->
-
-	/** @brief COMMAND: #409 - Save Bookmark */
-	/** Save the current channel or program as a bookmark.  Text should have CHAN: or PROG: in there */
-		/** @param #39 Options */
-			/** For TV, CHAN: or PROG: indicating if it's the channel or program to bookmark */
-		/** @param #45 PK_EntertainArea */
-			/** The entertainment area with the media */
-
-void MythTV_PlugIn::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
-//<-dceag-c409-e->
-{
 }
 
 //<-dceag-c698-b->
@@ -1133,4 +1108,49 @@ void MythTV_PlugIn::AlarmCallback(int id, void* param)
 {
 	if( id==CHECK_FOR_NEW_RECORDINGS )
 		CheckForNewRecordings();
+}
+
+bool MythTV_PlugIn::RefreshBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	map<int,string> *p_m_mapBookmark=NULL;
+	m_mapChannelBookmarks.clear();
+	m_mapSeriesBookmarks.clear();
+	m_mapProgramBookmarks.clear();
+	string sSQL = "SELECT EK_Users,Position FROM Bookmark WHERE EK_MediaType=" TOSTRING(MEDIATYPE_pluto_LiveTV_CONST);
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( (result.r = m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSQL)) )
+	{
+		while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			char *pPos = NULL;
+			if( !row[1] )
+				continue;
+			if( (pPos=strstr(row[1]," PROG:"))!=NULL )
+			{
+				p_m_mapBookmark = &m_mapProgramBookmarks;
+				pPos += 6;
+			}
+			else if( (pPos=strstr(row[1]," CHAN:"))!=NULL )
+			{
+				p_m_mapBookmark = &m_mapChannelBookmarks;
+				pPos += 6;
+			}
+			else if( (pPos=strstr(row[1]," SERIES:"))!=NULL )
+			{
+				p_m_mapBookmark = &m_mapSeriesBookmarks;
+				pPos += 8;
+			}
+
+			if( p_m_mapBookmark )
+			{
+				string sCurrent = (*p_m_mapBookmark)[ row[0] ? atoi(row[0]) : 0];
+				if( sCurrent.empty()==false )
+					sCurrent += ",";
+				sCurrent += string("'") + pPos + "'";
+				(*p_m_mapBookmark)[ row[0] ? atoi(row[0]) : 0] = sCurrent;
+			}
+		}
+	}
+	return false;
 }

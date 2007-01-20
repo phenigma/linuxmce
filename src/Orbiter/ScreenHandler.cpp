@@ -2062,3 +2062,69 @@ void ScreenHandler::SaveFile_SendCommand()
 		pDesignObj->m_bHidden = m_pOrbiter->m_sOperatingSystem.empty();
 }
 
+/*virtual*/ void ScreenHandler::SCREEN_CreateViewBookmarksTV(long PK_Screen)
+{
+	// Grab the position and a snapshot of the current frame
+	string sText,sPosition;
+	DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,
+		m_pOrbiter->m_iStreamID,&sText,&sPosition);
+
+	if( !m_pOrbiter->SendCommand(CMD_Report_Playback_Position) || sPosition.size()==0 )
+	{
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_DialogCannotBookmark_CONST);
+		return;
+	}
+
+	m_TVShowBookmark.m_bThumbnailChannel=m_TVShowBookmark.m_bThumbnailShow=false;
+
+	string sFormat="jpg";
+	m_TVShowBookmark.m_pData=NULL;
+	m_TVShowBookmark.m_iData_Size=NULL;
+	DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,
+		"0",m_pOrbiter->m_iStreamID,800,800,&m_TVShowBookmark.m_pData,&m_TVShowBookmark.m_iData_Size,&sFormat);
+	m_pOrbiter->SendCommand(CMD_Get_Video_Frame);
+
+	int PK_DesignObj = m_pOrbiter->m_mapDesignObj[PK_Screen];
+	m_pOrbiter->CMD_Update_Object_Image(StringUtils::itos(PK_DesignObj) + ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST),sFormat,m_TVShowBookmark.m_pData,m_TVShowBookmark.m_iData_Size,"0");
+
+	m_pOrbiter->CMD_Show_Object(StringUtils::itos(PK_DesignObj) + ".0.0." TOSTRING(DESIGNOBJ_butThumbnailShow_CONST),0,"","",m_TVShowBookmark.m_pData ? "1" : "0");
+	m_pOrbiter->CMD_Show_Object(StringUtils::itos(PK_DesignObj) + ".0.0." TOSTRING(DESIGNOBJ_butThumbnailChannel_CONST),0,"","",m_TVShowBookmark.m_pData ? "1" : "0");
+
+	ScreenHandlerBase::SCREEN_CreateViewBookmarksTV(PK_Screen);
+
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::CreateViewBookmarksTV_ObjectSelected,	new ObjectInfoBackData());
+}
+
+bool ScreenHandler::CreateViewBookmarksTV_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+
+	if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butThumbnailShow_CONST )
+	{
+		if( pObjectInfoData->m_pObj->m_GraphicToDisplay==GRAPHIC_SELECTED )
+		{
+			pObjectInfoData->m_pObj->m_GraphicToDisplay_set("cvbt",GRAPHIC_NORMAL);
+			m_TVShowBookmark.m_bThumbnailShow=false;
+		}
+		else
+		{
+			pObjectInfoData->m_pObj->m_GraphicToDisplay_set("cvbt",GRAPHIC_SELECTED);
+			m_TVShowBookmark.m_bThumbnailShow=true;
+		}
+	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butThumbnailChannel_CONST )
+	{
+		if( pObjectInfoData->m_pObj->m_GraphicToDisplay==GRAPHIC_SELECTED )
+		{
+			pObjectInfoData->m_pObj->m_GraphicToDisplay_set("cvbt",GRAPHIC_NORMAL);
+			m_TVShowBookmark.m_bThumbnailChannel=false;
+		}
+		else
+		{
+			pObjectInfoData->m_pObj->m_GraphicToDisplay_set("cvbt",GRAPHIC_SELECTED);
+			m_TVShowBookmark.m_bThumbnailChannel=true;
+		}
+	}
+
+	return false;
+}

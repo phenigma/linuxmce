@@ -545,6 +545,7 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Method was called here");
+	*pData = FileUtils::ReadFileIntoBuffer("/home/mediapics/10.jpg",iData_Size);
 //     if ( m_pMythTV == NULL || m_pMythTV->GetState() != kState_WatchingLiveTV )
 //     {
 //         g_pPlutoLogger->Write(LV_STATUS, "Invalid state.");
@@ -1032,7 +1033,7 @@ void MythTV_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,str
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
 	if (m_mythStatus == MYTHSTATUS_PLAYBACK)
-		*sText=StringUtils::Format(" POS:%d TOTAL:%d", m_CurTime, m_EndTime);
+		*sText=StringUtils::Format(" POS:%d TOTAL:%d PROG:SH8196770000 SERIES:sh019875 CHAN:1325", m_CurTime, m_EndTime);
 }
 
 //<-dceag-c412-b->
