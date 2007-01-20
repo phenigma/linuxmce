@@ -545,7 +545,9 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Method was called here");
-	*pData = FileUtils::ReadFileIntoBuffer("/home/mediapics/10.jpg",iData_Size);
+	size_t size;
+	*pData = FileUtils::ReadFileIntoBuffer("/home/mediapics/10.jpg",&size);
+	*iData_Size = size;
 //     if ( m_pMythTV == NULL || m_pMythTV->GetState() != kState_WatchingLiveTV )
 //     {
 //         g_pPlutoLogger->Write(LV_STATUS, "Invalid state.");
