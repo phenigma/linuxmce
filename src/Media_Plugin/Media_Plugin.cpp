@@ -595,6 +595,10 @@ bool Media_Plugin::Register()
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::ProvidersForDevice ))
         , DATAGRID_Providers_For_Device_CONST,PK_DeviceTemplate_get() );
 
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::ThumbnailableAttributes ))
+        , DATAGRID_Thumbnailable_Attributes_CONST,PK_DeviceTemplate_get() );
+
 	PopulateRemoteControlMaps();
 	RestoreMediaResumePreferences();
 
@@ -4513,8 +4517,7 @@ void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_Enter
 	if( sDescription.empty() && !bIsStart )
 	{
 		string sCmdToRenameBookmark= "<%=!%> -300 1 741 159 " + StringUtils::itos(PK_Screen) + 
-			"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()) +
-			" " + StringUtils::ltos(COMMANDPARAMETER_DriveID_CONST) + " <%=" + StringUtils::ltos(VARIABLE_Device_List_CONST) + "%>";
+			"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
 
 		DCE::SCREEN_FileSave SCREEN_FileSave(m_dwPK_Device,pMessage->m_dwPK_Device_From, 
 			"<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>", sCmdToRenameBookmark, false);
@@ -5521,4 +5524,82 @@ void Media_Plugin::CMD_Check_For_New_Files(string &sCMD_Result,Message *pMessage
 	}
 	m_pDatabase_pluto_media->File_get()->Commit();
 	m_iPK_File_Last_Scanned_For_New=PK_File_Last;
+}
+
+//<-dceag-c846-b->
+
+	/** @brief COMMAND: #846 - Make Thumbnail */
+	/** Thumbnail a file or attribute */
+		/** @param #13 Filename */
+			/** Can be a fully qualified filename, or a !F+number, or !A+number for an attribute */
+		/** @param #19 Data */
+			/** The picture */
+
+void Media_Plugin::CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size,string &sCMD_Result,Message *pMessage)
+//<-dceag-c846-e->
+{
+	if( !pData || iData_Size==0 || sFilename.size()<3 )
+		return;
+
+	Row_Picture *pRow_Picture = m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPicture(pData,iData_Size,"JPG","");
+	if( !pRow_Picture )
+		return;
+	Row_File *pRow_File = NULL;
+
+	if( sFilename[0]=='!' )
+	{
+		if( sFilename[1]=='F' )
+			pRow_File = m_pDatabase_pluto_media->File_get()->GetRow( atoi( sFilename.substr(2).c_str() ) );
+		else if( sFilename[1]=='A' )
+		{
+			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow( atoi( sFilename.substr(2).c_str() ) );
+			if( !pRow_Attribute )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Make_Thumbnail can't find attriute %s", sFilename.c_str());
+				return;
+			}
+
+			// Delete any existing pictures for this attribute
+			vector<Row_Picture_Attribute *> vectRow_Picture_Attribute;
+			pRow_Attribute->Picture_Attribute_FK_Attribute_getrows(&vectRow_Picture_Attribute);
+			for(vector<Row_Picture_Attribute *>::iterator it=vectRow_Picture_Attribute.begin();it!=vectRow_Picture_Attribute.end();++it)
+			{
+				Row_Picture_Attribute *pRow_Picture_Attribute = *it;
+				pRow_Picture_Attribute->Delete();
+			}
+
+			Row_Picture_Attribute *pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->AddRow();
+			pRow_Picture_Attribute->FK_Attribute_set( pRow_Attribute->PK_Attribute_get() );
+			pRow_Picture_Attribute->FK_Picture_set( pRow_Picture->PK_Picture_get() );
+			m_pDatabase_pluto_media->Picture_Attribute_get()->Commit();
+		}
+		else
+			return; // Don't know how to handle
+	}
+	else
+	{
+		int PK_File = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetFileIDFromFilePath(sFilename);
+		if( PK_File )
+			pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+	}
+
+	if( !pRow_File )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Make_Thumbnail can't thumbnail %s", sFilename.c_str());
+		return;
+	}
+
+	// Delete any existing pictures for this file
+	vector<Row_Picture_File *> vectRow_Picture_File;
+	pRow_File->Picture_File_FK_File_getrows(&vectRow_Picture_File);
+	for(vector<Row_Picture_File *>::iterator it=vectRow_Picture_File.begin();it!=vectRow_Picture_File.end();++it)
+	{
+		Row_Picture_File *pRow_Picture_File = *it;
+		pRow_Picture_File->Delete();
+	}
+
+	Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
+	pRow_Picture_File->FK_File_set( pRow_File->PK_File_get() );
+	pRow_Picture_File->FK_Picture_set( pRow_Picture->PK_Picture_get() );
+	m_pDatabase_pluto_media->Picture_File_get()->Commit();
 }

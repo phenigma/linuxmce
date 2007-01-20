@@ -41,12 +41,14 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 	m_nSaveFile_PK_DeviceDrive = 0;
 	m_bSaveFile_CreatingFolder = false;
 	m_bSaveFile_Advanced_options = true;
+	m_pData_LastThumbnail=NULL;
+	m_iData_Size_LastThumbnail=0;
 }
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::~ScreenHandler()
 {
 	pthread_mutex_destroy(&m_MapMutex.mutex);
-
+	delete m_pData_LastThumbnail;
 	m_pOrbiter = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1896,7 +1898,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butChoose_CONST)
 			{
-				SaveFile_SendCommand();
+				SaveFile_SendCommand(m_nPK_Users_SaveFile);
 				return true;
 			}
 			else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butCreateDir_CONST)
@@ -1942,11 +1944,12 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 //  this is wrong.  there's no quotes, and it's the filename, not the username					m_sSaveFile_Command += " " + StringUtils::ltos(COMMANDPARAMETER_Name_CONST) + 
 //						" " + "<%=" + StringUtils::ltos(VARIABLE_Seek_Value_CONST) + "%>";
 				} 
-
+				
+				m_nPK_Users_SaveFile = pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePrivate_CONST ? m_pOrbiter->m_dwPK_Users : 0;
 				if(m_bSaveFile_Advanced_options)
 					SaveFile_GotoChooseFolderDesignObj();
 				else
-					SaveFile_SendCommand();
+					SaveFile_SendCommand(m_nPK_Users_SaveFile);
 
 				return true;
 			}
@@ -2023,7 +2026,7 @@ void ScreenHandler::SaveFile_GotoChooseFolderDesignObj()
 		"Folder : " + sNewPath, TEXT_STATUS_CONST);
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SaveFile_SendCommand()
+void ScreenHandler::SaveFile_SendCommand(int PK_Users)
 {
 	string sFilename = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 	sFilename = FileUtils::ValidFileName(sFilename,true);
@@ -2033,7 +2036,7 @@ void ScreenHandler::SaveFile_SendCommand()
 	sPath = FileUtils::ValidFileName(sPath,true);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST, sPath);
 
-	m_pOrbiter->CMD_Send_Message(m_sSaveFile_Command, false);
+	m_pOrbiter->CMD_Send_Message(m_sSaveFile_Command + (PK_Users ? " 17 " + StringUtils::itos(PK_Users) : ""), false);
 	m_pOrbiter->GotoMainMenu();
 
 	//reset file save info
@@ -2075,21 +2078,6 @@ void ScreenHandler::SaveFile_SendCommand()
 		return;
 	}
 
-	m_TVShowBookmark.m_bThumbnailChannel=m_TVShowBookmark.m_bThumbnailShow=false;
-
-	string sFormat="jpg";
-	m_TVShowBookmark.m_pData=NULL;
-	m_TVShowBookmark.m_iData_Size=NULL;
-	DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,
-		"0",m_pOrbiter->m_iStreamID,800,800,&m_TVShowBookmark.m_pData,&m_TVShowBookmark.m_iData_Size,&sFormat);
-	m_pOrbiter->SendCommand(CMD_Get_Video_Frame);
-
-	int PK_DesignObj = m_pOrbiter->m_mapDesignObj[PK_Screen];
-	m_pOrbiter->CMD_Update_Object_Image(StringUtils::itos(PK_DesignObj) + ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST),sFormat,m_TVShowBookmark.m_pData,m_TVShowBookmark.m_iData_Size,"0");
-
-	m_pOrbiter->CMD_Show_Object(StringUtils::itos(PK_DesignObj) + ".0.0." TOSTRING(DESIGNOBJ_butThumbnailShow_CONST),0,"","",m_TVShowBookmark.m_pData ? "1" : "0");
-	m_pOrbiter->CMD_Show_Object(StringUtils::itos(PK_DesignObj) + ".0.0." TOSTRING(DESIGNOBJ_butThumbnailChannel_CONST),0,"","",m_TVShowBookmark.m_pData ? "1" : "0");
-
 	ScreenHandlerBase::SCREEN_CreateViewBookmarksTV(PK_Screen);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::CreateViewBookmarksTV_ObjectSelected,	new ObjectInfoBackData());
@@ -2099,32 +2087,44 @@ bool ScreenHandler::CreateViewBookmarksTV_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 
-	if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butThumbnailShow_CONST )
-	{
-		if( pObjectInfoData->m_pObj->m_GraphicToDisplay==GRAPHIC_SELECTED )
-		{
-			pObjectInfoData->m_pObj->m_GraphicToDisplay_set("cvbt",GRAPHIC_NORMAL);
-			m_TVShowBookmark.m_bThumbnailShow=false;
-		}
-		else
-		{
-			pObjectInfoData->m_pObj->m_GraphicToDisplay_set("cvbt",GRAPHIC_SELECTED);
-			m_TVShowBookmark.m_bThumbnailShow=true;
-		}
-	}
-	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butThumbnailChannel_CONST )
-	{
-		if( pObjectInfoData->m_pObj->m_GraphicToDisplay==GRAPHIC_SELECTED )
-		{
-			pObjectInfoData->m_pObj->m_GraphicToDisplay_set("cvbt",GRAPHIC_NORMAL);
-			m_TVShowBookmark.m_bThumbnailChannel=false;
-		}
-		else
-		{
-			pObjectInfoData->m_pObj->m_GraphicToDisplay_set("cvbt",GRAPHIC_SELECTED);
-			m_TVShowBookmark.m_bThumbnailChannel=true;
-		}
-	}
-
 	return false;
+}
+
+void ScreenHandler::SCREEN_Thumbnail(long PK_Screen)
+{
+	string sFormat="jpg";
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+	delete m_pData_LastThumbnail;
+	m_iData_Size_LastThumbnail=0;
+
+	DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_NowPlaying,
+		"0",m_pOrbiter->m_iStreamID,800,800,&m_pData_LastThumbnail,&m_iData_Size_LastThumbnail,&sFormat);
+	m_pOrbiter->SendCommand(CMD_Get_Video_Frame);
+
+	int PK_DesignObj = m_pOrbiter->m_mapDesignObj[PK_Screen];
+	m_pOrbiter->CMD_Update_Object_Image(StringUtils::itos(PK_DesignObj) + ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST),sFormat,m_pData_LastThumbnail,m_iData_Size_LastThumbnail,"0");
+	vm.Release();
+	ScreenHandlerBase::SCREEN_Thumbnail(PK_Screen);
+
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Thumbnail_DatagridSelected, new DatagridCellBackData());
+}
+
+bool ScreenHandler::Thumbnail_DatagridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+
+	if( m_pData_LastThumbnail )
+	{
+		// Should always be the case
+		DCE::CMD_Make_Thumbnail CMD_Make_Thumbnail(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+			pCellInfoData->m_sValue,m_pData_LastThumbnail,m_iData_Size_LastThumbnail);
+		m_pOrbiter->SendCommand(CMD_Make_Thumbnail);
+		delete m_pData_LastThumbnail;
+		m_pData_LastThumbnail=NULL;
+		m_iData_Size_LastThumbnail=0;
+	}
+	vm.Release();
+	m_pOrbiter->CMD_Go_back("","");
+	return true;
 }

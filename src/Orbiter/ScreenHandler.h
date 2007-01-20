@@ -76,25 +76,6 @@ public:
 	void SelectedArray(DesignObj_Orbiter *pObj,int PK_Array,int &iValue);
 };
 
-class TVShowBookmark
-{
-public:
-	char *m_pData;
-	int m_iData_Size;
-	bool m_bThumbnailChannel,m_bThumbnailShow;
-	string m_sPosition;
-
-	TVShowBookmark()
-	{
-		m_pData=NULL;
-		m_iData_Size=0;
-	}
-	~TVShowBookmark()
-	{
-		delete m_pData;
-	}
-};
-
 class ScreenHandler : public ScreenHandlerBase
 {
 protected:
@@ -108,7 +89,8 @@ protected:
 
 	pluto_pthread_mutex_t m_MapMutex; /** < Protected the access to our maps */
 
-	TVShowBookmark m_TVShowBookmark;
+	char *m_pData_LastThumbnail;
+	int m_iData_Size_LastThumbnail;
 
 	virtual void DisplayMessageOnOrbiter(int PK_Screen,
 		string sMessage, bool bPromptToResetRouter = false,
@@ -246,9 +228,12 @@ public:
 	void SCREEN_CreateViewBookmarksTV(long PK_Screen);
 	bool CreateViewBookmarksTV_ObjectSelected(CallBackData *pData);
 
+	void SCREEN_Thumbnail(long PK_Screen);
+	bool Thumbnail_DatagridSelected(CallBackData *pData);
+
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
-	void SaveFile_SendCommand();
+	void SaveFile_SendCommand(int PK_Users);
 
 	//savefile data
 	string m_sSaveFile_MountedFolder;
@@ -260,6 +245,7 @@ public:
 	bool m_bSaveFile_CreatingFolder;
 	bool m_bSaveFile_Advanced_options;
 	int m_nSaveFile_PK_DeviceDrive;
+	int m_nPK_Users_SaveFile;
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

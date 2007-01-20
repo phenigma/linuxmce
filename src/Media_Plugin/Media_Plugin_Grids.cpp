@@ -327,7 +327,8 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	string sPK_File,sPK_Disc;
     PlutoSqlResult resultf,resultd;
     MYSQL_ROW row;
-	if( bFile && ( resultf.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sSQL_Where + sOnline + " AND Missing=0 " + (sPath.size() ? " AND Path in (" + sPath + ")" : "")) ) )
+	if( bFile && ( resultf.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sSQL_Where + sOnline + " AND Missing=0 " + 
+		(sPath.size() ? " AND Path in (" + sPath + ")" : "") + (PK_AttributeType_Sort!=0 ? " AND IsDirectory=0" : "") ) ) )
         while( ( row=mysql_fetch_row( resultf.r ) ) )
 			sPK_File += row[0] + string(",");
 
@@ -452,7 +453,7 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 	if( PK_AttributeType_Sort==0 )
 		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory,FK_FileFormat,Filename FROM File WHERE PK_File in (" + sPK_File + ")";
 	else
-		sSQL_Sort = "SELECT PK_File,'',Name,0,FK_FileFormat,Filename FROM File LEFT JOIN File_Attribute ON FK_File=PK_File LEFT JOIN Attribute ON FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ") AND (FK_AttributeType IS NULL OR FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + ") ORDER BY PK_File";
+		sSQL_Sort = "SELECT PK_File,'',Name,0,FK_FileFormat,Filename FROM File LEFT JOIN File_Attribute ON FK_File=PK_File LEFT JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ") AND (FK_AttributeType IS NULL OR FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + ") ORDER BY PK_File";
 
     PlutoSqlResult result;
     MYSQL_ROW row;
@@ -1418,7 +1419,7 @@ class DataGridTable *Media_Plugin::MediaAttrCurStream( string GridID, string Par
 	return pDataGrid;
 }
 
-void Media_Plugin::AddMediaTitlesToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaTitle *> &dequeMediaTitle,string sPreface)
+void Media_Plugin::AddMediaTitlesToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaTitle *> &dequeMediaTitle,string sPreface,bool bThumbnail)
 {
 	for(size_t s=0;s<dequeMediaTitle.size();++s)
 	{
@@ -1428,18 +1429,18 @@ void Media_Plugin::AddMediaTitlesToDataGrid(DataGridTable *pDataGrid,int &iRow,d
 		{
 			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
 			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
-			if( pRow_AttributeType && pRow_Attribute )
+			if( pRow_AttributeType && pRow_Attribute && (bThumbnail==false || CanThumbnail(pRow_AttributeType->PK_AttributeType_get())) )
 			{
 				string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
-				DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
+				DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(it->second) );
 				pDataGrid->SetData(0,iRow++,pCell);
 			}
 		}
-		AddMediaSectionToDataGrid(pDataGrid,iRow,pMediaTitle->m_dequeMediaSection,sNamePrefix);
+		AddMediaSectionToDataGrid(pDataGrid,iRow,pMediaTitle->m_dequeMediaSection,sNamePrefix,bThumbnail);
 	}
 }
 
-void Media_Plugin::AddMediaSectionToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaSection *> &dequeMediaSection,string sPreface)
+void Media_Plugin::AddMediaSectionToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaSection *> &dequeMediaSection,string sPreface,bool bThumbnail)
 {
 	for(size_t s=0;s<dequeMediaSection.size();++s)
 	{
@@ -1448,75 +1449,16 @@ void Media_Plugin::AddMediaSectionToDataGrid(DataGridTable *pDataGrid,int &iRow,
 		{
 			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
 			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
-			if( pRow_AttributeType && pRow_Attribute )
+			if( pRow_AttributeType && pRow_Attribute && (bThumbnail==false || CanThumbnail(pRow_AttributeType->PK_AttributeType_get())) )
 			{
 				string sName = sPreface + " #" + StringUtils::itos(s+1) + " ";
 				sName += pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
-				DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
+				DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(it->second) );
 				pDataGrid->SetData(0,iRow++,pCell);
 			}
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class DataGridTable *Media_Plugin::FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
@@ -1761,6 +1703,8 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
             {
                 size_t iSize;
                 char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "_tn." + pRow_Picture->Extension_get(),iSize);
+                if( !pBuffer )
+	                pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + pRow_Picture->Extension_get(),iSize);
                 if( pBuffer )
                 {
                     pDataGridCell_Preview->m_pGraphicData = pBuffer;
@@ -1781,6 +1725,8 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 				{
 					size_t iSize;
 					char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + "_tn.jpg",iSize);
+					if( !pBuffer )
+						pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg",iSize);
 					if( pBuffer )
 					{
 						pDataGridCell_Cover->m_pGraphicData = pBuffer;
@@ -2041,4 +1987,83 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 class DataGridTable *Media_Plugin::ProvidersForDevice( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 	return NULL;
+}
+
+class DataGridTable *Media_Plugin::ThumbnailableAttributes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+    DataGridTable *pDataGrid = new DataGridTable();
+
+	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(Parms.c_str()) );
+	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
+		return pDataGrid;
+
+	int iRow=0;
+	for(map<int,int>::iterator it=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.begin();it!=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.end();++it)
+	{
+		Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
+		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
+		if( pRow_AttributeType && pRow_Attribute && CanThumbnail(pRow_AttributeType->PK_AttributeType_get()) )
+		{
+			string sName = pRow_AttributeType->Description_get() + ": ";
+			sName += pRow_Attribute->Name_get();
+			DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(it->second) );
+			pDataGrid->SetData(0,iRow++,pCell);
+		}
+	}
+
+	MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->GetCurrentMediaFile();
+	if( pMediaFile )
+	{
+		string sNamePrefix;
+
+		if( pMediaFile->m_dwPK_File )
+		{
+			DataGridCell *pCell = new DataGridCell( "File: " + pMediaFile->m_sFilename, "!F" + StringUtils::itos(pMediaFile->m_dwPK_File) );
+			pDataGrid->SetData(0,iRow++,pCell);
+		}
+		
+		for( map<int,int>::iterator it=pMediaFile->m_mapPK_Attribute.begin();it!=pMediaFile->m_mapPK_Attribute.end();++it)
+		{
+			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
+			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
+			if( pRow_AttributeType && pRow_Attribute && CanThumbnail(pRow_AttributeType->PK_AttributeType_get()))
+			{
+				string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
+				DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(it->second) );
+				pDataGrid->SetData(0,iRow++,pCell);
+			}
+		}
+		AddMediaSectionToDataGrid(pDataGrid,iRow,pMediaFile->m_dequeMediaSection,sNamePrefix,true);
+		AddMediaTitlesToDataGrid(pDataGrid,iRow,pMediaFile->m_dequeMediaTitle,sNamePrefix,true);
+	}
+
+	AddMediaTitlesToDataGrid(pDataGrid,iRow,pEntertainArea->m_pMediaStream->m_dequeMediaTitle,"",true);
+
+	return pDataGrid;
+}
+
+bool Media_Plugin::CanThumbnail(int PK_AttributeType)
+{
+	switch(PK_AttributeType)
+	{
+	case ATTRIBUTETYPE_Director_CONST:
+	case ATTRIBUTETYPE_Performer_CONST:
+	case ATTRIBUTETYPE_Album_CONST:
+	case ATTRIBUTETYPE_Track_CONST:
+	case ATTRIBUTETYPE_Genre_CONST:
+	case ATTRIBUTETYPE_Channel_CONST:
+	case ATTRIBUTETYPE_Episode_CONST:
+	case ATTRIBUTETYPE_Program_CONST:
+	case ATTRIBUTETYPE_Title_CONST:
+	case ATTRIBUTETYPE_Conductor_CONST:
+	case ATTRIBUTETYPE_ComposerWriter_CONST:
+	case ATTRIBUTETYPE_Studio_CONST:
+	case ATTRIBUTETYPE_Chapter_CONST:
+	case ATTRIBUTETYPE_Producer_CONST:
+	case ATTRIBUTETYPE_Executive_Producer_CONST:
+		return true;
+	default:
+		return false;
+	}
 }

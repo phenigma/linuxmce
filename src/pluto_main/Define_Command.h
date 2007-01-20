@@ -766,6 +766,7 @@
 #define COMMAND_RemoteAssistance_SetStatus_CONST 843
 #define COMMAND_RemoteAssistance_GetStatus_CONST 844
 #define COMMAND_Delete_File_CONST 845
+#define COMMAND_Make_Thumbnail_CONST 846
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

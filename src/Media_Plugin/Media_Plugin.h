@@ -491,8 +491,8 @@ public:
     class DataGridTable *DevicesPipes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *MediaAttrFile( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *MediaAttrCurStream( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
-	void AddMediaSectionToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaSection *> &dequeMediaSection,string sPreface);
-	void AddMediaTitlesToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaTitle *> &dequeMediaTitle,string sPreface);
+	void AddMediaSectionToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaSection *> &dequeMediaSection,string sPreface,bool bThumbnail=false);
+	void AddMediaTitlesToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaTitle *> &dequeMediaTitle,string sPreface,bool bThumbnail=false);
 	void DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,DataGridTable *&pDataGrid,int &iRow,int PK_Command_Input=0,int PK_Command_Output=0,vector<int> *p_vectDevice=NULL);
 
     class DataGridTable *AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
@@ -508,6 +508,8 @@ public:
 	class DataGridTable *DevicesForCaptureCardPort( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *DevicesNeedingProviders( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *ProvidersForDevice( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	class DataGridTable *ThumbnailableAttributes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	bool CanThumbnail(int PK_AttributeType);
 
 	/*
 	*	Above functions in Media_Plugin_Grids.cpp
@@ -1086,6 +1088,17 @@ Powerfile: 0, 1, ... */
 
 	virtual void CMD_Check_For_New_Files() { string sCMD_Result; CMD_Check_For_New_Files(sCMD_Result,NULL);};
 	virtual void CMD_Check_For_New_Files(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #846 - Make Thumbnail */
+	/** Thumbnail a file or attribute */
+		/** @param #13 Filename */
+			/** Can be a fully qualified filename, or a !F+number, or !A+number for an attribute */
+		/** @param #19 Data */
+			/** The picture */
+
+	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size) { string sCMD_Result; CMD_Make_Thumbnail(sFilename.c_str(),pData,iData_Size,sCMD_Result,NULL);};
+	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };

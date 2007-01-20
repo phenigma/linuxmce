@@ -9909,6 +9909,46 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Thumbnail : public PreformedCommand
+	{
+	public:
+		SCREEN_Thumbnail(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "257" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Thumbnail_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Thumbnail_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "257" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Thumbnail_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Thumbnail_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "257" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Thumbnail_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Thumbnail_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "257" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -10174,6 +10214,7 @@ namespace DCE
 		virtual void SCREEN_ExternalDeviceFullScreen_Opts(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Remote_Assistance(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Legacy_AV_Speed_Control(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Thumbnail(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11682,6 +11723,12 @@ namespace DCE
 				{
 					ResetCallBacks();
 					SCREEN_Legacy_AV_Speed_Control(nPK_Screen);
+					break;
+				}
+				case 257:
+				{
+					ResetCallBacks();
+					SCREEN_Thumbnail(nPK_Screen);
 					break;
 				}
 

@@ -22732,5 +22732,37 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str()); }
 	};
+	class CMD_Make_Thumbnail : public PreformedCommand {
+	public:
+		CMD_Make_Thumbnail(long DeviceIDFrom, long DeviceIDTo,string sFilename,char *pData,int iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Make_Thumbnail_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
+			- COMMANDPARAMETER_Data_CONST, pData,iData_Size); }
+	};
+	class CMD_Make_Thumbnail_DL : public PreformedCommand {
+	public:
+		CMD_Make_Thumbnail_DL(long DeviceIDFrom, string DeviceIDTo,string sFilename,char *pData,int iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Make_Thumbnail_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
+			- COMMANDPARAMETER_Data_CONST, pData,iData_Size); }
+	};
+	class CMD_Make_Thumbnail_DT : public PreformedCommand {
+	public:
+		CMD_Make_Thumbnail_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename,char *pData,int iData_Size) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Make_Thumbnail_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
+			- COMMANDPARAMETER_Data_CONST, pData,iData_Size); }
+	};
+	class CMD_Make_Thumbnail_Cat : public PreformedCommand {
+	public:
+		CMD_Make_Thumbnail_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename,char *pData,int iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Make_Thumbnail_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
+			- COMMANDPARAMETER_Data_CONST, pData,iData_Size); }
+	};
 }
 #endif
