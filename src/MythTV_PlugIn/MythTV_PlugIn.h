@@ -141,6 +141,9 @@ public:
 
 		/** What tv options are available in the area -- this is a temporary hack until we get a proper source for this */
 		class DataGridTable *TvProviders(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+		class DataGridTable *FavoriteChannels( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+		class DataGridTable *FavoriteShows( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+		class DataGridTable *ThumbnailableAttributes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
 		// Set a value in mythconverg's setting table.  If hostname=*, all known hosts will be set.  If it's empty, hostname will be NULL
 		void UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting=false);
@@ -217,6 +220,17 @@ live, nonlive, osd */
 
 	virtual void CMD_Sync_Providers_and_Cards() { string sCMD_Result; CMD_Sync_Providers_and_Cards(sCMD_Result,NULL);};
 	virtual void CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #846 - Make Thumbnail */
+	/** Make a thumbnail */
+		/** @param #13 Filename */
+			/** Can be a fully qualified filename, or a !F+number, or !A+number for an attribute */
+		/** @param #19 Data */
+			/** The picture */
+
+	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size) { string sCMD_Result; CMD_Make_Thumbnail(sFilename.c_str(),pData,iData_Size,sCMD_Result,NULL);};
+	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
     };

@@ -165,11 +165,15 @@ bool DesignObj_Orbiter::IsHidden()
 	m_pObjectRenderer->RenderGraphic(rectTotal, bDisableAspectRatio, point);
 }
 //-------------------------------------------------------------------------------------------------------
-string DesignObj_Orbiter::GetParameterValue(int ParameterID)
+string DesignObj_Orbiter::GetParameterValue(int ParameterID,bool bSubstitute)
 {
 	map<int,string>::iterator ipParm = m_mapObjParms.find(ParameterID);
 	if (ipParm==m_mapObjParms.end())
 		return "";
+
+	if( !bSubstitute )
+		return (*ipParm).second;
+
 	return m_pOrbiter->SubstituteVariables((*ipParm).second,this,0,0);
 }
 //-------------------------------------------------------------------------------------------------------

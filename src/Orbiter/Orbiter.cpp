@@ -2241,8 +2241,16 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 		pObj->m_iPopulatedHeight=pObj->m_MaxRow;
 
 		string sParams = SubstituteVariables( pObj->m_sOptions, pObj, 0, 0 );
+
+		int PK_DeviceTemplate = pObj->m_iPK_DeviceTemplate;
+		if( pObj->m_iPK_DeviceTemplate==-1 )
+		{
+			string sPK_DeviceTemplate = SubstituteVariables(pObj->GetParameterValue( DESIGNOBJPARAMETER_PK_DeviceTemplate_CONST ), pObj, 0, 0);
+			PK_DeviceTemplate = atoi( sPK_DeviceTemplate.c_str(  ) );
+		}
+
 		DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
-			pObj->m_iPK_Datagrid, sParams, pObj->m_iPK_DeviceTemplate, &iPK_Variable, &sValue_To_Assign, &bResponse, &pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight  );
+			pObj->m_iPK_Datagrid, sParams, PK_DeviceTemplate, &iPK_Variable, &sValue_To_Assign, &bResponse, &pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight  );
 		if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
 			g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
 		else if(iPK_Variable)
@@ -4157,8 +4165,12 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 				m_pOrbiterRenderer->SaveBackgroundForDeselect( pObj, pObj->m_pPopupPoint);  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
 		else if(  Variable=="NPD" )
-		{
 			Output += StringUtils::itos(m_dwPK_Device_NowPlaying);
+		else if(  Variable=="NPDT" )
+		{
+			DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device_NowPlaying);
+			if( pDevice )
+				Output += StringUtils::itos(pDevice->m_dwPK_DeviceTemplate);
 		}
 		else if(  Variable=="NP_R" )
 		{
@@ -7885,7 +7897,8 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 	pObj_Datagrid->m_iPK_Variable = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Variable_CONST ).c_str(  ) );
 	pObj_Datagrid->m_sOptions = pObj_Datagrid->m_mapObjParms[DESIGNOBJPARAMETER_Options_CONST];  // No substitution since this usually has tokens in it to parse at runtime
 	pObj_Datagrid->m_iPK_Datagrid = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Datagrid_CONST ).c_str(  ) );
-	pObj_Datagrid->m_iPK_DeviceTemplate = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_DeviceTemplate_CONST ).c_str(  ) );
+	string sPK_DeviceTemplate = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_DeviceTemplate_CONST, false ); // Don't substitute since this can change in realtime when the grid is rendered
+	pObj_Datagrid->m_iPK_DeviceTemplate = sPK_DeviceTemplate.find("<%")!=string::npos ? -1 : atoi( sPK_DeviceTemplate.c_str(  ) );
 	pObj_Datagrid->m_bDontShowSelection = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Is_Multi_Select_CONST )=="-1";
 	pObj_Datagrid->m_bIsMultiSelect = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Is_Multi_Select_CONST )=="1";
 

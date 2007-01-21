@@ -21,6 +21,7 @@ public:
 	DesignObj_DataGrid(Orbiter *pOrbiter);
 	virtual ~DesignObj_DataGrid(); 
 
+	bool m_bCacheGrid;  // Normally true, but can be set programatically to false to prevent a grid from caching 
 	int m_GridCurRow, m_GridCurCol;  // The current top, left grid and column being displayed.  Zero based.  Example: In a grid with 10 rows per page, on the second page m_GridCurRow will = 10
 	int m_MaxRow, m_MaxCol; // The total number of rows and columns visible on the screen.  Not related to the actual rows and columns in the grid.  
 	int m_FixedRowHeight, m_FixedColumnWidth, m_RowSpacing;

@@ -1036,7 +1036,7 @@ void MythTV_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,str
 
 	if (m_mythStatus == MYTHSTATUS_PLAYBACK)
 	{
-		*sText="Live TV"
+		*sText="325 HBO\tSopranos";
 		*sMediaPosition=StringUtils::Format(" POS:%d TOTAL:%d PROG:SH8196770000 SERIES:sh019875 CHAN:1325", m_CurTime, m_EndTime);
 	}
 }

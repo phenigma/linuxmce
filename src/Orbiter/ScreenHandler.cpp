@@ -1701,7 +1701,7 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 				if( sBookmark.empty()==false )
 				{
 					DCE::CMD_Save_Bookmark CMD_Save_Bookmark(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
-						NULL,0,MEDIATYPE_pluto_LiveTV_CONST,"",sDescription,sBookmark,false);
+						0,NULL,0,MEDIATYPE_pluto_LiveTV_CONST,"",sDescription,sBookmark,false);
 					m_pOrbiter->SendCommand(CMD_Save_Bookmark);
 					m_pOrbiter->CMD_Refresh("");
 				}
@@ -2165,7 +2165,63 @@ void ScreenHandler::SaveFile_SendCommand(int PK_Users)
 		return;
 	}
 
+	string::size_type pos=sText.find('\t');  // Text will be the channel in human readable form, a tab, and the show in human readable form
+	string sChannelDesc = pos!=string::npos ? sText.substr(0,pos) : sText;
+	string sShowDesc = pos!=string::npos ? sText.substr(pos+1) : "";
+
+	string sChannel,sShow;
+	string::size_type end;
+	pos=sPosition.find("CHAN:");
+	if( pos!=string::npos )
+	{
+		end = sPosition.find(" ",pos);
+		sChannel = end==string::npos ? sPosition.substr(pos+5) : sPosition.substr(pos+5,end-pos-5);
+		if( sChannel.empty()==false )
+			sChannel = " CHAN:" + sChannel;
+	}
+
+	// For the show, first try to find a series
+	pos=sPosition.find("SERIES:");
+	if( pos!=string::npos )
+	{
+		end = sPosition.find(" ",pos);
+		sShow = end==string::npos ? sPosition.substr(pos+7) : sPosition.substr(pos+7,end-pos-7);
+		if( sShow.empty()==false )
+			sShow = " SERIES:" + sShow;
+	}
+
+	if( sShow.empty() )
+	{
+		pos=sPosition.find("PROG:");
+		if( pos!=string::npos )
+		{
+			end = sPosition.find(" ",pos);
+			sShow = end==string::npos ? sPosition.substr(pos+5) : sPosition.substr(pos+5,end-pos-5);
+			if( sShow.empty()==false )
+				sShow = " PROG:" + sShow;
+		}
+	}
+
+	// We should at least have a channel, although if there's no guide data, there might not be a show
+	if( sChannel.empty() || sChannelDesc.empty() )
+	{
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_DialogCannotBookmark_CONST);
+		return;
+	}
+
 	ScreenHandlerBase::SCREEN_CreateViewBookmarksTV(PK_Screen);
+
+	// There's no show for us to bookmark
+	if( sShow.empty() || sShowDesc.empty() )
+	{
+		m_pOrbiter->CMD_Show_Object(StringUtils::itos(m_p_MapDesignObj_Find(PK_Screen)) + ".0.0." TOSTRING(DESIGNOBJ_butBookmarkProgram_Private_CONST),0,"","","0");
+		m_pOrbiter->CMD_Show_Object(StringUtils::itos(m_p_MapDesignObj_Find(PK_Screen)) + ".0.0." TOSTRING(DESIGNOBJ_butBookmarkProgram_CONST),0,"","","0");
+	}
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,sChannelDesc);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,sShowDesc);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST,sChannel);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST,sShow);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::CreateViewBookmarksTV_ObjectSelected,	new ObjectInfoBackData());
 }

@@ -2391,11 +2391,11 @@
 #define DESIGNOBJ_butRADisable_CONST 5389
 #define DESIGNOBJ_butThumbnailShow_CONST 5392
 #define DESIGNOBJ_butThumbnailChannel_CONST 5393
+#define DESIGNOBJ_butBookmarkProgram_Private_CONST 5395
 #define DESIGNOBJ_icoFavorite_CONST 5399
 #define DESIGNOBJ_grpPVR_UI2_Channels_CONST 5400
 #define DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Show_CONST 5405
 #define DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Chan_CONST 5404
-
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
@@ -2449,4 +2449,5 @@
 
 
 #endif
+
 

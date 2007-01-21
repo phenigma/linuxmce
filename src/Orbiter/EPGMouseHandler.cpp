@@ -24,6 +24,7 @@ EPGMouseHandler::EPGMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBe
 	m_pDatagridMouseHandlerHelper = new DatagridMouseHandlerHelper(this);
 	m_pDesignObj_DataGrid_Active=NULL;
 	m_pDesignObj_UpcomingChannels= (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_dgUpcomingShows_CONST);
+	m_pDesignObj_UpcomingChannels->m_bCacheGrid=false;  // Since the grid isn't scrollable until the user moves to it, don't waste the time to cache it
 	m_pDesignObjText_Synopsis=m_pDesignObj_UpcomingChannels ? m_pMouseBehavior->m_pOrbiter->FindText( (DesignObj_Orbiter *) m_pDesignObj_UpcomingChannels->m_pParentObject, TEXT_MediaSynopsis_CONST) : NULL;
 	if( m_pDesignObjText_Synopsis )
 		m_pDesignObjText_Synopsis->m_sText = "";
@@ -156,6 +157,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 			m_pMouseBehavior->m_pOrbiter->CMD_Set_Variable( m_pDesignObj_DataGrid_Active->m_iPK_Variable, pCell->GetValue() );
 
 		m_pDesignObj_DataGrid_Active = m_pDesignObj_UpcomingChannels;
+		m_pDesignObj_UpcomingChannels->m_bCacheGrid=true;  // Now that this is the active grid, start caching future pages
 		PlutoRectangle rect(m_pDesignObj_DataGrid_Active->m_rPosition.X + m_pDesignObj_DataGrid_Active->m_pPopupPoint.X,
 			m_pDesignObj_DataGrid_Active->m_rPosition.Y + m_pDesignObj_DataGrid_Active->m_pPopupPoint.Y,
 			m_pDesignObj_DataGrid_Active->m_rPosition.Width / 2,m_pDesignObj_DataGrid_Active->m_rPosition.Height);
@@ -174,6 +176,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 		// The user was in the upcoming shows grid and moved to the left
 		m_pDatagridMouseHandlerHelper->ReleaseRelative();
 		m_pDesignObj_DataGrid_Active = (DesignObj_DataGrid *) m_pObj;
+		m_pDesignObj_UpcomingChannels->m_bCacheGrid=false;  // Since the grid isn't scrollable until the user moves to it, don't waste the time to cache it
 		PlutoRectangle rect(m_pDesignObj_DataGrid_Active->m_rPosition.X + m_pDesignObj_DataGrid_Active->m_pPopupPoint.X + m_pDesignObj_DataGrid_Active->m_rPosition.Width/2,
 			m_pDesignObj_DataGrid_Active->m_rPosition.Y + m_pDesignObj_DataGrid_Active->m_pPopupPoint.Y,
 			m_pDesignObj_DataGrid_Active->m_rPosition.Width / 2,m_pDesignObj_DataGrid_Active->m_rPosition.Height);
@@ -244,7 +247,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 					return;
 				DataGridCell *pCell = pDataGridTable->GetData(0,Row + m_pDesignObj_DataGrid_Active->m_GridCurRow);
 				if( pCell )
-					m_pMouseBehavior->m_pOrbiter->CMD_Set_Variable( m_pDesignObj_DataGrid_Active->m_iPK_Variable, pCell->GetValue() );
+					m_pMouseBehavior->m_pOrbiter->CMD_Set_Variable( m_pDesignObj_DataGrid_Active->m_iPK_Variable, pCell->GetValue() + string(",1") );  // The ,1 means don't bother fetching all 2 weeks of guide data, just 1 page
 
 				m_pMouseBehavior->m_pOrbiter->CMD_Refresh( m_pDesignObj_UpcomingChannels->m_sGridID );
 

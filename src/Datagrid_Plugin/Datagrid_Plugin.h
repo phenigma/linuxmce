@@ -106,8 +106,13 @@ public:
 				DatagridGeneratorCallBackMap::iterator itCB;
 				if( (itCB=pDatagridGeneratorCallBackMap->find(PK_DeviceTemplate))==pDatagridGeneratorCallBackMap->end() )
 				{
-					g_pPlutoLogger->Write(LV_WARNING,"Multiple handlers for datagrid %d and none matching.  Using the first",iPK_DataGrid);
-					pCB = pDatagridGeneratorCallBackMap->begin()->second;
+					if( (itCB=pDatagridGeneratorCallBackMap->find(0))==pDatagridGeneratorCallBackMap->end() )
+					{
+						g_pPlutoLogger->Write(LV_WARNING,"Multiple handlers for datagrid %d and none matching.  Using the first",iPK_DataGrid);
+						pCB = pDatagridGeneratorCallBackMap->begin()->second;
+					}
+					else
+						pCB = itCB->second;
 				}
 				else
 					pCB = itCB->second;

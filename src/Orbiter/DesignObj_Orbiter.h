@@ -113,7 +113,7 @@ int k=2;
 #define MAX_ALT_COLORS 15
 	int m_iAltColorValues[MAX_ALT_COLORS];
 
-	string GetParameterValue(int ParameterID);
+	string GetParameterValue(int ParameterID,bool bSubstitute=true);
 	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 
 	std::string GenerateObjectHash(const PlutoPoint& point, bool bObjectState = true);

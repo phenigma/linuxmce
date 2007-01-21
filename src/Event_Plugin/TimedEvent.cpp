@@ -69,6 +69,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d
 			time_t t=time(NULL);
 			struct tm *tm_Now = localtime(&t);
 			int CurrentDow = tm_Now->tm_wday==0 ? 7 : tm_Now->tm_wday; // We use M=1, Sunday=7
+			g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::CalcNextTime about to see if another time occurs today %d Checking %d/%d/%d", CurrentDow, tm_Now->tm_mday,tm_Now->tm_mon+1,tm_Now->tm_year);
+
 			if( (m_sDaysOfWeek.length() && !m_sDaysOfWeek.find(StringUtils::itos(CurrentDow))==string::npos) ||
 				!SetNextTime(tm_Now,tm_Now,m_sTimes) )
 			{
@@ -96,6 +98,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d
 					return;
 				}
 
+				g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::CalcNextTime no other time today.  Checking %d %d/%d/%d", iDowNext, tm_Now->tm_mday,tm_Now->tm_mon+1,tm_Now->tm_year);
 				if( !SetNextTime(NULL,tm_Now,m_sTimes) )
 				{
 					g_pPlutoLogger->Write(LV_CRITICAL,"Day of week timer %s has no next time: %s",
@@ -197,6 +200,7 @@ public:
 	};
 };
 
+// Given a comma delimited list of times, like 14:20, 13:22, etc., find the one that occurs next
 bool TimedEvent::SetNextTime(tm *tmAfter,tm *tmOutput,string sTimes)
 {
   	TimeOfDay tod;
@@ -210,11 +214,15 @@ bool TimedEvent::SetNextTime(tm *tmAfter,tm *tmOutput,string sTimes)
 	}
 
 	if( tod.m_H==-1 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::SetNextTime didn't find a valid time");
 		return false; // We didn't find a valid time
+	}
 
 	tmOutput->tm_hour = tod.m_H;
 	tmOutput->tm_min = tod.m_M;
 	tmOutput->tm_sec = tod.m_S;
 
+	g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::SetNextTime returning %d:%d:%d",tod.m_H,tod.m_M,tod.m_S);
 	return true;
 }

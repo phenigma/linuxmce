@@ -22,6 +22,7 @@ DesignObj_DataGrid::DesignObj_DataGrid(Orbiter *pOrbiter) : DesignObj_Orbiter(pO
 	m_iPopulatedWidth=m_iPopulatedHeight=0;
 	m_bParsed=false;
 	m_bFlushOnScreen=true;
+	m_bCacheGrid=true;
 	// TODO: These should come from the database
 
 }
@@ -84,7 +85,8 @@ g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %
 g_PlutoProfiler->Start("RequestDatagridContents");
 	DataGridTable *pDataGridTable = RequestDatagridContents( m_GridCurCol,  m_GridCurRow, false );
 g_PlutoProfiler->Stop("RequestDatagridContents");
-	m_pOrbiter->CallMaintenanceInMiliseconds(100,&Orbiter::StartCachingGrid,this,pe_Match_Data);
+	if( m_bCacheGrid )
+		m_pOrbiter->CallMaintenanceInMiliseconds(100,&Orbiter::StartCachingGrid,this,pe_Match_Data);
 	m_PagesCached = make_pair<int,int> (0,0); // Start caching again
 
 g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);

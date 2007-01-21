@@ -599,6 +599,10 @@ bool Media_Plugin::Register()
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::ThumbnailableAttributes ))
         , DATAGRID_Thumbnailable_Attributes_CONST,PK_DeviceTemplate_get() );
 
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::ThumbnailableAttributes ))
+        , DATAGRID_Thumbnailable_Attributes_CONST,0 );  // Register as 0 also, because some media plugins may implement this, but not all.  See: Datagrid_PluginGetCallBack
+
 	PopulateRemoteControlMaps();
 	RestoreMediaResumePreferences();
 
@@ -4379,6 +4383,8 @@ int k=2;
 
 	/** @brief COMMAND: #409 - Save Bookmark */
 	/** Save the current position as a bookmark */
+		/** @param #17 PK_Users */
+			/** The user to save this under, or 0 for public */
 		/** @param #19 Data */
 			/** The picture to save as the thumbnail, in jpg format.  If not specified the plugin will try to grab a frame from the media player */
 		/** @param #29 PK_MediaType */
@@ -4392,7 +4398,7 @@ int k=2;
 		/** @param #225 Always */
 			/** If true, then this is the start position */
 
-void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,int iPK_MediaType,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,int iPK_MediaType,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways,string &sCMD_Result,Message *pMessage)
 //<-dceag-c409-e->
 {
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -4506,7 +4512,29 @@ void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,int iPK_MediaTyp
 	{
 		if( pMediaStream && sDescription.empty() )
 			sDescription = pMediaStream->m_sMediaDescription + " " + sText;
-		pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
+		// Be sure we don't already have this same thing bookmarked
+		string sWhere = "Position='" + sPosition + "'";
+
+		if( iPK_Users )
+			sWhere += " AND EK_Users=" + StringUtils::itos(iPK_Users);
+		else
+			sWhere += " AND EK_Users IS NULL";
+
+		if( pMediaStream && pMediaStream->m_dwPK_Disc )
+			sWhere += " AND FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc);
+		else if( pMediaFile )
+			sWhere += " AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File);
+
+		if( iPK_MediaType )
+			sWhere += " AND EK_MediaType=" + StringUtils::itos(iPK_MediaType);
+
+		vector<Row_Bookmark *> vectRow_Bookmark;
+		m_pDatabase_pluto_media->Bookmark_get()->GetRows(sWhere,&vectRow_Bookmark);
+
+		if( vectRow_Bookmark.size() )
+			pRow_Bookmark = vectRow_Bookmark[0];
+		else
+			pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
 	}
 
 	pRow_Bookmark->Description_set( sDescription );
@@ -4520,6 +4548,8 @@ void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,int iPK_MediaTyp
 		pRow_Bookmark->FK_Picture_set(pRow_Picture->PK_Picture_get());
 	pRow_Bookmark->Description_set(sDescription);
 	pRow_Bookmark->Position_set(sPosition);
+	if( iPK_Users )
+		pRow_Bookmark->EK_Users_set(iPK_Users);
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 
 	if( pMediaStream )
@@ -5552,6 +5582,20 @@ void Media_Plugin::CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Siz
 {
 	if( !pData || iData_Size==0 || sFilename.size()<3 )
 		return;
+
+    OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
+	if( !pOH_Orbiter ) // It could be a remote control
+		pOH_Orbiter = m_pOrbiter_Plugin->m_mapRemote_2_Orbiter_Find( pMessage->m_dwPK_Device_From );
+
+	if( pOH_Orbiter && pOH_Orbiter->m_pEntertainArea && pOH_Orbiter->m_pEntertainArea->m_pMediaStream )
+	{
+        class Command_Impl *pPlugIn = pOH_Orbiter->m_pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl;
+        g_pPlutoLogger->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
+        pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
+		// Don't forward to the generic handler/capture card--it's just ourself
+        if( pOH_Orbiter->m_pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo!=m_pGenericMediaHandlerInfo && pPlugIn->ReceivedMessage( pMessage )!=rmr_Processed )
+			return; // The plugin handled this
+	}
 
 	Row_Picture *pRow_Picture = m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPicture(pData,iData_Size,"JPG","");
 	if( !pRow_Picture )
