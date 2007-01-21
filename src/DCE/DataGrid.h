@@ -44,6 +44,7 @@ namespace DCE
 		// Unique value REQUIRED for multi-select lists.
 		DataGridCell(string Text, string Value="");
 		DataGridCell(int Size, char *Data);
+		DataGridCell(DataGridCell *pDataGridCell);
 		virtual ~DataGridCell();
 		void Initialize();
 

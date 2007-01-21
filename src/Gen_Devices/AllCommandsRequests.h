@@ -11386,10 +11386,11 @@ namespace DCE
 	};
 	class CMD_Save_Bookmark : public PreformedCommand {
 	public:
-		CMD_Save_Bookmark(long DeviceIDFrom, long DeviceIDTo,char *pData,int iData_Size,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Save_Bookmark(long DeviceIDFrom, long DeviceIDTo,char *pData,int iData_Size,int iPK_MediaType,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Save_Bookmark_CONST,
-			5 /* number of parameters */,
+			6 /* number of parameters */,
 			- COMMANDPARAMETER_Data_CONST, pData,iData_Size,
+			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
 			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str(),
 			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
 			COMMANDPARAMETER_Position_CONST, sPosition.c_str(),
@@ -11397,10 +11398,11 @@ namespace DCE
 	};
 	class CMD_Save_Bookmark_DL : public PreformedCommand {
 	public:
-		CMD_Save_Bookmark_DL(long DeviceIDFrom, string DeviceIDTo,char *pData,int iData_Size,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Save_Bookmark_DL(long DeviceIDFrom, string DeviceIDTo,char *pData,int iData_Size,int iPK_MediaType,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Save_Bookmark_CONST,
-			5 /* number of parameters */,
+			6 /* number of parameters */,
 			- COMMANDPARAMETER_Data_CONST, pData,iData_Size,
+			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
 			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str(),
 			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
 			COMMANDPARAMETER_Position_CONST, sPosition.c_str(),
@@ -11408,10 +11410,11 @@ namespace DCE
 	};
 	class CMD_Save_Bookmark_DT : public PreformedCommand {
 	public:
-		CMD_Save_Bookmark_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,char *pData,int iData_Size,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Save_Bookmark_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,char *pData,int iData_Size,int iPK_MediaType,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Save_Bookmark_CONST,
-			5 /* number of parameters */,
+			6 /* number of parameters */,
 			- COMMANDPARAMETER_Data_CONST, pData,iData_Size,
+			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
 			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str(),
 			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
 			COMMANDPARAMETER_Position_CONST, sPosition.c_str(),
@@ -11419,10 +11422,11 @@ namespace DCE
 	};
 	class CMD_Save_Bookmark_Cat : public PreformedCommand {
 	public:
-		CMD_Save_Bookmark_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,char *pData,int iData_Size,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Save_Bookmark_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,char *pData,int iData_Size,int iPK_MediaType,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Save_Bookmark_CONST,
-			5 /* number of parameters */,
+			6 /* number of parameters */,
 			- COMMANDPARAMETER_Data_CONST, pData,iData_Size,
+			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType).c_str(),
 			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str(),
 			COMMANDPARAMETER_Description_CONST, sDescription.c_str(),
 			COMMANDPARAMETER_Position_CONST, sPosition.c_str(),

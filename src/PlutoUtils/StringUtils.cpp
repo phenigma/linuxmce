@@ -773,12 +773,12 @@ string StringUtils::HourMinute(time_t t,bool b24Hour)
 	if( !b24Hour )
 	{
 		if( tm->tm_hour>12 )
-		    sprintf( acDateTime, "%2d:%02dpm", tm->tm_hour-12, tm->tm_min );
+		    sprintf( acDateTime, "%d:%02dpm", tm->tm_hour-12, tm->tm_min );
 		else
-		    sprintf( acDateTime, "%2d:%02dam", tm->tm_hour, tm->tm_min );
+		    sprintf( acDateTime, "%d:%02dam", tm->tm_hour, tm->tm_min );
 	}
 	else
-	    sprintf( acDateTime, "%2d:%02d", tm->tm_hour, tm->tm_min );
+	    sprintf( acDateTime, "%d:%02d", tm->tm_hour, tm->tm_min );
 
     return acDateTime;
 }

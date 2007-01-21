@@ -904,6 +904,8 @@ Powerfile: 0, 1, ... */
 	/** Save the current position as a bookmark */
 		/** @param #19 Data */
 			/** The picture to save as the thumbnail, in jpg format.  If not specified the plugin will try to grab a frame from the media player */
+		/** @param #29 PK_MediaType */
+			/** The media type, if not specified it will get it from the stream */
 		/** @param #45 PK_EntertainArea */
 			/** The entertainment area with the media */
 		/** @param #163 Description */
@@ -913,8 +915,8 @@ Powerfile: 0, 1, ... */
 		/** @param #225 Always */
 			/** If true, then this is the start position */
 
-	virtual void CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways) { string sCMD_Result; CMD_Save_Bookmark(pData,iData_Size,sPK_EntertainArea.c_str(),sDescription.c_str(),sPosition.c_str(),bAlways,sCMD_Result,NULL);};
-	virtual void CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Save_Bookmark(char *pData,int iData_Size,int iPK_MediaType,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways) { string sCMD_Result; CMD_Save_Bookmark(pData,iData_Size,iPK_MediaType,sPK_EntertainArea.c_str(),sDescription.c_str(),sPosition.c_str(),bAlways,sCMD_Result,NULL);};
+	virtual void CMD_Save_Bookmark(char *pData,int iData_Size,int iPK_MediaType,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #410 - Delete Bookmark */

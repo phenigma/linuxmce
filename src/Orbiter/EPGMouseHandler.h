@@ -28,6 +28,7 @@ namespace DCE
 		DatagridMouseHandlerHelper *m_pDatagridMouseHandlerHelper;
 		DesignObj_DataGrid *m_pDesignObj_DataGrid_Active;
 		DesignObj_DataGrid *m_pDesignObj_UpcomingChannels;
+		DesignObj_Orbiter *m_pObj_QuickNav,*m_pObj_Bookmark_Channel,*m_pObj_Bookmark_Show;
 		DesignObjText *m_pDesignObjText_Synopsis;
 		int m_iRow_Last;
 

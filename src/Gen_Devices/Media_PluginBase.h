@@ -248,7 +248,7 @@ public:
 	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_Attribute,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Attribute(int iEK_Attribute,string *sText,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Save_Bookmark(char *pData,int iData_Size,int iPK_MediaType,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Delete_Bookmark(int iEK_Bookmark,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int iEK_Bookmark,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
@@ -783,11 +783,12 @@ public:
 						string sCMD_Result="OK";
 						char *pData=pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST];
 						int iData_Size=pMessage->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST];
+						int iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str());
 						string sPK_EntertainArea=pMessage->m_mapParameters[COMMANDPARAMETER_PK_EntertainArea_CONST];
 						string sDescription=pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST];
 						string sPosition=pMessage->m_mapParameters[COMMANDPARAMETER_Position_CONST];
 						bool bAlways=(pMessage->m_mapParameters[COMMANDPARAMETER_Always_CONST]=="1" ? true : false);
-						CMD_Save_Bookmark(pData,iData_Size,sPK_EntertainArea.c_str(),sDescription.c_str(),sPosition.c_str(),bAlways,sCMD_Result,pMessage);
+						CMD_Save_Bookmark(pData,iData_Size,iPK_MediaType,sPK_EntertainArea.c_str(),sDescription.c_str(),sPosition.c_str(),bAlways,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -804,7 +805,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Save_Bookmark(pData,iData_Size,sPK_EntertainArea.c_str(),sDescription.c_str(),sPosition.c_str(),bAlways,sCMD_Result,pMessage);
+								CMD_Save_Bookmark(pData,iData_Size,iPK_MediaType,sPK_EntertainArea.c_str(),sDescription.c_str(),sPosition.c_str(),bAlways,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

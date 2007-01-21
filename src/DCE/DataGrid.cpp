@@ -61,6 +61,63 @@ void DataGridCell::Initialize()
 	m_pGraphic = NULL;
 }
 
+DataGridCell::DataGridCell(DataGridCell *pDataGridCell)
+{
+	m_bSelectable = pDataGridCell->m_bSelectable;
+	m_bDontFireGridEvent = pDataGridCell->m_bDontFireGridEvent;
+	m_PK_StyleDetail = pDataGridCell->m_PK_StyleDetail;
+	m_AltColor=pDataGridCell->m_AltColor;
+	m_Colspan=pDataGridCell->m_Colspan;
+	m_Rowspan=pDataGridCell->m_Rowspan;
+	if( pDataGridCell->m_pGraphicData )
+	{
+		m_pGraphicData = new char[pDataGridCell->m_GraphicLength];
+		memcpy(m_pGraphicData, pDataGridCell->m_pGraphicData, pDataGridCell->m_GraphicLength);
+	}
+	else
+		m_pGraphicData=NULL;
+	m_GraphicLength = pDataGridCell->m_GraphicLength;
+
+	if( pDataGridCell->m_Text )
+	{
+		m_Text = new char[pDataGridCell->m_TextLength];
+		memcpy(m_Text, pDataGridCell->m_Text, pDataGridCell->m_TextLength);
+	}
+	else
+		m_Text = NULL;
+	m_TextLength = pDataGridCell->m_TextLength;
+
+	if( pDataGridCell->m_Value )
+	{
+		m_Value = new char[pDataGridCell->m_ValueLength];
+		memcpy(m_Value, pDataGridCell->m_Value, pDataGridCell->m_ValueLength);
+	}
+	else
+		m_Value = NULL;
+	m_ValueLength = pDataGridCell->m_ValueLength;
+
+	if( pDataGridCell->m_pMessage )
+		m_pMessage = new Message(pDataGridCell->m_pMessage);
+	else
+		m_pMessage = NULL;
+	m_MessageLength = pDataGridCell->m_MessageLength;
+
+	if( pDataGridCell->m_ImagePath )
+	{
+		m_ImagePath = new char[pDataGridCell->m_ImagePathLength];
+		memcpy(m_ImagePath, pDataGridCell->m_ImagePath, pDataGridCell->m_ImagePathLength);
+	}
+	else
+		m_ImagePath = NULL;
+	m_ImagePathLength = pDataGridCell->m_ImagePathLength;
+	
+	for(map<string,string>::iterator it=pDataGridCell->m_mapAttributes.begin();it!=pDataGridCell->m_mapAttributes.end();++it)
+		m_mapAttributes[it->first]=it->second;
+
+	m_pGraphic = NULL; // No easy way to duplicate this since it's an abstract base class.  We won't be copying it anyway
+	m_GraphicFormat = pDataGridCell->m_GraphicFormat;
+}
+
 DataGridCell::~DataGridCell()
 {
 	if (m_Text) 

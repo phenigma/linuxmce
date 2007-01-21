@@ -96,7 +96,7 @@ void MeshFrame::MarkAsVolatileRecursively()
 #ifdef DEBUG_MESH_FRAMES
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::CleanUp: %p/%s", this, m_sName.c_str());	
 #endif
-
+return;
 	vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end();++Child)
 	{

@@ -1648,6 +1648,68 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAddSoftware_CONST));
 	ScreenHandlerBase::SCREEN_TV_Channels(PK_Screen);
 	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::TV_Channels_GridRendering,	new DatagridAcquiredBackData());
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::TV_Channels_ObjectSelected,	new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Show_CONST ||
+		pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Chan_CONST )
+	{
+		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgUpcomingShows_CONST);
+		if( pDesignObj_DataGrid )
+		{
+			DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
+			if( pDataGridTable )
+			{
+				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+				string sBookmark,sDescription;
+				if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Show_CONST )
+				{
+					if( pCell->m_Text )
+						sDescription = pCell->m_Text;
+					string sSeries = pCell->m_mapAttributes_Find("seriesid");
+					if( sSeries.empty()==false )
+						sBookmark = " SERIES:" + sSeries;
+					else
+					{
+						string sProgram = pCell->m_mapAttributes_Find("programid");
+						if( sProgram.empty()==false )
+							sBookmark = " PROG:" + sProgram;
+					}
+				}
+				else
+				{
+					string sChannel = pCell->m_mapAttributes_Find("chanid");
+					if( sChannel.empty()==false )
+					{
+						sChannel = " CHAN:" + sChannel;
+						DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgTvChannels_UI2_CONST);
+						if( pDesignObj_DataGrid )
+						{
+							DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
+							if( pDataGridTable )
+							{
+								DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+								if( pCell->m_Text )
+									sDescription = pCell->m_Text;
+							}
+						}
+					}
+				}
+				if( sBookmark.empty()==false )
+				{
+					DCE::CMD_Save_Bookmark CMD_Save_Bookmark(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+						NULL,0,MEDIATYPE_pluto_LiveTV_CONST,"",sDescription,sBookmark,false);
+					m_pOrbiter->SendCommand(CMD_Save_Bookmark);
+					m_pOrbiter->CMD_Refresh("");
+				}
+			}
+		}
+	}
+
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
@@ -1665,7 +1727,6 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 		{
 			DataGridCell *pCell = it->second;
 			bool bSelected = pCell->m_Value && pCell->m_Value == sSelected;
-			g_pPlutoLogger->Write(LV_STATUS, "TV_Channels_GridRendering: Cell %s", pCell->m_Value);
 
 			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
 			if(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size() != 0)
@@ -1686,18 +1747,44 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 					DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
 					if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconTVChannels_CONST )
 					{
-						string sIcon = pCell->m_mapAttributes_Find("Icon");
-						g_pPlutoLogger->Write(LV_STATUS, "TV_Channels_GridRendering: Loading icon for guide cell: '%s'", sIcon.c_str());
-
-						size_t GraphicLength = 0;
-						char *pGraphicData = NULL;
-						
-						if(!sIcon.empty())
-							pGraphicData = FileUtils::ReadFileIntoBuffer(sIcon, GraphicLength);
-
-						m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, FileUtils::FindExtension(sIcon),
-							pGraphicData, int(GraphicLength), "0");  // Store the icon, which is cell's picture
+						m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, "JPG",
+							pCell->m_pGraphicData, pCell->m_GraphicLength, "0");  // Store the icon, which is cell's picture
 					}
+					else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoFavorite_CONST )
+						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("Favorite")==pCell->m_mapAttributes.end();
+				}
+			}
+		}
+	}
+	else if( pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid==DATAGRID_EPG_Current_Shows_CONST )
+	{
+		// Iterate through all the cells
+		for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+		{
+			DataGridCell *pCell = it->second;
+
+			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+			if(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size() != 0)
+				colRow.second = colRow.second % pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size();
+
+			// See if there is an object assigned for this column/row
+			map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+			if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+			{
+				DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+				DesignObj_DataList::iterator iHao;
+
+				// Iterate through all the object's children
+				for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+				{
+					DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+					if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconTVChannels_CONST )
+					{
+						m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, "JPG",
+							pCell->m_pGraphicData, pCell->m_GraphicLength, "0");  // Store the icon, which is cell's picture
+					}
+					else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoFavorite_CONST )
+						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("Favorite")==pCell->m_mapAttributes.end();
 				}
 			}
 		}

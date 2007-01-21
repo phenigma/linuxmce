@@ -4381,6 +4381,8 @@ int k=2;
 	/** Save the current position as a bookmark */
 		/** @param #19 Data */
 			/** The picture to save as the thumbnail, in jpg format.  If not specified the plugin will try to grab a frame from the media player */
+		/** @param #29 PK_MediaType */
+			/** The media type, if not specified it will get it from the stream */
 		/** @param #45 PK_EntertainArea */
 			/** The entertainment area with the media */
 		/** @param #163 Description */
@@ -4390,16 +4392,14 @@ int k=2;
 		/** @param #225 Always */
 			/** If true, then this is the start position */
 
-void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,int iPK_MediaType,string sPK_EntertainArea,string sDescription,string sPosition,bool bAlways,string &sCMD_Result,Message *pMessage)
 //<-dceag-c409-e->
 {
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(sPK_EntertainArea.c_str()) );
-	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
-		return;  // Shouldn't happen
 
-	if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_pData->m_dwPK_Device!=m_dwPK_Device )
+	if( pEntertainArea && pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_pData->m_dwPK_Device!=m_dwPK_Device )
 	{
 		DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_pData->m_dwPK_Device);
 		if( pDeviceData_Router && pDeviceData_Router->m_mapCommands.find(pMessage->m_dwID)!=pDeviceData_Router->m_mapCommands.end() )
@@ -4411,9 +4411,12 @@ void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_Enter
 		}
 	}
 
-	MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;
+	MediaStream *pMediaStream = pEntertainArea ? pEntertainArea->m_pMediaStream : NULL;
+	if( pMediaStream && !iPK_MediaType )
+		iPK_MediaType = pMediaStream->m_iPK_MediaType;
+
 	MediaFile *pMediaFile=NULL;
-	if( !pMediaStream->m_dwPK_Disc )
+	if( pMediaStream && !pMediaStream->m_dwPK_Disc && iPK_MediaType!=MEDIATYPE_pluto_LiveTV_CONST )
 	{
 		if( pMediaStream->m_dequeMediaFile.size()==0 ||
 			pMediaStream->m_iDequeMediaFile_Pos<0 ||
@@ -4443,7 +4446,7 @@ void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_Enter
 	}
 */
 	string sText;
-	if( sPosition.empty() )
+	if( sPosition.empty() && pMediaStream && pEntertainArea )
 	{
 		DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 			pMediaStream->m_iStreamID_get(),&sText,&sPosition);
@@ -4459,11 +4462,17 @@ void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_Enter
 	}
 
 	string sFormat="JPG";
-	if( pData==NULL )
+	if( pData==NULL && pMediaStream && pEntertainArea )
 	{
 		DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 			"0",pMediaStream->m_iStreamID_get(),800,800,&pData,&iData_Size,&sFormat);
 		SendCommand(CMD_Get_Video_Frame);
+	}
+
+	if( sPosition.empty() )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Save_Bookmark no position");
+		return;
 	}
 
 	Row_Picture *pRow_Picture = NULL;
@@ -4473,15 +4482,14 @@ void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_Enter
 	}
 
 	Row_Bookmark *pRow_Bookmark;
-	string sName;
 	bool bIsStart=false;
 	if( bAlways )
 	{
 		vector<Row_Bookmark *> vectRow_Bookmark;
-		if( pMediaStream->m_dwPK_Disc )
+		if( pMediaStream && pMediaStream->m_dwPK_Disc )
 			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
 				"Description='NAME' AND FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc),&vectRow_Bookmark);
-		else
+		else if( pMediaFile )
 			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
 				"Description='NAME' AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File),&vectRow_Bookmark);
 
@@ -4491,37 +4499,41 @@ void Media_Plugin::CMD_Save_Bookmark(char *pData,int iData_Size,string sPK_Enter
 			pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
 
 		pRow_Bookmark->IsAutoResume_set(1);
-		sName = "START";
+		sDescription = "START";
 		bIsStart=true;
 	}
 	else
 	{
-		sName = pMediaStream->m_sMediaDescription + " " + sText;
+		if( pMediaStream && sDescription.empty() )
+			sDescription = pMediaStream->m_sMediaDescription + " " + sText;
 		pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
 	}
 
 	pRow_Bookmark->Description_set( sDescription );
 
-	if( pMediaStream->m_dwPK_Disc )
+	if( pMediaStream && pMediaStream->m_dwPK_Disc )
 		pRow_Bookmark->FK_Disc_set(pMediaStream->m_dwPK_Disc);
-	else
+	else if( pMediaFile )
 		pRow_Bookmark->FK_File_set(pMediaFile->m_dwPK_File);
-	pRow_Bookmark->EK_MediaType_set(pMediaStream->m_iPK_MediaType);
+	pRow_Bookmark->EK_MediaType_set(iPK_MediaType);
 	if( pRow_Picture )
 		pRow_Bookmark->FK_Picture_set(pRow_Picture->PK_Picture_get());
-	pRow_Bookmark->Description_set(sName);
+	pRow_Bookmark->Description_set(sDescription);
 	pRow_Bookmark->Position_set(sPosition);
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 
-	int PK_Screen = pMediaStream->GetRemoteControlScreen(pMessage->m_dwPK_Device_From);
-	if( sDescription.empty() && !bIsStart )
+	if( pMediaStream )
 	{
-		string sCmdToRenameBookmark= "<%=!%> -300 1 741 159 " + StringUtils::itos(PK_Screen) + 
-			"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
+		int PK_Screen = pMediaStream->GetRemoteControlScreen(pMessage->m_dwPK_Device_From);
+		if( sDescription.empty() && !bIsStart )
+		{
+			string sCmdToRenameBookmark= "<%=!%> -300 1 741 159 " + StringUtils::itos(PK_Screen) + 
+				"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
 
-		DCE::SCREEN_FileSave SCREEN_FileSave(m_dwPK_Device,pMessage->m_dwPK_Device_From, 
-			"<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>", sCmdToRenameBookmark, false);
-		SendCommand(SCREEN_FileSave);
+			DCE::SCREEN_FileSave SCREEN_FileSave(m_dwPK_Device,pMessage->m_dwPK_Device_From, 
+				"<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>", sCmdToRenameBookmark, false);
+			SendCommand(SCREEN_FileSave);
+		}
 	}
 }
 

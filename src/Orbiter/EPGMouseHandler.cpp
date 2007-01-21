@@ -39,16 +39,20 @@ EPGMouseHandler::~EPGMouseHandler()
 
 void EPGMouseHandler::Start()
 {
-	m_iRow_Last=0;
+	m_iRow_Last=-1;
 	if( !m_pObj || m_pObj->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST || !m_pDesignObj_UpcomingChannels || !m_pDesignObjText_Synopsis )
 		return; // Shouldn't happen, this should be the volume control
+
+	m_pObj_QuickNav = m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_grpPVR_UI2_Channels_CONST);
+	m_pObj_Bookmark_Channel = m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Chan_CONST);
+	m_pObj_Bookmark_Show = m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Show_CONST);
 
 	m_pDesignObj_DataGrid_Active = (DesignObj_DataGrid *) m_pObj;
 
 	PlutoRectangle rect(m_pDesignObj_DataGrid_Active->m_rPosition.X + m_pDesignObj_DataGrid_Active->m_pPopupPoint.X + m_pDesignObj_DataGrid_Active->m_rPosition.Width/2,
 		m_pDesignObj_DataGrid_Active->m_rPosition.Y + m_pDesignObj_DataGrid_Active->m_pPopupPoint.Y,
 		m_pDesignObj_DataGrid_Active->m_rPosition.Width / 2,m_pDesignObj_DataGrid_Active->m_rPosition.Height);
-	m_pMouseBehavior->ConstrainMouse(rect);
+//	m_pMouseBehavior->ConstrainMouse(rect);
 
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(2000);
 
@@ -149,9 +153,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 			return;
 		DataGridCell *pCell = pDataGridTable->GetData(0,Row + m_pDesignObj_DataGrid_Active->m_GridCurRow);
 		if( pCell )
-		{
 			m_pMouseBehavior->m_pOrbiter->CMD_Set_Variable( m_pDesignObj_DataGrid_Active->m_iPK_Variable, pCell->GetValue() );
-		}
 
 		m_pDesignObj_DataGrid_Active = m_pDesignObj_UpcomingChannels;
 		PlutoRectangle rect(m_pDesignObj_DataGrid_Active->m_rPosition.X + m_pDesignObj_DataGrid_Active->m_pPopupPoint.X,
@@ -160,7 +162,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 
 		m_pMouseBehavior->SetMousePosition(rect.Right(),Y);
 
-		m_pMouseBehavior->ConstrainMouse(rect);
+//		m_pMouseBehavior->ConstrainMouse(rect);
 		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=m_pDesignObj_DataGrid_Active;
 		m_pMouseBehavior->m_pOrbiter->CMD_Refresh( m_pDesignObj_DataGrid_Active->m_sGridID );
 		m_pDatagridMouseHandlerHelper->Start(m_pDesignObj_DataGrid_Active,10,m_pDesignObj_DataGrid_Active->m_rPosition.Y,m_pDesignObj_DataGrid_Active->m_rPosition.Bottom());
@@ -176,10 +178,11 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 			m_pDesignObj_DataGrid_Active->m_rPosition.Y + m_pDesignObj_DataGrid_Active->m_pPopupPoint.Y,
 			m_pDesignObj_DataGrid_Active->m_rPosition.Width / 2,m_pDesignObj_DataGrid_Active->m_rPosition.Height);
 		m_pMouseBehavior->SetMousePosition(rect.X,Y);
-		m_pMouseBehavior->ConstrainMouse(rect);
+//		m_pMouseBehavior->ConstrainMouse(rect);
 		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=m_pDesignObj_DataGrid_Active;
 		m_pMouseBehavior->m_pOrbiter->CMD_Refresh( "" );
 		m_pDatagridMouseHandlerHelper->Start(m_pDesignObj_DataGrid_Active,10,m_pDesignObj_DataGrid_Active->m_rPosition.Y,m_pDesignObj_DataGrid_Active->m_rPosition.Bottom());
+		m_pObj_QuickNav->m_bHidden=true;
 	}
 
     if (m_bTapAndRelease && m_pDatagridMouseHandlerHelper->Move(X,Y,PK_Direction))
@@ -187,7 +190,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 
 	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) m_pObj;
 
-	if( m_pDesignObj_DataGrid_Active && m_pDesignObj_DataGrid_Active->m_iBaseObjectID==DESIGNOBJ_dgUpcomingShows_CONST )
+	if( m_pDesignObj_DataGrid_Active && m_pDesignObj_DataGrid_Active->m_iBaseObjectID==DESIGNOBJ_dgUpcomingShows_CONST && X<m_pDesignObj_DataGrid_Active->m_rPosition.Right() )
 	{
 		DataGridTable *pDataGridTable = m_pDesignObj_DataGrid_Active ? m_pDesignObj_DataGrid_Active->m_pDataGridTable_Current_get() : NULL;
 		if( pDataGridTable )
@@ -206,8 +209,21 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 				{
 					m_pDesignObjText_Synopsis->m_sText = pCell->m_mapAttributes_Find("Synopsis");
 					m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync((DesignObj_Orbiter *) m_pDesignObj_DataGrid_Active->m_pParentObject);
+					m_pObj_Bookmark_Show->m_GraphicToDisplay_set( "EPMH1", pCell->m_mapAttributes_Find("Favorite").empty()==false ? GRAPHIC_SELECTED : GRAPHIC_NORMAL );
+					DataGridTable *pDataGridTable_Channel = m_pObj ? ((DesignObj_DataGrid *) m_pObj)->m_pDataGridTable_Current_get() : NULL;
+					if( pDataGridTable_Channel )
+					{
+						DataGridCell *pCell = pDataGridTable_Channel->GetData(0,((DesignObj_DataGrid *) m_pObj)->m_iHighlightedRow + ((DesignObj_DataGrid *) m_pObj)->m_GridCurRow );
+						if( pCell )
+							m_pObj_Bookmark_Channel->m_GraphicToDisplay_set( "EPMH2", pCell->m_mapAttributes_Find("Favorite").empty()==false ? GRAPHIC_SELECTED : GRAPHIC_NORMAL );
+					}
 				}
 			}
+		}
+		if( m_pObj_QuickNav->m_bHidden )
+		{
+			m_pObj_QuickNav->m_bHidden=false;
+			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_QuickNav);
 		}
 	}
 	if( m_pDesignObj_DataGrid_Active && m_pDesignObj_DataGrid_Active->m_iBaseObjectID==DESIGNOBJ_dgTvChannels_UI2_CONST )
@@ -222,6 +238,16 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 				m_pDesignObj_DataGrid_Active->m_iHighlightedRow=Row;
 				m_iRow_Last = Row;
 				m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pDesignObj_DataGrid_Active;
+
+				DataGridTable *pDataGridTable = m_pDesignObj_DataGrid_Active->m_pDataGridTable_Current_get();
+				if( !pDataGridTable )
+					return;
+				DataGridCell *pCell = pDataGridTable->GetData(0,Row + m_pDesignObj_DataGrid_Active->m_GridCurRow);
+				if( pCell )
+					m_pMouseBehavior->m_pOrbiter->CMD_Set_Variable( m_pDesignObj_DataGrid_Active->m_iPK_Variable, pCell->GetValue() );
+
+				m_pMouseBehavior->m_pOrbiter->CMD_Refresh( m_pDesignObj_UpcomingChannels->m_sGridID );
+
 				m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
 			}
 		}

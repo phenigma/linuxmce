@@ -32,6 +32,39 @@ namespace DCE
 {
     using namespace std;
 
+	class MythChannel
+	{
+	public:
+		int m_dwID,m_dwChanNum,m_dwSource;
+		string m_sShortName,m_sLongName;
+		char *m_pPic;
+		size_t m_Pic_size;
+		DataGridCell *m_pCell;  // A temporary pointer only valid while created a grid
+		char m_cAddedAlready;  // Also temporary since the same channel can appear multiple times in a list.  Values are 'N', 'Y', 'F' for favorite program
+		bool m_bFavorite;
+
+		MythChannel(int dwID,int dwChanNum,int dwSource, string sShortName,string sLongName,char *pPic, size_t Pic_size)
+		{
+			m_dwID=dwID;
+			m_dwChanNum=dwChanNum;
+			m_dwSource=dwSource;
+			m_sShortName=sShortName;
+			m_sLongName=sLongName;
+			m_pPic=pPic;
+			m_Pic_size=Pic_size;
+			m_pCell=NULL;
+		}
+
+		~MythChannel()
+		{
+			delete m_pPic;
+			m_pPic=NULL;
+			m_Pic_size=0;
+		}
+	};
+
+	typedef list<MythChannel *> ListMythChannel;
+
     //<-dceag-decl-b->!
     class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaHandlerBase, public AlarmEvent, public DataGridGeneratorPlugIn
     {
@@ -49,6 +82,7 @@ namespace DCE
 		class AlarmManager *m_pAlarmManager;
 
 		int m_dwPK_File_LastCheckedForNewRecordings;
+		bool m_bBookmarksNeedRefreshing;
         // MythTvEPGWrapper *m_pAllShowsDataGrid;
 
         /** Private methods */
@@ -59,6 +93,7 @@ namespace DCE
 		// Map of PK_User to bookmarked channel,series,program, where bookmark is a comma delimited list
 		// populated by RefreshBookmarks
 		map<int,string> m_mapChannelBookmarks,m_mapSeriesBookmarks,m_mapProgramBookmarks;
+		map<int,int> m_mapUserFavoriteChannels; // Map the user id to the number of favorite channels he has
 
 
         //<-dceag-const-b->
@@ -78,6 +113,10 @@ public:
     private:
         // Database_FakeEPG *m_pDatabase_FakeEPG;
         class Datagrid_Plugin *m_pDatagrid_Plugin;
+		map<int,MythChannel *> m_mapMythChannel;  // A Channel ID to channel info
+		MythChannel *m_mapMythChannel_Find(int chanid) { map<int,class MythChannel *>::iterator it = m_mapMythChannel.find(chanid); return it==m_mapMythChannel.end() ? NULL : (*it).second; }
+		map<int,ListMythChannel> m_map_listMythChannel; // User ID to a sorted list of that users channels with favorites first
+
         // finds the nearest (up to 30 minutes rounding) previous date since the currentTime
 //         QDateTime findCurrentStartTime();
 
@@ -109,7 +148,10 @@ public:
 		void AlarmCallback(int id, void* param);
 		void CheckForNewRecordings();
 
-		bool RefreshBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+		bool NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+		void RefreshBookmarks();
+		void BuildChannelList(); // Build a list of all channels with their icons and store as MythChannel objects in m_mapMythChannel, and store sorted versions in m_map_listMythChannel
+		void PurgeChannelList(); // Purge the list of channels, freeing all memory used
 
         //<-dceag-h-b->
 	/*
