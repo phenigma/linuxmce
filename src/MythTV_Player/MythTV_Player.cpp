@@ -1035,7 +1035,10 @@ void MythTV_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,str
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
 	if (m_mythStatus == MYTHSTATUS_PLAYBACK)
-		*sText=StringUtils::Format(" POS:%d TOTAL:%d PROG:SH8196770000 SERIES:sh019875 CHAN:1325", m_CurTime, m_EndTime);
+	{
+		*sText="Live TV"
+		*sMediaPosition=StringUtils::Format(" POS:%d TOTAL:%d PROG:SH8196770000 SERIES:sh019875 CHAN:1325", m_CurTime, m_EndTime);
+	}
 }
 
 //<-dceag-c412-b->
