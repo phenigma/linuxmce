@@ -25,7 +25,6 @@
 
 
 #include "FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
@@ -48,6 +47,7 @@
 	#include <cctype>
 	#include <algorithm>
 	#include <stdarg.h>
+	#include <pthread.h>
 
 	#ifdef WIN32
 		#include <windows.h>
@@ -1002,11 +1002,11 @@ string FileUtils::GetLastModifiedDateStr(string sFile)
 	int result = stat(sItemWithoutTrailingSlash.c_str(), &buf);
 	if(!result && (buf.st_mode & S_IFDIR))
 	{
-		struct tm *tm;
-		tm = localtime(&buf.st_mtime);   // Convert time to struct tm form 
+		struct tm tm;
+		localtime_r(&buf.st_mtime,&tm);   // Convert time to struct tm form 
 		char acDateTime[100];
 		sprintf( acDateTime, "%04d%02d%02d%02d%02d%02d",
-			tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec );
+			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec );
 
 		return acDateTime;
 	}

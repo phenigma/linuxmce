@@ -108,10 +108,11 @@ namespace DCE
 				if( file )
 				{
 
-					struct tm *t = localtime((time_t *)&tv.tv_sec);
+					struct tm t;
+					localtime_r((time_t *)&tv.tv_sec,&t);
 					char c[50];
-					double sec = (double)(tv.tv_usec/1E6) + t->tm_sec;
-					snprintf(c,sizeof(c),"%02d/%02d/%02d %d:%02d:%06.3f",(int) t->tm_mon+1,(int) t->tm_mday,(int) t->tm_year-100,(int) t->tm_hour,(int) t->tm_min, sec);
+					double sec = (double)(tv.tv_usec/1E6) + t.tm_sec;
+					snprintf(c,sizeof(c),"%02d/%02d/%02d %d:%02d:%06.3f",(int) t.tm_mon+1,(int) t.tm_mday,(int) t.tm_year-100,(int) t.tm_hour,(int) t.tm_min, sec);
 
 					fprintf(file, "%02d\t%s\t%s\t", LV_CRITICAL,c,"Logger");
 					fwrite(Message, strlen(Message), 1, file);

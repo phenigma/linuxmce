@@ -766,19 +766,18 @@ string StringUtils::HourMinute(time_t t,bool b24Hour)
 
     if( t == 0 )
         t = time(NULL);
-    struct tm *tm = localtime(&t);
-	if( !tm )
-		return "";
+    struct tm tm;
+	localtime_r(&t,&tm);
 
 	if( !b24Hour )
 	{
-		if( tm->tm_hour>12 )
-		    sprintf( acDateTime, "%d:%02dpm", tm->tm_hour-12, tm->tm_min );
+		if( tm.tm_hour>12 )
+		    sprintf( acDateTime, "%d:%02dpm", tm.tm_hour-12, tm.tm_min );
 		else
-		    sprintf( acDateTime, "%d:%02dam", tm->tm_hour, tm->tm_min );
+		    sprintf( acDateTime, "%d:%02dam", tm.tm_hour, tm.tm_min );
 	}
 	else
-	    sprintf( acDateTime, "%d:%02d", tm->tm_hour, tm->tm_min );
+	    sprintf( acDateTime, "%d:%02d", tm.tm_hour, tm.tm_min );
 
     return acDateTime;
 }
@@ -789,11 +788,10 @@ string StringUtils::SQLDateTime(time_t t)
 
     if( t == 0 )
 	    t = time(NULL);
-	struct tm *tm = localtime(&t);
-	if( !tm )
-		return "";
+	struct tm tm;
+	localtime_r(&t,&tm);
     sprintf( acDateTime, "%04d-%02d-%02d %02d:%02d:%02d",
-	        tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec );
+	        tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec );
 
     return acDateTime;
 }
@@ -1086,10 +1084,11 @@ string StringUtils::PrecisionTime()
 {
     timespec ts;
 	gettimeofday( &ts, NULL );
-	struct tm *t = localtime((time_t *)&ts.tv_sec);
+	struct tm t;
+	localtime_r((time_t *)&ts.tv_sec,&t);
 	char acBuff[50];
-	double dwSec = (double)(ts.tv_nsec/1E9) + t->tm_sec;
-	snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, dwSec );
+	double dwSec = (double)(ts.tv_nsec/1E9) + t.tm_sec;
+	snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t.tm_mon + 1, (int)t.tm_mday, (int)t.tm_year - 100, (int)t.tm_hour, (int)t.tm_min, dwSec );
 	
 	return acBuff;
 }

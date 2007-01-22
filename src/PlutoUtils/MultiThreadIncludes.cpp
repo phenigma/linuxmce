@@ -316,11 +316,12 @@ void PlutoLock::DumpOutstandingLocks()
 			continue;
 		}
 		
-		struct tm *ptm = localtime(&pSafetyLock->m_tTime);
+		struct tm ptm;
+		localtime_r(&pSafetyLock->m_tTime,&ptm);
 		string sTime = (((int) time(NULL)-pSafetyLock->m_tTime)>=TRYLOCK_TIMEOUT_WARNING && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased ? "*****DL******" : "") + 
-			StringUtils::itos(ptm->tm_hour==0 ? 12 : (ptm->tm_hour>13 ? ptm->tm_hour-12 : ptm->tm_hour)) + ":" + 
-			(ptm->tm_min<10 ? "0" : "") + StringUtils::itos(ptm->tm_min) + (ptm->tm_sec<10 ? ":0" : ":") + 
-			StringUtils::itos(ptm->tm_sec) + (ptm->tm_hour>11 ? "p" : "a");
+			StringUtils::itos(ptm.tm_hour==0 ? 12 : (ptm.tm_hour>13 ? ptm.tm_hour-12 : ptm.tm_hour)) + ":" + 
+			(ptm.tm_min<10 ? "0" : "") + StringUtils::itos(ptm.tm_min) + (ptm.tm_sec<10 ? ":0" : ":") + 
+			StringUtils::itos(ptm.tm_sec) + (ptm.tm_hour>11 ? "p" : "a");
 		
 		char Message[400];
 

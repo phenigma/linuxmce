@@ -492,12 +492,8 @@ void Event_Plugin::SetFirstSunriseSunset()
 
 		//chris m. 12/12/05: asctime is crashing - don't have time to debug! :(
 		//probably, localtime returns NULL
-		tm *tmm = localtime(&tSunrise);
-		if(!tmm)
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "SetFirstSunriseSunset: localtime returned NULL"); 
-			return;
-		}
+		tm tmm;
+		localtime_r(&tSunrise,&tmm);
 
 		g_pPlutoLogger->Write(LV_STATUS,"tSunrise: %s",asctime(localtime(&tSunrise)));
 		g_pPlutoLogger->Write(LV_STATUS,"tSunset: %s",asctime(localtime(&tSunset)));

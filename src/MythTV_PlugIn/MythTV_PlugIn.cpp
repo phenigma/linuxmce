@@ -554,9 +554,10 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 		return pDataGridTable;
 
 	time_t tNow = time(NULL);
-	struct tm *t = localtime(&tNow);
-	int Month = t->tm_mon;
-	int Day = t->tm_mday;
+	struct tm t;
+	localtime_r(&tNow,&t);
+	int Month = t.tm_mon;
+	int Day = t.tm_mday;
 
 	DataGridCell *pCell;
 
@@ -606,12 +607,13 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 			time_t tStart = StringUtils::SQLDateTime( row[4] );
 			time_t tStop = StringUtils::SQLDateTime( row[5] );
 			
-			struct tm *t = localtime(&tStart);
+			struct tm t;
+			localtime_r(&tStart,&t);
 			string sDate;
-			if( t->tm_mon==Month && t->tm_mday==Day )
+			if( t.tm_mon==Month && t.tm_mday==Day )
 				sDate = "Today";
 			else
-				sDate = StringUtils::itos(t->tm_mon+1) + "/" + StringUtils::itos(t->tm_mday);
+				sDate = StringUtils::itos(t.tm_mon+1) + "/" + StringUtils::itos(t.tm_mday);
 
 			string sTime = StringUtils::HourMinute(tStart) + "-" + StringUtils::HourMinute(tStop);
 			

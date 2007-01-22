@@ -389,9 +389,10 @@ bool Socket::SendData( int iSize, const char *pcData )
 #  else
 	time_t ts;
 	time( &ts );
-	struct tm *t = localtime( &ts );
+	struct tm t;
+	localtime( &ts, &t );
 	char ac[256];
-	snprintf( ac, sizeof(ac), "%02d/%02d/%02d %d:%02d:%02d", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, (int)t->tm_sec );
+	snprintf( ac, sizeof(ac), "%02d/%02d/%02d %d:%02d:%02d", (int)t.tm_mon + 1, (int)t.tm_mday, (int)t.tm_year - 100, (int)t.tm_hour, (int)t.tm_min, (int)t.tm_sec );
 #  endif
 	delete[] pcTmp;
 #endif //LL_DEBUG
@@ -624,9 +625,10 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 #else
 		   	time_t ts;
 			time (&ts );
-			struct tm *t = localtime( &ts );
+			struct tm t;
+			localtime( &ts, &t );
 			char ac[50];
-			snprintf( ac, sizeof(ac), "%02d/%02d/%02d %d:%02d:%02d", (int)t->tm_mon+1, (int)t->tm_mday, (int)t->tm_year-100, (int)t->tm_hour, (int)t->tm_min, (int)t->tm_sec );
+			snprintf( ac, sizeof(ac), "%02d/%02d/%02d %d:%02d:%02d", (int)t.tm_mon+1, (int)t.tm_mday, (int)t.tm_year-100, (int)t.tm_hour, (int)t.tm_min, (int)t.tm_sec );
 #endif
 			delete[] pcTmp;
 #endif

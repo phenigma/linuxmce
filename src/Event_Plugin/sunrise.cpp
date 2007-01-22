@@ -44,6 +44,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <pthread.h>
 
 #ifndef M_PI
 	#define M_PI 3.14159265358979323846f
@@ -334,18 +335,18 @@ bool GetSunriseSunset(time_t &tSunrise,time_t &tSunset,time_t &tSunriseTomorrow,
 {
 	longitude*=-1; // For some reason this is reversed from all the databases I found
 	time_t rawtime;
-	tm * ptm;
+	tm ptm;
 	time ( &rawtime );
-	ptm = gmtime ( &rawtime );
-	float JD=calcJD(ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday);
+	gmtime_r ( &rawtime, &ptm );
+	float JD=calcJD(ptm.tm_year+1900,ptm.tm_mon+1,ptm.tm_mday);
 
 	time_t seconds;
 	time_t tseconds;
 	struct tm  tm;
 
-	tm.tm_year= ptm->tm_year;
-	tm.tm_mon=ptm->tm_mon;  /* Jan = 0, Feb = 1,.. Dec = 11 */
-	tm.tm_mday=ptm->tm_mday;
+	tm.tm_year= ptm.tm_year;
+	tm.tm_mon=ptm.tm_mon;  /* Jan = 0, Feb = 1,.. Dec = 11 */
+	tm.tm_mday=ptm.tm_mday;
 	tm.tm_hour=0;
 	tm.tm_min=0;
 	tm.tm_sec=0;
@@ -354,8 +355,8 @@ bool GetSunriseSunset(time_t &tSunrise,time_t &tSunset,time_t &tSunriseTomorrow,
 	seconds = mktime(&tm);
 	int dst=tm.tm_isdst;
 
-	ptm = gmtime ( &seconds );
-	int delta= ptm->tm_hour;
+	gmtime_r ( &seconds, &ptm );
+	int delta= ptm.tm_hour;
 
 	tseconds= seconds;
 	seconds= seconds + calcSunriseUTC( JD,  latitude,  longitude)*60;

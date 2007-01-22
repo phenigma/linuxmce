@@ -31,7 +31,8 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 	
 	time_t long_time;
     time( &long_time );
-	struct tm *newtime = localtime( &long_time );
+	struct tm newtime;
+	localtime_r( &long_time, &newtime );
 
 	if( pCriteriaParm->m_sValue.size()==0 )
 		return true;  // Was not specified
@@ -53,7 +54,7 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 	switch(pCriteriaParm->m_iPK_CriteriaParmList)
 	{
 	case CRITERIAPARMLIST_Month_CONST:
-		iTmp = newtime->tm_mon+1;  // Month is 0 based
+		iTmp = newtime.tm_mon+1;  // Month is 0 based
 		iLValue = &iTmp;
 		break;
 	case CRITERIAPARMLIST_PK_Device_CONST:
@@ -83,10 +84,10 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 //		iLValue = &pEventInfo->PK_C_Mode_Room;
 //		break;
 	case CRITERIAPARMLIST_Day_Of_Week_CONST:
-		iLValue = (unsigned long *) (&newtime->tm_wday);
+		iLValue = (unsigned long *) (&newtime.tm_wday);
 		break;
 	case CRITERIAPARMLIST_Day_Of_Month_CONST:
-		iLValue = (unsigned long *) (&newtime->tm_mday);
+		iLValue = (unsigned long *) (&newtime.tm_mday);
 		break;
 	case CRITERIAPARMLIST_Specific_Date_CONST:
 		break;
