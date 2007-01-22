@@ -43,7 +43,7 @@ XClientParm=()
 
 #<-mkr_b_ubuntu_b->
 XClientParm=(--conpositor=off)
-#<-mkr_b_ununtu_e->
+#<-mkr_b_ubuntu_e->
 
 XServerParm=(-logverbose 9 -br -config /etc/X11/xorg.conf.pluto)
 Background=y
@@ -52,7 +52,7 @@ XDisplay=":$Display"
 Xcompmgr=/bin/true
 #<-mkr_b_ubuntu_b->
 Xcompmgr=/usr/bin/xcompmgr
-#<-mkr_b_ununtu_e->
+#<-mkr_b_ubuntu_e->
 
 if [[ "$AlphaBlending" != 1 ]]; then
 	XClientParm=(--compositor=off)
