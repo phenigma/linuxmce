@@ -1365,7 +1365,8 @@ void *ImageLoadThread(void *p)
 			pBackgroundImage->m_pObj_Grid->GetGridCellDimensions(pBackgroundImage->m_pCell->m_Colspan,  pBackgroundImage->m_pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
 
 			string sCellObjectID, sCellObjectHash;
-			sCellObjectID = sCellObjectHash = "datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y) + "-pic " + pBackgroundImage->m_pCell->m_ImagePath;
+			sCellObjectID = sCellObjectHash = "datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y) + 
+				(NULL == pBackgroundImage->m_pCell->m_ImagePath ? "" : string("-pic ") + pBackgroundImage->m_pCell->m_ImagePath);
 			pBackgroundImage->m_pObj_Grid->m_pOrbiter->Renderer()->RenderGraphic(pBackgroundImage->m_pCell->m_pGraphic, PlutoRectangle(x,  y,  w,  h), 
 				pBackgroundImage->m_pObj_Grid->m_bDisableAspectLock, point, 255, 
 				"datagrid " + pBackgroundImage->m_pObj_Grid->GenerateObjectHash(pBackgroundImage->m_pObj_Grid->m_pPopupPoint, false),
