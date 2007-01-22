@@ -27,12 +27,12 @@ AnimationScrollDatagrid::AnimationScrollDatagrid(string ObjectID, OpenGL3DEngine
 	MeshFrame *AfterGrid, int MilisecondTime, int Direction, vector <string> pDependencies)
 {
 	Finished = false;
-	Engine = Engine;
-	BeforeGrid = BeforeGrid;
-	AfterGrid = AfterGrid;
-	MilisecondTime = MilisecondTime;
-	Direction = Direction;
-	ObjectID = ObjectID;
+	this->Engine = Engine;
+	this->BeforeGrid = BeforeGrid;
+	this->AfterGrid = AfterGrid;
+	this->MilisecondTime = MilisecondTime;
+	this->Direction = Direction;
+	this->ObjectID = ObjectID;
 
 	DCE::g_pPlutoLogger->Write(LV_STATUS, "abc AnimationScrollDatagrid before %p/%s and after %p/%s",
 		BeforeGrid, BeforeGrid->Name().c_str(), AfterGrid, AfterGrid->Name().c_str());

@@ -1730,7 +1730,7 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 
 			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
 			if(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size() != 0)
-				colRow.second = colRow.second % pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size();
+				colRow.second = colRow.second % int(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size());
 
 			// See if there is an object assigned for this column/row
 			map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
@@ -1765,7 +1765,7 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 
 			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
 			if(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size() != 0)
-				colRow.second = colRow.second % pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size();
+				colRow.second = colRow.second % int(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size());
 
 			// See if there is an object assigned for this column/row
 			map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );

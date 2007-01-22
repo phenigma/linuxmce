@@ -198,7 +198,7 @@ g_PlutoProfiler->Stop("send command");
 						{
 							size_t size;
 							pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pPath,size);
-							pCell->m_GraphicLength=size;
+							pCell->m_GraphicLength=(unsigned long)size;
 						}
 						else
 						{
