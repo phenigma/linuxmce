@@ -2,7 +2,7 @@ xine-lib (1.1.2+dfsg+cvs20061111-1pluto1) experimental; urgency=low
 
   * synced to new debian snapshot 
 
- -- Kirill Belokurov <kirillb@plutohome.com>  Fri, 12 Jan 2007 23:19:00 +0200
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Fri, 12 Jan 2007 23:19:00 +0200
 
 xine-lib (1.1.2+dfsg+cvs20061111-1) experimental; urgency=low
 
