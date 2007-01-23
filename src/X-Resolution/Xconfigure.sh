@@ -48,7 +48,7 @@ Modeline_640x480_60='"640x480" 25.18 640 656 752 800 480 490 492 525'
 
 TestConfig()
 {
-	X :$(($Display+2)) -ignoreABI -probeonly -config "$ConfigFile" &>/dev/null
+	X :$(($Display+2)) -ignoreABI -probeonly -config "$ConfigFile" -logverbose 9 &>/dev/null
 	return $?
 }
 
