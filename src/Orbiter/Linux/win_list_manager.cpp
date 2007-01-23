@@ -32,7 +32,10 @@ WinListManager::~WinListManager()
 void WinListManager::ResetOrbiterWindow()
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-	PendingContext(m_sSdlWindowName).Layer(LayerAbove);
+    //special code for xfwm
+    m_pWMController->SetLayer(m_sSdlWindowName, LayerBelow);
+    m_pWMController->SetLayer(m_sSdlWindowName, LayerAbove);
+    //PendingContext(m_sSdlWindowName).Layer(LayerAbove);
 }
 
 void WinListManager::ActivateWindow(const string& sWindowsName)
