@@ -1,0 +1,37 @@
+## Process this file with automake to produce Makefile.in
+
+## Created by Anjuta
+
+gladedir = $(datadir)/mce-installer/glade
+glade_DATA = mce-installer.glade
+
+INCLUDES = \
+	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
+	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
+	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
+	$(PACKAGE_CFLAGS)
+
+AM_CFLAGS =\
+	 -Wall\
+	 -g
+
+bin_PROGRAMS = mce-installer
+
+mce_installer_SOURCES = \
+	main.c         \
+	Step1A.c         \
+	Step1A.h         \
+	common.h         \
+	common.c         \
+	Step1B.c         \
+	Step1B.h         \
+	Step1C.c         \
+	Step1C.h         \
+	Step1D.c         \
+	Step1D.h 
+
+mce_installer_LDFLAGS = 
+
+mce_installer_LDADD = $(PACKAGE_LIBS)
+
+EXTRA_DIST = $(glade_DATA)
