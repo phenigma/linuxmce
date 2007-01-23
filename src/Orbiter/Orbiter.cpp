@@ -3573,8 +3573,16 @@ bool Orbiter::GotActivity( int PK_Button )
 UTILITIES
 */
 //------------------------------------------------------------------------
+class DesignObj_Orbiter *Orbiter::GetCurrentDesignObj()
+{ 
+	return m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj() : NULL; 
+}
+//------------------------------------------------------------------------
 DesignObj_Orbiter *Orbiter::FindObject( string PK_DesignObj, class DesignObj_Orbiter *pDesignObj_Orbiter )
 {
+	if( pDesignObj_Orbiter==NULL )
+		pDesignObj_Orbiter = GetCurrentDesignObj();
+
 	PK_DesignObj = SubstituteVariables(PK_DesignObj, NULL, 0, 0);
 	string OriginalValue;
 	bool bSingleNumber=false;
@@ -3993,6 +4001,8 @@ int k=2;
 					ReceivedMessage( pResponse );
 					delete pResponse;
 				}
+				else
+					g_pPlutoLogger->Write(LV_WARNING,"Orbiter::ExecuteCommandInList sending bind to media remote failed");
 
 				pMessage = NULL;
 			}

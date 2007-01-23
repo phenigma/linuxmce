@@ -952,9 +952,15 @@ void ScreenHandler::SCREEN_CurrentlyActiveRemote(long PK_Screen)
 {
 	if( !m_pOrbiter->UsesUIVersion2() &&  // TODO -- Is this right?????  When we say go to remote, we always want the chapters, right??
 		m_pOrbiter->m_bIsOSD && m_pOrbiter->m_iPK_Screen_RemoteOSD && m_pOrbiter->m_iLocation_Initial==m_pOrbiter->m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SCREEN_CurrentlyActiveRemote osd ui2 going to %d",m_pOrbiter->m_iPK_Screen_RemoteOSD);
 		m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_RemoteOSD);
+	}
 	else if( m_pOrbiter->m_iPK_Screen_Remote )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SCREEN_CurrentlyActiveRemote going to %d",m_pOrbiter->m_iPK_Screen_Remote);
 		m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_Remote);
+	}
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SCREEN_CurrentlyActiveRemote no remote");
 }

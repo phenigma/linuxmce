@@ -356,6 +356,7 @@ bool ServerSocket::ServeClient()
 
 void ServerSocket::PingFailed()
 {
+	g_pPlutoLogger->Write( LV_WARNING, "ServerSocket::PingFailed");
 	Close();
 	m_pListener->PingFailed( this, m_dwPK_Device );
 }

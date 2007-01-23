@@ -203,6 +203,7 @@ namespace DCE
 		bool m_bShowingSpeedBar; // For UI2 this means we temporarily are displaying the speed bar because we're not at normal 1x speed
 		bool m_bSpeedIconsOnVfd; // True if there's a VFD that can show speed icons
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
+		class DesignObj_Orbiter *GetCurrentDesignObj();
 		string m_sOperatingSystem; // If this is an OSD for a dual-boot media director this contains the type of o/s
 		map< pair<int,char>,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin.  The char is the action (Up,Down,Hold meaning repeat). */
 		map< int, bool > m_mapScanCodeToIgnoreOnYield; /** Map of scan codes (=true) where they should be ignored when yield screen is true */

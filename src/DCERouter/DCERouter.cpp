@@ -2010,7 +2010,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
 #endif
                 if (!bResult)
                 {
-                    g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending message to device %d", pServerSocket,pServerSocket->m_dwPK_Device);
+                    g_pPlutoLogger->Write(LV_WARNING, "Socket %p failure sending message to device %d", pServerSocket,pServerSocket->m_dwPK_Device);
 					pServerSocket->Close();
                     bServerSocket_Failed = true;;
                 }
@@ -2143,20 +2143,20 @@ void Router::ErrorResponse(Socket *pSocket,Message *pMessage)
     if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
     {
         pMessage->m_bRespondedToMessage=true;
-        g_pPlutoLogger->Write(LV_CRITICAL,"Sender: %d sent message type: %d ID: %d and expected a message reply from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
+        g_pPlutoLogger->Write(LV_WARNING,"Sender: %d sent message type: %d ID: %d and expected a message reply from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
         Message *pMessageOut=new Message(0,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,-1,0);
         pSocket->SendMessage(pMessageOut);
     }
     if( pMessage->m_eExpectedResponse==ER_ReplyString )
     {
         pMessage->m_bRespondedToMessage=true;
-        g_pPlutoLogger->Write(LV_CRITICAL,"Sender: %d sent message type: %d ID: %d and expected a reply string from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
+        g_pPlutoLogger->Write(LV_WARNING,"Sender: %d sent message type: %d ID: %d and expected a reply string from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
         pSocket->SendString("No Response");
     }
     if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation )
     {
         pMessage->m_bRespondedToMessage=true;
-        g_pPlutoLogger->Write(LV_CRITICAL,"Sender: %d sent message type: %d ID: %d and expected a confirmation from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
+        g_pPlutoLogger->Write(LV_WARNING,"Sender: %d sent message type: %d ID: %d and expected a confirmation from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
         pSocket->SendString("Delivery failed");
     }
 }

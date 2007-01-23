@@ -306,7 +306,7 @@ Message *Socket::SendReceiveMessage( Message *pMessage)
 
 		return pOutMessage; // return the response
 	}
-
+	g_pPlutoLogger->Write(LV_WARNING,"Socket::SendReceiveMessage didn't get valid response");
 	return NULL; // what we got wasn't what we expected it to be
 }
 
@@ -462,8 +462,8 @@ bool Socket::SendData( int iSize, const char *pcData )
 				iBytesLeft -= iSendBytes;
 			else
 			{
-				Close();
 				g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData sendbytes==0");
+				Close();
 				return false;
 			}
 		}
@@ -580,13 +580,14 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 			{
 				if( nInternalReceiveTimeout==-2 )
 					return false; // Special value means don't timeout
-                Close();
+				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData-a %p failed",this);
+				Close();
 				if( m_bQuit_get()|| m_bCancelSocketOp )
 					return false;
 #ifdef DEBUG
 				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d start: %d 1: %d 1b: %d 2: %d 2b: %d, m_Socket: %d %s ch: %p",
-				this, iRet, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
-				PlutoLock::DumpOutstandingLocks();
+					this, iRet, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+					PlutoLock::DumpOutstandingLocks();
 #else
 				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d m_Socket: %d %s ch: %p", this, iRet, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 				PlutoLock::DumpOutstandingLocks();
@@ -663,7 +664,7 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 			if( nTimeout!=-2 )
 			{
 				sRefString = "ReceiveData failed";
-				g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveString2 ReceiveData failed m_Socket: %d %s", m_Socket, m_sName.c_str() );
+				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveString2 ReceiveData failed m_Socket: %d %s", m_Socket, m_sName.c_str() );
 			}
 			return false;
 		}
@@ -690,10 +691,10 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 			return false;
 
 		// Yikes, we received more than sizeof(acBuf) characters.  Must be spewing.  Drop the connection.
+		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString3 %p failed len: %d m_Socket: %d %s ch: %p", this, iLen, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 		Close();
 		sRefString = "Not a string, or excessive length";
 
-		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString3 %p failed len: %d m_Socket: %d %s ch: %p", this, iLen, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
 			(*g_pSocketCrashHandler)(this);

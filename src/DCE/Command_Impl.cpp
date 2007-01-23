@@ -778,11 +778,11 @@ void Command_Impl::ProcessMessageQueue()
 				// let the framework restart us
 #ifndef WINCE
 				if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-					g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+					g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 				else
 #endif
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Going to quit");
+					g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Going to quit");
 					OnReload();
 				}
 			}
@@ -853,11 +853,11 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done id %d con
 			// let the framework restart us
 #ifndef WINCE
 			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-				g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+				g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 			else
 #endif
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send message type %d id %d to %d with confirmation.  Going to quit",
+				g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand cannot send message type %d id %d to %d with confirmation.  Going to quit",
 					Type,ID,PK_Device_To);
 				OnReload();
 			}
@@ -901,11 +901,11 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done id %d conf %d resp
 			// let the framework restart us
 #ifndef WINCE
 			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-				g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+				g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 			else
 #endif
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send with return message.  type %d id %d to %d Going to quit",
+				g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand cannot send with return message.  type %d id %d to %d Going to quit",
 					Type,ID,PK_Device_To);
 				OnReload();
 			}

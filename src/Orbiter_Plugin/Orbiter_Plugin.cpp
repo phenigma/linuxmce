@@ -2321,7 +2321,7 @@ void Orbiter_Plugin::SetPipesEnable(DeviceData_Router *pDevice,bool bOverride)
 		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_Dest->m_dwPK_Device);
 		if( !pMediaDevice )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Problem overriding a/v pipe to device %d which isn't categorized as media",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+			g_pPlutoLogger->Write(LV_WARNING,"Problem overriding a/v pipe to device %d which isn't categorized as media",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
 			continue; // shouldn't happen -- it's not a/v equipment
 		}
 		pMediaDevice->m_bDontSendOffIfOSD_ON=bOverride;
