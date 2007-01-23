@@ -34,6 +34,7 @@ class Gallery
 	SDLFrontEnd* FrontEnd;
 	bool m_bQuit;
 	pluto_pthread_mutex_t m_FrontEndMutex;
+	bool m_bSuspended;
 
 	/**
 	* Last pending event definition
@@ -52,6 +53,9 @@ public:
 	void EvaluateEvent(WM_Event Event);
 	void _Sleep(int Miliseconds);
 	void m_bQuit_set(bool bQuit);
+	void Pause();
+	void Resume();
+
 };
 
 #endif

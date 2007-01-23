@@ -19,8 +19,8 @@ sources = Main.cpp Photo_Screen_Saver.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -I/usr/include/SDL
-LDFLAGS += -lGL -lGLU -lSDL -lSDL_image -lSDL_ttf -lXrender
+CPPFLAGS += -I/usr/include/SDL -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+LDFLAGS += -lGL -lGLU -lSDL -lSDL_image -lSDL_ttf -lXrender -lglib-2.0 -lXmu
 XTRALDLIBS =
 
 Gen_Dev_Files +=
@@ -52,7 +52,10 @@ sources += AnimatedPicture.cpp \
 	ZoomBase.cpp \
 	ZoomFactory.cpp \
 	ZoomPanUp.cpp \
-	ZoomSimple.cpp
+	ZoomSimple.cpp \
+	../utilities/linux/window_manager/WMController/WMController.cpp \
+	../utilities/linux/window_manager/wmctrl/wmctrl.cpp 
+			
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

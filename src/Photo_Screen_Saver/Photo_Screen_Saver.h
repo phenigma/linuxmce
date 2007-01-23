@@ -19,6 +19,7 @@ namespace DCE
 		pthread_t ThreadID;
 		string m_sFileList;
 		bool m_bIsOn;
+		const string m_sPSSWindow;
 		// Private methods
 public:
 		// Public member variables

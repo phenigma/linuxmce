@@ -41,7 +41,7 @@ unsigned long ProcessUtils::GetMicroTime()
 
 Gallery* Gallery::Instance_ = NULL;
 
-Gallery::Gallery(): m_bQuit(false), FrontEnd(NULL), Scenario(NULL), m_FrontEndMutex("front end mutex")
+Gallery::Gallery(): m_bQuit(false), FrontEnd(NULL), Scenario(NULL), m_FrontEndMutex("front end mutex"), m_bSuspended(false)
 {
 	m_FrontEndMutex.Init(NULL);
 }
@@ -66,7 +66,7 @@ void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 
 		if(!pPhoto_Screen_Saver->m_bQuit_get() && m_bQuit==false )
 		{
-			if(StatusChange)
+			if(StatusChange && !m_bSuspended)
 			{
 				PaintScreen();
 				_Sleep(35);
@@ -84,6 +84,16 @@ Gallery* Gallery::Instance(void)
 	if(NULL == Instance_)
 		Instance_ = new Gallery();
 	return Instance_;
+}
+
+void Gallery::Pause()
+{
+	m_bSuspended = true;
+}
+
+void Gallery::Resume()
+{
+	m_bSuspended = false;
 }
 
 void Gallery::PaintScreen(void)

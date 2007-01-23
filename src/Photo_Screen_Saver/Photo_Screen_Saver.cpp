@@ -14,12 +14,16 @@ using namespace DCE;
 #include "Gallery.h"
 #include "../pluto_main/Define_DeviceData.h"
 
+#ifndef WIN32
+#include "../utilities/linux/window_manager/WMController/WMController.h"
+#endif
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Photo_Screen_Saver::Photo_Screen_Saver(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Photo_Screen_Saver_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, ThreadID(0)
+	, ThreadID(0), m_sPSSWindow("Photo_Screen_Saver")
 {
 }
 
@@ -191,7 +195,14 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 		Gallery::Instance()->m_bQuit_set(false);
 		pthread_create(&ThreadID, NULL, ThreadAnimation, SetupInfo);
 	}
+
+	Gallery::Instance()->Resume();
 	m_bIsOn=true;
+
+#ifndef WIN32
+	WMControllerImpl wmctrl;
+	wmctrl.SetVisible(m_sPSSWindow, true);
+#endif
 }
 
 //<-dceag-c193-b->
@@ -204,14 +215,18 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 //<-dceag-c193-e->
 {
-	Terminate();
+	Gallery::Instance()->Pause();
 	m_bIsOn=false;
+
+#ifndef WIN32
+	WMControllerImpl wmctrl;
+	wmctrl.SetVisible(m_sPSSWindow, false);
+#endif
 }
 
 void Photo_Screen_Saver::Terminate()
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Received CMD_Off. Terminating...");
-
 	WM_Event Event;
 	Event.Quit();
 	Gallery::Instance()->m_bQuit_set(true);
