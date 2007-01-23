@@ -273,8 +273,13 @@ if [[ -n "$Resolution" ]]; then
 	done
 
 	Modeline=
-	# Use modeline for HD modes, non-standard VESA modes (60, 75 Hz are considered standard by X), 1024x768@60
-	if [[ -n "$nvHD" || ( -z "$nvHD" && " 60 75 " != *" $Refresh "* ) || ( " 1024x768@60 640x480@60 " ==  *" $Resolution@$Refresh "* ) ]]; then
+	# Use modeline for HD modes, non-standard VESA modes (60, 75 Hz are considered standard by X), 1024x768@60, NV: 640x480@60
+	if grep -q 'Driver.*"nvidia"' "$ConfigFile"; then
+		ForcedModelines="1024x768@60 640x480@60"
+	else
+		ForcedModelines="1024x768@60"
+	fi
+	if [[ -n "$nvHD" || ( -z "$nvHD" && " 60 75 " != *" $Refresh "* ) || ( " $ForcedModelines " ==  *" $Resolution@$Refresh "* ) ]]; then
 		Modeline="$(GenModeline "$ResX" "$ResY" "$Refresh" "$ScanType")"
 	fi
 
