@@ -162,7 +162,6 @@ static int my_snd_mixer_wait(snd_mixer_t *mixer, int timeout) {
 static void *ao_alsa_handle_event_thread(void *data) {
   alsa_driver_t  *this = (alsa_driver_t *) data;
 
-  this->mixer.running = 1;
   do {
 
     if(my_snd_mixer_wait(this->mixer.handle, 333) > 0) {
@@ -1290,6 +1289,8 @@ static void ao_alsa_mixer_init(ao_driver_t *this_gen) {
 				      10, NULL, NULL);
 
   if (send_events && found) {
+    this->mixer.running = 1;
+
     pthread_attr_t       pth_attrs;
     struct sched_param   pth_params;
 
