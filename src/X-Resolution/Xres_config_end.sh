@@ -29,7 +29,7 @@ Answer="$1"
 . /usr/pluto/bin/Utils.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-pidOfX="$(ps ax|grep "X $XDisplay -ignoreABI -ac -config /etc/X11/xorg.conf.test"|grep -v grep|awk '{print $1}')"
+pidOfX="$(ps ax|grep "X $XDisplay -ignoreABI -ac -config /etc/X11/xorg.conf.pluto.test"|grep -v grep|awk '{print $1}')"
 if [[ -z "$pidOfX" ]]; then
 	echo "test X not running. nothing to kill"
 fi
@@ -60,15 +60,8 @@ if [[ "${Answer:0:1}" == "y" || "${Answer:0:1}" == "Y" ]]; then
 	"
 	RunSQL "$Q"
 
-	pidOfX=$(ps ax|grep 'X :0 -ignoreABI -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
-	#<-mkr_b_ubuntu_b->
-	pidOfX=$(ps ax|grep 'X :5 -br -audit 0 -auth /var/lib/gdm/:0.Xauth -nolisten tcp vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
-	#<-mkr_b_ubuntu_e->	
-	EXT=
-	#<-mkr_b_ubuntu_b->
-	EXT=".pluto"
-	#<-mkr_b_ubuntu_e->	
-	mv /etc/X11/xorg.conf.pluto{.test,"$EXT"}
+	pidOfX=$(ps ax|grep "X :$Display -ignoreABI -ac -allowMouseOpenFail vt7"|egrep -v 'grep|SCREEN'|awk '{print $1}')
+	mv /etc/X11/xorg.conf.pluto{.test,}
 	echo "Killing real X (to restart it with new config)"
 	kill $pidOfX
 	sleep 5

@@ -148,8 +148,8 @@ if [[ ! -f /usr/pluto/bin/X-UI_Sections.awk ]]; then
 fi
 
 if [[ -z "$SkipLock" ]]; then
-	trap 'Unlock "Xconfigure" "Xconfigure" ; XorgConfLogging "Ending"' EXIT
-	WaitLock "Xconfigure" "Xconfigure" # don't run two copies of Xconfigure simultaneously
+	trap 'Unlock "Xconfigure" "Xconfigure" nolog; XorgConfLogging "Ending"' EXIT
+	WaitLock "Xconfigure" "Xconfigure" nolog # don't run two copies of Xconfigure simultaneously
 fi
 
 if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
