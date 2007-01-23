@@ -1,3 +1,9 @@
+xine-lib (1.1.2+dfsg+cvs20061111-1pluto2) experimental; urgency=low
+
+  * applied some patches from upstream to avoid crashes
+
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Fri, 23 Jan 2007 14:31:00 +0200
+
 xine-lib (1.1.2+dfsg+cvs20061111-1pluto1) experimental; urgency=low
 
   * synced to new debian snapshot 
