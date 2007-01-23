@@ -12,6 +12,12 @@ ZoomFactory* ZoomFactory::Instance(void)
 	return Instance_;
 }
 
+void ZoomFactory::Destroy()
+{
+	delete Instance_;
+	Instance_ = NULL;
+}
+
 ZoomFactory::ZoomFactory(void)
 {
 }

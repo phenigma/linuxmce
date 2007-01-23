@@ -11,6 +11,12 @@ FadeFactory* FadeFactory::Instance(void)
 	return Instance_;
 }
 
+void FadeFactory::Destroy()
+{
+	delete Instance_;
+	Instance_ = NULL;
+}
+
 FadeFactory::FadeFactory(void)
 {
 }

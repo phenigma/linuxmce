@@ -182,21 +182,21 @@ bool GallerySetup::GetUseAnimation()
 void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
 //<-dceag-c192-e->
 {
-	string w = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
-	string h = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST);
-	bool bNPOTTextures = DATA_Get_Supports_NPOT_Textures();
-	string sUseAnimation = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_Use_OpenGL_effects_CONST);
-	bool bUseAnimation = sUseAnimation == "1";
-	
-	GallerySetup* SetupInfo = new GallerySetup(w, h, bUseAnimation, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), m_sFileList, bNPOTTextures, this);
 	if(0 == ThreadID)
 	{
+		string w = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
+		string h = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST);
+		bool bNPOTTextures = DATA_Get_Supports_NPOT_Textures();
+		string sUseAnimation = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_Use_OpenGL_effects_CONST);
+		bool bUseAnimation = sUseAnimation == "1";
+
+		GallerySetup* SetupInfo = new GallerySetup(w, h, bUseAnimation, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), m_sFileList, bNPOTTextures, this);
 		SetupInfo->ThreadID = &ThreadID;
-		Gallery::Instance()->m_bQuit_set(false);
+		Gallery::Instance().m_bQuit_set(false);
 		pthread_create(&ThreadID, NULL, ThreadAnimation, SetupInfo);
 	}
 
-	Gallery::Instance()->Resume();
+	Gallery::Instance().Resume();
 	m_bIsOn=true;
 
 #ifndef WIN32
@@ -215,7 +215,7 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 //<-dceag-c193-e->
 {
-	Gallery::Instance()->Pause();
+	Gallery::Instance().Pause();
 	m_bIsOn=false;
 
 #ifndef WIN32
@@ -229,7 +229,7 @@ void Photo_Screen_Saver::Terminate()
 	g_pPlutoLogger->Write(LV_WARNING, "Received CMD_Off. Terminating...");
 	WM_Event Event;
 	Event.Quit();
-	Gallery::Instance()->m_bQuit_set(true);
+	Gallery::Instance().m_bQuit_set(true);
 	if( ThreadID )
 		pthread_join(ThreadID, NULL);
 	ThreadID = 0;
@@ -245,13 +245,13 @@ void* ThreadAnimation(void* ThreadInfo)
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Start Gallery thread");
 	GallerySetup* Info = (GallerySetup*) ThreadInfo;
-	Gallery::Instance()->Setup(Info->GetWidth(), Info->GetHeight(), 
+	Gallery::Instance().Setup(Info->GetWidth(), Info->GetHeight(), 
 		Info->GetFaddingTime(),
 		Info->GetZoomTime(),
 		Info->GetSearchImagesPath(),
 		Info->GetUseAnimation());
-	Gallery::Instance()->MainLoop(Info->m_pPhoto_Screen_Saver); 
-	Gallery::Instance()->CleanUp();
+	Gallery::Instance().MainLoop(Info->m_pPhoto_Screen_Saver); 
+	Gallery::Instance().CleanUp();
 
 	*(Info->ThreadID) = 0;
 	delete Info;
@@ -289,12 +289,14 @@ void Photo_Screen_Saver::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Me
 void Photo_Screen_Saver::CMD_Reload(string &sCMD_Result,Message *pMessage)
 //<-dceag-c606-e->
 {
+	m_sFileList.clear();
+
 	DCE::CMD_Get_Screen_Saver_Files_DT CMD_Get_Screen_Saver_Files_DT(m_dwPK_Device,DEVICETEMPLATE_Orbiter_Plugin_CONST,BL_SameHouse,m_pData->m_dwPK_Device_ControlledVia,&m_sFileList);
 	SendCommand(CMD_Get_Screen_Saver_Files_DT);
 	if( m_bIsOn )
 	{
-		// Restart it so it gets the new list
-		CMD_Off(0);
-		CMD_On(0,"");
+		Gallery::Instance().Pause();
+		Gallery::Instance().RefreshFileList(m_sFileList);
+		Gallery::Instance().Resume();
 	}
 }

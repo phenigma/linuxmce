@@ -14,12 +14,17 @@ AnimatedPicture::AnimatedPicture(int ScreenWidth, int ScreenHeight) :
 
 AnimatedPicture::~AnimatedPicture(void)
 {
+	delete Picture;
+	delete Zoom;
+	delete PictureFrame;
 }
 
 bool AnimatedPicture::LoadFromFile(string FileName)
 {
 	bool Result = Picture->Load(FileName);
 	Picture->Prepare(m_nScreenWidth, m_nScreenHeight);
+
+	delete PictureFrame;
 	PictureFrame = BuildRectangle(0.0f, 0.0f, 1.0f, 1.0f, Picture);
 	
 	return Result;
@@ -32,6 +37,7 @@ Frame* AnimatedPicture::GetFrame()
 
 void AnimatedPicture::SetZoomKind(int StartTime, int ZoomTime)
 {
+	delete Zoom;
 	Zoom = ZoomFactory::Instance()->CreateZoomType(rand() % 2, PictureFrame, 
 		int(Picture->Width * Picture->MaxU), int(Picture->Height * Picture->MaxV), 
 		StartTime, ZoomTime);

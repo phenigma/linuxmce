@@ -17,6 +17,7 @@ public:
 	void PaintContainer(Container& Container, Transform& Transform);
 	
 	static Painter* Instance();
+	static void Destroy();
 
 	void Setup(ExtensionManager *ExtensionManager);
 	void CleanUp();

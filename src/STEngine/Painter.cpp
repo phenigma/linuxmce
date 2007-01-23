@@ -19,6 +19,12 @@ Painter* Painter::Instance_ = NULL;
 	return Instance_;
 }
 
+void Painter::Destroy()
+{
+    delete Instance_;
+	Instance_ = NULL;
+}
+
 Painter::Painter()
 {
 }

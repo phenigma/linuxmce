@@ -229,6 +229,14 @@ int main(int argc, char* argv[])
     WSACleanup();
 #endif
 
+	delete g_pPlutoLogger;
+	g_pPlutoLogger = NULL;
+
+	extern map<int,PlutoLock *> *g_pmapLocks;
+	delete g_pmapLocks;
+	g_pmapLocks = NULL;
+
+
 	if( bReload )
 		return 2;
 	else

@@ -10,6 +10,7 @@ class ZoomFactory
 	int ScreenWidth, ScreenHeight;
 public:
 	static ZoomFactory* Instance();
+	static void Destroy();
 	~ZoomFactory(void);
 
 	void Setup(int ScreenWidth, int ScreenHeight);

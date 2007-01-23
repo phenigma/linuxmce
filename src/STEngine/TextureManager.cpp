@@ -15,6 +15,12 @@ TextureManager* TextureManager::Instance()
 	return Instance_;
 }
 
+void TextureManager::Destroy()
+{
+	delete Instance_;
+	Instance_ = NULL;
+}
+
 TextureManager::TextureManager(void) 
 	: LastTexture(0), 
 	m_bSupportTextureNonPowerOfTwo(false)

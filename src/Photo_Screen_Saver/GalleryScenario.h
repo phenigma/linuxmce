@@ -34,7 +34,9 @@ public:
 	GalleryScenario(int Width, int Height, int FaddingTime, int ZoomTime, 
 		string SearchImageFolder, bool bUseAnimation);
 	~GalleryScenario();
+
 	bool Update(void);
+	void RefreshFileList(string sFileList);
 };
 
 #endif

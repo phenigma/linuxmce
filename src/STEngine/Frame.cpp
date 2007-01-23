@@ -16,6 +16,8 @@ Frame::Frame(string Name, Container* pMesh)
 
 Frame::~Frame(void)
 {
+	delete pMesh;
+	pMesh = NULL;
 }
 
 /*virtual*/ void Frame::CleanUp()
@@ -32,9 +34,6 @@ Frame::~Frame(void)
 		pFrame = NULL;
 	}	
 	Children.clear();
-
-	delete pMesh;
-	pMesh = NULL;
 }
 
 void Frame::SetContainer(Container* pMesh)

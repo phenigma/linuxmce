@@ -7,19 +7,31 @@
 
 using namespace DCE;
 
-FileBrowser::FileBrowser(string FileList)
+FileBrowser::FileBrowser(string FileList) : m_BrowserMutex("file browser mutex")
 {
-	//FileList = "/IMG_0214.jpg\n/IMG_0001.jpg";
 	StringUtils::Tokenize(FileList,"\r\n",m_vectFileList);
 	srand( (unsigned)time( NULL ) );
+
+	m_BrowserMutex.Init(NULL);
 }
 
 FileBrowser::~FileBrowser(void)
 {
+	pthread_mutex_destroy(&m_BrowserMutex.mutex);
+}
+
+void FileBrowser::RefreshFileList(string sFileList)
+{
+	PLUTO_SAFETY_LOCK(vm, m_BrowserMutex);
+
+	m_vectFileList.clear();
+	StringUtils::Tokenize(sFileList,"\r\n",m_vectFileList);
 }
 
 string FileBrowser::NextFile()
 {
+	PLUTO_SAFETY_LOCK(vm, m_BrowserMutex);
+
 	string Result;
 	if(!m_vectFileList.size())
 		return Result;

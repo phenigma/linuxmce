@@ -26,11 +26,12 @@ public:
 
 class Gallery
 {
-	Gallery(void);
+	Gallery();
+	static Gallery m_Instance;
+
 	void PaintScreen(void);
 
 	ExtensionManager Extensions;
-	static Gallery* Instance_;
 	SDLFrontEnd* FrontEnd;
 	bool m_bQuit;
 	pluto_pthread_mutex_t m_FrontEndMutex;
@@ -46,16 +47,17 @@ class Gallery
 public:
 	~Gallery(void);
 	void MainLoop(DCE::Photo_Screen_Saver *pPhoto_Screen_Saver);
-	static Gallery* Instance(void);
+	static Gallery& Instance();
 
     bool Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation);
 	void CleanUp(void);
 	void EvaluateEvent(WM_Event Event);
 	void _Sleep(int Miliseconds);
 	void m_bQuit_set(bool bQuit);
+
 	void Pause();
 	void Resume();
-
+	void RefreshFileList(string sFileList);
 };
 
 #endif

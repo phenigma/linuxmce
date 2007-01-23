@@ -28,6 +28,7 @@ class TextureManager
 
 public:
 	static TextureManager* Instance();
+	static void Destroy();
 	virtual ~TextureManager(void);
 	
 

@@ -10,6 +10,7 @@ class FadeFactory
 
 public:
 	static FadeFactory* Instance();
+	static void Destroy();
 
 	virtual ~FadeFactory(void);
 

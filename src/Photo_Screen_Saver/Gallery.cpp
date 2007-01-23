@@ -39,7 +39,7 @@ unsigned long ProcessUtils::GetMicroTime()
 
 
 
-Gallery* Gallery::Instance_ = NULL;
+Gallery Gallery::m_Instance;
 
 Gallery::Gallery(): m_bQuit(false), FrontEnd(NULL), Scenario(NULL), m_FrontEndMutex("front end mutex"), m_bSuspended(false)
 {
@@ -49,6 +49,8 @@ Gallery::Gallery(): m_bQuit(false), FrontEnd(NULL), Scenario(NULL), m_FrontEndMu
 Gallery::~Gallery(void)
 {
 	delete Scenario;
+	Painter::Destroy();
+
 	pthread_mutex_destroy(&m_FrontEndMutex.mutex);
 }
 
@@ -79,11 +81,9 @@ void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 	}
 }
 
-Gallery* Gallery::Instance(void)
+Gallery& Gallery::Instance(void)
 {
-	if(NULL == Instance_)
-		Instance_ = new Gallery();
-	return Instance_;
+	return m_Instance;
 }
 
 void Gallery::Pause()
@@ -94,6 +94,11 @@ void Gallery::Pause()
 void Gallery::Resume()
 {
 	m_bSuspended = false;
+}
+
+void Gallery::RefreshFileList(string sFileList)
+{
+	Scenario->RefreshFileList(sFileList);
 }
 
 void Gallery::PaintScreen(void)

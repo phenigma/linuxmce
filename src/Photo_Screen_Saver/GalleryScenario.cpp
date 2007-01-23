@@ -31,6 +31,15 @@ GalleryScenario::~GalleryScenario(void)
 {
 	delete StateMachine;
 	delete Browser;
+
+	delete AfterPicture;
+	delete BeforePicture;
+
+	delete Fades;
+
+	ZoomFactory::Destroy();
+	FadeFactory::Destroy();
+	TextureManager::Destroy();
 }
 
 bool GalleryScenario::Update(void)
@@ -127,4 +136,10 @@ bool GalleryScenario::Update(void)
 	}
 
 	return true;
+}
+
+void GalleryScenario::RefreshFileList(string sFileList)
+{
+	if(NULL != Browser)
+		Browser->RefreshFileList(sFileList);
 }
