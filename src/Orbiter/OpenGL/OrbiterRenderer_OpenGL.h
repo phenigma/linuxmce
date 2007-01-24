@@ -124,6 +124,8 @@ namespace DCE
 
 		virtual void ProcessingInputEvent();
 
+		virtual void DestroyGraphic(string sObjectID);
+
 		OpenGL3DEngine* Engine;	
 		pthread_cond_t Condition;
 		pluto_pthread_mutex_t Mutex; 

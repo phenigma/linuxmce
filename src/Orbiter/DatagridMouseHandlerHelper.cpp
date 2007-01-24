@@ -20,6 +20,8 @@
 
 using namespace DCE;
 
+#define IMAGE_FAKE_POINTER_NAME "image_fake_pointer"
+
 DatagridMouseHandlerHelper::DatagridMouseHandlerHelper(MouseHandler *pMouseHandler,int iLeft,int iRight)
 { 
 	m_pMouseHandler=pMouseHandler;
@@ -445,6 +447,8 @@ bool DatagridMouseHandlerHelper::RelativePointer_ImageLoad(int nSpeedShape)
 
 void DatagridMouseHandlerHelper::RelativePointer_ImageDraw(PlutoGraphic *pImage, const PlutoRectangle &rectFakePointer)
 {
+	RelativePointer_ImageRemove();
+
 #ifdef ORBITER_OPENGL
 	g_pPlutoLogger->Write(LV_ACTION,"DatagridMouseHandlerHelper::RelativePointer_ImageDraw");
     OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = dynamic_cast<OrbiterRenderer_OpenGL *>(m_pMouseBehavior->m_pOrbiter->Renderer());
@@ -452,9 +456,10 @@ void DatagridMouseHandlerHelper::RelativePointer_ImageDraw(PlutoGraphic *pImage,
     {
         // opengl mode
         // reusing the same image id
+		pOrbiterRenderer_OpenGL->DestroyGraphic(IMAGE_FAKE_POINTER_NAME);
         pOrbiterRenderer_OpenGL->RenderGraphic(pImage, rectFakePointer, false, PlutoPoint(), 255,
-			"", "image_fake_pointer");
-		pOrbiterRenderer_OpenGL->Engine->AddTopMostObject("image_fake_pointer");
+			"", IMAGE_FAKE_POINTER_NAME);
+		pOrbiterRenderer_OpenGL->Engine->AddTopMostObject(IMAGE_FAKE_POINTER_NAME);
         return;
     }
 #endif
@@ -464,16 +469,7 @@ void DatagridMouseHandlerHelper::RelativePointer_ImageDraw(PlutoGraphic *pImage,
 
 void DatagridMouseHandlerHelper::RelativePointer_ImageRemove()
 {
-#ifdef ORBITER_OPENGL
-	g_pPlutoLogger->Write(LV_ACTION,"DatagridMouseHandlerHelper::RelativePointer_ImageRemove");
-    OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = dynamic_cast<OrbiterRenderer_OpenGL *>(m_pMouseBehavior->m_pOrbiter->Renderer());
-    if (pOrbiterRenderer_OpenGL)
-    {
-        pOrbiterRenderer_OpenGL->RemoveGraphic("image_fake_pointer");
-        return;
-    }
-#endif
-    // sdl mode, no method implemented yet in sdl
+	m_pMouseBehavior->m_pOrbiter->Renderer()->DestroyGraphic(IMAGE_FAKE_POINTER_NAME);
 }
 
 PlutoRectangle DatagridMouseHandlerHelper::RelativePointer_ComputeRectangle(int X, int Y, int screenWidth, int screenHeight)

@@ -232,11 +232,17 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 		pCell = pDataGridTable->GetData(m_pObj_PicGrid->m_iHighlightedColumn + m_pObj_PicGrid->m_GridCurCol,m_pObj_PicGrid->m_iHighlightedRow + m_pObj_PicGrid->m_GridCurRow );
 
 	PLUTO_SAFETY_LOCK(M, m_pMouseBehavior->m_pOrbiter->m_VariableMutex );
+
+	DesignObj_Orbiter *pObjCoverartImageObj = m_pMouseBehavior->m_pOrbiter->FindObject(m_pObj_CoverArtPopup->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST));
+	if(NULL != pObjCoverartImageObj)
+		m_pMouseBehavior->m_pOrbiter->Renderer()->DestroyGraphic(pObjCoverartImageObj->GenerateObjectHash(m_pObj_CoverArtPopup->m_pPopupPoint, false));
+
 	if( pCell && pCell->m_pGraphic && pCell->m_pGraphic->m_pGraphicData)
 	{
 		char *pDup = new char[pCell->m_pGraphic->m_GraphicLength];
 		memcpy(pDup,pCell->m_pGraphic->m_pGraphicData,pCell->m_pGraphic->m_GraphicLength);
 		M.Release();
+
 		m_pMouseBehavior->m_pOrbiter->CMD_Update_Object_Image(m_pObj_CoverArtPopup->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pDup,int(pCell->m_pGraphic->m_GraphicLength),"0");
 		m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(m_pObj_CoverArtPopup->m_ObjectID,X,Y,"","coverart",false,false);
 
@@ -249,7 +255,6 @@ void MediaBrowserMouseHandler::ShowCoverArtPopup()
 		M.Release();
 		m_pMouseBehavior->m_pOrbiter->CMD_Update_Object_Image(m_pObj_CoverArtPopup->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",pDup,int(pCell->m_GraphicLength),"0");
 		m_pMouseBehavior->m_pOrbiter->CMD_Show_Popup(m_pObj_CoverArtPopup->m_ObjectID,X,Y,"","coverart",false,false);
-
 		delete [] pDup;
 	}
 	else

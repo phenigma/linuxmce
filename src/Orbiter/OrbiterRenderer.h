@@ -280,6 +280,8 @@ public:
 	 *	Orbiter is processing an event
 	 */
 	virtual void ProcessingInputEvent() {}
+
+	virtual void DestroyGraphic(string sObjectID) {}
 };
 
 #endif //__ORBITER_RENDERER_H__

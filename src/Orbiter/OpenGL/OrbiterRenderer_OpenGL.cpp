@@ -891,3 +891,14 @@ void OrbiterRenderer_OpenGL::ProcessingInputEvent()
 {
 	Engine->RefreshScreen();
 }
+
+void OrbiterRenderer_OpenGL::DestroyGraphic(string sObjectID)
+{
+	MeshFrame *pMeshFrame = Engine->GetMeshFrameFromDesktop(sObjectID);
+
+	Engine->RemoveTopMostObject(sObjectID);
+	Engine->RemoveMeshFrameFromDesktopForID(sObjectID);
+
+	if(NULL != pMeshFrame)
+		delete pMeshFrame;
+}
