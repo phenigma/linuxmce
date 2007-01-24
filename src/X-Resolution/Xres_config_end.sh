@@ -43,22 +43,20 @@ kill $pidOfX
 
 if [[ "${Answer:0:1}" == "y" || "${Answer:0:1}" == "Y" ]]; then
 	VideoSetting=$(</tmp/Pluto_VideoSetting.txt)
-	if [[ -z "$VideoSetting" ]]; then
-		echo "ERROR: Empty video setting. Will not continue"
-		exit 1
-	fi
 
 	echo "X reload flag and message"
 	ReloadDevicesOnThisMachine
 
-	ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
-	#OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
-	Q="
-		UPDATE Device_DeviceData
-		SET IK_DeviceData='$VideoSetting'
-		WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Video_settings'
-	"
-	RunSQL "$Q"
+	if [[ -n "$VideoSetting" ]]; then
+		ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
+		#OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
+		Q="
+			UPDATE Device_DeviceData
+			SET IK_DeviceData='$VideoSetting'
+			WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Video_settings'
+		"
+		RunSQL "$Q"
+	fi
 
 	pidOfX=$(ps ax|grep "X :$Display -ignoreABI -ac -allowMouseOpenFail vt7"|egrep -v 'grep|SCREEN'|awk '{print $1}')
 	mv /etc/X11/xorg.conf.pluto{.test,}
