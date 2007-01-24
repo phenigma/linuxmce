@@ -1,7 +1,7 @@
 AM_CPPFLAGS=-D_REENTRANT -D_FILE_OFFSET_BITS=64
 bin_PROGRAMS=fusesmb
 fusesmb_SOURCES=fusesmb.c smbctx.c
-noinst_HEADERS = smbctx.h debug.h
+noinst_HEADERS = smbctx.h
 
 #  uncomment the following if fusesmb requires the math library
 
@@ -17,4 +17,4 @@ EXTRA_DIST= debian fusesmb.conf.ex fusesmb.1 fusesmb.conf.5
 #fusesmb_TEXINFOS = gpl.texinfo
 
 #  install the man pages
-man_MANS=fusesmb.1 fusesmb.conf.5
+man_MANS=fusesmb.1
