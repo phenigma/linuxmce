@@ -180,8 +180,21 @@ string GetCommand( )
 	return "";
 }
 
+// handling signals
+void signal_handler(int signal)
+{
+	switch (signal)
+	{
+		case SIGPIPE:
+			cout << "Signal SIGPIPE received and ignored" << endl;
+			break;
+	}
+}
+
+
 int main( int argc, char *argv[] )
 {
+	signal(SIGPIPE, signal_handler);
 
 	cout << " Copyright (C) 2004 Pluto, Inc., a Florida Corporation " << endl
 	    	<< " www.plutohome.com " << endl
