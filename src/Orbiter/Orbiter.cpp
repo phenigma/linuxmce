@@ -6489,10 +6489,17 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		m_bShowingSpeedBar=false;
 	}
 
-	if( m_bReportTimeCode && !m_bUpdateTimeCodeLoopRunning )
+	if(m_bReportTimeCode && !m_bUpdateTimeCodeLoopRunning )
 	{
 		m_bUpdateTimeCodeLoopRunning=true;
 		g_pPlutoLogger->Write(LV_STATUS,"UpdateTimeCode starting thread");
+
+		if(m_TimeCodeID)
+		{
+			pthread_join(m_TimeCodeID, NULL);
+			m_TimeCodeID = NULL;
+		}
+		
 		pthread_create(&m_TimeCodeID, NULL, UpdateTimeCodeThread, (void*)this);
 	}
 }
