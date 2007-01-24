@@ -73,6 +73,7 @@ main (int argc, char *argv[])
 	textdomain (GETTEXT_PACKAGE);
 #endif
 	
+
 	gtk_set_locale ();
 	gtk_init (&argc, &argv);
 
@@ -90,8 +91,10 @@ main (int argc, char *argv[])
 
 	// Initializations
 	setting_coreIP = detectCoreIpAddress();
-	history = g_queue_new();
+	setting_deviceType = DT_HYBRID;
+	setting_runDhcpServer = TRUE;
 
+	history = g_queue_new();
 
 	if (setting_coreIP != NULL) {
 		displayStep1C();

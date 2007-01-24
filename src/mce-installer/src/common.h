@@ -18,12 +18,20 @@
 #include "Step1B.h"
 #include "Step1C.h"
 #include "Step1D.h"
+#include "Step2A.h"
+#include "Step2E.h"
+#include "Step3.h"
+
+#include "network-common.h"
 
 #define STEP1A 1
 #define STEP1B 2
 #define STEP1C 3
 #define STEP1D 4
 #define STEP1E 5
+#define STEP2A 6
+#define STEP2E 7
+#define STEP3  8
 
 GladeXML  *gxml;
 GtkWidget *mainWindow;
@@ -39,7 +47,8 @@ void		on_back_clicked(GObject object, gpointer data);
 #define DT_HYBRID 2
 #define DT_MEDIA_DIRECTOR 3
 
-gchar*	setting_coreIP;
-gint	setting_deviceType; // 1-Core, 2-Hybrid, 3-MediaDirector
+gchar*	 setting_coreIP;
+gint	 setting_deviceType;
+gboolean setting_runDhcpServer;
 
 #endif

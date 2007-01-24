@@ -36,8 +36,7 @@ void displayStep1A(void) {
 	// Questions
 	GSList *group = NULL;
 	GtkWidget *radioYes = gtk_radio_button_new_with_label(group, "Yes, i want to use this system as a Core");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioYes), TRUE);
-	g_signal_connect(G_OBJECT(radioYes), "toggled", G_CALLBACK(on_Step1A_radio_toggled), (gpointer)DT_CORE);
+	g_signal_connect(G_OBJECT(radioYes), "toggled", G_CALLBACK(on_Step1A_radio_toggled), (gpointer)DT_HYBRID);
 	gtk_box_pack_start(GTK_BOX(mainBox), radioYes, TRUE, FALSE, 0);
 
 	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radioYes));
@@ -45,6 +44,11 @@ void displayStep1A(void) {
 	g_signal_connect(G_OBJECT(radioNo), "toggled", G_CALLBACK(on_Step1A_radio_toggled), (gpointer)DT_MEDIA_DIRECTOR);
 	gtk_box_pack_start(GTK_BOX(mainBox), radioNo, TRUE, FALSE, 0);
 
+	if (setting_deviceType == 3) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioNo), TRUE);
+	} else {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioYes), TRUE);
+	}
 	// Button Forward
 	GtkWidget *buttonForward = gtk_button_new_from_stock(GTK_STOCK_GO_FORWARD);
 	gtk_container_add(GTK_CONTAINER(mainButtonBox), buttonForward);

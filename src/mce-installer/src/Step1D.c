@@ -9,8 +9,8 @@ void on_Step1D_radio_toggled(GtkWidget *widget, gpointer data) {
 }
 
 void on_Step1D_forward_clicked(GtkWidget *widget, gpointer data) {
-	//g_queue_push_head(history, (gpointer)STEP1D);
-	// Ask quiestion about hybrid/core installation
+	g_queue_push_head(history, (gpointer)STEP1D);
+	start_network_wizard();	
 }
 
 void displayStep1D(void) {
@@ -35,6 +35,12 @@ void displayStep1D(void) {
         GtkWidget *radioNo = gtk_radio_button_new_with_label(group, "No, i'll use other cmputer(s) and DMA devices(s) to playback\nmedia. Only install core software on this one.");
         g_signal_connect(G_OBJECT(radioNo), "toggled", G_CALLBACK(on_Step1D_radio_toggled), (gpointer)DT_CORE);
         gtk_box_pack_start(GTK_BOX(mainBox), radioNo, TRUE, FALSE, 0);
+
+        if (setting_deviceType == 1) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioNo), TRUE);
+	} else {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioYes), TRUE);
+	}
 
 	// Button Back
 	GtkWidget *buttonBack = gtk_button_new_from_stock(GTK_STOCK_GO_BACK);

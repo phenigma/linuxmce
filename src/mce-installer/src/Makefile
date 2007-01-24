@@ -75,8 +75,8 @@ MAINT =
 MAKEINFO = /home/rgavril/Projects/mce-installer/missing makeinfo
 MKINSTALLDIRS = ./mkinstalldirs
 PACKAGE = mce-installer
-PACKAGE_CFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libglade-2.0 -I/usr/include/libxml2  
-PACKAGE_LIBS = -lglade-2.0 -lgtk-x11-2.0 -lxml2 -lgdk-x11-2.0 -latk-1.0 -lgdk_pixbuf-2.0 -lm -lpangocairo-1.0 -lfontconfig -lXext -lXrender -lXinerama -lXi -lXrandr -lXcursor -lXfixes -lpango-1.0 -lcairo -lX11 -lgobject-2.0 -lgmodule-2.0 -ldl -lglib-2.0  
+PACKAGE_CFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libglade-2.0 -I/usr/include/libxml2 -I/usr/include/liboobs-1.0  
+PACKAGE_LIBS = -lglade-2.0 -lgtk-x11-2.0 -lxml2 -lgdk-x11-2.0 -latk-1.0 -lgdk_pixbuf-2.0 -lm -lpangocairo-1.0 -lfontconfig -lXext -lXrender -lXinerama -lXi -lXrandr -lXcursor -lXfixes -lpango-1.0 -lcairo -lX11 -lgmodule-2.0 -ldl -loobs-1 -lgobject-2.0 -lglib-2.0  
 PKG_CONFIG = /usr/bin/pkg-config
 POFILES = 
 POSUB = po
@@ -96,7 +96,7 @@ AM_CFLAGS =  	 -Wall 	 -g
 
 bin_PROGRAMS = mce-installer
 
-mce_installer_SOURCES =  	main.c         	Step1A.c         	Step1A.h         	common.h         	common.c         	Step1B.c         	Step1B.h         	Step1C.c         	Step1C.h         	Step1D.c         	Step1D.h 
+mce_installer_SOURCES =  	main.c         	Step1A.c         	Step1A.h         	common.h         	common.c         	Step1B.c         	Step1B.h         	Step1C.c         	Step1C.h         	Step1D.c         	Step1D.h         	network-common.c         	network-common.h         	Step2A.c         	Step2A.h         	Step3.c         	Step3.h         	Step2E.c         	Step2E.h 
 
 
 mce_installer_LDFLAGS = 
@@ -115,7 +115,7 @@ CPPFLAGS =
 LDFLAGS = 
 LIBS = 
 mce_installer_OBJECTS =  main.o Step1A.o common.o Step1B.o Step1C.o \
-Step1D.o
+Step1D.o network-common.o Step2A.o Step3.o Step2E.o
 mce_installer_DEPENDENCIES = 
 CFLAGS = -g -O2
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -131,7 +131,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/Step1A.P .deps/Step1B.P .deps/Step1C.P .deps/Step1D.P \
-.deps/common.P .deps/main.P
+.deps/Step2A.P .deps/Step2E.P .deps/Step3.P .deps/common.P .deps/main.P \
+.deps/network-common.P
 SOURCES = $(mce_installer_SOURCES)
 OBJECTS = $(mce_installer_OBJECTS)
 

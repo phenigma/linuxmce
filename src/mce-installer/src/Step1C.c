@@ -10,11 +10,11 @@ void on_Step1C_radio_toggled(GtkWidget *widget, gpointer data) {
 }
 
 void on_Step1C_forward_clicked(GtkWidget *widget, gpointer data) {
-	g_queue_push_head(history, (gpointer)STEP1C);
 
         if (setting_deviceType != 1) {
                 // Build Media Director
         } else {
+		g_queue_push_head(history, (gpointer)STEP1C);
                 displayStep1D();
         }
 }

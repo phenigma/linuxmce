@@ -355,7 +355,48 @@ common.o: common.c common.h /usr/include/gtk-2.0/gtk/gtk.h \
   /usr/include/bits/byteswap.h /usr/include/fcntl.h \
   /usr/include/bits/fcntl.h /usr/include/stdlib.h /usr/include/alloca.h \
   /usr/include/string.h /usr/include/bits/string.h \
-  /usr/include/bits/string2.h Step1A.h Step1B.h Step1C.h Step1D.h
+  /usr/include/bits/string2.h Step1A.h Step1B.h Step1C.h Step1D.h \
+  Step2A.h Step2E.h Step3.h network-common.h \
+  /usr/include/liboobs-1.0/oobs/oobs.h \
+  /usr/include/liboobs-1.0/oobs/oobs-object.h \
+  /usr/include/liboobs-1.0/oobs/oobs-result.h \
+  /usr/include/liboobs-1.0/oobs/oobs-session.h \
+  /usr/include/liboobs-1.0/oobs/oobs-list.h \
+  /usr/include/liboobs-1.0/oobs/oobs-share.h \
+  /usr/include/liboobs-1.0/oobs/oobs-share-smb.h \
+  /usr/include/liboobs-1.0/oobs/oobs-share.h \
+  /usr/include/liboobs-1.0/oobs/oobs-smbconfig.h \
+  /usr/include/liboobs-1.0/oobs/oobs-object.h \
+  /usr/include/liboobs-1.0/oobs/oobs-list.h \
+  /usr/include/liboobs-1.0/oobs/oobs-session.h \
+  /usr/include/liboobs-1.0/oobs/oobs-share-nfs.h \
+  /usr/include/liboobs-1.0/oobs/oobs-nfsconfig.h \
+  /usr/include/liboobs-1.0/oobs/oobs-user.h \
+  /usr/include/liboobs-1.0/oobs/oobs-group.h \
+  /usr/include/liboobs-1.0/oobs/oobs-user.h \
+  /usr/include/liboobs-1.0/oobs/oobs-usersconfig.h \
+  /usr/include/liboobs-1.0/oobs/oobs-group.h \
+  /usr/include/liboobs-1.0/oobs/oobs-groupsconfig.h \
+  /usr/include/liboobs-1.0/oobs/oobs-ntpserver.h \
+  /usr/include/liboobs-1.0/oobs/oobs-ntpconfig.h \
+  /usr/include/liboobs-1.0/oobs/oobs-timeconfig.h \
+  /usr/include/liboobs-1.0/oobs/oobs-statichost.h \
+  /usr/include/liboobs-1.0/oobs/oobs-hostsconfig.h \
+  /usr/include/liboobs-1.0/oobs/oobs-iface.h \
+  /usr/include/liboobs-1.0/oobs/oobs-iface-ethernet.h \
+  /usr/include/liboobs-1.0/oobs/oobs-iface.h \
+  /usr/include/liboobs-1.0/oobs/oobs-iface-wireless.h \
+  /usr/include/liboobs-1.0/oobs/oobs-iface-ethernet.h \
+  /usr/include/liboobs-1.0/oobs/oobs-iface-irlan.h \
+  /usr/include/liboobs-1.0/oobs/oobs-iface-plip.h \
+  /usr/include/liboobs-1.0/oobs/oobs-iface-isdn.h \
+  /usr/include/liboobs-1.0/oobs/oobs-iface-modem.h \
+  /usr/include/liboobs-1.0/oobs/oobs-iface-isdn.h \
+  /usr/include/liboobs-1.0/oobs/oobs-ifacesconfig.h \
+  /usr/include/liboobs-1.0/oobs/oobs-service.h \
+  /usr/include/liboobs-1.0/oobs/oobs-servicesconfig.h \
+  /usr/include/liboobs-1.0/oobs/oobs-servicesconfig.h \
+  /usr/include/liboobs-1.0/oobs/oobs-result.h
 common.c :
 common.h :
 /usr/include/gtk-2.0/gtk/gtk.h :
@@ -782,3 +823,47 @@ Step1A.h :
 Step1B.h :
 Step1C.h :
 Step1D.h :
+Step2A.h :
+Step2E.h :
+Step3.h :
+network-common.h :
+/usr/include/liboobs-1.0/oobs/oobs.h :
+/usr/include/liboobs-1.0/oobs/oobs-object.h :
+/usr/include/liboobs-1.0/oobs/oobs-result.h :
+/usr/include/liboobs-1.0/oobs/oobs-session.h :
+/usr/include/liboobs-1.0/oobs/oobs-list.h :
+/usr/include/liboobs-1.0/oobs/oobs-share.h :
+/usr/include/liboobs-1.0/oobs/oobs-share-smb.h :
+/usr/include/liboobs-1.0/oobs/oobs-share.h :
+/usr/include/liboobs-1.0/oobs/oobs-smbconfig.h :
+/usr/include/liboobs-1.0/oobs/oobs-object.h :
+/usr/include/liboobs-1.0/oobs/oobs-list.h :
+/usr/include/liboobs-1.0/oobs/oobs-session.h :
+/usr/include/liboobs-1.0/oobs/oobs-share-nfs.h :
+/usr/include/liboobs-1.0/oobs/oobs-nfsconfig.h :
+/usr/include/liboobs-1.0/oobs/oobs-user.h :
+/usr/include/liboobs-1.0/oobs/oobs-group.h :
+/usr/include/liboobs-1.0/oobs/oobs-user.h :
+/usr/include/liboobs-1.0/oobs/oobs-usersconfig.h :
+/usr/include/liboobs-1.0/oobs/oobs-group.h :
+/usr/include/liboobs-1.0/oobs/oobs-groupsconfig.h :
+/usr/include/liboobs-1.0/oobs/oobs-ntpserver.h :
+/usr/include/liboobs-1.0/oobs/oobs-ntpconfig.h :
+/usr/include/liboobs-1.0/oobs/oobs-timeconfig.h :
+/usr/include/liboobs-1.0/oobs/oobs-statichost.h :
+/usr/include/liboobs-1.0/oobs/oobs-hostsconfig.h :
+/usr/include/liboobs-1.0/oobs/oobs-iface.h :
+/usr/include/liboobs-1.0/oobs/oobs-iface-ethernet.h :
+/usr/include/liboobs-1.0/oobs/oobs-iface.h :
+/usr/include/liboobs-1.0/oobs/oobs-iface-wireless.h :
+/usr/include/liboobs-1.0/oobs/oobs-iface-ethernet.h :
+/usr/include/liboobs-1.0/oobs/oobs-iface-irlan.h :
+/usr/include/liboobs-1.0/oobs/oobs-iface-plip.h :
+/usr/include/liboobs-1.0/oobs/oobs-iface-isdn.h :
+/usr/include/liboobs-1.0/oobs/oobs-iface-modem.h :
+/usr/include/liboobs-1.0/oobs/oobs-iface-isdn.h :
+/usr/include/liboobs-1.0/oobs/oobs-ifacesconfig.h :
+/usr/include/liboobs-1.0/oobs/oobs-service.h :
+/usr/include/liboobs-1.0/oobs/oobs-servicesconfig.h :
+/usr/include/liboobs-1.0/oobs/oobs-servicesconfig.h :
+/usr/include/liboobs-1.0/oobs/oobs-result.h :

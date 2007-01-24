@@ -32,6 +32,12 @@ void on_back_clicked(GObject object, gpointer data) {
 			case STEP1D:
 				displayStep1D();
 				break;
+			case STEP2A:
+				displayStep2A();
+				break;
+			case STEP3:
+				displayStep1A();
+				break;
 			default:
 				printf("Unknown screen in history [%d]", prevScreen);
 		}
