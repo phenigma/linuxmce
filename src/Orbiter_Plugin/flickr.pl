@@ -123,6 +123,9 @@ if ($search_string){
 			$r=XMLin($response->{_content});
 			$IMGS->{$id}->{'time'}=$r->{'photo'}->{'dates'}->{'posted'};
 			$IMGS->{$id}->{'format'}=$r->{'photo'}->{'originalformat'};
+			if (!$IMGS->{$id}->{'format'}){
+				$IMGS->{$id}->{'format'}='jpg';
+			}
 			$IMGS->{$id}->{'username'}=$r->{'photo'}->{'owner'}->{'username'};
 			$response= $api->execute_method('flickr.photos.getSizes',{'photo_id' => $id});
 			if (!isFileOnDisk($id, $IMGS->{$id}, $search_string)){
@@ -187,6 +190,9 @@ if ($search_string){
 			$IMGS->{$id}->{'time'}=$r->{'photo'}->{'dates'}->{'posted'};
 			$IMGS->{$id}->{'username'}=$r->{'photo'}->{'owner'}->{'username'};
 			$IMGS->{$id}->{'format'}=$r->{'photo'}->{'originalformat'};
+			if (!$IMGS->{$id}->{'format'}){
+				$IMGS->{$id}->{'format'}='jpg';
+			}
 			#look for the file existence
 			if (!isFileOnDisk($id, $IMGS->{$id},'')){
 				if ($IMGS->{$id}->{'time'} > time()-($tDays*24*60*60)) {
