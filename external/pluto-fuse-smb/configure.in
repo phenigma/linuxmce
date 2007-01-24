@@ -86,4 +86,4 @@ AC_CHECK_LIB(smbclient, smbc_new_context,, AC_MSG_ERROR([Please install libsmbcl
 AC_CHECK_LIB(pthread, pthread_create,, AC_MSG_ERROR([Please install pthreads library first.]))
 AC_CHECK_LIB(fuse, fuse_main,, AC_MSG_ERROR([Please install libfuse >= 1.1 first.]))
 
-AC_OUTPUT(Makefile pluto-fuse-smb.lsm pluto-fuse-smb.spec)
+AC_OUTPUT(Makefile)

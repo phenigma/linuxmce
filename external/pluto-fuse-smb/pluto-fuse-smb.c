@@ -14,6 +14,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <fuse.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <sys/param.h>
+#include <sys/vfs.h>
+#include <pthread.h>
+#include <libsmbclient.h>
+#include <time.h>
+
+#define MY_MAXPATHLEN (MAXPATHLEN + 256)
+
 char * fusesmb_auth_fn_username = NULL, * fusesmb_auth_fn_password = NULL;
 
 static void fusesmb_auth_fn(const char *server, const char *share,
@@ -65,27 +86,6 @@ SMBCCTX *fusesmb_new_context(const char * username, const char * password)
 	fusesmb_auth_fn_password = password;
     return fusesmb_context(fusesmb_auth_fn);
 }
-
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#include <fuse.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include <unistd.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <sys/param.h>
-#include <sys/vfs.h>
-#include <pthread.h>
-#include <libsmbclient.h>
-#include <time.h>
-
-#define MY_MAXPATHLEN (MAXPATHLEN + 256)
 
 /* Mutex for locking the Samba context */
 
