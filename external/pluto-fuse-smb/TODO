@@ -1,2 +1,0 @@
-fix permissions of fusesmb.cache, fusesmb.cache.pid (644) and (600)
-check if fusesmb.cache is in path

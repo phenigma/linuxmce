@@ -9,8 +9,8 @@ Package: pluto-fuse-smb
 Architecture: any
 Depends: ${shlibs:Depends}, fuse-utils
 Description: filesystem client based on the SMB file transfer protocol
- fusesmb is a filesystem client based on the SMB file transfer protocol. This
- gives the ability to transparently exchange files with Microsoft Windows
+ pluto-fuse-smb is a filesystem client based on the SMB file transfer protocol.
+ This gives the ability to transparently exchange files with Microsoft Windows
  servers and Unix servers running Samba.
  .
  It is based on FUSE (userspace filesystem framework for Linux), thus you will

@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(fusesmb.c)
+AC_INIT(pluto-fuse-smb.c)
 dnl Every other copy of the package version number gets its value from here
-AM_INIT_AUTOMAKE(fusesmb, 0.8.5)
+AM_INIT_AUTOMAKE(pluto-fuse-smb, 0.1)
 
 dnl create a config.h file (Automake will add -DHAVE_CONFIG_H)
 AM_CONFIG_HEADER(config.h)
@@ -86,4 +86,4 @@ AC_CHECK_LIB(smbclient, smbc_new_context,, AC_MSG_ERROR([Please install libsmbcl
 AC_CHECK_LIB(pthread, pthread_create,, AC_MSG_ERROR([Please install pthreads library first.]))
 AC_CHECK_LIB(fuse, fuse_main,, AC_MSG_ERROR([Please install libfuse >= 1.1 first.]))
 
-AC_OUTPUT(Makefile fusesmb.lsm fusesmb.spec)
+AC_OUTPUT(Makefile pluto-fuse-smb.lsm pluto-fuse-smb.spec)

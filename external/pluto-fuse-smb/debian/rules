@@ -60,8 +60,8 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/fusesmb
-	cp fusesmb.1 $(CURDIR)/debian/fusesmb/usr/share/man/man1/fusesmb.cache.1
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/pluto-fuse-smb
+	cp pluto-fuse-smb.1 $(CURDIR)/debian/pluto-fuse-smb/usr/share/man/man1/pluto-fuse-smb.cache.1
 
 # Build architecture-independent files here.
 binary-indep: build install
