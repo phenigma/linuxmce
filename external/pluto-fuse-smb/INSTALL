@@ -1,0 +1,45 @@
+
+Installations instructions for SMB for FUSE
+===============================================================================
+
+Installation/compiling
+-------------------------------------------------------------------------------
+To compile type:
+
+ $ ./configure
+ $ make
+ $ su
+
+(enter root password)
+ # make install
+
+In case you define a custom install path, make sure that the path to the
+installed executables - fusesmb and fusesmb.cache - are in your $PATH .
+
+Running
+-------------------------------------------------------------------------------
+To run SMB for FUSE type - as normal user:
+
+ $ fusesmb <mountpoint>
+
+On the first run your network will be scanned for available servers. This could
+take a while depending on the number of computers in your network.
+
+When scanning is finished you can now enter the <mountpoint> to browse your
+network.
+
+Configuration
+-------------------------------------------------------------------------------
+If you need authentication you can edit the file ~/.smb/fusesmb.conf . An
+example of this file with comments for every available option is shown in
+fusesmb.conf.ex .
+
+
+Note for users of previous versions
+-------------------------------------------------------------------------------
+SMB for FUSE doesn't use cron anymore for network scanning. You can remove the
+scanner from your crontab by typing:
+
+ $ crontab -e
+
+Then delete the line containing fusesmbcache.
