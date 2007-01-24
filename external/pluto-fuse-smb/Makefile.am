@@ -1,12 +1,12 @@
 AM_CPPFLAGS=-D_REENTRANT -D_FILE_OFFSET_BITS=64
-bin_PROGRAMS=fusesmb
-fusesmb_SOURCES=fusesmb.c smbctx.c
-noinst_HEADERS = smbctx.h
+bin_PROGRAMS=pluto-fuse-smb
+fusesmb_SOURCES=pluto-fuse-smb.c
+noinst_HEADERS = 
 
 #  uncomment the following if fusesmb requires the math library
 
 #EXTRA_DIST=fusesmb.lsm.in fusesmb.spec.in fusesmb.texinfo
-EXTRA_DIST= debian fusesmb.conf.ex fusesmb.1 fusesmb.conf.5
+EXTRA_DIST= debian pluto-fuse-smb.1
 
 #  if you write a self-test script named `chk', uncomment the
 #  following and add `chk' to the EXTRA_DIST list
@@ -17,4 +17,4 @@ EXTRA_DIST= debian fusesmb.conf.ex fusesmb.1 fusesmb.conf.5
 #fusesmb_TEXINFOS = gpl.texinfo
 
 #  install the man pages
-man_MANS=fusesmb.1
+man_MANS=pluto-fuse-smb.1
