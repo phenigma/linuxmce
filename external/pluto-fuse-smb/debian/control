@@ -2,7 +2,7 @@ Source: pluto-fuse-smb
 Section: utils
 Priority: optional
 Maintainer: Radu Cristescu <radu.c@plutohome.com>
-Build-Depends: debhelper (>= 4.0.0), autotools-dev, samba-common, libsmbclient-dev, libfuse-dev
+Build-Depends: debhelper (>= 4.0.0), autotools-dev, samba-common, libsmbclient-dev, libfuse-dev, automake1.4
 Standards-Version: 3.7.0
 
 Package: pluto-fuse-smb
