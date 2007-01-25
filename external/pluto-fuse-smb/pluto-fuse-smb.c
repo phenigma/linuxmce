@@ -35,7 +35,7 @@
 
 #define MY_MAXPATHLEN (MAXPATHLEN + 256)
 
-char * fusesmb_auth_fn_username = NULL, * fusesmb_auth_fn_password = NULL;
+const char * fusesmb_auth_fn_username = NULL, * fusesmb_auth_fn_password = NULL;
 
 static void fusesmb_auth_fn(const char *server, const char *share,
                             char *workgroup, int wgmaxlen,
@@ -44,6 +44,7 @@ static void fusesmb_auth_fn(const char *server, const char *share,
 {
     (void)workgroup;
     (void)wgmaxlen;
+	(void)share;
 
     /* Don't authenticate for workgroup listing */
     if (NULL == server || server[0] == '\0')
@@ -597,6 +598,7 @@ int main(int argc, char *argv[])
        Limit reads to 32 kB
      */
     int i, last_option = 0;
+	char * cred_user = NULL, * cred_pass = NULL;
 
 	/* Get our parameters first */
 	opts.username = NULL;
@@ -623,6 +625,45 @@ int main(int argc, char *argv[])
 					i++;
 					opts.password = argv[i];
 					break;
+				case 'C':
+					i++;
+					FILE * f = fopen(argv[i], "r");
+					if (f == NULL)
+					{
+						fprintf(stderr, "ERROR: Failed to open credentials file");
+						exit(EXIT_FAILURE);
+					}
+					char buffer[1024];
+					while (fgets(buffer, 1024, f) != NULL)
+					{
+						int lastchr = strlen(buffer) - 1;
+						if (buffer[lastchr] == '\n')
+							buffer[lastchr] = 0;
+						char * value = strchr(buffer, '=');
+						if (value == NULL)
+							continue;
+						value++;
+						for (i = 0; i <= lastchr; i++)
+							if (buffer[i] == ' ' || buffer[i] == '=') // XXX: BUG: usernames and passwords which contain the equal sign are BROKEN!!!
+								buffer[i] = 0;
+						while (* value == 0 && value <= &buffer[lastchr])
+							value++;
+						if (strstr(buffer, "username") == buffer)
+						{
+							if (cred_user != NULL)
+								free(cred_user);
+							cred_user = strdup(value);
+						}
+						else if (strstr(buffer, "password") == buffer)
+						{
+							if (cred_pass != NULL)
+								free(cred_pass);
+							cred_pass = strdup(value);
+						}
+					}
+					fclose(f);
+					opts.username = cred_user;
+					opts.password = cred_pass;
 				default:
 					fprintf(stderr, "ERROR: Unknown parameter '%c'", argv[i][0]);
 					usage(argv[0]);
