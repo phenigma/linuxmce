@@ -38,6 +38,9 @@ for Opt in "${OptValues[@]}"; do
 		credentials=*)
 			Parm_Credentials=(-C "${Opt#credentials=}")
 		;;
+		dir_mode=*|file_mode=*)
+			: # ignored for now
+		;;
 		*)
 			NewOptValues="$NewOptValues,$Opt"
 		;;
