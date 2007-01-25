@@ -328,7 +328,7 @@ Copyright (C) 2006 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/home/rgavril/Projects/mce-installer'
+ac_pwd='/home/rgavril/Work/SVN/src/mce-installer'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 # If no file are specified by the user, then we need to provide default
@@ -531,7 +531,7 @@ s,@ACLOCAL@,|#_!!_#|aclocal-1.4,g
 s,@AUTOCONF@,|#_!!_#|autoconf,g
 s,@AUTOMAKE@,|#_!!_#|automake-1.4,g
 s,@AUTOHEADER@,|#_!!_#|autoheader,g
-s,@MAKEINFO@,|#_!!_#|/home/rgavril/Projects/mce-installer/missing makeinfo,g
+s,@MAKEINFO@,|#_!!_#|/home/rgavril/Work/SVN/src/mce-installer/missing makeinfo,g
 s,@SET_MAKE@,|#_!!_#|,g
 s,@MAINTAINER_MODE_TRUE@,|#_!!_#|,g
 s,@MAINTAINER_MODE_FALSE@,|#_!!_#|#,g
