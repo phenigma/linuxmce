@@ -1,8 +1,8 @@
 #include "common.h"
 
 void on_Step2E_forward_clicked(GtkWidget *widget, gpointer data) {
-	//g_queue_push_head(history, (gpointer)STEP3);
-	// Install a MD here 
+	g_queue_push_head(history, (gpointer)STEP2E);
+	displayStep3();
 }
 
 void displayStep2E(void) {
