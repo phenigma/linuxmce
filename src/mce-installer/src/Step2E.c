@@ -32,6 +32,7 @@ void displayStep2E(void) {
 		GtkWidget *labelIP = gtk_label_new("IP address:");
 		gtk_misc_set_alignment(GTK_MISC(labelIP), 0, .5);
 		GtkWidget *entryIP = gtk_entry_new();
+		gtk_entry_set_text(GTK_ENTRY(entryIP), setting_netExtIP);
 		gtk_table_attach_defaults(tableNetwork, labelIP, 0, 1, 1, 2);
 		gtk_table_attach_defaults(tableNetwork, entryIP, 1, 2, 1, 2);
 
@@ -39,6 +40,7 @@ void displayStep2E(void) {
 		GtkWidget *labelNetmask = gtk_label_new("Subnet mask:");
 		gtk_misc_set_alignment(GTK_MISC(labelNetmask), 0, .5);
 		GtkWidget *entryNetmask = gtk_entry_new();
+		gtk_entry_set_text(GTK_ENTRY(entryNetmask), setting_netExtMask);
 		gtk_table_attach_defaults(tableNetwork, labelNetmask, 0, 1, 2, 3);
 		gtk_table_attach_defaults(tableNetwork, entryNetmask, 1, 2, 2, 3);
 
@@ -46,6 +48,7 @@ void displayStep2E(void) {
 		GtkWidget *labelGateway = gtk_label_new("Gateway address:");
 		gtk_misc_set_alignment(GTK_MISC(labelGateway), 0, .5);
 		GtkWidget *entryGateway = gtk_entry_new();
+		gtk_entry_set_text(GTK_ENTRY(entryGateway), setting_netExtGateway);
 		gtk_table_attach_defaults(tableNetwork, labelGateway, 0, 1, 3, 4);
 		gtk_table_attach_defaults(tableNetwork, entryGateway, 1, 2, 3, 4);
 
@@ -53,6 +56,7 @@ void displayStep2E(void) {
 		GtkWidget *labelDNS1 = gtk_label_new("Primary DNS Server:");
 		gtk_misc_set_alignment(GTK_MISC(labelDNS1), 0, .5);
 		GtkWidget *entryDNS1 = gtk_entry_new();
+		gtk_entry_set_text(GTK_ENTRY(entryDNS1), setting_netExtDNS1);
 		gtk_table_attach_defaults(tableNetwork, labelDNS1, 0, 1, 4, 5);
 		gtk_table_attach_defaults(tableNetwork, entryDNS1, 1, 2, 4, 5);
 		
@@ -60,6 +64,7 @@ void displayStep2E(void) {
 		GtkWidget *labelDNS2 = gtk_label_new("Secondary DNS Server:");
 		gtk_misc_set_alignment(GTK_MISC(labelDNS2), 0, .5);
 		GtkWidget *entryDNS2 = gtk_entry_new();
+		gtk_entry_set_text(GTK_ENTRY(entryDNS2), setting_netExtDNS2);
 		gtk_table_attach_defaults(tableNetwork, labelDNS2, 0, 1, 5, 6);
 		gtk_table_attach_defaults(tableNetwork, entryDNS2, 1, 2, 5, 6);
 	gtk_box_pack_start(GTK_BOX(mainBox), GTK_WIDGET(tableNetwork), TRUE, TRUE, 0);

@@ -35,6 +35,12 @@ void on_back_clicked(GObject object, gpointer data) {
 			case STEP2A:
 				displayStep2A();
 				break;
+			case STEP2C:
+				displayStep2C();
+				break;
+			case STEP2E:
+				displayStep2E();
+				break;
 			case STEP3:
 				displayStep1A();
 				break;

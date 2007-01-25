@@ -93,6 +93,7 @@ main (int argc, char *argv[])
 	setting_coreIP = detectCoreIpAddress();
 	setting_deviceType = DT_HYBRID;
 	setting_runDhcpServer = TRUE;
+	setting_netExtKeep = TRUE;
 
 	history = g_queue_new();
 
