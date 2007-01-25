@@ -597,7 +597,7 @@ int main(int argc, char *argv[])
     /* Workaround for bug in libsmbclient:
        Limit reads to 32 kB
      */
-    int i, last_option = 0;
+    int i, j, last_option = 0;
 	char * cred_user = NULL, * cred_pass = NULL;
 
 	/* Get our parameters first */
@@ -630,10 +630,11 @@ int main(int argc, char *argv[])
 					FILE * f = fopen(argv[i], "r");
 					if (f == NULL)
 					{
-						fprintf(stderr, "ERROR: Failed to open credentials file");
+						fprintf(stderr, "ERROR: Failed to open credentials file\n");
 						exit(EXIT_FAILURE);
 					}
 					char buffer[1024];
+					memset(buffer, 0, 1024);
 					while (fgets(buffer, 1024, f) != NULL)
 					{
 						int lastchr = strlen(buffer) - 1;
@@ -643,9 +644,9 @@ int main(int argc, char *argv[])
 						if (value == NULL)
 							continue;
 						value++;
-						for (i = 0; i <= lastchr; i++)
-							if (buffer[i] == ' ' || buffer[i] == '=') // XXX: BUG: usernames and passwords which contain the equal sign are BROKEN!!!
-								buffer[i] = 0;
+						for (j = 0; j <= lastchr; j++)
+							if (buffer[j] == ' ' || buffer[j] == '=') // XXX: BUG: usernames and passwords which contain the equal sign are BROKEN!!!
+								buffer[j] = 0;
 						while (* value == 0 && value <= &buffer[lastchr])
 							value++;
 						if (strstr(buffer, "username") == buffer)
@@ -664,8 +665,9 @@ int main(int argc, char *argv[])
 					fclose(f);
 					opts.username = cred_user;
 					opts.password = cred_pass;
+					break;
 				default:
-					fprintf(stderr, "ERROR: Unknown parameter '%c'", argv[i][0]);
+					fprintf(stderr, "ERROR: Unknown parameter '%c'\n", argv[i][0]);
 					usage(argv[0]);
 					exit(EXIT_FAILURE);
 			}
@@ -679,7 +681,7 @@ int main(int argc, char *argv[])
 	opts.service = argv[last_option];
 	if (opts.service == NULL)
 	{
-		fprintf(stderr, "ERROR: Service path not given");
+		fprintf(stderr, "ERROR: Service path not given\n");
 		usage(argv[0]);
 		exit(EXIT_FAILURE);
 	}
@@ -687,7 +689,7 @@ int main(int argc, char *argv[])
 	opts.mount_point = argv[last_option];
 	if (opts.mount_point == NULL)
 	{
-		fprintf(stderr, "ERROR: Mount point not given");
+		fprintf(stderr, "ERROR: Mount point not given\n");
 		usage(argv[0]);
 		exit(EXIT_FAILURE);
 	}
