@@ -180,6 +180,7 @@ string GetCommand( )
 	return "";
 }
 
+#ifndef WIN32
 // handling signals
 void signal_handler(int signal)
 {
@@ -190,11 +191,13 @@ void signal_handler(int signal)
 			break;
 	}
 }
-
+#endif
 
 int main( int argc, char *argv[] )
 {
+#ifndef WIN32
 	signal(SIGPIPE, signal_handler);
+#endif
 
 	cout << " Copyright (C) 2004 Pluto, Inc., a Florida Corporation " << endl
 	    	<< " www.plutohome.com " << endl
