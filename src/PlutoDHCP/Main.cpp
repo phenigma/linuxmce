@@ -37,9 +37,9 @@ namespace DCE
 int main(int argc, char *argv[])
 {
 #ifndef WIN32
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/PlutoDHCP.newlog");
+	g_pPlutoLogger = new FileLogger("/var/log/pluto/PlutoDHCP.log");
 #else
-	g_pPlutoLogger = new FileLogger("c:/temp/PlutoDHCP.newlog");
+	g_pPlutoLogger = new FileLogger("c:/temp/PlutoDHCP.log");
 #endif
 
 	int iPK_Device=0;
