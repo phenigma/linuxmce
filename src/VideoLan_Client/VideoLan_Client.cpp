@@ -25,7 +25,7 @@ using namespace DCE;
 #define VLC_WINDOW_NAME "Unnamed"
 
 #include "PlutoUtils/ProcessUtils.h"
-
+/*
 class RatPoisonWrapper : public RatpoisonHandler<RatPoisonWrapper>
 {
     Display *display;
@@ -35,7 +35,7 @@ public:
     Display *getDisplay() { return display; }
     void commandRatPoison(string command) { RatpoisonHandler<RatPoisonWrapper>::commandRatPoison(command); }
 };
-
+*
 
 #ifndef WIN32 // we only have signals on Linux and hte global var is only used there. so we ifndef it..
 VideoLan_Client *g_pVideoLan_Client = NULL;
@@ -77,7 +77,7 @@ bool VideoLan_Client::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-    m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
+//    m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
     m_iVideoLanWindowId = 0;
 	m_dwPK_Device_VideoLan_Server = 0;
 #ifndef WIN32
@@ -180,10 +180,10 @@ void VideoLan_Client::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMed
 	m_dwPK_Device_VideoLan_Server = pMessage->m_dwPK_Device_From;
 
 	string sCommand = "--intf\trc\t-f\t" + sMediaURL;
-
+/*
 	if ( ! m_pRatWrapper )
         m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
-
+*/
 	if( ProcessUtils::SpawnApplication("vlc", sCommand.c_str(), "vlc_c")==false )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to start videolan client");
 
@@ -211,6 +211,7 @@ void VideoLan_Client::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMed
 
 bool VideoLan_Client::checkXServerConnection()
 {
+	/*
 	if ( ! m_pRatWrapper || ! m_pRatWrapper->getDisplay() )
 	{
 		if ( !m_pRatWrapper )
@@ -225,13 +226,13 @@ bool VideoLan_Client::checkXServerConnection()
 			return false;
 		}
 	}
-
+*/
 	return true;
 }
 
 void VideoLan_Client::selectWindow()
 {
-    m_pRatWrapper->commandRatPoison(":select " VLC_WINDOW_NAME);
+//    m_pRatWrapper->commandRatPoison(":select " VLC_WINDOW_NAME);
 }
 
 bool VideoLan_Client::checkWindowName(long unsigned int window, string windowName)
