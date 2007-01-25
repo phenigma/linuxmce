@@ -727,5 +727,10 @@ int main(int argc, char *argv[])
     smbc_free_context(ctx, 1);
     smbc_free_context(rwd_ctx, 1);
 
+	if (cred_user != NULL)
+		free(cred_user);
+	if (cred_pass != NULL)
+		free(cred_pass);
+
     exit(EXIT_SUCCESS);
 }
