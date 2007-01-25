@@ -66,6 +66,8 @@ install: build
 
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/pluto-fuse-smb
 	cp pluto-fuse-smb.1 $(CURDIR)/debian/pluto-fuse-smb/usr/share/man/man1/pluto-fuse-smb.cache.1
+	mkdir -p $(CURDIR)/debian/pluto-fuse-smb/sbin/
+	cp mount.pluto-fuse-smb $(CURDIR)/debian/pluto-fuse-smb/sbin/
 
 # Build architecture-independent files here.
 binary-indep: build install
