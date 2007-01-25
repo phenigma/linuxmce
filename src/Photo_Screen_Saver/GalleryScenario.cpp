@@ -10,7 +10,8 @@ using namespace DCE;
 
 GalleryScenario::GalleryScenario(int Width, int Height, int FaddingTime, 
 	int ZoomTime, string SearchImageFolder, bool bUseAnimation)
-: StateMachine(NULL), nLastTimeUpdated(0)
+: AfterPicture(NULL), BeforePicture(NULL), StateMachine(NULL), 
+	nLastTimeUpdated(0), Browser(NULL), Fades(NULL)
 {
 	StateMachine = new GaleryStateMachine();
 	this->FaddingTime = FaddingTime;
