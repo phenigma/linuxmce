@@ -149,11 +149,13 @@ if [[ $fsckRequested -eq 0 ]] ;then
 fi
 rm -f /fastboot /forcefsck
 
-## Clean up the /etc/mtab
-Message "Cleaning up /etc/mtab"
-/bin/mount -w -o remount /
-/bin/rm -f /etc/mtab* 2>/dev/null
-ln -sf /proc/mounts /etc/mtab
+if [[ ! -L /etc/mtab ]]; then
+	## Clean up the /etc/mtab
+	Message "Cleaning up /etc/mtab"
+	/bin/mount -w -o remount /
+	/bin/rm -f /etc/mtab* 2>/dev/null
+	ln -sf /proc/mounts /etc/mtab
+fi
 
 /etc/init.d/udev-mtab start > /dev/null
 
@@ -194,7 +196,12 @@ fi
 ## Mount all local non root filsystems except /proc witch was allready mounted
 Message "Mounting local filesystems"
 
-/bin/mount -a -v -t nonfs,nosmbfs,noproc > /dev/null
+/bin/mount -v /usr/pluto/var/
+#while [[ ! -f /usr/pluto/var/sambaCredentials.secret ]]; do
+#	Message "Waiting for /usr/pluto/var"
+#	sleep 1
+#done
+/bin/mount -a -v -t nonfs,nosmbfs,noproc
 
 ## Create /tmp/{.ICE-unix, .X11-unix} if they are not present
 find /tmp -maxdepth 1 -mindepth 1 -print0 | xargs -0 rm -rf
