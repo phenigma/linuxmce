@@ -4,6 +4,7 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Section_Ops.sh
 . /usr/pluto/bin/LockUtils.sh
+. /usr/pluto/bin/Diskless_Utils.sh
 
 SkipLock=n
 
@@ -199,8 +200,7 @@ for Client in $R; do
 				MOON_BOOTPARAMS="$DefaultBootParams $ExtraBootParams"
 			fi
 
-			KERNEL_VERSION=$(uname -r)			
-			KERNEL_VERSION="${KERNEL_VERSION%*-*86*}-$Architecture"
+			KERNEL_VERSION=$(DecideKernelVersion "$Architecture")
 
 			cp /usr/pluto/templates/pxelinux.tmpl /tftpboot/pxelinux.cfg/01-$lcdMAC.$$
 			ReplaceVars /tftpboot/pxelinux.cfg/01-$lcdMAC.$$

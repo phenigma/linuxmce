@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/Diskless_Utils.sh
 
 if [[ "$#" -ne 4 ]]; then
 	echo "Syntax: $0 <IP> <MAC> <Device> <Architecture>"
@@ -40,17 +41,12 @@ InstallKernel()
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Kernel already installed."
 		return 0
 	fi
-	
-	deb_version=$(dpkg -l linux-image-`uname -r` | grep '^ii' |cut -d ' ' -f4)
-	kernel="$(find /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ -name "linux-image-${KERNEL_VERSION}_${deb_version}_*.deb")"	
-	words="$(echo "$kernel" | wc -w)"
-	if [[ "$words" -eq 0 ]]; then
-		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "No kernel matching 'linux-image-$KERNEL_VERSION' was found"
-		exit 1
-	elif [[ "$words" -gt 1 ]]; then
-		kernel="$(echo "$kernel" | cut -d' ' -f1)"
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "More than one kernel found (this shouldn't happen). Using '$kernel'."
+	if chroot . dpkg -s "linux-image-$KERNEL_VERSION_ALT" 2>/dev/null | grep -q 'Status: install ok installed'; then
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Kernel already installed (alternative)."
+		KERNEL_VERSION="$KERNEL_VERSION_ALT"
+		return 0
 	fi
+	
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Installing kernel '$kernel' on '$IP'"
 	rm -rf lib/modules/"$KERNEL_VERSION"
 
@@ -160,7 +156,11 @@ Upgrade_Essential()
 		initramfs-tools
 		gzip=1.3.5-14
 		libfuse2
+		libkrb53
+		libsasl2
+		libldap2
 		libsmbclient
+		ucf
 		fuse-utils
 		pluto-fuse-smb
 	"
@@ -200,6 +200,9 @@ Upgrade_Essential()
 		popd
 
 		for Pkg in $NeededReq; do
+			if [[ -z "$(echo ./tmp/$Pkg*)" ]]; then
+				Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Package '$Pkg' can't be installed. No deb file."
+			fi
 			chroot . dpkg -i -GE ./tmp/$Pkg*.deb
 		done
 
@@ -271,21 +274,22 @@ awk '
 ' "$DlPath"/var/cache/debconf/config.dat >"$DlPath"/var/cache/debconf/config.dat.$$
 mv "$DlPath"/var/cache/debconf/config.dat{.$$,}
 
-# Pre-upgrade some packages
+# Make sure the right kernel version is installed
 set -x
+KERNEL_VERSION=$(DecideKernelVersion "$Architecture" | tail -1)
+
+# Pre-upgrade some packages
 Upgrade_Essential
 Upgrade_Monster
 set +x
 
-# Make sure the right kernel version is installed
-KERNEL_VERSION="$(uname -r)"
-KERNEL_VERSION="${KERNEL_VERSION%*-*86*}-$Architecture" # Our kernels always report the architecture they're compiled for last
-
 InstallKernel $KERNEL_VERSION
 
+set -x
 mkdir -p "/tftpboot/$Device"
 ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$Device/"
 ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$Device/"
+set +x
 
 # Create the archives-cache directory
 mkdir -p "$DlPath"/usr/pluto/var
