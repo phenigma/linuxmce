@@ -62,6 +62,7 @@ mount -t devpts none /dev/pts
 
 ## Loading modules
 Message "Loading modules"
+modprobe fuse
 (cat /etc/modules; echo) | # make sure there is a LF at the end
 while read module args
 do
@@ -151,18 +152,9 @@ rm -f /fastboot /forcefsck
 ## Clean up the /etc/mtab
 Message "Cleaning up /etc/mtab"
 /bin/mount -w -o remount /
-/bin/rm -rf /etc/mtab* 2>/dev/null
+/bin/rm -f /etc/mtab* 2>/dev/null
+ln -sf /proc/mounts /etc/mtab
 
-# Do a remount one again so it will show up in mtab
-/bin/mount -w -o remount /
-
-
-if [ -d /proc/sys ] ;then
-	/bin/mount -f proc /proc -t proc
-fi
-if [ -d /sys/bus ] ;then
-	/bin/mount -f sysfs /sys -t sysfs
-fi
 /etc/init.d/udev-mtab start > /dev/null
 
 ## Seting up the system time from the hardware clock
@@ -459,6 +451,8 @@ if [[ -x /usr/pluto/bin/corefile.sh ]]; then
 	Message "Setting core file"
 	/usr/pluto/bin/corefile.sh
 fi
+
+# TODO: add a generic hook mechanism and move all these someplace else where they can be changed without building the package every time
 
 Message "Starting Pluto HAL daemon"
 /usr/pluto/bin/StartHAL.sh
