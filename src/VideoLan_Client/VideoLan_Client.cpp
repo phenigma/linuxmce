@@ -36,7 +36,7 @@ public:
     Display *getDisplay() { return display; }
     void commandRatPoison(string command) { RatpoisonHandler<RatPoisonWrapper>::commandRatPoison(command); }
 };
-*
+*/
 
 #ifndef WIN32 // we only have signals on Linux and hte global var is only used there. so we ifndef it..
 VideoLan_Client *g_pVideoLan_Client = NULL;
@@ -189,9 +189,8 @@ void VideoLan_Client::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMed
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to start videolan client");
 
     selectWindow();
-    locateVlcFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
-
 /*
+    locateVlcFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
 
 	VideoLanClientInstance *pVideoLanClientInstance = new VideoLanClientInstance(this,iStreamID,sCommand);
 	pthread_create(&pVideoLanClientInstance->m_pthread_t, NULL, SpawnVideoLanClient, (void *) pVideoLanClientInstance);
@@ -239,13 +238,13 @@ void VideoLan_Client::selectWindow()
 bool VideoLan_Client::checkWindowName(long unsigned int window, string windowName)
 {
     XTextProperty text;
-
+/*
 	if ( ! checkXServerConnection())
 		return false;
 
 	if ( XGetWMName (m_pRatWrapper->getDisplay(), window, &text) && windowName == string((const char*)text.value) )
         return true;
-
+*/
     return false;
 }
 
@@ -263,13 +262,13 @@ bool VideoLan_Client::locateVlcFrontendWindow(long unsigned int window)
         m_iVideoLanWindowId = window;
         return true;
     }
-
+/*
     XQueryTree(m_pRatWrapper->getDisplay(), (Window)window, &root_win, &parent_win, &child_windows, &num_child_windows);
 
     for ( unsigned int i = 0; i < num_child_windows; i++ )
         if ( locateVlcFrontendWindow(child_windows[i]) )
             return true;
-
+*/
     /* we need to free the list of child IDs, as it was dynamically allocated */
     /* by the XQueryTree function.                                            */
     XFree(child_windows);
