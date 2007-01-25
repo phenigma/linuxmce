@@ -34,6 +34,8 @@ void WinListManager::ResetOrbiterWindow()
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     //special code for xfwm
     g_pPlutoLogger->Write(LV_STATUS, "Special code for xfwm : setting Orbiter to below, then above layer!");
+
+	/*
     if(!m_pWMController->SetLayer(m_sSdlWindowName, LayerBelow) || !m_pWMController->SetLayer(m_sSdlWindowName, LayerAbove))
     {
 	    g_pPlutoLogger->Write(LV_WARNING, "Failed to set Orbiter to above layer! Retrying.");
@@ -45,8 +47,22 @@ void WinListManager::ResetOrbiterWindow()
 		return;
 	    }
     }
+	*/
 
-    g_pPlutoLogger->Write(LV_STATUS, "Orbiter is on the above layer now!");
+	const int cnMaxRetries = 100;
+	for(int i = 0; i < cnMaxRetries; ++i)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Trying to set Orbiter to above layer! (%d)", i);
+		if(m_pWMController->SetLayer(m_sSdlWindowName, LayerBelow) && m_pWMController->SetLayer(m_sSdlWindowName, LayerAbove))
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Orbiter is on the above layer now!");
+			return;
+		}
+
+		Sleep(10);
+	}
+
+    g_pPlutoLogger->Write(LV_CRITICAL, "Failed to set Orbiter to above layer!");
 }
 
 void WinListManager::ActivateWindow(const string& sWindowsName)
