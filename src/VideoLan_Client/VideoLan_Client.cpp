@@ -13,7 +13,6 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "PlutoUtils/ProcessUtils.h"
-#include "utilities/linux/RatpoisonHandler.h"
 
 #include "X11/Xlib.h"
 #include "X11/Xutil.h"
