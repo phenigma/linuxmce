@@ -148,7 +148,7 @@ Upgrade_Essential()
 		e2fsprogs=1.37-2sarge1
 		e2fslibs=1.37-2sarge1
 		libc6=2.3.2.ds1-22
-		sysv-rc=2.86.ds1-1.1pluto62
+		sysv-rc=2.86.ds1-1.1pluto68
 		pluto-boot-scripts=2.0.0.36
 		lsb-base
 		module-init-tools=3.2.2-2pluto1
@@ -159,6 +159,10 @@ Upgrade_Essential()
 		udev=0.091-0bpo1pluto1
 		initramfs-tools
 		gzip=1.3.5-14
+		libfuse2
+		libsmbclient
+		fuse-utils
+		pluto-fuse-smb
 	"
 	local NeededReq=""
 	local Pkg Name ReqVer InstVer InstState
