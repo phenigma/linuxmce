@@ -149,10 +149,10 @@ if [[ $fsckRequested -eq 0 ]] ;then
 fi
 rm -f /fastboot /forcefsck
 
+/bin/mount -w -o remount /
 if [[ ! -L /etc/mtab ]]; then
 	## Clean up the /etc/mtab
 	Message "Cleaning up /etc/mtab"
-	/bin/mount -w -o remount /
 	/bin/rm -f /etc/mtab* 2>/dev/null
 	ln -sf /proc/mounts /etc/mtab
 fi
