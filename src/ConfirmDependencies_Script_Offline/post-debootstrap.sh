@@ -12,12 +12,19 @@ for S in $SCRIPTS; do
 done
 touch "$DIR/.notdone"
 
+mkdir -p /target/usr/pluto/deb-cache/dists/sarge/main/binary-i386/
+ln -s sarge /target/usr/pluto/deb-cache/dists/testing
+ln -s sarge /target/usr/pluto/deb-cache/dists/stable
+
 if [ -d /cdrom/Debian-Cache ]; then
-	mkdir -p /target/usr/pluto/deb-cache/dists/sarge/main/binary-i386/
 	cp -a /cdrom/Debian-Cache/* /target/usr/pluto/deb-cache/dists/sarge/main/binary-i386/ || exit 1
-	ln -s sarge /target/usr/pluto/deb-cache/dists/testing
-	ln -s sarge /target/usr/pluto/deb-cache/dists/stable
 fi
+
+find /cdrom/pool/main -type f -name '*.deb' |
+	while read file; do
+		cp "$file" /target/usr/pluto/deb-cache/dists/sarge/main/binary-i386/ || exit 1
+	done
+# end find
 
 echo 'LANG="en_US.UTF8"
 LANGUAGE="en_US:en_GB:en"' >/target/etc/environment

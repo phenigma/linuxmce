@@ -226,8 +226,45 @@ YPXFRDARGS=
 
 ## Install the software
 apt-get update
+if apt-get -y -f install libsepol1 libselinux1 binutils patch perl-modules dpkg dpkg-dev; then
+	if [[ -f /usr/bin/dpkg-scanpackages ]]; then
+		# regenerate packages.gz
+		pushd /usr/pluto/deb-cache/dists/sarge/main/binary-i386 >/dev/null
+		echo "Regenerating Packages.gz in debcache. This will require 1 minute. Please wait."
+		dpkg-scanpackages . /dev/null | sed 's,\./,dists/sarge/main/binary-i386/,g' | tee Packages | gzip -9c > Packages.gz
+		popd >/dev/null
+		# update apt cache
+		echo "Updating apt cache files ..."
+		apt-get update 1>/dev/null 2>/dev/null
+	fi
+
+	Release="Origin: Pluto
+Label: Pluto
+Suite: 20dev
+Version: 2.0.0.44
+Codename: the_thing
+Architectures: i386
+Components: main
+Description: Pluto Home, Brillian Living
+MD5Sum:"
+	echo "$Release" >Release
+	pushd /usr/pluto-debcache/dists/sarge >/dev/null
+	gunzip -c main/binary-i386/Packages.gz >main/binary-i386/Packages
+	find main/ -type f -exec md5sum '{}' ';' |
+		while read line; do
+			MD5sum=$(echo "$line" | awk '{ print $1 }')
+			Filename=$(echo "$line" | awk '{ print $2 }')
+			Size=$(stat -c '%s' "$Filename")
+			printf " %s %16u %s\n" "$MD5sum" "$Size" "$Filename" >>Release
+		done
+	# end find
+	popd >/dev/null
+else
+	echo "Failed to install initial set of packages"
+	read
+fi
 if ! apt-get -y -f install pluto-dcerouter; then
-	echo "Installation failed"
+	echo "Failed to install Pluto software"
 	read
 fi
 
