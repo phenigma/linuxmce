@@ -1020,6 +1020,9 @@ void Security_Plugin::SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_R
 		DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame(m_dwPK_Device,pDevice_Camera->m_dwPK_Device,"",0,0,0,&pData,&iData_Size,&sFormat);
 		if( SendCommand(CMD_Get_Video_Frame) && iData_Size )
 		{
+			if(sFormat.empty())
+				sFormat = "jpg";
+
 			string sFile = DATA_Get_Path() + "/alert_" + StringUtils::itos(pRow_Alert_Device->PK_Alert_Device_get()) + "_cam" + StringUtils::itos(pDevice_Camera->m_dwPK_Device) + "." + sFormat;
 			FILE *pFile = fopen( sFile.c_str(),"wb");
 			if( pFile )
