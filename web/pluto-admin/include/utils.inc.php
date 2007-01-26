@@ -3065,7 +3065,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 					$resTable=$dbADO->Execute($queryTable);
 					$deviceDataBox.='<select name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" '.$itemDisabled.' class="'.$cssStyle.'">
 												<option value="0">'.(in_array($rowDDforDevice['FK_DeviceCategory'],array($GLOBALS['StorageDevices'],$GLOBALS['RaidCategory']))?'Public':'').'</option>';
-					$deviceDataBox.=(in_array($rowDDforDevice['FK_DeviceCategory'],array($GLOBALS['StorageDevices'],$GLOBALS['RaidCategory'])))?'<option value="-1">Pluto\'s structure</option>':'';							
+					$deviceDataBox.=(in_array($rowDDforDevice['FK_DeviceCategory'],array($GLOBALS['StorageDevices'],$GLOBALS['RaidCategory'])))?'<option value="-1" '.(($ddValue==-1)?'selected':'').'>Pluto\'s structure</option>':'';							
 					
 					while($rowTable=$resTable->FetchRow()){
 						$itemStyle=($tableName=='FloorplanObjectType' && is_null(@$rowTable['FK_DesignObj_Control']))?' style="background-color:red;"':'';
@@ -3076,7 +3076,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 				else{
 					$deviceDataBox.=$defaultFormElement;
 				}
-				$jsValidation.=($boolJsValidation==1)?"frmvalidator.addValidation(\"$formElementName\",\"numeric\",\"$TEXT_WARNING_NUMERICAL_ONLY_CONST\");\n":'';
+				$jsValidation.=($boolJsValidation==1 && $tableName!='Users')?"frmvalidator.addValidation(\"$formElementName\",\"numeric\",\"$TEXT_WARNING_NUMERICAL_ONLY_CONST\");\n":'';
 				break;
 				case 'bool':
 					$deviceDataBox.='<input type="checkbox" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="1" '.((@$ddValue!=0)?'checked':'').' '.$itemDisabled.'>';
