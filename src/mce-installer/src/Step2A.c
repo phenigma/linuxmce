@@ -27,7 +27,7 @@ void displayStep2A(void) {
 	// Wizard text
 	gchar *message = g_strdup_printf("Your external network interface appears to be setup correctly, You have %d network cards, and the card <i>%s</i> is connected to your internet connection with this settings:", setting_netIfaceNo, setting_netExtName);
 	GtkWidget *label = gtk_label_new("");
-	gtk_label_set_markup(label, message);
+	gtk_label_set_markup(GTK_LABEL(label), message);
 	g_free(message);
 	gtk_misc_set_alignment(GTK_MISC(label), 0, .5);
 	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
@@ -35,10 +35,15 @@ void displayStep2A(void) {
 
 	GtkTable *tableNetwork = GTK_TABLE(gtk_table_new(6,2,FALSE));
 	         // Configuration Label and Entry        
-	                 GtkWidget *labelConfiguration = gtk_label_new("Configuration:");
+	         GtkWidget *labelConfiguration = gtk_label_new("Configuration:");
 	         gtk_misc_set_alignment(GTK_MISC(labelConfiguration), 0, .5);
-	         GtkWidget *labelConfigurationv = gtk_label_new("Static IP");
-	         gtk_misc_set_alignment(GTK_MISC(labelConfigurationv), 0, .5);
+		 GtkWidget *labelConfigurationv;
+		 if (setting_netExtUseDhcp) {
+		         labelConfigurationv = gtk_label_new("Automatic Configuration (DHCP)");
+		 } else {
+		         labelConfigurationv = gtk_label_new("Static IP address");
+		 }
+		 gtk_misc_set_alignment(GTK_MISC(labelConfigurationv), 0, .5);
 	
 	         gtk_table_attach_defaults(tableNetwork, labelConfiguration, 0, 1, 0, 1);
 	         gtk_table_attach_defaults(tableNetwork, labelConfigurationv, 1, 2, 0, 1);

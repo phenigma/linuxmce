@@ -94,6 +94,7 @@ main (int argc, char *argv[])
 	setting_deviceType = DT_HYBRID;
 	setting_runDhcpServer = TRUE;
 	setting_netExtKeep = TRUE;
+	setting_netIntIPN = "192.168.80";
 
 	history = g_queue_new();
 

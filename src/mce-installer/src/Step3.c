@@ -2,7 +2,19 @@
 
 void on_Step3_forward_clicked(GtkWidget *widget, gpointer data) {
 	//g_queue_push_head(history, (gpointer)STEP3);
+	GtkEntry* entry = (GtkEntry*) data;
+	setting_netIntIPN = g_strdup(gtk_entry_get_text(entry));
+
 	// Install a MD here 
+}
+
+void on_Step3_dhcp_changed(GtkWidget *widget, gpointer data) {
+	gint active_selection = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
+	if (active_selection == 0) {
+		setting_runDhcpServer = TRUE;
+	} else if (active_selection == 1) {
+		setting_runDhcpServer = FALSE;
+	}
 }
 
 void displayStep3(void) {
@@ -19,6 +31,7 @@ void displayStep3(void) {
 	//gtk_label_set_line_wrap(GTK_LABEL(label2), TRUE);
 	//gtk_box_pack_start(GTK_BOX(mainBox), label2, TRUE, TRUE, 0);
 	GtkTable *tableNetwork = GTK_TABLE(gtk_table_new(2,2,TRUE));
+
 		// Configuration Label and Entry
 		GtkWidget *labelConfiguration = gtk_label_new("Run a DHCP Server:");
 		gtk_misc_set_alignment(GTK_MISC(labelConfiguration), 0, .5);
@@ -26,7 +39,13 @@ void displayStep3(void) {
 		GtkWidget *comboConfiguration = gtk_combo_box_new_text();
 		gtk_combo_box_append_text(GTK_COMBO_BOX(comboConfiguration), "Yes");
 		gtk_combo_box_append_text(GTK_COMBO_BOX(comboConfiguration), "No");
-		gtk_combo_box_set_active(GTK_COMBO_BOX(comboConfiguration), 0);
+		if (setting_runDhcpServer) {
+			gtk_combo_box_set_active(GTK_COMBO_BOX(comboConfiguration), 0);
+		} else {
+			gtk_combo_box_set_active(GTK_COMBO_BOX(comboConfiguration), 1);
+		}
+		
+		g_signal_connect(G_OBJECT(comboConfiguration), "changed", G_CALLBACK(on_Step3_dhcp_changed), NULL);
 
 		gtk_table_attach_defaults(tableNetwork, labelConfiguration, 0, 1, 0, 1);
 		gtk_table_attach_defaults(tableNetwork, comboConfiguration, 1, 2, 0, 1);
@@ -35,7 +54,7 @@ void displayStep3(void) {
 		GtkWidget *labelIP = gtk_label_new("Internal Network : ");
 		gtk_misc_set_alignment(GTK_MISC(labelIP), 0, .5);
 		GtkWidget *entryIP = gtk_entry_new();
-		gtk_entry_set_text(GTK_ENTRY(entryIP), "192.168.80");
+		gtk_entry_set_text(GTK_ENTRY(entryIP), setting_netIntIPN);
 		gtk_table_attach_defaults(tableNetwork, labelIP, 0, 1, 1, 2);
 		gtk_table_attach_defaults(tableNetwork, entryIP, 1, 2, 1, 2);
 
@@ -49,7 +68,7 @@ void displayStep3(void) {
 	// Button Forward
 	GtkWidget *buttonForward = gtk_button_new_from_stock(GTK_STOCK_GO_FORWARD);
 	gtk_container_add(GTK_CONTAINER(mainButtonBox), buttonForward);
-	g_signal_connect(G_OBJECT(buttonForward), "clicked", G_CALLBACK(on_Step3_forward_clicked), NULL);
+	g_signal_connect(G_OBJECT(buttonForward), "clicked", G_CALLBACK(on_Step3_forward_clicked), (gpointer)entryIP);
 		
 	gtk_widget_show_all(mainBox);
 	gtk_widget_show_all(mainButtonBox);

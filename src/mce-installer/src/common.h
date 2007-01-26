@@ -59,9 +59,10 @@ gchar*   setting_netExtGateway;
 gchar*   setting_netExtDNS1;
 gchar*   setting_netExtDNS2;
 gchar*   setting_netExtMac;
- 
+gboolean setting_netExtUseDhcp;
 gboolean setting_netExtKeep;
 
 gboolean setting_runDhcpServer;
+gchar*   setting_netIntIPN;
 
 #endif

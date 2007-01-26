@@ -25,8 +25,9 @@ gboolean connect_test(const gchar* sourceIp);
                        setting_netExtIP      = g_strdup(oobs_iface_ethernet_get_ip_address(iface));
                        setting_netExtMask    = g_strdup(oobs_iface_ethernet_get_network_mask(iface));
                        setting_netExtGateway = g_strdup(oobs_iface_ethernet_get_gateway_address(iface));
-                       setting_netExtDNS1 = g_list_nth_data(nameservers, 0);
-                       setting_netExtDNS2 = g_list_nth_data(nameservers, 1);
+                       setting_netExtDNS1    = g_list_nth_data(nameservers, 0);
+                       setting_netExtDNS2    = g_list_nth_data(nameservers, 1);
+		       setting_netExtUseDhcp = (oobs_iface_ethernet_get_configuration_method(iface) == OOBS_METHOD_STATIC ? FALSE : TRUE);
                        displayStep2A();
                } else {
                        displayStep2C();

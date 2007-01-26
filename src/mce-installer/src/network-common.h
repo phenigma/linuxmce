@@ -1,3 +1,3 @@
 #include <oobs/oobs.h>
 
-void net_test(void);
+void start_network_wizard(void);
