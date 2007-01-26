@@ -4,7 +4,9 @@
 
 ## Misc variables
 DISTRIB='sarge'
-MIRROR='http://deb.plutohome.com/debian/'
+#MIRROR='http://deb.plutohome.com/debian/'
+MIRROR='file:/usr/pluto/deb-cache/'
+DBST_SCRIPT='/usr/pluto/bin/Diskless_DebootstrapPluto.sh'
 ARH_DIR='/usr/pluto/install'
 DisklessFS="PlutoMD-pre-install.tar.bz2"
 
@@ -25,11 +27,13 @@ function trap_EXIT() {
 trap "trap_EXIT" EXIT
 
 ## Run debootstrap to create the base debian system for our MD
-#debootstrap $DISTRIB $TEMP_DIR $MIRROR
-
-pushd "$TEMP_DIR" >/dev/null
-tar -xjf "$ARH_DIR"/PlutoMD.tar.bz2
-popd >/dev/null
+if [[ 1 == 1 ]]; then
+	debootstrap $DISTRIB $TEMP_DIR $MIRROR $DBST_SCRIPT
+else
+	pushd "$TEMP_DIR" >/dev/null
+	tar -xjf "$ARH_DIR"/PlutoMD.tar.bz2
+	popd >/dev/null
+fi
 
 ## Preeseed the diskless root with our debconf values so the user
 ## won't need to interact with the installer
