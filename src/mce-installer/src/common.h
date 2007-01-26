@@ -65,4 +65,6 @@ gboolean setting_netExtKeep;
 gboolean setting_runDhcpServer;
 gchar*   setting_netIntIPN;
 
+gint     setting_startupType;
+
 #endif
