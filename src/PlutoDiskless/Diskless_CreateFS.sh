@@ -28,6 +28,7 @@ fi
 InstallKernel()
 {
 	local KERNEL_VERSION="$1"
+	local kernel="$2"
 	local Module
 	local Kout
 
@@ -39,11 +40,6 @@ InstallKernel()
 
 	if chroot . dpkg -s "linux-image-$KERNEL_VERSION" 2>/dev/null | grep -q 'Status: install ok installed'; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Kernel already installed."
-		return 0
-	fi
-	if chroot . dpkg -s "linux-image-$KERNEL_VERSION_ALT" 2>/dev/null | grep -q 'Status: install ok installed'; then
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Kernel already installed (alternative)."
-		KERNEL_VERSION="$KERNEL_VERSION_ALT"
 		return 0
 	fi
 	
@@ -276,14 +272,16 @@ mv "$DlPath"/var/cache/debconf/config.dat{.$$,}
 
 # Make sure the right kernel version is installed
 set -x
-KERNEL_VERSION=$(DecideKernelVersion "$Architecture" | tail -1)
+KernelDecision=$(DecideKernelVersion "$Architecture" | tail -2)
+KERNEL_VERSION=$(echo "$KernelDecision" | tail -1)
+kernel=$(echo "$KernelDecision" | head -1)
 
 # Pre-upgrade some packages
 Upgrade_Essential
 Upgrade_Monster
 set +x
 
-InstallKernel $KERNEL_VERSION
+InstallKernel "$KERNEL_VERSION" "$kernel"
 
 set -x
 mkdir -p "/tftpboot/$Device"

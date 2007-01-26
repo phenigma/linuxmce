@@ -31,5 +31,6 @@ DecideKernelVersion()
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Using alternative kernel '$kernel'"
 		KERNEL_VERSION="$KERNEL_VERSION_ALT"
 	fi
+	echo "$kernel"
 	echo "$KERNEL_VERSION"
 }
