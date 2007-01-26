@@ -200,7 +200,7 @@ for Client in $R; do
 				MOON_BOOTPARAMS="$DefaultBootParams $ExtraBootParams"
 			fi
 
-			KERNEL_VERSION=$(DecideKernelVersion "$Architecture")
+			KERNEL_VERSION=$(DecideKernelVersion "$Architecture" | tail -1)
 
 			cp /usr/pluto/templates/pxelinux.tmpl /tftpboot/pxelinux.cfg/01-$lcdMAC.$$
 			ReplaceVars /tftpboot/pxelinux.cfg/01-$lcdMAC.$$
