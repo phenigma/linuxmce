@@ -31,6 +31,8 @@ SerialD::~SerialD()
 
 void* SerialD::startUp(void * device)
 {
+	running = true;
+	
 	g_pPlutoLogger->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
 	Sleep(10000);
 	g_pPlutoLogger->Write(LV_DEBUG, "############ SerialD Start ");
@@ -53,17 +55,18 @@ void* SerialD::startUp(void * device)
 	
 	string val2assign, response;
 	
-	CMD_Get_Unused_Serial_Ports_DT cmd(halDevice->m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST, BL_SameHouse, halDevice->m_dwPK_Device, &val2assign);
-	halDevice->SendCommand(cmd, &response);
-	
-	g_pPlutoLogger->Write(LV_DEBUG, "Serial ports %s -- %s\n", response.c_str(), val2assign.c_str());
-	
-	if( !val2assign.empty() )
+	if( running )
 	{
-		StringUtils::Tokenize(val2assign, ",", serialDevices);
+		CMD_Get_Unused_Serial_Ports_DT cmd(halDevice->m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST, BL_SameHouse, halDevice->m_dwPK_Device, &val2assign);
+		halDevice->SendCommand(cmd, &response);
+		
+		g_pPlutoLogger->Write(LV_DEBUG, "Serial ports %s -- %s\n", response.c_str(), val2assign.c_str());
+		
+		if( !val2assign.empty() )
+		{
+			StringUtils::Tokenize(val2assign, ",", serialDevices);
+		}
 	}
-	
-	running = true;
 	
 	// thread loop
 	while(running)
