@@ -428,11 +428,11 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
     return false;  // Continue to process it
 }
 
-bool Orbiter_Plugin::PendingTasks(vector<string> *vectPendingTasks)
+bool Orbiter_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
 {
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	if( m_listRegenCommands.size()==0 )
-		return true;
+		return false;
 
 	string sOrbiters;
 	g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot m_listRegenCommands %d pending %p",(int) m_listRegenCommands.size(),vectPendingTasks);
@@ -481,11 +481,11 @@ bool Orbiter_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 				}
 			}
 
-			vectPendingTasks->push_back(sProgress);
+			vectPendingTasks->push_back( make_pair<string,string> ("regen",sProgress) );
 		}
 	}
 
-	return false;
+	return true;
 }
 
 void Orbiter_Plugin::ProcessUnknownDevice()

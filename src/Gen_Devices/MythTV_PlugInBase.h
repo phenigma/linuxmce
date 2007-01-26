@@ -234,7 +234,7 @@ public:
 	virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Sync_Providers_and_Cards(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -376,7 +376,8 @@ public:
 				case COMMAND_Sync_Providers_and_Cards_CONST:
 					{
 						string sCMD_Result="OK";
-						CMD_Sync_Providers_and_Cards(sCMD_Result,pMessage);
+						int iPK_Orbiter=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Orbiter_CONST].c_str());
+						CMD_Sync_Providers_and_Cards(iPK_Orbiter,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -393,7 +394,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Sync_Providers_and_Cards(sCMD_Result,pMessage);
+								CMD_Sync_Providers_and_Cards(iPK_Orbiter,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

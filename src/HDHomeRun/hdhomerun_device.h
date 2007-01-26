@@ -30,7 +30,10 @@ struct hdhomerun_device_t;
 
 struct hdhomerun_tuner_status_t {
 	char channel[32];
-	char lock[32];
+	char lock_str[32];
+	bool_t signal_present;
+	bool_t lock_supported;
+	bool_t lock_unsupported;
 	unsigned int signal_strength;
 	unsigned int signal_to_noise_quality;
 	unsigned int symbol_error_quality;
@@ -58,10 +61,33 @@ struct hdhomerun_tuner_status_t {
  * Returns a pointer to the newly created device object.
  *
  * When no longer needed, the socket should be destroyed by calling hdhomerun_device_destroy.
+ *
+ * The hdhomerun_device_create_from_str function creates a device object from the given device_str.
+ * The device_str parameter can be any of the following forms:
+ *     <device id>
+ *     <device id>:<tuner index>
+ *     <device id>-<tuner index>
+ *     <ip address>
+ * If the tuner index is not included in the device_str then it is set to zero.
+ * Use hdhomerun_device_set_tuner or hdhomerun_device_set_tuner_from_str to set the tuner.
+ *
+ * The hdhomerun_device_set_tuner_from_str function sets the tuner from the given tuner_str.
+ * The tuner_str parameter can be any of the following forms:
+ *     <tuner index>
+ *     /tuner<tuner index>
  */
 extern struct hdhomerun_device_t *hdhomerun_device_create(uint32_t device_id, uint32_t device_ip, unsigned int tuner);
+extern struct hdhomerun_device_t *hdhomerun_device_create_from_str(const char *device_str);
 extern void hdhomerun_device_destroy(struct hdhomerun_device_t *hd);
 extern void hdhomerun_device_set_tuner(struct hdhomerun_device_t *hd, unsigned int tuner);
+extern int hdhomerun_device_set_tuner_from_str(struct hdhomerun_device_t *hd, const char *tuner_str);
+
+/*
+ * Get the device id, ip, or tuner of the device instance.
+ */
+extern uint32_t hdhomerun_device_get_device_id(struct hdhomerun_device_t *hd);
+extern uint32_t hdhomerun_device_get_device_ip(struct hdhomerun_device_t *hd);
+extern unsigned int hdhomerun_device_get_tuner(struct hdhomerun_device_t *hd);
 
 /*
  * Get the local machine IP address used when communicating with the device.
@@ -130,6 +156,18 @@ extern int hdhomerun_device_get_var(struct hdhomerun_device_t *hd, const char *n
 extern int hdhomerun_device_set_var(struct hdhomerun_device_t *hd, const char *name, const char *value, char **pvalue, char **perror);
 
 /*
+ * Wait for tuner lock after channel change.
+ *
+ * The hdhomerun_device_wait_for_lock function is used to detect/wait for a lock vs no lock indication
+ * after a channel change.
+ *
+ * It will return quickly if a lock is aquired.
+ * It will return quickly if there is no signal detected.
+ * Worst case it will time out after 1.5 seconds - the case where there is signal but no lock.
+ */
+extern int hdhomerun_device_wait_for_lock(struct hdhomerun_device_t *hd, struct hdhomerun_tuner_status_t *status);
+
+/*
  * Stream a filtered program or the unfiltered stream.
  *
  * The hdhomerun_device_stream_start function initializes the process and tells the device to start streamin data.
@@ -158,7 +196,6 @@ extern void hdhomerun_device_stream_stop(struct hdhomerun_device_t *hd);
  * Returns 0 if th firmware does not meet the minimum requriements for all operations.
  * Returns -1 if an error occurs.
  */
-#define HDHOMERUN_FIRMWARE_FEATURES_SAGETV (1 << 0)
 extern int hdhomerun_device_firmware_version_check(struct hdhomerun_device_t *hd, uint32_t features);
 
 /*

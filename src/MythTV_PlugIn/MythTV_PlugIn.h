@@ -65,6 +65,21 @@ namespace DCE
 
 	typedef list<MythChannel *> ListMythChannel;
 
+	class ScanJob
+	{
+	public:
+		ScanJob(int iPK_Device_Tuner,int iPK_Device_CaptureCard,int iPK_Orbiter,string sScanJob)
+		{
+			m_iPK_Device_Tuner=iPK_Device_Tuner;
+			m_iPK_Device_CaptureCard=iPK_Device_CaptureCard;
+			m_iPK_Orbiter=iPK_Orbiter;
+			m_sScanJob=sScanJob;
+		}
+		int m_iPK_Device_Tuner,m_iPK_Device_CaptureCard,m_iPK_Orbiter,m_iPercentCompletion;
+		string m_sScanJob,m_sStatus;
+
+	};
+
     //<-dceag-decl-b->!
     class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaHandlerBase, public AlarmEvent, public DataGridGeneratorPlugIn
     {
@@ -76,6 +91,8 @@ namespace DCE
 
 		/** Private member variables */
         map<int, int> m_mapDevicesToStreams;
+
+		map< int, ScanJob * > m_mapPendingScans; // Map tuner device, capture card to string of scan script,percent complete
 
         MythTvWrapper *m_pMythWrapper;
 
@@ -139,6 +156,9 @@ public:
         /** The interceptor for the MediaInfoChangedEvent from the playing device */
     	bool MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
+		/** The interceptor to monitor progress on channel scans */
+		bool ScanningProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
 		/** What tv options are available in the area -- this is a temporary hack until we get a proper source for this */
 		class DataGridTable *TvProviders(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 		class DataGridTable *FavoriteChannels( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
@@ -155,6 +175,10 @@ public:
 		void RefreshBookmarks();
 		void BuildChannelList(); // Build a list of all channels with their icons and store as MythChannel objects in m_mapMythChannel, and store sorted versions in m_map_listMythChannel
 		void PurgeChannelList(); // Purge the list of channels, freeing all memory used
+
+		void StartScanningScript(Row_Device *pRow_Device,Row_Device *pRow_Device_CaptureCard,int iPK_Orbiter,string sScanningScript);
+
+		bool PendingTasks(vector< pair<string,string> > *vectPendingTasks);
 
         //<-dceag-h-b->
 	/*
@@ -217,13 +241,15 @@ live, nonlive, osd */
 
 	/** @brief COMMAND: #824 - Sync Providers and Cards */
 	/** Synchronize settings for pvr cards and provders */
+		/** @param #198 PK_Orbiter */
+			/** If specified, this is the orbiter to notify of the progress if this results in scanning for channels */
 
-	virtual void CMD_Sync_Providers_and_Cards() { string sCMD_Result; CMD_Sync_Providers_and_Cards(sCMD_Result,NULL);};
-	virtual void CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Sync_Providers_and_Cards(int iPK_Orbiter) { string sCMD_Result; CMD_Sync_Providers_and_Cards(iPK_Orbiter,sCMD_Result,NULL);};
+	virtual void CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #846 - Make Thumbnail */
-	/** Make a thumbnail */
+	/** Thumbnail the current frame */
 		/** @param #13 Filename */
 			/** Can be a fully qualified filename, or a !F+number, or !A+number for an attribute */
 		/** @param #19 Data */

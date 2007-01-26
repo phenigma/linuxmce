@@ -220,9 +220,16 @@ namespace DCE
 		
 		/**
 		* @brief For now will only be used by plugins, but later this member function could
-		* be implemented in all devices; should be overriden
+		* be implemented in all devices; should be overriden.  returns false if there are no pending tasks
+		* A pending task means something the device is in the middle of doing that it doesn't want to
+		* be interrupted on with a reload request
 		*/
-		virtual bool PendingTasks(vector<string> *vectPendingTasks=NULL) { return true; };
+		virtual bool PendingTasks(vector< pair<string,string> > *vectPendingTasks=NULL) { return false; };
+
+		/**
+		* @brief Clients can call this to get the list of pending tasks from PK_Device, where the pair is task type, description
+		*/
+		virtual bool PendingTasksFromDevice(int PK_Device,vector< pair<string,string> > *vectPendingTasks=NULL);
 
 		/**
 		 * @brief just calls OnQuit()

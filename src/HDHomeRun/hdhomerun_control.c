@@ -24,8 +24,10 @@
 #include "hdhomerun_control.h"
 
 struct hdhomerun_control_sock_t {
-	uint32_t device_id;
-	uint32_t device_ip;
+	uint32_t desired_device_id;
+	uint32_t desired_device_ip;
+	uint32_t actual_device_id;
+	uint32_t actual_device_ip;
 	int sock;
 	uint8_t buffer[16384];
 };
@@ -37,8 +39,10 @@ struct hdhomerun_control_sock_t *hdhomerun_control_create(uint32_t device_id, ui
 		return NULL;
 	}
 	
-	cs->device_id = device_id;
-	cs->device_ip = device_ip;
+	cs->desired_device_id = device_id;
+	cs->desired_device_ip = device_ip;
+	cs->actual_device_id = 0;
+	cs->actual_device_ip = 0;
 	cs->sock = -1;
 
 	return cs;
@@ -64,15 +68,13 @@ static bool_t hdhomerun_control_connect_sock(struct hdhomerun_control_sock_t *cs
 		return TRUE;
 	}
 
-	/* Find ip address. */
-	uint32_t device_ip = cs->device_ip;
-	if (device_ip == 0) {
-		struct hdhomerun_discover_device_t result;
-		if (hdhomerun_discover_find_device(cs->device_id, &result) <= 0) {
-			return FALSE;
-		}
-		device_ip = result.ip_addr;
+	/* Find device. */
+	struct hdhomerun_discover_device_t result;
+	if (hdhomerun_discover_find_devices_custom(cs->desired_device_ip, HDHOMERUN_DEVICE_TYPE_TUNER, cs->desired_device_id, &result, 1) <= 0) {
+		return FALSE;
 	}
+	cs->actual_device_ip = result.ip_addr;
+	cs->actual_device_id = result.device_id;
 
 	/* Create socket. */
 	cs->sock = (int)socket(AF_INET, SOCK_STREAM, 0);
@@ -88,7 +90,7 @@ static bool_t hdhomerun_control_connect_sock(struct hdhomerun_control_sock_t *cs
 	struct sockaddr_in sock_addr;
 	memset(&sock_addr, 0, sizeof(sock_addr));
 	sock_addr.sin_family = AF_INET;
-	sock_addr.sin_addr.s_addr = htonl(device_ip);
+	sock_addr.sin_addr.s_addr = htonl(cs->actual_device_ip);
 	sock_addr.sin_port = htons(HDHOMERUN_CONTROL_TCP_PORT);
 	if (connect(cs->sock, (struct sockaddr *)&sock_addr, sizeof(sock_addr)) != 0) {
 		hdhomerun_control_close_sock(cs);
@@ -97,6 +99,24 @@ static bool_t hdhomerun_control_connect_sock(struct hdhomerun_control_sock_t *cs
 
 	/* Success. */
 	return TRUE;
+}
+
+uint32_t hdhomerun_control_get_device_id(struct hdhomerun_control_sock_t *cs)
+{
+	if (!hdhomerun_control_connect_sock(cs)) {
+		return 0;
+	}
+
+	return cs->actual_device_id;
+}
+
+uint32_t hdhomerun_control_get_device_ip(struct hdhomerun_control_sock_t *cs)
+{
+	if (!hdhomerun_control_connect_sock(cs)) {
+		return 0;
+	}
+
+	return cs->actual_device_ip;
 }
 
 uint32_t hdhomerun_control_get_local_addr(struct hdhomerun_control_sock_t *cs)

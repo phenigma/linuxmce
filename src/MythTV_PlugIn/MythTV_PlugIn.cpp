@@ -26,6 +26,7 @@ using namespace DCE;
 #include "../pluto_main/Define_DesignObj.h"
 #include "../pluto_main/Define_Event.h"
 #include "../pluto_main/Define_DeviceData.h"
+#include "../pluto_main/Define_DeviceTemplate.h"
 #include "../pluto_main/Table_EventParameter.h"
 #include "../pluto_main/Table_Users.h"
 #include "../pluto_media/Table_LongAttribute.h"
@@ -70,6 +71,7 @@ bool MythTV_PlugIn::GetConfig()
 	if( !MythTV_PlugIn_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
+
 	m_pMySqlHelper_Myth = new MySqlHelper(m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ),"mythconverg");
 	m_pEPGGrid = new EPGGrid(m_pMySqlHelper_Myth);
 
@@ -151,6 +153,7 @@ bool MythTV_PlugIn::Register()
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Channel_Changed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewBookmarks ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::ScanningProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Channel_Scan_Progress_CONST );
 
 	// Get all the backend ip's so we can match the hostname myth uses to our own device id
 	map<string,int> mapIpToDevice;
@@ -875,8 +878,10 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 
 	/** @brief COMMAND: #824 - Sync Providers and Cards */
 	/** Synchronize settings for pvr cards and provders */
+		/** @param #198 PK_Orbiter */
+			/** If specified, this is the orbiter to notify of the progress if this results in scanning for channels */
 
-void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage)
+void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
 //<-dceag-c824-e->
 {
 	if( DATA_Get_Dont_Auto_Configure() )
@@ -885,6 +890,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 		return;
 	}
 
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders");
     MYSQL_ROW row,row2;
 
@@ -897,7 +903,9 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 		return;
 	}
 
-	sSQL = "select PK_Device,IK_DeviceData FROM Device JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_EK_MediaProvider_CONST) " AND IK_DeviceData IS NOT NULL AND IK_DeviceData<>'' AND IK_DeviceData<>'NONE'";
+	// Find either inputs with a provider specified, or certain types of devices which should be added, but still need a provider
+	sSQL = "select PK_Device,IK_DeviceData FROM Device LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_EK_MediaProvider_CONST) " AND IK_DeviceData IS NOT NULL AND IK_DeviceData<>'' AND IK_DeviceData<>'NONE' "
+		"WHERE IK_DeviceData IS NOT NULL OR (IK_DeviceData IS NULL AND FK_DeviceTemplate IN (" TOSTRING(DEVICETEMPLATE_Antenna_Port_CONST) "))";
 
 	bool bModifiedRows=false; // Keep track of whether or not we changed anything
 	PlutoSqlResult result_set;
@@ -906,16 +914,16 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 		while ((row = mysql_fetch_row(result_set.r)))
 		{
 			Row_Device *pRow_Device = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
-			Row_MediaProvider *pRow_MediaProvider = m_pMedia_Plugin->m_pDatabase_pluto_media->MediaProvider_get()->GetRow( atoi(row[1]) );
+			Row_MediaProvider *pRow_MediaProvider = row[1] ? m_pMedia_Plugin->m_pDatabase_pluto_media->MediaProvider_get()->GetRow( atoi(row[1]) ) : NULL;
 
-			if( !pRow_Device || !pRow_MediaProvider )
+			if( !pRow_Device )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders cannot find device %s provider %s",row[0],row[1]);
 				continue;
 			}
 
 			string::size_type pos=0;
-			string sMediaProviderID = pRow_MediaProvider->ID_get();
+			string sMediaProviderID = pRow_MediaProvider ? pRow_MediaProvider->ID_get() : "";
 			string sUsername = StringUtils::Tokenize(sMediaProviderID,"\t",pos);
 			string sPassword = StringUtils::Tokenize(sMediaProviderID,"\t",pos);
 			int PK_DeviceTemplate_MediaType = atoi(StringUtils::Tokenize(sMediaProviderID,"\t",pos).c_str());
@@ -948,12 +956,24 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 				}
 			}
 
+			bool bTunersAsSeparateDevices = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Children_as_Separate_Tuners_CONST)=="1";
+
 			// We need to add configure scripts for each model of card, or the sql statement to insert for each card. 
 
 			// We have a capture card.  See if it's in the database already.  We use DEVICEDATA_Port_CONST for the port
-			int cardid = atoi(DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST).c_str());
+			int cardid = atoi(DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,bTunersAsSeparateDevices ? pRow_Device->PK_Device_get() : pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST).c_str());
 			string sPortName = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Name_CONST);
-			string sBlockDevice = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
+			string sBlockDevice = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
+			if( sBlockDevice.empty() )
+				sBlockDevice = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
+
+			string sScanningScript = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Scanning_Script_CONST);
+			if( sScanningScript.empty() )
+				sScanningScript = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Scanning_Script_CONST);
+
+			bool bNewCard=false;
+				
+			string sPortNumber = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_PortChannel_Number_CONST);
 			if( sPortName.empty() )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders no port name for device %s provider %s",row[0],row[1]);
@@ -961,6 +981,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 			}
 			if( !cardid )
 			{
+				bNewCard=true;
 				bModifiedRows=true;
 				string sHostname = "dcerouter";
 				int PK_Device_PC = DatabaseUtils::GetTopMostDevice(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
@@ -986,55 +1007,74 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pM
 				{
 					StringUtils::Replace(&sSQL,"<%=HOST%>",sHostname);
 					StringUtils::Replace(&sSQL,"<%=PORT%>",sPortName);
+					StringUtils::Replace(&sSQL,"<%=PORTNUM%>",sPortNumber);
+					string sIPAddress = pRow_Device_CaptureCard->IPaddress_get();
+					StringUtils::Replace(&sSQL,"<%=IP%>",sIPAddress);
 				}
 
 				cardid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
-				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
+				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,bTunersAsSeparateDevices ? pRow_Device->PK_Device_get() : pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
 			}
 
-			sSQL = "UPDATE `capturecard` set videodevice='" + sBlockDevice + "' WHERE cardid=" + StringUtils::itos(cardid);
-			if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
-				bModifiedRows=true;
-
-			int sourceid=0;
-			// See if the provider is in the database already
-			string sProviderName = "Provider " + StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get());
-			sSQL = "SELECT sourceid FROM `videosource` WHERE name='" + sProviderName + "'";
-			PlutoSqlResult result_set2;
-			if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set2.r)) && atoi(row2[0]) )
-				sourceid = atoi(row2[0]);
-			else
+			if( sBlockDevice.empty()==false )
 			{
-				bModifiedRows=true;
-				// The data direct shouldn't be hardcoded
-				sSQL = "INSERT INTO `videosource`(name,xmltvgrabber) VALUES ('" + sProviderName + "','datadirect')";
-				sourceid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
-			}
-
-			sSQL = "UPDATE `videosource` SET userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE name='" + sProviderName + "'";
-			if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
-				bModifiedRows=true;
-
-			int cardinputid=0;
-			sSQL = "SELECT cardinputid FROM `cardinput` WHERE cardid='" + StringUtils::itos(cardid) + "' AND sourceid='" + StringUtils::itos(sourceid) + "' AND inputname='" + sPortName + "'";
-			PlutoSqlResult result_set3;
-			if( (result_set3.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set3.r)) && atoi(row2[0]) )
-				cardinputid = atoi(row2[0]);
-			else
-			{
-				bModifiedRows=true;
-				sSQL = "INSERT INTO `cardinput`(cardid,sourceid,inputname) VALUES (" + StringUtils::itos(cardid) + "," + StringUtils::itos(sourceid) + ",'" + sPortName + "')";
-				cardinputid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
-			}
-
-			if( pRow_Device_External )
-			{
-				sSQL = "UPDATE cardinput SET externalcommand='/usr/pluto/bin/TuneToChannel.sh " + StringUtils::itos(pRow_Device_External->PK_Device_get()) + "' WHERE cardinputid=" + StringUtils::itos(cardinputid);
+				sSQL = "UPDATE `capturecard` set videodevice='" + sBlockDevice + "' WHERE cardid=" + StringUtils::itos(cardid);
 				if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
 					bModifiedRows=true;
 			}
+
+			if( (bNewCard || pRow_Device_CaptureCard->NeedConfigure_get()==1 || pRow_Device->NeedConfigure_get()==1) && sScanningScript.empty()==false )
+			{
+				StartScanningScript(pRow_Device,pRow_Device_CaptureCard,iPK_Orbiter,sScanningScript);
+				continue;
+			}
+
+			int sourceid=0;
+			if( pRow_MediaProvider!=NULL )
+			{
+				// See if the provider is in the database already
+				string sProviderName = "Provider " + StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get());
+				sSQL = "SELECT sourceid FROM `videosource` WHERE name='" + sProviderName + "'";
+				PlutoSqlResult result_set2;
+				if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set2.r)) && atoi(row2[0]) )
+					sourceid = atoi(row2[0]);
+				else
+				{
+					bModifiedRows=true;
+					// The data direct shouldn't be hardcoded
+					sSQL = "INSERT INTO `videosource`(name,xmltvgrabber) VALUES ('" + sProviderName + "','datadirect')";
+					sourceid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
+				}
+
+				sSQL = "UPDATE `videosource` SET userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE name='" + sProviderName + "'";
+				if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
+					bModifiedRows=true;
+
+				int cardinputid=0;
+				sSQL = "SELECT cardinputid FROM `cardinput` WHERE cardid='" + StringUtils::itos(cardid) + "' AND sourceid='" + StringUtils::itos(sourceid) + "' AND inputname='" + sPortName + "'";
+				PlutoSqlResult result_set3;
+				if( (result_set3.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set3.r)) && atoi(row2[0]) )
+					cardinputid = atoi(row2[0]);
+				else
+				{
+					bModifiedRows=true;
+					sSQL = "INSERT INTO `cardinput`(cardid,sourceid,inputname) VALUES (" + StringUtils::itos(cardid) + "," + StringUtils::itos(sourceid) + ",'" + sPortName + "')";
+					cardinputid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
+				}
+
+				if( pRow_Device_External )
+				{
+					sSQL = "UPDATE cardinput SET externalcommand='/usr/pluto/bin/TuneToChannel.sh " + StringUtils::itos(pRow_Device_External->PK_Device_get()) + "' WHERE cardinputid=" + StringUtils::itos(cardinputid);
+					if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
+						bModifiedRows=true;
+				}
+			}
 		}
 	}
+
+	// 
+	if( m_mapPendingScans.empty()==false )
+		return;
 
 	// Find cards with invalid starting channels
 	sSQL = "SELECT cardinputid FROM cardinput LEFT JOIN channel on startchan=channum WHERE channum IS NULL";
@@ -1460,7 +1500,7 @@ pMythTvMediaStream->m_iCurrentProgramChannelID=1003; // temp hack until i get th
 //<-dceag-c846-b->
 
 	/** @brief COMMAND: #846 - Make Thumbnail */
-	/** Make a thumbnail */
+	/** Thumbnail the current frame */
 		/** @param #13 Filename */
 			/** Can be a fully qualified filename, or a !F+number, or !A+number for an attribute */
 		/** @param #19 Data */
@@ -1501,4 +1541,106 @@ void MythTV_PlugIn::CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Si
 		sSQL = "INSERT INTO `pluto_myth`.`Picture`(EK_Picture,programid) VALUES(" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + ",'" + sFilename.substr(pos+5) + "')";
 		m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 	}
+}
+
+void MythTV_PlugIn::StartScanningScript(Row_Device *pRow_Device,Row_Device *pRow_Device_CaptureCard,int iPK_Orbiter,string sScanningScript)
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	map< int, ScanJob * >::iterator it=m_mapPendingScans.find( pRow_Device->PK_Device_get() );
+	if( it!=m_mapPendingScans.end() )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d already scanning", pRow_Device->PK_Device_get(), pRow_Device_CaptureCard->PK_Device_get() );
+		return;
+	}
+
+	DeviceData_Base *pDevice_App_Server = (DeviceData_Router *) m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+	if( pDevice_App_Server )
+	{
+		ScanJob *pScanJob = new ScanJob( pRow_Device->PK_Device_get(), pRow_Device_CaptureCard->PK_Device_get(), iPK_Orbiter, sScanningScript );
+		m_mapPendingScans[ pRow_Device->PK_Device_get() ] = pScanJob;
+
+		string sScanFailed = "0 -1000 2 " TOSTRING(EVENT_Channel_Scan_Progress_CONST) " " 
+			TOSTRING(EVENTPARAMETER_PK_Device_CONST) " " + StringUtils::itos( pRow_Device->PK_Device_get() ) + " "
+			TOSTRING(EVENTPARAMETER_Result_CONST) " -1 "
+			TOSTRING(EVENTPARAMETER_Text_CONST) " \"Failed to start\" ";
+
+		string sArguments = StringUtils::itos(pRow_Device->PK_Device_get()) + "\t" + StringUtils::itos(pRow_Device_CaptureCard->PK_Device_get());
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			sScanningScript,"scanchannels",sArguments,sScanFailed,"",false,false,false,true);
+		string sResponse;
+		if( !SendCommand(CMD_Spawn_Application) || sResponse!="OK" )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- app server didn't respond");
+			m_mapPendingScans.erase( pRow_Device->PK_Device_get() );
+			pRow_Device_CaptureCard->NeedConfigure_set(1);
+			pRow_Device->NeedConfigure_set(1);
+		}
+		else
+		{
+			pRow_Device_CaptureCard->NeedConfigure_set(0);
+			pRow_Device->NeedConfigure_set(0);
+		}
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- no app server");
+		pRow_Device_CaptureCard->NeedConfigure_set(1);
+		pRow_Device->NeedConfigure_set(1);
+		m_mapPendingScans.erase( pRow_Device->PK_Device_get() );
+	}
+	m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->Commit();
+}
+
+bool MythTV_PlugIn::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	g_pPlutoLogger->Write( LV_STATUS, "checking scanning jobs %d %d",m_dwPK_Device, (int) m_mapPendingScans.size());
+
+	if( m_mapPendingScans.size() )
+	{
+		if( vectPendingTasks )
+		{
+			for( map< int, ScanJob * >::iterator it=m_mapPendingScans.begin();it!=m_mapPendingScans.end();++it )
+			{
+				ScanJob *pScanJob = it->second;
+				Row_Device *pRow_Device_Card = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow(pScanJob->m_iPK_Device_CaptureCard);
+				if( pRow_Device_Card ) // Should always be true
+					vectPendingTasks->push_back( make_pair<string,string> ("channelscan","Scanning for channels: " + pRow_Device_Card->Description_get() + " / " + pScanJob->m_sStatus + "\n") );
+			}
+		}
+		return false;
+	}
+	return true;
+}
+
+bool MythTV_PlugIn::ScanningProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	int		iPK_Device = atoi( pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str( ) );
+	int		iResult  = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str( ) );
+	int		iValue  = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST].c_str( ) );
+	string      sText = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
+
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+
+	map< int, ScanJob * >::iterator it=m_mapPendingScans.find(iPK_Device);
+	if( it==m_mapPendingScans.end() )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::ScanningProgress cannot find job for %d", iPK_Device);
+		return false;
+	}
+
+	ScanJob *pScanJob = it->second;
+	if( iResult!=0 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::ScanningProgress done for job %d", iPK_Device);
+		DCE::CMD_Sync_Providers_and_Cards CMD_Sync_Providers_and_Cards(m_dwPK_Device,m_dwPK_Device,pScanJob->m_iPK_Orbiter);
+		QueueMessageToRouter(CMD_Sync_Providers_and_Cards.m_pMessage);  // Do this asynchronously
+		m_mapPendingScans.erase(it);
+		return false;
+	}
+
+	pScanJob->m_sStatus = sText;
+	pScanJob->m_iPercentCompletion = iValue;
+
+	return false;
 }

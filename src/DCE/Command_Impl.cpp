@@ -702,6 +702,18 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 
 		return rmr_Processed;
 	}
+	else if ( pMessage->m_dwMessage_Type == MESSAGETYPE_PENDING_TASKS && pMessage->m_dwPK_Device_To == m_dwPK_Device )
+	{
+		vector< pair<string,string> > vectPendingTasks;
+		PendingTasks(&vectPendingTasks);
+		string sResponse;
+		for(vector< pair<string,string> >::iterator it=vectPendingTasks.begin();it!=vectPendingTasks.end();++it)
+			sResponse += it->first + "\t" + it->second + "\n";
+
+		Message *pMessage_Out = new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_PENDING_TASKS,0,0);
+		pMessage_Out->m_mapParameters[0] = sResponse;
+		SendMessage(pMessage_Out);
+	}
 	else
 		if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE && pMessage->m_dwPK_Device_To == m_dwPK_Device )
 		{
@@ -1055,6 +1067,38 @@ bool Command_Impl::SetStatus( string sStatus, int dwPK_Device )
 		return false;
 
 	return m_pcRequestSocket->m_pClientSocket->SendString("SET_STATUS " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) + " " + sStatus );
+}
+
+bool Command_Impl::PendingTasksFromDevice(int PK_Device,vector< pair<string,string> > *vectPendingTasks)
+{
+	Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_PENDING_TASKS,0,0);
+	Message *pResponse = m_pcRequestSocket->SendReceiveMessage(pMessage);
+
+	// We get back a return message with a paramter 0 that is in the format: task type \t task description \n next text type ....
+
+	bool bFoundTasks=false;
+	if( pResponse )
+	{
+		string sResponse = pResponse->m_mapParameters[0];
+		string::size_type pos = 0;
+		while( pos<sResponse.size() )
+		{
+			string s = StringUtils::Tokenize(sResponse,"\n",pos);
+			if( s.empty() )
+				continue;
+			string::size_type p_tab = s.find('\t');
+			if( p_tab==string::npos )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Command_Impl::PendingTasks response %s malformed",sResponse.c_str());
+			else
+			{
+				bFoundTasks=true;
+				if( vectPendingTasks )
+					vectPendingTasks->push_back( make_pair<string,string> ( s.substr(0,p_tab), s.substr(p_tab+1) ) );
+			}
+		}
+	}
+	
+	return bFoundTasks;
 }
 
 void Command_Impl::EnableDevice( int PK_Device, bool bEnabled ) 

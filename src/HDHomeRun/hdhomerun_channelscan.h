@@ -18,13 +18,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#define CHANNEL_MAP_US_BCAST 1
-#define CHANNEL_MAP_US_CABLE 2
-#define CHANNEL_MAP_US_HRC 3
-#define CHANNEL_MAP_US_IRC 4
+typedef int (*channelscan_callback_t)(va_list ap, const char *type, const char *str);
 
-typedef int (*channelscan_callback_t)(void *arg, const char *type, const char *str);
-
-extern const char *channelscan_map_name(uint8_t channel_map);
-
-extern int channelscan_execute(struct hdhomerun_device_t *hd, channelscan_callback_t callback, void *callback_arg);
+extern int channelscan_execute(struct hdhomerun_device_t *hd, channelscan_callback_t callback, ...);

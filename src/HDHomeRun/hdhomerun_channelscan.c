@@ -24,6 +24,11 @@
 #include "hdhomerun_device.h"
 #include "hdhomerun_channelscan.h"
 
+#define CHANNEL_MAP_US_BCAST 1
+#define CHANNEL_MAP_US_CABLE 2
+#define CHANNEL_MAP_US_HRC 3
+#define CHANNEL_MAP_US_IRC 4
+
 struct channelscan_entry_t {
 	struct channelscan_entry_t *next;
 	uint8_t channel_map;
@@ -79,7 +84,7 @@ static const struct channelscan_map_range_t channelscan_map_ranges[] = {
 	{0,                      0,   0,         0,       0}
 };
 
-const char *channelscan_map_name(uint8_t channel_map)
+static const char *channelscan_map_name(uint8_t channel_map)
 {
 	switch (channel_map) {
 	case CHANNEL_MAP_US_BCAST:
@@ -160,48 +165,35 @@ static int channelscan_execute_find_lock_internal(struct hdhomerun_device_t *hd,
 	char channel_str[64];
 
 	/* Set 8vsb channel. */
-	sprintf(channel_str, "8vsb:%ld", frequency);
+	sprintf(channel_str, "8vsb:%ld", (unsigned long)frequency);
 	int ret = hdhomerun_device_set_tuner_channel(hd, channel_str);
 	if (ret <= 0) {
 		return ret;
 	}
 
-	/* Wait for up to 1 second for lock. */
-	int i;
-	for (i = 0; i < 4; i++) {
-		usleep(250000);
-
-		/* Get status to check for lock. Quality numbers will not be valid yet. */
-		ret = hdhomerun_device_get_tuner_status(hd, status);
-		if (ret <= 0) {
-			return ret;
-		}
-
-		if (strcmp(status->lock, "none") != 0) {
-			return 1;
-		}
+	/* Wait for lock. */
+	ret = hdhomerun_device_wait_for_lock(hd, status);
+	if (ret <= 0) {
+		return ret;
+	}
+	if (status->lock_supported || status->lock_unsupported) {
+		return 1;
 	}
 
 	/* Set qam channel. */
-	sprintf(channel_str, "qam:%ld", frequency);
+	sprintf(channel_str, "qam:%ld", (unsigned long)frequency);
 	ret = hdhomerun_device_set_tuner_channel(hd, channel_str);
 	if (ret <= 0) {
 		return ret;
 	}
 
-	/* Wait for up to 1.5 seconds for lock. */
-	for (i = 0; i < 6; i++) {
-		usleep(250000);
-
-		/* Get status to check for lock. Quality numbers will not be valid yet. */
-		ret = hdhomerun_device_get_tuner_status(hd, status);
-		if (ret <= 0) {
-			return ret;
-		}
-
-		if (strcmp(status->lock, "none") != 0) {
-			return 1;
-		}
+	/* Wait for lock. */
+	ret = hdhomerun_device_wait_for_lock(hd, status);
+	if (ret <= 0) {
+		return ret;
+	}
+	if (status->lock_supported || status->lock_unsupported) {
+		return 1;
 	}
 
 	return 1;
@@ -214,7 +206,7 @@ static int channelscan_execute_find_lock(struct hdhomerun_device_t *hd, uint32_t
 		return ret;
 	}
 
-	if (status->signal_strength == 0) {
+	if (!status->lock_supported) {
 		return 1;
 	}
 
@@ -281,7 +273,21 @@ static int channelscan_execute_find_programs(struct hdhomerun_device_t *hd, char
 	return 1;
 }
 
-static int channelscan_execute_internal(struct hdhomerun_device_t *hd, struct channelscan_entry_t **pentry, channelscan_callback_t callback, void *callback_arg)
+static int channelscan_execute_callback(channelscan_callback_t callback, va_list callback_ap, const char *type, const char *str)
+{
+	if (!callback) {
+		return 1;
+	}
+	
+	va_list ap;
+	va_copy(ap, callback_ap);
+	int ret = callback(ap, type, str);
+	va_end(ap);
+
+	return ret;
+}
+
+static int channelscan_execute_internal(struct hdhomerun_device_t *hd, struct channelscan_entry_t **pentry, channelscan_callback_t callback, va_list callback_ap)
 {
 	struct channelscan_entry_t *entry = *pentry;
 	uint32_t frequency = entry->frequency;
@@ -290,7 +296,7 @@ static int channelscan_execute_internal(struct hdhomerun_device_t *hd, struct ch
 
 	/* Combine channels with same frequency. */
 	char *ptr = buffer;
-	sprintf(ptr, "%ld (", frequency);
+	sprintf(ptr, "%ld (", (unsigned long)frequency);
 	ptr = strchr(ptr, 0);
 	while (1) {
 		sprintf(ptr, "%s:%d", channelscan_map_name(entry->channel_map), entry->channel);
@@ -310,11 +316,9 @@ static int channelscan_execute_internal(struct hdhomerun_device_t *hd, struct ch
 	sprintf(ptr, ")");
 	*pentry = entry;
 
-	if (callback) {
-		ret = callback(callback_arg, "SCANNING", buffer);
-		if (ret <= 0) {
-			return ret;
-		}
+	ret = channelscan_execute_callback(callback, callback_ap, "SCANNING", buffer);
+	if (ret <= 0) {
+		return ret;
 	}
 
 	/* Find lock. */
@@ -322,16 +326,14 @@ static int channelscan_execute_internal(struct hdhomerun_device_t *hd, struct ch
 	ret = channelscan_execute_find_lock(hd, frequency, &status);
 
 	ptr = buffer;
-	sprintf(ptr, "%s (ss=%u snq=%u seq=%u)", status.lock, status.signal_strength, status.signal_to_noise_quality, status.symbol_error_quality);
+	sprintf(ptr, "%s (ss=%u snq=%u seq=%u)", status.lock_str, status.signal_strength, status.signal_to_noise_quality, status.symbol_error_quality);
 
-	if (callback) {
-		ret = callback(callback_arg, "LOCK", buffer);
-		if (ret <= 0) {
-			return ret;
-		}
+	ret = channelscan_execute_callback(callback, callback_ap, "LOCK", buffer);
+	if (ret <= 0) {
+		return ret;
 	}
 
-	if (status.signal_strength == 0) {
+	if (!status.lock_supported) {
 		return 1;
 	}
 
@@ -351,12 +353,10 @@ static int channelscan_execute_internal(struct hdhomerun_device_t *hd, struct ch
 
 		*end++ = 0;
 
-		if (callback) {
-			ret = callback(callback_arg, "PROGRAM", ptr);
-			if (ret <= 0) {
-				free(streaminfo);
-				return ret;
-			}
+		ret = channelscan_execute_callback(callback, callback_ap, "PROGRAM", ptr);
+		if (ret <= 0) {
+			free(streaminfo);
+			return ret;
 		}
 
 		ptr = end;
@@ -368,20 +368,24 @@ static int channelscan_execute_internal(struct hdhomerun_device_t *hd, struct ch
 	return 1;
 }
 
-int channelscan_execute(struct hdhomerun_device_t *hd, channelscan_callback_t callback, void *callback_arg)
+int channelscan_execute(struct hdhomerun_device_t *hd, channelscan_callback_t callback, ...)
 {
 	struct channelscan_entry_t *list;
 	channelscan_list_build(&list);
 
+	va_list callback_ap;
+	va_start(callback_ap, callback);
+
 	struct channelscan_entry_t *entry = list;
 	int result = 0;
 	while (entry) {
-		result = channelscan_execute_internal(hd, &entry, callback, callback_arg);
+		result = channelscan_execute_internal(hd, &entry, callback, callback_ap);
 		if (result <= 0) {
 			break;
 		}
 	}
 
+	va_end(callback_ap);
 	channelscan_list_free(&list);
 	return result;
 }

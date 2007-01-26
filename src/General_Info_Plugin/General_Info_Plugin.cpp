@@ -672,42 +672,48 @@ void General_Info_Plugin::CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,Me
 }
 
 
-bool General_Info_Plugin::PendingTasks(vector<string> *vectPendingTasks)
+bool General_Info_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
 {
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
 	g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks m_mapMediaDirectors_PendingConfig %d %d",m_dwPK_Device, (int) m_mapMediaDirectors_PendingConfig.size());
-	bool bOkayToReload=true;
+	bool bPendingTasks=false;
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
 	{
 		if( it->second )
 		{
 			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(it->first);
-			vectPendingTasks->push_back("Still downloading packages m_mapMediaDirectors_PendingConfig on: " + (pRow_Device ? pRow_Device->Description_get() : StringUtils::itos(it->first)));
+			vectPendingTasks->push_back( make_pair<string,string> ("download","Still downloading packages m_mapMediaDirectors_PendingConfig on: " + (pRow_Device ? pRow_Device->Description_get() : StringUtils::itos(it->first))));
 			g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks m_mapMediaDirectors_PendingConfig md %d is busy",it->first);
-			bOkayToReload=false;
+			bPendingTasks=true;
 		}
 	}
-	return bOkayToReload;
+	return bPendingTasks;
 }
 
 class DataGridTable *General_Info_Plugin::PendingTasksGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-	vector<string> vectPendingTasks;
+	vector< pair<string,string> > vectPendingTasks;
 
     for(map<int,class Command_Impl *>::const_iterator it=m_pRouter->m_mapPlugIn_get()->begin();it!=m_pRouter->m_mapPlugIn_get()->end();++it)
     {
 		Command_Impl *pPlugIn = (*it).second;
 		// We don't care about the return code, just what tasks are pending
-		pPlugIn->PendingTasks(&vectPendingTasks);
+		vector< pair<string,string> > vpt;
+		pPlugIn->PendingTasks(&vpt);
+		for(vector< pair<string,string> >::iterator it=vpt.begin();it!=vpt.end();++it)
+		{
+			if( Parms.empty() || Parms==it->first )
+				vectPendingTasks.push_back( *it );
+		}
 	}
 
     DataGridTable *pDataGrid = new DataGridTable( );
     DataGridCell *pCell;
 
 	int RowCount=0;
-	for(size_t s=0;s<vectPendingTasks.size();++s)
+	for(vector< pair<string,string> >::iterator it=vectPendingTasks.begin();it!=vectPendingTasks.end();++it)
 	{
-        pCell = new DataGridCell( vectPendingTasks[s] );
+		pCell = new DataGridCell( it->second );
         pDataGrid->SetData( 0, RowCount++, pCell );
 	}
 

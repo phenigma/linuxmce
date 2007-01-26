@@ -239,6 +239,7 @@
 #define SCREEN_ExternalDeviceFullScreen_CONST 252
 #define SCREEN_ExternalDeviceFullScreen_Opts_CONST 253
 #define SCREEN_Remote_Assistance_CONST 255
+#define SCREEN_Scanning_Progress_CONST 258
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

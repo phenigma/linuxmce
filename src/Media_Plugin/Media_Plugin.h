@@ -451,7 +451,7 @@ public:
 	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true,MediaStream *pMediaStream_Replacement=NULL,vector<EntertainArea *> *p_vectEntertainArea=NULL,bool bNoAutoResume=false,bool bTurnOnOSD=true);
 	void MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent=true);
 
-	virtual bool PendingTasks(vector<string> *vectPendingTasks=NULL);
+	virtual bool PendingTasks(vector< pair<string,string> > *vectPendingTasks=NULL);
 
 	void ShowMediaPlaybackState(EntertainArea *pEntertainArea);  // Update any VFD displays with the new playback state in this entertainment area
 

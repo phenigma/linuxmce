@@ -97,6 +97,7 @@ static int hdhomerun_discover_send_packet(struct hdhomerun_discover_sock_t *ds, 
 }
 
 #if defined(__CYGWIN__) || defined(__WINDOWS__)
+
 static int hdhomerun_discover_send_internal(struct hdhomerun_discover_sock_t *ds, uint32_t device_type, uint32_t device_id)
 {
 	PIP_ADAPTER_INFO pAdapterInfo = (IP_ADAPTER_INFO *)malloc(sizeof(IP_ADAPTER_INFO));
@@ -150,9 +151,9 @@ static int hdhomerun_discover_send_internal(struct hdhomerun_discover_sock_t *ds
 	}
 	return 0;
 }
-#endif
 
-#if defined(__linux__)
+#elif defined(__linux__)
+
 static int hdhomerun_discover_send_internal(struct hdhomerun_discover_sock_t *ds, uint32_t device_type, uint32_t device_id)
 {
 	FILE *fp = fopen("/proc/net/route", "r");
@@ -195,13 +196,107 @@ static int hdhomerun_discover_send_internal(struct hdhomerun_discover_sock_t *ds
 	}
 	return 0;
 }
-#endif
 
-#if !defined(__CYGWIN__) && !defined(__WINDOWS__) && !defined(__linux__)
+#elif defined(__APPLE__)
+
+static int hdhomerun_discover_send_internal(struct hdhomerun_discover_sock_t *ds, unsigned long device_type, unsigned long device_id)
+{
+	/* printf("Looking for 0x%lx with id 0x%lx\n", device_type, device_id); */
+	int fds[2];
+	if (pipe(fds) < 0) {
+		printf("Pipe Failed\n");
+		return -1;
+	}
+
+	pid_t child = fork();
+	if (child < 0) {
+		printf("Fork Failed\n");
+		return -1;
+	}
+
+	/* Child */
+	if (child == 0) {
+		/* Attach stdout to pipe */
+		close(1);
+		dup2(fds[1], 1);
+
+		/* Close all open file descriptors except stdout/stderr */
+		int i;
+		for (i = sysconf(_SC_OPEN_MAX) - 1; i > 2; i--) {
+			close(i);
+		}
+
+		/* Run command */
+		execl("/bin/sh", "sh", "-c", "ifconfig", NULL);
+
+		/* Failed to exec */
+		_exit(1); /* this exit is ok */
+	}
+
+	/* Parent */
+	close(fds[1]);
+
+	int status;
+	if (waitpid(child, &status, 0) < 0) {
+		return -1;
+	}
+
+	if (WEXITSTATUS(status)) {
+		return -1;
+	}
+
+	FILE *fp = fdopen(fds[0], "r");
+
+	int send_count = 0;
+	while (1) {
+		char line[1024];
+		if (!fgets(line, sizeof(line) - 1, fp))	{
+			break;
+		}
+		line[sizeof(line) - 1] = 0;
+
+		/* find "netmask " */
+		char *ptr = strstr(line, "netmask ");
+		if (!ptr) {
+			continue;
+		}
+		ptr += strlen("netmask ");
+
+		unsigned long netmask;
+		sscanf(ptr, "%lx", &netmask);
+
+		/* find "broadcast " */
+		ptr = strstr(ptr, "broadcast ");
+		if (!ptr) {
+			continue;
+		}
+		ptr += strlen("broadcast ");
+
+		unsigned int a,b,c,d;
+		sscanf(ptr, "%u.%u.%u.%u", &a, &b, &c, &d);
+		unsigned long broadcast = a << 24 | b << 16 | c << 8 | d << 0;
+
+		/* send discover packet this adaptor */
+		if (hdhomerun_discover_send_packet(ds, (uint32_t)broadcast, device_type, device_id) >= 0) {
+			send_count++;
+		}
+	}
+
+	fclose(fp); /* this closes fds[0] as well */
+
+	if (send_count == 0) {
+		return -1;
+	}
+	return 0;
+}
+
+#else
+
 static int hdhomerun_discover_send_internal(struct hdhomerun_discover_sock_t *ds, uint32_t device_type, uint32_t device_id)
 {
 	return -1;
 }
+
 #endif
 
 static int hdhomerun_discover_send(struct hdhomerun_discover_sock_t *ds, uint32_t target_ip, uint32_t device_type, uint32_t device_id)

@@ -2512,6 +2512,18 @@ void OSDScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen)
 #endif
 
 	ScreenHandlerBase::SCREEN_Choose_Provider_for_Device(PK_Screen);
+
+	// See if there are any pending channel scans.  If so, switch to the screen to wait for the channel scan to finish
+	m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceCategory_Find(DEVICECATEGORY_Media_Player_Plugins_CONST);
+vector< pair<string,string> > vectPendingTasks;
+m_pOrbiter->PendingTasksFromDevice(25,&vectPendingTasks);
+for(vector< pair<string,string> >::iterator it=vectPendingTasks.begin();it!=vectPendingTasks.end();++it)
+{
+	string s = it->first;
+	string s2 = it->second;
+int k=2;
+}
+
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_DatagridSelected, new DatagridCellBackData());
 	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_Intercepted, new MsgInterceptorCellBackData());

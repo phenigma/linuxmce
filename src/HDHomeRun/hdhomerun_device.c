@@ -20,6 +20,7 @@
 
 #include "hdhomerun_os.h"
 #include "hdhomerun_pkt.h"
+#include "hdhomerun_discover.h"
 #include "hdhomerun_control.h"
 #include "hdhomerun_video.h"
 #include "hdhomerun_device.h"
@@ -33,6 +34,10 @@ struct hdhomerun_device_t {
 
 struct hdhomerun_device_t *hdhomerun_device_create(uint32_t device_id, uint32_t device_ip, unsigned int tuner)
 {
+	if (!hdhomerun_discover_validate_device_id(device_id)) {
+		return NULL;
+	}
+
 	struct hdhomerun_device_t *hd = (struct hdhomerun_device_t *)calloc(1, sizeof(struct hdhomerun_device_t));
 	if (!hd) {
 		return NULL;
@@ -49,6 +54,29 @@ struct hdhomerun_device_t *hdhomerun_device_create(uint32_t device_id, uint32_t 
 	return hd;
 }
 
+struct hdhomerun_device_t *hdhomerun_device_create_from_str(const char *device_str)
+{
+	unsigned long a[4];
+	if (sscanf(device_str, "%lu.%lu.%lu.%lu", &a[0], &a[1], &a[2], &a[3]) == 4) {
+		unsigned long device_ip = (a[0] << 24) | (a[1] << 16) | (a[2] << 8) | (a[3] << 0);
+		return hdhomerun_device_create(HDHOMERUN_DEVICE_ID_WILDCARD, (uint32_t)device_ip, 0);
+	}
+
+	unsigned long device_id;
+	unsigned int tuner;
+	if (sscanf(device_str, "%lx:%u", &device_id, &tuner) == 2) {
+		return hdhomerun_device_create((uint32_t)device_id, 0, tuner);
+	}
+	if (sscanf(device_str, "%lx-%u", &device_id, &tuner) == 2) {
+		return hdhomerun_device_create((uint32_t)device_id, 0, tuner);
+	}
+	if (sscanf(device_str, "%lx", &device_id) == 1) {
+		return hdhomerun_device_create((uint32_t)device_id, 0, 0);
+	}
+
+	return NULL;
+}
+
 void hdhomerun_device_destroy(struct hdhomerun_device_t *hd)
 {
 	if (hd->vs) {
@@ -63,6 +91,36 @@ void hdhomerun_device_destroy(struct hdhomerun_device_t *hd)
 void hdhomerun_device_set_tuner(struct hdhomerun_device_t *hd, unsigned int tuner)
 {
 	hd->tuner = tuner;
+}
+
+int hdhomerun_device_set_tuner_from_str(struct hdhomerun_device_t *hd, const char *tuner_str)
+{
+	unsigned int tuner;
+	if (sscanf(tuner_str, "%u", &tuner) == 1) {
+		hd->tuner = tuner;
+		return 1;
+	}
+	if (sscanf(tuner_str, "/tuner%u", &tuner) == 1) {
+		hd->tuner = tuner;
+		return 1;
+	}
+
+	return -1;
+}
+
+uint32_t hdhomerun_device_get_device_id(struct hdhomerun_device_t *hd)
+{
+	return hdhomerun_control_get_device_id(hd->cs);
+}
+
+uint32_t hdhomerun_device_get_device_ip(struct hdhomerun_device_t *hd)
+{
+	return hdhomerun_control_get_device_ip(hd->cs);
+}
+
+unsigned int hdhomerun_device_get_tuner(struct hdhomerun_device_t *hd)
+{
+	return hd->tuner;
 }
 
 struct hdhomerun_control_sock_t *hdhomerun_device_get_control_sock(struct hdhomerun_device_t *hd)
@@ -116,7 +174,7 @@ int hdhomerun_device_get_tuner_status(struct hdhomerun_device_t *hd, struct hdho
 
 	char *lock = strstr(status_str, "lock=");
 	if (lock) {
-		sscanf(lock + 5, "%31s", status->lock);
+		sscanf(lock + 5, "%31s", status->lock_str);
 	}
 
 	status->signal_strength = (unsigned int)hdhomerun_device_get_status_parse(status_str, "ss=");
@@ -124,6 +182,16 @@ int hdhomerun_device_get_tuner_status(struct hdhomerun_device_t *hd, struct hdho
 	status->symbol_error_quality = (unsigned int)hdhomerun_device_get_status_parse(status_str, "seq=");
 	status->raw_bits_per_second = hdhomerun_device_get_status_parse(status_str, "bps=");
 	status->packets_per_second = hdhomerun_device_get_status_parse(status_str, "pps=");
+
+	status->signal_present = status->signal_strength >= 25;
+
+	if (strcmp(status->lock_str, "none") != 0) {
+		if (status->lock_str[0] == '(') {
+			status->lock_unsupported = TRUE;
+		} else {
+			status->lock_supported = TRUE;
+		}
+	}
 
 	return 1;
 }
@@ -290,6 +358,30 @@ int hdhomerun_device_set_var(struct hdhomerun_device_t *hd, const char *name, co
 	return hdhomerun_control_set(hd->cs, name, value, pvalue, perror);
 }
 
+int hdhomerun_device_wait_for_lock(struct hdhomerun_device_t *hd, struct hdhomerun_tuner_status_t *status)
+{
+	/* Wait for up to 1.5 seconds for lock. */
+	int i;
+	for (i = 0; i < 6; i++) {
+		usleep(250000);
+
+		/* Get status to check for lock. Quality numbers will not be valid yet. */
+		int ret = hdhomerun_device_get_tuner_status(hd, status);
+		if (ret <= 0) {
+			return ret;
+		}
+
+		if (!status->signal_present) {
+			return 1;
+		}
+		if (status->lock_supported || status->lock_unsupported) {
+			return 1;
+		}
+	}
+
+	return 1;
+}
+
 int hdhomerun_device_stream_start(struct hdhomerun_device_t *hd)
 {
 	/* Create video socket. */
@@ -332,16 +424,10 @@ int hdhomerun_device_firmware_version_check(struct hdhomerun_device_t *hd, uint3
 		return -1;
 	}
 
-	if (version < 20061213) {
+	if (version < 20070121) {
 		return 0;
 	}
 
-	if (features & HDHOMERUN_FIRMWARE_FEATURES_SAGETV) {
-		if (version < 20061231) {
-			return 0;
-		}
-	}
-	
 	return 1;
 }
 

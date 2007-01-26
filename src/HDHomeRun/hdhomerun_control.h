@@ -40,6 +40,14 @@ extern struct hdhomerun_control_sock_t *hdhomerun_control_create(uint32_t device
 extern void hdhomerun_control_destroy(struct hdhomerun_control_sock_t *cs);
 
 /*
+ * Get the actual device id or ip of the device.
+ *
+ * Returns 0 if the device id cannot be determined.
+ */
+extern uint32_t hdhomerun_control_get_device_id(struct hdhomerun_control_sock_t *cs);
+extern uint32_t hdhomerun_control_get_device_ip(struct hdhomerun_control_sock_t *cs);
+
+/*
  * Get the local machine IP address used when communicating with the device.
  *
  * This function is useful for determining the IP address to use with set target commands.

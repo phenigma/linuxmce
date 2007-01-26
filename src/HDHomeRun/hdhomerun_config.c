@@ -31,7 +31,8 @@ static int help(void)
 	printf("\t%s <id> get help\n", appname);
 	printf("\t%s <id> get <item>\n", appname);
 	printf("\t%s <id> set <item> <value>\n", appname);
-	printf("\t%s <id> scan <tuner>\n", appname);
+	printf("\t%s <id> scan <tuner> [<filename>]\n", appname);
+	printf("\t%s <id> save <tuner> <filename>\n", appname);
 	printf("\t%s <id> upgrade <filename>\n", appname);
 	return -1;
 }
@@ -78,20 +79,6 @@ static uint32_t parse_ip_addr(const char *str)
 	return (uint32_t)((a[0] << 24) | (a[1] << 16) | (a[2] << 8) | (a[3] << 0));
 }
 
-static int parse_tuner_index(const char *str)
-{
-	int tuner;
-
-	if (sscanf(str, "%d", &tuner) == 1) {
-		return tuner;
-	}
-	if (sscanf(str, "/tuner%d", &tuner) == 1) {
-		return tuner;
-	}
-
-	return -1;
-}
-
 static int discover_print(char *target_ip_str)
 {
 	uint32_t target_ip = 0;
@@ -125,32 +112,6 @@ static int discover_print(char *target_ip_str)
 	}
 
 	return count;
-}
-
-static bool_t parse_device_id_str(const char *s, uint32_t *pdevice_id, uint32_t *pdevice_ip)
-{
-	uint32_t ip_addr = parse_ip_addr(s);
-	if (ip_addr) {
-		*pdevice_id = HDHOMERUN_DEVICE_ID_WILDCARD;
-		*pdevice_ip = ip_addr;
-		return TRUE;
-	}
-
-	unsigned long device_id_raw;
-	if (sscanf(s, "%lx", &device_id_raw) != 1) {
-		fprintf(stderr, "invalid device id: %s\n", s);
-		return FALSE;
-	}
-
-	uint32_t device_id = (uint32_t)device_id_raw;
-	if (!hdhomerun_discover_validate_device_id(device_id)) {
-		fprintf(stderr, "invalid device id: %s\n", s);
-		return FALSE;
-	}
-
-	*pdevice_id = device_id;
-	*pdevice_ip = 0;
-	return TRUE;
 }
 
 static int cmd_get(const char *item)
@@ -193,22 +154,82 @@ static int cmd_streaminfo(const char *tuner_str)
 	return -1;
 }
 
-static int cmd_scan_callback(void *arg, const char *type, const char *str)
+static int cmd_scan_callback(va_list ap, const char *type, const char *str)
 {
+	FILE *fp = va_arg(ap, FILE *);
+	if (fp) {
+		fprintf(fp, "%s: %s\n", type, str);
+		fflush(fp);
+	}
+
 	printf("%s: %s\n", type, str);
+
 	return 1;
 }
 
-static int cmd_scan(const char *tuner_str)
+static int cmd_scan(const char *tuner_str, const char *filename)
 {
-	int tuner = parse_tuner_index(tuner_str);
-	if (tuner < 0) {
+	if (hdhomerun_device_set_tuner_from_str(hd, tuner_str) <= 0) {
 		fprintf(stderr, "invalid tuner number\n");
 		return -1;
 	}
-	hdhomerun_device_set_tuner(hd, tuner);
 
-	return channelscan_execute(hd, cmd_scan_callback, NULL);
+	FILE *fp = NULL;
+	if (filename) {
+		fp = fopen(filename, "w");
+		if (!fp) {
+			fprintf(stderr, "unable to create file: %s\n", filename);
+			return -1;
+		}
+	}
+
+	int ret = channelscan_execute(hd, cmd_scan_callback, fp);
+
+	if (fp) {
+		fclose(fp);
+	}
+	return ret;
+}
+
+static int cmd_save(const char *tuner_str, const char *filename)
+{
+	if (hdhomerun_device_set_tuner_from_str(hd, tuner_str) <= 0) {
+		fprintf(stderr, "invalid tuner number\n");
+		return -1;
+	}
+
+	FILE *fp = fopen(filename, "wb");
+	if (!fp) {
+		fprintf(stderr, "unable to create file %s\n", filename);
+		return -1;
+	}
+
+	int ret = hdhomerun_device_stream_start(hd);
+	if (ret <= 0) {
+		fprintf(stderr, "unable to start stream\n");
+		fclose(fp);
+		return ret;
+	}
+
+	uint64_t next_progress = getcurrenttime() + 1000;
+	while (1) {
+		usleep(64000);
+
+		size_t actual_size;
+		uint8_t *ptr = hdhomerun_device_stream_recv(hd, VIDEO_DATA_BUFFER_SIZE_1S, &actual_size);
+		if (!ptr) {
+			continue;
+		}
+
+		fwrite(ptr, 1, actual_size, fp);
+
+		uint64_t current_time = getcurrenttime();
+		if (current_time >= next_progress) {
+			next_progress = current_time + 1000;
+			printf(".");
+			fflush(stdout);
+		}
+	}
 }
 
 static int cmd_upgrade(const char *filename)
@@ -262,7 +283,18 @@ static int main_cmd(int argc, char *argv[])
 		if (argc < 1) {
 			return help();
 		}
-		return cmd_scan(argv[0]);
+		if (argc < 2) {
+			return cmd_scan(argv[0], NULL);
+		} else {
+			return cmd_scan(argv[0], argv[1]);
+		}
+	}
+
+	if (contains(cmd, "save")) {
+		if (argc < 2) {
+			return help();
+		}
+		return cmd_save(argv[0], argv[1]);
 	}
 
 	if (contains(cmd, "upgrade")) {
@@ -307,16 +339,10 @@ static int main_internal(int argc, char *argv[])
 		}
 	}
 
-	/* Device ID. */
-	uint32_t device_id, device_ip;
-	if (!parse_device_id_str(id_str, &device_id, &device_ip)) {
-		return -1;
-	}
-
 	/* Device object. */
-	hd = hdhomerun_device_create(device_id, device_ip, 0);
+	hd = hdhomerun_device_create_from_str(id_str);
 	if (!hd) {
-		fprintf(stderr, "unable to create device\n");
+		fprintf(stderr, "invalid device id: %s\n", id_str);
 		return -1;
 	}
 

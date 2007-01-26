@@ -167,4 +167,8 @@ void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH
 	DCE::CMD_Spawn_Application CMD_Spawn_Application(g_pCommand_Impl->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,"/usr/pluto/bin/CaptureCards_Setup.sh","captcard",
 		"","","",false,false,false,true);
 	g_pCommand_Impl->SendCommand(CMD_Spawn_Application);
+
+	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(g_pCommand_Impl->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,pOH_Orbiter ? pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0);
+	g_pCommand_Impl->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
+
 }

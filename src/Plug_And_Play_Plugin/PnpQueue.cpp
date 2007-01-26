@@ -93,7 +93,7 @@ void PnpQueue::Run()
 
 	pnp.Relock();
 	
-	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_pPlug_And_Play_Plugin->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse);
+	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_pPlug_And_Play_Plugin->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,0);
 	m_pPlug_And_Play_Plugin->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
 
 	if( m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin && m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_pMedia_Plugin )

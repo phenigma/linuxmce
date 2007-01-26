@@ -337,16 +337,16 @@ namespace DCE
 			for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
 			{
 				Command_Impl *pPlugIn = (*it).second;
-				vector<string> vectPendingTasks;
+				vector< pair<string,string> > vectPendingTasks;
 				g_pPlutoLogger->Write(LV_STATUS,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
-				if( !pPlugIn->PendingTasks(&vectPendingTasks) )
+				if( pPlugIn->PendingTasks(&vectPendingTasks) )
 				{
 					g_pPlutoLogger->Write(LV_STATUS,"plugin %d denied reload",pPlugIn->m_dwPK_Device);
 					if( PK_Device_Requesting )
 					{
 						string sPendingTasks;
-						for(size_t s=0;s<vectPendingTasks.size();++s)
-							sPendingTasks += /*pPlugIn->m_sName + ": " +*/ vectPendingTasks[s] + "\n";
+						for(vector< pair<string,string> >::iterator it=vectPendingTasks.begin();it!=vectPendingTasks.end();++it)
+							sPendingTasks += /*pPlugIn->m_sName + ": " +*/ it->second + "\n";
 						ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 							EVENT_Reload_Aborted_CONST,3,
 							EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),

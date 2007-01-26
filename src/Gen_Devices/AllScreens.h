@@ -9949,6 +9949,46 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Scanning_Progress : public PreformedCommand
+	{
+	public:
+		SCREEN_Scanning_Progress(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "258" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Scanning_Progress_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Scanning_Progress_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "258" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Scanning_Progress_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Scanning_Progress_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "258" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Scanning_Progress_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Scanning_Progress_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "258" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -10215,6 +10255,7 @@ namespace DCE
 		virtual void SCREEN_Remote_Assistance(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Legacy_AV_Speed_Control(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Thumbnail(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Scanning_Progress(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -11729,6 +11770,12 @@ namespace DCE
 				{
 					ResetCallBacks();
 					SCREEN_Thumbnail(nPK_Screen);
+					break;
+				}
+				case 258:
+				{
+					ResetCallBacks();
+					SCREEN_Scanning_Progress(nPK_Screen);
 					break;
 				}
 

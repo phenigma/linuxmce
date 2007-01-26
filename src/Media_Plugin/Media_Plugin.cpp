@@ -3716,7 +3716,7 @@ bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 	return itRippingJobs!=m_mapRippingJobs.end();
 }
 
-bool Media_Plugin::PendingTasks(vector<string> *vectPendingTasks)
+bool Media_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
 {
 	g_pPlutoLogger->Write( LV_STATUS, "safe to reload before lock %d %s %d",m_MediaMutex.m_NumLocks,m_MediaMutex.m_sFileName.c_str(),m_MediaMutex.m_Line);
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -3726,11 +3726,11 @@ bool Media_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 		if( vectPendingTasks )
 		{
 			for(map<int, class RippingJob *>::iterator it=m_mapRippingJobs.begin();it!=m_mapRippingJobs.end();++it)
-				vectPendingTasks->push_back("Ripping: " + it->second->m_sName + "\n" + it->second->m_sStatus + "  " + it->second->m_sPercentage);
+				vectPendingTasks->push_back( make_pair<string,string> ("rip","Ripping: " + it->second->m_sName + "\n" + it->second->m_sStatus + "  " + it->second->m_sPercentage));
 		}
-		return false;
+		return true;
 	}
-	return true;
+	return false;
 }
 
 void Media_Plugin::AddOtherDevicesInPipesToRenderDevices(int PK_Pipe, map<int,MediaDevice *> *pmapMediaDevice)
@@ -5420,7 +5420,7 @@ void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string
 	}
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_EK_MediaProvider_CONST,StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get()));
 
-	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse);
+	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,pMessage->m_dwPK_Device_From);
 	SendCommand(CMD_Sync_Providers_and_Cards_Cat);
 }
 //<-dceag-c825-b->
