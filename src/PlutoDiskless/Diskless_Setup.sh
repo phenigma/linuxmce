@@ -341,7 +341,9 @@ for Client in $R; do
 			mv -r $DlPath/var/log/pluto/* /home/log/diskless_$MOON_ID
 			rm -rf $DlPath/var/log/pluto/
 		fi
-		ln -s "/home/logs/diskless_$MOON_ID" "$DlPath/var/log/pluto"
+		if [[ ! -e "$DlPath"/var/log/pluto ]]; then
+			ln -s "/home/logs/diskless_$MOON_ID" "$DlPath/var/log/pluto"
+		fi
 	
 		## Dome configuring this MD
 		Q="UPDATE Device SET NeedConfigure = 0 WHERE PK_Device=$PK_Device"
