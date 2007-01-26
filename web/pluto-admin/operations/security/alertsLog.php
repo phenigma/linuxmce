@@ -22,6 +22,7 @@ function alertsLog($output,$securitydbADO,$dbADO) {
 			<input type="hidden" name="section" value="alertsLog">
 			<input type="hidden" name="action" value="add">
 			';
+
 		$query='
 			SELECT 
 				PK_Alert,
@@ -75,6 +76,7 @@ function multipageAlertsLogs($query, $url, $page_no, $art_pagina,$securitydbADO,
 	else
 		$max_pages = floor( $max_pages );
 
+	$output='';	
 	if($total!=0){
 		$output= '<div align="center">';
 		for($i=0;$i<$max_pages;$i++){
@@ -159,9 +161,9 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 	while($rowAD=$resAD->FetchRow()){
 		$resD=$dbADO->Execute('SELECT * FROM Device LEFT JOIN Device_Device_Related ON FK_Device=PK_Device WHERE PK_Device =?',$rowAD['EK_Device']);
 		while($rowD=$resD->FetchRow()){
-			// snapshot format: alert_[PK_Alert]_cam[camera].png
-			$picPath=$GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'_cam'.$rowD['FK_Device_Related'].'.png';
-			$alertPic=(file_exists($picPath))?$picPath:APPROOT.'include/images/alert_no_pic.png';
+			// snapshot format: alert_[PK_Alert]_cam[camera].jpg
+			$picPath=$GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'_cam'.$rowD['FK_Device_Related'].'.jpg';
+			$alertPic=(file_exists($picPath))?$picPath:APPROOT.'include/images/alert_no_pic.jpg';
 		$out.='
 			<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
 				<td align="center"><img src="include/image.php?imagepath='.$alertPic.'"></td>
@@ -189,17 +191,18 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 }
 
 function deleteAlerts($adate,$securitydbADO){
-
 	$alerts=getAssocArray('Alert','PK_Alert','DetectionTime',$securitydbADO,'WHERE UNIX_TIMESTAMP(DetectionTime) <= UNIX_TIMESTAMP(\''.$adate.'\')');
+	$alertKeys=array_keys($alerts);
+	
 	if(count($alerts)>0){
-		$keys=array_keys($alerts);
+		$alertDevices=getAssocArray('Alert_Device','PK_Alert_Device','PK_Alert_Device',$securitydbADO,'WHERE FK_Alert IN ('.join(',',$alertKeys).')');
+		$keys=array_keys($alertDevices);
 		foreach ($keys AS $key){
 			exec_batch_command('sudo -u root rm '.$GLOBALS['SecurityPicsPath'].'alert_'.$key.'_cam*');
 		}
-		
-		$securitydbADO->Execute('DELETE FROM Alert_Device WHERE FK_Alert IN ('.join(',',$keys).')');
-		$securitydbADO->Execute('DELETE FROM Notification WHERE FK_Alert IN ('.join(',',$keys).')');
-		$securitydbADO->Execute('DELETE FROM Alert WHERE PK_Alert IN ('.join(',',$keys).')');
+		$securitydbADO->Execute('DELETE FROM Alert_Device WHERE FK_Alert IN ('.join(',',$alertKeys).')');
+		$securitydbADO->Execute('DELETE FROM Notification WHERE FK_Alert IN ('.join(',',$alertKeys).')');
+		$securitydbADO->Execute('DELETE FROM Alert WHERE PK_Alert IN ('.join(',',$alertKeys).')');
 	}
 }
 ?>
