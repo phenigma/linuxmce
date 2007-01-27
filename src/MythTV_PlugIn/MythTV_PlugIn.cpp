@@ -71,7 +71,6 @@ bool MythTV_PlugIn::GetConfig()
 	if( !MythTV_PlugIn_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-
 	m_pMySqlHelper_Myth = new MySqlHelper(m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ),"mythconverg");
 	m_pEPGGrid = new EPGGrid(m_pMySqlHelper_Myth);
 
@@ -1566,9 +1565,9 @@ void MythTV_PlugIn::StartScanningScript(Row_Device *pRow_Device,Row_Device *pRow
 
 		string sArguments = StringUtils::itos(pRow_Device->PK_Device_get()) + "\t" + StringUtils::itos(pRow_Device_CaptureCard->PK_Device_get());
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-			sScanningScript,"scanchannels",sArguments,sScanFailed,"",false,false,false,true);
+			"/usr/pluto/bin/" + sScanningScript,"scanchannels",sArguments,sScanFailed,"",false,false,false,true);
 		string sResponse;
-		if( !SendCommand(CMD_Spawn_Application) || sResponse!="OK" )
+		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- app server didn't respond");
 			m_mapPendingScans.erase( pRow_Device->PK_Device_get() );
@@ -1633,6 +1632,10 @@ bool MythTV_PlugIn::ScanningProgress( class Socket *pSocket, class Message *pMes
 	if( iResult!=0 )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::ScanningProgress done for job %d", iPK_Device);
+
+		// See if we've found a tv format, or can otherwise determine the provider
+		CheckForTvFormatAndProvider( iPK_Device );
+
 		DCE::CMD_Sync_Providers_and_Cards CMD_Sync_Providers_and_Cards(m_dwPK_Device,m_dwPK_Device,pScanJob->m_iPK_Orbiter);
 		QueueMessageToRouter(CMD_Sync_Providers_and_Cards.m_pMessage);  // Do this asynchronously
 		m_mapPendingScans.erase(it);
@@ -1643,4 +1646,27 @@ bool MythTV_PlugIn::ScanningProgress( class Socket *pSocket, class Message *pMes
 	pScanJob->m_iPercentCompletion = iValue;
 
 	return false;
+}
+
+void MythTV_PlugIn::CheckForTvFormatAndProvider( int iPK_Device )
+{
+	Row_Device_DeviceData *pRow_Device_DeviceData = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(iPK_Device,DEVICEDATA_Port_CONST);
+	if( !pRow_Device_DeviceData || pRow_Device_DeviceData->IK_DeviceData_get().empty() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::CheckForTvFormatAndProvider cannot determine anything without a port");
+		return;
+	}
+
+	string sSQL = "SELECT DISTINCT tvformat FROM cardinput "
+		"JOIN channel ON cardinput.sourceid=channel.sourceid "
+		"WHERE cardinput.cardid=" + pRow_Device_DeviceData->IK_DeviceData_get();
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( (result.r = m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && ( row=mysql_fetch_row( result.r ) ) )
+	{
+		if( result.r->row_count>1 )
+			g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CheckForTvFormatAndProvider found more than 1 tv format for %d",iPK_Device);
+		DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Video_Standard_CONST,row[0]);
+	}
 }

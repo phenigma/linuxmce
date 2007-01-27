@@ -2514,15 +2514,25 @@ void OSDScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen)
 	ScreenHandlerBase::SCREEN_Choose_Provider_for_Device(PK_Screen);
 
 	// See if there are any pending channel scans.  If so, switch to the screen to wait for the channel scan to finish
-	m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceCategory_Find(DEVICECATEGORY_Media_Player_Plugins_CONST);
-vector< pair<string,string> > vectPendingTasks;
-m_pOrbiter->PendingTasksFromDevice(25,&vectPendingTasks);
-for(vector< pair<string,string> >::iterator it=vectPendingTasks.begin();it!=vectPendingTasks.end();++it)
-{
-	string s = it->first;
-	string s2 = it->second;
-int k=2;
-}
+	vector< pair<string,string> > vectPendingTasks;
+	for(map<int,class DeviceData_Base *>::iterator it = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it != m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
+	{
+		DeviceData_Base *pDevice = it->second;
+		if( pDevice->WithinCategory(DEVICECATEGORY_Media_Player_Plugins_CONST) )
+			m_pOrbiter->PendingTasksFromDevice(pDevice->m_dwPK_Device,&vectPendingTasks);
+	}
+
+	for(vector< pair<string,string> >::iterator it=vectPendingTasks.begin();it!=vectPendingTasks.end();++it)
+	{
+		if( it->first == "channelscan" )
+		{
+			// Send ourselves a message, don't just call CMD_Goto_Screen because we want go back to return here
+			// and this screen isn't in the history yet
+			DCE::SCREEN_Scanning_Progress SCREEN_Scanning_Progress(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device);
+			m_pOrbiter->SendCommand(SCREEN_Scanning_Progress);
+			return;
+		}
+	}
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_DatagridSelected, new DatagridCellBackData());
@@ -2906,5 +2916,27 @@ bool OSDScreenHandler::ChooseProvider_GridRendering(CallBackData *pData)
 			}
 		}
 	}
+	return false;
+}
+
+/*virtual*/ void OSDScreenHandler::SCREEN_Scanning_Progress(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_Scanning_Progress(PK_Screen);
+	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &OSDScreenHandler::Scanning_Progress_GridRendering,	new DatagridAcquiredBackData());
+
+	// Whenever the grid is rendered empty, then we know we're all done and should go back
+}
+
+bool OSDScreenHandler::Scanning_Progress_GridRendering(CallBackData *pData)
+{
+	// This is called every time a new section of the grid is to be rendered.  If the grid is empty, then go back
+	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
+
+	if( pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.empty() )
+	{
+		NeedToRender render2( m_pOrbiter, "OSDScreenHandler::Scanning_Progress_GridRendering" );  // Redraw anything that was changed by this command
+		m_pOrbiter->CMD_Remove_Screen_From_History(m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+	}
+
 	return false;
 }

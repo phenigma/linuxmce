@@ -712,6 +712,7 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 
 		Message *pMessage_Out = new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_PENDING_TASKS,0,0);
 		pMessage_Out->m_mapParameters[0] = sResponse;
+		pMessage->m_bRespondedToMessage=true;
 		SendMessage(pMessage_Out);
 	}
 	else

@@ -1921,7 +1921,7 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 	{
         while( ( row=mysql_fetch_row( result.r ) ) )
 		{
-			Row_Device *pRow_Device = this->m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
+			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
 			if( !pRow_Device )
 				continue; // Shouldn't happen
 
@@ -1945,6 +1945,8 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 			pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Device->PK_Device_get()));
 			pDataGrid->SetData(0,iRow++,pCell);
 
+			Row_Device_DeviceData *pRow_Device_DeviceData_VideoStandard = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Video_Standard_CONST);
+
 			pCell->m_mapAttributes["PK_DeviceTemplate_MediaType"] = row[2];
 
 			Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_EK_MediaProvider_CONST);
@@ -1966,7 +1968,12 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 				&vectRow_ProviderSource);
 		
 			if( vectRow_ProviderSource.size()==0 )
-				pCell->m_mapAttributes["Description"]="None";
+			{
+				if( pRow_Device_DeviceData_VideoStandard && pRow_Device_DeviceData_VideoStandard->IK_DeviceData_get().empty()==false )
+					pCell->m_mapAttributes["Description"] = pRow_Device_DeviceData_VideoStandard->IK_DeviceData_get();
+				else
+					pCell->m_mapAttributes["Description"]="None";
+			}
 			else if( vectRow_ProviderSource.size()==1 )  // There's only 1 to choose from.  Pass the info
 			{
 				Row_ProviderSource *pRow_ProviderSource = vectRow_ProviderSource[0];

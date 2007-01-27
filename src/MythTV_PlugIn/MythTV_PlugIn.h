@@ -177,6 +177,7 @@ public:
 		void PurgeChannelList(); // Purge the list of channels, freeing all memory used
 
 		void StartScanningScript(Row_Device *pRow_Device,Row_Device *pRow_Device_CaptureCard,int iPK_Orbiter,string sScanningScript);
+		void CheckForTvFormatAndProvider( int iPK_Device );
 
 		bool PendingTasks(vector< pair<string,string> > *vectPendingTasks);
 

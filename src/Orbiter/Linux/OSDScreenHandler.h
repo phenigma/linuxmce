@@ -149,6 +149,10 @@ public:
 	bool LightControlCustomRender(CallBackData *pData);
 	virtual void SCREEN_mnuPlaybackControl(long PK_Screen);
 	virtual bool PlayBackControlSelected(CallBackData *pData);
+
+	virtual void SCREEN_Scanning_Progress(long PK_Screen);
+	bool Scanning_Progress_GridRendering(CallBackData *pData);
+
 };
 
 #endif
