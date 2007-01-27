@@ -1710,23 +1710,23 @@ void MythTV_PlugIn::CheckForTvFormatAndProvider( int iPK_Device )
 		return;
 	}
 
-	string sSQL = "SELECT DISTINCT tvformat FROM cardinput "
+	string sSQL = "SELECT DISTINCT modulation,tvformat FROM cardinput "
 		"JOIN channel ON cardinput.sourceid=channel.sourceid "
+		"JOIN dtv_multiplex ON dtv_multiplex.mplexid=channel.mplexid "
 		"WHERE cardinput.cardid=" + pRow_Device_DeviceData->IK_DeviceData_get();
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
-	if( (result.r = m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && ( row=mysql_fetch_row( result.r ) ) )
+	if( (result.r = m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && ( row=mysql_fetch_row( result.r ) ) && row[0] && row[1] )
 	{
 		if( result.r->row_count>1 )
 			g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CheckForTvFormatAndProvider found more than 1 tv format for %d",iPK_Device);
 		DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Type_CONST,row[0]);
 
 		// TEMP -- remove this before .44
-		if( strcmp(row[0],"ATSC")==0 )
+		if( strcmp(row[0],"8vsb")==0 && strcmp(row[1],"ATSC")==0 )
 			m_pMedia_Plugin->CMD_Specify_Media_Provider(iPK_Device,"paulhuber2005\tmsvirus1\t46\t2\tPC:94066");
-		else if( strcmp(row[0],ss"ATSC")==0 )
+		else if( strcmp(row[0],"qam_256")==0 )
 			m_pMedia_Plugin->CMD_Specify_Media_Provider(iPK_Device,"paulhuber2005\tmsvirus1\t46\t2\tCA04684:X");
-		xx
 	}
 }
