@@ -147,7 +147,7 @@ static int cmd_scan_callback_lock(uint32_t DeviceID, unsigned int Tuner, int car
 		/* No signal */
 		sprintf(Message,
 			"/usr/pluto/bin/MessageSend dcerouter -targetType template 0 36 2 72 26 %d 20 0 30 %d 13 \"%lu: no signal\"",
-			g_PK_Device,g_scan_total_count / g_scan_current_count,(unsigned long)g_Frequency);
+			g_PK_Device,g_scan_current_count * 100 / g_scan_total_count,(unsigned long)g_Frequency);
 printf("%s\n",Message);
 		system(Message);
 		printf("%lu: no signal\n", (unsigned long)g_Frequency);
@@ -158,7 +158,7 @@ printf("%s\n",Message);
 		/* Unsupported signal */
 		sprintf(Message,
 			"/usr/pluto/bin/MessageSend dcerouter -targetType template 0 36 2 72 26 %d 20 0 30 %d 13 \"%lu: unsupported signal\"",
-			g_PK_Device,g_scan_total_count / g_scan_current_count,(unsigned long)g_Frequency);
+			g_PK_Device,g_scan_current_count * 100 / g_scan_total_count,(unsigned long)g_Frequency);
 printf("%s\n",Message);
 		system(Message);
 		printf("%lu: unsupported signal\n", (unsigned long)g_Frequency);
@@ -225,7 +225,7 @@ printf("%d recs %s\n",(int) pMYSQL_RES->row_count,sSQL);
 
 	sprintf(Message,
 		"/usr/pluto/bin/MessageSend dcerouter -targetType template 0 36 2 72 26 %d 20 0 30 %d 13 \"%s:%lu signal found\n\"",
-		g_PK_Device,g_scan_total_count / g_scan_current_count,lock, (unsigned long)g_Frequency);
+		g_PK_Device,g_scan_current_count * 100 / g_scan_total_count,lock, (unsigned long)g_Frequency);
 printf("%s\n",Message);
 	printf("%s:%lu signal found: sql: %s\n", lock, (unsigned long)g_Frequency, sSQL);
 	return 1;

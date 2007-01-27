@@ -1041,13 +1041,23 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 					sourceid = atoi(row2[0]);
 				else
 				{
-					bModifiedRows=true;
-					// The data direct shouldn't be hardcoded
-					sSQL = "INSERT INTO `videosource`(name,xmltvgrabber) VALUES ('" + sProviderName + "','datadirect')";
-					sourceid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
+					// It's possible this was already added as an 'unknown' source.  If so convert that record instead
+					sSQL = "SELECT cardinput.sourceid FROM cardinput JOIN videosource ON cardinput.sourceid=videosource.sourceid "
+						"WHERE cardid=" + StringUtils::itos(cardid) + " AND inputname = '" + sPortName + "' AND videosource.name like 'UNKNOWN%'";
+
+					PlutoSqlResult result_set2;
+					if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set2.r)) && atoi(row2[0]) )
+						sourceid = atoi(row2[0]);
+					else
+					{
+						bModifiedRows=true;
+						// The data direct shouldn't be hardcoded
+						sSQL = "INSERT INTO `videosource`(name,xmltvgrabber) VALUES ('" + sProviderName + "','datadirect')";
+						sourceid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
+					}
 				}
 
-				sSQL = "UPDATE `videosource` SET userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE name='" + sProviderName + "'";
+				sSQL = "UPDATE `videosource` SET name='" + sProviderName + "',userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE sourceid=" + StringUtils::itos(sourceid);
 				if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
 					bModifiedRows=true;
 
@@ -1580,6 +1590,18 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 		return;
 	}
 
+	// Before we start be sure the block device is in the database
+	bool bTunersAsSeparateDevices = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pScanJob->m_pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Children_as_Separate_Tuners_CONST)=="1";
+	int cardid = atoi(DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,bTunersAsSeparateDevices ? pScanJob->m_pRow_Device_Tuner->PK_Device_get() : pScanJob->m_pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST).c_str());
+	string sBlockDevice = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pScanJob->m_pRow_Device_Tuner->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
+	if( sBlockDevice.empty() )
+		sBlockDevice = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pScanJob->m_pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
+	if( sBlockDevice.empty()==false )
+	{
+		string sSQL = "UPDATE `capturecard` set videodevice='" + sBlockDevice + "' WHERE cardid=" + StringUtils::itos(cardid);
+		m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
+	}
+
 	DeviceData_Base *pDevice_App_Server = (DeviceData_Router *) m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
 	if( pDevice_App_Server )
 	{
@@ -1634,7 +1656,7 @@ bool MythTV_PlugIn::PendingTasks(vector< pair<string,string> > *vectPendingTasks
 					sDesc += StringUtils::itos(pScanJob->m_iPercentCompletion) + "% ";
 				else
 					sDesc += "waiting...";
-				vectPendingTasks->push_back( make_pair<string,string> ("channelscan",sDesc) );
+				vectPendingTasks->push_back( make_pair<string,string> ("channelscan",sDesc + "\n" + pScanJob->m_sStatus) );
 			}
 		}
 		return false;
@@ -1698,8 +1720,10 @@ void MythTV_PlugIn::CheckForTvFormatAndProvider( int iPK_Device )
 	{
 		if( result.r->row_count>1 )
 			g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CheckForTvFormatAndProvider found more than 1 tv format for %d",iPK_Device);
-		DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Video_Standard_CONST,row[0]);
-	}
+		DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Type_CONST,row[0]);
 
-//	xx add provider
+		// TEMP -- remove this before .44
+		if( strcmp(row[0],"ATSC")==0 )
+			m_pMedia_Plugin->CMD_Specify_Media_Provider(iPK_Device,"paulhuber2005\tmsvirus1\t46\t2\tPC:94066");
+	}
 }

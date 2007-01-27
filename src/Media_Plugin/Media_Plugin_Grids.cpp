@@ -1945,7 +1945,7 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 			pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Device->PK_Device_get()));
 			pDataGrid->SetData(0,iRow++,pCell);
 
-			Row_Device_DeviceData *pRow_Device_DeviceData_VideoStandard = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Video_Standard_CONST);
+			Row_Device_DeviceData *pRow_Device_DeviceData_VideoStandard = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Type_CONST);
 
 			pCell->m_mapAttributes["PK_DeviceTemplate_MediaType"] = row[2];
 
@@ -1959,7 +1959,11 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 				Row_ProviderSource *pRow_ProviderSource = pRow_MediaProvider->FK_ProviderSource_getrow();
 				if( pRow_ProviderSource )
 					pCell->m_mapAttributes["MediaProvider_Selected"] = pRow_ProviderSource->Description_get();
+				else if( pRow_Device_DeviceData_VideoStandard )
+					pCell->m_mapAttributes["MediaProvider_Selected"] = pRow_Device_DeviceData_VideoStandard->IK_DeviceData_get();
 			}
+			else if( pRow_Device_DeviceData_VideoStandard )
+				pCell->m_mapAttributes["MediaProvider_Selected"] = pRow_Device_DeviceData_VideoStandard->IK_DeviceData_get();
 
 			// See what we have as the media providers for this type
 			vector<Row_ProviderSource *> vectRow_ProviderSource;
@@ -1968,12 +1972,7 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 				&vectRow_ProviderSource);
 		
 			if( vectRow_ProviderSource.size()==0 )
-			{
-				if( pRow_Device_DeviceData_VideoStandard && pRow_Device_DeviceData_VideoStandard->IK_DeviceData_get().empty()==false )
-					pCell->m_mapAttributes["Description"] = pRow_Device_DeviceData_VideoStandard->IK_DeviceData_get();
-				else
-					pCell->m_mapAttributes["Description"]="None";
-			}
+				pCell->m_mapAttributes["Description"]="None";
 			else if( vectRow_ProviderSource.size()==1 )  // There's only 1 to choose from.  Pass the info
 			{
 				Row_ProviderSource *pRow_ProviderSource = vectRow_ProviderSource[0];
