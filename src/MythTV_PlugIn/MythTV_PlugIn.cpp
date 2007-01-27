@@ -48,6 +48,7 @@ using namespace DCE;
 
 #define MINIMUM_MYTH_SCHEMA		1123
 #define CHECK_FOR_NEW_RECORDINGS	1
+#define SYNC_PROVIDERS				2
 
 #include "../Orbiter_Plugin/OH_Orbiter.h"
 
@@ -122,7 +123,8 @@ bool MythTV_PlugIn::Register()
     /** Get a pointer to the media plugin */
 	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
-	if( !m_pDatagrid_Plugin || !m_pMedia_Plugin )
+	m_pGeneral_Info_Plugin=( General_Info_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
+	if( !m_pDatagrid_Plugin || !m_pMedia_Plugin || !m_pGeneral_Info_Plugin )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
 		return false;
@@ -1283,6 +1285,11 @@ void MythTV_PlugIn::AlarmCallback(int id, void* param)
 {
 	if( id==CHECK_FOR_NEW_RECORDINGS )
 		CheckForNewRecordings();
+	else if( id==SYNC_PROVIDERS )
+	{
+		ScanJob *pScanJob = (ScanJob *) param;
+		StartScanJob(pScanJob);
+	}
 }
 
 bool MythTV_PlugIn::NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -1542,50 +1549,70 @@ void MythTV_PlugIn::CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Si
 	}
 }
 
-void MythTV_PlugIn::StartScanningScript(Row_Device *pRow_Device,Row_Device *pRow_Device_CaptureCard,int iPK_Orbiter,string sScanningScript)
+void MythTV_PlugIn::StartScanningScript(Row_Device *pRow_Device_Tuner,Row_Device *pRow_Device_CaptureCard,int iPK_Orbiter,string sScanningScript)
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
-	map< int, ScanJob * >::iterator it=m_mapPendingScans.find( pRow_Device->PK_Device_get() );
+	map< int, ScanJob * >::iterator it=m_mapPendingScans.find( pRow_Device_Tuner->PK_Device_get() );
 	if( it!=m_mapPendingScans.end() )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d already scanning", pRow_Device->PK_Device_get(), pRow_Device_CaptureCard->PK_Device_get() );
+		g_pPlutoLogger->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d already scanning", pRow_Device_Tuner->PK_Device_get(), pRow_Device_CaptureCard->PK_Device_get() );
+		return;
+	}
+
+	ScanJob *pScanJob = new ScanJob( pRow_Device_CaptureCard, pRow_Device_Tuner, iPK_Orbiter, sScanningScript );
+	m_mapPendingScans[ pScanJob->m_pRow_Device_Tuner->PK_Device_get() ] = pScanJob;
+	StartScanJob(pScanJob);
+}
+
+void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
+{
+	if( pScanJob->m_bActive )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d active", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get());
+		return;
+	}
+
+	// If we're still busy downloading packages we don't want to do this yet since the files may not be installed yet
+	if( m_pGeneral_Info_Plugin->PendingTasks() )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d waiting for packages", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
+		m_pAlarmManager->AddRelativeAlarm(30,this,SYNC_PROVIDERS,(void *) pScanJob);  /* check again in 30 seconds */
 		return;
 	}
 
 	DeviceData_Base *pDevice_App_Server = (DeviceData_Router *) m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
 	if( pDevice_App_Server )
 	{
-		ScanJob *pScanJob = new ScanJob( pRow_Device->PK_Device_get(), pRow_Device_CaptureCard->PK_Device_get(), iPK_Orbiter, sScanningScript );
-		m_mapPendingScans[ pRow_Device->PK_Device_get() ] = pScanJob;
-
 		string sScanFailed = "0 -1000 2 " TOSTRING(EVENT_Channel_Scan_Progress_CONST) " " 
-			TOSTRING(EVENTPARAMETER_PK_Device_CONST) " " + StringUtils::itos( pRow_Device->PK_Device_get() ) + " "
+			TOSTRING(EVENTPARAMETER_PK_Device_CONST) " " + StringUtils::itos( pScanJob->m_pRow_Device_Tuner->PK_Device_get() ) + " "
 			TOSTRING(EVENTPARAMETER_Result_CONST) " -1 "
 			TOSTRING(EVENTPARAMETER_Text_CONST) " \"Failed to start\" ";
 
-		string sArguments = StringUtils::itos(pRow_Device->PK_Device_get()) + "\t" + StringUtils::itos(pRow_Device_CaptureCard->PK_Device_get());
+		string sArguments = StringUtils::itos(pScanJob->m_pRow_Device_Tuner->PK_Device_get()) + "\t" + StringUtils::itos(pScanJob->m_pRow_Device_CaptureCard->PK_Device_get());
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-			"/usr/pluto/bin/" + sScanningScript,"scanchannels",sArguments,sScanFailed,"",false,false,false,true);
+			"/usr/pluto/bin/" + pScanJob->m_sScanJob,"scanchannels",sArguments,sScanFailed,"",false,false,false,true);
 		string sResponse;
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- app server didn't respond");
-			m_mapPendingScans.erase( pRow_Device->PK_Device_get() );
-			pRow_Device_CaptureCard->NeedConfigure_set(1);
-			pRow_Device->NeedConfigure_set(1);
+			m_pAlarmManager->AddRelativeAlarm(30,this,SYNC_PROVIDERS,(void *) pScanJob);  /* check again in 30 seconds */
+			pScanJob->m_pRow_Device_CaptureCard->NeedConfigure_set(1);
+			pScanJob->m_pRow_Device_Tuner->NeedConfigure_set(1);
 		}
 		else
 		{
-			pRow_Device_CaptureCard->NeedConfigure_set(0);
-			pRow_Device->NeedConfigure_set(0);
+			pScanJob->m_bActive=true;
+			pScanJob->m_pRow_Device_CaptureCard->NeedConfigure_set(0);
+			pScanJob->m_pRow_Device_Tuner->NeedConfigure_set(0);
 		}
 	}
 	else
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- no app server");
-		pRow_Device_CaptureCard->NeedConfigure_set(1);
-		pRow_Device->NeedConfigure_set(1);
-		m_mapPendingScans.erase( pRow_Device->PK_Device_get() );
+		pScanJob->m_pRow_Device_CaptureCard->NeedConfigure_set(1);
+		pScanJob->m_pRow_Device_Tuner->NeedConfigure_set(1);
+		m_mapPendingScans.erase( pScanJob->m_pRow_Device_Tuner->PK_Device_get() );
+		delete pScanJob;
 	}
 	m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->Commit();
 }
@@ -1602,9 +1629,12 @@ bool MythTV_PlugIn::PendingTasks(vector< pair<string,string> > *vectPendingTasks
 			for( map< int, ScanJob * >::iterator it=m_mapPendingScans.begin();it!=m_mapPendingScans.end();++it )
 			{
 				ScanJob *pScanJob = it->second;
-				Row_Device *pRow_Device_Card = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow(pScanJob->m_iPK_Device_CaptureCard);
-				if( pRow_Device_Card ) // Should always be true
-					vectPendingTasks->push_back( make_pair<string,string> ("channelscan","Scanning for channels: " + pRow_Device_Card->Description_get() + " / " + pScanJob->m_sStatus + "\n") );
+				string sDesc = "Scanning for channels: " + pScanJob->m_pRow_Device_CaptureCard->Description_get() + "/" + pScanJob->m_pRow_Device_Tuner->Description_get() + " ";
+				if( pScanJob->m_bActive )
+					sDesc += StringUtils::itos(pScanJob->m_iPercentCompletion) + "% ";
+				else
+					sDesc += "waiting...";
+				vectPendingTasks->push_back( make_pair<string,string> ("channelscan",sDesc) );
 			}
 		}
 		return false;
@@ -1639,6 +1669,7 @@ bool MythTV_PlugIn::ScanningProgress( class Socket *pSocket, class Message *pMes
 		DCE::CMD_Sync_Providers_and_Cards CMD_Sync_Providers_and_Cards(m_dwPK_Device,m_dwPK_Device,pScanJob->m_iPK_Orbiter);
 		QueueMessageToRouter(CMD_Sync_Providers_and_Cards.m_pMessage);  // Do this asynchronously
 		m_mapPendingScans.erase(it);
+		delete pScanJob;
 		return false;
 	}
 
@@ -1669,4 +1700,6 @@ void MythTV_PlugIn::CheckForTvFormatAndProvider( int iPK_Device )
 			g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CheckForTvFormatAndProvider found more than 1 tv format for %d",iPK_Device);
 		DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Video_Standard_CONST,row[0]);
 	}
+
+//	xx add provider
 }

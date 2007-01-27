@@ -136,10 +136,7 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,Row_Pnp
 	ParseDeviceData(m_pRow_PnpQueue->Parms_get());
 	FindTopLevelDevice();
 
-	// If we haven't yet determined the device template, start at the beginning.
-	// m_mapPK_DHCPDevice_possible isn't stored in the database
-	if( m_pRow_PnpQueue->FK_DeviceTemplate_get()==0 )
-		m_pRow_PnpQueue->Stage_set( m_pRow_PnpQueue->Removed_get()==1 ? PNP_REMOVE_STAGE_REMOVED : PNP_DETECT_STAGE_DETECTED );
+	m_pRow_PnpQueue->Stage_set( m_pRow_PnpQueue->Removed_get()==1 ? PNP_REMOVE_STAGE_REMOVED : PNP_DETECT_STAGE_DETECTED );
 }
 
 void PnpQueueEntry::Stage_set(int Stage)

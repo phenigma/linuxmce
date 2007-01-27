@@ -17,6 +17,7 @@
 #include "../Media_Plugin/Media_Plugin.h"
 #include "../Media_Plugin/MediaHandlerBase.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
+#include "General_Info_Plugin/General_Info_Plugin.h"
 
 #include "MythTvMediaStream.h"
 
@@ -68,16 +69,18 @@ namespace DCE
 	class ScanJob
 	{
 	public:
-		ScanJob(int iPK_Device_Tuner,int iPK_Device_CaptureCard,int iPK_Orbiter,string sScanJob)
+		Row_Device *m_pRow_Device_CaptureCard,*m_pRow_Device_Tuner;
+		int m_iPK_Orbiter,m_iPercentCompletion;
+		string m_sScanJob,m_sStatus;
+		bool m_bActive;
+		ScanJob(Row_Device *pRow_Device_CaptureCard,Row_Device *pRow_Device_Tuner,int iPK_Orbiter,string sScanJob)
 		{
-			m_iPK_Device_Tuner=iPK_Device_Tuner;
-			m_iPK_Device_CaptureCard=iPK_Device_CaptureCard;
+			m_pRow_Device_Tuner=pRow_Device_Tuner;
+			m_pRow_Device_CaptureCard=pRow_Device_CaptureCard;
 			m_iPK_Orbiter=iPK_Orbiter;
 			m_sScanJob=sScanJob;
+			m_bActive=false;
 		}
-		int m_iPK_Device_Tuner,m_iPK_Device_CaptureCard,m_iPK_Orbiter,m_iPercentCompletion;
-		string m_sScanJob,m_sStatus;
-
 	};
 
     //<-dceag-decl-b->!
@@ -130,6 +133,7 @@ public:
     private:
         // Database_FakeEPG *m_pDatabase_FakeEPG;
         class Datagrid_Plugin *m_pDatagrid_Plugin;
+		class General_Info_Plugin *m_pGeneral_Info_Plugin;
 		map<int,MythChannel *> m_mapMythChannel;  // A Channel ID to channel info
 		MythChannel *m_mapMythChannel_Find(int chanid) { map<int,class MythChannel *>::iterator it = m_mapMythChannel.find(chanid); return it==m_mapMythChannel.end() ? NULL : (*it).second; }
 		map<int,ListMythChannel> m_map_listMythChannel; // User ID to a sorted list of that users channels with favorites first
@@ -176,7 +180,8 @@ public:
 		void BuildChannelList(); // Build a list of all channels with their icons and store as MythChannel objects in m_mapMythChannel, and store sorted versions in m_map_listMythChannel
 		void PurgeChannelList(); // Purge the list of channels, freeing all memory used
 
-		void StartScanningScript(Row_Device *pRow_Device,Row_Device *pRow_Device_CaptureCard,int iPK_Orbiter,string sScanningScript);
+		void StartScanningScript(Row_Device *pRow_Device_Tuner,Row_Device *pRow_Device_CaptureCard,int iPK_Orbiter,string sScanningScript);
+		void StartScanJob(ScanJob *pScanJob);
 		void CheckForTvFormatAndProvider( int iPK_Device );
 
 		bool PendingTasks(vector< pair<string,string> > *vectPendingTasks);

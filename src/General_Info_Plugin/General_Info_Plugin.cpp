@@ -677,7 +677,8 @@ bool General_Info_Plugin::PendingTasks(vector< pair<string,string> > *vectPendin
 		if( it->second )
 		{
 			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(it->first);
-			vectPendingTasks->push_back( make_pair<string,string> ("download","Still downloading packages m_mapMediaDirectors_PendingConfig on: " + (pRow_Device ? pRow_Device->Description_get() : StringUtils::itos(it->first))));
+			if( vectPendingTasks )
+				vectPendingTasks->push_back( make_pair<string,string> ("download","Still downloading packages m_mapMediaDirectors_PendingConfig on: " + (pRow_Device ? pRow_Device->Description_get() : StringUtils::itos(it->first))));
 			g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks m_mapMediaDirectors_PendingConfig md %d is busy",it->first);
 			bPendingTasks=true;
 		}
