@@ -5420,7 +5420,7 @@ void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string
 	}
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_EK_MediaProvider_CONST,StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get()));
 
-	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,pMessage->m_dwPK_Device_From);
+	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,pMessage ? pMessage->m_dwPK_Device_From : NULL);
 	SendCommand(CMD_Sync_Providers_and_Cards_Cat);
 }
 //<-dceag-c825-b->

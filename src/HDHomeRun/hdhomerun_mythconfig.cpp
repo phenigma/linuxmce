@@ -201,6 +201,11 @@ printf("%d recs %s\n",(int) pMYSQL_RES->row_count,sSQL);
 		pModulation = "8vsb";
 		pSisStandard = "atsc";
 	}
+	else if( strstr(g_szCallback_Lock,"qam256") )
+	{
+		pModulation = "qam_256";
+		pSisStandard = "atsc";
+	}
 
 	if( pModulation==NULL )
 	{
@@ -237,14 +242,25 @@ static int cmd_scan_callback_program(uint32_t DeviceID, unsigned int Tuner, int 
 		return 1;
 	}
 
-	char str_copy[1000];
+	if( strstr(str,"encrypted")!=NULL )
+	{
+		printf("Skipping encrypted channel: %s\n", str);
+		return 1;
+	}
+	else if( strstr(str,"no data")!=NULL )
+	{
+		printf("Skipping empty channel: %s\n", str);
+		return 1;
+	}
+
+	char str_copy[1000],CallSign[100];
 	strcpy(str_copy,str);
 
 	int serviceid = atoi(str_copy);
 	char *pChanId = strchr(str_copy,':');
 	if( !pChanId )
 	{
-		printf("Can't find the channel id in %s\n", str_copy);
+		printf("Can't find the channel id in %s\n", str);
 		return 1;
 	}
 	*pChanId=0; // Null terminate it
@@ -252,13 +268,15 @@ static int cmd_scan_callback_program(uint32_t DeviceID, unsigned int Tuner, int 
 	char *pCallSign = strchr(pChanId,' ');
 	if( !pCallSign )
 	{
-		printf("Can't find the call sign in %s\n", str_copy);
-		return 1;
+		printf("Can't find the call sign in %s\n", str);
+		sprintf(CallSign,"UNKNOWN");
+		pCallSign=CallSign;
 	}
-	*pCallSign++=0; // Null terminate it
+	else
+		*pCallSign++=0; // Null terminate it
 
 	printf("current scan: %s\n%s\nservice id: %d chanid: %s callsign %s",g_szCurrentScan,g_szCallback_Lock,serviceid,pChanId,pCallSign);
-	printf("PROGRAM: %s\n", str_copy);
+	printf("PROGRAM: %s\n", str);
 
 	char sSQL[1000];
 	int iresult;
@@ -317,6 +335,62 @@ static int cmd_scan_callback_program(uint32_t DeviceID, unsigned int Tuner, int 
 			" WHERE chanid='%s'"
 			,szChanName,atoi(pFreqId),sourceid,pCallSign,pCallSign,g_mplexid,serviceid
 			,pChanId,pDot,szMythChanId);
+		if( (iresult=mysql_query(g_pMySQL,sSQL))!=0 )
+		{
+			printf("Cannot execute query %s", sSQL);
+			return 1;
+		}
+printf("Updated: %s\n",sSQL);
+	}
+	else if( strstr(g_szCallback_Lock,"qam256") )
+	{
+		char *pFreqId = strstr(g_szCurrentScan,"us-cable:");
+		if( !pFreqId )
+		{
+			printf("Can't find channel in: %s",g_szCallback_Lock);
+			return 1;
+		}
+
+		pFreqId += 9;
+
+		char szMythChanId[40];
+		sprintf(szMythChanId,"%d%d%d", sourceid, atoi(pFreqId), serviceid);
+
+		sprintf(sSQL,
+			"SELECT chanid FROM channel WHERE chanid='%s'",
+			szMythChanId);
+
+		if( (iresult=mysql_query(g_pMySQL,sSQL))!=0 || (pMYSQL_RES = mysql_store_result(g_pMySQL))==NULL )
+		{
+			printf("Error executing query: %s",sSQL);
+			return 1;
+		}
+
+		char szChanName[100];
+		sprintf(szChanName,"%d.%d", atoi(pFreqId), serviceid);
+
+		// Be sure the record is in the database
+		if( pMYSQL_RES->row_count==0 )
+		{
+			sprintf(sSQL,
+				"INSERT INTO channel(chanid) VALUES('%s')",
+				szMythChanId);
+			if( (iresult=mysql_query(g_pMySQL,sSQL))!=0 )
+			{
+				printf("Cannot execute query %s", sSQL);
+				return 1;
+			}
+		}
+
+		// This is just an unknown.  Make it clearer now
+		if( pCallSign==CallSign )
+			sprintf(CallSign,"UNKNOWN_%d.%d", atoi(pFreqId), serviceid);
+
+		sprintf(sSQL,
+			"UPDATE channel SET channum='%s',freqid=%d,sourceid=%d,callsign='%s',name='%s',mplexid=%d,serviceid=%d"
+			" WHERE chanid='%s'"
+			,szChanName,atoi(pFreqId),sourceid,pCallSign,pCallSign,g_mplexid,serviceid
+			,szMythChanId);
 		if( (iresult=mysql_query(g_pMySQL,sSQL))!=0 )
 		{
 			printf("Cannot execute query %s", sSQL);
@@ -499,13 +573,15 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Failed to connect to MySql\n");
 		return 1;
 	}
-/*
-g_Frequency=2;
-strcpy(g_szCurrentScan,"207000000 (us-bcast:12, us-cable:12, us-irc:12)");
-strcpy(g_szCallback_Lock,"8vsb (ss=100 snq=90 seq=100)");
-cmd_scan_callback_program(0,0,0,0,0, "3: 11.1 KNTV-HD");
-*/
+
 	g_PK_Device = atoi(argv[PARM_PK_DEVICE]);
+/*
+g_Frequency=633000000;
+g_mplexid=68;
+strcpy(g_szCurrentScan,"633000000 (us-cable:92, us-irc:92)");
+strcpy(g_szCallback_Lock,"qam256 (ss=98 snq=90 seq=100)");
+cmd_scan_callback_program(93,1,18,8,6, "2: 0.0");
+*/
 	int result = myth_scan( argv[PARM_ID], argv[PARM_TUNER] );
 
 	if( g_pMySQL ) {
