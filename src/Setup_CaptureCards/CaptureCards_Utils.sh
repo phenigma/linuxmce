@@ -9,6 +9,10 @@ UpdatePorts_NoFind()
 	Device="$1" Port="$2"
 	local Q
 
+	if [[ -z "$Port" ]]; then
+		return 1
+	fi
+
 	Q="
 		UPDATE Device_DeviceData
 		SET IK_DeviceData='/dev/$Port'
