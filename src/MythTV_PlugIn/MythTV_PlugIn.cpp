@@ -1665,9 +1665,9 @@ bool MythTV_PlugIn::PendingTasks(vector< pair<string,string> > *vectPendingTasks
 				vectPendingTasks->push_back( make_pair<string,string> ("channelscan",sDesc + "\n" + pScanJob->m_sStatus) );
 			}
 		}
-		return false;
+		return true;
 	}
-	return true;
+	return false;
 }
 
 bool MythTV_PlugIn::ScanningProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
