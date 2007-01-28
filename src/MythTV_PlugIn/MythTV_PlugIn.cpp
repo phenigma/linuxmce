@@ -31,6 +31,7 @@ using namespace DCE;
 #include "../pluto_main/Table_Users.h"
 #include "../pluto_media/Table_LongAttribute.h"
 #include "../pluto_media/Table_MediaProvider.h"
+#include "../pluto_media/Table_ProviderSource.h"
 #include "../pluto_media/Table_Picture.h"
 #include "../pluto_media/Define_FileFormat.h"
 #include "../pluto_media/Define_MediaSubType.h"
@@ -1033,6 +1034,11 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 			int sourceid=0;
 			if( pRow_MediaProvider!=NULL )
 			{
+				Row_ProviderSource *pRow_ProviderSource = pRow_MediaProvider->FK_ProviderSource_getrow();
+				string sGrabber;
+				if( pRow_ProviderSource )
+					sGrabber = pRow_ProviderSource->FillCommandLine_get();
+
 				// See if the provider is in the database already
 				string sProviderName = "Provider " + StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get());
 				sSQL = "SELECT sourceid FROM `videosource` WHERE name='" + sProviderName + "'";
@@ -1052,12 +1058,12 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 					{
 						bModifiedRows=true;
 						// The data direct shouldn't be hardcoded
-						sSQL = "INSERT INTO `videosource`(name,xmltvgrabber) VALUES ('" + sProviderName + "','datadirect')";
+						sSQL = "INSERT INTO `videosource`(name) VALUES ('" + sProviderName + "')";
 						sourceid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 					}
 				}
 
-				sSQL = "UPDATE `videosource` SET name='" + sProviderName + "',userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE sourceid=" + StringUtils::itos(sourceid);
+				sSQL = "UPDATE `videosource` SET name='" + sProviderName + "',xmltvgrabber='" + sGrabber + "',userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE sourceid=" + StringUtils::itos(sourceid);
 				if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
 					bModifiedRows=true;
 
