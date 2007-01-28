@@ -325,6 +325,15 @@ function GeneratePassword() {
         echo $pass
 }
 
+function GeneratePasswordOf6Digits()
+{
+	local pass
+	for ((i = 0; i < 6; i++)); do
+		pass="${pass}$((RANDOM % 10))"
+	done
+	echo "$pass"
+}
+
 Log()
 {
 	local File="$1"; shift

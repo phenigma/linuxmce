@@ -62,7 +62,7 @@ EnableRA()
 		password=${password#*=}
 	else
 		. /usr/pluto/bin/Utils.sh
-		password="$(GeneratePassword)"
+		password="$(GeneratePasswordOf6Digits)"
 	fi
 	ConfSet remote "$password"
 
