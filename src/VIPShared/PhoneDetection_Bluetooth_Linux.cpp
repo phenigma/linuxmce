@@ -102,22 +102,26 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 	/* Check for unlimited responses */
 	if (num_rsp <= 0)
 		num_rsp = 255;
-/*  this code would be needed if we wanted to support multiple dongles and specify the correct one by mac address
-	dev_id = hci_devid(m_sDongleMacAddress.c_str());
-	if (dev_id < 0) 
+
+	//this code is needed if we wanted to support multiple dongles and specify the correct one by mac address
+	string sMacAddress = MacAddress();
+	if(!sMacAddress.empty())
 	{
-		dev_id = hci_get_route(NULL);
-		if (dev_id < 0)
+		dev_id = hci_devid(sMacAddress.c_str());
+		if (dev_id < 0) 
 		{
-			printf("Can't get an ID for bluetooth dongle.");
-			return;
-		}
-		else
-		{
-			printf("Bluetooth dongle %s not found, using hci0.", m_sDongleMacAddress.c_str());
+			dev_id = hci_get_route(NULL);
+			if (dev_id < 0)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Can't get an ID for bluetooth dongle.");
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Bluetooth dongle %s not found, using hci0.", sMacAddress.c_str());
+			}
 		}
 	}
-*/
+
 	/* Open the HCI device */
 	dd = hci_open_dev(dev_id);
 	if (dd < 0)

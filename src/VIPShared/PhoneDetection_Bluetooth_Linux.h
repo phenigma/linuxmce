@@ -35,6 +35,8 @@ public:
 
     virtual int GetLinkQuality(const char *addr);	   
 
+	virtual string MacAddress() { return "";}
+
 protected:
 	// This function needs to be overridden 
 	virtual bool ScanningLoop();
