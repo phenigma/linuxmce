@@ -77,7 +77,7 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 	bool bNeedToUpdateDb = false;
 	bool bNeedtoUpdateFile = false;
 
-	string sCurrentFileDate = ReadFileInfo(sDirectory + "/" + sFile);
+	string sCurrentFileDate = ReadMediaFileInfo(sDirectory + "/" + sFile);
 
 	MapMediaState::iterator it = m_mapMediaState.find(make_pair(sDirectory, sFile));
 	if(it != m_mapMediaState.end())
@@ -150,7 +150,7 @@ void MediaState::FileSynchronized(Database_pluto_media *pDatabase_pluto_media, s
 
 	string sUpdateSql = "UPDATE File SET ";
 
-	string sFileTimestamp = ReadFileInfo(sDirectory + "/" + sFile);
+	string sFileTimestamp = ReadMediaFileInfo(sDirectory + "/" + sFile);
 	sUpdateSql += "ModificationDate = '" + sFileTimestamp + "', ";
 	item.m_sOldFileDate = sFileTimestamp;
 
@@ -167,13 +167,16 @@ void MediaState::FileSynchronized(Database_pluto_media *pDatabase_pluto_media, s
 	m_mapMediaState[make_pair(sDirectory, sFile)] = item;
 }
 //-----------------------------------------------------------------------------------------------------
-string MediaState::ReadFileInfo(string sFilePath)
+string MediaState::ReadMediaFileInfo(string sFilePath)
 {
 #ifdef WIN32
 	struct __stat64 buf;
 #else
 	struct stat64 buf;
 #endif
+
+	if(FileUtils::FileExists(sFilePath + ".id3"))
+		sFilePath += ".id3";
 
 #ifdef WIN32
 	if(!_stat64(sFilePath.c_str(), &buf))
