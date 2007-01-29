@@ -193,16 +193,6 @@ if [ -x /sbin/sysctl -a -r /etc/sysclt.conf ] ;then
 	/sbin/sysctl -e -p /etc/sysctl.conf > /dev/null
 fi
 
-## Mount all local non root filsystems except /proc witch was allready mounted
-Message "Mounting local filesystems"
-
-/bin/mount -v /usr/pluto/var/
-#while [[ ! -f /usr/pluto/var/sambaCredentials.secret ]]; do
-#	Message "Waiting for /usr/pluto/var"
-#	sleep 1
-#done
-/bin/mount -a -v -t nonfs,nosmbfs,noproc
-
 ## Create /tmp/{.ICE-unix, .X11-unix} if they are not present
 find /tmp -maxdepth 1 -mindepth 1 -print0 | xargs -0 rm -rf
 
@@ -268,6 +258,16 @@ fi
 if [[ -x /etc/init.d/nis ]] ;then
 	/etc/init.d/nis start 1>/dev/null # Start nis daemon
 fi
+
+## Mount all local non root filsystems except /proc witch was allready mounted
+Message "Mounting local filesystems"
+
+/bin/mount -v /usr/pluto/var/
+#while [[ ! -f /usr/pluto/var/sambaCredentials.secret ]]; do
+#	Message "Waiting for /usr/pluto/var"
+#	sleep 1
+#done
+/bin/mount -a -v -t nonfs,nosmbfs,noproc
 
 ## Now we can safely mount remoute filesystems
 Message "Mounting remote filesystems"
