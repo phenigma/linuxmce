@@ -102,7 +102,7 @@ extern "C" {
 }
 //<-dceag-plug-e->
 
-//<-dceag-main-b->
+//<-dceag-main-b->!
 int main(int argc, char* argv[]) 
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
@@ -202,7 +202,10 @@ int main(int argc, char* argv[])
 			if( bLocalMode )
 				pPhoto_Screen_Saver->RunLocalMode();
 			else
-				pthread_join(pPhoto_Screen_Saver->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			{
+				if(pPhoto_Screen_Saver->m_RequestHandlerThread)
+					pthread_join(pPhoto_Screen_Saver->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 
@@ -235,7 +238,6 @@ int main(int argc, char* argv[])
 	extern map<int,PlutoLock *> *g_pmapLocks;
 	delete g_pmapLocks;
 	g_pmapLocks = NULL;
-
 
 	if( bReload )
 		return 2;

@@ -30,7 +30,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 class PlutoRectangle;
 class PlutoColor;
 
-#define DETECT_LEAKS
+//#define DETECT_LEAKS
 
 #ifdef DETECT_LEAKS
 class LeaksDetector

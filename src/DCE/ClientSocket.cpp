@@ -212,7 +212,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 		dwFlags |= FD_CLOEXEC;
 		fcntl(m_Socket, F_SETFD, dwFlags);
 #endif
-		OnConnect( PK_DeviceTemplate, sExtraInfo );
+		bSuccess = OnConnect( PK_DeviceTemplate, sExtraInfo );
 	}
 	else
 		m_eLastError=cs_err_CannotConnect;
