@@ -31,23 +31,14 @@ WinListManager::~WinListManager()
 
 void WinListManager::ResetOrbiterWindow()
 {
+#ifdef MAEMO_NOKIA770
+	//no window manager action with nokia 770
+	return;
+#endif
+
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     //special code for xfwm
     g_pPlutoLogger->Write(LV_STATUS, "Special code for xfwm : setting Orbiter to below, then above layer!");
-
-	/*
-    if(!m_pWMController->SetLayer(m_sSdlWindowName, LayerBelow) || !m_pWMController->SetLayer(m_sSdlWindowName, LayerAbove))
-    {
-	    g_pPlutoLogger->Write(LV_WARNING, "Failed to set Orbiter to above layer! Retrying.");
-	    Sleep(100);
-	    if(!m_pWMController->SetLayer(m_sSdlWindowName, LayerBelow) || !m_pWMController->SetLayer(m_sSdlWindowName, LayerAbove))
-	    {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to set Orbiter to above layer!");
-		m_pWMController->SetLayer(m_sSdlWindowName, LayerAbove);
-		return;
-	    }
-    }
-	*/
 
 	const int cnMaxRetries = 100;
 	for(int i = 0; i < cnMaxRetries; ++i)
@@ -356,15 +347,6 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 					sExternalWindowToActivate = sWindowName;
 
 				bResult = bResult && m_pWMController->ActivateWindow(sWindowName);
-/*
-				if( m_bKeepSdlWindowActive && sWindowName!=m_sSdlWindowName )
-				{
-#ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ApplyContext: m_bKeepSdlWindowActive");
-#endif
-					bResult = bResult && m_pWMController->ActivateWindow(m_sSdlWindowName);
-				}
-*/
 			}
 
 			if(!pending_context.IsVisible())
@@ -396,15 +378,6 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 					sExternalWindowToActivate = sWindowName;
 
 				bResult = bResult && m_pWMController->ActivateWindow(sWindowName);
-/*
-				if( m_bKeepSdlWindowActive && sWindowName!=m_sSdlWindowName )
-				{
-#ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ApplyContext: m_bKeepSdlWindowActive");
-#endif
-					bResult = bResult && m_pWMController->ActivateWindow(m_sSdlWindowName);
-				}
-*/
 			}
 		}
 		if( bResult==false )
