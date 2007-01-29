@@ -4,8 +4,6 @@ if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
 	echo "ERROR: Cannot find wizard data";
 	exit 1
 fi
-echo "BLA BLA BLA"
-exit 0
 
 function Setup_Apt_Conffiles {
 	## Setup apt sources.list
@@ -87,13 +85,13 @@ function Create_And_Config_Devices {
 	RunSQL "$Q"
 
 	## Create the Core device and set it's description
-	Core_DT=$(/usr/pluto/bin/CreateDevice -d $DEVICE_TEMPLATE_Core | tee /dev/stderr | tail -1)
-	Q="UPDATE Device SET Description='CORE' WHERE PK_Device='$Core_DT'"
+	Core_PK_Device=$(/usr/pluto/bin/CreateDevice -d $DEVICE_TEMPLATE_Core | tee /dev/stderr | tail -1)
+	Q="UPDATE Device SET Description='CORE' WHERE PK_Device='$Core_PK_Device'"
 	RunSQL "$Q"
 
 	## Create a hybrid if needed
 	if [[ c_deviceType == 2 ]] ;then
-		Hybrid_DT=$(/usr/pluto/bin/CreateDevice -d $DEVICE_TEMPLATE_MediaDirector -C "$Core_DT")
+		Hybrid_DT=$(/usr/pluto/bin/CreateDevice -d $DEVICE_TEMPLATE_MediaDirector -C "$Core_PK_Device")
 		Q="UPDATE Device SET Description='The core/hybrid' WHERE PK_Device='$Hybrid_DT'"
 		RunSQL "$Q"
 	fi
@@ -158,20 +156,82 @@ ff02::3 ip6-allhosts
 "
 	echo "$hosts" >/etc/hosts
 
-#        Q="REPLACE INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES('$CoreDev',32,'$NETsetting')"
-#        RunSQL "$Q"
-#        if [[ "$DHCP" != n && "$DHCP" != N ]]; then
-#                Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
-#                        VALUES($CoreDev, 28, '$DHCPsetting')"
-#                RunSQL "$Q"
-#        fi
+	if [[ "$NetworkInput" != "" ]] ;then
+		error=false
+		Network=""
+		Digits_Count=0
+		for Digits in $(echo $NetworkInput | tr '.' ' ') ;do
+			[[ "$Digits" == *[^0-9]* ]] && error=true
 
+			[[ $Digits -lt 0 || $Digits -gt 255 ]] && error=true
+
+
+			if [[ "$Network" == "" ]] ;then
+				Network="$Digits"
+			else
+				Network="${Network}.${Digits}"
+			fi
+
+			Digits_Count=$(( $Digits_Count + 1 ))
+		done
+		[[ $Digits_Count -lt 1 || $Digits_Count -gt 3 ]] && error=true
+
+		[[ "$error" == "true" ]] && continue
+	else
+		Network="192.168.80"
+		Digits_Count="3"
+	fi
+
+	IntIP="$Network"
+	IntNetmask=""
+	for i in `seq 1 $Digits_Count` ;do
+		if [[ "$IntNetmask" == "" ]] ;then
+			IntNetmask="255"
+		else
+			IntNetmask="${IntNetmask}.255"
+		fi
+	done
+	for i in `seq $Digits_Count 3` ;do
+		if [[ $i == "3" ]] ;then
+			IntIP="${IntIP}.1"
+		else
+			IntIP="${IntIP}.0"
+		fi
+
+		IntNetmask="${IntNetmask}.0"
+	done
+	if [[ "$c_netIfaceNo" == "1" ]] ;then
+		IntIf="$c_netExtName:0"
+	else
+		#InfIf="$c_netIntName"
+		#FIXME: Stop hardcoding this
+		InfIf="eth1"
+	fi
+
+	if [[ "$c_netExtUseDhcp" == "0" ]] ;then
+		NETsetting="$c_netExtName,$c_netExtIP,$c_netExtMask,$c_netExtGateway,$c_netExtDNS1|$InfIf,$InfIP,$IntNetmask"
+	else
+		NETsetting="$c_netExtName,dhcp|$InfIf,$InfIP,$IntNetmask"
+	fi
+	
+
+	NETsetting=$(/usr/pluto/install/Initial_Network_Config.sh "$Network" "$Digits_Count")
+	DHCPsetting=$(/usr/pluto/install/Initial_DHCP_Config.sh "$Network" "$Digits_Count")
+
+	Q="REPLACE INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES('$Core_PK_Device',32,'$NETsetting')"
+	RunSQL "$Q"
+	if [[ "$DHCP" != n && "$DHCP" != N ]]; then
+		Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+			VALUES($Core_PK_Device, 28, '$DHCPsetting')"
+		RunSQL "$Q"
+	fi
 
 	/usr/pluto/bin/Network_Setup.sh
 	/usr/pluto/bin/DHCP_config.sh
 
 }
 
+Core_PK_Device=""
 Setup_Apt_Conffiles
 Setup_Pluto_Conf
 Install_DCERouter
