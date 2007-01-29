@@ -92,7 +92,7 @@ case "$Template" in
 		
 			## Do the mount
 			#echo "$NFS_MOUNT_OPTS $IPaddress:/mnt/device/$StorageDevice"
-			echo "-fstype=pluto-fuse-smb,credentials=/usr/pluto/var/sambaCredentials.secret,dir_mode=0777,file_mode=0777 ://$IPaddress/Storage$StorageDevice\\\$"
+			echo "-fstype=cifs,credentials=/usr/pluto/var/sambaCredentials.secret,dir_mode=0777,file_mode=0777 ://$IPaddress/Storage$StorageDevice\\\$"
 			#echo "-fstype=fuse sshfs\#$IPaddress:/mnt/device/$StorageDevice"
 		fi
 		;;
@@ -138,9 +138,9 @@ case "$Template" in
 		
 		## Do the mount
 		if [[ "$Username" == "" || "$Username" == "guest" ]] ;then
-			echo "-fstype=pluto-fuse-smb,username=guest,guest,dir_mode=0777,file_mode=0777 ://${IPaddress}/${Share}"
+			echo "-fstype=cifs,username=guest,guest,dir_mode=0777,file_mode=0777 ://${IPaddress}/${Share}"
 		else
-			echo "-fstype=pluto-fuse-smb,username=$Username,password=$Password,dir_mode=0777,file_mode=0777 ://${IPaddress}/${Share}"
+			echo "-fstype=cifs,username=$Username,password=$Password,dir_mode=0777,file_mode=0777 ://${IPaddress}/${Share}"
 		fi
 		;;
 
