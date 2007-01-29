@@ -2,6 +2,8 @@
 
 
 void on_Step4_forward_clicked(GtkWidget *widget, gpointer data) {
+	g_queue_push_head(history, (gpointer)STEP4);
+        displayStep5();
 }
 
 
@@ -18,8 +20,7 @@ void displayStep4(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new ("When the system first starts up, what graphical user interface do you want to see?");
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	GtkWidget *label = gtk_label_new_for_wizard ("When the system first starts up, what graphical user interface do you want to see?");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	// Questions

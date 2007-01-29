@@ -5,6 +5,8 @@
 #include <glade/glade.h>
 #include <glib.h>
 
+#include <vte/vte.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -22,6 +24,8 @@
 #include "Step2C.h"
 #include "Step2A.h"
 #include "Step3.h"
+#include "Step4.h"
+#include "Step5.h"
 
 #include "network-common.h"
 
@@ -34,6 +38,8 @@
 #define STEP2C 7
 #define STEP2E 8
 #define STEP3  9
+#define STEP4  10
+#define STEP5  11
 
 GladeXML  *gxml;
 GtkWidget *mainWindow;
@@ -43,7 +49,9 @@ GQueue    *history;
 
 void		cleanupContainer(GtkWidget *widget);
 gchar*		detectCoreIpAddress(void);
+void		write_config_file(void);
 void		on_back_clicked(GObject object, gpointer data);
+GtkWidget*	gtk_label_new_for_wizard(const gchar *text);
 
 #define DT_CORE 1
 #define DT_HYBRID 2

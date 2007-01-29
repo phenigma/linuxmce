@@ -46,8 +46,7 @@ void displayStep2E(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new ("Manual Network Configuration.");
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	GtkWidget *label = gtk_label_new_for_wizard ("Manual Network Configuration.");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	GtkTable *tableNetwork = GTK_TABLE(gtk_table_new(6,2,FALSE));

@@ -26,11 +26,9 @@ void displayStep2A(void) {
 
 	// Wizard text
 	gchar *message = g_strdup_printf("Your external network interface appears to be setup correctly, You have %d network cards, and the card <i>%s</i> is connected to your internet connection with this settings:", setting_netIfaceNo, setting_netExtName);
-	GtkWidget *label = gtk_label_new("");
+	GtkWidget *label = gtk_label_new_for_wizard("");
 	gtk_label_set_markup(GTK_LABEL(label), message);
 	g_free(message);
-	gtk_misc_set_alignment(GTK_MISC(label), 0, .5);
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	GtkTable *tableNetwork = GTK_TABLE(gtk_table_new(6,2,FALSE));
@@ -89,10 +87,8 @@ void displayStep2A(void) {
 	        gtk_table_attach_defaults(tableNetwork, labelDNS2v, 1, 2, 5, 6);
 	gtk_box_pack_start(GTK_BOX(mainBox), GTK_WIDGET(tableNetwork), TRUE, TRUE, 0);
 	
-	GtkWidget *label2 = gtk_label_new("\nDo you want to keep your current configuration for this card ?");
-	gtk_label_set_line_wrap(GTK_LABEL(label2), TRUE);
+	GtkWidget *label2 = gtk_label_new_for_wizard("\nDo you want to keep your current configuration for this card ?");
 	gtk_box_pack_start(GTK_BOX(mainBox), label2, TRUE, TRUE, 0);
-	gtk_misc_set_alignment(GTK_MISC(label2), 0, .5);
 	 
 	// Questions
 	GSList *group = NULL;

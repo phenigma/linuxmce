@@ -12,8 +12,7 @@ void displayStep1B(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new ("I could not detect the IP address associated with your Core computer that's why you need to supply the IP addres manualy.");
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	GtkWidget *label = gtk_label_new_for_wizard ("I could not detect the IP address associated with your Core computer that's why you need to supply the IP addres manualy.");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	GtkWidget *hboxIP = gtk_hbox_new(FALSE, 0);

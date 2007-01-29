@@ -42,25 +42,17 @@ void on_back_clicked(GObject object, gpointer data) {
 				displayStep2E();
 				break;
 			case STEP3:
-				displayStep1A();
+				displayStep3();
+				break;
+			case STEP4:
+				displayStep4();
+				break;
+			case STEP5:
+				displayStep5();
 				break;
 			default:
 				printf("Unknown screen in history [%d]", prevScreen);
 		}
-
-		/*
-		if (!g_ascii_strcasecmp(prevScreen,"Step1A")) {
-			displayStep1A();
-		} else if (!g_ascii_strcasecmp(prevScreen,"Setp1B")) {
-			displayStep1B();
-		} else if (!g_ascii_strcasecmp(prevScreen,"Step1C")) {
-			displayStep1C();
-		} else if (!g_ascii_strcasecmp(prevScreen,"Step1D")) {
-			displayStep1D();
-		} else {
-			printf("Unknown screen in history [%s]\n", prevScreen);
-		}
-		*/
 	} else {
 		printf("No screen in history\n");
 	}
@@ -100,4 +92,54 @@ gchar* detectCoreIpAddress(void) {
 		return NULL;
 	}
 }
-  
+
+GtkWidget* gtk_label_new_for_wizard(const gchar *text) {
+	GtkWidget *label;
+
+	label = gtk_label_new(text);
+	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_set_size_request(label, 450,-1);
+
+	return label;
+}
+
+void write_config_file(void) {
+	gchar *output;
+	if (setting_deviceType != DT_MEDIA_DIRECTOR) {
+		output = g_strdup_printf(
+				"c_deviceType=%d\n"
+				"c_netIfaceNo=%d\n"
+				"c_netExtName='%s'\n"
+				"c_netExtIP='%s'\n"
+				"c_netExtMask='%s'\n"
+				"c_netExtGateway='%s'\n"
+				"c_netExtDNS1='%s'\n"
+				"c_netExtDNS2='%s'\n"
+				"c_netExtUseDhcp=%d\n"
+				"c_runDhcpServer=%d\n"
+				"c_netIntIPN='%s'\n"
+				"c_startupType=%d\n"
+				,setting_deviceType
+				,setting_netIfaceNo
+				,setting_netExtName
+				,setting_netExtIP
+				,setting_netExtMask
+				,setting_netExtGateway
+				,setting_netExtDNS1
+				,setting_netExtDNS2
+				,setting_netExtUseDhcp
+				,setting_runDhcpServer
+				,setting_netIntIPN
+				,setting_startupType
+		);
+	} else {
+		output = g_strdup_printf("COMOEEOMEOME");
+	}
+
+	FILE *conf_file;
+
+	conf_file = fopen("/tmp/mce_wizard_data.sh", "w");
+	g_fprintf(conf_file, "%s", output);
+	fclose(conf_file);
+}

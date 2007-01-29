@@ -7,44 +7,44 @@
 OobsIfaceEthernet* get_external_interface(OobsList *interfaces);
 gboolean connect_test(const gchar* sourceIp);
 
- void start_network_wizard(void) {
-        OobsSession      *oobs_session = oobs_session_get();
-        OobsIfacesConfig *ifaces_config = OOBS_IFACES_CONFIG(oobs_ifaces_config_get(oobs_session));
-        OobsList         *interfaces = oobs_ifaces_config_get_ifaces(ifaces_config ,OOBS_IFACE_TYPE_ETHERNET);
-       OobsHostsConfig  *hosts_config = OOBS_HOSTS_CONFIG(oobs_hosts_config_get(oobs_session));
-       GList            *nameservers = oobs_hosts_config_get_dns_servers(hosts_config);
- 
-       setting_netIfaceNo = 2; // oobs_list_get_n_items(interfaces);
+void start_network_wizard(void) {
+	OobsSession      *oobs_session = oobs_session_get();
+	OobsIfacesConfig *ifaces_config = OOBS_IFACES_CONFIG(oobs_ifaces_config_get(oobs_session));
+	OobsList         *interfaces = oobs_ifaces_config_get_ifaces(ifaces_config, OOBS_IFACE_TYPE_ETHERNET);
+	OobsHostsConfig  *hosts_config = OOBS_HOSTS_CONFIG(oobs_hosts_config_get(oobs_session));
+	GList            *nameservers = oobs_hosts_config_get_dns_servers(hosts_config);
 
-       if (setting_netIfaceNo == 0) {
-               //displayStep2X();
-       } else {
-               OobsIfaceEthernet* iface = get_external_interface(interfaces);
-               if (iface != NULL) {
-                       setting_netExtName    = g_strdup(oobs_iface_get_device_name(OOBS_IFACE(iface)));
-                       setting_netExtIP      = g_strdup(oobs_iface_ethernet_get_ip_address(iface));
-                       setting_netExtMask    = g_strdup(oobs_iface_ethernet_get_network_mask(iface));
-                       setting_netExtGateway = g_strdup(oobs_iface_ethernet_get_gateway_address(iface));
-                       setting_netExtDNS1    = g_list_nth_data(nameservers, 0);
-                       setting_netExtDNS2    = g_list_nth_data(nameservers, 1);
+	setting_netIfaceNo = 2; // oobs_list_get_n_items(interfaces);
+
+	if (setting_netIfaceNo == 0) {
+	       //displayStep2X();
+	} else {
+	       OobsIfaceEthernet* iface = get_external_interface(interfaces);
+	       if (iface != NULL) {
+		       setting_netExtName    = g_strdup(oobs_iface_get_device_name(OOBS_IFACE(iface)));
+		       setting_netExtIP      = g_strdup(oobs_iface_ethernet_get_ip_address(iface));
+		       setting_netExtMask    = g_strdup(oobs_iface_ethernet_get_network_mask(iface));
+		       setting_netExtGateway = g_strdup(oobs_iface_ethernet_get_gateway_address(iface));
+		       setting_netExtDNS1    = g_list_nth_data(nameservers, 0);
+		       setting_netExtDNS2    = g_list_nth_data(nameservers, 1);
 		       setting_netExtUseDhcp = (oobs_iface_ethernet_get_configuration_method(iface) == OOBS_METHOD_STATIC ? FALSE : TRUE);
-                       displayStep2A();
-               } else {
-                       displayStep2C();
-               }
-        }
- }
+		       displayStep2A();
+	       } else {
+		       displayStep2C();
+	       }
+	}
+}
 
 OobsIfaceEthernet* get_external_interface(OobsList *interfaces) {
        OobsListIter iter;
        gboolean valid;
        valid = oobs_list_get_iter_first(interfaces, &iter);
 
-
        while (valid) {
                OobsIfaceEthernet *iface = OOBS_IFACE_ETHERNET(oobs_list_get(interfaces, &iter));
 
                if (oobs_iface_get_configured(OOBS_IFACE(iface)) && oobs_iface_has_gateway(OOBS_IFACE(iface))) {
+		       
                        const gchar *ip = oobs_iface_ethernet_get_ip_address(iface);
 
                        if (connect_test(ip)) {

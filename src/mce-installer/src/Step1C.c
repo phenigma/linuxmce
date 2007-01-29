@@ -30,8 +30,7 @@ void displayStep1C(void) {
 
 	// Wizard text
 	gchar *label_message = g_strdup_printf("I see that you already have a Core in this home at the IP address: %s.  You only need one Core in the home.\n\nI assume this will be a media player coordinated by the core. Is this correct?", setting_coreIP);
-	GtkWidget *label = gtk_label_new (label_message);
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	GtkWidget *label = gtk_label_new_for_wizard (label_message);
 	gtk_box_pack_start(GTK_BOX(mainBox), label, FALSE, FALSE, 0);
 
         // Questions

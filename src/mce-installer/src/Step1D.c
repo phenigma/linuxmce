@@ -20,8 +20,7 @@ void displayStep1D(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new ("You can add media players throughout the home wherever you want media. For very large homes with lots of media players, it might be best to answer ‘No’ and dedicate this Core to only providing the back-end services. \n\nDo you also want to use this Core to act as a media player?");
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	GtkWidget *label = gtk_label_new_for_wizard ("You can add media players throughout the home wherever you want media. For very large homes with lots of media players, it might be best to answer ‘No’ and dedicate this Core to only providing the back-end services. \n\nDo you also want to use this Core to act as a media player?");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
         // Questions
