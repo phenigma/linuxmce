@@ -183,7 +183,14 @@ if [[ -z "$ResolutionSet" ]]; then
 		ResolutionInfo=$(echo $VideoSetting | cut -d '/' -f1)
 		ResX=$(echo $ResolutionInfo | cut -d' ' -f1)
 		ResY=$(echo $ResolutionInfo | cut -d' ' -f2)
-	else
+		if [[ -z "$Refresh" || -z "$ResX" || -z "$ResY" ]]; then
+			Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "Malformed DeviceData: VideoSetting='$VideoSetting'"
+			MalformedVideoSetting='Malformed VideoSetting'
+		fi
+	fi
+
+	# it happened to have malformed video settings, at least once
+	if [[ -n "$MalformedVideoSetting" || -z "$VideoSetting" ]]; then
 		ResX='640'
 		ResY='480'
 		Refresh='60'
@@ -208,6 +215,12 @@ if [[ "$DisplayDriver" == viaprop ]]; then
 fi
 
 Logging "$TYPE" "$SEVERITY_STATUS" "Xconfigure" "Display Driver: $DisplayDriver" >&2
+XorgConfLogging "Display Driver: $DisplayDriver"
+
+if [[ -z "$DisplayDriver" ]]; then
+	XorgConfLogging "Empty display driver. Will not continue. This shouldn't happen"
+	exit 1
+fi
 
 CurrentDisplayDriver=$(awk -f/usr/pluto/bin/X-GetDisplayDriver.awk "$ConfigFile")
 if [[ "$Defaults" == y ]]; then
