@@ -56,8 +56,10 @@ if [ -n "$IsDeb" ]; then
 			rm "/etc/apt/sources.list.test"
 		fi
 
-		apt-get update
-		echo "($?) apt-get update ($?)" >> $LogFile
+		if [[ -x /bin/nc ]] && nc -z deb.plutohome.com 80 ;then
+			apt-get update
+			echo "($?) apt-get update ($?)" >> $LogFile
+		fi
 
 		apt-get -y install "$PackageName" 
 		RetCode="$?"
