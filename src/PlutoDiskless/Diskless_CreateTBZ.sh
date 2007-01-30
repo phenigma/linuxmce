@@ -28,6 +28,29 @@ trap "trap_EXIT" EXIT
 
 ## Run debootstrap to create the base debian system for our MD
 if [[ 1 == 1 ]]; then
+	echo "Creating 'Release' file"
+	Release="Origin: Pluto
+Label: Pluto
+Suite: 20dev
+Version: 2.0.0.44
+Codename: the_thing
+Architectures: i386
+Components: main
+Description: Pluto Home, Brillian Living
+MD5Sum:"
+	pushd /usr/pluto/deb-cache/dists/sarge >/dev/null
+	echo "$Release" >Release
+	gunzip -c main/binary-i386/Packages.gz >main/binary-i386/Packages
+	find main/ -type f -exec md5sum '{}' ';' |
+		while read line; do
+			MD5sum=$(echo "$line" | awk '{ print $1 }')
+			Filename=$(echo "$line" | awk '{ print $2 }')
+			Size=$(stat -c '%s' "$Filename")
+			printf " %s %16u %s\n" "$MD5sum" "$Size" "$Filename" >>Release
+		done
+	# end find
+	popd >/dev/null
+	echo 'Running debootstrap'
 	debootstrap $DISTRIB $TEMP_DIR $MIRROR $DBST_SCRIPT
 else
 	pushd "$TEMP_DIR" >/dev/null
@@ -35,50 +58,19 @@ else
 	popd >/dev/null
 fi
 
-## Preeseed the diskless root with our debconf values so the user
-## won't need to interact with the installer
-while read owner variable type value; do
-	preseed=("${preseed[@]}" "$variable=$value")
-done < /usr/pluto/install/preseed.cfg
-
-preseed=("${preseed[@]}" "debconf/frontend=noninteractive" "debconf/priority=critical")
-
-for setting in "${preseed[@]}"; do
-	variable="${setting%%=*}"
-	value="${setting#*=}"
-	
-	echo ". /usr/share/debconf/confmodule"		>  $TEMP_DIR/tmp/script.sh
-	echo "db_set \"$variable\" \"$value\"" 		>> $TEMP_DIR/tmp/script.sh
-	echo "db_fset \"$variable\" seen true"		>> $TEMP_DIR/tmp/script.sh
-
-	chmod +x $TEMP_DIR/tmp/script.sh
-	chroot $TEMP_DIR /tmp/script.sh
-done
+# set up chroot installation environment
+touch "$TEMP_DIR"/etc/chroot-install
+mv "$TEMP_DIR"/usr/sbin/invoke-rc.d{,.pluto-install}
+mv "$TEMP_DIR"/sbin/start-stop-daemon{,.pluto-install}
 
 ## Create the temporary sources.list file for the media director 
 ## FIXME: maybe we need to make it from scratch ?
 cp /etc/apt/sources.list $TEMP_DIR/etc/apt
 
-## Create a list of devices that will run on the md so we will know
-## what software to preinstall there
-## FIXME: get this list from the database 
-DEVICE_LIST="28 62 1795 5 35 11 1825 26 1808"
-
-## Begin installing the packages needed for the pluto devices
 mkdir -p $TEMP_DIR/usr/pluto/deb-cache
 mount --bind /usr/pluto/deb-cache $TEMP_DIR/usr/pluto/deb-cache
 mount none -t sysfs $TEMP_DIR/sys
 mount none -t proc  $TEMP_DIR/proc
-
-chroot $TEMP_DIR apt-get -y update
-chroot $TEMP_DIR apt-get -y dist-upgrade
-
-touch "$TEMP_DIR"/etc/chroot-install
-mv "$TEMP_DIR"/usr/sbin/invoke-rc.d{,.pluto-install}
-mv "$TEMP_DIR"/sbin/start-stop-daemon{,.pluto-install}
-
-echo "do_initrd = Yes" > $TEMP_DIR/etc/kernel-img.conf
-chroot "$TEMP_DIR" invoke-rc.d exim4 force-stop
 
 echo -en '#!/bin/bash\necho "WARNING: fake invoke-rc.d called"\n' >"$TEMP_DIR"/usr/sbin/invoke-rc.d
 echo -en '#!/bin/bash\necho "WARNING: fake start-stop-daemon called"\n' >"$TEMP_DIR"/sbin/start-stop-daemon
@@ -86,6 +78,51 @@ chmod +x "$TEMP_DIR"/usr/sbin/invoke-rc.d
 chmod +x "$TEMP_DIR"/sbin/start-stop-daemon
 
 cp {,"$TEMP_DIR"}/etc/apt/apt.conf.d/30pluto
+
+echo "localdomain" >$TEMP_DIR/etc/defaultdomain
+
+chroot $TEMP_DIR apt-get -y update
+chroot $TEMP_DIR apt-get -f -y install
+chroot $TEMP_DIR apt-get -f -y dist-upgrade
+
+## Preeseed the diskless root with our debconf values so the user
+## won't need to interact with the installer
+echo 'Constructing preseed'
+while read owner variable type value; do
+	preseed=("${preseed[@]}" "$variable=$value")
+done < /usr/pluto/install/preseed.cfg
+
+preseed=("${preseed[@]}" "debconf/frontend=noninteractive" "debconf/priority=critical")
+
+echo 'Applying preseed'
+mkdir -p $TEMP_DIR/tmp/
+for setting in "${preseed[@]}"; do
+	variable="${setting%%=*}"
+	value="${setting#*=}"
+	
+	echo "export LC_ALL=C"						>  $TEMP_DIR/tmp/script.sh
+	echo ". /usr/share/debconf/confmodule"		>> $TEMP_DIR/tmp/script.sh
+	echo "db_set \"$variable\" \"$value\"" 		>> $TEMP_DIR/tmp/script.sh
+	echo "db_fset \"$variable\" seen true"		>> $TEMP_DIR/tmp/script.sh
+
+	chmod +x $TEMP_DIR/tmp/script.sh
+	chroot $TEMP_DIR /tmp/script.sh
+done
+
+# generate locales
+echo 'Generating locales'
+echo "en_US.UTF-8 UTF-8" >"$TEMP_DIR"/etc/locale.gen
+LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install locales
+#chroot "$TEMP_DIR" locale-gen
+
+## Create a list of devices that will run on the md so we will know
+## what software to preinstall there
+## FIXME: get this list from the database 
+DEVICE_LIST="28 62 1795 5 35 11 1825 26 1808"
+
+## Begin installing the packages needed for the pluto devices
+echo "do_initrd = Yes" > $TEMP_DIR/etc/kernel-img.conf
+chroot "$TEMP_DIR" invoke-rc.d exim4 force-stop
 
 Branch=3
 if [[ "$Branch" == 1 ]]; then # alternative selection
@@ -150,6 +187,8 @@ mv "$TEMP_DIR"/usr/sbin/invoke-rc.d{.pluto-install,}
 rm -f "$TEMP_DIR"/etc/chroot-install
 
 #invoke-rc.d nfs-common restart
+
+chroot "$TEMP_DIR" apt-get clean
 
 mkdir -p "$ARH_DIR"
 pushd "$TEMP_DIR" >/dev/null
