@@ -1,9 +1,20 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Config_Ops.sh
+
 if [ ! -e /etc/mythtv/mysql.txt ]; then
 	echo "Mythtv doesn't seem to be installed here";
 	exit 0;
 fi;
+
+Q="select IK_DeviceData from Device_DeviceData where FK_DeviceData=206"
+AutoConf=$(echo "$Q" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2)
+
+if [[ "$AutoConf" == "1" ]]; then 
+	echo "Auto Configure is set"
+	exit 0
+fi
+
 
 chown -R mythtv.mythtv /etc/mythtv/mysql.txt
 chown root.root /etc/mythtv
@@ -51,13 +62,15 @@ if [ "$isSetup" != 0  ]; then
 fi;
 
 addEntries MasterServerIP       $routerip;
-addEntries MasterServerPort     6143;
+addEntries MasterServerPort     6543;
 
 addEntries BackendServerIP 		$hostip $hostname;
-addEntries BackendServerPort 	6143 	$hostname;
+addEntries BackendServerPort 	6543 	$hostname;
 
 # Change this.  Mythtv plugin will set this to one of the mouted drives
 #addEntries RecordFilePrefix 	/home/mythtv/shows/$hostip $hostname;
+addEntries AutoCommercialFlag	0	$hostname;
+addEntries AutoCommflagWhileRecording	0	$hostname;
 addEntries LiveBufferDir 		/home/mythtv/cache/$hostip $hostname;
 addEntries VertScanPercentage	2	$hostname;
 addEntries HorizScanPercentage	1	$hostname;
