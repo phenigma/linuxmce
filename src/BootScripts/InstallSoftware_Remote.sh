@@ -56,7 +56,12 @@ if [ -n "$IsDeb" ]; then
 			rm "/etc/apt/sources.list.test"
 		fi
 
-		if [[ -x /bin/nc ]] && nc -z deb.plutohome.com 80 ;then
+		if [[ -x /bin/nc ]] ;then
+			if  nc -z deb.plutohome.com 80 ;then
+				apt-get update
+				echo "($?) apt-get update ($?)" >> $LogFile
+			fi
+		else
 			apt-get update
 			echo "($?) apt-get update ($?)" >> $LogFile
 		fi
