@@ -8,12 +8,9 @@ LogFile="/var/log/pluto/ApplyUpdates.log"
 
 ## Failsafe check
 if [[ $OfflineMode == "false" ]] ;then
-	if [[ -x /bin/nc ]] && nc -z plutohome.com 80 && nc -z deb.plutohome.com 80 ;then
-		exit 0
-	fi
 	UpgFix=/usr/pluto/install/UpgradeFix41.sh
 	rm -f "$UpgFix"
-	wget --timeout=3 --tries=1 -P "$(dirname "$UpgFix")" http://plutohome.com/UpgradeFix44.sh 2>/dev/null
+	wget --timeout=2 --tries=1 -P "$(dirname "$UpgFix")" http://plutohome.com/UpgradeFix44.sh 2>/dev/null
 	if [[ -f /usr/pluto/install/UpgradeFix41.sh ]]; then
 		chmod +x /usr/pluto/install/UpgradeFix41.sh
 		if [[ "$(tail -1 /usr/pluto/install/UpgradeFix41.sh)" != "### END ###" ]]; then
@@ -24,7 +21,7 @@ if [[ $OfflineMode == "false" ]] ;then
 		exit $?
 	fi
 
-	wget --timeout=3 --tries=1 -P /tmp http://www.plutohome.com/fallbackUpdate41.txt 2> /dev/null
+	wget --timeout=2 --tries=1 -P /tmp http://www.plutohome.com/fallbackUpdate41.txt 2> /dev/null
 	if [[ -f /tmp/fallbackUpdate41.txt ]]; then
 		apt-get update
 		dpkg --forget-old-unavail
