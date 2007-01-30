@@ -151,6 +151,7 @@ Upgrade_Essential()
 		udev=0.091-0bpo1pluto1
 		initramfs-tools
 		gzip=1.3.5-14
+		makedev=2.3.1-83~bpo.1
 		libfuse2
 		libkrb53
 		libsasl2
