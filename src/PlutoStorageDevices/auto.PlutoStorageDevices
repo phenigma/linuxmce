@@ -14,8 +14,8 @@ LOG_WARN=2
 LOG_ERR=3
 UNIQUE_ID=$RANDOM
 
-#CIFS_FileSystem="cifs"
-CIFS_FileSystem="pluto-fuse-smb"
+CIFS_FileSystem="cifs"
+#CIFS_FileSystem="pluto-fuse-smb"
 
 if [[ "$CIFS_FileSystem" == pluto-fuse-smb ]]; then
 	CIFS_ExtraOpts=",nonempty,auto_cache"
