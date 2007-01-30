@@ -247,8 +247,8 @@ Architectures: i386
 Components: main
 Description: Pluto Home, Brillian Living
 MD5Sum:"
+	pushd /usr/pluto/deb-cache/dists/sarge >/dev/null
 	echo "$Release" >Release
-	pushd /usr/pluto-debcache/dists/sarge >/dev/null
 	gunzip -c main/binary-i386/Packages.gz >main/binary-i386/Packages
 	find main/ -type f -exec md5sum '{}' ';' |
 		while read line; do
