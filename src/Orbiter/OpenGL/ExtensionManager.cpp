@@ -30,6 +30,10 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include <GL/glu.h>
 #include <GL/glext.h>
 
+#ifdef VIA_OVERLAY
+#include "VIA/ViaOverlay.h"
+#endif
+
 #include "Mesh/MeshPainter.h"
 
 ExtensionManager::ExtensionManager(void)
@@ -108,6 +112,10 @@ void ExtensionManager::Resize(int Width, int Height)
 	//glTranslatef(-Width/2, -Height/2, Height);
 	this->Width = Width;
 	this->Height = Height;
+
+#ifdef VIA_OVERLAY
+		ViaOverlay::Instance().WindowResized();
+#endif
 }
 
 /*virtual*/ bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen, 
@@ -149,6 +157,10 @@ void ExtensionManager::Resize(int Width, int Height)
 
 	if(NULL != Screen)
 	{
+#ifdef VIA_OVERLAY
+		ViaOverlay::Instance().WindowCreated(Width, Height);
+#endif
+
 		Resize(Width, Height);
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_CULL_FACE);

@@ -29,6 +29,10 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "Texture/TextureManager.h"
 #include "DatagridAnimationManager.h"
 
+#ifdef VIA_OVERLAY
+#include "VIA/ViaOverlay.h"
+#endif
+
 #include "Simulator.h"
 
 #include "DCE/Logger.h"
@@ -53,7 +57,8 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	HighLightPopup(NULL),
 	ModifyGeometry(0),
 	MilisecondsHighLight(0),
-	m_bNeedToRefresh(true)
+	m_bNeedToRefresh(true),
+	m_bWorldChanged(true)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -140,7 +145,7 @@ bool OpenGL3DEngine::Paint()
 	bool bDatagridAnimation = m_spDatagridAnimationManager->Update();
 	if(bDatagridAnimation)
 	{
-		//baga cod acilea
+		m_bWorldChanged = true;
 	}
 	else
 	{
@@ -175,10 +180,15 @@ bool OpenGL3DEngine::Paint()
 
 	Compose->Paint();
 
-//	if(bDatagridAnimation || NeedUpdateScreen())
+	GL.Flip();
+	
+	if(m_bWorldChanged)
 	{
-//		g_pPlutoLogger->Write(LV_WARNING, "Flip!");
-		GL.Flip();
+		m_bWorldChanged = false;
+
+#ifdef VIA_OVERLAY
+		ViaOverlay::Instance().WorldChanged();
+#endif
 	}
 
 	if (Compose->HasEffects() == false)
@@ -203,7 +213,8 @@ void OpenGL3DEngine::NewScreen(string ScreenName)
 	m_spDatagridAnimationManager->StopPendingAnimations();
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
-	
+	m_bWorldChanged = true;
+
 	if(NULL != OldLayer)
 	{
 		OldLayer->CleanUp(true);
@@ -237,6 +248,7 @@ void OpenGL3DEngine::Setup()
 MeshFrame* OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+	m_bWorldChanged = true;
 
 	DumpScene();
 
@@ -309,8 +321,12 @@ inline void OpenGL3DEngine::DumpScene()
 /*virtual*/ void OpenGL3DEngine::Select(PlutoRectangle* SelectedArea)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+
 	if(NULL == CurrentLayer || NULL == SelectedArea)
 		return;
+
+	m_bWorldChanged = true;
+
 	MeshBuilder MB;
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	//MB.SetTexture(HighSurface);
@@ -371,6 +387,8 @@ inline void OpenGL3DEngine::DumpScene()
 		return;
 	if(NULL == HightlightArea)
 		return;
+
+	m_bWorldChanged = true;
 
 	Compose->UpdateLayers(CurrentLayer, OldLayer);
 	MeshTransform Transform;
@@ -437,6 +455,7 @@ inline void OpenGL3DEngine::DumpScene()
 
 	if(NULL != HighLightFrame)
 	{
+		m_bWorldChanged = true;
 		//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
 		CurrentLayer->RemoveChild(HighLightFrame);
 		HighLightFrame->CleanUp();
@@ -452,6 +471,8 @@ inline void OpenGL3DEngine::DumpScene()
 
 	if(NULL != SelectedFrame)
 	{
+		m_bWorldChanged = true;
+	
 		CurrentLayer->RemoveChild(SelectedFrame);
 		SelectedFrame->CleanUp();
 
@@ -480,6 +501,7 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 		return;
 	}
 
+	m_bWorldChanged = true;
 	OriginalCurrentLayer->RemoveChild(Frame);
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "RemoveMeshFrameFromDesktop: removed object %p, size is not %d", 
@@ -493,6 +515,8 @@ void OpenGL3DEngine::StartFrameDrawing(string ObjectHash)
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::StartFrameDrawing!");
 #endif
+
+	m_bWorldChanged = true;
 	if(NULL != FrameBuilder)
 		EndFrameDrawing("");
 
@@ -506,6 +530,8 @@ void OpenGL3DEngine::StartDatagridDrawing(string ObjectHash)
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::StartFrameDrawing!");
 #endif
+
+	m_bWorldChanged = true;
 	if(NULL != FrameDatagrid)
 		EndDatagridDrawing("");
 
@@ -519,6 +545,8 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
 #endif
+
+	m_bWorldChanged = true;
 	MeshFrame* Result = CurrentLayer;
 	CurrentLayer = FrameDatagrid;
 	FrameDatagrid = NULL;
@@ -531,6 +559,7 @@ void OpenGL3DEngine::InvalidateFrame(string ObjectHash)
 {
 	MeshFrame *pDatagridFrame = CurrentLayer->FindChild(ObjectHash);
 
+	m_bWorldChanged = true;
 	if(NULL != pDatagridFrame)
 	{
 		MeshFrame *pNewDummyDatagridFrame = new MeshFrame(ObjectHash);
@@ -548,6 +577,7 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing(string sObjectHash)
 
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
 
+	m_bWorldChanged = true;
 	MeshFrame* Result = CurrentLayer;
 
 	CurrentLayer = FrameBuilder;
@@ -626,6 +656,7 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 void OpenGL3DEngine::HideHighlightRectangle()
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+	m_bWorldChanged = true;
 
 	if(NULL != HighLightFrame)
 	{
@@ -645,6 +676,7 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)
 	if(ObjectID == "")
 		return;
 
+	m_bWorldChanged = true;
 	MeshFrame *Frame = CurrentLayer->FindChild(ObjectID);
 	if(NULL != Frame)
 		RemoveMeshFrameFromDesktop(Frame);
@@ -670,6 +702,7 @@ void OpenGL3DEngine::AddTopMostObject(string ObjectID)
 		return;
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+	m_bWorldChanged = true;
 	TopMostObjects[ObjectID] = ObjectID;
 }
 
@@ -678,14 +711,17 @@ void OpenGL3DEngine::RemoveTopMostObject(string ObjectID)
 	map<string,string>::iterator Item = TopMostObjects.find(ObjectID);
 	if(Item != TopMostObjects.end())
 		TopMostObjects.erase(Item);
+
+	m_bWorldChanged = true;
 }
 
 void OpenGL3DEngine::UpdateTopMostObjects()
 {
-	if(TopMostObjects.size() == 0)
+	if(TopMostObjects.size() <= 1)
 		return;
 	
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+
 	map<string,string>::iterator Item;
 	for(Item = TopMostObjects.begin(); Item != TopMostObjects.end(); )
 	{
@@ -698,6 +734,7 @@ void OpenGL3DEngine::UpdateTopMostObjects()
 		}
 		else
 		{
+			m_bWorldChanged = true;
 			OriginalCurrentLayer->RemoveChild(Frame);
 			OriginalCurrentLayer->AddChild(Frame);
 			++Item;
@@ -712,6 +749,7 @@ void OpenGL3DEngine::ReplaceMeshInAnimations(MeshFrame *OldFrame, MeshFrame *New
 	g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::ReplaceMeshInAnimations %p/%s with %p/%s",
 		OldFrame, OldFrame->Name().c_str(), NewFrame, NewFrame->Name().c_str());
 
+	m_bWorldChanged = true;
 	MeshFrame *pOldCloneFrame = OriginalCurrentLayer->FindChild(NewFrame->Name());
 	if(NULL != pOldCloneFrame)
 	{

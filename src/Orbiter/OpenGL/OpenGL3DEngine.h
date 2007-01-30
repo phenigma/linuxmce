@@ -72,6 +72,7 @@ class OpenGL3DEngine
 	//setup
 	int MilisecondsHighLight;
 	bool m_bNeedToRefresh;
+	bool m_bWorldChanged;
 
 	virtual void Finalize(void);
 public:
