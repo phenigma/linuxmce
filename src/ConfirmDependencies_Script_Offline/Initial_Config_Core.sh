@@ -245,7 +245,7 @@ Version: 2.0.0.44
 Codename: the_thing
 Architectures: i386
 Components: main
-Description: Pluto Home, Brillian Living
+Description: Pluto Home, Brilliant Living
 MD5Sum:"
 	pushd /usr/pluto/deb-cache/dists/sarge >/dev/null
 	echo "$Release" >Release
