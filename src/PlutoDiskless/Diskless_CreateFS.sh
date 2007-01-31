@@ -48,9 +48,9 @@ InstallKernel()
 
 	cp "$kernel" tmp/
 
-	mount -t proc proc proc
+	#mount -t proc proc proc
 	mount sys sys -t sysfs
-	if ! Kout=$(echo | chroot . dpkg -i --force-all "/tmp/${kernel##*/}" 2>&1); then
+	if ! Kout=$(echo | chroot . apt-get -y -f install "linux-image-$KERNEL_VERSION" 2>&1); then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to install kernel '$KERNEL_VERSION' on '$IP'"
 		echo "Kernel package output was:"
 		echo "$Kout"
@@ -61,7 +61,7 @@ InstallKernel()
 #	chroot . yaird --output /boot/initrd.img-`uname -r`
 #	chroot . chmod 644 /boot/initrd.img-`uname -r`
 
-	umount ./proc
+	#umount ./proc
 	umount ./sys
 }
 
@@ -100,31 +100,30 @@ Upgrade_Monster()
 
 	if [[ -n "$NeededReq" ]]; then
 		#mount -t proc proc proc
-		# TODO: replace scripts that would normally start processes (start-stop-daemon) so they don't -- currently not needed
+		chroot . apt-get -f -y install $NeededReq
 
-		pushd tmp/
-		aptitude download $NeededReq
-		for File in $NeededReq; do
-			Filename=$(echo "$File"*)
-			if [[ -n "$Filename" ]]; then # it was downloaded
-				continue
-			fi
-			cp -v /usr/pluto/deb-cache/dists/sarge/main/binary-i386/"$File"* .
-		done
-		popd
+		#pushd tmp/
+		#aptitude download $NeededReq
+		#for File in $NeededReq; do
+		#	Filename=$(echo "$File"*)
+		#	if [[ -n "$Filename" ]]; then # it was downloaded
+		#		continue
+		#	fi
+		#	cp -v /usr/pluto/deb-cache/dists/sarge/main/binary-i386/"$File"* .
+		#done
+		#popd
 
-		local PkgList
-		PkgList=()
-		for Pkg in $NeededReq; do
-			PkgList=("${PkgList[@]}" $(echo -n ./tmp/${Pkg}_*.deb))
-		done
-		if [[ "${#PkgList[@]}" -gt 0 ]]; then
-			chroot . dpkg -i -GE "${PkgList[@]}"
-		fi
+		#local PkgList
+		#PkgList=()
+		#for Pkg in $NeededReq; do
+		#	PkgList=("${PkgList[@]}" $(echo -n ./tmp/${Pkg}_*.deb))
+		#done
+		#if [[ "${#PkgList[@]}" -gt 0 ]]; then
+			#chroot . dpkg -i -GE "${PkgList[@]}"
+		#fi
 
-		rm -f tmp/*.deb 2>/dev/null
+		#rm -f tmp/*.deb 2>/dev/null
 
-		# TODO: put replaced scripts back
 		#umount ./proc
 	fi
 }
@@ -183,29 +182,28 @@ Upgrade_Essential()
 
 	if [[ -n "$NeededReq" ]]; then
 		#mount -t proc proc proc
-		# TODO: replace scripts that would normally start processes (start-stop-daemon) so they don't -- currently not needed
+		chroot . apt-get -f -y install $NeededReq
 
-		pushd tmp/
-		aptitude download $NeededReq
-		for File in $NeededReq; do
-			Filename=$(echo "$File"*)
-			if [[ -n "$Filename" ]]; then # it was downloaded
-				continue
-			fi
-			cp -v /usr/pluto/deb-cache/dists/sarge/main/binary-i386/"$File"* .
-		done
-		popd
+		#pushd tmp/
+		#aptitude download $NeededReq
+		#for File in $NeededReq; do
+		#	Filename=$(echo "$File"*)
+		#	if [[ -n "$Filename" ]]; then # it was downloaded
+		#		continue
+		#	fi
+		#	cp -v /usr/pluto/deb-cache/dists/sarge/main/binary-i386/"$File"* .
+		#done
+		#popd
 
-		for Pkg in $NeededReq; do
-			if [[ -z "$(echo ./tmp/$Pkg*)" ]]; then
-				Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Package '$Pkg' can't be installed. No deb file."
-			fi
-			chroot . dpkg -i -GE ./tmp/$Pkg*.deb
-		done
+		#for Pkg in $NeededReq; do
+		#	if [[ -z "$(echo ./tmp/$Pkg*)" ]]; then
+		#		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Package '$Pkg' can't be installed. No deb file."
+		#	fi
+		#	chroot . dpkg -i -GE ./tmp/$Pkg*.deb
+		#done
 
-		rm -f tmp/*.deb 2>/dev/null
+		#rm -f tmp/*.deb 2>/dev/null
 
-		# TODO: put replaced scripts back
 		#umount ./proc
 	fi
 }
@@ -233,6 +231,57 @@ Code="
 	[[ -d /home/backup && -f "/home/backup/pluto.conf-$IP" ]] && cp "/home/backup/pluto.conf-$IP" "$DlPath/etc"
 	mkdir -p "$DlPath"/usr/pluto/install
 	touch "$DlPath"/usr/pluto/install/.notdone
+fi
+
+AtExit()
+{
+	umount "$DlPath"/usr/pluto/deb-cache
+	umount "$DlPath"/proc
+
+	mv "$DlPath"/sbin/start-stop-daemon{.pluto-install,}
+	mv "$DlPath"/usr/sbin/invoke-rc.d{.pluto-install,}
+	rm -f "$DlPath"/etc/chroot-install
+}
+
+trap "AtExit" EXIT
+mkdir -p "$DlPath"/usr/pluto/deb-cache
+mount --bind /usr/pluto/deb-cache "$DlPath"/usr/pluto/deb-cache
+mount -t proc proc "$DlPath"/proc
+
+touch "$TEMP_DIR"/etc/chroot-install
+mv "$DlPath"/usr/sbin/invoke-rc.d{,.pluto-install}
+mv "$DlPath"/sbin/start-stop-daemon{,.pluto-install}
+echo -en '#!/bin/bash\necho "WARNING: fake invoke-rc.d called"\n' >"$DlPath"/usr/sbin/invoke-rc.d
+echo -en '#!/bin/bash\necho "WARNING: fake start-stop-daemon called"\n' >"$DlPath"/sbin/start-stop-daemon
+chmod +x "$DlPath"/usr/sbin/invoke-rc.d
+chmod +x "$DlPath"/sbin/start-stop-daemon
+
+export LC_ALL=C
+
+# Use Core's apt sources.list
+#cp /etc/apt/sources.list "$DlPath"/etc/apt/sources.list
+
+# Configure apt
+sed 's/localhost/dcerouter/g' /etc/apt/apt.conf.d/30pluto > $DlPath/etc/apt/apt.conf.d/30pluto
+
+# Rebuild sources.list if it doesn't contain our section
+if ! egrep -q '^# Pluto sources - start$' "$DlPath"/etc/apt/sources.list || ! egrep -q '^# Pluto sources - end$' "$DlPath"/etc/apt/sources.list; then
+	Sources="# Pluto sources - start
+deb file:/usr/pluto/deb-cache/ sarge main
+deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main
+deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main
+deb http://deb.plutohome.com/debian/ sarge main non-free contrib
+deb http://deb.plutohome.com/debian/ unstable mythtv
+deb http://www.yttron.as.ro/ sarge main
+# Pluto sources - end"
+	echo "$Sources" >"$DlPath"/etc/apt/sources.list
+fi
+if ! egrep -q 'http://deb\.plutohome\.com/debian.+<-mkr_t_replacementsdeb->.+main' "$DlPath"/etc/apt/sources.list; then
+	echo "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main" >>"$DlPath"/etc/apt/sources.list
+fi
+
+if ! egrep -q 'http://deb\.plutohome\.com/debian.+<-mkr_t_maindeb->.+main' "$DlPath"/etc/apt/sources.list; then
+	echo "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main" >>"$DlPath"/etc/apt/sources.list
 fi
 
 RequiredModules="ide-cd ide-disk psmouse mousedev"
@@ -271,6 +320,9 @@ awk '
 ' "$DlPath"/var/cache/debconf/config.dat >"$DlPath"/var/cache/debconf/config.dat.$$
 mv "$DlPath"/var/cache/debconf/config.dat{.$$,}
 
+# TODO: XXX: Add network/internet access tests
+chroot "$DlPath" apt-get update
+
 # Make sure the right kernel version is installed
 set -x
 KernelDecision=$(DecideKernelVersion "$Architecture" | tail -2)
@@ -285,6 +337,7 @@ set +x
 InstallKernel "$KERNEL_VERSION" "$kernel"
 
 set -x
+chroot "$DlPath" apt-get clean
 mkdir -p "/tftpboot/$Device"
 ln -sf "$DlPath/boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$Device/"
 ln -sf "$DlPath/boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$Device/"
@@ -294,13 +347,3 @@ set +x
 mkdir -p "$DlPath"/usr/pluto/var
 
 cd -
-
-# Use Core's apt sources.list
-#cp /etc/apt/sources.list "$DlPath"/etc/apt/sources.list
-if ! egrep -q 'http://deb\.plutohome\.com/debian.+<-mkr_t_replacementsdeb->.+main' "$DlPath"/etc/apt/sources.list; then
-	echo "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main" >>"$DlPath"/etc/apt/sources.list
-fi
-
-if ! egrep -q 'http://deb\.plutohome\.com/debian.+<-mkr_t_maindeb->.+main' "$DlPath"/etc/apt/sources.list; then
-	echo "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main" >>"$DlPath"/etc/apt/sources.list
-fi

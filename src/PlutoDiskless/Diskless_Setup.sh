@@ -319,10 +319,6 @@ for Client in $R; do
 			echo "$SysLogCfg2" >>$DlPath/etc/syslog.conf
 		fi
 
-		## Configure apt
-		echo -n " apt"
-		sed 's/localhost/dcerouter/g' /etc/apt/apt.conf.d/30pluto > $DlPath/etc/apt/apt.conf.d/30pluto
-
 		echo 
 
 		## Setup cronjob daily for ntpdate
