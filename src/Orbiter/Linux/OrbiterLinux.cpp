@@ -190,7 +190,8 @@ bool OrbiterLinux::X11_Init()
     //temporary workaround for xfwm window manager
     //this will set orbiter above when its window is created
     //then orbiter will set it to the right layer
-    m_pWinListManager->ResetOrbiterWindow();
+    if(!m_pWinListManager->ResetOrbiterWindow())
+	OnQuit();    
     
     return true;
 }

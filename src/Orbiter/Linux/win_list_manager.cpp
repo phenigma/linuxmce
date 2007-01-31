@@ -29,7 +29,7 @@ WinListManager::~WinListManager()
     pthread_mutexattr_destroy(&m_WindowsMutexAttr);
 }
 
-void WinListManager::ResetOrbiterWindow()
+bool WinListManager::ResetOrbiterWindow()
 {
 #ifdef MAEMO_NOKIA770
 	//no window manager action with nokia 770
@@ -47,13 +47,14 @@ void WinListManager::ResetOrbiterWindow()
 		if(m_pWMController->SetLayer(m_sSdlWindowName, LayerBelow) && m_pWMController->SetLayer(m_sSdlWindowName, LayerAbove))
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Orbiter is on the above layer now!");
-			return;
+			return true;
 		}
 
 		Sleep(10);
 	}
 
     g_pPlutoLogger->Write(LV_CRITICAL, "Failed to set Orbiter to above layer!");
+    return false;
 }
 
 void WinListManager::ActivateWindow(const string& sWindowsName)

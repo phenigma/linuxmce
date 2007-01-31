@@ -42,7 +42,7 @@ public:
 
 	void GetWindows(list<WinInfo>& listWinInfo);
 	void SetSdlWindowVisibility(bool bValue);
-	void ResetOrbiterWindow();
+	bool ResetOrbiterWindow();
 
 	void SetLayer(const string &sClassName, WindowLayer layer);
 
