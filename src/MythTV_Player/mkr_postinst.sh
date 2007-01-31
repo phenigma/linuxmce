@@ -10,7 +10,14 @@ ln -s /usr/lib/libXmu.so.6.2.0 /usr/lib/libXmu.so | :
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
 
+Q="select IK_DeviceData from Device_DeviceData where FK_DeviceData=206"
+AutoConf=$(echo "$Q" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2)
 
+if [[ "$AutoConf" == "1" ]]; then
+    echo "Auto Configure is set"
+	exit 0
+fi
+		
 function addEntries
 {
 	if [ "$3" = "" ]; then
@@ -65,12 +72,15 @@ hostip=`gethostip $hostname | cut -f 2 -d ' '`;
 routerip=`gethostip dcerouter | cut -f 2 -d ' '`;
 
 addEntries BackendServerIP $hostip $hostname;
-addEntries BackendServerPort 6143 $hostname;
+addEntries BackendServerPort 6543 $hostname;
 addEntries BackendServerStatus 6544 $hostname;
 #addEntries RecordFilePrefix /var/lib/mythtv/ $hostname;
 
 addEntries MasterServerIP	$routerip;
-addEntries MasterServerPort	6143;
+addEntries MasterServerPort	6543;
+
+addEntries AutoCommercialFlag   0   $hostname;
+addEntries AutoCommflagWhileRecording   0   $hostname;
 
 PID=`pidof /usr/bin/mythbackend` || /bin/true;
 echo "LOCK TABLE schemalock WRITE;" | $mysql_command  || :
