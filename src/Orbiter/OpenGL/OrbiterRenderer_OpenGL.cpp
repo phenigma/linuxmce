@@ -421,8 +421,8 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	//we'll have to keep the aspect
 	if(!bDisableAspectRatio) 
 	{
-		ZoomX = float(Graphic->Width) / rectTotal.Width;
-		ZoomY = float(Graphic->Height) / rectTotal.Height;
+		ZoomX = float(Graphic->m_nWidth) / rectTotal.Width;
+		ZoomY = float(Graphic->m_nHeight) / rectTotal.Height;
 		if (ZoomX > ZoomY)
 		{
 			ZoomY = ZoomY / ZoomX;
@@ -812,8 +812,8 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 		pObj->m_pvectCurrentGraphic = NULL;
 	if ( pObj->m_vectGraphic.size() )
 	{
-		PriorWidth = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width;
-		PriorHeight = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height;
+		PriorWidth = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->m_nWidth;
+		PriorHeight = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->m_nHeight;
 	}
 
 	PlutoGraphic *pPlutoGraphic = NULL;

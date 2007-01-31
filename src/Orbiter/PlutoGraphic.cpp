@@ -10,8 +10,8 @@ PlutoGraphic::PlutoGraphic()
 {
 	Initialize();
 
-	Width = 0;
-	Height = 0;
+	m_nWidth = 0;
+	m_nHeight = 0;
 }
 //-------------------------------------------------------------------------------------------------------
 PlutoGraphic::PlutoGraphic(OrbiterRenderer *pOrbiterRenderer)
@@ -19,8 +19,8 @@ PlutoGraphic::PlutoGraphic(OrbiterRenderer *pOrbiterRenderer)
 	Initialize();
 
 	m_pOrbiterRenderer = pOrbiterRenderer;
-	Width = 0;
-	Height = 0;
+	m_nWidth = 0;
+	m_nHeight = 0;
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -31,8 +31,8 @@ PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement
 	m_pOrbiterRenderer = pOrbiterRenderer;
 	m_Filename = Filename;
 	m_GraphicManagement = GraphicManagement;
-	Width = 0;
-	Height = 0;
+	m_nWidth = 0;
+	m_nHeight = 0;
 };
 //-------------------------------------------------------------------------------------------------------
 /*virtual*/ PlutoGraphic::~PlutoGraphic()

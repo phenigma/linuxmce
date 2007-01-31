@@ -59,8 +59,8 @@ OpenGLGraphic::OpenGLGraphic(int Width, int Height) :
 	int MPHeight = MathUtils::MinPowerOf2(Height);
 	MaxU = float(Width) / MPWidth;
 	MaxV = float(Height) / MPHeight;
-	this->Width = Width;
-	this->Height = Height;
+	m_nWidth = Width;
+	m_nHeight = Height;
 
 	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, MPWidth, MPHeight, 
 		32, 
@@ -74,8 +74,8 @@ OpenGLGraphic::OpenGLGraphic(SDL_Surface *pSurface) : PlutoGraphic(),
 	Initialize();
 	LocalSurface = pSurface;
 
-	Width = pSurface->w;
-	Height = pSurface->h;
+	m_nWidth = pSurface->w;
+	m_nHeight = pSurface->h;
 
 	Prepare();
 }
@@ -124,8 +124,8 @@ void OpenGLGraphic::Initialize()
 	MaxV = 1.0f;
 	LocalSurface = NULL;
 	Texture = 0;
-	Width = 0;
-	Height = 0;
+	m_nWidth = 0;
+	m_nHeight = 0;
 }
 
 bool OpenGLGraphic::SetupFromImage(std::string FileName)
@@ -153,16 +153,16 @@ void OpenGLGraphic::Prepare()
 		return;
 
 	SDL_Surface* Surface = LocalSurface;
-	Width = GLMathUtils::MinPowerOf2(Surface->w);
-	Height = GLMathUtils::MinPowerOf2(Surface->h);
+	int nLocalWidth = GLMathUtils::MinPowerOf2(Surface->w);
+	int nLocalHeight = GLMathUtils::MinPowerOf2(Surface->h);
 
-	if (Width == Surface->w && Height == Surface->h)
+	if (nLocalWidth == Surface->w && nLocalHeight == Surface->h)
 		return;
 	
-	MaxU = ((float)Surface->w)/Width;
-	MaxV = ((float)Surface->h)/Height;
+	MaxU = ((float)Surface->w)/nLocalWidth;
+	MaxV = ((float)Surface->h)/nLocalHeight;
 	
-	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 
+	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, nLocalWidth, nLocalHeight, 
 		Surface->format->BitsPerPixel, 
 		Surface->format->Rmask, Surface->format->Gmask, Surface->format->Bmask,
 		Surface->format->Amask);
@@ -370,8 +370,8 @@ g_PlutoProfiler->Stop("OpenGLGraphic::LoadGraphic");
 		return false;
 	}
 
-	Width = LocalSurface->w;
-	Height = LocalSurface->h;
+	m_nWidth = LocalSurface->w;
+	m_nHeight = LocalSurface->h;
 	Prepare();
 g_PlutoProfiler->Stop("OpenGLGraphic::LoadGraphic");
 

@@ -4367,18 +4367,18 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += StringUtils::itos( Y );
 		else if(  Variable=="XS"  )
 		{
-			if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width > 0)
+			if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iCurrentFrame]->m_nWidth > 0)
 			{
 				int ClickX = X - pObj->m_rPosition.X;
-				Output+=StringUtils::itos( pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width * ClickX / pObj->m_rPosition.Width );
+				Output+=StringUtils::itos( pObj->m_vectGraphic[pObj->m_iCurrentFrame]->m_nWidth * ClickX / pObj->m_rPosition.Width );
 			}
 		}
 		else if(  Variable=="YS"  )
 		{
-			if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height > 0)
+			if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iCurrentFrame]->m_nHeight > 0)
 			{
 				int ClickY = Y - pObj->m_rPosition.Y;
-				Output += StringUtils::itos( pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height * ClickY / pObj->m_rPosition.Height );
+				Output += StringUtils::itos( pObj->m_vectGraphic[pObj->m_iCurrentFrame]->m_nHeight * ClickY / pObj->m_rPosition.Height );
 			}
 		}
 		else if(  Variable=="S"  )

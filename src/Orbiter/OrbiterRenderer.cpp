@@ -1449,8 +1449,8 @@ char *pData, int iData_Size, string sDisable_Aspect_Lock)
 		pObj->m_pvectCurrentGraphic = NULL;
 	if ( pObj->m_vectGraphic.size() )
 	{
-		PriorWidth = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width;
-		PriorHeight = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height;
+		PriorWidth = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->m_nWidth;
+		PriorHeight = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->m_nHeight;
 	}
 
 	for(size_t i = 0; i < pObj->m_vectGraphic.size(); i++)

@@ -64,7 +64,7 @@ public:
 	char *m_pGraphicData;
 	size_t m_GraphicLength;
 
-	int Width, Height;
+	int m_nWidth, m_nHeight;
 	string m_Filename;
 };
 //-------------------------------------------------------------------------------------------------------

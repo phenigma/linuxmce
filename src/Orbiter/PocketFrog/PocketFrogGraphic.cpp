@@ -30,8 +30,8 @@ PocketFrogGraphic::PocketFrogGraphic(Surface *pSurface)
 	Initialize();
 
 	m_pSurface = pSurface;
-    Width = pSurface->GetWidth();
-    Height = pSurface->GetHeight();
+    m_nWidth = pSurface->GetWidth();
+    m_nHeight = pSurface->GetHeight();
 }
 //-------------------------------------------------------------------------------------------------------
 PocketFrogGraphic::~PocketFrogGraphic()
@@ -101,8 +101,8 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
         delete pSourceSurface;
     }
 
-	Width = m_pSurface->m_width;
-	Height = m_pSurface->m_height;
+	m_nWidth = m_pSurface->m_width;
+	m_nHeight = m_pSurface->m_height;
 
 	return true;
 }
@@ -135,19 +135,19 @@ PlutoGraphic *PocketFrogGraphic::GetHighlightedVersion()
 	DisplayDevice *pDisplayDevice = pPockerFrogRenderer->GetOrbiterDisplay();
 
     Rect srcRect;
-    srcRect.Set(0, 0, Width, Height);
+    srcRect.Set(0, 0, m_nWidth, m_nHeight);
 
     Rasterizer *pSourceRasterizer = pDisplayDevice->CreateRasterizer(m_pSurface);
 
-    Surface *pSurface = pDisplayDevice->CreateSurface(Width, Height);
+    Surface *pSurface = pDisplayDevice->CreateSurface(m_nWidth, m_nHeight);
     Rasterizer *pDestionationRasterizer = pDisplayDevice->CreateRasterizer(pSurface);
     pDestionationRasterizer->Blit(0, 0, m_pSurface, &srcRect);
 
     Pixel pixelCurrent;
     Pixel pixelHightlighted;
-    for (int j = 0; j < Height; j++)
+    for (int j = 0; j < m_nHeight; j++)
     {
-        for (int i = 0; i < Width; i++)
+        for (int i = 0; i < m_nWidth; i++)
         {
             pixelCurrent = pSourceRasterizer->GetPixel(i, j);
 
@@ -178,9 +178,9 @@ PlutoGraphic *PocketFrogGraphic::Clone()
 	DisplayDevice *pDisplayDevice = pPockerFrogRenderer->GetOrbiterDisplay();
 
 	Rect srcRect;
-	srcRect.Set(0, 0, Width, Height);
+	srcRect.Set(0, 0, m_nWidth, m_nHeight);
 
-	Surface *pSurface = pDisplayDevice->CreateSurface(Width, Height);
+	Surface *pSurface = pDisplayDevice->CreateSurface(m_nWidth, m_nHeight);
 	auto_ptr<Rasterizer> pDestionationRasterizer(pDisplayDevice->CreateRasterizer(pSurface));
 	pDestionationRasterizer->Blit(0, 0, m_pSurface, &srcRect);
 

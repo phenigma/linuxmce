@@ -167,7 +167,7 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
         RelativePointer_ImageLoad(-Notch);
         if (m_pRelativePointer_Image)
 		{
-			PlutoRectangle rectFakePointer(X-40,0,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
+			PlutoRectangle rectFakePointer(X-40,0,m_pRelativePointer_Image->m_nWidth, m_pRelativePointer_Image->m_nHeight);
             RelativePointer_ImageDraw(m_pRelativePointer_Image, rectFakePointer);
 		}
 	}
@@ -189,7 +189,7 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
         RelativePointer_ImageLoad(Notch);
 		if (m_pRelativePointer_Image)
 		{
-			PlutoRectangle rectFakePointer(X-40,m_pMouseBehavior->m_pOrbiter->m_Height-m_pRelativePointer_Image->Height,m_pRelativePointer_Image->Width, m_pRelativePointer_Image->Height);
+			PlutoRectangle rectFakePointer(X-40,m_pMouseBehavior->m_pOrbiter->m_Height-m_pRelativePointer_Image->m_nHeight,m_pRelativePointer_Image->m_nWidth, m_pRelativePointer_Image->m_nHeight);
             RelativePointer_ImageDraw(m_pRelativePointer_Image, rectFakePointer);
 		}
 	}
@@ -478,8 +478,8 @@ PlutoRectangle DatagridMouseHandlerHelper::RelativePointer_ComputeRectangle(int 
     if (m_pRelativePointer_Image == NULL)
         return rectFakePointer;
     //compute fake image position
-    rectFakePointer.Width = m_pRelativePointer_Image->Width;
-    rectFakePointer.Height = m_pRelativePointer_Image->Height;
+    rectFakePointer.Width = m_pRelativePointer_Image->m_nWidth;
+    rectFakePointer.Height = m_pRelativePointer_Image->m_nHeight;
     // X coordinate : keep the pointer on the screen
     rectFakePointer.X = X;
     if (rectFakePointer.X + rectFakePointer.Width > screenWidth)

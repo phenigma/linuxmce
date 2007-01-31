@@ -38,8 +38,8 @@ SDLGraphic::SDLGraphic(struct SDL_Surface *pSDL_Surface)
         g_pPlutoLogger->Write(LV_CRITICAL,"SDLGraphic::SDLGraphic() : NULL m_pSDL_Surface");
         return;
     }
-	Width = m_pSDL_Surface->w;
-	Height = m_pSDL_Surface->h;
+	m_nWidth = m_pSDL_Surface->w;
+	m_nHeight = m_pSDL_Surface->h;
 }
 //-------------------------------------------------------------------------------------------------------
 SDLGraphic::~SDLGraphic()
@@ -85,8 +85,8 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
         SDL_FreeSurface(pSourceSurface);
     }
 
-	Width = m_pSDL_Surface->w;
-	Height = m_pSDL_Surface->h;
+	m_nWidth = m_pSDL_Surface->w;
+	m_nHeight = m_pSDL_Surface->h;
 
 	return true;
 }
@@ -112,17 +112,17 @@ PlutoGraphic *SDLGraphic::GetHighlightedVersion()
 		return NULL;
 
 	SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-		Width, Height, 32, rmask, gmask, bmask, amask);
+		m_nWidth, m_nHeight, 32, rmask, gmask, bmask, amask);
 
 	SDL_Rect SourceRect;
 	SourceRect.x = 0; SourceRect.y = 0;
-	SourceRect.w = Width; SourceRect.h = Height;
+	SourceRect.w = m_nWidth; SourceRect.h = m_nHeight;
 
 	SDL_SetAlpha(m_pSDL_Surface, 0, 0);
 
-	for(int w=0;w<Width;w++)
+	for(int w=0;w<m_nWidth;w++)
 	{
-		for(int h=0;h<Height;h++)
+		for(int h=0;h<m_nHeight;h++)
 		{
 		    unsigned char *pS = (unsigned char *) m_pSDL_Surface->pixels + h * m_pSDL_Surface->pitch + w * 4;
 		    unsigned char *pD = (unsigned char *) pSDL_Surface->pixels + h * pSDL_Surface->pitch + w * 4;
