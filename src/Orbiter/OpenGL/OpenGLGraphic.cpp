@@ -19,7 +19,6 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "OpenGLGraphic.h"
 
 #include <SDL_image.h>
-#include <SDL_rotozoom.h>
 
 #include "GLMathUtils.h"
 #include "DCE/Logger.h"
