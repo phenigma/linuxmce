@@ -64,11 +64,15 @@ class OpenGLGraphic : public PlutoGraphic
 	pluto_pthread_mutex_t m_OpenGlMutex; 
 	Uint32 getpixel(SDL_Surface *pSDL_Surface,int x, int y);
 	void putpixel(SDL_Surface *pSDL_Surface,int x, int y, Uint32 pixel_color);
+
+	void GenerateAlphaMask();
+
 public:
 	SDL_Surface* LocalSurface;
 
 	OpenGLTexture Texture;
 	float MaxU, MaxV;
+	unsigned char *m_pAlphaMask;
 
 	OpenGLGraphic();
 	OpenGLGraphic(OrbiterRenderer *pOrbiterRenderer);
@@ -100,6 +104,8 @@ public:
 	void Clear(); 
 	PlutoGraphic *GetHighlightedVersion() { return NULL; }
 	bool GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize);
+
+	const unsigned char *GetAlphaMask() const;
 };
 
 #endif /*OPENGLGRAPHIC_H_*/

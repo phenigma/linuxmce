@@ -109,6 +109,8 @@ bool OrbiterRenderer_Linux::HandleHidePopup(PlutoPopup* Popup)
 
 void OrbiterRenderer_Linux::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint point)
 {
+	BASE_CLASS::ObjectRendered(pObj, point);
+
 	if(point.X != 0 || point.Y != 0)
 	{
 		//don't handle the objects from popups

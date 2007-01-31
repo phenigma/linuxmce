@@ -35,6 +35,10 @@
 #include "ObjectRenderer_OpenGL.h"
 #include "DataGridRenderer_OpenGL.h"
 //-----------------------------------------------------------------------------------------------------
+#ifdef VIA_OVERLAY
+	#include "VIA/ViaOverlay.h"
+#endif
+//-----------------------------------------------------------------------------------------------------
 #include <SDL_ttf.h>
 //-----------------------------------------------------------------------------------------------------
 #include "../../pluto_main/Define_Effect.h"
@@ -721,6 +725,10 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	Engine->NewScreen(sScreenName);
 	m_pLastHighlightedObject = NULL;
 
+#ifdef VIA_OVERLAY
+	ViaOverlay::Instance().ResetAlphaMask();
+#endif
+
 	Engine->BeginModifyGeometry();
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
 	Engine->EndModifyGeometry();
@@ -766,6 +774,11 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 
 	if(Popups)
 	{
+#ifdef VIA_OVERLAY
+		ViaOverlay::Instance().FillRectangleInAlphaMask(Popup->m_Position.X, Popup->m_Position.Y, 
+			Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height, 0xFF);
+#endif
+
 		Popups->HidePopup(Popup->m_pObj->GenerateObjectHash(Popup->m_Position, false),
 			Popup->m_pObj->GenerateObjectHash(Popup->m_Position));
 	}
@@ -775,6 +788,11 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 
 /*virtual*/ bool OrbiterRenderer_OpenGL::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position, int EfectID)
 {
+#ifdef VIA_OVERLAY
+	ViaOverlay::Instance().FillRectangleInAlphaMask(Popup->m_Position.X, Popup->m_Position.Y, 
+		Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height, 0x00);
+#endif
+
 	RenderPopup(Popup, Position, EfectID);
 	return true;
 }
@@ -902,3 +920,34 @@ void OrbiterRenderer_OpenGL::DestroyGraphic(string sObjectID)
 	if(NULL != pMeshFrame)
 		delete pMeshFrame;
 }
+
+void OrbiterRenderer_OpenGL::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint point)
+{
+#ifdef VIA_OVERLAY
+
+	if(point.X != 0 || point.Y != 0)
+	{
+		//don't handle the objects from popups
+		return;
+	}
+
+	if(pObj->m_vectGraphic.size() > 0 && NULL != pObj->m_vectGraphic[0])
+	{
+		OpenGLGraphic* pOpenGLGraphic = dynamic_cast<OpenGLGraphic*> (pObj->m_vectGraphic[0]);
+		if(NULL != pOpenGLGraphic)
+		{
+			ViaOverlay::Instance().ApplyAlphaMask(pObj->m_rPosition.X, pObj->m_rPosition.Y, 
+				pObj->m_rPosition.Width, pObj->m_rPosition.Height, pOpenGLGraphic->GetAlphaMask());		
+		}
+	}
+	else
+	{
+		if(pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST)
+		{
+			ViaOverlay::Instance().FillRectangleInAlphaMask(pObj->m_rPosition.X, pObj->m_rPosition.Y, 
+				pObj->m_rPosition.Width, pObj->m_rPosition.Height, 255 - pObj->Renderer()->GetAlphaLevel());	
+		}
+	}
+
+#endif
+} 

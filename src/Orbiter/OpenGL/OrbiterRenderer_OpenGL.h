@@ -126,6 +126,8 @@ namespace DCE
 
 		virtual void DestroyGraphic(string sObjectID);
 
+		virtual void ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint point);
+
 		OpenGL3DEngine* Engine;	
 		pthread_cond_t Condition;
 		pluto_pthread_mutex_t Mutex; 

@@ -40,6 +40,13 @@ public:
 	void WindowCreated(unsigned long ulWidth, unsigned long ulHeight);
 	void WorldChanged();
 
+	/*
+	*  Alpha surface access
+	*/
+	void ResetAlphaMask();
+	void ApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask);
+	void FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value);
+
 private:
 
 	/*
@@ -47,14 +54,14 @@ private:
 	*/
 	VMI_INFO_PARAM m_VMI_Info;
 	unsigned char *m_lpAlphaSurface;
-	unsigned long m_ulWidth, m_ulHeight;
+	int m_nWidth, m_nHeight;
 	bool m_bOverlayInitialized;
 
 	/*
 	* VMI wrappers
 	*/
 	bool VMI_CreateConnection();
-	bool CreateAlphaSurface(unsigned long ulWidth, unsigned long ulHeight);
+	bool CreateAlphaSurface(int nWidth, int nHeight);
 	bool SetAlphaSurface();
 	bool UpdateAlphaSurface();
 

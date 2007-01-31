@@ -19,6 +19,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "OpenGLGraphic.h"
 
 #include <SDL_image.h>
+#include <SDL_rotozoom.h>
 
 #include "GLMathUtils.h"
 #include "DCE/Logger.h"
@@ -96,6 +97,9 @@ OpenGLGraphic::~OpenGLGraphic()
 	TextureManager::Instance()->RemoveFromConvertQueue(this);
 	TextureManager::Instance()->PrepareRelease(Texture);	
 
+	delete [] m_pAlphaMask;
+	m_pAlphaMask = NULL;
+
 	pthread_mutex_destroy(&m_OpenGlMutex.mutex);
 
 #if defined(DETECT_LEAKS)
@@ -105,6 +109,8 @@ OpenGLGraphic::~OpenGLGraphic()
 
 void OpenGLGraphic::Initialize()
 {
+	m_pAlphaMask = NULL;
+
 #if defined(DETECT_LEAKS)
 	LeaksDetector::Instance().NewGraphicObject();
 #endif
@@ -114,7 +120,6 @@ void OpenGLGraphic::Initialize()
 	pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
 	m_OpenGlMutex.Init(&m_MutexAttr);
 	pthread_mutexattr_destroy(&m_MutexAttr);
-
 
 	MaxU = 1.0f;
 	MaxV = 1.0f;
@@ -141,6 +146,10 @@ void OpenGLGraphic::Prepare()
 	if(LocalSurface == NULL)
 		return;
 
+#ifdef VIA_OVERLAY
+	GenerateAlphaMask();
+#endif
+
 	if(TextureManager::Instance()->SupportTextureNonPowerOfTwo())
 		return;
 
@@ -153,9 +162,6 @@ void OpenGLGraphic::Prepare()
 	
 	MaxU = ((float)Surface->w)/Width;
 	MaxV = ((float)Surface->h)/Height;
-	
-	/* Create a 32-bit surface with the bytes of each pixel in R,G,B,A order,
-	as expected by OpenGL for textures */
 	
 	LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 
 		Surface->format->BitsPerPixel, 
@@ -471,6 +477,28 @@ OpenGLGraphic* OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, Pluto
 	return Result;
 }
 
+const unsigned char *OpenGLGraphic::GetAlphaMask() const
+{
+	return m_pAlphaMask;
+}
+
+void OpenGLGraphic::GenerateAlphaMask()
+{
+	if(NULL != LocalSurface && NULL != LocalSurface->pixels && NULL == m_pAlphaMask)
+	{
+		m_pAlphaMask = new unsigned char[LocalSurface->w * LocalSurface->h];
+
+		for (int j = 0; j < LocalSurface->h; j++)
+		{
+			for (int i = 0; i < LocalSurface->w; i++)
+			{
+				Uint32 Pixel = getpixel(LocalSurface, i, j);
+				m_pAlphaMask[i + j * LocalSurface->w] = 0xFF - ((unsigned char *) &Pixel)[3];
+			}
+		}
+	}
+}
+
 #ifdef DETECT_LEAKS
 
 LeaksDetector LeaksDetector::m_Instance;
@@ -522,4 +550,5 @@ void LeaksDetector::DestroyedGraphicObject()
 {
 	--m_nGraphicObjectsCounter;
 }
+
 #endif
