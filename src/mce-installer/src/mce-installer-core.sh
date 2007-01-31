@@ -51,6 +51,7 @@ PK_Distro = 14
 Display = 4
 OfflineMode = false
 "
+	echo $PlutoConf > /etc/pluto.conf
 	chmod 777 /etc/pluto.conf &>/dev/null
 }
 
