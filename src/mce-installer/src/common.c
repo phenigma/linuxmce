@@ -118,6 +118,7 @@ void write_config_file(void) {
 				"c_netExtDNS2='%s'\n"
 				"c_netExtUseDhcp=%d\n"
 				"c_runDhcpServer=%d\n"
+				"c_nenIntName='%s'\n"
 				"c_netIntIPN='%s'\n"
 				"c_startupType=%d\n"
 				,setting_deviceType
@@ -130,6 +131,7 @@ void write_config_file(void) {
 				,setting_netExtDNS2
 				,setting_netExtUseDhcp
 				,setting_runDhcpServer
+				,setting_netIntName
 				,setting_netIntIPN
 				,setting_startupType
 		);

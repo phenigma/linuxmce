@@ -200,12 +200,10 @@ ff02::3 ip6-allhosts
 
 		IntNetmask="${IntNetmask}.0"
 	done
-	if [[ "$c_netIfaceNo" == "1" ]] ;then
+	if [[ "$c_netIntName" != "" ]] ;then
 		IntIf="$c_netExtName:0"
 	else
-		#InfIf="$c_netIntName"
-		#FIXME: Stop hardcoding this
-		InfIf="eth1"
+		InfIf="$c_netIntName"
 	fi
 
 	if [[ "$c_netExtUseDhcp" == "0" ]] ;then

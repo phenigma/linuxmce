@@ -30,7 +30,7 @@ void displayStep1A(void) {
 
 	// Wizard text
 	GtkWidget *label = gtk_label_new_for_wizard ("You need to have one system in the home that will be designated as the ‘Master’, or ‘Core’.  This system should be left on all the time because it provides vital services to the home, such as phone service, and because any of the media players in the various rooms in your home need to talk to the Core to coordinate their activities.\n\nI could not find any Core on your network, so I assume you want this system to be your Core?  Is that correct?");
-	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(mainBox), label, FALSE, FALSE, 0);
 
 	// Questions
 	GSList *group = NULL;

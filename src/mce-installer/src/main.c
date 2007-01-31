@@ -63,6 +63,11 @@
 
 #include "common.h"
 
+static gboolean delete_event( GtkWidget *widget, GdkEvent *event, gpointer data) {
+	gtk_main_quit ();
+	return FALSE;
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -72,7 +77,6 @@ main (int argc, char *argv[])
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 #endif
-	
 
 	gtk_set_locale ();
 	gtk_init (&argc, &argv);
@@ -85,7 +89,8 @@ main (int argc, char *argv[])
 	mainBox = glade_xml_get_widget (gxml, "mainBox");
 	mainButtonBox = glade_xml_get_widget (gxml, "mainButtonBox");
 	GtkImage *mainImage = GTK_IMAGE(glade_xml_get_widget(gxml, "mainImage"));
-	
+
+       	g_signal_connect (G_OBJECT (mainWindow), "delete_event", G_CALLBACK (delete_event), NULL);	 
 	gtk_image_set_from_file(mainImage, "pluto.jpg");
 
 

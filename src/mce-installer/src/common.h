@@ -71,6 +71,7 @@ gboolean setting_netExtUseDhcp;
 gboolean setting_netExtKeep;
 
 gboolean setting_runDhcpServer;
+gchar*   setting_netIntName;
 gchar*   setting_netIntIPN;
 
 gint     setting_startupType;
