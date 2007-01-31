@@ -206,7 +206,7 @@ bool Lighting_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessag
 		if(sLevel == "0")
 			SetLightState( pMessage->m_dwPK_Device_From, false, 0 );
 		else if(sLevel == "1")
-			SetLightState( pMessage->m_dwPK_Device_From, false, 100 );
+			SetLightState( pMessage->m_dwPK_Device_From, true, 100 );
 		else
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Received OnOff event with wrong parameter value %s",
