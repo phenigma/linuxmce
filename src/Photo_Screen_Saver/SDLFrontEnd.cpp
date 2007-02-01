@@ -15,12 +15,13 @@ bool SDLFrontEnd::Quitting = false;
 
 void *SDLQuitWatchDogThread(void *)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Inside WatchDogThread");
 	Sleep(5000);
 
 	if( SDLFrontEnd::Quitting )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "SDL_Quit hangs (nvidia drivers bug?). Restarting...");
+		if(NULL != g_pPlutoLogger)
+			g_pPlutoLogger->Write(LV_CRITICAL, "SDL_Quit hangs (nvidia drivers bug?). Restarting...");
+
 #ifndef WIN32
 		kill(getpid(), SIGKILL);
 #endif
