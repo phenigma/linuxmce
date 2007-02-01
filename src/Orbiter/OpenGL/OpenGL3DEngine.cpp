@@ -43,22 +43,22 @@ using namespace DCE;
 //#define DISABLE_HIGHLIGHT 
 
 OpenGL3DEngine::OpenGL3DEngine() : 
-	m_bQuit(false),
 	AnimationRemain (false),
 	SceneMutex("scene mutex"),
-	Compose(NULL),
-	OldLayer(NULL),
 	CurrentLayer(NULL),
 	OriginalCurrentLayer(NULL),
-	HighLightFrame(NULL),
+	OldLayer(NULL),
 	SelectedFrame(NULL),
+	HighLightFrame(NULL),
+	HighLightPopup(NULL),
 	FrameBuilder(NULL),			 
 	FrameDatagrid(NULL),
-	HighLightPopup(NULL),
 	ModifyGeometry(0),
 	MilisecondsHighLight(0),
 	m_bNeedToRefresh(true),
-	m_bWorldChanged(true)
+	m_bWorldChanged(true),
+	m_bQuit(false),
+	Compose(NULL)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -184,8 +184,6 @@ bool OpenGL3DEngine::Paint()
 	
 	if(m_bWorldChanged && !m_spDatagridAnimationManager->HasAnimations())
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Geometry: world changed!");
-
 		m_bWorldChanged = false;
 
 #ifdef VIA_OVERLAY
