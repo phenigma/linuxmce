@@ -113,7 +113,7 @@ if [[ ! -f /etc/diskless.conf ]]; then
 		LastEventTrigered=$(cat /var/DiskSpaceMonitor.stamp)
 		Now=$(date +%s)
 		if [[ $LastEventTrigered == "" || $(( $LastEventTrigered + 60 * 60 )) -lt $Now ]]; then
-			usr/pluto/bin/MessageSend $DCERouter 0 -1001 2 64
+			/usr/pluto/bin/MessageSend $DCERouter 0 -1001 2 64
 			echo $Now > /var/DiskSpaceMonitor.stamp
 		fi
 	fi
