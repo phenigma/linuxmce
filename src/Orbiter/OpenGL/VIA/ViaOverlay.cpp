@@ -59,6 +59,21 @@ void ViaOverlay::WorldChanged()
 
 	if(m_bOverlayInitialized)
 	{
+		for(std::list<AlphaMaskShapeItem>::iterator it_shape = m_listAlphaMaskShapes.begin(); 
+			it_shape != m_listAlphaMaskShapes.end(); ++it_shape)
+		{
+			InternalApplyAlphaMask(it_shape->m_x, it_shape->m_y, it_shape->m_w, it_shape->m_h, it_shape->m_mask);
+		}
+
+		for(std::list<AlphaRectangleItem>::iterator it_rect = m_listAlphaRectagles.begin(); 
+			it_rect != m_listAlphaRectagles.end(); ++it_rect)
+		{
+			InternalFillRectangleInAlphaMask(it_rect->m_x, it_rect->m_y, it_rect->m_w, it_rect->m_h, it_rect->m_value);
+		}
+
+		m_listAlphaMaskShapes.clear();
+		m_listAlphaRectagles.clear();
+
 		if(UpdateAlphaSurface())
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "#VIA Alpha surface updated!");
@@ -70,9 +85,22 @@ void ViaOverlay::ResetAlphaMask()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "#VIA Reseting alpha surface...");
 	memset(m_lpAlphaSurface, 0xFF, m_nWidth * m_nHeight);
+
+	m_listAlphaMaskShapes.clear();
+	m_listAlphaRectagles.clear();
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask)
+{
+	m_listAlphaMaskShapes.push_back(AlphaMaskShapeItem(x, y, w, h, mask));
+}
+//-------------------------------------------------------------------------------------------------------
+void ViaOverlay::FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value)
+{
+	m_listAlphaRectagles.push_back(AlphaRectangleItem(x, y, w, h, value));
+}
+//-------------------------------------------------------------------------------------------------------
+void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask)
 {
 	if(x + w <= m_nWidth && x >= 0 && y >= 0 && y + h <= m_nHeight && NULL != mask)
 	{
@@ -92,7 +120,7 @@ void ViaOverlay::ApplyAlphaMask(int x, int y, int w, int h, const unsigned char 
 	}
 }
 //-------------------------------------------------------------------------------------------------------
-void ViaOverlay::FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value)
+void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value)
 {
 	if(x + w <= m_nWidth && x >= 0 && y >= 0 && y + h <= m_nHeight)
 	{
@@ -185,28 +213,4 @@ bool ViaOverlay::UpdateAlphaSurface()
 
 	return SetAlphaSurface();
 }
-//-------------------------------------------------------------------------------------------------------
-void ViaOverlay::Test_FillAlphaSurface()
-{
-	int XIndex=0,YIndex=0;
-
-	for (YIndex=0; YIndex<m_nHeight; YIndex++)
-	{
-		for (XIndex=0; XIndex<m_nWidth; XIndex++)
-		{
-			if ((XIndex)>=((2*m_nWidth)/3))
-			{
-				*(m_lpAlphaSurface+YIndex*m_nWidth+XIndex)=0x6F;
-			}
-			else if ((XIndex)>=(m_nWidth/3))
-			{
-				*(m_lpAlphaSurface+YIndex*m_nWidth+XIndex)=0x1F;
-			}
-			else
-			{
-				*(m_lpAlphaSurface+YIndex*m_nWidth+XIndex)=0x3F;
-			}
-		}
-	}
-} 
 //-------------------------------------------------------------------------------------------------------

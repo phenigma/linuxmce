@@ -60,13 +60,18 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 	g_pPlutoLogger->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject %s", DatagridFrameID.c_str());
 
 	//render datagrid in a frame
-	Engine->EndModifyGeometry();
+	if(0 != StartAnimation)
+		Engine->EndModifyGeometry();
+
 	TextureManager::Instance()->DisableCache();
 	Engine->StartDatagridDrawing(DatagridFrameID);
 	DataGridRenderer::RenderObject(pObj_Screen, point);
     m_pRenderFrame = Engine->EndDatagridDrawing(DatagridFrameID);
 	TextureManager::Instance()->EnableCache();
-	Engine->BeginModifyGeometry();
+
+	if(0 != StartAnimation)
+		Engine->BeginModifyGeometry();
+
 	g_pPlutoLogger->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject %s MIDDLE", DatagridFrameID.c_str());
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, Engine->GetSceneMutex());
