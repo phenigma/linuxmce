@@ -13,7 +13,7 @@ ERR_UNPACK=7
 
 SPACE_SED='s/  */ /g; s/^ *//g; s/ *$//g'
 
-PKG_NAME=$(echo "$1" | sed "$SPACE_SED") # Package Name
+PKG_NAME=$(echo "$1" | sed "$SPACE_SED") # Package Name (includes version restriction)
 REPOS_SRC=$(echo "$2" | sed "$SPACE_SED") # repository source (URL, freeform)
 REPOS=$(echo "$3" | sed "$SPACE_SED") # repository (woody, sarge, ...)
 REPOS_TYPE=$(echo "$4" | sed "$SPACE_SED") # repository type (numeric: 1 - package, 2 - link to source, 3 - archive)
@@ -27,6 +27,16 @@ USERNAME=$(echo "${11}" | sed "$SPACE_SED") # CVS/SVN username
 PASSWORD=$(echo "${12}" | sed "$SPACE_SED") # CVS/SVN password
 PARAMETER=$(echo "${13}" | sed "$SPACE_SED") # Parameter
 PK_PACKAGE="${14}"
+
+# format, when including version restriction:
+## package_name (>= version)
+if [[ "$PKG_NAME" == *'('*')' ]]; then
+	# package name includes version restriction
+	MIN_VER="${PKG_NAME#* (}" # strip package name and opening paranthesis
+	MIN_VER="${MIN_VER%)}" # strip closing paranthesis
+	MIN_VER="${MIN_VER##* }" # strip comparison sign, leave just the version
+	PKG_NAME="${PKG_NAME%% (*}" # strip version restriction from name
+fi
 
 CatMessages()
 {
