@@ -620,35 +620,8 @@ bool Xine_Stream_Factory::CreateWindows()
 	else
 		completionEvent = -1;
 
-// 	noCursor = XCreateBitmapFromData( m_pXDisplay, ( DefaultRootWindow( m_pXDisplay ) ), noCursorDataDescription, 8, 8 );
-// 	cursors[0] = XCreateFontCursor(m_pXDisplay, XC_left_ptr);
-// 	cursors[1] = XCreatePixmapCursor(m_pXDisplay, noCursor, noCursor, &black, &black, 0, 0);
-// 	
-// 	if ( m_pDynamic_Pointer )
-// 		delete m_pDynamic_Pointer;
-// 	m_pDynamic_Pointer = new Dynamic_Pointer(this, &cursors[0], &cursors[1]);
-// 
-// 	XFreePixmap( m_pXDisplay, noCursor );
-// 
-// 	XDefineCursor( m_pXDisplay, windows[ m_iCurrentWindow ], cursors[ m_iCurrentWindow ] );
-// 	XMapRaised( m_pXDisplay, windows[ m_iCurrentWindow ] );
-// 
-// 	if ( m_pDynamic_Pointer )
-// 		m_pDynamic_Pointer->pointer_hide();
-// 
-// 	res_h = ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayWidthMM( m_pXDisplay, m_iCurrentScreen ) );
-// 	res_v = ( DisplayHeight( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayHeightMM( m_pXDisplay, m_iCurrentScreen ) );
-// 
-// 	m_dPixelAspect = res_v / res_h;
-// 
-// 	g_pPlutoLogger->Write( LV_STATUS, "XServer aspect %f", m_dPixelAspect );
-// 
-// 	if ( fabs( m_dPixelAspect - 1.0 ) < 0.01 )
-// 		m_dPixelAspect = 1.0;
-
 	XMapWindow( m_pXDisplay, windows[ 0 ] );
 
-	//XSync( m_pXDisplay, True );
 	XUnlockDisplay( m_pXDisplay );
 	
 	WMControllerImpl *pWMController = new WMControllerImpl();
