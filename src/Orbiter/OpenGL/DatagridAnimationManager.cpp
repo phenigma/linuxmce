@@ -212,3 +212,9 @@ void DatagridAnimationManager::StopPendingAnimations()
 
 	m_vectPendingAnimations.clear();
 }
+
+bool DatagridAnimationManager::HasAnimations()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
+	return m_vectCurrentAnimations.size() > 0;
+}

@@ -470,13 +470,11 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::BeginPaint()
 {
-	Engine->BeginModifyGeometry();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::EndPaint()
 {
 	NeedToUpdateScreen_ = true;
-	Engine->EndModifyGeometry();
 	Engine->RefreshScreen();
 }
 //-----------------------------------------------------------------------------------------------------

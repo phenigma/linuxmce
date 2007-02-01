@@ -182,8 +182,10 @@ bool OpenGL3DEngine::Paint()
 
 	GL.Flip();
 	
-	if(m_bWorldChanged)
+	if(m_bWorldChanged && !m_spDatagridAnimationManager->HasAnimations())
 	{
+		g_pPlutoLogger->Write(LV_STATUS, "Geometry: world changed!");
+
 		m_bWorldChanged = false;
 
 #ifdef VIA_OVERLAY
@@ -717,7 +719,7 @@ void OpenGL3DEngine::RemoveTopMostObject(string ObjectID)
 
 void OpenGL3DEngine::UpdateTopMostObjects()
 {
-	if(TopMostObjects.size() <= 1)
+	if(TopMostObjects.size() == 0)
 		return;
 	
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);

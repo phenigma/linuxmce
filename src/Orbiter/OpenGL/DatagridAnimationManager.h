@@ -83,6 +83,8 @@ public:
 	 *	@return it returns true if the animations are end
 	 */
 	bool Update();
+
+	bool HasAnimations();
 };
 
 #endif //__DATAGRID_ANIMATION_MANAGER_H__
