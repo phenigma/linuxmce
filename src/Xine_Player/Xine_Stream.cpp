@@ -350,7 +350,6 @@ bool Xine_Stream::CreateWindows()
 	XFreePixmap( m_pFactory->m_pXDisplay, noCursor );
 
 	XDefineCursor( m_pFactory->m_pXDisplay, windows[ m_iCurrentWindow ], cursors[ m_iCurrentWindow ] );
-	//XMapRaised( m_pFactory->m_pXDisplay, windows[ m_iCurrentWindow ] );
 
 	if ( m_pDynamic_Pointer )
 		m_pDynamic_Pointer->pointer_hide();

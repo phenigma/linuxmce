@@ -621,6 +621,7 @@ bool Xine_Stream_Factory::CreateWindows()
 		completionEvent = -1;
 
 	XMapWindow( m_pXDisplay, windows[ 0 ] );
+	XIconifyWindow( m_pXDisplay, windows[ 0 ], 0 );
 
 	XUnlockDisplay( m_pXDisplay );
 	
