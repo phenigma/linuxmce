@@ -79,7 +79,7 @@ chmod +x "$TEMP_DIR"/sbin/start-stop-daemon
 
 cp {,"$TEMP_DIR"}/etc/apt/apt.conf.d/30pluto
 
-echo "localdomain" >$TEMP_DIR/etc/defaultdomain
+echo "pluto" >$TEMP_DIR/etc/defaultdomain
 
 chroot $TEMP_DIR apt-get -y update
 chroot $TEMP_DIR apt-get -f -y install

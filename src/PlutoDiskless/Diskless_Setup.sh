@@ -319,6 +319,10 @@ for Client in $R; do
 			echo "$SysLogCfg2" >>$DlPath/etc/syslog.conf
 		fi
 
+		## Default domain for NIS
+		echo -n " nis"
+		echo "pluto" >$DlPath/etc/defaultdomain
+
 		echo 
 
 		## Setup cronjob daily for ntpdate
