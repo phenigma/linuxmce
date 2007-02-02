@@ -9,11 +9,11 @@ set -e
 
 ## Config for nis to act as a client
 File="/etc/default/nis"
-mkdir -p "${RootLocation}/$(dirname $File)"
-cp "/usr/pluto/templates/nis-client.template" "${RootLocation}/${File}"
-PopulateSection "${RootLocation}/${File}" "Nis Master" "NISMASTER=$IntIP"
+mkdir -p "${Parm_RootLocation}/$(dirname $File)"
+cp "/usr/pluto/templates/nis-client.template" "${Parm_RootLocation}/${File}"
+PopulateSection "${Parm_RootLocation}/${File}" "Nis Master" "NISMASTER=$IntIP"
 
 ## Set the default nis domain
 File="/etc/defaultdomain"
-mkdir -p ${RootLocation}/$(dirname $File)"
-echo "pluto" > "${RootLocation}/${File}"
+mkdir -p ${Parm_RootLocation}/$(dirname $File)"
+echo "pluto" > "${Parm_RootLocation}/${File}"
