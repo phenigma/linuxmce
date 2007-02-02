@@ -11,5 +11,10 @@ File="/etc/timezone"
 Content=""
 
 mkdir -p "${Parm_RootLocation}/$(dirname $File)"
-cat /etc/timezone > "${Parm_RootLocation}/${File}"
-
+if [[ -f /etc/timezone ]]; then
+	TimeZone="$(cat /etc/timezone)"
+else
+	TimeZone="$(readlink /etc/localtime)"
+	TimeZone="${TimeZone#/usr/share/zoneinfo/}"
+fi
+echo "$TimeZone" >"${Parm_RootLocation}/${File}"
