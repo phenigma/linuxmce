@@ -2,11 +2,7 @@
 
 set -e 
 
-RootLocation="$1"
-if [[ ! -d "$RootLocation" ]] ;then
-	echo "ERROR: Directory "$RootLocation" does not exist"
-	exit 1
-fi
+. ./filesd-parms.sh
 
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Section_Ops.sh
