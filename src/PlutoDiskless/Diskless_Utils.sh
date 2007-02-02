@@ -11,9 +11,15 @@ DecideKernelVersion()
 {
 	local Architecture="${1:-686}"
 
+	if [[ "$Architecture" != *-smp ]]; then
+		Architecture_Alt="$Architecture-smp"
+	else
+		Architecture_Alt="${Architecture%-smp}"
+	fi
+
 	KERNEL_VERSION_NOW="$(uname -r)"
 	KERNEL_VERSION="${KERNEL_VERSION_NOW%*-*86*}-$Architecture" # Our kernels always report the architecture they're compiled for last
-	KERNEL_VERSION_ALT="${KERNEL_VERSION_NOW%*-*86*}-686" # If initial choice fails, use this
+	KERNEL_VERSION_ALT="${KERNEL_VERSION_NOW%*-*86*}-${Architecture_Alt}" # If initial choice fails, use this
 
 	deb_version=$(dpkg -l linux-image-`uname -r` | grep '^ii' |cut -d ' ' -f4)
 	kernel="$(find /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ -name "linux-image-${KERNEL_VERSION}_${deb_version}_*.deb")"	
