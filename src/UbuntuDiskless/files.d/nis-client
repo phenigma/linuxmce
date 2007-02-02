@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e 
+
+RootLocation=$1
+if [[ ! -d "$RootLocation" ]] ;then
+	echo "ERROR: Directory "$RootLocation" does not exist"
+	exit 1
+fi
+
+. /usr/pluto/bin/Network_Parameters.sh
+. /usr/pluto/bin/Section_Ops.sh
+
+## Config for nis to act as a client
+File="/etc/default/nis"
+mkdir -p "${RootLocation}/$(dirname $File)"
+cp "/usr/pluto/templates/nis-client.template" "${RootLocation}/${File}"
+PopulateSection "${RootLocation}/${File}" "Nis Master" "NISMASTER=$IntIP"
+
+## Set the default nis domain
+File="/etc/defaultdomain"
+mkdir -p ${RootLocation}/$(dirname $File)"
+echo "pluto" > "${RootLocation}/${File}"
