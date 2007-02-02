@@ -5,6 +5,8 @@ if [[ -n "$HEADER_Diskless_Utils" ]]; then
 fi
 HEADER_Diskless_Utils=included
 
+. /usr/pluto/bin/pluto.func
+
 DecideKernelVersion()
 {
 	local Architecture="${1:-686}"
@@ -21,7 +23,8 @@ DecideKernelVersion()
 	if [[ "$words" -eq 0 && "$words_alt" -eq 0 ]]; then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "No kernel matching 'linux-image-$KERNEL_VERSION' and 'linux-image-$KERNEL_VERSION_ALT' was found"
 		echo
-		exit 1
+		echo
+		return 1
 	fi
 	if [[ "$words" -gt 1 ]]; then
 		kernel="$(echo "$kernel" | cut -d' ' -f1)"
