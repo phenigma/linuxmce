@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e 
+
+. ./filesd-parms.sh
+
+File="/etc/network/interfaces"
+Content=""
+
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Network_Parameters.sh
+
+Q="
+	SELECT IPaddress
+	FROM Device
+	WHERE PK_Device='$Parm_Device'
+"
+R=$(RunSQL "$Q")
+IPaddress=$(Field 1 "$R")
+
+if [[ -z "$IPaddress" ]]; then
+	echo "ERROR: IP address for device '$Parm_Device' is empty in the database"
+	exit 1
+fi
+
+Content="auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+	address $IPaddress
+	netmask $IntNetmask
+	gateway $IntIP"
+mkdir -p "${Parm_RootLocation}/$(dirname $File)"
+
+echo -e  "${Content}" > "${Parm_RootLocation}/${File}"

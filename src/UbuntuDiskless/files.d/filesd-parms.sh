@@ -15,3 +15,8 @@ if [[ ! -d "$Parm_RootLocation" ]] ;then
 	echo "ERROR: Directory "$Parm_RootLocation" does not exist"
 	exit 1
 fi
+
+if [[ -z "$Parm_Device" ]]; then
+	echo "ERROR: Device not specified"
+	exit 1
+fi
