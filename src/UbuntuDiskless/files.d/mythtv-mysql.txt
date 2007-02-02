@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e 
+
+. ./filesd-parms.sh
+
+File="/etc/mythtv/mysql.txt"
+
+mkdir -p "${Parm_RootLocation}/$(dirname $File)"
+cp "${File}" "${Parm_RootLocation}/${File}"
+sed -i "s/^DBHostName.*/DBHostName=dcerouter/g" "${Parm_RootLocation}/${File}"
+
