@@ -18,3 +18,5 @@ else
 	TimeZone="${TimeZone#/usr/share/zoneinfo/}"
 fi
 echo "$TimeZone" >"${Parm_RootLocation}/${File}"
+[[ -f "$Parm_RootLocation/etc/localtime" ]] && rm -f "$Parm_RootLocation"/etc/localtime # in case it's a file from the old (wrong) way of setting this up
+ln -sf /usr/share/zoneinfo/"$TimeZone" "$Parm_RootLocation"/etc/localtime
