@@ -2,7 +2,15 @@
 
 #include <algorithm>
 
-#define UNIT_TEST_PARSER
+#include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/FileUtils.h"
+#include "DCE/Logger.h"
+
+//--------------------------------------------------------------------------------------------------
+namespace DCE
+{
+	Logger *g_pPlutoLogger;
+}
 //--------------------------------------------------------------------------------------------------
 PackageXMLParser::PackageXMLParser() : m_CurrentNode(niNone)
 {
@@ -16,13 +24,13 @@ PackageXMLParser::~PackageXMLParser()
 	xmlMemoryDump();
 }
 //--------------------------------------------------------------------------------------------------
-void PackageXMLParser::ProcessNode(xmlTextReaderPtr reader) 
+bool PackageXMLParser::ProcessNode(xmlTextReaderPtr reader) 
 {
 	const char *name, *value;
 
 	name = (char *)xmlTextReaderConstName(reader);
 	if(name == NULL)
-		return;
+		return false;
 
 	value = (char *)xmlTextReaderConstValue(reader);
 
@@ -50,6 +58,8 @@ void PackageXMLParser::ProcessNode(xmlTextReaderPtr reader)
 			}
 		}
 	}
+
+	return true;
 }
 //--------------------------------------------------------------------------------------------------
 void PackageXMLParser::ProcessPackage()
@@ -62,10 +72,10 @@ void PackageXMLParser::ProcessPackage()
 	}
 }
 //--------------------------------------------------------------------------------------------------
-void PackageXMLParser::Parse(string sFileName)
+void PackageXMLParser::Parse(string sXmlData)
 {
 	xmlTextReaderPtr Reader;
-	Reader = xmlReaderForFile(sFileName.c_str(), NULL, 0);
+	Reader = xmlReaderForMemory(sXmlData.c_str(), static_cast<int>(sXmlData.length()), NULL, NULL, 0);
 
 	int ret;
 
@@ -74,20 +84,18 @@ void PackageXMLParser::Parse(string sFileName)
 		ret = xmlTextReaderRead(Reader);
 		while (ret != -1)
 		{
-			ProcessNode(Reader);
-			ret = xmlTextReaderRead(Reader);
+			if(!ProcessNode(Reader))
+				ret = -1;
+			else
+				ret = xmlTextReaderRead(Reader);
 		}
 		
 		xmlFreeTextReader(Reader);
 		if (ret != 0) 
 		{
-			fprintf(stderr, "%s : failed to parse\n", sFileName.c_str());
+			fprintf(stderr, "%s : failed to parse\n");
 		}
 	} 
-	else 
-	{
-		fprintf(stderr, "Unable to open %s\n", sFileName.c_str());
-	}
 
 	return;
 }
@@ -102,8 +110,12 @@ int main()
 {
 	string sFileName = "/temp/packages.xml";
 
+	string sXmlData;
+	FileUtils::ReadTextFile(sFileName, sXmlData);
+	sXmlData = StringUtils::Replace(sXmlData, "&", "&amp;");
+
 	PackageXMLParser parser;
-	parser.Parse(sFileName);
+	parser.Parse(sXmlData);
 	const list<PackageInfo>& listPackages = parser.GetParsedData();
 
 	for(list<PackageInfo>::const_iterator it = listPackages.begin(); it != listPackages.end(); ++it)

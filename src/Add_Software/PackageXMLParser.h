@@ -59,13 +59,13 @@ private:
 	NodeIndex m_CurrentNode;
 	
 	void ProcessPackage();
-	void ProcessNode(xmlTextReaderPtr reader);
+	bool ProcessNode(xmlTextReaderPtr reader);
 
 public:
 
 	PackageXMLParser();
 	~PackageXMLParser();
-	void Parse(string sFileName);
+	void Parse(string sXmlData);
 	const list<PackageInfo>& GetParsedData() const;
 };
 //--------------------------------------------------------------------------------------------------
