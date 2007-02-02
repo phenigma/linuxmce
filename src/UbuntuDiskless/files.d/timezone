@@ -1,0 +1,15 @@
+#!/bin/bash
+# vim:set ft=sh:
+
+set -e 
+. ./filesd-parms.sh
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/Network_Parameters.sh
+
+## fstab for diskless mds
+File="/etc/timezone"
+Content=""
+
+mkdir -p "${Parm_RootLocation}/$(dirname $File)"
+cat /etc/timezone > "${Parm_RootLocation}/${File}"
+
