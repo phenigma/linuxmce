@@ -16,33 +16,104 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 	$pname=$nameArr[0];
 	$picID=$picArr[0];
 	
-	if(isset($_REQUEST['searchForFiles']) && strlen($_REQUEST['searchForFiles'])<3){
-		$_REQUEST['error']=$TEXT_ERROR_SEARCHSTRING_TOO_SHORT_CONST;
-	}
+	$selMediaType=(isset($_REQUEST['mediaType']))?(int)$_REQUEST['mediaType']:0;	
+	$selSubType=(isset($_REQUEST['subtype']))?(int)$_REQUEST['subtype']:0;
+	$selGenre=(isset($_REQUEST['genre']))?(int)$_REQUEST['genre']:0;
+	$selOrderBy=(isset($_REQUEST['orderBy']))?(int)$_REQUEST['orderBy']:'filename';
 	
-	// set Order field to PK_PlaylistEntry for the records who doesn't have it set
-	$mediadbADO->Execute('UPDATE PlaylistEntry SET `Order`=PK_PlaylistEntry WHERE `Order` IS NULL');
-	
-	$scriptInHead='
-		<script>
-		function selAllCheckboxes(forced)
-		{
-			if(forced==0){
-				val=(document.editPlaylist.setAll.checked)?true:false;
-			}else{
-				val=(document.editPlaylist.setAll.checked)?false:true;
-				document.editPlaylist.setAll.checked=val;
-			}
-			for(i=1;i<records+1;i++){
-				document.getElementById("file_"+i).checked=val;
-			}
-		}
-		</script>
-	';
 	if($action=='form'){
-		$commandGroups=getAssocArray('CommandGroup','PK_CommandGroup','Description',$dbADO);
 		$pic=(!is_null($picID))?'<a href="mediapics/'.$picID.'.jpg" target="_blank"><img src="mediapics/'.$picID.'_tn.jpg" border="0"></a>':'';
 		
+		// media types - hardcoded to music, videos amd movies
+		$mediaTypes=array(
+			0=>'All',
+			4=>'Music',
+			5=>'Video',
+			3=>'Movies'
+		);
+		
+		// subtypes
+		$subTypesArray=getAssocArray('MediaSubType','PK_MediaSubType','Description',$mediadbADO,'ORDER BY Description ASC');
+				
+		// genres
+		$genresArray=getAssocArray('Attribute','PK_Attribute','Name',$mediadbADO,'WHERE FK_AttributeType=8','ORDER BY Name ASC');
+				
+		// order by array
+		$orderByArray=array(
+			0=>array(
+				'filename'=>'Filename',
+				'title'=>'Title'
+				),
+			4=>array(
+				'artist'=>'Artist',
+				'album'=>'Album',
+				'filename'=>'Filename',
+				'title'=>'Title'
+				),
+			5=>array(
+				'filename'=>'Filename',
+				'title'=>'Title'
+				),
+			3=>array(
+				'filename'=>'Filename',
+				'title'=>'Title'
+				),
+		);
+		
+		$titlesArray=array_keys(getAssocArray('Attribute','PK_Attribute','Name',$mediadbADO,'WHERE FK_AttributeType=13','ORDER BY Name ASC'));
+		
+		$whereArray=array();
+		$joinArray=array();
+		
+		$whereArray[]='IsDirectory=0 AND Missing=0';
+				
+		// filter my media type
+		if((int)@$_REQUEST['mediaType']!=0){
+			$whereArray[]='EK_MEdiaType='.(int)@$_REQUEST['mediaType'];
+		}
+	
+		// filter my media sub-type
+		if((int)@$_REQUEST['subtype']!=0){
+			$whereArray[]='FK_MediaSubType='.(int)@$_REQUEST['subtype'];
+		}
+		
+		// filter my genre
+		if((int)@$_REQUEST['genre']!=0){
+			$joinArray[]='INNER JOIN File_Attribute FA1 ON FA1.FK_File=PK_File';
+			$whereArray[]='FA1.FK_Attribute='.(int)@$_REQUEST['genre'];
+		}
+
+		// join clause for title attributes
+		$joinArray[]='
+			LEFT JOIN File_Attribute FA2 ON FA2.FK_File=PK_File AND FA2.FK_Attribute IN ('.join(',',$titlesArray).')
+			LEFT JOIN Attribute A2 ON FA2.FK_Attribute=A2.PK_Attribute
+		';
+
+		$join=join(' ',$joinArray);
+		$where=' WHERE '.join(' AND ',$whereArray);
+		
+		switch ($selOrderBy){
+			case 'title':
+				$order='ORDER BY A2.Name ASC';
+			break;
+			default:
+				$order='ORDER BY File.Filename ASC';
+			break;
+		}
+	
+		
+		// files to be added to playlist
+		$toAdd=getAssocArray('File','CONCAT("file_",PK_File) AS PK_File','IF(FA2.FK_File IS NULL,File.Filename,CONCAT(A2.Name," [",File.Filename,"]")) AS Filename',$mediadbADO,$join.$where,$order);
+				
+		
+		$queryPlaylistEntry="
+			SELECT PlaylistEntry.*,FileFilename, File.Path AS FilePath
+			FROM PlaylistEntry
+			LEFT JOIN File ON PlaylistEntry.FK_File=PK_File
+			WHERE FK_Playlist=?
+			ORDER BY 'Order' ASC";
+		$added=getAssocArray('PlaylistEntry','PK_PlaylistEntry','File.Filename',$mediadbADO,'LEFT JOIN File ON PlaylistEntry.FK_File=PK_File WHERE FK_Playlist='.$playlistID.' ORDER BY PlaylistEntry.`Order` ASC');
+
 		$out.='
 		<script>
 			function windowOpen(locationA,attributes) {
@@ -53,15 +124,14 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		
-			<h3 align="center">'.$TEXT_EDIT_PLAYLIST_CONST.'# '.$playlistID.'</h3>
-			<form action="index.php" method="POST" name="editPlaylist" enctype="multipart/form-data">
+			<form action="index.php" method="POST" name="editPlaylist" enctype="multipart/form-data" onSubmit="return updateList();">
 			<input type="hidden" name="section" value="editPlaylist">
 			<input type="hidden" name="plID" value="'.$playlistID.'">
 			<input type="hidden" name="action" value="update">
 			<input type="hidden" name="jumpFromTo" value="">
 			<input type="hidden" name="oldPic" value="'.$picID.'">
 
-			<table align="center">
+			<table>
 				<tr>
 					<td align="center" colspan="2">'.$pic.'</td>
 				</tr>
@@ -78,323 +148,157 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 					<td align="center" colspan="2"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
 				</tr>				
 			</table>
-			<table cellpadding="3" cellspacing="2" align="center">
-				<tr class="tablehead">
-					<td align="center"><B>#</B></td>
-					<td align="center"><B>'.$TEXT_FILENAME_CONST.'</B> / <B>'.$TEXT_PATH_CONST.'</B></td>
-					<td align="center"><B>'.$TEXT_START_COMMAND_GROUP_CONST.'</B></td>
-					<td align="center"><B>'.$TEXT_STOP_COMMAND_GROUP_CONST.'</B></td>
-					<td align="center"><B>'.$TEXT_DURATION_CONST.'</B></td>
-					<td align="center"><B>'.$TEXT_ACTION_CONST.' *</B></td>
-				</tr>';
-		
-		// get bookmark array
-		$resB=$mediadbADO->Execute('
-			SELECT PK_Bookmark,Bookmark.Description, File.Filename,FK_File
-			FROM Bookmark
-			LEFT JOIN File ON FK_File=PK_File
-			WHERE IsAutoResume!=1
-			ORDER BY Bookmark.Description ASC,Filename ASC');
-		$bookmarksArray=array();
-		while($rowB=$resB->FetchRow()){
-			$bookmarksArray[$rowB['PK_Bookmark']]=$rowB['Description'].((!is_null($rowB['FK_File']))?' ('.$rowB['Filename'].')':'');
-		}
-				
-		$queryPlaylistEntry="
-			SELECT PlaylistEntry.*,File.Filename AS FileFilename, File.Path AS FilePath
-			FROM PlaylistEntry
-			LEFT JOIN File ON PlaylistEntry.FK_File=PK_File
-			WHERE FK_Playlist=?
-			ORDER BY 'Order' ASC";
-		$resPlaylistEntry=$mediadbADO->Execute($queryPlaylistEntry,$playlistID);
-		$oldOrderArray=array();
-		$pos=0;
-		while($rowPlaylistEntry=$resPlaylistEntry->FetchRow()){
-			$pos++;
-			$oldOrderArray[$pos]['entryID']=$rowPlaylistEntry['PK_PlaylistEntry'];
-			$oldOrderArray[$pos]['order']=$rowPlaylistEntry['Order'];
-		}
-		if($resPlaylistEntry->RecordCount()==0){
-			$out.='
+			<table cellpadding="3" cellspacing="2">
+				<tr class="alternate_back">
+					<td align="center"><B>Show</B></td>
+					<td align="center">'.pulldownFromArray($mediaTypes,'mediaType',$selMediaType,'onChange="reloadForm();"').'</td>
+					<td align="center"><B>of type</B></td>
+					<td align="center">'.pulldownFromArray($subTypesArray,'subtype',$selSubType,'onChange="reloadForm();"').'</td>
+					<td align="center"><B>genre</B></td>
+					<td align="center">'.pulldownFromArray($genresArray,'genre',$selGenre,'onChange="reloadForm();"').'</td>
+					<td align="center"><B>order by</B></td>
+					<td align="center">'.pulldownFromArray($orderByArray[$selMediaType],'orderBy',$selOrderBy,'onChange="reloadForm();"','key','').'</td>
+					<td align="center"><input type="button" class="button" name="go" value="'.$TEXT_GO_CONST.'" onClick="reloadForm();"></td>
+				</tr>
 				<tr>
-					<td align="center" colspan="5">'.$TEXT_NO_RECORDS_CONST.'</td>
-				</tr>			
-			';
-		}
-		$pos=0;
-		$resPlaylistEntry->MoveFirst();
-		$playlistEntries=array();
-		while($rowPlaylistEntry=$resPlaylistEntry->FetchRow()){
-			$playlistEntries[]=$rowPlaylistEntry['PK_PlaylistEntry'];
-			$pos++;
-			$filename=(($rowPlaylistEntry['Filename']!='')?$rowPlaylistEntry['Filename']:$rowPlaylistEntry['FileFilename']);
-			$filename=(!is_null($rowPlaylistEntry['FK_Bookmark']))?$bookmarksArray[$rowPlaylistEntry['FK_Bookmark']]:$filename;
-			$editFileLink=(!is_null($rowPlaylistEntry['FK_File']))?'<a href="index.php?section=editMediaFile&fileID='.$rowPlaylistEntry['FK_File'].'">'.$TEXT_EDIT_CONST.'</a>':'';
-			$out.='
-				<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#EBEFF9').'">
-					<td>'.$pos.'</td>
-					<td><B>'.$filename.'</B><br>'.(($rowPlaylistEntry['Path']!='')?$rowPlaylistEntry['Path']:$rowPlaylistEntry['FilePath']).'</td>
-					<td>
-						<table width="100%">
-						 	<tr>
-								<td align="center">'.((!is_null($rowPlaylistEntry['EK_CommandGroup_Start']))?$commandGroups[$rowPlaylistEntry['EK_CommandGroup_Start']]:'N/A').'</td>
-								<td width="30"><a href="javascript:windowOpen(\'index.php?section=pickScenario&plID='.$playlistID.'&mode=start&entryID='.$rowPlaylistEntry['PK_PlaylistEntry'].'\',\'width=800,height=600,toolbars=true\');">'.$TEXT_PICK_COMMAND_GROUP_CONST.'</a></td>
+					<td align="center" colspan="9">
+						<table>
+							<tr>
+								<td>'.pulldownFromArray($toAdd,'toAdd[]','',' id="toAddList"multiple style="height:300px;" class="input_big"','key','').'</td>
+								<td align="center">
+								<input type="button" class="button" name="moveL" value="&lt;" onClick="moveDualList(document.getElementById(\'addedList\'),document.getElementById(\'toAddList\'),false);">
+								<input type="button" class="button" name="moveR" value="&gt;" onClick="moveDualList(document.getElementById(\'toAddList\'),document.getElementById(\'addedList\'),false);"><br>
+								<input type="button" class="button" name="moveAllL" value="&lt;&lt;" onClick="moveDualList(document.getElementById(\'addedList\'),document.getElementById(\'toAddList\'),true);">
+								<input type="button" class="button" name="moveAllR" value="&gt;&gt;" onClick="moveDualList(document.getElementById(\'toAddList\'),document.getElementById(\'addedList\'),true);">
+								</td>
+								<td>'.pulldownFromArray($added,'added[]',0,' id="addedList" multiple style="height:300px;" class="input_big"','key','').'</td>
+								<td align="center"><input type="button" class="button" name="moveD" value="U" onClick="move(document.getElementById(\'addedList\'),document.getElementById(\'addedList\').selectedIndex,-1);"><br>
+								<input type="button" class="button" name="moveD" value="D" onClick="move(document.getElementById(\'addedList\'),document.getElementById(\'addedList\').selectedIndex,1);">
+								 </td>
 							</tr>
 						</table>
 					</td>
-					<td><table width="100%" border="0">
-						 	<tr>
-								<td align="center">'.((!is_null($rowPlaylistEntry['EK_CommandGroup_Stop']))?$commandGroups[$rowPlaylistEntry['EK_CommandGroup_Stop']]:'N/A').'</td>
-								<td width="30"><a href="javascript:windowOpen(\'index.php?section=pickScenario&plID='.$playlistID.'&mode=stop&entryID='.$rowPlaylistEntry['PK_PlaylistEntry'].'\',\'width=800,height=600,toolbars=true\');">'.$TEXT_PICK_COMMAND_GROUP_CONST.'</a></td>
-							</tr>
-						</table></td>
-					<td align="center"><input type="text" name="duration_'.$rowPlaylistEntry['PK_PlaylistEntry'].'" value="'.$rowPlaylistEntry['Duration'].'" style="width:50px;"></td>
-					<td>'.$editFileLink.' <a href="#" onClick="if(confirm(\''.$TEXT_DELETE_FILE_FROM_PLAYLIST_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editPlaylist&action=delete&plID='.$playlistID.'&entryID='.$rowPlaylistEntry['PK_PlaylistEntry'].'\'">'.$TEXT_DELETE_CONST.'</a>
-					<input type="button" class="button" name="plus" value="U" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&increaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'"> 
-					<input type="button" class="button" name="plus" value="D" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&decreaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'">
-					<input type="text" name="jumpTo" value="" size="1" onBlur="document.editPlaylist.jumpFromTo.value=\''.$pos.',\'+this.value;document.editPlaylist.submit();"> <input type="button" class="button" name="go" value="'.$TEXT_GO_CONST.'">
-					</td>
-				</tr>';
-		}
-		if($resPlaylistEntry->RecordCount()>0){
-			$out.='
-				<tr>
-					<td align="left" colspan="6"><em>* '.$TEXT_CHANGE_POSITION_INFO_CONST.'</em></td>
-				</tr>			
-				<tr>
-					<td colspan="5" align="center">
-						<input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'">
-						<input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">
-						<input type="hidden" class="button" name="playlistEntries" value="'.join(',',$playlistEntries).'">
-					</td>
 				</tr>
-				';
+				<tr>
+					<td align="center" colspan="9"><input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"></td>
+				</tr>				
+			<table>
+			<input type="hidden" name="oldEntries" value="'.join(',',array_keys($added)).'">
+			<input type="hidden" name="newEntries" value="">
+		</form>
+		
+		<script>
+			function reloadForm(){
+				document.editPlaylist.action.value="form";
+				document.editPlaylist.submit();
+			}
+			
+		// Dual list move function
+		
+		function moveDualList( srcList, destList, moveAll) {
+		
+			var len = destList.length;
+		
+			// get source elements
+			for( var i = 0; i < srcList.length; i++ ) { 
+		    	if ((srcList[i].selected || moveAll)) {    
+		       		destList[ len ] = new Option( srcList[i].text, srcList[i].value);
+		      		len++;
+		    	}
+		 	}
+			
+		 	for( var i = srcList.options.length - 1; i >= 0; i-- ) { 
+			   	if ( srcList.options[i] != null && ( srcList.options[i].selected == true || moveAll ) ) {
+					srcList.options[i]       = null;
+			   	}
+			}
+		} 
+		
+		function eraseElement(value,destList)
+		{
+			// Erase source list selected elements
+			for( var i = destList.options.length - 1; i >= 0; i-- ) { 
+				if ( destList.options[i].value==value) {
+					destList.options[i] = null;
+		    	}
+			}
 		}
 		
-	
-		$out.='
-				<tr>
-					<td align="center" colspan="6">&nbsp;</td>
-				</tr>			
-				<tr>
-					<td align="center" colspan="5">
-						<B>'.$TEXT_SEARCH_FOR_FILES_CONST.':</B> 
-						<input type="text" name="searchForFiles" value="'.@$_REQUEST['searchForFiles'].'">
-						<input type="button" class="button" name="searchBtn" value="'.$TEXT_SEARCH_CONST.'" onClick="document.editPlaylist.action.value=\'form\';document.editPlaylist.submit();">
-						&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$TEXT_ADD_BOOKMARK_CONST.'</b> 
-						'.pulldownFromArray($bookmarksArray,'bookmark',0).'
-						<input type="submit" class="button" name="add_bookmark" value="'.$TEXT_ADD_CONST.'">
-					</td>
-				</tr>';
-		if(isset($_REQUEST['searchForFiles']) && strlen($_REQUEST['searchForFiles'])>2){
-			$searchString='%'.$_REQUEST['searchForFiles'].'%';
-			$resFiles=$mediadbADO->Execute('SELECT * FROM File WHERE Filename LIKE ?',$searchString);
-			$displayedFilesArray=array();
-			$pos=0;
-			$out.='
-				<tr bgcolor="#EBEFF9">
-					<td colspan="5" align="center"><B>'.$TEXT_SEARCH_RESULTS_CONST.'</B></td>				
-				</tr>';
-			
-			// multipage display variables
-			$filesPerPage=30;
-			$page=(isset($_REQUEST['page']))?(int)$_REQUEST['page']:1;
-			$noRecords=$resFiles->RecordCount();
-			$noPages=ceil($noRecords/$filesPerPage);
-			$linkPages=array();
-			for($i=1;$i<$noPages+1;$i++){
-				$url=(strpos($_SERVER['QUERY_STRING'],'editPlaylist')===false)?'section=editPlaylist&plID='.$playlistID.'&searchForFiles='.urlencode($_REQUEST['searchForFiles']):'';
-				$linkPages[]=($i==$page)?'<span class="normal_row">'.$i.'</span>':'<a class="red_link" href="index.php?'.$url.str_replace('&page='.$page,'',$_SERVER['QUERY_STRING']).'&page='.$i.'">'.$i.'</a>';
-			}
-			$linksBar=join(' ',$linkPages);
-			if($noRecords==0){
-				$out.='
-				<tr>
-					<td colspan="5" align="center">'.$TEXT_NO_RECORDS_CONST.'</td>				
-				</tr>';
-			}
-
-			$fileCounter=0;		
-			while($rowFiles=$resFiles->FetchRow()){
-				$pos++;
-				if($pos>($page-1)*$filesPerPage && $pos<=$page*$filesPerPage){
-					$fileCounter++;
-					$color=($pos%2==0)?'#F0F3F8':'#FFFFFF';
-					$displayedFilesArray[]=$rowFiles['PK_File'];
-					$out.='
-					<tr bgcolor="'.$color.'">
-						<td colspan="5"><input type="checkbox" name="file_'.$rowFiles['PK_File'].'" value="1" checked id="file_'.$fileCounter.'"> '.$rowFiles['Path'].'/<B>'.$rowFiles['Filename'].'</B></td>
-					</tr>';
-				}
-			}
-			if($resFiles->RecordCount()>0){
-				$out.='
-				<tr bgcolor="#EBEFF9">
-					<td colspan="2" align="left"><input type="checkbox" name="setAll" onClick="selAllCheckboxes(0)" checked> <a href="javascript:selAllCheckboxes(1)">'.$TEXT_SELECT_UNSELECT_ALL_CONST.'</a></td>				
-					<td colspan="3" align="right">'.$linksBar.'</td>
-				</tr>
-				<tr>
-					<td colspan="5"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_SELECTED_FILES_CONST.'">
-						<input type="hidden" name="displayedFilesArray" value="'.join(',',$displayedFilesArray).'">
-					</td>
-				</tr>
-				<script>var records='.$fileCounter.';</script>
-				';
-			}
+		function move(formObj,index,to) {
+		
+			var list = formObj;
+			var total = list.options.length-1;
+		
+			if (index == -1) return false;
+			if (to == +1 && index == total) return false;
+			if (to == -1 && index == 0) return false;
+		
+				var items = new Array;
+				var values = new Array;
+					for (i = total; i >= 0; i--) {
+						items[i] = list.options[i].text;
+						values[i] = list.options[i].value;
+					}
+					for (i = total; i >= 0; i--) {
+						if (index == i) {
+							list.options[i + to] = new Option(items[i],values[i], 0, 1);
+							list.options[i] = new Option(items[i + to], values[i+to]);
+							i--;
+						} else {
+							list.options[i] = new Option(items[i], values[i]);
+		   				}
+					}
+			list.focus();
 		}
-		$out.='			
-			<table>
-			<input type="hidden" name="oldOrderArray" value="'.str_replace('"','\'',urlencode(serialize($oldOrderArray))).'">
-		</form>';
+		
+		
+		function updateList(){
+			myList=document.getElementById("addedList");
+			var arr=new Array(myList.options.length);
+			
+			for( var i=0; i< myList.options.length; i++) { 
+				arr[i]=myList.options[i].value;
+			}
+			document.editPlaylist.newEntries.value=arr.join();
+			return true;
+		}
+		</script>';
 	}else{
 	// process area
-		if(isset($_POST['add'])){
-			$displayedFilesArray=explode(',',$_POST['displayedFilesArray']);
-			foreach ($displayedFilesArray AS $fileID){
-				if(isset($_POST['file_'.$fileID]) && (int)$_POST['file_'.$fileID]==1){
-					$mediadbADO->Execute("INSERT INTO PlaylistEntry (FK_File, FK_Playlist,Path,Filename) SELECT $fileID,$playlistID,Path,Filename FROM File WHERE PK_File=?",$fileID);
-					$insertID=$mediadbADO->Insert_ID();
-					$mediadbADO->Execute("UPDATE PlaylistEntry SET `Order`=? WHERE PK_PlaylistEntry=?",array($insertID,$insertID));
-				}
-			}
-			
-			header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&msg='.$TEXT_FILES_ADDED_CONFIRMATION_CONST);
-			exit();
+	
+		$oldEntries=explode(',',$_POST['oldEntries']);
+		$newEntries=explode(',',$_POST['newEntries']);
+
+		$toAdd=array_diff($newEntries,$oldEntries);
+		$toRemove=array_diff($oldEntries,$newEntries);
+		
+		if(count($toRemove)>0){
+			$mediadbADO->Execute("DELETE FROM PlaylistEntry WHERE PK_PlaylistEntry IN (".join(',',array_values($toRemove)).")");
 		}
 		
-		if(isset($_REQUEST['entryID'])){
-			$entryID=(int)$_REQUEST['entryID'];
-			$mediadbADO->Execute('DELETE FROM PlaylistEntry WHERE PK_PlaylistEntry=?',$entryID);
-			
-			header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&msg='.$TEXT_FILE_DELETED_CONFIRMATION_CONST);
-		}
-
-		if(isset($_REQUEST['increaseID'])){
-			$increaseID=(int)$_REQUEST['increaseID'];
-			$oldOrder=(int)$_REQUEST['oldOrder'];
-			$resFirstLowerOrder=$mediadbADO->Execute("SELECT PK_PlaylistEntry,`Order` FROM PlaylistEntry WHERE `Order`<? ORDER BY `Order` DESC LIMIT 0,1",$oldOrder);
-			if($resFirstLowerOrder->RecordCount()>0){
-				$rowFLO=$resFirstLowerOrder->FetchRow();
-				$mediadbADO->Execute("UPDATE PlaylistEntry SET `Order`=? WHERE PK_PlaylistEntry=?",array($oldOrder,$rowFLO['PK_PlaylistEntry']));	
-				$mediadbADO->Execute("UPDATE PlaylistEntry SET `Order`=? WHERE PK_PlaylistEntry=?",array($rowFLO['Order'],$increaseID));	
+		if(count($toAdd)>0){
+			foreach ($toAdd AS $pos=>$file){
+				$fileID=substr($file,5);
+				$mediadbADO->Execute("INSERT INTO PlaylistEntry (FK_File, FK_Playlist,Path,Filename,`Order`) SELECT $fileID,$playlistID,Path,Filename,$pos FROM File WHERE PK_File=?",$fileID);
 			}
-
-			header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&msg='.$TEXT_FILE_INCREASED_CONFIRMATION_CONST);
-			exit();
-		}
-
-		if(isset($_REQUEST['decreaseID'])){
-			$decreaseID=(int)$_REQUEST['decreaseID'];
-			$oldOrder=(int)$_REQUEST['oldOrder'];
-			$resFirstLowerOrder=$mediadbADO->Execute("SELECT PK_PlaylistEntry,`Order` FROM PlaylistEntry WHERE `Order`>? ORDER BY `Order` ASC LIMIT 0,1",$oldOrder);
-			if($resFirstLowerOrder->RecordCount()>0){
-				$rowFLO=$resFirstLowerOrder->FetchRow();
-				$mediadbADO->Execute("UPDATE PlaylistEntry SET `Order`=? WHERE PK_PlaylistEntry=?",array($oldOrder,$rowFLO['PK_PlaylistEntry']));	
-				$mediadbADO->Execute("UPDATE PlaylistEntry SET `Order`=? WHERE PK_PlaylistEntry=?",array($rowFLO['Order'],$decreaseID));	
-			}
-
-			header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&msg='.$TEXT_FILE_DECREASED_CONFIRMATION_CONST);
-			exit();
-		}
-
-		if(isset($_POST['jumpFromTo']) && $_POST['jumpFromTo']!=''){
-			$oldOrderArray=unserialize(urldecode($_POST['oldOrderArray']));
-			$tmpArray=explode(',',$_POST['jumpFromTo']);
-			$fromPos=$tmpArray[0];
-			$toPos=$tmpArray[1];
-			if(in_array($toPos,array_keys($oldOrderArray))){
-				if($fromPos!=$toPos){
-					$updatePlaylistEntry='UPDATE PlaylistEntry SET `Order`=? WHERE PK_PlaylistEntry=?';
-					$mediadbADO->Execute($updatePlaylistEntry,array($oldOrderArray[$toPos]['order'],$oldOrderArray[$fromPos]['entryID']));
-				
-					if($fromPos>$toPos){
-						for($i=$toPos;$i<$fromPos;$i++){
-							$mediadbADO->Execute($updatePlaylistEntry,array($oldOrderArray[$i+1]['order'],$oldOrderArray[$i]['entryID']));
-						}
-					}else{
-						//$mediadbADO->debug=true;
-						for($i=$fromPos;$i<$toPos;$i++){
-							$mediadbADO->Execute($updatePlaylistEntry,array($oldOrderArray[$i]['order'],$oldOrderArray[$i+1]['entryID']));
-						}
-						
-					}
-				}
-			}else{
-				// do nothing, the position doesn't exist in the file list
-				header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&error='.$TEXT_ERROR_POSITION_DOESN_NOT_EXIST_CONST);
-				exit();
-			}
-		}
+		}	
 		
-		if(isset($_POST['update']) || isset($_POST['add_bookmark'])){
-			// update playlist
-			if($_FILES['ppic']['name']!=''){
-				$picExtension='jpg';
-				$pictureID=NULL;
-				$oldPic=(int)@$_POST['oldPic'];
-				
-				if(($_FILES['ppic']['type']!="image/jpg") && ($_FILES['ppic']['type']!="image/pjpeg") && ($_FILES['ppic']['type']!="image/jpeg")){
-					$error=$TEXT_ERROR_NOT_JPEG_CONST;
-				}
-				else{
-					if($oldPic>0){
-						@unlink($GLOBALS['mediaPicsPath'].$oldPic.'.jpg');
-						@unlink($GLOBALS['mediaPicsPath'].$oldPic.'_tn.jpg');
-					}
-					$insertPicture='INSERT INTO Picture (Extension) VALUES (?)';
-					$mediadbADO->Execute($insertPicture,array($picExtension));
-					$pictureID=$mediadbADO->Insert_ID();
-					$ppicName=$pictureID.'.'.$picExtension;
-					
-					if(move_uploaded_file($_FILES['ppic']['tmp_name'],$GLOBALS['mediaPicsPath'].$ppicName)){
-						// create thumbnail
-						resizeImage($GLOBALS['mediaPicsPath'].$ppicName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 100, 100);
-						$updatePic=',FK_Picture='.$pictureID;	
-					}
-				}
+		if(count($newEntries)>0){
+			for($i=0;$i<count($newEntries);$i++){
+				$mediadbADO->Execute('UPDATE PlaylistEntry SET `Order`=? WHERE PK_PlaylistEntry=?',array($i,$newEntries[$i]));
 			}
-			$pname=cleanString($_POST['pname']);			
-			$mediadbADO->Execute('UPDATE Playlist SET Name=? '.@$updatePic.' WHERE PK_Playlist=?',array($pname,$playlistID));
-			
-			
-			
-			$playlistEntries=explode(',',@$_POST['playlistEntries']);
-			foreach ($playlistEntries AS $playlistEntry){
-				if(isset($_POST['duration_'.$playlistEntry])){
-					$duration=((int)$_POST['duration_'.$playlistEntry]>0)?(int)$_POST['duration_'.$playlistEntry]:NULL;
-					$mediadbADO->Execute('UPDATE PlaylistEntry SET Duration=? WHERE PK_PlaylistEntry=?',array($duration,$playlistEntry));
-				}
-			}
-			
-			
-			if((int)$_POST['bookmark']>0){
-				$bookmark=(int)$_POST['bookmark'];
-				$pathArr=array_values(getAssocArray('File','PK_File','Path',$mediadbADO,'INNER JOIN Bookmark ON FK_File=PK_File WHERE PK_Bookmark='.$bookmark));
-
-				$mediadbADO->Execute('INSERT INTO PlaylistEntry (FK_Playlist,FK_Bookmark,FK_File,Path) VALUES (?,?,?,?)',array($playlistID,$bookmark,NULL,$pathArr[0]));
-				$entryID=$mediadbADO->Insert_ID();
-				$mediadbADO->Execute('UPDATE PlaylistEntry SET `Order`=? WHERE PK_Playlistentry=?',array($entryID,$entryID));
-			}
-			
-			header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&msg='.$TEXT_PLAYLIST_ENTRIES_UPDATED_CONST);
-			exit();
 		}
-
-		if(isset($_REQUEST['updatedEntryID'])){
-			$entryID=(int)$_REQUEST['updatedEntryID'];
-			$cgID=((int)$_REQUEST['cgID']==0)?NULL:(int)$_REQUEST['cgID'];
-			$mode=$_REQUEST['mode'];
-			$field=($mode=='start')?'EK_CommandGroup_Start':'EK_CommandGroup_Stop';
-			$mediadbADO->Execute('UPDATE PlaylistEntry SET '.$field.'=? WHERE PK_PlaylistEntry=?',array($cgID,$entryID));
-		}
+	
 		
-		header('Location: index.php?section=editPlaylist&plID='.$playlistID);
+		header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&msg='.urlencode($TEXT_PLAYLIST_ENTRIES_UPDATED_CONST).'&mediaType='.$selMediaType.'&subtype='.$selSubType.'&genre='.$selGenre.'&orderBy='.$selOrderBy);
+		exit();
 	}
 	
-	$output->setScriptInHead($scriptInHead);	
-	$output->setNavigationMenu(array("Playlists"=>'index.php?section=playlists'));
+	$output->setMenuTitle($TEXT_FILES_AND_MEDIA_CONST.' |');
+	$output->setPageTitle($TEXT_EDIT_PLAYLIST_CONST.'# '.$playlistID);
+	$output->setNavigationMenu(array("Playlists"=>'index.php?section=playlists',$TEXT_EDIT_PLAYLIST_CONST=>'index.php?section=editPlaylist&plID='.$playlistID));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_PLAYLIST_CONST);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_PLAYLIST_CONST.'# '.$playlistID);
 	$output->output();
 }
