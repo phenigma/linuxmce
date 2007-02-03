@@ -32,6 +32,7 @@
 #include "pluto_main/Table_DesignObjVariation_Text.h"
 #include "pluto_main/Table_DesignObjVariation_Zone.h"
 #include "pluto_main/Table_DesignObjVariation_DesignObj.h"
+#include "pluto_main/Table_DesignObjVariation_DesignObj_Skin_Language.h"
 #include "pluto_main/Table_DesignObjVariation_DesignObjParameter.h"
 #include "pluto_main/Table_EntertainArea.h"
 #include "pluto_main/Table_Room.h"
@@ -502,21 +503,21 @@ Table_Image *p = m_mds->Image_get();
                     if( GraphicType==1 )
                     {
                         int X=m_rPosition.X,Y=m_rPosition.Y;
-                        Row_DesignObjVariation_DesignObjParameter * drOVCP_C_X = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_X_Position_CONST);
+                        Row_DesignObjVariation_DesignObjParameter * drOVCP_C_X = GetParmRow(DESIGNOBJPARAMETER_X_Position_CONST,m_pRow_DesignObjVariation);
                         if( drOVCP_C_X==NULL && m_pRow_DesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() )
-                            drOVCP_C_X = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_X_Position_CONST);
+                            drOVCP_C_X = GetParmRow(DESIGNOBJPARAMETER_X_Position_CONST,m_pRow_DesignObjVariation);
 
-                        Row_DesignObjVariation_DesignObjParameter * drOVCP_C_Y = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Y_Position_CONST);
+                        Row_DesignObjVariation_DesignObjParameter * drOVCP_C_Y = GetParmRow(DESIGNOBJPARAMETER_Y_Position_CONST,m_pRow_DesignObjVariation);
                         if( drOVCP_C_Y==NULL && m_pRow_DesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() )
-                            drOVCP_C_Y = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Y_Position_CONST);
+                            drOVCP_C_Y = GetParmRow(DESIGNOBJPARAMETER_Y_Position_CONST,m_pRow_DesignObjVariation);
 
-						Row_DesignObjVariation_DesignObjParameter * drOVCP_C_CX = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Crop_X_CONST);
+						Row_DesignObjVariation_DesignObjParameter * drOVCP_C_CX = GetParmRow(DESIGNOBJPARAMETER_Crop_X_CONST,m_pRow_DesignObjVariation);
                         if( drOVCP_C_CX==NULL && m_pRow_DesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() )
-                            drOVCP_C_CX = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Crop_X_CONST);
+                            drOVCP_C_CX = GetParmRow(DESIGNOBJPARAMETER_Crop_X_CONST,m_pRow_DesignObjVariation);
 
-                        Row_DesignObjVariation_DesignObjParameter * drOVCP_C_CY = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Crop_Y_CONST);
+                        Row_DesignObjVariation_DesignObjParameter * drOVCP_C_CY = GetParmRow(DESIGNOBJPARAMETER_Crop_Y_CONST,m_pRow_DesignObjVariation);
                         if( drOVCP_C_CY==NULL && m_pRow_DesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() )
-                            drOVCP_C_CY = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Crop_Y_CONST);
+                            drOVCP_C_CY = GetParmRow(DESIGNOBJPARAMETER_Crop_Y_CONST,m_pRow_DesignObjVariation);
 
                         if( drOVCP_C_X && !drOVCP_C_X->Value_isNull() && drOVCP_C_X->Value_get()!="" )
                             m_rBitmapOffset.X = atoi(drOVCP_C_X->Value_get().c_str());
@@ -978,29 +979,63 @@ int k=2;
 int k=2;
     }
 
-    vector<Row_DesignObjVariation_DesignObj *> alArrays;
+    vector<Row_DesignObjVariation_DesignObj_Skin_Language *> alArrays;
 
     // Add all child objects, except for arrays, which we just store in alArrays
     for(size_t s=0;s<m_alDesignObjVariations.size();++s)
     {
         Row_DesignObjVariation * drOV=m_alDesignObjVariations[s];
 
-        vector<Row_DesignObjVariation_DesignObj *> vectovo;
-		m_mds->DesignObjVariation_DesignObj_get()->GetRows(
-			"WHERE FK_DesignObjVariation_Parent=" + StringUtils::itos(drOV->PK_DesignObjVariation_get()) + " ORDER BY DisplayOrder",
-			&vectovo);
+		// Get the matching child rows
+		string sSQL =
+			"SELECT DesignObjVariation_DesignObj_Skin_Language.* FROM DesignObjVariation_DesignObj_Skin_Language "
+			"JOIN DesignObjVariation_DesignObj ON PK_DesignObjVariation_DesignObj=FK_DesignObjVariation_DesignObj "
+			"WHERE (FK_Skin IS NULL OR FK_Skin=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Skin->PK_Skin_get()) + 
+			") AND (FK_Language IS NULL OR FK_Language=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Language->PK_Language_get()) + ") AND FK_DesignObjVariation_Parent="
+			+ StringUtils::itos(drOV->PK_DesignObjVariation_get()) + " " 
+			"ORDER BY PK_DesignObjVariation_DesignObj,FK_Language,FK_Skin";
+
+		// This will have the matching rows, but not in the display order.  Get the PK values and do another
+		// select to get them in the right order
+		string sPK;
+		Row_DesignObjVariation_DesignObj_Skin_Language *pRow_DesignObjVariation_DesignObj_Skin_Language_Last=NULL;
+		vector<Row_DesignObjVariation_DesignObj_Skin_Language *> vectRow_DesignObjVariation_DesignObj_Skin_Language;
+		m_mds->DesignObjVariation_DesignObj_Skin_Language_get()->GetRows(sSQL,&vectRow_DesignObjVariation_DesignObj_Skin_Language);
+		for(vector<Row_DesignObjVariation_DesignObj_Skin_Language *>::iterator it=vectRow_DesignObjVariation_DesignObj_Skin_Language.begin();
+			it!=vectRow_DesignObjVariation_DesignObj_Skin_Language.end();++it)
+		{
+			Row_DesignObjVariation_DesignObj_Skin_Language *pRow_DesignObjVariation_DesignObj_Skin_Language = *it;
+			if( pRow_DesignObjVariation_DesignObj_Skin_Language_Last && 
+				pRow_DesignObjVariation_DesignObj_Skin_Language_Last->PK_DesignObjVariation_DesignObj_Skin_Language_get()==
+				pRow_DesignObjVariation_DesignObj_Skin_Language->PK_DesignObjVariation_DesignObj_Skin_Language_get() )
+					continue;  // Only pick the variation that's the closest match
+
+			// We have a new child object to include
+			pRow_DesignObjVariation_DesignObj_Skin_Language_Last = pRow_DesignObjVariation_DesignObj_Skin_Language;
+			if( pRow_DesignObjVariation_DesignObj_Skin_Language_Last->Ignore_get()==1 )
+				continue;  // This variation may ignore it
+
+			if( sPK.empty()==false )
+				sPK += ",";
+			sPK += StringUtils::itos(pRow_DesignObjVariation_DesignObj_Skin_Language->PK_DesignObjVariation_DesignObj_Skin_Language_get());
+		}
+        
+		vector<Row_DesignObjVariation_DesignObj_Skin_Language *> vectovo;
+		if( sPK.empty()==false )
+			m_mds->DesignObjVariation_DesignObj_Skin_Language_get()->GetRows(
+				"WHERE PK_DesignObjVariation_DesignObj_Skin_Language IN (" + sPK + ") ORDER BY DisplayOrder",
+				&vectovo);
         for(size_t s2=0;s2<vectovo.size();++s2)
         {
-            Row_DesignObjVariation_DesignObj * drOVO = vectovo[s2];
-            Row_DesignObj *drDesignObj = drOVO->FK_DesignObj_Child_getrow();
+            Row_DesignObjVariation_DesignObj_Skin_Language * drOVO = vectovo[s2];
+			Row_DesignObj *pRow_DesignObj_Child = drOVO->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_getrow();
  
 			if( (m_rPosition.X+drOVO->X_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Width && (m_rPosition.Y+drOVO->Y_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Height )
             {
-                if( drDesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST )
+                if( pRow_DesignObj_Child->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST )
                     alArrays.push_back(drOVO);
                 else
                 {
-					Row_DesignObj *pRow_DesignObj_Child = drOVO->FK_DesignObj_Child_getrow();
                     if( pRow_DesignObj_Child->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
                     {
                         // Add 1 child for each floorplan page
@@ -1044,7 +1079,7 @@ int k=2;
 								Row_Floorplan *pRow_Floorplan = vectRow_Floorplan[s];
 								m_pOrbiterGenerator->m_iFloorplanPage = ++PageCount;
 								PlutoRectangle rectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get());
-								DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),rectangle,this,false,false,false);
+								DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_Child,rectangle,this,false,false,false);
 								if( pDesignObj_Generator->m_pRow_DesignObjVariation )
 								{
 									pDesignObj_Generator->m_bCanBeHidden = true;
@@ -1062,10 +1097,10 @@ int k=2;
                     else
                     {
 						// Don't auto process because we want to process children with m_sAdjustments after we do those without since they may depend on others
-                        DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),PlutoRectangle(m_rPosition.X+(drOVO->X_get()*m_iScale/100),m_rPosition.Y+(drOVO->Y_get()*m_iScale/100),drOVO->Width_get(),drOVO->Height_get()),this,false,false,false);
+                        DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_Child,PlutoRectangle(m_rPosition.X+(drOVO->X_get()*m_iScale/100),m_rPosition.Y+(drOVO->Y_get()*m_iScale/100),drOVO->Width_get(),drOVO->Height_get()),this,false,false,false);
                         if( !pDesignObj_Generator->m_pRow_DesignObjVariation )
                         {
-                            cout << "Not adding object: " << drOVO->FK_DesignObj_Child_get() << " to object: " << drOVO->FK_DesignObjVariation_Parent_getrow()->FK_DesignObj_get() << " because there are no qualifying variations." << endl;
+                            cout << "Not adding object: " << pRow_DesignObj_Child->PK_DesignObj_get() << " to object: " << drOVO->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObjVariation_Parent_getrow()->FK_DesignObj_get() << " because there are no qualifying variations." << endl;
                             delete pDesignObj_Generator; // Abort adding this object as a child, there were no variations
                         }
                         else
@@ -1101,7 +1136,7 @@ int k=2;
     // Now fill in all the arrays
     for(size_t s=0;s<alArrays.size();++s)
     {
-        Row_DesignObjVariation_DesignObj * drOVO = alArrays[s];
+        Row_DesignObjVariation_DesignObj_Skin_Language * drOVO = alArrays[s];
 
 		int PK_Array;
 		vector<class ArrayValue *> *alArrayValues = GetArrayValues(drOVO,PK_Array);  // PK_Array will be filled in
@@ -1118,7 +1153,7 @@ int k=2;
 		if( pCGArray->m_bContainsMore)
         {
             if( m_alMPArray.size()>0 )
-				g_pPlutoLogger->Write(LV_CRITICAL,"There is more than one multi-page array for object variation: %d",drOVO->PK_DesignObjVariation_DesignObj_get());
+				g_pPlutoLogger->Write(LV_CRITICAL,"There is more than one multi-page array for object variation: %d",drOVO->FK_DesignObjVariation_DesignObj_get());
 
             m_alMPArray.push_back(pCGArray);
             int Page=1;
@@ -1574,13 +1609,13 @@ TextStyle *DesignObj_Generator::PickStyleVariation(vector<Row_StyleVariation *> 
     return pTextStyle;
 }
 
-vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVariation_DesignObj * drOVO,int &PK_Array)
+vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVariation_DesignObj_Skin_Language *pRow_DesignObjVariation_DesignObj_Skin_Language,int &PK_Array)
 {
     vector<class ArrayValue *> *alArray = new vector<class ArrayValue *>;
 
     Row_DesignObjVariation *drDesignObjVariation=NULL,*drStandardVariation=NULL;
     vector<class Row_DesignObjVariation *> alDesignObjVariations;
-    PickVariation(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),&drDesignObjVariation,&drStandardVariation,&alDesignObjVariations);
+    PickVariation(m_pOrbiterGenerator,pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_getrow(),&drDesignObjVariation,&drStandardVariation,&alDesignObjVariations);
 
     string oArray = GetParm(DESIGNOBJPARAMETER_PK_Array_CONST,drDesignObjVariation);
     if( oArray.length()==0 )
@@ -1825,7 +1860,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 for(size_t s=0;s<vectD.size();++s)
                 {
                     Row_Device *drDevice = vectD[s];
-                    alArray->push_back(new ArrayValue(StringUtils::itos(drDevice->PK_Device_get()),drDevice->Description_get(),NULL,0,0,0,VARIABLE_PK_Device_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+                    alArray->push_back(new ArrayValue(StringUtils::itos(drDevice->PK_Device_get()),drDevice->Description_get(),NULL,0,0,0,VARIABLE_PK_Device_CONST,pRow_DesignObjVariation_DesignObj_Skin_Language->CanBeHidden_get()==1,pRow_DesignObjVariation_DesignObj_Skin_Language->HideByDefault_get()==1,false));
                 }
             }
             break;
@@ -1875,7 +1910,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 					string sRoom;
 					if( pRow_Room )
 						sRoom = pRow_Room->Description_get();
-                    alArray->push_back(new ArrayValue(StringUtils::itos(drDevice->PK_Device_get()),drDevice->Description_get() + "(" + sRoom + ")",NULL,0,0,0,VARIABLE_PK_Device_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+                    alArray->push_back(new ArrayValue(StringUtils::itos(drDevice->PK_Device_get()),drDevice->Description_get() + "(" + sRoom + ")",NULL,0,0,0,VARIABLE_PK_Device_CONST,pRow_DesignObjVariation_DesignObj_Skin_Language->CanBeHidden_get()==1,pRow_DesignObjVariation_DesignObj_Skin_Language->HideByDefault_get()==1,false));
                 }
             }
             break;
@@ -1905,7 +1940,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 							sName = pRow_Users->Nickname_get();
 
 						alArray->push_back(new ArrayValue(StringUtils::itos(pRow_Users->PK_Users_get()),sName,NULL,0,0,
-							0,0,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+							0,0,pRow_DesignObjVariation_DesignObj_Skin_Language->CanBeHidden_get()==1,pRow_DesignObjVariation_DesignObj_Skin_Language->HideByDefault_get()==1,false));
 					}
 				}
             }
@@ -1916,7 +1951,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 for(it=m_pOrbiterGenerator->m_dequeLocation.begin();it!=m_pOrbiterGenerator->m_dequeLocation.end();++it)
                 {
                     LocationInfo *li = (*it);
-                    alArray->push_back(new ArrayValue(StringUtils::itos(li->iLocation) + "," + StringUtils::itos(li->PK_Room) + "," + StringUtils::itos(li->PK_EntertainArea),li->Description,li->drIcon,0,0,0,VARIABLE_PK_Device_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+                    alArray->push_back(new ArrayValue(StringUtils::itos(li->iLocation) + "," + StringUtils::itos(li->PK_Room) + "," + StringUtils::itos(li->PK_EntertainArea),li->Description,li->drIcon,0,0,0,VARIABLE_PK_Device_CONST,pRow_DesignObjVariation_DesignObj_Skin_Language->CanBeHidden_get()==1,pRow_DesignObjVariation_DesignObj_Skin_Language->HideByDefault_get()==1,false));
                 }
             }
             break;
@@ -1927,7 +1962,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 				for(size_t s=0;s<vectRow_Room.size();++s)
 				{
 					Row_Room *pRow_Room = vectRow_Room[s];
-                    alArray->push_back(new ArrayValue(StringUtils::itos(pRow_Room->PK_Room_get()),pRow_Room->Description_get(),NULL,0,0,0,0,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+                    alArray->push_back(new ArrayValue(StringUtils::itos(pRow_Room->PK_Room_get()),pRow_Room->Description_get(),NULL,0,0,0,0,pRow_DesignObjVariation_DesignObj_Skin_Language->CanBeHidden_get()==1,pRow_DesignObjVariation_DesignObj_Skin_Language->HideByDefault_get()==1,false));
                 }
             }
             break;
@@ -1944,7 +1979,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
                     alArray->push_back(new ArrayValue(StringUtils::itos(drF->Page_get()),drF->Description_get(),
                         drF->FK_Icon_isNull() ? NULL : drF->FK_Icon_getrow(),
-                        0,0,0,0,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+                        0,0,0,0,pRow_DesignObjVariation_DesignObj_Skin_Language->CanBeHidden_get()==1,pRow_DesignObjVariation_DesignObj_Skin_Language->HideByDefault_get()==1,false));
                 }
             }
             break;
@@ -2076,12 +2111,12 @@ string DesignObj_Generator::GetParm(int PK_DesignObjParameter,Row_DesignObjVaria
 		return it->second;
 
     string oValue="";
-    Row_DesignObjVariation_DesignObjParameter * drODP = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(drDesignObjVariation->PK_DesignObjVariation_get(),PK_DesignObjParameter);
+    Row_DesignObjVariation_DesignObjParameter * drODP = GetParmRow(PK_DesignObjParameter,drDesignObjVariation);
 
     if( drDesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() &&
         (!drODP || (drODP->Value_isNull() && bReplaceNulls)) )
     {
-        drODP = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get(),PK_DesignObjParameter);
+        drODP = GetParmRow(PK_DesignObjParameter,m_pRow_DesignObjVariation_Standard);
     }
 
     if( !drODP )
@@ -2089,6 +2124,50 @@ string DesignObj_Generator::GetParm(int PK_DesignObjParameter,Row_DesignObjVaria
 
     bool btemp;
     return SubstituteVariables(drODP->Value_get(),&btemp);
+}
+
+Row_DesignObjVariation_DesignObjParameter *DesignObj_Generator::GetParmRow(int PK_DesignObjParameter,Row_DesignObjVariation * drDesignObjVariation)
+{
+    vector<class Row_DesignObjVariation_DesignObjParameter *> vectRow_DesignObjVariation_DesignObjParameter;
+	string sSQL = "FK_DesignObjParameter=" + StringUtils::itos(PK_DesignObjParameter) + " AND FK_DesignObjVariation=" + 
+		StringUtils::itos(drDesignObjVariation->PK_DesignObjVariation_get()) + " AND "
+		+ "(FK_Language IS NULL OR FK_Language=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Language->PK_Language_get()) + ") AND "
+		+ "(FK_Skin IS NULL OR FK_Skin=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Skin->PK_Skin_get()) + ")";
+	m_mds->DesignObjVariation_DesignObjParameter_get()->GetRows(sSQL,&vectRow_DesignObjVariation_DesignObjParameter);
+    Row_DesignObjVariation_DesignObjParameter * pRow_DesignObjVariation_DesignObjParameter=NULL;
+    bool bMatchLanguage=false;
+    bool bMatchSkin=false;
+
+	for(vector<class Row_DesignObjVariation_DesignObjParameter *>::iterator it=vectRow_DesignObjVariation_DesignObjParameter.begin();it!=vectRow_DesignObjVariation_DesignObjParameter.end();++it)
+    {
+        Row_DesignObjVariation_DesignObjParameter *pRow_DesignObjVariation_DesignObjParameter_Test = *it;
+		if( pRow_DesignObjVariation_DesignObjParameter_Test->Ignore_get()==1 )
+			continue;
+
+        if( !pRow_DesignObjVariation_DesignObjParameter_Test->FK_Skin_isNull() && pRow_DesignObjVariation_DesignObjParameter_Test->FK_Skin_get()==m_pOrbiterGenerator->m_pRow_Skin->PK_Skin_get() &&
+            !pRow_DesignObjVariation_DesignObjParameter_Test->FK_Language_isNull() && pRow_DesignObjVariation_DesignObjParameter_Test->FK_Language_get()==m_pOrbiterGenerator->m_pRow_Language->PK_Language_get() )
+        {
+            return pRow_DesignObjVariation_DesignObjParameter_Test;
+        }
+        else if( !pRow_DesignObjVariation_DesignObjParameter_Test->FK_Skin_isNull() && pRow_DesignObjVariation_DesignObjParameter_Test->FK_Skin_get()==m_pOrbiterGenerator->m_pRow_Skin->PK_Skin_get() &&
+            pRow_DesignObjVariation_DesignObjParameter_Test->FK_Language_isNull() )
+        {
+            pRow_DesignObjVariation_DesignObjParameter = pRow_DesignObjVariation_DesignObjParameter_Test;
+            bMatchSkin=true;
+        }
+        else if( !pRow_DesignObjVariation_DesignObjParameter_Test->FK_Language_isNull() && pRow_DesignObjVariation_DesignObjParameter_Test->FK_Language_get()==m_pOrbiterGenerator->m_pRow_Language->PK_Language_get() &&
+            pRow_DesignObjVariation_DesignObjParameter_Test->FK_Skin_isNull() && !bMatchSkin )
+        {
+            pRow_DesignObjVariation_DesignObjParameter = pRow_DesignObjVariation_DesignObjParameter_Test;
+            bMatchLanguage=true;
+        }
+        else if( pRow_DesignObjVariation_DesignObjParameter_Test->FK_Language_isNull() && pRow_DesignObjVariation_DesignObjParameter_Test->FK_Skin_isNull() && !bMatchSkin && !bMatchLanguage)
+        {
+            pRow_DesignObjVariation_DesignObjParameter = pRow_DesignObjVariation_DesignObjParameter_Test;
+        }
+    }
+
+	return pRow_DesignObjVariation_DesignObjParameter;
 }
 
 string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTimeVariables)
@@ -2668,7 +2747,7 @@ void DesignObj_Generator::FindChild(int PK_DesignObj,DesignObj_Generator **ppDes
 	for(vector<class CGArray *>::iterator it=m_alNonMPArrays.begin();it!=m_alNonMPArrays.end();++it)
 	{
 		CGArray *pCGArray = *it;
-		if( pCGArray->m_drDesignObjVariation_DesignObj->FK_DesignObj_Child_get()==PK_DesignObj )
+		if( pCGArray->m_pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_get()==PK_DesignObj )
 		{
 			*ppCGArray=pCGArray;
 			return;
@@ -2677,7 +2756,7 @@ void DesignObj_Generator::FindChild(int PK_DesignObj,DesignObj_Generator **ppDes
 	for(vector<class CGArray *>::iterator it=m_alMPArray.begin();it!=m_alMPArray.end();++it)
 	{
 		CGArray *pCGArray = *it;
-		if( pCGArray->m_drDesignObjVariation_DesignObj->FK_DesignObj_Child_get()==PK_DesignObj )
+		if( pCGArray->m_pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_get()==PK_DesignObj )
 		{
 			*ppCGArray=pCGArray;
 			return;

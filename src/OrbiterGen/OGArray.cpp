@@ -15,6 +15,7 @@
 #include "pluto_main/Table_DesignObjVariation_Text_Skin_Language.h"
 #include "pluto_main/Table_DesignObjVariation_Text.h"
 #include "pluto_main/Table_DesignObjVariation_DesignObj.h"
+#include "pluto_main/Table_DesignObjVariation_DesignObj_Skin_Language.h"
 #include "pluto_main/Table_DesignObjVariation_DesignObjParameter.h"
 #include "pluto_main/Table_Orbiter.h"
 #include "pluto_main/Table_Text_LS_AltVersions.h"
@@ -24,7 +25,7 @@
 #include "pluto_main/Table_Variable.h"
 #include "pluto_main/Define_Button.h"
 
-CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row_DesignObjVariation_DesignObj * drDesignObjVariation_DesignObj,vector<class ArrayValue *> *alValues,class PlutoRectangle rBounds,int StartingOffset,int Page,int PK_Array)
+CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row_DesignObjVariation_DesignObj_Skin_Language *pRow_DesignObjVariation_DesignObj_Skin_Language,vector<class ArrayValue *> *alValues,class PlutoRectangle rBounds,int StartingOffset,int Page,int PK_Array)
 {
 	m_PK_Array=PK_Array;
 	m_bContainsMore=false;
@@ -35,7 +36,7 @@ CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row
 	m_drDesignObjVariation=NULL;
 	m_drStandardVariation=NULL;
 
-	m_drDesignObjVariation_DesignObj = drDesignObjVariation_DesignObj;
+	m_pRow_DesignObjVariation_DesignObj_Skin_Language = pRow_DesignObjVariation_DesignObj_Skin_Language;
 	m_DesignObj_Generator_Parent=DesignObj_Generator_Parent;
 	m_mds = m_DesignObj_Generator_Parent->m_mds;
 	m_alValues=alValues;
@@ -47,10 +48,10 @@ CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row
 
 	m_VariableMap=&m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_mapVariable;
 
-	DesignObj_Generator::PickVariation(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,drDesignObjVariation_DesignObj->FK_DesignObj_Child_getrow(),&m_drDesignObjVariation,&m_drStandardVariation,&m_alDesignObjVariations);
+	DesignObj_Generator::PickVariation(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_getrow(),&m_drDesignObjVariation,&m_drStandardVariation,&m_alDesignObjVariations);
 	if( !m_drDesignObjVariation )
 	{
-		cerr << "Aborting creation of array.  No variation for object: " << drDesignObjVariation_DesignObj->FK_DesignObj_Child_getrow()->PK_DesignObj_get() << endl;
+		cerr << "Aborting creation of array.  No variation for object: " << pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_getrow()->PK_DesignObj_get() << endl;
 		return;
 	}
 
@@ -88,7 +89,7 @@ CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row
 	int iCurrentNumColumns=0;
 
 	m_ptNextPosition = rBounds.Location();
-if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==1270 || drDesignObjVariation_DesignObj->FK_DesignObj_Child_get()==1264 )
+if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==1270 || pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_get()==1264 )
 int k=2;
 	if( StartingOffset!=0 && m_pRow_DesignObj_MoreBack )
 	{
@@ -96,10 +97,10 @@ int k=2;
 			m_pRow_DesignObj_MoreBack,
 			PlutoRectangle(m_ptNextPosition.X,m_ptNextPosition.Y,0,0),m_DesignObj_Generator_Parent,false,false);
 
-		m_ocBack->m_bChildrenBeforeText = drDesignObjVariation_DesignObj->DisplayChildrenBeforeText_get()==1;
-		m_ocBack->m_bChildrenBehind = drDesignObjVariation_DesignObj->DisplayChildrenBehindBackground_get()==1;
-		m_ocBack->m_bDontMergeBackground = drDesignObjVariation_DesignObj->DontMergeBackground_get()==1;
-		m_ocBack->m_bTabStop = drDesignObjVariation_DesignObj->IsTabStop_get()==1;
+		m_ocBack->m_bChildrenBeforeText = pRow_DesignObjVariation_DesignObj_Skin_Language->DisplayChildrenBeforeText_get()==1;
+		m_ocBack->m_bChildrenBehind = pRow_DesignObjVariation_DesignObj_Skin_Language->DisplayChildrenBehindBackground_get()==1;
+		m_ocBack->m_bDontMergeBackground = pRow_DesignObjVariation_DesignObj_Skin_Language->DontMergeBackground_get()==1;
+		m_ocBack->m_bTabStop = pRow_DesignObjVariation_DesignObj_Skin_Language->IsTabStop_get()==1;
 
 		if( m_ocBack->m_pRow_DesignObjVariation )
 		{
@@ -236,10 +237,10 @@ int k=2;
 		}
 		ocNextDesignObj->m_bCanBeHidden = av->m_bCanHide;
 		ocNextDesignObj->m_bHideByDefault = av->m_bHideByDefault;
-		ocNextDesignObj->m_bChildrenBeforeText = drDesignObjVariation_DesignObj->DisplayChildrenBeforeText_get()==1;
-		ocNextDesignObj->m_bChildrenBehind = drDesignObjVariation_DesignObj->DisplayChildrenBehindBackground_get()==1;
-		ocNextDesignObj->m_bDontMergeBackground = drDesignObjVariation_DesignObj->DontMergeBackground_get()==1;
-		ocNextDesignObj->m_bTabStop = drDesignObjVariation_DesignObj->IsTabStop_get()==1;
+		ocNextDesignObj->m_bChildrenBeforeText = pRow_DesignObjVariation_DesignObj_Skin_Language->DisplayChildrenBeforeText_get()==1;
+		ocNextDesignObj->m_bChildrenBehind = pRow_DesignObjVariation_DesignObj_Skin_Language->DisplayChildrenBehindBackground_get()==1;
+		ocNextDesignObj->m_bDontMergeBackground = pRow_DesignObjVariation_DesignObj_Skin_Language->DontMergeBackground_get()==1;
+		ocNextDesignObj->m_bTabStop = pRow_DesignObjVariation_DesignObj_Skin_Language->IsTabStop_get()==1;
 
 		// Insert a zone in the beginning to add the variables
 		CGZone *oz = new CGZone();
@@ -295,10 +296,10 @@ void CGArray::CheckLastEntry()
 			return;
 		}
 
-		m_ocFwd->m_bChildrenBeforeText = m_drDesignObjVariation_DesignObj->DisplayChildrenBeforeText_get()==1;
-		m_ocFwd->m_bChildrenBehind = m_drDesignObjVariation_DesignObj->DisplayChildrenBehindBackground_get()==1;
-		m_ocFwd->m_bDontMergeBackground = m_drDesignObjVariation_DesignObj->DontMergeBackground_get()==1;
-		m_ocFwd->m_bTabStop = m_drDesignObjVariation_DesignObj->IsTabStop_get()==1;
+		m_ocFwd->m_bChildrenBeforeText = m_pRow_DesignObjVariation_DesignObj_Skin_Language->DisplayChildrenBeforeText_get()==1;
+		m_ocFwd->m_bChildrenBehind = m_pRow_DesignObjVariation_DesignObj_Skin_Language->DisplayChildrenBehindBackground_get()==1;
+		m_ocFwd->m_bDontMergeBackground = m_pRow_DesignObjVariation_DesignObj_Skin_Language->DontMergeBackground_get()==1;
+		m_ocFwd->m_bTabStop = m_pRow_DesignObjVariation_DesignObj_Skin_Language->IsTabStop_get()==1;
 
 		// See if maybe we're just supposed to change screens rather than paging through all the options
 		if( m_ocFwd->m_PK_DesignObj_Goto!=0 )

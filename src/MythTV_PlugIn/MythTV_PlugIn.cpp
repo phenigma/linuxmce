@@ -1728,11 +1728,12 @@ void MythTV_PlugIn::CheckForTvFormatAndProvider( int iPK_Device )
 		if( result.r->row_count>1 )
 			g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CheckForTvFormatAndProvider found more than 1 tv format for %d",iPK_Device);
 		DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Type_CONST,row[0]);
-
+/*
 		// TEMP -- remove this before .44
 		if( strcmp(row[0],"8vsb")==0 && strcmp(row[1],"ATSC")==0 )
 			m_pMedia_Plugin->CMD_Specify_Media_Provider(iPK_Device,"paulhuber2005\tmsvirus1\t46\t2\tPC:94066");
 		else if( strcmp(row[0],"qam_256")==0 )
 			m_pMedia_Plugin->CMD_Specify_Media_Provider(iPK_Device,"paulhuber2005\tmsvirus1\t46\t2\tCA04684:X");
+*/
 	}
 }

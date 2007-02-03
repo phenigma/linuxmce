@@ -100,6 +100,11 @@ namespace HADesigner
 			get {return (UITextSkinLanguage)this.cbLanguageSkin.SelectedItem;}
 		}
 
+		private UIChildSkinLanguage selectedUICSL
+		{
+			get {return (UIChildSkinLanguage)this.cbLanguageSkin_Child.SelectedItem;}
+		}
+
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
@@ -242,6 +247,9 @@ namespace HADesigner
 		private System.Windows.Forms.Panel pnOnActivateParameters;
 		private System.Windows.Forms.Label labAvailableCommands;
 		private System.Windows.Forms.Label labSelectedCommands;
+		private System.Windows.Forms.ComboBox cbLanguageSkin_Child;
+		private System.Windows.Forms.Button btnAddSkinLanguage_Child;
+		private System.Windows.Forms.Button btnRemoveSkinLanguage_Child;
 
 		private CommonMethods m_objCommon = new CommonMethods();
 
@@ -415,6 +423,22 @@ namespace HADesigner
 			if (this.selectedUIText.TextSkinLanguages.Count > 0) // should always be true
 			{
 				this.cbLanguageSkin.SelectedIndex = 0;
+				this.cbAlignV.Enabled = this.cbAlignH.Enabled = this.cbStyle.Enabled = true;
+			}
+		}
+
+		private void loadAvailableLanguageSkins_Child() // for currently selected text item
+		{
+			this.cbLanguageSkin_Child.Items.Clear();
+			this.cbLanguageSkin_Child.Enabled = true;
+
+			foreach (UIChildSkinLanguage uiCSL in this.selectedUIChild.ChildSkinLanguages)
+			{
+				if (uiCSL.Include) this.cbLanguageSkin_Child.Items.Add(uiCSL);
+			}
+			if (this.selectedUIChild.ChildSkinLanguages.Count > 0) // should always be true
+			{
+				this.cbLanguageSkin_Child.SelectedIndex = 0;
 				this.cbAlignV.Enabled = this.cbAlignH.Enabled = this.cbStyle.Enabled = true;
 			}
 		}
@@ -1057,6 +1081,9 @@ namespace HADesigner
 			this.pnOnActivateParameters = new System.Windows.Forms.Panel();
 			this.labAvailableCommands = new System.Windows.Forms.Label();
 			this.labSelectedCommands = new System.Windows.Forms.Label();
+			this.cbLanguageSkin_Child = new System.Windows.Forms.ComboBox();
+			this.btnAddSkinLanguage_Child = new System.Windows.Forms.Button();
+			this.btnRemoveSkinLanguage_Child = new System.Windows.Forms.Button();
 			this.tabButtons.SuspendLayout();
 			this.tabAllPages.SuspendLayout();
 			this.tabParameters.SuspendLayout();
@@ -1613,6 +1640,9 @@ namespace HADesigner
 			// 
 			// tabChildren
 			// 
+			this.tabChildren.Controls.Add(this.cbLanguageSkin_Child);
+			this.tabChildren.Controls.Add(this.btnAddSkinLanguage_Child);
+			this.tabChildren.Controls.Add(this.btnRemoveSkinLanguage_Child);
 			this.tabChildren.Controls.Add(this.btnChildDown);
 			this.tabChildren.Controls.Add(this.btnChildUp);
 			this.tabChildren.Controls.Add(this.tbVisibleStates);
@@ -2289,6 +2319,34 @@ namespace HADesigner
 			this.labSelectedCommands.Size = new System.Drawing.Size(120, 23);
 			this.labSelectedCommands.TabIndex = 10;
 			this.labSelectedCommands.Text = "Selected Commands";
+			// 
+			// cbLanguageSkin_Child
+			// 
+			this.cbLanguageSkin_Child.DisplayMember = "LanguageSkin";
+			this.cbLanguageSkin_Child.Location = new System.Drawing.Point(392, 0);
+			this.cbLanguageSkin_Child.Name = "cbLanguageSkin_Child";
+			this.cbLanguageSkin_Child.Size = new System.Drawing.Size(112, 21);
+			this.cbLanguageSkin_Child.TabIndex = 67;
+			this.cbLanguageSkin_Child.Text = "Language - Skin";
+			this.cbLanguageSkin_Child.ValueMember = "ID";
+			// 
+			// btnAddSkinLanguage_Child
+			// 
+			this.btnAddSkinLanguage_Child.Location = new System.Drawing.Point(392, 24);
+			this.btnAddSkinLanguage_Child.Name = "btnAddSkinLanguage_Child";
+			this.btnAddSkinLanguage_Child.Size = new System.Drawing.Size(64, 16);
+			this.btnAddSkinLanguage_Child.TabIndex = 68;
+			this.btnAddSkinLanguage_Child.Text = "Add skin/lang";
+			this.btnAddSkinLanguage_Child.Click += new System.EventHandler(this.btnAddSkinLanguage_Child_Click);
+			// 
+			// btnRemoveSkinLanguage_Child
+			// 
+			this.btnRemoveSkinLanguage_Child.Location = new System.Drawing.Point(472, 24);
+			this.btnRemoveSkinLanguage_Child.Name = "btnRemoveSkinLanguage_Child";
+			this.btnRemoveSkinLanguage_Child.Size = new System.Drawing.Size(40, 16);
+			this.btnRemoveSkinLanguage_Child.TabIndex = 69;
+			this.btnRemoveSkinLanguage_Child.Text = "remove";
+			this.btnRemoveSkinLanguage_Child.Click += new System.EventHandler(this.btnRemoveSkinLanguage_Child_Click);
 			// 
 			// DesignObjDesigner
 			// 
@@ -3222,6 +3280,21 @@ namespace HADesigner
 			}
 		}
 
+		private void btnAddSkinLanguage_Child_Click(object sender, System.EventArgs e)
+		{
+			if (this.selectedUIText != null)
+			{
+				if ((new SkinLanguageForm(this.selectedUIText)).ShowDialog() == DialogResult.OK)
+				{
+					bool origBlock = this.BlockUpdateImage();
+
+					this.loadAvailableLanguageSkins();
+						
+					this.UpdateImage(origBlock);
+				}
+			}
+		}
+
 		private void btnRemoveText_Click(object sender, System.EventArgs e)
 		{
 			if(this.selectedUIText != null)
@@ -3258,6 +3331,29 @@ namespace HADesigner
 				}
 			}
 		}
+
+		private void btnRemoveSkinLanguage_Child_Click(object sender, System.EventArgs e)
+		{
+			if (this.selectedUITSL != null)
+			{
+				if (this.selectedUITSL.LanguageID == -1 && this.selectedUITSL.SkinID == -1)
+				{
+					MessageBox.Show("You cannot delete the default skin-language");
+				}
+				else
+				{
+					bool origBlock = this.BlockUpdateImage();
+
+					if (this.selectedUITSL.ID != -1) this.selectedUITSL.NeedsDelete = true;
+					else this.selectedUITSL.Deleted = true; // Delete a New Item
+
+					this.loadAvailableLanguageSkins();
+
+					this.UpdateImage(origBlock);
+				}
+			}
+		}
+
 
 		private void changeButton(object sender, System.EventArgs e)
 		{

@@ -14,10 +14,14 @@ namespace HAData.DataAccess {
 		public const String FK_DESIGNOBJVARIATION_FIELD = "FK_DesignObjVariation";
 		public const String FK_DESIGNOBJPARAMETER_FIELD = "FK_DesignObjParameter";
 		public const String VALUE_FIELD = "Value";
+		public const String FK_SKIN_FIELD = "FK_Skin";
+		public const String FK_LANGUAGE_FIELD = "FK_Language";
 		// table+field constants
 		public const String FK_DESIGNOBJVARIATION_TABLE_FIELD = "DesignObjVariation_DesignObjParameter.FK_DesignObjVariation";
 		public const String FK_DESIGNOBJPARAMETER_TABLE_FIELD = "DesignObjVariation_DesignObjParameter.FK_DesignObjParameter";
 		public const String VALUE_TABLE_FIELD = "DesignObjVariation_DesignObjParameter.Value";
+		public const String FK_SKIN_TABLE_FIELD = "DesignObjVariation_DesignObjParameter.FK_Skin";
+		public const String FK_LANGUAGE_TABLE_FIELD = "DesignObjVariation_DesignObjParameter.FK_Language";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
@@ -25,6 +29,8 @@ namespace HAData.DataAccess {
 		protected const String FK_DESIGNOBJVARIATION_PARM = "@FK_DesignObjVariation";
 		protected const String FK_DESIGNOBJPARAMETER_PARM = "@FK_DesignObjParameter";
 		protected const String VALUE_PARM = "@Value";
+		protected const String FK_SKIN_PARM = "@FK_Skin";
+		protected const String FK_LANGUAGE_PARM = "@FK_Language";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -95,6 +101,8 @@ namespace HAData.DataAccess {
 			Column.DefaultValue = -1;
 
 			Columns.Add(VALUE_FIELD, typeof(System.String));
+			Columns.Add(FK_SKIN_FIELD, typeof(System.Int32));
+			Columns.Add(FK_LANGUAGE_FIELD, typeof(System.Int32));
 			Table.PrimaryKey = PKColumns;
 
 			return Table;
@@ -103,6 +111,8 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(FK_DESIGNOBJVARIATION_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_DESIGNOBJPARAMETER_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(VALUE_PARM, OdbcType.Text));
+			Params.Add(new OdbcParameter(FK_SKIN_PARM, OdbcType.Text));
+			Params.Add(new OdbcParameter(FK_LANGUAGE_PARM, OdbcType.Text));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
@@ -110,6 +120,8 @@ namespace HAData.DataAccess {
 			Params[FK_DESIGNOBJVARIATION_PARM].SourceColumn = DesignObjVariation_DesignObjParameterData.FK_DESIGNOBJVARIATION_FIELD;
 			Params[FK_DESIGNOBJPARAMETER_PARM].SourceColumn = DesignObjVariation_DesignObjParameterData.FK_DESIGNOBJPARAMETER_FIELD;
 			Params[VALUE_PARM].SourceColumn = DesignObjVariation_DesignObjParameterData.VALUE_FIELD;
+			Params[FK_SKIN_PARM].SourceColumn = DesignObjVariation_DesignObjParameterData.FK_SKIN_FIELD;
+			Params[FK_LANGUAGE_PARM].SourceColumn = DesignObjVariation_DesignObjParameterData.FK_LANGUAGE_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -159,7 +171,7 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT FK_DesignObjVariation,FK_DesignObjParameter,Value FROM DesignObjVariation_DesignObjParameter", Conn);
+				LoadCommand = new OdbcCommand("SELECT FK_DesignObjVariation,FK_DesignObjParameter,Value,FK_Skin,FK_Language FROM DesignObjVariation_DesignObjParameter", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(FK_DESIGNOBJVARIATION_PARM, OdbcType.Int,4));
@@ -205,7 +217,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT FK_DesignObjVariation, FK_DesignObjParameter, Value FROM DesignObjVariation_DesignObjParameter WHERE " + WhereClause;
+			string sSQL = "SELECT FK_DesignObjVariation, FK_DesignObjParameter, Value, FK_Skin, FK_Language FROM DesignObjVariation_DesignObjParameter WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -532,6 +544,50 @@ namespace HAData.DataAccess {
 		public void fValueSetNull()
 		{
 			dr[2]=DBNull.Value;
+		}
+		public System.Int32 fFK_Skin
+		{
+			get
+			{
+				return Convert.ToInt32(dr[3]);
+			}
+			set
+			{
+				dr[3]=value;
+			}
+		}
+		public bool fFK_SkinIsNull
+		{
+			get
+			{
+				return dr[3]==DBNull.Value;
+			}
+		}
+		public void fFK_SkinSetNull()
+		{
+			dr[3]=DBNull.Value;
+		}
+		public System.Int32 fFK_Language
+		{
+			get
+			{
+				return Convert.ToInt32(dr[4]);
+			}
+			set
+			{
+				dr[4]=value;
+			}
+		}
+		public bool fFK_LanguageIsNull
+		{
+			get
+			{
+				return dr[4]==DBNull.Value;
+			}
+		}
+		public void fFK_LanguageSetNull()
+		{
+			dr[4]=DBNull.Value;
 		}
 	} // public class DesignObjVariation_DesignObjParameterDataRow
 	public class DesignObjVariation_DesignObjParameterDataReader

@@ -67,13 +67,14 @@ public:
 	static TextStyle *PickStyleVariation(vector<Row_StyleVariation *> &vectrsv,OrbiterGenerator *pGenerator,int Version);
 	void HandleRotation(int iRotate);
 
-	vector<class ArrayValue *> *GetArrayValues(class Row_DesignObjVariation_DesignObj * drOVO,int &PK_Array);
+	vector<class ArrayValue *> *GetArrayValues(class Row_DesignObjVariation_DesignObj_Skin_Language *pRow_DesignObjVariation_DesignObj_Skin_Language,int &PK_Array);
 	void ScaleAllValues(int FactorX,int FactorY,class DesignObj_Generator *pTopmostObject);
 	class PlutoPoint *ScaleValue(class PlutoPoint *pt,int FactorX,int FactorY);
 	string GetParm(int PK_Parameter);
 	string GetParm(int PK_Parameter,bool bReplaceNulls);
 	string GetParm(int PK_Parameter,class Row_DesignObjVariation * drDesignObjVariation);
 	string GetParm(int PK_Parameter,class Row_DesignObjVariation * drDesignObjVariation,bool bReplaceNulls);
+	class Row_DesignObjVariation_DesignObjParameter *GetParmRow(int PK_DesignObjParameter,Row_DesignObjVariation * drDesignObjVariation);
 
 	string SubstituteVariables(string Text,bool *bContainsRunTimeVariables);
 

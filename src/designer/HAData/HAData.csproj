@@ -239,9 +239,19 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "DataAccess\DesignObjVariation_DesignObj_Skin_Language.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "DataAccess\DesignObjVariation_DesignObjData.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "DataAccess\DesignObjVariation_DesignObjData.resx"
+                    DependentUpon = "DesignObjVariation_DesignObjData.cs"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "DataAccess\DesignObjVariation_DesignObjParameterData.cs"

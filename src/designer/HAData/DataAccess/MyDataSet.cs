@@ -50,6 +50,7 @@ namespace HAData.DataAccess {
 				tDesignObjType_DesignObjParameter.LoadAll(conn,trans);
 				tDesignObjVariation.LoadAll(conn,trans);
 				tDesignObjVariation_DesignObj.LoadAll(conn,trans);
+				tDesignObjVariation_DesignObj_Skin_Language.LoadAll(conn,trans);
 				tDesignObjVariation_DesignObjParameter.LoadAll(conn,trans);
 				tDesignObjVariation_Text.LoadAll(conn,trans);
 				tDesignObjVariation_Text_Skin_Language.LoadAll(conn,trans);
@@ -115,6 +116,7 @@ namespace HAData.DataAccess {
 			Tables.Add(DesignObjType_DesignObjParameterData.BuildDataTables());
 			Tables.Add(DesignObjVariationData.BuildDataTables());
 			Tables.Add(DesignObjVariation_DesignObjData.BuildDataTables());
+			Tables.Add(DesignObjVariation_DesignObj_Skin_LanguageData.BuildDataTables());
 			Tables.Add(DesignObjVariation_DesignObjParameterData.BuildDataTables());
 			Tables.Add(DesignObjVariation_TextData.BuildDataTables());
 			Tables.Add(DesignObjVariation_Text_Skin_LanguageData.BuildDataTables());
@@ -409,6 +411,14 @@ namespace HAData.DataAccess {
 				if( !dt.Rows.IsSynchronized )
 				{
 				DesignObjVariation_DesignObjData.UpdateDesignObjVariation_DesignObj(ref ds,PK_Users,conn,trans);
+				}
+			}
+			dt=Tables["DesignObjVariation_DesignObj_Skin_Language"];
+			if( dt!=null )
+			{
+				if( !dt.Rows.IsSynchronized )
+				{
+					DesignObjVariation_DesignObj_Skin_LanguageData.UpdateDesignObjVariation_DesignObj_Skin_Language(ref ds,PK_Users,conn,trans);
 				}
 			}
 			dt=Tables["DesignObjVariation_DesignObjParameter"];
@@ -970,6 +980,23 @@ namespace HAData.DataAccess {
 				return (DesignObjVariation_DesignObjTable) dt;
 			}
 		}
+		public DesignObjVariation_DesignObj_Skin_LanguageTable tDesignObjVariation_DesignObj_Skin_Language
+		{
+			get
+			{
+				if( m_bIsCache )
+					return (DesignObjVariation_DesignObj_Skin_LanguageTable) Tables["DesignObjVariation_DesignObj_Skin_Language"];
+				if( m_mdsCache!=null )
+					return (DesignObjVariation_DesignObj_Skin_LanguageTable) m_mdsCache.Tables["DesignObjVariation_DesignObj_Skin_Language"];
+				DesignObjVariation_DesignObj_Skin_LanguageTable dt = (DesignObjVariation_DesignObj_Skin_LanguageTable)Tables["DesignObjVariation_DesignObj_Skin_Language"];
+				if( dt==null )
+				{
+					dt = DesignObjVariation_DesignObj_Skin_LanguageData.BuildDesignObjVariation_DesignObj_Skin_LanguageTable();
+					Tables.Add(dt);
+				}
+				return (DesignObjVariation_DesignObj_Skin_LanguageTable) dt;
+			}
+		}
 		public DesignObjVariation_DesignObjParameterTable tDesignObjVariation_DesignObjParameter
 		{
 			get
@@ -1413,11 +1440,11 @@ namespace HAData.DataAccess {
 			Relations.Add(MyRelations.DesignObjVariation_FK_Button,tButton.cPK_Button,tDesignObjVariation.cFK_Button);
 			Relations.Add(MyRelations.DesignObjVariation_DesignObj_FK_DesignObjVariation_Parent,tDesignObjVariation.cPK_DesignObjVariation,tDesignObjVariation_DesignObj.cFK_DesignObjVariation_Parent);
 			Relations.Add(MyRelations.DesignObjVariation_DesignObj_FK_DesignObj_Child,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj.cFK_DesignObj_Child);
-			Relations.Add(MyRelations.DesignObjVariation_DesignObj_FK_DesignObj_InsteadOf,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj.cFK_DesignObj_InsteadOf);
-			Relations.Add(MyRelations.DesignObjVariation_DesignObj_FK_DesignObj_Up,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj.cFK_DesignObj_Up);
-			Relations.Add(MyRelations.DesignObjVariation_DesignObj_FK_DesignObj_Down,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj.cFK_DesignObj_Down);
-			Relations.Add(MyRelations.DesignObjVariation_DesignObj_FK_DesignObj_Left,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj.cFK_DesignObj_Left);
-			Relations.Add(MyRelations.DesignObjVariation_DesignObj_FK_DesignObj_Right,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj.cFK_DesignObj_Right);
+			Relations.Add(MyRelations.DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_InsteadOf,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj_Skin_Language.cFK_DesignObj_InsteadOf);
+			Relations.Add(MyRelations.DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Up,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj_Skin_Language.cFK_DesignObj_Up);
+			Relations.Add(MyRelations.DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Down,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj_Skin_Language.cFK_DesignObj_Down);
+			Relations.Add(MyRelations.DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Left,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj_Skin_Language.cFK_DesignObj_Left);
+			Relations.Add(MyRelations.DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Right,tDesignObj.cPK_DesignObj,tDesignObjVariation_DesignObj_Skin_Language.cFK_DesignObj_Right);
 			Relations.Add(MyRelations.DesignObjVariation_DesignObjParameter_FK_DesignObjVariation,tDesignObjVariation.cPK_DesignObjVariation,tDesignObjVariation_DesignObjParameter.cFK_DesignObjVariation);
 			Relations.Add(MyRelations.DesignObjVariation_DesignObjParameter_FK_DesignObjParameter,tDesignObjParameter.cPK_DesignObjParameter,tDesignObjVariation_DesignObjParameter.cFK_DesignObjParameter);
 			Relations.Add(MyRelations.DesignObjVariation_Text_FK_DesignObjVariation,tDesignObjVariation.cPK_DesignObjVariation,tDesignObjVariation_Text.cFK_DesignObjVariation);
@@ -1500,11 +1527,11 @@ namespace HAData.DataAccess {
 			public const string DesignObjVariation_FK_Button="34";
 			public const string DesignObjVariation_DesignObj_FK_DesignObjVariation_Parent="35";
 			public const string DesignObjVariation_DesignObj_FK_DesignObj_Child="36";
-			public const string DesignObjVariation_DesignObj_FK_DesignObj_InsteadOf="37";
-			public const string DesignObjVariation_DesignObj_FK_DesignObj_Up="38";
-			public const string DesignObjVariation_DesignObj_FK_DesignObj_Down="39";
-			public const string DesignObjVariation_DesignObj_FK_DesignObj_Left="40";
-			public const string DesignObjVariation_DesignObj_FK_DesignObj_Right="41";
+			public const string DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_InsteadOf="37";
+			public const string DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Up="38";
+			public const string DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Down="39";
+			public const string DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Left="40";
+			public const string DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Right="41";
 			public const string DesignObjVariation_DesignObjParameter_FK_DesignObjVariation="42";
 			public const string DesignObjVariation_DesignObjParameter_FK_DesignObjParameter="43";
 			public const string DesignObjVariation_Text_FK_DesignObjVariation="44";

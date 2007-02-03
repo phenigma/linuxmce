@@ -41,10 +41,10 @@ public:
 	
 	vector<class Row_DesignObjVariation *> m_alDesignObjVariations;
 	class Row_DesignObj *m_pRow_DesignObj_MoreFwd,*m_pRow_DesignObj_MoreBack;
-	class Row_DesignObjVariation_DesignObj * m_drDesignObjVariation_DesignObj;
+	class Row_DesignObjVariation_DesignObj_Skin_Language * m_pRow_DesignObjVariation_DesignObj_Skin_Language;
 	class PlutoPoint m_ptNextPosition;
 
-	CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row_DesignObjVariation_DesignObj * drDesignObjVariation_DesignObj,vector<class ArrayValue *> *alValues,class PlutoRectangle rBounds,int StartingOffset,int Page,int PK_Array);
+	CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row_DesignObjVariation_DesignObj_Skin_Language *pRow_DesignObjVariation_DesignObj_Skin_Language,vector<class ArrayValue *> *alValues,class PlutoRectangle rBounds,int StartingOffset,int Page,int PK_Array);
 	void CheckLastEntry();
 };
 
