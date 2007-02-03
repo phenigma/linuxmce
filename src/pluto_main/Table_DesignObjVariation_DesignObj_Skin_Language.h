@@ -100,6 +100,7 @@ long int m_FK_DesignObj_Left;
 long int m_FK_DesignObj_Right;
 string m_sFK_DesignObj_TiedTo;
 string m_VisibleStates;
+short int m_Ignore;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -107,7 +108,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[29];
+		bool is_null[30];
 	
 	public:
 		long int PK_DesignObjVariation_DesignObj_Skin_Language_get();
@@ -133,6 +134,7 @@ long int FK_DesignObj_Left_get();
 long int FK_DesignObj_Right_get();
 string sFK_DesignObj_TiedTo_get();
 string VisibleStates_get();
+short int Ignore_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -164,6 +166,7 @@ void FK_DesignObj_Left_set(long int val);
 void FK_DesignObj_Right_set(long int val);
 void sFK_DesignObj_TiedTo_set(string val);
 void VisibleStates_set(string val);
+void Ignore_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -235,7 +238,7 @@ class Row_DesignObj* FK_DesignObj_Right_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DesignObjVariation_DesignObj_Skin_Language+ m_FK_DesignObjVariation_DesignObj+ m_FK_Skin+ m_FK_Language+ m_DisplayOrder+ m_X+ m_Y+ m_Width+ m_Height+ m_FK_DesignObj_InsteadOf+ m_CanBeHidden+ m_HideByDefault+ m_RegenerateForEachScreen+ m_DisplayChildrenBeforeText+ m_DisplayChildrenBehindBackground+ m_DontMergeBackground+ m_IsTabStop+ m_FK_DesignObj_Up+ m_FK_DesignObj_Down+ m_FK_DesignObj_Left+ m_FK_DesignObj_Right+ m_sFK_DesignObj_TiedTo+ m_VisibleStates+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DesignObjVariation_DesignObj_Skin_Language+ m_FK_DesignObjVariation_DesignObj+ m_FK_Skin+ m_FK_Language+ m_DisplayOrder+ m_X+ m_Y+ m_Width+ m_Height+ m_FK_DesignObj_InsteadOf+ m_CanBeHidden+ m_HideByDefault+ m_RegenerateForEachScreen+ m_DisplayChildrenBeforeText+ m_DisplayChildrenBehindBackground+ m_DontMergeBackground+ m_IsTabStop+ m_FK_DesignObj_Up+ m_FK_DesignObj_Down+ m_FK_DesignObj_Left+ m_FK_DesignObj_Right+ m_sFK_DesignObj_TiedTo+ m_VisibleStates+ m_Ignore+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -263,6 +266,7 @@ string FK_DesignObj_Left_asSQL();
 string FK_DesignObj_Right_asSQL();
 string sFK_DesignObj_TiedTo_asSQL();
 string VisibleStates_asSQL();
+string Ignore_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

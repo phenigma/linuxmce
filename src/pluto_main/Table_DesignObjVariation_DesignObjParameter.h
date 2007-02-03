@@ -83,6 +83,7 @@ long int m_FK_DesignObjParameter;
 string m_Value;
 long int m_FK_Skin;
 long int m_FK_Language;
+short int m_Ignore;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -90,7 +91,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[11];
+		bool is_null[12];
 	
 	public:
 		long int FK_DesignObjVariation_get();
@@ -98,6 +99,7 @@ long int FK_DesignObjParameter_get();
 string Value_get();
 long int FK_Skin_get();
 long int FK_Language_get();
+short int Ignore_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -111,6 +113,7 @@ void FK_DesignObjParameter_set(long int val);
 void Value_set(string val);
 void FK_Skin_set(long int val);
 void FK_Language_set(long int val);
+void Ignore_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -160,7 +163,7 @@ class Row_Language* FK_Language_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_DesignObjVariation+ m_FK_DesignObjParameter+ m_Value+ m_FK_Skin+ m_FK_Language+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_FK_DesignObjVariation+ m_FK_DesignObjParameter+ m_Value+ m_FK_Skin+ m_FK_Language+ m_Ignore+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -170,6 +173,7 @@ string FK_DesignObjParameter_asSQL();
 string Value_asSQL();
 string FK_Skin_asSQL();
 string FK_Language_asSQL();
+string Ignore_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
