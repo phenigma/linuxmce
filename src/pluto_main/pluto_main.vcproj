@@ -250,6 +250,9 @@
 				RelativePath=".\Table_DesignObjVariation_DesignObjParameter.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_DesignObjVariation_DesignObj_Skin_Language.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_DesignObjVariation_Text.cpp">
 			</File>
 			<File
@@ -557,6 +560,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_Pipe.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_PnpLevel.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_PnpProtocol.cpp">

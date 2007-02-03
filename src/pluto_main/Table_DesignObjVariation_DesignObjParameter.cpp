@@ -19,6 +19,8 @@ using namespace std;
 #include "Table_DesignObjVariation_DesignObjParameter.h"
 #include "Table_DesignObjVariation.h"
 #include "Table_DesignObjParameter.h"
+#include "Table_Skin.h"
+#include "Table_Language.h"
 
 
 
@@ -125,16 +127,20 @@ m_FK_DesignObjParameter = 0;
 is_null[1] = false;
 is_null[2] = true;
 is_null[3] = true;
-m_psc_id = 0;
+m_FK_Skin = 0;
 is_null[4] = true;
-m_psc_batch = 0;
+m_FK_Language = 0;
 is_null[5] = true;
+m_psc_id = 0;
+is_null[6] = true;
+m_psc_batch = 0;
+is_null[7] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[6] = false;
+is_null[8] = false;
 m_psc_mod = "00000000000000";
-is_null[7] = false;
-is_null[8] = true;
+is_null[9] = false;
+is_null[10] = true;
 m_psc_restrict = 0;
 
 
@@ -152,6 +158,12 @@ return m_FK_DesignObjParameter;}
 string Row_DesignObjVariation_DesignObjParameter::Value_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Value;}
+long int Row_DesignObjVariation_DesignObjParameter::FK_Skin_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_Skin;}
+long int Row_DesignObjVariation_DesignObjParameter::FK_Language_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_Language;}
 long int Row_DesignObjVariation_DesignObjParameter::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
@@ -181,68 +193,88 @@ m_FK_DesignObjParameter = val; is_modified=true; is_null[1]=false;}
 void Row_DesignObjVariation_DesignObjParameter::Value_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Value = val; is_modified=true; is_null[2]=false;}
+void Row_DesignObjVariation_DesignObjParameter::FK_Skin_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_Skin = val; is_modified=true; is_null[3]=false;}
+void Row_DesignObjVariation_DesignObjParameter::FK_Language_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_Language = val; is_modified=true; is_null[4]=false;}
 void Row_DesignObjVariation_DesignObjParameter::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[3]=false;}
+m_psc_id = val; is_modified=true; is_null[5]=false;}
 void Row_DesignObjVariation_DesignObjParameter::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[4]=false;}
+m_psc_batch = val; is_modified=true; is_null[6]=false;}
 void Row_DesignObjVariation_DesignObjParameter::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[5]=false;}
+m_psc_user = val; is_modified=true; is_null[7]=false;}
 void Row_DesignObjVariation_DesignObjParameter::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[6]=false;}
+m_psc_frozen = val; is_modified=true; is_null[8]=false;}
 void Row_DesignObjVariation_DesignObjParameter::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[7]=false;}
+m_psc_mod = val; is_modified=true; is_null[9]=false;}
 void Row_DesignObjVariation_DesignObjParameter::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[8]=false;}
+m_psc_restrict = val; is_modified=true; is_null[10]=false;}
 
 		
 bool Row_DesignObjVariation_DesignObjParameter::Value_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_DesignObjVariation_DesignObjParameter::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation_DesignObjParameter::FK_Skin_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_DesignObjVariation_DesignObjParameter::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation_DesignObjParameter::FK_Language_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_DesignObjVariation_DesignObjParameter::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation_DesignObjParameter::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_DesignObjVariation_DesignObjParameter::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation_DesignObjParameter::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_DesignObjVariation_DesignObjParameter::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation_DesignObjParameter::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[7];}
+bool Row_DesignObjVariation_DesignObjParameter::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
+bool Row_DesignObjVariation_DesignObjParameter::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[10];}
 
 			
 void Row_DesignObjVariation_DesignObjParameter::Value_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation_DesignObjParameter::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation_DesignObjParameter::FK_Skin_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation_DesignObjParameter::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation_DesignObjParameter::FK_Language_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation_DesignObjParameter::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation_DesignObjParameter::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation_DesignObjParameter::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation_DesignObjParameter::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation_DesignObjParameter::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation_DesignObjParameter::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[7]=val;
+is_modified=true;
+}
+void Row_DesignObjVariation_DesignObjParameter::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
+is_modified=true;
+}
+void Row_DesignObjVariation_DesignObjParameter::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[10]=val;
 is_modified=true;
 }
 	
@@ -287,11 +319,37 @@ delete[] buf;
 return s;
 }
 
-string Row_DesignObjVariation_DesignObjParameter::psc_id_asSQL()
+string Row_DesignObjVariation_DesignObjParameter::FK_Skin_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Skin);
+
+return buf;
+}
+
+string Row_DesignObjVariation_DesignObjParameter::FK_Language_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Language);
+
+return buf;
+}
+
+string Row_DesignObjVariation_DesignObjParameter::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -304,7 +362,7 @@ string Row_DesignObjVariation_DesignObjParameter::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[4])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -317,7 +375,7 @@ string Row_DesignObjVariation_DesignObjParameter::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[5])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -330,7 +388,7 @@ string Row_DesignObjVariation_DesignObjParameter::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[6])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -343,7 +401,7 @@ string Row_DesignObjVariation_DesignObjParameter::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[7])
+if (is_null[9])
 return "NULL";
 
 char *buf = new char[29];
@@ -357,7 +415,7 @@ string Row_DesignObjVariation_DesignObjParameter::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[8])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -409,10 +467,10 @@ bool Table_DesignObjVariation_DesignObjParameter::Commit(bool bDeleteFailedModif
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_DesignObjVariation_asSQL()+", "+pRow->FK_DesignObjParameter_asSQL()+", "+pRow->Value_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_DesignObjVariation_asSQL()+", "+pRow->FK_DesignObjParameter_asSQL()+", "+pRow->Value_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into DesignObjVariation_DesignObjParameter (`FK_DesignObjVariation`, `FK_DesignObjParameter`, `Value`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into DesignObjVariation_DesignObjParameter (`FK_DesignObjVariation`, `FK_DesignObjParameter`, `Value`, `FK_Skin`, `FK_Language`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -471,7 +529,7 @@ condition = condition + "`FK_DesignObjVariation`=" + tmp_FK_DesignObjVariation+"
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`FK_DesignObjVariation`="+pRow->FK_DesignObjVariation_asSQL()+", `FK_DesignObjParameter`="+pRow->FK_DesignObjParameter_asSQL()+", `Value`="+pRow->Value_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`FK_DesignObjVariation`="+pRow->FK_DesignObjVariation_asSQL()+", `FK_DesignObjParameter`="+pRow->FK_DesignObjParameter_asSQL()+", `Value`="+pRow->Value_asSQL()+", `FK_Skin`="+pRow->FK_Skin_asSQL()+", `FK_Language`="+pRow->FK_Language_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update DesignObjVariation_DesignObjParameter set " + update_values_list + " where " + condition;
@@ -627,67 +685,89 @@ pRow->m_Value = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Skin = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_psc_id));
+sscanf(row[3], "%li", &(pRow->m_FK_Skin));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_batch = 0;
+pRow->m_FK_Language = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_batch));
+sscanf(row[4], "%li", &(pRow->m_FK_Language));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_user));
+sscanf(row[5], "%li", &(pRow->m_psc_id));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[6], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_psc_mod = string(row[7],lengths[7]);
+sscanf(row[7], "%li", &(pRow->m_psc_user));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_restrict));
+sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_psc_mod = string(row[9],lengths[9]);
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -841,67 +921,89 @@ pRow->m_Value = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Skin = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_psc_id));
+sscanf(row[3], "%li", &(pRow->m_FK_Skin));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_batch = 0;
+pRow->m_FK_Language = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_batch));
+sscanf(row[4], "%li", &(pRow->m_FK_Language));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_user));
+sscanf(row[5], "%li", &(pRow->m_psc_id));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[6], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_psc_mod = string(row[7],lengths[7]);
+sscanf(row[7], "%li", &(pRow->m_psc_user));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_restrict));
+sscanf(row[8], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_psc_mod = string(row[9],lengths[9]);
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -925,6 +1027,20 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DesignObjParameter *pTable = table->database->DesignObjParameter_get();
 return pTable->GetRow(m_FK_DesignObjParameter);
+}
+class Row_Skin* Row_DesignObjVariation_DesignObjParameter::FK_Skin_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin *pTable = table->database->Skin_get();
+return pTable->GetRow(m_FK_Skin);
+}
+class Row_Language* Row_DesignObjVariation_DesignObjParameter::FK_Language_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Language *pTable = table->database->Language_get();
+return pTable->GetRow(m_FK_Language);
 }
 
 

@@ -142,7 +142,9 @@ void psc_restrict_setNull(bool val);
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void DesignObjVariation_Text_Skin_Language_FK_Language_getrows(vector <class Row_DesignObjVariation_Text_Skin_Language*> *rows);
+		void DesignObjVariation_DesignObjParameter_FK_Language_getrows(vector <class Row_DesignObjVariation_DesignObjParameter*> *rows);
+void DesignObjVariation_DesignObj_Skin_Language_FK_Language_getrows(vector <class Row_DesignObjVariation_DesignObj_Skin_Language*> *rows);
+void DesignObjVariation_Text_Skin_Language_FK_Language_getrows(vector <class Row_DesignObjVariation_Text_Skin_Language*> *rows);
 void Language_FK_Language_TextPlacement_getrows(vector <class Row_Language*> *rows);
 void Text_LS_FK_Language_getrows(vector <class Row_Text_LS*> *rows);
 void Text_LS_AltVersions_FK_Language_getrows(vector <class Row_Text_LS_AltVersions*> *rows);

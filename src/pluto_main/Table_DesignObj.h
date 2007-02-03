@@ -209,11 +209,11 @@ void DesignObj_FK_DesignObj_SubstForSkin_getrows(vector <class Row_DesignObj*> *
 void DesignObjVariation_FK_DesignObj_getrows(vector <class Row_DesignObjVariation*> *rows);
 void DesignObjVariation_FK_DesignObj_Goto_getrows(vector <class Row_DesignObjVariation*> *rows);
 void DesignObjVariation_DesignObj_FK_DesignObj_Child_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows);
-void DesignObjVariation_DesignObj_FK_DesignObj_InsteadOf_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows);
-void DesignObjVariation_DesignObj_FK_DesignObj_Up_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows);
-void DesignObjVariation_DesignObj_FK_DesignObj_Down_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows);
-void DesignObjVariation_DesignObj_FK_DesignObj_Left_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows);
-void DesignObjVariation_DesignObj_FK_DesignObj_Right_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows);
+void DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_InsteadOf_getrows(vector <class Row_DesignObjVariation_DesignObj_Skin_Language*> *rows);
+void DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Up_getrows(vector <class Row_DesignObjVariation_DesignObj_Skin_Language*> *rows);
+void DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Down_getrows(vector <class Row_DesignObjVariation_DesignObj_Skin_Language*> *rows);
+void DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Left_getrows(vector <class Row_DesignObjVariation_DesignObj_Skin_Language*> *rows);
+void DesignObjVariation_DesignObj_Skin_Language_FK_DesignObj_Right_getrows(vector <class Row_DesignObjVariation_DesignObj_Skin_Language*> *rows);
 void DesignObjVariation_Zone_FK_DesignObj_Goto_getrows(vector <class Row_DesignObjVariation_Zone*> *rows);
 void Device_FK_DesignObj_getrows(vector <class Row_Device*> *rows);
 void DeviceTemplate_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTemplate_DesignObj*> *rows);

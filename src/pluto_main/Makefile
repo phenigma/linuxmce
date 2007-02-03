@@ -50,6 +50,7 @@ Table_DesignObjType_DesignObjParameter.cpp \
 Table_DesignObjVariation.cpp \
 Table_DesignObjVariation_DesignObj.cpp \
 Table_DesignObjVariation_DesignObjParameter.cpp \
+Table_DesignObjVariation_DesignObj_Skin_Language.cpp \
 Table_DesignObjVariation_Text.cpp \
 Table_DesignObjVariation_Text_Skin_Language.cpp \
 Table_DesignObjVariation_Zone.cpp \
@@ -153,6 +154,7 @@ Table_PaidLicense.cpp \
 Table_ParameterType.cpp \
 Table_PhoneLineType.cpp \
 Table_Pipe.cpp \
+Table_PnpLevel.cpp \
 Table_PnpProtocol.cpp \
 Table_PnpQueue.cpp \
 Table_PostalCode.cpp \

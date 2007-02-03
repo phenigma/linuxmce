@@ -2389,13 +2389,27 @@
 #define DESIGNOBJ_butRAEnable_CONST 5387
 #define DESIGNOBJ_butRemoteAssistance_CONST 5388
 #define DESIGNOBJ_butRADisable_CONST 5389
-#define DESIGNOBJ_butThumbnailShow_CONST 5392
-#define DESIGNOBJ_butThumbnailChannel_CONST 5393
+#define DESIGNOBJ_mnuLegacySpeedControl_CONST 5390
+#define DESIGNOBJ_butBookmark_CONST 5391
+#define DESIGNOBJ_butThumbnailChannel_CONST 5392
+#define DESIGNOBJ_butThumbnailShow_CONST 5393
+#define DESIGNOBJ_butBookmarkChannel_Private_CONST 5394
 #define DESIGNOBJ_butBookmarkProgram_Private_CONST 5395
+#define DESIGNOBJ_butThumbnail_CONST 5396
+#define DESIGNOBJ_mnuThumbnail_CONST 5397
+#define DESIGNOBJ_dgThumbnailableAttributes_CONST 5398
 #define DESIGNOBJ_icoFavorite_CONST 5399
 #define DESIGNOBJ_grpPVR_UI2_Channels_CONST 5400
-#define DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Show_CONST 5405
+#define DESIGNOBJ_butUI2_Ch_Prev_Record_Once_CONST 5401
+#define DESIGNOBJ_butUI2_Ch_Prev_Record_All_CONST 5402
+#define DESIGNOBJ_butUI2_Ch_Prev_Record_Options_CONST 5403
 #define DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Chan_CONST 5404
+#define DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Show_CONST 5405
+#define DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Option_CONST 5406
+#define DESIGNOBJ_butUI2_Ch_Prev_More_CONST 5407
+#define DESIGNOBJ_icoRecord_CONST 5408
+#define DESIGNOBJ_mnuPendingChannelScans_CONST 5409
+#define DESIGNOBJ_dgPendingChannelScans_CONST 5410
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
@@ -2449,5 +2463,4 @@
 
 
 #endif
-
 

@@ -69,6 +69,7 @@ tblDesignObjType_DesignObjParameter=NULL;
 tblDesignObjVariation=NULL;
 tblDesignObjVariation_DesignObj=NULL;
 tblDesignObjVariation_DesignObjParameter=NULL;
+tblDesignObjVariation_DesignObj_Skin_Language=NULL;
 tblDesignObjVariation_Text=NULL;
 tblDesignObjVariation_Text_Skin_Language=NULL;
 tblDesignObjVariation_Zone=NULL;
@@ -172,6 +173,7 @@ tblPaidLicense=NULL;
 tblParameterType=NULL;
 tblPhoneLineType=NULL;
 tblPipe=NULL;
+tblPnpLevel=NULL;
 tblPnpProtocol=NULL;
 tblPnpQueue=NULL;
 tblPostalCode=NULL;
@@ -389,6 +391,9 @@ if( tblDesignObjVariation_DesignObj!=NULL )
 		bResult=false;
 if( tblDesignObjVariation_DesignObjParameter!=NULL )
 	if( !Commit_DesignObjVariation_DesignObjParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblDesignObjVariation_DesignObj_Skin_Language!=NULL )
+	if( !Commit_DesignObjVariation_DesignObj_Skin_Language(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
 if( tblDesignObjVariation_Text!=NULL )
 	if( !Commit_DesignObjVariation_Text(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
@@ -699,6 +704,9 @@ if( tblPhoneLineType!=NULL )
 if( tblPipe!=NULL )
 	if( !Commit_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
+if( tblPnpLevel!=NULL )
+	if( !Commit_PnpLevel(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPnpProtocol!=NULL )
 	if( !Commit_PnpProtocol(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
@@ -977,6 +985,7 @@ DeleteTable_DesignObjType_DesignObjParameter();
 DeleteTable_DesignObjVariation();
 DeleteTable_DesignObjVariation_DesignObj();
 DeleteTable_DesignObjVariation_DesignObjParameter();
+DeleteTable_DesignObjVariation_DesignObj_Skin_Language();
 DeleteTable_DesignObjVariation_Text();
 DeleteTable_DesignObjVariation_Text_Skin_Language();
 DeleteTable_DesignObjVariation_Zone();
@@ -1080,6 +1089,7 @@ DeleteTable_PaidLicense();
 DeleteTable_ParameterType();
 DeleteTable_PhoneLineType();
 DeleteTable_Pipe();
+DeleteTable_PnpLevel();
 DeleteTable_PnpProtocol();
 DeleteTable_PnpQueue();
 DeleteTable_PostalCode();

@@ -1109,7 +1109,7 @@
 #define TEXT_yes_capture_card_port_CONST 1825
 #define TEXT_Installed_Apps_Title_CONST 1826
 #define TEXT_Installed_Apps_Category_CONST 1827
-#define TEXT_TV_Channel_info_CONST 1828
+#define TEXT_TV_Channel_Text_CONST 1828
 #define TEXT_TV_Channel_name_CONST 1829
 #define TEXT_TV_Channel_time_CONST 1830
 #define TEXT_Installed_CONST 1831
@@ -1171,6 +1171,17 @@
 #define TEXT_RA_is_enable_CONST 1895
 #define TEXT_RA_is_disable_CONST 1896
 #define TEXT_confirm_file_delete_CONST 1897
+#define TEXT_Thumbnail_CONST 1898
+#define TEXT_Thumbnail_Channel_CONST 1899
+#define TEXT_Bookmark_Channel_CONST 1900
+#define TEXT_Bookmark_Show_CONST 1901
+#define TEXT_Private_CONST 1902
+#define TEXT_Use_this_thumbnail_CONST 1903
+#define TEXT_TV_Channel_Info_CONST 1904
+#define TEXT_Once_CONST 1905
+#define TEXT_Bookmark_Channel_Abb_CONST 1906
+#define TEXT_Bookmark_Show_Abb_CONST 1907
+#define TEXT_Pending_Channel_Scan_CONST 1908
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

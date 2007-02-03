@@ -81,6 +81,8 @@ class DECLSPECIFIER Row_DesignObjVariation_DesignObjParameter : public TableRow,
 		long int m_FK_DesignObjVariation;
 long int m_FK_DesignObjParameter;
 string m_Value;
+long int m_FK_Skin;
+long int m_FK_Language;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -88,12 +90,14 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[9];
+		bool is_null[11];
 	
 	public:
 		long int FK_DesignObjVariation_get();
 long int FK_DesignObjParameter_get();
 string Value_get();
+long int FK_Skin_get();
+long int FK_Language_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -105,6 +109,8 @@ long int psc_restrict_get();
 		void FK_DesignObjVariation_set(long int val);
 void FK_DesignObjParameter_set(long int val);
 void Value_set(string val);
+void FK_Skin_set(long int val);
+void FK_Language_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -114,6 +120,8 @@ void psc_restrict_set(long int val);
 
 		
 		bool Value_isNull();
+bool FK_Skin_isNull();
+bool FK_Language_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -122,6 +130,8 @@ bool psc_restrict_isNull();
 
 			
 		void Value_setNull(bool val);
+void FK_Skin_setNull(bool val);
+void FK_Language_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -141,6 +151,8 @@ void psc_restrict_setNull(bool val);
 		// Return the rows for foreign keys 
 		class Row_DesignObjVariation* FK_DesignObjVariation_getrow();
 class Row_DesignObjParameter* FK_DesignObjParameter_getrow();
+class Row_Skin* FK_Skin_getrow();
+class Row_Language* FK_Language_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -148,7 +160,7 @@ class Row_DesignObjParameter* FK_DesignObjParameter_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_DesignObjVariation+ m_FK_DesignObjParameter+ m_Value+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_FK_DesignObjVariation+ m_FK_DesignObjParameter+ m_Value+ m_FK_Skin+ m_FK_Language+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -156,6 +168,8 @@ class Row_DesignObjParameter* FK_DesignObjParameter_getrow();
 		string FK_DesignObjVariation_asSQL();
 string FK_DesignObjParameter_asSQL();
 string Value_asSQL();
+string FK_Skin_asSQL();
+string FK_Language_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

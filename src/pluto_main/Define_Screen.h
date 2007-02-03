@@ -239,6 +239,8 @@
 #define SCREEN_ExternalDeviceFullScreen_CONST 252
 #define SCREEN_ExternalDeviceFullScreen_Opts_CONST 253
 #define SCREEN_Remote_Assistance_CONST 255
+#define SCREEN_Legacy_AV_Speed_Control_CONST 256
+#define SCREEN_Thumbnail_CONST 257
 #define SCREEN_Scanning_Progress_CONST 258
 
 #define SCREEN_TABLE "Screen"

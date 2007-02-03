@@ -193,6 +193,8 @@ class Row_Package* FK_Package_getrow();
 
 		// Return the rows in other tables with foreign keys pointing here
 		void DesignObj_FK_Skin_SubstForSkin_getrows(vector <class Row_DesignObj*> *rows);
+void DesignObjVariation_DesignObjParameter_FK_Skin_getrows(vector <class Row_DesignObjVariation_DesignObjParameter*> *rows);
+void DesignObjVariation_DesignObj_Skin_Language_FK_Skin_getrows(vector <class Row_DesignObjVariation_DesignObj_Skin_Language*> *rows);
 void DesignObjVariation_Text_Skin_Language_FK_Skin_getrows(vector <class Row_DesignObjVariation_Text_Skin_Language*> *rows);
 void DeviceTemplate_MediaType_DesignObj_FK_Skin_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
 void EffectType_Effect_Skin_FK_Skin_getrows(vector <class Row_EffectType_Effect_Skin*> *rows);

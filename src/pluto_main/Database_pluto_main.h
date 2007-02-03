@@ -114,6 +114,8 @@ class Table_DesignObjVariation_DesignObj* tblDesignObjVariation_DesignObj;
 bool Commit_DesignObjVariation_DesignObj(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_DesignObjVariation_DesignObjParameter* tblDesignObjVariation_DesignObjParameter;
 bool Commit_DesignObjVariation_DesignObjParameter(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_DesignObjVariation_DesignObj_Skin_Language* tblDesignObjVariation_DesignObj_Skin_Language;
+bool Commit_DesignObjVariation_DesignObj_Skin_Language(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_DesignObjVariation_Text* tblDesignObjVariation_Text;
 bool Commit_DesignObjVariation_Text(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_DesignObjVariation_Text_Skin_Language* tblDesignObjVariation_Text_Skin_Language;
@@ -320,6 +322,8 @@ class Table_PhoneLineType* tblPhoneLineType;
 bool Commit_PhoneLineType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Pipe* tblPipe;
 bool Commit_Pipe(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_PnpLevel* tblPnpLevel;
+bool Commit_PnpLevel(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_PnpProtocol* tblPnpProtocol;
 bool Commit_PnpProtocol(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_PnpQueue* tblPnpQueue;
@@ -517,6 +521,7 @@ class Table_DesignObjType_DesignObjParameter* DesignObjType_DesignObjParameter_g
 class Table_DesignObjVariation* DesignObjVariation_get() { if( !tblDesignObjVariation ) CreateTable_DesignObjVariation(); return tblDesignObjVariation; }
 class Table_DesignObjVariation_DesignObj* DesignObjVariation_DesignObj_get() { if( !tblDesignObjVariation_DesignObj ) CreateTable_DesignObjVariation_DesignObj(); return tblDesignObjVariation_DesignObj; }
 class Table_DesignObjVariation_DesignObjParameter* DesignObjVariation_DesignObjParameter_get() { if( !tblDesignObjVariation_DesignObjParameter ) CreateTable_DesignObjVariation_DesignObjParameter(); return tblDesignObjVariation_DesignObjParameter; }
+class Table_DesignObjVariation_DesignObj_Skin_Language* DesignObjVariation_DesignObj_Skin_Language_get() { if( !tblDesignObjVariation_DesignObj_Skin_Language ) CreateTable_DesignObjVariation_DesignObj_Skin_Language(); return tblDesignObjVariation_DesignObj_Skin_Language; }
 class Table_DesignObjVariation_Text* DesignObjVariation_Text_get() { if( !tblDesignObjVariation_Text ) CreateTable_DesignObjVariation_Text(); return tblDesignObjVariation_Text; }
 class Table_DesignObjVariation_Text_Skin_Language* DesignObjVariation_Text_Skin_Language_get() { if( !tblDesignObjVariation_Text_Skin_Language ) CreateTable_DesignObjVariation_Text_Skin_Language(); return tblDesignObjVariation_Text_Skin_Language; }
 class Table_DesignObjVariation_Zone* DesignObjVariation_Zone_get() { if( !tblDesignObjVariation_Zone ) CreateTable_DesignObjVariation_Zone(); return tblDesignObjVariation_Zone; }
@@ -620,6 +625,7 @@ class Table_PaidLicense* PaidLicense_get() { if( !tblPaidLicense ) CreateTable_P
 class Table_ParameterType* ParameterType_get() { if( !tblParameterType ) CreateTable_ParameterType(); return tblParameterType; }
 class Table_PhoneLineType* PhoneLineType_get() { if( !tblPhoneLineType ) CreateTable_PhoneLineType(); return tblPhoneLineType; }
 class Table_Pipe* Pipe_get() { if( !tblPipe ) CreateTable_Pipe(); return tblPipe; }
+class Table_PnpLevel* PnpLevel_get() { if( !tblPnpLevel ) CreateTable_PnpLevel(); return tblPnpLevel; }
 class Table_PnpProtocol* PnpProtocol_get() { if( !tblPnpProtocol ) CreateTable_PnpProtocol(); return tblPnpProtocol; }
 class Table_PnpQueue* PnpQueue_get() { if( !tblPnpQueue ) CreateTable_PnpQueue(); return tblPnpQueue; }
 class Table_PostalCode* PostalCode_get() { if( !tblPostalCode ) CreateTable_PostalCode(); return tblPostalCode; }
@@ -746,6 +752,7 @@ void CreateTable_DesignObjType_DesignObjParameter();
 void CreateTable_DesignObjVariation();
 void CreateTable_DesignObjVariation_DesignObj();
 void CreateTable_DesignObjVariation_DesignObjParameter();
+void CreateTable_DesignObjVariation_DesignObj_Skin_Language();
 void CreateTable_DesignObjVariation_Text();
 void CreateTable_DesignObjVariation_Text_Skin_Language();
 void CreateTable_DesignObjVariation_Zone();
@@ -849,6 +856,7 @@ void CreateTable_PaidLicense();
 void CreateTable_ParameterType();
 void CreateTable_PhoneLineType();
 void CreateTable_Pipe();
+void CreateTable_PnpLevel();
 void CreateTable_PnpProtocol();
 void CreateTable_PnpQueue();
 void CreateTable_PostalCode();
@@ -969,6 +977,7 @@ void DeleteTable_DesignObjType_DesignObjParameter();
 void DeleteTable_DesignObjVariation();
 void DeleteTable_DesignObjVariation_DesignObj();
 void DeleteTable_DesignObjVariation_DesignObjParameter();
+void DeleteTable_DesignObjVariation_DesignObj_Skin_Language();
 void DeleteTable_DesignObjVariation_Text();
 void DeleteTable_DesignObjVariation_Text_Skin_Language();
 void DeleteTable_DesignObjVariation_Zone();
@@ -1072,6 +1081,7 @@ void DeleteTable_PaidLicense();
 void DeleteTable_ParameterType();
 void DeleteTable_PhoneLineType();
 void DeleteTable_Pipe();
+void DeleteTable_PnpLevel();
 void DeleteTable_PnpProtocol();
 void DeleteTable_PnpQueue();
 void DeleteTable_PostalCode();

@@ -19,6 +19,8 @@ using namespace std;
 #include "Table_Language.h"
 #include "Table_Language.h"
 
+#include "Table_DesignObjVariation_DesignObjParameter.h"
+#include "Table_DesignObjVariation_DesignObj_Skin_Language.h"
 #include "Table_DesignObjVariation_Text_Skin_Language.h"
 #include "Table_Language.h"
 #include "Table_Text_LS.h"
@@ -915,6 +917,20 @@ return pTable->GetRow(m_FK_Language_TextPlacement);
 }
 
 
+void Row_Language::DesignObjVariation_DesignObjParameter_FK_Language_getrows(vector <class Row_DesignObjVariation_DesignObjParameter*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DesignObjVariation_DesignObjParameter *pTable = table->database->DesignObjVariation_DesignObjParameter_get();
+pTable->GetRows("`FK_Language`=" + StringUtils::itos(m_PK_Language),rows);
+}
+void Row_Language::DesignObjVariation_DesignObj_Skin_Language_FK_Language_getrows(vector <class Row_DesignObjVariation_DesignObj_Skin_Language*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DesignObjVariation_DesignObj_Skin_Language *pTable = table->database->DesignObjVariation_DesignObj_Skin_Language_get();
+pTable->GetRows("`FK_Language`=" + StringUtils::itos(m_PK_Language),rows);
+}
 void Row_Language::DesignObjVariation_Text_Skin_Language_FK_Language_getrows(vector <class Row_DesignObjVariation_Text_Skin_Language*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
