@@ -65,6 +65,8 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
 #endif
         case VK_SPACE:  iPK_Button = BUTTON_space_CONST; break;
         case VK_ESCAPE:	iPK_Button = BUTTON_escape_CONST; break;
+		case VK_PRIOR:	iPK_Button = BUTTON_Scroll_Up_CONST; break;
+		case VK_NEXT:	iPK_Button = BUTTON_Scroll_Down_CONST; break;
 
 #ifdef PHONEKEYS
         case VK_C:      iPK_Button = BUTTON_Phone_C_CONST;           break;

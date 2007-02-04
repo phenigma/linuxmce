@@ -239,7 +239,29 @@ bool ScreenHandler::FileList_KeyDown(CallBackData *pData)
 	{
 		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_dgFileList2_CONST);
 		if( pObj && pObj->m_bOnScreen )
+		{
 			m_pOrbiter->Scroll_Grid("",pObj->m_ObjectID,pKeyCallBackData->m_nPlutoKey==BUTTON_Scroll_Down_CONST ? DIRECTION_Down_CONST : DIRECTION_Up_CONST);
+			return true;
+		}
+	}
+	else if( (pKeyCallBackData->m_nPlutoKey>=BUTTON_1_CONST && pKeyCallBackData->m_nPlutoKey<=BUTTON_0_CONST) || 
+		(pKeyCallBackData->m_nPlutoKey>=BUTTON_a_CONST && pKeyCallBackData->m_nPlutoKey<=BUTTON_Z_CONST) )
+	{
+		DesignObj_DataGrid *pObj = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgFileList2_CONST);
+		if( pObj )
+		{
+			string sSeek = " ";
+			if( pKeyCallBackData->m_nPlutoKey==BUTTON_0_CONST )
+				sSeek[0] = '0';
+			else if( pKeyCallBackData->m_nPlutoKey>=BUTTON_1_CONST && pKeyCallBackData->m_nPlutoKey<=BUTTON_0_CONST )
+				sSeek[0] = '1' + pKeyCallBackData->m_nPlutoKey-BUTTON_1_CONST;
+			else if( pKeyCallBackData->m_nPlutoKey>=BUTTON_a_CONST && pKeyCallBackData->m_nPlutoKey<=BUTTON_z_CONST )
+				sSeek[0] = 'A' + pKeyCallBackData->m_nPlutoKey-BUTTON_a_CONST;
+			else if( pKeyCallBackData->m_nPlutoKey>=BUTTON_A_CONST && pKeyCallBackData->m_nPlutoKey<=BUTTON_Z_CONST )
+				sSeek[0] = 'A' + pKeyCallBackData->m_nPlutoKey-BUTTON_A_CONST;
+
+			m_pOrbiter->CMD_Seek_Data_Grid(sSeek,0,0,pObj->m_sGridID);
+		}
 	}
 	return false;
 }
@@ -431,6 +453,10 @@ g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play
 		m_pOrbiter->CMD_Refresh("*");
 		return false;
 	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Go_CONST )  // UI 1's Go
+	{
+		mediaFileBrowserOptions.ReacquireGrids();
+	}
 	else if( pObjectInfoData->m_pObj && pObjectInfoData->m_pObj->m_pParentObject )
 	{
 		bool bChangedSortFilter=false;
@@ -479,27 +505,6 @@ g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play
 			m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
 			m_pOrbiter->CMD_Refresh("*");
 			return true;  // We don't want the framework to mark the object as selected
-		}
-	}
-	if( m_pOrbiter->UsesUIVersion2()==false ) // If there's no mouse handler, we need to manually activate the popups when selected
-	{
-		string sPK_DesignObj_Popup = GetFileBrowserPopup(pObjectInfoData->m_pObj);
-		if( sPK_DesignObj_Popup.empty()==false )
-		{
-			DesignObj_Orbiter *pObj_SubMenu = m_pOrbiter->FindObject(sPK_DesignObj_Popup);
-			if( !pObj_SubMenu )
-				m_pOrbiter->CMD_Remove_Popup("","submenu");
-			else
-			{
-				// We want to put it above us, left justified
-				PlutoPoint pt = pObjectInfoData->m_pObj->m_rPosition.Location();
-				pt.Y -= pObj_SubMenu->m_rPosition.Height;
-				if( pt.X + pObj_SubMenu->m_rPosition.Width > m_pOrbiter->m_Width )
-					pt.X = m_pOrbiter->m_Width-pObj_SubMenu->m_rPosition.Width;
-
-				m_pOrbiter->CMD_Show_Popup(pObj_SubMenu->m_ObjectID,pt.X,pt.Y,"",
-					"submenu",false,false);
-			}
 		}
 	}
 
@@ -657,6 +662,8 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 	{
 		mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
 		mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(pCellInfoData->m_sValue.c_str()),pCellInfoData->m_sText ));
+		// Reset the sort type back to the title when the user is doing a keyword search
+		mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_Title_CONST;
 		mediaFileBrowserOptions.ReacquireGrids();
 		m_pOrbiter->CMD_Go_back("","");
 		return true;
