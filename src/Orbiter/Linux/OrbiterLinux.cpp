@@ -801,6 +801,9 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode,int Type)
 				iPK_Button = BUTTON_Right_Arrow_CONST;
 			break;
 
+        case XK_Page_Down:		iPK_Button = BUTTON_Scroll_Down_CONST; break;
+        case XK_Page_Up:		iPK_Button = BUTTON_Scroll_Up_CONST; break;
+
 /* modificari */
         case XK_F9:     iPK_Button = BUTTON_F9_CONST; break;
         case XK_F10:    iPK_Button = BUTTON_F10_CONST; break;
