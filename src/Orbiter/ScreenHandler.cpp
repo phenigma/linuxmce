@@ -315,7 +315,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 				datagridCellBackData.m_pDesignObj_DataGrid = mediaFileBrowserOptions.m_pObj_ListGrid;
 				datagridCellBackData.m_nPK_Datagrid = mediaFileBrowserOptions.m_pObj_ListGrid->m_iPK_Datagrid;
 				datagridCellBackData.m_Column = mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedColumn;
-				datagridCellBackData.m_Row = mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow;
+				datagridCellBackData.m_Row = mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow;
 				datagridCellBackData.m_pDataGridCell = pCell;
 				if( pCell->m_Text )
 					datagridCellBackData.m_sText = pCell->m_Text;
@@ -335,6 +335,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( pObj )
 			pObj->m_GraphicToDisplay_set("fmvs3",GRAPHIC_NORMAL,false,true);
 
+		mediaFileBrowserOptions.ReacquireGrids();
 		MediaBrowser_Render(NULL);
 		m_pOrbiter->CMD_Refresh("*");
 	}
@@ -347,6 +348,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
 		if( pObj )
 			pObj->m_GraphicToDisplay_set("fmvs4",GRAPHIC_NORMAL,false,true);
+		mediaFileBrowserOptions.ReacquireGrids();
 		MediaBrowser_Render(NULL);
 		m_pOrbiter->CMD_Refresh("*");
 	}
@@ -412,6 +414,7 @@ g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play
 	{
 		if( mediaFileBrowserOptions.m_listPK_Attribute_Description.size() )
 		{
+			mediaFileBrowserOptions.ReacquireGrids();
 			mediaFileBrowserOptions.m_listPK_Attribute_Description.pop_front();
 			if( mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.size() )
 			{
@@ -423,6 +426,7 @@ g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play
 			mediaFileBrowserOptions.ClearAll(mediaFileBrowserOptions.m_PK_MediaType,m_pOrbiter->m_pScreenHistory_Current->PK_Screen(),
 				m_pOrbiter->m_mapPK_MediaType_PK_Attribute_Sort[mediaFileBrowserOptions.m_PK_MediaType]);
 
+		mediaFileBrowserOptions.ReacquireGrids();
 		MediaBrowser_Render(NULL);
 		m_pOrbiter->CMD_Refresh("*");
 		return false;
@@ -589,6 +593,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 		{
 			// It's a sub directory.  Update the source and refresh the page
 			mediaFileBrowserOptions.m_sSources = pCell_List->m_Value ? pCell_List->m_Value : "";
+			mediaFileBrowserOptions.ReacquireGrids();
 			MediaBrowser_Render(NULL);
 			m_pOrbiter->CMD_Refresh("*");
 			return true;
@@ -652,6 +657,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 	{
 		mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
 		mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(pCellInfoData->m_sValue.c_str()),pCellInfoData->m_sText ));
+		mediaFileBrowserOptions.ReacquireGrids();
 		m_pOrbiter->CMD_Go_back("","");
 		return true;
 	}
@@ -736,6 +742,7 @@ void ScreenHandler::SelectedAttributeCell(DataGridCell *pCell)
 		}
 
 	}
+	mediaFileBrowserOptions.ReacquireGrids();
 	MediaBrowser_Render(NULL);
 	m_pOrbiter->CMD_Refresh("*");
 }

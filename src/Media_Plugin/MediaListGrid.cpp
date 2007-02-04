@@ -50,6 +50,12 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 	clock_t cStart=clock(); // move this to within #debug
 #endif
 	
+	if( *ColStart<0 || *RowStart<0 )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "MediaListGrid::ToData colstart: %d rowstart: %d",
+			*ColStart, *RowStart );
+		return;
+	}
 
 	for(int row=*RowStart;row<*RowStart+RowCount;++row)
 	{

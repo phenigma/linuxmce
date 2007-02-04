@@ -458,6 +458,13 @@ void DataGridTable::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 g_pPlutoLogger->Write( LV_DATAGRID, "inside todata" );
 #endif
 
+	if( *ColStart<0 || *RowStart<0 )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "DataGridTable::ToData colstart: %d rowstart: %d",
+			*ColStart, *RowStart );
+		return;
+	}
+
 	m_CellCount = 0;
 
 	if( !(*RowStart) && !RowCount )

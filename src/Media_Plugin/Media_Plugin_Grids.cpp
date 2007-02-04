@@ -344,7 +344,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		sPK_File[ sPK_File.size()-1 ]=' '; // Get rid of the trailing comma
 		if( bShowFiles )
 		{
-			FetchPictures("File",sPK_File,mapFile_To_Pic);
+			FetchPictures("File",sPK_File,mapFile_To_Pic,PK_AttributeType_Sort);
 			PopulateFileBrowserInfoForFile(pMediaListGrid,PK_AttributeType_Sort,bSubDirectory,sPK_Sources /* this how we get back to where we are now */,sPK_File,mapFile_To_Pic);
 		}
 		else
@@ -356,7 +356,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		sPK_Disc[ sPK_Disc.size()-1 ]=' '; // Get rid of the trailing comma
 		if( bShowFiles )
 		{
-			FetchPictures("Disc",sPK_Disc,mapDisc_To_Pic);
+			FetchPictures("Disc",sPK_Disc,mapDisc_To_Pic,PK_AttributeType_Sort);
 			PopulateFileBrowserInfoForDisc(pMediaListGrid,PK_AttributeType_Sort,sPK_Disc,mapDisc_To_Pic);
 		}
 		else
@@ -372,7 +372,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 //		PopulateFileBrowserInfoForDisc(pMediaListGrid,sPK_File,mapFile_To_Pic);
 }
 
-void Media_Plugin::FetchPictures(string sWhichTable,string &sPK_File_Or_Disc,map<int,int> &mapFile_To_Pic)
+void Media_Plugin::FetchPictures(string sWhichTable,string &sPK_File_Or_Disc,map<int,int> &mapFile_To_Pic,int PK_AttributeType_Sort)
 {
 	string sSQL	= "SELECT FK_" + sWhichTable + ",FK_Picture FROM Picture_" + sWhichTable + " WHERE FK_" + sWhichTable + " IN (" + sPK_File_Or_Disc + ")";
     PlutoSqlResult result;
@@ -386,6 +386,11 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
 			sPK_AlreadyGot += row[0] + string(",");
 			mapFile_To_Pic[ atoi(row[0]) ] = atoi(row[1]);
 		}
+
+	// If we're retrieving filenames or specific titles, don't do a cross-match to find attributes that have pictures.  Otherwise
+	// you can have a file with no pictures, but if it's in the Genre 'Action', it will find a picture for some other Action file
+	if( PK_AttributeType_Sort==0 || PK_AttributeType_Sort==ATTRIBUTETYPE_Title_CONST )
+		return;
 
 	sSQL = "SELECT FK_" + sWhichTable + ",FK_Picture FROM " + sWhichTable + "_Attribute JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=" + sWhichTable + "_Attribute.FK_Attribute WHERE FK_" + sWhichTable + " IN (" + sPK_File_Or_Disc + ")";
 	if( sPK_AlreadyGot.size() )

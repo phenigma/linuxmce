@@ -88,8 +88,10 @@ bool MediaBrowserMouseHandler::ButtonDown(int PK_Button)
 	if( m_pDatagridMouseHandlerHelper->CapturingMouse() )
 	{
 		if( PK_Button==BUTTON_Mouse_2_CONST )
+		{
 			m_pDatagridMouseHandlerHelper->ReleaseRelative();
-		return true;
+			return true;
+		}
 	}
 
 	return false; // Keep processing

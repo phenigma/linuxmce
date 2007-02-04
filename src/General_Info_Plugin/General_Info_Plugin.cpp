@@ -3204,7 +3204,7 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 
 	string sArguments=pDevice->m_sIPAddress + "\t" + pRow_Software->PackageName_get() + "\t" + pRow_Software->Downloadurl_get() + "\t" + pRow_Software->RepositoryName_get();
 
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Add_Software Starting Add software device %d software %d true %d cmd %d %s",
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Add_Software Starting Add software device %d software %d true %d cmd %s %s",
 		pDevice->m_dwPK_Device,iPK_Software,(int) bTrueFalse,sCommand.c_str(),sArguments.c_str());
 
 	ProcessUtils::SpawnDaemon(sCommand, sArguments, true);
