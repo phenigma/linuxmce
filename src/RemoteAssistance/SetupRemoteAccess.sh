@@ -97,7 +97,7 @@ CreateTunnel()
 	LocalPort="$2"
 	RemotePort="$3"
 	Host="$4"
-	RAhost="$5"
+	RAhost="${5:-pf.plutohome.com}"
 	RAport="$6"
 	Monitored="${7:-yes}"
 
@@ -118,7 +118,7 @@ CreateTunnel()
 		FalseAlarm=0
 		if [[ -n "$Tunnel" && "$RA_CheckRemotePort" == "1" && "$Monitored" == yes ]]; then
 			for ((i=0;i<5;i++)); do
-				nc -z -w1 pf.plutohome.com "$RemotePort" && FalseAlarm=1 && break
+				nc -z -w1 "$RAhost" "$RemotePort" && FalseAlarm=1 && break
 				sleep 1
 			done
 		fi
@@ -162,7 +162,7 @@ CreateTunnels()
 		PortDest="${PortNameDest##*_}"
 		PortTunnel="${!Var}"
 		CreateTunnel "${PortName}_pf" "$PortDest" "$PortTunnel"
-		CreateTunnel "${PortName}_ph" "$PortDest" "$PortTunnel" "" pf2.plutohome.com
+		CreateTunnel "${PortName}_ph" "$PortDest" "$PortTunnel" "" pf2.plutohome.com 22
 	done
 
 	CreateTunnels_Special
