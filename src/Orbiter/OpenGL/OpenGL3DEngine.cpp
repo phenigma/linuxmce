@@ -445,7 +445,9 @@ inline void OpenGL3DEngine::DumpScene()
 	HighLightFrame->SetTransform(Transform);
 	HighLightFrame->SetMeshContainer(Container);
 
-	OriginalCurrentLayer->AddChild(HighLightFrame);
+	if(NULL != OriginalCurrentLayer)
+		OriginalCurrentLayer->AddChild(HighLightFrame);
+
 	AddTopMostObject("highlight");
 }
 
@@ -489,17 +491,18 @@ bool OpenGL3DEngine::NeedUpdateScreen()
 MeshFrame* OpenGL3DEngine::GetMeshFrameFromDesktop(string ObjectID)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
-	return OriginalCurrentLayer->FindChild(ObjectID);
+
+	if(NULL != OriginalCurrentLayer)
+		return OriginalCurrentLayer->FindChild(ObjectID);
+
+	return NULL;
 }
 
 void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	if(NULL == OriginalCurrentLayer)
-	{
-		//g_pPlutoLogger->Write(LV_CRITICAL, "RemoveMeshFrameFromDesktop: NULL CurrentLayer");
 		return;
-	}
 
 	m_bWorldChanged = true;
 	OriginalCurrentLayer->RemoveChild(Frame);
@@ -717,7 +720,7 @@ void OpenGL3DEngine::RemoveTopMostObject(string ObjectID)
 
 void OpenGL3DEngine::UpdateTopMostObjects()
 {
-	if(TopMostObjects.size() == 0)
+	if(TopMostObjects.size() == 0 || NULL == OriginalCurrentLayer)
 		return;
 	
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
@@ -745,6 +748,9 @@ void OpenGL3DEngine::UpdateTopMostObjects()
 void OpenGL3DEngine::ReplaceMeshInAnimations(MeshFrame *OldFrame, MeshFrame *NewFrame)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+
+	if(NULL == OriginalCurrentLayer)
+		return;
 
 	g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::ReplaceMeshInAnimations %p/%s with %p/%s",
 		OldFrame, OldFrame->Name().c_str(), NewFrame, NewFrame->Name().c_str());
