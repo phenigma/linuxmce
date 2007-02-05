@@ -125,6 +125,10 @@ namespace DCE
 		bool m_bHasTimeline; // True if the last set media position indicated we could directly set media position (ie a timeline)
 		DesignObj_Orbiter *m_pObj_Previously_Highlighted;
 
+		// After changing the OSD with UI2 it may be a couple seconds before the media player settles down and we don't want
+		// it displaying speed bars until then
+		time_t m_tIgnoreSpeedChangesUntil;
+
 	public:
 		typedef enum { mcs_Normal, mcs_LeftRight, mcs_UpDown, mcs_AnyDirection, mcs_LeftRightUpDown } MouseCursorStyle;
 		typedef enum { smb_Default, smb_TurnOffRemote, smb_TurnOnRemote, smb_LeaveRemoteUnchanged } SetMouseBehaviorRemote;

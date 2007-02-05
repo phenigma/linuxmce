@@ -6486,7 +6486,6 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	{
 		if( UsesUIVersion2() )
 			StartScreenSaver(false);  // Don't go to the menu, just start the app in the background
-		m_bShowingSpeedBar=false;
 	}
 
 	if(m_bReportTimeCode && !m_bUpdateTimeCodeLoopRunning )
@@ -8288,7 +8287,6 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code m_pScreenHistory_Current %p current %d osd %d",
 			m_pScreenHistory_Current,m_pScreenHistory_Current->PK_Screen(),m_iPK_Screen_OSD_Speed);
 #endif
-			m_bShowingSpeedBar=false;
 			if( m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()==m_iPK_Screen_OSD_Speed )
 				CMD_Go_back("","1");
 			/*
@@ -8297,8 +8295,12 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 			else if( m_iPK_Screen_Remote )
 				CMD_Goto_Screen("",m_iPK_Screen_Remote);
 				*/
+			if( m_pMouseBehavior )
+				m_pMouseBehavior->Clear(false);
+			m_bShowingSpeedBar=false;
 		}
-		else if( m_sNowPlaying_Speed.empty()==false && m_bContainsVideo && m_iPK_Screen_OSD_Speed && m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_OSD_Speed && !m_bShowingSpeedBar )
+		else if( m_sNowPlaying_Speed.empty()==false && m_bContainsVideo && m_iPK_Screen_OSD_Speed && m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_OSD_Speed && !m_bShowingSpeedBar 
+			&& m_pMouseBehavior && m_pMouseBehavior->m_tIgnoreSpeedChangesUntil<time(NULL) )
 		{
 			// If we're not on the speed screen already (ie the speed was adjusted with an i/r remote or other means besides this osd)
 			// Display the speed bar just as a goto designobj, not a full screen, and we'll go back when the speed returns to normal
@@ -9419,18 +9421,18 @@ void Orbiter::UpdateTimeCodeLoop()
 #endif        
 		string::size_type pos=0;
 		int iSpeed = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());
-		string sTime = StringUtils::Tokenize( sLine,",",pos );
-		string sTotalTime = StringUtils::Tokenize( sLine,",",pos );
+		m_sTime = StringUtils::Tokenize( sLine,",",pos );
+		m_sTotalTime = StringUtils::Tokenize( sLine,",",pos );
 		int iStreamID = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());
 		string sTitle = StringUtils::Tokenize( sLine,",",pos );
 		string sChapter = StringUtils::Tokenize( sLine,",",pos );
 
 		// Strip fractions of a second
-		if( (pos=sTime.find('.'))!=string::npos )
-			sTime = sTime.substr(0,pos);
+		if( (pos=m_sTime.find('.'))!=string::npos )
+			m_sTime = m_sTime.substr(0,pos);
 
-		if( (pos=sTotalTime.find('.'))!=string::npos )
-			sTotalTime = sTotalTime.substr(0,pos);
+		if( (pos=m_sTotalTime.find('.'))!=string::npos )
+			m_sTotalTime = m_sTotalTime.substr(0,pos);
 
 		string sSpeed;
 		if( iSpeed!=1000 ) // normal playback
@@ -9456,7 +9458,7 @@ void Orbiter::UpdateTimeCodeLoop()
 		if( m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD )
 		{
 			DCE::CMD_Display_Message CMD_Display_Message_TC(m_dwPK_Device,m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD,
-				sTime, //pos_TimeCode==string::npos ? sTime : sTime.substr(0,pos_TimeCode),
+				m_sTime, //pos_TimeCode==string::npos ? m_sTime : m_sTime.substr(0,pos_TimeCode),
 				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_TIME_CODE),"tc","","");
 
 			if( m_bSpeedIconsOnVfd==false )
@@ -9484,7 +9486,7 @@ void Orbiter::UpdateTimeCodeLoop()
 
 		}
 
-		CMD_Update_Time_Code(iStreamID,sTime,sTotalTime,sSpeed,sTitle,sChapter);
+		CMD_Update_Time_Code(iStreamID,m_sTime,m_sTotalTime,sSpeed,sTitle,sChapter);
 		Sleep(50);
 	}
 

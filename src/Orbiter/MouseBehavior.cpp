@@ -48,6 +48,7 @@ MouseBehavior::MouseBehavior(Orbiter *pOrbiter)
 	m_bMouseKilled=false;
 	m_bMouseVisible=true;
 	m_bHasTimeline=false;  // Indicates if the last set media info
+	m_tIgnoreSpeedChangesUntil=0;
 	Clear();
 }
 

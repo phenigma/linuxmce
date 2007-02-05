@@ -35,7 +35,7 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_LeftRight);
 
 	m_iLastGoodPosition=-1;
-	m_iCancelLevel = m_CurrentMedia_Pos;
+	m_iCancelLevel = 0;
 	m_iLastNotch=0;
 	m_pMouseBehavior->m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();  // The above may have taken too much time already
 
@@ -91,6 +91,9 @@ void SpeedMouseHandler::Start()
 	else
 		m_bTapAndRelease=false;  // Can only do this if we have the timeline, and the user is holding down
 
+	m_CurrentMedia_Stop = ParseTime(m_pMouseBehavior->m_pOrbiter->m_sTotalTime);
+	m_CurrentMedia_Pos = ParseTime(m_pMouseBehavior->m_pOrbiter->m_sTime);
+	m_iCancelLevel = m_CurrentMedia_Pos;
 	if( m_pMouseBehavior->m_bHasTimeline && m_bTapAndRelease==false )
 	{
 		m_iLastNotch=m_CurrentMedia_Pos;
@@ -124,6 +127,7 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 	}
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{
+		m_pMouseBehavior->m_tIgnoreSpeedChangesUntil = time(NULL) + 3;  // Ignore all speed changes for 2 seconds so the player has a chance to settle down
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"SpeedMouseHandler::ButtonDown setting playback speed to 0");
@@ -132,8 +136,8 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 		if( PK_Button==BUTTON_Mouse_2_CONST && m_pMouseBehavior->m_bHasTimeline )
 		{
-			DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0," dm_" + StringUtils::itos(m_iCancelLevel*1000));
-			m_pMouseBehavior->m_pOrbiter->SendMessage(CMD_Set_Media_Position.m_pMessage);
+			DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0," POS:" + StringUtils::itos(m_iCancelLevel*1000));
+			m_pMouseBehavior->m_pOrbiter->QueueMessageToRouter(CMD_Set_Media_Position.m_pMessage); // Queue it so it gets there after we're done
 		}
 		m_pMouseBehavior->Clear(true); // this will be deleted
 		return false; // Keep processing

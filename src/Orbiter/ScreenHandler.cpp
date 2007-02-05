@@ -263,6 +263,13 @@ bool ScreenHandler::FileList_KeyDown(CallBackData *pData)
 			m_pOrbiter->CMD_Seek_Data_Grid(sSeek,0,0,pObj->m_sGridID);
 		}
 	}
+	else if( pKeyCallBackData->m_nPlutoKey==BUTTON_Back_CONST )  // Treat the backspace key like hitting the back button
+	{
+		ObjectInfoBackData objectInfoData;
+		objectInfoData.m_PK_DesignObj_SelectedObject = DESIGNOBJ_butFileBrowserBack_CONST;
+		objectInfoData.m_pObj = NULL;
+		MediaBrowser_ObjectSelected(&objectInfoData);
+	}
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -501,6 +508,7 @@ g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play
 		};
 		if( bChangedSortFilter )
 		{
+			mediaFileBrowserOptions.ReacquireGrids();
 			SetMediaSortFilterSelectedObjects();
 			m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
 			m_pOrbiter->CMD_Refresh("*");

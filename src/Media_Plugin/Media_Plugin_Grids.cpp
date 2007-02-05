@@ -1340,15 +1340,16 @@ class DataGridTable *Media_Plugin::MediaAttrFile( string GridID, string Parms, v
 	// Given a file, return the media attributes for it
     DataGridTable *pDataGrid = new DataGridTable();
 
-	if( Parms.size()<3 || Parms[0]!='!' || Parms[1]!='F' )
+	if( Parms.size()<3 || Parms[0]!='!' || (Parms[1]!='F' && Parms[1]!='r') )
 		return pDataGrid; // This shouldn't happen
 
-	string sSQL = "SELECT DISTINCT PK_Attribute,Name,Description FROM File "
-		"JOIN File_Attribute ON FK_File=PK_File "
+	string sDiscOrFile = Parms[1]=='F' ? "File" : "Disc";
+	string sSQL = "SELECT DISTINCT PK_Attribute,Name,Description FROM " + sDiscOrFile + " "
+		"JOIN " + sDiscOrFile + "_Attribute ON FK_" + sDiscOrFile + "=PK_" + sDiscOrFile + " "
 		"JOIN Attribute ON FK_Attribute=PK_Attribute "
 		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "
-		"LEFT JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType = PK_AttributeType AND MediaType_AttributeType.EK_MediaType=File.EK_MediaType "
-		"WHERE FK_File=" + Parms.substr(2) +
+		"LEFT JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType = PK_AttributeType AND MediaType_AttributeType.EK_MediaType=" + sDiscOrFile + ".EK_MediaType "
+		"WHERE FK_" + sDiscOrFile + "=" + Parms.substr(2) +
 		" AND Identifier>0 "
 		" ORDER BY MediaSortOption IS NULL,MediaSortOption";
 

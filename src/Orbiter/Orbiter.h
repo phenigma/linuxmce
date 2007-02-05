@@ -208,6 +208,7 @@ namespace DCE
 		map< pair<int,char>,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin.  The char is the action (Up,Down,Hold meaning repeat). */
 		map< int, bool > m_mapScanCodeToIgnoreOnYield; /** Map of scan codes (=true) where they should be ignored when yield screen is true */
 		map< pair<int,int>,pair<int,int> > m_mapEventToSubstitute; /** < Replace a combination of event,button with event,button */
+		string m_sTime,m_sTotalTime;  // Only used by the update timecode loop
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		class MouseBehavior *m_pMouseBehavior;  // Class to handle special logic such as locking mouse movements, speed bumps, etc.
