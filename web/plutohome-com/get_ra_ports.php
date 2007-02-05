@@ -42,6 +42,9 @@ if(mysql_num_rows($res)!=0 || (isset($_GET['action']) && $_GET['action']=='displ
 		$out[]=$portsDestination[$pos].'='.$row['Port'];
 		$pos++;
 	}
+	$date=date('Y-m-d h:i:s');
+	dbQuery("COMMIT",$conn);
+	dbQuery("UPDATE RemoteAssistance SET LastActive='$date' WHERE EK_Installation=$installationID",$conn);
 	die("#Ports:\n".join("\n",$out)."\n#END\n");
 }
 
