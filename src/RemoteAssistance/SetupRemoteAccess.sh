@@ -220,6 +220,7 @@ Me="$(basename "$0")"
 if [[ "$Me" == "$(basename "$cronCmd")" ]]; then
 	DeleteHostKey
 	if [[ -n "$remote" ]]; then
+		/usr/pluto/bin/RA_KeepPortsAlive.sh
 		AddCronEntry
 		[[ "$1" == "restart" ]] && RemoveTunnels
 		CreateTunnels
