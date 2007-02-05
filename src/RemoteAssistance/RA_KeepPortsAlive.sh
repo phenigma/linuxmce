@@ -10,9 +10,9 @@ if [[ -z "$PK_Installation" || "$PK_Installation" == 1 ]]; then
 	exit 1
 fi
 
-if [[ "$#" -ne 1 ]]; then
-	echo "Usage: '$0' {--enable|--disable}"
-	exit 1
+if [[ -z "$remote" ]]; then
+	echo "Remote assistance is not enabled. Nothing to keep alive"
+	exit 0
 fi
 
 PortPage="http://$PlutoHome/get_ra_ports.php?installationID=$PK_Installation"
