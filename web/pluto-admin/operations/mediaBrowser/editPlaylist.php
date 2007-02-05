@@ -151,7 +151,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 			<table cellpadding="3" cellspacing="2">
 				<tr class="alternate_back">
 					<td align="center"><B>Show</B></td>
-					<td align="center">'.pulldownFromArray($mediaTypes,'mediaType',$selMediaType,'onChange="reloadForm();"').'</td>
+					<td align="center">'.pulldownFromArray($mediaTypes,'mediaType',$selMediaType,'onChange="reloadForm();"','key','').'</td>
 					<td align="center"><B>of type</B></td>
 					<td align="center">'.pulldownFromArray($subTypesArray,'subtype',$selSubType,'onChange="reloadForm();"').'</td>
 					<td align="center"><B>genre</B></td>
@@ -189,7 +189,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 		
 		<script>
 			function reloadForm(){
-				document.editPlaylist.action.value="form";
+				updateList();
 				document.editPlaylist.submit();
 			}
 			
@@ -265,13 +265,22 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 		</script>';
 	}else{
 	// process area
+		$pname=cleanString($_POST['pname']);
+		$mediadbADO->Execute('UPDATE Playlist SET Name=? WHERE PK_Playlist=?',array($pname,$playlistID));
+
+		if($_FILES['ppic']['name']!==''){
+			$newPic=uploadPicture($_FILES['ppic'],$mediadbADO);
+			if($picID!==false){
+				$mediadbADO->Execute('UPDATE Playlist SET FK_Picture=? WHERE PK_Playlist=?',array($newPic,$playlistID));
+			}
+		}
 	
 		$oldEntries=explode(',',$_POST['oldEntries']);
 		$newEntries=explode(',',$_POST['newEntries']);
 
 		$toAdd=array_diff($newEntries,$oldEntries);
-		$toRemove=array_diff($oldEntries,$newEntries);
-		
+		$toRemove=cleanArray(array_diff($oldEntries,$newEntries));
+
 		if(count($toRemove)>0){
 			$mediadbADO->Execute("DELETE FROM PlaylistEntry WHERE PK_PlaylistEntry IN (".join(',',array_values($toRemove)).")");
 		}
@@ -279,7 +288,9 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 		if(count($toAdd)>0){
 			foreach ($toAdd AS $pos=>$file){
 				$fileID=substr($file,5);
-				$mediadbADO->Execute("INSERT INTO PlaylistEntry (FK_File, FK_Playlist,Path,Filename,`Order`) SELECT $fileID,$playlistID,Path,Filename,$pos FROM File WHERE PK_File=?",$fileID);
+				if((int)$fileID>0){
+					$mediadbADO->Execute("INSERT INTO PlaylistEntry (FK_File, FK_Playlist,Path,Filename,`Order`) SELECT $fileID,$playlistID,Path,Filename,$pos FROM File WHERE PK_File=?",$fileID);
+				}
 			}
 		}	
 		
@@ -302,3 +313,25 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_PLAYLIST_CONST.'# '.$playlistID);
 	$output->output();
 }
+
+function uploadPicture($fileArray,$mediadbADO){
+	$picExtension='jpg';
+	if(($fileArray['type']!="image/jpg") && ($fileArray['type']!="image/pjpeg") && ($fileArray['type']!="image/jpeg")){
+		$error=$TEXT_ERROR_NOT_JPEG_CONST;
+	}else{
+		$insertPicture='INSERT INTO Picture (Extension) VALUES (?)';
+		$mediadbADO->Execute($insertPicture,array($picExtension));
+		$pictureID=$mediadbADO->Insert_ID();
+		$newPlaylistPictureName=$pictureID.'.'.$picExtension;
+
+		if(move_uploaded_file($fileArray['tmp_name'],$GLOBALS['mediaPicsPath'].$newPlaylistPictureName)){
+			// create thumbnail
+			$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPlaylistPictureName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 100, 100);
+			if($resizeFlag!==0){
+				$error='Thumbnail not created';
+			}
+		}
+	}
+	return (isset($error))?false:$pictureID;
+}
+?>
