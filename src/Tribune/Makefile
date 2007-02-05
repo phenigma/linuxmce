@@ -1,0 +1,26 @@
+ROOT = ..
+CXXFLAGS = -Wall -g 
+CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE -D_DEVEL_X_DEFINES -DGENERATOR
+LDFLAGS = -L$(ROOT)/lib 
+LDLIBS = -lRACommon -lDCECommon -lPlutoUtils -lSerializeClass -lpthread -lmysqlclient_r -lattr 
+CXX = g++
+
+sources = CommonFunctions.cpp Tribunerequests.cpp R_GetLineups.cpp Database.cpp Tribuneprocessor.cpp Tribunerequests.cpp Tribune.cpp
+
+#new_thing = $(sources) TableInfo_SCVS.cpp
+
+all: Tribune
+#all: newthing
+
+Tribune: $(sources)
+	$(CXX) -o $@ $(call cpath,$+) $(LDFLAGS) $(LDLIBS) $(CPPFLAGS)
+	#cp $@ $(ROOT)/bin
+
+#newthing: $(new_thing:.cpp=.o)
+#	@echo "*** Something to do here ***"
+
+clean: clean-recursive
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Tribune >/dev/null
+
+include $(ROOT)/PlutoUtils/make.rules
+-include $(sources:.cpp=.d)
