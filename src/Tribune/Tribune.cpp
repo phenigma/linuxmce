@@ -1,3 +1,15 @@
+#include "PlutoUtils/CommonIncludes.h"
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#ifndef WIN32
+#include <unistd.h>
+#else
+#include <conio.h>
+#endif
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -11,23 +23,31 @@
 #include <map>
 #include <list>
 
+#include <mysql.h>
+
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/Other.h"
+#include "PlutoUtils/Other.h"
+#include "Database.h"
+#include "CommonFunctions.h"
 #include "DCE/Logger.h"
 #include "RA/RAServer.h"
 
 using namespace std;
 using namespace DCE;
+using namespace Tribune;
 
 namespace DCE
 {
 	class Logger *g_pPlutoLogger;
 }
 
-
-struct GlobalConfig_t{
-	string m_sCommand;
-	string m_sTribuneHost;
-	int m_iTribunePort;
-};
+namespace Tribune
+{
+	GlobalConfig g_GlobalConfig;
+}
 
 string GetCommand( )
 {
@@ -55,12 +75,6 @@ string GetCommand( )
 
 int main(int argc, char *argv[]){
 
-	
-	
-	GlobalConfig_t g_GlobalConfig;
-	g_GlobalConfig.m_sTribuneHost="localhost";
-	g_GlobalConfig.m_iTribunePort=9003;
-
 	cout << " Copyright (C) 2004 Pluto, Inc., a Florida Corporation " << endl
 	    	<< " www.plutohome.com " << endl
 	    	<< " Phone: +1 (877) 758-8648 " << endl
@@ -77,6 +91,21 @@ int main(int argc, char *argv[]){
 		cerr << "Problem creating logger. Check params." << endl;
 		exit( 1 );
 	}
+
+	cout << "Database host:" << g_GlobalConfig.m_sDBHost << " user:" << g_GlobalConfig.m_sDBUser
+			<< " pass:" << g_GlobalConfig.m_sDBPassword << " name:" << g_GlobalConfig.m_sDBName << " port:" << g_GlobalConfig.m_iDBPort << endl
+			<< "Users:" << g_GlobalConfig.m_sUsers << endl;
+
+	Database database( g_GlobalConfig.m_sDBHost, g_GlobalConfig.m_sDBUser, g_GlobalConfig.m_sDBPassword, g_GlobalConfig.m_sDBName, g_GlobalConfig.m_iDBPort );
+	if( !database.m_bConnected )
+	{
+		cerr << "***ERROR*** Cannot connect to database." << endl;
+		cout << "Please modify the configuration settings and restart sqlCVS." << endl;
+// 		if( !g_GlobalConfig.m_bNoPrompts )
+// 		ChangeLoginUsers();
+		exit(1);
+	}
+	g_GlobalConfig.m_pDatabase=&database;
 
 	bool bError=false; /** An error parsing the command line */
 
