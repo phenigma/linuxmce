@@ -2,7 +2,7 @@
 
 set -e 
 
-. ./filesd-parms.sh
+. ./filesd-parms.sh $@
 
 File="/etc/network/interfaces"
 Content=""

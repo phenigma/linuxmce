@@ -2,7 +2,7 @@
 
 set -e 
 
-. ./filesd-parms.sh
+. ./filesd-parms.sh $@
 
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Section_Ops.sh
@@ -15,5 +15,5 @@ PopulateSection "${Parm_RootLocation}/${File}" "Nis Master" "NISMASTER=$IntIP"
 
 ## Set the default nis domain
 File="/etc/defaultdomain"
-mkdir -p ${Parm_RootLocation}/$(dirname $File)"
+mkdir -p "${Parm_RootLocation}/$(dirname $File)"
 echo "pluto" > "${Parm_RootLocation}/${File}"

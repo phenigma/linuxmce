@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Section_Ops.sh
@@ -35,9 +37,13 @@ function setup_tftp_boot
 	BootConf="${BootConf}DEFAULT Pluto\n"
 	BootConf="${BootConf}LABLE Pluto\n"
 	BootConf="${BootConf}KERNEL ${Moon_DeviceID}/vmlinuz\n"
-	BootConf="${BootConf}APPEND ${Moon_DeviceID}/initrd ramdisk=10240 rw boot=nfs nfsroot=${IntIP}:/usr/pluto/diskless/${Moon_DeviceID} ${BootParams_Extra}\n"
+	BootConf="${BootConf}APPEND ${Moon_DeviceID}/initrd.img ramdisk=10240 rw boot=nfs nfsroot=${IntIP}:/usr/pluto/diskless/${Moon_DeviceID} ${BootParams_Extra}\n"
 	
 	echo -e "$BootConf" > "$Moon_BootConfFile"
+
+	mkdir -p /tftpboot/${Moon_DeviceID}
+	ln -s ${Moon_RootLocation}/boot/vmlinuz /tftpboot/${Moon_DeviceID}/vmlinuz
+	ln -s ${Moon_RootLocation}/boot/initrd.img /tftpboot/${Moon_DeviceID}/initrd.img
 }
 
 
@@ -110,14 +116,17 @@ function setup_hosts_file
 
 function update_config_files
 {
-	local ScriptDir="./"
+	local ScriptDir="/usr/pluto/bin/files.d"
 	local ScriptsList="cron.d-synctime fstab-diskless interfaces mythtv-mysql.txt nis-client pluto.conf resolv.conf syslog.conf timezone"
 	for Script in $ScriptsList ;do
 		if [[ ! -x $ScriptDir/$Script ]] ;then
 			echo "WARNING: Script $Script cannot be executed"
+			continue
 		fi
 
+		pushd $ScriptDir
 		$ScriptDir/$Script --root "$Moon_RootLocation" --device "$Moon_DeviceID"
+		popd
 	done
 }
 
@@ -190,8 +199,9 @@ for Row in $R; do
 
 	Moon_Description=$(Field 4 "$Row")
 	Moon_NeedConfigure=$(Field 5 "$Row")
-	if [[ "$NeedConfigure" != "1" ]] ;then
+	if [[ "$Moon_NeedConfigure" != "1" ]] ;then
 		echo "INFO : Skiping moon$Moon_DeviceID because NeedConfigure flag is not set"
+		continue
 	fi
 
 	Moon_Architecture=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$Moon_DeviceID' AND FK_DeviceData='$DEVICEDATA_Architecture'")

@@ -4,12 +4,12 @@
 
 set -e
 
-if [[ "$#" -ne 4 ]]; then
+if [[ "$#" -ne 1 ]]; then
 	echo "Syntax: $0 <Device>"
 	exit 1
 fi
-Moon_DeviceID="$3"
-Moon_RootLocation="/usr/pluto/diskless/${Diskless_DeviceID}"
+Moon_DeviceID="$1"
+Moon_RootLocation="/usr/pluto/diskless/${Moon_DeviceID}"
 
 ## Determine what kernel are we going to use
 Moon_KernelVersion=$(basename $(ls /boot/vmlinuz-* | head -1) | cut -d"-" -f2-99)
@@ -23,3 +23,6 @@ cp -r /lib/modules/${Moon_KernelVersion} ${Moon_RootLocation}/lib/modules
 sed -i 's/^.*BOOT=.*/BOOT=nfs/g' ${Moon_RootLocation}/etc/initramfs-tools/initramfs.conf
 mkinitramfs -d ${Moon_RootLocation}/etc/initramfs-tools/ -o ${Moon_RootLocation}/boot/initrd.img-${Moon_KernelVersion}
 
+## Create symlinks to existing kernels
+ln -s ${Moon_RootLocation}/boot/initrd.img-${Moon_KernelVersion} ${Moon_RootLocation}/boot/initrd.img
+ln -s ${Moon_RootLocation}/boot/vmlinuz-${Moon_KernelVersion} ${Moon_RootLocation}/boot/vmlinuz
