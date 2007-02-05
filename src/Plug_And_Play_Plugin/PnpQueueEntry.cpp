@@ -27,6 +27,7 @@
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_CommMethod.h"
 #include "Plug_And_Play_Plugin.h"
+#include "Gen_Devices/AllScreens.h"
 
 using namespace DCE;
 
@@ -164,7 +165,7 @@ void PnpQueueEntry::Stage_set(int Stage)
 		if( m_sPK_Orbiter_List_For_Prompts.empty()==false )
 		{
 			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(m_pRow_Device_Reported->PK_Device_get(),m_sPK_Orbiter_List_For_Prompts,sMessage,
-				"pnp_" + StringUtils::itos(m_pRow_PnpQueue->PK_PnpQueue_get()),(Stage==PNP_DETECT_STAGE_DONE || Stage==PNP_REMOVE_STAGE_DONE) ? "2" : "3");
+				"pnp_" + StringUtils::itos(m_pRow_PnpQueue->PK_PnpQueue_get()),(Stage==PNP_DETECT_STAGE_DONE || Stage==PNP_REMOVE_STAGE_DONE) ? "2" : "3",interuptNoVideo);
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
 		}
 	}

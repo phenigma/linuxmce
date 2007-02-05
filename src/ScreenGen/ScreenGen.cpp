@@ -246,11 +246,14 @@ string ScreenGenerator::GenerateClasses()
 			"\t{\r\n"
 			"\tpublic:\r\n"
 			"\t\t" + sClassName + "(long DeviceIDFrom, long DeviceIDTo" + (vectRow_Screen_CommandParameter.size() ? ",\r\n" : "") +
-			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ")" : ")") + "\r\n"
+			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ",eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)" : ",eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)") + "\r\n"
 			"\t\t{\r\n"
 			"\t\t\tm_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
-				StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
-				"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
+				StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 4) + ", \r\n" 
+				"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */\r\n" + 
+				"\t\t\t\t,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? \"1\" : \"0\" /* turn on monitor */\r\n" + 
+				"\t\t\t\t,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */\r\n" + 
+				"\t\t\t\t,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? \"1\" : \"0\" /* queue the message if it's ignored */" + 
 			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
 			"\t\t}\r\n"
 			"\t};\r\n"
@@ -262,11 +265,14 @@ string ScreenGenerator::GenerateClasses()
 			"\t{\r\n"
 			"\tpublic:\r\n"
 			"\t\t" + sClassName + "_DL(long DeviceIDFrom, string sDeviceIDTo" + (vectRow_Screen_CommandParameter.size() ? ",\r\n" : "") +
-			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ")" : ")") + "\r\n"
+			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ",eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)" : ",eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)") + "\r\n"
 			"\t\t{\r\n"
 			"\t\t\tm_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
-			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
-			"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
+			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 4) + ", \r\n" 
+			"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */\r\n" + 
+			"\t\t\t\t,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? \"1\" : \"0\" /* turn on monitor */\r\n" + 
+			"\t\t\t\t,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */\r\n" + 
+			"\t\t\t\t,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? \"1\" : \"0\" /* queue the message if it's ignored */" + 
 			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
 			"\t\t}\r\n"
 			"\t};\r\n"
@@ -278,11 +284,14 @@ string ScreenGenerator::GenerateClasses()
 			"\t{\r\n"
 			"\tpublic:\r\n"
 			"\t\t" + sClassName + "_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB" + (vectRow_Screen_CommandParameter.size() ? ",\r\n" : "") +
-			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ")" : ")") + "\r\n"
+			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ",eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)" : ",eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)") + "\r\n"
 			"\t\t{\r\n"
 			"\t\t\tm_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
-			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
-			"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
+			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 4) + ", \r\n" 
+			"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */\r\n" + 
+			"\t\t\t\t,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? \"1\" : \"0\" /* turn on monitor */\r\n" + 
+			"\t\t\t\t,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */\r\n" + 
+			"\t\t\t\t,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? \"1\" : \"0\" /* queue the message if it's ignored */" + 
 			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
 			"\t\t}\r\n"
 			"\t};\r\n"
@@ -294,11 +303,14 @@ string ScreenGenerator::GenerateClasses()
 			"\t{\r\n"
 			"\tpublic:\r\n"
 			"\t\t" + sClassName + "_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB" + (vectRow_Screen_CommandParameter.size() ? ",\r\n" : "") +
-			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ")" : ")") + "\r\n"
+			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ",eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)" : ",eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)") + "\r\n"
 			"\t\t{\r\n"
 			"\t\t\tm_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
-			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
-			"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
+			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 4) + ", \r\n" 
+			"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */\r\n" + 
+			"\t\t\t\t,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? \"1\" : \"0\" /* turn on monitor */\r\n" + 
+			"\t\t\t\t,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */\r\n" + 
+			"\t\t\t\t,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? \"1\" : \"0\" /* queue the message if it's ignored */" + 
 			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
 			"\t\t}\r\n"
 			"\t};\r\n"

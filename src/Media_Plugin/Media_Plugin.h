@@ -40,6 +40,7 @@
 #include "EntertainArea.h"
 #include "Orbiter/OrbiterFileBrowser.h"
 #include "Orbiter_Plugin/OH_Orbiter.h"
+#include "Gen_Devices/AllScreens.h"
 
 class Database_pluto_main;
 class Database_pluto_media;
@@ -585,7 +586,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d 
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",PK_Screen);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",PK_Screen,interuptAlways,true,false);
 					pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 			}
@@ -593,7 +594,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d 
 			{
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",PK_Screen);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",PK_Screen,interuptAlways,true,false);
 					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 				SendCommand( CMD_Set_Now_Playing );
@@ -608,7 +609,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d 
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",SCREEN_Main_CONST);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",SCREEN_Main_CONST,interuptAlways,false,false);
 					pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 			}
@@ -616,7 +617,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d 
 			{
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",SCREEN_Main_CONST);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",SCREEN_Main_CONST,interuptAlways,false,false);
 					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 				SendCommand( CMD_Set_Now_Playing );

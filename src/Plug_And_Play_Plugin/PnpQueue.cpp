@@ -332,7 +332,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
 			{
 				DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-					sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+					sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5",interuptNoVideo);
 				m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
 			}
 			
@@ -352,7 +352,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
 			{
 				DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-					sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+					sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5",interuptNoVideo);
 				m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
 			}
 			if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
@@ -949,7 +949,7 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 		if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
 		{
 			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-				sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+				sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5",interuptNoVideo);
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
 		}
 #ifdef DEBUG
@@ -1297,7 +1297,7 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
 			{
 				DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-					sAlert,"pnp_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"60");
+					sAlert,"pnp_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"60",interuptNoVideo);
 				m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
 			}
 			// The arguments are this device, the queue ie, the path where to find the device, the pnp script name
@@ -1605,7 +1605,7 @@ bool PnpQueue::ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Dev
 	if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
 	{
 		DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-			sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5");
+			sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5",interuptNoVideo);
 		m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
 	}
 

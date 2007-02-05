@@ -12,7 +12,14 @@
 
 namespace DCE
 {
-	 //  Commands
+	// Specify how to handle interrupting the user if he's doing something
+	enum eInterruption {interuptAlways=1, /* always interupt his activity and change screens */
+		interuptNever=2, /* never interupt, only change the screen if the system is idle */
+		interuptNoVideo=3, /* will interrupt a web browser but not a movie */
+		interuptOnlyAudio=4 /* will not interrupt a web browser, only when audio is playing */
+	};
+
+	//  Commands
 $GEN_CLASSES$
 	class ScreenHandlerBase
 	{

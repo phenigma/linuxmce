@@ -1111,7 +1111,7 @@ bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 		{
 			DCE::CMD_Set_Active_Application CMD_Set_Active_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
 				"",0,"",0);
-			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,"",SCREEN_Main_CONST);
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,"",SCREEN_Main_CONST,interuptAlways,false,false);
 			CMD_Set_Active_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 			m_pOrbiter->SendCommand(CMD_Set_Active_Application);
 		}
@@ -1128,7 +1128,7 @@ bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
 		if( m_pOrbiter->m_dwPK_Device != m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter )
 		{
 			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo->m_dwPK_Device_Orbiter,
-				"",m_PK_Screen_ActiveApp_OSD);
+				"",m_PK_Screen_ActiveApp_OSD,interuptAlways,false,false);
 			m_pOrbiter->SendCommand(CMD_Goto_Screen);
 			m_pOrbiter->CMD_Goto_Screen("",m_PK_Screen_ActiveApp_Remote);
 

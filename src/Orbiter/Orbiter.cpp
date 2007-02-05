@@ -4927,7 +4927,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 
 			}
 
-			CMD_Goto_Screen(m_pScreenHistory_Current->ScreenID(),m_pScreenHistory_Current->PK_Screen(),sCMD_Result,pMessageTemp);
+			CMD_Goto_Screen(m_pScreenHistory_Current->ScreenID(),m_pScreenHistory_Current->PK_Screen(),interuptAlways,false,false,sCMD_Result,pMessageTemp);
 			delete pMessageTemp;
 		}
 		else
@@ -5375,7 +5375,7 @@ void Orbiter::CMD_Regen_Screen(string &sCMD_Result,Message *pMessage)
 				message.m_mapParameters[ it->first ] = it->second;
 
 		string sResult;
-		CMD_Goto_Screen(m_pScreenHistory_Current->ScreenID(),m_pScreenHistory_Current->PK_Screen(),sResult,&message);
+		CMD_Goto_Screen(m_pScreenHistory_Current->ScreenID(),m_pScreenHistory_Current->PK_Screen(),interuptAlways,false,false,sResult,&message);
 	}
 }
 
@@ -6487,6 +6487,8 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		if( UsesUIVersion2() )
 			StartScreenSaver(false);  // Don't go to the menu, just start the app in the background
 	}
+
+	ServiceInterruptionQueue();
 
 	if(m_bReportTimeCode && !m_bUpdateTimeCodeLoopRunning )
 	{
@@ -7788,7 +7790,7 @@ void Orbiter::CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType,st
 #endif
 		DCE::SCREEN_Floorplan SCREEN_Floorplan(m_dwPK_Device,m_dwPK_Device,pObj->m_ObjectID);
 		string sResult;
-		CMD_Goto_Screen("", SCREEN_Floorplan_CONST, sResult, SCREEN_Floorplan.m_pMessage);
+		CMD_Goto_Screen("", SCREEN_Floorplan_CONST,interuptAlways,false,false, sResult, SCREEN_Floorplan.m_pMessage);
 		delete SCREEN_Floorplan.m_pMessage;
 	}
 	else
@@ -8794,10 +8796,26 @@ bool Orbiter::WaitForRelativesIfOSD()
 			/** Assigns an optional ID to this particular "viewing" of the screen, used with Kill Screen.  There can be lots of instances of the same screen in the history queue (such as call in progress).  This allows a program to pop a particular one out of the queue. */
 		/** @param #159 PK_Screen */
 			/** The screen id. */
+		/** @param #251 Interruption */
+			/** Indicates at what times to ignore the screen change if it would interrupt the user.  A value in: enum eInterruption */
+		/** @param #252 Turn On */
+			/** If true, turn the display on if it's off. */
+		/** @param #253 Queue */
+			/** If true, then if the screen change was ignored so as not to interrpt the user, queue it for when the user is done */
 
-void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
+	if( !OkayToInterrupt(iInterruption) )
+	{
+		if( bQueue )
+			m_listPendingGotoScreens.push_back( make_pair<int,Message *> (iInterruption,new Message(pMessage)) );
+		return;
+	}
+
+	if( bTurn_On && !m_bDisplayOn )
+		CMD_Display_OnOff( "1",false );
+
 	if( iPK_Screen==SCREEN_Main_CONST )
 	{
 		if( m_bNewOrbiter && atoi(m_sInitialScreen.c_str())==SCREEN_VideoWizard_CONST )
@@ -8869,7 +8887,7 @@ void Orbiter::GotoMainMenu()
 	DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device, m_dwPK_Device,
 		StringUtils::ltos(m_pLocationInfo->iLocation));
 	string sResult;
-	CMD_Goto_Screen("", SCREEN_Main_CONST, sResult, SCREEN_Main_.m_pMessage);
+	CMD_Goto_Screen("", SCREEN_Main_CONST,interuptAlways,false,false, sResult, SCREEN_Main_.m_pMessage);
 	delete SCREEN_Main_.m_pMessage;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -9143,10 +9161,14 @@ void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *
 			/** File this alert with this token, and if another alert comes in before timeout with the same token, replace it. */
 		/** @param #182 Timeout */
 			/** Make the alert go away after this many seconds */
+		/** @param #251 Interruption */
+			/** How to interrupt the user if something is happening */
 
-void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,int iInterruption,string &sCMD_Result,Message *pMessage)
 //<-dceag-c809-e->
 {
+	if( !OkayToInterrupt(iInterruption) )
+		return;
 	PlutoAlert *pPlutoAlert=NULL;
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 
@@ -9282,6 +9304,7 @@ void Orbiter::CMD_Set_Active_Application(string sName,int iPK_Screen,string sIde
 		else
 			StopScreenSaver();
 	}
+	ServiceInterruptionQueue();
 }
 
 //<-dceag-c811-b->
@@ -9619,4 +9642,31 @@ void Orbiter::CMD_Bind_to_Wireless_Keyboard(string &sCMD_Result,Message *pMessag
     if( m_pHIDInterface )
 		m_pHIDInterface->LegacyBind();
 #endif
+}
+
+bool Orbiter::OkayToInterrupt( int iInterruption )
+{
+	if( iInterruption==interuptAlways )
+		return true;
+
+	if( m_dwPK_Device_NowPlaying )
+		// If it's video it's always false.  If it's audio only, it's true only if there's no video
+		return m_bContainsVideo ? false : iInterruption==interuptOnlyAudio; 
+
+	// Nothing is playing.  So unless it's interuptNever and there's an outside application we're ok
+	if( iInterruption==interuptNever && m_sActiveApplication_Window.empty()==false )
+		return false;
+	return true;
+}
+
+void Orbiter::ServiceInterruptionQueue()
+{
+	for(list< pair<int,Message *> >::iterator it=m_listPendingGotoScreens.begin();it!=m_listPendingGotoScreens.end();++it)
+	{
+		if( OkayToInterrupt(it->first) )
+		{
+			ReceivedMessage(it->second);
+			m_listPendingGotoScreens.erase(it);
+		}
+	}
 }

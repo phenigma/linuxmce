@@ -27,6 +27,7 @@
 #include "PlutoUtils/Profiler.h"
 #include "LIRC_DCE/IRReceiverBase.h"
 #include "Floorplan.h"
+#include "Gen_Devices/AllScreens.h"
 
 class OrbiterFileBrowser_Collection;
 class ScreenHandler;
@@ -209,6 +210,7 @@ namespace DCE
 		map< int, bool > m_mapScanCodeToIgnoreOnYield; /** Map of scan codes (=true) where they should be ignored when yield screen is true */
 		map< pair<int,int>,pair<int,int> > m_mapEventToSubstitute; /** < Replace a combination of event,button with event,button */
 		string m_sTime,m_sTotalTime;  // Only used by the update timecode loop
+		list< pair<int,Message *> > m_listPendingGotoScreens; // Goto Screens we have ignored because of not interrupting the user that should be executed later
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		class MouseBehavior *m_pMouseBehavior;  // Class to handle special logic such as locking mouse movements, speed bumps, etc.
@@ -749,6 +751,9 @@ namespace DCE
 
 		virtual void SimulateKeyPress(long key);
 
+		bool OkayToInterrupt( int iInterruption );  // Returns true if it's ok to interrupt the user with interrupt level=iInterruption
+		void ServiceInterruptionQueue(); // Handling any pending goto screens that were ignored so as to not interrupt the user
+
 		/**
 		* @brief the point belongs to a region that was clicked
 		* @todo ask
@@ -857,6 +862,7 @@ namespace DCE
 		* @brief A helper function we can call internally rather than the full CMD_GotoScreen
 		*/
 		void GotoDesignObj( string sDesignObj, string sID = "" ) { CMD_Goto_DesignObj( 0, sDesignObj, sID, "", false, false ); }
+		void CMD_Goto_Screen(string sID,int PK_Screen) { CMD_Goto_Screen(sID,PK_Screen,interuptAlways,false,false); } // Helper so we don't need to type out the default values
 
 		/**
 		* @brief does a custom comparation (you ca also specify the operand to use) with the value from the variable identified by the key and the other parmeter
@@ -1768,9 +1774,15 @@ light, climate, media, security, telecom */
 			/** Assigns an optional ID to this particular "viewing" of the screen, used with Kill Screen.  There can be lots of instances of the same screen in the history queue (such as call in progress).  This allows a program to pop a particular one out of the queue. */
 		/** @param #159 PK_Screen */
 			/** The screen id. */
+		/** @param #251 Interruption */
+			/** Indicates at what times to ignore the screen change if it would interrupt the user.  A value in: enum eInterruption */
+		/** @param #252 Turn On */
+			/** If true, turn the display on if it's off. */
+		/** @param #253 Queue */
+			/** If true, then if the screen change was ignored so as not to interrpt the user, queue it for when the user is done */
 
-	virtual void CMD_Goto_Screen(string sID,int iPK_Screen) { string sCMD_Result; CMD_Goto_Screen(sID.c_str(),iPK_Screen,sCMD_Result,NULL);};
-	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue) { string sCMD_Result; CMD_Goto_Screen(sID.c_str(),iPK_Screen,iInterruption,bTurn_On,bQueue,sCMD_Result,NULL);};
+	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #795 - Set Mouse Behavior */
@@ -1805,9 +1817,11 @@ light, climate, media, security, telecom */
 			/** File this alert with this token, and if another alert comes in before timeout with the same token, replace it. */
 		/** @param #182 Timeout */
 			/** Make the alert go away after this many seconds */
+		/** @param #251 Interruption */
+			/** How to interrupt the user if something is happening */
 
-	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout) { string sCMD_Result; CMD_Display_Alert(sText.c_str(),sTokens.c_str(),sTimeout.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,int iInterruption) { string sCMD_Result; CMD_Display_Alert(sText.c_str(),sTokens.c_str(),sTimeout.c_str(),iInterruption,sCMD_Result,NULL);};
+	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,int iInterruption,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #810 - Set Active Application */

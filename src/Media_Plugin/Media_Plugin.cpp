@@ -1318,7 +1318,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			bool bIsOSD=pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,&pEntertainArea_OSD);
 			if( bIsOSD || pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
 			{
-				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",PK_Screen);
+				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",PK_Screen,interuptAlways,true,false);
 
 				if( bIsOSD && pEntertainArea_OSD && pOH_Orbiter->m_pEntertainArea!=pEntertainArea_OSD )
 				{
@@ -1332,7 +1332,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			}
 			else
 			{
-				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",PK_Screen);
+				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",PK_Screen,interuptAlways,true,false);
 				SendCommand(CMD_Goto_Screen);
 			}
 		}
@@ -2090,7 +2090,7 @@ g_pPlutoLogger->Write(LV_STATUS,"EA %d %s bound %d remotes",pEntertainArea->m_iP
 		int PK_Screen_ShouldBe = pEntertainArea->m_pMediaStream->GetRemoteControlScreen(pMessage->m_dwPK_Device_From);
 		if( iPK_Screen && PK_Screen_ShouldBe && iPK_Screen != PK_Screen_ShouldBe )
 		{
-			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,"",PK_Screen_ShouldBe);
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,"",PK_Screen_ShouldBe,interuptAlways,true,false);
 			SendCommand(CMD_Goto_Screen);
 g_pPlutoLogger->Write(LV_WARNING,"EA %d %s bound %d remotes was at screen %d sending to %d",
 					  pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str(),(int) pEntertainArea->m_mapBoundRemote.size(),iPK_Screen,PK_Screen_ShouldBe);

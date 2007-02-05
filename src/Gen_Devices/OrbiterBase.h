@@ -567,10 +567,10 @@ public:
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,int iInterruption,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Application(string sName,int iPK_Screen,string sIdentifier,int iPK_Screen_GoTo,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Active_Application(string *sName,int *iPK_Screen,string *sIdentifier,int *iPK_Screen_GoTo,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Execute_Shortcut(int iValue,string &sCMD_Result,class Message *pMessage) {};
@@ -2580,7 +2580,10 @@ public:
 						string sCMD_Result="OK";
 						string sID=pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST];
 						int iPK_Screen=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Screen_CONST].c_str());
-						CMD_Goto_Screen(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
+						int iInterruption=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Interruption_CONST].c_str());
+						bool bTurn_On=(pMessage->m_mapParameters[COMMANDPARAMETER_Turn_On_CONST]=="1" ? true : false);
+						bool bQueue=(pMessage->m_mapParameters[COMMANDPARAMETER_Queue_CONST]=="1" ? true : false);
+						CMD_Goto_Screen(sID.c_str(),iPK_Screen,iInterruption,bTurn_On,bQueue,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -2597,7 +2600,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Goto_Screen(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
+								CMD_Goto_Screen(sID.c_str(),iPK_Screen,iInterruption,bTurn_On,bQueue,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -2663,7 +2666,8 @@ public:
 						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
 						string sTokens=pMessage->m_mapParameters[COMMANDPARAMETER_Tokens_CONST];
 						string sTimeout=pMessage->m_mapParameters[COMMANDPARAMETER_Timeout_CONST];
-						CMD_Display_Alert(sText.c_str(),sTokens.c_str(),sTimeout.c_str(),sCMD_Result,pMessage);
+						int iInterruption=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Interruption_CONST].c_str());
+						CMD_Display_Alert(sText.c_str(),sTokens.c_str(),sTimeout.c_str(),iInterruption,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -2680,7 +2684,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Display_Alert(sText.c_str(),sTokens.c_str(),sTimeout.c_str(),sCMD_Result,pMessage);
+								CMD_Display_Alert(sText.c_str(),sTokens.c_str(),sTimeout.c_str(),iInterruption,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

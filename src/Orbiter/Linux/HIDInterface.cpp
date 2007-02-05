@@ -177,7 +177,7 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 		return false;
 	}
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest wrote message %d",ctrl);
-	m_pOrbiter->CMD_Display_Alert("Remote " + StringUtils::itos(PK_Device) + " connected","connectremote","3");
+	m_pOrbiter->CMD_Display_Alert("Remote " + StringUtils::itos(PK_Device) + " connected","connectremote","3",interuptAlways);
 	m_pOrbiter->GotActivity(0);  // In case the tv is off or the screen saver
 	SetActiveRemote(RemoteID,inPacket[1]==0x26);
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest remote %d PK_Device %d follow: %d",RemoteID,PK_Device,(int) inPacket[1]==0x26);
@@ -242,7 +242,7 @@ bool PlutoHIDInterface::SetActiveRemote(int iRemoteID,bool bFollowMe)
 		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::SetActiveRemote Remote ID %d is unknown",iRemoteID);
 		return false;
 	}
-	m_pOrbiter->CMD_Display_Alert("Remote " + StringUtils::itos(PK_Device) + " active","actremote","3");
+	m_pOrbiter->CMD_Display_Alert("Remote " + StringUtils::itos(PK_Device) + " active","actremote","3",interuptAlways);
 	m_iPK_Device_Remote = PK_Device;
 	m_iRemoteID = iRemoteID;
 	DCE::CMD_Set_Active_Remote CMD_Set_Active_Remote(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,m_iPK_Device_Remote,

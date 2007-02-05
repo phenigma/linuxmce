@@ -19578,35 +19578,47 @@ namespace DCE
 	};
 	class CMD_Goto_Screen : public PreformedCommand {
 	public:
-		CMD_Goto_Screen(long DeviceIDFrom, long DeviceIDTo,string sID,int iPK_Screen) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Goto_Screen(long DeviceIDFrom, long DeviceIDTo,string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Goto_Screen_CONST,
-			2 /* number of parameters */,
+			5 /* number of parameters */,
 			COMMANDPARAMETER_ID_CONST, sID.c_str(),
-			COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(iPK_Screen).c_str()); }
+			COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(iPK_Screen).c_str(),
+			COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(iInterruption).c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0"),
+			COMMANDPARAMETER_Queue_CONST, (bQueue ? "1" : "0")); }
 	};
 	class CMD_Goto_Screen_DL : public PreformedCommand {
 	public:
-		CMD_Goto_Screen_DL(long DeviceIDFrom, string DeviceIDTo,string sID,int iPK_Screen) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Goto_Screen_DL(long DeviceIDFrom, string DeviceIDTo,string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Goto_Screen_CONST,
-			2 /* number of parameters */,
+			5 /* number of parameters */,
 			COMMANDPARAMETER_ID_CONST, sID.c_str(),
-			COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(iPK_Screen).c_str()); }
+			COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(iPK_Screen).c_str(),
+			COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(iInterruption).c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0"),
+			COMMANDPARAMETER_Queue_CONST, (bQueue ? "1" : "0")); }
 	};
 	class CMD_Goto_Screen_DT : public PreformedCommand {
 	public:
-		CMD_Goto_Screen_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,int iPK_Screen) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Goto_Screen_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Goto_Screen_CONST,
-			2 /* number of parameters */,
+			5 /* number of parameters */,
 			COMMANDPARAMETER_ID_CONST, sID.c_str(),
-			COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(iPK_Screen).c_str()); }
+			COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(iPK_Screen).c_str(),
+			COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(iInterruption).c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0"),
+			COMMANDPARAMETER_Queue_CONST, (bQueue ? "1" : "0")); }
 	};
 	class CMD_Goto_Screen_Cat : public PreformedCommand {
 	public:
-		CMD_Goto_Screen_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,int iPK_Screen) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Goto_Screen_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Goto_Screen_CONST,
-			2 /* number of parameters */,
+			5 /* number of parameters */,
 			COMMANDPARAMETER_ID_CONST, sID.c_str(),
-			COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(iPK_Screen).c_str()); }
+			COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(iPK_Screen).c_str(),
+			COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(iInterruption).c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0"),
+			COMMANDPARAMETER_Queue_CONST, (bQueue ? "1" : "0")); }
 	};
 	class RESP_Media_Identified : public PreformedCommandResponse {
 		int *m_iEK_Disc;
@@ -21250,39 +21262,43 @@ namespace DCE
 	};
 	class CMD_Display_Alert : public PreformedCommand {
 	public:
-		CMD_Display_Alert(long DeviceIDFrom, long DeviceIDTo,string sText,string sTokens,string sTimeout) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Display_Alert(long DeviceIDFrom, long DeviceIDTo,string sText,string sTokens,string sTimeout,int iInterruption) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Display_Alert_CONST,
-			3 /* number of parameters */,
+			4 /* number of parameters */,
 			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_Tokens_CONST, sTokens.c_str(),
-			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str()); }
+			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str(),
+			COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(iInterruption).c_str()); }
 	};
 	class CMD_Display_Alert_DL : public PreformedCommand {
 	public:
-		CMD_Display_Alert_DL(long DeviceIDFrom, string DeviceIDTo,string sText,string sTokens,string sTimeout) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Display_Alert_DL(long DeviceIDFrom, string DeviceIDTo,string sText,string sTokens,string sTimeout,int iInterruption) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Display_Alert_CONST,
-			3 /* number of parameters */,
+			4 /* number of parameters */,
 			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_Tokens_CONST, sTokens.c_str(),
-			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str()); }
+			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str(),
+			COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(iInterruption).c_str()); }
 	};
 	class CMD_Display_Alert_DT : public PreformedCommand {
 	public:
-		CMD_Display_Alert_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sText,string sTokens,string sTimeout) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Display_Alert_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sText,string sTokens,string sTimeout,int iInterruption) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Display_Alert_CONST,
-			3 /* number of parameters */,
+			4 /* number of parameters */,
 			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_Tokens_CONST, sTokens.c_str(),
-			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str()); }
+			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str(),
+			COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(iInterruption).c_str()); }
 	};
 	class CMD_Display_Alert_Cat : public PreformedCommand {
 	public:
-		CMD_Display_Alert_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sText,string sTokens,string sTimeout) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Display_Alert_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sText,string sTokens,string sTimeout,int iInterruption) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Display_Alert_CONST,
-			3 /* number of parameters */,
+			4 /* number of parameters */,
 			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_Tokens_CONST, sTokens.c_str(),
-			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str()); }
+			COMMANDPARAMETER_Timeout_CONST, sTimeout.c_str(),
+			COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(iInterruption).c_str()); }
 	};
 	class CMD_Set_Active_Application : public PreformedCommand {
 	public:
