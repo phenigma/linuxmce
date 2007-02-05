@@ -290,9 +290,12 @@ if [[ -x /etc/init.d/ssh ]] ;then
 fi
 
 ## Start RemoteAccess at this step
-if [[ -x /usr/pluto/bin/SetupRemoteAccess.sh ]]; then
+if [[ -x /usr/pluto/bin/SetupRemoteAccess.sh && -x /usr/pluto/bin/RA-handler.sh ]]; then
 	Message "Checking/Activating Remove Access"
-	/usr/pluto/bin/SetupRemoteAccess.sh &
+	(
+		/usr/pluto/bin/RA-handler.sh --confirm
+		/usr/pluto/bin/SetupRemoteAccess.sh
+	) &
 fi
 
 if [[ -x /etc/init.d/sysklogd ]]; then
