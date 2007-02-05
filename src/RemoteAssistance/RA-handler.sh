@@ -14,13 +14,24 @@ if [[ -z "$PK_Installation" || "$PK_Installation" == 1 ]]; then
 fi
 
 if [[ "$#" -ne 1 ]]; then
-	echo "Usage: '$0' {--enable|--disable}"
+	echo "Usage: '$0' {--enable|--disable|--status|--confirm}"
 	exit 1
 fi
 
 PortPage="http://$PlutoHome/get_ra_ports.php?installationID=$PK_Installation"
 
-EnableRA()
+UpdatePortDeviceData()
+{
+	local IK_DeviceData="$1"
+
+	Q="
+		REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+		VALUES ('$PK_Device', '$DEVICEDATA_Remote_Assistance_Ports', '$IK_DeviceData')
+	"
+	RunSQL "$Q"
+}
+
+RequestPorts()
 {
 	local IK_DeviceData Q password Var PortName PortValue line
 	local PortFile="$(mktemp /tmp/tmp.RA-XXXXXX)"
@@ -28,12 +39,14 @@ EnableRA()
 
 	if ! wget -O "$PortFile" "$PortPage" 2>/dev/null; then
 		echo "Failed to get ports from server"
-		exit 1
+		UpdatePortDeviceData ""
+		return 1
 	fi
 
 	if [[ "$(head -1 "$PortFile")" != "#Ports:" || "$(tail -1 "$PortFile")" != "#END" ]]; then
 		echo "Received incomplete response"
-		exit 1
+		UpdatePortDeviceData ""
+		return 1
 	fi
 
 	while read line; do
@@ -50,12 +63,13 @@ EnableRA()
 		IK_DeviceData="${IK_DeviceData}${PortName}=${PortValue},"
 	done
 	IK_DeviceData="${IK_DeviceData%,}"
+	UpdatePortDeviceData "$IK_DeviceData"
+	return 0
+}
 
-	Q="
-		REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
-		VALUES ('$PK_Device', '$DEVICEDATA_Remote_Assistance_Ports', '$IK_DeviceData')
-	"
-	RunSQL "$Q"
+EnableRA()
+{
+	RequestPorts
 
 	if grep -q '^remote.*=' /etc/pluto.conf; then
 		password=$(grep '^remote.*=' /etc/pluto.conf)
@@ -63,8 +77,8 @@ EnableRA()
 	else
 		. /usr/pluto/bin/Utils.sh
 		password="$(GeneratePasswordOf6Digits)"
+		ConfSet remote "$password"
 	fi
-	ConfSet remote "$password"
 
 	/usr/pluto/bin/SetupRemoteAccess.sh
 }
@@ -75,11 +89,7 @@ DisableRA()
 
 	ConfDel remote
 	/usr/pluto/bin/SetupRemoteAccess.sh
-	Q="
-		REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
-		VALUES ('$PK_Device', '$DEVICEDATA_Remote_Assistance_Ports', '')
-	"
-	RunSQL "$Q"
+	UpdatePortDeviceData ""
 	wget -O /dev/null "$PortPage&action=del" 2>/dev/null
 }
 
@@ -94,6 +104,7 @@ ShowStatus()
 	fi
 }
 
+RetCode=0
 for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
 		--enable)
@@ -104,11 +115,20 @@ for ((i = 1; i <= "$#"; i++)); do
 		;;
 		--status)
 			ShowStatus
-			exit $?
+			RetCode=$?
+		;;
+		--confirm)
+			if [[ -z "$remote" ]]; then
+				# nothing to do
+				continue
+			fi
+			RequestPorts
+			RetCode=$?
 		;;
 		*)
 			echo "Unknown parameter: '${!i}'"
-			exit 1
+			RetCode=1
 		;;
 	esac
 done
+exit $RetCode
