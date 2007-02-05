@@ -207,7 +207,8 @@ for Row in $R; do
 	hosts_DisklessMD="${hosts_DisklessMD}${Moon_IP}	moon${Moon_DeviceID}\n"
 
 	## Create the a filesystem for this MD
-	/usr/pluto/bin/Diskless_CreateFS.sh "$Moon_IP" "$Moon_MAC" "$Moon_DeviceID" "$Moon_Architecture"
+	/usr/pluto/bin/Diskless_CreateFS.sh "$Moon_DeviceID"
+	/usr/pluto/bin/Diskless_InstallKernel.sh "$Moon_DeviceID"
 
 	## Setting Up
 	update_config_files
