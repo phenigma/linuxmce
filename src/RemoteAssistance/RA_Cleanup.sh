@@ -14,6 +14,7 @@ GracePeriod=604800 #seconds, 1week
 Q="
 	UPDATE RemoteAssistance
 	SET
+		EK_Installation = NULL,
 		DateAllocated = NULL,
 		LastActive = NULL
 	WHERE DATE_SUB(NOW(), INTERVAL $GracePeriod SECOND) > LastActive
