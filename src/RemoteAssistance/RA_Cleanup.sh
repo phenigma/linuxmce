@@ -16,7 +16,7 @@ Q="
 	SET
 		DateAllocated = NULL,
 		LastActive = NULL
-	WHERE NOW() - LastActive > $GracePeriod
+	WHERE DATE_SUB(NOW(), INTERVAL $GracePeriod SECOND) > LastActive
 "
 
 echo "$Q;" | mysql -uroot -p"$(<"$PassFile")" pluto_website
