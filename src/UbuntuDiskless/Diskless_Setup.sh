@@ -15,7 +15,7 @@ DEVICEDATA_DisklessBoot=9
 
 function setup_tftp_boot 
 {
-	#Moon_MAC
+	echo "* Configuring TFTP Boot for MD #${Moon_DeviceID}"
 
 	local Moon_BootConfFile="/tftpboot/pxelinux.cfg/01-$(echo ${Moon_MAC//:/-} | tr 'A-Z' 'a-z')"
 	local BootConf=""
@@ -43,6 +43,7 @@ function setup_tftp_boot
 
 function setup_mysql_access 
 {
+	echo "* Setting up MySQL access for MD #${Moon_DeviceID}"
 	RunSQL "GRANT ALL PRIVILEGES ON *.* TO 'root'@$Moon_IP; GRANT ALL PRIVILEGES ON *.* TO 'eib'@$Moon_IP"
 	RunSQL "FLUSH PRIVILEGES"
 }
@@ -51,6 +52,8 @@ function setup_mysql_access
 function generate_diskless_installer 
 {
 	
+	echo "* Generating Pluto Installer for MD #${Moon_DeviceID}"
+
 	## Copy installer files
 	mkdir -p $Moon_RootLocation/usr/pluto/install
 	Files="Common.sh ConfirmDependencies_Debian.sh Initial_Config_MD.sh Initial_Config_Finish.sh ramdisk.tar.bz2"
@@ -72,6 +75,7 @@ function generate_diskless_installer
 
 function setup_hosts_file 
 {
+	echo "* Setting up /etc/hosts"
 	local Content=""
 	local Q="
 		SELECT 
@@ -101,6 +105,20 @@ function setup_hosts_file
 	done
 	
 	PopulateSection "/etc/hosts" "DisklessMD" "$Content"
+}
+
+
+function update_config_files
+{
+	local ScriptDir="./"
+	local ScriptsList="cron.d-synctime fstab-diskless interfaces mythtv-mysql.txt nis-client pluto.conf resolv.conf syslog.conf timezone"
+	for Script in $ScriptsList ;do
+		if [[ ! -x $ScriptDir/$Script ]] ;then
+			echo "WARNING: Script $Script cannot be executed"
+		fi
+
+		$ScriptDir/$Script --root "$Moon_RootLocation" --device "$Moon_DeviceID"
+	done
 }
 
 
@@ -186,19 +204,19 @@ for Row in $R; do
 
 	
 	## Adding moon to hosts (/etc/hosts)
-	hosts_DisklessMD="{$hosts_DisklessMD}${Moon_IP}	moon${Moon_DeviceID}\n"
+	hosts_DisklessMD="${hosts_DisklessMD}${Moon_IP}	moon${Moon_DeviceID}\n"
 
 	## Create the a filesystem for this MD
 	/usr/pluto/bin/Diskless_CreateFS.sh "$Moon_IP" "$Moon_MAC" "$Moon_DeviceID" "$Moon_Architecture"
 
-
 	## Setting Up
+	update_config_files
 	setup_tftp_boot
 	setup_mysql_access
 	generate_diskless_installer
 
 	## Create /var/log/pluto for this device as a symlink
-	mkdir -p "/home/logs/diskless_$Moon_DeviceID"
+	mkdir -p "/home/logs/diskless_${Moon_DeviceID}"
 	if [[ -d $Moon_RootLocation/var/log/pluto	]] ;then
 		mv -r $Moon_RootLocation/var/log/pluto/* /home/log/diskless_$Moon_DeviceID
 		rm -rf $Moon_RootLocation/var/log/pluto/
