@@ -5,14 +5,14 @@ LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lRACommon -lDCECommon -lPlutoUtils -lSerializeClass -lpthread -lmysqlclient_r -lattr 
 CXX = g++
 
-sources = CommonFunctions.cpp Tribunerequests.cpp R_GetLineups.cpp Database.cpp Tribuneprocessor.cpp Tribunerequests.cpp Tribune.cpp
+sources = CommonFunctions.cpp Tribunerequests.cpp R_GetLineups.cpp Database.cpp Tribuneprocessor.cpp Tribune.cpp
 
 #new_thing = $(sources) TableInfo_SCVS.cpp
 
 all: Tribune
 #all: newthing
 
-Tribune: $(sources)
+Tribune: $(sources:.cpp=.o)
 	$(CXX) -o $@ $(call cpath,$+) $(LDFLAGS) $(LDLIBS) $(CPPFLAGS)
 	#cp $@ $(ROOT)/bin
 
