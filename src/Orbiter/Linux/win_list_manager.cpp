@@ -33,7 +33,7 @@ bool WinListManager::ResetOrbiterWindow()
 {
 #ifdef MAEMO_NOKIA770
 	//no window manager action with nokia 770
-	return;
+	return true;
 #endif
 
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
