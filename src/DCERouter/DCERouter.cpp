@@ -2578,6 +2578,9 @@ void Router::Configure()
 	// Build all the command groups
     vector<Row_CommandGroup *> vectRow_CommandGroup;
 	m_pRow_Installation = GetDatabase()->Installation_get()->GetRow(m_dwPK_Installation);
+	if (m_pRow_Installation == NULL)
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get data from Installation(PK_Installation=%d).", m_dwPK_Installation);
+	// TODO: clean exit if m_pRow_Installation == NULL; next line segfaults if this condition is true
     m_pRow_Installation->CommandGroup_FK_Installation_getrows(&vectRow_CommandGroup);  // All rows
     for(size_t s=0;s<vectRow_CommandGroup.size();++s)
     {
