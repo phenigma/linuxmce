@@ -8806,7 +8806,7 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
-	if( !OkayToInterrupt(iInterruption) )
+	if( m_mapScreen_Interrupt[iPK_Screen]==false && !OkayToInterrupt(iInterruption) )
 	{
 		if( bQueue )
 			m_listPendingGotoScreens.push_back( make_pair<int,Message *> (iInterruption,new Message(pMessage)) );

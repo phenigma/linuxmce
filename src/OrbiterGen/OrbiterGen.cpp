@@ -445,6 +445,11 @@ int OrbiterGenerator::DoIt()
 	for(vector<Row_Screen *>::iterator it_vsgb=vectRow_Screen_GoBack.begin();it_vsgb!=vectRow_Screen_GoBack.end();++it_vsgb)
 		m_mapPK_Screen_GoBackToScreen[ (*it_vsgb)->PK_Screen_get() ]=1;
 
+	vector<Row_Screen *> vectRow_Screen_Interrupt;
+	m_spDatabase_pluto_main->Screen_get()->GetRows("1=1",&vectRow_Screen_Interrupt);
+	for(vector<Row_Screen *>::iterator it_vsgb=vectRow_Screen_Interrupt.begin();it_vsgb!=vectRow_Screen_Interrupt.end();++it_vsgb)
+		m_mapScreen_Interrupt[ (*it_vsgb)->PK_Screen_get() ]=(*it_vsgb)->AllowInterruptions_get();
+
 	m_pRow_Screen_MainMenu = NULL;
 	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Screen_CONST);
 
