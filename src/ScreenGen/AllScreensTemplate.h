@@ -13,10 +13,10 @@
 namespace DCE
 {
 	// Specify how to handle interrupting the user if he's doing something
-	enum eInterruption {interuptAlways=1, /* always interupt his activity and change screens */
-		interuptNever=2, /* never interupt, only change the screen if the system is idle */
-		interuptNoVideo=3, /* will interrupt a web browser but not a movie */
-		interuptOnlyAudio=4 /* will not interrupt a web browser, only when audio is playing */
+	enum eInterruption {interuptAlways=0, /* always interupt his activity and change screens */
+		interuptNever=1, /* never interupt, only change the screen if the system is idle */
+		interuptNoVideo=2, /* will interrupt a web browser but not a movie */
+		interuptOnlyAudio=3 /* will not interrupt a web browser, only when audio is playing */
 	};
 
 	//  Commands
