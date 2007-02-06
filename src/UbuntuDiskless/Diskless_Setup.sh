@@ -37,7 +37,7 @@ function setup_tftp_boot
 	BootConf="${BootConf}DEFAULT Pluto\n"
 	BootConf="${BootConf}LABEL Pluto\n"
 	BootConf="${BootConf}KERNEL ${Moon_DeviceID}/vmlinuz\n"
-	BootConf="${BootConf}APPEND ${Moon_DeviceID}/initrd.img ramdisk=10240 rw boot=nfs nfsroot=${IntIP}:/usr/pluto/diskless/${Moon_DeviceID} ${BootParams_Extra}\n"
+	BootConf="${BootConf}APPEND initrd=${Moon_DeviceID}/initrd.img ramdisk=10240 rw root=/dev/nfs boot=nfs nfsroot=${IntIP}:/usr/pluto/diskless/${Moon_DeviceID} ${BootParams_Extra}\n"
 	
 	echo -e "$BootConf" > "$Moon_BootConfFile"
 
@@ -229,14 +229,14 @@ for Row in $R; do
 	generate_diskless_installer
 
 	## Create /var/log/pluto for this device as a symlink
-	mkdir -p "/home/logs/diskless_${Moon_DeviceID}"
-	if [[ -d $Moon_RootLocation/var/log/pluto	]] ;then
-		mv -r $Moon_RootLocation/var/log/pluto/* /home/log/diskless_$Moon_DeviceID
-		rm -rf $Moon_RootLocation/var/log/pluto/
-	fi
-	if [[ ! -e "$Moon_RootLocation"/var/log/pluto ]]; then
-		ln -s "/home/logs/diskless_$Moon_DeviceID" "$Moon_RootLocation/var/log/pluto"
-	fi
+#	mkdir -p "/home/logs/diskless_${Moon_DeviceID}"
+#	if [[ -d $Moon_RootLocation/var/log/pluto	]] ;then
+#		mv $Moon_RootLocation/var/log/pluto/* /home/log/diskless_$Moon_DeviceID
+#		rm -rf $Moon_RootLocation/var/log/pluto/
+#	fi
+#	if [[ ! -e "$Moon_RootLocation"/var/log/pluto ]]; then
+#		ln -s "/home/logs/diskless_$Moon_DeviceID" "$Moon_RootLocation/var/log/pluto"
+#	fi
 
 	## Dome configuring this MD
 	RunSQL "UPDATE Device SET NeedConfigure = 0 WHERE PK_Device=$Moon_DeviceID"
