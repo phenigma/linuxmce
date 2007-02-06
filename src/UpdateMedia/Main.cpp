@@ -198,7 +198,7 @@ void OnModify(list<string> &listFiles)
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/UpdateMedia.log");
+	g_pPlutoLogger = new FileLogger(stdout);
 	dceConfig.m_sDBName="pluto_media";
 	bError=false;
 	bUpdateThumbnails=false;
