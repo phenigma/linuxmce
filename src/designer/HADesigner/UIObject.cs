@@ -1202,7 +1202,7 @@ namespace HADesigner
 		{
 			foreach(UIDesignObjVariation objVariation in this.UIDesignObjVariations)
 			{
-				foreach(UIDesignObj objUIDesignObj in objVariation.DesignObjs)
+				foreach(UIChildSkinLanguage objUIDesignObj in objVariation.DesignObjs)
 				{
 					objUIDesignObj.Selected = false;
 					if(blnRecursive)

@@ -798,9 +798,11 @@ namespace HADesigner
 				{
 					DesignObjVariation_DesignObj_Skin_LanguageDataRow drDesignObjSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(drSL);
 
-
-					UIChildSkinLanguage objChildUIDesignObjSL = new UIChildSkinLanguage(this, drDesignObjSL.fFK_DesignObjVariation_DesignObj, this.GraphicsDirectory);
-				
+					int nFK_Skin = drDesignObjSL.fFK_SkinIsNull  ? -1 : drDesignObjSL.fFK_Skin;
+					int nFK_Language = drDesignObjSL.fFK_LanguageIsNull ? -1 : drDesignObjSL.fFK_Language;
+						
+					UIChildSkinLanguage objChildUIDesignObjSL = new UIChildSkinLanguage(this, drDesignObjSL.fFK_DesignObjVariation_DesignObj,
+						nFK_Skin, nFK_Language, this.GraphicsDirectory);
 
 					objChildUIDesignObjSL.LinkID = drDesignObjSL.fPK_DesignObjVariation_DesignObj_Skin_Language;
 

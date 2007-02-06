@@ -18,8 +18,8 @@ namespace HADesigner
 	public class UIChildSkinLanguage: UI
 	{
 		public static int NoSetValue = -2;
-		public int SkinID = -1;
-		public int LanguageID = -1;
+		public int m_FK_SkinID = -1;
+		public int m_FK_LanguageID = -1;
 
 		//MEMBER VARIABLES
 		private string graphicsDirectory;
@@ -128,6 +128,20 @@ namespace HADesigner
 			get {return this.m_strDescription;}
 			set {this.m_strDescription = value;}
 		}
+
+		public int Skin
+		{
+			get {return this.m_FK_SkinID;}
+			set {this.m_FK_SkinID = value;}
+		}
+
+
+		public int Language
+		{
+			get {return this.m_FK_LanguageID;}
+			set {this.m_FK_LanguageID = value;}
+		}
+
 		public string Description
 		{
 			get
@@ -381,11 +395,41 @@ namespace HADesigner
 		
 
 
-		public UIChildSkinLanguage(UIDesignObjVariation objParentUIDesignObjVariation, int intID, string graphicsDir)
+		public UIChildSkinLanguage(UIDesignObjVariation objParentUIDesignObjVariation, int intID, 
+			int SkinID,  int LanguageID, string graphicsDir)
 		{
-			//this.graphicsDirectory = graphicsDir;
-			//m_objParentUIDesignObjVariation = objParentUIDesignObjVariation;
-			//m_intID = intID;		
+			this.graphicsDirectory = graphicsDir;
+
+			m_objParentUIDesignObjVariation = objParentUIDesignObjVariation;
+			m_intID = intID;		
+
+			m_FK_SkinID = SkinID;
+			m_FK_LanguageID = LanguageID;
+
+			if(objParentUIDesignObjVariation == null)
+			{
+				this.m_bitCanBeHidden = false;
+				this.m_bitHideByDefault = false;
+				this.m_bitRegenerateForEachScreen = false;
+				m_intParentX = 0;
+				m_intParentY = 0;
+				this.ParentVariationLinked = false;
+			}
+			else
+			{
+				this.ParentVariationLinked = true;
+			}
+
+			if(intID != -1)
+			{
+				LoadFromDatabase();
+			}
+
+			if(objParentUIDesignObjVariation == null)
+			{
+				Build(1, true); // Start with default skin
+				this.ResetLinkOriginals();
+			}	
 		}
         
 		public override bool OriginalsChanged
@@ -395,6 +439,43 @@ namespace HADesigner
 
 		public override void LoadFromDatabase()
 		{
+			MyDataSet mds = HADataConfiguration.m_mdsCache;
+	
+
+			DesignObjVariation_DesignObjDataRow drDesignObjVariation_DesignObj = mds.tDesignObjVariation_DesignObj[m_intID];
+			DesignObjDataRow drDesignObj = mds.tDesignObj[drDesignObjVariation_DesignObj.fFK_DesignObj_Child];
+
+			m_strDescription = drDesignObj.fDescription;
+
+			m_intPriority = drDesignObj.fPriority;
+			this.m_blnAnimate = drDesignObj.fAnimate;
+			m_intUIDesignObjType = drDesignObj.fFK_DesignObjType;
+
+			ID = drDesignObjVariation_DesignObj.fFK_DesignObj_Child;
+
+			m_blnCantGoBack = drDesignObj.fCantGoBack;
+			
+
+
+			this.DesignObjCategory = drDesignObj.fFK_DesignObjCategory;
+
+
+			
+			//set the originals so we know how and when to save
+			this.ResetOriginals();
+
+
+			m_blnNeedsDBInsert = false;
+			m_blnNeedsDBDelete = false;
+			
+			//load the UIDesignObjVariations
+			//no sort for now
+			DataRow[] drVariations = mds.tDesignObjVariation.Select(DesignObjVariationData.FK_DESIGNOBJ_FIELD + "=" + ParentUIDesignObjVariation.ID, DesignObjVariationData.PK_DESIGNOBJVARIATION_FIELD);
+			foreach(DataRow dr in drVariations)
+			{
+				DesignObjVariationDataRow drVariation = new DesignObjVariationDataRow(dr);
+				m_alUIDesignObjVariations.Add(new UIDesignObjVariation(ParentUIDesignObjVariation.ParentUIDesignObj, drVariation.fPK_DesignObjVariation, -1));
+			}
 
 		}
 
@@ -578,5 +659,224 @@ namespace HADesigner
 				uiov.ReleaseBitmaps();				
 			}
 		}		
+
+
+		public bool SaveLinkToDatabase()
+		{
+			MyDataSet mds = HADataConfiguration.m_mdsCache;
+			bool blnChanged = false;
+			//if(this.NeedsParentVariationLink || this.NeedsParentVariationUnlink)
+			//{
+			if(this.NeedsParentVariationUnlink)
+			{
+				//if(this.ParentVariationLinked)
+				//{
+
+				if(!this.NeedsParentVariationLink)
+				{
+					if(this.ParentUIDesignObjVariation == null)
+					{
+						//this should not happen unless it was a deletion of a root object
+						//in which case all links were removed in SaveToDatabase
+
+					}
+					else
+					{
+						//delete the row
+						DesignObjVariation_DesignObjDataRow drLink = mds.tDesignObjVariation_DesignObj[this.LinkID];
+						drLink.dr.Delete();
+						mds.tDesignObjVariation_DesignObj.Update(1,mds.m_conn,mds.m_trans);
+					}
+				}
+
+				//}
+		
+				this.ParentVariationLinked = false;
+				blnChanged = true;
+			}
+			else
+			{
+				if(this.NeedsParentVariationLink)
+				{
+					//add the row
+					DesignObjVariation_DesignObjDataRow drLink = new DesignObjVariation_DesignObjDataRow(mds.tDesignObjVariation_DesignObj.NewRow());
+					drLink.fFK_DesignObj_Child = this.ID;
+					drLink.fFK_DesignObjVariation_Parent = this.ParentUIDesignObjVariation.ID;
+
+					DesignObjVariation_DesignObj_Skin_LanguageDataRow drLinkDSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(mds.tDesignObjVariation_DesignObj_Skin_Language.NewRow());
+						
+					if(this.Width < -1)
+						drLinkDSL.fWidthSetNull();
+					else
+						drLinkDSL.fWidth = this.Width;
+
+					if(this.Height < -1)
+						drLinkDSL.fHeightSetNull();
+					else
+						drLinkDSL.fHeight = this.Height;
+
+					drLinkDSL.fCanBeHidden = this.CanBeHidden;
+					drLinkDSL.fCanBeHidden = this.CanBeHidden;
+					drLinkDSL.fIsTabStop= this.IsTabStop;
+					drLinkDSL.fDisplayChildrenBeforeText = this.ChildBeforeText;
+					drLinkDSL.fDisplayChildrenBehindBackground = this.ChildBehindBG;
+					if( this.m_iTiedTo=="" || this.m_iTiedTo==null )
+						drLinkDSL.fsFK_DesignObj_TiedToSetNull();
+					else
+						drLinkDSL.fsFK_DesignObj_TiedTo = this.m_iTiedTo;
+
+					if( this.m_sVisibleStates=="" )
+						drLinkDSL.fVisibleStatesSetNull();
+					else
+						drLinkDSL.fVisibleStates = this.m_sVisibleStates;
+	
+					if( this.m_iTS_Up=="" || this.m_iTS_Up==null )
+						drLinkDSL.fFK_DesignObj_UpSetNull();
+					else
+						drLinkDSL.fFK_DesignObj_Up= Convert.ToInt32(this.m_iTS_Up);
+
+					if( this.m_iTS_Down=="" || this.m_iTS_Down==null )
+						drLinkDSL.fFK_DesignObj_DownSetNull();
+					else
+						drLinkDSL.fFK_DesignObj_Down= Convert.ToInt32(this.m_iTS_Down);
+							
+					if( this.m_iTS_Left=="" || this.m_iTS_Left==null )
+						drLinkDSL.fFK_DesignObj_LeftSetNull();
+					else
+						drLinkDSL.fFK_DesignObj_Left= Convert.ToInt32(this.m_iTS_Left);
+							
+					if( this.m_iTS_Right=="" || this.m_iTS_Right==null )
+						drLinkDSL.fFK_DesignObj_RightSetNull();
+					else
+						drLinkDSL.fFK_DesignObj_Right= Convert.ToInt32(this.m_iTS_Right);
+					drLinkDSL.fDisplayChildrenBehindBackground = this.BGOnTop;
+					drLinkDSL.fRegenerateForEachScreen = this.RegenerateForEachScreen;
+
+					drLinkDSL.fX = this.ParentX;
+					drLinkDSL.fY = this.ParentY;
+
+					drLinkDSL.fDisplayOrder = this.ParentDisplayOrder;
+					drLinkDSL.fFK_DesignObjVariation_DesignObj = drLink.fPK_DesignObjVariation_DesignObj;
+
+					DesignObjModified(drLink.fFK_DesignObj_Child_DataRow);
+						
+					mds.tDesignObjVariation_DesignObj.Rows.Add(drLink.dr);
+					mds.tDesignObjVariation_DesignObj.Update(1,mds.m_conn,mds.m_trans);
+
+					mds.tDesignObjVariation_DesignObj_Skin_Language.Rows.Add(drLinkDSL.dr);
+					mds.tDesignObjVariation_DesignObj_Skin_Language.Update(1,mds.m_conn,mds.m_trans);
+						
+					this.LinkID = drLinkDSL.fPK_DesignObjVariation_DesignObj_Skin_Language;
+					this.ParentVariationLinked = true;
+					blnChanged = true;
+				}
+				else
+				{
+					if(this.LinkOriginalsChanged)
+					{
+						//we need to update				
+						DesignObjVariation_DesignObj_Skin_LanguageDataRow drLinkDSL = mds.tDesignObjVariation_DesignObj_Skin_Language[this.LinkID];
+								
+						if(this.Width < -1)
+							drLinkDSL.fWidthSetNull();
+						else
+							drLinkDSL.fWidth = this.Width;
+
+						if(this.Height < -1)
+							drLinkDSL.fHeightSetNull();
+						else
+							drLinkDSL.fHeight = this.Height;
+
+
+						drLinkDSL.fCanBeHidden = this.CanBeHidden;
+						drLinkDSL.fHideByDefault = this.HideByDefault;
+						drLinkDSL.fIsTabStop= this.IsTabStop;
+						drLinkDSL.fDisplayChildrenBeforeText = this.ChildBeforeText;
+						drLinkDSL.fDisplayChildrenBehindBackground = this.ChildBehindBG;
+
+						if( this.m_sVisibleStates=="" )
+							drLinkDSL.fVisibleStatesSetNull();
+						else
+							drLinkDSL.fVisibleStates = this.m_sVisibleStates;
+
+						if( this.m_iTiedTo=="" || this.m_iTiedTo==null )
+							drLinkDSL.fsFK_DesignObj_TiedToSetNull();
+						else
+							drLinkDSL.fsFK_DesignObj_TiedTo = this.m_iTiedTo;
+	
+						if( this.m_iTS_Up=="" || this.m_iTS_Up==null )
+							drLinkDSL.fFK_DesignObj_UpSetNull();
+						else
+							drLinkDSL.fFK_DesignObj_Up= Convert.ToInt32(this.m_iTS_Up);
+
+						if( this.m_iTS_Down=="" || this.m_iTS_Down==null )
+							drLinkDSL.fFK_DesignObj_DownSetNull();
+						else
+							drLinkDSL.fFK_DesignObj_Down= Convert.ToInt32(this.m_iTS_Down);
+							
+						if( this.m_iTS_Left=="" || this.m_iTS_Left==null )
+							drLinkDSL.fFK_DesignObj_LeftSetNull();
+						else
+							drLinkDSL.fFK_DesignObj_Left= Convert.ToInt32(this.m_iTS_Left);
+							
+						if( this.m_iTS_Right=="" || this.m_iTS_Right==null )
+							drLinkDSL.fFK_DesignObj_RightSetNull();
+						else
+							drLinkDSL.fFK_DesignObj_Right= Convert.ToInt32(this.m_iTS_Right);
+						drLinkDSL.fDisplayChildrenBehindBackground = this.BGOnTop;
+						drLinkDSL.fRegenerateForEachScreen = this.RegenerateForEachScreen;
+
+						drLinkDSL.fX = this.ParentX;
+						drLinkDSL.fY = this.ParentY;
+						drLinkDSL.fDisplayOrder = this.ParentDisplayOrder;
+
+						//DesignObjModified(drLinkDSL.fFK_DesignObj_Child_DataRow);
+
+						blnChanged = true;
+					}
+				}
+			}
+
+
+			this.NeedsParentVariationUnlink = false;
+			this.NeedsParentVariationLink = false;
+
+
+			//set the originals
+			this.ResetLinkOriginals();
+
+
+			//}
+
+			return blnChanged;
+
+		}
+
+		public void DesignObjModified(DesignObjDataRow drObject)
+		{
+			MyDataSet mds = HADataConfiguration.m_mdsCache;
+			
+			string SQL = "UPDATE DesignObj SET psc_mod='" + DateTime.Now.ToString("yyMMddhhmmss") + "' WHERE PK_DesignObj=" + drObject.fPK_DesignObj.ToString();
+			new Microsoft.Data.Odbc.OdbcCommand(SQL,mds.m_conn,mds.m_trans).ExecuteNonQuery();
+		}
+
+		public void DeselectAllDesignObjs(bool blnRecursive) // Also Text
+		{
+			foreach(UIDesignObjVariation objVariation in this.UIDesignObjVariations)
+			{
+				foreach(UIChildSkinLanguage objUIDesignObj in objVariation.DesignObjs)
+				{
+					objUIDesignObj.Selected = false;
+					if(blnRecursive)
+					{
+						objUIDesignObj.DeselectAllDesignObjs(true);
+					}
+				}
+				foreach (UIText uit in objVariation.Text)
+				{
+					uit.Selected = false;
+				}
+			}
+		}
 	}
 }

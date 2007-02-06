@@ -488,22 +488,6 @@ namespace HADesigner
 		
 		}
 
-		/*
-		private void button1_Click(object sender, System.EventArgs e)
-		{
-			UIDesignObj objNewUIDesignObj = new UIDesignObj(null, -1);
-			objNewUIDesignObj.Description = "New DesignObj Test";
-			objNewUIDesignObj.NeedsInsert = true;
-			objNewUIDesignObj.UIDesignObjType = DesignObjTypeData.BITMAP_CONST;
-			UIDesignObjVariation objStandardVariation = objNewUIDesignObj.AddNewVariation(-1,false);
-
-			//objStandardVariation.AddNewParameter()
-
-			objNewUIDesignObj.SaveToDatabase();
-
-		}
-		*/
-
 		private void miOptions_Click(object sender, System.EventArgs e)
 		{
 			RegistryKey rk = Registry.CurrentUser.CreateSubKey(this.strRegKey);

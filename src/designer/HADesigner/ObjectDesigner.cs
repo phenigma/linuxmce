@@ -42,8 +42,8 @@ namespace HADesigner
 		public bool warnSaveChanges = true;
 		private int m_intCommandSelected = -1;
 		private int intDesignObjID;
-		private int languageID=1;
-		private int skinID=1;
+		private int languageID=-1;
+		private int skinID=-1;
 		StringPair[] spStyles;
         
 		public int LanguageID
@@ -71,12 +71,12 @@ namespace HADesigner
 			get	{return HADataConfiguration.m_mdsCache;}
 		}
 
-		private UIDesignObj selectedUIDesignObj
+		private UIChildSkinLanguage selectedUIDesignObj
 		{
 			get 
 			{
 				if (this.lbChildrenDesignObjs.SelectedIndex == -1) return null;
-				else return (UIDesignObj)this.lbChildrenDesignObjs.Items[this.lbChildrenDesignObjs.SelectedIndex];
+				else return (UIChildSkinLanguage)this.lbChildrenDesignObjs.Items[this.lbChildrenDesignObjs.SelectedIndex];
 			}
 		}
 
@@ -3640,7 +3640,7 @@ namespace HADesigner
 			{
 				bool origBlock = this.BlockUpdateImage();
 				bool copiedText = false;
-				UIDesignObj dragO = null;
+				UIChildSkinLanguage dragO = null;
 				UIText dragT = null;
 				if (e.Effect == DragDropEffects.Move)
 				{
@@ -3662,7 +3662,11 @@ namespace HADesigner
 				{
 					if (isDesignObj)
 					{
-						dragO = new UIDesignObj(dropOV,dragUIO.uiDesignObj.ID,this.GraphicsDirectory);
+						dragO = new UIChildSkinLanguage(
+							dropOV,dragUIO.uiDesignObj.ID,
+							dragUIO.uiDesignObj.Skin,dragUIO.uiDesignObj.Language, 
+							this.GraphicsDirectory);
+
 						dragO.Width = dragUIO.uiDesignObj.Width;
 						dragO.Height = dragUIO.uiDesignObj.Height;
 						dragO.ParentX = dragUIO.uiDesignObj.ParentX;
@@ -4372,8 +4376,8 @@ namespace HADesigner
 
 	public class DragUIDesignObj: DragUI
 	{
-		public UIDesignObj uiDesignObj;
-		public DragUIDesignObj(DesignObjDesigner od, UIDesignObj uio):base(od)
+		public UIChildSkinLanguage uiDesignObj;
+		public DragUIDesignObj(DesignObjDesigner od, UIChildSkinLanguage uio):base(od)
 		{
 			this.uiDesignObj = uio;
 		}
