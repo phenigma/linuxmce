@@ -186,13 +186,6 @@ bool OrbiterLinux::X11_Init()
     // initialize other classes
     g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : done");
     
-
-    //temporary workaround for xfwm window manager
-    //this will set orbiter above when its window is created
-    //then orbiter will set it to the right layer
-    if(UsesUIVersion2() && !m_pWinListManager->ResetOrbiterWindow())
-	OnQuit();    
-    
     return true;
 }
 
@@ -378,6 +371,12 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
 			}
 		}
 	}
+
+    //temporary workaround for xfwm window manager
+    //this will set orbiter above when its window is created
+    //then orbiter will set it to the right layer
+    if(UsesUIVersion2() && NULL != m_pWinListManager && !m_pWinListManager->ResetOrbiterWindow())
+		OnQuit();    
 
     g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Initialize() : done");
 }
