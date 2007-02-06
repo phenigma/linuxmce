@@ -193,6 +193,9 @@ namespace sqlCVS
 		 */
 		bool ValidateUsers(bool &bSupervisor,bool bExpectAtLeastOne=true,MapStringString *pmapUsersPasswords=NULL)
 		{
+			// reset the validated users map
+			m_mapValidatedUsers.clear();
+		
 			if( !pmapUsersPasswords )
 			{
 				pmapUsersPasswords = &m_mapUsersPasswords;
