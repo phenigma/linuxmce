@@ -22,6 +22,9 @@ Global
 		{C5679AE5-F8FF-451F-A97B-EA58F93B04AF}.Release.ActiveCfg = Release|.NET
 		{C5679AE5-F8FF-451F-A97B-EA58F93B04AF}.Release.Build.0 = Release|.NET
 	EndGlobalSection
+	GlobalSection(SolutionItems) = postSolution
+		Designer.vsd = Designer.vsd
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
 	GlobalSection(ExtensibilityAddIns) = postSolution

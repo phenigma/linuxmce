@@ -1,0 +1,582 @@
+using System;
+using System.Collections;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
+using System.Windows.Forms;
+using HAData.Common;
+using HAData.DataAccess;
+using System.Data;
+
+
+namespace HADesigner
+{
+	/// <summary>
+	/// Manage DesignObjVariation_DesignObj_Skin_Language table
+	/// </summary>
+	public class UIChildSkinLanguage: UI
+	{
+		public static int NoSetValue = -2;
+		public int SkinID = -1;
+		public int LanguageID = -1;
+
+		//MEMBER VARIABLES
+		private string graphicsDirectory;
+		public string GraphicsDirectory
+		{
+			get {return this.graphicsDirectory;}
+			set {this.graphicsDirectory = value;}
+		}
+
+		private int m_intID = -1;
+		private string m_strDescription;
+		private sbyte m_intPriority;
+		private bool m_blnAnimate;
+		private int m_intUIDesignObjType;
+		private int m_intDesignObjCategoryID;
+		private ArrayList m_alUIDesignObjVariations = new ArrayList();
+		private UIDesignObjVariation m_objParentUIDesignObjVariation;
+		private bool m_blnCantGoBack;
+
+
+		private bool m_blnMainBackgroundDrawn = false;
+
+
+		//TODO: this will change when we have multiple select capability
+		private UIDesignObj m_UIDesignObjSelected = null;
+		
+		
+
+		//things that can change
+		private string m_strDescriptionOriginal;
+		private sbyte m_intPriorityOriginal;
+		private bool m_blnAnimateOriginal;
+		private int m_intUIDesignObjTypeOriginal;
+		private int m_intDesignObjCategoryIDOriginal;
+		private bool m_blnCantGoBackOriginal;
+		//the following change, but are handled in UIDesignObjVariation object
+		private bool m_bitRegenerateForEachScreenOriginal;
+		private bool m_bitCanBeHiddenOriginal;
+		private bool m_bitHideByDefaultOriginal;
+		private bool m_bitChildBehindBGOriginal;
+		private bool m_bitChildBehindBG;
+		private bool m_blnBGOnTopOriginal;
+		private bool m_blnBGOnTop;
+		private bool m_blnDontMergeBGOriginal;
+		private bool m_blnDontMergeBG;
+		private bool m_blnChildBeforeTextOriginal;
+		private bool m_blnChildBeforeText;
+		private bool m_blnIsTabStopOriginal;
+		private bool m_blnIsTabStop;
+		private string m_sVisibleStates;
+		private string m_sVisibleStatesOriginal;
+		private string m_iTiedToOriginal;
+		private string m_iTiedTo;
+		private string m_iTS_UpOriginal;
+		private string m_iTS_Up;
+		private string m_iTS_DownOriginal;
+		private string m_iTS_Down;
+		private string m_iTS_LeftOriginal;
+		private string m_iTS_Left;
+		private string m_iTS_RightOriginal;
+		private string m_iTS_Right;
+
+		
+		private int m_intWidthOriginal;
+		private int m_intHeightOriginal;
+		private int m_intParentXOriginal;		
+		private int m_intParentYOriginal;
+		private int m_intParentDisplayOrderOriginal;
+
+
+
+
+		//used for database updates
+		private bool m_blnNeedsDBInsert = false;
+		private bool m_blnNeedsDBDelete = false;
+		private bool m_blnNeedsDBParentVariationUnlink = false;
+		private bool m_blnNeedsDBParentVariationLink = false;
+		private bool m_blnDeleted = false;			//this becomes true AFTER the delete
+		private bool m_blnParentVariationLinked = false;
+
+
+		private bool m_blnShow = true;
+
+
+		private bool m_blnSelected = false;
+
+		//used for drawing
+		private int m_intWidth = NoSetValue;
+		private int m_intHeight = NoSetValue;
+		private float m_fltScale;
+		private bool m_bitRegenerateForEachScreen;
+		private bool m_bitCanBeHidden;
+		private bool m_bitDontResetSelectedState;
+		private bool m_bitHideByDefault;
+		private int m_intParentX;		//relative to parent UIDesignObjVariation
+		private int m_intParentY;
+		private int m_intParentDisplayOrder;
+		private int m_intRootX;			//relative to root container where drawing takes place
+		private int m_intRootY;
+
+		private int m_intLinkID;	//this is the id in the objectvariation_oject table
+
+		//PROPERTIES
+		public string DescriptionOnly
+		{
+			get {return this.m_strDescription;}
+			set {this.m_strDescription = value;}
+		}
+		public string Description
+		{
+			get
+			{
+				if (this.m_strDescription == null) return "";
+				else return ID + " " + m_strDescription + (m_bitHideByDefault ? " h" : "");
+			}
+			set	{m_strDescription = value;}
+		}
+		public bool CantGoBack
+		{
+			get {return m_blnCantGoBack; }
+			set {m_blnCantGoBack = value; }
+		}
+		public sbyte Priority
+		{
+			get {return this.m_intPriority;}
+			set {this.m_intPriority = value;}
+		}
+		public bool Animate
+		{
+			get {return this.m_blnAnimate;}
+			set {this.m_blnAnimate = value;}
+		}
+		public override string ToString()
+		{
+			return this.Description;
+		}
+		public int UIDesignObjType
+		{
+			get	{return m_intUIDesignObjType;}
+			set	{m_intUIDesignObjType = value;}
+		}
+
+		public int DesignObjCategory
+		{
+			get	{return m_intDesignObjCategoryID;}
+			set	{m_intDesignObjCategoryID = value;}
+		}
+
+		public ArrayList UIDesignObjVariations
+		{
+			get {return m_alUIDesignObjVariations;}
+			set {m_alUIDesignObjVariations = value;}
+		}
+
+		public UIDesignObjVariation ParentUIDesignObjVariation
+		{
+			get {return m_objParentUIDesignObjVariation;}
+			set	{m_objParentUIDesignObjVariation = value;}
+		}
+
+		public int LinkID
+		{
+			get	{return m_intLinkID;}
+			set	{m_intLinkID = value;}
+		}
+
+
+		public UIDesignObj SelectedDesignObj
+		{
+			get {return m_UIDesignObjSelected;}
+		}
+
+		
+		public int Width
+		{
+			get	{return m_intWidth;}
+			set {m_intWidth = value;}
+		}
+		public int Height
+		{
+			get	{return m_intHeight;}
+			set {m_intHeight = value;}
+		}
+		public float Scale
+		{
+			get	{return m_fltScale;}
+			set {m_fltScale = value;}
+		}
+		public bool CanBeHidden
+		{
+			get {return this.m_bitCanBeHidden;}
+			set {this.m_bitCanBeHidden = value;}
+		}
+		public bool HideByDefault
+		{
+			get {return this.m_bitHideByDefault;}
+			set {this.m_bitHideByDefault = value;}
+		}
+		public bool ChildBehindBG
+		{
+			get {return this.m_bitChildBehindBG;}
+			set {this.m_bitChildBehindBG = value;}
+		}
+		public bool ChildBehindBGOriginal
+		{
+			get {return this.m_bitChildBehindBGOriginal;}
+			set {this.m_bitChildBehindBGOriginal = value;}
+		}
+		public bool RegenerateForEachScreen
+		{
+			get {return this.m_bitRegenerateForEachScreen;}
+			set {this.m_bitRegenerateForEachScreen = value;}
+		}
+		public bool DontResetSelectedState
+		{
+			get {return this.m_bitDontResetSelectedState;}
+			set {this.m_bitDontResetSelectedState = value;}
+		}
+		public int ParentX
+		{
+			get	{return m_intParentX;}
+			set {m_intParentX = value;}
+		}
+		public int ParentY
+		{
+			get	{return m_intParentY;}
+			set {m_intParentY = value;}
+		}
+		public int ParentDisplayOrder
+		{
+			get	{return m_intParentDisplayOrder;}
+			set	{m_intParentDisplayOrder = value;}
+		}
+		public int RootX
+		{
+			get	{return m_intRootX;}
+			set {m_intRootX = value;}
+		}
+		public int RootY
+		{
+			get	{return m_intRootY;}
+			set {m_intRootY = value;}
+		}
+
+		public bool CanBeHiddenOriginal
+		{
+			get {return this.m_bitCanBeHiddenOriginal;}
+			set {this.m_bitCanBeHiddenOriginal = value;}
+		}
+		public bool HideByDefaultOriginal
+		{
+			get {return this.m_bitHideByDefaultOriginal;}
+			set {this.m_bitHideByDefaultOriginal = value;}
+		}
+
+		public bool BGOnTopOriginal
+		{
+			get { return m_blnBGOnTopOriginal; }
+			set { m_blnBGOnTopOriginal = value; }
+		}
+		public bool BGOnTop
+		{
+			get { return m_blnBGOnTop; }
+			set { m_blnBGOnTop = value; }
+		}
+		public bool ChildBeforeText
+		{
+			get { return m_blnChildBeforeText; }
+			set { m_blnChildBeforeText = value; }
+		}
+		public bool ChildBeforeTextOriginal
+		{
+			get { return m_blnChildBeforeTextOriginal; }
+			set { m_blnChildBeforeTextOriginal = value; }
+		}
+		public bool DontMergeBG
+		{
+			get { return m_blnDontMergeBG; }
+			set { m_blnDontMergeBG = value; }
+		}
+		public bool DontMergeBGOriginal
+		{
+			get { return m_blnDontMergeBGOriginal; }
+			set { m_blnDontMergeBGOriginal = value; }
+		}
+		public bool IsTabStop
+		{
+			get { return m_blnIsTabStop; }
+			set { m_blnIsTabStop = value; }
+		}
+		public bool IsTabStopOriginal
+		{
+			get { return m_blnIsTabStopOriginal; }
+			set { m_blnIsTabStopOriginal = value; }
+		}
+		public string TS_Up
+		{
+			get { return m_iTS_Up; }
+			set { m_iTS_Up = value; }
+		}
+		public string TS_Down
+		{
+			get { return m_iTS_Down; }
+			set { m_iTS_Down = value; }
+		}
+		public string TS_Left
+		{
+			get { return m_iTS_Left; }
+			set { m_iTS_Left = value; }
+		}
+		public string TS_Right
+		{
+			get { return m_iTS_Right; }
+			set { m_iTS_Right = value; }
+		}
+		public string TiedTo
+		{
+			get { return m_iTiedTo; }
+			set { m_iTiedTo = value; }
+		}
+		public string VisibleStates
+		{
+			get { return m_sVisibleStates; }
+			set { m_sVisibleStates = value; }
+		}
+		public bool RegenerateForEachScreenOriginal
+		{
+			get {return this.m_bitRegenerateForEachScreenOriginal;}
+			set {this.m_bitRegenerateForEachScreenOriginal = value;}
+		}
+
+		public int WidthOriginal
+		{
+			get	{return	m_intWidthOriginal;}
+			set	{m_intWidthOriginal	= value;}
+		}
+		public int HeightOriginal
+		{
+			get	{return	m_intHeightOriginal;}
+			set	{m_intHeightOriginal = value;}
+		}
+		public int ParentXOriginal
+		{
+			get	{return	m_intParentXOriginal;}
+			set	{m_intParentXOriginal =	value;}
+		}
+		public int ParentYOriginal
+		{
+			get	{return m_intParentYOriginal;}
+			set {m_intParentYOriginal = value;}
+		}
+
+		public int ParentDisplayOrderOriginal
+		{
+			get	{return m_intParentDisplayOrderOriginal;}
+			set	{m_intParentDisplayOrderOriginal = value;}
+		}
+
+		
+
+
+		public UIChildSkinLanguage(UIDesignObjVariation objParentUIDesignObjVariation, int intID, string graphicsDir)
+		{
+			//this.graphicsDirectory = graphicsDir;
+			//m_objParentUIDesignObjVariation = objParentUIDesignObjVariation;
+			//m_intID = intID;		
+		}
+        
+		public override bool OriginalsChanged
+		{
+			get	{return true;}
+		}
+
+		public override void LoadFromDatabase()
+		{
+
+		}
+
+		public override bool SaveToDatabase()
+		{
+			return false;
+		}
+
+		protected override void ResetOriginals()
+		{
+			
+		}
+
+		public void ResetLinkOriginals()
+		{
+			this.CanBeHiddenOriginal = this.CanBeHidden;
+			this.HideByDefaultOriginal = this.HideByDefault;
+
+			this.m_sVisibleStatesOriginal = this.m_sVisibleStates;
+			this.m_iTiedToOriginal = this.m_iTiedTo;
+			this.m_iTS_UpOriginal = this.m_iTS_Up;
+			this.m_iTS_DownOriginal = this.m_iTS_Down;
+			this.m_iTS_LeftOriginal = this.m_iTS_Left;
+			this.m_iTS_RightOriginal = this.m_iTS_Right;
+			this.BGOnTopOriginal = this.BGOnTop;
+			this.RegenerateForEachScreenOriginal = this.RegenerateForEachScreen;
+			this.ParentXOriginal = this.ParentX;
+			this.ParentYOriginal = this.ParentY;
+			this.WidthOriginal = this.Width;
+			this.HeightOriginal = this.Height;
+			this.ParentDisplayOrderOriginal = this.ParentDisplayOrder;
+		}
+
+
+		public void Build(int SkinID)
+		{
+			this.Build(SkinID, false);
+		}
+
+		public void Build(int SkinID, bool SkinChanged)
+		{
+			if(this.Include)	//don't include if deleted or set to be deleted or unlinked
+			{
+				//do the build top down stuff
+				//like positioning
+				//find the root x and y
+				if(this.ParentUIDesignObjVariation == null)
+				{
+					this.RootX = 0;
+					this.RootY = 0;
+				}
+				else
+				{
+					this.RootX = this.ParentX + this.ParentUIDesignObjVariation.ParentUIDesignObj.RootX;
+					this.RootY = this.ParentY + this.ParentUIDesignObjVariation.ParentUIDesignObj.RootY;
+				}
+			
+				//RECURSE
+				foreach(UIDesignObjVariation objUIDesignObjVariation in m_alUIDesignObjVariations)
+				{
+					objUIDesignObjVariation.Build(SkinID, SkinChanged);
+				}
+
+				if(this.Width == UIDesignObj.NoSetValue || this.Height == UIDesignObj.NoSetValue)
+				{
+					int intMaxWidth = 0;
+					int intMaxHeight = 0;
+					//calculate the width from the children
+					foreach(Object obj in this.UIDesignObjVariations)
+					{
+						UIDesignObjVariation objVariation = (UIDesignObjVariation) obj;
+
+						if((this.Width == UIDesignObj.NoSetValue) && (objVariation.TotalWidth > intMaxWidth)) intMaxWidth = objVariation.TotalWidth;
+						if((this.Height == UIDesignObj.NoSetValue) && (objVariation.TotalHeight > intMaxHeight)) intMaxHeight = objVariation.TotalHeight;
+					}
+
+					if(this.Width == UIDesignObj.NoSetValue) this.Width = intMaxWidth;
+					if(this.Height == UIDesignObj.NoSetValue) this.Height = intMaxHeight;
+				}				
+			}
+		}
+
+		public bool Selected
+		{
+			get	{return m_blnSelected;}
+			set	{m_blnSelected = value;}
+		}
+
+		public bool MainBackgroundDrawn
+		{
+			get	{return m_blnMainBackgroundDrawn;}
+			set	{m_blnMainBackgroundDrawn = value;}
+		}
+
+		public void Draw(Graphics objGraphics, int languageID, int skinID)
+		{
+
+			//if this is the top level object, reset whether the mainBackground has been drawn
+			if(this.ParentUIDesignObjVariation == null)
+			{
+				this.MainBackgroundDrawn = false;
+			}
+
+			if(this.Include && this.Show)	//don't include if deleted or set to be deleted or unlinked
+			{
+
+				//determine how to show.  this will depend on what variation is selected and how they want things
+				//they may want to hide non selected vriations, maybe outlined or ghosted
+
+
+				foreach(Object obj in this.UIDesignObjVariations)
+				{
+					UIDesignObjVariation objVariation = (UIDesignObjVariation) obj;
+					//only draw the selected variations if this is the root
+					if(this.ParentUIDesignObjVariation != null || objVariation.Selected)
+					{
+						objVariation.Draw(objGraphics, languageID, skinID);
+					}
+				}
+
+				//if this is selected, draw a big ol' rectangle around it
+				if(this.Selected)
+				{
+					objGraphics.DrawRectangle(new Pen(Color.Red, 4), this.RootX, this.RootY, this.Width - 4, this.Height - 4);
+				}
+			}
+		}
+
+		public bool Show
+		{
+			get	{return m_blnShow;}
+			set {m_blnShow = value;}
+		}
+
+		public bool WarnToSave
+		{
+			get 
+			{
+				if (NeedsInsert||NeedsDelete||OriginalsChanged||NeedsParentVariationUnlink||NeedsParentVariationLink||LinkOriginalsChanged)return true;
+				foreach(Object uiOV in this.UIDesignObjVariations)
+				{
+					if (((UIDesignObjVariation)uiOV).WarnToSave)return true;
+				}
+				return false;
+			}
+		}
+
+		public bool NeedsParentVariationUnlink
+		{
+			get	{return m_blnNeedsDBParentVariationUnlink;}
+			set	{m_blnNeedsDBParentVariationUnlink = value;}
+		}
+		public bool NeedsParentVariationLink
+		{
+			get	{return m_blnNeedsDBParentVariationLink;}
+			set	{m_blnNeedsDBParentVariationLink = value;}
+		}
+
+		public bool ParentVariationLinked
+		{
+			get	{return m_blnParentVariationLinked;}
+			set	{m_blnParentVariationLinked = value;}
+		}
+
+		public bool LinkOriginalsChanged
+		{
+			get
+			{
+				return BGOnTop != BGOnTopOriginal || RegenerateForEachScreen != RegenerateForEachScreenOriginal || CanBeHidden != CanBeHiddenOriginal || HideByDefault != HideByDefaultOriginal || Width != WidthOriginal || Height != HeightOriginal || ParentX != ParentXOriginal || ParentY != ParentYOriginal || 
+					ParentDisplayOrder != ParentDisplayOrderOriginal || IsTabStop != IsTabStopOriginal || ChildBeforeText != ChildBeforeTextOriginal ||
+					ChildBehindBG != ChildBehindBGOriginal ||
+					m_blnChildBeforeTextOriginal != m_blnChildBeforeText || m_blnIsTabStopOriginal != m_blnIsTabStop || m_iTiedToOriginal != m_iTiedTo || m_sVisibleStatesOriginal != m_sVisibleStates ||
+					m_iTS_UpOriginal != m_iTS_Up || m_iTS_DownOriginal != m_iTS_Down || m_iTS_LeftOriginal != m_iTS_Left || m_iTS_RightOriginal != m_iTS_Right;
+			}
+		}
+
+		public void ReleaseBitmaps()
+		{
+			foreach (UIDesignObjVariation uiov in this.m_alUIDesignObjVariations)
+			{
+				uiov.ReleaseBitmaps();				
+			}
+		}		
+	}
+}

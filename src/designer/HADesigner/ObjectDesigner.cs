@@ -427,6 +427,7 @@ namespace HADesigner
 			}
 		}
 
+		/*
 		private void loadAvailableLanguageSkins_Child() // for currently selected text item
 		{
 			this.cbLanguageSkin_Child.Items.Clear();
@@ -442,6 +443,7 @@ namespace HADesigner
 				this.cbAlignV.Enabled = this.cbAlignH.Enabled = this.cbStyle.Enabled = true;
 			}
 		}
+		*/
 
 		public void UpdateChildrenDesignObjs() // also updates text
 		{
@@ -462,7 +464,7 @@ namespace HADesigner
 					}
 
 
-					foreach(UIDesignObj objDesignObj in objVariation.DesignObjs)
+					foreach(UIChildSkinLanguage objDesignObj in objVariation.DesignObjs)
 					{
 						if(objDesignObj.Include)
 						{

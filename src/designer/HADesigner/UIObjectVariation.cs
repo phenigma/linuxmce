@@ -155,7 +155,7 @@ namespace HADesigner
 					if (((UIDesignObjVariationCommandParameter)uiOVAP).WarnToSave) return true;
 				}
 				*/
-				foreach(UIDesignObj uiO in this.DesignObjs)
+				foreach(UIChildSkinLanguage uiO in this.DesignObjs)
 				{
 					if (uiO.WarnToSave) return true;
 				}
@@ -540,7 +540,7 @@ namespace HADesigner
 		public void ReleaseBitmaps()
 		{
 			if (this.m_objBitmap != null) this.m_objBitmap.Dispose();
-			foreach (UIDesignObj uio in this.m_alDesignObjs)
+			foreach (UIChildSkinLanguage uio in this.m_alDesignObjs)
 			{
 				uio.ReleaseBitmaps();
 			}
@@ -611,7 +611,7 @@ namespace HADesigner
 
 				foreach(object obj in this.DesignObjs)
 				{
-					UIDesignObj objDesignObj = (UIDesignObj) obj;
+					UIChildSkinLanguage objDesignObj = (UIChildSkinLanguage) obj;
 					objDesignObj.Draw(objGraphics,languageID,skinID);
 				}
 				foreach(object obj in this.Text)
@@ -782,48 +782,61 @@ namespace HADesigner
 
 			//get the objects
 			m_iLastDisplayOrder=0;  // Be sure each one has a unique display order
-			DataRow[] drDesignObjs = mds.tDesignObjVariation_DesignObj.Select(DesignObjVariation_DesignObjData.FK_DESIGNOBJVARIATION_PARENT_FIELD + "=" + m_intID, DesignObjVariation_DesignObjData.DISPLAYORDER_FIELD);
+			DataRow[] drDesignObjs = mds.tDesignObjVariation_DesignObj.Select(
+				DesignObjVariation_DesignObjData.FK_DESIGNOBJVARIATION_PARENT_FIELD + "=" + m_intID, 
+				DesignObjVariation_DesignObjData.PK_DESIGNOBJVARIATION_DESIGNOBJ_FIELD);
+
 			foreach(DataRow dr in drDesignObjs)
 			{
 				DesignObjVariation_DesignObjDataRow drDesignObj = new DesignObjVariation_DesignObjDataRow(dr);
 
-				UIDesignObj objChildUIDesignObj = new UIDesignObj(this, drDesignObj.fFK_DesignObj_Child, this.GraphicsDirectory);
+				DataRow[] drDesignObjsSL = mds.tDesignObjVariation_DesignObj_Skin_Language.Select(
+					DesignObjVariation_DesignObj_Skin_LanguageData.FK_DESIGNOBJVARIATION_DESIGNOBJ_FIELD + "=" + drDesignObj.fPK_DesignObjVariation_DesignObj, 
+					DesignObjVariation_DesignObj_Skin_LanguageData.PK_DESIGNOBJVARIATION_DESIGNOBJ_SKIN_LANGUAGE_FIELD);
+
+				foreach(DataRow drSL in drDesignObjsSL)
+				{
+					DesignObjVariation_DesignObj_Skin_LanguageDataRow drDesignObjSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(drSL);
+
+
+					UIChildSkinLanguage objChildUIDesignObjSL = new UIChildSkinLanguage(this, drDesignObjSL.fFK_DesignObjVariation_DesignObj, this.GraphicsDirectory);
 				
 
-				objChildUIDesignObj.LinkID = drDesignObj.fPK_DesignObjVariation_DesignObj;
+					objChildUIDesignObjSL.LinkID = drDesignObjSL.fPK_DesignObjVariation_DesignObj_Skin_Language;
 
-				objChildUIDesignObj.CanBeHidden = drDesignObj.fCanBeHidden;
-				objChildUIDesignObj.HideByDefault = drDesignObj.fHideByDefault;
+					objChildUIDesignObjSL.CanBeHidden = drDesignObjSL.fCanBeHidden;
+					objChildUIDesignObjSL.HideByDefault = drDesignObjSL.fHideByDefault;
 
-				objChildUIDesignObj.IsTabStop = drDesignObj.fIsTabStop;
-				objChildUIDesignObj.ChildBeforeText = drDesignObj.fDisplayChildrenBeforeText;
-				objChildUIDesignObj.ChildBehindBG = drDesignObj.fDisplayChildrenBehindBackground;
+					objChildUIDesignObjSL.IsTabStop = drDesignObjSL.fIsTabStop;
+					objChildUIDesignObjSL.ChildBeforeText = drDesignObjSL.fDisplayChildrenBeforeText;
+					objChildUIDesignObjSL.ChildBehindBG = drDesignObjSL.fDisplayChildrenBehindBackground;
 
-				objChildUIDesignObj.TiedTo = drDesignObj.fsFK_DesignObj_TiedToIsNull ? "" : drDesignObj.fsFK_DesignObj_TiedTo.ToString();
-				objChildUIDesignObj.VisibleStates = drDesignObj.fVisibleStatesIsNull ? "" : drDesignObj.fVisibleStates.ToString();
-				objChildUIDesignObj.TS_Up = drDesignObj.fFK_DesignObj_UpIsNull ? "" : drDesignObj.fFK_DesignObj_Up.ToString();
-				objChildUIDesignObj.TS_Down = drDesignObj.fFK_DesignObj_DownIsNull ? "" : drDesignObj.fFK_DesignObj_Down.ToString();
-				objChildUIDesignObj.TS_Left = drDesignObj.fFK_DesignObj_LeftIsNull ? "" : drDesignObj.fFK_DesignObj_Left.ToString();
-				objChildUIDesignObj.TS_Right = drDesignObj.fFK_DesignObj_RightIsNull ? "" : drDesignObj.fFK_DesignObj_Right.ToString();
-				objChildUIDesignObj.BGOnTop = drDesignObj.fDisplayChildrenBehindBackground;
-				objChildUIDesignObj.RegenerateForEachScreen = drDesignObj.fRegenerateForEachScreen;
+					objChildUIDesignObjSL.TiedTo = drDesignObjSL.fsFK_DesignObj_TiedToIsNull ? "" : drDesignObjSL.fsFK_DesignObj_TiedTo.ToString();
+					objChildUIDesignObjSL.VisibleStates = drDesignObjSL.fVisibleStatesIsNull ? "" : drDesignObjSL.fVisibleStates.ToString();
+					objChildUIDesignObjSL.TS_Up = drDesignObjSL.fFK_DesignObj_UpIsNull ? "" : drDesignObjSL.fFK_DesignObj_Up.ToString();
+					objChildUIDesignObjSL.TS_Down = drDesignObjSL.fFK_DesignObj_DownIsNull ? "" : drDesignObjSL.fFK_DesignObj_Down.ToString();
+					objChildUIDesignObjSL.TS_Left = drDesignObjSL.fFK_DesignObj_LeftIsNull ? "" : drDesignObjSL.fFK_DesignObj_Left.ToString();
+					objChildUIDesignObjSL.TS_Right = drDesignObjSL.fFK_DesignObj_RightIsNull ? "" : drDesignObjSL.fFK_DesignObj_Right.ToString();
+					objChildUIDesignObjSL.BGOnTop = drDesignObjSL.fDisplayChildrenBehindBackground;
+					objChildUIDesignObjSL.RegenerateForEachScreen = drDesignObjSL.fRegenerateForEachScreen;
 
-				objChildUIDesignObj.ParentX = drDesignObj.fX;
-				objChildUIDesignObj.ParentY = drDesignObj.fY;
+					objChildUIDesignObjSL.ParentX = drDesignObjSL.fX;
+					objChildUIDesignObjSL.ParentY = drDesignObjSL.fY;
 
-				objChildUIDesignObj.Width = (drDesignObj.fWidthIsNull) ? -1 : drDesignObj.fWidth;
-				objChildUIDesignObj.Height = (drDesignObj.fHeightIsNull) ? -1 : drDesignObj.fHeight;
+					objChildUIDesignObjSL.Width = (drDesignObjSL.fWidthIsNull) ? -1 : drDesignObjSL.fWidth;
+					objChildUIDesignObjSL.Height = (drDesignObjSL.fHeightIsNull) ? -1 : drDesignObjSL.fHeight;
 
-				objChildUIDesignObj.ParentDisplayOrder = drDesignObj.fDisplayOrder;
+					objChildUIDesignObjSL.ParentDisplayOrder = drDesignObjSL.fDisplayOrder;
 
-				//set the originals
-				objChildUIDesignObj.ResetLinkOriginals();
+					//set the originals
+					objChildUIDesignObjSL.ResetLinkOriginals();
 
-				if( m_iLastDisplayOrder >= drDesignObj.fDisplayOrder )
-					objChildUIDesignObj.ParentDisplayOrder = m_iLastDisplayOrder+1;  // We had some duplicates
-				m_iLastDisplayOrder = objChildUIDesignObj.ParentDisplayOrder;
+					if( m_iLastDisplayOrder >= drDesignObjSL.fDisplayOrder )
+						objChildUIDesignObjSL.ParentDisplayOrder = m_iLastDisplayOrder+1;  // We had some duplicates
+					m_iLastDisplayOrder = objChildUIDesignObjSL.ParentDisplayOrder;
 
-				m_alDesignObjs.Add(objChildUIDesignObj);
+					m_alDesignObjs.Add(objChildUIDesignObjSL);
+				}
 			}
 
 			// get the text
@@ -1267,7 +1280,7 @@ namespace HADesigner
 
 		public void Build(int SkinID, bool SkinChanged)
 		{
-			foreach(UIDesignObj objUIDesignObj in m_alDesignObjs)
+			foreach(UIChildSkinLanguage objUIDesignObj in m_alDesignObjs)
 			{
 				objUIDesignObj.Build(SkinID, SkinChanged);
 			}
@@ -1299,7 +1312,7 @@ namespace HADesigner
 					else
 					{
 						this.Width = (strWidth == "" || strWidth=="0") ? this.Bitmap.Width : Convert.ToInt32(strWidth);
-						this.Height = (strHeight == "" || strWidth=="0") ? this.Bitmap.Height : Convert.ToInt32(strHeight);	
+						this.Height = (strHeight == "" || strHeight=="0") ? this.Bitmap.Height : Convert.ToInt32(strHeight);	
 					}
 				}
 				blnBuiltOnce = true;
@@ -1319,7 +1332,7 @@ namespace HADesigner
 			
 			foreach(Object obj in this.DesignObjs)
 			{
-				UIDesignObj objUIDesignObj = (UIDesignObj) obj;
+				UIChildSkinLanguage objUIDesignObj = (UIChildSkinLanguage) obj;
 				int intDesignObjWidth = objUIDesignObj.Width + objUIDesignObj.ParentX;
 				if(intDesignObjWidth > m_intTotalWidth) m_intTotalWidth = intDesignObjWidth;
 				int intDesignObjHeight = objUIDesignObj.Height + objUIDesignObj.ParentY;
