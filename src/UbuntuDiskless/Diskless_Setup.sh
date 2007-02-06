@@ -35,14 +35,16 @@ function setup_tftp_boot
 	mkdir -p /tftpboot/pxelinux.cfg
 
 	BootConf="${BootConf}DEFAULT Pluto\n"
-	BootConf="${BootConf}LABLE Pluto\n"
+	BootConf="${BootConf}LABEL Pluto\n"
 	BootConf="${BootConf}KERNEL ${Moon_DeviceID}/vmlinuz\n"
 	BootConf="${BootConf}APPEND ${Moon_DeviceID}/initrd.img ramdisk=10240 rw boot=nfs nfsroot=${IntIP}:/usr/pluto/diskless/${Moon_DeviceID} ${BootParams_Extra}\n"
 	
 	echo -e "$BootConf" > "$Moon_BootConfFile"
 
 	mkdir -p /tftpboot/${Moon_DeviceID}
+	rm -f /tftpboot/${Moon_DeviceID}/vmlinuz
 	ln -s ${Moon_RootLocation}/boot/vmlinuz /tftpboot/${Moon_DeviceID}/vmlinuz
+	rm -f /tftpboot/${Moon_DeviceID}/initrd.img
 	ln -s ${Moon_RootLocation}/boot/initrd.img /tftpboot/${Moon_DeviceID}/initrd.img
 }
 

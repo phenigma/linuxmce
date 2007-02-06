@@ -24,5 +24,7 @@ sed -i 's/^.*BOOT=.*/BOOT=nfs/g' ${Moon_RootLocation}/etc/initramfs-tools/initra
 mkinitramfs -d ${Moon_RootLocation}/etc/initramfs-tools/ -o ${Moon_RootLocation}/boot/initrd.img-${Moon_KernelVersion}
 
 ## Create symlinks to existing kernels
+rm -f ${Moon_RootLocation}/boot/initrd.img
 ln -s ${Moon_RootLocation}/boot/initrd.img-${Moon_KernelVersion} ${Moon_RootLocation}/boot/initrd.img
+rm -f ${Moon_RootLocation}/boot/vmlinuz
 ln -s ${Moon_RootLocation}/boot/vmlinuz-${Moon_KernelVersion} ${Moon_RootLocation}/boot/vmlinuz
