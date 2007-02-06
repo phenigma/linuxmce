@@ -1,0 +1,12 @@
+Source: tee-pluto
+Section: unknown
+Priority: extra
+Maintainer: Radu Cristescu <radu.c@plutohome.com>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: tee-pluto
+Architecture: i386
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Simplified TEE program for Pluto
+ Simplified 'tee' program which can be used in conjunction with log rotation. After rotating the file, send a SIGUSR1 to the process
