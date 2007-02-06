@@ -4,7 +4,6 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "RA/RA_Processor.h"
-#include "R_ApproveBatch.h"
 #include "CommonFunctions.h"
 #include <iomanip>
 #include <sstream>

@@ -1,15 +1,5 @@
 #include "PlutoUtils/CommonIncludes.h"
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#ifndef WIN32
-#include <unistd.h>
-#else
-#include <conio.h>
-#endif
-
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -34,6 +24,8 @@
 #include "CommonFunctions.h"
 #include "DCE/Logger.h"
 #include "RA/RAServer.h"
+#include "R_GetLineups.h"
+#include "RA/RA_Processor.h"
 
 using namespace std;
 using namespace DCE;
@@ -72,6 +64,28 @@ string GetCommand( )
 	return "";
 }
 
+void GetLineups(RA_Processor &ra_Processor, string Connection, DCE::Socket **ppSocket )
+{
+	
+	R_GetLineups r_GetLineups( "Headend", 10023);
+	ra_Processor.AddRequest( &r_GetLineups );
+							
+	while( ra_Processor.SendRequests(Connection, ppSocket) );
+
+	if( r_GetLineups.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
+	{
+		cerr << "Cannot get list of records from server (clarifying local deletions destiny):" << (int) r_GetLineups.m_cProcessOutcome << endl;
+		throw "Communication error";
+	}
+
+	map<string,string>::iterator iter;
+	int i = 0;
+	map <int,pair<string,string> > mapIndexLineupKey_To_Name;
+	for(iter = r_GetLineups.m_mapPrimaryKey_LineupName.begin(); iter != r_GetLineups.m_mapPrimaryKey_LineupName.end(); iter++ ) {
+    		cout << "Id-ul lineupului"<<iter->first << " numele lineupului " << iter->second << endl;
+		mapIndexLineupKey_To_Name[i] = make_pair(iter->first,iter->second);
+  	}
+}
 
 int main(int argc, char *argv[]){
 
@@ -84,6 +98,9 @@ int main(int argc, char *argv[]){
 		<< " but WITHOUT ANY WARRANTY; without even the implied warranty " <<endl
 		<< " of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " <<endl
 		<< " See the GNU General Public License for more details. "<< endl << "-------" << endl << endl;
+
+	printf("##########################");
+	fflush(stdout);
 
 	g_pPlutoLogger = new DCE::FileLogger( stdout );
 	if( g_pPlutoLogger == NULL )
@@ -154,7 +171,7 @@ int main(int argc, char *argv[]){
 		cout << "Tribune"<<endl
 			<< "Usage: Tribune [-H Tribune hostname] [-P Tribune port] " << endl
 			<< "-P port    	   -- port for tribune connection, " << endl
-			<< "			default is 99003" << endl
+			<< "			default is 9003" << endl
 			<< "-H hostname    -- address or DNS of Tribune host," << endl
 			<< "			default is `localhost`" << endl;
 		exit( 1 );
@@ -175,9 +192,23 @@ int main(int argc, char *argv[]){
 			pServer->Run( );
 			delete pServer;
 		}
+// 		else if (g_GlobalConfig.m_sCommand=="lineups")
+// 		{
+// 			RA_Processor ra_Processor( 0, 1, NULL, g_GlobalConfig.m_iMaxConnectAttemptCount );
+// 
+// 			string Connection = g_GlobalConfig.m_sTribuneHost + ":" + StringUtils::itos(g_GlobalConfig.m_iTribunePort);
+// 			DCE::Socket *pSocket=NULL;
+// 
+// 			GetLineups(ra_Processor, Connection, &pSocket);
+// 
+// 			delete pSocket;
+			
+// 		}
 		else {
 			cerr << "Unknown command: " << g_GlobalConfig.m_sCommand << endl;
 		}
 	}
 
 }
+
+

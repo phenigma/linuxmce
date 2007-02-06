@@ -47,7 +47,7 @@ bool R_GetLineups::ProcessRequest( class RA_Processor *pRA_Processor )
 				m_cProcessOutcome=INTERNAL_ERROR;
 				return true; /**<< Request successfully processed */
 			}
-			m_vectAll_lineups.push_back( pair<string,string>(row[0],row[1]));
+			m_mapPrimaryKey_LineupName[ row[0] ] = row[1];
 		}
 		m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
 	}

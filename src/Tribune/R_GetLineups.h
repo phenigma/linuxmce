@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef R_GetLineups
-#define R_GetLineups
+#ifndef R_GETLINEUPS__
+#define R_GETLINEUPS__
 
 #include "RA/RA_Request.h"
 #include "Tribunerequests.h"
@@ -16,6 +16,7 @@
 #include <vector>
 
 using namespace std;
+
 
 /**
  * @brief  class modelling a GetAll_psc_id request
@@ -30,7 +31,7 @@ public:
 	int m_zipcode;
 
 	/** @brief Response Variables */
-	vector< pair<string,string> > m_vectAll_lineups;  // psc_id + batch
+	map<string,string> m_mapPrimaryKey_LineupName;  // psc_id + batch
 
 	/** @brief constructor */
 	R_GetLineups(string sTable, int zipcode);
@@ -61,7 +62,7 @@ public:
 	virtual void SetupSerialization_Response( )
 	{
 		RA_Request::SetupSerialization_Response( );
-		StartSerializeList( ) + m_vectAll_lineups;
+		StartSerializeList( ) + m_mapPrimaryKey_LineupName;
 	}
 
 	/**

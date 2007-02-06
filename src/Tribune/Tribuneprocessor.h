@@ -55,9 +55,7 @@ public:
 	virtual ~Tribuneprocessor( ) 
 	{ 
 		if( st.m_bIsOpen_get() ) 
-			st.Rollback(); 
-		else
-			RecordChangesToTable();
+			st.Rollback();
 
 		if( g_pTribuneprocessor==this )
 		{
@@ -66,9 +64,9 @@ public:
 		}
 	}
 
-	int UnauthorizedBatch(/*int psc_user_needs_to_authorize*/);
+	//int UnauthorizedBatch(/*int psc_user_needs_to_authorize*/);
 
-	void RecordChangesToTable();
+	//void RecordChangesToTable();
 };
 
 #endif
