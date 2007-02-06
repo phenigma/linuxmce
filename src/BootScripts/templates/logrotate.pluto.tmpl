@@ -33,5 +33,6 @@
 	endscript
 	postrotate
 		/usr/pluto/bin/MessageSend dcerouter 0 -1000 7 10 || :
+		killall -USR1 tee-pluto || :
 	endscript
 }
