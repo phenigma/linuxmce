@@ -81,6 +81,9 @@ g_PlutoProfiler->Stop("DesignObj_DataGrid::RenderObject");
 //-------------------------------------------------------------------------------------------------------
 /*virtual*/ void DesignObj_DataGrid::PrepareRenderDataGrid(string& delSelections )
 {
+	if(m_pOrbiter->m_bQuit_get())
+		return;
+
 g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
 g_PlutoProfiler->Start("RequestDatagridContents");
 	DataGridTable *pDataGridTable = RequestDatagridContents( m_GridCurCol,  m_GridCurRow, false );

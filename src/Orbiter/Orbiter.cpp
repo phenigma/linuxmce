@@ -6992,7 +6992,7 @@ void Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
 void Orbiter::KillMaintThread()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Kill Maint Thread %d",(int) bMaintThreadIsRunning);
+	g_pPlutoLogger->Write(LV_WARNING,"Kill Maint Thread %d",(int) bMaintThreadIsRunning);
 #endif
 	m_bQuit_set(true);
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
@@ -7000,7 +7000,7 @@ void Orbiter::KillMaintThread()
 	while(bMaintThreadIsRunning)
 	{
 		Sleep(10);
-		if( tTime + 5 < time(NULL) )
+		if( tTime + 20 < time(NULL) )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Maint Thread had blocked!!!!");
 			exit(1);
