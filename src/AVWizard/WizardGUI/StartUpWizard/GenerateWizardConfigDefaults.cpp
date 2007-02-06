@@ -595,7 +595,7 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 
 	//Create text area
 	std::string StringList[3];
-	StringList[0] = "Adjust your screen position using using the folowing options: ";
+	StringList[0] = "Adjust your screen position using the folowing options: ";
 	StringList[1] = "Use Plus/Minus to Zoom In/Out the screen";
 	StringList[2] = "Use arrows keys to center the image to the desired position";
 
