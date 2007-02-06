@@ -1,0 +1,6 @@
+The Debian Package tee-pluto
+----------------------------
+
+Very basic tee variant which can be used in conjuction with log rotation
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Tue,  6 Feb 2007 16:41:50 +0200
