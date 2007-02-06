@@ -620,8 +620,10 @@ bool Xine_Stream_Factory::CreateWindows()
 	else
 		completionEvent = -1;
 
-	XMapWindow( m_pXDisplay, windows[ 0 ] );
-	XIconifyWindow( m_pXDisplay, windows[ 0 ], 0 );
+	int xcode = XMapWindow( m_pXDisplay, windows[ 0 ] );
+	g_pPlutoLogger->Write( LV_WARNING, "XMapWindow returned: %i", xcode);
+
+//	XIconifyWindow( m_pXDisplay, windows[ 0 ], 0 );
 
 	XUnlockDisplay( m_pXDisplay );
 	
