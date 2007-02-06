@@ -398,7 +398,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 	constantly re-activating Orbiter doesn't cause a flicker or other undesired behavior */
 	if( m_bKeepSdlWindowActive )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "KeepSdlWindowActive executed!");
+		g_pPlutoLogger->Write(LV_STATUS, "KeepSdlWindowActive executed!");
 		m_pWMController->ActivateWindow(m_sSdlWindowName);
 		m_bKeepSdlWindowActive = false;
 	}

@@ -165,7 +165,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 			find(Frame->m_pParent->Children.begin(), Frame->m_pParent->Children.end(), Frame);
 		if(Child == Frame->m_pParent->Children.end())
 		{
-			DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Got a parent, but doesn't have us as child!");
+			DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::RemoveChild: Got a parent, but doesn't have us as child!");
 			//throw "Got a parent, but doesn't have us as child";
 		}
 		else
@@ -189,7 +189,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 	}
 	else
 	{
-		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Got no parent! :(");
+		DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::RemoveChild: Got no parent! :(");
 		//throw "Got no parent! :( I'm all alone!";
 	}
 }
@@ -211,7 +211,7 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 
 		if(Child == OldFrame->m_pParent->Children.end())
 		{
-			DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Got a parent, but doesn't have us as child!");
+			DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::ReplaceChild: Got a parent, but doesn't have us as child!");
 			//throw "Got a parent, but doesn't have us as child";
 		}
 		else
@@ -242,7 +242,7 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 	}
 	else
 	{
-		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Got no parent! :(");
+		DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::ReplaceChild: Got no parent! :(");
 		//throw "Got no parent! :( I'm all alone!";
 	}
 
@@ -428,7 +428,7 @@ bool MeshFrame::CheckIntegrity(MeshFrame *Frame)
 
 	if(!Result)
 	{
-		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::CheckIntegrity failed for %p/%s",
+		DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::CheckIntegrity failed for %p/%s",
 			Frame, NULL != Frame ? Frame->Name().c_str() : "null frame");
 	}
 

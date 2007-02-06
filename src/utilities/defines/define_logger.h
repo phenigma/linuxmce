@@ -30,7 +30,7 @@
 */
 #    include "DCE/Logger.h"
 #    define _LOG_NFO(x, ...) DCE::g_pPlutoLogger->Write(LV_STATUS,   x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
-#    define _LOG_ERR(x, ...) DCE::g_pPlutoLogger->Write(LV_CRITICAL, x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
+#    define _LOG_ERR(x, ...) DCE::g_pPlutoLogger->Write(LV_WARNING, x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
 #    define _LOG_WRN(x, ...) DCE::g_pPlutoLogger->Write(LV_WARNING,  x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
 #    define _LOG_DBG(x, ...) DCE::g_pPlutoLogger->Write(LV_WARNING,  x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
 /*
