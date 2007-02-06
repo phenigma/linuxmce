@@ -260,6 +260,8 @@
 #define SCREEN_PRESERVECALLBACKS_TABLE_FIELD "Screen.PreserveCallBacks"
 #define SCREEN_GOBACKTOSCREEN_FIELD "GoBackToScreen"
 #define SCREEN_GOBACKTOSCREEN_TABLE_FIELD "Screen.GoBackToScreen"
+#define SCREEN_ALLOWINTERRUPTIONS_FIELD "AllowInterruptions"
+#define SCREEN_ALLOWINTERRUPTIONS_TABLE_FIELD "Screen.AllowInterruptions"
 #define SCREEN_PSC_ID_FIELD "psc_id"
 #define SCREEN_PSC_ID_TABLE_FIELD "Screen.psc_id"
 #define SCREEN_PSC_BATCH_FIELD "psc_batch"
