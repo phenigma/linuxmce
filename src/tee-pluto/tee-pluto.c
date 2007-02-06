@@ -1,7 +1,48 @@
 #include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
+
+/*
+ * Globals used when receiving a signal to close and open the output file (helps in log rotation)
+ */
+FILE * f = NULL;
+const char * filename = NULL;
+int append = 0;
+
+void open_file()
+{
+	if (filename == NULL)
+	{
+		fprintf(stderr, "INTERNAL ERROR: filename == NULL");
+		exit(1);
+	}
+
+	if (append)
+		f = fopen(filename, "ab");
+	else
+		f = fopen(filename, "wb");
+
+	if (!f)
+	{
+		fprintf(stderr, "ERROR: Failed to open output file: %s\n", strerror(errno));
+		exit(1);
+	}
+
+	setvbuf(f, NULL, _IONBF, 0);
+}
+
+void signal_handler(int signal)
+{
+	if (f != NULL)
+	{
+		fclose(f);
+		f = NULL;
+	}
+	open_file();
+}
 
 void usage()
 {
@@ -11,7 +52,6 @@ void usage()
 int main(int argc, char * argv[])
 {
 	int i;
-	int append = 0;
 	int optc;
 
 	while ((optc = getopt(argc, argv, "a")) != -1)
@@ -34,19 +74,12 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 
-	char * filename = argv[optind];
-	FILE * f;
+	filename = argv[optind];
 
-	if (append)
-		f = fopen(filename, "ab");
-	else
-		f = fopen(filename, "wb");
+	setvbuf(stdout, NULL, _IONBF, 0);
 
-	if (!f)
-	{
-		fprintf(stderr, "ERROR: Failed to open output file: %s\n", strerror(errno));
-		return 1;
-	}
+	open_file();
+	signal(SIGUSR1, signal_handler);
 
 	ssize_t bytes_read;
 	char buffer[BUFSIZ];
