@@ -5487,6 +5487,12 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 		}
 	}
 
+	// Delete files on devices that have since been removed
+	sSQL = "DELETE `pluto_media`.File FROM `pluto_media`.File "
+		"LEFT JOIN `pluto_main`.Device ON EK_Device=PK_Device "
+		"WHERE EK_Device IS NOT NULL AND EK_Device>0 AND PK_Device IS NULL";
+	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+
 	m_tLastScanOfOnlineDevices=time(NULL);
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Refresh_List_of_Online_Devices now %s",m_sPK_Devices_Online.c_str());
