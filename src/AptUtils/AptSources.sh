@@ -1,8 +1,15 @@
 #!/bin/bash
 
-# NOTE: This script doesn't check for validity of sources.list
+if [[ -n "$HEADER_AptSrc" && -z "$AptSrc_Demo" ]]; then
+	return 0
+fi
+HEADER_AptSrc=HEADER_AptSrc
 
-# TODO: use something faster than md5sum, but to the same effect: unique hash
+# NOTE: This script doesn't check for validity of sources.list
+# NOTE: Set AptSrc_Demo to a non-empty string to run the demo section
+
+# Description: Add an apt source to memory
+# TODO: use something faster than md5sum, but to the same effect: unique identifier for a string
 AptSrc_AddSource()
 {
 	local Source="$*"
@@ -33,6 +40,7 @@ AptSrc_AddSource()
 	return 0
 }
 
+# Description: Load a sources.list file
 AptSrc_ParseSourcesList()
 {
 	local SourcesList="${1:-/etc/apt/sources.list}"
@@ -47,6 +55,7 @@ AptSrc_ParseSourcesList()
 	AptSrc_WasParsed=AptSrc_WasParsed
 }
 
+# Description: Output currently memorized sources.list
 AptSrc_WriteSourcesList()
 {
 	if [[ -z "$AptSrc_WasParsed" ]]; then
@@ -63,6 +72,7 @@ AptSrc_WriteSourcesList()
 	done
 }
 
+# Demo section
 if [[ -n "$AptSrc_Demo" ]]; then
 	AptSrc_ParseSourcesList "${1:-./sample-sources.list}"
 	AptSrc_WriteSourcesList
