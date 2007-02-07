@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -n "$HEADER_AptSrc" && -z "$AptSrc_Demo" ]]; then
+if [[ -n "$HEADER_AptSrc" ]]; then
 	return 0
 fi
 HEADER_AptSrc=HEADER_AptSrc
@@ -71,15 +71,3 @@ AptSrc_WriteSourcesList()
 		echo "${!VarBase} ${!VarComp}"
 	done
 }
-
-# Demo section
-if [[ -n "$AptSrc_Demo" ]]; then
-	AptSrc_ParseSourcesList "${1:-./sample-sources.list}"
-	AptSrc_WriteSourcesList
-	echo "-------"
-	AptSrc_AddSource "deb http://ftp.ro.debian.org/debian sarge main"
-	AptSrc_AddSource "deb http://ftp.ro.debian.org/debian etch main"
-	AptSrc_AddSource "deb http://ftp.ro.debian.org/debian sid main"
-	AptSrc_AddSource "deb http://ftp.ro.debian.org/debian sid non-free"
-	AptSrc_WriteSourcesList
-fi
