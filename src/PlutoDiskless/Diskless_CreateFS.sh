@@ -264,31 +264,16 @@ export LC_ALL=C
 # Configure apt
 sed 's/localhost/dcerouter/g' /etc/apt/apt.conf.d/30pluto > $DlPath/etc/apt/apt.conf.d/30pluto
 
-# Rebuild sources.list if it doesn't contain our section
-if ! egrep -q '^# Pluto sources - start$' "$DlPath"/etc/apt/sources.list || ! egrep -q '^# Pluto sources - end$' "$DlPath"/etc/apt/sources.list; then
-	Sources="# Pluto sources - start
-deb file:/usr/pluto/deb-cache/ sarge main
-deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main
-deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main
-deb http://deb.plutohome.com/debian/ sarge main non-free contrib
-deb http://deb.plutohome.com/debian/ unstable mythtv
-deb http://www.yttron.as.ro/ sarge main
-# Pluto sources - end"
-	echo "$Sources" >"$DlPath"/etc/apt/sources.list
-fi
-
 . /usr/pluto/install/AptSources.sh
 AptSrc_ParseSourcesList "$DlPath"/etc/apt/sources.list
+AptSrc_AddSource "deb file:/usr/pluto/deb-cache/ sarge main"
+AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main"
+AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main"
+AptSrc_AddSource "deb http://deb.plutohome.com/debian/ sarge main non-free contrib"
+AptSrc_AddSource "deb http://deb.plutohome.com/debian/ unstable mythtv"
+AptSrc_AddSource "deb http://www.yttron.as.ro/ sarge main"
 
-Source="deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main"
-if AptSrc_AddSource "$Source" then
-	echo "$Source" >>"$DlPath"/etc/apt/sources.list
-fi
-
-Source="deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main"
-if AptSrc_AddSource "$Source"; then
-	echo "$Source" >>"$DlPath"/etc/apt/sources.list
-fi
+AptSrc_WriteSourcesList >"$DlPath"/etc/apt/sources.list
 
 RequiredModules="ide-cd ide-disk psmouse mousedev"
 for Module in $RequiredModules; do
