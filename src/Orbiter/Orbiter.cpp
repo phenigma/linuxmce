@@ -9562,7 +9562,7 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 #endif
 	}
 
-	if( m_pDevice_ScreenSaver )
+	if( m_pDevice_ScreenSaver && m_pDevice_ScreenSaver->m_bDisabled==false )
 	{
         DCE::CMD_On CMD_On(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0,"");
         SendCommand(CMD_On);
@@ -9585,7 +9585,7 @@ void Orbiter::StopScreenSaver()
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StopScreenSaver");
 	m_bScreenSaverActive = false;
 
-	if( m_pDevice_ScreenSaver )
+	if( m_pDevice_ScreenSaver && m_pDevice_ScreenSaver->m_bDisabled==false )
 	{
 		DCE::CMD_Off CMD_Off(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0);
 		SendCommand(CMD_Off);
@@ -9665,7 +9665,7 @@ bool Orbiter::OkayToInterrupt( int iInterruption )
 		return m_bContainsVideo ? false : iInterruption==interuptOnlyAudio; 
 
 	// Nothing is playing.  So unless it's interuptNever and there's an outside application we're ok
-	if( iInterruption==interuptNever && m_sActiveApplication_Window.empty()==false )
+	if( (iInterruption==interuptNever || iInterruption==interuptOnlyAudio) && m_sActiveApplication_Window.empty()==false )
 		return false;
 	return true;
 }

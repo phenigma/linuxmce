@@ -227,6 +227,7 @@ void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_DatagridSelected, new DatagridCellBackData());
 	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::FileList_GridRendering,	new DatagridAcquiredBackData());
 	RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::FileList_KeyDown, new KeyCallBackData());
+	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowsre_Intercepted, new MsgInterceptorCellBackData());
 
 	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
 	if( pObj )
@@ -237,6 +238,32 @@ void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 		pObj->m_GraphicToDisplay_set("fmv2",GRAPHIC_NORMAL,false,true);
 
 	return;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::MediaBrowsre_Intercepted(CallBackData *pData)
+{
+	MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
+	// If the user hits play while browsing this screen, immediately play whatever is highlighted
+	if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMsgInterceptorCellBackData->m_pMessage->m_dwID==COMMAND_Play_Media_CONST && mediaFileBrowserOptions.m_pObj_ListGrid )
+	{
+		DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get();
+		if( pDataGridTable )
+		{
+			DataGridCell *pCell = pDataGridTable->GetData( 0, mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow );
+			if( pCell && pCell->m_Value && strstr(pCell->m_Value,"\t!D")==NULL )
+			{
+				// User is not going into a sub directory, and be sure also not selecting an attribute
+				if( pCell->m_Value[0]!=0 && (pCell->m_Value[0]!='!' || pCell->m_Value[1]!='A') )
+				{
+					mediaFileBrowserOptions.m_sSelectedFile = pCell->m_Value;
+					DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+						0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
+					m_pOrbiter->SendCommand(CMD_MH_Play_Media);
+				}
+			}
+		}
+	}
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::FileList_KeyDown(CallBackData *pData)

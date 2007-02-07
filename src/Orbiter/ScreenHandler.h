@@ -156,6 +156,7 @@ public:
 
 //	virtual void SCREEN_FileList_PlayLists(long PK_Screen);
 	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);
+	bool MediaBrowsre_Intercepted(CallBackData *pData);
 	bool MediaBrowser_ObjectSelected(CallBackData *pData);
 	string GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad);
 	bool MediaBrowser_DatagridSelected(CallBackData *pData);
