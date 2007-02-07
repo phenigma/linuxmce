@@ -97,7 +97,7 @@ case "$URL_TYPE" in
 		EndSlashRepos=$(echo "$REPOS_SRC" | sed "$SingleEndSlash")
 		AptSrc_ParseSourcesList
 		if AptSrc_AddSource "deb $EndSlashRepos $REPOS $SECTIONS"; then
-			echo "deb $EndSlashRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
+			AptSrc_WriteSourcesList >/etc/apt/sources.list
 			apt-get update
 		fi
 
