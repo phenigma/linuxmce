@@ -818,7 +818,17 @@ void Orbiter::ScreenSaver( void *data )
 
 
 	if( m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu )
-		CMD_Display_OnOff("0",false);
+	{
+		// Don't shut the tv off if we're playing media
+		if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation )
+		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write( LV_STATUS, "Orbiter::ScreenSaver not turning off display because we're playing media");
+#endif
+		}
+		else
+			CMD_Display_OnOff("0",false);
+	}
 	else
 	{
 		StartScreenSaver();
@@ -9521,7 +9531,8 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 	NeedToRender render( this, "StartScreenSaver" );  // May result in starting a new screen saver session
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::StartScreenSaver %d",(int) bGotoScreenSaverDesignObj);
 
-	if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation )
+	// If we're watching video, go to that instead
+	if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_bContainsVideo && m_iLocation_Initial==m_pLocationInfo->iLocation )
 	{
 		if( bGotoScreenSaverDesignObj && (!m_pScreenHistory_Current || m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_RemoteOSD) )
 			CMD_Goto_Screen("",m_iPK_Screen_RemoteOSD); // Go to the remote instead

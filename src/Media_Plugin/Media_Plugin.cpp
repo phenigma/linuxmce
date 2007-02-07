@@ -4412,6 +4412,7 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 //<-dceag-c409-e->
 {
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	bool bDescriptionWasEmpty = sDescription.empty();
 
 	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(sPK_EntertainArea.c_str()) );
 
@@ -4570,7 +4571,7 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 	if( pMediaStream )
 	{
 		int PK_Screen = pMediaStream->GetRemoteControlScreen(pMessage->m_dwPK_Device_From);
-		if( sDescription.empty() && !bIsStart )
+		if( bDescriptionWasEmpty && !bIsStart )
 		{
 			string sCmdToRenameBookmark= "<%=!%> -300 1 741 159 " + StringUtils::itos(PK_Screen) + 
 				"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
