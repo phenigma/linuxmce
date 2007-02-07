@@ -6,7 +6,7 @@ cp -f /cdrom/Pluto-Install/pkgsel /target/usr/lib/base-config/menu/
 # copy install scripts to /usr/pluto/install
 DIR=/target/usr/pluto/install
 mkdir -p "$DIR"
-SCRIPTS="Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh ConfirmDependencies_Debian.sh Common.sh PreseedStage2.sh preseed.cfg BonusCdMenu.sh Initial_Network_Config.sh Initial_DHCP_Config.sh VIA_Setup.sh post-grub-install.sh"
+SCRIPTS="Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh AptSources.sh ConfirmDependencies_Debian.sh Common.sh PreseedStage2.sh preseed.cfg BonusCdMenu.sh Initial_Network_Config.sh Initial_DHCP_Config.sh VIA_Setup.sh post-grub-install.sh"
 for S in $SCRIPTS; do
 	cp -f /cdrom/Pluto-Install/"$S" "$DIR"
 done

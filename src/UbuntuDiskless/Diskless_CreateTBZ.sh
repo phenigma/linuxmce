@@ -8,7 +8,7 @@ DBST_SCRIPT='/usr/pluto/bin/Diskless_DebootstrapPluto.sh'
 ARH_DIR='/usr/pluto/install'
 DisklessFS="PlutoMD-pre-install.tar.bz2"
 
-Installer_Files=(BonusCdMenu.sh BonusCdAutoInst.sh Common.sh ConfirmDependencies_Debian.sh Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh Initial_DHCP_Config.sh Initial_Network_Config.sh pkgsel post-debootstrap.sh preseed.cfg PreseedStage2.sh)
+Installer_Files=(BonusCdMenu.sh BonusCdAutoInst.sh Common.sh AptSources.sh ConfirmDependencies_Debian.sh Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh Initial_DHCP_Config.sh Initial_Network_Config.sh pkgsel post-debootstrap.sh preseed.cfg PreseedStage2.sh)
 
 ## Create a temporary directory to store the diskless image into and be sure
 ## it gets removed after we finish

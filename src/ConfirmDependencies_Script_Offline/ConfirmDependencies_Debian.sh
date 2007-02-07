@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/install/Common.sh
+. /usr/pluto/install/AptSources.sh
 if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
 	. /usr/pluto/bin/Config_Ops.sh
 fi
@@ -93,13 +94,10 @@ case "$URL_TYPE" in
 		fi
 		
 		SingleEndSlash='s!//*!/!g; s!/*$!/!g; s!^http:/!http://!g; s!^ftp:/!ftp://!g'
-		FilteredRepos=$(echo "$REPOS_SRC" | sed 's/[^A-Za-z0-9_./+=:-]/-/g; '"$SingleEndSlash")
 		EndSlashRepos=$(echo "$REPOS_SRC" | sed "$SingleEndSlash")
-#		echo "Repository test string: '$FilteredRepos.+$REPOS.+$SECTIONS'"
-		results=$(cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep -v "^#" | egrep -c -- "$FilteredRepos.+$REPOS.+$SECTIONS" 2>/dev/null)
-		if [ "$results" -eq 0 ]; then
-			echo "deb $FilteredRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
-		
+		AptSrc_ParseSourcesList
+		if AptSrc_AddSource "deb $EndSlashRepos $REPOS $SECTIONS"; then
+			echo "deb $EndSlashRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
 			apt-get update
 		fi
 

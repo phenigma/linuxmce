@@ -27,7 +27,7 @@ CD1_AddPkgsDir="/old-server/home/radu/pkg/bonuscd-cache/cd1add/";
 
 Version=$(basename "$ISO_Dir")
 
-Installer_Files=(BonusCdMenu.sh BonusCdAutoInst.sh Common.sh ConfirmDependencies_Debian.sh Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh Initial_DHCP_Config.sh Initial_Network_Config.sh pkgsel post-debootstrap.sh preseed.cfg PreseedStage2.sh VIA_Setup.sh post-grub-install.sh)
+Installer_Files=(BonusCdMenu.sh BonusCdAutoInst.sh Common.sh ../AptUtils/AptSources.sh ConfirmDependencies_Debian.sh Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh Initial_DHCP_Config.sh Initial_Network_Config.sh pkgsel post-debootstrap.sh preseed.cfg PreseedStage2.sh VIA_Setup.sh post-grub-install.sh)
 Mail_Dest=(testing@plutohome.com -c linux-team@plutohome.com)
 
 if [[ "$Cache" == y ]]; then

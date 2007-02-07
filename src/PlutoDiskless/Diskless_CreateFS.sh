@@ -276,12 +276,18 @@ deb http://www.yttron.as.ro/ sarge main
 # Pluto sources - end"
 	echo "$Sources" >"$DlPath"/etc/apt/sources.list
 fi
-if ! egrep -q 'http://deb\.plutohome\.com/debian.+<-mkr_t_replacementsdeb->.+main' "$DlPath"/etc/apt/sources.list; then
-	echo "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main" >>"$DlPath"/etc/apt/sources.list
+
+. /usr/pluto/install/AptSources.sh
+AptSrc_ParseSourcesList "$DlPath"/etc/apt/sources.list
+
+Source="deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main"
+if AptSrc_AddSource "$Source" then
+	echo "$Source" >>"$DlPath"/etc/apt/sources.list
 fi
 
-if ! egrep -q 'http://deb\.plutohome\.com/debian.+<-mkr_t_maindeb->.+main' "$DlPath"/etc/apt/sources.list; then
-	echo "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main" >>"$DlPath"/etc/apt/sources.list
+Source="deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main"
+if AptSrc_AddSource "$Source"; then
+	echo "$Source" >>"$DlPath"/etc/apt/sources.list
 fi
 
 RequiredModules="ide-cd ide-disk psmouse mousedev"
