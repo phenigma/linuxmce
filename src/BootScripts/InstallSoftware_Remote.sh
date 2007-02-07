@@ -3,6 +3,7 @@
 . /usr/pluto/bin/LockUtils.sh
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/install/AptSources.sh
 
 IP="$1"
 PackageName="$2"
@@ -46,14 +47,16 @@ if [ -n "$IsDeb" ]; then
 		echo "$RepositoryURL $RepositoryName" |tee "/etc/apt/sources.list.test"
 		if ! apt-get -o Dir::Etc::SourceList="/etc/apt/sources.list.test" --no-list-cleanup update &> >(tee -a "$LogFile"); then
 			Result="Installation failed (from Debian repository): Source failed the test."
-			rm "/etc/apt/sources.list.test"
+			rm -f "/etc/apt/sources.list.test"
 		fi
 	fi
 
 	if [[ -z "$Result" ]]; then
 		if [[ -f "/etc/apt/sources.list.test" ]]; then
-			cat "/etc/apt/sources.list.test" >>/etc/apt/sources.list
-			rm "/etc/apt/sources.list.test"
+			AptSrc_ParseSourcesList
+			AptSrc_AddSource "$RepositoryURL $RepositoryName"
+			AptSrc_WriteSourcesList >/etc/apt/sources.list
+			rm -f "/etc/apt/sources.list.test"
 		fi
 
 		if [[ -x /bin/nc ]] ;then
