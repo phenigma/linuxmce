@@ -7,7 +7,7 @@ trap cleanExit EXIT
 
 function cleanExit {
 	echo "## !!!! DownloadUpdate.sh: Forced Exit, Cleaning up !!!"
-	rm /usr/pluto/var/Updates/DownloadUpdates.lock
+	rm -f /usr/pluto/var/Updates/DownloadUpdates.lock
 }
 
 function archiveSyncMDfromCORE {
@@ -144,7 +144,7 @@ for MD in $MD_List; do
 	MD_IP=$(Field 2 "$MD")
 
 	echo "## Downloading update to the MD - $MD_IP"
-	if [[ -z "MD_IP" ]]; then
+	if [[ -z "$MD_IP" ]]; then
 		echo "Warning: Device $MD_DeviceID is not associated to any IP address."
 		continue
 	fi
@@ -154,7 +154,7 @@ for MD in $MD_List; do
 	## Sync MD from Core
 	archiveSyncMDfromCORE $MD_FsRoot
 
-	## Donwnload other packages that where not found in the core's cache
+	## Download other packages that where not found in the core's cache
 	chroot $MD_FsRoot dpkg --forget-old-unavail
 	chroot $MD_FsRoot apt-get -f -y --download-only dist-upgrade
 
@@ -180,7 +180,7 @@ else
         	MD_DeviceID=$(Field 1 "$MD")
         	MD_IP=$(Field 2 "$MD")
 
-        	if [[ -z "MD_IP" ]]; then
+        	if [[ -z "$MD_IP" ]]; then
                 	continue
         	fi
 
