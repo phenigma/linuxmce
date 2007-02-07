@@ -723,7 +723,7 @@ g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_F
 				pRow_DHCPDevice->PK_DHCPDevice_get(),
 				GetDescription(pPnpQueueEntry),
 				sRoom,
-				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),interuptOnlyAudio,false,true);
 			m_pPlug_And_Play_Plugin->SendCommand(SCREEN_New_Pnp_Device_One_Possibility_DL);
 			return false;
 		}
@@ -744,7 +744,7 @@ pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 g_pPlutoLogger->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT queue %d multiple choices",
 					  pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 #endif
-	DCE::SCREEN_NewPnpDevice_DL SCREEN_NewPnpDevice_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, GetDescription(pPnpQueueEntry), pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+	DCE::SCREEN_NewPnpDevice_DL SCREEN_NewPnpDevice_DL(m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, GetDescription(pPnpQueueEntry), pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),interuptOnlyAudio,false,true);
 	m_pPlug_And_Play_Plugin->SendCommand(SCREEN_NewPnpDevice_DL);
 	return false;  // Now we wait
 }

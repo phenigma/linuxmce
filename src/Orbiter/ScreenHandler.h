@@ -154,6 +154,7 @@ public:
 	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName, int iDriveID); 
 	MediaFileBrowserOptions mediaFileBrowserOptions;  // Current sort/filter options for the media browser
 
+//	virtual void SCREEN_FileList_PlayLists(long PK_Screen);
 	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);
 	bool MediaBrowser_ObjectSelected(CallBackData *pData);
 	string GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad);

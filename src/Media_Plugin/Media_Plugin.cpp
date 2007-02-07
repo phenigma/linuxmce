@@ -940,6 +940,16 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 				pMediaFile->m_sPath = "dvd:/" + pMediaFile->m_sPath;
 				iPK_MediaType=MEDIATYPE_pluto_StoredVideo_CONST;
 			}
+			else if( StringUtils::StartsWith(pMediaFile->m_sFilename,"!P",true) )
+			{
+				string sPK_EntertainArea;
+				for(vector<EntertainArea *>::iterator it=vectEntertainArea.begin();it!=vectEntertainArea.end();++it)
+					sPK_EntertainArea += StringUtils::itos( (*it)->m_iPK_EntertainArea ) + ",";
+				Message m(iPK_Device_Orbiter,m_dwPK_Device,0,0,0,0);  // fake message since the command looks for the from
+				string sResponse;
+				CMD_Load_Playlist(sPK_EntertainArea,atoi(pMediaFile->m_sFilename.substr(2).c_str()),sResponse,&m);
+				return;
+			}
 		}
 	}
 
@@ -4551,6 +4561,11 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 	if( iPK_Users )
 		pRow_Bookmark->EK_Users_set(iPK_Users);
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Save_Bookmark stream %p description %s start %d",
+		pMediaStream,sDescription.c_str(),(int) bIsStart);
+#endif
 
 	if( pMediaStream )
 	{

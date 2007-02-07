@@ -1049,6 +1049,9 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter::NeedToChangeScreens calling timeout"
 #ifdef DEBUG
 	DumpScreenHistory();
 #endif
+
+	// Service screens that should be queued, there may be some others queued up too
+	ServiceInterruptionQueue();
 }
 //------------------------------------------------------------------------
 void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectionMethod, int X,  int Y)
@@ -6488,8 +6491,6 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 			StartScreenSaver(false);  // Don't go to the menu, just start the app in the background
 	}
 
-	ServiceInterruptionQueue();
-
 	if(m_bReportTimeCode && !m_bUpdateTimeCodeLoopRunning )
 	{
 		m_bUpdateTimeCodeLoopRunning=true;
@@ -8806,7 +8807,7 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
-	if( m_mapScreen_Interrupt[iPK_Screen]==false && !OkayToInterrupt(iInterruption) )
+	if( m_pScreenHistory_Current && m_mapScreen_Interrupt[m_pScreenHistory_Current->PK_Screen()]==0 && !OkayToInterrupt(iInterruption) )
 	{
 		if( bQueue )
 			m_listPendingGotoScreens.push_back( make_pair<int,Message *> (iInterruption,new Message(pMessage)) );
@@ -9167,7 +9168,7 @@ void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *
 void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,int iInterruption,string &sCMD_Result,Message *pMessage)
 //<-dceag-c809-e->
 {
-	if( !OkayToInterrupt(iInterruption) )
+	if( m_pScreenHistory_Current && m_mapScreen_Interrupt[m_pScreenHistory_Current->PK_Screen()]==0 && !OkayToInterrupt(iInterruption) )
 		return;
 	PlutoAlert *pPlutoAlert=NULL;
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
@@ -9304,7 +9305,6 @@ void Orbiter::CMD_Set_Active_Application(string sName,int iPK_Screen,string sIde
 		else
 			StopScreenSaver();
 	}
-	ServiceInterruptionQueue();
 }
 
 //<-dceag-c811-b->
@@ -9661,12 +9661,14 @@ bool Orbiter::OkayToInterrupt( int iInterruption )
 
 void Orbiter::ServiceInterruptionQueue()
 {
-	for(list< pair<int,Message *> >::iterator it=m_listPendingGotoScreens.begin();it!=m_listPendingGotoScreens.end();++it)
+	for(list< pair<int,Message *> >::iterator it=m_listPendingGotoScreens.begin();it!=m_listPendingGotoScreens.end();)
 	{
-		if( OkayToInterrupt(it->first) )
+		if( !m_pScreenHistory_Current || m_mapScreen_Interrupt[m_pScreenHistory_Current->PK_Screen()]==1 || OkayToInterrupt(it->first) )
 		{
-			ReceivedMessage(it->second);
-			m_listPendingGotoScreens.erase(it);
+			QueueMessageToRouter(it->second);
+			m_listPendingGotoScreens.erase(it++);
 		}
+		else
+			++it;
 	}
 }

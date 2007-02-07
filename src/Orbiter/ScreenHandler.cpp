@@ -208,6 +208,14 @@ string MediaFileBrowserOptions::HumanReadable()
 	}
 	return sResult + " " + sFilter;
 }
+/*
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_FileList_PlayLists(long PK_Screen)
+{
+	// This uses all the same actions as the music/movie browser
+	SCREEN_FileList_Music_Movies_Video(PK_Screen);
+}
+*/
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 {
@@ -414,28 +422,16 @@ g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Delete_CONST )
 	{
-		string sFile,sFilename;
-		DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get();
-		if( pDataGridTable )
-		{
-			DataGridCell *pCell = pDataGridTable->GetData( 0, mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow );
-			if( pCell && pCell->GetText() )
-			{
-				sFile = pCell->GetText();
-				sFilename = m_mapKeywords["FILE"];
-			}
-		}
-
 		string sMessage = m_pOrbiter->m_mapTextString[TEXT_confirm_file_delete_CONST];
-		StringUtils::Replace(&sMessage,"<%=FILE%>",sFile);
-		StringUtils::Replace(&sMessage,"<%=FILENAME%>",sFilename);
+		StringUtils::Replace(&sMessage,"<%=FILE%>",m_mapKeywords["FILE"]);
+		StringUtils::Replace(&sMessage,"<%=FILENAME%>",mediaFileBrowserOptions.m_sSelectedFile);
 
 		DisplayMessageOnOrbiter(0, sMessage,
 			false, "0", true,
 			m_pOrbiter->m_mapTextString[TEXT_YES_CONST],
 			//"Delete file"
 			StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn) + " 1 " TOSTRING(COMMAND_Delete_File_CONST)
-				" " TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"" + sFilename + "\"",
+				" " TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"" + m_mapKeywords["FILE"] + "\"",
 			m_pOrbiter->m_mapTextString[TEXT_NO_CONST]
 		);
 	}
