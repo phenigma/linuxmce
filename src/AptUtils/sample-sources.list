@@ -1,0 +1,5 @@
+deb http://ftp.ro.debian.org/debian etch main non-free
+deb http://ftp.ro.debian.org/debian etch contrib
+deb file:/usr/pluto/nix ./
+deb http://ftp.ro.debian.org/debian etch main contrib
+deb file:/usr/pluto/nix aaa/
