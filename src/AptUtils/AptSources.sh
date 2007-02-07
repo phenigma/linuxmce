@@ -15,6 +15,7 @@ AptSrc_AddSource()
 	local Source="$*"
 	local type uri distribution components
 	local id
+	local ret=1
 
 	read type uri distribution components < <(echo "$Source")
 	if [[ -z "$type" ]]; then
@@ -28,6 +29,7 @@ AptSrc_AddSource()
 		AptSrc_id_list="$AptSrc_id_list$id "
 		eval "AptSrc_base_${id}='$type $uri $distribution'"
 		eval "AptSrc_comp_${id}=' '" # AptSrc_comp_* has a leading space
+		ret=0
 	fi
 	for comp in $components; do
 		Var="AptSrc_comp_${id}"
@@ -35,9 +37,10 @@ AptSrc_AddSource()
 			continue
 		fi
 		eval "AptSrc_comp_${id}=\"\${AptSrc_comp_${id}}$comp \"" # AptSrc_comp_* has a trailing space
+		ret=0
 	done
 
-	return 0
+	return $ret
 }
 
 # Description: Load a sources.list file
