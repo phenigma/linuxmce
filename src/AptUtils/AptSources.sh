@@ -43,12 +43,23 @@ AptSrc_AddSource()
 	return $ret
 }
 
+# Description: Clear internal state
+AptSrc_Clear()
+{
+	local Var
+	for Var in ${!AptSrc_*}; do
+		unset $Var
+	done
+}
+
 # Description: Load a sources.list file
 AptSrc_ParseSourcesList()
 {
 	local SourcesList="${1:-/etc/apt/sources.list}"
 	local Source type uri distribution components
 	local id comp Var
+
+	AptSrc_Clear
 
 	AptSrc_id_list=' '
 	while read Source; do
@@ -68,14 +79,5 @@ AptSrc_WriteSourcesList()
 		VarBase="AptSrc_base_${id}"
 		VarComp="AptSrc_comp_${id}"
 		echo "${!VarBase} ${!VarComp}"
-	done
-}
-
-# Description: Clear internal state
-AptSrc_Clear()
-{
-	local Var
-	for Var in ${!AptSrc_*}; do
-		unset $Var
 	done
 }
