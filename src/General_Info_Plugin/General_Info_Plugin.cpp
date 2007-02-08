@@ -1176,7 +1176,7 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 	if( Parms.empty() || Parms[0]!='1' )
 		sql = "SELECT PK_Room,Description FROM Room WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " ORDER BY Description";
 	else
-		sql = "SELECT DISTINCT PK_Room,Room.Description FROM Room JOIN Device ON FK_Room=PK_Room JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Media_Director_CONST) " AND FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " ORDER BY Description";
+		sql = "SELECT DISTINCT PK_Room,Room.Description FROM Room JOIN Device ON FK_Room=PK_Room JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Media_Director_CONST) " AND Room.FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " ORDER BY Description";
 
 	PlutoSqlResult result;
     MYSQL_ROW row;
