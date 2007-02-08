@@ -441,14 +441,18 @@ namespace HADesigner
 			this.cbLanguageSkin_Child.Items.Clear();
 			this.cbLanguageSkin_Child.Enabled = true;
 
-			foreach (UIChildSkinLanguage uiCSL in this.selectedUIChild.ChildSkinLanguages)
+			if(null != this.selectedUIChild)
 			{
-				if (uiCSL.Include) this.cbLanguageSkin_Child.Items.Add(uiCSL);
-			}
-			if (this.selectedUIChild.ChildSkinLanguages.Count > 0) // should always be true
-			{
-				this.cbLanguageSkin_Child.SelectedIndex = 0;
-				this.cbAlignV.Enabled = this.cbAlignH.Enabled = this.cbStyle.Enabled = true;
+				foreach (UIChildSkinLanguage uiCSL in this.selectedUIChild.ChildSkinLanguages)
+				{
+					if (uiCSL.Include) this.cbLanguageSkin_Child.Items.Add(uiCSL);
+				}
+
+				if (this.selectedUIChild.ChildSkinLanguages.Count > 0) // should always be true
+				{
+					this.cbLanguageSkin_Child.SelectedIndex = 0;
+					this.cbAlignV.Enabled = this.cbAlignH.Enabled = this.cbStyle.Enabled = true;
+				}
 			}
 		}
 
@@ -4339,7 +4343,7 @@ namespace HADesigner
 				int intScaledX = Convert.ToInt32(Convert.ToDouble(e.X) / m_dblScale);
 				int intScaledY = Convert.ToInt32(Convert.ToDouble(e.Y) / m_dblScale);
 
-				if(m_UIDesignObj.ClickImage(intScaledX, intScaledY))
+				if(m_UIDesignObj.ClickImage(intScaledX, intScaledY, this.m_objParentForm.LanguageID,this.m_objParentForm.SkinID))
 				{
 					bool origBlock = this.m_objParentForm.BlockUpdateImage();
 					m_objParentForm.SelectDesignObj(m_UIDesignObj.SelectedDesignObj);

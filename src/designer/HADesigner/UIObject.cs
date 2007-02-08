@@ -950,6 +950,50 @@ namespace HADesigner
 
 		}
 
+		UIChildSkinLanguage GetCurrentChildSkinLanguage(int languageID, int skinID, ref UIDesignObjVariation objVariation)
+		{
+			foreach(Object obj in this.UIDesignObjVariations)
+			{
+				objVariation = (UIDesignObjVariation) obj;
+				//only draw the selected variations if this is the root
+				if(this.ParentUIDesignObjVariation != null || objVariation.Selected)
+				{
+					bool matchSkin = false;
+					bool matchLanguage = false;
+					UIChildSkinLanguage uidslMatch = null;
+		
+					foreach (UIChildSkinLanguage uidsl in this.ChildSkinLanguages)
+					{
+						if (uidsl.SkinID == skinID && uidsl.LanguageID == languageID)
+						{
+							uidslMatch = uidsl;
+							break;
+						}
+						else if (uidsl.SkinID == skinID && uidsl.LanguageID == -1)
+						{
+							uidslMatch = uidsl;
+							matchSkin = true;
+						}
+						else if (uidsl.LanguageID == languageID && uidsl.SkinID == -1 && !matchSkin)
+						{
+							uidslMatch = uidsl;
+							matchLanguage = true;
+						}
+						else if (uidsl.LanguageID == -1 && uidsl.SkinID == -1 && !matchSkin && !matchLanguage)
+						{
+							uidslMatch = uidsl;
+						}
+					}
+					if (uidslMatch != null)
+					{
+						return uidslMatch;
+					}
+				}
+			}
+
+			objVariation = null;
+			return null;
+		}
 
 		public void Draw(Graphics objGraphics, int languageID, int skinID)
 		{
@@ -962,48 +1006,12 @@ namespace HADesigner
 
 			if(this.Include && this.Show)	//don't include if deleted or set to be deleted or unlinked
 			{
-
 				//determine how to show.  this will depend on what variation is selected and how they want things
 				//they may want to hide non selected vriations, maybe outlined or ghosted
-
-				foreach(Object obj in this.UIDesignObjVariations)
-				{
-					UIDesignObjVariation objVariation = (UIDesignObjVariation) obj;
-					//only draw the selected variations if this is the root
-					if(this.ParentUIDesignObjVariation != null || objVariation.Selected)
-					{
-						bool matchSkin = false;
-						bool matchLanguage = false;
-						UIChildSkinLanguage uidslMatch = null;
-			
-						foreach (UIChildSkinLanguage uidsl in this.ChildSkinLanguages)
-						{
-							if (uidsl.SkinID == skinID && uidsl.LanguageID == languageID)
-							{
-								uidslMatch = uidsl;
-								break;
-							}
-							else if (uidsl.SkinID == skinID && uidsl.LanguageID == -1)
-							{
-								uidslMatch = uidsl;
-								matchSkin = true;
-							}
-							else if (uidsl.LanguageID == languageID && uidsl.SkinID == -1 && !matchSkin)
-							{
-								uidslMatch = uidsl;
-								matchLanguage = true;
-							}
-							else if (uidsl.LanguageID == -1 && uidsl.SkinID == -1 && !matchSkin && !matchLanguage)
-							{
-								uidslMatch = uidsl;
-							}
-						}
-						if (uidslMatch != null)
-						{
-							uidslMatch.Draw(objGraphics, objVariation);
-						}
-					}
-				}
+				UIDesignObjVariation objVariation = null;
+				UIChildSkinLanguage obj = GetCurrentChildSkinLanguage(languageID, skinID, ref objVariation);
+				if(null != obj)
+					obj.Draw(objGraphics, objVariation);
 			}
 		}
 
@@ -1082,19 +1090,21 @@ namespace HADesigner
 			return true;
 		}
 
-		public bool Contains(int intX, int intY)
+		public bool Contains(UIDesignObjVariation objVariation, int intX, int intY, int languageID, int skinID)
 		{
-			if (this.Include) 
+			UIDesignObjVariation objvar = null;
+			UIChildSkinLanguage obj = GetCurrentChildSkinLanguage(intX, intY, ref objvar);
+			if(null != obj)
 			{
-				return ((intX >= this.RootX) && (intX <= (this.RootX + this.Width)) && (intY >= this.RootY) && (intY <= (this.RootY + this.Height)));
+				return obj.Contains(intX, intY);
 			}
-			else return false;
+			
+			return false;
 		}
 
-		public bool ClickImage(int intX, int intY)
+		public bool ClickImage(int intX, int intY, int languageID, int skinID)
 		{
 			ArrayList alFound = new ArrayList();
-
 
 			foreach(Object obj in this.UIDesignObjVariations)
 			{
@@ -1107,7 +1117,7 @@ namespace HADesigner
 						foreach(Object obj2 in objVariation.DesignObjs)
 						{
 							UIDesignObj objUIDesignObj = (UIDesignObj)obj2;
-							if(objUIDesignObj.Contains(intX, intY))
+							if(objUIDesignObj.Contains(objVariation, intX, intY, languageID, skinID))
 							{
 								alFound.Add(objUIDesignObj);
 							}
