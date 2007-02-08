@@ -23,7 +23,7 @@ mkdir -p "${Moon_RootLocation}"
 
 ## Unpack Diskless Filesystem
 pushd $Moon_RootLocation
-	tar -xvf $Moon_RootArchive
+	tar -xf $Moon_RootArchive
 popd
 
 

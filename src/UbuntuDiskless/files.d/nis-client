@@ -17,3 +17,20 @@ PopulateSection "${Parm_RootLocation}/${File}" "Nis Master" "NISMASTER=$IntIP"
 File="/etc/defaultdomain"
 mkdir -p "${Parm_RootLocation}/$(dirname $File)"
 echo "pluto" > "${Parm_RootLocation}/${File}"
+
+File="/etc/yp.conf"
+mkdir -p "$Parm_RootLocation}/$(dirname $File)"
+echo "ypserver ${IntIP}" > "${Parm_RootLocation}/${File}"
+##
+
+## Force a diskless client to get passwd/shadow & group from nis
+if [[ -f ${Moon_RootLocation}/etc/passwd ]] ;then
+	grep -q "+::::::"   ${Moon_RootLocation}/etc/passwd || echo "+::::::"   >> ${Moon_RootLocation}/etc/passwd
+fi
+if [[ -f ${Moon_RootLocation}/etc/shadow ]] ;then
+	grep -q "+::::::::" ${Moon_RootLocation}/etc/shadow || echo "+::::::::" >> ${Moon_RootLocation}/etc/shadow
+fi
+
+if [[ -f ${Moon_RootLocation}/etc/group ]] ;then
+	grep -q "+:::"      ${Moon_RootLocation}/etc/group  || echo "+:::"      >> ${Moon_RootLocation}/etc/group
+fi

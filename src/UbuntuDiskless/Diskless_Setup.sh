@@ -2,11 +2,11 @@
 
 set -e
 
-. /usr/pluto/bin/Network_Parameters.sh
-. /usr/pluto/bin/Config_Ops.sh
-. /usr/pluto/bin/Section_Ops.sh
-. /usr/pluto/bin/LockUtils.sh
-. /usr/pluto/bin/Diskless_Utils.sh
+. /usr/pluto/bin/Network_Parameters.sh 2>/dev/null 
+. /usr/pluto/bin/Config_Ops.sh 2>/dev/null
+. /usr/pluto/bin/Section_Ops.sh 2>/dev/null
+. /usr/pluto/bin/LockUtils.sh 2>/dev/null
+. /usr/pluto/bin/Diskless_Utils.sh 2>/dev/null
 
 
 DEVICEDATA_Extra_Parameters=139
@@ -48,7 +48,6 @@ function setup_tftp_boot
 	ln -s ${Moon_RootLocation}/boot/initrd.img /tftpboot/${Moon_DeviceID}/initrd.img
 }
 
-
 function setup_mysql_access 
 {
 	echo "* Setting up MySQL access for MD #${Moon_DeviceID}"
@@ -64,7 +63,7 @@ function generate_diskless_installer
 
 	## Copy installer files
 	mkdir -p $Moon_RootLocation/usr/pluto/install
-	Files="Common.sh AptSources.sh ConfirmDependencies_Debian.sh Initial_Config_MD.sh Initial_Config_Finish.sh ramdisk.tar.bz2"
+	Files="Common.sh ConfirmDependencies_Debian.sh Initial_Config_MD.sh Initial_Config_Finish.sh ramdisk.tar.bz2"
 	for Stuff in $Files; do
 		cp /usr/pluto/install/$Stuff $Moon_RootLocation/usr/pluto/install
 	done
@@ -99,6 +98,7 @@ function setup_hosts_file
 			AND
 			IK_DeviceData = '1'
 	"
+echo $Q
 	local R=$(RunSQL "$Q")
 
 	for Row in $R ;do
@@ -119,7 +119,7 @@ function setup_hosts_file
 function update_config_files
 {
 	local ScriptDir="/usr/pluto/bin/files.d"
-	local ScriptsList="cron.d-synctime fstab-diskless interfaces mythtv-mysql.txt nis-client pluto.conf resolv.conf syslog.conf timezone"
+	local ScriptsList="cron.d-synctime fstab-diskless interfaces mythtv-mysql.txt nis-client pluto.conf resolv.conf syslog.conf timezone mountnfs.sh"
 	for Script in $ScriptsList ;do
 		if [[ ! -x $ScriptDir/$Script ]] ;then
 			echo "WARNING: Script $Script cannot be executed"
