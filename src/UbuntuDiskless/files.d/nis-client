@@ -24,13 +24,13 @@ echo "ypserver ${IntIP}" > "${Parm_RootLocation}/${File}"
 ##
 
 ## Force a diskless client to get passwd/shadow & group from nis
-if [[ -f ${Moon_RootLocation}/etc/passwd ]] ;then
-	grep -q "+::::::"   ${Moon_RootLocation}/etc/passwd || echo "+::::::"   >> ${Moon_RootLocation}/etc/passwd
+if [[ -f ${Parm_RootLocation}/etc/passwd ]] ;then
+	grep -q "+::::::"   ${Parm_RootLocation}/etc/passwd || echo "+::::::"   >> ${Parm_RootLocation}/etc/passwd
 fi
-if [[ -f ${Moon_RootLocation}/etc/shadow ]] ;then
-	grep -q "+::::::::" ${Moon_RootLocation}/etc/shadow || echo "+::::::::" >> ${Moon_RootLocation}/etc/shadow
+if [[ -f ${Parm_RootLocation}/etc/shadow ]] ;then
+	grep -q "+::::::::" ${Parm_RootLocation}/etc/shadow || echo "+::::::::" >> ${Parm_RootLocation}/etc/shadow
 fi
 
-if [[ -f ${Moon_RootLocation}/etc/group ]] ;then
-	grep -q "+:::"      ${Moon_RootLocation}/etc/group  || echo "+:::"      >> ${Moon_RootLocation}/etc/group
+if [[ -f ${Parm_RootLocation}/etc/group ]] ;then
+	grep -q "+:::"      ${Parm_RootLocation}/etc/group  || echo "+:::"      >> ${Parm_RootLocation}/etc/group
 fi

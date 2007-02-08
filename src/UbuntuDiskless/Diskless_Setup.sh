@@ -98,21 +98,26 @@ function setup_hosts_file
 			AND
 			IK_DeviceData = '1'
 	"
-echo $Q
 	local R=$(RunSQL "$Q")
-
+	local Row
 	for Row in $R ;do
 		local DeviceID=$(Field 1 "$Row")
 		local IP=$(Field 2 "$Row")
 
-		if [[ "$IP" != "" ]] ;then
+		if [[ "$IP" == "" ]] ;then
 			continue
 		fi
 
-		Content="${Content}${IPaddress}		moon${DeviceID}\n"
+		Content="${Content}${IP}		moon${DeviceID}\n"
 	done
 	
 	PopulateSection "/etc/hosts" "DisklessMD" "$Content"
+	PopulateSection "/etc/hosts" "NetworkSetup" "\n192.168.80.1 dcerouter\n" #TODO: REMOVE THIS LINE AN MODIFY NetworkSetup.sh: 
+
+	## Export hosts file to other computer
+	echo | /usr/lib/yp/ypinit -m
+
+	echo "---$Content---"
 }
 
 
