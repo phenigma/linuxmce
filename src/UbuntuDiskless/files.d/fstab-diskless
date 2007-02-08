@@ -26,3 +26,11 @@ Content="${Content}\n"
 mkdir -p "${Parm_RootLocation}/$(dirname $File)"
 echo -e $Content > "${Parm_RootLocation}/${File}"
 
+## Create some mountpoint so we know for sure that they exist
+mkdir "${Parm_RootLocation}/usr/pluto/var"
+mkdir "${Parm_RootLocation}/usr/pluto/orbiter"
+mkdir "${Parm_RootLocation}/usr/pluto/keys"
+mkdir "${Parm_RootLocation}/usr/pluto/deb-cache"
+
+
+
