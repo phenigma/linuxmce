@@ -1492,6 +1492,10 @@ namespace HAData.DataAccess {
 			Relations.Add(MyRelations.DesignObjVariation_FK_EffectType_Highlighted, 
 				tEffectType.cPK_EffectType, 
 				tDesignObjVariation.cFK_EffectType_Highlighted);			
+
+			Relations.Add(MyRelations.DesignObjvariantion_DesignObj_PK_DesignObjVariation_DesignObj_DesignObjVariation_DesignObj_Skin_Language_FK_DesignObjVariation_DesignObj,
+				tDesignObjVariation_DesignObj.cPK_DesignObjVariation_DesignObj,
+				tDesignObjVariation_DesignObj_Skin_Language.cFK_DesignObjVariation_DesignObj);
 		}
 
 		public class MyRelations
@@ -1571,6 +1575,7 @@ namespace HAData.DataAccess {
 			public const string DesignObjVariation_FK_EffectType_Highlighted="78";
 			public const string DesignObjVariation_FK_CommandGroup_D_OnHighlight="79";
 			public const string DesignObjVariation_FK_CommandGroup_D_OnUnhighlight="80";
+			public const string DesignObjvariantion_DesignObj_PK_DesignObjVariation_DesignObj_DesignObjVariation_DesignObj_Skin_Language_FK_DesignObjVariation_DesignObj="81";
 		}
 	}
 } // namespace HAData.Common.Data

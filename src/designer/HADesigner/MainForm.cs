@@ -119,7 +119,6 @@ namespace HADesigner
 				od.Show();
 				od.Top = 0;
 				od.Left = 0;
-
 			}
 		}
 

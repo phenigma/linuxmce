@@ -477,7 +477,7 @@ namespace HADesigner
 				DialogResult dr = MessageBox.Show("Are you sure you want to delete \"" + drO.fDescription + "\"","Delete",MessageBoxButtons.YesNo);
 				if (dr == DialogResult.Yes)
 				{
-					UIDesignObj uiobject = new UIDesignObj(null,drO.fPK_DesignObj, this.MainForm.GraphicsDirectory);
+					UIDesignObj uiobject = new UIDesignObj(null, -1, drO.fPK_DesignObj, this.MainForm.GraphicsDirectory);
 					uiobject.NeedsDelete = true;
 					uiobject.SaveToDatabase();
 

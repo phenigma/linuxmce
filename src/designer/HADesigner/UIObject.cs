@@ -6,7 +6,7 @@ using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 using HAData.Common;
 using HAData.DataAccess;
-
+using System.Diagnostics;
 
 using System.Reflection;
 
@@ -28,6 +28,14 @@ namespace HADesigner
 			set {this.graphicsDirectory = value;}
 		}
 
+		private ArrayList alChildSkinLanguages = new ArrayList();
+		public ArrayList ChildSkinLanguages
+		{
+			get {return this.alChildSkinLanguages;}
+			set {this.alChildSkinLanguages = value;}
+		}
+
+		private int m_intDesignObjID = -1;
 		private int m_intID = -1;
 		private string m_strDescription;
 		private sbyte m_intPriority;
@@ -43,7 +51,7 @@ namespace HADesigner
 
 
 		//TODO: this will change when we have multiple select capability
-		private UIChildSkinLanguage m_UIDesignObjSelected = null;
+		private UIDesignObj m_UIDesignObjSelected = null;
 		
 		
 
@@ -133,9 +141,10 @@ namespace HADesigner
 		//PROPERTIES
 		public int ID
 		{
-			get	{return m_intID;}
-			set {m_intID = value;}
+			get {return this.m_intDesignObjID;}
+			set {this.m_intDesignObjID = value;}
 		}
+
 		public string DescriptionOnly
 		{
 			get {return this.m_strDescription;}
@@ -146,7 +155,7 @@ namespace HADesigner
 			get
 			{
 				if (this.m_strDescription == null) return "";
-				else return ID + " " + m_strDescription + (m_bitHideByDefault ? " h" : "");
+				else return m_intDesignObjID + " " + m_strDescription + (m_bitHideByDefault ? " h" : "");
 			}
 			set	{m_strDescription = value;}
 		}
@@ -200,7 +209,7 @@ namespace HADesigner
 		}
 
 
-		public UIChildSkinLanguage SelectedDesignObj
+		public UIDesignObj SelectedDesignObj
 		{
 			get {return m_UIDesignObjSelected;}
 		}
@@ -493,15 +502,15 @@ namespace HADesigner
 			set	{m_blnMainBackgroundDrawn = value;}
 		}
 
-
-
 		//CONSTRUCTORS
-		public UIDesignObj(UIDesignObjVariation objParentUIDesignObjVariation, int intID, string graphicsDir)
+		public UIDesignObj(UIDesignObjVariation objParentUIDesignObjVariation, int intID,
+			int intDesignObjID, string graphicsDir)
 		{
 			this.graphicsDirectory = graphicsDir;
 
 			m_objParentUIDesignObjVariation = objParentUIDesignObjVariation;
-			m_intID = intID;		
+			m_intID = intID;
+			m_intDesignObjID = intDesignObjID;
 
 			if(objParentUIDesignObjVariation == null)
 			{
@@ -518,7 +527,7 @@ namespace HADesigner
 			}
 
 
-			if(intID != -1)
+			if(intDesignObjID != -1)
 			{
 				LoadFromDatabase();
 			}
@@ -549,8 +558,7 @@ namespace HADesigner
 		{
 			MyDataSet mds = HADataConfiguration.m_mdsCache;
 	
-			DesignObjDataRow drDesignObj = mds.tDesignObj[m_intID];
-
+			DesignObjDataRow drDesignObj = mds.tDesignObj[m_intDesignObjID];
 
 			m_strDescription = drDesignObj.fDescription;
 			m_intPriority = drDesignObj.fPriority;
@@ -574,16 +582,40 @@ namespace HADesigner
 			
 
 
+			Debug.WriteLine("Loading variations for object " + m_intDesignObjID + "...");
+
 			//load the UIDesignObjVariations
 			//no sort for now
-			DataRow[] drVariations = mds.tDesignObjVariation.Select(DesignObjVariationData.FK_DESIGNOBJ_FIELD + "=" + m_intID, DesignObjVariationData.PK_DESIGNOBJVARIATION_FIELD);
+			DataRow[] drVariations = mds.tDesignObjVariation.Select(DesignObjVariationData.FK_DESIGNOBJ_FIELD + "=" + m_intDesignObjID, DesignObjVariationData.PK_DESIGNOBJVARIATION_FIELD);
+
+			Debug.WriteLine("Found " + drVariations.Length + " variations");
 			foreach(DataRow dr in drVariations)
 			{
 				DesignObjVariationDataRow drVariation = new DesignObjVariationDataRow(dr);
 				m_alUIDesignObjVariations.Add(new UIDesignObjVariation(this, drVariation.fPK_DesignObjVariation, -1));
+
+				DataRow[] drDSL = mds.tDesignObjVariation_DesignObj_Skin_Language.Select(DesignObjVariation_DesignObj_Skin_LanguageData.FK_DESIGNOBJVARIATION_DESIGNOBJ_FIELD + "=" + m_intID);
+				Debug.WriteLine("\tFound " + drDSL.Length + " DSL for DesignObjVariation_DesignObj = " + drVariation.fPK_DesignObjVariation);
+
+				UIChildSkinLanguage uidsl;
+				foreach(DataRow drc in drDSL)
+				{
+					DesignObjVariation_DesignObj_Skin_LanguageDataRow drOVDSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(drc);
+					uidsl = new UIChildSkinLanguage(this, 
+						drOVDSL.fPK_DesignObjVariation_DesignObj_Skin_Language,
+						drOVDSL.fFK_SkinIsNull ? -1 : drOVDSL.fFK_Skin, 
+						drOVDSL.fFK_LanguageIsNull ? -1 : drOVDSL.fFK_Language,
+						graphicsDirectory);
+					this.alChildSkinLanguages.Add(uidsl);
+				}
+
+				if (this.alChildSkinLanguages.Count==0) // No OVTSL rows for this OVT, Add a default row.
+				{
+					uidsl = new UIChildSkinLanguage(this,-1,-1,-1,graphicsDirectory);
+					this.alChildSkinLanguages.Add(uidsl);
+					uidsl.SaveToDatabase();
+				}
 			}
-
-
 		}
 
 
@@ -602,7 +634,7 @@ namespace HADesigner
 
 					//uTODO nlink from ALL parent variations
 					this.NeedsParentVariationUnlink = true;
-					DataRow[] drLinks = mds.tDesignObjVariation_DesignObj.Select(DesignObjVariation_DesignObjData.FK_DESIGNOBJ_CHILD_FIELD + "=" + this.ID, null);
+					DataRow[] drLinks = mds.tDesignObjVariation_DesignObj.Select(DesignObjVariation_DesignObjData.FK_DESIGNOBJ_CHILD_FIELD + "=" + m_intDesignObjID, null);
 					foreach(DataRow dr in drLinks)
 					{
 						dr.Delete();
@@ -623,7 +655,7 @@ namespace HADesigner
 					if(!this.NeedsInsert)
 					{
 					//delete this object
-					DesignObjDataRow drDesignObj = mds.tDesignObj[m_intID];
+					DesignObjDataRow drDesignObj = mds.tDesignObj[m_intDesignObjID];
 					drDesignObj.dr.Delete();
 					mds.tDesignObj.Update(1,mds.m_conn,mds.m_trans);
 					}
@@ -650,7 +682,7 @@ namespace HADesigner
 						//we need the new id for the new variations below
 						mds.tDesignObj.Update(1,mds.m_conn,mds.m_trans);
 				
-						this.ID = drDesignObj.fPK_DesignObj;
+						this.m_intDesignObjID = drDesignObj.fPK_DesignObj;
 
 						blnChanged = true;
 
@@ -660,7 +692,7 @@ namespace HADesigner
 						if(this.OriginalsChanged)
 						{
 							//update this object
-							DesignObjDataRow drDesignObj = mds.tDesignObj[m_intID];
+							DesignObjDataRow drDesignObj = mds.tDesignObj[m_intDesignObjID];
 
 							drDesignObj.fDescription = m_strDescription;
 							drDesignObj.fCantGoBack = m_blnCantGoBack;
@@ -766,7 +798,7 @@ namespace HADesigner
 					{
 						//add the row
 						DesignObjVariation_DesignObjDataRow drLink = new DesignObjVariation_DesignObjDataRow(mds.tDesignObjVariation_DesignObj.NewRow());
-						drLink.fFK_DesignObj_Child = this.ID;
+						drLink.fFK_DesignObj_Child = this.m_intDesignObjID;
 						drLink.fFK_DesignObjVariation_Parent = this.ParentUIDesignObjVariation.ID;
 
 						DesignObjVariation_DesignObj_Skin_LanguageDataRow drLinkDSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(mds.tDesignObjVariation_DesignObj_Skin_Language.NewRow());
@@ -934,26 +966,46 @@ namespace HADesigner
 				//determine how to show.  this will depend on what variation is selected and how they want things
 				//they may want to hide non selected vriations, maybe outlined or ghosted
 
-
 				foreach(Object obj in this.UIDesignObjVariations)
 				{
 					UIDesignObjVariation objVariation = (UIDesignObjVariation) obj;
 					//only draw the selected variations if this is the root
 					if(this.ParentUIDesignObjVariation != null || objVariation.Selected)
 					{
-						objVariation.Draw(objGraphics, languageID, skinID);
+						bool matchSkin = false;
+						bool matchLanguage = false;
+						UIChildSkinLanguage uidslMatch = null;
+			
+						foreach (UIChildSkinLanguage uidsl in this.ChildSkinLanguages)
+						{
+							if (uidsl.SkinID == skinID && uidsl.LanguageID == languageID)
+							{
+								uidslMatch = uidsl;
+								break;
+							}
+							else if (uidsl.SkinID == skinID && uidsl.LanguageID == -1)
+							{
+								uidslMatch = uidsl;
+								matchSkin = true;
+							}
+							else if (uidsl.LanguageID == languageID && uidsl.SkinID == -1 && !matchSkin)
+							{
+								uidslMatch = uidsl;
+								matchLanguage = true;
+							}
+							else if (uidsl.LanguageID == -1 && uidsl.SkinID == -1 && !matchSkin && !matchLanguage)
+							{
+								uidslMatch = uidsl;
+							}
+						}
+						if (uidslMatch != null)
+						{
+							uidslMatch.Draw(objGraphics, objVariation);
+						}
 					}
-				}
-
-				//if this is selected, draw a big ol' rectangle around it
-				if(this.Selected)
-				{
-					objGraphics.DrawRectangle(new Pen(Color.Red, 4), this.RootX, this.RootY, this.Width - 4, this.Height - 4);
 				}
 			}
 		}
-
-
 
 		public void Reset()
 		{
@@ -1054,7 +1106,7 @@ namespace HADesigner
 						//go thru and see if any DesignObjs have been clicked
 						foreach(Object obj2 in objVariation.DesignObjs)
 						{
-							UIChildSkinLanguage objUIDesignObj = (UIChildSkinLanguage) obj2;
+							UIDesignObj objUIDesignObj = (UIDesignObj)obj2;
 							if(objUIDesignObj.Contains(intX, intY))
 							{
 								alFound.Add(objUIDesignObj);
@@ -1083,7 +1135,7 @@ namespace HADesigner
 				if(alFound.Count == 1)
 				{
 					//toggle the item
-					UIChildSkinLanguage objUIDesignObj = (UIChildSkinLanguage) alFound[0];
+					UIDesignObj objUIDesignObj = (UIDesignObj) alFound[0];
 					objUIDesignObj.Selected = !objUIDesignObj.Selected;
 
 					//deselect the old one
@@ -1111,7 +1163,7 @@ namespace HADesigner
 					//find the selected item if there is one
 					for(int intCount=0; intCount < alFound.Count; intCount++)
 					{
-						UIChildSkinLanguage objUIDesignObj = (UIChildSkinLanguage) alFound[intCount];
+						UIDesignObj objUIDesignObj = (UIDesignObj) alFound[intCount];
 						if(objUIDesignObj.Selected) 
 						{
 							intSelectedIndex = intCount;
@@ -1142,13 +1194,13 @@ namespace HADesigner
 
 					if(intSelectedIndex != -1)
 					{
-						UIChildSkinLanguage objUIDesignObjSelectedTemp;
-						objUIDesignObjSelectedTemp = (UIChildSkinLanguage) alFound[intSelectedIndex];
+						UIDesignObj objUIDesignObjSelectedTemp;
+						objUIDesignObjSelectedTemp = (UIDesignObj) alFound[intSelectedIndex];
 						objUIDesignObjSelectedTemp.Selected = false;
 					}
 
-					UIChildSkinLanguage objNewUIDesignObjSelectedTemp;
-					objNewUIDesignObjSelectedTemp = (UIChildSkinLanguage) alFound[intNewSelectedIndex];
+					UIDesignObj objNewUIDesignObjSelectedTemp;
+					objNewUIDesignObjSelectedTemp = (UIDesignObj) alFound[intNewSelectedIndex];
 					objNewUIDesignObjSelectedTemp.Selected = true;
 
 					if(m_UIDesignObjSelected != null)
@@ -1202,7 +1254,7 @@ namespace HADesigner
 		{
 			foreach(UIDesignObjVariation objVariation in this.UIDesignObjVariations)
 			{
-				foreach(UIChildSkinLanguage objUIDesignObj in objVariation.DesignObjs)
+				foreach(UIDesignObj objUIDesignObj in objVariation.DesignObjs)
 				{
 					objUIDesignObj.Selected = false;
 					if(blnRecursive)

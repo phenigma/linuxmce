@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using HAData.Common;
 using HAData.DataAccess;
 using System.Data;
+using System.Diagnostics;
 
 
 namespace HADesigner
@@ -29,14 +30,13 @@ namespace HADesigner
 			set {this.graphicsDirectory = value;}
 		}
 
-		private int m_intID = -1;
 		private string m_strDescription;
 		private sbyte m_intPriority;
 		private bool m_blnAnimate;
 		private int m_intUIDesignObjType;
 		private int m_intDesignObjCategoryID;
 		private ArrayList m_alUIDesignObjVariations = new ArrayList();
-		private UIDesignObjVariation m_objParentUIDesignObjVariation;
+		private UIDesignObj m_objParentUIDesignObj;
 		private bool m_blnCantGoBack;
 
 
@@ -129,14 +129,14 @@ namespace HADesigner
 			set {this.m_strDescription = value;}
 		}
 
-		public int Skin
+		public int SkinID
 		{
 			get {return this.m_FK_SkinID;}
 			set {this.m_FK_SkinID = value;}
 		}
 
 
-		public int Language
+		public int LanguageID
 		{
 			get {return this.m_FK_LanguageID;}
 			set {this.m_FK_LanguageID = value;}
@@ -188,10 +188,10 @@ namespace HADesigner
 			set {m_alUIDesignObjVariations = value;}
 		}
 
-		public UIDesignObjVariation ParentUIDesignObjVariation
+		public UIDesignObj ParentUIDesignObj
 		{
-			get {return m_objParentUIDesignObjVariation;}
-			set	{m_objParentUIDesignObjVariation = value;}
+			get {return m_objParentUIDesignObj;}
+			set	{m_objParentUIDesignObj = value;}
 		}
 
 		public int LinkID
@@ -395,18 +395,18 @@ namespace HADesigner
 		
 
 
-		public UIChildSkinLanguage(UIDesignObjVariation objParentUIDesignObjVariation, int intID, 
+		public UIChildSkinLanguage(UIDesignObj objParentUIDesignObj, int intID, 
 			int SkinID,  int LanguageID, string graphicsDir)
 		{
 			this.graphicsDirectory = graphicsDir;
 
-			m_objParentUIDesignObjVariation = objParentUIDesignObjVariation;
-			m_intID = intID;		
+			m_objParentUIDesignObj = objParentUIDesignObj;
+			ID = intID;		
 
 			m_FK_SkinID = SkinID;
 			m_FK_LanguageID = LanguageID;
 
-			if(objParentUIDesignObjVariation == null)
+			if(objParentUIDesignObj == null)
 			{
 				this.m_bitCanBeHidden = false;
 				this.m_bitHideByDefault = false;
@@ -425,7 +425,7 @@ namespace HADesigner
 				LoadFromDatabase();
 			}
 
-			if(objParentUIDesignObjVariation == null)
+			if(objParentUIDesignObj == null)
 			{
 				Build(1, true); // Start with default skin
 				this.ResetLinkOriginals();
@@ -441,42 +441,48 @@ namespace HADesigner
 		{
 			MyDataSet mds = HADataConfiguration.m_mdsCache;
 	
-
-			DesignObjVariation_DesignObjDataRow drDesignObjVariation_DesignObj = mds.tDesignObjVariation_DesignObj[m_intID];
-			DesignObjDataRow drDesignObj = mds.tDesignObj[drDesignObjVariation_DesignObj.fFK_DesignObj_Child];
-
-			m_strDescription = drDesignObj.fDescription;
-
-			m_intPriority = drDesignObj.fPriority;
-			this.m_blnAnimate = drDesignObj.fAnimate;
-			m_intUIDesignObjType = drDesignObj.fFK_DesignObjType;
-
-			ID = drDesignObjVariation_DesignObj.fFK_DesignObj_Child;
-
-			m_blnCantGoBack = drDesignObj.fCantGoBack;
-			
+			DesignObjVariation_DesignObj_Skin_LanguageDataRow dr = mds.tDesignObjVariation_DesignObj_Skin_Language[ID];
 
 
-			this.DesignObjCategory = drDesignObj.fFK_DesignObjCategory;
+			this.ParentDisplayOrder = dr.fDisplayOrder;
+			this.RootX = dr.fX;
+			this.RootY = dr.fY;
+			this.Width = dr.fWidth;
+			this.Height = dr.fHeight;
 
 
-			
+/*
+DisplayOrder                                   int(11)                        0                        select,insert,update,references
+X                                              int(11)                        0                        select,insert,update,references
+Y                                              int(11)                        0                        select,insert,update,references
+Width                                          int(11)        YES             (NULL)                   select,insert,update,references
+Height                                         int(11)        YES             (NULL)                   select,insert,update,references
+FK_DesignObj_InsteadOf                         int(11)        YES             (NULL)                   select,insert,update,references
+CanBeHidden                                    tinyint(4)                     0                        select,insert,update,references
+HideByDefault                                  tinyint(4)                     0                        select,insert,update,references
+RegenerateForEachScreen                        tinyint(4)                     0                        select,insert,update,references
+DisplayChildrenBeforeText                      tinyint(4)                     0                        select,insert,update,references
+DisplayChildrenBehindBackground                tinyint(4)                     0                        select,insert,update,references
+DontMergeBackground                            tinyint(4)                     0                        select,insert,update,references
+IsTabStop                                      tinyint(4)                     0                        select,insert,update,references
+FK_DesignObj_Up                                int(11)        YES             (NULL)                   select,insert,update,references
+FK_DesignObj_Down                              int(11)        YES             (NULL)                   select,insert,update,references
+FK_DesignObj_Left                              int(11)        YES             (NULL)                   select,insert,update,references
+FK_DesignObj_Right                             int(11)        YES             (NULL)                   select,insert,update,references
+sFK_DesignObj_TiedTo                           varchar(14)    YES             (NULL)                   select,insert,update,references
+VisibleStates                                  varchar(10)    YES             (NULL)                   select,insert,update,references
+Ignore      
+*/																														
+
+
+			Debug.WriteLine("Loaded " + ID + " with values " + RootX + "," + RootY + "," + Width + "," + Height);
+
 			//set the originals so we know how and when to save
 			this.ResetOriginals();
-
 
 			m_blnNeedsDBInsert = false;
 			m_blnNeedsDBDelete = false;
 			
-			//load the UIDesignObjVariations
-			//no sort for now
-			DataRow[] drVariations = mds.tDesignObjVariation.Select(DesignObjVariationData.FK_DESIGNOBJ_FIELD + "=" + ParentUIDesignObjVariation.ID, DesignObjVariationData.PK_DESIGNOBJVARIATION_FIELD);
-			foreach(DataRow dr in drVariations)
-			{
-				DesignObjVariationDataRow drVariation = new DesignObjVariationDataRow(dr);
-				m_alUIDesignObjVariations.Add(new UIDesignObjVariation(ParentUIDesignObjVariation.ParentUIDesignObj, drVariation.fPK_DesignObjVariation, -1));
-			}
-
 		}
 
 		public override bool SaveToDatabase()
@@ -522,15 +528,16 @@ namespace HADesigner
 				//do the build top down stuff
 				//like positioning
 				//find the root x and y
-				if(this.ParentUIDesignObjVariation == null)
+				if(this.ParentUIDesignObj == null)
 				{
 					this.RootX = 0;
 					this.RootY = 0;
 				}
 				else
 				{
-					this.RootX = this.ParentX + this.ParentUIDesignObjVariation.ParentUIDesignObj.RootX;
-					this.RootY = this.ParentY + this.ParentUIDesignObjVariation.ParentUIDesignObj.RootY;
+					//TODO Ender
+					//this.RootX = this.ParentX + this.ParentUIDesignObj.ParentUIDesignObj.RootX;
+					//this.RootY = this.ParentY + this.ParentUIDesignObj.ParentUIDesignObj.RootY;
 				}
 			
 				//RECURSE
@@ -570,37 +577,14 @@ namespace HADesigner
 			set	{m_blnMainBackgroundDrawn = value;}
 		}
 
-		public void Draw(Graphics objGraphics, int languageID, int skinID)
+		public void Draw(Graphics objGraphics, UIDesignObjVariation objVariation)
 		{
+			objVariation.Draw(this, objGraphics, LanguageID, SkinID);
 
-			//if this is the top level object, reset whether the mainBackground has been drawn
-			if(this.ParentUIDesignObjVariation == null)
+			//if this is selected, draw a big ol' rectangle around it
+			if(ParentUIDesignObj.Selected)
 			{
-				this.MainBackgroundDrawn = false;
-			}
-
-			if(this.Include && this.Show)	//don't include if deleted or set to be deleted or unlinked
-			{
-
-				//determine how to show.  this will depend on what variation is selected and how they want things
-				//they may want to hide non selected vriations, maybe outlined or ghosted
-
-
-				foreach(Object obj in this.UIDesignObjVariations)
-				{
-					UIDesignObjVariation objVariation = (UIDesignObjVariation) obj;
-					//only draw the selected variations if this is the root
-					if(this.ParentUIDesignObjVariation != null || objVariation.Selected)
-					{
-						objVariation.Draw(objGraphics, languageID, skinID);
-					}
-				}
-
-				//if this is selected, draw a big ol' rectangle around it
-				if(this.Selected)
-				{
-					objGraphics.DrawRectangle(new Pen(Color.Red, 4), this.RootX, this.RootY, this.Width - 4, this.Height - 4);
-				}
+				objGraphics.DrawRectangle(new Pen(Color.Red, 4), this.RootX, this.RootY, this.Width - 4, this.Height - 4);
 			}
 		}
 
@@ -674,7 +658,7 @@ namespace HADesigner
 
 				if(!this.NeedsParentVariationLink)
 				{
-					if(this.ParentUIDesignObjVariation == null)
+					if(this.ParentUIDesignObj == null)
 					{
 						//this should not happen unless it was a deletion of a root object
 						//in which case all links were removed in SaveToDatabase
@@ -701,7 +685,7 @@ namespace HADesigner
 					//add the row
 					DesignObjVariation_DesignObjDataRow drLink = new DesignObjVariation_DesignObjDataRow(mds.tDesignObjVariation_DesignObj.NewRow());
 					drLink.fFK_DesignObj_Child = this.ID;
-					drLink.fFK_DesignObjVariation_Parent = this.ParentUIDesignObjVariation.ID;
+					drLink.fFK_DesignObjVariation_Parent = this.ParentUIDesignObj.ID;
 
 					DesignObjVariation_DesignObj_Skin_LanguageDataRow drLinkDSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(mds.tDesignObjVariation_DesignObj_Skin_Language.NewRow());
 						

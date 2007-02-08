@@ -155,7 +155,7 @@ namespace HADesigner
 					if (((UIDesignObjVariationCommandParameter)uiOVAP).WarnToSave) return true;
 				}
 				*/
-				foreach(UIChildSkinLanguage uiO in this.DesignObjs)
+				foreach(UIDesignObj uiO in this.DesignObjs)
 				{
 					if (uiO.WarnToSave) return true;
 				}
@@ -540,7 +540,7 @@ namespace HADesigner
 		public void ReleaseBitmaps()
 		{
 			if (this.m_objBitmap != null) this.m_objBitmap.Dispose();
-			foreach (UIChildSkinLanguage uio in this.m_alDesignObjs)
+			foreach (UIDesignObj uio in this.m_alDesignObjs)
 			{
 				uio.ReleaseBitmaps();
 			}
@@ -561,7 +561,7 @@ namespace HADesigner
 		}
 
 
-		public void Draw(Graphics objGraphics, int languageID, int skinID)
+		public void Draw(UIChildSkinLanguage objChildSkinLanguage, Graphics objGraphics, int languageID, int skinID)
 		{
 
 			//determine how to show.  this will depend on what variation is selected and how they want things
@@ -588,11 +588,8 @@ namespace HADesigner
 
 					if(blnDraw)
 					{
-						//get values prescale
-						//int intX = this.ParentUIDesignObj.ParentX;
-						//int intY = this.ParentUIDesignObj.ParentY;
-						int intX = this.ParentUIDesignObj.RootX;
-						int intY = this.ParentUIDesignObj.RootY;
+						int intX = objChildSkinLanguage.RootX;
+						int intY = objChildSkinLanguage.RootY;
 
 						int intWidth = this.Bitmap.Width;
 						int intHeight = this.Bitmap.Height;
@@ -610,13 +607,13 @@ namespace HADesigner
 
 				foreach(object obj in this.DesignObjs)
 				{
-					UIChildSkinLanguage objDesignObj = (UIChildSkinLanguage) obj;
+					UIDesignObj objDesignObj = (UIDesignObj) obj;
 					objDesignObj.Draw(objGraphics,languageID,skinID);
 				}
 				foreach(object obj in this.Text)
 				{
 					UIText objText = (UIText) obj;
-					objText.Draw(objGraphics,this.ParentUIDesignObj.RootX,this.ParentUIDesignObj.RootY,languageID,skinID);
+					objText.Draw(objGraphics,objChildSkinLanguage.RootX,objChildSkinLanguage.RootY,languageID,skinID);
 				}
 			}
 		}
@@ -776,68 +773,20 @@ namespace HADesigner
 				}
 			}
 
-
-
-
 			//get the objects
 			m_iLastDisplayOrder=0;  // Be sure each one has a unique display order
+
 			DataRow[] drDesignObjs = mds.tDesignObjVariation_DesignObj.Select(
 				DesignObjVariation_DesignObjData.FK_DESIGNOBJVARIATION_PARENT_FIELD + "=" + m_intID, 
 				DesignObjVariation_DesignObjData.PK_DESIGNOBJVARIATION_DESIGNOBJ_FIELD);
-
 			foreach(DataRow dr in drDesignObjs)
 			{
 				DesignObjVariation_DesignObjDataRow drDesignObj = new DesignObjVariation_DesignObjDataRow(dr);
 
-				DataRow[] drDesignObjsSL = mds.tDesignObjVariation_DesignObj_Skin_Language.Select(
-					DesignObjVariation_DesignObj_Skin_LanguageData.FK_DESIGNOBJVARIATION_DESIGNOBJ_FIELD + "=" + drDesignObj.fPK_DesignObjVariation_DesignObj, 
-					DesignObjVariation_DesignObj_Skin_LanguageData.PK_DESIGNOBJVARIATION_DESIGNOBJ_SKIN_LANGUAGE_FIELD);
+				UIDesignObj objChildUIDesignObj = new UIDesignObj(this, drDesignObj.fPK_DesignObjVariation_DesignObj, 
+					drDesignObj.fFK_DesignObj_Child, this.GraphicsDirectory);
 
-				foreach(DataRow drSL in drDesignObjsSL)
-				{
-					DesignObjVariation_DesignObj_Skin_LanguageDataRow drDesignObjSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(drSL);
-
-					int nFK_Skin = drDesignObjSL.fFK_SkinIsNull  ? -1 : drDesignObjSL.fFK_Skin;
-					int nFK_Language = drDesignObjSL.fFK_LanguageIsNull ? -1 : drDesignObjSL.fFK_Language;
-						
-					UIChildSkinLanguage objChildUIDesignObjSL = new UIChildSkinLanguage(this, drDesignObjSL.fFK_DesignObjVariation_DesignObj,
-						nFK_Skin, nFK_Language, this.GraphicsDirectory);
-
-					objChildUIDesignObjSL.LinkID = drDesignObjSL.fPK_DesignObjVariation_DesignObj_Skin_Language;
-
-					objChildUIDesignObjSL.CanBeHidden = drDesignObjSL.fCanBeHidden;
-					objChildUIDesignObjSL.HideByDefault = drDesignObjSL.fHideByDefault;
-
-					objChildUIDesignObjSL.IsTabStop = drDesignObjSL.fIsTabStop;
-					objChildUIDesignObjSL.ChildBeforeText = drDesignObjSL.fDisplayChildrenBeforeText;
-					objChildUIDesignObjSL.ChildBehindBG = drDesignObjSL.fDisplayChildrenBehindBackground;
-
-					objChildUIDesignObjSL.TiedTo = drDesignObjSL.fsFK_DesignObj_TiedToIsNull ? "" : drDesignObjSL.fsFK_DesignObj_TiedTo.ToString();
-					objChildUIDesignObjSL.VisibleStates = drDesignObjSL.fVisibleStatesIsNull ? "" : drDesignObjSL.fVisibleStates.ToString();
-					objChildUIDesignObjSL.TS_Up = drDesignObjSL.fFK_DesignObj_UpIsNull ? "" : drDesignObjSL.fFK_DesignObj_Up.ToString();
-					objChildUIDesignObjSL.TS_Down = drDesignObjSL.fFK_DesignObj_DownIsNull ? "" : drDesignObjSL.fFK_DesignObj_Down.ToString();
-					objChildUIDesignObjSL.TS_Left = drDesignObjSL.fFK_DesignObj_LeftIsNull ? "" : drDesignObjSL.fFK_DesignObj_Left.ToString();
-					objChildUIDesignObjSL.TS_Right = drDesignObjSL.fFK_DesignObj_RightIsNull ? "" : drDesignObjSL.fFK_DesignObj_Right.ToString();
-					objChildUIDesignObjSL.BGOnTop = drDesignObjSL.fDisplayChildrenBehindBackground;
-					objChildUIDesignObjSL.RegenerateForEachScreen = drDesignObjSL.fRegenerateForEachScreen;
-
-					objChildUIDesignObjSL.ParentX = drDesignObjSL.fX;
-					objChildUIDesignObjSL.ParentY = drDesignObjSL.fY;
-
-					objChildUIDesignObjSL.Width = (drDesignObjSL.fWidthIsNull) ? -1 : drDesignObjSL.fWidth;
-					objChildUIDesignObjSL.Height = (drDesignObjSL.fHeightIsNull) ? -1 : drDesignObjSL.fHeight;
-
-					objChildUIDesignObjSL.ParentDisplayOrder = drDesignObjSL.fDisplayOrder;
-
-					//set the originals
-					objChildUIDesignObjSL.ResetLinkOriginals();
-
-					if( m_iLastDisplayOrder >= drDesignObjSL.fDisplayOrder )
-						objChildUIDesignObjSL.ParentDisplayOrder = m_iLastDisplayOrder+1;  // We had some duplicates
-					m_iLastDisplayOrder = objChildUIDesignObjSL.ParentDisplayOrder;
-
-					m_alDesignObjs.Add(objChildUIDesignObjSL);
-				}
+				m_alDesignObjs.Add(objChildUIDesignObj);
 			}
 
 			// get the text
@@ -1200,7 +1149,7 @@ namespace HADesigner
 					//save all the children objects
 					foreach(Object obj in this.DesignObjs)
 					{
-						UIChildSkinLanguage objUIDesignObj = (UIChildSkinLanguage) obj;
+						UIDesignObj objUIDesignObj = (UIDesignObj) obj;
 						blnChanged = objUIDesignObj.SaveToDatabase() || blnChanged;
 					}
 
@@ -1281,7 +1230,7 @@ namespace HADesigner
 
 		public void Build(int SkinID, bool SkinChanged)
 		{
-			foreach(UIChildSkinLanguage objUIDesignObj in m_alDesignObjs)
+			foreach(UIDesignObj objUIDesignObj in m_alDesignObjs)
 			{
 				objUIDesignObj.Build(SkinID, SkinChanged);
 			}
@@ -1333,7 +1282,7 @@ namespace HADesigner
 			
 			foreach(Object obj in this.DesignObjs)
 			{
-				UIChildSkinLanguage objUIDesignObj = (UIChildSkinLanguage) obj;
+				UIDesignObj objUIDesignObj = (UIDesignObj) obj;
 				int intDesignObjWidth = objUIDesignObj.Width + objUIDesignObj.ParentX;
 				if(intDesignObjWidth > m_intTotalWidth) m_intTotalWidth = intDesignObjWidth;
 				int intDesignObjHeight = objUIDesignObj.Height + objUIDesignObj.ParentY;
@@ -1344,11 +1293,6 @@ namespace HADesigner
 		private string GetFilePath(int SkinID)
 		{
 			string path = this.GetParameterValue(DesignObjParameterData.GRAPHIC_FILENAME_CONST);
-
-			if(path != "")
-			{
-				int a = 4;
-			}
 
 			if (path == "" || path == " ") return "";
 			else if (path.StartsWith("C:") || path.StartsWith(@"\\")) return path;

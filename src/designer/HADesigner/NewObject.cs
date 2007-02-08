@@ -380,7 +380,7 @@ namespace HADesigner
 			else
 			{
 				//create the object
-				UIDesignObj objUIDesignObj = new UIDesignObj(null, -1, this.MainForm.GraphicsDirectory);
+				UIDesignObj objUIDesignObj = new UIDesignObj(null, -1, -1, this.MainForm.GraphicsDirectory);
 			
 				objUIDesignObj.UIDesignObjType = this.DesignObjType;
 				objUIDesignObj.DesignObjCategory = this.DesignObjCategoryID;

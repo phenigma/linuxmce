@@ -71,12 +71,12 @@ namespace HADesigner
 			get	{return HADataConfiguration.m_mdsCache;}
 		}
 
-		private UIChildSkinLanguage selectedUIDesignObj
+		private UIDesignObj selectedUIDesignObj
 		{
 			get 
 			{
 				if (this.lbChildrenDesignObjs.SelectedIndex == -1) return null;
-				else return (UIChildSkinLanguage)this.lbChildrenDesignObjs.Items[this.lbChildrenDesignObjs.SelectedIndex];
+				else return (UIDesignObj)this.lbChildrenDesignObjs.Items[this.lbChildrenDesignObjs.SelectedIndex];
 			}
 		}
 
@@ -91,7 +91,15 @@ namespace HADesigner
 			{
                 if (this.lbText.SelectedIndex == -1) return null;
 				else return (UIText)this.lbText.Items[this.lbText.SelectedIndex];
-				// return (UIText) this.lbText.SelectedItem;
+			}
+		}
+
+		private UIDesignObj selectedUIChild
+		{
+			get
+			{
+				if (this.lbChildrenDesignObjs.SelectedIndex == -1) return null;
+				else return (UIDesignObj)this.lbChildrenDesignObjs.Items[this.lbChildrenDesignObjs.SelectedIndex];
 			}
 		}
 
@@ -293,7 +301,8 @@ namespace HADesigner
 		{
 			this.defaultDirectory = MainForm.GraphicsDirectory + "\\" + mds.tSkin[1].fDataSubdirectory;
 
-			m_objUIDesignObj = new UIDesignObj(null, intDesignObjID, this.GraphicsDirectory);
+			//TODO ENDER
+			m_objUIDesignObj = new UIDesignObj(null, -1, intDesignObjID, this.GraphicsDirectory);
 			m_objUIDesignObjDisplayControl = new UIDesignObjDisplayControl(this, m_objUIDesignObj, 25);
 			panelPreview.Controls.Add(m_objUIDesignObjDisplayControl);
 
@@ -427,7 +436,6 @@ namespace HADesigner
 			}
 		}
 
-		/*
 		private void loadAvailableLanguageSkins_Child() // for currently selected text item
 		{
 			this.cbLanguageSkin_Child.Items.Clear();
@@ -443,7 +451,6 @@ namespace HADesigner
 				this.cbAlignV.Enabled = this.cbAlignH.Enabled = this.cbStyle.Enabled = true;
 			}
 		}
-		*/
 
 		public void UpdateChildrenDesignObjs() // also updates text
 		{
@@ -459,12 +466,12 @@ namespace HADesigner
 					//we want to put a blank space between each set of variation objects
 					if(lbChildrenDesignObjs.Items.Count > 0)
 					{
-						UIDesignObj objBlank = new UIDesignObj(null, -1, this.GraphicsDirectory);
+						UIDesignObj objBlank = new UIDesignObj(null, -1, -1, this.GraphicsDirectory);
 						lbChildrenDesignObjs.Items.Add(objBlank);
 					}
 
 
-					foreach(UIChildSkinLanguage objDesignObj in objVariation.DesignObjs)
+					foreach(UIDesignObj objDesignObj in objVariation.DesignObjs)
 					{
 						if(objDesignObj.Include)
 						{
@@ -922,7 +929,7 @@ namespace HADesigner
 
 
 
-		public void SelectDesignObj(UIChildSkinLanguage objSelectedUIDesignObj)
+		public void SelectDesignObj(UIDesignObj objSelectedUIDesignObj)
 		{
 			if(objSelectedUIDesignObj == null)
 			{
@@ -2512,7 +2519,11 @@ namespace HADesigner
 						//Get the selected variation
 
 						UIDesignObjVariation objSelectedVariation = (UIDesignObjVariation) lbVariations.SelectedItems[0];
-						UIDesignObj objNewDesignObj =	new	UIDesignObj(objSelectedVariation, otn.DesignObjDataRow.fPK_DesignObj, this.GraphicsDirectory);
+						UIDesignObj objNewDesignObj = new	UIDesignObj(
+							objSelectedVariation, 
+							-1,
+							otn.DesignObjDataRow.fPK_DesignObj, 
+							this.GraphicsDirectory);
 				
 						objNewDesignObj.NeedsParentVariationLink =	true;
 					
@@ -2534,6 +2545,8 @@ namespace HADesigner
 
 						//rebuild the object model
 						m_objUIDesignObj.Build(this.skinID);
+
+						//TODO: add a child here ?
 					}
 				}
 				else if(e.Data.GetDataPresent("HAData.Common.TreeBuilder.TextTreeNode"))
@@ -2671,6 +2684,8 @@ namespace HADesigner
 					tbY.Text = Convert.ToString(this.selectedUIDesignObj.ParentY);
 					tbWidth.Text = Convert.ToString(this.selectedUIDesignObj.Width);
 					tbHeight.Text = Convert.ToString(this.selectedUIDesignObj.Height);
+
+					loadAvailableLanguageSkins_Child();
 					
 				}
 			}
@@ -3277,6 +3292,7 @@ namespace HADesigner
 					bool origBlock = this.BlockUpdateImage();
 
 					this.loadAvailableLanguageSkins();
+					this.loadAvailableLanguageSkins_Child();
 						
 					this.UpdateImage(origBlock);
 				}
@@ -3292,6 +3308,7 @@ namespace HADesigner
 					bool origBlock = this.BlockUpdateImage();
 
 					this.loadAvailableLanguageSkins();
+					this.loadAvailableLanguageSkins_Child();
 						
 					this.UpdateImage(origBlock);
 				}
@@ -3329,6 +3346,7 @@ namespace HADesigner
 					else this.selectedUITSL.Deleted = true; // Delete a New Item
 
 					this.loadAvailableLanguageSkins();
+					this.loadAvailableLanguageSkins_Child();
 
 					this.UpdateImage(origBlock);
 				}
@@ -3351,6 +3369,7 @@ namespace HADesigner
 					else this.selectedUITSL.Deleted = true; // Delete a New Item
 
 					this.loadAvailableLanguageSkins();
+					this.loadAvailableLanguageSkins_Child();
 
 					this.UpdateImage(origBlock);
 				}
@@ -3641,7 +3660,7 @@ namespace HADesigner
 			{
 				bool origBlock = this.BlockUpdateImage();
 				bool copiedText = false;
-				UIChildSkinLanguage dragO = null;
+				UIDesignObj dragO = null;
 				UIText dragT = null;
 				if (e.Effect == DragDropEffects.Move)
 				{
@@ -3663,9 +3682,8 @@ namespace HADesigner
 				{
 					if (isDesignObj)
 					{
-						dragO = new UIChildSkinLanguage(
-							dropOV,dragUIO.uiDesignObj.ID,
-							dragUIO.uiDesignObj.Skin,dragUIO.uiDesignObj.Language, 
+						dragO = new UIDesignObj(
+							dropOV,-1, dragUIO.uiDesignObj.ID,
 							this.GraphicsDirectory);
 
 						dragO.Width = dragUIO.uiDesignObj.Width;
@@ -4392,8 +4410,8 @@ namespace HADesigner
 
 	public class DragUIDesignObj: DragUI
 	{
-		public UIChildSkinLanguage uiDesignObj;
-		public DragUIDesignObj(DesignObjDesigner od, UIChildSkinLanguage uio):base(od)
+		public UIDesignObj uiDesignObj;
+		public DragUIDesignObj(DesignObjDesigner od, UIDesignObj uio):base(od)
 		{
 			this.uiDesignObj = uio;
 		}
