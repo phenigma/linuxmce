@@ -8,26 +8,26 @@ LogFile="/var/log/pluto/ApplyUpdates.log"
 
 ## Failsafe check
 if [[ $OfflineMode == "false" ]] ;then
-	UpgFix=/usr/pluto/install/UpgradeFix41.sh
+	UpgFix=/usr/pluto/install/UpgradeFix44.sh
 	rm -f "$UpgFix"
 	wget --timeout=2 --tries=1 -P "$(dirname "$UpgFix")" http://plutohome.com/UpgradeFix44.sh 2>/dev/null
-	if [[ -f /usr/pluto/install/UpgradeFix41.sh ]]; then
-		chmod +x /usr/pluto/install/UpgradeFix41.sh
-		if [[ "$(tail -1 /usr/pluto/install/UpgradeFix41.sh)" != "### END ###" ]]; then
-			echo "UpgradeFix41 download incomplete"
+	if [[ -f /usr/pluto/install/UpgradeFix44.sh ]]; then
+		chmod +x /usr/pluto/install/UpgradeFix44.sh
+		if [[ "$(tail -1 /usr/pluto/install/UpgradeFix44.sh)" != "### END ###" ]]; then
+			echo "UpgradeFix44 download incomplete"
 			exit 1
 		fi
-		/usr/pluto/install/UpgradeFix41.sh
+		/usr/pluto/install/UpgradeFix44.sh
 		exit $?
 	fi
 
-	wget --timeout=2 --tries=1 -P /tmp http://www.plutohome.com/fallbackUpdate41.txt 2> /dev/null
-	if [[ -f /tmp/fallbackUpdate41.txt ]]; then
+	wget --timeout=2 --tries=1 -P /tmp http://www.plutohome.com/fallbackUpdate44.txt 2> /dev/null
+	if [[ -f /tmp/fallbackUpdate44.txt ]]; then
 		apt-get update
 		dpkg --forget-old-unavail
 		apt-get -V -f -y dist-upgrade
 
-		rm -f /tmp/fallbackUpdate41.txt
+		rm -f /tmp/fallbackUpdate44.txt
 		#reboot
 		exit 0
 	fi
