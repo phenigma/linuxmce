@@ -23,6 +23,12 @@ OpenPort()
 		parmPort="--dport $Port"
 	fi
 	iptables -A INPUT -p "$Protocol" -s "$FilterIP" $parmPort -j ACCEPT
+
+	# samba 139/tcp ports come paired with explicit rejects on 445/tcp
+	# reason: to avoid timeout connecting to 445/tcp in smbclient
+	if [[ "$Protocol $Port" == "tcp 139" ]]; then
+		iptables -A INPUT -p tcp -s "$FilterIP" --dport 445 -j REJECT
+	fi
 }
 
 ForwardPort()
