@@ -14,7 +14,7 @@ int main(int argc, char * argv[])
 	dvd = DVDOpen(argv[1]);
     if (! dvd)
 	{
-		printf("Failed to open the DVD");
+		fprintf(stderr, "disc_unlock: Failed to open the DVD\n");
 		return -1;
 	}
 	DVDClose(dvd);
