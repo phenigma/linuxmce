@@ -32,16 +32,15 @@ PopulateSection()
 	## try to see if is allready used
 	TemplateFile="$TEMPLATE_FILES_DIRECTORY/$(basename $File).template"
 	if [[ -f "$TemplateFile" ]] ;then
-		grep -q "## @FileType: Pluto Sectioned Config File ##" $File
-		isPlutoSectionedFileUsed=$?
+		isPlutoSectionedFileUsed=0
+		grep -q "## @FileType: Pluto Sectioned Config File ##" $File || isPlutoSectionedFileUsed=$?
 		if [[ "$isPlutoSectionedFileUsed" != 0 ]] ;then
 			cp -f $TemplateFile $File
 		fi
 	fi	
 	
 	## Check if our section exists in the file
-	grep -q "^## BEGIN : $SectionName" "$File"
-	if [[ "$?" != "0" ]]; then
+	if grep -q "^## BEGIN : $SectionName" "$File"; then
 		echo -e "\n## BEGIN : $SectionName\n\n## END : $SectionName\n" >> "$File"
 	fi
 
