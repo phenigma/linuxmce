@@ -26,7 +26,7 @@ namespace HADesigner
 		}
 		public void UnBlockUpdateImage(bool origBlock)
 		{
-            this.updateImageBlocked = origBlock;
+			this.updateImageBlocked = origBlock;
 		}
 
 		private void UpdateImage()
@@ -36,7 +36,7 @@ namespace HADesigner
 		private void UpdateImage(bool origBlock)
 		{
 			this.updateImageBlocked = origBlock;
-            if (!origBlock) this.m_objUIDesignObjDisplayControl.UpdateImage();
+			if (!origBlock) this.m_objUIDesignObjDisplayControl.UpdateImage();
 		}
 
 		public bool warnSaveChanges = true;
@@ -89,7 +89,7 @@ namespace HADesigner
 		{
 			get 
 			{
-                if (this.lbText.SelectedIndex == -1) return null;
+				if (this.lbText.SelectedIndex == -1) return null;
 				else return (UIText)this.lbText.Items[this.lbText.SelectedIndex];
 			}
 		}
@@ -110,7 +110,18 @@ namespace HADesigner
 
 		private UIChildSkinLanguage selectedUICSL
 		{
-			get {return (UIChildSkinLanguage)this.cbLanguageSkin_Child.SelectedItem;}
+			get 
+			{
+				if(null != selectedUIDesignObj && selectedUIDesignObj.ID != -1)
+				{
+					UIDesignObjVariation objvar = null;
+					return selectedUIDesignObj.GetCurrentChildSkinLanguage(
+						m_objUIDesignObjDisplayControl.CurrentLanguageForChild(),
+						m_objUIDesignObjDisplayControl.CurrentSkinForChild(), ref objvar);
+				}
+
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -2668,29 +2679,28 @@ namespace HADesigner
 				this.chCanBeHidden.Enabled = this.chRegenerateForEachScreen.Enabled = this.chHideByDefault.Enabled = true;
 				this.chChildBehindBG.Enabled = false;
 								
-				if (this.selectedUIDesignObj.ID != -1)
+				if (this.selectedUIDesignObj.ID != -1 && null != this.selectedUICSL)
 				{
-					this.chCanBeHidden.Checked = this.selectedUIDesignObj.CanBeHidden;
-					this.chHideByDefault.Checked = this.selectedUIDesignObj.HideByDefault;
-					this.chChildBehindBG.Checked = this.selectedUIDesignObj.ChildBehindBG;
-					this.tbTS_Up.Text = this.selectedUIDesignObj.TS_Up;
-					this.tbTS_Down.Text = this.selectedUIDesignObj.TS_Down;
-					this.tbTS_Right.Text = this.selectedUIDesignObj.TS_Right;
-					this.tbTS_Left.Text = this.selectedUIDesignObj.TS_Left;
-					this.tbTiedTo.Text = this.selectedUIDesignObj.TiedTo;
-					this.tbVisibleStates.Text = selectedUIDesignObj.VisibleStates;
-					this.chChildBeforeText.Checked = this.selectedUIDesignObj.ChildBeforeText;
-					this.chDontMergeBG.Checked = this.selectedUIDesignObj.DontMergeBG;
-					this.chIsTabStop.Checked = this.selectedUIDesignObj.IsTabStop;
-					this.chDontResetSelectedState.Checked = this.selectedUIDesignObj.DontResetSelectedState;
-					this.chRegenerateForEachScreen.Checked = this.selectedUIDesignObj.RegenerateForEachScreen;
-					tbX.Text = Convert.ToString(this.selectedUIDesignObj.ParentX);
-					tbY.Text = Convert.ToString(this.selectedUIDesignObj.ParentY);
-					tbWidth.Text = Convert.ToString(this.selectedUIDesignObj.Width);
-					tbHeight.Text = Convert.ToString(this.selectedUIDesignObj.Height);
+					this.chCanBeHidden.Checked = this.selectedUICSL.CanBeHidden;
+					this.chHideByDefault.Checked = this.selectedUICSL.HideByDefault;
+					this.chChildBehindBG.Checked = this.selectedUICSL.ChildBehindBG;
+					this.tbTS_Up.Text = this.selectedUICSL.TS_Up;
+					this.tbTS_Down.Text = this.selectedUICSL.TS_Down;
+					this.tbTS_Right.Text = this.selectedUICSL.TS_Right;
+					this.tbTS_Left.Text = this.selectedUICSL.TS_Left;
+					this.tbTiedTo.Text = this.selectedUICSL.TiedTo;
+					this.tbVisibleStates.Text = selectedUICSL.VisibleStates;
+					this.chChildBeforeText.Checked = this.selectedUICSL.ChildBeforeText;
+					this.chDontMergeBG.Checked = this.selectedUICSL.DontMergeBG;
+					this.chIsTabStop.Checked = this.selectedUICSL.IsTabStop;
+					this.chDontResetSelectedState.Checked = this.selectedUICSL.DontResetSelectedState;
+					this.chRegenerateForEachScreen.Checked = this.selectedUICSL.RegenerateForEachScreen;
+					tbX.Text = Convert.ToString(this.selectedUICSL.ParentX);
+					tbY.Text = Convert.ToString(this.selectedUICSL.ParentY);
+					tbWidth.Text = Convert.ToString(this.selectedUICSL.Width);
+					tbHeight.Text = Convert.ToString(this.selectedUICSL.Height);
 
 					loadAvailableLanguageSkins_Child();
-					
 				}
 			}
 			else if (this.processTextSelectChange && sender == this.lbText && this.selectedUIText != null)
@@ -4248,20 +4258,6 @@ namespace HADesigner
 
 	}
 
-
-
-
-
-
-
-
-
-
-	
-
-
-
-
 	public class UIDesignObjDisplayControl : Control
 	{
 		private UIDesignObj m_UIDesignObj;
@@ -4277,6 +4273,16 @@ namespace HADesigner
 		public new double Scale
 		{
 			get	{return m_dblScale;}
+		}
+
+		public int CurrentLanguageForChild()
+		{
+			return m_objParentForm.LanguageID;
+		}
+
+		public int CurrentSkinForChild()
+		{
+            return m_objParentForm.SkinID;
 		}
 
 		public void ReleaseBitmap()

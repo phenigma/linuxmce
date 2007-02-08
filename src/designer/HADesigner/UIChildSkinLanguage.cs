@@ -446,36 +446,34 @@ namespace HADesigner
 
 			this.ParentDisplayOrder = dr.fDisplayOrder;
 			this.RootX = dr.fX;
-			this.RootY = dr.fY;
+			this.RootY = dr.fY;			
+			this.ParentX = dr.fX;
+			this.ParentY = dr.fY;
 			this.Width = dr.fWidth;
 			this.Height = dr.fHeight;
 
 
+			CanBeHidden = dr.fCanBeHidden;
+			HideByDefault = dr.fHideByDefault;
+			ChildBehindBG = dr.fDisplayChildrenBehindBackground;
+
+			TS_Up = dr.fFK_DesignObj_UpIsNull ? "" : dr.fFK_DesignObj_Up.ToString();
+			TS_Down = dr.fFK_DesignObj_DownIsNull ? "" : dr.fFK_DesignObj_Down.ToString();
+			TS_Right = dr.fFK_DesignObj_RightIsNull ? "" : dr.fFK_DesignObj_Right.ToString();
+			TS_Left = dr.fFK_DesignObj_RightIsNull ? "" : dr.fFK_DesignObj_Left.ToString();
+			TiedTo = dr.fsFK_DesignObj_TiedTo;
+			VisibleStates = dr.fVisibleStates;
+			ChildBeforeText = dr.fDisplayChildrenBeforeText;
+			DontMergeBG = dr.fDontMergeBackground;
+			IsTabStop = dr.fIsTabStop;
+			//DontResetSelectedState = dr.f;
+			RegenerateForEachScreen = dr.fRegenerateForEachScreen;
+
 /*
-DisplayOrder                                   int(11)                        0                        select,insert,update,references
-X                                              int(11)                        0                        select,insert,update,references
-Y                                              int(11)                        0                        select,insert,update,references
-Width                                          int(11)        YES             (NULL)                   select,insert,update,references
-Height                                         int(11)        YES             (NULL)                   select,insert,update,references
 FK_DesignObj_InsteadOf                         int(11)        YES             (NULL)                   select,insert,update,references
-CanBeHidden                                    tinyint(4)                     0                        select,insert,update,references
-HideByDefault                                  tinyint(4)                     0                        select,insert,update,references
-RegenerateForEachScreen                        tinyint(4)                     0                        select,insert,update,references
-DisplayChildrenBeforeText                      tinyint(4)                     0                        select,insert,update,references
-DisplayChildrenBehindBackground                tinyint(4)                     0                        select,insert,update,references
-DontMergeBackground                            tinyint(4)                     0                        select,insert,update,references
-IsTabStop                                      tinyint(4)                     0                        select,insert,update,references
-FK_DesignObj_Up                                int(11)        YES             (NULL)                   select,insert,update,references
-FK_DesignObj_Down                              int(11)        YES             (NULL)                   select,insert,update,references
-FK_DesignObj_Left                              int(11)        YES             (NULL)                   select,insert,update,references
-FK_DesignObj_Right                             int(11)        YES             (NULL)                   select,insert,update,references
-sFK_DesignObj_TiedTo                           varchar(14)    YES             (NULL)                   select,insert,update,references
 VisibleStates                                  varchar(10)    YES             (NULL)                   select,insert,update,references
 Ignore      
 */																														
-
-
-			Debug.WriteLine("Loaded " + ID + " with values " + RootX + "," + RootY + "," + Width + "," + Height);
 
 			//set the originals so we know how and when to save
 			this.ResetOriginals();
