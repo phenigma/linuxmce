@@ -16,13 +16,13 @@ Content="${Content}/dev/cdrom      /cdrom          iso9660 ro,user,noauto       
 Content="${Content}sysfs           /sys            sysfs   defaults                0       0\n"
 Content="${Content}${IntIP}:/usr/pluto/diskless/${Parm_Device} /                  nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
 Content="${Content}${IntIP}:/usr/pluto/var                    /usr/pluto/var      nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
-Content="${Content}${IntIP}:/src/pluto/orbiter                /usr/pluto/orbiter  nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
+Content="${Content}${IntIP}:/usr/pluto/orbiter                /usr/pluto/orbiter  nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
 Content="${Content}${IntIP}:/usr/pluto/keys                   /usr/pluto/keys     nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
-Content="${Content}${IntIP}:/usr/pluto/deb-cache              /usr/pluto/debcache nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
-Content="${Content}//${IntIP}:/home                           /home               cifs credentials=/usr/pluto/var/sambaCredentials.secret   1 1\n"
+Content="${Content}${IntIP}:/usr/pluto/deb-cache              /usr/pluto/deb-cache nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
+Content="${Content}//${IntIP}/home                           /home               cifs credentials=/usr/pluto/var/sambaCredentials.secret   1 1\n"
 Content="${Content}\n"
 
 
 mkdir -p "${Parm_RootLocation}/$(dirname $File)"
-echo "$Content" > "${Parm_RootLocation}/${File}"
+echo -e $Content > "${Parm_RootLocation}/${File}"
 

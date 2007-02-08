@@ -65,6 +65,7 @@ mkdir -p $TEMP_DIR/usr/pluto/deb-cache
 cp {,"$TEMP_DIR"}/etc/apt/apt.conf.d/30pluto
 
 ## Update the chrooted system (needed when created from archive)
+#chroot $TEMP_DIR /bin/bash
 chroot $TEMP_DIR apt-get -y update
 chroot $TEMP_DIR apt-get -f -y install
 chroot $TEMP_DIR apt-get -f -y dist-upgrade
