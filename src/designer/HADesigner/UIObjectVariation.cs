@@ -571,7 +571,6 @@ namespace HADesigner
 				this.Show = this.Selected; //this is a top level variation, so only show the selected ones
 			}
 
-
 			if(this.Include && this.Show)
 			{
 				string strTemp;
@@ -1201,7 +1200,7 @@ namespace HADesigner
 					//save all the children objects
 					foreach(Object obj in this.DesignObjs)
 					{
-						UIDesignObj objUIDesignObj = (UIDesignObj) obj;
+						UIChildSkinLanguage objUIDesignObj = (UIChildSkinLanguage) obj;
 						blnChanged = objUIDesignObj.SaveToDatabase() || blnChanged;
 					}
 
@@ -1345,6 +1344,11 @@ namespace HADesigner
 		private string GetFilePath(int SkinID)
 		{
 			string path = this.GetParameterValue(DesignObjParameterData.GRAPHIC_FILENAME_CONST);
+
+			if(path != "")
+			{
+				int a = 4;
+			}
 
 			if (path == "" || path == " ") return "";
 			else if (path.StartsWith("C:") || path.StartsWith(@"\\")) return path;

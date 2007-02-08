@@ -43,7 +43,7 @@ namespace HADesigner
 
 
 		//TODO: this will change when we have multiple select capability
-		private UIDesignObj m_UIDesignObjSelected = null;
+		private UIChildSkinLanguage m_UIDesignObjSelected = null;
 		
 		
 
@@ -200,7 +200,7 @@ namespace HADesigner
 		}
 
 
-		public UIDesignObj SelectedDesignObj
+		public UIChildSkinLanguage SelectedDesignObj
 		{
 			get {return m_UIDesignObjSelected;}
 		}
@@ -1054,7 +1054,7 @@ namespace HADesigner
 						//go thru and see if any DesignObjs have been clicked
 						foreach(Object obj2 in objVariation.DesignObjs)
 						{
-							UIDesignObj objUIDesignObj = (UIDesignObj) obj2;
+							UIChildSkinLanguage objUIDesignObj = (UIChildSkinLanguage) obj2;
 							if(objUIDesignObj.Contains(intX, intY))
 							{
 								alFound.Add(objUIDesignObj);
@@ -1083,7 +1083,7 @@ namespace HADesigner
 				if(alFound.Count == 1)
 				{
 					//toggle the item
-					UIDesignObj objUIDesignObj = (UIDesignObj) alFound[0];
+					UIChildSkinLanguage objUIDesignObj = (UIChildSkinLanguage) alFound[0];
 					objUIDesignObj.Selected = !objUIDesignObj.Selected;
 
 					//deselect the old one
@@ -1111,7 +1111,7 @@ namespace HADesigner
 					//find the selected item if there is one
 					for(int intCount=0; intCount < alFound.Count; intCount++)
 					{
-						UIDesignObj objUIDesignObj = (UIDesignObj) alFound[intCount];
+						UIChildSkinLanguage objUIDesignObj = (UIChildSkinLanguage) alFound[intCount];
 						if(objUIDesignObj.Selected) 
 						{
 							intSelectedIndex = intCount;
@@ -1142,13 +1142,13 @@ namespace HADesigner
 
 					if(intSelectedIndex != -1)
 					{
-						UIDesignObj objUIDesignObjSelectedTemp;
-						objUIDesignObjSelectedTemp = (UIDesignObj) alFound[intSelectedIndex];
+						UIChildSkinLanguage objUIDesignObjSelectedTemp;
+						objUIDesignObjSelectedTemp = (UIChildSkinLanguage) alFound[intSelectedIndex];
 						objUIDesignObjSelectedTemp.Selected = false;
 					}
 
-					UIDesignObj objNewUIDesignObjSelectedTemp;
-					objNewUIDesignObjSelectedTemp = (UIDesignObj) alFound[intNewSelectedIndex];
+					UIChildSkinLanguage objNewUIDesignObjSelectedTemp;
+					objNewUIDesignObjSelectedTemp = (UIChildSkinLanguage) alFound[intNewSelectedIndex];
 					objNewUIDesignObjSelectedTemp.Selected = true;
 
 					if(m_UIDesignObjSelected != null)

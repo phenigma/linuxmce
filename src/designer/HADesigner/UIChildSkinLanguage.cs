@@ -878,5 +878,14 @@ namespace HADesigner
 				}
 			}
 		}
+
+		public bool Contains(int intX, int intY)
+		{
+			if (this.Include) 
+			{
+				return ((intX >= this.RootX) && (intX <= (this.RootX + this.Width)) && (intY >= this.RootY) && (intY <= (this.RootY + this.Height)));
+			}
+			else return false;
+		}
 	}
 }

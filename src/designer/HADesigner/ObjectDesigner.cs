@@ -922,7 +922,7 @@ namespace HADesigner
 
 
 
-		public void SelectDesignObj(UIDesignObj objSelectedUIDesignObj)
+		public void SelectDesignObj(UIChildSkinLanguage objSelectedUIDesignObj)
 		{
 			if(objSelectedUIDesignObj == null)
 			{
@@ -1017,6 +1017,9 @@ namespace HADesigner
 			this.lVariationOwner = new System.Windows.Forms.Label();
 			this.label11 = new System.Windows.Forms.Label();
 			this.tabChildren = new System.Windows.Forms.TabPage();
+			this.cbLanguageSkin_Child = new System.Windows.Forms.ComboBox();
+			this.btnAddSkinLanguage_Child = new System.Windows.Forms.Button();
+			this.btnRemoveSkinLanguage_Child = new System.Windows.Forms.Button();
 			this.btnChildDown = new System.Windows.Forms.Button();
 			this.btnChildUp = new System.Windows.Forms.Button();
 			this.tbVisibleStates = new System.Windows.Forms.TextBox();
@@ -1083,9 +1086,6 @@ namespace HADesigner
 			this.pnOnActivateParameters = new System.Windows.Forms.Panel();
 			this.labAvailableCommands = new System.Windows.Forms.Label();
 			this.labSelectedCommands = new System.Windows.Forms.Label();
-			this.cbLanguageSkin_Child = new System.Windows.Forms.ComboBox();
-			this.btnAddSkinLanguage_Child = new System.Windows.Forms.Button();
-			this.btnRemoveSkinLanguage_Child = new System.Windows.Forms.Button();
 			this.tabButtons.SuspendLayout();
 			this.tabAllPages.SuspendLayout();
 			this.tabParameters.SuspendLayout();
@@ -1107,7 +1107,7 @@ namespace HADesigner
 			this.panelPreview.Dock = System.Windows.Forms.DockStyle.Top;
 			this.panelPreview.Location = new System.Drawing.Point(0, 0);
 			this.panelPreview.Name = "panelPreview";
-			this.panelPreview.Size = new System.Drawing.Size(920, 576);
+			this.panelPreview.Size = new System.Drawing.Size(936, 576);
 			this.panelPreview.TabIndex = 0;
 			this.panelPreview.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelPreview_DragEnter);
 			this.panelPreview.Paint += new System.Windows.Forms.PaintEventHandler(this.panelPreview_Paint);
@@ -1198,7 +1198,7 @@ namespace HADesigner
 			// tbX
 			// 
 			this.tbX.Enabled = false;
-			this.tbX.Location = new System.Drawing.Point(400, 48);
+			this.tbX.Location = new System.Drawing.Point(416, 80);
 			this.tbX.Name = "tbX";
 			this.tbX.Size = new System.Drawing.Size(40, 20);
 			this.tbX.TabIndex = 15;
@@ -1208,7 +1208,7 @@ namespace HADesigner
 			// 
 			// label1
 			// 
-			this.label1.Location = new System.Drawing.Point(384, 48);
+			this.label1.Location = new System.Drawing.Point(400, 80);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(16, 23);
 			this.label1.TabIndex = 17;
@@ -1216,7 +1216,7 @@ namespace HADesigner
 			// 
 			// label2
 			// 
-			this.label2.Location = new System.Drawing.Point(448, 48);
+			this.label2.Location = new System.Drawing.Point(464, 80);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(16, 23);
 			this.label2.TabIndex = 19;
@@ -1225,7 +1225,7 @@ namespace HADesigner
 			// tbY
 			// 
 			this.tbY.Enabled = false;
-			this.tbY.Location = new System.Drawing.Point(464, 48);
+			this.tbY.Location = new System.Drawing.Point(480, 80);
 			this.tbY.Name = "tbY";
 			this.tbY.Size = new System.Drawing.Size(40, 20);
 			this.tbY.TabIndex = 18;
@@ -1235,7 +1235,7 @@ namespace HADesigner
 			// 
 			// label3
 			// 
-			this.label3.Location = new System.Drawing.Point(384, 72);
+			this.label3.Location = new System.Drawing.Point(400, 104);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(40, 23);
 			this.label3.TabIndex = 21;
@@ -1244,7 +1244,7 @@ namespace HADesigner
 			// tbWidth
 			// 
 			this.tbWidth.Enabled = false;
-			this.tbWidth.Location = new System.Drawing.Point(400, 72);
+			this.tbWidth.Location = new System.Drawing.Point(416, 104);
 			this.tbWidth.Name = "tbWidth";
 			this.tbWidth.Size = new System.Drawing.Size(40, 20);
 			this.tbWidth.TabIndex = 20;
@@ -1254,7 +1254,7 @@ namespace HADesigner
 			// 
 			// label4
 			// 
-			this.label4.Location = new System.Drawing.Point(448, 72);
+			this.label4.Location = new System.Drawing.Point(464, 104);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(40, 23);
 			this.label4.TabIndex = 23;
@@ -1263,7 +1263,7 @@ namespace HADesigner
 			// tbHeight
 			// 
 			this.tbHeight.Enabled = false;
-			this.tbHeight.Location = new System.Drawing.Point(464, 72);
+			this.tbHeight.Location = new System.Drawing.Point(480, 104);
 			this.tbHeight.Name = "tbHeight";
 			this.tbHeight.Size = new System.Drawing.Size(40, 20);
 			this.tbHeight.TabIndex = 22;
@@ -1387,7 +1387,7 @@ namespace HADesigner
 														  "Left",
 														  "Center",
 														  "Right"});
-			this.cbAlignH.Location = new System.Drawing.Point(448, 24);
+			this.cbAlignH.Location = new System.Drawing.Point(464, 56);
 			this.cbAlignH.MaxDropDownItems = 9;
 			this.cbAlignH.Name = "cbAlignH";
 			this.cbAlignH.Size = new System.Drawing.Size(56, 21);
@@ -1414,7 +1414,7 @@ namespace HADesigner
 			// chRegenerateForEachScreen
 			// 
 			this.chRegenerateForEachScreen.Enabled = false;
-			this.chRegenerateForEachScreen.Location = new System.Drawing.Point(512, 152);
+			this.chRegenerateForEachScreen.Location = new System.Drawing.Point(536, 160);
 			this.chRegenerateForEachScreen.Name = "chRegenerateForEachScreen";
 			this.chRegenerateForEachScreen.Size = new System.Drawing.Size(120, 16);
 			this.chRegenerateForEachScreen.TabIndex = 39;
@@ -1424,7 +1424,7 @@ namespace HADesigner
 			// chChildBehindBG
 			// 
 			this.chChildBehindBG.Enabled = false;
-			this.chChildBehindBG.Location = new System.Drawing.Point(512, 48);
+			this.chChildBehindBG.Location = new System.Drawing.Point(536, 56);
 			this.chChildBehindBG.Name = "chChildBehindBG";
 			this.chChildBehindBG.Size = new System.Drawing.Size(168, 16);
 			this.chChildBehindBG.TabIndex = 40;
@@ -1434,7 +1434,7 @@ namespace HADesigner
 			// chCanBeHidden
 			// 
 			this.chCanBeHidden.Enabled = false;
-			this.chCanBeHidden.Location = new System.Drawing.Point(512, 0);
+			this.chCanBeHidden.Location = new System.Drawing.Point(536, 8);
 			this.chCanBeHidden.Name = "chCanBeHidden";
 			this.chCanBeHidden.Size = new System.Drawing.Size(72, 16);
 			this.chCanBeHidden.TabIndex = 38;
@@ -1449,7 +1449,7 @@ namespace HADesigner
 														  "Top",
 														  "Middle",
 														  "Bottom"});
-			this.cbAlignV.Location = new System.Drawing.Point(392, 24);
+			this.cbAlignV.Location = new System.Drawing.Point(408, 56);
 			this.cbAlignV.Name = "cbAlignV";
 			this.cbAlignV.Size = new System.Drawing.Size(56, 21);
 			this.cbAlignV.TabIndex = 37;
@@ -1539,7 +1539,7 @@ namespace HADesigner
 			this.tabAllPages.Location = new System.Drawing.Point(152, 584);
 			this.tabAllPages.Name = "tabAllPages";
 			this.tabAllPages.SelectedIndex = 0;
-			this.tabAllPages.Size = new System.Drawing.Size(768, 216);
+			this.tabAllPages.Size = new System.Drawing.Size(776, 256);
 			this.tabAllPages.TabIndex = 32;
 			this.tabAllPages.SelectedIndexChanged += new System.EventHandler(this.tabAllPages_SelectedIndexChanged);
 			// 
@@ -1559,7 +1559,7 @@ namespace HADesigner
 			this.tabParameters.Controls.Add(this.pnParameters);
 			this.tabParameters.Location = new System.Drawing.Point(4, 22);
 			this.tabParameters.Name = "tabParameters";
-			this.tabParameters.Size = new System.Drawing.Size(760, 190);
+			this.tabParameters.Size = new System.Drawing.Size(768, 230);
 			this.tabParameters.TabIndex = 0;
 			this.tabParameters.Text = "General Info";
 			// 
@@ -1695,9 +1695,38 @@ namespace HADesigner
 			this.tabChildren.Controls.Add(this.btnRemoveDesignObj);
 			this.tabChildren.Location = new System.Drawing.Point(4, 22);
 			this.tabChildren.Name = "tabChildren";
-			this.tabChildren.Size = new System.Drawing.Size(760, 190);
+			this.tabChildren.Size = new System.Drawing.Size(768, 230);
 			this.tabChildren.TabIndex = 7;
 			this.tabChildren.Text = "Children";
+			// 
+			// cbLanguageSkin_Child
+			// 
+			this.cbLanguageSkin_Child.DisplayMember = "LanguageSkin";
+			this.cbLanguageSkin_Child.Location = new System.Drawing.Point(392, 0);
+			this.cbLanguageSkin_Child.Name = "cbLanguageSkin_Child";
+			this.cbLanguageSkin_Child.Size = new System.Drawing.Size(136, 21);
+			this.cbLanguageSkin_Child.TabIndex = 67;
+			this.cbLanguageSkin_Child.Text = "Language - Skin";
+			this.cbLanguageSkin_Child.ValueMember = "ID";
+			this.cbLanguageSkin_Child.SelectedIndexChanged += new System.EventHandler(this.cbLanguageSkin_Child_SelectedIndexChanged);
+			// 
+			// btnAddSkinLanguage_Child
+			// 
+			this.btnAddSkinLanguage_Child.Location = new System.Drawing.Point(392, 24);
+			this.btnAddSkinLanguage_Child.Name = "btnAddSkinLanguage_Child";
+			this.btnAddSkinLanguage_Child.Size = new System.Drawing.Size(80, 24);
+			this.btnAddSkinLanguage_Child.TabIndex = 68;
+			this.btnAddSkinLanguage_Child.Text = "Add skin/lang";
+			this.btnAddSkinLanguage_Child.Click += new System.EventHandler(this.btnAddSkinLanguage_Child_Click_1);
+			// 
+			// btnRemoveSkinLanguage_Child
+			// 
+			this.btnRemoveSkinLanguage_Child.Location = new System.Drawing.Point(472, 24);
+			this.btnRemoveSkinLanguage_Child.Name = "btnRemoveSkinLanguage_Child";
+			this.btnRemoveSkinLanguage_Child.Size = new System.Drawing.Size(56, 24);
+			this.btnRemoveSkinLanguage_Child.TabIndex = 69;
+			this.btnRemoveSkinLanguage_Child.Text = "remove";
+			this.btnRemoveSkinLanguage_Child.Click += new System.EventHandler(this.btnRemoveSkinLanguage_Child_Click_1);
 			// 
 			// btnChildDown
 			// 
@@ -1719,7 +1748,7 @@ namespace HADesigner
 			// 
 			// tbVisibleStates
 			// 
-			this.tbVisibleStates.Location = new System.Drawing.Point(648, 144);
+			this.tbVisibleStates.Location = new System.Drawing.Point(664, 144);
 			this.tbVisibleStates.Name = "tbVisibleStates";
 			this.tbVisibleStates.Size = new System.Drawing.Size(88, 20);
 			this.tbVisibleStates.TabIndex = 64;
@@ -1728,7 +1757,7 @@ namespace HADesigner
 			// 
 			// label21
 			// 
-			this.label21.Location = new System.Drawing.Point(648, 128);
+			this.label21.Location = new System.Drawing.Point(664, 128);
 			this.label21.Name = "label21";
 			this.label21.Size = new System.Drawing.Size(80, 16);
 			this.label21.TabIndex = 63;
@@ -1736,7 +1765,7 @@ namespace HADesigner
 			// 
 			// tbTiedTo
 			// 
-			this.tbTiedTo.Location = new System.Drawing.Point(648, 104);
+			this.tbTiedTo.Location = new System.Drawing.Point(664, 104);
 			this.tbTiedTo.Name = "tbTiedTo";
 			this.tbTiedTo.Size = new System.Drawing.Size(64, 20);
 			this.tbTiedTo.TabIndex = 62;
@@ -1745,7 +1774,7 @@ namespace HADesigner
 			// 
 			// label19
 			// 
-			this.label19.Location = new System.Drawing.Point(648, 88);
+			this.label19.Location = new System.Drawing.Point(664, 88);
 			this.label19.Name = "label19";
 			this.label19.Size = new System.Drawing.Size(72, 16);
 			this.label19.TabIndex = 61;
@@ -1753,7 +1782,7 @@ namespace HADesigner
 			// 
 			// tbTS_Right
 			// 
-			this.tbTS_Right.Location = new System.Drawing.Point(712, 64);
+			this.tbTS_Right.Location = new System.Drawing.Point(728, 64);
 			this.tbTS_Right.Name = "tbTS_Right";
 			this.tbTS_Right.Size = new System.Drawing.Size(40, 20);
 			this.tbTS_Right.TabIndex = 60;
@@ -1762,7 +1791,7 @@ namespace HADesigner
 			// 
 			// label17
 			// 
-			this.label17.Location = new System.Drawing.Point(696, 64);
+			this.label17.Location = new System.Drawing.Point(712, 64);
 			this.label17.Name = "label17";
 			this.label17.Size = new System.Drawing.Size(16, 23);
 			this.label17.TabIndex = 59;
@@ -1771,7 +1800,7 @@ namespace HADesigner
 			// 
 			// tbTS_Left
 			// 
-			this.tbTS_Left.Location = new System.Drawing.Point(656, 64);
+			this.tbTS_Left.Location = new System.Drawing.Point(672, 64);
 			this.tbTS_Left.Name = "tbTS_Left";
 			this.tbTS_Left.Size = new System.Drawing.Size(40, 20);
 			this.tbTS_Left.TabIndex = 58;
@@ -1780,7 +1809,7 @@ namespace HADesigner
 			// 
 			// label18
 			// 
-			this.label18.Location = new System.Drawing.Point(672, 64);
+			this.label18.Location = new System.Drawing.Point(688, 64);
 			this.label18.Name = "label18";
 			this.label18.Size = new System.Drawing.Size(16, 23);
 			this.label18.TabIndex = 57;
@@ -1789,7 +1818,7 @@ namespace HADesigner
 			// 
 			// tbTS_Down
 			// 
-			this.tbTS_Down.Location = new System.Drawing.Point(712, 40);
+			this.tbTS_Down.Location = new System.Drawing.Point(728, 40);
 			this.tbTS_Down.Name = "tbTS_Down";
 			this.tbTS_Down.Size = new System.Drawing.Size(40, 20);
 			this.tbTS_Down.TabIndex = 56;
@@ -1798,7 +1827,7 @@ namespace HADesigner
 			// 
 			// label16
 			// 
-			this.label16.Location = new System.Drawing.Point(696, 40);
+			this.label16.Location = new System.Drawing.Point(712, 40);
 			this.label16.Name = "label16";
 			this.label16.Size = new System.Drawing.Size(16, 23);
 			this.label16.TabIndex = 55;
@@ -1807,7 +1836,7 @@ namespace HADesigner
 			// 
 			// tbTS_Up
 			// 
-			this.tbTS_Up.Location = new System.Drawing.Point(656, 40);
+			this.tbTS_Up.Location = new System.Drawing.Point(672, 40);
 			this.tbTS_Up.Name = "tbTS_Up";
 			this.tbTS_Up.Size = new System.Drawing.Size(40, 20);
 			this.tbTS_Up.TabIndex = 54;
@@ -1816,7 +1845,7 @@ namespace HADesigner
 			// 
 			// label15
 			// 
-			this.label15.Location = new System.Drawing.Point(672, 40);
+			this.label15.Location = new System.Drawing.Point(688, 40);
 			this.label15.Name = "label15";
 			this.label15.Size = new System.Drawing.Size(16, 23);
 			this.label15.TabIndex = 53;
@@ -1825,7 +1854,7 @@ namespace HADesigner
 			// 
 			// label14
 			// 
-			this.label14.Location = new System.Drawing.Point(640, 24);
+			this.label14.Location = new System.Drawing.Point(656, 24);
 			this.label14.Name = "label14";
 			this.label14.Size = new System.Drawing.Size(100, 16);
 			this.label14.TabIndex = 52;
@@ -1833,7 +1862,7 @@ namespace HADesigner
 			// 
 			// chIsTabStop
 			// 
-			this.chIsTabStop.Location = new System.Drawing.Point(512, 120);
+			this.chIsTabStop.Location = new System.Drawing.Point(536, 128);
 			this.chIsTabStop.Name = "chIsTabStop";
 			this.chIsTabStop.TabIndex = 51;
 			this.chIsTabStop.Text = "Is Tab Stop";
@@ -1842,7 +1871,7 @@ namespace HADesigner
 			// chDontMergeBG
 			// 
 			this.chDontMergeBG.Enabled = false;
-			this.chDontMergeBG.Location = new System.Drawing.Point(512, 96);
+			this.chDontMergeBG.Location = new System.Drawing.Point(536, 104);
 			this.chDontMergeBG.Name = "chDontMergeBG";
 			this.chDontMergeBG.Size = new System.Drawing.Size(112, 16);
 			this.chDontMergeBG.TabIndex = 50;
@@ -1852,7 +1881,7 @@ namespace HADesigner
 			// chChildBeforeText
 			// 
 			this.chChildBeforeText.Enabled = false;
-			this.chChildBeforeText.Location = new System.Drawing.Point(512, 72);
+			this.chChildBeforeText.Location = new System.Drawing.Point(536, 80);
 			this.chChildBeforeText.Name = "chChildBeforeText";
 			this.chChildBeforeText.Size = new System.Drawing.Size(168, 16);
 			this.chChildBeforeText.TabIndex = 49;
@@ -1862,7 +1891,7 @@ namespace HADesigner
 			// tbOpacity
 			// 
 			this.tbOpacity.Enabled = false;
-			this.tbOpacity.Location = new System.Drawing.Point(464, 96);
+			this.tbOpacity.Location = new System.Drawing.Point(480, 128);
 			this.tbOpacity.Name = "tbOpacity";
 			this.tbOpacity.Size = new System.Drawing.Size(40, 20);
 			this.tbOpacity.TabIndex = 45;
@@ -1873,7 +1902,7 @@ namespace HADesigner
 			// tbRotate
 			// 
 			this.tbRotate.Enabled = false;
-			this.tbRotate.Location = new System.Drawing.Point(400, 96);
+			this.tbRotate.Location = new System.Drawing.Point(416, 128);
 			this.tbRotate.Name = "tbRotate";
 			this.tbRotate.Size = new System.Drawing.Size(40, 20);
 			this.tbRotate.TabIndex = 43;
@@ -1883,7 +1912,7 @@ namespace HADesigner
 			// 
 			// label5
 			// 
-			this.label5.Location = new System.Drawing.Point(384, 96);
+			this.label5.Location = new System.Drawing.Point(400, 128);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(40, 23);
 			this.label5.TabIndex = 44;
@@ -1891,7 +1920,7 @@ namespace HADesigner
 			// 
 			// label7
 			// 
-			this.label7.Location = new System.Drawing.Point(448, 96);
+			this.label7.Location = new System.Drawing.Point(464, 128);
 			this.label7.Name = "label7";
 			this.label7.Size = new System.Drawing.Size(40, 23);
 			this.label7.TabIndex = 46;
@@ -1900,7 +1929,7 @@ namespace HADesigner
 			// btnBGColorTSL
 			// 
 			this.btnBGColorTSL.Enabled = false;
-			this.btnBGColorTSL.Location = new System.Drawing.Point(392, 120);
+			this.btnBGColorTSL.Location = new System.Drawing.Point(408, 152);
 			this.btnBGColorTSL.Name = "btnBGColorTSL";
 			this.btnBGColorTSL.Size = new System.Drawing.Size(104, 23);
 			this.btnBGColorTSL.TabIndex = 48;
@@ -1910,7 +1939,7 @@ namespace HADesigner
 			// chHideByDefault
 			// 
 			this.chHideByDefault.Enabled = false;
-			this.chHideByDefault.Location = new System.Drawing.Point(512, 24);
+			this.chHideByDefault.Location = new System.Drawing.Point(536, 32);
 			this.chHideByDefault.Name = "chHideByDefault";
 			this.chHideByDefault.Size = new System.Drawing.Size(104, 16);
 			this.chHideByDefault.TabIndex = 47;
@@ -2152,7 +2181,7 @@ namespace HADesigner
 			this.pnCommandGroupInfo.Controls.Add(this.labSelectedCommands);
 			this.pnCommandGroupInfo.Location = new System.Drawing.Point(160, 608);
 			this.pnCommandGroupInfo.Name = "pnCommandGroupInfo";
-			this.pnCommandGroupInfo.Size = new System.Drawing.Size(752, 184);
+			this.pnCommandGroupInfo.Size = new System.Drawing.Size(752, 208);
 			this.pnCommandGroupInfo.TabIndex = 41;
 			// 
 			// lMasterDevice
@@ -2322,38 +2351,10 @@ namespace HADesigner
 			this.labSelectedCommands.TabIndex = 10;
 			this.labSelectedCommands.Text = "Selected Commands";
 			// 
-			// cbLanguageSkin_Child
-			// 
-			this.cbLanguageSkin_Child.DisplayMember = "LanguageSkin";
-			this.cbLanguageSkin_Child.Location = new System.Drawing.Point(392, 0);
-			this.cbLanguageSkin_Child.Name = "cbLanguageSkin_Child";
-			this.cbLanguageSkin_Child.Size = new System.Drawing.Size(112, 21);
-			this.cbLanguageSkin_Child.TabIndex = 67;
-			this.cbLanguageSkin_Child.Text = "Language - Skin";
-			this.cbLanguageSkin_Child.ValueMember = "ID";
-			// 
-			// btnAddSkinLanguage_Child
-			// 
-			this.btnAddSkinLanguage_Child.Location = new System.Drawing.Point(392, 24);
-			this.btnAddSkinLanguage_Child.Name = "btnAddSkinLanguage_Child";
-			this.btnAddSkinLanguage_Child.Size = new System.Drawing.Size(64, 16);
-			this.btnAddSkinLanguage_Child.TabIndex = 68;
-			this.btnAddSkinLanguage_Child.Text = "Add skin/lang";
-			this.btnAddSkinLanguage_Child.Click += new System.EventHandler(this.btnAddSkinLanguage_Child_Click);
-			// 
-			// btnRemoveSkinLanguage_Child
-			// 
-			this.btnRemoveSkinLanguage_Child.Location = new System.Drawing.Point(472, 24);
-			this.btnRemoveSkinLanguage_Child.Name = "btnRemoveSkinLanguage_Child";
-			this.btnRemoveSkinLanguage_Child.Size = new System.Drawing.Size(40, 16);
-			this.btnRemoveSkinLanguage_Child.TabIndex = 69;
-			this.btnRemoveSkinLanguage_Child.Text = "remove";
-			this.btnRemoveSkinLanguage_Child.Click += new System.EventHandler(this.btnRemoveSkinLanguage_Child_Click);
-			// 
 			// DesignObjDesigner
 			// 
 			this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-			this.ClientSize = new System.Drawing.Size(920, 809);
+			this.ClientSize = new System.Drawing.Size(936, 849);
 			this.Controls.Add(this.pnCommandGroupInfo);
 			this.Controls.Add(this.cbAnimate);
 			this.Controls.Add(this.lblPriority);
@@ -4206,6 +4207,21 @@ namespace HADesigner
 					objSelectedVariation.CEffectNoChange = Convert.ToInt32(objPair.ID);
 				}
 			}
+		}
+
+		private void btnAddSkinLanguage_Child_Click_1(object sender, System.EventArgs e)
+		{
+			//
+		}
+
+		private void btnRemoveSkinLanguage_Child_Click_1(object sender, System.EventArgs e)
+		{
+			//
+		}
+
+		private void cbLanguageSkin_Child_SelectedIndexChanged(object sender, System.EventArgs e)
+		{
+			//
 		}
 
 	}
