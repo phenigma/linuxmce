@@ -11,7 +11,7 @@ case "$Param" in
 		if [[ "$VideoRefresh" == 60 && "$VideoResolution" == 640x480 ]]; then
 			exit 0 # No change required
 		fi
-		kill -USR2 $PPID
+		killall -USR2 AVWizard
 		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480' | tee-pluto /var/log/pluto/Xconfigure.log
 		echo '640x480 60 640 480' >/tmp/avwizard-resolution.txt
 	;;
@@ -30,7 +30,7 @@ case "$Param" in
 			VideoResolution_Size="$ResolutionFullName"
 		fi
 
-		kill -USR1 $PPID
+		killall -USR1 AVWizard
 
 		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution "$VideoResolution_Size@$RequestedRefresh" | tee-pluto /var/log/pluto/Xconfigure.log
 		WindowWidth="${VideoResolution_Size%x*}"
