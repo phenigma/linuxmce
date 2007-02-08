@@ -834,11 +834,15 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 		for(size_t sTitle=0;sTitle<pMediaStream->m_dequeMediaTitle.size();++sTitle)
 		{
 			MediaTitle *pMediaTitle = pMediaStream->m_dequeMediaTitle[sTitle];
-			string sTitleName = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaTitle->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST));
+			list_int *listPK_Attribute = pMediaTitle->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST);
+			int PK_Attribute_Title = listPK_Attribute && listPK_Attribute->size() ? *(listPK_Attribute->begin()) : 0;
+			string sTitleName = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Title);
 			for(size_t sSection=0;sSection<pMediaTitle->m_dequeMediaSection.size();++sSection)
 			{
 				MediaSection *pMediaSection = pMediaTitle->m_dequeMediaSection[sSection];
-				string sCell = StringUtils::itos(sSection+1) + " " + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaSection->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST));
+				list_int *listPK_Attribute = pMediaSection->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST);
+				int PK_Attribute_Title = listPK_Attribute && listPK_Attribute->size() ? *(listPK_Attribute->begin()) : 0;
+				string sCell = StringUtils::itos(sSection+1) + " " + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Title);
 				string sValue = " TITLE:" + StringUtils::itos(sTitle+1) + " CHAPTER:" + StringUtils::itos(sSection+1);
 				pDataGrid->SetData(0, currentPos++,new DataGridCell(sCell,sValue));
 				if( sTitle==pMediaStream->m_iDequeMediaTitle_Pos && sSection==pMediaStream->m_iDequeMediaSection_Pos )
@@ -1390,16 +1394,19 @@ class DataGridTable *Media_Plugin::MediaAttrCurStream( string GridID, string Par
 		return pDataGrid;
 
 	int iRow=0;
-	for(map<int,int>::iterator it=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.begin();it!=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.end();++it)
+	for(map<int,list_int>::iterator it=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.begin();it!=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.end();++it)
 	{
 		Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
-		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
-		if( pRow_AttributeType && pRow_Attribute )
+		for(list_int::iterator itli=it->second.begin();itli!=it->second.end();++itli)
 		{
-			string sName = pRow_AttributeType->Description_get() + ": ";
-			sName += pRow_Attribute->Name_get();
-			DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
-			pDataGrid->SetData(0,iRow++,pCell);
+			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(*itli);
+			if( pRow_AttributeType && pRow_Attribute )
+			{
+				string sName = pRow_AttributeType->Description_get() + ": ";
+				sName += pRow_Attribute->Name_get();
+				DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(*itli) );
+				pDataGrid->SetData(0,iRow++,pCell);
+			}
 		}
 	}
 
@@ -1413,15 +1420,19 @@ class DataGridTable *Media_Plugin::MediaAttrCurStream( string GridID, string Par
 		else
 			sNamePrefix = "(#" + StringUtils::itos(pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos+1) + ") ";
 		*/
-		for( map<int,int>::iterator it=pMediaFile->m_mapPK_Attribute.begin();it!=pMediaFile->m_mapPK_Attribute.end();++it)
+
+		for( map<int,list_int>::iterator it=pMediaFile->m_mapPK_Attribute.begin();it!=pMediaFile->m_mapPK_Attribute.end();++it)
 		{
 			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
-			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
-			if( pRow_AttributeType && pRow_Attribute )
+			for(list_int::iterator itli=it->second.begin();itli!=it->second.end();++itli)
 			{
-				string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
-				DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
-				pDataGrid->SetData(0,iRow++,pCell);
+				Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(*itli);
+				if( pRow_AttributeType && pRow_Attribute )
+				{
+					string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
+					DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(*itli) );
+					pDataGrid->SetData(0,iRow++,pCell);
+				}
 			}
 		}
 		AddMediaSectionToDataGrid(pDataGrid,iRow,pMediaFile->m_dequeMediaSection,sNamePrefix);
@@ -1439,15 +1450,19 @@ void Media_Plugin::AddMediaTitlesToDataGrid(DataGridTable *pDataGrid,int &iRow,d
 	{
 		MediaTitle *pMediaTitle = dequeMediaTitle[s];
 		string sNamePrefix = "(Title " + StringUtils::itos(s+1) + ") ";
-		for( map<int,int>::iterator it=pMediaTitle->m_mapPK_Attribute.begin();it!=pMediaTitle->m_mapPK_Attribute.end();++it)
+
+		for( map<int,list_int>::iterator it=pMediaTitle->m_mapPK_Attribute.begin();it!=pMediaTitle->m_mapPK_Attribute.end();++it)
 		{
 			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
-			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
-			if( pRow_AttributeType && pRow_Attribute && (bThumbnail==false || CanThumbnail(pRow_AttributeType->PK_AttributeType_get())) )
+			for(list_int::iterator itli=it->second.begin();itli!=it->second.end();++itli)
 			{
-				string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
-				DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(it->second) );
-				pDataGrid->SetData(0,iRow++,pCell);
+				Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(*itli);
+				if( pRow_AttributeType && pRow_Attribute && (bThumbnail==false || CanThumbnail(pRow_AttributeType->PK_AttributeType_get())) )
+				{
+					string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
+					DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(*itli) );
+					pDataGrid->SetData(0,iRow++,pCell);
+				}
 			}
 		}
 		AddMediaSectionToDataGrid(pDataGrid,iRow,pMediaTitle->m_dequeMediaSection,sNamePrefix,bThumbnail);
@@ -1459,16 +1474,20 @@ void Media_Plugin::AddMediaSectionToDataGrid(DataGridTable *pDataGrid,int &iRow,
 	for(size_t s=0;s<dequeMediaSection.size();++s)
 	{
 		MediaSection *pMediaSection = dequeMediaSection[s];
-		for( map<int,int>::iterator it=pMediaSection->m_mapPK_Attribute.begin();it!=pMediaSection->m_mapPK_Attribute.end();++it)
+
+		for( map<int,list_int>::iterator it=pMediaSection->m_mapPK_Attribute.begin();it!=pMediaSection->m_mapPK_Attribute.end();++it)
 		{
 			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
-			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
-			if( pRow_AttributeType && pRow_Attribute && (bThumbnail==false || CanThumbnail(pRow_AttributeType->PK_AttributeType_get())) )
+			for(list_int::iterator itli=it->second.begin();itli!=it->second.end();++itli)
 			{
-				string sName = sPreface + " #" + StringUtils::itos(s+1) + " ";
-				sName += pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
-				DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(it->second) );
-				pDataGrid->SetData(0,iRow++,pCell);
+				Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(*itli);
+				if( pRow_AttributeType && pRow_Attribute && (bThumbnail==false || CanThumbnail(pRow_AttributeType->PK_AttributeType_get())) )
+				{
+					string sName = sPreface + " #" + StringUtils::itos(s+1) + " ";
+					sName += pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
+					DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(*itli) );
+					pDataGrid->SetData(0,iRow++,pCell);
+				}
 			}
 		}
 	}
@@ -2019,16 +2038,27 @@ class DataGridTable *Media_Plugin::ThumbnailableAttributes( string GridID, strin
 		return pDataGrid;
 
 	int iRow=0;
-	for(map<int,int>::iterator it=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.begin();it!=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.end();++it)
+
+	list<DataGridCell *> listDataGridCell; // So we can force some attributes to the top
+
+	for(map<int,list_int>::iterator it=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.begin();it!=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.end();++it)
 	{
 		Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
-		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
-		if( pRow_AttributeType && pRow_Attribute && CanThumbnail(pRow_AttributeType->PK_AttributeType_get()) )
+		for(list_int::iterator itli=it->second.begin();itli!=it->second.end();++itli)
 		{
-			string sName = pRow_AttributeType->Description_get() + ": ";
-			sName += pRow_Attribute->Name_get();
-			DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(it->second) );
-			pDataGrid->SetData(0,iRow++,pCell);
+			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(*itli);
+			if( pRow_AttributeType && pRow_Attribute && CanThumbnail(pRow_AttributeType->PK_AttributeType_get()) )
+			{
+				string sName = pRow_AttributeType->Description_get() + ": ";
+				sName += pRow_Attribute->Name_get();
+				DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(*itli) );
+				if( pRow_AttributeType->PK_AttributeType_get()==ATTRIBUTETYPE_Title_CONST )
+					pDataGrid->SetData(0,iRow++,pCell);
+				else if( pRow_AttributeType->PK_AttributeType_get()==ATTRIBUTETYPE_Performer_CONST || pRow_AttributeType->PK_AttributeType_get()==ATTRIBUTETYPE_Album_CONST )
+					listDataGridCell.push_front(pCell);
+				else
+					listDataGridCell.push_back(pCell);
+			}
 		}
 	}
 
@@ -2043,20 +2073,31 @@ class DataGridTable *Media_Plugin::ThumbnailableAttributes( string GridID, strin
 			pDataGrid->SetData(0,iRow++,pCell);
 		}
 		
-		for( map<int,int>::iterator it=pMediaFile->m_mapPK_Attribute.begin();it!=pMediaFile->m_mapPK_Attribute.end();++it)
+		for( map<int,list_int>::iterator it=pMediaFile->m_mapPK_Attribute.begin();it!=pMediaFile->m_mapPK_Attribute.end();++it)
 		{
 			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
-			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
-			if( pRow_AttributeType && pRow_Attribute && CanThumbnail(pRow_AttributeType->PK_AttributeType_get()))
+			for(list_int::iterator itli=it->second.begin();itli!=it->second.end();++itli)
 			{
-				string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
-				DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(it->second) );
-				pDataGrid->SetData(0,iRow++,pCell);
+				Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(*itli);
+				if( pRow_AttributeType && pRow_Attribute && CanThumbnail(pRow_AttributeType->PK_AttributeType_get()))
+				{
+					string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
+					DataGridCell *pCell = new DataGridCell( sName, "!A" + StringUtils::itos(*itli) );
+					if( pRow_AttributeType->PK_AttributeType_get()==ATTRIBUTETYPE_Title_CONST )
+						pDataGrid->SetData(0,iRow++,pCell);
+					else if( pRow_AttributeType->PK_AttributeType_get()==ATTRIBUTETYPE_Performer_CONST || pRow_AttributeType->PK_AttributeType_get()==ATTRIBUTETYPE_Album_CONST )
+						listDataGridCell.push_front(pCell);
+					else
+						listDataGridCell.push_back(pCell);
+				}
 			}
 		}
 		AddMediaSectionToDataGrid(pDataGrid,iRow,pMediaFile->m_dequeMediaSection,sNamePrefix,true);
 		AddMediaTitlesToDataGrid(pDataGrid,iRow,pMediaFile->m_dequeMediaTitle,sNamePrefix,true);
 	}
+
+	for(list<DataGridCell *>::iterator it=listDataGridCell.begin();it!=listDataGridCell.end();++it)
+		pDataGrid->SetData(0,iRow++,*it);
 
 	AddMediaTitlesToDataGrid(pDataGrid,iRow,pEntertainArea->m_pMediaStream->m_dequeMediaTitle,"",true);
 

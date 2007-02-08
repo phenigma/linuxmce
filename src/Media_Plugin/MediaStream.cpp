@@ -329,26 +329,49 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 		else if( !pMediaFile )
 			pMediaFile = GetCurrentMediaFile();
 
-		int PK_Attribute;
 		Row_Attribute *pRow_Attribute_Album=NULL,*pRow_Attribute_Performer=NULL,*pRow_Attribute_Title=NULL;
 
 		// First try to find attributes for the particular song, otherwise look in the collection
 		if( pMediaFile )
 		{
-			if( !pRow_Attribute_Performer && (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST))!=0 )
-				pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-			if( !pRow_Attribute_Album && (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST))!=0 )
-				pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);	
-			if( !pRow_Attribute_Title && (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST))!=0 )
-				pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);	
+			if( !pRow_Attribute_Performer )
+			{
+				list_int *listPK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
+				if( listPK_Attribute && listPK_Attribute->size() )
+					pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+			}
+			if( !pRow_Attribute_Album )
+			{
+				list_int *listPK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
+				if( listPK_Attribute && listPK_Attribute->size() )
+					pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+			}
+			if( !pRow_Attribute_Title )
+			{
+				list_int *listPK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
+				if( listPK_Attribute && listPK_Attribute->size() )
+					pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+			}
 		}
 
-		if( !pRow_Attribute_Performer && (PK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST))!=0 )
-			pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-		if( !pRow_Attribute_Album && (PK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST))!=0 )
-			pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);	
-		if( !pRow_Attribute_Title && (PK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST))!=0 )
-			pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);	
+		if( !pRow_Attribute_Performer )
+		{
+			list_int *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
+			if( listPK_Attribute && listPK_Attribute->size() )
+				pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+		}
+		if( !pRow_Attribute_Album )
+		{
+			list_int *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
+			if( listPK_Attribute && listPK_Attribute->size() )
+				pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+		}
+		if( !pRow_Attribute_Title )
+		{
+			list_int *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
+			if( listPK_Attribute && listPK_Attribute->size() )
+				pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+		}
 
 		if( (pRow_Attribute_Performer || pRow_Attribute_Album) && m_iPK_MediaType!=MEDIATYPE_pluto_StoredVideo_CONST )
 		{
@@ -398,15 +421,26 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 		else if( m_iDequeMediaSection_Pos>=0 && m_iDequeMediaSection_Pos<m_dequeMediaSection.size() )
 			pMediaSection=m_dequeMediaSection[m_iDequeMediaSection_Pos];
 
-		int PK_Attribute;
 		Row_Attribute *pRow_Attribute_Title=NULL,*pRow_Attribute_Chapter=NULL;
 
-		if( !pRow_Attribute_Title && pMediaTitle && (PK_Attribute = pMediaTitle->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST))!=0 )
-			pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-		if( !pRow_Attribute_Title && (PK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST))!=0 )
-			pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-		if( !pRow_Attribute_Chapter && pMediaSection && (PK_Attribute = pMediaSection->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST))!=0 )
-			pRow_Attribute_Chapter = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);	
+		if( !pRow_Attribute_Title && pMediaTitle )
+		{
+			list_int *listPK_Attribute = pMediaTitle->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
+			if( listPK_Attribute && listPK_Attribute->size() )
+				pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+		}
+		if( !pRow_Attribute_Title )
+		{
+			list_int *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
+			if( listPK_Attribute && listPK_Attribute->size() )
+				pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+		}
+		if( !pRow_Attribute_Chapter )
+		{
+			list_int *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST);
+			if( listPK_Attribute && listPK_Attribute->size() )
+				pRow_Attribute_Chapter = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+		}
 
 		if( pRow_Attribute_Title )
 			m_sMediaDescription = pRow_Attribute_Title->Name_get();

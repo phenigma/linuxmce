@@ -6487,13 +6487,15 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	{
 		if( UsesUIVersion2() )
 			StopScreenSaver();
-		if( m_sActiveApplication_Window.empty() )
-			CMD_Activate_Window(m_sNowPlaying_Window);
-		else
+
+		if( m_sActiveApplication_Window.empty()==false && m_pScreenHistory_Current
+			&& (m_pScreenHistory_Current->PK_Screen()==m_PK_Screen_ActiveApp_OSD || m_pScreenHistory_Current->PK_Screen()==m_PK_Screen_ActiveApp_Remote) )
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"Orbiter::CMD_Set_Now_Playing media is playing, but so is the application %s",m_sActiveApplication_Window.c_str());
 			CMD_Activate_Window(m_sActiveApplication_Window);
 		}
+		else
+			CMD_Activate_Window(m_sNowPlaying_Window);
 	}
 	else
 	{

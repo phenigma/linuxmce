@@ -5321,11 +5321,16 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,
 			{
 				if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 				{
-					*sFilename = FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]));
+					list_int *listPK_Attribute_Performer = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
+					list_int *listPK_Attribute_Album = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
+					int PK_Attribute_Performer = listPK_Attribute_Performer && listPK_Attribute_Performer->size() ? *(listPK_Attribute_Performer->begin()) : 0;
+					int PK_Attribute_Album = listPK_Attribute_Album && listPK_Attribute_Album->size() ? *(listPK_Attribute_Album->begin()) : 0;
+
+					*sFilename = FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Performer));
 					if(sFilename->size())
 						*sFilename += "/"; // We got a performer
 
-					*sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]));
+					*sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Album));
 				}
 				else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
 					*sFilename = FileUtils::ValidFileName(pMediaStream->m_sMediaDescription);
@@ -5615,7 +5620,7 @@ void Media_Plugin::CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Siz
         g_pPlutoLogger->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
         pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
 		// Don't forward to the generic handler/capture card--it's just ourself
-        if( pOH_Orbiter->m_pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo!=m_pGenericMediaHandlerInfo && pPlugIn->ReceivedMessage( pMessage )!=rmr_Processed )
+        if( pOH_Orbiter->m_pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo!=m_pGenericMediaHandlerInfo && pPlugIn->ReceivedMessage( pMessage )==rmr_Processed )
 			return; // The plugin handled this
 	}
 
@@ -5650,6 +5655,7 @@ void Media_Plugin::CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Siz
 			pRow_Picture_Attribute->FK_Attribute_set( pRow_Attribute->PK_Attribute_get() );
 			pRow_Picture_Attribute->FK_Picture_set( pRow_Picture->PK_Picture_get() );
 			m_pDatabase_pluto_media->Picture_Attribute_get()->Commit();
+			return;
 		}
 		else
 			return; // Don't know how to handle
