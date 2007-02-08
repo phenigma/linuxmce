@@ -61,10 +61,6 @@ AptSrc_ParseSourcesList()
 # Description: Output currently memorized sources.list
 AptSrc_WriteSourcesList()
 {
-	if [[ -z "$AptSrc_WasParsed" ]]; then
-		AptSrc_ParseSourcesList
-	fi
-
 	local VarBase VarComp
 	local id
 
@@ -72,5 +68,14 @@ AptSrc_WriteSourcesList()
 		VarBase="AptSrc_base_${id}"
 		VarComp="AptSrc_comp_${id}"
 		echo "${!VarBase} ${!VarComp}"
+	done
+}
+
+# Description: Clear internal state
+AptSrc_Clear()
+{
+	local Var
+	for Var in ${!AptSrc_*}; do
+		unset $Var
 	done
 }
