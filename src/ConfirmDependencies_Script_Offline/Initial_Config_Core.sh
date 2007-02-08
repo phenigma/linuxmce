@@ -8,6 +8,7 @@ fi
 
 
 . /usr/pluto/install/Common.sh
+. /usr/pluto/install/AptSources.sh
 DIR="/usr/pluto/install"
 # Initial firewall rules to block services use at install
 /sbin/iptables -P INPUT DROP
@@ -22,15 +23,13 @@ mkdir -p /usr/pluto/var
 Activation_Code=1111
 
 ## Setup apt sources.list
-Sources="# Pluto sources - start
-deb file:/usr/pluto/deb-cache/ sarge main
-deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main
-deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main
-deb http://deb.plutohome.com/debian/ sarge main non-free contrib
-deb http://deb.plutohome.com/debian/ unstable mythtv
-deb http://www.yttron.as.ro/ sarge main
-# Pluto sources - end"
-echo "$Sources" >/etc/apt/sources.list
+AptSrc_AddSource "deb file:/usr/pluto/deb-cache/ sarge main"
+AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main"
+AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main"
+AptSrc_AddSource "deb http://deb.plutohome.com/debian/ sarge main non-free contrib"
+AptSrc_AddSource "deb http://deb.plutohome.com/debian/ unstable mythtv"
+AptSrc_AddSource "deb http://www.yttron.as.ro/ sarge main"
+AptSrc_WriteSourcesList >/etc/apt/sources.list
 
 SourcesOffline="# Pluto sources offline - start
 deb file:/usr/pluto/deb-cache/ sarge main
@@ -402,7 +401,8 @@ while :; do
 			ExtraRepository=$(Ask "Add a new repository? [y/N]")
 			if [[ "$ExtraRepository" == y || "$ExtraRepository" == Y ]]; then
 				ExtraRepositoryPath=$(Ask "Enter repository path")
-				echo "$ExtraRepositoryPath" >>/etc/apt/sources.list
+				AptSrc_AddSource "$ExtraRepositoryPath"
+				AptSrc_WriteSourcesList >/etc/apt/sources.list
 				apt-get update
 				break
 			elif [[ "$ExtraRepository" == n || "$ExtraRepository" == N || -z "$ExtraRepository" ]]; then
