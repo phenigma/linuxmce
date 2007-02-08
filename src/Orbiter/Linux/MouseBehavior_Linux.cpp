@@ -112,28 +112,31 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 	}
 
 	m_rMouseConstrained = rect;
-	m_bMouseConstrained = rect.X!=0 || rect.Y!=0 || rect.Width!=0 || rect.Height!=0;
-    //return false;
-    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d)",
-                          rect.X, rect.Y, rect.Width, rect.Height
-                          );
-    static const char sWindowClassName[] = "constrain_mouse.constrain_mouse";
-    bool bResult = ptrOrbiterLinux()->m_pX11->Mouse_Constrain(rect.X, rect.Y, rect.Width, rect.Height, ptrOrbiterLinux()->GetMainWindow());
-    if (bResult)
-    {
-		//ptrOrbiterLinux()->m_pWinListManager->SetLayer(sWindowClassName, LayerBelow);
-        ptrOrbiterLinux()->m_pWinListManager->ActivateSdlWindow();
-        g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : done",
-                              rect.X, rect.Y, rect.Width, rect.Height
-                              );
-    }
-    else
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : error",
-                              rect.X, rect.Y, rect.Width, rect.Height
-                              );
-    }
-    return bResult;
+
+	bool bResult = true;
+	if(rect.Width == ptrOrbiterLinux()->m_iImageWidth && rect.Height == ptrOrbiterLinux()->m_iImageHeight)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse: releasing constrain mouse ");
+		return ptrOrbiterLinux()->m_pX11->Mouse_Constrain_Release();
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d)", rect.X, rect.Y, rect.Width, rect.Height);
+		bResult = ptrOrbiterLinux()->m_pX11->Mouse_Constrain(rect.X, rect.Y, rect.Width, rect.Height, ptrOrbiterLinux()->GetMainWindow());
+	}
+
+	if (bResult)
+	{
+		ptrOrbiterLinux()->m_pWinListManager->ActivateSdlWindow();
+		g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : done",
+			rect.X, rect.Y, rect.Width, rect.Height);
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : error",
+			rect.X, rect.Y, rect.Width, rect.Height);
+	}
+	return bResult;
 }
 
 void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
