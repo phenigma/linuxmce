@@ -57,6 +57,10 @@ ConfEval()
 		Unlock "pluto.conf" "Config_Ops-ConfEval" nolog
 		exit 0
 	fi
+
+	# make sure Display is unset and we don't get it from the environment
+	unset Display
+
 	# Note to self: this "read from file into while" is absolutely necessary
 	#               "cmd | while ..." spawns a subshell and our veriables will be set there instead of our current shell
 	#               "while ...; do ...; done <file" works the way we need
@@ -68,6 +72,12 @@ ConfEval()
 		eval "export $line" &>/dev/null
 	done </etc/pluto.conf
 	Unlock "pluto.conf" "Config_Ops-ConfEval" nolog
+
+	# if there was no Display in pluto.conf, set it to 0
+	# rationale: Installing 2.0.0.44 by using a 2.0.0.43 CD needs this, otherwise X won't start
+	if [[ -z "$Display" ]]; then
+		ConfSet Display 0
+	fi
 	return $Ret
 }
 
