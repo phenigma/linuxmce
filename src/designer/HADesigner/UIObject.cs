@@ -143,6 +143,12 @@ namespace HADesigner
 			set {this.m_intDesignObjID = value;}
 		}
 
+		public int DOV_DO_ID
+		{
+			get {return this.m_intID;}
+			set {this.m_intID = value;}
+		}
+
 		public string DescriptionOnly
 		{
 			get {return this.m_strDescription;}
@@ -558,19 +564,21 @@ namespace HADesigner
 			m_blnNeedsDBDelete = false;
 			
 
-
-			DataRow[] drDSL = mds.tDesignObjVariation_DesignObj_Skin_Language.Select(DesignObjVariation_DesignObj_Skin_LanguageData.FK_DESIGNOBJVARIATION_DESIGNOBJ_FIELD + "=" + m_intID);
-
 			UIChildSkinLanguage uidsl;
-			foreach(DataRow drc in drDSL)
+			if(m_intID != -1)
 			{
-				DesignObjVariation_DesignObj_Skin_LanguageDataRow drOVDSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(drc);
-				uidsl = new UIChildSkinLanguage(this, 
-					drOVDSL.fPK_DesignObjVariation_DesignObj_Skin_Language,
-					drOVDSL.fFK_SkinIsNull ? -1 : drOVDSL.fFK_Skin, 
-					drOVDSL.fFK_LanguageIsNull ? -1 : drOVDSL.fFK_Language,
-					graphicsDirectory);
-				this.alChildSkinLanguages.Add(uidsl);
+				DataRow[] drDSL = mds.tDesignObjVariation_DesignObj_Skin_Language.Select(DesignObjVariation_DesignObj_Skin_LanguageData.FK_DESIGNOBJVARIATION_DESIGNOBJ_FIELD + "=" + m_intID);
+
+				foreach(DataRow drc in drDSL)
+				{
+					DesignObjVariation_DesignObj_Skin_LanguageDataRow drOVDSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(drc);
+					uidsl = new UIChildSkinLanguage(this, 
+						drOVDSL.fPK_DesignObjVariation_DesignObj_Skin_Language,
+						drOVDSL.fFK_SkinIsNull ? -1 : drOVDSL.fFK_Skin, 
+						drOVDSL.fFK_LanguageIsNull ? -1 : drOVDSL.fFK_Language,
+						graphicsDirectory);
+					this.alChildSkinLanguages.Add(uidsl);
+				}
 			}
 
 			if (this.alChildSkinLanguages.Count==0) // No OVTSL rows for this OVT, Add a default row.
@@ -704,6 +712,12 @@ namespace HADesigner
 			if(this.ParentUIDesignObjVariation == null && blnChanged)
 			{
 				mds.Update(1,mds.m_conn,mds.m_trans);
+			}
+
+			foreach(Object obj in this.ChildSkinLanguages)
+			{
+				UIChildSkinLanguage child = (UIChildSkinLanguage)obj;
+				blnChanged = child.SaveLinkToDatabase();
 			}
 
 			return blnChanged;

@@ -1535,7 +1535,7 @@ namespace HADesigner
 			this.tabButtons.Controls.Add(this.label6);
 			this.tabButtons.Location = new System.Drawing.Point(4, 22);
 			this.tabButtons.Name = "tabButtons";
-			this.tabButtons.Size = new System.Drawing.Size(760, 190);
+			this.tabButtons.Size = new System.Drawing.Size(768, 230);
 			this.tabButtons.TabIndex = 1;
 			this.tabButtons.Text = "Button";
 			// 
@@ -1985,7 +1985,7 @@ namespace HADesigner
 			// 
 			this.tabOnActivate.Location = new System.Drawing.Point(4, 22);
 			this.tabOnActivate.Name = "tabOnActivate";
-			this.tabOnActivate.Size = new System.Drawing.Size(760, 190);
+			this.tabOnActivate.Size = new System.Drawing.Size(768, 230);
 			this.tabOnActivate.TabIndex = 2;
 			this.tabOnActivate.Text = "OnActivate";
 			// 
@@ -1993,7 +1993,7 @@ namespace HADesigner
 			// 
 			this.tabOnLoad.Location = new System.Drawing.Point(4, 22);
 			this.tabOnLoad.Name = "tabOnLoad";
-			this.tabOnLoad.Size = new System.Drawing.Size(760, 190);
+			this.tabOnLoad.Size = new System.Drawing.Size(768, 230);
 			this.tabOnLoad.TabIndex = 3;
 			this.tabOnLoad.Text = "OnLoad";
 			// 
@@ -2001,7 +2001,7 @@ namespace HADesigner
 			// 
 			this.tabOnUnload.Location = new System.Drawing.Point(4, 22);
 			this.tabOnUnload.Name = "tabOnUnload";
-			this.tabOnUnload.Size = new System.Drawing.Size(760, 190);
+			this.tabOnUnload.Size = new System.Drawing.Size(768, 230);
 			this.tabOnUnload.TabIndex = 4;
 			this.tabOnUnload.Text = "OnUnload";
 			// 
@@ -2009,7 +2009,7 @@ namespace HADesigner
 			// 
 			this.tabOnStartup.Location = new System.Drawing.Point(4, 22);
 			this.tabOnStartup.Name = "tabOnStartup";
-			this.tabOnStartup.Size = new System.Drawing.Size(760, 190);
+			this.tabOnStartup.Size = new System.Drawing.Size(768, 230);
 			this.tabOnStartup.TabIndex = 5;
 			this.tabOnStartup.Text = "OnStartup";
 			// 
@@ -2017,7 +2017,7 @@ namespace HADesigner
 			// 
 			this.tabOnHighlight.Location = new System.Drawing.Point(4, 22);
 			this.tabOnHighlight.Name = "tabOnHighlight";
-			this.tabOnHighlight.Size = new System.Drawing.Size(760, 190);
+			this.tabOnHighlight.Size = new System.Drawing.Size(768, 230);
 			this.tabOnHighlight.TabIndex = 6;
 			this.tabOnHighlight.Text = "OnHighlight";
 			// 
@@ -2025,7 +2025,7 @@ namespace HADesigner
 			// 
 			this.tabOnUnhighlight.Location = new System.Drawing.Point(4, 22);
 			this.tabOnUnhighlight.Name = "tabOnUnhighlight";
-			this.tabOnUnhighlight.Size = new System.Drawing.Size(760, 190);
+			this.tabOnUnhighlight.Size = new System.Drawing.Size(768, 230);
 			this.tabOnUnhighlight.TabIndex = 7;
 			this.tabOnUnhighlight.Text = "OnUnhighlight";
 			// 
@@ -2033,7 +2033,7 @@ namespace HADesigner
 			// 
 			this.tabOnTimeout.Location = new System.Drawing.Point(4, 22);
 			this.tabOnTimeout.Name = "tabOnTimeout";
-			this.tabOnTimeout.Size = new System.Drawing.Size(760, 190);
+			this.tabOnTimeout.Size = new System.Drawing.Size(768, 230);
 			this.tabOnTimeout.TabIndex = 8;
 			this.tabOnTimeout.Text = "OnTimeout";
 			// 
@@ -2042,7 +2042,7 @@ namespace HADesigner
 			this.tabOnSelected_WithChange.Controls.Add(this.pnEffectsSelectChange);
 			this.tabOnSelected_WithChange.Location = new System.Drawing.Point(4, 22);
 			this.tabOnSelected_WithChange.Name = "tabOnSelected_WithChange";
-			this.tabOnSelected_WithChange.Size = new System.Drawing.Size(760, 190);
+			this.tabOnSelected_WithChange.Size = new System.Drawing.Size(768, 230);
 			this.tabOnSelected_WithChange.TabIndex = 9;
 			this.tabOnSelected_WithChange.Text = "OnSelected(with change)";
 			// 
@@ -2078,7 +2078,7 @@ namespace HADesigner
 			this.tabOnSelected_NoChange.Controls.Add(this.panel1);
 			this.tabOnSelected_NoChange.Location = new System.Drawing.Point(4, 22);
 			this.tabOnSelected_NoChange.Name = "tabOnSelected_NoChange";
-			this.tabOnSelected_NoChange.Size = new System.Drawing.Size(760, 190);
+			this.tabOnSelected_NoChange.Size = new System.Drawing.Size(768, 230);
 			this.tabOnSelected_NoChange.TabIndex = 13;
 			this.tabOnSelected_NoChange.Text = "OnSelected(no change)";
 			// 
@@ -2114,7 +2114,7 @@ namespace HADesigner
 			this.tabOnHighlighted.Controls.Add(this.panel2);
 			this.tabOnHighlighted.Location = new System.Drawing.Point(4, 22);
 			this.tabOnHighlighted.Name = "tabOnHighlighted";
-			this.tabOnHighlighted.Size = new System.Drawing.Size(760, 190);
+			this.tabOnHighlighted.Size = new System.Drawing.Size(768, 230);
 			this.tabOnHighlighted.TabIndex = 9;
 			this.tabOnHighlighted.Text = "OnHightlighted";
 			// 

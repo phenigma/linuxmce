@@ -231,6 +231,7 @@ namespace HADesigner
 
 						drParameter.fFK_DesignObjParameter = this.CParameterID;
 						drParameter.fFK_DesignObjVariation = this.ParentUIDesignObjVariation.ID;
+						drParameter.fValue = Value;
 
 
 

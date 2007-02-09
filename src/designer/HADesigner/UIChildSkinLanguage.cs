@@ -645,6 +645,8 @@ Ignore
 
 		public bool SaveLinkToDatabase()
 		{
+			return false;
+
 			MyDataSet mds = HADataConfiguration.m_mdsCache;
 			bool blnChanged = false;
 			//if(this.NeedsParentVariationLink || this.NeedsParentVariationUnlink)
@@ -678,14 +680,25 @@ Ignore
 			}
 			else
 			{
-				if(this.NeedsParentVariationLink)
+				if(ID == -1)
 				{
 					//add the row
 					DesignObjVariation_DesignObjDataRow drLink = new DesignObjVariation_DesignObjDataRow(mds.tDesignObjVariation_DesignObj.NewRow());
-					drLink.fFK_DesignObj_Child = this.ID;
-					drLink.fFK_DesignObjVariation_Parent = this.ParentUIDesignObj.ID;
+					drLink.fFK_DesignObj_Child = m_objParentUIDesignObj.ID;
+
+					UIDesignObjVariation objVariation = null;
+					this.m_objParentUIDesignObj.GetCurrentChildSkinLanguage(LanguageID, SkinID, ref objVariation);
+					drLink.fFK_DesignObjVariation_Parent = objVariation.ID;
+
+					DesignObjModified(drLink.fFK_DesignObj_Child_DataRow);
+					mds.tDesignObjVariation_DesignObj.Rows.Add(drLink.dr);
+					mds.tDesignObjVariation_DesignObj.Update(1,mds.m_conn,mds.m_trans);
+
+					ID = drLink.fPK_DesignObjVariation_DesignObj;
 
 					DesignObjVariation_DesignObj_Skin_LanguageDataRow drLinkDSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(mds.tDesignObjVariation_DesignObj_Skin_Language.NewRow());
+
+					drLinkDSL.fFK_DesignObjVariation_DesignObj = ID;
 						
 					if(this.Width < -1)
 						drLinkDSL.fWidthSetNull();
@@ -739,12 +752,7 @@ Ignore
 
 					drLinkDSL.fDisplayOrder = this.ParentDisplayOrder;
 					drLinkDSL.fFK_DesignObjVariation_DesignObj = drLink.fPK_DesignObjVariation_DesignObj;
-
-					DesignObjModified(drLink.fFK_DesignObj_Child_DataRow);
 						
-					mds.tDesignObjVariation_DesignObj.Rows.Add(drLink.dr);
-					mds.tDesignObjVariation_DesignObj.Update(1,mds.m_conn,mds.m_trans);
-
 					mds.tDesignObjVariation_DesignObj_Skin_Language.Rows.Add(drLinkDSL.dr);
 					mds.tDesignObjVariation_DesignObj_Skin_Language.Update(1,mds.m_conn,mds.m_trans);
 						
