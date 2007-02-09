@@ -28,14 +28,15 @@ function unpack_filesystem {
 function is_image_upgradable {
 	## Test to see if the image is upgradable
 	cp /etc/resolv.conf ${Moon_RootLocation}/etc/resolv.conf
-	cp /etc/apt/sources.list ${Moon_RootArchive}/etc/apt/sources.list
+	cp /etc/apt/sources.list ${Moon_RootLocation}/etc/apt/sources.list
 
-	chroot $Moon_RootArchive apt-get update 2>/dev/null 1>/dev/null
-	UpgradablePkgs=$(chroot $Moon_RootArchive apt-get -s dist-upgrade 2>/dev/null | grep "^Conf\|^Inst" | wc -l)
-	if [[ "$UpgradablePkgs" != 0 ]] ;then
-		return 1
-	else
+	chroot $Moon_RootLocation apt-get update 2>/dev/null 1>/dev/null
+	UpgradablePkgs=$(chroot $Moon_RootLocation apt-get -s dist-upgrade 2>/dev/null | grep "^Conf\|^Inst" | wc -l)
+	
+	if [[ "$UpgradablePkgs" != "0" ]] ;then
 		return 0
+	else
+		return 1
 	fi
 }
 
