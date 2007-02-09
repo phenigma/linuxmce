@@ -109,6 +109,11 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_bBroadcaster = bBroadcast;
 	m_iBroadcastPort=0;
 		
+	m_iImgWidth = 0;
+	m_iImgHeight = 0;
+	m_iImgXPos = 0;
+	m_iImgYPos = 0;
+		
 	m_sXineAudioDriverName = m_pFactory->GetAudioDriver();
 	m_sXineVideoDriverName = m_pFactory->GetVideoDriver();
 	
