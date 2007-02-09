@@ -1175,7 +1175,7 @@ namespace HADesigner
 			// 
 			// btnSaveChanges
 			// 
-			this.btnSaveChanges.Location = new System.Drawing.Point(832, 792);
+			this.btnSaveChanges.Location = new System.Drawing.Point(832, 816);
 			this.btnSaveChanges.Name = "btnSaveChanges";
 			this.btnSaveChanges.Size = new System.Drawing.Size(88, 20);
 			this.btnSaveChanges.TabIndex = 8;
@@ -1214,7 +1214,7 @@ namespace HADesigner
 			// 
 			// btnCancel
 			// 
-			this.btnCancel.Location = new System.Drawing.Point(736, 792);
+			this.btnCancel.Location = new System.Drawing.Point(736, 816);
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.Size = new System.Drawing.Size(88, 20);
 			this.btnCancel.TabIndex = 13;
@@ -2216,7 +2216,7 @@ namespace HADesigner
 			this.pnCommandGroupInfo.Controls.Add(this.labSelectedCommands);
 			this.pnCommandGroupInfo.Location = new System.Drawing.Point(160, 608);
 			this.pnCommandGroupInfo.Name = "pnCommandGroupInfo";
-			this.pnCommandGroupInfo.Size = new System.Drawing.Size(752, 208);
+			this.pnCommandGroupInfo.Size = new System.Drawing.Size(752, 200);
 			this.pnCommandGroupInfo.TabIndex = 41;
 			// 
 			// lMasterDevice
