@@ -3,3 +3,4 @@ deb http://ftp.ro.debian.org/debian etch contrib
 deb file:/usr/pluto/nix ./
 deb http://ftp.ro.debian.org/debian etch main contrib
 deb file:/usr/pluto/nix aaa/
+deb file:/usr/pluto/deb-cache/ sarge main

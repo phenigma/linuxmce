@@ -70,14 +70,28 @@ AptSrc_ParseSourcesList()
 }
 
 # Description: Output currently memorized sources.list
+# Note: file: sources go first, before net sources
 AptSrc_WriteSourcesList()
 {
 	local VarBase VarComp
 	local id
+	local -a file_source net_source
+	local Source
 
+	file_source=()
+	net_source=()
 	for id in $AptSrc_id_list; do
 		VarBase="AptSrc_base_${id}"
 		VarComp="AptSrc_comp_${id}"
-		echo "${!VarBase} ${!VarComp}"
+		Source="${!VarBase} ${!VarComp}"
+		read type uri distribution components < <(echo "$Source")
+		if [[ "$uri" == file:* ]]; then
+			file_source=("${file_source[@]}" "$Source")
+		else
+			net_source=("${net_source[@]}" "$Source")
+		fi
+	done
+	for Source in "${file_source[@]}" "${net_source[@]}"; do
+		echo "$Source"
 	done
 }
