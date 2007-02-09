@@ -1279,15 +1279,24 @@ namespace HADesigner
 				m_intTotalHeight = this.Height;
 			}
 			
-			//foreach(Object obj in this.DesignObjs)
-			//{
-				//TODO ENDER
-				//UIDesignObj objUIDesignObj = (UIDesignObj) obj;
-				//int intDesignObjWidth = objUIDesignObj.Width + objUIDesignObj.ParentX;
-				//if(intDesignObjWidth > m_intTotalWidth) m_intTotalWidth = intDesignObjWidth;
-				//int intDesignObjHeight = objUIDesignObj.Height + objUIDesignObj.ParentY;
-				//if(intDesignObjHeight > m_intTotalHeight) m_intTotalHeight = intDesignObjHeight;
-			//}
+			foreach(Object obj in this.DesignObjs)
+			{
+				UIDesignObj objUIDesignObj = (UIDesignObj) obj;
+
+				//WARNING!!! HARDCODED LANGUAGE
+				UIChildSkinLanguage child = objUIDesignObj.GetCurrentChildSkinLanguage(-1, SkinID);
+
+				if(null != child)
+				{
+					int intDesignObjWidth = child.Width + child.ParentX;
+					if(intDesignObjWidth > m_intTotalWidth) 
+						m_intTotalWidth = intDesignObjWidth;
+
+					int intDesignObjHeight = child.Height + child.ParentY;
+					if(intDesignObjHeight > m_intTotalHeight) 
+						m_intTotalHeight = intDesignObjHeight;
+				}
+			}
 		}
 
 		private string GetFilePath(int SkinID)
