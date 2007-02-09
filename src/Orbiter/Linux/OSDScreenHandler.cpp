@@ -2062,7 +2062,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 
 		case DESIGNOBJ_VoipPassword_CONST:
 		{
-			if(DESIGNOBJ_butMediaWizard_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			if(DESIGNOBJ_butFloorplan_vp_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				string sPassword = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 				if(sPassword == "")
