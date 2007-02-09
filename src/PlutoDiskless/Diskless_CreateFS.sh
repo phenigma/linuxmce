@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Diskless_Utils.sh
+. /usr/pluto/bin/Network_Parameters.sh
 
 if [[ "$#" -ne 4 ]]; then
 	echo "Syntax: $0 <IP> <MAC> <Device> <Architecture>"
@@ -232,6 +233,8 @@ Code="
 	mkdir -p "$DlPath"/usr/pluto/install
 	touch "$DlPath"/usr/pluto/install/.notdone
 fi
+
+echo "nameserver $IntIP" >"$DlPath"/etc/resolv.conf
 
 AtExit()
 {
