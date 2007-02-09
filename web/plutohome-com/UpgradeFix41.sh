@@ -211,3 +211,4 @@ cp /var/cache/apt/archives/linux-image* /usr/pluto/deb-cache/dists/sarge/main/bi
 ## Save our state to file
 echo $UpdatesOkStamp > /etc/lastUpdate.stamp
 
+### END ###
