@@ -114,13 +114,25 @@ namespace HADesigner
 			{
 				if(null != selectedUIDesignObj && selectedUIDesignObj.ID != -1)
 				{
-					UIDesignObjVariation objvar = null;
 					return selectedUIDesignObj.GetCurrentChildSkinLanguage(
 						m_objUIDesignObjDisplayControl.CurrentLanguageForChild(),
-						m_objUIDesignObjDisplayControl.CurrentSkinForChild(), ref objvar);
+						m_objUIDesignObjDisplayControl.CurrentSkinForChild());
 				}
 
 				return null;
+			}
+		}
+
+		public UIChildSkinLanguage FormUICSL
+		{
+			get 
+			{
+				if(null != m_objUIDesignObj && null != m_objUIDesignObjDisplayControl)
+					return m_objUIDesignObj.GetCurrentChildSkinLanguage(
+						m_objUIDesignObjDisplayControl.CurrentLanguageForChild(),
+						m_objUIDesignObjDisplayControl.CurrentSkinForChild());
+				else 
+					return null;
 			}
 		}
 
@@ -129,9 +141,9 @@ namespace HADesigner
 		/// </summary>
 		private System.ComponentModel.Container components = null;
 
-		private UIDesignObjDisplayControl m_objUIDesignObjDisplayControl;
+		private UIDesignObjDisplayControl m_objUIDesignObjDisplayControl = null;
 
-		private UIDesignObj m_objUIDesignObj;
+		private UIDesignObj m_objUIDesignObj = null;
 		private System.Windows.Forms.MainMenu mnuDesignObjXDesigner;
 		private System.Windows.Forms.MenuItem mnuZoom;
 		private System.Windows.Forms.MenuItem miZoom25;
@@ -315,6 +327,7 @@ namespace HADesigner
 			//TODO ENDER
 			m_objUIDesignObj = new UIDesignObj(null, -1, intDesignObjID, this.GraphicsDirectory);
 			m_objUIDesignObjDisplayControl = new UIDesignObjDisplayControl(this, m_objUIDesignObj, 25);
+			m_objUIDesignObjDisplayControl.Setup();
 			panelPreview.Controls.Add(m_objUIDesignObjDisplayControl);
 
 			this.Text = m_objUIDesignObj.Description; // + " (" + intDesignObjID + ")";
@@ -2985,13 +2998,13 @@ namespace HADesigner
 		{
 			if(CommonMethods.IsNumeric(tbWidth.Text))
 			{
-				if(this.selectedUIDesignObj != null && this.selectedUIDesignObj.ID != -1)
+				if(this.selectedUIDesignObj != null && this.selectedUIDesignObj.ID != -1 && null != selectedUICSL)
 				{
-					if(Convert.ToString(this.selectedUIDesignObj.Width) != tbWidth.Text)
+					if(Convert.ToString(selectedUICSL.Width) != tbWidth.Text)
 					{
 						bool origBlock = this.BlockUpdateImage();
 
-						this.selectedUIDesignObj.Width = Convert.ToInt32(tbWidth.Text);
+						selectedUICSL.Width = Convert.ToInt32(tbWidth.Text);
 						this.selectedUIDesignObj.Build(this.skinID);
 						//m_objUIDesignObjDisplayControl.Zoom();
 
@@ -3021,14 +3034,14 @@ namespace HADesigner
 		{
 			if(CommonMethods.IsNumeric(tbHeight.Text))
 			{
-				if(this.selectedUIDesignObj != null && this.selectedUIDesignObj.ID != -1)
+				if(this.selectedUIDesignObj != null && this.selectedUIDesignObj.ID != -1 && null != selectedUICSL)
 				{
-					if(Convert.ToString(this.selectedUIDesignObj.Height) != tbHeight.Text)
+					if(Convert.ToString(selectedUICSL.Height) != tbHeight.Text)
 					{
 						// TODO: Allow to set to default
 						bool origBlock = this.BlockUpdateImage();
 
-						this.selectedUIDesignObj.Height = Convert.ToInt32(tbHeight.Text);
+						selectedUICSL.Height = Convert.ToInt32(tbHeight.Text);
 						this.selectedUIDesignObj.Build(this.skinID);
 						//m_objUIDesignObjDisplayControl.Zoom();
 
@@ -3696,15 +3709,24 @@ namespace HADesigner
 				{
 					if (isDesignObj)
 					{
-						dragO = new UIDesignObj(
-							dropOV,-1, dragUIO.uiDesignObj.ID,
-							this.GraphicsDirectory);
+						dragO = new UIDesignObj(dropOV, -1, dragUIO.uiDesignObj.ID, this.GraphicsDirectory);
+						UIChildSkinLanguage child = new UIChildSkinLanguage(dragO, -1, 
+							m_objUIDesignObjDisplayControl.CurrentLanguageForChild(),
+							m_objUIDesignObjDisplayControl.CurrentSkinForChild(), GraphicsDirectory);
+						dragO.ChildSkinLanguages.Add(child);
 
-						dragO.Width = dragUIO.uiDesignObj.Width;
-						dragO.Height = dragUIO.uiDesignObj.Height;
-						dragO.ParentX = dragUIO.uiDesignObj.ParentX;
-						dragO.ParentY = dragUIO.uiDesignObj.ParentY;
-						dragO.ParentDisplayOrder = dragUIO.uiDesignObj.ParentDisplayOrder;
+						UIChildSkinLanguage ChildSource = dragUIO.uiDesignObj.GetCurrentChildSkinLanguage(
+							m_objUIDesignObjDisplayControl.CurrentLanguageForChild(),
+							m_objUIDesignObjDisplayControl.CurrentSkinForChild());
+
+						if(null != ChildSource)
+						{
+							child.Width = ChildSource.Width;
+							child.Height = ChildSource.Height;
+							child.ParentX = ChildSource.ParentX;
+							child.ParentY = ChildSource.ParentY;
+							child.ParentDisplayOrder = ChildSource.ParentDisplayOrder;
+						}
 					}
 					else
 					{
@@ -4295,17 +4317,15 @@ namespace HADesigner
 			m_objParentForm = (DesignObjDesigner) objParentForm;
 			m_UIDesignObj = objUIDesignObj;
 			m_intZoom = intZoom;
-			this.Zoom(intZoom);
-			
+			this.MouseDown  += new System.Windows.Forms.MouseEventHandler(this.HandleMouseDown);
+		}
 
+		public void Setup()
+		{
+			Zoom(m_intZoom);
 			m_objParentForm.LockInterface();
 			UpdateImage(false);
 			m_objParentForm.UnlockInterface();
-
-			this.MouseDown  += new System.Windows.Forms.MouseEventHandler(this.HandleMouseDown);
-			//this.MouseUp  += new System.Windows.Forms.MouseEventHandler(this.HandleMouseUp);
-			//this.MouseMove  += new System.Windows.Forms.MouseEventHandler(this.HandleMouseMove);
-
 		}
 
 		protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
@@ -4326,8 +4346,13 @@ namespace HADesigner
 
 				m_dblScale = Convert.ToDouble(intZoom)/100.0;
 
-				int intNewWidth = Convert.ToInt32(m_dblScale * Convert.ToDouble(m_UIDesignObj.Width));
-				int intNewHeight = Convert.ToInt32(m_dblScale * Convert.ToDouble(m_UIDesignObj.Height));
+				int intNewWidth = 0;
+				int intNewHeight = 0;
+				if(null != m_objParentForm.FormUICSL)
+				{
+					intNewWidth = Convert.ToInt32(m_dblScale * Convert.ToDouble(m_objParentForm.FormUICSL.Width));
+					intNewHeight = Convert.ToInt32(m_dblScale * Convert.ToDouble(m_objParentForm.FormUICSL.Height));
+				}
 
 				this.Width = intNewWidth;
 				this.Height = intNewHeight;
@@ -4379,12 +4404,13 @@ namespace HADesigner
 		{
 			if(m_objBitmap != null) m_objBitmap.Dispose();
 
-			if(m_UIDesignObj.Width > 0 && m_UIDesignObj.Height > 0)
+			if(null != m_objParentForm.FormUICSL && m_objParentForm.FormUICSL.Width > 0 && m_objParentForm.FormUICSL.Height > 0)
 			{
-				m_objBitmap = new Bitmap(m_UIDesignObj.Width, m_UIDesignObj.Height);
+				m_objBitmap = new Bitmap(m_objParentForm.FormUICSL.Width, m_objParentForm.FormUICSL.Height);
 				using (Graphics objGraphics = Graphics.FromImage(m_objBitmap))
 				{
 					objGraphics.Clear(Color.White);
+					objGraphics.DrawRectangle(new Pen(Color.Blue, 3), 10, 10, 1000,1000);
 					m_UIDesignObj.Draw(objGraphics,this.m_objParentForm.LanguageID,this.m_objParentForm.SkinID);
 				}
 			}

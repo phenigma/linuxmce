@@ -124,8 +124,6 @@ namespace HADesigner
 		private int m_intParentX;		//relative to parent UIDesignObjVariation
 		private int m_intParentY;
 		private int m_intParentDisplayOrder;
-		private int m_intRootX;			//relative to root container where drawing takes place
-		private int m_intRootY;
 
 		private int m_intLinkID;	//this is the id in the objectvariation_oject table
 		
@@ -215,16 +213,6 @@ namespace HADesigner
 		}
 
 		
-		public int Width
-		{
-			get	{return m_intWidth;}
-			set {m_intWidth = value;}
-		}
-		public int Height
-		{
-			get	{return m_intHeight;}
-			set {m_intHeight = value;}
-		}
 		public float Scale
 		{
 			get	{return m_fltScale;}
@@ -275,17 +263,6 @@ namespace HADesigner
 			get	{return m_intParentDisplayOrder;}
 			set	{m_intParentDisplayOrder = value;}
 		}
-		public int RootX
-		{
-			get	{return m_intRootX;}
-			set {m_intRootX = value;}
-		}
-		public int RootY
-		{
-			get	{return m_intRootY;}
-			set {m_intRootY = value;}
-		}
-
 		public bool CanBeHiddenOriginal
 		{
 			get {return this.m_bitCanBeHiddenOriginal;}
@@ -480,7 +457,7 @@ namespace HADesigner
 		{
 			get
 			{
-				return BGOnTop != BGOnTopOriginal || RegenerateForEachScreen != RegenerateForEachScreenOriginal || CanBeHidden != CanBeHiddenOriginal || HideByDefault != HideByDefaultOriginal || Width != WidthOriginal || Height != HeightOriginal || ParentX != ParentXOriginal || ParentY != ParentYOriginal || 
+				return BGOnTop != BGOnTopOriginal || RegenerateForEachScreen != RegenerateForEachScreenOriginal || CanBeHidden != CanBeHiddenOriginal || HideByDefault != HideByDefaultOriginal || ParentX != ParentXOriginal || ParentY != ParentYOriginal || 
 					ParentDisplayOrder != ParentDisplayOrderOriginal || IsTabStop != IsTabStopOriginal || ChildBeforeText != ChildBeforeTextOriginal ||
 					ChildBehindBG != ChildBehindBGOriginal ||
 					m_blnChildBeforeTextOriginal != m_blnChildBeforeText || m_blnIsTabStopOriginal != m_blnIsTabStop || m_iTiedToOriginal != m_iTiedTo || m_sVisibleStatesOriginal != m_sVisibleStates ||
@@ -582,6 +559,27 @@ namespace HADesigner
 			
 
 
+			DataRow[] drDSL = mds.tDesignObjVariation_DesignObj_Skin_Language.Select(DesignObjVariation_DesignObj_Skin_LanguageData.FK_DESIGNOBJVARIATION_DESIGNOBJ_FIELD + "=" + m_intID);
+
+			UIChildSkinLanguage uidsl;
+			foreach(DataRow drc in drDSL)
+			{
+				DesignObjVariation_DesignObj_Skin_LanguageDataRow drOVDSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(drc);
+				uidsl = new UIChildSkinLanguage(this, 
+					drOVDSL.fPK_DesignObjVariation_DesignObj_Skin_Language,
+					drOVDSL.fFK_SkinIsNull ? -1 : drOVDSL.fFK_Skin, 
+					drOVDSL.fFK_LanguageIsNull ? -1 : drOVDSL.fFK_Language,
+					graphicsDirectory);
+				this.alChildSkinLanguages.Add(uidsl);
+			}
+
+			if (this.alChildSkinLanguages.Count==0) // No OVTSL rows for this OVT, Add a default row.
+			{
+				uidsl = new UIChildSkinLanguage(this,-1,-1,-1,graphicsDirectory);
+				this.alChildSkinLanguages.Add(uidsl);
+				uidsl.SaveToDatabase();
+			}
+
 			//load the UIDesignObjVariations
 			//no sort for now
 			DataRow[] drVariations = mds.tDesignObjVariation.Select(DesignObjVariationData.FK_DESIGNOBJ_FIELD + "=" + m_intDesignObjID, DesignObjVariationData.PK_DESIGNOBJVARIATION_FIELD);
@@ -590,30 +588,8 @@ namespace HADesigner
 			{
 				DesignObjVariationDataRow drVariation = new DesignObjVariationDataRow(dr);
 				m_alUIDesignObjVariations.Add(new UIDesignObjVariation(this, drVariation.fPK_DesignObjVariation, -1));
-
-				DataRow[] drDSL = mds.tDesignObjVariation_DesignObj_Skin_Language.Select(DesignObjVariation_DesignObj_Skin_LanguageData.FK_DESIGNOBJVARIATION_DESIGNOBJ_FIELD + "=" + m_intID);
-
-				UIChildSkinLanguage uidsl;
-				foreach(DataRow drc in drDSL)
-				{
-					DesignObjVariation_DesignObj_Skin_LanguageDataRow drOVDSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(drc);
-					uidsl = new UIChildSkinLanguage(this, 
-						drOVDSL.fPK_DesignObjVariation_DesignObj_Skin_Language,
-						drOVDSL.fFK_SkinIsNull ? -1 : drOVDSL.fFK_Skin, 
-						drOVDSL.fFK_LanguageIsNull ? -1 : drOVDSL.fFK_Language,
-						graphicsDirectory);
-					this.alChildSkinLanguages.Add(uidsl);
-				}
-
-				if (this.alChildSkinLanguages.Count==0) // No OVTSL rows for this OVT, Add a default row.
-				{
-					uidsl = new UIChildSkinLanguage(this,-1,-1,-1,graphicsDirectory);
-					this.alChildSkinLanguages.Add(uidsl);
-					uidsl.SaveToDatabase();
-				}
 			}
 		}
-
 
 		public bool SaveToDatabase()
 		{
@@ -773,11 +749,22 @@ namespace HADesigner
 
 		public UIChildSkinLanguage GetCurrentChildSkinLanguage(int languageID, int skinID, ref UIDesignObjVariation objVariation)
 		{
+			bool bNoneSelected = true;
+			foreach(Object obj in this.UIDesignObjVariations)
+			{
+				objVariation = (UIDesignObjVariation) obj;
+				if(objVariation.Selected)
+				{
+					bNoneSelected = false;
+					break;
+				}
+			}
+
 			foreach(Object obj in this.UIDesignObjVariations)
 			{
 				objVariation = (UIDesignObjVariation) obj;
 				//only draw the selected variations if this is the root
-				if(this.ParentUIDesignObjVariation != null || objVariation.Selected)
+				if(bNoneSelected || objVariation.Selected)
 				{
 					bool matchSkin = false;
 					bool matchLanguage = false;
@@ -814,6 +801,12 @@ namespace HADesigner
 
 			objVariation = null;
 			return null;
+		}
+
+		public UIChildSkinLanguage GetCurrentChildSkinLanguage(int languageID, int skinID)
+		{
+			UIDesignObjVariation objVariation = null;
+			return GetCurrentChildSkinLanguage(languageID, skinID, ref objVariation);
 		}
 
 		public void Draw(Graphics objGraphics, int languageID, int skinID)
@@ -856,45 +849,14 @@ namespace HADesigner
 		{
 			if(this.Include)	//don't include if deleted or set to be deleted or unlinked
 			{
-				//do the build top down stuff
-				//like positioning
-				//find the root x and y
-				if(this.ParentUIDesignObjVariation == null)
-				{
-					this.RootX = 0;
-					this.RootY = 0;
-				}
-				else
-				{
-					this.RootX = this.ParentX + this.ParentUIDesignObjVariation.ParentUIDesignObj.RootX;
-					this.RootY = this.ParentY + this.ParentUIDesignObjVariation.ParentUIDesignObj.RootY;
-				}
-			
 				//RECURSE
 				foreach(UIDesignObjVariation objUIDesignObjVariation in m_alUIDesignObjVariations)
 				{
 					objUIDesignObjVariation.Build(SkinID, SkinChanged);
 				}
 
-/* 10/6/2004 I wanted to comment out this stuff so that the width and height remain -1.  But Designer is such spaghetti code it breaks everything, and 
- * it's too hard to figure out why.  I'll put the logic in the OrbiterGen to ignore the specified width and height and auto-calculate. */
-				//do the build bottom up stuff
-				if(this.Width == UIDesignObj.NoSetValue || this.Height == UIDesignObj.NoSetValue)
-				{
-					int intMaxWidth = 0;
-					int intMaxHeight = 0;
-					//calculate the width from the children
-					foreach(Object obj in this.UIDesignObjVariations)
-					{
-						UIDesignObjVariation objVariation = (UIDesignObjVariation) obj;
-
-						if((this.Width == UIDesignObj.NoSetValue) && (objVariation.TotalWidth > intMaxWidth)) intMaxWidth = objVariation.TotalWidth;
-						if((this.Height == UIDesignObj.NoSetValue) && (objVariation.TotalHeight > intMaxHeight)) intMaxHeight = objVariation.TotalHeight;
-					}
-
-					if(this.Width == UIDesignObj.NoSetValue) this.Width = intMaxWidth;
-					if(this.Height == UIDesignObj.NoSetValue) this.Height = intMaxHeight;
-				}				
+				foreach(UIChildSkinLanguage objChild in alChildSkinLanguages)
+					objChild.Build(SkinID);
 			}
 		}
 
@@ -1151,8 +1113,6 @@ namespace HADesigner
 			this.RegenerateForEachScreenOriginal = this.RegenerateForEachScreen;
 			this.ParentXOriginal = this.ParentX;
 			this.ParentYOriginal = this.ParentY;
-			this.WidthOriginal = this.Width;
-			this.HeightOriginal = this.Height;
 			this.ParentDisplayOrderOriginal = this.ParentDisplayOrder;
 		}
 

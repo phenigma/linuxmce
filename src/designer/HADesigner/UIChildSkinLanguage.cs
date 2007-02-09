@@ -549,7 +549,7 @@ Ignore
 					int intMaxWidth = 0;
 					int intMaxHeight = 0;
 					//calculate the width from the children
-					foreach(Object obj in this.UIDesignObjVariations)
+					foreach(Object obj in ParentUIDesignObj.UIDesignObjVariations)
 					{
 						UIDesignObjVariation objVariation = (UIDesignObjVariation) obj;
 

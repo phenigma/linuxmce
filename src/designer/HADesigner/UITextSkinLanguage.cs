@@ -147,15 +147,13 @@ namespace HADesigner
 		{
 			if (this.Include)
 			{
-				int objectWidth = this.ParentUIText.ParentUIDesignObjVariation.ParentUIDesignObj.Width;
-				int objectHeight = this.ParentUIText.ParentUIDesignObjVariation.ParentUIDesignObj.Height;
+				UIChildSkinLanguage obj = ParentUIText.ParentUIDesignObjVariation.ParentUIDesignObj.GetCurrentChildSkinLanguage(LanguageID, SkinID);
 
+				//TODO Ender
+				int objectWidth = obj.Width;
+				int objectHeight = obj.Height;
 				int width = (this.Width==0)? objectWidth - this.X : this.Width;
 				int height = (this.Height==0)? objectHeight - this.Y : this.Height;
-
-				//todo - handle opacity and rotation
-
-			
 
 				Font f = new Font(this.style.Font,this.style.EMHeight,this.style.FontStyle);
 
