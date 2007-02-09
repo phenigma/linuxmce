@@ -1092,6 +1092,7 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 			XConfigureEvent *cev = ( XConfigureEvent * ) & event;
 			Window tmp_win;
 
+			g_pPlutoLogger->Write(LV_STATUS, "ConfigureNotify: %ix%i", cev->width, cev->height);
 			m_iImgWidth = cev->width;
 			m_iImgHeight = cev->height;
 
