@@ -70,6 +70,7 @@ fi
 StartService "Starting MySQL Server" "/etc/init.d/mysql start"
 StartService "Starting DHCP Server" "/etc/init.d/dhcp3-server start"
 StartService "Starting DNS Server" "/etc/init.d/bind9 start"
+StartService "Starting Samba Server" "/etc/init.d/samba start"
 StartService "Configuring Network Firewall" "/usr/pluto/bin/Network_Firewall.sh"
 StartService "Loading Kernel Modules" "/usr/pluto/bin/LoadModules.sh"
 StartService "Reporting Machine Status" "/usr/pluto/bin/Report_Machine_Status.sh" "&"
@@ -108,6 +109,7 @@ StartService "Starting Local Devices" "/usr/pluto/bin/Start_LocalDevices.sh"
 StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
 StartDaemon  "Starting Update Media Daemon" "/usr/pluto/bin/UpdateMediaDaemon.sh" "UpdateMedia"
 StartDaemon  "Starting Dhcp Plugin" "/usr/pluto/bin/Dhcp-Plugin.sh" "DhcpPlugin"
+StartDaemon  "Start New MD Interactor" "/usr/pluto/bin/Start_NewMD_interactor.sh"
 
 #StartService "Detecting Timezone" "/usr/pluto/bin/Pluto_Timezone_Detect.sh" "&"
 #Pluto_alsaconf-noninteractive \
