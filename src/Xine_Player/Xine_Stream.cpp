@@ -483,6 +483,9 @@ bool Xine_Stream::CloseMedia()
 
 bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPosition)
 {
+	m_iImgHeight = 0;
+	m_iImgWidth = 0;
+
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "Open media called on non-initialized stream - aborting command");
