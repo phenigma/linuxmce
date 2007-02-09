@@ -19,8 +19,26 @@ namespace HADesigner
 	public class UIChildSkinLanguage: UI
 	{
 		public static int NoSetValue = -2;
+
+		//internal variables
 		public int m_FK_SkinID = -1;
 		public int m_FK_LanguageID = -1;
+
+		//current values
+		private int m_intParentX = 0;		//relative to parent UIDesignObjVariation
+		private int m_intParentY = 0;
+		private int m_intWidth = NoSetValue;
+		private int m_intHeight = NoSetValue;
+
+		//clones
+		private int m_intParentXOriginal = 0;		
+		private int m_intParentYOriginal = 0;
+		private int m_intWidthOriginal = NoSetValue;
+		private int m_intHeightOriginal = NoSetValue;
+
+		//unordered variables and properties
+
+		private int m_intParentDisplayOrder;
 
 		//MEMBER VARIABLES
 		private string graphicsDirectory;
@@ -81,12 +99,6 @@ namespace HADesigner
 		private string m_iTS_Left;
 		private string m_iTS_RightOriginal;
 		private string m_iTS_Right;
-
-		
-		private int m_intWidthOriginal;
-		private int m_intHeightOriginal;
-		private int m_intParentXOriginal;		
-		private int m_intParentYOriginal;
 		private int m_intParentDisplayOrderOriginal;
 
 
@@ -107,19 +119,11 @@ namespace HADesigner
 		private bool m_blnSelected = false;
 
 		//used for drawing
-		private int m_intWidth = NoSetValue;
-		private int m_intHeight = NoSetValue;
 		private float m_fltScale;
 		private bool m_bitRegenerateForEachScreen;
 		private bool m_bitCanBeHidden;
 		private bool m_bitDontResetSelectedState;
 		private bool m_bitHideByDefault;
-		private int m_intParentX;		//relative to parent UIDesignObjVariation
-		private int m_intParentY;
-		private int m_intParentDisplayOrder;
-		private int m_intRootX;			//relative to root container where drawing takes place
-		private int m_intRootY;
-
 		private int m_intLinkID;	//this is the id in the objectvariation_oject table
 
 		//PROPERTIES
@@ -267,17 +271,6 @@ namespace HADesigner
 			get	{return m_intParentDisplayOrder;}
 			set	{m_intParentDisplayOrder = value;}
 		}
-		public int RootX
-		{
-			get	{return m_intRootX;}
-			set {m_intRootX = value;}
-		}
-		public int RootY
-		{
-			get	{return m_intRootY;}
-			set {m_intRootY = value;}
-		}
-
 		public bool CanBeHiddenOriginal
 		{
 			get {return this.m_bitCanBeHiddenOriginal;}
@@ -452,8 +445,6 @@ namespace HADesigner
 
 
 			this.ParentDisplayOrder = dr.fDisplayOrder;
-			this.RootX = dr.fX;
-			this.RootY = dr.fY;			
 			this.ParentX = dr.fX;
 			this.ParentY = dr.fY;
 			this.Width = dr.fWidth;
@@ -491,8 +482,6 @@ namespace HADesigner
 		private void setDataRowFields(DesignObjVariation_DesignObj_Skin_LanguageDataRow drOVDSL)
 		{
 			drOVDSL.fDisplayOrder = ParentDisplayOrder;
-			drOVDSL.fX = RootX;
-			drOVDSL.fY = RootY;			
 			drOVDSL.fX = ParentX;
 			drOVDSL.fY = ParentY;
 			drOVDSL.fWidth = Width;
@@ -620,21 +609,6 @@ namespace HADesigner
 		{
 			if(this.Include)	//don't include if deleted or set to be deleted or unlinked
 			{
-				//do the build top down stuff
-				//like positioning
-				//find the root x and y
-				if(this.ParentUIDesignObj == null)
-				{
-					this.RootX = 0;
-					this.RootY = 0;
-				}
-				else
-				{
-					//TODO Ender
-					//this.RootX = this.ParentX + this.ParentUIDesignObj.ParentUIDesignObj.RootX;
-					//this.RootY = this.ParentY + this.ParentUIDesignObj.ParentUIDesignObj.RootY;
-				}
-			
 				//RECURSE
 				foreach(UIDesignObjVariation objUIDesignObjVariation in m_alUIDesignObjVariations)
 				{
@@ -680,8 +654,7 @@ namespace HADesigner
 			if(ParentUIDesignObj.Selected)
 			{
 				objGraphics.DrawRectangle(new Pen(Color.Red, 4), 
-					this.ParentX + this.RootX, this.ParentY + this.RootY, 
-					this.Width - 4, this.Height - 4);
+					this.ParentX, this.ParentY, this.Width - 4, this.Height - 4);
 			}
 		}
 
@@ -772,7 +745,11 @@ namespace HADesigner
 		{
 			if (this.Include) 
 			{
-				return ((intX >= this.RootX) && (intX <= (this.RootX + this.Width)) && (intY >= this.RootY) && (intY <= (this.RootY + this.Height)));
+				return 
+					((intX >= this.ParentX) && 
+					(intX <= (this.ParentX + this.Width)) && 
+					(intY >= this.ParentY) && 
+					(intY <= (this.ParentY + this.Height)));
 			}
 			else return false;
 		}

@@ -588,8 +588,8 @@ namespace HADesigner
 
 					if(blnDraw)
 					{
-						int intX = objChildSkinLanguage.ParentX + objChildSkinLanguage.RootX;
-						int intY = objChildSkinLanguage.ParentY + objChildSkinLanguage.RootY;
+						int intX = objChildSkinLanguage.ParentX;
+						int intY = objChildSkinLanguage.ParentY;
 
 						int intWidth = this.Bitmap.Width;
 						int intHeight = this.Bitmap.Height;
@@ -613,12 +613,11 @@ namespace HADesigner
 				foreach(object obj in this.Text)
 				{
 					UIText objText = (UIText) obj;
-					objText.Draw(objGraphics,objChildSkinLanguage.RootX,objChildSkinLanguage.RootY,languageID,skinID);
+					objText.Draw(objGraphics,objChildSkinLanguage.ParentX,
+						objChildSkinLanguage.ParentY,languageID,skinID);
 				}
 			}
 		}
-
-
 
 		public UIDesignObjVariationParameter GetParameter(int intCParameterID)
 		{
