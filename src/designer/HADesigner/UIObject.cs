@@ -485,15 +485,22 @@ namespace HADesigner
 			set	{m_blnMainBackgroundDrawn = value;}
 		}
 
-		//CONSTRUCTORS
+		/// <summary>
+		/// UIDesignObj constructor
+		/// </summary>
+		/// <param name="objParentUIDesignObjVariation">parent variation object</param>
+		/// <param name="intID">DesignObjVariation_DesignObj.PK_DesignObjVariation_DesignObj</param>
+		/// <param name="intDesignObjID">DesignObj.PK_DesignObj</param>
+		/// <param name="graphicsDir">the folder to graphic files</param>
 		public UIDesignObj(UIDesignObjVariation objParentUIDesignObjVariation, int intID,
 			int intDesignObjID, string graphicsDir)
 		{
 			this.graphicsDirectory = graphicsDir;
 
 			m_objParentUIDesignObjVariation = objParentUIDesignObjVariation;
-			m_intID = intID;
-			m_intDesignObjID = intDesignObjID;
+
+			ID = intDesignObjID;
+			DOV_DO_ID = intID;
 
 			if(objParentUIDesignObjVariation == null)
 			{
@@ -563,6 +570,32 @@ namespace HADesigner
 			m_blnNeedsDBInsert = false;
 			m_blnNeedsDBDelete = false;
 			
+			//load the UIDesignObjVariations
+			//no sort for now
+			DataRow[] drVariations = mds.tDesignObjVariation.Select(DesignObjVariationData.FK_DESIGNOBJ_FIELD + "=" + m_intDesignObjID, DesignObjVariationData.PK_DESIGNOBJVARIATION_FIELD);
+
+			foreach(DataRow dr in drVariations)
+			{
+				DesignObjVariationDataRow drVariation = new DesignObjVariationDataRow(dr);
+
+				UIDesignObjVariation newObjVar = new UIDesignObjVariation(this, drVariation.fPK_DesignObjVariation, -1);
+				m_alUIDesignObjVariations.Add(newObjVar);
+			}
+
+			if(m_objParentUIDesignObjVariation != null && DOV_DO_ID == -1)
+			{
+				DesignObjVariation_DesignObjDataRow drOVD = new DesignObjVariation_DesignObjDataRow(mds.tDesignObjVariation_DesignObj.NewRow());
+				
+				if(null != m_objParentUIDesignObjVariation)
+					drOVD.fFK_DesignObjVariation_Parent = m_objParentUIDesignObjVariation.ID;
+				else
+					drOVD.fFK_DesignObjVariation_ParentSetNull();
+
+				drOVD.fFK_DesignObj_Child = ID;
+				mds.tDesignObjVariation_DesignObj.Rows.Add(drOVD.dr);
+				mds.tDesignObjVariation_DesignObj.Update(1,mds.m_conn,mds.m_trans); // insert now to get PKID
+				DOV_DO_ID = drOVD.fPK_DesignObjVariation_DesignObj;
+			}
 
 			UIChildSkinLanguage uidsl;
 			if(m_intID != -1)
@@ -587,16 +620,6 @@ namespace HADesigner
 				this.alChildSkinLanguages.Add(uidsl);
 				uidsl.SaveToDatabase();
 			}
-
-			//load the UIDesignObjVariations
-			//no sort for now
-			DataRow[] drVariations = mds.tDesignObjVariation.Select(DesignObjVariationData.FK_DESIGNOBJ_FIELD + "=" + m_intDesignObjID, DesignObjVariationData.PK_DESIGNOBJVARIATION_FIELD);
-
-			foreach(DataRow dr in drVariations)
-			{
-				DesignObjVariationDataRow drVariation = new DesignObjVariationDataRow(dr);
-				m_alUIDesignObjVariations.Add(new UIDesignObjVariation(this, drVariation.fPK_DesignObjVariation, -1));
-			}
 		}
 
 		public bool SaveToDatabase()
@@ -606,7 +629,6 @@ namespace HADesigner
 
 			MyDataSet mds = HADataConfiguration.m_mdsCache;
 			
-
 			if(!this.Deleted)
 			{
 				if(this.NeedsDelete)
@@ -634,10 +656,10 @@ namespace HADesigner
 
 					if(!this.NeedsInsert)
 					{
-					//delete this object
-					DesignObjDataRow drDesignObj = mds.tDesignObj[m_intDesignObjID];
-					drDesignObj.dr.Delete();
-					mds.tDesignObj.Update(1,mds.m_conn,mds.m_trans);
+						//delete this object
+						DesignObjDataRow drDesignObj = mds.tDesignObj[m_intDesignObjID];
+						drDesignObj.dr.Delete();
+						mds.tDesignObj.Update(1,mds.m_conn,mds.m_trans);
 					}
 
 					blnChanged = true;
@@ -650,7 +672,6 @@ namespace HADesigner
 					{
 						//insert this object
 						DesignObjDataRow drDesignObj = new DesignObjDataRow(mds.tDesignObj.NewRow());
-
 						drDesignObj.fDescription = m_strDescription;
 						drDesignObj.fCantGoBack = m_blnCantGoBack;
 						drDesignObj.fPriority = m_intPriority;
@@ -717,7 +738,7 @@ namespace HADesigner
 			foreach(Object obj in this.ChildSkinLanguages)
 			{
 				UIChildSkinLanguage child = (UIChildSkinLanguage)obj;
-				blnChanged = child.SaveLinkToDatabase();
+				blnChanged = blnChanged || child.SaveToDatabase();
 			}
 
 			return blnChanged;

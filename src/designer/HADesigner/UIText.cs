@@ -126,6 +126,8 @@ namespace HADesigner
 		/// Manage DesignObjVariation_Text Table
 		/// IntID should be -1 for new row
 		/// Otherwise can set textID to -1, but must specify languageID anyway
+		/// id - DesignObjVariation_Text.PK_DesignObjVariation_Text
+		/// textid - Text.PK_Text
 		/// </summary>
 		public UIText(UIDesignObjVariation objUIDesignObjVariation, int id, int textID)
 		{

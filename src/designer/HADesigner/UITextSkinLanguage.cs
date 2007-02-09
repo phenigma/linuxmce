@@ -124,7 +124,11 @@ namespace HADesigner
 
 
 
-
+		/// <summary>
+		/// UITextSkinLanguage constructor
+		/// </summary>
+		/// <param name="parentUIText">parent UIText object</param>
+		/// <param name="id">DesignObjVariation_Text_Skin_Language.PK_DesignObjVariation_Text_Skin_Language</param>
 		public UITextSkinLanguage(UIText parentUIText, int id)
 		{
 			this.ParentUIText = parentUIText;

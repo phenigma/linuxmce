@@ -394,7 +394,14 @@ namespace HADesigner
 
 		
 
-
+		/// <summary>
+		/// UIChildSkinLanguage constructor
+		/// </summary>
+		/// <param name="objParentUIDesignObj">parent UIObject</param>
+		/// <param name="intID">DesignObjVariation_DesignObj_Skin_Language.PK_DesignObjVariation_DesignObj_Skin_Language</param>
+		/// <param name="SkinID">skin</param>
+		/// <param name="LanguageID">language</param>
+		/// <param name="graphicsDir">graphic dir</param>
 		public UIChildSkinLanguage(UIDesignObj objParentUIDesignObj, int intID, 
 			int SkinID,  int LanguageID, string graphicsDir)
 		{
@@ -420,10 +427,10 @@ namespace HADesigner
 				this.ParentVariationLinked = true;
 			}
 
-			if(intID != -1)
-			{
+			if (intID == -1)
+				NeedsInsert = true;
+			else 
 				LoadFromDatabase();
-			}
 
 			if(objParentUIDesignObj == null)
 			{
@@ -452,7 +459,6 @@ namespace HADesigner
 			this.Width = dr.fWidth;
 			this.Height = dr.fHeight;
 
-
 			CanBeHidden = dr.fCanBeHidden;
 			HideByDefault = dr.fHideByDefault;
 			ChildBehindBG = dr.fDisplayChildrenBehindBackground;
@@ -469,12 +475,6 @@ namespace HADesigner
 			//DontResetSelectedState = dr.f;
 			RegenerateForEachScreen = dr.fRegenerateForEachScreen;
 
-/*
-FK_DesignObj_InsteadOf                         int(11)        YES             (NULL)                   select,insert,update,references
-VisibleStates                                  varchar(10)    YES             (NULL)                   select,insert,update,references
-Ignore      
-*/																														
-
 			//set the originals so we know how and when to save
 			this.ResetOriginals();
 
@@ -483,9 +483,106 @@ Ignore
 			
 		}
 
+		private DesignObjVariation_DesignObj_Skin_LanguageDataRow drOVDSL
+		{
+			get {return mds.tDesignObjVariation_DesignObj_Skin_Language[ID];}
+		}
+
+		private void setDataRowFields(DesignObjVariation_DesignObj_Skin_LanguageDataRow drOVDSL)
+		{
+			drOVDSL.fDisplayOrder = ParentDisplayOrder;
+			drOVDSL.fX = RootX;
+			drOVDSL.fY = RootY;			
+			drOVDSL.fX = ParentX;
+			drOVDSL.fY = ParentY;
+			drOVDSL.fWidth = Width;
+			drOVDSL.fHeight = Height;
+
+			drOVDSL.fCanBeHidden = CanBeHidden;
+			drOVDSL.fHideByDefault = HideByDefault;
+			drOVDSL.fDisplayChildrenBehindBackground = ChildBehindBG;
+
+			if(TS_Up == null  || TS_Up == "")
+				drOVDSL.fFK_DesignObj_UpSetNull();
+			else
+				drOVDSL.fFK_DesignObj_Up = Int32.Parse(TS_Up);
+
+			if(TS_Down == null  || TS_Down == "")
+				drOVDSL.fFK_DesignObj_DownSetNull();
+			else
+				drOVDSL.fFK_DesignObj_Down = Int32.Parse(TS_Down);
+
+			if(TS_Right == null  || TS_Right == "")
+				drOVDSL.fFK_DesignObj_RightSetNull();
+			else
+				drOVDSL.fFK_DesignObj_Right = Int32.Parse(TS_Right);
+
+			if(TS_Left == null  || TS_Left == "")
+				drOVDSL.fFK_DesignObj_LeftSetNull();
+			else
+				drOVDSL.fFK_DesignObj_Left = Int32.Parse(TS_Left);
+
+
+			drOVDSL.fsFK_DesignObj_TiedTo = TiedTo;
+			drOVDSL.fVisibleStates = VisibleStates;
+			drOVDSL.fDisplayChildrenBeforeText = ChildBeforeText;
+			drOVDSL.fDontMergeBackground = DontMergeBG;
+			drOVDSL.fIsTabStop = IsTabStop;
+			drOVDSL.fRegenerateForEachScreen = RegenerateForEachScreen;
+		}
+
 		public override bool SaveToDatabase()
 		{
-			return false;
+			bool changed = false;
+
+			Debug.WriteLine("Saving for ID " + ID + " and m_objParentUIDesignObj.ID " + m_objParentUIDesignObj.ID);
+	
+			if(!this.Deleted)
+			{
+				if(this.NeedsDelete)
+				{
+					this.drOVDSL.dr.Delete();
+					this.deleted = true;
+					changed = true;
+				}
+				else if(this.NeedsInsert && ParentUIDesignObj.DOV_DO_ID != -1) // Insert to OVTSL
+				{
+					DesignObjVariation_DesignObj_Skin_LanguageDataRow drOVDSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(mds.tDesignObjVariation_DesignObj_Skin_Language.NewRow());
+					drOVDSL.fFK_DesignObjVariation_DesignObj = ParentUIDesignObj.DOV_DO_ID;
+
+					if(SkinID != -1)
+						drOVDSL.fFK_Skin = SkinID;
+					else
+						drOVDSL.fFK_SkinSetNull();
+
+					if(LanguageID != -1)
+                        drOVDSL.fFK_Language = LanguageID;
+					else
+						drOVDSL.fFK_LanguageSetNull();
+
+					mds.tDesignObjVariation_DesignObj_Skin_Language.Rows.Add(drOVDSL.dr);
+					mds.tDesignObjVariation_DesignObj_Skin_Language.Update(1,mds.m_conn,mds.m_trans); // insert now to get PKID
+
+					this.id = drOVDSL.fPK_DesignObjVariation_DesignObj_Skin_Language;
+					this.setDataRowFields(drOVDSL);
+
+					changed = true;
+				}
+				else if(this.OriginalsChanged) //update this object
+				{
+					if(ID != -1)
+					{
+						this.setDataRowFields(this.drOVDSL);
+						changed = true;
+					}
+				}
+                
+				this.ResetOriginals();
+				this.NeedsInsert = false;
+				this.NeedsDelete = false;
+			}
+	
+			return changed;
 		}
 
 		protected override void ResetOriginals()
@@ -641,206 +738,6 @@ Ignore
 				uiov.ReleaseBitmaps();				
 			}
 		}		
-
-
-		public bool SaveLinkToDatabase()
-		{
-			return false;
-
-			MyDataSet mds = HADataConfiguration.m_mdsCache;
-			bool blnChanged = false;
-			//if(this.NeedsParentVariationLink || this.NeedsParentVariationUnlink)
-			//{
-			if(this.NeedsParentVariationUnlink)
-			{
-				//if(this.ParentVariationLinked)
-				//{
-
-				if(!this.NeedsParentVariationLink)
-				{
-					if(this.ParentUIDesignObj == null)
-					{
-						//this should not happen unless it was a deletion of a root object
-						//in which case all links were removed in SaveToDatabase
-
-					}
-					else
-					{
-						//delete the row
-						DesignObjVariation_DesignObjDataRow drLink = mds.tDesignObjVariation_DesignObj[this.LinkID];
-						drLink.dr.Delete();
-						mds.tDesignObjVariation_DesignObj.Update(1,mds.m_conn,mds.m_trans);
-					}
-				}
-
-				//}
-		
-				this.ParentVariationLinked = false;
-				blnChanged = true;
-			}
-			else
-			{
-				if(ID == -1)
-				{
-					//add the row
-					DesignObjVariation_DesignObjDataRow drLink = new DesignObjVariation_DesignObjDataRow(mds.tDesignObjVariation_DesignObj.NewRow());
-					drLink.fFK_DesignObj_Child = m_objParentUIDesignObj.ID;
-
-					UIDesignObjVariation objVariation = null;
-					this.m_objParentUIDesignObj.GetCurrentChildSkinLanguage(LanguageID, SkinID, ref objVariation);
-					drLink.fFK_DesignObjVariation_Parent = objVariation.ID;
-
-					DesignObjModified(drLink.fFK_DesignObj_Child_DataRow);
-					mds.tDesignObjVariation_DesignObj.Rows.Add(drLink.dr);
-					mds.tDesignObjVariation_DesignObj.Update(1,mds.m_conn,mds.m_trans);
-
-					ID = drLink.fPK_DesignObjVariation_DesignObj;
-
-					DesignObjVariation_DesignObj_Skin_LanguageDataRow drLinkDSL = new DesignObjVariation_DesignObj_Skin_LanguageDataRow(mds.tDesignObjVariation_DesignObj_Skin_Language.NewRow());
-
-					drLinkDSL.fFK_DesignObjVariation_DesignObj = ID;
-						
-					if(this.Width < -1)
-						drLinkDSL.fWidthSetNull();
-					else
-						drLinkDSL.fWidth = this.Width;
-
-					if(this.Height < -1)
-						drLinkDSL.fHeightSetNull();
-					else
-						drLinkDSL.fHeight = this.Height;
-
-					drLinkDSL.fCanBeHidden = this.CanBeHidden;
-					drLinkDSL.fCanBeHidden = this.CanBeHidden;
-					drLinkDSL.fIsTabStop= this.IsTabStop;
-					drLinkDSL.fDisplayChildrenBeforeText = this.ChildBeforeText;
-					drLinkDSL.fDisplayChildrenBehindBackground = this.ChildBehindBG;
-					if( this.m_iTiedTo=="" || this.m_iTiedTo==null )
-						drLinkDSL.fsFK_DesignObj_TiedToSetNull();
-					else
-						drLinkDSL.fsFK_DesignObj_TiedTo = this.m_iTiedTo;
-
-					if( this.m_sVisibleStates=="" )
-						drLinkDSL.fVisibleStatesSetNull();
-					else
-						drLinkDSL.fVisibleStates = this.m_sVisibleStates;
-	
-					if( this.m_iTS_Up=="" || this.m_iTS_Up==null )
-						drLinkDSL.fFK_DesignObj_UpSetNull();
-					else
-						drLinkDSL.fFK_DesignObj_Up= Convert.ToInt32(this.m_iTS_Up);
-
-					if( this.m_iTS_Down=="" || this.m_iTS_Down==null )
-						drLinkDSL.fFK_DesignObj_DownSetNull();
-					else
-						drLinkDSL.fFK_DesignObj_Down= Convert.ToInt32(this.m_iTS_Down);
-							
-					if( this.m_iTS_Left=="" || this.m_iTS_Left==null )
-						drLinkDSL.fFK_DesignObj_LeftSetNull();
-					else
-						drLinkDSL.fFK_DesignObj_Left= Convert.ToInt32(this.m_iTS_Left);
-							
-					if( this.m_iTS_Right=="" || this.m_iTS_Right==null )
-						drLinkDSL.fFK_DesignObj_RightSetNull();
-					else
-						drLinkDSL.fFK_DesignObj_Right= Convert.ToInt32(this.m_iTS_Right);
-					drLinkDSL.fDisplayChildrenBehindBackground = this.BGOnTop;
-					drLinkDSL.fRegenerateForEachScreen = this.RegenerateForEachScreen;
-
-					drLinkDSL.fX = this.ParentX;
-					drLinkDSL.fY = this.ParentY;
-
-					drLinkDSL.fDisplayOrder = this.ParentDisplayOrder;
-					drLinkDSL.fFK_DesignObjVariation_DesignObj = drLink.fPK_DesignObjVariation_DesignObj;
-						
-					mds.tDesignObjVariation_DesignObj_Skin_Language.Rows.Add(drLinkDSL.dr);
-					mds.tDesignObjVariation_DesignObj_Skin_Language.Update(1,mds.m_conn,mds.m_trans);
-						
-					this.LinkID = drLinkDSL.fPK_DesignObjVariation_DesignObj_Skin_Language;
-					this.ParentVariationLinked = true;
-					blnChanged = true;
-				}
-				else
-				{
-					if(this.LinkOriginalsChanged)
-					{
-						//we need to update				
-						DesignObjVariation_DesignObj_Skin_LanguageDataRow drLinkDSL = mds.tDesignObjVariation_DesignObj_Skin_Language[this.LinkID];
-								
-						if(this.Width < -1)
-							drLinkDSL.fWidthSetNull();
-						else
-							drLinkDSL.fWidth = this.Width;
-
-						if(this.Height < -1)
-							drLinkDSL.fHeightSetNull();
-						else
-							drLinkDSL.fHeight = this.Height;
-
-
-						drLinkDSL.fCanBeHidden = this.CanBeHidden;
-						drLinkDSL.fHideByDefault = this.HideByDefault;
-						drLinkDSL.fIsTabStop= this.IsTabStop;
-						drLinkDSL.fDisplayChildrenBeforeText = this.ChildBeforeText;
-						drLinkDSL.fDisplayChildrenBehindBackground = this.ChildBehindBG;
-
-						if( this.m_sVisibleStates=="" )
-							drLinkDSL.fVisibleStatesSetNull();
-						else
-							drLinkDSL.fVisibleStates = this.m_sVisibleStates;
-
-						if( this.m_iTiedTo=="" || this.m_iTiedTo==null )
-							drLinkDSL.fsFK_DesignObj_TiedToSetNull();
-						else
-							drLinkDSL.fsFK_DesignObj_TiedTo = this.m_iTiedTo;
-	
-						if( this.m_iTS_Up=="" || this.m_iTS_Up==null )
-							drLinkDSL.fFK_DesignObj_UpSetNull();
-						else
-							drLinkDSL.fFK_DesignObj_Up= Convert.ToInt32(this.m_iTS_Up);
-
-						if( this.m_iTS_Down=="" || this.m_iTS_Down==null )
-							drLinkDSL.fFK_DesignObj_DownSetNull();
-						else
-							drLinkDSL.fFK_DesignObj_Down= Convert.ToInt32(this.m_iTS_Down);
-							
-						if( this.m_iTS_Left=="" || this.m_iTS_Left==null )
-							drLinkDSL.fFK_DesignObj_LeftSetNull();
-						else
-							drLinkDSL.fFK_DesignObj_Left= Convert.ToInt32(this.m_iTS_Left);
-							
-						if( this.m_iTS_Right=="" || this.m_iTS_Right==null )
-							drLinkDSL.fFK_DesignObj_RightSetNull();
-						else
-							drLinkDSL.fFK_DesignObj_Right= Convert.ToInt32(this.m_iTS_Right);
-						drLinkDSL.fDisplayChildrenBehindBackground = this.BGOnTop;
-						drLinkDSL.fRegenerateForEachScreen = this.RegenerateForEachScreen;
-
-						drLinkDSL.fX = this.ParentX;
-						drLinkDSL.fY = this.ParentY;
-						drLinkDSL.fDisplayOrder = this.ParentDisplayOrder;
-
-						//DesignObjModified(drLinkDSL.fFK_DesignObj_Child_DataRow);
-
-						blnChanged = true;
-					}
-				}
-			}
-
-
-			this.NeedsParentVariationUnlink = false;
-			this.NeedsParentVariationLink = false;
-
-
-			//set the originals
-			this.ResetLinkOriginals();
-
-
-			//}
-
-			return blnChanged;
-
-		}
 
 		public void DesignObjModified(DesignObjDataRow drObject)
 		{
