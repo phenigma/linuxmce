@@ -233,7 +233,7 @@ for Row in $R; do
 	setup_mysql_access
 	generate_diskless_installer
 
-	## Create /var/log/pluto for this device as a symlink
+#	## Create /var/log/pluto for this device as a symlink
 #	mkdir -p "/home/logs/diskless_${Moon_DeviceID}"
 #	if [[ -d $Moon_RootLocation/var/log/pluto	]] ;then
 #		mv $Moon_RootLocation/var/log/pluto/* /home/log/diskless_$Moon_DeviceID
