@@ -1,0 +1,15 @@
+#!/bin/bash
+
+## Put a kernel image in there
+mkdir -p /tftpboot/default
+cp /boot/vmlinuz-`uname -r` /tftpboot/default/vmlinuz
+mkinitramfs -d /etc/initramfs-tools-interactor/ -o /tftpboot/default/initramfs.img
+
+## Setup the debfault boot file
+mkdir -p /tftpboot/pxelinux.cfg
+echo "
+DEFAULT Pluto
+LABEL Pluto
+KERNEL default/vmlinuz
+APPEND root=/dev/nfs acpi=off vga=normal initrd=default/initrd ramdisk_size=10240 rw ip=all apicpmtimer
+" > /tftpboot/pxelinux.cfg/default
