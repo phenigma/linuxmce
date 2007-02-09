@@ -3988,25 +3988,25 @@ namespace HADesigner
 
 		private void chCanBeHidden_CheckedChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.CanBeHidden = this.chCanBeHidden.Checked;
+				this.selectedUICSL.CanBeHidden = this.chCanBeHidden.Checked;
 			}
 		}
 
 		private void chRegenerateForEachScreen_CheckedChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.RegenerateForEachScreen = this.chRegenerateForEachScreen.Checked;
+				this.selectedUICSL.RegenerateForEachScreen = this.chRegenerateForEachScreen.Checked;
 			}
 		}
 
 		private void chChildBehindBG_CheckedChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.BGOnTop = this.chChildBehindBG.Checked;
+				this.selectedUICSL.BGOnTop = this.chChildBehindBG.Checked;
 			}
 		}
 
@@ -4038,9 +4038,9 @@ namespace HADesigner
 		{
 			if( chHideByDefault.Checked )
 				chCanBeHidden.Checked = true;
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.HideByDefault = this.chHideByDefault.Checked;
+				this.selectedUICSL.HideByDefault = this.chHideByDefault.Checked;
 			}
 		}
 
@@ -4098,73 +4098,73 @@ namespace HADesigner
 
 		private void chBGOnTop_CheckedChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.BGOnTop = this.chChildBehindBG.Checked;
+				this.selectedUICSL.BGOnTop = this.chChildBehindBG.Checked;
 			}
 		}
 
 		private void chChildBeforeText_CheckedChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.ChildBeforeText = this.chChildBeforeText.Checked;
+				this.selectedUICSL.ChildBeforeText = this.chChildBeforeText.Checked;
 			}
 		}
 
 		private void chDontMergeBG_CheckedChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.DontMergeBG = this.chDontMergeBG.Checked;
+				this.selectedUICSL.DontMergeBG = this.chDontMergeBG.Checked;
 			}
 		}
 
 		private void cbIsTabStop_CheckedChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.IsTabStop = this.chIsTabStop.Checked;
+				this.selectedUICSL.IsTabStop = this.chIsTabStop.Checked;
 			}
 		}
 
 		private void tbTS_Up_TextChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.TS_Up = this.tbTS_Up.Text;
+				this.selectedUICSL.TS_Up = this.tbTS_Up.Text;
 			}
 		}
 
 		private void tbTS_Down_TextChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.TS_Down = this.tbTS_Down.Text;
+				this.selectedUICSL.TS_Down = this.tbTS_Down.Text;
 			}
 		}
 
 		private void tbTS_Left_TextChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.TS_Left = this.tbTS_Left.Text;
+				this.selectedUICSL.TS_Left = this.tbTS_Left.Text;
 			}
 		}
 
 		private void tbTS_Right_TextChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.TS_Right = this.tbTS_Right.Text;
+				this.selectedUICSL.TS_Right = this.tbTS_Right.Text;
 			}
 		}
 
 		private void tbTiedTo_TextChanged(object sender, System.EventArgs e)
 		{
-			if(this.selectedUIDesignObj != null)
+			if(this.selectedUICSL != null)
 			{
-				this.selectedUIDesignObj.TiedTo = this.tbTiedTo.Text;
+				this.selectedUICSL.TiedTo = this.tbTiedTo.Text;
 			}
 		}
 

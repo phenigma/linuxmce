@@ -719,7 +719,7 @@ namespace HADesigner
 					else
 					{
 						//delete the row
-						DesignObjVariation_DesignObjDataRow drLink = mds.tDesignObjVariation_DesignObj[this.LinkID];
+						DesignObjVariation_DesignObjDataRow drLink = mds.tDesignObjVariation_DesignObj[DOV_DO_ID];
 						drLink.dr.Delete();
 						mds.tDesignObjVariation_DesignObj.Update(1,mds.m_conn,mds.m_trans);
 					}
