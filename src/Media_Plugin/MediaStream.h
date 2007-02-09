@@ -89,7 +89,6 @@ namespace DCE
 		// If this is a generic media device, like a DVD player, that is connected to a capture card which is being
 		// accessed by a media playing overlay device, like Xine, the following will be non null
 		DeviceData_Router		*m_pDevice_CaptureCard;      /** The device which is the capture card for this media stream. */
-		MediaDevice		*m_pMediaDevice_Overlay;      /** The device which is the overlay media device of this media stream. */
 
 		int 			 m_iPK_MediaType;        	/** The type of media in this stream. */
 		int				 m_iPK_MediaProvider;		/** The media provider in this stream. */

@@ -38,6 +38,7 @@ public:
 	bool SetActiveRemote(int iRemoteID,bool bFollowMe);
 	void StartMouse() { PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex); m_MouseStartStop=mssStart; }
 	void StopMouse() { PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex); m_MouseStartStop=mssStop; }
+	bool Rebind();
 	bool DoStartMouse();
 	bool DoStopMouse();
 	void LegacyBind();

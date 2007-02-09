@@ -184,6 +184,23 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 	return true;
 }
 
+bool PlutoHIDInterface::Rebind()
+{
+	char write_packet[5];
+	write_packet[0]=8;
+	write_packet[1]=0x51;
+	write_packet[2]=0xff;
+	write_packet[3]=0;
+	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
+	if (ctrl<0)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::Rebind  usb_control_msg %d\n",(int) ctrl);
+		perror("error: ");
+		return false;
+	}
+	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::Rebind wrote message %d",ctrl);
+}
+
 bool PlutoHIDInterface::DoStartMouse()
 {
 	PLUTO_SAFETY_LOCK(hm,m_HIDMutex);
@@ -287,7 +304,12 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 		(int) p_Packet[2],(int) p_Packet[3],(int) p_Packet[4],(int) p_Packet[5]);
 
 	int iRemoteID = p_Packet[2];
-	if( iRemoteID!=m_iRemoteID )
+	if( iRemoteID==0xff )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton Remote was bound while booting up and has ID ff.  Re-connecting...");
+		Rebind();
+	}
+	else if( iRemoteID!=m_iRemoteID )
 	{
 		if( SetActiveRemote(iRemoteID,false)==false )
 			g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDButton user needs to connect first");

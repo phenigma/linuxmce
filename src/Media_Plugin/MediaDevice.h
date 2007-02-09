@@ -19,6 +19,7 @@ namespace DCE
 		MediaDevice(class Router *pRouter,Row_Device *pRow_Device);   /** This will store extra information about itself */
 		bool m_bDontSendOffIfOSD_ON;  // This allows that only the OSD can turn it off
 		bool m_bCaptureCardActive; // True if this is an external source and m_pDevice_CaptureCard is not null, and the video/audio path are now using the capture card
+		bool m_bViewingLiveAVPath; // True if the device has video that runs both through the capture card, and directly to other av devices, and the user is viewing it directly to the a/v devices.  Sending the Live_AVPath command makes this happen
 		int m_iDelayForCaptureCard; // If m_pDevice_CaptureCard is not null and the stream should start by showing the content from the capture card (ie m_bCaptureCardActive=true), and switch after this many seconds to a direct connect
 		class DeviceData_Router *m_pDeviceData_Router,          /**< The device in the router */
 			*m_pDevice_Audio, /**< If this is inside a media director, and there is no destination device in the audio path, this will point app server to adjust the volume in the PC */

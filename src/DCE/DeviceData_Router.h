@@ -146,6 +146,9 @@ namespace DCE
 		// controllers which try to continually reconnect and may not realize the server has been restarted
 		bool m_bForceReloadOnFirstConnect;
 
+		// If set to true, all on/off's to this device will be skipped
+		bool m_bIgnoreOnOff;
+
 		map<int, class Pipe *> m_mapPipe_Available; // The available pipes
 		Pipe *m_mapPipe_Available_Find(int PK_Pipe) { map<int,class Pipe *>::iterator it = m_mapPipe_Available.find(PK_Pipe); return it==m_mapPipe_Available.end() ? NULL : (*it).second; }
 		map<int, class Pipe *> m_mapPipe_Active; // The currently activated pipes
@@ -212,6 +215,7 @@ namespace DCE
 			m_tLastused=m_tCanReceiveNextCommand=0;
 			m_sState = m_pRow_Device->State_get();
 			m_sStatus = m_pRow_Device->Status_get();
+			m_bIgnoreOnOff = m_pRow_Device->IgnoreOnOff_get()==1;
 
 			m_pRoom=pRoom;
 			m_pDevice_ControlledVia=m_pDevice_RouteTo=NULL;

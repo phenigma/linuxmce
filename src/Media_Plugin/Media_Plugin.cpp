@@ -124,6 +124,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_pDevice_Audio=m_pDevice_Video=m_pDevice_Media_ID=NULL;
 	m_iPK_MediaProvider=atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_EK_MediaProvider_CONST).c_str());
 	m_bCaptureCardActive=false;
+	m_bViewingLiveAVPath=false;
 	m_iDelayForCaptureCard=0;
 	m_iLastVolume=-1;
 	m_bMute=false;
@@ -1480,7 +1481,10 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 		// Add some stuff to the message parameters
 		pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST] = StringUtils::itos(pEntertainArea->m_pMediaStream->m_iStreamID_get());
 
-		if( pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST )
+		// If it's a stop, treat it like a stop media, unless we're using a generic external device where it goes to that device
+		// and we should let it pass, and have the user use 'power' to stop the media
+		if( (pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST) &&
+			(!pEntertainArea || !pEntertainArea->m_pMediaStream || pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo!=m_pGenericMediaHandlerInfo) )
 		{
 			string sResult;
 			CMD_MH_Stop_Media(0,0,0,StringUtils::itos(pEntertainArea->m_iPK_EntertainArea),sResult,pMessage);  // It expects to get a valid message
