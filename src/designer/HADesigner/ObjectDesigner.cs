@@ -2562,8 +2562,9 @@ namespace HADesigner
 						ptClient.X -= this.panelPreview.AutoScrollPosition.X;
 						ptClient.Y -= this.panelPreview.AutoScrollPosition.Y;
 
-						objNewDesignObj.ParentX = Convert.ToInt32(Convert.ToDouble(ptClient.X)	/ m_objUIDesignObjDisplayControl.Scale);
-						objNewDesignObj.ParentY = Convert.ToInt32(Convert.ToDouble(ptClient.Y)	/ m_objUIDesignObjDisplayControl.Scale);
+						//TODO ENDER
+						//objNewDesignObj.ParentX = Convert.ToInt32(Convert.ToDouble(ptClient.X)	/ m_objUIDesignObjDisplayControl.Scale);
+						//objNewDesignObj.ParentY = Convert.ToInt32(Convert.ToDouble(ptClient.Y)	/ m_objUIDesignObjDisplayControl.Scale);
 
 						objSelectedVariation.DesignObjs.Add(objNewDesignObj);
 					
@@ -2930,13 +2931,12 @@ namespace HADesigner
 			{
 				if(this.selectedUIDesignObj != null && this.selectedUIDesignObj.ID != -1)
 				{
-					if(Convert.ToString(this.selectedUIDesignObj.ParentX) != tbX.Text)
+					if(Convert.ToString(this.selectedUICSL.ParentX) != tbX.Text)
 					{
 						bool origBlock = this.BlockUpdateImage();
 
-						this.selectedUIDesignObj.ParentX = Convert.ToInt32(tbX.Text);
-						this.selectedUIDesignObj.Build(this.skinID);
-					
+						this.selectedUICSL.ParentX = Convert.ToInt32(tbX.Text);
+						this.selectedUICSL.Build(this.SkinID);
 						this.UpdateImage(origBlock);
 					}
 				}
@@ -2964,14 +2964,11 @@ namespace HADesigner
 			{
 				if(this.selectedUIDesignObj != null && this.selectedUIDesignObj.ID != -1)
 				{
-					if(Convert.ToString(this.selectedUIDesignObj.ParentY) != tbY.Text)
+					if(Convert.ToString(this.selectedUICSL.ParentY) != tbY.Text)
 					{
 						bool origBlock = this.BlockUpdateImage();
-
-						this.selectedUIDesignObj.ParentY = Convert.ToInt32(tbY.Text);
-						this.selectedUIDesignObj.Build(this.skinID);
-						//m_objUIDesignObjDisplayControl.Zoom();
-					
+						this.selectedUICSL.ParentY = Convert.ToInt32(tbY.Text);
+						this.selectedUICSL.Build(this.SkinID);
 						this.UpdateImage(origBlock);
 					}
 				}
@@ -3006,8 +3003,6 @@ namespace HADesigner
 
 						selectedUICSL.Width = Convert.ToInt32(tbWidth.Text);
 						this.selectedUIDesignObj.Build(this.skinID);
-						//m_objUIDesignObjDisplayControl.Zoom();
-
 						this.UpdateImage(origBlock);
 					}
 				}
@@ -3038,13 +3033,10 @@ namespace HADesigner
 				{
 					if(Convert.ToString(selectedUICSL.Height) != tbHeight.Text)
 					{
-						// TODO: Allow to set to default
 						bool origBlock = this.BlockUpdateImage();
 
 						selectedUICSL.Height = Convert.ToInt32(tbHeight.Text);
 						this.selectedUIDesignObj.Build(this.skinID);
-						//m_objUIDesignObjDisplayControl.Zoom();
-
 						this.UpdateImage(origBlock);
 					}
 				}
@@ -4410,7 +4402,6 @@ namespace HADesigner
 				using (Graphics objGraphics = Graphics.FromImage(m_objBitmap))
 				{
 					objGraphics.Clear(Color.White);
-					objGraphics.DrawRectangle(new Pen(Color.Blue, 3), 10, 10, 1000,1000);
 					m_UIDesignObj.Draw(objGraphics,this.m_objParentForm.LanguageID,this.m_objParentForm.SkinID);
 				}
 			}

@@ -679,7 +679,9 @@ namespace HADesigner
 			//if this is selected, draw a big ol' rectangle around it
 			if(ParentUIDesignObj.Selected)
 			{
-				objGraphics.DrawRectangle(new Pen(Color.Red, 4), this.RootX, this.RootY, this.Width - 4, this.Height - 4);
+				objGraphics.DrawRectangle(new Pen(Color.Red, 4), 
+					this.ParentX + this.RootX, this.ParentY + this.RootY, 
+					this.Width - 4, this.Height - 4);
 			}
 		}
 

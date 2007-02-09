@@ -588,8 +588,8 @@ namespace HADesigner
 
 					if(blnDraw)
 					{
-						int intX = objChildSkinLanguage.RootX;
-						int intY = objChildSkinLanguage.RootY;
+						int intX = objChildSkinLanguage.ParentX + objChildSkinLanguage.RootX;
+						int intY = objChildSkinLanguage.ParentY + objChildSkinLanguage.RootY;
 
 						int intWidth = this.Bitmap.Width;
 						int intHeight = this.Bitmap.Height;

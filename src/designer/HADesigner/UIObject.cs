@@ -88,12 +88,6 @@ namespace HADesigner
 		private string m_iTS_Left;
 		private string m_iTS_RightOriginal;
 		private string m_iTS_Right;
-
-		
-		private int m_intWidthOriginal;
-		private int m_intHeightOriginal;
-		private int m_intParentXOriginal;		
-		private int m_intParentYOriginal;
 		private int m_intParentDisplayOrderOriginal;
 
 
@@ -114,15 +108,13 @@ namespace HADesigner
 		private bool m_blnSelected = false;
 
 		//used for drawing
-		private int m_intWidth = NoSetValue;
-		private int m_intHeight = NoSetValue;
 		private float m_fltScale;
 		private bool m_bitRegenerateForEachScreen;
 		private bool m_bitCanBeHidden;
 		private bool m_bitDontResetSelectedState;
 		private bool m_bitHideByDefault;
-		private int m_intParentX;		//relative to parent UIDesignObjVariation
-		private int m_intParentY;
+		//private int m_intParentX;		//relative to parent UIDesignObjVariation
+		//private int m_intParentY;
 		private int m_intParentDisplayOrder;
 
 		private int m_intLinkID;	//this is the id in the objectvariation_oject table
@@ -254,16 +246,6 @@ namespace HADesigner
 			get {return this.m_bitDontResetSelectedState;}
 			set {this.m_bitDontResetSelectedState = value;}
 		}
-		public int ParentX
-		{
-			get	{return m_intParentX;}
-			set {m_intParentX = value;}
-		}
-		public int ParentY
-		{
-			get	{return m_intParentY;}
-			set {m_intParentY = value;}
-		}
 		public int ParentDisplayOrder
 		{
 			get	{return m_intParentDisplayOrder;}
@@ -355,28 +337,6 @@ namespace HADesigner
 			get {return this.m_bitRegenerateForEachScreenOriginal;}
 			set {this.m_bitRegenerateForEachScreenOriginal = value;}
 		}
-
-		public int WidthOriginal
-		{
-			get	{return	m_intWidthOriginal;}
-			set	{m_intWidthOriginal	= value;}
-		}
-		public int HeightOriginal
-		{
-			get	{return	m_intHeightOriginal;}
-			set	{m_intHeightOriginal = value;}
-		}
-		public int ParentXOriginal
-		{
-			get	{return	m_intParentXOriginal;}
-			set	{m_intParentXOriginal =	value;}
-		}
-		public int ParentYOriginal
-		{
-			get	{return m_intParentYOriginal;}
-			set {m_intParentYOriginal = value;}
-		}
-
 		public int ParentDisplayOrderOriginal
 		{
 			get	{return m_intParentDisplayOrderOriginal;}
@@ -463,7 +423,7 @@ namespace HADesigner
 		{
 			get
 			{
-				return BGOnTop != BGOnTopOriginal || RegenerateForEachScreen != RegenerateForEachScreenOriginal || CanBeHidden != CanBeHiddenOriginal || HideByDefault != HideByDefaultOriginal || ParentX != ParentXOriginal || ParentY != ParentYOriginal || 
+				return BGOnTop != BGOnTopOriginal || RegenerateForEachScreen != RegenerateForEachScreenOriginal || CanBeHidden != CanBeHiddenOriginal || HideByDefault != HideByDefaultOriginal ||  
 					ParentDisplayOrder != ParentDisplayOrderOriginal || IsTabStop != IsTabStopOriginal || ChildBeforeText != ChildBeforeTextOriginal ||
 					ChildBehindBG != ChildBehindBGOriginal ||
 					m_blnChildBeforeTextOriginal != m_blnChildBeforeText || m_blnIsTabStopOriginal != m_blnIsTabStop || m_iTiedToOriginal != m_iTiedTo || m_sVisibleStatesOriginal != m_sVisibleStates ||
@@ -507,8 +467,6 @@ namespace HADesigner
 				this.m_bitCanBeHidden = false;
 				this.m_bitHideByDefault = false;
 				this.m_bitRegenerateForEachScreen = false;
-				m_intParentX = 0;
-				m_intParentY = 0;
 				this.ParentVariationLinked = false;
 			}
 			else
@@ -866,8 +824,6 @@ namespace HADesigner
 
 		public void Reset()
 		{
-			//this.Width = 0;
-			//this.Height = 0;
 			foreach(Object obj in m_alUIDesignObjVariations)
 			{
 				UIDesignObjVariation objUIDesignObjVariation = (UIDesignObjVariation) obj;
@@ -1146,8 +1102,6 @@ namespace HADesigner
 			this.m_iTS_RightOriginal = this.m_iTS_Right;
 			this.BGOnTopOriginal = this.BGOnTop;
 			this.RegenerateForEachScreenOriginal = this.RegenerateForEachScreen;
-			this.ParentXOriginal = this.ParentX;
-			this.ParentYOriginal = this.ParentY;
 			this.ParentDisplayOrderOriginal = this.ParentDisplayOrder;
 		}
 
