@@ -18,14 +18,36 @@ File="/etc/defaultdomain"
 mkdir -p "${Parm_RootLocation}/$(dirname $File)"
 echo "pluto" > "${Parm_RootLocation}/${File}"
 
+## Let the client know who is the server
 File="/etc/yp.conf"
-mkdir -p "$Parm_RootLocation}/$(dirname $File)"
+mkdir -p "${Parm_RootLocation}/$(dirname $File)"
 echo "ypserver ${IntIP}" > "${Parm_RootLocation}/${File}"
-##
+
+## Configure nsswitch file
+File="/etc/nsswitch.conf"
+mkdir -p "${Parm_RootLocation}/$(dirname $File)"
+Content="
+passwd:         compat
+group:          compat
+shadow:         compat
+
+hosts:          files nis dns
+networks:       files
+
+protocols:      db files
+services:       db files
+ethers:         db files
+rpc:            db files
+
+netgroup:       nis
+"
+echo "$Content" > "${Parm_RootLocation}/${File}"
+
 
 ## Force a diskless client to get passwd/shadow & group from nis
 if [[ -f ${Parm_RootLocation}/etc/passwd ]] ;then
 	grep -q "+::::::"   ${Parm_RootLocation}/etc/passwd || echo "+::::::"   >> ${Parm_RootLocation}/etc/passwd
+	sed -ir '/.*:.*:[0-9]{4}:.*/d' ${Parm_RootLocation}/etc/passwd
 fi
 if [[ -f ${Parm_RootLocation}/etc/shadow ]] ;then
 	grep -q "+::::::::" ${Parm_RootLocation}/etc/shadow || echo "+::::::::" >> ${Parm_RootLocation}/etc/shadow
