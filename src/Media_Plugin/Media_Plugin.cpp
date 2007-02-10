@@ -125,6 +125,17 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_iPK_MediaProvider=atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_EK_MediaProvider_CONST).c_str());
 	m_bCaptureCardActive=false;
 	m_bViewingLiveAVPath=false;
+	m_bPreserveAspectRatio=m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Preserve_Aspect_Ratio_CONST)=="1";
+	m_dwPK_Command_LastAdjustment_Audio=m_dwPK_Command_LastAdjustment_Video=0;
+	string sAdjustRules=m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_AV_Adjustment_Rules_CONST);
+	vector<string> vectAdjustRules;
+	StringUtils::Tokenize(sAdjustRules,"\r\n",vectAdjustRules);
+	for(vector<string>::iterator it=vectAdjustRules.begin();it!=vectAdjustRules.end();++it)
+	{
+		string::size_type pos = it->find('=');
+		if( pos!=string::npos )
+			m_mapAdjustmentRules[it->substr(0,pos)]=atoi(it->substr(pos+1).c_str());
+	}
 	m_iDelayForCaptureCard=0;
 	m_iLastVolume=-1;
 	m_bMute=false;
@@ -895,7 +906,49 @@ bool Media_Plugin::PlaybackStarted( class Socket *pSocket,class Message *pMessag
 
 		pMediaStream->m_mapSections[ make_pair<int,int> (iChapter-1,iTitle-1) ] = sDescription;
 	}
+
+	HandleAVAdjustments(pMediaStream,sAudio,sVideo);
+
 	return false;
+}
+
+void Media_Plugin::HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,string sVideo)
+{
+	// We need to get the current rendering devices so that we can see what have rules
+	map<int,MediaDevice *> mapMediaDevice_Current;
+	for(map<int,class EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();it!=pMediaStream->m_mapEntertainArea.end();++it)
+		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(it->second,&mapMediaDevice_Current);
+
+	Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(pMediaStream->m_iPK_MediaType);
+	AddOtherDevicesInPipesToRenderDevices(pRow_MediaType ? pRow_MediaType->FK_Pipe_get() : 0,&mapMediaDevice_Current);
+
+	for(map<int,MediaDevice *>::iterator it=mapMediaDevice_Current.begin();it!=mapMediaDevice_Current.end();++it)
+	{
+		// Go through each device and find rules for these audio or video settings
+		MediaDevice *pMediaDevice = it->second;
+		int PK_Command=0; // Find a command
+		if( pMediaDevice->m_bPreserveAspectRatio==false )  // The user wants full screen rules, which will be preceeded with a !
+			PK_Command = pMediaDevice->m_mapAdjustmentRules_Find("!" + sVideo);
+		if( PK_Command==0 )  // Either the user doesn't want full screen, or there was no full screen rule
+			PK_Command = pMediaDevice->m_mapAdjustmentRules_Find(sVideo);
+
+		if( PK_Command && pMediaDevice->m_dwPK_Command_LastAdjustment_Video!=PK_Command )
+		{
+			pMediaDevice->m_dwPK_Command_LastAdjustment_Video=PK_Command;
+			DCE::Message *pMessage = new DCE::Message(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+				PRIORITY_NORMAL,MESSAGETYPE_COMMAND,PK_Command,0);
+			QueueMessageToRouter(pMessage);
+		}
+
+		PK_Command = pMediaDevice->m_mapAdjustmentRules_Find(sAudio);
+		if( PK_Command && pMediaDevice->m_dwPK_Command_LastAdjustment_Audio!=PK_Command )
+		{
+			pMediaDevice->m_dwPK_Command_LastAdjustment_Audio=PK_Command;
+			DCE::Message *pMessage = new DCE::Message(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+				PRIORITY_NORMAL,MESSAGETYPE_COMMAND,PK_Command,0);
+			QueueMessageToRouter(pMessage);
+		}
+	}
 }
 
 void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *>  &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream)
@@ -1290,7 +1343,17 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				HandleOnOffs(pOldStreamInfo ? pOldStreamInfo->m_PK_MediaType_Prior : 0,
 					pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,
 					pOldStreamInfo ? &pOldStreamInfo->m_mapMediaDevice_Prior : NULL,
-					&mapMediaDevice_Current);
+					&mapMediaDevice_Current,pMediaStream);
+
+				// Reset the values used to keep track of live/non-live viewing, and adjusts for all devices involved in this stream
+				Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(pMediaStream->m_iPK_MediaType);
+				AddOtherDevicesInPipesToRenderDevices(pRow_MediaType ? pRow_MediaType->FK_Pipe_get() : 0,&mapMediaDevice_Current);
+				for(map<int,MediaDevice *>::iterator it=mapMediaDevice_Current.begin();it!=mapMediaDevice_Current.end();++it)
+				{
+					MediaDevice *pMediaDevice = (*it).second;
+					pMediaStream->m_pMediaDevice_Source->m_bViewingLiveAVPath=false;
+					pMediaStream->m_pMediaDevice_Source->m_dwPK_Command_LastAdjustment_Audio=pMediaStream->m_pMediaDevice_Source->m_dwPK_Command_LastAdjustment_Video=0;
+				}
 			}
 		}
 
@@ -1917,9 +1980,10 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		}
 
 		if( bSendOff )
-			HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
+			HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL,pMediaStream);
 		if( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD && bTurnOnOSD )
 		{
+			pMediaStream->m_pMediaDevice_Source->m_bViewingLiveAVPath=false;
 			MediaDevice *pMediaDevice_MD = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device);
 			if( pMediaDevice_MD && pMediaDevice_MD->m_bDontSendOffIfOSD_ON )
 			{
@@ -2715,7 +2779,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media ready to resta
 	}
 }
 
-void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current)
+void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current,MediaStream *pMediaStream)
 {
 	// Is a specific pipe used?  If this is an audio stream only, the media type will have the pipe set to 1
 	Row_MediaType *pRow_MediaType_Prior = PK_MediaType_Prior ? m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Prior) : NULL;
@@ -2734,12 +2798,6 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 		mapMediaDevice_Current = *pmapMediaDevice_Current;
 		AddOtherDevicesInPipesToRenderDevices(PK_Pipe_Current,&mapMediaDevice_Current);
 	}
-for(map<int,MediaDevice *>::iterator it=mapMediaDevice_Current.begin();it!=mapMediaDevice_Current.end();++it)
-{
-	MediaDevice *pMediaDevice = it->second;
-	string s = pMediaDevice->m_pDeviceData_Router->m_sDescription;
-int k=2;
-}
 
 	if( pmapMediaDevice_Prior )
 	{
@@ -2772,6 +2830,9 @@ int k=2;
 			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::HandleOnOffs() There is a null device associated with the deviceID: %d. Ignoring device in HandleOnOff", (*it).first);
 			continue;
 		}
+
+		for(map<int,Pipe *>::iterator it=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.begin();it!=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.end();++it)
+			it->second->m_bDontSendInputs=false;  // Reset this in case the device was previously in use and had this set to true
 
 		// If this is using a capture card and it's active, then we are only going to turn on the m/d
 		if( pMediaDevice->m_pDevice_CaptureCard && pMediaDevice->m_bCaptureCardActive && pMediaDevice->m_pDevice_CaptureCard->m_pDevice_MD )
@@ -2831,6 +2892,9 @@ int k=2;
 			DCE::CMD_On CMD_On2(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,PK_Pipe_Current,"");
 			SendCommand(CMD_On2);
 		}
+		// See if it's a generic media stream, and it's using it's own pipes
+		else if( pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo && pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.size() )
+			pMediaStream->m_pMediaDevice_Source->m_bViewingLiveAVPath=true;
 		
 		DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,PK_Pipe_Current,"");
 		SendCommand(CMD_On);
@@ -5690,4 +5754,70 @@ void Media_Plugin::CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Siz
 	pRow_Picture_File->FK_File_set( pRow_File->PK_File_get() );
 	pRow_Picture_File->FK_Picture_set( pRow_Picture->PK_Picture_get() );
 	m_pDatabase_pluto_media->Picture_File_get()->Commit();
+}
+//<-dceag-c847-b->
+
+	/** @brief COMMAND: #847 - Live AV Path */
+	/** Switch the given a/v device to use the live a/v path */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area */
+		/** @param #252 Turn On */
+			/** If true, the audio/video inputs for direct viewing, not through the capture card, will be used */
+
+void Media_Plugin::CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,string &sCMD_Result,Message *pMessage)
+//<-dceag-c847-e->
+{
+	vector<EntertainArea *> vectEntertainArea;
+	// Only an Orbiter will tell us to play media
+    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, sPK_EntertainArea, vectEntertainArea );
+	for(size_t s=0;s<vectEntertainArea.size();++s)
+	{
+		EntertainArea *pEntertainArea = vectEntertainArea[s];
+		if( !pEntertainArea->m_pMediaStream )
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_Live_AV_Path Ent area %d has no media", pEntertainArea->m_iPK_EntertainArea);
+			DCE::CMD_Display_Alert CMD_Display_Alert(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+				"Cannot switch to live a/v path.  No media playing","no live","5",interuptAlways);
+			SendCommand(CMD_Display_Alert);
+			continue;
+		}
+
+		MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;
+		MediaDevice *pMediaDevice = pMediaStream->m_pMediaDevice_Source;
+		Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(pMediaStream->m_iPK_MediaType);
+		int PK_Pipe = pRow_MediaType->FK_Pipe_get();
+
+		if( pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.empty() )
+		{
+			DCE::CMD_Display_Alert CMD_Display_Alert(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+				pMediaDevice->m_pDeviceData_Router->m_sDescription + " has no direct a/v path","no live","5",interuptAlways);
+			SendCommand(CMD_Display_Alert);
+			continue;
+		}
+
+		// We don't want to be setting the inputs to the 'live' a/v path because we're using the capture card
+		for(map<int,Pipe *>::iterator it=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.begin();it!=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.end();++it)
+			it->second->m_bDontSendInputs=bTurn_On==false;  // If Turn on is true, then we want to send the inputs
+
+		pMediaDevice->m_bViewingLiveAVPath = bTurn_On;
+
+		// Send the on command to the m/d if 'view live turn on'==false, if it's true, it goes to the destination device
+		int PK_Device;
+		if( bTurn_On )
+			PK_Device = pMediaDevice->m_pDeviceData_Router->m_dwPK_Device;
+		else if( pEntertainArea->m_pOH_Orbiter_OSD && pEntertainArea->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_pDevice_ControlledVia )
+			// The MD 
+			PK_Device = pEntertainArea->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device;
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Live_AV_Path Ent area %d has no osd",pEntertainArea->m_iPK_EntertainArea);
+			continue;
+		}
+
+		DCE::CMD_On CMD_On(m_dwPK_Device,PK_Device,PK_Pipe,"");
+		SendCommand(CMD_On);
+
+		if( pEntertainArea->m_pOH_Orbiter_OSD )
+			SetNowPlaying(pEntertainArea->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,pMediaStream,false);
+	}
 }

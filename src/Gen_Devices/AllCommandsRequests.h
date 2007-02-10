@@ -22792,5 +22792,37 @@ namespace DCE
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
 			- COMMANDPARAMETER_Data_CONST, pData,iData_Size); }
 	};
+	class CMD_Live_AV_Path : public PreformedCommand {
+	public:
+		CMD_Live_AV_Path(long DeviceIDFrom, long DeviceIDTo,string sPK_EntertainArea,bool bTurn_On) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Live_AV_Path_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0")); }
+	};
+	class CMD_Live_AV_Path_DL : public PreformedCommand {
+	public:
+		CMD_Live_AV_Path_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_EntertainArea,bool bTurn_On) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Live_AV_Path_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0")); }
+	};
+	class CMD_Live_AV_Path_DT : public PreformedCommand {
+	public:
+		CMD_Live_AV_Path_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_EntertainArea,bool bTurn_On) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Live_AV_Path_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0")); }
+	};
+	class CMD_Live_AV_Path_Cat : public PreformedCommand {
+	public:
+		CMD_Live_AV_Path_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_EntertainArea,bool bTurn_On) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Live_AV_Path_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0")); }
+	};
 }
 #endif

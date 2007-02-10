@@ -1897,12 +1897,12 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 
     if ( (*(*pSafetyMessage))->m_dwMessage_Type==MESSAGETYPE_COMMAND )
 	{
+        HandleCommandPipes(pSocket,pSafetyMessage);
 		if( pDeviceTo && pDeviceTo->m_bIgnoreOnOff && ((*(*pSafetyMessage))->m_dwID==COMMAND_Generic_On_CONST || (*(*pSafetyMessage))->m_dwID==COMMAND_Generic_Off_CONST) )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Skipping on/off's to device %d", pDeviceTo->m_dwPK_Device);
 			return;
 		}
-        HandleCommandPipes(pSocket,pSafetyMessage);
 	}
 
 	if( pDeviceTo && pDeviceTo->m_pDevice_RouteTo )

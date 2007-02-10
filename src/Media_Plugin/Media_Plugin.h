@@ -208,12 +208,27 @@ protected:
     /**
      * Given that media was playing on the Prior list of devices, and now is on the Current list of devices, send the appropriate on/off's
      */
-	void HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current);
+	void HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current,MediaStream *pMediaStream);
 
     /**
      * Turn off the device and other devices in the pipe, but without turning off devices we are currently using
      */
 	void TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current,vector<int> *p_vectDevice=NULL);
+
+	/**
+	 * Handle adjustments the user wants, like changing zoom and audio setttings, based on values from the media.
+	 * For each AV device a parameter AV Adjustment Rules can specify what commands to send based on strings from
+	 * within the sAudio & sVideo.  Example: 
+	 * dolby digital 2=312
+	 * dolby digital 5=292
+	 * 3:2=683
+	 * !3:2=684
+	 * means when the string "dolby digital 2" is contained in audio or video, send the command 312 (COMMAND_Stadium_CONST)
+	 * to the device.  If "3:2" is in either string, send command 683
+	 * If the user has turned off the 'Preserve Aspect Ratio' setting for a device, it will attempt
+	 * first to match the string with an ! in front, so command 684 would be sent instead of that setting was set to false
+	 */
+	void HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,string sVideo);
 
     /**
      * Add the file to the pluto_media database
@@ -575,6 +590,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d 
 				sMediaDevices += ",0";
 
 			sMediaDevices += pMediaStream->ContainsVideo() ? ",1" : ",0";
+			sMediaDevices += pMediaStream->m_pMediaDevice_Source->m_bViewingLiveAVPath ? ",1" : ",0";
 
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
 				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, 
@@ -1104,6 +1120,17 @@ Powerfile: 0, 1, ... */
 
 	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size) { string sCMD_Result; CMD_Make_Thumbnail(sFilename.c_str(),pData,iData_Size,sCMD_Result,NULL);};
 	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #847 - Live AV Path */
+	/** Switch the given a/v device to use the live a/v path */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area */
+		/** @param #252 Turn On */
+			/** If true, the audio/video inputs for direct viewing, not through the capture card, will be used */
+
+	virtual void CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On) { string sCMD_Result; CMD_Live_AV_Path(sPK_EntertainArea.c_str(),bTurn_On,sCMD_Result,NULL);};
+	virtual void CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };

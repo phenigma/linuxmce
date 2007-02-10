@@ -373,7 +373,7 @@ namespace DCE
 		string m_sDefaultStorageDeviceForRippingName;
 		int m_iPK_MediaType,m_iStreamID;
 		int m_dwPK_Device_NowPlaying,m_dwPK_Device_NowPlaying_Video,m_dwPK_Device_NowPlaying_Audio,m_dwPK_Device_CaptureCard;  /** < set by the media engine, this is whatever media device is currently playing.  Capture Card is non null if we're displaying media via this card */
-		bool m_bPK_Device_NowPlaying_Audio_DiscreteVolume,m_bContainsVideo;
+		bool m_bPK_Device_NowPlaying_Audio_DiscreteVolume,m_bContainsVideo,m_bUsingLiveAVPath;
 
 		int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
 		time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */

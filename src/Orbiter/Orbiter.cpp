@@ -247,7 +247,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	WriteStatusOutput("Orbiter constructor");
 
 	m_bFullScreen = bFullScreen;
-	m_bContainsVideo = false;
+	m_bUsingLiveAVPath = m_bContainsVideo = false;
 	m_pInstance = this;
 	m_TypeToIgnore = Orbiter::Event::NONE;
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
@@ -6408,6 +6408,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	m_dwPK_Device_CaptureCard = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
 	m_bPK_Device_NowPlaying_Audio_DiscreteVolume = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
 	m_bContainsVideo = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
+	m_bUsingLiveAVPath = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
 	CMD_Set_Variable(VARIABLE_Track_or_Playlist_Positio_CONST, StringUtils::itos(iValue));
 	pos=0;
 	m_iPK_Screen_Remote=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
@@ -6427,10 +6428,10 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		m_sNowPlaying_MediaType = "";
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Now_Playing value: %s sdesign: %s m_dwPK_Device_NowPlaying %d m_dwPK_Device_NowPlaying_Video %d m_dwPK_Device_NowPlaying_Audio %d m_dwPK_Device_CaptureCard %d m_bPK_Device_NowPlaying_Audio_DiscreteVolume %d m_bContainsVideo %d m_iPK_Screen_Remote %d m_iPK_DesignObj_Remote_Popup %d m_iPK_Screen_FileList %d m_iPK_Screen_RemoteOSD %d m_iPK_Screen_OSD_Speed %d m_iPK_Screen_OSD_Track %d",
+	g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Now_Playing value: %s sdesign: %s m_dwPK_Device_NowPlaying %d m_dwPK_Device_NowPlaying_Video %d m_dwPK_Device_NowPlaying_Audio %d m_dwPK_Device_CaptureCard %d m_bPK_Device_NowPlaying_Audio_DiscreteVolume %d m_bContainsVideo %d m_bUsingLiveAVPath %d m_iPK_Screen_Remote %d m_iPK_DesignObj_Remote_Popup %d m_iPK_Screen_FileList %d m_iPK_Screen_RemoteOSD %d m_iPK_Screen_OSD_Speed %d m_iPK_Screen_OSD_Track %d",
 		sValue_To_Assign.c_str(),sPK_DesignObj.c_str(),
 		m_dwPK_Device_NowPlaying, m_dwPK_Device_NowPlaying_Video, m_dwPK_Device_NowPlaying_Audio, m_dwPK_Device_CaptureCard, (int) m_bPK_Device_NowPlaying_Audio_DiscreteVolume, 
-		(int) m_bContainsVideo, m_iPK_Screen_Remote, m_iPK_DesignObj_Remote_Popup, m_iPK_Screen_FileList, m_iPK_Screen_RemoteOSD, m_iPK_Screen_OSD_Speed, m_iPK_Screen_OSD_Track);
+		(int) m_bContainsVideo, (int) m_bUsingLiveAVPath, m_iPK_Screen_Remote, m_iPK_DesignObj_Remote_Popup, m_iPK_Screen_FileList, m_iPK_Screen_RemoteOSD, m_iPK_Screen_OSD_Speed, m_iPK_Screen_OSD_Track);
 #endif
 
 	if( bRetransmit )
@@ -8826,8 +8827,15 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool b
 		return;
 	}
 
-	if( bTurn_On && !m_bDisplayOn )
+	if( (bTurn_On && !m_bDisplayOn) )
 		CMD_Display_OnOff( "1",false );
+
+	// If this is an OSD, and it's displaying an external media source, and the a/v equipment's inputs are switched to that source, switch back if we're going to a screen other than the remote
+	if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation && m_bUsingLiveAVPath && iPK_Screen!=m_iPK_Screen_RemoteOSD )
+	{
+		DCE::CMD_Live_AV_Path CMD_Live_AV_Path(m_dwPK_Device,m_dwPK_Device_MediaPlugIn,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),false);
+		SendCommand(CMD_Live_AV_Path);
+	}
 
 	if( iPK_Screen==SCREEN_Main_CONST )
 	{

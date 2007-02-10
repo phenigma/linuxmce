@@ -185,6 +185,8 @@
 #define DEVICEDATA_Remote_Assistance_Port_CONST 212
 #define DEVICEDATA_Children_as_Separate_Tuners_CONST 213
 #define DEVICEDATA_Scanning_Script_CONST 214
+#define DEVICEDATA_Preserve_Aspect_Ratio_CONST 215
+#define DEVICEDATA_AV_Adjustment_Rules_CONST 216
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

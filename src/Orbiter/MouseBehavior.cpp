@@ -330,9 +330,16 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST || (m_iPK_Button_Mouse_Last==BUTTON_escape_CONST && PK_Screen_OnScreen==SCREEN_Main_CONST && m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() != m_pOrbiter->m_pDesignObj_Orbiter_ScreenSaveMenu) )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown stopping media %d %d==%d | %d",m_pOrbiter->m_iPK_MediaType,PK_Screen_OnScreen,m_pOrbiter->m_iPK_Screen_Remote,m_pOrbiter->m_iPK_Screen_RemoteOSD);
+		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown right click %d %d==%d | %d",m_pOrbiter->m_iPK_MediaType,PK_Screen_OnScreen,m_pOrbiter->m_iPK_Screen_Remote,m_pOrbiter->m_iPK_Screen_RemoteOSD);
 #endif
-		if( !m_pOrbiter->m_iPK_MediaType && PK_Screen_OnScreen==SCREEN_Main_CONST )
+		if( PK_Screen_OnScreen && PK_Screen_OnScreen==m_pOrbiter->m_PK_Screen_ActiveApp_OSD )
+		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown right click ignoring so on screen app can get it");
+#endif
+			return false;
+		}
+		else if( !m_pOrbiter->m_iPK_MediaType && PK_Screen_OnScreen==SCREEN_Main_CONST )
 		{
 			// If the user hits the close button from the main menu, go to the screen saver, unless there's an active computing application
 			if( m_pOrbiter->m_PK_Screen_ActiveApp_OSD )
