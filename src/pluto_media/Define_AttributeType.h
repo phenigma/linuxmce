@@ -39,6 +39,9 @@
 #define ATTRIBUTETYPE_Producer_CONST 38
 #define ATTRIBUTETYPE_Executive_Producer_CONST 39
 #define ATTRIBUTETYPE_Purchase_Info_CONST 40
+#define ATTRIBUTETYPE_Video_Settings_CONST 41
+#define ATTRIBUTETYPE_Audio_Settings_CONST 42
+#define ATTRIBUTETYPE_Commands_CONST 43
 
 #define ATTRIBUTETYPE_TABLE "AttributeType"
 #define ATTRIBUTETYPE_PK_ATTRIBUTETYPE_FIELD "PK_AttributeType"
