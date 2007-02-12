@@ -3,7 +3,7 @@
 ## Put a kernel image in there
 mkdir -p /tftpboot/default
 cp /boot/vmlinuz-`uname -r` /tftpboot/default/vmlinuz
-mkinitramfs -d /etc/initramfs-tools-interactor/ -o /tftpboot/default/initramfs.img
+mkinitramfs -d /etc/initramfs-tools-interactor/ -o /tftpboot/default/initrd
 
 ## Setup the debfault boot file
 mkdir -p /tftpboot/pxelinux.cfg
