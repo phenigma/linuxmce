@@ -1,11 +1,33 @@
 #!/bin/bash
 
 . /usr/pluto/bin/Network_Parameters.sh
-HostMAC="$1"
+. /usr/pluto/bin/SQL_Ops.sh
 
-if [[ -z "$HostMAC" ]]; then
-	echo "Usage: WakeMD.sh <MAC>"
+for ((i = 1; i <= "$#"; i++)); do
+	case "${!i}" in
+		--dev) ((i++)); Parm_Device="${!i}" ;;
+		--mac) ((i++)); Parm_MAC="${!i}" ;;
+		*) echo "Unknown parameter '${!i}'"; exit 1 ;;
+	esac
+done
+
+if [[ -z "${!Parm_*}" ]]; then
+	echo "Usage: WakeMD.sh --dev <Device>|--mac <MAC>"
 	exit 1
 fi
 
-/usr/sbin/etherwake -b -i "$IntIf" "$HostMAC"
+if [[ -n "$Parm_Device" ]]; then
+	Q="
+		SELECT MACaddress
+		FROM Device
+		WHERE PK_Device='$Parm_Device'
+	"
+	Parm_MAC=$(RunSQL "$Q")
+
+	if [[ -z "$Parm_MAC" ]]; then
+		echo "No MAC address found for device '$Parm_Device'"
+		exit 1
+	fi
+fi
+
+/usr/sbin/etherwake -b -i "$IntIf" "$Parm_MAC"
