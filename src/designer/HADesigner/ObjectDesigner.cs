@@ -1233,7 +1233,7 @@ namespace HADesigner
 			// tbX
 			// 
 			this.tbX.Enabled = false;
-			this.tbX.Location = new System.Drawing.Point(416, 80);
+			this.tbX.Location = new System.Drawing.Point(416, 104);
 			this.tbX.Name = "tbX";
 			this.tbX.Size = new System.Drawing.Size(40, 20);
 			this.tbX.TabIndex = 15;
@@ -1243,7 +1243,7 @@ namespace HADesigner
 			// 
 			// label1
 			// 
-			this.label1.Location = new System.Drawing.Point(400, 80);
+			this.label1.Location = new System.Drawing.Point(400, 104);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(16, 23);
 			this.label1.TabIndex = 17;
@@ -1251,7 +1251,7 @@ namespace HADesigner
 			// 
 			// label2
 			// 
-			this.label2.Location = new System.Drawing.Point(464, 80);
+			this.label2.Location = new System.Drawing.Point(464, 104);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(16, 23);
 			this.label2.TabIndex = 19;
@@ -1260,7 +1260,7 @@ namespace HADesigner
 			// tbY
 			// 
 			this.tbY.Enabled = false;
-			this.tbY.Location = new System.Drawing.Point(480, 80);
+			this.tbY.Location = new System.Drawing.Point(480, 104);
 			this.tbY.Name = "tbY";
 			this.tbY.Size = new System.Drawing.Size(40, 20);
 			this.tbY.TabIndex = 18;
@@ -1270,7 +1270,7 @@ namespace HADesigner
 			// 
 			// label3
 			// 
-			this.label3.Location = new System.Drawing.Point(400, 104);
+			this.label3.Location = new System.Drawing.Point(400, 128);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(40, 23);
 			this.label3.TabIndex = 21;
@@ -1279,7 +1279,7 @@ namespace HADesigner
 			// tbWidth
 			// 
 			this.tbWidth.Enabled = false;
-			this.tbWidth.Location = new System.Drawing.Point(416, 104);
+			this.tbWidth.Location = new System.Drawing.Point(416, 128);
 			this.tbWidth.Name = "tbWidth";
 			this.tbWidth.Size = new System.Drawing.Size(40, 20);
 			this.tbWidth.TabIndex = 20;
@@ -1289,7 +1289,7 @@ namespace HADesigner
 			// 
 			// label4
 			// 
-			this.label4.Location = new System.Drawing.Point(464, 104);
+			this.label4.Location = new System.Drawing.Point(464, 128);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(40, 23);
 			this.label4.TabIndex = 23;
@@ -1298,7 +1298,7 @@ namespace HADesigner
 			// tbHeight
 			// 
 			this.tbHeight.Enabled = false;
-			this.tbHeight.Location = new System.Drawing.Point(480, 104);
+			this.tbHeight.Location = new System.Drawing.Point(480, 128);
 			this.tbHeight.Name = "tbHeight";
 			this.tbHeight.Size = new System.Drawing.Size(40, 20);
 			this.tbHeight.TabIndex = 22;
@@ -1422,7 +1422,7 @@ namespace HADesigner
 														  "Left",
 														  "Center",
 														  "Right"});
-			this.cbAlignH.Location = new System.Drawing.Point(464, 56);
+			this.cbAlignH.Location = new System.Drawing.Point(464, 80);
 			this.cbAlignH.MaxDropDownItems = 9;
 			this.cbAlignH.Name = "cbAlignH";
 			this.cbAlignH.Size = new System.Drawing.Size(56, 21);
@@ -1484,7 +1484,7 @@ namespace HADesigner
 														  "Top",
 														  "Middle",
 														  "Bottom"});
-			this.cbAlignV.Location = new System.Drawing.Point(408, 56);
+			this.cbAlignV.Location = new System.Drawing.Point(408, 80);
 			this.cbAlignV.Name = "cbAlignV";
 			this.cbAlignV.Size = new System.Drawing.Size(56, 21);
 			this.cbAlignV.TabIndex = 37;
@@ -1512,7 +1512,7 @@ namespace HADesigner
 			// 
 			this.cbStyle.DisplayMember = "Description";
 			this.cbStyle.Enabled = false;
-			this.cbStyle.Location = new System.Drawing.Point(392, 0);
+			this.cbStyle.Location = new System.Drawing.Point(408, 56);
 			this.cbStyle.Name = "cbStyle";
 			this.cbStyle.Size = new System.Drawing.Size(112, 21);
 			this.cbStyle.TabIndex = 35;
@@ -1926,7 +1926,7 @@ namespace HADesigner
 			// tbOpacity
 			// 
 			this.tbOpacity.Enabled = false;
-			this.tbOpacity.Location = new System.Drawing.Point(480, 128);
+			this.tbOpacity.Location = new System.Drawing.Point(480, 152);
 			this.tbOpacity.Name = "tbOpacity";
 			this.tbOpacity.Size = new System.Drawing.Size(40, 20);
 			this.tbOpacity.TabIndex = 45;
@@ -1937,7 +1937,7 @@ namespace HADesigner
 			// tbRotate
 			// 
 			this.tbRotate.Enabled = false;
-			this.tbRotate.Location = new System.Drawing.Point(416, 128);
+			this.tbRotate.Location = new System.Drawing.Point(416, 152);
 			this.tbRotate.Name = "tbRotate";
 			this.tbRotate.Size = new System.Drawing.Size(40, 20);
 			this.tbRotate.TabIndex = 43;
@@ -1947,7 +1947,7 @@ namespace HADesigner
 			// 
 			// label5
 			// 
-			this.label5.Location = new System.Drawing.Point(400, 128);
+			this.label5.Location = new System.Drawing.Point(400, 152);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(40, 23);
 			this.label5.TabIndex = 44;
@@ -1955,7 +1955,7 @@ namespace HADesigner
 			// 
 			// label7
 			// 
-			this.label7.Location = new System.Drawing.Point(464, 128);
+			this.label7.Location = new System.Drawing.Point(464, 152);
 			this.label7.Name = "label7";
 			this.label7.Size = new System.Drawing.Size(40, 23);
 			this.label7.TabIndex = 46;
@@ -1964,7 +1964,7 @@ namespace HADesigner
 			// btnBGColorTSL
 			// 
 			this.btnBGColorTSL.Enabled = false;
-			this.btnBGColorTSL.Location = new System.Drawing.Point(408, 152);
+			this.btnBGColorTSL.Location = new System.Drawing.Point(416, 176);
 			this.btnBGColorTSL.Name = "btnBGColorTSL";
 			this.btnBGColorTSL.Size = new System.Drawing.Size(104, 23);
 			this.btnBGColorTSL.TabIndex = 48;

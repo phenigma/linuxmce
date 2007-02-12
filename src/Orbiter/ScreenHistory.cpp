@@ -30,6 +30,9 @@ ScreenHistory::ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory
 //-----------------------------------------------------------------------------------------------------
 ScreenHistory::~ScreenHistory()
 {
+	m_listObjs.clear();
+	m_mapVariable.clear();
+	m_mapVisibilityContext.clear();
 }
 //-----------------------------------------------------------------------------------------------------
 DesignObj_Orbiter *ScreenHistory::GetObj() 
