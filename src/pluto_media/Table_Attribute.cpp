@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_Attribute.h"
 #include "Table_AttributeType.h"
 
+#include "Table_Attribute_Settings.h"
 #include "Table_CoverArtScan.h"
 #include "Table_Disc_Attribute.h"
 #include "Table_Download_Attribute.h"
@@ -917,6 +918,13 @@ return pTable->GetRow(m_FK_AttributeType);
 }
 
 
+void Row_Attribute::Attribute_Settings_FK_Attribute_getrows(vector <class Row_Attribute_Settings*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Attribute_Settings *pTable = table->database->Attribute_Settings_get();
+pTable->GetRows("`FK_Attribute`=" + StringUtils::itos(m_PK_Attribute),rows);
+}
 void Row_Attribute::CoverArtScan_FK_Attribute_getrows(vector <class Row_CoverArtScan*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);

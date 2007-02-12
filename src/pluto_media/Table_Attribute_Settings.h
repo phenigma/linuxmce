@@ -1,10 +1,10 @@
-#ifndef __Table_Attribute_H__
-#define __Table_Attribute_H__
+#ifndef __Table_Attribute_Settings_H__
+#define __Table_Attribute_Settings_H__
 
 #include "TableRow.h"
 #include "Database_pluto_media.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "Define_Attribute.h"
+#include "Define_Attribute_Settings.h"
 #include "SerializeClass/SerializeClass.h"
 
 // If we declare the maps locally, the compiler will create multiple copies of them
@@ -15,33 +15,33 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_Attribute : public TableBase , SingleLongKeyBase
+class DECLSPECIFIER Table_Attribute_Settings : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_media *database;
 	struct Key;	//forward declaration
 	
 public:
-	Table_Attribute(Database_pluto_media *pDatabase):database(pDatabase)
+	Table_Attribute_Settings(Database_pluto_media *pDatabase):database(pDatabase)
 	{
 	};
-	~Table_Attribute();
+	~Table_Attribute_Settings();
 
 private:		
-	friend class Row_Attribute;
+	friend class Row_Attribute_Settings;
 	struct Key
 	{
-		friend class Row_Attribute;
-		long int pk_PK_Attribute;
+		friend class Row_Attribute_Settings;
+		long int pk_FK_Attribute;
 
 		
-		Key(long int in_PK_Attribute);
+		Key(long int in_FK_Attribute);
 	
-		Key(class Row_Attribute *pRow);
+		Key(class Row_Attribute_Settings *pRow);
 	};
 	struct Key_Less
 	{			
-		bool operator()(const Table_Attribute::Key &key1, const Table_Attribute::Key &key2) const;
+		bool operator()(const Table_Attribute_Settings::Key &key1, const Table_Attribute_Settings::Key &key2) const;
 	};	
 
 	
@@ -54,32 +54,33 @@ public:
 	// the rows since they will be re-attempted.  If you set either flag to true, the failed
 	// row can be deleted.  Use with caution since your pointers become invalid!
 	bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
-	bool GetRows(string where_statement,vector<class Row_Attribute*> *rows);
-	class Row_Attribute* AddRow();
+	bool GetRows(string where_statement,vector<class Row_Attribute_Settings*> *rows);
+	class Row_Attribute_Settings* AddRow();
 	Database_pluto_media *Database_pluto_media_get() { return database; }
 	
 		
-	class Row_Attribute* GetRow(long int in_PK_Attribute);
+	class Row_Attribute_Settings* GetRow(long int in_FK_Attribute);
 	
 
 private:	
 	
 		
-	class Row_Attribute* FetchRow(SingleLongKey &key);
+	class Row_Attribute_Settings* FetchRow(SingleLongKey &key);
 		
 			
 };
 
-class DECLSPECIFIER Row_Attribute : public TableRow, public SerializeClass
+class DECLSPECIFIER Row_Attribute_Settings : public TableRow, public SerializeClass
 	{
-		friend struct Table_Attribute::Key;
-		friend class Table_Attribute;
+		friend struct Table_Attribute_Settings::Key;
+		friend class Table_Attribute_Settings;
 	private:
-		Table_Attribute *table;
+		Table_Attribute_Settings *table;
 		
-		long int m_PK_Attribute;
-long int m_FK_AttributeType;
-string m_Name;
+		long int m_FK_Attribute;
+string m_VideoSetting;
+string m_AudioSetting;
+string m_Commands;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -87,12 +88,13 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[9];
+		bool is_null[10];
 	
 	public:
-		long int PK_Attribute_get();
-long int FK_AttributeType_get();
-string Name_get();
+		long int FK_Attribute_get();
+string VideoSetting_get();
+string AudioSetting_get();
+string Commands_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -101,9 +103,10 @@ string psc_mod_get();
 long int psc_restrict_get();
 
 		
-		void PK_Attribute_set(long int val);
-void FK_AttributeType_set(long int val);
-void Name_set(string val);
+		void FK_Attribute_set(long int val);
+void VideoSetting_set(string val);
+void AudioSetting_set(string val);
+void Commands_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -112,7 +115,9 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool FK_AttributeType_isNull();
+		bool VideoSetting_isNull();
+bool AudioSetting_isNull();
+bool Commands_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -120,7 +125,9 @@ bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void FK_AttributeType_setNull(bool val);
+		void VideoSetting_setNull(bool val);
+void AudioSetting_setNull(bool val);
+void Commands_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -131,37 +138,30 @@ void psc_restrict_setNull(bool val);
 		void Delete();
 		void Reload();		
 	
-		Row_Attribute(Table_Attribute *pTable);
+		Row_Attribute_Settings(Table_Attribute_Settings *pTable);
 	
 		bool IsDeleted(){return is_deleted;};
 		bool IsModified(){return is_modified;};			
-		class Table_Attribute *Table_Attribute_get() { return table; };
+		class Table_Attribute_Settings *Table_Attribute_Settings_get() { return table; };
 
 		// Return the rows for foreign keys 
-		class Row_AttributeType* FK_AttributeType_getrow();
+		class Row_Attribute* FK_Attribute_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Attribute_Settings_FK_Attribute_getrows(vector <class Row_Attribute_Settings*> *rows);
-void CoverArtScan_FK_Attribute_getrows(vector <class Row_CoverArtScan*> *rows);
-void Disc_Attribute_FK_Attribute_getrows(vector <class Row_Disc_Attribute*> *rows);
-void Download_Attribute_FK_Attribute_getrows(vector <class Row_Download_Attribute*> *rows);
-void File_Attribute_FK_Attribute_getrows(vector <class Row_File_Attribute*> *rows);
-void LongAttribute_FK_Attribute_getrows(vector <class Row_LongAttribute*> *rows);
-void Picture_Attribute_FK_Attribute_getrows(vector <class Row_Picture_Attribute*> *rows);
-void SearchToken_Attribute_FK_Attribute_getrows(vector <class Row_SearchToken_Attribute*> *rows);
-
+		
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Attribute+ m_FK_AttributeType+ m_Name+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_FK_Attribute+ m_VideoSetting+ m_AudioSetting+ m_Commands+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_Attribute_asSQL();
-string FK_AttributeType_asSQL();
-string Name_asSQL();
+		string FK_Attribute_asSQL();
+string VideoSetting_asSQL();
+string AudioSetting_asSQL();
+string Commands_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
