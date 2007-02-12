@@ -6548,3 +6548,5 @@ function updateEAForEmbeddedDevices($deviceID,$eaID,$dbADO){
 		}
 	}
 }
+
+?>

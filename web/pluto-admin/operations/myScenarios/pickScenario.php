@@ -9,7 +9,7 @@ function pickScenario($output,$dbADO) {
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
-	$entryID=(int)$_REQUEST['entryID'];
+	$entryID=(int)$_REQUEST['entry'];
 	$plID=(int)$_REQUEST['plID'];
 	
 	if($action=='form'){
@@ -21,7 +21,7 @@ function pickScenario($output,$dbADO) {
 			}
 		
 			function pick(value){
-				opener.location=\'index.php?section=editPlaylist&action=addCG&plID='.$plID.'&mode='.@$_REQUEST['mode'].'&updatedEntryID='.$entryID.'&cgID=\'+value;
+				opener.location=\'index.php?section=editPlaylistAdvanced&action=addCG&plID='.$plID.'&mode='.@$_REQUEST['mode'].'&entry='.$entryID.'&cgID=\'+value;
 				self.close();
 			}
 		</script>		
