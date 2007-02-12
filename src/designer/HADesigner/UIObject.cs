@@ -696,7 +696,8 @@ namespace HADesigner
 			foreach(Object obj in this.ChildSkinLanguages)
 			{
 				UIChildSkinLanguage child = (UIChildSkinLanguage)obj;
-				blnChanged = blnChanged || child.SaveToDatabase();
+				if(child.SaveToDatabase())
+					blnChanged = true;
 			}
 
 			return blnChanged;
