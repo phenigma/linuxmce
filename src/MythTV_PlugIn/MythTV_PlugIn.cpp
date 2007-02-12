@@ -53,6 +53,12 @@ using namespace DCE;
 
 #include "../Orbiter_Plugin/OH_Orbiter.h"
 
+// For sorting channels
+static bool ChannelComparer(MythChannel *x, MythChannel *y)
+{
+	return x->m_dwChanNum<y->m_dwChanNum;
+}
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -85,7 +91,6 @@ bool MythTV_PlugIn::GetConfig()
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(1);      //4 = number of worker threads
 	m_pAlarmManager->AddRelativeAlarm(30,this,CHECK_FOR_NEW_RECORDINGS,NULL);
-
 	return true;
 }
 
@@ -195,6 +200,7 @@ bool MythTV_PlugIn::Register()
 	RefreshBookmarks(); // Populate this with the initial values
 
 	BuildAttachedInfraredTargetsMap();
+	CMD_Sync_Providers_and_Cards(0);
 
     return Connect(PK_DeviceTemplate_get());
 }
@@ -403,6 +409,7 @@ MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaSt
 	return static_cast<MythTvMediaStream*>(pMediaStream);
 }
 
+// Parms = Users,PK_EntertainmentArea
 class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign,
 	Message *pMessage)
 {
@@ -412,12 +419,14 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	DataGridTable *pDataGridTable = new DataGridTable();
 	DataGridCell *pCell;
 
-	int iPK_Users = atoi(Parms.c_str());
+	string::size_type pos=0;
+	int iPK_Users = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	int iPK_EntertainArea = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
 
 	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::AllShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
     
-	EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find( atoi(Parms.c_str()) );
+	EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find( iPK_EntertainArea );
 	if( !pEntertainArea || !pEntertainArea->m_pMediaStream || !pEntertainArea->m_pMediaStream->m_pMediaDevice_Source )
 	{
 	    g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::AllShows cannot find a stream %p",pEntertainArea);
@@ -425,11 +434,25 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	}
 
 	string sProvider;
-
-	// TODO -- must fix this.  ID_get is a big string and not an id
-//	if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider && 
-//		pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider->ID_get().empty()==false )
-//			sProvider = " AND sourceid='" + pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pRow_MediaProvider->ID_get() + "'";
+	map<int,bool> mapVideoSourcesToUse;
+	// The source is 0, means all myth channels and video sources.  Otherwise, just those for the given device (like a cable box)
+	int PK_Device_Source = pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_LiveTV_CONST ? 0 : pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+	list_int *p_list_int = &(m_mapDevicesToSources[PK_Device_Source]);
+	if( p_list_int->size() )
+	{
+		sProvider = " AND sourceid in (";
+		bool bFirst=true;
+		for(list_int::iterator it=p_list_int->begin();it!=p_list_int->end();++it)
+		{
+			if( bFirst )
+				bFirst = false;
+			else
+				sProvider += ",";
+			sProvider += StringUtils::itos( *it );
+			mapVideoSourcesToUse[ *it ] = true;
+		}
+		sProvider += ")";
+	}
 
 	for(map<int,MythChannel *>::iterator it=m_mapMythChannel.begin();it!=m_mapMythChannel.end();++it)
 	{
@@ -454,9 +477,9 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 		sBookmark_Series = "-999";  // Something we know is not going to happen so the sql syntax is correct
 
 	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
-	string sSQL = "SELECT chanid, title, starttime, endtime, seriesid, programid, "
+	string sSQL = "SELECT program.chanid, title, starttime, endtime, seriesid, programid, "
 		"program.seriesid in (" + sBookmark_Series + ") as fav_seriesid, program.programid in (" + sBookmark_Program + ") as fav_programid "
-		"FROM program "
+		"FROM program JOIN channel on program.chanid=channel.chanid "
 		"WHERE starttime < '" + StringUtils::SQLDateTime() + "' AND endtime>'" + StringUtils::SQLDateTime() + "' " + sProvider;
 
 	int iRow=0;
@@ -505,7 +528,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 		}
 	}
 
-	ListMythChannel *pListMythChannel = &(m_map_listMythChannel[atoi(Parms.c_str())]);
+	ListMythChannel *pListMythChannel = &(m_map_listMythChannel[iPK_Users]);
 	if( !pListMythChannel ) // Shouldn't happen
 		return NULL;
 
@@ -514,6 +537,9 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	for(ListMythChannel::iterator it=pListMythChannel->begin();it!=pListMythChannel->end();++it)
 	{
 		MythChannel *pMythChannel = *it;
+		if( mapVideoSourcesToUse[ pMythChannel->m_dwSource ]==false )  // Not a source for this list
+			continue;
+
 		if( pMythChannel->m_cAddedAlready=='F' && iPositionInChannelList<iFavorites )
 		{
 			iPositionInChannelList++;
@@ -893,6 +919,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 	}
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	m_mapDevicesToSources.clear();
 	g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders");
     MYSQL_ROW row,row2;
 
@@ -923,6 +950,10 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders cannot find device %s provider %s",row[0],row[1]);
 				continue;
 			}
+
+			Row_Device_DeviceData *pRow_Device_DeviceData_UseInMyth = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Dont_Consolidate_Media_CONST);
+			bool bUseInMyth = !pRow_Device_DeviceData_UseInMyth || pRow_Device_DeviceData_UseInMyth->IK_DeviceData_get()!="1";
+			Row_Device *pRow_Device_Source = pRow_Device;
 
 			string::size_type pos=0;
 			string sMediaProviderID = pRow_MediaProvider ? pRow_MediaProvider->ID_get() : "";
@@ -1067,12 +1098,19 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
 					bModifiedRows=true;
 
+				m_mapDevicesToSources[pRow_Device_Source->PK_Device_get()].push_back(sourceid);
+				if( bUseInMyth )
+					m_mapDevicesToSources[0].push_back(sourceid);
+
 				int cardinputid=0;
 				sSQL = "SELECT cardinputid FROM `cardinput` WHERE cardid='" + StringUtils::itos(cardid) + "' AND sourceid='" + StringUtils::itos(sourceid) + "' AND inputname='" + sPortName + "'";
 				PlutoSqlResult result_set3;
 				if( (result_set3.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set3.r)) && atoi(row2[0]) )
 					cardinputid = atoi(row2[0]);
-				else
+
+				if( cardinputid && !bUseInMyth )
+					m_pMySqlHelper_Myth->threaded_mysql_query("DELETE FROM `cardinput` WHERE cardinputid=" + StringUtils::itos(cardinputid));
+				else if( !cardinputid && bUseInMyth )
 				{
 					bModifiedRows=true;
 					sSQL = "INSERT INTO `cardinput`(cardid,sourceid,inputname) VALUES (" + StringUtils::itos(cardid) + "," + StringUtils::itos(sourceid) + ",'" + sPortName + "')";
@@ -1415,17 +1453,24 @@ void MythTV_PlugIn::BuildChannelList()
 			sBookmarks += ",";
 		sBookmarks += sBookmarks2;
 
+		for(map<int,MythChannel *>::iterator it=m_mapMythChannel.begin();it!=m_mapMythChannel.end();++it)
+			pListMythChannel->push_back( it->second );
+		pListMythChannel->sort(ChannelComparer);
+
+		ListMythChannel listMythChannel_Favs;
 		string::size_type pos=0;
 		while(pos<sBookmarks.size())
 		{
 			int Channel = atoi( StringUtils::Tokenize( sBookmarks, ",", pos ).c_str() );
 			MythChannel *pMythChannel = m_mapMythChannel[ Channel ];
 			if( pMythChannel )
-				pListMythChannel->push_back( pMythChannel );
+				listMythChannel_Favs.push_back( pMythChannel );
 		}
-		m_mapUserFavoriteChannels[pRow_Users->PK_Users_get()]=pListMythChannel->size();
-		for(map<int,MythChannel *>::iterator it=m_mapMythChannel.begin();it!=m_mapMythChannel.end();++it)
-			pListMythChannel->push_back( it->second );
+		m_mapUserFavoriteChannels[pRow_Users->PK_Users_get()]=listMythChannel_Favs.size();
+		listMythChannel_Favs.sort(ChannelComparer);
+
+		for(ListMythChannel::reverse_iterator itri=listMythChannel_Favs.rbegin();itri!=listMythChannel_Favs.rend();++itri)
+			pListMythChannel->push_front(*itri);
 	}
 }
 

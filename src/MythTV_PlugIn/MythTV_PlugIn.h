@@ -94,6 +94,7 @@ namespace DCE
 
 		/** Private member variables */
         map<int, int> m_mapDevicesToStreams;
+		map<int,list_int> m_mapDevicesToSources; // First int is a device (like a tv tuner, sat box, etc.), second is a list of video sources.  First int is '0' for all myth systems
 
 		map< int, ScanJob * > m_mapPendingScans; // Map tuner device, capture card to string of scan script,percent complete
 

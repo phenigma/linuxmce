@@ -1715,6 +1715,8 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 			if( pDataGridTable )
 			{
 				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+				if( !pCell )
+					return false;
 				string sBookmark,sDescription;
 				if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Show_CONST )
 				{
@@ -1735,7 +1737,7 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 					string sChannel = pCell->m_mapAttributes_Find("chanid");
 					if( sChannel.empty()==false )
 					{
-						sChannel = " CHAN:" + sChannel;
+						sBookmark = " CHAN:" + sChannel;
 						DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgTvChannels_UI2_CONST);
 						if( pDesignObj_DataGrid )
 						{
