@@ -768,6 +768,22 @@
 #define COMMAND_Delete_File_CONST 845
 #define COMMAND_Make_Thumbnail_CONST 846
 #define COMMAND_Live_AV_Path_CONST 847
+#define COMMAND_Side_Bar_AV_CONST 848
+#define COMMAND_Side_Stretch_AV_CONST 849
+#define COMMAND_Zoom_AV_CONST 850
+#define COMMAND_Stretch_AV_CONST 851
+#define COMMAND_Normal_PC_CONST 852
+#define COMMAND_Zoom_PC_CONST 853
+#define COMMAND_Stretch_PC_CONST 854
+#define COMMAND_Anamorphic_CONST 855
+#define COMMAND_Letterbox_CONST 856
+#define COMMAND_Standard_CONST 857
+#define COMMAND_Computer_CONST 858
+#define COMMAND_YUV_CONST 860
+#define COMMAND_Game_CONST 863
+#define COMMAND_User_CONST 864
+#define COMMAND_Dynamic_Fixed_CONST 865
+#define COMMAND_Dynamic_CONST 866
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

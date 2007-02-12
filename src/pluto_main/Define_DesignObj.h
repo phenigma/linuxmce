@@ -2410,6 +2410,8 @@
 #define DESIGNOBJ_icoRecord_CONST 5408
 #define DESIGNOBJ_mnuPendingChannelScans_CONST 5409
 #define DESIGNOBJ_dgPendingChannelScans_CONST 5410
+#define DESIGNOBJ_popNonPlutoTVOptions_CONST 5411
+#define DESIGNOBJ_butLiveAVPath_CONST 5412
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
