@@ -399,12 +399,19 @@ Orbiter::~Orbiter()
 	if(NULL != m_pcRequestSocket) // Will be NULL if we died without successfully getting our config
 	{
 		if(NULL != m_pcRequestSocket->m_pClientSocket)
-			m_pcRequestSocket->m_pClientSocket->SetReceiveTimeout(5);
+			m_pcRequestSocket->m_pClientSocket->SetReceiveTimeout(3);
+
+		g_pPlutoLogger->Write(LV_STATUS, "Unregistering...");
 
 		char *pData=NULL;int iSize=0;
 		DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0", 0, "", 0, &pData, &iSize );
 		SendCommand( CMD_Orbiter_Registered );
+
+		g_pPlutoLogger->Write(LV_STATUS, "Unregistered!");
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Destroying orbiter's objects...");
+
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 	DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
 	for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
@@ -522,6 +529,8 @@ Orbiter::~Orbiter()
 		delete pMessage;
 	}
 	m_mapHardKeys.clear();
+
+	g_pPlutoLogger->Write(LV_STATUS, "Orbiter's objects destroyed!");
 
 	delete m_pOrbiterFileBrowser_Collection;
 	m_pOrbiterFileBrowser_Collection = NULL;
