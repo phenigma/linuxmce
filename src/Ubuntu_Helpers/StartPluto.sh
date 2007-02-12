@@ -109,7 +109,7 @@ StartService "Starting Local Devices" "/usr/pluto/bin/Start_LocalDevices.sh"
 StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
 StartDaemon  "Starting Update Media Daemon" "/usr/pluto/bin/UpdateMediaDaemon.sh" "UpdateMedia"
 StartDaemon  "Starting Dhcp Plugin" "/usr/pluto/bin/Dhcp-Plugin.sh" "DhcpPlugin"
-StartDaemon  "Start New MD Interactor" "/usr/pluto/bin/Start_NewMD_interactor.sh"
+StartDaemon  "Start New MD Interactor" "/usr/pluto/bin/Start_NewMD_interactor.sh" "MDInteractor"
 
 #StartService "Detecting Timezone" "/usr/pluto/bin/Pluto_Timezone_Detect.sh" "&"
 #Pluto_alsaconf-noninteractive \
