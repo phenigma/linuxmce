@@ -82,6 +82,10 @@ void MouseBehavior_Linux::ShowMouse(bool bShow, SetMouseBehaviorRemote setMouseB
     //X11_Locker lock(ptrOrbiterLinux()->GetDisplay());
 	//SDL_ShowCursor(bShow ? SDL_ENABLE : SDL_DISABLE);
 
+	// if there is no mouse plugged in, never show the cursor
+	// (HID remote also registers a mouse device so no special code needed for it)
+	if (!FileUtils::FileExists("/dev/input/mice"))
+		bShow = false;
     // at show, we want to show the standard mouse cursor
 #ifdef HID_REMOTE
 	if( m_pOrbiter->m_pHIDInterface )
