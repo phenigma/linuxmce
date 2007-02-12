@@ -98,7 +98,7 @@ bool Generic_NonPluto_Media::StartMedia( class MediaStream *pMediaStream,string 
 
 	g_pPlutoLogger->Write( LV_STATUS, "Starting media stream playback--sending command, waiting for response" );
 
-	return true;
+	return MediaHandlerBase::StartMedia(pMediaStream,sError);
 }
 
 bool Generic_NonPluto_Media::StopMedia( class MediaStream *pMediaStream )
@@ -107,6 +107,6 @@ bool Generic_NonPluto_Media::StopMedia( class MediaStream *pMediaStream )
 
 	g_pPlutoLogger->Write(LV_STATUS, "Stopping media in Generic_NonPluto_Media!");
 
-	return true;
+	return MediaHandlerBase::StopMedia(pMediaStream);
 }
 

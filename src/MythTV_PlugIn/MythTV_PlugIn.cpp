@@ -295,7 +295,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 	SendCommand(cmd);
 
 #endif
-    return true;
+	return MediaHandlerBase::StartMedia(pMediaStream,sError);
 }
 
 bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
@@ -333,7 +333,7 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, sLastPosition.c_str());
 	pMediaStream->m_sLastPosition=sLastPosition;
 
-	return true;
+	return MediaHandlerBase::StopMedia(pMediaStream);
 }
 
 

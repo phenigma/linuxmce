@@ -126,7 +126,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_bCaptureCardActive=false;
 	m_bViewingLiveAVPath=false;
 	m_bPreserveAspectRatio=m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Preserve_Aspect_Ratio_CONST)=="1";
-	m_dwPK_Command_LastAdjustment_Audio=m_dwPK_Command_LastAdjustment_Video=0;
+	m_dwPK_Command_LastAdjustment_Audio=m_dwPK_Command_LastAdjustment_Video=m_dwPK_Command_LastAdjustment_Command=0;
 	string sAdjustRules=m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_AV_Adjustment_Rules_CONST);
 	vector<string> vectAdjustRules;
 	StringUtils::Tokenize(sAdjustRules,"\r\n",vectAdjustRules);
@@ -922,6 +922,11 @@ void Media_Plugin::HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,s
 	Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(pMediaStream->m_iPK_MediaType);
 	AddOtherDevicesInPipesToRenderDevices(pRow_MediaType ? pRow_MediaType->FK_Pipe_get() : 0,&mapMediaDevice_Current);
 
+	if( pMediaStream->m_sAudioSettings.empty()==false )
+		sAudio = pMediaStream->m_sAudioSettings;
+	if( pMediaStream->m_sVideoSettings.empty()==false )
+		sVideo = pMediaStream->m_sVideoSettings;
+
 	for(map<int,MediaDevice *>::iterator it=mapMediaDevice_Current.begin();it!=mapMediaDevice_Current.end();++it)
 	{
 		// Go through each device and find rules for these audio or video settings
@@ -947,6 +952,19 @@ void Media_Plugin::HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,s
 			DCE::Message *pMessage = new DCE::Message(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 				PRIORITY_NORMAL,MESSAGETYPE_COMMAND,PK_Command,0);
 			QueueMessageToRouter(pMessage);
+		}
+
+		string::size_type pos=0;
+		while(pos<pMediaStream->m_sCommands.size())
+		{
+			PK_Command = atoi( StringUtils::Tokenize(pMediaStream->m_sCommands,",",pos).c_str() );
+			if( PK_Command && pMediaDevice->m_dwPK_Command_LastAdjustment_Command!=PK_Command )
+			{
+				pMediaDevice->m_dwPK_Command_LastAdjustment_Command=PK_Command;
+				DCE::Message *pMessage = new DCE::Message(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+					PRIORITY_NORMAL,MESSAGETYPE_COMMAND,PK_Command,0);
+				QueueMessageToRouter(pMessage);
+			}
 		}
 	}
 }
@@ -1352,7 +1370,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				{
 					MediaDevice *pMediaDevice = (*it).second;
 					pMediaStream->m_pMediaDevice_Source->m_bViewingLiveAVPath=false;
-					pMediaStream->m_pMediaDevice_Source->m_dwPK_Command_LastAdjustment_Audio=pMediaStream->m_pMediaDevice_Source->m_dwPK_Command_LastAdjustment_Video=0;
+					pMediaStream->m_pMediaDevice_Source->m_dwPK_Command_LastAdjustment_Audio=pMediaStream->m_pMediaDevice_Source->m_dwPK_Command_LastAdjustment_Video=pMediaStream->m_pMediaDevice_Source->m_dwPK_Command_LastAdjustment_Command=0;
 				}
 			}
 		}
@@ -1509,12 +1527,43 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
     if( Media_Plugin_Command::ReceivedMessage( pMessage )!=rmr_Processed )
     {
         g_pPlutoLogger->Write( LV_STATUS, "Media plug base class didn't handle message id: %d", pMessage->m_dwID );
-	
-		// We didn't handle it. Give it to the appropriate plug-in. Assume it's coming from an orbiter
-        class EntertainArea *pEntertainArea;
-        OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
-		if( !pOH_Orbiter ) // It could be a remote control
-			pOH_Orbiter = m_pOrbiter_Plugin->m_mapRemote_2_Orbiter_Find( pMessage->m_dwPK_Device_From );
+
+		// Find the EA this message corresponds to.  If one is passed as a parameter that takes precedence
+        class EntertainArea *pEntertainArea=NULL;
+		if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+		{
+			map<long, string>::iterator itEA = pMessage->m_mapParameters.find(COMMANDPARAMETER_PK_EntertainArea_CONST);
+			if( itEA!=pMessage->m_mapParameters.end() )
+				pEntertainArea = m_mapEntertainAreas_Find( atoi(itEA->second.c_str()) );
+		}
+		// otherwise if the message comes from an orbiter, assume it's the ea for that device
+		if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
+		{
+			OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
+			if( !pOH_Orbiter ) // It could be a remote control
+				pOH_Orbiter = m_pOrbiter_Plugin->m_mapRemote_2_Orbiter_Find( pMessage->m_dwPK_Device_From );
+
+			if( !pOH_Orbiter || !pOH_Orbiter->m_pEntertainArea || !pOH_Orbiter->m_pEntertainArea->m_pMediaStream  )
+			{
+				if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST) 
+					&& pMessage->m_mapParameters[COMMANDPARAMETER_Eject_CONST]=="1" )
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"Got a stop with no media.  Will eject 1");
+					DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
+					SendCommand(CMD_Eject_Disk_Cat);
+					return rmr_Processed;
+				}
+
+				// Could be a timing issue that the stream finished and Orbiter didn't change the screen yet
+				g_pPlutoLogger->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
+				return rmr_NotProcessed;
+			}
+			else
+				pEntertainArea=pOH_Orbiter->m_pEntertainArea;
+		}
+
+		// Add some stuff to the message parameters
+		pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST] = StringUtils::itos(pEntertainArea->m_pMediaStream->m_iStreamID_get());
 
 		if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID==COMMAND_Eject_Disk_CONST )
 		{
@@ -1522,27 +1571,6 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 			SendCommand(CMD_Eject_Disk_Cat);
 			return rmr_Processed;
 		}
-
-		if( !pOH_Orbiter || !pOH_Orbiter->m_pEntertainArea || !pOH_Orbiter->m_pEntertainArea->m_pMediaStream  )
-		{
-			if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST) 
-				&& pMessage->m_mapParameters[COMMANDPARAMETER_Eject_CONST]=="1" )
-			{
-				g_pPlutoLogger->Write(LV_STATUS,"Got a stop with no media.  Will eject 1");
-				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
-				SendCommand(CMD_Eject_Disk_Cat);
-				return rmr_Processed;
-			}
-
-			// Could be a timing issue that the stream finished and Orbiter didn't change the screen yet
-			g_pPlutoLogger->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
-			return rmr_NotProcessed;
-        }
-
-		pEntertainArea=pOH_Orbiter->m_pEntertainArea;
-
-		// Add some stuff to the message parameters
-		pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST] = StringUtils::itos(pEntertainArea->m_pMediaStream->m_iStreamID_get());
 
 		// If it's a stop, treat it like a stop media, unless we're using a generic external device where it goes to that device
 		// and we should let it pass, and have the user use 'power' to stop the media
@@ -1845,6 +1873,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMed
 			SendCommand(CMD_Display_Message_Section);
 		}
     }
+	pMediaStream->LoadDefaultAvSettings();  // Handle special a/v settings and commands, like zoom modes, dsp, etc.
 }
 
 /*
@@ -5821,3 +5850,4 @@ void Media_Plugin::CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,strin
 			SetNowPlaying(pEntertainArea->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,pMediaStream,false);
 	}
 }
+

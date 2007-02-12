@@ -47,3 +47,14 @@ void MediaHandlerBase:: GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevic
 			(*pmapMediaDevices)[ pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device ] = pEntertainArea->m_pMediaDevice_ActiveDest;
 	}
 }
+
+bool MediaHandlerBase::StartMedia(class MediaStream *pMediaStream,string &sError)
+{
+	return true;
+}
+
+bool MediaHandlerBase::StopMedia(class MediaStream *pMediaStream)
+{
+	return true;
+}
+

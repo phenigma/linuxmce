@@ -329,7 +329,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
-	return true;
+	return MediaHandlerBase::StartMedia(pMediaStream,sError);
 }
 
 bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
@@ -383,7 +383,7 @@ int k=2;
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}
 
-	return true;
+	return MediaHandlerBase::StopMedia(pMediaStream);
 }
 
 

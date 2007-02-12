@@ -318,7 +318,7 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 		pVDRMediaStream->m_iStreamID_get(), " CHAN:" + StringUtils::itos(pEvent->m_pChannel->m_ChannelID),"");
 
 	SendCommand(CMD_Play_Media);
-	return true;
+	return MediaHandlerBase::StartMedia(pMediaStream,sError);
 }
 
 bool VDRPlugin::StopMedia( class MediaStream *pMediaStream )
@@ -346,7 +346,7 @@ bool VDRPlugin::StopMedia( class MediaStream *pMediaStream )
 			pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}
 
-	return true;
+	return MediaHandlerBase::StopMedia(pMediaStream);
 }
 
 MediaDevice *VDRPlugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea)

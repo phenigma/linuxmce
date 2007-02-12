@@ -230,7 +230,7 @@ bool VideoLan_PlugIn::StartMedia( class MediaStream *pMediaStream,string &sError
 
 	// If there are more than 1 song in the queue, we likely added to an existing queue, so we want
 	// to refresh=true so any orbiters will re-render the play list
-	return true;
+	return MediaHandlerBase::StartMedia(pMediaStream,sError);
 }
 
 bool VideoLan_PlugIn::StopMedia( class MediaStream *pMediaStream )
@@ -281,7 +281,7 @@ bool VideoLan_PlugIn::StopMedia( class MediaStream *pMediaStream )
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}
 
-	return true;
+	return MediaHandlerBase::StopMedia(pMediaStream);
 }
 
 MediaDevice *VideoLan_PlugIn::FindStreamerDevice()

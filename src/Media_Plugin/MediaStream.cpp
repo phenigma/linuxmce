@@ -33,6 +33,7 @@
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Define_AttributeType.h"
+#include "pluto_media/Table_Attribute_Settings.h"
 #include "pluto_main/Table_MediaType_DesignObj.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType_DesignObj.h"
 
@@ -555,3 +556,103 @@ bool MediaStream::SingleEaAndSameDestSource()
 
 	return true;
 }
+
+void MediaStream::LoadDefaultAvSettings()
+{
+	// Clear the values since if this was a playlist there may be values from a prior media file
+	m_sVideoSettings="";
+	m_sAudioSettings="";
+	m_sCommands="";
+
+	map<int,int> mapAttributes;  // Get all attributes, arranged by priority mapAttributes.first=PK_Attribute, mapAttributes.second=Priority
+
+	/* Priorities for determing with video/audio settings to use:
+	10=specific for the current title (highest)
+	20=other attribute for the current title
+	30=genre for the current title
+	*/
+
+	MergeAttributes(mapAttributes,m_mapPK_Attribute);
+	LoadDefaultAvSettings(m_dequeMediaSection,mapAttributes);
+	LoadDefaultAvSettings(m_dequeMediaTitle,mapAttributes);
+	MediaFile *pMediaFile = GetCurrentMediaFile();
+	if( pMediaFile )
+		LoadDefaultAvSettings(pMediaFile,mapAttributes);
+
+	if( mapAttributes.empty() ) 
+		return;
+
+	string sAllAttributes;
+	for(map<int,int>::iterator it=mapAttributes.begin();it!=mapAttributes.end();++it)
+	{
+		if( sAllAttributes.empty()==false )
+			sAllAttributes += ",";
+		sAllAttributes += StringUtils::itos(it->first);
+	}
+
+	string sSQL = "FK_Attribute IN (" + sAllAttributes + ")";
+	vector<Row_Attribute_Settings *> vectRow_Attribute_Settings;
+	int iPriorityAudioSetting=999,iPriorityVideoSetting=999,iPriorityCommand=999;  // Get the one with the lowest priority
+	m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_pDatabase_pluto_media->Attribute_Settings_get()->GetRows(sSQL,&vectRow_Attribute_Settings);
+	for(vector<Row_Attribute_Settings *>::iterator it=vectRow_Attribute_Settings.begin();it!=vectRow_Attribute_Settings.end();++it)
+	{
+		Row_Attribute_Settings *pRow_Attribute_Settings = *it;
+        if( pRow_Attribute_Settings->AudioSetting_get().empty()==false && mapAttributes[pRow_Attribute_Settings->FK_Attribute_get()]<iPriorityAudioSetting )
+		{
+			iPriorityAudioSetting=mapAttributes[pRow_Attribute_Settings->FK_Attribute_get()];
+			m_sAudioSettings=pRow_Attribute_Settings->AudioSetting_get();
+		}
+        if( pRow_Attribute_Settings->VideoSetting_get().empty()==false && mapAttributes[pRow_Attribute_Settings->FK_Attribute_get()]<iPriorityVideoSetting )
+		{
+			iPriorityVideoSetting=mapAttributes[pRow_Attribute_Settings->FK_Attribute_get()];
+			m_sVideoSettings=pRow_Attribute_Settings->VideoSetting_get();
+		}
+        if( pRow_Attribute_Settings->Commands_get().empty()==false && mapAttributes[pRow_Attribute_Settings->FK_Attribute_get()]<iPriorityCommand )
+		{
+			iPriorityCommand=mapAttributes[pRow_Attribute_Settings->FK_Attribute_get()];
+			m_sCommands=pRow_Attribute_Settings->Commands_get();
+		}
+	}
+}
+
+void MediaStream::LoadDefaultAvSettings(MediaFile *pMediaFile,map<int,int> &mapAttributes)
+{
+	MergeAttributes(mapAttributes,pMediaFile->m_mapPK_Attribute);
+	LoadDefaultAvSettings(pMediaFile->m_dequeMediaSection,mapAttributes);
+	LoadDefaultAvSettings(pMediaFile->m_dequeMediaTitle,mapAttributes);
+}
+
+void MediaStream::LoadDefaultAvSettings(deque<MediaSection *> &dequeMediaSection,map<int,int> &mapAttributes)
+{
+	for(deque<MediaSection *>::iterator it=dequeMediaSection.begin();it!=dequeMediaSection.end();++it)
+	{
+		MediaSection *pMediaSection = *it;
+		MergeAttributes(mapAttributes,pMediaSection->m_mapPK_Attribute);
+	}
+}
+
+void MediaStream::LoadDefaultAvSettings(deque<MediaTitle *> &dequeMediaTitle,map<int,int> &mapAttributes)
+{
+	for(deque<MediaTitle *>::iterator it=dequeMediaTitle.begin();it!=dequeMediaTitle.end();++it)
+	{
+		MediaTitle *pMediaTitle = *it;
+		MergeAttributes(mapAttributes,pMediaTitle->m_mapPK_Attribute);
+	}
+}
+
+void MediaStream::MergeAttributes(map<int,int> &mapAttributes,map< int,list_int > &mapPK_Attribute)
+{
+	for(map< int,list_int >::iterator itMA=mapPK_Attribute.begin();itMA!=mapPK_Attribute.end();++itMA)
+	{
+		for(list_int::iterator itLI=itMA->second.begin();itLI!=itMA->second.end();++itLI)
+		{
+			if( itMA->first==ATTRIBUTETYPE_Title_CONST || itMA->first==ATTRIBUTETYPE_Album_CONST )
+				mapAttributes[*itLI]=10;
+			else if( itMA->first==ATTRIBUTETYPE_Genre_CONST )
+				mapAttributes[*itLI]=30;
+			else
+				mapAttributes[*itLI]=20;
+		}
+	}
+}
+

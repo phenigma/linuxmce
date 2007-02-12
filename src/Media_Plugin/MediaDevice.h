@@ -21,7 +21,7 @@ namespace DCE
 		bool m_bCaptureCardActive; // True if this is an external source and m_pDevice_CaptureCard is not null, and the video/audio path are now using the capture card
 		bool m_bViewingLiveAVPath; // True if the device has video that runs both through the capture card, and directly to other av devices, and the user is viewing it directly to the a/v devices.  Sending the Live_AVPath command makes this happen
 		bool m_bPreserveAspectRatio; // Corresponds to the device data DEVICEDATA_Preserve_Aspect_Ratio_CONST for this device
-		int m_dwPK_Command_LastAdjustment_Audio,m_dwPK_Command_LastAdjustment_Video; // Keep track of the last adjustment command so we don't keep sending the same one over and over
+		int m_dwPK_Command_LastAdjustment_Audio,m_dwPK_Command_LastAdjustment_Video,m_dwPK_Command_LastAdjustment_Command; // Keep track of the last adjustment command so we don't keep sending the same one over and over
 		map<string,int> m_mapAdjustmentRules; // A map of adjustment rules from DEVICEDATA_AV_Adjustment_Rules_CONST
 		int m_mapAdjustmentRules_Find(string sToken) { map<string,int>::iterator it = m_mapAdjustmentRules.find(sToken); return it==m_mapAdjustmentRules.end() ? 0 : it->second; }
 		int m_iDelayForCaptureCard; // If m_pDevice_CaptureCard is not null and the stream should start by showing the content from the capture card (ie m_bCaptureCardActive=true), and switch after this many seconds to a direct connect

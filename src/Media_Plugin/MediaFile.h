@@ -114,7 +114,9 @@ public:
 	map< int,list_int > m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
     list_int *m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,list_int >::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : &((*it).second); }
 	int m_dwPK_File,m_dwPK_Disk,m_dwPK_MediaType;
-	unsigned long m_dwPK_Bookmark,m_dwDuration,m_dwPK_CommandGroup_Start,m_dwPK_CommandGroup_Stop;
+	unsigned long m_dwPK_Bookmark,  // The bookmark to play instead of a file.  comes from Playlist_Entry.File
+		m_dwDuration, // If Playlist_Entry has a value, this file will only play for this many seconds
+		m_dwPK_CommandGroup_Start,m_dwPK_CommandGroup_Stop; // If specified in Playlist_Entry, these will be executed when the file starts and stops
 	time_t m_tTimeout;
 	int m_iTrack; // If this is a cd, the track to play
 	string m_sPath,m_sFilename,m_sDescription,m_sExtension;

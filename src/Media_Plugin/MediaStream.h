@@ -75,6 +75,7 @@ namespace DCE
         int m_iDequeMediaSection_Pos;/** The play position in the m_dequeMediaSection deque. */
         int m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
         string m_sPlaylistName;      /** the name of the playlist which was loaded from the database. */
+		string m_sVideoSettings,m_sAudioSettings,m_sCommands;  /** Come from ATTRIBUTETYPE_Video_Settings_CONST and ATTRIBUTETYPE_Audio_Settings_CONST to override the values in PlaybackStarted event */
 		int m_discid;  /** A unique number to identify the disc inserted, if this is from a removable disc (CD/DVD) */
 		bool m_bIdentifiedDisc;
 		int m_dwPK_Device_Remote; /** What remote control started this content */
@@ -200,6 +201,12 @@ namespace DCE
 		// Returns true if this is a vanilla stream where it's only playing in 1 ent area, and the source and destination
 		// devices are the same.  Otherwise it's going to require some sort of streaming
 		bool SingleEaAndSameDestSource(); 
+
+		void LoadDefaultAvSettings();
+		void LoadDefaultAvSettings(deque<MediaSection *> &dequeMediaSection,map<int,int> &mapAttributes);
+		void LoadDefaultAvSettings(deque<MediaTitle *> &dequeMediaTitle,map<int,int> &mapAttributes);
+		void LoadDefaultAvSettings(MediaFile *pMediaFile,map<int,int> &mapAttributes);
+		void MergeAttributes(map<int,int> &mapAttributes,map< int,list_int > &mapPK_Attribute);
 	};
 
     typedef map<int,MediaStream *> MapMediaStream;
