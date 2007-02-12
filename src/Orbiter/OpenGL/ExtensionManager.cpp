@@ -131,7 +131,8 @@ void ExtensionManager::Resize(int Width, int Height)
 
 	/* Sets up OpenGL double buffering */
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-#ifndef WIN32
+	
+#if !defined(WIN32) && !defined(VIA_OVERLAY)	
 	if(UseComposite)
 	{
  		SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
