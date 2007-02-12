@@ -128,6 +128,11 @@ sources += \
 	../LIRC_DCE/IRReceiverBase.cpp \
 	$(ROOT)/utilities/linux/transparency/transparency.cpp
 
+ifneq (,$(findstring -DVIA_OVERLAY, $(CPPFLAGS)))
+XTRALDLIBS += -lddmpeg
+sources += OpenGL/VIA/ViaOverlay.cpp
+endif
+
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
