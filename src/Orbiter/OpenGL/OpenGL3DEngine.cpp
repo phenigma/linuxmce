@@ -182,7 +182,7 @@ bool OpenGL3DEngine::Paint()
 
 	GL.Flip();
 	
-	if(m_bWorldChanged && !m_spDatagridAnimationManager->HasAnimations())
+	if(m_bWorldChanged || m_spDatagridAnimationManager->HasAnimations())
 	{
 		m_bWorldChanged = false;
 
@@ -325,8 +325,6 @@ inline void OpenGL3DEngine::DumpScene()
 	if(NULL == CurrentLayer || NULL == SelectedArea)
 		return;
 
-	m_bWorldChanged = true;
-
 	MeshBuilder MB;
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	//MB.SetTexture(HighSurface);
@@ -387,8 +385,6 @@ inline void OpenGL3DEngine::DumpScene()
 		return;
 	if(NULL == HightlightArea)
 		return;
-
-	m_bWorldChanged = true;
 
 	Compose->UpdateLayers(CurrentLayer, OldLayer);
 	MeshTransform Transform;
@@ -457,7 +453,6 @@ inline void OpenGL3DEngine::DumpScene()
 
 	if(NULL != HighLightFrame)
 	{
-		m_bWorldChanged = true;
 		//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
 		CurrentLayer->RemoveChild(HighLightFrame);
 		HighLightFrame->CleanUp();
@@ -473,8 +468,6 @@ inline void OpenGL3DEngine::DumpScene()
 
 	if(NULL != SelectedFrame)
 	{
-		m_bWorldChanged = true;
-	
 		CurrentLayer->RemoveChild(SelectedFrame);
 		SelectedFrame->CleanUp();
 
@@ -705,7 +698,6 @@ void OpenGL3DEngine::AddTopMostObject(string ObjectID)
 		return;
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
-	m_bWorldChanged = true;
 	TopMostObjects[ObjectID] = ObjectID;
 }
 
@@ -714,14 +706,14 @@ void OpenGL3DEngine::RemoveTopMostObject(string ObjectID)
 	map<string,string>::iterator Item = TopMostObjects.find(ObjectID);
 	if(Item != TopMostObjects.end())
 		TopMostObjects.erase(Item);
-
-	m_bWorldChanged = true;
 }
 
 void OpenGL3DEngine::UpdateTopMostObjects()
 {
 	if(TopMostObjects.size() == 0 || NULL == OriginalCurrentLayer)
 		return;
+
+	bool bOldWorldChanged = m_bWorldChanged;
 	
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
@@ -737,12 +729,13 @@ void OpenGL3DEngine::UpdateTopMostObjects()
 		}
 		else
 		{
-			m_bWorldChanged = true;
 			OriginalCurrentLayer->RemoveChild(Frame);
 			OriginalCurrentLayer->AddChild(Frame);
 			++Item;
 		}
 	}
+
+	m_bWorldChanged = bOldWorldChanged;
 }
 
 void OpenGL3DEngine::ReplaceMeshInAnimations(MeshFrame *OldFrame, MeshFrame *NewFrame)
