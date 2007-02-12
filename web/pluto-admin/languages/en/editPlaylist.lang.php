@@ -21,4 +21,8 @@ $TEXT_START_COMMAND_GROUP_CONST='Start Command Group';
 $TEXT_STOP_COMMAND_GROUP_CONST='Stop Command Group';
 $TEXT_PICK_COMMAND_GROUP_CONST='Pick';
 $TEXT_NEW_FILE_CONST='New picture';
+$TEXT_EDIT_PLAYLIST_ADVANCED_CONST='Advanced edit playlist';
+$TEXT_PLAYLIST_CONST='Playlist';
+$TEXT_BACK_TO_SIMPLE_MODE_CONST='Back to simple mode';
+$TEXT_PLAYLIST_ADVANCED_NOTE_CONST='Please select a playlist entry from left to add/remove command groups.';
 ?>

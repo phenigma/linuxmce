@@ -677,6 +677,13 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/editPlaylist.php');
 	    editPlaylist($output,$mediadbADO,$dbADO);	    
 	break;
+	case 'editPlaylistAdvanced':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/editPlaylistAdvanced.php');
+	    editPlaylistAdvanced($output,$mediadbADO,$dbADO);	    
+	break;
+	
 	case 'powerFile':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');

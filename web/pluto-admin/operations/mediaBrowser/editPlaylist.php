@@ -180,7 +180,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td align="center" colspan="9"><input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"></td>
+					<td align="center" colspan="9"><input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"> <input type="button" class="button" name="advanced" value="'.$TEXT_ADVANCED_CONST.'" onClick="self.location=\'index.php?section=editPlaylistAdvanced&plID='.$playlistID.'\'"></td>
 				</tr>				
 			<table>
 			<input type="hidden" name="oldEntries" value="'.join(',',array_keys($added)).'">
