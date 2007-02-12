@@ -495,6 +495,9 @@ g_pPlutoLogger->Write(LV_STATUS, "Forwarding reload to router");
 void General_Info_Plugin::CMD_Wake_Device(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c322-e->
 {
+	string sPK_Device = StringUtils::itos(iPK_Device);
+	char * cmd[] = { "/usr/pluto/bin/WakeMD.sh", "--dev", (char *) sPK_Device.c_str(), NULL };
+	ProcessUtils::SpawnDaemon(cmd[0], cmd);
 }
 
 //<-dceag-c323-b->
