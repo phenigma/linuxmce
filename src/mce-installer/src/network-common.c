@@ -37,9 +37,27 @@ void start_network_wizard(void) {
 			} else {
 				setting_netIntName = g_strdup_printf("%s:0", setting_netExtName);
 			}
+
 			displayStep2A();
-	       } else {
-		       displayStep2C();
+
+		} else {
+			iface = get_internal_interface(interfaces);
+			setting_netExtName    = g_strdup(oobs_iface_get_device_name(OOBS_IFACE(iface)));
+			setting_netExtIP      = g_strdup(oobs_iface_ethernet_get_ip_address(iface));
+			setting_netExtMask    = g_strdup(oobs_iface_ethernet_get_network_mask(iface));
+			setting_netExtGateway = g_strdup(oobs_iface_ethernet_get_gateway_address(iface));
+			setting_netExtDNS1    = g_list_nth_data(nameservers, 0);
+			setting_netExtDNS2    = g_list_nth_data(nameservers, 1);
+			setting_netExtUseDhcp = (oobs_iface_ethernet_get_configuration_method(iface) == OOBS_METHOD_STATIC ? FALSE : TRUE);
+
+			OobsIfaceEthernet *iface_o = get_internal_interface(interfaces);
+			if (setting_netIfaceNo > 1 || iface_o) {
+                                setting_netIntName = g_strdup(oobs_iface_get_device_name(OOBS_IFACE(iface_o)));
+                        } else {
+                                setting_netIntName = g_strdup_printf("%s:0", setting_netExtName);
+                        }
+
+			displayStep2C();
 	       }
 	}
 }

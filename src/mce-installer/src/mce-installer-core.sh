@@ -51,7 +51,7 @@ PK_Distro = 14
 Display = 4
 OfflineMode = false
 "
-	echo $PlutoConf > /etc/pluto.conf
+	echo "$PlutoConf" > /etc/pluto.conf
 	chmod 777 /etc/pluto.conf &>/dev/null
 }
 
@@ -71,6 +71,7 @@ YPXFRDARGS=
 }
 
 function Install_DCERouter {
+	apt-get update
 	apt-get -y -f install pluto-dcerouter
 }
 
@@ -161,7 +162,7 @@ ff02::3 ip6-allhosts
 		error=false
 		Network=""
 		Digits_Count=0
-		for Digits in $(echo $NetworkInput | tr '.' ' ') ;do
+		for Digits in $(echo "$NetworkInput" | tr '.' ' ') ;do
 			[[ "$Digits" == *[^0-9]* ]] && error=true
 
 			[[ $Digits -lt 0 || $Digits -gt 255 ]] && error=true
