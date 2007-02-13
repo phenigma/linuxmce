@@ -89,7 +89,7 @@ if (!-d $dest) {
 
 $api = new Flickr::API({'key' => $fKey});
 my ($max_number, $picture_nr);
-#$max_number = 30;
+#$max_number = 100;
 $max_number = getMaxNrFiles();
 $picture_nr = 0;
 
@@ -344,14 +344,16 @@ sub delete_old {
 	my @arrayOfFiles = split (/\n/, $listOfFiles);
 	my $deleteAll = 0;
 	my $count = 0;
+
 	if ($#fileList >= $max_number) {
 		$deleteAll = 1;
 	} else {
-		my $dim = $#fileList+1;
-		$count = $max_number - $dim;
-		$dim = $#arrayOfFiles+1;
-		$count = $dim - $count;
+		my $dim = $#arrayOfFiles+1;
+		$count = $dim - $max_number;
 	}	
+
+	#my $dbh = DBI->connect('dbi:mysql:pluto_media');
+
 	foreach ( @arrayOfFiles ) {
 		if (!isFileInList($_)){
 			if ($deleteAll) {
@@ -359,11 +361,13 @@ sub delete_old {
 				print TEST "$test_date Removing file: $_ \n";
 				`rm -f $_`;
 				`rm -f $_.id3` if (-e "$_.id3");
+				markFileAsDelete($dbh,$_);
 			}else {
 				my $test_date = `date`;
 				print TEST "$test_date Removing file: $_ \n";
 				`rm -f $_`;
 				`rm -f $_.id3` if (-e "$_.id3");
+				markFileAsDelete($dbh,$_);
 				$count--;
 				last if ($count <= 0);
 			}
@@ -380,8 +384,21 @@ sub isFileInList {
 	foreach (@fileList) {
 		return 1 if ($_ eq $file);
 	}
-
 	return 0;
+}
+
+sub markFileAsDelete {
+	my $dbh = shift;
+	my $file = shift;
+
+	my $filename = `basename $file`;
+	my $path = `dirname $file`;
+
+	chomp($filename); chomp($path);
+	
+	my $sql = "UPDATE File SET Missing = 1 WHERE Path='$path' AND Filename='$filename'";
+	my $sth = $dbh->prepare($sql);
+	$sth->execute || die "Sql Error";
 }
 
 sub getMaxNrFiles {
@@ -420,7 +437,7 @@ sub isFileOnDisk {
 	} else {
 		$finaldst = $dest."/".'tags'."/".$buff.".".$image->{'format'};
 	}
-	#print "destinatia: $finaldst \n";
+	#print "destinatia: $finaldst ";
 	if (!-e $finaldst){
 		push (@fileList, $finaldst);
 		return 0;
@@ -455,7 +472,7 @@ sub sig_child {
 	while (($waitedpid = waitpid(-1,WNOHANG)) > 0) {
 		print "reaped $waitedpid\n";
 	}
-										       
+
 	$child_count++;
 	
 	$SIG{CHLD} = \&sig_child; # loathe sysV
