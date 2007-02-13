@@ -328,7 +328,8 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() Failed to open media");
 	}
 	
-	Sleep(2000);  // There's a bug in libxine that if you send other commands like change playback speed right after the stream starts it deadlocks
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() sleep for few seconds");
+	Sleep(5000);  // There's a bug in libxine that if you send other commands like change playback speed right after the stream starts it deadlocks
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with stream %p.", sMediaURL.c_str(), pStream);
 	
 }
