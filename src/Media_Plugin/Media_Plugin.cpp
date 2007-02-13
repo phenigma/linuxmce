@@ -2220,18 +2220,23 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 		MediaDevice *pMediaDevice;
 		if( iPK_Device && (pMediaDevice = m_mapMediaDevice_Find(iPK_Device))!=NULL )
 		{
-			// Maybe there's a specific media device we should use
-			for( MapEntertainArea::iterator it=pMediaDevice->m_mapEntertainArea.begin( );it!=pMediaDevice->m_mapEntertainArea.end( );++it )
+			if( pOH_Orbiter->m_pEntertainArea && pMediaDevice->m_mapEntertainArea.find( pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea )!=pMediaDevice->m_mapEntertainArea.end() )
+				vectEntertainArea.push_back(pOH_Orbiter->m_pEntertainArea);
+			else
 			{
-				EntertainArea *pEntertainArea = it->second;
-				if( pEntertainArea->m_pMediaStream )
+				// Maybe there's a specific media device we should use
+				for( MapEntertainArea::iterator it=pMediaDevice->m_mapEntertainArea.begin( );it!=pMediaDevice->m_mapEntertainArea.end( );++it )
 				{
-					if( !pMediaStream )
-						pMediaStream = pEntertainArea->m_pMediaStream;
-					else if( pMediaStream!=pEntertainArea->m_pMediaStream )
-						g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea found stream %d and now %d",pMediaStream->m_iStreamID_get(),pEntertainArea->m_pMediaStream->m_iStreamID_get());
+					EntertainArea *pEntertainArea = it->second;
+					if( pEntertainArea->m_pMediaStream )
+					{
+						if( !pMediaStream )
+							pMediaStream = pEntertainArea->m_pMediaStream;
+						else if( pMediaStream!=pEntertainArea->m_pMediaStream )
+							g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea found stream %d and now %d",pMediaStream->m_iStreamID_get(),pEntertainArea->m_pMediaStream->m_iStreamID_get());
+					}
+					vectEntertainArea.push_back(( *it ).second);
 				}
-				vectEntertainArea.push_back(( *it ).second);
 			}
 		}
         else if( !pOH_Orbiter )
