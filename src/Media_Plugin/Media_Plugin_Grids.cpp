@@ -1934,6 +1934,7 @@ class DataGridTable *Media_Plugin::DevicesForCaptureCardPort( string GridID, str
 
 class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+	m_pRouter->m_pRow_Installation_get()->Reload();  // Be sure we have the country in case the user just specified it
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 

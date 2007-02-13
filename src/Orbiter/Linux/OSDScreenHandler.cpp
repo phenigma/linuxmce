@@ -2666,7 +2666,8 @@ bool OSDScreenHandler::ChooseProvider_ObjectSelected(CallBackData *pData)
 		return false; // It might be another popup ontop of us, but it's not what we're looking for
 	if( pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID==DESIGNOBJ_mnuPopupMessage_CONST )
 	{
-		if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST && m_iStage==CPS_CHOOSE_SOURCE )
+		string sTokens = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
+		if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST && m_iStage==CPS_CHOOSE_SOURCE && sTokens.empty()==false )
 		{
 			m_iStage++;
 			ChooseProviderGetNextStage();
@@ -2794,6 +2795,14 @@ void OSDScreenHandler::ChooseProviderGetNextStage()
 	{
 		m_iStage = CPS_CHOOSE_SOURCE;
 // TODO -- need to prompt for the source if it's not provided		if( sPK_Provider_Source.empty()==false )
+		if( sComments.empty() )
+		{
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,"");
+			DisplayMessageOnOrbiter(0,
+				"Sorry.  Can't find a TV Provider automatically for your country.  Please use Myth setup.", false,"0", false,
+				m_pOrbiter->m_mapTextString[TEXT_Ok_CONST]);
+		}
+		else
 		{
 			DisplayMessageOnOrbiter(0,
 				sComments, false,"0", false,
