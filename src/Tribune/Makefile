@@ -5,7 +5,7 @@ LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lRACommon -lDCECommon -lPlutoUtils -lSerializeClass -lpthread -lmysqlclient_r -lattr 
 CXX = g++
 
-sources = CommonFunctions.cpp Tribunerequests.cpp R_GetLineups.cpp Database.cpp Tribuneprocessor.cpp Tribune.cpp
+sources = CommonFunctions.cpp Tribunerequests.cpp R_GetLineups.cpp R_GetChannels.cpp R_GetDiffs.cpp ClientFunctions.cpp Database.cpp Tribuneprocessor.cpp ServerManagement.cpp MapManagement.cpp Tribune.cpp
 
 #new_thing = $(sources) TableInfo_SCVS.cpp
 
@@ -14,7 +14,7 @@ all: Tribune
 
 Tribune: $(sources:.cpp=.o)
 	$(CXX) -o $@ $(call cpath,$+) $(LDFLAGS) $(LDLIBS) $(CPPFLAGS)
-	#cp $@ $(ROOT)/bin
+	cp $@ $(ROOT)/bin
 
 #newthing: $(new_thing:.cpp=.o)
 #	@echo "*** Something to do here ***"

@@ -1,11 +1,10 @@
-#include "R_GetLineups.h"
+#include "R_GetChannels.h"
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "Tribuneprocessor.h"
 #include "Database.h"
-//#include "Repository.h"
 #include "CommonFunctions.h"
 
 #include <iostream>
@@ -13,21 +12,25 @@
 
 using namespace Tribune;
 
-R_GetLineups::R_GetLineups( string sTable, int zipcode)
+R_GetChannels::R_GetChannels(int pk_headend, string extra_condition)
 {
-	m_sTable=sTable;
-	m_zipcode=zipcode;
+	m_pk_headend=pk_headend;
+	m_extra_condition=extra_condition;
 }
 
-bool R_GetLineups::ProcessRequest( class RA_Processor *pRA_Processor )
+bool R_GetChannels::ProcessRequest( class RA_Processor *pRA_Processor )
 {
 	(( Tribuneprocessor * ) pRA_Processor)->LogActivityTime();
 
-	cout << "R_GetLineups" << endl;
+	cout << "r_GetChannels cu extra conditia " <<  m_extra_condition << endl;
 	std::ostringstream sSQL;
-	// See notes in Table::DetermineDeletions
 
-	sSQL << "SELECT PK_Headend, HeadendName FROM " << m_sTable << " WHERE ZipCode=" << m_zipcode;
+	if (m_extra_condition.length( )==0){
+		sSQL << "SELECT l.PK_Lineup, s.Name name FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_pk_headend;
+	} else {
+		sSQL << "SELECT l.PK_Lineup, s.Name name FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_pk_headend << "AND s.Name NOT IN (" << m_extra_condition << ")";
+
+	}
 
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
@@ -47,7 +50,7 @@ bool R_GetLineups::ProcessRequest( class RA_Processor *pRA_Processor )
 				m_cProcessOutcome=INTERNAL_ERROR;
 				return true; /**<< Request successfully processed */
 			}
-			m_mapPrimaryKey_LineupName[ row[0] ] = row[1];
+			m_mapPrimaryKey_ChannelName[ row[0] ] = row[1];
 		}
 		m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
 	}

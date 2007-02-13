@@ -18,6 +18,7 @@
 #define NULL_TOKEN	"**( NULL )**"
 
 typedef map<string,string> MapStringString;
+typedef map<int,string> MapIntString;
 //extern int ValidateUser(string Username,string Password,bool &NoPassword,bool &bSupervisor);
 
 namespace Tribune
@@ -101,10 +102,14 @@ namespace Tribune
 
 		string m_sUsers;  /**< The users specified on the command line */
 
-		/*map<int,MapTable *> m_mapUsersTables; 	/**< This will have all the users who have made changes,
-							 * pointing to a list of the tables they modified
-							 */
+		bool m_bImportTable;
+
 		MapStringString m_mapUsersPasswords;	/**< This will have all the users and their passwords */
+		MapStringString mapPrimaryKey_Timestam_ProgramRecord;
+		MapIntString mapPrimaryKey_Timestam_Station;
+		MapStringString mapPrimaryKey_Timestam_Schedule;
+		MapStringString mapPrimaryKey_Timestam_Actor;
+		MapStringString mapPrimaryKey_Timestam_Genre;
 		string m_sDefaultUser; /**< If checking in for multiple users, this will be the one who is assigned ownership of all unclaimed new records */
 
 		Database *m_pDatabase;		/**< points to the database */
@@ -140,6 +145,7 @@ namespace Tribune
 			m_bVerify=m_bVerifyID=m_bAllowUnmetDependencies=m_bCheckinEveryone=m_bNoPrompts=false;
 			//m_iScreenWidth=dceConfig.ReadInteger("ScreenWidth",120);
 			m_bAllowAnonymousLogin=false;
+			m_bImportTable=false;
 			m_iMaxConnectAttemptCount = -1;
 			m_iServerProcessorTimeout = 900;
 		}

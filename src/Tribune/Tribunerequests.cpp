@@ -1,5 +1,7 @@
 #include "Tribunerequests.h"
 #include "R_GetLineups.h"
+#include "R_GetChannels.h"
+#include "R_GetDiffs.h"
 
 #include "Tribuneprocessor.h"
 #include "RA/RAServerSocket.h"
@@ -13,7 +15,22 @@ RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData,
 		{
 			pRequest = new R_GetLineups( );
 			pRequest->CreateRequest( dwSize, pcData );
+			break;
 		}
+	case R_GET_CHANNELS:
+		{
+			pRequest = new R_GetChannels( );
+			pRequest->CreateRequest( dwSize, pcData );
+			break;
+		}
+	case R_GET_DIFFS:
+		{
+			pRequest = new R_GetDiffs( );
+			pRequest->CreateRequest( dwSize, pcData );
+			break;
+		}
+	default:
+		cout<<"Wrong ID: "<<dwRequestID<<endl;
 	};
 
 	return pRequest;

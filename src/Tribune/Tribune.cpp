@@ -25,7 +25,11 @@
 #include "DCE/Logger.h"
 #include "RA/RAServer.h"
 #include "R_GetLineups.h"
+#include "R_GetChannels.h"
 #include "RA/RA_Processor.h"
+#include "ClientFunctions.h"
+#include "ServerManagement.h"
+#include "inotify/FileNotifier.h"
 
 using namespace std;
 using namespace DCE;
@@ -49,7 +53,8 @@ string GetCommand( )
 		<< "------Server-side functions------" << endl
 		<< "1.	Start listening for incoming connections from clients ( listen )" << endl
 		<< "------Client-side functions------" << endl
-		<< "A.	" << endl
+		<< "A.	Choose a lineup and its channels providing the postal code" << endl
+		<< "B.	Daily update" << endl
 		<< endl
 		<< "Q. Quit" << endl;
 
@@ -58,34 +63,21 @@ string GetCommand( )
 
 	if( s=="1" )
 		return "listen";
+	else if( s=="a" || s=="A" )
+		return "lineup";
+	else if( s=="b" || s=="B" )
+		return "dailyupdate";
 	else if( s=="q" || s=="Q" )
 		exit( 0 );
 
 	return "";
 }
 
-void GetLineups(RA_Processor &ra_Processor, string Connection, DCE::Socket **ppSocket )
+void OnDeleteFiles(list<string> &listFiles)
 {
-	
-	R_GetLineups r_GetLineups( "Headend", 10023);
-	ra_Processor.AddRequest( &r_GetLineups );
-							
-	while( ra_Processor.SendRequests(Connection, ppSocket) );
-
-	if( r_GetLineups.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
-	{
-		cerr << "Cannot get list of records from server (clarifying local deletions destiny):" << (int) r_GetLineups.m_cProcessOutcome << endl;
-		throw "Communication error";
-	}
-
-	map<string,string>::iterator iter;
-	int i = 0;
-	map <int,pair<string,string> > mapIndexLineupKey_To_Name;
-	for(iter = r_GetLineups.m_mapPrimaryKey_LineupName.begin(); iter != r_GetLineups.m_mapPrimaryKey_LineupName.end(); iter++ ) {
-    		cout << "Id-ul lineupului"<<iter->first << " numele lineupului " << iter->second << endl;
-		mapIndexLineupKey_To_Name[i] = make_pair(iter->first,iter->second);
-  	}
+	g_GlobalConfig.m_bImportTable=true;
 }
+
 
 int main(int argc, char *argv[]){
 
@@ -99,10 +91,9 @@ int main(int argc, char *argv[]){
 		<< " of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " <<endl
 		<< " See the GNU General Public License for more details. "<< endl << "-------" << endl << endl;
 
-	printf("##########################");
-	fflush(stdout);
 
 	g_pPlutoLogger = new DCE::FileLogger( stdout );
+
 	if( g_pPlutoLogger == NULL )
 	{
 		cerr << "Problem creating logger. Check params." << endl;
@@ -177,37 +168,132 @@ int main(int argc, char *argv[]){
 		exit( 1 );
 	}
 
-	while( true ) /** An endless loop processing commands */
-	{
+// 	while( true ) /** An endless loop processing commands */
+// 	{
+
 		while( g_GlobalConfig.m_sCommand.length( )==0 )
 		{
 			g_GlobalConfig.m_sCommand=GetCommand( );
 		}
 		if( g_GlobalConfig.m_sCommand=="listen" )
 		{
-			//cout << "ascult stapane" << endl;
+			FileNotifier fileNotifier;
+			fileNotifier.RegisterCallbacks(OnDeleteFiles);
+  			fileNotifier.Watch("/var/Tribune");
+ 			fileNotifier.Run();
+
+			ServerManagement* pSM = ServerManagement::getInstance();
+			pthread_t tr;
+			pthread_create(&tr, NULL, ServerManagement::ServerManagement_Thread, (void*)pSM);
+
 			RAServer *pServer = new RAServer( );
 			pServer->Initialize( );
 			pServer->StartListening( g_GlobalConfig.m_iTribunePort );
 			pServer->Run( );
 			delete pServer;
+
 		}
-// 		else if (g_GlobalConfig.m_sCommand=="lineups")
-// 		{
-// 			RA_Processor ra_Processor( 0, 1, NULL, g_GlobalConfig.m_iMaxConnectAttemptCount );
-// 
-// 			string Connection = g_GlobalConfig.m_sTribuneHost + ":" + StringUtils::itos(g_GlobalConfig.m_iTribunePort);
-// 			DCE::Socket *pSocket=NULL;
-// 
-// 			GetLineups(ra_Processor, Connection, &pSocket);
-// 
-// 			delete pSocket;
+		else if (g_GlobalConfig.m_sCommand=="lineup")
+		{
+			string command;
+			int zipcode;
+			DCE::Socket *pSocket=NULL;
+
+			ClientFunctions *clientFunct = new ClientFunctions(&pSocket);
+		
+			while (command.length( )==0){
+				cout << endl << "Please provide a zip code to list the lineups: ";
+				cin >> command;
+			}
+
+			zipcode = atoi(command.c_str());
+			command = "";
+
+			map <int,pair<string,string> > mapIndexLineupKey_To_Name;
+
+			mapIndexLineupKey_To_Name = clientFunct->GetLineups(zipcode);
+
+			if (mapIndexLineupKey_To_Name.empty()){
+				cout<<endl<<"There are no lineups for the zip code provided"<<endl;
+				exit(0);
+			}
+
+			map<int,pair<string,string> >::iterator iter;
+
+			while (command.length( )==0){
+
+				cout << endl << endl << "-------------------------" << endl;
+				cout << "Choose a lineup from list" << endl;
+				cout << "-------------------------" << endl << endl;
+
+				for(iter = mapIndexLineupKey_To_Name.begin(); iter != mapIndexLineupKey_To_Name.end(); iter++ ) {
+					cout << "[ "<<iter->first << " ].  " << iter->second.second << endl;
+				}
+
+				cout << "[ q ].  " << "Quit" << endl;				
+
+				cin >> command;
+
+				if( command=="q" || command=="Q" ){
+					exit( 0 );
+				}
+
+				int key = atoi(command.c_str());
+
+				iter = mapIndexLineupKey_To_Name.find(key);
+		
+				if( iter == mapIndexLineupKey_To_Name.end() ) {
+						
+					cout << "Please choose a valid key!";
+					command = "";
+
+				} else if (iter != mapIndexLineupKey_To_Name.end() ) {
+
+					clientFunct->SetClientLineup(iter->second.first,iter->second.second);
+					
+					cout << endl << endl << "-------------------------" << endl;
+					cout << "The list of channels" << endl;
+					cout << "-------------------------" << endl << endl;
+					map <string,string> mapChannelKey_To_Name;
+					int key = atoi((iter->second.first).c_str());
+					string extra_cond = clientFunct->GetBlackListChannels();//"'SoapNet'";
+					mapChannelKey_To_Name=clientFunct->GetChannels(key, extra_cond);
+					map<string,string>::iterator it;
+					for(it = mapChannelKey_To_Name.begin(); it != mapChannelKey_To_Name.end(); it++){
+						cout<< it->second <<endl;
+					}
+					cout<<endl;
+				}
+			}
+
+ 		}
+		else if (g_GlobalConfig.m_sCommand=="dailyupdate"){
+
+			DCE::Socket *pSocket=NULL;
+			ClientFunctions *clientFunct = new ClientFunctions(&pSocket);
+			string blacklist = clientFunct->GetBlackListChannels();
+			string lineup = clientFunct->GetClientLineup();
 			
-// 		}
+			MapManagement *pmapManag = new MapManagement();
+			map<string,string> mapProgramRecord = pmapManag->GetProgramRecordMap( );
+			map<int,string> mapStation = pmapManag->GetStationMap( );
+			map<string,string> mapSchedule = pmapManag->GetScheduleMap( );
+			map<string,string> mapActor = pmapManag->GetActorMap( );
+			map<string,string> mapGenre = pmapManag->GetGenreMap( );
+			map<string,string> mapRole = pmapManag->GetRoleMap( );
+
+			string clientfile = clientFunct->CalcDiffs(lineup,blacklist,mapProgramRecord,mapStation,mapSchedule,mapActor,mapGenre,mapRole);
+			string source = "http://"+g_GlobalConfig.m_sTribuneHost+"/var/www/"+clientfile;
+			string command = "wget \""+ source +"\" -O \"/tmp/"+clientfile+"\" 1>/dev/null 2>/dev/null";
+			system(command.c_str());
+			
+			string path = "/tmp/"+clientfile;
+			clientFunct->ModifyClientDatabase(path);
+		}
 		else {
 			cerr << "Unknown command: " << g_GlobalConfig.m_sCommand << endl;
 		}
-	}
+	//}
 
 }
 
