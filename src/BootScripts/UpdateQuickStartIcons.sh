@@ -18,7 +18,7 @@ index=0
 
 while [[ $index -le $(($counter-1)) ]]; do
 
-        wget --timeout=10 -O $PIXDIR/${TEMPLATE[$index]} ${ICON[$index]}
+        wget --tries=1 --timeout=2 -O $PIXDIR/${TEMPLATE[$index]} ${ICON[$index]}
         convert $PIXDIR/${TEMPLATE[$index]} $PIXDIR/template_${TEMPLATE[$index]}.jpg
         rm $PIXDIR/${TEMPLATE[$index]}
         RET=$?
