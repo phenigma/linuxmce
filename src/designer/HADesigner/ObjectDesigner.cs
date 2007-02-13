@@ -449,14 +449,17 @@ namespace HADesigner
 			this.cbLanguageSkin.Items.Clear();
 			this.cbLanguageSkin.Enabled = true;
 
-			foreach (UITextSkinLanguage uiTSL in this.selectedUIText.TextSkinLanguages)
+			if(null != this.selectedUIText)
 			{
-                if (uiTSL.Include) this.cbLanguageSkin.Items.Add(uiTSL);
-			}
-			if (this.selectedUIText.TextSkinLanguages.Count > 0) // should always be true
-			{
-				this.cbLanguageSkin.SelectedIndex = 0;
-				this.cbAlignV.Enabled = this.cbAlignH.Enabled = this.cbStyle.Enabled = true;
+				foreach (UITextSkinLanguage uiTSL in this.selectedUIText.TextSkinLanguages)
+				{
+					if (uiTSL.Include) this.cbLanguageSkin.Items.Add(uiTSL);
+				}
+				if (this.selectedUIText.TextSkinLanguages.Count > 0) // should always be true
+				{
+					this.cbLanguageSkin.SelectedIndex = 0;
+					this.cbAlignV.Enabled = this.cbAlignH.Enabled = this.cbStyle.Enabled = true;
+				}
 			}
 		}
 
@@ -2751,14 +2754,20 @@ namespace HADesigner
 				this.chChildBehindBG.Enabled = false;
 			}
 			this.UpdateImage(origBlock);
+
+			cbLanguageSkin_Child.Enabled = null != this.selectedUIDesignObj;
+			cbLanguageSkin.Enabled = null != this.selectedUIText;
 		}
 
-		private void setLanguageSkinView(int languageID, int skinID)
+		private void setTextLanguageSkinView(int languageID, int skinID)
 		{
 			bool changed = false;
 
 			if (languageID == -1) languageID = 1;
 			if (skinID == -1) skinID = 1;
+
+			SkinLanguageStatus.Instance().TextSkinID = skinID;
+			SkinLanguageStatus.Instance().TextLanguageID = languageID;
 
 			if (languageID != this.languageID)
 			{
@@ -2784,21 +2793,12 @@ namespace HADesigner
 	
 			if (this.selectedUITSL != null) // Should never be null
 			{
-				if (!this.IsInterfaceLocked()) // TODO: REFRESH IMAGE WITH RECTANGLE AROUND SELECTION
-				{
-					//					this.LockInterface();
-					//					m_objUIDesignObj.DeselectAllDesignObjs(false);
-					//					selectedUITSL.Selected = true;
-					//					m_objUIDesignObjDisplayControl.UpdateImage();
-					//					m_objUIDesignObjDisplayControl.Refresh();
-					//					this.UnlockInterface();
-				}
 				//	if (this.selectedUITSL.ID != -1) // TODO: should still update if ID == -1, need to set ID for a new row after it has been inserted
 				
 				// lbText.SelectedIndex = -1;
 				// this.enable_tbXYWidthHeight(true);
 
-				this.setLanguageSkinView(this.selectedUITSL.LanguageID,this.selectedUITSL.SkinID);
+				this.setTextLanguageSkinView(this.selectedUITSL.LanguageID,this.selectedUITSL.SkinID);
 				this.cbAlignH.SelectedIndex = this.selectedUITSL.HAlignmentSelection;
 				this.cbAlignV.SelectedIndex = this.selectedUITSL.VAlignmentSelection;
 				
@@ -2811,6 +2811,15 @@ namespace HADesigner
 				tbRotate.Text = this.selectedUITSL.Rotate.ToString();
 				tbOpacity.Text = this.selectedUITSL.Opacity.ToString();
 				this.btnBGColorTSL.BackColor = Color.FromArgb(this.selectedUITSL.BGColor);
+
+				if (!this.IsInterfaceLocked()) // TODO: REFRESH IMAGE WITH RECTANGLE AROUND SELECTION
+				{
+					this.LockInterface();
+					m_objUIDesignObj.DeselectAllDesignObjs(false);
+					m_objUIDesignObjDisplayControl.UpdateImage();
+					m_objUIDesignObjDisplayControl.Refresh();
+					this.UnlockInterface();
+				}
 			}
 			// else this.enable_tbXYWidthHeight(false);
 		}
@@ -4257,7 +4266,18 @@ namespace HADesigner
 
 		private void btnAddSkinLanguage_Child_Click_1(object sender, System.EventArgs e)
 		{
-			//
+			if (this.selectedUIDesignObj != null)
+			{
+				if ((new SkinLanguageForm(this.selectedUIDesignObj, GraphicsDirectory)).ShowDialog() == DialogResult.OK)
+				{
+					bool origBlock = this.BlockUpdateImage();
+
+					this.loadAvailableLanguageSkins();
+					this.loadAvailableLanguageSkins_Child();
+						
+					this.UpdateImage(origBlock);
+				}
+			}
 		}
 
 		private void btnRemoveSkinLanguage_Child_Click_1(object sender, System.EventArgs e)

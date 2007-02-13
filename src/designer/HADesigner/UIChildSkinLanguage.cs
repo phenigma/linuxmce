@@ -150,8 +150,10 @@ namespace HADesigner
 		{
 			get
 			{
-				if (this.m_strDescription == null) return "";
-				else return ID + " " + m_strDescription + (m_bitHideByDefault ? " h" : "");
+				if (this.m_strDescription == null) 
+					return "";
+				else 
+					return ID + " " + m_strDescription + (m_bitHideByDefault ? " h" : "");
 			}
 			set	{m_strDescription = value;}
 		}
@@ -752,6 +754,16 @@ namespace HADesigner
 					(intY <= (this.ParentY + this.Height)));
 			}
 			else return false;
+		}
+
+		public string LanguageSkin
+		{
+			get
+			{
+				string language = (this.LanguageID == -1) ? "Default" : mds.tLanguage[this.LanguageID].fDescription;
+				string skin = (this.SkinID == -1) ? "Default" : mds.tSkin[this.SkinID].fDescription;
+				return language + " - " + skin;
+			}
 		}
 	}
 }

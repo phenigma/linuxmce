@@ -299,8 +299,11 @@ namespace HADesigner
             return mds.tText[this.textID].fDescription_LS(languageID,returnEnglish);
 		}
 
-		public void Draw(Graphics g, int parentX, int parentY, int languageID, int skinID)
+		public void Draw(Graphics g, int parentX, int parentY)
 		{
+			int skinID = SkinLanguageStatus.Instance().TextSkinID;
+			int languageID = SkinLanguageStatus.Instance().TextLanguageID;
+
 			if (this.Include)
 			{
 				bool matchSkin = false;

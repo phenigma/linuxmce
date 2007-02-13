@@ -218,6 +218,11 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
+                    RelPath = "SkinLanguageStatus.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "SkinsForm.cs"
                     SubType = "Form"
                     BuildAction = "Compile"

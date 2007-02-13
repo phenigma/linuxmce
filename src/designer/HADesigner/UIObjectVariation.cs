@@ -613,8 +613,7 @@ namespace HADesigner
 				foreach(object obj in this.Text)
 				{
 					UIText objText = (UIText) obj;
-					objText.Draw(objGraphics,objChildSkinLanguage.ParentX,
-						objChildSkinLanguage.ParentY,languageID,skinID);
+					objText.Draw(objGraphics,objChildSkinLanguage.ParentX,objChildSkinLanguage.ParentY);
 				}
 			}
 		}

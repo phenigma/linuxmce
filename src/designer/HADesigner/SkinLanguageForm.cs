@@ -17,7 +17,10 @@ namespace HADesigner
 	/// </summary>
 	public class SkinLanguageForm : System.Windows.Forms.Form
 	{
-        private UIText parentUIText;
+        private UIText parentUIText = null;
+		private UIDesignObj parentUIDesignObj = null;
+		private string graphicsDir = null;
+
 		private StringPair defaultStringPair = new StringPair("-1","Default");
 
 		private System.Windows.Forms.Button btnOK;
@@ -42,6 +45,17 @@ namespace HADesigner
 			InitializeComponent();
 
 			this.parentUIText = parentUIText;
+		}
+
+		public SkinLanguageForm(UIDesignObj parentUIDesignObj, string graphicsDir)
+		{
+			//
+			// Required for Windows Form Designer support
+			//
+			InitializeComponent();
+
+			this.parentUIDesignObj = parentUIDesignObj;
+			this.graphicsDir = graphicsDir;
 		}
 
 		/// <summary>
@@ -136,10 +150,24 @@ namespace HADesigner
 			this.parentUIText.TextSkinLanguages.Add(uiTSL);
 		}
 
+		private void createUIDSL()
+		{
+			UIChildSkinLanguage uiDSL = new UIChildSkinLanguage(
+				this.parentUIDesignObj, -1, -1, -1, graphicsDir);
+
+			uiDSL.LanguageID = Convert.ToInt32(((StringPair)this.cbLanguage.SelectedItem).ID);
+			uiDSL.SkinID = Convert.ToInt32(((StringPair)this.cbSkin.SelectedItem).ID);
+
+			this.parentUIDesignObj.ChildSkinLanguages.Add(uiDSL);
+		}
 
 		private void btnOK_Click(object sender, System.EventArgs e)
 		{
-			this.createUITSL();
+			if(null != this.parentUIText)
+				createUITSL();
+			else if(null != this.parentUIDesignObj)
+				createUIDSL();
+
 			this.DialogResult = DialogResult.OK;
 			this.Close();
 		}
