@@ -15,5 +15,6 @@ echo -e "${Content}" > "${Parm_RootLocation}/${File}"
 chmod +x "${Parm_RootLocation}/${File}"
 
 Symlink="${Parm_RootLocation}/etc/rcS.d/S44mountnfs.sh"
+mkdir -p "${Parm_RootLocation}/etc/rcS.d"
 rm -f "${Symlink}"
-ln -s "$File" "${Symlink}"
+ln -s "$File" "${Symlink}" 2>/dev/null || /bin/true
