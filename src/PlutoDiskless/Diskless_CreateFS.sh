@@ -33,7 +33,8 @@ InstallKernel()
 	local Module
 	local Kout
 
-	local ModulesFile="etc/initramfs-tools/modules"
+	mkdir -p "$DlPath/etc/initramfs-tools/"
+	local ModulesFile="$DlPath/etc/initramfs-tools/modules"
 	: >"$ModulesFile"
 	for Module in $Modules; do
 		echo $Module >>"$ModulesFile"
