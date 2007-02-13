@@ -355,7 +355,7 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 		return;
 	}
 		
-	pStream->changePlaybackSpeed( Xine_Stream::PLAYBACK_STOP );
+	//pStream->changePlaybackSpeed( Xine_Stream::PLAYBACK_STOP );
 	*sMediaPosition = pStream->GetPosition();
 	
 	// telling to all slaves to stop playback
