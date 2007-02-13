@@ -468,8 +468,8 @@ bool Xine_Stream::CloseMedia()
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
-		xine_stop( m_pXineStream );
+		g_pPlutoLogger->Write( LV_STATUS, "Do not calling xine_stop for stream with id: %d", m_iStreamID );
+//		xine_stop( m_pXineStream );
 
 		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close for stream with id: %d", m_iStreamID );
 		xine_close( m_pXineStream );
