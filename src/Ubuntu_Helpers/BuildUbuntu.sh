@@ -23,12 +23,13 @@ sql_slave_db_telecom="pluto_telecom"
 sql_slave_user="root"
 
 replacements_dir="${build_dir}/replacements"
+local_mirror_dir="/var/www"
 out_dir="${build_dir}/out"
 mkr_dir="${build_dir}/MakeRelease"
 
 
 function Install_Build_Needed_Packages {
-	local pkgs="subversion build-essential dh-make libmysqlclient12-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client"
+	local pkgs="subversion build-essential dh-make libmysqlclient12-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server"
 	local pkg
 	for pkg in $pkgs ;do
 		apt-get -y install $pkg
@@ -42,6 +43,7 @@ function Checkout_Pluto_Svn {
 	mkdir -p ${svn_dir}/trunk
 	svn co ${svn_url}/pluto/trunk  ${svn_dir}/trunk
 
+	#/bin/sql2cpp -h localhost -u root -D pluto_main
 	pushd ${svn_dir}/trunk/src
 	svn co ${svn_url}/pluto-private/trunk/src/ZWave/
 	svn co ${svn_url}/pluto-private/trunk/src/RFID_Interface/
@@ -127,6 +129,8 @@ function Build_Pluto_Replacements {
 }
 
 function Build_Pluto_Stuff {
+	touch /home/README.Devel.Dependencies
+
 	export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
 
@@ -190,7 +194,6 @@ function Create_Fake_Windows_Binaries {
 }
 
 function Create_Local_Repository {
-	local_mirror_dir="/usr/pluto/deb-cache"
 	rm -rf $local_mirror_dir
 	mkdir -p $local_mirror_dir
 
@@ -278,14 +281,30 @@ function Import_Pluto_Skins {
 	popd
 }
 
-#Import_Build_Database
-#Import_Pluto_Skins
-#Install_Build_Needed_Packages
-#Build_Pluto_Replacements
-#Checkout_Pluto_Svn
-#Build_MakeRelease_Binary
-#Create_Fake_Windows_Binaries
-#Build_Pluto_Stuff
-Create_Local_Repository
+function Create_Diskless_Archive {
+	touch /home/DisklessFS/ramdisk.tar.bz2
+
+	apt-get -y install debootstrap
+
+	local temp_dir=$(mktemp -d)
+	debootstrap edgy $temp_dir http://ro.archive.ubuntu.com/ubuntu/
+
+	mkdir -p /home/DisklessFS
+	pushd $temp_dir
+		tar -jcf /home/DisklessFS/PlutoMD.tar.bz2 *
+	popd
+	rm -rf $temp_dir
+}
+
+Create_Diskless_Archive
+Install_Build_Needed_Packages
+Import_Build_Database
+Import_Pluto_Skins
+Checkout_Pluto_Svn
+Build_Pluto_Replacements
+Build_MakeRelease_Binary
+Create_Fake_Windows_Binaries
+Build_Pluto_Stuff
+#Create_Local_Repository
 
 
