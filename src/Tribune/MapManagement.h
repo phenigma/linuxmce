@@ -12,7 +12,6 @@ class MapManagement{
 	
 public:
 	MapManagement();
-	static map <string,string> lista;
 	static map <string,string> GetProgramRecordMap( );
 	static map <int,string> GetStationMap( );
 	static map <string,string> GetScheduleMap( );
