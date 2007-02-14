@@ -378,6 +378,10 @@ bool Xine_Stream::CreateWindows()
 // initializes audion/video output ports, prepares stream for open
 bool Xine_Stream::InitXineAVOutput()
 {
+	// mapping window and raising it
+ 	int xcode = XMapRaised( m_pXDisplay, windows[ 0 ] );
+	g_pPlutoLogger->Write( LV_WARNING, "XMapWindow returned: %i", xcode);
+
 	// init visual for xine video
 	m_x11Visual.display = m_pFactory->m_pXDisplay;
 	m_x11Visual.screen = m_iCurrentScreen;
@@ -574,7 +578,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		}
 		
 		// reporting about image
-		g_pPlutoLogger->Write( LV_STATUS, "Got image dimensions: %dx%d", m_iImgWidth, m_iImgWidth );
+		g_pPlutoLogger->Write( LV_STATUS, "Got image dimensions: %dx%d", m_iImgWidth, m_iImgHeight );
 
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
