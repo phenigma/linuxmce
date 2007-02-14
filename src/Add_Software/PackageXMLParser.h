@@ -1,3 +1,6 @@
+#ifndef __PACKAGE_XML_PARSER_H__
+#define __PACKAGE_XML_PARSER_H__
+//--------------------------------------------------------------------------------------------------
 #include <libxml/encoding.h>
 #include <libxml/xmlreader.h>
 //--------------------------------------------------------------------------------------------------
@@ -28,26 +31,6 @@ enum NodeIndex
 	niNumNodes
 };
 //--------------------------------------------------------------------------------------------------
-string NodeName[] =
-{
-	"",
-	"icon",
-	"title",
-	"description",
-	"homeurl",
-	"category",
-	"downloadurl",
-	"repositoryname",
-	"packagename",
-	"misc",
-	"version",
-	"target",
-	"importance",
-	"PC_Type",
-	"Required_Version_Min",
-	"Required_Version_Max"
-};
-//--------------------------------------------------------------------------------------------------
 typedef map<NodeIndex, string> PackageInfo;
 //--------------------------------------------------------------------------------------------------
 class PackageXMLParser
@@ -69,3 +52,4 @@ public:
 	const list<PackageInfo>& GetParsedData() const;
 };
 //--------------------------------------------------------------------------------------------------
+#endif //__PACKAGE_XML_PARSER_H__

@@ -5,12 +5,31 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/FileUtils.h"
 #include "DCE/Logger.h"
-
 //--------------------------------------------------------------------------------------------------
 namespace DCE
 {
 	Logger *g_pPlutoLogger;
 }
+//--------------------------------------------------------------------------------------------------
+string NodeName[] =
+{
+	"",
+	"icon",
+	"title",
+	"description",
+	"homeurl",
+	"category",
+	"downloadurl",
+	"repositoryname",
+	"packagename",
+	"misc",
+	"version",
+	"target",
+	"importance",
+	"PC_Type",
+	"Required_Version_Min",
+	"Required_Version_Max"
+};
 //--------------------------------------------------------------------------------------------------
 PackageXMLParser::PackageXMLParser() : m_CurrentNode(niNone)
 {
