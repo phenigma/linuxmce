@@ -16,7 +16,7 @@ VERSION_getxmls = 0.0.1
 MYNAME_instcheck = instcheck
 VERSION_instcheck = 0.0.1
 
-getxmls_SOURCES = getxmls.cpp DatabaseHelper.cpp IconDecoder.cpp PackageXMLParser.cpp ../PlutoUtils/uuencode.cpp
+getxmls_SOURCES = getxmls.cpp DatabaseHelper.cpp IconDecoder.cpp PackageXMLParser.cpp XMLFinder.cpp ../PlutoUtils/uuencode.cpp
 instcheck_SOURCES = instcheck.cpp
 
 whattodo:

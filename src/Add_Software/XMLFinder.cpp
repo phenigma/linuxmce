@@ -10,7 +10,9 @@ string XMLFinder::FindURLToXML(string sFilename)
 {
 	const string csPackagesToken = "packages.xml";
 	const string csHrefToken = "<a href=\"";
-	const int cnNeighbourhood = 100;
+	const size_t cnNeighbourhood = 100;
+
+	g_pPlutoLogger->Write(LV_WARNING, "Finding xml in html...");
 
 	string sHTMLData;
 	if(FileUtils::ReadTextFile(sFilename, sHTMLData))

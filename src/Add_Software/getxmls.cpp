@@ -76,7 +76,8 @@ int findURL(FILE *f,string &link,size_t searchEngine)
 	return 0;
 }
 
-int findXML(FILE *fpage){
+int findXML(FILE *fpage)
+{
 	const string templ=">10faostb</a>";
 	const string templ2="<a href=\"";
 	const string templ3=".xml\"";
@@ -84,7 +85,8 @@ int findXML(FILE *fpage){
 	int pos,pos2,pos3;
 	string buf2="";
 	string link=(string)"wget --timeout 2 --tries=1 -q "+UserAgent+" -O /tmp/out.xml ";
-	while (fread(buf,MaxBuf,1,fpage)){
+	while (fread(buf,MaxBuf,1,fpage))
+	{
 		buf[MaxBuf]='\0';
 		buf2+=buf;
 		pos=buf2.find(templ,0);
@@ -104,7 +106,7 @@ int findXML(FILE *fpage){
 						pos3=buf2.find(templ3,pos2+1);
 					}
 					link.append(buf2,pos2+9,pos3+4-pos2-9);
-					//					cout<<link<<endl;
+					cout<<"URL: "<<link<<endl;
 					return system(link.c_str());
 				}
 			}
@@ -179,10 +181,9 @@ int main(int argc, char *argv[])
 							cout<<"Error opening file out.html"<<endl;
 							return false;
 						}
+
 						if(findXML(fpage))
-						{
 							continue;
-						}
 
                         string sFileName = "/tmp/out.xml";
 						g_pPlutoLogger->Write(LV_WARNING, "Processing XML %s", sFileName.c_str());
@@ -203,10 +204,6 @@ int main(int argc, char *argv[])
 			fclose(fsearch);
 		}
 	}
-
-	FileUtils::DelFile("/tmp/search.html");
-	FileUtils::DelFile("/tmp/out.html");
-	FileUtils::DelFile("/tmp/out.xml");
 
 	return true;
 }
