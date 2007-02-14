@@ -6,8 +6,6 @@
 #	exit 1
 
 	c_coreIpAddress="192.168.80.1"
-	c_plutoUser="dan"
-	c_plutoPassword="dan"
 	c_deviceID="31"
 #fi
 

@@ -23,8 +23,12 @@ void displayStep5(void) {
 	// Terminal widget
 	GtkWidget *terminal = vte_terminal_new();
 	gtk_box_pack_start(GTK_BOX(mainBox), terminal, TRUE, TRUE, 0);
-	write_config_file();	
-	vte_terminal_fork_command(terminal,"./mce-installer-core.sh",NULL, NULL, "", FALSE, FALSE, FALSE);
+	write_config_file();
+	if (setting_deviceType = DT_MEDIA_DIRECTOR) {	
+		vte_terminal_fork_command(terminal,"./mce-installer-core.sh",NULL, NULL, "", FALSE, FALSE, FALSE);
+	} else {
+		vte_terminal_fork_command(terminal,"./mce-installer-diskedmd.sh",NULL,NULL, "", FALSE, FALSE, FALSE);
+	}
 
 	// Back Button	
 	GtkWidget *buttonBack = gtk_button_new_from_stock(GTK_STOCK_GO_BACK);
