@@ -179,34 +179,37 @@ void DatabaseHelper::InstallPackage(const PackageInfo& package, int DeviceID)
 //--------------------------------------------------------------------------------------------------
 void DatabaseHelper::SaveRawIcon(int nPK_Software, char *pData, size_t nSize)
 {
-	string sHeadQuery = "UPDATE `Software` set Iconstr = \"";
-	string sEndQuery = "\" WHERE PK_Software = " + StringUtils::ltos(nPK_Software);
-
-	int nGoodDataSize = 0;
-	char *pGoodData = new char[nSize * 2 + 1];
-
-	size_t length = nGoodDataSize = mysql_real_escape_string(m_pDatabase_pluto_main->m_pMySQL, pGoodData, pData, (unsigned long)nSize);
-
-	delete [] pData;
-	pData = NULL;
-
-	length += sHeadQuery.length();
-	length += sEndQuery.length();
-
-	char *pQueryData = new char[length];
-	memcpy(pQueryData, sHeadQuery.c_str(), sHeadQuery.length());
-	char *pCurrentPos = pQueryData + sHeadQuery.length();
-	memcpy(pCurrentPos, pGoodData, nGoodDataSize);
-	pCurrentPos += nGoodDataSize;
-	memcpy(pCurrentPos, sEndQuery.c_str(), sEndQuery.length());
-	delete [] pGoodData;
-
-	if(mysql_real_query(m_pDatabase_pluto_main->m_pMySQL, pQueryData, (unsigned long)length))
+	if(nSize != 0)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Failed to save icon in db!");
-	}
+		string sHeadQuery = "UPDATE `Software` set Iconstr = \"";
+		string sEndQuery = "\" WHERE PK_Software = " + StringUtils::ltos(nPK_Software);
 
-	delete [] pQueryData;
+		int nGoodDataSize = 0;
+		char *pGoodData = new char[nSize * 2 + 1];
+
+		size_t length = nGoodDataSize = mysql_real_escape_string(m_pDatabase_pluto_main->m_pMySQL, pGoodData, pData, (unsigned long)nSize);
+
+		delete [] pData;
+		pData = NULL;
+
+		length += sHeadQuery.length();
+		length += sEndQuery.length();
+
+		char *pQueryData = new char[length];
+		memcpy(pQueryData, sHeadQuery.c_str(), sHeadQuery.length());
+		char *pCurrentPos = pQueryData + sHeadQuery.length();
+		memcpy(pCurrentPos, pGoodData, nGoodDataSize);
+		pCurrentPos += nGoodDataSize;
+		memcpy(pCurrentPos, sEndQuery.c_str(), sEndQuery.length());
+		delete [] pGoodData;
+
+		if(mysql_real_query(m_pDatabase_pluto_main->m_pMySQL, pQueryData, (unsigned long)length))
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Failed to save icon in db!");
+		}
+
+		delete [] pQueryData;
+	}
 }
 //--------------------------------------------------------------------------------------------------
 #ifdef UNIT_TEST_DATABASE_HELPER
