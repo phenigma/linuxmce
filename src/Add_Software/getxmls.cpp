@@ -27,6 +27,7 @@ See the GNU General Public License for more details.
 
 #include "PackageXMLParser.h"
 #include "DatabaseHelper.h"
+#include "XMLFinder.h"
 
 #define MaxBuf 17
 #define UserAgent "--user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\""
@@ -45,7 +46,7 @@ int findURL(FILE *f,string &link,size_t searchEngine)
 	char buf[MaxBuf+1];
 	int pos,pos2;
 	string buf2="";
-	link=(string)"wget --timeout 2 --tries=1 -q "+UserAgent+" -O /tmp/out.html \"";
+	link=(string)"wget --timeout 60 --tries=1 "+UserAgent+" -O /tmp/out.html \"";
 	while (fread(buf,MaxBuf,1,f)){
 		buf[MaxBuf]='\0';
 		buf2+=buf;
@@ -84,7 +85,7 @@ int findXML(FILE *fpage)
 	char buf[MaxBuf+1];
 	int pos,pos2,pos3;
 	string buf2="";
-	string link=(string)"wget --timeout 2 --tries=1 -q "+UserAgent+" -O /tmp/out.xml ";
+	string link=(string)"wget --timeout 60 --tries=1 "+UserAgent+" -O /tmp/out.xml ";
 	while (fread(buf,MaxBuf,1,fpage))
 	{
 		buf[MaxBuf]='\0';
@@ -106,7 +107,7 @@ int findXML(FILE *fpage)
 						pos3=buf2.find(templ3,pos2+1);
 					}
 					link.append(buf2,pos2+9,pos3+4-pos2-9);
-					cout<<"URL: "<<link<<endl;
+					g_pPlutoLogger->Write(LV_WARNING, link.c_str());
 					return system(link.c_str());
 				}
 			}
@@ -116,7 +117,21 @@ int findXML(FILE *fpage)
 	return 1;
 }
 
+void ProcessXML(string sFileName)
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Processing XML %s", sFileName.c_str());
 
+	string sXmlData;
+	FileUtils::ReadTextFile(sFileName, sXmlData);
+	sXmlData = StringUtils::Replace(sXmlData, "&", "&amp;");
+
+	PackageXMLParser parser;
+	parser.Parse(sXmlData);
+	const list<PackageInfo>& listPackages = parser.GetParsedData();
+
+	DatabaseHelper dbhelper;
+	dbhelper.ProcessPackages(listPackages);
+}
 
 int main(int argc, char *argv[])
 {
@@ -153,7 +168,7 @@ int main(int argc, char *argv[])
 	}
 	for(size_t noEngine=0;noEngine<url.size();noEngine++)
 	{
-		string sCmd = string("wget --timeout 2 --tries=1 -q ")+UserAgent+" -O /tmp/search.html \""+url[noEngine]+"\"";
+		string sCmd = string("wget --timeout 60 --tries=1 ")+UserAgent+" -O /tmp/search.html \""+url[noEngine]+"\"";
 		cout << sCmd << endl;
 		res=system(sCmd.c_str());
 		if (!res)
@@ -185,23 +200,19 @@ int main(int argc, char *argv[])
 						if(findXML(fpage))
 							continue;
 
-                        string sFileName = "/tmp/out.xml";
-						g_pPlutoLogger->Write(LV_WARNING, "Processing XML %s", sFileName.c_str());
+                        ProcessXML("/tmp/out.xml");
 
-						string sXmlData;
-						FileUtils::ReadTextFile(sFileName, sXmlData);
-						sXmlData = StringUtils::Replace(sXmlData, "&", "&amp;");
-
-						PackageXMLParser parser;
-						parser.Parse(sXmlData);
-						const list<PackageInfo>& listPackages = parser.GetParsedData();
-
-						DatabaseHelper dbhelper;
-						dbhelper.ProcessPackages(listPackages);
 					}
 				}
 			}
 			fclose(fsearch);
+
+			string sXMLUrl = XMLFinder::FindURLToXML("/tmp/search.html");
+			string sCommand = string("wget --timeout 60 --tries=1 ") + UserAgent + " -O /tmp/out.xml " + sXMLUrl;
+			g_pPlutoLogger->Write(LV_WARNING, sCommand.c_str());
+			
+			if(!system(sCommand.c_str()))
+				ProcessXML("/tmp/out.xml");
 		}
 	}
 
