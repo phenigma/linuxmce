@@ -1,7 +1,7 @@
 #ifndef ServerManagement_h
 #define ServerManagement_h
 
-
+#include "DCE/PlainClientSocket.h"
 #include "MapManagement.h"
 
 
