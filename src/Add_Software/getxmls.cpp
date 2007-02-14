@@ -208,11 +208,15 @@ int main(int argc, char *argv[])
 			fclose(fsearch);
 
 			string sXMLUrl = XMLFinder::FindURLToXML("/tmp/search.html");
-			string sCommand = string("wget --timeout 60 --tries=1 ") + UserAgent + " -O /tmp/out.xml " + sXMLUrl;
-			g_pPlutoLogger->Write(LV_WARNING, sCommand.c_str());
-			
-			if(!system(sCommand.c_str()))
-				ProcessXML("/tmp/out.xml");
+
+			if(!sXMLUrl.empty())
+			{
+				string sCommand = string("wget --timeout 60 --tries=1 ") + UserAgent + " -O /tmp/out.xml " + sXMLUrl;
+				g_pPlutoLogger->Write(LV_WARNING, sCommand.c_str());
+
+				if(!system(sCommand.c_str()))
+					ProcessXML("/tmp/out.xml");
+			}
 		}
 	}
 
