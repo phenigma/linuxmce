@@ -18,14 +18,23 @@ string XMLFinder::FindURLToXML(string sFilename)
 	if(FileUtils::ReadTextFile(sFilename, sHTMLData))
 	{
 		size_t pos = sHTMLData.find(csPackagesToken);
-		string sUsefullData = sHTMLData.substr(pos > cnNeighbourhood ? pos - cnNeighbourhood : 0, 
-			cnNeighbourhood + csPackagesToken.length());
+		if(pos != string::npos)
+		{
+			string sUsefullData = sHTMLData.substr(pos > cnNeighbourhood ? pos - cnNeighbourhood : 0, 
+				cnNeighbourhood + csPackagesToken.length());
 
-		string sUrlRawData =  sUsefullData.substr(
-			sUsefullData.find(csHrefToken) + csHrefToken.length(), 
-			sUsefullData.find(csPackagesToken) + csPackagesToken.length());
+			size_t nHrefTagPos = sUsefullData.find(csHrefToken);
+			size_t nPackageTagPos = sUsefullData.find(csPackagesToken);
 
-		return sUrlRawData;
+			if(nHrefTagPos != string::npos && nPackageTagPos != string::npos)
+			{
+				string sUrlRawData =  sUsefullData.substr(
+					nHrefTagPos + csHrefToken.length(), 
+					nPackageTagPos + csPackagesToken.length());
+
+				return sUrlRawData;
+			}
+		}
 	}
 
 	return "";
