@@ -4,10 +4,10 @@ bin_PROGRAMS = getxmls instcheck
 
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -I/usr/include/libxml2 -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
 # the library search path.
-getxmls_LDADD = -lmysqlclient -ldancer-xml -lPlutoUtils -lDCECommon -lSerializeClass
+getxmls_LDADD = -lmysqlclient -lpluto_main -lPlutoUtils -lDCECommon -lSerializeClass -lxml2
 instcheck_LDADD = -lmysqlclient
 
 MYNAME_getxmls = getxmls
@@ -16,7 +16,7 @@ VERSION_getxmls = 0.0.1
 MYNAME_instcheck = instcheck
 VERSION_instcheck = 0.0.1
 
-getxmls_SOURCES = getxmls.cpp ../PlutoUtils/uuencode.cpp
+getxmls_SOURCES = getxmls.cpp DatabaseHelper.cpp IconDecoder.cpp PackageXMLParser.cpp ../PlutoUtils/uuencode.cpp
 instcheck_SOURCES = instcheck.cpp
 
 whattodo:
@@ -35,7 +35,7 @@ instcheck: $(instcheck_SOURCES:.cpp=.o)
 	cp $@ ../bin
 
 clean:
-	rm -f $(bin_PROGRAMS)
+	rm -f $(bin_PROGRAMS) $(getxmls_SOURCES:.cpp=.o) $(instcheck_SOURCES:.cpp=.o)
 
 include $(ROOT)/PlutoUtils/make.rules
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))

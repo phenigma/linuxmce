@@ -6,11 +6,6 @@
 #include "PlutoUtils/FileUtils.h"
 #include "DCE/Logger.h"
 //--------------------------------------------------------------------------------------------------
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
-//--------------------------------------------------------------------------------------------------
 string NodeName[] =
 {
 	"",
@@ -54,7 +49,6 @@ bool PackageXMLParser::ProcessNode(xmlTextReaderPtr reader)
 	value = (char *)xmlTextReaderConstValue(reader);
 
 	string sName(name);
-	int depth = xmlTextReaderDepth(reader);
 	int type = xmlTextReaderNodeType(reader);
 
 	if(sName == "package")
@@ -144,3 +138,5 @@ int main()
 	return 0;
 }
 #endif
+//--------------------------------------------------------------------------------------------------
+
