@@ -22,6 +22,7 @@ function Configure_Mounts
 {
 	
 	local nfsOptions="intr,rsize=32768,wsize=32768,retrans=10,timeo=50"
+	local homeDirs="cameras coredump coverartscan flickr logs mediapics mydvd mythtv public quick_start_icons securitypic temp_pvr tv_listing"
 	local Content=""
 
 	mkdir -p /usr/pluto/var
@@ -36,11 +37,22 @@ function Configure_Mounts
 	Content="${Content}${c_coreIpAddress}:/usr/pluto/deb-cache /usr/pluto/deb-cache nfs $nfsOptions 0 0\n"
 	Content="${Content}//${c_coreIpAddress}/home /usr/pluto/home cifs credentials=/usr/pluto/var/sambaCredentials.secret 0 0\n"
 
-	echo -e "$Content" >> /etc/fstab
+	grep -q "/usr/pluto/orbiter" /etc/fstab || echo -e "$Content" >> /etc/fstab
 
 	apt-get install -y portmap
 	invoke-rc.d portmap start
+
 	mount -a
+
+	pushd /home
+		for homeDir in $homeDirs ;do
+			ln -s /usr/pluto/home/$homeDir
+		done
+
+		for homeDir in /usr/pluto/home/user_* ;do
+			ln -s $homeDir
+		done
+	popd
 }
 
 function Unpack_Config_Files
@@ -55,7 +67,7 @@ function Run_Installer_Script
 	. /usr/pluto/install/activation.sh
 }
 
-#Setup_NIS
-#Configure_Mounts
+Setup_NIS
+Configure_Mounts
 Unpack_Config_Files
 Run_Installer_Script
