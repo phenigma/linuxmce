@@ -1,6 +1,4 @@
 #include "ServerManagement.h"
-#include "PlutoUtils/CommonIncludes.h"
-#include "PlutoUtils/StringUtils.h"
 #include "CommonFunctions.h"
 #include "Database.h"
 #include "MapManagement.h"
@@ -10,29 +8,40 @@
 #include <map>
 #include <string>
 
-ServerManagement::instance = NULL;
-MapManagement::mapManag = NULL;
+using namespace std;
+using namespace Tribune;
 
-pthread_mutexattr_init( &m_MutexAttr );
-pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
-TribuneMutex.Init( &m_MutexAttr );
+ServerManagement* ServerManagement::instance = NULL;
+
+ServerManagement::ServerManagement()
+	: TribuneMutex("TribuneMapMutex")
+{
+	pthread_mutexattr_init( &m_MutexAttr );
+	pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+	TribuneMutex.Init( &m_MutexAttr );
+}
+
+ServerManagement::~ServerManagement()
+{
+}
 
 ServerManagement* ServerManagement::getInstance(){
 	
 	if (instance==NULL){
 		instance = new ServerManagement();
-		mapManag = new MapManagement();
 	}
 	return instance;
 }
 
-void ServerManagement::ServerManagement_Thread(void *p){
+void* ServerManagement::ServerManagement_Thread(void *p){
 
 	ServerManagement *pServerManagement = (ServerManagement *) p;
 	if( pServerManagement != NULL )
 	{
 		pServerManagement->Run();
 	}
+	
+	return NULL;
 }
 
 void ServerManagement::Run(){
@@ -41,7 +50,7 @@ void ServerManagement::Run(){
 		
 		if(g_GlobalConfig.m_bImportTable){
 			PLUTO_SAFETY_LOCK(tb,TribuneMutex);
-			g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord=mapManag->GetProgramRecordMap();
+			MapManagement::GetProgramRecordMap(g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord);
 			g_GlobalConfig.m_bImportTable=false;
 		}
 		

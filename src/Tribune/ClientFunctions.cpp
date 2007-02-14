@@ -152,7 +152,7 @@ bool ClientFunctions::ModifyClientDatabase(string path){
 	
 	if (!mysqlfile) {
 		cerr<<"Error opening file "<<path<<endl;
-		exit(1);
+		return false;
 	}
 
 	if (mysqlfile.is_open()) {
@@ -164,7 +164,9 @@ bool ClientFunctions::ModifyClientDatabase(string path){
 			g_GlobalConfig.m_pDatabase->mysql_query_result( line );
 			
 		}
-	}	
+	}
+		
+	return true;
 }
 
 

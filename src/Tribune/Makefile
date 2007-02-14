@@ -5,7 +5,11 @@ LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lRACommon -lDCECommon -lPlutoUtils -lSerializeClass -lpthread -lmysqlclient_r -lattr 
 CXX = g++
 
-sources = CommonFunctions.cpp Tribunerequests.cpp R_GetLineups.cpp R_GetChannels.cpp R_GetDiffs.cpp ClientFunctions.cpp Database.cpp Tribuneprocessor.cpp ServerManagement.cpp MapManagement.cpp Tribune.cpp
+sources = CommonFunctions.cpp Tribunerequests.cpp R_GetLineups.cpp \
+	R_GetChannels.cpp R_GetDiffs.cpp ClientFunctions.cpp \
+	Database.cpp Tribuneprocessor.cpp ServerManagement.cpp \
+	MapManagement.cpp Tribune.cpp 
+#	$(ROOT)/inotify/FileNotifier.cpp $(ROOT)/inotify/inotify_class.cpp
 
 #new_thing = $(sources) TableInfo_SCVS.cpp
 

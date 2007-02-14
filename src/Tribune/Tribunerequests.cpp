@@ -4,7 +4,9 @@
 #include "R_GetDiffs.h"
 
 #include "Tribuneprocessor.h"
-#include "RA/RAServerSocket.h"
+
+#include <RA/RAServerSocket.h>
+#include <RA/RA_Processor.h>
 
 RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData, unsigned long dwRequestID )
 {

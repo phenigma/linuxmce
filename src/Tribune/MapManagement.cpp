@@ -9,9 +9,9 @@
 #include <map>
 #include <string>
 
-map <string,string> MapManagement::GetProgramRecordMap(){
+using namespace Tribune;
 
-	map<string,string> mapPrimaryKey_Timestam_ProgramRecord;
+bool MapManagement::GetProgramRecordMap(map<string,string> & mapPrimaryKey_Timestam_ProgramRecord){
 
 	std::ostringstream sSQL;
 	
@@ -37,12 +37,10 @@ map <string,string> MapManagement::GetProgramRecordMap(){
 		}
 	}
 
-	return mapPrimaryKey_Timestam_ProgramRecord;
+	return true;
 }
 
-map <int,string> MapManagement::GetStationMap(){
-
-	map<int,string> mapPrimaryKey_Timestam_Station;
+bool MapManagement::GetStationMap(map<int,string> & mapPrimaryKey_Timestam_Station){
 
 	std::ostringstream sSQL;
 	
@@ -67,12 +65,10 @@ map <int,string> MapManagement::GetStationMap(){
 		}
 	}
 
-	return mapPrimaryKey_Timestam_Station;
+	return true;
 }
 
-map <string,string> MapManagement::GetScheduleMap(){
-
-	map<string,string> mapPrimaryKey_Timestam_Schedule;
+bool MapManagement::GetScheduleMap(map<string,string> & mapPrimaryKey_Timestam_Schedule){
 
 	std::ostringstream sSQL;
 	
@@ -98,12 +94,10 @@ map <string,string> MapManagement::GetScheduleMap(){
 		}
 	}
 
-	return mapPrimaryKey_Timestam_Schedule;
+	return true;
 }
 
-map <string,string> MapManagement::GetActorMap(){
-
-	map<string,string> mapPrimaryKey_Timestam_Actor;
+bool MapManagement::GetActorMap(map<string,string> & mapPrimaryKey_Timestam_Actor){
 
 	std::ostringstream sSQL;
 	
@@ -129,12 +123,10 @@ map <string,string> MapManagement::GetActorMap(){
 		}
 	}
 
-	return mapPrimaryKey_Timestam_Actor;
+	return true;
 }
 
-map <string,string> MapManagement::GetGenreMap(){
-
-	map<string,string> mapPrimaryKey_Timestam_Genre;
+bool MapManagement::GetGenreMap(map<string,string> & mapPrimaryKey_Timestam_Genre){
 
 	std::ostringstream sSQL;
 	
@@ -160,12 +152,10 @@ map <string,string> MapManagement::GetGenreMap(){
 		}
 	}
 
-	return mapPrimaryKey_Timestam_Genre;
+	return true;
 }
 
-map <string,string> MapManagement::GetRoleMap(){
-
-	map<string,string> mapPrimaryKey_Timestam_Role;
+bool MapManagement::GetRoleMap(map<string,string> & mapPrimaryKey_Timestam_Role){
 
 	std::ostringstream sSQL;
 	
@@ -191,5 +181,5 @@ map <string,string> MapManagement::GetRoleMap(){
 		}
 	}
 
-	return mapPrimaryKey_Timestam_Role;
+	return true;
 }

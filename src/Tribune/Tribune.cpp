@@ -1,24 +1,7 @@
 #include "PlutoUtils/CommonIncludes.h"
 
-#include <iostream>
-#include <sstream>
-#include <fstream>
-
-#include <cstdlib>
-
-#include <stdio.h>
-
-#include <string>
-#include <vector>
-#include <map>
-#include <list>
-
-#include <mysql.h>
-
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 #include "Database.h"
 #include "CommonFunctions.h"
@@ -29,7 +12,18 @@
 #include "RA/RA_Processor.h"
 #include "ClientFunctions.h"
 #include "ServerManagement.h"
-#include "inotify/FileNotifier.h"
+//#include "inotify/FileNotifier.h"
+
+#include <iostream>
+#include <sstream>
+#include <fstream>
+
+//#include <cstdlib>
+
+#include <string>
+#include <vector>
+#include <map>
+#include <list>
 
 using namespace std;
 using namespace DCE;
@@ -177,10 +171,10 @@ int main(int argc, char *argv[]){
 		}
 		if( g_GlobalConfig.m_sCommand=="listen" )
 		{
-			FileNotifier fileNotifier;
-			fileNotifier.RegisterCallbacks(OnDeleteFiles);
-  			fileNotifier.Watch("/var/Tribune");
- 			fileNotifier.Run();
+// 			FileNotifier fileNotifier;
+// 			fileNotifier.RegisterCallbacks(OnDeleteFiles,OnDeleteFiles);
+//   			fileNotifier.Watch("/var/Tribune");
+//  			fileNotifier.Run();
 
 			ServerManagement* pSM = ServerManagement::getInstance();
 			pthread_t tr;
@@ -274,15 +268,25 @@ int main(int argc, char *argv[]){
 			string blacklist = clientFunct->GetBlackListChannels();
 			string lineup = clientFunct->GetClientLineup();
 			
-			MapManagement *pmapManag = new MapManagement();
-			map<string,string> mapProgramRecord = pmapManag->GetProgramRecordMap( );
-			map<int,string> mapStation = pmapManag->GetStationMap( );
-			map<string,string> mapSchedule = pmapManag->GetScheduleMap( );
-			map<string,string> mapActor = pmapManag->GetActorMap( );
-			map<string,string> mapGenre = pmapManag->GetGenreMap( );
-			map<string,string> mapRole = pmapManag->GetRoleMap( );
+			map<string,string> mapProgramRecord;
+			MapManagement::GetProgramRecordMap( mapProgramRecord );
+			
+			map<int,string> mapStation;
+			MapManagement::GetStationMap( mapStation );
+			
+			map<string,string> mapSchedule;
+			MapManagement::GetScheduleMap( mapSchedule );
+			
+			map<string,string> mapActor;
+			MapManagement::GetActorMap( mapActor );
+			
+			map<string,string> mapGenre;
+			MapManagement::GetGenreMap( mapGenre );
+			
+			map<string,string> mapRole;
+			MapManagement::GetRoleMap( mapRole );
 
-			string clientfile = clientFunct->CalcDiffs(lineup,blacklist,&mapProgramRecord,&mapStation,&mapSchedule,&mapActor,&mapGenre,&mapRole);
+			string clientfile = clientFunct->CalcDiffs(lineup,blacklist,mapProgramRecord,mapStation,mapSchedule,mapActor,mapGenre,mapRole);
 			string source = "http://"+g_GlobalConfig.m_sTribuneHost+"/var/www/"+clientfile;
 			string command = "wget \""+ source +"\" -O \"/tmp/"+clientfile+"\" 1>/dev/null 2>/dev/null";
 			system(command.c_str());
