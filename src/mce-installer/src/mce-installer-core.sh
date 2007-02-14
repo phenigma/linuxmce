@@ -1,5 +1,7 @@
 #!/bin/bash
 
+exit 0
+
 if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
 	echo "ERROR: Cannot find wizard data";
 	exit 1
@@ -55,7 +57,7 @@ OfflineMode = false
 	chmod 777 /etc/pluto.conf &>/dev/null
 }
 
-function Setpu_NIS {
+function Setup_NIS {
 	## Put a temporar nis config files that will prevent ypbind to start
 	echo "
 NISSERVER=false
@@ -234,6 +236,7 @@ ff02::3 ip6-allhosts
 Core_PK_Device=""
 Setup_Apt_Conffiles
 Setup_Pluto_Conf
+Setup_NIS
 Install_DCERouter
 Create_And_Config_Devices
 Configure_Network_Options

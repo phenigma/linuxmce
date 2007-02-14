@@ -74,6 +74,8 @@ gboolean setting_runDhcpServer;
 gchar*   setting_netIntName;
 gchar*   setting_netIntIPN;
 
+gchar*   setting_deviceID;
+
 gint     setting_startupType;
 
 #endif

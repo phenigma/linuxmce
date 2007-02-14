@@ -99,7 +99,7 @@ GtkWidget* gtk_label_new_for_wizard(const gchar *text) {
 	label = gtk_label_new(text);
 	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_set_size_request(label, 450,-1);
+//	gtk_widget_set_size_request(label, 450,-1);
 
 	return label;
 }
@@ -136,7 +136,16 @@ void write_config_file(void) {
 				,setting_startupType
 		);
 	} else {
-		output = g_strdup_printf("COMOEEOMEOME");
+		output = g_strdup_printf(
+				"c_deviceType=%d\n"
+				"c_coreIpAddress=%s\n"
+				"c_deviceID=%s\n"
+				"c_startupType=%d\n"
+				,setting_deviceType
+				,setting_coreIP
+				,setting_deviceID
+				,setting_startupType
+		);
 	}
 
 	FILE *conf_file;

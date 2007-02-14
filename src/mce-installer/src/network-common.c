@@ -18,6 +18,7 @@ void start_network_wizard(void) {
 	setting_netIfaceNo = oobs_list_get_n_items(interfaces);
 
 	if (setting_netIfaceNo == 0) {
+		printf("No Cards!\n");
 	       //displayStep2X();
 	} else {
 		OobsIfaceEthernet* iface = get_external_interface(interfaces);
