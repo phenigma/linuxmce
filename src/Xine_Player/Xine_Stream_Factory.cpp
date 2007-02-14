@@ -586,7 +586,7 @@ bool Xine_Stream_Factory::CreateWindows()
 	XSelectInput( m_pXDisplay, windows[ 1 ], INPUT_MOTION );
 
 	XSetStandardProperties( m_pXDisplay, windows[ 0 ], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0 );
-	XSetStandardProperties( m_pXDisplay, windows[ 1 ], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0 );
+	XSetStandardProperties( m_pXDisplay, windows[ 1 ], "pluto-stub", "pluto-stub", None, NULL, 0, 0 );
 
 	sizeHints.win_gravity = StaticGravity;
 	sizeHints.flags = PPosition | PSize | PWinGravity;
