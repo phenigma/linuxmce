@@ -128,9 +128,9 @@ string ClientFunctions::GetClientLineup() {
 	
 }
 
-string ClientFunctions::CalcDiffs(string lineup,string blacklist, map <string,string> mapProgramRecord, map <int,string> mapStation, map <string,string> mapSchedule, map <string,string> mapActor, map <string,string> mapGenre, map <string,string> mapRole) {
+string ClientFunctions::CalcDiffs(string lineup,string blacklist, map <string,string> &mapProgramRecord, map <int,string> &mapStation, map <string,string> &mapSchedule, map <string,string> &mapActor, map <string,string> &mapGenre, map <string,string> &mapRole) {
 
-	R_GetDiffs r_GetDiffs(string lineup, string blacklist, map <string,string> mapProgramRecord, map <int,string> mapStation, map <string,string> mapSchedule, map <string,string> mapActor, map <string,string> mapGenre, map <string,string> mapRole );
+	R_GetDiffs r_GetDiffs(lineup, blacklist, mapProgramRecord, mapStation, mapSchedule, mapActor, mapGenre, mapRole );
 
 	ra_Processor->AddRequest( &r_GetDiffs );
 							
@@ -147,7 +147,7 @@ string ClientFunctions::CalcDiffs(string lineup,string blacklist, map <string,st
 
 bool ClientFunctions::ModifyClientDatabase(string path){
 	
-	ifstream mysqlfile(path);
+	ifstream mysqlfile(path.c_str());
         string line;
 	
 	if (!mysqlfile) {

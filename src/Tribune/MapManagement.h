@@ -1,9 +1,8 @@
 #ifndef MapManagement_h
 #define MapManagement_h
 
-
-#include "ServerFunctions.h"
-
+#include <map>
+#include <string>
 
 class MapManagement{
 	

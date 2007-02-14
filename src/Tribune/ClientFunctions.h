@@ -35,7 +35,7 @@ public:
 
 	string GetClientLineup();
 
-	string CalcDiffs(string lineup,string blacklist, map <string,string> mapProgramRecord, map <int,string> mapGetStation, map <string,string> mapGetSchedule, map <string,string> mapActor, map <string,string> mapGenre, map <string,string> mapRole);
+	string CalcDiffs(string lineup,string blacklist, map <string,string> &mapProgramRecord, map <int,string> &mapGetStation, map <string,string> &mapGetSchedule, map <string,string> &mapActor, map <string,string> &mapGenre, map <string,string> &mapRole);
 
 	bool ModifyClientDatabase(string path);
 

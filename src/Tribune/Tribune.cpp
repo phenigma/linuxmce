@@ -282,7 +282,7 @@ int main(int argc, char *argv[]){
 			map<string,string> mapGenre = pmapManag->GetGenreMap( );
 			map<string,string> mapRole = pmapManag->GetRoleMap( );
 
-			string clientfile = clientFunct->CalcDiffs(lineup,blacklist,mapProgramRecord,mapStation,mapSchedule,mapActor,mapGenre,mapRole);
+			string clientfile = clientFunct->CalcDiffs(lineup,blacklist,&mapProgramRecord,&mapStation,&mapSchedule,&mapActor,&mapGenre,&mapRole);
 			string source = "http://"+g_GlobalConfig.m_sTribuneHost+"/var/www/"+clientfile;
 			string command = "wget \""+ source +"\" -O \"/tmp/"+clientfile+"\" 1>/dev/null 2>/dev/null";
 			system(command.c_str());
