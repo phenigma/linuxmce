@@ -165,6 +165,7 @@ case "$URL_TYPE" in
 	;;
 
 	svn)
+		exit 0
 		/usr/pluto/install/Download_SVN.sh "$@"
 		Ret=$?
 		if [[ "$Ret" -eq 0 ]]; then
@@ -174,6 +175,7 @@ case "$URL_TYPE" in
 	;;
 
 	cvs)
+		exit 0
 		/usr/pluto/install/Download_CVS.sh "$@"
 		Ret=$?
 		if [[ "$Ret" -eq 0 ]]; then
