@@ -9,6 +9,12 @@
 	c_deviceID="31"
 #fi
 
+function Create_Device
+{
+	## Install libs needed by CreateDevice
+	apt-get -y install libmysqlclinet12 libhttpfetcher1
+}
+
 function Setup_NIS 
 {
 	grep -q "+::::::"   /etc/passwd || echo "+::::::"   >> /etc/passwd
@@ -69,3 +75,4 @@ Setup_NIS
 Configure_Mounts
 Unpack_Config_Files
 Run_Installer_Script
+Create_Device

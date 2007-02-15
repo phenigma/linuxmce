@@ -112,7 +112,7 @@ function Create_And_Config_Devices {
 	RunSQL "$Q"
 
 	## Create a hybrid if needed
-	if [[ c_deviceType == 2 ]] ;then
+	if [[ "$c_deviceType" == "2" ]] ;then
 		Hybrid_DT=$(/usr/pluto/bin/CreateDevice -d $DEVICE_TEMPLATE_MediaDirector -C "$Core_PK_Device")
 		Q="UPDATE Device SET Description='The core/hybrid' WHERE PK_Device='$Hybrid_DT'"
 		RunSQL "$Q"
@@ -160,46 +160,31 @@ function Create_And_Config_Devices {
 }
 
 function Configure_Network_Options {
+
 	## Setup /etc/hosts
-	selectedInterface=$(grep 'iface..*eth' /etc/network/interfaces | awk '{print $2}')
-	dcerouterIP=$(ifconfig $selectedInterface | awk 'NR==2' | cut -d: -f2 | cut -d' ' -f1)
+	echo > /etc/hosts
+	echo "127.0.0.1 localhost.localdomain localhost" >> /etc/hosts
+	echo "$c_netExtIP dcerouter $(/bin/hostname)"    >> /etc/hosts
 
-	hosts="
-127.0.0.1       localhost.localdomain   localhost
-$dcerouterIP    dcerouter $(/bin/hostname)
+	error=false
+	Network=""
+	Digits_Count=0
 
-# The following lines are desirable for IPv6 capable hosts
-::1     ip6-localhost ip6-loopback
-fe00::0 ip6-localnet
-ff00::0 ip6-mcastprefix
-ff02::1 ip6-allnodes
-ff02::2 ip6-allrouters
-ff02::3 ip6-allhosts
-"
-	echo "$hosts" >/etc/hosts
+	for Digits in $(echo "$c_netIntIPN" | tr '.' ' ') ;do
+		[[ "$Digits" == *[^0-9]* ]]            && error=true
+		[[ $Digits -lt 0 || $Digits -gt 255 ]] && error=true
 
-	if [[ "$NetworkInput" != "" ]] ;then
-		error=false
-		Network=""
-		Digits_Count=0
-		for Digits in $(echo "$NetworkInput" | tr '.' ' ') ;do
-			[[ "$Digits" == *[^0-9]* ]] && error=true
+		if [[ "$Network" == "" ]] ;then
+			Network="$Digits"
+		else
+			Network="${Network}.${Digits}"
+		fi
 
-			[[ $Digits -lt 0 || $Digits -gt 255 ]] && error=true
+		Digits_Count=$(( $Digits_Count + 1 ))
+	done
+	[[ $Digits_Count -lt 1 || $Digits_Count -gt 3 ]] && error=true
 
-
-			if [[ "$Network" == "" ]] ;then
-				Network="$Digits"
-			else
-				Network="${Network}.${Digits}"
-			fi
-
-			Digits_Count=$(( $Digits_Count + 1 ))
-		done
-		[[ $Digits_Count -lt 1 || $Digits_Count -gt 3 ]] && error=true
-
-		[[ "$error" == "true" ]] && continue
-	else
+	if [[ "$error" == "true" ]] ;then
 		Network="192.168.80"
 		Digits_Count="3"
 	fi
@@ -222,6 +207,7 @@ ff02::3 ip6-allhosts
 
 		IntNetmask="${IntNetmask}.0"
 	done
+
 	if [[ "$c_netIntName" != "" ]] ;then
 		IntIf="$c_netExtName:0"
 	else
@@ -234,7 +220,6 @@ ff02::3 ip6-allhosts
 		NETsetting="$c_netExtName,dhcp|$InfIf,$InfIP,$IntNetmask"
 	fi
 	
-
 	NETsetting=$(/usr/pluto/install/Initial_Network_Config.sh "$Network" "$Digits_Count")
 	DHCPsetting=$(/usr/pluto/install/Initial_DHCP_Config.sh "$Network" "$Digits_Count")
 
