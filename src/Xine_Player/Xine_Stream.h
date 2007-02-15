@@ -107,10 +107,6 @@ namespace DCE
 			bool m_bHasVideo;
 			bool m_bHasAudio;
 			
-			int m_iImgWidth;
-			int m_iImgHeight;
-			int m_iImgXPos;
-			int m_iImgYPos;
 			string m_sMediaInfo;
 			
 			int m_iPlaybackSpeed;
@@ -150,7 +146,7 @@ namespace DCE
 			Pixmap noCursor;
 						
 			// pixel aspect ratio
-			double m_dPixelAspect;
+			double m_dScreenPixelAspect;
 
 			// creates X11 windows for output
 			bool CreateWindows();

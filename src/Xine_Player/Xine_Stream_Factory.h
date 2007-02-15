@@ -66,6 +66,11 @@ namespace DCE
 			// X11 windows
 			Window windows[ 2 ];
 			
+			int m_iImgWidth;
+			int m_iImgHeight;
+			int m_iImgXPos;
+			int m_iImgYPos;
+			
 			// owning player
 			Xine_Player *m_pPlayer;
 		public:

@@ -52,6 +52,12 @@ Xine_Stream_Factory::Xine_Stream_Factory(Xine_Player *pOwner):
 	// default drivers names
 	m_sXineAudioDriverName = "alsa";
 	m_sXineVideoDriverName = "xv";
+	
+	// set window size
+	m_iImgWidth = 0;
+	m_iImgHeight = 0;
+	m_iImgXPos = 0;
+	m_iImgYPos = 0;	
 
 	DCEConfig * pConfig = new DCEConfig();
 	m_sConfigFile = pConfig->ReadString( "XinePlayerConfigurationFile", "/etc/pluto/xine.conf" );

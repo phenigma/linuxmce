@@ -109,11 +109,6 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_bBroadcaster = bBroadcast;
 	m_iBroadcastPort=0;
 		
-	m_iImgWidth = 0;
-	m_iImgHeight = 0;
-	m_iImgXPos = 0;
-	m_iImgYPos = 0;
-		
 	m_sXineAudioDriverName = m_pFactory->GetAudioDriver();
 	m_sXineVideoDriverName = m_pFactory->GetVideoDriver();
 	
@@ -362,12 +357,12 @@ bool Xine_Stream::CreateWindows()
 	res_h = ( DisplayWidth( m_pFactory->m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayWidthMM( m_pFactory->m_pXDisplay, m_iCurrentScreen ) );
 	res_v = ( DisplayHeight( m_pFactory->m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayHeightMM( m_pFactory->m_pXDisplay, m_iCurrentScreen ) );
 
-	m_dPixelAspect = res_v / res_h;
+	m_dScreenPixelAspect = res_v / res_h;
 
-	g_pPlutoLogger->Write( LV_STATUS, "XServer aspect %f", m_dPixelAspect );
+	g_pPlutoLogger->Write( LV_STATUS, "XServer screen aspect %f", m_dScreenPixelAspect );
 
-	if ( fabs( m_dPixelAspect - 1.0 ) < 0.01 )
-		m_dPixelAspect = 1.0;
+	if ( fabs( m_dScreenPixelAspect - 1.0 ) < 0.01 )
+		m_dScreenPixelAspect = 1.0;
 
 	//XSync( m_pXDisplay, True );
 	XUnlockDisplay( m_pFactory->m_pXDisplay );
@@ -387,11 +382,8 @@ bool Xine_Stream::InitXineAVOutput()
 	m_x11Visual.screen = m_iCurrentScreen;
 	m_x11Visual.d = windows[ m_iCurrentWindow ];
 	
-//	m_x11Visual.dest_size_cb = &destinationSizeCallback;
-//	m_x11Visual.frame_output_cb = &frameOutputCallback;
-	
-	m_x11Visual.dest_size_cb = NULL;
-	m_x11Visual.frame_output_cb = NULL;
+	m_x11Visual.dest_size_cb = &destinationSizeCallback;
+	m_x11Visual.frame_output_cb = &frameOutputCallback;
 	
 	m_x11Visual.user_data = this;
 
@@ -490,9 +482,6 @@ bool Xine_Stream::CloseMedia()
 
 bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPosition)
 {
-	m_iImgHeight = 0;
-	m_iImgWidth = 0;
-
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "Open media called on non-initialized stream - aborting command");
@@ -552,8 +541,8 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 			m_bHasAudio = xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_HAS_AUDIO );
 			m_bHasVideo = xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_HAS_VIDEO );
 
-			if ( m_iImgWidth == 0 ) m_iImgWidth++;
-			if ( m_iImgHeight == 0 ) m_iImgHeight++;
+//			if ( m_iImgWidth == 0 ) m_iImgWidth++;
+//			if ( m_iImgHeight == 0 ) m_iImgHeight++;
 		}
 
 		// depending on video availability, enabling deinterlacing plugin or visualizing
@@ -571,8 +560,8 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 			{
 				g_pPlutoLogger->Write( LV_STATUS, "Visualizing plugin enabled" );
 				PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-				m_iImgWidth = 100;
-				m_iImgHeight = 100;
+//				m_iImgWidth = 100;
+//				m_iImgHeight = 100;
 			}
 			else
 			{
@@ -581,7 +570,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		}
 		
 		// reporting about image
-		g_pPlutoLogger->Write( LV_STATUS, "Got image dimensions: %dx%d", m_iImgWidth, m_iImgHeight );
+		g_pPlutoLogger->Write( LV_STATUS, "Output window dimensions: %dx%d", m_pFactory->m_iImgWidth, m_pFactory->m_iImgHeight );
 
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
@@ -1103,19 +1092,19 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 			Window tmp_win;
 
 			g_pPlutoLogger->Write(LV_STATUS, "ConfigureNotify: %ix%i", cev->width, cev->height);
-			m_iImgWidth = cev->width;
-			m_iImgHeight = cev->height;
+			m_pFactory->m_iImgWidth = cev->width;
+			m_pFactory->m_iImgHeight = cev->height;
 
 			if ( ( cev->x == 0 ) && ( cev->y == 0 ) )
 			{
 				XLockDisplay( cev->display );
-				XTranslateCoordinates( cev->display, cev->window, DefaultRootWindow( cev->display ), 0, 0, &m_iImgXPos, &m_iImgYPos, &tmp_win );
+				XTranslateCoordinates( cev->display, cev->window, DefaultRootWindow( cev->display ), 0, 0, &m_pFactory->m_iImgXPos, &m_pFactory->m_iImgYPos, &tmp_win );
 				XUnlockDisplay( cev->display );
 			}
 			else
 			{
-				m_iImgXPos = cev->x;
-				m_iImgYPos = cev->y;
+				m_pFactory->m_iImgXPos = cev->x;
+				m_pFactory->m_iImgYPos = cev->y;
 			}
 		}
 		break;
@@ -2666,9 +2655,9 @@ void Xine_Stream::destinationSizeCallback( void *data, int video_width, int vide
 	g_pPlutoLogger->Write(LV_STATUS, "Destination size callback called (not rendering)!");
 		 */
 
-	*dest_width = pStream->m_iImgWidth + ( pStream->m_bIsRendering ? 0 : 1 );
-	*dest_height = pStream->m_iImgHeight + ( pStream->m_bIsRendering ? 0 : 1 );
-	*dest_pixel_aspect = pStream->m_dPixelAspect;
+	*dest_width = pStream->m_pFactory->m_iImgWidth;
+	*dest_height = pStream->m_pFactory->m_iImgHeight;
+	*dest_pixel_aspect = video_pixel_aspect;
 }
 
 void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_height, double video_pixel_aspect,
@@ -2690,11 +2679,11 @@ void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_he
 
 	*dest_x = 0;
 	*dest_y = 0;
-	*win_x = pStream->m_iImgXPos;
-	*win_y = pStream->m_iImgYPos;
-	*dest_width = pStream->m_iImgWidth + ( pStream->m_bIsRendering ? 0 : 1 );
-	*dest_height = pStream->m_iImgHeight + ( pStream->m_bIsRendering ? 0 : 1 );
-	*dest_pixel_aspect = pStream->m_dPixelAspect;
+	*win_x = pStream->m_pFactory->m_iImgXPos;
+	*win_y = pStream->m_pFactory->m_iImgYPos;
+	*dest_width = pStream->m_pFactory->m_iImgWidth;
+	*dest_height = pStream->m_pFactory->m_iImgHeight;
+	*dest_pixel_aspect = video_pixel_aspect;
 }
 
 
