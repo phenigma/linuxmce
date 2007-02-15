@@ -112,14 +112,7 @@ namespace HADesigner
 		{
 			get 
 			{
-				if(null != selectedUIDesignObj && selectedUIDesignObj.ID != -1)
-				{
-					return selectedUIDesignObj.GetCurrentChildSkinLanguage(
-						m_objUIDesignObjDisplayControl.CurrentLanguageForChild(),
-						m_objUIDesignObjDisplayControl.CurrentSkinForChild());
-				}
-
-				return null;
+				return (UIChildSkinLanguage)this.cbLanguageSkin_Child.SelectedItem;
 			}
 		}
 
@@ -374,8 +367,8 @@ namespace HADesigner
 			this.mnuSkin.MenuItems[0].Checked = true;
 
 			this.tbDescription.Text = this.m_objUIDesignObj.DescriptionOnly;
-//			this.nudPriority.Value = this.m_objUIDesignObj.Priority;
-//			this.cbAnimate.Checked = this.m_objUIDesignObj.Animate;
+			//			this.nudPriority.Value = this.m_objUIDesignObj.Priority;
+			//			this.cbAnimate.Checked = this.m_objUIDesignObj.Animate;
 			//get the actions
 			CommandTree.CreateTree(this.tvCommand);
 
@@ -439,8 +432,8 @@ namespace HADesigner
 			foreach (DataRow dr in mds.tStyle.Rows)
 			{
 				StyleDataRow sdr = new StyleDataRow(dr);
-                this.spStyles[iStyle] = new StringPair(sdr.fPK_Style.ToString(),sdr.fDescription);// TODO: Style Description can be null ?
-                this.cbStyle.Items.Add(this.spStyles[iStyle++]);    
+				this.spStyles[iStyle] = new StringPair(sdr.fPK_Style.ToString(),sdr.fDescription);// TODO: Style Description can be null ?
+				this.cbStyle.Items.Add(this.spStyles[iStyle++]);    
 			}
 		}
 
@@ -473,12 +466,6 @@ namespace HADesigner
 				foreach (UIChildSkinLanguage uiCSL in this.selectedUIChild.ChildSkinLanguages)
 				{
 					if (uiCSL.Include) this.cbLanguageSkin_Child.Items.Add(uiCSL);
-				}
-
-				if (this.selectedUIChild.ChildSkinLanguages.Count > 0) // should always be true
-				{
-					this.cbLanguageSkin_Child.SelectedIndex = 0;
-					this.cbAlignV.Enabled = this.cbAlignH.Enabled = this.cbStyle.Enabled = true;
 				}
 			}
 		}
@@ -598,7 +585,7 @@ namespace HADesigner
 
 								objButton.Click += new System.EventHandler(objParameter.OpenFile);
 								pnParameters.Controls.Add(objButton);
-                                break;
+								break;
 							case DesignObjParameterData.ALTERNATE_CELL_COLOR_CONST:
 							case DesignObjParameterData.CELL_COLOR_CONST:
 							case DesignObjParameterData.FIRST_COLUMN_COLOR_CONST:
@@ -622,7 +609,7 @@ namespace HADesigner
 								objParameter.ColorButton = colorButton;
 
 								colorButton.Click += new System.EventHandler(objParameter.SelectColor);
-                                pnParameters.Controls.Add(colorButton);
+								pnParameters.Controls.Add(colorButton);
 								break;
 						}
 					}
@@ -2695,30 +2682,13 @@ namespace HADesigner
 				this.tbRO_Enabled = false;
 				this.chCanBeHidden.Enabled = this.chRegenerateForEachScreen.Enabled = this.chHideByDefault.Enabled = true;
 				this.chChildBehindBG.Enabled = false;
-								
-				if (this.selectedUIDesignObj.ID != -1 && null != this.selectedUICSL)
-				{
-					this.chCanBeHidden.Checked = this.selectedUICSL.CanBeHidden;
-					this.chHideByDefault.Checked = this.selectedUICSL.HideByDefault;
-					this.chChildBehindBG.Checked = this.selectedUICSL.ChildBehindBG;
-					this.tbTS_Up.Text = this.selectedUICSL.TS_Up;
-					this.tbTS_Down.Text = this.selectedUICSL.TS_Down;
-					this.tbTS_Right.Text = this.selectedUICSL.TS_Right;
-					this.tbTS_Left.Text = this.selectedUICSL.TS_Left;
-					this.tbTiedTo.Text = this.selectedUICSL.TiedTo;
-					this.tbVisibleStates.Text = selectedUICSL.VisibleStates;
-					this.chChildBeforeText.Checked = this.selectedUICSL.ChildBeforeText;
-					this.chDontMergeBG.Checked = this.selectedUICSL.DontMergeBG;
-					this.chIsTabStop.Checked = this.selectedUICSL.IsTabStop;
-					this.chDontResetSelectedState.Checked = this.selectedUICSL.DontResetSelectedState;
-					this.chRegenerateForEachScreen.Checked = this.selectedUICSL.RegenerateForEachScreen;
-					tbX.Text = Convert.ToString(this.selectedUICSL.ParentX);
-					tbY.Text = Convert.ToString(this.selectedUICSL.ParentY);
-					tbWidth.Text = Convert.ToString(this.selectedUICSL.Width);
-					tbHeight.Text = Convert.ToString(this.selectedUICSL.Height);
 
-					loadAvailableLanguageSkins_Child();
-				}
+				loadAvailableLanguageSkins_Child();
+
+				if(cbLanguageSkin_Child.Items.Count > 0)
+					this.cbLanguageSkin_Child.SelectedIndex = 0;
+
+				this.cbAlignV.Enabled = this.cbAlignH.Enabled = this.cbStyle.Enabled = false;
 			}
 			else if (this.processTextSelectChange && sender == this.lbText && this.selectedUIText != null)
 			{
@@ -2773,11 +2743,11 @@ namespace HADesigner
 			{
 				this.languageID = languageID;
 				foreach (MenuItem mi in this.mnuLanguage.MenuItems) mi.Checked = (((MenuItemID)mi).ID == languageID);
-                changed = true;
+				changed = true;
 			}
 			if (skinID != this.skinID)
 			{
-                this.skinID = skinID;
+				this.skinID = skinID;
 				foreach (MenuItem mi in this.mnuSkin.MenuItems) mi.Checked = (((MenuItemID)mi).ID == skinID);
 				this.m_objUIDesignObj.Build(this.skinID, true);
 				changed = true;
@@ -2911,27 +2881,27 @@ namespace HADesigner
 
 		private void tbDescription_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
 		{
-            if (e.KeyCode == Keys.Enter) this.tbDescription_Leave(sender, null);		
+			if (e.KeyCode == Keys.Enter) this.tbDescription_Leave(sender, null);		
 		}
 
 		private void tbDescription_Leave(object sender, System.EventArgs e)
 		{
-            this.Text = this.m_objUIDesignObj.Description = this.tbDescription.Text;
+			this.Text = this.m_objUIDesignObj.Description = this.tbDescription.Text;
 		}
 
 		private void nudPriority_ValueChanged(object sender, System.EventArgs e)
 		{
-            this.m_objUIDesignObj.Priority = (sbyte)this.nudPriority.Value;
+			this.m_objUIDesignObj.Priority = (sbyte)this.nudPriority.Value;
 		}
 
 		private void nudPriority_Leave(object sender, System.EventArgs e)
 		{
-            this.nudPriority_ValueChanged(sender, e);	
+			this.nudPriority_ValueChanged(sender, e);	
 		}
 
 		private void cbAnimate_Click(object sender, System.EventArgs e)
 		{
-            this.m_objUIDesignObj.Animate = this.cbAnimate.Checked;		
+			this.m_objUIDesignObj.Animate = this.cbAnimate.Checked;		
 		}
 
 		private void UpdateX()
@@ -3236,7 +3206,7 @@ namespace HADesigner
 			{
 				switch (MessageBox.Show("Save your changes ?","Save your changes ?",MessageBoxButtons.YesNoCancel))
 				{
-                    case DialogResult.Yes:
+					case DialogResult.Yes:
 						this.btnSaveChanges_Click(sender, null);
 						break;
 					case DialogResult.No:
@@ -3380,30 +3350,6 @@ namespace HADesigner
 				}
 			}
 		}
-
-		private void btnRemoveSkinLanguage_Child_Click(object sender, System.EventArgs e)
-		{
-			if (this.selectedUITSL != null)
-			{
-				if (this.selectedUITSL.LanguageID == -1 && this.selectedUITSL.SkinID == -1)
-				{
-					MessageBox.Show("You cannot delete the default skin-language");
-				}
-				else
-				{
-					bool origBlock = this.BlockUpdateImage();
-
-					if (this.selectedUITSL.ID != -1) this.selectedUITSL.NeedsDelete = true;
-					else this.selectedUITSL.Deleted = true; // Delete a New Item
-
-					this.loadAvailableLanguageSkins();
-					this.loadAvailableLanguageSkins_Child();
-
-					this.UpdateImage(origBlock);
-				}
-			}
-		}
-
 
 		private void changeButton(object sender, System.EventArgs e)
 		{
@@ -3599,7 +3545,7 @@ namespace HADesigner
 				lbText.DoDragDrop(new DragUIText(this,this.selectedUIText),DragDropEffects.All);
 			}
 
-            bool alreadyCleared = false;
+			bool alreadyCleared = false;
 			if (this.lbText.SelectedIndex == this.lastSelectedTextIndex)
 			{
 				if (this.lastSelectedTextIndex == -1) alreadyCleared = true;
@@ -4282,12 +4228,65 @@ namespace HADesigner
 
 		private void btnRemoveSkinLanguage_Child_Click_1(object sender, System.EventArgs e)
 		{
-			//
+			if (this.selectedUICSL != null)
+			{
+				if (this.selectedUICSL.LanguageID == -1 && this.selectedUICSL.SkinID == -1)
+				{
+					MessageBox.Show("You cannot delete the default skin-language");
+				}
+				else
+				{
+					bool origBlock = this.BlockUpdateImage();
+
+					if (this.selectedUICSL.ID != -1) this.selectedUICSL.NeedsDelete = true;
+					else this.selectedUICSL.Deleted = true; // Delete a New Item
+
+					this.loadAvailableLanguageSkins();
+					this.loadAvailableLanguageSkins_Child();
+
+					if(cbLanguageSkin_Child.Items.Count > 0)
+						cbLanguageSkin_Child.SelectedIndex = 0;
+
+					this.UpdateImage(origBlock);
+				}
+			}
 		}
 
 		private void cbLanguageSkin_Child_SelectedIndexChanged(object sender, System.EventArgs e)
 		{
-			//
+			if (this.selectedUICSL != null) // Should never be null
+			{
+				SkinLanguageStatus.Instance().DesignObjLanguageID = selectedUICSL.LanguageID;
+				SkinLanguageStatus.Instance().DesignObjSkinID = selectedUICSL.SkinID;
+
+				this.chCanBeHidden.Checked = this.selectedUICSL.CanBeHidden;
+				this.chHideByDefault.Checked = this.selectedUICSL.HideByDefault;
+				this.chChildBehindBG.Checked = this.selectedUICSL.ChildBehindBG;
+				this.tbTS_Up.Text = this.selectedUICSL.TS_Up;
+				this.tbTS_Down.Text = this.selectedUICSL.TS_Down;
+				this.tbTS_Right.Text = this.selectedUICSL.TS_Right;
+				this.tbTS_Left.Text = this.selectedUICSL.TS_Left;
+				this.tbTiedTo.Text = this.selectedUICSL.TiedTo;
+				this.tbVisibleStates.Text = selectedUICSL.VisibleStates;
+				this.chChildBeforeText.Checked = this.selectedUICSL.ChildBeforeText;
+				this.chDontMergeBG.Checked = this.selectedUICSL.DontMergeBG;
+				this.chIsTabStop.Checked = this.selectedUICSL.IsTabStop;
+				this.chDontResetSelectedState.Checked = this.selectedUICSL.DontResetSelectedState;
+				this.chRegenerateForEachScreen.Checked = this.selectedUICSL.RegenerateForEachScreen;
+				tbX.Text = Convert.ToString(this.selectedUICSL.ParentX);
+				tbY.Text = Convert.ToString(this.selectedUICSL.ParentY);
+				tbWidth.Text = Convert.ToString(this.selectedUICSL.Width);
+				tbHeight.Text = Convert.ToString(this.selectedUICSL.Height);
+
+				if (!this.IsInterfaceLocked()) // TODO: REFRESH IMAGE WITH RECTANGLE AROUND SELECTION
+				{
+					this.LockInterface();
+					m_objUIDesignObj.DeselectAllDesignObjs(false);
+					m_objUIDesignObjDisplayControl.UpdateImage();
+					m_objUIDesignObjDisplayControl.Refresh();
+					this.UnlockInterface();
+				}
+			}
 		}
 
 	}

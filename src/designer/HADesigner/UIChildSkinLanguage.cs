@@ -67,12 +67,6 @@ namespace HADesigner
 		
 
 		//things that can change
-		private string m_strDescriptionOriginal;
-		private sbyte m_intPriorityOriginal;
-		private bool m_blnAnimateOriginal;
-		private int m_intUIDesignObjTypeOriginal;
-		private int m_intDesignObjCategoryIDOriginal;
-		private bool m_blnCantGoBackOriginal;
 		//the following change, but are handled in UIDesignObjVariation object
 		private bool m_bitRegenerateForEachScreenOriginal;
 		private bool m_bitCanBeHiddenOriginal;
@@ -105,11 +99,8 @@ namespace HADesigner
 
 
 		//used for database updates
-		private bool m_blnNeedsDBInsert = false;
-		private bool m_blnNeedsDBDelete = false;
 		private bool m_blnNeedsDBParentVariationUnlink = false;
 		private bool m_blnNeedsDBParentVariationLink = false;
-		private bool m_blnDeleted = false;			//this becomes true AFTER the delete
 		private bool m_blnParentVariationLinked = false;
 
 
@@ -470,10 +461,6 @@ namespace HADesigner
 
 			//set the originals so we know how and when to save
 			this.ResetOriginals();
-
-			m_blnNeedsDBInsert = false;
-			m_blnNeedsDBDelete = false;
-			
 		}
 
 		private DesignObjVariation_DesignObj_Skin_LanguageDataRow drOVDSL
