@@ -620,11 +620,14 @@ bool Orbiter::GetConfig()
 	m_bUseComposite = m_pEvent->GetDeviceDataFromDatabase(m_dwPK_Device, DEVICEDATA_Use_alpha_blended_UI_CONST) == "1";
 	m_bReportTimeCode = DATA_Get_Get_Time_Code_for_Media();
 
-	if(DATA_Get_ScreenWidth())
-		m_iImageWidth = DATA_Get_ScreenWidth();
+	int nWidth = atoi(m_pEvent->GetDeviceDataFromDatabase(m_dwPK_Device, DEVICEDATA_ScreenWidth_CONST).c_str());
+	int nHeight = atoi(m_pEvent->GetDeviceDataFromDatabase(m_dwPK_Device, DEVICEDATA_ScreenHeight_CONST).c_str());
 
-	if(DATA_Get_ScreenHeight())
-		m_iImageHeight = DATA_Get_ScreenHeight();
+	if(nWidth)
+		m_iImageWidth = nWidth;
+
+	if(nHeight)
+		m_iImageHeight = nHeight;
 
 	m_sScreenSize=PlutoSize(m_iImageWidth,m_iImageHeight);
 
