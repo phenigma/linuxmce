@@ -387,8 +387,11 @@ bool Xine_Stream::InitXineAVOutput()
 	m_x11Visual.screen = m_iCurrentScreen;
 	m_x11Visual.d = windows[ m_iCurrentWindow ];
 	
-	m_x11Visual.dest_size_cb = &destinationSizeCallback;
-	m_x11Visual.frame_output_cb = &frameOutputCallback;
+//	m_x11Visual.dest_size_cb = &destinationSizeCallback;
+//	m_x11Visual.frame_output_cb = &frameOutputCallback;
+	
+	m_x11Visual.dest_size_cb = NULL;
+	m_x11Visual.frame_output_cb = NULL;
 	
 	m_x11Visual.user_data = this;
 
