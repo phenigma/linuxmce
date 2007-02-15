@@ -13,7 +13,7 @@
 #include <map>
 #include <string>
 
-map <int,pair<string,string> > ClientFunctions::GetLineups(int zipcode ){
+bool ClientFunctions::GetLineups(int zipcode, map <int,pair<string,string> > & mapIndexLineupKey_To_Name){
 
 	R_GetLineups r_GetLineups( "Headend", zipcode);
 	ra_Processor->AddRequest( &r_GetLineups );
@@ -27,21 +27,22 @@ map <int,pair<string,string> > ClientFunctions::GetLineups(int zipcode ){
 
 	map<string,string>::iterator iter;
 	int i = 0;
-	map <int,pair<string,string> > mapIndexLineupKey_To_Name;
+	//map <int,pair<string,string> > mapIndexLineupKey_To_Name;
 	if (r_GetLineups.m_mapPrimaryKey_LineupName.empty()){
-		return mapIndexLineupKey_To_Name;
+		return false;
 	}
 	for(iter = r_GetLineups.m_mapPrimaryKey_LineupName.begin(); iter != r_GetLineups.m_mapPrimaryKey_LineupName.end(); iter++ ) {
     		//cout << "Id-ul lineupului"<<iter->first << " numele lineupului " << iter->second << endl;
 		mapIndexLineupKey_To_Name[i] = make_pair(iter->first,iter->second);
   	}
 
-	return mapIndexLineupKey_To_Name;
+	return true;
 }
 
-map <string,string> ClientFunctions::GetChannels(int key, string extra_cond )
+bool ClientFunctions::GetChannels(int key, string extra_cond, map <string,string> & mapChannelKey_To_Name)
 {
 	R_GetChannels r_GetChannels( key, extra_cond );
+
 	ra_Processor->AddRequest( &r_GetChannels );
 							
 	while( ra_Processor->SendRequests(Connection, m_pSocket) );
@@ -49,9 +50,12 @@ map <string,string> ClientFunctions::GetChannels(int key, string extra_cond )
 	if( r_GetChannels.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 	{
 		cerr << "Cannot get list of records from server (clarifying local deletions destiny):" << (int) r_GetChannels.m_cProcessOutcome << endl;
+		return false;
 	}
 
-	return r_GetChannels.m_mapPrimaryKey_ChannelName;
+	mapChannelKey_To_Name = r_GetChannels.m_mapPrimaryKey_ChannelName;
+
+	return true;
 }
 
 string ClientFunctions::GetBlackListChannels() {
@@ -79,12 +83,23 @@ string ClientFunctions::GetBlackListChannels() {
 			}
 			if (blacklist.length( )==0){
 				blacklist = "'"+(string)row[0]+"'";
+			} else {
+				blacklist = blacklist+","+"'"+(string)row[0]+"'";
 			}
-			blacklist = blacklist+","+"'"+(string)row[0]+"'";
 		}
 	}
 
 	return blacklist;
+}
+
+void ClientFunctions::DeleteClientLineup() {
+
+	std::ostringstream sSQL;
+	
+	sSQL << "DELETE FROM ClientLineup";
+
+	g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+
 }
 
 void ClientFunctions::SetClientLineup(string key, string lineup) {

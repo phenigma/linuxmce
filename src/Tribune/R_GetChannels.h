@@ -23,10 +23,10 @@ public:
 	string m_extra_condition;
 
 	/** @brief Response Variables */
-	map<string,string> m_mapPrimaryKey_ChannelName;  // psc_id + batch
+	map<string,string> m_mapPrimaryKey_ChannelName;
 
 	/** @brief constructor */
-	R_GetChannels(int pk_headend, string extra_condition="");
+	R_GetChannels(int pk_headend, string extra_condition);
 
 	/** @brief constructor */
 	R_GetChannels( ) {};
@@ -44,7 +44,7 @@ public:
 	virtual void SetupSerialization_Request( )
 	{
 		RA_Request::SetupSerialization_Request( );
-		StartSerializeList( ) + m_pk_headend;
+		StartSerializeList( ) + m_pk_headend + m_extra_condition;
 	}
 
 	/**

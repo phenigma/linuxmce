@@ -25,17 +25,19 @@ public:
 
 	ClientFunctions();
 
-	map <int,pair<string,string> > GetLineups(int zipcode );
+	bool GetLineups(int zipcode, map <int,pair<string,string> > &);
 
-	map <string,string> GetChannels( int key, string extra_cond );
+	bool GetChannels( int key, string extra_cond, map <string,string> & );
 
 	string GetBlackListChannels();
+
+	void DeleteClientLineup();
 	
 	void SetClientLineup(string key, string lineup);
 
 	string GetClientLineup();
 
-	string CalcDiffs(string lineup,string blacklist, map <string,string> &mapProgramRecord, map <int,string> &mapGetStation, map <string,string> &mapGetSchedule, map <string,string> &mapActor, map <string,string> &mapGenre, map <string,string> &mapRole);
+	string CalcDiffs(string lineup, string blacklist, map <string,string> &mapProgramRecord, map <int,string> &mapGetStation, map <string,string> &mapGetSchedule, map <string,string> &mapActor, map <string,string> &mapGenre, map <string,string> &mapRole);
 
 	bool ModifyClientDatabase(string path);
 

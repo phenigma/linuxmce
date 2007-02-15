@@ -1,8 +1,8 @@
 #include "ServerManagement.h"
-#include "CommonFunctions.h"
-#include "Database.h"
-#include "MapManagement.h"
 
+#include "CommonFunctions.h"
+//#include "Database.h"
+//#include "MapManagement.h"
 #include <iostream>
 #include <sstream>
 #include <map>
@@ -24,6 +24,7 @@ ServerManagement::ServerManagement()
 ServerManagement::~ServerManagement()
 {
 }
+
 
 ServerManagement* ServerManagement::getInstance(){
 	
@@ -49,8 +50,23 @@ void ServerManagement::Run(){
 	while (true){
 		
 		if(g_GlobalConfig.m_bImportTable){
+
 			PLUTO_SAFETY_LOCK(tb,TribuneMutex);
-			MapManagement::GetProgramRecordMap(g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord);
+
+			if (! MapManagement::GetProgramRecordMap(g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord) ){
+		
+				cerr << "Cannot fill the program record map " << endl;
+			}
+			if (! MapManagement::GetStationMap(g_GlobalConfig.mapPrimaryKey_Timestam_Station) ){
+
+				cerr << "Cannot fill the station map " << endl;
+			}
+
+			if (! MapManagement::GetScheduleMap(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule) ){
+			
+				cerr << "Cannot fill the schedule map: " << endl;
+			}
+
 			g_GlobalConfig.m_bImportTable=false;
 		}
 		

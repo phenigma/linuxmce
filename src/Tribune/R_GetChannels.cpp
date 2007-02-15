@@ -22,13 +22,14 @@ bool R_GetChannels::ProcessRequest( class RA_Processor *pRA_Processor )
 {
 	(( Tribuneprocessor * ) pRA_Processor)->LogActivityTime();
 
-	cout << "r_GetChannels cu extra conditia " <<  m_extra_condition << endl;
+	//cout << "r_GetChannels cu extra conditia " <<  m_extra_condition << endl;
+	cout << "r_GetChannels"<< endl;
 	std::ostringstream sSQL;
 
 	if (m_extra_condition.length( )==0){
-		sSQL << "SELECT l.PK_Lineup, s.Name name FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_pk_headend;
+		sSQL << "SELECT s.PK_Station, s.Name name FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_pk_headend;
 	} else {
-		sSQL << "SELECT l.PK_Lineup, s.Name name FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_pk_headend << "AND s.Name NOT IN (" << m_extra_condition << ")";
+		sSQL << "SELECT s.PK_Station, s.Name name FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_pk_headend << " AND s.Name NOT IN (" << m_extra_condition << ")";
 
 	}
 
@@ -50,7 +51,11 @@ bool R_GetChannels::ProcessRequest( class RA_Processor *pRA_Processor )
 				m_cProcessOutcome=INTERNAL_ERROR;
 				return true; /**<< Request successfully processed */
 			}
-			m_mapPrimaryKey_ChannelName[ row[0] ] = row[1];
+			
+			map<string,string>::iterator iter = m_mapPrimaryKey_ChannelName.find(row[0]);
+			if (iter == m_mapPrimaryKey_ChannelName.end()){
+				m_mapPrimaryKey_ChannelName[ row[0] ] = row[1];
+			}
 		}
 		m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
 	}

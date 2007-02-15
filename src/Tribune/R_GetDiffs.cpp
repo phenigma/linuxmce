@@ -460,114 +460,114 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 	std::ostringstream sSQL;
 
 	string randfile = "client.txt";
-	clientfile.open("client.txt");
+	clientfile.open(randfile.c_str());
 	
 	if (clientfile.is_open()) {
 
-		map<string,string>::iterator iter;
-		for( iter = m_mapProgramRecord.begin(); iter != m_mapProgramRecord.end(); iter++ ) {
-	
-			map<string,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord).find(iter->first);
-
-			if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord).end() ){
-
-				clientfile << "DELETE FROM ProgramRecord WHERE PK_ProgramRecord='"<<iter->first<<"'\n";	
-				clientfile << "DELETE FROM ProgramRecord_Genre WHERE FK_ProgramRecord='"<<iter->first<<"'\n";	
-				clientfile << "DELETE FROM Actor_ProgramRecord WHERE FK_ProgramRecord='"<<iter->first<<"'\n";	
-
-			} else if ( ( (iter->second).compare(it->second) ) != 0 ) { 
-
-				if (! UpdateProgramRecord(it->first)){
-					return true;
-				}
-			
-				if (! UpdateProgramRecord_Genre(it->first)){
-					return true;
-				}
-
-				if (! UpdateActor_ProgramRecord(it->first)){
-					return true;
-				}
-				
-				
-			}
-		}
-
-		for( iter = m_mapSchedule.begin(); iter != m_mapSchedule.end(); iter++ ) {
-	
-			map<string,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).find(iter->first);
-
-			if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).end() ){
-
-				clientfile << "DELETE FROM Schedule WHERE PK_Schedule='"<<iter->first<<"'\n";	
-
-			} else if ( ( (iter->second).compare(it->second) ) != 0 ) {
-				
-				sSQL << "SELECT * FROM Schedule PK_Schedule=" << it->first;
-		
-				PlutoSqlResult res;
-				MYSQL_ROW row=NULL;
-				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
-				if( !res.r )
-				{
-					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
-					m_cProcessOutcome=INTERNAL_ERROR;
-				}
-				else
-				{
-					row = mysql_fetch_row( res.r );
-
-					if( !row[0] )
-					{
-						cerr << "Found NULL in query: " << sSQL.str() << endl;
-						m_cProcessOutcome=INTERNAL_ERROR;
-						return true; /**<< Request successfully processed */
-					}
-					clientfile<<"UPDATE Schedule SET FK_Station=\""<<row[1]<<"\", FK_ProgramRecord=\""<<row[2]<<"\", AirDate=\""<<row[3]<<"\", AirTime=\""<<row[4]<<"\", Duration=\""<<row[5]<<"\", PartNum=\""<<row[6]<<"\", NumOfParts=\""<<row[7]<<"\", CCaptioning=\""<<row[8]<<"\", Stereo=\""<<row[9]<<"\", Repeating=\""<<row[10]<<"\", LiveTapeDelay=\""<<row[11]<<"\", Subtitled=\""<<row[12]<<"\", PremiereFinale=\""<<row[13]<<"\", JoinedInProgress=\""<<row[14]<<"\", CableInTheClassroom=\""<<row[15]<<"\", TVRating=\""<<row[16]<<"\", Sap=\""<<row[17]<<"\", Blackout=\""<<row[18]<<"\", SexRating=\""<<row[19]<<"\", ViolenceRating=\""<<row[20]<<"\", LanguageRating=\""<<row[21]<<"\", DialogRating=\""<<row[22]<<"\", FvRating=\""<<row[23]<<"\", Enhanced=\""<<row[24]<<"\", ThreeD=\""<<row[25]<<"\", LetterBox=\""<<row[26]<<"\", Hdtv=\""<<row[27]<<"\", Dolby=\""<<row[28]<<"\", Dvs=\""<<row[29]<<"\", Checksum=\""<<row[30]<<"\" WHERE PK_Schedule=\""<<it->first<<"\"\n";
-
-				}
- 
-			}
-		}
-
-		map<int,string>::iterator iter1;
-
-		for( iter1 = m_mapStation.begin(); iter1 != m_mapStation.end(); iter1++ ) {
-	
-			map<int,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Station).find(iter1->first);
-
-			if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_Station).end() ){
-
-				clientfile << "DELETE FROM Station WHERE PK_Station='"<<iter1->first<<"'\n";	
-
-			} else if ( ( (iter1->second).compare(it->second) ) != 0 ) {
-				
-				sSQL << "SELECT * FROM Station PK_Station=" << it->first;
-		
-				PlutoSqlResult res;
-				MYSQL_ROW row=NULL;
-				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
-				if( !res.r )
-				{
-					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
-					m_cProcessOutcome=INTERNAL_ERROR;
-				}
-				else
-				{
-					row = mysql_fetch_row( res.r );
-
-					if( !row[0] )
-					{
-						cerr << "Found NULL in query: " << sSQL.str() << endl;
-						m_cProcessOutcome=INTERNAL_ERROR;
-						return true; /**<< Request successfully processed */
-					}
-					clientfile<<"UPDATE Station SET TimeZone=\""<<row[1]<<"\", Name=\""<<row[2]<<"\", CallSign=\""<<row[3]<<"\", Affil=\""<<row[4]<<"\", City=\""<<row[5]<<"\", State=\""<<row[6]<<"\", ZipCode=\""<<row[7]<<"\", Country=\""<<row[8]<<"\", DmaName=\""<<row[9]<<"\", DmaNum=\""<<row[10]<<"\", FccChannelNum=\""<<row[11]<<"\", Checksum=\""<<row[12]<<"\" WHERE PK_Station=\""<<it->first<<"\"\n";
-
-				}
- 
-			}
-		}
+// 		map<string,string>::iterator iter;
+// 		for( iter = m_mapProgramRecord.begin(); iter != m_mapProgramRecord.end(); iter++ ) {
+// 	
+// 			map<string,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord).find(iter->first);
+// 
+// 			if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord).end() ){
+// 
+// 				clientfile << "DELETE FROM ProgramRecord WHERE PK_ProgramRecord='"<<iter->first<<"'\n";	
+// 				clientfile << "DELETE FROM ProgramRecord_Genre WHERE FK_ProgramRecord='"<<iter->first<<"'\n";	
+// 				clientfile << "DELETE FROM Actor_ProgramRecord WHERE FK_ProgramRecord='"<<iter->first<<"'\n";	
+// 
+// 			} else if ( ( (iter->second).compare(it->second) ) != 0 ) { 
+// 
+// 				if (! UpdateProgramRecord(it->first)){
+// 					return true;
+// 				}
+// 			
+// 				if (! UpdateProgramRecord_Genre(it->first)){
+// 					return true;
+// 				}
+// 
+// 				if (! UpdateActor_ProgramRecord(it->first)){
+// 					return true;
+// 				}
+// 				
+// 				
+// 			}
+// 		}
+// 
+// 		for( iter = m_mapSchedule.begin(); iter != m_mapSchedule.end(); iter++ ) {
+// 	
+// 			map<string,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).find(iter->first);
+// 
+// 			if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).end() ){
+// 
+// 				clientfile << "DELETE FROM Schedule WHERE PK_Schedule='"<<iter->first<<"'\n";	
+// 
+// 			} else if ( ( (iter->second).compare(it->second) ) != 0 ) {
+// 				
+// 				sSQL << "SELECT * FROM Schedule PK_Schedule=" << it->first;
+// 		
+// 				PlutoSqlResult res;
+// 				MYSQL_ROW row=NULL;
+// 				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+// 				if( !res.r )
+// 				{
+// 					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+// 					m_cProcessOutcome=INTERNAL_ERROR;
+// 				}
+// 				else
+// 				{
+// 					row = mysql_fetch_row( res.r );
+// 
+// 					if( !row[0] )
+// 					{
+// 						cerr << "Found NULL in query: " << sSQL.str() << endl;
+// 						m_cProcessOutcome=INTERNAL_ERROR;
+// 						return true; /**<< Request successfully processed */
+// 					}
+// 					clientfile<<"UPDATE Schedule SET FK_Station=\""<<row[1]<<"\", FK_ProgramRecord=\""<<row[2]<<"\", AirDate=\""<<row[3]<<"\", AirTime=\""<<row[4]<<"\", Duration=\""<<row[5]<<"\", PartNum=\""<<row[6]<<"\", NumOfParts=\""<<row[7]<<"\", CCaptioning=\""<<row[8]<<"\", Stereo=\""<<row[9]<<"\", Repeating=\""<<row[10]<<"\", LiveTapeDelay=\""<<row[11]<<"\", Subtitled=\""<<row[12]<<"\", PremiereFinale=\""<<row[13]<<"\", JoinedInProgress=\""<<row[14]<<"\", CableInTheClassroom=\""<<row[15]<<"\", TVRating=\""<<row[16]<<"\", Sap=\""<<row[17]<<"\", Blackout=\""<<row[18]<<"\", SexRating=\""<<row[19]<<"\", ViolenceRating=\""<<row[20]<<"\", LanguageRating=\""<<row[21]<<"\", DialogRating=\""<<row[22]<<"\", FvRating=\""<<row[23]<<"\", Enhanced=\""<<row[24]<<"\", ThreeD=\""<<row[25]<<"\", LetterBox=\""<<row[26]<<"\", Hdtv=\""<<row[27]<<"\", Dolby=\""<<row[28]<<"\", Dvs=\""<<row[29]<<"\", Checksum=\""<<row[30]<<"\" WHERE PK_Schedule=\""<<it->first<<"\"\n";
+// 
+// 				}
+//  
+// 			}
+// 		}
+// 
+// 		map<int,string>::iterator iter1;
+// 
+// 		for( iter1 = m_mapStation.begin(); iter1 != m_mapStation.end(); iter1++ ) {
+// 	
+// 			map<int,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Station).find(iter1->first);
+// 
+// 			if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_Station).end() ){
+// 
+// 				clientfile << "DELETE FROM Station WHERE PK_Station='"<<iter1->first<<"'\n";	
+// 
+// 			} else if ( ( (iter1->second).compare(it->second) ) != 0 ) {
+// 				
+// 				sSQL << "SELECT * FROM Station PK_Station=" << it->first;
+// 		
+// 				PlutoSqlResult res;
+// 				MYSQL_ROW row=NULL;
+// 				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+// 				if( !res.r )
+// 				{
+// 					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+// 					m_cProcessOutcome=INTERNAL_ERROR;
+// 				}
+// 				else
+// 				{
+// 					row = mysql_fetch_row( res.r );
+// 
+// 					if( !row[0] )
+// 					{
+// 						cerr << "Found NULL in query: " << sSQL.str() << endl;
+// 						m_cProcessOutcome=INTERNAL_ERROR;
+// 						return true; /**<< Request successfully processed */
+// 					}
+// 					clientfile<<"UPDATE Station SET TimeZone=\""<<row[1]<<"\", Name=\""<<row[2]<<"\", CallSign=\""<<row[3]<<"\", Affil=\""<<row[4]<<"\", City=\""<<row[5]<<"\", State=\""<<row[6]<<"\", ZipCode=\""<<row[7]<<"\", Country=\""<<row[8]<<"\", DmaName=\""<<row[9]<<"\", DmaNum=\""<<row[10]<<"\", FccChannelNum=\""<<row[11]<<"\", Checksum=\""<<row[12]<<"\" WHERE PK_Station=\""<<it->first<<"\"\n";
+// 
+// 				}
+//  
+// 			}
+// 		}
 
 		sSQL << "SELECT s.* FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_lineup << "AND s.Name NOT IN (" << m_blacklist << ")";
 
@@ -598,14 +598,14 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 				}
 
 				//insert for Schedule
-				if (!InsertSchedule((string)row[0])){
-					return true;
-				}
+// 				if (!InsertSchedule((string)row[0])){
+// 					return true;
+// 				}
 				
 				//insert for ProgramRecord
-				if (!InsertProgramRecord((string)row[0])){
-					return true;
-				}
+// 				if (!InsertProgramRecord((string)row[0])){
+// 					return true;
+// 				}
 // 				"SELECT p.PK_ProgramRecord FROM Station s LEFT JOIN Schedule c ON c.FK_Station=s.PK_Station LEFT JOIN ProgramRecord p ON p.PK_ProgramRecord=c.FK_ProgramRecord WHERE s.PK_Station="<<row[0]
 // 
 // 				"SELECT p.PK_ProgramRecord FROM ProgramRecord p LEFT JOIN Schedule s ON s.FK_ProgramRecord=p.ProgramRecord LEFT JOIN Station t ON t.PK_Station=s.FK_Station WHERE t.PK_Station=row[0]"

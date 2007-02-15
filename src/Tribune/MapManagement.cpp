@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <map>
+#include <set>
 #include <string>
 
 using namespace Tribune;
@@ -23,6 +24,7 @@ bool MapManagement::GetProgramRecordMap(map<string,string> & mapPrimaryKey_Times
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+		return false;
 	}
 	else
 	{
@@ -31,6 +33,7 @@ bool MapManagement::GetProgramRecordMap(map<string,string> & mapPrimaryKey_Times
 			if( !row[0] )
 			{
 				cerr << "Found NULL in query: " << sSQL.str() << endl;
+				return false;
 				
 			}
 			mapPrimaryKey_Timestam_ProgramRecord[ row[0] ] = row[1];
@@ -52,6 +55,7 @@ bool MapManagement::GetStationMap(map<int,string> & mapPrimaryKey_Timestam_Stati
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+		return false;
 	}
 	else
 	{
@@ -60,6 +64,7 @@ bool MapManagement::GetStationMap(map<int,string> & mapPrimaryKey_Timestam_Stati
 			if( !row[0] )
 			{
 				cerr << "Found NULL in query: " << sSQL.str() << endl;
+				return false;
 			}
 			mapPrimaryKey_Timestam_Station[ atoi(row[0]) ] = row[1];
 		}
@@ -80,6 +85,7 @@ bool MapManagement::GetScheduleMap(map<string,string> & mapPrimaryKey_Timestam_S
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+		return false;
 	}
 	else
 	{
@@ -88,6 +94,7 @@ bool MapManagement::GetScheduleMap(map<string,string> & mapPrimaryKey_Timestam_S
 			if( !row[0] )
 			{
 				cerr << "Found NULL in query: " << sSQL.str() << endl;
+				return false;
 				
 			}
 			mapPrimaryKey_Timestam_Schedule[ row[0] ] = row[1];
@@ -101,7 +108,7 @@ bool MapManagement::GetActorMap(map<string,string> & mapPrimaryKey_Timestam_Acto
 
 	std::ostringstream sSQL;
 	
-	sSQL << "SELECT PK_Actor, TimestampF FROM Actor";
+	sSQL << "SELECT PK_Actor FROM Actor";
 
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
@@ -109,6 +116,7 @@ bool MapManagement::GetActorMap(map<string,string> & mapPrimaryKey_Timestam_Acto
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+		return false;
 	}
 	else
 	{
@@ -117,9 +125,10 @@ bool MapManagement::GetActorMap(map<string,string> & mapPrimaryKey_Timestam_Acto
 			if( !row[0] )
 			{
 				cerr << "Found NULL in query: " << sSQL.str() << endl;
+				return false;
 				
 			}
-			mapPrimaryKey_Timestam_Actor[ row[0] ] = row[1];
+			mapPrimaryKey_Timestam_Actor[ row[0] ] = "";
 		}
 	}
 
@@ -130,7 +139,7 @@ bool MapManagement::GetGenreMap(map<string,string> & mapPrimaryKey_Timestam_Genr
 
 	std::ostringstream sSQL;
 	
-	sSQL << "SELECT PK_Genre, TimestampF FROM Genre";
+	sSQL << "SELECT PK_Genre FROM Genre";
 
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
@@ -138,6 +147,7 @@ bool MapManagement::GetGenreMap(map<string,string> & mapPrimaryKey_Timestam_Genr
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+		return false;
 	}
 	else
 	{
@@ -146,9 +156,10 @@ bool MapManagement::GetGenreMap(map<string,string> & mapPrimaryKey_Timestam_Genr
 			if( !row[0] )
 			{
 				cerr << "Found NULL in query: " << sSQL.str() << endl;
+				return false;
 				
 			}
-			mapPrimaryKey_Timestam_Genre[ row[0] ] = row[1];
+			mapPrimaryKey_Timestam_Genre[ row[0] ] = "";
 		}
 	}
 
@@ -159,7 +170,7 @@ bool MapManagement::GetRoleMap(map<string,string> & mapPrimaryKey_Timestam_Role)
 
 	std::ostringstream sSQL;
 	
-	sSQL << "SELECT PK_Role, TimestampF FROM Role";
+	sSQL << "SELECT PK_Role FROM Role";
 
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
@@ -167,6 +178,7 @@ bool MapManagement::GetRoleMap(map<string,string> & mapPrimaryKey_Timestam_Role)
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+		return false;
 	}
 	else
 	{
@@ -175,9 +187,10 @@ bool MapManagement::GetRoleMap(map<string,string> & mapPrimaryKey_Timestam_Role)
 			if( !row[0] )
 			{
 				cerr << "Found NULL in query: " << sSQL.str() << endl;
+				return false;
 				
 			}
-			mapPrimaryKey_Timestam_Role[ row[0] ] = row[1];
+			mapPrimaryKey_Timestam_Role[ row[0] ] = "";
 		}
 	}
 

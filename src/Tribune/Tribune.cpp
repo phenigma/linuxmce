@@ -204,10 +204,9 @@ int main(int argc, char *argv[]){
 			command = "";
 
 			map <int,pair<string,string> > mapIndexLineupKey_To_Name;
+			clientFunct->GetLineups(zipcode, mapIndexLineupKey_To_Name);
 
-			mapIndexLineupKey_To_Name = clientFunct->GetLineups(zipcode);
-
-			if (mapIndexLineupKey_To_Name.empty()){
+			if (mapIndexLineupKey_To_Name.empty()  ){
 				cout<<endl<<"There are no lineups for the zip code provided"<<endl;
 				exit(0);
 			}
@@ -243,6 +242,8 @@ int main(int argc, char *argv[]){
 
 				} else if (iter != mapIndexLineupKey_To_Name.end() ) {
 
+					clientFunct->DeleteClientLineup();
+
 					clientFunct->SetClientLineup(iter->second.first,iter->second.second);
 					
 					cout << endl << endl << "-------------------------" << endl;
@@ -250,8 +251,8 @@ int main(int argc, char *argv[]){
 					cout << "-------------------------" << endl << endl;
 					map <string,string> mapChannelKey_To_Name;
 					int key = atoi((iter->second.first).c_str());
-					string extra_cond = clientFunct->GetBlackListChannels();//"'SoapNet'";
-					mapChannelKey_To_Name=clientFunct->GetChannels(key, extra_cond);
+					string extra_cond = clientFunct->GetBlackListChannels();
+					clientFunct->GetChannels(key, extra_cond, mapChannelKey_To_Name);
 					map<string,string>::iterator it;
 					for(it = mapChannelKey_To_Name.begin(); it != mapChannelKey_To_Name.end(); it++){
 						cout<< it->second <<endl;
@@ -269,30 +270,48 @@ int main(int argc, char *argv[]){
 			string lineup = clientFunct->GetClientLineup();
 			
 			map<string,string> mapProgramRecord;
-			MapManagement::GetProgramRecordMap( mapProgramRecord );
+			if (! MapManagement::GetProgramRecordMap( mapProgramRecord ) ){
+				cerr << "Cannot fill the program record map: " << endl;
+				exit(1);
+			}
 			
 			map<int,string> mapStation;
-			MapManagement::GetStationMap( mapStation );
+			if (! MapManagement::GetStationMap( mapStation ) ){
+				cerr << "Cannot fill the station map: " << endl;
+				exit(1);
+			}
 			
 			map<string,string> mapSchedule;
-			MapManagement::GetScheduleMap( mapSchedule );
+			if (! MapManagement::GetScheduleMap( mapSchedule ) ){
+				cerr << "Cannot fill the schedule map: " << endl;
+				exit(1);
+			}
 			
 			map<string,string> mapActor;
-			MapManagement::GetActorMap( mapActor );
-			
+			if (! MapManagement::GetActorMap( mapActor ) ){
+				cerr << "Cannot fill the actor map: " << endl;
+				exit(1);
+			}
+						
 			map<string,string> mapGenre;
-			MapManagement::GetGenreMap( mapGenre );
+			if (! MapManagement::GetGenreMap( mapGenre ) ){
+				cerr << "Cannot fill the genre map: " << endl;
+				exit(1);
+			}
 			
 			map<string,string> mapRole;
-			MapManagement::GetRoleMap( mapRole );
-
-			string clientfile = clientFunct->CalcDiffs(lineup,blacklist,mapProgramRecord,mapStation,mapSchedule,mapActor,mapGenre,mapRole);
-			string source = "http://"+g_GlobalConfig.m_sTribuneHost+"/var/www/"+clientfile;
-			string command = "wget \""+ source +"\" -O \"/tmp/"+clientfile+"\" 1>/dev/null 2>/dev/null";
-			system(command.c_str());
+			if (! MapManagement::GetRoleMap( mapRole ) ){
+				cerr << "Cannot fill the role map: " << endl;
+				exit(1);
+			}
 			
-			string path = "/tmp/"+clientfile;
-			clientFunct->ModifyClientDatabase(path);
+			string clientfile = clientFunct->CalcDiffs(lineup,blacklist,mapProgramRecord,mapStation,mapSchedule,mapActor,mapGenre,mapRole);
+// 			string source = "http://"+g_GlobalConfig.m_sTribuneHost+"/var/www/"+clientfile;
+// 			string command = "wget \""+ source +"\" -O \"/tmp/"+clientfile+"\" 1>/dev/null 2>/dev/null";
+// 			system(command.c_str());
+// 			
+// 			string path = "/tmp/"+clientfile;
+// 			clientFunct->ModifyClientDatabase(path);
 		}
 		else {
 			cerr << "Unknown command: " << g_GlobalConfig.m_sCommand << endl;

@@ -21,6 +21,7 @@ private:
 	static ServerManagement* instance;
 	pthread_mutexattr_t m_MutexAttr;
 	pluto_pthread_mutex_t TribuneMutex;
+
 };
 
 #endif
