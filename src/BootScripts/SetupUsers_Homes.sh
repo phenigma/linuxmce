@@ -126,10 +126,12 @@ fi
 
 for dir in $global_static_dirs; do
 	mkdir -p -m 0755 "$BaseDir/${dir/~/ }"
+	chmod 0755 "$BaseDir/${Dir/~/ }"
 done
 
 for dir in $user_static_dirs; do
 	mkdir -p -m 0755 "$BaseDir/public/${dir/~/ }"
+	chmod 0755 "$BaseDir/public/${dir/~/ }"
 done
 
 for dir in $user_dirs; do
@@ -145,6 +147,7 @@ for dir in $user_dirs; do
         rm -rf $PublicHomeDir/movies/
 # end
 	mkdir -p -m 0755 "$BaseDir/public/data/${dir/~/ }"
+	chmod 0755 "$BaseDir/public/data/${dir/~/ }"
 	if [[ -n "$ExtraDir" ]]; then
 		Target="$ExtraDir/public/data/${dir/~/ }/$ExtraLink"
 		rm -f "$Target"
@@ -158,6 +161,7 @@ R=$(RunSQL "$Q")
 
 for Device in $R; do
 	mkdir -p -m 0755 /home/tmp_$Device
+	chmod 0755 /home/tmp_$Device
 done
 
 if [[ "$MakeUsers" == yes ]]; then
