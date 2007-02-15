@@ -1,12 +1,11 @@
-#!/bin/bash -x
-
+#!/bin/bash
 . /usr/pluto/bin/SQL_Ops.sh
 
 ## Misc variables
 DISTRIB='edgy'
 DBST_SCRIPT='/usr/pluto/bin/Diskless_DebootstrapPluto.sh'
 ARH_DIR='/usr/pluto/install'
-DisklessFS="PlutoMD-pre-install.tar.bz2"
+DisklessFS="PlutoMD.tar.bz2"
 
 Installer_Files=(BonusCdMenu.sh BonusCdAutoInst.sh Common.sh AptSources.sh ConfirmDependencies_Debian.sh Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh Initial_DHCP_Config.sh Initial_Network_Config.sh pkgsel post-debootstrap.sh preseed.cfg PreseedStage2.sh)
 
@@ -26,7 +25,7 @@ trap "trap_EXIT" EXIT
 
 
 function create_initial_root_with_debootstrap {
-	debootstrap "edgy" "$TEMP_DIR" "http://archive.ubuntu.com/ubuntu/" 
+	debootstrap "edgy" "$TEMP_DIR" "http://archive.ubuntu.com/ubuntu/"
 }
 
 function create_initial_root_with_archive {
@@ -35,9 +34,8 @@ function create_initial_root_with_archive {
 	popd
 }
 
-
-## create_initial_root_with_debootstrap
-create_initial_root_with_archive
+create_initial_root_with_debootstrap
+##create_initial_root_with_archive
 
 ## Set up chroot installation environment
 ## FIXME: Do we need this ?

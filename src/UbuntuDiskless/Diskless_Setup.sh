@@ -6,7 +6,6 @@ set -e
 . /usr/pluto/bin/Config_Ops.sh 2>/dev/null
 . /usr/pluto/bin/Section_Ops.sh 2>/dev/null
 . /usr/pluto/bin/LockUtils.sh 2>/dev/null
-. /usr/pluto/bin/Diskless_Utils.sh 2>/dev/null
 
 
 DEVICEDATA_Extra_Parameters=139
@@ -63,7 +62,7 @@ function generate_diskless_installer
 
 	## Copy installer files
 	mkdir -p $Moon_RootLocation/usr/pluto/install
-	Files="Common.sh ConfirmDependencies_Debian.sh Initial_Config_MD.sh Initial_Config_Finish.sh ramdisk.tar.bz2"
+	Files="Common.sh ConfirmDependencies_Debian.sh"
 	for Stuff in $Files; do
 		cp /usr/pluto/install/$Stuff $Moon_RootLocation/usr/pluto/install
 	done
@@ -248,6 +247,7 @@ for Row in $R; do
 done
 
 setup_hosts_file
+/usr/pluto/bin/Diskless_ExportsNFS.sh
 
 
 #/usr/pluto/bin/Update_StartupScrips.sh
