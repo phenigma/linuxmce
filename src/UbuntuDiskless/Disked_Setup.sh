@@ -32,13 +32,7 @@ function build_installer_script
 		cp "/usr/pluto/install/${file}" "${DestDir}/usr/pluto/install"
 	done
 
-	/usr/pluto/bin/ConfirmDependencies -o 21 -r -D pluto_main -h dcerouter -u root -p '' -d $Moon_DeviceID install > "${DestDir}/usr/pluto/install/activation.sh"
-
-	## BEGIN BIG BIG BIG HACK
-	sed -i 's|"deb http://deb.plutohome.com/debian" "sarge"|"deb http://10.0.0.66/ubuntu" "edgy main universe multiverse"|g' "${DestDir}/usr/pluto/install/activation.sh"
-	sed -i 's|"deb http://deb.plutohome.com/debian" "sarge main"|"deb http://10.0.0.66/ubuntu" "edgy main universe multiverse"|g' "${DestDir}/usr/pluto/install/activation.sh"
-	## END BIG BIG BIG HACK
-
+	/usr/pluto/bin/ConfirmDependencies -o 14 -r -D pluto_main -h dcerouter -u root -p '' -d $Moon_DeviceID install > "${DestDir}/usr/pluto/install/activation.sh"
 }
 
 function create_archive

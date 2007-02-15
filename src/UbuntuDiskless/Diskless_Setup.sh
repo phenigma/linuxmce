@@ -69,7 +69,7 @@ function generate_diskless_installer
 
 	## Generate another installer script
 	if [[ ! -f $Moon_RootLocation/usr/pluto/install/activation.sh ]]; then
-		/usr/pluto/bin/ConfirmDependencies -r -D pluto_main -h dcerouter -u root -p '' -d $Moon_DeviceID install > $Moon_RootLocation/usr/pluto/install/activation.sh
+		/usr/pluto/bin/ConfirmDependencies -o 14 -r -D pluto_main -h dcerouter -u root -p '' -d $Moon_DeviceID install > $Moon_RootLocation/usr/pluto/install/activation.sh
 	fi
 	
 	## Modify a install script to run as for diskless
