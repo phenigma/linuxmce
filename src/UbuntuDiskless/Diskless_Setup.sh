@@ -62,7 +62,7 @@ function generate_diskless_installer
 
 	## Copy installer files
 	mkdir -p $Moon_RootLocation/usr/pluto/install
-	Files="Common.sh ConfirmDependencies_Debian.sh"
+	Files="Common.sh ConfirmDependencies_Debian.sh AptSources.sh"
 	for Stuff in $Files; do
 		cp /usr/pluto/install/$Stuff $Moon_RootLocation/usr/pluto/install
 	done

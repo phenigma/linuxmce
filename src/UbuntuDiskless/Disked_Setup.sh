@@ -27,7 +27,7 @@ function update_config_files
 function build_installer_script 
 {
 	mkdir -p "${DestDir}/usr/pluto/install"
-	local InstallerFiles="ConfirmDependencies_Debian.sh Common.sh"
+	local InstallerFiles="ConfirmDependencies_Debian.sh Common.sh AptSources.sh"
 	for file in $InstallerFiles ;do
 		cp "/usr/pluto/install/${file}" "${DestDir}/usr/pluto/install"
 	done
