@@ -33,7 +33,7 @@ Lock()
 		if [[ -n "$Target" && ! -d "$Target" ]]; then
 			echo "$$ $(date) Lock '$Lock' ($Device) stale. Removing $Dir/$Lock ($Link)"
 			rm -f "$Dir/$Lock"
-			echo "$$ $(date) Retrying lock"
+			echo "$$ $(date) Retrying lock '$Lock' ($Device)"
 			Lock "$Lock" "$Device" "$NoLog"
 			return $?
 		fi
