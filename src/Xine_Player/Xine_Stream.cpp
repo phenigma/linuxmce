@@ -379,8 +379,8 @@ bool Xine_Stream::CreateWindows()
 bool Xine_Stream::InitXineAVOutput()
 {
 	// mapping window and raising it
- 	int xcode = XMapRaised( m_pXDisplay, windows[ 0 ] );
-	g_pPlutoLogger->Write( LV_WARNING, "XMapWindow returned: %i", xcode);
+// 	int xcode = XMapRaised( m_pXDisplay, windows[ 0 ] );
+//	g_pPlutoLogger->Write( LV_WARNING, "XMapWindow returned: %i", xcode);
 
 	// init visual for xine video
 	m_x11Visual.display = m_pFactory->m_pXDisplay;
@@ -1083,7 +1083,7 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 		case Expose:
 		{
 			XExposeEvent *exposeEvent = ( XExposeEvent * ) & event;
-                // g_pPlutoLogger->Write(LV_STATUS, "Expose with count %d", exposeEvent->count);
+                	g_pPlutoLogger->Write(LV_STATUS, "Expose with count %d", exposeEvent->count);
 
 			if ( exposeEvent->count != 0 )
 				break;
