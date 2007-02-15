@@ -10,10 +10,19 @@ OpenPort()
 	local Protocol Port FilterIP
 	local FilterMsg
 	local parmPort
+	local PortBegin PortEnd
 	
 	Protocol="$1"
 	Port="$2"
 	FilterIP="${3:-0.0.0.0/0}"
+
+	if [[ "$Port" == *:* ]]; then
+		PortBegin="${Port%:*}"
+		PortEnd="${Port#*:}"
+	else
+		PortBegin="$Port"
+		PortEnd="$Port"
+	fi
 
 	[[ "$FilterIP" != "0.0.0.0/0" ]] && FilterMsg="; Limited to: $FilterIP"
 
@@ -26,7 +35,7 @@ OpenPort()
 
 	# samba 139/tcp ports come paired with explicit rejects on 445/tcp
 	# reason: to avoid timeout connecting to 445/tcp in smbclient
-	if [[ "$Protocol $Port" == "tcp 139" ]]; then
+	if [[ "$Protocol" == tcp && ( "$PortBegin" -le 139 && "$PortEnd" -ge 139 ) ]]; then
 		iptables -A INPUT -p tcp -s "$FilterIP" --dport 445 -j REJECT
 	fi
 }
