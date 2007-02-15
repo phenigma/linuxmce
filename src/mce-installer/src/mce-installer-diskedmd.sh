@@ -12,7 +12,7 @@
 function Create_Device
 {
 	## Install libs needed by CreateDevice
-	apt-get -y install libmysqlclinet12 libhttpfetcher1
+	apt-get -y --force-yes install libmysqlclinet12 libhttpfetcher1
 }
 
 function Setup_NIS 
@@ -43,7 +43,7 @@ function Configure_Mounts
 
 	grep -q "/usr/pluto/orbiter" /etc/fstab || echo -e "$Content" >> /etc/fstab
 
-	apt-get install -y portmap
+	apt-get install --force-yes -y portmap smbfs
 	invoke-rc.d portmap start
 
 	mount -a
