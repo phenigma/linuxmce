@@ -7,6 +7,24 @@ if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
 	exit 1
 fi
 
+function Setup_Network_Intefaces {
+	if [[ $c_netExtUseDhcp  == "1" ]] ;then
+		echo "iface $c_netExtName inet dhcp" > /etc/network/interfaces
+	else
+		echo > /etc/network/interfaces
+		echo "auto $c_netExtName" >> /etc/network/interfaces
+		echo "iface $c_netExtName inet static" >> /etc/network/interfaces
+		echo "address $c_netExtIP" >> /etc/network/interfaces
+		echo "netmask $c_netExtMask" >> /etc/network/interfaces
+		echo "gateway $c_netExtGateway" >> /etc/network/interfaces
+
+		echo > /etc/resolv.conf
+		echo "nameserver $c_netExtDNS1" >> /etc/resolv.conf
+	fi
+
+	invoke-rc.d networking restart
+}
+
 function Setup_Apt_Conffiles {
 	## Setup apt sources.list
 	local Sources="# Pluto sources - start
@@ -234,6 +252,7 @@ ff02::3 ip6-allhosts
 }
 
 Core_PK_Device=""
+Setup_Network_Intefaces
 Setup_Apt_Conffiles
 Setup_Pluto_Conf
 Setup_NIS
