@@ -46,7 +46,8 @@ int main(int argc, char *argv[])
 
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/TestSerialPort.log");
 
-	string sPort,sTransmitString,sSearchString,sMessage;
+	string sPort,sTransmitString,sMessage;
+	vector<string> vectSearchString;
 	bool bHardwareFlowControl=false,bMonitorHardwareFlowControlOnly=false;
 	unsigned int iBaud=9600;
 	double fTimeout=30;
@@ -76,7 +77,7 @@ int main(int argc, char *argv[])
 			sTransmitString = argv[++optnum];
 			break;
 		case 's':
-			sSearchString = ParseHex(argv[++optnum]);
+			vectSearchString.push_back( ParseHex(argv[++optnum]) );
 			break;
 		case 'm':
 			sMessage = argv[++optnum];
@@ -177,23 +178,24 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	if( sSearchString.size() )
+	if( vectSearchString.size() )
 	{
-		int Length = sSearchString.size();
-		if( Length>sReceived )
+		for(vector<string>::iterator it=vectSearchString.begin();it!=vectSearchString.end();++it)
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Search string not found");
-			return 1;
-		}
+			string sSearchString = *it;
+			int Length = sSearchString.size();
+			if( Length>sReceived )
+				continue;
 
-		const char *pSearch = sSearchString.c_str();
-		char *pEnd = pBuffer + sReceived - Length;
-		for(char *p=pBuffer;p<=pEnd;++p)
-			if( memcmp(p,pSearch,Length)==0 )
-			{
-				g_pPlutoLogger->Write(LV_STATUS,"Search string found");
-				return 0;
-			}
+			const char *pSearch = sSearchString.c_str();
+			char *pEnd = pBuffer + sReceived - Length;
+			for(char *p=pBuffer;p<=pEnd;++p)
+				if( memcmp(p,pSearch,Length)==0 )
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"Search string found");
+					return 0;
+				}
+		}
 
 		g_pPlutoLogger->Write(LV_STATUS,"Search string not found");
 		return 1;
