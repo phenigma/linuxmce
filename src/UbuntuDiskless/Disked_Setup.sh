@@ -2,7 +2,10 @@
 
 set -e 
 
-Moon_DeviceID=31
+. /usr/pluto/bin/SQL_Ops.sh 2>/dev/null
+
+
+DEVICEDATA_DisklessBoot=9
 DestDir=$(mktemp -d)
 
 function update_config_files
@@ -41,10 +44,34 @@ function build_installer_script
 function create_archive
 {
 	pushd ${DestDir}
-		tar zcf /usr/pluto/install/Disked${Moon_DeviceID}.tar.gz *
+		tar zcf /usr/pluto/var/Disked_${Moon_DeviceID}.tar.gz *
 	popd
 }
 
-update_config_files
-build_installer_script
-create_archive
+
+Q="
+	SELECT 
+		PK_Device, 
+		IPaddress
+	FROM 
+		Device
+		JOIN Device_DeviceData ON PK_Device = FK_Device AND FK_DeviceData = $DEVICEDATA_DisklessBoot
+	WHERE 
+		FK_DeviceTemplate = '28'
+		AND
+		FK_Device_ControlledVia IS NULL
+		AND
+		IK_DeviceData = '0'
+"
+
+R=$(RunSQL "$Q")
+for Row in $R ;do
+	Moon_DeviceID=$(Field "1" "$Row")
+	Moon_IP=$(Field "2" "$Row");
+	Moon_IP=$(/usr/pluto/bin/PlutoDHCP.sh -d "$Moon_DeviceID" -a)
+
+	update_config_files
+	build_installer_script
+	create_archive
+done
+
