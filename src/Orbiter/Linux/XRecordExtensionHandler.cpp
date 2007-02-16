@@ -237,7 +237,7 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 					}
 #ifdef DEBUG
 //g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback queueing to orbiter mouse x %d y %d",
-					  pEvent->data.region.m_iX,pEvent->data.region.m_iY);
+//					  pEvent->data.region.m_iX,pEvent->data.region.m_iY);
 #endif
 				}
 				else
