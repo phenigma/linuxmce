@@ -33,7 +33,9 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 
 	BonusWorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
 	
-	if ! cp -r /media/cdrom/bonuscd1/*.deb "$BonusWorkDir"; then
+	cd /media/cdrom/bonuscd1
+	AutoInstPkg="$(echo *.deb)"
+	if ! cp -r $AutoInstPkg "$BonusWorkDir"; then
 		echo "ERROR: Failed copying first batch"
 		read
 	fi

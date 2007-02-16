@@ -4,14 +4,18 @@ BonusWorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
 
 if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	echo "Installing packages copied earlier from \"<-mkr_t_name_mixed-> Bonus CD 1\""
-	echo "Processing video-wizard-videos package ..."
 	cd $BonusWorkDir
-        dpkg -i video-wizard-videos-*.deb 1>/dev/null 2>/dev/null
+	for PkgFile in $AutoInstPkg; do
+		PkgName="${PkgFile%%_*}"
+		echo "Installing '$PkgName'..."
+		#dpkg -i "$PkgFile" &>/dev/null
+		apt-get -f -y install "$PkgName"
+	done
 	# if monster-nucleus package is detected
-        if [[ -f $(ls | grep monster-nucleus) && ! -z $(ls | grep monster-nucleus) ]]; then
-	        apt-get -f -y install monster-nucleus
-        	apt-get -f -y install bootsplash-theme-monster
-        fi
+	if [[ -n "$(echo monster-nucleus*)" ]]; then
+		apt-get -f -y install monster-nucleus
+		apt-get -f -y install bootsplash-theme-monster
+	fi
 	apt-get -f -y install id-my-disc || :
 fi
 
