@@ -10,51 +10,49 @@ echo "Otherwise, choose N."
 echo ""
 BonusCD=$(Ask "Did you insert the \"<-mkr_t_name_mixed-> Extras CD version 1\" in drive ? [Y/n]")
 if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
-	if [ ! -d /cdrom ]; then
-		mkdir /cdrom
+	if [[ ! -d /media/cdrom ]]; then
+		mkdir -p /media/cdrom
 	fi
-	/bin/mount /dev/cdrom /cdrom 2>/dev/null
+	/bin/mount /dev/cdrom /media/cdrom 2>/dev/null
 
-	while [[ ! -d "/cdrom/bonuscd1" && $counter < "5" ]]; do
+	count=0
+	until [[ -d "/media/cdrom/bonuscd1" || "$counter" -eq 5 ]]; do
+		((counter++))
 		echo "This in not a valid \"<-mkr_t_name_mixed-> Extras CD version 1\". Please insert the correct CD and try again."
-		/usr/bin/eject 1>/dev/null 2>/dev/null
+		/usr/bin/eject /media/cdrom &>/dev/null
 		echo "Press any key when you inserted the correct CD in drive."
-		read key
-
-		if [[ ! -n "$key" ]]; then
-			/bin/mount /dev/cdrom /cdrom 2>/dev/null
-			counter=$[$counter+1]
-                        if [[ "$counter" == "5" ]]; then
-                                echo "Skiping BonusCD due to invalid data."
-                                exit 0
-                        fi
-		fi
+		read
+		/bin/mount /dev/cdrom /media/cdrom 2>/dev/null
 	done
+	if [[ "$counter" -eq 5 && ! -d /media/cdrom/bonuscd1 ]]; then
+		echo "Skipping BonusCD due to invalid data"
+		/usr/bin/eject /media/cdrom &>/dev/null
+	fi
 	echo "Processing \"<-mkr_t_name_mixed-> Extras CD version 1\""
 	echo "... PLEASE WAIT ..."
 
 	BonusWorkDir="/usr/pluto/deb-cache/dists/sarge/main/binary-i386"
 	
-	if ! cp -r /cdrom/bonuscd1/*.deb "$BonusWorkDir"; then
+	if ! cp -r /media/cdrom/bonuscd1/*.deb "$BonusWorkDir"; then
 		echo "ERROR: Failed copying first batch"
 		read
 	fi
 
-	cd /cdrom/bonuscd1-cache
+	cd /media/cdrom/bonuscd1-cache
 	if ! cp -r *.deb "$BonusWorkDir"; then
 		echo "ERROR: Failed copying second batch"
 		read
 	fi
 
 #<-mkr_b_via_b->
-	cd /cdrom/via
+	cd /media/cdrom/via
 	mkdir /home/via
 	cp * /home/via
 #<-mkr_b_via_e->
 
 	sleep 1
 	cd 
-	/usr/bin/eject 1>/dev/null 2>/dev/null
+	/usr/bin/eject /media/cdrom &>/dev/null
 	echo ""
 	echo "Finished processing \"<-mkr_t_name_mixed-> Extras CD version 1\""
 	echo ""
