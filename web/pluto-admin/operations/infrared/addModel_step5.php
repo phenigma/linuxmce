@@ -206,6 +206,7 @@
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 			<input type="hidden" name="commandsOrder" value="">
 			<input type="hidden" name="return" value="'.$return.'">
+			<input type="hidden" name="toggleInput" value="'.$dtDataArray['ToggleInput'][0].'">
 		';
 		
 		$out.='
@@ -258,6 +259,7 @@
 		
 	}else{
 		// process
+		$oldInput=(int)@$_POST['toggleInput'];
 
 		if($dtID!=0){
 			$is=(int)$_REQUEST['is'];
@@ -321,7 +323,9 @@
 					}
 				}
 				$ToggleInput=($is==2)?0:1;
-				$publicADO->Execute('UPDATE DeviceTemplate_AV SET ToggleInput=? WHERE FK_DeviceTemplate=?',array($ToggleInput,$dtID));
+				if(($ToggleInput==0 && $oldInput!=0) || ($ToggleInput==1 && $oldInput!=2)){
+					$publicADO->Execute('UPDATE DeviceTemplate_AV SET ToggleInput=? WHERE FK_DeviceTemplate=?',array($ToggleInput,$dtID));
+				}
 			}
 		}
 		

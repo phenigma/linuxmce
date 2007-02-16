@@ -26,14 +26,15 @@
 		header('Location: index.php');
 		exit();
 	}
-
+	
+	
 	$is=(isset($_REQUEST['is']))?(int)$_REQUEST['is']:1;
 	
 	
 	if($action=='form'){
 		
 		$connectorsArray=getAssocArray('ConnectorType','PK_ConnectorType','Description',$publicADO,'','ORDER BY Description ASC');
-
+		
 
 		$queryInput="
 			SELECT 
@@ -88,7 +89,7 @@
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 			<input type="hidden" name="return" value="'.$return.'">
 		
-			<table align="center">
+			<table align="center" border="0" width="400">
 				<tr>
 					<td colspan="2" class="normaltext"><B>'.$TEXT_Q5_CHANGE_ORDER_CONST.'</B></td>
 				</tr>
@@ -99,6 +100,9 @@
 					<td valign="top" align="right" width="50%">'.pulldownFromArray($checkedCommands,'orderItem',0,'size="10"','key','').'</td>
 					<td valign="middle" align="left"><input type="button" class="button" value="U" onClick="moveUp(\'document.addModel.orderItem\');"> <br><input type="button" class="button" value="D" onClick="moveDown(\'document.addModel.orderItem\');"></td>
 				</tr>
+				<tr>				
+					<td valign="top" align="center" colspan="2"><input type="checkbox" value="2" name="send_input_twice" '.((sendInputTwice($dtID,$dbADO)?'checked':'')).'> '.$TEXT_SEND_INPUT_TWICE_CONST.'</td>
+				</tr>				
 				<tr>
 					<td colspan="2" class="normaltext"><input type="hidden" name="checkedCommands" value="'.urlencode(serialize($checkedCommands)).'"></td>
 				</tr>
@@ -114,6 +118,10 @@
 		// process
 
 		if($dtID!=0){
+			$send_input_twice=(int)@$_POST['send_input_twice'];
+			$send_input_twice=($send_input_twice==0)?1:$send_input_twice;
+			$dbADO->Execute('UPDATE DeviceTemplate_AV SET ToggleInput=? WHERE FK_DeviceTemplate=?',array($send_input_twice,$dtID));
+			
 			$checkedCommands=unserialize(urldecode($_POST['checkedCommands']));
 			$commandOrder=array_flip(explode(',',$_POST['commandsOrder']));
 
@@ -130,4 +138,10 @@
 		
 		exit();
 	}
+	
+function sendInputTwice($dtID,$dbADO){
+	$data=getFieldsAsArray('DeviceTemplate_AV','ToggleInput',$dbADO,'WHERE FK_DeviceTemplate='.$dtID);
+	
+	return ($data['ToggleInput'][0]==2)?true:false;
+}	
 ?>

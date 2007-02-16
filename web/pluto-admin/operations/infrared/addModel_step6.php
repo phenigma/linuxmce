@@ -14,7 +14,7 @@
 		exit();
 	}
 
-	$dsp=(isset($_REQUEST['dsp']))?(int)$_REQUEST['dsp']:1;
+	$dsp=(isset($_REQUEST['dsp']))?(int)$_REQUEST['dsp']:$dtDataArray['ToggleDSP'][0];
 	
 	if($action=='form'){
 		$inputSelectedTxt='
@@ -113,6 +113,7 @@
 			<input type="hidden" name="commandsOrder" value="">
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 			<input type="hidden" name="return" value="'.$return.'">
+			<input type="hidden" name="toggleDSP" value="'.$dtDataArray['ToggleDSP'][0].'">
 		
 		';
 		if(!in_array($dtDataArray['FK_DeviceCategory'][0],$ampReceivers)){
@@ -161,6 +162,7 @@
 	
 		';
 	}else{
+		$oldDSP=(int)@$_POST['toggleDSP'];
 		// process
 		if($dtID!=0){
 			if($dsp!=1){
@@ -181,7 +183,9 @@
 				}
 
 				$ToggleDSP=($dsp==2)?0:1;
-				$publicADO->Execute('UPDATE DeviceTemplate_AV SET ToggleDSP=? WHERE FK_DeviceTemplate=?',array($ToggleDSP,$dtID));
+				if(($ToggleDSP==0 && $oldDSP!=0) || ($ToggleDSP==1 && $oldDSP!=2)){
+					$publicADO->Execute('UPDATE DeviceTemplate_AV SET ToggleDSP=? WHERE FK_DeviceTemplate=?',array($ToggleDSP,$dtID));
+				}
 				
 			}else{
 				$publicADO->Execute('DELETE FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate=?',array($dtID));

@@ -98,6 +98,9 @@
 					<td valign="top" align="right" width="50%">'.pulldownFromArray($checkedCommands,'orderItem',0,'size="10"','key','').'</td>
 					<td valign="middle" align="left"><input type="button" class="button" value="U" onClick="moveUp(\'document.addModel.orderItem\');"> <br><input type="button" class="button" value="D" onClick="moveDown(\'document.addModel.orderItem\');"></td>
 				</tr>
+				<tr>				
+					<td valign="top" align="center" colspan="2"><input type="checkbox" value="2" name="send_dsp_twice" '.((sendDSPTwice($dtID,$dbADO)?'checked':'')).'> '.$TEXT_SEND_DSP_TWICE_CONST.'</td>
+				</tr>				
 				<tr>
 					<td colspan="2" class="normaltext"><input type="hidden" name="checkedCommands" value="'.urlencode(serialize($checkedCommands)).'"></td>
 				</tr>
@@ -113,6 +116,11 @@
 		// process
 
 		if($dtID!=0){
+			$send_dsp_twice=(int)@$_POST['send_dsp_twice'];
+			$send_dsp_twice=($send_dsp_twice==0)?1:$send_dsp_twice;
+			$dbADO->Execute('UPDATE DeviceTemplate_AV SET ToggleDSP=? WHERE FK_DeviceTemplate=?',array($send_dsp_twice,$dtID));
+			
+			
 			$checkedCommands=unserialize(urldecode($_POST['checkedCommands']));
 			$commandOrder=array_flip(explode(',',$_POST['commandsOrder']));
 
@@ -130,4 +138,11 @@
 		
 		exit();
 	}
+	
+function sendDSPTwice($dtID,$dbADO){
+	$data=getFieldsAsArray('DeviceTemplate_AV','ToggleDSP',$dbADO,'WHERE FK_DeviceTemplate='.$dtID);
+	
+	return ($data['ToggleDSP'][0]==2)?true:false;
+}	
+	
 ?>
