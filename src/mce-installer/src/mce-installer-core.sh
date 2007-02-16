@@ -254,6 +254,9 @@ Configure_Network_Options
 /usr/pluto/bin/Network_Setup.sh
 /usr/pluto/bin/DHCP_config.sh
 
+
+mkdir -p /usr/pluto/deb-cache
+
 echo 
 echo
 echo
