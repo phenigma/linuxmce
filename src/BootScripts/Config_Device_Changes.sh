@@ -110,8 +110,14 @@ CleanupVideo()
 	# Package name lists are treated as prefixes
 	local Pkgs_nVidia
 	Pkgs_nVidia=(nvidia-driver nvidia-glx "nvidia-kernel-.*" pluto-nvidia-video-drivers)
+	#<-mkr_b_ubuntu_b->
+	Pkgs_nVidia=(nvidia-glx linux-restricted-modules-`uname -r`)	
+	#<-mkr_b_ubuntu_e->
 	local Pkgs_ATI
 	Pkgs_ATI=(xorg-driver-fglrx pluto-ati-video-drivers)
+	#<-mkr_b_ubuntu_b->
+	Pkgs_ATI=(xorg-driver-fglrx linux-restricted-modules-`uname -r`)	
+	#<-mkr_b_ubuntu_e->
 	local Pkgs_VIA
 	Pkgs_VIA=(xserver-xorg-video-viaprop)
 	local nV_inst ATI_inst VIA_inst
