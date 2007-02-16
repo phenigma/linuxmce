@@ -92,6 +92,7 @@ YPBINDARGS=
 YPPASSWDDARGS=
 YPXFRDARGS=
 " > /etc/default/nis
+
 }
 
 function Install_DCERouter {
@@ -238,6 +239,8 @@ function Configure_Network_Options {
 			VALUES($Core_PK_Device, 28, '$DHCPsetting')"
 		RunSQL "$Q"
 	fi
+
+	echo "ypserver $IntIP" > /etc/yp.conf
 }
 
 Core_PK_Device="0"
