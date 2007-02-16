@@ -138,9 +138,6 @@
 					RelativePath=".\AnimatedPicture.cpp">
 				</File>
 				<File
-					RelativePath=".\ExtensionManager.cpp">
-				</File>
-				<File
 					RelativePath=".\FadeBase.cpp">
 				</File>
 				<File
@@ -232,6 +229,9 @@
 								Name="VCCLCompilerTool"
 								ObjectFile="$(IntDir)/$(InputName)1.obj"/>
 						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\STEngine\ExtensionManager.cpp">
 					</File>
 					<File
 						RelativePath="..\STEngine\Frame.cpp">
