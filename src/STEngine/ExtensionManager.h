@@ -20,7 +20,6 @@ public:
 
 	virtual void Resize(int Width, int Height);
 
-	virtual bool InitVideoMode(int Width, int Height, int Bpp, bool FullScreen, bool UseComposite);
 	virtual void Setup();
 
 	static bool CheckExtension(const char* checkFor);

@@ -14,9 +14,6 @@
 
 #include "Painter.h"
 
-#include "../DCE/Logger.h"
-using namespace DCE;
-
 ExtensionManager::ExtensionManager(void)
 : Width(0), Height(0)
 {
@@ -95,43 +92,6 @@ void ExtensionManager::Resize(int Width, int Height)
 	this->Width = Width;
 	this->Height = Height;
 	DrawArea(0, 0, Width, Height);
-}
-
-/*virtual*/ bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen, 
-		bool UseComposite)
-{
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE)<0)
-		return false;
-		
-	SDL_WM_SetCaption("OrbiterGL", "OrbiterGL");
-
-	/* Sets up OpenGL double buffering */
-	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-
-	Uint32 uVideoModeFlags = SDL_OPENGL;
-
-	#if !defined(WIN32) || defined(WINCE)
-		if(FullScreen)
-			uVideoModeFlags |= SDL_FULLSCREEN;
-	#endif
-	
-#ifdef VIA_OVERLAY
-	g_pPlutoLogger->Write(LV_WARNING, "VIA : set env VIA_3D_OVERLAY");	
-	unsigned long dwRet = setenv("VIA_3D_OVERLAY","yes",1);
-	if(dwRet !=0)
-		g_pPlutoLogger->Write(LV_CRITICAL, "VIA : couldn't set env VIA_3D_OVERLAY");
-#endif
-
-	Screen = SDL_SetVideoMode(Width, Height, Bpp, uVideoModeFlags);
-
-	if(NULL != Screen)
-	{
-		Resize(Width, Height);
-		glEnable(GL_TEXTURE_2D);
-//glEnable(GL_CULL_FACE);
-	}
-
-	return Screen != NULL;
 }
 
 /*virtual*/ void ExtensionManager::EnableBlended(bool Enable)
