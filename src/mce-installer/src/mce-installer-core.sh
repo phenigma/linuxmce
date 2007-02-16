@@ -1,11 +1,12 @@
 #!/bin/bash
 
-exit 0
 
 if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
 	echo "ERROR: Cannot find wizard data";
 	exit 1
 fi
+
+. /tmp/mce_wizard_data.sh
 
 function Setup_Network_Intefaces {
 	if [[ $c_netExtUseDhcp  == "1" ]] ;then
@@ -160,6 +161,8 @@ function Create_And_Config_Devices {
 }
 
 function Configure_Network_Options {
+	
+	. /usr/pluto/bin/SQL_Ops.sh
 
 	## Setup /etc/hosts
 	echo > /etc/hosts
@@ -208,19 +211,21 @@ function Configure_Network_Options {
 		IntNetmask="${IntNetmask}.0"
 	done
 
-	if [[ "$c_netIntName" != "" ]] ;then
+	if [[ "$c_netIntName" == "" ]] ;then
 		IntIf="$c_netExtName:0"
 	else
-		InfIf="$c_netIntName"
+		IntIf="$c_netIntName"
 	fi
 
+	echo "------------------------------"
 	if [[ "$c_netExtUseDhcp" == "0" ]] ;then
-		NETsetting="$c_netExtName,$c_netExtIP,$c_netExtMask,$c_netExtGateway,$c_netExtDNS1|$InfIf,$InfIP,$IntNetmask"
+		NETsetting="$c_netExtName,$c_netExtIP,$c_netExtMask,$c_netExtGateway,$c_netExtDNS1|$IntIf,$IntIP,$IntNetmask"
 	else
-		NETsetting="$c_netExtName,dhcp|$InfIf,$InfIP,$IntNetmask"
+		NETsetting="$c_netExtName,dhcp|$IntIf,$IntIP,$IntNetmask"
 	fi
+	echo "------------------------------"
+	exit 0
 	
-	NETsetting=$(/usr/pluto/install/Initial_Network_Config.sh "$Network" "$Digits_Count")
 	DHCPsetting=$(/usr/pluto/install/Initial_DHCP_Config.sh "$Network" "$Digits_Count")
 
 	Q="REPLACE INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES('$Core_PK_Device',32,'$NETsetting')"
@@ -236,7 +241,7 @@ function Configure_Network_Options {
 
 }
 
-Core_PK_Device=""
+Core_PK_Device="0"
 Setup_Network_Intefaces
 Setup_Apt_Conffiles
 Setup_Pluto_Conf
