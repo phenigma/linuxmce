@@ -22,6 +22,7 @@ echo "pluto" > "${Parm_RootLocation}/${File}"
 File="/etc/yp.conf"
 mkdir -p "${Parm_RootLocation}/$(dirname $File)"
 echo "ypserver ${IntIP}" > "${Parm_RootLocation}/${File}"
+echo "ypserver ${IntIP}" > ${File}
 
 ## Configure nsswitch file
 File="/etc/nsswitch.conf"
@@ -56,3 +57,4 @@ fi
 if [[ -f ${Parm_RootLocation}/etc/group ]] ;then
 	grep -q "+:::"      ${Parm_RootLocation}/etc/group  || echo "+:::"      >> ${Parm_RootLocation}/etc/group
 fi
+
