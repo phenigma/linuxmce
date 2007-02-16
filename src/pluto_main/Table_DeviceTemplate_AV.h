@@ -83,11 +83,8 @@ long int m_IR_ModeDelay;
 long int m_DigitDelay;
 long int m_TogglePower;
 long int m_ToggleDSP;
-long int m_ToggleDSPDelay;
 long int m_ToggleInput;
-long int m_ToggleInputDelay;
 long int m_ToggleOutput;
-long int m_ToggleOutputDelay;
 string m_NumericEntry;
 short int m_MonitorInputChanges;
 long int m_psc_id;
@@ -97,7 +94,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[19];
+		bool is_null[16];
 	
 	public:
 		long int FK_DeviceTemplate_get();
@@ -106,11 +103,8 @@ long int IR_ModeDelay_get();
 long int DigitDelay_get();
 long int TogglePower_get();
 long int ToggleDSP_get();
-long int ToggleDSPDelay_get();
 long int ToggleInput_get();
-long int ToggleInputDelay_get();
 long int ToggleOutput_get();
-long int ToggleOutputDelay_get();
 string NumericEntry_get();
 short int MonitorInputChanges_get();
 long int psc_id_get();
@@ -127,11 +121,8 @@ void IR_ModeDelay_set(long int val);
 void DigitDelay_set(long int val);
 void TogglePower_set(long int val);
 void ToggleDSP_set(long int val);
-void ToggleDSPDelay_set(long int val);
 void ToggleInput_set(long int val);
-void ToggleInputDelay_set(long int val);
 void ToggleOutput_set(long int val);
-void ToggleOutputDelay_set(long int val);
 void NumericEntry_set(string val);
 void MonitorInputChanges_set(short int val);
 void psc_id_set(long int val);
@@ -176,7 +167,7 @@ void psc_restrict_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_DeviceTemplate+ m_IR_PowerDelay+ m_IR_ModeDelay+ m_DigitDelay+ m_TogglePower+ m_ToggleDSP+ m_ToggleDSPDelay+ m_ToggleInput+ m_ToggleInputDelay+ m_ToggleOutput+ m_ToggleOutputDelay+ m_NumericEntry+ m_MonitorInputChanges+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_FK_DeviceTemplate+ m_IR_PowerDelay+ m_IR_ModeDelay+ m_DigitDelay+ m_TogglePower+ m_ToggleDSP+ m_ToggleInput+ m_ToggleOutput+ m_NumericEntry+ m_MonitorInputChanges+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -187,11 +178,8 @@ string IR_ModeDelay_asSQL();
 string DigitDelay_asSQL();
 string TogglePower_asSQL();
 string ToggleDSP_asSQL();
-string ToggleDSPDelay_asSQL();
 string ToggleInput_asSQL();
-string ToggleInputDelay_asSQL();
 string ToggleOutput_asSQL();
-string ToggleOutputDelay_asSQL();
 string NumericEntry_asSQL();
 string MonitorInputChanges_asSQL();
 string psc_id_asSQL();
