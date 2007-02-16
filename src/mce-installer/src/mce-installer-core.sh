@@ -11,6 +11,7 @@ fi
 function Setup_Network_Intefaces {
 	if [[ $c_netExtUseDhcp  == "1" ]] ;then
 		echo "iface $c_netExtName inet dhcp" > /etc/network/interfaces
+		dhclient $c_netExtName
 	else
 		echo > /etc/network/interfaces
 		echo "auto $c_netExtName" >> /etc/network/interfaces
@@ -21,9 +22,11 @@ function Setup_Network_Intefaces {
 
 		echo > /etc/resolv.conf
 		echo "nameserver $c_netExtDNS1" >> /etc/resolv.conf
+
+		ifconfig $c_netIntName $c_netExtIP netmask $c_netExtMask up
+		route add default gw $c_netExtGateway
 	fi
 
-	invoke-rc.d networking restart
 }
 
 function Setup_Apt_Conffiles {
