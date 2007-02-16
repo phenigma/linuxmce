@@ -17,7 +17,15 @@ namespace DCE {
 bool GSDMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls) {
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
 	Message* pmsg = &inrepl.getMessage();
-	if(	pmanager->getCodeSupplier().isCmdImplemented(pmsg->m_dwPK_Device_To, pmsg->m_dwID))
+	if( pmsg == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "GSDMessageTranslator::Translate : null message");
+		return false;
+	}
+	
+	inrepl.setImplemented( pmanager->getCodeSupplier().isCmdImplemented(pmsg->m_dwPK_Device_To, pmsg->m_dwID) );
+	
+	if( inrepl.isImplemented() )
 	{
 		AVMessageTranslator::SetDelays(inrepl);
 		g_pPlutoLogger->Write(LV_WARNING, "GSDMessageTranslator isCmdImplemented = true");
