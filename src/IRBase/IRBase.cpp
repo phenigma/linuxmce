@@ -92,18 +92,32 @@ IRBase::handleStop()
 }
 
 bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls) {
-	if(AVMessageTranslator::Translate(inrepl, outrepls)) {
-		return true;
-	}
 	Message* pmsg = &inrepl.getMessage();
+	if(pmsg == NULL)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "IRBase::Translate : null message");
+		return false;
+	}
+	
 	DeviceData_Base *pTargetDev = AVMessageTranslator::FindTargetDevice(pmsg->m_dwPK_Device_To);
 	if(!pTargetDev) {
 		g_pPlutoLogger->Write(LV_WARNING, "Target Device %d Not Found.", pmsg->m_dwPK_Device_To);
 		return false;
 	}
-	
 	long devid = pTargetDev->m_dwPK_Device;
-
+	
+	// try to find if there is the IR code available
+	bool irFound = false;
+	map <longPair, string>::iterator it = codemap_.find(longPair(devid, pmsg->m_dwID));
+	if(it != codemap_.end()) {
+		irFound = true;
+		inrepl.setImplemented(true);
+	}
+	
+	if(AVMessageTranslator::Translate(inrepl, outrepls)) {
+		return true;
+	}
+	
 	/********************************************************************************************************
 	COMMAND_Send_Code_CONST
 	********************************************************************************************************/
@@ -112,8 +126,7 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 		return true;
 	} 
 	
-	map <longPair, string>::iterator it = codemap_.find(longPair(devid, pmsg->m_dwID));
-	if(it == codemap_.end()) {
+	if( !irFound ) {
 		g_pPlutoLogger->Write(LV_WARNING, "Infrared Code not found for Command %d. Will not be processed by IRBase.", pmsg->m_dwID);
 		return false;
 	} else {
