@@ -253,3 +253,16 @@ Configure_Network_Options
 /usr/pluto/bin/Timezone_Detect.sh
 /usr/pluto/bin/Network_Setup.sh
 /usr/pluto/bin/DHCP_config.sh
+
+echo 
+echo
+echo
+echo
+echo "-------------------------------------------------------"
+echo "-              Installation Finished                  -"
+echo "-                                                     -"
+echo "-                                                     -"
+echo "- Reboot you computer and then run the Start_Pluto.sh -"
+echo "- script to get pluto hybrid/core started.            -"
+echo "-                                                     -"
+echo "-------------------------------------------------------"
