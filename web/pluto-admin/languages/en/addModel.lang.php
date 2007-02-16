@@ -58,4 +58,7 @@ $TEXT_Q5_ORDER_TITLE_CONST='Question 5b - What Order?';
 $TEXT_Q6_ORDER_TITLE_CONST='Last Question, 6 - DSP mode order?';
 $TEXT_Q6_ORDER_INFO_CONST='Since this device uses 1 button to <b>toggle</b> DSP Modes, we need to know what order they are in so we can cycle through them.  Please confirm the order and click next.';
 $TEXT_ADD_NEW_COMMAND_CONST='Add new command';
+$TEXT_SEND_INPUT_TWICE_CONST='Send input select twice to change the first input';
+$TEXT_SEND_DSP_TWICE_CONST='Send dsp select twice to change the first input';
+$TEXT_DELAY_BETWEEN_INPUT_SELECT_COMMANDS_CONST='Delay between input select commands';
 ?>

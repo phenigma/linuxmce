@@ -162,8 +162,8 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 		$resD=$dbADO->Execute('SELECT * FROM Device LEFT JOIN Device_Device_Related ON FK_Device=PK_Device WHERE PK_Device =?',$rowAD['EK_Device']);
 		while($rowD=$resD->FetchRow()){
 			// snapshot format: alert_[PK_Alert]_cam[camera].jpg
-			$picPath=$GLOBALS['SecurityPicsPath'].'alert_'.$rowAD['PK_Alert_Device'].'_cam'.$rowD['FK_Device_Related'].'.jpg';
-			$alertPic=(file_exists($picPath))?$picPath:APPROOT.'include/images/alert_no_pic.jpg';
+			$picPath='alert_'.$rowAD['PK_Alert_Device'].'_cam'.$rowD['FK_Device_Related'];
+			$alertPic=get_alert_pic($picPath);
 		$out.='
 			<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
 				<td align="center"><img src="include/image.php?imagepath='.$alertPic.'"></td>
@@ -205,4 +205,18 @@ function deleteAlerts($adate,$securitydbADO){
 		$securitydbADO->Execute('DELETE FROM Alert WHERE PK_Alert IN ('.join(',',$alertKeys).')');
 	}
 }
+
+function get_alert_pic($picname){
+	$extensionsArray=array('png','jpg','gif');
+	
+	foreach ($extensionsArray AS $extension){
+		$picPath=$GLOBALS['SecurityPicsPath'].$picname.'.'.$extension;	
+		if(file_exists($picPath)){
+			return $picPath;
+		}
+	}
+	
+	return APPROOT.'include/images/alert_no_pic.png';
+}
+
 ?>
