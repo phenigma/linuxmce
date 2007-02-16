@@ -34,13 +34,14 @@ MessageReplicator
 class MessageReplicator {
 public:
 
-	MessageReplicator(const Message& msg, int count = 1, int predelay = 0, int postdelay = 0) 
+	MessageReplicator(const Message& msg, int count = 1, int predelay = 0, int postdelay = 0)
 		: msg_(msg),
 		  count_(count),
 		  predelay_(predelay),
 		  postdelay_(postdelay),
 		  timeStart_(0L),
-		  replaceable_(false)
+		  replaceable_(false),
+		  implemented_(false)
 	{
 		// this should be something (Device Data) from database
 		switch( msg_.m_dwID )
@@ -67,7 +68,8 @@ public:
 		  predelay_(msg.predelay_),
 		  postdelay_(msg.postdelay_),
 		  timeStart_(msg.timeStart_),
-		  replaceable_(msg.replaceable_)
+		  replaceable_(msg.replaceable_),
+		  implemented_(msg.implemented_)
 	{
 	}
 
@@ -112,6 +114,15 @@ public:
 		replaceable_ = replaceable;
 	}
 
+	bool isImplemented() const
+	{
+		return implemented_;
+	}
+	void setImplemented(bool implemented)
+	{
+		implemented_ = implemented;
+	}
+
 private:
 
 	Message msg_;
@@ -120,6 +131,7 @@ private:
 	int postdelay_;
 	unsigned long timeStart_;
 	bool replaceable_;
+	bool implemented_;
 };
 
 /*****************************************************************

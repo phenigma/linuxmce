@@ -290,7 +290,8 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	TODO: Make a paramter in DeviceTemplate_AV: Translate double pause's to play
 	********************************************************************************************************/
 	if( pmsg->m_dwID == COMMAND_Pause_Media_CONST || pmsg->m_dwID == COMMAND_Pause_CONST )	{
-		pmsg->m_dwID = COMMAND_Pause_CONST;
+		if( !inrepl.isImplemented() )
+			pmsg->m_dwID = COMMAND_Pause_CONST;
 		g_pPlutoLogger->Write(LV_STATUS,"Translate pause media->pause");
 
 		bool ret = false;
@@ -312,7 +313,8 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	COMMAND_Play_Media_CONST
 	********************************************************************************************************/
 	if( pmsg->m_dwID == COMMAND_Play_Media_CONST || pmsg->m_dwID == COMMAND_Play_CONST ) {
-		pmsg->m_dwID = COMMAND_Play_CONST;
+		if( !inrepl.isImplemented() )
+			pmsg->m_dwID = COMMAND_Play_CONST;
 		if(!retransmit)
 		{
 			lastcmdwaspause_[devid] = false;
