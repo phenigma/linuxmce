@@ -125,6 +125,7 @@ function Build_Pluto_Replacements {
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-sample-media_3_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/asterisk-perl_0.08-1_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/video-wizard-videos-pluto_1.1_i386.deb
+		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/Pluto/tee-pluto_1.0_i386.deb
 	popd
 }
 
@@ -296,15 +297,15 @@ function Create_Diskless_Archive {
 	rm -rf $temp_dir
 }
 
-Create_Diskless_Archive
-Install_Build_Needed_Packages
-Import_Build_Database
-Import_Pluto_Skins
-Checkout_Pluto_Svn
-Build_Pluto_Replacements
-Build_MakeRelease_Binary
-Create_Fake_Windows_Binaries
-Build_Pluto_Stuff
-#Create_Local_Repository
+#Create_Diskless_Archive
+#Install_Build_Needed_Packages
+#Import_Build_Database
+#Import_Pluto_Skins
+#Checkout_Pluto_Svn
+#Build_Pluto_Replacements
+#Build_MakeRelease_Binary
+#Create_Fake_Windows_Binaries
+#Build_Pluto_Stuff
+Create_Local_Repository
 
 
