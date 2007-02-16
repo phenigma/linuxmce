@@ -238,10 +238,6 @@ function Configure_Network_Options {
 			VALUES($Core_PK_Device, 28, '$DHCPsetting')"
 		RunSQL "$Q"
 	fi
-
-	/usr/pluto/bin/Network_Setup.sh
-	/usr/pluto/bin/DHCP_config.sh
-
 }
 
 Core_PK_Device="0"
@@ -255,4 +251,5 @@ Configure_Network_Options
 
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/bin/Timezone_Detect.sh
-
+/usr/pluto/bin/Network_Setup.sh
+/usr/pluto/bin/DHCP_config.sh
