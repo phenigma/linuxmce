@@ -90,6 +90,15 @@
 #define SLICERECEIVEDATAEX         CREATEDRIVER +31
 #define SETVIDEOCOLOR              CREATEDRIVER +32
 #define SETTVOVERLAY         CREATEDRIVER +33
+//william
+#define DISABLEALPHA            CREATEDRIVER+34
+#define DISABLEOVERLAY          CREATEDRIVER+35
+//william
+#define VIDEO_ALPHA     1
+#define ThreeD_ALPHA    2
+#define VIDEO_OVERLAY   1
+#define ThreeD_OVERLAY  2
+
 
 /* =========================================================================
  * New definition for VMI 2.0
