@@ -98,6 +98,13 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 
 	Flags |=  SDL_OPENGL;
 
+#ifdef VIA_OVERLAY
+	g_pPlutoLogger->Write(LV_WARNING, "VIA : set env VIA_3D_OVERLAY");	
+	unsigned long dwRet = setenv("VIA_3D_OVERLAY","yes",1);
+	if(dwRet !=0)
+		g_pPlutoLogger->Write(LV_CRITICAL, "VIA : couldn't set env VIA_3D_OVERLAY");
+#endif 	
+	
 	Display = SDL_SetVideoMode(Width, Height, 0, Flags);
 	g_pPlutoLogger->Write(LV_STATUS,"Setting video to w: %d h: %d",Width,Height);
 	if(!Display)

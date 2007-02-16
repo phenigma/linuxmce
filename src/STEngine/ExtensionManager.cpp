@@ -14,6 +14,9 @@
 
 #include "Painter.h"
 
+#include "../DCE/Logger.h"
+using namespace DCE;
+
 ExtensionManager::ExtensionManager(void)
 : Width(0), Height(0)
 {
@@ -112,6 +115,13 @@ void ExtensionManager::Resize(int Width, int Height)
 			uVideoModeFlags |= SDL_FULLSCREEN;
 	#endif
 	
+#ifdef VIA_OVERLAY
+	g_pPlutoLogger->Write(LV_WARNING, "VIA : set env VIA_3D_OVERLAY");	
+	unsigned long dwRet = setenv("VIA_3D_OVERLAY","yes",1);
+	if(dwRet !=0)
+		g_pPlutoLogger->Write(LV_CRITICAL, "VIA : couldn't set env VIA_3D_OVERLAY");
+#endif
+
 	Screen = SDL_SetVideoMode(Width, Height, Bpp, uVideoModeFlags);
 
 	if(NULL != Screen)
