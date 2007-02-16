@@ -189,7 +189,7 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 {
 	XRecordExtensionHandler *pRecordingHandler = (XRecordExtensionHandler*)pData;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback cat %d rrr",(int)pRecordedData->category);
+//	g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback cat %d rrr",(int)pRecordedData->category);
 #endif
 	switch ( pRecordedData->category )
 	{
@@ -217,7 +217,7 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 		default:
 			pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent, pRecordingHandler->m_pDisplay);
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback pRecordingHandler->processXRecordToOrbiterEvent %p rrr",pRecordingHandler->m_pOrbiter);
+//g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback pRecordingHandler->processXRecordToOrbiterEvent %p rrr",pRecordingHandler->m_pOrbiter);
 #endif
 			if ( pRecordingHandler->m_pOrbiter )
 			{
@@ -226,7 +226,7 @@ g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback
 
 				if( pEvent->type==Orbiter::Event::MOUSE_MOVE )
 				{
-					PLUTO_SAFETY_LOCK( cm, pRecordingHandler->m_pOrbiter->m_MaintThreadMutex );
+					PLUTO_SAFETY_LOCK_ERRORSONLY( cm, pRecordingHandler->m_pOrbiter->m_MaintThreadMutex );
 					for(map<int,PendingCallBackInfo *>::iterator it=pRecordingHandler->m_pOrbiter->m_mapPendingCallbacks.begin();it!=pRecordingHandler->m_pOrbiter->m_mapPendingCallbacks.end();++it)
 					{
 						PendingCallBackInfo *pCallBackInfo = (*it).second;
@@ -236,7 +236,7 @@ g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback
 								pCallBackInfo->m_bStop=true;
 					}
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback queueing to orbiter mouse x %d y %d",
+//g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback queueing to orbiter mouse x %d y %d",
 					  pEvent->data.region.m_iX,pEvent->data.region.m_iY);
 #endif
 				}
@@ -257,7 +257,7 @@ g_pPlutoLogger->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback
 void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData *pRecordedData, Orbiter::Event *orbiterEvent, Display *pDisplay)
 {
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::processXRecordToOrbiterEvent cat %d",(int) pRecordedData->category);
+//g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::processXRecordToOrbiterEvent cat %d",(int) pRecordedData->category);
 #endif
 	switch (pRecordedData->category )
 	{

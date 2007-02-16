@@ -184,6 +184,8 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				}
 				if(count)
 				{
+					if( ToggleInput == 2 )  // This means we have to first send it to put the system in 'input select mode'
+						count++;
 					for(i=0;i<count;i++)
 					{
 						MessageReplicator msgrepl(
@@ -220,7 +222,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			g_pPlutoLogger->Write(LV_WARNING, "PK_Command_Input parameter not found.");
 		}
 	}
-	if((ToggleInput == 1) && (find(commandorder.begin(),commandorder.end(),pmsg->m_dwID) != commandorder.end()))
+	if(ToggleInput && (find(commandorder.begin(),commandorder.end(),pmsg->m_dwID) != commandorder.end()))
 	{
 	    unsigned int i=0,count=0;
 		g_pPlutoLogger->Write(LV_STATUS, "Got command <%d>, Last was <%d>, need translation to input selects",pmsg->m_dwID,laststatus_input_[devid]);
@@ -246,6 +248,8 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		}
 		if(count)
 		{
+			if( ToggleInput == 2 )  // This means we have to first send it to put the system in 'input select mode'
+				count++;
 			for(i=0;i<count;i++)
 			{
 				MessageReplicator msgrepl(

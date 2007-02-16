@@ -218,7 +218,7 @@ bool PlutoHIDInterface::DoStartMouse()
 	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 	if (ctrl<0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::StartMouse  usb_control_msg %d\n",(int) ctrl);
+		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::StartMouse  usb_control_msg %d id %d\n",(int) ctrl,(int) m_iRemoteID);
 		perror("error: ");
 		return false;
 	}
@@ -243,7 +243,7 @@ bool PlutoHIDInterface::DoStopMouse()
 	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 	if (ctrl<0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::StopMouse  usb_control_msg %d\n",(int) ctrl);
+		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::StopMouse  usb_control_msg %d id %d\n",(int) ctrl,(int) m_iRemoteID);
 		perror("error: ");
 		return false;
 	}

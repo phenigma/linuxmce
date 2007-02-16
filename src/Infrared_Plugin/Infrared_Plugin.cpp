@@ -627,9 +627,9 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 	{
 		pRow_DeviceTemplate_AV->Reload();
 		irDevice.m_bTogglePower=pRow_DeviceTemplate_AV->TogglePower_get()==1;
-		irDevice.m_bToggleDSP=pRow_DeviceTemplate_AV->ToggleDSP_get()==1;
-		irDevice.m_bToggleInput=pRow_DeviceTemplate_AV->ToggleInput_get()==1;
-		irDevice.m_bToggleOutput=pRow_DeviceTemplate_AV->ToggleOutput_get()==1;
+		irDevice.m_iToggleDSP=pRow_DeviceTemplate_AV->ToggleDSP_get();
+		irDevice.m_iToggleInput=pRow_DeviceTemplate_AV->ToggleInput_get();
+		irDevice.m_iToggleOutput=pRow_DeviceTemplate_AV->ToggleOutput_get();
 		irDevice.m_iPowerDelay=pRow_DeviceTemplate_AV->IR_PowerDelay_get();
 		irDevice.m_iModeDelay=pRow_DeviceTemplate_AV->IR_ModeDelay_get();
 		irDevice.m_iDigitDelay=pRow_DeviceTemplate_AV->DigitDelay_get();

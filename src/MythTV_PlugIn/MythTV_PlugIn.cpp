@@ -972,7 +972,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				pRow_Device = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 				if( !pRow_Device )
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find capture card for %d", pRow_Device->PK_Device_get());
+					g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find capture card for %d", pRow_Device_Source->PK_Device_get());
 					continue;
 				}
 			}

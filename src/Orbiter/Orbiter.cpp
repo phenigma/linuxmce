@@ -4577,7 +4577,7 @@ void *MaintThread(void *p)
 				if( pCallBackInfo->m_bStop )
 				{
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to delete member %X::%X %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
+//					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to delete member %X::%X %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
 #endif
 					pOrbiter->m_mapPendingCallbacks.erase( it++ );  // This is dead anyway
 					delete pCallBackInfo;
@@ -4586,7 +4586,7 @@ void *MaintThread(void *p)
 				else if(pCallBackInfo->m_abstime <= ts_now)
 				{
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to execute member %X::%X %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
+//					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to execute member %X::%X %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
 #endif
 					pOrbiter->m_mapPendingCallbacks.erase( it );
 					pCallBackInfoGood = pCallBackInfo;
@@ -4595,7 +4595,7 @@ void *MaintThread(void *p)
 				else
 				{
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to wait for member %X::%X %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
+//					g_pPlutoLogger->Write(LV_STATUS,"MaintThread Going to wait for member %X::%X %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
 #endif
 					if( ts_NextCallBack.tv_sec==0 || pCallBackInfo->m_abstime<ts_NextCallBack )
 						ts_NextCallBack = pCallBackInfo->m_abstime;  // This is the next one to call
@@ -4633,7 +4633,7 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 										   bool bPurgeTaskWhenScreenIsChanged/*= true*/
 										   )
 {
-	PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );
+	PLUTO_SAFETY_LOCK_ERRORSONLY( cm, m_MaintThreadMutex );
 
 	if( e_PurgeExisting!=pe_NO )
 	{
@@ -4661,8 +4661,8 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 	pCallBackInfo->m_pOrbiter=this;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "CallMaintenanceInMiliseconds %X::%X %d ms started with mapPendingCallbacks size: %d time %d:%d",
-		fnCallBack,(int) milliseconds,m_mapPendingCallbacks.size(),(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
+//	g_pPlutoLogger->Write(LV_STATUS, "CallMaintenanceInMiliseconds %X::%X %d ms started with mapPendingCallbacks size: %d time %d:%d",
+//		fnCallBack,(int) milliseconds,m_mapPendingCallbacks.size(),(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
 #endif
 
 	m_mapPendingCallbacks[pCallBackInfo->m_nCallbackID]=pCallBackInfo;

@@ -8,7 +8,7 @@ class IRDevice : public SerializeClass
 public:
 	map<int,string> m_mapCodes;
 	bool m_bImplementsDCE;
-	bool m_bUsesIR,m_bTogglePower,m_bToggleDSP,m_bToggleInput,m_bToggleOutput;
+	bool m_bUsesIR,m_bTogglePower,m_iToggleDSP,m_iToggleInput,m_iToggleOutput;
 	int m_iPowerDelay,m_iModeDelay,m_iDigitDelay;
 	int m_PK_Device_ControlledVia;
 	string m_sNumericEntry;
@@ -17,7 +17,8 @@ public:
 
 	IRDevice()
 	{
-		m_bUsesIR=m_bTogglePower=m_bToggleDSP=m_bToggleInput=m_bToggleOutput=false;
+		m_bUsesIR=m_bTogglePower=false;
+		m_iToggleDSP=m_iToggleInput=m_iToggleOutput=0;
 		m_iPowerDelay=m_iModeDelay=m_iDigitDelay=m_PK_Device_ControlledVia=0;
 		m_bImplementsDCE=false;
 	}
@@ -25,7 +26,7 @@ public:
 	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_mapCodes + 
-			m_bUsesIR + m_bTogglePower + m_bToggleDSP + m_bToggleInput + m_bToggleOutput +
+			m_bUsesIR + m_bTogglePower + m_iToggleDSP + m_iToggleInput + m_iToggleOutput +
 			m_iPowerDelay + m_iModeDelay + m_iDigitDelay + 
 			m_sNumericEntry + m_vectInputs;
 	}
