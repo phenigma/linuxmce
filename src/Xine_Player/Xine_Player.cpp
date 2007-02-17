@@ -499,8 +499,11 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 				curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
 			}
 		}
-
+g_pPlutoLogger->Write(LV_CRITICAL,"BEFORE changePlaybackSpeed");
 		pStream->changePlaybackSpeed((Xine_Stream::PlayBackSpeedType)iMediaPlaybackSpeed);
+g_pPlutoLogger->Write(LV_CRITICAL,"BEFORE REPORT");
+		ReportTimecodeViaIP(iStreamID,iMediaPlaybackSpeed);
+g_pPlutoLogger->Write(LV_CRITICAL,"DONE");
 	}
 }
 
@@ -1202,7 +1205,6 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 	if( !m_pDeviceData_MediaPlugin )
 		return;
 
-	g_pPlutoLogger->Write(LV_WARNING,"reporting timecode");
 	int currentTime, totalTime;	
 	int iMediaPosition = pStream->getStreamPlaybackPosition( currentTime, totalTime);
 
@@ -1218,6 +1220,7 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 	string sIPTimeCodeInfo = StringUtils::itos(Speed) + "," + buffer_current + "," + buffer_total + "," + StringUtils::itos(iStreamID)
 		+ "," + StringUtils::itos(pStream->m_iTitle) + "," + StringUtils::itos(pStream->m_iChapter);
 	
+	g_pPlutoLogger->Write(LV_STATUS,"reporting timecode stream %d speed %d %s", iStreamID, iSpeed, sIPTimeCodeInfo.c_str() );
 	m_pNotificationSocket->SendStringToAll( sIPTimeCodeInfo );
 }
 
