@@ -175,7 +175,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 			{
 				string _ircode = StringUtils::Tokenize(ircode,"&",pos);
 				g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) ircode.size(),ircode.c_str(),_ircode.c_str());
-				SendIR(irport,_ircode);
+				SendIR(irport,_ircode,1);
 				if( pos<ircode.size() && !m_bQuit_ )
 				{
 					g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
@@ -199,7 +199,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 	if(!ircode.empty()) {
 		int iRepeat = 4;
 		if( pmsg->m_mapParameters.find(COMMANDPARAMETER_Repeat_CONST)!=pmsg->m_mapParameters.end() )
-			iRepeat = atoi( pmsg->m_mapParameters[COMMANDPARAMETER_Repeat_CONST}.c_str() );
+			iRepeat = atoi( pmsg->m_mapParameters[COMMANDPARAMETER_Repeat_CONST].c_str() );
 		else
 		{
 			if( m_mapDevice_IRRepeat.find(devid)!=m_mapDevice_IRRepeat.end() )
@@ -224,7 +224,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 
 			g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) ircode.size(),ircode.c_str(),_ircode.c_str());
 
-			SendIR(irport,_ircode);
+			SendIR(irport,_ircode,iRepeat);
 			if( pos<ircode.size() && !m_bQuit_ )
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
