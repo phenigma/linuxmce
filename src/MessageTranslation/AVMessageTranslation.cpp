@@ -290,18 +290,26 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	TODO: Make a paramter in DeviceTemplate_AV: Translate double pause's to play
 	********************************************************************************************************/
 	if( pmsg->m_dwID == COMMAND_Pause_Media_CONST || pmsg->m_dwID == COMMAND_Pause_CONST )	{
-		if( !inrepl.isImplemented() )
-			pmsg->m_dwID = COMMAND_Pause_CONST;
 		g_pPlutoLogger->Write(LV_STATUS,"Translate pause media->pause");
 
 		bool ret = false;
-		if(retransmit || (lastcmdwaspause_[devid] == true)) {
+		if(retransmit || (lastcmdwaspause_[devid] == true))
+		{
 			ret = true;
 			MessageReplicator msgrepl(
 				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 						PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Play_CONST, 0));
 			outrepls.push_back(msgrepl);
 			g_pPlutoLogger->Write(LV_STATUS, "Pause translated to Play.");
+		}
+		else if( !inrepl.isImplemented() && pmsg->m_dwID == COMMAND_Pause_Media_CONST )
+		{
+			ret = true;
+			MessageReplicator msgrepl(
+				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+						PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Pause_CONST, 0));
+			outrepls.push_back(msgrepl);
+			g_pPlutoLogger->Write(LV_STATUS, "Media Pause translated to Pause.");
 		}
 		if(!retransmit)
 		{
@@ -313,13 +321,19 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	COMMAND_Play_Media_CONST
 	********************************************************************************************************/
 	if( pmsg->m_dwID == COMMAND_Play_Media_CONST || pmsg->m_dwID == COMMAND_Play_CONST ) {
-		if( !inrepl.isImplemented() )
-			pmsg->m_dwID = COMMAND_Play_CONST;
 		if(!retransmit)
 		{
 			lastcmdwaspause_[devid] = false;
 		}
-		g_pPlutoLogger->Write(LV_STATUS,"Translate play media->play");
+		if( !inrepl.isImplemented() && pmsg->m_dwID == COMMAND_Play_Media_CONST )
+		{
+			MessageReplicator msgrepl(
+				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+						PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Play_CONST, 0));
+			outrepls.push_back(msgrepl);
+			g_pPlutoLogger->Write(LV_STATUS, "Media Play translated to Play.");
+			return true;
+		}
 		return false;
 	} else
 	/********************************************************************************************************
