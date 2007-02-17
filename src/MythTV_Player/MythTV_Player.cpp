@@ -250,7 +250,7 @@ void MythTV_Player::pollMythStatus()
 		} while(time(NULL) < timeout && sResult != "OK" && m_mythStatus == MYTHSTATUS_LIVETV);
 		if (time(NULL) >= timeout)
 		{
-			DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"");
+			DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
 			SendCommand(CMD_MH_Stop_Media_Cat);
 			m_mythStatus = MYTHSTATUS_DISCONNECTED;
 			g_pPlutoLogger->Write(LV_CRITICAL,"Failed initial communications with Mythfrontend.");
@@ -516,7 +516,7 @@ void MythTV_Player::ProcessExited(int pid, int status)
 	if ( applicationName.compare(MYTH_WINDOW_NAME) == 0 )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Send go back to the caller!");
-		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"");
+		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
 		SendCommand(CMD_MH_Stop_Media_Cat);
 	}
 	m_mythStatus = MYTHSTATUS_DISCONNECTED;

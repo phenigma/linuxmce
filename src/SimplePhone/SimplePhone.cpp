@@ -325,7 +325,7 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 void SimplePhone::StopMedia()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "SimplePhone::StopMedia()");
-	DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"");
+	DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"",false);
 	SendCommand(CMD_MH_Stop_Media_);
 	Sleep(1000);
 }
