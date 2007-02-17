@@ -196,11 +196,13 @@ bool MythTV_PlugIn::Register()
 			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
 		}
 	}
-		
-	RefreshBookmarks(); // Populate this with the initial values
+	
+	// Don't actually build the bookmark/channel list because Sync_Cards_Providers will fill in m_mapDevicesToSources,
+	// but it's not run until about 20 seconds after everything starts so if it needs to send a message to the orbiters
+	// or use AppServer, those devices will be available
+	m_bBookmarksNeedRefreshing=true;
 
 	BuildAttachedInfraredTargetsMap();
-	CMD_Sync_Providers_and_Cards(0);
 
     return Connect(PK_DeviceTemplate_get());
 }
@@ -919,6 +921,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 	}
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	m_bBookmarksNeedRefreshing=true;
 	m_mapDevicesToSources.clear();
 	g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders");
     MYSQL_ROW row,row2;
