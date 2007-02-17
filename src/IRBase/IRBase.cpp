@@ -198,8 +198,8 @@ IRBase::DispatchMessage(Message* pmsg) {
 	
 	if(!ircode.empty()) {
 		int iRepeat = 4;
-		if( pmsg->m_mapParameters.find(COMMANDPARAMETER_Repeat_CONST)!=pmsg->m_mapParameters.end() )
-			iRepeat = atoi( pmsg->m_mapParameters[COMMANDPARAMETER_Repeat_CONST].c_str() );
+		if( pmsg->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST)!=pmsg->m_mapParameters.end() )
+			iRepeat = atoi( pmsg->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST].c_str() );
 		else
 		{
 			if( m_mapDevice_IRRepeat.find(devid)!=m_mapDevice_IRRepeat.end() )

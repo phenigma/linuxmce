@@ -270,7 +270,10 @@ void FileLogger::WriteEntry( Entry& Entry )
 #else
     fwrite( "\n", 1, 1, m_LogFile );
 #endif
-//    fflush( m_LogFile );  Try leaving this out to get faster disk performance
+
+#ifdef DEBUG
+    fflush( m_LogFile );  // Try leaving this out of release builds to get faster disk performance.  For debug, we want to see the logs in real-time
+#endif
 }
 
 #ifdef WIN32
