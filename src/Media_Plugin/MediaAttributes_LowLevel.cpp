@@ -482,6 +482,44 @@ string MediaAttributes_LowLevel::GetPictureFromFileID( int PK_File, int *PK_Pict
     return "";
 }
 
+string MediaAttributes_LowLevel::GetPictureFromDiscID( int PK_Disc, int *PK_Picture )
+{
+	if( !PK_Disc )
+	{
+		*PK_Picture=0;
+		return "";
+	}
+
+	string SQL = "select PK_Picture, Extension FROM Picture_Disc JOIN Picture ON "\
+        "FK_Picture=PK_Picture "\
+        "WHERE FK_Disc=" + StringUtils::itos( PK_Disc );
+
+//	g_pPlutoLogger->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromDiscID() Running query: %s", SQL.c_str());
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    {
+        *PK_Picture = atoi( row[0] );
+        return row[1];
+    }
+
+    // Let's to see if any of the attributes associated with this Disc have pictures
+    SQL = "SELECT FK_Picture, Extension from Disc_Attribute "\
+        "JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=Disc_Attribute.FK_Attribute "\
+        "JOIN Picture ON FK_Picture=PK_Picture "\
+        "WHERE FK_Disc=" + StringUtils::itos( PK_Disc );
+
+//	g_pPlutoLogger->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromDiscID() Running another query: %s", SQL.c_str());
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    {
+        *PK_Picture = atoi( row[0] );
+        return row[1];
+    }
+
+    *PK_Picture=0;
+    return "";
+}
+
 string MediaAttributes_LowLevel::GetPictureFromAttributeID( int PK_Attribute, int *PK_Picture )
 {
     string SQL = "select PK_Picture, Extension FROM Picture_Attribute JOIN Picture ON "\

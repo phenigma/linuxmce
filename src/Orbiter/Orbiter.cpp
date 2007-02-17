@@ -4152,6 +4152,10 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		{
 			Output += StringUtils::itos(m_pScreenHandler->mediaFileBrowserOptions.m_PK_MediaType);
 		}
+		else if( Variable=="MB_USERS" )
+		{
+			Output += m_pScreenHandler->mediaFileBrowserOptions.m_sPK_Users_Private;
+		}
 		else if( Variable=="FBO" )
 		{
 			if( m_pScreenHandler )
@@ -9725,4 +9729,21 @@ void Orbiter::ServiceInterruptionQueue()
 		else
 			++it;
 	}
+}
+
+char *Orbiter::ReadFileIntoBuffer( string sFileName, size_t &Size )
+{
+	char *pGraphicData=NULL;
+	if ( m_bIsOSD)
+	{
+		pGraphicData = FileUtils::ReadFileIntoBuffer(sFileName, Size);
+		if( pGraphicData )
+			return pGraphicData;
+	}
+	int Length=0;
+	DCE::CMD_Request_File CMD_Request_File( m_dwPK_Device, m_dwPK_Device_GeneralInfoPlugIn, sFileName,
+		&pGraphicData, &Length );
+	SendCommand( CMD_Request_File );
+	Size = Length;
+	return pGraphicData;
 }

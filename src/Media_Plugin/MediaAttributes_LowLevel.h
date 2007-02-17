@@ -111,6 +111,7 @@ public:
     string GetAnyPictureUnderDirectory(string File,int *PK_Picture,int MaxDepthToSearch);
     string GetPictureFromFilePath(string File,int *PK_Picture);
     string GetPictureFromFileID(int PK_File,int *PK_Picture);
+    string GetPictureFromDiscID(int PK_Disc,int *PK_Picture);
     string GetPictureFromAttributeID(int PK_Attribute,int *PK_Picture);
     int GetAttributeFromFileID(int PK_File);
     int GetAttributeFromFilePath(string File);

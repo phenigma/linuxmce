@@ -753,6 +753,7 @@ namespace DCE
 
 		bool OkayToInterrupt( int iInterruption );  // Returns true if it's ok to interrupt the user with interrupt level=iInterruption
 		void ServiceInterruptionQueue(); // Handling any pending goto screens that were ignored so as to not interrupt the user
+		char *ReadFileIntoBuffer( string sFileName, size_t &Size ); // Get the file locally if it's an OSD, otherwise reqest from server
 
 		/**
 		* @brief the point belongs to a region that was clicked

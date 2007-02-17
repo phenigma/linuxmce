@@ -5373,11 +5373,14 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		return;
 	}
 
+	int PK_Picture=0;
+	string sExtension;
 	if( pMediaFile->m_dwPK_Disk )
 	{
 		*sValue_To_Assign = "FILE\tDisc #" + StringUtils::itos(pMediaFile->m_dwPK_Disk) +
 			"\tTITLE\t" + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultDescriptionForMediaFile(pMediaFile) +
 			"\t";	
+		sExtension = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetPictureFromDiscID(pMediaFile->m_dwPK_Disk, &PK_Picture);
 	}
 	else
 	{
@@ -5400,6 +5403,7 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 			StringUtils::Replace(&sSynopsis,"\t","");
 			*sValue_To_Assign += "SYNOPSIS\t" + sSynopsis + "\t";
 		}
+		sExtension = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetPictureFromFileID(pMediaFile->m_dwPK_File, &PK_Picture);
 
 #ifdef SIM_JUKEBOX
 		if( pMediaFile->m_dwPK_File )
@@ -5411,6 +5415,10 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		}
 #endif
 	}
+
+	if( PK_Picture )
+		*sValue_To_Assign += "PICTURE\t/home/mediapics/" + StringUtils::itos(PK_Picture) + "." + (sExtension.empty() ? "jpg" : sExtension) + "\t";
+
 }
 //<-dceag-c817-b->
 

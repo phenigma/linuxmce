@@ -53,20 +53,7 @@ PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement
 
 bool PlutoGraphic::LoadGraphicFile(const char *ImageFilename, int iRotation)
 {
-	if (m_pOrbiterRenderer->m_pOrbiter->m_bIsOSD)
-	{
-		m_pGraphicData = FileUtils::ReadFileIntoBuffer(ImageFilename, m_GraphicLength);
-	}
-	else
-	{
-		int Length=0;
-
-		DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_pOrbiterRenderer->m_pOrbiter->m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, ImageFilename,
-			&m_pGraphicData, &Length );
-
-		m_pOrbiterRenderer->m_pOrbiter->SendCommand( CMD_Request_File_Cat );
-		m_GraphicLength = (size_t)Length;
-	}
+	m_pGraphicData = m_pOrbiterRenderer->m_pOrbiter->ReadFileIntoBuffer(ImageFilename, m_GraphicLength);
 	if (m_GraphicLength == 0)
 		return false;
 	

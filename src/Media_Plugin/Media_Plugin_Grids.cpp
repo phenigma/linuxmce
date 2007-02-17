@@ -916,11 +916,54 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 	string::size_type pos=0;
 	int PK_MediaType = atoi(StringUtils::Tokenize(Parms,"|",pos).c_str());
 	string AC = StringUtils::Tokenize(Parms,"|",pos);
+	string sPK_Users = StringUtils::Tokenize(Parms,"|",pos);
 
 	if( AC.length( )==0 )
         return pDataGrid; // Nothing passed in yet
 
-    string SQL = 
+    MYSQL_ROW row;
+    PlutoSqlResult result_file;
+	string SQL = "select DISTINCT PK_File,Path,Filename,FK_Picture "
+		"FROM File "
+		"LEFT JOIN Picture_File ON FK_File=PK_File "
+		"WHERE Filename Like '%" + StringUtils::SQLEscape(AC) + "%' "
+		"AND (EK_Users_Private IS NULL OR EK_Users_Private IN (" + sPK_Users + ")) "
+		"AND Missing=0 ";
+
+	if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
+		SQL += " AND EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST) "," TOSTRING(MEDIATYPE_pluto_CD_CONST) ")";
+	else if( PK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
+		SQL += " AND EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) "," TOSTRING(MEDIATYPE_pluto_DVD_CONST) ")";
+	else 
+		SQL += " AND EK_MediaType=" + StringUtils::itos(PK_MediaType);
+
+	SQL += " ORDER BY Filename limit 30";
+
+    int RowCount=0;
+
+	if( ( result_file.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+    {
+        while( ( row=mysql_fetch_row( result_file.r ) ) )
+        {
+            string label = row[2];
+            label += string( "\n" ) + row[1];
+            pCell = new DataGridCell( "", string("!F") + row[0] );
+			if( row[3] && row[3][0]!='0' )
+			{
+				size_t st=0;
+				pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + string(row[3]) + "_tn.jpg",st);
+				pCell->m_GraphicLength=st;
+			}
+            pDataGrid->SetData( 0, RowCount, pCell );
+
+            pCell = new DataGridCell( label, string("!F") + row[0] );
+            pCell->m_Colspan = 5;
+            pDataGrid->m_vectFileInfo.push_back( new FileListInfo( false, string(row[1]) + "/" + row[2], false ) );
+            pDataGrid->SetData( 1, RowCount++, pCell );
+        }
+    }
+
+    SQL = 
 		"select DISTINCT PK_Attribute, Name, Description, FK_Picture FROM Attribute "
 		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "
 		"JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "
@@ -930,8 +973,6 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 		"ORDER BY Name limit 30";
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
-    int RowCount=0;
 
     string AttributesFirstSearch; // Because we're going to search twice and want to exclude any attributes we hit the first search
 
@@ -941,7 +982,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         {
             string label = /* string( "~`S24`" ) + */ row[1];
             label += string( "\n" ) + row[2];
-            pCell = new DataGridCell( "", row[0] );
+            pCell = new DataGridCell( "", string("!A") + row[0] );
 			if( row[3] && row[3][0]!='0' )
 			{
 				size_t st=0;
@@ -954,7 +995,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
                 AttributesFirstSearch += ",";
             AttributesFirstSearch += row[0];
 
-            pCell = new DataGridCell( label, row[0] );
+            pCell = new DataGridCell( label,  string("!A") + row[0] );
             pCell->m_Colspan = 5;
             pDataGrid->m_vectFileInfo.push_back( new FileListInfo( atoi( row[0] ) ) );
             pDataGrid->SetData( 1, RowCount++, pCell );
@@ -988,7 +1029,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         {
             string label = /*string( "~`S24`" ) + */ row[1];
             label += string( "\n" ) + row[2];
-            pCell = new DataGridCell( "", row[0] );
+            pCell = new DataGridCell( "",  string("!A") + row[0] );
 			if( row[3] && row[3][0]!='0' )
 			{
 				size_t st=0;
@@ -997,7 +1038,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 			}
             pDataGrid->SetData( 0, RowCount, pCell );
 
-            pCell = new DataGridCell( label, row[0] );
+            pCell = new DataGridCell( label,  string("!A") + row[0] );
             pCell->m_Colspan = 5;
             pDataGrid->m_vectFileInfo.push_back( new FileListInfo( atoi( row[0] ) ) );
             pDataGrid->SetData( 1, RowCount++, pCell );

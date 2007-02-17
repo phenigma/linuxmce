@@ -296,26 +296,10 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		const char *pPath = pCell->GetImagePath();
 		if (pPath && !pCell->m_pGraphicData && !pCell->m_pGraphic && !m_pObj_Owner->m_pOrbiter->m_bLoadDatagridImagesInBackground)
 		{
-			if (m_pObj_Owner_DataGrid->m_pOrbiter->m_bIsOSD)
-			{
-				size_t Length; 
-
-				pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer(pPath, Length);
-				pCell->m_GraphicLength = (int)Length;
-			}
-			else
-			{
-				int Length=0;
-
-				DCE::CMD_Request_File CMD_Request_File( m_pObj_Owner_DataGrid->m_pOrbiter->m_dwPK_Device, m_pObj_Owner_DataGrid->m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, pPath,
-					&pCell->m_pGraphicData, &Length );
-				m_pObj_Owner_DataGrid->m_pOrbiter->SendCommand( CMD_Request_File );
-				if (Length > 0)
-				{
-					pCell->m_GraphicLength = Length;
-					pCell->m_GraphicFormat = GR_JPG;
-				}
-			}
+			size_t s=0;
+			pCell->m_pGraphicData = m_pObj_Owner_DataGrid->m_pOrbiter->ReadFileIntoBuffer(pPath,s);
+			pCell->m_GraphicLength = (unsigned long) s;
+			pCell->m_GraphicFormat = GR_JPG;
 		} 
 		if ( pCell->m_pGraphicData && !pCell->m_pGraphic )
 		{

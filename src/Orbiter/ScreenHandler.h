@@ -140,6 +140,7 @@ public:
 	CallBackData *m_mapCallBackData_Find(CallBackType aCallBackType);
 
 	map<string,string> m_mapKeywords;  // Used for storing keywords to be substituded into text
+	string m_mapKeywords_Find(string sKeyword) { PLUTO_SAFETY_LOCK( vm, m_pOrbiter->m_VariableMutex ); map<string,string>::iterator it = m_mapKeywords.find(sKeyword); return it==m_mapKeywords.end() ? "" : (*it).second; }
 
 	//helper functions
 	int GetCurrentScreen_PK_DesignObj();
@@ -160,6 +161,7 @@ public:
 	bool MediaBrowser_ObjectSelected(CallBackData *pData);
 	string GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad);
 	bool MediaBrowser_DatagridSelected(CallBackData *pData);
+	void SelectedMediaFile(string sFile);
 	bool FileList_GridRendering(CallBackData *pData);
 	void SelectedAttributeCell(DataGridCell *pCell);
 	bool MediaBrowser_Render(CallBackData *pData);

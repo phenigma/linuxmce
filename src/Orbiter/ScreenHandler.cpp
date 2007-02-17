@@ -650,42 +650,8 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 			return true;
 		}
 
-		DesignObj_Orbiter *pObj_Play = NULL;
-		if( pCell_List->m_mapAttributes_Find("Terms").empty() )
-			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
-		else
-			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFilePurchaseDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Purchase_CONST) );
+		SelectedMediaFile(pCell_List->m_Value);
 
-		if( !pObj_Play || !pObj_Play->m_pParentObject )
-			return true; // Shouldn't happen
-
-		mediaFileBrowserOptions.m_sSelectedFile = pCell_List->m_Value;
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,mediaFileBrowserOptions.m_sSelectedFile);
-		NeedToRender render2( m_pOrbiter, "ScreenHandler::MediaBrowser_DatagridSelected" );
-		m_pOrbiter->CMD_Goto_DesignObj(0,pObj_Play->m_pParentObject->m_ObjectID,"","",false,true);
-
-		if( pCell_Pic && pCell_Pic->m_pGraphic && pCell_Pic->m_pGraphic->m_pGraphicData )
-			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
-				pCell_Pic->m_pGraphic->m_pGraphicData,
-				int(pCell_Pic->m_pGraphic->m_GraphicLength),"0");
-		else if( pCell_Pic && pCell_Pic->m_pGraphicData )
-			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
-				pCell_Pic->m_pGraphicData,
-				pCell_Pic->m_GraphicLength,"0");
-		else
-			m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
-				NULL,
-				0,"0");
-
-		DesignObj_Orbiter *pParentObject = dynamic_cast<DesignObj_Orbiter *>(pObj_Play->m_pParentObject);
-		if(NULL != pParentObject)
-			m_pOrbiter->Renderer()->RenderObjectAsync(pParentObject);
-
-		m_pOrbiter->m_pObj_Highlighted = pObj_Play;
-#ifdef ENABLE_MOUSE_BEHAVIOR
-		if( m_pOrbiter->m_pMouseBehavior )
-			m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
-#endif
 		return true;  // Otherwise there may be a crash in selected grid since we may have already removed the grid and the cells
 	}
 	else if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Media_Attributes_For_File_CONST )
@@ -696,6 +662,14 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 	}
 	else if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Media_Search_Auto_Compl_CONST )
 	{
+		if( StringUtils::StartsWith(pCellInfoData->m_sValue,"!F") )
+		{
+			GetAttributesForMediaFile(pCellInfoData->m_sValue.c_str());
+			SelectedMediaFile(pCellInfoData->m_sValue);
+			return true;
+		}
+		else if( StringUtils::StartsWith(pCellInfoData->m_sValue,"!A") )
+			pCellInfoData->m_sValue = pCellInfoData->m_sValue.substr(2);
 		mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
 		mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(pCellInfoData->m_sValue.c_str()),pCellInfoData->m_sText ));
 		// Reset the sort type back to the title when the user is doing a keyword search
@@ -705,6 +679,48 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 		return true;
 	}
 	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SelectedMediaFile(string sFile)
+{
+	DesignObj_Orbiter *pObj_Play = NULL;
+	string sTerms = m_mapKeywords_Find("TERMS");
+	if( sTerms.empty() )
+		pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
+	else
+		pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFilePurchaseDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Purchase_CONST) );
+
+	if( !pObj_Play || !pObj_Play->m_pParentObject )
+		return; // Shouldn't happen
+
+	mediaFileBrowserOptions.m_sSelectedFile = sFile;
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,mediaFileBrowserOptions.m_sSelectedFile);
+	NeedToRender render2( m_pOrbiter, "ScreenHandler::MediaBrowser_DatagridSelected" );
+	m_pOrbiter->CMD_Goto_DesignObj(0,pObj_Play->m_pParentObject->m_ObjectID,"","",false,true);
+
+	string sPicture = m_mapKeywords_Find("PICTURE");
+	if( sPicture.empty()==false )
+	{
+		size_t size;
+		char *pGraphicData = m_pOrbiter->ReadFileIntoBuffer(sPicture,size);
+		m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
+			pGraphicData,
+			(int) size,"0");
+	}
+	else
+		m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
+			NULL,
+			0,"0");
+
+	DesignObj_Orbiter *pParentObject = dynamic_cast<DesignObj_Orbiter *>(pObj_Play->m_pParentObject);
+	if(NULL != pParentObject)
+		m_pOrbiter->Renderer()->RenderObjectAsync(pParentObject);
+
+	m_pOrbiter->m_pObj_Highlighted = pObj_Play;
+#ifdef ENABLE_MOUSE_BEHAVIOR
+	if( m_pOrbiter->m_pMouseBehavior )
+		m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::FileList_GridRendering(CallBackData *pData)
