@@ -1477,9 +1477,12 @@ void MythTV_PlugIn::BuildChannelList()
 		while(pos<sBookmarks.size())
 		{
 			int Channel = atoi( StringUtils::Tokenize( sBookmarks, ",", pos ).c_str() );
-			MythChannel *pMythChannel = m_mapMythChannel[ Channel ];
-			if( pMythChannel )
-				listMythChannel_Favs.push_back( pMythChannel );
+			if( m_mapMythChannel.find(Channel)!=m_mapMythChannel.end() )
+			{
+				MythChannel *pMythChannel = m_mapMythChannel[ Channel ];
+				if( pMythChannel )
+					listMythChannel_Favs.push_back( pMythChannel );
+			}
 		}
 		m_mapUserFavoriteChannels[pRow_Users->PK_Users_get()]=listMythChannel_Favs.size();
 		listMythChannel_Favs.sort(ChannelComparer);

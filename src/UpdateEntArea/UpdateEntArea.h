@@ -94,6 +94,12 @@ public:
 	CommandGroup *CreateLeaveHomeCommandGroup(CommandGroupArray &commandGroupArray);
 	Row_EventHandler *CreateLeaveHomeEventHandler(CommandGroupArray &commandGroupArray);
 	Row_Criteria *SetLeaveHomeCriteria(Row_EventHandler *pRow_EventHandler);
+
+	CommandGroup *CreateSunsetCommandGroup(CommandGroupArray &commandGroupArray);
+	Row_EventHandler *CreateSunsetEventHandler(CommandGroupArray &commandGroupArray);
+	CommandGroup *CreateSunriseCommandGroup(CommandGroupArray &commandGroupArray);
+	Row_EventHandler *CreateSunriseEventHandler(CommandGroupArray &commandGroupArray);
+
 	void ResetEventHandler_psc_mod(Row_EventHandler *pRow_EventHandler);
 
 	CommandGroup *CreateWatchingMediaCommandGroup(CommandGroupArray &commandGroupArray,Row_Room *pRow_Room,int iIsWatching);

@@ -84,6 +84,26 @@ void UpdateEntArea::AddDefaultEventHandlers()
 		ResetEventHandler_psc_mod(pRow_EventHandler);
 	}
 
+	pCommandGroup=CreateSunsetCommandGroup(commandGroupArray);
+	pRow_EventHandler=CreateSunsetEventHandler(commandGroupArray);
+	if( pRow_EventHandler )  // The user didn't change it, so go ahead and confirm it's current
+	{
+		if( pCommandGroup )
+			pRow_EventHandler->FK_CommandGroup_set( pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get() );
+		pRow_EventHandler->Table_EventHandler_get()->Commit();
+		ResetEventHandler_psc_mod(pRow_EventHandler);
+	}
+
+	pCommandGroup=CreateSunriseCommandGroup(commandGroupArray);
+	pRow_EventHandler=CreateSunriseEventHandler(commandGroupArray);
+	if( pRow_EventHandler )  // The user didn't change it, so go ahead and confirm it's current
+	{
+		if( pCommandGroup )
+			pRow_EventHandler->FK_CommandGroup_set( pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get() );
+		pRow_EventHandler->Table_EventHandler_get()->Commit();
+		ResetEventHandler_psc_mod(pRow_EventHandler);
+	}
+
 	// Create a handler for all the security breaches
 	int iSecurityAlerts[] = {EVENT_Security_Breach_CONST,EVENT_Fire_Alarm_CONST,EVENT_Reset_Alarm_CONST};
 	for(int iCount=0;iCount<3;iCount++)
@@ -158,7 +178,6 @@ CommandGroup *UpdateEntArea::CreateLeaveHomeCommandGroup(CommandGroupArray &comm
 			COMMANDPARAMETER_PK_Users_CONST,StringUtils::itos(pRow_Users->PK_Users_get()).c_str(),
 			COMMANDPARAMETER_PK_UserMode_CONST,StringUtils::itos(USERMODE_Away_CONST).c_str());
 	}
-
 
 	return pCommandGroup;
 }
@@ -284,6 +303,112 @@ Row_Criteria *UpdateEntArea::SetLeaveHomeCriteria(Row_EventHandler *pRow_EventHa
 	}
 	else
 		return NULL;
+}
+
+CommandGroup *UpdateEntArea::CreateSunsetCommandGroup(CommandGroupArray &commandGroupArray)
+{
+	CommandGroup *pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Sunset",0,0,0);  // Sunset event
+	if( pCommandGroup )
+	{
+		map<int,pair<int,int> > map_Device_Type_RoomType;
+		GetDevicesTypesAndRoomTypes(DEVICECATEGORY_Lighting_Device_CONST,&map_Device_Type_RoomType);
+		int iOrder=1;
+		for(map<int,pair<int,int> >::iterator it=map_Device_Type_RoomType.begin();it!=map_Device_Type_RoomType.end();++it)
+		{
+			if( IsExterior(it->second.second) )
+				pCommandGroup->AddCommand(it->first,COMMAND_Generic_On_CONST,iOrder++,0);
+		}
+	}
+	return pCommandGroup;
+}
+
+Row_EventHandler *UpdateEntArea::CreateSunsetEventHandler(CommandGroupArray &commandGroupArray)
+{
+	vector<Row_EventHandler *> vectRow_EventHandler;
+	string sSQL = "FK_Template=" + StringUtils::itos(TEMPLATE_Lighting_Wizard_CONST) + 
+		" AND TemplateParm1=0 AND TemplateParm2=0";
+	
+	// There should only be 1
+	m_pDatabase_pluto_main->EventHandler_get()->GetRows(sSQL,&vectRow_EventHandler);
+	for(size_t s=1;s<vectRow_EventHandler.size();++s)
+	{
+		Row_EventHandler *pRow_EventHandler = vectRow_EventHandler[s];
+		if( atoi(pRow_EventHandler->psc_mod_get().c_str())==0 )
+			pRow_EventHandler->Delete();
+	}
+
+	Row_EventHandler *pRow_EventHandler;
+	if( vectRow_EventHandler.size() )
+	{
+		pRow_EventHandler = vectRow_EventHandler[0];
+		if( atoi(pRow_EventHandler->psc_mod_get().c_str())!=0 )
+			return NULL;
+	}
+	else	// There is no such event handler.  Create it
+		pRow_EventHandler = m_pDatabase_pluto_main->EventHandler_get()->AddRow();
+
+	pRow_EventHandler->Description_set("Sunset");
+	pRow_EventHandler->FK_Event_set(EVENT_Sunset_CONST);
+	pRow_EventHandler->FK_Installation_set(m_iPK_Installation);
+	pRow_EventHandler->FK_Template_set(TEMPLATE_Lighting_Wizard_CONST);
+	pRow_EventHandler->TemplateParm1_set(0);
+	pRow_EventHandler->TemplateParm2_set(0);
+	pRow_EventHandler->UserCreated_set(0);
+
+	return pRow_EventHandler;
+}
+
+CommandGroup *UpdateEntArea::CreateSunriseCommandGroup(CommandGroupArray &commandGroupArray)
+{
+	CommandGroup *pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Sunrise",0,1,0);  // Sunrise event
+	if( pCommandGroup )
+	{
+		map<int,pair<int,int> > map_Device_Type_RoomType;
+		GetDevicesTypesAndRoomTypes(DEVICECATEGORY_Lighting_Device_CONST,&map_Device_Type_RoomType);
+		int iOrder=1;
+		for(map<int,pair<int,int> >::iterator it=map_Device_Type_RoomType.begin();it!=map_Device_Type_RoomType.end();++it)
+		{
+			if( IsExterior(it->second.second) )
+				pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,iOrder++,0);
+		}
+	}
+	return pCommandGroup;
+}
+
+Row_EventHandler *UpdateEntArea::CreateSunriseEventHandler(CommandGroupArray &commandGroupArray)
+{
+	vector<Row_EventHandler *> vectRow_EventHandler;
+	string sSQL = "FK_Template=" + StringUtils::itos(TEMPLATE_Lighting_Wizard_CONST) + 
+		" AND TemplateParm1=1 AND TemplateParm2=0";
+	
+	// There should only be 1
+	m_pDatabase_pluto_main->EventHandler_get()->GetRows(sSQL,&vectRow_EventHandler);
+	for(size_t s=1;s<vectRow_EventHandler.size();++s)
+	{
+		Row_EventHandler *pRow_EventHandler = vectRow_EventHandler[s];
+		if( atoi(pRow_EventHandler->psc_mod_get().c_str())==0 )
+			pRow_EventHandler->Delete();
+	}
+
+	Row_EventHandler *pRow_EventHandler;
+	if( vectRow_EventHandler.size() )
+	{
+		pRow_EventHandler = vectRow_EventHandler[0];
+		if( atoi(pRow_EventHandler->psc_mod_get().c_str())!=0 )
+			return NULL;
+	}
+	else	// There is no such event handler.  Create it
+		pRow_EventHandler = m_pDatabase_pluto_main->EventHandler_get()->AddRow();
+
+	pRow_EventHandler->Description_set("Sunrise");
+	pRow_EventHandler->FK_Event_set(EVENT_Sunrise_CONST);
+	pRow_EventHandler->FK_Installation_set(m_iPK_Installation);
+	pRow_EventHandler->FK_Template_set(TEMPLATE_Lighting_Wizard_CONST);
+	pRow_EventHandler->TemplateParm1_set(1);
+	pRow_EventHandler->TemplateParm2_set(0);
+	pRow_EventHandler->UserCreated_set(0);
+
+	return pRow_EventHandler;
 }
 
 void UpdateEntArea::AddDefaultEventHandlers(Row_Room *pRow_Room)

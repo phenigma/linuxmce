@@ -361,7 +361,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		{
 			if( m_pMouseHandler && m_pMouseHandler->ButtonDown(PK_Button) )  // The mouse handler may want to do something with it
 				return true;
-			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"");
+			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"",false);
 			m_pOrbiter->SendCommand(CMD_MH_Stop_Media);
 			m_pOrbiter->m_iPK_Screen_RemoteOSD=m_pOrbiter->m_iPK_Screen_Remote=0;  // So the Clear below does't try to go to the remote as the main menu
 			Clear(true);

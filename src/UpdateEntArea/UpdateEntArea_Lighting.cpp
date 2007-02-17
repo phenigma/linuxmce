@@ -200,7 +200,8 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 				else if( it->second==FLOORPLANOBJECTTYPE_LIGHT_BLINDS_CONST || it->second==FLOORPLANOBJECTTYPE_LIGHTS_DRAPES_CONST )
 					pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,iOrder++,0);
 			}
-			pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Stop_Media_CONST,iOrder++,0);
+			pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Stop_Media_CONST,iOrder++,1,
+				COMMANDPARAMETER_Bypass_Event_CONST,"1");
 			pCommandGroup->AddCommand(m_dwPK_Device_TelecomPlugIn,COMMAND_Set_User_Mode_CONST,iOrder++,1,
 				COMMANDPARAMETER_PK_UserMode_CONST,StringUtils::itos(USERMODE_Sleeping_CONST).c_str());
 		}
@@ -227,27 +228,23 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"House to sleep mode",ICON_House_to_Sleep_Mode_CONST,5,0);  // House to sleep mode is parm1=5
 		if( pCommandGroup )
 		{
-			int PK_CommandGroup; // Get the sleeping group for this room
-			commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Sleep",ICON_Sleep_CONST,3,0,&PK_CommandGroup);  // Bedtime is parm1=3
-
-			if( PK_CommandGroup )
-				pCommandGroup->AddCommand(m_dwPK_Device_DCERouter,COMMAND_Execute_Command_Group_CONST,iOrder++,1,
-					COMMANDPARAMETER_PK_CommandGroup_CONST,StringUtils::itos(PK_CommandGroup).c_str());
-
 			vector<Row_EntertainArea *> vectRow_EntertainArea;
 			pRow_Room->Table_Room_get()->Database_pluto_main_get()->EntertainArea_get()->GetRows("1=1 ORDER BY PK_EntertainArea",&vectRow_EntertainArea);
 			for(size_t s=0;s<vectRow_EntertainArea.size();++s)
-				pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Stop_Media_CONST,iOrder++,1,
-					COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(vectRow_EntertainArea[s]->PK_EntertainArea_get()).c_str());
+			{
+				Row_Room *pRow_Room = vectRow_EntertainArea[s]->FK_Room_getrow();
+				if( pRow_Room && IsPublicInteriorRoom(pRow_Room->FK_RoomType_get()) )
+					pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Stop_Media_CONST,iOrder++,2,
+						COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(vectRow_EntertainArea[s]->PK_EntertainArea_get()).c_str(),
+						COMMANDPARAMETER_Bypass_Event_CONST,"1");
+			}
 
 			map<int,pair<int,int> > map_Device_Type_RoomType;
 			GetDevicesTypesAndRoomTypes(DEVICECATEGORY_Lighting_Device_CONST,&map_Device_Type_RoomType);
 			for(map<int,pair<int,int> >::iterator it=map_Device_Type_RoomType.begin();it!=map_Device_Type_RoomType.end();++it)
 			{
-				if( IsPublicInteriorRoom(it->second.second) )
+				if( IsPublicInteriorRoom(it->second.second) || IsExterior(it->second.second) )
 					pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,iOrder++,0);
-				else if( IsExterior(it->second.second) )
-					pCommandGroup->AddCommand(it->first,COMMAND_Generic_On_CONST,iOrder++,0);
 			}
 		}
 	}

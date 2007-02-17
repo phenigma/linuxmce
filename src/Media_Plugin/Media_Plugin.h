@@ -464,7 +464,7 @@ public:
 	// If the new stream we're starting has bResume true, then bDeleteStream==false so we don't delete the stream since we'll be resuming it
 	// If a new stream is replacing an old one, pMediaStream_Replacement is set to the new stream so we know if we should
 	// fire the watching/listening events again.
-	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true,MediaStream *pMediaStream_Replacement=NULL,vector<EntertainArea *> *p_vectEntertainArea=NULL,bool bNoAutoResume=false,bool bTurnOnOSD=true);
+	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true,MediaStream *pMediaStream_Replacement=NULL,vector<EntertainArea *> *p_vectEntertainArea=NULL,bool bNoAutoResume=false,bool bTurnOnOSD=true,bool bFireEvent=true);
 	void MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent=true);
 
 	virtual bool PendingTasks(vector< pair<string,string> > *vectPendingTasks=NULL);
@@ -719,9 +719,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d 
 			/** The type of device to stop the media on. */
 		/** @param #45 PK_EntertainArea */
 			/** This is the location on which we need to stop the media. This is optional. If not specified the orbiter will decide the location based on the controlled area. */
+		/** @param #254 Bypass Event */
+			/** If true, the usual event for 'Stopped Watching Media' won't be fired */
 
-	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea) { string sCMD_Result; CMD_MH_Stop_Media(iPK_Device,iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bBypass_Event) { string sCMD_Result; CMD_MH_Stop_Media(iPK_Device,iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),bBypass_Event,sCMD_Result,NULL);};
+	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bBypass_Event,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #65 - Jump Position In Playlist */

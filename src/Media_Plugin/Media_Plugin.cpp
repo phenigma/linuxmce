@@ -1271,7 +1271,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
 			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
-			StreamEnded(pEntertainArea->m_pMediaStream,false,pMediaStream->m_bResume ? false : true,pMediaStream);  // Don't delete it if we're going to resume
+			StreamEnded(pEntertainArea->m_pMediaStream,false,pMediaStream->m_bResume ? false : true,pMediaStream,NULL,false,true,false);  // Don't delete it if we're going to resume
 			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
 
 		}
@@ -1595,7 +1595,7 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 			(!pEntertainArea || !pEntertainArea->m_pMediaStream || pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo!=m_pGenericMediaHandlerInfo) )
 		{
 			string sResult;
-			CMD_MH_Stop_Media(0,0,0,StringUtils::itos(pEntertainArea->m_iPK_EntertainArea),sResult,pMessage);  // It expects to get a valid message
+			CMD_MH_Stop_Media(0,0,0,StringUtils::itos(pEntertainArea->m_iPK_EntertainArea),false,sResult,pMessage);  // It expects to get a valid message
 			return rmr_NotProcessed;
 		}
 		else if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source &&
@@ -1910,8 +1910,10 @@ g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMed
 			/** The type of device to stop the media on. */
 		/** @param #45 PK_EntertainArea */
 			/** This is the location on which we need to stop the media. This is optional. If not specified the orbiter will decide the location based on the controlled area. */
+		/** @param #254 Bypass Event */
+			/** If true, the usual event for 'Stopped Watching Media' won't be fired */
 
-void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bBypass_Event,string &sCMD_Result,Message *pMessage)
 //<-dceag-c44-e->
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -1932,11 +1934,11 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
 		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
 
-		StreamEnded(pEntertainArea->m_pMediaStream);
+		StreamEnded(pEntertainArea->m_pMediaStream,true,true,NULL,NULL,false,true,!bBypass_Event);
 	}
 }
 
-void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement,vector<EntertainArea *> *p_vectEntertainArea,bool bNoAutoResume,bool bTurnOnOSD)
+void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement,vector<EntertainArea *> *p_vectEntertainArea,bool bNoAutoResume,bool bTurnOnOSD,bool bFireEvent)
 {
 	if ( pMediaStream == NULL )
 	{
@@ -1996,7 +1998,6 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		int PK_Pipe_Prior = pRow_MediaType_Prior && pRow_MediaType_Prior->FK_Pipe_isNull()==false ? pRow_MediaType_Prior->FK_Pipe_get() : 0;
 		AddOtherDevicesInPipesToRenderDevices(PK_Pipe_Prior,&mapMediaDevice_Prior);
 
-		bool bFireEvent=true;
 		if( pMediaStream_Replacement &&
 				pMediaStream_Replacement->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaStream_Replacement->m_mapEntertainArea.end() &&
 				pMediaStream_Replacement->ContainsVideo()==pMediaStream->ContainsVideo() )
