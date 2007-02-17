@@ -823,7 +823,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 
         (*SafetyMessage)->m_dwPK_Device_To=DEVICEID_LIST;
     }
-    if( (*SafetyMessage)->m_dwPK_Device_To==m_dwPK_Device || (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_CATEGORY || (*SafetyMessage)->m_dwPK_Device_To==DEVICETEMPLATE_VirtDev_DCE_Router_CONST )
+    if( (*SafetyMessage)->m_dwPK_Device_To==m_dwPK_Device || (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_CATEGORY || (*SafetyMessage)->m_dwPK_Device_To==DEVICETEMPLATE_VirtDev_DCE_Router_CONST || (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_DCEROUTER )
     {
 		HandleRouterMessage(pMessageWillBeDeleted);
 		return;
