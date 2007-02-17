@@ -995,6 +995,14 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 
 			// We have a capture card.  See if it's in the database already.  We use DEVICEDATA_Port_CONST for the port
 			int cardid = atoi(DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,bTunersAsSeparateDevices ? pRow_Device->PK_Device_get() : pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST).c_str());
+			if( cardid && (pRow_Device->Disabled_get()==1 || pRow_Device_CaptureCard->Disabled_get()==1) )
+			{
+				sSQL = "DELETE FROM `capturecard` where cardid=" + StringUtils::itos(cardid);
+				m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
+				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,bTunersAsSeparateDevices ? pRow_Device->PK_Device_get() : pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST,"");
+				continue;
+			}
+
 			string sPortName = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Name_CONST);
 			string sBlockDevice = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
 			if( sBlockDevice.empty() )
@@ -1127,7 +1135,14 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 		}
 	}
 
-	// 
+	// Delete any stray rows for cards that no longer exist
+	sSQL = "DELETE cardinput FROM cardinput LEFT JOIN capturecard ON capturecard.cardid=cardinput.cardid WHERE capturecard.cardid IS NULL";
+	if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
+		bModifiedRows=true;
+	sSQL = "DELETE videosource FROM videosource LEFT JOIN cardinput on videosource.sourceid=cardinput.sourceid WHERE cardinput.sourceid IS NULL";
+	if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
+		bModifiedRows=true;
+
 	if( m_mapPendingScans.empty()==false )
 		return;
 

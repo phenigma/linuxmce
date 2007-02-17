@@ -270,7 +270,7 @@ void FileLogger::WriteEntry( Entry& Entry )
 #else
     fwrite( "\n", 1, 1, m_LogFile );
 #endif
-    fflush( m_LogFile );
+//    fflush( m_LogFile );  Try leaving this out to get faster disk performance
 }
 
 #ifdef WIN32

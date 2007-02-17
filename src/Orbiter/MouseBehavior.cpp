@@ -85,7 +85,9 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	ResetSamples();
 	ConstrainMouse(PlutoRectangle(0,0,0,0));
 	m_pLastPosition.X=m_pLastPosition.Y=-1;
-g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p goto menu %d",m_pMouseHandler,(int) bGotoMainMenu);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p goto menu %d",m_pMouseHandler,(int) bGotoMainMenu);
+#endif
 	delete m_pMouseHandler;
 	m_pMouseHandler=NULL;
 	m_pMouseGovernor->SetBuffer(0);
@@ -113,8 +115,10 @@ g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p goto 
 void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj)
 {
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
-g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s- -%s-",
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s- -%s-",
 					  sOptions.c_str(),(int) bExclusive,sDirection.c_str(),sDesignObj.c_str());
+#endif
 	if( sOptions.size()==0 )
 	{
 		Clear();

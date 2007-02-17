@@ -358,9 +358,10 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 		}
 		else
 		{
+#ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "WinListManager::ApplyContext: applying whole context for '%s': %s (ExternalChange: %d ErrorFlag %d)",
 				sWindowName.c_str(), pending_context.ToString().c_str(),(int) m_bExternalChange,(int) pending_context.IsErrorFlag());
-
+#endif
 			bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 			bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
 			bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());

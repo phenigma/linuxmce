@@ -727,7 +727,7 @@ bool Orbiter::GetConfig()
 
 		Message *pMessage = new Message(sMessage);
 		if( pMessage->m_dwPK_Device_To<0 )
-			pMessage->m_dwPK_Device_To = TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
+			TranslateVirtualDevice(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_To);
 		m_mapShortcut[ sCharacter[0] ] = pMessage;
 	}
 	
@@ -2454,7 +2454,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 
 		Message *pMessage = new Message(StringUtils::Tokenize(sToken,"\t",pos2));
 		if( pMessage->m_dwPK_Device_To<0 )
-			pMessage->m_dwPK_Device_To = TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
+			TranslateVirtualDevice(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_To );
 		if( !pMessage->m_dwPK_Device_From )
 			pMessage->m_dwPK_Device_From = m_dwPK_Device;
 #ifdef DEBUG
@@ -3843,7 +3843,7 @@ int k=2;
 				pCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;  // Set this to a temporary value,  so we'll know if it's changes at teh end of the if
 				if( pCommand->m_PK_DeviceTemplate!=DEVICEID_HANDLED_INTERNALLY )  // Just leave it there
 				{
-					pCommand->m_PK_Device = TranslateVirtualDevice(pCommand->m_PK_DeviceTemplate);
+					TranslateVirtualDevice(pCommand->m_PK_DeviceTemplate,pCommand->m_PK_Device);
 					if(  pCommand->m_PK_Device==DEVICEID_NULL  )
 					{
 						// We recognized it as one of the known cases in the switch block,  but apparently this option isn't sent
@@ -4419,8 +4419,9 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		}
 		else if( Variable.length()>1 && Variable[0]=='V'  )
 		{
-			int VirtDev=atoi(Variable.substr(1).c_str());
-			Output += StringUtils::itos(TranslateVirtualDevice(VirtDev));
+			long VirtDev=atoi(Variable.substr(1).c_str());
+			TranslateVirtualDevice(VirtDev,VirtDev);
+			Output += StringUtils::itos(VirtDev);
 		}
 		else if( Variable.length()>1 && Variable[0]=='D'  )
 		{
@@ -7060,76 +7061,75 @@ void Orbiter::StopSimulatorThread()
 	g_pPlutoLogger->Write(LV_STATUS,"Simulator thread stopped.");
 }
 
-int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
+void Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate,long &PK_Device)
 {
 	// This is going to a virtual device
 	switch(  PK_DeviceTemplate )
 	{
 	case DEVICETEMPLATE_VirtDev_IR_Receiver_CONST:
-		return m_pLocationInfo->m_dwPK_Device_IRReceiver;
+		PK_Device=m_pLocationInfo->m_dwPK_Device_IRReceiver;
 
 	case DEVICETEMPLATE_VirtDev_LCDVFD_CONST:
-		return m_pLocationInfo->m_dwPK_Device_LCD_VFD;
+		PK_Device=m_pLocationInfo->m_dwPK_Device_LCD_VFD;
 
 	case DEVICETEMPLATE_VirtDev_AppServer_CONST:
-		return m_pLocationInfo->m_dwPK_Device_AppServer;
+		PK_Device=m_pLocationInfo->m_dwPK_Device_AppServer;
 
 	case DEVICETEMPLATE_VirtDev_Orbiter_Onscreen_CONST:
-		return m_pLocationInfo->m_dwPK_Device_Orbiter;
+		PK_Device=m_pLocationInfo->m_dwPK_Device_Orbiter;
 
 	case DEVICETEMPLATE_VirtDev_Media_Director_CONST:
-		return m_pLocationInfo->m_dwPK_Device_MediaDirector;
+		PK_Device=m_pLocationInfo->m_dwPK_Device_MediaDirector;
 
 	case DEVICETEMPLATE_VirtDev_Local_Media_Director_CONST:
-		return m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector;
+		PK_Device=m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector;
 
 	case DEVICETEMPLATE_This_Orbiter_CONST:
-		return m_dwPK_Device;
+		PK_Device=m_dwPK_Device;
 
 	case DEVICETEMPLATE_This_Orbiters_Now_Playing_CONST:
-		return m_dwPK_Device_NowPlaying;
+		PK_Device=m_dwPK_Device_NowPlaying;
 
 	case DEVICETEMPLATE_VirtDev_Security_Plugin_CONST:
-		return m_dwPK_Device_SecurityPlugIn;
+		PK_Device=m_dwPK_Device_SecurityPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST:
-		return m_dwPK_Device_TelecomPlugIn;
+		PK_Device=m_dwPK_Device_TelecomPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Media_Plugin_CONST:
-		return m_dwPK_Device_MediaPlugIn;
+		PK_Device=m_dwPK_Device_MediaPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Climate_PlugIn_CONST:
-		return m_dwPK_Device_ClimatePlugIn;
+		PK_Device=m_dwPK_Device_ClimatePlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Lighting_PlugIn_CONST:
-		return m_dwPK_Device_LightingPlugIn;
+		PK_Device=m_dwPK_Device_LightingPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Infrared_Plugin_CONST:
-		return m_dwPK_Device_InfraredPlugIn;
+		PK_Device=m_dwPK_Device_InfraredPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST:
-		return m_dwPK_Device_GeneralInfoPlugIn;
+		PK_Device=m_dwPK_Device_GeneralInfoPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Event_Plugin_CONST:
-		return m_dwPK_Device_EventPlugIn;
+		PK_Device=m_dwPK_Device_EventPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST:
-		return m_dwPK_Device_DatagridPlugIn;
+		PK_Device=m_dwPK_Device_DatagridPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST:
-		return m_dwPK_Device_OrbiterPlugIn;
+		PK_Device=m_dwPK_Device_OrbiterPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Plug_And_Play_PlugI_CONST:
-		return m_dwPK_Device_PlugAndPlayPlugIn;
+		PK_Device=m_dwPK_Device_PlugAndPlayPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Local_AppServer_CONST:
-		return m_dwPK_Device_LocalAppServer;
+		PK_Device=m_dwPK_Device_LocalAppServer;
 
 	case DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST:
-		return m_dwPK_Device_LocalMediaPlayer;
+		PK_Device=m_dwPK_Device_LocalMediaPlayer;
 
 	}
-	return -1;
 }
 
 //<-dceag-c324-b->

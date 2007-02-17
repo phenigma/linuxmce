@@ -24,7 +24,7 @@ public:
 	virtual ~Virtual_Device_Translator() {};
 	virtual bool GetConfig(DeviceData_Base *pDeviceData_Base);
 
-	int TranslateVirtualDevice(int PK_DeviceTemplate);
+	void TranslateVirtualDevice(int PK_DeviceTemplate,long &PK_Device);
 
 };
 

@@ -33,7 +33,9 @@ WindowLayer WindowContext::Layer()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::Layer(WindowLayer layer)
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "WindowContext::Layer '%s' : %s", m_sWindowName.c_str(), WindowLayerStr[layer]);
+#endif
 	m_WindowLayer = layer;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -44,7 +46,9 @@ bool WindowContext::IsMaximized()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::Maximize(bool bValue)
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "WindowContext::Maximize '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#endif
 	m_bMaximized = bValue;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -55,7 +59,9 @@ bool WindowContext::IsFullScreen()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::FullScreen(bool bValue)
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "WindowContext::FullScreen '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#endif
 	m_bFullScreen = bValue;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -66,7 +72,10 @@ bool WindowContext::IsVisible()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::Visible(bool bValue)
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "WindowContext::Visible '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#endif
+
 	m_bVisible = bValue;
 	if( bValue==false )
 		m_bActivated = false; // If the window has become invisible, it should be activated the next time Activate(true) is set
@@ -79,7 +88,9 @@ bool WindowContext::IsActivated()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::Activate(bool bValue)
 {	
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "WindowContext::Activate '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#endif
 	m_bActivated = bValue;
 }
 
@@ -91,7 +102,9 @@ bool WindowContext::IsErrorFlag()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::ErrorFlag(bool bValue)
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "WindowContext::IsErrorFlag '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#endif
 	m_bErrorFlag = bValue;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -102,8 +115,10 @@ PlutoRectangle WindowContext::Position()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::Position(PlutoRectangle rectangle)
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "WindowContext::Position '%s' : x %d, y %d, w %d, h %d", 
 		m_sWindowName.c_str(), rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+#endif
 	m_rectPosition = rectangle;
 }
 //-----------------------------------------------------------------------------------------------------

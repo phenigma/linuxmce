@@ -222,7 +222,9 @@ bool PlutoHIDInterface::DoStartMouse()
 		perror("error: ");
 		return false;
 	}
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::StartMouse remote %d",m_iRemoteID);
+#endif
 	return true;
 }
 
@@ -247,7 +249,9 @@ bool PlutoHIDInterface::DoStopMouse()
 		perror("error: ");
 		return false;
 	}
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::StopMouse remote %d",m_iRemoteID);
+#endif
 	return true;
 }
 

@@ -177,6 +177,7 @@ public:
 	virtual void SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack);
 	virtual void SCREEN_GenericKeyboard(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sCannotGoBack){ SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, sDescription, "0", "0", sCannotGoBack); }  // Treat this like the popup message
 	virtual void SCREEN_Power(long PK_Screen);
+	bool Power_ObjectSelected(CallBackData *pData);
 
 	virtual void SCREEN_GenericAppController(long PK_Screen);
 	virtual void SCREEN_GenericAppFullScreen(long PK_Screen);

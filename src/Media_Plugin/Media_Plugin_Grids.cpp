@@ -1959,12 +1959,14 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 			if( !pRow_Device )
 				continue; // Shouldn't happen
 
-			if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Players_CONST 
+			if( pRow_Device->Disabled_get()==1 || pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Players_CONST 
 				|| DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Orbiter_CONST) )
 					continue; // Skip the internal sources, and orbiters which use this table for another purpose
 
 			string sDescription = pRow_Device->Description_get();
 			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
+			if( pRow_Device_Parent && pRow_Device_Parent->Disabled_get()==1 )
+				continue;
 			while( pRow_Device_Parent )
 			{
 				sDescription = pRow_Device_Parent->Description_get() + " / " + sDescription;

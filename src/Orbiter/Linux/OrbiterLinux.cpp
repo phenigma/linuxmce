@@ -740,15 +740,9 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode,int Type)
             break;
         case XK_5: case XK_KP_5:
             if(m_bShiftDown)
-			{
                 iPK_Button = BUTTON_percent_CONST;
-				g_pPlutoLogger->Write(LV_STATUS, "% key");
-			}
             else
-			{
                 iPK_Button = BUTTON_5_CONST;
-				g_pPlutoLogger->Write(LV_STATUS, "5 key");
-			}
             break;
         case XK_6: case XK_KP_6:
             if(m_bShiftDown)

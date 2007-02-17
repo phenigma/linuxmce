@@ -571,8 +571,9 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing(string sObjectHash)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
-
+#endif
 	m_bWorldChanged = true;
 	MeshFrame* Result = CurrentLayer;
 

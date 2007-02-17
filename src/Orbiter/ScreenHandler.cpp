@@ -62,7 +62,9 @@ void ScreenHandler::RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCa
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::ResetCallBacks()
 {
-g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ResetCallBacks");
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ResetCallBacks");
+#endif
 	PLUTO_SAFETY_LOCK(vm, m_MapMutex);
 	m_mapCallBack.clear();
 
@@ -1057,6 +1059,7 @@ void ScreenHandler::SCREEN_GenericAppFullScreen(long PK_Screen)
 void ScreenHandler::SCREEN_Power(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_Power(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Power_ObjectSelected, new ObjectInfoBackData());
 	int PK_DesignObj = m_p_MapDesignObj_Find(PK_Screen);
 	string sPK_DesignObj = StringUtils::itos(PK_DesignObj) + ".0.0.";
 
@@ -1120,6 +1123,18 @@ void ScreenHandler::SCREEN_Power(long PK_Screen)
 			m_pOrbiter->CMD_Show_Object( sPK_DesignObj + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
 		}
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Power_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	// If we're an OSD and controlling ourselves, this should send us to the screen saver
+	if( m_pOrbiter->m_bIsOSD && m_pOrbiter->m_iLocation_Initial==m_pOrbiter->m_pLocationInfo->iLocation &&
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_DisplayOFF_Display_CONST )
+	{
+		m_pOrbiter->StartScreenSaver(true);
+	}
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Computing_ObjectSelected(CallBackData *pData)
@@ -2047,7 +2062,8 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				string sNewFolder = "<%=" + StringUtils::ltos(VARIABLE_Seek_Value_CONST) + "%>";
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 
-				int nAppServer = m_pOrbiter->TranslateVirtualDevice(DEVICETEMPLATE_VirtDev_AppServer_CONST);
+				long nAppServer = 0;
+				m_pOrbiter->TranslateVirtualDevice(DEVICETEMPLATE_VirtDev_AppServer_CONST,nAppServer);
 				m_bSaveFile_CreatingFolder = true;
 
 				SCREEN_GenericKeyboard(SCREEN_GenericKeyboard_CONST, 

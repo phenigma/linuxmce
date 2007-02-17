@@ -637,7 +637,7 @@ namespace DCE
 		/**
 		* @brief Convert a virtual device (a negative device that corresponds to the VirtDev entries in DeviceTemplate) into the real device ID
 		*/
-		int TranslateVirtualDevice(int PK_DeviceTemplate);
+		void TranslateVirtualDevice(int PK_DeviceTemplate,long &PK_Device);
 
 		/**
 		*	INITIALIZATION

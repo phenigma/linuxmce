@@ -24,15 +24,15 @@ typedef list<class DesignObjZone *> DesignObjZoneList;
 class DesignObjCommand : public SerializeClass
 {
 public:
-	int m_PK_Command,m_PK_Device,m_PK_DeviceGroup; //,PK_C_ExecTime;
-	int BroadcastLevel,m_PK_DeviceTemplate,m_PK_DeviceCategory;
+	long m_PK_Command,m_PK_Device,m_PK_DeviceGroup,m_PK_DeviceTemplate,m_PK_DeviceCategory; //,PK_C_ExecTime;
+	int BroadcastLevel;
 	bool m_bRelativeToSender,m_bDeliveryConfirmation;
 
 	map<int, string> m_ParameterList;
 	class Orbiter_CriteriaList *ptrCriteria;
 
 	DesignObjCommand() : ptrCriteria(NULL) {};
-	DesignObjCommand(int PK_Command,int PK_Criteria,bool bHandleLocally,int PK_Device,int PK_DeviceGroup, bool bDeliveryConfirmation) 
+	DesignObjCommand(long PK_Command,long PK_Criteria,bool bHandleLocally,long PK_Device,long PK_DeviceGroup, bool bDeliveryConfirmation) 
 		: ptrCriteria(NULL) 
 	{
 		m_PK_Command=PK_Command;

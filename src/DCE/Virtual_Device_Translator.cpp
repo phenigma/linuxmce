@@ -112,71 +112,70 @@ bool Virtual_Device_Translator::GetConfig(DeviceData_Base *pDeviceData_Base)
 
 
 
-int Virtual_Device_Translator::TranslateVirtualDevice(int PK_DeviceTemplate)
+void Virtual_Device_Translator::TranslateVirtualDevice(int PK_DeviceTemplate,long &PK_Device)
 {
 	// This is going to a virtual device
 	switch(  PK_DeviceTemplate )
 	{
 	case DEVICETEMPLATE_VirtDev_IR_Receiver_CONST:
-		return m_dwPK_Device_IRReceiver;
+		PK_Device=m_dwPK_Device_IRReceiver;
 
 	case DEVICETEMPLATE_VirtDev_LCDVFD_CONST:
-		return m_dwPK_Device_LCD_VFD;
+		PK_Device=m_dwPK_Device_LCD_VFD;
 
 	case DEVICETEMPLATE_VirtDev_AppServer_CONST:
-		return m_dwPK_Device_AppServer;
+		PK_Device=m_dwPK_Device_AppServer;
 
 	case DEVICETEMPLATE_VirtDev_Orbiter_Onscreen_CONST:
-		return m_dwPK_Device_Orbiter;
+		PK_Device=m_dwPK_Device_Orbiter;
 
 	case DEVICETEMPLATE_VirtDev_Media_Director_CONST:
-		return m_dwPK_Device_MediaDirector;
+		PK_Device=m_dwPK_Device_MediaDirector;
 
 	case DEVICETEMPLATE_VirtDev_Local_Media_Director_CONST:
-		return m_dwPK_Device_MediaDirector;
+		PK_Device=m_dwPK_Device_MediaDirector;
 
 	case DEVICETEMPLATE_This_Orbiter_CONST:
-		return m_pDeviceData_Base->m_dwPK_Device;
+		PK_Device=m_pDeviceData_Base->m_dwPK_Device;
 
 	case DEVICETEMPLATE_VirtDev_Security_Plugin_CONST:
-		return m_dwPK_Device_SecurityPlugIn;
+		PK_Device=m_dwPK_Device_SecurityPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST:
-		return m_dwPK_Device_TelecomPlugIn;
+		PK_Device=m_dwPK_Device_TelecomPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Media_Plugin_CONST:
-		return m_dwPK_Device_MediaPlugIn;
+		PK_Device=m_dwPK_Device_MediaPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Climate_PlugIn_CONST:
-		return m_dwPK_Device_ClimatePlugIn;
+		PK_Device=m_dwPK_Device_ClimatePlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Lighting_PlugIn_CONST:
-		return m_dwPK_Device_LightingPlugIn;
+		PK_Device=m_dwPK_Device_LightingPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Infrared_Plugin_CONST:
-		return m_dwPK_Device_InfraredPlugIn;
+		PK_Device=m_dwPK_Device_InfraredPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST:
-		return m_dwPK_Device_GeneralInfoPlugIn;
+		PK_Device=m_dwPK_Device_GeneralInfoPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Event_Plugin_CONST:
-		return m_dwPK_Device_EventPlugIn;
+		PK_Device=m_dwPK_Device_EventPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST:
-		return m_dwPK_Device_DatagridPlugIn;
+		PK_Device=m_dwPK_Device_DatagridPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST:
-		return m_dwPK_Device_OrbiterPlugIn;
+		PK_Device=m_dwPK_Device_OrbiterPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Plug_And_Play_PlugI_CONST:
-		return m_dwPK_Device_PlugAndPlayPlugIn;
+		PK_Device=m_dwPK_Device_PlugAndPlayPlugIn;
 
 	case DEVICETEMPLATE_VirtDev_Local_AppServer_CONST:
-		return m_dwPK_Device_LocalAppServer;
+		PK_Device=m_dwPK_Device_LocalAppServer;
 
 	case DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST:
-		return m_dwPK_Device_LocalMediaPlayer;
+		PK_Device=m_dwPK_Device_LocalMediaPlayer;
 
 	}
-	return -1;
 }

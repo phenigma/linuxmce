@@ -340,7 +340,7 @@ void Proxy_Orbiter::StopProcessingRequest(void *p)
         sMessageArguments = StringUtils::Replace(sMessageArguments, "devid", StringUtils::ltos(m_dwPK_Device));
         Message *pMessage = new Message(sMessageArguments);
         if( pMessage->m_dwPK_Device_To<0 )
-            pMessage->m_dwPK_Device_To = TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
+            TranslateVirtualDevice(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_To);
         m_mapHardKeys[nKey] = pMessage;
 
         //create xml tokens
