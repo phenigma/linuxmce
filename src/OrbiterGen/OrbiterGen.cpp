@@ -535,7 +535,7 @@ m_bNoEffects = true;
 	m_iRotation = pRow_Device_DeviceData ? atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) : 0;
 
 	// Get the ignore state flag
-	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Ignore_State_CONST);
+	pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Ignore_CONST);
 	if( pRow_Device_DeviceData )
 	{
 		string sIgnoreState = pRow_Device_DeviceData->IK_DeviceData_get();
