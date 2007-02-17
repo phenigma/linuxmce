@@ -249,6 +249,9 @@ bool ScreenHandler::MediaBrowsre_Intercepted(CallBackData *pData)
 	if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMsgInterceptorCellBackData->m_pMessage->m_dwID==COMMAND_Play_Media_CONST && mediaFileBrowserOptions.m_pObj_ListGrid )
 	{
 		DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get();
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowsre_Intercepted got the play button %p",pDataGridTable);
+#endif
 		if( pDataGridTable )
 		{
 			DataGridCell *pCell = pDataGridTable->GetData( 0, mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow );

@@ -3904,8 +3904,8 @@ int k=2;
 					if(  pDesignObj_DataGrid->m_sGridID == GridID  )
 					{
 						pDesignObj_DataGrid_OnScreen=pDesignObj_DataGrid;
-						pDesignObj_DataGrid_OnScreen->m_iHighlightedRow=0;
-						pDesignObj_DataGrid_OnScreen->m_iHighlightedColumn=0;
+						pDesignObj_DataGrid_OnScreen->m_iHighlightedRow=pDesignObj_DataGrid_OnScreen->m_sExtraInfo.find( 'C' )==string::npos ? 0 : -1;
+						pDesignObj_DataGrid_OnScreen->m_iHighlightedColumn=pDesignObj_DataGrid_OnScreen->m_sExtraInfo.find( 'R' )==string::npos ? 0 : -1;
 						iWidth=pDesignObj_DataGrid_OnScreen->m_MaxCol;
 						iHeight=pDesignObj_DataGrid_OnScreen->m_MaxRow;
 						bRefreshGrids=true;

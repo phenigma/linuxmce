@@ -249,12 +249,12 @@ public:
 			return (m_mapParameters[DEVICEDATA_Leave_Monitor_on_for_OSD_CONST]=="1" ? true : false);
 	}
 
-	string Get_Ignore_State()
+	bool Get_Ignore()
 	{
 		if( m_bRunningWithoutDeviceData )
-			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Ignore_State_CONST);
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Ignore_CONST)=="1" ? true : false);
 		else
-			return m_mapParameters[DEVICEDATA_Ignore_State_CONST];
+			return (m_mapParameters[DEVICEDATA_Ignore_CONST]=="1" ? true : false);
 	}
 
 	bool Get_Dont_Auto_Jump_to_Remote()
@@ -478,7 +478,7 @@ public:
 	int DATA_Get_ImageQuality() { return GetData()->Get_ImageQuality(); }
 	void DATA_Set_ImageQuality(int Value,bool bUpdateDatabase=false) { GetData()->Set_ImageQuality(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,75,Value); }
 	bool DATA_Get_Leave_Monitor_on_for_OSD() { return GetData()->Get_Leave_Monitor_on_for_OSD(); }
-	string DATA_Get_Ignore_State() { return GetData()->Get_Ignore_State(); }
+	bool DATA_Get_Ignore() { return GetData()->Get_Ignore(); }
 	bool DATA_Get_Dont_Auto_Jump_to_Remote() { return GetData()->Get_Dont_Auto_Jump_to_Remote(); }
 	int DATA_Get_ScreenWidth() { return GetData()->Get_ScreenWidth(); }
 	int DATA_Get_ScreenHeight() { return GetData()->Get_ScreenHeight(); }
