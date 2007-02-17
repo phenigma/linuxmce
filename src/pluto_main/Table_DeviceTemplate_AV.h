@@ -87,6 +87,8 @@ long int m_ToggleInput;
 long int m_ToggleOutput;
 string m_NumericEntry;
 short int m_MonitorInputChanges;
+long int m_RepeatIR;
+long int m_RepeatVolume;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -94,7 +96,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[16];
+		bool is_null[18];
 	
 	public:
 		long int FK_DeviceTemplate_get();
@@ -107,6 +109,8 @@ long int ToggleInput_get();
 long int ToggleOutput_get();
 string NumericEntry_get();
 short int MonitorInputChanges_get();
+long int RepeatIR_get();
+long int RepeatVolume_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -125,6 +129,8 @@ void ToggleInput_set(long int val);
 void ToggleOutput_set(long int val);
 void NumericEntry_set(string val);
 void MonitorInputChanges_set(short int val);
+void RepeatIR_set(long int val);
+void RepeatVolume_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -167,7 +173,7 @@ void psc_restrict_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_DeviceTemplate+ m_IR_PowerDelay+ m_IR_ModeDelay+ m_DigitDelay+ m_TogglePower+ m_ToggleDSP+ m_ToggleInput+ m_ToggleOutput+ m_NumericEntry+ m_MonitorInputChanges+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_FK_DeviceTemplate+ m_IR_PowerDelay+ m_IR_ModeDelay+ m_DigitDelay+ m_TogglePower+ m_ToggleDSP+ m_ToggleInput+ m_ToggleOutput+ m_NumericEntry+ m_MonitorInputChanges+ m_RepeatIR+ m_RepeatVolume+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -182,6 +188,8 @@ string ToggleInput_asSQL();
 string ToggleOutput_asSQL();
 string NumericEntry_asSQL();
 string MonitorInputChanges_asSQL();
+string RepeatIR_asSQL();
+string RepeatVolume_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
