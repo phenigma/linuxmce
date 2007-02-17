@@ -192,7 +192,7 @@ bool Orbiter_Plugin::GetConfig()
 
 	m_sPK_Device_AllOrbiters_AllowingPopups = m_sPK_Device_AllOrbiters;
 	m_iThreshHold = DATA_Get_ThreshHold();
-	m_bIgnoreAllBluetoothDevices = (DATA_Get_Ignore_State()=="Y" || DATA_Get_Ignore_State()=="y" || DATA_Get_Ignore_State()=="1");
+	m_bIgnoreAllBluetoothDevices = DATA_Get_Ignore();
 
 	string sStatus = GetStatus();
 	if( sStatus.size() )

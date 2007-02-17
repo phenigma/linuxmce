@@ -68,7 +68,7 @@
 #define DEVICEDATA_Channel_CONST 81
 #define DEVICEDATA_Leave_Monitor_on_for_OSD_CONST 84
 #define DEVICEDATA_Priority_CONST 85
-#define DEVICEDATA_Ignore_State_CONST 87
+#define DEVICEDATA_Ignore_CONST 87
 #define DEVICEDATA_Audio_settings_CONST 88
 #define DEVICEDATA_Video_settings_CONST 89
 #define DEVICEDATA_PK_DesignObj_CONST 91

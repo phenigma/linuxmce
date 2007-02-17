@@ -7,6 +7,7 @@
 
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_DeviceData.h"
 
 #include <iostream>
 using namespace std;
@@ -43,6 +44,12 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl)
 
 void IRReceiverBase::GetConfig(DeviceData_Impl *pData)
 {
+	m_bIgnore = pData->m_mapParameters_Find(DEVICEDATA_Ignore_CONST)=="1";
+	if( m_bIgnore )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::GetConfig all codes will be ignored");
+		return;
+	}
 	string sMapping;
 	DCE::CMD_Get_Remote_Control_Mapping_DT CMD_Get_Remote_Control_Mapping_DT(pData->m_dwPK_Device, DEVICETEMPLATE_Infrared_Plugin_CONST,
 		BL_SameHouse, &sMapping);
@@ -123,6 +130,9 @@ IRReceiverBase::~IRReceiverBase()
 
 void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const char *pRepeat, int iRepeat)
 {
+	if( m_bIgnore )
+		return;
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ReceivedCode device %d code %s repeat %s/%d",
 		PK_Device_Remote,pCode,pRepeat,iRepeat);

@@ -240,7 +240,7 @@ public:
 	string DATA_Get_File_Name_and_Path();
 	string DATA_Get_Mapping();
 	int DATA_Get_ThreshHold();
-	string DATA_Get_Ignore_State();
+	bool DATA_Get_Ignore();
 	int DATA_Get_Width();
 	int DATA_Get_Height();
 	int DATA_Get_Quantity();

@@ -181,12 +181,12 @@ public:
 			return atoi(m_mapParameters[DEVICEDATA_ThreshHold_CONST].c_str());
 	}
 
-	string Get_Ignore_State()
+	bool Get_Ignore()
 	{
 		if( m_bRunningWithoutDeviceData )
-			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Ignore_State_CONST);
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Ignore_CONST)=="1" ? true : false);
 		else
-			return m_mapParameters[DEVICEDATA_Ignore_State_CONST];
+			return (m_mapParameters[DEVICEDATA_Ignore_CONST]=="1" ? true : false);
 	}
 
 	int Get_Width()
@@ -320,7 +320,7 @@ public:
 	string DATA_Get_File_Name_and_Path() { return GetData()->Get_File_Name_and_Path(); }
 	string DATA_Get_Mapping() { return GetData()->Get_Mapping(); }
 	int DATA_Get_ThreshHold() { return GetData()->Get_ThreshHold(); }
-	string DATA_Get_Ignore_State() { return GetData()->Get_Ignore_State(); }
+	bool DATA_Get_Ignore() { return GetData()->Get_Ignore(); }
 	int DATA_Get_Width() { return GetData()->Get_Width(); }
 	int DATA_Get_Height() { return GetData()->Get_Height(); }
 	int DATA_Get_Quantity() { return GetData()->Get_Quantity(); }

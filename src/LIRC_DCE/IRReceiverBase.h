@@ -24,6 +24,7 @@ namespace DCE
 		pluto_pthread_mutex_t m_RepeatThreadMutex;  // Needed so we can have a timed cond wait
 		pthread_cond_t m_RepeatThreadCond;
 		bool m_bRepeatKey;  // This is true when we're repeating a key
+		bool m_bIgnore;  // If true, ignore this i/r receiver.  Usually this happens where there are multiple i/r receivers in an m/d
 		pthread_t m_pt_Repeat; // The thread that we're using to do the repeating
 		string m_sRepeatCode; // The code that we're repeating
 		int m_PK_Device_Remote; // The remote corresponding to the repeat code
