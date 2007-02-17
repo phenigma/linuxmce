@@ -7068,66 +7068,87 @@ void Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate,long &PK_Device)
 	{
 	case DEVICETEMPLATE_VirtDev_IR_Receiver_CONST:
 		PK_Device=m_pLocationInfo->m_dwPK_Device_IRReceiver;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_LCDVFD_CONST:
 		PK_Device=m_pLocationInfo->m_dwPK_Device_LCD_VFD;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_AppServer_CONST:
 		PK_Device=m_pLocationInfo->m_dwPK_Device_AppServer;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Orbiter_Onscreen_CONST:
 		PK_Device=m_pLocationInfo->m_dwPK_Device_Orbiter;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Media_Director_CONST:
 		PK_Device=m_pLocationInfo->m_dwPK_Device_MediaDirector;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Local_Media_Director_CONST:
 		PK_Device=m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector;
+		break;
 
 	case DEVICETEMPLATE_This_Orbiter_CONST:
 		PK_Device=m_dwPK_Device;
+		break;
 
 	case DEVICETEMPLATE_This_Orbiters_Now_Playing_CONST:
 		PK_Device=m_dwPK_Device_NowPlaying;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Security_Plugin_CONST:
 		PK_Device=m_dwPK_Device_SecurityPlugIn;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST:
 		PK_Device=m_dwPK_Device_TelecomPlugIn;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Media_Plugin_CONST:
 		PK_Device=m_dwPK_Device_MediaPlugIn;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Climate_PlugIn_CONST:
 		PK_Device=m_dwPK_Device_ClimatePlugIn;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Lighting_PlugIn_CONST:
 		PK_Device=m_dwPK_Device_LightingPlugIn;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Infrared_Plugin_CONST:
 		PK_Device=m_dwPK_Device_InfraredPlugIn;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST:
 		PK_Device=m_dwPK_Device_GeneralInfoPlugIn;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Event_Plugin_CONST:
 		PK_Device=m_dwPK_Device_EventPlugIn;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST:
 		PK_Device=m_dwPK_Device_DatagridPlugIn;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST:
 		PK_Device=m_dwPK_Device_OrbiterPlugIn;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Plug_And_Play_PlugI_CONST:
 		PK_Device=m_dwPK_Device_PlugAndPlayPlugIn;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Local_AppServer_CONST:
 		PK_Device=m_dwPK_Device_LocalAppServer;
+		break;
 
 	case DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST:
 		PK_Device=m_dwPK_Device_LocalMediaPlayer;
+		break;
 
 	}
 }

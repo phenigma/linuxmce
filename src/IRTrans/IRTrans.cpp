@@ -440,7 +440,7 @@ void IRTrans::CMD_Display_Message(string sText,string sType,string sName,string 
 	NewMessage(atoi(sType.c_str()),sName,sText,atoi(sTime.c_str()));
 }
 
-void IRTrans::SendIR(string Port, string IRCode)
+void IRTrans::SendIR(string Port, string IRCode,int iRepeat)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"IRTrans Sending: %s",IRCode.c_str());
 #ifdef LINUX
@@ -468,7 +468,7 @@ void IRTrans::SendIR(string Port, string IRCode)
 void IRTrans::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c191-e->
 {
-	SendIR("",sText);
+	SendIR("",sText,1);
 }
 
 //<-dceag-c194-b->

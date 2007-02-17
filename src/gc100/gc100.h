@@ -55,7 +55,7 @@ namespace DCE
 
 		// Private methods
 protected:
-	virtual void SendIR(string Port, string IRCode);
+	virtual void SendIR(string Port, string IRCode,int iRepeat);
 	class Message *m_pThisMessage;
 
 private:

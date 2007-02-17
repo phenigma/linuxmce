@@ -35,7 +35,7 @@ public:
 		// Public member variables
 		bool m_bLearningIR,m_bAbortLearning; // True when the next IR code that comes in should be learned
 		void GotIRCommand(const char *pRemote,const char *pCommand);
-		virtual void SendIR(string Port, string IRCode); // Required from IRBase
+		virtual void SendIR(string Port, string IRCode,int iRepeat); // Required from IRBase
 		virtual void CreateChildren(); // Must override so we can call IRBase::Start() after creating children
 		virtual void OurCallback(const char *pButton);
 		void StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text);

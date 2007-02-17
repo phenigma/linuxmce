@@ -23,6 +23,7 @@
 
 #define clock() linux_ticks()
 
+this_file_isnt_used
 
 clock_t CLK_TCK;
 

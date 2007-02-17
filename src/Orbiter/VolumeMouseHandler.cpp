@@ -181,12 +181,12 @@ void VolumeMouseHandler::DoIteration(int Parm)
 		m_iCancelLevel = 0;
 	if( Parm<0 )
 	{
-		DCE::CMD_Vol_Down CMD_Vol_Down(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,Parm*-1);
+		DCE::CMD_Vol_Down CMD_Vol_Down(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,Parm*-1);
 		m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Vol_Down.m_pMessage);
 	}
 	else if( Parm>0 )
 	{
-		DCE::CMD_Vol_Up CMD_Vol_Up(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying_Audio,Parm);
+		DCE::CMD_Vol_Up CMD_Vol_Up(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,Parm);
 		m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Vol_Up.m_pMessage);
 	}
 }

@@ -1196,7 +1196,7 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 	}
 }
 
-void gc100::SendIR(string Port, string IRCode)
+void gc100::SendIR(string Port, string IRCode,int iRepeat)
 {
 	if( IRCode.find('&')!=string::npos )
 	{
@@ -1205,7 +1205,7 @@ void gc100::SendIR(string Port, string IRCode)
 		{
 			string _ircode = StringUtils::Tokenize(IRCode,"&",pos);
 			g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) IRCode.size(),IRCode.c_str(),_ircode.c_str());
-			SendIR(Port,_ircode);
+			SendIR(Port,_ircode,iRepeat);
 			if( pos<IRCode.size() )
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
@@ -1797,7 +1797,7 @@ void gc100::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 g_pPlutoLogger->Write(LV_STATUS,"Converted %s to %s",sText.c_str(),sTextNew.c_str());
 sText=sTextNew;
 	}
-	SendIR("",sText);
+	SendIR("",sText,1);
 }
 
 //<-dceag-c194-b->

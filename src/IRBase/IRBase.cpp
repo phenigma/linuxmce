@@ -68,6 +68,7 @@ IRBase::handleStart(Command_Impl *pCommand_Impl) {
 	irDevice.SerializeRead(iSize, pData); // De-serialize the data
 	
 	g_pPlutoLogger->Write(LV_STATUS, "IR Code count: %d", mapClass.size());
+	m_mapDevice_IRRepeat[devid] = make_pair<int,int> (irDevice.m_iRepeatIR,irDevice.m_iRepeatVolume);
 			
 	for(map<int,string>::iterator it = irDevice.m_mapCodes.begin(); it != irDevice.m_mapCodes.end(); it++ ) {
 		long cmdid = (*it).first;
@@ -196,14 +197,33 @@ IRBase::DispatchMessage(Message* pmsg) {
 	}
 	
 	if(!ircode.empty()) {
-		g_pPlutoLogger->Write(LV_STATUS, "Sending Infrared Code for dev <%d> cmd <%d>, channel <%s>, code <%s>", 
-					devid, cmd, irport.c_str(), ircode.c_str());
+		int iRepeat = 4;
+		if( pmsg->m_mapParameters.find(COMMANDPARAMETER_Repeat_CONST)!=pmsg->m_mapParameters.end() )
+			iRepeat = atoi( pmsg->m_mapParameters[COMMANDPARAMETER_Repeat_CONST}.c_str() );
+		else
+		{
+			if( m_mapDevice_IRRepeat.find(devid)!=m_mapDevice_IRRepeat.end() )
+			{
+				pair<int,int> p = m_mapDevice_IRRepeat[devid];
+				if( cmd==COMMAND_Vol_Up_CONST || cmd==COMMAND_Vol_Down_CONST )
+					iRepeat = p.second;
+				else
+					iRepeat = p.first;
+			}
+		}
+		if( iRepeat<1 )
+			iRepeat=4;
+
+		g_pPlutoLogger->Write(LV_STATUS, "Sending Infrared Code for dev <%d> cmd <%d>, channel <%s>, repeat <%d> code <%s>", 
+					devid, cmd, irport.c_str(), iRepeat, ircode.c_str());
 
 		string::size_type pos=0;
 		while(pos<ircode.size() && pos!=string::npos && !m_bQuit_)
 		{
 			string _ircode = StringUtils::Tokenize(ircode,"&",pos);
+
 			g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) ircode.size(),ircode.c_str(),_ircode.c_str());
+
 			SendIR(irport,_ircode);
 			if( pos<ircode.size() && !m_bQuit_ )
 			{

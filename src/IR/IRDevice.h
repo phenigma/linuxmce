@@ -10,6 +10,7 @@ public:
 	bool m_bImplementsDCE;
 	bool m_bUsesIR,m_bTogglePower,m_iToggleDSP,m_iToggleInput,m_iToggleOutput;
 	int m_iPowerDelay,m_iModeDelay,m_iDigitDelay;
+	int m_iRepeatIR,m_iRepeatVolume;
 	int m_PK_Device_ControlledVia;
 	string m_sNumericEntry;
 	vector<int> m_vectInputs;
@@ -20,6 +21,7 @@ public:
 		m_bUsesIR=m_bTogglePower=false;
 		m_iToggleDSP=m_iToggleInput=m_iToggleOutput=0;
 		m_iPowerDelay=m_iModeDelay=m_iDigitDelay=m_PK_Device_ControlledVia=0;
+		m_iRepeatIR=m_iRepeatVolume=4;
 		m_bImplementsDCE=false;
 	}
 
@@ -28,7 +30,7 @@ public:
 		StartSerializeList() + m_mapCodes + 
 			m_bUsesIR + m_bTogglePower + m_iToggleDSP + m_iToggleInput + m_iToggleOutput +
 			m_iPowerDelay + m_iModeDelay + m_iDigitDelay + 
-			m_sNumericEntry + m_vectInputs;
+			m_sNumericEntry + m_vectInputs + m_iRepeatIR + m_iRepeatVolume;
 	}
 	virtual string SerializeClassClassName() { return "IRDevice"; }
 };

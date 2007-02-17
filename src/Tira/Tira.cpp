@@ -235,7 +235,7 @@ void Tira::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 g_pPlutoLogger->Write(LV_STATUS,"Converted %s to %s",sText.c_str(),sTextNew.c_str());
 sText=sTextNew;
 	}
-	SendIR("",sText);
+	SendIR("",sText,1);
 }
 
 //<-dceag-c245-b->
@@ -276,7 +276,7 @@ void Tira::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 }
 
 
-void Tira::SendIR(string Port, string IRCode)
+void Tira::SendIR(string Port, string IRCode,int iRepeat)
 {
 	if( m_bLearningIR )
 		StopLearning();
@@ -293,7 +293,7 @@ void Tira::SendIR(string Port, string IRCode)
 	g_pPlutoLogger->Write(LV_STATUS,"Tira Sending: %s",pBuffer);
 
 #ifndef WIN32
-    int res = tira_transmit(m_iRepeat, /* the docs say to repeat more than once, but I found with pronto codes that means the code is seen more than once */
+    int res = tira_transmit(iRepeat, /* the docs say to repeat more than once, but I found with pronto codes that means the code is seen more than once */
                             -1, /* Use embedded frequency value*/
                             (const unsigned char *) pBuffer,
                             size);

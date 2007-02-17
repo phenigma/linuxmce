@@ -565,7 +565,7 @@ void USB_UIRT_0038::SomeFunction()
 */
 //<-dceag-sample-e->
 
-void USB_UIRT_0038::SendIR(string Port, string IRCode)
+void USB_UIRT_0038::SendIR(string Port, string IRCode,int iRepeat)
 {
 	if( m_bLearningIR )
 		StopLearning();
@@ -579,13 +579,13 @@ void USB_UIRT_0038::SendIR(string Port, string IRCode)
 		pBuffer = FileUtils::ReadFileIntoBuffer(pBuffer,size);
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS,"UsbUirt Sending: %s",pBuffer);
+	g_pPlutoLogger->Write(LV_STATUS,"UsbUirt Sending with repeat %d: %s",iRepeat,pBuffer);
 
 
 	if (!fn_UUIRTTransmitIR(hDrvHandle,
 										pBuffer /* IRCode */,
 										gIRCodeFormat /* codeFormat */,
-										10 /* repeatCount */,
+										iRepeat /* repeatCount */,
 										0 /* inactivityWaitTime */,
 										NULL /* hEvent */,
 										NULL /* reserved1 */,
@@ -766,7 +766,7 @@ void USB_UIRT_0038::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *
 void USB_UIRT_0038::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c191-e->
 {
-	SendIR("0", sText);
+	SendIR("0", sText,1);
 }
 
 //<-dceag-c245-b->

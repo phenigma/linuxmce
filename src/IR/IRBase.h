@@ -1,6 +1,8 @@
 #define DEFAULT_PREDELAY 100
 #define DEFAULT_POSTDELAY 0
 
+this_file_isnt_used
+
 class IRQueue
 {
 public:

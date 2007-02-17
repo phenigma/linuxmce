@@ -1369,7 +1369,6 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				for(map<int,MediaDevice *>::iterator it=mapMediaDevice_Current.begin();it!=mapMediaDevice_Current.end();++it)
 				{
 					MediaDevice *pMediaDevice = (*it).second;
-					pMediaStream->m_pMediaDevice_Source->m_bViewingLiveAVPath=false;
 					pMediaStream->m_pMediaDevice_Source->m_dwPK_Command_LastAdjustment_Audio=pMediaStream->m_pMediaDevice_Source->m_dwPK_Command_LastAdjustment_Video=pMediaStream->m_pMediaDevice_Source->m_dwPK_Command_LastAdjustment_Command=0;
 				}
 			}
@@ -1537,13 +1536,13 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 				pEntertainArea = m_mapEntertainAreas_Find( atoi(itEA->second.c_str()) );
 		}
 		// otherwise if the message comes from an orbiter, assume it's the ea for that device
-		if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
+		if( !pEntertainArea )
 		{
 			OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
 			if( !pOH_Orbiter ) // It could be a remote control
 				pOH_Orbiter = m_pOrbiter_Plugin->m_mapRemote_2_Orbiter_Find( pMessage->m_dwPK_Device_From );
 
-			if( !pOH_Orbiter || !pOH_Orbiter->m_pEntertainArea || !pOH_Orbiter->m_pEntertainArea->m_pMediaStream  )
+			if( !pOH_Orbiter || !pOH_Orbiter->m_pEntertainArea )
 			{
 				if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST) 
 					&& pMessage->m_mapParameters[COMMANDPARAMETER_Eject_CONST]=="1" )
@@ -1555,11 +1554,29 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 				}
 
 				// Could be a timing issue that the stream finished and Orbiter didn't change the screen yet
-				g_pPlutoLogger->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a stream in it's entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
+				g_pPlutoLogger->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
 				return rmr_NotProcessed;
 			}
 			else
 				pEntertainArea=pOH_Orbiter->m_pEntertainArea;
+		}
+
+		if( !pEntertainArea->m_pMediaStream )
+		{
+			// If it's a volume command, let it go through to the m/d (which will get to the tv/stereo) anyway
+			if( pEntertainArea->m_pOH_Orbiter_OSD && pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
+				(pMessage->m_dwID==COMMAND_Set_Volume_CONST || pMessage->m_dwID==COMMAND_Vol_Up_CONST || pMessage->m_dwID==COMMAND_Vol_Down_CONST) )
+			{
+				Message *pNewMessage = new Message( pMessage );
+				pNewMessage->m_dwPK_Device_To = pEntertainArea->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device_ControlledVia;
+				QueueMessageToRouter( pNewMessage );
+				return rmr_Processed;
+			}
+			else
+			{
+				g_pPlutoLogger->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but there's no stream in ea %d", pMessage->m_dwMessage_Type, pMessage->m_dwID, pEntertainArea->m_iPK_EntertainArea );
+				return rmr_NotProcessed;
+			}
 		}
 
 		// Add some stuff to the message parameters
@@ -2865,6 +2882,8 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 			continue;
 		}
 
+		// Reset this
+		pMediaStream->m_pMediaDevice_Source->m_bViewingLiveAVPath=false;
 		for(map<int,Pipe *>::iterator it=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.begin();it!=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.end();++it)
 			it->second->m_bDontSendInputs=false;  // Reset this in case the device was previously in use and had this set to true
 

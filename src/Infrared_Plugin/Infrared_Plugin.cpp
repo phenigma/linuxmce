@@ -634,6 +634,10 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 		irDevice.m_iModeDelay=pRow_DeviceTemplate_AV->IR_ModeDelay_get();
 		irDevice.m_iDigitDelay=pRow_DeviceTemplate_AV->DigitDelay_get();
 		irDevice.m_sNumericEntry=pRow_DeviceTemplate_AV->NumericEntry_get();
+		if( pRow_DeviceTemplate_AV->RepeatIR_get() )
+			irDevice.m_iRepeatIR = pRow_DeviceTemplate_AV->RepeatIR_get();
+		if( pRow_DeviceTemplate_AV->RepeatVolume_get() )
+			irDevice.m_iRepeatVolume = pRow_DeviceTemplate_AV->RepeatVolume_get();
 	}
 
 	irDevice.m_bUsesIR = (pRow_DeviceTemplate->FK_CommMethod_get()==COMMMETHOD_Infrared_CONST);

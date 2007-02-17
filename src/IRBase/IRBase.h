@@ -36,7 +36,7 @@ protected:
 	
 protected:
 	/*exposed methods*/
-	virtual void SendIR(string Port, string IRCode) = 0;
+	virtual void SendIR(string Port, string IRCode,int iRepeat) = 0;
 
 	virtual void handleStart();
 	virtual void handleStart(Command_Impl *pCommand_Impl);
@@ -48,6 +48,7 @@ private:
 	
 private:
 	map<longPair, std::string> codemap_;		// maps device,command pair to IR code
+	map<long,pair<int,int> > m_mapDevice_IRRepeat; // Map the device to the i/r repeat for normal commands and volume commands
 
 protected:
 	bool m_bMustConvertRC5_6;
