@@ -499,11 +499,8 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 				curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
 			}
 		}
-g_pPlutoLogger->Write(LV_CRITICAL,"BEFORE changePlaybackSpeed");
-		pStream->changePlaybackSpeed((Xine_Stream::PlayBackSpeedType)iMediaPlaybackSpeed);
-g_pPlutoLogger->Write(LV_CRITICAL,"BEFORE REPORT");
 		ReportTimecodeViaIP(iStreamID,iMediaPlaybackSpeed);
-g_pPlutoLogger->Write(LV_CRITICAL,"DONE");
+		pStream->changePlaybackSpeed((Xine_Stream::PlayBackSpeedType)iMediaPlaybackSpeed);
 	}
 }
 
