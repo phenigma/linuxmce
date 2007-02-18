@@ -1220,7 +1220,7 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 	string sIPTimeCodeInfo = StringUtils::itos(Speed) + "," + buffer_current + "," + buffer_total + "," + StringUtils::itos(iStreamID)
 		+ "," + StringUtils::itos(pStream->m_iTitle) + "," + StringUtils::itos(pStream->m_iChapter);
 	
-	g_pPlutoLogger->Write(LV_STATUS,"reporting timecode stream %d speed %d %s", iStreamID, iSpeed, sIPTimeCodeInfo.c_str() );
+	g_pPlutoLogger->Write(LV_STATUS,"reporting timecode stream %d speed %d %s", iStreamID, Speed, sIPTimeCodeInfo.c_str() );
 	m_pNotificationSocket->SendStringToAll( sIPTimeCodeInfo );
 }
 
