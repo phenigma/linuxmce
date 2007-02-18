@@ -825,8 +825,8 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
     }
     if( (*SafetyMessage)->m_dwPK_Device_To==m_dwPK_Device || (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_CATEGORY || (*SafetyMessage)->m_dwPK_Device_To==DEVICETEMPLATE_VirtDev_DCE_Router_CONST || (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_DCEROUTER )
     {
-		HandleRouterMessage(pMessageWillBeDeleted);
-		return;
+		if( HandleRouterMessage(pMessageWillBeDeleted) )
+			return;
 	}
 
     if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_LIST && (*SafetyMessage)->m_sPK_Device_List_To.length()==0 )
@@ -2828,13 +2828,15 @@ void Router::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelet
 	SocketListener::RemoveAndDeleteSocket( pServerSocket, bDontDelete );
 }
 
-void Router::HandleRouterMessage(Message *pMessage)
+bool Router::HandleRouterMessage(Message *pMessage)
 {
 	if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID==COMMAND_Execute_Command_Group_CONST )
 	{
 		int PK_CommandGroup = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_CommandGroup_CONST].c_str());
 		if( PK_CommandGroup )
 			ExecuteCommandGroup(PK_CommandGroup);
+		return true;
+
 	}
 	if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID==COMMAND_Stop_Pending_Command_Group_CONST )
 	{
@@ -2842,7 +2844,9 @@ void Router::HandleRouterMessage(Message *pMessage)
 		string sDescription = pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST];
 		string sHint = pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
 		StopPendingCommandGroup(PK_CommandGroup,sDescription,sHint);
+		return true;
 	}
+	return false;
 }
 
 
