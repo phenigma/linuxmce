@@ -17,7 +17,7 @@
 		<B>'.$TEXT_Q2_TITLE_CONST.'</B><br>
 		<p class="normaltext">'.$TEXT_Q2_INFO_CONST.'
 		
-		<form action="index.php" method="POST" name="addModel">
+		<form action="index.php" method="POST" name="addModel" onSubmit="return confirmDelays();">
 			<input type="hidden" name="section" value="addModel">
 			<input type="hidden" name="step" value="'.$step.'">
 			<input type="hidden" name="action" value="add">
@@ -48,6 +48,29 @@
 		</table><br>
 		</form>
 	
+		
+		<script>
+		function confirmDelays(){
+			powerDelay=document.addModel.IR_PowerDelay.value;
+			modeDelay=document.addModel.IR_ModeDelay.value;
+			digitDelay=document.addModel.DigitDelay.value;
+			
+			if(powerDelay<0 || modeDelay<0 || digitDelay<0){
+				alert("Delays cannot be negative.");
+				return false;
+			}
+			
+			if(powerDelay>20 || modeDelay>20 || digitDelay>20){
+				if(confirm("One or more delays are greater than 20s. Are you sure it is correct?")){
+					return true;
+				}else{
+					return false;
+				}
+			}
+			
+			return true;
+		}
+		</script>
 		';
 	}else{
 		// process
