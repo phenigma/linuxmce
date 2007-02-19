@@ -154,7 +154,6 @@ void ExtensionManager::Resize(int Width, int Height)
 
 	#ifndef WIN32
 		FullScreen = false;
-		uVideoModeFlags |= SDL_NOFRAME;
 	#endif
 
 	#if !defined(WIN32) || defined(WINCE)
