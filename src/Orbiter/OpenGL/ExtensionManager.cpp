@@ -153,7 +153,8 @@ void ExtensionManager::Resize(int Width, int Height)
 	Uint32 uVideoModeFlags = SDL_OPENGL;
 
 	#ifndef WIN32
-		FullScreen = true;
+		FullScreen = false;
+		uVideoModeFlags |= SDL_NOFRAME;
 	#endif
 
 	#if !defined(WIN32) || defined(WINCE)
