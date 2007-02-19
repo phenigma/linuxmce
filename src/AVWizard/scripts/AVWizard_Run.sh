@@ -213,13 +213,7 @@ UpdateOrbiterDimensions()
 	done
 
 	# Restart X
-	pidOfX=$(ps ax|grep 'X :0 -ac -allowMouseOpenFail vt7'|egrep -v 'grep|SCREEN'|awk '{print $1}')
-	if [[ -n "$pidOfX" ]]; then
-		ReloadDevicesOnThisMachine
-		kill $pidOfX
-		sleep 5
-		/usr/pluto/bin/Start_X.sh
-	fi
+	/usr/pluto/bin/RestartX.sh
 }
 
 UpdateOrbiterUI()
