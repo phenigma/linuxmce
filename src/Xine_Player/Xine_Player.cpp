@@ -1203,7 +1203,7 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 		return;
 
 	int currentTime, totalTime;	
-	int iMediaPosition = pStream->getStreamPlaybackPosition( currentTime, totalTime);
+	int iMediaPosition = pStream->getStreamPlaybackPosition( currentTime, totalTime, 10, NULL, true);
 
 	// IP speed an position notification
 	char buffer_current[32];

@@ -215,7 +215,7 @@ namespace DCE
 			/**
 		 	* @brief Find current position for stream.
 			 */
-			int getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount=10, bool *getResult=NULL );
+			int getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount=10, bool *getResult=NULL, bool alwaysFromCache=false );
 
 			
 			// utility functions

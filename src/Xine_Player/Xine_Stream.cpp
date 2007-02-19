@@ -1329,7 +1329,7 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 }
 
 
-int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount, bool *getResult )
+int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount, bool *getResult, bool alwaysFromCache )
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
@@ -1345,7 +1345,7 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, i
 
 	// if stream is in 'seek mode', then we should not call get position too often
 	// the same is true if stream is paused
-	if ( ( m_iSpecialSeekSpeed == 0 ) && (m_iPlaybackSpeed!=0) )
+	if ( ( m_iSpecialSeekSpeed == 0 ) && (m_iPlaybackSpeed!=0) && !alwaysFromCache)
 	{
 		int iPosTime = 0;
 		int iLengthTime = 0;	
