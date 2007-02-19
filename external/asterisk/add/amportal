@@ -83,7 +83,7 @@ run_asterisk() {
         fi
         # Wait up to 5 seconds for asterisk to start
         local counter=0
-        while [ "$(pidof asterisk|awk '{print length($0)}')" == "0" ]; do
+        while [[ -z "$(pidof asterisk)" ]]; do
             echo -n "."
             sleep 0.1
             counter=$(($counter + 1))
@@ -102,7 +102,7 @@ run_asterisk() {
             sleep 0.1
             counter=$(($counter - 1))
 
-            if [ "$(pidof asterisk|awk '{print length($0)}')" == "0" ] ;then
+            if [[ -z "$(pidof asterisk)" ]] ;then
                 echo " failed"
                 killall -9 safe_asterisk
                 killall -9 mpg123 > /dev/null
