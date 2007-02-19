@@ -70,6 +70,7 @@ case "$1" in
 #		ln -sf /etc/init.d/asterisk /etc/rc2.d/S92asterisk || /bin/true
 
 		mkdir -p /var/lib/asterisk/sounds/voicemail
+		mkdir -p /var/run/asterisk
 		chmod -R ug+rx /var/lib/asterisk/sounds/voicemail
 		
 		pushd /usr/local/amp/install &>/dev/null
