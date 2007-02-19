@@ -41,17 +41,6 @@ RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData,
 RA_Action *RA_Processor::BuildActionFromData( long dwSize, const char *pcData, unsigned long dwActionID )
 {
 	RA_Action *pRA_Action=NULL;
-// 	switch( dwActionID )
-// 	{
-// 	case A_UPDATE_ROW:
-// 		pRA_Action=new A_UpdateRow( );
-// 		pRA_Action->CreateAction( dwSize, pcData );
-// 		return pRA_Action;
-// 	case A_UPDATE_SCHEMA:
-// 		pRA_Action=new A_UpdateSchema( );
-// 		pRA_Action->CreateAction( dwSize, pcData );
-// 		return pRA_Action;
-// 	}
 	return pRA_Action;
 }
 

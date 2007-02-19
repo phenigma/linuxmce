@@ -25,8 +25,6 @@ namespace Tribune
 	 
 	class Database : public MySqlHelper
 	{
-		//MapRepository m_mapRepository;
-		//MapTable m_mapTable;
 		bool m_bInvalid;
 
 	public:

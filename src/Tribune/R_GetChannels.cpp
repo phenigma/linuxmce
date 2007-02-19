@@ -22,10 +22,10 @@ bool R_GetChannels::ProcessRequest( class RA_Processor *pRA_Processor )
 {
 	(( Tribuneprocessor * ) pRA_Processor)->LogActivityTime();
 
-	//cout << "r_GetChannels cu extra conditia " <<  m_extra_condition << endl;
 	cout << "r_GetChannels"<< endl;
 	std::ostringstream sSQL;
 
+	/** test if there are blacklist channels*/
 	if (m_extra_condition.length( )==0){
 		sSQL << "SELECT s.PK_Station, s.Name name FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_pk_headend;
 	} else {

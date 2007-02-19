@@ -44,14 +44,3 @@ string int2string(int i)
 	sprintf(s, "%i", i);
 	return s;
 }
-
-// string GlobalConfig::csvUserID()
-// {
-// 	string sResponse="0";  // The anonymous user is always valid
-// 	bool bFirst=true;
-// 	for(map<int,ValidatedUser *>::iterator it=m_mapValidatedUsers.begin();it!=m_mapValidatedUsers.end();++it)
-// 	{
-// 		sResponse += "," + StringUtils::itos( (*it).first );
-// 	}
-// 	return sResponse;
-// }

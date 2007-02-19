@@ -25,7 +25,6 @@ bool R_GetLineups::ProcessRequest( class RA_Processor *pRA_Processor )
 
 	cout << "R_GetLineups" << endl;
 	std::ostringstream sSQL;
-	// See notes in Table::DetermineDeletions
 
 	sSQL << "SELECT PK_Headend, HeadendName FROM " << m_sTable << " WHERE ZipCode=" << m_zipcode;
 

@@ -19,9 +19,10 @@
 
 
 /**
- * @brief  class modelling a GetAll_psc_id request
- * @todo complete documentation
+ *in: table to use and the zip code
+ *out: all the lineups coresponding to that zip code
  */
+
 
 class R_GetLineups : public RA_Request
 {

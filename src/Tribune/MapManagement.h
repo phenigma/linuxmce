@@ -8,21 +8,28 @@
 
 using namespace std;
 
+/** Class that contains methods that populates the maps from the database (key,timestamp) */
+
 class MapManagement{
 	
 public:
 
-	/** Get program records.*/
+	/** get program records from the database.*/
 	static bool GetProgramRecordMap(map <string,string> &);
-	
+
+	/** get stations from the database.*/
 	static bool GetStationMap(map<int,string>&);
 	
-	static bool GetScheduleMap(map<string,string>&);
+	/** get schedule from the database.*/
+	static bool GetScheduleMap(map<u_int64_t,string>&);
 	
+	/** get actors from the database.*/
 	static bool GetActorMap(map<string,string>&);
 	
+	/** get genres from the database.*/
 	static bool GetGenreMap(map<string,string>&);
 	
+	/** get maps from the database.*/
 	static bool GetRoleMap(map<string,string>&);
 
 };

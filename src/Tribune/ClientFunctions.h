@@ -7,6 +7,8 @@
 #include <map>
 #include <string>
 
+/** Common client functions*/
+
 using namespace Tribune;
 
 class ClientFunctions
@@ -25,20 +27,27 @@ public:
 
 	ClientFunctions();
 
+	/** get the lineups for a code provided*/
 	bool GetLineups(int zipcode, map <int,pair<string,string> > &);
 
+	/** get channels for a lineup excluding the blacklist channels */
 	bool GetChannels( int key, string extra_cond, map <string,string> & );
 
+	/** get blacklist channels  from the client database*/
 	string GetBlackListChannels();
 
+	/** delete client lineup*/
 	void DeleteClientLineup();
 	
+	/** store the client lineup*/
 	void SetClientLineup(string key, string lineup);
 
 	string GetClientLineup();
 
-	string CalcDiffs(string lineup, string blacklist, map <string,string> &mapProgramRecord, map <int,string> &mapGetStation, map <string,string> &mapGetSchedule, map <string,string> &mapActor, map <string,string> &mapGenre, map <string,string> &mapRole);
+	/** get the 'diffs' for the client*/
+	string CalcDiffs(string lineup, string blacklist, map <string,string> &mapProgramRecord, map <int,string> &mapStation, map <u_int64_t,string> &mapSchedule, map <string,string> &mapActor, map <string,string> &mapGenre, map <string,string> &mapRole);
 
+	/** execute mysql commands from the file provided by the server */
 	bool ModifyClientDatabase(string path);
 
 	virtual ~ClientFunctions( ) 

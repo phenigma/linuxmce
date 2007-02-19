@@ -5,11 +5,6 @@
 #include "CommonFunctions.h"
 #include "Database.h"
 
-// namespace Tribune
-// {
-// 	class Table;
-// 	class Repository;
-// }
 
 using namespace Tribune;
 class Tribuneprocessor;
@@ -24,15 +19,6 @@ public:
 	time_t tTime_Creation;
 	time_t tTime_LastActivity;
 	class RAServerSocket *m_pRAServerSocket;
-	//Tribune::Table *m_pTable;	/**< The table we are currently committing */
-	//vector<string> *m_pvectFields;	/**< The fields of the table @todo ask */
-	//int m_i_psc_batch;
-	//Tribune::Repository *m_pRepository; /**< The repository we're currently committing */
-	//bool m_bSupervisor,m_bAllAnonymous;
-	//int m_iNew,m_iMod,m_iDel,m_ipsc_user_default;
-	//string m_sComments;  /**< Optional comments to be included with this transaction */
-
-	//int m_psc_bathdr_orig,m_psc_bathdr_auth,m_psc_bathdr_unauth,m_psc_user_needs_to_authorize;
 	
 	/**< This will create a transaction for every processor that will rollback automatically if the processor goes away with an R_CloseTransaction */
 	SafetyTransaction st;
@@ -40,7 +26,7 @@ public:
 	void LogActivityTime()
 	{
 		tTime_LastActivity = time(NULL);
-		//printf("last Activitity Time set to %i", tTime_LastActivity);
+		
 	}
 
 	/** @brief constructor assigning null to all the pointers */
@@ -64,9 +50,6 @@ public:
 		}
 	}
 
-	//int UnauthorizedBatch(/*int psc_user_needs_to_authorize*/);
-
-	//void RecordChangesToTable();
 };
 
 #endif

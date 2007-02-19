@@ -143,7 +143,7 @@ string ClientFunctions::GetClientLineup() {
 	
 }
 
-string ClientFunctions::CalcDiffs(string lineup,string blacklist, map <string,string> &mapProgramRecord, map <int,string> &mapStation, map <string,string> &mapSchedule, map <string,string> &mapActor, map <string,string> &mapGenre, map <string,string> &mapRole) {
+string ClientFunctions::CalcDiffs(string lineup,string blacklist, map <string,string> &mapProgramRecord, map <int,string> &mapStation, map <u_int64_t,string> &mapSchedule, map <string,string> &mapActor, map <string,string> &mapGenre, map <string,string> &mapRole) {
 
 	R_GetDiffs r_GetDiffs(lineup, blacklist, mapProgramRecord, mapStation, mapSchedule, mapActor, mapGenre, mapRole );
 
@@ -176,7 +176,11 @@ bool ClientFunctions::ModifyClientDatabase(string path){
 		{
 			getline (mysqlfile,line);
 
-			g_GlobalConfig.m_pDatabase->mysql_query_result( line );
+			if (line.length()!=0){
+				g_GlobalConfig.m_pDatabase->mysql_query_result( line );
+				//cout << line << endl;
+			}
+			
 			
 		}
 	}

@@ -95,16 +95,13 @@ int main(int argc, char *argv[]){
 	}
 
 	cout << "Database host:" << g_GlobalConfig.m_sDBHost << " user:" << g_GlobalConfig.m_sDBUser
-			<< " pass:" << g_GlobalConfig.m_sDBPassword << " name:" << g_GlobalConfig.m_sDBName << " port:" << g_GlobalConfig.m_iDBPort << endl
-			<< "Users:" << g_GlobalConfig.m_sUsers << endl;
+			<< " pass:" << g_GlobalConfig.m_sDBPassword << " name:" << g_GlobalConfig.m_sDBName << " port:" << g_GlobalConfig.m_iDBPort << endl;
 
 	Database database( g_GlobalConfig.m_sDBHost, g_GlobalConfig.m_sDBUser, g_GlobalConfig.m_sDBPassword, g_GlobalConfig.m_sDBName, g_GlobalConfig.m_iDBPort );
 	if( !database.m_bConnected )
 	{
 		cerr << "***ERROR*** Cannot connect to database." << endl;
 		cout << "Please modify the configuration settings and restart sqlCVS." << endl;
-// 		if( !g_GlobalConfig.m_bNoPrompts )
-// 		ChangeLoginUsers();
 		exit(1);
 	}
 	g_GlobalConfig.m_pDatabase=&database;
@@ -162,24 +159,31 @@ int main(int argc, char *argv[]){
 		exit( 1 );
 	}
 
-// 	while( true ) /** An endless loop processing commands */
-// 	{
 
 		while( g_GlobalConfig.m_sCommand.length( )==0 )
 		{
 			g_GlobalConfig.m_sCommand=GetCommand( );
 		}
+		/** Server Mode */
 		if( g_GlobalConfig.m_sCommand=="listen" )
 		{
+			/** there are 3 threads: */
+
+			/** thread that watch Tribune dir, when daily import is done global variable m_bImportTable
+			is set true (there is still some code to write here)*/
 // 			FileNotifier fileNotifier;
 // 			fileNotifier.RegisterCallbacks(OnDeleteFiles,OnDeleteFiles);
 //   			fileNotifier.Watch("/var/Tribune");
 //  			fileNotifier.Run();
 
+			/**thread that reset the server maps after daily import */
+			g_GlobalConfig.m_bImportTable = true;	
+
 			ServerManagement* pSM = ServerManagement::getInstance();
 			pthread_t tr;
 			pthread_create(&tr, NULL, ServerManagement::ServerManagement_Thread, (void*)pSM);
 
+			/**thread that is the server itself */
 			RAServer *pServer = new RAServer( );
 			pServer->Initialize( );
 			pServer->StartListening( g_GlobalConfig.m_iTribunePort );
@@ -187,6 +191,9 @@ int main(int argc, char *argv[]){
 			delete pServer;
 
 		}
+		/** Client Mode*/
+
+		/** client run this to choose his lineup inserting a zip code and display the channels*/
 		else if (g_GlobalConfig.m_sCommand=="lineup")
 		{
 			string command;
@@ -262,6 +269,7 @@ int main(int argc, char *argv[]){
 			}
 
  		}
+		/** this will run daily to update the client database */
 		else if (g_GlobalConfig.m_sCommand=="dailyupdate"){
 
 			DCE::Socket *pSocket=NULL;
@@ -269,6 +277,8 @@ int main(int argc, char *argv[]){
 			string blacklist = clientFunct->GetBlackListChannels();
 			string lineup = clientFunct->GetClientLineup();
 			
+			/** populate the client maps*/
+
 			map<string,string> mapProgramRecord;
 			if (! MapManagement::GetProgramRecordMap( mapProgramRecord ) ){
 				cerr << "Cannot fill the program record map: " << endl;
@@ -281,7 +291,7 @@ int main(int argc, char *argv[]){
 				exit(1);
 			}
 			
-			map<string,string> mapSchedule;
+			map<u_int64_t,string> mapSchedule;
 			if (! MapManagement::GetScheduleMap( mapSchedule ) ){
 				cerr << "Cannot fill the schedule map: " << endl;
 				exit(1);
@@ -305,18 +315,22 @@ int main(int argc, char *argv[]){
 				exit(1);
 			}
 			
+			/** send the client maps to the server and receive a file with all the changes that must
+			be done */
 			string clientfile = clientFunct->CalcDiffs(lineup,blacklist,mapProgramRecord,mapStation,mapSchedule,mapActor,mapGenre,mapRole);
-// 			string source = "http://"+g_GlobalConfig.m_sTribuneHost+"/var/www/"+clientfile;
-// 			string command = "wget \""+ source +"\" -O \"/tmp/"+clientfile+"\" 1>/dev/null 2>/dev/null";
-// 			system(command.c_str());
-// 			
-// 			string path = "/tmp/"+clientfile;
-// 			clientFunct->ModifyClientDatabase(path);
+
+			string path = "/tmp/testfile";
+ 			ofstream testfile(path.c_str());
+ 			testfile << clientfile;
+ 			testfile.close();
+
+			/** modify the client database*/
+ 			clientFunct->ModifyClientDatabase(path);
 		}
 		else {
 			cerr << "Unknown command: " << g_GlobalConfig.m_sCommand << endl;
 		}
-	//}
+
 
 }
 

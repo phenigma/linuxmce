@@ -11,8 +11,8 @@ using namespace std;
 
 
 /**
- * @brief  class modelling a GetAll_psc_id request
- * @todo complete documentation
+ *in: lineup key and the blak list channels 
+ *out: the channels for that lineup excluding the black list channels
  */
 
 class R_GetChannels : public RA_Request

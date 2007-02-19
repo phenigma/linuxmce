@@ -73,7 +73,7 @@ bool MapManagement::GetStationMap(map<int,string> & mapPrimaryKey_Timestam_Stati
 	return true;
 }
 
-bool MapManagement::GetScheduleMap(map<string,string> & mapPrimaryKey_Timestam_Schedule){
+bool MapManagement::GetScheduleMap(map<u_int64_t,string> & mapPrimaryKey_Timestam_Schedule){
 
 	std::ostringstream sSQL;
 	
@@ -97,7 +97,7 @@ bool MapManagement::GetScheduleMap(map<string,string> & mapPrimaryKey_Timestam_S
 				return false;
 				
 			}
-			mapPrimaryKey_Timestam_Schedule[ row[0] ] = row[1];
+			mapPrimaryKey_Timestam_Schedule[ atoll(row[0]) ] = row[1];
 		}
 	}
 
