@@ -114,26 +114,32 @@ function Build_Pluto_Replacements {
 
 	#Package: lshwd
 	pushd ${svn_dir}/trunk/external/lshwd-2.0-rc4
-		dpkg-buildpackage -rfakeroot -uc -uc -b
+		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../lshwd_2.0*.deb ${temp_dir}
 	popd
 
 	#Package: lirc-modules
 	apt-get -y install linux-source linux-headers module-assistant lirc-modules-source
 	pushd .
-	cd "${svn_dir}"/trunk/src/UbuntuHelpers
-	./Preseed_lirc-modules-source.sh
-	rm -f /etc/lirc/lirc-modules-source.conf
-	dpkg-reconfigure -fnoninteractive lirc-modules-source
-	tar -xjf linux-source-2.6.17.tar.bz2
-	cd /usr/src/linux-source-2.6.17/drivers/media/video/bt8xx
-	cp -a * /usr/src/linux/drivers/media/video/bt8xx/
-	cd /usr/src/linux/drivers/media/video
-	cp bt8xx/bt* .
-	cd /usr/src/linux-source-2.6.17/drivers/media/video
-	cp -a btcx-risc.h /usr/src/linux/drivers/media/video
-	m-a -ft a-b lirc-modules
-	cp /usr/src/lirc-modules*.deb "${temp_dir}"
+		cd "${svn_dir}"/trunk/src/UbuntuHelpers
+		./Preseed_lirc-modules-source.sh
+		rm -f /etc/lirc/lirc-modules-source.conf
+		dpkg-reconfigure -fnoninteractive lirc-modules-source
+		tar -xjf linux-source-2.6.17.tar.bz2
+		cd /usr/src/linux-source-2.6.17/drivers/media/video/bt8xx
+		cp -a * /usr/src/linux/drivers/media/video/bt8xx/
+		cd /usr/src/linux/drivers/media/video
+		cp bt8xx/bt* .
+		cd /usr/src/linux-source-2.6.17/drivers/media/video
+		cp -a btcx-risc.h /usr/src/linux/drivers/media/video
+		m-a -ft a-b lirc-modules
+		cp /usr/src/lirc-modules*.deb "${temp_dir}"
+	popd
+
+	#Package: lirc-pluto
+	pushd "${svn_dir}"/trunk/external/lirc-pluto-0.1
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../lirc-pluto_*.deb "${temp_dir}"
 	popd
 
 	#Download arch independent packages from 150
