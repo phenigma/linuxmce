@@ -50,11 +50,11 @@ chown_asterisk() {
 check_asterisk() {
 # check to see if asterisk is running
 # Note, this isn't fool-proof.  If safe_asterisk is constantly restarting a dying asterisk, then there is a chance pidof will return non zero.  We call this twice to reduce chances of this happening
-    pid_length=`pidof asterisk|awk '{print length($0)}'`
+    pid=$(pidof asterisk)
 
     killall asterisk_keep_running.pl
 
-    if [ "$pid_length" == "0" ]
+    if [[ -z "$pid" ]]
     then
         killall -9 safe_asterisk
         killall -9 mpg123 > /dev/null
@@ -69,8 +69,8 @@ check_asterisk() {
 
 run_asterisk() {
 # check to see if asterisk is running
-    pid_length=`pidof asterisk|awk '{print length($0)}'`
-    if [ "$pid_length" != "0" ]
+    pid=$(pidof asterisk)
+    if [[ -n "$pid" ]]
     then
         echo "Asterisk is already running"
     else
@@ -116,8 +116,8 @@ run_asterisk() {
 stop_asterisk() {
     echo
     echo "STOPPING ASTERISK"
-    pid_length=`pidof asterisk|awk '{print length($0)}'`
-    if [ "$pid_length" != "0" ]
+    pid=$(pidof asterisk)
+    if [[ -n "$pid" ]]
     then
         /usr/sbin/asterisk -rx "stop gracefully"
         /usr/sbin/asterisk -rx "stop now"
@@ -127,8 +127,8 @@ stop_asterisk() {
 
 check_fop() {
 #check to see if FOP is running
-    pid_length=`pidof -x op_server.pl|awk '{print length($0)}'`
-    if [ "$pid_length" == "0" ]
+    pid=$(pidof -x op_server.pl)
+    if [[ -z "$pid" ]]
     then
         killall -9 safe_opserver
         echo
@@ -144,8 +144,8 @@ run_fop() {
 # check to see if FOP is running
     echo
     echo "STARTING FOP SERVER"
-    pid_length=`pidof -x op_server.pl|awk '{print length($0)}'`
-    if [ "$pid_length" != "0" ]
+    pid=$(pidof -x op_server.pl)
+    if [[ -n "$pid" ]]
     then
         echo "FOP server is already running"
     else
@@ -159,8 +159,8 @@ run_fop() {
 stop_fop() {
     echo
     echo "STOPPING FOP SERVER"
-    pid_length=`pidof -x op_server.pl|awk '{print length($0)}'`
-    if [ "$pid_length" != "0" ]
+    pid=$(pidof -x op_server.pl)
+    if [[ -n "$pid" ]]
     then
         killall -9 safe_opserver
         killall -9 op_server.pl
