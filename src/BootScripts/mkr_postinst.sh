@@ -31,3 +31,8 @@ cp /usr/pluto/templates/asound.conf /etc/asound.conf
 if ! grep -qF 'exit 0 # Pluto' /etc/updatedb.conf; then
 	echo "exit 0 # Pluto" >>/etc/updatedb.conf
 fi
+
+## Add alias for 'less -Rn' to .profile
+if ! grep -qF '# Pluto alias for less log viewing' /root/.profile; then
+	echo "alias les='less -Rn' # Pluto alias for less log viewing" >>/root/.profile
+fi
