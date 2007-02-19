@@ -712,25 +712,6 @@ bool Orbiter::GetConfig()
 
 	m_pDevice_ScreenSaver = m_pData->FindSelfOrChildWithinCategory(DEVICECATEGORY_Screen_Savers_CONST);
 	m_sOperatingSystem = m_pEvent->GetDeviceDataFromDatabase( m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_Operating_System_CONST );
-
-	vector<string> vectShortcuts;
-	string sShortcuts=DATA_Get_Shortcut();
-	StringUtils::Tokenize(sShortcuts,"\r\n",vectShortcuts);
- 	for(vector<string>::iterator it_shortcuts=vectShortcuts.begin();it_shortcuts!=vectShortcuts.end();++it_shortcuts)
-	{
-		string::size_type pos=0;
-		bool bAutomatic = StringUtils::Tokenize( *it_shortcuts, "\t", pos )=="1";
-		string sCharacter = StringUtils::Tokenize( *it_shortcuts, "\t", pos );
-		string sMessage = StringUtils::Tokenize( *it_shortcuts, "\t", pos );
-
-		if( sCharacter.empty() || sMessage.empty() )
-			continue;
-
-		Message *pMessage = new Message(sMessage);
-		if( pMessage->m_dwPK_Device_To<0 )
-			TranslateVirtualDevice(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_To);
-		m_mapShortcut[ sCharacter[0] ] = pMessage;
-	}
 	
 	return true;
 }
@@ -2203,6 +2184,26 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 
 		m_pOrbiterRenderer->AdjustWindowSize(m_pScreenHistory_Current->GetObj()->m_rPosition.Width,
 			m_pScreenHistory_Current->GetObj()->m_rPosition.Height);
+
+		// Do this here, not in GetConfig, so TranslateVirtualDevice has the virtual device mappings 
+		vector<string> vectShortcuts;
+		string sShortcuts=DATA_Get_Shortcut();
+		StringUtils::Tokenize(sShortcuts,"\r\n",vectShortcuts);
+ 		for(vector<string>::iterator it_shortcuts=vectShortcuts.begin();it_shortcuts!=vectShortcuts.end();++it_shortcuts)
+		{
+			string::size_type pos=0;
+			bool bAutomatic = StringUtils::Tokenize( *it_shortcuts, "\t", pos )=="1";
+			string sCharacter = StringUtils::Tokenize( *it_shortcuts, "\t", pos );
+			string sMessage = StringUtils::Tokenize( *it_shortcuts, "\t", pos );
+
+			if( sCharacter.empty() || sMessage.empty() )
+				continue;
+
+			Message *pMessage = new Message(sMessage);
+			if( pMessage->m_dwPK_Device_To<0 )
+				TranslateVirtualDevice(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_To);
+			m_mapShortcut[ sCharacter[0] ] = pMessage;
+		}
 
 		m_bStartingUp=false;
 
