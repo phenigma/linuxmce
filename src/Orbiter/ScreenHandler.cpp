@@ -457,13 +457,14 @@ g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play
 		string sMessage = m_pOrbiter->m_mapTextString[TEXT_confirm_file_delete_CONST];
 		StringUtils::Replace(&sMessage,"<%=FILE%>",m_mapKeywords["FILE"]);
 		StringUtils::Replace(&sMessage,"<%=FILENAME%>",mediaFileBrowserOptions.m_sSelectedFile);
+		mediaFileBrowserOptions.ReacquireGrids();  // Since we'll be deleting a file, re-acquire the grid next time
 
 		DisplayMessageOnOrbiter(0, sMessage,
 			false, "0", true,
 			m_pOrbiter->m_mapTextString[TEXT_YES_CONST],
 			//"Delete file"
-			StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn) + " 1 " TOSTRING(COMMAND_Delete_File_CONST)
-				" " TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"" + m_mapKeywords["FILE"] + "\"",
+			StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 " TOSTRING(COMMAND_Delete_File_CONST)
+				" " TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"" + mediaFileBrowserOptions.m_sSelectedFile + "\"",
 			m_pOrbiter->m_mapTextString[TEXT_NO_CONST]
 		);
 	}

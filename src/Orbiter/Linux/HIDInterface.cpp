@@ -316,7 +316,10 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 	else if( iRemoteID!=m_iRemoteID )
 	{
 		if( SetActiveRemote(iRemoteID,false)==false )
+		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDButton user needs to connect first");
+			Rebind();
+		}
 	}
 	
 	// If p_Packet[3]==0 then this is notifying us that the button was released.  If it's not, it's notifying us that a button was pressed

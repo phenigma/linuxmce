@@ -30,6 +30,7 @@ namespace DCE
 			*m_pDevice_Video, /**< The destination video device, ie the TV */
 			*m_pDevice_Media_ID, /**< The device responsible for identifying media inserted if this is a disk drive */
 			*m_pDevice_CaptureCard; /**< If this is an external device, like a VCR, connected to a capture card port, this is the port */
+		int m_dwPK_Command_Audio,m_dwPK_Command_Video; // The inputs on the m_pDevice_Audio and m_pDevice_Video
 		Row_MediaProvider *m_pRow_MediaProvider;
 
 		map<int,int> m_mapMediaType_DesignObj;              /** A map of all the remotes for the various screens */
@@ -54,7 +55,7 @@ namespace DCE
 		int m_iLastVolume;  // The last known volume for this device, -1 means unknown
 		bool m_bMute;  // True if the device was last muted
 
-		int FindUltimateDestinationViaPipe(class Pipe *pPipe,int PK_Pipe);
+		int FindUltimateDestinationViaPipe(class Pipe *pPipe,int PK_Pipe,int &PK_Command_Input);
 
 		bool IsInEntertainArea(EntertainArea *pEntertainArea)
 		{

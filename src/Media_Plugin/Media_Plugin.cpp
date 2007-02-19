@@ -122,6 +122,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_pCommandGroup=NULL;
 	m_tReset=0;
 	m_pDevice_Audio=m_pDevice_Video=m_pDevice_Media_ID=NULL;
+	m_dwPK_Command_Audio=m_dwPK_Command_Video=0;
 	m_iPK_MediaProvider=atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_EK_MediaProvider_CONST).c_str());
 	m_bCaptureCardActive=false;
 	m_bViewingLiveAVPath=false;
@@ -175,10 +176,10 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 		}
 	}
 	else
-		m_pDevice_Audio = pRouter->m_mapDeviceData_Router_Find(FindUltimateDestinationViaPipe(pPipe_Audio,1));
+		m_pDevice_Audio = pRouter->m_mapDeviceData_Router_Find(FindUltimateDestinationViaPipe(pPipe_Audio,1,m_dwPK_Command_Audio));
 
 	if( pPipe_Video )
-		m_pDevice_Video = pRouter->m_mapDeviceData_Router_Find(FindUltimateDestinationViaPipe(pPipe_Video,2));
+		m_pDevice_Video = pRouter->m_mapDeviceData_Router_Find(FindUltimateDestinationViaPipe(pPipe_Video,2,m_dwPK_Command_Video));
 
 	if( !m_pDevice_Audio )
 		m_pDevice_Audio = m_pDeviceData_Router;
@@ -186,7 +187,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 		m_pDevice_Video = m_pDeviceData_Router;
 }
 
-int MediaDevice::FindUltimateDestinationViaPipe(Pipe *pPipe,int PK_Pipe)
+int MediaDevice::FindUltimateDestinationViaPipe(Pipe *pPipe,int PK_Pipe,int &PK_Command_Input)
 {
 	string sSQL = "FK_Device_From=" + StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get()) + " AND FK_Pipe=" + StringUtils::itos(PK_Pipe);
 	vector<Row_Device_Device_Pipe *> vectRow_Device_Device_Pipe;
@@ -199,11 +200,15 @@ int MediaDevice::FindUltimateDestinationViaPipe(Pipe *pPipe,int PK_Pipe)
 		{
 			Pipe *pPipe2 = pDeviceData_Router->m_mapPipe_Available_Find(PK_Pipe);
 			if( pPipe2 )
-				return FindUltimateDestinationViaPipe(pPipe2,PK_Pipe);
+				return FindUltimateDestinationViaPipe(pPipe2,PK_Pipe,PK_Command_Input);
 			else
+			{
+				PK_Command_Input = pRow_Device_Device_Pipe->FK_Command_Input_get();
 				return pRow_Device_Device_Pipe->FK_Device_To_get();
+			}
 		}
 	}
+	PK_Command_Input = pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get();
 	return pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get();
 }
 
@@ -686,6 +691,9 @@ void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_
 		}
 	}
     pEntertainArea->m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
+
+	if( pMediaDevice->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
+		pEntertainArea->m_pMediaDevice_MD = pMediaDevice;
 
 g_pPlutoLogger->Write( LV_STATUS, "adding device %d %s to map ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),
 					  pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str());
@@ -1294,7 +1302,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		EntertainArea *pEntertainArea = pMediaStream->m_mapEntertainArea.begin()->second;
 		if( pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea )!=
 			pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.end() )
-			pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;
+				pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;
 	}
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
@@ -1498,8 +1506,39 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard -- no app server to set port for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
 	}
 
-	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,pDevice_MediaPlayer->m_dwPK_Device,0,pMediaStream->m_iStreamID_get(),"","fifo://" + sDevice);
-	SendCommand(CMD_Play_Media);
+	if( pMediaStream->SingleEaAndSameDestSource()==false )
+	{
+		// For now we're not able to have a xine that renders to a NULL window and can do dvd's.  They require 
+		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
+		// source be one of the destinations, and change the mrl to reference the source disk
+
+		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartCaptureCard streaming to %d", 
+			pDevice_MediaPlayer->m_dwPK_Device);
+		DCE::CMD_Start_Streaming cmd(m_dwPK_Device,
+								pDevice_MediaPlayer->m_dwPK_Device,
+								pMediaStream->m_iPK_MediaType,
+								pMediaStream->m_iStreamID_get( ),
+								"",
+								"fifo://" + sDevice,
+								pMediaStream->GetTargets(DEVICETEMPLATE_Xine_Player_CONST));
+
+		// No handling of errors (it will in some cases deadlock the router.)
+		SendCommand(cmd);
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartCaptureCard playing to %d", 
+			pDevice_MediaPlayer->m_dwPK_Device);
+		DCE::CMD_Play_Media cmd(m_dwPK_Device,
+								pDevice_MediaPlayer->m_dwPK_Device,
+								pMediaStream->m_iPK_MediaType,
+								pMediaStream->m_iStreamID_get( ),
+								"",
+								"fifo://" + sDevice);
+
+		// No handling of errors (it will in some cases deadlock the router.)
+		SendCommand(cmd);
+	}
 
 	// We're using a capture card.  Make it active
 	pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive = true;
@@ -2818,12 +2857,13 @@ g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media ready to resta
 		if( pMediaStream->m_dequeMediaFile.size()>1 )
 			pMediaStream->m_sLastPosition += " QUEUE_POS:" + StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos);
 
-		// TODO --- Hmmm... I was passing in pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device
-		// instead of 0, but that means that when moving from 1 xine to another, it thinks the source isn't the dest
-		// and it doesn't play.  Change this to 0, but a better solution is probably that the plugin figures this out
-		// since sometimes the source will be preserved across moves maybe???
+		// If the source device is coming in through a capture card, preserve the source device, otherwise we'll find another source in the destination
+		int PK_Device=0;
+		if( pMediaStream->m_pDevice_CaptureCard )
+			PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+
 		StartMedia( pMediaStream->m_iPK_MediaType, pMediaStream->m_iPK_MediaProvider, (pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
-			vectEntertainArea, 0, 0,
+			vectEntertainArea, PK_Device, 0,
 			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat,pMediaStream->m_sLastPosition);
 
 		pMediaStream->m_dequeMediaFile.clear();  // We don't want to delete the media files since we will have re-used the same pointers above
@@ -2886,32 +2926,61 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 		// Reset this
 		pMediaStream->m_pMediaDevice_Source->m_bViewingLiveAVPath=false;
 		for(map<int,Pipe *>::iterator it=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.begin();it!=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.end();++it)
+		{
 			it->second->m_bDontSendInputs=false;  // Reset this in case the device was previously in use and had this set to true
+			it->second->m_bDontSendOn=false;  // Reset this in case the device was previously in use and had this set to true
+		}
 
 		// If this is using a capture card and it's active, then we are only going to turn on the m/d
-		if( pMediaDevice->m_pDevice_CaptureCard && pMediaDevice->m_bCaptureCardActive && pMediaDevice->m_pDevice_CaptureCard->m_pDevice_MD )
+		if( pMediaDevice->m_pDevice_CaptureCard && pMediaDevice->m_bCaptureCardActive && pMediaDevice->m_pDevice_CaptureCard )
 		{
+			// See if we're viewing it in the same room where the device is located.  If so the user may want to have live and non-live paths
+			bool bViewingInRoom=false;
+			MediaDevice *pMediaDevice_CaptureCard = m_mapMediaDevice_Find(pMediaDevice->m_pDevice_CaptureCard->m_dwPK_Device);
+			if( pMediaDevice_CaptureCard )
+			{
+				for( map<int, class EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();
+					it!=pMediaStream->m_mapEntertainArea.end();++it)
+				{
+					EntertainArea *pEntertainArea = it->second;
+					if( pMediaDevice_CaptureCard->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaDevice_CaptureCard->m_mapEntertainArea.end() )
+					{
+						bViewingInRoom=true;
+						break;
+					}
+				}
+			}
+
 			// We don't want to be setting the inputs to the 'live' a/v path because we're using the capture card
 			for(map<int,Pipe *>::iterator it=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.begin();it!=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.end();++it)
-				it->second->m_bDontSendInputs=true;
-				
-			MediaDevice *pMediaDevice_MD = m_mapMediaDevice_Find(pMediaDevice->m_pDevice_CaptureCard->m_pDevice_MD->m_dwPK_Device);
-
-			if( pMediaDevice_MD  )
 			{
-				if( pMediaDevice_MD->m_dwPK_Command_LastPower==COMMAND_Generic_On_CONST && time(NULL)-pMediaDevice_MD->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS )
-					g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleOnOffs Not resending power command (2)");
-				else
-				{
-					if( pMediaDevice_MD )
-					{
-						pMediaDevice_MD->m_tLastPowerCommand=time(NULL);
-						pMediaDevice_MD->m_dwPK_Command_LastPower=COMMAND_Generic_On_CONST;
-					}
+				it->second->m_bDontSendInputs=true;
+				if( !bViewingInRoom )
+					it->second->m_bDontSendOn=true;  // Additionally, if we're not viewing it in the room the device is in, don't send the live paths either
+			}
+			
+			for( map<int, class EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();
+				it!=pMediaStream->m_mapEntertainArea.end();++it)
+			{
+				EntertainArea *pEntertainArea = it->second;
+				MediaDevice *pMediaDevice_MD = pEntertainArea->m_pMediaDevice_MD;
 
-					// Send it to the MD
-					DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
-					SendCommand(CMD_On);
+				if( pMediaDevice_MD  )
+				{
+					if( pMediaDevice_MD->m_dwPK_Command_LastPower==COMMAND_Generic_On_CONST && time(NULL)-pMediaDevice_MD->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS )
+						g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleOnOffs Not resending power command (2)");
+					else
+					{
+						if( pMediaDevice_MD )
+						{
+							pMediaDevice_MD->m_tLastPowerCommand=time(NULL);
+							pMediaDevice_MD->m_dwPK_Command_LastPower=COMMAND_Generic_On_CONST;
+						}
+
+						// Send it to the MD
+						DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice_MD->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
+						SendCommand(CMD_On);
+					}
 				}
 			}
 		}
@@ -5884,3 +5953,101 @@ void Media_Plugin::CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,strin
 	}
 }
 
+//<-dceag-c845-b->
+
+	/** @brief COMMAND: #845 - Delete File */
+	/** Delete a file.  Can be a fully qualified filename, or a !F syntax */
+		/** @param #13 Filename */
+			/** The file to delete */
+
+void Media_Plugin::CMD_Delete_File(string sFilename,string &sCMD_Result,Message *pMessage)
+//<-dceag-c845-e->
+{
+	if( sFilename.size()>2 && sFilename[0]=='!' && sFilename[1]=='F' )
+	{
+		int PK_File = atoi( sFilename.substr(2).c_str() );
+		Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+		if( !pRow_File )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot find %s",sFilename.c_str());
+		else
+		{
+			if( FileUtils::DelFile(pRow_File->Path_get() + "/" + pRow_File->Filename_get()) )
+			{
+				pRow_File->Missing_set(1);
+				m_pDatabase_pluto_media->File_get()->Commit();
+			}
+			else
+				g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot delete %s %s/%s",
+					sFilename.c_str(),pRow_File->Path_get().c_str(),pRow_File->Filename_get().c_str());
+		}
+	}
+	else if( FileUtils::DelFile(sFilename)==false )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot delete %s ",
+			sFilename.c_str());
+}
+//<-dceag-c868-b->
+
+	/** @brief COMMAND: #868 - Retransmit A/V Commands */
+	/** Resend a/v commands to the active video or audio output device */
+		/** @param #9 Text */
+			/** AP=Audio Power
+AI=Audio Input
+VP=Video Power
+VI=Video Input */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area */
+
+void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
+//<-dceag-c868-e->
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	if( sText.size()<2 )
+		return;  // Invalid parameter
+	vector<EntertainArea *> vectEntertainArea;
+	// Only an Orbiter will tell us to do this.  should only be one stream
+    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, sPK_EntertainArea, vectEntertainArea );
+	for(size_t s=0;s<vectEntertainArea.size();++s)
+	{
+		EntertainArea *pEntertainArea = vectEntertainArea[s];
+		if( !pEntertainArea->m_pMediaStream )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Retransmit_AV_Commands no media stream");
+			return;
+		}
+
+		// If we're not viewing a live path, it's running through the media director, so use those inputs
+		MediaDevice *pMediaDevice;
+		if( pEntertainArea->m_pMediaDevice_MD && !pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_bViewingLiveAVPath )
+			pMediaDevice = pEntertainArea->m_pMediaDevice_MD;
+		else
+			pMediaDevice = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source;
+
+		if( sText[0]=='A' )
+		{
+			if( !pMediaDevice->m_pDevice_Audio )
+				g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no audio device");
+			else
+			{
+				if( sText[1]=='P' )
+				{
+					DCE::CMD_On CMD_On(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Audio->m_dwPK_Device,
+						0,"");
+					CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]="1";
+					SendCommand(CMD_On);
+				}
+				else if( sText[1]=='I' )
+				{
+					if( pMediaDevice->m_dwPK_Command_Audio )
+					{
+						DCE::CMD_Input_Select CMD_Input_Select(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Audio->m_dwPK_Device,
+							pMediaDevice->m_dwPK_Command_Audio);
+						SendCommand(CMD_Input_Select);
+					}
+					else
+						g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no input on audio device");
+				}
+			}
+		}
+	}
+}

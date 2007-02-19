@@ -46,8 +46,8 @@ namespace FileUtils
     string FindExtension ( string sFileName ); /** < returns the extension of the file name specified */
     void MakeDir(string sDirectory); /** < makes a directory, including all necessary parent directories, like mkdir -p in Linux */
     bool DirExists(string sDirectory); /** < Returns true if the directory exists */
-	void DelFile(string sFileName);
-	void DelDir(string sDirectory);
+	bool DelFile(string sFileName);
+	bool DelDir(string sDirectory);
     string BasePath( string sFileName ); /** < returns the path one dir up @todo ask */
     string FileWithoutExtension ( string sFileName ); /** < returns the filename without the extension */
     string FilenameWithoutPath( string sFullPath, bool bIncludeExtension=true ); /** < returnes only the file name from a path/filename string */

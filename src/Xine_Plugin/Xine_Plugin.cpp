@@ -280,6 +280,9 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	// If it changes the source to use an nbd device, then the subsequent SingleEaAndSameDestSource will return true
 	if( pXineMediaStream->SingleEaAndSameDestSource()==false )
 	{
+		// For now we're not able to have a xine that renders to a NULL window and can do dvd's.  They require 
+		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
+		// source be one of the destinations, and change the mrl to reference the source disk
 		if( !ConfirmSourceIsADestination(mediaURL,pXineMediaStream) )
 			return false;
 	}
@@ -290,10 +293,6 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	if( pXineMediaStream->SingleEaAndSameDestSource()==false )
 	{
-		// For now we're not able to have a xine that renders to a NULL window and can do dvd's.  They require 
-		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
-		// source be one of the destinations, and change the mrl to reference the source disk
-
 		g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
 			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 			pMediaStream->m_iDequeMediaFile_Pos);
@@ -303,7 +302,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 								pXineMediaStream->m_iStreamID_get( ),
 								pMediaFile && pMediaFile->m_sStartPosition.size() ? pMediaFile->m_sStartPosition : pXineMediaStream->m_sStartPosition,
 								mediaURL,
-								pXineMediaStream->GetTargets());
+								pXineMediaStream->GetTargets(DEVICETEMPLATE_Xine_Player_CONST));
 
 		// No handling of errors (it will in some cases deadlock the router.)
 		SendCommand(cmd);

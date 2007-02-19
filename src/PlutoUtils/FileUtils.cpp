@@ -335,7 +335,7 @@ bool FileUtils::DirExists( string sFile )
 #endif
 }
 
-void FileUtils::DelFile(string sFileName)
+bool FileUtils::DelFile(string sFileName)
 {
 #ifndef WINCE //no findfiles implemented under CE yet
 printf("FileUtils::DelFile %s",sFileName.c_str());
@@ -353,16 +353,16 @@ printf("FileUtils::DelFile %s",sFileName.c_str());
 	#ifdef WINCE
 		wchar_t pFileNameW[256];
 		mbstowcs(pFileNameW, sFileName.c_str(), 256);
-		::DeleteFile(pFileNameW);
+		return ::DeleteFile(pFileNameW)!=0;
 	#else
-		::DeleteFile(sFileName.c_str());
+		return ::DeleteFile(sFileName.c_str())!=0;
 	#endif
 #else
-	unlink(sFileName.c_str());
+	return unlink(sFileName.c_str())==0;
 #endif
 }
 
-void FileUtils::DelDir(string sDirectory)
+bool FileUtils::DelDir(string sDirectory)
 {
 #ifdef WIN32
 
@@ -409,12 +409,13 @@ void FileUtils::DelDir(string sDirectory)
 
 		#ifdef WINCE
 			mbstowcs(pDirectoryW, sDirectory.c_str(), 256);
-			::RemoveDirectory(pDirectoryW);
+			return ::RemoveDirectory(pDirectoryW)!=0;
 		#else
-			::RemoveDirectory(sDirectory.c_str());
+			return ::RemoveDirectory(sDirectory.c_str())!=0;
 		#endif
 #else
 	system(("rm -rf " + sDirectory).c_str());
+	return true; // Don't know if it was successful or not
 #endif
 }
 

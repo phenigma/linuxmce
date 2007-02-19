@@ -207,6 +207,7 @@ namespace DCE
 		void LoadDefaultAvSettings(deque<MediaTitle *> &dequeMediaTitle,map<int,int> &mapAttributes);
 		void LoadDefaultAvSettings(MediaFile *pMediaFile,map<int,int> &mapAttributes);
 		void MergeAttributes(map<int,int> &mapAttributes,map< int,list_int > &mapPK_Attribute);
+		string GetTargets(int PK_DeviceTemplate);
 	};
 
     typedef map<int,MediaStream *> MapMediaStream;

@@ -353,6 +353,14 @@ public:
 			return m_mapParameters[DEVICEDATA_Shortcut_CONST];
 	}
 
+	bool Get_Expert_Mode()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Expert_Mode_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Expert_Mode_CONST]=="1" ? true : false);
+	}
+
 };
 
 
@@ -491,6 +499,7 @@ public:
 	int DATA_Get_PK_Screen() { return GetData()->Get_PK_Screen(); }
 	bool DATA_Get_Get_Time_Code_for_Media() { return GetData()->Get_Get_Time_Code_for_Media(); }
 	string DATA_Get_Shortcut() { return GetData()->Get_Shortcut(); }
+	bool DATA_Get_Expert_Mode() { return GetData()->Get_Expert_Mode(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server

@@ -46,6 +46,7 @@
 #include "pluto_main/Table_CommandGroup_Room.h"
 #include "pluto_main/Table_CommandParameter.h"
 #include "pluto_main/Table_Users.h"
+#include "DCE/Message.h"
 
 #define  VERSION "<=version=>"
 
@@ -101,6 +102,45 @@ void UpdateEntArea::UpdateOrbiterShortcuts()
 	for(vector<Row_Device *>::iterator it=vectRow_Orbiters.begin();it!=vectRow_Orbiters.end();++it)
 	{
 		Row_Device *pRow_Device = *it;
+
+		// Add shortcuts for the top lighting scenarios
+        vector<class Row_CommandGroup_Room *> vectRow_CommandGroup_Room;
+        string sql = "JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup WHERE FK_Room=" +
+			StringUtils::itos(pRow_Device->FK_Room_get()) + " AND FK_Array=" TOSTRING(ARRAY_Lighting_Scenarios_CONST) " AND Disabled=0 ORDER BY " COMMANDGROUP_ROOM_SORT_FIELD " LIMIT 9";
+        m_pDatabase_pluto_main->CommandGroup_Room_get()->GetRows(sql,&vectRow_CommandGroup_Room);
+		char cShortcut='1';
+		for(vector<class Row_CommandGroup_Room *>::iterator it=vectRow_CommandGroup_Room.begin();it!=vectRow_CommandGroup_Room.end();++it)
+		{
+			Row_CommandGroup_Room *pRow_CommandGroup_Room = *it;
+			Row_CommandGroup *pRow_CommandGroup=pRow_CommandGroup_Room->FK_CommandGroup_getrow();
+            if( pRow_CommandGroup )
+			{
+				string sMessage = "0 " TOSTRING(DEVICEID_DCEROUTER) " 1 "
+					TOSTRING(COMMAND_Execute_Command_Group_CONST) " " TOSTRING(COMMANDPARAMETER_PK_CommandGroup_CONST) " " +
+					StringUtils::itos(pRow_CommandGroup_Room->FK_CommandGroup_get());
+				AddShortcut(pRow_Device->FK_Room_get(),cShortcut++,sMessage);
+			}
+		}
+
+		vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea;
+		pRow_Device->Device_EntertainArea_FK_Device_getrows(&vectRow_Device_EntertainArea);
+		if( vectRow_Device_EntertainArea.size() )
+		{
+			Row_Device_EntertainArea *pRow_Device_EntertainArea = vectRow_Device_EntertainArea[0];
+			AddShortcut(pRow_Device->FK_Room_get(),'R',"0 " TOSTRING(DEVICETEMPLATE_VirtDev_Media_Plugin_CONST) " 1 "
+				TOSTRING(COMMAND_Retransmit_AV_Commands_CONST) " " TOSTRING(COMMANDPARAMETER_Text_CONST) " \"VP\" "
+				TOSTRING(COMMANDPARAMETER_PK_EntertainArea_CONST) " " + StringUtils::itos(pRow_Device_EntertainArea->FK_EntertainArea_get()) );
+			AddShortcut(pRow_Device->FK_Room_get(),'G',"0 " TOSTRING(DEVICETEMPLATE_VirtDev_Media_Plugin_CONST) " 1 "
+				TOSTRING(COMMAND_Retransmit_AV_Commands_CONST) " " TOSTRING(COMMANDPARAMETER_Text_CONST) " \"VI\" "
+				TOSTRING(COMMANDPARAMETER_PK_EntertainArea_CONST) " " + StringUtils::itos(pRow_Device_EntertainArea->FK_EntertainArea_get()) );
+			AddShortcut(pRow_Device->FK_Room_get(),'Y',"0 " TOSTRING(DEVICETEMPLATE_VirtDev_Media_Plugin_CONST) " 1 "
+				TOSTRING(COMMAND_Retransmit_AV_Commands_CONST) " " TOSTRING(COMMANDPARAMETER_Text_CONST) " \"AP\" "
+				TOSTRING(COMMANDPARAMETER_PK_EntertainArea_CONST) " " + StringUtils::itos(pRow_Device_EntertainArea->FK_EntertainArea_get()) );
+			AddShortcut(pRow_Device->FK_Room_get(),'B',"0 " TOSTRING(DEVICETEMPLATE_VirtDev_Media_Plugin_CONST) " 1 "
+				TOSTRING(COMMAND_Retransmit_AV_Commands_CONST) " " TOSTRING(COMMANDPARAMETER_Text_CONST) " \"AI\" "
+				TOSTRING(COMMANDPARAMETER_PK_EntertainArea_CONST) " " + StringUtils::itos(pRow_Device_EntertainArea->FK_EntertainArea_get()) );
+		}
+
 		// Get the shortcuts we have for this room
 		map<int, MapShortcuts *>::iterator itMS=m_mapOrbiter_Shortcuts.find(pRow_Device->FK_Room_get());
 		MapShortcuts *pMapShortcuts = itMS!=m_mapOrbiter_Shortcuts.end() ? itMS->second : NULL;

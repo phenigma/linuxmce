@@ -619,6 +619,7 @@ bool Orbiter::GetConfig()
 	m_bUseOpenGL = m_pData->m_mapParameters_Find(DEVICEDATA_Use_OpenGL_effects_CONST)=="1";
 	m_bUseComposite = m_pEvent->GetDeviceDataFromDatabase(m_dwPK_Device, DEVICEDATA_Use_alpha_blended_UI_CONST) == "1";
 	m_bReportTimeCode = DATA_Get_Get_Time_Code_for_Media();
+	m_bExpertMode = DATA_Get_Expert_Mode();
 
 	int nWidth = atoi(m_pEvent->GetDeviceDataFromDatabase(m_dwPK_Device, DEVICEDATA_ScreenWidth_CONST).c_str());
 	int nHeight = atoi(m_pEvent->GetDeviceDataFromDatabase(m_dwPK_Device, DEVICEDATA_ScreenHeight_CONST).c_str());

@@ -1113,6 +1113,15 @@ Powerfile: 0, 1, ... */
 	virtual void CMD_Check_For_New_Files(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #845 - Delete File */
+	/** Delete a file.  Can be a fully qualified filename, or a !F syntax */
+		/** @param #13 Filename */
+			/** The file to delete */
+
+	virtual void CMD_Delete_File(string sFilename) { string sCMD_Result; CMD_Delete_File(sFilename.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Delete_File(string sFilename,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #846 - Make Thumbnail */
 	/** Thumbnail a file or attribute */
 		/** @param #13 Filename */
@@ -1133,6 +1142,20 @@ Powerfile: 0, 1, ... */
 
 	virtual void CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On) { string sCMD_Result; CMD_Live_AV_Path(sPK_EntertainArea.c_str(),bTurn_On,sCMD_Result,NULL);};
 	virtual void CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #868 - Retransmit A/V Commands */
+	/** Resend a/v commands to the active video or audio output device */
+		/** @param #9 Text */
+			/** AP=Audio Power
+AI=Audio Input
+VP=Video Power
+VI=Video Input */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area */
+
+	virtual void CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainArea) { string sCMD_Result; CMD_Retransmit_AV_Commands(sText.c_str(),sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };

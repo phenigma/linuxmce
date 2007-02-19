@@ -21,7 +21,7 @@ namespace DCE
 		/** @brief constructor*/
 
 		EntertainArea(int iPK_EntertainArea,bool bOnly1Stream,string sDescription,Room *pRoom)
-		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; m_pRoom=pRoom; m_pMediaDevice_ActiveDest=NULL; m_bMediaIsPrivate=false; m_pOH_Orbiter_OSD=NULL; }
+		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; m_pRoom=pRoom; m_pMediaDevice_ActiveDest=NULL; m_bMediaIsPrivate=false; m_pOH_Orbiter_OSD=NULL; m_pMediaDevice_MD=NULL; }
 
 
 		~EntertainArea()
@@ -46,6 +46,7 @@ namespace DCE
 
 		class MediaStream  *m_pMediaStream;   /** The current media streams in this entertainment area */
 		MediaDevice	*m_pMediaDevice_ActiveDest;      /** The media device that is currently rendering media in this area */
+		MediaDevice	*m_pMediaDevice_MD;      /** The media device that is the MD in this area */
 		class OH_Orbiter *m_pOH_Orbiter_OSD;    	   /** Which orbiter is the on-screen display for this entertainment area */
 
 		map<int, class MediaDevice *> m_mapMediaDevice;  /** All the media devices in the area */

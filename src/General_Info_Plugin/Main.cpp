@@ -218,7 +218,10 @@ int main(int argc, char* argv[])
 			if( bLocalMode )
 				pGeneral_Info_Plugin->RunLocalMode();
 			else
-				pthread_join(pGeneral_Info_Plugin->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			{
+				if(pGeneral_Info_Plugin->m_RequestHandlerThread)
+					pthread_join(pGeneral_Info_Plugin->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 

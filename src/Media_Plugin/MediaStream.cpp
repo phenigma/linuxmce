@@ -551,7 +551,14 @@ bool MediaStream::SingleEaAndSameDestSource()
 		return false;  // It's playing in more than 1 place.  
 
 	EntertainArea *pEntertainArea = m_mapEntertainArea.begin()->second;
-	if( m_pMediaDevice_Source->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea ) == m_pMediaDevice_Source->m_mapEntertainArea.end() )
+	
+	MediaDevice *pMediaDevice=NULL;
+	if( m_pDevice_CaptureCard )
+		pMediaDevice = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaDevice_Find(m_pDevice_CaptureCard->m_dwPK_Device);
+	else
+		pMediaDevice = m_pMediaDevice_Source;
+	
+	if( pMediaDevice && pMediaDevice->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea ) == pMediaDevice->m_mapEntertainArea.end() )
 		return false;  // The place it's playing isn't the same as the source. 
 
 	return true;
@@ -656,3 +663,20 @@ void MediaStream::MergeAttributes(map<int,int> &mapAttributes,map< int,list_int 
 	}
 }
 
+string MediaStream::GetTargets(int PK_DeviceTemplate)
+{
+	string sTargets;
+	for(map<int, class EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
+	{
+		EntertainArea *pEntertainArea = it->second;
+		ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(PK_DeviceTemplate);
+		if( pListMediaDevice && pListMediaDevice->size() )
+		{
+			MediaDevice *pMediaDevice = *(pListMediaDevice->begin());
+			if( sTargets.empty()==false )
+				sTargets += ",";
+			sTargets += StringUtils::itos( pMediaDevice->m_pDeviceData_Router->m_dwPK_Device );
+		}
+	}
+	return sTargets;
+}

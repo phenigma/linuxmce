@@ -126,31 +126,24 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		if( IsLight(it->second) )
 			bRoomHasLights=true;
 
-	int iOrder=1;
+	int iOrder=3; // Start with 3 so lights on is always 1, off is always 2
 	if( bRoomHasLights )
 	{
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"On",ICON_Lights_On_CONST,1,0);
 		if( pCommandGroup )
 		{
-			AddShortcut(pRow_Room->PK_Room_get(),'1',"0 " TOSTRING(DEVICEID_DCEROUTER) " 1 " 
-				TOSTRING(COMMAND_Execute_Command_Group_CONST) " " TOSTRING(COMMANDPARAMETER_PK_CommandGroup_CONST) " " +
-				StringUtils::itos(pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get()));
 			for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
 				if( IsLight(it->second) )
-					pCommandGroup->AddCommand(it->first,COMMAND_Set_Level_CONST,iOrder++,1,COMMANDPARAMETER_Level_CONST,"100");
+					pCommandGroup->AddCommand(it->first,COMMAND_Set_Level_CONST,1,1,COMMANDPARAMETER_Level_CONST,"100");
 		}
 
 		iOrder=1;
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Off",ICON_Lights_Off_CONST,0,0);
 		if( pCommandGroup )
 		{
-			AddShortcut(pRow_Room->PK_Room_get(),'2',"0 " TOSTRING(DEVICEID_DCEROUTER) " 1 " 
-				TOSTRING(COMMAND_Execute_Command_Group_CONST) " " TOSTRING(COMMANDPARAMETER_PK_CommandGroup_CONST) " " +
-				StringUtils::itos(pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get()));
-
 			for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
 				if( IsLight(it->second) )
-					pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,iOrder++,0);
+					pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,2,0);
 		}
 	}
 
@@ -168,9 +161,6 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 			pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Showtime",ICON_Showtime_CONST,2,0);  // Showtime is parm1=2
 			if( pCommandGroup )
 			{
-				AddShortcut(pRow_Room->PK_Room_get(),'3',"0 " TOSTRING(DEVICEID_DCEROUTER) " 1 " 
-					TOSTRING(COMMAND_Execute_Command_Group_CONST) " " TOSTRING(COMMANDPARAMETER_PK_CommandGroup_CONST) " " +
-					StringUtils::itos(pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get()));
 				for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
 				{
 					// Put ceiling lights at 10%, accent lights at 30%, blinds closed, other lights off

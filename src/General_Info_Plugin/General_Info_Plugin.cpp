@@ -3448,16 +3448,3 @@ void General_Info_Plugin::CMD_RemoteAssistance_GetStatus(bool *bEnable,string &s
 	}
 	fclose(f);
 }
-
-//<-dceag-c845-b->
-
-	/** @brief COMMAND: #845 - Delete File */
-	/**  */
-		/** @param #13 Filename */
-			/** The file to delete */
-
-void General_Info_Plugin::CMD_Delete_File(string sFilename,string &sCMD_Result,Message *pMessage)
-//<-dceag-c845-e->
-{
-	FileUtils::DelFile(sFilename);
-}

@@ -23236,5 +23236,37 @@ namespace DCE
 			COMMAND_DVI_2_CONST,
 			0 /* number of parameters */); }
 	};
+	class CMD_Retransmit_AV_Commands : public PreformedCommand {
+	public:
+		CMD_Retransmit_AV_Commands(long DeviceIDFrom, long DeviceIDTo,string sText,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Retransmit_AV_Commands_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str()); }
+	};
+	class CMD_Retransmit_AV_Commands_DL : public PreformedCommand {
+	public:
+		CMD_Retransmit_AV_Commands_DL(long DeviceIDFrom, string DeviceIDTo,string sText,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Retransmit_AV_Commands_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str()); }
+	};
+	class CMD_Retransmit_AV_Commands_DT : public PreformedCommand {
+	public:
+		CMD_Retransmit_AV_Commands_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sText,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Retransmit_AV_Commands_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str()); }
+	};
+	class CMD_Retransmit_AV_Commands_Cat : public PreformedCommand {
+	public:
+		CMD_Retransmit_AV_Commands_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sText,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Retransmit_AV_Commands_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
+			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str()); }
+	};
 }
 #endif

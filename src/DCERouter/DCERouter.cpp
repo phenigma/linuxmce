@@ -773,6 +773,8 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
 
 void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bool bAutoDelete)
 {
+if( pMessageWillBeDeleted->m_dwPK_Device_To==73 )
+int k=2;
 	if( m_bStopProcessingMessages )
 		return;
 
@@ -1822,14 +1824,18 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 				continue;  // Don't bother if there's another pipe going to the same device--we will have already done this
 			pPipe_Prior=pPipe;
 
-			Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
-                PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
-			if( PK_Pipe )
-				pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
-			if( sPipesDevices.size() )
-				pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
+			if( pPipe->m_bDontSendOn==false )
+			{
+				// Forward the on command up the pipe
+				Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+					PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
+				if( PK_Pipe )
+					pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
+				if( sPipesDevices.size() )
+					pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
 
-            ReceivedMessage(NULL,pMessage);
+				ReceivedMessage(NULL,pMessage);
+			}
 
 			// The pipe's auto selection of inputs could be disabled if we're using some other output device, like a capture card
 			if( pPipe->m_bDontSendInputs==false && !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )

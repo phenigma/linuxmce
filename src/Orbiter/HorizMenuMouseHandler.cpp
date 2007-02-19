@@ -79,9 +79,28 @@ bool HorizMenuMouseHandler::ButtonDown(int PK_Button)
 
 bool HorizMenuMouseHandler::ButtonUp(int PK_Button)
 {
-	if( PK_Button==BUTTON_Mouse_7_CONST && m_bTapAndRelease==false && m_bStartedMovement )
+	if( PK_Button==BUTTON_Mouse_7_CONST && m_pMouseBehavior->m_pOrbiter->m_bExpertMode )
 	{
-//		return false;
+		int Diff = ProcessUtils::GetMsTime() - m_pMouseBehavior->m_iTime_Last_Mouse_Down;
+		if( !m_bStartedMovement || Diff<1000 )  // Must have started moving and held the button at least 500 ms
+		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"HorizMenuMouseHandler::ButtonUp not activating started %d diff %d",(int) m_bStartedMovement,Diff);
+#endif
+			return false;
+		}
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"HorizMenuMouseHandler::ButtonUp activating diff %d",Diff);
+#endif
+		// Treat this like the user clicked the mouse button
+		Orbiter::Event event;
+		event.type=Orbiter::Event::REGION_DOWN;
+		event.data.region.m_iButton=1;
+		event.data.region.m_iX=m_pMouseBehavior->m_pOrbiter->m_iLastX;
+		event.data.region.m_iY=m_pMouseBehavior->m_pOrbiter->m_iLastY;
+		m_pMouseBehavior->m_pOrbiter->ProcessEvent( event );
+
+		return true;
 	}
 
 	switch( PK_Button )
@@ -124,6 +143,9 @@ void HorizMenuMouseHandler::Move(int X,int Y,int PK_Direction)
 		// The user has moved off the highlighted object.  Find the object under here to highlight
 		if( pObj_ToHighlight && pObj_ToHighlight!=m_pObj_ActiveMenuPad )
 		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"HorizMenuMouseHandler::Move 1 m_bStartedMovement=true");
+#endif
 			if( m_pObj_ActiveMenuPad )
 				m_pObj_ActiveMenuPad->m_GraphicToDisplay_set("hmm3",GRAPHIC_NORMAL);
 			ShowPopup(pObj_ToHighlight);
@@ -152,6 +174,10 @@ if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 PlutoRectangle r = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
 int k=2;
 }
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"HorizMenuMouseHandler::Move 2 m_bStartedMovement=true");
+#endif
+			m_bStartedMovement=true;
 			DesignObj_Orbiter *pObj_ToHighlight_TopMost=NULL;
 			DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pObj_ActiveSubMenu,X,Y,&pObj_ToHighlight_TopMost,DIRECTION_Up_CONST);
 			if( pObj_ToHighlight || pObj_ToHighlight_TopMost)

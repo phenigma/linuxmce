@@ -475,15 +475,6 @@ Delimiter: '\n' */
 	virtual void CMD_RemoteAssistance_GetStatus(bool *bEnable) { string sCMD_Result; CMD_RemoteAssistance_GetStatus(bEnable,sCMD_Result,NULL);};
 	virtual void CMD_RemoteAssistance_GetStatus(bool *bEnable,string &sCMD_Result,Message *pMessage);
 
-
-	/** @brief COMMAND: #845 - Delete File */
-	/**  */
-		/** @param #13 Filename */
-			/** The file to delete */
-
-	virtual void CMD_Delete_File(string sFilename) { string sCMD_Result; CMD_Delete_File(sFilename.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Delete_File(string sFilename,string &sCMD_Result,Message *pMessage);
-
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;
