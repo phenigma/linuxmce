@@ -116,10 +116,6 @@ bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string
 	FrontEnd = new SDLFrontEnd();
 
 	bool bFullScreen = false;
-#ifndef WIN32
-	bFullScreen = true;
-#endif
-
 	bool Result = FrontEnd->StartVideoMode(Width, Height, bFullScreen) != 0;
 	Painter::Instance()->Setup(&Extensions);
 	Extensions.Resize(Width, Height);
