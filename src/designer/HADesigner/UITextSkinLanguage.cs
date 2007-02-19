@@ -153,7 +153,6 @@ namespace HADesigner
 			{
 				UIChildSkinLanguage obj = ParentUIText.ParentUIDesignObjVariation.ParentUIDesignObj.GetCurrentChildSkinLanguage(LanguageID, SkinID);
 
-				//TODO Ender
 				int objectWidth = obj.Width;
 				int objectHeight = obj.Height;
 				int width = (this.Width==0)? objectWidth - this.X : this.Width;

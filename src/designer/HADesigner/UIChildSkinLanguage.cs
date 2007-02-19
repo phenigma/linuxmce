@@ -27,6 +27,8 @@ namespace HADesigner
 		//current values
 		private int m_intParentX = 0;		//relative to parent UIDesignObjVariation
 		private int m_intParentY = 0;
+		private int m_intRootX = 0;
+		private int m_intRootY = 0;
 		private int m_intWidth = NoSetValue;
 		private int m_intHeight = NoSetValue;
 
@@ -258,6 +260,16 @@ namespace HADesigner
 		{
 			get	{return m_intParentY;}
 			set {m_intParentY = value;}
+		}
+		public int RootX
+		{
+			get	{return m_intRootX;}
+			set {m_intRootX = value;}
+		}
+		public int RootY
+		{
+			get	{return m_intRootY;}
+			set {m_intRootY = value;}
 		}
 		public int ParentDisplayOrder
 		{
@@ -619,7 +631,7 @@ namespace HADesigner
 
 					if(this.Width == UIDesignObj.NoSetValue) this.Width = intMaxWidth;
 					if(this.Height == UIDesignObj.NoSetValue) this.Height = intMaxHeight;
-				}				
+				}			
 			}
 		}
 
@@ -637,13 +649,24 @@ namespace HADesigner
 
 		public void Draw(Graphics objGraphics, UIDesignObjVariation objVariation)
 		{
+			//refresh offsets
+			if(null != this.ParentUIDesignObj.ParentUIDesignObjVariation && null != this.ParentUIDesignObj.ParentUIDesignObjVariation.ParentUIDesignObj)
+			{
+				UIChildSkinLanguage parentLS = this.ParentUIDesignObj.ParentUIDesignObjVariation.ParentUIDesignObj.GetCurrentChildSkinLanguage(LanguageID, SkinID);
+				if(null != parentLS)
+				{
+					this.RootX = parentLS.RootX + parentLS.ParentX;
+					this.RootY = parentLS.RootY + parentLS.ParentY;
+				}
+			}
+
 			objVariation.Draw(this, objGraphics, LanguageID, SkinID);
 
 			//if this is selected, draw a big ol' rectangle around it
 			if(ParentUIDesignObj.Selected)
 			{
 				objGraphics.DrawRectangle(new Pen(Color.Red, 4), 
-					this.ParentX, this.ParentY, this.Width - 4, this.Height - 4);
+					this.RootX + this.ParentX, this.RootY + this.ParentY, this.Width - 4, this.Height - 4);
 			}
 		}
 
@@ -735,10 +758,10 @@ namespace HADesigner
 			if (this.Include) 
 			{
 				return 
-					((intX >= this.ParentX) && 
-					(intX <= (this.ParentX + this.Width)) && 
-					(intY >= this.ParentY) && 
-					(intY <= (this.ParentY + this.Height)));
+					((intX >= this.ParentX + this.RootX) && 
+					(intX <= (this.ParentX + this.RootX + this.Width)) && 
+					(intY >= this.ParentY + this.RootY) && 
+					(intY <= (this.ParentY + this.RootY + this.Height)));
 			}
 			else return false;
 		}
