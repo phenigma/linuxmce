@@ -1350,6 +1350,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		CheckStreamForTimeout(pMediaStream);
 		g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
 
+		pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive = false;  // We will set it to true in StartCaptureCard
+
 		for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
 		{
 			EntertainArea *pEntertainArea = ( *it ).second;
@@ -1361,10 +1363,9 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				// only do stuff with valid objects
 				pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&mapMediaDevice_Current);
 
-				if( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard )
+				// Only start it once, we set it to false above, and will set it to true in StartCaptureCard.  We may be streaming to multiple EA's
+				if( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive == false)
 					StartCaptureCard(pMediaStream);
-				else
-					pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive = false;
 
 				HandleOnOffs(pOldStreamInfo ? pOldStreamInfo->m_PK_MediaType_Prior : 0,
 					pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,
@@ -3992,6 +3993,7 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 
 void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider,int iPK_Device, int iPK_DeviceTemplate, vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler)
 {
+	bool bUsingGenericHandler=false;  // A flag if we're using the generic handler
 	// This function needs to find a media handler for every entertainment area.  This map will store all our possibilities
 	// of handlers and what entertainment areas they can support.  We'll first populate the map, then pick the best matches
 	// to store in vectEA_to_MediaHandler
@@ -4009,6 +4011,7 @@ void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider
 				g_pPlutoLogger->Write( LV_STATUS, "Play media type %d in entertain area %d with generic handler", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
 				m_pGenericMediaHandlerInfo->m_PK_MediaType = iPK_MediaType; // Just temporary for start media.  We're in a mutex
 				mapMediaHandlerInfo[m_pGenericMediaHandlerInfo].push_back(pEntertainArea);
+				bUsingGenericHandler=true;
 			}
 			else
 				g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
@@ -4031,6 +4034,18 @@ void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider
 		// It's easy, save ourselves the trouble of searching we've got 1 handler and it can take care of it
 		vectEA_to_MediaHandler.push_back( make_pair< MediaHandlerInfo *,vector<EntertainArea *> >(mapMediaHandlerInfo.begin()->first,mapMediaHandlerInfo.begin()->second) );
 		return;
+	}
+
+	// It's possible that all the devices are generic media devices...
+	if( mapMediaHandlerInfo.size()==1 && bUsingGenericHandler )
+	{
+		// and that the source device has a capture card, then it's ok to use one stream because it will be broadcast throughout the house via the capture card
+		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(iPK_Device);
+		if( pMediaDevice && pMediaDevice->m_pDevice_CaptureCard )
+		{
+			vectEA_to_MediaHandler.push_back( make_pair< MediaHandlerInfo *,vector<EntertainArea *> >(mapMediaHandlerInfo.begin()->first,mapMediaHandlerInfo.begin()->second) );
+			return;
+		}
 	}
 
 	// It's more work, we need to prioritize the handlers and start making assignments from the top

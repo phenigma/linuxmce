@@ -486,7 +486,14 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea
 		Row_Device *pRow_Device = vectRow_Device[s];
 		// Is this a media director?
 		if( DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Media_Director_CONST) )
+		{
+			// If this is a hybrid, the m/d may be a child of the Core.  Get the parent then, so children of the core, like pvr cards
+			// will also be in the same ent area
+			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
+			if( pRow_Device_Parent )
+				pRow_Device = pRow_Device_Parent;
 			AddMDsDevicesToEntArea(pRow_Device,pRow_EntertainArea); // This will recurse
+		}
 	}
 
 	vectRow_Device.clear();
