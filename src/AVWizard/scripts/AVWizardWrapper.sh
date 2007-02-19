@@ -47,7 +47,13 @@ while [[ "$Done" -eq 0 ]]; do
 		$STEP_VideoResolution) NextStep=$STEP_VideoResolutionConfirm ;;
 		-$STEP_VideoResolution) NextStep=$STEP_VideoResolution ;;
 		$STEP_VideoResolutionConfirm) NextStep=$STEP_VideoResolution ;;
-		*) echo "Interrupted in step '$WizStep', but shouldn't be"; NextStep=$WizStep ;;
+		*)
+			echo "Interrupted in step '$WizStep', but shouldn't be"
+			if [[ "$WizStep" -lt 0 ]]; then
+				((WizStep=-WizStep))
+			fi
+			((NextStep=WizStep-1))
+		;;
 	esac
 
 	# if AVWizard fails to start at a certain step, like the video confirmation step,
