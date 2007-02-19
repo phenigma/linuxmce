@@ -91,7 +91,7 @@ main (int argc, char *argv[])
 	GtkImage *mainImage = GTK_IMAGE(glade_xml_get_widget(gxml, "mainImage"));
 
        	g_signal_connect (G_OBJECT (mainWindow), "delete_event", G_CALLBACK (delete_event), NULL);	 
-	gtk_image_set_from_file(mainImage, "pluto.jpg");
+	gtk_image_set_from_file(mainImage, "pluto.png");
 
 
 	// Initializations
