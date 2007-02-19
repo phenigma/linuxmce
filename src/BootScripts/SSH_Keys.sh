@@ -12,8 +12,7 @@ if [ ! -f /etc/diskless.conf ] && ! [ -f $Dir/$Key -a -f $Dir/$Key.pub ]; then
 fi
 
 mkdir -m 0700 -p /root/.ssh
-Lines=$(sed 's/#.*$//g; s/^[ \t]*//g; s/[ \t]*$//g' /etc/ssh/ssh_config | awk '!/^$/' | wc -l)
-if [ "$Lines" -eq 0 ]; then
+if ! grep -q "^ *StrictHostKeyChecking no *$" /etc/ssh/ssh_config ;then
 	echo "Writing defaults to ssh_config"
 	cp /usr/pluto/templates/ssh_config.tmpl /etc/ssh/ssh_config
 fi
