@@ -835,11 +835,10 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
                 return pDataGrid;
 
 			Row_Device_QuickStart *pRow_Device_QuickStart = vectRow_Device_QuickStart[s];
-			Row_QuickStartTemplate *pRow_QuickStartTemplate = pRow_Device_QuickStart->FK_QuickStartTemplate_getrow();
+			pRow_QuickStartTemplate=pRow_Device_QuickStart->FK_QuickStartTemplate_getrow();
 			sDescription = pRow_Device_QuickStart->Description_get();
 			sBinary = pRow_QuickStartTemplate ? pRow_QuickStartTemplate->Binary_get() : "";
 			sArguments = pRow_QuickStartTemplate ? pRow_QuickStartTemplate->Arguments_get() : "";
-			pRow_QuickStartTemplate=pRow_Device_QuickStart->FK_QuickStartTemplate_getrow();
             if( pRow_Device_QuickStart->EK_Picture_get() )
                 pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Device_QuickStart->EK_Picture_get()) + "_tn.jpg",iSize);
 		}
