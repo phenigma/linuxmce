@@ -5733,7 +5733,7 @@ string Media_Plugin::GetMRLFromDiscID( int PK_Disc )
     string SQL = "SELECT EK_Device FROM Disc WHERE PK_Disc=" + StringUtils::itos( PK_Disc );
     PlutoSqlResult result;
     MYSQL_ROW row;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && NULL != row[0] )
     {
         int PK_Device = atoi(row[0]);
 		string sDrive = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,PK_Device,DEVICEDATA_Drive_CONST);
