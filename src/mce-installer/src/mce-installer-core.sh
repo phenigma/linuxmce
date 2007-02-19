@@ -54,6 +54,14 @@ APT::Get::AllowUnauthenticated "true";
 	echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
 
 	ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
+
+
+	## Set deb-frontend to noninteractiv
+	. /usr/share/debconf/confmodule
+	db_set "debconf/frontend" "Noninteractive"
+	db_fset "debconf/frontend" seen true
+	db_set "debconf/priority" "critical"
+	db_fset "debconf/priority" seen true
 }
 
 
