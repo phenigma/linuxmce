@@ -97,7 +97,7 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 		Flags = SDL_FULLSCREEN;
 
 	Flags |=  SDL_OPENGL;
-	Flags |=  SDL_NOFRAME;
+//	Flags |=  SDL_NOFRAME;
 
 #ifdef VIA_OVERLAY
 	g_pPlutoLogger->Write(LV_WARNING, "VIA : set env VIA_3D_OVERLAY");	
