@@ -275,8 +275,8 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			strcmp(bus, "pci") == 0 &&
 			strlen(bus) == strlen("pci") )
 	{
-			int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "pci.product_id", NULL);
-			int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.vendor_id", NULL);
+			int device_product_id = libhal_device_get_property_int(ctx, udi, "pci.product_id", NULL);
+			int device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.vendor_id", NULL);
 			int subsys_device_product_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_product_id", NULL);
 			int subsys_device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_vendor_id", NULL);
 			
@@ -581,8 +581,8 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				strcmp(bus, "pci") == 0 &&
 				strlen(bus) == strlen("pci") )
 		{
-				int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "pci.product_id", NULL);
-				int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.vendor_id", NULL);
+				int device_product_id = libhal_device_get_property_int(ctx, udi, "pci.product_id", NULL);
+				int device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.vendor_id", NULL);
 				int subsys_device_product_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_product_id", NULL);
 				int subsys_device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_vendor_id", NULL);
 				
