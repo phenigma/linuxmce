@@ -2723,7 +2723,7 @@ namespace HADesigner
 				this.chCanBeHidden.Enabled = this.chRegenerateForEachScreen.Enabled = this.chHideByDefault.Enabled = false;
 				this.chChildBehindBG.Enabled = false;
 			}
-			this.UpdateImage(origBlock);
+//			this.UpdateImage(origBlock);
 
 			cbLanguageSkin_Child.Enabled = null != this.selectedUIDesignObj;
 			cbLanguageSkin.Enabled = null != this.selectedUIText;
@@ -4281,7 +4281,6 @@ namespace HADesigner
 				if (!this.IsInterfaceLocked()) // TODO: REFRESH IMAGE WITH RECTANGLE AROUND SELECTION
 				{
 					this.LockInterface();
-					m_objUIDesignObj.DeselectAllDesignObjs(false);
 					m_objUIDesignObjDisplayControl.UpdateImage();
 					m_objUIDesignObjDisplayControl.Refresh();
 					this.UnlockInterface();
