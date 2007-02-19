@@ -111,6 +111,9 @@ namespace DCE
 			
 			int m_iPlaybackSpeed;
 			
+			bool getRealStreamPosition(int &positionTime, int &totalTime);
+			int m_iCachedStreamPosition;
+			int m_iCachedStreamLength;
 		public:
 			int m_iMenuButtons;			
 			void FireMenuOnScreen(int iButtons);

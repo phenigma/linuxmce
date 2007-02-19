@@ -135,6 +135,9 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_iSpecialOneTimeSeek = 0;
 	m_iPrebuffer = 90000;
 	
+	m_iCachedStreamPosition = 0;
+	m_iCachedStreamLength = 0;
+	
 	m_iTimeCodeReportFrequency = iTimeCodeReportFrequency;
 	
 	m_bUseDeinterlacing = false;
@@ -488,6 +491,10 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		return false;
 	}
 	
+	// resetting info about opened stream
+	m_iCachedStreamPosition = 0;
+	m_iCachedStreamLength = 0;
+
 	setDebuggingLevel(true );	
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Attempting to open media for %s (%s)", fileName.c_str(), sMediaPosition.c_str() );
@@ -1162,24 +1169,34 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 			break;
 
 		int positionTime, totalTime;
-		if ( abs( getStreamPlaybackPosition( positionTime, totalTime ) - pos ) < tolerance_ms )
+		bool result = getRealStreamPosition( positionTime, totalTime );
+		
+		if (!result)
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek Close enough %d %d total %d", positionTime, pos, totalTime );
-			break;
+				g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek demuxer is not ready yet, sleeping 25 ms");
+				Sleep( 25 );
 		}
 		else
 		{
-			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		
-			g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
-			if (m_bHasVideo)
-#ifndef	NO_TRICK_PLAY
-			xine_seek( m_pXineStream, 0, pos );
-#else
-			xine_play( m_pXineStream, 0, pos );
-#endif
+			if ( abs( positionTime - pos ) < tolerance_ms )
+			{
+				g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek Close enough %d %d total %d", positionTime, pos, totalTime );
+				break;
+			}
 			else
+			{
+				PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+			
+				g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
+				if (m_bHasVideo)
+#ifndef	NO_TRICK_PLAY
+				xine_seek( m_pXineStream, 0, pos );
+#else
 				xine_play( m_pXineStream, 0, pos );
+#endif
+				else
+					xine_play( m_pXineStream, 0, pos );
+			}
 		}
 	}
 }
@@ -1269,63 +1286,87 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 	m_tsLastSpecialSeek=ts;
 	m_posLastSpecialSeek=seekTime;
 	Seek(seekTime,0);
+	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+	m_iCachedStreamPosition = seekTime;
 }
+
+
+bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
+{
+	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+	if (!m_bInitialized)
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "getXineStreamPosition called on non-initialized stream - aborting command");
+		return false;
+	}
+
+	if ( xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_SEEKABLE ) == 0 )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Stream is not seekable" );
+		positionTime = totalTime = 0;
+		return false;
+	}
+	else
+	{
+		int iPosStream = 0;
+		int iPosTime = 0;
+		int iLengthTime = 0;
+		
+		if ( xine_get_pos_length( m_pXineStream, &iPosStream, &iPosTime, &iLengthTime ) )
+		{
+			g_pPlutoLogger->Write( LV_STATUS, "getXineStreamPosition: %i/%i", iPosTime, iLengthTime );
+			
+			positionTime = iPosTime;
+			totalTime = iLengthTime;
+			return true;
+		}
+		else
+		{
+			g_pPlutoLogger->Write( LV_STATUS, "Error reading stream position: %d", xine_get_error( m_pXineStream ) );
+			return false;
+		}
+	}
+}
+
 
 int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount, bool *getResult )
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-
-	if ( m_pDynamic_Pointer )
-		m_pDynamic_Pointer->pointer_check_time();
-
+	
 	if (!m_bInitialized)
 	{
 		g_pPlutoLogger->Write( LV_WARNING, "getStreamPlaybackPosition called on non-initialized stream - aborting command");
 		return false;
 	}
-
 	
-	if ( xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_SEEKABLE ) == 0 )
-	{
-		g_pPlutoLogger->Write( LV_STATUS, "Stream is not seekable" );
-		positionTime = totalTime = 0;
-		if (getResult)
-			*getResult=false;
-		return 0;
-	}
+	// care about dynamic pointer visibility
+	if ( m_pDynamic_Pointer )
+		m_pDynamic_Pointer->pointer_check_time();
 
-	int iPosStream = 0;
-	int iPosTime = 0;
-	int iLengthTime = 0;
-
-	int count = attemptsCount;
-	
-	while ( --count>=0 )
+	// if stream is in 'seek mode', then we should not call get position too often
+	// the same is true if stream is paused
+	if ( ( m_iSpecialSeekSpeed == 0 ) && (m_iPlaybackSpeed!=0) )
 	{
-		if ( xine_get_pos_length( m_pXineStream, &iPosStream, &iPosTime, &iLengthTime ) )
+		int iPosTime = 0;
+		int iLengthTime = 0;	
+		
+		if ( getRealStreamPosition(iPosTime, iLengthTime) )
 		{
-			if (getResult)
-				*getResult=true;
-
 			positionTime = iPosTime;
 			totalTime = iLengthTime;
-			return positionTime;
+			if (getResult)
+				*getResult = true;
+			return iPosTime;
 		}
-		else
-		{
-			g_pPlutoLogger->Write( LV_STATUS, "Error reading stream position: %d", xine_get_error( m_pXineStream ) );
-		}
-		
-		Sleep( 25 );
 	}
 	
-	positionTime = iPosTime;
-	totalTime = iLengthTime;
-	
+	// default fallback:
+	// fetching from cache stream position
+	positionTime = m_iCachedStreamPosition;
+	totalTime = m_iCachedStreamLength;
 	if (getResult)
-		*getResult=false;
-	
-	return positionTime;
+		*getResult = true;
+	return m_iCachedStreamPosition;
 }
 
 void Xine_Stream::DisplaySpeedAndTimeCode()
@@ -1469,10 +1510,9 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 	}
 	
 	
-	{
-		m_iSpecialSeekSpeed = Speed;
-	}
-//	m_iPlaybackSpeed = PLAYBACK_NORMAL;
+	m_iSpecialSeekSpeed = Speed;
+
+	//	m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplaySpeedAndTimeCode();
 	g_pPlutoLogger->Write( LV_STATUS, "done Starting special seek %d", Speed );
 	/*	
