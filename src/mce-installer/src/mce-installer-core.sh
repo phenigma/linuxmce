@@ -229,14 +229,11 @@ function Configure_Network_Options {
 		IntIf="$c_netIntName"
 	fi
 
-	echo "------------------------------"
 	if [[ "$c_netExtUseDhcp" == "0" ]] ;then
 		NETsetting="$c_netExtName,$c_netExtIP,$c_netExtMask,$c_netExtGateway,$c_netExtDNS1|$IntIf,$IntIP,$IntNetmask"
 	else
 		NETsetting="$c_netExtName,dhcp|$IntIf,$IntIP,$IntNetmask"
 	fi
-	echo "------------------------------"
-	exit 0
 	
 	DHCPsetting=$(/usr/pluto/install/Initial_DHCP_Config.sh "$Network" "$Digits_Count")
 
