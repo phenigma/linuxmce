@@ -119,8 +119,12 @@ function Build_Pluto_Replacements {
 	popd
 
 	#Package: lirc-modules
-	apt-get -y install linux-source linux-headers module-assistant
+	apt-get -y install linux-source linux-headers module-assistant lirc-modules-source
 	pushd .
+	cd "${svn_dir}"/trunk/src/UbuntuHelpers
+	./Preseed_lirc-modules-source.sh
+	rm -f /etc/lirc/lirc-modules-source.conf
+	dpkg-reconfigure -fnoninteractive lirc-modules-source
 	tar -xjf linux-source-2.6.17.tar.bz2
 	cd /usr/src/linux-source-2.6.17/drivers/media/video/bt8xx
 	cp -a * /usr/src/linux/drivers/media/video/bt8xx/
@@ -128,7 +132,7 @@ function Build_Pluto_Replacements {
 	cp bt8xx/bt* .
 	cd /usr/src/linux-source-2.6.17/drivers/media/video
 	cp -a btcx-risc.h /usr/src/linux/drivers/media/video
-	m-a -t a-b lirc-modules
+	m-a -ft a-b lirc-modules
 	cp /usr/src/lirc-modules*.deb "${temp_dir}"
 	popd
 
