@@ -112,10 +112,15 @@ void Gallery::PaintScreen(void)
 
 bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation)
 {
-//	Width = 800; Height = 500;
 	Event.Type = 0;
 	FrontEnd = new SDLFrontEnd();
-	bool Result = FrontEnd->StartVideoMode(Width, Height, false) != 0;
+
+	bool bFullScreen = false;
+#ifndef WIN32
+	bFullScreen = true;
+#endif
+
+	bool Result = FrontEnd->StartVideoMode(Width, Height, bFullScreen) != 0;
 	Painter::Instance()->Setup(&Extensions);
 	Extensions.Resize(Width, Height);
 	Scenario = new GalleryScenario(Width, Height, FaddingTime, ZoomTime, FolderName, bUseAnimation);

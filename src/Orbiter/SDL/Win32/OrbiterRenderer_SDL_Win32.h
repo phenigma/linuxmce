@@ -35,6 +35,7 @@ namespace DCE
 		HWND m_hSDLWindow;
 
 		virtual void SetupWindow();
+		virtual void Configure();
 	};
 }
 #endif //__ORBITER_RENDERER_SDL_WIN32_H__

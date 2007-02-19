@@ -66,7 +66,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 
 	pOrbiterRenderer->Engine = new OpenGL3DEngine();
 	
-	bool bFullScreen = false;//Simulator::GetInstance()->m_bFullScreen;
+	bool bFullScreen = Simulator::GetInstance()->m_bFullScreen;
 	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(Width, Height, 32, bFullScreen, pOrbiterRenderer->m_pOrbiter->m_bUseComposite))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Thread -- GL.InitVideoMode FAILED Width: %d Height: %d Full Screen: %d Composite: %d",

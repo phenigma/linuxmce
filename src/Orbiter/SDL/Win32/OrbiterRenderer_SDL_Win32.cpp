@@ -195,3 +195,39 @@ void OrbiterRenderer_SDL_Win32::SetupWindow()
 #pragma warning(default:4244)
 }
 //-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_SDL_Win32::Configure()
+{
+#ifdef ORBITER_OPENGL
+	OrbiterRenderer_OpenGL::Configure();
+#else
+	OrbiterRenderer_SDL::Configure();
+#endif
+	
+	if(OrbiterLogic()->m_bFullScreen)
+	{
+		m_hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
+		if(NULL != m_hSDLWindow)
+		{
+			int style = GetWindowLong(m_hSDLWindow, GWL_STYLE);
+			SetWindowLong(m_hSDLWindow, GWL_STYLE, (style & ~WS_CAPTION));
+
+			HWND hWnd_TaskBar = ::FindWindow("Shell_TrayWnd", NULL);
+			if(hWnd_TaskBar)
+				::SetWindowPos(hWnd_TaskBar, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); 
+
+			RECT rc;
+			HWND hWndDesktop = ::GetDesktopWindow();
+			::GetWindowRect(hWndDesktop, &rc);
+			::MoveWindow(m_hSDLWindow, 0, 0, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+
+			::BringWindowToTop(m_hSDLWindow);
+			SetForegroundWindow(m_hSDLWindow);
+
+			RECT r;
+			::GetClientRect( m_hSDLWindow, &r );
+			g_pPlutoLogger->Write(LV_CRITICAL, "After fullscreen GetClientRect reports: %d, %d, %d, %d",
+				r.left, r.top, r.right, r.bottom);
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------
