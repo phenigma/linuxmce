@@ -53,6 +53,9 @@ while [[ "$Done" -eq 0 ]]; do
 				((WizStep=-WizStep))
 			fi
 			((NextStep=WizStep-1))
+			if [[ "$NextStep" -lt "$STEP_Welcome" ]]; then
+				NextStep=$STEP_Welcome
+			fi
 		;;
 	esac
 
