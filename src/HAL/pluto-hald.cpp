@@ -16,7 +16,8 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 
 #define UNKNOWN_COMM_METHOD  11
-#define USB_COMM_METHOD      4
+#define USB_COMM_METHOD       4
+#define PCI_COMM_METHOD       8
 
 using namespace DCE;
 
@@ -270,8 +271,28 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			categoryDevice = NULL;
 		}
 	}
+	else if( bus != NULL &&
+			strcmp(bus, "pci") == 0 &&
+			strlen(bus) == strlen("pci") )
+	{
+			int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "pci.product_id", NULL);
+			int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.vendor_id", NULL);
+			int subsys_device_product_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_product_id", NULL);
+			int subsys_device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_vendor_id", NULL);
+			
+			char buffer[64];
+			snprintf(buffer, sizeof(buffer), "%08x%08x",
+				(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
+				(unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
+			
+			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, "", "");
+
+			g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+	}
 	else
+	{
 		g_pPlutoLogger->Write(LV_DEBUG, "Not processing bus: %s category: %s",bus ? bus : "*none*", category ? category : "*none");
+	}
 
 	g_free (bus);
 	bus = NULL;
@@ -556,8 +577,28 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				categoryDevice = NULL;
 			}
 		}
+		else if( bus != NULL &&
+				strcmp(bus, "pci") == 0 &&
+				strlen(bus) == strlen("pci") )
+		{
+				int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "pci.product_id", NULL);
+				int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.vendor_id", NULL);
+				int subsys_device_product_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_product_id", NULL);
+				int subsys_device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_vendor_id", NULL);
+				
+				char buffer[64];
+				snprintf(buffer, sizeof(buffer), "%08x%08x",
+					(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
+					(unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
+				
+				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, "", "");
+	
+				g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+		}
 		else
+		{
 			g_pPlutoLogger->Write(LV_DEBUG, "Not processing bus: %s category: %s",bus ? bus : "*none*", category ? category : "*none");
+		}
 		
 		g_free(bus);
 		bus = NULL;
