@@ -450,7 +450,7 @@ namespace HADesigner
 			TS_Up = dr.fFK_DesignObj_UpIsNull ? "" : dr.fFK_DesignObj_Up.ToString();
 			TS_Down = dr.fFK_DesignObj_DownIsNull ? "" : dr.fFK_DesignObj_Down.ToString();
 			TS_Right = dr.fFK_DesignObj_RightIsNull ? "" : dr.fFK_DesignObj_Right.ToString();
-			TS_Left = dr.fFK_DesignObj_RightIsNull ? "" : dr.fFK_DesignObj_Left.ToString();
+			TS_Left = dr.fFK_DesignObj_LeftIsNull ? "" : dr.fFK_DesignObj_Left.ToString();
 			TiedTo = dr.fsFK_DesignObj_TiedTo;
 			VisibleStates = dr.fVisibleStates;
 			ChildBeforeText = dr.fDisplayChildrenBeforeText;
