@@ -1,12 +1,20 @@
 #!/bin/bash
 
-#XClient=/usr/bin/icewm-session
-XClient=/usr/bin/xfwm4
-
 for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
-		--client) ((i++)); XClient=${!i} ;;
+		--display) ((i++)); Xdisplay="${!i#:}" ;;
+		*) echo "Unknown parameter: '${!i}'" ;;
 	esac
 done
 
-killall "$XClient"
+if [[ -z "$Xdisplay" ]]; then
+	if [[ "$DISPLAY" == :* ]]; then
+		Xdisplay="${DISPLAY#:}"
+	else
+		Xdisplay=0
+	fi
+fi
+
+XPID=$(</var/run/plutoX$Xdisplay.pid)
+
+kill "$XPID"
