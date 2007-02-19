@@ -62,6 +62,13 @@ if [[ ! -f /etc/diskless.conf ]]; then
 
 	## Check system root partitions for free space (/)
 	rootDevice=$( cat /etc/fstab  | awk '{ if ($2 == "/") { print $1 } }' )
+	if [[ "$rootDevice" == "UUID"* ]] ;then
+		rootDevice=$(echo $rootDevice | cut -d'=' -f2)
+		udev="/dev/disk/by-uuid/"$rootDevice
+		rootDevice=$(udevinfo -q name -n  $udev)
+		rootDevice="/dev/"$rootDevice
+	fi
+
 	dfOutput=$(df $rootDevice | grep -v "^Filesystem")
 	rootUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
 	rootFree=$(echo $dfOutput | awk '{ print $4 }')
@@ -83,6 +90,14 @@ if [[ ! -f /etc/diskless.conf ]]; then
 
 	## Check system /home partition for free space (/home)
 	homeDevice=$( cat /etc/fstab | awk '{ if ($2 == "/home") { print $1 } }' )
+	
+	if [[ "$homeDevice" == "UUID"* ]] ;then
+		homeDevice=$(echo $homeDevice | cut -d'=' -f2)
+		udev="/dev/disk/by-uuid/"$homeDevice
+		homeDevice=$(udevinfo -q name -n  $udev)
+		homeDevice="/dev/"$homeDevice
+	fi
+
 	dfOutput=$(df $homeDevice | grep -v '^Filesystem')
 	homeUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
 	homeFree=$(echo $dfOutput | awk '{ print $4 }')
