@@ -40,4 +40,5 @@ for KERN in ${MakeRelease_Kernel} ;do
 	BuildModules "$KERN"
 	echo "depmod \"$KERN\" 2>/dev/null || /bin/true" >> mkr_postinst.sh
 done
+echo "modprobe ivtv || /bin/true" >>mkr_postinst.sh
 chmod +x mkr_postinst.sh
