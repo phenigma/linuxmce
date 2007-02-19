@@ -118,6 +118,20 @@ function Build_Pluto_Replacements {
 		cp ../lshwd_2.0*.deb ${temp_dir}
 	popd
 
+	#Package: lirc-modules
+	apt-get -y install linux-source linux-headers module-assistant
+	pushd .
+	tar -xjf linux-source-2.6.17.tar.bz2
+	cd /usr/src/linux-source-2.6.17/drivers/media/video/bt8xx
+	cp -a * /usr/src/linux/drivers/media/video/bt8xx/
+	cd /usr/src/linux/drivers/media/video
+	cp bt8xx/bt* .
+	cd /usr/src/linux-source-2.6.17/drivers/media/video
+	cp -a btcx-risc.h /usr/src/linux/drivers/media/video
+	m-a -t a-b lirc-modules
+	cp /usr/src/lirc-modules*.deb "${temp_dir}"
+	popd
+
 	#Download arch independent packages from 150
 	pushd $temp_dir
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libflickr-api-perl_1_all.deb
@@ -141,7 +155,6 @@ function Build_Pluto_Stuff {
 
 	rm -rf $out_dir
 	mkdir -p $out_dir
-#	449,498 - SimplePhone
 #	336,337 - IVTV Video Drivers
 #	589,590 - Alsa Sound Drivers
 # 	515,516 - PWC Camera Drivers
@@ -299,13 +312,13 @@ function Create_Diskless_Archive {
 
 #Create_Diskless_Archive
 #Install_Build_Needed_Packages
-#Import_Build_Database
+Import_Build_Database
 #Import_Pluto_Skins
 #Checkout_Pluto_Svn
 #Build_Pluto_Replacements
 #Build_MakeRelease_Binary
 #Create_Fake_Windows_Binaries
 #Build_Pluto_Stuff
-Create_Local_Repository
+#Create_Local_Repository
 
 
