@@ -103,42 +103,70 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	
 	g_pPlutoLogger->Write(LV_STATUS,"    Status : CMD=%d, TP=%d, TI=%d",pmsg->m_dwID,TogglePower,ToggleInput);
 	
-	if((TogglePower == 1) && ((pmsg->m_dwID == COMMAND_Generic_On_CONST) || (pmsg->m_dwID == COMMAND_Generic_Off_CONST)))
-	{	
-		if(retransmit || ((laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_Off_CONST)) ||
-		   (!laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_On_CONST))))
+	// Power commands
+	if( pmsg->m_dwID == COMMAND_Generic_Off_CONST ||
+		pmsg->m_dwID == COMMAND_Generic_On_CONST ||
+		pmsg->m_dwID == COMMAND_Toggle_Power_CONST )
+	{
+		if((TogglePower == 1) && ((pmsg->m_dwID == COMMAND_Generic_On_CONST) || (pmsg->m_dwID == COMMAND_Generic_Off_CONST)))
+		{	
+			if(retransmit || ((laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_Off_CONST)) ||
+			(!laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_On_CONST))))
+			{
+				MessageReplicator msgrepl(
+						Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+										PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Toggle_Power_CONST, 0),1,0,IR_PowerDelay);
+				outrepls.push_back(msgrepl);
+				if(!retransmit)
+				{
+					laststatus_power_[devid] = !laststatus_power_[devid];
+					// reset the select input
+					laststatus_input_[devid] = 0;
+				}
+				g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,COMMAND_Toggle_Power_CONST);
+				return true;
+			}
+		}
+		if((TogglePower == 0) && (pmsg->m_dwID == COMMAND_Toggle_Power_CONST))
 		{
+			int cmd=0;
+			if(laststatus_power_[devid])
+				cmd=COMMAND_Generic_Off_CONST;
+			else
+				cmd=COMMAND_Generic_On_CONST;
+			
 			MessageReplicator msgrepl(
 					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Toggle_Power_CONST, 0),1,0,IR_PowerDelay);
+									PRIORITY_NORMAL, MESSAGETYPE_COMMAND,cmd, 0),1,0,IR_PowerDelay);
 			outrepls.push_back(msgrepl);
 			if(!retransmit)
 			{
-				laststatus_power_[devid] = !laststatus_power_[devid];
+				laststatus_power_[devid] = (cmd==COMMAND_Generic_On_CONST);
+				// reset the select input
+				laststatus_input_[devid] = 0;
 			}
-			g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,COMMAND_Toggle_Power_CONST);
+			g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
 			return true;
 		}
-	}
-	if((TogglePower == 0) && (pmsg->m_dwID == COMMAND_Toggle_Power_CONST))
-	{
-		int cmd=0;
-		if(laststatus_power_[devid])
-			cmd=COMMAND_Generic_Off_CONST;
-		else
-			cmd=COMMAND_Generic_On_CONST;
-		
-		MessageReplicator msgrepl(
-				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,cmd, 0),1,0,IR_PowerDelay);
-		outrepls.push_back(msgrepl);
-		if(!retransmit)
+		// check if the power commands are useless
+		if( !retransmit )
 		{
-			laststatus_power_[devid] = (cmd==COMMAND_Generic_On_CONST);
+			if( (!laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_Off_CONST)) ||
+				( laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_On_CONST)) )
+			{
+				inrepl.setUseless(true);
+			}
+			else
+			{
+				// todo ?
+				// laststatus_power_[devid] =
+				
+				// reset the select input
+				laststatus_input_[devid] = 0;
+			}
 		}
-		g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
-		return true;
 	}
+	
 	/**************************************************************************************
 	COMMAND_Input_Select_CONST
 	**************************************************************************************/
@@ -151,73 +179,84 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		map<long, string>::iterator param = inrepl.getMessage().m_mapParameters.find(COMMANDPARAMETER_PK_Command_Input_CONST);
 		if (param != inrepl.getMessage().m_mapParameters.end()) {
 			int cmd = atoi((*param).second.c_str());
-			if(ToggleInput == 0)
+			
+			// check if the command is useless
+			if( !retransmit && laststatus_input_[devid] == cmd )
 			{
-				MessageReplicator msgrepl(
-					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, cmd, 0),
-					1, 0, IR_ModeDelay);
-				g_pPlutoLogger->Write(LV_STATUS, "Command <Input Select> translated to <%d>", cmd);
-				outrepls.push_back(msgrepl);
+				g_pPlutoLogger->Write(LV_STATUS, "Input select is useless");
+				inrepl.setUseless(true);
 			}
 			else
 			{
-			    unsigned int i=0,count=0;
-				if(laststatus_input_[devid]!=0)
+				if(ToggleInput == 0)
 				{
-					for(i=0;i<commandorder.size() && commandorder[i]!=laststatus_input_[devid]; i++);
-				}
-				while(commandorder[i]!=cmd)
-				{
-					if((int)commandorder[i]==(int)0)
-					{
-						i=0;
-						continue;
-					}
-					count++;			
-					if(count == commandorder.size()) 
-					{
-						count = 0;
-						break;
-					}
-					i++;
-				}
-				if(count)
-				{
-					if( ToggleInput == 2 )  // This means we have to first send it to put the system in 'input select mode'
-						count++;
-					for(i=0;i<count;i++)
-					{
-						MessageReplicator msgrepl(
-								Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-												PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),
-												1, 0, IR_ModeDelay);
-						outrepls.push_back(msgrepl);
-					}
-					g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated <%d> translated to %d input selects",pmsg->m_dwID,cmd,count);
+					MessageReplicator msgrepl(
+						Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+										PRIORITY_NORMAL, MESSAGETYPE_COMMAND, cmd, 0),
+						1, 0, IR_ModeDelay);
+					g_pPlutoLogger->Write(LV_STATUS, "Command <Input Select> translated to <%d>", cmd);
+					outrepls.push_back(msgrepl);
 				}
 				else
 				{
-					if(!retransmit)
+					unsigned int i=0,count=0;
+					if(laststatus_input_[devid]!=0)
 					{
-						g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
+						for(i=0;i<commandorder.size() && commandorder[i]!=laststatus_input_[devid]; i++);
+					}
+					while(commandorder[i]!=cmd)
+					{
+						if((int)commandorder[i]==(int)0)
+						{
+							i=0;
+							continue;
+						}
+						count++;			
+						if(count == commandorder.size()) 
+						{
+							count = 0;
+							break;
+						}
+						i++;
+					}
+					if(count)
+					{
+						if( ToggleInput == 2 )  // This means we have to first send it to put the system in 'input select mode'
+							count++;
+						for(i=0;i<count;i++)
+						{
+							MessageReplicator msgrepl(
+									Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+													PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),
+													1, 0, IR_ModeDelay);
+							outrepls.push_back(msgrepl);
+						}
+						g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated <%d> translated to %d input selects",pmsg->m_dwID,cmd,count);
 					}
 					else
 					{
-						g_pPlutoLogger->Write(LV_STATUS, "Will send one Input select");
-						MessageReplicator msgrepl(
-								Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-												PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),
-												1, 0, IR_ModeDelay);
-						outrepls.push_back(msgrepl);
+						if(!retransmit)
+						{
+							g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
+						}
+						else
+						{
+							g_pPlutoLogger->Write(LV_STATUS, "Will send one Input select");
+							MessageReplicator msgrepl(
+									Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+													PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),
+													1, 0, IR_ModeDelay);
+							outrepls.push_back(msgrepl);
+						}
 					}
 				}
+				if(!retransmit)
+				{
+					laststatus_input_[devid] = cmd;
+				}
+				return true;
 			}
-			if(!retransmit)
-			{
-				laststatus_input_[devid] = cmd;
-			}
-			return true;			
+			
 		} else {
 			g_pPlutoLogger->Write(LV_WARNING, "PK_Command_Input parameter not found.");
 		}
@@ -227,58 +266,67 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	    unsigned int i=0,count=0;
 		g_pPlutoLogger->Write(LV_STATUS, "Got command <%d>, Last was <%d>, need translation to input selects",pmsg->m_dwID,laststatus_input_[devid]);
 		
-		if(laststatus_input_[devid]!=0)
+		// check if the command is useless
+		if( !retransmit && laststatus_input_[devid] == pmsg->m_dwID )
 		{
-			for(i=0;i<commandorder.size() && commandorder[i]!=laststatus_input_[devid]; i++);
-		}
-		while(commandorder[i]!=pmsg->m_dwID)
-		{
-			if((int)commandorder[i]==(int)0)
-			{
-				i=0;
-				continue;
-			}
-			count++;			
-			if(count == commandorder.size()) 
-			{
-				count = 0;
-				break;
-			}
-			i++;
-		}
-		if(count)
-		{
-			if( ToggleInput == 2 )  // This means we have to first send it to put the system in 'input select mode'
-				count++;
-			for(i=0;i<count;i++)
-			{
-				MessageReplicator msgrepl(
-						Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-										PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),
-										1, 0, IR_ModeDelay);
-				outrepls.push_back(msgrepl);
-			}
-			g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to %d input selects",pmsg->m_dwID,count);
+			g_pPlutoLogger->Write(LV_STATUS, "Input select is useless");
+			inrepl.setUseless(true);
 		}
 		else
 		{
-			if(!retransmit)
+			if(laststatus_input_[devid]!=0)
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
+				for(i=0;i<commandorder.size() && commandorder[i]!=laststatus_input_[devid]; i++);
+			}
+			while(commandorder[i]!=pmsg->m_dwID)
+			{
+				if((int)commandorder[i]==(int)0)
+				{
+					i=0;
+					continue;
+				}
+				count++;			
+				if(count == commandorder.size()) 
+				{
+					count = 0;
+					break;
+				}
+				i++;
+			}
+			if(count)
+			{
+				if( ToggleInput == 2 )  // This means we have to first send it to put the system in 'input select mode'
+					count++;
+				for(i=0;i<count;i++)
+				{
+					MessageReplicator msgrepl(
+							Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+											PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),
+											1, 0, IR_ModeDelay);
+					outrepls.push_back(msgrepl);
+				}
+				g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to %d input selects",pmsg->m_dwID,count);
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Will send one Input select");
-				MessageReplicator msgrepl(
-						Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-										PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),
-										1, 0, IR_ModeDelay);
-				outrepls.push_back(msgrepl);
+				if(!retransmit)
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Will send one Input select");
+					MessageReplicator msgrepl(
+							Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+											PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),
+											1, 0, IR_ModeDelay);
+					outrepls.push_back(msgrepl);
+				}
 			}
+			if(!retransmit)
+				laststatus_input_[devid] = pmsg->m_dwID;
+			return true;
 		}
-		if(!retransmit)
-			laststatus_input_[devid] = pmsg->m_dwID;
-		return true;
 	}
 
 

@@ -41,7 +41,8 @@ public:
 		  postdelay_(postdelay),
 		  timeStart_(0L),
 		  replaceable_(false),
-		  implemented_(false)
+		  implemented_(false),
+		  useless_(false)
 	{
 		// this should be something (Device Data) from database
 		switch( msg_.m_dwID )
@@ -69,7 +70,8 @@ public:
 		  postdelay_(msg.postdelay_),
 		  timeStart_(msg.timeStart_),
 		  replaceable_(msg.replaceable_),
-		  implemented_(msg.implemented_)
+		  implemented_(msg.implemented_),
+		  useless_(msg.useless_)
 	{
 	}
 
@@ -123,6 +125,15 @@ public:
 		implemented_ = implemented;
 	}
 
+	bool isUseless() const
+	{
+		return useless_;
+	}
+	void setUseless(bool useless)
+	{
+		useless_ = useless;
+	}
+
 private:
 
 	Message msg_;
@@ -132,6 +143,7 @@ private:
 	unsigned long timeStart_;
 	bool replaceable_;
 	bool implemented_;
+	bool useless_;
 };
 
 /*****************************************************************

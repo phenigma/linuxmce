@@ -114,32 +114,38 @@ DefaultMessageDispatcher
 void 
 DefaultMessageDispatcher::DispatchMessage(MessageReplicator& inrepl) {
 	for(int i = 0; i < inrepl.getCount(); i++) {
-	    int sleep_delay = inrepl.getPreDelay();
-		if( sleep_delay < 0 )
-			sleep_delay = 0;
-		else if( 19 > sleep_delay )
-			sleep_delay *= 1000;
-		else if( 20000 < sleep_delay )
-			sleep_delay /= 1000;
-		if( sleep_delay != 0 )
-			Sleep(sleep_delay);
-		
-		g_pPlutoLogger->Write(LV_WARNING, "GSD-Sleep Pre %d : %d", inrepl.getMessage().m_dwID, sleep_delay);
-		
-		DispatchMessage(&inrepl.getMessage());
-		
-	    sleep_delay = inrepl.getPostDelay();
-		if( sleep_delay < 0 )
-			sleep_delay = 0;
-		else if( 19 > sleep_delay )
-			sleep_delay *= 1000;
-		else if( 20000 < sleep_delay )
-			sleep_delay /= 1000;
-		if( sleep_delay != 0 )
-			Sleep(sleep_delay);
-		
-		g_pPlutoLogger->Write(LV_WARNING, "GSD-Sleep Post %d : %d", inrepl.getMessage().m_dwID, sleep_delay);
-		
+		if( inrepl.isUseless() )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "GSD-DispatchMessage - ignoring %d because is useless.", inrepl.getMessage().m_dwID);
+		}
+		else
+		{
+			int sleep_delay = inrepl.getPreDelay();
+			if( sleep_delay < 0 )
+				sleep_delay = 0;
+			else if( 19 > sleep_delay )
+				sleep_delay *= 1000;
+			else if( 20000 < sleep_delay )
+				sleep_delay /= 1000;
+			if( sleep_delay != 0 )
+				Sleep(sleep_delay);
+			
+			g_pPlutoLogger->Write(LV_WARNING, "GSD-Sleep Pre %d : %d", inrepl.getMessage().m_dwID, sleep_delay);
+			
+			DispatchMessage(&inrepl.getMessage());
+			
+			sleep_delay = inrepl.getPostDelay();
+			if( sleep_delay < 0 )
+				sleep_delay = 0;
+			else if( 19 > sleep_delay )
+				sleep_delay *= 1000;
+			else if( 20000 < sleep_delay )
+				sleep_delay /= 1000;
+			if( sleep_delay != 0 )
+				Sleep(sleep_delay);
+			
+			g_pPlutoLogger->Write(LV_WARNING, "GSD-Sleep Post %d : %d", inrepl.getMessage().m_dwID, sleep_delay);
+		}
 	}
 }
 
