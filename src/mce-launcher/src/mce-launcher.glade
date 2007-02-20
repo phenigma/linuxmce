@@ -8,6 +8,7 @@
     <property name="title" translatable="yes">Starting Linux MCE ..</property>
     <property name="resizable">False</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
+    <property name="decorated">False</property>
     <child>
       <widget class="GtkVBox" id="vbox1">
         <property name="visible">True</property>

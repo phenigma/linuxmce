@@ -2,7 +2,7 @@
 
 DisplayProgress() {
 	Text=$1
-	echo "${Progress}%${Text}" > /tmp/mce-launcher-pipe
+	[[ -z "$(pidof mce-launcher)" ]] || echo "${Progress}%${Text}" > /tmp/mce-launcher-pipe
 }
 
 StartService() {
@@ -137,4 +137,4 @@ StartDaemon  "Starting Dhcp Plugin" "/usr/pluto/bin/Dhcp-Plugin.sh" "DhcpPlugin"
 #Pluto_Backup_Database.sh \
 #Pluto_Share_IRCodes.sh \
 
-sleep 10
+sleep 10000
