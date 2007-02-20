@@ -1473,7 +1473,7 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 		int device=0;
 		if(atoi(row[1])==COMMANDPARAMETER_PK_Device_CONST)
 		{
-			device=atoi(row[2]);
+			device = (NULL != row[2] ? atoi(row[2]) : 0);
 			strncpy(desc,row[0],sizeof(desc)-1);
 		}
 		else
