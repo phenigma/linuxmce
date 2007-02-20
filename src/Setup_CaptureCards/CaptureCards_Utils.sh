@@ -13,7 +13,7 @@ UpdatePorts_NoFind()
 		return 1
 	fi
 
-	echo "Updating capture card BlockDevice DD; dev:$Device; port:$Port" | tee -a /var/log/pluto/CaptureCards_UpdatePorts.log
+	echo "$(date -R) Updating capture card BlockDevice DD; dev:$Device; port:$Port" | tee -a /var/log/pluto/CaptureCards_UpdatePorts.log
 	Q="
 		UPDATE Device_DeviceData
 		SET IK_DeviceData='/dev/$Port'
