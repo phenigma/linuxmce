@@ -74,8 +74,9 @@ VT=${XDisplay#:}
 VT=vt"$((7+VT))"
 
 # Start X11
+Xcmd=(/usr/pluto/bin/Start_X_Wrapper.sh --parms "$@" --client "$XClient" "${XClientParm[@]}" --server "$XDisplay" -ignoreABI -ac -allowMouseOpenFail "$VT" "${XServerParm[@]}")
 if [[ "$Background" == y ]]; then
-	screen -d -m -S XWindowSystem xinit /usr/pluto/bin/XWM_Wrapper.sh "$XClient" "${XClientParm[@]}" -- "$XDisplay" -ignoreABI -ac -allowMouseOpenFail "$VT" "${XServerParm[@]}"
+	screen -d -m -S XWindowSystem "${Xcmd[@]}"
 	# Start everouter for gyration mouse
 	#if [[ -x /usr/pluto/bin/StartGyrationEvrouter.sh ]]; then
 	#	screen -d -m -S GyrationMouse /usr/pluto/bin/StartGyrationEvrouter.sh
@@ -89,5 +90,5 @@ if [[ "$Background" == y ]]; then
 	fi
 else
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "X server: foreground"
-	xinit /usr/pluto/bin/XWM_Wrapper.sh "$XClient" "${XClientParm[@]}" -- "$XDisplay" -ac -ignoreABI -allowMouseOpenFail "$VT" "${XServerParm[@]}"
+	"${Xcmd[@]}"
 fi
