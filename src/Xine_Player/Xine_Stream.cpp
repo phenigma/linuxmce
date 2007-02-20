@@ -1352,11 +1352,9 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, i
 		
 		if ( getRealStreamPosition(iPosTime, iLengthTime) )
 		{
-			positionTime = iPosTime;
-			totalTime = iLengthTime;
-			if (getResult)
-				*getResult = true;
-			return iPosTime;
+			// updating cache
+			m_iCachedStreamPosition = iPosTime;
+			m_iCachedStreamLength = iLengthTime;
 		}
 	}
 	
