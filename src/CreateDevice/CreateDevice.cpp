@@ -43,7 +43,7 @@ using namespace DCE;
 class CdPipe
 {
 public:
-	int m_PK_Command_Input,m_PK_Command_Ouput,int m_PK_Pipe;
+	int m_PK_Command_Input,m_PK_Command_Ouput,m_PK_Pipe;
 	bool m_bToChild;
 	CdPipe(int PK_Command_Input,int PK_Command_Ouput,int PK_Pipe,bool bToChild)
 	{
