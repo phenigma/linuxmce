@@ -304,7 +304,8 @@ sub get_files{
 	$r = $xs->Annotate( font=>'/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf', 
 				pointsize=>20, 
 				fill=>'red', 
-				geometry=>'0,0,+20,+40',
+				x=>'20',
+				y=>'40',
 				text=>chr(169).$image->{'username'});
 	warn "$r" if "$r";
 	$r=$xs->Write($finaldst);
@@ -352,7 +353,7 @@ sub delete_old {
 		$count = $dim - $max_number;
 	}	
 
-	#my $dbh = DBI->connect('dbi:mysql:pluto_media');
+	my $dbh = DBI->connect('dbi:mysql:pluto_media');
 
 	foreach ( @arrayOfFiles ) {
 		if (!isFileInList($_)){
