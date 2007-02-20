@@ -498,6 +498,26 @@ void OpenGLGraphic::GenerateAlphaMask()
 	}
 }
 
+void OpenGLGraphic::RegenerateAlphaMask()
+{
+	delete [] m_pAlphaMask;
+	m_pAlphaMask = NULL; 
+
+	GenerateAlphaMask();
+}
+
+void OpenGLGraphic::ResetAlphaMask()
+{
+	delete [] m_pAlphaMask;
+	m_pAlphaMask = NULL; 
+
+	if(NULL != LocalSurface && NULL != LocalSurface->pixels && NULL == m_pAlphaMask)
+	{
+		m_pAlphaMask = new unsigned char[LocalSurface->w * LocalSurface->h];
+		memset(m_pAlphaMask, 0x00, LocalSurface->h * LocalSurface->w);
+	}
+}
+
 #ifdef DETECT_LEAKS
 
 LeaksDetector LeaksDetector::m_Instance;

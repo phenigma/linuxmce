@@ -5,9 +5,17 @@ using namespace DCE;
 //-------------------------------------------------------------------------------------------------------
 ViaOverlay ViaOverlay::m_Instance;
 //-------------------------------------------------------------------------------------------------------
-ViaOverlay::ViaOverlay() : m_lpAlphaSurface(NULL), m_nWidth(0), m_nHeight(0), m_bOverlayInitialized(false),
+ViaOverlay::ViaOverlay() : 
+	m_ScreenMutex("screen mutex"), 
+	m_lpAlphaSurface(NULL), m_nWidth(0), m_nHeight(0), m_bOverlayInitialized(false),
 	m_bHasPopups(false), m_ScreenMask(NULL), m_BufferMask(NULL)
 {
+	pthread_mutexattr_t m_ScreenAttr;
+	pthread_mutexattr_init(&m_ScreenAttr);
+	pthread_mutexattr_settype(&m_ScreenAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+	m_ScreenMutex.Init(&m_ScreenAttr);
+	pthread_mutexattr_destroy(&m_ScreenAttr); 
+
 	memset(&m_VMI_Info, 0, sizeof(VMI_INFO_PARAM));
 }
 //-------------------------------------------------------------------------------------------------------
@@ -18,10 +26,14 @@ ViaOverlay::~ViaOverlay()
 
 	delete [] m_BufferMask;
 	m_BufferMask = NULL;
+
+	pthread_mutex_destroy(&m_ScreenMutex.mutex); 
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::WindowCreated(unsigned long nWidth, unsigned long nHeight)
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
+
 	g_pPlutoLogger->Write(LV_STATUS, "#VIA ViaOverlay::WindowCreated");
 
 	m_nWidth = nWidth;
@@ -51,6 +63,8 @@ void ViaOverlay::WindowCreated(unsigned long nWidth, unsigned long nHeight)
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::WindowResized()
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
+
 	g_pPlutoLogger->Write(LV_STATUS, "#VIA ViaOverlay::WindowResized");
 
 	if(m_bOverlayInitialized)
@@ -68,6 +82,8 @@ void ViaOverlay::WindowResized()
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::WorldChanged()
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
+
 	g_pPlutoLogger->Write(LV_STATUS, "#VIA ViaOverlay::WorldChanged");
 
 	if(m_bOverlayInitialized)
@@ -86,6 +102,8 @@ void ViaOverlay::WorldChanged()
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ResetAlphaMask()
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
+
 	g_pPlutoLogger->Write(LV_STATUS, "#VIA Reseting alpha surface...");
 	memset(m_BufferMask, 0xFF, m_nWidth * m_nHeight);
 	memset(m_lpAlphaSurface, 0xFF, m_nWidth * m_nHeight);
@@ -94,11 +112,15 @@ void ViaOverlay::ResetAlphaMask()
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask)
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
+
 	InternalApplyAlphaMask(x, y, w, h, mask);
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value)
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
+
 	InternalFillRectangleInAlphaMask(x, y, w, h, value);
 }
 //-------------------------------------------------------------------------------------------------------
@@ -146,11 +168,15 @@ void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, un
 //-------------------------------------------------------------------------------------------------------
 bool ViaOverlay::VMI_CreateConnection()
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
+
 	return VMI_OK == VMI_Create(&m_VMI_Info);
 }
 //-------------------------------------------------------------------------------------------------------
 bool ViaOverlay::CreateAlphaSurface(int nWidth, int nHeight)
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
+
 	DDSURFACEDESC ddSurfaceDesc;
 	DDLOCK  ddLock;
 	unsigned int dwRet = 0;
@@ -192,6 +218,8 @@ bool ViaOverlay::CreateAlphaSurface(int nWidth, int nHeight)
 //-------------------------------------------------------------------------------------------------------
 bool ViaOverlay::SetAlphaSurface()
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
+
 	ALPHACTRL AlphaCtrl;
 	AlphaCtrl.AlphaEnable = TRUE;
 	AlphaCtrl.type = ALPHA_STREAM;
@@ -201,6 +229,8 @@ bool ViaOverlay::SetAlphaSurface()
 //-------------------------------------------------------------------------------------------------------
 bool ViaOverlay::UpdateAlphaSurface()
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
+
 	RECTL rDest;
 	rDest.left      = 0;
 	rDest.top       = 0;
@@ -218,14 +248,16 @@ bool ViaOverlay::UpdateAlphaSurface()
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ShowPopup(int x, int y, int w, int h)
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 	g_pPlutoLogger->Write(LV_WARNING, "#VIA Show popup %d %d %d %d", x, y, w, h);
 
-	FillRectangleInAlphaMask(x, y, w, h, 0x00);
+	InternalFillRectangleInAlphaMask(x, y, w, h, 0x00);
 	m_bHasPopups = true;
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::HidePopup(int x, int y, int w, int h)
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 	g_pPlutoLogger->Write(LV_WARNING, "#VIA Hide popup %d %d %d %d", x, y, w, h);
 
 	memcpy(m_BufferMask, m_ScreenMask, m_nWidth * m_nHeight);

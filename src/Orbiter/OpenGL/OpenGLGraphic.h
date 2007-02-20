@@ -106,6 +106,8 @@ public:
 	bool GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize);
 
 	const unsigned char *GetAlphaMask() const;
+	void RegenerateAlphaMask();
+	void ResetAlphaMask();
 };
 
 #endif /*OPENGLGRAPHIC_H_*/

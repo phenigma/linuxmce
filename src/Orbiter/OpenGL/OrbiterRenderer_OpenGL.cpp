@@ -582,8 +582,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point )
 {
-	int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
-
+	GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	Engine->Select(&pObj->m_rPosition);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -695,7 +694,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 
 	int OffScreenTransition = m_spPendingGLEffects->m_nOffScreenTransitionEffectID;
 	int OnScreenTransition = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;
-	int OnSelectWithChange = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
+	//int OnSelectWithChange = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
@@ -734,7 +733,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	NeedToUpdateScreen_ = true;
 
 	GLEffect2D::Effect* Item;
-	int EffectCode = GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
+	GLEffect2D::EffectFactory::GetEffectCode(rand()%9);
 	
 	Item = Engine->Compose->CreateEffect(2, OffScreenTransition, 0, Simulator::GetInstance()->m_iMilisecondsTransition);
 	if(Item)
@@ -852,7 +851,12 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 
 		if(NULL != pData && iData_Size != 0)
 		{
-			pPlutoGraphic->LoadGraphic(pData, iData_Size, OrbiterLogic()->m_iRotation);  // These weren't pre-rotated
+			pOpenGLGraphic->LoadGraphic(pData, iData_Size, OrbiterLogic()->m_iRotation);  // These weren't pre-rotated
+
+#ifdef VIA_OVERLAY
+			pOpenGLGraphic->ResetAlphaMask();
+#endif
+
 			pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 
 			TextureManager::Instance()->PrepareConvert(pOpenGLGraphic);
@@ -928,6 +932,8 @@ void OrbiterRenderer_OpenGL::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint 
 		//don't handle the objects from popups
 		return;
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "VIA ObjectRendered: %s", pObj->m_ObjectID.c_str());
 
 	if(pObj->m_vectGraphic.size() > 0 && NULL != pObj->m_vectGraphic[0])
 	{

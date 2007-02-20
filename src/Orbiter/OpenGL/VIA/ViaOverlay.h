@@ -6,44 +6,9 @@ extern "C"
 	#include "via_types.h"
 	#include "viavid.h"
 };
-
+//-------------------------------------------------------------------------------------------------------
 #include <list>
-//-------------------------------------------------------------------------------------------------------
-class AlphaMaskShapeItem
-{
-private:
-
-	AlphaMaskShapeItem() {}
-
-public:
-
-	AlphaMaskShapeItem(int x, int y, int w, int h, const unsigned char *mask) :
-		m_x(x), m_y(y), m_w(w), m_h(h), m_mask(mask) {}
-
-	int m_x; 
-	int m_y; 
-	int m_w; 
-	int m_h; 
-	const unsigned char *m_mask;
-};
-//-------------------------------------------------------------------------------------------------------
-class AlphaRectangleItem
-{
-private:
-
-	AlphaRectangleItem() {}
-
-public:
-
-	AlphaRectangleItem(int x, int y, int w, int h, unsigned char value) :
-		m_x(x), m_y(y), m_w(w), m_h(h), m_value(value) {}
-
-	int m_x; 
-	int m_y;
-	int m_w;
-	int m_h;
-	unsigned char m_value;
-};
+#include "DCE/Logger.h" 
 //-------------------------------------------------------------------------------------------------------
 class ViaOverlay
 {
@@ -93,6 +58,11 @@ public:
 	void HidePopup(int x, int y, int w, int h);
 
 private:
+
+	/*
+	*  Screen mutex
+	*/
+	pluto_pthread_mutex_t m_ScreenMutex; 
 
 	/*
 	*  VMI data
