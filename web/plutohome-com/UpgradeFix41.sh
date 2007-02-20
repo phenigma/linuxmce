@@ -194,7 +194,7 @@ done
 Count=$(apt-get -f -y -s dist-upgrade | egrep -c '^Inst |^Conf ')
 
 echo "- Doing dist-upgrade (this can take some time)"
-apt-get -V -f -y dist-upgrade
+apt-get -V -f -y dist-upgrade || exit 1
 
 if [[ "$Count" != "0" ]]; then
 	Q="UPDATE Device SET NeedConfigure=1"
