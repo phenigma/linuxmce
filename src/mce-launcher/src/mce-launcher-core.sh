@@ -5,7 +5,6 @@ DisplayProgress() {
 	echo "${Progress}%${Text}" > /tmp/mce-launcher-pipe
 }
 
-ls -al /dev
 StartService() {
 	ServiceDescription=$1
 	ServiceCmd=$2
@@ -102,7 +101,6 @@ if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
 	ConfSet "FirstBoot" "false" 2>/dev/null 1>/dev/null
 fi
 
-StartService "Test" "/bin/ls"
 StartService "Setting SSH Keys" "/usr/pluto/bin/SSH_Keys.sh" "&"
 StartService "Confirm Installation" "/usr/pluto/bin/ConfirmInstallation.sh"
 StartService "Starting DCE Router" "/usr/pluto/bin/Start_DCERouter.sh"

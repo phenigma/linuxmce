@@ -46,9 +46,8 @@
 
 static gboolean delete_event( GtkWidget *widget, GdkEvent *event, gpointer data) {
 	gtk_main_quit ();
-	return FALSE; 
+	return FALSE;
 }
-
 
 int
 main (int argc, char *argv[])
@@ -89,6 +88,9 @@ main (int argc, char *argv[])
 	labelMain = glade_xml_get_widget(gxml, "labelMain");
 	progressMain = glade_xml_get_widget(gxml, "progressMain");
 
+	vte_terminal_fork_command(VTE_TERMINAL(terminal),"./mce-launcher-core.sh",NULL, NULL, "", FALSE, FALSE, FALSE);
+	gtk_widget_show_all(GTK_WIDGET(terminal));
+
 	/* init listener thread */	
 	listener_args args;
 	args.progressMain = progressMain;
@@ -96,9 +98,6 @@ main (int argc, char *argv[])
 
 	pthread_t listener_tid;
 	pthread_create(&listener_tid, NULL, listener_thread, &args);
-
-	/* run the startup script */
-	vte_terminal_fork_command(VTE_TERMINAL(terminal),"./mce-launcher-core.sh",NULL, NULL, "", FALSE, FALSE, FALSE);
 
 	/* enter gtk main loop */
 	gtk_main ();
