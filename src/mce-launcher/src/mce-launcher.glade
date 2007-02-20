@@ -28,6 +28,7 @@
         <child>
           <widget class="GtkExpander" id="expanderMain">
             <property name="visible">True</property>
+            <property name="expanded">True</property>
             <child>
               <placeholder/>
             </child>

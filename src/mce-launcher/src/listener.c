@@ -24,9 +24,6 @@ void* listener_thread(void *args) {
 
 	/* create a pipe file */
 	err = mkfifo(LISTENER, 0666);
-	if (err == -1 && err != EEXIST) {
-		printf("ERROR: Cannot create communication pipe.\n");
-	}
 
 	iochan = g_io_channel_new_file(LISTENER, "r", NULL);
 	while ( 1 ) {
@@ -38,19 +35,20 @@ void* listener_thread(void *args) {
 		}
 
 		buffv = g_strsplit(buff, "%", 2);
-		int progress = atoi(buffv[0]);
-		printf("Progress: %s | Message: %s\n", buffv[0], buffv[1]);
-
-		gdk_threads_enter();
-		gtk_label_set_text(GTK_LABEL(data->labelMain), buffv[1]);
-		gtk_progress_bar_update(data->progressMain, progress/100);
-		gdk_threads_leave();
+		if (buffv[1]) {
+			int progress = atoi(buffv[0]);
+			printf("Progress: %s | Message: %s\n", buffv[0], buffv[1]);
+	
+			gdk_threads_enter();
+			gtk_label_set_text(GTK_LABEL(data->labelMain), buffv[1]);
+			gtk_progress_bar_update(GTK_PROGRESS_BAR(data->progressMain), (gfloat)progress/100);
+			gdk_threads_leave();
+		}
 
 		g_free(buff);
 		g_strfreev(buffv);
 
 	}
-	printf("Nononono\n");
 
 	return NULL;
 }

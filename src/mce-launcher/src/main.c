@@ -83,6 +83,7 @@ main (int argc, char *argv[])
 
 	expanderMain = glade_xml_get_widget(gxml, "expanderMain");
 	GtkWidget *terminal = vte_terminal_new();
+	g_signal_connect(G_OBJECT(terminal),"child-exited", G_CALLBACK(delete_event), NULL);
 	gtk_container_add(GTK_CONTAINER(expanderMain), terminal);
 
 	labelMain = glade_xml_get_widget(gxml, "labelMain");
@@ -95,6 +96,9 @@ main (int argc, char *argv[])
 
 	pthread_t listener_tid;
 	pthread_create(&listener_tid, NULL, listener_thread, &args);
+
+	/* run the startup script */
+	vte_terminal_fork_command(VTE_TERMINAL(terminal),"./mce-launcher-core.sh",NULL, NULL, "", FALSE, FALSE, FALSE);
 
 	/* enter gtk main loop */
 	gtk_main ();
