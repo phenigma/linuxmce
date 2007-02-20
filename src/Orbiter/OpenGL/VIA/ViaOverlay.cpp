@@ -246,6 +246,21 @@ bool ViaOverlay::UpdateAlphaSurface()
 	return SetAlphaSurface();
 }
 //-------------------------------------------------------------------------------------------------------
+void ViaOverlay::DumpMask()
+{
+	string sData;
+	for(int j = 0; j < m_nHeight; j++)
+	{
+		for(int i = 0; i < m_nWidth; i++)
+		{
+			sData += StringUtils::ltos(m_BufferMask[i + j * m_nWidth]) + "\t";
+		}
+		sData += "\n";
+	}
+
+	FileUtils::WriteTextFile("/home/mask-dump.dat", sData);
+}
+//-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ShowPopup(int x, int y, int w, int h)
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 

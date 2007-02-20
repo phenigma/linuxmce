@@ -57,6 +57,11 @@ public:
 	void ShowPopup(int x, int y, int w, int h);
 	void HidePopup(int x, int y, int w, int h);
 
+	/*
+	*  Debugging methods
+	*/ 
+	void DumpMask();
+
 private:
 
 	/*
