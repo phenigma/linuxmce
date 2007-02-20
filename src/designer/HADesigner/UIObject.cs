@@ -601,8 +601,6 @@ namespace HADesigner
 					}
 					mds.tDesignObjVariation_DesignObj.Update(1,mds.m_conn,mds.m_trans);
 
-
-
 					//delete the variations
 					foreach(Object obj in this.UIDesignObjVariations)
 					{
@@ -610,7 +608,6 @@ namespace HADesigner
 						objVariation.NeedsDelete = true;
 						objVariation.SaveToDatabase();
 					}
-
 
 					if(!this.NeedsInsert)
 					{
@@ -675,6 +672,13 @@ namespace HADesigner
 						UIDesignObjVariation objVariation = (UIDesignObjVariation) obj;
 						blnChanged = objVariation.SaveToDatabase() || blnChanged;
 					}
+
+					foreach(Object obj in this.ChildSkinLanguages)
+					{
+						UIChildSkinLanguage child = (UIChildSkinLanguage)obj;
+						if(child.SaveToDatabase())
+							blnChanged = true;
+					}
 				}
 	
 				//set the originals so we know how and when to save
@@ -691,13 +695,6 @@ namespace HADesigner
 			if(this.ParentUIDesignObjVariation == null && blnChanged)
 			{
 				mds.Update(1,mds.m_conn,mds.m_trans);
-			}
-
-			foreach(Object obj in this.ChildSkinLanguages)
-			{
-				UIChildSkinLanguage child = (UIChildSkinLanguage)obj;
-				if(child.SaveToDatabase())
-					blnChanged = true;
 			}
 
 			return blnChanged;
@@ -719,6 +716,13 @@ namespace HADesigner
 					}
 					else
 					{
+						//delete the language - skin children
+						foreach(UIChildSkinLanguage objChild in alChildSkinLanguages)
+						{
+							objChild.NeedsDelete = true;
+							objChild.SaveToDatabase();
+						}
+						
 						//delete the row
 						DesignObjVariation_DesignObjDataRow drLink = mds.tDesignObjVariation_DesignObj[DOV_DO_ID];
 						drLink.dr.Delete();
