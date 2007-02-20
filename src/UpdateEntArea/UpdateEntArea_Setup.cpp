@@ -398,6 +398,11 @@ void UpdateEntArea::PutMDsChildrenInRoom(Row_Device *pRow_Device)
 		if( pRow_Device_Child->FK_Device_RouteTo_isNull()==true && DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Interfaces_CONST)  )
 			continue;
 
+		// Output zones may be in different EA's from the parents
+		Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_Child->FK_DeviceTemplate_getrow();
+		if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Output_Zone_CONST )
+			continue;
+
 		pRow_Device_Child->FK_Room_set(pRow_Device->FK_Room_get());
 		pRow_Device_Child->Table_Device_get()->Commit();
 
@@ -444,6 +449,12 @@ void UpdateEntArea::AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 		for(size_t s2=0;s2<vectRow_Device_Embedded.size();++s2)
 		{
 			Row_Device *pRow_Device_Child = vectRow_Device_Embedded[s2];
+
+			// Output zones may be in different EA's from the parents
+			Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_Child->FK_DeviceTemplate_getrow();
+			if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Output_Zone_CONST )
+				continue;
+
 			if( pRow_Device_Child->FK_Room_get()!=pRow_Device->FK_Room_get() )
 			{
 				pRow_Device_Child->FK_Room_set(pRow_Device->FK_Room_get());
@@ -520,6 +531,11 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_Device *pRow_Device,Row_Entertain
 
 	// If it's not an embedded device (ie route to is null), and the parent is an interface, then this is something like a light switch or sensor which doesn't inherit the parent's room
 	if( pRow_Device->FK_Device_ControlledVia_get() && pRow_Device->FK_Device_RouteTo_isNull()==true && DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->FK_Device_ControlledVia_get(),DEVICECATEGORY_Interfaces_CONST) )
+		return;
+
+	// Output zones may be in different EA's from the parents
+	Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
+	if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Output_Zone_CONST )
 		return;
 
 	Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());

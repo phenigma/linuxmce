@@ -2997,7 +2997,8 @@ class DataGridTable *Orbiter_Plugin::FloorplanDevices( string GridID, string Par
 			if( !pEntertainArea )
 				continue; // Shouldn't happen
 			
-			pCell = new DataGridCell(pRow_EntertainArea->Description_get(),StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()));
+			// Store the EA as a negative value to differentiate from a device
+			pCell = new DataGridCell(pRow_EntertainArea->Description_get(),"-" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()));
 			pDataGrid->SetData(0,iRow++,pCell);
 
 			int iPK_FloorplanObjectType_Color=0,iColor=0,PK_DesignObj_Toolbar=0;

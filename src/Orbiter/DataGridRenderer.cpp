@@ -340,12 +340,14 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		string sText = m_pObj_Owner_DataGrid->m_pOrbiter->SubstituteVariables(pCell->GetText(), m_pObj_Owner_DataGrid, 0, 0);
 
 		PlutoColor TextColor = pTextStyle->m_ForeColor;
-		if(CellColor.R() == pTextStyle->m_ForeColor.R() && CellColor.G() == pTextStyle->m_ForeColor.G() &&
-			CellColor.B() == pTextStyle->m_ForeColor.B()
+		if(CellColor.R() == TextColor.R() && CellColor.G() == TextColor.G() &&
+			CellColor.B() == TextColor.B()
 		)
 		{
-			sText += "\n WARNING : You didn't specify any style for datagrid!";
-			pTextStyle->m_ForeColor = PlutoColor::Red();
+			pTextStyle->m_ForeColor.R( pTextStyle->m_ForeColor.R() ^ 0xff );
+			pTextStyle->m_ForeColor.G( pTextStyle->m_ForeColor.G() ^ 0xff );
+			pTextStyle->m_ForeColor.B( pTextStyle->m_ForeColor.B() ^ 0xff );
+			g_pPlutoLogger->Write( LV_WARNING,  "Datagrid foreground is same as background.  Using xor" );
 		}
 
 		PlutoColor BackColor = pTextStyle->m_BackColor;

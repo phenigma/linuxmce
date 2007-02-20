@@ -427,6 +427,10 @@ Orbiter::~Orbiter()
 	delete m_pOrbiterRenderer;
 	m_pOrbiterRenderer = NULL;
 
+	for(map<int,class FloorplanObject *>::iterator itFPO=m_mapFloorplanObject_Selected.begin();itFPO!=m_mapFloorplanObject_Selected.end();++itFPO)
+		delete itFPO->second;
+	m_mapFloorplanObject_Selected.clear();
+
 	m_vectObjs_TabStops.clear();
 	m_vectObjs_Selected.clear();
 	m_ScreenMap.clear(); //shared with mapObj_All
@@ -1748,6 +1752,8 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter,int Row)
 			m_pOrbiterRenderer->RenderObjectAsync((DesignObj_Orbiter *) pDesignObj_Orbiter->m_pParentObject);
 
 			m_mapDevice_Selected.clear();
+			for(map<int,class FloorplanObject *>::iterator itFPO=m_mapFloorplanObject_Selected.begin();itFPO!=m_mapFloorplanObject_Selected.end();++itFPO)
+				delete itFPO->second;
 			m_mapFloorplanObject_Selected.clear();
 			m_pObj_LastSelected=NULL;
 			m_iRow_Floorplan_LastSelected=-1;
@@ -1761,7 +1767,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter,int Row)
 			if( pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base->m_vectDeviceGroup.size()==0 )
 			{
 				m_mapDevice_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base;
-				m_mapFloorplanObject_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject;
+				m_mapFloorplanObject_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = new FloorplanObject(pDesignObj_Orbiter->m_pFloorplanObject);
 				m_iLastEntryInDeviceGroup=0;  // If we touch it again, it will trigger the block above
 			}
 			else
@@ -1785,7 +1791,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter,int Row)
 		else
 		{
 			m_mapDevice_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base;
-			m_mapFloorplanObject_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject;
+			m_mapFloorplanObject_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = new FloorplanObject(pDesignObj_Orbiter->m_pFloorplanObject);
 		}
 		m_pObj_LastSelected=pDesignObj_Orbiter;
 		m_iRow_Floorplan_LastSelected=Row;
@@ -4380,6 +4386,16 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 				}
 				else
 				{
+int i1=it->first;
+for(map<int,class FloorplanObject *>::iterator it2=m_mapFloorplanObject_Selected.begin();it2!=m_mapFloorplanObject_Selected.end();++it2)
+{
+	int i=it2->first;
+	class FloorplanObject *pFloorplanObject = it2->second;
+	string s="";
+
+}
+
+
 					//this is a media floorplan object; it doesn't have a device associated
 					FloorplanObject *pfObj = m_mapFloorplanObject_Selected[it->first];
 					string sStatus = pfObj->Status == "offline" ? " (" + pfObj->Status + ")" : "";

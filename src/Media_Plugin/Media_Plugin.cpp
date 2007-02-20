@@ -6064,5 +6064,31 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 				}
 			}
 		}
+		else if( sText[0]=='V' )
+		{
+			if( !pMediaDevice->m_pDevice_Video )
+				g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no Video device");
+			else
+			{
+				if( sText[1]=='P' )
+				{
+					DCE::CMD_On CMD_On(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Video->m_dwPK_Device,
+						0,"");
+					CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]="1";
+					SendCommand(CMD_On);
+				}
+				else if( sText[1]=='I' )
+				{
+					if( pMediaDevice->m_dwPK_Command_Video )
+					{
+						DCE::CMD_Input_Select CMD_Input_Select(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Video->m_dwPK_Device,
+							pMediaDevice->m_dwPK_Command_Video);
+						SendCommand(CMD_Input_Select);
+					}
+					else
+						g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no input on Video device");
+				}
+			}
+		}
 	}
 }

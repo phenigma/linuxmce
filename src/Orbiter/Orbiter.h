@@ -412,7 +412,7 @@ namespace DCE
 		map < string, DesignObj_DataList * > m_mapObj_AllNoSuffix; /** < All object with the object ID as a string */
 		list < class ScreenHistory * > m_listScreenHistory; /** < A history of the screens we've visited */
 		map<int,class DeviceData_Base *> m_mapDevice_Selected;  /** < We can select multiple devices on the floorplan to send messages to, instead of the usual one */
-		map<int,class FloorplanObject *> m_mapFloorplanObject_Selected;  /** < The selected floorplan object */
+		map<int,class FloorplanObject *> m_mapFloorplanObject_Selected;  /** < The selected floorplan objects.  Note these are copies, not originals, so they must be deleted */
 
 		class ScreenHistory *m_pScreenHistory_NewEntry;
 

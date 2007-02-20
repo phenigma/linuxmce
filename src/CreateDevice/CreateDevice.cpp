@@ -40,6 +40,20 @@ extern DCEConfig dceConfig;
 using namespace std;
 using namespace DCE;
 
+class CdPipe
+{
+public:
+	int m_PK_Command_Input,m_PK_Command_Ouput,int m_PK_Pipe;
+	bool m_bToChild;
+	CdPipe(int PK_Command_Input,int PK_Command_Ouput,int PK_Pipe,bool bToChild)
+	{
+		m_PK_Command_Input=PK_Command_Input;
+		m_PK_Command_Ouput=PK_Command_Ouput;
+		m_PK_Pipe=PK_Pipe;
+		m_bToChild=bToChild;
+	}
+};
+
 int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescription,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia,string sDeviceData,int iPK_Device_RelatedTo,int iPK_Room)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"CreateDevice::DoIt called with: iPK_DHCPDevice=%d; iPK_DeviceTemplate=%d"
@@ -228,21 +242,43 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 		}
 	}
 
+	// Within the device relation are information about embedded devices and pipes.  Store them in variables, and add them after we've got the controlled via
+	bool bEmbedded=false;
+	list<CdPipe *> listCdPipe;
 	if( sDeviceData.size() )
 	{
 		string::size_type pos=0;
 		while(pos<sDeviceData.size())
 		{
-			int PK_DeviceData = atoi(StringUtils::Tokenize(sDeviceData,"|",pos).c_str());
-			string sValue = StringUtils::Tokenize(sDeviceData,"|",pos);
-			AssignDeviceData(PK_Device,PK_DeviceData,sValue);
-
-			if( PK_DeviceData==DEVICEDATA_sPK_Device_Relations_For_Creat_CONST )
+			string sPK_DeviceData = StringUtils::Tokenize(sDeviceData,"|",pos);
+			if( sPK_DeviceData=="E" )
+				bEmbedded=true;
+			else if( sPK_DeviceData=="P" )
 			{
-				vector<string> vectDevices;
-				StringUtils::Tokenize(sValue,"\t",vectDevices);
-				for(vector<string>::iterator it=vectDevices.begin();it!=vectDevices.end();++it)
-					CreateRelation(PK_Device,atoi(it->c_str()));
+				int PK_Command_Input = atoi(StringUtils::Tokenize(sDeviceData,"|",pos).c_str());
+				int PK_Command_Ouput = atoi(StringUtils::Tokenize(sDeviceData,"|",pos).c_str());
+				int PK_Pipe = atoi(StringUtils::Tokenize(sDeviceData,"|",pos).c_str());
+				bool bToChild = atoi(StringUtils::Tokenize(sDeviceData,"|",pos).c_str())==1;
+				listCdPipe.push_back(new CdPipe(PK_Command_Input,PK_Command_Ouput,PK_Pipe,bToChild));
+			}
+			else
+			{
+				int PK_DeviceData = atoi(sPK_DeviceData.c_str());
+				string sValue = StringUtils::Tokenize(sDeviceData,"|",pos);
+				AssignDeviceData(PK_Device,PK_DeviceData,sValue);
+
+				if( PK_DeviceData==DEVICEDATA_sPK_Device_Relations_For_Creat_CONST )
+				{
+					vector<string> vectDevices;
+					StringUtils::Tokenize(sValue,"\t",vectDevices);
+					for(vector<string>::iterator it=vectDevices.begin();it!=vectDevices.end();++it)
+						CreateRelation(PK_Device,atoi(it->c_str()));
+				}
+				else if( PK_DeviceData==DEVICEDATA_Description_CONST )
+				{
+					string sSQL = "UPDATE Device SET Description='" + StringUtils::SQLEscape(sValue) + "' WHERE PK_Device=" + StringUtils::itos(PK_Device);
+					threaded_mysql_query(sSQL);
+				}
 			}
 		}
 	}
@@ -324,6 +360,40 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 		}
 		else
 			cerr << "No Orbiter plugin" << endl;
+	}
+
+	if( bEmbedded && PK_Device_ControlledVia )
+	{
+		string sSQL = "UPDATE Device SET FK_Device_RouteTo=" + StringUtils::itos(PK_Device_ControlledVia) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
+		threaded_mysql_query(sSQL);
+	}
+
+	for(list<CdPipe *>::iterator it=listCdPipe.begin();it!=listCdPipe.end();++it)
+	{
+		CdPipe *pCdPipe = *it;
+		string SQL = "INSERT INTO Device_Device_Pipe(FK_Device_To,FK_Device_From,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
+		if( pCdPipe->m_bToChild )
+			SQL += StringUtils::itos(PK_Device) + "," + StringUtils::itos(PK_Device_ControlledVia);
+		else
+			SQL += StringUtils::itos(PK_Device_ControlledVia) + "," + StringUtils::itos(PK_Device);
+		SQL += string(",") + 
+			(pCdPipe->m_PK_Pipe ? StringUtils::itos(pCdPipe->m_PK_Pipe) : "NULL") + "," + 
+			(pCdPipe->m_PK_Command_Input ? StringUtils::itos(pCdPipe->m_PK_Command_Input) : "NULL") + "," + 
+			(pCdPipe->m_PK_Command_Ouput ? StringUtils::itos(pCdPipe->m_PK_Command_Ouput) : "NULL") + ")";
+		threaded_mysql_query(SQL.c_str(),true); // If it's a device previously created the record may already exist
+
+		if( pCdPipe->m_PK_Command_Input )
+		{
+			SQL = "SELECT Description FROM Command WHERE PK_Command=" + StringUtils::itos(pCdPipe->m_PK_Command_Input);
+			PlutoSqlResult result;
+			MYSQL_ROW row;
+			if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && NULL != row[0])
+			{
+				string sLastDescription=row[0];
+				SQL = "UPDATE Device SET Description = concat(Description,'/" + StringUtils::SQLEscape(sLastDescription) + "') WHERE PK_Device=" + StringUtils::itos(PK_Device);
+				threaded_mysql_query(SQL.c_str());
+			}
+		}
 	}
 
 	if( iPK_Package && !m_bDontInstallPackages )

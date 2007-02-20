@@ -25,7 +25,13 @@ namespace DCE
 		// media device, like a dvd, can be outputting using an overlay capture card, so the m/d's inputs are used
 		// instead, and DCERouter won't switch the inputs to the direct a/v pipes until this flag is cleared
 		bool m_bDontSendInputs;
-		Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe) { m_pRow_Device_Device_Pipe=pRow_Device_Device_Pipe; m_bDontSendInputs=m_bDontSendOff=m_bDontSendOn=false; }
+
+		// It's possible for an output device, like a receiver, to have multiple embedded zones.  If that's the case, the media handler
+		// may decide to create a temporary pipe to this output zone that is not one of the 'normal' available pipes going to the main device.
+		// If so, it creates the pipe in the map of active pips, sets this flag m_bTemporary=true, and when we clear the active pipes,
+		// we'll delete it
+		bool m_bTemporary;
+		Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe) { m_pRow_Device_Device_Pipe=pRow_Device_Device_Pipe; m_bDontSendInputs=m_bDontSendOff=m_bDontSendOn=m_bTemporary=false; }
 	};
 
 	class Command

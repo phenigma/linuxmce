@@ -1776,9 +1776,16 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
         if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Pipe_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
 			PK_Pipe = atoi((*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
 
-		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Active.begin();it!=pDeviceData_Router->m_mapPipe_Active.end();++it)
+		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Active.begin();it!=pDeviceData_Router->m_mapPipe_Active.end();)
         {
-            Pipe *pPipe = (*it).second;
+			Pipe *pPipe = (*it).second;
+
+			// Temporary pipes are for handling separate output zones and are erased when the device is turned off
+			if( pPipe->m_bTemporary )
+				pDeviceData_Router->m_mapPipe_Active.erase(it++);
+			else
+				++it;
+
 			if( (PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()) || pPipe->m_bDontSendOff )
 				continue;
 
@@ -2179,7 +2186,6 @@ void Router::ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceDat
 {
 //  if( pDevice->m_dwPK_DeviceCategory == DEVICETEMPLATE_Pluto_Core_CONST )
 //      m_dwPK_Device = pDevice->m_dwPK_Device;
-
     if ( !pDevice->WithinCategory( DEVICECATEGORY_Computers_CONST ) && MasterDeviceID == DEVICEID_DCEROUTER )
     {
         MasterDeviceID = pDevice->m_dwPK_Device;

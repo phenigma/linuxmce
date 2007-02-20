@@ -35,6 +35,42 @@ public:
 	DCE::EntertainArea *m_pEntertainArea;
 #endif
 	class DesignObj_Orbiter *pObj; // Only used by the orbiter
+
+	FloorplanObject()
+	{
+		PK_Device=0;
+		Page=0;
+		Type=0;
+		FillX=0;
+		FillY=0;
+#ifdef ORBITER
+		m_pDeviceData_Base=NULL;
+		m_dwPK_DesignObj_Toolbar=0;
+#else
+		m_pDeviceData_Router=NULL;
+		m_pEntertainArea=NULL;
+#endif
+	}
+
+	FloorplanObject(FloorplanObject *pCopy)
+	{
+		PK_Device=pCopy->PK_Device;
+		Page=pCopy->Page;
+		Type=pCopy->Type;
+		FillX=pCopy->FillX;
+		FillY=pCopy->FillY;
+		DeviceDescription=pCopy->DeviceDescription;
+		ObjectTypeDescription=pCopy->ObjectTypeDescription;
+		ObjectID=pCopy->ObjectID;
+		Status=pCopy->Status;
+#ifdef ORBITER
+		m_pDeviceData_Base=pCopy->m_pDeviceData_Base;
+		m_dwPK_DesignObj_Toolbar=pCopy->m_dwPK_DesignObj_Toolbar;
+#else
+		m_pDeviceData_Router=pCopy->m_pDeviceData_Router;
+		m_pEntertainArea=pCopy->m_pEntertainArea;
+#endif
+	}
 };
 
 class FloorplanItemStatus
