@@ -468,7 +468,7 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	//make datagrid's thumbs opaque
 	if(Frame->Name().find("datagrid-thumb") == 0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "VIA Rendering a datagrid thumb : %d %d %d %d", 
+		g_pPlutoLogger->Write(LV_STATUS, "VIA Rendering a datagrid thumb : %d %d %d %d", 
 			point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
 		ViaOverlay::Instance().FillRectangleInAlphaMask(point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height, 0x00);
 	}
