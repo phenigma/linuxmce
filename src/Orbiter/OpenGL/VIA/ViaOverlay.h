@@ -59,12 +59,6 @@ private:
 	*/
 	static ViaOverlay m_Instance;
 
-	/*
-	*  Pending alpha masks to apply
-	*/
-	std::list<AlphaMaskShapeItem> m_listAlphaMaskShapes;
-	std::list<AlphaRectangleItem> m_listAlphaRectagles;
-
 public:
 
 	/*
@@ -91,6 +85,13 @@ public:
 	void ApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask);
 	void FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value);
 
+	/*
+	* Special methods for alpha surface access
+	*/
+	void ScreenRenderer();
+	void ShowPopup(int x, int y, int w, int h);
+	void HidePopup(int x, int y, int w, int h);
+
 private:
 
 	/*
@@ -100,6 +101,13 @@ private:
 	unsigned char *m_lpAlphaSurface;
 	int m_nWidth, m_nHeight;
 	bool m_bOverlayInitialized;
+
+	/*
+	*  Popups state
+	*/ 
+	bool m_bHasPopups;
+	unsigned char *m_ScreenMask;
+	unsigned char *m_BufferMask;
 
 	/*
 	* VMI wrappers

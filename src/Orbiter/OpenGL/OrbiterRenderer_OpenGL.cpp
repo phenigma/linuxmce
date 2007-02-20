@@ -773,8 +773,8 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	if(Popups)
 	{
 #ifdef VIA_OVERLAY
-		ViaOverlay::Instance().FillRectangleInAlphaMask(Popup->m_Position.X, Popup->m_Position.Y, 
-			Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height, 0xFF);
+		ViaOverlay::Instance().HidePopup(Popup->m_Position.X, Popup->m_Position.Y, 
+			Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height);
 #endif
 
 		Popups->HidePopup(Popup->m_pObj->GenerateObjectHash(Popup->m_Position, false),
@@ -787,8 +787,8 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 /*virtual*/ bool OrbiterRenderer_OpenGL::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position, int EfectID)
 {
 #ifdef VIA_OVERLAY
-	ViaOverlay::Instance().FillRectangleInAlphaMask(Popup->m_Position.X, Popup->m_Position.Y, 
-		Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height, 0x00);
+	ViaOverlay::Instance().ShowPopup(Popup->m_Position.X, Popup->m_Position.Y, 
+		Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height);
 #endif
 
 	RenderPopup(Popup, Position, EfectID);

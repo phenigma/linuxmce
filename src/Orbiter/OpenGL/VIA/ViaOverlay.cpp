@@ -5,14 +5,19 @@ using namespace DCE;
 //-------------------------------------------------------------------------------------------------------
 ViaOverlay ViaOverlay::m_Instance;
 //-------------------------------------------------------------------------------------------------------
-ViaOverlay::ViaOverlay() : m_lpAlphaSurface(NULL), m_nWidth(0), m_nHeight(0), m_bOverlayInitialized(false)
+ViaOverlay::ViaOverlay() : m_lpAlphaSurface(NULL), m_nWidth(0), m_nHeight(0), m_bOverlayInitialized(false),
+	m_bHasPopups(false), m_ScreenMask(NULL), m_BufferMask(NULL)
 {
 	memset(&m_VMI_Info, 0, sizeof(VMI_INFO_PARAM));
 }
 //-------------------------------------------------------------------------------------------------------
 ViaOverlay::~ViaOverlay()
 {
+	delete [] m_ScreenMask;
+	m_ScreenMask = NULL;
 
+	delete [] m_BufferMask;
+	m_BufferMask = NULL;
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::WindowCreated(unsigned long nWidth, unsigned long nHeight)
@@ -29,6 +34,14 @@ void ViaOverlay::WindowCreated(unsigned long nWidth, unsigned long nHeight)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "#VIA Via overlay activated!");
 		}
+
+		//create our local screen mask
+		if(NULL == m_ScreenMask)
+			m_ScreenMask = new unsigned char [m_nWidth * m_nHeight];
+
+		//the buffer mask
+		if(NULL == m_BufferMask)
+			m_BufferMask = new unsigned char [m_nWidth * m_nHeight];
 	}
 	else
 	{
@@ -59,20 +72,10 @@ void ViaOverlay::WorldChanged()
 
 	if(m_bOverlayInitialized)
 	{
-		for(std::list<AlphaMaskShapeItem>::iterator it_shape = m_listAlphaMaskShapes.begin(); 
-			it_shape != m_listAlphaMaskShapes.end(); ++it_shape)
-		{
-			InternalApplyAlphaMask(it_shape->m_x, it_shape->m_y, it_shape->m_w, it_shape->m_h, it_shape->m_mask);
-		}
+		memcpy(m_lpAlphaSurface, m_BufferMask, m_nWidth * m_nHeight);
 
-		for(std::list<AlphaRectangleItem>::iterator it_rect = m_listAlphaRectagles.begin(); 
-			it_rect != m_listAlphaRectagles.end(); ++it_rect)
-		{
-			InternalFillRectangleInAlphaMask(it_rect->m_x, it_rect->m_y, it_rect->m_w, it_rect->m_h, it_rect->m_value);
-		}
-
-		m_listAlphaMaskShapes.clear();
-		m_listAlphaRectagles.clear();
+		if(!m_bHasPopups)
+			memcpy(m_ScreenMask, m_BufferMask, m_nWidth * m_nHeight);
 
 		if(UpdateAlphaSurface())
 		{
@@ -84,20 +87,19 @@ void ViaOverlay::WorldChanged()
 void ViaOverlay::ResetAlphaMask()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "#VIA Reseting alpha surface...");
+	memset(m_BufferMask, 0xFF, m_nWidth * m_nHeight);
 	memset(m_lpAlphaSurface, 0xFF, m_nWidth * m_nHeight);
-
-	m_listAlphaMaskShapes.clear();
-	m_listAlphaRectagles.clear();
+	m_bHasPopups = false;
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask)
 {
-	m_listAlphaMaskShapes.push_back(AlphaMaskShapeItem(x, y, w, h, mask));
+	InternalApplyAlphaMask(x, y, w, h, mask);
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value)
 {
-	m_listAlphaRectagles.push_back(AlphaRectangleItem(x, y, w, h, value));
+	InternalFillRectangleInAlphaMask(x, y, w, h, value);
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask)
@@ -107,16 +109,16 @@ void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsign
 		g_pPlutoLogger->Write(LV_STATUS, "#VIA Applying alpha for %p (%d,%d,%d,%d) ...", mask, x, y, w, h);
 
 		if(x == 0 && y == 0 && w == m_nWidth && h == m_nHeight)
-			memcpy(m_lpAlphaSurface, mask, w * h);
+			memcpy(m_BufferMask, mask, w * h);
 		else
 		{
 			for(int i = 0; i < h; i++)
-				memcpy(m_lpAlphaSurface + (y + i) * m_nWidth + x, mask + i * w, w);
+				memcpy(m_BufferMask + (y + i) * m_nWidth + x, mask + i * w, w);
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "#VIA Unabled to apply alpha for %p (%d,%d,%d,%d) !", mask, x, y, w, h);
+		g_pPlutoLogger->Write(LV_CRITICAL, "#VIA Unable to apply alpha for %p (%d,%d,%d,%d) !", mask, x, y, w, h);
 	}
 }
 //-------------------------------------------------------------------------------------------------------
@@ -128,16 +130,16 @@ void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, un
 			x, y, w, h, value);
 
 		if(x == 0 && y == 0 && w == m_nWidth && h == m_nHeight)
-			memset(m_lpAlphaSurface, value, w * h);
+			memset(m_BufferMask, value, w * h);
 		else
 		{
 			for(int i = 0; i < h; i++)
-				memset(m_lpAlphaSurface + (y + i) * m_nWidth + x, value, w);
+				memset(m_BufferMask + (y + i) * m_nWidth + x, value, w);
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "#VIA Unabled to fill rectangle in alpha mask (%d,%d,%d,%d) value %d !", 
+		g_pPlutoLogger->Write(LV_CRITICAL, "#VIA Unable to fill rectangle in alpha mask (%d,%d,%d,%d) value %d !", 
 			x, y, w, h, value);
 	}
 }
@@ -214,3 +216,20 @@ bool ViaOverlay::UpdateAlphaSurface()
 	return SetAlphaSurface();
 }
 //-------------------------------------------------------------------------------------------------------
+void ViaOverlay::ShowPopup(int x, int y, int w, int h)
+{
+	g_pPlutoLogger->Write(LV_WARNING, "#VIA Show popup %d %d %d %d", x, y, w, h);
+
+	FillRectangleInAlphaMask(x, y, w, h, 0x00);
+	m_bHasPopups = true;
+}
+//-------------------------------------------------------------------------------------------------------
+void ViaOverlay::HidePopup(int x, int y, int w, int h)
+{
+	g_pPlutoLogger->Write(LV_WARNING, "#VIA Hide popup %d %d %d %d", x, y, w, h);
+
+	memcpy(m_BufferMask, m_ScreenMask, m_nWidth * m_nHeight);
+	m_bHasPopups = true;
+}
+//-------------------------------------------------------------------------------------------------------
+

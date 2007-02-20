@@ -80,6 +80,8 @@ public:
 	bool m_bQuit;
 
 	GLEffect2D::LayersCompose* Compose;
+	bool m_bDatagridRendering;
+
 	ExtensionManager GL;
 	/**
 	 *	Default constructor

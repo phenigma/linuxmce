@@ -58,7 +58,8 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	m_bNeedToRefresh(true),
 	m_bWorldChanged(true),
 	m_bQuit(false),
-	Compose(NULL)
+	Compose(NULL),
+	m_bDatagridRendering(false)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -182,7 +183,7 @@ bool OpenGL3DEngine::Paint()
 
 	GL.Flip();
 	
-	if(m_bWorldChanged || m_spDatagridAnimationManager->HasAnimations())
+	if(m_bWorldChanged && !m_bDatagridRendering)// && !m_spDatagridAnimationManager->HasAnimations())
 	{
 		m_bWorldChanged = false;
 
@@ -523,6 +524,9 @@ void OpenGL3DEngine::StartFrameDrawing(string ObjectHash)
 void OpenGL3DEngine::StartDatagridDrawing(string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+
+	m_bDatagridRendering = true;
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::StartFrameDrawing!");
 #endif
@@ -548,6 +552,8 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 	FrameDatagrid = NULL;
 
 	Result->MarkAsVolatileRecursively();
+
+	m_bDatagridRendering = false;
 	return Result;
 }
 
@@ -683,12 +689,14 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)
 
 void OpenGL3DEngine::BeginModifyGeometry()
 {
+g_pPlutoLogger->Write(LV_CRITICAL, "VIA BeginModifyGeometry");
 	++ModifyGeometry;
 }
 
 void OpenGL3DEngine::EndModifyGeometry()
 {
 	--ModifyGeometry;
+g_pPlutoLogger->Write(LV_CRITICAL, "VIA EndModifyGeometry");
 }
 
 void OpenGL3DEngine::AddTopMostObject(string ObjectID)
