@@ -6,13 +6,14 @@ DEVICEDATA_Block_Device=152
 
 UpdatePorts_NoFind()
 {
-	Device="$1" Port="$2"
+	local Device="$1" Port="$2"
 	local Q
 
 	if [[ -z "$Port" ]]; then
 		return 1
 	fi
 
+	echo "Updating capture card BlockDevice DD; dev:$Device; port:$Port" | tee -a /var/log/pluto/CaptureCards_UpdatePorts.log
 	Q="
 		UPDATE Device_DeviceData
 		SET IK_DeviceData='/dev/$Port'
