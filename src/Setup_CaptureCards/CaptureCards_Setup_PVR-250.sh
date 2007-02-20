@@ -21,8 +21,12 @@ UpdatePorts()
 				Skip=0
 			fi
 		elif [[ "$Skip" -eq 0 ]]; then
-			DevEntry="${line##*/dev/}"
-			DevEntry="${DevEntry%%: MPG*}"
+			if [[ "$line" != *"MPG encoding"* ]]; then
+				DevEntry="#ERROR: device doesn't support MPEG encoding"
+			else
+				DevEntry="${line##*/dev/}"
+				DevEntry="${DevEntry%%: MPG*}"
+			fi
 			Skip=1
 		fi
 	done < <(ivtv-detect | egrep '^card:|/dev/.*: MPG encoding')
