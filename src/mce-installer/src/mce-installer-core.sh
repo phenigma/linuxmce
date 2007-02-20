@@ -101,6 +101,7 @@ YPPASSWDDARGS=
 YPXFRDARGS=
 " > /etc/default/nis
 
+echo > /etc/init.d/yp.conf
 }
 
 function Install_DCERouter {
@@ -245,7 +246,7 @@ function Configure_Network_Options {
 		RunSQL "$Q"
 	fi
 
-	echo "ypserver $IntIP" > /etc/yp.conf
+#	echo "ypserver $IntIP" > /etc/yp.conf
 }
 
 Core_PK_Device="0"
