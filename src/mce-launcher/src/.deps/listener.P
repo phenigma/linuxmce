@@ -343,7 +343,8 @@ listener.o: listener.c listener.h /usr/include/gtk-2.0/gtk/gtk.h \
   /usr/include/bits/pthreadtypes.h /usr/include/sys/stat.h \
   /usr/include/bits/stat.h /usr/include/fcntl.h /usr/include/bits/fcntl.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
-  /usr/include/bits/confname.h /usr/include/getopt.h /usr/include/errno.h \
+  /usr/include/bits/confname.h /usr/include/getopt.h \
+  /usr/include/stdlib.h /usr/include/alloca.h /usr/include/errno.h \
   /usr/include/bits/errno.h /usr/include/linux/errno.h \
   /usr/include/asm/errno.h /usr/include/asm-i386/errno.h \
   /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h
@@ -749,6 +750,8 @@ listener.h :
 /usr/include/bits/posix_opt.h :
 /usr/include/bits/confname.h :
 /usr/include/getopt.h :
+/usr/include/stdlib.h :
+/usr/include/alloca.h :
 /usr/include/errno.h :
 /usr/include/bits/errno.h :
 /usr/include/linux/errno.h :

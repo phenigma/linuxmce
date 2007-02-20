@@ -3,7 +3,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-
+#include <stdlib.h>
 #include <errno.h>
 
 listener_args *data;
@@ -15,6 +15,7 @@ void listener_create_pipe(void) {
 void* listener_thread(void *args) {
 	int err;
 	gchar* buff;
+	gchar** buffv;
 
 	GIOChannel* iochan;
 
@@ -36,15 +37,20 @@ void* listener_thread(void *args) {
 			continue;
 		}
 
-		printf("Got : %s\n", buff);
+		buffv = g_strsplit(buff, "%", 2);
+		int progress = atoi(buffv[0]);
+		printf("Progress: %s | Message: %s\n", buffv[0], buffv[1]);
+
+		gdk_threads_enter();
+		gtk_label_set_text(GTK_LABEL(data->labelMain), buffv[1]);
+		gtk_progress_bar_update(data->progressMain, progress/100);
+		gdk_threads_leave();
+
 		g_free(buff);
+		g_strfreev(buffv);
 
 	}
 	printf("Nononono\n");
-
-	gdk_threads_enter();
-	gtk_label_set_text(GTK_LABEL(data->labelMain), "Here i am");
-	gdk_threads_leave();
 
 	return NULL;
 }
