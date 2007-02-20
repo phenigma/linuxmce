@@ -452,8 +452,8 @@ namespace HADesigner
 			this.ParentDisplayOrder = dr.fDisplayOrder;
 			this.ParentX = dr.fX;
 			this.ParentY = dr.fY;
-			this.Width = dr.fWidth;
-			this.Height = dr.fHeight;
+			this.Width = dr.fWidthIsNull ? 0 : dr.fWidth;
+			this.Height = dr.fHeightIsNull ? 0 : dr.fHeight;
 
 			CanBeHidden = dr.fCanBeHidden;
 			HideByDefault = dr.fHideByDefault;
