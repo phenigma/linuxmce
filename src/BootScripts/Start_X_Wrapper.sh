@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/X-CleanupVideo.sh
+
 LastVar=
 for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
@@ -24,6 +26,7 @@ timestampEnd=$(date +%s)
 
 echo "start: $timestampStart; end: $timestampEnd; diff: $((timestampEnd-timestampStart))"
 if ((timestampEnd-timestampStart < 10)); then
-	/usr/pluto/bin/Xconfigure.sh
+	CleanupVideo
+	sleep 1
 	/usr/pluto/bin/Start_X.sh "${Parms_StartX[@]}"
 fi

@@ -1983,7 +1983,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 				string sSuccessCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 0";
 
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
-					"F\tStartLocalDevice\tNoVideo\tAlert",
+					"F\tStartLocalDevice\tAlert",
 					sFailureCommand,
 					sSuccessCommand,false,false,false,true);
 				string sResponse;
@@ -2008,7 +2008,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 		string sSuccessCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 0";
 
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServerOnCore->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
-			"F\tStartLocalDevice\tNoVideo\tAlert",
+			"F\tStartLocalDevice\tAlert",
 			sFailureCommand,
 			sSuccessCommand,false,false,false,true);
 		string sResponse;
