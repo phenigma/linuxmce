@@ -2412,6 +2412,7 @@
 #define DESIGNOBJ_dgPendingChannelScans_CONST 5410
 #define DESIGNOBJ_popNonPlutoTVOptions_CONST 5411
 #define DESIGNOBJ_butLiveAVPath_CONST 5412
+#define DESIGNOBJ_butSubMenuLights_CONST 5413
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

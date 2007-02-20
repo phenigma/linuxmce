@@ -51,7 +51,7 @@
 #define DEVICECATEGORY_Video_Soft_Phones_CONST 92
 #define DEVICECATEGORY_Surveillance_Cameras_CONST 93
 #define DEVICECATEGORY_Intercom_CONST 94
-#define DEVICECATEGORY_Audio_Zone_CONST 95
+#define DEVICECATEGORY_Network_Audio_Player_CONST 95
 #define DEVICECATEGORY_Specialized_CONST 97
 #define DEVICECATEGORY_VCR_CONST 98
 #define DEVICECATEGORY_Event_Plugins_CONST 99
@@ -110,6 +110,7 @@
 #define DEVICECATEGORY_Raid_Devices_CONST 165
 #define DEVICECATEGORY_Raid_Generic_CONST 166
 #define DEVICECATEGORY_Raid_Hard_Drives_CONST 167
+#define DEVICECATEGORY_Output_Zone_CONST 168
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"

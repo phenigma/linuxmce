@@ -189,6 +189,7 @@
 #define DEVICEDATA_AV_Adjustment_Rules_CONST 216
 #define DEVICEDATA_Dont_Consolidate_Media_CONST 217
 #define DEVICEDATA_Expert_Mode_CONST 218
+#define DEVICEDATA_sPK_Command_CONST 219
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
