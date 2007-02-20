@@ -28,8 +28,8 @@ if [[ "$UseOpenGL" == "1"  ]]; then
 fi
 
 ## Test if XFree86 is running else manualy start it
-isX11Running=$(ps -A | grep Xorg | wc -l)
-if [[ "$isX11Running" != "1" ]]; then
+XPID=$(</var/run/plutoX$Display.pid)
+if [[ -z "$XPID" || ! -d /proc/"$XPID" || "$(</proc/"$XPID"/cmdline)" != *"XWM_Wrapper.sh"* ]]; then
 	/usr/pluto/bin/Start_X.sh
 	export DISPLAY=:$Display
 fi
