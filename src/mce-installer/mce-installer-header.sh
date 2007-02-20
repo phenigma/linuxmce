@@ -1,5 +1,7 @@
 #!/bin/bash
 
+exec &>/dev/null </dev/null
+
 echo ""
 echo "Linux MCE Installer Starting ... please wait"
 echo ""
