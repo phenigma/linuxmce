@@ -464,6 +464,16 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 		Frame->DontReleaseTexture();
 	}
 
+#ifdef VIA_OVERLAY
+	//make datagrid's thumbs opaque
+	if(Frame->Name().find("datagrid-thumb") == 0)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "VIA Rendering a datagrid thumb : %d %d %d %d", 
+			point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
+		ViaOverlay::Instance().FillRectangleInAlphaMask(point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height, 0x00);
+	}
+#endif
+
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
 g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
 }
@@ -942,14 +952,6 @@ void OrbiterRenderer_OpenGL::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint 
 		{
 			ViaOverlay::Instance().ApplyAlphaMask(pObj->m_rPosition.X, pObj->m_rPosition.Y, 
 				pObj->m_rPosition.Width, pObj->m_rPosition.Height, pOpenGLGraphic->GetAlphaMask());		
-		}
-	}
-	else
-	{
-		if(pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST)
-		{
-			ViaOverlay::Instance().FillRectangleInAlphaMask(pObj->m_rPosition.X, pObj->m_rPosition.Y, 
-				pObj->m_rPosition.Width, pObj->m_rPosition.Height, 255 - pObj->Renderer()->GetAlphaLevel());	
 		}
 	}
 
