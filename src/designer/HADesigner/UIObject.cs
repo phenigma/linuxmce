@@ -1133,5 +1133,15 @@ namespace HADesigner
 			}
 			*/
 		}
+
+		public void SetDefaultPosition(int x, int y)
+		{
+			UIChildSkinLanguage child = GetCurrentChildSkinLanguage(-1, -1);
+			if(null != child)
+			{
+				child.ParentX = x;
+				child.ParentY = y;
+			}
+		}
 	}
 }

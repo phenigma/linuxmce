@@ -2545,16 +2545,14 @@ namespace HADesigner
 				
 						objNewDesignObj.NeedsParentVariationLink =	true;
 					
-						//objNewDesignObj.ParentX = 0;
-						//objNewDesignObj.ParentY = 0;
-		
 						Point ptClient = this.panelPreview.PointToClient(new Point(e.X,e.Y));
 						ptClient.X -= this.panelPreview.AutoScrollPosition.X;
 						ptClient.Y -= this.panelPreview.AutoScrollPosition.Y;
 
-						//TODO ENDER
-						//objNewDesignObj.ParentX = Convert.ToInt32(Convert.ToDouble(ptClient.X)	/ m_objUIDesignObjDisplayControl.Scale);
-						//objNewDesignObj.ParentY = Convert.ToInt32(Convert.ToDouble(ptClient.Y)	/ m_objUIDesignObjDisplayControl.Scale);
+						objNewDesignObj.SetDefaultPosition(
+							Convert.ToInt32(Convert.ToDouble(ptClient.X)	/ m_objUIDesignObjDisplayControl.Scale), 
+							Convert.ToInt32(Convert.ToDouble(ptClient.Y)	/ m_objUIDesignObjDisplayControl.Scale)
+						);
 
 						objSelectedVariation.DesignObjs.Add(objNewDesignObj);
 					
