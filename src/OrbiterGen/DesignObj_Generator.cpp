@@ -148,7 +148,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Outputing %d parent %d",
 
 	}
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==5363 ||  m_pRow_DesignObj->PK_DesignObj_get()==5362 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
+if( m_pRow_DesignObj->PK_DesignObj_get()==4868 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5362 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -974,7 +974,7 @@ int k=2;
             }
         }
     }
-    if( m_pRow_DesignObj->PK_DesignObj_get()==1683 || m_pRow_DesignObj->PK_DesignObj_get()==1677 )
+    if( m_pRow_DesignObj->PK_DesignObj_get()==4967 )
     {
 int k=2;
     }
@@ -993,7 +993,7 @@ int k=2;
 			"WHERE (FK_Skin IS NULL OR FK_Skin=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Skin->PK_Skin_get()) + 
 			") AND (FK_Language IS NULL OR FK_Language=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Language->PK_Language_get()) + ") AND FK_DesignObjVariation_Parent="
 			+ StringUtils::itos(drOV->PK_DesignObjVariation_get()) + " " 
-			"ORDER BY PK_DesignObjVariation_DesignObj,FK_Language,FK_Skin";
+			"ORDER BY PK_DesignObjVariation_DesignObj,FK_Language DESC,FK_Skin DESC";
 
 		// This will have the matching rows, but not in the display order.  Get the PK values and do another
 		// select to get them in the right order
@@ -1006,8 +1006,8 @@ int k=2;
 		{
 			Row_DesignObjVariation_DesignObj_Skin_Language *pRow_DesignObjVariation_DesignObj_Skin_Language = *it;
 			if( pRow_DesignObjVariation_DesignObj_Skin_Language_Last && 
-				pRow_DesignObjVariation_DesignObj_Skin_Language_Last->PK_DesignObjVariation_DesignObj_Skin_Language_get()==
-				pRow_DesignObjVariation_DesignObj_Skin_Language->PK_DesignObjVariation_DesignObj_Skin_Language_get() )
+				pRow_DesignObjVariation_DesignObj_Skin_Language_Last->FK_DesignObjVariation_DesignObj_get()==
+				pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_get() )
 					continue;  // Only pick the variation that's the closest match
 
 			// We have a new child object to include
