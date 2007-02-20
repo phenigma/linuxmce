@@ -39,7 +39,7 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 	# Add here commands to install the package into debian/ivtv-firmware.
-	install -m644 v4l-cx2341x-enc.fw  v4l-cx2341x-dec.fw  v4l-cx2341x-init.mpg  v4l-cx25840.fw "$(CURDIR)/debian/ivtv-firmware/lib/firmware"
+	install -m644 v4l-cx2341x-enc.fw v4l-cx2341x-dec.fw v4l-cx2341x-init.mpg v4l-cx25840.fw v4l-pvrusb2-24xxx-01.fw v4l-pvrusb2-29xxx-01.fw "$(CURDIR)/debian/ivtv-firmware/lib/firmware"
 
 # Build architecture-independent files here.
 binary-indep: build install
