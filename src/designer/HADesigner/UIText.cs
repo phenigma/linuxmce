@@ -301,8 +301,8 @@ namespace HADesigner
 
 		public void Draw(Graphics g, int parentX, int parentY)
 		{
-			int skinID = SkinLanguageStatus.Instance().TextSkinID;
-			int languageID = SkinLanguageStatus.Instance().TextLanguageID;
+			int skinID = SkinLanguageStatus.Instance().GlobalSkinID;
+			int languageID = SkinLanguageStatus.Instance().GlobalLanguageID;
 
 			if (this.Include)
 			{

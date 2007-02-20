@@ -11,6 +11,8 @@ namespace HADesigner
 		int m_nTextLanguageID = -1;
 		int m_nDesignObjSkinID = -1;
 		int m_nDesignObjLanguageID = -1;
+		int m_nGlobalSkinID = -1;
+		int m_nGlobalLanguageID = -1;
 		static private SkinLanguageStatus m_Instance = null;
 
 		public int TextSkinID
@@ -35,6 +37,18 @@ namespace HADesigner
 		{
 			get	{return m_nDesignObjLanguageID;}
 			set	{m_nDesignObjLanguageID = value;}
+		}
+
+		public int GlobalSkinID
+		{
+			get	{return m_nGlobalSkinID;}
+			set	{m_nGlobalSkinID = value;}
+		}
+
+		public int GlobalLanguageID
+		{
+			get	{return m_nGlobalLanguageID;}
+			set	{m_nGlobalLanguageID = value;}
 		}
 
 		static public SkinLanguageStatus Instance()

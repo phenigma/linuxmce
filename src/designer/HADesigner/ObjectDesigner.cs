@@ -3188,8 +3188,6 @@ namespace HADesigner
 
 		private void miSkin_Click(object sender, System.EventArgs e)
 		{
-			bool origBlock = this.BlockUpdateImage();
-
 			foreach (MenuItem mi in this.mnuSkin.MenuItems) mi.Checked = false;
 			MenuItemID miClicked = (MenuItemID)sender;
 			miClicked.Checked = true;
@@ -3197,7 +3195,7 @@ namespace HADesigner
 			//MessageBox.Show(this.skinID.ToString());
 			this.m_objUIDesignObj.Build(this.skinID, true);
 				
-			this.UpdateImage(origBlock);
+			this.UpdateImage(false);
 		}
 
 		private void DesignObjDesigner_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -4420,6 +4418,9 @@ namespace HADesigner
 				using (Graphics objGraphics = Graphics.FromImage(m_objBitmap))
 				{
 					objGraphics.Clear(Color.White);
+
+					SkinLanguageStatus.Instance().GlobalLanguageID = this.m_objParentForm.LanguageID;
+					SkinLanguageStatus.Instance().GlobalSkinID = this.m_objParentForm.SkinID;
 					m_UIDesignObj.Draw(objGraphics,this.m_objParentForm.LanguageID,this.m_objParentForm.SkinID);
 				}
 			}

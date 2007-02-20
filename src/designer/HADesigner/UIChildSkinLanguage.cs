@@ -660,7 +660,7 @@ namespace HADesigner
 				}
 			}
 
-			objVariation.Draw(this, objGraphics, LanguageID, SkinID);
+			objVariation.Draw(this, objGraphics, SkinLanguageStatus.Instance().GlobalLanguageID, SkinLanguageStatus.Instance().GlobalSkinID);
 
 			//if this is selected, draw a big ol' rectangle around it
 			if(ParentUIDesignObj.Selected)
