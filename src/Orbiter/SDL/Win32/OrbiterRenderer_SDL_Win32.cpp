@@ -202,7 +202,8 @@ void OrbiterRenderer_SDL_Win32::SetupWindow()
 #else
 	OrbiterRenderer_SDL::Configure();
 #endif
-	
+
+#ifndef WINCE	
 	if(OrbiterLogic()->m_bFullScreen)
 	{
 		m_hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
@@ -229,5 +230,6 @@ void OrbiterRenderer_SDL_Win32::SetupWindow()
 				r.left, r.top, r.right, r.bottom);
 		}
 	}
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
