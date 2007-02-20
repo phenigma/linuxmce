@@ -606,14 +606,14 @@ namespace HADesigner
 			this.Build(SkinID, false);
 		}
 
-		public void Build(int SkinID, bool SkinChanged)
+		public void Build(int ParmSkinID, bool SkinChanged)
 		{
 			if(this.Include)	//don't include if deleted or set to be deleted or unlinked
 			{
 				//RECURSE
 				foreach(UIDesignObjVariation objUIDesignObjVariation in m_alUIDesignObjVariations)
 				{
-					objUIDesignObjVariation.Build(SkinID, SkinChanged);
+					objUIDesignObjVariation.Build(ParmSkinID, SkinChanged);
 				}
 
 				if(this.Width == UIDesignObj.NoSetValue || this.Height == UIDesignObj.NoSetValue)

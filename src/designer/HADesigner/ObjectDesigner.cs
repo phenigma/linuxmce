@@ -2785,7 +2785,6 @@ namespace HADesigner
 				if (!this.IsInterfaceLocked()) // TODO: REFRESH IMAGE WITH RECTANGLE AROUND SELECTION
 				{
 					this.LockInterface();
-					m_objUIDesignObj.DeselectAllDesignObjs(false);
 					m_objUIDesignObjDisplayControl.UpdateImage();
 					m_objUIDesignObjDisplayControl.Refresh();
 					this.UnlockInterface();
@@ -3192,7 +3191,6 @@ namespace HADesigner
 			MenuItemID miClicked = (MenuItemID)sender;
 			miClicked.Checked = true;
 			this.skinID = miClicked.ID;
-			//MessageBox.Show(this.skinID.ToString());
 			this.m_objUIDesignObj.Build(this.skinID, true);
 				
 			this.UpdateImage(false);

@@ -1227,11 +1227,11 @@ namespace HADesigner
 			}
 		}
 
-		public void Build(int SkinID, bool SkinChanged)
+		public void Build(int ParmSkinID, bool SkinChanged)
 		{
 			foreach(UIDesignObj objUIDesignObj in m_alDesignObjs)
 			{
-				objUIDesignObj.Build(SkinID, SkinChanged);
+				objUIDesignObj.Build(ParmSkinID, SkinChanged);
 			}
 
 			//do the bottom up stuff
@@ -1245,7 +1245,7 @@ namespace HADesigner
 					blnIsRendered = true;
 
                     if (this.Bitmap!=null) this.Bitmap.Dispose();
-					this.Bitmap = GetBitmap(this.GetFilePath(SkinID));
+					this.Bitmap = GetBitmap(this.GetFilePath(ParmSkinID));
 
 					string strWidth = this.GetParameterValue(DesignObjParameterData.WIDTH_CONST);
 					string strHeight = this.GetParameterValue(DesignObjParameterData.HEIGHT_CONST);
@@ -1284,7 +1284,7 @@ namespace HADesigner
 				UIDesignObj objUIDesignObj = (UIDesignObj) obj;
 
 				//WARNING!!! HARDCODED LANGUAGE
-				UIChildSkinLanguage child = objUIDesignObj.GetCurrentChildSkinLanguage(-1, SkinID);
+				UIChildSkinLanguage child = objUIDesignObj.GetCurrentChildSkinLanguage(-1, ParmSkinID);
 
 				if(null != child)
 				{
@@ -1299,7 +1299,7 @@ namespace HADesigner
 			}
 		}
 
-		private string GetFilePath(int SkinID)
+		private string GetFilePath(int ParmSkinID)
 		{
 			string path = this.GetParameterValue(DesignObjParameterData.GRAPHIC_FILENAME_CONST);
 
@@ -1307,7 +1307,7 @@ namespace HADesigner
 			else if (path.StartsWith("C:") || path.StartsWith(@"\\")) return path;
 			else 
 			{
-				string fullPath = this.SkinDirectory(SkinID) + "\\" + path;
+				string fullPath = this.SkinDirectory(ParmSkinID) + "\\" + path;
 				if (System.IO.File.Exists(fullPath)) return fullPath;
                 else return this.SkinDirectory(1) + "\\" + path;
 			}
