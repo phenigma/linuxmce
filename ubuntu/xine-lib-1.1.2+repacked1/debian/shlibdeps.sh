@@ -8,29 +8,29 @@
 
 installdir=debian/$1
 
-ver=`(cd $installdir/usr/lib/xine/plugins; echo [0-9]*)`
+ver=`(cd $installdir/opt/libxine1-pluto/lib/xine/plugins; echo [0-9]*)`
 
-OPTIONAL="$installdir/usr/lib/xine/plugins/$ver/xineplug_ao_out_alsa.so
-	  $installdir/usr/lib/xine/plugins/$ver/xineplug_ao_out_arts.so
-	  $installdir/usr/lib/xine/plugins/$ver/xineplug_ao_out_esd.so
-	  $installdir/usr/lib/xine/plugins/$ver/xineplug_vo_out_aa.so
-	  $installdir/usr/lib/xine/plugins/$ver/xineplug_vo_out_sdl.so
-	  $installdir/usr/lib/xine/plugins/$ver/xineplug_flac.so
-	  $installdir/usr/lib/xine/plugins/$ver/xineplug_inp_gnome_vfs.so
-          $installdir/usr/lib/xine/plugins/$ver/xineplug_vo_out_caca.so
-          $installdir/usr/lib/xine/plugins/$ver/xineplug_inp_smb.so
+OPTIONAL="$installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_ao_out_alsa.so
+	  $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_ao_out_arts.so
+	  $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_ao_out_esd.so
+	  $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_vo_out_aa.so
+	  $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_vo_out_sdl.so
+	  $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_flac.so
+	  $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_inp_gnome_vfs.so
+          $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_vo_out_caca.so
+          $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_inp_smb.so
 "
 
 RECOMMENDED="
-             $installdir/usr/lib/xine/plugins/$ver/xineplug_ao_out_oss.so
-	     $installdir/usr/lib/xine/plugins/$ver/xineplug_vo_out_xv.so
-	     $installdir/usr/lib/xine/plugins/$ver/xineplug_dmx_ogg.so
-             $installdir/usr/lib/xine/plugins/$ver/xineplug_dmx_mng.so
+             $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_ao_out_oss.so
+	     $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_vo_out_xv.so
+	     $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_dmx_ogg.so
+             $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_dmx_mng.so
 "
 
 #these two do interdepend, so make them required for now:
-# $installdir/usr/lib/xine/plugins/$ver/xineplug_decode_vorbis.so
-# $installdir/usr/lib/xine/plugins/$ver/xineplug_decode_theora.so
+# $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_decode_vorbis.so
+# $installdir/opt/libxine1-pluto/lib/xine/plugins/$ver/xineplug_decode_theora.so
 
 #start with all executables and shared objects
 REQUIRED=`find $installdir -type f \( -name \*.so -o -perm +111 \)`
