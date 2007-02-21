@@ -5,7 +5,7 @@ ROOT = ../../..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -DDEBUG $(SNR_CPPFLAGS)
-LDFLAGS = -L$(ROOT)/lib
+LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
 
 MYNAME = AVWizard
 
