@@ -159,6 +159,8 @@ function Build_Pluto_Stuff {
 	export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
 
+	SVNrevision=$(svn info "${svn_dir}"/trunk |grep ^Revision | cut -d" " -f2)
+
 	MakeRelease="${mkr_dir}/MakeRelease"
 	MakeRelease_PrepFiles="${mkr_dir}/MakeRelease_PrepFiles"
 	$MakeRelease_PrepFiles -p ${svn_dir}/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk" -c ${build_dir}/${flavor}.conf
@@ -180,7 +182,7 @@ function Build_Pluto_Stuff {
 #	542 	Pluto vloopback Kernel Module Source
 # 	-b
 
-	$MakeRelease -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 1 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
+	$MakeRelease -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 1 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
 }
 
 function Create_Fake_Windows_Binaries {
