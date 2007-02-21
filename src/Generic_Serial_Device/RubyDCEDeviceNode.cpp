@@ -190,11 +190,23 @@ RubyDCEDeviceNode::PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& 
 	g_pPlutoLogger->Write(LV_STATUS, "Added %d data params to device %d.", numparams, pdevdata->m_dwPK_Device);
 		
 	std::map<int, RubyDeviceWrapper>& childdevices = devwrap.getChildDevices();
+	std::map<int, std::string>& mapD_PC = devwrap.getMapDevice_PortChannel();
+	std::map<std::string, int>& mapPC_D = devwrap.getMapPortChannel_Device();
     VectDeviceData_Impl& vDeviceData = pdevdata->m_vectDeviceData_Impl_Children;
 	
     for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
 		RubyDeviceWrapper& childdevwrap = childdevices[vDeviceData[i]->m_dwPK_Device];
 		all_children_ids.push_back(vDeviceData[i]->m_dwPK_Device);
+		
+		// Eugen, populate the device<->zone maps
+		std::map<int, std::string>::iterator itParam = vDeviceData[i]->m_mapParameters.find(DEVICEDATA_PortChannel_Number_CONST);
+		if( vDeviceData[i]->m_mapParameters.end() != itParam &&
+			!(*itParam).second.empty() )
+		{
+			mapD_PC[vDeviceData[i]->m_dwPK_Device] = (*itParam).second;
+			mapPC_D[(*itParam).second] = vDeviceData[i]->m_dwPK_Device;
+		}
+		
 		PopulateDevice(vDeviceData[i], childdevwrap);
     }
 	

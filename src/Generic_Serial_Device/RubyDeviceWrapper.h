@@ -64,6 +64,20 @@ public:
 	void setChildDevices(std::map<int, DCE::RubyDeviceWrapper>& devices) {
 		childdevices_ = devices;
 	}
+	
+	std::map<std::string, int>& getMapPortChannel_Device() {
+		return mapPortChannel_Device_;
+	}
+	void setMapPortChannel_Device(std::map<std::string, int>& mapPC_D) {
+		mapPortChannel_Device_ = mapPC_D;
+	}
+	
+	std::map<int, std::string>& getMapDevice_PortChannel() {
+		return mapDevice_PortChannel_;
+	}
+	void setMapDevice_PortChannel(std::map<int, std::string>& mapD_PC) {
+		mapDevice_PortChannel_ = mapD_PC;
+	}
 
 public:
 	RubyDeviceWrapper* FindChildDevice(int devid);
@@ -75,6 +89,9 @@ public:
 
 	DCE::RubyDeviceWrapper* parent_;
 	std::map<int, DCE::RubyDeviceWrapper> childdevices_; /*child device*/
+	
+	std::map<std::string, int> mapPortChannel_Device_;
+	std::map<int, std::string> mapDevice_PortChannel_;
 };
 
 };
