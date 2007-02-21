@@ -45,8 +45,8 @@ function Checkout_Pluto_Svn {
 
 	#/bin/sql2cpp -h localhost -u root -D pluto_main
 	pushd ${svn_dir}/trunk/src
-	svn co ${svn_url}/pluto-private/trunk/src/ZWave/
-	svn co ${svn_url}/pluto-private/trunk/src/RFID_Interface/
+	svn co --username automatic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/trunk/src/ZWave/
+	svn co --username automatic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/trunk/src/RFID_Interface/
 	popd
 }
 
@@ -97,11 +97,11 @@ function Build_Pluto_Replacements {
 	popd
 
 	#Package: libxine
-	apt-get -y install libcaca-dev liblircclient-dev libtheora-dev libflac-dev libmodplug-dev libgnomevfs2-dev libsmbclient-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch
-	pushd ${svn_dir}/trunk/ubuntu/xine-lib-1.1.2+repacked1
+	apt-get -y install libcaca-dev liblircclient-dev libtheora-dev libflac-dev libmodplug-dev libgnomevfs2-dev libsmbclient-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch transfig libavformat-dev libpostproc-dev libavcodec-dev libraw1394-dev libdc1394-13-dev
+	pushd ${svn_dir}/trunk/external/xine-lib-1.1.3
 		dpkg-buildpackage -rfakeroot -us -uc -b
-		dpkg -i ../libxine1_1.1.2+repacked1-0ubuntu3pluto1_i386.deb
-		dpkg -i ../libxine-dev_1.1.2+repacked1-0ubuntu3pluto1_i386.deb
+		dpkg -i ../libxine1-pluto_1.1.2+dfsg+cvs20061111-1pluto3_i386.deb
+		dpkg -i ../libxine-pluto-dev_1.1.2+dfsg+cvs20061111-1pluto3_i386.deb
 		cp ../libxine*.deb ${temp_dir}
 	popd
 
@@ -323,12 +323,12 @@ function Create_Diskless_Archive {
 #Create_Diskless_Archive
 #Install_Build_Needed_Packages
 Import_Build_Database
-#Import_Pluto_Skins
-#Checkout_Pluto_Svn
-#Build_Pluto_Replacements
-#Build_MakeRelease_Binary
-#Create_Fake_Windows_Binaries
-#Build_Pluto_Stuff
-#Create_Local_Repository
+Import_Pluto_Skins
+Checkout_Pluto_Svn
+Build_Pluto_Replacements
+Build_MakeRelease_Binary
+Create_Fake_Windows_Binaries
+Build_Pluto_Stuff
+Create_Local_Repository
 
 
