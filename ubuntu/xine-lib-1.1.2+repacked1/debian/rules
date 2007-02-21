@@ -61,7 +61,7 @@ endif
 include /usr/share/dpatch/dpatch.make
 
 # --mandir - remove after etch released (autoconf >= 2.59c gets it right)
-CONFIGURE_FLAGS := --prefix=/usr \
+CONFIGURE_FLAGS := --prefix=/opt/libxine1-pluto \
 	--mandir=\$${prefix}/share/man \
 	--with-external-libmad \
 	--disable-ffmpegtest \
