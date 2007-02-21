@@ -60,11 +60,11 @@ APT::Get::AllowUnauthenticated "true";
 
 
 	## Set deb-frontend to noninteractiv
-	. /usr/share/debconf/confmodule
-	db_set "debconf/frontend" "Noninteractive"
-	db_fset "debconf/frontend" seen true
-	db_set "debconf/priority" "critical"
-	db_fset "debconf/priority" seen true
+#	. /usr/share/debconf/confmodule
+#	db_set "debconf/frontend" "Noninteractive"
+#	db_fset "debconf/frontend" seen true
+#	db_set "debconf/priority" "critical"
+#	db_fset "debconf/priority" seen true
 }
 
 
@@ -110,6 +110,16 @@ echo > /etc/init.d/yp.conf
 function Install_DCERouter {
 	apt-get update
 	apt-get -y -f install pluto-dcerouter
+	local err=$?
+	if [[ "$err" != "0" ]] ;then
+		echo "-------------------------------------------------------"
+		echo "-                                                     -"
+		echo "-           !!  Installation Failed !!                -"
+		echo "-                                                     -"
+		echo "-------------------------------------------------------"
+
+		exit 1
+	fi
 }
 
 function Create_And_Config_Devices {
@@ -249,7 +259,6 @@ function Configure_Network_Options {
 		RunSQL "$Q"
 	fi
 
-#	echo "ypserver $IntIP" > /etc/yp.conf
 }
 
 Core_PK_Device="0"
