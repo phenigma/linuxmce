@@ -1265,12 +1265,7 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 		else
 		{
 			m_pOrbiter->CMD_Goto_Screen("",PK_Screen_OSD);
-			m_pOrbiter->m_sActiveApplication_Window = sActiveApplication_Window;
-			m_pOrbiter->m_sActiveApplication_Description = sActiveApplication_Description;
-			m_pOrbiter->m_PK_Screen_ActiveApp_OSD = PK_Screen_OSD;
-			m_pOrbiter->m_PK_Screen_ActiveApp_Remote = PK_Screen_Remote;
-			m_pOrbiter->CMD_Activate_Window(sActiveApplication_Window);
-			//m_pOrbiter->CMD_Set_Active_Application(sActiveApplication_Description,PK_Screen_OSD,sActiveApplication_Window,PK_Screen_Remote);
+			m_pOrbiter->CMD_Set_Active_Application(sActiveApplication_Description,PK_Screen_OSD,sActiveApplication_Window,PK_Screen_Remote);
 		}
 		m_pOrbiter->SendCommand(CMD_Spawn_Application);
 	}

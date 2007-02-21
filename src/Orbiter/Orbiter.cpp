@@ -9393,7 +9393,10 @@ void Orbiter::CMD_Set_Active_Application(string sName,int iPK_Screen,string sIde
 			}
 		}
 		else
+		{
 			StopScreenSaver();
+			CMD_Activate_Window(m_sActiveApplication_Window);
+		}
 	}
 }
 
