@@ -24,26 +24,28 @@
 
 #include <iostream>
 
+#include "DCE/Logger.h"
+
 using namespace std;
+using namespace DCE;
 
 namespace EMBRUBY {
 
 RubyEmbeder* RubyEmbeder::s_instance_ = NULL;
 
 RubyEmbeder::RubyEmbeder() {
-	cout << "Starting Ruby..." << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Starting Ruby...");
 	
 	ruby_init();
 	ruby_init_loadpath();
 	ruby_script("embed");
-	
 	
 }
 
 
 RubyEmbeder::~RubyEmbeder() {
 	ruby_finalize();
-	cout << "Ruby ended." << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Ruby ended.");
 }
 
 RubyEmbeder* 
@@ -63,7 +65,7 @@ RubyEmbeder::loadCode(RubyEmbederCodeSupplier *psup) throw(RubyException) {
 		throw RubyException("Empty code passed to Ruby Embeder");
 	}
 
-	cout << "RCODE:" << endl << addLineNumbers(code) << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "RCODE:\n%s", addLineNumbers(code).c_str());
 
 /*	
 	{	//destroy in before rb_load_file
