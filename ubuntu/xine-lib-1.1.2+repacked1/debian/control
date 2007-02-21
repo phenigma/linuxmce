@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 4.0.4), binutils (>= 2.12.90.0.9), libaa1-dev | aal
 Build-Conflicts: libdvdnav-dev, libvcdinfo-dev
 Standards-Version: 3.7.2
 
-Package: libxine-pluto--dev
+Package: libxine-pluto-dev
 Architecture: any
 Section: libdevel
 Depends: libxine1-pluto (= ${Source-Version}), libc6-dev, zlib1g-dev | libz-dev, libslang2-dev | slang1-dev, libfreetype6-dev
