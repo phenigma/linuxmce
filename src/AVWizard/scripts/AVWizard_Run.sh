@@ -37,6 +37,7 @@ UI_V2_Normal_Horizontal=4
 . /usr/pluto/bin/AVWizard-Common.sh
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/X-CleanupVideo.sh
 
 #<-mkr_b_via_b->
 	bash -x /home/via/ApplyViaPatch.sh
@@ -53,6 +54,7 @@ CleanUp()
 
 SetDefaults()
 {
+	CleanupVideo
 	bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480@60' | tee-pluto /var/log/pluto/Xconfigure.log
 	WizSet Video_Ratio '4_3'
 	WizSet Resolution '640x480'
