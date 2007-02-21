@@ -12,6 +12,11 @@
 namespace DCE
 {
 extern	Logger *g_pPlutoLogger;
+extern	int  (*custom_xine_seek) (xine_stream_t *stream, int start_pos, int start_time);
+extern	int  (*custom_xine_start_trick_play)(xine_stream_t *stream, int trick_speed);
+extern	int  (*custom_xine_stop_trick_play)(xine_stream_t *stream);
+extern	bool g_bXINE_HAS_TRICKPLAY_SUPPORT;
+extern	bool g_bVIA_EXTENDED_XINE_PRESENT;
 }
 
 bool bStreamWatchDogFlag=false;
@@ -386,7 +391,12 @@ bool Xine_Stream::InitXineAVOutput()
 	m_x11Visual.d = windows[ m_iCurrentWindow ];
 	
 	m_x11Visual.dest_size_cb = &destinationSizeCallback;
-	m_x11Visual.frame_output_cb = &frameOutputCallback;
+	
+	if (g_bVIA_EXTENDED_XINE_PRESENT)
+		// forcing conversion
+		m_x11Visual.frame_output_cb = (void (*)(void*, int, int, double, int*, int*, int*, int*, double*, int*, int*)) (&frameOutputCallback_VIA);
+	else
+		m_x11Visual.frame_output_cb = &frameOutputCallback;
 	
 	m_x11Visual.user_data = this;
 
@@ -1138,11 +1148,12 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 
 		// we should use ordinary play instead of seek if we have audio-only
 		if (m_bHasVideo)
-#ifndef	NO_TRICK_PLAY
-			xine_seek( m_pXineStream, 0, pos );
-#else
-			xine_play( m_pXineStream, 0, pos );
-#endif
+		{
+			if (g_bXINE_HAS_TRICKPLAY_SUPPORT)
+				custom_xine_seek( m_pXineStream, 0, pos );
+			else
+				xine_play( m_pXineStream, 0, pos );
+		}
 		else
 			xine_play( m_pXineStream, 0, pos );
 
@@ -1189,11 +1200,12 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 			
 				g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
 				if (m_bHasVideo)
-#ifndef	NO_TRICK_PLAY
-				xine_seek( m_pXineStream, 0, pos );
-#else
-				xine_play( m_pXineStream, 0, pos );
-#endif
+				{
+					if (g_bXINE_HAS_TRICKPLAY_SUPPORT)
+						custom_xine_seek( m_pXineStream, 0, pos );
+					else
+						xine_play( m_pXineStream, 0, pos );
+				}
 				else
 					xine_play( m_pXineStream, 0, pos );
 			}
@@ -2097,14 +2109,9 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		return;
 	}
 
-#ifndef	NO_TRICK_PLAY
-	bool trickModeSupported = StringUtils::StartsWith(m_sCurrentFile,"dvd:", true) ||StringUtils::EndsWith(m_sCurrentFile,".mpg", true) || StringUtils::EndsWith(m_sCurrentFile,".mpeg", true);
-#else
-	const bool trickModeSupported = false;
-#endif
-	//bool trickModeSupported = true;
-	bool trickModeActive = m_bTrickModeActive;
+	bool trickModeSupported =  g_bXINE_HAS_TRICKPLAY_SUPPORT && (StringUtils::StartsWith(m_sCurrentFile,"dvd:", true) ||StringUtils::EndsWith(m_sCurrentFile,".mpg", true) || StringUtils::EndsWith(m_sCurrentFile,".mpeg", true));
 	
+	bool trickModeActive = m_bTrickModeActive;
 	
 	// there few possible modes between which we have to switch correctly:
 	// normal play
@@ -2125,21 +2132,28 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			StopSpecialSeek();
 		}
 		else 
-#ifndef	NO_TRICK_PLAY
-		if ( trickModeActive )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
-			
-			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
-			xine_stop_trick_play(m_pXineStream);
-			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
-			EnableDeinterlacing();
-			m_iTrickPlaySpeed = 0;
-			m_bTrickModeActive = false;
+			if (g_bXINE_HAS_TRICKPLAY_SUPPORT)
+			{
+				if ( trickModeActive )
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
+					
+					PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
+					custom_xine_stop_trick_play(m_pXineStream);
+					xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
+					EnableDeinterlacing();
+					m_iTrickPlaySpeed = 0;
+					m_bTrickModeActive = false;
+				}
+				else
+					g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed no running seekers found");
+			}
+			else
+			{
+						g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed no running seekers found");
+			}
 		}
-		else
-#endif
-			g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed no running seekers found");
 
 		
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
@@ -2156,18 +2170,19 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	const int UltraFastFWD = 16*1000;
 	if ( (desiredSpeed < 0)||( (desiredSpeed > 0) && !trickModeSupported )||(desiredSpeed>UltraFastFWD) ||!m_bHasVideo)
 	{	
-#ifndef	NO_TRICK_PLAY
-		if ( trickModeActive )
+		if (g_bXINE_HAS_TRICKPLAY_SUPPORT)
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
-			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-			xine_stop_trick_play(m_pXineStream);
-			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
-			EnableDeinterlacing();
-			m_iTrickPlaySpeed = 0;
-			m_bTrickModeActive = false;
+			if ( trickModeActive )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
+				PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+				custom_xine_stop_trick_play(m_pXineStream);
+				xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
+				EnableDeinterlacing();
+				m_iTrickPlaySpeed = 0;
+				m_bTrickModeActive = false;
+			}
 		}
-#endif		
 		if (m_iSpecialSeekSpeed==0)
 		{
 			StartSpecialSeek( desiredSpeed );
@@ -2182,40 +2197,41 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		return;
 	}
 	
-	
-#ifndef	NO_TRICK_PLAY
-	// trick play is supported and  desired speed is ok
-	if ((desiredSpeed > 0) && trickModeSupported)
-	{
-		if (m_iSpecialSeekSpeed)
-		{
-			StopSpecialSeek();
-		} 
-		
-		g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed starting trick play");
 
-		// are we doing restart
-		if (!m_bTrickModeActive)
+	if (g_bXINE_HAS_TRICKPLAY_SUPPORT)
+	{
+		// trick play is supported and  desired speed is ok
+		if ((desiredSpeed > 0) && trickModeSupported)
 		{
+			if (m_iSpecialSeekSpeed)
+			{
+				StopSpecialSeek();
+			} 
+			
+			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed starting trick play");
+	
+			// are we doing restart
+			if (!m_bTrickModeActive)
+			{
+				PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
+				m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER);
+				xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
+				DisableDeinterlacing();
+			}
+			else
+			{
+				PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
+				custom_xine_stop_trick_play(m_pXineStream);	
+			}
+			
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
-			m_iPrebuffer = xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER);
-			xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, 9000 );
-			DisableDeinterlacing();
+			custom_xine_start_trick_play(m_pXineStream, desiredSpeed*1000);
+			m_iTrickPlaySpeed = desiredSpeed;
+			m_bTrickModeActive = true;
+			
+			return;
 		}
-		else
-		{
-			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
-			xine_stop_trick_play(m_pXineStream);	
-		}
-		
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
-		xine_start_trick_play(m_pXineStream, desiredSpeed*1000);
-		m_iTrickPlaySpeed = desiredSpeed;
-		m_bTrickModeActive = true;
-		
-		return;
 	}
-#endif
 	g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed IMPOSSIBLE_STATE");
 }
 
@@ -2702,9 +2718,6 @@ void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_he
 																						int *dest_x, int *dest_y, int *dest_width, int *dest_height,
 																						double *dest_pixel_aspect,
 																						int *win_x, int *win_y 
-#ifdef	NO_TRICK_PLAY
-																						, int *dispay_no
-#endif
 																						)
 {
 	Xine_Stream * pStream = ( Xine_Stream* ) data;
@@ -2724,6 +2737,29 @@ void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_he
 	*dest_pixel_aspect = video_pixel_aspect;
 }
 
+void Xine_Stream::frameOutputCallback_VIA( void *data, int video_width, int video_height, double video_pixel_aspect,
+																						int *dest_x, int *dest_y, int *dest_width, int *dest_height,
+																						double *dest_pixel_aspect,
+																						int *win_x, int *win_y 
+																						, int *dispay_no
+																						)
+{
+	Xine_Stream * pStream = ( Xine_Stream* ) data;
+
+    /**
+	 * @test
+	 *     if( ! pStream->m_bIsRendering)
+	 *         g_pPlutoLogger->Write(LV_STATUS, "Framer Output callback called (not rendering).");
+		 */
+
+	*dest_x = 0;
+	*dest_y = 0;
+	*win_x = pStream->m_pFactory->m_iImgXPos;
+	*win_y = pStream->m_pFactory->m_iImgYPos;
+	*dest_width = pStream->m_pFactory->m_iImgWidth;
+	*dest_height = pStream->m_pFactory->m_iImgHeight;
+	*dest_pixel_aspect = video_pixel_aspect;
+}
 
 bool Xine_Stream::setDebuggingLevel( bool newValue )
 {

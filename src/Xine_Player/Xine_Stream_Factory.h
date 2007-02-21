@@ -73,6 +73,10 @@ namespace DCE
 			
 			// owning player
 			Xine_Player *m_pPlayer;
+			
+			// identifying xine version and setting stuff
+			void IdentifyXineStuff();
+			
 		public:
 			Xine_Stream_Factory(Xine_Player *pOwner);
 			~Xine_Stream_Factory();

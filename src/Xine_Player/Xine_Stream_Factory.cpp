@@ -1,6 +1,7 @@
 #include "DCE/Logger.h"
 #include "DCE/DCEConfig.h"
 
+#include <dlfcn.h>	
 
 #include "Xine_Stream_Factory.h"
 #include "Xine_Stream.h"
@@ -29,6 +30,13 @@ MWMHints;
 
 namespace DCE
 { // DCE namespace begin
+
+	int  (*custom_xine_seek) (xine_stream_t *stream, int start_pos, int start_time) = NULL;
+	int  (*custom_xine_start_trick_play)(xine_stream_t *stream, int trick_speed) = NULL;
+	int  (*custom_xine_stop_trick_play)(xine_stream_t *stream) = NULL;
+	
+	bool g_bXINE_HAS_TRICKPLAY_SUPPORT=false;
+	bool g_bVIA_EXTENDED_XINE_PRESENT=false;
 
 Xine_Stream_Factory::Xine_Stream_Factory(Xine_Player *pOwner):
 		m_factoryMutex("xine-stream-factory-access-mutex"),
@@ -95,6 +103,8 @@ bool Xine_Stream_Factory::StartupFactory()
 		g_pPlutoLogger->Write( LV_WARNING, "Cannot connect to Xine Library");
 		return false;
 	 }
+	
+	IdentifyXineStuff();
 	
 	// loading config
 	g_pPlutoLogger->Write( LV_STATUS, "Loading config from %s", m_sConfigFile.c_str() );		
@@ -666,6 +676,32 @@ bool Xine_Stream_Factory::DestroyWindows()
 	}
 
 	return true;
+}
+
+void Xine_Stream_Factory::IdentifyXineStuff()
+{
+	g_pPlutoLogger->Write( LV_STATUS, "Checking installed xine-lib capabilities" );
+	// check if we have xine library with xine_seek support or not (reusing the loaded libxine)
+	void *handle = dlopen("libxine.so.1", RTLD_LAZY | RTLD_NOLOAD);
+	if (handle)
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "OK, libxine.so.1 already loaded" );
+		*(void**)(&custom_xine_seek) = dlsym(handle, "xine_seek");
+		*(void**)(&custom_xine_start_trick_play) = dlsym(handle, "xine_start_trick_play");
+		*(void**)(&custom_xine_stop_trick_play) = dlsym(handle, "xine_stop_trick_play");
+		 g_bXINE_HAS_TRICKPLAY_SUPPORT = ( custom_xine_seek && custom_xine_start_trick_play && custom_xine_stop_trick_play);
+		 
+		 g_bVIA_EXTENDED_XINE_PRESENT = (dlsym(handle, "via_macrovision_process") != NULL);
+	}
+	else
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "Warning: libxine.so.1 is not loaded yet (?)" );
+	}
+	
+	g_pPlutoLogger->Write( LV_WARNING, "Custom xine functions status:  xine_seek=%p, xine_start_trick_play=%p, xine_stop_trick_play=%p. Trickplay and seeking support: %s", 
+		custom_xine_seek, custom_xine_start_trick_play, custom_xine_stop_trick_play, g_bXINE_HAS_TRICKPLAY_SUPPORT?"present":"absent");
+	
+	g_pPlutoLogger->Write( LV_WARNING, "VIA extended Xine: %s", g_bVIA_EXTENDED_XINE_PRESENT?"present":"absent");
 }
 
 } // DCE namespace end
