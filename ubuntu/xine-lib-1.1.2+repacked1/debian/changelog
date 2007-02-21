@@ -1,6 +1,12 @@
+xine-lib (1.1.2+repacked1-0ubuntu3pluto2) edgy; urgency=low
+
+  * Installing in /opt
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Wed, 21 Feb 2007 18:47:15 +0200
+
 xine-lib (1.1.2+repacked1-0ubuntu3pluto1) edgy; urgency=low
 
-   * Added Pluto patches
+  * Added Pluto patches
 
  -- Radu Cristescu <radu.c@plutohome.com>  Tue, 21 Nov 2006 09:18:39 -0500
 
