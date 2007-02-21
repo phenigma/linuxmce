@@ -927,7 +927,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 		"FROM File "
 		"LEFT JOIN Picture_File ON FK_File=PK_File "
 		"WHERE Filename Like '%" + StringUtils::SQLEscape(AC) + "%' "
-		"AND (EK_Users_Private IS NULL OR EK_Users_Private IN (" + sPK_Users + ")) "
+		"AND (EK_Users_Private IS NULL " + (sPK_Users.empty()==false ? " OR EK_Users_Private IN (" + sPK_Users + ")" : "") + ") "
 		"AND Missing=0 ";
 
 	if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
