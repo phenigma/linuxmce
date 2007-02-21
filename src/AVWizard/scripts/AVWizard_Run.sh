@@ -47,6 +47,10 @@ UI_V2_Normal_Horizontal=4
 
 . /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/AVWizard.log --infile /dev/null --stdboth -- "$@"
 
+#<-mkr_B_via_b->
+export LD_LIBRARY_PATH=/opt/libxine1-pluto/lib
+#<-mkr_B_via_e->
+
 CleanUp()
 {
 	rm -f /tmp/*.xml
