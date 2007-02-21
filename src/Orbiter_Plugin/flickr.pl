@@ -397,7 +397,7 @@ sub markFileAsDelete {
 
 	chomp($filename); chomp($path);
 	
-	my $sql = "UPDATE File SET Missing = 1 WHERE Path='$path' AND Filename='$filename'";
+	my $sql = "UPDATE File SET Missing = 1 WHERE Filename='$filename'";
 	my $sth = $dbh->prepare($sql);
 	$sth->execute || die "Sql Error";
 }
