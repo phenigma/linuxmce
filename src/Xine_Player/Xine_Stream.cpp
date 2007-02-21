@@ -16,7 +16,6 @@ extern	int  (*custom_xine_seek) (xine_stream_t *stream, int start_pos, int start
 extern	int  (*custom_xine_start_trick_play)(xine_stream_t *stream, int trick_speed);
 extern	int  (*custom_xine_stop_trick_play)(xine_stream_t *stream);
 extern	bool g_bXINE_HAS_TRICKPLAY_SUPPORT;
-extern	bool g_bVIA_EXTENDED_XINE_PRESENT;
 }
 
 bool bStreamWatchDogFlag=false;
@@ -391,12 +390,7 @@ bool Xine_Stream::InitXineAVOutput()
 	m_x11Visual.d = windows[ m_iCurrentWindow ];
 	
 	m_x11Visual.dest_size_cb = &destinationSizeCallback;
-	
-	if (g_bVIA_EXTENDED_XINE_PRESENT)
-		// forcing conversion
-		m_x11Visual.frame_output_cb = (void (*)(void*, int, int, double, int*, int*, int*, int*, double*, int*, int*)) (&frameOutputCallback_VIA);
-	else
-		m_x11Visual.frame_output_cb = &frameOutputCallback;
+	m_x11Visual.frame_output_cb = &frameOutputCallback;
 	
 	m_x11Visual.user_data = this;
 
@@ -2718,30 +2712,9 @@ void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_he
 																						int *dest_x, int *dest_y, int *dest_width, int *dest_height,
 																						double *dest_pixel_aspect,
 																						int *win_x, int *win_y 
-																						)
-{
-	Xine_Stream * pStream = ( Xine_Stream* ) data;
-
-    /**
-	 * @test
-	 *     if( ! pStream->m_bIsRendering)
-	 *         g_pPlutoLogger->Write(LV_STATUS, "Framer Output callback called (not rendering).");
-		 */
-
-	*dest_x = 0;
-	*dest_y = 0;
-	*win_x = pStream->m_pFactory->m_iImgXPos;
-	*win_y = pStream->m_pFactory->m_iImgYPos;
-	*dest_width = pStream->m_pFactory->m_iImgWidth;
-	*dest_height = pStream->m_pFactory->m_iImgHeight;
-	*dest_pixel_aspect = video_pixel_aspect;
-}
-
-void Xine_Stream::frameOutputCallback_VIA( void *data, int video_width, int video_height, double video_pixel_aspect,
-																						int *dest_x, int *dest_y, int *dest_width, int *dest_height,
-																						double *dest_pixel_aspect,
-																						int *win_x, int *win_y 
+#ifdef VIA
 																						, int *dispay_no
+#endif
 																						)
 {
 	Xine_Stream * pStream = ( Xine_Stream* ) data;

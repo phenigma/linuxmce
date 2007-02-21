@@ -36,7 +36,6 @@ namespace DCE
 	int  (*custom_xine_stop_trick_play)(xine_stream_t *stream) = NULL;
 	
 	bool g_bXINE_HAS_TRICKPLAY_SUPPORT=false;
-	bool g_bVIA_EXTENDED_XINE_PRESENT=false;
 
 Xine_Stream_Factory::Xine_Stream_Factory(Xine_Player *pOwner):
 		m_factoryMutex("xine-stream-factory-access-mutex"),
@@ -690,8 +689,6 @@ void Xine_Stream_Factory::IdentifyXineStuff()
 		*(void**)(&custom_xine_start_trick_play) = dlsym(handle, "xine_start_trick_play");
 		*(void**)(&custom_xine_stop_trick_play) = dlsym(handle, "xine_stop_trick_play");
 		 g_bXINE_HAS_TRICKPLAY_SUPPORT = ( custom_xine_seek && custom_xine_start_trick_play && custom_xine_stop_trick_play);
-		 
-		 g_bVIA_EXTENDED_XINE_PRESENT = (dlsym(handle, "via_macrovision_process") != NULL);
 	}
 	else
 	{
@@ -700,8 +697,9 @@ void Xine_Stream_Factory::IdentifyXineStuff()
 	
 	g_pPlutoLogger->Write( LV_WARNING, "Custom xine functions status:  xine_seek=%p, xine_start_trick_play=%p, xine_stop_trick_play=%p. Trickplay and seeking support: %s", 
 		custom_xine_seek, custom_xine_start_trick_play, custom_xine_stop_trick_play, g_bXINE_HAS_TRICKPLAY_SUPPORT?"present":"absent");
-	
-	g_pPlutoLogger->Write( LV_WARNING, "VIA extended Xine: %s", g_bVIA_EXTENDED_XINE_PRESENT?"present":"absent");
+#ifdef VIA	
+	g_pPlutoLogger->Write( LV_WARNING, "Compiled for VIA extended xine-lib");
+#endif
 }
 
 } // DCE namespace end
