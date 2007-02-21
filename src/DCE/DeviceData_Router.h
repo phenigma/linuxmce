@@ -34,6 +34,8 @@ namespace DCE
 		Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe) { m_pRow_Device_Device_Pipe=pRow_Device_Device_Pipe; m_bDontSendInputs=m_bDontSendOff=m_bDontSendOn=m_bTemporary=false; }
 	};
 
+	typedef map<int, class Pipe *> MapPipe;  // Map of PK_Pipe (ie audio/video) to a pipe
+
 	class Command
 	{
 	public:
@@ -155,10 +157,14 @@ namespace DCE
 		// If set to true, all on/off's to this device will be skipped
 		bool m_bIgnoreOnOff;
 
-		map<int, class Pipe *> m_mapPipe_Available; // The available pipes
+		MapPipe m_mapPipe_Available; // The available pipes
 		Pipe *m_mapPipe_Available_Find(int PK_Pipe) { map<int,class Pipe *>::iterator it = m_mapPipe_Available.find(PK_Pipe); return it==m_mapPipe_Available.end() ? NULL : (*it).second; }
-		map<int, class Pipe *> m_mapPipe_Active; // The currently activated pipes
+		MapPipe m_mapPipe_Active; // The currently activated pipes
 		Pipe *m_mapPipe_Active_Find(int PK_Pipe) { map<int,class Pipe *>::iterator it = m_mapPipe_Active.find(PK_Pipe); return it==m_mapPipe_Active.end() ? NULL : (*it).second; }
+		/* The currently activated pipes that are not using the normal pipes.
+			These are for handling separate embedded zones.  The int a unique ID that will be the parameter ' */
+		map<int,MapPipe *> m_mapPipe_Temporary; // The PipeID to the map of a/v pipes  
+		MapPipe *m_mapPipe_Temporary_Find(int PK_PipeID) { map<int,MapPipe *>::iterator it = m_mapPipe_Temporary.find(PK_PipeID); return it==m_mapPipe_Temporary.end() ? NULL : (*it).second; }
 
 		// All the groups, parameters, inputs, etc.
 		map<int,class DeviceRelation *> m_mapDeviceRelation;

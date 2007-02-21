@@ -369,6 +369,26 @@ continue;
 		}
 	}
 
+	// See which devices have different output zones, and save them in a map indexed by the ent area
+	for(map<int, class MediaDevice *>::iterator it=m_mapMediaDevice.begin();it!=m_mapMediaDevice.end();++it)
+	{
+		MediaDevice *pMediaDevice = it->second;
+		if( pMediaDevice->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Output_Zone_CONST) )
+		{
+			// The output zones should only be in 1 EA.  Map it
+			MediaDevice *pMediaDevice_Parent = m_mapMediaDevice_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
+			if( pMediaDevice_Parent )
+				for(map<int,class EntertainArea *>::iterator itEA=pMediaDevice->m_mapEntertainArea.begin();itEA!=pMediaDevice->m_mapEntertainArea.end();++itEA)
+				{
+					EntertainArea *pEntertainArea = itEA->second;
+					pMediaDevice_Parent->m_mapOutputZone[pEntertainArea->m_iPK_EntertainArea] = pMediaDevice;
+
+					// Now see what other devices feed into the parent.  All of them can thus feed into us as well
+					RecursivelyAddSendingDevice(pMediaDevice,pMediaDevice_Parent);
+				}
+		}
+	}
+
 	m_pGeneric_NonPluto_Media = new Generic_NonPluto_Media(this);
     m_pGenericMediaHandlerInfo = new MediaHandlerInfo(m_pGeneric_NonPluto_Media,this,0,0,false,false);
 
@@ -401,6 +421,7 @@ continue;
 
 	return true;
 }
+
 
 //<-dceag-const2-b->!
 
@@ -984,32 +1005,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 
 	if( !iPK_MediaType && p_dequeMediaFile->size() )
 	{
-		MediaFile *pMediaFile = (*p_dequeMediaFile)[0];
-		if( pMediaFile->m_dwPK_Disk )  // Is it a disk?
-		{
-			Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(pMediaFile->m_dwPK_Disk);
-			if( pRow_Disc )
-				iPK_MediaType = pRow_Disc->EK_MediaType_get();
-		}
-		
-		if( !iPK_MediaType )
-		{
-			string Extension = StringUtils::ToUpper(FileUtils::FindExtension(pMediaFile->m_sFilename));
-
-			map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
-
-			for(size_t s=0;s<vectEntertainArea.size();++s)
-			{
-				EntertainArea *pEntertainArea=vectEntertainArea[s];
-				List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
-				if( pList_MediaHandlerInfo && pList_MediaHandlerInfo->size() )
-				{
-					MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
-					iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
-					break;
-				}
-			}
-		}
+		iPK_MediaType = GetMediaTypeForFile(p_dequeMediaFile,vectEntertainArea);
 
 		if( !iPK_MediaType )
 		{
@@ -1033,6 +1029,12 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 		}
 	}
 
+	// Find the media handlers we're going to need.  If everything can be handled by one
+	// handler, vectEA_to_MediaHandler will only have 1 element.  Otherwise it will have an
+	// element for each handler we need to use (which will translate to a stream for each)
+	// and the list of entertainment areas
+	vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > vectEA_to_MediaHandler;
+
 	if( !iPK_MediaType )
 	{
 		if( iPK_Device_Orbiter )
@@ -1045,22 +1047,25 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 		return;
 	}
 
-	// Find the media handlers we're going to need.  If everything can be handled by one
-	// handler, vectEA_to_MediaHandler will only have 1 element.  Otherwise it will have an
-	// element for each handler we need to use (which will translate to a stream for each)
-	// and the list of entertainment areas
-	vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > vectEA_to_MediaHandler;
-
-	GetMediaHandlersForEA(iPK_MediaType, iPK_MediaProvider, iPK_Device, iPK_DeviceTemplate, vectEntertainArea, vectEA_to_MediaHandler);
+	// This is really complicated.  We need to keep track of what output zones are being used for which entertainment areas
+	// So when we go to create the pipes we'll know what our target destinations are
+	map<int, MediaDevice *> mapEntertainmentArea_OutputZone;
+	GetMediaHandlersForEA(iPK_MediaType, iPK_MediaProvider, iPK_Device, iPK_DeviceTemplate, vectEntertainArea, vectEA_to_MediaHandler, mapEntertainmentArea_OutputZone);
 	if( vectEA_to_MediaHandler.size()==0 )
 	{
 		if( iPK_Device )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find any media handlers for type %d device %d trying without",iPK_MediaType, iPK_Device);
-			GetMediaHandlersForEA(iPK_MediaType, iPK_MediaProvider, 0, iPK_DeviceTemplate, vectEntertainArea, vectEA_to_MediaHandler);
+			int iPK_Device_2=0;
+			GetMediaHandlersForEA(iPK_MediaType, iPK_MediaProvider, iPK_Device_2, iPK_DeviceTemplate, vectEntertainArea, vectEA_to_MediaHandler, mapEntertainmentArea_OutputZone);
+			iPK_Device = iPK_Device_2;
 		}
 		if( vectEA_to_MediaHandler.size()==0 )
+		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find any media handlers for type %d", iPK_MediaType);
+			SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, iPK_Device_Orbiter, "");
+			SendCommand(SCREEN_DialogCannotPlayMedia);
+		}
 	}
 
 	// If there are 2 or more stream and we have a deque of mediafiles, make copies of them
@@ -1084,7 +1089,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 		}
 
 		MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,iPK_MediaProvider,iPK_Device_Orbiter,vectEA_to_MediaHandler[s].second,
-			iPK_Device,p_dequeMediaFile,bResume,iRepeat,sStartingPosition);  // We'll let the plug-in figure out the source, and we'll use the default remote
+			iPK_Device,p_dequeMediaFile,bResume,iRepeat,sStartingPosition,0,&mapEntertainmentArea_OutputZone);  // We'll let the plug-in figure out the source, and we'll use the default remote
 
 		//who will take care of pMediaStream ?
 
@@ -1097,7 +1102,46 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 			delete (*p_dequeMediaFile_Copy)[s];
 }
 
-MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat, string sStartingPosition, int iPK_Playlist)
+int Media_Plugin::GetMediaTypeForFile(deque<MediaFile *> *p_dequeMediaFile,vector<EntertainArea *>  &vectEntertainArea)
+{
+	MediaFile *pMediaFile = (*p_dequeMediaFile)[0];
+	if( pMediaFile->m_dwPK_Disk )  // Is it a disk?
+	{
+		Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(pMediaFile->m_dwPK_Disk);
+		if( pRow_Disc )
+			return pRow_Disc->EK_MediaType_get();
+	}
+	
+	string Extension = StringUtils::ToUpper(FileUtils::FindExtension(pMediaFile->m_sFilename));
+
+	map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
+
+	for(size_t s=0;s<vectEntertainArea.size();++s)
+	{
+		EntertainArea *pEntertainArea=vectEntertainArea[s];
+		List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
+		if( pList_MediaHandlerInfo && pList_MediaHandlerInfo->size() )
+		{
+			MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+			return pMediaHandlerInfo->m_PK_MediaType;
+		}
+	}
+
+	// Dig through all the media handler's to find it
+	for(map<int,EntertainArea *>::iterator it=m_mapEntertainAreas.begin();it!=m_mapEntertainAreas.end();++it)
+	{
+		EntertainArea *pEntertainArea=it->second;
+		List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
+		if( pList_MediaHandlerInfo && pList_MediaHandlerInfo->size() )
+		{
+			MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+			return pMediaHandlerInfo->m_PK_MediaType;
+		}
+	}
+	return 0;
+}
+
+MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat, string sStartingPosition, int iPK_Playlist,map<int, MediaDevice *> *p_mapEntertainmentArea_OutputZone)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
@@ -1236,7 +1280,7 @@ public:
 	OldStreamInfo(EntertainArea *pEntertainArea) { m_pEntertainArea=pEntertainArea; m_bNoChanges=false; m_PK_MediaType_Prior=0; }
 };
 
-bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
+bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, MediaDevice *> *p_mapEntertainmentArea_OutputZone)
 {
 	map<int,class OldStreamInfo *> mapOldStreamInfo;
 
@@ -1307,6 +1351,16 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
 
+	if( p_mapEntertainmentArea_OutputZone )
+	{
+		for( map<int,EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();it!=pMediaStream->m_mapEntertainArea.end();++it )
+		{
+			EntertainArea *pEntertainArea = it->second;
+			if( p_mapEntertainmentArea_OutputZone->find( pEntertainArea->m_iPK_EntertainArea ) != p_mapEntertainmentArea_OutputZone->end() )
+				pEntertainArea->m_pMediaDevice_ActiveDest = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ];
+		}
+	}
+
 #ifdef SIM_JUKEBOX
 	static bool bToggle=false;
 	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
@@ -1366,6 +1420,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				// Only start it once, we set it to false above, and will set it to true in StartCaptureCard.  We may be streaming to multiple EA's
 				if( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive == false)
 					StartCaptureCard(pMediaStream);
+
+				CheckForAlternatePipes(pMediaStream);
 
 				HandleOnOffs(pOldStreamInfo ? pOldStreamInfo->m_PK_MediaType_Prior : 0,
 					pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,
@@ -2872,6 +2928,38 @@ g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media ready to resta
 	}
 }
 
+bool Media_Plugin::CheckForAlternatePipes(MediaStream *pMediaStream)
+{
+	return true;
+}
+
+void Media_Plugin::RecursivelyAddSendingDevice(MediaDevice *pMediaDevice_FeedInto,MediaDevice *pMediaDevice_FeedFrom)
+{
+	pMediaDevice_FeedInto->m_mapMediaDevice_FedInto_OutsideZone[ pMediaDevice_FeedFrom->m_pDeviceData_Router->m_dwPK_Device ] = pMediaDevice_FeedFrom;
+
+	// If we've got a media director feeding in, any software media players in that ea are also feeding in via the md
+	if( pMediaDevice_FeedFrom->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
+	{
+		for(map<int,EntertainArea *>::iterator it=pMediaDevice_FeedFrom->m_mapEntertainArea.begin();it!=pMediaDevice_FeedFrom->m_mapEntertainArea.end();++it)
+		{
+			EntertainArea *pEntertainArea = it->second;
+			for(map<int,MediaDevice *>::iterator itMD = pEntertainArea->m_mapMediaDevice.begin();itMD != pEntertainArea->m_mapMediaDevice.end();++itMD)
+			{
+				MediaDevice *pMediaDevice = itMD->second;
+				if( pMediaDevice->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Media_Players_CONST) )
+					pMediaDevice_FeedInto->m_mapMediaDevice_FedInto_OutsideZone[ pMediaDevice->m_pDeviceData_Router->m_dwPK_Device ] = pMediaDevice;
+			}
+		}
+	}
+	for(vector<DeviceData_Router *>::iterator it=pMediaDevice_FeedFrom->m_pDeviceData_Router->m_vectDevices_SendingPipes.begin();it!=pMediaDevice_FeedFrom->m_pDeviceData_Router->m_vectDevices_SendingPipes.end();++it)
+	{
+		DeviceData_Router *pDevice = *it;
+		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice->m_dwPK_Device);
+		if( pMediaDevice )
+			RecursivelyAddSendingDevice(pMediaDevice_FeedInto,pMediaDevice);
+	}
+}
+
 void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current,MediaStream *pMediaStream)
 {
 	// Is a specific pipe used?  If this is an audio stream only, the media type will have the pipe set to 1
@@ -3991,7 +4079,7 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 		delete p_vectDevice;
 }
 
-void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider,int iPK_Device, int iPK_DeviceTemplate, vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler)
+void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider,int &iPK_Device, int iPK_DeviceTemplate, vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler, map<int, MediaDevice *> &mapEntertainmentArea_OutputZone)
 {
 	bool bUsingGenericHandler=false;  // A flag if we're using the generic handler
 	// This function needs to find a media handler for every entertainment area.  This map will store all our possibilities
@@ -4045,6 +4133,42 @@ void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider
 		{
 			vectEA_to_MediaHandler.push_back( make_pair< MediaHandlerInfo *,vector<EntertainArea *> >(mapMediaHandlerInfo.begin()->first,mapMediaHandlerInfo.begin()->second) );
 			return;
+		}
+	}
+
+	// If we didn't find any handlers, see if there any devices in other entertainment areas
+	// with output zones feeding the one(s) we want to be in.  This is complicated.  If the source device was a generic media device
+	// it would have matched above already.  
+	if( mapMediaHandlerInfo.size()==0 )
+	{
+		for(vector<EntertainArea *>::iterator it=vectEntertainArea.begin();it!=vectEntertainArea.end();++it)
+		{
+			EntertainArea *pEntertainArea = *it;
+			// We need to play in this entertainment area, are there any output zones in it?
+			for(map<int, class MediaDevice *>::iterator itMD=pEntertainArea->m_mapMediaDevice.begin();itMD!=pEntertainArea->m_mapMediaDevice.end();++itMD)
+			{
+				MediaDevice *pMediaDevice = itMD->second;
+				if( pMediaDevice->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Output_Zone_CONST) )
+				{
+					// See what devices feed into it
+					for(map<int,MediaDevice *>::iterator itMDFO=pMediaDevice->m_mapMediaDevice_FedInto_OutsideZone.begin();itMDFO!=pMediaDevice->m_mapMediaDevice_FedInto_OutsideZone.end();++itMDFO)
+					{
+						MediaDevice *pMediaDevice_FeedsIn = itMDFO->second;
+						// See if there's a media handler that can control this
+						for(vector<MediaHandlerInfo *>::iterator itMHI=m_vectMediaHandlerInfo.begin();itMHI!=m_vectMediaHandlerInfo.end();++itMHI)
+						{
+							MediaHandlerInfo *pMediaHandlerInfo = *itMHI;
+							if( pMediaHandlerInfo->ControlsDevice(pMediaDevice_FeedsIn->m_pDeviceData_Router->m_dwPK_Device) )
+							{
+								iPK_Device = pMediaDevice_FeedsIn->m_pDeviceData_Router->m_dwPK_Device;  // We also need to specifically indicate what is going to be the source now
+								mapEntertainmentArea_OutputZone[ pEntertainArea->m_iPK_EntertainArea ] = pMediaDevice;
+								mapMediaHandlerInfo[pMediaHandlerInfo].push_back(pEntertainArea);
+								break;
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 

@@ -284,7 +284,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
 		// source be one of the destinations, and change the mrl to reference the source disk
 		if( !ConfirmSourceIsADestination(mediaURL,pXineMediaStream) )
-			return false;
+			g_pPlutoLogger->Write(LV_WARNING,"Xine_Plugin::StartMedia don't know how media will get to destination.  Unless there's some output zones in the mix results won't be right");
 	}
 
 #ifdef WIN32

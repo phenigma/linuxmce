@@ -36,6 +36,7 @@ namespace DCE
 		map<int,int> m_mapMediaType_DesignObj;              /** A map of all the remotes for the various screens */
 		map<int,class EntertainArea *> m_mapEntertainArea;
 		map<int,MediaDevice *> m_mapOutputZone; // Map EntertainmentAreas to alternate output zones (ie multi-zone devices)
+		map<int,MediaDevice *> m_mapMediaDevice_FedInto_OutsideZone;  // This means this EA has an 'output zone' that is fed into from these Media Devices in other zones
 		int m_iLastPlaybackSpeed,m_iPK_MediaProvider;
 		class OH_Orbiter *m_pOH_Orbiter_OSD;    	   /** Which orbiter is the on-sceren display */
 		map<int, Row_MediaType *> m_mapMediaType;

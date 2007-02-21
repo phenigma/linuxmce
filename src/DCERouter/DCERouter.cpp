@@ -1776,7 +1776,7 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
         if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Pipe_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
 			PK_Pipe = atoi((*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
 
-		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Active.begin();it!=pDeviceData_Router->m_mapPipe_Active.end();)
+		for(MapPipe::iterator it=pDeviceData_Router->m_mapPipe_Active.begin();it!=pDeviceData_Router->m_mapPipe_Active.end();)
         {
 			Pipe *pPipe = (*it).second;
 
@@ -1809,7 +1809,7 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
         if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
             sPipesDevices = "," + (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] + ",";
 		Pipe *pPipe_Prior=NULL;
-        for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
+        for(MapPipe::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
         {
             Pipe *pPipe = (*it).second;
 
@@ -2461,7 +2461,7 @@ void Router::Configure()
         }
 
 		DeviceData_Router *pDevice_To_Last = NULL;
-		for( map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();
+		for( MapPipe::iterator it=pDevice->m_mapPipe_Available.begin();
 			it!=pDevice->m_mapPipe_Available.end();++it )
 		{
 			Pipe *pPipe = (*it).second;
@@ -2900,7 +2900,7 @@ void Router::CheckForRecursiveRouteTo(DeviceData_Router *pDevice,vector<int> *pv
 void Router::CheckForRecursivePipes(DeviceData_Router *pDevice,vector<int> *pvect_Device_Pipe)
 {
 	bool bPipesRecurse=false;
-    for(map<int,Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();it!=pDevice->m_mapPipe_Available.end();++it)
+    for(MapPipe::iterator it=pDevice->m_mapPipe_Available.begin();it!=pDevice->m_mapPipe_Available.end();++it)
     {
         Pipe *pPipe = (*it).second;
 		for(size_t s=0;s<pvect_Device_Pipe->size();++s)
@@ -2924,7 +2924,7 @@ void Router::CheckForRecursivePipes(DeviceData_Router *pDevice,vector<int> *pvec
 
 	// Store the destinations in a vect so we don't risk clearing the map while a parent is iterating it
 	vector<DeviceData_Router *> vectDevice;
-    for(map<int,Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();it!=pDevice->m_mapPipe_Available.end();++it)
+    for(MapPipe::iterator it=pDevice->m_mapPipe_Available.begin();it!=pDevice->m_mapPipe_Available.end();++it)
     {
         Pipe *pPipe = (*it).second;
 		if( mapDevices_InPipes[pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get()] )
