@@ -42,7 +42,9 @@ mce_installer_SOURCES = \
 	Step4.c         \
 	Step4.h         \
 	Step5.c         \
-	Step5.h 
+	Step5.h         \
+	Step0B.c         \
+	Step0B.h 
 
 
 mce_installer_LDFLAGS = 

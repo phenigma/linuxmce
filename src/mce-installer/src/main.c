@@ -79,6 +79,11 @@ main (int argc, char *argv[])
 #endif
 
 	gtk_set_locale ();
+
+	g_thread_init (NULL);
+	gdk_threads_init ();
+	gdk_threads_enter ();
+
 	gtk_init (&argc, &argv);
 
 	gxml = glade_xml_new (GLADE_FILE, NULL, NULL);
@@ -109,6 +114,9 @@ main (int argc, char *argv[])
 		displayStep1A();
 	}
 
+//	displayStep0B();
+
 	gtk_main ();
+	gdk_threads_leave();
 	return 0;
 }

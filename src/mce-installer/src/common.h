@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 #include "Step1A.h"
 #include "Step1B.h"

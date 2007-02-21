@@ -1,11 +1,9 @@
 
 [Anjuta]
-Maximized=1
-Geometry=1280x954+0+25
+Geometry=790x575+10+25
 
 [File Loader]
 Files=
 
 [Execution]
-Program arguments=
 Run in terminal=2
