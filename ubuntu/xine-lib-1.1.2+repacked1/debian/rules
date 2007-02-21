@@ -136,13 +136,13 @@ binary-arch: build install
 	dh_installdocs
 	dh_installchangelogs -k ChangeLog
 	dh_link
-	dh_strip --dbg-package=libxine1
+	dh_strip --dbg-package=libxine1-pluto
 	dh_compress
 	dh_fixperms
-	dh_makeshlibs -V 'libxine1 (>= 1.1.2-5)'
+	dh_makeshlibs -V 'libxine1-pluto (>= 1.1.2-5)'
 	dh_installdeb
 	chmod +x debian/shlibdeps.sh
-	debian/shlibdeps.sh libxine${major}
+	debian/shlibdeps.sh libxine${major}-pluto
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
