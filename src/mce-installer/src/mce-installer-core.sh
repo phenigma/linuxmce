@@ -14,6 +14,9 @@ function Setup_Network_Intefaces {
 		dhclient $c_netExtName
 	else
 		echo > /etc/network/interfaces
+		echo "auto lo" >> /etc/network/interfaces
+		echo "iface lo inet loopback" >> /etc/network/interfaces
+		echo "" >> /etc/network/interfaces
 		echo "auto $c_netExtName" >> /etc/network/interfaces
 		echo "iface $c_netExtName inet static" >> /etc/network/interfaces
 		echo "address $c_netExtIP" >> /etc/network/interfaces
