@@ -59,7 +59,7 @@ ifeq (,$(findstring optimize,$(DEB_BUILD_OPTIONS)))
 endif
 
 # --mandir - remove after etch released (autoconf >= 2.59c gets it right)
-CONFIGURE_FLAGS := --prefix=/usr \
+CONFIGURE_FLAGS := --prefix=/opt/libxine1-pluto \
 	--mandir=\$${prefix}/share/man \
 	--with-external-libmad \
 	--without-external-ffmpeg \
@@ -103,7 +103,7 @@ install: build
 	dh_clean -k
 	dh_installdirs
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp \
-			LIBRARY_PATH=$(CURDIR)/debian/tmp/usr/lib
+			LIBRARY_PATH=$(CURDIR)/debian/tmp/opt/libxine1-pluto/lib
 
 binary-indep: build install
 # We have nothing architecture-independant to do.
@@ -112,22 +112,22 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir
 	dh_testroot
-	mkdir -p debian/tmp/usr/share/bug/libxine${major}/
-	cp debian/reportbug.presubj debian/tmp/usr/share/bug/libxine${major}/presubj
+	mkdir -p debian/tmp/opt/libxine1-pluto/share/bug/libxine${major}/
+	cp debian/reportbug.presubj debian/tmp/opt/libxine1-pluto/share/bug/libxine${major}/presubj
 # 	ugly hack, documentation should never have been in /u/s/d/xine/...
-	mv debian/tmp/usr/share/doc/xine debian/tmp/usr/share/doc/libxine${major}
+	mv debian/tmp/opt/libxine1-pluto/share/doc/xine debian/tmp/opt/libxine1-pluto/share/doc/libxine${major}
 #	build libxine${major} package by moving files from libxine-dev
 	dh_install --autodest --sourcedir=debian/tmp --list-missing
 	dh_installdocs
 	dh_installchangelogs -k ChangeLog
 	dh_link
-	dh_strip --dbg-package=libxine1
+	dh_strip --dbg-package=libxine1-pluto
 	dh_compress
 	dh_fixperms
-	dh_makeshlibs -V 'libxine1 (>= 1.1.2-5)'
+	dh_makeshlibs -V 'libxine1-pluto (>= 1.1.2-5)'
 	dh_installdeb
 	chmod +x debian/shlibdeps.sh
-	debian/shlibdeps.sh libxine${major}
+	debian/shlibdeps.sh libxine${major}-pluto
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

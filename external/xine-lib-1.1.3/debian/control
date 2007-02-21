@@ -7,10 +7,10 @@ Build-Depends: debhelper (>= 4.0.4), binutils (>= 2.12.90.0.9), libaa1-dev | aal
 Build-Conflicts: libdvdnav-dev, libvcdinfo-dev
 Standards-Version: 3.7.2
 
-Package: libxine-dev
+Package: libxine-pluto-dev
 Architecture: any
 Section: libdevel
-Depends: libxine1 (= ${Source-Version}), libc6-dev, zlib1g-dev | libz-dev, libslang2-dev | slang1-dev, libfreetype6-dev
+Depends: libxine1-pluto (= ${Source-Version}), libc6-dev, zlib1g-dev | libz-dev, libslang2-dev | slang1-dev, libfreetype6-dev
 Conflicts: xine-ui (<< 0.9.10)
 Description: the xine video player library, development packages
  This contains development files (headers, documentation and the like)
@@ -27,7 +27,7 @@ Description: the xine video player library, development packages
  The xine-ui and gxine packages each provide one for your convenience, so
  you can just start watching your VCDs ;-)
 
-Package: libxine1
+Package: libxine1-pluto
 Architecture: any
 Depends: ${shlibs:Depends}
 Recommends: ${shlibs:Recommends}
@@ -46,9 +46,9 @@ Description: the xine video/media player library, binary files
  The xine-ui and gxine packages each provide one for your convenience, so
  you can just start watching your VCDs ;-)
 
-Package: libxine1-dbg
+Package: libxine1-pluto-dbg
 Architecture: any
-Depends: libxine1 (= ${Source-Version})
+Depends: libxine1-pluto (= ${Source-Version})
 Priority: extra
 Description: the xine video/media player library, debug data
  This is the xine media player library (libxine). 
