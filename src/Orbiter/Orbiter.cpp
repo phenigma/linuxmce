@@ -952,10 +952,6 @@ g_PlutoProfiler->DumpResults();
 
 		m_pScreenHistory_Current->GetObj()->m_bActive=false;
 
-		if( m_pScreenHistory_Current->m_bPutObjectsOffScreen==false )
-			m_pOrbiterRenderer->ObjectOffScreen( m_pScreenHistory_Current->GetObj() );
-		m_pScreenHistory_Current->m_bPutObjectsOffScreen=false;
-
 		for(list<class PlutoPopup*>::iterator it=m_pScreenHistory_Current->GetObj()->m_listPopups.begin();it!=m_pScreenHistory_Current->GetObj()->m_listPopups.end();++it)
 		{
 			PlutoPopup *pPlutoPopup = *it;
@@ -4953,8 +4949,18 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 	if(  pScreenHistory  )
 	{
 		ScreenHistory::m_bAddToHistory = false;
+		ScreenHistory *pOldScreenHistory = m_pScreenHistory_Current;
 		m_pScreenHistory_Current = pScreenHistory;
  
+		if(!pOldScreenHistory->m_bPutObjectsOffScreen)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "ObjectOffScreen : screen id %d, obj id %s",
+				pOldScreenHistory->PK_Screen(), pOldScreenHistory->GetObj()->m_ObjectID.c_str());
+
+			m_pOrbiterRenderer->ObjectOffScreen(pOldScreenHistory->GetObj());
+		}
+		m_pScreenHistory_Current->m_bPutObjectsOffScreen = true;
+
 		string sCMD_Result;
 		if( m_mapPK_Screen_GoBackToScreen.find(m_pScreenHistory_Current->PK_Screen())!=m_mapPK_Screen_GoBackToScreen.end() )
 		{
@@ -5090,6 +5096,19 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	if( bIsRemote || pObj_New->m_iBaseObjectID==m_iPK_Screen_Remote || pObj_New->m_iBaseObjectID==m_iPK_Screen_RemoteOSD )
 		pObj_New->m_bIsARemoteControl=true;
 
+	if(NULL != m_pScreenHistory_Current)
+	{
+		if(!m_pScreenHistory_Current->m_bPutObjectsOffScreen)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "ObjectOffScreen : screen id %d, obj id %s",
+				m_pScreenHistory_Current->PK_Screen(), m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
+
+			m_pOrbiterRenderer->ObjectOffScreen(m_pScreenHistory_Current->GetObj());
+		}
+
+		m_pScreenHistory_Current->m_bPutObjectsOffScreen = false;
+	}
+
 	bool bNewScreenHistoryItem = true;
 	ScreenHistory *pScreenHistory_New = NULL;
 	if(NULL != m_pScreenHistory_NewEntry)
@@ -5099,10 +5118,6 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	}
 	else
 	{
-		//about the hide last current screen.
-		m_pOrbiterRenderer->ObjectOffScreen(m_pScreenHistory_Current->GetObj());
-
-		m_pScreenHistory_Current->m_bPutObjectsOffScreen=true;
 		bNewScreenHistoryItem = false;
 		pScreenHistory_New = m_pScreenHistory_Current; //another designobj for the same screen
 		pScreenHistory_New->AddToHistory();
