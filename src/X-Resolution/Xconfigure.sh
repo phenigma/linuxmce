@@ -240,26 +240,26 @@ if [[ "$DisplayDriver" != "$CurrentDisplayDriver" && "$DisplayDriver" != vesa ]]
 fi
 
 # XvMC setup
-#case "$DisplayDriver" in
-#	nvidia)
-#		libXvMC="libXvMCNVIDIA.so.1"
+case "$DisplayDriver" in
+	nvidia)
+		libXvMC="libXvMCNVIDIA_dynamic.so.1"
 #		XineVideoDriver="xxmc"
-#	;;
+	;;
 #	via)
 #		libXvMC="libviaXvMC.so.1"
 #		XineVideoDriver="xxmc"
 #	;;
-#	*)
-#		libXvMC="libXvMC.so.1"
+	*)
+		libXvMC="libXvMC.so.1"
 #		XineVideoDriver="xv"
-#	;;
-#esac
+	;;
+esac
 
 #if [[ -n "$ForcedXvMC" ]]; then
 #	libXvMC="$ForcedXvMC"
 #fi
 
-#echo "$libXvMC" >/etc/X11/XvMCConfig
+echo "$libXvMC" >/etc/X11/XvMCConfig
 #XineConfSet video.driver "$XineVideoDriver"
 
 # Setup resolution
