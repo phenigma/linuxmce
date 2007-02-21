@@ -17,6 +17,7 @@ void start_network_wizard(void) {
 
 	setting_netIfaceNo = oobs_list_get_n_items(interfaces);
 
+	setting_netExtName=g_strdup("");
 	if (setting_netIfaceNo == 0) {
 		printf("No Cards!\n");
 	       //displayStep2X();
