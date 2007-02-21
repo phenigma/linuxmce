@@ -66,7 +66,9 @@ void WinListManager::ActivateWindow(const string& sWindowsName)
 void WinListManager::ActivateSdlWindow()
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-	PendingContext(m_sSdlWindowName).Activate(true);
+
+    if(!m_bHideSdlWindow)
+		PendingContext(m_sSdlWindowName).Activate(true);
 }
 
 void WinListManager::SetLayer(const string &sClassName, WindowLayer layer)
@@ -271,6 +273,7 @@ g_pPlutoLogger->Write(LV_WARNING,"WinListManager::GetWindows2 %d/%s",it->first,i
 void WinListManager::SetSdlWindowVisibility(bool bValue)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
+	g_pPlutoLogger->Write(LV_WARNING,"SetSdlWindowVisibility %d", bValue);
 	m_bHideSdlWindow = !bValue;
 	PendingContext(m_sSdlWindowName).Visible(bValue);
 }
@@ -397,7 +400,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 	/* For some reason it's happened that even though the last 'R' command to the window manager WAS
 	to activate Orbiter, Orbiter STILL is invisible behind myth until re-actated.  It appears that 
 	constantly re-activating Orbiter doesn't cause a flicker or other undesired behavior */
-	if( m_bKeepSdlWindowActive )
+	if( m_bKeepSdlWindowActive && !m_bHideSdlWindow)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "KeepSdlWindowActive executed!");
 		m_pWMController->ActivateWindow(m_sSdlWindowName);
