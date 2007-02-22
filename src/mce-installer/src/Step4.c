@@ -6,7 +6,9 @@ void on_Step4_forward_clicked(GtkWidget *widget, gpointer data) {
         displayStep5();
 }
 
+void on_Step4_finish_clicked(GtkWidget *widget, gpointer data) {
 
+}
 
 void on_Step4_radio_toggled(GtkWidget *widget, gpointer data) {
 	setting_startupType = (gint)data;
@@ -49,10 +51,12 @@ void displayStep4(void) {
 	gtk_container_add(GTK_CONTAINER(mainButtonBox), buttonBack);
 	g_signal_connect(G_OBJECT(buttonBack), "clicked", G_CALLBACK(on_back_clicked), NULL);
 
+	
 	// Button Forward
 	GtkWidget *buttonForward = gtk_button_new_from_stock(GTK_STOCK_GO_FORWARD);
 	gtk_container_add(GTK_CONTAINER(mainButtonBox), buttonForward);
 	g_signal_connect(G_OBJECT(buttonForward), "clicked", G_CALLBACK(on_Step4_forward_clicked), NULL);
+	
 
 	// Redraw window	
 	gtk_widget_show_all(mainBox);

@@ -8,7 +8,9 @@ OobsIfaceEthernet* get_external_interface(OobsList *interfaces);
 OobsIfaceEthernet* get_internal_interface(OobsList *interfaces);
 gboolean connect_test(const gchar* sourceIp);
 
-void start_network_wizard(void) {
+void* start_network_wizard_thread(void *next_stepv) {
+	int *next_step = (int *)next_stepv;
+
 	OobsSession      *oobs_session = oobs_session_get();
 	OobsIfacesConfig *ifaces_config = OOBS_IFACES_CONFIG(oobs_ifaces_config_get(oobs_session));
 	OobsList         *interfaces = oobs_ifaces_config_get_ifaces(ifaces_config, OOBS_IFACE_TYPE_ETHERNET);
@@ -39,8 +41,10 @@ void start_network_wizard(void) {
 			} else {
 				setting_netIntName = g_strdup_printf("%s:0", setting_netExtName);
 			}
-
+		
+			gdk_threads_enter();	
 			displayStep2A();
+			gdk_threads_leave();
 
 		} else {
 			iface = get_internal_interface(interfaces);
@@ -59,9 +63,21 @@ void start_network_wizard(void) {
                                 setting_netIntName = g_strdup_printf("%s:0", setting_netExtName);
                         }
 
+			gdk_threads_enter();	
 			displayStep2C();
+			gdk_threads_leave();
 	       }
 	}
+
+	return NULL;
+}
+
+void start_network_wizard(void) {
+	pthread_t snetwiz_tid;
+	int next_step = -1;
+
+	pthread_create(&snetwiz_tid, NULL, start_network_wizard_thread, &next_step);
+
 }
 
 OobsIfaceEthernet* get_external_interface(OobsList *interfaces) {

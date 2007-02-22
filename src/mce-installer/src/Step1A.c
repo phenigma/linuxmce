@@ -4,7 +4,7 @@
 void on_Step1A_forward_clicked(GtkWidget *widget, gpointer data) {
 	g_queue_push_head(history, (gpointer)STEP1A);
 
-	if (setting_deviceType != 3) {
+	if (setting_deviceType != DT_MEDIA_DIRECTOR) {
 		displayStep1D();
 	} else {
 		displayStep1B();

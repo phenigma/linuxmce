@@ -6,7 +6,7 @@ void on_Step1B_forward_clicked(GtkWidget *widget, gpointer data) {
 		printf("Set to %s\n",setting_coreIP);
 
 		g_queue_push_head(history, (gpointer)STEP1B);
-	        displayStep4();
+	        displayStep5();
 }
 
 void displayStep1B(void) {
