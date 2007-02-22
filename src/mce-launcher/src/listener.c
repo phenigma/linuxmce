@@ -40,7 +40,10 @@ void* listener_thread(void *args) {
 			printf("Progress: %s | Message: %s\n", buffv[0], buffv[1]);
 	
 			gdk_threads_enter();
-			gtk_label_set_text(GTK_LABEL(data->labelMain), buffv[1]);
+			
+			gchar *labelText = g_strdup_printf("<b><big>%s</big></b>", g_strdelimit(buffv[1],"\n",' '));
+			gtk_label_set_markup(GTK_LABEL(data->labelMain), labelText);
+			g_free(labelText);
 			gtk_progress_bar_update(GTK_PROGRESS_BAR(data->progressMain), (gfloat)progress/100);
 			gdk_threads_leave();
 		}

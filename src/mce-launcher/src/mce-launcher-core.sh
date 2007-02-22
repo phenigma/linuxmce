@@ -137,4 +137,5 @@ StartDaemon  "Starting Dhcp Plugin" "/usr/pluto/bin/Dhcp-Plugin.sh" "DhcpPlugin"
 #Pluto_Backup_Database.sh \
 #Pluto_Share_IRCodes.sh \
 
-sleep 10000
+echo "100%Done" > /tmp/mce-launcher-pipe
+sleep 2

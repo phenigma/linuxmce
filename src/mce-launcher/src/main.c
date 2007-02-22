@@ -91,6 +91,9 @@ main (int argc, char *argv[])
 	vte_terminal_fork_command(VTE_TERMINAL(terminal),"./mce-launcher-core.sh",NULL, NULL, "", FALSE, FALSE, FALSE);
 	gtk_widget_show_all(GTK_WIDGET(terminal));
 
+	GtkWidget* imageMain = glade_xml_get_widget(gxml, "imageMain");
+	gtk_image_set_from_file(imageMain, "mce-logo.png");
+
 	/* init listener thread */	
 	listener_args args;
 	args.progressMain = progressMain;
