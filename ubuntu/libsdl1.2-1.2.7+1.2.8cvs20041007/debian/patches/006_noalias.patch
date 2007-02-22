@@ -1,0 +1,18 @@
+--- x1/src/hermes/HeadMMX.h	2007-02-22 13:04:16.000000000 +0200
++++ x2/src/hermes/HeadMMX.h	2007-02-22 13:04:05.000000000 +0200
+@@ -50,6 +50,7 @@
+   extern "C" {   
+   #endif
+ 
++#if 0
+   void ConvertMMX(HermesConverterInterface *) __attribute__ ((alias ("_ConvertMMX")));
+ #if 0
+   void ClearMMX_32(HermesClearInterface *) __attribute__ ((alias ("_ClearMMX_32")));
+@@ -65,6 +66,7 @@
+   void ConvertMMXpII32_16BGR565() __attribute__ ((alias ("_ConvertMMXpII32_16BGR565")));
+   void ConvertMMXpII32_16RGB555() __attribute__ ((alias ("_ConvertMMXpII32_16RGB555")));
+   void ConvertMMXpII32_16BGR555() __attribute__ ((alias ("_ConvertMMXpII32_16BGR555")));
++#endif
+ 
+   #ifdef __cplusplus
+   }
