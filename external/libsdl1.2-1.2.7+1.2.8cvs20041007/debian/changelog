@@ -1,3 +1,9 @@
+libsdl1.2 (1.2.7+1.2.8cvs20041007+pluto-2) unstable; urgency=low
+
+  * Building with prefix=/opt/libsdl1.2-1.2.7+1.2.8cvs20041007
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Thu, 22 Feb 2007 12:15:04 +0200
+ 
 libsdl1.2 (1.2.7+1.2.8cvs20041007+pluto-1) unstable; urgency=high
 
   * SDL with Pluto patches for OpenGL
