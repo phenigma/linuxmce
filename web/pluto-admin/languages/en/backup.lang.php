@@ -9,5 +9,5 @@ $TEXT_BACKUP_ERROR_CONST='Backup error';
 $TEXT_EXISTING_BACKUP_FILES_CONST='Existing backup files';
 $TEXT_NOTHING_TO_RESTORE_CONST='Nothing to restore';
 $TEXT_RESTORE_PERMISSION_DENIED_CONST='Permission denied';
-$TEXT_RESTORE_SUCCESS_CONST='Restore succesfull';
+$TEXT_RESTORE_SUCCESS_CONST='Backup file uploaded, please reboot the machine in order to become effective.';
 ?>

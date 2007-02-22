@@ -107,8 +107,9 @@ function backup($output,$dbADO) {
 			$move_cmd='sudo -u root mv '.$_FILES['restore_file']['tmp_name'].' '.'/home/backup/upload/'.$_FILES['restore_file']['name'];
 			exec_batch_command($move_cmd);
 			
-			$cmd='sudo -u root /usr/pluto/bin/PlutoRestorePoint.sh --restore --skip-md5';
-			$result=exec_batch_command($cmd,1);
+			// removed: it will be executed on reboot
+			// $cmd='sudo -u root /usr/pluto/bin/PlutoRestorePoint.sh --restore --skip-md5';
+			// $result=exec_batch_command($cmd,1);
 
 			header("Location: index.php?section=backup&msg=".urlencode($TEXT_RESTORE_SUCCESS_CONST));
 			exit();
