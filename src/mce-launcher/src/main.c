@@ -41,8 +41,14 @@
 #include "listener.h"
 
 /* For testing propose use the local (not installed) glade file */
-/* #define GLADE_FILE PACKAGE_DATA_DIR"/mce-launcher/glade/mce-launcher.glade" */
-#define GLADE_FILE "mce-launcher.glade"
+#define GLADE_FILE PACKAGE_DATA_DIR"/mce-launcher/glade/mce-launcher.glade"
+#define LOGO_FILE  PACKAGE_DATA_DIR"/mce-launcher/images/mce-logo.png"
+#define SCRIPT_DIR PACKAGE_DATA_DIR"/mce-launcher/scripts/"
+/*
+#define GLADE_FILE "mce-launcher.glade" 
+#define LOGO_FILE "mce-logo.png"
+#define SCRIPT_DIR ""
+*/
 
 static gboolean delete_event( GtkWidget *widget, GdkEvent *event, gpointer data) {
 	gtk_main_quit ();
@@ -88,11 +94,11 @@ main (int argc, char *argv[])
 	labelMain = glade_xml_get_widget(gxml, "labelMain");
 	progressMain = glade_xml_get_widget(gxml, "progressMain");
 
-	vte_terminal_fork_command(VTE_TERMINAL(terminal),"./mce-launcher-core.sh",NULL, NULL, "", FALSE, FALSE, FALSE);
+	vte_terminal_fork_command(VTE_TERMINAL(terminal),SCRIPT_DIR"/mce-launcher-core.sh",NULL, NULL, "", FALSE, FALSE, FALSE);
 	gtk_widget_show_all(GTK_WIDGET(terminal));
 
 	GtkWidget* imageMain = glade_xml_get_widget(gxml, "imageMain");
-	gtk_image_set_from_file(imageMain, "mce-logo.png");
+	gtk_image_set_from_file(imageMain, LOGO_FILE);
 
 	/* init listener thread */	
 	listener_args args;

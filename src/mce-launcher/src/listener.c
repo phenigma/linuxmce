@@ -44,7 +44,9 @@ void* listener_thread(void *args) {
 			gchar *labelText = g_strdup_printf("<b><big>%s</big></b>", g_strdelimit(buffv[1],"\n",' '));
 			gtk_label_set_markup(GTK_LABEL(data->labelMain), labelText);
 			g_free(labelText);
-			gtk_progress_bar_update(GTK_PROGRESS_BAR(data->progressMain), (gfloat)progress/100);
+			if (progress != 0 ) {
+				gtk_progress_bar_update(GTK_PROGRESS_BAR(data->progressMain), (gfloat)progress/100);
+			}
 			gdk_threads_leave();
 		}
 
