@@ -28,8 +28,20 @@
 #include "Command_Impl.h"
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DeviceData_Router.h"
+#include "DCERouter.h"
 
 using namespace DCE;
+
+
+Pipe::Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe,Router *pRouter) 
+{ 
+	m_PK_Pipe = pRow_Device_Device_Pipe->FK_Pipe_get();
+	m_pDevice_From = pRouter->m_mapDeviceData_Router_Find(pRow_Device_Device_Pipe->FK_Device_From_get());
+	m_pDevice_To = pRouter->m_mapDeviceData_Router_Find(pRow_Device_Device_Pipe->FK_Device_To_get());
+	m_pCommand_Input = pRouter->m_mapCommand_Find(pRow_Device_Device_Pipe->FK_Command_Input_get());
+	m_pCommand_Output = pRouter->m_mapCommand_Find(pRow_Device_Device_Pipe->FK_Command_Output_get());
+	m_bDontSendInputs=m_bDontSendOff=m_bDontSendOn=m_bTemporary=false;
+}
 
 // This will return the first device within the given category that is in any way
 // related (ie also a child of the topmost device, meaning it runs on the same PC).  Call leaving the default parameters unspecified.

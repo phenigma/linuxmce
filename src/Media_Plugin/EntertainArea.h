@@ -21,7 +21,7 @@ namespace DCE
 		/** @brief constructor*/
 
 		EntertainArea(int iPK_EntertainArea,bool bOnly1Stream,string sDescription,Room *pRoom)
-		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; m_pRoom=pRoom; m_pMediaDevice_ActiveDest=NULL; m_bMediaIsPrivate=false; m_pOH_Orbiter_OSD=NULL; m_pMediaDevice_MD=NULL; }
+		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; m_pRoom=pRoom; m_pMediaDevice_ActiveDest=NULL; m_bMediaIsPrivate=false; m_pOH_Orbiter_OSD=NULL; m_pMediaDevice_MD=NULL; m_bUsingCustomPipe=m_bViewingLiveAVPath=false; }
 
 
 		~EntertainArea()
@@ -43,7 +43,8 @@ namespace DCE
 		string m_sDescription;
 		Room *m_pRoom;
 		bool m_bMediaIsPrivate;
-
+		
+		bool m_bUsingCustomPipe;  /** This EA is being fed audio/video from a multi-zone system where the source is in a different room so a/v commands go up a custom pipe */
 		class MediaStream  *m_pMediaStream;   /** The current media streams in this entertainment area */
 		MediaDevice	*m_pMediaDevice_ActiveDest;      /** The media device that is currently rendering media in this area */
 		MediaDevice	*m_pMediaDevice_MD;      /** The media device that is the MD in this area */
@@ -54,6 +55,7 @@ namespace DCE
 		map<int, ListMediaDevice *> m_mapMediaDeviceByTemplate;  /** All the media devices in the area by device template */
 		ListMediaDevice *m_mapMediaDeviceByTemplate_Find(int PK_DeviceTemplate) { map<int,ListMediaDevice *>::iterator it = m_mapMediaDeviceByTemplate.find(PK_DeviceTemplate); return it==m_mapMediaDeviceByTemplate.end() ? NULL : (*it).second; }
 		ListMediaDevice m_listVFD_LCD_Displays;
+		bool m_bViewingLiveAVPath; // True if the device has video that runs both through the capture card, and directly to other av devices, and the user is viewing it directly to the a/v devices.  Sending the Live_AVPath command makes this happen
 
 		/** If the user starts some media temporarily (like an announcement) and wants the prior
 		media to continue when it's done, the prior interrupted media streams are stored here */

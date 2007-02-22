@@ -97,7 +97,7 @@ bool File_Grids_Plugin::Register()
 	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pMedia_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to file grids");
 		return false;
 	}
 

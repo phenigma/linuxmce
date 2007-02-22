@@ -7,6 +7,7 @@ public:
 	MultiLogger();
 	virtual ~MultiLogger();
 	
+	virtual void WriteBlock(const char *pBlock, size_t sBlockLen ) {}
 	virtual void WriteEntry(class Logger::Entry& entry);
 	virtual void Start();
 	static Logger* Parse(TokenStream& ts, NameLoggerMap& targets, StringStringMap& vars);

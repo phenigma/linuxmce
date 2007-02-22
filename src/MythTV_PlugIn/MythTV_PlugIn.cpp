@@ -132,7 +132,7 @@ bool MythTV_PlugIn::Register()
 	m_pGeneral_Info_Plugin=( General_Info_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pMedia_Plugin || !m_pGeneral_Info_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to myth plugin");
 		return false;
 	}
 

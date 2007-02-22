@@ -97,7 +97,7 @@ bool Climate_Plugin::Register()
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to climate plugin");
 		return false;
 	}
 

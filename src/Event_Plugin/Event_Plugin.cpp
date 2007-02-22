@@ -223,7 +223,7 @@ bool Event_Plugin::Register()
 	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 	if( !m_pDatagrid_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to event plugin");
 		return false;
 	}
 

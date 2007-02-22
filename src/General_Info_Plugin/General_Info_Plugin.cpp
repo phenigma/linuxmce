@@ -153,7 +153,7 @@ bool General_Info_Plugin::Register()
 	m_pEvent_Plugin=( Event_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Event_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin || !m_pEvent_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to general info plugin");
 		return false;
 	}
 

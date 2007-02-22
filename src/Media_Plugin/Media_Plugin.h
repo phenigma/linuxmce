@@ -209,7 +209,9 @@ protected:
      * Since a destination device may have separate output zones in different EA's, this function confirms the destination output and creates alternate pipes to handle other zones 
 	 * Returns false if there's no way to get media from the source device to the destination EA
      */
-	bool CheckForAlternatePipes(MediaStream *pMediaStream);
+	bool CheckForAlternatePipes(MediaStream *pMediaStream,EntertainArea *pEntertainArea);
+	bool CheckForAlternatePipes(DeviceData_Router *pDevice_From,DeviceData_Router *pDevice_To,EntertainArea *pEntertainArea);  // Recursive
+	void AddAlternativeRoute(DeviceData_Router *pDevice_From,DeviceData_Router *pDevice_To,Pipe *pPipe,EntertainArea *pEntertainArea);
 
 	/**
 	 * Used by GetConfig to recursively add all source devices into an output zone that can feed into that output zone
@@ -224,7 +226,7 @@ protected:
 	/**
      * Given that media was playing on the Prior list of devices, and now is on the Current list of devices, send the appropriate on/off's
      */
-	void HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current,MediaStream *pMediaStream);
+	void HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current,MediaStream *pMediaStream,EntertainArea *pEntertainArea);
 
     /**
      * Turn off the device and other devices in the pipe, but without turning off devices we are currently using
@@ -525,7 +527,7 @@ public:
 	class DataGridTable *MediaAttrCurStream( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	void AddMediaSectionToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaSection *> &dequeMediaSection,string sPreface,bool bThumbnail=false);
 	void AddMediaTitlesToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaTitle *> &dequeMediaTitle,string sPreface,bool bThumbnail=false);
-	void DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,DataGridTable *&pDataGrid,int &iRow,int PK_Command_Input=0,int PK_Command_Output=0,vector<int> *p_vectDevice=NULL);
+	void DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,DataGridTable *&pDataGrid,int &iRow,Command *pCommand_Input=NULL,Command *pCommand_Output=NULL,vector<int> *p_vectDevice=NULL);
 
 	class DataGridTable *AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
@@ -606,7 +608,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d 
 				sMediaDevices += ",0";
 
 			sMediaDevices += pMediaStream->ContainsVideo() ? ",1" : ",0";
-			sMediaDevices += pMediaStream->m_pMediaDevice_Source->m_bViewingLiveAVPath ? ",1" : ",0";
+			sMediaDevices += pEntertainArea_OSD && pEntertainArea_OSD->m_bViewingLiveAVPath ? ",1" : ",0";
 
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
 				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, 

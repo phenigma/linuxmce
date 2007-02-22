@@ -111,7 +111,7 @@ bool Plug_And_Play_Plugin::Register()
 	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 	if( !m_pOrbiter_Plugin || !m_pDatagrid_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to pnp plugin");
 		return false;
 	}
 

@@ -15,6 +15,7 @@ public:
 	ServerLogger(int DeviceID, int PK_DeviceTemplate, ::std::string server);
 	virtual ~ServerLogger();
 
+	virtual void WriteBlock(const char *pBlock, size_t sBlockLen ) {}
 	virtual void WriteEntry(class Logger::Entry& entry);
 	
 	virtual void Start();

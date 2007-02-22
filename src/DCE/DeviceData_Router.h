@@ -4,6 +4,7 @@
 #include "DeviceData_Impl.h"
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_DeviceTemplate.h"
+#include "pluto_main/Table_Device_Device_Pipe.h"
 
 class Row_Device_Device_Pipe;
 
@@ -15,7 +16,10 @@ namespace DCE
 	class Pipe
 	{
 	public:
-		Row_Device_Device_Pipe *m_pRow_Device_Device_Pipe;
+		class DeviceData_Router *m_pDevice_From,*m_pDevice_To;
+		class Command *m_pCommand_Input,*m_pCommand_Output;
+		int m_PK_Pipe;
+
 		// A plugin or something can set this flag, and then off's won't get propagated.  That way the pipe
 		// that goes to the display devices for an on-screen orbiter, for example, can be set to true
 		// so that only the 'off' from the on screen orbiter will turn the rendering device off.
@@ -31,7 +35,20 @@ namespace DCE
 		// If so, it creates the pipe in the map of active pips, sets this flag m_bTemporary=true, and when we clear the active pipes,
 		// we'll delete it
 		bool m_bTemporary;
-		Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe) { m_pRow_Device_Device_Pipe=pRow_Device_Device_Pipe; m_bDontSendInputs=m_bDontSendOff=m_bDontSendOn=m_bTemporary=false; }
+
+		Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe,class Router *pRouter);
+
+		// A constructor for creating temporary pipes
+		Pipe(DeviceData_Router *pDevice_From,DeviceData_Router *pDevice_To,int PK_Pipe,Command *pCommand_Input,Command *pCommand_Output)
+		{
+			m_pDevice_From = pDevice_From;
+			m_pDevice_To = pDevice_To;
+			m_PK_Pipe = PK_Pipe;
+			m_pCommand_Input = pCommand_Input;
+			m_pCommand_Output = pCommand_Output;
+			m_bDontSendInputs=m_bDontSendOff=m_bDontSendOn=false;
+			m_bTemporary=true;
+		}
 	};
 
 	typedef map<int, class Pipe *> MapPipe;  // Map of PK_Pipe (ie audio/video) to a pipe

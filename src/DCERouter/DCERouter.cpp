@@ -1786,10 +1786,10 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 			else
 				++it;
 
-			if( (PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()) || pPipe->m_bDontSendOff )
+			if( (PK_Pipe && PK_Pipe!=pPipe->m_PK_Pipe) || pPipe->m_bDontSendOff )
 				continue;
 
-			Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+			Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
                 PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0);
 			if( PK_Pipe )
 				pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
@@ -1815,26 +1815,26 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 
 #ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Walking the command pipe: Command input: %d Command_Output: %d Device From: %d, FK_Pipe: %d",
-				pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get(),
-				pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get(),
-				pPipe->m_pRow_Device_Device_Pipe->FK_Device_From_get());
+				pPipe->m_pCommand_Input ? pPipe->m_pCommand_Input->m_dwPK_Command : 0,
+				pPipe->m_pCommand_Output ? pPipe->m_pCommand_Output->m_dwPK_Command : 0,
+				pPipe->m_pDevice_From->m_dwPK_Device);
 #endif
-			if( PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get() )
+			if( PK_Pipe && PK_Pipe!=pPipe->m_PK_Pipe )
 				continue;
 
             if( sPipesDevices.length()<3 || sPipesDevices.find("," + StringUtils::itos((*it).first) + ",")!=string::npos ) // It may be 2 characters: ,,
-                pDeviceData_Router->m_mapPipe_Active[pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()]=pPipe;
+                pDeviceData_Router->m_mapPipe_Active[pPipe->m_PK_Pipe]=pPipe;
 
-			if( pPipe_Prior && pPipe_Prior->m_pRow_Device_Device_Pipe->FK_Device_To_get()==pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get() 
-					&& pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get()==pPipe_Prior->m_pRow_Device_Device_Pipe->FK_Command_Input_get()
-					&& pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get()==pPipe_Prior->m_pRow_Device_Device_Pipe->FK_Command_Output_get() )
+			if( pPipe_Prior && pPipe_Prior->m_pDevice_To->m_dwPK_Device==pPipe->m_pDevice_To->m_dwPK_Device 
+					&& pPipe->m_pCommand_Input==pPipe_Prior->m_pCommand_Input
+					&& pPipe->m_pCommand_Output==pPipe_Prior->m_pCommand_Output )
 				continue;  // Don't bother if there's another pipe going to the same device--we will have already done this
 			pPipe_Prior=pPipe;
 
 			if( pPipe->m_bDontSendOn==false )
 			{
 				// Forward the on command up the pipe
-				Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+				Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
 					PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
 				if( PK_Pipe )
 					pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
@@ -1845,18 +1845,18 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 			}
 
 			// The pipe's auto selection of inputs could be disabled if we're using some other output device, like a capture card
-			if( pPipe->m_bDontSendInputs==false && !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )
+			if( pPipe->m_bDontSendInputs==false && pPipe->m_pCommand_Input )
             {
-                Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+                Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
                     PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,1,
-                    COMMANDPARAMETER_PK_Command_Input_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get()).c_str());
+                    COMMANDPARAMETER_PK_Command_Input_CONST,StringUtils::itos(pPipe->m_pCommand_Input->m_dwPK_Command).c_str());
                 ReceivedMessage(NULL,pMessage);
             }
-            if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_isNull() )
+            if( pPipe->m_pCommand_Output )
             {
-                Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+                Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
                     PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Output_Select_CONST,1,
-                    COMMANDPARAMETER_PK_Command_Output_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get()).c_str());
+                    COMMANDPARAMETER_PK_Command_Output_CONST,StringUtils::itos(pPipe->m_pCommand_Output->m_dwPK_Command).c_str());
                 ReceivedMessage(NULL,pMessage);
             }
         }
@@ -1868,7 +1868,7 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
             Pipe *pPipe;
             if( (pPipe=pDeviceData_Router->m_mapPipe_Active_Find(*it))!=NULL )
             {
-                (*(*pSafetyMessage))->m_dwPK_Device_To = pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get();
+                (*(*pSafetyMessage))->m_dwPK_Device_To = pPipe->m_pDevice_To->m_dwPK_Device;
 #ifdef DEBUG
 				DeviceData_Router *pDevice = m_mapDeviceData_Router_Find((*(*pSafetyMessage))->m_dwPK_Device_To);
 				g_pPlutoLogger->Write(LV_ACTION,"Forwarding %d Command:\x1b[35;1m%s\x1b[0m up pipe to %d (\x1b[36;1m%s\x1b[0m)",
@@ -2284,13 +2284,48 @@ void Router::Configure()
 		}
     }
 
-    vector<Row_Device *> vectDevices;
+    // Build some static arrays
+    vector<Row_Command *> vectRow_Command;
+    GetDatabase()->Command_get()->GetRows("1=1",&vectRow_Command);  // All rows
+    for(size_t s=0;s<vectRow_Command.size();++s)
+    {
+        Row_Command *pRow_Command = vectRow_Command[s];
+		Row_CommandCategory *pRow_CommandCategory = pRow_Command->FK_CommandCategory_getrow();
+		if( !pRow_CommandCategory )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Command %d has no category",pRow_Command->PK_Command_get());
+			continue;
+		}
+        Command *pCommand = new Command(pRow_Command->PK_Command_get(),pRow_Command->Description_get(),
+			pRow_CommandCategory->PK_CommandCategory_get(),pRow_CommandCategory->Description_get(),
+			pRow_Command->Log_get()==1);
+        vector<Row_Command_Pipe *> vectRow_Command_Pipe;
+        pRow_Command->Command_Pipe_FK_Command_getrows(&vectRow_Command_Pipe);
+        for(size_t sp=0;sp<vectRow_Command_Pipe.size();++sp)
+        {
+            Row_Command_Pipe *pRow_Command_Pipe = vectRow_Command_Pipe[sp];
+            pCommand->m_listPipe.push_back( pRow_Command_Pipe->FK_Pipe_get() );
+        }
+        m_mapCommand[pRow_Command->PK_Command_get()]=pCommand;
+    }
+
+    // Build some static arrays
+    vector<Row_Event *> vectRow_Event;
+    GetDatabase()->Event_get()->GetRows("1=1",&vectRow_Event);  // All rows
+    for(size_t s=0;s<vectRow_Event.size();++s)
+    {
+        Row_Event *pRow_Event = vectRow_Event[s];
+        Event_Router *pEvent_Router = new Event_Router(pRow_Event->PK_Event_get(),pRow_Event->Description_get(),pRow_Event->Log_get()==1);
+        m_mapEvent_Router[pRow_Event->PK_Event_get()]=pEvent_Router;
+    }
+
+	vector<Row_Device *> vectDevices;
     GetDatabase()->Device_get()->GetRows(
         string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation),&vectDevices);
 
-    for(size_t s=0;s<vectDevices.size();++s)
+	for(vector<Row_Device *>::iterator it=vectDevices.begin();it!=vectDevices.end();++it)
     {
-        Row_Device *pRow_Device = vectDevices[s];
+        Row_Device *pRow_Device = *it;
 		if( pRow_Device->PK_Device_get()>=m_dwPK_Device_Largest )
 			m_dwPK_Device_Largest=pRow_Device->PK_Device_get();
 
@@ -2315,16 +2350,6 @@ void Router::Configure()
 		Room *pRoom = m_mapRoom_Find(pDevice->m_dwPK_Room);
 		if( pRoom )
 			pRoom->m_listDevices.push_back(pDevice);
-
-        vector<Row_Device_Device_Pipe *> vectRow_Device_Device_Pipe;
-        pRow_Device->Device_Device_Pipe_FK_Device_From_getrows(&vectRow_Device_Device_Pipe);
-        for(size_t sp=0;sp<vectRow_Device_Device_Pipe.size();++sp)
-        {
-            Row_Device_Device_Pipe *pRow_Device_Device_Pipe = vectRow_Device_Device_Pipe[sp];
-			Row_Device *pRow_Device_To = pRow_Device_Device_Pipe->FK_Device_To_getrow();
-			if( pRow_Device_To )
-	            pDevice->m_mapPipe_Available[pRow_Device_Device_Pipe->FK_Pipe_get()] = new Pipe(pRow_Device_Device_Pipe);
-        }
 
         ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceByTemplate_Find(pDevice->m_dwPK_DeviceTemplate);
         if( !pListDeviceData_Router )
@@ -2448,6 +2473,20 @@ void Router::Configure()
 		}
 	}
 
+	for(map<int,class DeviceData_Router *>::iterator it=m_mapDeviceData_Router.begin();it!=m_mapDeviceData_Router.end();++it)
+    {
+		DeviceData_Router *pDevice = it->second;
+		vector<Row_Device_Device_Pipe *> vectRow_Device_Device_Pipe;
+		pDevice->m_pRow_Device->Device_Device_Pipe_FK_Device_From_getrows(&vectRow_Device_Device_Pipe);
+		for(vector<Row_Device_Device_Pipe *>::iterator itP=vectRow_Device_Device_Pipe.begin();itP!=vectRow_Device_Device_Pipe.end();++itP)
+		{
+			Row_Device_Device_Pipe *pRow_Device_Device_Pipe = *itP;
+			Row_Device *pRow_Device_To = pRow_Device_Device_Pipe->FK_Device_To_getrow();
+			if( pRow_Device_To )
+				pDevice->m_mapPipe_Available[pRow_Device_Device_Pipe->FK_Pipe_get()] = new Pipe(pRow_Device_Device_Pipe,this);
+		}
+	}
+
     // Now match up children to parents
     map<int,class DeviceData_Router *>::iterator itDevice;
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
@@ -2465,7 +2504,7 @@ void Router::Configure()
 			it!=pDevice->m_mapPipe_Available.end();++it )
 		{
 			Pipe *pPipe = (*it).second;
-			DeviceData_Router *pDevice_To = m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+			DeviceData_Router *pDevice_To = m_mapDeviceData_Router_Find(pPipe->m_pDevice_To->m_dwPK_Device);
 			if( pDevice_To && pDevice_To_Last!=pDevice_To )
 				pDevice_To->m_vectDevices_SendingPipes.push_back(pDevice);
 			pDevice_To_Last=pDevice_To;  // Don't put the same thing in there twice if both the a/v use the same path
@@ -2557,41 +2596,6 @@ void Router::Configure()
         pDevice->m_pcDataBlock=NULL; // So the framework doesn't delete this when we serialize another object in the chain
         if( !pDevice->m_pDevice_ControlledVia )
             ParseDevice(DEVICEID_DCEROUTER, DEVICEID_DCEROUTER,pDevice);
-    }
-
-    // Build some static arrays
-    vector<Row_Command *> vectRow_Command;
-    GetDatabase()->Command_get()->GetRows("1=1",&vectRow_Command);  // All rows
-    for(size_t s=0;s<vectRow_Command.size();++s)
-    {
-        Row_Command *pRow_Command = vectRow_Command[s];
-		Row_CommandCategory *pRow_CommandCategory = pRow_Command->FK_CommandCategory_getrow();
-		if( !pRow_CommandCategory )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Command %d has no category",pRow_Command->PK_Command_get());
-			continue;
-		}
-        Command *pCommand = new Command(pRow_Command->PK_Command_get(),pRow_Command->Description_get(),
-			pRow_CommandCategory->PK_CommandCategory_get(),pRow_CommandCategory->Description_get(),
-			pRow_Command->Log_get());
-        vector<Row_Command_Pipe *> vectRow_Command_Pipe;
-        pRow_Command->Command_Pipe_FK_Command_getrows(&vectRow_Command_Pipe);
-        for(size_t sp=0;sp<vectRow_Command_Pipe.size();++sp)
-        {
-            Row_Command_Pipe *pRow_Command_Pipe = vectRow_Command_Pipe[sp];
-            pCommand->m_listPipe.push_back( pRow_Command_Pipe->FK_Pipe_get() );
-        }
-        m_mapCommand[pRow_Command->PK_Command_get()]=pCommand;
-    }
-
-    // Build some static arrays
-    vector<Row_Event *> vectRow_Event;
-    GetDatabase()->Event_get()->GetRows("1=1",&vectRow_Event);  // All rows
-    for(size_t s=0;s<vectRow_Event.size();++s)
-    {
-        Row_Event *pRow_Event = vectRow_Event[s];
-        Event_Router *pEvent_Router = new Event_Router(pRow_Event->PK_Event_get(),pRow_Event->Description_get(),pRow_Event->Log_get());
-        m_mapEvent_Router[pRow_Event->PK_Event_get()]=pEvent_Router;
     }
 
 	// Build all the command groups
@@ -2908,8 +2912,12 @@ void Router::CheckForRecursivePipes(DeviceData_Router *pDevice,vector<int> *pvec
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"Device %d is recursive pipe",pDevice->m_dwPK_Device);
 				bPipesRecurse=true;
-				pPipe->m_pRow_Device_Device_Pipe->Delete();
-				pPipe->m_pRow_Device_Device_Pipe->Table_Device_Device_Pipe_get()->Commit();
+				Row_Device_Device_Pipe *pRow_Device_Device_Pipe = m_pDatabase_pluto_main->Device_Device_Pipe_get()->GetRow(pPipe->m_pDevice_From->m_dwPK_Device,pPipe->m_pDevice_To->m_dwPK_Device,pPipe->m_PK_Pipe);
+				if( pRow_Device_Device_Pipe )
+				{
+					pRow_Device_Device_Pipe->Delete();
+					pRow_Device_Device_Pipe->Table_Device_Device_Pipe_get()->Commit();
+				}
 			}
 	}
 
@@ -2927,11 +2935,11 @@ void Router::CheckForRecursivePipes(DeviceData_Router *pDevice,vector<int> *pvec
     for(MapPipe::iterator it=pDevice->m_mapPipe_Available.begin();it!=pDevice->m_mapPipe_Available.end();++it)
     {
         Pipe *pPipe = (*it).second;
-		if( mapDevices_InPipes[pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get()] )
+		if( mapDevices_InPipes[pPipe->m_pDevice_To->m_dwPK_Device] )
 			continue;
-		mapDevices_InPipes[pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get()]=true;
+		mapDevices_InPipes[pPipe->m_pDevice_To->m_dwPK_Device]=true;
 
-		DeviceData_Router *pDevice_Dest = m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+		DeviceData_Router *pDevice_Dest = m_mapDeviceData_Router_Find(pPipe->m_pDevice_To->m_dwPK_Device);
 		if( pDevice_Dest )
 			vectDevice.push_back(pDevice_Dest);
 	}

@@ -78,7 +78,6 @@ namespace DCE
 		string m_sVideoSettings,m_sAudioSettings,m_sCommands;  /** Come from ATTRIBUTETYPE_Video_Settings_CONST and ATTRIBUTETYPE_Audio_Settings_CONST to override the values in PlaybackStarted event */
 		int m_discid;  /** A unique number to identify the disc inserted, if this is from a removable disc (CD/DVD) */
 		bool m_bIdentifiedDisc;
-		bool m_bAlternatePipes; // True if the audio/video is going out alternate pipes (ie separate a/v zones)
 		int m_dwPK_Device_Remote; /** What remote control started this content */
 		
 		/** When this media is identified, the priority of the identifying module is stored here so if another

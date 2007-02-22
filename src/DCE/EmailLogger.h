@@ -13,6 +13,7 @@ namespace DCE
 
 		static EMailLogger* Parse(TokenStream& ts, StringStringMap& vars);
 
+		virtual void WriteBlock(const char *pBlock, size_t sBlockLen ) {}
 		virtual void WriteEntry(class Logger::Entry& entry);
 
 	protected:

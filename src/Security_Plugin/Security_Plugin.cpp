@@ -260,7 +260,7 @@ bool Security_Plugin::Register()
 	m_pTelecom_Plugin=( Telecom_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Telecom_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin || !m_pTelecom_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to security plugin");
 		return false;
 	}
 

@@ -133,6 +133,11 @@ namespace DCE
 		virtual void Flush() {}
 	
 		/**
+		* @brief Write a block of data in the log
+		*/
+		virtual void WriteBlock(const char *pBlock, size_t sBlockLen )=0;
+
+		/**
 		* @brief an entry in a specific format depending on it's level
 		* @todo ask
 		*/
@@ -203,6 +208,8 @@ namespace DCE
 		virtual ~NullLogger()
 		{}
 
+		virtual void WriteBlock(const char *pBlock, size_t sBlockLen ) {}
+
 		virtual void Write( int /*iLevel*/, const char * /*pcFormat*/, ... ) {}
 
 		virtual void WriteEntry( class Logger::Entry& /*entry*/ ) {}
@@ -262,6 +269,8 @@ namespace DCE
 		*/
 		virtual void ClearConsole();
 		
+		virtual void WriteBlock(const char *pBlock, size_t sBlockLen );
+
 		/**
 		* @brief prints the log entry data to the log file
 		*/
@@ -291,6 +300,8 @@ namespace DCE
 
 		virtual int GetType() { return LT_LOGGER_ORBITERWIN; }
 	
+		virtual void WriteBlock(const char *pBlock, size_t sBlockLen ) {}
+
 		virtual void WriteEntry( class Logger::Entry& entry );
 	};
 #endif

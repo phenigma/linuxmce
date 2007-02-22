@@ -313,7 +313,7 @@ bool Orbiter_Plugin::Register()
 
 	if( !m_pDatagrid_Plugin || !m_pLighting_Floorplan || !m_pClimate_Floorplan || !m_pMedia_Floorplan || !m_pSecurity_Floorplan || !m_pTelecom_Floorplan || !m_pGeneral_Info_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to orbiter plugin");
 		return false;
 	}
 
@@ -1965,10 +1965,10 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
         {
             Pipe *pPipe = (*it).second;
-			if( (PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()) || pPipe->m_bDontSendOff )
+			if( (PK_Pipe && PK_Pipe!=pPipe->m_PK_Pipe) || pPipe->m_bDontSendOff )
 				continue;
 
-			Message *pMessage_New = new Message( pMessage->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+			Message *pMessage_New = new Message( pMessage->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
                 PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0);
 			if( PK_Pipe )
 				pMessage_New->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
@@ -1998,7 +1998,7 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 			for( map<int,Pipe *>::iterator it=pDevice_MD->m_mapPipe_Available.begin();it!=pDevice_MD->m_mapPipe_Available.end();++it)
 			{
 				Pipe *pPipe = it->second;
-				if( pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()==2 || pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()==4 )
+				if( pPipe->m_PK_Pipe==2 || pPipe->m_PK_Pipe==4 )
 				{
 					bMD_Uses_External_Video=true;
 					break;
@@ -2314,14 +2314,14 @@ void Orbiter_Plugin::SetPipesEnable(DeviceData_Router *pDevice,bool bOverride)
 		it!=pDevice->m_mapPipe_Available.end();++it)
 	{
 		class Pipe *pPipe = it->second;
-		DeviceData_Router *pDevice_Dest = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+		DeviceData_Router *pDevice_Dest = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pDevice_To->m_dwPK_Device);
 		if( !pDevice_Dest )
 			continue;
 		SetPipesEnable(pDevice_Dest,bOverride);
 		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_Dest->m_dwPK_Device);
 		if( !pMediaDevice )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Problem overriding a/v pipe to device %d which isn't categorized as media",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
+			g_pPlutoLogger->Write(LV_WARNING,"Problem overriding a/v pipe to device %d which isn't categorized as media",pPipe->m_pDevice_To->m_dwPK_Device);
 			continue; // shouldn't happen -- it's not a/v equipment
 		}
 		pMediaDevice->m_bDontSendOffIfOSD_ON=bOverride;
@@ -2333,7 +2333,7 @@ void Orbiter_Plugin::SetPipesEnable(DeviceData_Router *pDevice,bool bOverride)
 				it2!=pAVDevice->m_mapPipe_Available.end();++it2)
 			{
 				class Pipe *pPipe2 = it2->second;
-				if( pPipe2->m_pRow_Device_Device_Pipe->FK_Device_To_get()==pMediaDevice->m_pDeviceData_Router->m_dwPK_Device )
+				if( pPipe2->m_pDevice_To->m_dwPK_Device==pMediaDevice->m_pDeviceData_Router->m_dwPK_Device )
 					pPipe2->m_bDontSendOff=bOverride;
 			}
 		}

@@ -209,6 +209,16 @@ void FileLogger::Rotate()
 	}
 }
 
+void FileLogger::WriteBlock( const char *pBlock, size_t sBlockLen )
+{
+    PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
+
+	fwrite( pBlock, 1, sBlockLen, m_LogFile );
+#ifdef DEBUG
+    fflush( m_LogFile );  // Try leaving this out of release builds to get faster disk performance.  For debug, we want to see the logs in real-time
+#endif
+}
+
 void FileLogger::WriteEntry( Entry& Entry )
 {
     PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
