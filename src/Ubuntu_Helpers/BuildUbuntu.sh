@@ -142,6 +142,18 @@ function Build_Pluto_Replacements {
 		cp ../lirc-pluto_*.deb "${temp_dir}"
 	popd
 
+	#Package: mce-launcher
+	pushd "${svn_dir}"/trunk/src/mce-launcher
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../mce-launcher_*.deb "${temp_dir}"
+	popd
+
+	#Package: mce-installer
+	pushd "${svn_dir}"/trunk/src/mce-installer
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../mce-installer_*.deb "${temp_dir}"
+	popd
+
 	#Download arch independent packages from 150
 	pushd $temp_dir
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libflickr-api-perl_1_all.deb
@@ -305,6 +317,11 @@ function Import_Pluto_Skins {
 	pushd /
 	ssh root@10.0.0.150 tar -c $skins_dir | tar -x
 	popd
+	
+	pushd /usr/pluto/orbiter/skins
+		rm -f Basic
+		ln -s LinuxMCE Basic
+	popd
 }
 
 function Create_Diskless_Archive {
@@ -325,7 +342,7 @@ function Create_Diskless_Archive {
 #Create_Diskless_Archive
 #Install_Build_Needed_Packages
 Import_Build_Database
-Import_Pluto_Skins
+#Import_Pluto_Skins
 Checkout_Pluto_Svn
 #Build_Pluto_Replacements
 Build_MakeRelease_Binary
