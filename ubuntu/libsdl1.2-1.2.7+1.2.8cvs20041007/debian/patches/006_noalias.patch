@@ -16,3 +16,21 @@
  
    #ifdef __cplusplus
    }
+--- x1/src/hermes/HeadX86.h	2002-05-18 14:30:38.000000000 +0300
++++ x2/src/hermes/HeadX86.h	2007-02-22 13:18:23.000000000 +0200
+@@ -79,6 +79,7 @@
+   extern "C" {
+   #endif
+ 
++#if 0
+   int Hermes_X86_CPU() __attribute__ ((alias ("_Hermes_X86_CPU")));
+ 
+   void ConvertX86(HermesConverterInterface *) __attribute__ ((alias ("_ConvertX86")));
+@@ -129,6 +130,7 @@
+   extern int ConvertX86p16_32RGBA888_LUT_X86[512] __attribute__ ((alias ("_ConvertX86p16_32RGBA888_LUT_X86")));
+   extern int ConvertX86p16_32BGRA888_LUT_X86[512] __attribute__ ((alias ("_ConvertX86p16_32BGRA888_LUT_X86")));
+ #endif
++#endif
+ 
+   #ifdef __cplusplus
+   }
