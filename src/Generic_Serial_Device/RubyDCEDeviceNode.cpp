@@ -35,7 +35,7 @@ using namespace std;
 namespace DCE {
 
 RubyDCEDeviceNode::RubyDCEDeviceNode()
-	: parent_(NULL), pembclass_(NULL), idledelay_(DEFAULT_IDLE_DELAY)
+	: parent_(NULL), pembclass_(NULL), idledelay_(DEFAULT_IDLE_DELAY), m_bHandleChildrenInParent_(false)
 {
 	clock_gettime(CLOCK_REALTIME, &lastidle_);	
 }
@@ -131,7 +131,8 @@ RubyDCEDeviceNode::handleMessage(Message* pmsg) {
     }
 
     bool ret = false;
-    if(getDeviceData()->m_dwPK_Device == (unsigned long)pmsg->m_dwPK_Device_To) {
+    if( getDeviceData()->m_dwPK_Device == (unsigned long)pmsg->m_dwPK_Device_To ||
+    	m_bHandleChildrenInParent_ ) {
 		g_pPlutoLogger->Write(LV_STATUS, "handleMessage directly");
         if( getEmbClass()->CallCmdHandler(pmsg) )
 		{
@@ -188,7 +189,14 @@ RubyDCEDeviceNode::PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& 
 	devwrap.setData(pdevdata->m_mapParameters);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Added %d data params to device %d.", numparams, pdevdata->m_dwPK_Device);
-		
+	
+	std::map<int, std::string>::iterator itPar = pdevdata->m_mapParameters.find(DEVICEDATA_Process_Child_Commands_In_Pare_CONST);
+	if( pdevdata->m_mapParameters.end() != itPar && !(*itPar).second.empty() )
+	{
+		if( (*itPar).second == "1" )
+			m_bHandleChildrenInParent_ = true;
+	}
+	
 	std::map<int, RubyDeviceWrapper>& childdevices = devwrap.getChildDevices();
 	std::map<int, std::string>& mapD_PC = devwrap.getMapDevice_PortChannel();
 	std::map<std::string, int>& mapPC_D = devwrap.getMapPortChannel_Device();

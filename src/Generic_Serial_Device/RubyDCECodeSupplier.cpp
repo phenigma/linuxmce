@@ -106,7 +106,7 @@ RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedat
 				if(!scmdtext.empty()) {
 					/*for each command*/
 					rcode_ += "#### " + scmdid + " ####################################################################\n";
-					rcode_ += "def cmd_"; rcode_ += scmdid; rcode_ += "(";
+					rcode_ += "def cmd_"; rcode_ += scmdid; rcode_ += "(cmd";
 		
 					/*add command parameters*/
 					std::string sql = "select PK_CommandParameter, CommandParameter.Description, Command_CommandParameter.IsOut, CommandParameter.FK_ParameterType "
@@ -126,14 +126,12 @@ RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedat
 					if((params.r = mySqlHelper.mysql_query_result(sql.c_str()))) {
 						MYSQL_ROW rowparam;
 						while((rowparam = mysql_fetch_row(params.r))) {
-							if(paramlist.size() > 0) {
-								rcode_ += ", ";
-							}
 							string rbparam = StringUtils::ToLower(FileUtils::ValidCPPName(rowparam[1]).c_str());
 							
 							PARAMPAIR parampair(atoi(rowparam[0]), rbparam);
 							paramlist.push_back(parampair);
 							
+							rcode_ += ", ";
 							rcode_ += rbparam;
 							if(atoi(rowparam[2]) == 1)
 							{

@@ -22,7 +22,10 @@
 #include <string>
 #include <iostream>
 
+#include "DCE/Logger.h"
+
 using namespace std;
+using namespace DCE;
 
 namespace EMBRUBY {
 
@@ -42,9 +45,10 @@ RubyEmbededClass::_callclass(VALUE arg) {
 VALUE 
 RubyEmbededClass::_callmethod(VALUE arg) {
 	ARGUMENTS& a = *reinterpret_cast<ARGUMENTS*>(arg);
-	cout << "Calling method " << a.member_ << " in class " << a.class_.classvalue_ << " with " << a.argc_ << " parameters" << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Calling method %s in class %s with parameters",
+		a.member_, a.class_.classvalue_, a.argc_);
 	VALUE v = rb_funcall2(a.class_.classvalue_, rb_intern(a.member_), a.argc_, a.argv_);
-	cout << "Method call ended." << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Method call ended.");
 	return v;
 }
 

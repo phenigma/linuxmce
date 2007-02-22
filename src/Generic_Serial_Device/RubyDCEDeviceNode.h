@@ -93,6 +93,7 @@ private:
 private:
 	DeviceData_Impl* pdevdata_;
 	RubyDCEEmbededClass* pembclass_; // Ruby class instance
+	bool m_bHandleChildrenInParent_;
 };
 
 };

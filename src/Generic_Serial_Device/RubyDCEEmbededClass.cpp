@@ -60,8 +60,35 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	std::list<int> paramids;
 	pcs_->getParamsOrderForCmd(pMessage->m_dwPK_Device_To, pMessage->m_dwID, paramids);
 	
+	// build the params
+	// let's start with the command itself first
 	std::list<VALUE> params;
+	RubyEmbededClassImpl<>* pembclass = NULL;
+	try {	
+		pembclass = new RubyEmbededClassImpl<>("Command");
+		RubyCommandWrapper* pWrapper = reinterpret_cast<RubyCommandWrapper*>(DATA_PTR(pembclass->getValue()));
+		
+		if(pWrapper == NULL) {
+			delete pembclass;
+			return false;
+		} else {
+			pWrapper->setDevIdFrom(pMessage->m_dwPK_Device_From);
+			pWrapper->setDevIdTo(pMessage->m_dwPK_Device_To);
+			pWrapper->setPriority(pMessage->m_dwPriority);
+			pWrapper->setType(pMessage->m_dwMessage_Type);
+			pWrapper->setId(pMessage->m_dwID);
+			
+			pWrapper->setParams(pMessage->m_mapParameters);
+		};
+	} catch(RubyException e) {
+		pembclass = NULL;
+		g_pPlutoLogger->Write(LV_CRITICAL, "Exception in Ruby occured: %s.", e.getMessage());
+		return false;
+	}
+	params.push_back(pembclass->getValue());
+	
 	for(std::list<int>::iterator pmit = paramids.begin(); pmit != paramids.end(); pmit++) {
+		g_pPlutoLogger->Write(LV_WARNING, "Parameter: %s", (pMessage->m_mapParameters[*pmit]).c_str());
 		params.push_back(StrToValue((pMessage->m_mapParameters[*pmit]).c_str()));
 	}
 	VALUE result;
@@ -72,7 +99,7 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	try {
 		pmanager = RubyIOManager::getInstance();
 		result=callmethod(buff, params);
-		string sCMD_Result="OK";		
+		string sCMD_Result="OK";
 		PLUTO_SAFETY_LOCK(mm,pmanager->m_MsgMutex);
 		if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 		{
@@ -137,10 +164,12 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 			mm.Release();
 		}
 	} catch(RubyException e) {
+		delete pembclass;
 		g_pPlutoLogger->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
 		return false;
 	}
 
+	delete pembclass;
 	return true;
 }
 
