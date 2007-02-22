@@ -56,14 +56,17 @@ void *progress_thread(void *arg) {
 
 void start_wget(void) {
 	wget_pid = fork();
-	if (wget_pid > 0) {
+	if (wget_pid == 0) {
 		execl("./wget-wrapper.sh","wget-wrapper.sh",NULL);
+		_exit(0);
 	} else if (wget_pid < 0) {
 		printf("ERROR: Cannot fork wget process\n");
 	}
 }
 
 void on_Step0B_forward_clicked(GtkWidget *widget, gpointer data) {
+	        g_queue_push_head(history, (gpointer)STEP0B);
+		displayStep3();
 }
 
 void on_Step0B_progress_unrealize(GtkWidget *widget, gpointer data) {
@@ -93,6 +96,11 @@ void displayStep0B(void) {
 	// Wizard text
 	labelSpeed = gtk_label_new_for_wizard ("Speed: not available");
 	gtk_box_pack_start(GTK_BOX(mainBox), labelSpeed, FALSE, FALSE, 0);
+
+	// Button Back
+	GtkWidget *buttonBack = gtk_button_new_from_stock(GTK_STOCK_GO_BACK);
+	gtk_container_add(GTK_CONTAINER(mainButtonBox), buttonBack);
+	g_signal_connect(G_OBJECT(buttonBack), "clicked", G_CALLBACK(on_back_clicked), NULL);
 
 	// Button Forward
 	GtkWidget *buttonForward = gtk_button_new_from_stock(GTK_STOCK_GO_FORWARD);

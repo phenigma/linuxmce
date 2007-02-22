@@ -23,12 +23,12 @@ void displayStep3(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
+//	GtkWidget *label2 = gtk_label_new_for_wizard ("It’s highly recommended that this Core act as your home’s DHCP server.  That means the computer which gives IP addresses to all the devices in your home.  This allows me to serve media and provide services throughout the home.  There can only be 1 DHCP server in the home, though, and often times a cable or dsl or other internet also wants to provide that service.  One solution is to add a 2nd network card to this system.  Then you will plug your internet connection into one of the network ports, and the other network port will go into your home’s network where all the other devices are attached.  The other possibility is to configure your cable or dsl modem, or an access point, so it gives an IP address only for this computer, or uses a static ip.");
+//	gtk_box_pack_start(GTK_BOX(mainBox), label2, TRUE, TRUE, 0);
+
 	GtkWidget *label = gtk_label_new_for_wizard ("What is the base IP address I should use for the devices in your home?  Normally the default is fine. You will also need a DHCP server");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 	
-	//GtkWidget *label2 = gtk_label_new ("It’s highly recommended that this Core act as your home’s DHCP server.  That means the computer which gives IP addresses to all the devices in your home.  This allows me to serve media and provide services throughout the home.  There can only be 1 DHCP server in the home, though, and often times a cable or dsl or other internet also wants to provide that service.  One solution is to add a 2nd network card to this system.  Then you will plug your internet connection into one of the network ports, and the other network port will go into your home’s network where all the other devices are attached.  The other possibility is to configure your cable or dsl modem, or an access point, so it gives an IP address only for this computer, or uses a static ip.");
-	//gtk_label_set_line_wrap(GTK_LABEL(label2), TRUE);
-	//gtk_box_pack_start(GTK_BOX(mainBox), label2, TRUE, TRUE, 0);
 	GtkTable *tableNetwork = GTK_TABLE(gtk_table_new(2,2,TRUE));
 
 		// Configuration Label and Entry
