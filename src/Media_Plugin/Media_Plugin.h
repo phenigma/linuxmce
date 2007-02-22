@@ -210,8 +210,8 @@ protected:
 	 * Returns false if there's no way to get media from the source device to the destination EA
      */
 	bool CheckForAlternatePipes(MediaStream *pMediaStream,EntertainArea *pEntertainArea);
-	bool CheckForAlternatePipes(DeviceData_Router *pDevice_From,DeviceData_Router *pDevice_To,EntertainArea *pEntertainArea);  // Recursive
-	void AddAlternativeRoute(DeviceData_Router *pDevice_From,DeviceData_Router *pDevice_To,Pipe *pPipe,EntertainArea *pEntertainArea);
+	bool CheckForAlternatePipes(DeviceData_Router *pDevice_From,DeviceData_Router *&pDevice_To,EntertainArea *pEntertainArea);  // Recursive
+	void AddAlternativeRoute(DeviceData_Router *pDevice_From,DeviceData_Router *&pDevice_To,Pipe *pPipe,EntertainArea *pEntertainArea);
 	// Add the COMMANDPARAMETER_PipeID_CONST to the message if it's a command going to an ea with a custom pipe
 	void CheckForCustomPipe(EntertainArea *pEntertainArea,Message *pMessage);
 
