@@ -65,7 +65,8 @@ RubyEmbeder::loadCode(RubyEmbederCodeSupplier *psup) throw(RubyException) {
 		throw RubyException("Empty code passed to Ruby Embeder");
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "RCODE:\n%s", addLineNumbers(code).c_str());
+	string s = "RCODE:\n" + addLineNumbers(code);
+	g_pPlutoLogger->WriteBlock(s.c_str(),s.size());
 
 /*	
 	{	//destroy in before rb_load_file
