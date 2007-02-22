@@ -2493,9 +2493,13 @@ void Router::Configure()
 		for(vector<Row_Device_Device_Pipe *>::iterator itP=vectRow_Device_Device_Pipe.begin();itP!=vectRow_Device_Device_Pipe.end();++itP)
 		{
 			Row_Device_Device_Pipe *pRow_Device_Device_Pipe = *itP;
-			Row_Device *pRow_Device_To = pRow_Device_Device_Pipe->FK_Device_To_getrow();
-			if( pRow_Device_To )
-				pDevice->m_mapPipe_Available[pRow_Device_Device_Pipe->FK_Pipe_get()] = new Pipe(pRow_Device_Device_Pipe,this);
+			DeviceData_Router *pDevice_To = m_mapDeviceData_Router_Find(pRow_Device_Device_Pipe->FK_Device_To_get());
+			if( pDevice_To )
+			{
+				Command *pCommand_Input = m_mapCommand_Find(pRow_Device_Device_Pipe->FK_Command_Input_get());
+				Command *pCommand_Output = m_mapCommand_Find(pRow_Device_Device_Pipe->FK_Command_Output_get());
+				pDevice->m_mapPipe_Available[pRow_Device_Device_Pipe->FK_Pipe_get()] = new Pipe(pDevice,pDevice_To,pRow_Device_Device_Pipe->FK_Pipe_get(),pCommand_Input,pCommand_Output);
+			}
 		}
 	}
 

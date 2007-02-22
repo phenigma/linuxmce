@@ -249,7 +249,9 @@ MySqlDBName = pluto_main
 DCERouter = $Host
 MySqlPort = 3306
 DCERouterPort = 3450
+#<-mkr_b_videowizard_b->
 UseVideoWizard = 1
+#<-mkr_b_videowizard_e->
 TestInstallation = <-mkr_t_test_installation->
 PK_Device = $Device
 Activation_Code = $Code"

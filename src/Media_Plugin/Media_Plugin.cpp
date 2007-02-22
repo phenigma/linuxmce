@@ -3000,7 +3000,7 @@ bool Media_Plugin::CheckForAlternatePipes(DeviceData_Router *pDevice_From,Device
 
 void Media_Plugin::AddAlternativeRoute(DeviceData_Router *pDevice_From,DeviceData_Router *pDevice_To,Pipe *pPipe,EntertainArea *pEntertainArea)
 {
-	Pipe *pPipe_New = new Pipe(pDevice_From,pDevice_To,pPipe->m_PK_Pipe,pPipe->m_pCommand_Input,pPipe->m_pCommand_Output);
+	Pipe *pPipe_New = new Pipe(pDevice_From,pDevice_To,pPipe->m_PK_Pipe,pPipe->m_pCommand_Input,pPipe->m_pCommand_Output,true);
 	MapPipe *pMapPipe;
 	map<int,MapPipe *>::iterator it=pDevice_From->m_mapPipe_Temporary.find( pEntertainArea->m_iPK_EntertainArea );
 	if( it==pDevice_From->m_mapPipe_Temporary.end() )

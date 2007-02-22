@@ -36,10 +36,8 @@ namespace DCE
 		// we'll delete it
 		bool m_bTemporary;
 
-		Pipe(Row_Device_Device_Pipe *pRow_Device_Device_Pipe,class Router *pRouter);
-
 		// A constructor for creating temporary pipes
-		Pipe(DeviceData_Router *pDevice_From,DeviceData_Router *pDevice_To,int PK_Pipe,Command *pCommand_Input,Command *pCommand_Output)
+		Pipe(DeviceData_Router *pDevice_From,DeviceData_Router *pDevice_To,int PK_Pipe,Command *pCommand_Input,Command *pCommand_Output,bool bTemporary=false)
 		{
 			m_pDevice_From = pDevice_From;
 			m_pDevice_To = pDevice_To;
@@ -47,7 +45,7 @@ namespace DCE
 			m_pCommand_Input = pCommand_Input;
 			m_pCommand_Output = pCommand_Output;
 			m_bDontSendInputs=m_bDontSendOff=m_bDontSendOn=false;
-			m_bTemporary=true;
+			m_bTemporary=bTemporary;
 		}
 	};
 
