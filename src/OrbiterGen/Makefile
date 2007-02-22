@@ -1,10 +1,12 @@
 TS = ../Splitter
 ORB = ../Orbiter
 
+SNR_LDFLAGS ?= <-mkr_t_compile_libs->
+
 ROOT = ..
 CXXFLAGS = -Wall -ggdb3
 CPPFLAGS = -I/usr/local/include -I$(ROOT)/DCE -I.. -I. -I/usr/include/mysql -I/usr/include/SDL -I$(TS) -I$(ROOT)/SDL_Helpers -DOrbiterGen
-LDFLAGS = -L$(ROOT)/lib
+LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
 LDLIBS = -ldl -lpluto_main -lpluto_media -lDCECommon -lPlutoUtils -lSerializeClass -lSDL -lSGE -lSDL_gfx -lSDL_image -lSDL_ttf -lmysqlclient_r -lGL -lXrender -lSDL_Helpers
 
 APPNAME = OrbiterGen
