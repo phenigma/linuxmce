@@ -47,7 +47,7 @@ RubyDCEEmbededClass::~RubyDCEEmbededClass()
 
 bool
 RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
-	if(!pcs_->isCmdImplemented(pMessage->m_dwPK_Device_To, pMessage->m_dwID)) {
+	if(!pcs_->isCmdImplemented(m_dwPK_Device, pMessage->m_dwID)) {
 		if(pMessage->m_dwID != COMMAND_Process_IDLE_CONST) {
 			g_pPlutoLogger->Write(LV_STATUS, "Command %d not supported.", pMessage->m_dwID);
 			pMessage->m_bRespondedToMessage=true;
@@ -58,7 +58,7 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	}
 	
 	std::list<int> paramids;
-	pcs_->getParamsOrderForCmd(pMessage->m_dwPK_Device_To, pMessage->m_dwID, paramids);
+	pcs_->getParamsOrderForCmd(m_dwPK_Device, pMessage->m_dwID, paramids);
 	
 	// build the params
 	// let's start with the command itself first
