@@ -42,9 +42,9 @@
 			$out.='<p class="normaltext">Chances are you will <B>not need to learn or enter i/r codes</B> because we have '.$rs->RecordCount().' 
 				Groups (codesets) for manufacturer <B>'.$dtDataArray['Manuf'][0].'</B>, device category  <B>'.$dtDataArray['Category'][0].'</B>.  
 				Likely one of them works your model too.  Here are a few common commands for each i/r group.  
-				Click the ‘V’ button to view the code in a new window, or the ‘T’ button to test it using the above transmit device.  
-				If you find an i/r group that works your device, click “this works”.  
-				Then you’ll see all the codes for that group, and you can add more codes or replace certain codes that don’t work.<br>';
+				Click the "V" button to view the code in a new window, or the "T" button to test it using the above transmit device.  
+				If you find an i/r group that works your device, click "this works".  
+				Then you"ll see all the codes for that group, and you can add more codes or replace certain codes that don"t work.<br>';
 			if($rs->RecordCount()>1){
 				$out.='More than 1 group may have codes that work.
 				If so, click the Infrared Group to see and test all the codes in that group, and pick the group that most closely matches your device.
@@ -65,7 +65,7 @@
 			$out.='</div>';
 			
 		}else{
-			$out.='<p class="normaltext">Sorry that we don’t already have codes for manufacturer <B>'.$dtDataArray['Manuf'][0].'</B>, device category  <B>'.$dtDataArray['Category'][0].'</B>.  Please take a moment to add them so other users can benefit from your efforts.  Thanks!';
+			$out.='<p class="normaltext">Sorry that we don"t already have codes for manufacturer <B>'.$dtDataArray['Manuf'][0].'</B>, device category  <B>'.$dtDataArray['Category'][0].'</B>.  Please take a moment to add them so other users can benefit from your efforts.  Thanks!';
 		}
 		
 		
@@ -78,7 +78,7 @@
 				<td align="center"><input type="submit" class="button" name="next" value="Add i/r group"></td>
 			</tr>
 		</table>
-		<p class="normaltext"><B>Note:</B> when adding a i/r new group, if you know the codeset as used in a universal remote control, please use that as the description.  Example: “Pronto Codeset – 9999”, or “OFA Codeset – 999”.  For GSD devices, an example would be: “Denon AVR/AVC protocol”.
+		<p class="normaltext"><B>Note:</B> when adding a i/r new group, if you know the codeset as used in a universal remote control, please use that as the description.  Example: "Pronto Codeset – 9999", or "OFA Codeset – 999".  For GSD devices, an example would be: "Denon AVR/AVC protocol".
 		<br>
 		</form>
 		';
