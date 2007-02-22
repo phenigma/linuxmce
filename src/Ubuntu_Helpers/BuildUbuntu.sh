@@ -86,14 +86,15 @@ function Build_Pluto_Replacements {
 	temp_dir="${replacements_dir}"
 	mkdir -p $temp_dir
 
-	#Package: liibsdl
+	#Package: libsdl-pluto
 	apt-get -y install quilt nasm libxv-dev libarts1-dev debhelper fakeroot
-	pushd ${svn_dir}/trunk/ubuntu/libsdl1.2-1.2.10
+	apt-get -y install dbs libaa1-dev libslang2-dev xlibs-dev libsvga1-dev type-handling automake1.7
+	pushd ${svn_dir}/trunk/ubuntu/libsdl1.2-1.2.7+1.2.8cvs20041007/
 		dpkg-buildpackage -us -uc -rfakeroot -b
-		dpkg -i ../libsdl1.2debian-all_1.2.10-3ubuntu2pluto1_i386.deb
-		dpkg -i ../libsdl1.2debian_1.2.10-3ubuntu2pluto1_i386.deb
-		dpkg -i ../libsdl1.2-dev_1.2.10-3ubuntu2pluto1_i386.deb
-		cp ../libsdl1.2*.deb ${temp_dir}
+		dpkg -i ../libsdl1.2debian-pluto-all_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
+		dpkg -i ../libsdl1.2debian-pluto_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
+		dpkg -i ../libsdl1.2-pluto-dev_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
+		cp ../libsdl1.2*-pluto-*.deb ${temp_dir}
 	popd
 
 	#Package: libxine
@@ -342,10 +343,10 @@ function Create_Diskless_Archive {
 #Create_Diskless_Archive
 #Install_Build_Needed_Packages
 Import_Build_Database
-#Import_Pluto_Skins
+Import_Pluto_Skins
 Checkout_Pluto_Svn
 #Build_Pluto_Replacements
-Build_MakeRelease_Binary
+#Build_MakeRelease_Binary
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
 #Create_Local_Repository
