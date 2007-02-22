@@ -190,6 +190,7 @@
 #define DEVICEDATA_Dont_Consolidate_Media_CONST 217
 #define DEVICEDATA_Expert_Mode_CONST 218
 #define DEVICEDATA_sPK_Command_CONST 219
+#define DEVICEDATA_Process_Child_Commands_In_Pare_CONST 220
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

@@ -41,6 +41,8 @@
 #define DEVICE_ISNEWDEVICE_TABLE_FIELD "Device.IsNewDevice"
 #define DEVICE_MANUALLYCONFIGUREEA_FIELD "ManuallyConfigureEA"
 #define DEVICE_MANUALLYCONFIGUREEA_TABLE_FIELD "Device.ManuallyConfigureEA"
+#define DEVICE_REGISTERED_FIELD "Registered"
+#define DEVICE_REGISTERED_TABLE_FIELD "Device.Registered"
 #define DEVICE_PSC_ID_FIELD "psc_id"
 #define DEVICE_PSC_ID_TABLE_FIELD "Device.psc_id"
 #define DEVICE_PSC_BATCH_FIELD "psc_batch"

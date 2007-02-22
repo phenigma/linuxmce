@@ -2413,6 +2413,10 @@
 #define DESIGNOBJ_popNonPlutoTVOptions_CONST 5411
 #define DESIGNOBJ_butLiveAVPath_CONST 5412
 #define DESIGNOBJ_butSubMenuLights_CONST 5413
+#define DESIGNOBJ_butSubMenuMedia_CONST 5414
+#define DESIGNOBJ_butSubMenuClimate_CONST 5415
+#define DESIGNOBJ_butSubMenuTelecom_CONST 5416
+#define DESIGNOBJ_butSubMenuSecurity_CONST 5417
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
