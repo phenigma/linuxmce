@@ -119,8 +119,8 @@ function avWizard($output,$dbADO) {
 				DeviceTemplate.Description AS TemplateName, 
 				DeviceCategory.Description AS CategoryName, 
 				Manufacturer.Description AS ManufacturerName, 
-				IsIPBased, 
-				FK_DeviceCategory,
+				DeviceTemplate.IsIPBased, 
+				DeviceTemplate.FK_DeviceCategory,
 				DeviceData.Description AS dd_Description, 
 				Device_DeviceData.FK_DeviceData,
 				ParameterType.Description AS typeParam, 
@@ -128,24 +128,26 @@ function avWizard($output,$dbADO) {
 				ShowInWizard,ShortDescription,
 				AllowedToModify,
 				DeviceTemplate_DeviceData.Description AS Tooltip,
-				Parent.Description AS PDescription
+				Parent.Description AS PDescription,
+				DeviceTemplate.IsEmbedded,
+				Parent.FK_DeviceTemplate AS ParentDT,
+				ParentDT.FK_DeviceCategory AS ParentCategory
 			FROM DeviceData 
 			INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
 			INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
 			INNER JOIN Device ON Device_DeviceData.FK_Device=Device.PK_Device
 			LEFT JOIN Device Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia
+			LEFT JOIN DeviceTemplate ParentDT ON Parent.FK_DeviceTemplate=ParentDT.PK_DeviceTemplate
 			LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate
-			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
-			LEFT JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=PK_DeviceTemplate AND FK_MediaType in (1,11)
+			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate 
+			LEFT JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate AND FK_MediaType in (1,11)
 			LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate 
-			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
-			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 		
+			INNER JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory 
+			INNER JOIN Manufacturer ON DeviceTemplate.FK_Manufacturer=PK_Manufacturer 		
 			LEFT JOIN Device_EntertainArea ON Device_EntertainArea.FK_Device=Device.PK_Device	
 			WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND Device.FK_Installation=? '.$filter.' 
-			ORDER BY FK_Device_RouteTo DESC, Device.Description ASC';
-
+			ORDER BY FK_Device_RouteTo DESC, IsEmbedded DESC,Device.Description ASC';
 		$resDevice=$dbADO->Execute($queryDevice,$installationID);
-		
 		
 		$out.=setLeftMenu($dbADO).'
 	<script>
@@ -199,7 +201,7 @@ function avWizard($output,$dbADO) {
 		$deviceDataArray=array();
 		$liveTVArray=array();
 		while($rowD=$resDevice->FetchRow()){
-			if($rowD['FK_Device_ControlledVia']==$rowD['FK_Device_RouteTo'])
+			if($rowD['FK_Device_ControlledVia']==$rowD['FK_Device_RouteTo'] || $rowD['IsEmbedded']==1)
 				$childOf[$rowD['PK_Device']]=$rowD['FK_Device_ControlledVia'];
 			$displayedDevices[$rowD['PK_Device']]=$rowD['Description'];
 			
@@ -224,7 +226,7 @@ function avWizard($output,$dbADO) {
 					<td align="center" colspan="8" class="alternate_back"><B>'.$TEXT_NO_RECORDS_CONST.'</B></td>
 				</tr>';
 		}
-		
+
 		$joinArray=array_keys($displayedDevices);	// used only for query when there are no Devices in selected category
 		if(count($joinArray)==0)
 			$joinArray[]=0;
@@ -297,10 +299,13 @@ function avWizard($output,$dbADO) {
 						<td colspan="8" height="3" bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
 					</tr>';						
 				}else{
+					// hardcoded: if parent is in device category "Output zone" (168), allow room pulldown
+					$roomPulldown=($rowD['ParentCategory']=168 && $rowD['IsEmbedded']==1)?pulldownFromArray($roomArray,'room_'.$rowD['PK_Device'],$rowD['FK_Room'],'','key','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.$TEXT_SELECT_ROOM_CONST.' -&nbsp;&nbsp;&nbsp;&nbsp;'):'';
+					
 					$embededRows[$rowD['FK_Device_ControlledVia']][]='
 					<tr>
 						<td align="center" class="alternate_back"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
-						<td align="center">- '.$TEXT_EMBEDED_DEVICE_CONST.' -</td>
+						<td align="center">- '.$TEXT_EMBEDED_DEVICE_CONST.' -'.$roomPulldown.'</td>
 						<td class="alternate_back">A: '.@$devicePipes['1']['output'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['to'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['input'].'</td>
@@ -410,6 +415,11 @@ function avWizard($output,$dbADO) {
 						$updateDevice='UPDATE Device SET Description=? '.@$updateMacIp.' WHERE PK_Device=?';
 						$dbADO->Execute($updateDevice,array($description,$value));
 					}
+					if(isset($_POST['room_'.$value])){
+						$updateDevice='UPDATE Device SET FK_Room=? WHERE PK_Device=?';
+						$dbADO->Execute($updateDevice,array($room,$value));
+					}
+					
 					foreach($DeviceDataToDisplayArray as $ddValue){
 						$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;
 						$oldDeviceData=@$_POST['oldDeviceData_'.$value.'_'.$ddValue];
@@ -440,7 +450,6 @@ function avWizard($output,$dbADO) {
 			$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 			exec($commandToSend);
 		}
-		processRemotes($dbADO);
 
 		if(isset($_REQUEST['add'])){
 			unset($_SESSION['from']);
