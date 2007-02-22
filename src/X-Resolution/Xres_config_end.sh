@@ -44,12 +44,8 @@ kill $pidOfX
 if [[ "${Answer:0:1}" == "y" || "${Answer:0:1}" == "Y" ]]; then
 	VideoSetting=$(</tmp/Pluto_VideoSetting.txt)
 
-	echo "X reload flag and message"
-	ReloadDevicesOnThisMachine
-
 	if [[ -n "$VideoSetting" ]]; then
 		ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
-		#OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
 		Q="
 			UPDATE Device_DeviceData
 			SET IK_DeviceData='$VideoSetting'
@@ -57,13 +53,11 @@ if [[ "${Answer:0:1}" == "y" || "${Answer:0:1}" == "Y" ]]; then
 		"
 		RunSQL "$Q"
 	fi
+	OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
 
-	pidOfX=$(ps ax|grep "X :$Display -ignoreABI -ac -allowMouseOpenFail vt7"|egrep -v 'grep|SCREEN'|awk '{print $1}')
 	mv /etc/X11/xorg.conf.pluto{.test,}
 	echo "Killing real X (to restart it with new config)"
-	kill $pidOfX
-	sleep 5
-	/usr/pluto/bin/Start_X.sh
+	/usr/pluto/bin/RestartX.sh $OrbiterDev 127.0.0.1
 	rm -f /tmp/Pluto_VideoSetting.txt
 else
 	rm -f /etc/X11/xorg.conf.pluto.test /tmp/Pluto_VideoSetting.txt
