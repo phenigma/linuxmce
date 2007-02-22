@@ -22,7 +22,7 @@ void* start_network_wizard_thread(void *next_stepv) {
 	setting_netExtName=g_strdup("");
 	if (setting_netIfaceNo == 0) {
 		printf("No Cards!\n");
-	       //displayStep2X();
+	       displayStep2F();
 	} else {
 		OobsIfaceEthernet* iface = get_external_interface(interfaces);
 		if (iface != NULL) {

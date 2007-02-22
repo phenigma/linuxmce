@@ -22,6 +22,7 @@
 #include "Step1C.h"
 #include "Step1D.h"
 #include "Step2E.h"
+#include "Step2F.h"
 #include "Step2C.h"
 #include "Step2A.h"
 #include "Step3.h"
@@ -41,6 +42,7 @@
 #define STEP3  9
 #define STEP4  10
 #define STEP5  11
+#define STEP2F 12
 
 GladeXML  *gxml;
 GtkWidget *mainWindow;
