@@ -63,16 +63,17 @@ fi
 # restore system from backup
 if [[ "$1" == "--restore" ]]; then
 	cd $MASTERDIR/upload
-	backupfile=$(ls $MASTERDIR/upload | grep tar.bz2)
+	backupfile=$(ls $MASTERDIR/upload | grep backup)
 	md5file=$(ls $MASTERDIR/upload | grep md5)
 	if [[ "$2" == "--skip-md5" ]]; then
 	
 		if [[ "$backupfile" != "" ]]; then
-			tar xfj backup-*.tar.bz2
+			tar xfj "$backupfile"
 			BKPDIR=$(find $MASTERDIR/upload -type d -maxdepth 1 -mindepth 1)
 			# process data from backup
-			cp -r $BKPDIR/etc /etc
-			cp -r $BKPDIR/usr /usr
+			cp -r $BKPDIR/etc/* /etc
+			cp -r $BKPDIR/usr/* /usr
+			chown -R  www-data /usr/pluto/orbiter/floorplans/
 			# restore mysql
 			cd $BKPDIR/mysql
 			dbtables=$(ls)
@@ -82,6 +83,7 @@ if [[ "$1" == "--restore" ]]; then
 				/usr/bin/mysql -u root -D pluto_main < $table
 			done
 			rm -rf $MASTERDIR/upload/*
+			rmdir $MASTERDIR/upload
 		fi
 	else	
 		if [[ "$md5file" == "" ]]; then
@@ -94,11 +96,12 @@ if [[ "$1" == "--restore" ]]; then
 		else 
 			echo ""
                 	if [[ "$backupfile" != "" ]]; then
-                        	tar xfj backup-*.tar.bz2
+                        	tar xfj "$backupfile"
                         	BKPDIR=$(find $MASTERDIR/upload -type d -maxdepth 1 -mindepth 1)
                         	# process data from backup
-                        	cp -r $BKPDIR/etc /etc
-                        	cp -r $BKPDIR/usr /usr
+                        	cp -r $BKPDIR/etc/* /etc
+                        	cp -r $BKPDIR/usr/* /usr
+							chown -R  www-data /usr/pluto/orbiter/floorplans/
                         	# restore mysql
                         	cd $BKPDIR/mysql
                         	dbtables=$(ls)
@@ -108,6 +111,7 @@ if [[ "$1" == "--restore" ]]; then
                                 	/usr/bin/mysql -u root -D pluto_main < $table
                         	done
                         	rm -rf $MASTERDIR/upload/*
+							rmdir $MASTERDIR/upload
                 	fi
 
 		fi
