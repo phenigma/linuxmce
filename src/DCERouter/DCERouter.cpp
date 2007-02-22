@@ -1450,8 +1450,17 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 
 	if( pDevice )
 	{
+		// Don't use sql2cpp class because we don't want the psc_mod timestamp to change
+		string sSQL = "UPDATE Device SET Registered=1,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(DeviceID);
+		m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
 		pDevice->m_pSocket_Command=pSocket;
 		pDevice->m_bIsReady=true;
+	}
+	else
+	{
+		// Don't use sql2cpp class because we don't want the psc_mod timestamp to change
+		string sSQL = "UPDATE Device SET Registered=-1,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(DeviceID);
+		m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
 	}
 }
 
@@ -2229,7 +2238,10 @@ void Router::Configure()
 {
     AllDevices allDevices; // We're going to want a serialized copy of all the device information
 
-    // Get the rooms
+	string sSQL = "UPDATE Device SET Registered=0,psc_mod=psc_mod";
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+
+	// Get the rooms
     vector<Row_Room *> vectRow_Room;
     GetDatabase()->Room_get()->GetRows("1=1",&vectRow_Room);  // All rows
     for(size_t s=0;s<vectRow_Room.size();++s)
@@ -2825,6 +2837,8 @@ void Router::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelet
 {
 	g_pPlutoLogger->Write( LV_WARNING, "Router::RemoveAndDeleteSocket %p %d", pServerSocket, pServerSocket ? pServerSocket->m_dwPK_Device : 0 );
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
+	string sSQL = "UPDATE Device SET Registered=0,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(pServerSocket->m_dwPK_Device);
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
 	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( pServerSocket->m_dwPK_Device );
 	if( pDevice )
 	{
