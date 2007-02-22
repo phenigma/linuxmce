@@ -54,6 +54,7 @@ namespace DCE
 		// to simultaneously come on
 		time_t m_tLastPowerCommand;
 		int m_dwPK_Command_LastPower;
+		int m_dwPK_EntertainArea_LastPower;  // The last ea we sent power for, corresponds to m_dwPK_Command_LastPower
 		int m_iLastVolume;  // The last known volume for this device, -1 means unknown
 		bool m_bMute;  // True if the device was last muted
 

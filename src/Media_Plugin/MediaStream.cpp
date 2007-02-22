@@ -545,23 +545,24 @@ int MediaStream::GetRemoteControlScreen(int PK_Orbiter)
 		return pRemoteControlSet->m_iPK_Screen_Remote;
 }
 
-bool MediaStream::SingleEaAndSameDestSource()
+bool MediaStream::StreamingRequired()
 {
-	if( m_mapEntertainArea.size()!=1 )
-		return false;  // It's playing in more than 1 place.  
+	// The key is to determine if streaming is going to be necessary, or if all the active destinations are the same
+	// as the sources.  The source can be a capture card
+	for(map<int,EntertainArea *>::iterator it=m_mapEntertainArea.begin();it!=m_mapEntertainArea.end();++it)
+	{
+		EntertainArea *pEntertainArea = it->second;
+		if( !pEntertainArea->m_pMediaDevice_ActiveDest )
+			return true;
+		if( pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Output_Zone_CONST) )
+			continue; // It's a special output zone, so this is ok.  AlternatePipes will find a route, we're not streaming
+		if( m_pDevice_CaptureCard && m_pDevice_CaptureCard->m_dwPK_Device==pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device )
+			continue; // this is ok
+		if( pEntertainArea->m_pMediaDevice_ActiveDest!=m_pMediaDevice_Source )
+			return true;  // We're streaming from a source to a different destination
+	}
 
-	EntertainArea *pEntertainArea = m_mapEntertainArea.begin()->second;
-	
-	MediaDevice *pMediaDevice=NULL;
-	if( m_pDevice_CaptureCard )
-		pMediaDevice = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaDevice_Find(m_pDevice_CaptureCard->m_dwPK_Device);
-	else
-		pMediaDevice = m_pMediaDevice_Source;
-	
-	if( pMediaDevice && pMediaDevice->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea ) == pMediaDevice->m_mapEntertainArea.end() )
-		return false;  // The place it's playing isn't the same as the source. 
-
-	return true;
+	return false;
 }
 
 void MediaStream::LoadDefaultAvSettings()

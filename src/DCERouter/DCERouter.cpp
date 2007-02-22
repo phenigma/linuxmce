@@ -1785,28 +1785,45 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
         if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Pipe_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
 			PK_Pipe = atoi((*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
 
-		for(MapPipe::iterator it=pDeviceData_Router->m_mapPipe_Active.begin();it!=pDeviceData_Router->m_mapPipe_Active.end();)
-        {
-			Pipe *pPipe = (*it).second;
+		int PK_PipeID = 0;
+		MapPipe *pMapPipe = NULL;
+		if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PipeID_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
+		{
+			PK_PipeID = atoi((*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PipeID_CONST].c_str());
+			pMapPipe = pDeviceData_Router->m_mapPipe_Temporary_Find(PK_PipeID);
+		}
+		else
+			pMapPipe = &pDeviceData_Router->m_mapPipe_Active;
 
-			// Temporary pipes are for handling separate output zones and are erased when the device is turned off
-			if( pPipe->m_bTemporary )
-				pDeviceData_Router->m_mapPipe_Active.erase(it++);
+		if( pMapPipe )
+		{
+			for(MapPipe::iterator it=pMapPipe->begin();it!=pMapPipe->end();++it)
+			{
+				Pipe *pPipe = it->second;
+
+				Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
+					PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0);
+				if( PK_Pipe )
+					pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
+				if( PK_PipeID )
+					pMessage->m_mapParameters[COMMANDPARAMETER_PipeID_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PipeID_CONST];
+				if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
+					pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
+				ReceivedMessage(NULL,pMessage);
+
+				if( PK_PipeID )
+					delete pPipe;
+			}
+			if( PK_PipeID )
+			{
+				map<int,MapPipe *>::iterator it = pDeviceData_Router->m_mapPipe_Temporary.find(PK_PipeID);
+				if( it!=pDeviceData_Router->m_mapPipe_Temporary.end() )
+					pDeviceData_Router->m_mapPipe_Temporary.erase(it);
+				delete pMapPipe;
+			}
 			else
-				++it;
-
-			if( (PK_Pipe && PK_Pipe!=pPipe->m_PK_Pipe) || pPipe->m_bDontSendOff )
-				continue;
-
-			Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
-                PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0);
-			if( PK_Pipe )
-				pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
-	        if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
-				pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
-            ReceivedMessage(NULL,pMessage);
-        }
-        pDeviceData_Router->m_mapPipe_Active.clear();
+				pDeviceData_Router->m_mapPipe_Active.clear();
+		}
     }
     else if( pCommand->m_dwPK_Command==COMMAND_Generic_On_CONST )
     {
@@ -1818,75 +1835,110 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
         if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
             sPipesDevices = "," + (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] + ",";
 		Pipe *pPipe_Prior=NULL;
-        for(MapPipe::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
-        {
-            Pipe *pPipe = (*it).second;
 
-#ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Walking the command pipe: Command input: %d Command_Output: %d Device From: %d, FK_Pipe: %d",
-				pPipe->m_pCommand_Input ? pPipe->m_pCommand_Input->m_dwPK_Command : 0,
-				pPipe->m_pCommand_Output ? pPipe->m_pCommand_Output->m_dwPK_Command : 0,
-				pPipe->m_pDevice_From->m_dwPK_Device);
-#endif
-			if( PK_Pipe && PK_Pipe!=pPipe->m_PK_Pipe )
-				continue;
+		int PK_PipeID = 0;
+		MapPipe *pMapPipe = NULL;
+		if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PipeID_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
+		{
+			PK_PipeID = atoi((*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PipeID_CONST].c_str());
+			pMapPipe = pDeviceData_Router->m_mapPipe_Temporary_Find(PK_PipeID);
+		}
+		else
+			pMapPipe = &pDeviceData_Router->m_mapPipe_Available;
 
-            if( sPipesDevices.length()<3 || sPipesDevices.find("," + StringUtils::itos((*it).first) + ",")!=string::npos ) // It may be 2 characters: ,,
-                pDeviceData_Router->m_mapPipe_Active[pPipe->m_PK_Pipe]=pPipe;
-
-			if( pPipe_Prior && pPipe_Prior->m_pDevice_To->m_dwPK_Device==pPipe->m_pDevice_To->m_dwPK_Device 
-					&& pPipe->m_pCommand_Input==pPipe_Prior->m_pCommand_Input
-					&& pPipe->m_pCommand_Output==pPipe_Prior->m_pCommand_Output )
-				continue;  // Don't bother if there's another pipe going to the same device--we will have already done this
-			pPipe_Prior=pPipe;
-
-			if( pPipe->m_bDontSendOn==false )
+		if( pMapPipe )
+		{	
+			for(MapPipe::iterator it=pMapPipe->begin();it!=pMapPipe->end();++it)
 			{
-				// Forward the on command up the pipe
-				Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
-					PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
-				if( PK_Pipe )
-					pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
-				if( sPipesDevices.size() )
-					pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
+				Pipe *pPipe = (*it).second;
 
-				ReceivedMessage(NULL,pMessage);
+	#ifdef DEBUG
+				g_pPlutoLogger->Write(LV_STATUS, "Walking the command pipe: Command input: %d Command_Output: %d Device From: %d, FK_Pipe: %d",
+					pPipe->m_pCommand_Input ? pPipe->m_pCommand_Input->m_dwPK_Command : 0,
+					pPipe->m_pCommand_Output ? pPipe->m_pCommand_Output->m_dwPK_Command : 0,
+					pPipe->m_pDevice_From->m_dwPK_Device);
+	#endif
+				if( PK_Pipe && PK_Pipe!=pPipe->m_PK_Pipe )
+					continue;
+
+				// Don't activate a pipe if we're using an alternate pipe that was already active
+				if( PK_PipeID==0 && (sPipesDevices.length()<3 || sPipesDevices.find("," + StringUtils::itos((*it).first) + ",")!=string::npos) ) // It may be 2 characters: ,,
+					pDeviceData_Router->m_mapPipe_Active[pPipe->m_PK_Pipe]=pPipe;
+
+				if( pPipe_Prior && pPipe_Prior->m_pDevice_To->m_dwPK_Device==pPipe->m_pDevice_To->m_dwPK_Device 
+						&& pPipe->m_pCommand_Input==pPipe_Prior->m_pCommand_Input
+						&& pPipe->m_pCommand_Output==pPipe_Prior->m_pCommand_Output )
+					continue;  // Don't bother if there's another pipe going to the same device--we will have already done this
+				pPipe_Prior=pPipe;
+
+				if( pPipe->m_bDontSendOn==false )
+				{
+					// Forward the on command up the pipe
+					Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
+						PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
+					if( PK_Pipe )
+						pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
+					if( PK_PipeID )
+						pMessage->m_mapParameters[COMMANDPARAMETER_PipeID_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PipeID_CONST];
+					if( sPipesDevices.size() )
+						pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
+
+					ReceivedMessage(NULL,pMessage);
+				}
+
+				// The pipe's auto selection of inputs could be disabled if we're using some other output device, like a capture card
+				if( pPipe->m_bDontSendInputs==false && pPipe->m_pCommand_Input )
+				{
+					Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
+						PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,1,
+						COMMANDPARAMETER_PK_Command_Input_CONST,StringUtils::itos(pPipe->m_pCommand_Input->m_dwPK_Command).c_str());
+					if( PK_PipeID )
+						pMessage->m_mapParameters[COMMANDPARAMETER_PipeID_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PipeID_CONST];
+					ReceivedMessage(NULL,pMessage);
+				}
+				if( pPipe->m_pCommand_Output )
+				{
+					Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
+						PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Output_Select_CONST,1,
+						COMMANDPARAMETER_PK_Command_Output_CONST,StringUtils::itos(pPipe->m_pCommand_Output->m_dwPK_Command).c_str());
+					if( PK_PipeID )
+						pMessage->m_mapParameters[COMMANDPARAMETER_PipeID_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PipeID_CONST];
+					ReceivedMessage(NULL,pMessage);
+				}
 			}
-
-			// The pipe's auto selection of inputs could be disabled if we're using some other output device, like a capture card
-			if( pPipe->m_bDontSendInputs==false && pPipe->m_pCommand_Input )
-            {
-                Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
-                    PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,1,
-                    COMMANDPARAMETER_PK_Command_Input_CONST,StringUtils::itos(pPipe->m_pCommand_Input->m_dwPK_Command).c_str());
-                ReceivedMessage(NULL,pMessage);
-            }
-            if( pPipe->m_pCommand_Output )
-            {
-                Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pDevice_To->m_dwPK_Device,
-                    PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Output_Select_CONST,1,
-                    COMMANDPARAMETER_PK_Command_Output_CONST,StringUtils::itos(pPipe->m_pCommand_Output->m_dwPK_Command).c_str());
-                ReceivedMessage(NULL,pMessage);
-            }
-        }
+		}
     }
     else if( pCommand->m_listPipe.size() )
     {
         for(list<int>::iterator it=pCommand->m_listPipe.begin();it!=pCommand->m_listPipe.end();++it)
         {
-            Pipe *pPipe;
-            if( (pPipe=pDeviceData_Router->m_mapPipe_Active_Find(*it))!=NULL )
-            {
-                (*(*pSafetyMessage))->m_dwPK_Device_To = pPipe->m_pDevice_To->m_dwPK_Device;
-#ifdef DEBUG
-				DeviceData_Router *pDevice = m_mapDeviceData_Router_Find((*(*pSafetyMessage))->m_dwPK_Device_To);
-				g_pPlutoLogger->Write(LV_ACTION,"Forwarding %d Command:\x1b[35;1m%s\x1b[0m up pipe to %d (\x1b[36;1m%s\x1b[0m)",
-					pCommand->m_dwPK_Command,pCommand->m_sDescription.c_str(),
-					(*(*pSafetyMessage))->m_dwPK_Device_To,pDevice!=NULL ? pDevice->m_sDescription.c_str() : "*unknown*");
-#endif
-                RealSendMessage(pSocket,pSafetyMessage);
-            }
-            (*(*pSafetyMessage))->m_dwPK_Device_To = PK_Device;
+			int PK_PipeID = 0;
+			MapPipe *pMapPipe = NULL;
+			if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PipeID_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
+			{
+				PK_PipeID = atoi((*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PipeID_CONST].c_str());
+				pMapPipe = pDeviceData_Router->m_mapPipe_Temporary_Find(PK_PipeID);
+			}
+			else
+				pMapPipe = &pDeviceData_Router->m_mapPipe_Active;
+
+			if( pMapPipe )
+			{	
+				MapPipe::iterator itMP = pMapPipe->find(*it);
+				if( itMP!=pMapPipe->end() )
+				{
+					Pipe *pPipe=itMP->second;
+					(*(*pSafetyMessage))->m_dwPK_Device_To = pPipe->m_pDevice_To->m_dwPK_Device;
+	#ifdef DEBUG
+					DeviceData_Router *pDevice = m_mapDeviceData_Router_Find((*(*pSafetyMessage))->m_dwPK_Device_To);
+					g_pPlutoLogger->Write(LV_ACTION,"Forwarding %d Command:\x1b[35;1m%s\x1b[0m up pipe to %d (\x1b[36;1m%s\x1b[0m)",
+						pCommand->m_dwPK_Command,pCommand->m_sDescription.c_str(),
+						(*(*pSafetyMessage))->m_dwPK_Device_To,pDevice!=NULL ? pDevice->m_sDescription.c_str() : "*unknown*");
+	#endif
+					RealSendMessage(pSocket,pSafetyMessage);
+				}
+				(*(*pSafetyMessage))->m_dwPK_Device_To = PK_Device;
+			}
         }
     }
 }

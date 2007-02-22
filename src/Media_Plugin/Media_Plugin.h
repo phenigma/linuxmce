@@ -212,6 +212,8 @@ protected:
 	bool CheckForAlternatePipes(MediaStream *pMediaStream,EntertainArea *pEntertainArea);
 	bool CheckForAlternatePipes(DeviceData_Router *pDevice_From,DeviceData_Router *pDevice_To,EntertainArea *pEntertainArea);  // Recursive
 	void AddAlternativeRoute(DeviceData_Router *pDevice_From,DeviceData_Router *pDevice_To,Pipe *pPipe,EntertainArea *pEntertainArea);
+	// Add the COMMANDPARAMETER_PipeID_CONST to the message if it's a command going to an ea with a custom pipe
+	void CheckForCustomPipe(EntertainArea *pEntertainArea,Message *pMessage);
 
 	/**
 	 * Used by GetConfig to recursively add all source devices into an output zone that can feed into that output zone
@@ -231,7 +233,7 @@ protected:
     /**
      * Turn off the device and other devices in the pipe, but without turning off devices we are currently using
      */
-	void TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current,vector<int> *p_vectDevice=NULL);
+	void TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current,EntertainArea *pEntertainArea,vector<int> *p_vectDevice=NULL);
 
 	/**
 	 * Handle adjustments the user wants, like changing zoom and audio setttings, based on values from the media.
@@ -340,7 +342,7 @@ public:
 	void AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...);
 	// For each MD, all it's direct children go in the same room, and if it has an on-screen Orbiter, it's direct children too
 	void PutMDsChildrenInRoom(DeviceData_Router *pDeviceData_Router);
-	void GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider,int &iPK_Device, int iPK_DeviceTemplate, vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler, map<int, MediaDevice *> &mapEntertainmentArea_OutputZone);
+	void GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider,int &iPK_Device, int iPK_DeviceTemplate, vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler, map<int, pair<MediaDevice *,MediaDevice *> > &mapEntertainmentArea_OutputZone);
 	MediaDevice *GetMediaDeviceForEA(int iPK_MediaType,EntertainArea *pEntertainArea);
 
 	/**
@@ -385,10 +387,10 @@ public:
 	void StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream=NULL);
 
 	// This creates a single media stream for a given media handler and starts playing it by calling the next StartMedia, or returns NULL if it cannot create the stream
-    MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat, string sStartingPosition, int iPK_Playlist=0, map<int, MediaDevice *> *p_mapEntertainmentArea_OutputZone=NULL);
+    MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat, string sStartingPosition, int iPK_Playlist=0, map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone=NULL);
 
 	// This is the final stage of 'StartMedia' that starts playing the given stream.  This is also called when the stream changes, or is moved, and needs to be restarted
-	bool StartMedia(MediaStream *pMediaStream, map<int, MediaDevice *> *p_mapEntertainmentArea_OutputZone=NULL);
+	bool StartMedia(MediaStream *pMediaStream, map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone=NULL);
 
 	// If there's a capture card active, StartMedia will call this
 	void StartCaptureCard(MediaStream *pMediaStream);
@@ -466,8 +468,8 @@ public:
 	// Sometimes when MediaHanderBase::GetRenderDevices is called, only the top-level render devices (ie the media source)
 	// is desired.  However, HandleOnOffs wants everything in the pipe, and the following function
 	// can be used to add the other devices into the map
-	void AddOtherDevicesInPipesToRenderDevices(int PK_Pipe, map<int,MediaDevice *> *pmapMediaDevice);
-	void AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice,vector<int> *p_vectDevice=NULL);
+	void AddOtherDevicesInPipesToRenderDevices(int PK_Pipe, map<int,MediaDevice *> *pmapMediaDevice,EntertainArea *pEntertainArea);
+	void AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice,EntertainArea *pEntertainArea,vector<int> *p_vectDevice=NULL);
 
 	// If we're playing from a playlist, there may be a timeout specified, meaning after a certain time stop playing
 	// this and go to the next item in the playlist

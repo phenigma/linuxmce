@@ -149,7 +149,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device,c
 
 	m_pRow_MediaProvider = NULL;
 	m_tLastPowerCommand=0;
-	m_dwPK_Command_LastPower=0;
+	m_dwPK_Command_LastPower=m_dwPK_Command_LastPower=0;
 
 	DeviceData_Router *pDeviceData_Router_Source = m_pDeviceData_Router;  // The source is ourselves unless we're a software source and then it's the MD
 	if( (m_pDeviceData_Router->m_pDevice_ControlledVia && m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Media_Director_CONST)) ||
@@ -943,13 +943,16 @@ bool Media_Plugin::PlaybackStarted( class Socket *pSocket,class Message *pMessag
 
 void Media_Plugin::HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,string sVideo)
 {
+	Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(pMediaStream->m_iPK_MediaType);
+
 	// We need to get the current rendering devices so that we can see what have rules
 	map<int,MediaDevice *> mapMediaDevice_Current;
 	for(map<int,class EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();it!=pMediaStream->m_mapEntertainArea.end();++it)
-		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(it->second,&mapMediaDevice_Current);
-
-	Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(pMediaStream->m_iPK_MediaType);
-	AddOtherDevicesInPipesToRenderDevices(pRow_MediaType ? pRow_MediaType->FK_Pipe_get() : 0,&mapMediaDevice_Current);
+	{
+		EntertainArea *pEntertainArea = it->second;
+		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&mapMediaDevice_Current);
+		AddOtherDevicesInPipesToRenderDevices(pRow_MediaType ? pRow_MediaType->FK_Pipe_get() : 0,&mapMediaDevice_Current,pEntertainArea);
+	}
 
 	if( pMediaStream->m_sAudioSettings.empty()==false )
 		sAudio = pMediaStream->m_sAudioSettings;
@@ -1049,7 +1052,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 
 	// This is really complicated.  We need to keep track of what output zones are being used for which entertainment areas
 	// So when we go to create the pipes we'll know what our target destinations are
-	map<int, MediaDevice *> mapEntertainmentArea_OutputZone;
+	map<int, pair<MediaDevice *,MediaDevice *> > mapEntertainmentArea_OutputZone;
 	GetMediaHandlersForEA(iPK_MediaType, iPK_MediaProvider, iPK_Device, iPK_DeviceTemplate, vectEntertainArea, vectEA_to_MediaHandler, mapEntertainmentArea_OutputZone);
 	if( vectEA_to_MediaHandler.size()==0 )
 	{
@@ -1141,7 +1144,7 @@ int Media_Plugin::GetMediaTypeForFile(deque<MediaFile *> *p_dequeMediaFile,vecto
 	return 0;
 }
 
-MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat, string sStartingPosition, int iPK_Playlist,map<int, MediaDevice *> *p_mapEntertainmentArea_OutputZone)
+MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat, string sStartingPosition, int iPK_Playlist,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
@@ -1155,6 +1158,8 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 	MediaDevice *pMediaDevice=NULL;
     if( PK_Device_Source )
         pMediaDevice = m_mapMediaDevice_Find(PK_Device_Source);
+	else if( p_mapEntertainmentArea_OutputZone && p_mapEntertainmentArea_OutputZone->size() )
+		pMediaDevice = p_mapEntertainmentArea_OutputZone->begin()->second.first;
 
     // If this pointer is still valid, then we'll just add this file to the queue
     MediaStream *pMediaStream = NULL;
@@ -1280,7 +1285,7 @@ public:
 	OldStreamInfo(EntertainArea *pEntertainArea) { m_pEntertainArea=pEntertainArea; m_bNoChanges=false; m_PK_MediaType_Prior=0; }
 };
 
-bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, MediaDevice *> *p_mapEntertainmentArea_OutputZone)
+bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone)
 {
 	map<int,class OldStreamInfo *> mapOldStreamInfo;
 
@@ -1329,7 +1334,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, MediaDevice *> 
 		}
 
 		pEntertainArea->m_pMediaStream=pMediaStream;
-		pEntertainArea->m_bUsingCustomPipe=false;
+		pEntertainArea->m_pMediaDevice_OutputZone=NULL;
 		if( pMediaStream->ContainsVideo() )
 			EVENT_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
 		else
@@ -1355,14 +1360,17 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, MediaDevice *> 
 				pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;
 	}
 
-	// For all other EA's, the active dest is the output zone
+	// For all other EA's, the active dest is the source that feeds the output zone
 	if( p_mapEntertainmentArea_OutputZone )
 	{
 		for( map<int,EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();it!=pMediaStream->m_mapEntertainArea.end();++it )
 		{
 			EntertainArea *pEntertainArea = it->second;
 			if( p_mapEntertainmentArea_OutputZone->find( pEntertainArea->m_iPK_EntertainArea ) != p_mapEntertainmentArea_OutputZone->end() )
-				pEntertainArea->m_pMediaDevice_ActiveDest = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ];
+			{
+				pEntertainArea->m_pMediaDevice_ActiveDest = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ].first;
+				pEntertainArea->m_pMediaDevice_OutputZone = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ].second;
+			}
 		}
 	}
 
@@ -1435,7 +1443,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, MediaDevice *> 
 
 				// Reset the values used to keep track of live/non-live viewing, and adjusts for all devices involved in this stream
 				Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(pMediaStream->m_iPK_MediaType);
-				AddOtherDevicesInPipesToRenderDevices(pRow_MediaType ? pRow_MediaType->FK_Pipe_get() : 0,&mapMediaDevice_Current);
+				AddOtherDevicesInPipesToRenderDevices(pRow_MediaType ? pRow_MediaType->FK_Pipe_get() : 0,&mapMediaDevice_Current, pEntertainArea);
 				for(map<int,MediaDevice *>::iterator it=mapMediaDevice_Current.begin();it!=mapMediaDevice_Current.end();++it)
 				{
 					MediaDevice *pMediaDevice = (*it).second;
@@ -1568,7 +1576,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard -- no app server to set port for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
 	}
 
-	if( pMediaStream->SingleEaAndSameDestSource()==false )
+	if( pMediaStream->StreamingRequired() )
 	{
 		// For now we're not able to have a xine that renders to a NULL window and can do dvd's.  They require 
 		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
@@ -2097,7 +2105,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&mapMediaDevice_Prior);
 		Row_MediaType *pRow_MediaType_Prior = m_pDatabase_pluto_main->MediaType_get()->GetRow(pMediaStream->m_iPK_MediaType);
 		int PK_Pipe_Prior = pRow_MediaType_Prior && pRow_MediaType_Prior->FK_Pipe_isNull()==false ? pRow_MediaType_Prior->FK_Pipe_get() : 0;
-		AddOtherDevicesInPipesToRenderDevices(PK_Pipe_Prior,&mapMediaDevice_Prior);
+		AddOtherDevicesInPipesToRenderDevices(PK_Pipe_Prior,&mapMediaDevice_Prior,pEntertainArea);
 
 		if( pMediaStream_Replacement &&
 				pMediaStream_Replacement->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaStream_Replacement->m_mapEntertainArea.end() &&
@@ -2137,6 +2145,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Stream ended and m/d is being used as an OSD.  Turning on m/d so it's visible");
 				DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice_MD->m_pDeviceData_Router->m_dwPK_Device,0,"");
+				CheckForCustomPipe(pEntertainArea,CMD_On.m_pMessage);
 				SendCommand(CMD_On);
 			}
 		}
@@ -2935,27 +2944,22 @@ g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media ready to resta
 
 bool Media_Plugin::CheckForAlternatePipes(MediaStream *pMediaStream,EntertainArea *pEntertainArea)
 {
-	if( !pEntertainArea->m_pMediaDevice_ActiveDest )
+	if( !pEntertainArea->m_pMediaDevice_ActiveDest || !pEntertainArea->m_pMediaDevice_OutputZone  )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CheckForAlternatePipes no destination for EA %d %s",
 			pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str());
 		return false;
 	}
 
-	// If the active destination is the same as the active source, or in the same EA, then no custom pipes are needed
-	if( pMediaStream->m_pMediaDevice_Source==pEntertainArea->m_pMediaDevice_ActiveDest || 
-		pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea )!=pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.end() )
-			return true;
-
 	// If this is a software media player, the md it's on is the source
 	MediaDevice *pMediaDevice;
-	if( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_DCE_Software_Wrappers_CONST) )
-		pMediaDevice = m_mapMediaDevice_Find( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_MD );
+	if( pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_DCE_Software_Wrappers_CONST) )
+		pMediaDevice = m_mapMediaDevice_Find( pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD );
 	else
-		pMediaDevice = pMediaStream->m_pMediaDevice_Source;
+		pMediaDevice = pEntertainArea->m_pMediaDevice_ActiveDest;
 
 	if( pMediaDevice )
-		return CheckForAlternatePipes(pMediaDevice->m_pDeviceData_Router,pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router,pEntertainArea);
+		return CheckForAlternatePipes(pMediaDevice->m_pDeviceData_Router,pEntertainArea->m_pMediaDevice_OutputZone->m_pDeviceData_Router,pEntertainArea);
 	return false;
 }
 
@@ -2970,7 +2974,6 @@ bool Media_Plugin::CheckForAlternatePipes(DeviceData_Router *pDevice_From,Device
 		if( pPipe->m_pDevice_To->m_dwPK_Device==pDevice_To->m_dwPK_Device )
 		{
 			// Got our route
-			pEntertainArea->m_bUsingCustomPipe=true;
 			AddAlternativeRoute(pDevice_From,pPipe->m_pDevice_To,pPipe,pEntertainArea);
 			return true;
 		}
@@ -2988,7 +2991,6 @@ bool Media_Plugin::CheckForAlternatePipes(DeviceData_Router *pDevice_From,Device
 				MediaDevice *pMediaDevice_To = it->second;
 				if( pMediaDevice_To->m_pDeviceData_Router->m_dwPK_Device==pDevice_To->m_dwPK_Device )
 				{
-					pEntertainArea->m_bUsingCustomPipe=true;
 					AddAlternativeRoute(pDevice_From,pMediaDevice_To->m_pDeviceData_Router,pPipe,pEntertainArea);
 					return true;
 				}
@@ -3043,6 +3045,7 @@ void Media_Plugin::RecursivelyAddSendingDevice(MediaDevice *pMediaDevice_FeedInt
 
 void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current,MediaStream *pMediaStream,EntertainArea *pEntertainArea)
 {
+g_pPlutoLogger->Write(LV_CRITICAL,"oN/OFF FOR %s",pEntertainArea->m_sDescription.c_str());
 	// Is a specific pipe used?  If this is an audio stream only, the media type will have the pipe set to 1
 	Row_MediaType *pRow_MediaType_Prior = PK_MediaType_Prior ? m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Prior) : NULL;
 	Row_MediaType *pRow_MediaType_Current = PK_MediaType_Current ? m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Current) : NULL;
@@ -3058,7 +3061,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 	if( pmapMediaDevice_Prior && pmapMediaDevice_Prior->size() && pmapMediaDevice_Current && pmapMediaDevice_Current->size() )
 	{
 		mapMediaDevice_Current = *pmapMediaDevice_Current;
-		AddOtherDevicesInPipesToRenderDevices(PK_Pipe_Current,&mapMediaDevice_Current);
+		AddOtherDevicesInPipesToRenderDevices(PK_Pipe_Current,&mapMediaDevice_Current,pEntertainArea);
 	}
 
 	if( pmapMediaDevice_Prior )
@@ -3072,7 +3075,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 			// We need a recursive function to propagate the off's along the pipe, but not turning off any devices
 			// that we're still going to use in the current map
 			if ( (*it).second ) 
-				TurnDeviceOff(PK_Pipe_Prior,(*it).second->m_pDeviceData_Router,&mapMediaDevice_Current);
+				TurnDeviceOff(PK_Pipe_Prior,(*it).second->m_pDeviceData_Router,&mapMediaDevice_Current,pEntertainArea);
 			else
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Found a NULL associated device in the HandleOnOff: %d", (*it).first);
@@ -3092,6 +3095,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::HandleOnOffs() There is a null device associated with the deviceID: %d. Ignoring device in HandleOnOff", (*it).first);
 			continue;
 		}
+g_pPlutoLogger->Write(LV_CRITICAL,"oN/OFF FOR %s/%s",pEntertainArea->m_sDescription.c_str(),pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 		// Reset this
 		pEntertainArea->m_bViewingLiveAVPath=false;
@@ -3106,6 +3110,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 		{
 			// See if we're viewing it in the same room where the device is located.  If so the user may want to have live and non-live paths
 			bool bViewingInRoom=false;
+g_pPlutoLogger->Write(LV_CRITICAL,"oN/OFF 1 FOR %s/%s",pEntertainArea->m_sDescription.c_str(),pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 			MediaDevice *pMediaDevice_CaptureCard = m_mapMediaDevice_Find(pMediaDevice->m_pDevice_CaptureCard->m_dwPK_Device);
 			if( pMediaDevice_CaptureCard )
 			{
@@ -3121,6 +3126,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 				}
 			}
 
+g_pPlutoLogger->Write(LV_CRITICAL,"oN/OFF 2 FOR %s/%s",pEntertainArea->m_sDescription.c_str(),pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 			// We don't want to be setting the inputs to the 'live' a/v path because we're using the capture card
 			for(map<int,Pipe *>::iterator it=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.begin();it!=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.end();++it)
 			{
@@ -3134,10 +3140,11 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 			{
 				EntertainArea *pEntertainArea = it->second;
 				MediaDevice *pMediaDevice_MD = pEntertainArea->m_pMediaDevice_MD;
+g_pPlutoLogger->Write(LV_CRITICAL,"oN/OFF 3 FOR %s/%s %p",pEntertainArea->m_sDescription.c_str(),pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str(),pMediaDevice_MD);
 
 				if( pMediaDevice_MD  )
 				{
-					if( pMediaDevice_MD->m_dwPK_Command_LastPower==COMMAND_Generic_On_CONST && time(NULL)-pMediaDevice_MD->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS )
+					if( pMediaDevice_MD->m_dwPK_Command_LastPower==COMMAND_Generic_On_CONST && time(NULL)-pMediaDevice_MD->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS && pMediaDevice_MD->m_dwPK_EntertainArea_LastPower==pEntertainArea->m_iPK_EntertainArea )
 						g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleOnOffs Not resending power command (2)");
 					else
 					{
@@ -3145,10 +3152,12 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 						{
 							pMediaDevice_MD->m_tLastPowerCommand=time(NULL);
 							pMediaDevice_MD->m_dwPK_Command_LastPower=COMMAND_Generic_On_CONST;
+							pMediaDevice_MD->m_dwPK_EntertainArea_LastPower=pEntertainArea->m_iPK_EntertainArea;
 						}
 
 						// Send it to the MD
 						DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice_MD->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
+						CheckForCustomPipe(pEntertainArea,CMD_On.m_pMessage);
 						SendCommand(CMD_On);
 					}
 				}
@@ -3166,7 +3175,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 
 			MediaDevice *pMediaDevice_MD = m_mapMediaDevice_Find(pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device);
 
-			if( pMediaDevice_MD && pMediaDevice_MD->m_dwPK_Command_LastPower==COMMAND_Generic_On_CONST && time(NULL)-pMediaDevice_MD->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS )
+			if( pMediaDevice_MD && pMediaDevice_MD->m_dwPK_Command_LastPower==COMMAND_Generic_On_CONST && time(NULL)-pMediaDevice_MD->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS && pMediaDevice_MD->m_dwPK_EntertainArea_LastPower==pEntertainArea->m_iPK_EntertainArea )
 				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleOnOffs Not resending power command");
 			else
 			{
@@ -3174,15 +3183,18 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 				{
 					pMediaDevice_MD->m_tLastPowerCommand=time(NULL);
 					pMediaDevice_MD->m_dwPK_Command_LastPower=COMMAND_Generic_On_CONST;
+					pMediaDevice_MD->m_dwPK_EntertainArea_LastPower=pEntertainArea->m_iPK_EntertainArea;
 				}
 
 				// Send it to the MD
 				DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
+				CheckForCustomPipe(pEntertainArea,CMD_On.m_pMessage);
 				SendCommand(CMD_On);
 			}
 
 			// Send it to the on screen orbiter
 			DCE::CMD_On CMD_On2(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,PK_Pipe_Current,"");
+			CheckForCustomPipe(pEntertainArea,CMD_On2.m_pMessage);
 			SendCommand(CMD_On2);
 		}
 		// See if it's a generic media stream, and it's using it's own pipes
@@ -3190,11 +3202,12 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 			pEntertainArea->m_bViewingLiveAVPath=true;
 		
 		DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,PK_Pipe_Current,"");
+		CheckForCustomPipe(pEntertainArea,CMD_On.m_pMessage);
 		SendCommand(CMD_On);
 	}
 }
 
-void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current,vector<int> *p_vectDevice)
+void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current,EntertainArea *pEntertainArea,vector<int> *p_vectDevice)
 {
 	bool bCreatedVect=false;
 	if( !p_vectDevice )
@@ -3221,6 +3234,7 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 		if( !pMediaDevice || !pMediaDevice->m_bDontSendOffIfOSD_ON )
 		{
 			DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
+			CheckForCustomPipe(pEntertainArea,CMD_Off.m_pMessage);
 			SendCommand(CMD_Off);
 		}
 	}
@@ -3238,7 +3252,7 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 
 		DeviceData_Router *pDeviceData_RouterChild = m_pRouter->m_mapDeviceData_Router_Find( pPipe->m_pDevice_To->m_dwPK_Device );
 		if( pDeviceData_RouterChild )
-			TurnDeviceOff(PK_Pipe,pDeviceData_RouterChild,pmapMediaDevice_Current,p_vectDevice);
+			TurnDeviceOff(PK_Pipe,pDeviceData_RouterChild,pmapMediaDevice_Current,pEntertainArea,p_vectDevice);
 	}
 
 	if( bCreatedVect )
@@ -4104,13 +4118,13 @@ bool Media_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
 	return false;
 }
 
-void Media_Plugin::AddOtherDevicesInPipesToRenderDevices(int PK_Pipe, map<int,MediaDevice *> *pmapMediaDevice)
+void Media_Plugin::AddOtherDevicesInPipesToRenderDevices(int PK_Pipe, map<int,MediaDevice *> *pmapMediaDevice,EntertainArea *pEntertainArea)
 {
 	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice->begin();it!=pmapMediaDevice->end();++it)
-		AddOtherDevicesInPipes_Loop(PK_Pipe,(*it).second->m_pDeviceData_Router,pmapMediaDevice);
+		AddOtherDevicesInPipes_Loop(PK_Pipe,(*it).second->m_pDeviceData_Router,pmapMediaDevice,pEntertainArea);
 }
 
-void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice,vector<int> *p_vectDevice)
+void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *pDevice,map<int,MediaDevice *> *pmapMediaDevice,EntertainArea *pEntertainArea,vector<int> *p_vectDevice)
 {
 	if( !pDevice )
 		return;
@@ -4127,23 +4141,32 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 		if( (*p_vectDevice)[s]==pDevice->m_dwPK_Device )
 			return;
 	p_vectDevice->push_back(pDevice->m_dwPK_Device);
+	
 
-	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();
-		it!=pDevice->m_mapPipe_Available.end();++it)
+	MapPipe *pMapPipe = NULL;
+	if( pEntertainArea && pEntertainArea->m_pMediaDevice_OutputZone )
+		pMapPipe = pDevice->m_mapPipe_Temporary_Find(pEntertainArea->m_iPK_EntertainArea);
+	else
+		pMapPipe = &pDevice->m_mapPipe_Available;
+
+	if( pMapPipe )
 	{
-		Pipe *pPipe = (*it).second;
-		if( !PK_Pipe || pPipe->m_PK_Pipe==PK_Pipe )
+		for(MapPipe::iterator it=pMapPipe->begin();it!=pMapPipe->end();++it)
 		{
-			DeviceData_Router *pDevice_Pipe = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pDevice_To->m_dwPK_Device);
-			if( pDevice_Pipe )
+			Pipe *pPipe = (*it).second;
+			if( !PK_Pipe || pPipe->m_PK_Pipe==PK_Pipe )
 			{
-				MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice_Pipe->m_dwPK_Device);
-				if( pMediaDevice )
-					(*pmapMediaDevice)[pDevice_Pipe->m_dwPK_Device] = pMediaDevice;
-				AddOtherDevicesInPipes_Loop(PK_Pipe,pDevice_Pipe,pmapMediaDevice,p_vectDevice);
+				DeviceData_Router *pDevice_Pipe = m_pRouter->m_mapDeviceData_Router_Find(pPipe->m_pDevice_To->m_dwPK_Device);
+				if( pDevice_Pipe )
+				{
+					MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice_Pipe->m_dwPK_Device);
+					if( pMediaDevice )
+						(*pmapMediaDevice)[pDevice_Pipe->m_dwPK_Device] = pMediaDevice;
+					AddOtherDevicesInPipes_Loop(PK_Pipe,pDevice_Pipe,pmapMediaDevice,pEntertainArea,p_vectDevice);
+				}
+				else
+					g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pDevice_To->m_dwPK_Device);
 			}
-			else
-				g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pDevice_To->m_dwPK_Device);
 		}
 	}
 
@@ -4154,13 +4177,13 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice->m_pDevice_MD->m_dwPK_Device);
 		if( pMediaDevice )
 			(*pmapMediaDevice)[pDevice->m_pDevice_MD->m_dwPK_Device] = pMediaDevice;
-		AddOtherDevicesInPipes_Loop( PK_Pipe, (DeviceData_Router *) pDevice->m_pDevice_MD, pmapMediaDevice, p_vectDevice );
+		AddOtherDevicesInPipes_Loop( PK_Pipe, (DeviceData_Router *) pDevice->m_pDevice_MD, pmapMediaDevice, pEntertainArea, p_vectDevice );
 	}
 	if( bCreatedVect )
 		delete p_vectDevice;
 }
 
-void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider,int &iPK_Device, int iPK_DeviceTemplate, vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler, map<int, MediaDevice *> &mapEntertainmentArea_OutputZone)
+void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider,int &iPK_Device, int iPK_DeviceTemplate, vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler, map<int, pair<MediaDevice *,MediaDevice *> > &mapEntertainmentArea_OutputZone)
 {
 	bool bUsingGenericHandler=false;  // A flag if we're using the generic handler
 	// This function needs to find a media handler for every entertainment area.  This map will store all our possibilities
@@ -4242,8 +4265,7 @@ void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider
 						MediaHandlerInfo *pMediaHandlerInfo = *itMHI;
 						if( pMediaHandlerInfo->m_PK_MediaType==iPK_MediaType && pMediaHandlerInfo->ControlsDevice(pMediaDevice_FeedsIn->m_pDeviceData_Router->m_dwPK_Device) )
 						{
-							iPK_Device = pMediaDevice_FeedsIn->m_pDeviceData_Router->m_dwPK_Device;  // We also need to specifically indicate what is going to be the source now
-							mapEntertainmentArea_OutputZone[ pEntertainArea->m_iPK_EntertainArea ] = pMediaDevice;
+							mapEntertainmentArea_OutputZone[ pEntertainArea->m_iPK_EntertainArea ] = make_pair<MediaDevice *,MediaDevice *> (pMediaDevice_FeedsIn,pMediaDevice);
 							mapMediaHandlerInfo[pMediaHandlerInfo].push_back(pEntertainArea);
 							break;
 						}
@@ -4336,30 +4358,43 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_MH_Set_Volume");
 	{
 		string s = StringUtils::Tokenize(sPK_EntertainArea,",",pos);
 		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(abs(atoi(s.c_str())));  // abs because orbiter floorplan sends ent areas as - to differentiate between devices
-		if( !pEntertainArea && atoi(s.c_str())==-1 )
+		if( !pEntertainArea )
 		{
 			OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 			if( pOH_Orbiter )
 				pEntertainArea = pOH_Orbiter->m_pEntertainArea;
 		}
-		if( pEntertainArea && pEntertainArea->m_pMediaDevice_ActiveDest )
+
+		int PK_Device_Dest = m_dwPK_Device;
+		if( pEntertainArea->m_pMediaDevice_ActiveDest )
 		{
-g_pPlutoLogger->Write(LV_STATUS,"For EA %s found active device %d",s.c_str(),pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device);
-			if( sLevel=="-1" )
-			{
-				DCE::CMD_Vol_Down CMD_Vol_Down(pMessage->m_dwPK_Device_From,m_dwPK_Device,1);
-				SendCommand(CMD_Vol_Down);
-			}
-			else if( sLevel=="+1" )
-			{
-				DCE::CMD_Vol_Up CMD_Vol_Up(pMessage->m_dwPK_Device_From,m_dwPK_Device,1);
-				SendCommand(CMD_Vol_Up);
-			}
+			if( pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_DCE_Software_Wrappers_CONST) && pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_pDevice_MD )
+				PK_Device_Dest = pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device;
 			else
-			{
-				DCE::CMD_Set_Volume CMD_Set_Volume(pMessage->m_dwPK_Device_From,m_dwPK_Device,sLevel);
-				SendCommand(CMD_Set_Volume);
-			}
+				PK_Device_Dest = pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device;
+		}
+		else if( pEntertainArea->m_pMediaDevice_MD )
+			PK_Device_Dest = pEntertainArea->m_pMediaDevice_MD->m_pDeviceData_Router->m_dwPK_Device;
+
+g_pPlutoLogger->Write(LV_STATUS,"For EA %s found active device %d",s.c_str(),PK_Device_Dest);
+
+		if( sLevel=="-1" )
+		{
+			DCE::CMD_Vol_Down CMD_Vol_Down(pMessage->m_dwPK_Device_From,PK_Device_Dest,1);
+			CheckForCustomPipe(pEntertainArea,CMD_Vol_Down.m_pMessage);
+			SendCommand(CMD_Vol_Down);
+		}
+		else if( sLevel=="+1" )
+		{
+			DCE::CMD_Vol_Up CMD_Vol_Up(pMessage->m_dwPK_Device_From,PK_Device_Dest,1);
+			CheckForCustomPipe(pEntertainArea,CMD_Vol_Up.m_pMessage);
+			SendCommand(CMD_Vol_Up);
+		}
+		else
+		{
+			DCE::CMD_Set_Volume CMD_Set_Volume(pMessage->m_dwPK_Device_From,PK_Device_Dest,sLevel);
+			CheckForCustomPipe(pEntertainArea,CMD_Set_Volume.m_pMessage);
+			SendCommand(CMD_Set_Volume);
 		}
 	}
 }
@@ -6166,6 +6201,7 @@ void Media_Plugin::CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,strin
 		}
 
 		DCE::CMD_On CMD_On(m_dwPK_Device,PK_Device,PK_Pipe,"");
+		CheckForCustomPipe(pEntertainArea,CMD_On.m_pMessage);
 		SendCommand(CMD_On);
 
 		if( pEntertainArea->m_pOH_Orbiter_OSD )
@@ -6254,6 +6290,7 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 					DCE::CMD_On CMD_On(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Audio->m_dwPK_Device,
 						0,"");
 					CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]="1";
+					CheckForCustomPipe(pEntertainArea,CMD_On.m_pMessage);
 					SendCommand(CMD_On);
 				}
 				else if( sText[1]=='I' )
@@ -6262,6 +6299,7 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 					{
 						DCE::CMD_Input_Select CMD_Input_Select(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Audio->m_dwPK_Device,
 							pMediaDevice->m_dwPK_Command_Audio);
+						CheckForCustomPipe(pEntertainArea,CMD_Input_Select.m_pMessage);
 						SendCommand(CMD_Input_Select);
 					}
 					else
@@ -6280,6 +6318,7 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 					DCE::CMD_On CMD_On(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Video->m_dwPK_Device,
 						0,"");
 					CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]="1";
+					CheckForCustomPipe(pEntertainArea,CMD_On.m_pMessage);
 					SendCommand(CMD_On);
 				}
 				else if( sText[1]=='I' )
@@ -6288,6 +6327,7 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 					{
 						DCE::CMD_Input_Select CMD_Input_Select(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Video->m_dwPK_Device,
 							pMediaDevice->m_dwPK_Command_Video);
+						CheckForCustomPipe(pEntertainArea,CMD_Input_Select.m_pMessage);
 						SendCommand(CMD_Input_Select);
 					}
 					else
@@ -6297,3 +6337,12 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 		}
 	}
 }
+
+void Media_Plugin::CheckForCustomPipe(EntertainArea *pEntertainArea,Message *pMessage)
+{
+	if( !pEntertainArea || !pMessage || pMessage->m_dwMessage_Type!=MESSAGETYPE_COMMAND )
+		return;
+	if( pEntertainArea->m_pMediaDevice_OutputZone )
+		pMessage->m_mapParameters[COMMANDPARAMETER_PipeID_CONST]=StringUtils::itos(pEntertainArea->m_iPK_EntertainArea);
+}
+

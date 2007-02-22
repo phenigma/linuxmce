@@ -22,8 +22,6 @@
 
 #endif
 
-#include "DCE/Message.h"
-
 #include "pluto_main/Table_Device_DeviceData.h"
 #include "pluto_main/Table_DeviceData.h"
 #include "pluto_main/Table_DeviceGroup.h"
@@ -74,10 +72,15 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 	CommandGroupArray commandGroupArray(pRow_EntertainArea,ARRAY_Media_Scenarios_CONST,true);
 
 	// See what kind of Pluto TV we have (VDR/Myth/etc. and add the button(s)
-	sSQL="SELECT PK_Device,Description FROM Device_EntertainArea "
+	sSQL="SELECT PK_Device,Device.Description FROM Device_EntertainArea "
 		"JOIN Device ON FK_Device=PK_Device "
+		"JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
 		"JOIN DeviceTemplate_MediaType ON Device.FK_DeviceTemplate=DeviceTemplate_MediaType.FK_DeviceTemplate "
-		"WHERE FK_MediaType=" + StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST) + " AND FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) + " ORDER BY PK_Device";
+		"WHERE FK_MediaType=" + StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST) + " AND FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) + 
+		" AND FK_DeviceCategory NOT IN (" 
+		TOSTRING(DEVICECATEGORY_Capture_Card_Ports_CONST) "," TOSTRING(DEVICECATEGORY_Mobile_Orbiter_CONST) "," TOSTRING(DEVICECATEGORY_Standard_Orbiter_CONST) "," TOSTRING(DEVICECATEGORY_Orbiter_CONST)
+		") "
+		" ORDER BY PK_Device";
 
 	int iOrder=1;
 	PlutoSqlResult result_set;
@@ -91,10 +94,7 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 				sDesc += string("\n") + row[1];
 			pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_Pluto_Sources_CONST,sDesc,ICON_TV_CONST,atoi(row[0]),MEDIATYPE_pluto_LiveTV_CONST);
 			if( pCommandGroup )
-				pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,3,
-					COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST).c_str(),
-					COMMANDPARAMETER_PK_Device_CONST,row[0],
-					COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()).c_str());
+				pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,2,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST).c_str(),COMMANDPARAMETER_PK_Device_CONST,row[0]);
 		}
 	}
 
@@ -162,10 +162,7 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 				string sDesc = row[2] + string("\n") + pRow_Device->Description_get();
 				pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_NP_Sources_CONST,sDesc,0,atoi(row[0]),atoi(row[1]));
 				if( pCommandGroup )
-					pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,3,
-						COMMANDPARAMETER_PK_MediaType_CONST,row[1],
-						COMMANDPARAMETER_PK_Device_CONST,row[0],
-						COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()).c_str());
+					pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,2,COMMANDPARAMETER_PK_MediaType_CONST,row[1],COMMANDPARAMETER_PK_Device_CONST,row[0]);
 			}
 		}
 	}

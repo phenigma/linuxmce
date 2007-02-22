@@ -21,7 +21,7 @@ namespace DCE
 		/** @brief constructor*/
 
 		EntertainArea(int iPK_EntertainArea,bool bOnly1Stream,string sDescription,Room *pRoom)
-		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; m_pRoom=pRoom; m_pMediaDevice_ActiveDest=NULL; m_bMediaIsPrivate=false; m_pOH_Orbiter_OSD=NULL; m_pMediaDevice_MD=NULL; m_bUsingCustomPipe=m_bViewingLiveAVPath=false; }
+		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; m_pRoom=pRoom; m_pMediaDevice_ActiveDest=NULL; m_bMediaIsPrivate=false; m_pOH_Orbiter_OSD=NULL; m_pMediaDevice_MD=NULL; m_pMediaDevice_OutputZone=NULL; m_bViewingLiveAVPath=false; }
 
 
 		~EntertainArea()
@@ -44,9 +44,9 @@ namespace DCE
 		Room *m_pRoom;
 		bool m_bMediaIsPrivate;
 		
-		bool m_bUsingCustomPipe;  /** This EA is being fed audio/video from a multi-zone system where the source is in a different room so a/v commands go up a custom pipe */
 		class MediaStream  *m_pMediaStream;   /** The current media streams in this entertainment area */
 		MediaDevice	*m_pMediaDevice_ActiveDest;      /** The media device that is currently rendering media in this area */
+		MediaDevice	*m_pMediaDevice_OutputZone;      /** The media device that is used as a special output zone */
 		MediaDevice	*m_pMediaDevice_MD;      /** The media device that is the MD in this area */
 		class OH_Orbiter *m_pOH_Orbiter_OSD;    	   /** Which orbiter is the on-screen display for this entertainment area */
 

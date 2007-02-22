@@ -277,8 +277,8 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	// If the source is one ea and the destination in another, it could be remotely playing a disc, so 
 	// let ConfirmSourceIsADestination process it
 	// and see if it can still make it non-streaming by using network block
-	// If it changes the source to use an nbd device, then the subsequent SingleEaAndSameDestSource will return true
-	if( pXineMediaStream->SingleEaAndSameDestSource()==false )
+	// If it changes the source to use an nbd device, then the subsequent StreamingRequired will return true
+	if( pXineMediaStream->StreamingRequired() )
 	{
 		// For now we're not able to have a xine that renders to a NULL window and can do dvd's.  They require 
 		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
@@ -291,7 +291,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	mediaURL = StringUtils::Replace(mediaURL, "\\", "/"); // replacing all the \ in a windows path with /
 #endif
 
-	if( pXineMediaStream->SingleEaAndSameDestSource()==false )
+	if( pXineMediaStream->StreamingRequired() )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
 			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,

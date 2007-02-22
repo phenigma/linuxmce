@@ -200,7 +200,7 @@ namespace DCE
 
 		// Returns true if this is a vanilla stream where it's only playing in 1 ent area, and the source and destination
 		// devices are the same.  Otherwise it's going to require some sort of streaming
-		bool SingleEaAndSameDestSource(); 
+		bool StreamingRequired(); 
 
 		void LoadDefaultAvSettings();
 		void LoadDefaultAvSettings(deque<MediaSection *> &dequeMediaSection,map<int,int> &mapAttributes);
