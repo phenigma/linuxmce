@@ -1,5 +1,4 @@
 #!/bin/bash
-exit 0
 if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
 	echo "ERROR: Cannot find wizard data";
 	exit 1
