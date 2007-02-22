@@ -24,9 +24,9 @@ Package: libsdl1.2debian-pluto-all
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}
-Replaces: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-nas
-Conflicts: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-nas
-Provides: libsdl1.2-all
+Replaces: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-pluto-nas
+Conflicts: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-pluto-nas
+Provides: libsdl1.2-pluto-all
 Description: Simple DirectMedia Layer (with all available options)
  SDL is a library that allows programs portable low level access to a video
  framebuffer, audio output, mouse, and keyboard.
@@ -39,8 +39,8 @@ Architecture: alpha arm hppa i386 ia64 m68k mips mipsel powerpc s390 s390x sh3 s
 Section: libs
 Priority: extra
 Depends: ${shlibs:Depends}
-Replaces: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-nas, libsdl1.2-nas
-Conflicts: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-nas, libsdl1.2-nas
+Replaces: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-nas, libsdl1.2-pluto-nas
+Conflicts: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-nas, libsdl1.2-pluto-nas
 Description: Simple DirectMedia Layer (with X11 and ALSA options)
  SDL is a library that allows programs portable low level access to a video
  framebuffer, audio output, mouse, and keyboard.
@@ -52,9 +52,9 @@ Architecture: any
 Section: libs
 Priority: extra
 Depends: ${shlibs:Depends}
-Replaces: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-nas
-Conflicts: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-nas
-Provides: libsdl1.2-oss
+Replaces: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-pluto-nas
+Conflicts: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-pluto-nas
+Provides: libsdl1.2-pluto-oss
 Description: Simple DirectMedia Layer (with X11 and OSS options)
  SDL is a library that allows programs portable low level access to a video
  framebuffer, audio output, mouse, and keyboard.
@@ -66,9 +66,9 @@ Architecture: any
 Section: libs
 Priority: extra
 Depends: ${shlibs:Depends}
-Replaces: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-nas
-Conflicts: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-nas
-Provides: libsdl1.2-esd
+Replaces: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-pluto-nas
+Conflicts: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts, libsdl1.2debian-pluto-nas, libsdl1.2-pluto-nas
+Provides: libsdl1.2-pluto-esd
 Description: Simple DirectMedia Layer (with X11 and esound options)
  SDL is a library that allows programs portable low level access to a video
  framebuffer, audio output, mouse, and keyboard.
@@ -80,9 +80,9 @@ Architecture: any
 Section: libs
 Priority: extra
 Depends: ${shlibs:Depends}
-Replaces: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-nas, libsdl1.2-nas
-Conflicts: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-nas, libsdl1.2-nas
-Provides: libsdl1.2-arts
+Replaces: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-nas, libsdl1.2-pluto-nas
+Conflicts: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-nas, libsdl1.2-pluto-nas
+Provides: libsdl1.2-pluto-arts
 Description: Simple DirectMedia Layer (with X11 and aRts options)
  SDL is a library that allows programs portable low level access to a video
  framebuffer, audio output, mouse, and keyboard.
@@ -94,9 +94,9 @@ Architecture: any
 Section: libs
 Priority: extra
 Depends: ${shlibs:Depends}
-Replaces: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts
-Conflicts: libsdl1.2-all, libsdl1.2-esd, libsdl1.2-oss, libsdl1.2-arts, libsdl1.2 (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts
-Provides: libsdl1.2-nas
+Replaces: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts
+Conflicts: libsdl1.2-pluto-all, libsdl1.2-pluto-esd, libsdl1.2-pluto-oss, libsdl1.2-pluto-arts, libsdl1.2-pluto (<< 1.2.1-1), libsdl1.2debian-pluto-all, libsdl1.2debian-pluto-alsa, libsdl1.2debian-pluto-esd, libsdl1.2debian-pluto-oss, libsdl1.2debian-pluto-arts
+Provides: libsdl1.2-pluto-nas
 Description: Simple DirectMedia Layer (with X11 and NAS options)
  SDL is a library that allows programs portable low level access to a video
  framebuffer, audio output, mouse, and keyboard.
@@ -108,8 +108,8 @@ Architecture: any
 Section: libdevel
 Depends: libsdl1.2debian-pluto (= ${Source-Version}), libxt-dev | xlibs-dev (>> 4.1.0), libxext-dev | xlibs-dev (>> 4.1.0), xlibmesa-glu-dev | libglu-dev, ${libsvga1-dev}@libasound@, libaa1-dev, libaudio-dev, libartsc0-dev, libesd0-dev
 Replaces: libsdl-dev, libsdl0.11-dev, libsdl1.0-dev, libsdl1.1-dev
-Conflicts: xlibs-pic (<< 4.1.0-10), libsdl-dev, libsdl0.11-dev, libsdl0.11, libsdl1.0-dev, libsdl1.1-dev
-Provides: libsdl-dev
+Conflicts: xlibs-pic (<< 4.1.0-10), libsdl-pluto-dev, libsdl0.11-dev, libsdl0.11, libsdl1.0-dev, libsdl1.1-dev
+Provides: libsdl-pluto-dev
 Description: Simple DirectMedia Layer development files
  SDL is a library that allows programs portable low level access to a video
  framebuffer, audio output, mouse, and keyboard.
