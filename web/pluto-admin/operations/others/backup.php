@@ -101,6 +101,9 @@ function backup($output,$dbADO) {
 				exit();
 			}
 			*/
+			$mkdir_cmd='sudo -u root mkdir -p /home/backup/upload';
+			exec_batch_command($mkdir_cmd);
+			
 			$move_cmd='sudo -u root mv '.$_FILES['restore_file']['tmp_name'].' '.'/home/backup/upload/'.$_FILES['restore_file']['name'];
 			exec_batch_command($move_cmd);
 			
