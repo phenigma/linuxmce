@@ -103,7 +103,7 @@ Description: Simple DirectMedia Layer (with X11 and NAS options)
  .
  This version of SDL is compiled with X11 graphics and NAS sound.
 
-Package: libsdl1.2-dev
+Package: libsdl1.2-pluto-dev
 Architecture: any
 Section: libdevel
 Depends: libsdl1.2debian-pluto (= ${Source-Version}), libxt-dev | xlibs-dev (>> 4.1.0), libxext-dev | xlibs-dev (>> 4.1.0), xlibmesa-glu-dev | libglu-dev, ${libsvga1-dev}@libasound@, libaa1-dev, libaudio-dev, libartsc0-dev, libesd0-dev
