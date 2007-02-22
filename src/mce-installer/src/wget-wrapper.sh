@@ -1,5 +1,5 @@
 #!/bin/bash
-skip=7
+skip=9
 echo > /tmp/mce-wget-progress
 while read line; do
 	if [[ "$skip" != "0" ]] ;then

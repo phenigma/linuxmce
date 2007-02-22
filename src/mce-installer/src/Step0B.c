@@ -66,6 +66,10 @@ void start_wget(void) {
 void on_Step0B_forward_clicked(GtkWidget *widget, gpointer data) {
 }
 
+void on_Step0B_progress_unrealize(GtkWidget *widget, gpointer data) {
+	kill(wget_pid, 15);
+}
+
 void displayStep0B(void) {
 	printf("Step0B\n");
 
@@ -80,6 +84,7 @@ void displayStep0B(void) {
 	// Progress Bar
 	progress = gtk_progress_bar_new();
 	gtk_box_pack_start(GTK_BOX(mainBox), progress, FALSE, FALSE, 0);
+	g_signal_connect(G_OBJECT(progress), "unrealize", G_CALLBACK(on_Step0B_progress_unrealize), NULL);
 
 	// Wizard text
 	labelTotal = gtk_label_new_for_wizard ("Done: not available");

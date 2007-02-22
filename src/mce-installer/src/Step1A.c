@@ -1,4 +1,5 @@
 #include "common.h"
+#include "Step1A.h"
 
 
 void on_Step1A_forward_clicked(GtkWidget *widget, gpointer data) {

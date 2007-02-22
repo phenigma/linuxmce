@@ -33,7 +33,8 @@ PATH: /usr/sbin
 PATH: /usr/bin
 PATH: /sbin
 PATH: /bin
-PATH: /usr/X11R6/bin
+PATH: /usr/bin/X11
+PATH: /usr/games
 
 
 ## ----------- ##

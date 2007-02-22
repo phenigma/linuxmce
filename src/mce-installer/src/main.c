@@ -114,7 +114,7 @@ main (int argc, char *argv[])
 		displayStep1A();
 	}
 
-//	displayStep0B();
+//	displayStep0A();
 
 	gtk_main ();
 	gdk_threads_leave();

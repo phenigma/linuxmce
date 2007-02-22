@@ -20,6 +20,12 @@ void on_back_clicked(GObject object, gpointer data) {
 	if (!g_queue_is_empty(history) != 0) {
 		gint prevScreen = (gint) g_queue_pop_head(history);
 		switch (prevScreen){
+			case STEP0A:
+				displayStep0A();
+				break;
+			case STEP0B:
+				displayStep0B();
+				break;
 			case STEP1A:
 				displayStep1A();
 				break;

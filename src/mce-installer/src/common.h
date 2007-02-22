@@ -17,6 +17,8 @@
 #include <string.h>
 #include <pthread.h>
 
+#include "Step0A.h"
+#include "Step0B.h"
 #include "Step1A.h"
 #include "Step1B.h"
 #include "Step1C.h"
@@ -43,6 +45,8 @@
 #define STEP4  10
 #define STEP5  11
 #define STEP2F 12
+#define STEP0A 13
+#define STEP0B 14
 
 GladeXML  *gxml;
 GtkWidget *mainWindow;
