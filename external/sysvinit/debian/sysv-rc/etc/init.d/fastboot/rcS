@@ -317,7 +317,7 @@ fi
 
 if [[ -d /home/backup/upload ]]; then
         Message "Searching system for Restore Points ..."
-        /usr/pluto/bin/PlutoRestorePoint.sh --restore
+        /usr/pluto/bin/PlutoRestorePoint.sh --restore --skip-md5
 	RestorePoint=1
 
 fi
