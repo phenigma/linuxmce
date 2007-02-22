@@ -1,2 +1,1 @@
-?package(mce-launcher):needs="X11|text|vc|wm" section="Apps/see-menu-manual"\
-  title="mce-launcher" command="/usr/bin/mce-launcher"
+?package(mce-launcher):needs="X11" section="Apps/Tools" title="Start Media Center" command="/usr/bin/mce-launcher"
