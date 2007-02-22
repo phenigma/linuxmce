@@ -45,8 +45,8 @@ function Checkout_Pluto_Svn {
 
 	#/bin/sql2cpp -h localhost -u root -D pluto_main
 	pushd ${svn_dir}/trunk/src
-	svn co --username automatic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/trunk/src/ZWave/
-	svn co --username automatic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/trunk/src/RFID_Interface/
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/trunk/src/ZWave/
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/trunk/src/RFID_Interface/
 	popd
 }
 
@@ -327,10 +327,10 @@ function Create_Diskless_Archive {
 Import_Build_Database
 Import_Pluto_Skins
 Checkout_Pluto_Svn
-Build_Pluto_Replacements
+#Build_Pluto_Replacements
 Build_MakeRelease_Binary
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
-Create_Local_Repository
+#Create_Local_Repository
 
-
+read
