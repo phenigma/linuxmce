@@ -63,7 +63,7 @@ fi
 # restore system from backup
 if [[ "$1" == "--restore" ]]; then
 	cd $MASTERDIR/upload
-	backupfile=$(ls $MASTERDIR/upload | grep backup)
+	backupfile=$(ls $MASTERDIR/upload | grep tar)
 	md5file=$(ls $MASTERDIR/upload | grep md5)
 	if [[ "$2" == "--skip-md5" ]]; then
 	
