@@ -11,6 +11,11 @@ function editDeviceParams($output,$dbADO) {
 $out='';
 $deviceID = (int)$_REQUEST['deviceID'];
 $installationID = (int)@$_SESSION['installationID'];
+$registeredArray=array(
+	1=>$TEXT_YES_CONST,
+	0=>$TEXT_NO_CONST,
+	-1=>$TEXT_REGISTERED_RELOAD_NEEDED_CONST
+);
 
 	if (!isset($_SESSION['userLoggedIn']) || $_SESSION['userLoggedIn']!=true) {
 		header("Location: index.php?section=login&last=editDeviceParams&deviceID=$deviceID");
@@ -39,7 +44,8 @@ $installationID = (int)@$_SESSION['installationID'];
 			DeviceTemplate.ImplementsDCE,
 			Parent.FK_DeviceTemplate AS ParentDT,
 			Device.Disabled,
-			Device.ManuallyConfigureEA
+			Device.ManuallyConfigureEA,
+			Device.Registered
 		FROM Device
 		LEFT JOIN Device Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device
 		INNER JOIN DeviceTemplate on Device.FK_DeviceTemplate = PK_DeviceTemplate
@@ -70,6 +76,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$IsIPBased=$row['IsIPBased'];
 		$dcID=$row['FK_DeviceCategory'];
 		$ManuallyConfigureEA=$row['ManuallyConfigureEA'];
+		$registered=$row['Registered'];
 
 		$coreSystemLog=($row['FK_DeviceCategory']==$GLOBALS['CategoryCore'])?'&nbsp;&nbsp;&nbsp;<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'&system_log=1\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">System log</a>':'';
 
@@ -276,6 +283,9 @@ $installationID = (int)@$_SESSION['installationID'];
 			</tr>
 			<tr>
 				<td colspan="3"><input type="checkbox" name="deviceDisabled" value="1" '.(($deviceDisabled==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"> '.$TEXT_DISABLED_CONST.'</td>
+			</tr>					
+			<tr>
+				<td colspan="3">'.$TEXT_REGISTERED_CONST.': <B>'.$registeredArray[$registered].'</B></td>
 			</tr>					
 			<tr>
 				<td colspan="3" align="left"><input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"> <input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>

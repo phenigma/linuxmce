@@ -31,4 +31,6 @@ $TEXT_CONFIRM_DELETE_DEVICE_FROM_GROUP_CONST='Are you sure you want to delete th
 $TEXT_CONFIRM_DELETE_DEVICE_CONST='Are you sure you want to delete this device?';
 $TEXT_BACKUP_CHILD_DEVICES_CONST='Backup child devices';
 $TEXT_RESTORE_CHILD_DEVICES_CONST='Restore child devices';
+$TEXT_REGISTERED_CONST='Registered';
+$TEXT_REGISTERED_RELOAD_NEEDED_CONST='Yes, but a reload is needed';
 ?>
