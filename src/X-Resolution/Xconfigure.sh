@@ -231,15 +231,6 @@ OpenGL=$(AlphaBlendingEnabled)
 awk -v"OpenGL=$OpenGL" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
 mv "$ConfigFile"{.$$,}
 
-# Test detected display driver
-# Don't test if driver is vesa (assumption: always works) or current driver (assumption: already tested and works)
-if [[ "$DisplayDriver" != "$CurrentDisplayDriver" && "$DisplayDriver" != vesa ]] && [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]]; then
-	if ! TestConfig && [[ " ${OrigParams[*]} " != *" --force-vesa "* ]]; then
-		"$0" "${OrigParams[@]}" --force-vesa --skiplock
-		exit $?
-	fi
-fi
-
 # XvMC setup
 case "$DisplayDriver" in
 	nvidia)
@@ -294,4 +285,14 @@ if [[ -n "$Resolution" ]]; then
 	fi
 	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -v"nvHD=$nvHD" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
+fi
+
+# Test detected display driver
+# Don't test if driver is vesa (assumption: always works) or current driver (assumption: already tested and works)
+# Doing this test last, to test all the changes, since the video driver (e.g. nvidia) may not work without some extra options that are set together with the resolution
+if [[ "$DisplayDriver" != "$CurrentDisplayDriver" && "$DisplayDriver" != vesa ]] && [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]]; then
+	if ! TestConfig && [[ " ${OrigParams[*]} " != *" --force-vesa "* ]]; then
+		"$0" "${OrigParams[@]}" --force-vesa --skiplock
+		exit $?
+	fi
 fi
