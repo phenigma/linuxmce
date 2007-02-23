@@ -255,11 +255,16 @@ function Configure_Network_Options {
 
 }
 
+function Setup_DebCache() {
+	:
+}
+
 Core_PK_Device="0"
 Setup_Network_Intefaces
 Setup_Apt_Conffiles
 Setup_Pluto_Conf
 Setup_NIS
+Setup_DebCache
 Install_DCERouter
 Create_And_Config_Devices
 Configure_Network_Options
@@ -271,6 +276,7 @@ Configure_Network_Options
 
 
 mkdir -p /usr/pluto/deb-cache
+sed -i 's/"nv"/"nvidia"/g' /etc/X11/xorg.conf
 
 echo 
 echo
