@@ -34,9 +34,9 @@ function Setup_Network_Intefaces {
 function Setup_Apt_Conffiles {
 	## Setup apt sources.list
 	local Sources="# Pluto sources - start
+deb file:/usr/pluto/deb-cache/ ./
 deb http://archive.ubuntu.com/ubuntu edgy main restricted multiverse universe
 deb http://ubuntu.plutohome.com/ ./
-deb file:/usr/pluto/deb-cache/ ./
 # Pluto sources - end"
 	echo "$Sources" >/etc/apt/sources.list
 

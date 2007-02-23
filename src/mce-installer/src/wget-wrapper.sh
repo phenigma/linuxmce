@@ -36,6 +36,6 @@ while read line; do
 	if echo "$text" | egrep -q '^[0-9]{1,3}\|[0-9]*' ;then
 		echo "$text" >> /tmp/mce-wget-progress
 	fi
-done < <(wget -c -O /var/linuxmce/linux-mce.iso --progress=dot  ftp://ftp.proxad.net/pub/Distributions_Linux/GeeXboX/releases/1.0/geexbox-1.0-en.i386.iso 2>&1 1>/dev/null)
+done < <(wget -c -O /var/linuxmce/linux-mce.iso --progress=dot http://ubuntu.plutohome.com/ubuntu-packages-cd.iso 2>&1 1>/dev/null)
 
 
