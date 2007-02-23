@@ -42,6 +42,7 @@ function Checkout_Pluto_Svn {
 	rm -rf ${svn_dir}/trunk
 	mkdir -p ${svn_dir}/trunk
 	svn co ${svn_url}/pluto/trunk  ${svn_dir}/trunk
+	cp -f /root/images-pluto-admin/*.jpg ${svn_dir}/trunk/web/pluto-admin/include/images/
 
 	#/bin/sql2cpp -h localhost -u root -D pluto_main
 	pushd ${svn_dir}/trunk/src
@@ -345,10 +346,10 @@ function Create_Diskless_Archive {
 Import_Build_Database
 Import_Pluto_Skins
 Checkout_Pluto_Svn
-#Build_Pluto_Replacements
-#Build_MakeRelease_Binary
+Build_Pluto_Replacements
+Build_MakeRelease_Binary
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
-#Create_Local_Repository
+Create_Local_Repository
 
 read

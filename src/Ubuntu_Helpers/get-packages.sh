@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /usr/pluto/bin/SQL_Ops.sh
+. ./SQL_Ops.sh
 
 TMP_DIR="/var/ubuntu/"
 MAX_LEVEL=3
@@ -54,8 +54,6 @@ function ComputeDependencies
 
 
 
-
-
 if [[ ! -e "$TMP_DIR" ]] ;then
 	mkdir "$TMP_DIR"
 fi
@@ -85,8 +83,7 @@ for package in $packages ;do
 	ComputeDependencies "$package" "1"
 done
 
-
-Q="SELECT DISTINCT PackageName FROM Dependencies"
+Q="SELECT DISTINCT PackageName FROM Dependencies WHERE PackageName LIKE '%pluto%'"
 packages=$(RunSQL "$Q")
 
 for package in $packages ;do
