@@ -1037,7 +1037,6 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 	// element for each handler we need to use (which will translate to a stream for each)
 	// and the list of entertainment areas
 	vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > vectEA_to_MediaHandler;
-//on initial playing of dvd, we're using a source.  on move, we're not....  
 	if( !iPK_MediaType )
 	{
 		if( iPK_Device_Orbiter )
@@ -1341,37 +1340,38 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 			EVENT_Listening_to_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
 	}
 
-	// If the media is only playing in 1 entertainment area and the source device is in the same entertainment
-	// area where we are playing, we will assume the source device is also the rendering device.  In other words,
-	// if we have chosen to play a movie with Xine #1 in Ent Area #2, and if Xine #1 is in Ent Area #2, normally
-	// Xine #1 is both the source and the destination.  However, if we are playing media on a device in a different
-	// entertainment area, or in multiple ones, then we must be streaming.  So the media handler's start media
-	// will be responsible for determining the rendering device for each entertainment area.
-	// The ActiveDest is not the final rendering device (like the tv/stereo), it's the device within the ent area
-	// that is feeding the rendering devices.  If you are streaming an mpg from a room with a xine to an ea that 
-	// is connected to the m/d physically with a receiver in the same room, and also to an EA that is a second zone
-	// on the receiver, the activedest in the first ea is the media player, and in the second is the output zone
+	// Find the active destinations.  If the media player in teh living room is playing locally and streaming to the bedroom,
+	// then in the living room the media player is both the source and the destination, and in the bedroom, that media player is the
+	// destination if the device supports streaming
 	for( map<int,EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();it!=pMediaStream->m_mapEntertainArea.end();++it )
 	{
 		EntertainArea *pEntertainArea = it->second;
-		// If the source is in the same EA as the dest, it's the active dest for that EA
-		if( pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea )!=
-			pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.end() )
-				pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;
-	}
-
-	// For all other EA's, the active dest is the source that feeds the output zone
-	if( p_mapEntertainmentArea_OutputZone )
-	{
-		for( map<int,EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();it!=pMediaStream->m_mapEntertainArea.end();++it )
+		if( p_mapEntertainmentArea_OutputZone && p_mapEntertainmentArea_OutputZone->find( pEntertainArea->m_iPK_EntertainArea ) != p_mapEntertainmentArea_OutputZone->end() )
 		{
-			EntertainArea *pEntertainArea = it->second;
-			if( p_mapEntertainmentArea_OutputZone->find( pEntertainArea->m_iPK_EntertainArea ) != p_mapEntertainmentArea_OutputZone->end() )
+			pEntertainArea->m_pMediaDevice_ActiveDest = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ].first;
+			pEntertainArea->m_pMediaDevice_OutputZone = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ].second;
+		}
+		else if( pEntertainArea->m_pMediaDevice_ActiveDest )
+			continue;  // We already assigned this
+		else if( pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea )!=
+			pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.end() )
+				pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;  // It's the same as the source
+		else if( pMediaStream->m_pMediaHandlerInfo->m_bMultipleDestinations )
+		{
+			// It can stream.  Find a destination in the EA
+			for(list<class MediaDevice *>::iterator itMD=pMediaStream->m_pMediaHandlerInfo->m_listMediaDevice.begin();itMD!=pMediaStream->m_pMediaHandlerInfo->m_listMediaDevice.end();++itMD)
 			{
-				pEntertainArea->m_pMediaDevice_ActiveDest = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ].first;
-				pEntertainArea->m_pMediaDevice_OutputZone = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ].second;
+				MediaDevice *pMediaDevice = *itMD;
+				if( pMediaDevice->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea )!=pMediaDevice->m_mapEntertainArea.end() )
+				{
+					// We found another device in this EA that can be the active destination
+					pEntertainArea->m_pMediaDevice_ActiveDest=pMediaDevice;
+					break;
+				}
 			}
 		}
+		else if( !pEntertainArea->m_pMediaDevice_ActiveDest )
+			g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::StartMedia no ActiveDest for EA %d", pEntertainArea->m_iPK_EntertainArea);
 	}
 
 #ifdef SIM_JUKEBOX
@@ -1427,14 +1427,14 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 			{
 				CheckForAlternatePipes(pMediaStream,pEntertainArea);
 
+				// Only start it once, we set it to false above, and will set it to true in StartCaptureCard.  We may be streaming to multiple EA's
+				if( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive == false)
+					StartCaptureCard(pMediaStream);
+
 				// We need to get the current rendering devices so that we can send on/off commands
 				map<int,MediaDevice *> mapMediaDevice_Current;
 				// only do stuff with valid objects
 				pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&mapMediaDevice_Current);
-
-				// Only start it once, we set it to false above, and will set it to true in StartCaptureCard.  We may be streaming to multiple EA's
-				if( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive == false)
-					StartCaptureCard(pMediaStream);
 
 				HandleOnOffs(pOldStreamInfo ? pOldStreamInfo->m_PK_MediaType_Prior : 0,
 					pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,
@@ -1584,16 +1584,35 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 
 		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartCaptureCard streaming to %d", 
 			pDevice_MediaPlayer->m_dwPK_Device);
+
+		string sTargets = pMediaStream->GetTargets(DEVICETEMPLATE_Xine_Player_CONST);
 		DCE::CMD_Start_Streaming cmd(m_dwPK_Device,
 								pDevice_MediaPlayer->m_dwPK_Device,
 								pMediaStream->m_iPK_MediaType,
 								pMediaStream->m_iStreamID_get( ),
 								"",
 								"fifo://" + sDevice,
-								pMediaStream->GetTargets(DEVICETEMPLATE_Xine_Player_CONST));
+								sTargets);
 
 		// No handling of errors (it will in some cases deadlock the router.)
 		SendCommand(cmd);
+
+		// In any ea's with the target devices, those are the active destinations
+		string::size_type pos=0;
+		while(pos<sTargets.size())
+		{
+			int PK_Device_Streaming_Dest = atoi( StringUtils::Tokenize(sTargets,",",pos).c_str() );
+			MediaDevice *pMediaDevice = m_mapMediaDevice_Find(PK_Device_Streaming_Dest);
+			if( pMediaDevice )
+			{
+				for(map<int,EntertainArea *>::iterator itEA=pMediaDevice->m_mapEntertainArea.begin();itEA!=pMediaDevice->m_mapEntertainArea.end();++itEA)
+				{
+					EntertainArea *pEntertainArea = itEA->second;
+					if( pMediaStream->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea ) != pMediaStream->m_mapEntertainArea.end() && pEntertainArea->m_pMediaDevice_ActiveDest==NULL )
+						pEntertainArea->m_pMediaDevice_ActiveDest = pMediaDevice;
+				}
+			}
+		}
 	}
 	else
 	{
@@ -1687,6 +1706,9 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 				return rmr_NotProcessed;
 			}
 		}
+
+		// Add any custom pipe if this is going through another output zone
+		CheckForCustomPipe(pEntertainArea,pMessage);
 
 		// Add some stuff to the message parameters
 		pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST] = StringUtils::itos(pEntertainArea->m_pMediaStream->m_iStreamID_get());
@@ -2911,6 +2933,12 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 		g_pPlutoLogger->Write( LV_STATUS, "Media_Plugin::CMD_MH_Move_Media Called StopMedia" );
 		StreamEnded(pMediaStream,true,false,NULL,&vectEntertainArea,false,false);  // In the case of a move the user likely doesn't want to still use this system, so the final false means dont leave the osd on
 	}
+	else if( vectEntertainArea.empty() )
+	{
+		// If the user parked the stream, and is still moving it to no where, probably he just wants it to go away
+		StreamEnded(pMediaStream,true,true,NULL,&vectEntertainArea,false,false);  // In the case of a move the user likely doesn't want to still use this system, so the final false means dont leave the osd on
+		return;
+	}
 
 	if( bNothingMoreToPlay )
 	{
@@ -2928,11 +2956,9 @@ g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media ready to resta
 		if( pMediaStream->m_dequeMediaFile.size()>1 )
 			pMediaStream->m_sLastPosition += " QUEUE_POS:" + StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos);
 
-		// If the source device is coming in through a capture card, preserve the source device, otherwise we'll find another source in the destination
-		int PK_Device=0;
-		if( pMediaStream->m_pDevice_CaptureCard )
-			PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
-
+		// Preserve the source device so when moving media on generic media devices we keep using the same source
+		// If moving media on software media players, we will find another source that can resume the media
+		int PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 		StartMedia( pMediaStream->m_iPK_MediaType, pMediaStream->m_iPK_MediaProvider, (pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
 			vectEntertainArea, PK_Device, 0,
 			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat,pMediaStream->m_sLastPosition);
