@@ -191,7 +191,7 @@ if [[ -z "$ResolutionSet" ]]; then
 	Resolution="${ResX}x${ResY}"
 fi
 
-if [[ -n "$KeepCurrentResolution" ]]; then
+if [[ -z "$Defaults" && -n "$KeepCurrentResolution" ]]; then
 	ResX=
 	ResY=
 	Refresh=
