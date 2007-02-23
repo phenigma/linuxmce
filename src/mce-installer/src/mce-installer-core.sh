@@ -58,6 +58,7 @@ APT::Get::AllowUnauthenticated "true";
 	ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
 
 	./mce-installer-preseed.sh
+	apt-get update
 }
 
 
@@ -273,14 +274,17 @@ function Setup_DebCache() {
 				mount /dev/cdrom /media/cdrom
 				CreateDebCache
 				umount /media/cdrom
+				OK=1
 			;;
 			2) # ISO in /var/linuxmce/linux-mce.iso
 				echo "Installing from ISO"
 				mount -o loop /var/linuxmce/linux-mce.iso /media/cdrom
 				CreateDebCache
 				umount /media/cdrom
+				OK=1
 			;;
 			3) # Net install; Nothing to do
+				OK=1
 				:
 			;;
 			*) echo "Bad install type: '$c_InstallType'" ;;
