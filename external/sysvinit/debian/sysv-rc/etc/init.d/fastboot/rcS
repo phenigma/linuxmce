@@ -317,9 +317,9 @@ fi
 
 if [[ -d /home/backup/upload ]]; then
         Message "Searching system for Restore Points ..."
-        /usr/pluto/bin/PlutoRestorePoint.sh --restore --skip-md5
-	RestorePoint=1
-
+        /usr/pluto/bin/PlutoRestorePoint.sh --restore
+	apt-get update 1>/dev/null 2>/dev/null
+	apt-get -f install --reinstall pluto-local-database 1>/dev/null 2>/dev/null
 fi
 
 if [ -x /etc/init.d/dbus ] ;then
@@ -496,13 +496,5 @@ fi
 
 if [[ -x /usr/pluto/bin/StorageDevices_Setup.sh ]]; then
 	/usr/pluto/bin/StorageDevices_Setup.sh 1>/dev/null 2>/dev/null &
-fi
-
-# reinstall pluto-local-databases if restorepoint is found
-
-if [[ "$RestorePoint" == "1" ]]; then
-	apt-get update 1>/dev/null 2>/dev/null
-	apt-get -f install --reinstall pluto-local-database 1>/dev/null 2>/dev/null
-
 fi
 
