@@ -235,7 +235,8 @@ mv "$ConfigFile"{.$$,}
 # Don't test if driver is vesa (assumption: always works) or current driver (assumption: already tested and works)
 if [[ "$DisplayDriver" != "$CurrentDisplayDriver" && "$DisplayDriver" != vesa ]] && [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]]; then
 	if ! TestConfig && [[ " ${OrigParams[*]} " != *" --force-vesa "* ]]; then
-		exec "$0" "${OrigParams[@]}" --force-vesa --skiplock
+		"$0" "${OrigParams[@]}" --force-vesa --skiplock
+		exit $?
 	fi
 fi
 
