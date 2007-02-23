@@ -1,3 +1,0 @@
-#init command
-init
-light on 17
