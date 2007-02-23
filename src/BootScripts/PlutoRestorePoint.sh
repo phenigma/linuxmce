@@ -64,8 +64,8 @@ fi
 if [[ "$1" == "--restore" ]]; then
 	cd $MASTERDIR/upload
 	backupfile=$(ls $MASTERDIR/upload | grep tar)
-	md5file=$(ls $MASTERDIR/upload | grep md5)
-	if [[ "$2" == "--skip-md5" ]]; then
+	#md5file=$(ls $MASTERDIR/upload | grep md5)
+	#if [[ "$2" == "--skip-md5" ]]; then
 	
 		if [[ "$backupfile" != "" ]]; then
 			tar xfj "$backupfile"
@@ -85,36 +85,36 @@ if [[ "$1" == "--restore" ]]; then
 			rm -rf $MASTERDIR/upload/*
 			rmdir $MASTERDIR/upload
 		fi
-	else	
-		if [[ "$md5file" == "" ]]; then
-			echo "Control file not found. Exiting ..."
-		fi
-		md5test=$(md5sum -c $md5file | awk '{print $2}')
-		if [[ "$md5test" != "OK" ]]; then
-			echo "File integrity check failed ! Process stopped !"
-			exit 1
-		else 
-			echo ""
-                	if [[ "$backupfile" != "" ]]; then
-                        	tar xfj "$backupfile"
-                        	BKPDIR=$(find $MASTERDIR/upload -type d -maxdepth 1 -mindepth 1)
-                        	# process data from backup
-                        	cp -r $BKPDIR/etc/* /etc
-                        	cp -r $BKPDIR/usr/* /usr
-							chown -R  www-data /usr/pluto/orbiter/floorplans/
-                        	# restore mysql
-                        	cd $BKPDIR/mysql
-                        	dbtables=$(ls)
-                        	# restore old mysql data
-                        	for table in $dbtables
-                        	do
-                                	/usr/bin/mysql -u root -D pluto_main < $table
-                        	done
-                        	rm -rf $MASTERDIR/upload/*
-							rmdir $MASTERDIR/upload
-                	fi
+	#else	
+	#	if [[ "$md5file" == "" ]]; then
+	#		echo "Control file not found. Exiting ..."
+	#	fi
+	#	md5test=$(md5sum -c $md5file | awk '{print $2}')
+	#	if [[ "$md5test" != "OK" ]]; then
+	#		echo "File integrity check failed ! Process stopped !"
+	#		exit 1
+		#else 
+		#	echo ""
+         #       	if [[ "$backupfile" != "" ]]; then
+          #              	tar xfj "$backupfile"
+           #             	BKPDIR=$(find $MASTERDIR/upload -type d -maxdepth 1 -mindepth 1)
+           #             	# process data from backup
+           #             	cp -r $BKPDIR/etc/* /etc
+           #             	cp -r $BKPDIR/usr/* /usr
+		   #  				chown -R  www-data /usr/pluto/orbiter/floorplans/
+           #             	# restore mysql
+           #             	cd $BKPDIR/mysql
+           #             	dbtables=$(ls)
+           #             	# restore old mysql data
+           #             	for table in $dbtables
+		   #	            	do
+           #                     	/usr/bin/mysql -u root -D pluto_main < $table
+           #             	done
+           #             	rm -rf $MASTERDIR/upload/*
+		   #					rmdir $MASTERDIR/upload
+           #     	fi
 
-		fi
-	fi
+		#fi
+	#fi
 fi
 
