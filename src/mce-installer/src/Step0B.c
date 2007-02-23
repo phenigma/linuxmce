@@ -2,12 +2,18 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+
 pthread_t progress_tid;
 pid_t wget_pid;
 
 GtkWidget *progress;
 GtkWidget *labelSpeed;
 GtkWidget *labelTotal;
+GtkWidget *buttonForward;
 
 void *progress_thread(void *arg) {
 	gchar* buff;
@@ -54,13 +60,26 @@ void *progress_thread(void *arg) {
 	}
 }
 
+void on_Setp0B_child_exited (int i) {
+	int status;
+	pid_t pid;
+
+	pid = waitpid(wget_pid, &status, 0);
+	gtk_widget_set_sensitive (GTK_WIDGET(buttonForward), TRUE);
+}
+
 void start_wget(void) {
+	signal(SIGCHLD, on_Setp0B_child_exited);
+
 	wget_pid = fork();
 	if (wget_pid == 0) {
+		setpgrp();
+		write_config_file();
 		execl("./wget-wrapper.sh","wget-wrapper.sh",NULL);
 		_exit(0);
 	} else if (wget_pid < 0) {
 		printf("ERROR: Cannot fork wget process\n");
+	} else if (wget_pid > 0) {
 	}
 }
 
@@ -70,10 +89,12 @@ void on_Step0B_forward_clicked(GtkWidget *widget, gpointer data) {
 }
 
 void on_Step0B_progress_unrealize(GtkWidget *widget, gpointer data) {
-	kill(wget_pid, 15);
+	printf("HERE KILLING %d..\n",wget_pid);
+	kill(-wget_pid, 15);
 }
 
 void displayStep0B(void) {
+
 	printf("Step0B\n");
 
 	// Cleanup window
@@ -103,10 +124,11 @@ void displayStep0B(void) {
 	g_signal_connect(G_OBJECT(buttonBack), "clicked", G_CALLBACK(on_back_clicked), NULL);
 
 	// Button Forward
-	GtkWidget *buttonForward = gtk_button_new_from_stock(GTK_STOCK_GO_FORWARD);
+	buttonForward = gtk_button_new_from_stock(GTK_STOCK_GO_FORWARD);
 	gtk_container_add(GTK_CONTAINER(mainButtonBox), buttonForward);
 	g_signal_connect(G_OBJECT(buttonForward), "clicked", G_CALLBACK(on_Step0B_forward_clicked), NULL);
-
+	gtk_widget_set_sensitive (GTK_WIDGET(buttonForward), FALSE);
+	
 	start_wget();
 
 	// Start Progressbar thread

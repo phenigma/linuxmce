@@ -127,6 +127,7 @@ void write_config_file(void) {
 				"c_netIntName='%s'\n"
 				"c_netIntIPN='%s'\n"
 				"c_startupType=%d\n"
+				"c_installType=%d\n"
 				,setting_deviceType
 				,setting_netIfaceNo
 				,setting_netExtName
@@ -140,6 +141,7 @@ void write_config_file(void) {
 				,setting_netIntName
 				,setting_netIntIPN
 				,setting_startupType
+				,setting_installType
 		);
 	} else {
 		output = g_strdup_printf(
@@ -147,10 +149,12 @@ void write_config_file(void) {
 				"c_coreIpAddress=%s\n"
 				"c_deviceID=%s\n"
 				"c_startupType=%d\n"
+				"c_installType=%d\n"
 				,setting_deviceType
 				,setting_coreIP
 				,setting_deviceID
 				,setting_startupType
+				,setting_installType
 		);
 	}
 

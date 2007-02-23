@@ -48,6 +48,10 @@
 #define STEP0A 13
 #define STEP0B 14
 
+#define INSTALL_TYPE_CD   1
+#define INSTALL_TYPE_ISO  2
+#define INSTALL_TYPE_NET  3
+
 GladeXML  *gxml;
 GtkWidget *mainWindow;
 GtkWidget *mainBox;
@@ -84,5 +88,6 @@ gchar*   setting_netIntIPN;
 gchar*   setting_deviceID;
 
 gint     setting_startupType;
+gint	 setting_installType;
 
 #endif
