@@ -36,7 +36,7 @@ function Setup_Apt_Conffiles {
 	local Sources="# Pluto sources - start
 deb http://archive.ubuntu.com/ubuntu edgy main restricted multiverse universe
 deb http://ubuntu.plutohome.com/ ./
-deb file:/usr/pluto/deb-cache/ sarge main
+deb file:/usr/pluto/deb-cache/ ./
 # Pluto sources - end"
 	echo "$Sources" >/etc/apt/sources.list
 
