@@ -16,7 +16,7 @@ SHELL = /bin/bash
 srcdir = .
 top_srcdir = ..
 
-prefix = /usr/local
+prefix = /usr
 exec_prefix = ${prefix}
 
 bindir = ${exec_prefix}/bin
@@ -57,11 +57,11 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-host_alias = 
+host_alias = i486-linux-gnu
 host_triplet = @host@
 CATALOGS = 
 CATOBJEXT = .gmo
-CC = gcc
+CC = i486-linux-gnu-gcc
 DATADIRNAME = share
 GETTEXT_PACKAGE = mce-launcher
 GMOFILES = 
@@ -71,7 +71,7 @@ INSTOBJEXT = .mo
 INTLLIBS = 
 LIB = @LIB@
 LTLIB = @LTLIB@
-MAINT = 
+MAINT = #
 MAKEINFO = /home/rgavril/Work/SVN/src/mce-launcher/missing makeinfo
 MKINSTALLDIRS = ./mkinstalldirs
 PACKAGE = mce-launcher
@@ -112,11 +112,11 @@ PROGRAMS =  $(bin_PROGRAMS)
 
 DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I..
 CPPFLAGS = 
-LDFLAGS = 
+LDFLAGS = -Wl,-z,defs
 LIBS = 
 mce_launcher_OBJECTS =  main.o listener.o
 mce_launcher_DEPENDENCIES = 
-CFLAGS = -g -O2
+CFLAGS = -Wall -g -O2
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
@@ -136,7 +136,7 @@ OBJECTS = $(mce_launcher_OBJECTS)
 all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .o .s
-$(srcdir)/Makefile.in:  Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+$(srcdir)/Makefile.in: # Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
