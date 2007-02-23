@@ -101,6 +101,9 @@ function backup($output,$dbADO) {
 				exit();
 			}
 			*/
+			$mkdir_cmd='sudo -u root mkdir -p /home/backup';
+			exec_batch_command($mkdir_cmd);
+			
 			$mkdir_cmd='sudo -u root mkdir -p /home/backup/upload';
 			exec_batch_command($mkdir_cmd);
 			
