@@ -145,7 +145,8 @@ function avWizard($output,$dbADO) {
 			INNER JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory 
 			INNER JOIN Manufacturer ON DeviceTemplate.FK_Manufacturer=PK_Manufacturer 		
 			LEFT JOIN Device_EntertainArea ON Device_EntertainArea.FK_Device=Device.PK_Device	
-			WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND Device.FK_Installation=? '.$filter.' 
+			WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND Device.FK_Installation=? '.$filter.'
+			GROUP BY PK_Device,PK_DeviceData 
 			ORDER BY FK_Device_RouteTo DESC, IsEmbedded DESC,Device.Description ASC';
 		$resDevice=$dbADO->Execute($queryDevice,$installationID);
 		
