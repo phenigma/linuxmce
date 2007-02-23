@@ -120,19 +120,24 @@ StartService "Creating Firewire 2 Video4Linux Pipes" "/usr/pluto/bin/Firewire2Vi
 StartService "Starting Local Devices" "/usr/pluto/bin/Start_LocalDevices.sh"
 StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
 StartDaemon  "Starting Update Media Daemon" "/usr/pluto/bin/UpdateMediaDaemon.sh" "UpdateMedia"
+StartService "Detecting Timezone" "/usr/pluto/bin/Pluto_Timezone_Detect.sh" "&"
 
-#StartService "Detecting Timezone" "/usr/pluto/bin/Pluto_Timezone_Detect.sh" "&"
+if [[ -d /home/backup/upload ]]; then
+	StartService "Searching System for Restore Points" "/usr/pluto/bin/PlutoRestorePoint.sh --restore"
+	apt-get update 1>/dev/null 2>/dev/null
+	apt-get -f install --reinstall pluto-local-database 1>/dev/null 2>/dev/null
+fi
+
+
 #Pluto_alsaconf-noninteractive \
 #Pluto_Diskless_Setup.sh \
 #Pluto_Restart_DHCP.sh \
 #Pluto_Restart_MythBackend.sh \
 #Pluto_Setup_ExportsNFS.sh \
-#Pluto_Start_NewMD_interactor.sh \
 #Pluto_VoiceMailMonitor.sh \
 #Pluto_kpanic.sh \
 #Pluto_qos.pl \
 #Pluto_Report_MachineOn.sh \
-#Pluto_Net_Mount_All.sh \
 #Pluto_WakeMDs.sh \
 #Pluto_fixMythTvSettings.sh \
 #Pluto_Backup_Database.sh \
