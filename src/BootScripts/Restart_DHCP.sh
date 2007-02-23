@@ -13,7 +13,7 @@ while :; do
 	IsRunning=$(pgrep dhcpd3)
 	if [[ -z "$IsRunning" && -n "$DHCPsetting" ]]; then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "DHCP_Restart" "DHCP not found running; restarting it"
-		invoke-rc.d dhcp3-server restart
+		/usr/pluto/bin/DHCP_config.sh
 	fi
 	Unlock "PlutoDHCP" "DHCP_Restart" nolog
 	sleep 5
