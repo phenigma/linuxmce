@@ -257,15 +257,17 @@ function Configure_Network_Options {
 function CreateDebCache() {
 	mkdir -p /usr/pluto/deb-cache
 	cp /media/cdrom/*.deb /usr/pluto/deb-cache/
-	pushd /usr/pluto/deb-cache >/dev/null
-	dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
-	popd >/dev/null
+	cp /media/cdrom/Packages* /usr/pluto/deb-cache/
+
+#	pushd /usr/pluto/deb-cache >/dev/null
+#	dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
+#	popd >/dev/null
 }
 
 function Setup_DebCache() {
 	local OK=0
 
-	apt-get -y install dpkg-dev
+#	apt-get -y install dpkg-dev
 	while [[ "$OK" == 0 ]]; do
 		case "$c_installType" in
 			1) # ISO on CD
