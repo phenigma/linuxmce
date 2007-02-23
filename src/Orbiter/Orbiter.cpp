@@ -580,6 +580,7 @@ bool Orbiter::GetConfig()
 	}
 	if( !bResult )
 	{
+#warning "TODO: remove this hack"
 		if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_CannotConnect && m_sHostName!="192.168.80.1" )
 		{
 			m_sHostName="192.168.80.1";
@@ -596,9 +597,10 @@ bool Orbiter::GetConfig()
 				Simulator::GetInstance()->SaveConfigurationFile();
 			}
 		}
+#warning "TODO: remove this hack"
 		else
 		{
-			WriteStatusOutput("Cannot connect.");
+			WriteStatusOutput("Cannot connect to the router.");
 			return false;
 		}
 	}
