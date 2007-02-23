@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e 
+
+. ./filesd-parms.sh $@
+
+File="/etc/hostname"
+Content="moon${Parm_Device}"
+
+mkdir -p "${Parm_RootLocation}/$(dirname $File)"
+echo -e  "${Content}" > "${Parm_RootLocation}/${File}"
