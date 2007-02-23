@@ -9,6 +9,3 @@ unset Display
 if [[ "$Display" == "" ]] ;then
 	ConfSet "Display" "0"
 fi
-
-# Run Xconfigure on upgrade to ensure that xorg.conf is correct
-/usr/pluto/bin/Xconfigure.sh
