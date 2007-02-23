@@ -1,3 +1,18 @@
+/*
+     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+
+     www.plutohome.com
+
+     Phone: +1 (877) 758-8648
+ 
+
+     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+     See the GNU General Public License for more details.
+
+*/
 /**
  *
  * @file SerializeClass.h
@@ -74,6 +89,7 @@ public:
 #define SERIALIZE_DATA_TYPE_INT_INT			13
 #define SERIALIZE_DATA_TYPE_DOUBLE			14
 #define SERIALIZE_DATA_TYPE_MAP_STRING_PAIR_INT	15
+#define SERIALIZE_DATA_TYPE_INT64_STRING		16
 
 #define SERIALIZE_DATA_TYPE_COLOR			50
 #define SERIALIZE_DATA_TYPE_POINT			51
@@ -232,6 +248,7 @@ public:
 #ifndef SYMBIAN
 	SerializeClass &operator+ (vector<string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a vector of strings */
 	SerializeClass &operator+ (map<int,string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
+	SerializeClass &operator+ (map<u_int64_t,string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT64_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<u_int64_t,string> */
 	SerializeClass &operator+ (map<int,int> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_INT,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
 	SerializeClass &operator+ (map<string,string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STRING_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<string,string> */
 	SerializeClass &operator+ (vector<int> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_INT,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */

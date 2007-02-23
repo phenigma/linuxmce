@@ -1,3 +1,21 @@
+/*
+ Main
+
+ Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+
+ www.plutohome.com
+ 
+
+ Phone: +1 (877) 758-8648
+
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
+
+ */
 // Another user could replace this function with their own.  This is specific to Pluto's user database
 // The function will take as the UserName either a username or a psc_user, and the password can be
 // either plain text or md5.  The function must return 0 if the validation failed, or return the psc_user if successful

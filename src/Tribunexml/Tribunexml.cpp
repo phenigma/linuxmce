@@ -43,7 +43,7 @@ int getURL(const string filename){
 }
 
 int patchFile(const string &sfilename, const string &sminusname, const string &splusname){
-	string command="./rmprogs "+sminusname+" < "+sfilename+">"+sfilename+";cat "+sfilename+" "+splusname+"|sort>"+sfilename;
+	string command="/usr/pluto/bin/rmprogs "+sminusname+" < "+sfilename+">"+sfilename+";cat "+sfilename+" "+splusname+"|sort>"+sfilename;
 	cout<<command<<endl;
 	return system(command.c_str());
 }
@@ -556,7 +556,7 @@ void CreateXML(const ChannelLineup clineup){
 void CreateProgramXML(){
 	ofstream fxml("/tmp/progs.xml");
 	if(FileUtils::FileExists("/tmp/programs.txt")){
-		string command=(string)"sort /tmp/programs.txt|uniq >/tmp/programs.txt;cat "+WORK+"/progrec.txt| ./filterprogs /tmp/programs.txt > /tmp/progrec.txt;cat "+WORK+"/crew.txt| ./filterprogs /tmp/programs.txt > /tmp/crew.txt;cat "+WORK+"/genres.txt|./filterprogs /tmp/programs.txt > /tmp/genres.txt";
+		string command=(string)"sort /tmp/programs.txt|uniq >/tmp/programs.txt;cat "+WORK+"/progrec.txt| /usr/pluto/bin/filterprogs /tmp/programs.txt > /tmp/progrec.txt;cat "+WORK+"/crew.txt| /usr/pluto/bin/filterprogs /tmp/programs.txt > /tmp/crew.txt;cat "+WORK+"/genres.txt| /usr/pluto/bin/filterprogs /tmp/programs.txt > /tmp/genres.txt";
 		cout<<command<<endl;
 		system(command.c_str());
 

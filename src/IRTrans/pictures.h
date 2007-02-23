@@ -1,3 +1,21 @@
+/*
+ Main
+
+ Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+
+ www.plutohome.com
+ 
+
+ Phone: +1 (877) 758-8648
+
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
+
+ */
 unsigned char irtrans_logo[] = {
  0x47,0x49,0x46,0x38,0x39,0x61,0xa1,0x00,0x64,0x00,0xf7,0x00,0x00,0x00,0x00,0x00
 ,0x33,0x00,0x00,0x66,0x00,0x00,0x99,0x00,0x00,0xcc,0x00,0x00,0xff,0x00,0x00,0x00

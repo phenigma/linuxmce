@@ -63,7 +63,7 @@ diff -u $old/crew.txt $progs/crew.txt|grep -e"^+"|sed "s/^+//g"|grep -e"^[^\+]">
 
 tar cjf $www/progs.tar.bz2 $progs
 tar cjf $www/diffs.tar.bz2 $dirdiff
-tar cjf $www/uniqueroles.txt.tar.bz2 uniqueroles.txt
+tar cjf $www/uniqueroles.tar.bz2 uniqueroles.txt
 mv $progs/progrec.txt $old/progrec.txt
 mv $progs/crew.txt $old/crew.txt
 mv $progs/genres.txt $old/genres.txt

@@ -1,3 +1,21 @@
+/*
+ Main
+
+ Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+
+ www.plutohome.com
+ 
+
+ Phone: +1 (877) 758-8648
+
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
+
+ */
 #if !defined(AFX_PAGEDATABASE_H__CB1CEF70_BC9D_419A_A77E_3968DC4C2C81__INCLUDED_)
 #define AFX_PAGEDATABASE_H__CB1CEF70_BC9D_419A_A77E_3968DC4C2C81__INCLUDED_
 

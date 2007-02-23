@@ -199,6 +199,21 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 					}
 				}
 				break;
+			case SERIALIZE_DATA_TYPE_INT64_STRING:
+				{
+					map<u_int64_t,string> *pMap = (map<u_int64_t,string> *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pMap->size());
+#ifdef DEBUG_SERIALIZATION
+					cout << "Writing " << (unsigned long) pMap->size() << " map int strings" << endl;
+#endif
+					map<u_int64_t,string>::iterator it;
+					for(it=pMap->begin(); it!=pMap->end(); ++it)
+					{
+						Write_int64( (*it).first );
+						Write_string( (*it).second );
+					}
+				}
+				break;
 			case SERIALIZE_DATA_TYPE_INT_INT:
 				{
 					map<int,int> *pMap = (map<int,int> *) pItem->m_pItem;
@@ -359,6 +374,22 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 					for(size_t s=0;s<count;++s)
 					{
 						int Key = Read_long();
+						string value;
+						Read_string(value);
+						(*pMap)[Key]=value;
+					}
+				}
+				break;
+				case SERIALIZE_DATA_TYPE_INT64_STRING:
+				{
+					map<u_int64_t,string> *pMap = (map<u_int64_t,string> *) pItem->m_pItem;
+					unsigned long count=Read_unsigned_long();
+#ifdef DEBUG_SERIALIZATION
+					cout << "Reading " << count << " map int strings" << endl;
+#endif
+					for(size_t s=0;s<count;++s)
+					{
+						u_int64_t Key = Read_int64();
 						string value;
 						Read_string(value);
 						(*pMap)[Key]=value;
