@@ -306,6 +306,7 @@ Configure_Network_Options
 /usr/pluto/bin/Timezone_Detect.sh
 /usr/pluto/bin/Network_Setup.sh
 /usr/pluto/bin/DHCP_config.sh
+/usr/pluto/bin/Diskless_CreateTBZ.sh
 
 
 mkdir -p /usr/pluto/deb-cache
