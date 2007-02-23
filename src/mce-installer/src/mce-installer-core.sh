@@ -1,7 +1,5 @@
 #!/bin/bash
 
-exit 0
-
 if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
 	echo "ERROR: Cannot find wizard data";
 	exit 1
@@ -72,9 +70,7 @@ MySqlDBName = pluto_main
 DCERouter = localhost
 MySqlPort = 3306
 DCERouterPort = 3450
-#<-mkr_b_videowizard_b->
-UseVideoWizard = 1
-#<-mkr_b_videowizard_e->
+#
 PK_Device = 1
 Activation_Code = 1111
 PK_Installation = 1
@@ -271,7 +267,7 @@ function Setup_DebCache() {
 
 	apt-get -y install dpkg-dev
 	while [[ "$OK" == 0 ]]; do
-		case "$c_InstallType" in
+		case "$c_installType" in
 			1) # ISO on CD
 				echo "Mounting CD"
 				mount /dev/cdrom /media/cdrom
