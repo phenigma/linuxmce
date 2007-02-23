@@ -258,8 +258,38 @@ function Configure_Network_Options {
 
 }
 
+function CreateDebCache() {
+	mkdir -p /usr/pluto/deb-cache
+	cp /media/cdrom/*.deb /usr/pluto/deb-cache/
+	pushd /usr/pluto/deb-cache >/dev/null
+	dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
+	popd >/dev/null
+}
+
 function Setup_DebCache() {
-	:
+	local OK=0
+
+	apt-get -y install dpkg-dev
+	while [[ "$OK" == 0 ]]; do
+		case "$c_InstallType" in
+			1) # ISO on CD
+				echo "Mounting CD"
+				mount /dev/cdrom /media/cdrom
+				CreateDebCache
+				umount /media/cdrom
+			;;
+			2) # ISO in /var/linuxmce/linux-mce.iso
+				echo "Installing from ISO"
+				mount -o loop /var/linuxmce/linux-mce.iso /media/cdrom
+				CreateDebCache
+				umount /media/cdrom
+			;;
+			3) # Net install; Nothing to do
+				:
+			;;
+			*) echo "Bad install type: '$c_InstallType'" ;;
+		esac
+	done
 }
 
 Core_PK_Device="0"
