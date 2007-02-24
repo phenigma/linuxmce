@@ -180,7 +180,10 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 				string sDesc = row[2] + string("\n") + pRow_Device->Description_get();
 				pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_NP_Sources_CONST,sDesc,0,atoi(row[0]),atoi(row[1]));
 				if( pCommandGroup )
-					pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,2,COMMANDPARAMETER_PK_MediaType_CONST,row[1],COMMANDPARAMETER_PK_Device_CONST,row[0]);
+					pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,3,
+						COMMANDPARAMETER_PK_MediaType_CONST,row[1],
+						COMMANDPARAMETER_PK_Device_CONST,row[0],
+						COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()).c_str());
 			}
 		}
 	}
