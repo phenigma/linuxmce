@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ./SQL_Ops.sh
+/root/Ubuntu_Helpers/SQL_Ops.sh
 
 TMP_DIR="/var/ubuntu/"
 MAX_LEVEL=3
@@ -99,7 +99,7 @@ cat Packages | gzip -9c > Packages.gz
 popd
 					
 
-mkisofs -f -J -r -o ubuntu-packages-cd.iso $TMP_DIR
+mkisofs -f -J -r -o linuxmce-0.1-packages.iso $TMP_DIR
 
 #for package in $(dpkg -l | cut -d " " -f 3) ;do 
 #	pkg=$(grep "Package: $package$" $REP_LISTS/*_Packages | cut -d":" -f1,3 | cut -d '_' -f4,5,7 | cut -d':' -f2)

@@ -352,4 +352,9 @@ Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
 Create_Local_Repository
 
+# Create the iso
+pushd $local_mirror_dir
+	/root/Ubuntu_Helpers/get-packages.sh
+popd
+
 read
