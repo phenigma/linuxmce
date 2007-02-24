@@ -357,4 +357,10 @@ pushd $local_mirror_dir
 	/root/Ubuntu_Helpers/get-packages.sh
 popd
 
+# Move them to linuxmce.com
+pushd $local_mirror_dir
+	tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz
+	scp /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
+popd
+
 read

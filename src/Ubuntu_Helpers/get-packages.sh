@@ -3,7 +3,7 @@
 /root/Ubuntu_Helpers/SQL_Ops.sh
 
 TMP_DIR="/var/ubuntu/"
-MAX_LEVEL=3
+MAX_LEVEL=6
 
 function GetMaxLevel 
 {
