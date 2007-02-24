@@ -2,6 +2,8 @@
 
 . /tmp/mce_wizard_data.sh
 
+ISO="http://linuxmce.com/ubuntu/linuxmce-0.1-packages.iso"
+
 function Setup_Network_Intefaces {
 	if [[ $c_netExtUseDhcp  == "1" ]] ;then
 		echo "iface $c_netExtName inet dhcp" > /etc/network/interfaces
@@ -36,6 +38,6 @@ while read line; do
 	if echo "$text" | egrep -q '^[0-9]{1,3}\|[0-9]*' ;then
 		echo "$text" >> /tmp/mce-wget-progress
 	fi
-done < <(wget -c -O /var/linuxmce/linux-mce.iso --progress=dot http://ubuntu.plutohome.com/ubuntu-packages-cd.iso 2>&1 1>/dev/null)
+done < <(wget -c -O /var/linuxmce/linux-mce.iso --progress=dot $ISO 2>&1 1>/dev/null)
 
 
