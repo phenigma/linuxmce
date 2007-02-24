@@ -150,9 +150,9 @@ bool Orbiter_Plugin::GetConfig()
 
 	m_pRegenMonitor=new RegenMonitor(m_pDatabase_pluto_main,m_pDatabase_pluto_media);
 	m_sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
-#ifdef DEBUG
+//#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::GetConfig Starting up with m_sRegenAllDevicesRooms=%s",m_sRegenAllDevicesRooms.c_str());
-#endif
+//#endif
 
 	vector<Row_Users *> vectRow_Users;
 	m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
@@ -1690,14 +1690,14 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 			CheckForNewWizardDevices( (DeviceData_Router *) pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia);
 
 		string sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
-#ifdef DEBUG
+//#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sRegenAllDevicesRooms \n%s\n%s\n",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
-#endif
+//#endif
 		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms )
 		{
-#ifdef DEBUG
+//#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms %d not equal %s=%s",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
-#endif
+//#endif
 			DCE::SCREEN_Need_Reload_Router SCREEN_Need_Reload_Router(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			SendCommand(SCREEN_Need_Reload_Router);
 		}
@@ -1708,14 +1708,14 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 			if( pRow_Orbiter )
 			{
 				pRow_Orbiter->Reload();
-#ifdef DEBUG
+//#ifdef DEBUG
 				g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sScenariosFloorplans %s=%s",pMessage->m_dwPK_Device_From,pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
-#endif
+//#endif
 				if( pRow_Orbiter->ScenariosFloorplans_get()!=sScenariosFloorplans )
 				{
-#ifdef DEBUG
+//#ifdef DEBUG
 					g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered not equal sScenariosFloorplans \n%s\n%s\n",pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
-#endif
+//#endif
 					DCE::SCREEN_Need_Regen_Orbiter SCREEN_Need_Regen_Orbiter(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 					SendCommand(SCREEN_Need_Regen_Orbiter);
 				}

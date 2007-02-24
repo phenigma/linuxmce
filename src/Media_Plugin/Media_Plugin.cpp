@@ -1346,6 +1346,13 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 	for( map<int,EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();it!=pMediaStream->m_mapEntertainArea.end();++it )
 	{
 		EntertainArea *pEntertainArea = it->second;
+		MediaDevice *pMediaDevice_Audio=NULL,*pMediaDevice_Video=NULL;
+
+		if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio )
+			pMediaDevice_Audio = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_dwPK_Device);
+		if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Video )
+			pMediaDevice_Video = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device);
+
 		if( p_mapEntertainmentArea_OutputZone && p_mapEntertainmentArea_OutputZone->find( pEntertainArea->m_iPK_EntertainArea ) != p_mapEntertainmentArea_OutputZone->end() )
 		{
 			pEntertainArea->m_pMediaDevice_ActiveDest = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ].first;
@@ -1353,6 +1360,14 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 		}
 		else if( pEntertainArea->m_pMediaDevice_ActiveDest )
 			continue;  // We already assigned this
+		else if( pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo &&
+			( (pMediaDevice_Audio && pMediaDevice_Audio->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)==pMediaDevice_Audio->m_mapEntertainArea.end()) 
+				|| (pMediaDevice_Video && pMediaDevice_Video->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)==pMediaDevice_Video->m_mapEntertainArea.end()) ) )
+		{
+			CheckForAlternatePipes(pMediaStream,pEntertainArea);
+			if( !pEntertainArea->m_pMediaDevice_ActiveDest )  // Still didn't find a dest.  Just assume it's the source
+				pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;  // It's the same as the source
+		}
 		else if( pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea )!=
 			pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.end() )
 				pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;  // It's the same as the source
@@ -2979,7 +2994,8 @@ bool Media_Plugin::CheckForAlternatePipes(MediaStream *pMediaStream,EntertainAre
 			MediaDevice *pMediaDevice = m_mapMediaDevice_Find( pDevice_Dest->m_dwPK_Device );
 			if( !pMediaDevice )
 				return false;
-			if( pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.end() )
+
+			if( pDevice_Dest->WithinCategory(DEVICECATEGORY_Output_Zone_CONST)==false && pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.end() )
 			{
 				// The destination is in the same EA as the source, so there's no output zone involved
 				pEntertainArea->m_pMediaDevice_ActiveDest = m_mapMediaDevice_Find( pDevice_Dest->m_dwPK_Device );
@@ -3007,7 +3023,7 @@ bool Media_Plugin::CheckForAlternatePipes(MediaStream *pMediaStream,EntertainAre
 	else
 		pMediaDevice = pEntertainArea->m_pMediaDevice_ActiveDest;
 
-	if( pMediaDevice )
+	if( pMediaDevice && pMediaDevice->m_pDeviceData_Router->m_mapPipe_Temporary.empty() )
 		return CheckForAlternatePipes(pMediaDevice->m_pDeviceData_Router,pEntertainArea->m_pMediaDevice_OutputZone->m_pDeviceData_Router,pEntertainArea);
 	return false;
 }

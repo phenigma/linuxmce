@@ -88,16 +88,17 @@ int main(int argc, char *argv[])
 
 	for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 	{
-		if( it->find( "MakeRelease_PrepFiles" ) !=string::npos )
+		string sFile = *it;
+		if( sFile.find( "MakeRelease_PrepFiles" ) !=string::npos )
 			continue;
 
 		size_t s;
-		char *pBuffer = FileUtils::ReadFileIntoBuffer(*it,s);
+		char *pBuffer = FileUtils::ReadFileIntoBuffer(sFile,s);
 		if( pBuffer )
 		{
 			string str = pBuffer;
 			if( ReplaceTags(str,*it) )
-				FileUtils::WriteBufferIntoFile(*it,str.c_str(),str.size());
+				FileUtils::WriteBufferIntoFile(sFile,str.c_str(),str.size());
 			delete pBuffer;
 		}
 	}
