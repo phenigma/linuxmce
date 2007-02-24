@@ -288,7 +288,9 @@ function Setup_DebCache() {
 				OK=1
 				:
 			;;
-			*) echo "Bad install type: '$c_InstallType'" ;;
+			*) echo "Bad install type: '$c_InstallType'" 
+				OK=1
+			;;
 		esac
 	done
 }
