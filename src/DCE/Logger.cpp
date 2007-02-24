@@ -57,6 +57,8 @@ using namespace DCE;
     #include "wince.h"
 #endif
 
+bool g_bFlushLog = getenv("ImmediatelyFlushLog") && atoi(getenv("ImmediatelyFlushLog"))==1;
+
 string DCE::g_sBinary,DCE::g_sBinaryPath;
 
 Logger::Logger( const char* pcName ) : m_Lock( "logger" )
@@ -282,7 +284,10 @@ void FileLogger::WriteEntry( Entry& Entry )
 #endif
 
 #ifdef DEBUG
-    fflush( m_LogFile );  // Try leaving this out of release builds to get faster disk performance.  For debug, we want to see the logs in real-time
+    fflush( m_LogFile ); 
+#else
+	if( g_bFlushLog )
+	    fflush( m_LogFile );   // Try leaving this out of release builds to get faster disk performance.  For debug, we want to see the logs in real-time
 #endif
 }
 
