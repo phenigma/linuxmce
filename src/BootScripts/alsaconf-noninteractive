@@ -21,11 +21,6 @@ if [[ -f /etc/chroot-install ]]; then
 	exit 0 # don't do anything if run in chroot
 fi
 
-if [[ ! -x /etc/init.d/alsa ]]; then
-	echo "Alsa not installed yet. Can't run alsaconf"
-	exit 0
-fi
-
 load_bttv()
 {
 	echo 'modprobe-ing bttv'
@@ -33,6 +28,11 @@ load_bttv()
 	modprobe dvb-bt8xx &>/dev/null
 }
 trap load_bttv EXIT
+
+if [[ ! -f /etc/modprobe.d/alsa-base ]]; then
+	echo "Alsa not installed yet. Can't run alsaconf"
+	exit 0
+fi
 
 ForceRun=no
 if [[ -d /etc/hotplug && -f /etc/hotplug/blacklist ]] && ! grep -q bttv /etc/hotplug/blacklist 2>/dev/null; then
