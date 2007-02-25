@@ -5,6 +5,8 @@ if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
 	exit 1
 fi
 
+exec &> >(tee /var/log/mce-installer.log)
+
 . /tmp/mce_wizard_data.sh
 
 function Setup_Network_Intefaces {
@@ -38,7 +40,8 @@ deb file:/usr/pluto/deb-cache/ ./
 deb http://archive.ubuntu.com/ubuntu edgy main restricted multiverse universe
 deb http://archive.ubuntu.com/ubuntu edgy-security main restricted multiverse universe
 deb http://archive.ubuntu.com/ubuntu edgy-updates main restricted multiverse universe
-deb http://linuxmce.com/ubuntu ./
+#deb http://linuxmce.com/ubuntu ./
+deb http://10.0.0.82/ ./
 # Pluto sources - end"
 	echo "$Sources" >/etc/apt/sources.list
 
