@@ -121,6 +121,7 @@ StartDaemon  "Start PNP MD Plugin" "/usr/pluto/bin/Start_NewMD_interactor.sh" "N
 StartService "Creating Firewire 2 Video4Linux Pipes" "/usr/pluto/bin/Firewire2Video4Linux.sh"
 StartService "Starting Local Devices" "/usr/pluto/bin/Start_LocalDevices.sh"
 StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
+StartService "Samba Server Detection" "/usr/pluto/bin/StorageDevices_SambaRadar.sh"
 StartDaemon  "Starting Update Media Daemon" "/usr/pluto/bin/UpdateMediaDaemon.sh" "UpdateMedia"
 StartService "Detecting Timezone" "/usr/pluto/bin/Pluto_Timezone_Detect.sh" "&"
 
