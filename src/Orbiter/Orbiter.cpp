@@ -2821,7 +2821,8 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 	if ( event.type != Orbiter::Event::QUIT && event.type != Orbiter::Event::NOT_PROCESSED )
 	{
 		if ( event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP )
-			g_pPlutoLogger->Write(LV_STATUS, "Button %s: button ID: %d", (event.type == Orbiter::Event::BUTTON_DOWN) ? "down" : "up", event.data.button.m_iPK_Button );
+			g_pPlutoLogger->Write(LV_STATUS, "Button %s: button ID: %d m_bForward_local_kb_to_OSD %d", 
+				(event.type == Orbiter::Event::BUTTON_DOWN) ? "down" : "up", event.data.button.m_iPK_Button, (int) m_bForward_local_kb_to_OSD );
 
 		if ( event.type == Orbiter::Event::REGION_DOWN || event.type == Orbiter::Event::REGION_UP )
 			g_pPlutoLogger->Write(LV_STATUS, "Region %s: position: [%d, %d]", (event.type == Orbiter::Event::REGION_DOWN) ? "down" : "up", event.data.region.m_iX, event.data.region.m_iY);
@@ -7892,6 +7893,9 @@ void Orbiter::CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType,st
 void Orbiter::CMD_Forward_local_kb_to_OSD(bool bTrueFalse,string &sCMD_Result,Message *pMessage)
 //<-dceag-c413-e->
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Forward_local_kb_to_OSD %d", (int) bTrueFalse);
+#endif
 	m_bForward_local_kb_to_OSD=bTrueFalse;
 }
 //<-dceag-c415-b->

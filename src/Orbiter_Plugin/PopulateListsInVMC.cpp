@@ -99,7 +99,8 @@ bool PopulateListsInVMC::DoIt()
 //------------------------------------------------------------------------------------------------------
 /*static*/ bool PopulateListsInVMC::SaveMenuCollection(VIPMenuCollection *pMenuCollection, string sVMCFile)
 {
-	pMenuCollection->ConvertToBinary();
+	if( !pMenuCollection->ConvertToBinary() || pMenuCollection->m_pBinary==NULL || pMenuCollection->m_iBinarySize==0 )
+		return false;
 
 	return FileUtils::WriteBufferIntoFile(sVMCFile, pMenuCollection->m_pBinary,
 		pMenuCollection->m_iBinarySize);

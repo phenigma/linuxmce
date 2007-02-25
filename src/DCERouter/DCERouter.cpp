@@ -1077,7 +1077,7 @@ int k=2;
             case SYSCOMMAND_DEVICE_DOWN:
 				{
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS,"Device %d is %s",(*SafetyMessage)->m_dwPK_Device_From,(*SafetyMessage)->m_dwID==SYSCOMMAND_DEVICE_UP ? "UP" : "DOWN");
+					g_pPlutoLogger->Write(LV_STATUS,"Device up down %d is %s",(*SafetyMessage)->m_dwPK_Device_From,(*SafetyMessage)->m_dwID==SYSCOMMAND_DEVICE_UP ? "UP" : "DOWN");
 #endif
 					pair<time_t,time_t> pOldValue = m_mapDeviceUpStatus_Find((*SafetyMessage)->m_dwPK_Device_From);
 					pOldValue.second = time(NULL);  // The second is the last communication

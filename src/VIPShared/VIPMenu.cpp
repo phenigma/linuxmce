@@ -233,6 +233,9 @@ VIPMenuCollection::VIPMenuCollection(long size, const char *data)
 bool VIPMenuCollection::ConvertToBinary()
 {
 #ifdef VIPDESIGN
+	if( m_pMenu_Starting==NULL ) 
+		return false;
+
 	StartWriting();
 
 	Write_unsigned_short(m_iMenuCollectionID);
