@@ -40,8 +40,8 @@ deb file:/usr/pluto/deb-cache/ ./
 deb http://archive.ubuntu.com/ubuntu edgy main restricted multiverse universe
 deb http://archive.ubuntu.com/ubuntu edgy-security main restricted multiverse universe
 deb http://archive.ubuntu.com/ubuntu edgy-updates main restricted multiverse universe
-#deb http://linuxmce.com/ubuntu ./
-deb http://10.0.0.82/ ./
+deb http://linuxmce.com/ubuntu ./
+#deb http://10.0.0.82/ ./
 # Pluto sources - end"
 	echo "$Sources" >/etc/apt/sources.list
 
