@@ -19,7 +19,13 @@ set -e
 
 case "$1" in
     configure)
-	/usr/share/mce-installer/mce-installer.sh &
+#	/usr/share/mce-installer/mce-installer.sh &
+	for dir in /home/* ;do
+		if [ -d "$dir/Desktop" ] ;then
+			ln -s /usr/share/mce-installer/mce-installer.desktop "$dir/Desktop/mce-installer.desktop" || :
+			chmod 666 "$dir/Desktop/mce-installer.desktop" || :
+		fi
+	done
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

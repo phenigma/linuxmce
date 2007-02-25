@@ -1,7 +1,7 @@
 Source: mce-installer
 Section: unknown
 Priority: optional
-Maintainer: Razvan Gavril <razvan.g@plutohome.com>
+Maintainer: LinuxMCE Team <razvan.g@plutohome.com>
 Build-Depends: debhelper (>= 5), autotools-dev
 Standards-Version: 3.7.2
 

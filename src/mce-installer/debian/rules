@@ -61,6 +61,7 @@ install: build
 	#$(MAKE) install DESTDIR=$(CURDIR)/debian/mce-installer
 	./build-mce-installer.sh
 	cp mce-installer.sh $(CURDIR)/debian/mce-installer/usr/share/mce-installer
+	cp $(CURDIR)/debian/mce-installer.desktop $(CURDIR)/debian/mce-installer/usr/share/mce-installer/mce-installer.desktop
 
 
 
