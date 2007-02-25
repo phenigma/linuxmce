@@ -496,7 +496,14 @@ int PlutoLock::TimedCondWait(timespec &ts)
 
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly && g_pPlutoLogger )
-		g_pPlutoLogger->Write(LV_LOCKING, "start cond timed wait %s:%d (%p) %s",  m_sFileName.c_str(),m_Line, &m_pMyLock->mutex,m_sMessage.c_str());
+	{
+		timespec ts_now;
+		gettimeofday(&ts_now,NULL);
+
+		g_pPlutoLogger->Write(LV_LOCKING, "start cond timed wait till %u.%u now %u.%u %s:%d (%p) %s",  
+			ts.tv_sec,ts.tv_nsec,ts_now.tv_sec,ts_now.tv_nsec,
+			m_sFileName.c_str(),m_Line, &m_pMyLock->mutex,m_sMessage.c_str());
+	}
 #endif
 	m_tTime = 0;
 	m_pMyLock->m_NumLocks--;
@@ -509,7 +516,13 @@ int PlutoLock::TimedCondWait(timespec &ts)
 
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly && g_pPlutoLogger )
-		g_pPlutoLogger->Write(LV_LOCKING, "end cond timed wait %s:%d (%p) %s", m_sFileName.c_str(),m_Line, &m_pMyLock->mutex,m_sMessage.c_str());
+	{
+		timespec ts_now;
+		gettimeofday(&ts_now,NULL);
+		g_pPlutoLogger->Write(LV_LOCKING, "end cond timed at %u.%u wait result: %d %s:%d (%p) %s", 
+			ts_now.tv_sec,ts_now.tv_nsec,
+			iResult, m_sFileName.c_str(),m_Line, &m_pMyLock->mutex,m_sMessage.c_str());
+	}
 #endif
 
 	return iResult;
