@@ -1537,6 +1537,7 @@ void Media_Plugin::FindActiveDestination(MediaStream *pMediaStream,map<int, pair
 			if( (pMediaDevice_Audio && pMediaDevice_Audio->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaDevice_Audio->m_mapEntertainArea.end()) 
 				|| (pMediaDevice_Video && pMediaDevice_Video->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaDevice_Video->m_mapEntertainArea.end()) ) 
 			{
+				pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;  // It's the same as the source
 				continue;  // We have destination audio/video zones, and they're in the ea we want
 			}
 		}
