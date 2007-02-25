@@ -1,6 +1,3 @@
-#ifndef __Table_@table_name@_H__
-#define __Table_@table_name@_H__
-
 /*
      Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
@@ -16,6 +13,9 @@
      See the GNU General Public License for more details.
 
 */
+
+#ifndef __Table_@table_name@_H__
+#define __Table_@table_name@_H__
 
 #include "TableRow.h"
 #include "Database_@database_name@.h"
