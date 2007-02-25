@@ -316,6 +316,7 @@ Configure_Network_Options
 
 mkdir -p /usr/pluto/deb-cache
 sed -i 's/"nv"/"nvidia"/g' /etc/X11/xorg.conf
+apt-get -y dist-upgrade
 
 echo 
 echo
