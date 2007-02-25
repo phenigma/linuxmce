@@ -12,7 +12,8 @@ Moon_DeviceID="$1"
 Moon_RootLocation="/usr/pluto/diskless/${Moon_DeviceID}"
 
 ## Determine what kernel are we going to use
-Moon_KernelVersion=$(basename $(ls /boot/vmlinuz-* | head -1) | cut -d"-" -f2-99)
+#Moon_KernelVersion=$(basename $(ls /boot/vmlinuz-* | head -1) | cut -d"-" -f2-99)
+Moon_KernelVersion=$(uname -r)
 
 ## Move kernel from core to md
 cp /boot/vmlinuz-${Moon_KernelVersion} ${Moon_RootLocation}/boot/
