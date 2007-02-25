@@ -410,6 +410,9 @@ public:
 	// This is the final stage of 'StartMedia' that starts playing the given stream.  This is also called when the stream changes, or is moved, and needs to be restarted
 	bool StartMedia(MediaStream *pMediaStream, map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone=NULL);
 
+	// Used by StartMedia to confirm the m_pMediaDevice_ActiveDest are set for each ea
+	void FindActiveDestination(MediaStream *pMediaStream,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone);
+
 	// If there's a capture card active, StartMedia will call this
 	void StartCaptureCard(MediaStream *pMediaStream);
 	void StopCaptureCard(MediaStream *pMediaStream);

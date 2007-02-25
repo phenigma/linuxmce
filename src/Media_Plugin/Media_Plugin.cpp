@@ -1340,54 +1340,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 			EVENT_Listening_to_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
 	}
 
-	// Find the active destinations.  If the media player in teh living room is playing locally and streaming to the bedroom,
-	// then in the living room the media player is both the source and the destination, and in the bedroom, that media player is the
-	// destination if the device supports streaming
-	for( map<int,EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();it!=pMediaStream->m_mapEntertainArea.end();++it )
-	{
-		EntertainArea *pEntertainArea = it->second;
-		MediaDevice *pMediaDevice_Audio=NULL,*pMediaDevice_Video=NULL;
-
-		if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio )
-			pMediaDevice_Audio = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_dwPK_Device);
-		if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Video )
-			pMediaDevice_Video = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device);
-
-		if( p_mapEntertainmentArea_OutputZone && p_mapEntertainmentArea_OutputZone->find( pEntertainArea->m_iPK_EntertainArea ) != p_mapEntertainmentArea_OutputZone->end() )
-		{
-			pEntertainArea->m_pMediaDevice_ActiveDest = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ].first;
-			pEntertainArea->m_pMediaDevice_OutputZone = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ].second;
-		}
-		else if( pEntertainArea->m_pMediaDevice_ActiveDest )
-			continue;  // We already assigned this
-		else if( pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo &&
-			( (pMediaDevice_Audio && pMediaDevice_Audio->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)==pMediaDevice_Audio->m_mapEntertainArea.end()) 
-				|| (pMediaDevice_Video && pMediaDevice_Video->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)==pMediaDevice_Video->m_mapEntertainArea.end()) ) )
-		{
-			CheckForAlternatePipes(pMediaStream,pEntertainArea);
-			if( !pEntertainArea->m_pMediaDevice_ActiveDest )  // Still didn't find a dest.  Just assume it's the source
-				pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;  // It's the same as the source
-		}
-		else if( pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea )!=
-			pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.end() )
-				pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;  // It's the same as the source
-		else if( pMediaStream->m_pMediaHandlerInfo->m_bMultipleDestinations )
-		{
-			// It can stream.  Find a destination in the EA
-			for(list<class MediaDevice *>::iterator itMD=pMediaStream->m_pMediaHandlerInfo->m_listMediaDevice.begin();itMD!=pMediaStream->m_pMediaHandlerInfo->m_listMediaDevice.end();++itMD)
-			{
-				MediaDevice *pMediaDevice = *itMD;
-				if( pMediaDevice->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea )!=pMediaDevice->m_mapEntertainArea.end() )
-				{
-					// We found another device in this EA that can be the active destination
-					pEntertainArea->m_pMediaDevice_ActiveDest=pMediaDevice;
-					break;
-				}
-			}
-		}
-		else if( !pEntertainArea->m_pMediaDevice_ActiveDest )
-			g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::StartMedia no ActiveDest for EA %d", pEntertainArea->m_iPK_EntertainArea);
-	}
+	FindActiveDestination(pMediaStream,p_mapEntertainmentArea_OutputZone);
 
 #ifdef SIM_JUKEBOX
 	static bool bToggle=false;
@@ -1437,15 +1390,16 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 		for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
 		{
 			EntertainArea *pEntertainArea = ( *it ).second;
+
+			CheckForAlternatePipes(pMediaStream,pEntertainArea);
+
+			// Only start it once, we set it to false above, and will set it to true in StartCaptureCard.  We may be streaming to multiple EA's
+			if( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive == false)
+				StartCaptureCard(pMediaStream);
+
 			OldStreamInfo *pOldStreamInfo = mapOldStreamInfo[pEntertainArea->m_iPK_EntertainArea];
 			if( !pOldStreamInfo || !pOldStreamInfo->m_bNoChanges )
 			{
-				CheckForAlternatePipes(pMediaStream,pEntertainArea);
-
-				// Only start it once, we set it to false above, and will set it to true in StartCaptureCard.  We may be streaming to multiple EA's
-				if( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive == false)
-					StartCaptureCard(pMediaStream);
-
 				// We need to get the current rendering devices so that we can send on/off commands
 				map<int,MediaDevice *> mapMediaDevice_Current;
 				// only do stuff with valid objects
@@ -1541,6 +1495,97 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 		delete it->second;
 
 	return true;
+}
+
+void Media_Plugin::FindActiveDestination(MediaStream *pMediaStream,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone)
+{
+	// Find the active destinations.  If the media player in teh living room is playing locally and streaming to the bedroom,
+	// then in the living room the media player is both the source and the destination, and in the bedroom, that media player is the
+	// destination if the device supports streaming.
+	// If the source device is standard a/v equipment connected to a capture card, and the destination is an EA away from the capture card,
+	// then the dest is a md in the target EA
+	for( map<int,EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();it!=pMediaStream->m_mapEntertainArea.end();++it )
+	{
+		EntertainArea *pEntertainArea = it->second;
+		MediaDevice *pMediaDevice_Audio=NULL,*pMediaDevice_Video=NULL;
+
+		if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio )
+			pMediaDevice_Audio = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_dwPK_Device);
+		if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Video )
+			pMediaDevice_Video = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device);
+
+		if( p_mapEntertainmentArea_OutputZone && p_mapEntertainmentArea_OutputZone->find( pEntertainArea->m_iPK_EntertainArea ) != p_mapEntertainmentArea_OutputZone->end() )
+		{
+			pEntertainArea->m_pMediaDevice_ActiveDest = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ].first;
+			pEntertainArea->m_pMediaDevice_OutputZone = (*p_mapEntertainmentArea_OutputZone)[ pEntertainArea->m_iPK_EntertainArea ].second;
+			continue;
+		}
+		
+		if( pEntertainArea->m_pMediaDevice_ActiveDest )
+			continue;  // We already assigned this
+		
+		if( pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo )
+		{
+			// If we've got destination audio zones and we're not in there, then we need to find another one
+			if( (pMediaDevice_Audio && pMediaDevice_Audio->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)==pMediaDevice_Audio->m_mapEntertainArea.end()) 
+				|| (pMediaDevice_Video && pMediaDevice_Video->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)==pMediaDevice_Video->m_mapEntertainArea.end()) )
+			{
+				CheckForAlternatePipes(pMediaStream,pEntertainArea);
+				if( pEntertainArea->m_pMediaDevice_ActiveDest )  // Got one
+					continue;
+			}
+			if( (pMediaDevice_Audio && pMediaDevice_Audio->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaDevice_Audio->m_mapEntertainArea.end()) 
+				|| (pMediaDevice_Video && pMediaDevice_Video->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaDevice_Video->m_mapEntertainArea.end()) ) 
+			{
+				continue;  // We have destination audio/video zones, and they're in the ea we want
+			}
+		}
+
+		// If this is a generic device using a capture card, what matters is that the capture card is in the same ea
+		if( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard )
+		{
+			MediaDevice *pMediaDevice_CaptCard = m_mapMediaDevice_Find( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
+			if( pMediaDevice_CaptCard )
+			{
+				// We won't need to use the capture card if it's in the same EA 
+				if( pMediaDevice_CaptCard->m_mapEntertainArea.find(pEntertainArea->m_iPK_EntertainArea)!=pMediaDevice_CaptCard->m_mapEntertainArea.end() )
+				{
+					pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;  // It's the same as the source
+					continue;
+				}
+				else if( pEntertainArea->m_pMediaDevice_MD )
+				{
+					pEntertainArea->m_pMediaDevice_ActiveDest=pEntertainArea->m_pMediaDevice_MD; // Going to the destination md
+					continue;
+				}
+			}
+
+		}
+		else if( pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea )!=
+			pMediaStream->m_pMediaDevice_Source->m_mapEntertainArea.end() )
+		{
+			pEntertainArea->m_pMediaDevice_ActiveDest=pMediaStream->m_pMediaDevice_Source;  // It's the same as the source
+			continue;
+		}
+
+		if( pMediaStream->m_pMediaHandlerInfo->m_bMultipleDestinations )
+		{
+			// It can stream.  Find a destination in the EA
+			for(list<class MediaDevice *>::iterator itMD=pMediaStream->m_pMediaHandlerInfo->m_listMediaDevice.begin();itMD!=pMediaStream->m_pMediaHandlerInfo->m_listMediaDevice.end();++itMD)
+			{
+				MediaDevice *pMediaDevice = *itMD;
+				if( pMediaDevice->m_mapEntertainArea.find( pEntertainArea->m_iPK_EntertainArea )!=pMediaDevice->m_mapEntertainArea.end() )
+				{
+					// We found another device in this EA that can be the active destination
+					pEntertainArea->m_pMediaDevice_ActiveDest=pMediaDevice;
+					break;
+				}
+			}
+		}
+		
+		if( !pEntertainArea->m_pMediaDevice_ActiveDest )
+			g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::StartMedia no ActiveDest for EA %d", pEntertainArea->m_iPK_EntertainArea);
+	}
 }
 
 void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
