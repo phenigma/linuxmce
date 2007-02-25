@@ -360,13 +360,12 @@ function Create_Diskless_Archive {
 #Create_Diskless_Archive
 #Install_Build_Needed_Packages
 Import_Build_Database
-Import_Pluto_Skins
+#Import_Pluto_Skins
 Checkout_Pluto_Svn
 Build_Pluto_Replacements
 Build_MakeRelease_Binary
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
-exit 0
 Create_Local_Repository
 
 # Create the iso
