@@ -532,8 +532,20 @@ int PlutoLock::TimedCondWait(int Seconds,int Nanoseconds)
 {
 	timespec ts;
 	gettimeofday(&ts,NULL);
+#ifdef THREAD_LOG
+	timespec ts_now = ts;
+#endif
 	ts.tv_sec+=Seconds;
 	ts.tv_nsec+=Nanoseconds;
+#ifdef THREAD_LOG
+	if( !m_bLogErrorsOnly && g_pPlutoLogger )
+	{
+		g_pPlutoLogger->Write(LV_LOCKING, "TimedCondWait now %u.%u wait %u.%u till %u.%u",
+			ts_now.tv_sec,ts_now.tv_nsec,
+			Seconds,Nanoseconds,
+			ts.tv_sec,ts.tv_nsec);
+	}
+#endif
 	return TimedCondWait(ts);
 }
 
