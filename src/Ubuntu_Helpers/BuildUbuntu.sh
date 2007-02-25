@@ -138,6 +138,20 @@ function Build_Pluto_Replacements {
 		cp /usr/src/lirc-modules*.deb "${temp_dir}"
 	popd
 
+	#Package: ivtv-modules
+	apt-get -y install ivtv-source
+	pushd .
+		m-a -ft a-b ivtv
+		cp /usr/src/ivtv-modules*.deb "${temp_dir}"
+		Src="deb http://dl.ivtvdriver.org/ubuntu edgy firmware"
+		if ! grep -qF "$Src" /etc/apt/sources.list; then
+			echo "$Src" >/etc/apt/sources.list
+			apt-get update
+		fi
+		aptitude download ivtv-firmware
+		cp ivtv-firmware_*.dev "${temp_dir}"
+	popd
+
 	#Package: lirc-pluto
 	pushd "${svn_dir}"/trunk/external/lirc-pluto-0.1
 		dpkg-buildpackage -rfakeroot -us -uc -b
@@ -162,8 +176,10 @@ function Build_Pluto_Replacements {
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libxml-parser-lite-tree-perl_1_all.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-sample-media_3_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/asterisk-perl_0.08-1_i386.deb
-		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/video-wizard-videos-pluto_1.1_i386.deb
+#		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/video-wizard-videos-pluto_1.1_i386.deb
+		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-avwizard-sounds_1.0-1_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/Pluto/tee-pluto_1.0_i386.deb
+		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/slimdevices-slim-server_6.2.2-2_i386.deb
 	popd
 }
 
@@ -350,6 +366,7 @@ Build_Pluto_Replacements
 Build_MakeRelease_Binary
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
+exit 0
 Create_Local_Repository
 
 # Create the iso
