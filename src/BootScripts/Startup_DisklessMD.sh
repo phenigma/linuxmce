@@ -67,6 +67,8 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 fi
 
 
+export DISPLAY=":${Display}"
+
 StartService "Loading Kernel Modules" "/usr/pluto/bin/LoadModules.sh"
 if [[ -f /usr/pluto/bin/SQL_Ops.sh  && -f /usr/pluto/bin/Config_Ops.sh ]] ;then
 	Q="SELECT FK_Installation FROM Device WHERE PK_Device='$PK_Device'"
