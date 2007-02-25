@@ -3,6 +3,8 @@
 . /usr/pluto/bin/LockUtils.sh
 . /usr/pluto/bin/Config_Ops.sh
 
+export DISPLAY=:$Display
+
 MythPass=$(cat /etc/mythtv/mysql.txt |grep ^DBPassword|cut -d= -f2)
 MysqlCommand="mysql -D mythconverg -h $MySqlHost -u mythtv -p$MythPass";
 
