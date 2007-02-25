@@ -41,8 +41,12 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl)
 	m_pCommand_Impl=pCommand_Impl;
 	m_cCurrentScreen='M';
 
-	pthread_cond_init(&m_RepeatThreadCond, NULL);
-	m_RepeatThreadMutex.Init(NULL,&m_RepeatThreadCond);
+	int iResult=pthread_cond_init(&m_RepeatThreadCond, NULL);
+	int iResult2=m_RepeatThreadMutex.Init(NULL,&m_RepeatThreadCond);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::IRReceiverBase r1 %d r2 %d cond %p",
+		iResult,iResult2,&m_RepeatThreadCond);
+#endif
 
 	m_bRepeatKey=false;
 	m_pt_Repeat=0;
@@ -238,7 +242,7 @@ void IRReceiverBase::RepeatThread()
 	{
 		rm.TimedCondWait(0,250 * 1000000);
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::RepeatThread device %d code %s/%d",
+		g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::RepeatThread_while device %d code %s/%d",
 			m_PK_Device_Remote,m_sRepeatCode.c_str(),iRepeat);
 #endif
 		if( !m_bRepeatKey )

@@ -490,7 +490,8 @@ int PlutoLock::TimedCondWait(timespec &ts)
 	if( !m_pMyLock->m_pthread_cond_t )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL, "failure cond timed wait -- no condition (%p): %s:%d %s",&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
+			g_pPlutoLogger->Write(LV_CRITICAL, "failure cond timed wait -- no condition (%p): %s:%d %s",
+				&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
 		return EINVAL;
 	}
 
@@ -500,7 +501,8 @@ int PlutoLock::TimedCondWait(timespec &ts)
 		timespec ts_now;
 		gettimeofday(&ts_now,NULL);
 
-		g_pPlutoLogger->Write(LV_LOCKING, "start cond timed wait till %u.%u now %u.%u %s:%d (%p) %s",  
+		g_pPlutoLogger->Write(LV_LOCKING, "start cond %p timed wait till %u.%u now %u.%u %s:%d (%p) %s", 
+			m_pMyLock->m_pthread_cond_t,
 			ts.tv_sec,ts.tv_nsec,ts_now.tv_sec,ts_now.tv_nsec,
 			m_sFileName.c_str(),m_Line, &m_pMyLock->mutex,m_sMessage.c_str());
 	}
@@ -540,10 +542,11 @@ int PlutoLock::TimedCondWait(int Seconds,int Nanoseconds)
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly && g_pPlutoLogger )
 	{
-		g_pPlutoLogger->Write(LV_LOCKING, "TimedCondWait now %u.%u wait %u.%u till %u.%u",
+		g_pPlutoLogger->Write(LV_LOCKING, "TimedCondWait now %u.%u wait %u.%u till %u.%u (%p): %s:%d %s",
 			ts_now.tv_sec,ts_now.tv_nsec,
 			Seconds,Nanoseconds,
-			ts.tv_sec,ts.tv_nsec);
+			ts.tv_sec,ts.tv_nsec,
+			&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
 	}
 #endif
 	return TimedCondWait(ts);

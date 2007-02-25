@@ -2429,9 +2429,9 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 		if( !pOH_Orbiter ) // It could be a remote control
 			pOH_Orbiter = m_pOrbiter_Plugin->m_mapRemote_2_Orbiter_Find( iPK_Device_Orbiter );
 		MediaDevice *pMediaDevice;
-		if( NULL != pOH_Orbiter && iPK_Device && (pMediaDevice = m_mapMediaDevice_Find(iPK_Device))!=NULL )
+		if( iPK_Device && (pMediaDevice = m_mapMediaDevice_Find(iPK_Device))!=NULL )
 		{
-			if( pOH_Orbiter->m_pEntertainArea && pMediaDevice->m_mapEntertainArea.find( pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea )!=pMediaDevice->m_mapEntertainArea.end() )
+			if( NULL != pOH_Orbiter && pOH_Orbiter->m_pEntertainArea && pMediaDevice->m_mapEntertainArea.find( pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea )!=pMediaDevice->m_mapEntertainArea.end() )
 				vectEntertainArea.push_back(pOH_Orbiter->m_pEntertainArea);
 			else
 			{
