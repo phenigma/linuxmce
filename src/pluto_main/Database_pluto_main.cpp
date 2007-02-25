@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifdef WIN32
 	#include <winsock.h>
 #endif
@@ -211,6 +196,8 @@ tblSetupStep=NULL;
 tblSize=NULL;
 tblSkin=NULL;
 tblSoftware=NULL;
+tblSoftware_Device=NULL;
+tblSoftware_Source=NULL;
 tblStabilityStatus=NULL;
 tblStartupScript=NULL;
 tblStyle=NULL;
@@ -788,6 +775,12 @@ if( tblSkin!=NULL )
 if( tblSoftware!=NULL )
 	if( !Commit_Software(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
+if( tblSoftware_Device!=NULL )
+	if( !Commit_Software_Device(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblSoftware_Source!=NULL )
+	if( !Commit_Software_Source(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblStabilityStatus!=NULL )
 	if( !Commit_StabilityStatus(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
@@ -1127,6 +1120,8 @@ DeleteTable_SetupStep();
 DeleteTable_Size();
 DeleteTable_Skin();
 DeleteTable_Software();
+DeleteTable_Software_Device();
+DeleteTable_Software_Source();
 DeleteTable_StabilityStatus();
 DeleteTable_StartupScript();
 DeleteTable_Style();

@@ -13,6 +13,7 @@
      See the GNU General Public License for more details.
 
 */
+
 // If using the thread logger, these generated classes create lots of activity
 #ifdef NO_SQL_THREAD_LOG
 #undef THREAD_LOG

@@ -631,6 +631,12 @@
 				RelativePath=".\Table_Software.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Software_Device.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Software_Source.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_StabilityStatus.cpp">
 			</File>
 			<File

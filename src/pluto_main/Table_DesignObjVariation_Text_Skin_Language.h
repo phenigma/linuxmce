@@ -13,6 +13,7 @@
      See the GNU General Public License for more details.
 
 */
+
 #ifndef __Table_DesignObjVariation_Text_Skin_Language_H__
 #define __Table_DesignObjVariation_Text_Skin_Language_H__
 

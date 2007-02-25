@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef __Define_DesignObj_H__
 #define __Define_DesignObj_H__
 
@@ -2432,6 +2417,7 @@
 #define DESIGNOBJ_butSubMenuClimate_CONST 5415
 #define DESIGNOBJ_butSubMenuTelecom_CONST 5416
 #define DESIGNOBJ_butSubMenuSecurity_CONST 5417
+#define DESIGNOBJ_popNonPlutoDVD_CONST 5418
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -13,6 +13,7 @@
      See the GNU General Public License for more details.
 
 */
+
 #ifndef __Table_MediaType_H__
 #define __Table_MediaType_H__
 

@@ -13,6 +13,7 @@
      See the GNU General Public License for more details.
 
 */
+
 // If using the thread logger, these generated classes create lots of activity
 #ifdef NO_SQL_THREAD_LOG
 #undef THREAD_LOG
@@ -61,7 +62,7 @@ using namespace std;
 #include "Table_PaidLicense.h"
 #include "Table_PnpQueue.h"
 #include "Table_PnpQueue.h"
-#include "Table_Software.h"
+#include "Table_Software_Device.h"
 #include "Table_UnknownDevices.h"
 
 
@@ -1934,11 +1935,11 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_PnpQueue *pTable = table->database->PnpQueue_get();
 pTable->GetRows("`FK_Device_Reported`=" + StringUtils::itos(m_PK_Device),rows);
 }
-void Row_Device::Software_FK_Device_getrows(vector <class Row_Software*> *rows)
+void Row_Device::Software_Device_FK_Device_getrows(vector <class Row_Software_Device*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_Software *pTable = table->database->Software_get();
+class Table_Software_Device *pTable = table->database->Software_Device_get();
 pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
 }
 void Row_Device::UnknownDevices_FK_Device_PC_getrows(vector <class Row_UnknownDevices*> *rows)

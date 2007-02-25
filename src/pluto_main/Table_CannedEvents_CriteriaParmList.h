@@ -13,6 +13,7 @@
      See the GNU General Public License for more details.
 
 */
+
 #ifndef __Table_CannedEvents_CriteriaParmList_H__
 #define __Table_CannedEvents_CriteriaParmList_H__
 

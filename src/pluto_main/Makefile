@@ -177,6 +177,8 @@ Table_SetupStep.cpp \
 Table_Size.cpp \
 Table_Skin.cpp \
 Table_Software.cpp \
+Table_Software_Device.cpp \
+Table_Software_Source.cpp \
 Table_StabilityStatus.cpp \
 Table_StartupScript.cpp \
 Table_Style.cpp \

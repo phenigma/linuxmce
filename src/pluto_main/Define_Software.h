@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef __Define_Software_H__
 #define __Define_Software_H__
 
@@ -20,48 +5,8 @@
 #define SOFTWARE_TABLE "Software"
 #define SOFTWARE_PK_SOFTWARE_FIELD "PK_Software"
 #define SOFTWARE_PK_SOFTWARE_TABLE_FIELD "Software.PK_Software"
-#define SOFTWARE_FK_DEVICE_FIELD "FK_Device"
-#define SOFTWARE_FK_DEVICE_TABLE_FIELD "Software.FK_Device"
-#define SOFTWARE_REPOSITORYNAME_FIELD "RepositoryName"
-#define SOFTWARE_REPOSITORYNAME_TABLE_FIELD "Software.RepositoryName"
-#define SOFTWARE_ICONSTR_FIELD "Iconstr"
-#define SOFTWARE_ICONSTR_TABLE_FIELD "Software.Iconstr"
-#define SOFTWARE_TITLE_FIELD "Title"
-#define SOFTWARE_TITLE_TABLE_FIELD "Software.Title"
-#define SOFTWARE_DESCRIPTION_FIELD "Description"
-#define SOFTWARE_DESCRIPTION_TABLE_FIELD "Software.Description"
-#define SOFTWARE_HOMEURL_FIELD "HomeURL"
-#define SOFTWARE_HOMEURL_TABLE_FIELD "Software.HomeURL"
-#define SOFTWARE_CATEGORY_FIELD "Category"
-#define SOFTWARE_CATEGORY_TABLE_FIELD "Software.Category"
-#define SOFTWARE_DOWNLOADURL_FIELD "Downloadurl"
-#define SOFTWARE_DOWNLOADURL_TABLE_FIELD "Software.Downloadurl"
 #define SOFTWARE_PACKAGENAME_FIELD "PackageName"
 #define SOFTWARE_PACKAGENAME_TABLE_FIELD "Software.PackageName"
-#define SOFTWARE_MISC_FIELD "Misc"
-#define SOFTWARE_MISC_TABLE_FIELD "Software.Misc"
-#define SOFTWARE_VERSION_FIELD "Version"
-#define SOFTWARE_VERSION_TABLE_FIELD "Software.Version"
-#define SOFTWARE_TARGET_FIELD "Target"
-#define SOFTWARE_TARGET_TABLE_FIELD "Software.Target"
-#define SOFTWARE_IMPORTANCE_FIELD "Importance"
-#define SOFTWARE_IMPORTANCE_TABLE_FIELD "Software.Importance"
-#define SOFTWARE_SUM_MD5_FIELD "Sum_md5"
-#define SOFTWARE_SUM_MD5_TABLE_FIELD "Software.Sum_md5"
-#define SOFTWARE_SUM_SHA_FIELD "Sum_sha"
-#define SOFTWARE_SUM_SHA_TABLE_FIELD "Software.Sum_sha"
-#define SOFTWARE_RATING_FIELD "Rating"
-#define SOFTWARE_RATING_TABLE_FIELD "Software.Rating"
-#define SOFTWARE_VIRUS_FREE_FIELD "Virus_Free"
-#define SOFTWARE_VIRUS_FREE_TABLE_FIELD "Software.Virus_Free"
-#define SOFTWARE_PC_TYPE_FIELD "PC_Type"
-#define SOFTWARE_PC_TYPE_TABLE_FIELD "Software.PC_Type"
-#define SOFTWARE_REQUIRED_VERSION_MIN_FIELD "Required_Version_Min"
-#define SOFTWARE_REQUIRED_VERSION_MIN_TABLE_FIELD "Software.Required_Version_Min"
-#define SOFTWARE_REQUIRED_VERSION_MAX_FIELD "Required_Version_Max"
-#define SOFTWARE_REQUIRED_VERSION_MAX_TABLE_FIELD "Software.Required_Version_Max"
-#define SOFTWARE_INSTALLATION_STATUS_FIELD "Installation_status"
-#define SOFTWARE_INSTALLATION_STATUS_TABLE_FIELD "Software.Installation_status"
 #define SOFTWARE_PSC_ID_FIELD "psc_id"
 #define SOFTWARE_PSC_ID_TABLE_FIELD "Software.psc_id"
 #define SOFTWARE_PSC_BATCH_FIELD "psc_batch"

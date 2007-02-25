@@ -13,6 +13,7 @@
      See the GNU General Public License for more details.
 
 */
+
 #ifndef __Table_CommandGroup_Command_CommandParameter_H__
 #define __Table_CommandGroup_Command_CommandParameter_H__
 

@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef __Database_pluto_main_H_
 #define __Database_pluto_main_H_
 #include <mysql.h>
@@ -383,6 +368,10 @@ class Table_Skin* tblSkin;
 bool Commit_Skin(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Software* tblSoftware;
 bool Commit_Software(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_Software_Device* tblSoftware_Device;
+bool Commit_Software_Device(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_Software_Source* tblSoftware_Source;
+bool Commit_Software_Source(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_StabilityStatus* tblStabilityStatus;
 bool Commit_StabilityStatus(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_StartupScript* tblStartupScript;
@@ -663,6 +652,8 @@ class Table_SetupStep* SetupStep_get() { if( !tblSetupStep ) CreateTable_SetupSt
 class Table_Size* Size_get() { if( !tblSize ) CreateTable_Size(); return tblSize; }
 class Table_Skin* Skin_get() { if( !tblSkin ) CreateTable_Skin(); return tblSkin; }
 class Table_Software* Software_get() { if( !tblSoftware ) CreateTable_Software(); return tblSoftware; }
+class Table_Software_Device* Software_Device_get() { if( !tblSoftware_Device ) CreateTable_Software_Device(); return tblSoftware_Device; }
+class Table_Software_Source* Software_Source_get() { if( !tblSoftware_Source ) CreateTable_Software_Source(); return tblSoftware_Source; }
 class Table_StabilityStatus* StabilityStatus_get() { if( !tblStabilityStatus ) CreateTable_StabilityStatus(); return tblStabilityStatus; }
 class Table_StartupScript* StartupScript_get() { if( !tblStartupScript ) CreateTable_StartupScript(); return tblStartupScript; }
 class Table_Style* Style_get() { if( !tblStyle ) CreateTable_Style(); return tblStyle; }
@@ -894,6 +885,8 @@ void CreateTable_SetupStep();
 void CreateTable_Size();
 void CreateTable_Skin();
 void CreateTable_Software();
+void CreateTable_Software_Device();
+void CreateTable_Software_Source();
 void CreateTable_StabilityStatus();
 void CreateTable_StartupScript();
 void CreateTable_Style();
@@ -1119,6 +1112,8 @@ void DeleteTable_SetupStep();
 void DeleteTable_Size();
 void DeleteTable_Skin();
 void DeleteTable_Software();
+void DeleteTable_Software_Device();
+void DeleteTable_Software_Source();
 void DeleteTable_StabilityStatus();
 void DeleteTable_StartupScript();
 void DeleteTable_Style();

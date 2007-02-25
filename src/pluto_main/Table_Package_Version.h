@@ -13,6 +13,7 @@
      See the GNU General Public License for more details.
 
 */
+
 #ifndef __Table_Package_Version_H__
 #define __Table_Package_Version_H__
 

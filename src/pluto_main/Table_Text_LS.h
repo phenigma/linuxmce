@@ -13,6 +13,7 @@
      See the GNU General Public License for more details.
 
 */
+
 #ifndef __Table_Text_LS_H__
 #define __Table_Text_LS_H__
 
