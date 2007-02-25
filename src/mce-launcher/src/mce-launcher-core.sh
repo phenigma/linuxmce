@@ -78,6 +78,8 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 fi
 
 
+export DISPLAY=":${Display}"
+
 StartService "Starting MySQL Server" "/etc/init.d/mysql start"
 StartService "Starting DHCP Server" "/etc/init.d/dhcp3-server start"
 StartService "Starting DNS Server" "/etc/init.d/bind9 start"
