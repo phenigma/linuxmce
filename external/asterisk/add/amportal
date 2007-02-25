@@ -22,6 +22,10 @@ then
 fi
 source /etc/amportal.conf
 
+mkdir_asterisk() {
+	mkdir -p /var/run/asterisk
+}
+
 chown_asterisk() {
     echo SETTING FILE PERMISSIONS
     chown -R asterisk:www-data /var/run/asterisk
@@ -180,6 +184,7 @@ kill_amp() {
 
 case "$1" in
     start)
+		mkdir_asterisk
         chown_asterisk
         run_asterisk
     ;;
@@ -189,10 +194,12 @@ case "$1" in
     restart)
         stop_asterisk
         sleep 1
+		mkdir_asterisk
         chown_asterisk
         run_asterisk
     ;;
     chown)
+		mkdir_asterisk
         chown_asterisk
     ;;
     kill)
