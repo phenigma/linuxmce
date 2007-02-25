@@ -89,6 +89,7 @@ StartService "Starting X11 Server" "/usr/pluto/bin/Start_X.sh"
 StartService "Creating Firewire 2 Video4Linux Pipes" "/usr/pluto/bin/Firewire2Video4Linux.sh"
 StartService "Starting Local Devices" "/usr/pluto/bin/Start_LocalDevices.sh"
 StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
+StartService "Report machine is on" "/usr/pluto/bin/Report_MachineOn.sh" "&"
 
 #Pluto_alsaconf-noninteractive \
 #Pluto_Diskless_Setup.sh \
