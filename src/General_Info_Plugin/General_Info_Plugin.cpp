@@ -1446,7 +1446,7 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
-
+/*
 	int iRow=0;
 	vector<Row_Software *> vectRow_Software;
 	m_pDatabase_pluto_main->Software_get()->GetRows("FK_Device="+ StringUtils::itos(pDevice->m_dwPK_Device) +" ORDER BY Title",&vectRow_Software);
@@ -1473,7 +1473,7 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 
 		pDataGrid->SetData(0,iRow++,pCell);
 	}
-
+*/
 	return pDataGrid;
 }
 
@@ -3172,7 +3172,7 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 {
 	if( iPK_Device<1 )
 		iPK_Device = pMessage->m_dwPK_Device_From;
-
+/*
 	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
 	if(pDevice)
 		pDevice = pDevice->GetTopMostDevice();
@@ -3214,6 +3214,7 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Finishing Add software");
 #endif
+	*/
 }
 //<-dceag-c833-b->
 
