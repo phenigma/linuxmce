@@ -57,6 +57,13 @@ void ProcessXML(string sFileName)
 	dbhelper.ProcessPackages(listPackages);
 }
 
+bool FetchURL(string sUrl, string sOutputFile, string sUserAgent)
+{
+	string sCmd = string("wget --timeout 60 --tries=1 -q ")+UserAgent+" -O " + sOutputFile + " \""+sUrl+"\"";
+//	cout << "DEBUG[FetchURL] " << sCmd.c_str() << endl;
+	return !system(sCmd.c_str());
+}
+
 int main(int argc, char *argv[])
 {
 	g_pPlutoLogger = new FileLogger(stdout);
@@ -91,10 +98,9 @@ int main(int argc, char *argv[])
 	}
 	for(size_t noEngine=0;noEngine<url.size();noEngine++)
 	{
-		string sCmd = string("wget --timeout 60 --tries=1 -q ")+UserAgent+" -O /tmp/search.html \""+url[noEngine]+"\"";
-		cout << sCmd << endl;
-		res=system(sCmd.c_str());
-		if (!res)
+		cout << "Processing search engine: " << url[noEngine] << endl;
+		res = FetchURL(url[noEngine], "/tmp/search.html", UserAgent);
+		if (res)
 		{
 			string link,packageName,version;
 			vector<string> vectUrls;
@@ -102,25 +108,35 @@ int main(int argc, char *argv[])
 			for(vector<string>::iterator it = vectUrls.begin(); it != vectUrls.end(); ++it)
 			{
 				string sUrl = *it;
-				cout << "Searching in : " << sUrl << endl;
-
-				sUrl = StringUtils::Replace(sUrl, "\"", "\\\"");
-				string sCmd = string("wget --timeout 60 --tries=1 -q ")+UserAgent+" -O /tmp/out.html \""+sUrl+"\"";
-				res=system(sCmd.c_str());
-				if(!res)
+				vector<string> vectXMLs;
+				
+				cout << "Analyzing URL: " << sUrl << endl;
+				
+				if (StringUtils::EndsWith(sUrl, ".xml", true))
 				{
-					vector<string> vectXMLs;
-					XMLFinder::FindXMLs("/tmp/out.html", vectXMLs);
-					for(vector<string>::iterator itx = vectXMLs.begin(); itx != vectXMLs.end(); ++itx)
+					cout << "URL is XML, adding to processing queue" << endl;
+					vectXMLs.push_back(sUrl);
+				}
+				else
+				{
+					cout << "URL is non-XML, scanning for links to XML" << endl;
+					sUrl = StringUtils::Replace(sUrl, "\"", "\\\"");
+					res = FetchURL(sUrl, "/tmp/out.html", UserAgent);
+					if (res)
 					{
-						string sXmlUrl = *itx;
-						cout << "Xml to download : " << sXmlUrl << endl;
-
-						sXmlUrl = StringUtils::Replace(sXmlUrl, "\"", "\\\"");
-						string sCommand = string("wget --timeout 60 --tries=1  -q ") + UserAgent + " -O /tmp/out.xml \"" + sXmlUrl + "\"";
-						if(!system(sCommand.c_str()))
-							ProcessXML("/tmp/out.xml");
+					XMLFinder::FindXMLs("/tmp/out.html", vectXMLs);
 					}
+				}
+				
+				for(vector<string>::iterator itx = vectXMLs.begin(); itx != vectXMLs.end(); ++itx)
+				{
+					string sXmlUrl = *itx;
+					cout << "XML to download : " << sXmlUrl << endl;
+
+					sXmlUrl = StringUtils::Replace(sXmlUrl, "\"", "\\\"");
+					bool res = FetchURL(sXmlUrl, "/tmp/out.xml", UserAgent);
+					if(res)
+						ProcessXML("/tmp/out.xml");
 				}
 			}
 		}
