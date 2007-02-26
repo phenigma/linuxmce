@@ -322,6 +322,23 @@ Configure_Network_Options
 mkdir -p /usr/pluto/deb-cache
 sed -i 's/"nv"/"vesa"/g' /etc/X11/xorg.conf
 sed -i 's/"nvidia"/"vesa"/g' /etc/X11/xorg.conf
+
+if [[ "$c_startupType" == "1" ]] ;then
+	mv /etc/init.d/gdm /etc/init.d/gdm.saved
+	echo "
+start on runlevel-2
+
+stop on shutdonw
+stop on runlevel-3
+stop on runlevel-4
+stop on runlevel-5
+
+script
+/usr/pluto/bin/Startup_Core-Hybrid.sh
+end script
+" > /etc/event.d/pluto
+fi
+
 apt-get -y dist-upgrade
 
 echo 
