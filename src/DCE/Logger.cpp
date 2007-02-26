@@ -57,7 +57,11 @@ using namespace DCE;
     #include "wince.h"
 #endif
 
-bool g_bFlushLog = getenv("ImmediatelyFlushLog") && atoi(getenv("ImmediatelyFlushLog"))==1;
+#ifndef WINCE
+	bool g_bFlushLog = getenv("ImmediatelyFlushLog") && atoi(getenv("ImmediatelyFlushLog"))==1;
+#else
+	bool g_bFlushLog = false;
+#endif
 
 string DCE::g_sBinary,DCE::g_sBinaryPath;
 
