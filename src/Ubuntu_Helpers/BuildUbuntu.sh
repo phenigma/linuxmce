@@ -247,6 +247,15 @@ function Create_Fake_Windows_Binaries {
 
 	touch ${svn_dir}/trunk/src/bin/PlutoBaSInstaller.msi
 	touch ${svn_dir}/trunk/src/bin/PlutoRebootSetup.msi
+
+
+	pushd ${svn_dir}/trunk/src/bin
+	scp root@10.0.0.150/home/builds/Windows_Output/src/bin/* ./
+	popd
+
+	pushd ${svn_dir}/trunk/src/lib
+	scp root@10.0.0.150/home/builds/Windows_Output/src/lib/* ./
+	popd
 }
 
 function Create_Local_Repository {
@@ -363,20 +372,20 @@ Import_Build_Database
 #Import_Pluto_Skins
 Checkout_Pluto_Svn
 Build_Pluto_Replacements
-Build_MakeRelease_Binary
+#Build_MakeRelease_Binary
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
-Create_Local_Repository
-
+#Create_Local_Repository
+exit 0
 # Create the iso
 pushd $local_mirror_dir
 	/root/Ubuntu_Helpers/get-packages.sh
 popd
 
 # Move them to linuxmce.com
-pushd $local_mirror_dir
-	tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz
-	scp /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
-popd
+#pushd $local_mirror_dir
+#	tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz
+#	scp /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
+#popd
 
 read
