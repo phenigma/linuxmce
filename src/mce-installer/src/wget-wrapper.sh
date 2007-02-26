@@ -3,8 +3,12 @@
 . /tmp/mce_wizard_data.sh
 
 ISO="http://linuxmce.com/ubuntu/linuxmce-0.1-packages.iso"
+ISO="http://10.0.0.82/linuxmce-0.1-packages.iso"
 
 function Setup_Network_Intefaces {
+	killall dhclient3 &>/dev/null
+	killall dhclient  &>/dev/null
+
 	if [[ $c_netExtUseDhcp  == "1" ]] ;then
 		echo "iface $c_netExtName inet dhcp" > /etc/network/interfaces
 		dhclient $c_netExtName

@@ -10,6 +10,8 @@ exec &> >(tee /var/log/mce-installer.log)
 . /tmp/mce_wizard_data.sh
 
 function Setup_Network_Intefaces {
+	killall dhclient  &>/dev/null
+	killall dhclient3 &>/dev/null
 	if [[ $c_netExtUseDhcp  == "1" ]] ;then
 		echo "iface $c_netExtName inet dhcp" > /etc/network/interfaces
 		dhclient $c_netExtName
@@ -40,8 +42,8 @@ deb file:/usr/pluto/deb-cache/ ./
 deb http://archive.ubuntu.com/ubuntu edgy main restricted multiverse universe
 deb http://archive.ubuntu.com/ubuntu edgy-security main restricted multiverse universe
 deb http://archive.ubuntu.com/ubuntu edgy-updates main restricted multiverse universe
-deb http://linuxmce.com/ubuntu ./
-#deb http://10.0.0.82/ ./
+#deb http://linuxmce.com/ubuntu ./
+deb http://10.0.0.82/ ./
 # Pluto sources - end"
 	echo "$Sources" >/etc/apt/sources.list
 
