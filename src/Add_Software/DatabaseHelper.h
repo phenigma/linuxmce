@@ -38,7 +38,7 @@ public:
 		string sDB = "pluto_main", int nPort = 3306);
 	~DatabaseHelper();
 
-	void ProcessPackages(const list<PackageInfo>& listPackages);
+	void ProcessPackages(const list<PackageInfo>& listPackages, const vector<string>& virusFree);
 
 private:
 

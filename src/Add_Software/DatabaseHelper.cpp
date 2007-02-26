@@ -13,6 +13,12 @@
      See the GNU General Public License for more details.
 
 */
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
 #include "DatabaseHelper.h"
 #include "IconDecoder.h"
 
@@ -46,7 +52,7 @@ DatabaseHelper::~DatabaseHelper()
 	return it != package.end() ? StringUtils::SQLEscape(it->second) : string();
 }
 //--------------------------------------------------------------------------------------------------
-void DatabaseHelper::ProcessPackages(const list<PackageInfo>& listPackages)
+void DatabaseHelper::ProcessPackages(const list<PackageInfo>& listPackages, const vector<string>& virusFree)
 {
 	// adding all packages if they do not exist yet, storing their primary keys
 	
@@ -98,6 +104,18 @@ void DatabaseHelper::ProcessPackages(const list<PackageInfo>& listPackages)
 			
 			if (pRow)
 			{
+				// checking if package is virus-free
+				bool isVirusFree=false;
+				string sInfo = sPackageName + "," + GetValue(package, niDistro) + "," + GetValue(package, niVersion) + ","  + GetValue(package, niSum_MD5) + "," + GetValue(package, niSum_SHA1);
+				for (vector<string>::const_iterator it=virusFree.begin(); it!=virusFree.end(); it++)
+				{
+					if (*it == sInfo)
+					{
+						isVirusFree = true;
+						break;
+					}
+				}
+				
 				// saving information about package source
 				pRow->FK_Software_set(iSoftwareID);
 				pRow->Description_set(GetValue(package, niDescription));
@@ -114,7 +132,7 @@ void DatabaseHelper::ProcessPackages(const list<PackageInfo>& listPackages)
 				pRow->PC_Type_set(GetValue(package, niPC_Type));
 				pRow->Required_Version_Min_set(GetValue(package, niRequired_Version_Min));
 				pRow->Required_Version_Max_set(GetValue(package, niRequired_Version_Max));
-				pRow->Virus_Free_set(0);
+				pRow->Virus_Free_set(isVirusFree?1:0);
 				pRow->Sum_md5_set(GetValue(package, niSum_MD5));
 				pRow->Sum_sha_set(GetValue(package, niSum_SHA1));
 				pRow->Table_Software_Source_get()->Commit();

@@ -41,7 +41,7 @@ using namespace std;
 const string templBegin[2]={"<a class=l href=\"","<em class=yschurl>"};
 const string templEnd[2]={"\">","</em>"};
 
-void ProcessXML(string sFileName)
+void ProcessXML(string sFileName, vector<string> &virusFree)
 {
 	//g_pPlutoLogger->Write(LV_WARNING, "Processing XML %s", sFileName.c_str());
 	
@@ -54,7 +54,7 @@ void ProcessXML(string sFileName)
 	const list<PackageInfo>& listPackages = parser.GetParsedData();
 
 	DatabaseHelper dbhelper;
-	dbhelper.ProcessPackages(listPackages);
+	dbhelper.ProcessPackages(listPackages, virusFree);
 }
 
 bool FetchURL(string sUrl, string sOutputFile, string sUserAgent)
@@ -96,6 +96,23 @@ int main(int argc, char *argv[])
 			<< " [-U URL of google search]" << endl;
 		return false;
 	}
+	
+	// getting list of virus free packages
+	cout << "Getting virus-free packages list" << endl;
+	res = FetchURL("http://linuxmce.com/virus_free.php", "/tmp/virusfree.list", UserAgent);
+	vector<string> virusFree;
+	// loading virus-free list
+	if (res)
+	{
+		ifstream fin("/tmp/virusfree.list");
+		while (fin)
+		{
+			char buf[1024];
+			fin.getline(buf, 1024);
+			virusFree.push_back(buf);
+		}
+	}
+	
 	for(size_t noEngine=0;noEngine<url.size();noEngine++)
 	{
 		cout << "Processing search engine: " << url[noEngine] << endl;
@@ -136,7 +153,7 @@ int main(int argc, char *argv[])
 					sXmlUrl = StringUtils::Replace(sXmlUrl, "\"", "\\\"");
 					bool res = FetchURL(sXmlUrl, "/tmp/out.xml", UserAgent);
 					if(res)
-						ProcessXML("/tmp/out.xml");
+						ProcessXML("/tmp/out.xml", virusFree);
 				}
 			}
 		}
