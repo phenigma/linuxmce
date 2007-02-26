@@ -14,11 +14,16 @@ lcdMAC=$(echo ${MAC//:/-} | tr 'A-Z' 'a-z')
 
 if [[ -z "$IP" ]]; then
 	echo "Error: Empty IP"
-	exit
+	exit 1
 fi
 
 Q="SELECT PK_Device FROM Device WHERE IPaddress LIKE '$IP' LIMIT 1"
 PK_Device=$(RunSQL "$Q")
+
+if [[ -z "$PK_Device" ]]; then
+	echo "Error: No device corresponding to IP '$IP'"
+	exit 1
+fi
 
 echo "Deleting MD files. MAC=$MAC IP=$IP ID=$PK_Device"
 
