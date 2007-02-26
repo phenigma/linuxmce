@@ -361,7 +361,7 @@ function Create_Diskless_Archive {
 
 	mkdir -p /home/DisklessFS
 	pushd $temp_dir
-		tar -jcf /home/DisklessFS/PlutoMD.tar.bz2 *
+		tar -jcf /home/DisklessFS/PlutoMD_Debootstraped.tar.bz2 *
 	popd
 	rm -rf $temp_dir
 }
