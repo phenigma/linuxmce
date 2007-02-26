@@ -1,7 +1,7 @@
 /* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4 -*- */
 /*
  * main.c
- * Copyright (C) Razvan Gavril 2007 <razvan.g@plutohome.com>
+ * Copyright (C) Paul Webber 2007 <paul.webber@plutohome.com>
  * 
  * main.c is free software.
  * 
