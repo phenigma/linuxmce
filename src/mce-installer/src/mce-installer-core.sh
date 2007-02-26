@@ -29,7 +29,11 @@ function Setup_Network_Intefaces {
 		echo > /etc/resolv.conf
 		echo "nameserver $c_netExtDNS1" >> /etc/resolv.conf
 
+
+		ifconfig $c_netIntName down
 		ifconfig $c_netIntName $c_netExtIP netmask $c_netExtMask up
+
+		route del default gw
 		route add default gw $c_netExtGateway
 	fi
 
