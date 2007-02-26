@@ -36,18 +36,16 @@ void displayStep4(void) {
 
 	// Questions
 	GSList *group = NULL;
-	GtkWidget *radio[4];
+	GtkWidget *radio[2];
 
-	radio[0] = gtk_radio_button_new_with_label(group, "LinuxMCE’s, and give me the option of switching to a Ubuntu desktop.");
+	radio[0] = gtk_radio_button_new_with_label(group, "Ubuntu’s, and give me the option of switching to LinuxMCE’s.");
 	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio[0]));
-	radio[1] = gtk_radio_button_new_with_label(group, "Ubuntu’s, and give me the option of switching to LinuxMCE’s.");
-	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio[0]));
-	radio[2] = gtk_radio_button_new_with_label(group, "LinuxMCE’s only. This will be used only as a media player, and not as a computer.");
-	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio[0]));
-	radio[3] = gtk_radio_button_new_with_label(group, "Ubuntu only, I will start LinuxMCE manually (experts only).");
-
+	radio[1] = gtk_radio_button_new_with_label(group, "LinuxMCE’s only. This will be used only as a media player, and not as a computer.");
+/*	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio[0]));
+	radio[2] = gtk_radio_button_new_with_label(group, "Ubuntu only, I will start LinuxMCE manually (experts only).");
+*/
 	int i;
-	for (i=0; i<4; i++) {
+	for (i=0; i<2; i++) {
 		g_signal_connect(G_OBJECT(radio[i]), "toggled", G_CALLBACK(on_Step4_radio_toggled), (gpointer)i);
 		gtk_box_pack_start(GTK_BOX(mainBox), radio[i], TRUE, FALSE, i);
 		if (setting_startupType == i) { 
