@@ -1003,7 +1003,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		}
 
 		sSQL.str( "" );
-		sSQL << "SELECT psc_id,psc_mod FROM " << sTableName;
+		sSQL << "SELECT psc_id,psc_mod FROM `" << sTableName << "`";
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
 		if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )

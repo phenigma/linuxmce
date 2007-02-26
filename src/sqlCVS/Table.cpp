@@ -567,7 +567,7 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 		sSql << "`" << m_sName << "`.`" <<  ( *pR_UpdateTable->m_pvectFields )[s] << "`, ";
 
 	sSql << "`" << m_sName << "`.`psc_id`, `" << m_sName << "`.`psc_batch`,"
-		<< "`" << m_sName << "`.`psc_user` FROM " << m_sName;
+		<< "`" << m_sName << "`.`psc_user` FROM `" << m_sName << "`";
 
 	if( m_sFilter.length() )
 	{
@@ -885,7 +885,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 			sSQL << "SELECT (psc_id-" << range_begin << ") DIV " << interval_length << " , count(*),BIT_XOR(POW(psc_id-"<<range_begin<<", FLOOR(63/CEIL(LOG2("<<(1+range_end-range_begin)<<"))))) FROM " << m_sName << " WHERE (psc_id IS NOT NULL AND psc_id>0)  AND (psc_id BETWEEN " << range_begin << " AND " << range_end << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sName,&g_GlobalConfig.m_vectRestrictions) << " GROUP BY (psc_id-"<< range_begin<< ") DIV " << interval_length << " ORDER BY (psc_id-"<< range_begin<<") DIV " << interval_length;
 			*/
 
-			sSQL << "SELECT FLOOR( (psc_id-" << range_begin << ") / " << interval_length << ") , count(*), MD5(CAST(SUM(POW(1+(psc_id-"<<range_begin<<")%"<<interval_length<<", 3)) AS UNSIGNED)) FROM " << m_sName << " WHERE (psc_id IS NOT NULL AND psc_id>0)  AND (psc_id BETWEEN " << range_begin << " AND " << range_end << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sName,&g_GlobalConfig.m_vectRestrictions) << " GROUP BY FLOOR((psc_id-"<< range_begin<< ") / " << interval_length << ") ORDER BY FLOOR((psc_id-"<< range_begin<<") / " << interval_length << ")";
+			sSQL << "SELECT FLOOR( (psc_id-" << range_begin << ") / " << interval_length << ") , count(*), MD5(CAST(SUM(POW(1+(psc_id-"<<range_begin<<")%"<<interval_length<<", 3)) AS UNSIGNED)) FROM `" << m_sName << "` WHERE (psc_id IS NOT NULL AND psc_id>0)  AND (psc_id BETWEEN " << range_begin << " AND " << range_end << ") AND " << g_GlobalConfig.GetRestrictionClause(m_sName,&g_GlobalConfig.m_vectRestrictions) << " GROUP BY FLOOR((psc_id-"<< range_begin<< ") / " << interval_length << ") ORDER BY FLOOR((psc_id-"<< range_begin<<") / " << interval_length << ")";
 
 			PlutoSqlResult res;
 			MYSQL_ROW row=NULL;
@@ -1026,7 +1026,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 
 	//processing remote deletions
 	std::ostringstream rSQL;
-	rSQL << "SELECT psc_id, psc_batch FROM " << m_sName << " WHERE 0 ";
+	rSQL << "SELECT psc_id, psc_batch FROM `" << m_sName << "` WHERE 0 ";
 	for (int i=0; i<remote_deletions.size(); i++)
 	{
 		rSQL << "OR (psc_id>="<< remote_deletions[i].first << " AND psc_id<=" << remote_deletions[i].second << ") ";
@@ -1119,7 +1119,7 @@ int k=2;
 					sSQL << "`" << vectFields[s] << "`";
 				}
 
-				sSQL << " FROM " << m_sName;
+				sSQL << " FROM `" << m_sName << "` ";
 
 				sSQL << pChangedRow->GetWhereClause( );
 
@@ -1230,7 +1230,7 @@ int k=2;
 				*/
 
 				sSQL.str( "" );
-				sSQL << "SELECT PK_" << m_sName << " FROM " << m_sName << " WHERE PK_" << m_sName << "=" << r_CommitRow.m_iNewAutoIncrID;
+				sSQL << "SELECT PK_" << m_sName << " FROM `" << m_sName << "` WHERE PK_" << m_sName << "=" << r_CommitRow.m_iNewAutoIncrID;
 				PlutoSqlResult result_set;
 				MYSQL_ROW row=NULL;
 				if( ( result_set.r=m_pDatabase->mysql_query_result(sSQL.str()) ) && ( row = mysql_fetch_row( result_set.r ) ) )
@@ -1542,7 +1542,7 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 	if( !psqlCVSprocessor->m_bSupervisor )
 	{
 		std::ostringstream sSQL;
-		sSQL << "SELECT 0 as psc_user, psc_frozen FROM " << m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
+		sSQL << "SELECT 0 as psc_user, psc_frozen FROM `" << m_sName << "` WHERE psc_id=" << pR_CommitRow->m_psc_id;
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
 		if( ( result_set.r=m_pDatabase->mysql_query_result(sSQL.str()) ) && ( row = mysql_fetch_row( result_set.r ) ) )
@@ -1578,7 +1578,7 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 	if( !psqlCVSprocessor->m_bSupervisor )
 	{
 		std::ostringstream sSQL;
-		sSQL << "SELECT 0 as psc_user,psc_frozen FROM " << m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
+		sSQL << "SELECT 0 as psc_user,psc_frozen FROM `" << m_sName << "` WHERE psc_id=" << pR_CommitRow->m_psc_id;
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
 		if( (result_set.r=m_pDatabase->mysql_query_result(sSQL.str())) && (row = mysql_fetch_row(result_set.r)) )
@@ -1635,8 +1635,10 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 	bool bUnauthorizedRow=false;
 	std::ostringstream sSQL;
 
+	//cout << "Debug: " << m_bAnonymous << " " << psqlCVSprocessor->m_bAllAnonymous << " " << psqlCVSprocessor->m_bSupervisor << " " << m_bFrozen << endl;
 	if( (!m_bAnonymous && psqlCVSprocessor->m_bAllAnonymous) || (!psqlCVSprocessor->m_bSupervisor && m_bFrozen) )
 	{
+		cout << "Adding unauthorized row" << endl;
 		// This row is unauthorized, so we're going to insert into the history instead.  But we'll insert it here
 		// rather than in AddToHistory because AddToHistory is intended to add rows that already were added to the database,
 		// but in this case, we're not putting the row in the database--only in the history file
@@ -1646,7 +1648,10 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 		sSQL << "INSERT INTO `" << m_pTable_History->Name_get( ) << "` ( ";
 	}
 	else
+	{
+		cout << "Adding authorized row" << endl;
 		sSQL << "INSERT INTO `" << m_sName << "` ( ";
+	}
 
 	for( size_t s=0;s<psqlCVSprocessor->m_pvectFields->size( );++s )
 		sSQL << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`, ";
@@ -1719,7 +1724,7 @@ void Table::GetCurrentValues(int psc_id,MapStringString *mapCurrentValues,int ps
 	if( psc_batch_in_history )
 		sSql << "SELECT * FROM " << m_pTable_History->Name_get() << " WHERE psc_id=" << psc_id << " AND psc_batch=" << psc_batch_in_history;
 	else
-		sSql << "SELECT * FROM " << m_sName << " WHERE psc_id=" << psc_id;
+		sSql << "SELECT * FROM `" << m_sName << "` WHERE psc_id=" << psc_id;
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sSql.str() ) ) && ( row = mysql_fetch_row( result_set.r ) ) )
