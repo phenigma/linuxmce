@@ -48,6 +48,8 @@ extract_field()
 log_plugin log "\n\n\n\nDhcp-Plugin Process Started"
 log_plugin log "Dhcp-Plugin Started"
 
+exec 3> >(bash -x /usr/pluto/bin/Dhcpd-Plugin-Queue.sh)
+
 while :; do
 	read inline
 	found=0
@@ -76,14 +78,7 @@ while :; do
 				if [[ -z "$R" ]]; then
 					log_plugin log "NEW DEVICE !!!"
 
-					for ((i = 0; i < 100; i++)); do
-						/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 52 3 53 2 5 "$mac_found" 28 "$ip_sent"
-						if [[ $? -eq 0 ]]; then
-							break
-						else
-							sleep 10
-						fi
-					done
+					echo "$mac_found $ip_sent" >&3
 				else
 					log_plugin log "Device already marked as unknown, ignore"
 				fi
