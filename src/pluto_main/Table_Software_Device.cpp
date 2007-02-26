@@ -33,8 +33,9 @@
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Software_Device.h"
-#include "Table_Software_Source.h"
+#include "Table_Software.h"
 #include "Table_Device.h"
+#include "Table_Software_Source.h"
 
 
 
@@ -96,7 +97,7 @@ void Row_Software_Device::Delete()
 		}
 		else
 		{
-			DoubleLongKey key(pRow->m_FK_Software_Source,pRow->m_FK_Device);
+			DoubleLongKey key(pRow->m_FK_Software,pRow->m_FK_Device);
 			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
@@ -115,7 +116,7 @@ void Row_Software_Device::Reload()
 	
 	if (!is_added)
 	{
-		DoubleLongKey key(pRow->m_FK_Software_Source,pRow->m_FK_Device);
+		DoubleLongKey key(pRow->m_FK_Software,pRow->m_FK_Device);
 		Row_Software_Device *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -135,23 +136,25 @@ Row_Software_Device::Row_Software_Device(Table_Software_Device *pTable):table(pT
 
 void Row_Software_Device::SetDefaultValues()
 {
-	m_FK_Software_Source = 0;
+	m_FK_Software = 0;
 is_null[0] = false;
 m_FK_Device = 0;
 is_null[1] = false;
+is_null[2] = true;
+m_FK_Software_Source = 0;
 m_Status = "N";
-is_null[2] = false;
-is_null[3] = true;
-m_psc_id = 0;
+is_null[3] = false;
 is_null[4] = true;
-m_psc_batch = 0;
+m_psc_id = 0;
 is_null[5] = true;
+m_psc_batch = 0;
+is_null[6] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[6] = false;
-m_psc_mod = "00000000000000";
 is_null[7] = false;
-is_null[8] = true;
+m_psc_mod = "00000000000000";
+is_null[8] = false;
+is_null[9] = true;
 m_psc_restrict = 0;
 
 
@@ -160,12 +163,15 @@ m_psc_restrict = 0;
 	is_modified=false;
 }
 
-long int Row_Software_Device::FK_Software_Source_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Software_Device::FK_Software_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_Software_Source;}
+return m_FK_Software;}
 long int Row_Software_Device::FK_Device_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Device;}
+long int Row_Software_Device::FK_Software_Source_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_Software_Source;}
 string Row_Software_Device::Status_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Status;}
@@ -189,82 +195,92 @@ long int Row_Software_Device::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl
 return m_psc_restrict;}
 
 		
-void Row_Software_Device::FK_Software_Source_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software_Device::FK_Software_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Software_Source = val; is_modified=true; is_null[0]=false;}
+m_FK_Software = val; is_modified=true; is_null[0]=false;}
 void Row_Software_Device::FK_Device_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Device = val; is_modified=true; is_null[1]=false;}
+void Row_Software_Device::FK_Software_Source_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_Software_Source = val; is_modified=true; is_null[2]=false;}
 void Row_Software_Device::Status_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Status = val; is_modified=true; is_null[2]=false;}
+m_Status = val; is_modified=true; is_null[3]=false;}
 void Row_Software_Device::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[3]=false;}
+m_psc_id = val; is_modified=true; is_null[4]=false;}
 void Row_Software_Device::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[4]=false;}
+m_psc_batch = val; is_modified=true; is_null[5]=false;}
 void Row_Software_Device::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[5]=false;}
+m_psc_user = val; is_modified=true; is_null[6]=false;}
 void Row_Software_Device::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[6]=false;}
+m_psc_frozen = val; is_modified=true; is_null[7]=false;}
 void Row_Software_Device::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[7]=false;}
+m_psc_mod = val; is_modified=true; is_null[8]=false;}
 void Row_Software_Device::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[8]=false;}
+m_psc_restrict = val; is_modified=true; is_null[9]=false;}
 
 		
-bool Row_Software_Device::Status_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software_Device::FK_Software_Source_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_Software_Device::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software_Device::Status_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_Software_Device::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software_Device::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_Software_Device::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software_Device::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_Software_Device::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Software_Device::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
+bool Row_Software_Device::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[7];}
 bool Row_Software_Device::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[8];}
+return is_null[9];}
 
 			
-void Row_Software_Device::Status_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software_Device::FK_Software_Source_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_Software_Device::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software_Device::Status_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_Software_Device::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software_Device::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_Software_Device::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software_Device::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_Software_Device::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Software_Device::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
+void Row_Software_Device::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[7]=val;
+is_modified=true;
+}
 void Row_Software_Device::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[8]=val;
+is_null[9]=val;
 is_modified=true;
 }
 	
 
-string Row_Software_Device::FK_Software_Source_asSQL()
+string Row_Software_Device::FK_Software_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -272,7 +288,7 @@ if (is_null[0])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Software_Source);
+sprintf(buf, "%li", m_FK_Software);
 
 return buf;
 }
@@ -290,11 +306,24 @@ sprintf(buf, "%li", m_FK_Device);
 return buf;
 }
 
-string Row_Software_Device::Status_asSQL()
+string Row_Software_Device::FK_Software_Source_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Software_Source);
+
+return buf;
+}
+
+string Row_Software_Device::Status_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[3])
 return "NULL";
 
 char *buf = new char[3];
@@ -308,7 +337,7 @@ string Row_Software_Device::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[3])
+if (is_null[4])
 return "NULL";
 
 char buf[32];
@@ -321,7 +350,7 @@ string Row_Software_Device::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[4])
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -334,7 +363,7 @@ string Row_Software_Device::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -347,7 +376,7 @@ string Row_Software_Device::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[6])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -360,7 +389,7 @@ string Row_Software_Device::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[7])
+if (is_null[8])
 return "NULL";
 
 char *buf = new char[29];
@@ -374,7 +403,7 @@ string Row_Software_Device::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[8])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -386,9 +415,9 @@ return buf;
 
 
 
-Table_Software_Device::Key::Key(long int in_FK_Software_Source, long int in_FK_Device)
+Table_Software_Device::Key::Key(long int in_FK_Software, long int in_FK_Device)
 {
-			pk_FK_Software_Source = in_FK_Software_Source;
+			pk_FK_Software = in_FK_Software;
 pk_FK_Device = in_FK_Device;
 	
 }
@@ -397,15 +426,15 @@ Table_Software_Device::Key::Key(Row_Software_Device *pRow)
 {
 			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
-			pk_FK_Software_Source = pRow->m_FK_Software_Source;
+			pk_FK_Software = pRow->m_FK_Software;
 pk_FK_Device = pRow->m_FK_Device;
 	
 }		
 
 bool Table_Software_Device::Key_Less::operator()(const Table_Software_Device::Key &key1, const Table_Software_Device::Key &key2) const
 {
-			if (key1.pk_FK_Software_Source!=key2.pk_FK_Software_Source)
-return key1.pk_FK_Software_Source<key2.pk_FK_Software_Source;
+			if (key1.pk_FK_Software!=key2.pk_FK_Software)
+return key1.pk_FK_Software<key2.pk_FK_Software;
 else
 if (key1.pk_FK_Device!=key2.pk_FK_Device)
 return key1.pk_FK_Device<key2.pk_FK_Device;
@@ -426,10 +455,10 @@ bool Table_Software_Device::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFai
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Software_Source_asSQL()+", "+pRow->FK_Device_asSQL()+", "+pRow->Status_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Software_asSQL()+", "+pRow->FK_Device_asSQL()+", "+pRow->FK_Software_Source_asSQL()+", "+pRow->Status_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into Software_Device (`FK_Software_Source`, `FK_Device`, `Status`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into Software_Device (`FK_Software`, `FK_Device`, `FK_Software_Source`, `Status`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -455,7 +484,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Software_So
 				
 			
 			addedRows.erase(i);
-			DoubleLongKey key(pRow->m_FK_Software_Source,pRow->m_FK_Device);	
+			DoubleLongKey key(pRow->m_FK_Software,pRow->m_FK_Device);	
 			cachedRows[key] = pRow;
 					
 			
@@ -473,22 +502,22 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Software_So
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_Software_Device* pRow = (Row_Software_Device*) (*i).second;	
-		DoubleLongKey key(pRow->m_FK_Software_Source,pRow->m_FK_Device);
+		DoubleLongKey key(pRow->m_FK_Software,pRow->m_FK_Device);
 
-		char tmp_FK_Software_Source[32];
-sprintf(tmp_FK_Software_Source, "%li", key.pk1);
+		char tmp_FK_Software[32];
+sprintf(tmp_FK_Software, "%li", key.pk1);
 
 char tmp_FK_Device[32];
 sprintf(tmp_FK_Device, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "`FK_Software_Source`=" + tmp_FK_Software_Source+" AND "+"`FK_Device`=" + tmp_FK_Device;
+condition = condition + "`FK_Software`=" + tmp_FK_Software+" AND "+"`FK_Device`=" + tmp_FK_Device;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`FK_Software_Source`="+pRow->FK_Software_Source_asSQL()+", `FK_Device`="+pRow->FK_Device_asSQL()+", `Status`="+pRow->Status_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`FK_Software`="+pRow->FK_Software_asSQL()+", `FK_Device`="+pRow->FK_Device_asSQL()+", `FK_Software_Source`="+pRow->FK_Software_Source_asSQL()+", `Status`="+pRow->Status_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update Software_Device set " + update_values_list + " where " + condition;
@@ -530,15 +559,15 @@ update_values_list = update_values_list + "`FK_Software_Source`="+pRow->FK_Softw
 		DoubleLongKey key = (*i).first;
 		Row_Software_Device* pRow = (Row_Software_Device*) (*i).second;	
 
-		char tmp_FK_Software_Source[32];
-sprintf(tmp_FK_Software_Source, "%li", key.pk1);
+		char tmp_FK_Software[32];
+sprintf(tmp_FK_Software, "%li", key.pk1);
 
 char tmp_FK_Device[32];
 sprintf(tmp_FK_Device, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "`FK_Software_Source`=" + tmp_FK_Software_Source+" AND "+"`FK_Device`=" + tmp_FK_Device;
+condition = condition + "`FK_Software`=" + tmp_FK_Software+" AND "+"`FK_Device`=" + tmp_FK_Device;
 
 	
 		string query = "delete from Software_Device where " + condition;
@@ -611,12 +640,12 @@ bool Table_Software_Device::GetRows(string where_statement,vector<class Row_Soft
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_FK_Software_Source = 0;
+pRow->m_FK_Software = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_FK_Software_Source));
+sscanf(row[0], "%li", &(pRow->m_FK_Software));
 }
 
 if (row[1] == NULL)
@@ -633,85 +662,96 @@ sscanf(row[1], "%li", &(pRow->m_FK_Device));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Status = "";
+pRow->m_FK_Software_Source = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Status = string(row[2],lengths[2]);
+sscanf(row[2], "%li", &(pRow->m_FK_Software_Source));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_psc_id = 0;
+pRow->m_Status = "";
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_psc_id));
+pRow->m_Status = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_batch));
+sscanf(row[4], "%li", &(pRow->m_psc_id));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_user));
+sscanf(row[5], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[6], "%li", &(pRow->m_psc_user));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_psc_mod = string(row[7],lengths[7]);
+sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[8],lengths[8]);
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%li", &(pRow->m_psc_restrict));
 }
 
 
 
 		//checking for duplicates
 
-		DoubleLongKey key(pRow->m_FK_Software_Source,pRow->m_FK_Device);
+		DoubleLongKey key(pRow->m_FK_Software,pRow->m_FK_Device);
 		
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
@@ -743,11 +783,11 @@ Row_Software_Device* Table_Software_Device::AddRow()
 
 
 
-Row_Software_Device* Table_Software_Device::GetRow(long int in_FK_Software_Source, long int in_FK_Device)
+Row_Software_Device* Table_Software_Device::GetRow(long int in_FK_Software, long int in_FK_Device)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
-	DoubleLongKey row_key(in_FK_Software_Source, in_FK_Device);
+	DoubleLongKey row_key(in_FK_Software, in_FK_Device);
 
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -776,15 +816,15 @@ Row_Software_Device* Table_Software_Device::FetchRow(DoubleLongKey &key)
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
-	char tmp_FK_Software_Source[32];
-sprintf(tmp_FK_Software_Source, "%li", key.pk1);
+	char tmp_FK_Software[32];
+sprintf(tmp_FK_Software, "%li", key.pk1);
 
 char tmp_FK_Device[32];
 sprintf(tmp_FK_Device, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "`FK_Software_Source`=" + tmp_FK_Software_Source+" AND "+"`FK_Device`=" + tmp_FK_Device;
+condition = condition + "`FK_Software`=" + tmp_FK_Software+" AND "+"`FK_Device`=" + tmp_FK_Device;
 
 
 	string query = "select * from Software_Device where " + condition;		
@@ -825,12 +865,12 @@ condition = condition + "`FK_Software_Source`=" + tmp_FK_Software_Source+" AND "
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_FK_Software_Source = 0;
+pRow->m_FK_Software = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_FK_Software_Source));
+sscanf(row[0], "%li", &(pRow->m_FK_Software));
 }
 
 if (row[1] == NULL)
@@ -847,78 +887,89 @@ sscanf(row[1], "%li", &(pRow->m_FK_Device));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Status = "";
+pRow->m_FK_Software_Source = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Status = string(row[2],lengths[2]);
+sscanf(row[2], "%li", &(pRow->m_FK_Software_Source));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_psc_id = 0;
+pRow->m_Status = "";
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_psc_id));
+pRow->m_Status = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_batch));
+sscanf(row[4], "%li", &(pRow->m_psc_id));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_user));
+sscanf(row[5], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[6], "%li", &(pRow->m_psc_user));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_psc_mod = string(row[7],lengths[7]);
+sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[8],lengths[8]);
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -929,12 +980,12 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 }
 
 
-class Row_Software_Source* Row_Software_Device::FK_Software_Source_getrow()
+class Row_Software* Row_Software_Device::FK_Software_getrow()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_Software_Source *pTable = table->database->Software_Source_get();
-return pTable->GetRow(m_FK_Software_Source);
+class Table_Software *pTable = table->database->Software_get();
+return pTable->GetRow(m_FK_Software);
 }
 class Row_Device* Row_Software_Device::FK_Device_getrow()
 {
@@ -942,6 +993,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Device *pTable = table->database->Device_get();
 return pTable->GetRow(m_FK_Device);
+}
+class Row_Software_Source* Row_Software_Device::FK_Software_Source_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Software_Source *pTable = table->database->Software_Source_get();
+return pTable->GetRow(m_FK_Software_Source);
 }
 
 

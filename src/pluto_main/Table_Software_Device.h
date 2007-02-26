@@ -48,11 +48,11 @@ private:
 	struct Key
 	{
 		friend class Row_Software_Device;
-		long int pk_FK_Software_Source;
+		long int pk_FK_Software;
 long int pk_FK_Device;
 
 		
-		Key(long int in_FK_Software_Source, long int in_FK_Device);
+		Key(long int in_FK_Software, long int in_FK_Device);
 	
 		Key(class Row_Software_Device *pRow);
 	};
@@ -76,7 +76,7 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_Software_Device* GetRow(long int in_FK_Software_Source, long int in_FK_Device);
+	class Row_Software_Device* GetRow(long int in_FK_Software, long int in_FK_Device);
 	
 
 private:	
@@ -94,8 +94,9 @@ class DECLSPECIFIER Row_Software_Device : public TableRow, public SerializeClass
 	private:
 		Table_Software_Device *table;
 		
-		long int m_FK_Software_Source;
+		long int m_FK_Software;
 long int m_FK_Device;
+long int m_FK_Software_Source;
 string m_Status;
 long int m_psc_id;
 long int m_psc_batch;
@@ -104,11 +105,12 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[9];
+		bool is_null[10];
 	
 	public:
-		long int FK_Software_Source_get();
+		long int FK_Software_get();
 long int FK_Device_get();
+long int FK_Software_Source_get();
 string Status_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -118,8 +120,9 @@ string psc_mod_get();
 long int psc_restrict_get();
 
 		
-		void FK_Software_Source_set(long int val);
+		void FK_Software_set(long int val);
 void FK_Device_set(long int val);
+void FK_Software_Source_set(long int val);
 void Status_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -129,7 +132,8 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool Status_isNull();
+		bool FK_Software_Source_isNull();
+bool Status_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -137,7 +141,8 @@ bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void Status_setNull(bool val);
+		void FK_Software_Source_setNull(bool val);
+void Status_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -155,8 +160,9 @@ void psc_restrict_setNull(bool val);
 		class Table_Software_Device *Table_Software_Device_get() { return table; };
 
 		// Return the rows for foreign keys 
-		class Row_Software_Source* FK_Software_Source_getrow();
+		class Row_Software* FK_Software_getrow();
 class Row_Device* FK_Device_getrow();
+class Row_Software_Source* FK_Software_Source_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -164,13 +170,14 @@ class Row_Device* FK_Device_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_Software_Source+ m_FK_Device+ m_Status+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_FK_Software+ m_FK_Device+ m_FK_Software_Source+ m_Status+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string FK_Software_Source_asSQL();
+		string FK_Software_asSQL();
 string FK_Device_asSQL();
+string FK_Software_Source_asSQL();
 string Status_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

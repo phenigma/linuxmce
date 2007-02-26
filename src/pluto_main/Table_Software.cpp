@@ -34,6 +34,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Software.h"
 
+#include "Table_Software_Device.h"
 #include "Table_Software_Source.h"
 
 
@@ -876,6 +877,13 @@ sscanf(row[7], "%li", &(pRow->m_psc_restrict));
 
 
 
+void Row_Software::Software_Device_FK_Software_getrows(vector <class Row_Software_Device*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Software_Device *pTable = table->database->Software_Device_get();
+pTable->GetRows("`FK_Software`=" + StringUtils::itos(m_PK_Software),rows);
+}
 void Row_Software::Software_Source_FK_Software_getrows(vector <class Row_Software_Source*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);

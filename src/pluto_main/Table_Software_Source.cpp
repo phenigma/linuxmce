@@ -773,8 +773,8 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 if (is_null[19])
 return "NULL";
 
-char *buf = new char[41];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Sum_md5.c_str(), (unsigned long) min((size_t)20,m_Sum_md5.size()));
+char *buf = new char[67];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Sum_md5.c_str(), (unsigned long) min((size_t)33,m_Sum_md5.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -787,8 +787,8 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 if (is_null[20])
 return "NULL";
 
-char *buf = new char[41];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Sum_sha.c_str(), (unsigned long) min((size_t)20,m_Sum_sha.size()));
+char *buf = new char[83];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Sum_sha.c_str(), (unsigned long) min((size_t)41,m_Sum_sha.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;

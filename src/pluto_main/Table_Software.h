@@ -154,7 +154,8 @@ void psc_restrict_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Software_Source_FK_Software_getrows(vector <class Row_Software_Source*> *rows);
+		void Software_Device_FK_Software_getrows(vector <class Row_Software_Device*> *rows);
+void Software_Source_FK_Software_getrows(vector <class Row_Software_Source*> *rows);
 
 
 		// Setup binary serialization
