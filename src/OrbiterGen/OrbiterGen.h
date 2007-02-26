@@ -62,6 +62,7 @@ public:
 	bool m_bOrbiterChanged,m_bIsMobilePhone;
 	string m_iID_Array;
 	string m_GraphicsBasePath;
+	string m_sSize_Regen_Data;
 	int m_iPK_DesignObj_Screen;
 	int m_iPK_CommandGroup; // If this is an array and we are supposed to execute an action group, this will be non-zero.  Arrays are always customer created command groups
 	int m_iFloorplanPage;

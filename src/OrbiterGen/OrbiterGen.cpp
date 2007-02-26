@@ -286,8 +286,8 @@ int main(int argc, char *argv[])
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d setting AllScenariosFloorplans to %s",
 			pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),sAllScenariosFloorplans.c_str());
 		pOrbiterGenerator->m_pRow_Orbiter->ScenariosFloorplans_set( sAllScenariosFloorplans );
+		pOrbiterGenerator->m_pRow_Orbiter->Size_set( pOrbiterGenerator->m_sSize_Regen_Data );
 		pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
-
 		string sql = "UPDATE Orbiter SET Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
 		pOrbiterGenerator->threaded_mysql_query(sql);
 
@@ -754,7 +754,7 @@ m_bNoEffects = true;
 	}
 
 
-	string sSize = StringUtils::itos(m_pRow_Size->Width_get()) + ","
+	m_sSize_Regen_Data = StringUtils::itos(m_pRow_Size->Width_get()) + ","
 		+ StringUtils::itos(m_pRow_Size->Height_get()) + ","
 		+ StringUtils::itos(m_sScale.Width) + ","
 		+ StringUtils::itos(m_sScale.Height) + ","
@@ -770,9 +770,9 @@ m_bNoEffects = true;
 		+ (m_bUseOCG ? ",OCG" : ",NO_OCG");
 
 	g_pPlutoLogger->Write(LV_STATUS,"OrbiterGen::CheckRegen %d now <%s%> was <%s>",
-		m_pRow_Orbiter->PK_Orbiter_get(),sSize.c_str(),m_pRow_Orbiter->Size_get().c_str());
+		m_pRow_Orbiter->PK_Orbiter_get(),m_sSize_Regen_Data.c_str(),m_pRow_Orbiter->Size_get().c_str());
 
-	if( m_pRow_Orbiter->Size_get()!=sSize && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )
+	if( m_pRow_Orbiter->Size_get()!=m_sSize_Regen_Data && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )
 	{
 		if( m_pRow_Orbiter->Size_get().size()==0  )
 		{
@@ -780,9 +780,7 @@ m_bNoEffects = true;
 			m_bNewOrbiter=true;
 		}
 
-		cout << "Regenerating all: Orbiter data changed from " << m_pRow_Orbiter->Size_get() << " to " << sSize << endl;
-		m_pRow_Orbiter->Size_set(sSize);
-		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+		cout << "Regenerating all: Orbiter data changed from " << m_pRow_Orbiter->Size_get() << " to " << m_sSize_Regen_Data << endl;
 		string sSQL = "DELETE FROM CachedScreens WHERE FK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
 		threaded_mysql_query(sSQL);
 	}
