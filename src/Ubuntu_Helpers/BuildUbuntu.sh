@@ -328,6 +328,8 @@ function Import_Build_Database {
 	cat $temp_file_security | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_security
 	cat $temp_file_telecom | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_telecom
 
+	mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_mainsqlcvs < /root/Ubuntu_Helpers/Version.dump
+
 	rm -rf $temp_file $temp_file_main $temp_file_myth $temp_file_media $temp_file_security $temp_file_telecom $temp_sqlcvsdir
 }
 
@@ -366,13 +368,13 @@ function Create_Diskless_Archive {
 	rm -rf $temp_dir
 }
 
-#Create_Diskless_Archive
+Create_Diskless_Archive
 #Install_Build_Needed_Packages
 Import_Build_Database
-#Import_Pluto_Skins
+Import_Pluto_Skins
 Checkout_Pluto_Svn
-Build_Pluto_Replacements
-#Build_MakeRelease_Binary
+#Build_Pluto_Replacements
+Build_MakeRelease_Binary
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
 #Create_Local_Repository

@@ -58,7 +58,7 @@ if [[ ! -e "$TMP_DIR" ]] ;then
 	mkdir "$TMP_DIR"
 fi
 
-
+if /bin/false ;then
 Q="CREATE TABLE IF NOT EXISTS Dependencies(PackageName varchar(40), Level int(2), Done int(1))"
 RunSQL "$Q"
 
@@ -83,8 +83,9 @@ packages=$(RunSQL "$Q")
 for package in $packages ;do
 	ComputeDependencies "$package" "1"
 done
+fi
 
-Q="SELECT DISTINCT PackageName FROM Dependencies WHERE PackageName LIKE '%pluto%'"
+Q="SELECT DISTINCT PackageName FROM Dependencies"
 packages=$(RunSQL "$Q")
 
 for package in $packages ;do
