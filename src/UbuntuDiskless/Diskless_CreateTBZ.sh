@@ -40,6 +40,28 @@ else
 	create_initial_root_with_debootstrap
 fi
 
+## Setup debconf interface to 'noninteractive'
+export DEBIAN_FRONTEND=noninteractive
+echo "Setting Debconf interface to 'noninteractive' and default priority 'critical'"
+awk '
+/^Name: debconf\/frontend$/,/^$/ {
+	if ($1 == "Value:")
+		print "Value: noninteractive";
+	else
+		print;
+	next;
+}
+/^Name: debconf\/priority$/,/^$/ {
+	if ($1 == "Value:")
+		print "Value: critical";
+	else
+		print;
+	next;
+}
+{print}
+' "$TEMP_DIR"/var/cache/debconf/config.dat >"$TEMP_DIR"/var/cache/debconf/config.dat.$$
+mv "$TEMP_DIR"/var/cache/debconf/config.dat{.$$,}
+
 ## Set up chroot installation environment
 ## FIXME: Do we need this ?
 touch "$TEMP_DIR"/etc/chroot-install
