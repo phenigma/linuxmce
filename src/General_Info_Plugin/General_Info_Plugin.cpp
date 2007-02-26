@@ -52,6 +52,7 @@ using namespace DCE;
 #include "pluto_main/Table_Users.h"
 #include "pluto_main/Table_Country.h"
 #include "pluto_main/Table_Device_Device_Related.h"
+#include "pluto_main/Table_Distro.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
@@ -65,6 +66,7 @@ using namespace DCE;
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "pluto_main/Table_DeviceTemplate_AV.h"
 #include "pluto_main/Table_Software.h"
+#include "pluto_main/Table_Software_Device.h"
 #include "pluto_main/Table_FloorplanObjectType_Color.h"
 
 #include "DataGrid.h"
@@ -1432,8 +1434,22 @@ class DataGridTable *General_Info_Plugin::SensorType(string GridID, string Parms
 
 class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+	DataGridTable *pDataGrid = new DataGridTable();
+
+	int PK_Distro = atoi( dceConfig.m_mapParameters_Find("PK_Distro").c_str() );
+	if( PK_Distro==0 )
+		PK_Distro = 1;
+	string sPlutoVersion = dceConfig.m_mapParameters_Find("PlutoVersion");
+	Row_Distro *pRow_Distro = m_pDatabase_pluto_main->Distro_get()->GetRow(PK_Distro);
+
+	if( !pRow_Distro )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware No Distro %d",PK_Distro);
+		return pDataGrid;
+	}
+
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::AddSoftware Starting install list");
+	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::AddSoftware Starting install list with distro %d Version %s",PK_Distro,sPlutoVersion.c_str());
 #endif
 	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(atoi(Parms.c_str()));
 	if( pDevice )
@@ -1444,36 +1460,53 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 		return NULL;
 	}
 
-	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
-/*
+
+	// Valid Installation status are: [I]nstalled, [i]nstalling, [R]emoved, [r]emoving
+
 	int iRow=0;
-	vector<Row_Software *> vectRow_Software;
-	m_pDatabase_pluto_main->Software_get()->GetRows("FK_Device="+ StringUtils::itos(pDevice->m_dwPK_Device) +" ORDER BY Title",&vectRow_Software);
-	for(vector<Row_Software *>::iterator it=vectRow_Software.begin();it!=vectRow_Software.end();++it)
+	string sSQL =
+		"SELECT PK_Software,PackageName,Title,IconStr,Category,Rating,Description,Status FROM Software_Source "
+		"JOIN Software ON FK_Software=PK_Software "
+		"LEFT JOIN Software_Device ON Software_Device.FK_Software=PK_Software AND FK_Device=" + StringUtils::itos(pDevice->m_dwPK_Device) + " "
+		"WHERE Distro='" + pRow_Distro->Description_get() + "' AND Required_Version_Min<='" + sPlutoVersion + "' AND Required_Version_Max>='" + sPlutoVersion + "' AND Virus_Free=1 "
+		"ORDER BY PackageName,Version DESC";
+
+	int PK_Software_Last = 0;
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( (result.r = m_pRouter->mysql_query_result(sSQL))  )
 	{
-		Row_Software *pRow_Software = *it;
-
-		pRow_Software->Reload();  // Installation status may have changed
-
-		pCell = new DataGridCell("", StringUtils::itos(pRow_Software->PK_Software_get()));
-		string s = pRow_Software->Iconstr_get();
-		if( s.size() )
+		while( (row = mysql_fetch_row( result.r ))!=NULL )
 		{
-			char *Data=new char[s.size()];
-			memcpy(Data,s.c_str(),s.size());
-			pCell->SetImage(Data, s.size(), GR_PNG);
-		}
-		pCell->m_mapAttributes["Title"] = pRow_Software->Title_get();
-		pCell->m_mapAttributes["Category"] = pRow_Software->Category_get();
-		pCell->m_mapAttributes["Rating"] = StringUtils::ftos(pRow_Software->Rating_get());
-		pCell->m_mapAttributes["Virus_Free"] = pRow_Software->Virus_Free_get();
-		pCell->m_mapAttributes["Installation_status"] = pRow_Software->Installation_status_get();
-		pCell->m_mapAttributes["Description"] = pRow_Software->Description_get();;
+			if( !row[0] || atoi(row[0])==PK_Software_Last )
+				continue;
+			PK_Software_Last = atoi(row[0]);
+			pCell = new DataGridCell("",row[0]);
+			if( row[3] )
+			{
+				unsigned long *lengths = mysql_fetch_lengths(result.r);
+				char *Data=new char[lengths[3]];
+				memcpy(Data,row[3],lengths[3]);
+				pCell->SetImage(Data, lengths[3], GR_PNG);
+			}
+			if( row[2] )
+				pCell->m_mapAttributes["Title"] = row[2];
+			else if( row[1] )
+				pCell->m_mapAttributes["Title"] = row[1];
+			if( row[4] )
+				pCell->m_mapAttributes["Category"] = row[4];
+			if( row[5] )
+				pCell->m_mapAttributes["Rating"] = row[5];
+			if( row[7] )
+				pCell->m_mapAttributes["Installation_status"] = row[7];
+			if( row[6] )
+				pCell->m_mapAttributes["Description"] = row[6];
 
-		pDataGrid->SetData(0,iRow++,pCell);
+			pDataGrid->SetData(0,iRow++,pCell);
+		}
 	}
-*/
+
 	return pDataGrid;
 }
 
@@ -3172,7 +3205,7 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 {
 	if( iPK_Device<1 )
 		iPK_Device = pMessage->m_dwPK_Device_From;
-/*
+
 	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
 	if(pDevice)
 		pDevice = pDevice->GetTopMostDevice();
@@ -3185,10 +3218,18 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 		return;
 	}
 
+	Row_Software_Device *pRow_Software_Device = m_pDatabase_pluto_main->Software_Device_get()->GetRow(pRow_Software->PK_Software_get(),pDevice->m_dwPK_Device);
+	if( pRow_Software_Device==NULL )
+	{
+		pRow_Software_Device = m_pDatabase_pluto_main->Software_Device_get()->AddRow();
+		pRow_Software_Device->FK_Software_set(pRow_Software->PK_Software_get());
+		pRow_Software_Device->FK_Device_set(pDevice->m_dwPK_Device);
+	}
+
 	string sCommand;
 	if(bTrueFalse)
 	{
-		pRow_Software->Installation_status_set("Ins");
+		pRow_Software_Device->Status_set("i");
 		if( pDevice->m_dwPK_Device == m_pData->GetTopMostDevice()->m_dwPK_Device )
 			sCommand = "/usr/pluto/bin/InstallSoftware.sh";
 		else
@@ -3196,15 +3237,15 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 	}
 	else
 	{
-		pRow_Software->Installation_status_set("Rem");
+		pRow_Software_Device->Status_set("r");
 		if( pDevice->m_dwPK_Device == m_pData->GetTopMostDevice()->m_dwPK_Device )
 			sCommand = "/usr/pluto/bin/RemoveSoftware.sh";
 		else
 			sCommand = "/usr/pluto/bin/RemoveSoftware_Remote.sh";
 	}
-	pRow_Software->Table_Software_get()->Commit();
+	pRow_Software_Device->Table_Software_Device_get()->Commit();
 
-	string sArguments=pDevice->m_sIPAddress + "\t\"" + pRow_Software->PackageName_get() + "\"\t\"" + pRow_Software->Downloadurl_get() + "\"\t\"" + pRow_Software->RepositoryName_get() + "\"";
+	string sArguments=pDevice->m_sIPAddress + "\t\"" + StringUtils::itos(pRow_Software->PK_Software_get()) + "\"";
 
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Add_Software Starting Add software device %d software %d true %d cmd %s %s",
 		pDevice->m_dwPK_Device,iPK_Software,(int) bTrueFalse,sCommand.c_str(),sArguments.c_str());
@@ -3214,7 +3255,6 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"Finishing Add software");
 #endif
-	*/
 }
 //<-dceag-c833-b->
 

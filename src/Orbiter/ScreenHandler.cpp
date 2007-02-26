@@ -1916,8 +1916,9 @@ bool ScreenHandler::AddSoftware_ObjectSelected(CallBackData *pData)
 			int PK_Software = atoi( StringUtils::Tokenize( sID, ",", pos ).c_str() );
 			string sInstallation_Status = StringUtils::Tokenize( sID, ",", pos );
 
+			// Valid Installation status are: [I]nstalled, [i]nstalling, [R]emoved, [r]emoving
 			DCE::CMD_Add_Software CMD_Add_Software(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, 
-				m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector, sInstallation_Status!="Yes" ,PK_Software);
+				m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector, sInstallation_Status!="I" ,PK_Software);
 			string sResponse;
 			m_pOrbiter->SendCommand(CMD_Add_Software,&sResponse); // Send with delivery confirmation so the command updates the installation status before the grid refreshes
 
@@ -1975,9 +1976,9 @@ bool ScreenHandler::AddSoftware_GridRendering(CallBackData *pData)
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_Installed_Apps_Not_Virus_Free_CONST )
 					pDesignObj_Orbiter->m_bHidden = true; // pCell->m_mapAttributes_Find("Virus_Free")=="Yes";  // Hide this if it's virus fee
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconCheckMark_CONST )
-					pDesignObj_Orbiter->m_bHidden = sStatus!="Yes";  // Hide this if it's not installed
+					pDesignObj_Orbiter->m_bHidden = sStatus!="I";  // Hide this if it's not installed
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconHour_Glass_CONST )
-					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("Installation_status")!="Ins" && pCell->m_mapAttributes_Find("Installation_status")!="Rem";  // Hide this if it's not being installed/removed
+					pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes_Find("Installation_status")!="i" && pCell->m_mapAttributes_Find("Installation_status")!="r";  // Hide this if it's not being installed/removed
 					
 				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_Installed_Apps_Icon_CONST )
 					m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, "PNG",
@@ -1999,7 +2000,7 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 		if( !PK_Software )
 			return false;
 
-		if( PK_Software && sInstallation_Status!="Yes" )
+		if( PK_Software && sInstallation_Status!="I" )
 			sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_Add_Software_CONST];
 		else if( PK_Software )
 			sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_delete_software_CONST];
