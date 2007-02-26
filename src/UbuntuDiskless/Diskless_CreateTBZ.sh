@@ -52,6 +52,7 @@ chmod +x "$TEMP_DIR"/sbin/start-stop-daemon
 ## Create the temporary sources.list file for the media director 
 
 ## Enable some needed mount points
+mkdir -p $TEMP_DIR/usr/pluto/deb-cache
 mount --bind /usr/pluto/deb-cache $TEMP_DIR/usr/pluto/deb-cache
 mount none -t sysfs $TEMP_DIR/sys
 mount none -t proc  $TEMP_DIR/proc
@@ -59,7 +60,6 @@ mount none -t proc  $TEMP_DIR/proc
 ## Setup apt in pluto style
 ## FIXME: maybe we need to make sources.list from scratch ?
 cp /etc/apt/sources.list $TEMP_DIR/etc/apt
-mkdir -p $TEMP_DIR/usr/pluto/deb-cache
 cp {,"$TEMP_DIR"}/etc/apt/apt.conf.d/30pluto
 
 ## Update the chrooted system (needed when created from archive)
