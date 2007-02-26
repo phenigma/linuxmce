@@ -65,6 +65,13 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 
 }
 
+void DataGridRenderer_OpenGL::Reset() 
+{ 
+	PLUTO_SAFETY_LOCK(cm, m_pObj_Owner->m_pOrbiter->m_ScreenMutex);
+	StartAnimation = 0; 
+	m_pRenderFrame = NULL;
+}
+
 /*virtual*/ void DataGridRenderer_OpenGL::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point/* = PlutoPoint(0, 0)*/)
 {
 	PLUTO_SAFETY_LOCK(cm, m_pObj_Owner->m_pOrbiter->m_ScreenMutex);
@@ -135,6 +142,7 @@ DataGridRenderer_OpenGL::~DataGridRenderer_OpenGL(void)
 
 		Engine->GetDatagridAnimationManager()->StopAnimations();
 		Engine->GetDatagridAnimationManager()->StopPendingAnimations();
+
 		Engine->AddMeshFrameToDesktop("", m_pRenderFrame);
 	}
 

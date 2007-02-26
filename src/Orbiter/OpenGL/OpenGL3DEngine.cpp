@@ -704,14 +704,12 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)
 
 void OpenGL3DEngine::BeginModifyGeometry()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "VIA BeginModifyGeometry");
 	++ModifyGeometry;
 }
 
 void OpenGL3DEngine::EndModifyGeometry()
 {
 	--ModifyGeometry;
-	g_pPlutoLogger->Write(LV_STATUS, "VIA EndModifyGeometry");
 }
 
 void OpenGL3DEngine::AddTopMostObject(string ObjectID)
