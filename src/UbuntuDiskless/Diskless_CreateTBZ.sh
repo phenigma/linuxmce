@@ -30,12 +30,15 @@ function create_initial_root_with_debootstrap {
 
 function create_initial_root_with_archive {
 	pushd $TEMP_DIR
-		tar -xvf "$ARH_DIR"/PlutoMD.tar.bz2
+		tar -xvf "$ARH_DIR"/PlutoMD_Debootstraped.tar.bz2
 	popd
 }
 
-create_initial_root_with_debootstrap
-##create_initial_root_with_archive
+if [[ -r /usr/pluto/install/PlutoMD_Debootstraped.tar.bz2 ]] ;then
+	create_initial_root_with_archive
+else
+	create_initial_root_with_debootstrap
+fi
 
 ## Set up chroot installation environment
 ## FIXME: Do we need this ?
