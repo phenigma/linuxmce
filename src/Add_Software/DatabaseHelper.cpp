@@ -19,6 +19,7 @@
 #include "../DCE/Logger.h"
 #include "../pluto_main/Table_Device.h"
 #include "../pluto_main/Table_Software.h"
+#include "../pluto_main/Table_Software_Source.h"
 //--------------------------------------------------------------------------------------------------
 using namespace DCE;
 //--------------------------------------------------------------------------------------------------
@@ -47,11 +48,91 @@ DatabaseHelper::~DatabaseHelper()
 //--------------------------------------------------------------------------------------------------
 void DatabaseHelper::ProcessPackages(const list<PackageInfo>& listPackages)
 {
-	vector<Row_Device *> vectRow_Device;
+	// adding all packages if they do not exist yet, storing their primary keys
+	
+	for(list<PackageInfo>::const_iterator it = listPackages.begin(); it != listPackages.end(); ++it)
+	{
+		const PackageInfo& package = *it;
+
+		string sPackageName = GetValue(package, niPackagename);
+		string sVersion = GetValue(package, niVersion);
+		string sDistro = GetValue(package, niDistro);
+		
+		vector<Row_Software *> vSoftware;
+		m_pDatabase_pluto_main->Software_get()->GetRows("WHERE PackageName=\"" + sPackageName + "\"", &vSoftware);
+		
+		int iSoftwareID = -1;
+		
+		if ( vSoftware.empty() )
+		{
+			cout << "No package '" << sPackageName << "' exist, adding it" << endl;
+			Row_Software *pRow = m_pDatabase_pluto_main->Software_get()->AddRow();
+			pRow->PackageName_set(sPackageName);
+			pRow->Table_Software_get()->Commit();
+			cout << "Added with PKID=" << pRow->PK_Software_get() << endl;
+			iSoftwareID = pRow->PK_Software_get();
+		}
+		else
+		{
+			Row_Software *pRow = *vSoftware.begin();
+			cout << "Package '" << sPackageName << "' has PKID=" << pRow->PK_Software_get() << endl;
+			iSoftwareID = pRow->PK_Software_get();
+		}
+		
+		// adding source for software if not added yet
+		if (iSoftwareID != -1)
+		{
+			vector<Row_Software_Source *> vRows;
+			m_pDatabase_pluto_main->Software_Source_get()->GetRows("WHERE FK_Software=" + StringUtils::itos(iSoftwareID) +" AND Version=\"" + sVersion + "\" AND Distro=\"" + sDistro +"\"", &vRows);
+			
+			Row_Software_Source *pRow=NULL;
+			
+			if ( vRows.empty() )
+			{
+				pRow = m_pDatabase_pluto_main->Software_Source_get()->AddRow();
+			}
+			else
+			{
+				pRow = *vRows.begin();
+			}
+			
+			if (pRow)
+			{
+				// saving information about package source
+				pRow->FK_Software_set(iSoftwareID);
+				pRow->Description_set(GetValue(package, niDescription));
+				pRow->Title_set(GetValue(package, niTitle));
+				pRow->HomeURL_set(GetValue(package, niHomeurl));
+				pRow->Category_set(GetValue(package, niCategory));
+				pRow->Downloadurl_set(GetValue(package, niDownloadurl));
+				pRow->RepositoryName_set(GetValue(package, niRepositoryname));
+				pRow->Distro_set(GetValue(package, niDistro));
+				pRow->Misc_set(GetValue(package, niMisc));
+				pRow->Version_set(GetValue(package, niVersion));
+				pRow->Target_set(GetValue(package, niTarget));
+				pRow->Importance_set(GetValue(package, niImportance));
+				pRow->PC_Type_set(GetValue(package, niPC_Type));
+				pRow->Required_Version_Min_set(GetValue(package, niRequired_Version_Min));
+				pRow->Required_Version_Max_set(GetValue(package, niRequired_Version_Max));
+				pRow->Virus_Free_set(0);
+				pRow->Sum_md5_set(GetValue(package, niSum_MD5));
+				pRow->Sum_sha_set(GetValue(package, niSum_SHA1));
+				pRow->Table_Software_Source_get()->Commit();
+		
+				size_t unIconSize = 0;
+				char *pIconData = DecodeIcon(GetValue(package, niIcon), unIconSize);
+				SaveRawIcon(pRow->PK_Software_Source_get(), pIconData, unIconSize);
+			}
+		}
+		
+	}
+
+/*	vector<Row_Device *> vectRow_Device;
 	m_pDatabase_pluto_main->Device_get()->GetRows(
 		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
 		"WHERE FK_DeviceCategory IN (6,7,8) AND IPaddress is not NULL and IPaddress <> \'\'",
 		&vectRow_Device);
+
 
 	for(list<PackageInfo>::const_iterator it = listPackages.begin(); it != listPackages.end(); ++it)
 	{
@@ -124,8 +205,8 @@ PackageStatus DatabaseHelper::GetPackageStatus(const PackageInfo& package, int D
 
 		return psNotInstalled;
 	}
-*/
 	return psNone;
+*/
 }
 //--------------------------------------------------------------------------------------------------
 void DatabaseHelper::UpdatePackage(const PackageInfo& package, int DeviceID)
@@ -201,8 +282,8 @@ void DatabaseHelper::SaveRawIcon(int nPK_Software, char *pData, size_t nSize)
 {
 	if(nSize != 0)
 	{
-		string sHeadQuery = "UPDATE `Software` set Iconstr = \"";
-		string sEndQuery = "\" WHERE PK_Software = " + StringUtils::ltos(nPK_Software);
+		string sHeadQuery = "UPDATE `Software_Source` set Iconstr = \"";
+		string sEndQuery = "\" WHERE PK_Software_Source = " + StringUtils::ltos(nPK_Software);
 
 		int nGoodDataSize = 0;
 		char *pGoodData = new char[nSize * 2 + 1];
@@ -225,7 +306,7 @@ void DatabaseHelper::SaveRawIcon(int nPK_Software, char *pData, size_t nSize)
 
 		if(mysql_real_query(m_pDatabase_pluto_main->m_pMySQL, pQueryData, (unsigned long)length))
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Failed to save icon in db!");
+			//g_pPlutoLogger->Write(LV_STATUS, "Failed to save icon in db!");
 		}
 
 		delete [] pQueryData;

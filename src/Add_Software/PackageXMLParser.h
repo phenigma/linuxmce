@@ -36,6 +36,7 @@ enum NodeIndex
 	niDownloadurl,
 	niRepositoryname,
 	niPackagename,
+	niDistro,
 	niMisc,
 	niVersion,
 	niTarget,
@@ -43,6 +44,8 @@ enum NodeIndex
 	niPC_Type,
 	niRequired_Version_Min,
 	niRequired_Version_Max,
+	niSum_MD5,
+	niSum_SHA1,
 	niNumNodes
 };
 //--------------------------------------------------------------------------------------------------

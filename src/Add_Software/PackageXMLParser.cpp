@@ -32,13 +32,16 @@ string NodeName[] =
 	"downloadurl",
 	"repositoryname",
 	"packagename",
+	"distro",
 	"misc",
 	"version",
 	"target",
 	"importance",
 	"PC_Type",
 	"Required_Version_Min",
-	"Required_Version_Max"
+	"Required_Version_Max",
+	"md5sum",
+	"sha1sum"
 };
 //--------------------------------------------------------------------------------------------------
 PackageXMLParser::PackageXMLParser() : m_CurrentNode(niNone)
@@ -136,7 +139,7 @@ const list<PackageInfo>& PackageXMLParser::GetParsedData() const
 #ifdef UNIT_TEST_PARSER
 int main()
 {
-	string sFileName = "/temp/packages.xml";
+	string sFileName = "/tmp/packages.xml";
 
 	string sXmlData;
 	FileUtils::ReadTextFile(sFileName, sXmlData);

@@ -43,8 +43,8 @@ const string templEnd[2]={"\">","</em>"};
 
 void ProcessXML(string sFileName)
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Processing XML %s", sFileName.c_str());
-
+	//g_pPlutoLogger->Write(LV_WARNING, "Processing XML %s", sFileName.c_str());
+	
 	string sXmlData;
 	FileUtils::ReadTextFile(sFileName, sXmlData);
 	sXmlData = StringUtils::Replace(sXmlData, "&", "&amp;");
