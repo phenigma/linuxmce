@@ -1,7 +1,7 @@
 Source: mce-launcher
 Section: unknown
 Priority: optional
-Maintainer: Razvan Gavril <razvan.g@plutohome.com>
+Maintainer: Paul Webber <paul.webber@linuxmce.com>
 Build-Depends: debhelper (>= 5), autotools-dev
 Standards-Version: 3.7.2
 
