@@ -769,6 +769,9 @@ m_bNoEffects = true;
 		+ (m_bUseMask ? "M" : "N") + "," 
 		+ (m_bUseOCG ? ",OCG" : ",NO_OCG");
 
+	g_pPlutoLogger->Write(LV_STATUS,"OrbiterGen::CheckRegen %d now <%s%> was <%s>",
+		m_pRow_Orbiter->PK_Orbiter_get(),sSize.c_str(),m_pRow_Orbiter->Size_get().c_str());
+
 	if( m_pRow_Orbiter->Size_get()!=sSize && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )
 	{
 		if( m_pRow_Orbiter->Size_get().size()==0  )
