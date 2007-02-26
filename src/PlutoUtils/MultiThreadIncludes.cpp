@@ -487,6 +487,8 @@ int PlutoLock::CondWait()
 
 int PlutoLock::TimedCondWait(timespec &ts)
 {
+	valid_timespec(ts);
+
 	if( !m_pMyLock->m_pthread_cond_t )
 	{
 		if( g_pPlutoLogger )
@@ -889,4 +891,13 @@ void timeval_to_timespec(const timeval *tv_source,timespec *ts_dest)
 {
 	ts_dest->tv_sec = tv_source->tv_sec;
 	ts_dest->tv_nsec = tv_source->tv_usec * 1000;
+}
+
+void valid_timespec(struct timespec &ts)
+{
+	if(ts.tv_nsec > 1000 * 1000000)
+	{
+		ts.tv_sec += ts.tv_nsec / (1000 * 1000000);
+		ts.tv_nsec = ts.tv_nsec % (1000 * 1000000);
+	}
 }

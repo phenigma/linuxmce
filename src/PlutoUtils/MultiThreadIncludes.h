@@ -61,6 +61,7 @@ void timespec_to_timeval(const timespec *ts_source,timeval *tv_dest);
 void timeval_to_timespec(const timeval *tv_source,timespec *ts_dest);
 timespec ms_to_timespec(unsigned long ts);
 int gettimeofday(struct timespec *ts, struct timezone *tz);
+void valid_timespec(struct timespec &ts);
 
 // Four levels of thread debugging with combinations of Debug and Thread_LOG
 // Maximum debugging, DEBUG && THREAD_LOG means all locks and releases are logged
