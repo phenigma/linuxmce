@@ -89,6 +89,7 @@ void DatabaseHelper::ProcessPackages(const list<PackageInfo>& listPackages)
 //--------------------------------------------------------------------------------------------------
 PackageStatus DatabaseHelper::GetPackageStatus(const PackageInfo& package, int DeviceID)
 {
+	/*
 	string sPackageName = GetValue(package, niPackagename);
 	string sVersion = GetValue(package, niVersion);
 
@@ -123,12 +124,13 @@ PackageStatus DatabaseHelper::GetPackageStatus(const PackageInfo& package, int D
 
 		return psNotInstalled;
 	}
-
+*/
 	return psNone;
 }
 //--------------------------------------------------------------------------------------------------
 void DatabaseHelper::UpdatePackage(const PackageInfo& package, int DeviceID)
 {
+	/*
 	string sPackageName = GetValue(package, niPackagename);
 	g_pPlutoLogger->Write(LV_WARNING, "Updating package %s for device %d", sPackageName.c_str(), DeviceID);
 
@@ -161,10 +163,12 @@ void DatabaseHelper::UpdatePackage(const PackageInfo& package, int DeviceID)
 		char *pIconData = DecodeIcon(GetValue(package, niIcon), unIconSize);
 		SaveRawIcon(pRow_Software->PK_Software_get(), pIconData, unIconSize);
 	}
+	*/
 }
 //--------------------------------------------------------------------------------------------------
 void DatabaseHelper::InstallPackage(const PackageInfo& package, int DeviceID)
 {
+	/*
 	string sPackageName = GetValue(package, niPackagename);
 	g_pPlutoLogger->Write(LV_WARNING, "Installing package %s for device %d", sPackageName.c_str(), DeviceID);
 
@@ -190,6 +194,7 @@ void DatabaseHelper::InstallPackage(const PackageInfo& package, int DeviceID)
 	size_t unIconSize = 0;
 	char *pIconData = DecodeIcon(GetValue(package, niIcon), unIconSize);
 	SaveRawIcon(pRow_Software->PK_Software_get(), pIconData, unIconSize);
+	*/
 }
 //--------------------------------------------------------------------------------------------------
 void DatabaseHelper::SaveRawIcon(int nPK_Software, char *pData, size_t nSize)
