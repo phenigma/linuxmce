@@ -3226,35 +3226,29 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 		pRow_Software_Device->FK_Device_set(pDevice->m_dwPK_Device);
 	}
 
-	string sCommand;
-	if(bTrueFalse)
+	string sCommand="/usr/pluto/bin/AddSoftwareHelper.sh";
+	string sArguments=( bTrueFalse ? "install" : "remove" ) + string("\t") + StringUtils::itos(pDevice->m_dwPK_Device) + "\t" + StringUtils::itos(pRow_Software->PK_Software_get());
+
+	DeviceData_Base *pDevice_AppServer = m_pData->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, this, 0 ); 
+	if( pDevice_AppServer )
 	{
-		pRow_Software_Device->Status_set("i");
-		if( pDevice->m_dwPK_Device == m_pData->GetTopMostDevice()->m_dwPK_Device )
-			sCommand = "/usr/pluto/bin/InstallSoftware.sh";
-		else
-			sCommand = "/usr/pluto/bin/InstallSoftware_Remote.sh";
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+			sCommand,"install software",sArguments,"","",false,false,false,true);
+		SendCommand(CMD_Spawn_Application);
+		
+		pRow_Software_Device->Status_set(bTrueFalse ? "i" : "r");
+		pRow_Software_Device->Table_Software_Device_get()->Commit();
 	}
 	else
 	{
-		pRow_Software_Device->Status_set("r");
-		if( pDevice->m_dwPK_Device == m_pData->GetTopMostDevice()->m_dwPK_Device )
-			sCommand = "/usr/pluto/bin/RemoveSoftware.sh";
-		else
-			sCommand = "/usr/pluto/bin/RemoveSoftware_Remote.sh";
+		DCE::SCREEN_DialogGenericError SCREEN_DialogGenericError(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+			"Cannot install software right now.  Please try again","0","10","1");
+		SendCommand(SCREEN_DialogGenericError);
+		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Add_Software -- no app server");
 	}
-	pRow_Software_Device->Table_Software_Device_get()->Commit();
-
-	string sArguments=pDevice->m_sIPAddress + "\t\"" + StringUtils::itos(pRow_Software->PK_Software_get()) + "\"";
 
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Add_Software Starting Add software device %d software %d true %d cmd %s %s",
 		pDevice->m_dwPK_Device,iPK_Software,(int) bTrueFalse,sCommand.c_str(),sArguments.c_str());
-
-	ProcessUtils::SpawnDaemon(sCommand, sArguments, true);
-
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Finishing Add software");
-#endif
 }
 //<-dceag-c833-b->
 

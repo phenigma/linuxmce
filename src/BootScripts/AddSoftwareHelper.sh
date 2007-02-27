@@ -37,12 +37,15 @@ case $Action in
 	
 	
 	install-actual)
-		if [[ "$DISTRIB_ID" == "Ubuntu" ]] ;then
-						Distro="edgy"
-		else
-						Distro="sarge"
+		_PK_Distro="$PK_Distro"
+		if [[ "$_PK_Distro" == "" ]] ;then
+			_PK_Distro="1"
 		fi
+		
+		Q="SELECT Description FROM Distro WHERE PK_Distro=$_PK_Distro"
+		Distro="$(RunSQL "$Q")"
 
+		echo "Using Distro $Distro"
 		PackageName="$(FindPackageName "$PackageID")"
 		
 		#getting sources for packages
