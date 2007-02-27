@@ -329,6 +329,8 @@ function Import_Build_Database {
 	cat $temp_file_telecom | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_telecom
 
 	mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_mainsqlcvs < /root/Ubuntu_Helpers/Version.dump
+	echo 'DELETE FROM `Package_Version`; DELETE FROM `Schema`;' | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_mainsqlcvs
+	echo 'update Package_Directory SET FK_Distro = NULL WHERE PK_Package_Directory = 675' | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db
 
 	rm -rf $temp_file $temp_file_main $temp_file_myth $temp_file_media $temp_file_security $temp_file_telecom $temp_sqlcvsdir
 }
@@ -373,21 +375,20 @@ Create_Diskless_Archive
 Import_Build_Database
 Import_Pluto_Skins
 Checkout_Pluto_Svn
-#Build_Pluto_Replacements
+Build_Pluto_Replacements
 Build_MakeRelease_Binary
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
-#Create_Local_Repository
-exit 0
+Create_Local_Repository
 # Create the iso
 pushd $local_mirror_dir
 	/root/Ubuntu_Helpers/get-packages.sh
 popd
 
 # Move them to linuxmce.com
-#pushd $local_mirror_dir
-#	tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz
-#	scp /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
-#popd
+pushd $local_mirror_dir
+	tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz *
+	scp /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
+popd
 
 read

@@ -24,6 +24,7 @@ sql_slave_db_telecom="pluto_telecom"
 sql_slave_user="root"
 
 out_dir="${build_dir}/out"
+out_dir="/tmp"
 mkr_dir="${build_dir}/MakeRelease"
 
 
