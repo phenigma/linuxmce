@@ -3076,7 +3076,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 				else{
 					$deviceDataBox.=$defaultFormElement;
 				}
-				$jsValidation.=($boolJsValidation==1 && $tableName!='Users')?"frmvalidator.addValidation(\"$formElementName\",\"numeric\",\"$TEXT_WARNING_NUMERICAL_ONLY_CONST\");\n":'';
+				$jsValidation.=($boolJsValidation==1 && @$tableName!='Users')?"frmvalidator.addValidation(\"$formElementName\",\"numeric\",\"$TEXT_WARNING_NUMERICAL_ONLY_CONST\");\n":'';
 				break;
 				case 'bool':
 					$deviceDataBox.='<input type="checkbox" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="1" '.((@$ddValue!=0)?'checked':'').' '.$itemDisabled.'>';
