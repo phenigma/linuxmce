@@ -160,6 +160,6 @@ echo Copying MSI files...
 cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Release\
 copy *.msi "\\10.0.0.150\builds\Windows_Output_LinuxMCE\src\bin"
 
-echo Done. (monster)
+echo Done. (linuxmce)
 
 echo ==============================================================================================
