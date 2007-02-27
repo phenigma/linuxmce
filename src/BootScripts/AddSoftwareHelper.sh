@@ -43,7 +43,8 @@ case $Action in
 		fi
 		
 		Q="SELECT Description FROM Distro WHERE PK_Distro=$_PK_Distro"
-		Distro="$(RunSQL "$Q")"
+		Row="$(RunSQL "$Q")"
+		Distro=$(Field 1 "$Row")
 
 		echo "Using Distro $Distro"
 		PackageName="$(FindPackageName "$PackageID")"
