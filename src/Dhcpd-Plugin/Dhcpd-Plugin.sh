@@ -1,6 +1,9 @@
 #!/bin/bash
 
-if [[ -n "$(pgrep Dhcpd-Plugin.sh)" ]]; then
+PID=$(pgrep Dhcpd-Plugin.sh)
+PID="${PID//$$}"
+PID="${PID// }"
+if [[ -n "$PID" ]]; then
 	exit 0 # already running
 fi
 
