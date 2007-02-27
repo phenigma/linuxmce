@@ -1250,6 +1250,8 @@ void OrbiterRenderer::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer::ObjectOffScreen( DesignObj_Orbiter *pObj )
 {
+	PLUTO_SAFETY_LOCK(sm, m_pOrbiter->m_ScreenMutex);
+
 	if( OrbiterLogic()->m_pObj_Highlighted==pObj )
 		OrbiterLogic()->m_pObj_Highlighted = NULL;  // Otherwise an object on popup removed from the screen may remain highlighted
 		
