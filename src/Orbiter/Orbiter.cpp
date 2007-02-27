@@ -9381,7 +9381,7 @@ void Orbiter::CMD_Set_Active_Application(string sName,int iPK_Screen,string sIde
 	m_sActiveApplication_Window=sIdentifier;
 	m_PK_Screen_ActiveApp_OSD = iPK_Screen;
 	m_PK_Screen_ActiveApp_Remote = iPK_Screen_GoTo;
-	if( UsesUIVersion2() )
+	
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Set_Active_Application m_sActiveApplication_Description %s m_sNowPlaying_Window %s",
 			m_sActiveApplication_Description.c_str(),m_sNowPlaying_Window.c_str());
