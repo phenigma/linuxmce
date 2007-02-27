@@ -138,6 +138,7 @@ function devices($output,$dbADO) {
 						DeviceCategory.Description AS CategoryName, 
 						Manufacturer.Description AS ManufacturerName, 
 						IsIPBased, 
+						Device.FK_Device_ControlledVia
 						FK_DeviceCategory,
 						DeviceData.Description AS dd_Description, 
 						Device_DeviceData.FK_DeviceData,
@@ -189,6 +190,7 @@ function devices($output,$dbADO) {
 				if($rowD['PK_Device']!=$deviceDisplayed){
 					$deviceDisplayed=$rowD['PK_Device'];
 					$out.='
+					<input type="hidden" name="parent_'.$rowD['PK_Device'].'" value="'.$rowD['FK_Device_ControlledVia'].'">
 					<tr class="regular">
 						<td align="center" class="alternate_back">'.$rowD['PK_Device'].'</td>
 						<td class="alternate_back" align="center" title="'.$TEXT_DEVICE_TEMPLATE_CONST.': '.$rowD['TemplateName'].', '.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"></td>
@@ -196,6 +198,7 @@ function devices($output,$dbADO) {
 						<td class="alternate_back"><a href="javascript:windowOpen(\'index.php?section=editDeviceControlledVia&deviceID='.$rowD['PK_Device'].'&from='.urlencode('devices&type='.$type).'\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');" title="'.$TEXT_CLICK_TO_CHANGE_CONST.'">'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_EDIT_CONST:$rowD['PDescription']).'</a></td>
 						<td align="right" valign="top">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased'],@$specificFloorplanType,1).'</td>
 						<td align="center" valign="center" class="alternate_back">
+							'.lights_test_buttons($type,$rowD['PK_Device'],$dbADO).'
 							<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\'"><br>
 							<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 							<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onClick="if(!confirm(\'Are you sure you want to delete this device?\'))return false;">
@@ -251,6 +254,8 @@ function devices($output,$dbADO) {
 		}
 		$displayedDevicesArray=explode(',',@$_POST['displayedDevices']);
 		foreach($displayedDevicesArray as $value){
+			process_test_lights($value,$_POST['parent_'.$value],$_POST['deviceData_'.$value.'_12'],$dbADO);			
+			
 			if(isset($_POST['delete_'.$value])){
 				deleteDevice($value,$dbADO);
 				
@@ -274,6 +279,7 @@ function devices($output,$dbADO) {
 			setDCERouterNeedConfigure($installationID,$dbADO);
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
+	
 				$description=stripslashes(@$_POST['description_'.$value]);
 				if(isset($_POST['ip_'.$value])){
 					$oldIpAddress=$_POST['oldIP_'.$value];
@@ -288,7 +294,6 @@ function devices($output,$dbADO) {
 					exec($cmd);
 				}
 				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
-				$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
 				
 				$updateDevice='UPDATE Device SET Description=?, FK_Room=? '.@$updateMacIp.' WHERE PK_Device=?';
 				$dbADO->Execute($updateDevice,array($description,$room,$value));
@@ -370,5 +375,39 @@ function getDevicesRelated($devicesRelated,$dbADO){
 		}
 	}
 	return $devices;
+}
+
+function lights_test_buttons($type,$deviceID,$dbADO){
+	if($type!='lights'){
+		return '';
+	}
+	
+	$out='
+	<input type="submit" class="button" name="on_'.$deviceID.'" value="ON"> 
+	<input type="submit" class="button" name="off_'.$deviceID.'" value="OFF"> 
+	<input type="submit" class="button" name="50_'.$deviceID.'" value="50%"><br>';
+	
+	return $out;
+}
+
+function process_test_lights($deviceID,$parentID,$port,$dbADO){
+	$cmd='sudo -u root /usr/pluto/bin/MessageSend localhost -targetType device 0 '.$parentID.' 1 760 10 '.$port.' ';
+	
+	if(isset($_POST['on_'.$deviceID])){
+		$cmd.='154 192';
+		$send=1;
+	}
+	if(isset($_POST['off_'.$deviceID])){
+		$cmd.='154 193';
+		$send=1;
+	}
+	if(isset($_POST['50_'.$deviceID])){
+		$cmd.='202 76|50 154 184';
+		$send=1;
+	}
+	
+	if(@$send==1){
+		exec_batch_command($cmd);
+	}
 }
 ?>
