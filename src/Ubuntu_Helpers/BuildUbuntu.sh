@@ -43,6 +43,7 @@ function Checkout_Pluto_Svn {
 	mkdir -p ${svn_dir}/trunk
 	svn co ${svn_url}/pluto/trunk  ${svn_dir}/trunk
 	cp -f /root/images-pluto-admin/*.jpg ${svn_dir}/trunk/web/pluto-admin/include/images/
+	cp -f /root/images-pluto-adin/generic_xml_error_linuxmce.png ${svn_dir}/trunk/web/pluto-admin/security_images/generic_xml_error.png
 
 	#/bin/sql2cpp -h localhost -u root -D pluto_main
 	pushd ${svn_dir}/trunk/src
