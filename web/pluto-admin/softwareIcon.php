@@ -7,15 +7,18 @@ require('include/utils.inc.php');
 
 $sID=(int)@$_REQUEST['sID'];
 if($sID==0){
-	die('Icon not available');
-}
-
-$picArray=getAssocArray('Software','PK_Software','Iconstr',$dbADO,'WHERE PK_Software='.$sID);
-if(count($picArray)==0){
-	die('Icon not available');
+	$pic=join('',file('include/images/spacer.png'));
+}else{
+	$picArray=getAssocArray('Software','PK_Software','Iconstr',$dbADO,'WHERE PK_Software='.$sID);
+	if(count($picArray)==0){
+		$pic=join('',file('include/images/spacer.png'));
+	}else{
+		$pic=($picArray[$sID]=='')?join('',file('include/images/spacer.png')):$picArray[$sID];
+	}
+	
 }
 
 Header( "Content-type:  image/png");
 //send the binary data
-echo $picArray[$sID];
+echo $pic;
 ?>
