@@ -161,6 +161,15 @@ mkdir -p /etc/apt/apt.conf.d/
 ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
 
 ## Setup Offline Mode
+if [[ "$UpgradeMode" == "true" ]]; then
+	tmp_OfflineMode=$(grep ^OfflineMode /.backup/pluto.conf)
+	tmp_OfflineMode="${tmp_OfflineMode#*=}"
+	tmp_OfflineMode="${tmp_OfflineMode// }"
+	if [[ "$tmp_OfflineMode" == true || "$tmp_OfflineMode" == 1 ]]; then
+		UseInternet=N
+	fi
+fi
+
 OfflineMode="false"
 if [[ "$UseInternet" == "N" || "$UseInternet" == "n" ]] ;then
 	OfflineMode="true"
