@@ -44,7 +44,7 @@
 	$domain="http://localhost";
 	
 	// path where the media pics and orbiter backgrounds are uploaded
-	$GLOBALS['mediaPicsPath']=$_SERVER['DOCUMENT_ROOT'].'pluto-admin/mediapics/';
+	$GLOBALS['mediaPicsPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/mediapics/';
 	$GLOBALS['orbiterBackgroundPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/orbiter_bg/';
 	
 	
