@@ -383,9 +383,5 @@ RunSQL "$Q"
 
 /usr/pluto/bin/Update_StartupScrips.sh
 
-## Run getxmls at the end of diskless setup (aaron's request, don't know the logic :)
-/usr/pluto/bin/getxmls
-
 echo "Finished setting up network boot for media directors."
 echo "If new media director(s) were added, do a quick reload router."
-
