@@ -79,7 +79,7 @@ int main(int argc, char *argv[]){
 		cout<<"Error connecting to db:"<<mysql_error(mysql)<<endl;
 		return false;
 	}
-	string query="SELECT distinct PackageName FROM Software where FK_Device="+sMD_ID;
+	string query="SELECT DISTINCT PackageName FROM Software JOIN Software_Device ON FK_Software=PK_Software WHERE FK_Device="+sMD_ID;
 	if(mysql_real_query(mysql,query.c_str(),(unsigned int) strlen(query.c_str()))==0&&(res=mysql_store_result(mysql))) {
 		while ( (row=mysql_fetch_row(res)) ){
 			result=IsInstaled(row[0]);
