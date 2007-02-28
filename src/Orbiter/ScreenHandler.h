@@ -128,6 +128,9 @@ protected:
 	int m_iStage; // Some screens go through stages and need a variable to track that
 	time_t m_tLastDeviceAdded;
 
+	int m_PK_Software;  // For add software grid
+	string m_sInstallationStatus;  // For add software grid
+
 	pluto_pthread_mutex_t m_MapMutex; /** < Protected the access to our maps */
 
 	char *m_pData_LastThumbnail;

@@ -1918,7 +1918,9 @@ bool ScreenHandler::AddSoftware_ObjectSelected(CallBackData *pData)
 			string sID = m_pOrbiter->m_pScreenHistory_Current->ScreenID();
 			int PK_Software = atoi( StringUtils::Tokenize( sID, ",", pos ).c_str() );
 			string sInstallation_Status = StringUtils::Tokenize( sID, ",", pos );
-
+g_pPlutoLogger->Write(LV_CRITICAL,"Fix this, the id is always the first one, then remove the variables below %s",sID.c_str());
+		 PK_Software=m_PK_Software;
+		sInstallation_Status=m_sInstallationStatus;
 			// Valid Installation status are: [I]nstalled, [i]nstalling, [R]emoved, [r]emoving
 			DCE::CMD_Add_Software CMD_Add_Software(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, 
 				m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector, sInstallation_Status!="I" ,PK_Software);
@@ -2003,6 +2005,8 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 		if( !PK_Software )
 			return false;
 
+		m_PK_Software = PK_Software;
+		m_sInstallationStatus = sInstallation_Status;
 		if( PK_Software && sInstallation_Status!="I" )
 			sText = m_pOrbiter->m_mapTextString[TEXT_Confirm_Add_Software_CONST];
 		else if( PK_Software )
