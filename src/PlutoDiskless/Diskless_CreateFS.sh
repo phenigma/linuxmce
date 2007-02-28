@@ -136,6 +136,7 @@ Upgrade_Essential()
 	shopt -s nullglob
 	# TODO: don't do anything (i.e. also skip download) for packages that match the requirements
 	local Requirements="
+		initramfs-tools
 		locales
 		initrd-netboot-tools=0.5.3cvs.20040906-16
 		e2fsprogs=1.37-2sarge1
@@ -150,7 +151,6 @@ Upgrade_Essential()
 		klibc-utils
 		libvolume-id0
 		udev=0.091-0bpo1pluto1
-		initramfs-tools
 		gzip=1.3.5-14
 		makedev=2.3.1-83~bpo.1
 		libfuse2
