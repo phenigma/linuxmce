@@ -252,7 +252,7 @@ mkdir -p "$DlPath"/usr/pluto/deb-cache
 mount --bind /usr/pluto/deb-cache "$DlPath"/usr/pluto/deb-cache
 mount -t proc proc "$DlPath"/proc
 
-touch "$TEMP_DIR"/etc/chroot-install
+touch "$DlPath"/etc/chroot-install
 mv "$DlPath"/usr/sbin/invoke-rc.d{,.pluto-install}
 mv "$DlPath"/sbin/start-stop-daemon{,.pluto-install}
 echo -en '#!/bin/bash\necho "WARNING: fake invoke-rc.d called"\n' >"$DlPath"/usr/sbin/invoke-rc.d
