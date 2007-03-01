@@ -270,6 +270,7 @@ function Create_Local_Repository {
 		dpkg-scanpackages . /dev/null > Packages
 		cat Packages | gzip -9c > Packages.gz
 	popd
+	ln -s . $local_mirror_dir/ubuntu
 }
 
 function Import_Build_Database {
@@ -331,6 +332,7 @@ function Import_Build_Database {
 	cat $temp_file_telecom | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_telecom
 
 	mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_mainsqlcvs < /root/Ubuntu_Helpers/Version.dump
+	mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db < /root/Ubuntu_Helpers/Version.dump
 	echo 'DELETE FROM `Package_Version`; DELETE FROM `Schema`;' | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_mainsqlcvs
 	echo 'update Package_Directory SET FK_Distro = NULL WHERE PK_Package_Directory = 675' | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db
 
