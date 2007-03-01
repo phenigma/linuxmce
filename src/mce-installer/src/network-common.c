@@ -155,7 +155,7 @@ gboolean connect_test(const gchar* sourceIp) {
        serv_addr.sin_port = htons(80);
        bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
 
-       if (connect(sockfd, &serv_addr, sizeof(serv_addr)) < 0) {
+       if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
                printf(" - can't connect to host\n");
                return FALSE;
        }
