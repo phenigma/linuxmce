@@ -159,6 +159,7 @@ gboolean connect_test(const gchar* sourceIp) {
                printf(" - can't connect to host\n");
                return FALSE;
        }
+	   close(sockfd);
 
        printf("- can connect to internet \n");
        return TRUE;
