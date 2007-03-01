@@ -76,9 +76,6 @@ done
 trap 'Unlock "CDC" "Config_Device_Changes"' EXIT
 WaitLock "CDC" "Config_Device_Changes" # don't run two copies of CDC simultaneously
 
-#apt-get update
-/usr/pluto/bin/InstallMissingSoftware.sh
-
 if [[ "$Force" != "y" ]]; then
 	echo "$(date -R) --> NeedConfigure $Device"
 	NeedConfigure "$PK_Device"

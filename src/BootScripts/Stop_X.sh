@@ -1,5 +1,8 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Config_Ops.sh
+
+Xdisplay=$Display
 for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
 		--display) ((i++)); Xdisplay="${!i#:}" ;;
