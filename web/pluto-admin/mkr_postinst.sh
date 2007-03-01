@@ -1,10 +1,11 @@
 #!/bin/bash
 
-mkdir -p /usr/pluto/orbiter/floorplans
-chmod -R 777 /usr/pluto/orbiter/floorplans
-chown -R www-data.www-data /usr/pluto/orbiter/floorplans
+mkdir -p /home/pluto/floorplans
+chmod -R 777 /home/pluto/floorplans
+chown -R www-data.www-data /home/pluto/floorplans
 rm -f /var/www/pluto-admin/floorplans 2>/dev/null
-ln -s /usr/pluto/orbiter/floorplans/ /var/www/pluto-admin/
+ln -sn /home/pluto/floorplans /usr/pluto/orbiter/floorplans
+ln -sn /usr/pluto/orbiter/floorplans/ /var/www/pluto-admin/
 
 mkdir -p /usr/pluto/orbiter/users
 chmod -R 777 /usr/pluto/orbiter/users
