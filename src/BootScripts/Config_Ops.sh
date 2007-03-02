@@ -58,10 +58,7 @@ ConfEval()
 	unset Display
 
 	if [[ ! -e /etc/pluto.conf ]]; then
-		Unlock "pluto.conf" "Config_Ops-ConfEval" nolog
 		touch /etc/pluto.conf
-		ConfSet Display 0
-		return 0
 	fi
 
 	# Note to self: this "read from file into while" is absolutely necessary
