@@ -15,12 +15,10 @@ GtkWidget *buttonFinish;
 void on_Step5_forward_clicked(GtkWidget *widget, gpointer data) {
 }
 
-void on_Step5_finish_clicked(GtkWidget *widget, gpointer data) {
-	gtk_main_quit();
-}
 
 void on_terminal_child_exited(VteTerminal *terminal, gpointer data) {
 	gtk_widget_set_sensitive (GTK_WIDGET(buttonFinish), TRUE);
+	displayStep6();
 }
 
 
@@ -53,22 +51,6 @@ void displayStep5(void) {
 		script_pid = vte_terminal_fork_command(VTE_TERMINAL(terminal),"./mce-installer-diskedmd.sh",NULL,NULL, "", FALSE, FALSE, FALSE);
 	}
 	g_signal_connect(G_OBJECT(terminal),"child-exited", G_CALLBACK(on_terminal_child_exited), NULL);
-
-	// Back Button	
-/*	GtkWidget *buttonBack = gtk_button_new_from_stock(GTK_STOCK_GO_BACK);
-	gtk_container_add(GTK_CONTAINER(mainButtonBox), buttonBack);
-	g_signal_connect(G_OBJECT(buttonBack), "clicked", G_CALLBACK(on_back_clicked), NULL);
-*/
-	// Button Forward
-/*	GtkWidget *buttonForward = gtk_button_new_from_stock(GTK_STOCK_GO_FORWARD);
-	gtk_container_add(GTK_CONTAINER(mainButtonBox), buttonForward);
-	g_signal_connect(G_OBJECT(buttonForward), "clicked", G_CALLBACK(on_Step5_forward_clicked), NULL);
-*/
-	// Button Finish
-	buttonFinish = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-	gtk_container_add(GTK_CONTAINER(mainButtonBox), buttonFinish);
-	g_signal_connect(G_OBJECT(buttonFinish), "clicked", G_CALLBACK(on_Step5_finish_clicked), NULL);
-	gtk_widget_set_sensitive (GTK_WIDGET(buttonFinish), FALSE);
 
 	// Redraw window	
 	gtk_widget_show_all(mainBox);

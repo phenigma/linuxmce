@@ -16,8 +16,8 @@ OobsIfaceEthernet* get_external_interface(OobsList *interfaces);
 OobsIfaceEthernet* get_internal_interface(OobsList *interfaces);
 gboolean connect_test(const gchar* sourceIp);
 
-void* start_network_wizard_thread(void *next_stepv) {
-	int *next_step = (int *)next_stepv;
+void* start_network_wizard_thread(void *args) {
+
 
 	OobsSession      *oobs_session = oobs_session_get();
 	OobsIfacesConfig *ifaces_config = OOBS_IFACES_CONFIG(oobs_ifaces_config_get(oobs_session));
@@ -82,9 +82,19 @@ void* start_network_wizard_thread(void *next_stepv) {
 
 void start_network_wizard(void) {
 	pthread_t snetwiz_tid;
-	int next_step = -1;
 
-	pthread_create(&snetwiz_tid, NULL, start_network_wizard_thread, &next_step);
+        cleanupContainer(mainBox); 
+        cleanupContainer(mainButtonBox); 
+			 
+	// Wizard text 
+	GtkWidget *label = gtk_label_new_for_wizard ("Detecting current network settings, please wait ...");
+	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
+
+	gtk_widget_show_all(mainBox);
+	gtk_widget_show_all(mainButtonBox);
+
+
+	pthread_create(&snetwiz_tid, NULL, start_network_wizard_thread, NULL);
 
 }
 

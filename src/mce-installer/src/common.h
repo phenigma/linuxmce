@@ -45,6 +45,7 @@
 #include "Step3.h"
 #include "Step4.h"
 #include "Step5.h"
+#include "Step6.h"
 
 #include "network-common.h"
 

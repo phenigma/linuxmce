@@ -4,7 +4,6 @@ if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
 	echo "ERROR: Cannot find wizard data";
 	exit 1
 fi
-
 exec &> >(tee /var/log/mce-installer.log)
 
 . /tmp/mce_wizard_data.sh
