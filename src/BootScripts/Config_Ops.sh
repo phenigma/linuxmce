@@ -53,13 +53,16 @@ ConfEval()
 {
 	local Ret=0
 	WaitLock "pluto.conf" "Config_Ops-ConfEval" nolog
-	if [[ ! -e /etc/pluto.conf ]]; then
-		Unlock "pluto.conf" "Config_Ops-ConfEval" nolog
-		exit 0
-	fi
 
 	# make sure Display is unset and we don't get it from the environment
 	unset Display
+
+	if [[ ! -e /etc/pluto.conf ]]; then
+		Unlock "pluto.conf" "Config_Ops-ConfEval" nolog
+		touch /etc/pluto.conf
+		ConfSet Display 0
+		return 0
+	fi
 
 	# Note to self: this "read from file into while" is absolutely necessary
 	#               "cmd | while ..." spawns a subshell and our veriables will be set there instead of our current shell
