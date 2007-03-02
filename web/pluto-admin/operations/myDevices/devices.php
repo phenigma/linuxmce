@@ -254,8 +254,6 @@ function devices($output,$dbADO) {
 		}
 		$displayedDevicesArray=explode(',',@$_POST['displayedDevices']);
 		foreach($displayedDevicesArray as $value){
-			process_test_lights($value,$_POST['parent_'.$value],$_POST['deviceData_'.$value.'_12'],$dbADO);			
-			
 			if(isset($_POST['delete_'.$value])){
 				deleteDevice($value,$dbADO);
 				
@@ -267,7 +265,7 @@ function devices($output,$dbADO) {
 		}
 				
 		$msg='';
-		if(isset($_POST['update']) || $action=='externalSubmit' || isset($_POST['addGC100'])){
+		if(isset($_POST['update']) || $action=='externalSubmit' || isset($_POST['addGC100']) || isset($_POST['lights_test'])){
 			if(isset($_POST['addGC100'])){
 				$infraredPlugIn=getInfraredPlugin($installationID,$dbADO);
 				
@@ -329,6 +327,10 @@ function devices($output,$dbADO) {
 			}			
 			
 			$msg.='<br>Devices updated.';
+			
+			foreach($displayedDevicesArray as $value){
+				process_test_lights($value,@$_POST['parent_'.$value],@$_POST['deviceData_'.$value.'_12'],$dbADO);			
+			}
 		}
 		
 		if(isset($_REQUEST['add'])){
@@ -383,6 +385,7 @@ function lights_test_buttons($type,$deviceID,$dbADO){
 	}
 	
 	$out='
+	<input type="hidden" name="lights_test" value="1"> 
 	<input type="submit" class="button" name="on_'.$deviceID.'" value="ON"> 
 	<input type="submit" class="button" name="off_'.$deviceID.'" value="OFF"> 
 	<input type="submit" class="button" name="50_'.$deviceID.'" value="50%"><br>';
