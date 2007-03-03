@@ -77,9 +77,9 @@ case $Action in
 				echo "($?) dpkg -i /tmp/$PackageName.deb"
 		
 				Unlock "InstallNewDevice" "AddSoftwareHelper"
-				Q="UPDATE Software_Device SET Status='Y', FK_Software_Source=$PK_Software_Source WHERE FK_Device=$DeviceID AND FK_Software_Source IN (SELECT PK_Software_Source FROM Software_Source WHERE FK_Software=$PackageID)"
+				Q="UPDATE Software_Device SET Status='I', FK_Software_Source=$PK_Software_Source WHERE FK_Device=$DeviceID AND FK_Software=$PackageID"
 				Row="$(RunSQL "$Q")"
-				Q="INSERT INTO Software_Device(FK_Software_Source, Status, FK_Device) VALUES($PK_Software_Source, 'Y', $DeviceID)"
+				Q="INSERT INTO Software_Device(FK_Software,FK_Software_Source, Status, FK_Device) VALUES($PackageID,$PK_Software_Source, 'I', $DeviceID)"
 				Row="$(RunSQL "$Q")"
 				break
 			else
