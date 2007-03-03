@@ -71,19 +71,32 @@ case $Action in
 			wget -O "/tmp/$PackageName.deb" "$DownloadURL"
 			RetCode=$?
 			if [ "$RetCode" -eq 0 ]; then
-				WaitLock "InstallNewDevice" "AddSoftwareHelper"
-		
-				dpkg -i /tmp/$PackageName.deb
-				echo "($?) dpkg -i /tmp/$PackageName.deb"
-		
-				Unlock "InstallNewDevice" "AddSoftwareHelper"
-				Q="UPDATE Software_Device SET Status='I', FK_Software_Source=$PK_Software_Source WHERE FK_Device=$DeviceID AND FK_Software=$PackageID"
-				Row="$(RunSQL "$Q")"
-				Q="INSERT INTO Software_Device(FK_Software,FK_Software_Source, Status, FK_Device) VALUES($PackageID,$PK_Software_Source, 'I', $DeviceID)"
-				Row="$(RunSQL "$Q")"
-				break
+				MD5Package=`md5sum /tmp/$PackageName.deb | cut -f1 -d' '`
+				SHA1Package=`sha1sum /tmp/$PackageName.deb | cut -f1 -d' '`
+				
+				if [[ ($MD5Package == $MD5Sum)&&($SHA1Package == $SHA1Sum) ]]; then
+					WaitLock "InstallNewDevice" "AddSoftwareHelper"
+					
+					dpkg -i /tmp/$PackageName.deb
+					RetCode=$?
+			
+					# updating DB only if install was OK
+					if [ "$RetCode" -eq 0 ]; then
+						Q="INSERT INTO Software_Device(FK_Software,FK_Software_Source, Status, FK_Device) VALUES($PackageID,$PK_Software_Source, 'I', $DeviceID) ON DUPLICATE KEY UPDATE FK_Software_Source=$PK_Software_Source, Status='I'"
+						Row="$(RunSQL "$Q")"
+						echo "Package installed successfully"
+					else
+						echo "Package installation failed, installer returned non-zero code ($RetCode)"
+					fi
+					
+					Unlock "InstallNewDevice" "AddSoftwareHelper"
+					break
+				else
+					echo "Installation failed, checksums not match: MD5=$MD5Package (should be $MD5Sum), SHA1=$SHA1Package (should be $SHA1Sum)"
+					break
+				fi
 			else
-				Result="Download failed (direct link)"
+				echo "Download failed (direct link)"
 			fi
 			
 		done
@@ -100,10 +113,21 @@ case $Action in
 		
 		echo "Removing package $PackageName"
 		WaitLock "RemoveNewDevice"
+		
 		dpkg --remove $PackageName
-		Unlock "RemoveNewDevice"
-		Q="UPDATE Software_Device SET Status='N' WHERE FK_Device=$DeviceID AND FK_Software_Source IN (SELECT PK_Software_Source FROM Software_Source WHERE FK_Software=$PackageID)"
+		
+		RetCode=$?
+		
+		if [ "$RetCode" -eq 0 ]; then
+			echo "Package removed OK"
+		else
+			echo "Package removing error: installer returned non-zero code ($RetCode), marking package as non-installed anyway"
+		fi
+		
+		Q="UPDATE Software_Device SET Status='N' WHERE FK_Device=$DeviceID AND FK_Software=$PackageID"
 		Row="$(RunSQL "$Q")"
+		
+		Unlock "RemoveNewDevice"
 	;;
 	
 	*)
