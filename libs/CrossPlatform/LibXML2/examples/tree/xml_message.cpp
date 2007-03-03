@@ -48,16 +48,17 @@ print_element_names(xmlNode * a_node, string offset = "")
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//string sMessage = "<message type=\"4\" id=\"0\" ><from id=\"4\"/ ><target id=\"20\" type=\"device\" / ><expected_response type=\"default\" /><parameters><parameters id=\"0\" value=\"OK\" /><parameters id=\"91\" value=\"d41d8cd98f00b204e9800998ecf8427e\" /><parameters id=\"92\" value=\"0\" /></parameters><extra_messages></extra_messages></messages>";
-	
-
 	xmlDoc *doc = NULL;
     xmlNode *root_element = NULL;
 
     LIBXML_TEST_VERSION
 
-    /*parse the file and get the DOM */
-    doc = xmlReadFile("test.xml", NULL, 0);
+	//read from memory
+	string sXmlData = "<message type=\"4\" id=\"0\" ><from id=\"4\" /><target id=\"20\" type=\"device\" /><expected_response type=\"default\" /><parameters><parameter id=\"0\" value=\"OK\" /><parameter id=\"91\" value=\"d41d8cd98f00b204e9800998ecf8427e\" /><parameter id=\"92\" value=\"0\" /></parameters><extra_messages></extra_messages></message>";
+	doc = xmlReadMemory(sXmlData.c_str(), static_cast<int>(sXmlData.length()), NULL, NULL, 0);
+
+	//... or from a file
+    //doc = xmlReadFile("test.xml", NULL, 0);
 
     if (doc == NULL) {
         printf("error: could not parse file %s\n", "/test.xml");
