@@ -216,8 +216,8 @@ echo "$PlutoConf" >/etc/pluto.conf
 
 if [[ "$UpgradeMode" == "true" ]];then
 	cp /.backup/pluto.conf /etc/pluto.conf
-	cp /.backup/localtime /etc/
 	cp /.backup/timezone /etc/
+	ln -sf /usr/share/zoneinfo/"$(</etc/timezone)" /etc/localtime
 	mkdir -p /var/lib/mysql
 	mv /.backup/mysql/* /var/lib/mysql
 fi
