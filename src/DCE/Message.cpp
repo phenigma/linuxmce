@@ -701,7 +701,7 @@ string Message::ToString( bool bWithHeader )
 		"\" id=\"" + StringUtils::ltos(m_dwID) + "\" >";
 	
 	//from
-	sXMLData += "<from id=\"" + StringUtils::ltos(m_dwPK_Device_From) + "\"/ >";
+	sXMLData += "<from id=\"" + StringUtils::ltos(m_dwPK_Device_From) + "\" />";
 
 	//target
 	string sTargetType;
@@ -738,7 +738,7 @@ string Message::ToString( bool bWithHeader )
 		break;
 	}
 
-	sXMLData += "<target id=\"" + sTargetID + "\" type=\"" + sTargetType + "\" / >";    
+	sXMLData += "<target id=\"" + sTargetID + "\" type=\"" + sTargetType + "\" />";    
 
 	//expected response
 	sXMLData += string("<expected_response type=\"") + 
@@ -777,7 +777,7 @@ string Message::ToString( bool bWithHeader )
     }
 
 	sXMLData += "</extra_messages>";
-	sXMLData += "</messages>";
+	sXMLData += "</message>";
 
 	if(bWithHeader)
 	{
