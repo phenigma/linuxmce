@@ -37,6 +37,13 @@
 
 #include "DCE/Logger.h"
 
+enum DataFormat
+{
+	dfBinary,
+	dfPlainText,
+	dfXml
+};
+
 namespace DCE
 {
 	
@@ -58,7 +65,7 @@ namespace DCE
 		/** < If true,  the framework will send a ping every 10 seconds or so to be sure the network
 		is ok.  This is useful for poor wireless connections */
 		bool m_bUsePingToKeepAlive;
-		bool m_bUsePlainText; /** < If true, messages will be sent in plain text format, just like a MessageSend string */
+		DataFormat m_DataFormat; /** < If true, messages will be sent in plain text format, just like a MessageSend string */
 
 		SOCKET m_Socket; /** < the actual socket @todo ask */
 		

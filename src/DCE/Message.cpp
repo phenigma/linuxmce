@@ -695,6 +695,103 @@ string Message::ToString( bool bWithHeader )
 	return sOutput;
 }
 
+/*virtual*/ string Message::ToXML(bool bWithHeader/*=false*/)
+{
+	string sXMLData = "<message type=\"" + StringUtils::ltos(m_dwMessage_Type) + 
+		"\" id=\"" + StringUtils::ltos(m_dwID) + "\" >";
+	
+	//from
+	sXMLData += "<from id=\"" + StringUtils::ltos(m_dwPK_Device_From) + "\"/ >";
+
+	//target
+	string sTargetType;
+	string sTargetID;
+
+	switch(m_dwPK_Device_To)
+	{
+		case DEVICEID_CATEGORY:
+		{
+			sTargetType = "category";
+			sTargetID = StringUtils::ltos(m_dwPK_Device_Category_To);
+		}
+		break;
+
+		case DEVICEID_MASTERDEVICE:
+		{
+			sTargetType = "template";
+			sTargetID = StringUtils::ltos(m_dwPK_Device_Template);
+		}
+		break;
+
+		case DEVICEID_LIST:
+		{
+			sTargetType = "device_list";
+			sTargetID = m_sPK_Device_List_To;
+		}
+		break;
+
+		default:
+		{
+			sTargetType = "device";
+			sTargetID = StringUtils::ltos(m_dwPK_Device_To);
+		}
+		break;
+	}
+
+	sXMLData += "<target id=\"" + sTargetID + "\" type=\"" + sTargetType + "\" / >";    
+
+	//expected response
+	sXMLData += string("<expected_response type=\"") + 
+		(m_eExpectedResponse == ER_DeliveryConfirmation ? "delivery_confirmation" :
+			(m_eExpectedResponse == ER_ReplyString ? "reply_string" : "default")) + "\" />";
+
+	//parameters
+	sXMLData += "<parameters>";
+	//string params
+	for(map<long, string>::iterator itP = m_mapParameters.begin(); itP != m_mapParameters.end(); ++itP)
+		sXMLData += "<parameters id=\"" + StringUtils::ltos(itP->first) + "\" value=\"" + itP->second + "\" />";
+
+	//data params
+	for(map<long, char *>::iterator itD = m_mapData_Parameters.begin(); itD != m_mapData_Parameters.end(); ++itD)
+	{
+		size_t SizeRaw = m_mapData_Lengths[itD->first];
+		size_t SizeEncoded = MaxEncodedSize(SizeRaw);
+		char *pDataEncoded = new char[SizeEncoded];
+		int Bytes=Ns_HtuuEncode((unsigned char *) itD->second, SizeRaw, (unsigned char *) pDataEncoded);
+		pDataEncoded[Bytes] = 0;
+		sXMLData += "<parameters id=\"" + StringUtils::ltos(itD->first) + "\" value=\"" + pDataEncoded + "\" />";
+		delete[] pDataEncoded;
+	}
+
+	sXMLData += "</parameters>";
+
+	//extra messages
+	sXMLData += "<extra_messages>";
+
+    vector<class Message *>::iterator itExtras;
+    for( itExtras = m_vectExtraMessages.begin(); itExtras != m_vectExtraMessages.end(); ++itExtras )
+    {
+        Message *pMessage_Child = *itExtras;
+        if( pMessage_Child )  // The embedded message could have been deleted
+			sXMLData += pMessage_Child->ToString(false);
+    }
+
+	sXMLData += "</extra_messages>";
+	sXMLData += "</messages>";
+
+	if(bWithHeader)
+	{
+		//TODO: add xml header here ? 
+	}
+
+	return sXMLData;
+}
+
+/*virtual*/ void Message::FromXML(string sXMLData)
+{
+	//TODO: use libxml2 to parse the xml and create a message object from it
+}
+
 void Message::FromData( unsigned long dwSize, char *pcData )
 {
     StartReading( dwSize, pcData );

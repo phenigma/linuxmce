@@ -1388,13 +1388,20 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		}
 		return true;
 	}
-	else if( Line.substr(0,10)=="PLAIN_TEXT" || Line.substr(0,6)=="BINARY" )
+	else if(Line.find("PLAIN_TEXT") == 0 || Line.find("BINARY") == 0 || Line.find("XML") == 0)
 	{
 		ServerSocket *pServerSocket_Command;
 		GET_SERVER_SOCKET(gs, pServerSocket_Command, pServerSocket->m_dwPK_Device );
+
+		DataFormat data_format = 
+			Line.find("PLAIN_TEXT") == 0 ? 
+				dfPlainText :
+				Line.find("BINARY") == 0 ? dfBinary : dfXml;
+
 		if( pServerSocket_Command )
-			pServerSocket_Command->m_bUsePlainText = Line[0]=='P';
-		pServerSocket->m_bUsePlainText=Line[0]=='P';
+			pServerSocket_Command->m_DataFormat = data_format;
+
+		pServerSocket->m_DataFormat = data_format;
 		pServerSocket->SendString("OK");
 		return true;
 	}  

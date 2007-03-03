@@ -160,7 +160,7 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
 	m_sHostName = sIPAddress;
 	m_sMacAddress = sMacAddress;
-	m_bUsePlainText = false;
+	m_DataFormat = dfBinary;
 
 	/*
 	// code unusable; there's a memory leak in libc6 2.3.2
@@ -257,22 +257,34 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 		pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To);
 #endif
 	bool bReturnValue;
-	if( m_bUsePlainText )
+
+	switch(m_DataFormat)
 	{
-		bReturnValue=SendString( pMessage->ToString(true) );
-	}
-	else
-	{
-		char *pcData = NULL;
-		unsigned long dwSize = 0;
-		pMessage->ToData( dwSize, pcData, true ); // converts the message to data
-		bReturnValue = SendData( dwSize, pcData ); // and sends it
-		if(NULL != pcData)
+		case dfBinary:
 		{
-			// delete[] pcData; // free heap
-			delete[] pcData;
-			pcData = NULL;
+			char *pcData = NULL;
+			unsigned long dwSize = 0;
+			pMessage->ToData( dwSize, pcData, true ); // converts the message to data
+			bReturnValue = SendData( dwSize, pcData ); // and sends it
+			if(NULL != pcData)
+			{
+				delete[] pcData;
+				pcData = NULL;
+			}
 		}
+		break;
+
+		case dfPlainText:
+		{
+			bReturnValue = SendString(pMessage->ToString(true));
+		}
+		break;
+
+		case dfXml:
+		{
+			bReturnValue = SendString(pMessage->ToXML(true));
+		}
+		break;
 	}
 
 	if(bDeleteMessage && NULL != pMessage)

@@ -231,11 +231,13 @@ namespace DCE
 
         virtual void ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader=false );
         virtual string ToString( bool bWithHeader=false );
+		virtual string ToXML(bool bWithHeader=false);
 
         /**
          * @brief start deserializing the pcData to build the instance of the Message
          */
         void FromData( unsigned long dwSize, char *pcData );
+		virtual void FromXML(string sXMLData);
 
         /**
          * @brief Build from command line arguments
