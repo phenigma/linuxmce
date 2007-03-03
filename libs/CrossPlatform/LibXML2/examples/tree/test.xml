@@ -1,0 +1,11 @@
+<message type="4" id="0" >
+<from id="4" />
+<target id="20" type="device" />
+<expected_response type="de fault" />
+<parameters>
+<parameter id="0" value="OK" />
+<parameter id="91" value="d41d8cd98f00b204e9800998ecf8427e" />
+<parameter id="92" value="0" />
+</parameters>
+<extra_messages></extra_messages>
+</message>
