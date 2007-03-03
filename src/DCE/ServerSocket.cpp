@@ -315,13 +315,9 @@ bool ServerSocket::ServeClient()
 		}
 		else
 		{
-			if ( sMessage.substr(0,7) == "MESSAGE" && sMessage.size()>7 )
+			if(sMessage.find("MESSAGE") == 0)
 			{
-				Message *pMessage;
-				if( sMessage[7]=='T' )
-					pMessage = ReceiveMessage( atoi(sMessage.substr(9).c_str()), true );
-				else
-					pMessage = ReceiveMessage( atoi(sMessage.substr(8).c_str()) );
+				Message *pMessage = ReceiveMessageRaw(sMessage);
 				if ( pMessage )
 				{
 					if ( pMessage->m_vectExtraMessages.size() )

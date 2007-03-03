@@ -128,7 +128,8 @@ namespace DCE
 		 * this gets called in response to a MESSAGE <Length> string
 		 * If bText=true, the message is assumed to be in text, not binary format
 		 */
-		virtual Message *ReceiveMessage( int iLength, bool bText=false );
+		virtual Message *ReceiveMessage( int iLength, DataFormat format = dfBinary);
+		virtual Message *ReceiveMessageRaw(string sData);
 
 		/**
 		 * @brief just sends raw data to the socket.

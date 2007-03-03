@@ -172,12 +172,7 @@ void HandleRequestSocket::RunThread()
 #endif
 			if ( sMessage.substr(0,7)  == "MESSAGE" && sMessage.size()>7 )
 			{
-				Message *pMessage;
-				if( sMessage[7]=='T' )
-					pMessage = ReceiveMessage( atoi(sMessage.substr(9).c_str()), true );
-				else
-					pMessage = ReceiveMessage( atoi(sMessage.substr(8).c_str()) );
-
+				Message *pMessage = ReceiveMessageRaw(sMessage);
 				if ( pMessage )
 				{
 #ifdef DEBUG

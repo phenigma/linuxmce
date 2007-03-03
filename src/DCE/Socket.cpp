@@ -296,13 +296,28 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 	return bReturnValue; // the return of SendData
 }
 
+/*virtual*/ Message *Socket::ReceiveMessageRaw(string sData)
+{
+	Message *pOutMessage = NULL;
+
+	const string csPlainTextKeywWord = "MESSAGET";
+	const string csXmlKeyword = "MESSAGEXML";
+	const string csBinaryKeyword = "MESSAGE";
+
+	if(sData.find(csPlainTextKeywWord) == 0 && sData.size() > csPlainTextKeywWord.size() + 2)
+		pOutMessage = ReceiveMessage(atoi(sData.substr(csPlainTextKeywWord.size()).c_str()), dfPlainText);
+	else if(sData.find(csXmlKeyword) == 0 && sData.size() > csXmlKeyword.size() + 2)
+		pOutMessage = ReceiveMessage(atoi(sData.substr(csXmlKeyword.size()).c_str()), dfXml);
+	else if(sData.find(csBinaryKeyword) == 0 && sData.size() > csBinaryKeyword.size() + 2)
+		pOutMessage = ReceiveMessage(atoi(sData.substr(csBinaryKeyword.size()).c_str()), dfBinary);
+	
+	return pOutMessage;
+}
+
 Message *Socket::SendReceiveMessage( Message *pMessage)
 {
 	pMessage->m_eExpectedResponse=ER_ReplyMessage;
 	PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, m_SocketMutex );  // Don't log anything but failures
-
-	/** @todo check comment */
-	// HACK Message->m_eExpectedResponse=ER_Message;
 
 	if( !SendMessage( pMessage ) ) // message couldn't be send
 		return NULL;
@@ -311,18 +326,14 @@ Message *Socket::SendReceiveMessage( Message *pMessage)
 	Message *pOutMessage;
 	if ( ReceiveString( sResult, m_iReceiveTimeout > 0 ? m_iReceiveTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE ) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 ) // got the response we expected
 	{
-		if( sResult[7]=='T' )
-			pOutMessage = ReceiveMessage( atoi( sResult.substr( 9 ).c_str() ),true);
-		else
-			pOutMessage = ReceiveMessage( atoi( sResult.substr( 8 ).c_str() ));
-
+		pOutMessage = ReceiveMessageRaw(sResult);
 		return pOutMessage; // return the response
 	}
 	g_pPlutoLogger->Write(LV_WARNING,"Socket::SendReceiveMessage didn't get valid response");
 	return NULL; // what we got wasn't what we expected it to be
 }
 
-Message *Socket::ReceiveMessage( int iLength, bool bText)
+Message *Socket::ReceiveMessage( int iLength, DataFormat format)
 {
 #ifdef UNDER_CE
 	__try
@@ -345,10 +356,16 @@ Message *Socket::ReceiveMessage( int iLength, bool bText)
 			{
 				pcBuffer[iLength]=0;
 				Message *pMessage;
-				if( bText )
+				if(format == dfPlainText)
 					pMessage = new Message( pcBuffer ); // making a message from the string
-				else
+				else if(format == dfBinary)
 					pMessage = new Message( iLength, pcBuffer[0] ? pcBuffer : pcBuffer + 1 ); // making a message from the data
+				else
+				{
+					//xml
+					pMessage = new Message();
+					pMessage->FromXML(pcBuffer);
+				}
 
 				delete[] pcBuffer; // freeing the buffer we no longer need
 				return pMessage;

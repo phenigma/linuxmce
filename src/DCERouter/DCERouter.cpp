@@ -1625,13 +1625,10 @@ bool Router::GetParameter(int ToDevice,int ParmType, string &sResult)
             // TODO :  The socket failed, core needs to remove client socket
 
         }
-        if (pSocket->ReceiveString(sResult) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 )
+        if (pSocket->ReceiveString(sResult) && sResult.find("MESSAGE") == 0)
         {
-            Message *pMessage;
-			if( sResult[7]=='T' )
-				pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(9).c_str()),true);
-			else
-				pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(8).c_str()));
+            Message *pMessage = pSocket->ReceiveMessageRaw(sResult);
+
             if (pMessage)
             {
                 sResult = pMessage->m_mapParameters[ParmType];
@@ -1668,11 +1665,7 @@ bool Router::GetParameterWithDefinedMessage(Message *sendMessage, string &sResul
             }
             if (pServerSocket->ReceiveString(sResult) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 )
             {
-				Message *pMessage;
-				if( sResult[7]=='T' )
-					pMessage=pServerSocket->ReceiveMessage(atoi(sResult.substr(9).c_str()),true);
-				else
-					pMessage=pServerSocket->ReceiveMessage(atoi(sResult.substr(8).c_str()));
+				Message *pMessage = pServerSocket->ReceiveMessageRaw(sResult);
                 if (pMessage)
                 {
                     sResult = pMessage->m_mapParameters[messageID];
@@ -2150,13 +2143,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
 #endif
                             if (!(*(*pSafetyMessage))->m_bRespondedToMessage)
                             {
-                                DCE::Message *pMessage;
-								
-								if( sResponse[7]=='T' )
-									pMessage = pServerSocket->ReceiveMessage(atoi(sResponse.substr(9).c_str()),true );
-								else
-									pMessage = pServerSocket->ReceiveMessage(atoi(sResponse.substr(8).c_str()) );
-
+								DCE::Message *pMessage = pServerSocket->ReceiveMessageRaw(sResponse);
 								if( !pMessage )
 								{
 									g_pPlutoLogger->Write(LV_CRITICAL,"Sent message, got response but it's not a real message: %s",sResponse.c_str());
