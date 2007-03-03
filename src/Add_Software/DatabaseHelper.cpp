@@ -89,7 +89,8 @@ void DatabaseHelper::ProcessPackages(const list<PackageInfo>& listPackages, cons
 		if (iSoftwareID != -1)
 		{
 			vector<Row_Software_Source *> vRows;
-			m_pDatabase_pluto_main->Software_Source_get()->GetRows("WHERE FK_Software=" + StringUtils::itos(iSoftwareID) +" AND Version=\"" + sVersion + "\" AND Distro=\"" + sDistro +"\"", &vRows);
+			m_pDatabase_pluto_main->Software_Source_get()->GetRows("WHERE FK_Software=" + StringUtils::itos(iSoftwareID) +" AND Version=\"" + 
+				sVersion + "\" AND Distro=\"" + sDistro +"\" AND Downloadurl=\"" + GetValue(package, niDownloadurl) + "\"", &vRows);
 			
 			Row_Software_Source *pRow=NULL;
 			
@@ -105,8 +106,7 @@ void DatabaseHelper::ProcessPackages(const list<PackageInfo>& listPackages, cons
 			if (pRow)
 			{
 				// checking if package is virus-free
-				bool isVirusFree=true;
-				/*bool isVirusFree=false;
+				bool isVirusFree=false;
 				string sInfo = sPackageName + "," + GetValue(package, niDistro) + "," + GetValue(package, niVersion) + ","  + GetValue(package, niSum_MD5) + "," + GetValue(package, niSum_SHA1);
 				for (vector<string>::const_iterator it=virusFree.begin(); it!=virusFree.end(); it++)
 				{
@@ -115,7 +115,7 @@ void DatabaseHelper::ProcessPackages(const list<PackageInfo>& listPackages, cons
 						isVirusFree = true;
 						break;
 					}
-				}*/
+				}
 				
 				// saving information about package source
 				pRow->FK_Software_set(iSoftwareID);
