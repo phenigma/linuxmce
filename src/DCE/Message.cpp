@@ -749,7 +749,7 @@ string Message::ToString( bool bWithHeader )
 	sXMLData += "<parameters>";
 	//string params
 	for(map<long, string>::iterator itP = m_mapParameters.begin(); itP != m_mapParameters.end(); ++itP)
-		sXMLData += "<parameters id=\"" + StringUtils::ltos(itP->first) + "\" value=\"" + itP->second + "\" />";
+		sXMLData += "<parameter id=\"" + StringUtils::ltos(itP->first) + "\" value=\"" + itP->second + "\" />";
 
 	//data params
 	for(map<long, char *>::iterator itD = m_mapData_Parameters.begin(); itD != m_mapData_Parameters.end(); ++itD)
@@ -759,7 +759,7 @@ string Message::ToString( bool bWithHeader )
 		char *pDataEncoded = new char[SizeEncoded];
 		int Bytes=Ns_HtuuEncode((unsigned char *) itD->second, SizeRaw, (unsigned char *) pDataEncoded);
 		pDataEncoded[Bytes] = 0;
-		sXMLData += "<parameters id=\"" + StringUtils::ltos(itD->first) + "\" value=\"" + pDataEncoded + "\" />";
+		sXMLData += "<parameter id=\"" + StringUtils::ltos(itD->first) + "\" value=\"" + pDataEncoded + "\" />";
 		delete[] pDataEncoded;
 	}
 
