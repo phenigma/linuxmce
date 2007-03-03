@@ -1,4 +1,5 @@
 (cd /usr/pluto/database; /usr/pluto/bin/sqlCVS -n -D pluto_myth -r myth import) || exit $?
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
 
 Q="GRANT ALL PRIVILEGES ON pluto_myth.* TO 'root'@'localhost';"
 echo "$Q" | /usr/bin/mysql

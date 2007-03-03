@@ -1,4 +1,5 @@
 exit
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
 
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 

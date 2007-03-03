@@ -1,4 +1,5 @@
 #!/bin/bash
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
 
 cd /usr/pluto/database/
 /usr/pluto/bin/sqlCVS -n -D pluto_main -r local import

@@ -1,4 +1,5 @@
 #!/bin/bash
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
 
 #enable MySQL networking
 MyCnf=/etc/mysql/my.cnf

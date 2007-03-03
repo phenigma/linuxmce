@@ -1,4 +1,5 @@
 if ! grep -q "evdev" /etc/modules; then
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
 	echo "evdev" >> /etc/modules
 fi
 

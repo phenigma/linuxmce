@@ -1,4 +1,5 @@
 #!/bin/bash
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
 
 ## Add a cron entry
 cronEntry="*/3 * * * * root /usr/pluto/bin/DiskSpaceMonitor.sh"

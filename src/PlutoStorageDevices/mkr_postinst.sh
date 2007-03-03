@@ -1,4 +1,5 @@
 #!/bin/bash
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
 
 ## Create the main mount directory
 mkdir -p /mnt/device
