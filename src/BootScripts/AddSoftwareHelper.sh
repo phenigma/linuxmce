@@ -59,7 +59,7 @@ case $Action in
 		for i in `seq 1 $SourcesCount`; do
 			echo "Trying source $i from $SourcesCount"
 			SourcesShift=$(( i - 1 ))
-			Q="SELECT Downloadurl,Sum_md5,Sum_sha,PK_Software_Source FROM Software_Source WHERE Distro='$Distro' AND FK_Software=$PackageID AND Virus_Free=1 ORDER BY PK_Software_Source LIMIT $SourcesShift,1"
+			Q="SELECT Downloadurl,Sum_md5,Sum_sha,PK_Software_Source,Version+0 AS Software_Version FROM Software_Source WHERE Distro='$Distro' AND FK_Software=$PackageID AND Virus_Free=1 ORDER BY Software_Version DESC LIMIT $SourcesShift,1"
 			#echo $Q
 			Row="$(RunSQL "$Q")"
 			DownloadURL="$(Field 1 "$Row")"
