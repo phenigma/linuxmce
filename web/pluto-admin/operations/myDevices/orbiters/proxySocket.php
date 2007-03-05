@@ -55,7 +55,7 @@ function proxySocket($output,$dbADO){
 	$result = @socket_connect($socket, $address, $port);
 
 	if ($result !==true) {
-		@socket_close($socket);
+		@web_socket_close($socket);
 		// if the orbiter is regenerating, query Orbiter table to check status
 
 		$orbiterFields=getFieldsAsArray('Orbiter','RegenInProgress,RegenStatus,RegenPercent',$dbADO,'WHERE PK_Orbiter='.$deviceID);
@@ -101,7 +101,7 @@ function proxySocket($output,$dbADO){
 			}
 		}
 		$XML=getXML($deviceID,$dbADO,$socket);
-		socket_close($socket);
+		web_socket_close($socket);
 		$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=XML&deviceID=$deviceID";
 		
 		//Header("Refresh: 5; url=$refreshURL");
@@ -112,7 +112,7 @@ function proxySocket($output,$dbADO){
 	
 	
 	write_log(miliseconds_date()."Closing socket ... ");
-	@socket_close($socket);
+	@web_socket_close($socket);
 	write_log( "OK.\n");
 	
 	
@@ -309,4 +309,9 @@ function web_socket_read($deviceID,$dbADO,$socket,$length,$type=PHP_BINARY_READ)
 	return $outResponse;
 }
 
+function web_socket_close($socket){
+	$last_error=socket_strerror(socket_last_error($socket));
+	write_log(miliseconds_date()."Closing socket: ".$last_error."\n");
+	@socket_close($socket);
+}
 ?>
