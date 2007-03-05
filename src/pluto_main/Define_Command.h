@@ -786,6 +786,7 @@
 #define COMMAND_Dynamic_CONST 866
 #define COMMAND_DVI_2_CONST 867
 #define COMMAND_Retransmit_AV_Commands_CONST 868
+#define COMMAND_Request_XML_Data_CONST 869
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

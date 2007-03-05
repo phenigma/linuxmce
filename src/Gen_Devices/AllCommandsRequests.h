@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef AllCommandsRequest_h
 #define AllCommandsRequest_h
 #include "Message.h"
@@ -23282,6 +23267,82 @@ namespace DCE
 			2 /* number of parameters */,
 			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_PK_EntertainArea_CONST, sPK_EntertainArea.c_str()); }
+	};
+	class RESP_Request_XML_Data : public PreformedCommandResponse {
+		string *m_sData_String;
+	public:
+		RESP_Request_XML_Data(string *sData_String) { 
+		m_sData_String=sData_String; }
+		void ParseResponse(Message *pMessage) {
+			*m_sData_String=pMessage->m_mapParameters[COMMANDPARAMETER_Data_String_CONST]; };
+	};
+	class CMD_Request_XML_Data : public PreformedCommand {
+	public:
+		CMD_Request_XML_Data(long DeviceIDFrom, long DeviceIDTo,string sDataGrid_ID,string sParameters,string *sData_String) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Request_XML_Data_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_DataGrid_ID_CONST, sDataGrid_ID.c_str(),
+			COMMANDPARAMETER_Parameters_CONST, sParameters.c_str(),
+			COMMANDPARAMETER_Data_String_CONST, (*sData_String).c_str());		m_pcResponse = new RESP_Request_XML_Data(sData_String); }
+	};
+	class CMD_Request_XML_Data_DL : public PreformedCommand {
+	public:
+		CMD_Request_XML_Data_DL(long DeviceIDFrom, string DeviceIDTo,string sDataGrid_ID,string sParameters,string *sData_String) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Request_XML_Data_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_DataGrid_ID_CONST, sDataGrid_ID.c_str(),
+			COMMANDPARAMETER_Parameters_CONST, sParameters.c_str(),
+			COMMANDPARAMETER_Data_String_CONST, (*sData_String).c_str());		m_pcResponse = new RESP_Request_XML_Data(sData_String); }
+	};
+	class CMD_Request_XML_Data_DT : public PreformedCommand {
+	public:
+		CMD_Request_XML_Data_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sDataGrid_ID,string sParameters,string *sData_String) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Request_XML_Data_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_DataGrid_ID_CONST, sDataGrid_ID.c_str(),
+			COMMANDPARAMETER_Parameters_CONST, sParameters.c_str(),
+			COMMANDPARAMETER_Data_String_CONST, (*sData_String).c_str());		m_pcResponse = new RESP_Request_XML_Data(sData_String); }
+	};
+	class CMD_Request_XML_Data_Cat : public PreformedCommand {
+	public:
+		CMD_Request_XML_Data_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sDataGrid_ID,string sParameters,string *sData_String) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Request_XML_Data_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_DataGrid_ID_CONST, sDataGrid_ID.c_str(),
+			COMMANDPARAMETER_Parameters_CONST, sParameters.c_str(),
+			COMMANDPARAMETER_Data_String_CONST, (*sData_String).c_str());		m_pcResponse = new RESP_Request_XML_Data(sData_String); }
+	};
+	class CMD_NOREP_Request_XML_Data : public PreformedCommand {
+	public:
+		CMD_NOREP_Request_XML_Data(long DeviceIDFrom, long DeviceIDTo,string sDataGrid_ID,string sParameters) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Request_XML_Data_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_DataGrid_ID_CONST, sDataGrid_ID.c_str(),
+			COMMANDPARAMETER_Parameters_CONST, sParameters.c_str()); }
+	};
+	class CMD_NOREP_Request_XML_Data_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Request_XML_Data_DL(long DeviceIDFrom, string DeviceIDTo,string sDataGrid_ID,string sParameters) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Request_XML_Data_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_DataGrid_ID_CONST, sDataGrid_ID.c_str(),
+			COMMANDPARAMETER_Parameters_CONST, sParameters.c_str()); }
+	};
+	class CMD_NOREP_Request_XML_Data_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Request_XML_Data_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sDataGrid_ID,string sParameters) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Request_XML_Data_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_DataGrid_ID_CONST, sDataGrid_ID.c_str(),
+			COMMANDPARAMETER_Parameters_CONST, sParameters.c_str()); }
+	};
+	class CMD_NOREP_Request_XML_Data_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Request_XML_Data_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sDataGrid_ID,string sParameters) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Request_XML_Data_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_DataGrid_ID_CONST, sDataGrid_ID.c_str(),
+			COMMANDPARAMETER_Parameters_CONST, sParameters.c_str()); }
 	};
 }
 #endif
