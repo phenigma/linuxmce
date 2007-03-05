@@ -22,7 +22,7 @@ function backup($output,$dbADO) {
 		<input type="hidden" name="section" value="backup">
 		<input type="hidden" name="action" value="add">
 		
-		<table width="500">
+		<table width="600">
 			<tr>
 				<td><B>'.$TEXT_BACKUP_CONST.'</B></td>
 			</tr>		
@@ -118,6 +118,25 @@ function backup($output,$dbADO) {
 			exit();
 		}
 		
+		if(isset($_REQUEST['local'])){
+			$backupFile=cleanString($_REQUEST['filepath']);
+			$pos=strpos($backupFile,'/home/backup/download/');
+			if($pos!==false){
+				$mkdir_cmd='sudo -u root mkdir -p /home/backup/upload';
+				exec_batch_command($mkdir_cmd);				
+				
+				$move_cmd='sudo -u root mv '.$backupFile.' '.'/home/backup/upload/'.str_replace('/home/backup/download/','',$backupFile);
+				exec_batch_command($move_cmd);
+
+				header("Location: index.php?section=backup&msg=".urlencode($TEXT_RESTORE_SUCCESS_CONST));
+				exit();
+			}else{
+				// error: wrong file specified
+				header("Location: index.php?section=backup&error=".urlencode('Invalid file'));
+				exit();
+			}
+		}
+		
 	}
 
 	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');
@@ -138,13 +157,13 @@ function backups_table(){
 		foreach ($files AS $file){
 			$ext= get_extension($file);
 			if($ext!='md5'){
-				$md5=join('',file('/home/backup/download/'.str_replace('tar.bz2','md5',$file)));
+				$md5=@join('',file('/home/backup/download/'.str_replace('tar.bz2','md5',$file)));
 				$md5=trim(str_replace($file,'',$md5));
 				$out.='
 				<tr>
 					<td><B>'.$file.'</B></td>
 					<td>(md5: '.$md5.')</td>
-					<td><a href="fdownload.php?full=1&filepath=/home/backup/download/'.$file.'" target="_blank">Download</a></td>
+					<td><a href="index.php?section=backup&action=restore&local=1&filepath=/home/backup/download/'.$file.'">Restore</a> <a href="fdownload.php?full=1&filepath=/home/backup/download/'.$file.'" target="_blank">Download</a></td>
 				</tr>';
 			}
 		}
