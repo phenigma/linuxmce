@@ -10,6 +10,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	global $inputCommandsArray, $dspmodeCommandsArray,$powerCommands;
+	$GLOBALS['DT_&_Room']=1;
 	
 	$out='';
 //	$dbADO->debug=true;;
