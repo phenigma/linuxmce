@@ -20,8 +20,8 @@ sources = Main.cpp XML_Data_Handler_Plugin.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS +=
-LDFLAGS +=
+CPPFLAGS += -I/usr/include/libxml2/
+LDFLAGS += -lxml2
 XTRALDLIBS =
 
 Gen_Dev_Files +=
