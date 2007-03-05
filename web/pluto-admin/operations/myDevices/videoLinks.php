@@ -22,7 +22,10 @@ function videoLinks($output,$dbADO) {
 		$selectOldValues="
 			SELECT * 
 				FROM Device_Device_Related 
-			WHERE (FK_Device IN (".(join(',',$intercomIDArray)).")) AND (FK_Device_Related IN (".join(',',$cameraIDArray)."))";
+			WHERE 
+				((FK_Device IN (".(join(',',$intercomIDArray)).")) AND (FK_Device_Related IN (".join(',',$cameraIDArray)."))) 
+				OR 
+				((FK_Device IN (".(join(',',$cameraIDArray)).")) AND (FK_Device_Related IN (".join(',',$intercomIDArray).")))";
 		$resOldValues=$dbADO->Execute($selectOldValues);
 		$oldValuesArray=array();
 		while($rowOldValues=$resOldValues->FetchRow()){
