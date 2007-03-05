@@ -5,7 +5,7 @@ set -x
 nobuild=""
 
 branch="trunk"
-#branch="2.0.0.40"
+#branch="2.0.0.43"
 
 flavor=pluto
 upload="y"
@@ -44,6 +44,9 @@ for ((i = 1; i <= "$#"; i++)); do
 		no-build)
 			nobuild="-b" 
 		;;
+		no-upload)
+			upload=
+		;;
 		rev=*,*)
 			rev_pub=${!i%,*}
 			rev_prv=${!i#,*}
@@ -59,7 +62,7 @@ for ((i = 1; i <= "$#"; i++)); do
 done
 
 exec 1> >(tee /tmp/MakeScript-$flavor.log) 2>&1
-echo "Building: branch=$branch, rev=$rev_pub,$rev_prv, flavor=$flavor"
+echo "Building: branch=$branch, rev=$rev_pub,$rev_prv, flavor=$flavor,nobuild=$nobuild,nocheckout=$nocheckout,nosqlcvs=$nosqlcvs,nosqlcvs_sync=$nosqlcvs_sync,dont_compile_existing=$dont_compile_existing,no-upload=$no-upload"
 
 ## Read and export the configuration options
 . /home/WorkNew/src/MakeRelease/MR_Conf.sh
@@ -174,7 +177,9 @@ if [[ "$nobuild" == "" ]]; then
 			rm -f trunk
 			ln -s "$branch" trunk # workaround as to not change all of the script
 		fi
-		
+	
+		echo "Marker: svn co done `date`"
+	
 		# Clone Video4Linux Mercurial repository
 		cd $build_dir/trunk/src/drivers
 		hg clone /home/sources/mercurial-repositories/v4l-dvb/ | tee $build_dir/mercurial-v4l.log
@@ -208,14 +213,12 @@ if [[ "$nobuild" == "" ]]; then
 		
 	mkdir -p $build_dir/trunk/src/bin
 	cd $build_dir/trunk/src/bin
-	rm ../pluto_main/*
-	# We have to use pluto_main so the class is named correctly, but that means we need to be sure  the local pluto_main is up to date
-	sql2cpp -D pluto_main -h localhost
-	cd ../pluto_main
-
-	## temporary
-	svn revert Table_Device.cpp  Table_Device_DeviceData.cpp Table_Orbiter.cpp Table_CommandGroup_Command_CommandParameter.cpp Table_CommandGroup.cpp Table_CommandGroup_Command.cpp
-	svn -m "Automatic Regen" --username automagic --password "$(</etc/pluto/automagic.pwd)" --non-interactive commit
+	if [[ "$branch" == trunk ]]; then
+		rm ../pluto_main/*
+		# We have to use pluto_main so the class is named correctly, but that means we need to be sure  the local pluto_main is up to date
+		sql2cpp -D pluto_main -h localhost
+		cd ../pluto_main
+	fi
     cd $build_dir/trunk
     svn info > svn.info
 else
