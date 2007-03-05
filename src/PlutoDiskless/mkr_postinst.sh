@@ -1,5 +1,5 @@
 #!/bin/bash
-/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
 ## Create the /home/diskless and the /usr/pluto/diskless symlink
 if [[ ! -d /home/diskless ]] ;then

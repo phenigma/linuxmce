@@ -1,5 +1,5 @@
 #!/bin/bash
-/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
 #enable asterisk daemon
 sed -r -i "s/RUNASTERISK=no/RUNASTERISK=yes/" /etc/default/asterisk

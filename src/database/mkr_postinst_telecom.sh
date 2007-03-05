@@ -1,5 +1,5 @@
 (cd /usr/pluto/database; /usr/pluto/bin/sqlCVS -n -D pluto_telecom -r telecom import) || exit $?
-/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
 Q="GRANT ALL PRIVILEGES ON pluto_telecom.* TO 'plutotelecom'@'localhost';"
 echo "$Q" | /usr/bin/mysql

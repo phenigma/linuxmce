@@ -1,5 +1,5 @@
 #!/bin/bash
-/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
 /usr/pluto/bin/Diskless_BuildDefaultImage.sh || echo "WARNING: Diskless_BuildDefaultImage.sh returned an error!"
 

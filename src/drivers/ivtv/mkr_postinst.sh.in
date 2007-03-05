@@ -1,5 +1,5 @@
 	KVER="_KVER_"
-/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 	for i in /lib/modules/"$KVER"/extra/*.ko; do 
 		MODULE=`echo $i | sed s#[^/]*/##g`;
 		cd /lib/modules/"$KVER"/;

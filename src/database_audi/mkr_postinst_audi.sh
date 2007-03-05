@@ -1,5 +1,5 @@
 echo 
-/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 echo 
 echo Setting up audi database.
 echo ****This may take a long time****

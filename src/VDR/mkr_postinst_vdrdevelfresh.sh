@@ -1,5 +1,5 @@
 #!/bin/bash
-/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 #
 # This script helps to automate a repository change.
 # It just reinstalls all plugins that have been installed 

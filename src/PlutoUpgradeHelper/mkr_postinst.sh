@@ -1,5 +1,5 @@
 #!/bin/bash
-/usr/pluto/bin/Debug_LogKernelModules.sh "$0"
+/usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
 PrevVer="$2"
 for UpgradePatch in /usr/share/pluto-upgrade-helper/* ;do
