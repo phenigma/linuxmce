@@ -106,7 +106,7 @@ RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedat
 				if(!scmdtext.empty()) {
 					/*for each command*/
 					rcode_ += "#### " + scmdid + " ####################################################################\n";
-					rcode_ += "def cmd_"; rcode_ += scmdid; rcode_ += "(cmd";
+					rcode_ += "def cmd_"; rcode_ += scmdid; rcode_ += "(";
 		
 					/*add command parameters*/
 					std::string sql = "select PK_CommandParameter, CommandParameter.Description, Command_CommandParameter.IsOut, CommandParameter.FK_ParameterType "
@@ -131,8 +131,8 @@ RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedat
 							PARAMPAIR parampair(atoi(rowparam[0]), rbparam);
 							paramlist.push_back(parampair);
 							
-							rcode_ += ", ";
 							rcode_ += rbparam;
+							rcode_ += ", ";
 							if(atoi(rowparam[2]) == 1)
 							{
 								rcode_setoutputparam[rbparam] = "def "+rbparam+"_set(value)\n@returnParamArray["+rowparam[0]+"]=value\nend\n";
@@ -143,8 +143,8 @@ RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedat
 					
 					g_pPlutoLogger->Write(LV_STATUS, "Added %d parameeters for Command %s: ", paramlist.size(), scmdid.c_str());
 					
-					rcode_ += ")""\n"; // SetLevel(
-					rcode_ += "@returnParamArray.clear\n"; 
+					rcode_ += "cmd=nil)""\n"; // SetLevel(
+					rcode_ += "@returnParamArray.clear\n";
 					//rcode_ += "conn_ = getConn()""\n";
 					rcode_ += TranslateCommandToRuby(scmdtext);
 					/*insert ruby code for the method*/
