@@ -25,7 +25,7 @@ LDFLAGS += -lxml2
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=
+sources += XML_Data_Factory.cpp XML_Data_CallBack.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
