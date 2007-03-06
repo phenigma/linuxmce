@@ -73,7 +73,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;../../libs/CrossPlatform/LibXML2/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -86,10 +86,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib pluto_main-r.lib libmysql.lib libxml2.lib"
 				OutputFile="../bin/Basic_XML_Data_Source_Plugin.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;../../libs/CrossPlatform/LibXML2/lib"
 				ModuleDefinitionFile="Basic_XML_Data_Source_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
