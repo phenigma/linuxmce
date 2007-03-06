@@ -280,9 +280,13 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 		}
 		break;
 
-		case dfXml:
+		default:
 		{
-			bReturnValue = SendString(pMessage->ToXML(true));
+			char *pData = NULL;
+			size_t nSize = 0;
+			pMessage->SerializeToData(m_DataFormat, pData, nSize);
+
+			bReturnValue = SendData(static_cast<int>(nSize), pData);
 		}
 		break;
 	}
@@ -355,20 +359,7 @@ Message *Socket::ReceiveMessage( int iLength, DataFormat format)
 			if ( ReceiveData( iLength, pcBuffer) ) // we got something back
 			{
 				pcBuffer[iLength]=0;
-				Message *pMessage;
-				if(format == dfPlainText)
-					pMessage = new Message( pcBuffer ); // making a message from the string
-				else if(format == dfBinary)
-					pMessage = new Message( iLength, pcBuffer[0] ? pcBuffer : pcBuffer + 1 ); // making a message from the data
-				else
-				{
-					//xml
-					pMessage = new Message();
-					pMessage->FromXML(pcBuffer);
-				}
-
-				delete[] pcBuffer; // freeing the buffer we no longer need
-				return pMessage;
+				return DecodeMessage(pcBuffer, iLength, format);
 			}
 			delete[] pcBuffer;
 			if( m_bQuit_get()|| m_bCancelSocketOp )
@@ -813,4 +804,22 @@ void Socket::SetReceiveTimeout( int TimeoutSeconds )
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "Setting timeout for socket %d to %d", m_Socket, m_iReceiveTimeout);
 #endif
+}
+
+/*virtual*/ Message *Socket::DecodeMessage(char *pcBuffer, int nLength, DataFormat format)
+{
+	Message *pMessage;
+	if(format == dfPlainText)
+		pMessage = new Message( pcBuffer ); // making a message from the string
+	else if(format == dfBinary)
+		pMessage = new Message( nLength, pcBuffer[0] ? pcBuffer : pcBuffer + 1 ); // making a message from the data
+	else 
+	{
+		pMessage = new Message();
+		//todo: check return code:
+		pMessage->DeserializeFromData(format, pcBuffer, nLength);
+	}
+
+	delete[] pcBuffer; // freeing the buffer we no longer need
+	return pMessage;
 }

@@ -19,8 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;.."
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;DEBUG"
+				AdditionalIncludeDirectories="../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;..;../../libs/CrossPlatform/LibXML2/include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;DEBUG;DCEROUTER"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadvc.lib wsock32.lib libmysql.lib pluto_main.lib dce.lib"
+				AdditionalDependencies="pthreadvc.lib wsock32.lib libmysql.lib pluto_main.lib dce.lib libxml2.lib"
 				OutputFile="../Debug/DCERouter.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/debug;../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;"
+				AdditionalLibraryDirectories="/mysql/lib/debug;../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../../libs/CrossPlatform/LibXML2/lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/DCERouter.pdb"
 				SubSystem="1"
@@ -138,6 +138,9 @@
 			</File>
 			<File
 				RelativePath=".\Main.cpp">
+			</File>
+			<File
+				RelativePath="..\Dce\MessageXML.cpp">
 			</File>
 		</Filter>
 		<Filter

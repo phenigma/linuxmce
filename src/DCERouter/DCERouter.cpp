@@ -69,6 +69,9 @@ using namespace std;
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_Installation.h"
 
+#include "DCE/MessageXML.h"
+#include "DCE/Message.h"
+
 #ifndef WIN32
 #include "dlfcn.h" // for Plugins (Dynamically Loaded Shared Objects)
 #endif
@@ -81,6 +84,9 @@ using namespace DCE;
 extern DCEConfig g_DCEConfig;
 
 #define  VERSION "<=version=>"
+
+bool SerializeMessageXML(Message *pMessage, char *&pData, size_t &nSize);
+bool DeserializeMessageXML(Message *pMessage, char *pData, size_t nSize);
 
 bool g_WatchDogFlag=false;
 void* WatchDogRoutine(void* param)
@@ -1532,6 +1538,17 @@ void Router::DoLogRotation()
 
 bool Router::Run()
 {
+	Message::RegisterSerializer(dfXml, &SerializeMessageXML);
+	Message::RegisterDeserializer(dfXml, &DeserializeMessageXML);
+/*
+Message::FromXML(string sXMLData)
+>>	MessageXML msg_xml(sXMLData, this);
+
+string Message::ToXML()
+>>	MessageXML msg_xml(this);
+>>	return msg_xml.GetXML();
+*/
+
     m_bIsLoading=true;
     StartListening();
 	int Timeout=0;
@@ -3064,4 +3081,27 @@ void Router::ShowSockets()
 bool Router::IsPlugin(int iPK_Device)
 {
 	return NULL != m_mapPlugIn_Find(iPK_Device);
+}
+
+bool SerializeMessageXML(Message *pMessage, char *&pData, size_t &nSize)
+{
+	//message -> xml
+	MessageXML msg_xml(pMessage);
+	string sData = msg_xml.GetXML();
+
+	nSize = sData.length() + 1;
+	pData = new char[nSize];
+	memcpy(pData, sData.c_str(), nSize - 1);
+	pData[nSize]  = '\0';
+
+	return !sData.empty();
+}
+
+bool DeserializeMessageXML(Message *pMessage, char *pData, size_t nSize)
+{
+	//xml -> message
+	string sXMLData(pData);
+	MessageXML msg_xml(sXMLData, pMessage);
+
+	return !msg_xml.Failed();
 }

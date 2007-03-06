@@ -36,18 +36,12 @@
 #define PING_TIMEOUT		5
 
 #include "DCE/Logger.h"
-
-enum DataFormat
-{
-	dfBinary,
-	dfPlainText,
-	dfXml
-};
+#include "DCE/Message.h"
 
 namespace DCE
 {
 	
-	class Message; /** < to be able to use it in declarations; we include it's header in the cpp file */
+	//class Message; /** < to be able to use it in declarations; we include it's header in the cpp file */
 
 	/**
 	 * @brief defines a socket that works under different architectures
@@ -179,6 +173,8 @@ namespace DCE
 		 * @brief Start monitoring the socket to be sure it stays alive
 		 */
 		virtual void StartPingLoop();
+
+		virtual Message *DecodeMessage(char *pcBuffer, int nLength, DataFormat format);
 
 		/**
 		 * @brief Called when a ping test failed

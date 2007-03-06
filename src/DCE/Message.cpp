@@ -31,6 +31,7 @@
 #include "PlutoUtils/uuencode.h"
 #include "PlutoUtils/PlutoDefs.h"
 #include "Message.h"
+
 #include "DCE/Logger.h"
 
 #ifdef WINCE
@@ -43,6 +44,9 @@ using namespace DCE;
 	// A counter used to mark messages so they can be traced in the low level logs
 	int g_MessageID=0;
 #endif
+
+map<DataFormat, SerializeMessage> Message::m_mapSerializers;
+map<DataFormat, DeserializeMessage> Message::m_mapDeserializers;
 
 Message::Message()
 {
@@ -283,11 +287,6 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		}
 		else
         {
-            //chris m (2005.10.13): no need to do this. it will be copied in a string, anyway
-            //we don't want a memory leaks, here...
-                //// This is assumed to not be deleted here
-	    		//pParmValue = strdup(pParmValue);
-
 			if( eType==ptData )
 				tSizeParmValue = strlen( pParmValue );
 		}
@@ -695,103 +694,6 @@ string Message::ToString( bool bWithHeader )
 	return sOutput;
 }
 
-/*virtual*/ string Message::ToXML(bool bWithHeader/*=false*/)
-{
-	string sXMLData = "<message type=\"" + StringUtils::ltos(m_dwMessage_Type) + 
-		"\" id=\"" + StringUtils::ltos(m_dwID) + "\" >";
-	
-	//from
-	sXMLData += "<from id=\"" + StringUtils::ltos(m_dwPK_Device_From) + "\" />";
-
-	//target
-	string sTargetType;
-	string sTargetID;
-
-	switch(m_dwPK_Device_To)
-	{
-		case DEVICEID_CATEGORY:
-		{
-			sTargetType = "category";
-			sTargetID = StringUtils::ltos(m_dwPK_Device_Category_To);
-		}
-		break;
-
-		case DEVICEID_MASTERDEVICE:
-		{
-			sTargetType = "template";
-			sTargetID = StringUtils::ltos(m_dwPK_Device_Template);
-		}
-		break;
-
-		case DEVICEID_LIST:
-		{
-			sTargetType = "device_list";
-			sTargetID = m_sPK_Device_List_To;
-		}
-		break;
-
-		default:
-		{
-			sTargetType = "device";
-			sTargetID = StringUtils::ltos(m_dwPK_Device_To);
-		}
-		break;
-	}
-
-	sXMLData += "<target id=\"" + sTargetID + "\" type=\"" + sTargetType + "\" />";    
-
-	//expected response
-	sXMLData += string("<expected_response type=\"") + 
-		(m_eExpectedResponse == ER_DeliveryConfirmation ? "delivery_confirmation" :
-			(m_eExpectedResponse == ER_ReplyString ? "reply_string" : "default")) + "\" />";
-
-	//parameters
-	sXMLData += "<parameters>";
-	//string params
-	for(map<long, string>::iterator itP = m_mapParameters.begin(); itP != m_mapParameters.end(); ++itP)
-		sXMLData += "<parameter id=\"" + StringUtils::ltos(itP->first) + "\" value=\"" + itP->second + "\" />";
-
-	//data params
-	for(map<long, char *>::iterator itD = m_mapData_Parameters.begin(); itD != m_mapData_Parameters.end(); ++itD)
-	{
-		size_t SizeRaw = m_mapData_Lengths[itD->first];
-		size_t SizeEncoded = MaxEncodedSize(SizeRaw);
-		char *pDataEncoded = new char[SizeEncoded];
-		int Bytes=Ns_HtuuEncode((unsigned char *) itD->second, SizeRaw, (unsigned char *) pDataEncoded);
-		pDataEncoded[Bytes] = 0;
-		sXMLData += "<parameter id=\"" + StringUtils::ltos(itD->first) + "\" value=\"" + pDataEncoded + "\" />";
-		delete[] pDataEncoded;
-	}
-
-	sXMLData += "</parameters>";
-
-	//extra messages
-	sXMLData += "<extra_messages>";
-
-    vector<class Message *>::iterator itExtras;
-    for( itExtras = m_vectExtraMessages.begin(); itExtras != m_vectExtraMessages.end(); ++itExtras )
-    {
-        Message *pMessage_Child = *itExtras;
-        if( pMessage_Child )  // The embedded message could have been deleted
-			sXMLData += pMessage_Child->ToString(false);
-    }
-
-	sXMLData += "</extra_messages>";
-	sXMLData += "</message>";
-
-	if(bWithHeader)
-	{
-		//TODO: add xml header here ? 
-	}
-
-	return sXMLData;
-}
-
-/*virtual*/ void Message::FromXML(string sXMLData)
-{
-	//TODO: use libxml2 to parse the xml and create a message object from it
-}
-
 void Message::FromData( unsigned long dwSize, char *pcData )
 {
     StartReading( dwSize, pcData );
@@ -887,3 +789,38 @@ void Message::Dump( int iLogLevel /*=LV_DEBUG*/)
 	g_pPlutoLogger->Write( iLogLevel, "**** m_bRelativeToSender: %d", m_bRelativeToSender );
 	g_pPlutoLogger->Write( iLogLevel, "**** m_eExpectedResponse: %d", m_eExpectedResponse );
 }
+
+/*static*/ void Message::RegisterSerializer(DataFormat format, SerializeMessage pfSerializeMessage)
+{
+	m_mapSerializers[format] = pfSerializeMessage;
+}
+
+/*static*/ void Message::RegisterDeserializer(DataFormat format, DeserializeMessage pfDeserializeMessage)
+{
+	m_mapDeserializers[format] = pfDeserializeMessage;
+}
+
+/*virtual*/ bool Message::SerializeToData(DataFormat format, char *&pData, size_t& nSize)
+{
+	map<DataFormat, SerializeMessage>::iterator it = m_mapSerializers.find(format);
+	if(it != m_mapSerializers.end())
+	{
+		SerializeMessage pfSerializeMessage = it->second;
+		return (*pfSerializeMessage)(this, pData, nSize);
+	}
+
+	return false;
+}
+
+/*virtual*/ bool Message::DeserializeFromData(DataFormat format, char *pData, size_t nSize)
+{
+	map<DataFormat, DeserializeMessage>::iterator it = m_mapDeserializers.find(format);
+	if(it != m_mapDeserializers.end())
+	{
+		DeserializeMessage pfDeserializeMessage = it->second;
+		return (*pfDeserializeMessage)(this, pData, nSize);
+	}
+
+	return false;
+}
+

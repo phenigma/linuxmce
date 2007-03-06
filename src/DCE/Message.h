@@ -96,13 +96,35 @@ namespace DCE
      */
     enum eExpectedResponse { ER_None=0, ER_ReplyMessage, ER_ReplyString, ER_DeliveryConfirmation };
 
+	enum DataFormat
+	{
+		dfBinary,
+		dfPlainText,
+		dfXml
+	};
+
+	class Message;
+
+	//message -> data
+	typedef bool (* SerializeMessage)(Message *pMessage, char *&pData, size_t &nSize);
+	//data -> message
+	typedef bool (* DeserializeMessage)(Message *pMessage, char *pData, size_t nSize);
+
     /**
      * @brief Data command and events message (sent between various devices)
      */
     class Message : public SerializeClass
     {
 
+		/** Serializers and deserializer methods */
+		static map<DataFormat, SerializeMessage> m_mapSerializers;
+		static map<DataFormat, DeserializeMessage> m_mapDeserializers;
+
     public:
+
+		static void RegisterSerializer(DataFormat format, SerializeMessage pfSerializeMessage);
+		static void RegisterDeserializer(DataFormat format, DeserializeMessage pfDeserializeMessage);
+
 
 		int m_MessageID;  // For low-level debugging only
 
@@ -231,13 +253,14 @@ namespace DCE
 
         virtual void ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader=false );
         virtual string ToString( bool bWithHeader=false );
-		virtual string ToXML(bool bWithHeader=false);
+		
+		virtual bool SerializeToData(DataFormat format, char *&pData, size_t& nSize);
+		virtual bool DeserializeFromData(DataFormat format, char *pData, size_t nSize);
 
         /**
          * @brief start deserializing the pcData to build the instance of the Message
          */
         void FromData( unsigned long dwSize, char *pcData );
-		virtual void FromXML(string sXMLData);
 
         /**
          * @brief Build from command line arguments
