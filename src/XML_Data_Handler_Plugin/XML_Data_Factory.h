@@ -42,6 +42,7 @@ namespace DCE
 
 	public:
 		XML_Data_Factory( Command_Impl *pCommand_Impl );
+		~XML_Data_Factory();
 		int RegisterForeignFactory(const char *szDataID,int PK_Device);
 		int Register(XML_Data_Source_Instantantiate _XML_Data_Source_Instantantiate,
 							   XML_Data_Source_DataID _XML_Data_Source_DataID,
