@@ -1,8 +1,10 @@
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 
 ROOT = ..
-CXXFLAGS = -Wall -ggdb3 -DxAUDIDEMO -fmessage-length=0CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -I/usr/include/libxml2/
+CXXFLAGS = -Wall -ggdb3 -DxAUDIDEMO -fmessage-length=0
+CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -I/usr/include/libxml2/
 LDFLAGS = -L$(ROOT)/lib -lxml2
+
 #LDLIBS = -lpthread -lmysqlclient_r -lattr -lDCECommon -lSerializeClass -lPlutoUtils -lpluto_main -lFakeEPG -lqt-mt -lmyth-0.16 -lmythtv-0.16
 LDLIBS = -lpthread -lmysqlclient_r -lattr -lDCECommon -lSerializeClass -lPlutoUtils -lpluto_main -ldl
 
@@ -16,7 +18,7 @@ sources = \
 		Main.cpp \
 		DCERouter.cpp \
 		DCERouter_CreatePluginHardCoded_Impl.cpp \
-		MessgeXML.cpp
+		../DCE/MessageXML.cpp
 
 
 #sources += ../Gen_Devices/Media_PluginBase.cpp ../Media_Plugin/Media_Plugin.cpp ../Media_Plugin/MediaPluginInfo.cpp
