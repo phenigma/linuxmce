@@ -79,7 +79,10 @@ public:
 	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar);
 	void PreprocessLightingMessage(DeviceData_Router *pDevice,Message *pMessage);
 	int GetLightingLevel(DeviceData_Router *pDevice,int iLevel_Default=0);
-	void SetLightState(int PK_Device,bool bIsOn,int Level=-1);  // Set the state of a light.  -1 = don't change the level, just the on/off
+	
+	// Set the state of a light.  -1 = don't change the level, just the on/off
+	void SetLightState(int PK_Device,bool bIsOn,int Level=-1, bool bRestore=true);
+	
 	void SetLightingAlarm(); // Find the next event in m_mapLightsToRestore and set the alarm callback
 	void AlarmCallback(int id, void* param);  // Implementation for AlarmEvent
 

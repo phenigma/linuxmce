@@ -279,6 +279,9 @@ bool Lighting_Plugin::GetVideoFrame( class Socket *pSocket, class Message *pMess
 		CMD_Set_Level.m_pMessage->m_mapParameters[COMMANDPARAMETER_Advanced_options_CONST]="1";  // Means don't process it in the interceptor
 		CMD_On.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Level.m_pMessage);
 		SendCommand(CMD_On);
+		
+		// set the new light status
+		SetLightState(pDevice_Light->m_dwPK_Device, true, 100, false);
 	}
 
 	if( bGotOne )
@@ -403,7 +406,7 @@ int Lighting_Plugin::GetLightingLevel(DeviceData_Router *pDevice,int iLevel_Defa
 		return iLevel_Default;
 }
 
-void Lighting_Plugin::SetLightState(int PK_Device,bool bIsOn,int Level)
+void Lighting_Plugin::SetLightState(int PK_Device,bool bIsOn,int Level, bool bRestore)
 {
 	DeviceData_Router *pDevice =  m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
 	if( !pDevice )
@@ -413,13 +416,16 @@ void Lighting_Plugin::SetLightState(int PK_Device,bool bIsOn,int Level)
 
 	pDevice->m_sState_set( (bIsOn ? "ON" : "OFF") + string("/") + StringUtils::itos(Level));
 
-	PLUTO_SAFETY_LOCK(lm,m_LightingMutex);
-	map<int, pair<time_t,string> >::iterator it=m_mapLightsToRestore.find(PK_Device);
-	if( it!=m_mapLightsToRestore.end() )
+	if( bRestore )
 	{
-		m_mapLightsToRestore.erase(it);
-		lm.Release();
-		SetLightingAlarm();
+		PLUTO_SAFETY_LOCK(lm,m_LightingMutex);
+		map<int, pair<time_t,string> >::iterator it=m_mapLightsToRestore.find(PK_Device);
+		if( it!=m_mapLightsToRestore.end() )
+		{
+			m_mapLightsToRestore.erase(it);
+			lm.Release();
+			SetLightingAlarm();
+		}
 	}
 }
 
@@ -464,6 +470,9 @@ void Lighting_Plugin::AlarmCallback(int id, void* param)
 					CMD_Set_Level.m_pMessage->m_mapParameters[COMMANDPARAMETER_Advanced_options_CONST]="1";  // Means don't process it in the interceptor
 					CMD_Set_Level.m_pMessage->m_vectExtraMessages.push_back(CMD_Off.m_pMessage);
 					SendCommand(CMD_Set_Level);
+					
+					// set the light state
+					SetLightState(it->first, false, 0, false);
 				}
 				else
 				{
@@ -473,6 +482,9 @@ void Lighting_Plugin::AlarmCallback(int id, void* param)
 					CMD_Set_Level.m_pMessage->m_mapParameters[COMMANDPARAMETER_Advanced_options_CONST]="1";  // Means don't process it in the interceptor
 					CMD_On.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Level.m_pMessage);
 					SendCommand(CMD_On);
+					
+					// set the light state
+					SetLightState(it->first, true, 100, false);
 				}
 			}
 			m_mapLightsToRestore.erase(it++);
