@@ -72,7 +72,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;.."
+				AdditionalIncludeDirectories="../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;..;../../libs/CrossPlatform/LibXML2/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;MYSQL_VER_40023"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -85,11 +85,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pluto_main-r.lib pthreadvc.lib wsock32.lib libmysql.lib dce-r.lib"
+				AdditionalDependencies="pluto_main-r.lib pthreadvc.lib wsock32.lib libmysql.lib dce-r.lib libxml2.lib"
 				ShowProgress="0"
 				OutputFile="../bin/DCERouter.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="/mysql/lib/debug;../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;"
+				AdditionalLibraryDirectories="/mysql/lib/debug;../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../../libs/CrossPlatform/LibXML2/lib"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
