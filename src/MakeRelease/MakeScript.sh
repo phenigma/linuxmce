@@ -64,6 +64,12 @@ done
 exec 1> >(tee /tmp/MakeScript-$flavor.log) 2>&1
 echo "Building: branch=$branch, rev=$rev_pub,$rev_prv, flavor=$flavor,nobuild=$nobuild,nocheckout=$nocheckout,nosqlcvs=$nosqlcvs,nosqlcvs_sync=$nosqlcvs_sync,dont_compile_existing=$dont_compile_existing,no-upload=$no-upload"
 
+if [[ "$flavor" == pluto_debug ]]; then
+	. /home/WorkNew/src/BootScripts/LockUtils.sh
+	WaitLock "DebugBuild" "DailyBuilder"
+	trap 'Unlock "DebugBuild" "DailyBuilder"' EXIT
+fi
+
 ## Read and export the configuration options
 . /home/WorkNew/src/MakeRelease/MR_Conf.sh
 export MakeRelease_Flavor="$flavor"
@@ -271,8 +277,21 @@ fi;
 
 # Creating target folder.
 mkdir -p "$BASE_OUT_FOLDER/$version_name";
+
+if [[ "$MakeRelease_Flavor" == pluto_debug ]]; then
+	. /home/WorkNew/src/BootScripts/SQL_Ops.sh
+	UseDB pluto_builder
+	Q="
+		DELETE
+		FROM File
+	"
+	RunSQL "$Q"
+	
+	MakeRelease_Gparm=-g
+fi
+
 echo "Marker: starting compilation `date`"
-if ! MakeRelease $fastrun $nobuild $dont_compile_existing -O "$BASE_OUT_FOLDER/$version_name" -D main_sqlcvs_"$flavor" -c -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
+if ! MakeRelease $MakeRelease_Gparm $fastrun $nobuild $dont_compile_existing -O "$BASE_OUT_FOLDER/$version_name" -D main_sqlcvs_"$flavor" -c -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
@@ -283,11 +302,31 @@ fi
 cp /home/builds/Windows_Output/src/bin/* $build_dir/trunk/src/bin
 
 echo "Marker: starting package building `date`"
-if ! MakeRelease $fastrun -D main_sqlcvs_"$flavor" -O "$BASE_OUT_FOLDER/$version_name" -b -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
+if ! MakeRelease $MakeRelease_Gparm $fastrun -D main_sqlcvs_"$flavor" -O "$BASE_OUT_FOLDER/$version_name" -b -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
 	exit
+fi
+
+# Compute MD5s
+echo "Marker: calculating MD5 sums `date`"
+if [[ "$MakeRelease_Flavor" == pluto_debug ]]; then
+	Q="
+		SELECT Filename
+		FROM File
+	"
+	while read row; do
+		filename=$(Field 1 "$row")
+		filemd5=$(md5sum "$filename"|awk '{print $1}')
+		echo "MD5: $filemd5; File: $filename"
+		Q="
+			UPDATE File
+			SET md5='$filemd5'
+			WHERE Filename='$filename'
+		"
+		RunSQL "$Q"
+	done < <(RunSQL "$Q" | tr ' ' '\n')
 fi
 
 #TODO: What the bleep is BUILD.sh ? (razvan)
