@@ -54,7 +54,8 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 
 	sleep 1
 	cd 
-	/usr/bin/eject /media/cdrom &>/dev/null
+	/bin/umount /media/cdrom &>/dev/null
+	/usr/bin/eject /dev/cdrom &>/dev/null
 	echo ""
 	echo "Finished processing \"<-mkr_t_name_mixed-> Extras CD version 1\""
 	echo ""
