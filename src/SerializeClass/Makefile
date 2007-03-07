@@ -4,7 +4,7 @@ ROOT = ..
 VIP = ../VIPShared
 GDEV = ./Gen_Devices
 CXXFLAGS = -Wall -g -ggdb3 -D_GNU_SOURCE
-CPPFLAGS = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID
+CPPFLAGS = -I./ -I../../ -I../ -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS)
 CXX = g++
 
 sources = SerializeClass.cpp
