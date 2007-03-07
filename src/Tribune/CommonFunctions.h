@@ -37,7 +37,7 @@
 
 typedef map<string,string> MapStringString;
 typedef map<int,string> MapIntString;
-typedef map<unsigned long long,string> MapUnsignedLLString;
+typedef map<u_int64_t,string> MapUnsignedLLString;
 
 namespace Tribune
 {

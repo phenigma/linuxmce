@@ -182,7 +182,10 @@ bool R_GetDiffs::InsertSchedule(string pk_station){
 			map<u_int64_t,string>::iterator it=m_mapSchedule.find(atoll(row1[0]));
 
 			if( it == m_mapSchedule.end() ){
-				clientfile<<"INSERT INTO Schedule(PK_Schedule, FK_Station, FK_ProgramRecord, AirDate, AirTime, Duration, PartNum, NumOfParts, CCaptioning, Stereo, Repeating, LiveTapeDelay, Subtitled, PremiereFinale, JoinedInProgress, CableInTheClassroom, TVRating, Sap, Blackout, SexRating, ViolenceRating, LanguageRating, DialogRating, FvRating, Enhanced, ThreeD, LetterBox, Hdtv, Dolby, Dvs, Checksum, TimestampF) VALUES (\""<<row1[0]<<"\",\""<<row1[2]<<"\",\""<<row1[3]<<"\",\""<<row1[4]<<"\",\""<<row1[5]<<"\",\""<<row1[6]<<"\",\""<<row1[7]<<"\",\""<<row1[8]<<"\",\""<<row1[9]<<"\",\""<<row1[10]<<"\",\""<<row1[11]<<"\",\""<<row1[12]<<"\",\""<<row1[13]<<"\",\""<<row1[14]<<"\",\""<<row1[15]<<"\",\""<<row1[16]<<"\",\""<<row1[17]<<"\",\""<<row1[18]<<"\",\""<<row1[19]<<"\",\""<<row1[20]<<"\",\""<<row1[21]<<"\",\""<<row1[22]<<"\",\""<<row1[23]<<"\",\""<<row1[24]<<"\",\""<<row1[25]<<"\",\""<<row1[26]<<"\",\""<<row1[27]<<"\",\""<<row1[28]<<"\",\""<<row1[29]<<"\",\""<<row1[30]<<"\", \""<<row1[31]<<"\", \""<<row1[32]<<"\") \n";
+					
+				cout << "Insert into schedule" << row1[0] << endl;
+
+				clientfile<<"INSERT INTO Schedule(PK_Schedule, FK_Station, FK_ProgramRecord, AirDate, AirTime, Duration, PartNum, NumOfParts, CCaptioning, Stereo, Repeating, LiveTapeDelay, Subtitled, PremiereFinale, JoinedInProgress, CableInTheClassroom, TVRating, Sap, Blackout, SexRating, ViolenceRating, LanguageRating, DialogRating, FvRating, Enhanced, ThreeD, LetterBox, Hdtv, Dolby, Dvs, Checksum, TimestampF) VALUES (\""<<row1[0]<<"\",\""<<row1[1]<<"\",\""<<row1[2]<<"\",\""<<row1[3]<<"\",\""<<row1[4]<<"\",\""<<row1[5]<<"\",\""<<row1[6]<<"\",\""<<row1[7]<<"\",\""<<row1[8]<<"\",\""<<row1[9]<<"\",\""<<row1[10]<<"\",\""<<row1[11]<<"\",\""<<row1[12]<<"\",\""<<row1[13]<<"\",\""<<row1[14]<<"\",\""<<row1[15]<<"\",\""<<row1[16]<<"\",\""<<row1[17]<<"\",\""<<row1[18]<<"\",\""<<row1[19]<<"\",\""<<row1[20]<<"\",\""<<row1[21]<<"\",\""<<row1[22]<<"\",\""<<row1[23]<<"\",\""<<row1[24]<<"\",\""<<row1[25]<<"\",\""<<row1[26]<<"\",\""<<row1[27]<<"\",\""<<row1[28]<<"\",\""<<row1[29]<<"\",\""<<row1[30]<<"\",\""<<row1[31]<<"\") \n";
 			}
 			
 		}
@@ -271,7 +274,10 @@ bool R_GetDiffs::InsertProgramRecord(string pk_station){
 			map<string,string>::iterator it=m_mapProgramRecord.find(row1[0]);
 
 			if( it == m_mapProgramRecord.end() ){
-				clientfile<<"INSERT INTO ProgramRecord(PK_ProgramRecord, Title, ReducedTitle1, ReducedTitle2, ReducedTitle3, ReducedTitle4, AltTitle, ReducedDesc1, ReducedDesc2, ReducedDesc3, AdvisoryAdultContent, AdvisoryExplicitLanguage, AdvisoryNudity, AdvisoryViolence, AdvisorySexualContent, AdvisoryRapeContent, Description, RealYear, MpaaRating, StarRating, RunTime, ColorCode, ProgramLanguage, OrgCountry, MadeForTV, SourceType, ShowType, Holiday, SynEpiNum, AltSynEpiNum, EpiTitle, NetSynSource, NetSynType, DescWithActors, ReducedDescWithActors, OrgStudio, Gamedate, GameTime, GameTimeZone, OrgAirDate, UniqueID, Checksum, TimestampF) VALUES (\""<<row1[0]<<"\",\""<<row1[2]<<"\",\""<<row1[3]<<"\",\""<<row1[4]<<"\",\""<<row1[5]<<"\",\""<<row1[6]<<"\",\""<<row1[7]<<"\",\""<<row1[8]<<"\",\""<<row1[9]<<"\",\""<<row1[10]<<"\",\""<<row1[11]<<"\",\""<<row1[12]<<"\",\""<<row1[13]<<"\",\""<<row1[14]<<"\",\""<<row1[15]<<"\",\""<<row1[16]<<"\",\""<<row1[17]<<"\",\""<<row1[18]<<"\",\""<<row1[19]<<"\",\""<<row1[20]<<"\",\""<<row1[21]<<"\",\""<<row1[22]<<"\",\""<<row1[23]<<"\",\""<<row1[24]<<"\",\""<<row1[25]<<"\",\""<<row1[26]<<"\",\""<<row1[27]<<"\",\""<<row1[28]<<"\",\""<<row1[29]<<"\",\""<<row1[30]<<"\",\""<<row1[31]<<"\",\""<<row1[32]<<"\",\""<<row1[33]<<"\",\""<<row1[34]<<"\",\""<<row1[35]<<"\",\""<<row1[36]<<"\",\""<<row1[37]<<"\",\""<<row1[38]<<"\",\""<<row1[39]<<"\",\""<<row1[40]<<"\",\""<<row1[41]<<"\",\""<<row1[42]<<"\",\""<<row1[43]<<"\") \n";
+
+				cout << "Insert into ProgramRecord " << row1[0] << endl;
+
+				clientfile<<"INSERT INTO ProgramRecord(PK_ProgramRecord, Title, ReducedTitle1, ReducedTitle2, ReducedTitle3, ReducedTitle4, AltTitle, ReducedDesc1, ReducedDesc2, ReducedDesc3, AdvisoryAdultContent, AdvisoryExplicitLanguage, AdvisoryNudity, AdvisoryViolence, AdvisorySexualContent, AdvisoryRapeContent, Description, RealYear, MpaaRating, StarRating, RunTime, ColorCode, ProgramLanguage, OrgCountry, MadeForTV, SourceType, ShowType, Holiday, SynEpiNum, AltSynEpiNum, EpiTitle, NetSynSource, NetSynType, DescWithActors, ReducedDescWithActors, OrgStudio, Gamedate, GameTime, GameTimeZone, OrgAirDate, UniqueID, Checksum, TimestampF) VALUES (\""<<row1[0]<<"\",\""<<row1[1]<<"\",\""<<row1[2]<<"\",\""<<row1[3]<<"\",\""<<row1[4]<<"\",\""<<row1[5]<<"\",\""<<row1[6]<<"\",\""<<row1[7]<<"\",\""<<row1[8]<<"\",\""<<row1[9]<<"\",\""<<row1[10]<<"\",\""<<row1[11]<<"\",\""<<row1[12]<<"\",\""<<row1[13]<<"\",\""<<row1[14]<<"\",\""<<row1[15]<<"\",\""<<row1[16]<<"\",\""<<row1[17]<<"\",\""<<row1[18]<<"\",\""<<row1[19]<<"\",\""<<row1[20]<<"\",\""<<row1[21]<<"\",\""<<row1[22]<<"\",\""<<row1[23]<<"\",\""<<row1[24]<<"\",\""<<row1[25]<<"\",\""<<row1[26]<<"\",\""<<row1[27]<<"\",\""<<row1[28]<<"\",\""<<row1[29]<<"\",\""<<row1[30]<<"\",\""<<row1[31]<<"\",\""<<row1[32]<<"\",\""<<row1[33]<<"\",\""<<row1[34]<<"\",\""<<row1[35]<<"\",\""<<row1[36]<<"\",\""<<row1[37]<<"\",\""<<row1[38]<<"\",\""<<row1[39]<<"\",\""<<row1[40]<<"\",\""<<row1[41]<<"\",\""<<row1[42]<<"\") \n";
 
 				if (! InsertProgramRecord_Genre((string)row1[0])){
 					return false;
@@ -315,6 +321,22 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 	cout << "r_GetDiffs"<< endl;
 	std::ostringstream sSQL;
 
+	cout << "Pe server ajung: " << endl;
+	cout << "Program record size " << m_mapProgramRecord.size()<<endl; 
+        cout << "Station size "<< m_mapStation.size()<<endl;
+	cout << "Schedule size "<<m_mapSchedule.size()<<endl;
+	cout << "Actor size " <<m_mapActor.size()<<endl;
+	cout << "Genre sieze " <<m_mapGenre.size()<<endl;
+	cout << "Role size " <<m_mapRole.size()<<endl;
+
+	cout << "------------Cele de pe server sunt: " << endl;
+	cout << "Program record size " << (g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord).size()<<endl; 
+        cout << "Station size "<< (g_GlobalConfig.mapPrimaryKey_Timestam_Station).size()<<endl;
+	cout << "Schedule size "<<(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).size()<<endl;
+	cout << "Actor size " <<(g_GlobalConfig.mapPrimaryKey_Actor).size()<<endl;
+	cout << "Genre sieze " <<(g_GlobalConfig.mapPrimaryKey_Genre).size()<<endl;
+	cout << "Role size " <<(g_GlobalConfig.mapPrimaryKey_Role).size()<<endl;
+	
 	/** update or delete program record table*/
 	map<string,string>::iterator iter;
 	for( iter = m_mapProgramRecord.begin(); iter != m_mapProgramRecord.end(); iter++ ) {
@@ -355,187 +377,251 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 	}
 
 	/** update or delete genre table*/
-	for( iter = m_mapGenre.begin(); iter != m_mapGenre.end(); iter++ ) {
-
-		map<string,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Genre).find(iter->first);
-
-
-		if( it == (g_GlobalConfig.mapPrimaryKey_Genre).end() ){
-
-			clientfile << "DELETE FROM Genre WHERE PK_Genre='"<<iter->first<<"'\n";	
-
-		} 
-	}
-
-	for( iter = (g_GlobalConfig.mapPrimaryKey_Genre).begin(); iter != (g_GlobalConfig.mapPrimaryKey_Genre).end(); iter++ ) {
-
-		map<string,string>::iterator it=m_mapGenre.find(iter->first);
-
-
-		if( it == m_mapGenre.end() ){
-			std::ostringstream sSQL;
-			sSQL << "SELECT Description, Level FROM Genre WHERE PK_Genre='" << iter->first<<"'";
-			
-			PlutoSqlResult res1;
-			MYSQL_ROW row1=NULL;
-			res1.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
-
-			if( !res1.r )
-			{
-				cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
-				m_cProcessOutcome=INTERNAL_ERROR;
+	if (m_mapGenre.empty()){
+		cout << "Tabela genre e goala" << endl;
+		std::ostringstream sSQL;
+		sSQL << "SELECT PK_Genre, Description, Level FROM Genre";
+		PlutoSqlResult res;
+		MYSQL_ROW row=NULL;
+		res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+		
+		if( !res.r )
+		{
+			cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+			m_cProcessOutcome=INTERNAL_ERROR;
+		}
+		else
+		{
+			while ( ( row = mysql_fetch_row( res.r ) ) ){
+				clientfile<<"INSERT INTO Genre(PK_Genre, Description, Level) VALUES (\""<<row[0]<<"\",\""<<row[1]<<"\",\""<<row[2]<<"\")\n";
 			}
-			else
-			{
-				row1 = mysql_fetch_row( res1.r );
-				clientfile<<"INSERT INTO Genre(PK_Genre, Description, Level) VALUES (\""<<iter->first<<"\",\""<<row1[0]<<"\",\""<<row1[1]<<"\")\n";
-				m_mapGenre[iter->first]="";
-			}
+		}
+	} else {
 
-		} 
+		for( iter = m_mapGenre.begin(); iter != m_mapGenre.end(); iter++ ) {
+		
+			map<string,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Genre).find(iter->first);
+		
+		
+			if( it == (g_GlobalConfig.mapPrimaryKey_Genre).end() ){
+		
+				clientfile << "DELETE FROM Genre WHERE PK_Genre='"<<iter->first<<"'\n";	
+		
+			} 
+		}
+		
+		for( iter = (g_GlobalConfig.mapPrimaryKey_Genre).begin(); iter != (g_GlobalConfig.mapPrimaryKey_Genre).end(); iter++ ) {
+		
+			map<string,string>::iterator it=m_mapGenre.find(iter->first);
+		
+		
+			if( it == m_mapGenre.end() ){
+				std::ostringstream sSQL;
+				sSQL << "SELECT Description, Level FROM Genre WHERE PK_Genre='" << iter->first<<"'";
+				
+				PlutoSqlResult res1;
+				MYSQL_ROW row1=NULL;
+				res1.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+		
+				if( !res1.r )
+				{
+					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+					m_cProcessOutcome=INTERNAL_ERROR;
+				}
+				else
+				{
+					row1 = mysql_fetch_row( res1.r );
+					clientfile<<"INSERT INTO Genre(PK_Genre, Description, Level) VALUES (\""<<iter->first<<"\",\""<<row1[0]<<"\",\""<<row1[1]<<"\")\n";
+					m_mapGenre[iter->first]="";
+				}
+		
+			} 
+		}
 	}
 
 	/** update or delete role table*/
-	for( iter = m_mapRole.begin(); iter != m_mapRole.end(); iter++ ) {
-
-
-		map<string,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Role).find(iter->first);
-
-
-		if( it == (g_GlobalConfig.mapPrimaryKey_Role).end() ){
-
-			clientfile << "DELETE FROM Role WHERE PK_Role='"<<iter->first<<"'\n";	
-
-		} 
-	}
-
-	for( iter = (g_GlobalConfig.mapPrimaryKey_Role).begin(); iter != (g_GlobalConfig.mapPrimaryKey_Role).end(); iter++ ) {
-
-		map<string,string>::iterator it=m_mapRole.find(iter->first);
-
-
-		if( it == m_mapRole.end() ){
-			std::ostringstream sSQL;
-			sSQL << "SELECT Description FROM Role WHERE PK_Role='" << iter->first<<"'";
-						
-			PlutoSqlResult res;
-			MYSQL_ROW row=NULL;
-			res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
-
-			if( !res.r )
-			{
-				cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
-				m_cProcessOutcome=INTERNAL_ERROR;
+	if (m_mapRole.empty()){
+		cout << "Tabela role e goala" << endl;
+		std::ostringstream sSQL;
+		sSQL << "SELECT PK_Role, Description FROM Role";
+		PlutoSqlResult res;
+		MYSQL_ROW row=NULL;
+		res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+		
+		if( !res.r )
+		{
+			cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+			m_cProcessOutcome=INTERNAL_ERROR;
+		}
+		else
+		{
+			while ( ( row = mysql_fetch_row( res.r ) ) ){
+				clientfile<<"INSERT INTO Role(PK_Role, Description) VALUES (\""<<row[0]<<"\",\""<<row[1]<<"\")\n";
 			}
-			else
-			{
-				row = mysql_fetch_row( res.r );
-				clientfile<<"INSERT INTO Role(PK_Role, Description) VALUES (\""<<iter->first<<"\",\""<<row[0]<<"\") \n";
-				m_mapRole[iter->first]="";
-
-			}	
-
-		} 
+		}
+	} else {
+		for( iter = m_mapRole.begin(); iter != m_mapRole.end(); iter++ ) {
+	
+			map<string,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Role).find(iter->first);
+	
+	
+			if( it == (g_GlobalConfig.mapPrimaryKey_Role).end() ){
+				
+				cout << "nu-l gasesc pe "<< iter->first <<endl;
+				clientfile << "DELETE FROM Role WHERE PK_Role='"<<iter->first<<"'\n";	
+	
+			} 
+		}
+	
+		for( iter = (g_GlobalConfig.mapPrimaryKey_Role).begin(); iter != (g_GlobalConfig.mapPrimaryKey_Role).end(); iter++ ) {
+	
+			map<string,string>::iterator it=m_mapRole.find(iter->first);
+	
+	
+			if( it == m_mapRole.end() ){
+				std::ostringstream sSQL;
+				sSQL << "SELECT Description FROM Role WHERE PK_Role='" << iter->first<<"'";
+							
+				PlutoSqlResult res;
+				MYSQL_ROW row=NULL;
+				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	
+				if( !res.r )
+				{
+					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+					m_cProcessOutcome=INTERNAL_ERROR;
+				}
+				else
+				{
+					row = mysql_fetch_row( res.r );
+					clientfile<<"INSERT INTO Role(PK_Role, Description) VALUES (\""<<iter->first<<"\",\""<<row[0]<<"\") \n";
+					m_mapRole[iter->first]="";
+	
+				}	
+	
+			} 
+		}
 	}
 
 	/** update or delete actor table*/
-	for( iter = m_mapActor.begin(); iter != m_mapActor.end(); iter++ ) {
-
-		conversion = false;
-
-		map<string,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Actor).find(iter->first);
-
-
-		if( it == (g_GlobalConfig.mapPrimaryKey_Actor).end() ){
-
-			clientfile << "DELETE FROM Actor WHERE PK_Actor='"<<iter->first<<"'\n";	
-
-		} 
-	}
-
-	for( iter = (g_GlobalConfig.mapPrimaryKey_Actor).begin(); iter != (g_GlobalConfig.mapPrimaryKey_Actor).end(); iter++ ) {
-
-		map<string,string>::iterator it=m_mapActor.find(iter->first);
-
-
-		if( it == m_mapActor.end() ){
-			std::ostringstream sSQL;
-			sSQL << "SELECT FirstName, LastName FROM Actor WHERE PK_Actor=\"" << iter->first<<"\"";
-				
-			PlutoSqlResult res1;
-			MYSQL_ROW row1=NULL;
-			res1.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
-
-			if( !res1.r )
-			{
-				cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
-				m_cProcessOutcome=INTERNAL_ERROR;
+	if (m_mapActor.empty()){
+		cout << "Tabela actor e goala" << endl;
+		std::ostringstream sSQL;
+		sSQL << "SELECT PK_Actor, FirstName, LastName FROM Actor";
+		PlutoSqlResult res;
+		MYSQL_ROW row=NULL;
+		res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+		
+		if( !res.r )
+		{
+			cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+			m_cProcessOutcome=INTERNAL_ERROR;
+		}
+		else
+		{
+			while ( ( row = mysql_fetch_row( res.r ) ) ){
+				clientfile<<"INSERT INTO Actor(PK_Actor, FirstName, LastName) VALUES (\""<<row[0]<<"\",\""<<row[1]<<"\",\""<<row[2]<<"\")\n";
 			}
-			else
-			{
-				row1 = mysql_fetch_row( res1.r );
-				clientfile<<"INSERT INTO Actor(PK_Actor, FirstName, LastName) VALUES (\""<<iter->first<<"\",\""<<row1[0]<<"\",\""<<row1[1]<<"\")\n";
-				m_mapActor[iter->first]="";
-			}
-
-		} 
+		}
+	} else {
+		for( iter = m_mapActor.begin(); iter != m_mapActor.end(); iter++ ) {
+	
+			conversion = false;
+	
+			map<string,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Actor).find(iter->first);
+	
+	
+			if( it == (g_GlobalConfig.mapPrimaryKey_Actor).end() ){
+	
+				clientfile << "DELETE FROM Actor WHERE PK_Actor=\""<<iter->first<<"\"\n";	
+	
+			} 
+		}
+	
+		for( iter = (g_GlobalConfig.mapPrimaryKey_Actor).begin(); iter != (g_GlobalConfig.mapPrimaryKey_Actor).end(); iter++ ) {
+	
+			map<string,string>::iterator it=m_mapActor.find(iter->first);
+	
+	
+			if( it == m_mapActor.end() ){
+				std::ostringstream sSQL;
+				sSQL << "SELECT FirstName, LastName FROM Actor WHERE PK_Actor=\"" << iter->first<<"\"";
+					
+				PlutoSqlResult res1;
+				MYSQL_ROW row1=NULL;
+				res1.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	
+				if( !res1.r )
+				{
+					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+					m_cProcessOutcome=INTERNAL_ERROR;
+				}
+				else
+				{
+					row1 = mysql_fetch_row( res1.r );
+					clientfile<<"INSERT INTO Actor(PK_Actor, FirstName, LastName) VALUES (\""<<iter->first<<"\",\""<<row1[0]<<"\",\""<<row1[1]<<"\")\n";
+					m_mapActor[iter->first]="";
+				}
+	
+			} 
+		}
 	}
 	
 		/** update or delete schedule table*/
 
 		/** this must not be commented after the serialization bug is fixed*/
+		map<u_int64_t,string>::iterator iter_uint;
+		for( iter_uint = m_mapSchedule.begin(); iter_uint != m_mapSchedule.end(); iter_uint++ ) {
 
-// 		for( iter = m_mapSchedule.begin(); iter != m_mapSchedule.end(); iter++ ) {
-// 
-// 			conversion = false;
-// 	
-// 			map<u_int64_t,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).find(iter->first);
-// 
-// 			if ((iter->second).length()>14){
-// 				convtime = ChangedTime(iter->second);
-// 				conversion = true;
-// 			} else {
-// 				convtime = iter->second;
-// 			}
-// 
-// 			if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).end() ){
-// 
-// 				clientfile << "DELETE FROM Schedule WHERE PK_Schedule='"<<iter->first<<"'\n";	
-// 
-// 			} else if ( ( (iter->second).compare(it->second) ) != 0 ) {
-// 				
-// 				sSQL << "SELECT * FROM Schedule PK_Schedule=" << it->first;
-// 		
-// 				PlutoSqlResult res;
-// 				MYSQL_ROW row=NULL;
-// 				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
-// 				if( !res.r )
-// 				{
-// 					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
-// 					m_cProcessOutcome=INTERNAL_ERROR;
-// 				}
-// 				else
-// 				{
-// 					row = mysql_fetch_row( res.r );
-// 					string timestamp;
-// 
-// 					if( !row[0] )
-// 					{
-// 						cerr << "Found NULL in query: " << sSQL.str() << endl;
-// 						m_cProcessOutcome=INTERNAL_ERROR;
-// 						return true; /**<< Request successfully processed */
-// 					}
-// 					if (conversion){
-// 						timestamp = ChangedLongFormatTime(row[31]);
-// 					} else{
-// 						timestamp = row[31];
-// 					}
-// 					clientfile<<"UPDATE Schedule SET FK_Station=\""<<row[1]<<"\", FK_ProgramRecord=\""<<row[2]<<"\", AirDate=\""<<row[3]<<"\", AirTime=\""<<row[4]<<"\", Duration=\""<<row[5]<<"\", PartNum=\""<<row[6]<<"\", NumOfParts=\""<<row[7]<<"\", CCaptioning=\""<<row[8]<<"\", Stereo=\""<<row[9]<<"\", Repeating=\""<<row[10]<<"\", LiveTapeDelay=\""<<row[11]<<"\", Subtitled=\""<<row[12]<<"\", PremiereFinale=\""<<row[13]<<"\", JoinedInProgress=\""<<row[14]<<"\", CableInTheClassroom=\""<<row[15]<<"\", TVRating=\""<<row[16]<<"\", Sap=\""<<row[17]<<"\", Blackout=\""<<row[18]<<"\", SexRating=\""<<row[19]<<"\", ViolenceRating=\""<<row[20]<<"\", LanguageRating=\""<<row[21]<<"\", DialogRating=\""<<row[22]<<"\", FvRating=\""<<row[23]<<"\", Enhanced=\""<<row[24]<<"\", ThreeD=\""<<row[25]<<"\", LetterBox=\""<<row[26]<<"\", Hdtv=\""<<row[27]<<"\", Dolby=\""<<row[28]<<"\", Dvs=\""<<row[29]<<"\", Checksum=\""<<row[30]<<"\", TimestampF=\""<<timestamp<<"\" WHERE PK_Schedule=\""<<it->first<<"\"\n";
-// 
-// 				}
-//  
-// 			}
-// 		}
+			conversion = false;
+	
+			map<u_int64_t,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).find(iter_uint->first);
+
+			if ((iter_uint->second).length()>14){
+				convtime = ChangedTime(iter_uint->second);
+				conversion = true;
+			} else {
+				convtime = iter_uint->second;
+			}
+
+			if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).end() ){
+
+				clientfile << "DELETE FROM Schedule WHERE PK_Schedule='"<<iter_uint->first<<"'\n";	
+
+			} else if ( ( (iter_uint->second).compare(it->second) ) != 0 ) {
+				
+				sSQL << "SELECT * FROM Schedule PK_Schedule=" << it->first;
+		
+				PlutoSqlResult res;
+				MYSQL_ROW row=NULL;
+				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+				if( !res.r )
+				{
+					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+					m_cProcessOutcome=INTERNAL_ERROR;
+				}
+				else
+				{
+					row = mysql_fetch_row( res.r );
+					string timestamp;
+
+					if( !row[0] )
+					{
+						cerr << "Found NULL in query: " << sSQL.str() << endl;
+						m_cProcessOutcome=INTERNAL_ERROR;
+						return true; /**<< Request successfully processed */
+					}
+					if (conversion){
+						timestamp = ChangedLongFormatTime(row[31]);
+					} else{
+						timestamp = row[31];
+					}
+					clientfile<<"UPDATE Schedule SET FK_Station=\""<<row[1]<<"\", FK_ProgramRecord=\""<<row[2]<<"\", AirDate=\""<<row[3]<<"\", AirTime=\""<<row[4]<<"\", Duration=\""<<row[5]<<"\", PartNum=\""<<row[6]<<"\", NumOfParts=\""<<row[7]<<"\", CCaptioning=\""<<row[8]<<"\", Stereo=\""<<row[9]<<"\", Repeating=\""<<row[10]<<"\", LiveTapeDelay=\""<<row[11]<<"\", Subtitled=\""<<row[12]<<"\", PremiereFinale=\""<<row[13]<<"\", JoinedInProgress=\""<<row[14]<<"\", CableInTheClassroom=\""<<row[15]<<"\", TVRating=\""<<row[16]<<"\", Sap=\""<<row[17]<<"\", Blackout=\""<<row[18]<<"\", SexRating=\""<<row[19]<<"\", ViolenceRating=\""<<row[20]<<"\", LanguageRating=\""<<row[21]<<"\", DialogRating=\""<<row[22]<<"\", FvRating=\""<<row[23]<<"\", Enhanced=\""<<row[24]<<"\", ThreeD=\""<<row[25]<<"\", LetterBox=\""<<row[26]<<"\", Hdtv=\""<<row[27]<<"\", Dolby=\""<<row[28]<<"\", Dvs=\""<<row[29]<<"\", Checksum=\""<<row[30]<<"\", TimestampF=\""<<timestamp<<"\" WHERE PK_Schedule=\""<<it->first<<"\"\n";
+
+				}
+ 
+			}
+		}
 
 		/** update or delete station table*/
 		map<int,string>::iterator iter1;
@@ -593,6 +679,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		}
 
 		/** insert for station table*/
+		int statnr =0;
 		if (m_blacklist.length( )==0){
 			sSQL << "SELECT s.* FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_lineup;
 		} else {
@@ -602,7 +689,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		PlutoSqlResult res;
 		MYSQL_ROW row=NULL;
 		res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
-
+		
 		if( !res.r )
 		{
 			cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -611,6 +698,9 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		else
 		{
 			while ( ( row = mysql_fetch_row( res.r ) ) ){
+
+				statnr++;
+				cout << "[ "<< statnr << " ]" <<"----> Inserting station: " << row[2] <<endl;
 
 				if( !row[0] )
 				{

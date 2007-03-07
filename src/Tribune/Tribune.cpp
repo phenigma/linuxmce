@@ -12,7 +12,7 @@
 #include "RA/RA_Processor.h"
 #include "ClientFunctions.h"
 #include "ServerManagement.h"
-//#include "inotify/FileNotifier.h"
+// #include "inotify/FileNotifier.h"
 
 #include <iostream>
 #include <sstream>
@@ -67,10 +67,26 @@ string GetCommand( )
 	return "";
 }
 
+void OnCreateFiles(list<string> &listFiles)
+{
+	
+}
+
 void OnDeleteFiles(list<string> &listFiles)
 {
 	g_GlobalConfig.m_bImportTable=true;
 }
+
+//void* FileNotifier_Thread(void *p){
+// 
+// 	FileNotifier *fn = (FileNotifier *) p;
+// 	if( fn != NULL )
+// 	{
+// 		fn->Run();
+// 	}
+// 	
+// 	return NULL;
+// }
 
 
 int main(int argc, char *argv[]){
@@ -172,10 +188,11 @@ int main(int argc, char *argv[]){
 
 			/** thread that watch Tribune dir, when daily import is done global variable m_bImportTable
 			is set true (there is still some code to write here)*/
-// 			FileNotifier fileNotifier;
-// 			fileNotifier.RegisterCallbacks(OnDeleteFiles,OnDeleteFiles);
-//   			fileNotifier.Watch("/var/Tribune");
-//  			fileNotifier.Run();
+// 			FileNotifier* pfileNotifier = new FileNotifier();
+// 			pfileNotifier->RegisterCallbacks(OnCreateFiles,OnDeleteFiles);
+//   			pfileNotifier->Watch("/var/Tribune");
+// 			pthread_t trf;
+//                      pthread_create(&trf, NULL, FileNotifier_Thread, (void*)pfileNotifier);
 
 			/**thread that reset the server maps after daily import */
 			g_GlobalConfig.m_bImportTable = true;	
@@ -255,7 +272,7 @@ int main(int argc, char *argv[]){
 					clientFunct->SetClientLineup(iter->second.first,iter->second.second);
 					
 					cout << endl << endl << "-------------------------" << endl;
-					cout << "The list of channels" << endl;
+					cout << "The list of channels (Please wait...)" << endl;
 					cout << "-------------------------" << endl << endl;
 					map <string,string> mapChannelKey_To_Name;
 					int key = atoi((iter->second.first).c_str());
@@ -285,36 +302,42 @@ int main(int argc, char *argv[]){
 				cerr << "Cannot fill the program record map: " << endl;
 				exit(1);
 			}
+			cout << "Program record map: " << mapProgramRecord.size() << endl;
 			
 			map<int,string> mapStation;
 			if (! MapManagement::GetStationMap( mapStation ) ){
 				cerr << "Cannot fill the station map: " << endl;
 				exit(1);
 			}
+			cout << "Station map: " << mapStation.size() << endl;
 			
 			map<u_int64_t,string> mapSchedule;
 			if (! MapManagement::GetScheduleMap( mapSchedule ) ){
 				cerr << "Cannot fill the schedule map: " << endl;
 				exit(1);
 			}
+			cout << "Schedule map: " << mapSchedule.size() << endl;
 			
 			map<string,string> mapActor;
 			if (! MapManagement::GetActorMap( mapActor ) ){
 				cerr << "Cannot fill the actor map: " << endl;
 				exit(1);
 			}
+			cout << "Actor map: " << mapActor.size() << endl;
 						
 			map<string,string> mapGenre;
 			if (! MapManagement::GetGenreMap( mapGenre ) ){
 				cerr << "Cannot fill the genre map: " << endl;
 				exit(1);
 			}
+			cout << "Genre map: " << mapGenre.size() << endl;
 			
 			map<string,string> mapRole;
 			if (! MapManagement::GetRoleMap( mapRole ) ){
 				cerr << "Cannot fill the role map: " << endl;
 				exit(1);
 			}
+			cout << "Role map: " << mapRole.size() << endl;
 			
 			/** send the client maps to the server and receive a file with all the changes that must
 			be done */

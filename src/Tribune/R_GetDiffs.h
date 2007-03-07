@@ -74,7 +74,19 @@ public:
 	{
 		RA_Request::SetupSerialization_Request( );
 		/** this must not be commented after the serialization bug is fixed*/
-		StartSerializeList( ) + m_lineup + m_blacklist + m_mapProgramRecord + m_mapStation + /*m_mapSchedule +*/ m_mapActor + m_mapGenre + m_mapRole;
+		StartSerializeList( ) + m_lineup;
+		StartSerializeList( ) + m_blacklist;
+		StartSerializeList( ) + m_mapProgramRecord;
+		StartSerializeList( ) + m_mapStation;
+		StartSerializeList( ) + m_mapActor;
+		StartSerializeList( ) + m_mapGenre;
+		StartSerializeList( ) + m_mapRole;
+		StartSerializeList( ) + m_mapSchedule;
+/*		try {
+			StartSerializeList( ) + m_mapSchedule;
+		} catch (...){
+			cout << "********Exceptie la serializare" << endl;
+		}*/
 	}
 
 	/**

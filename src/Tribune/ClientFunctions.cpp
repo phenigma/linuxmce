@@ -52,6 +52,7 @@ bool ClientFunctions::GetLineups(int zipcode, map <int,pair<string,string> > & m
 	for(iter = r_GetLineups.m_mapPrimaryKey_LineupName.begin(); iter != r_GetLineups.m_mapPrimaryKey_LineupName.end(); iter++ ) {
     		//cout << "Id-ul lineupului"<<iter->first << " numele lineupului " << iter->second << endl;
 		mapIndexLineupKey_To_Name[i] = make_pair(iter->first,iter->second);
+		i++;
   	}
 
 	return true;
@@ -195,8 +196,8 @@ bool ClientFunctions::ModifyClientDatabase(string path){
 			getline (mysqlfile,line);
 
 			if (line.length()!=0){
+				cout << line << endl;
 				g_GlobalConfig.m_pDatabase->mysql_query_result( line );
-				//cout << line << endl;
 			}
 			
 			

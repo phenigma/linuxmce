@@ -89,12 +89,12 @@ void ServerManagement::Run(){
 		
 			/** this must not be commented after the serialization bug is fixed*/
 
-// 			if (! MapManagement::GetScheduleMap(maptmpSchedule) ){
-// 			
-// 				cerr << "Cannot fill the schedule map: " << endl;
-// 			}
-// 
-// 			cout << "Schedule " << maptmpSchedule.size() <<endl;
+			if (! MapManagement::GetScheduleMap(maptmpSchedule) ){
+			
+				cerr << "Cannot fill the schedule map: " << endl;
+			}
+
+			cout << "Schedule " << maptmpSchedule.size() <<endl;
 
 			if (! MapManagement::GetActorMap(maptmpActor) ){
 		
@@ -122,7 +122,7 @@ void ServerManagement::Run(){
 			(g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord).clear(); 
 			(g_GlobalConfig.mapPrimaryKey_Timestam_Station).clear(); 
 			/** this must not be commented after the serialization bug is fixed*/
-			//(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).clear();
+			(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).clear();
 			(g_GlobalConfig.mapPrimaryKey_Actor).clear(); 
 			(g_GlobalConfig.mapPrimaryKey_Genre).clear(); 
 			(g_GlobalConfig.mapPrimaryKey_Role).clear();
@@ -130,13 +130,22 @@ void ServerManagement::Run(){
 			g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord=maptmpProgramRecord;
 			g_GlobalConfig.mapPrimaryKey_Timestam_Station=maptmpStation;
 			/** this must not be commented after the serialization bug is fixed*/
-			//g_GlobalConfig.mapPrimaryKey_Timestam_Schedule=maptmpSchedule;
+			g_GlobalConfig.mapPrimaryKey_Timestam_Schedule=maptmpSchedule;
 			g_GlobalConfig.mapPrimaryKey_Actor=maptmpActor;
 			g_GlobalConfig.mapPrimaryKey_Genre=maptmpGenre;
 			g_GlobalConfig.mapPrimaryKey_Role=maptmpRole;
 
 			maptmpProgramRecord.clear(); maptmpStation.clear(); maptmpSchedule.clear();
 			maptmpActor.clear(); maptmpGenre.clear(); maptmpRole.clear();
+
+			
+	cout << ">>>>>>>>In server management : " << endl;
+	cout << "Program record size " << (g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord).size()<<endl; 
+        cout << "Station size "<< (g_GlobalConfig.mapPrimaryKey_Timestam_Station).size()<<endl;
+	cout << "Schedule size "<<(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).size()<<endl;
+	cout << "Actor size " <<(g_GlobalConfig.mapPrimaryKey_Actor).size()<<endl;
+	cout << "Genre sieze " <<(g_GlobalConfig.mapPrimaryKey_Genre).size()<<endl;
+	cout << "Role size " <<(g_GlobalConfig.mapPrimaryKey_Role).size()<<endl;
 
 			g_GlobalConfig.m_bImportTable=false;
 		}
