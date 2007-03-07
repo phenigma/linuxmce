@@ -789,7 +789,7 @@ void Command_Impl::ProcessMessageQueue()
 				// If the connection between this device and dcerouter is still ok, we will have always gotten a true,
 				// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 				// let the framework restart us
-#ifndef WINCE
+#ifdef LINK_TO_ROUTER
 				if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
 					g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 				else
@@ -864,7 +864,7 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done id %d con
 			// If the connection between this device and dcerouter is still ok, we will have always gotten a response,
 			// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 			// let the framework restart us
-#ifndef WINCE
+#ifdef LINK_TO_ROUTER
 			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
 				g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 			else
@@ -912,7 +912,7 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done id %d conf %d resp
 			// If the connection between this device and dcerouter is still ok, we will have always gotten a response,
 			// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 			// let the framework restart us
-#ifndef WINCE
+#ifdef LINK_TO_ROUTER
 			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
 				g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 			else
@@ -962,7 +962,7 @@ void Command_Impl::StopWatchDog()
 
 int Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID)
 {
-#ifndef WINCE
+#ifdef LINK_TO_ROUTER
 	if( m_pRouter )
 	{
 		m_pRouter->RegisterMsgInterceptor(
@@ -970,6 +970,7 @@ int Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageIntercepto
 		return 0;
 	}
 	else
+#endif
 	{
 		int dwMessageInterceptorCounter=m_dwMessageInterceptorCounter;
 		m_mapMessageInterceptorFn[m_dwMessageInterceptorCounter] = pMessageInterceptorFn;
@@ -980,9 +981,6 @@ int Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageIntercepto
 		m_dwMessageInterceptorCounter++;
 		return dwMessageInterceptorCounter;
 	}
-#else
-    return 0;
-#endif
 }
 
 void Command_Impl::PurgeInterceptors()
@@ -1241,7 +1239,7 @@ void Command_Impl::OnQuit()
 	m_bTerminate=true; 
 	pthread_cond_broadcast( &m_listMessageQueueCond ); 
 
-#ifndef WINCE
+#ifdef LINK_TO_ROUTER
 	if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
 		m_pRouter->Quit();
 #endif
@@ -1254,7 +1252,7 @@ void Command_Impl::OnReload()
 	m_bTerminate=true; 
 	pthread_cond_broadcast( &m_listMessageQueueCond );
 
-#ifndef WINCE
+#ifdef LINK_TO_ROUTER
 	if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
 		m_pRouter->Reload();
 #endif

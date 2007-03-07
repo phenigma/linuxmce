@@ -4,7 +4,7 @@ ROOT = ..
 VIP = ../VIPShared
 GDEV = ./Gen_Devices
 CXXFLAGS = -Wall -ggdb3
-CPPFLAGS = -I./ -I../ -I../DCE/ -I../VIPShared/ -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -D_GNU_SOURCE $(EXTRA)
+CPPFLAGS = -I./ -I../ -I../DCE/ -I../VIPShared/ -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -D_GNU_SOURCE -DLINK_TO_ROUTER $(EXTRA)
 CXX = g++
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lpthread -lmysqlclient_r -lSerializeClass
