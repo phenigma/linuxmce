@@ -28,7 +28,7 @@
 #include "DCE/Logger.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 
-#ifndef WINCE
+#ifdef LINK_TO_ROUTER
 #include "DCERouter.h"
 #endif
 
