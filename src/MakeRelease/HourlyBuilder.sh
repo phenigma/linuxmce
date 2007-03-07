@@ -210,6 +210,9 @@ CreateDebs()
 		reportError "building packages revision $Head_Revision" "$Head_Revision" "$Build_Dir" "$?"
 		exit 1
 	fi
+	mkdir -p "$Output_Dir"/debian/main/binary-i386/
+	mv "$Output_Dir"/tmp/*.deb "$Output_Dir"/debian/main/binary-i386/
+	/home/WorkNew/src/MakeRelease/MR_UpdateMD5s.sh
 }
 
 CreateCDs()
@@ -272,7 +275,7 @@ pushd "$Build_Dir"
 rm -f *.log
 
 /home/WorkNew/src/MakeRelease/UpdateVersion.sh
-#CheckoutSourceCode
+CheckoutSourceCode
 CompileSourceCode
 CreateDebs
 CreateCDs

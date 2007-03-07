@@ -79,6 +79,7 @@ fastrun=""
 #fastrun="-f -DERROR_LOGGING_ONLY"
 
 BASE_OUT_FOLDER=/home/builds/
+CDHB_OUT_FOLDER="$BASE_OUT_FOLDER"/CDHB
 
 BASE_INSTALLATION_CD_FOLDER=/home/installation-cd/
 BASE_INSTALLATION_2_6_12_CD_FOLDER=/home/installation-cd-kernel-2.6.12/
@@ -286,6 +287,7 @@ if [[ "$MakeRelease_Flavor" == pluto_debug ]]; then
 		FROM File
 	"
 	RunSQL "$Q"
+	rm -r "$CDHB_OUT_FOLDER"
 	
 	MakeRelease_Gparm=-g
 fi
@@ -313,6 +315,8 @@ fi
 echo "Marker: calculating MD5 sums `date`"
 if [[ "$MakeRelease_Flavor" == pluto_debug ]]; then
 	/home/WorkNew/src/MakeRelease/MR_UpdateMD5s.sh
+	mkdir -p "$CDHB_OUT_FOLDER"/tmp/
+	cp "$BASE_OUT_FOLDER/$version_name"/tmp/*.deb "$CDHB_OUT_FOLDER"/tmp/
 fi
 
 #TODO: What the bleep is BUILD.sh ? (razvan)
