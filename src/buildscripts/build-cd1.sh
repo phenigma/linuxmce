@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /home/WorkNew/src/BootScripts/LockUtils.sh
+
 Content_Dir=image-netinst
 
 for ((i = 1; i <= "$#"; i++)); do
@@ -20,6 +22,9 @@ if [[ -z "$ISO_Dir" ]]; then
 	echo "ERROR: Build directory not specified"
 	exit 1
 fi
+
+TryLock "BuildCD1" "BuildCD1"
+trap 'Unlock "BuildCD1" "BuildCD1"' EXIT
 
 Debian_Mirror="/home/mirrors"
 Replacements="/home/samba/repositories/$MakeRelease_Flavor/$replacementsdeb"
@@ -116,6 +121,7 @@ if [[ "$Cache" == y ]]; then
 	rm "$Content_Dir"/Debian-Cache/libwxgtk2.6*
 	rm "$Content_Dir"/Debian-Cache/valgrind_*
 	rm "$Content_Dir"/Debian-Cache/pluto-sample-media_*
+	rm "$Content_Dir"/Debian-Cache/pluto-xml-data-plugin_*
 	rm "$Content_Dir"/Debian-Cache/fglrx-driver_*
 	
 	# ugly, ugly, ugly, hack

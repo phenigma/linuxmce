@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /home/WorkNew/src/BootScripts/LockUtils.sh
+
 for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
 		--cache) Cache=y ;;
@@ -30,6 +32,8 @@ if [[ "$replacementsdeb" == "" ]] ;then
 	exit 1
 fi
 
+TryLock "BuildCD2" "BuildCD2"
+trap 'Unlock "BuildCD2" "BuildCD2"' EXIT
 
 DEVREPO="/home/samba/repositories/$MakeRelease_Flavor/$maindeb/main/binary-i386"
 REPLREPO="/home/samba/repositories/$MakeRelease_Flavor/$replacementsdeb/main/binary-i386"
@@ -42,13 +46,13 @@ MD5FILE="$BONUSCDDIR/md5.file"
 # packages to get from repositories
 case "$MakeRelease_Flavor" in
     pluto|pluto_debug|via)
-        DEVPKGLIST=( pluto-bluetooth-dongle pluto-usb-uirt pluto-slimserver-plugin pluto-slim-server-streamer pluto-irtrans-wrapper pluto-generic-serial-device pluto-tira-wrapper pluto-powerfile-c200 pluto-generic-serial-device pluto-monster-lighting )
+        DEVPKGLIST=( pluto-bluetooth-dongle pluto-usb-uirt pluto-slimserver-plugin pluto-slim-server-streamer pluto-irtrans-wrapper pluto-generic-serial-device pluto-tira-wrapper pluto-powerfile-c200 pluto-generic-serial-device pluto-monster-lighting pluto-xml-data-plugin )
         REPLPKGLIST=( slimdevices-slim-server libxine1-dbg libxine1-pluto-dbg fglrx-deriver )
         AUTOINSTLIST=( video-wizard-videos-pluto pluto-sample-media )
     ;;
     monster)
-        DEVPKGLIST=( monster-skin pluto-avwizard-skin-monster pluto-monster-database pluto-bluetooth-dongle pluto-usb-uirt pluto-slimserver-plugin pluto-slim-server-streamer pluto-irtrans-wrapper pluto-generic-serial-device pluto-tira-wrapper pluto-powerfile-c200 pluto-monster-lighting )	
-		REPLPKGLIST=( slimdevices-slim-server bootsplash-theme-monster libxine1-dbg libxine1-pluto-dbg )
+        DEVPKGLIST=( monster-skin pluto-avwizard-skin-monster pluto-monster-database pluto-bluetooth-dongle pluto-usb-uirt pluto-slimserver-plugin pluto-slim-server-streamer pluto-irtrans-wrapper pluto-generic-serial-device pluto-tira-wrapper pluto-powerfile-c200 pluto-monster-lighting pluto-xml-data-plugin )
+        REPLPKGLIST=( slimdevices-slim-server bootsplash-theme-monster libxine1-dbg libxine1-pluto-dbg )
         AUTOINSTLIST=( video-wizard-videos-monster monster-nucleus )
     ;;
     *)
