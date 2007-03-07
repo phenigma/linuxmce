@@ -350,7 +350,7 @@ if [[ "$UpgradeMode" == "false" ]] ;then
 	echo "$Q4" | /usr/bin/mysql pluto_main
 else
 	# Reconfigure all devices after install
-	Q="UPDATE Device SET NeedConfigure=1"
+	Q="UPDATE Device SET NeedConfigure=1, Status='**RUN_CONFIG**'"
 	echo "$Q" | /usr/bin/mysql pluto_main
 
 	# Install the software again for the devices
