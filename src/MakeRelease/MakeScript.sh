@@ -73,7 +73,7 @@ fi
 ## Read and export the configuration options
 . /home/WorkNew/src/MakeRelease/MR_Conf.sh
 export MakeRelease_Flavor="$flavor"
-ConfEval "$flavor"
+MR_ConfEval "$flavor"
 
 fastrun=""
 #fastrun="-f -DERROR_LOGGING_ONLY"
@@ -312,21 +312,7 @@ fi
 # Compute MD5s
 echo "Marker: calculating MD5 sums `date`"
 if [[ "$MakeRelease_Flavor" == pluto_debug ]]; then
-	Q="
-		SELECT Filename
-		FROM File
-	"
-	while read row; do
-		filename=$(Field 1 "$row")
-		filemd5=$(md5sum "$filename"|awk '{print $1}')
-		echo "MD5: $filemd5; File: $filename"
-		Q="
-			UPDATE File
-			SET md5='$filemd5'
-			WHERE Filename='$filename'
-		"
-		RunSQL "$Q"
-	done < <(RunSQL "$Q" | tr ' ' '\n')
+	/home/WorkNew/src/MakeRelease/MR_UpdateMD5s.sh
 fi
 
 #TODO: What the bleep is BUILD.sh ? (razvan)

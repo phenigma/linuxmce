@@ -5,7 +5,7 @@ if [[ -n "$HEADER_MR_Conf" ]]; then
 fi
 HEADER_MR_Conf=included
 
-ConfEval()
+MR_ConfEval()
 {
 	local Ret=0
 	local Flavor="${1:-pluto}"

@@ -3,6 +3,9 @@
 . /etc/pluto/internal-mail.sh
 . /home/WorkNew/src/MakeRelease/MR_Conf.sh
 . /home/WorkNew/src/BootScripts/LockUtils.sh
+. /home/WorkNew/src/BootScripts/SQL_Ops.sh
+
+UseDB pluto_builder
 
 for ((i = 1; i <= $#; i++)); do
 	case "${!i}" in
@@ -10,16 +13,17 @@ for ((i = 1; i <= $#; i++)); do
 	esac
 done
 
-if [[ -f ~/disabled && "$Force" != y ]]; then
-	exit
-fi
-
 SVN_Repository_Dir=/home/sources/svn-repositories/pluto
 SVN_Repository_BaseURL=http://10.0.0.170/pluto
 
 State_Dir=/var/lib/pluto/build_state
 Build_Dir=/home/MakeRelease_debug
 Saved_Logs=/var/log/pluto/build
+Output_Dir=/home/builds/CDHB
+
+if [[ -f "$State_Dir"/disabled && "$Force" != y ]]; then
+	exit
+fi
 
 function reportError
 {
@@ -131,6 +135,8 @@ PrivateSymlinks()
 
 CheckoutSourceCode()
 {
+	echo "Checking out source code"
+	
 	GetSVN trunk trunk
 	GetSVN private/trunk trunk private
 	PrivateSymlinks private/trunk/src trunk/src
@@ -141,8 +147,8 @@ CheckoutSourceCode()
 
 CompileSourceCode()
 {
-	echo Building
-	if ! MakeRelease -a -o 1 -m 1 -s "$Build_Dir"/trunk -n / -R "$Head_Revision" -v 1 -c -V &>make.log; then
+	echo "Compiling source code"
+	if ! MakeRelease -g -a -o 1 -m 1 -s "$Build_Dir"/trunk -n / -R "$Head_Revision" -v 1 -c -V &>make.log; then
 		reportError "building revision $Head_Revision" "$Head_Revision" "$Build_Dir" "$?"
 		exit 1
 	fi
@@ -152,6 +158,13 @@ CompileSourceCode()
 
 CreateDebs()
 {
+	local row Q
+	local Filename MD5_Db FK_Package
+	local MD5_File
+	local -a PkgsNeedingRepack
+	
+	echo "Creating Debs"
+	
 	# These should exist after a full build and it would be wrong to create empty files instead
 	#touch "$Build_Dir"/trunk/src/database/{security,media,telecom,local,website,constants,dce,designer,document,ir,myth}.sqlcvs
 	#touch "$Build_Dir"/trunk/src/database/city.dump
@@ -159,10 +172,54 @@ CreateDebs()
 	#touch "$Build_Dir"/trunk/src/database_audi/{dce,designer}.sqlcvs
 	#touch "$Build_Dir"/trunk/src/database_monster/{dce,designer}.sqlcvs
 
-	if ! MakeRelease -D main_sqlcvs_pluto_debug -g -b -a -o 1 -r 2,9,11 -m 1 -s "$Build_Dir"/trunk -n / -v 1 -V -O /home/builds/CDHB &>makepkg.log; then
+	Q="
+		SELECT Filename,md5,FK_Package,FK_Package_Source
+		FROM File
+	"
+
+	PkgsNeedingRepack=()
+	while read row; do
+		Filename=$(Field 1 "$row")
+		MD5_Db=$(Field 2 "$row")
+		FK_Package=$(Field 3 "$row")
+		FK_Package_Source=$(Field 4 "$row")
+		FK_Package_Source="${FK_Package_Source//NULL}"
+
+		if [[ " ${PkgsNeedingRepack[*]} " == "$FK_Package" || " ${PkgsNeedingRepack[*]} " == "$FK_Package_Source" ]]; then
+			# optimization: we already know it's going to be rebuilt; no need to check again
+			continue
+		fi
+		
+		MD5_File=$(md5sum "$Filename" | awk '{print $1}')
+		if [[ "$MD5_Db" != "$MD5_File" ]]; then
+			# new file
+			PkgsNeedingRepack=(${PkgsNeedingRepack[@]} $FK_Package $FK_Package_Source)
+		fi
+	done < <(RunSQL "$Q" | tr ' ' '\n')
+
+	if [[ "${#PkgsNeedingRepack[@]}" -eq 0 ]]; then
+		echo "No packages need to be remade"
+		return 0
+	fi
+
+	PkgsNeedingRepack="${PkgsNeedingRepack[*]}"
+	PkgsNeedingRepack="${PkgsNeedingRepack// /,}"
+
+	echo "Creating packages: $PkgsNeedingRepack"
+	if ! MakeRelease -D main_sqlcvs_pluto_debug -g -b -a -o 1 -r 2,9,11 -m 1 -s "$Build_Dir"/trunk -n / -v 1 -V -O "$Output_Dir" -k "$PkgsNeedingRepack" &>makepkg.log; then
 		reportError "building packages revision $Head_Revision" "$Head_Revision" "$Build_Dir" "$?"
 		exit 1
 	fi
+}
+
+CreateCDs()
+{
+	echo "Creating CDs"
+	pushd . >/dev/null
+	cd /home/installation-cd-kernel-2.6.12
+	./build-cd1.sh --iso-dir "$Output_Dir" --cache
+	./build-cd2.sh --iso-dir "$Output_Dir"
+	popd >/dev/null
 }
 
 # make sure the file exists (don't fail if not)
@@ -181,7 +238,7 @@ echo "It is not running"
 
 flavor=pluto_debug
 export MakeRelease_Flavor="$flavor"
-ConfEval "$flavor"
+MR_ConfEval "$flavor"
 
 if [[ -z "$SVN_Repository_Dir" ]]; then
 	echo "Repository location not defined"
@@ -206,9 +263,8 @@ fi
 
 echo "Need to build (version changed from $Last_Revision to $Head_Revision private from $Last_Revision_PRIV to $Head_Revision_PRIV)"
 
-if [[ ! -d "$Build_Dir" ]]; then
-	mkdir "$Build_Dir"
-fi
+mkdir -p "$Build_Dir"
+mkdir -p "$Output_Dir"
 
 export PATH=/usr/lib/ccache:"$PATH"
 pushd "$Build_Dir"
@@ -216,9 +272,10 @@ pushd "$Build_Dir"
 rm -f *.log
 
 /home/WorkNew/src/MakeRelease/UpdateVersion.sh
-CheckoutSourceCode
+#CheckoutSourceCode
 CompileSourceCode
 CreateDebs
+CreateCDs
 
 popd
 

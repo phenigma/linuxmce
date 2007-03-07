@@ -8,7 +8,7 @@ if [[ -z "$MakeRelease_Flavor" ]]; then
 	if [[ -z "$1" ]]; then
 		exit 1
 	fi
-	ConfEval "$1"
+	MR_ConfEval "$1"
 	export MakeRelease_Flavor="$1"
 fi
 

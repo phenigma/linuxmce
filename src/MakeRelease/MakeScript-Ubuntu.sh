@@ -72,7 +72,7 @@ Pkgs="116,135 117,136 118,137 119,138 122,141 124,143 126,145 133,152 134,153 15
 ## Read and export the configuration options
 . /home/WorkNew/src/MakeRelease/MR_Conf.sh
 export MakeRelease_Flavor="$flavor"
-ConfEval "$flavor"
+MR_ConfEval "$flavor"
 
 fastrun=""
 #fastrun="-f -DERROR_LOGGING_ONLY"

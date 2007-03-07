@@ -45,7 +45,7 @@ echo It is not running
 
 flavor=pluto_debug
 export MakeRelease_Flavor="$flavor"
-ConfEval "$flavor"
+MR_ConfEval "$flavor"
 
 
 function reportError
