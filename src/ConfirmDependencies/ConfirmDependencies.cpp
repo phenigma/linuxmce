@@ -496,11 +496,13 @@ int main(int argc, char *argv[])
 					<< " -d " + StringUtils::itos(pRow_Device->PK_Device_get()) << " -i \"" << pRow_Device->IPaddress_get()
 					<< "\" -m \"" + pRow_Device->MACaddress_get() + "\"" << endl;
 
+				cout << "if[ $? ==0 " << endl
+					<< "echo \"UPDATE Device SET Status='' WHERE PK_Device=" << pRow_Device->PK_Device_get() << " | mysql $MySqlHost -u $MySqlUser -p$MySqlPass" << endl
+					<< "fi" << endl;
+
 				if( iPK_Orbiter )
 					cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 5 9 'Configuring " << pRow_Device->Description_get() << " done.'" << endl;
 			}
-
-			pRow_Device->Status_set("");
 
 			cout << "#Cleared RUN_CONFIG flag" << endl;
 		}
