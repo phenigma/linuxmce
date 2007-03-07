@@ -33,10 +33,12 @@
 	#include <unistd.h>
 	#include <fcntl.h>
 	#include <fnmatch.h>
+#ifdef USE_HTTP_FETCHER
 	extern "C"
 	{
 	#include <http_fetcher.h>
 	}
+#endif
 #else
 //	#include <shellapi.h>
 #endif
@@ -105,6 +107,8 @@ bool FileUtils::WriteBufferIntoFile( string sFileName, const char *pBuffer, size
 
 char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 {
+#ifdef USE_HTTP_FETCHER
+
 #ifdef WIN32
 	string sDownloadedFile = "/temp/wget.tmp";
 
@@ -132,6 +136,10 @@ char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 	else
 		Size = 0;
 	return buffer;
+#endif
+
+#else
+	return NULL;
 #endif
 }
 
