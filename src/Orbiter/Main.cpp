@@ -136,7 +136,7 @@ bool ParseCommandLineParams(int argc, char* argv[], CommandLineParams &commandli
     try
     {
         if( commandlineparams.sLogger=="dcerouter" )
-			LoggerWrapper::SetInstance(new ServerLogger(PK_Device, App_Server::PK_DeviceTemplate_get_static(), sRouter_IP));
+			LoggerWrapper::SetInstance(new ServerLogger(commandlineparams.PK_Device, Orbiter::PK_DeviceTemplate_get_static(), commandlineparams.sRouter_IP));
         else if( commandlineparams.sLogger=="null" )
             LoggerWrapper::SetType(LT_LOGGER_NULL);
         else if( commandlineparams.sLogger!="stdout" )
