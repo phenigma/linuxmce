@@ -1,5 +1,8 @@
 #!/bin/bash
 
+mkdir -p /var/log/pluto/build/
+. /home/WorkNew/src/BootScripts/TeeMyOutput.sh --outfile "/var/log/pluto/build/HourlyBuilder.log" --stdboth -- "$@"
+
 . /etc/pluto/internal-mail.sh
 . /home/WorkNew/src/MakeRelease/MR_Conf.sh
 . /home/WorkNew/src/BootScripts/LockUtils.sh
@@ -19,10 +22,16 @@ SVN_Repository_BaseURL=http://10.0.0.170/pluto
 State_Dir=/var/lib/pluto/build_state
 Build_Dir=/home/MakeRelease_debug
 Saved_Logs=/var/log/pluto/build
-Output_Dir=/home/builds/CDHB
+Output_Dir="$(readlink /home/builds/current-pluto_debug)"
+
 
 if [[ -f "$State_Dir"/disabled && "$Force" != y ]]; then
 	exit
+fi
+
+if [[ -z "$Output_Dir" ]]; then
+	echo "Output directory symlink returns empty value"
+	exit 1
 fi
 
 function reportError
@@ -185,7 +194,7 @@ CreateDebs()
 		FK_Package_Source=$(Field 4 "$row")
 		FK_Package_Source="${FK_Package_Source//NULL}"
 
-		if [[ " ${PkgsNeedingRepack[*]} " == "$FK_Package" || " ${PkgsNeedingRepack[*]} " == "$FK_Package_Source" ]]; then
+		if [[ " ${PkgsNeedingRepack[*]} " == *" $FK_Package "* || " ${PkgsNeedingRepack[*]} " == *" $FK_Package_Source "* ]]; then
 			# optimization: we already know it's going to be rebuilt; no need to check again
 			continue
 		fi
@@ -199,7 +208,7 @@ CreateDebs()
 
 	if [[ "${#PkgsNeedingRepack[@]}" -eq 0 ]]; then
 		echo "No packages need to be remade"
-		return 0
+		return 1
 	fi
 
 	PkgsNeedingRepack="${PkgsNeedingRepack[*]}"
@@ -213,6 +222,13 @@ CreateDebs()
 	mkdir -p "$Output_Dir"/debian/main/binary-i386/
 	mv "$Output_Dir"/tmp/*.deb "$Output_Dir"/debian/main/binary-i386/
 	/home/WorkNew/src/MakeRelease/MR_UpdateMD5s.sh
+	
+	pushd "$Output_Dir/debian/" >/dev/null
+	dpkg-scanpackages . /dev/null | sed 's,\./,dists/pluto_debug/,g' | gzip -9c > main/binary-i386/Packages-new.gz
+	mv main/binary-i386/Packages{-new,}.gz
+	popd >/dev/null
+	
+	return 0
 }
 
 CreateCDs()
@@ -220,8 +236,8 @@ CreateCDs()
 	echo "Creating CDs"
 	pushd . >/dev/null
 	cd /home/installation-cd-kernel-2.6.12
-	./build-cd1.sh --iso-dir "$Output_Dir" --cache
-	./build-cd2.sh --iso-dir "$Output_Dir"
+	./build-cd1.sh --iso-dir "$Output_Dir" --cache --version CDHB
+	./build-cd2.sh --iso-dir "$Output_Dir" --version CDHB
 	popd >/dev/null
 }
 
@@ -274,11 +290,11 @@ pushd "$Build_Dir"
 
 rm -f *.log
 
-/home/WorkNew/src/MakeRelease/UpdateVersion.sh
+/home/WorkNew/src/MakeRelease/UpdateVersion.sh main_sqlcvs_pluto_debug
 CheckoutSourceCode
 CompileSourceCode
-CreateDebs
-CreateCDs
+CreateDebs && \
+	CreateCDs
 
 popd
 

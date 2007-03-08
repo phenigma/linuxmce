@@ -68,6 +68,7 @@ if [[ "$flavor" == pluto_debug ]]; then
 	. /home/WorkNew/src/BootScripts/LockUtils.sh
 	WaitLock "DebugBuild" "DailyBuilder"
 	trap 'Unlock "DebugBuild" "DailyBuilder"' EXIT
+	export PATH=/usr/lib/ccache:"$PATH"
 fi
 
 ## Read and export the configuration options
@@ -274,6 +275,9 @@ if [ -d "$BASE_OUT_FOLDER/$version_name" ]; then
 	echo     This is the backed up folder: $BASE_OUT_FOLDER/$version_name.auto_backup
 	echo 
 	mv "$BASE_OUT_FOLDER/$version_name" "$BASE_OUT_FOLDER/$version_name.auto_backup"
+
+	trap - EXIT
+	Unlock "DebugBuild" "DailyBuilder"
 fi;
 
 # Creating target folder.
@@ -424,6 +428,9 @@ if [[ "$version" !=  "1" || "$upload" == "y" ]]; then
 fi
 
 cp $build_dir/MakeRelease*.log "$BASE_OUT_FOLDER"/"$version_name"
+
+trap - EXIT
+Unlock "DebugBuild" "DailyBuilder"
 
 echo "Marker: done `date`"
 echo "Everything okay.  Press any key"
