@@ -180,7 +180,7 @@ namespace DCE
 		 * @brief tries to connect to a client socket
 		 * @return true on success, false otherwise
 		 */		 
-		virtual bool Connect(int iPK_DeviceTemplate );
+		virtual bool Connect(int iPK_DeviceTemplate, std::string s="");
 		virtual void PostConnect() {}  // Placeholder function that is called after a connect
 		
 		/**
