@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
     try
     {
 		if( sLogger=="dcerouter" )
-			LoggerWrapper::SetInstance(new ServerLogger(PK_Device, App_Server::PK_DeviceTemplate_get_static(), sRouter_IP));
+			LoggerWrapper::SetInstance(new ServerLogger(PK_Device, Disk_Drive::PK_DeviceTemplate_get_static(), sRouter_IP));
 		else if( sLogger=="null" )
 			LoggerWrapper::SetType(LT_LOGGER_NULL);
 		else if( sLogger!="stdout" )

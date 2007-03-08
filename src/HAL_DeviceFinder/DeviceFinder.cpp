@@ -32,9 +32,6 @@ using namespace std;
 #include "hald_helper.h"
 #endif
 
-
-using namespace DCE;
-
 int main(int argc, char* argv[])
 {
 	string sFilename = "input.txt";
