@@ -312,8 +312,10 @@ bool Powerfile_C200::GetConfig()
 		ExtractFields(vect_sOutput_Rows[i], vsFF);
 		if (vsFF[1] == "cd/dvd" &&
 				(
-				 (vsFF[2] == "TOSHIBA" && vsFF[3] == "DVD-ROM" && vsFF[4] == "SD-M1212") ||
-				 (vsFF[2] == "MATSHITA" && vsFF[3] == "DVD-RAM" && vsFF[4] == "SW-9585S")
+				 0 == 1
+				 || /* Powerfile C200 */      (vsFF[2] == "TOSHIBA"  && vsFF[3] == "DVD-ROM" && vsFF[4] == "SD-M1212")
+				 || /* Powerfile R200 DLC */  (vsFF[2] == "MATSHITA" && vsFF[3] == "DVD-RAM" && vsFF[4] == "SW-9585S")
+				 || /* Sony VAIO XL1B2 */     (vsFF[2] == "MATSHITA" && vsFF[3] == "DVD-RAM" && vsFF[4] == "SW-9584" )
 				)
 			)
 		{
@@ -326,15 +328,15 @@ bool Powerfile_C200::GetConfig()
 		}
 		else if (vsFF[1] == "mediumx")
 		{
-			if (vsFF[2] == "Escient" && vsFF[3] == "Powerfile" && vsFF[4] == "C200")
+			int iField = 0;
+			if (1 == 0
+					|| /* Powerfile C200 */     (vsFF[2] == "Escient"  && vsFF[3] == "Powerfile"    && vsFF[4] == "C200" && (iField = 7))
+					|| /* Powerfile R200 DLC */ (vsFF[2] == "PowrFile" && vsFF[3] == "C200"                              && (iField = 6))
+					|| /* Sony VAIO XL1B2 */    (vsFF[2] == "Sony"     && vsFF[3] == "VAIOChanger1"                      && (iField = 6))
+				)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Found changer unit: %s", vsFF[7].c_str());
-				m_sChanger = vsFF[7];
-			}
-			else if (vsFF[2] == "PowrFile" && vsFF[3] == "C200")
-			{
-				g_pPlutoLogger->Write(LV_WARNING, "Found changer unit: %s", vsFF[6].c_str());
-				m_sChanger = vsFF[6];
+				g_pPlutoLogger->Write(LV_WARNING, "Found changer unit: %s", vsFF[iField].c_str());
+				m_sChanger = vsFF[iField];
 			}
 			else
 			{
