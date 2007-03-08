@@ -412,7 +412,7 @@ void Command_Impl::ReplaceParams( ::std::string sReplacement ) {
 	}
 }
 
-bool Command_Impl::Connect(int iPK_DeviceTemplate)
+bool Command_Impl::Connect(int iPK_DeviceTemplate, std::string)
 {
 	if( m_bLocalMode )
 	{
