@@ -1,11 +1,11 @@
-Source: mtx
+Source: mtx-pluto
 Section: unknown
 Priority: extra
-Maintainer: Radu Cristescu <radu@arwen.plutohome.com>
+Maintainer: Radu Cristescu <radu.c@plutohome.com>
 Build-Depends: debhelper (>= 5), autotools-dev
 Standards-Version: 3.7.2
 
-Package: mtx
+Package: mtx-pluto
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: <insert up to 60 chars description>
