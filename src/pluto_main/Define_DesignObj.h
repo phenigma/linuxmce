@@ -1631,7 +1631,7 @@
 #define DESIGNOBJ_butAdvancedOptions2_CONST 4441
 #define DESIGNOBJ_mapMedia_CONST 4444
 #define DESIGNOBJ_butArrayMediaFloorplan_CONST 4445
-#define DESIGNOBJ_mnuFilelist_Movies_Video_Music_CONST 4447
+#define DESIGNOBJ_mnuFilelist_Video_Music_Small_CONST 4447
 #define DESIGNOBJ_butDVDfilelist_CONST 4448
 #define DESIGNOBJ_mnuDVDmenu_CONST 4449
 #define DESIGNOBJ_butDVDoptions_CONST 4452
@@ -2418,6 +2418,7 @@
 #define DESIGNOBJ_butSubMenuTelecom_CONST 5416
 #define DESIGNOBJ_butSubMenuSecurity_CONST 5417
 #define DESIGNOBJ_popNonPlutoDVD_CONST 5418
+#define DESIGNOBJ_mnuFileDetails_SmallUI_CONST 5419
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

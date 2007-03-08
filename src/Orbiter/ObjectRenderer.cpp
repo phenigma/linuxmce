@@ -565,7 +565,7 @@ int k=2;
 	{
 		DesignObjText *pText = *iText;
 
-		if(  pText->m_bPreRender  )
+		if(  pText->m_bPreRender || pText->m_rPosition.Width<1 || pText->m_rPosition.Height<1 )
 			continue;
 		PROFILE_START( ctText );
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );

@@ -102,7 +102,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 			if ( pCell )
 			{
-				if( bContainsCells )
+				if( bContainsCells && DGRow!=pDataGridTable->m_iUpRow && DGRow!=pDataGridTable->m_iDownRow )
 				{
 					map< pair<int,int>, DesignObj_Orbiter *>::iterator it=m_pObj_Owner_DataGrid->m_mapChildDgObjects.find( make_pair<int,int> (DGColumn,DGRow % pDataGridTable->m_RowCount) );
 					if(	it!=m_pObj_Owner_DataGrid->m_mapChildDgObjects.end() )

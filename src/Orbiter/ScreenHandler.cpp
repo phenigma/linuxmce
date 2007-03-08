@@ -451,7 +451,13 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 			m_pOrbiter->m_pMouseBehavior->SetMousePosition(mediaFileBrowserOptions.m_pObj_ListGrid);  // Move back to the list so we don't select a filter option
 #endif
 
-		DesignObj_Orbiter *pObj_CoverArt = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST) );
+		DesignObj_Orbiter *pObj_CoverArt;
+
+		if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_mnuFilelist_Video_Music_Small_CONST )
+			pObj_CoverArt = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST) );
+		else
+			pObj_CoverArt = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST) );
+
 		if(NULL != pObj_CoverArt)
 			m_pOrbiter->Renderer()->RemoveGraphic(pObj_CoverArt->GenerateObjectHash(pObj_CoverArt->m_pPopupPoint, false));
 	}
@@ -708,7 +714,12 @@ void ScreenHandler::SelectedMediaFile(string sFile)
 	DesignObj_Orbiter *pObj_Play = NULL;
 	string sTerms = m_mapKeywords_Find("TERMS");
 	if( sTerms.empty() )
-		pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
+	{
+		if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_mnuFilelist_Video_Music_Small_CONST )
+			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
+		else
+			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
+	}
 	else
 		pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFilePurchaseDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Purchase_CONST) );
 
@@ -1966,6 +1977,11 @@ bool ScreenHandler::AddSoftware_GridRendering(CallBackData *pData)
 #endif
 
 		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+		if( colRow.second == pDatagridAcquiredBackData->m_pDataGridTable->m_iDownRow || colRow.second == pDatagridAcquiredBackData->m_pDataGridTable->m_iUpRow )
+			continue;
+
+		colRow.second -= pDatagridAcquiredBackData->m_pObj->m_GridCurRow;
+		colRow.first -= pDatagridAcquiredBackData->m_pObj->m_GridCurCol;
 
 		// See if there is an object assigned for this column/row
 		map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );

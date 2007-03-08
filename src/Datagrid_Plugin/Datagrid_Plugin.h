@@ -139,6 +139,14 @@ public:
 		return pCB;
 	}
 
+	DataGridTable *DataGridTable_get( string sDataGridID )
+	{
+		DataGridMap::iterator dg = m_DataGrids.find( sDataGridID );
+		if ( dg == m_DataGrids.end() )
+			return NULL;
+		return dg->second;
+	}
+
 
 //<-dceag-h-b->
 	/*

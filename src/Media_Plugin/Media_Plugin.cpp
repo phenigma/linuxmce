@@ -2628,6 +2628,38 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 			while ( itFileName != allFilesList.end() )
 				dequeMediaFile.push_back(new MediaFile(m_pMediaAttributes->m_pMediaAttributes_LowLevel, *itFileName++));
 		}
+		else if( sFilename.size()>2 && sFilename[0]=='!' && (sFilename[1] == 'g' || sFilename[1] == 'G') )  // Special case, means use all the files in this grid
+		{
+			string sDataGridID = "MediaFile_" + sFilename.substr(2);
+			DataGridTable *pDataGridTable = m_pDatagrid_Plugin->DataGridTable_get(sDataGridID);
+			if( pDataGridTable )
+			{
+				for(MemoryDataTable::iterator it=pDataGridTable->m_MemoryDataTable.begin();it!=pDataGridTable->m_MemoryDataTable.end();++it)
+				{
+					DataGridCell *pCell = it->second;
+					const char *pValue = pCell->GetValue();
+					if( pCell && pValue )
+					{
+						if( pValue[0]=='!' && pValue[1]=='F' )
+						{
+							int PK_File = atoi(&pValue[2]);
+							int PK_MediaType=0;
+							string sFilename = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetFilePathFromFileID(PK_File,&PK_MediaType);
+							if( sFilename.empty()==false )
+							{
+								MediaFile *pMediaFile = new MediaFile(m_pMediaAttributes->m_pMediaAttributes_LowLevel,
+									PK_File,
+									sFilename);
+								pMediaFile->m_dwPK_MediaType=PK_MediaType;
+								dequeMediaFile.push_back(pMediaFile);
+							}
+						}
+					}
+				}
+			}
+			if( dequeMediaFile.empty() )
+				return; // Nothing to do; the grid was empty
+		}
 		else
 			m_pMediaAttributes->m_pMediaAttributes_LowLevel->TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.
  	}
