@@ -375,11 +375,11 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 			
 		}
 	}
-
+	sSQL.str("");
 	/** update or delete genre table*/
 	if (m_mapGenre.empty()){
 		cout << "Tabela genre e goala" << endl;
-		std::ostringstream sSQL;
+		//std::ostringstream sSQL;
 		sSQL << "SELECT PK_Genre, Description, Level FROM Genre";
 		PlutoSqlResult res;
 		MYSQL_ROW row=NULL;
@@ -414,9 +414,9 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		
 			map<string,string>::iterator it=m_mapGenre.find(iter->first);
 		
-		
+			sSQL.str("");
 			if( it == m_mapGenre.end() ){
-				std::ostringstream sSQL;
+				//std::ostringstream sSQL;
 				sSQL << "SELECT Description, Level FROM Genre WHERE PK_Genre='" << iter->first<<"'";
 				
 				PlutoSqlResult res1;
@@ -438,11 +438,12 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 			} 
 		}
 	}
-
+	
+	sSQL.str("");
 	/** update or delete role table*/
 	if (m_mapRole.empty()){
 		cout << "Tabela role e goala" << endl;
-		std::ostringstream sSQL;
+		//std::ostringstream sSQL;
 		sSQL << "SELECT PK_Role, Description FROM Role";
 		PlutoSqlResult res;
 		MYSQL_ROW row=NULL;
@@ -477,9 +478,9 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 	
 			map<string,string>::iterator it=m_mapRole.find(iter->first);
 	
-	
+			sSQL.str("");
 			if( it == m_mapRole.end() ){
-				std::ostringstream sSQL;
+				//std::ostringstream sSQL;
 				sSQL << "SELECT Description FROM Role WHERE PK_Role='" << iter->first<<"'";
 							
 				PlutoSqlResult res;
@@ -502,11 +503,11 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 			} 
 		}
 	}
-
+	sSQL.str("");
 	/** update or delete actor table*/
 	if (m_mapActor.empty()){
 		cout << "Tabela actor e goala" << endl;
-		std::ostringstream sSQL;
+		//std::ostringstream sSQL;
 		sSQL << "SELECT PK_Actor, FirstName, LastName FROM Actor";
 		PlutoSqlResult res;
 		MYSQL_ROW row=NULL;
@@ -542,9 +543,9 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 	
 			map<string,string>::iterator it=m_mapActor.find(iter->first);
 	
-	
+			sSQL.str("");
 			if( it == m_mapActor.end() ){
-				std::ostringstream sSQL;
+				//std::ostringstream sSQL;
 				sSQL << "SELECT FirstName, LastName FROM Actor WHERE PK_Actor=\"" << iter->first<<"\"";
 					
 				PlutoSqlResult res1;
@@ -574,7 +575,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		for( iter_uint = m_mapSchedule.begin(); iter_uint != m_mapSchedule.end(); iter_uint++ ) {
 
 			conversion = false;
-	
+			sSQL.str("");
 			map<u_int64_t,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).find(iter_uint->first);
 
 			if ((iter_uint->second).length()>14){
@@ -590,7 +591,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 
 			} else if ( ( (iter_uint->second).compare(it->second) ) != 0 ) {
 				
-				sSQL << "SELECT * FROM Schedule PK_Schedule=" << it->first;
+				sSQL << "SELECT * FROM Schedule WHERE PK_Schedule=" << it->first;
 		
 				PlutoSqlResult res;
 				MYSQL_ROW row=NULL;
@@ -629,7 +630,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		for( iter1 = m_mapStation.begin(); iter1 != m_mapStation.end(); iter1++ ) {
 
 			conversion = false;
-	
+			sSQL.str("");
 			map<int,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Station).find(iter1->first);
 
 			if ((iter1->second).length()>14){
@@ -680,6 +681,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 
 		/** insert for station table*/
 		int statnr =0;
+		sSQL.str("");
 		if (m_blacklist.length( )==0){
 			sSQL << "SELECT s.* FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_lineup;
 		} else {

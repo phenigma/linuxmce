@@ -164,7 +164,7 @@ string ClientFunctions::GetClientLineup() {
 
 string ClientFunctions::CalcDiffs(string lineup,string blacklist, map <string,string> &mapProgramRecord, map <int,string> &mapStation, map <u_int64_t,string> &mapSchedule, map <string,string> &mapActor, map <string,string> &mapGenre, map <string,string> &mapRole) {
 
-	R_GetDiffs r_GetDiffs(lineup, blacklist, mapProgramRecord, mapStation, mapSchedule, mapActor, mapGenre, mapRole );
+	R_GetDiffs r_GetDiffs(lineup, blacklist, mapProgramRecord, mapStation, mapSchedule, mapActor, mapGenre, mapRole);
 
 	ra_Processor->AddRequest( &r_GetDiffs );
 							

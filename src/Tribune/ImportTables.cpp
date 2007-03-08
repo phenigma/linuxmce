@@ -1182,6 +1182,9 @@ int main(int argc, char *argv[]){
 		cerr<<"Error connecting to db:"<<mysql_error(mysqltribune)<<endl;
 		return false;
 	}
+
+	string command = "touch /var/Tribune/flagfile";
+	system(command.c_str());
 		
 	ImportChannelTable();
 
@@ -1192,5 +1195,7 @@ int main(int argc, char *argv[]){
 	ImportProgramRecordTable();
 
 	ImportScheduleTable();
-	
+
+	command = "rm /var/Tribune/flagfile";
+	system(command.c_str());	
 }

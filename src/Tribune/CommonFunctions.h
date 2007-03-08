@@ -30,8 +30,9 @@
 #include <iostream>
 #include <map>
 #include <string>
-#include "SerializeClass/SerializeClass.h"
 #include "DCE/DCEConfig.h"
+
+using namespace std;
 
 #define NULL_TOKEN	"**( NULL )**"
 
@@ -105,9 +106,7 @@ namespace Tribune
  	extern GlobalConfig g_GlobalConfig;
 
 }
-#include <string>
-#include <map>
-using namespace std;
+
 
 string int2string(int i); /**< casts ints to strings */
 
