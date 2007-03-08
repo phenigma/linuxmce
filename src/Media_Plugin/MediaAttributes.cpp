@@ -50,10 +50,10 @@ MediaAttributes::MediaAttributes(string host, string user, string pass, string d
 {
 	m_nPK_Installation = nPK_Installation;
 	m_pMediaAttributes_LowLevel=NULL;
-    m_pDatabase_pluto_media = new Database_pluto_media(g_pPlutoLogger);
+    m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
     if( !m_pDatabase_pluto_media->Connect( host, user, pass, db_name, port  ) )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
         throw "Cannot connect";
     }
 	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nPK_Installation);
@@ -75,18 +75,18 @@ bool MediaAttributes::SavePlaylist(deque<MediaFile *> &dequeMediaFile, int iPK_U
 
 	if( !pRow_Playlist )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Tried to save to an invalid playlist");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Tried to save to an invalid playlist");
 		return false;
 	}
 
     pRow_Playlist->Name_set(sPlaylistName);
     pRow_Playlist->EK_User_set(iPK_Users);
 
-g_pPlutoLogger->Write(LV_WARNING, "pl3 = %s %s",sPlaylistName.c_str(),pRow_Playlist->Name_get().c_str());
+LoggerWrapper::GetInstance()->Write(LV_WARNING, "pl3 = %s %s",sPlaylistName.c_str(),pRow_Playlist->Name_get().c_str());
 
     if ( !pRow_Playlist->Table_Playlist_get()->Commit(true,true) )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Cannot save/create playlist with ID %d error: %s",iPK_Playlist,
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot save/create playlist with ID %d error: %s",iPK_Playlist,
 	        m_pDatabase_pluto_media->m_sLastMySqlError.c_str());
 
 		return false;
@@ -98,7 +98,7 @@ g_pPlutoLogger->Write(LV_WARNING, "pl3 = %s %s",sPlaylistName.c_str(),pRow_Playl
 	    vector<Row_PlaylistEntry*> vectRow_PlaylistEntry;
 		pRow_Playlist->PlaylistEntry_FK_Playlist_getrows(&vectRow_PlaylistEntry);
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"Deleting %d rows from old playlist",(int) vectRow_PlaylistEntry.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Deleting %d rows from old playlist",(int) vectRow_PlaylistEntry.size());
 #endif
 		for(size_t s=0;s<vectRow_PlaylistEntry.size();++s)
 			vectRow_PlaylistEntry[s]->Delete();
@@ -106,7 +106,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Deleting %d rows from old playlist",(int) vectR
 
     iPK_Playlist = pRow_Playlist->PK_Playlist_get();
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"Save playlist id %d with %d rows",iPK_Playlist,(int) dequeMediaFile.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Save playlist id %d with %d rows",iPK_Playlist,(int) dequeMediaFile.size());
 #endif
 
 	string sFiles;
@@ -137,7 +137,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Save playlist id %d with %d rows",iPK_Playlist,
 	}
     if( !m_pDatabase_pluto_media->PlaylistEntry_get()->Commit(true,true) || !m_pDatabase_pluto_media->Playlist_get()->Commit(true,true) )
     {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Could not save the playlist error: %s",m_pDatabase_pluto_media->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not save the playlist error: %s",m_pDatabase_pluto_media->m_sLastMySqlError.c_str());
         return false;
     }
 
@@ -149,7 +149,7 @@ int MediaAttributes::LoadPlaylist(int iPK_Playlist, deque<MediaFile *> &dequeMed
     Row_Playlist *pRow_Playlist = m_pDatabase_pluto_media->Playlist_get()->GetRow(iPK_Playlist);
     if ( !pRow_Playlist )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find playlist: %d",iPK_Playlist);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find playlist: %d",iPK_Playlist);
 		return false;
 	}
 
@@ -168,7 +168,7 @@ void MediaAttributes::AddAttributeToStream(MediaStream *pMediaStream,Row_Attribu
 		return;
 	int PK_AttributeType=pRow_Attribute->FK_AttributeType_get();
 	// For CD's, the tracks are represented as files
-g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes::AddAttributeToStream %p %d",pRow_Attribute,(pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0));
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes::AddAttributeToStream %p %d",pRow_Attribute,(pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0));
 	if( File )
 	{
 		if( File>0 && File<=pMediaStream->m_dequeMediaFile.size() )

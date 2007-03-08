@@ -33,10 +33,7 @@
 using namespace std;
 using namespace DCE;
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 
 struct MonitoredDir
 {
@@ -52,7 +49,7 @@ void SetAccessRights(const string & sPath)
 	static group * grent = getgrnam("www-data");
 	struct stat st;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Setting access rights on '%s'", sPath.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Setting access rights on '%s'", sPath.c_str());
 	
 	if (grent != NULL)
 	{
@@ -104,7 +101,7 @@ void UnwatchDir(listOfMonitoredDirs & listMonitoredDirs, const string & sDirecto
 	{
 		if (it_lOMD->m_sPath == sDirectory)
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Unwatching directory '%s'", it_lOMD->m_sPath.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unwatching directory '%s'", it_lOMD->m_sPath.c_str());
 			listMonitoredDirs.erase(it_lOMD);
 			break;
 		}
@@ -117,7 +114,7 @@ void UnwatchDir(listOfMonitoredDirs & listMonitoredDirs, int wd)
 	{
 		if (it_lOMD->m_iWD == wd)
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Unwatching directory '%s'", it_lOMD->m_sPath.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unwatching directory '%s'", it_lOMD->m_sPath.c_str());
 			listMonitoredDirs.erase(it_lOMD);
 			break;
 		}
@@ -126,7 +123,7 @@ void UnwatchDir(listOfMonitoredDirs & listMonitoredDirs, int wd)
 
 void WatchDir(listOfMonitoredDirs & listMonitoredDirs, const string & sDirectory, inotify & obj_Inotify)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Watching directory '%s'", sDirectory.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Watching directory '%s'", sDirectory.c_str());
 
 	// Add directory watch first
 	MonitoredDir struct_MonitoredDir;
@@ -165,7 +162,7 @@ void OperateFile(listOfMonitoredDirs & listMonitoredDirs, inotify & obj_Inotify,
 	}
 	sPath = it_lOMD->m_sPath + "/" + event.name;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Operating on '%s'", sPath.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Operating on '%s'", sPath.c_str());
 	if (event.mask & IN_IGNORED)
 	{
 		UnwatchDir(listMonitoredDirs, event.wd);
@@ -187,15 +184,13 @@ int main(int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
-	//g_pPlutoLogger = new FileLogger("/var/log/pluto/VoiceMailMonitor.log");
-	g_pPlutoLogger = new FileLogger(stdout);
 	string sDirectory = "/var/spool/asterisk/voicemail";
 	inotify obj_Inotify;
 
 	listOfMonitoredDirs listMonitoredDirs;
 	listOfStrings listDirectories;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Running Voicemail Monitor");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Running Voicemail Monitor");
 
 	// Find directories in starting directory
 	// Recursion is done by us, not by the function

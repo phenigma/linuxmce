@@ -63,7 +63,7 @@ public:
 	}
 	virtual ~PhoneDetectionEngine() 
 	{ 
-		g_pPlutoLogger->Write(LV_STATUS,"Phone Detection Engine terminating");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Phone Detection Engine terminating");
 		StopScanning(); 
 
         pthread_mutex_destroy(&m_VariableMutex.mutex);

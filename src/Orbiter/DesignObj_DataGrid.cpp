@@ -102,7 +102,7 @@ g_PlutoProfiler->Stop("DesignObj_DataGrid::RenderObject");
 	if(m_pOrbiter->m_bQuit_get())
 		return;
 
-g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
+LoggerWrapper::GetInstance()->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
 g_PlutoProfiler->Start("RequestDatagridContents");
 	DataGridTable *pDataGridTable = RequestDatagridContents( m_GridCurCol,  m_GridCurRow, false );
 g_PlutoProfiler->Stop("RequestDatagridContents");
@@ -110,9 +110,9 @@ g_PlutoProfiler->Stop("RequestDatagridContents");
 		m_pOrbiter->CallMaintenanceInMiliseconds(100,&Orbiter::StartCachingGrid,this,pe_Match_Data);
 	m_PagesCached = make_pair<int,int> (0,0); // Start caching again
 
-g_pPlutoLogger->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
+LoggerWrapper::GetInstance()->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING,"from grid %s DataGridTable_Get() is now %p",m_ObjectID.c_str(),DataGridTable_Get());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"from grid %s DataGridTable_Get() is now %p",m_ObjectID.c_str(),DataGridTable_Get());
 #endif
 
 	m_CachedCurRow=m_GridCurRow;
@@ -155,14 +155,14 @@ DataGridTable *DesignObj_DataGrid::RequestDatagridContents( int &GridCurCol, int
 	if (  m_bReAcquire || !pDataGridTable || m_sSeek.length() )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_ACTION,"acquiring %s",m_ObjectID.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_ACTION,"acquiring %s",m_ObjectID.c_str());
 #endif
 		m_bReAcquire=false;
 
 		++m_pOrbiter->m_dwIDataGridRequestCounter;
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS,  "requesting grid ( # %d ),  %s.",  m_pOrbiter->m_dwIDataGridRequestCounter,
+		LoggerWrapper::GetInstance()->Write( LV_STATUS,  "requesting grid ( # %d ),  %s.",  m_pOrbiter->m_dwIDataGridRequestCounter,
 			m_sGridID.c_str(  ) );
 #endif
 		int size = 0;
@@ -174,7 +174,7 @@ DataGridTable *DesignObj_DataGrid::RequestDatagridContents( int &GridCurCol, int
 
 g_PlutoProfiler->Start("send command");
 		if(  !m_pOrbiter->SendCommand( CMD_Request_Datagrid_Contents )  )
-			g_pPlutoLogger->Write( LV_CRITICAL, "Request datagrid: %s failed", m_ObjectID.c_str(  ) );
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Request datagrid: %s failed", m_ObjectID.c_str(  ) );
 		else
 		{
 g_PlutoProfiler->Stop("send command");
@@ -222,7 +222,7 @@ g_PlutoProfiler->Stop("send command");
 
 //				M.Release();
 #ifdef DEBUG
-						g_pPlutoLogger->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,pDataGridTable->CovertColRowType(it->first).first,pDataGridTable->CovertColRowType(it->first).second);
+						LoggerWrapper::GetInstance()->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,pDataGridTable->CovertColRowType(it->first).first,pDataGridTable->CovertColRowType(it->first).second);
 #endif
 //						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, m_pOrbiter->m_dwIDataGridRequestCounter, make_pair<int,int> (GridCurRow, GridCurCol), pCell, pDataGridTable->CovertColRowType(it->first),!bCache);
 					}
@@ -251,7 +251,7 @@ g_PlutoProfiler->Stop("send command");
 				}
 
 #ifdef DEBUG
-				g_pPlutoLogger->Write( LV_STATUS, "Got %d rows %d cols in new %s DataGridTable_Get() %p", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ), m_ObjectID.c_str(), pDataGridTable );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Got %d rows %d cols in new %s DataGridTable_Get() %p", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ), m_ObjectID.c_str(), pDataGridTable );
 #endif
 				if(  !pDataGridTable->GetRows(  ) || !pDataGridTable->GetCols(  )  )
 				{
@@ -262,7 +262,7 @@ g_PlutoProfiler->Stop("send command");
 			}
 			else
 			{
-				g_pPlutoLogger->Write( LV_CRITICAL,  "Error loading grid ID: %d (not implemented?)",  m_pOrbiter->m_dwIDataGridRequestCounter );
+				LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Error loading grid ID: %d (not implemented?)",  m_pOrbiter->m_dwIDataGridRequestCounter );
 			}
 		}
 		g_PlutoProfiler->Stop("send command");
@@ -384,7 +384,7 @@ void DesignObj_DataGrid::CacheGrid()
 	DataGridTable *pDataGridTable = DataGridTable_Get( m_CurrentLocation.first, m_CurrentLocation.second );
 	if( !pDataGridTable )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"DesignObj_DataGrid::CacheGrid  -- no current grid"); // Shouldn't happen
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"DesignObj_DataGrid::CacheGrid  -- no current grid"); // Shouldn't happen
 		return;
 	}
 	bool bResult;
@@ -409,7 +409,7 @@ bool DesignObj_DataGrid::CalculateGridMovement(int Direction, int &Cur,  int Cel
 	PLUTO_SAFETY_LOCK( dg, m_pOrbiter->m_DatagridMutex );
 	if( !pDataGridTable )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"DesignObj_DataGrid::CalculateGridMovement no current grid");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"DesignObj_DataGrid::CalculateGridMovement no current grid");
 		return false;
 	}
 	int InitialCur = Cur;
@@ -525,7 +525,7 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction)
 		}
 	}
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_EVENTHANDLER,"Scrolled datagrid %s to row %d col %d",m_sGridID.c_str(),m_GridCurRow,m_GridCurCol);
+	LoggerWrapper::GetInstance()->Write(LV_EVENTHANDLER,"Scrolled datagrid %s to row %d col %d",m_sGridID.c_str(),m_GridCurRow,m_GridCurCol);
 #endif
 	DataGridRenderer *pDataGridRenderer = dynamic_cast<DataGridRenderer *>(m_pObjectRenderer);
 	pDataGridRenderer->iPK_Direction = iPK_Direction;
@@ -549,7 +549,7 @@ void DesignObj_DataGrid::m_pDataGridTable_Current_set(DataGridTable *pDataGridTa
 			//we won't be able to do a datagrid animation (we won't have the coverarts from prev. page of the datagrid)
 			//the engine will deallocate the memory for graphics of the datagrid when the animation stops
 #ifndef ORBITER_OPENGL
-				g_pPlutoLogger->Write(LV_STATUS,"delete2 m_pCell->m_pGraphic %p:%p",pCell,pCell->m_pGraphic);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"delete2 m_pCell->m_pGraphic %p:%p",pCell,pCell->m_pGraphic);
 				delete pCell->m_pGraphic;
 				pCell->m_pGraphic=NULL;
 #endif

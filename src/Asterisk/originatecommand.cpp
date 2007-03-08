@@ -42,11 +42,11 @@ namespace ASTERISK {
 
 OriginateCommand::OriginateCommand()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Originate command created.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Originate command created.");
 };
 
 OriginateCommand::~OriginateCommand() {
-	g_pPlutoLogger->Write(LV_STATUS, "Originate command destroyed.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Originate command destroyed.");
 };
 
 void 
@@ -81,7 +81,7 @@ OriginateCommand::handleStartup() {
 	/*register the channel as originating 
 		*so no ring event will be issued to Telecom Plugin */
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Registered phone %s as originator of the call. ",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Registered phone %s as originator of the call. ",
 						phonenum .c_str());
 	RuntimeConfig::getInstance()->regOriginateCall(phonenum);
 	
@@ -114,14 +114,14 @@ OriginateCommand::handleToken(Token* ptoken) {
 			/*step1*/
 			if(phNum == phonenum && phType == phonetype) {
 				srcchannel = channel;
-				g_pPlutoLogger->Write(LV_STATUS, "Originate source channel: %s.", channel.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Originate source channel: %s.", channel.c_str());
 			}
 		} else {
 			/*step3*/
 			if(phNum == destphonenum && phType == destphonetype) {
 				/*success*/
 				destchannel = channel;
-				g_pPlutoLogger->Write(LV_STATUS, "Originate destination channel: %s.", channel.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Originate destination channel: %s.", channel.c_str());
 				
 				AsteriskManager::getInstance()->NotifyResult(commandid, 0, srcchannel);
 				return 1;
@@ -134,7 +134,7 @@ OriginateCommand::handleToken(Token* ptoken) {
 			&& ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_DIAL) 
 	{
 		if(ptoken->getKey(TOKEN_CHANNEL) == srcchannel)	 {
-			g_pPlutoLogger->Write(LV_STATUS, "Unregistered phone %s as originator of the call. ",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unregistered phone %s as originator of the call. ",
 						phonenum .c_str());
 			RuntimeConfig::getInstance()->regOriginateCall(phonenum);
 			
@@ -145,7 +145,7 @@ OriginateCommand::handleToken(Token* ptoken) {
 			string::size_type curpos;
 			destphonetype = StringUtils::Tokenize(data, "/|-", curpos);
 			destphonenum = StringUtils::Tokenize(data, "/|-", curpos);
-			g_pPlutoLogger->Write(LV_STATUS, "DestPhoneNum: %s, DestPhoneType: %s. (AppData: %s). ",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "DestPhoneNum: %s, DestPhoneType: %s. (AppData: %s). ",
 								destphonenum.c_str(), destphonetype.c_str(), data.c_str());
 		}
 	} else 
@@ -174,7 +174,7 @@ OriginateCommand::handleToken(Token* ptoken) {
 		
 		
 		if(!Utils::ParseChannel(channel, &phonenum) && phonenum == phonenum) {
-			g_pPlutoLogger->Write(LV_STATUS, "Notifying successfull originate.");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Notifying successfull originate.");
 			AsteriskManager* manager = AsteriskManager::getInstance();
 			manager->NotifyResult(commandid, !(ptoken->getKey(TOKEN_RESPONSE) == 		RESPONSE_SUCCESS), ptoken->getKey(TOKEN_MESSAGE));
 		}
@@ -188,7 +188,7 @@ OriginateCommand::handleToken(Token* ptoken) {
 
 void 
 OriginateCommand::handleTerminate() {
-	g_pPlutoLogger->Write(LV_STATUS, "Originate completed.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Originate completed.");
     Release();
 }
 

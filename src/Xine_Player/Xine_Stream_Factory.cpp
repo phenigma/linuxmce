@@ -99,14 +99,14 @@ bool Xine_Stream_Factory::StartupFactory()
 	// avoid double-initialization
 	if (m_bInitialized) 
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Double initialization attempted - bad code?");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Double initialization attempted - bad code?");
 		return false;
 	}
 	
 	// initing X threads
 	if ( !XInitThreads() )
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "XInitThreads() failed!" );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "XInitThreads() failed!" );
 		return false;
 	}
 
@@ -114,14 +114,14 @@ bool Xine_Stream_Factory::StartupFactory()
 	m_pXineLibrary = xine_new();
 	 if (!m_pXineLibrary)
 	 {
-		g_pPlutoLogger->Write( LV_WARNING, "Cannot connect to Xine Library");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Cannot connect to Xine Library");
 		return false;
 	 }
 	
 	IdentifyXineStuff();
 	
 	// loading config
-	g_pPlutoLogger->Write( LV_STATUS, "Loading config from %s", m_sConfigFile.c_str() );		
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Loading config from %s", m_sConfigFile.c_str() );		
 	xine_config_load( m_pXineLibrary, m_sConfigFile.c_str() );
 	// be verbose
 	xine_engine_set_param(m_pXineLibrary, XINE_ENGINE_PARAM_VERBOSITY, XINE_VERBOSITY_DEBUG);
@@ -138,11 +138,11 @@ bool Xine_Stream_Factory::StartupFactory()
 	
 	m_sDeinterlacingConfig = m_pPlayer->DATA_Get_Deinterlacing_Mode();
 	m_bUseDeinterlacing = (m_sDeinterlacingConfig!="");
-	g_pPlutoLogger->Write( LV_STATUS, "Deinterlacing Mode is '%s' => deinterlacing is %s", m_sDeinterlacingConfig.c_str(), m_bUseDeinterlacing?"on":"off" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Deinterlacing Mode is '%s' => deinterlacing is %s", m_sDeinterlacingConfig.c_str(), m_bUseDeinterlacing?"on":"off" );
 	
 	 if (!CreateWindows())
 	 {
-		g_pPlutoLogger->Write( LV_WARNING, "Cannot create output windows");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Cannot create output windows");
 		return false;
 	 }
 	
@@ -155,12 +155,12 @@ bool Xine_Stream_Factory::ShutdownFactory()
 	// avoid double-deinitialization
 	if (!m_bInitialized) 
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Double deinitialization attempted - wrong code?");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Double deinitialization attempted - wrong code?");
 		return false;
 	}
 	
 	// destroying all streams
-	g_pPlutoLogger->Write( LV_WARNING, "Destroying all active streams");
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Destroying all active streams");
 	map<int, Xine_Stream*>::iterator stream;
 	while(true)
 	{
@@ -221,10 +221,10 @@ void Xine_Stream_Factory::DetectOutputDrivers()
 	{
 		driver_names = xine_list_video_output_plugins( m_pXineLibrary );
 		m_sXineVideoDriverName = driver_ids[ xineConfigEntry.num_value ];
-		g_pPlutoLogger->Write( LV_STATUS, "Using video driver: %s", m_sXineVideoDriverName.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Using video driver: %s", m_sXineVideoDriverName.c_str() );
 	}
 	else
-		g_pPlutoLogger->Write( LV_STATUS, "Video driver key was not defined in the config file, using hardcoded default: %s", m_sXineVideoDriverName.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Video driver key was not defined in the config file, using hardcoded default: %s", m_sXineVideoDriverName.c_str() );
 	
 	free( driver_ids );
 
@@ -252,10 +252,10 @@ void Xine_Stream_Factory::DetectOutputDrivers()
 	{
 		driver_names = xine_list_audio_output_plugins( m_pXineLibrary );
 		m_sXineAudioDriverName = driver_ids[ xineConfigEntry.num_value ];
-		g_pPlutoLogger->Write( LV_STATUS, "Using audio driver: %s", m_sXineAudioDriverName.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Using audio driver: %s", m_sXineAudioDriverName.c_str() );
 	}
 	else
-		g_pPlutoLogger->Write( LV_STATUS, "Audio driver key was not defined in the config file, using hardcoded default: %s", m_sXineAudioDriverName.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Audio driver key was not defined in the config file, using hardcoded default: %s", m_sXineAudioDriverName.c_str() );
 	
 	free( driver_ids );
 }
@@ -284,11 +284,11 @@ void Xine_Stream_Factory::setAudioSettings()
 
 	if (sAudioSettings=="")
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "M/D Audio Settings are empty, assuming 'M'");
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "M/D Audio Settings are empty, assuming 'M'");
 		sAudioSettings = "M";
 	}
 	else
-		g_pPlutoLogger->Write( LV_STATUS, "M/D Audio Settings: %s", sAudioSettings.c_str());
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "M/D Audio Settings: %s", sAudioSettings.c_str());
 	
 	bool updateConfig = true;
 	
@@ -321,13 +321,13 @@ void Xine_Stream_Factory::setAudioSettings()
 			break;
 		
 		default:
-			g_pPlutoLogger->Write( LV_STATUS, "Unknown audio settings flag: '%c'", sAudioSettings[i]);
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Unknown audio settings flag: '%c'", sAudioSettings[i]);
 		}
 	}
 	
 	if (!updateConfig)
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Flag 'M' found, we won't override the defaults from /etc/pluto/xine.conf");
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Flag 'M' found, we won't override the defaults from /etc/pluto/xine.conf");
 	}
 	
 	
@@ -336,28 +336,28 @@ void Xine_Stream_Factory::setAudioSettings()
 	xine_config_register_string(m_pXineLibrary, "audio.alsa_front_device", "default", "ALSA front device setting", NULL, 0, NULL, NULL);
 	if (xine_config_lookup_entry(m_pXineLibrary, "audio.alsa_front_device", &cfgAlsaFrontDevice) == 0)
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Could not lookup the current 'ALSA front device', skipping" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Could not lookup the current 'ALSA front device', skipping" );
 	}
 	else
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Current value for 'ALSA front device': %s", cfgAlsaFrontDevice.str_value );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Current value for 'ALSA front device': %s", cfgAlsaFrontDevice.str_value );
 		if (updateConfig)
 		if (sAlsaFrontDevice=="")
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "Configured value for 'ALSA front device' is empty, not overriding it" );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Configured value for 'ALSA front device' is empty, not overriding it" );
 		}
 		else
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "Updating value for 'ALSA front device' to: %s", sAlsaFrontDevice.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updating value for 'ALSA front device' to: %s", sAlsaFrontDevice.c_str() );
 			cfgAlsaFrontDevice.str_value = strdup(sAlsaFrontDevice.c_str());
 			xine_config_update_entry( m_pXineLibrary, &cfgAlsaFrontDevice );
 			if (xine_config_lookup_entry(m_pXineLibrary, "audio.alsa_front_device", &cfgAlsaFrontDevice) == 0)
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Could not lookup the 'ALSA front device' after update" );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Could not lookup the 'ALSA front device' after update" );
 			}
 			else
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Updated value for 'ALSA front device': %s", cfgAlsaFrontDevice.str_value );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updated value for 'ALSA front device': %s", cfgAlsaFrontDevice.str_value );
 			}			
 		}
 	}
@@ -368,19 +368,19 @@ void Xine_Stream_Factory::setAudioSettings()
 		"Speakers arrangement", NULL, 0, NULL, NULL );
 	if ( xine_config_lookup_entry( m_pXineLibrary, "audio.output.speaker_arrangement", &cfgSpeakersArrangement ) == 0 )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Could not lookup the current 'Speakers Arrangement', skipping" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Could not lookup the current 'Speakers Arrangement', skipping" );
 	}
 	else
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Current value for 'Speakers Arrangement': %s", audio_out_types_strs[ cfgSpeakersArrangement.num_value ] );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Current value for 'Speakers Arrangement': %s", audio_out_types_strs[ cfgSpeakersArrangement.num_value ] );
 		if (updateConfig)
 		if (sSpeakersArrangement=="")
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "Configured value for 'Speakers Arrangement' is empty, not overriding it" );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Configured value for 'Speakers Arrangement' is empty, not overriding it" );
 		}
 		else
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "Updating value for 'Speakers Arrangement' to: %s", sSpeakersArrangement.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updating value for 'Speakers Arrangement' to: %s", sSpeakersArrangement.c_str() );
 			int i = 0;
 			while ( audio_out_types_strs[ i ] != NULL )
 			{
@@ -391,11 +391,11 @@ void Xine_Stream_Factory::setAudioSettings()
 		
 					if ( xine_config_lookup_entry( m_pXineLibrary, "audio.output.speaker_arrangement", &cfgSpeakersArrangement ) == 0 )
 					{
-						g_pPlutoLogger->Write( LV_STATUS, "Could not lookup the 'Speakers Arrangement' after update" );
+						LoggerWrapper::GetInstance()->Write( LV_STATUS, "Could not lookup the 'Speakers Arrangement' after update" );
 					}
 					else
 					{
-						g_pPlutoLogger->Write( LV_STATUS, "Updated value for 'Speakers Arrangement': %s", audio_out_types_strs[ cfgSpeakersArrangement.num_value ] );
+						LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updated value for 'Speakers Arrangement': %s", audio_out_types_strs[ cfgSpeakersArrangement.num_value ] );
 					}
 					
 					break;
@@ -416,7 +416,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		
 		if( streamID==0 )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream_Factory::GetStream streamID is 0");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Xine_Stream_Factory::GetStream streamID is 0");
 			streamID = m_iLastRenderingStream;
 		}
 
@@ -436,7 +436,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		new_stream->m_sDeinterlacingConfig = m_sDeinterlacingConfig;
 		if ((new_stream!=NULL) && new_stream->StartupStream())
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Created new stream with ID=%i", streamID);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Created new stream with ID=%i", streamID);
 			
 			PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
 			streamsMap[streamID] = new_stream;
@@ -444,7 +444,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Cannot create new stream with ID=%i", streamID);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Cannot create new stream with ID=%i", streamID);
 			if (new_stream!=NULL)
 				delete new_stream;
 			return NULL;
@@ -467,7 +467,7 @@ void Xine_Stream_Factory::ReportSubtitles( string sSubtitles)
 
 void Xine_Stream_Factory::ReportAVInfo( string sFilename, int iStreamID, string sMediaInfo, string sAudioInfo, string sVideoInfo )
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i) <= AV info", iStreamID);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i) <= AV info", iStreamID);
 	m_pPlayer->EVENT_Playback_Started(sFilename, iStreamID, sMediaInfo, sAudioInfo, sVideoInfo);
 }
 
@@ -498,7 +498,7 @@ void Xine_Stream_Factory::DestroyStream(int iStreamID)
 		delete pStream;
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING,"Destroyed stream with ID=%i", iStreamID);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Destroyed stream with ID=%i", iStreamID);
 }
 
 void Xine_Stream_Factory::HideStreamWindows(int iStreamID)
@@ -520,7 +520,7 @@ void Xine_Stream_Factory::HideStreamWindows(int iStreamID)
 	{
 		pStream->hideWindows();
 	}
-	g_pPlutoLogger->Write(LV_WARNING,"Hide windows for stream with ID=%i", iStreamID);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Hide windows for stream with ID=%i", iStreamID);
 }
 
 void Xine_Stream_Factory::CloseStreamAV(int iStreamID)
@@ -543,19 +543,19 @@ void Xine_Stream_Factory::CloseStreamAV(int iStreamID)
 		pStream->ShutdownStream();
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING,"Closed stream AV with ID=%i", iStreamID);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Closed stream AV with ID=%i", iStreamID);
 }
 
 void Xine_Stream_Factory::setVideoDriver(string strVideoDriver)
 {
 	if ( (strVideoDriver!="") && (strVideoDriver=="cle266x11"||strVideoDriver=="xv"||strVideoDriver=="xxmc"||strVideoDriver=="opengl"||strVideoDriver=="sdl"||strVideoDriver=="xshm") )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Overriding video driver setting, using '%s' for video output", strVideoDriver.c_str());
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Overriding video driver setting, using '%s' for video output", strVideoDriver.c_str());
 		m_sXineVideoDriverName = strVideoDriver;
 	}
 	else
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Not overriding video driver setting, device data is not acceptable: '%s'", strVideoDriver.c_str());
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Not overriding video driver setting, device data is not acceptable: '%s'", strVideoDriver.c_str());
 	}
 }
 
@@ -576,7 +576,7 @@ bool Xine_Stream_Factory::CreateWindows()
 
 	if ( ( m_pXDisplay = XOpenDisplay( getenv( "DISPLAY" ) ) ) == NULL )
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Could not open X DISPLAY from: %s", getenv( "DISPLAY" ) );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Could not open X DISPLAY from: %s", getenv( "DISPLAY" ) );
 		return false;
 	}
 	
@@ -587,7 +587,7 @@ bool Xine_Stream_Factory::CreateWindows()
 	m_iCurrentScreen = XDefaultScreen( m_pXDisplay );
 	// creating it on last (invisible) screen
 	int iScreens = XScreenCount( m_pXDisplay );
-	g_pPlutoLogger->Write( LV_WARNING, "Count of screens at this display: %i", iScreens);
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Count of screens at this display: %i", iScreens);
 	//m_iCurrentScreen = iScreens-1;
 	xpos = 10;
 	ypos = 20;
@@ -651,7 +651,7 @@ bool Xine_Stream_Factory::CreateWindows()
 		completionEvent = -1;
 
 	int xcode = XMapWindow( m_pXDisplay, windows[ 0 ] );
-	g_pPlutoLogger->Write( LV_WARNING, "XMapWindow returned: %i", xcode);
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "XMapWindow returned: %i", xcode);
 
 //	XIconifyWindow( m_pXDisplay, windows[ 0 ], 0 );
 
@@ -694,12 +694,12 @@ bool Xine_Stream_Factory::DestroyWindows()
 
 void Xine_Stream_Factory::IdentifyXineStuff()
 {
-	g_pPlutoLogger->Write( LV_STATUS, "Checking installed xine-lib capabilities" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Checking installed xine-lib capabilities" );
 	// check if we have xine library with xine_seek support or not (reusing the loaded libxine)
 	void *handle = dlopen("libxine.so.1", RTLD_LAZY | RTLD_NOLOAD);
 	if (handle)
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "OK, libxine.so.1 already loaded" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "OK, libxine.so.1 already loaded" );
 		*(void**)(&custom_xine_seek) = dlsym(handle, "xine_seek");
 		*(void**)(&custom_xine_start_trick_play) = dlsym(handle, "xine_start_trick_play");
 		*(void**)(&custom_xine_stop_trick_play) = dlsym(handle, "xine_stop_trick_play");
@@ -707,13 +707,13 @@ void Xine_Stream_Factory::IdentifyXineStuff()
 	}
 	else
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Warning: libxine.so.1 is not loaded yet (?)" );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Warning: libxine.so.1 is not loaded yet (?)" );
 	}
 	
-	g_pPlutoLogger->Write( LV_WARNING, "Custom xine functions status:  xine_seek=%p, xine_start_trick_play=%p, xine_stop_trick_play=%p. Trickplay and seeking support: %s", 
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Custom xine functions status:  xine_seek=%p, xine_start_trick_play=%p, xine_stop_trick_play=%p. Trickplay and seeking support: %s", 
 		custom_xine_seek, custom_xine_start_trick_play, custom_xine_stop_trick_play, g_bXINE_HAS_TRICKPLAY_SUPPORT?"present":"absent");
 #ifdef VIA	
-	g_pPlutoLogger->Write( LV_WARNING, "Compiled for VIA extended xine-lib");
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Compiled for VIA extended xine-lib");
 #endif
 }
 

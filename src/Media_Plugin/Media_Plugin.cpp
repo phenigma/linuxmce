@@ -246,18 +246,18 @@ bool Media_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-    m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+    m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
     if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
         m_bQuit_set(true);
         return false;
     }
 
-    m_pDatabase_pluto_media = new Database_pluto_media(g_pPlutoLogger);
+    m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
     if( !m_pDatabase_pluto_media->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) ) )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
         m_bQuit_set(true);
         return false;
     }
@@ -296,7 +296,7 @@ bool Media_Plugin::GetConfig()
                 Row_Device_EntertainArea *pRow_Device_EntertainArea = vectRow_Device_EntertainArea[s2];
 if( !pRow_Device_EntertainArea || !pRow_Device_EntertainArea->FK_Device_getrow( ) )
 {
-g_pPlutoLogger->Write(LV_CRITICAL,"Device_EntertainArea refers to a NULL device %d %d",pRow_Device_EntertainArea->FK_EntertainArea_get(),pRow_Device_EntertainArea->FK_Device_get());
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Device_EntertainArea refers to a NULL device %d %d",pRow_Device_EntertainArea->FK_EntertainArea_get(),pRow_Device_EntertainArea->FK_Device_get());
 //pRow_Device_EntertainArea->Delete();
 //TODO: add the delete above and also do a commit.
 continue;
@@ -504,7 +504,7 @@ bool Media_Plugin::Register()
 
 	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin || !m_pFile_Grids_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to media plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to media plugin");
 		return false;
 	}
 
@@ -716,7 +716,7 @@ void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_
 	if( pMediaDevice->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
 		pEntertainArea->m_pMediaDevice_MD = pMediaDevice;
 
-g_pPlutoLogger->Write( LV_STATUS, "adding device %d %s to map ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),
+LoggerWrapper::GetInstance()->Write( LV_STATUS, "adding device %d %s to map ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),
 					  pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str());
 
     map<int, ListMediaDevice *> m_mapMediaDeviceByTemplate;  /** All the media devices in the area by device template */
@@ -746,13 +746,13 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
     MediaDevice *pMediaDevice = m_mapMediaDevice_Find( pDeviceFrom->m_dwPK_Device );
     if( !pMediaDevice )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Got a media inserted event from %d -- a drive that isn't a media device", pDeviceFrom->m_dwPK_Device );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Got a media inserted event from %d -- a drive that isn't a media device", pDeviceFrom->m_dwPK_Device );
         return false; // Let someone else handle it
     }
 
     if( !pMediaDevice->m_mapEntertainArea.size( ) )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Got a media inserted event from a drive that doesn't exist in an entertainment area" );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Got a media inserted event from a drive that doesn't exist in an entertainment area" );
         return false; // Let someone else handle it
     }
 
@@ -764,7 +764,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
     List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find( PK_MediaType,0 );
     if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size( )==0 )
     {
-        g_pPlutoLogger->Write( LV_WARNING, "Media inserted from device %d but nothing to handle it", pDeviceFrom->m_dwPK_Device );
+        LoggerWrapper::GetInstance()->Write( LV_WARNING, "Media inserted from device %d but nothing to handle it", pDeviceFrom->m_dwPK_Device );
         return false; // Let someone else handle it
     }
 
@@ -798,7 +798,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			if( pMediaDevice->m_pOH_Orbiter_Reset && time(NULL)-pMediaDevice->m_tReset<60 )
 				PK_Orbiter = pMediaDevice->m_pOH_Orbiter_Reset->m_pDeviceData_Router->m_dwPK_Device;
 
-			g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Media Inserted with orbiter %d",PK_Orbiter);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from Media Inserted with orbiter %d",PK_Orbiter);
 
 			MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,0,PK_Orbiter,vectEntertainArea,pDeviceFrom->m_dwPK_Device,&dequeMediaFile,false,0,"");
 			if( pMediaStream )
@@ -816,8 +816,8 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
         }
     }
 
-    g_pPlutoLogger->Write( LV_WARNING, "Nothing knows how to handle removable media here. We have %d Plugins registered", ( int ) pList_MediaHandlerInfo->size( ) );
-    return false; // Couldn't handle it//                     g_pPlutoLogger->Write(LV_STATUS, "Filename: %s", sFilename.c_str());
+    LoggerWrapper::GetInstance()->Write( LV_WARNING, "Nothing knows how to handle removable media here. We have %d Plugins registered", ( int ) pList_MediaHandlerInfo->size( ) );
+    return false; // Couldn't handle it//                     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Filename: %s", sFilename.c_str());
 
 }
 
@@ -826,7 +826,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 {
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
-    g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::PlaybackCompleted stream id %d",iStreamID);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::PlaybackCompleted stream id %d",iStreamID);
     MediaStream * pMediaStream = NULL;
 	if( iStreamID==0 )  // This is just informational that nothing is playing on this stream
 	{
@@ -857,7 +857,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 
     if ( pMediaStream == NULL )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Stream ID %d is not mapped to a media stream object", iStreamID);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Stream ID %d is not mapped to a media stream object", iStreamID);
         return false;
     }
 
@@ -869,7 +869,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 /*
     if ( pMediaStream->m_pOH_Orbiter_StartedMedia == NULL )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "The stream object mapped to the stream ID %d does not have an associated orbiter object.", iStreamID);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "The stream object mapped to the stream ID %d does not have an associated orbiter object.", iStreamID);
         return false;
     }
 */
@@ -877,17 +877,17 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 //     EntertainArea *pEntertainArea = pMediaStream->m_pOH_Orbiter_StartedMedia->m_pEntertainArea;
 //     if ( pEntertainArea == NULL )
 //     {
-//         g_pPlutoLogger->Write(LV_WARNING, "The orbiter %d which created this stream %d is not in a valid entertainment area",
+//         LoggerWrapper::GetInstance()->Write(LV_WARNING, "The orbiter %d which created this stream %d is not in a valid entertainment area",
 //                     pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
 //                     iStreamID );
 //         return false;
 //     }
 
-	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::PlaybackCompleted() Checking conditions: canPlayMore: %d, shouldResume %d parked: %d  # of eas %d", pMediaStream->CanPlayMore(), pMediaStream->m_bResume, (int) pMediaStream->m_tTime_Parked, (int) pMediaStream->m_mapEntertainArea.size() );
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::PlaybackCompleted() Checking conditions: canPlayMore: %d, shouldResume %d parked: %d  # of eas %d", pMediaStream->CanPlayMore(), pMediaStream->m_bResume, (int) pMediaStream->m_tTime_Parked, (int) pMediaStream->m_mapEntertainArea.size() );
     if ( !bWithErrors && pMediaStream->CanPlayMore() && !pMediaStream->m_bResume && !pMediaStream->m_tTime_Parked )
     {
         pMediaStream->ChangePositionInPlaylist(1);
-		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from playback completed");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from playback completed");
 		string sError;
         pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream,sError);
 		CheckStreamForTimeout(pMediaStream);
@@ -900,7 +900,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 
 		StreamEnded(pMediaStream,true,true,NULL,NULL,true);
 
-		g_pPlutoLogger->Write(LV_STATUS, "Playback completed. The stream can't play anything more.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Playback completed. The stream can't play anything more.");
     }
 
     return false;
@@ -920,7 +920,7 @@ bool Media_Plugin::PlaybackStarted( class Socket *pSocket,class Message *pMessag
 
     if ( pMediaStream == NULL )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::PlaybackStarted Stream ID %d is not mapped to a media stream object", iStreamID);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::PlaybackStarted Stream ID %d is not mapped to a media stream object", iStreamID);
         return false;
     }
 
@@ -1003,7 +1003,7 @@ void Media_Plugin::HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,s
 
 void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *>  &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::StartMedia iPK_MediaType %d iPK_MediaProvider %d iPK_Device_Orbiter %d vectEntertainArea %d iPK_Device %d iPK_DeviceTemplate %d p_dequeMediaFile bResume %d iRepeat %d sStartingPosition %s p_vectMediaStream %p",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StartMedia iPK_MediaType %d iPK_MediaProvider %d iPK_Device_Orbiter %d vectEntertainArea %d iPK_Device %d iPK_DeviceTemplate %d p_dequeMediaFile bResume %d iRepeat %d sStartingPosition %s p_vectMediaStream %p",
 		iPK_MediaType, iPK_MediaProvider, iPK_Device_Orbiter, (int) vectEntertainArea.size(), iPK_Device, iPK_DeviceTemplate, p_dequeMediaFile, (int) bResume, iRepeat, sStartingPosition.c_str(), p_vectMediaStream);
 
 	if( !iPK_MediaType && p_dequeMediaFile->size() )
@@ -1045,7 +1045,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 			SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, iPK_Device_Orbiter, "");
 			SendCommand(SCREEN_DialogCannotPlayMedia);
 		}
-		g_pPlutoLogger->Write(LV_CRITICAL,"StartMedia - MediaType==0");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"StartMedia - MediaType==0");
 		return;
 	}
 
@@ -1057,14 +1057,14 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 	{
 		if( iPK_Device )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find any media handlers for type %d device %d trying without",iPK_MediaType, iPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Couldn't find any media handlers for type %d device %d trying without",iPK_MediaType, iPK_Device);
 			int iPK_Device_2=0;
 			GetMediaHandlersForEA(iPK_MediaType, iPK_MediaProvider, iPK_Device_2, iPK_DeviceTemplate, vectEntertainArea, vectEA_to_MediaHandler, mapEntertainmentArea_OutputZone);
 			iPK_Device = iPK_Device_2;
 		}
 		if( vectEA_to_MediaHandler.size()==0 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find any media handlers for type %d", iPK_MediaType);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Couldn't find any media handlers for type %d", iPK_MediaType);
 			SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, iPK_Device_Orbiter, "");
 			SendCommand(SCREEN_DialogCannotPlayMedia);
 		}
@@ -1080,7 +1080,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 	for(size_t s=0;s<vectEA_to_MediaHandler.size();++s)
 	{
 		MediaHandlerInfo *pMediaHandlerInfo = vectEA_to_MediaHandler[s].first;
-		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from MH Play Media2");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from MH Play Media2");
 
 		if( p_dequeMediaFile_Copy )
 		{
@@ -1169,7 +1169,7 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 			((*dequeMediaFile)[0]->m_sExtension=="DVD" || StringUtils::StartsWith((*dequeMediaFile)[0]->m_sPath,"DVD:",true))	) )
 				bContainsTitlesOrSections=true;
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::StartMedia type %d size %d extension %s path %s cont %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StartMedia type %d size %d extension %s path %s cont %d",
 pMediaHandlerInfo->m_PK_MediaType,dequeMediaFile->size(),
 dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sExtension.c_str() : "NO",
 dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
@@ -1215,7 +1215,7 @@ dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
 				SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, PK_Device_Orbiter, "");
 				SendCommand(SCREEN_DialogCannotPlayMedia);
 			}
-			g_pPlutoLogger->Write(LV_CRITICAL, "The plugin %s (%d) returned a NULL media stream object",
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "The plugin %s (%d) returned a NULL media stream object",
 													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_sName.c_str(),
 													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_dwPK_Device);
 			return pMediaStream;
@@ -1233,7 +1233,7 @@ dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
 	{
 		pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia );
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::StartMedia assuming parent of %d started media", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StartMedia assuming parent of %d started media", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
 #endif
 	}
 
@@ -1265,7 +1265,7 @@ dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
 	pMediaStream->m_bResume=bResume;
 	pMediaStream->m_bContainsTitlesOrSections=bContainsTitlesOrSections;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::StartMedia stream %d orbiter %d user %d remote %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StartMedia stream %d orbiter %d user %d remote %d",
 		pMediaStream->m_iStreamID_get(),pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0,
 		pMediaStream->m_iPK_Users,pMediaStream->m_dwPK_Device_Remote);
 		
@@ -1296,7 +1296,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 			SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device, "");
 			SendCommand(SCREEN_DialogCannotPlayMedia);
 		}
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start media without a source");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot start media without a source");
 		return false;
 	}
 
@@ -1326,9 +1326,9 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 				pEntertainArea->m_vectMediaStream_Interrupted.push_back(pEntertainArea->m_pMediaStream);
 
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
-			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
 			StreamEnded(pEntertainArea->m_pMediaStream,false,pMediaStream->m_bResume ? false : true,pMediaStream,NULL,false,true,false);  // Don't delete it if we're going to resume
-			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
 
 		}
 
@@ -1362,7 +1362,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 	}
 #endif
 
-	g_pPlutoLogger->Write(LV_STATUS,"Ready to call plugin's startmedia");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ready to call plugin's startmedia");
 	int iPK_Orbiter_PromptingToResume = 0;	string::size_type queue_pos;
 	if( pMediaStream->m_sStartPosition.size()==0 && 
 		(pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST) &&  // Don't bother asking for music
@@ -1383,7 +1383,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 	{
 		UpdateViewDate(pMediaStream);
 		CheckStreamForTimeout(pMediaStream);
-		g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug-in started media");
 
 		pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive = false;  // We will set it to true in StartCaptureCard
 
@@ -1424,7 +1424,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 		// If this is just an announcement don't bother sending the orbiters to the remote screen
 		if( pMediaStream->m_bResume )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() done - not sending to remote since stream is marked resumte");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartMedia() done - not sending to remote since stream is marked resumte");
 
 			for(map<int,class OldStreamInfo *>::iterator it = mapOldStreamInfo.begin(); it != mapOldStreamInfo.end(); ++it)
 				delete it->second;
@@ -1486,10 +1486,10 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 			SendCommand(SCREEN_DialogCannotPlayMedia);
 		}
 		StreamEnded(pMediaStream);
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed 2.");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed 2.");
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() function call completed with honors!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartMedia() function call completed with honors!");
 
 	for(map<int,class OldStreamInfo *>::iterator it = mapOldStreamInfo.begin(); it != mapOldStreamInfo.end(); ++it)
 		delete it->second;
@@ -1585,7 +1585,7 @@ void Media_Plugin::FindActiveDestination(MediaStream *pMediaStream,map<int, pair
 		}
 		
 		if( !pEntertainArea->m_pMediaDevice_ActiveDest )
-			g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::StartMedia no ActiveDest for EA %d", pEntertainArea->m_iPK_EntertainArea);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::StartMedia no ActiveDest for EA %d", pEntertainArea->m_iPK_EntertainArea);
 	}
 }
 
@@ -1594,7 +1594,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 	pMediaStream->m_pDevice_CaptureCard = m_pRouter->m_mapDeviceData_Router_Find( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device );
 	if( !pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard || !pMediaStream->m_pDevice_CaptureCard || !pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard -- error");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard -- error");
 		return; // Shouldn't happen
 	}
 
@@ -1608,7 +1608,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 
 	if( sDevice.empty() || !pDevice_MediaPlayer )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard - Device is empty or no media player for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard - Device is empty or no media player for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
 		return;
 	}
 
@@ -1634,7 +1634,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 			SendCommand(CMD_Spawn_Application);
 		}
 		else
-			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard -- no app server to set port for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard -- no app server to set port for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
 	}
 
 	if( pMediaStream->StreamingRequired() )
@@ -1643,7 +1643,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
 		// source be one of the destinations, and change the mrl to reference the source disk
 
-		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartCaptureCard streaming to %d", 
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartCaptureCard streaming to %d", 
 			pDevice_MediaPlayer->m_dwPK_Device);
 
 		string sTargets = pMediaStream->GetTargets(DEVICETEMPLATE_Xine_Player_CONST);
@@ -1677,7 +1677,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartCaptureCard playing to %d", 
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartCaptureCard playing to %d", 
 			pDevice_MediaPlayer->m_dwPK_Device);
 		DCE::CMD_Play_Media cmd(m_dwPK_Device,
 								pDevice_MediaPlayer->m_dwPK_Device,
@@ -1710,11 +1710,11 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
-    g_pPlutoLogger->Write( LV_STATUS, "Media plug in received message id: %d", pMessage->m_dwID );
+    LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media plug in received message id: %d", pMessage->m_dwID );
     // Give it to our base class to see if we have a handler
     if( Media_Plugin_Command::ReceivedMessage( pMessage )!=rmr_Processed )
     {
-        g_pPlutoLogger->Write( LV_STATUS, "Media plug base class didn't handle message id: %d", pMessage->m_dwID );
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media plug base class didn't handle message id: %d", pMessage->m_dwID );
 
 		// Find the EA this message corresponds to.  If one is passed as a parameter that takes precedence
         class EntertainArea *pEntertainArea=NULL;
@@ -1736,14 +1736,14 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 				if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST) 
 					&& pMessage->m_mapParameters[COMMANDPARAMETER_Eject_CONST]=="1" )
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"Got a stop with no media.  Will eject 1");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got a stop with no media.  Will eject 1");
 					DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
 					SendCommand(CMD_Eject_Disk_Cat);
 					return rmr_Processed;
 				}
 
 				// Could be a timing issue that the stream finished and Orbiter didn't change the screen yet
-				g_pPlutoLogger->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
 				return rmr_NotProcessed;
 			}
 			else
@@ -1763,7 +1763,7 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 			}
 			else
 			{
-				g_pPlutoLogger->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but there's no stream in ea %d", pMessage->m_dwMessage_Type, pMessage->m_dwID, pEntertainArea->m_iPK_EntertainArea );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but there's no stream in ea %d", pMessage->m_dwMessage_Type, pMessage->m_dwID, pEntertainArea->m_iPK_EntertainArea );
 				return rmr_NotProcessed;
 			}
 		}
@@ -1870,7 +1870,7 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 						else
 							pMediaDevice->m_iLastPlaybackSpeed =
 								abs(pMediaDevice->m_iLastPlaybackSpeed * iValue);
-g_pPlutoLogger->Write(LV_STATUS,"relative Playback speed now %d for device %d %s",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"relative Playback speed now %d for device %d %s",
 pMediaDevice->m_iLastPlaybackSpeed,
 pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
@@ -1882,7 +1882,7 @@ pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 						pMediaDevice->m_iLastPlaybackSpeed = iValue;
 				}
 			}
-g_pPlutoLogger->Write(LV_STATUS,"Playback speed now %d for device %d %s",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Playback speed now %d for device %d %s",
 pMediaDevice->m_iLastPlaybackSpeed,
 pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
@@ -1891,12 +1891,12 @@ pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
         // We know it's derived from CommandImpl
         class Command_Impl *pPlugIn = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl;
-        g_pPlutoLogger->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
         pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
 		// Don't forward to the generic handler/capture card--it's just ourself
         if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo || pEntertainArea->m_pMediaStream->m_pDevice_CaptureCard || pPlugIn->ReceivedMessage( pMessage )!=rmr_Processed )
         {
-            g_pPlutoLogger->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d",
+            LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d",
 				pMessage->m_dwID, pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device );
 
 			// TODO "Warning: received dcemessage should take a bool but don't delete in or something so we don't need to copy the message!"
@@ -1907,13 +1907,13 @@ pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 			{
 			    Command *pCommand = m_pRouter->m_mapCommand_Find(pMessage->m_dwID);
 				if( !pCommand )
-					g_pPlutoLogger->Write(LV_CRITICAL,"Got a command in media plugin that we can't identify");
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Got a command in media plugin that we can't identify");
 				else
 				{
 				    if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_MD &&
 						(pCommand->m_dwPK_Command==COMMAND_Generic_Off_CONST || pCommand->m_dwPK_Command==COMMAND_Generic_On_CONST || pCommand->m_listPipe.size()) )
 					{
-g_pPlutoLogger->Write(LV_STATUS,"It's an on/off");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"It's an on/off");
 						pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_MD;
 						Message *pNewMessage = new Message( pMessage );
 						QueueMessageToRouter( pNewMessage );
@@ -1922,7 +1922,7 @@ g_pPlutoLogger->Write(LV_STATUS,"It's an on/off");
 					if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_mapCommands.find(pMessage->m_dwID) !=
 						pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_mapCommands.end() )
 					{
-g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"It's a valid command");
 						pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 						Message *pNewMessage = new Message( pMessage );
 						QueueMessageToRouter( pNewMessage );
@@ -1962,7 +1962,7 @@ g_pPlutoLogger->Write(LV_STATUS,"It's a valid command");
 			}
 			else
 			{
-g_pPlutoLogger->Write(LV_STATUS,"Just send it to the media device");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Just send it to the media device");
 				// Just send it to the media device.  We don't know what it is
                 pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	            Message *pNewMessage = new Message( pMessage );
@@ -1970,10 +1970,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Just send it to the media device");
 			}
         }
 
-        g_pPlutoLogger->Write( LV_STATUS, "Media plug in done with message id: %d", pMessage->m_dwID );
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media plug in done with message id: %d", pMessage->m_dwID );
     }
 
-    g_pPlutoLogger->Write( LV_STATUS, "Media plug base done with id: %d", pMessage->m_dwID );
+    LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media plug base done with id: %d", pMessage->m_dwID );
 
     return rmr_Processed;
 }
@@ -1990,31 +1990,31 @@ void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream, bool bRefreshScr
 		vector<Row_Picture_Disc *> vectRow_Picture_Disc;
 		m_pDatabase_pluto_media->Picture_Disc_get()->GetRows("FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc),&vectRow_Picture_Disc);
 
-g_pPlutoLogger->Write(LV_STATUS, "Getting m_pPictureData for disc %d size %d",pMediaStream->m_dwPK_Disc,(int) vectRow_Picture_Disc.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting m_pPictureData for disc %d size %d",pMediaStream->m_dwPK_Disc,(int) vectRow_Picture_Disc.size());
 		if( vectRow_Picture_Disc.size() )
 	        pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(vectRow_Picture_Disc[0]->FK_Picture_get()) + ".jpg", pMediaStream->m_iPictureSize);
 	}
 
     if( !pMediaStream->m_pPictureData && pMediaStream->m_dequeMediaFile.size() )
     {
-g_pPlutoLogger->Write(LV_STATUS, "We have %d media entries in the playback list", pMediaStream->m_dequeMediaFile.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "We have %d media entries in the playback list", pMediaStream->m_dequeMediaFile.size());
 		MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
 		int PK_Picture=0;
 
 		/*
 #ifdef WIN32
-g_pPlutoLogger->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaStream->m_pPictureData, pMediaFile->m_dwPK_File);
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaStream->m_pPictureData, pMediaFile->m_dwPK_File);
 		if( pMediaFile->m_dwPK_File )
 		{
-	g_pPlutoLogger->Write(LV_STATUS, "Looking got media database file with ID: %d", pMediaFile->m_dwPK_File );
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Looking got media database file with ID: %d", pMediaFile->m_dwPK_File );
 			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(pMediaFile->m_dwPK_File);
 			vector<Row_Picture_File *> vectRow_Picture_File;
 			if ( pRow_File )
 			{
-	g_pPlutoLogger->Write(LV_STATUS, "We found a file row %p", pRow_File );
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "We found a file row %p", pRow_File );
 				pRow_File->Picture_File_FK_File_getrows(&vectRow_Picture_File);
 
-	g_pPlutoLogger->Write(LV_STATUS, "We got %d rows.", vectRow_Picture_File.size() );
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "We got %d rows.", vectRow_Picture_File.size() );
 				if( vectRow_Picture_File.size() )
 					PK_Picture = vectRow_Picture_File[0]->FK_Picture_get();
 				else
@@ -2033,7 +2033,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaSt
 					}
 				}
 			}
-g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
 		}
 #else
 		*/
@@ -2047,7 +2047,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
 			pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
 
     }
-g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMediaStream->m_pPictureData,pMediaStream->m_iPictureSize);
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMediaStream->m_pPictureData,pMediaStream->m_iPictureSize);
 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
@@ -2057,7 +2057,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMed
         {
             BoundRemote *pBoundRemote = ( *itBR ).second;
 			if( pEntertainArea!=pBoundRemote->m_pOH_Orbiter->m_pEntertainArea )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter %d is bound to an ent area it isn't in",pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Orbiter %d is bound to an ent area it isn't in",pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			else
 	            pBoundRemote->UpdateOrbiter( pMediaStream, bRefreshScreen );
         }
@@ -2124,7 +2124,7 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 
 		pEntertainArea->m_pMediaStream->m_sLastPosition = ""; // Be sure we get a real position
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
-		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Called StopMedia" );
 
 		StreamEnded(pEntertainArea->m_pMediaStream,true,true,NULL,NULL,false,true,!bBypass_Event);
 	}
@@ -2134,14 +2134,14 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 {
 	if ( pMediaStream == NULL )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StreamEnded() called with NULL MediaStream in it! Ignoring");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StreamEnded() called with NULL MediaStream in it! Ignoring");
 		return;
 	}
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::StreamEnded ID %d auto resume %d resume: %c",pMediaStream->m_iStreamID_get(),(int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StreamEnded ID %d auto resume %d resume: %c",pMediaStream->m_iStreamID_get(),(int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
 #endif
 
 	if( bNoAutoResume )
@@ -2161,7 +2161,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 				bError=true;
 		}
 
-		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StreamEnded() no auto resume %s",sWhere.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StreamEnded() no auto resume %s",sWhere.c_str());
 		if( !bError )
 			m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Bookmark WHERE " + sWhere);
 	}
@@ -2179,12 +2179,12 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 	}
 
 	// This could have been playing in lots of entertainment areas
-    g_pPlutoLogger->Write( LV_STATUS, "Stream %s ended with %d ent areas", pMediaStream->m_sMediaDescription.c_str(), (int) pMediaStream->m_mapEntertainArea.size() );
+    LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream %s ended with %d ent areas", pMediaStream->m_sMediaDescription.c_str(), (int) pMediaStream->m_mapEntertainArea.size() );
     for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
     {
         EntertainArea *pEntertainArea = ( *it ).second;
 		map<int,MediaDevice *> mapMediaDevice_Prior;
-		g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Getting Render Devices" );
 		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&mapMediaDevice_Prior);
 		Row_MediaType *pRow_MediaType_Prior = m_pDatabase_pluto_main->MediaType_get()->GetRow(pMediaStream->m_iPK_MediaType);
 		int PK_Pipe_Prior = pRow_MediaType_Prior && pRow_MediaType_Prior->FK_Pipe_isNull()==false ? pRow_MediaType_Prior->FK_Pipe_get() : 0;
@@ -2213,7 +2213,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 			if( pMediaStream_Resume!=pMediaStream )
 			{
 				pEntertainArea->m_vectMediaStream_Interrupted.pop_back();
-				g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from StreamEnded");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from StreamEnded");
 				StartMedia(pMediaStream_Resume);
 			}
 		}
@@ -2226,7 +2226,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 			MediaDevice *pMediaDevice_MD = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device);
 			if( pMediaDevice_MD && pMediaDevice_MD->m_bDontSendOffIfOSD_ON )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Stream ended and m/d is being used as an OSD.  Turning on m/d so it's visible");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Stream ended and m/d is being used as an OSD.  Turning on m/d so it's visible");
 				DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice_MD->m_pDeviceData_Router->m_dwPK_Device,0,"");
 				CheckForCustomPipe(pEntertainArea,CMD_On.m_pMessage);
 				SendCommand(CMD_On);
@@ -2270,7 +2270,7 @@ void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent)
 			EVENT_Stopped_Listening_To_Medi(pEntertainArea->m_pRoom->m_dwPK_Room);
 	}
 
-g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEntertainArea->m_sDescription.c_str(), (int) pEntertainArea->m_mapBoundRemote.size() );
+LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEntertainArea->m_sDescription.c_str(), (int) pEntertainArea->m_mapBoundRemote.size() );
 	pEntertainArea->m_pMediaStream = NULL;
 	pEntertainArea->m_pMediaDevice_ActiveDest=NULL;
 
@@ -2283,7 +2283,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEnt
         OH_Orbiter *pOH_Orbiter = (*it).second;
         if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
 		{
-g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
+LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
             SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, NULL, false );
 		}
     }
@@ -2309,7 +2309,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbite
 			SendCommand(CMD_Update_Object_Image);
 		}
 
-		g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s is bound", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter %d %s is bound", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
 		//DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false, false);
 		//SendCommand(CMD_Goto_DesignObj);
 		DCE::SCREEN_Main SCREEN_Main(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"<%=L%>"); //current location
@@ -2341,7 +2341,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbite
 void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c74-e->
 {
-g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Binding (%s) orbiter %d to device %d with cover art on the object: %s",
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Binding (%s) orbiter %d to device %d with cover art on the object: %s",
 			sOnOff.c_str(),
 			pMessage->m_dwPK_Device_From,
 			iPK_Device, sPK_DesignObj.c_str());
@@ -2372,7 +2372,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
 			{
 				DCE::SCREEN_Main SCREEN_Main(m_dwPK_Device,pMessage->m_dwPK_Device_From,"<%=L%>"); //current location
 				SendCommand(SCREEN_Main);
-				g_pPlutoLogger->Write(LV_WARNING,"Attempt to bind to a remote in an entertainment area with no media stream");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Attempt to bind to a remote in an entertainment area with no media stream");
 			}
 			return; // Don't know what area it should be played in, or there's no media playing there
 		}
@@ -2392,7 +2392,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
         pBoundRemote->m_iPK_Text_Synopsis = iPK_Text_Synopsis;
 		if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 		{
-g_pPlutoLogger->Write(LV_STATUS,"embedding set now playing");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"embedding set now playing");
 			Message *pMessage_Response=NULL;
 	        pBoundRemote->UpdateOrbiter( pEntertainArea->m_pMediaStream, false, &pMessage_Response ); // So that it will put the picture back on this remote
 			if( pMessage_Response )
@@ -2403,14 +2403,14 @@ g_pPlutoLogger->Write(LV_STATUS,"embedding set now playing");
 		}
 		else
 	        pBoundRemote->UpdateOrbiter( pEntertainArea->m_pMediaStream, false ); // So that it will put the picture back on this remote
-g_pPlutoLogger->Write(LV_STATUS,"EA %d %s bound %d remotes",pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str(),(int) pEntertainArea->m_mapBoundRemote.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"EA %d %s bound %d remotes",pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str(),(int) pEntertainArea->m_mapBoundRemote.size());
 
 		int PK_Screen_ShouldBe = pEntertainArea->m_pMediaStream->GetRemoteControlScreen(pMessage->m_dwPK_Device_From);
 		if( iPK_Screen && PK_Screen_ShouldBe && iPK_Screen != PK_Screen_ShouldBe )
 		{
 			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,"",PK_Screen_ShouldBe,interuptAlways,true,false);
 			SendCommand(CMD_Goto_Screen);
-g_pPlutoLogger->Write(LV_WARNING,"EA %d %s bound %d remotes was at screen %d sending to %d",
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"EA %d %s bound %d remotes was at screen %d sending to %d",
 					  pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str(),(int) pEntertainArea->m_mapBoundRemote.size(),iPK_Screen,PK_Screen_ShouldBe);
 		}
     }
@@ -2444,7 +2444,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 						if( !pMediaStream )
 							pMediaStream = pEntertainArea->m_pMediaStream;
 						else if( pMediaStream!=pEntertainArea->m_pMediaStream )
-							g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea found stream %d and now %d",pMediaStream->m_iStreamID_get(),pEntertainArea->m_pMediaStream->m_iStreamID_get());
+							LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::DetermineEntArea found stream %d and now %d",pMediaStream->m_iStreamID_get(),pEntertainArea->m_pMediaStream->m_iStreamID_get());
 					}
 					vectEntertainArea.push_back(( *it ).second);
 				}
@@ -2452,7 +2452,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 		}
         else if( !pOH_Orbiter )
         {
-			g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media with no entertainment area/device from a non-orbiter %d %d %s",iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Received a play media with no entertainment area/device from a non-orbiter %d %d %s",iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
 			return; // Don't know what area it should be played in
         }
         else if( !pOH_Orbiter->m_pEntertainArea )
@@ -2468,7 +2468,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 						if( !pMediaStream )
 							pMediaStream = pEntertainArea->m_pMediaStream;
 						else if( pMediaStream!=pEntertainArea->m_pMediaStream )
-							g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea 2 found stream %d and now %d",pMediaStream->m_iStreamID_get(),pEntertainArea->m_pMediaStream->m_iStreamID_get());
+							LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::DetermineEntArea 2 found stream %d and now %d",pMediaStream->m_iStreamID_get(),pEntertainArea->m_pMediaStream->m_iStreamID_get());
 					}
 		            vectEntertainArea.push_back(pEntertainArea);
 					break;
@@ -2477,7 +2477,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 
 			if( vectEntertainArea.size()==0 )
 			{
-				g_pPlutoLogger->Write( LV_WARNING, "Received a DetermineEntArea from an orbiter %p %d with no entertainment area (%p) %d %d %s",
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Received a DetermineEntArea from an orbiter %p %d with no entertainment area (%p) %d %d %s",
 					pOH_Orbiter,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pEntertainArea,
 					iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
 				return; // Don't know what area it should be played in
@@ -2490,7 +2490,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 				if( !pMediaStream )
 					pMediaStream = pOH_Orbiter->m_pEntertainArea->m_pMediaStream;
 				else if( pMediaStream!=pOH_Orbiter->m_pEntertainArea->m_pMediaStream )
-					g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea 3 found stream %d and now %d",pMediaStream->m_iStreamID_get(),pOH_Orbiter->m_pEntertainArea->m_pMediaStream->m_iStreamID_get());
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::DetermineEntArea 3 found stream %d and now %d",pMediaStream->m_iStreamID_get(),pOH_Orbiter->m_pEntertainArea->m_pMediaStream->m_iStreamID_get());
 			}
 			vectEntertainArea.push_back(pOH_Orbiter->m_pEntertainArea);
 		}
@@ -2503,7 +2503,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( abs(atoi(s.c_str())) );  // abs() since orbiters may pass them in as negative since floorplans do that to differentiate between ea's and devices
 		if( !pEntertainArea )
 		{
-			g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media for an invalid entertainment area %d %d %s",iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Received a play media for an invalid entertainment area %d %d %s",iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
 			return; // Don't know what area it should be played in
 		}
 		if( pEntertainArea->m_pMediaStream )
@@ -2511,7 +2511,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 			if( !pMediaStream )
 				pMediaStream = pEntertainArea->m_pMediaStream;
 			else if( pMediaStream!=pEntertainArea->m_pMediaStream )
-				g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea 2 found stream %d and now %d",pMediaStream->m_iStreamID_get(),pEntertainArea->m_pMediaStream->m_iStreamID_get());
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::DetermineEntArea 2 found stream %d and now %d",pMediaStream->m_iStreamID_get(),pEntertainArea->m_pMediaStream->m_iStreamID_get());
 		}
 		vectEntertainArea.push_back(pEntertainArea);
 	}
@@ -2519,11 +2519,11 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 	if( pMediaStream && p_iStreamID )
 	{
 		if( *p_iStreamID && *p_iStreamID!=pMediaStream->m_iStreamID_get() )
-			g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::DetermineEntArea past in stream id %d but found %d",*p_iStreamID,pMediaStream->m_iStreamID_get());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::DetermineEntArea past in stream id %d but found %d",*p_iStreamID,pMediaStream->m_iStreamID_get());
 		*p_iStreamID = pMediaStream->m_iStreamID_get();
 	}
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Found the proper ent area: %d", (int) vectEntertainArea.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found the proper ent area: %d", (int) vectEntertainArea.size());
 #endif
 }
 
@@ -2531,14 +2531,14 @@ int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 {
     if ( !m_pOrbiter_Plugin )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "There is no valid orbiter_plugin in the media plugin. (While trying to find a user on the orbiter: %d)", iPK_Device_Orbiter );
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "There is no valid orbiter_plugin in the media plugin. (While trying to find a user on the orbiter: %d)", iPK_Device_Orbiter );
         return 0;
     }
 
     class OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Device_Orbiter);
     if ( ! pOH_Orbiter )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Not orbiter found for id %d while trying to find the active user.", iPK_Device_Orbiter);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Not orbiter found for id %d while trying to find the active user.", iPK_Device_Orbiter);
         return 0;
     }
 
@@ -2576,7 +2576,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
     DetermineEntArea(iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea,vectEntertainArea);
     if( vectEntertainArea.size()==0 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Got a play media for no ent area");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got a play media for no ent area");
         return;  // Don't know what area it should be played in
 	}
 
@@ -2591,20 +2591,20 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 
 			if ( iPK_MediaType == 0 )
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "When you want a recursive listing of a folder you should also provide a target media type.");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "When you want a recursive listing of a folder you should also provide a target media type.");
 				return;
 			}
 
 			Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(iPK_MediaType);
 			if( !pRow_MediaType )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Invalid media type PK provided: %d", iPK_MediaType);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Invalid media type PK provided: %d", iPK_MediaType);
 				return;
 			}
 
 			string Extensions = pRow_MediaType->Extensions_get();
 			StringUtils::Replace(&Extensions,",","\t");
-			g_pPlutoLogger->Write(LV_STATUS, "Using there extensions to filter the results: %s", Extensions.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using there extensions to filter the results: %s", Extensions.c_str());
 			sFilename = sFilename.substr(0, sFilename.length()-1);
 			string::size_type posDirs=0;
 			string sDirectory;
@@ -2698,7 +2698,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 			pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
 
 		if( vectRow_DeviceTemplate_MediaType.size()!=1 )
-			g_pPlutoLogger->Write(LV_STATUS,"Cannot decisively determine media type for %d/%d, rows: %d",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Cannot decisively determine media type for %d/%d, rows: %d",
 				iPK_Device,iPK_DeviceTemplate,(int) vectRow_DeviceTemplate_MediaType.size());
 
 		if( vectRow_DeviceTemplate_MediaType.size() )
@@ -2758,14 +2758,14 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 			SendCommand(SCREEN_DialogCheckingDrive);
 			return;
 		}
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot reset disk: reset %d ripping %d dev rip %d EA %d",(int) bDiskWasReset, (int) bDiskIsRipping,PK_Device_Ripping,pEntertainArea->m_iPK_EntertainArea);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot reset disk: reset %d ripping %d dev rip %d EA %d",(int) bDiskWasReset, (int) bDiskIsRipping,PK_Device_Ripping,pEntertainArea->m_iPK_EntertainArea);
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
 		SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, pMessage->m_dwPK_Device_From, "");
 		SendCommand(SCREEN_DialogCannotPlayMedia);
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_MH_Play_Media playing MediaType: %d Provider %d Orbiter %d Device %d Template %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_MH_Play_Media playing MediaType: %d Provider %d Orbiter %d Device %d Template %d",
 			iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,iPK_Device,iPK_DeviceTemplate);
 		StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,iPK_DeviceTemplate,&dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote
 	}
@@ -2789,7 +2789,7 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
     DetermineEntArea( iPK_Device_Orbiter, 0, "", vectEntertainArea);
     if( vectEntertainArea.size()!=1 )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Got jump position but i couldn't find an entertainment area for it!");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Got jump position but i couldn't find an entertainment area for it!");
         return;
     }
 
@@ -2797,7 +2797,7 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 
     if ( pEntertainArea->m_pMediaStream == NULL )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Can't jump in an empty queue");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Can't jump in an empty queue");
         return;
     }
 
@@ -2832,7 +2832,7 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 
 	if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo )
 	{
-        g_pPlutoLogger->Write(LV_STATUS, "It's a generic stream--just forward it to the device");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "It's a generic stream--just forward it to the device");
         pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	    Message *pNewMessage = new Message( pMessage );
 		QueueMessageToRouter( pNewMessage );
@@ -2850,7 +2850,7 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 	// but a few specific ones (like the MythTV MediaStream need to so special handling here)
 	if ( pEntertainArea->m_pMediaStream->ProcessJumpPosition(sValue_To_Assign) ) // if the specification was valid for this stream then continue processing in the media plugin
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from JumpPos (handler)");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from JumpPos (handler)");
 		string sError;
     	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream,sError);
 		CheckStreamForTimeout(pEntertainArea->m_pMediaStream);
@@ -2883,10 +2883,10 @@ void Media_Plugin::CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,stri
 
     if ( vectEntertainArea.size()!=1 || vectEntertainArea[0]->m_pMediaStream == NULL)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Couldn't find a valid entertainment area with a valid stream in it. Can't save the playlist");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't find a valid entertainment area with a valid stream in it. Can't save the playlist");
         return;
     }
-g_pPlutoLogger->Write(LV_WARNING, "pl1 = %s",sName.c_str());
+LoggerWrapper::GetInstance()->Write(LV_WARNING, "pl1 = %s",sName.c_str());
 
 	EntertainArea *pEntertainArea = vectEntertainArea[0];
     if ( sName == "" )
@@ -2895,7 +2895,7 @@ g_pPlutoLogger->Write(LV_WARNING, "pl1 = %s",sName.c_str());
     if ( sName == "" )
         sName = "New Playlist";
 
-g_pPlutoLogger->Write(LV_WARNING, "pl2 = %s",sName.c_str());
+LoggerWrapper::GetInstance()->Write(LV_WARNING, "pl2 = %s",sName.c_str());
     int iPK_Playlist = 0;
 	if( !bSave_as_new && pEntertainArea->m_pMediaStream->m_iPK_Playlist &&
 			(sName.size()==0 || pEntertainArea->m_pMediaStream->m_sPlaylistName==sName) )
@@ -2903,7 +2903,7 @@ g_pPlutoLogger->Write(LV_WARNING, "pl2 = %s",sName.c_str());
 
 	if( !m_pMediaAttributes->SavePlaylist(pEntertainArea->m_pMediaStream->m_dequeMediaFile, iPK_Users, iPK_Playlist, sName) )
     {
-		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to save playlist");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to save playlist");
         //m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Unable to save playlist",false,10,true);
 		SCREEN_DialogUnableToSavePlaylist SCREEN_DialogUnableToSavePlaylist(m_dwPK_Device, pMessage->m_dwPK_Device_From);
 		SendCommand(SCREEN_DialogUnableToSavePlaylist);
@@ -2936,7 +2936,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
 	DetermineEntArea( pMessage->m_dwPK_Device_From, 0, sPK_EntertainArea, vectEntertainArea );
     if ( vectEntertainArea.size()==0 )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Couldn't find a valid entertainment area to load the playlist into.");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't find a valid entertainment area to load the playlist into.");
         return;
     }
 
@@ -2944,7 +2944,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
     deque<MediaFile *> dequeMediaFile;
     if( !m_pMediaAttributes->LoadPlaylist( iEK_Playlist, dequeMediaFile, sPlaylistName) || dequeMediaFile.size()==0 )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "I was unable to load playlist entries");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "I was unable to load playlist entries");
         //m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Unable to load playlist",false,10,true);
 		SCREEN_DialogUnableToLoadPlaylist SCREEN_DialogUnableToLoadPlaylist(m_dwPK_Device, pMessage->m_dwPK_Device_From);
 		SendCommand(SCREEN_DialogUnableToLoadPlaylist);
@@ -2961,7 +2961,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
 		List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
 		if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Play playlist %s in entertain area %s but nothing to handle it",sPlaylistName.c_str(),sPK_EntertainArea.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Play playlist %s in entertain area %s but nothing to handle it",sPlaylistName.c_str(),sPK_EntertainArea.c_str());
 			return;
 		}
 		MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
@@ -2970,7 +2970,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
 	}
 	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Load Playlist");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from Load Playlist");
 	    StartMedia(it->second,0,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0,"",iEK_Playlist);  // We'll let the plug-in figure out the source, and we'll use the default remote
 	}
 }
@@ -3005,11 +3005,11 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	if ( (pMediaStream = m_mapMediaStream_Find(iStreamID,pMessage ? pMessage->m_dwPK_Device_From : 0)) == NULL )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_MH_Move_Media No media stream with ID %d available", iStreamID );
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CMD_MH_Move_Media No media stream with ID %d available", iStreamID );
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media Move Media, stream %d  ea: %s",iStreamID,sPK_EntertainArea.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media Move Media, stream %d  ea: %s",iStreamID,sPK_EntertainArea.c_str());
 	// Note: The entertainment area is probably a negative number, because orbiter does thata to differentiate between devices and EA
 
 	vector<EntertainArea *> vectEntertainArea;
@@ -3017,13 +3017,13 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	    DetermineEntArea(0,0,sPK_EntertainArea,vectEntertainArea);
 
 	bool bNothingMoreToPlay = vectEntertainArea.size()==0;
-	g_pPlutoLogger->Write( LV_STATUS, "Calling StopMedia parked %d vectea: %d", (int) pMediaStream->m_tTime_Parked, (int) vectEntertainArea.size());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling StopMedia parked %d vectea: %d", (int) pMediaStream->m_tTime_Parked, (int) vectEntertainArea.size());
 	
 	if( pMediaStream->m_tTime_Parked==0 )
 	{
 		// Don't bother stopping the media if it's already parked.  This media is not parked
 		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
-		g_pPlutoLogger->Write( LV_STATUS, "Media_Plugin::CMD_MH_Move_Media Called StopMedia" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::CMD_MH_Move_Media Called StopMedia" );
 		StreamEnded(pMediaStream,true,false,NULL,&vectEntertainArea,false,false);  // In the case of a move the user likely doesn't want to still use this system, so the final false means dont leave the osd on
 	}
 	else if( vectEntertainArea.empty() )
@@ -3040,7 +3040,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	}
 	else
 	{
-g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media ready to restart %d eas",(int) vectEntertainArea.size());
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media ready to restart %d eas",(int) vectEntertainArea.size());
 		pMediaStream->m_tTime_Parked = 0;
 		// Be sure all outgoing stop messages are flushed before we proceed
 		WaitForMessageQueue();
@@ -3089,7 +3089,7 @@ bool Media_Plugin::CheckForAlternatePipes(MediaStream *pMediaStream,EntertainAre
 	}
 	else if( !pEntertainArea->m_pMediaDevice_OutputZone  )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CheckForAlternatePipes no destination for EA %d %s",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CheckForAlternatePipes no destination for EA %d %s",
 			pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str());
 		return false;
 	}
@@ -3224,7 +3224,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 				TurnDeviceOff(PK_Pipe_Prior,(*it).second->m_pDeviceData_Router,&mapMediaDevice_Current,pEntertainArea);
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Found a NULL associated device in the HandleOnOff: %d", (*it).first);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found a NULL associated device in the HandleOnOff: %d", (*it).first);
 			}
 		}
 	}
@@ -3238,7 +3238,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 
 		if ( pMediaDevice == NULL )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::HandleOnOffs() There is a null device associated with the deviceID: %d. Ignoring device in HandleOnOff", (*it).first);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::HandleOnOffs() There is a null device associated with the deviceID: %d. Ignoring device in HandleOnOff", (*it).first);
 			continue;
 		}
 
@@ -3288,7 +3288,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 				if( pMediaDevice_MD  )
 				{
 					if( pMediaDevice_MD->m_dwPK_Command_LastPower==COMMAND_Generic_On_CONST && time(NULL)-pMediaDevice_MD->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS && pMediaDevice_MD->m_dwPK_EntertainArea_LastPower==pEntertainArea->m_iPK_EntertainArea )
-						g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleOnOffs Not resending power command (2)");
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::HandleOnOffs Not resending power command (2)");
 					else
 					{
 						if( pMediaDevice_MD )
@@ -3313,13 +3313,13 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 				pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_WARNING,"Also turning on MD and OSD");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Also turning on MD and OSD");
 #endif
 
 			MediaDevice *pMediaDevice_MD = m_mapMediaDevice_Find(pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device);
 
 			if( pMediaDevice_MD && pMediaDevice_MD->m_dwPK_Command_LastPower==COMMAND_Generic_On_CONST && time(NULL)-pMediaDevice_MD->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS && pMediaDevice_MD->m_dwPK_EntertainArea_LastPower==pEntertainArea->m_iPK_EntertainArea )
-				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleOnOffs Not resending power command");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::HandleOnOffs Not resending power command");
 			else
 			{
 				if( pMediaDevice_MD )
@@ -3420,14 +3420,14 @@ void Media_Plugin::CMD_Move_Playlist_entry_Up(int iValue,string &sCMD_Result,Mes
     DetermineEntArea(pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
     if( vectEntertainArea.size()==0 )
 	{
-        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Up() got a message from a device that is not a orbiter in an ent area. Ignoring!");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Up() got a message from a device that is not a orbiter in an ent area. Ignoring!");
 		return;  // Don't know what area it should be played in
 	}
 
 	EntertainArea *pEntertainArea = vectEntertainArea[0];
 	if ( pEntertainArea->m_pMediaStream == NULL )
 	{
-        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Up(): There is no media stream in the detected ent area %d.!");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Up(): There is no media stream in the detected ent area %d.!");
 		return;  // There is no stream in the target ent area.
 	}
 
@@ -3453,14 +3453,14 @@ void Media_Plugin::CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,M
     DetermineEntArea(pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
     if( vectEntertainArea.size()==0 )
 	{
-        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Down() got a message from a device that is not a orbiter in an ent area. Ignoring!");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Down() got a message from a device that is not a orbiter in an ent area. Ignoring!");
 		return;  // Don't know what area it should be played in
 	}
 
 	EntertainArea *pEntertainArea = vectEntertainArea[0];
 	if ( pEntertainArea->m_pMediaStream == NULL )
 	{
-        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Down(): There is no media stream in the detected ent area %d.!");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Down(): There is no media stream in the detected ent area %d.!");
 		return;  // There is no stream in the target ent area.
 	}
 
@@ -3486,14 +3486,14 @@ void Media_Plugin::CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Mess
     DetermineEntArea(pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
     if( vectEntertainArea.size()!=1 )
 	{
-        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Remove_playlist_entry() got a message from a device that is not a orbiter in an ent area. Ignoring!");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Remove_playlist_entry() got a message from a device that is not a orbiter in an ent area. Ignoring!");
 		return;  // Don't know what area it should be played in
 	}
 
 	EntertainArea *pEntertainArea = vectEntertainArea[0];
 	if ( pEntertainArea->m_pMediaStream == NULL )
 	{
-        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Remove_playlist_entry(): There is no media stream in the detected ent area %d.!");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Remove_playlist_entry(): There is no media stream in the detected ent area %d.!");
 		return;  // There is no stream in the target ent area.
 	}
 
@@ -3501,7 +3501,7 @@ void Media_Plugin::CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Mess
 	if( pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()==0 )
 	{
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
-		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia after delete playlist" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Called StopMedia after delete playlist" );
 		StreamEnded(pEntertainArea->m_pMediaStream);
 	}
 	else
@@ -3509,7 +3509,7 @@ void Media_Plugin::CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Mess
 		if( pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>0 && pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>=pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() )
 			pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos--;
 
-		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from JumpPos (handler)");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from JumpPos (handler)");
 		string sError;
     	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream,sError);
 		CheckStreamForTimeout(pEntertainArea->m_pMediaStream);
@@ -3538,7 +3538,7 @@ void Media_Plugin::CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,stri
 
 	if( !pMediaDevice )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get ent area for non media device: %d", iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot get ent area for non media device: %d", iPK_Device);
 		return;
 	}
 
@@ -3562,7 +3562,7 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 	{
 		MediaStream *pMS = (*it).second;
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::FollowMe_EnteredRoom stream %d use %d device %d, comp to %d %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::FollowMe_EnteredRoom stream %d use %d device %d, comp to %d %d",
 			pMS->m_iStreamID_get(),pMS->m_iPK_Users,pMS->m_dwPK_Device_Remote,iPK_Users,iPK_Device);
 #endif
 		if( iPK_Device && pMS->m_dwPK_Device_Remote==iPK_Device )
@@ -3578,10 +3578,10 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 		pMediaStream = pMediaStream_User;
 
 	if( !pMediaStream )
-		g_pPlutoLogger->Write(LV_STATUS,"Move Media, but user %d isn't listening to anything.  Open Streams: %d",iPK_Users,(int) m_mapMediaStream.size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Move Media, but user %d isn't listening to anything.  Open Streams: %d",iPK_Users,(int) m_mapMediaStream.size());
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Move Media, ea %d/%d user %d -- stream %d %s",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Move Media, ea %d/%d user %d -- stream %d %s",
 			iPK_RoomOrEntArea, iPK_RoomOrEntArea_Left, iPK_Users,pMediaStream->m_iStreamID_get(),pMediaStream->m_sMediaDescription.c_str());
 		// Only move the media if it's not already there.  Maybe the user just turned follow me on
 		if( pMediaStream->m_mapEntertainArea.find(iPK_RoomOrEntArea)==pMediaStream->m_mapEntertainArea.end() )
@@ -3609,13 +3609,13 @@ void Media_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Dev
 	}
 
 	if( !pMediaStream )
-		g_pPlutoLogger->Write(LV_WARNING,"Move Media left, but user %d isn't listening to anything.  Open Streams: %d",iPK_Users,(int) m_mapMediaStream.size());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Move Media left, but user %d isn't listening to anything.  Open Streams: %d",iPK_Users,(int) m_mapMediaStream.size());
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Before Move Media, user %d -- parking stream %d %s",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Before Move Media, user %d -- parking stream %d %s",
 			iPK_Users,pMediaStream->m_iStreamID_get(),pMediaStream->m_sMediaDescription.c_str());
 		CMD_MH_Move_Media(pMediaStream->m_iStreamID_get(),"");  // Park it for the time being
-		g_pPlutoLogger->Write(LV_WARNING,"After Move Media");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"After Move Media");
 	}
 }
 
@@ -3673,7 +3673,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 			"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>", "0");
 		SendCommand(SCREEN_DialogRippingError);
 
-		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): The source device ID in the message is not in an ent area or is not an orbiter. Ignoring request");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): The source device ID in the message is not in an ent area or is not an orbiter. Ignoring request");
 		return;
 	}
 
@@ -3686,7 +3686,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 			"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>", "0");
 		SendCommand(SCREEN_DialogRippingError);
 
-		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): no media stream");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): no media stream");
 		return;
 	}
 
@@ -3703,7 +3703,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
 			"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>", "0");
 		SendCommand(SCREEN_DialogRippingError);
-		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): not a drive");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): not a drive");
 		return;
 	}
 
@@ -3747,10 +3747,10 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 					}
 					else
 						sNewTracks += ",Track " + StringUtils::itos(iTrack+1) + "|";
-	g_pPlutoLogger->Write(LV_STATUS,"%s %d %s",sTrack.c_str(),iTrack,sNewTracks.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"%s %d %s",sTrack.c_str(),iTrack,sNewTracks.c_str());
 				}
 			}
-g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
 			sTracks=sNewTracks;
 		}
 	}
@@ -3796,7 +3796,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		MediaDevice * pMediaDevice = (*itMediaDevicesInEntArea).second;
 		if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory == DEVICECATEGORY_Disc_Drives_CONST )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Found a disk drive in the target ent area");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found a disk drive in the target ent area");
 			pDiskDriveMediaDevice = pMediaDevice;
 			break;
 		}
@@ -3804,7 +3804,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 
 	if ( pDiskDriveMediaDevice == NULL )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): No disk drive was found in the target ent. area with id: %d. Not ripping anything.", pEntertainArea->m_iPK_EntertainArea);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): No disk drive was found in the target ent. area with id: %d. Not ripping anything.", pEntertainArea->m_iPK_EntertainArea);
 		return;
 	}
 
@@ -3817,9 +3817,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		PK_Disc=pEntertainArea->m_pMediaStream->m_dwPK_Disc;
 		PK_MediaType=pEntertainArea->m_pMediaStream->m_iPK_MediaType;
 
-		g_pPlutoLogger->Write( LV_STATUS, "Sending stop media before rip" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Sending stop media before rip" );
 		pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
-		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia begfore rip" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Called StopMedia begfore rip" );
 		StreamEnded(pTmpMediaStream);
 	}
 
@@ -3837,7 +3837,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
 			"Cannot copy disk " + sResponse, "40");
 		SendCommand(SCREEN_DialogRippingError);
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Rip_Disk %s",sResponse.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Rip_Disk %s",sResponse.c_str());
 		return;
 	}
 	//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>",
@@ -3866,7 +3866,7 @@ typedef enum {
 bool Media_Plugin::RippingAborted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	RippingJob *pRippingJob = m_mapRippingJobs_Find(pMessage->m_dwPK_Device_To);
-	g_pPlutoLogger->Write(LV_STATUS,"Aborted ripping of job %p %s",pRippingJob,pRippingJob ? pRippingJob->m_sName.c_str() : "");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Aborted ripping of job %p %s",pRippingJob,pRippingJob ? pRippingJob->m_sName.c_str() : "");
 	if( pRippingJob )
 		pRippingJob->m_bAborted=true;
 	return false;
@@ -3881,7 +3881,7 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 	// See Disk_Drive.h for the defines
 	if ( iResult <= RIP_RESULT_BEGIN_ENUM || iResult >= RIP_RESULT_END_ENUM )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Invalid result parameters. Ignoring event.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invalid result parameters. Ignoring event.");
 		return false;
 	}
 
@@ -3890,10 +3890,10 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 	RippingJob *pRippingJob = m_mapRippingJobs_Find(pMessage->m_dwPK_Device_From);
 	if ( !pRippingJob )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Unrecognized ripping job: %s. Ignoring event.", sJobName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unrecognized ripping job: %s. Ignoring event.", sJobName.c_str());
 		return false;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Got a ripping completed event for job named \"%s\" from device: \"%d\" job %p aborted %d iResult: %d", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got a ripping completed event for job named \"%s\" from device: \"%d\" job %p aborted %d iResult: %d", 
 		sJobName.c_str(), pMessage->m_dwPK_Device_From,pRippingJob,(int) pRippingJob->m_bAborted,iResult);
 
 	string sMessage;
@@ -3923,13 +3923,13 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 				if( pos_name!=string::npos )
 				{
 					FileUtils::DelFile(pRippingJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*");
-g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*").c_str() );
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*").c_str() );
 				}
 			}
 			list<string> listFiles;
 			FileUtils::FindFiles(listFiles,pRippingJob->m_sName,"*",true,false,1);
 			FileUtils::FindDirectories(listFiles,pRippingJob->m_sName,false);
-			g_pPlutoLogger->Write(LV_STATUS,"It's a directory %s with %d files",pRippingJob->m_sName.c_str(),(int) listFiles.size());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"It's a directory %s with %d files",pRippingJob->m_sName.c_str(),(int) listFiles.size());
 			if( listFiles.size()==0 )  // There's nothing else in that directory.  Delete it
 			{
 				FileUtils::DelDir(pRippingJob->m_sName);
@@ -3941,7 +3941,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pR
 		else
 		{
 			FileUtils::DelFile(pRippingJob->m_sName + ".*");  // Delete any temporary or in progress
-g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + ".*").c_str() );
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + ".*").c_str() );
 		}
 	}
 
@@ -3974,7 +3974,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pR
 		m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddRippedDiscToDatabase(pRippingJob->m_iPK_Disc,
 			pRippingJob->m_iPK_MediaType,pRippingJob->m_sName,pRippingJob->m_sTracks);
 	else
-		g_pPlutoLogger->Write(LV_STATUS,"Ripping wasn't successful--not adding it to the database");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ripping wasn't successful--not adding it to the database");
 
 	if( pRippingJob->m_iPK_Orbiter )
 	{
@@ -4019,7 +4019,7 @@ bool Media_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessage, 
 	MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pMessage->m_dwPK_Device_From);
 	if( !pMediaDevice )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Got an on/off from a non-media device");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got an on/off from a non-media device");
 		return false;  // It's not for us
 	}
 
@@ -4038,16 +4038,16 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 
 	if( bIsOn && iIsSource_OrDest )  // Nothing to report, we turned on something we already knew was on
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent Nothing to report, we turned on something we already knew was on");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent Nothing to report, we turned on something we already knew was on");
 		return false;
 	}
 	if( !bIsOn && !iIsSource_OrDest )  // Nothing to report, we turned off something we already knew was off
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent Nothing to report, we turned off something we already knew was off");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent Nothing to report, we turned off something we already knew was off");
 		return false;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent IsOn %d iSource_OrDest %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent IsOn %d iSource_OrDest %d",
 		(int) bIsOn,iIsSource_OrDest);
 
 	if( bIsOn==false )
@@ -4077,7 +4077,7 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 	}
 	else if( pMediaDevice->m_pCommandGroup )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent Turned On %d (%s) executing command group %d (%s)",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent Turned On %d (%s) executing command group %d (%s)",
 			pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str(),
 			pMediaDevice->m_pCommandGroup->m_PK_CommandGroup,pMediaDevice->m_pCommandGroup->m_Description.c_str());
 
@@ -4100,7 +4100,7 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 
 			for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Auto start TV");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from Auto start TV");
 				StartMedia(it->second,0,vectEntertainArea,0, 0,NULL,false,0);  // We'll let the plug-in figure out the source, and we'll use the default remote
 			}
 */
@@ -4116,7 +4116,7 @@ bool Media_Plugin::MediaDescriptionChanged( class Socket *pSocket, class Message
 	MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pMessage->m_dwPK_Device_From);
 	if( !pMediaDevice )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Got an on/off from a non-media device");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got an on/off from a non-media device");
 		return false;  // It's not for us
 	}
 
@@ -4158,7 +4158,7 @@ bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessag
 				MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pPipe->m_pDevice_From->m_dwPK_Device);
 				if( pMediaDevice )
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AvInputChanged Device %d (%s) changed to input %d (%s) the source is %d (%s)",
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::AvInputChanged Device %d (%s) changed to input %d (%s) the source is %d (%s)",
 						pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str(),
 						PK_Command,pCommand ? pCommand->m_sDescription.c_str() : "unknown",
 						pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
@@ -4176,7 +4176,7 @@ bool Media_Plugin::VolumeChanged( class Socket *pSocket, class Message *pMessage
 	MediaDevice *pMediaDevice = m_mapMediaDevice_Find( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT ? pMessage->m_dwPK_Device_From : pMessage->m_dwPK_Device_To );
 	if( !pMediaDevice )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::VolumeChanged message from %d to %d involves unknown media device",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::VolumeChanged message from %d to %d involves unknown media device",
 			pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To);
 		return false;
 	}
@@ -4246,9 +4246,9 @@ bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 
 bool Media_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
 {
-	g_pPlutoLogger->Write( LV_STATUS, "safe to reload before lock %d %s %d",m_MediaMutex.m_NumLocks,m_MediaMutex.m_sFileName.c_str(),m_MediaMutex.m_Line);
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "safe to reload before lock %d %s %d",m_MediaMutex.m_NumLocks,m_MediaMutex.m_sFileName.c_str(),m_MediaMutex.m_Line);
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-	g_pPlutoLogger->Write( LV_STATUS, "checking ripping jobs %d %d",m_dwPK_Device, (int) m_mapRippingJobs.size());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "checking ripping jobs %d %d",m_dwPK_Device, (int) m_mapRippingJobs.size());
 	if( m_mapRippingJobs.size() )
 	{
 		if( vectPendingTasks )
@@ -4308,7 +4308,7 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 					AddOtherDevicesInPipes_Loop(PK_Pipe,pDevice_Pipe,pmapMediaDevice,pEntertainArea,p_vectDevice);
 				}
 				else
-					g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pDevice_To->m_dwPK_Device);
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pDevice_To->m_dwPK_Device);
 			}
 		}
 	}
@@ -4344,14 +4344,14 @@ void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider
 			Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(iPK_MediaType);
 			if( pRow_MediaType && pRow_MediaType->DCEAware_get()==0 )
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Play media type %d in entertain area %d with generic handler", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Play media type %d in entertain area %d with generic handler", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
 				m_pGenericMediaHandlerInfo->m_PK_MediaType = iPK_MediaType; // Just temporary for start media.  We're in a mutex
 				mapMediaHandlerInfo[m_pGenericMediaHandlerInfo].push_back(pEntertainArea);
 				bUsingGenericHandler=true;
 			}
 			else
 			{
-				g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
 				mapEntertainArea_NoHandlers[pEntertainArea->m_iPK_EntertainArea]=pEntertainArea;
 			}
 		}
@@ -4494,7 +4494,7 @@ MediaDevice *Media_Plugin::GetMediaDeviceForEA(int iPK_MediaType,EntertainArea *
 void Media_Plugin::CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c372-e->
 {
-g_pPlutoLogger->Write(LV_STATUS,"CMD_MH_Set_Volume");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_MH_Set_Volume");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	string::size_type pos=0;
 	while(pos<sPK_EntertainArea.size() && pos!=string::npos)
@@ -4519,7 +4519,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_MH_Set_Volume");
 		else if( pEntertainArea->m_pMediaDevice_MD )
 			PK_Device_Dest = pEntertainArea->m_pMediaDevice_MD->m_pDeviceData_Router->m_dwPK_Device;
 
-g_pPlutoLogger->Write(LV_STATUS,"For EA %s found active device %d",s.c_str(),PK_Device_Dest);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"For EA %s found active device %d",s.c_str(),PK_Device_Dest);
 
 		if( sLevel=="-1" )
 		{
@@ -4558,7 +4558,7 @@ void Media_Plugin::CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFals
 	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(sPK_EntertainArea.c_str()) );
 	if( !pEntertainArea )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Tried to set private flag on non-existant ea");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Tried to set private flag on non-existant ea");
 		return;
 	}
 	pEntertainArea->m_bMediaIsPrivate=!bTrueFalse;
@@ -4601,7 +4601,7 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 		pMediaStream = m_mapMediaStream_Find(iStreamID,pMessage ? pMessage->m_dwPK_Device_From : 0);
 		if( !pMediaStream )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Add_Media_Attribute cannot find stream %d",iStreamID);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CMD_Add_Media_Attribute cannot find stream %d",iStreamID);
 			sCMD_Result="BAD STREAM";
 			return;
 		}
@@ -4609,7 +4609,7 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 		if( pMediaStream->m_iDequeMediaFile_Pos<0 || pMediaStream->m_iDequeMediaFile_Pos>=pMediaStream->m_dequeMediaFile.size() ||
 			(pMediaFile=pMediaStream->GetCurrentMediaFile())==NULL || (iEK_File=pMediaFile->m_dwPK_File)==0 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Add_Media_Attribute no valid file in stream %d",iStreamID);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CMD_Add_Media_Attribute no valid file in stream %d",iStreamID);
 			sCMD_Result="STREAM HAS NO FILE";
 			return;
 		}
@@ -4617,7 +4617,7 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(iEK_File);
 	if( !pRow_File )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Add_Media_Attribute bad file %d",iEK_File);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CMD_Add_Media_Attribute bad file %d",iEK_File);
 		sCMD_Result="BAD FILE";
 		return;
 	}
@@ -4830,7 +4830,7 @@ void Media_Plugin::RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class M
 		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
 		if( !pRow_DeviceTemplate )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid device template %d as plugin",iPK_DeviceTemplate);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Invalid device template %d as plugin",iPK_DeviceTemplate);
 			return;  // Nothing we can do
 		}
 
@@ -4838,7 +4838,7 @@ void Media_Plugin::RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class M
 		int iPKDeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
 		string strDescription = pRow_DeviceTemplate->Description_get();
 
-		g_pPlutoLogger->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s (adress %p, plugin base address %p)",iPKDevice,iPKDeviceTemplate,strDescription.c_str(), pCommand_Impl, pMediaHandlerBase);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s (adress %p, plugin base address %p)",iPKDevice,iPKDeviceTemplate,strDescription.c_str(), pCommand_Impl, pMediaHandlerBase);
 		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
 		pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
 		for(size_t mt=0;mt<vectRow_DeviceTemplate_MediaType.size();++mt)
@@ -5030,7 +5030,7 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 			(pMediaFile=pMediaStream->GetCurrentMediaFile())==NULL ||
 			pMediaFile->m_dwPK_File==0)
 		{
-	g_pPlutoLogger->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream->m_dequeMediaFile.size(),
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream->m_dequeMediaFile.size(),
 						pMediaStream->m_iDequeMediaFile_Pos,pMediaFile,pMediaFile ? pMediaFile->m_dwPK_File : 0);
 			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"Cannot identify the disc or file being played");
 			SCREEN_DialogGenericError SCREEN_DialogGenericError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
@@ -5062,7 +5062,7 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%>");
 			SCREEN_DialogCannotBookmark SCREEN_DialogCannotBookmark(m_dwPK_Device, pMessage->m_dwPK_Device_From, "");
 			SendCommand(SCREEN_DialogCannotBookmark);
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get current position from %d",pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot get current position from %d",pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 			return;
 		}
 	}
@@ -5077,7 +5077,7 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 
 	if( sPosition.empty() )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Save_Bookmark no position");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Save_Bookmark no position");
 		return;
 	}
 
@@ -5153,7 +5153,7 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Save_Bookmark stream %p description %s start %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Save_Bookmark stream %p description %s start %d",
 		pMediaStream,sDescription.c_str(),(int) bIsStart);
 #endif
 
@@ -5209,7 +5209,7 @@ void Media_Plugin::CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int
 	Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->GetRow(iEK_Bookmark);
 	if( !pRow_Bookmark )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot retrieve bookmark");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot retrieve bookmark");
 		return;
 	}
 
@@ -5273,7 +5273,7 @@ void Media_Plugin::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,st
 	if( vectEntertainArea.size()==0 || (pEntertainArea=vectEntertainArea[0])==NULL || !pEntertainArea->m_pMediaStream || !pRow_Bookmark )
 	{
 		// Could be a timing issue that the stream finished and Orbiter didn't change the screen yet
-		g_pPlutoLogger->Write(LV_WARNING,"Can't go to media position -- no EA or stream");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Can't go to media position -- no EA or stream");
 		return;
 	}
 
@@ -5319,7 +5319,7 @@ void Media_Plugin::SaveLastPlaylistPosition(MediaStream *pMediaStream)
 
 	pRow_Bookmark->Position_set(" QUEUE_POS:" + StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos) + " " + pMediaStream->m_sLastPosition);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SaveLastPlaylistPosition %s QUEUE_POS: %d %s",sWhere.c_str(),pMediaStream->m_iDequeMediaFile_Pos,pMediaStream->m_sLastPosition.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SaveLastPlaylistPosition %s QUEUE_POS: %d %s",sWhere.c_str(),pMediaStream->m_iDequeMediaFile_Pos,pMediaStream->m_sLastPosition.c_str());
 #endif
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 }
@@ -5344,7 +5344,7 @@ void Media_Plugin::SaveLastDiscPosition(MediaStream *pMediaStream)
 
 	pRow_Bookmark->Position_set(" QUEUE_POS:" + StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos) + " " + pMediaStream->m_sLastPosition);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SaveLastDiscPosition %s QUEUE_POS: %d %s",sWhere.c_str(),pMediaStream->m_iDequeMediaFile_Pos,pMediaStream->m_sLastPosition.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SaveLastDiscPosition %s QUEUE_POS: %d %s",sWhere.c_str(),pMediaStream->m_iDequeMediaFile_Pos,pMediaStream->m_sLastPosition.c_str());
 #endif
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 }
@@ -5373,7 +5373,7 @@ void Media_Plugin::SaveLastFilePosition(MediaStream *pMediaStream)
 
 	pRow_Bookmark->Position_set(pMediaStream->m_sLastPosition);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SaveLastDiscPosition %s %s",sWhere.c_str(),pMediaStream->m_sLastPosition.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SaveLastDiscPosition %s %s",sWhere.c_str(),pMediaStream->m_sLastPosition.c_str());
 #endif
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 }
@@ -5518,7 +5518,7 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 		pMediaStream->m_iPK_MediaType);
 	if( !pRemoteControlSet )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CheckForAutoResume Cannot find remote controls for Orbiter %d",iPK_Device_Orbiter);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CheckForAutoResume Cannot find remote controls for Orbiter %d",iPK_Device_Orbiter);
 		return 0;
 	}
 	pMediaStream->m_mapRemoteControlSet[iPK_Device_Orbiter]=pRemoteControlSet;
@@ -5576,7 +5576,7 @@ void Media_Plugin::CMD_Shuffle(string &sCMD_Result,Message *pMessage)
 			pEntertainArea->m_pMediaStream->m_dequeMediaFile[NewPos] = pMediaFile;
 		}
 		pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos=0;
-		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from shuffle");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from shuffle");
 		string sError;
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream,sError);
 		CheckStreamForTimeout(pEntertainArea->m_pMediaStream);
@@ -5611,7 +5611,7 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
-	g_pPlutoLogger->Write(LV_STATUS,"Media was identified id %s device %d format %s",sID.c_str(),iPK_Device,sFormat.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media was identified id %s device %d format %s",sID.c_str(),iPK_Device,sFormat.c_str());
 
 	int Priority=1;
 	DeviceData_Router *pDevice_ID = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From);
@@ -5627,7 +5627,7 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		PK_File = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetFileIDFromFilePath( sMediaURL );
 		if( !PK_File )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find the disk drive device identified, or a matching file");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find the disk drive device identified, or a matching file");
 			return;
 		}
 	}
@@ -5665,13 +5665,13 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 
 	if( !pMediaStream )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified Disc is not currently playing");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified Disc is not currently playing");
 		return;  // Nothing more to do
 	}
 
 	if( pMediaStream->m_IdentifiedPriority && pMediaStream->m_IdentifiedPriority>=Priority )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Media already identified by a higher priority %d (%d)",pMediaStream->m_IdentifiedPriority,Priority);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media already identified by a higher priority %d (%d)",pMediaStream->m_IdentifiedPriority,Priority);
 		return;
 	}
 	pMediaStream->m_IdentifiedPriority=Priority;
@@ -5682,7 +5682,7 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		m_pMediaAttributes->LoadStreamAttributesForDisc(pMediaStream);
 		int iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified disc %d resume on orbiter %d",PK_Disc,iPK_Orbiter_PromptingToResume);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified disc %d resume on orbiter %d",PK_Disc,iPK_Orbiter_PromptingToResume);
 #endif
 	}
 
@@ -5691,7 +5691,7 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		pMediaStream->m_mapPK_Attribute.find(ATTRIBUTETYPE_Album_CONST)!=pMediaStream->m_mapPK_Attribute.end() || 
 		pMediaStream->m_mapPK_Attribute.find(ATTRIBUTETYPE_Title_CONST)!=pMediaStream->m_mapPK_Attribute.end() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified stream is now identified disc");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified stream is now identified disc");
 		pMediaStream->m_bIdentifiedDisc=true;
 	}
 	pMediaStream->UpdateDescriptions(true);
@@ -5715,7 +5715,7 @@ void Media_Plugin::ProcessMediaFileTimeout(MediaStream *pMediaStream)
 	if( !pMediaFile || pMediaFile->m_tTimeout>time(NULL) )
 	{
 time_t k = time(NULL);
-		g_pPlutoLogger->Write(LV_STATUS,"Ignoring timeout for file %p",pMediaFile);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring timeout for file %p",pMediaFile);
 		return;
 	}
 
@@ -5824,7 +5824,7 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(sPK_EntertainArea.c_str()) );
 		if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Get_Attributes_For_Media no filename nor valid EA w/ stream %s (%p) specified",sPK_EntertainArea.c_str(),pEntertainArea);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Get_Attributes_For_Media no filename nor valid EA w/ stream %s (%p) specified",sPK_EntertainArea.c_str(),pEntertainArea);
 			return;
 		}
 		pMediaFile = pEntertainArea->m_pMediaStream->GetCurrentMediaFile();
@@ -5836,7 +5836,7 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 	
 	if( !pMediaFile )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Get_Attributes_For_Media no valid file found %s",sFilename.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Get_Attributes_For_Media no valid file found %s",sFilename.c_str());
 		return;
 	}
 
@@ -6018,7 +6018,7 @@ void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string
 	Row_ProviderSource *pRow_ProviderSource = m_pDatabase_pluto_media->ProviderSource_get()->GetRow(PK_ProviderSource);
 	if( !pRow_Device || !pRow_DeviceTemplate_MediaType || !pRow_ProviderSource )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Specify_Media_Provider can't find records for device %d text: %s",iPK_Device,sText.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Specify_Media_Provider can't find records for device %d text: %s",iPK_Device,sText.c_str());
 		return; // shouldn't happen
 	}
 
@@ -6097,7 +6097,7 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 
 	m_tLastScanOfOnlineDevices=time(NULL);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Refresh_List_of_Online_Devices now %s",m_sPK_Devices_Online.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Refresh_List_of_Online_Devices now %s",m_sPK_Devices_Online.c_str());
 #endif
 }
 
@@ -6154,7 +6154,7 @@ void Media_Plugin::CMD_Check_For_New_Files(string &sCMD_Result,Message *pMessage
 	if( !m_dwPK_Device_MediaIdentification || !m_pRouter->DeviceIsRegistered(m_dwPK_Device_MediaIdentification) )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_Check_For_New_Files no media id device %d", m_dwPK_Device_MediaIdentification);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Check_For_New_Files no media id device %d", m_dwPK_Device_MediaIdentification);
 #endif
 		return;
 	}
@@ -6180,7 +6180,7 @@ void Media_Plugin::CMD_Check_For_New_Files(string &sCMD_Result,Message *pMessage
 		0,"",sFileList,m_dwPK_Device);
 	if( !SendCommand(CMD_Identify_Media) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Check_For_New_Files Failed to send ID command");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Check_For_New_Files Failed to send ID command");
 		return;
 	}
 	else
@@ -6214,7 +6214,7 @@ void Media_Plugin::CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Siz
 	if( pOH_Orbiter && pOH_Orbiter->m_pEntertainArea && pOH_Orbiter->m_pEntertainArea->m_pMediaStream )
 	{
         class Command_Impl *pPlugIn = pOH_Orbiter->m_pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl;
-        g_pPlutoLogger->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
         pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
 		// Don't forward to the generic handler/capture card--it's just ourself
         if( pOH_Orbiter->m_pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo!=m_pGenericMediaHandlerInfo && pPlugIn->ReceivedMessage( pMessage )==rmr_Processed )
@@ -6235,7 +6235,7 @@ void Media_Plugin::CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Siz
 			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow( atoi( sFilename.substr(2).c_str() ) );
 			if( !pRow_Attribute )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Make_Thumbnail can't find attriute %s", sFilename.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Make_Thumbnail can't find attriute %s", sFilename.c_str());
 				return;
 			}
 
@@ -6266,7 +6266,7 @@ void Media_Plugin::CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Siz
 
 	if( !pRow_File )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Make_Thumbnail can't thumbnail %s", sFilename.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Make_Thumbnail can't thumbnail %s", sFilename.c_str());
 		return;
 	}
 
@@ -6304,7 +6304,7 @@ void Media_Plugin::CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,strin
 		EntertainArea *pEntertainArea = vectEntertainArea[s];
 		if( !pEntertainArea->m_pMediaStream )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_Live_AV_Path Ent area %d has no media", pEntertainArea->m_iPK_EntertainArea);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Live_AV_Path Ent area %d has no media", pEntertainArea->m_iPK_EntertainArea);
 			DCE::CMD_Display_Alert CMD_Display_Alert(m_dwPK_Device,pMessage->m_dwPK_Device_From,
 				"Cannot switch to live a/v path.  No media playing","no live","5",interuptAlways);
 			SendCommand(CMD_Display_Alert);
@@ -6339,7 +6339,7 @@ void Media_Plugin::CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,strin
 			PK_Device = pEntertainArea->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device;
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Live_AV_Path Ent area %d has no osd",pEntertainArea->m_iPK_EntertainArea);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Live_AV_Path Ent area %d has no osd",pEntertainArea->m_iPK_EntertainArea);
 			continue;
 		}
 
@@ -6367,7 +6367,7 @@ void Media_Plugin::CMD_Delete_File(string sFilename,string &sCMD_Result,Message 
 		int PK_File = atoi( sFilename.substr(2).c_str() );
 		Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
 		if( !pRow_File )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot find %s",sFilename.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot find %s",sFilename.c_str());
 		else
 		{
 			if( FileUtils::DelFile(pRow_File->Path_get() + "/" + pRow_File->Filename_get()) )
@@ -6376,12 +6376,12 @@ void Media_Plugin::CMD_Delete_File(string sFilename,string &sCMD_Result,Message 
 				m_pDatabase_pluto_media->File_get()->Commit();
 			}
 			else
-				g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot delete %s %s/%s",
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot delete %s %s/%s",
 					sFilename.c_str(),pRow_File->Path_get().c_str(),pRow_File->Filename_get().c_str());
 		}
 	}
 	else if( FileUtils::DelFile(sFilename)==false )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot delete %s ",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot delete %s ",
 			sFilename.c_str());
 }
 //<-dceag-c868-b->
@@ -6411,7 +6411,7 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 		EntertainArea *pEntertainArea = vectEntertainArea[s];
 		if( !pEntertainArea->m_pMediaStream )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Retransmit_AV_Commands no media stream");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Retransmit_AV_Commands no media stream");
 			return;
 		}
 
@@ -6425,7 +6425,7 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 		if( sText[0]=='A' )
 		{
 			if( !pMediaDevice->m_pDevice_Audio )
-				g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no audio device");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no audio device");
 			else
 			{
 				if( sText[1]=='P' )
@@ -6446,14 +6446,14 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 						SendCommand(CMD_Input_Select);
 					}
 					else
-						g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no input on audio device");
+						LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no input on audio device");
 				}
 			}
 		}
 		else if( sText[0]=='V' )
 		{
 			if( !pMediaDevice->m_pDevice_Video )
-				g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no Video device");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no Video device");
 			else
 			{
 				if( sText[1]=='P' )
@@ -6474,7 +6474,7 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 						SendCommand(CMD_Input_Select);
 					}
 					else
-						g_pPlutoLogger->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no input on Video device");
+						LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no input on Video device");
 				}
 			}
 		}

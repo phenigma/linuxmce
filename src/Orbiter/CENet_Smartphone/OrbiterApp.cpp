@@ -409,7 +409,7 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 		nTimeDown = clock();				
 		bIsLongKey = false;
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Key down %d, time %d", wParam, nTimeDown);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Key down %d, time %d", wParam, nTimeDown);
 #endif
 	}
 	else
@@ -1516,7 +1516,7 @@ void OrbiterApp::SaveFile(unsigned long ulFileNameSize, char *pFileName, unsigne
 {
 	string sFileName = g_sBinaryPath + pFileName;
 	if(!FileUtils::WriteBufferIntoFile(sFileName, pFileData, ulFileDataSize))
-		g_pPlutoLogger->Write(LV_WARNING, "Failed to save %s file", sFileName);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to save %s file", sFileName);
 }
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::ShowDisconnected()
@@ -1783,7 +1783,7 @@ OrbiterApp *pInst;
 
 LRESULT CALLBACK HookProcedure(int nCode, WPARAM wParam, LPARAM lParam)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"HookProcedure( %d, %d, %d )", nCode, wParam, lParam );
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"HookProcedure( %d, %d, %d )", nCode, wParam, lParam );
 	if ( nCode>0 ) return CallNextHookEx(hHook, nCode, wParam, lParam);
 
 	return CallNextHookEx(hHook, nCode, wParam, lParam);
@@ -1795,16 +1795,16 @@ void OrbiterApp::SetKeybdHook( bool bClear )
 		if ( hHook ) {
 			UnhookWindowsHookEx( hHook );			
 			hHook = NULL;
-			g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hook removed!");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hook removed!");
 		}
 	}
 	else {
 		pInst = this;
 		//hHook = SetWindowsHookExW(WH_KEYBOARD_LL, HookProcedure, GetModuleHandle(NULL), 0);
 		if ( !hHook )
-			g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hooking err!");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hooking err!");
 		else 
-			g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hook installed!");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterApp::SetkeybdHook - Hook installed!");
 	}
 	
 }
@@ -1843,7 +1843,7 @@ void OrbiterApp::SetKeybdHook( bool bClear )
 LRESULT OrbiterApp::OnCancelMode( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
 {
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"OrbiterApp::OnCancelMode");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterApp::OnCancelMode");
 #endif
 	if ( !m_bQuit_get()) {
 		bHandled = TRUE;
@@ -2123,7 +2123,7 @@ void OrbiterApp::GetMenuImages( MenuItemInfo::ItemType nItemsType, vector<MenuIt
 //-----------------------------------------------------------------------------------------------------------------
 void OrbiterApp::SetMenuImages( MenuItemInfo::ItemType nItemsType, vector<MenuItemInfo*>& vItems )
 {
-	g_pPlutoLogger->Write(LV_STATUS,"SetMenuImages %d %d",nItemsType, vItems.size() );
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SetMenuImages %d %d",nItemsType, vItems.size() );
 	if ( m_pMainMenu ) {
 		//PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 		((LRPhoneMenu*)m_pMainMenu)->SetMenuImages( nItemsType, vItems );

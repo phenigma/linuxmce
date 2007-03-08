@@ -50,10 +50,6 @@
 #define  VERSION "<=version=>"
 
 using namespace std;
-namespace DCE
-{
-	class Logger *g_pPlutoLogger;
-}
 using namespace DCE;
 
 //PlutoConfig g_dceConfig;
@@ -136,7 +132,7 @@ int main(int argc, char *argv[])
 		cerr << "Caught exception: " << pException;
 	}
 
-	delete g_pPlutoLogger;
+	
 #ifdef _WIN32
 		WSACleanup();
 #endif

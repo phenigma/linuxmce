@@ -125,7 +125,7 @@ bool IRTrans::GetConfig()
 	if( m_pData->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_IRTrans_Dign_VFD_CONST )
 	{
 		m_bQuit_VL=true;
-		g_pPlutoLogger->Write(LV_STATUS,"This IRTrans doesn't have a display");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"This IRTrans doesn't have a display");
 	}
 
 	if( m_dwPK_Device!=DEVICEID_MESSAGESEND )
@@ -155,7 +155,7 @@ bool IRTrans::GetConfig()
 		if (vectRemoteConfigs.size() == 3)
 		{
 			int PK_DeviceRemote = atoi(vectRemoteConfigs[0].c_str());
-			g_pPlutoLogger->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
 			char cRemoteLayout = 'W';
 			if( vectRemoteConfigs[1].size() )
 				cRemoteLayout = vectRemoteConfigs[1][0];
@@ -190,7 +190,7 @@ bool IRTrans::GetConfig()
 				while( pConfig[pos_space] && pConfig[pos_space]!='\n' && pConfig[pos_space]!='\r' && pConfig[pos_space]!='\t' )
 					pos_space++;
 				m_mapNameToDevice[ sConfiguration.substr(pos_name,pos_space-pos_name) ] = PK_DeviceRemote;
-				g_pPlutoLogger->Write(LV_STATUS,"Added remote %s device %d layout %c",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),PK_DeviceRemote,cRemoteLayout);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Added remote %s device %d layout %c",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),PK_DeviceRemote,cRemoteLayout);
 				break;
 			}
 		}
@@ -198,7 +198,7 @@ bool IRTrans::GetConfig()
 
 	pthread_t pthread_id; 
 	if(pthread_create( &pthread_id, NULL, DoStartIRServer, (void*) this) )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start IRServer thread");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot start IRServer thread");
 	return true;
 }
 
@@ -234,7 +234,7 @@ void IRTrans::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &
 {
 	if( m_sAltPort.size() && m_bIRServerRunning )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"IRTrans setting port to %s",m_sAltPort.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRTrans setting port to %s",m_sAltPort.c_str());
 		SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,m_sAltPort);
 		m_sAltPort="";
 	}
@@ -242,7 +242,7 @@ void IRTrans::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &
 	// Let the IR Base class try to handle the message
 	if ( IRBase::ProcessMessage(pMessage) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Message %d processed by IRBase class",pMessage->m_dwID);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Message %d processed by IRBase class",pMessage->m_dwID);
 		sCMD_Result = "OK";
 		return;
 	}
@@ -292,13 +292,13 @@ void IRTrans::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessa
 //	DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,169,"1",1);  // What was this for???
 //	SendCommand(CMD_Goto_Screen);
 	m_cCurrentScreen=(char) iValue;
-	g_pPlutoLogger->Write(LV_STATUS,"Screen type now %c",m_cCurrentScreen);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Screen type now %c",m_cCurrentScreen);
 }
 
 void IRTrans::StartIRServer()
 {
 	string sComPortOnPC = m_sPort.size() ? m_sPort : DATA_Get_COM_Port_on_PC();
-	g_pPlutoLogger->Write(LV_STATUS,"In start IR Server %s",sComPortOnPC.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"In start IR Server %s",sComPortOnPC.c_str());
 
 #ifndef WIN32
 	CallBackFn=&DoGotIRCommand;
@@ -317,7 +317,7 @@ void IRTrans::StartIRServer()
 	bool bLoaded = false;
 	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web",TTYPort};
 
-	g_pPlutoLogger->Write(LV_STATUS,"Trying to open IRTrans on %s",TTYPort);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Trying to open IRTrans on %s",TTYPort);
 #ifndef WIN32
 	if( TTYPort[0]==0 || libmain(7,argv)!=0 )
 #else
@@ -325,7 +325,7 @@ void IRTrans::StartIRServer()
 #endif
 	{
 		MySqlHelper mySqlHelper(m_sIPAddress,"root","","pluto_main");
-		g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on default port.  Will scan for it %d",(int) mySqlHelper.m_bConnected);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRTrans not found on default port.  Will scan for it %d",(int) mySqlHelper.m_bConnected);
 		if( mySqlHelper.m_bConnected )
 		{
 			vector<string> vectPorts;
@@ -339,7 +339,7 @@ void IRTrans::StartIRServer()
 #else
 				string sPortTranslated = sPort;
 #endif
-				g_pPlutoLogger->Write(LV_STATUS,"Looking on %s (%s)",sPort.c_str(),sPortTranslated.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Looking on %s (%s)",sPort.c_str(),sPortTranslated.c_str());
 #ifndef WIN32
 				m_sAltPort=sPort;
 				strcpy(TTYPort,sPortTranslated.c_str());
@@ -347,13 +347,13 @@ void IRTrans::StartIRServer()
 #else
 				if( true )
 #endif
-					g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on %s",sPort.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRTrans not found on %s",sPort.c_str());
 				else
 					break;  // we don't get here anyway
 			}
 			if( s==vectPorts.size() )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"No IRTrans found on any port.  Clearing the database entry");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"No IRTrans found on any port.  Clearing the database entry");
 				SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,"");
 			}
 		}
@@ -378,14 +378,14 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 
 	if( m_sAltPort.size() && m_bIRServerRunning )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"IRTrans setting port to %s",m_sAltPort.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRTrans setting port to %s",m_sAltPort.c_str());
 		SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,m_sAltPort);
 		m_sAltPort="";
 	}
 
 	int PK_Device = m_mapNameToDevice[pRemote];
 	if( !PK_Device )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Got command %s from unknown remote %s",pCommand,pRemote);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Got command %s from unknown remote %s",pCommand,pRemote);
 	else
 		ReceivedCode(PK_Device,pCommand);
 }
@@ -394,7 +394,7 @@ void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 {
 	if( m_sAltPort.size() && m_bIRServerRunning )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"IRTrans setting port to %s",m_sAltPort.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRTrans setting port to %s",m_sAltPort.c_str());
 		SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,m_sAltPort);
 		m_sAltPort="";
 	}
@@ -428,10 +428,10 @@ void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 string s2=vectString->size()>1 ? (*vectString)[1] : "";
 int i1=s1.size();
 int i2=s2.size();
-g_pPlutoLogger->Write(LV_WARNING,"\x1b[2J;%s\n%s",s1.c_str(),s2.c_str());
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"\x1b[2J;%s\n%s",s1.c_str(),s2.c_str());
 */
 
-	g_pPlutoLogger->Write(LV_WARNING,"setting display to: \n%s",(char *) lcdCommand.framebuffer);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"setting display to: \n%s",(char *) lcdCommand.framebuffer);
 #ifdef LINUX
 	DoExecuteNetCommand (0,(NETWORKCOMMAND *)&lcdCommand,&statusBuffer);
 #endif
@@ -460,14 +460,14 @@ void IRTrans::CMD_Display_Message(string sText,string sType,string sName,string 
 
 void IRTrans::SendIR(string Port, string IRCode,int iRepeat)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"IRTrans Sending: %s",IRCode.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRTrans Sending: %s",IRCode.c_str());
 #ifdef LINUX
 	int res;
 	IRDATA ird;
 		
 	res = DecodeCCF ((char *) IRCode.c_str(),&ird,START);
 	if (res <= 0) {
-		g_pPlutoLogger->Write(LV_CRITICAL,"Illegal Pronto command %s",IRCode.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Illegal Pronto command %s",IRCode.c_str());
 		return;
 	}
 

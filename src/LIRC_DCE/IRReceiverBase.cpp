@@ -44,7 +44,7 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl)
 	int iResult=pthread_cond_init(&m_RepeatThreadCond, NULL);
 	int iResult2=m_RepeatThreadMutex.Init(NULL,&m_RepeatThreadCond);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::IRReceiverBase r1 %d r2 %d cond %p",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::IRReceiverBase r1 %d r2 %d cond %p",
 		iResult,iResult2,&m_RepeatThreadCond);
 #endif
 
@@ -66,7 +66,7 @@ void IRReceiverBase::GetConfig(DeviceData_Impl *pData)
 	m_bIgnore = pData->m_mapParameters_Find(DEVICEDATA_Ignore_CONST)=="1";
 	if( m_bIgnore )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::GetConfig all codes will be ignored");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::GetConfig all codes will be ignored");
 		return;
 	}
 	string sMapping;
@@ -96,7 +96,7 @@ void IRReceiverBase::GetConfig(DeviceData_Impl *pData)
 					char **pArgs = StringUtils::ConvertStringToArgs(vectButtons[s].substr(posSlash+1),iNumberOfArguments);
 					if( iNumberOfArguments )  // Should always be true
 					{
-						g_pPlutoLogger->Write(LV_STATUS,"Screen %c, Layout %c, LIRCBtn %s fires: %s",cScreenType ? cScreenType : '*', cRemoteLayout ? cRemoteLayout : '*', sToken.c_str(),vectButtons[s].substr(posSlash+1).c_str());
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Screen %c, Layout %c, LIRCBtn %s fires: %s",cScreenType ? cScreenType : '*', cRemoteLayout ? cRemoteLayout : '*', sToken.c_str(),vectButtons[s].substr(posSlash+1).c_str());
 						Message *pMessage = new Message(iNumberOfArguments,pArgs,pData->m_dwPK_Device);
 						PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(pArgs, iNumberOfArguments);
 						m_Virtual_Device_Translator.TranslateVirtualDevice(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_To);
@@ -153,7 +153,7 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 		return;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ReceivedCode device %d code %s repeat %s/%d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::ReceivedCode device %d code %s repeat %s/%d",
 		PK_Device_Remote,pCode,pRepeat,iRepeat);
 #endif
 
@@ -175,7 +175,7 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 		if( itMessage!=pMapKeysToMessages->end() )
 		{
 			Message *pm = itMessage->second;
-			g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ReceivedCode Sending Message Type %d ID %d by  code: %s device %d (screen %c remote layout %c) repeat %s/%d",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::ReceivedCode Sending Message Type %d ID %d by  code: %s device %d (screen %c remote layout %c) repeat %s/%d",
 					pm->m_dwMessage_Type,pm->m_dwID,pCode,PK_Device_Remote,m_cCurrentScreen,cRemoteLayout,pRepeat,iRepeat);
 
 			Message *pMessage = new Message(pm);
@@ -191,10 +191,10 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 				m_pCommand_Impl->QueueMessageToRouter(pMessage);
 		}
 		else
-			g_pPlutoLogger->Write(LV_WARNING,"No mapping for code: %s device %d",pCode,PK_Device_Remote);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"No mapping for code: %s device %d",pCode,PK_Device_Remote);
 	}
 	else
-		g_pPlutoLogger->Write(LV_WARNING,"Cannot find code %s device %d",pCode,PK_Device_Remote);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Cannot find code %s device %d",pCode,PK_Device_Remote);
 
 	// See if we've got a code to repeat
 	if( pRepeat && *pRepeat )
@@ -212,7 +212,7 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 void IRReceiverBase::StopRepeatCode()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::StopRepeatCode");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::StopRepeatCode");
 #endif
 	m_bRepeatKey=false;
 	if( m_pt_Repeat )
@@ -233,7 +233,7 @@ void IRReceiverBase::RepeatThread()
 
 	int iRepeat=0;
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::RepeatThread device %d code %s/%d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::RepeatThread device %d code %s/%d",
 			m_PK_Device_Remote,m_sRepeatCode.c_str(),iRepeat);
 #endif
 	ReceivedCode(m_PK_Device_Remote,m_sRepeatCode.c_str());
@@ -242,7 +242,7 @@ void IRReceiverBase::RepeatThread()
 	{
 		rm.TimedCondWait(0,250 * 1000000);
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::RepeatThread_while device %d code %s/%d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::RepeatThread_while device %d code %s/%d",
 			m_PK_Device_Remote,m_sRepeatCode.c_str(),iRepeat);
 #endif
 		if( !m_bRepeatKey )
@@ -270,7 +270,7 @@ std::string IRReceiverBase::GetSocketText(int Socket) const
 		return std::string();
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Buffer %d = %s", Buffer.length(), Buffer.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Buffer %d = %s", Buffer.length(), Buffer.c_str());
 	
 	return Buffer;
 }
@@ -279,7 +279,7 @@ bool IRReceiverBase::SendSocketText(int Socket, std::string Text) const
 {
 	int Len = Text.length();
 	
-	g_pPlutoLogger->Write(LV_STATUS, "SendSocketText %d = %s", Len, Text.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SendSocketText %d = %s", Len, Text.c_str());
 	
 	if(  0 > write(Socket, &Len, sizeof(Len)) )
 	{
@@ -296,7 +296,7 @@ bool IRReceiverBase::SendSocketText(int Socket, std::string Text) const
 
 void IRReceiverBase::ForceKeystroke(string sCommand, string sAVWHost, int iAVWPort)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"IRReceiverBase::ForceKeystroke %s",sCommand.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::ForceKeystroke %s",sCommand.c_str());
 	
 	map<string, string>::iterator it = m_mapAVWCommands.find(sCommand);
 	if(it != m_mapAVWCommands.end())
@@ -307,12 +307,12 @@ void IRReceiverBase::ForceKeystroke(string sCommand, string sAVWHost, int iAVWPo
 	struct sockaddr_in their_addr; // connector's address information 
 
 	if ((he=gethostbyname(sAVWHost.c_str())) == NULL) {  // get the host info 
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed on gethostbyname");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed on gethostbyname");
 		return;
 	}
 
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to open a new socket");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to open a new socket");
 		return;
 	}
 
@@ -322,7 +322,7 @@ void IRReceiverBase::ForceKeystroke(string sCommand, string sAVWHost, int iAVWPo
 	their_addr.sin_addr = *((struct in_addr *)he->h_addr);
 
 	if (connect(sockfd, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to connect on AVW");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to connect on AVW");
 		close(sockfd);
 		return;
 	}
@@ -332,12 +332,12 @@ void IRReceiverBase::ForceKeystroke(string sCommand, string sAVWHost, int iAVWPo
 	{
 		if( !SendSocketText(sockfd, sCommand) )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Failed to send to AVW: %s", sCommand.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to send to AVW: %s", sCommand.c_str());
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Received from AVW : %s", Text.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received from AVW : %s", Text.c_str());
 	}
 	
 	close(sockfd);

@@ -26,11 +26,6 @@ using namespace std;
 #include "DCE/Logger.h"
 #include "SerializeClass/ShapesColors.h"
 
-namespace DCE
-{
-    Logger *g_pPlutoLogger = NULL;
-}
-
 using namespace DCE; 
 
 int main(int argc, char *argv[])

@@ -51,7 +51,7 @@ void HalDHelper::getPortIdentification(string portFromBus, string& portID)
 		portID += portFromBus.substr(minus + 1, colon - minus - 1);
 		
 		portID = TranslateSerialUSB( portID );
-		//g_pPlutoLogger->Write(LV_DEBUG, "port ID = %s\n", portID.c_str());
+		//LoggerWrapper::GetInstance()->Write(LV_DEBUG, "port ID = %s\n", portID.c_str());
 	}
 }
 

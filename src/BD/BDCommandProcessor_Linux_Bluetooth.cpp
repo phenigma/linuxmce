@@ -41,15 +41,14 @@
 using namespace DCE;
 
 //void DummySignalHandler(int) {
-//g_pPlutoLogger->Write(LV_CRITICAL, "Need to cancel bd comm");
+//LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Need to cancel bd comm");
 //}
 
 BDCommandProcessor_Linux_Bluetooth::BDCommandProcessor_Linux_Bluetooth(string sMacAddressPhone,string sMacAddressDongle,class PhoneDevice *pDevice)
 : BDCommandProcessor(sMacAddressPhone)
 	
 {
-printf("start of constructor %p\n",g_pPlutoLogger);
-g_pPlutoLogger->Write(LV_STATUS,"start of const %s",sMacAddressPhone.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"start of const %s",sMacAddressPhone.c_str());
 
 	m_bQuit = false;
 	m_bRunning = false;
@@ -78,14 +77,14 @@ g_pPlutoLogger->Write(LV_STATUS,"start of const %s",sMacAddressPhone.c_str());
 	
 	if ((m_CommHandle = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM)) < 0) 
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Can't create RFCOMM socket");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Can't create RFCOMM socket");
 		m_bDead=true;
 		return;
 	}
 
 	if (bind(m_CommHandle, (struct sockaddr *)&laddr, sizeof(laddr)) < 0) 
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Can't bind RFCOMM socket %s",sMacAddressPhone.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Can't bind RFCOMM socket %s",sMacAddressPhone.c_str());
 		close(m_CommHandle);
 		m_bDead=true;
 		return;
@@ -95,7 +94,7 @@ g_pPlutoLogger->Write(LV_STATUS,"start of const %s",sMacAddressPhone.c_str());
 	printf("# try to connect\n");
 	if((err_code = connect(m_CommHandle, (struct sockaddr *)&raddr, sizeof(raddr))) < 0) 
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Can't connect RFCOMM socket %s, channel %d",sMacAddressPhone.c_str(), raddr.rc_channel);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Can't connect RFCOMM socket %s, channel %d",sMacAddressPhone.c_str(), raddr.rc_channel);
 		printf("# error code: %d\n", err_code);
 
         	close(m_CommHandle);
@@ -106,13 +105,13 @@ g_pPlutoLogger->Write(LV_STATUS,"start of const %s",sMacAddressPhone.c_str());
 	alen = sizeof(laddr);
 	if (getsockname(m_CommHandle, (struct sockaddr *)&laddr, &alen) < 0) 
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Can't get RFCOMM socket name %s",sMacAddressPhone.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Can't get RFCOMM socket name %s",sMacAddressPhone.c_str());
 		close(m_CommHandle);
 		m_bDead=true;
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING,"Successfully connected to the symbian application %s",sMacAddressPhone.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Successfully connected to the symbian application %s",sMacAddressPhone.c_str());
 }
 
 BDCommandProcessor_Linux_Bluetooth::~BDCommandProcessor_Linux_Bluetooth()
@@ -124,7 +123,7 @@ BDCommandProcessor_Linux_Bluetooth::~BDCommandProcessor_Linux_Bluetooth()
 		//raise(SIGUSR1);
 		
 		time_t start = time(NULL);
-        	g_pPlutoLogger->Write(LV_WARNING, "Waiting any operation with the socket to finish...");
+        	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Waiting any operation with the socket to finish...");
 		while(m_bRunning)
 		{
 			if(time(NULL) - start > 5)
@@ -137,12 +136,12 @@ BDCommandProcessor_Linux_Bluetooth::~BDCommandProcessor_Linux_Bluetooth()
 		m_CommHandle = 0;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "BDCommandProcessor_Linux_Bluetooth is destroyed.");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "BDCommandProcessor_Linux_Bluetooth is destroyed.");
 }
 
 bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
 {
-//	g_pPlutoLogger->Write(LV_STATUS, "Ready to send %d bytes of data", size);
+//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to send %d bytes of data", size);
 	
 	m_bRunning = true;
 	
@@ -165,7 +164,7 @@ bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
 		{
 			if(m_bQuit)
 			{
-				g_pPlutoLogger->Write(LV_WARNING,"SendData (BD connection): have to quit!");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"SendData (BD connection): have to quit!");
 				m_bRunning = false;
 				return false;
 			}
@@ -200,7 +199,7 @@ bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
 
 		if(br == -1) 
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Failed to send %d bytes of data", size);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Failed to send %d bytes of data", size);
 			m_bRunning = false;
 			return false;
 		}
@@ -209,7 +208,7 @@ bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
 			bytes_sent += br;
 			bytes_to_send -= br;
 
-//			g_pPlutoLogger->Write(LV_STATUS, "Sent %d bytes [total %d/%d]", br, bytes_sent, size);
+//			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sent %d bytes [total %d/%d]", br, bytes_sent, size);
 		}
 
 		if(bytes_to_send > 0)
@@ -228,7 +227,7 @@ bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
 
 char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
 {
-//	g_pPlutoLogger->Write(LV_STATUS, "Ready to receive %d bytes of data", size);
+//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to receive %d bytes of data", size);
 //
 	m_bRunning = true;
 		
@@ -252,7 +251,7 @@ char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
 		{
 			if(m_bQuit)
 			{
-				g_pPlutoLogger->Write(LV_WARNING,"ReceiveData (BD connection): have to quit!");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"ReceiveData (BD connection): have to quit!");
 				m_bRunning = false;
 				return false;
 			}
@@ -287,7 +286,7 @@ char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
 
 		if (br==-1) 
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Failed to receive %d bytes of data", size);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Failed to receive %d bytes of data", size);
 			return NULL;
 		}
 		else 
@@ -295,7 +294,7 @@ char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
 			bytes_received += br;
 			bytes_to_receive -= br;
 			
-//			g_pPlutoLogger->Write(LV_STATUS, "Received %d bytes [total %d/%d]", br, bytes_received, size);
+//			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received %d bytes [total %d/%d]", br, bytes_received, size);
 		}
 
 		if(bytes_to_receive > 0)

@@ -124,18 +124,18 @@ bool Security_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
 		m_bQuit_set(true);
 		return false;
 	}
 
-	m_pDatabase_pluto_security = new Database_pluto_security(g_pPlutoLogger);
+	m_pDatabase_pluto_security = new Database_pluto_security(LoggerWrapper::GetInstance());
 	if( !m_pDatabase_pluto_security->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_security", m_pRouter->iDBPort_get( ) ) )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
 		m_bQuit_set(true);
 		return false;
 	}
@@ -260,7 +260,7 @@ bool Security_Plugin::Register()
 	m_pTelecom_Plugin=( Telecom_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Telecom_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin || !m_pTelecom_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to security plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to security plugin");
 		return false;
 	}
 
@@ -379,8 +379,8 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pRouter->mysql_query_result( sql.str( ) ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"User: %d failed to set house mode: %d",iPK_Users,PK_HouseMode);
-		g_pPlutoLogger->Write(LV_WARNING,sql.str().c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"User: %d failed to set house mode: %d",iPK_Users,PK_HouseMode);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,sql.str().c_str());
 		DCE::CMD_Set_Text CMD_Set_Text( 0, pMessage->m_dwPK_Device_From, "", "***Invalid PIN***", TEXT_PIN_Code_CONST );
 		DCE::CMD_Set_Variable CMD_Set_Variable( 0, pMessage->m_dwPK_Device_From, VARIABLE_PasswordPin_CONST, "" );
 		CMD_Set_Text.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
@@ -403,7 +403,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 
 	if( PK_HouseMode<HOUSEMODE_Unarmed_at_home_CONST || PK_HouseMode>HOUSEMODE_Armed_Extended_away_CONST )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to set invalid house mode: %d",PK_HouseMode);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Attempt to set invalid house mode: %d",PK_HouseMode);
 		return;
 	}
 
@@ -417,7 +417,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		pDeviceGroup = m_pRouter->m_mapDeviceGroup_Find(iPK_DeviceGroup);
 		if( !pDeviceGroup )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Trying to set house mode with invalid device group: %d",iPK_DeviceGroup);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Trying to set house mode with invalid device group: %d",iPK_DeviceGroup);
 			return;
 		}
 
@@ -478,7 +478,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	string sHouseModeTime = pRow_AlertType->ExitDelay_get() && bSensorsActive ? "<%=CD%> seconds" : "IMMEDIATELY";
 	string sExitDelay;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Set House Mode.  Sensors active: %d exit delay: %d",(int) bSensorsActive,pRow_AlertType->ExitDelay_get());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Set House Mode.  Sensors active: %d exit delay: %d",(int) bSensorsActive,pRow_AlertType->ExitDelay_get());
 	if( pRow_AlertType->ExitDelay_get() )
 	{
 		sExitDelay = StringUtils::itos(pRow_AlertType->ExitDelay_get());
@@ -651,7 +651,7 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 		) 
 	)
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Receieved a sensor trip from an unrecognized device: %d",pMessage->m_dwPK_Device_From);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Receieved a sensor trip from an unrecognized device: %d",pMessage->m_dwPK_Device_From);
 		return false;
 	}
 	bool bTripped = pMessage->m_mapParameters[EVENTPARAMETER_Tripped_CONST]=="1";
@@ -750,7 +750,7 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 	if( !pRow_AlertType )
 		pRow_AlertType = m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Information_CONST);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Alert type is %d %p, delay %s #pending: %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Alert type is %d %p, delay %s #pending: %d",
 		PK_AlertType,pRow_AlertType,sPK_ModeChange.c_str(),(int) m_vectPendingAlerts.size());
 
 	if( atoi(sPK_ModeChange.c_str()) && pRow_AlertType->ExitDelay_get() )
@@ -760,11 +760,11 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 		{
 			time_t tChange = StringUtils::SQLDateTime(pRow_ModeChange->ChangeTime_get());
 	time_t tnow = time(NULL);
-			g_pPlutoLogger->Write(LV_STATUS,"Alert was %d-%d=%d seconds ago",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Alert was %d-%d=%d seconds ago",
 				(int) tnow, (int) tChange, (int) tChange-tnow);
 			if( tChange + pRow_AlertType->ExitDelay_get() > time(NULL) )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Still in exit delay");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Still in exit delay");
 				return false;
 			}
 		}
@@ -801,7 +801,7 @@ int Security_Plugin::GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice,bo
 	//monitor mode, disarmed, armed - away, armed - at home, sleeping, entertaining, extended away
 	if( sAlertData.length()<13 )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Alert data not specified for %d",pDevice->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Alert data not specified for %d",pDevice->m_dwPK_Device);
 		return 0;
 	}
 
@@ -858,7 +858,7 @@ void Security_Plugin::ProcessAlert(Row_Alert *pRow_Alert)
 {
 	if( !pRow_Alert->ResetTime_isNull() )
 		return; // It was already reset
-	g_pPlutoLogger->Write(LV_STATUS,"Processing alert %d type %d",pRow_Alert->PK_Alert_get(),pRow_Alert->FK_AlertType_get());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Processing alert %d type %d",pRow_Alert->PK_Alert_get(),pRow_Alert->FK_AlertType_get());
 	if( !pRow_Alert->AnnouncementOnly_get() )
 	{
 		if( pRow_Alert->FK_AlertType_get()==ALERTTYPE_Security_CONST )
@@ -879,7 +879,7 @@ void Security_Plugin::ProcessAlert(Row_Alert *pRow_Alert)
 		Notification *pNotification = new Notification(this,m_pTelecom_Plugin,m_pRouter,pRow_Alert);
 		pthread_t pthread_id; 
 		if(pthread_create( &pthread_id, NULL, StartNotification, (void*)pNotification) )
-			g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create Notification thread" );
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create Notification thread" );
 		else
 			m_mapNotification[pthread_id]=pNotification;
 	}
@@ -889,7 +889,7 @@ void Security_Plugin::ProcessCountdown(int id,Row_Alert *pRow_Alert)
 {
 	if( DATA_Get_PK_Device().size()==0 || !m_PK_Device_TextToSpeach )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Cannot make security announcements.  Need to have a Text_To_Speach device %d and media devices %s",m_PK_Device_TextToSpeach,DATA_Get_PK_Device().c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Cannot make security announcements.  Need to have a Text_To_Speach device %d and media devices %s",m_PK_Device_TextToSpeach,DATA_Get_PK_Device().c_str());
 		return; // Nothing to do
 	}
 
@@ -984,7 +984,7 @@ bool Security_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMe
 {
 	bool bRegistered = pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST]=="1";
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Security_Plugin::OrbiterRegistered orbiter %d registered %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Security_Plugin::OrbiterRegistered orbiter %d registered %d",
 		pMessage->m_dwPK_Device_From,(int) bRegistered);
 #endif
 	if( bRegistered )
@@ -1030,13 +1030,13 @@ void Security_Plugin::SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_R
 				fwrite(pData,iData_Size,1,pFile);
 				fclose(pFile);
 
-				g_pPlutoLogger->Write(LV_CRITICAL,"Security plugin write photo to %s",sFile.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Security plugin write photo to %s",sFile.c_str());
 			}
 			else
-				g_pPlutoLogger->Write(LV_CRITICAL,"Unable to write photo to %s",sFile.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to write photo to %s",sFile.c_str());
 		}
 		else
-			g_pPlutoLogger->Write(LV_CRITICAL,"Unable to get pic from %d %s",
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to get pic from %d %s",
 				pDevice_Camera->m_dwPK_Device,pDevice_Camera->m_sDescription.c_str());
 	}
 }
@@ -1052,14 +1052,14 @@ Row_Alert *Security_Plugin::LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Ro
 		Row_Alert *p = m_vectPendingAlerts[s];
 		if( p->FK_AlertType_get()==pRow_AlertType->PK_AlertType_get() )
 		{
-g_pPlutoLogger->Write(LV_STATUS,"Found a matching alert PK: %d detect: %d pool: %d  now: %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found a matching alert PK: %d detect: %d pool: %d  now: %d",
 p->PK_Alert_get(),(int) StringUtils::SQLDateTime(p->DetectionTime_get()),
 pRow_AlertType->PoolAlerts_get(),(int) time(NULL));
 			// It's the same type of alert.  See if we should be pooling it
 			if( StringUtils::SQLDateTime(p->DetectionTime_get()) + pRow_AlertType->PoolAlerts_get() > time(NULL) )
 			{
 				pRow_Alert=p;
-g_pPlutoLogger->Write(LV_STATUS,"Pooling alert PK: %d",pRow_Alert->PK_Alert_get());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pooling alert PK: %d",pRow_Alert->PK_Alert_get());
 				break;
 			}
 		}
@@ -1078,7 +1078,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Pooling alert PK: %d",pRow_Alert->PK_Alert_get(
 		pRow_Alert->Table_Alert_get()->Commit();
 		m_vectPendingAlerts.push_back(pRow_Alert);
 		m_mapAlarm_New[pRow_Alert->PK_Alert_get()]=true;
-g_pPlutoLogger->Write(LV_STATUS,"new alert PK: %d",pRow_Alert->PK_Alert_get());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"new alert PK: %d",pRow_Alert->PK_Alert_get());
 	}
 
 	Row_Alert_Device *pRow_Alert_Device = m_pDatabase_pluto_security->Alert_Device_get()->AddRow();
@@ -1110,7 +1110,7 @@ void Security_Plugin::SetHouseModeBoundIcon(int PK_DeviceGroup,OH_Orbiter *pOH_O
 {
 	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Security_Plugin::SetHouseModeBoundIcon group %d orbiter %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Security_Plugin::SetHouseModeBoundIcon group %d orbiter %d",
 		PK_DeviceGroup,(pOH_Orbiter_Compare ? pOH_Orbiter_Compare->m_pDeviceData_Router->m_dwPK_Device : 0));
 #endif
 	for(map<int,int>::iterator itHM=m_mapPK_HouseMode.begin();itHM!=m_mapPK_HouseMode.end();++itHM)
@@ -1128,7 +1128,7 @@ void Security_Plugin::SetHouseModeBoundIcon(int PK_DeviceGroup,OH_Orbiter *pOH_O
 				}
 #ifdef DEBUG
 				else
-					g_pPlutoLogger->Write(LV_STATUS,"Security_Plugin::SetHouseModeBoundIcon skipping orbiter group %d orbiter %d",
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Security_Plugin::SetHouseModeBoundIcon skipping orbiter group %d orbiter %d",
 						PK_DeviceGroup,(pOH_Orbiter_Compare ? pOH_Orbiter_Compare->m_pDeviceData_Router->m_dwPK_Device : 0));
 #endif
 			}

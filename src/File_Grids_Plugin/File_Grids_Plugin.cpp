@@ -68,10 +68,10 @@ bool File_Grids_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		m_bQuit_set(true);
 		return false;
 	}
@@ -97,7 +97,7 @@ bool File_Grids_Plugin::Register()
 	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pMedia_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to file grids");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to file grids");
 		return false;
 	}
 
@@ -140,7 +140,7 @@ void File_Grids_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMes
 class DataGridTable * File_Grids_Plugin::FileList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"Starting File list");
 #endif
 	int iMaxColumns = atoi( pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str() );
 	int PK_DataGrid = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_DataGrid_CONST].c_str());
@@ -363,7 +363,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 			Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
 			if( !pRow_MediaType )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find Media Type: %d",PK_MediaType);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Media Type: %d",PK_MediaType);
 				return NULL;
 			}
 			Extensions = pRow_MediaType->Extensions_get();
@@ -512,7 +512,7 @@ if( PK_Device!=0 )
 			Command *pCommand = m_pRouter->mapCommand_Find(pDevice->m_piCommands[i]);
 			if( !pCommand )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapCommand");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapCommand");
 				continue;
 			}
 
@@ -544,7 +544,7 @@ if( PK_Device!=0 )
 		{
 			Command *pCommand = m_pRouter->m_mapCommand[(*itIODSP).second];
 			if( !pCommand )
-				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapInput for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapInput for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
 			else
 			{
 				if( pIRInformation && pIRInformation->m_listToggleInputs.size()!=0 )
@@ -580,7 +580,7 @@ if( PK_Device!=0 )
 		{
 			Command *pCommand = m_pRouter->m_mapCommand[(*itIODSP).second];
 			if( !pCommand )
-				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapOutput for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapOutput for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
 			else
 			{
 				pCell = new DataGridCell("Output: " + pCommand->m_sDescription,"");
@@ -601,7 +601,7 @@ if( PK_Device!=0 )
 		{
 			Command *pCommand = m_pRouter->m_mapCommand[(*itIODSP).second];
 			if( !pCommand )
-				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapDSPMode for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapDSPMode for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
 			else
 			{
 				if( pIRInformation && pIRInformation->m_listToggleDSPModes.size()!=0 )

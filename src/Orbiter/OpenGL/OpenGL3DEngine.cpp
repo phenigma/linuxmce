@@ -147,7 +147,7 @@ bool OpenGL3DEngine::Paint()
 	if(CurrentLayer->Children.size() == 0)
 	{
 #ifdef DEBUG
-	    g_pPlutoLogger->Write(LV_STATUS, "NOTHING to paint (current layer: %p)", CurrentLayer);		
+	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "NOTHING to paint (current layer: %p)", CurrentLayer);		
 #endif
 		return false;
 	}
@@ -157,7 +157,7 @@ bool OpenGL3DEngine::Paint()
 		
 	GL.EnableZBuffer(false);
 
-	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
+	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
 	bool bDatagridAnimation = m_spDatagridAnimationManager->Update();
 	if(bDatagridAnimation)
 	{
@@ -167,7 +167,7 @@ bool OpenGL3DEngine::Paint()
 	{
 		if(HighLightPopup)
 		{
-			//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
+			//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
 			Point3D Color;
 			Color.X = 1.0f;
 			Color.Y = 1.0f;
@@ -181,7 +181,7 @@ bool OpenGL3DEngine::Paint()
 
 		if(HighLightFrame)
 		{
-			//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
+			//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
 			Point3D Color;
 			Color.X = 1.0f;
 			Color.Y = 1.0f;
@@ -295,7 +295,7 @@ MeshFrame* OpenGL3DEngine::AddMeshFrameToDesktop(string ParentObjectID, MeshFram
 		{
 			if(OldChild->GetParent() != Parent)
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Got child, but I'm not its parent!");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got child, but I'm not its parent!");
 				//throw "Got child, but I'm not its parent!";
 			}
 			else
@@ -327,7 +327,7 @@ inline void OpenGL3DEngine::DumpScene()
 #ifdef DUMP_SCENE_DEBUG
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	
-	g_pPlutoLogger->Write(LV_WARNING, "DUMPING SCENE: current layer %p, size %d",
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "DUMPING SCENE: current layer %p, size %d",
 		CurrentLayer, CurrentLayer->Children.size());
 
 	CurrentLayer->Print("##");
@@ -448,7 +448,7 @@ inline void OpenGL3DEngine::DumpScene()
 	MeshContainer* Container = MB.End();
 	UnHighlight();
 
-	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight: %d %d %d %d",
+	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Highlight: %d %d %d %d",
 	//	HightlightArea->Left(), HightlightArea->Top(), 
 	//	HightlightArea->Width, HightlightArea->Height);
 
@@ -469,7 +469,7 @@ inline void OpenGL3DEngine::DumpScene()
 
 	if(NULL != HighLightFrame)
 	{
-		//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
+		//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
 		CurrentLayer->RemoveChild(HighLightFrame);
 		HighLightFrame->CleanUp();
 
@@ -516,7 +516,7 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 	m_bWorldChanged = true;
 	OriginalCurrentLayer->RemoveChild(Frame);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "RemoveMeshFrameFromDesktop: removed object %p, size is not %d", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RemoveMeshFrameFromDesktop: removed object %p, size is not %d", 
 		Frame, OriginalCurrentLayer->Children.size());
 #endif
 }
@@ -525,7 +525,7 @@ void OpenGL3DEngine::StartFrameDrawing(string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::StartFrameDrawing!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OpenGL3DEngine::StartFrameDrawing!");
 #endif
 
 	m_bWorldChanged = true;
@@ -543,7 +543,7 @@ void OpenGL3DEngine::StartDatagridDrawing(string ObjectHash)
 	m_bDatagridRendering = true;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::StartFrameDrawing!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OpenGL3DEngine::StartFrameDrawing!");
 #endif
 
 	m_bWorldChanged = true;
@@ -558,7 +558,7 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
 #endif
 
 	m_bWorldChanged = true;
@@ -593,7 +593,7 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing(string sObjectHash)
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
 #endif
 	m_bWorldChanged = true;
 	MeshFrame* Result = CurrentLayer;
@@ -601,7 +601,7 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing(string sObjectHash)
 	CurrentLayer = FrameBuilder;
 	if(!CurrentLayer)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Current layer = NULL, that should not happend!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Current layer = NULL, that should not happend!");
 	}
 	else
 	{
@@ -664,7 +664,7 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 	HighLightPopup->AddChild(BottomBar);
 
 
-	//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Highlight: %d %d %d %d",
+	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Highlight: %d %d %d %d",
 	//	HightlightArea->Left(), HightlightArea->Top(), 
 	//	HightlightArea->Width, HightlightArea->Height);
 
@@ -678,7 +678,7 @@ void OpenGL3DEngine::HideHighlightRectangle()
 
 	if(NULL != HighLightFrame)
 	{
-		//g_pPlutoLogger->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
+		//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
 		CurrentLayer->RemoveChild(HighLightFrame);
 		HighLightFrame->CleanUp();
 
@@ -767,14 +767,14 @@ void OpenGL3DEngine::ReplaceMeshInAnimations(MeshFrame *OldFrame, MeshFrame *New
 	if(NULL == OriginalCurrentLayer)
 		return;
 
-	g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::ReplaceMeshInAnimations %p/%s with %p/%s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OpenGL3DEngine::ReplaceMeshInAnimations %p/%s with %p/%s",
 		OldFrame, OldFrame->Name().c_str(), NewFrame, NewFrame->Name().c_str());
 
 	m_bWorldChanged = true;
 	MeshFrame *pOldCloneFrame = OriginalCurrentLayer->FindChild(NewFrame->Name());
 	if(NULL != pOldCloneFrame)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "OpenGL3DEngine::ReplaceMeshInAnimations also replacing %p/%s",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OpenGL3DEngine::ReplaceMeshInAnimations also replacing %p/%s",
 			pOldCloneFrame, pOldCloneFrame->Name().c_str());
 		m_spDatagridAnimationManager->ReplaceMeshInAnimations(pOldCloneFrame, NewFrame);
 	}

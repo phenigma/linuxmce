@@ -28,7 +28,7 @@ using namespace nsWeb_DHCP_Query;
 
 int main()
 {
-	g_pPlutoLogger = new NullLogger();
+	LoggerWrapper::SetType(LT_LOGGER_NULL);
 	
 	Web_DHCP_Query Query("http://10.0.0.175/plutohome-com/getRegisteredDevices.php");
 	Web_DHCP_Query_Result Result1, Result2;

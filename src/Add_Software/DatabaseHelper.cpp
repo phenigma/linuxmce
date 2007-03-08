@@ -31,11 +31,11 @@ using namespace DCE;
 //--------------------------------------------------------------------------------------------------
 DatabaseHelper::DatabaseHelper(string sHost, string sUser, string sPasswd, string sDB, int nPort)
 {
-	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 
 	if(!m_pDatabase_pluto_main->Connect(sHost, sUser, sPasswd, sDB, nPort))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		return;
 	}
 }
@@ -204,14 +204,14 @@ PackageStatus DatabaseHelper::GetPackageStatus(const PackageInfo& package, int D
 		string sCurrentVersion = pRow_Software->Version_get();
 		if(sCurrentVersion != sVersion)
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Package %s for device %d not to the latest version %s",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Package %s for device %d not to the latest version %s",
 				sPackageName.c_str(), DeviceID, sVersion.c_str());
 			
 			return psNotUpToDate;
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Package %s for device %d already to the latest version %s",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Package %s for device %d already to the latest version %s",
 				sPackageName.c_str(), DeviceID, sVersion.c_str());
 			
 			return psUpToDate;
@@ -219,7 +219,7 @@ PackageStatus DatabaseHelper::GetPackageStatus(const PackageInfo& package, int D
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Package %s for device %d not installed!",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Package %s for device %d not installed!",
 			sPackageName.c_str(), DeviceID);
 
 		return psNotInstalled;
@@ -232,7 +232,7 @@ void DatabaseHelper::UpdatePackage(const PackageInfo& package, int DeviceID)
 {
 	/*
 	string sPackageName = GetValue(package, niPackagename);
-	g_pPlutoLogger->Write(LV_WARNING, "Updating package %s for device %d", sPackageName.c_str(), DeviceID);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Updating package %s for device %d", sPackageName.c_str(), DeviceID);
 
 	vector<Row_Software *> vectRow_Software;
 	m_pDatabase_pluto_main->Software_get()->GetRows(
@@ -270,7 +270,7 @@ void DatabaseHelper::InstallPackage(const PackageInfo& package, int DeviceID)
 {
 	/*
 	string sPackageName = GetValue(package, niPackagename);
-	g_pPlutoLogger->Write(LV_WARNING, "Installing package %s for device %d", sPackageName.c_str(), DeviceID);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Installing package %s for device %d", sPackageName.c_str(), DeviceID);
 
 	Row_Software *pRow_Software = m_pDatabase_pluto_main->Software_get()->AddRow();
 
@@ -325,7 +325,7 @@ void DatabaseHelper::SaveRawIcon(int nPK_Software, char *pData, size_t nSize)
 
 		if(mysql_real_query(m_pDatabase_pluto_main->m_pMySQL, pQueryData, (unsigned long)length))
 		{
-			//g_pPlutoLogger->Write(LV_STATUS, "Failed to save icon in db!");
+			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "Failed to save icon in db!");
 		}
 
 		delete [] pQueryData;
@@ -335,8 +335,6 @@ void DatabaseHelper::SaveRawIcon(int nPK_Software, char *pData, size_t nSize)
 #ifdef UNIT_TEST_DATABASE_HELPER
 int main()
 {
-	g_pPlutoLogger = new FileLogger(stdout);
-
 	string sFileName = "/temp/packages.xml";
 
 	string sXmlData;

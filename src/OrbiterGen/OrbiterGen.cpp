@@ -95,10 +95,6 @@ DCEConfig g_DCEConfig;
 
 #define  VERSION "<=version=>"
 
-namespace DCE
-{
-	class Logger *g_pPlutoLogger;
-}
 
 static bool LocationComparer(LocationInfo *x, LocationInfo *y)
 {
@@ -113,12 +109,12 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//	WSADATA wsaData;
 	//	err = WSAStartup(MAKEWORD( 1, 1 ),(LPWSADATA)  &wsaData);
-	g_pPlutoLogger=new FileLogger("/temp/orbitergen.log");
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"/temp/orbitergen.log");
 #else
 int main(int argc, char *argv[])
 {
 	setenv("SDL_VIDEODRIVER", "dummy", 1); // force SDL to use its dummy video driver (removed a dependency on the X server)
-	g_pPlutoLogger=new FileLogger("/var/log/pluto/OrbiterGen.log");
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/OrbiterGen.log");
 #endif
 
 
@@ -283,7 +279,7 @@ int main(int argc, char *argv[])
 		pOrbiterGenerator->m_pRow_Orbiter->RegenStatus_set("Done");
 		pOrbiterGenerator->m_pRow_Orbiter->RegenPercent_set(100);
 		string sAllScenariosFloorplans = pOrbiterGenerator->m_pRegenMonitor->AllScenariosFloorplans();
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d setting AllScenariosFloorplans to %s",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter %d setting AllScenariosFloorplans to %s",
 			pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),sAllScenariosFloorplans.c_str());
 		pOrbiterGenerator->m_pRow_Orbiter->ScenariosFloorplans_set( sAllScenariosFloorplans );
 		pOrbiterGenerator->m_pRow_Orbiter->Size_set( pOrbiterGenerator->m_sSize_Regen_Data );
@@ -330,7 +326,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_Orbiter = m_spDatabase_pluto_main->Orbiter_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Orbiter )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"new orbiter %d",m_iPK_Orbiter);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"new orbiter %d",m_iPK_Orbiter);
 		m_bNewOrbiter=true;
 		m_pRow_Orbiter = m_spDatabase_pluto_main->Orbiter_get()->AddRow();
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
@@ -351,7 +347,7 @@ int OrbiterGenerator::DoIt()
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Generating %d",m_pRow_Orbiter->PK_Orbiter_get());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Generating %d",m_pRow_Orbiter->PK_Orbiter_get());
 
 	cout << "Setting RegenInProgress_set to true for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 	m_pRow_Orbiter->RegenInProgress_set(true);
@@ -545,7 +541,7 @@ int OrbiterGenerator::DoIt()
 
 	m_bUseMask = (m_pRow_UI->PK_UI_get()==UI_V2_Normal_Horizontal_16_9_CONST && m_bUseAlphaBlending==false);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Use alpha %d use mask %d",(int) m_bUseAlphaBlending,(int) m_bUseMask);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Use alpha %d use mask %d",(int) m_bUseAlphaBlending,(int) m_bUseMask);
 // HACK - TEMPORARILY DISABLE EFFECTS
 m_bNoEffects = true;
 
@@ -769,14 +765,14 @@ m_bNoEffects = true;
 		+ (m_bUseMask ? "M" : "N") + "," 
 		+ (m_bUseOCG ? ",OCG" : ",NO_OCG");
 
-	g_pPlutoLogger->Write(LV_STATUS,"OrbiterGen::CheckRegen %d now <%s%> was <%s>",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterGen::CheckRegen %d now <%s%> was <%s>",
 		m_pRow_Orbiter->PK_Orbiter_get(),m_sSize_Regen_Data.c_str(),m_pRow_Orbiter->Size_get().c_str());
 
 	if( m_pRow_Orbiter->Size_get()!=m_sSize_Regen_Data && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )
 	{
 		if( m_pRow_Orbiter->Size_get().size()==0  )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"new orbiter size was 0");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"new orbiter size was 0");
 			m_bNewOrbiter=true;
 		}
 
@@ -795,7 +791,7 @@ m_bNoEffects = true;
 
 		if( vectRow_Room.size()==0 || vectRow_Users.size()==0 )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"new orbiter no rooms/users");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"new orbiter no rooms/users");
 			m_bNewOrbiter = true;
 		}
 	}
@@ -840,7 +836,7 @@ m_bNoEffects = true;
 	}
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"OrbiterGen before adj spacing X %d Y %d W %d H %d scale W %d H %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterGen before adj spacing X %d Y %d W %d H %d scale W %d H %d",
 		m_rSpacing.X,m_rSpacing.Y,m_rSpacing.Width,m_rSpacing.Height,m_sScale.Width,m_sScale.Height);
 #endif
 
@@ -853,7 +849,7 @@ m_bNoEffects = true;
 		m_sScale.Height = int((double) m_sScale.Height * (100-iSpacingParameter) / 100);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"OrbiterGen after adj spacing X %d Y %d W %d H %d scale W %d H %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterGen after adj spacing X %d Y %d W %d H %d scale W %d H %d",
 		m_rSpacing.X,m_rSpacing.Y,m_rSpacing.Width,m_rSpacing.Height,m_sScale.Width,m_sScale.Height);
 #endif
 
@@ -2728,7 +2724,7 @@ Row_DesignObj *OrbiterGenerator::GetDesignObjFromScreen(int PK_Screen)
 	map<int,int>::iterator it=m_mapDesignObj.find(PK_Screen);
 	if( it==m_mapDesignObj.end() )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"No design obj for screen %d",PK_Screen);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"No design obj for screen %d",PK_Screen);
 		return NULL;
 	}
 

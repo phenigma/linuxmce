@@ -73,13 +73,8 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 	if ( m_Socket != INVALID_SOCKET )
 	{
 #ifdef DEBUG
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write( LV_SOCKET, "ClientSocket::Connect - disconnecting previous socket this: %p device: %d m_Socket: %d", this, m_dwPK_Device, m_Socket );
-#ifndef WINCE
-		else // no logger
-			cerr << "ClientSocket::Connect - disconnecting previous socket this: device: " << m_dwPK_Device << " m_Socket: " << (int) m_Socket << endl;
-#endif
-
+		
+			LoggerWrapper::GetInstance()->Write( LV_SOCKET, "ClientSocket::Connect - disconnecting previous socket this: %p device: %d m_Socket: %d", this, m_dwPK_Device, m_Socket );
 #endif
 		Disconnect();
 	}
@@ -88,8 +83,8 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 
 //#ifdef DEBUG
 		//commented this because we don't want messagesend to output debug info like this.
-		//if( g_pPlutoLogger )
-		//	g_pPlutoLogger->Write( LV_SOCKET, "ClientSocket::Connect - created m_Socket: %d", m_Socket );
+		//
+		//	LoggerWrapper::GetInstance()->Write( LV_SOCKET, "ClientSocket::Connect - created m_Socket: %d", m_Socket );
 //#endif
 
 	/** @todo check comment */
@@ -123,12 +118,8 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 #else
 					int ec = h_errno;
 #endif
-					if( g_pPlutoLogger )
-						g_pPlutoLogger->Write( LV_CRITICAL, "gethostbyname for '%s', failed, Last Error Code %d, Device: %d", sAddress.c_str(), ec, m_dwPK_Device );
-#ifndef WINCE
-					else // no logger
-						cerr << "gethostbyname for " << sAddress << " failed, Last Error Code " << ec << " device: " << m_dwPK_Device << endl;
-#endif
+					
+						LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "gethostbyname for '%s', failed, Last Error Code %d, Device: %d", sAddress.c_str(), ec, m_dwPK_Device );
 					Disconnect();
 					break;
 				}
@@ -167,10 +158,8 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 #endif
 
 #ifndef WINCE
-				if( g_pPlutoLogger )
-					g_pPlutoLogger->Write(LV_CRITICAL, "Connect() failed, Error Code %d (%s))", ec, strerror(ec));
-				else // no logger
-					cerr << "Connect() failed, Error Code" << ec << strerror(ec) << endl;
+				
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() failed, Error Code %d (%s))", ec, strerror(ec));
 #endif
 			}
 
@@ -179,23 +168,15 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 		//setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(on));
 		if ( !bSuccess)
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL, "ClientSocket::Connect() not successful");
-#ifndef WINCE
-			else // no logger
-				cerr << "ClientSocket::Connect() not successful" << endl;
-#endif
+			
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "ClientSocket::Connect() not successful");
 			Disconnect();
 		}
 	}
 	else
 	{
-			if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL, "socket() failed, is the TCP stack initialized?, device: %d", m_dwPK_Device);
-#ifndef WINCE
-			else // no logger
-				cerr << "socket() failed, is the TCP stack initialized?, device: " << m_dwPK_Device << endl;
-#endif
+			
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "socket() failed, is the TCP stack initialized?, device: %d", m_dwPK_Device);
 	}
 	if ( bSuccess )
 	{
@@ -225,8 +206,8 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 	string sResponse;
 	if ( !ReceiveString( sResponse ) )
 	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write( LV_CRITICAL, "Lost connection device: %d", m_dwPK_Device );
+		
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Lost connection device: %d", m_dwPK_Device );
 		m_eLastError=cs_err_CannotConnect;
 		return false;
 	}
@@ -252,8 +233,8 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 			m_eLastError=cs_err_BadDevice;
 		else
 			m_eLastError=cs_err_CannotConnect;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write( m_eLastError==cs_err_NeedReload ? LV_WARNING : LV_CRITICAL, "Connection for client socket reported %s, device %d last error %d", 
+		
+			LoggerWrapper::GetInstance()->Write( m_eLastError==cs_err_NeedReload ? LV_WARNING : LV_CRITICAL, "Connection for client socket reported %s, device %d last error %d", 
 				sResponse.c_str(), m_dwPK_Device,(int) m_eLastError );
 
 		if( m_eLastError!=cs_err_NeedReload )
@@ -273,8 +254,8 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 	{
 		if( m_dwPK_Device && m_dwPK_Device != PK_Device_New )
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write( LV_CRITICAL, "Server reported we are dev %d but we are device %d", PK_Device_New, m_dwPK_Device );
+			
+				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Server reported we are dev %d but we are device %d", PK_Device_New, m_dwPK_Device );
 		}
 		else
 			m_dwPK_Device=PK_Device_New;
@@ -289,8 +270,7 @@ void ClientSocket::Disconnect()
 
 	if ( m_Socket != INVALID_SOCKET )
 	{
-        if(g_pPlutoLogger)
-            g_pPlutoLogger->Write( LV_WARNING, "void ClientSocket::Disconnect() on this socket: %p (m_Socket: %d)", this, m_Socket);
+            LoggerWrapper::GetInstance()->Write( LV_WARNING, "void ClientSocket::Disconnect() on this socket: %p (m_Socket: %d)", this, m_Socket);
 
 		// this will usually force it out from the select.
 		Close();

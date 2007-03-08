@@ -61,9 +61,9 @@ XProgressWnd::XProgressWnd()
 XProgressWnd::~XProgressWnd()
 {
     if (m_pButton) delete m_pButton;
-    g_pPlutoLogger->Write(LV_STATUS, "XProgressWnd::~XProgressWnd(): pDisplay=%d ->Closing", m_pDisplay);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "XProgressWnd::~XProgressWnd(): pDisplay=%d ->Closing", m_pDisplay);
     if (m_pDisplay) XCloseDisplay(m_pDisplay);
-    g_pPlutoLogger->Write(LV_STATUS, "XProgressWnd::~XProgressWnd(): pDisplay=%d ->Closed", m_pDisplay);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "XProgressWnd::~XProgressWnd(): pDisplay=%d ->Closed", m_pDisplay);
 }
 
 
@@ -188,15 +188,15 @@ bool XProgressWnd::EventLoop()
     while (not m_bDone) {
         if (XCheckIfEvent(m_pDisplay, &event, &CheckIfEvent, (char*)this)) {
         	//process event ...
-		if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Event received");
+		if (LoggerWrapper::GetInstance()) LoggerWrapper::GetInstance()->Write(LV_STATUS, "Event received");
 
         	switch (event.type) {
         	case Expose:
-		    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Expose event received");
+		    if (LoggerWrapper::GetInstance()) LoggerWrapper::GetInstance()->Write(LV_STATUS, "Expose event received");
         	    DrawWindow();
         	    break;
         	case ButtonRelease:
-		    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "ButtonRelease event received");
+		    if (LoggerWrapper::GetInstance()) LoggerWrapper::GetInstance()->Write(LV_STATUS, "ButtonRelease event received");
         	    XButtonEvent *pButtonEvent = (XButtonEvent *)&event;
         	    if (m_pButton && m_pButton->HitTest(pButtonEvent->x, pButtonEvent->y)) {
                 	m_bDone = true;
@@ -245,18 +245,18 @@ bool XProgressWnd::UpdateProgress(std::string sText, int nProgress)
 
 static void *MyThreadFunc(void *pWindow)
 {
-    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Thread func start ...");
+    if (LoggerWrapper::GetInstance()) LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thread func start ...");
     XProgressWnd *pWnd = (XProgressWnd *)pWindow;
 
     pWnd->EventLoop();
 
-    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Thread func ending ...");
+    if (LoggerWrapper::GetInstance()) LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thread func ending ...");
     pWnd->DestroyWindow();
 
 	Display * pDisplay = pWnd->GetDisplay();
 	if (pDisplay)
 	    XSync(pDisplay, false);
-    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Thread func ended.");
+    if (LoggerWrapper::GetInstance()) LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thread func ended.");
 
     if (pWnd->Destroy())
     {
@@ -269,13 +269,13 @@ static void *MyThreadFunc(void *pWindow)
 pthread_t XProgressWnd::Run()
 {
     pthread_t threadID;
-    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Starting the thread ...");
+    if (LoggerWrapper::GetInstance()) LoggerWrapper::GetInstance()->Write(LV_STATUS, "Starting the thread ...");
     m_bCanceled = false;
     m_bDone = false;
 
 	// don't put this in the thread (again) as that creates a race condition; leave it here :)
     Display *pDisplay = XOpenDisplay(NULL); // needs XCloseDisplay?
-    g_pPlutoLogger->Write(LV_STATUS, "XProgressWnd::Run(): pDisplay=%d ->Opened", pDisplay);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "XProgressWnd::Run(): pDisplay=%d ->Opened", pDisplay);
     int nScreenNo = DefaultScreen(pDisplay);
     int nDesktopX, nDesktopY;
     nDesktopX = DisplayWidth(pDisplay, nScreenNo);
@@ -287,12 +287,12 @@ pthread_t XProgressWnd::Run()
     int iResult = pthread_create( &threadID, NULL, MyThreadFunc, (void *)this );
     if ( iResult != 0 )
     {
-	if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_CRITICAL, "Fatal error: Cannot start thread!");
+	if (LoggerWrapper::GetInstance()) LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Fatal error: Cannot start thread!");
     }
     else
     {
-        if (g_pPlutoLogger)
-            g_pPlutoLogger->Write(LV_STATUS, "Thread started ...");
+        if (LoggerWrapper::GetInstance())
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thread started ...");
 
         // need to join later
         //pthread_detach(threadID);
@@ -324,7 +324,7 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
     m_nBarWidth = m_nWidth - 40;
     m_nBarHeight = 50;
 
-    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Constructing ProgressWindow");
+    if (LoggerWrapper::GetInstance()) LoggerWrapper::GetInstance()->Write(LV_STATUS, "Constructing ProgressWindow");
 
     m_wndName = "Progress";
     XClassHint *pClassHint = XAllocClassHint();

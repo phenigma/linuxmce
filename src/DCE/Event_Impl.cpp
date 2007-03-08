@@ -106,7 +106,7 @@ char *Event_Impl::GetConfig( /*unsigned long*/int &dwSize )
 		m_pClientSocket->ReceiveString( sResponse ); // getting the router's response
 		if( sResponse == "WAIT" ) // router busy
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "DCE Router asked us to wait--it's busy at the moment" );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "DCE Router asked us to wait--it's busy at the moment" );
 			Sleep( 5000 );
 			continue;
 		}
@@ -118,7 +118,7 @@ char *Event_Impl::GetConfig( /*unsigned long*/int &dwSize )
 			return pcBuff;
 		}
 		
-		g_pPlutoLogger->Write( LV_CRITICAL, "DCE Router cannot give us config: %s", sResponse.c_str() ); // logging it
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "DCE Router cannot give us config: %s", sResponse.c_str() ); // logging it
 		return NULL;
 	}
 	return NULL;

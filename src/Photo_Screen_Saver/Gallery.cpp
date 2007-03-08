@@ -167,6 +167,6 @@ void Gallery::_Sleep(int Miliseconds)
 
 void Gallery::m_bQuit_set(bool bQuit)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Gallery::m_bQuit_set now %d",(int) bQuit);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Gallery::m_bQuit_set now %d",(int) bQuit);
 	m_bQuit=bQuit;
 }

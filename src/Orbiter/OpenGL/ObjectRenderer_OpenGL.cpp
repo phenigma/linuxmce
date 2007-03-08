@@ -55,7 +55,7 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 /*virtual*/ void ObjectRenderer_OpenGL::RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point)
 {
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "mmmm RenderGraphic  %s state %s",
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "mmmm RenderGraphic  %s state %s",
 					   m_pObj_Owner->m_ObjectID.c_str(), 
 					   m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_NORMAL ? "normal" : 
 						 m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_SELECTED ? "selected" : "highlighted"
@@ -95,7 +95,7 @@ g_pPlutoLogger->Write(LV_STATUS, "mmmm RenderGraphic  %s state %s",
 //todo: new method
 	LoadPicture(pPlutoGraphic);
 
-	//g_pPlutoLogger->Write(LV_STATUS, "(4) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
+	//LoggerWrapper::GetInstance()->Write(LV_STATUS, "(4) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
 	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 	
 	if(!pPlutoGraphic->IsEmpty())
@@ -112,7 +112,7 @@ g_pPlutoLogger->Write(LV_STATUS, "mmmm RenderGraphic  %s state %s",
 	}
 #ifdef DEBUG
 	else
-		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
 #endif
 }
 
@@ -149,7 +149,7 @@ void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 
 		if (!iSizeGraphicFile)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
 	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			return;
 		}
@@ -177,14 +177,14 @@ void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 
 
 
-//g_pPlutoLogger->Write(LV_STATUS, "(3) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
+//LoggerWrapper::GetInstance()->Write(LV_STATUS, "(3) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
 //	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 
 	if(pPlutoGraphic->IsEmpty() && !sFileName.empty())
 	{
 		if(!FileUtils::FileExists(sFileName))
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
 	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			return;
 		}

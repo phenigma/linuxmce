@@ -98,7 +98,7 @@ void OrbiterBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int
     )
     {
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "Sending BD_CP_CaptureKeyboard command with parameters: On: %d, Reset: %d, PinType: %d, DataGrid: %d, PK_Variable: %d, Text: %s",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sending BD_CP_CaptureKeyboard command with parameters: On: %d, Reset: %d, PinType: %d, DataGrid: %d, PK_Variable: %d, Text: %s",
 			m_bCaptureKeyboard_OnOff, m_bCaptureKeyboard_Reset, m_iCaptureKeyboard_EditType,
 			m_bCaptureKeyboard_DataGrid, m_iCaptureKeyboard_PK_Variable, m_sCaptureKeyboard_Text.c_str()
 		);
@@ -139,7 +139,7 @@ void OrbiterBluetooth::SimulateKeyPress(long key)
 //-----------------------------------------------------------------------------------------------------
 void OrbiterBluetooth::OnReload()
 {  
-    g_pPlutoLogger->Write(LV_WARNING,"Orbiter reloading");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING,"Orbiter reloading");
 
     //kill the connection. this will kill orbiter and then recreate it when the phone will be detected
     m_pBDCommandProcessor->m_bDead = true;
@@ -160,7 +160,7 @@ void OrbiterBluetooth::ImageGenerated(const string& csImageFileName)
 	bool bQualityImageScreen = false;
 	if(NULL != m_pScreenHistory_Current)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
 		bSignalStrengthScreen = m_pScreenHistory_Current->GetObj()->m_ObjectID.find(ADVANCED_OPTIONS_SCREEN) != string::npos;
 	}
 
@@ -172,7 +172,7 @@ void OrbiterBluetooth::ImageGenerated(const string& csImageFileName)
 	string sRepeatedKeysList;
 	GetRepeatedKeysForScreen(m_pScreenHistory_Current->GetObj(), sRepeatedKeysList);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "Repeated keys list %s: ", sRepeatedKeysList.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Repeated keys list %s: ", sRepeatedKeysList.c_str());
 #endif
 
 	//load the image into a buffer and create 'BD_CP_ShowImage' command
@@ -180,7 +180,7 @@ void OrbiterBluetooth::ImageGenerated(const string& csImageFileName)
 	char *pImage = FileUtils::ReadFileIntoBuffer(csImageFileName, iImageSize);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "Ready to send a picture, size %d, reporting signal strength %d", iImageSize, bSignalStrengthScreen);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ready to send a picture, size %d, reporting signal strength %d", iImageSize, bSignalStrengthScreen);
 #endif
 
 	BD_CP_ShowImage *pBD_CP_ShowImage = new BD_CP_ShowImage(0, (unsigned long)iImageSize, pImage, 
@@ -206,7 +206,7 @@ void OrbiterBluetooth::ImageGenerated(const string& csImageFileName)
 		m_pBDCommandProcessor->AddCommand(pBD_CP_ShowImage);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "ShowImage command added to the queue");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ShowImage command added to the queue");
 #endif
 
 }
@@ -257,13 +257,13 @@ void OrbiterBluetooth::Configure( PhoneConfig& cfg )
 void OrbiterBluetooth::SelectedItem( string& sItemId )
 {	
 	#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "#	Received SelectedItem: %s", sItemId.c_str() );
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "#	Received SelectedItem: %s", sItemId.c_str() );
 	#endif
 
 	DesignObj_Orbiter *pObj = FindObject(sItemId);
 	if(NULL != pObj) {
 		#ifdef DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "#	Object found!" );
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "#	Object found!" );
 		#endif
 		SelectedObject(pObj, smKeyboard, 0, 0);
 	}
@@ -283,12 +283,12 @@ void OrbiterBluetooth::GetMenuData( MenuData& data  )
 		string sRoomDesc = pLocationInfo->Description;
 		int nRoomID = pLocationInfo->iLocation;
 
-		g_pPlutoLogger->Write(LV_WARNING, "#	Add room: %s", sRoomDesc.c_str() );
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "#	Add room: %s", sRoomDesc.c_str() );
 		// Add room
 		data.AddRoom( nRoomID, sRoomDesc );				
 		for(int i = 0; i < sizeof(iObjects) / sizeof(int); ++i) {
 
-			g_pPlutoLogger->Write(LV_WARNING, "#	Add scenario: %s", sScenarioDescs[i].c_str() );
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "#	Add scenario: %s", sScenarioDescs[i].c_str() );
 			// Add scenario for room nRoomID
 			data.AddScenario( nRoomID, sScenarioDescs[i] );	
 
@@ -296,7 +296,7 @@ void OrbiterBluetooth::GetMenuData( MenuData& data  )
 				(iObjects[i] == DESIGNOBJ_mnuAdvancedOptions_CONST ? "0" : StringUtils::itos(pLocationInfo->iLocation)) + ".0";
 			DesignObj_Orbiter *pObj = FindObject(sScenarioObjID);
 			if(NULL == pObj) {
-				g_pPlutoLogger->Write(LV_WARNING, "#	Scenario not found!" );
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "#	Scenario not found!" );
 				continue;
 			}
 
@@ -334,10 +334,10 @@ void OrbiterBluetooth::GetMenuData( MenuData& data  )
 					string sSubScenarioID = StringUtils::ltos(iObjects[i]) + ".0.0." + StringUtils::ltos(iSubscenarios[nIndex]);
 					DesignObj_Orbiter *pDesignObj_Orbiter = FindObject(sSubScenarioID, pObj);
 
-					g_pPlutoLogger->Write(LV_WARNING, "#	Subscen %s Id %s!", 
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "#	Subscen %s Id %s!", 
 						sSubscenariosDesc[nIndex].c_str(),	sSubScenarioID.c_str() );
 					if(NULL == pDesignObj_Orbiter) {
-						g_pPlutoLogger->Write(LV_WARNING, "#	Subscen not found!" );
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "#	Subscen not found!" );
 						continue;
 					}
 
@@ -404,7 +404,7 @@ void OrbiterBluetooth::ShowMenu( )
 //-----------------------------------------------------------------------------------------------------
 void OrbiterBluetooth::GetMenuImages( MenuItemInfo::ItemType nItemsType, vector<MenuItemInfo>& vItems )
 {
-	g_pPlutoLogger->Write(LV_WARNING, "#	GetMenuImages: %d", vItems.size() );
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "#	GetMenuImages: %d", vItems.size() );
 	//string sImageFileName = "/usr/pluto/orbiter/C" + StringUtils::ltos(m_dwPK_Device) + "/" + 
 	//		StringUtils::ltos(DESIGNOBJ_objBackground_CONST) + ".0.0.png";
 	string sImageFileName = "/usr/pluto/orbiter/skins/Basic/Phone/Smartphone_menu_test.png";

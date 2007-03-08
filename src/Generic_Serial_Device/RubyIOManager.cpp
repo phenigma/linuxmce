@@ -64,17 +64,17 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 	RubyDCEDeviceNode* pNode = NULL;
 	pcmdimpl_=pcmdimpl;
 	string sport = pcmdimpl->m_pEvent->GetDeviceDataFromDatabase(pcmdimpl->m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST);
-	g_pPlutoLogger->Write(LV_STATUS,"RubyIOManager::InstantiateNode port: %s",sport.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"RubyIOManager::InstantiateNode port: %s",sport.c_str());
 	PORTTYPE porttype = PORTTYPE_UNKNOWN;
 	if(!sport.empty() && sport != "0" && StringUtils::StartsWith(sport,"ERR")==false ) {
 		porttype = PORTTYPE_SERIAL;
 	} else {
 		sport = pdevdata->m_mapParameters[DEVICEDATA_TCP_Port_CONST];
-		g_pPlutoLogger->Write(LV_STATUS, "Checking TCP Port %s",sport.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Checking TCP Port %s",sport.c_str());
 		if(!sport.empty()) {
 			porttype = PORTTYPE_NETWORK;
 		} else {
-			g_pPlutoLogger->Write(LV_CRITICAL, "GSD Port is not specified. Instantiating non-IO Wrapper.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "GSD Port is not specified. Instantiating non-IO Wrapper.");
 		}
 	}
 
@@ -108,10 +108,10 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
         	            bps = tbps;
             	    }
 	            } else {
-    	            g_pPlutoLogger->Write(LV_STATUS, "Ba>=udRate not specified or invalid, using default: %d.", bps);
+    	            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ba>=udRate not specified or invalid, using default: %d.", bps);
         	    }
 
-	            g_pPlutoLogger->Write(LV_STATUS, "Using port %s, at bps: %d.", serport.c_str(), bps);
+	            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using port %s, at bps: %d.", serport.c_str(), bps);
 
     	        pnewpool = new SerialIOPool();
         	    SerialIOConnection* pio = reinterpret_cast<SerialIOConnection*>(pnewpool->getConnection());
@@ -120,7 +120,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 
 	            string sparbitstop = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_ParityBitStop_CONST];
     	        if(!sparbitstop.empty()) {
-        	        g_pPlutoLogger->Write(LV_STATUS, "Using paritybit/stopbit: %s.", sparbitstop.c_str());
+        	        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using paritybit/stopbit: %s.", sparbitstop.c_str());
                 	if(sparbitstop == "N81") {
             	        pio->setParityBitStop(epbsN81);
 	                } else
@@ -131,7 +131,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 	                    pio->setParityBitStop(epbsO81);
         	        } else {
     	                /*more to be implemented*/
-            	        g_pPlutoLogger->Write(LV_CRITICAL, "Paritybit/Stopbit %s NOT supported.", sparbitstop.c_str());
+            	        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Paritybit/Stopbit %s NOT supported.", sparbitstop.c_str());
                 	}
 	            }
     	        } break;
@@ -151,9 +151,9 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 	            }
 
     	        if(!netaddr.empty()) {
-        	        g_pPlutoLogger->Write(LV_STATUS, "Using network device with address <%s>, at port: <%d>.", netaddr.c_str(), netport);
+        	        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using network device with address <%s>, at port: <%d>.", netaddr.c_str(), netport);
             	} else {
-    	            g_pPlutoLogger->Write(LV_CRITICAL, "Could not determine network address for device %d.", pdevdata->m_dwPK_Device);
+    	            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not determine network address for device %d.", pdevdata->m_dwPK_Device);
 	                return NULL;
         	    }
 
@@ -176,7 +176,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 	if(delay == 0) {
 		delay = DEFAULT_DELAY_TIME;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Using Idle Delay: %d.", delay);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using Idle Delay: %d.", delay);
 	pNode->setIdleDelay(delay);
     pNode->setDeviceData(pdevdata);
 	return pNode;
@@ -184,12 +184,12 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 
 int 
 RubyIOManager::addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata) {
-	g_pPlutoLogger->Write(LV_STATUS, "Adding device: %d.", pdevdata->m_dwPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding device: %d.", pdevdata->m_dwPK_Device);
 
 	/*parse Code nodes and insert node*/
 	RubyDCEDeviceNode* pNewNode = addDevice(pcmdimpl, pdevdata, rootnode_);
 	if(!pNewNode) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Could not add new Device Node.");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not add new Device Node.");
 		return -1;
 	}
 
@@ -254,14 +254,14 @@ RubyIOManager::hasDevice(DeviceData_Base* pdevdata, RubyDCEDeviceNode* pNode) {
 
 int 
 RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
-	g_pPlutoLogger->Write(LV_STATUS, "Dispatching Message %d to %d...", pMessage->m_dwID, pMessage->m_dwPK_Device_To);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Dispatching Message %d to %d...", pMessage->m_dwID, pMessage->m_dwPK_Device_To);
 
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
 	int routeToDevice = 0;
 	/*find device*/
 	if(!pdevdata)
 	{
-	    g_pPlutoLogger->Write(LV_WARNING, "Running without DeviceData");
+	    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Running without DeviceData");
 		routeToDevice = pMessage->m_dwPK_Device_To;
 	}
 	else
@@ -273,7 +273,7 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 				pdevdata->m_AllDevices.m_mapDeviceData_Base_Find(ptmpdevdata->m_dwPK_Device_ControlledVia);
 		}
 		if(ptmpdevdata == NULL) {
-		    g_pPlutoLogger->Write(LV_STATUS, "Command will be handled in Parent device.");
+		    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command will be handled in Parent device.");
 			ptmpdevdata = pdevdata;
 		}
 		routeToDevice = ptmpdevdata->m_dwPK_Device;
@@ -282,8 +282,8 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 	mmsg_.Lock();
 	std::pair<unsigned, Message*> msg(routeToDevice, pMessage);
 	msgqueue_.push_back(msg);
-    g_pPlutoLogger->Write(LV_STATUS, "Routing message ID=%d to device %d.", pMessage->m_dwID, routeToDevice);
-	g_pPlutoLogger->Write(LV_WARNING, "Process Queue = %u", msgqueue_.size());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Routing message ID=%d to device %d.", pMessage->m_dwID, routeToDevice);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Process Queue = %u", msgqueue_.size());
 	mmsg_.Unlock();
 	emsg_.Signal();
 	
@@ -302,14 +302,14 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 	if( !pMessage->m_bRespondedToMessage )
 	{
 		pMessage->m_bRespondedToMessage=true;
-		g_pPlutoLogger->Write(LV_CRITICAL,"Ruby was unable to handle the command in reasonable amount of time");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Ruby was unable to handle the command in reasonable amount of time");
 	}
 	return 0;
 }
 
 void handler_for_bad_things(int signal)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "A CRITICAL ERROR HAS OCCURED (CHECK YOUR RUBY CODE)");
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "A CRITICAL ERROR HAS OCCURED (CHECK YOUR RUBY CODE)");
 	exit(1);
 }
 
@@ -350,10 +350,10 @@ RubyIOManager::_Run() {
 				mmsg_.Unlock();
 				
 				if(pmsg != NULL) {
-					g_pPlutoLogger->Write(LV_STATUS, "Routing message to Ruby Interpreter...");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Routing message to Ruby Interpreter...");
 					if (!rootnode_->handleMessage(pmsg))
 					{
-						g_pPlutoLogger->Write(LV_CRITICAL, "For obscure reasons could not handle the message");
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "For obscure reasons could not handle the message");
 						pmsg->m_bRespondedToMessage = true;
 					}
 					pmsg = NULL;
@@ -368,7 +368,7 @@ RubyIOManager::_Run() {
 
 void 
 RubyIOManager::SendCommand(RubyCommandWrapper* pcmd) {
-	g_pPlutoLogger->Write(LV_STATUS, "Ruby code requested to send command %d, from %d to %d... Sending...", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ruby code requested to send command %d, from %d to %d... Sending...", 
 								pcmd->getId(), pcmd->getDevIdFrom(), pcmd->getDevIdTo());
 
 	Message* pmsg;
@@ -380,13 +380,13 @@ RubyIOManager::SendCommand(RubyCommandWrapper* pcmd) {
 		pmsg = new Message(pcmd->getDevIdFrom(), pcmd->getDevIdTo(), pcmd->getPriority(), pcmd->getType(), pcmd->getId(), 0);
 	pmsg->m_mapParameters = pcmd->getParams();
 	pevdisp_->SendMessage(pmsg);
-	g_pPlutoLogger->Write(LV_STATUS, "Command sent.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command sent.");
 }
 
 string 
 RubyIOManager::SendCommandReceiveString(RubyCommandWrapper* pcmd) {
 
-	g_pPlutoLogger->Write(LV_STATUS, "Ruby code requested to send command %d, from %d to %d, and is processing the RESPONSE... Sending...", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ruby code requested to send command %d, from %d to %d, and is processing the RESPONSE... Sending...", 
 								pcmd->getId(), pcmd->getDevIdFrom(), pcmd->getDevIdTo());
 
 	Message* pmsg;
@@ -398,37 +398,37 @@ RubyIOManager::SendCommandReceiveString(RubyCommandWrapper* pcmd) {
 
 	if( pResponse )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Received a valid response (%s), returning it.", pResponse->m_mapParameters[pcmd->getId()].c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Received a valid response (%s), returning it.", pResponse->m_mapParameters[pcmd->getId()].c_str() );
 		return pResponse->m_mapParameters[pcmd->getId()];
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING, "No valid response received, returning an empty string");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "No valid response received, returning an empty string");
 	return "";
 }
 
 void 
 RubyIOManager::SendMessage(Message* pmsg) {
-	g_pPlutoLogger->Write(LV_STATUS, "Ruby code sending message...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ruby code sending message...");
 	if(!pcmdimpl_->SendMessage(pmsg))
-		g_pPlutoLogger->Write(LV_WARNING, "Failed to send message.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to send message.");
 	else
-		g_pPlutoLogger->Write(LV_STATUS, "Message was sent.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message was sent.");
 }
 
 void 
 RubyIOManager::SendString(string str) {
-	g_pPlutoLogger->Write(LV_STATUS, "Ruby code sending string...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ruby code sending string...");
 	if(!pcmdimpl_->SendString(str))
-		g_pPlutoLogger->Write(LV_WARNING, "Failed to send string.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to send string.");
 	else
-		g_pPlutoLogger->Write(LV_STATUS, "String was sent.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "String was sent.");
 }
 
 /** this is sort of obsolete, since using it (and moving it's definition back to 
 the base RubyDCEConnector) whould turn the framework for ruby into a mess */
 void
 RubyIOManager::SetDeviceData( int PK_Device, int PK_DeviceData, string Value ) {
-	g_pPlutoLogger->Write(LV_STATUS, "Ruby code setting device data.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ruby code setting device data.");
 	pcmdimpl_->SetDeviceDataInDB( PK_Device, PK_DeviceData, Value );
 }
 
@@ -436,11 +436,11 @@ RubyIOManager::SetDeviceData( int PK_Device, int PK_DeviceData, string Value ) {
 bool 
 RubyIOManager::handleStartup() {
 	try {
-		g_pPlutoLogger->Write(LV_STATUS, "Loading generated code...");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading generated code...");
 		RubyEmbeder::getInstance()->loadCode(&cs_);
-		g_pPlutoLogger->Write(LV_STATUS, "Generated code loaded.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Generated code loaded.");
 	} catch(RubyException e) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed loading code: %s.", e.getMessage());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed loading code: %s.", e.getMessage());
 		return false;
 	}
 
@@ -449,7 +449,7 @@ RubyIOManager::handleStartup() {
 		rootnode_->Init(&cs_);
 		if( !rootnode_->handleStartup() )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "RubyIOManager::handleStartup Disabling because initialization failed");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "RubyIOManager::handleStartup Disabling because initialization failed");
 			DCE::CMD_Set_Enable_Status_DT CMD_Set_Enable_Status_DT(pcmdimpl_->m_dwPK_Device,DEVICETEMPLATE_General_Info_Plugin_CONST,BL_SameHouse,pcmdimpl_->m_dwPK_Device,false);
 			pcmdimpl_->SendCommand(CMD_Set_Enable_Status_DT);
 		}

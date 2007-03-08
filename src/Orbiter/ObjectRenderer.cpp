@@ -103,7 +103,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 		if (!iSizeGraphicFile)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
 			return;
 		}
 
@@ -130,7 +130,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 	{
 		if(!FileUtils::FileExists(sFileName))
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
 			return;
 		}
 
@@ -240,7 +240,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 	m_pObj_Owner->m_pOrbiter->Renderer()->RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
 	#ifdef DEBUG
 	else
-	g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
 	#endif
 
 	if(!bIsMNG && m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_SELECTED)
@@ -313,7 +313,7 @@ int k=2;
 		if ( m_pObj_Owner->m_bOnScreen && !m_pObj_Owner->m_pOrbiter->m_bAlreadyQueuedVideo )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Scheduling object @%p: %s", this, m_pObj_Owner->m_ObjectID.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Scheduling object @%p: %s", this, m_pObj_Owner->m_ObjectID.c_str());
 #endif
 
 			// If we've got no current graphic, such as during the first redraw since ObjectOnScreen
@@ -326,7 +326,7 @@ int k=2;
 		else
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Not Scheduling object @%p: %s because is not on screen.", this, m_pObj_Owner->m_ObjectID.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Not Scheduling object @%p: %s because is not on screen.", this, m_pObj_Owner->m_ObjectID.c_str());
 #endif
 		}
 
@@ -384,7 +384,7 @@ int k=2;
 	if ( m_pObj_Owner->m_bHidden || m_pObj_Owner->m_rPosition.Width==0 || m_pObj_Owner->m_rPosition.Height==0 )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", m_pObj_Owner->m_ObjectID.c_str(), (int) m_pObj_Owner->m_bHidden );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "object: %s  not visible: %d", m_pObj_Owner->m_ObjectID.c_str(), (int) m_pObj_Owner->m_bHidden );
 #endif
 
 		HideObject();
@@ -399,7 +399,7 @@ int k=2;
 		PlutoRectangle rectBackground = m_pObj_Owner->m_rBackgroundPosition;
 	PlutoRectangle rectTotal = m_pObj_Owner->m_rPosition;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"xzx Rendering %s with %d %p=%p size %d",m_pObj_Owner->m_ObjectID.c_str(),m_pObj_Owner->m_GraphicToDisplay,
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"xzx Rendering %s with %d %p=%p size %d",m_pObj_Owner->m_ObjectID.c_str(),m_pObj_Owner->m_GraphicToDisplay,
 					  m_pObj_Owner->m_pvectCurrentGraphic,&m_pObj_Owner->m_vectGraphic,(int) m_pObj_Owner->m_vectAltGraphics.size());
 #endif
 if( m_pObj_Owner->m_iBaseObjectID==2355 )
@@ -454,7 +454,7 @@ int k=2;
 		vector<PlutoGraphic*> *pvectGraphic = m_pObj_Owner->m_pOrbiter->m_mapUserIcons[m_pObj_Owner->m_pOrbiter->m_dwPK_Users];
 
 		// Put this here to debug why sometimes the user and room aren't selected when the screen first appears
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter::RenderObject obj %s bound to user %d, got ptr %p",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::RenderObject obj %s bound to user %d, got ptr %p",
 			m_pObj_Owner->m_ObjectID.c_str(),m_pObj_Owner->m_pOrbiter->m_dwPK_Users,pvectGraphic);
 
 		if( pvectGraphic )

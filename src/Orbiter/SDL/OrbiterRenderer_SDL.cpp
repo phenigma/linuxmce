@@ -86,11 +86,11 @@ bool g_bResettingVideoMode;
 void *SetVideoModeWatchDogThread(void *p)
 {
     OrbiterRenderer_SDL *pOrbiterRenderer_SDL = (OrbiterRenderer_SDL *) p;
-    g_pPlutoLogger->Write(LV_STATUS,"Inside WatchDogThread");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"Inside WatchDogThread");
     Sleep(2000);
     if( g_bResettingVideoMode )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "SDL_SetVideoMode hangs on init. Xorg is not initialized yet? Restarting...");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "SDL_SetVideoMode hangs on init. Xorg is not initialized yet? Restarting...");
 #ifndef WIN32
         kill(getpid(), SIGKILL);
 #endif
@@ -107,14 +107,14 @@ OrbiterRenderer_SDL::OrbiterRenderer_SDL(Orbiter *pOrbiter) : OrbiterRenderer(pO
 OrbiterRenderer_SDL::~OrbiterRenderer_SDL()
 {
 	// We need to do this before freeing the surface.  It's a repeat of what's in Orbiter's destructor
-	g_pPlutoLogger->Write(LV_STATUS, "about to free surface");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "about to free surface");
 
 	#ifndef USE_ONLY_SCREEN_SURFACE
 		SDL_FreeSurface(m_pScreenImage);
 	#endif
 
 	m_pScreenImage = NULL;
-	g_pPlutoLogger->Write(LV_STATUS, "~OrbiterRenderer_SDL finished");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "~OrbiterRenderer_SDL finished");
 }
 
 void OrbiterRenderer_SDL::Configure()
@@ -136,7 +136,7 @@ void OrbiterRenderer_SDL::Configure()
 
 	#ifndef WIN32 //linux
             string sCmd = "/usr/pluto/bin/Start_X.sh";//; /usr/pluto/bin/Start_WM.sh";
-            g_pPlutoLogger->Write(LV_CRITICAL, "X is not running! Starting X and the window manager: %s", sCmd.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "X is not running! Starting X and the window manager: %s", sCmd.c_str());
             system(sCmd.c_str());
 	#endif //linux
 	
@@ -153,7 +153,7 @@ void OrbiterRenderer_SDL::Configure()
 	SDL_WM_SetCaption("OrbiterRenderer_SDL", "OrbiterRenderer_SDL");
 
 	atexit(SDL_Quit);
-	g_pPlutoLogger->Write(LV_STATUS, "Initialized SDL");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Initialized SDL");
 
 #ifdef USE_ONLY_SCREEN_SURFACE
 	Uint32 uVideoModeFlags = SDL_SWSURFACE | SDL_RESIZABLE;
@@ -170,7 +170,7 @@ void OrbiterRenderer_SDL::Configure()
     Screen = SDL_SetVideoMode(OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight, 0, uVideoModeFlags);
     if (Screen == NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode (%d x %d): %s", OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight, SDL_GetError());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to set video mode (%d x %d): %s", OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight, SDL_GetError());
 		exit(1);
 	}
 	g_bResettingVideoMode=false;
@@ -178,7 +178,7 @@ void OrbiterRenderer_SDL::Configure()
 	SetupWindow();
 #endif
 
-	g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Set video mode to %d x %d Window.", OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight);
 
 #ifdef USE_ONLY_SCREEN_SURFACE
 	m_pScreenImage = Screen;
@@ -186,12 +186,12 @@ void OrbiterRenderer_SDL::Configure()
     m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight, 32, rmask, gmask, bmask, amask);
 	if (m_pScreenImage == NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
 	}
 #endif
 	OrbiterLogic()->m_bWeCanRepeat = true;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Created back screen surface!");
 
     // we will use the per-pixel transparency
 	//SetOrbiterWindowTransparency(0.5);
@@ -208,13 +208,13 @@ void OrbiterRenderer_SDL::SetOrbiterWindowTransparency(double TransparencyLevel)
 	bool bResult = SDL_GetWMInfo(&info);
 	if (bResult == false)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "OrbiterRenderer_SDL(): error in SDL_GetWMInfo()");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterRenderer_SDL(): error in SDL_GetWMInfo()");
 	}
 	Window parent = GetParentWnd( info.info.x11.display, info.info.x11.window );
 	Window grandparent = GetParentWnd( info.info.x11.display, parent );
 	Window ggrandparent = GetParentWnd( info.info.x11.display, grandparent );
 
-	g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_SDL(): setting transparency");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterRenderer_SDL(): setting transparency");
 	SetWindowTransparency(locker_NewDisplay.GetDisplay(), info.info.x11.window, TransparencyLevel);
 	SetWindowTransparency(locker_NewDisplay.GetDisplay(), parent, TransparencyLevel);
 	SetWindowTransparency(locker_NewDisplay.GetDisplay(), grandparent, TransparencyLevel);
@@ -225,7 +225,7 @@ void OrbiterRenderer_SDL::SetOrbiterWindowTransparency(double TransparencyLevel)
 void OrbiterRenderer_SDL::RenderScreen( bool bRenderGraphicsOnly )
 {
 	#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",
 			(OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
 	#endif
 	
@@ -423,7 +423,7 @@ void OrbiterRenderer_SDL::ReplaceColorInRectangle(int x, int y, int width, int h
     Uint32 PlutoPixelDest, PlutoPixelSrc, Pixel;
 
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "ReplaceColor: %u %u %u : %u %u %u",
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "ReplaceColor: %u %u %u : %u %u %u",
         ColorToReplace.R(), ColorToReplace.G(), ColorToReplace.B(),
         ReplacementColor.R(), ReplacementColor.G(), ReplacementColor.B());
 #endif
@@ -467,7 +467,7 @@ void OrbiterRenderer_SDL::EndPaint()
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::OnQuit()
 {
-    g_pPlutoLogger->Write(LV_WARNING,"Got an on quit.  Pushing an event into SDL");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING,"Got an on quit.  Pushing an event into SDL");
     SDL_Event *pEvent = new SDL_Event;
     pEvent->type = SDL_QUIT;
     SDL_PushEvent(pEvent);
@@ -522,7 +522,7 @@ void OrbiterRenderer_SDL::EventLoop()
 
 			if (Event.type == SDL_QUIT)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received sdl event SDL_QUIT");
 				break;
 			} 
 			else if(Event.type == SDL_MOUSEMOTION)
@@ -590,7 +590,7 @@ void OrbiterRenderer_SDL::CaptureRelativeMovements()
 
     if (0)
     {
-        g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::CaptureRelativeMovements()");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_SDL::CaptureRelativeMovements()");
         m_bRelativeMode = true;
 
 //#ifndef WIN32 // linux
@@ -606,7 +606,7 @@ void OrbiterRenderer_SDL::CaptureRelativeMovements()
         // both keyboard and mouse
         SDL_WM_GrabInput(SDL_GRAB_ON);
         SDL_ShowCursor(SDL_DISABLE);
-        g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::CaptureRelativeMovements() : done");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_SDL::CaptureRelativeMovements() : done");
     }
 }
 
@@ -616,7 +616,7 @@ void OrbiterRenderer_SDL::ReleaseRelativeMovements()
     // CaptureRelativeMovements() was deactivated above
     if (0)
     {
-        g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements()");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements()");
         m_bRelativeMode = false;
 
         // warning: incompatible with constrain-mouse in linux
@@ -632,7 +632,7 @@ void OrbiterRenderer_SDL::ReleaseRelativeMovements()
 //    // sample code
 //#endif
         SDL_ShowCursor(SDL_ENABLE);
-        g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements() : done");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements() : done");
     }
 }
 

@@ -55,10 +55,10 @@ int Socket::Connect() {
 	
 	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(socket_fd > 0) {
-		g_pPlutoLogger->Write(LV_STATUS, "socket created.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "socket created.");
 	} else {
 		socket_fd = 0;
-		g_pPlutoLogger->Write(LV_CRITICAL, "socket creation failed.");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "socket creation failed.");
 		return -1;
 	}
 	
@@ -72,10 +72,10 @@ int Socket::Connect() {
 	
 	
 	if((ret = connect(socket_fd, (struct sockaddr*)&address, sizeof(address)))) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "failed connecting to asterisk manager");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failed connecting to asterisk manager");
 		socket_fd = 0;
 	} else {
-		g_pPlutoLogger->Write(LV_STATUS, "connected to asterisk manager");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "connected to asterisk manager");
 		recvGreeting();
 	}
 	
@@ -101,16 +101,16 @@ int Socket::sendToken(const Token* ptoken) {
 	}
 	string str = ptoken->serialize();
 	if(!str.empty()) {
-		g_pPlutoLogger->Write(LV_STATUS, "sending command:\n%s", str.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "sending command:\n%s", str.c_str());
 		if(send(socket_fd, str.c_str(), str.length(), 0) > 0) {
-			g_pPlutoLogger->Write(LV_STATUS, "command sent successfully.");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "command sent successfully.");
 			return 0;
 		} else {
-			g_pPlutoLogger->Write(LV_CRITICAL, "failed sending command.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failed sending command.");
 			return -1;
 		}
 	} else {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Ignored sending empty token.");		
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Ignored sending empty token.");		
 	}
 	return -1;
 }
@@ -151,10 +151,10 @@ int Socket::recvGreeting() {
 	}
 
 	if(recvstr.empty()) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "failed receiving greeting");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failed receiving greeting");
 		return -1;
 	} else {
-		g_pPlutoLogger->Write(LV_STATUS, "received greeting:\n%s", recvstr.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "received greeting:\n%s", recvstr.c_str());
 	}
 
 	return 0;
@@ -193,7 +193,7 @@ int Socket::recvToken(Token* ptoken) {
 	string recvreply, recvline;
 	while(1) {
 		recvline = recvLine();
-		//g_pPlutoLogger->Write(LV_STATUS, "received line:\n%s", recvline.c_str());
+		//LoggerWrapper::GetInstance()->Write(LV_STATUS, "received line:\n%s", recvline.c_str());
 		if(recvline.empty() || recvline == "\x0D\x0A") {
 			break;
 		}
@@ -201,14 +201,14 @@ int Socket::recvToken(Token* ptoken) {
 	}
 
 	if(!recvreply.empty()) {
-		g_pPlutoLogger->Write(LV_STATUS, "received message:\n%s", recvreply.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "received message:\n%s", recvreply.c_str());
 		if(!ptoken->unserialize(recvreply)) {
 			return 0;
 		} else {
-			g_pPlutoLogger->Write(LV_CRITICAL, "failed unserializing message.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failed unserializing message.");
 		}
 	} else {
-		g_pPlutoLogger->Write(LV_STATUS, "failed receiving message:\n%s", recvreply.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "failed receiving message:\n%s", recvreply.c_str());
 	}
 	
 	return -1;	

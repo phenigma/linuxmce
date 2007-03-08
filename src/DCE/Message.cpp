@@ -170,7 +170,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 			baseMessageSpecPos ++;
 		}
 		else
-			g_pPlutoLogger->Write(LV_CRITICAL,"Create message Unknown argument: %s",cArguments[baseMessageSpecPos]);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Create message Unknown argument: %s",cArguments[baseMessageSpecPos]);
 	}
 
 	if( bResponseRequired )
@@ -254,7 +254,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 
 		if(!ParamNum)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Message constructor malformed with wrong param id '%s'", pParamID);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Message constructor malformed with wrong param id '%s'", pParamID);
 			Clear();
 			return;			
 		}
@@ -262,7 +262,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		size_t tSizeParmValue = 0;
 		if( i+1>=iNumArgs )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Message constructor malformed with missing argument from %d to %s type %d id %d",
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Message constructor malformed with missing argument from %d to %s type %d id %d",
 				m_dwPK_Device_From,sDeviceTo.c_str(),m_dwMessage_Type,m_dwID);
 			Clear();
 			return;
@@ -274,7 +274,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 			pParmValue = FileUtils::ReadFileIntoBuffer( pFileName, tSizeParmValue );
 			if( !pParmValue )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Message Parm cannot read file: %s",pFileName);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Message Parm cannot read file: %s",pFileName);
 				continue;
 			}
 		}
@@ -293,7 +293,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 
 		if( !pParmValue )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Bad value for parameter ID: %d",ParamNum);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Bad value for parameter ID: %d",ParamNum);
             if(bDeleteArray)
                 PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
 			return;
@@ -702,7 +702,7 @@ void Message::FromData( unsigned long dwSize, char *pcData )
     unsigned long dwStart = Read_unsigned_long(); // the first long should be 1234 by convention
     if( dwStart != 1234 )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Badly formed message" );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Badly formed message" );
     }
 
     // reading the member data
@@ -723,7 +723,7 @@ void Message::FromData( unsigned long dwSize, char *pcData )
     
     if( dwStart != 1234 ) {
 	// dump debug info
-	g_pPlutoLogger->Write( LV_CRITICAL, "**** dwStart: %d", dwStart );
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "**** dwStart: %d", dwStart );
 	Dump( LV_CRITICAL );
     }
 
@@ -765,9 +765,9 @@ void Message::FromData( unsigned long dwSize, char *pcData )
     unsigned long dwEnd = Read_unsigned_long();
     if( dwEnd!=6789 )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Badly formed message" );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Badly formed message" );
 	// dump debug info
-	g_pPlutoLogger->Write( LV_CRITICAL, "**** dwEnd: %d", dwEnd );
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "**** dwEnd: %d", dwEnd );
 	Dump( LV_CRITICAL );
     }
 
@@ -776,18 +776,18 @@ void Message::FromData( unsigned long dwSize, char *pcData )
 
 void Message::Dump( int iLogLevel /*=LV_DEBUG*/)
 {
-	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPK_Device_From: %d", m_dwPK_Device_From );
-	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPK_Device_To: %d", m_dwPK_Device_To );
-	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPK_Device_Group_ID_To: %d", m_dwPK_Device_Group_ID_To );
-	g_pPlutoLogger->Write( iLogLevel, "**** m_dwID: %d", m_dwID );
-	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPriority: %d", m_dwPriority );
-	g_pPlutoLogger->Write( iLogLevel, "**** m_dwMessage_Type: %d", m_dwMessage_Type );
-	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPK_Device_Category_To: %d", m_dwPK_Device_Category_To );
-	g_pPlutoLogger->Write( iLogLevel, "**** m_dwPK_Device_Template: %d", m_dwPK_Device_Template );
-	g_pPlutoLogger->Write( iLogLevel, "**** m_bIncludeChildren: %d", m_bIncludeChildren );
-	g_pPlutoLogger->Write( iLogLevel, "**** m_eBroadcastLevel: %d", m_eBroadcastLevel );
-	g_pPlutoLogger->Write( iLogLevel, "**** m_bRelativeToSender: %d", m_bRelativeToSender );
-	g_pPlutoLogger->Write( iLogLevel, "**** m_eExpectedResponse: %d", m_eExpectedResponse );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_dwPK_Device_From: %d", m_dwPK_Device_From );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_dwPK_Device_To: %d", m_dwPK_Device_To );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_dwPK_Device_Group_ID_To: %d", m_dwPK_Device_Group_ID_To );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_dwID: %d", m_dwID );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_dwPriority: %d", m_dwPriority );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_dwMessage_Type: %d", m_dwMessage_Type );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_dwPK_Device_Category_To: %d", m_dwPK_Device_Category_To );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_dwPK_Device_Template: %d", m_dwPK_Device_Template );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_bIncludeChildren: %d", m_bIncludeChildren );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_eBroadcastLevel: %d", m_eBroadcastLevel );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_bRelativeToSender: %d", m_bRelativeToSender );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_eExpectedResponse: %d", m_eExpectedResponse );
 }
 
 /*static*/ void Message::RegisterSerializer(DataFormat format, SerializeMessage pfSerializeMessage)

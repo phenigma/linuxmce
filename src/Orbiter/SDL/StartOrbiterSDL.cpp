@@ -61,7 +61,7 @@ bool Init_System()
     if (0)
     {
         string sCmd = "/usr/pluto/bin/Start_X.sh";//; /usr/pluto/bin/Start_WM.sh";
-        g_pPlutoLogger->Write(LV_CRITICAL, "X is not running! Starting X and the window manager: %s", sCmd.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "X is not running! Starting X and the window manager: %s", sCmd.c_str());
         system(sCmd.c_str());
     }
 
@@ -75,13 +75,11 @@ extern Command_Impl *g_pCommand_Impl;
 bool g_WatchDogFlag=false;
 void* WatchDogRoutine(void* param)
 {
-	if( g_pPlutoLogger )
-		g_pPlutoLogger->Write(LV_STATUS,"Started watchdog routine\n");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Started watchdog routine\n");
 	usleep(10000000);
 	if (g_WatchDogFlag)
 	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Terminating Orbiter: %d watchdog detected hard deadlock, seems soft reload failed\n",(int) getpid());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Terminating Orbiter: %d watchdog detected hard deadlock, seems soft reload failed\n",(int) getpid());
 		fflush(stdout);
 		kill(getpid(), SIGKILL);
 	}
@@ -99,8 +97,8 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
     if( g_pCommand_Impl )
     {
-        if( g_pPlutoLogger )
-            g_pPlutoLogger->Write(LV_CRITICAL,"StartOrbiterSDL Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+        
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"StartOrbiterSDL Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
         g_pCommand_Impl->OnReload();
     }
 }
@@ -114,8 +112,8 @@ void SocketCrashHandler(Socket *pSocket)
 	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
     if( g_pCommand_Impl )
     {
-        if( g_pPlutoLogger )
-            g_pPlutoLogger->Write(LV_CRITICAL,"StartOrbiterSDL Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+        
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"StartOrbiterSDL Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
         g_pCommand_Impl->OnReload();
     }
 }
@@ -149,7 +147,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
                 kbdState->bCapsLock = !kbdState->bCapsLock;
 
 #ifdef DEBUG
-            g_pPlutoLogger->Write(LV_STATUS, "key %s %d shif: %d ctrl: %d alt: %d caps: %d",
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "key %s %d shif: %d ctrl: %d alt: %d caps: %d",
                                   SDL_KEYDOWN == sdlEvent.type ? "down" : "up",
                                   (int) sdlEvent.key.keysym.sym,
                                   (int) kbdState->bShiftDown,
@@ -253,7 +251,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
                         case SDLK_QUOTEDBL:    orbiterEvent->data.button.m_iPK_Button = BUTTON_double_quote_CONST; break;
 			default:
                             orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
-                            g_pPlutoLogger->Write(LV_STATUS, "Unknown key: %d", (int) sdlEvent.key.keysym.sym);
+                            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unknown key: %d", (int) sdlEvent.key.keysym.sym);
                     };
                 } // else if( !bShiftDown && !bControlDown && !bAltDown && !bRepeat )
                 else if ( kbdState->bShiftDown && ! kbdState->bControlDown && ! kbdState->bAltDown )
@@ -290,12 +288,12 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
             break;
 
         case SDL_MOUSEBUTTONDOWN:
-            g_pPlutoLogger->Write(LV_WARNING, "SDL_MOUSEBUTTONDOWN(b=%d, x=%d, y=%d)", sdlEvent.button.button, sdlEvent.button.x, sdlEvent.button.y);
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "SDL_MOUSEBUTTONDOWN(b=%d, x=%d, y=%d)", sdlEvent.button.button, sdlEvent.button.x, sdlEvent.button.y);
 #ifdef WIN32
             RecordMouseAction(sdlEvent.button.x, sdlEvent.button.y);
 #endif
         case SDL_MOUSEBUTTONUP:
-            g_pPlutoLogger->Write(LV_WARNING, "SDL_MOUSEBUTTONUP(b=%d, x=%d, y=%d)", sdlEvent.button.button, sdlEvent.button.x, sdlEvent.button.y);
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "SDL_MOUSEBUTTONUP(b=%d, x=%d, y=%d)", sdlEvent.button.button, sdlEvent.button.x, sdlEvent.button.y);
 
 #ifdef AUDIDEMO
             orbiterEvent->type = (sdlEvent.type == SDL_MOUSEBUTTONDOWN) ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
@@ -321,7 +319,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
             break;
 
         case SDL_MOUSEMOTION: // not handled
-            //g_pPlutoLogger->Write(LV_WARNING, "SDL_MOUSEMOTION(b=%d, x=%d, y=%d)", sdlEvent.button.button, sdlEvent.button.x, sdlEvent.button.y);
+            //LoggerWrapper::GetInstance()->Write(LV_WARNING, "SDL_MOUSEMOTION(b=%d, x=%d, y=%d)", sdlEvent.button.button, sdlEvent.button.x, sdlEvent.button.y);
             orbiterEvent->type = Orbiter::Event::MOUSE_MOVE;
             orbiterEvent->data.region.m_iX = sdlEvent.button.x;
             orbiterEvent->data.region.m_iY = sdlEvent.button.y;
@@ -348,9 +346,9 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 	// Don't validate the device template, since the same binary is used for lots of devices
 	if (bLocalMode || (pCLinux->GetConfig() && pCLinux->Connect(0)))
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connect OK");
 		pCLinux->Initialize(gtSDLGraphic);
-		g_pPlutoLogger->Write(LV_STATUS, "Orbiter logic initialized!");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter logic initialized!");
 
 		if(!pCLinux->m_bQuit_get())
 		{
@@ -363,7 +361,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 					pCLinux->CMD_Regen_Screen();
 			}
 
-			g_pPlutoLogger->Write(LV_STATUS, "About to initialize after relatives...");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "About to initialize after relatives...");
         
 			OrbiterRenderer_Linux *pOrbiterRenderer_Linux = dynamic_cast<OrbiterRenderer_Linux *>(pCLinux->Renderer());
 			if(pOrbiterRenderer_Linux != NULL)
@@ -371,7 +369,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 				pOrbiterRenderer_Linux->InitializeAfterRelatives();
 			}
 
-			g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Creating the simulator");
 			Simulator::GetInstance()->m_pOrbiter = pCLinux;
 
 			if(Simulator::GetInstance()->m_bEnableGenerator)
@@ -412,14 +410,14 @@ bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data)
 
 bool SDL_Event_Loop_End(SDL_Event_Loop_Data &sdl_event_loop_data)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "SDL_Event_Loop_End()");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "SDL_Event_Loop_End()");
     if (sdl_event_loop_data.pOrbiter == NULL)
         return false;
     bool bReload = sdl_event_loop_data.pOrbiter->m_bReload;
-    g_pPlutoLogger->Write(LV_STATUS, "ready to delete instance, End of SDL loop with reload: %s", (bReload ? "Y" : "N"));
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "ready to delete instance, End of SDL loop with reload: %s", (bReload ? "Y" : "N"));
     delete sdl_event_loop_data.pOrbiter;
     sdl_event_loop_data.pOrbiter = NULL;
-    g_pPlutoLogger->Write(LV_STATUS, "finished deleting pcLinux");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "finished deleting pcLinux");
     return bReload;
 }
 
@@ -470,17 +468,17 @@ bool SDL_App_Object::Create()
     bool bStartedOK = ParseCommandLineParams(argc, argv, commandlineparams);
     if (! bStartedOK)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "error returned by : ParseCommandLineParams()");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "error returned by : ParseCommandLineParams()");
         SetExitCode(1);
         return false;
     }
 	m_pSDL_Event_Loop_Data->pOrbiter = CreateOrbiter(commandlineparams.PK_Device, commandlineparams.PK_DeviceTemplate, commandlineparams.sRouter_IP, commandlineparams.sLocalDirectory, commandlineparams.bLocalMode, commandlineparams.Width, commandlineparams.Height, commandlineparams.bFullScreen);
     if (m_pSDL_Event_Loop_Data->pOrbiter == NULL)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "error returned by : CreateOrbiter()");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "error returned by : CreateOrbiter()");
         return false;
     }
-    g_pPlutoLogger->Write(LV_STATUS, "Created : ptr=%p", m_pSDL_Event_Loop_Data->pOrbiter);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Created : ptr=%p", m_pSDL_Event_Loop_Data->pOrbiter);
     return true;
 };
 
@@ -494,7 +492,7 @@ bool SDL_App_Object::EventProcess()
     if (! SDL_Event_Process(*m_pSDL_Event_Loop_Data))
     {
         SetExitCode(m_pSDL_Event_Loop_Data->pOrbiter->m_bReload ? 2 : 0);
-        g_pPlutoLogger->Write(LV_STATUS, "SDL_App_Object::EventProcess() END, with return code : %d", GetExitCode());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "SDL_App_Object::EventProcess() END, with return code : %d", GetExitCode());
         return false;
     }
     return true;
@@ -504,13 +502,13 @@ void SDL_App_Object::Destroy()
 {
     if (m_pSDL_Event_Loop_Data == NULL)
         return;
-    g_pPlutoLogger->Write(LV_STATUS, "SDL_App_Object::Destroy()");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "SDL_App_Object::Destroy()");
     SDL_Event_Loop_End(*m_pSDL_Event_Loop_Data);
     delete m_pSDL_Event_Loop_Data;
     m_pSDL_Event_Loop_Data = NULL;
-    if (g_pPlutoLogger)
-        delete g_pPlutoLogger;
-    g_pPlutoLogger = NULL;
+    if (LoggerWrapper::GetInstance())
+        
+    
     return;
 };
 
@@ -521,7 +519,7 @@ int SDL_App_Object::GetExitCode() const
 
 void SDL_App_Object::SetExitCode(int nExitCode)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "ExitCode: %d -> %d", m_nExitCode, nExitCode);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "ExitCode: %d -> %d", m_nExitCode, nExitCode);
     m_nExitCode = nExitCode;
 };
 

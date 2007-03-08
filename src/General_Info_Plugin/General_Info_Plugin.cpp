@@ -116,17 +116,17 @@ bool General_Info_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		m_bQuit_set(true);
 		return false;
 	}
 
 	if( !DatabaseUtils::AlreadyHasRooms(m_pDatabase_pluto_main,m_pRouter->iPK_Installation_get()) || !DatabaseUtils::AlreadyHasUsers(m_pDatabase_pluto_main,m_pRouter->iPK_Installation_get()) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::GetConfig System has no rooms or users yet.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::GetConfig System has no rooms or users yet.");
 		m_bNewInstall=true;
 	}
 
@@ -155,7 +155,7 @@ bool General_Info_Plugin::Register()
 	m_pEvent_Plugin=( Event_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Event_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin || !m_pEvent_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to general info plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to general info plugin");
 		return false;
 	}
 
@@ -365,7 +365,7 @@ void General_Info_Plugin::CMD_Get_Device_Data(int iPK_Device,int iPK_DeviceData,
 void General_Info_Plugin::CMD_Request_File(string sFilename,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c71-e->
 {
-	g_pPlutoLogger->Write(LV_FILEREQUEST, "General_Info_Plugin::CMD_Request_File: file %s", sFilename.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_FILEREQUEST, "General_Info_Plugin::CMD_Request_File: file %s", sFilename.c_str());
 
 	size_t Length = 0;
 	char *c = FileUtils::ReadFileIntoBuffer(sFilename, Length);
@@ -373,14 +373,14 @@ void General_Info_Plugin::CMD_Request_File(string sFilename,char **pData,int *iD
 		c = FileUtils::ReadFileIntoBuffer(m_pRouter->sBasePath_get() + sFilename, Length);
 
 	if( c && Length )
-		g_pPlutoLogger->Write(LV_FILEREQUEST, "sending file: %s size: %d", sFilename.c_str(),(int) Length);
+		LoggerWrapper::GetInstance()->Write(LV_FILEREQUEST, "sending file: %s size: %d", sFilename.c_str(),(int) Length);
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL, "requested missing file: %s", sFilename.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "requested missing file: %s", sFilename.c_str());
 
 	*iData_Size = (int) Length;
 	*pData = c;
 
-	g_pPlutoLogger->Write(LV_FILEREQUEST, "General_Info_Plugin::CMD_Request_File: ended for file %s", sFilename.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_FILEREQUEST, "General_Info_Plugin::CMD_Request_File: ended for file %s", sFilename.c_str());
 }
 
 //<-dceag-c239-b->
@@ -405,7 +405,7 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 	cout << "Parm #91 - Checksum=" << sChecksum << endl;
 	cout << "Parm #92 - Checksum_Only=" << bChecksum_Only << endl; 
 
-	g_pPlutoLogger->Write(LV_FILEREQUEST, "request missing  file: %s", sFilename.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_FILEREQUEST, "request missing  file: %s", sFilename.c_str());
 	size_t Length = 0;
 	char *c = FileUtils::ReadFileIntoBuffer(sFilename, Length);
 	if( c==NULL && m_pRouter )
@@ -413,7 +413,7 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 
 	if(c==NULL) //file not found
 	{
-		g_pPlutoLogger->Write(LV_FILEREQUEST, "The requested file '%s' was not found", sFilename.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_FILEREQUEST, "The requested file '%s' was not found", sFilename.c_str());
 		return;
 	}
 
@@ -432,7 +432,7 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_FILEREQUEST, "General_Info_Plugin::CMD_Request_File_And_Checksum: file %s", sFilename.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_FILEREQUEST, "General_Info_Plugin::CMD_Request_File_And_Checksum: file %s", sFilename.c_str());
 }
 //<-dceag-c246-b->
 
@@ -481,7 +481,7 @@ void General_Info_Plugin::CMD_Restart_DCERouter(string sForce,string &sCMD_Resul
 //<-dceag-c272-e->
 {
 // temp debugging since this wasn't going through
-g_pPlutoLogger->Write(LV_STATUS, "Forwarding reload to router");
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "Forwarding reload to router");
 	Message *pMessageOut = new Message(pMessage->m_dwPK_Device_From,DEVICEID_DCEROUTER,
 		PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,
 		(sForce == "Y" || sForce == "y") ? SYSCOMMAND_RELOAD_FORCED : SYSCOMMAND_RELOAD, 0);
@@ -543,14 +543,14 @@ void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string sM
 				}
 			}
 			if ( 0 == iDeviceID ){
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot halt device %s - device not found in database", sMac_address.c_str() );
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot halt device %s - device not found in database", sMac_address.c_str() );
 				return;
 			}
 			else iPK_Device = iDeviceID;
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot halt device %s - error executing SQL", sMac_address.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot halt device %s - error executing SQL", sMac_address.c_str());
 			return;
 		}
 	}
@@ -562,7 +562,7 @@ void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string sM
 
 	if( !pDevice )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot halt unknown device %d",iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot halt unknown device %d",iPK_Device);
 		return;
 	}
 
@@ -585,7 +585,7 @@ void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string sM
 
 	if( !pDevice_AppServer )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot halt unknown device %d without an app server",iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot halt unknown device %d without an app server",iPK_Device);
 		return;
 	}
 
@@ -607,13 +607,13 @@ void General_Info_Plugin::SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot)
 {
 	if( pDevice->m_sMacAddress.length()<17 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot set boot on device %d with no Mac",pDevice->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot set boot on device %d with no Mac",pDevice->m_dwPK_Device);
 		return;
 	}
 
 	string sFile = "/tftpboot/pxelinux.cfg/01-" + StringUtils::ToLower(StringUtils::Replace(pDevice->m_sMacAddress,":","-"));
 
-	g_pPlutoLogger->Write(LV_STATUS,"Setting net boot for file %s to %d",sFile.c_str(),(int) bNetBoot);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting net boot for file %s to %d",sFile.c_str(),(int) bNetBoot);
 
 	if( bNetBoot )
 		StringUtils::Replace(sFile,sFile,"LOCALBOOT 0 #ERNEL ","KERNEL ");
@@ -641,7 +641,7 @@ void General_Info_Plugin::CMD_Get_Room_Description(int iPK_Device,string *sText,
 		if( !pDevice )
 		{
 			*sText = "Bad Device/Room";
-			g_pPlutoLogger->Write(LV_CRITICAL,"Bad Device/room");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Bad Device/room");
 			return;
 		}
 		iPK_Device = pDevice->m_dwPK_Device;
@@ -652,7 +652,7 @@ void General_Info_Plugin::CMD_Get_Room_Description(int iPK_Device,string *sText,
 	if( !pRoom )
 	{
 		*sText = "Bad Room";
-		g_pPlutoLogger->Write(LV_CRITICAL,"Bad room");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Bad room");
 		return;
 	}
 
@@ -675,7 +675,7 @@ void General_Info_Plugin::CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,Me
 bool General_Info_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
 {
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
-	g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks m_mapMediaDirectors_PendingConfig %d %d",m_dwPK_Device, (int) m_mapMediaDirectors_PendingConfig.size());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "General_Info_Plugin::PendingTasks m_mapMediaDirectors_PendingConfig %d %d",m_dwPK_Device, (int) m_mapMediaDirectors_PendingConfig.size());
 	bool bPendingTasks=false;
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
 	{
@@ -684,7 +684,7 @@ bool General_Info_Plugin::PendingTasks(vector< pair<string,string> > *vectPendin
 			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(it->first);
 			if( vectPendingTasks )
 				vectPendingTasks->push_back( make_pair<string,string> ("download","Still downloading packages m_mapMediaDirectors_PendingConfig on: " + (pRow_Device ? pRow_Device->Description_get() : StringUtils::itos(it->first))));
-			g_pPlutoLogger->Write( LV_STATUS, "General_Info_Plugin::PendingTasks m_mapMediaDirectors_PendingConfig md %d is busy",it->first);
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "General_Info_Plugin::PendingTasks m_mapMediaDirectors_PendingConfig md %d is busy",it->first);
 			bPendingTasks=true;
 		}
 	}
@@ -734,7 +734,7 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 
 	if( !pRow_Device || !pDevice_MD )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"QuickStartApps - invalid MD %s",Parms.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"QuickStartApps - invalid MD %s",Parms.c_str());
 		return pDataGrid;
 	}
 
@@ -853,7 +853,7 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 
 		if( sBinary.size()==0 )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"QuickStart device with no binary to run");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"QuickStart device with no binary to run");
 			continue;
 		}
 
@@ -1288,7 +1288,7 @@ class DataGridTable *General_Info_Plugin::AvailableSerialPorts(string GridID, st
 
 	int iRow=0, iCol=0;
 
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::AvailableSerialPorts - found %d ports",(int) vectAllPorts.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::AvailableSerialPorts - found %d ports",(int) vectAllPorts.size());
 	for(size_t s=0;s<vectAllPorts.size();++s)
 	{
 		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(vectAllPorts[s].first);
@@ -1444,19 +1444,19 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 
 	if( !pRow_Distro )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware No Distro %d",PK_Distro);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware No Distro %d",PK_Distro);
 		return pDataGrid;
 	}
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::AddSoftware Starting install list with distro %d Version %s",PK_Distro,sPlutoVersion.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::AddSoftware Starting install list with distro %d Version %s",PK_Distro,sPlutoVersion.c_str());
 #endif
 	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(atoi(Parms.c_str()));
 	if( pDevice )
 		pDevice = pDevice->GetTopMostDevice();
 	if(!pDevice)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware can't find device %s",Parms.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware can't find device %s",Parms.c_str());
 		return NULL;
 	}
 
@@ -1523,9 +1523,9 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 
 	string sql = "SELECT IR_PowerDelay,IR_ModeDelay,DigitDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='" + 
 		sTemplateId + "'";
-	g_pPlutoLogger->Write( LV_STATUS , "AV WizardAVWhatDelay sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
-	g_pPlutoLogger->Write( LV_STATUS , Parms.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV WizardAVWhatDelay sql" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , Parms.c_str() );
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -1541,8 +1541,8 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 		{
 			for(nRow=0;nRow<3;nRow++)
 			{
-				g_pPlutoLogger->Write( LV_STATUS , "Read AVWhatDelay grid" );
-				g_pPlutoLogger->Write( LV_STATUS , row[nRow] );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS , "Read AVWhatDelay grid" );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS , row[nRow] );
 
 				pCell = new DataGridCell(row[nRow], StringUtils::itos(nRow));
 				pDataGrid->SetData(1, nRow, pCell );
@@ -1555,10 +1555,10 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 			}
 		}
 		else
-			g_pPlutoLogger->Write( LV_STATUS , "Couldn't read the AVWhatDelay grid " );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS , "Couldn't read the AVWhatDelay grid " );
 	}
 	else
-		g_pPlutoLogger->Write( LV_STATUS , "Couldn't read the AVWhatDelay grid " );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS , "Couldn't read the AVWhatDelay grid " );
 
 	return pDataGrid;
 }
@@ -1588,8 +1588,8 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	sql = "SELECT PK_InfraredGroup FROM InfraredGroup WHERE FK_Manufacturer=";
 	sql += sManufacturerId + " " + "AND FK_DeviceCategory='" + sDeviceCategory + "'";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
 	if( (result.r = m_pRouter->mysql_query_result(sql))  )
 	{
@@ -1608,8 +1608,8 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	sql += string("AND FK_InfraredGroup IN (") +  sInfraredGrupIds + ") AND FK_Command IN (192, 193)" + " ";
 	sql += "AND FK_CommMethod=1 ORDER BY FK_InfraredGroup ASC, FK_Command ASC";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
 	if( (result.r = m_pRouter->mysql_query_result(sql))  )
 	{
@@ -1646,8 +1646,8 @@ class DataGridTable *General_Info_Plugin::AVInputNotListed(string GridID, string
 	if( !Parms.empty() )
 		sql += string( " AND PK_Command IN (" ) + Parms + ")";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVInputNotListed sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVInputNotListed sql" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -1684,8 +1684,8 @@ class DataGridTable *General_Info_Plugin::AVMediaType( string GridID, string Par
 
 	sql = "SELECT PK_MediaType,Description FROM MediaType WHERE DCEAware=0";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVMediaType sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVMediaType sql" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	int nRow = 0,nCol = 0,nMaxCol;
@@ -1728,8 +1728,8 @@ class DataGridTable *General_Info_Plugin::AVMediaConnector( string GridID, strin
 
 	sql = "SELECT PK_ConnectorType,Description FROM ConnectorType";
 	
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVMediaConnector sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVMediaConnector sql" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	int nRow = 0,nCol = 0,nMaxCol;
@@ -1774,8 +1774,8 @@ class DataGridTable *General_Info_Plugin::AVInputsAvaible( string GridID, string
 		  AND FK_CommandCategory=22 AND FK_Devicetemplate=";
 	sql += sTemplateId + " " + "ORDER BY OrderNo";
 	
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVInputsAvaible sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVInputsAvaible sql" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	int nRow = 0;
@@ -1814,8 +1814,8 @@ class DataGridTable *General_Info_Plugin::AVDSPMode( string GridID, string Parms
           LEFT JOIN DeviceTemplate_DSPMode ON PK_Command = FK_Command AND FK_DeviceTemplate='";
 	sql += Parms + "' " + "WHERE FK_CommandCategory=21 ORDER BY DSPMode_Desc ASC";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDSPMode sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVDSPMode sql" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	int nRow = 0,nCol = 0,nMaxCol;
@@ -1864,8 +1864,8 @@ class DataGridTable *General_Info_Plugin::AVDSPModeOrder( string GridID, string 
 		FROM Command JOIN DeviceTemplate_DSPMode ON PK_Command = FK_Command AND FK_DeviceTemplate='" );
 	sql +=	sTemplateId + "' " + "WHERE FK_CommandCategory=21 ORDER BY DSPMode_Desc ASC";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVDSPModeOrder sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVDSPModeOrder sql" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
 	if( (result.r = m_pRouter->mysql_query_result(sql))  )
 	{
@@ -1907,8 +1907,8 @@ class DataGridTable *General_Info_Plugin::AVIRCodesSets( string GridID, string P
 	sql = "SELECT PK_InfraredGroup,Description FROM InfraredGroup WHERE ";
 	sql += "FK_Manufacturer=" + sManufacturerId + " " + "AND FK_DeviceCategory=" + sDeviceCategory;
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVIRCodesSets sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVIRCodesSets sql" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
 	if( (result.r = m_pRouter->mysql_query_result(sql))  )
 	{
@@ -1951,8 +1951,8 @@ class DataGridTable *General_Info_Plugin::IRCommands( string GridID, string Parm
 		  WHERE PK_Command=FK_Command AND FK_InfraredGroup='";
 	sql += sIRGroupId + "'";
 
-	g_pPlutoLogger->Write( LV_STATUS , "AV Wizard AVIRCodesSets sql" );
-	g_pPlutoLogger->Write( LV_STATUS , sql.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVIRCodesSets sql" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
 	if( (result.r = m_pRouter->mysql_query_result(sql))  )
 	{
@@ -1980,12 +1980,12 @@ class DataGridTable *General_Info_Plugin::IRCommands( string GridID, string Parm
 void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMessage)
 //<-dceag-c395-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates");
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
 
 	if( PendingConfigs() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates Schedule a m_bRerunConfigWhenDone");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates Schedule a m_bRerunConfigWhenDone");
 		m_bRerunConfigWhenDone=true;
 		return;
 	}
@@ -1993,7 +1993,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 	ListDeviceData_Router *pListDeviceData_Router = 
 		m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_App_Server_CONST);
 
-	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::CMD_Check_for_updates launching now General plugin checking for updates %p",pListDeviceData_Router);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::CMD_Check_for_updates launching now General plugin checking for updates %p",pListDeviceData_Router);
 
 	if( !pListDeviceData_Router )
 		return;
@@ -2021,10 +2021,10 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 					sSuccessCommand,false,false,false,true);
 				string sResponse;
 				if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
-					g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig Failed to send spawn application to %d",pDevice->m_dwPK_Device);
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig Failed to send spawn application to %d",pDevice->m_dwPK_Device);
 				else
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig %d=true",pDevice->m_pDevice_ControlledVia->m_dwPK_Device);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig %d=true",pDevice->m_pDevice_ControlledVia->m_dwPK_Device);
 					m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device]=true;
 				}
 			}
@@ -2046,17 +2046,17 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 			sSuccessCommand,false,false,false,true);
 		string sResponse;
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
-			g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig Failed to send spawn application to %d",pDevice_AppServerOnCore->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig Failed to send spawn application to %d",pDevice_AppServerOnCore->m_dwPK_Device);
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates2 m_mapMediaDirectors_PendingConfig %d=true",pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates2 m_mapMediaDirectors_PendingConfig %d=true",pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device);
 			m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device]=true;
 		}
 	}
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig %d pending configs",(int) m_mapMediaDirectors_PendingConfig.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig %d pending configs",(int) m_mapMediaDirectors_PendingConfig.size());
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig md %d=%d",it->first,(int) it->second);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig md %d=%d",it->first,(int) it->second);
 #endif
 }
 
@@ -2070,13 +2070,13 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 void General_Info_Plugin::CMD_Check_for_updates_done(bool bFailed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c396-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig from %d",pMessage->m_dwPK_Device_From);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig from %d",pMessage->m_dwPK_Device_From);
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
 
 	if(bFailed)
 	{
 		//TODO : add more stuff here ?
-		g_pPlutoLogger->Write(LV_CRITICAL, "General_Info_Plugin::CMD_Check_for_updates_done Config_Device_Changes.sh failed!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "General_Info_Plugin::CMD_Check_for_updates_done Config_Device_Changes.sh failed!");
 	}
 
 	DeviceData_Router *pDevice_AppServer = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From);
@@ -2086,9 +2086,9 @@ void General_Info_Plugin::CMD_Check_for_updates_done(bool bFailed,string &sCMD_R
 	m_mapMediaDirectors_PendingConfig[pDevice_AppServer->m_pDevice_ControlledVia->m_dwPK_Device]=false;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig from %d, %d pending configs",pMessage->m_dwPK_Device_From,(int) m_mapMediaDirectors_PendingConfig.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig from %d, %d pending configs",pMessage->m_dwPK_Device_From,(int) m_mapMediaDirectors_PendingConfig.size());
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig md %d=%d",it->first,(int) it->second);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig md %d=%d",it->first,(int) it->second);
 #endif
 
 	if( PendingConfigs() )
@@ -2097,12 +2097,12 @@ void General_Info_Plugin::CMD_Check_for_updates_done(bool bFailed,string &sCMD_R
 	if( m_bRerunConfigWhenDone )
 	{
 		m_bRerunConfigWhenDone=false;
-		g_pPlutoLogger->Write(LV_STATUS,"New requests came in the meantime.  Rerun again. m_mapMediaDirectors_PendingConfig");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"New requests came in the meantime.  Rerun again. m_mapMediaDirectors_PendingConfig");
 		CMD_Check_for_updates();  // Do it again
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Done updating config. m_mapMediaDirectors_PendingConfig");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Done updating config. m_mapMediaDirectors_PendingConfig");
 		DoneCheckingForUpdates();
 	}
 }
@@ -2125,7 +2125,7 @@ list<pair<string, string> > General_Info_Plugin::GetUserBookmarks(string sPK_Use
     list<pair<string, string> > Bookmarks;
     // the following code reads the Mozilla bookmarks
 
-    g_pPlutoLogger->Write(LV_STATUS,"Reading bookmarks from %s", 
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"Reading bookmarks from %s", 
         ("/home/user_" + sPK_User + "/bookmarks.html").c_str());
 
     size_t Size;
@@ -2172,7 +2172,7 @@ list<pair<string, string> > General_Info_Plugin::GetUserBookmarks(string sPK_Use
             string LinkText(LastBrace+1);
 
             Buffer = EndBraceA+1;
-            g_pPlutoLogger->Write(LV_STATUS,"add bookmarks %s / %s",Link.c_str(), LinkText.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_STATUS,"add bookmarks %s / %s",Link.c_str(), LinkText.c_str());
             Bookmarks.push_back(pair<string, string>(Link, LinkText));
         }
 
@@ -2315,7 +2315,7 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 	string sError = pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
 	if( sError.size() )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::ReportingChildDevices Device %d failed to report its children: %s",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::ReportingChildDevices Device %d failed to report its children: %s",
 			pMessage->m_dwPK_Device_From,sError.c_str());
 		return false;
 	}
@@ -2323,7 +2323,7 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);
 	if( !pRow_Device )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::ReportingChildDevices Device %d is invalid",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::ReportingChildDevices Device %d is invalid",
 			pMessage->m_dwPK_Device_From);
 		return false;
 	}
@@ -2352,7 +2352,7 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 
 		if( mapCurrentChildren[pRow_Device->PK_Device_get()]==false )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ReportingChildDevices removing dead device %d %s",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::ReportingChildDevices removing dead device %d %s",
 				pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str());
 			CMD_Delete_Device(pRow_Device->PK_Device_get());
 		}
@@ -2391,7 +2391,7 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(PK_DeviceTemplate);
 	if( !PK_DeviceTemplate )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice Line %s malformed",sLine.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice Line %s malformed",sLine.c_str());
 		return NULL;
 	}
 
@@ -2422,7 +2422,7 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 		pRow_Device_Child = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
 		if( !pRow_Device_Child )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice failed to create child %d",iPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice failed to create child %d",iPK_Device);
 			return NULL;
 		}
 	}
@@ -2448,7 +2448,7 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	if( vectRow_Room.size() )
 		pRow_Device_Child->FK_Room_set( vectRow_Room[0]->PK_Room_get() );
 	else
-		g_pPlutoLogger->Write(LV_STATUS,"Device %d %s in unknown room %s",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device %d %s in unknown room %s",
 			pRow_Device_Child->PK_Device_get(),sDescription.c_str(),sRoomName.c_str());
 
 	pRow_Device_Child->FK_DeviceTemplate_set( PK_DeviceTemplate );
@@ -2506,11 +2506,11 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 
 	if( !iPK_DeviceTemplate )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Create_Device Device Template not specified");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Create_Device Device Template not specified");
 		return;
 	}
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device template %d mac %s room %d ip %d data %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device template %d mac %s room %d ip %d data %s",
 		iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str());
 #endif
 	OH_Orbiter *pOH_Orbiter = NULL;
@@ -2522,7 +2522,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sDescription,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData_String,iPK_Device_Related,iPK_Room > 0 ? iPK_Room : 0);
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",
 			*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str());
 #endif
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
@@ -2542,24 +2542,24 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 		m_pPostCreateOptions->PostCreateDevice(pRow_Device,pOH_Orbiter);
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Created device %d",*iPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created device %d",*iPK_Device);
 	CMD_Check_for_updates();
 
 	UpdateEntArea updateEntArea;
 	if( updateEntArea.Connect(m_pData->m_dwPK_Installation,m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d checking update ent area",*iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d checking update ent area",*iPK_Device);
 		updateEntArea.GetMediaAndRooms();
 		updateEntArea.SetEAInRooms();
 		updateEntArea.AddDefaultScenarios();
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d done checking update ent area",*iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d done checking update ent area",*iPK_Device);
 	}
 
 	if( pRow_Device )
 	{
 		if( iPK_Room==-1 )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device adding %d to m_listNewPnpDevicesWaitingForARoom size: %d",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device adding %d to m_listNewPnpDevicesWaitingForARoom size: %d",
 				*iPK_Device,(int) m_mapNewPnpDevicesWaitingForARoom.size());
 			m_mapNewPnpDevicesWaitingForARoom[*iPK_Device]=iPK_Orbiter;
 			ServiceRoomPromptRequests();
@@ -2573,7 +2573,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 				Row_Device *pRow_Device_ControlledVia = pRow_Device->FK_Device_ControlledVia_getrow();
 				if( pRow_Device_ControlledVia )
 					iPK_Room = pRow_Device_ControlledVia->FK_Room_get();
-				g_pPlutoLogger->Write(LV_WARNING,"Temp - CreateDevice, room was empty, now it's %d %p %d",
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Temp - CreateDevice, room was empty, now it's %d %p %d",
 					iPK_Room,pRow_Device_ControlledVia,pRow_Device->FK_Device_ControlledVia_get());
 				*/
 			}
@@ -2581,11 +2581,11 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 			if( pRow_Room )
 				SetRoomForDevice(pRow_Device,pRow_Room);
 		}
-		g_pPlutoLogger->Write(LV_STATUS,"Database reports row as ip %s mac %s",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Database reports row as ip %s mac %s",
 			pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str());
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find %d in database",*iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find %d in database",*iPK_Device);
 
 	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_Device_Created_CONST,
 		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(*iPK_Device).c_str());
@@ -2596,11 +2596,11 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 void General_Info_Plugin::ServiceRoomPromptRequests()
 {
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests m_dwPK_Device_Prompting_For_A_Room %d m_tTimePromptedForRoom %d m_mapNewPnpDevicesWaitingForARoom %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests m_dwPK_Device_Prompting_For_A_Room %d m_tTimePromptedForRoom %d m_mapNewPnpDevicesWaitingForARoom %d",
 		m_dwPK_Device_Prompting_For_A_Room,(int) m_tTimePromptedForRoom,(int) m_mapNewPnpDevicesWaitingForARoom.size());
 	if( m_dwPK_Device_Prompting_For_A_Room && time(NULL)-m_tTimePromptedForRoom<60 )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests keep waiting for %d",m_dwPK_Device_Prompting_For_A_Room);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests keep waiting for %d",m_dwPK_Device_Prompting_For_A_Room);
 		return;
 	}
 
@@ -2608,18 +2608,18 @@ void General_Info_Plugin::ServiceRoomPromptRequests()
 	if( m_dwPK_Device_Prompting_For_A_Room )
 	{
 		PK_Device_To_Prompt_For_Room = m_dwPK_Device_Prompting_For_A_Room;
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests user didn't specify room for %d.  Ask again.",m_dwPK_Device_Prompting_For_A_Room);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests user didn't specify room for %d.  Ask again.",m_dwPK_Device_Prompting_For_A_Room);
 	}
 	else
 	{
 		if( m_mapNewPnpDevicesWaitingForARoom.size() )
 		{
 			PK_Device_To_Prompt_For_Room = m_dwPK_Device_Prompting_For_A_Room = m_mapNewPnpDevicesWaitingForARoom.begin()->first;
-			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests service new request by device %d.  Ask again.",m_dwPK_Device_Prompting_For_A_Room);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests service new request by device %d.  Ask again.",m_dwPK_Device_Prompting_For_A_Room);
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests all done");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::ServiceRoomPromptRequests all done");
 			return;
 		}
 	}
@@ -2722,7 +2722,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 		if( vectRow_Room.size() )
 		{
 			pRow_Room = vectRow_Room[0];
-			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device found existing room %d",pRow_Room->PK_Room_get());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device found existing room %d",pRow_Room->PK_Room_get());
 		}
 		else
 		{
@@ -2730,7 +2730,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 			pRow_Room->Description_set(sName);
 			pRow_Room->FK_Installation_set(m_pRouter->iPK_Installation_get());
 			m_pDatabase_pluto_main->Room_get()->Commit();
-			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device added room %p %d %s",pRow_Room,pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device added room %p %d %s",pRow_Room,pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 		}
 	}
 
@@ -2749,7 +2749,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 	}
 	if( !pRow_Device || !pRow_Room )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot set device %d to room %d",iPK_Device,iPK_Room);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot set device %d to room %d",iPK_Device,iPK_Room);
 		return;
 	}
 	else
@@ -2769,7 +2769,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 
 	if( m_dwPK_Device_Prompting_For_A_Room==iPK_Device )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device -- Device %d == device",iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device -- Device %d == device",iPK_Device);
 		m_dwPK_Device_Prompting_For_A_Room=0;
 	}
 
@@ -2782,7 +2782,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 	}
 
 bool bStillRunningConfig = PendingConfigs();
-g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pending %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pending %d",
 (int) sBefore,(int) m_mapNewPnpDevicesWaitingForARoom.size(),(int) bStillRunningConfig);
 	// If there pnp devices waiting for the room, and we finished specifying the last one, and we're
 	// not still getting the software, let the user know his device is done
@@ -2800,7 +2800,7 @@ void General_Info_Plugin::DoneCheckingForUpdates()
 	PLUTO_SAFETY_LOCK(mm, m_GipMutex);
 
 	bool bStillRunningConfig = PendingConfigs();
-	g_pPlutoLogger->Write(LV_STATUS,"DoneCheckingForUpdates: %d pending %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"DoneCheckingForUpdates: %d pending %d",
 		(int) m_mapNewPnpDevicesWaitingForARoom.size(),(int) bStillRunningConfig);
 
 	// We must have started the check for updates because we added a new device.  However we finished
@@ -2824,7 +2824,7 @@ void General_Info_Plugin::CMD_Check_Mounts(string &sCMD_Result,Message *pMessage
 		m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_App_Server_CONST);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::CMD_Check_Mounts %p",pListDeviceData_Router);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::CMD_Check_Mounts %p",pListDeviceData_Router);
 #endif
 
 	if( !pListDeviceData_Router )
@@ -2862,7 +2862,7 @@ void General_Info_Plugin::CMD_Check_Mounts(string &sCMD_Result,Message *pMessage
 void General_Info_Plugin::SetRoomForDevice(Row_Device *pRow_Device,Row_Room *pRow_Room)
 {
 	pRow_Device->Reload();
-	g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to with ip %s mac %s to room %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting device %d to with ip %s mac %s to room %d",
 		pRow_Device->PK_Device_get(),pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str(),pRow_Room->PK_Room_get());
 	pRow_Device->FK_Room_set( pRow_Room->PK_Room_get() );
 	pRow_Device->Table_Device_get()->Commit();
@@ -2925,7 +2925,7 @@ void General_Info_Plugin::CMD_Set_Device_Relations(int iPK_Device,string sList_P
 void General_Info_Plugin::CMD_Force_Update_Packages(string &sCMD_Result,Message *pMessage)
 //<-dceag-c789-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Forcing package update");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Forcing package update");
 	char * args[] = { "/usr/pluto/bin/ForceUpdates.sh", NULL };
 	ProcessUtils::SpawnDaemon(args[0], args);
 }
@@ -2959,7 +2959,7 @@ void General_Info_Plugin::CMD_Set_Enable_Status(int iPK_Device,bool bEnable,stri
 	else
 	{
 		//no row, no valid device id; are you missing something ? 
-		g_pPlutoLogger->Write(LV_WARNING, "Failed to set enable status for device %d: the device doesn't exists",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to set enable status for device %d: the device doesn't exists",
 			iPK_Device);
 	}
 }
@@ -3123,19 +3123,19 @@ void General_Info_Plugin::CMD_Blacklist_Internal_Disk_Drive(int iPK_Device_Contr
 void General_Info_Plugin::PromptUserToReloadAfterNewDevices()
 {
 	bool bDevicesNeedingReload=false;
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices has %d devices",(int) m_listRow_Device_NewAdditions.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices has %d devices",(int) m_listRow_Device_NewAdditions.size());
 	for(list<Row_Device *>::iterator it=m_listRow_Device_NewAdditions.begin();it!=m_listRow_Device_NewAdditions.end();++it)
 	{
 		Row_Device *pRow_Device = *it;
 		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_Device->FK_DeviceTemplate_get(),DEVICEDATA_Immediate_Reload_Isnt_Necessar_CONST);
 		if( !pRow_DeviceTemplate_DeviceData || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())!=1 )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices devvice %d needs reload",pRow_Device->PK_Device_get());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices devvice %d needs reload",pRow_Device->PK_Device_get());
 			bDevicesNeedingReload=true;
 			break;
 		}
 		else
-			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices devvice %d doesn't need reload",pRow_Device->PK_Device_get());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices devvice %d doesn't need reload",pRow_Device->PK_Device_get());
 	}
 
 	if( bDevicesNeedingReload && !m_bNewInstall )  // Don't ask this on a new install since the user will need to reload again anyway
@@ -3214,7 +3214,7 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 
 	if(!pDevice || !pRow_Software)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Add_Software can't find device %d or software %d",iPK_Device,iPK_Software);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Add_Software can't find device %d or software %d",iPK_Device,iPK_Software);
 		return;
 	}
 
@@ -3244,10 +3244,10 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 		DCE::SCREEN_DialogGenericError SCREEN_DialogGenericError(m_dwPK_Device,pMessage->m_dwPK_Device_From,
 			"Cannot install software right now.  Please try again","0","10","1");
 		SendCommand(SCREEN_DialogGenericError);
-		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Add_Software -- no app server");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Add_Software -- no app server");
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Add_Software Starting Add software device %d software %d true %d cmd %s %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Add_Software Starting Add software device %d software %d true %d cmd %s %s",
 		pDevice->m_dwPK_Device,iPK_Software,(int) bTrueFalse,sCommand.c_str(),sArguments.c_str());
 }
 //<-dceag-c833-b->
@@ -3281,7 +3281,7 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 //<-dceag-c835-e->
 {
 
-	g_pPlutoLogger->Write(LV_STATUS,"Starting Get_Network_Devices_Shares");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Starting Get_Network_Devices_Shares");
 
 	map<int, pair<string, pair<string, string> > > mapIP;
 	multimap<int, pair<int, string> > mapInfo;
@@ -3364,7 +3364,7 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 		delete[] c;
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL, "sambaCredentials file missing");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "sambaCredentials file missing");
 
 	//got the info, let's serialize them
 
@@ -3440,7 +3440,7 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 	strout.seekg( 0, ios::beg );
 	strout.read( *pCustom_Response, *iCustom_Response_Size );
 	
-	g_pPlutoLogger->Write(LV_STATUS,"Finishing Get_Network_Devices_Shares");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Finishing Get_Network_Devices_Shares");
 }
 
 //<-dceag-c843-b->

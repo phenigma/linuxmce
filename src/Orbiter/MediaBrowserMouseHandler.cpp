@@ -60,7 +60,7 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 			m_pObj_More = pDesignObj_Orbiter;
 	}
 	if( !m_pObj_ListGrid || !m_pObj_PicGrid || !m_pObj_Sort || !m_pObj_More )
-		g_pPlutoLogger->Write(LV_CRITICAL,"MediaBrowserMouseHandler::MediaBrowserMouseHandler");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MediaBrowserMouseHandler::MediaBrowserMouseHandler");
 	else
 	{
 		m_pObj_ListGrid->m_iHighlightedRow=0;
@@ -84,7 +84,7 @@ MediaBrowserMouseHandler::~MediaBrowserMouseHandler()
 void MediaBrowserMouseHandler::Start()
 {
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Start()");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "MediaBrowserMouseHandler::Start()");
 #endif
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection);
 	m_LastRow=-1;
@@ -94,7 +94,7 @@ void MediaBrowserMouseHandler::Start()
 void MediaBrowserMouseHandler::Stop()
 {
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Stop()");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "MediaBrowserMouseHandler::Stop()");
 #endif
 	m_pDatagridMouseHandlerHelper->Stop();
 }
@@ -136,7 +136,7 @@ bool MediaBrowserMouseHandler::ButtonUp(int PK_Button)
 void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d)", X, Y, PK_Direction);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d)", X, Y, PK_Direction);
 #endif
 
 	if( m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID!=DESIGNOBJ_popFileList_CONST )
@@ -161,7 +161,7 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 	else
 	{
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) in sort filter or menu pad %p", X, Y, PK_Direction,m_pHorizMenuMouseHandler->m_pObj_ActiveMenuPad);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) in sort filter or menu pad %p", X, Y, PK_Direction,m_pHorizMenuMouseHandler->m_pObj_ActiveMenuPad);
 #endif
 		return;
 	}
@@ -171,7 +171,7 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 	if( pObj_ListGrid_Active->m_iHighlightedColumn!=-1 && pObj_ListGrid_Active->m_iHighlightedRow!=-1 && rect.Contains(X,Y) )
 	{
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) use hasn't left cell", X, Y, PK_Direction);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) use hasn't left cell", X, Y, PK_Direction);
 #endif
 		return; // Nothing to do.  User is still on same cell
 	}
@@ -184,7 +184,7 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 	int Row = int((Y-pObj_ListGrid_Active->m_rPosition.Y)/((float) pObj_ListGrid_Active->m_rPosition.Height / pObj_ListGrid_Active->m_MaxRow));
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) row %d active %p=%p", X, Y, PK_Direction,Row,pObj_ListGrid_Active,m_pObj_PicGrid);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) row %d active %p=%p", X, Y, PK_Direction,Row,pObj_ListGrid_Active,m_pObj_PicGrid);
 #endif
 	if( pObj_ListGrid_Active==m_pObj_PicGrid )
 	{
@@ -203,7 +203,7 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 	}
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) list grid row now %d", X, Y, PK_Direction,m_pObj_ListGrid->m_iHighlightedRow);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MediaBrowserMouseHandler::Move(%d, %d, %d) list grid row now %d", X, Y, PK_Direction,m_pObj_ListGrid->m_iHighlightedRow);
 #endif
 	if( m_pObj_ListGrid->m_iHighlightedRow!=m_LastRow )
 	{

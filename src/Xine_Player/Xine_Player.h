@@ -507,7 +507,7 @@ private:
 			{
 				if ((*i)->SendString(sString))
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"Sending time code %s to %s",sString.c_str(),(*i)->m_sHostName.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sending time code %s to %s",sString.c_str(),(*i)->m_sHostName.c_str());
 				}
 				else
 				{

@@ -117,7 +117,7 @@ MessageTranslationManager::ProcessMessage(Message* pmsg) {
 	};
 
 	if(threadid_ == 0) {
-		g_pPlutoLogger->Write(LV_CRITICAL,"MessageTranslationManager::Start was never called");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MessageTranslationManager::Start was never called");
 		return false;
 	}
 
@@ -126,7 +126,7 @@ MessageTranslationManager::ProcessMessage(Message* pmsg) {
 	msgqueue_.lock();
 	MessageReplicator msgrepl(*pmsg);
 	ret = ProcessReplicator(msgrepl, msgqueue_);
-	g_pPlutoLogger->Write(LV_WARNING, "#### Pre-Process Queue = %u", msgqueue_.size());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "#### Pre-Process Queue = %u", msgqueue_.size());
 	msgqueue_.unlock();
 	
 	return ret;
@@ -143,7 +143,7 @@ bool
 MessageTranslationManager::ProcessReplicator(MessageReplicator& msgrepl, MessageReplicatorList& replicators) {
 	MessageReplicatorList lrepls;
 	if(!ptranslator_->Translate(msgrepl, lrepls)) {
-		g_pPlutoLogger->Write(LV_STATUS,"ProcessReplicator : not translatable");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ProcessReplicator : not translatable");
 		// Eugen C. - forwarding all not translatable messages into the Translator queue
 		// to avoid mixing the messages into the dispatcher queue
 		replicators.push_back( msgrepl );
@@ -257,22 +257,22 @@ MessageTranslationManager::_QueueProc() {
 				// if we find another replaceable message, then we can ignore the current one
 				if( replmsg.isReplaceable() && msgqueue_.findReplaceable(replmsg) )
 				{
-					g_pPlutoLogger->Write(LV_WARNING,"---- _QueueProc Replaced - %d", replmsg.getMessage().m_dwID);
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"---- _QueueProc Replaced - %d", replmsg.getMessage().m_dwID);
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Pre - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPreDelay());
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"_QueueProc Pre - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPreDelay());
 					assert(pdispatcher_);
 					if(pdispatcher_) {
-						g_pPlutoLogger->Write(LV_STATUS,"_QueueProc ------- %d", replmsg.getMessage().m_dwID);
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"_QueueProc ------- %d", replmsg.getMessage().m_dwID);
 						pdispatcher_->DispatchMessage(replmsg);
 					}
-					g_pPlutoLogger->Write(LV_WARNING,"_QueueProc Post - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPostDelay());
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"_QueueProc Post - %d : %d", replmsg.getMessage().m_dwID, replmsg.getPostDelay());
 				}
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING,"---- _QueueProc Ignored - %d", replmsg.getMessage().m_dwID);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"---- _QueueProc Ignored - %d", replmsg.getMessage().m_dwID);
 			}
 		} else {
 			ProcessUtils::ResetMsTime();

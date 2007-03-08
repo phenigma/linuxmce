@@ -39,14 +39,14 @@ AlarmManager::AlarmManager() : m_Mutex("alarm")
 	pthread_cond_init(&m_Cond, NULL);
 	m_Mutex.Init(NULL,&m_Cond);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"AlarmManager::AlarmManager %p",this);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"AlarmManager::AlarmManager %p",this);
 #endif
 }
 
 AlarmManager::~AlarmManager()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"AlarmManager::~AlarmManager start %p",this);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"AlarmManager::~AlarmManager start %p",this);
 #endif
 	Stop();
 	
@@ -57,7 +57,7 @@ AlarmManager::~AlarmManager()
 	for(i=m_AlarmIDMap.begin();i!=m_AlarmIDMap.end();i++)
 		delete i->second;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"AlarmManager::~AlarmManager done %p",this);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"AlarmManager::~AlarmManager done %p",this);
 #endif
 }
 
@@ -76,7 +76,7 @@ bool AlarmManager::Start(int threads)
 	return true;
 err:
 	
-		g_pPlutoLogger->Write(LV_ALARM, "AlarmManager::Start - ran into error - stopping");
+		LoggerWrapper::GetInstance()->Write(LV_ALARM, "AlarmManager::Start - ran into error - stopping");
 	Stop();
 	return false;
 }
@@ -136,7 +136,7 @@ void AlarmManager::Run()
 				void* param = entry->param;
 				mm.Release();
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_ALARM, "Calling callback for alarm %p id %d param=%p entry->when: %d time: %d",this,id,param,entry->when,time(NULL));
+					LoggerWrapper::GetInstance()->Write(LV_ALARM, "Calling callback for alarm %p id %d param=%p entry->when: %d time: %d",this,id,param,entry->when,time(NULL));
 #endif
 				entry->callback->AlarmCallback(id, param);
 				mm.Relock();
@@ -151,7 +151,7 @@ void AlarmManager::Run()
 			else
 			{	// Oops, we were notified of a change in the alarms
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_ALARM, "Alarm manager notified of a change");
+				LoggerWrapper::GetInstance()->Write(LV_ALARM, "Alarm manager notified of a change");
 #endif
 				if(entry->deleted)
 				{
@@ -261,7 +261,7 @@ bool AlarmManager::CancelAlarm(int id)
 {
 #ifdef DEBUG
 	
-		g_pPlutoLogger->Write(LV_ALARM, "Cancel Alarm: %d",id);
+		LoggerWrapper::GetInstance()->Write(LV_ALARM, "Cancel Alarm: %d",id);
 #endif
 	AlarmEntry* entry;
 
@@ -295,7 +295,7 @@ bool AlarmManager::CancelAlarmByType(int type)
 {
 #ifdef DEBUG
 	
-		g_pPlutoLogger->Write(LV_ALARM, "Cancel Alarm by type: %d",type);
+		LoggerWrapper::GetInstance()->Write(LV_ALARM, "Cancel Alarm by type: %d",type);
 #endif
 	AlarmEntry* entry;
 
@@ -342,7 +342,7 @@ void AlarmManager::Clear()
 {
 #ifdef DEBUG
 	
-		g_pPlutoLogger->Write(LV_ALARM, "clear alarm");
+		LoggerWrapper::GetInstance()->Write(LV_ALARM, "clear alarm");
 #endif
 	AlarmEntry* entry;
 	

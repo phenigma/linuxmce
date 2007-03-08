@@ -75,7 +75,7 @@ public:
 					if( m_pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse!="OK" )
 					{
 						CannotReloadRouter();
-						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
 					}
 				}	
 			}

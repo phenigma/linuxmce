@@ -128,25 +128,25 @@ bool Proxy_Orbiter::PushRefreshEvent(bool bForce,bool bIgnoreMinimumInterval/*=f
     timespec tInterval = tCurrentImageGenerated - tLastImageGenerated;
 	long nMilisecondsPassed = tInterval.tv_sec * 1000 + tInterval.tv_nsec / 1000000;
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Time for last push event %d ms", nMilisecondsPassed);
-	g_pPlutoLogger->Write(LV_STATUS, "Current screen id %d", m_nCurrentScreenId);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Time for last push event %d ms", nMilisecondsPassed);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current screen id %d", m_nCurrentScreenId);
 
 	if(m_nCurrentScreenId == DESIGNOBJ_mnuDVDmenu_CONST)
 		bIgnoreMinimumInterval = false;
 
 	if(!bIgnoreMinimumInterval)
-		g_pPlutoLogger->Write(LV_STATUS, "Minimum interval NOT ignored!");		
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Minimum interval NOT ignored!");		
 	
 	if(!bIgnoreMinimumInterval && !bFirstTime && nMilisecondsPassed < MINIMUM_PUSH_INTERVAL && !bForce)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Ignoring push event request...");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ignoring push event request...");
 		return false;
 	}
 
 	tLastImageGenerated = tCurrentImageGenerated;	
     bFirstTime = false;
 
-	g_pPlutoLogger->Write(LV_WARNING, "Need to refresh phone's browser!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Need to refresh phone's browser!");
 
 	m_bPhoneRespondedToPush = false;
     vector<string> vectHeaders;
@@ -162,8 +162,8 @@ bool Proxy_Orbiter::PushRefreshEvent(bool bForce,bool bIgnoreMinimumInterval/*=f
     string Response = HttpPost("http://" + m_sRemotePhoneIP + "/CGI/Execute", vectHeaders, mapParams, 
             "user", "pluto");
 
-    g_pPlutoLogger->Write(LV_STATUS, "XML param req %s", sRequestUrl.c_str());
-    g_pPlutoLogger->Write(LV_WARNING, "Push phone action completed with response: %s", Response.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "XML param req %s", sRequestUrl.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Push phone action completed with response: %s", Response.c_str());
 
 	if(!bForce)
 	{
@@ -178,7 +178,7 @@ void *Proxy_Orbiter::PushRefreshEventWatchdog(void *)
 {
 	if(!m_bPhoneRespondedToPush)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Cisco phone failed to execute request! Forcing a push...");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Cisco phone failed to execute request! Forcing a push...");
 		//I sent a push event 1 second ago with priority 1; the phone ignored me
 		//It should queue my url request and execute it when to phone goes idle
 		//geeeeez, cisco, fix your phone! :(
@@ -190,25 +190,25 @@ void *Proxy_Orbiter::PushRefreshEventWatchdog(void *)
 //-----------------------------------------------------------------------------------------------------
 bool Proxy_Orbiter::IsProcessingRequest()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Is processing request? R: %s", m_bProcessingRequest ? "YES" : "NO");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Is processing request? R: %s", m_bProcessingRequest ? "YES" : "NO");
 	return m_bProcessingRequest;
 }
 //-----------------------------------------------------------------------------------------------------
 void Proxy_Orbiter::StartProcessingRequest()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Starting processing request...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Starting processing request...");
 	m_bProcessingRequest = true;
 }
 //-----------------------------------------------------------------------------------------------------
 void Proxy_Orbiter::EndProcessingRequest()
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Stopping processing request in few ms...");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopping processing request in few ms...");
 	CallMaintenanceInMiliseconds(REQUEST_INTERVAL_TIMEOUT, (OrbiterCallBack)&Proxy_Orbiter::StopProcessingRequest, this, pe_ALL );
 }
 //-----------------------------------------------------------------------------------------------------
 void Proxy_Orbiter::StopProcessingRequest(void *p)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Stopped processing request...");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopped processing request...");
 	m_bProcessingRequest = false;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ void Proxy_Orbiter::StopProcessingRequest(void *p)
     {
         if(nCount > 32)
         {
-            g_pPlutoLogger->Write(LV_CRITICAL, "More then 32 objects needed! Screen: %s", 
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "More then 32 objects needed! Screen: %s", 
                 m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
             break;
         }
@@ -238,7 +238,7 @@ void Proxy_Orbiter::StopProcessingRequest(void *p)
     {
         if(nCount > 32)
         {
-            g_pPlutoLogger->Write(LV_CRITICAL, "More then 32 objects needed! Screen: %s", 
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "More then 32 objects needed! Screen: %s", 
                 m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
             break;
         }
@@ -377,10 +377,10 @@ void Proxy_Orbiter::StopProcessingRequest(void *p)
 void Proxy_Orbiter::ImageGenerated()
 {
 	m_nCurrentScreenId = m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
-	g_pPlutoLogger->Write(LV_STATUS, "Current screen generated: %d", m_nCurrentScreenId);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current screen generated: %d", m_nCurrentScreenId);
 
 	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
-	g_pPlutoLogger->Write(LV_STATUS, "Image/xml generated. Wake up! Screen %s", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Image/xml generated. Wake up! Screen %s", 
 		m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
 	pthread_cond_broadcast(&m_ActionCond);
 
@@ -390,7 +390,7 @@ void Proxy_Orbiter::ImageGenerated()
 	{
 		if(!PendingCallbackScheduled((OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask))
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Scheduling push refresh event to execute in 1000 ms");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Scheduling push refresh event to execute in 1000 ms");
 			CallMaintenanceInMiliseconds(1000, (OrbiterCallBack)&Proxy_Orbiter::PushRefreshEventTask, NULL, pe_ALL);
 		}
 	}
@@ -404,21 +404,21 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
 		return false;
 	}
 
-    g_pPlutoLogger->Write(LV_WARNING, "Received: %s", sLine.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received: %s", sLine.c_str());
 	m_bPhoneRespondedToPush = true;
 
 	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
 	
 	if( sLine.substr(0,5)=="IMAGE" )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Current screen to analyze: %d", m_nCurrentScreenId);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current screen to analyze: %d", m_nCurrentScreenId);
 		if(
-				m_nCurrentScreenId == DESIGNOBJ_mnuFilelist_Movies_Video_Music_CONST || 
+				m_nCurrentScreenId == DESIGNOBJ_mnuFilelist_Video_Music_Small_CONST || 
 				m_nCurrentScreenId == DESIGNOBJ_mnuSecurityPanelSmallUI_CONST ||
 				m_nCurrentScreenId == DESIGNOBJ_mnuFileSaveSmallUI_CONST
 		)
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "One of those screens. Sleeping 500 ms...");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "One of those screens. Sleeping 500 ms...");
 			Sleep(500);
 		}
 		
@@ -428,12 +428,12 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
         char *pBuffer = FileUtils::ReadFileIntoBuffer(GetDevicePngFileName(),size);
         if( !pBuffer )
         {
-			g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sent: ERROR");
 			pSocket->SendString("ERROR"); // Shouldn't happen
 			return true;
 		}
 
-        g_pPlutoLogger->Write(LV_WARNING, "Sent: IMAGE %d\\n\\n<IMAGE>", size);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sent: IMAGE %d\\n\\n<IMAGE>", size);
         pSocket->SendString("IMAGE " + StringUtils::itos(int(size)));
         pSocket->SendData(int(size),pBuffer);
         delete[] pBuffer;
@@ -448,12 +448,12 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
         char *pBuffer = FileUtils::ReadFileIntoBuffer(GetDeviceXmlFileName(),size);
         if( !pBuffer )
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sent: ERROR");
             pSocket->SendString("ERROR"); // Shouldn't happen
             return true;
         }
 
-        g_pPlutoLogger->Write(LV_WARNING, "Sent: XML %d\\n<XML>", size);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sent: XML %d\\n<XML>", size);
         pSocket->SendString("XML " + StringUtils::itos(int(size)));
         pSocket->SendData(int(size), pBuffer);
         delete[] pBuffer;
@@ -474,7 +474,7 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
 			    ButtonDown(Key);
 			    ButtonUp(Key);
 
-                g_pPlutoLogger->Write(LV_WARNING, "Waiting the image/xml to be generated...");        
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "Waiting the image/xml to be generated...");        
                 timespec abstime;
                 abstime.tv_sec = (long) (time(NULL) + 2); //wait max 2 seconds
                 abstime.tv_nsec = 0;
@@ -486,17 +486,17 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
             		return false;
         		}
 
-                g_pPlutoLogger->Write(LV_WARNING, "Sent: OK");
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sent: OK");
 			    pSocket->SendString("OK");
             }
             else
             {
-                g_pPlutoLogger->Write(LV_WARNING, "F4 was sent. No need to kill proxy orbiter."); 
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "F4 was sent. No need to kill proxy orbiter."); 
             }
         }
 		else
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");        
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sent: ERROR");        
 			pSocket->SendString("ERROR"); // Shouldn't happen
         }
 		return true;
@@ -511,7 +511,7 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
 			Y = atoi(sLine.substr(pos_y+1).c_str());
 		RegionDown(X,Y);
 
-        g_pPlutoLogger->Write(LV_WARNING, "Waiting the image/xml to be generated...");        
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Waiting the image/xml to be generated...");        
         timespec abstime;
         abstime.tv_sec = (long) (time(NULL) + 2); //wait max 2 seconds
         abstime.tv_nsec = 0;
@@ -523,13 +523,13 @@ bool Proxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout 
 			return false;
 		}
 
-        g_pPlutoLogger->Write(LV_WARNING, "Sent: OK");        
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sent: OK");        
 		pSocket->SendString("OK");
 		return true;
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Not a valid communication tokey. Check the specs. Sending error...");        
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Not a valid communication tokey. Check the specs. Sending error...");        
 		pSocket->SendString("ERROR"); // Shouldn't happen
 	}
 	return false;
@@ -599,7 +599,7 @@ bool StartOrbiter(class BDCommandProcessor *pBDCommandProcessor, int DeviceID,
 		g_pCommand_Impl=pProxy_Orbiter;
 		g_pDeadlockHandler=DeadlockHandler;
 		g_pSocketCrashHandler=SocketCrashHandler;
-		g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connect OK");
 		pProxy_Orbiter->CreateChildren();
 		pthread_join(pProxy_Orbiter->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 		g_pDeadlockHandler=NULL;
@@ -607,7 +607,7 @@ bool StartOrbiter(class BDCommandProcessor *pBDCommandProcessor, int DeviceID,
 	} 
 	else 
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() Failed");
 	}
 
 	bool bReload = pProxy_Orbiter->m_bReload;

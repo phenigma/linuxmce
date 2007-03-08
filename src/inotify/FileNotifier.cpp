@@ -98,12 +98,12 @@ void FileNotifier::Watch(string sDirectory)
 				m_sRootFolder = sDirectory;
 			}
 
-			g_pPlutoLogger->Write(LV_STATUS, "Adding file to watch map: filename %s", sItem.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding file to watch map: filename %s", sItem.c_str());
 			m_mapWatchedFiles[wd] = *it; 
 		}
 		catch(...)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to add notifier for file %s", sItem.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to add notifier for file %s", sItem.c_str());
 		}
     }
 }
@@ -128,7 +128,7 @@ void *BackgroundWorkerThread(void *p)
 			continue;
 		}
 
-		g_pPlutoLogger->Write(LV_WARNING, "Background thread waking up...");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Background thread waking up...");
 
 		string sRootFolder = pFileNotifier->m_sRootFolder;
 		sRootFolder = FileUtils::ExcludeTrailingSlash(sRootFolder);
@@ -137,7 +137,7 @@ void *BackgroundWorkerThread(void *p)
 		listFiles.push_back(sRootFolder);
 		pFileNotifier->FireOnCreate(listFiles);
 
-		g_pPlutoLogger->Write(LV_WARNING, "Background thread going to sleep...");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Background thread going to sleep...");
 		Sleep(120 * 1000); //2 minutes
 	}
 
@@ -155,7 +155,7 @@ void *INotifyWorkerThread(void *p)
 		
         cpp_inotify_event event = pFileNotifier->m_inotify.get_event();
 
-		//g_pPlutoLogger->Write(LV_STATUS, "We got something: mask %d, name %s, wd %d, tostring %s",
+		//LoggerWrapper::GetInstance()->Write(LV_STATUS, "We got something: mask %d, name %s, wd %d, tostring %s",
 		//	event.mask, event.name.c_str(), event.wd, event.tostring().c_str());
 
 		bool bCreateEvent = event.mask & IN_CREATE || event.mask & IN_MOVED_TO;
@@ -167,7 +167,7 @@ void *INotifyWorkerThread(void *p)
 			{
 				string sRootFolder = pFileNotifier->m_sRootFolder;
 				pFileNotifier->ResetWatches(); 
-				g_pPlutoLogger->Write(LV_CRITICAL, "Voodoo with the root folder; someone reseted our watches. Reinitializing.");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Voodoo with the root folder; someone reseted our watches. Reinitializing.");
 				pFileNotifier->Watch(sRootFolder);
 			}
 		}
@@ -178,7 +178,7 @@ void *INotifyWorkerThread(void *p)
             string sFilename = pFileNotifier->m_mapWatchedFiles_Find(event.wd) + "/" + event.name;
             wfm.Release();
 
-			g_pPlutoLogger->Write(LV_STATUS, "inotify: New event for %s", sFilename.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "inotify: New event for %s", sFilename.c_str());
 
             bool bIsDir = (event.mask & IN_ISDIR) != 0;
 			list<string> listFiles;

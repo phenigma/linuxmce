@@ -71,10 +71,10 @@ bool Lighting_Plugin::GetConfig()
 	m_iCameraTimeout = atoi(DATA_Get_Timeout().c_str());
 	if( !m_iCameraTimeout )
 		m_iCameraTimeout = 30;
-	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
 		m_bQuit_set(true);
 		return false;
 	}
@@ -132,7 +132,7 @@ bool Lighting_Plugin::Register()
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to lighting plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to lighting plugin");
 		return false;
 	}
 
@@ -209,7 +209,7 @@ bool Lighting_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessag
 			SetLightState( pMessage->m_dwPK_Device_From, true, 100 );
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Received OnOff event with wrong parameter value %s",
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received OnOff event with wrong parameter value %s",
 				sLevel.c_str());
 		}
 	}
@@ -321,13 +321,13 @@ void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Rout
 
 void Lighting_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
-g_pPlutoLogger->Write(LV_WARNING,"Lighting entered room, exec %d",m_mapRoom_CommandGroup[iPK_RoomOrEntArea].first);
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"Lighting entered room, exec %d",m_mapRoom_CommandGroup[iPK_RoomOrEntArea].first);
 	ExecCommandGroup(m_mapRoom_CommandGroup[iPK_RoomOrEntArea].first);
 }
 
 void Lighting_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
-g_pPlutoLogger->Write(LV_WARNING,"Lighting left room, exec %d",m_mapRoom_CommandGroup[iPK_RoomOrEntArea_Left].second);
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"Lighting left room, exec %d",m_mapRoom_CommandGroup[iPK_RoomOrEntArea_Left].second);
 	ExecCommandGroup(m_mapRoom_CommandGroup[iPK_RoomOrEntArea_Left].second);
 }
 //<-dceag-createinst-b->!
@@ -344,7 +344,7 @@ void Lighting_Plugin::CMD_Set_Level(string sLevel,string &sCMD_Result,Message *p
 	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 	if( !pOH_Orbiter || !m_pListDeviceData_Router_Lights )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Device %d sent a set lighting_level but it's not an orbiter or we have no lights %p",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Device %d sent a set lighting_level but it's not an orbiter or we have no lights %p",
 			pMessage->m_dwPK_Device_From,m_pListDeviceData_Router_Lights);
 		return;
 	}
@@ -458,7 +458,7 @@ void Lighting_Plugin::AlarmCallback(int id, void* param)
 			string sState = it->second.second;
 			string::size_type pos = sState.find("/");
 			if( pos==string::npos )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Lighting_Plugin::AlarmCallback %s is badly formed",sState.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Lighting_Plugin::AlarmCallback %s is badly formed",sState.c_str());
 			else
 			{
 				int iLevel = atoi( sState.substr( pos + 1 ).c_str() );

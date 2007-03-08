@@ -72,7 +72,7 @@ void PlutoHalD::getPortIdentification(string portFromBus, string& portID)
 		portID = portFromBus.substr(startPos, usbPos - startPos);
 		portID += "+";
 		portID += portFromBus.substr(minus + 1, colon - minus - 1);
-		g_pPlutoLogger->Write(LV_DEBUG, "port ID = %s\n", portID.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "port ID = %s\n", portID.c_str());
 	}
 }
 
@@ -93,16 +93,16 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "usb_device.product_id", NULL);
 		int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "usb_device.vendor_id", NULL);
 
-		g_pPlutoLogger->Write(LV_DEBUG, "An usb device added with vendor_id 0x%04x and product_id 0x%04x", 
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "An usb device added with vendor_id 0x%04x and product_id 0x%04x", 
 										usb_device_vendor_id, 
 										usb_device_product_id);
-		g_pPlutoLogger->Write(LV_DEBUG, "+++++ New device added = %s", udi);
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++ New device added = %s", udi);
 		
 		char buffer[64];
 		snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 		
 		halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, udi, "", "");
-		g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 	}
 	else if( category != NULL )
 	{
@@ -117,7 +117,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
 			if(serial_port != NULL)
 			{
-				g_pPlutoLogger->Write(LV_DEBUG, "+++++ Serial device added = %s", udi);
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++ Serial device added = %s", udi);
 				
 				string portID;
 				getPortIdentification(string(serial_port), portID);
@@ -126,7 +126,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 				snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 			
 				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, info_udi, "37|" + portID, category);
-				g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			}
 		
 			g_free (serial_port);
@@ -139,7 +139,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		}
 		else if( 0 == strcmp(category, "bluetooth_hci") && strlen(category) == strlen("bluetooth_hci") )
 		{
-			g_pPlutoLogger->Write(LV_DEBUG, "+++++ Bluetooth device added = %s", udi);
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++ Bluetooth device added = %s", udi);
 			
 			gchar *parent = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "info.parent", NULL);
 			gchar *info_udi = libhal_device_get_property_string (ctx, parent, "info.udi", NULL);
@@ -150,7 +150,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 		
 			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, info_udi, "", category);
-			g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			
 			g_free (parent);
 			parent = NULL;
@@ -186,7 +186,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 					
 					if( usb_device_product_id && usb_device_vendor_id )
 					{
-						g_pPlutoLogger->Write(LV_DEBUG, "+++++++ USB Volume device added = %s", udi);
+						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ USB Volume device added = %s", udi);
 						
 						// command parameters
 						string deviceData;
@@ -215,7 +215,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 						
 						halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
 						
-						g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			
 						g_free(blockdevice);
 						blockdevice = NULL;
@@ -245,7 +245,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 				(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
 				(unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
 			
-			g_pPlutoLogger->Write(LV_DEBUG, "+++++++ General category = %s || UID = %s", category, udi);
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ General category = %s || UID = %s", category, udi);
 			
 			string categoryDeviceKey = category;
 			categoryDeviceKey += ".device";
@@ -262,7 +262,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			string deviceData;
 			if( categoryDevice != NULL )
 			{
-				g_pPlutoLogger->Write(LV_DEBUG, "+++++++ Device category = %s", categoryDevice);
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Device category = %s", categoryDevice);
 				
 				deviceData += StringUtils::itos( DEVICEDATA_Block_Device_CONST );
 				deviceData += "|";
@@ -283,7 +283,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			
 			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
 
-			g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			
 			g_free(categoryDevice);
 			categoryDevice = NULL;
@@ -305,11 +305,11 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			
 			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, "", "");
 
-			g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_DEBUG, "Not processing bus: %s category: %s",bus ? bus : "*none*", category ? category : "*none");
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Not processing bus: %s category: %s",bus ? bus : "*none*", category ? category : "*none");
 	}
 
 	g_free (bus);
@@ -334,7 +334,7 @@ void PlutoHalD::myDeviceNewCapability(LibHalContext * ctx, const char * udi, con
 		int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", NULL);
 		int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent, "usb_device.vendor_id", NULL);
 		
-		g_pPlutoLogger->Write(LV_DEBUG, "udi = %s parent = %s capability = %s serial port = %s\n", udi, parent, capability, serial_port);
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "udi = %s parent = %s capability = %s serial port = %s\n", udi, parent, capability, serial_port);
 		
 		map<unsigned int, int>::iterator it;
 		it = templatesMap.find( (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff) );
@@ -343,13 +343,13 @@ void PlutoHalD::myDeviceNewCapability(LibHalContext * ctx, const char * udi, con
 			string portID;
 			getPortIdentification(string(serial_port), portID);
 			
-			g_pPlutoLogger->Write(LV_DEBUG, "NewCapability udi = %s serial port = %s port id = \n", udi, serial_port, portID.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "NewCapability udi = %s serial port = %s port id = \n", udi, serial_port, portID.c_str());
 			string responseCreate;
 			
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x", (*it).first);
 			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, "");
-			g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 		}
 		
 		g_free (parent);
@@ -366,15 +366,15 @@ void PlutoHalD::myDeviceRemoved(LibHalContext * ctx, const char * udi)
 {
 	if( ctx != NULL && udi != NULL )
 	{
-		g_pPlutoLogger->Write(LV_DEBUG, "--------------- Removed = %s", udi);
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "--------------- Removed = %s", udi);
 		
 		halDevice->EVENT_Device_Removed("", "", 0, "", 0, "", 4, 0, udi, "", "");
-		g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event");
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event");
 	}
 	else
 	{
 		// error
-		g_pPlutoLogger->Write(LV_WARNING, "error on HAL passing null arguments to remove");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "error on HAL passing null arguments to remove");
 	}
 }
 
@@ -391,7 +391,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 	{
 		char *udi = devices[i];
 		
-		g_pPlutoLogger->Write(LV_DEBUG, "init udi = %s\n", udi);
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "init udi = %s\n", udi);
 		
 		bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
 		category = libhal_device_get_property_string (ctx, udi, "info.category", NULL);
@@ -404,10 +404,10 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 			
-			g_pPlutoLogger->Write(LV_DEBUG, "+++++++ New device added = %s", udi);
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ New device added = %s", udi);
 			
 			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "", "");
-			g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 		}
 		else if( category != NULL )
 		{
@@ -422,7 +422,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
 				if(serial_port != NULL)
 				{
-					g_pPlutoLogger->Write(LV_DEBUG, "+++++++ Serial device added = %s", udi);
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Serial device added = %s", udi);
 					
 					string portID;
 					getPortIdentification(string(serial_port), portID);
@@ -431,7 +431,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 					snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 				
 					halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, category);
-					g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 				}
 				
 				g_free (serial_port);
@@ -450,13 +450,13 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", NULL);
 				int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent, "usb_device.vendor_id", NULL);
 				
-				g_pPlutoLogger->Write(LV_DEBUG, "+++++++ Bluetooth device added = %s", udi);
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Bluetooth device added = %s", udi);
 				
 				char buffer[64];
 				snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 				
 				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "", category);
-				g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 				
 				g_free (parent);
 				parent = NULL;
@@ -492,7 +492,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 						
 						if( usb_device_product_id && usb_device_vendor_id )
 						{
-							g_pPlutoLogger->Write(LV_DEBUG, "+++++++ USB Volume device added = %s", udi);
+							LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ USB Volume device added = %s", udi);
 							
 							// command parameters
 							string deviceData;
@@ -521,7 +521,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 							
 							halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
 							
-							g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+							LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 				
 							g_free(blockdevice);
 							blockdevice = NULL;
@@ -551,7 +551,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 					(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
 					(unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
 				
-				g_pPlutoLogger->Write(LV_DEBUG, "+++++++ General category = %s || UID = %s", category, udi);
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ General category = %s || UID = %s", category, udi);
 				
 				string categoryDeviceKey = category;
 				categoryDeviceKey += ".device";
@@ -568,7 +568,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				string deviceData;
 				if( categoryDevice != NULL )
 				{
-					g_pPlutoLogger->Write(LV_DEBUG, "+++++++ Device category = %s", categoryDevice);
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Device category = %s", categoryDevice);
 					
 					deviceData += StringUtils::itos( DEVICEDATA_Block_Device_CONST );
 					deviceData += "|";
@@ -589,7 +589,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 			
 				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
 
-				g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 				
 				g_free(categoryDevice);
 				categoryDevice = NULL;
@@ -611,11 +611,11 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				
 				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, "", "");
 	
-				g_pPlutoLogger->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_DEBUG, "Not processing bus: %s category: %s",bus ? bus : "*none*", category ? category : "*none");
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Not processing bus: %s category: %s",bus ? bus : "*none*", category ? category : "*none");
 		}
 		
 		g_free(bus);
@@ -712,9 +712,9 @@ void PlutoHalD::getProductVendorId(	LibHalContext * ctx, const char * udi,
 
 void* PlutoHalD::startUp(void *device)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
 	Sleep(10000);
-	g_pPlutoLogger->Write(LV_DEBUG, "############ Start ");
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ Start ");
 	
 	if( device == NULL )
 	{
@@ -738,14 +738,14 @@ void* PlutoHalD::startUp(void *device)
 	DBusConnection * halConnection = dbus_bus_get(DBUS_BUS_SYSTEM, &halError);
 	if( halConnection == NULL )
 	{
-		g_pPlutoLogger->Write(LV_DEBUG, "DBusConnection is NULL!\n");
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "DBusConnection is NULL!\n");
 		return NULL;
 	}
 	
 	ctx = libhal_ctx_new();
 	if ( ctx == NULL )
 	{
-		g_pPlutoLogger->Write(LV_DEBUG, "CTX is NULL!\n");
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "CTX is NULL!\n");
 		return NULL;
 	}
 	
@@ -760,7 +760,7 @@ void* PlutoHalD::startUp(void *device)
 	
 	if( !libhal_ctx_init(ctx, &halError) )
 	{
-		g_pPlutoLogger->Write(LV_DEBUG, "CTX initialization failed!\n");
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "CTX initialization failed!\n");
 		dbus_error_free(&halError);
 		libhal_ctx_free(ctx);
 		return NULL;
@@ -788,7 +788,7 @@ void* PlutoHalD::startUp(void *device)
 	libhal_ctx_shutdown(ctx, &halError);
 	libhal_ctx_free(ctx);
 	
-	g_pPlutoLogger->Write(LV_DEBUG, "############ END ----------- ");
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ END ----------- ");
 	
 	threadShutdown = false;
 	return NULL;
@@ -798,7 +798,7 @@ gboolean PlutoHalD::timeoutHandler(DBusConnection *bus)
 {
 	if( loop != NULL && threadShutdown )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "############ QUIT ++++++++++++++");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "############ QUIT ++++++++++++++");
 		g_main_loop_quit(loop);
 	}
 	return TRUE;

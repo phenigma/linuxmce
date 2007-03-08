@@ -65,7 +65,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 
 	usb_init();
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents starting");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents starting");
 #endif
 
 	while(!m_pOrbiter->m_bQuit_get())  // an outer loop so this will retry a connect if the remote is removed and reconnected
@@ -83,18 +83,18 @@ void PlutoHIDInterface::ProcessHIDEvents()
 		for (bus = busses; bus; bus = bus->next) 
 		{
 	#ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents bus %s",bus->dirname);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents bus %s",bus->dirname);
 	#endif
 			struct usb_device *dev;
 
 			for (dev = bus->devices; dev; dev = dev->next) {
 
 	#ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents %04x:%04x\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents %04x:%04x\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
 	#endif
 				if ( (dev->descriptor.idVendor==0x0c16) && (dev->descriptor.idProduct==0x0006) )  // The gyration remote
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents device found!");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents device found!");
 
 					m_p_usb_dev_handle = usb_open(dev);
 
@@ -102,7 +102,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 					res = usb_claim_interface(m_p_usb_dev_handle, 1);
 					if (res<0)
 					{ 
-						g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDEvents claim interface: %i\n", res);
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDEvents claim interface: %i\n", res);
 						perror("error: ");
 						break;
 					}
@@ -118,7 +118,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 						if (res<=0)
 						{
 							if (cnt%100==20) 
-								g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents %d .", cnt++);
+								LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents %d .", cnt++);
 
 							if( m_MouseStartStop!=mssNone )
 							{
@@ -138,11 +138,11 @@ void PlutoHIDInterface::ProcessHIDEvents()
 						else
 						{
 							unsigned char *pPtr = (unsigned char *) inPacket;
-							g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents [READER] %04i.%03i: read bytes: %d %x.%x.%x.%x.%x.%x", 
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents [READER] %04i.%03i: read bytes: %d %x.%x.%x.%x.%x.%x", 
 								cnt/100, cnt%100, res, (int) pPtr[0],(int) pPtr[1],(int) pPtr[2],(int) pPtr[3],(int) pPtr[4],(int) pPtr[5]);
 
 							if( !m_pOrbiter->m_pOrbiterFileBrowser_Collection )
-								g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents skipping until Orbiter finishes startup");
+								LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents skipping until Orbiter finishes startup");
 							else if( res==6 && inPacket[0]==8 )  // It's for us
 							{
 								if( inPacket[1]==0x20 || inPacket[1]==0x26 )  // A bind request
@@ -153,7 +153,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 						}
 					}
 
-					g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents quit %d", (int) m_pOrbiter->m_bQuit_get());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents quit %d", (int) m_pOrbiter->m_bQuit_get());
 					usb_release_interface(m_p_usb_dev_handle, 1);
 					usb_close(m_p_usb_dev_handle);
 				}
@@ -162,13 +162,13 @@ void PlutoHIDInterface::ProcessHIDEvents()
 
 		if( !m_pOrbiter->m_bQuit_get() )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents didn't get remote.  Sleep 2 seconds and try again");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents didn't get remote.  Sleep 2 seconds and try again");
 			Sleep(2000);
 		}
 	}
 
 	m_bRunning=false;
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents Exiting");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents Exiting");
 }
 
 bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
@@ -176,18 +176,18 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 	unsigned char *pSerialNumber = (unsigned char *) inPacket; // Unsigned so it's not negative numbers
 	char sSerialNumber[30];
 	sprintf(sSerialNumber,"%x.%x.%x.%x",(int) pSerialNumber[2],(int) pSerialNumber[3],(int) pSerialNumber[4],(int) pSerialNumber[5]);
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest got a bind request for %s",sSerialNumber);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest got a bind request for %s",sSerialNumber);
 
 	pair<int,int> ipair = m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapRemoteControls_Find(sSerialNumber);
 	int PK_Device=ipair.first,RemoteID=ipair.second;
 	
 	if( RemoteID==0 )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest requesting remote ID...");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest requesting remote ID...");
 		DCE::CMD_Get_Remote_ID CMD_Get_Remote_ID(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,sSerialNumber,&PK_Device,&RemoteID);
 		if( !m_pOrbiter->SendCommand(CMD_Get_Remote_ID) || PK_Device==0 || RemoteID==0 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessBindRequest failed to get RemoteID answer from orbiter plugin");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessBindRequest failed to get RemoteID answer from orbiter plugin");
 			RemoteID=255; // A bogus number
 		}
 		m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapRemoteID_Device[ RemoteID ] = PK_Device;
@@ -196,7 +196,7 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 	else
 		PK_Device=m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapRemoteID_Device_Find(RemoteID);
 
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest we are remote %d device %d",RemoteID,PK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest we are remote %d device %d",RemoteID,PK_Device);
 	char write_packet[5];
 	write_packet[0]=8;
 	write_packet[1]=0x20;
@@ -205,15 +205,15 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 	if (ctrl<0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessBindRequest  usb_control_msg %d\n",(int) ctrl);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessBindRequest  usb_control_msg %d\n",(int) ctrl);
 		perror("error: ");
 		return false;
 	}
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest wrote message %d",ctrl);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest wrote message %d",ctrl);
 	m_pOrbiter->CMD_Display_Alert("Remote " + StringUtils::itos(PK_Device) + " connected","connectremote","3",interuptAlways);
 	m_pOrbiter->GotActivity(0);  // In case the tv is off or the screen saver
 	SetActiveRemote(RemoteID,inPacket[1]==0x26);
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest remote %d PK_Device %d follow: %d",RemoteID,PK_Device,(int) inPacket[1]==0x26);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest remote %d PK_Device %d follow: %d",RemoteID,PK_Device,(int) inPacket[1]==0x26);
 	return true;
 }
 
@@ -227,11 +227,11 @@ bool PlutoHIDInterface::Rebind()
 	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 	if (ctrl<0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::Rebind  usb_control_msg %d\n",(int) ctrl);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PlutoHIDInterface::Rebind  usb_control_msg %d\n",(int) ctrl);
 		perror("error: ");
 		return false;
 	}
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::Rebind wrote message %d",ctrl);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::Rebind wrote message %d",ctrl);
 }
 
 bool PlutoHIDInterface::DoStartMouse()
@@ -239,7 +239,7 @@ bool PlutoHIDInterface::DoStartMouse()
 	PLUTO_SAFETY_LOCK(hm,m_HIDMutex);
 	if( !m_bRunning )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"PlutoHIDInterface::StartMouse m_bRunning==false");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"PlutoHIDInterface::StartMouse m_bRunning==false");
 		return false;
 
 	}
@@ -251,12 +251,12 @@ bool PlutoHIDInterface::DoStartMouse()
 	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 	if (ctrl<0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::StartMouse  usb_control_msg %d id %d\n",(int) ctrl,(int) m_iRemoteID);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PlutoHIDInterface::StartMouse  usb_control_msg %d id %d\n",(int) ctrl,(int) m_iRemoteID);
 		perror("error: ");
 		return false;
 	}
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::StartMouse remote %d",m_iRemoteID);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::StartMouse remote %d",m_iRemoteID);
 #endif
 	return true;
 }
@@ -266,7 +266,7 @@ bool PlutoHIDInterface::DoStopMouse()
 	PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
 	if( !m_bRunning )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"PlutoHIDInterface::StopMouse m_bRunning==false");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"PlutoHIDInterface::StopMouse m_bRunning==false");
 		return false;
 
 	}
@@ -278,12 +278,12 @@ bool PlutoHIDInterface::DoStopMouse()
 	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 	if (ctrl<0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::StopMouse  usb_control_msg %d id %d\n",(int) ctrl,(int) m_iRemoteID);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PlutoHIDInterface::StopMouse  usb_control_msg %d id %d\n",(int) ctrl,(int) m_iRemoteID);
 		perror("error: ");
 		return false;
 	}
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::StopMouse remote %d",m_iRemoteID);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::StopMouse remote %d",m_iRemoteID);
 #endif
 	return true;
 }
@@ -293,7 +293,7 @@ bool PlutoHIDInterface::SetActiveRemote(int iRemoteID,bool bFollowMe)
 	int PK_Device = m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapRemoteID_Device_Find(iRemoteID);
 	if( !PK_Device )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::SetActiveRemote Remote ID %d is unknown",iRemoteID);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PlutoHIDInterface::SetActiveRemote Remote ID %d is unknown",iRemoteID);
 		return false;
 	}
 	m_pOrbiter->CMD_Display_Alert("Remote " + StringUtils::itos(PK_Device) + " active","actremote","3",interuptAlways);
@@ -302,17 +302,17 @@ bool PlutoHIDInterface::SetActiveRemote(int iRemoteID,bool bFollowMe)
 	DCE::CMD_Set_Active_Remote CMD_Set_Active_Remote(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,m_iPK_Device_Remote,
 			bFollowMe,m_pOrbiter->m_dwPK_Device);
 	m_pOrbiter->SendCommand(CMD_Set_Active_Remote);
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::SetActiveRemote new remote %d device %d",m_iRemoteID,m_iPK_Device_Remote );
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::SetActiveRemote new remote %d device %d",m_iRemoteID,m_iPK_Device_Remote );
 	return true;
 }
 
 void PlutoHIDInterface::LegacyBind()
 {
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::LegacyBind");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::LegacyBind");
 	PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
 	if( !m_bRunning )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"PlutoHIDInterface::LegacyBind m_bRunning==false");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"PlutoHIDInterface::LegacyBind m_bRunning==false");
 		return;
 
 	}
@@ -324,11 +324,11 @@ void PlutoHIDInterface::LegacyBind()
 	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 	if (ctrl<0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::LegacyBind  usb_control_msg %d\n",(int) ctrl);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PlutoHIDInterface::LegacyBind  usb_control_msg %d\n",(int) ctrl);
 		perror("error: ");
 		return;
 	}
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::LegacyBind done");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::LegacyBind done");
 	return;
 
 }
@@ -337,20 +337,20 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 {
 	unsigned char *p_Packet = (unsigned char *) inPacket;
 
-	g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton for %d %d %d %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton for %d %d %d %d",
 		(int) p_Packet[2],(int) p_Packet[3],(int) p_Packet[4],(int) p_Packet[5]);
 
 	int iRemoteID = p_Packet[2];
 	if( iRemoteID==0xff )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton Remote was bound while booting up and has ID ff.  Re-connecting...");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton Remote was bound while booting up and has ID ff.  Re-connecting...");
 		Rebind();
 	}
 	else if( iRemoteID!=m_iRemoteID )
 	{
 		if( SetActiveRemote(iRemoteID,false)==false )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDButton user needs to connect first");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDButton user needs to connect first");
 			Rebind();
 		}
 	}
@@ -369,7 +369,7 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 		if( p_Packet[3]==0 )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton button %d was released",m_iHoldingDownButton);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton button %d was released",m_iHoldingDownButton);
 #endif
 			m_iHoldingDownButton=0;  // we're not holding down any buttons anymore
 			return true;
@@ -378,7 +378,7 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 
 	if( p_Packet[3]==0 )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"PlutoHIDInterface::ProcessHIDButton got a button up with nothing down");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"PlutoHIDInterface::ProcessHIDButton got a button up with nothing down");
 		return true; // Shouldn't get here because m_iHoldingDownButton should be non-null if we're getting a button up
 	}
 

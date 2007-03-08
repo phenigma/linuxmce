@@ -102,7 +102,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	bool bFullScreen = Simulator::GetInstance()->m_bFullScreen;
 	if(!pOrbiterRenderer->Engine->GL.InitVideoMode(Width, Height, 32, bFullScreen, pOrbiterRenderer->m_pOrbiter->m_bUseComposite))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Thread -- GL.InitVideoMode FAILED Width: %d Height: %d Full Screen: %d Composite: %d",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Thread -- GL.InitVideoMode FAILED Width: %d Height: %d Full Screen: %d Composite: %d",
 			Width, Height, (int) bFullScreen, (int) pOrbiterRenderer->m_pOrbiter->m_bUseComposite);
 		pOrbiterRenderer->OrbiterLogic()->OnReload();
 		if( pOrbiterRenderer->m_pOrbiter->m_bUseComposite )
@@ -190,23 +190,23 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::PostInitializeActions()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions");
 	
 	if(!OrbiterLogic()->m_bQuit_get()&& !IsWindowCreated())
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions waiting the window to be created...");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions waiting the window to be created...");
 		
 		//wait here until the window will be created
 		PLUTO_SAFETY_LOCK_ERRORSONLY(cm, Mutex);// Keep this locked to protect the map
 		cm.CondWait();
-		g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions window created!");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions window created!");
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions window already created!");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions window already created!");
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions END");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterRenderer_OpenGL::PostInitializeActions END");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::GetWindowPosition(PlutoPoint& point)
@@ -313,12 +313,12 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		pObj_WithGraphic = (DesignObj_Orbiter *) pObj_WithGraphic->m_pParentObject;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"ReplaceColorInRectangle size: %d %d %d %d", x, y, width, height);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ReplaceColorInRectangle size: %d %d %d %d", x, y, width, height);
 #endif
 
 	if( pObj_WithGraphic==NULL )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"ReplaceColorInRectangle object %s has no graphics",pObj->m_ObjectID.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ReplaceColorInRectangle object %s has no graphics",pObj->m_ObjectID.c_str());
 		return;
 	}
 
@@ -436,12 +436,12 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	if(ObjectID == "")
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "RenderGraphic with no object id!");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "RenderGraphic with no object id!");
 	}
 	OpenGLGraphic* Graphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
 	if(Graphic == NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Graphic to render is NULL!");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Graphic to render is NULL!");
 		return;
 	}
 
@@ -486,7 +486,7 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	TextureManager::Instance()->PrepareConvert(Graphic);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "AddMeshFrameToDesktop (%d,%d,%d,%d)",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "AddMeshFrameToDesktop (%d,%d,%d,%d)",
 		point.X, point.Y, rectTotal.Width, rectTotal.Height);
 #endif
 
@@ -501,7 +501,7 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	//make datagrid's thumbs opaque
 	if(Frame->Name().find("datagrid-thumb") == 0)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "VIA Rendering a datagrid thumb : %d %d %d %d", 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "VIA Rendering a datagrid thumb : %d %d %d %d", 
 			point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
 		ViaOverlay::Instance().FillRectangleInAlphaMask(point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height, 0x00);
 	}
@@ -648,7 +648,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 
 			if (Event.type == SDL_QUIT)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received sdl event SDL_QUIT");
 				break;
 			} 
 			else if(Event.type == SDL_VIDEOEXPOSE && Event.type == SDL_VIDEORESIZE)
@@ -665,7 +665,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::OnQuit()
 {
-	g_pPlutoLogger->Write(LV_WARNING,"Got an on quit.  Pushing an event into SDL");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Got an on quit.  Pushing an event into SDL");
 	SDL_Event *pEvent = new SDL_Event;
 	pEvent->type = SDL_QUIT;
 	SDL_PushEvent(pEvent);
@@ -740,7 +740,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	//int OnSelectWithChange = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
 #endif
 
 	PlutoRectangle rectLastSelected(0, 0, 0, 0);
@@ -794,7 +794,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"OrbiterRenderer_OpenGL::RenderPopup ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_OpenGL::RenderPopup ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
 #endif
 
 	if(Popups)
@@ -843,7 +843,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	DesignObj_Orbiter *pObj = OrbiterLogic()->FindObject( sPK_DesignObj );
 	if(!pObj)
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Got update object image but cannot find: %s", sPK_DesignObj.c_str());
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Got update object image but cannot find: %s", sPK_DesignObj.c_str());
 		return;
 	}
 
@@ -976,7 +976,7 @@ void OrbiterRenderer_OpenGL::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint 
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "VIA ObjectRendered: %s", pObj->m_ObjectID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VIA ObjectRendered: %s", pObj->m_ObjectID.c_str());
 
 	if(pObj->m_vectGraphic.size() > 0 && NULL != pObj->m_vectGraphic[0])
 	{

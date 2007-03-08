@@ -58,13 +58,13 @@ CacheImageManager::~CacheImageManager()
 bool CacheImageManager::VerifyCache(string sTimeStamp)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "Server skins timestamp: %s. Cache skins timestamp: %s",
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Server skins timestamp: %s. Cache skins timestamp: %s",
 		sTimeStamp.c_str(), m_sTimeStamp.c_str());
 #endif
 
 	if(sTimeStamp != m_sTimeStamp)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "New skins are available. We'll purge the cache");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "New skins are available. We'll purge the cache");
 
 		if(!ClearCache())
 			return false;
@@ -81,7 +81,7 @@ void CacheImageManager::CacheImage(char *pData, int iSize, string sFileName,
 {
 	if(IsImageInCache(sFileName))
 	{
-		//g_pPlutoLogger->Write(LV_STATUS, "The image '%s' in already in cache.", sFileName.c_str());
+		//LoggerWrapper::GetInstance()->Write(LV_STATUS, "The image '%s' in already in cache.", sFileName.c_str());
 		return;
 	}
 
@@ -94,10 +94,10 @@ void CacheImageManager::CacheImage(char *pData, int iSize, string sFileName,
 	if(IsImageInCache(sFileName))
 	{
 		if(!FileUtils::WriteBufferIntoFile(GetCacheImageFileName(sFileName), pData, iSize))
-			g_pPlutoLogger->Write(LV_WARNING, "Unable to add image '%s' to cache", sFileName.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unable to add image '%s' to cache", sFileName.c_str());
 #ifdef DEBUG
 		else
-			g_pPlutoLogger->Write(LV_STATUS, "Added image '%s' to cache", sFileName.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Added image '%s' to cache", sFileName.c_str());
 #endif
 	}
 }
@@ -127,7 +127,7 @@ bool CacheImageManager::IsImageInCache(string sFileName, int iPriority/*=0*/)
 		AdjustCacheSize();
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "Image '%s' found in cache folder. Added to our list.", sFileName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Image '%s' found in cache folder. Added to our list.", sFileName.c_str());
 #endif
 		return IsImageInCache(sFileName);
 	}
@@ -146,12 +146,12 @@ bool CacheImageManager::ClearCache()
 		FileUtils::DelDir(m_sCacheFolder);
 
 	if(FileUtils::DirExists(m_sCacheFolder))
-		g_pPlutoLogger->Write(LV_CRITICAL, "Unable to purge %s cache folder!", m_sCacheFolder.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to purge %s cache folder!", m_sCacheFolder.c_str());
 
 	FileUtils::MakeDir(m_sCacheFolder);
 	if(!FileUtils::DirExists(m_sCacheFolder))
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Unable to create cache folder %s", m_sCacheFolder.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unable to create cache folder %s", m_sCacheFolder.c_str());
 		return false;
 	}
 

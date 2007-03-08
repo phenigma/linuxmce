@@ -26,7 +26,7 @@ using namespace UpdateMediaFileUtils;
 
 namespace DCE
 {
-	Logger *g_pPlutoLogger = NULL;
+	Logger *
 }
 
 using namespace DCE;

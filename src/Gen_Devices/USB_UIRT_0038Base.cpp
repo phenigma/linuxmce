@@ -32,7 +32,7 @@ DeviceData_Impl *USB_UIRT_0038_Data::CreateData(DeviceData_Impl *Parent,char *pD
 		case 1783:
 			return new USB_UIRT_0038_Data();
 	};
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
 	return NULL;
 }
 
@@ -42,11 +42,11 @@ Event_Impl *USB_UIRT_0038_Event::CreateEvent( unsigned long dwPK_DeviceTemplate,
 		case 1783:
 			return (Event_Impl *) new USB_UIRT_0038_Event(pOCClientSocket, dwDevice);
 	};
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
 	return NULL;
 }
 Command_Impl  *USB_UIRT_0038_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
 	return NULL;
 }

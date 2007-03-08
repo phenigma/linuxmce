@@ -41,11 +41,11 @@ namespace ASTERISK {
 
 ConferenceCommand::ConferenceCommand()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Conference command created.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Conference command created.");
 };
 
 ConferenceCommand::~ConferenceCommand() {
-	g_pPlutoLogger->Write(LV_STATUS, "Conference command destroyed.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Conference command destroyed.");
 };
 
 void 
@@ -94,7 +94,7 @@ ConferenceCommand::handleToken(Token* ptoken) {
 
 void 
 ConferenceCommand::handleTerminate() {
-	g_pPlutoLogger->Write(LV_STATUS, "Conference completed.");	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Conference completed.");	
     Release();
 }
 

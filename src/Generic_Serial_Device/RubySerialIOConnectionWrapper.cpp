@@ -33,7 +33,7 @@ RubySerialIOConnectionWrapper::Reconnect() {
 	pconn->Close();
 	bool bResult = pconn->Open();
 	if( !bResult )
-		g_pPlutoLogger->Write(LV_CRITICAL,"RubySerialIOConnectionWrapper::Reconnect Open() failed");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"RubySerialIOConnectionWrapper::Reconnect Open() failed");
 
 	return bResult;
 }

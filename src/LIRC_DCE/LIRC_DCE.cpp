@@ -74,7 +74,7 @@ bool LIRC_DCE::GetConfig()
 	system("killall -9 lircd");
 
 	// Always do this
-	g_pPlutoLogger->Write(LV_STATUS,"Running modprobe lirc_dev");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Running modprobe lirc_dev");
 	system("modprobe lirc_dev");
 
 	string sSystemDevice = DATA_Get_System_Device();
@@ -82,7 +82,7 @@ bool LIRC_DCE::GetConfig()
 	while( pos<sSystemDevice.size() && pos!=string::npos )
 	{
 		string sModProbe = StringUtils::Tokenize(sSystemDevice,",",pos);
-		g_pPlutoLogger->Write(LV_STATUS,"Running modprobe %s",sModProbe.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Running modprobe %s",sModProbe.c_str());
 		system(("modprobe " + sModProbe).c_str());
 	}
 
@@ -92,13 +92,13 @@ bool LIRC_DCE::GetConfig()
 	string sLIRCDriver = DATA_Get_Device();
 	string sSerialPort = DATA_Get_Serial_Port();
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Making hardware config");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Making hardware config");
 	if(sSerialPort == sCOM1) {
 		sSerialPort = "/dev/ttyS0";
-		g_pPlutoLogger->Write(LV_STATUS, "->Found Serial 1 in database");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "->Found Serial 1 in database");
 	} else if(sSerialPort == sCOM2) {
 		sSerialPort = "/dev/ttyS1";
-		g_pPlutoLogger->Write(LV_STATUS, "->Found Serial 2 in database");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "->Found Serial 2 in database");
 	} else {
 		struct stat buf;
 #ifndef WIN32		
@@ -116,19 +116,19 @@ bool LIRC_DCE::GetConfig()
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "No SerialPort selected and no default entry found. Exiting.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No SerialPort selected and no default entry found. Exiting.");
 			exit(0);
 		}
 #endif
-		g_pPlutoLogger->Write(LV_STATUS, "No SerialPort selected, selecting default %s", sSerialPort.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "No SerialPort selected, selecting default %s", sSerialPort.c_str());
 	}
 	
 	if(sLIRCDriver == "") {
-		g_pPlutoLogger->Write(LV_STATUS, "No Driver selected, using 'default' as default");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "No Driver selected, using 'default' as default");
 		sLIRCDriver = "default";
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "->Using Driver %s in database",sLIRCDriver.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "->Using Driver %s in database",sLIRCDriver.c_str());
 
 	remove("/etc/lircd.conf");
 	fp = fopen("/etc/lircd.conf", "wt");
@@ -179,7 +179,7 @@ bool LIRC_DCE::GetConfig()
 					m_mapNameToDevice[ sConfiguration.substr(pos_name,pos_space-pos_name) ] = pDevice->m_dwPK_Device;
 					char cRemoteLayout = sType.size() ? sType[0] : 'W';
 					m_mapRemoteLayout[pDevice->m_dwPK_Device]= cRemoteLayout;
-					g_pPlutoLogger->Write(LV_STATUS,"Added remote %s device %d layout %c",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),pDevice->m_dwPK_Device,cRemoteLayout);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Added remote %s device %d layout %c",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),pDevice->m_dwPK_Device,cRemoteLayout);
 					iNumRemotes++;
 					break;
 				}
@@ -190,17 +190,17 @@ bool LIRC_DCE::GetConfig()
 
 	if( iNumRemotes==0 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"There are no remote controls -- LIRC will be dormant");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"There are no remote controls -- LIRC will be dormant");
 		return true;
 	}
 
 	system((string("lircd") + " -H " + sLIRCDriver + " -d " + sSerialPort + " /etc/lircd.conf").c_str());
 //TODO: Check if it started
 
-	g_pPlutoLogger->Write(LV_WARNING, "Creating Leeching Thread for %d remotes",iNumRemotes);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Creating Leeching Thread for %d remotes",iNumRemotes);
 	if (pthread_create(&m_LeechingThread, NULL, StartLeeching, (void *) this))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Leeching Thread");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create Leeching Thread");
 		m_bQuit_set(true);
 		exit(1);
 	}
@@ -269,7 +269,7 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 	char *code;
 	struct timeval last_time = {0, 0}, this_time, time_diff;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Leeching");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Leeching");
 	while(true)
 	{
 		fd_set fdset;
@@ -295,7 +295,7 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 
 		if (lirc_nextcode(&code) != 0)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Lost connection with lircd");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Lost connection with lircd");
 			return 1;
 		}
 		
@@ -314,7 +314,7 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 
 		int PK_Device = m_mapNameToDevice[sName];
 
-		g_pPlutoLogger->Write(LV_STATUS, "Key Pressed. %s (%s), repeat %d, time diff %lds%ldus name %s device %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Key Pressed. %s (%s), repeat %d, time diff %lds%ldus name %s device %d",
 				sToken.c_str(), sCode.c_str(), iRepeat, time_diff.tv_sec, time_diff.tv_usec,sName.c_str(),PK_Device);
 		
 		// ignore repeats and keys received in less than 100ms since the previous (processed) key
@@ -329,7 +329,7 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 	lirc_deinit();
 #endif
 
-	g_pPlutoLogger->Write(0, "Over and out"); 
+	LoggerWrapper::GetInstance()->Write(0, "Over and out"); 
 	return 0;
 }
 
@@ -345,7 +345,7 @@ void LIRC_DCE::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMess
 //<-dceag-c687-e->
 {
 	m_cCurrentScreen=(char) iValue;
-	g_pPlutoLogger->Write(LV_STATUS,"Screen type now %c",m_cCurrentScreen);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Screen type now %c",m_cCurrentScreen);
 }
 
 //<-dceag-c191-b->

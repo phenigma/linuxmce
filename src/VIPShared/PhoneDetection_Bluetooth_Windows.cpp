@@ -39,12 +39,12 @@ bool PhoneDetection_Bluetooth_Windows::ScanningLoop()
 	m_bWaitingForInquiry=true;
 	if( !StartInquiry() )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to start inquiry");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to start inquiry");
 		Sleep(1000); // Sleep a second before we try again
 		m_bWaitingForInquiry=false;
 		return true;  // This loop will get called again
 	}
-	g_pPlutoLogger->Write(LV_STATUS,"Inquiry started");	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Inquiry started");	
 	PLUTO_SAFETY_LOCK(im,m_InquiryMutex);
 
 	timespec abstime;
@@ -53,7 +53,7 @@ bool PhoneDetection_Bluetooth_Windows::ScanningLoop()
 	if(ETIMEDOUT == im.TimedCondWait(abstime))
 	{
 		StopInquiry();
-		g_pPlutoLogger->Write(LV_STATUS,"Inquiry stopped - timed out %d seconds", INQUIRY_TIMEDOUT);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Inquiry stopped - timed out %d seconds", INQUIRY_TIMEDOUT);
 	}
 
 	return true;
@@ -75,7 +75,7 @@ void PhoneDetection_Bluetooth_Windows::OnDeviceResponded(BD_ADDR bda,
 		iMacAddress += (power * Digit);
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Device %s responded.", bd_name);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device %s responded.", bd_name);
 
 	PhoneDevice *pDNew = new PhoneDevice(name,iMacAddress,255);
 	AddDeviceToDetectionList(pDNew);
@@ -84,7 +84,7 @@ void PhoneDetection_Bluetooth_Windows::OnDeviceResponded(BD_ADDR bda,
 
 void PhoneDetection_Bluetooth_Windows::OnInquiryComplete(BOOL /*success*/, short	/*num_responses*/)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Inquiry complete");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Inquiry complete");
 	pthread_cond_broadcast(&m_InquiryCond);
 }
 

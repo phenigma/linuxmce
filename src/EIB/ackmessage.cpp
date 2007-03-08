@@ -51,7 +51,7 @@ AckMessage::Recv(BusConnector *pbusconn) {
 	}
 	
 	if(acknowledge != 0xE5) {
-		//g_pPlutoLogger->Write(LV_WARNING, "Acknowledge not received (0xE5), received instead: %x", acknowledge);
+		//LoggerWrapper::GetInstance()->Write(LV_WARNING, "Acknowledge not received (0xE5), received instead: %x", acknowledge);
 		UndoRecvBuffer(pbusconn, &acknowledge, 1);
 		return RECV_UNKNOWN;
 	}

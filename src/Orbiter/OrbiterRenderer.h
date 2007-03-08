@@ -46,13 +46,13 @@ public:
 	BackgroundImage(string sPic,DesignObj_DataGrid *pObj_Grid,int RequestID,pair<int,int> DataGridTable_Cache,DataGridCell *pCell,pair<int,int> ColRow) 
 	{ 
 		m_pObj_Grid=pObj_Grid; m_pCell=pCell; m_ColRow=ColRow; m_sPic=sPic; 
-		g_pPlutoLogger->Write(LV_STATUS,"BackgroundImage::BackgroundImage %p",this);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"BackgroundImage::BackgroundImage %p",this);
 		m_iRequestID=RequestID;
 		m_DataGridTable_Cache=DataGridTable_Cache;
 	}
 	~BackgroundImage()
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"BackgroundImage::~BackgroundImage %p",this);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"BackgroundImage::~BackgroundImage %p",this);
 	}
 };
 

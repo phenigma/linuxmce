@@ -104,7 +104,7 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	ConstrainMouse(PlutoRectangle(0,0,0,0));
 	m_pLastPosition.X=m_pLastPosition.Y=-1;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p goto menu %d",m_pMouseHandler,(int) bGotoMainMenu);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p goto menu %d",m_pMouseHandler,(int) bGotoMainMenu);
 #endif
 	delete m_pMouseHandler;
 	m_pMouseHandler=NULL;
@@ -134,7 +134,7 @@ void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sD
 {
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s- -%s-",
+	LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s- -%s-",
 					  sOptions.c_str(),(int) bExclusive,sDirection.c_str(),sDesignObj.c_str());
 #endif
 	if( sOptions.size()==0 )
@@ -149,7 +149,7 @@ void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sD
 
 	if( !pObj && sOptions[0] !='K' )  // Only the keyboard handler does not require an object
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"MouseBehavior::Set_Mouse_Behavior options %s, obj %s invalid",sOptions.c_str(),sDesignObj.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MouseBehavior::Set_Mouse_Behavior options %s, obj %s invalid",sOptions.c_str(),sDesignObj.c_str());
 		return;
 	}
 	
@@ -197,7 +197,7 @@ void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sD
 void MouseBehavior::Move(int X,int Y)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::Move %d,%d",X,Y);
+	LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::Move %d,%d",X,Y);
 #endif
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	if( m_pMouseHandler )
@@ -251,7 +251,7 @@ void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string
 		SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseHandler;
 		int Stop = pSpeedMouseHandler->ParseTime(sTotal);
 		int Current = pSpeedMouseHandler->ParseTime(sTime);
-		g_pPlutoLogger->Write(LV_STATUS," MouseBehavior::SetMediaInfo %s %s %d %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS," MouseBehavior::SetMediaInfo %s %s %d %d",
 			sTotal.c_str(),sTime.c_str(),Stop,Current);
 		if( Stop==pSpeedMouseHandler->m_CurrentMedia_Stop && Current==pSpeedMouseHandler->m_CurrentMedia_Pos )
 			return;
@@ -266,7 +266,7 @@ m_pOrbiter->Renderer()->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
 bool MouseBehavior::ButtonDown(int PK_Button)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown %d resetting m_iTime_Last_Mouse_Up",(int) PK_Button);
+	LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown %d resetting m_iTime_Last_Mouse_Up",(int) PK_Button);
 #endif
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	m_iPK_Button_Mouse_Last=PK_Button;
@@ -280,7 +280,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && (PK_Screen_OnScreen!=SCREEN_Main_CONST || (m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() == m_pOrbiter->m_pDesignObj_Orbiter_ScreenSaveMenu) ) )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
+		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
 #endif
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Set_Main_Menu("N");
@@ -295,7 +295,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		PlutoPoint p;
 		GetMousePosition(&p);
 		PlutoRectangle rp = PlutoRectangle(p.X,p.Y,1,1);
-		g_pPlutoLogger->Write(LV_STATUS,"Constraining mouse to %d,%d",p.X,p.Y);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Constraining mouse to %d,%d",p.X,p.Y);
 		ConstrainMouse(rp);
 		m_rMouseConstrained = r;  // Don't really update this.  We're going to use this as the 'last known valid' contrain so we can restore normal behavior
 		m_bMouseKilled = true;
@@ -304,7 +304,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		&& PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Speed && PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Track )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
+		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
 #endif
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		if( m_pOrbiter->m_iPK_Screen_OSD_Speed && m_pOrbiter->m_iPK_Screen_OSD_Track )
@@ -321,7 +321,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		&& PK_Screen_OnScreen!=SCREEN_mnuVolume_CONST && PK_Screen_OnScreen!=SCREEN_mnuLights_CONST )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
+		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
 #endif
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuAmbiance_CONST);
@@ -333,7 +333,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && (PK_Screen_OnScreen==SCREEN_mnuAmbiance_CONST || PK_Screen_OnScreen==SCREEN_mnuVolume_CONST || PK_Screen_OnScreen==SCREEN_mnuLights_CONST)) )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown removing menu");
+		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown removing menu");
 #endif
 		Clear(true);
 		return true;
@@ -341,12 +341,12 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST || (m_iPK_Button_Mouse_Last==BUTTON_escape_CONST && PK_Screen_OnScreen==SCREEN_Main_CONST && m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() != m_pOrbiter->m_pDesignObj_Orbiter_ScreenSaveMenu) )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown right click %d %d==%d | %d",m_pOrbiter->m_iPK_MediaType,PK_Screen_OnScreen,m_pOrbiter->m_iPK_Screen_Remote,m_pOrbiter->m_iPK_Screen_RemoteOSD);
+		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown right click %d %d==%d | %d",m_pOrbiter->m_iPK_MediaType,PK_Screen_OnScreen,m_pOrbiter->m_iPK_Screen_Remote,m_pOrbiter->m_iPK_Screen_RemoteOSD);
 #endif
 		if( PK_Screen_OnScreen && PK_Screen_OnScreen==m_pOrbiter->m_PK_Screen_ActiveApp_OSD )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown right click ignoring so on screen app can get it");
+			LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown right click ignoring so on screen app can get it");
 #endif
 			return false;
 		}
@@ -396,7 +396,7 @@ bool MouseBehavior::ButtonUp(int PK_Button)
     m_iPK_Button_Mouse_Last=PK_Button;
     m_iTime_Last_Mouse_Up=ProcessUtils::GetMsTime();
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::ButtonUp %d %p m_iTime_Last_Mouse_Up=%d",(int) PK_Button,m_pMouseHandler,(int) m_iTime_Last_Mouse_Up);
+    LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonUp %d %p m_iTime_Last_Mouse_Up=%d",(int) PK_Button,m_pMouseHandler,(int) m_iTime_Last_Mouse_Up);
 #endif
 
 	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST && m_bMouseKilled )
@@ -417,7 +417,7 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 		if( pObj==m_pObj_Previously_Highlighted )
 			return;  // Nothing to do
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "mmm MouseBehavior::HighlightObject : UNHIGHLIGHT %s %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "mmm MouseBehavior::HighlightObject : UNHIGHLIGHT %s %d",
 			m_pObj_Previously_Highlighted->m_ObjectID.c_str(), m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight);
 #endif		
 		m_pObj_Previously_Highlighted->m_GraphicToDisplay_set("mbho",m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight);
@@ -435,7 +435,7 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 
 	pObj->m_GraphicToDisplay_set("mbho2",GRAPHIC_HIGHLIGHTED,true);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "mmm MouseBehavior::HighlightObject : HIGHLIGHT %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "mmm MouseBehavior::HighlightObject : HIGHLIGHT %s",
 		pObj->m_ObjectID.c_str());
 #endif
 	m_pOrbiter->Renderer()->DoHighlightObject();
@@ -452,7 +452,7 @@ PlutoRectangle MouseBehavior::GetHighlighedObjectCoordinates()
 			PlutoRectangle rect;
 			m_pOrbiter->GetDataGridHighlightCellCoordinates((DesignObj_DataGrid *) m_pOrbiter->m_pObj_Highlighted,rect);
 
-g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::GetHighlighedObjectCoordinates %d,%d - %d,%d",rect.X,rect.Y,rect.Width,rect.Height);
+LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::GetHighlighedObjectCoordinates %d,%d - %d,%d",rect.X,rect.Y,rect.Width,rect.Height);
 			return rect + m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
 		}
 		else
@@ -487,7 +487,7 @@ int MouseBehavior::GetDirectionAwayFromHighlight(int X,int Y)
 	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST && !(pObj->m_rPosition+pObj->m_pPopupPoint).Contains(X,Y) )
 		plutoRectangle = pObj->m_rPosition + pObj->m_pPopupPoint;
 
-//	g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::GetDirectionAwayFromHighlight object %s at %d,%d w:%d h:%d doesn't contain %d,%d",
+//	LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"KeyboardMouseHandler::GetDirectionAwayFromHighlight object %s at %d,%d w:%d h:%d doesn't contain %d,%d",
 //		pObj->m_ObjectID.c_str(),plutoRectangle.X,plutoRectangle.Y,
 //		plutoRectangle.Width,plutoRectangle.Height,X,Y);
 	int FromLeft = plutoRectangle.X - X;

@@ -26,7 +26,6 @@
 // watchdog
 namespace DCE
 {
-extern	Logger *g_pPlutoLogger;
 extern	int  (*custom_xine_seek) (xine_stream_t *stream, int start_pos, int start_time);
 extern	int  (*custom_xine_start_trick_play)(xine_stream_t *stream, int trick_speed);
 extern	int  (*custom_xine_stop_trick_play)(xine_stream_t *stream);
@@ -39,11 +38,11 @@ int iStreamWatchDogCounter=0;
 void* StreamWatchDogRoutine(void* param)
 {
 	int iLocalCounter=iStreamWatchDogCounter;
-        DCE::g_pPlutoLogger->Write(LV_STATUS,"Started libxine watchdog routine\n");
+        DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS,"Started libxine watchdog routine\n");
         usleep(10000000);
 	if (bStreamWatchDogFlag&&(iStreamWatchDogCounter==iLocalCounter))
 	{
-		DCE::g_pPlutoLogger->Write(LV_CRITICAL,"Terminating Xine_Player: watchdog detected libxine deadlock\n");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Terminating Xine_Player: watchdog detected libxine deadlock\n");
 		fflush(stdout);
 		kill(getpid(), SIGKILL);
 	}
@@ -176,15 +175,15 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	// creating window
 	if ( !CreateWindows() )
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Stream output window init failed");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Stream output window init failed");
 	} 
 
-	g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::Xine_Stream m_iStreamID %d",m_iStreamID);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Stream::Xine_Stream m_iStreamID %d",m_iStreamID);
 }
 
 Xine_Stream::~Xine_Stream()
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::~Xine_Stream m_iStreamID %d",m_iStreamID);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Stream::~Xine_Stream m_iStreamID %d",m_iStreamID);
 
 	ShutdownStream();
 	DestroyWindows();
@@ -200,7 +199,7 @@ bool Xine_Stream::StartupStream()
 	
 	if ( !InitXineAVOutput() )
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Stream audio/video initialization failed");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Stream audio/video initialization failed");
 		return false;
 	}
 
@@ -258,7 +257,7 @@ bool Xine_Stream::ShutdownStream()
 	// stop the event thread first
 	if ( threadEventLoop )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Stopping event processor." );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stopping event processor." );
 		
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
@@ -266,13 +265,13 @@ bool Xine_Stream::ShutdownStream()
 		}
 
 		pthread_join( threadEventLoop, NULL );
-		g_pPlutoLogger->Write( LV_STATUS, "Done." );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Done." );
 		threadEventLoop = NULL;
 	}
 	
 	if ( m_pXineStreamEventQueue )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Disposing the event queue" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Disposing the event queue" );
 		xine_event_dispose_queue( m_pXineStreamEventQueue );
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineStreamEventQueue = NULL;
@@ -288,24 +287,24 @@ bool Xine_Stream::ShutdownStream()
 	if ( m_pXineStream )
 	{	
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
 		xine_stop( m_pXineStream );
 
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close for stream with id: %d", m_iStreamID );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_close for stream with id: %d", m_iStreamID );
 		xine_close( m_pXineStream );
 
 		
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_dispose for stream with id: %d", m_iStreamID );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_dispose for stream with id: %d", m_iStreamID );
 		xine_dispose( m_pXineStream );
 		
 		m_pXineStream = NULL;
 	}
 
-	g_pPlutoLogger->Write( LV_STATUS, "Going to call a %p and v %p", m_pXineAudioOutput, m_pXineVideoOutput );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Going to call a %p and v %p", m_pXineAudioOutput, m_pXineVideoOutput );
 
 	if ( m_pXineAudioOutput )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_audio_driver for stream with id: %d", m_iStreamID );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_close_audio_driver for stream with id: %d", m_iStreamID );
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		xine_close_audio_driver( m_pXineLibrary, m_pXineAudioOutput );
 		m_pXineAudioOutput = NULL;
@@ -316,7 +315,7 @@ bool Xine_Stream::ShutdownStream()
 
 	if ( m_pXineVideoOutput )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close_video_driver for stream with id: %d", m_iStreamID );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_close_video_driver for stream with id: %d", m_iStreamID );
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		xine_close_video_driver( m_pXineLibrary, m_pXineVideoOutput );
 		m_pXineVideoOutput = NULL;
@@ -324,7 +323,7 @@ bool Xine_Stream::ShutdownStream()
 	
 	bStreamWatchDogFlag = false;
 
-	g_pPlutoLogger->Write( LV_STATUS, "Cleanup completed" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Cleanup completed" );
 	
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
@@ -381,7 +380,7 @@ bool Xine_Stream::CreateWindows()
 
 	m_dScreenPixelAspect = res_v / res_h;
 
-	g_pPlutoLogger->Write( LV_STATUS, "XServer screen aspect %f", m_dScreenPixelAspect );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "XServer screen aspect %f", m_dScreenPixelAspect );
 
 	if ( fabs( m_dScreenPixelAspect - 1.0 ) < 0.01 )
 		m_dScreenPixelAspect = 1.0;
@@ -397,7 +396,7 @@ bool Xine_Stream::InitXineAVOutput()
 {
 	// mapping window and raising it
 // 	int xcode = XMapRaised( m_pXDisplay, windows[ 0 ] );
-//	g_pPlutoLogger->Write( LV_WARNING, "XMapWindow returned: %i", xcode);
+//	LoggerWrapper::GetInstance()->Write( LV_WARNING, "XMapWindow returned: %i", xcode);
 
 	// init visual for xine video
 	m_x11Visual.display = m_pFactory->m_pXDisplay;
@@ -410,15 +409,15 @@ bool Xine_Stream::InitXineAVOutput()
 	m_x11Visual.user_data = this;
 
 	// init video output
-	g_pPlutoLogger->Write( LV_STATUS, "Opening Video Driver" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Opening Video Driver" );
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Falling to 'xshm'.", m_sXineVideoDriverName.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Falling to 'xshm'.", m_sXineVideoDriverName.c_str() );
 			if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, "xshm", XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
 			{
-				g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up." );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up." );
 				return false;
 			}
 			else
@@ -433,24 +432,24 @@ bool Xine_Stream::InitXineAVOutput()
 	}
 
 	// init audio output
-	g_pPlutoLogger->Write( LV_STATUS, "Opening Audio Driver" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Opening Audio Driver" );
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		if ( ( m_pXineAudioOutput = xine_open_audio_driver( m_pXineLibrary, m_sXineAudioDriverName.c_str(), NULL ) ) == NULL )
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' audio driver.", m_sXineAudioDriverName.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' audio driver.", m_sXineAudioDriverName.c_str() );
 			xine_close_video_driver(m_pXineLibrary, m_pXineVideoOutput);
 			return false;
 		}
 	}
 
 	// init xine stream
-	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stream_new" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_stream_new" );
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		if ( ( m_pXineStream = xine_stream_new( m_pXineLibrary, m_pXineAudioOutput, m_pXineVideoOutput ) ) == NULL )
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Could not create stream" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Could not create stream" );
 			xine_close_audio_driver(m_pXineLibrary, m_pXineAudioOutput);
 			xine_close_video_driver(m_pXineLibrary, m_pXineVideoOutput);
 			return false;
@@ -460,7 +459,7 @@ bool Xine_Stream::InitXineAVOutput()
 	
 	
 	// creating new queue
-	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_event_new_queue" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_event_new_queue" );
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_pXineStreamEventQueue = xine_event_new_queue( m_pXineStream );
@@ -472,7 +471,7 @@ bool Xine_Stream::InitXineAVOutput()
 	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
 
 	// creating new osd panel
-	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_osd_new" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_osd_new" );
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		m_xine_osd_t = xine_osd_new( m_pXineStream, 0, 0, 1000, 100 );
@@ -489,10 +488,10 @@ bool Xine_Stream::CloseMedia()
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_stop for stream with id: %d", m_iStreamID );
 		xine_stop( m_pXineStream );
 
-		g_pPlutoLogger->Write( LV_STATUS, "Calling xine_close for stream with id: %d", m_iStreamID );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_close for stream with id: %d", m_iStreamID );
 		xine_close( m_pXineStream );
 		
 		m_bIsRendering = false;
@@ -506,7 +505,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Open media called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Open media called on non-initialized stream - aborting command");
 		return false;
 	}
 	
@@ -516,9 +515,9 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 
 	setDebuggingLevel(true );	
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Attempting to open media for %s (%s)", fileName.c_str(), sMediaPosition.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Attempting to open media for %s (%s)", fileName.c_str(), sMediaPosition.c_str() );
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Calling xine_open" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_open" );
 	
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
@@ -537,20 +536,20 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	
 	if (sURLsuffix!="")
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Opening media with chapters/title position: %s ", (fileName+sURLsuffix).c_str() );
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Opening media with chapters/title position: %s ", (fileName+sURLsuffix).c_str() );
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		mediaOpened = xine_open( m_pXineStream, (fileName+sURLsuffix).c_str() );
 		if (!mediaOpened)
-			g_pPlutoLogger->Write(LV_WARNING, "Opening media FAILED");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Opening media FAILED");
 	}
 	
 	if (!mediaOpened)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Opening media without chapters/title position: %s ", fileName.c_str() );
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Opening media without chapters/title position: %s ", fileName.c_str() );
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		mediaOpened = xine_open( m_pXineStream, fileName.c_str() );
 		if (!mediaOpened)
-			g_pPlutoLogger->Write(LV_WARNING, "Opening media FAILED");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Opening media FAILED");
 	}
 	
 	
@@ -559,7 +558,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	// opening media
 	if ( mediaOpened )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Media opened " );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media opened " );
 
 		//setDebuggingLevel( false );
 		{
@@ -574,29 +573,29 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		// depending on video availability, enabling deinterlacing plugin or visualizing
 		if ( m_bHasVideo )
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "Media has video - enabling deinterlacing plugin" );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media has video - enabling deinterlacing plugin" );
 			EnableDeinterlacing();
 			
 		}
 		else
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "Media doesn't have video -  enabling visualizing plugin" );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media doesn't have video -  enabling visualizing plugin" );
 			
 			if ( EnableVisualizing() )
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Visualizing plugin enabled" );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Visualizing plugin enabled" );
 				PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 //				m_iImgWidth = 100;
 //				m_iImgHeight = 100;
 			}
 			else
 			{
-				g_pPlutoLogger->Write( LV_WARNING, "Visualizing plugin not enabled" );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Visualizing plugin not enabled" );
 			}
 		}
 		
 		// reporting about image
-		g_pPlutoLogger->Write( LV_STATUS, "Output window dimensions: %dx%d", m_pFactory->m_iImgWidth, m_pFactory->m_iImgHeight );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Output window dimensions: %dx%d", m_pFactory->m_iImgWidth, m_pFactory->m_iImgHeight );
 
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
@@ -615,22 +614,22 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			if (!threadEventLoop)
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Creating event processor" );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Creating event processor" );
 				pthread_create( &threadEventLoop, NULL, EventProcessingLoop, this );
-				g_pPlutoLogger->Write( LV_STATUS, "Event processor started" );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Event processor started" );
 			}
 		}
 
 		if ( ! m_bHasVideo )
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "Stream is seekable: %d", xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_SEEKABLE ) );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream is seekable: %d", xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_SEEKABLE ) );
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::OpenMedia failed! Aborting!" );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine_Stream::OpenMedia failed! Aborting!" );
 		return false;
 	}
 	
@@ -651,12 +650,12 @@ bool Xine_Stream::EnableDeinterlacing()
 
 	if (!m_pXineDeinterlacePlugin)
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Enabling deinterlacing" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Enabling deinterlacing" );
 		
 		sFilter = StringUtils::Tokenize(sConfig, string(":"), tokenPos);
 		if (sFilter!="tvtime")
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Currently we support only 'tvtime' filter" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Currently we support only 'tvtime' filter" );
 			return false;
 		} 
 		
@@ -704,7 +703,7 @@ bool Xine_Stream::EnableDeinterlacing()
 			
 		input_api = (xine_post_in_t *)xine_post_input(m_pXineDeinterlacePlugin, "parameters");
 		if (!input_api) {
-			g_pPlutoLogger->Write( LV_WARNING, "Failed to setup post plugin" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Failed to setup post plugin" );
 			return false;
 		}
 			
@@ -744,12 +743,12 @@ bool Xine_Stream::EnableDeinterlacing()
 				break;
 			}
 			
-			g_pPlutoLogger->Write(LV_STATUS,"Parameter: <%s>, type=%s, \"%s\"", parm->name, sType.c_str(), parm->description);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Parameter: <%s>, type=%s, \"%s\"", parm->name, sType.c_str(), parm->description);
 			int i = 0;
 			if(parm->enum_values != NULL)
 				while(parm->enum_values[i] != NULL)
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"Value[%d]: %s", i, parm->enum_values[i]);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Value[%d]: %s", i, parm->enum_values[i]);
 					i++;
 				}
 			
@@ -784,11 +783,11 @@ bool Xine_Stream::EnableDeinterlacing()
 					break;
 				
 				default:
-					g_pPlutoLogger->Write(LV_WARNING,"Cannot convert value %s to required type %s", (*p).second.c_str(), sType.c_str() );
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Cannot convert value %s to required type %s", (*p).second.c_str(), sType.c_str() );
 				}
 			}
 			
-			g_pPlutoLogger->Write(LV_STATUS,"Using [%d]%s\n", *(int *)(data + parm->offset), paramFound?"":" - default" );
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Using [%d]%s\n", *(int *)(data + parm->offset), paramFound?"":" - default" );
 			
 			parm++;
 		}
@@ -800,14 +799,14 @@ bool Xine_Stream::EnableDeinterlacing()
 		rewiringResult = xine_post_wire_video_port(xine_get_video_source(m_pXineStream), m_pXineDeinterlacePlugin->video_input[0]);
 		if (!rewiringResult)
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "post-processing plugin rewiring failed");
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "post-processing plugin rewiring failed");
 		}
 		
 		return rewiringResult;
 	}
 	else
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "tvtime failed to load");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "tvtime failed to load");
 		return false;
 	}
 }
@@ -820,7 +819,7 @@ void Xine_Stream::DisableDeinterlacing()
 	if (m_pXineDeinterlacePlugin)
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		g_pPlutoLogger->Write( LV_STATUS, "Disabling deinterlacing" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Disabling deinterlacing" );
 		
 		xine_post_wire_video_port( xine_get_video_source( m_pXineStream ), m_pXineVideoOutput );
 		xine_post_dispose( m_pXineLibrary, m_pXineDeinterlacePlugin );
@@ -839,7 +838,7 @@ bool Xine_Stream::EnableVisualizing()
 		m_pXineVisualizationPlugin = xine_post_init( m_pXineLibrary, "goom", 0, &m_pXineAudioOutput, &m_pXineVideoOutput );
 		if (!m_pXineVisualizationPlugin)
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "xine_post_init call failed for visualization plugin" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "xine_post_init call failed for visualization plugin" );
 		}
 	}
 	
@@ -853,7 +852,7 @@ bool Xine_Stream::EnableVisualizing()
 		
 		if (!rewiringResult)
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "post-processing plugin rewiring failed");
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "post-processing plugin rewiring failed");
 		}
 	}
 	
@@ -864,7 +863,7 @@ void Xine_Stream::DisableVisualizing()
 {
 	if ( m_pXineVisualizationPlugin )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Disabling visualization" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Disabling visualization" );
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		
 		xine_post_wire_audio_port( xine_get_audio_source( m_pXineStream ), m_pXineAudioOutput );
@@ -907,7 +906,7 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 		// updating every second - position
 		if ( ++iCounter >= 10 )
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "%s (seek %d) t.c. ctr %d freq %d,", pStream->GetPosition().c_str(), pStream->m_iSpecialSeekSpeed, iCounter_TimeCode, pStream->m_iTimeCodeReportFrequency );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "%s (seek %d) t.c. ctr %d freq %d,", pStream->GetPosition().c_str(), pStream->m_iSpecialSeekSpeed, iCounter_TimeCode, pStream->m_iTimeCodeReportFrequency );
 			iCounter = 0;
 			
 			//if it is a time - reporting our timecode to player object
@@ -968,7 +967,7 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "XServerEventProcessor called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "XServerEventProcessor called on non-initialized stream - aborting command");
 		return false;
 	}	
 	
@@ -982,7 +981,7 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 
 			if ( ( unsigned ) event.xclient.data.l[ 0 ] == XA_DELETE_WINDOW )
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::XServerEventProcessor XA_DELETE_WINDOW" );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::XServerEventProcessor XA_DELETE_WINDOW" );
 				m_bIsRendering = false;
 			}
 			break;
@@ -1020,7 +1019,7 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 
 			x11_rectangle_t rect;
 
-			g_pPlutoLogger->Write( LV_STATUS, "Xine player: mouse button event: mx=%d my=%d", bevent->x, bevent->y );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine player: mouse button event: mx=%d my=%d", bevent->x, bevent->y );
 
 			rect.x = bevent->x;
 			rect.y = bevent->y;
@@ -1028,7 +1027,7 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 			rect.h = 0;
 
 			xine_gui_send_vo_data ( m_pXineStream, XINE_GUI_SEND_TRANSLATE_GUI_TO_VIDEO, ( void* ) & rect );
-			g_pPlutoLogger->Write( LV_STATUS, "Xine player: mouse button event after translation: mx=%d my=%d", rect.x, rect.y );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine player: mouse button event after translation: mx=%d my=%d", rect.x, rect.y );
 
 			xineEvent.stream = m_pXineStream;
 			xineEvent.type = XINE_EVENT_INPUT_MOUSE_BUTTON;
@@ -1059,7 +1058,7 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 			XLockDisplay( kevent.display );
 			len = XLookupString( &kevent, kbuf, sizeof( kbuf ), &ksym, NULL );
 			XUnlockDisplay( kevent.display );
-                // g_pPlutoLogger->Write(LV_STATUS, "Key (%d), \"%s\" - %d", len, kbuf, ksym);
+                // LoggerWrapper::GetInstance()->Write(LV_STATUS, "Key (%d), \"%s\" - %d", len, kbuf, ksym);
 
 			xine_event_t xineEvent;
                 // xine_input_data_t  xineInput;
@@ -1068,26 +1067,26 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 			{
 				case XK_Up:
 					xineEvent.type = XINE_EVENT_INPUT_UP;
-					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: XK_Up");
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine player: key press event: XK_Up");
 					break;
 				case XK_Down:
 					xineEvent.type = XINE_EVENT_INPUT_DOWN;
-					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: XK_Down");
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine player: key press event: XK_Down");
 					break;
 				case XK_Left:
 					xineEvent.type = XINE_EVENT_INPUT_LEFT;
-					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: XK_Left");
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine player: key press event: XK_Left");
 					break;
 				case XK_Right:
 					xineEvent.type = XINE_EVENT_INPUT_RIGHT;
-					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: XK_Right");
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine player: key press event: XK_Right");
 					break;
 				case XK_Return:
-					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: XK_Return");
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine player: key press event: XK_Return");
 					xineEvent.type = XINE_EVENT_INPUT_SELECT;
 					break;
 				default:
-					g_pPlutoLogger->Write( LV_STATUS, "Xine player: key press event: not in (Up, Down, Left, Right, Return)");
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine player: key press event: not in (Up, Down, Left, Right, Return)");
 					xineEvent.type = 0;
 			}
 			xineEvent.stream = m_pXineStream;
@@ -1101,7 +1100,7 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 		case Expose:
 		{
 			XExposeEvent *exposeEvent = ( XExposeEvent * ) & event;
-                	g_pPlutoLogger->Write(LV_STATUS, "Expose with count %d", exposeEvent->count);
+                	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Expose with count %d", exposeEvent->count);
 
 			if ( exposeEvent->count != 0 )
 				break;
@@ -1117,7 +1116,7 @@ int Xine_Stream::XServerEventProcessor(XEvent &event )
 			XConfigureEvent *cev = ( XConfigureEvent * ) & event;
 			Window tmp_win;
 
-			g_pPlutoLogger->Write(LV_STATUS, "ConfigureNotify: %ix%i", cev->width, cev->height);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "ConfigureNotify: %ix%i", cev->width, cev->height);
 			m_pFactory->m_iImgWidth = cev->width;
 			m_pFactory->m_iImgHeight = cev->height;
 
@@ -1143,7 +1142,7 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Seek called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Seek called on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -1174,14 +1173,14 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		if (!getPositionResult)
 			positionTime = pos;
 
-		g_pPlutoLogger->Write(LV_STATUS,"Seek took %d ms.  Tried for pos %d landed at %d <%s>, off by %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Seek took %d ms.  Tried for pos %d landed at %d <%s>, off by %d",
 													tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000,
 													pos,positionTime, getPositionResult?"exact":"estimate",
 													positionTime-pos);
 		return ;
 	}
 
-	g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek seek to %d tolerance %d", pos, tolerance_ms );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine_Stream::Seek seek to %d tolerance %d", pos, tolerance_ms );
 
 	for ( int i = 0;i < 10;++i )
 	{
@@ -1193,21 +1192,21 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		
 		if (!result)
 		{
-				g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek demuxer is not ready yet, sleeping 25 ms");
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine_Stream::Seek demuxer is not ready yet, sleeping 25 ms");
 				Sleep( 25 );
 		}
 		else
 		{
 			if ( abs( positionTime - pos ) < tolerance_ms )
 			{
-				g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek Close enough %d %d total %d", positionTime, pos, totalTime );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine_Stream::Seek Close enough %d %d total %d", positionTime, pos, totalTime );
 				break;
 			}
 			else
 			{
 				PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			
-				g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine_Stream::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
 				if (m_bHasVideo)
 				{
 					if (g_bXINE_HAS_TRICKPLAY_SUPPORT)
@@ -1229,7 +1228,7 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "HandleSpecialSeek called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "HandleSpecialSeek called on non-initialized stream - aborting command");
 		return;
 	}
 	
@@ -1255,7 +1254,7 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 		
 		if (m_iSpecialSeekSpeed==0)
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed: speed is zero, skipping");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"HandleSpecialSeekSpeed: speed is zero, skipping");
 			return;
 		}
 		
@@ -1277,7 +1276,7 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 		
 		if (msElapsed<deltaTime)
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed: rewind mode, skipping seek now");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"HandleSpecialSeekSpeed: rewind mode, skipping seek now");
 			return;
 		}
 	}
@@ -1285,20 +1284,20 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 	{
 		if ( (getPositionResult && (abs(positionTime-seekTime)<2000) )|| (!getPositionResult && (abs(m_posLastSpecialSeek-seekTime)<2000) ) )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed: too small interval for seek (%i), skipping this time",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"HandleSpecialSeekSpeed: too small interval for seek (%i), skipping this time",
 				getPositionResult?abs(positionTime-seekTime):abs(m_posLastSpecialSeek-seekTime) );
 			return;
 		}	
 	}
 
 
-	g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed %d elapsed: %d ms last: %d this: %d pos %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"HandleSpecialSeekSpeed %d elapsed: %d ms last: %d this: %d pos %d",
 												m_iSpecialSeekSpeed, msElapsed,
 												m_posLastSpecialSeek,seekTime,positionTime);
 
 	if ( seekTime < 0 )
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "aborting seek, we are at the beginning" );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "aborting seek, we are at the beginning" );
 		changePlaybackSpeed( PLAYBACK_FF_1 );
 		ReportTimecode();
 		return;
@@ -1317,13 +1316,13 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "getXineStreamPosition called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "getXineStreamPosition called on non-initialized stream - aborting command");
 		return false;
 	}
 
 	if ( xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_SEEKABLE ) == 0 )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Stream is not seekable" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream is not seekable" );
 		positionTime = totalTime = 0;
 		return false;
 	}
@@ -1335,7 +1334,7 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 		
 		if ( xine_get_pos_length( m_pXineStream, &iPosStream, &iPosTime, &iLengthTime ) )
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "getXineStreamPosition: %i/%i", iPosTime, iLengthTime );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "getXineStreamPosition: %i/%i", iPosTime, iLengthTime );
 			
 			positionTime = iPosTime;
 			totalTime = iLengthTime;
@@ -1343,7 +1342,7 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 		}
 		else
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "Error reading stream position: %d", xine_get_error( m_pXineStream ) );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Error reading stream position: %d", xine_get_error( m_pXineStream ) );
 			return false;
 		}
 	}
@@ -1356,7 +1355,7 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, i
 	
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "getStreamPlaybackPosition called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "getStreamPlaybackPosition called on non-initialized stream - aborting command");
 		return false;
 	}
 	
@@ -1393,7 +1392,7 @@ void Xine_Stream::DisplaySpeedAndTimeCode()
 
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "DisplaySpeedAndTimeCode called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "DisplaySpeedAndTimeCode called on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -1428,14 +1427,14 @@ void Xine_Stream::DisplaySpeedAndTimeCode()
 
 	int seconds, totalTime;
 	getStreamPlaybackPosition( seconds, totalTime );
-	g_pPlutoLogger->Write( LV_STATUS, "seconds %d", seconds );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "seconds %d", seconds );
 	seconds /= 1000;
 	int seconds_only = seconds;
 	int hours = seconds / 3600;
 	seconds -= hours * 3600;
 	int minutes = seconds / 60;
 	seconds -= minutes * 60;
-	g_pPlutoLogger->Write( LV_STATUS, "h %d m %d s %d", hours, minutes, seconds );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "h %d m %d s %d", hours, minutes, seconds );
 	if ( hours )
 	{
 		sSpeed += StringUtils::itos( hours ) + ":";
@@ -1466,7 +1465,7 @@ void Xine_Stream::DisplayOSDText( string sText )
 	
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "DisplayOSDText called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "DisplayOSDText called on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -1481,7 +1480,7 @@ void Xine_Stream::DisplayOSDText( string sText )
 		return;
 	}
 	
-	g_pPlutoLogger->Write( LV_WARNING, "DisplayOSDText() : Attempting to display %s", sText.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "DisplayOSDText() : Attempting to display %s", sText.c_str() );
 	
 	xine_osd_clear( m_xine_osd_t );
 	xine_osd_draw_rect( m_xine_osd_t, 0, 0, 999, 99, XINE_OSD_TEXT1, 1 );
@@ -1493,7 +1492,7 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 {	
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "StartSpecialSeek called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "StartSpecialSeek called on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -1503,7 +1502,7 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 		m_iSeekMuteStatus = xine_get_param(m_pXineStream, XINE_PARAM_AUDIO_MUTE);
 		if (m_iSeekMuteStatus==0)
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Muting sound");
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Muting sound");
 			xine_set_param(m_pXineStream, XINE_PARAM_AUDIO_MUTE, 1);
 		}
 	
@@ -1511,7 +1510,7 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 		// e.g. MOV files cannot restore after it
 		if (StringUtils::StartsWith(m_sCurrentFile,"dvd:", true) ||StringUtils::EndsWith(m_sCurrentFile,".mpg", true) || StringUtils::EndsWith(m_sCurrentFile,".mpeg", true))
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Disabling audio decoding for faster seek: %s", m_sCurrentFile.c_str());
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Disabling audio decoding for faster seek: %s", m_sCurrentFile.c_str());
 			xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 1);
 		}
 	}
@@ -1520,7 +1519,7 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 	gettimeofday( &m_tsLastSpecialSeek, NULL );
 	getStreamPlaybackPosition( m_posLastSpecialSeek, totalTime );
 
-	g_pPlutoLogger->Write( LV_STATUS, "Starting special seek %d", Speed );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Starting special seek %d", Speed );
 	
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
@@ -1533,11 +1532,11 @@ void Xine_Stream::StartSpecialSeek( int Speed )
 
 	//	m_iPlaybackSpeed = PLAYBACK_NORMAL;
 	DisplaySpeedAndTimeCode();
-	g_pPlutoLogger->Write( LV_STATUS, "done Starting special seek %d", Speed );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "done Starting special seek %d", Speed );
 	/*	
-	g_pPlutoLogger->Write( LV_STATUS, "V0: %d",  m_iSpecialSeekSpeed);
-	g_pPlutoLogger->Write( LV_STATUS, "V1: %d",  xine_get_param( m_pXineStream, XINE_PARAM_SPEED));
-	g_pPlutoLogger->Write( LV_STATUS, "V2: %d",  xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER));
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "V0: %d",  m_iSpecialSeekSpeed);
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "V1: %d",  xine_get_param( m_pXineStream, XINE_PARAM_SPEED));
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "V2: %d",  xine_get_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER));
 	*/
 }
 
@@ -1545,7 +1544,7 @@ void Xine_Stream::StopSpecialSeek()
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "StopSpecialSeek called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "StopSpecialSeek called on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -1558,18 +1557,18 @@ void Xine_Stream::StopSpecialSeek()
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 		if (xine_get_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO)==1)
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Enabling audio decoding for stopping seek");
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Enabling audio decoding for stopping seek");
 			xine_set_param(m_pXineStream, XINE_PARAM_IGNORE_AUDIO, 0);
 		}
 		
 		if (m_iSeekMuteStatus==0)
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Unmuting sound");
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Unmuting sound");
 			xine_set_param(m_pXineStream, XINE_PARAM_AUDIO_MUTE, 0);
 		}
 	}
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Stopping special seek" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stopping special seek" );
 	{
 		m_iSpecialSeekSpeed = 0;
 	}
@@ -1577,7 +1576,7 @@ void Xine_Stream::StopSpecialSeek()
 	DisplayOSDText("");
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
-	g_pPlutoLogger->Write( LV_STATUS, "done Stopping special seek" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "done Stopping special seek" );
 }
 
 
@@ -1587,12 +1586,12 @@ bool Xine_Stream::setSubtitle( int Value )
 	
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "SetSubtitle called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "SetSubtitle called on non-initialized stream - aborting command");
 		return false;
 	}
 
 	
-	g_pPlutoLogger->Write( LV_STATUS, "SPU was %d now %d", getSubtitle(), Value );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "SPU was %d now %d", getSubtitle(), Value );
 	xine_set_param( m_pXineStream, XINE_PARAM_SPU_CHANNEL, Value );
 
 	return true;
@@ -1604,12 +1603,12 @@ bool Xine_Stream::setAudio( int Value )
 	
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "SetAudio called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "SetAudio called on non-initialized stream - aborting command");
 		return false;
 	}
 
 	
-	g_pPlutoLogger->Write( LV_STATUS, "AUDIO was %d now %d", xine_get_param ( m_pXineStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL ), Value );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "AUDIO was %d now %d", xine_get_param ( m_pXineStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL ), Value );
 	xine_set_param( m_pXineStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL, Value );
 
 	return true;
@@ -1621,7 +1620,7 @@ int Xine_Stream::getSubtitle()
 	
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "getSubtitle called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "getSubtitle called on non-initialized stream - aborting command");
 		return false;
 	}
 
@@ -1635,7 +1634,7 @@ int Xine_Stream::getAudio()
 	
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "getAudio called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "getAudio called on non-initialized stream - aborting command");
 		return false;
 	}
 	
@@ -1666,7 +1665,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 	
 	if (!pXineStream->m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "XineStreamEventListener called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "XineStreamEventListener called on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -1674,7 +1673,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 	switch ( event->type )
 	{
 		case XINE_EVENT_UI_PLAYBACK_FINISHED:
-			g_pPlutoLogger->Write( LV_STATUS, "Got XINE_EVENT_UI_PLAYBACK_FINISHED" );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Got XINE_EVENT_UI_PLAYBACK_FINISHED" );
 			//pXineStream->StopSpecialSeek();
 			pXineStream->changePlaybackSpeed( PLAYBACK_STOP );
 			pXineStream->ReportTimecode();
@@ -1685,14 +1684,14 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 			}
 			break;
 		case XINE_EVENT_QUIT:
-			g_pPlutoLogger->Write( LV_STATUS, "Stream was disposed" );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream was disposed" );
 	                // the playback completed is sent from another place. (see the stopMedia)
 			break;
 
 		case XINE_EVENT_PROGRESS:
 		{
 			xine_progress_data_t *pProgressEvent = ( xine_progress_data_t * ) event->data;
-			g_pPlutoLogger->Write( LV_WARNING, "Playback (%s) is at %d%.", pProgressEvent->description, pProgressEvent->percent );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Playback (%s) is at %d%.", pProgressEvent->description, pProgressEvent->percent );
 		}
 		break;
 
@@ -1703,7 +1702,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 			pXineStream->ReportTimecode();
 			int iButtons = ( ( xine_ui_data_t * ) event->data ) ->num_buttons;
 
-			g_pPlutoLogger->Write( LV_STATUS, "Menu with %d buttons", iButtons );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Menu with %d buttons", iButtons );
 									
 			pXineStream->FireMenuOnScreen(iButtons);
 			
@@ -1718,7 +1717,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 
 				xine_ui_data_t *data = ( xine_ui_data_t * ) event->data;
 				
-				g_pPlutoLogger->Write( LV_STATUS, "UI set title: %s %s", data->str, pXineStream->GetPosition().c_str() );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "UI set title: %s %s", data->str, pXineStream->GetPosition().c_str() );
                 		//UI set title: Title 58, Chapter 1,
 				const char *p = strstr( data->str, "Title " );
 				if ( p )
@@ -1793,12 +1792,12 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 						sAudioTracks += string( pXineStream->TranslateLanguage( lang ) ) + "\n";
 					}
 					if ( i >= 100 )
-						g_pPlutoLogger->Write( LV_WARNING, "Something went wrong audio tracks>100" );
+						LoggerWrapper::GetInstance()->Write( LV_WARNING, "Something went wrong audio tracks>100" );
 					
 					pXineStream->m_pFactory->ReportAudioTracks( sAudioTracks );
 				}
 				else
-					g_pPlutoLogger->Write( LV_STATUS, "Ignoring XINE_EVENT_UI_CHANNELS_CHANGED since there aren't multiple audio tracks" );
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Ignoring XINE_EVENT_UI_CHANNELS_CHANGED since there aren't multiple audio tracks" );
 
 				int numsubtitle = xine_get_stream_info( pXineStream->m_pXineStream, XINE_STREAM_INFO_MAX_SPU_CHANNEL );
 				if ( numsubtitle > 1 )
@@ -1815,12 +1814,12 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 						sSubtitles += string( pXineStream->TranslateLanguage( lang ) ) + "\n";
 					}
 					if ( i >= 100 )
-						g_pPlutoLogger->Write( LV_WARNING, "Something went wrong subitltes>100" );
+						LoggerWrapper::GetInstance()->Write( LV_WARNING, "Something went wrong subitltes>100" );
 					
 					pXineStream->m_pFactory->ReportSubtitles( sSubtitles );
 				}
 				else
-					g_pPlutoLogger->Write( LV_STATUS, "Ignoring XINE_EVENT_UI_CHANNELS_CHANGED since there aren't multiple subtitles" );
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Ignoring XINE_EVENT_UI_CHANNELS_CHANGED since there aren't multiple subtitles" );
 					
 				pXineStream->ReadAVInfo();
 				pXineStream->SendAVInfo();
@@ -1829,7 +1828,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 
 		case XINE_EVENT_UI_MESSAGE:
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Received XINE_EVENT_UI_MESSAGE, decoding:" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Received XINE_EVENT_UI_MESSAGE, decoding:" );
 			
 			string message;
 			
@@ -1965,13 +1964,13 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 				}
 			}
 			
-			g_pPlutoLogger->Write( LV_WARNING, "Message details: %s", message.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Message details: %s", message.c_str() );
 			
 		}
 		break;
 
 		default:
-			g_pPlutoLogger->Write( LV_STATUS, "Got unprocessed Xine playback event: %d", event->type );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Got unprocessed Xine playback event: %d", event->type );
 			break;
 	}
 
@@ -1983,12 +1982,12 @@ void Xine_Stream::selectNextButton()
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "SelectNextButton called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "SelectNextButton called on non-initialized stream - aborting command");
 		return;
 	}
 
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", m_iStreamID );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", m_iStreamID );
 
 	xine_event_t event;
 
@@ -2005,12 +2004,12 @@ void Xine_Stream::selectPrevButton()
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Select Prev Button called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Select Prev Button called on non-initialized stream - aborting command");
 		return;
 	}
 
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", m_iStreamID );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", m_iStreamID );
 
 	xine_event_t event;
 
@@ -2027,12 +2026,12 @@ void Xine_Stream::pushCurrentButton()
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "PushCurrentButton called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "PushCurrentButton called on non-initialized stream - aborting command");
 		return;
 	}
 
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", m_iStreamID );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Selecting next hot spot on the m_pstream %d", m_iStreamID );
 
 	xine_event_t event;
 
@@ -2049,7 +2048,7 @@ bool Xine_Stream::playStream( string mediaPosition)
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "playStream called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "playStream called on non-initialized stream - aborting command");
 		return false;
 	}
 
@@ -2069,7 +2068,7 @@ bool Xine_Stream::playStream( string mediaPosition)
 
 	if ( xine_play( m_pXineStream, 0, 0) )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Playing... The command took %d seconds to complete at pos %d", time( NULL ) - startTime, pos );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Playing... The command took %d seconds to complete at pos %d", time( NULL ) - startTime, pos );
 			
 		if ( pos )
 		{
@@ -2103,18 +2102,18 @@ bool Xine_Stream::playStream( string mediaPosition)
 	}
 	else
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Play failed with error %d", xine_get_error( m_pXineStream ) );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Play failed with error %d", xine_get_error( m_pXineStream ) );
 		return false;
 	}
 }
 
 void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed speed %d",(int) desiredSpeed);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed speed %d",(int) desiredSpeed);
 	
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "changePlayback speed called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "changePlayback speed called on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -2134,7 +2133,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 	// pause or normal playback requested - stopping any special mode and playing as usually	
 	if ((desiredSpeed == PLAYBACK_FF_1)||(desiredSpeed == PLAYBACK_STOP) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping any seeker");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping any seeker");
 		
 		if (m_iSpecialSeekSpeed)
 		{
@@ -2146,7 +2145,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			{
 				if ( trickModeActive )
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
 					
 					PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 					custom_xine_stop_trick_play(m_pXineStream);
@@ -2156,11 +2155,11 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 					m_bTrickModeActive = false;
 				}
 				else
-					g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed no running seekers found");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed no running seekers found");
 			}
 			else
 			{
-						g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed no running seekers found");
+						LoggerWrapper::GetInstance()->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed no running seekers found");
 			}
 		}
 
@@ -2183,7 +2182,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		{
 			if ( trickModeActive )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed stopping trick play");
 				PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 				custom_xine_stop_trick_play(m_pXineStream);
 				xine_set_param( m_pXineStream, XINE_PARAM_METRONOM_PREBUFFER, m_iPrebuffer );
@@ -2198,7 +2197,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed changing special seek speed");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed changing special seek speed");
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
 			m_iSpecialSeekSpeed = desiredSpeed;
 		}
@@ -2217,7 +2216,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 				StopSpecialSeek();
 			} 
 			
-			g_pPlutoLogger->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed starting trick play");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Stream::changePlaybackSpeed starting trick play");
 	
 			// are we doing restart
 			if (!m_bTrickModeActive)
@@ -2241,7 +2240,7 @@ void Xine_Stream::changePlaybackSpeed( PlayBackSpeedType desiredSpeed )
 			return;
 		}
 	}
-	g_pPlutoLogger->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed IMPOSSIBLE_STATE");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Xine_Stream::changePlaybackSpeed IMPOSSIBLE_STATE");
 }
 
 Xine_Stream::PlayBackSpeedType Xine_Stream::getPlaybackSpeed()
@@ -2249,7 +2248,7 @@ Xine_Stream::PlayBackSpeedType Xine_Stream::getPlaybackSpeed()
 
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "getPlaybackSpeed called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "getPlaybackSpeed called on non-initialized stream - aborting command");
 		return PLAYBACK_STOP;
 	}
 
@@ -2277,7 +2276,7 @@ Xine_Stream::PlayBackSpeedType Xine_Stream::getPlaybackSpeed()
 
 		default:
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Can't translate current Xine speed %d. Assuming normal playback speed!", currentSpeed );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Can't translate current Xine speed %d. Assuming normal playback speed!", currentSpeed );
 			return PLAYBACK_FF_1;
 		}
 	}
@@ -2327,11 +2326,11 @@ void Xine_Stream::grab_x_window( int &width, int &height, char*&pData, int &iDat
 		iDataSize = size*fread(pData, size, 1, file);
 		fclose( file );
 		
-		g_pPlutoLogger->Write( LV_WARNING, "grab_x_window() :: window grabbed, data size is %i", iDataSize);
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "grab_x_window() :: window grabbed, data size is %i", iDataSize);
 	}
 	else
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "grab_x_window() :: window grabbing failed, return code: %i", iRetCode);
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "grab_x_window() :: window grabbing failed, return code: %i", iRetCode);
 	}
 }
 
@@ -2358,30 +2357,30 @@ void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool b
 	// if we cannot use xine for making snapshots => using window grabbing
 	if ( (m_sUsedVideoDriverName=="xvmc") || (m_sUsedVideoDriverName=="xxmc") )
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "getScreenshot called for XvMC picture - grabbing window directly");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "getScreenshot called for XvMC picture - grabbing window directly");
 		
 		grab_x_window( imageWidth, imageHeight, pData, iDataSize);
 	}
 	else
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Getting frame info" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Getting frame info" );
 		if ( ! xine_get_current_frame( m_pXineStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, NULL ) )
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Error getting frame info. Returning!" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Error getting frame info. Returning!" );
 			return ;
 		}
-		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat );
 	
 		imageData = ( uint8_t* ) malloc ( ( imageWidth + 8 ) * ( imageHeight + 1 ) * 2 );
-		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Getting frame data" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Getting frame data" );
 		{
 			if ( ! xine_get_current_frame ( m_pXineStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, imageData ) )
 			{
-				g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Error getting frame data. Returning!" );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Error getting frame data. Returning!" );
 				return ;
 			}
 		}
-		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Got %d %d %d 0x%x", imageWidth, imageHeight, imageRatio, imageFormat );
 	
 	// we should have the image in YV12 format aici
 	// if not then we try to convert it.
@@ -2398,7 +2397,7 @@ void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool b
 			free ( yuy2Data );
 		}
 	
-		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Converted to YV12" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Converted to YV12" );
 	// convert to RGB
 	// keep the yv12Data array around to be able to delete it
 		uint8_t *yv12Data = imageData;
@@ -2409,13 +2408,13 @@ void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool b
 		imageData + imageWidth * imageHeight,
 		imageData + imageWidth * imageHeight * 5 / 4,
 		imageWidth, imageHeight );
-		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Converted to RGB!" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Converted to RGB!" );
 		free( yv12Data );
 	
 		double outputRatio;
 	// double currentRatio;
 	
-		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Temp data was freed here!" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Temp data was freed here!" );
 		switch ( imageRatio )
 		{
 			case XINE_VO_ASPECT_ANAMORPHIC:                   /* anamorphic     */
@@ -2433,7 +2432,7 @@ void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool b
 								break;
 	
 			default:
-				g_pPlutoLogger->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Unknown aspect ratio for image (%d) using 4:3", imageRatio );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine_Stream::make_snapshot(): Unknown aspect ratio for image (%d) using 4:3", imageRatio );
 	
 				case XINE_VO_ASPECT_4_3:                          /* 4:3             */
 					outputRatio = 4.0 / 3.0;
@@ -2442,7 +2441,7 @@ void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool b
 	
 		double f = outputRatio / ( ( double ) imageWidth / ( double ) imageHeight );
 	
-		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): The ratio between the current ration and the output ratio is %f", f );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): The ratio between the current ration and the output ratio is %f", f );
 		double t_width, t_height;
 	//     if( !bKeepAspect )
 	//     {
@@ -2461,23 +2460,23 @@ void Xine_Stream::make_snapshot( string sFormat, int iWidth, int iHeight, bool b
 		t_height /= 2;
 	
 	
-		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Making jpeg from RGB" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): Making jpeg from RGB" );
 		JpegEncoderDecoder jpegEncoder;
 		
 		jpegEncoder.encodeIntoBuffer( ( char * ) imageData, imageWidth, imageHeight, 3, pData, iDataSize );
 	
-		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): final image size: %d", iDataSize );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): final image size: %d", iDataSize );
 		free( imageData );
 	
 		FILE * file;
 		file = fopen( "/tmp/file.jpg", "wb" );
-		g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): temporary image filep %p", file );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): temporary image filep %p", file );
 	
 		fwrite( pData, iDataSize, 1, file );
 		fclose( file );
 	}
 
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::make_snapshot(): At the end. Returning" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::make_snapshot(): At the end. Returning" );
 	return ;
 }
 
@@ -2488,7 +2487,7 @@ void Xine_Stream::restartMediaStream()
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "restartMediaStream called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "restartMediaStream called on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -2502,7 +2501,7 @@ void Xine_Stream::pauseMediaStream( )
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "pauseMediaStream called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "pauseMediaStream called on non-initialized stream - aborting command");
 		return;
 	}
 	
@@ -2514,7 +2513,7 @@ void Xine_Stream::pauseMediaStream( )
 		changePlaybackSpeed( PLAYBACK_STOP );
 
 	getStreamPlaybackPosition( stoppedTime, completeTime );
-	g_pPlutoLogger->Write( LV_STATUS, "Stream paused at time: %d from %d", stoppedTime, completeTime );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream paused at time: %d from %d", stoppedTime, completeTime );
 }
 
 KeySym Xine_Stream::translatePlutoKeySymToXKeySym( int plutoButton )
@@ -2533,7 +2532,7 @@ KeySym Xine_Stream::translatePlutoKeySymToXKeySym( int plutoButton )
 			return XK_Return;
 
 		default:
-			g_pPlutoLogger->Write( LV_WARNING, "Translating of the %d pluto key is not handled yet.", plutoButton );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Translating of the %d pluto key is not handled yet.", plutoButton );
 			return 0;
 	}
 }
@@ -2542,7 +2541,7 @@ void Xine_Stream::selectMenu( int iMenuType )
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "selectMenu called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "selectMenu called on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -2562,16 +2561,16 @@ void Xine_Stream::playbackCompleted( bool bWithErrors )
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "playbackCompleted called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "playbackCompleted called on non-initialized stream - aborting command");
 		return;
 	}
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Fire playback completed event: %s (slim: %i, do not report: %i)", ( ! m_isSlimClient && ! m_bDontReportCompletion )?"yes":"no", m_isSlimClient, m_bDontReportCompletion );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Fire playback completed event: %s (slim: %i, do not report: %i)", ( ! m_isSlimClient && ! m_bDontReportCompletion )?"yes":"no", m_isSlimClient, m_bDontReportCompletion );
 	//XineStream * xineStream = getStreamForId( iStreamID, "Can't get the position of a nonexistent stream!" );
 
 	if ( ! m_isSlimClient && ! m_bDontReportCompletion)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", m_iStreamID);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", m_iStreamID);
 		m_pFactory->m_pPlayer->EVENT_Playback_Completed(m_sCurrentFile,m_iStreamID, bWithErrors );
 		m_pFactory->m_pPlayer->StopNbdDevice();
 	}
@@ -2581,7 +2580,7 @@ int Xine_Stream::DisableBroadcast( )
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "EnableBroadcast called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "EnableBroadcast called on non-initialized stream - aborting command");
 		return false;
 	}
 	
@@ -2596,7 +2595,7 @@ int Xine_Stream::EnableBroadcast( )
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "EnableBroadcast called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "EnableBroadcast called on non-initialized stream - aborting command");
 		return m_iBroadcastPort=0;
 	}
 
@@ -2610,13 +2609,13 @@ int Xine_Stream::EnableBroadcast( )
 			if ( portNumber == xine_get_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT ) )
 			{
 				m_iBroadcastPort=portNumber;
-				g_pPlutoLogger->Write( LV_WARNING, "Enabled broadcast on port: %i", m_iBroadcastPort);
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Enabled broadcast on port: %i", m_iBroadcastPort);
 				return m_iBroadcastPort;
 			}
 		}
 	}
 	
-	g_pPlutoLogger->Write( LV_WARNING, "Enabling broadcast failed");
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Enabling broadcast failed");
 	return m_iBroadcastPort=0;
 }
 
@@ -2629,11 +2628,11 @@ void Xine_Stream::simulateMouseClick( int X, int Y )
 //	if ( ( pStream = getStreamForId( 1, "Xine_Stream::simulateMouseClick() getting one stream" ) ) == NULL )
 //		return ;
 
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::simulateMouseClick(): simulating mouse click: mx=%d my=%d", X, Y );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::simulateMouseClick(): simulating mouse click: mx=%d my=%d", X, Y );
 
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "simulateMouseClick called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "simulateMouseClick called on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -2657,7 +2656,7 @@ void Xine_Stream::simulateKeystroke( int plutoButton )
 {
 	Window oldWindow;
 	int oldRevertBehaviour;
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::simulateKeystroke(): plutoButton=%d", plutoButton );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::simulateKeystroke(): plutoButton=%d", plutoButton );
 
 	XLockDisplay( m_pFactory->m_pXDisplay );
 	XGetInputFocus( m_pFactory->m_pXDisplay, &oldWindow, &oldRevertBehaviour );
@@ -2676,7 +2675,7 @@ void Xine_Stream::sendInputEvent( int eventType )
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "sendInputEvent on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "sendInputEvent on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -2688,7 +2687,7 @@ void Xine_Stream::sendInputEvent( int eventType )
 	//if ( ( pStream = getStreamForId( 1, "void Xine_Stream::sendInputEvent(int eventType) getting one stream" ) ) == NULL )
 	//	return ;
 
-	g_pPlutoLogger->Write( LV_STATUS, "Sending %d event to the engine.", eventType );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Sending %d event to the engine.", eventType );
 
 	xine_event_t event;
 
@@ -2699,7 +2698,7 @@ void Xine_Stream::sendInputEvent( int eventType )
 	gettimeofday( &event.tv, NULL );
 
 	xine_event_send( m_pXineStream, &event );
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Stream::sendInputEvent() Sending input event with ID: %d took %d seconds", eventType, time( NULL ) - startTime );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::sendInputEvent() Sending input event with ID: %d took %d seconds", eventType, time( NULL ) - startTime );
 }
 
 /**
@@ -2715,7 +2714,7 @@ void Xine_Stream::destinationSizeCallback( void *data, int video_width, int vide
     /**
 	 * @test
 	if( ! m_pStream->m_bIsRendering )
-	g_pPlutoLogger->Write(LV_STATUS, "Destination size callback called (not rendering)!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Destination size callback called (not rendering)!");
 		 */
 
 	*dest_width = pStream->m_pFactory->m_iImgWidth;
@@ -2737,7 +2736,7 @@ void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_he
     /**
 	 * @test
 	 *     if( ! pStream->m_bIsRendering)
-	 *         g_pPlutoLogger->Write(LV_STATUS, "Framer Output callback called (not rendering).");
+	 *         LoggerWrapper::GetInstance()->Write(LV_STATUS, "Framer Output callback called (not rendering).");
 		 */
 
 	*dest_x = 0;
@@ -2758,7 +2757,7 @@ bool Xine_Stream::setDebuggingLevel( bool newValue )
 
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Open media called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Open media called on non-initialized stream - aborting command");
 		return false;
 	}
 
@@ -2788,8 +2787,8 @@ void Xine_Stream::resume()
 
 		if ( !count )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "RESUME video driver failed. make sure we have a patched xine-lib with XV2 driver\n" );
-			g_pPlutoLogger->Write(LV_STATUS, "  and no other application is using the XVideo port.\n" );
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "RESUME video driver failed. make sure we have a patched xine-lib with XV2 driver\n" );
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "  and no other application is using the XVideo port.\n" );
 			return ;
 		}
 
@@ -2872,14 +2871,14 @@ void Xine_Stream::getScreenShot( int iWidth, int iHeight, char *&pData, int &iDa
 		
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "getScreenshot called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "getScreenshot called on non-initialized stream - aborting command");
 		return;
 	}
 
 /*
 	if ( (m_sUsedVideoDriverName=="xvmc") || (m_sUsedVideoDriverName=="xxmc") )
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "getScreenshot called for XvMC picture - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "getScreenshot called for XvMC picture - aborting command");
 		return;
 	}
 */	
@@ -2890,7 +2889,7 @@ void Xine_Stream::getScreenShot( int iWidth, int iHeight, char *&pData, int &iDa
 	}
 
 	sFormat = "JPG";
-	g_pPlutoLogger->Write( LV_STATUS, "Making snapshot" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Making snapshot" );
 	make_snapshot( sFormat.c_str(), iWidth, iHeight, true, pData, iDataSize );
 }
 
@@ -2941,7 +2940,7 @@ void Xine_Stream::ReportTimecode()
 {
 	if (!m_bInitialized)
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "ReportTimecode called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "ReportTimecode called on non-initialized stream - aborting command");
 		return;
 	}
 
@@ -2950,7 +2949,7 @@ void Xine_Stream::ReportTimecode()
 	
 	if( m_bIsVDR )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"ignoring vdr timecode for now");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ignoring vdr timecode for now");
 		return;
 	}
 	
@@ -3006,7 +3005,7 @@ void Xine_Stream::FireMenuOnScreen(int iButtons)
 string Xine_Stream::readMediaInfo()
 {
 	// pre-reading media information
-	g_pPlutoLogger->Write( LV_STATUS, "Reading stream media info: \n");
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Reading stream media info: \n");
 	
 	string sMediaInfo = "";
 	
@@ -3018,14 +3017,14 @@ string Xine_Stream::readMediaInfo()
 		//HACK we often receive the MRL like dvd://dev/cdrom - this is WRONG, doing temporary fix
 		if (dvdName[0]!='/')
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "DVD name with bad syntax supplied(%s)! Please fix the CMD sender!", m_sCurrentFile.c_str());
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "DVD name with bad syntax supplied(%s)! Please fix the CMD sender!", m_sCurrentFile.c_str());
 			dvdName = "/" + dvdName;
 		}
 		dvdnav_t *dvdHandle=NULL;
 		dvdnav_status_t res = dvdnav_open(&dvdHandle, dvdName.c_str());
 		if (res == DVDNAV_STATUS_ERR)
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "libdvdnav: Error opening DVD");
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "libdvdnav: Error opening DVD");
 		}
 		else
 		{
@@ -3049,13 +3048,13 @@ string Xine_Stream::readMediaInfo()
 					}
 					else
 					{
-						g_pPlutoLogger->Write( LV_WARNING, "libdvdnav: Error reading chapters count for title %i", i);
+						LoggerWrapper::GetInstance()->Write( LV_WARNING, "libdvdnav: Error reading chapters count for title %i", i);
 						sMediaInfo += "Title " + StringUtils::itos(i) + "\t\t" + StringUtils::itos(i) + "\n";
 					}
 				}
 			}
 			else
-				g_pPlutoLogger->Write( LV_WARNING, "libdvdnav: Error reading titles count");
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "libdvdnav: Error reading titles count");
 
 			dvdnav_close(dvdHandle);
 			
@@ -3076,7 +3075,7 @@ string Xine_Stream::readMediaInfo()
 			cdrom_drive *pDrive = cdda_identify(drvName.c_str(), CDDA_MESSAGE_FORGETIT, NULL);
 			if (!pDrive)
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Failed to identify cd drive: %s", drvName.c_str());
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Failed to identify cd drive: %s", drvName.c_str());
 			}
 			else
 			{
@@ -3091,13 +3090,13 @@ string Xine_Stream::readMediaInfo()
 				}
 				else
 				{
-					g_pPlutoLogger->Write( LV_STATUS, "Failed to open cd drive: %s", drvName.c_str());
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Failed to open cd drive: %s", drvName.c_str());
 				}
 			}				
 		}
 	}	
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Stream media info (length=%i): \n%s", sMediaInfo.length(), sMediaInfo.c_str());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream media info (length=%i): \n%s", sMediaInfo.length(), sMediaInfo.c_str());
 	
 	m_sMediaInfo = sMediaInfo;
 	
@@ -3207,7 +3206,7 @@ void Xine_Stream::ReadAVInfo()
 		}
 	}	
 
-	g_pPlutoLogger->Write( LV_WARNING, "Read media A/V information: [%s]/[%s] => [%s]/[%s]", sAudioInfo.c_str(), sVideoInfo.c_str(), m_sAudioInfo.c_str(), m_sVideoInfo.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Read media A/V information: [%s]/[%s] => [%s]/[%s]", sAudioInfo.c_str(), sVideoInfo.c_str(), m_sAudioInfo.c_str(), m_sVideoInfo.c_str() );
 }
 
 void Xine_Stream::SendAVInfo()

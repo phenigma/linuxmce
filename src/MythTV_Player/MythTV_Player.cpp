@@ -120,7 +120,7 @@ bool MythTV_Player::GetConfig()
 	m_pDevice_MythTV_Plugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfTemplate(DEVICETEMPLATE_MythTV_PlugIn_CONST);
 	if( !m_pDevice_MythTV_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"I need a myth plugin to function");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"I need a myth plugin to function");
 		return false;
 	}
 	// Kill any existing myth front ends.   The application spawner / window focus isn't happy
@@ -213,7 +213,7 @@ void MythTV_Player::updateMode(string toMode)
 	if (toMode!=m_CurrentMode)
 	{				
 		m_CurrentMode = toMode;
-		g_pPlutoLogger->Write(LV_WARNING,"Changing mode: %s",toMode.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Changing mode: %s",toMode.c_str());
 		DCE::CMD_Set_Active_Menu CMD_Set_Active_Menu_(m_dwPK_Device,m_pDevice_MythTV_Plugin->m_dwPK_Device, toMode);
 		SendCommand(CMD_Set_Active_Menu_);
 	}
@@ -222,7 +222,7 @@ void MythTV_Player::updateMode(string toMode)
 void MythTV_Player::pollMythStatus()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"MythTV_Player::pollMythStatus %d",m_mythStatus);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Player::pollMythStatus %d",m_mythStatus);
 #endif
 	if (m_mythStatus == MYTHSTATUS_STARTUP)
 	{
@@ -246,17 +246,17 @@ void MythTV_Player::pollMythStatus()
 		    Sleep(100);
 		    mm.Relock();
 		    sResult = sendMythCommand("jump livetv");
-		    g_pPlutoLogger->Write(LV_WARNING, "%s", sResult.c_str());
+		    LoggerWrapper::GetInstance()->Write(LV_WARNING, "%s", sResult.c_str());
 		} while(time(NULL) < timeout && sResult != "OK" && m_mythStatus == MYTHSTATUS_LIVETV);
 		if (time(NULL) >= timeout)
 		{
 			DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
 			SendCommand(CMD_MH_Stop_Media_Cat);
 			m_mythStatus = MYTHSTATUS_DISCONNECTED;
-			g_pPlutoLogger->Write(LV_CRITICAL,"Failed initial communications with Mythfrontend.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed initial communications with Mythfrontend.");
 			vector<void *> data;
 			ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data);			
-			g_pPlutoLogger->Write(LV_CRITICAL,"Killed Mythfrontend.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Killed Mythfrontend.");
 		}
 	} 
 	else if (m_mythStatus != MYTHSTATUS_DISCONNECTED)
@@ -356,7 +356,7 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 	string sResponse;
 	char ch=0;
 
-	g_pPlutoLogger->Write(LV_WARNING,"Going to send command %s",Cmd);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Going to send command %s",Cmd);
 	
 	if (m_pMythSocket == NULL)
 	{
@@ -365,10 +365,10 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 		{
 			delete m_pMythSocket;
 			m_pMythSocket = NULL;
-			g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to MythTV client");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to connect to MythTV client");
 			return "";
 		}
-		g_pPlutoLogger->Write(LV_STATUS, "Connected");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connected");
 	}
 	
 
@@ -379,7 +379,7 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 		{
 			delete m_pMythSocket;
 			m_pMythSocket = NULL;
-			g_pPlutoLogger->Write(LV_CRITICAL,"Timeout waiting for Myth prompt.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Timeout waiting for Myth prompt.");
 			return "";
 		}
 	} while(ch!='#');
@@ -387,7 +387,7 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 	{
 		delete m_pMythSocket;
 		m_pMythSocket = NULL;
-		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send string");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not send string");
 		return "";
 	}
 	// Receive the response
@@ -397,7 +397,7 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 		{
 			delete m_pMythSocket;
 			m_pMythSocket = NULL;
-			g_pPlutoLogger->Write(LV_CRITICAL,"Didn't get reply.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Didn't get reply.");
 			return "";
 		}
 	// FIXIT: In Myth's networkcontrol.cpp, it's possible that Myth replies to a previous command with a "lost" query location.  If we get "OK" when asking for status,
@@ -405,11 +405,11 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 	} while (!strcmp(Cmd, "query location") && sResponse=="OK");
 		
 	sResponse = StringUtils::TrimSpaces(sResponse);
-	g_pPlutoLogger->Write(LV_WARNING,"Myth Responded %s",sResponse.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Myth Responded %s",sResponse.c_str());
 	
 /*	if( !m_pMythSocket->SendString("QUIT") )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send QUIT string");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not send QUIT string");
 		return sResponse;
 	}
 	m_pMythSocket->Close(); */
@@ -440,7 +440,7 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 
     if ( checkWindowName(window, MYTH_WINDOW_NAME ) )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Found window id: 0x%x", window );
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found window id: 0x%x", window );
         m_iMythFrontendWindowId = window;
         return true;
     }
@@ -482,7 +482,7 @@ void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string
 	StringUtils::Tokenize( sProgramID, "|", numbers );
 
 	if ( numbers.size() == 0 )	{
-		g_pPlutoLogger->Write(LV_STATUS, "Invalid channel specification: \"%d\"", sProgramID.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invalid channel specification: \"%d\"", sProgramID.c_str());
 		return;
 	}
 
@@ -504,18 +504,18 @@ void MythTV_Player::KillSpawnedDevices()
 void MythTV_Player::ProcessExited(int pid, int status)
 {
 #ifndef WIN32
-	g_pPlutoLogger->Write(LV_STATUS, "Process exited %d %d", pid, status);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Process exited %d %d", pid, status);
 
 	void *data;
 	string applicationName;
 	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
 		return;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Got application name: %s compare with %s", applicationName.c_str(), MYTH_WINDOW_NAME);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got application name: %s compare with %s", applicationName.c_str(), MYTH_WINDOW_NAME);
 
 	if ( applicationName.compare(MYTH_WINDOW_NAME) == 0 )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Send go back to the caller!");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Send go back to the caller!");
 		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
 		SendCommand(CMD_MH_Stop_Media_Cat);
 	}
@@ -544,13 +544,13 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 //<-dceag-c84-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    g_pPlutoLogger->Write(LV_STATUS, "Method was called here");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Method was called here");
 	size_t size;
 	*pData = FileUtils::ReadFileIntoBuffer("/home/mediapics/10.jpg",size);
 	*iData_Size = size;
 //     if ( m_pMythTV == NULL || m_pMythTV->GetState() != kState_WatchingLiveTV )
 //     {
-//         g_pPlutoLogger->Write(LV_STATUS, "Invalid state.");
+//         LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invalid state.");
 //         EVENT_Error_Occured("Not playing TV at this time. Can't take a screen shot");
 //         return;
 //     }
@@ -573,7 +573,7 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 //
 //     m_pMythTV->activenvp->ReleaseCurrentFrame(grabbedFrame);
 //
-//     g_pPlutoLogger->Write(LV_STATUS, "Got frame size %dx%d (%d) %d)",
+//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got frame size %dx%d (%d) %d)",
 //                 actualFrame.width, actualFrame.height,
 //                 actualFrame.size, actualFrame.codec);
 //
@@ -581,7 +581,7 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 //     int x, y, nWidth, nHeight;
 //     m_pMythTV->activenvp->getVideoOutput()->GetDrawSize(x, y, nWidth, nHeight);
 //
-//     g_pPlutoLogger->Write(LV_STATUS, "DrawSize: %dx%d %dx%d", x, y, nWidth, nHeight);
+//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "DrawSize: %dx%d %dx%d", x, y, nWidth, nHeight);
 
 //     sCMD_Result = m_pMythTV->GetScreenFrame(sDisable_Aspect_Lock, iWidth, iHeight, pData, iData_Size, sFormat);
 }
@@ -870,7 +870,7 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 
 	vector<void *> data;
 	if ( ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data) == false )
-		g_pPlutoLogger->Write(LV_WARNING, "I failed to kill the application launched with name: %s", MYTH_WINDOW_NAME);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "I failed to kill the application launched with name: %s", MYTH_WINDOW_NAME);
 #endif
 }
 

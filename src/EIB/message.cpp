@@ -74,7 +74,7 @@ Message::SendBuffer(BusConnector *pbusconn,
 	pbusconn->Send((unsigned char*)msg, length);
 	tk.Stop();
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Buffer <%s> sent in %.5f seconds", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Buffer <%s> sent in %.5f seconds", 
 			FormatHexBuffer((const char*)msg, length).c_str(), tk.getTotalPeriodInSecs());
 		
 	pbusconn->incFrameBit();
@@ -165,11 +165,11 @@ PeiMessage::ReceivePeiBuffer(BusConnector *pbusconn,
 			totalread += nread;
 		} 
 		if(nread < EIB_SIZE_OF_PEI_HEADER - 1) {
-			g_pPlutoLogger->Write(LV_WARNING, "Could not receive complete Message Header, only %d bytes.", nread);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not receive complete Message Header, only %d bytes.", nread);
 		} else {	
 			/*get message length including TAIL length*/
 			if(peibuff[EIB_FIRST_LENGTH_BYTE] != peibuff[EIB_SECOND_LENGTH_BYTE]) {
-				g_pPlutoLogger->Write(LV_WARNING, "Length fields set incorrectly");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Length fields set incorrectly");
 			} else {
 				int mlength = peibuff[EIB_FIRST_LENGTH_BYTE];
 				nread = RecvBuffer(pbusconn, &peibuff[EIB_SIZE_OF_PEI_HEADER], mlength + EIB_SIZE_OF_PEI_TAIL);
@@ -177,7 +177,7 @@ PeiMessage::ReceivePeiBuffer(BusConnector *pbusconn,
 					totalread += nread;
 				} 
 				if(nread < (int)mlength + EIB_SIZE_OF_PEI_TAIL) {
-					g_pPlutoLogger->Write(LV_WARNING, "Could not receive message body, expected: %d but received: %d", 
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not receive message body, expected: %d but received: %d", 
 																		mlength + EIB_SIZE_OF_PEI_TAIL, nread);
 				
 				} else {
@@ -194,7 +194,7 @@ PeiMessage::ReceivePeiBuffer(BusConnector *pbusconn,
 						
 						if (( chksum != peibuff[ dlength + EIB_MESSAGE_CODE_BYTE] )
 							|| ( EIB_STOP_BYTE_VALUE != peibuff[dlength + EIB_MESSAGE_CODE_BYTE+1] ))	{
-							g_pPlutoLogger->Write(LV_WARNING, "Invalid CHECKSUM");
+							LoggerWrapper::GetInstance()->Write(LV_WARNING, "Invalid CHECKSUM");
 							return RECV_INVALID;
 						};
 						

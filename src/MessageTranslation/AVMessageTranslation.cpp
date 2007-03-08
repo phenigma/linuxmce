@@ -49,7 +49,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	
 	DeviceData_Base* pTargetDev = DefaultMessageTranslator::FindTargetDevice(inrepl.getMessage().m_dwPK_Device_To);
 	if(!pTargetDev) {
-		g_pPlutoLogger->Write(LV_WARNING, "Target Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Target Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
 		return false;
 	}
 	int IR_ModeDelay = 0;
@@ -63,7 +63,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	map<long, string>::iterator retransmit_param = inrepl.getMessage().m_mapParameters.find(COMMANDPARAMETER_Retransmit_CONST);
 	if (retransmit_param != inrepl.getMessage().m_mapParameters.end()) {
 		retransmit = atoi((*retransmit_param).second.c_str());
-		g_pPlutoLogger->Write(LV_STATUS,"WE HAVE RETRANSMIT=%d",retransmit);		
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"WE HAVE RETRANSMIT=%d",retransmit);		
 	}
 	
 	if( InitDelaysMap(devtemplid) )
@@ -85,7 +85,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		sprintf(sql_buff,"SELECT PK_Command FROM Command WHERE FK_CommandCategory='22'");
 		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED : %s",sql_buff);
 			return false;
 		}	
 		while((row = mysql_fetch_row(result_set.r)))
@@ -98,7 +98,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			sprintf(sql_buff,"SELECT FK_DeviceTemplate, OrderNo FROM DeviceTemplate_Input WHERE FK_Command='%d'",cmd);
 			if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED : %s",sql_buff);
 				return false;
 			}	
 			while((row = mysql_fetch_row(result_set.r)))
@@ -114,9 +114,9 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		}
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS,"AVMessageTranslator::Translate begin");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"AVMessageTranslator::Translate begin");
 	
-	g_pPlutoLogger->Write(LV_STATUS,"    Status : CMD=%d, TP=%d, TI=%d",pmsg->m_dwID,TogglePower,ToggleInput);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"    Status : CMD=%d, TP=%d, TI=%d",pmsg->m_dwID,TogglePower,ToggleInput);
 	
 	// Power commands
 	if( pmsg->m_dwID == COMMAND_Generic_Off_CONST ||
@@ -138,7 +138,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 					// reset the select input
 					laststatus_input_[devid] = 0;
 				}
-				g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,COMMAND_Toggle_Power_CONST);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,COMMAND_Toggle_Power_CONST);
 				return true;
 			}
 		}
@@ -160,7 +160,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				// reset the select input
 				laststatus_input_[devid] = 0;
 			}
-			g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
 			return true;
 		}
 		// check if the power commands are useless
@@ -198,7 +198,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			// check if the command is useless
 			if( !retransmit && laststatus_input_[devid] == cmd )
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Input select is useless");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Input select is useless");
 				inrepl.setUseless(true);
 			}
 			else
@@ -209,7 +209,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 						Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 										PRIORITY_NORMAL, MESSAGETYPE_COMMAND, cmd, 0),
 						1, 0, IR_ModeDelay);
-					g_pPlutoLogger->Write(LV_STATUS, "Command <Input Select> translated to <%d>", cmd);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <Input Select> translated to <%d>", cmd);
 					outrepls.push_back(msgrepl);
 				}
 				else
@@ -246,17 +246,17 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 													1, 0, IR_ModeDelay);
 							outrepls.push_back(msgrepl);
 						}
-						g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated <%d> translated to %d input selects",pmsg->m_dwID,cmd,count);
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <%d> translated <%d> translated to %d input selects",pmsg->m_dwID,cmd,count);
 					}
 					else
 					{
 						if(!retransmit)
 						{
-							g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
+							LoggerWrapper::GetInstance()->Write(LV_STATUS, "Input select was not sent");
 						}
 						else
 						{
-							g_pPlutoLogger->Write(LV_STATUS, "Will send one Input select");
+							LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will send one Input select");
 							MessageReplicator msgrepl(
 									Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 													PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),
@@ -273,18 +273,18 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			}
 			
 		} else {
-			g_pPlutoLogger->Write(LV_WARNING, "PK_Command_Input parameter not found.");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "PK_Command_Input parameter not found.");
 		}
 	}
 	if(ToggleInput && (find(commandorder.begin(),commandorder.end(),pmsg->m_dwID) != commandorder.end()))
 	{
 	    unsigned int i=0,count=0;
-		g_pPlutoLogger->Write(LV_STATUS, "Got command <%d>, Last was <%d>, need translation to input selects",pmsg->m_dwID,laststatus_input_[devid]);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got command <%d>, Last was <%d>, need translation to input selects",pmsg->m_dwID,laststatus_input_[devid]);
 		
 		// check if the command is useless
 		if( !retransmit && laststatus_input_[devid] == pmsg->m_dwID )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Input select is useless");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Input select is useless");
 			inrepl.setUseless(true);
 		}
 		else
@@ -320,17 +320,17 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 											1, 0, IR_ModeDelay);
 					outrepls.push_back(msgrepl);
 				}
-				g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to %d input selects",pmsg->m_dwID,count);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <%d> translated to %d input selects",pmsg->m_dwID,count);
 			}
 			else
 			{
 				if(!retransmit)
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Input select was not sent");
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "Will send one Input select");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will send one Input select");
 					MessageReplicator msgrepl(
 							Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 											PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),
@@ -353,7 +353,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	TODO: Make a paramter in DeviceTemplate_AV: Translate double pause's to play
 	********************************************************************************************************/
 	if( pmsg->m_dwID == COMMAND_Pause_Media_CONST || pmsg->m_dwID == COMMAND_Pause_CONST )	{
-		g_pPlutoLogger->Write(LV_STATUS,"Translate pause media->pause");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Translate pause media->pause");
 
 		bool ret = false;
 		if(retransmit || (lastcmdwaspause_[devid] == true))
@@ -363,7 +363,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 						PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Play_CONST, 0));
 			outrepls.push_back(msgrepl);
-			g_pPlutoLogger->Write(LV_STATUS, "Pause translated to Play.");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Pause translated to Play.");
 		}
 		else if( !inrepl.isImplemented() && pmsg->m_dwID == COMMAND_Pause_Media_CONST )
 		{
@@ -372,7 +372,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 						PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Pause_CONST, 0));
 			outrepls.push_back(msgrepl);
-			g_pPlutoLogger->Write(LV_STATUS, "Media Pause translated to Pause.");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media Pause translated to Pause.");
 		}
 		if(!retransmit)
 		{
@@ -394,7 +394,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 						PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Play_CONST, 0));
 			outrepls.push_back(msgrepl);
-			g_pPlutoLogger->Write(LV_STATUS, "Media Play translated to Play.");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media Play translated to Play.");
 			return true;
 		}
 		return false;
@@ -417,7 +417,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		if(iValue != 0) {
 			if(iValue != 1000)
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Translate playback speed into scan value: %d", iValue);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Translate playback speed into scan value: %d", iValue);
 				MessageReplicator msgrepl(
 					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 							PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
@@ -427,7 +427,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Translate playback speed(1000) into Play");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Translate playback speed(1000) into Play");
 				MessageReplicator msgrepl(
 					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Play_CONST, 0));
@@ -435,7 +435,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			}
 			return true;
 		} else {
-			g_pPlutoLogger->Write(LV_WARNING, "Cannot Translate 0 into scan value.");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Cannot Translate 0 into scan value.");
 			return false;
 		}
 	} else 
@@ -455,7 +455,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		}
 	
 		if(iValue != 0) {
-			g_pPlutoLogger->Write(LV_STATUS,"Translated jump into skip value: %d", iValue);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Translated jump into skip value: %d", iValue);
 			MessageReplicator msgrepl(
 				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 						PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
@@ -464,7 +464,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			outrepls.push_back(msgrepl);
 			return true;
 		} else {
-			g_pPlutoLogger->Write(LV_WARNING, "Cannot Translate 0 into skip value.");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Cannot Translate 0 into skip value.");
 			return false;
  		}
 	} else 
@@ -487,7 +487,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	if( pmsg->m_dwID == COMMAND_Tune_to_channel_CONST) {
 		if(sNumDigits=="X") /* Send AS IS if you need so */
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Tune to channel will be sent untranslated");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Tune to channel will be sent untranslated");
 			return false;
 		}
 		static const int DigitCmd[] = { COMMAND_0_CONST, COMMAND_1_CONST, COMMAND_2_CONST, COMMAND_3_CONST, COMMAND_4_CONST,
@@ -518,24 +518,24 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			}
 			
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_WARNING, "Input=%s || Nr=%d || Enter=%s\n",
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Input=%s || Nr=%d || Enter=%s\n",
 				sNumDigits.c_str(), NumDigits, tok.c_str());
 #endif
 			
 		} else {
-			g_pPlutoLogger->Write(LV_WARNING, "Device id %ld has no number digits parameter. Sending as is with an enter.\n", devid);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device id %ld has no number digits parameter. Sending as is with an enter.\n", devid);
 		}
 		
 		long TotalDigits = long(StringUtils::ltos(ChannelNumber).length());
 		if (NumDigits < TotalDigits) {
 			if (NumDigits > 0) {
-				g_pPlutoLogger->Write(LV_WARNING, "Warning, number of digits specified as %d but channel is %d!", NumDigits, ChannelNumber);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Warning, number of digits specified as %d but channel is %d!", NumDigits, ChannelNumber);
 			}
 			NumDigits = TotalDigits;
 		}
 		for(long i = NumDigits; i>0; i--) {
 			unsigned char digit = (unsigned char)((ChannelNumber % (long) pow((double) 10, (double) i)) / (long) pow((double) 10, (double) (i-1)));
-			g_pPlutoLogger->Write(LV_STATUS, "Sending digit %d...", digit);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending digit %d...", digit);
 
 			MessageReplicator msgrepl(
 				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
@@ -545,7 +545,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			outrepls.push_back(msgrepl);
 		}
 		if(bSendEnter) {
-			g_pPlutoLogger->Write(LV_STATUS, "Sending <enter>...");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending <enter>...");
 			MessageReplicator msgrepl(
 				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 					PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
@@ -559,7 +559,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	// well, it's not translated BUT it NEEDS to have the delays set
 	SetDelays(inrepl, devtemplid);
 	
-	g_pPlutoLogger->Write(LV_STATUS,"AVMessageTranslator::Translate end");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"AVMessageTranslator::Translate end");
 	
 	return false;
 }
@@ -571,7 +571,7 @@ AVMessageTranslator::SetDelays(MessageReplicator& inrepl, long devtemplid)
 	{
 		DeviceData_Base* pTargetDev = DefaultMessageTranslator::FindTargetDevice(inrepl.getMessage().m_dwPK_Device_To);
 		if(!pTargetDev) {
-			g_pPlutoLogger->Write(LV_WARNING, "SetDelays Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "SetDelays Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
 			return false;
 		}
 		devtemplid = pTargetDev->m_dwPK_DeviceTemplate;
@@ -628,7 +628,7 @@ AVMessageTranslator::InitDelaysMap(long devtemplid)
 	static char init_sql_buff[1024];
 	if( !DefaultMessageTranslator::InitDelaysMap(devtemplid) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device has no AV properties");
 		return false;
 	}
 	
@@ -656,7 +656,7 @@ AVMessageTranslator::InitDelaysMap(long devtemplid)
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device has no AV properties");
 			return false;
 		}
 	}

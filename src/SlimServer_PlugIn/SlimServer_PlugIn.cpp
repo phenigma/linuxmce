@@ -74,7 +74,7 @@ bool SlimServer_PlugIn::Register()
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 	if( !m_pMedia_Plugin || !m_pOrbiter_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins");
 		return false;
 	}
 
@@ -140,7 +140,7 @@ class MediaStream *SlimServer_PlugIn::CreateMediaStream( class MediaHandlerInfo 
 	pMediaDevice_PassedIn = NULL;
 	if ( vectEntertainArea.size()==0 && pMediaDevice == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
 		return NULL;
 	}
 
@@ -162,12 +162,12 @@ class MediaStream *SlimServer_PlugIn::CreateMediaStream( class MediaHandlerInfo 
 		}
 		if( !pMediaDevice )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
 			return NULL;
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Selected device (%d: %s) as playback device!",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Selected device (%d: %s) as playback device!",
 			pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 			pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
@@ -184,13 +184,13 @@ SlimServerMediaStream *SlimServer_PlugIn::ConvertToSlimServerMediaStream(MediaSt
 
 	if ( pMediaStream == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is a NULL stream!").c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, (callerIdMessage + "Stream is a NULL stream!").c_str());
 		return NULL;
 	}
 
 	if ( pMediaStream->GetType() != MEDIASTREAM_TYPE_SLIMSERVER )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is not a SlimServerMediaStream!").c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, (callerIdMessage + "Stream is not a SlimServerMediaStream!").c_str());
 		return NULL;
 	}
 
@@ -201,7 +201,7 @@ bool SlimServer_PlugIn::StartMedia( class MediaStream *pMediaStream,string &sErr
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	g_pPlutoLogger->Write( LV_STATUS, "SlimServer_PlugIn::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "SlimServer_PlugIn::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
 
 	SlimServerMediaStream *pSlimServerMediaStream = NULL;
 	if ( (pSlimServerMediaStream = ConvertToSlimServerMediaStream(pMediaStream, "SlimServer_PlugIn::StartMedia(): ")) == NULL )
@@ -228,27 +228,27 @@ bool SlimServer_PlugIn::StartMedia( class MediaStream *pMediaStream,string &sErr
 
 	string sFileToPlay = pSlimServerMediaStream->GetFilenameToPlay("Empty file name");
 
-	g_pPlutoLogger->Write( LV_STATUS, "SlimServer_PlugIn::StartMedia() Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "SlimServer_PlugIn::StartMedia() Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
 
 	string mediaURL;
 	string Response;
 
 	mediaURL = sFileToPlay;
 
-	g_pPlutoLogger->Write(LV_WARNING, "Is streaming ?: %d", pSlimServerMediaStream->isStreaming() );
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Is streaming ?: %d", pSlimServerMediaStream->isStreaming() );
 
 	// Establish streaming configuration first if this applies here
 	// This is probably needed only if we are doing a direct playback to the target ent area.
 	//	if ( pSlimServerMediaStream->isStreaming() )
  	//		StartStreaming(pSlimServerMediaStream);
 
-	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 // 	if( !SendCommand( cmd, &Response ) )
-// 		g_pPlutoLogger->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
+// 		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
 // 					pSlimServerMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 // 					pSlimServerMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_sDescription.c_str());
 // 	else
-// 		g_pPlutoLogger->Write(LV_STATUS, "The sources device responded to play media command!" );
+// 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "The sources device responded to play media command!" );
 
 	// If there are more than 1 song in the queue, we likely added to an existing queue, so we want
 	// to refresh=true so any orbiters will re-render the play list
@@ -259,7 +259,7 @@ bool SlimServer_PlugIn::StopMedia( class MediaStream *pMediaStream )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	g_pPlutoLogger->Write(LV_STATUS, "Stopping media in SlimServer_PlugIn!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopping media in SlimServer_PlugIn!");
 
 	SlimServerMediaStream *pSlimServerMediaStream = NULL;
 
@@ -272,7 +272,7 @@ bool SlimServer_PlugIn::StopMedia( class MediaStream *pMediaStream )
 
 	if( !pSlimServerMediaStream->m_pMediaDevice_Source )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Stopping media in SlimServer_PlugIn but mediadevice_source is null");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Stopping media in SlimServer_PlugIn but mediadevice_source is null");
 		return false;
 	}
 	int PK_Device = pSlimServerMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
@@ -289,17 +289,17 @@ bool SlimServer_PlugIn::StopMedia( class MediaStream *pMediaStream )
 	if( !SendCommand( cmd ) ) // hack - todo see above, &Response ) )
 	{
 		// TODO: handle failure when sending the command. This is ignored now.
-		g_pPlutoLogger->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
 	}
 	else
 	{
 		if( pSlimServerMediaStream->m_iDequeMediaFile_Pos>=0 && pSlimServerMediaStream->m_iDequeMediaFile_Pos<pSlimServerMediaStream->m_dequeMediaFile.size() )
 		{
 			pSlimServerMediaStream->m_dequeMediaFile[pSlimServerMediaStream->m_iDequeMediaFile_Pos]->m_sStartPosition = SavedPosition;
-			g_pPlutoLogger->Write( LV_STATUS, "Media stopped at %s",SavedPosition.c_str());
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media stopped at %s",SavedPosition.c_str());
 		}
 
-		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped at position: %d",
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped at position: %d",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}
 
@@ -320,7 +320,7 @@ bool SlimServer_PlugIn::StopStreaming(SlimServerMediaStream *pSlimServerMediaStr
 {
 	if ( ! pSlimServerMediaStream->isStreaming() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "SlimServer_PlugIn::StopStreaming() Function was called for a MediaStream that is not streaming currently!");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SlimServer_PlugIn::StopStreaming() Function was called for a MediaStream that is not streaming currently!");
 		return false;
 	}
 
@@ -350,7 +350,7 @@ bool SlimServer_PlugIn::StopStreaming(SlimServerMediaStream *pSlimServerMediaStr
 			break;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "SlimServer_PlugIn::StopStreaming() Send stop streaming command to the Streamer with targets: %s!", strSqueezesToStopList.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "SlimServer_PlugIn::StopStreaming() Send stop streaming command to the Streamer with targets: %s!", strSqueezesToStopList.c_str());
 	if ( strSqueezesToStopList.size() != 0 )
 	{
 		// send the StopStreaming command to the SlimServerStreamer
@@ -376,13 +376,13 @@ bool SlimServer_PlugIn::StartStreaming(SlimServerMediaStream *pMediaStream)
 
 	if ( ! pMediaStream->isStreaming() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Called SlimServer_PlugIn::StartStreaming but with a MediaStream (streamid: %d) that is non streamable.", pMediaStream->m_iStreamID_get());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Called SlimServer_PlugIn::StartStreaming but with a MediaStream (streamid: %d) that is non streamable.", pMediaStream->m_iStreamID_get());
 		return false;
 	}
 
 	if ( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router == NULL )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "SlimServer_PlugIn::StartStreaming() was passed a stream with a NULL source device! Ignoring request!.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SlimServer_PlugIn::StartStreaming() was passed a stream with a NULL source device! Ignoring request!.");
 		return false;
 	}
 
@@ -410,11 +410,11 @@ bool SlimServer_PlugIn::StartStreaming(SlimServerMediaStream *pMediaStream)
 
 	if( !SendCommand(startStreamingCommand) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Send StartStreaming Command failed");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Send StartStreaming Command failed");
 		return false;
 	}
 
-g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	MediaFile *pMediaFile = NULL;
 	// HACK: -- todo: get real informations.
 	if( pMediaStream->m_dequeMediaFile.size()>pMediaStream->m_iDequeMediaFile_Pos )
@@ -434,7 +434,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %
 	if( pMediaFile )
 		pMediaFile->m_sStartPosition=""; // Be sure to reset the start position so next time we start at the beginning of the file if this is in a queue
 
-	g_pPlutoLogger->Write(LV_STATUS, "Established streaming configuration: %d -> [%s]!",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Established streaming configuration: %d -> [%s]!",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 											strTargetDevices.c_str());
 	return true;
@@ -450,10 +450,10 @@ MediaDevice *SlimServer_PlugIn::FindMediaDeviceForEntertainArea(EntertainArea *p
 
 	if( !pMediaDevice )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "SlimServer_PlugIn::FindMediaDeviceForEntertainArea no device in ea %d",pEntertainArea->m_iPK_EntertainArea);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SlimServer_PlugIn::FindMediaDeviceForEntertainArea no device in ea %d",pEntertainArea->m_iPK_EntertainArea);
 		return NULL;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 	return pMediaDevice;
 }

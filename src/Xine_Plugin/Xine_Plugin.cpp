@@ -89,7 +89,7 @@ bool Xine_Plugin::Register()
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 	if( !m_pMedia_Plugin || !m_pOrbiter_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to xine plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to xine plugin");
 		return false;
 	}
 
@@ -138,7 +138,7 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 
 	if(m_bQuit_get())
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Plugin::CreateMediaStream with m_bQuit");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Xine_Plugin::CreateMediaStream with m_bQuit");
 		return NULL;
 	}
 
@@ -147,7 +147,7 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 	pMediaDevice_PassedIn = NULL;
 	if ( vectEntertainArea.size()==0 && pMediaDevice == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
 		return NULL;
 	}
 
@@ -170,12 +170,12 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 		}
 		if( !pMediaDevice )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
 			return NULL;
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Selected device (%d: %s) as playback device!",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Selected device (%d: %s) as playback device!",
 			pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 			pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
@@ -196,13 +196,13 @@ XineMediaStream *Xine_Plugin::ConvertToXineMediaStream(MediaStream *pMediaStream
 
 	if ( pMediaStream == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is a NULL stream!").c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, (callerIdMessage + "Stream is a NULL stream!").c_str());
 		return NULL;
 	}
 
 	if ( pMediaStream->GetType() != MEDIASTREAM_TYPE_XINE )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is not a XineMediaStream!").c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, (callerIdMessage + "Stream is not a XineMediaStream!").c_str());
 		return NULL;
 	}
 
@@ -214,7 +214,7 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Plugin::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Plugin::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
 
 	XineMediaStream *pXineMediaStream = NULL;
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StartMedia(): ")) == NULL )
@@ -235,7 +235,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	else 
 		sFileToPlay = pXineMediaStream->GetFilenameToPlay("Empty file name");
 
-	g_pPlutoLogger->Write( LV_STATUS, "Xine_Plugin::StartMedia() Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Plugin::StartMedia() Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
 
 	string mediaURL;
 	string Response;
@@ -258,7 +258,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 			MediaDevice *pDevice_Source = NULL;
 			if( pDevice_Xine==NULL || (pDevice_Source=m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_Xine->m_dwPK_Device))==NULL )
 				// This probably isn't want they want, but go ahead and let it play the local disc anyway
-				g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Plugin::StartMedia -- need to play a disc on a pc with no xine!");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::StartMedia -- need to play a disc on a pc with no xine!");
 			else
 				pXineMediaStream->m_pMediaDevice_Source = pDevice_Source;
 		}
@@ -284,7 +284,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
 		// source be one of the destinations, and change the mrl to reference the source disk
 		if( !ConfirmSourceIsADestination(mediaURL,pXineMediaStream) )
-			g_pPlutoLogger->Write(LV_WARNING,"Xine_Plugin::StartMedia don't know how media will get to destination.  Unless there's some output zones in the mix results won't be right");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Xine_Plugin::StartMedia don't know how media will get to destination.  Unless there's some output zones in the mix results won't be right");
 	}
 
 #ifdef WIN32
@@ -293,7 +293,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	if( pXineMediaStream->StreamingRequired() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
 			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 			pMediaStream->m_iDequeMediaFile_Pos);
 		DCE::CMD_Start_Streaming cmd(m_dwPK_Device,
@@ -309,7 +309,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
 			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 			pMediaStream->m_iDequeMediaFile_Pos);
 		DCE::CMD_Play_Media cmd(m_dwPK_Device,
@@ -326,7 +326,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	if( pMediaFile && pXineMediaStream->m_iPK_Playlist==0 )  // If this is part of a playlist, rather than just a normal bookmark, the user will likely want it to keep resuming at the set position
 		pMediaFile->m_sStartPosition=""; // Be sure to reset the start position so next time we start at the beginning of the file if this is in a queue
 
-	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
 	return MediaHandlerBase::StartMedia(pMediaStream,sError);
 }
@@ -335,7 +335,7 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	g_pPlutoLogger->Write(LV_STATUS, "Stopping media in Xine_Plugin!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopping media in Xine_Plugin!");
 
 /*
  what if pMediaStream is null ? :)
@@ -351,7 +351,7 @@ int k=2;
 
 	if( !pXineMediaStream->m_pMediaDevice_Source )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Stopping media in Xine_Plugin but mediadevice_source is null");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Stopping media in Xine_Plugin but mediadevice_source is null");
 		return false;
 	}
 	int PK_Device = pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
@@ -367,7 +367,7 @@ int k=2;
 	if( !SendCommand( cmd ) ) // hack - todo see above, &Response ) )
 	{
 		// TODO: handle failure when sending the command. This is ignored now.
-		g_pPlutoLogger->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
 	}
 	else
 	{
@@ -375,10 +375,10 @@ int k=2;
 		if( pXineMediaStream->m_iDequeMediaFile_Pos>=0 && pXineMediaStream->m_iDequeMediaFile_Pos<pXineMediaStream->m_dequeMediaFile.size() )
 		{
 			pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos]->m_sStartPosition = SavedPosition;
-			g_pPlutoLogger->Write( LV_STATUS, "Media stopped at %s",SavedPosition.c_str());
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media stopped at %s",SavedPosition.c_str());
 		}
 
-		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command",
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "The target device %d responded to stop media command",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}
 
@@ -393,17 +393,17 @@ MediaDevice *Xine_Plugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntert
 	MediaDevice *pMediaDevice;
 	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_Xine_Player_CONST);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Looking for a proper device in the ent area %d (%s)", pEntertainArea->m_iPK_EntertainArea, pEntertainArea->m_sDescription.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Looking for a proper device in the ent area %d (%s)", pEntertainArea->m_iPK_EntertainArea, pEntertainArea->m_sDescription.c_str());
 	if ( pMediaDevice == NULL )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Could not find a Xine Player device (with device template id: %d) in the entertainment area: %d. Looking for a squeeze box.",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not find a Xine Player device (with device template id: %d) in the entertainment area: %d. Looking for a squeeze box.",
 				DEVICETEMPLATE_Xine_Player_CONST,
 				pEntertainArea->m_iPK_EntertainArea);
 
 		return NULL;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 	return pMediaDevice;
 }
@@ -427,8 +427,8 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 
 	pXineMediaStream->m_bUseAltScreens=bOnOff;
 
-	g_pPlutoLogger->Write( LV_STATUS, "MediaStream %p with id %d and type %d reached an OnScreen Menu.", pXineMediaStream, pXineMediaStream->m_iStreamID_get( ), pXineMediaStream->m_iPK_MediaType );
-	g_pPlutoLogger->Write( LV_STATUS, "MediaStream m_mapEntertainArea.size( ) %d", pXineMediaStream->m_mapEntertainArea.size( ) );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaStream %p with id %d and type %d reached an OnScreen Menu.", pXineMediaStream, pXineMediaStream->m_iStreamID_get( ), pXineMediaStream->m_iPK_MediaType );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaStream m_mapEntertainArea.size( ) %d", pXineMediaStream->m_mapEntertainArea.size( ) );
 
 
 	/** We're going to send a message to all the orbiters in this area so they know what the remote is,
@@ -436,13 +436,13 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	for( MapEntertainArea::iterator itEA = pXineMediaStream->m_mapEntertainArea.begin( );itEA != pXineMediaStream->m_mapEntertainArea.end( );++itEA )
 	{
 		EntertainArea *pEntertainArea = ( *itEA ).second;
-		g_pPlutoLogger->Write( LV_STATUS, "Looking into the ent area (%p) with id %d and %d remotes", pEntertainArea, pEntertainArea->m_iPK_EntertainArea, (int) pEntertainArea->m_mapBoundRemote.size() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Looking into the ent area (%p) with id %d and %d remotes", pEntertainArea, pEntertainArea->m_iPK_EntertainArea, (int) pEntertainArea->m_mapBoundRemote.size() );
         for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
         {
             OH_Orbiter *pOH_Orbiter = (*it).second;
 			if( pOH_Orbiter->m_pEntertainArea!=pEntertainArea )
 				continue;
-			g_pPlutoLogger->Write(LV_STATUS, "Processing remote: for orbiter: %d", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing remote: for orbiter: %d", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			bool bBound = pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)!=pEntertainArea->m_mapBoundRemote.end();
 			m_pMedia_Plugin->SetNowPlaying(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 				pXineMediaStream,false,bBound);
@@ -474,7 +474,7 @@ bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXin
 	// If we reached here, then the source is not in one of the destination areas
 	if( !pMediaDevice_Xine )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination no xine player can handle this out of %d ea's",pXineMediaStream->m_mapEntertainArea.size());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination no xine player can handle this out of %d ea's",pXineMediaStream->m_mapEntertainArea.size());
 		return false;
 	}
 
@@ -485,7 +485,7 @@ bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXin
 		DeviceData_Router *pDevice_Disk_Drive = (DeviceData_Router *) pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Disc_Drives_CONST);
 		if( !pDevice_Disk_Drive )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find the disk drive");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find the disk drive");
 			return false;
 		}
 		string sDrive = pDevice_Disk_Drive->m_mapParameters_Find(DEVICEDATA_Drive_CONST);
@@ -497,14 +497,14 @@ bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXin
 		}
 		if( pos==string::npos )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find drive's device");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find drive's device");
 			return false;
 		}
 		string sDrive_New="/dev/device_" + StringUtils::itos(pDevice_Disk_Drive->m_dwPK_Device);
 		StringUtils::Replace(&sMRL,sDrive,sDrive_New);
 	}
 	else
-		g_pPlutoLogger->Write(LV_STATUS,"Xine_Plugin::ConfirmSourceIsADestination %s isn't a disk device",sMRL.c_str());  // Shouldn't happen
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Plugin::ConfirmSourceIsADestination %s isn't a disk device",sMRL.c_str());  // Shouldn't happen
 
 	pXineMediaStream->m_pMediaDevice_Source = pMediaDevice_Xine;
 	return true;

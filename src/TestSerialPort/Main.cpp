@@ -45,10 +45,7 @@ using namespace std;
 using namespace DCE;
 DCEConfig dceConfig;
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 
 string ParseHex(string sInput);
 string StripHex(const char *pBuffer,int Length);
@@ -58,8 +55,7 @@ bool GetBlockToSend(string &sBlock,string &sTransmitString,string::size_type &po
 
 int main(int argc, char *argv[])
 {
-
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/TestSerialPort.log");
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/TestSerialPort.log");
 
 	string sPort,sTransmitString,sMessage;
 	vector<string> vectSearchString;
@@ -132,7 +128,7 @@ int main(int argc, char *argv[])
 	char pBuffer[5000]="";
 	size_t sReceived=0;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Starting: %s, port %s timeout %f",sMessage.c_str(),sPort.c_str(),fTimeout);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Starting: %s, port %s timeout %f",sMessage.c_str(),sPort.c_str(),fTimeout);
 	try
 	{
 		CSerialPort serialPort(sPort,iBaud,_eParityBitStop,bHardwareFlowControl);
@@ -166,7 +162,7 @@ int main(int argc, char *argv[])
 			else
 			{
 				sBlock = ParseHex(sBlock);
-				g_pPlutoLogger->Write(LV_STATUS,"send: %s",IOUtils::FormatHexAsciiBuffer(sBlock.c_str(),sBlock.size(),"31").c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"send: %s",IOUtils::FormatHexAsciiBuffer(sBlock.c_str(),sBlock.size(),"31").c_str());
 				serialPort.Write((char *) sBlock.c_str(),sBlock.size());
 				serialPort.Flush();
 			}
@@ -175,21 +171,21 @@ int main(int argc, char *argv[])
 		sReceived = serialPort.Read(pBuffer,5000,(int)(fTimeout*1000));
 
 		if( sReceived==0 )
-			g_pPlutoLogger->Write(LV_STATUS,"recv: timeout, nothing received");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"recv: timeout, nothing received");
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"recv: %s",IOUtils::FormatHexAsciiBuffer(pBuffer,sReceived,"33").c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"recv: %s",IOUtils::FormatHexAsciiBuffer(pBuffer,sReceived,"33").c_str());
 			cout << StripHex(pBuffer,sReceived) << endl;
 		}	
 	}
 	catch(string sError)
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Exception: %s",sError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Exception: %s",sError.c_str());
 	}
 
 	if( sReceived==0 )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Didn't receive anything");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Didn't receive anything");
 		return 1;
 	}
 
@@ -207,12 +203,12 @@ int main(int argc, char *argv[])
 			for(char *p=pBuffer;p<=pEnd;++p)
 				if( memcmp(p,pSearch,Length)==0 )
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"Search string found");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Search string found");
 					return 0;
 				}
 		}
 
-		g_pPlutoLogger->Write(LV_STATUS,"Search string not found");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Search string not found");
 		return 1;
 	}
 	
@@ -256,7 +252,7 @@ bool GetBlockToSend(string &sBlock,string &sTransmitString,string::size_type &po
 	if( sTransmitString.size()-pos>3 && sTransmitString[pos]=='\\' && sTransmitString[pos+1]=='s' )
 	{
 		int Delay = atoi(sTransmitString.substr(pos+2).c_str());
-		g_pPlutoLogger->Write(LV_STATUS,"Sleep %dms",Delay);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sleep %dms",Delay);
 		Sleep(Delay);
 		pos = sTransmitString.find('m',pos);
 		if( pos==string::npos || pos>=sTransmitString.size()-1 )
@@ -266,7 +262,7 @@ bool GetBlockToSend(string &sBlock,string &sTransmitString,string::size_type &po
 	}
 	else if( sTransmitString.size()-pos>1 && sTransmitString[pos]=='\\' && sTransmitString[pos+1]=='b' )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"sending break");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"sending break");
 		p_serialPort->SendBreak();
 		pos+=2;
 		return GetBlockToSend(sBlock,sTransmitString,pos);

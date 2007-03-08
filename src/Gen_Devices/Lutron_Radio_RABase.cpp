@@ -32,7 +32,7 @@ DeviceData_Impl *Lutron_Radio_RA_Data::CreateData(DeviceData_Impl *Parent,char *
 		case 25:
 			return new Lutron_Radio_RA_Data();
 	};
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
 	return NULL;
 }
 
@@ -42,11 +42,11 @@ Event_Impl *Lutron_Radio_RA_Event::CreateEvent( unsigned long dwPK_DeviceTemplat
 		case 25:
 			return (Event_Impl *) new Lutron_Radio_RA_Event(pOCClientSocket, dwDevice);
 	};
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
 	return NULL;
 }
 Command_Impl  *Lutron_Radio_RA_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
 	return NULL;
 }

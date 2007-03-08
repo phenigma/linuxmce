@@ -52,7 +52,7 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 	
 	if( *ColStart<0 || *RowStart<0 )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "MediaListGrid::ToData colstart: %d rowstart: %d",
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "MediaListGrid::ToData colstart: %d rowstart: %d",
 			*ColStart, *RowStart );
 		return;
 	}
@@ -71,12 +71,12 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 
 			pCell = m_pMediaListGrid_Master->GetData(0,OriginalRow);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"MediaListGrid::row %d graphic data: %p rowstart: %d rowCount: %d totalrows: %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaListGrid::row %d graphic data: %p rowstart: %d rowCount: %d totalrows: %d",
 	row,(pCell ? pCell->m_pGraphicData : NULL),*RowStart,RowCount,m_TotalRows);
 #endif
 			FileBrowserInfo *pFileBrowserInfo = m_pMediaListGrid_Master->m_pFileBrowserInfoPtr[OriginalRow];
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Pic for %s is: %d",pFileBrowserInfo->m_sMRL.c_str( ), pFileBrowserInfo->m_PK_Picture);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Pic for %s is: %d",pFileBrowserInfo->m_sMRL.c_str( ), pFileBrowserInfo->m_PK_Picture);
 #endif
 
 			char *pIconBuffer = NULL;
@@ -90,7 +90,7 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 				/*
 				pIconBuffer = FileUtils::ReadFileIntoBuffer( "/home/mediapics/" + StringUtils::itos(pFileBrowserInfo->m_PK_Picture) + "_tn.jpg",stIconSize);
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS, "Pic file: %d has size: %d", pFileBrowserInfo->m_PK_Picture,stIconSize);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Pic file: %d has size: %d", pFileBrowserInfo->m_PK_Picture,stIconSize);
 #endif
 			}
 
@@ -114,14 +114,14 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 	clock_t cStop = clock();
 	if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"file grid pics took %d ms",(int) (cStop-cStart));
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"file grid pics took %d ms",(int) (cStop-cStart));
 	} 
 	else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"file grid pics took %d ms",(int) (cStop-cStart));
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"file grid pics took %d ms",(int) (cStop-cStart));
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING,"file grid pics took %d ms",(int) (cStop-cStart));
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"file grid pics took %d ms",(int) (cStop-cStart));
 #endif
 
 	DataGridTable::ToData(GridID,Size,Data,ColStart,RowStart,ColCount,RowCount);

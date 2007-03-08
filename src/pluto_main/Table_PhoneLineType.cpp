@@ -423,8 +423,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_PhoneLineTy
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_PhoneLineType::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_PhoneLineType::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -441,8 +440,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_PhoneLineTy
 		
 			if (id!=0)
 		pRow->m_PK_PhoneLineType=id;
-else if( g_pPlutoLogger )
-		g_pPlutoLogger->Write(LV_CRITICAL,"PK_PhoneLineType is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
+else 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_PhoneLineType is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_PhoneLineType);	
@@ -484,8 +482,7 @@ update_values_list = update_values_list + "`PK_PhoneLineType`="+pRow->PK_PhoneLi
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_PhoneLineType::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_PhoneLineType::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -531,8 +528,7 @@ condition = condition + "`PK_PhoneLineType`=" + tmp_PK_PhoneLineType;
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_PhoneLineType::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_PhoneLineType::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		
@@ -567,8 +563,7 @@ bool Table_PhoneLineType::GetRows(string where_statement,vector<class Row_PhoneL
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_PhoneLineType::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_PhoneLineType::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return false;
 	}	
 
@@ -577,8 +572,7 @@ bool Table_PhoneLineType::GetRows(string where_statement,vector<class Row_PhoneL
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_PhoneLineType::GetRows mysql_store_result returned NULL handler");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_PhoneLineType::GetRows mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
@@ -774,8 +768,7 @@ condition = condition + "`PK_PhoneLineType`=" + tmp_PK_PhoneLineType;
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_PhoneLineType::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_PhoneLineType::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return NULL;
 	}	
 
@@ -784,8 +777,7 @@ condition = condition + "`PK_PhoneLineType`=" + tmp_PK_PhoneLineType;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_PhoneLineType::FetchRow mysql_store_result returned NULL handler");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_PhoneLineType::FetchRow mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	

@@ -37,11 +37,11 @@ namespace ASTERISK {
 
 LoginCommand::LoginCommand() 
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Login commmand created.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Login commmand created.");
 }
 
 LoginCommand::~LoginCommand() {
-	g_pPlutoLogger->Write(LV_STATUS, "Login command destroyed.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Login command destroyed.");
 }
 
 void 
@@ -58,7 +58,7 @@ void
 LoginCommand::handleStartup() {
 	Token logintok;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Login SM created.!!!!!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Login SM created.!!!!!");
 	
 	LOCKED_OP(
 		logintok.setKey("Action", "login");
@@ -84,7 +84,7 @@ LoginCommand::handleToken(Token* ptoken) {
 
 void
 LoginCommand::handleTerminate() {
-	g_pPlutoLogger->Write(LV_STATUS, "Login completed.");	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Login completed.");	
 	Release();
 }
 

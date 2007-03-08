@@ -56,7 +56,7 @@ bool CM11A::GetConfig()
 CM11A::~CM11A()
 //<-dceag-dest-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Destroying CM11A");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Destroying CM11A");
 	
 }
 
@@ -79,7 +79,7 @@ bool CM11A::Connect(int iPK_DeviceTemplate) {
 	}
 	
 	if(sPort.length() > 0) {
-		g_pPlutoLogger->Write(LV_STATUS, "Using serial port: %s.", sPort.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using serial port: %s.", sPort.c_str());
 		devpoll.setSerialPort(sPort.c_str());
 	}
 	devpoll.setCM11A(this);
@@ -100,7 +100,7 @@ void CM11A::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 //<-dceag-cmdch-e->
 {
 	string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
-	g_pPlutoLogger->Write(LV_STATUS, "Child device %d has channel %s.", pMessage->m_dwPK_Device_To, sChannel.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Child device %d has channel %s.", pMessage->m_dwPK_Device_To, sChannel.c_str());
 	
 	switch(pMessage->m_dwID) {
 		case COMMAND_Generic_On_CONST: {
@@ -179,7 +179,7 @@ void CM11A::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			}
 			break;
 		default:
-			g_pPlutoLogger->Write(LV_CRITICAL, "Unknown command %d received.", pMessage->m_dwID);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unknown command %d received.", pMessage->m_dwID);
 	}
 		
 //	string sSrcPhone = pDeviceData_Base->mapParameters_Find(1);

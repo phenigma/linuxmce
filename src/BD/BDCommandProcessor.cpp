@@ -62,8 +62,6 @@ using namespace DCE;
 BDCommandProcessor::BDCommandProcessor( string sMacAddressPhone ) 
 	: m_CommandMutex("command"), m_PollingMutex("Polling")
 {
-	printf( "btcp const: %p\n\n", g_pPlutoLogger );
-
 	m_bDead = false;
 	m_bExit = false;
 	m_pcReceiveCmdData = NULL;
@@ -76,8 +74,6 @@ BDCommandProcessor::BDCommandProcessor( string sMacAddressPhone )
 	m_CommandMutex.Init( NULL );
 	pthread_cond_init( &m_PollingCond, NULL );
 	m_PollingMutex.Init( NULL, &m_PollingCond );
-
-	printf( "end of btcp const: %p\n\n", g_pPlutoLogger );
 }
 
 bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
@@ -107,7 +103,7 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 	cm.Release();
 
 	m_pCommand_Sent->ConvertCommandToBinary();
-g_pPlutoLogger->Write(LV_STATUS,"Sending %s command", m_pCommand_Sent->Description());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sending %s command", m_pCommand_Sent->Description());
 
 	if(!SendLong( m_pCommand_Sent->ID() ))
 	{
@@ -221,11 +217,11 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 
 		if(NULL == pCommand)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"# Received unknown command, type %d", dwType);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"# Received unknown command, type %d", dwType);
 			return false;
 		}
 
-g_pPlutoLogger->Write(LV_WARNING,"# Received %s command #", pCommand->Description());
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"# Received %s command #", pCommand->Description());
 
 		pCommand->ParseCommand( dwSize, pcData );
 		pCommand->ProcessCommand( this ); // takes the command processor and processes it
@@ -303,11 +299,11 @@ g_pPlutoLogger->Write(LV_WARNING,"# Received %s command #", pCommand->Descriptio
 
 		if(!pCommand)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"# Command %d not implemented! #", *dwType);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"# Command %d not implemented! #", *dwType);
 			return false;
 		}
 
-//		g_pPlutoLogger->Write(LV_WARNING,"# Received %s command #", pCommand->Description());
+//		LoggerWrapper::GetInstance()->Write(LV_WARNING,"# Received %s command #", pCommand->Description());
 
 		if( pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE ) // received a WhatDoYouHave
 		{

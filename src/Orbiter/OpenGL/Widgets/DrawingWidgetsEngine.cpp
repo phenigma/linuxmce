@@ -68,14 +68,14 @@ void DrawingWidgetsEngine::Paint()
 			WidgetPtr->Paint();
 			string WidgetName = "Widget: " + WidgetPtr->GetName();
 
-			DCE::g_pPlutoLogger->Write(LV_CRITICAL, WidgetName.c_str());
+			DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, WidgetName.c_str());
 		}
 	}
 	MeshTransform Transform;
 	Transform.ApplyTranslate( (float)- Width / 2, (float)- Height / 2, (float)Height / 2);
 
 	Context.Paint(Transform);
-	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "EndFrame");
+	//DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "EndFrame");
 }
 
 TBaseWidget* DrawingWidgetsEngine::CreateWidget(int WidgetType, int Top, int Left, int Width, int Height, char* Text)

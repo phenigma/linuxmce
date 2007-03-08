@@ -64,7 +64,7 @@ RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedat
 	
 
 
-	g_pPlutoLogger->Write(LV_STATUS, "Fetching Ruby code from Infrared Plugin");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching Ruby code from Infrared Plugin");
 	
 	IRDevice irDevice;
 	// this will have all the Ruby code, where int is the PK_Command and string is the codeint 
@@ -73,13 +73,13 @@ RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedat
 				BL_SameHouse, devid, &pData, &iSize);
 	if( !pcmdimpl->SendCommand(CMD_Get_Infrared_Codes_DT) || !iSize || !pData )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "I/R Plugin has no codes for us");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "I/R Plugin has no codes for us");
 		delete pData;
 		return;
 	}
 	irDevice.SerializeRead(iSize, pData); // De-serialize the data
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Fetched %d commands...", irDevice.m_mapCodes.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetched %d commands...", irDevice.m_mapCodes.size());
 	std::map<std::string,std::string> rcode_setoutputparam;
 
 	for(map<int,string>::iterator it = irDevice.m_mapCodes.begin(); it != irDevice.m_mapCodes.end(); it++ ) {
@@ -116,7 +116,7 @@ RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedat
 										"where PK_Command = "; sql += scmdid;
 					sql += " order by PK_CommandParameter asc";
 											
-					g_pPlutoLogger->Write(LV_STATUS, "Running query to get params for Command %s: \n%s", scmdid.c_str(), sql.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Running query to get params for Command %s: \n%s", scmdid.c_str(), sql.c_str());
 					
 					PARAMLIST& paramlist = devicemap_[devid][cmdid];
 					PlutoSqlResult params;
@@ -141,7 +141,7 @@ RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedat
 						}
 					}
 					
-					g_pPlutoLogger->Write(LV_STATUS, "Added %d parameeters for Command %s: ", paramlist.size(), scmdid.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Added %d parameeters for Command %s: ", paramlist.size(), scmdid.c_str());
 					
 					rcode_ += "cmd=nil)""\n"; // SetLevel(
 					rcode_ += "@returnParamArray.clear\n";
@@ -219,7 +219,7 @@ RubyDCECodeSupplier::TranslateCommandToRuby(const std::string& cmdtxt) {
 		return cmdtxt;
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Translating Command CODE (length %d): \n%s\n", cmdtxt.length(), cmdtxt.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Translating Command CODE (length %d): \n%s\n", cmdtxt.length(), cmdtxt.c_str());
 	
 	string ret;
 	int first = -1, last = -1;

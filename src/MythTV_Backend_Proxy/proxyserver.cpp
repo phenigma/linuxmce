@@ -49,14 +49,14 @@ namespace MYTHTV
 	{
 		if((sockfd_ = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Can't open socket.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Can't open socket.");
 			return false;
 		}
 
 		struct hostent *hent;
 		if ((hent = gethostbyname(host_.c_str())) == 0)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Error resolving host name: %s", host_.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error resolving host name: %s", host_.c_str());
 			return false;
 		}
 
@@ -71,18 +71,18 @@ namespace MYTHTV
 
 		if(bind(sockfd_, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Can't bind local address %s:%d.", host_.c_str(), port_);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Can't bind local address %s:%d.", host_.c_str(), port_);
 			return false;
 		}
 
-		g_pPlutoLogger->Write(LV_STATUS, "Listening on interface: %s, port: %d", host_.c_str(), port_);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Listening on interface: %s, port: %d", host_.c_str(), port_);
 		listen(sockfd_, SOCK_WAITQUEUE_LENGTH);
 		return true;
 	}
 
 	void ProxyServer::handleTerminate()
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Shutting down Listen SOCKET.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Shutting down Listen SOCKET.");
 		shutdown(sockfd_, SHUT_RDWR);
 		close(sockfd_);
 	}
@@ -117,13 +117,13 @@ namespace MYTHTV
 				int client_sockfd =
 					accept(sockfd_, (struct sockaddr *) &client_addr, (socklen_t*)&len_client_addr);
 
-				g_pPlutoLogger->Write(LV_STATUS, "Connection accepted.");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connection accepted.");
 
 				/*open peer connection to backend*/
 				struct hostent *hent;
 				if ((hent = gethostbyname(peerhost_.c_str())) == 0)
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL, "Error resolving host name: %s", peerhost_.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error resolving host name: %s", peerhost_.c_str());
 					continue;
 				}
 
@@ -138,7 +138,7 @@ namespace MYTHTV
 
 				if (::connect(backend_sockfd, (sockaddr *) &backend_addr, sizeof(sockaddr)))
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL, "Error connecting to server %s on port %d", peerhost_.c_str(), peerport_);
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error connecting to server %s on port %d", peerhost_.c_str(), peerport_);
 					shutdown(client_sockfd, SHUT_RDWR);
 					close(client_sockfd);
 					continue;

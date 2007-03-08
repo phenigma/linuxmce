@@ -32,7 +32,7 @@ DeviceData_Impl *ZWave_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock
 		case 1754:
 			return new ZWave_Data();
 	};
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
 	return NULL;
 }
 
@@ -42,11 +42,11 @@ Event_Impl *ZWave_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, ClientS
 		case 1754:
 			return (Event_Impl *) new ZWave_Event(pOCClientSocket, dwDevice);
 	};
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
 	return NULL;
 }
 Command_Impl  *ZWave_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
 	return NULL;
 }

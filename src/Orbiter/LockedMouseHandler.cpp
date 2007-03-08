@@ -71,7 +71,7 @@ void LockedMouseHandler::Start()
 		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y);
 	}
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"LockedMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"LockedMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
 #endif
 
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
@@ -151,7 +151,7 @@ void LockedMouseHandler::Move(int X,int Y,int PK_Direction)
 		return;
 	}
 	m_PK_Direction_Last=PK_Direction;
-	//	g_pPlutoLogger->Write(LV_FESTIVAL,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d",
+	//	LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"Move %d,%d last %d,%d start %d,%d locked axis: %d current %d pos: %d",
 //X,Y,m_pMouseBehavior->m_pSamples[0].X,m_pMouseBehavior->m_pSamples[0].Y,m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y,(int) m_pMouseBehavior->m_cLockedAxes,(int) m_pMouseBehavior->m_cLocked_Axis_Current,(int) m_pMouseBehavior->m_iLockedPosition);
 
 	PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
@@ -232,7 +232,7 @@ void LockedMouseHandler::ActivatedMainMenuPad()
 	DesignObj_Orbiter *pObj = m_pMouseBehavior->m_pOrbiter->FindObject(sSubMenu);
 	if( !pObj )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"LockedMouseHandler::ActivatedMainMenuPad cannot find %s",sSubMenu.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"LockedMouseHandler::ActivatedMainMenuPad cannot find %s",sSubMenu.c_str());
 		return;
 	}
 
@@ -274,11 +274,11 @@ void LockedMouseHandler::ActivatedSubMenu()
 	if( pObj_Screen_Before==m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj() && render.m_pScreenHistory_get()==NULL )  // See if the selection commands didn't already result in a change screen
 	{
 		m_pMouseBehavior->m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
-		g_pPlutoLogger->Write(LV_CRITICAL,"LockedMouseHandler::ActivatedSubMenu setting to main because it stayed at %s",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"LockedMouseHandler::ActivatedSubMenu setting to main because it stayed at %s",
 			pObj_Screen_Before->m_ObjectID.c_str());
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"LockedMouseHandler::ActivatedSubMenu already changed from %s to %s",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"LockedMouseHandler::ActivatedSubMenu already changed from %s to %s",
 			pObj_Screen_Before->m_ObjectID.c_str(),m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
 	delete this;  // See above notes
 }

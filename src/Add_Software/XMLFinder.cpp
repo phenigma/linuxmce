@@ -85,23 +85,16 @@ void XMLFinder::FindURLs(string sFilename, vector<string>& vectUrls)
 //--------------------------------------------------------------------------------------------------
 #ifdef UNIT_TEST_XML_FINDER
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-};
-
 int main()
 {
-	g_pPlutoLogger = new FileLogger(stdout);
-
-	/*
+/*
 	vector<string> vectUrls;
 	XMLFinder::FindURLs("/temp/search.htm", vectUrls);
 
 	for(vector<string>::iterator it = vectUrls.begin(); it != vectUrls.end(); ++it)
 	{
 		string sUrl = *it;
-		g_pPlutoLogger->Write(LV_WARNING, "Found html : %s", sUrl.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found html : %s", sUrl.c_str());
 	}*/
 
 	vector<string> vectUrls;
@@ -110,7 +103,7 @@ int main()
 	for(vector<string>::iterator it = vectUrls.begin(); it != vectUrls.end(); ++it)
 	{
 		string sUrl = *it;
-		g_pPlutoLogger->Write(LV_WARNING, "Found xml : %s", sUrl.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found xml : %s", sUrl.c_str());
 	}
 
 	return 0;

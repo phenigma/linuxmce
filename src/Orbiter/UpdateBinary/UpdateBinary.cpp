@@ -63,7 +63,7 @@
 
 namespace DCE
 {
-	Logger *g_pPlutoLogger = NULL;
+	Logger *
 }
 
 using namespace DCE;
@@ -166,9 +166,9 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	try
 	{
 		if( sLogger=="null" )
-			g_pPlutoLogger = new NullLogger();
+			LoggerWrapper::SetType(LT_LOGGER_NULL);
 		else 
-			g_pPlutoLogger = new FileLogger(sLogger.c_str());
+			LoggerWrapper::SetType(LT_LOGGER_FILE,sLogger.c_str());
 	}
 	catch(...)
 	{
@@ -176,13 +176,13 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		return -1;
 	}
 
-    g_pPlutoLogger->Write(LV_STATUS, "Started UpdateBinary with command line: %s", command_line.c_str());
-    g_pPlutoLogger->Write(LV_STATUS, "Communication file: %s", sCommFile.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started UpdateBinary with command line: %s", command_line.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Communication file: %s", sCommFile.c_str());
 
 	ClientSocket *pClientSocket = new ClientSocket( PK_Device, sRouter_IP, 
 		string( "Event Dev #" ) + StringUtils::itos( PK_Device ) );
 
-    g_pPlutoLogger->Write(LV_STATUS, "Connecting to host...");    
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connecting to host...");    
 
 	pClientSocket->Connect(0,"Event #" + StringUtils::itos(PK_Device));
 
@@ -192,7 +192,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	string sChecksum;
 	bool bChecksumOnly = false;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Creating message...");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Creating message...");
 
 	Message *pMessage = new Message(
 		PK_Device,  //long dwDeviceIDFrom
@@ -219,18 +219,18 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		&iSizeUpdateFile
 	);		
 
-    g_pPlutoLogger->Write(LV_STATUS, "Sending message...");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending message...");
 	Message *pReceivedMessage = pClientSocket->SendReceiveMessage( pMessage );
 
 	pUpdateFile = pReceivedMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST]; 
 	iSizeUpdateFile = pReceivedMessage->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST];
 	sChecksum = pReceivedMessage->m_mapParameters[COMMANDPARAMETER_Checksum_CONST];
 
-    g_pPlutoLogger->Write(LV_STATUS, "Message sent.");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message sent.");
 
 	if ( !iSizeUpdateFile )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "The update file is missing on the server." );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "The update file is missing on the server." );
 		return 1; 
 	}
 
@@ -239,7 +239,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	StringUtils::Replace(&sOrbiterMD5FileName, ".exe", ".MD5");
 	StringUtils::Replace(&sOrbiterMD5FileName, ".EXE", ".MD5");
 
-	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to update MD5 file: %s", sOrbiterMD5FileName.c_str());
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Ready to update MD5 file: %s", sOrbiterMD5FileName.c_str());
 
     bool bOrbiterMD5FilePathIsWrong = false;
     if(!FileUtils::FileExists(sOrbiterMD5FileName))
@@ -247,10 +247,10 @@ int WINAPI WinMain(	HINSTANCE hInstance,
         bOrbiterMD5FilePathIsWrong = true;
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Saving MD5 file");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Saving MD5 file");
 	if(!FileUtils::WriteBufferIntoFile(sOrbiterMD5FileName, const_cast<char *>(sChecksum.c_str()), sChecksum.length()))
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save MD5 file" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Failed to save MD5 file" );
 		Sleep(1000); //we'll continue with this version
 	}
 
@@ -262,12 +262,12 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 #define ORBITER_FILE const_cast<char *>(sOrbiterFileName.c_str())
 #endif		
 
-	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to delete the orbiter.exe file");
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Ready to delete the orbiter.exe file");
 	::DeleteFile(ORBITER_FILE);
 
 	while(!FileUtils::WriteBufferIntoFile(sOrbiterFileName, pUpdateFile, iSizeUpdateFile))
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the update file" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Failed to save the update file" );
 		Sleep(1000); //we'll continue with this version
 	}
 
@@ -294,7 +294,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	si.cb = sizeof(STARTUPINFO);
 	si.lpReserved = 0;
 
-	g_pPlutoLogger->Write( LV_CRITICAL,  "Starting the updated orbiter..." );
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Starting the updated orbiter..." );
 
 #ifdef WINCE
 	string sOrbiterPath = sOrbiterFileName;
@@ -307,8 +307,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	wchar_t OrbiterPathW[256];
 	mbstowcs(OrbiterPathW, sOrbiterPath.c_str(), 256);
 
-	g_pPlutoLogger->Write( LV_CRITICAL,  "Orbiter path: %s", sOrbiterPath.c_str() );
-	g_pPlutoLogger->Write( LV_CRITICAL,  "Orbiter cmd line: %s", sCmdLine.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Orbiter path: %s", sOrbiterPath.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Orbiter cmd line: %s", sCmdLine.c_str() );
 
 	wchar_t CommFileW[256];
 	mbstowcs(CommFileW, sCommFile.c_str(), 256);
@@ -319,12 +319,12 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
     if(!bOrbiterMD5FilePathIsWrong)
     {
-    	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to delete the communcation file");
+    	LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Ready to delete the communcation file");
     	::DeleteFile(COMM_FILE);
     }
     else
     {
-        g_pPlutoLogger->Write( LV_CRITICAL,  "The communication file will not be removed because the OrbiterMD5 file path is not correct!");
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "The communication file will not be removed because the OrbiterMD5 file path is not correct!");
     }
 
 #ifdef WINCE
@@ -333,11 +333,11 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	if(!::CreateProcess(NULL, const_cast<char *>(sOrbiterCommandLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
 #endif
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to start Orbiter application '%s'", sOrbiterCommandLine.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Failed to start Orbiter application '%s'", sOrbiterCommandLine.c_str() );
 		return false; 
 	}
 
-	g_pPlutoLogger->Write( LV_CRITICAL,  "Update done.");
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Update done.");
 
 	return 0;
 }

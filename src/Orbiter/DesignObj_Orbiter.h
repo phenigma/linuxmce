@@ -78,7 +78,7 @@ public:
 if( m_ObjectID.find(".5110.")!=string::npos )
 int k=2;
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"m_GraphicToDisplay_set %s %s=%d",sCalling.c_str(),m_ObjectID.c_str(),GraphicToDisplay);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"m_GraphicToDisplay_set %s %s=%d",sCalling.c_str(),m_ObjectID.c_str(),GraphicToDisplay);
 #endif
 		m_GraphicToDisplay=GraphicToDisplay;
 		if( bSetUnhighlightedState )

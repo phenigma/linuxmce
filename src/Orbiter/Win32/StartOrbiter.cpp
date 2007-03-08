@@ -58,8 +58,7 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 	{   
         ::MessageBox(NULL, TEXT("Deadlock problem.  Going to reload and quit"), TEXT("Orbiter"), MB_OK);
 
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Win32/StartOrbiter Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Win32/StartOrbiter Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->OnReload();
 	}
 }
@@ -71,8 +70,7 @@ void SocketCrashHandler(Socket *pSocket)
 	{
         ::MessageBox(NULL, TEXT("Socket problem.  Going to reload and quit"), TEXT("Orbiter"), MB_OK);
 
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Win32/StartOrbiter Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Win32/StartOrbiter Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->OnReload();
 	}
 }
@@ -106,18 +104,18 @@ Orbiter *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 		WriteStatusOutput("Building a new orbiter");
 		pOrbiter = new Orbiter_Win32(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, 
 			Width, Height, bFullScreen); //the builder method
-		g_pPlutoLogger->Write(LV_STATUS, "New orbiter created!");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "New orbiter created!");
 	}
 	catch(string s)
 	{
         WriteStatusOutput(("ERROR: " + s).c_str());
-		g_pPlutoLogger->Write(LV_STATUS,s.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,s.c_str());
 		return NULL;
 	}
 	catch(const char *s)
 	{
         WriteStatusOutput((string("ERROR: ") + s).c_str());
-		g_pPlutoLogger->Write(LV_STATUS, s);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, s);
 		return NULL;
 	}
 
@@ -160,7 +158,7 @@ bool Run(Orbiter* pOrbiter, bool bLocalMode)
     if (!bLocalMode)
         pOrbiter->CreateChildren();
 
-    g_pPlutoLogger->Write(LV_STATUS, "Starting processing events");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Starting processing events");
 
 	WriteStatusOutput("Starting processing events...");
 #endif
@@ -175,7 +173,7 @@ bool EventLoop(Orbiter* pOrbiter)
 
 	pOrbiter->Renderer()->EventLoop();
 
-	g_pPlutoLogger->Write(LV_STATUS, "About to quit EventLoop. Reload %d, ConnectionLost %d, Quit %d", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "About to quit EventLoop. Reload %d, ConnectionLost %d, Quit %d", 
 		(int) pOrbiter->m_bReload);
 
 	return !pOrbiter->m_bReload;
@@ -197,20 +195,20 @@ void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
 			case osConnect:
                 {
 					WriteStatusOutput("Stage connect");
-				    g_pPlutoLogger->Write(LV_STATUS, "Stage connect");
+				    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stage connect");
                     bool bMustQuit = false;
 				    pOrbiter = Connect(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, 
 						Width, Height, bFullScreen, bMustQuit);
 
 				    if(pOrbiter != NULL && !bMustQuit)
 				    {
-			            g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
+			            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connect OK");
 					    stage = osRun;
 
-					    g_pPlutoLogger->Write( LV_STATUS, "Orbiter SelfUpdate: starting" );
+					    LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter SelfUpdate: starting" );
 					    if(pOrbiter->SelfUpdate())
 					    {
-						    g_pPlutoLogger->Write( LV_STATUS, "Orbiter SelfUpdate: need to close orbiter" );
+						    LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter SelfUpdate: need to close orbiter" );
 						    stage = osQuit;
 					    }
 				    }
@@ -222,7 +220,7 @@ void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
 				break;
 
 			case osRun:
- 				g_pPlutoLogger->Write(LV_STATUS, "Stage run");
+ 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stage run");
 				if(Run(pOrbiter, bLocalMode))
 					stage = osQuit; 
 				else
@@ -239,7 +237,7 @@ void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Stage is now osQuit.");	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stage is now osQuit.");	
     
 	pOrbiter = NULL;
 }

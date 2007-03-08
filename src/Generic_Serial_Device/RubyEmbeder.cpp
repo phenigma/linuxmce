@@ -34,7 +34,7 @@ namespace EMBRUBY {
 RubyEmbeder* RubyEmbeder::s_instance_ = NULL;
 
 RubyEmbeder::RubyEmbeder() {
-	g_pPlutoLogger->Write(LV_STATUS, "Starting Ruby...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Starting Ruby...");
 	
 	ruby_init();
 	ruby_init_loadpath();
@@ -45,7 +45,7 @@ RubyEmbeder::RubyEmbeder() {
 
 RubyEmbeder::~RubyEmbeder() {
 	ruby_finalize();
-	g_pPlutoLogger->Write(LV_STATUS, "Ruby ended.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ruby ended.");
 }
 
 RubyEmbeder* 
@@ -66,7 +66,7 @@ RubyEmbeder::loadCode(RubyEmbederCodeSupplier *psup) throw(RubyException) {
 	}
 
 	string s = "RCODE:\n" + addLineNumbers(code);
-	g_pPlutoLogger->WriteBlock(s.c_str(),s.size());
+	LoggerWrapper::GetInstance()->WriteBlock(s.c_str(),s.size());
 
 /*	
 	{	//destroy in before rb_load_file

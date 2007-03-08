@@ -64,7 +64,7 @@ bool
 RubyDCEDeviceNode::Init(RubyDCECodeSupplier* pcs) {
 	try {
 		if(!pdevdata_) {
-			g_pPlutoLogger->Write(LV_WARNING, "Serial IO pool was not initialized with device Data.");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Serial IO pool was not initialized with device Data.");
 			return false;
 		}
 		
@@ -74,7 +74,7 @@ RubyDCEDeviceNode::Init(RubyDCECodeSupplier* pcs) {
 		void* data = DATA_PTR(value);
 		RubySerialIOWrapper* pWrapper = reinterpret_cast<RubySerialIOWrapper*>(data);
 		if(pWrapper == NULL) {
-			g_pPlutoLogger->Write(LV_WARNING, "Error instantiating Ruby serial WRAPPER.");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error instantiating Ruby serial WRAPPER.");
 			return false;
 		};
 		
@@ -85,7 +85,7 @@ RubyDCEDeviceNode::Init(RubyDCECodeSupplier* pcs) {
 		
 		PopulateDevice(pdevdata_, pWrapper->getDevice());
 	} catch(RubyException e) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed instantiating class: %s.", e.getMessage());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed instantiating class: %s.", e.getMessage());
 	}
 	std::list<RubyDCEDeviceNode*>& children = getChildren();
 	for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {
@@ -101,14 +101,14 @@ RubyDCEDeviceNode::Cleanup() {
 	for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {
 	    (*it)->Cleanup();
         }
-	g_pPlutoLogger->Write(LV_STATUS, "Serial IO Pool for device %d terminated.", pdevdata_->m_dwPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Serial IO Pool for device %d terminated.", pdevdata_->m_dwPK_Device);
 	delete pembclass_;
 }
 
 RubyDCEDeviceNode* 
 RubyDCEDeviceNode::findChild(unsigned devid) {
     std::list<RubyDCEDeviceNode*>& children = getChildren();
-	g_pPlutoLogger->Write(LV_STATUS, "findChild(%d) : children.size()=%d",devid,children.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "findChild(%d) : children.size()=%d",devid,children.size());
     for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {
 		if((*it)->getDeviceData()->m_dwPK_Device == devid) {
 			return *it;
@@ -127,7 +127,7 @@ RubyDCEDeviceNode::handleNoMessage() {
 	clock_gettime(CLOCK_REALTIME, &timespec);
 	if( (timespec.tv_sec - lastidle_.tv_sec) * 1000 + ((timespec.tv_nsec - lastidle_.tv_nsec) / 1000000) >= (int)idledelay_) {
 		lastidle_ = timespec;
-//		g_pPlutoLogger->Write(LV_STATUS, "Device_%d handleNoMessage sending IDLE command",getDeviceData()->m_dwPK_Device);
+//		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device_%d handleNoMessage sending IDLE command",getDeviceData()->m_dwPK_Device);
 		Message idlemsg(0, getDeviceData()->m_dwPK_Device, 0, MESSAGETYPE_COMMAND, COMMAND_Process_IDLE_CONST, 0);
 		getEmbClass()->CallCmdHandler(&idlemsg);    
 	}
@@ -148,7 +148,7 @@ RubyDCEDeviceNode::handleMessage(Message* pmsg) {
     bool ret = false;
     if( getDeviceData()->m_dwPK_Device == (unsigned long)pmsg->m_dwPK_Device_To ||
     	m_bHandleChildrenInParent_ ) {
-		g_pPlutoLogger->Write(LV_STATUS, "handleMessage directly");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "handleMessage directly");
         if( getEmbClass()->CallCmdHandler(pmsg) )
 		{
 			ret = true;
@@ -156,13 +156,13 @@ RubyDCEDeviceNode::handleMessage(Message* pmsg) {
     } else {
     	std::list<RubyDCEDeviceNode*>& children = getChildren();
 	    for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {
-			g_pPlutoLogger->Write(LV_STATUS, "handleMessage in child");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "handleMessage in child");
 			ret |= (*it)->handleMessage(pmsg);
 			 
 	    }
 //        if(!ret && findChild(pmsg->m_dwPK_Device_To)) {
         if(!ret && find(all_children_ids.begin(),all_children_ids.end(),pmsg->m_dwPK_Device_To)!=all_children_ids.end()) {
-			g_pPlutoLogger->Write(LV_STATUS, "handleMessage for child");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "handleMessage for child");
             getEmbClass()->CallCmdForChildHandler(getDeviceData()->m_dwPK_Device, pmsg);
             ret = true;
         }
@@ -203,7 +203,7 @@ RubyDCEDeviceNode::PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& 
 	int numparams = pdevdata->m_mapParameters.size();	
 	devwrap.setData(pdevdata->m_mapParameters);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Added %d data params to device %d.", numparams, pdevdata->m_dwPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Added %d data params to device %d.", numparams, pdevdata->m_dwPK_Device);
 	
 	std::map<int, std::string>::iterator itPar = pdevdata->m_mapParameters.find(DEVICEDATA_Process_Child_Commands_In_Pare_CONST);
 	if( pdevdata->m_mapParameters.end() != itPar && !(*itPar).second.empty() )
@@ -233,7 +233,7 @@ RubyDCEDeviceNode::PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& 
 		PopulateDevice(vDeviceData[i], childdevwrap);
     }
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Added %d wrapped child devices to device %d.", vDeviceData.size(), pdevdata->m_dwPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Added %d wrapped child devices to device %d.", vDeviceData.size(), pdevdata->m_dwPK_Device);
 }
 
 };

@@ -173,7 +173,7 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 
 				if( !pRow_Device )
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Error device %s cannot be located",row[0]);
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Error device %s cannot be located",row[0]);
 					continue;
 				}
 

@@ -212,7 +212,7 @@ bool OrbiterRenderer_PocketFrog::GameInit()
 
 		Rect r;
 		::GetClientRect( m_hWnd, &r );
-		g_pPlutoLogger->Write(LV_CRITICAL, "After fullscreen GetClientRect reports: %d, %d, %d, %d",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "After fullscreen GetClientRect reports: %d, %d, %d, %d",
 			r.left, r.top, r.right, r.bottom);
 	}
 #endif
@@ -246,7 +246,7 @@ void OrbiterRenderer_PocketFrog::GameLoop()
 void OrbiterRenderer_PocketFrog::StylusDown( Point p, MouseButton aMouseButton )
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, ">>> >>> OrbiterRenderer_PocketFrog::StylusDown(%d, %d, button: %d)",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, ">>> >>> OrbiterRenderer_PocketFrog::StylusDown(%d, %d, button: %d)",
 		p.x, p.y, aMouseButton);
 #endif
 
@@ -257,7 +257,7 @@ void OrbiterRenderer_PocketFrog::StylusDown( Point p, MouseButton aMouseButton )
 void OrbiterRenderer_PocketFrog::StylusUp( Point p, MouseButton aMouseButton )
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, ">>> >>> OrbiterRenderer_PocketFrog::StylusUp(%d, %d, button: %d)",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, ">>> >>> OrbiterRenderer_PocketFrog::StylusUp(%d, %d, button: %d)",
 		p.x, p.y, aMouseButton);
 #endif
 
@@ -277,7 +277,7 @@ void OrbiterRenderer_PocketFrog::StylusMove( Point p )
 void OrbiterRenderer_PocketFrog::StylusWheel( Point p, int delta)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, ">>> >>> OrbiterRenderer_PocketFrog::StylusWheel(%d, %d, delta: %d)",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, ">>> >>> OrbiterRenderer_PocketFrog::StylusWheel(%d, %d, delta: %d)",
 		p.x, p.y, delta);
 #endif
 }
@@ -305,7 +305,7 @@ void OrbiterRenderer_PocketFrog::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARA
 	{
         orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Key down %d bControlDown %d bAltDown %d bCapsLock %d bShiftDown %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Key down %d bControlDown %d bAltDown %d bCapsLock %d bShiftDown %d",
 			wParam,(int) OrbiterLogic()->m_bControlDown,(int) OrbiterLogic()->m_bAltDown,(int) OrbiterLogic()->m_bCapsLock,(int) OrbiterLogic()->m_bShiftDown);
 #endif
 	}
@@ -438,7 +438,7 @@ void OrbiterRenderer_PocketFrog::RenderScreen( bool bRenderGraphicsOnly )
 
 	CHECK_STATUS();
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",
 		(OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
 #endif
 	
@@ -533,7 +533,7 @@ void OrbiterRenderer_PocketFrog::BeginPaint()
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::EndPaint()
 {
-    g_pPlutoLogger->Write(LV_WARNING, "End paint...");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "End paint...");
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::UpdateRect(PlutoRectangle rect, PlutoPoint point)
@@ -592,7 +592,7 @@ int OrbiterRenderer_PocketFrog::GetWindowHeight() { return OrbiterLogic()->m_iIm
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::PingFailed()
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "Ping Failed! About to reload .. ");
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Ping Failed! About to reload .. ");
 
 	ShowMainDialog();
 
@@ -840,7 +840,7 @@ void OrbiterRenderer_PocketFrog::RenderText(string &TextToDisplay,class DesignOb
 
                     if(!pPieceTextStyle)
                     {
-                        g_pPlutoLogger->Write(LV_CRITICAL, "Text style not found %d. Using default!", nTextStyle);
+                        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Text style not found %d. Using default!", nTextStyle);
                         pPieceTextStyle = pTextStyle;
                     }
                 }

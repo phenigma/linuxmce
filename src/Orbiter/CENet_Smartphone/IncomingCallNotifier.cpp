@@ -51,7 +51,7 @@ VOID CALLBACK lineCallbackFunc (DWORD hDevice, DWORD dwMsg, DWORD dwCallbackInst
 	{
 		case LINE_APPNEWCALL:
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "LINE_APPNEWCALL"); 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "LINE_APPNEWCALL"); 
 			OrbiterApp::GetInstance()->Hide();
 			break;
 		}
@@ -59,45 +59,45 @@ VOID CALLBACK lineCallbackFunc (DWORD hDevice, DWORD dwMsg, DWORD dwCallbackInst
 		/*
 		case LINE_REPLY:	
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "LINE_REPLY"); 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "LINE_REPLY"); 
 			break;
 		}
 			
 		case LINE_CALLSTATE:	
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "LINE_CALLSTATE"); 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "LINE_CALLSTATE"); 
 			break;
 		}
 			
 		case LINECALLSTATE_CONNECTED:	
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "LINECALLSTATE_CONNECTED"); 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "LINECALLSTATE_CONNECTED"); 
 			break;
 		}
 			
 		case LINECALLSTATE_DISCONNECTED:	
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "LINECALLSTATE_DISCONNECTED"); 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "LINECALLSTATE_DISCONNECTED"); 
 			break;
 		}
 
 		case LINE_CALLINFO:
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "LINE_CALLINFO"); 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "LINE_CALLINFO"); 
 			break;
 		} */
 
 		default:
-			g_pPlutoLogger->Write(LV_STATUS, "unknown msg for incoming message"); 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "unknown msg for incoming message"); 
 	}
 }
 //---------------------------------------------------------------------------------------------------------
 IncomingCallNotifier::IncomingCallNotifier()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Initializing TAPI"); 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Initializing TAPI"); 
 	
 	DWORD dwReturn = InitializeTAPI();
-	g_pPlutoLogger->Write(LV_STATUS, "Initialized TAPI, return code %d", dwReturn); 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Initialized TAPI, return code %d", dwReturn); 
 }
 //---------------------------------------------------------------------------------------------------------
 IncomingCallNotifier::~IncomingCallNotifier()
@@ -142,7 +142,7 @@ DWORD IncomingCallNotifier::InitializeTAPI()
 		return 12;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Initialized TAPI successfully!"); 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Initialized TAPI successfully!"); 
 
 	return dwReturn;
 }

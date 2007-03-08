@@ -49,7 +49,7 @@ int EpgGrid::GetCols()
 
 void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"EpgGrid::ToData");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"EpgGrid::ToData");
 	ClearData();
 	PLUTO_SAFETY_LOCK(vm,m_pVDRPlugin->m_VDRMutex);
 	m_pEPG = m_pVDRPlugin->m_mapEPG_Find(m_pVDRMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
@@ -73,7 +73,7 @@ void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *R
 	tmptr = localtime(&tNow);
 	struct tm tmNow = *tmptr;
 
-	g_pPlutoLogger->Write(LV_STATUS,"EpgGrid::ToData COLSTART %d tStartOfHour %d (%d %d)",*ColStart,tStartOfHour,m_pEPG->m_listChannel.size(),m_pEPG->m_mapEvent.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"EpgGrid::ToData COLSTART %d tStartOfHour %d (%d %d)",*ColStart,tStartOfHour,m_pEPG->m_listChannel.size(),m_pEPG->m_mapEvent.size());
 
 	// Put a new column heading ever 30 minutes
 	for(int iColHeading = tStartOfHour / 60 / m_iGridResolution; iColHeading<*ColStart + ColCount;iColHeading += 30 / m_iGridResolution )
@@ -90,11 +90,11 @@ void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *R
 		SetData(iColHeading,0,pCell);
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"EpgGrid::ToData RowStart %d RowCount %d",*RowStart,RowCount);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"EpgGrid::ToData RowStart %d RowCount %d",*RowStart,RowCount);
 
 	for(int iRow=*RowStart;iRow<*RowStart + RowCount;++iRow)
 	{
-g_pPlutoLogger->Write(LV_STATUS,"in loop irow %d < %d size %d",iRow,(int) (*RowStart + RowCount), (int) m_pEPG->m_vectChannel.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"in loop irow %d < %d size %d",iRow,(int) (*RowStart + RowCount), (int) m_pEPG->m_vectChannel.size());
 		if( iRow>=0 && iRow<m_pEPG->m_vectChannel.size() )
 		{
 			Channel *pChannel = m_pEPG->m_vectChannel[iRow];
@@ -115,23 +115,23 @@ g_pPlutoLogger->Write(LV_STATUS,"in loop irow %d < %d size %d",iRow,(int) (*RowS
 	m_TotalRows=GetRows();
 	m_TotalColumns=GetCols();
 
-	g_pPlutoLogger->Write(LV_STATUS,"EpgGrid::ToData m_TotalRows %d m_TotalColumns %d",m_TotalRows,m_TotalColumns);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"EpgGrid::ToData m_TotalRows %d m_TotalColumns %d",m_TotalRows,m_TotalColumns);
 
 	DataGridTable::ToData(GridID, Size, Data, ColStart, RowStart, ColCount, RowCount);
-	g_pPlutoLogger->Write(LV_STATUS,"EpgGrid::ToData done");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"EpgGrid::ToData done");
 	m_pEPG=NULL;  // Once the mutex goes out of scope it's no longer valid
 }
 
 void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 {
-g_pPlutoLogger->Write(LV_STATUS,"EpgGrid::PopulateRow %s",pChannel->m_sChannelName.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"EpgGrid::PopulateRow %s",pChannel->m_sChannelName.c_str());
 	Event *pEvent = pChannel->m_pEvent_First,*pEvent_Prior=NULL;
 	while(pEvent && pEvent->m_tStartTime<StartTime)
 	{
 		pEvent_Prior = pEvent;
 		pEvent = pEvent->m_pEvent_Next;
 	}
-g_pPlutoLogger->Write(LV_STATUS,"pevent %p p event prior %p",pEvent,pEvent_Prior);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"pevent %p p event prior %p",pEvent,pEvent_Prior);
 
 	// The prior show is partially in this grid
 	if( pEvent_Prior && pEvent_Prior->m_tStopTime > StartTime )
@@ -146,7 +146,7 @@ g_pPlutoLogger->Write(LV_STATUS,"pevent %p p event prior %p",pEvent,pEvent_Prior
 	// Add all current shows
 	while(pEvent && pEvent->m_tStartTime<StopTime)
 	{
-g_pPlutoLogger->Write(LV_STATUS,"pevent %p p event prior %p  st %d  stop %d",pEvent,pEvent_Prior,(int) pEvent->m_tStartTime,(int) StopTime);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"pevent %p p event prior %p  st %d  stop %d",pEvent,pEvent_Prior,(int) pEvent->m_tStartTime,(int) StopTime);
 		string sDesc = pEvent->GetProgram();
 		if( pEvent->m_tStopTime > StopTime )
 			sDesc += ">";
@@ -164,7 +164,7 @@ g_pPlutoLogger->Write(LV_STATUS,"pevent %p p event prior %p  st %d  stop %d",pEv
 		SetData(Column,iRow,pCell);
 		if( pEvent->m_pEvent_Next && pEvent->m_pEvent_Next->m_tStartTime < pEvent->m_tStartTime )  // We're looping at the end
 		{
-g_pPlutoLogger->Write(LV_STATUS,"hit the end");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"hit the end");
 			break;
 
 		}

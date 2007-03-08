@@ -73,7 +73,7 @@ void GL2DEffectTransit::Paint()
 	int Width = WinHigh->GetWidth();
 	int Height = WinHigh->GetHeight();
 
-	g_pPlutoLogger->Write(LV_CRITICAL, "Transit higlight size: %d %d\n", Width, Height);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Transit higlight size: %d %d\n", Width, Height);
 
 	if(!Configured) {
 		Commons3D::Instance().GetScreen3D()->SetTexture(Effects->Widgets->OldScreen);

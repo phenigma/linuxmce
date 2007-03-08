@@ -36,7 +36,7 @@ MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"MouseHandler const %p",this);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseHandler const %p",this);
 #endif
 	m_pDatagridMouseHandlerHelper = new DatagridMouseHandlerHelper(this);
 }
@@ -44,7 +44,7 @@ MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 MediaMouseHandler::~MediaMouseHandler()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"MouseHandler dest %p",this);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseHandler dest %p",this);
 #endif
 	delete m_pDatagridMouseHandlerHelper;
 }
@@ -65,7 +65,7 @@ void MediaMouseHandler::Start()
 
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_UpDown);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"MediaMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
 #endif
 
 	if( true ) // for now just do it the one way, the absolute seeking was too tough.  m_pMouseBehavior->m_iTime_Last_Mouse_Up )
@@ -157,7 +157,7 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 			m_iLastNotch=Row;
 			pObj_Grid->m_iHighlightedRow = 1;
 			pObj_Grid->m_GridCurRow = Row;
-	g_pPlutoLogger->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highlighted row %d",Row);
+	LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::MediaTracks  *discrete* highlighted row %d",Row);
 			pObj_Grid->Flush();
 			NeedToRender render( m_pMouseBehavior->m_pOrbiter, "MOUSE BEHAVIOR SCROLL" );
 			m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Grid);

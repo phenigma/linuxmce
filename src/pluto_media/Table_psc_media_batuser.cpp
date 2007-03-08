@@ -301,8 +301,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_media_b
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_psc_media_batuser::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_media_batuser::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -319,8 +318,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_media_b
 		
 			if (id!=0)
 		pRow->m_PK_psc_media_batuser=id;
-else if( g_pPlutoLogger )
-		g_pPlutoLogger->Write(LV_CRITICAL,"PK_psc_media_batuser is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
+else 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_psc_media_batuser is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_psc_media_batuser);	
@@ -362,8 +360,7 @@ update_values_list = update_values_list + "`PK_psc_media_batuser`="+pRow->PK_psc
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_psc_media_batuser::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_media_batuser::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -409,8 +406,7 @@ condition = condition + "`PK_psc_media_batuser`=" + tmp_PK_psc_media_batuser;
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_psc_media_batuser::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_media_batuser::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		
@@ -445,8 +441,7 @@ bool Table_psc_media_batuser::GetRows(string where_statement,vector<class Row_ps
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_psc_media_batuser::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_media_batuser::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return false;
 	}	
 
@@ -455,8 +450,7 @@ bool Table_psc_media_batuser::GetRows(string where_statement,vector<class Row_ps
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_psc_media_batuser::GetRows mysql_store_result returned NULL handler");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_media_batuser::GetRows mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
@@ -608,8 +602,7 @@ condition = condition + "`PK_psc_media_batuser`=" + tmp_PK_psc_media_batuser;
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_psc_media_batuser::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_media_batuser::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return NULL;
 	}	
 
@@ -618,8 +611,7 @@ condition = condition + "`PK_psc_media_batuser`=" + tmp_PK_psc_media_batuser;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_psc_media_batuser::FetchRow mysql_store_result returned NULL handler");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_media_batuser::FetchRow mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	

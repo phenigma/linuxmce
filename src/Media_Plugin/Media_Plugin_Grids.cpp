@@ -434,7 +434,7 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
 
 void Media_Plugin::PopulateFileBrowserInfoForPlayList(MediaListGrid *pMediaListGrid,string sPK_Users_Private)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::PopulateFileBrowserInfoForPlayList Called to populate: %s", sPK_Users_Private.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::PopulateFileBrowserInfoForPlayList Called to populate: %s", sPK_Users_Private.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	if( sPK_Users_Private.size() )
@@ -597,13 +597,13 @@ void Media_Plugin::FileBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, 
 {
 	// Maybe we won't use the FileBrowser anymore, and just always get the data from the database
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"Starting File list");
 #endif
 	// A comma separated list of file extensions.  Blank means all files
 	Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
 	if( !pRow_MediaType )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find Media Type: %d",PK_MediaType);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Media Type: %d",PK_MediaType);
 		return;
 	}
 	string Extensions = pRow_MediaType->Extensions_get();
@@ -811,7 +811,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 
     if ( pMediaStream == NULL )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "The message was not from an orbiter or it doesn't have a media stream on it!");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "The message was not from an orbiter or it doesn't have a media stream on it!");
         return NULL;
     }
 
@@ -825,7 +825,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
     deque<MediaFile *>::iterator itFiles;
     string sCurrentFile;
  
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CurrentMediaSections titles %d",(int) pMediaStream->m_dequeMediaTitle.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CurrentMediaSections titles %d",(int) pMediaStream->m_dequeMediaTitle.size());
 
     int currentPos = 0;
 	// First put the bookmarks at the top
@@ -879,7 +879,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 			sCurrentFile = pMediaFile->m_sDescription.size() ? pMediaFile->m_sDescription : FileUtils::FilenameWithoutPath(pMediaFile->FullyQualifiedFile());
 
 			pDataGrid->SetData(0, currentPos++,new DataGridCell(sCurrentFile, StringUtils::itos(itFiles - pMediaStream->m_dequeMediaFile.begin())));
-			g_pPlutoLogger->Write(LV_STATUS, "Returning data: (%d) -> %s section %d", itFiles - pMediaStream->m_dequeMediaFile.begin(), ((*itFiles)->m_sFilename).c_str(),iSection);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Returning data: (%d) -> %s section %d", itFiles - pMediaStream->m_dequeMediaFile.begin(), ((*itFiles)->m_sFilename).c_str(),iSection);
 			mapSections[ make_pair<int,int> (iSection,0) ] = true;
 		}
 		*sValue_To_Assign=StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos);
@@ -1079,7 +1079,7 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
 
     if ( PK_Attribute == "" )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Got a null attributte from string: %s", Parms.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Got a null attributte from string: %s", Parms.c_str());
         return new DataGridTable();;
     }
 
@@ -1129,7 +1129,7 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
 
     if ( PK_Attribute == "" )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Got a null attributte from string: %s", Parms.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Got a null attributte from string: %s", Parms.c_str());
         return new DataGridTable();
     }
 
@@ -1169,7 +1169,7 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
 	string::size_type pos=0;
 	string PK_MediaType = StringUtils::Tokenize(Parms,"|",pos);
 	string PK_Attribute = StringUtils::Tokenize(Parms,"|",pos);
-    g_pPlutoLogger->Write(LV_STATUS, "Got this PK_Attributte: %s", PK_Attribute.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got this PK_Attributte: %s", PK_Attribute.c_str());
 
 	if( PK_Attribute.length()==0 )
 		return pDataGrid;
@@ -1188,7 +1188,7 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
 	else
         Extension = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetPictureFromAttributeID(atoi(PK_Attribute.c_str()),&PK_Picture);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Transformed PK_Attributte: %s", PK_Attribute.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transformed PK_Attributte: %s", PK_Attribute.c_str());
 
     string SQL="select DISTINCT Dest.FK_Attribute, Attribute.Name, AttributeType.Description "\
         "FROM File_Attribute As Source "\
@@ -1207,17 +1207,17 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
 
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
     {
-g_pPlutoLogger->Write(LV_STATUS, "Transformed 2 PK_Attributte: %s", PK_Attribute.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transformed 2 PK_Attributte: %s", PK_Attribute.c_str());
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
-g_pPlutoLogger->Write(LV_STATUS, "Transformed 4 PK_Attributte: %s", PK_Attribute.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transformed 4 PK_Attributte: %s", PK_Attribute.c_str());
             string label = row[1];
             label += string( "\n" ) + row[2];
             pCell = new DataGridCell( label, row[0] );
             pDataGrid->SetData( 0, RowCount++, pCell );
         }
     }
-g_pPlutoLogger->Write(LV_STATUS, "Transformed 3 PK_Attributte: %s", PK_Attribute.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transformed 3 PK_Attributte: %s", PK_Attribute.c_str());
 
     size_t length=0;
     char *buffer=NULL;
@@ -1554,7 +1554,7 @@ class DataGridTable *Media_Plugin::FloorplanMediaChoices( string GridID, string 
     EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(atoi(Parms.c_str()));
     if( !pEntertainArea )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find entertainment area for flooplan");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find entertainment area for flooplan");
         return new DataGridTable();
     }
 
@@ -1576,7 +1576,7 @@ class DataGridTable *Media_Plugin::FloorplanMediaChoices( string GridID, string 
 
 class DataGridTable *Media_Plugin::ActiveMediaStreams( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Ready to populate active media stream...");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to populate active media stream...");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     DataGridTable *pDataGrid = new DataGridTable();
 
@@ -1600,7 +1600,7 @@ class DataGridTable *Media_Plugin::ActiveMediaStreams( string GridID, string Par
         pDataGridCell->m_AltColor = UniqueColors[iRow];
         pDataGrid->SetData(0,iRow++,pDataGridCell);
     }
-    g_pPlutoLogger->Write(LV_STATUS, "Done with active media streams...");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Done with active media streams...");
     return pDataGrid;
 }
 
@@ -1609,7 +1609,7 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
     int nWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
     int nHeight = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Height_CONST].c_str());
 	
-    g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::AvailablePlaylists Called to populate: %s", Parms.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::AvailablePlaylists Called to populate: %s", Parms.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
     if( Parms.length( )==0 )
@@ -1629,7 +1629,7 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
     if( (result.r=m_pDatabase_pluto_media->mysql_query_result(SQL)) )
         while( (row=mysql_fetch_row(result.r)) )
 		{
-            // 	g_pPlutoLogger->Write(LV_CRITICAL, "Adding this entry \"%s\" to the position %d", row[1], RowCount);
+            // 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Adding this entry \"%s\" to the position %d", row[1], RowCount);
 			if( nHeight==1 ) // It's a horizontal list
 				pDataGrid->SetData(RowCount++,0,new DataGridCell(row[1], row[0]));
 			else
@@ -1712,7 +1712,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
     int nWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
 
     DataGridTable *pDataGrid = new DataGridTable();
-	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::Bookmarks Called to populate: %s", Parms.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::Bookmarks Called to populate: %s", Parms.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	// If this is called to browse the bookmarks within the currently playing file, this will be called with
@@ -1761,7 +1761,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 
 	if( sWhere.size()==0 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::Bookmarks no where clause %s",Parms.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::Bookmarks no where clause %s",Parms.c_str());
 		return pDataGrid;
 	}
 
@@ -1817,10 +1817,10 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 						pDataGridCell_Cover->m_pGraphicData = pBuffer;
 						pDataGridCell_Cover->m_GraphicLength = iSize;
 					}
-					g_pPlutoLogger->Write(LV_WARNING,"pic file 2 %p",pBuffer);
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"pic file 2 %p",pBuffer);
 				}
 				else
-					g_pPlutoLogger->Write(LV_WARNING,"File %s pic %d",(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ),PK_Picture);
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"File %s pic %d",(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ),PK_Picture);
 			}
         }
         else
@@ -1846,7 +1846,7 @@ class DataGridTable *Media_Plugin::BookmarksByMediaType( string GridID, string P
 {
 	DataGridTable *pDataGrid = new DataGridTable();
 
-	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::BookmarksByMediaType Called to populate: %s", Parms.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::BookmarksByMediaType Called to populate: %s", Parms.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	string::size_type pos=0;
 	int PK_MediaType = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
@@ -1893,7 +1893,7 @@ class DataGridTable *Media_Plugin::CaptureCardPorts( string GridID, string Parms
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CaptureCardPorts");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CaptureCardPorts");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	// See what computer we're scanning for ports on
@@ -1943,7 +1943,7 @@ class DataGridTable *Media_Plugin::DevicesForCaptureCardPort( string GridID, str
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::DevicesForCaptureCardPort");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::DevicesForCaptureCardPort");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	Row_Device *pRow_Device_Requestor = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);
@@ -1990,7 +1990,7 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::DevicesNeedingProviders");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::DevicesNeedingProviders");
 	Row_Device *pRow_Device_From = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);
 	if( !pRow_Device_From )
 		return NULL; // Shouldn't happen

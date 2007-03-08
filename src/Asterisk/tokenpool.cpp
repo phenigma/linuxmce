@@ -52,7 +52,7 @@ TokenPool::~TokenPool() {
 
 int 
 TokenPool::handleConnect(Socket* psock) {
-	g_pPlutoLogger->Write(LV_STATUS, "Login to asterisk manager.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Login to asterisk manager.");
 			
 	Token logintok;
 	logintok.setKey("Action", "login");
@@ -63,13 +63,13 @@ TokenPool::handleConnect(Socket* psock) {
 	if(!psock->sendToken(&logintok) && !psock->recvToken(&recvtok)) {
 		if(recvtok.hasKey(TOKEN_RESPONSE)) {
 			if(recvtok.getKey(TOKEN_RESPONSE) == RESPONSE_SUCCESS) {
-				g_pPlutoLogger->Write(LV_STATUS, "Login to asterisk manager successfull.");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Login to asterisk manager successfull.");
 				return 0;
 			}
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_CRITICAL, "Failed login to asterisk manager.");
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed login to asterisk manager.");
 	return -1;
 }
 
@@ -99,7 +99,7 @@ TokenPool::_Run() {
 	while(1) {
 		if(!sock.isConnected()) {
 			if(bFirstConnect) {
-				g_pPlutoLogger->Write(LV_STATUS, "Waiting %d seconds before reconnect.", POOL_RECONNECT_PERIOD);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Waiting %d seconds before reconnect.", POOL_RECONNECT_PERIOD);
 				sleep(POOL_RECONNECT_PERIOD);
 			} else {
 				bFirstConnect = false;
@@ -130,7 +130,7 @@ TokenPool::_Run() {
 			if(dosend) {
 				errcode = sock.sendToken(&req.token);
             	if(errcode != 0) {
-			    	g_pPlutoLogger->Write(LV_CRITICAL, "Error occured while sending token. Disconnecting.");
+			    	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error occured while sending token. Disconnecting.");
 					break;
 				} else {
 				}
@@ -139,21 +139,21 @@ TokenPool::_Run() {
 			/*receive*/
 			 bool doreceive = sock.isReceivable();
         	 if(doreceive) {
-				g_pPlutoLogger->Write(LV_STATUS, "Receiving token.");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Receiving token.");
 				Token token;
             	errcode = sock.recvToken(&token);
 	        	if(errcode != 0) {
-		        	g_pPlutoLogger->Write(LV_CRITICAL, "Error occured while receiving token. Disconnecting."); 
+		        	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error occured while receiving token. Disconnecting."); 
 					break;
 		    	}
 
 				/*process received token*/
-				g_pPlutoLogger->Write(LV_STATUS, "Notification of new token.");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Notification of new token.");
 				if(handleToken(&token)) {
 					break;
 				}
 			 } else {
-				g_pPlutoLogger->Write(LV_STATUS, "No traffic in/to asterisk manager. Sleeping for %d seconds", POOL_SLEEP_PERIOD);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "No traffic in/to asterisk manager. Sleeping for %d seconds", POOL_SLEEP_PERIOD);
 				sleep(POOL_SLEEP_PERIOD);
 			 }
 		 }
@@ -165,7 +165,7 @@ TokenPool::_Run() {
 	}
 	handleDisconnect();
 
-	g_pPlutoLogger->Write(LV_STATUS, "Token pool thread ended.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Token pool thread ended.");
 
 	return 0;
 }
@@ -179,7 +179,7 @@ TokenPool::sendToken(const Token* ptoken) {
 
 	sqm.Unlock();
 
-	g_pPlutoLogger->Write(LV_STATUS, "Token pushed into send queue.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Token pushed into send queue.");
 	return 0;
 }
 

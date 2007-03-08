@@ -172,7 +172,7 @@ void VideoLan_Server::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMed
 	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
 	if( !pVideoLanServerInstance )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt play nonexistant stream");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannt play nonexistant stream");
 		return;
 	}
 
@@ -183,7 +183,7 @@ void VideoLan_Server::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMed
 	{
 		int PK_Device = atoi(StringUtils::Tokenize(pVideoLanServerInstance->m_sStreamingTargets,",",pos).c_str());
 		DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(PK_Device);
-		g_pPlutoLogger->Write(LV_STATUS,"Device %d found at %p",PK_Device,pDeviceData_Base);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device %d found at %p",PK_Device,pDeviceData_Base);
 		while( pDeviceData_Base )
 		{
 			if( pDeviceData_Base->m_sIPAddress.size() )
@@ -196,11 +196,11 @@ void VideoLan_Server::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMed
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Found %d IP's",(int) vectIPs.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d IP's",(int) vectIPs.size());
 
 	if( vectIPs.size()==0 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"No IP's to stream to");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"No IP's to stream to");
 		return;
 	}
 
@@ -212,11 +212,11 @@ void VideoLan_Server::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMed
 
 	if( !ProcessUtils::SpawnApplication("vlc",pVideoLanServerInstance->m_sCommandLine,pVideoLanServerInstance->m_sSpawnName) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to spawn server");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to spawn server");
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Found %d Devices",(int) vectDevices.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d Devices",(int) vectDevices.size());
 	for(size_t s=0;s<vectDevices.size();++s)
 	{
 		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,vectDevices[s],iPK_MediaType,iStreamID,"","udp:");
@@ -246,7 +246,7 @@ string VideoLan_Server::GetVlanStream(vector<string> &vectIPs,int iStreamID)
 		sStream += "}";
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Returning stream %s",sStream.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Returning stream %s",sStream.c_str());
 	return sStream;
 }
 
@@ -317,7 +317,7 @@ void VideoLan_Server::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlayback
 	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
 	if( !pVideoLanServerInstance )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt change playback on nonexistant stream");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannt change playback on nonexistant stream");
 		return;
 	}
 
@@ -326,7 +326,7 @@ void VideoLan_Server::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlayback
 		cmd="title_p\n";
 
 	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"next\n")==false )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to stop VideoLan Server");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to stop VideoLan Server");
 }
 
 /*
@@ -341,12 +341,12 @@ void VideoLan_Server::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Mess
 	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
 	if( !pVideoLanServerInstance )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt skip fwd on nonexistant stream");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannt skip fwd on nonexistant stream");
 		return;
 	}
 
 	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"chapter_n\n")==false )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send chapter_n");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to send chapter_n");
 }
 
 
@@ -361,12 +361,12 @@ void VideoLan_Server::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Messa
 	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
 	if( !pVideoLanServerInstance )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt skip fwd on nonexistant stream");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannt skip fwd on nonexistant stream");
 		return;
 	}
 
 	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"chapter_p\n")==false )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send chapter_p");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to send chapter_p");
 }
 */
 
@@ -438,13 +438,13 @@ void VideoLan_Server::CMD_Stop_Streaming(int iStreamID,string sStreamingTargets,
 	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
 	if( !pVideoLanServerInstance )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt play nonexistant stream");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannt play nonexistant stream");
 		return;
 	}
 
 	vector<void *> data;
 	if( ProcessUtils::KillApplication(pVideoLanServerInstance->m_sSpawnName,data)==false )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to stop VideoLan Server");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to stop VideoLan Server");
 
 	m_mapVideoLanServerInstance.erase(iStreamID);
 
@@ -464,9 +464,9 @@ void VideoLan_Server::ProcessExited(int pid, int status)
 	void *data;
 
 	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
-		g_pPlutoLogger->Write(LV_WARNING, "VideoLan_Server::ProcessExited() Child with pid %d was not found in our internal data structure. Ignoring signal!", pid);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoLan_Server::ProcessExited() Child with pid %d was not found in our internal data structure. Ignoring signal!", pid);
 	else
-		g_pPlutoLogger->Write(LV_WARNING, "VideoLan_Server::ProcessExited() Child with pid %d terminated", pid);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoLan_Server::ProcessExited() Child with pid %d terminated", pid);
 }
 //<-dceag-c412-b->
 
@@ -480,25 +480,25 @@ void VideoLan_Server::ProcessExited(int pid, int status)
 void VideoLan_Server::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Set media position %d %s",iStreamID,sMediaPosition.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Set media position %d %s",iStreamID,sMediaPosition.c_str());
 	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
 
 	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
 	if( !pVideoLanServerInstance )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt skip fwd on nonexistant stream");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannt skip fwd on nonexistant stream");
 		return;
 	}
 
 	int Pos=-2,Title=-2,Chapter=2,Subtitle=-2,Angle=-2,AudioTrack=-2;
 	Pos = CalculatePosition(sMediaPosition,&Title,&Chapter,&Subtitle,&Angle,&AudioTrack);
 
-	g_pPlutoLogger->Write(LV_STATUS,"VideoLan_Server::CMD_Set_Media_Position %d %d",Title,Chapter);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"VideoLan_Server::CMD_Set_Media_Position %d %d",Title,Chapter);
 
 	if( Title!=-2 && ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"title " + StringUtils::itos(Title) + "\n")==false )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send chapter_p");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to send chapter_p");
 	if( Chapter!=-2 && ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"chapter " + StringUtils::itos(Chapter) + "\n")==false )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send chapter_p");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to send chapter_p");
 }
 
 int VideoLan_Server::CalculatePosition(string &sMediaPosition,int *Title,int *Chapter,int *Subtitle,int *Angle,int *AudioTrack)

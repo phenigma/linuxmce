@@ -19,7 +19,7 @@ DeviceData_Impl *Slim Server Streamer_Data::CreateData(DeviceData_Impl *Parent,c
 		case 58:
 			return new SqueezeBox_Player_Data();
 	};
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
 	return NULL;
 }
 
@@ -31,7 +31,7 @@ Event_Impl *Slim Server Streamer_Event::CreateEvent(int PK_DeviceTemplate, Clien
 		case 58:
 			return (Event_Impl *) new SqueezeBox_Player_Event(pOCClientSocket, DeviceID);
 	};
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", PK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", PK_DeviceTemplate);
 	return NULL;
 }
 Command_Impl  *Slim Server Streamer_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)
@@ -43,6 +43,6 @@ Command_Impl  *Slim Server Streamer_Command::CreateCommand(int PK_DeviceTemplate
 		case 58:
 			return (Command_Impl *) new SqueezeBox_Player_Command(pPrimaryDeviceCommand, pData, pEvent, m_pRouter);
 	};
-	g_pPlutoLogger->Write(LV_STATUS, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
 	return NULL;
 }

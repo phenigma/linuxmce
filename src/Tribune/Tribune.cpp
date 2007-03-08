@@ -29,10 +29,6 @@ using namespace std;
 using namespace DCE;
 using namespace Tribune;
 
-namespace DCE
-{
-	class Logger *g_pPlutoLogger;
-}
 
 namespace Tribune
 {
@@ -102,14 +98,6 @@ int main(int argc, char *argv[]){
 			<< "or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details."<<endl
 			<< endl << "-------" << endl << endl;
 
-
-	g_pPlutoLogger = new DCE::FileLogger( stdout );
-
-	if( g_pPlutoLogger == NULL )
-	{
-		cerr << "Problem creating logger. Check params." << endl;
-		exit( 1 );
-	}
 
 	cout << "Database host:" << g_GlobalConfig.m_sDBHost << " user:" << g_GlobalConfig.m_sDBUser
 			<< " pass:" << g_GlobalConfig.m_sDBPassword << " name:" << g_GlobalConfig.m_sDBName << " port:" << g_GlobalConfig.m_iDBPort << endl;

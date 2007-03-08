@@ -51,10 +51,6 @@ using namespace sqlCVS;
 
 vector<string> tables_list;
 
-namespace DCE
-{
-	class Logger *g_pPlutoLogger;
-}
 
 namespace sqlCVS
 {
@@ -380,13 +376,6 @@ int main( int argc, char *argv[] )
 
 	try
 	{
-		g_pPlutoLogger = new DCE::FileLogger( stdout );
-		if( g_pPlutoLogger == NULL )
-		{
-			cerr << "Problem creating logger. Check params." << endl;
-			exit( 1 );
-		}
-
 #ifdef WIN32
 		long err;
 		WSADATA wsaData;
@@ -611,7 +600,7 @@ int main( int argc, char *argv[] )
 		exit(1);
 	}
 
-	delete g_pPlutoLogger;
+	
 #ifdef _WIN32
 		WSACleanup( );
 #endif

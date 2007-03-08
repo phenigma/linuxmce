@@ -272,7 +272,7 @@ namespace DCE
 			if( pDevice_RegisteringInterceptor )
 				pDevice_RegisteringInterceptor->m_vectMessageInterceptorCallBack.push_back(pCallBack);
 			else
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find the device registering this interceptor"); // Should never happen
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find the device registering this interceptor"); // Should never happen
 
 			if( PK_Device_From==0 && PK_Device_To==0 && PK_DeviceTemplate==0 && PK_DeviceCategory==0 && MessageType==0 && MessageID==0 )
             {
@@ -345,18 +345,18 @@ namespace DCE
 		void DoLogRotation();
 		bool RequestReload(int PK_Device_Requesting)
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Received reload command from %d",PK_Device_Requesting);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Received reload command from %d",PK_Device_Requesting);
 			PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
-			g_pPlutoLogger->Write(LV_STATUS,"Checking %d plugins",(int)m_mapPlugIn.size()); 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Checking %d plugins",(int)m_mapPlugIn.size()); 
 			map<int,class Command_Impl *>::iterator it;
 			for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
 			{
 				Command_Impl *pPlugIn = (*it).second;
 				vector< pair<string,string> > vectPendingTasks;
-				g_pPlutoLogger->Write(LV_STATUS,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
 				if( pPlugIn->PendingTasks(&vectPendingTasks) )
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"plugin %d denied reload",pPlugIn->m_dwPK_Device);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"plugin %d denied reload",pPlugIn->m_dwPK_Device);
 					if( PK_Device_Requesting )
 					{
 						string sPendingTasks;
@@ -371,7 +371,7 @@ namespace DCE
 					return false;
 				}
 			}
-			g_pPlutoLogger->Write(LV_STATUS,"PLUGINS OK");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PLUGINS OK");
 			return true;
 		}
         void OutputChildren(class DeviceData_Impl *pDevice,string &Response);

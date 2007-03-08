@@ -47,21 +47,21 @@ void StartMotion(pid_t * pid)
 		my_motion_pid = pid;
 	if (my_motion_pid == NULL)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "StartMotion called with NULL parameter, but no previous call with non-NULL parameter");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "StartMotion called with NULL parameter, but no previous call with non-NULL parameter");
 		return;
 	}
 		
 	* my_motion_pid = fork();
 	if(* my_motion_pid)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "In parent process.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "In parent process.");
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "In child process.");
-		g_pPlutoLogger->Write(LV_STATUS, "Launching motion...");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "In child process.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Launching motion...");
 		execl("/usr/bin/motion", NULL, NULL);
-		g_pPlutoLogger->Write(LV_CRITICAL, "Could not launch motion motion!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not launch motion motion!");
 		_exit(1);
 	}
 }
@@ -74,7 +74,7 @@ void sighandler(int sig)
 	{
 		case SIGCHLD:
 			pid = wait(NULL);
-			g_pPlutoLogger->Write(LV_STATUS, "Child exited; pid: %d; motion_pid: %d", pid, my_motion_pid ? * my_motion_pid : 0);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Child exited; pid: %d; motion_pid: %d", pid, my_motion_pid ? * my_motion_pid : 0);
 			if (my_motion_pid != NULL && pid == * my_motion_pid)
 				StartMotion(NULL);
 		
@@ -120,12 +120,12 @@ Motion_Wrapper::~Motion_Wrapper()
 //<-dceag-dest-e->
 {
 	if(motionpid_) {
-		g_pPlutoLogger->Write(LV_STATUS, "Killing motion process: %d...", motionpid_);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Killing motion process: %d...", motionpid_);
 		my_motion_pid = NULL;
 		kill(motionpid_, SIGKILL);
-		g_pPlutoLogger->Write(LV_STATUS, "Waiting for motion process to finish: %d...", motionpid_);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Waiting for motion process to finish: %d...", motionpid_);
 		waitpid(motionpid_,NULL,0);
-		g_pPlutoLogger->Write(LV_STATUS, "Done.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Done.");
 	}
 
 	std::vector<pid_t>::iterator i;	
@@ -137,15 +137,15 @@ Motion_Wrapper::~Motion_Wrapper()
 }
 
 bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
-	g_pPlutoLogger->Write(LV_STATUS, "Generating Motion configuration...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Generating Motion configuration...");
 	
 	string sPath = MOTION_CONF_PATH MOTION_CONF_FILE;
 	if(!FileUtils::FileExists(sPath.c_str()) == true) {
-		g_pPlutoLogger->Write(LV_STATUS, "Motion package not installed. Please install...");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Motion package not installed. Please install...");
 		return false;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Writing configuration to: %s", MOTION_CONF_FILE);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Writing configuration to: %s", MOTION_CONF_FILE);
 	
 	std::ofstream mconffile;
 	mconffile.exceptions ( ifstream::eofbit | ifstream::failbit | ifstream::badbit );	
@@ -202,7 +202,7 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 					<< "timelapse_filename %Y/%m/%d-timelapse" << endl
 					<< endl << endl;
 	} catch(ifstream::failure e) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot open %s for writing...", sPath.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot open %s for writing...", sPath.c_str());
 		return false;
 	}
 					
@@ -234,7 +234,7 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 					mconffile << "thread " << sPath << endl;
 				}
 			} catch(ifstream::failure e) {
-				g_pPlutoLogger->Write(LV_CRITICAL, "Cannot open %s for writing...", sPath.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot open %s for writing...", sPath.c_str());
 				continue;
 			}
 		}
@@ -242,7 +242,7 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 
 	signal(SIGCHLD, sighandler);
 	StartMotion(&motionpid_);
-	g_pPlutoLogger->Write(LV_STATUS, "Forking to launch motion process...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Forking to launch motion process...");
 
 	return Motion_Wrapper_Command::Connect(iPK_DeviceTemplate);
 }
@@ -280,25 +280,25 @@ void Motion_Wrapper::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 {
 	sCMD_Result = "OK";
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Command %d received for child.", pMessage->m_dwID);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command %d received for child.", pMessage->m_dwID);
 	
 	switch(pMessage->m_dwID) {
 		case COMMAND_Get_Video_Frame_CONST: {
 				string sPortNumber = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 				
-				g_pPlutoLogger->Write(LV_STATUS, "Taking Snapshot...");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Taking Snapshot...");
 				if(kill(motionpid_, SIGALRM)) {
-					g_pPlutoLogger->Write(LV_WARNING, "Could not take snapshot, fail sending SIGALRM signal...");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not take snapshot, fail sending SIGALRM signal...");
 				} else {
 					usleep(SNAPSHOT_SLEEP_TIME * 1000);
-					g_pPlutoLogger->Write(LV_STATUS, "Checking file existance...");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Checking file existance...");
 					string FilePath = "/home/cameras/" + StringUtils::itos(pMessage->m_dwPK_Device_To) + "/lastsnap.jpg";
 					if(FileUtils::FileExists(FilePath)) {
-						g_pPlutoLogger->Write(LV_STATUS, "File exists. Reading and sending snapshot picture...");
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "File exists. Reading and sending snapshot picture...");
 						size_t nDataLength;
 						char *pFileData = FileUtils::ReadFileIntoBuffer(FilePath, nDataLength);
 						
-						g_pPlutoLogger->Write(LV_STATUS, "Sending Reply message to sender.");
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending Reply message to sender.");
 						
                             pMessage->m_bRespondedToMessage=true;
 
@@ -309,14 +309,14 @@ void Motion_Wrapper::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						
-						g_pPlutoLogger->Write(LV_STATUS, "Sent %d bytes to command sender.", nDataLength);
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sent %d bytes to command sender.", nDataLength);
 					} else {
-						g_pPlutoLogger->Write(LV_WARNING, "Missing snapshot file: %s.", FilePath.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Missing snapshot file: %s.", FilePath.c_str());
 					}
 				}
 			}break;
 		default:
-			g_pPlutoLogger->Write(LV_CRITICAL, "Unknown command %d received.", pMessage->m_dwID);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unknown command %d received.", pMessage->m_dwID);
 	}
 }
 
@@ -326,7 +326,7 @@ Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
 	int PK_Device = pDeviceData->m_dwPK_Device;
 	pid_t dc1394_pid = 0;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Generating v4l device for %d ieee1394 video device", PK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Generating v4l device for %d ieee1394 video device", PK_Device);
 
 	string sDevice = pDeviceData->mapParameters_Find(DEVICEDATA_Device_CONST);
 
@@ -337,10 +337,10 @@ Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
 		string v4lParam = "--vloopback=/dev/video"+StringUtils::itos(atoi(sDevice.c_str()) * 2 + 30);
 		string ieeeParam = "--video1394=/dev/video1394/"+sDevice;
 					
-                g_pPlutoLogger->Write(LV_STATUS, "In child process.");
-                g_pPlutoLogger->Write(LV_STATUS, "Launching dc1394_vloopback ...");
+                LoggerWrapper::GetInstance()->Write(LV_STATUS, "In child process.");
+                LoggerWrapper::GetInstance()->Write(LV_STATUS, "Launching dc1394_vloopback ...");
                 execl("/usr/bin/dc1394_vloopback", "dc1394_vloopback", v4lParam.c_str() , ieeeParam.c_str() ,NULL);
-                g_pPlutoLogger->Write(LV_CRITICAL, "Could not launch dc1394_vloopback !");
+                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not launch dc1394_vloopback !");
 
 		_exit(1);
         } else {
@@ -353,7 +353,7 @@ Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
 bool 
 Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData,size_t i) {
 	int PK_Device = pDeviceData->m_dwPK_Device;
-	g_pPlutoLogger->Write(LV_STATUS, "Using child device %d from Generic Analog Capture Card ", PK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using child device %d from Generic Analog Capture Card ", PK_Device);
 
 	string sMotion = pDeviceData->mapParameters_Find(DEVICEDATA_Motion_Option_CONST);
 			
@@ -369,7 +369,7 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 			conffile 	<< "videodevice /dev/video" << sDevice << endl;		
 		}
 	} else {
-		g_pPlutoLogger->Write(LV_WARNING, "Device number not specified for device: %d.", PK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device number not specified for device: %d.", PK_Device);
 		return false;
 	}
 
@@ -378,7 +378,7 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	if(!sPort.empty()) {
 		conffile 	<< "input " << sPort << endl;
 	} else {
-		g_pPlutoLogger->Write(LV_WARNING, "Port not specified for device: %d.", PK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Port not specified for device: %d.", PK_Device);
 		return false;
 	}
 	
@@ -404,12 +404,12 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 					
 	//Check Output Directory
 	string sPath = "/home/cameras/" + StringUtils::itos(PK_Device);
-	g_pPlutoLogger->Write(LV_STATUS, "Looking for camera output directory: %s...", sPath.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Looking for camera output directory: %s...", sPath.c_str());
 	if(FileUtils::DirExists(sPath) == false) {
-		g_pPlutoLogger->Write(LV_STATUS, "Camera output directory not found, creating it");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Camera output directory not found, creating it");
 		FileUtils::MakeDir(sPath);
 	} else {
-		g_pPlutoLogger->Write(LV_STATUS, "Camera output found");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Camera output found");
 	}
 		
 	conffile 	<< "target_dir " << sPath << endl;
@@ -434,7 +434,7 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	custom entries in threadX.conf.
 */
 	string sConfiguration = pDeviceData->mapParameters_Find(DEVICEDATA_Configuration_CONST);
-	g_pPlutoLogger->Write(LV_STATUS, "Got custom #59 configuration string %s", sConfiguration.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got custom #59 configuration string %s", sConfiguration.c_str());
 	if(!sConfiguration.empty()) {
 		conffile	<< "\n# custom settings from Pluto's device parameter #59 Configuration" << endl;
 		conffile	 << sConfiguration << endl;
@@ -564,13 +564,13 @@ this came from generic_analog_camera
 	iPortNumber++;
 	sPath = "/etc/motion/thread" + StringUtils::itos(iPortNumber) + ".conf";
 	FilePath = sPath;
-	g_pPlutoLogger->Write(LV_STATUS, "Looking for camera config file");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Looking for camera config file");
 	if(FileUtils::FileExists(sPath) == true) {
-		g_pPlutoLogger->Write(LV_STATUS, "File found, modifing...");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File found, modifing...");
 		sPath = "rm -f " + sPath;
  		system(sPath.c_str());
 	} else {
-		g_pPlutoLogger->Write(LV_STATUS, "Camera config file not found, writing new one");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Camera config file not found, writing new one");
 	}
 	fp = fopen(FilePath.c_str(),"wt+");
 	//main config
@@ -592,12 +592,12 @@ this came from generic_analog_camera
 	fprintf(fp,"snapshot_interval 3600\n");
 	//Output Directory
 	sLine = "/home/cameras/" + StringUtils::itos(DeviceID);
-	g_pPlutoLogger->Write(LV_STATUS, "Looking for camera output directory");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Looking for camera output directory");
 	if(FileUtils::DirExists(sLine) == false) {
-		g_pPlutoLogger->Write(LV_STATUS, "Camera output directory not found, creating it");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Camera output directory not found, creating it");
 		FileUtils::MakeDir(sLine);
 	} else {
-		g_pPlutoLogger->Write(LV_STATUS, "Camera output found");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Camera output found");
 	}
 	fprintf(fp,"target_dir %s\n",sLine.c_str());
 	sLine = "snapshot_filename %Y/%m/%d/%H/%M_%S";
@@ -606,7 +606,7 @@ this came from generic_analog_camera
 	fprintf(fp,"%s\n",sLine.c_str());
 	fclose(fp);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Reading Main configuration file of the motion server");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Reading Main configuration file of the motion server");
 	sPath = "/etc/motion/motion.conf";
 	size = FileUtils::FileSize(sPath);
 	char *pData = new char(size+1);
@@ -615,27 +615,27 @@ this came from generic_analog_camera
 	sLine = "#thread /etc/motion/thread" + StringUtils::itos(iPortNumber) + ".conf";
 	sRep = "thread /etc/motion/thread" + StringUtils::itos(iPortNumber) + ".conf";
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Replacing %s",sLine.c_str());
-	g_pPlutoLogger->Write(LV_STATUS, "With %s",sRep.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Replacing %s",sLine.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "With %s",sRep.c_str());
 	std::string std = pData;
 	std = StringUtils::Replace(&std,sLine,sRep);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Adding child camera to main config file");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding child camera to main config file");
 	strcpy(pData,std.c_str());
 	FileUtils::WriteBufferIntoFile(sPath,pData,size);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Getting PID of the motion server");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting PID of the motion server");
 	sLine = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
 	system(sLine.c_str());
 	size_t s;
 	const char *ptr = FileUtils::ReadFileIntoBuffer("camera_card.temp",s);
 	pid = atoi(ptr);
 	if(pid == 0) {
-		g_pPlutoLogger->Write(LV_STATUS, "Motion Server is not running, exiting");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Motion Server is not running, exiting");
 		system("rm -f camera_card.temp");
 		exit(1);
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Rehashing motion server with PID: %d",pid);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Rehashing motion server with PID: %d",pid);
 
 	sPath = "kill -s SIGHUP " + StringUtils::itos(pid);
 	system(sPath.c_str());

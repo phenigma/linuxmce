@@ -52,9 +52,9 @@ Thread::Run(bool wait) {
 	
 	int ret = pthread_create(&threadid_, NULL, _threadproc, (void*)this);
 	if(ret == 0) {
-//		DCE::g_pPlutoLogger->Write(LV_STATUS, "Thread %d created", threadid);
+//		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thread %d created", threadid);
 	} else {
-//		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "Error creating thread");
+//		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error creating thread");
 		threadid_ = 0;
 	}
 	

@@ -167,7 +167,7 @@ void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sList_PK_Devic
 		m_mapOutstandingFiles[time(NULL)]=sFile;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Processed file: %s outstanding: %d",sCmd.c_str(),(int) m_mapOutstandingFiles.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Processed file: %s outstanding: %d",sCmd.c_str(),(int) m_mapOutstandingFiles.size());
 	for(map<time_t,string>::iterator it=m_mapOutstandingFiles.begin();it!=m_mapOutstandingFiles.end();)
 	{
 		if( it->first + 300 < time(NULL) )

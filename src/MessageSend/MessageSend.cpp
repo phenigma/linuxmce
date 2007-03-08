@@ -26,11 +26,6 @@
 
 #include <iostream>
 
-namespace DCE
-{
-    Logger *g_pPlutoLogger;
-}
-
 using namespace DCE;
 using namespace std;
 
@@ -135,10 +130,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    g_pPlutoLogger = new FileLogger(stdout);
-    if (g_pPlutoLogger == NULL)
-        fprintf(stderr,"Problem creating logger.  Check params.\n");
-
 
     string ServerAddress=argv[1];
 	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, ServerAddress);
@@ -148,7 +139,7 @@ int main(int argc, char *argv[])
 		string sResponse;
 		if( !pEvent->m_pClientSocket->ReceiveString(sResponse,5) )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot communicate with router");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot communicate with router");
 			exit(1);
 		}
 		if( sResponse=="YES" )
@@ -157,15 +148,15 @@ int main(int argc, char *argv[])
 		{
 			if( i>5 )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Router not ready after 30 seconds.  Aborting....");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Router not ready after 30 seconds.  Aborting....");
 				exit(1);
 			}
-			g_pPlutoLogger->Write(LV_STATUS,"DCERouter still loading.  Waiting 5 seconds");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"DCERouter still loading.  Waiting 5 seconds");
 			Sleep(5000);
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Router gave unknown response to ready request %s",sResponse.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Router gave unknown response to ready request %s",sResponse.c_str());
 			exit(1);
 		}
 	}

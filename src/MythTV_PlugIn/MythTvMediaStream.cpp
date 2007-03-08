@@ -63,7 +63,7 @@ namespace DCE
 		if ( m_iNextProgramChannelID == 0 || m_iNextProgramTimeYear == 0 || m_iNextProgramTimeMonth == 0 || m_iNextProgramTimeDay == 0 )
 			return false;
 
-		g_pPlutoLogger->Write(LV_STATUS, "Setting next show to see to be on channel ID %d at %d/%d/%d %d:%d.",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Setting next show to see to be on channel ID %d at %d/%d/%d %d:%d.",
 			m_iNextProgramChannelID,
 			m_iNextProgramTimeYear,
 			m_iNextProgramTimeMonth,

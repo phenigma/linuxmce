@@ -35,11 +35,11 @@ void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream, bool bRefreshScreen,
     // Log a big warning on the log file. This should not crash the router but it is an error to call UpdateOrbiter with a NULL media Stream.
     if ( pMediaStream == NULL )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "BoundRemote::UpdateOrbiter was called with a NULL pointer!. Ignoring request!");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "BoundRemote::UpdateOrbiter was called with a NULL pointer!. Ignoring request!");
         return;
     }
 
-	g_pPlutoLogger->Write(LV_WARNING,
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,
 			"BoundRemote::UpdateOrbiter(): Updating object: %s on device %d with size of %d",
 				m_sPK_DesignObj_GraphicImage.c_str(),
 				m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,

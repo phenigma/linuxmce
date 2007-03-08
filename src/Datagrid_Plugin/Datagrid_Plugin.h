@@ -126,7 +126,7 @@ public:
 				{
 					if( (itCB=pDatagridGeneratorCallBackMap->find(0))==pDatagridGeneratorCallBackMap->end() )
 					{
-						g_pPlutoLogger->Write(LV_WARNING,"Multiple handlers for datagrid %d and none matching.  Using the first",iPK_DataGrid);
+						LoggerWrapper::GetInstance()->Write(LV_WARNING,"Multiple handlers for datagrid %d and none matching.  Using the first",iPK_DataGrid);
 						pCB = pDatagridGeneratorCallBackMap->begin()->second;
 					}
 					else

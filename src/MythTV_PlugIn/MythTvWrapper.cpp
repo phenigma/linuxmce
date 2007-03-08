@@ -35,7 +35,7 @@ MythTvWrapper::MythTvWrapper(Command_Impl *pCommandImpl)
     int argc = 1;
     char *argv[] = { "", "", "" };
 
-    g_pPlutoLogger->Write(LV_STATUS, "Passing params: %d", argc);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Passing params: %d", argc);
 
     m_pQApplication = new QApplication(argc, argv, false); /** we don't need to display anything on X. */
 
@@ -55,10 +55,10 @@ bool MythTvWrapper::initMythTVGlobalContext()
 {
     gContext = new MythContext(MYTH_BINARY_VERSION); /** we don't need X in the plugin */
 
-    g_pPlutoLogger->Write(LV_STATUS, "MythTvWrapper::initMythTVGlobalContext() MythContext object was created.");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTvWrapper::initMythTVGlobalContext() MythContext object was created.");
     if (!gContext->Init(false))
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "MythTvWrapper::initMythTVGlobalContext() Could not init the MythContext object.");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MythTvWrapper::initMythTVGlobalContext() Could not init the MythContext object.");
         return false;
     }
 
@@ -72,7 +72,7 @@ MythTvWrapper::MythTvEpgGrid::MythTvEpgGrid()
 
 void MythTvWrapper::MythTvEpgGrid::setGridBoundaries(QDateTime startTime, QDateTime endTime)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Setting grid boundaries to: [%s -> %s]",
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Setting grid boundaries to: [%s -> %s]",
                 startTime.toString().ascii(),
                 endTime.toString().ascii());
 
@@ -84,7 +84,7 @@ void MythTvWrapper::MythTvEpgGrid::setGridBoundaries(QDateTime startTime, QDateT
 
     readChannelData();
 
-    g_pPlutoLogger->Write(LV_STATUS, "Total grid size %dx%d", GetRows(), GetCols());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Total grid size %dx%d", GetRows(), GetCols());
 }
 
 int MythTvWrapper::MythTvEpgGrid::GetRows()
@@ -126,7 +126,7 @@ void MythTvWrapper::MythTvEpgGrid::readChannelData()
 
     if ( ! query.isActive() )
     {
-        g_pPlutoLogger->Write(LV_WARNING,
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,
             "The query %s for the channel count failed: %s!",
             strQuery.ascii(),
             query.lastError().text().ascii());
@@ -136,7 +136,7 @@ void MythTvWrapper::MythTvEpgGrid::readChannelData()
 
     if ( query.numRowsAffected() > 0 )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "We have %d channels with programs in this time period!", query.numRowsAffected());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "We have %d channels with programs in this time period!", query.numRowsAffected());
 
         m_vectChannelIds.clear();
         while ( query.next() )
@@ -144,7 +144,7 @@ void MythTvWrapper::MythTvEpgGrid::readChannelData()
     }
     else
     {
-        g_pPlutoLogger->Write(LV_STATUS, "There are no programs in this timeframe");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "There are no programs in this timeframe");
     }
 }
 
@@ -158,7 +158,7 @@ void MythTvWrapper::MythTvEpgGrid::readProgramInfo(int channelId, QString progra
 
     SetData(nColumnStart, channelId, pDataGridCell);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Cell (%s) Span: %d Start at %d. Time: (%s <--> %s)",
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Cell (%s) Span: %d Start at %d. Time: (%s <--> %s)",
                 programName.ascii(),
                 nColumnSpan, nColumnStart,
                 startTime.toString().ascii(),
@@ -224,10 +224,10 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
     QSqlQuery query;
     query.exec(strQuery);
 
-//     g_pPlutoLogger->Write(LV_STATUS, "Query: %s", strQuery.ascii());
+//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Query: %s", strQuery.ascii());
     if ( ! query.isActive() )
     {
-        g_pPlutoLogger->Write(LV_WARNING,
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,
             "The query %s for the channel count failed: %s!",
             strQuery.ascii(),
             query.lastError().text().ascii());
@@ -246,8 +246,8 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
         colStart++;
     }
 
-	g_pPlutoLogger->Write(LV_STATUS, "RowStart: %d -> RowCount %d", rowStart, rowCount);
-	g_pPlutoLogger->Write(LV_STATUS, "ColStart: %d -> ColCount %d", colStart, colCount);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RowStart: %d -> RowCount %d", rowStart, rowCount);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ColStart: %d -> ColCount %d", colStart, colCount);
 
     if ( query.numRowsAffected() > 0 )
     {
@@ -264,7 +264,7 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
         QString programName;
         QDateTime dateStart, dateEnd;
 
-		g_pPlutoLogger->Write(LV_STATUS, "Date start %s, Date End: %s", periodStart.toString().latin1(), periodEnd.toString().latin1());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Date start %s, Date End: %s", periodStart.toString().latin1(), periodEnd.toString().latin1());
 
         while ( query.next() )
         {
@@ -279,7 +279,7 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
                 currentChannelId = nextChannelId;
             }
 
-			g_pPlutoLogger->Write(LV_STATUS, "\t\tEntry - start %s, End: %s", dateStart.toString().latin1(), dateEnd.toString().latin1());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "\t\tEntry - start %s, End: %s", dateStart.toString().latin1(), dateEnd.toString().latin1());
 
 			programColumnSpan = dateStart.secsTo(dateEnd) / m_iQuantInSecs;
             programStartColumn = periodStart.secsTo(dateStart) / m_iQuantInSecs;
@@ -306,23 +306,23 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
                         .append(QString::number(dateStart.time().minute())).ascii());
 
             pCell->m_Colspan = programColumnSpan;
-			g_pPlutoLogger->Write(LV_STATUS, "Hannibal: %d (+%d), %d, %s, %s", programStartColumn  + colStart, pCell->m_Colspan, channelPos + rowStart, pCell->GetText(), pCell->GetValue());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hannibal: %d (+%d), %d, %s, %s", programStartColumn  + colStart, pCell->m_Colspan, channelPos + rowStart, pCell->GetText(), pCell->GetValue());
 			SetData(programStartColumn  + colStart, channelPos + rowStart, pCell);
 
         }
     }
     else
     {
-        g_pPlutoLogger->Write(LV_WARNING, "There are no programs in this timeframe");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "There are no programs in this timeframe");
     }
 }
 
 void MythTvWrapper::MythTvEpgGrid::MakeChannelColumn(int RowStart, int RowCount)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Trying to make a channel column");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Trying to make a channel column");
 	while ( RowCount != 0 )
     {
-		g_pPlutoLogger->Write(LV_STATUS, "Setting cell (%d, %d), to channel id: %d", 0, RowStart, RowStart );
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Setting cell (%d, %d), to channel id: %d", 0, RowStart, RowStart );
         SetData(0, RowStart, new DataGridCell(QString::number(RowStart).ascii(), "") );
         RowStart++;
         RowCount--;
@@ -390,13 +390,13 @@ DataGridTable *MythTvWrapper::createShowsForMobiles(string GridID, QDateTime cur
                         currentTime.toString(strTimeFormat).ascii());
 
     QSqlQuery query;
-	g_pPlutoLogger->Write(LV_STATUS, "Running query: %s", strQuery.latin1());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Running query: %s", strQuery.latin1());
 
     query.exec(strQuery);
 
     if ( ! query.isActive() )
     {
-        g_pPlutoLogger->Write(LV_WARNING,
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,
             "The query %s for the channel count failed: %s!",
             strQuery.ascii(),
             query.lastError().text().ascii());
@@ -412,7 +412,7 @@ DataGridTable *MythTvWrapper::createShowsForMobiles(string GridID, QDateTime cur
 
         int channelId;
 
-		g_pPlutoLogger->Write(LV_STATUS, "We have %d rows!", query.numRowsAffected());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "We have %d rows!", query.numRowsAffected());
         DataGridTable *pDataGridTable = new DataGridTable();
         while ( query.next() )
         {
@@ -440,7 +440,7 @@ DataGridTable *MythTvWrapper::createShowsForMobiles(string GridID, QDateTime cur
                         .arg(dateStart.time().minute())
                         .ascii());
 
-			g_pPlutoLogger->Write(LV_STATUS, "Setting data in grid [%d, %d] -> %s!", 0, query.at(), pCell->GetText());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Setting data in grid [%d, %d] -> %s!", 0, query.at(), pCell->GetText());
             pDataGridTable->SetData(0, query.at(), pCell);
         }
 
@@ -461,7 +461,7 @@ bool MythTvWrapper::decodeProgramStartTime(string sValue, int &nChanId, int &tmY
 
     if ( numbers.size() != 6 )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "We can't decode this: %s", sValue.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "We can't decode this: %s", sValue.c_str());
         return false;
     }
 
@@ -561,7 +561,7 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(int channelId, 
 
 	if ( programInfo == NULL )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "I could not find the data for the show that i want to record. Is the MythTV Backed and/or proxy working ?");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "I could not find the data for the show that i want to record. Is the MythTV Backed and/or proxy working ?");
 		return ScheduleRecordTVResult_Failed;
 	}
     programInfo->ApplyRecordStateChange(kSingleRecord);
@@ -613,7 +613,7 @@ bool MythTvWrapper::GetCurrentChannelProgram(int channelID, string &channelName,
 
 	if ( ! query.isActive() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Program info for current show on channel %d was null (for date: %s)!", channelID, programStartTime.toString(Qt::ISODate).latin1());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Program info for current show on channel %d was null (for date: %s)!", channelID, programStartTime.toString(Qt::ISODate).latin1());
 		return false;
 	}
 
@@ -625,7 +625,7 @@ bool MythTvWrapper::GetCurrentChannelProgram(int channelID, string &channelName,
 		return true;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "There are no programs in this timeframe");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "There are no programs in this timeframe");
 	return false;
 }
 

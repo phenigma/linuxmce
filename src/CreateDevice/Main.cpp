@@ -48,10 +48,7 @@ using namespace std;
 using namespace DCE;
 DCEConfig dceConfig;
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 
 #include "PlutoUtils/DatabaseUtils.h"
 
@@ -143,7 +140,7 @@ void ImportChildDevices(CreateDevice &createDevice,int iPK_Device_Controlled_Via
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/CreateDevice.log");
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/CreateDevice.log");
 
 	int iPK_DeviceTemplate=0,iPK_DHCPDevice=0,iPK_Device_Controlled_Via=0,iPK_Device_RelatedTo=0;
 	string sIPAddress,sMacAddress,sDeviceData,sUserName,sExportFile;
@@ -251,7 +248,7 @@ int main(int argc, char *argv[])
 	string args;
 	for(int optnum=1;optnum<argc;++optnum)
 		args += string(argv[optnum]) + " ";
-	g_pPlutoLogger->Write(LV_STATUS,"Called with: %s",args.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Called with: %s",args.c_str());
 
 	if( sUserName.size() )
 	{

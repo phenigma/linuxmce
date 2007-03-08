@@ -110,7 +110,7 @@ int main(int argc, char **argv)
     try
     {
         if( sLogger=="null" )
-            g_pPlutoLogger = new NullLogger();
+            LoggerWrapper::SetType(LT_LOGGER_NULL);
         else if( sLogger=="stdout" )
             g_pPlutoLogger = new FileLogger(stdout);
         else

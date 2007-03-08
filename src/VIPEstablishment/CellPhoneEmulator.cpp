@@ -32,7 +32,7 @@
 
 const char *CellPhoneEmulator::ReceiveRequest(long iRequestSize,const char *pRequest,long *iResponseSize)
 {
-	EstablishmentSocket *pSocket = new EstablishmentSocket(g_pPlutoLogger,1,"localhost:3461","foo");
+	EstablishmentSocket *pSocket = new EstablishmentSocket(LoggerWrapper::GetInstance(),1,"localhost:3461","foo");
 	if( !pSocket->Connect() )
 	{
 		fprintf(stderr,"Could not connect.\n");

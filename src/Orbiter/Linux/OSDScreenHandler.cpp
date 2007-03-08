@@ -659,7 +659,7 @@ bool OSDScreenHandler::ThisRoom_ObjectSelected(CallBackData *pData)
 					return true;
 
 				int nPK_Device_TopMost = m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device);
-				g_pPlutoLogger->Write(LV_WARNING, "Setting the room for top most device %d, room %s",
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Setting the room for top most device %d, room %s",
                                       nPK_Device_TopMost, sPK_Room.c_str());
 				m_pWizardLogic->SetRoomForDevice(StringUtils::ltos(nPK_Device_TopMost), sPK_Room);
 				m_pOrbiter->m_pData->m_dwPK_Room = atoi(sPK_Room.c_str());
@@ -1345,7 +1345,7 @@ void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butDoneMediaSetup_CONST));
 	ScreenHandler::SCREEN_Wizard_Done(PK_Screen);
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::SCREEN_Wizard_Done selected DESIGNOBJ_Final_CONST already played %d",(int) m_bAlreadyPlayFinalGreeting);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::SCREEN_Wizard_Done selected DESIGNOBJ_Final_CONST already played %d",(int) m_bAlreadyPlayFinalGreeting);
 #endif
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizardDone_OnScreen, new RenderScreenCallBackData());
 }
@@ -1447,7 +1447,7 @@ void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 		HandleLightingScreen();
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::SCREEN_LightsSetup setting pnp devices");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::SCREEN_LightsSetup setting pnp devices");
 		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_Lighting_Interface_CONST));
 		m_pOrbiter->StartScreenHandlerTimer(500);
 	}
@@ -1507,27 +1507,27 @@ bool OSDScreenHandler::Lights_OnTimer(CallBackData *pData)
 	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoLights_CONST || m_tWaitingForRegistration || m_tRegistered )
 	{
 		m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_Lighting_Interface_CONST,0);
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer light %d waiting %d",m_pWizardLogic->m_nPK_Device_Lighting,(int) m_tWaitingForRegistration );
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer light %d waiting %d",m_pWizardLogic->m_nPK_Device_Lighting,(int) m_tWaitingForRegistration );
 		if( m_pWizardLogic->m_nPK_Device_Lighting )
 		{
 			char cRegistered = m_tRegistered ? 'Y' : m_pOrbiter->DeviceIsRegistered(m_pWizardLogic->m_nPK_Device_Lighting);
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer registered %c", cRegistered);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer registered %c", cRegistered);
 			if( cRegistered=='Y' )
 			{
 				// Wait another 10 seconds after the lighting device first registers so it has time to report all it's children
 				if( !m_tRegistered )
 				{
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer now registered, waiting 5 secs");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer now registered, waiting 5 secs");
 					m_tRegistered=time(NULL);
 					m_tWaitingForRegistration=0;
 					return true;
 				}
 				else if( time(NULL)-m_tRegistered<10 )
 				{
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer more time to startup");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer more time to startup");
 					return true;
 				}
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer now registered");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer now registered");
 				HandleLightingScreen();
 				return false;  // Kill the timer
 			}
@@ -1539,11 +1539,11 @@ g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer now registered"
 					sText,"");
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer displaying waiting message %d",(int) m_tWaitingForRegistration);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer displaying waiting message %d",(int) m_tWaitingForRegistration);
 			}
 			else if( time(NULL)-m_tWaitingForRegistration>60 )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::Lights_OnTimer timed out waiting for %d",m_pWizardLogic->m_nPK_Device_Lighting);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"OSDScreenHandler::Lights_OnTimer timed out waiting for %d",m_pWizardLogic->m_nPK_Device_Lighting);
 				m_tWaitingForRegistration=0;
 
 				string sText=m_pOrbiter->m_mapTextString[TEXT_Device_did_not_start_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
@@ -1553,12 +1553,12 @@ g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer displaying wait
 					sText,sMessage);
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer registration failed");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer registration failed");
 				return false;
 			}
 		}
 	}
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer keeping timer");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer keeping timer");
 	return true;
 }
 
@@ -1670,7 +1670,7 @@ bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
 			if(DESIGNOBJ_butLightType2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				int PK_Room = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST).c_str());
-				g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_ObjectSelected DESIGNOBJ_LightSetupRooms_CONST device %d room %d",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_ObjectSelected DESIGNOBJ_LightSetupRooms_CONST device %d room %d",
 					m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,PK_Room);
 				if( !PK_Room || !DatabaseUtils::SetDeviceInRoom(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,PK_Room) )
 					return true;  // This room isn't valid
@@ -1829,7 +1829,7 @@ void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
 		HandleAlarmScreen();
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::SCREEN_AlarmPanel setting pnp devices");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::SCREEN_AlarmPanel setting pnp devices");
 		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_Security_Interface_CONST));
 		m_pOrbiter->StartScreenHandlerTimer(500);
 	}
@@ -1872,27 +1872,27 @@ bool OSDScreenHandler::Alarm_OnTimer(CallBackData *pData)
 	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoAlarmPanel_CONST || m_tWaitingForRegistration || m_tRegistered )
 	{
 		m_pWizardLogic->m_nPK_Device_AlarmPanel =	m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_Security_Interface_CONST,0);
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer sensor %d waiting %d",m_pWizardLogic->m_nPK_Device_AlarmPanel,(int) m_tWaitingForRegistration );
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer sensor %d waiting %d",m_pWizardLogic->m_nPK_Device_AlarmPanel,(int) m_tWaitingForRegistration );
 		if( m_pWizardLogic->m_nPK_Device_AlarmPanel )
 		{
 			char cRegistered = m_tRegistered ? 'Y' : m_pOrbiter->DeviceIsRegistered(m_pWizardLogic->m_nPK_Device_AlarmPanel);
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer registered %c", cRegistered);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer registered %c", cRegistered);
 			if( cRegistered=='Y' )
 			{
 				// Wait another 10 seconds after the alarm device first registers so it has time to report all it's children
 				if( !m_tRegistered )
 				{
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer now registered, waiting 5 secs");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer now registered, waiting 5 secs");
 					m_tRegistered=time(NULL);
 					m_tWaitingForRegistration=0;
 					return true;
 				}
 				else if( time(NULL)-m_tRegistered<10 )
 				{
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer more time to startup");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer more time to startup");
 					return true;
 				}
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer now registered");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer now registered");
 				HandleAlarmScreen();
 				return false;  // Kill the timer
 			}
@@ -1904,11 +1904,11 @@ g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer now registered")
 					sText,"");
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer displaying waiting message %d",(int) m_tWaitingForRegistration);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer displaying waiting message %d",(int) m_tWaitingForRegistration);
 			}
 			else if( time(NULL)-m_tWaitingForRegistration>60 )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"OSDScreenHandler::Alarm_OnTimer timed out waiting for %d",m_pWizardLogic->m_nPK_Device_AlarmPanel);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"OSDScreenHandler::Alarm_OnTimer timed out waiting for %d",m_pWizardLogic->m_nPK_Device_AlarmPanel);
 				m_tWaitingForRegistration=0;
 
 				string sText=m_pOrbiter->m_mapTextString[TEXT_Device_did_not_start_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
@@ -1918,12 +1918,12 @@ g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer displaying waiti
 					sText,sMessage);
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer registration failed");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer registration failed");
 				return false;
 			}
 		}
 	}
-g_pPlutoLogger->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer keeping timer");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer keeping timer");
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -2135,7 +2135,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuSpeedControl(long PK_Screen)
 {
-	g_pPlutoLogger->Write( LV_WARNING, "OSDScreenHandler::SCREEN_DVDRemote()" );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "OSDScreenHandler::SCREEN_DVDRemote()" );
 	ScreenHandler::SCREEN_mnuSpeedControl(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCustomRender, new RenderScreenCallBackData() );
@@ -2143,7 +2143,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 {
-	g_pPlutoLogger->Write(LV_WARNING, "OSDScreenHandler::SpeedControlCustomRender() screen %d",m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OSDScreenHandler::SpeedControlCustomRender() screen %d",m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 	if( m_pOrbiter->m_pScreenHistory_Current->PK_Screen()!=SCREEN_mnuSpeedControl_CONST )
 		return false;
 
@@ -2151,7 +2151,7 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 	RenderScreenCallBackData *pRenderData = dynamic_cast<RenderScreenCallBackData *>(pData);
 	if(NULL == pRenderData || NULL == pRenderData->m_pObj)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "OSDScreenHandler::SpeedControlCustomRender() : "
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "OSDScreenHandler::SpeedControlCustomRender() : "
 			"pData is not a RenderScreenCallBackData or the designobj within is NULL: renderdata %p", pRenderData);
 		return false;
 	}
@@ -2186,7 +2186,7 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 		const SpeedMouseHandler *pcSpeedMouseHandler = dynamic_cast<const SpeedMouseHandler *>(pMouseHandler);
 		if(NULL == pcSpeedMouseHandler)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "OSDScreenHandler::SpeedControlCustomRender() : "
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "OSDScreenHandler::SpeedControlCustomRender() : "
 				"Unable to get SpeedMouseHandler");
 			return false;
 		}
@@ -2195,7 +2195,7 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 		pSpeedMouseHandler->DrawInfo();
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL, "OSDScreenHandler::SpeedControlCustomRender() : "
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "OSDScreenHandler::SpeedControlCustomRender() : "
 			"MouseBehavior not activated in Orbiter!");
 #endif
 
@@ -2242,7 +2242,7 @@ bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pD
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuVolume(long PK_Screen)
 {
-	g_pPlutoLogger->Write( LV_WARNING, "ScreenHandler::SCREEN_mnuAmbiance" );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "ScreenHandler::SCREEN_mnuAmbiance" );
 	ScreenHandlerBase::SCREEN_mnuVolume(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::VolumeControlCustomRender, new RenderScreenCallBackData() );
@@ -2316,7 +2316,7 @@ bool OSDScreenHandler::VolumeControlCustomRender(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuLights(long PK_Screen)
 {
-	g_pPlutoLogger->Write( LV_WARNING, "ScreenHandler::SCREEN_mnuAmbiance" );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "ScreenHandler::SCREEN_mnuAmbiance" );
 	ScreenHandlerBase::SCREEN_mnuLights(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::LightControlCustomRender, new RenderScreenCallBackData() );
@@ -2412,12 +2412,12 @@ void OSDScreenHandler::ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessa
 {
 	if( m_bWizardIsRunning )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::ReceivedGotoScreenMessage checking screen %d",nPK_Screen);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::ReceivedGotoScreenMessage checking screen %d",nPK_Screen);
 		if( nPK_Screen == SCREEN_PopupMessage_CONST && pMessage && pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST]=="new_device_reload" )
 			return;
 		else if( nPK_Screen == SCREEN_Need_Regen_Orbiter_CONST || nPK_Screen == SCREEN_Need_Reload_Router_CONST )
 			return;
-		g_pPlutoLogger->Write(LV_STATUS,"OSDScreenHandler::ReceivedGotoScreenMessage letting through screen %d",nPK_Screen);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::ReceivedGotoScreenMessage letting through screen %d",nPK_Screen);
 	}
 
 	ScreenHandler::ReceivedGotoScreenMessage(nPK_Screen,pMessage);
@@ -2541,7 +2541,7 @@ void OSDScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butProviders_CONST));
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SCREEN_Choose_Provider_for_Device");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SCREEN_Choose_Provider_for_Device");
 #endif
 
 	ScreenHandlerBase::SCREEN_Choose_Provider_for_Device(PK_Screen);
@@ -2579,7 +2579,7 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 
 	string sValue; // If this is a set variable for VARIABLE_Execution_Result_CONST, then we got back a response and can continue
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted");
 #endif
 	MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
 	if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
@@ -2594,13 +2594,13 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 			return false;  // Should never happen
 		sValue = it->second;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted value is %s",sValue.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted value is %s",sValue.c_str());
 #endif
 	}
 	else
 	{
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted not set variable %d",pMsgInterceptorCellBackData->m_pMessage->m_dwID);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted not set variable %d",pMsgInterceptorCellBackData->m_pMessage->m_dwID);
 #endif
 		return false;
 	}
@@ -2622,7 +2622,7 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	while(it!=vectLines.end() && *it!="OK")
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted skipping %s",it->c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted skipping %s",it->c_str());
 #endif
 		++it;
 	}
@@ -2632,7 +2632,7 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	{
 		string::size_type pos = it->find('\t');
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted processing %s",it->c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted processing %s",it->c_str());
 #endif
 		if( pos == string::npos )
 		{
@@ -2650,7 +2650,7 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	if(iRow==0)
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK CALLING CMD_Goto_Screen");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK CALLING CMD_Goto_Screen");
 #endif
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Choose_Provider_for_Device_CONST);
 		string sText = m_pOrbiter->m_mapTextString[TEXT_error_with_provider_CONST];
@@ -2665,7 +2665,7 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	m_iStage++;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted row %d col %d stage %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted row %d col %d stage %d",
 		pDataGridTable->m_RowCount,pDataGridTable->m_ColumnCount,m_iStage);
 #endif
 
@@ -2805,7 +2805,7 @@ void OSDScreenHandler::ChooseProviderGetNextStage()
 		atoi(m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str())==0 )
 	{
 		m_pOrbiter->m_pScreenHistory_Current->ScreenID( m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST) );  // Don't know why we keep losing the id
-		g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHandler::ChooseProviderGetNextStage recurring bug to fix -- screen id is: %s PK_Screen %d",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ScreenHandler::ChooseProviderGetNextStage recurring bug to fix -- screen id is: %s PK_Screen %d",
 			m_pOrbiter->m_pScreenHistory_Current->ScreenID().c_str(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 	}
 
@@ -2888,7 +2888,7 @@ void OSDScreenHandler::ChooseProviderGetNextStage()
 		DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,sAllArguments);
 		m_pOrbiter->SendCommand(CMD_Specify_Media_Provider);
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ChooseProviderGetNextStage CALLING CMD_Goto_Screen");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProviderGetNextStage CALLING CMD_Goto_Screen");
 #endif
 
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Choose_Provider_for_Device_CONST);
@@ -2902,13 +2902,13 @@ void OSDScreenHandler::ChooseProviderGetNextStage()
 void OSDScreenHandler::SpawnProviderScript(string sCommandLine,string sArguments)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SpawnProviderScript CMD %s args %s stage %d",sCommandLine.c_str(),sArguments.c_str(),m_iStage);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SpawnProviderScript CMD %s args %s stage %d",sCommandLine.c_str(),sArguments.c_str(),m_iStage);
 #endif
 	DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfTemplate(DEVICETEMPLATE_DCERouter_CONST);
 	DeviceData_Base *pDevice_AppServer = pDevice_Core->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
 	if( !pDevice_AppServer )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHandler::SpawnProviderScript no app server"); // shouldn't ever happen
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ScreenHandler::SpawnProviderScript no app server"); // shouldn't ever happen
 		return; 
 	}
 

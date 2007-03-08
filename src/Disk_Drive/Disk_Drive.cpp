@@ -95,7 +95,7 @@ bool Disk_Drive::GetConfig()
 	if( !pPtr || sNbdServer!=pPtr )
 	{
 		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdServer.c_str(), sNbdServer.size() );
-		g_pPlutoLogger->Write(LV_WARNING,"Wrote nbd-server file %d chaged from %s to %s",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Wrote nbd-server file %d chaged from %s to %s",
 			(int) bResult,(pPtr ? pPtr : "*NONE*\n"),sNbdServer.c_str());
 	}
 
@@ -164,7 +164,7 @@ void Disk_Drive::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void Disk_Drive::CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,Message *pMessage)
 //<-dceag-c45-e->
 {
-    g_pPlutoLogger->Write(LV_ACTION,"Turning ON the disk drive monitoring.");
+    LoggerWrapper::GetInstance()->Write(LV_ACTION,"Turning ON the disk drive monitoring.");
     m_monitorEnabled = true;
     m_pDisk_Drive_Functions->cdrom_lock(0);
 }
@@ -177,7 +177,7 @@ void Disk_Drive::CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,Message *pMess
 void Disk_Drive::CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,Message *pMessage)
 //<-dceag-c46-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS,"Turning OFF the Disk Drive Monitoring.");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"Turning OFF the Disk Drive Monitoring.");
     m_monitorEnabled = false;
     m_pDisk_Drive_Functions->cdrom_lock(1);
 }
@@ -215,12 +215,12 @@ void Disk_Drive::CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *p
 {
 	static time_t tLastEject=0;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive::CMD_Eject_Disk  tLastEject %d (%d) tray open: %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Eject_Disk  tLastEject %d (%d) tray open: %d",
 		(int) tLastEject, (int) time(NULL), (int) m_pDisk_Drive_Functions->m_bTrayOpen);
 
 	if( time(NULL)-tLastEject<=2 )  // It can take the drive a while to spin down and the user hits eject multiple times
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive::CMD_Eject_Disk skipping eject within last 2 seconds");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Eject_Disk skipping eject within last 2 seconds");
 		return;
 	}
 	if( m_pDisk_Drive_Functions->m_bTrayOpen )
@@ -305,12 +305,12 @@ void Disk_Drive::CMD_Abort_Burning(string &sCMD_Result,Message *pMessage)
 void Disk_Drive::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c54-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Got a mount media request %s", sFilename.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got a mount media request %s", sFilename.c_str());
     string stringMRL;
 
 	if (! m_pDisk_Drive_Functions->mountDVD(sFilename, stringMRL))
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Error executing the dvd mounting script (message: %s). Returning error.", stringMRL.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error executing the dvd mounting script (message: %s). Returning error.", stringMRL.c_str());
 		sCMD_Result = "NOT_OK";
 		*sMediaURL = stringMRL;
 		return;
@@ -318,7 +318,7 @@ void Disk_Drive::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string 
 
 	*sMediaURL += stringMRL;
 	sCMD_Result = "OK";
-	g_pPlutoLogger->Write(LV_STATUS, "Returning new media URL: %s", sMediaURL->c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Returning new media URL: %s", sMediaURL->c_str());
 }
 
 //<-dceag-c55-b->
@@ -331,12 +331,12 @@ void Disk_Drive::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
 {
 	if (! m_pDisk_Drive_Functions->m_pDevice_AppServer)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot Abort rip -- no app server");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot Abort rip -- no app server");
 		sCMD_Result="NO App_Server";
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Aborting Ripping");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Aborting Ripping");
 	DCE::CMD_Kill_Application
 		CMD_Kill_Application(m_dwPK_Device,
 						m_pDisk_Drive_Functions->m_pDevice_AppServer->m_dwPK_Device,
@@ -457,7 +457,7 @@ void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,str
 		BL_SameHouse,m_dwPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc);
 	SendCommand(CMD_Media_Identified_DT);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive::CMD_Media_Identified disc is %d",*iEK_Disc);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Media_Identified disc is %d",*iEK_Disc);
 	if( *iEK_Disc )
 	{
 		DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,

@@ -45,7 +45,7 @@ PopulateListsInVMC::PopulateListsInVMC(string sSourceTemplateVMC, string sDestin
     m_dwPKDevice = dwPKDevice;
     m_dwInstallation = dwInstallation;
 
-    g_pPlutoLogger->Write(LV_STATUS, "<VMC> Ready to create VMC file '%s' from template '%s' file for device %d", 
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "<VMC> Ready to create VMC file '%s' from template '%s' file for device %d", 
         m_sSourceTemplateVMC.c_str(), m_sDestinationVMC.c_str(), m_dwPKDevice);
 }
 //------------------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ void PopulateListsInVMC::SaveIt()
 
     //save the vmc file
     if(!PopulateListsInVMC::SaveMenuCollection(m_pMenuCollection, m_sDestinationVMC))
-        g_pPlutoLogger->Write(LV_STATUS, "Unable to save %s!", m_sDestinationVMC.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unable to save %s!", m_sDestinationVMC.c_str());
 
     PLUTO_SAFE_DELETE(m_pMenuCollection);
 }
@@ -66,7 +66,7 @@ bool PopulateListsInVMC::DoIt()
     //check if the file exists
     if(!FileUtils::FileExists(m_sSourceTemplateVMC))
     {
-        g_pPlutoLogger->Write(LV_STATUS, "File %s not found!", m_sSourceTemplateVMC.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "File %s not found!", m_sSourceTemplateVMC.c_str());
         return false;
     }
 
@@ -112,7 +112,7 @@ VIPMenu *PopulateListsInVMC::GetMenu(MenuIds MenuID, const string& csDescription
     VIPMenu *pMenu = m_pMenuCollection->m_mapMenus_Find(MenuID);
     if(!pMenu)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, 
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, 
             "Couldn't get '%s' menu with id %d in vmc file", 
             csDescription.c_str(), MenuID);
         return NULL;
@@ -132,7 +132,7 @@ VIPMenuElement_List *PopulateListsInVMC::GetListElement(MenuIds MenuID, long dwL
     VIPMenuElement *pElement = pMenu->m_mapMenuElements_Find(dwListId);
     if(!pElement)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, 
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, 
             "Couldn't get the object with id %d from '%s' menu from vmc template file.", 
             dwListId, csDescription.c_str());
         return NULL;
@@ -143,7 +143,7 @@ VIPMenuElement_List *PopulateListsInVMC::GetListElement(MenuIds MenuID, long dwL
         pList = (VIPMenuElement_List *)pElement;
     else
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, 
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, 
             "The object with id %d '%s' menu is not a list.", liStandardScenarios, csDescription.c_str());
         return NULL;
     }
@@ -172,7 +172,7 @@ bool PopulateListsInVMC::PopulateStandardScenariosList()
         "FK_Installation = " + StringUtils::ltos(m_dwInstallation),
 		&vectRow_CommandGroup);
 
-    g_pPlutoLogger->Write(LV_STATUS, "<VMC> About to populate the list with standard scenarios, items %d", 
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "<VMC> About to populate the list with standard scenarios, items %d", 
         vectRow_CommandGroup.size());
 
 	int iIndex = 0;
@@ -192,7 +192,7 @@ bool PopulateListsInVMC::PopulateStandardScenariosList()
 		pMenuResolution->m_sProgramName = "cgid=" + sID;
 		pMenuResolution->m_sTerminatingKey += char(iKeyCode);
 
-        g_pPlutoLogger->Write(LV_STATUS, 
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, 
             "<VMC> Added '%s' in the list with standard scenarios, path '%s', key %d", 
             sDescription.c_str(), pMenuResolution->m_sProgramName.c_str(), iKeyCode);
 
@@ -226,7 +226,7 @@ bool PopulateListsInVMC::PopulateCamerasList()
 
     if(!vectRow_DeviceTemplate.size()) 
     {
-        g_pPlutoLogger->Write(LV_WARNING, "<VMC> No device templates found for %d ('surveillance cameras' category)",
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "<VMC> No device templates found for %d ('surveillance cameras' category)",
             DEVICECATEGORY_Surveillance_Cameras_CONST);
         return false;
     }
@@ -251,7 +251,7 @@ bool PopulateListsInVMC::PopulateCamerasList()
         "FK_DeviceTemplate IN ( " +  sDeviceTemplatesCommaSeparated + " ) ",
         &vectRow_Device);
 
-    g_pPlutoLogger->Write(LV_STATUS, "<VMC> About to populate the list with cameras, items %d", 
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "<VMC> About to populate the list with cameras, items %d", 
         vectRow_Device.size());    
 
     int iIndex = 0;
@@ -274,7 +274,7 @@ bool PopulateListsInVMC::PopulateCamerasList()
         pMenuResolution->m_sProgramName = "cameraid=" + sID;
         pMenuResolution->m_sTerminatingKey += char(iKeyCode);
 
-        g_pPlutoLogger->Write(LV_STATUS, 
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, 
             "<VMC> Added '%s' in the list with cameras, url '%s', key %d", 
             sDescription.c_str(), pMenuResolution->m_sProgramName.c_str(), iKeyCode);
 
@@ -306,7 +306,7 @@ bool PopulateListsInVMC::PopulateSpeechDevicesList()
         "FK_Installation = " + StringUtils::ltos(m_dwInstallation),
         &vectRow_Device);
 
-    g_pPlutoLogger->Write(LV_STATUS, "<VMC> About to populate the list with speech devices, items %d", 
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "<VMC> About to populate the list with speech devices, items %d", 
         vectRow_Device.size());
 
     int iIndex = 0;
@@ -326,7 +326,7 @@ bool PopulateListsInVMC::PopulateSpeechDevicesList()
         pMenuResolution->m_sProgramName = "speechid=" + sID;
         pMenuResolution->m_sTerminatingKey += char(iKeyCode);
 
-        g_pPlutoLogger->Write(LV_STATUS, 
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, 
             "<VMC> Added '%s' in the list with speech devices, path '%s', key %d", 
             sDescription.c_str(), pMenuResolution->m_sProgramName.c_str(), iKeyCode);
 

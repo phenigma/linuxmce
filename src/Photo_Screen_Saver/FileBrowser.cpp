@@ -62,7 +62,7 @@ string FileBrowser::NextFile()
 #ifdef DEBUG
 		int r = rand();
 		Position = int(r % m_vectFileList.size());
-		g_pPlutoLogger->Write(LV_ALARM, "Purpose file rand %d Position %d", r, Position);
+		LoggerWrapper::GetInstance()->Write(LV_ALARM, "Purpose file rand %d Position %d", r, Position);
 #else
 		Position = int(rand() % m_vectFileList.size());
 #endif
@@ -70,7 +70,7 @@ string FileBrowser::NextFile()
 	} while(Result == LastFile);
 	LastFile = Result;
 
-	g_pPlutoLogger->Write(LV_ALARM, "Purpose file Position %d vect size %d file %s", Position, (int) m_vectFileList.size(), Result.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_ALARM, "Purpose file Position %d vect size %d file %s", Position, (int) m_vectFileList.size(), Result.c_str());
 
 	return Result;
 }

@@ -455,8 +455,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Text_asSQL(
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -519,8 +518,7 @@ update_values_list = update_values_list + "`FK_Text`="+pRow->FK_Text_asSQL()+", 
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -572,8 +570,7 @@ condition = condition + "`FK_Text`=" + tmp_FK_Text+" AND "+"`FK_Language`=" + tm
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		
@@ -608,8 +605,7 @@ bool Table_Text_LS_AltVersions::GetRows(string where_statement,vector<class Row_
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return false;
 	}	
 
@@ -618,8 +614,7 @@ bool Table_Text_LS_AltVersions::GetRows(string where_statement,vector<class Row_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::GetRows mysql_store_result returned NULL handler");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::GetRows mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
@@ -832,8 +827,7 @@ condition = condition + "`FK_Text`=" + tmp_FK_Text+" AND "+"`FK_Language`=" + tm
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return NULL;
 	}	
 
@@ -842,8 +836,7 @@ condition = condition + "`FK_Text`=" + tmp_FK_Text+" AND "+"`FK_Language`=" + tm
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::FetchRow mysql_store_result returned NULL handler");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Text_LS_AltVersions::FetchRow mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	

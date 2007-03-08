@@ -82,7 +82,7 @@ void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
 #endif
 
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "Orbiter's full path: %s", pProcessFilePath);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter's full path: %s", pProcessFilePath);
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
@@ -134,13 +134,13 @@ bool OrbiterSelfUpdate::UpdateAvailable()
 	if(sChecksum == "") 
 	{
 		//retriving the checksum from the server failed
-		g_pPlutoLogger->Write( LV_CRITICAL,  "The update file is missing on the server" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "The update file is missing on the server" );
 		return false; //we'll continue with this version
 	}
 
 	string sActualChecksum = GetOrbiterCheckSum();
 
-	g_pPlutoLogger->Write( LV_STATUS,  "Current checksum : %s orbiter %s", sActualChecksum.c_str(), sChecksum.c_str() );	
+	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Current checksum : %s orbiter %s", sActualChecksum.c_str(), sChecksum.c_str() );	
 
 	if(sActualChecksum == sChecksum)
 		return false; //no updates needed
@@ -171,7 +171,7 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 
 	if ( !iSizeUpdateFile )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "The UpdateBinary application '%s' is missing on the server.", sUpdateName.c_str());
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "The UpdateBinary application '%s' is missing on the server.", sUpdateName.c_str());
 		return false; //we'll continue with this version
 	}
 
@@ -188,18 +188,18 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 #define UPDATEBINARY_FILE const_cast<char *>(m_sUpdateBinaryPath.c_str())
 #endif		
 
-	g_pPlutoLogger->Write( LV_STATUS,  "Ready to delete UpdateBinary application");
+	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Ready to delete UpdateBinary application");
 	::DeleteFile(UPDATEBINARY_FILE);
 
 	if(!FileUtils::WriteBufferIntoFile(m_sUpdateBinaryPath, pUpdateFile, iSizeUpdateFile))
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the UpdateBinary application to location '%s'", m_sUpdateBinaryPath.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Failed to save the UpdateBinary application to location '%s'", m_sUpdateBinaryPath.c_str() );
 
         string sOldUpdateBinaryPath = m_sUpdateBinaryPath;
         m_sUpdateBinaryPath = g_sBinaryPath + sUpdateName; //try local folder
         if(!FileUtils::WriteBufferIntoFile(m_sUpdateBinaryPath, pUpdateFile, iSizeUpdateFile))    
         {
-            g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the UpdateBinary application to location '%s'", m_sUpdateBinaryPath.c_str() );
+            LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Failed to save the UpdateBinary application to location '%s'", m_sUpdateBinaryPath.c_str() );
             
             string sMessage = "Unable to download UpdateBinary to '" + sOldUpdateBinaryPath + 
                 "' folder. Please check if the 'Path' device data is correct";
@@ -239,7 +239,7 @@ bool OrbiterSelfUpdate::CreateCommunicationFile()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 {
-	g_pPlutoLogger->Write( LV_STATUS,  "Orbiter SelfUpdate: Spawning UpdateBinary process..." );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Orbiter SelfUpdate: Spawning UpdateBinary process..." );
 
 	//starting the new orbiter
 	PROCESS_INFORMATION pi;
@@ -263,7 +263,7 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	sCmdLine += " -o \"" + m_sOrbiterFilePath + "\"";
 	sCmdLine += " -c " + sCommFile;
 
-	g_pPlutoLogger->Write( LV_STATUS,  "Ready to start: %s comm file %s", m_sUpdateBinaryPath.c_str(), sCmdLine.c_str());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Ready to start: %s comm file %s", m_sUpdateBinaryPath.c_str(), sCmdLine.c_str());
 
 #ifdef WINCE
 	wchar_t CmdLineW[512];
@@ -278,7 +278,7 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 #endif
 	{
         string sErrorMessage = "Failed to start UpdateBinary application '" + m_sUpdateBinaryPath + "'";
-		g_pPlutoLogger->Write( LV_CRITICAL,  sErrorMessage.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  sErrorMessage.c_str() );
 
         string sMessage = "Failed to start '" + m_sUpdateBinaryPath + 
             "' application.\r\nPlease be sure that you are running the correct orbiter.";
@@ -313,41 +313,41 @@ bool OrbiterSelfUpdate::Run()
         if(IDYES == ::MessageBox(NULL, TEXT("Last time I tried to update it failed. Should I try again?  \r\nWe recommend you choose 'yes' unless the update keeps failing,\r\nin which case please notify Pluto support."), 
             TEXT("Last update failed"), MB_YESNO | MB_ICONWARNING))
         {
-            g_pPlutoLogger->Write( LV_CRITICAL,  "The user chooses to try to update Orbiter again, let's try this..." );
+            LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "The user chooses to try to update Orbiter again, let's try this..." );
         }
         else
         {
-    		g_pPlutoLogger->Write( LV_CRITICAL,  "Last update failed. We won't try to update again." );
+    		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Last update failed. We won't try to update again." );
 	    	return false;
         }
 	}
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS,  "Last update didn't fail or the user decided to try to update again." );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Last update didn't fail or the user decided to try to update again." );
 #endif
 
 	if(!UpdateAvailable())
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS,  "No update available on the server." );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS,  "No update available on the server." );
 #endif
 		return false;
 	}
-	g_pPlutoLogger->Write( LV_STATUS,  "Update available on the server." );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Update available on the server." );
 
 	if(!DownloadUpdateBinary())
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to download UpdateBinary application from the server." );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Unable to download UpdateBinary application from the server." );
 		return false;
 	}
-	g_pPlutoLogger->Write( LV_STATUS,  "UpdateBinary app downloaded from the server." );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "UpdateBinary app downloaded from the server." );
 
 	if(!CreateCommunicationFile())
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to create the communication file for UpdateBinary application." );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Unable to create the communication file for UpdateBinary application." );
 		return false;
 	}
-	g_pPlutoLogger->Write( LV_STATUS,  "Communication file created." );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Communication file created." );
 
 	return SpawnUpdateBinaryProcess();
 }

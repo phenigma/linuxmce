@@ -25,7 +25,7 @@ WMControllerImpl::~WMControllerImpl()
 bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "WMControllerImpl::SetVisible() : window name: %s, visible: %d\n", sWindowName.c_str(), bVisible);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetVisible() : window name: %s, visible: %d\n", sWindowName.c_str(), bVisible);
 #endif
     return wmctrl.ActionCommand('t', sWindowName.c_str(), bVisible ? "0" : "1");
 }
@@ -40,7 +40,7 @@ bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
     // not activated by default, to not change anything before the demo
 
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "WMControllerImpl::SetLayer() : window name: %s, aLayer: %d\n", sWindowName.c_str(), aLayer);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetLayer() : window name: %s, aLayer: %d\n", sWindowName.c_str(), aLayer);
 #endif
 
     bool bResult = true;
@@ -62,7 +62,7 @@ bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
             bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "add,below");
 			break;
 		default:
-			g_pPlutoLogger->Write(LV_STATUS, "WMControllerImpl::SetLayer() : Unknown layer!");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetLayer() : Unknown layer!");
 			return false;
 	}
 	return bResult;
@@ -72,7 +72,7 @@ bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
 bool WMControllerImpl::SetPosition(const string& sWindowName, int x, int y, int w, int h)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "WMControllerImpl::SetPosition() : window name: %s, position: %d %d %d %d\n", sWindowName.c_str(), x, y, w, h);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetPosition() : window name: %s, position: %d %d %d %d\n", sWindowName.c_str(), x, y, w, h);
 #endif
 
 	char sParam[128];
@@ -84,7 +84,7 @@ bool WMControllerImpl::SetPosition(const string& sWindowName, int x, int y, int 
 bool WMControllerImpl::SetFullScreen(const string& sWindowName, bool bFullScreen)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "WMControllerImpl::SetFullScreen() : window name: %s, fullscreen: %d\n", sWindowName.c_str(), bFullScreen);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetFullScreen() : window name: %s, fullscreen: %d\n", sWindowName.c_str(), bFullScreen);
 #endif
 
     return wmctrl.ActionCommand('b', sWindowName.c_str(), bFullScreen ? "add,fullscreen" : "remove,fullscreen");
@@ -94,7 +94,7 @@ bool WMControllerImpl::SetFullScreen(const string& sWindowName, bool bFullScreen
 bool WMControllerImpl::SetMaximized(const string& sWindowName, bool bMaximized)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "WMControllerImpl::SetMaximized() : window name: %s, maximized: %d\n", sWindowName.c_str(), bMaximized);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetMaximized() : window name: %s, maximized: %d\n", sWindowName.c_str(), bMaximized);
 #endif
 
     return wmctrl.ActionCommand('b', sWindowName.c_str(), bMaximized ? "add,maximized_horz,maximized_vert" : "remove,maximized_horz,maximized_vert");
@@ -104,7 +104,7 @@ bool WMControllerImpl::SetMaximized(const string& sWindowName, bool bMaximized)
 bool WMControllerImpl::ActivateWindow(const string& sWindowName)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "WMControllerImpl::ActivateWindow() : window name: %s\n", sWindowName.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::ActivateWindow() : window name: %s\n", sWindowName.c_str());
 #endif
 
     if (sWindowName == "")
@@ -116,7 +116,7 @@ bool WMControllerImpl::ActivateWindow(const string& sWindowName)
 bool WMControllerImpl::ListWindows(list<WinInfo> &listWinInfo)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "WMControllerImpl::ListWindows()\n");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::ListWindows()\n");
 #endif
 
     return wmctrl.ActionCommand('l', NULL, NULL, &listWinInfo);

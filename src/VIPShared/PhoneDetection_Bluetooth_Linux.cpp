@@ -77,7 +77,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
      if(m_bScanningSuspended)
          return true;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Start of scan loop");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Start of scan loop");
 	int num_rsp, length, flags, dev_id = 0;
 
 	length  = 10;	/* ~13 seconds */
@@ -113,11 +113,11 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 			dev_id = hci_get_route(NULL);
 			if (dev_id < 0)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Can't get an ID for bluetooth dongle.");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't get an ID for bluetooth dongle.");
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Bluetooth dongle %s not found, using hci0.", sMacAddress.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Bluetooth dongle %s not found, using hci0.", sMacAddress.c_str());
 			}
 		}
 	}
@@ -127,20 +127,20 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 	if (dd < 0)
 	{
 		//printf("Error opening bluetooth device");
-		g_pPlutoLogger->Write(LV_CRITICAL, "Error opening bluetooth device");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error opening bluetooth device");
 		Sleep(15000);  // Don't get in a vicous loop, wait 15 seconds
 	}
 
 	m_DevInfo.dev_id = dev_id;
 	if (ioctl(dd, HCIGETDEVINFO, (void*) &m_DevInfo))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Error opening bluetooth device");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error opening bluetooth device");
 		hci_close_dev(dd);
 		return false;
 	}
 	char addr[18];
 	ba2str(&m_DevInfo.bdaddr, addr);
-	g_pPlutoLogger->Write(LV_STATUS,"Attached to BT adapter: %s\t%s\n", m_DevInfo.name, addr);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Attached to BT adapter: %s\t%s\n", m_DevInfo.name, addr);
 	hci_close_dev(dd);
   	
 	dd = hci_open_dev(dev_id); // Todo: figure out why I need to keep opening and closing the device
@@ -206,7 +206,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 	p.fd = dd;
 	p.events = POLLIN | POLLERR | POLLHUP;
 
-	g_pPlutoLogger->Write(LV_WARNING, "Inquiry started");	
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Inquiry started");	
 	
 	while (!__io_canceled && cancel && !m_bAbortScanLoop && !m_bScanningSuspended) 
 	{
@@ -223,7 +223,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 
 			if(time(NULL) - t_start > 20) //more then 10 sec while the poll keeps timing out
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "poll continued to time out last 20 seconds... reloading Bluetooth_Dongle");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "poll continued to time out last 20 seconds... reloading Bluetooth_Dongle");
 				exit(1);
 				return false;
 			}
@@ -232,12 +232,12 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 		{
 			switch(errno)
 			{
-				case EBADF:		g_pPlutoLogger->Write(LV_CRITICAL, "An invalid file descriptor was given in one of the sets."); break;
-				case EFAULT:	g_pPlutoLogger->Write(LV_CRITICAL, "The  array given as argument was not contained in the calling program's address space."); break;
-				case EINVAL:	g_pPlutoLogger->Write(LV_CRITICAL, "The nfds value exceeds the RLIMIT_NOFILE value."); break;
-				case ENOMEM:	g_pPlutoLogger->Write(LV_CRITICAL, "There was no space to allocate file descriptor tables."); break;
-				case EINTR:     g_pPlutoLogger->Write(LV_STATUS, "A signal occurred before any requested event."); break;
-				default:		g_pPlutoLogger->Write(LV_CRITICAL, "Unknown error.");
+				case EBADF:		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "An invalid file descriptor was given in one of the sets."); break;
+				case EFAULT:	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "The  array given as argument was not contained in the calling program's address space."); break;
+				case EINVAL:	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "The nfds value exceeds the RLIMIT_NOFILE value."); break;
+				case ENOMEM:	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "There was no space to allocate file descriptor tables."); break;
+				case EINTR:     LoggerWrapper::GetInstance()->Write(LV_STATUS, "A signal occurred before any requested event."); break;
+				default:		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unknown error.");
 			}
 
 			if(errno != EINTR)
@@ -296,7 +296,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 					if(m_mapKnownNames.find(pDNew->m_iMacAddress) != m_mapKnownNames.end())
 					{
 						string sName = m_mapKnownNames[pDNew->m_iMacAddress];
-						g_pPlutoLogger->Write(LV_STATUS,"Found name %s for mac %s in the known names map", 
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found name %s for mac %s in the known names map", 
 								sName.c_str(), pDNew->m_sMacAddress.c_str());
 						pDNew->m_sID = sName;
 					}
@@ -319,12 +319,12 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
                     	trim(pDNew->m_sID);
 
 						m_mapKnownNames[pDNew->m_iMacAddress] = pDNew->m_sID;
-						g_pPlutoLogger->Write(LV_STATUS, "Detected first time: name %s for mac %s. Added to known names map", 
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Detected first time: name %s for mac %s. Added to known names map", 
 								pDNew->m_sID.c_str(), pDNew->m_sMacAddress.c_str());
 					}
 				    vm.Release();
 
-                    g_pPlutoLogger->Write(LV_STATUS, "Device %s, %s responded.", pDNew->m_sMacAddress.c_str(), pDNew->m_sID.c_str());
+                    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device %s, %s responded.", pDNew->m_sMacAddress.c_str(), pDNew->m_sID.c_str());
                     AddDeviceToDetectionList(pDNew);
 				}
 				break;
@@ -360,7 +360,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 				{
 					/* The inquiry ended, because of time or number of responses */
 					cancel = 0;
-					g_pPlutoLogger->Write(LV_WARNING, "Inquiry complete\n");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Inquiry complete\n");
 				}
 				break;
 
@@ -414,7 +414,7 @@ close:
 	/* On error, free the results and exit */
 	if (err) {
 		if (inq_list) free(inq_list);
-		g_pPlutoLogger->Write(LV_WARNING, "Error in bluetooth scan: %d\n", err);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error in bluetooth scan: %d\n", err);
 		//cerr << "Error " << err << " in bluetooth scan" << endl;
 		Sleep(15000); // No fast looping
 		return true;
@@ -497,7 +497,7 @@ int PhoneDetection_Bluetooth_Linux::GetLinkQuality(const char *addr)
 	}
 	
 	int link_quality = rp.link_quality;
-	g_pPlutoLogger->Write(LV_STATUS, "Link quality for %s: %d", addr, link_quality);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Link quality for %s: %d", addr, link_quality);
 	
 	close(dd);
 	free(cr);

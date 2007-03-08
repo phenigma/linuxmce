@@ -52,7 +52,7 @@ bool
 DefaultMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls) {
 	DeviceData_Base* pTargetDev = FindTargetDevice(inrepl.getMessage().m_dwPK_Device_To);
 	if(!pTargetDev) {
-		g_pPlutoLogger->Write(LV_WARNING, "Target Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Target Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
 		return false;
 	}
 	int IR_PowerDelay = 0;
@@ -81,9 +81,9 @@ DefaultMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicator
 		case COMMAND_Generic_On_CONST:
 		case COMMAND_Generic_Off_CONST:
 		case COMMAND_Toggle_Power_CONST: {
-			g_pPlutoLogger->Write(LV_STATUS, "Got power command for Device: %d", pTargetDev->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got power command for Device: %d", pTargetDev->m_dwPK_Device);
 			delay = IR_PowerDelay;
-			g_pPlutoLogger->Write(LV_STATUS, "Using delay of: %ld.", delay);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using delay of: %ld.", delay);
 		} break;
 		default: {
 		/*
@@ -115,7 +115,7 @@ DefaultMessageTranslator::InitDelaysMap(long devtemplid)
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device has no AV properties");
 			return false;
 		}
 	}
@@ -131,7 +131,7 @@ DefaultMessageDispatcher::DispatchMessage(MessageReplicator& inrepl) {
 	for(int i = 0; i < inrepl.getCount(); i++) {
 		if( inrepl.isUseless() )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "GSD-DispatchMessage - ignoring %d because is useless.", inrepl.getMessage().m_dwID);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "GSD-DispatchMessage - ignoring %d because is useless.", inrepl.getMessage().m_dwID);
 		}
 		else
 		{
@@ -145,7 +145,7 @@ DefaultMessageDispatcher::DispatchMessage(MessageReplicator& inrepl) {
 			if( sleep_delay != 0 )
 				Sleep(sleep_delay);
 			
-			g_pPlutoLogger->Write(LV_WARNING, "GSD-Sleep Pre %d : %d", inrepl.getMessage().m_dwID, sleep_delay);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "GSD-Sleep Pre %d : %d", inrepl.getMessage().m_dwID, sleep_delay);
 			
 			DispatchMessage(&inrepl.getMessage());
 			
@@ -159,7 +159,7 @@ DefaultMessageDispatcher::DispatchMessage(MessageReplicator& inrepl) {
 			if( sleep_delay != 0 )
 				Sleep(sleep_delay);
 			
-			g_pPlutoLogger->Write(LV_WARNING, "GSD-Sleep Post %d : %d", inrepl.getMessage().m_dwID, sleep_delay);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "GSD-Sleep Post %d : %d", inrepl.getMessage().m_dwID, sleep_delay);
 		}
 	}
 }

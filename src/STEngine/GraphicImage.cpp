@@ -45,21 +45,21 @@ bool GraphicImage::Load(string FileName)
 	{
 		if( LocalSurface->w * LocalSurface->h > 3240000 )  // 1800x1800 is a reasonable max size
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Aborting load of %s because size w: %d h: %d is too big",FileName.c_str(),LocalSurface->w,LocalSurface->h);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Aborting load of %s because size w: %d h: %d is too big",FileName.c_str(),LocalSurface->w,LocalSurface->h);
 			SDL_FreeSurface(LocalSurface);
 			LocalSurface=NULL;
 		}
 		else
-			g_pPlutoLogger->Write(LV_STATUS,"Loaded %s w: %d h: %d",FileName.c_str(),LocalSurface->w,LocalSurface->h);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Loaded %s w: %d h: %d",FileName.c_str(),LocalSurface->w,LocalSurface->h);
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to load %s",FileName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to load %s",FileName.c_str());
 	return NULL != LocalSurface;
 }
 
 void GraphicImage::Prepare(int nScreenWidth, int nScreenHeight)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "NPOT textures %ssupported", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "NPOT textures %ssupported", 
 		TextureManager::Instance()->SupportTextureNonPowerOfTwo() ? "" : "NOT ");
 
 	if(TextureManager::Instance()->SupportTextureNonPowerOfTwo())

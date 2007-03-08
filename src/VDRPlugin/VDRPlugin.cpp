@@ -70,7 +70,7 @@ bool VDRPlugin::GetConfig()
 	if(pthread_create( &pt_epg, NULL, EPG_Thread, (void*)this) )
 	{
 		m_bEPGThreadRunning=false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create EPG thread" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create EPG thread" );
 	}
 	return true;
 }
@@ -102,7 +102,7 @@ void VDRPlugin::PrepareToDelete()
 		}
 
 		if( m_bEPGThreadRunning )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Could not kill EPG thread");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not kill EPG thread");
 }
 
 
@@ -113,7 +113,7 @@ void VDRPlugin::FetchEPG()
 
 	if(!pListDeviceData_Router)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_VDR_CONST) is NULL!!!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_VDR_CONST) is NULL!!!");
 		return;
 	}
 		
@@ -132,7 +132,7 @@ void VDRPlugin::FetchEPG()
 			DeviceData_Router *pDevice_Router = m_pRouter->m_mapDeviceData_Router_Find( m_pRouter->iPK_Device_get() );
 			if( !pDevice_MD )
 			{
-				g_pPlutoLogger->Write(LV_WARNING,"Skipping VDR %d because it's not on a media director",pDevice_VDR->m_dwPK_Device);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Skipping VDR %d because it's not on a media director",pDevice_VDR->m_dwPK_Device);
 				continue;
 			}
 
@@ -146,7 +146,7 @@ void VDRPlugin::FetchEPG()
 #ifdef WIN32
 			sPath = "Y:/home/root/var/cache/vdr";
 #endif
-			g_pPlutoLogger->Write(LV_STATUS,"Reading EPG from %s",sPath.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Reading EPG from %s",sPath.c_str());
 			VDREPG::EPG *pEPG = new VDREPG::EPG();
 			pEPG->ReadFromFile(sPath + "/epg.data",StringUtils::Replace(sPath,"/cache/","/lib/") + "/channels.conf");
 
@@ -170,7 +170,7 @@ void VDRPlugin::FetchEPG()
 			vm.Relock();  // Lock here since it needs to be locked before the continue below
 			if( pEPG->m_listChannel.size()==0 || pEPG->m_mapEvent.size()==0 )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"EPG file %s was badly parsed",sPath.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"EPG file %s was badly parsed",sPath.c_str());
 				bErrorsParsing=true;
 				continue;
 			}
@@ -178,12 +178,12 @@ void VDRPlugin::FetchEPG()
 			if( pEPG_Old )
 				delete pEPG_Old;
 			m_mapEPG[pDevice_VDR->m_dwPK_Device] = pEPG;
-			g_pPlutoLogger->Write(LV_STATUS,"Done Reading EPG from %s",sPath.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Done Reading EPG from %s",sPath.c_str());
 		}
 		// The first time refresh after 20 minutes to be sure we at least picked up the first days stuff
 		if( bErrorsParsing )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Trouble parsing all EPG.  Will try again in 3 minutes");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Trouble parsing all EPG.  Will try again in 3 minutes");
 			vm.TimedCondWait(180,0);
 		}
 		else if( bFirstRun )
@@ -209,7 +209,7 @@ bool VDRPlugin::Register()
 	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 	if( !m_pMedia_Plugin || !m_pOrbiter_Plugin || !m_pDatagrid_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins");
 		return false;
 	}
 
@@ -275,7 +275,7 @@ class MediaStream *VDRPlugin::CreateMediaStream( class MediaHandlerInfo *pMediaH
 	pMediaDevice_PassedIn = NULL;
 	if ( vectEntertainArea.size()==0 && pMediaDevice == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
 		return NULL;
 	}
 
@@ -297,7 +297,7 @@ class MediaStream *VDRPlugin::CreateMediaStream( class MediaHandlerInfo *pMediaH
 		}
 		if( !pMediaDevice )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
 			return NULL;
 		}
 	}
@@ -312,7 +312,7 @@ class MediaStream *VDRPlugin::CreateMediaStream( class MediaHandlerInfo *pMediaH
 bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 {
 	VDRMediaStream *pVDRMediaStream = (VDRMediaStream *) pMediaStream;
-	g_pPlutoLogger->Write( LV_STATUS, "VDRPlugin::StartMedia() Starting media stream playback. pos: %d", pVDRMediaStream->m_iDequeMediaFile_Pos );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "VDRPlugin::StartMedia() Starting media stream playback. pos: %d", pVDRMediaStream->m_iDequeMediaFile_Pos );
 	int PK_Device = pVDRMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	int StreamID = pVDRMediaStream->m_iStreamID_get( );
 
@@ -327,7 +327,7 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 	VDREPG::Event *pEvent = GetStartingEvent(pEPG,pVDRMediaStream->m_iPK_Users);
 	if( !pEPG || !pEvent )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start without any EPG data %p %p",pEPG,pEvent);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot start without any EPG data %p %p",pEPG,pEvent);
 		sError = "Cannot start TV with no EPG Data.  Check the connection and try again in 20 minutes.";
 		return false;
 	}
@@ -343,7 +343,7 @@ bool VDRPlugin::StopMedia( class MediaStream *pMediaStream )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	g_pPlutoLogger->Write(LV_STATUS, "Stopping media in VDR_PlugIn!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopping media in VDR_PlugIn!");
 
 	string SavedPosition;
 	int PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
@@ -356,11 +356,11 @@ bool VDRPlugin::StopMedia( class MediaStream *pMediaStream )
 	if( !SendCommand( CMD_Stop_Media ) ) // hack - todo see above, &Response ) )
 	{
 		// TODO: handle failure when sending the command. This is ignored now.
-		g_pPlutoLogger->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
 	}
 	else
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped",
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped",
 			pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}
 
@@ -372,7 +372,7 @@ MediaDevice *VDRPlugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertai
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 	MediaDevice *pMediaDevice;
 	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_VDR_CONST);
-	g_pPlutoLogger->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 	return pMediaDevice;
 }
@@ -409,7 +409,7 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 			pEvent = pEPG->m_mapEvent_Find(pVDRMediaStream->m_EventID);
 			if( !pEvent )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist cannot find current event!");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist cannot find current event!");
 				pEvent = pEPG->m_mapEvent.begin()->second;
 			}
 			VDREPG::Channel *pChannel = pEvent->m_pChannel;
@@ -423,7 +423,7 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 			pEvent = pEPG->m_mapEvent_Find(atoi(sValue_To_Assign.substr(1).c_str()));
 			if( !pEvent )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist event invalid!");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist event invalid!");
 				pEvent = pEPG->m_mapEvent.begin()->second;
 			}
 			pEvent = pEvent->ConfirmCurrentProgram(); // Confirm it's the current one
@@ -433,13 +433,13 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 			VDREPG::Channel *pChannel = pEPG->m_mapChannelNumber_Find( atoi(sValue_To_Assign.c_str()) );
 			if( !pChannel )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist cannot find channel %s",sValue_To_Assign.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist cannot find channel %s",sValue_To_Assign.c_str());
 				pChannel = *pEPG->m_listChannel.begin();
 			}
 			pEvent = pChannel->GetCurrentEvent();
 		}
 		if( !pEvent || !pEvent->m_pChannel )
-			g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist trying to tune to unknown event %s",sValue_To_Assign.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist trying to tune to unknown event %s",sValue_To_Assign.c_str());
 		else
 		{
 			pVDRMediaStream->m_EventID = pEvent->m_EventID;
@@ -452,7 +452,7 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 		m_pMedia_Plugin->MediaInfoChanged(pVDRMediaStream);
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist confused");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist confused");
 }
 
 //<-dceag-c185-b->
@@ -477,19 +477,19 @@ class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *
 	MediaDevice *pMediaDevice; VDREPG::EPG *pEPG;  VDRMediaStream *pVDRMediaStream;
 	if( !GetVdrAndEpgFromOrbiter(pMessage->m_dwPK_Device_From,pMediaDevice,pEPG,pVDRMediaStream) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CurrentShows No EPG");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CurrentShows No EPG");
 		return pDataGrid;
 	}
-g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::CurrentShows 2");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 2");
 
 	int iColumns=atoi(Parms.c_str());
 	int iRow=0,iColumn=0;
 	for(list<VDREPG::Channel *>::iterator it=pEPG->m_listChannel.begin();it!=pEPG->m_listChannel.end();++it)
 	{
 		VDREPG::Channel *pChannel = *it;
-g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::CurrentShows 3");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 3");
 		VDREPG::Event *pEvent = pChannel->GetCurrentEvent();
-g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::CurrentShows 4");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 4");
 		if( pEvent )
 		{
 			pDataGridCell = new DataGridCell(pEvent->m_pChannel->m_sChannelName,"E" + StringUtils::itos(pEvent->m_EventID));
@@ -501,7 +501,7 @@ g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::CurrentShows 4");
 			struct tm *tmptr = localtime(&pEvent->m_tStartTime);
 			struct tm tmStart = *tmptr;
 			tmptr = localtime(&pEvent->m_tStopTime);
-g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::CurrentShows 5");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 5");
 
 			string sDesc;
 			sDesc += 
@@ -520,7 +520,7 @@ g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::CurrentShows 5");
 			}
 		}
 	}
-g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::CurrentShows 6");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 6");
 	return pDataGrid;
 }
 
@@ -535,7 +535,7 @@ class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *Extr
 	MediaDevice *pMediaDevice; VDREPG::EPG *pEPG; VDRMediaStream *pVDRMediaStream;
 	if( !GetVdrAndEpgFromOrbiter(pMessage->m_dwPK_Device_From,pMediaDevice,pEPG,pVDRMediaStream) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CurrentShows No EPG");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CurrentShows No EPG");
 		return NULL;
 	}
 
@@ -553,7 +553,7 @@ class DataGridTable *VDRPlugin::OtherShowtimes(string GridID, string Parms, void
 	MediaDevice *pMediaDevice; VDREPG::EPG *pEPG; VDRMediaStream *pVDRMediaStream;
 	if( !GetVdrAndEpgFromOrbiter(pMessage->m_dwPK_Device_From,pMediaDevice,pEPG,pVDRMediaStream) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CurrentShows No EPG");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CurrentShows No EPG");
 		return pDataGrid;
 	}
 
@@ -582,7 +582,7 @@ class DataGridTable *VDRPlugin::OtherShowtimes(string GridID, string Parms, void
 class DataGridTable *VDRPlugin::FavoriteChannels(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
 	DataGridTable *pDataGrid = new DataGridTable();
-	g_pPlutoLogger->Write(LV_STATUS, "VDRPlugin::FavoriteChannels Called to populate: %s", Parms.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRPlugin::FavoriteChannels Called to populate: %s", Parms.c_str());
 
 	int PK_Users = atoi(Parms.c_str());
 	vector<Row_Bookmark *> vectRow_Bookmark;
@@ -603,7 +603,7 @@ class DataGridTable *VDRPlugin::FavoriteChannels(string GridID, string Parms, vo
 class DataGridTable *VDRPlugin::FavoriteShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
 	DataGridTable *pDataGrid = new DataGridTable();
-	g_pPlutoLogger->Write(LV_STATUS, "VDRPlugin::FavoriteShows Called to populate: %s", Parms.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRPlugin::FavoriteShows Called to populate: %s", Parms.c_str());
 
 	int PK_Users = atoi(Parms.c_str());
 	vector<Row_Bookmark *> vectRow_Bookmark;
@@ -623,12 +623,12 @@ class DataGridTable *VDRPlugin::FavoriteShows(string GridID, string Parms, void 
 
 bool VDRPlugin::GetVdrAndEpgFromOrbiter(int PK_Device,MediaDevice *&pMediaDevice_VDR,VDREPG::EPG *&pEPG,VDRMediaStream *&pVDRMediaStream)
 {
-g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 1");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 1");
 #ifdef DEBUG
 	if( m_VDRMutex.m_NumLocks==0 || m_pMedia_Plugin->m_MediaMutex.m_NumLocks==0 )
 	{
 		// EPG is volatile and the mutex must be blocked whenever we get a pointer to it, also media plugin to protect teh stream
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter you're not holding the vdr mutex");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter you're not holding the vdr mutex");
 		return false;
 	}
 #endif
@@ -636,19 +636,19 @@ g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 1");
 	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device);
 	if( pOH_Orbiter && pOH_Orbiter->m_pEntertainArea )
 	{
-g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 2");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 2");
 		ListMediaDevice *pListMediaDevice = pOH_Orbiter->m_pEntertainArea->m_mapMediaDeviceByTemplate_Find(DEVICETEMPLATE_VDR_CONST);
 		if( pListMediaDevice && pListMediaDevice->size() )
 			pMediaDevice_VDR = *pListMediaDevice->begin();
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter No VDR device");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter No VDR device");
 			return false;
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter not ent area");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter not ent area");
 		return false;
 	}
 
@@ -657,25 +657,25 @@ g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 2");
 		EntertainArea *pEntertainArea = pMediaDevice_VDR->m_mapEntertainArea.begin()->second;
 		if( pEntertainArea->m_pMediaStream->GetType()!=MEDIASTREAM_TYPE_VDR )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter media stream isn't for VDR");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter media stream isn't for VDR");
 			return false;
 		}
 		pVDRMediaStream = (VDRMediaStream *) pEntertainArea->m_pMediaStream;
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter VDR isn't in a single entertainment area");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter VDR isn't in a single entertainment area");
 		return false;
 	}
 
-g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 3");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 3");
 	pEPG = m_mapEPG_Find(pMediaDevice_VDR->m_pDeviceData_Router->m_dwPK_Device);
 	if( !pEPG )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter No EPG");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter No EPG");
 		return false;
 	}
-g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 4");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 4");
 	
 	return true;
 }
@@ -696,7 +696,7 @@ void VDRPlugin::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgram
 	MediaDevice *pMediaDevice; VDREPG::EPG *pEPG; VDRMediaStream *pVDRMediaStream;
 	if( !GetVdrAndEpgFromOrbiter(pMessage->m_dwPK_Device_From,pMediaDevice,pEPG,pVDRMediaStream) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Get_Extended_Media_Data No EPG");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Get_Extended_Media_Data No EPG");
 		return;
 	}
 
@@ -706,7 +706,7 @@ void VDRPlugin::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgram
 	else
 		pEvent = pEPG->m_mapEvent_Find(atoi(sProgramID.substr(1).c_str()));
 	if( !pEvent || !pEvent->m_pChannel )
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Get_Extended_Media_Data trying to tune to unknown event %s",sProgramID.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Get_Extended_Media_Data trying to tune to unknown event %s",sProgramID.c_str());
 	else
 	{
 		struct tm *tmptr = localtime(&pEvent->m_tStartTime);
@@ -787,7 +787,7 @@ VDREPG::Event *VDRPlugin::GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pR
 		VDREPG::Program *pProgram = pEPG->m_mapProgram_Find(pRow_Bookmark->Position_get().substr(pos+6));
 		if( !pProgram )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetEventForBookmark Cannot find any programs of %s",pRow_Bookmark->Position_get().c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::GetEventForBookmark Cannot find any programs of %s",pRow_Bookmark->Position_get().c_str());
 			return NULL;
 		}
 
@@ -812,7 +812,7 @@ VDREPG::Event *VDRPlugin::GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pR
 		(pChannel=pEPG->m_mapChannelName_Find(pRow_Bookmark->Position_get().substr(pos+6)))==NULL ||
 		(pEvent=pChannel->GetCurrentEvent())==NULL )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetEventForBookmark Cannot find any channels of %s",pRow_Bookmark->Position_get().c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::GetEventForBookmark Cannot find any channels of %s",pRow_Bookmark->Position_get().c_str());
 		return NULL;
 	}
 
@@ -844,7 +844,7 @@ void VDRPlugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,strin
 	if( !pOH_Orbiter || !GetVdrAndEpgFromOrbiter(pMessage->m_dwPK_Device_From,pMediaDevice,pEPG,pVDRMediaStream) ||
 		(pEvent = pEPG->m_mapEvent_Find(pVDRMediaStream->m_EventID))==NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Save_Bookmark No EPG");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Save_Bookmark No EPG");
 		return;
 	}
 

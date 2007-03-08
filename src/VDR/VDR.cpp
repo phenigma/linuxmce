@@ -73,7 +73,7 @@ bool VDR::GetConfig()
 	m_pDevice_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
 	if( !m_pDevice_Xine || !m_pDevice_MediaPlugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"I need a Xine player & media plugin to function");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"I need a Xine player & media plugin to function");
 		return false;
 	}
 			
@@ -81,7 +81,7 @@ bool VDR::GetConfig()
 
 	if( m_pDevice_DVBCard )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"This MD has a DVB card.  Will use local xine");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"This MD has a DVB card.  Will use local xine");
 		m_sXineIP = "localhost";
 		return true;
 	}
@@ -93,13 +93,13 @@ bool VDR::GetConfig()
 		DeviceData_Base *pDevice_Xine = pDevice_Core->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
 		if( pDevice_DVBCard && pDevice_Xine && pDevice_Core->m_sIPAddress.size() )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"This MD has no DVB card, but core does.  Will use xine on %s",pDevice_Core->m_sIPAddress.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"This MD has no DVB card, but core does.  Will use xine on %s",pDevice_Core->m_sIPAddress.c_str());
 			m_pDevice_Xine = pDevice_Xine;
 			m_sXineIP = pDevice_Core->m_sIPAddress;
 			return true;
 		}
 		else
-			g_pPlutoLogger->Write(LV_STATUS,"Core doesn't have a DVB (%p) or Xine (%p) or IP %s",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Core doesn't have a DVB (%p) or Xine (%p) or IP %s",
 				pDevice_DVBCard, pDevice_Xine, pDevice_Core->m_sIPAddress.c_str());
 	}
 
@@ -115,14 +115,14 @@ bool VDR::GetConfig()
 
 			if( pDevice_DVBCard && pDevice_Xine && pDevice->m_pDevice_MD && pDevice->m_pDevice_MD->m_sIPAddress.size() )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"VDR %d has xine + dvb will use %s",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDR %d has xine + dvb will use %s",
 					pDevice->m_dwPK_Device,pDevice->m_pDevice_MD->m_sIPAddress.c_str());
 				m_pDevice_Xine = pDevice_Xine;
 				m_sXineIP = pDevice->m_pDevice_MD->m_sIPAddress;
 				return true;
 			}
 			else
-				g_pPlutoLogger->Write(LV_STATUS,"VDR %d doesn't have a DVB (%p) or Xine (%p) or pc %p or IP %s",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDR %d doesn't have a DVB (%p) or Xine (%p) or pc %p or IP %s",
 					pDevice->m_dwPK_Device, pDevice_DVBCard, pDevice_Xine, 
 					pDevice->m_pDevice_MD,(pDevice->m_pDevice_MD ? pDevice->m_pDevice_MD->m_sIPAddress.c_str() : ""));
 		}
@@ -232,7 +232,7 @@ void VDR::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,s
 	string::size_type pos;
 	if( (pos=sMediaPosition.find("CHAN:")!=string::npos) && sMediaPosition.size()>5 )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Will start with channel %s",sMediaPosition.substr(pos+5).c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Will start with channel %s",sMediaPosition.substr(pos+5).c_str());
 		string sResponse;
 		if( SendVDRCommand("CHAN " + sMediaPosition.substr(pos+5),sResponse) )
 			ParseCurrentChannel(sResponse);
@@ -446,45 +446,45 @@ void VDR::KillSpawnedDevices()
 
 bool VDR::SendVDRCommand(string sCommand,string &sVDRResponse)
 {
-	g_pPlutoLogger->Write(LV_WARNING,"Going to send command %s",sCommand.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Going to send command %s",sCommand.c_str());
 	PlainClientSocket _PlainClientSocket(m_sXineIP + ":2001");
 	if( !_PlainClientSocket.Connect() )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to VDR client");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to connect to VDR client");
 		return false;
 	}
-g_pPlutoLogger->Write(LV_STATUS,"connected");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"connected");
 	string sResponse;
 	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="220" )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ready got %s",sResponse.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ready got %s",sResponse.c_str());
 		return false;
 	}
 
 	if( !_PlainClientSocket.SendString(sCommand) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send string");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not send string");
 		return false;
 	}
 
 	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="250" )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ok with command got %s",sResponse.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ok with command got %s",sResponse.c_str());
 		return false;
 	}
 	
 	if( sResponse.size()>4 )
 		sVDRResponse = sResponse.substr(4);
-g_pPlutoLogger->Write(LV_WARNING,"VDR Responded %s",sResponse.c_str());
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"VDR Responded %s",sResponse.c_str());
 	if( !_PlainClientSocket.SendString("QUIT") )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send string");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not send string");
 		return false;
 	}
 
 	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="221" )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ok with quit got %s",sResponse.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ok with quit got %s",sResponse.c_str());
 		return false;
 	}
 	
@@ -496,14 +496,14 @@ void VDR::ParseCurrentChannel(string sChannel)
 {
 	if( sChannel.size()<3 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Error parsing channel %s",sChannel.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Error parsing channel %s",sChannel.c_str());
 		return;
 	}
 	string::size_type pos_space = sChannel.find(' ');
 	m_iChannelNumber = atoi( sChannel.c_str() );
 	if( pos_space!=string::npos )
 		m_sChannelName = sChannel.substr(pos_space+1);
-	g_pPlutoLogger->Write(LV_CRITICAL,"VDR processed ok, channel %d / %s",m_iChannelNumber,m_sChannelName.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR processed ok, channel %d / %s",m_iChannelNumber,m_sChannelName.c_str());
 	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDevice_MediaPlugin->m_dwPK_Device,
 		m_iStreamID,"","",
 		"","",
@@ -524,7 +524,7 @@ void VDR::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Resu
 {
 	string sResponse;
 	if( !SendVDRCommand("HITK " + sName,sResponse) )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send HITK %s",sResponse.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to send HITK %s",sResponse.c_str());
 }
 //<-dceag-c548-b->
 

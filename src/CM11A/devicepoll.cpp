@@ -76,7 +76,7 @@ int
 DevicePoll::SendPacket(CSerialPort* pport, 
 			unsigned char highByte, unsigned char lowByte)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Sending packet with HighByte=%x, LowByte=%x.", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending packet with HighByte=%x, LowByte=%x.", 
 										highByte, lowByte);
 										
 	unsigned char sendbuff[2] =  { highByte, lowByte };
@@ -84,20 +84,20 @@ DevicePoll::SendPacket(CSerialPort* pport,
 	unsigned char chksum = (sendbuff[0] + sendbuff[1]) & 0xff, 
 					resp = (unsigned char)-1;
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Sending header with Checksum: %x.", chksum);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending header with Checksum: %x.", chksum);
 	pport->Write((char*)sendbuff, sizeof(sendbuff) / sizeof(unsigned char));
 
 	if(pport->Read((char*)&resp, 1, CM11A_READ_TIMEOUT) == 0)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "No response from CM11A device.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "No response from CM11A device.");
 		return -1;
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
 		if(resp == CM11A_CLOCK_REQ)
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "CM11A requested clock SET UP", resp);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "CM11A requested clock SET UP", resp);
 			SendClock(pport);
 			return -1;
 		}
@@ -105,24 +105,24 @@ DevicePoll::SendPacket(CSerialPort* pport,
 		{ 
 			if(resp != chksum)
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Bad checksum received (send:%x, recieved:%x).", chksum, resp);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Bad checksum received (send:%x, recieved:%x).", chksum, resp);
 				return -1;
 			}
 		}
 	}
 	// perform ACK handshake
-	g_pPlutoLogger->Write(LV_STATUS, "Sending ACK.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending ACK.");
 	
 	sendbuff[0] = CM11A_ACK;
 	pport->Write((char*)sendbuff, 1);
 	if(pport->Read((char*)&resp, 1, CM11A_READ_TIMEOUT) == 0) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "No response from CM11A device.");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No response from CM11A device.");
 		return -1;
 	} else {
-		g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
 	
 		if(resp != CM11A_INTERFACE_READY) {
-			g_pPlutoLogger->Write(LV_STATUS, "Acknowledge of adress failed.");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Acknowledge of adress failed.");
 			return -1;
 		}
 	}
@@ -154,7 +154,7 @@ DevicePoll::SendClock(CSerialPort* pport) {
 
 int 
 DevicePoll::SendAddress(CSerialPort* pport, const Message* pMesg) {
-	g_pPlutoLogger->Write(LV_STATUS, "Sending address with HouseCode=%d, DeviceCode=%d.", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending address with HouseCode=%d, DeviceCode=%d.", 
 										pMesg->getHouseCode(), pMesg->getDeviceCode());
 	
 	return SendPacket(pport,
@@ -163,12 +163,12 @@ DevicePoll::SendAddress(CSerialPort* pport, const Message* pMesg) {
 
 int
 DevicePoll::SendFunction(CSerialPort* pport, const Message* pMesg) {
-	g_pPlutoLogger->Write(LV_STATUS, "Sending function with Code: %d.", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending function with Code: %d.", 
 												pMesg->getFunctionCode());
 
 	unsigned char dim = (unsigned char)(pMesg->getDimmLevel() * CM11A_MAX_DIM_LEVEL * 1.0 / 100);
 	if(dim > 0) {
-		g_pPlutoLogger->Write(LV_STATUS, "Using Dim Level: %d.", dim);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using Dim Level: %d.", dim);
 	}
 	
 	return SendPacket(pport,
@@ -179,13 +179,13 @@ DevicePoll::SendFunction(CSerialPort* pport, const Message* pMesg) {
 
 void* DevicePoll::_Run() {
 
-	g_pPlutoLogger->Write(LV_STATUS, "Device Poll thread started.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device Poll thread started.");
 
 	VectDeviceData_Impl kids = real_cm11a->m_pData->m_vectDeviceData_Impl_Children;
 
 	for(unsigned int kn=0; kn< kids.size(); kn ++)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Child device: #%d(%s)   Category:%d",kids[kn]->m_dwPK_Device,kids[kn]->m_mapParameters[12].c_str(),kids[kn]->m_dwPK_DeviceCategory);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Child device: #%d(%s)   Category:%d",kids[kn]->m_dwPK_Device,kids[kn]->m_mapParameters[12].c_str(),kids[kn]->m_dwPK_DeviceCategory);
 		inverse_device_map[kids[kn]->m_mapParameters[12]]=kn;
 	}
 	
@@ -212,9 +212,9 @@ void* DevicePoll::_Run() {
 				}
 				
 				if(sendretry < CM11A_SEND_RETRY) { // adress sent seccessfully
-					g_pPlutoLogger->Write(LV_STATUS, "Address sent successfully.");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Address sent successfully.");
 				} else  {
-					g_pPlutoLogger->Write(LV_CRITICAL, "Failed sending address.");
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed sending address.");
 					continue;
 				}
 				
@@ -229,9 +229,9 @@ void* DevicePoll::_Run() {
 				}
 				
 				if(sendretry < CM11A_SEND_RETRY) { // adress sent seccessfully
-					g_pPlutoLogger->Write(LV_STATUS, "Function sent successfully.");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Function sent successfully.");
 				} else  {
-					g_pPlutoLogger->Write(LV_CRITICAL, "Failed sending function.");
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed sending function.");
 				}
 			} else {
 				mq_.Unlock();
@@ -240,7 +240,7 @@ void* DevicePoll::_Run() {
 					unsigned char resp;
 					if(serprt.Read((char*)&resp, 1, CM11A_READ_TIMEOUT) != 0)
 					{
-						g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
 						if(resp == CM11A_INTERFACE_CQ) {
 							resp = CM11A_COMPUTER_READY;
 							serprt.Write((char*)&resp, 1);
@@ -250,7 +250,7 @@ void* DevicePoll::_Run() {
 							} while (nread > 0 && resp == CM11A_INTERFACE_CQ);
 							if(nread > 0) {
 								if(resp > 0 && resp < 128) {
-									g_pPlutoLogger->Write(LV_STATUS, "Reading %d bytes of DATA...",resp);
+									LoggerWrapper::GetInstance()->Write(LV_STATUS, "Reading %d bytes of DATA...",resp);
 
 									char *buff = new char[resp];
 									serprt.Read(buff, resp, CM11A_READ_TIMEOUT);
@@ -263,7 +263,7 @@ void* DevicePoll::_Run() {
 									for (i=0;i<resp;i++) {
 										sprintf(hex_buff+strlen(hex_buff),"%02X ",buff[i] & 0xFF);
 									}
-									g_pPlutoLogger->Write(LV_STATUS, "Data read successfully <%s>",hex_buff);
+									LoggerWrapper::GetInstance()->Write(LV_STATUS, "Data read successfully <%s>",hex_buff);
 									for (i=1;i<resp;i++) {
 										if ((mask & (1 << (i-1))) == 0)
 										{ //an address
@@ -300,7 +300,7 @@ void* DevicePoll::_Run() {
 											}
 											for(std::list<std::string>::iterator it = used_addresses.begin(); it != used_addresses.end(); it++)
 											{
-												g_pPlutoLogger->Write(LV_STATUS, "Looking for device status for %s found %d", (*it).c_str(), device_status.find(*it) != device_status.end() ? 1 : 0);
+												LoggerWrapper::GetInstance()->Write(LV_STATUS, "Looking for device status for %s found %d", (*it).c_str(), device_status.find(*it) != device_status.end() ? 1 : 0);
 												if (device_status.find(*it) != device_status.end()) {
 													switch(func) {
 														case CM11A_FUNC_ON      : device_status[*it]=100; break;
@@ -309,7 +309,7 @@ void* DevicePoll::_Run() {
 														case CM11A_FUNC_BRIGHT  : device_status[*it]-=data; break;
 													}
 												} else {
-													g_pPlutoLogger->Write(LV_STATUS, "Probably need to send EVENT that %s is %s",(*it).c_str(),message.c_str());
+													LoggerWrapper::GetInstance()->Write(LV_STATUS, "Probably need to send EVENT that %s is %s",(*it).c_str(),message.c_str());
 													DeviceData_Impl *child = kids[inverse_device_map[*it]];
 													if(child->m_dwPK_DeviceCategory == DEVICECATEGORY_Security_Device_CONST)
 													{
@@ -327,13 +327,13 @@ void* DevicePoll::_Run() {
 										}
 									}
 									delete[] buff;
-									g_pPlutoLogger->Write(LV_STATUS, "Data decoded into [%s]",recv_msg.c_str());
+									LoggerWrapper::GetInstance()->Write(LV_STATUS, "Data decoded into [%s]",recv_msg.c_str());
 								}
 								else {
-									g_pPlutoLogger->Write(LV_STATUS, "No data to read...");
+									LoggerWrapper::GetInstance()->Write(LV_STATUS, "No data to read...");
 								}
 							} else {
-								g_pPlutoLogger->Write(LV_STATUS, "Fake Alarm!");
+								LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fake Alarm!");
 							}
 						}
 					}
@@ -341,13 +341,13 @@ void* DevicePoll::_Run() {
 				Sleep(CM11A_NOREQUES_SLEEP);
 			}
 		} catch(...) {
-			g_pPlutoLogger->Write(LV_CRITICAL, "Exception occured on CM11A's serial port: %s. Sleeping for %0.1f second.", 
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Exception occured on CM11A's serial port: %s. Sleeping for %0.1f second.", 
 													serport_.c_str(), 1.0 * CM11A_ERROR_SLEEP / 1000);
 			Sleep(CM11A_ERROR_SLEEP);
 		}
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Device Poll thread ending.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device Poll thread ending.");
 	return 0;
 }
 

@@ -41,7 +41,7 @@ void *BeginHandleRequestThread( void *HRqSock )
 	HandleRequestSocket *pCS = (HandleRequestSocket *)HRqSock;
 	pCS->RunThread();
 
-	g_pPlutoLogger->Write(LV_SOCKET,"Exiting BeginHandleRequestThread thread...");
+	LoggerWrapper::GetInstance()->Write(LV_SOCKET,"Exiting BeginHandleRequestThread thread...");
 	return NULL;
 }
 
@@ -65,7 +65,7 @@ void HandleRequestSocket::Disconnect()
 	// We override Disconnect so our processor thread knows the difference
 	// between an explicit disconnect and an unexpected one.
 
-	g_pPlutoLogger->Write( LV_SOCKET, "RequestSocket::Disconnect %p device: %d", this, m_dwPK_Device );
+	LoggerWrapper::GetInstance()->Write( LV_SOCKET, "RequestSocket::Disconnect %p device: %d", this, m_dwPK_Device );
 
 	m_bTerminate = true;
 	ClientSocket::Disconnect();
@@ -74,7 +74,7 @@ void HandleRequestSocket::Disconnect()
 void HandleRequestSocket::DisconnectAndWait()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_SOCKET, "~HandleRequestSocket %p device: %d ip: %s", this, m_dwPK_Device, m_sIPAddress.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_SOCKET, "~HandleRequestSocket %p device: %d ip: %s", this, m_dwPK_Device, m_sIPAddress.c_str() );
 #endif
 	Disconnect();
 
@@ -83,13 +83,13 @@ void HandleRequestSocket::DisconnectAndWait()
 	// Try just waiting this way.
 	while( m_bRunning && tTimeout > time(NULL) )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Requesthandler %p (device: %d) waiting for runThread", this, m_dwPK_Device );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Requesthandler %p (device: %d) waiting for runThread", this, m_dwPK_Device );
 		Sleep(10);
 	}
 
 	if( m_bRunning && m_RequestHandlerThread )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Requesthandler %p (device: %d) runThread won't die!", this, m_dwPK_Device );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Requesthandler %p (device: %d) runThread won't die!", this, m_dwPK_Device );
 		
 #ifndef WINCE //not defined under ce :(
 		pthread_cancel(m_RequestHandlerThread);
@@ -105,14 +105,14 @@ bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 	string sResponse;
 	if ( !ReceiveString( sResponse ) )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Requesthandler %p (device: %d) lost connection. %s", this, m_dwPK_Device, m_sName.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Requesthandler %p (device: %d) lost connection. %s", this, m_dwPK_Device, m_sName.c_str() );
 		return false;
 	}
 	if ( sResponse == "CLOSED" ) return false;
 
 	if ( sResponse != "OK" )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Connection for requesthandler %p (device: %d) reported %s. %s", this, m_dwPK_Device, sResponse.c_str(), m_sName.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Connection for requesthandler %p (device: %d) reported %s. %s", this, m_dwPK_Device, sResponse.c_str(), m_sName.c_str() );
 		return false;
 	}
 
@@ -126,7 +126,7 @@ bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 
 void HandleRequestSocket::RunThread()
 {
-	g_pPlutoLogger->Write( LV_STATUS, "Requesthandler %p (device: %d) runThread now running", 
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Requesthandler %p (device: %d) runThread now running", 
 		this, m_dwPK_Device );
 	m_bRunning = true;
 
@@ -137,7 +137,7 @@ void HandleRequestSocket::RunThread()
 		{
 			if( m_bQuit_get() )
 				break;
-			g_pPlutoLogger->Write( LV_CRITICAL, "Receive string failed in HandleRequestSocket %d:%s %s", sMessage.size(), sMessage.c_str(), m_sName.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Receive string failed in HandleRequestSocket %d:%s %s", sMessage.size(), sMessage.c_str(), m_sName.c_str() );
 			if (m_bTerminate==false)
 			{
 				PlutoLock::DumpOutstandingLocks();
@@ -151,24 +151,24 @@ void HandleRequestSocket::RunThread()
 				break;
 
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Receive string: %s", sMessage.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Receive string: %s", sMessage.c_str());
 #endif
 			if ( sMessage == "CORRUPT SOCKET" )
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Socket flagged as corrupted %p device: %d", this, m_dwPK_Device );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Socket flagged as corrupted %p device: %d", this, m_dwPK_Device );
 				m_bUnexpected = true;
 				m_bTerminate = true;
 			}
 			else if ( sMessage.substr(0,7) == "REPLACE" && sMessage.size()>7 )
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Another device with IP %s connected as device: %d", sMessage.c_str(), m_dwPK_Device );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Another device with IP %s connected as device: %d", sMessage.c_str(), m_dwPK_Device );
                 m_bUnexpected = true;
                 m_bTerminate = true;
                 if(OnReplaceHandler(sMessage.substr(7)))
                     return;
 			}
 #ifdef DEBUG
-			g_pPlutoLogger->Write( LV_STATUS, "Received %s %p device: %d", sMessage.c_str(), this, m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Received %s %p device: %d", sMessage.c_str(), this, m_dwPK_Device);
 #endif
 			if ( sMessage.substr(0,7)  == "MESSAGE" && sMessage.size()>7 )
 			{
@@ -176,13 +176,13 @@ void HandleRequestSocket::RunThread()
 				if ( pMessage )
 				{
 #ifdef DEBUG
-					g_pPlutoLogger->Write( LV_STATUS, "Received Message type %d ID %d from %d to %d (device: %d)",
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Received Message type %d ID %d from %d to %d (device: %d)",
 						pMessage->m_dwMessage_Type, pMessage->m_dwID, pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To, m_dwPK_Device );
 #endif
 					ReceivedMessageResult receivedMessageResult = ReceivedMessage( pMessage );
 					if ( receivedMessageResult == rmr_NotProcessed )
 					{
-						g_pPlutoLogger->Write( LV_STATUS, "Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
+						LoggerWrapper::GetInstance()->Write( LV_STATUS, "Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
 							pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To,
 							pMessage->m_dwMessage_Type, pMessage->m_dwID, m_dwPK_Device, m_sName.c_str() );
 						if( pMessage->m_eExpectedResponse!=ER_None && !pMessage->m_bRespondedToMessage )
@@ -196,17 +196,17 @@ void HandleRequestSocket::RunThread()
 				}
 				else
 				{
-					g_pPlutoLogger->Write( LV_CRITICAL, "Incomplete message received %p (device: %d) %s", this, m_dwPK_Device, m_sName.c_str() );
+					LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Incomplete message received %p (device: %d) %s", this, m_dwPK_Device, m_sName.c_str() );
 				}
 			}
 			else
 				ReceivedString( sMessage );
 		}
 	}
-	g_pPlutoLogger->Write( LV_STATUS, "Requesthandler %p (device: %d) Closing request handler connection", 
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Requesthandler %p (device: %d) Closing request handler connection", 
 		this, m_dwPK_Device );
 
-//	g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n",
+//	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n",
 //		m_dwPK_Device, (int) m_bUnexpected, sMessage.c_str(), (int) m_bTerminate, m_sName.c_str() );
 
 	m_bRunning = false;

@@ -98,7 +98,7 @@ bool App_Server::GetConfig()
 		char * args[] = { (char *) AudioVolumeScript, "get-percent", NULL };
 		ProcessUtils::GetCommandOutput(args[0], args, sVolume);
 		m_iLastVolume = atoi(sVolume.c_str());
-		g_pPlutoLogger->Write(LV_STATUS, "ALSA Master volume: %d%%", m_iLastVolume);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "ALSA Master volume: %d%%", m_iLastVolume);
 	}
 
 	SignalHandler_Start(this);
@@ -235,7 +235,7 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 //<-dceag-c67-e->
 {
 	PLUTO_SAFETY_LOCK(ap,m_AppMutex);
-	g_pPlutoLogger->Write(LV_STATUS,"SpawnApp file: %s; name: %s; args: %s; success: %s; failure: %s; logo: %d;",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpawnApp file: %s; name: %s; args: %s; success: %s; failure: %s; logo: %d;",
 		sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnSuccess.c_str(),sSendOnFailure.c_str(),(int) bShow_logo);
 	if( bExclusive )
 		CMD_Kill_Application(sName,bRetransmit);
@@ -268,7 +268,7 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 
 //			XSync(XServerDisplay, True);
 //	    	XUnlockDisplay(XServerDisplay);
-//			g_pPlutoLogger->Write(LV_STATUS,"Window %d",(int) w);
+//			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Window %d",(int) w);
 //		}
 //#endif
 //	}
@@ -276,14 +276,14 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 	int pid = ProcessUtils::SpawnApplication(sFilename, sArguments, sName, new pair<string, string>(sSendOnFailure, sSendOnSuccess), true, bDetach);
 	if (pid == 0)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Can't spawn '%s': %s %s.", sName.c_str(), sFilename.c_str(), sArguments.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Can't spawn '%s': %s %s.", sName.c_str(), sFilename.c_str(), sArguments.c_str());
         sCMD_Result = "Failed";
     }
     else
     {
         sCMD_Result = "OK";
     }
-	g_pPlutoLogger->Write(LV_WARNING, "Finished spawning '%s': %s %s. PID: %d", sName.c_str(), sFilename.c_str(), sArguments.c_str(), pid);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Finished spawning '%s': %s %s. PID: %d", sName.c_str(), sFilename.c_str(), sArguments.c_str(), pid);
 }
 
 //<-dceag-c69-b->
@@ -302,7 +302,7 @@ void App_Server::CMD_Kill_Application(string sName,bool bRetransmit,string &sCMD
 	vector<void *> messagesToSend;
 	if ( ! ProcessUtils::KillApplication(sName, messagesToSend) )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Failed to kill the application with name: %s", sName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to kill the application with name: %s", sName.c_str());
 		sCMD_Result="Cannot kill";
 	}
 
@@ -311,12 +311,12 @@ void App_Server::CMD_Kill_Application(string sName,bool bRetransmit,string &sCMD
 		for(vector<void *>::const_iterator itAttachedData = messagesToSend.begin();itAttachedData != messagesToSend.end();++itAttachedData)
 		{
 	void *pV = (*itAttachedData);
-	g_pPlutoLogger->Write(LV_WARNING, "pV %p",pV);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "pV %p",pV);
 			pair<string, string> *pStringsPair = (pair<string, string> *)(*itAttachedData);
-	g_pPlutoLogger->Write(LV_WARNING, "s1 %s s2 %s",pStringsPair->first.c_str(),pStringsPair->second.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "s1 %s s2 %s",pStringsPair->first.c_str(),pStringsPair->second.c_str());
 
 			SendMessageList(pStringsPair->first);
-	g_pPlutoLogger->Write(LV_WARNING, "after send message");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "after send message");
 			delete pStringsPair;
 		}
 	}
@@ -345,15 +345,15 @@ void App_Server::EnsureLogoIsDisplayed()
 
 void App_Server::ProcessExited(int pid, int status)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "App_Server::ProcessExited() Child with pid %d", pid);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "App_Server::ProcessExited() Child with pid %d", pid);
 	PLUTO_SAFETY_LOCK(ap,m_AppMutex);
 	string applicationName;
 	void *data;
 
-	g_pPlutoLogger->Write(LV_WARNING, "PID %d exited with code %d", pid, status);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "PID %d exited with code %d", pid, status);
 	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "App_Server::ProcessExited() Child with pid %d was not found in our internal data structure. Ignoring signal!", pid);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "App_Server::ProcessExited() Child with pid %d was not found in our internal data structure. Ignoring signal!", pid);
 		return;
 	}
 
@@ -368,14 +368,14 @@ void App_Server::ProcessExited(int pid, int status)
 			char *pBuffer = FileUtils::ReadFileIntoBuffer(sFilename,size);
 
 			if( !pBuffer )
-                g_pPlutoLogger->Write(LV_CRITICAL,"App_Server::ProcessExited pid %d exited -- can't open log %s",pid,sFilename.c_str());
+                LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"App_Server::ProcessExited pid %d exited -- can't open log %s",pid,sFilename.c_str());
 			else
 				StringUtils::Replace(p_str,"<=spawn_log=>",pBuffer);
 
 			delete pBuffer;
 		}
 		else
-			g_pPlutoLogger->Write(LV_STATUS,"App_Server::ProcessExited pid %d exited -- no spawn_log",pid);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"App_Server::ProcessExited pid %d exited -- no spawn_log",pid);
 		SendMessageList( *p_str );
 		delete pMessagesLists;
 	}
@@ -386,14 +386,14 @@ void App_Server::SendMessageList(string messageList)
 	StringUtils::Replace(&messageList, "@AppDev@", StringUtils::itos(m_dwPK_Device));
 	if (messageList.length() > 0)
 		messageList += " " + StringUtils::itos(COMMANDPARAMETER_Comment_CONST) + " \"App_Server::SendMessageList\"";
-    g_pPlutoLogger->Write(LV_STATUS, "Sending this command chain: -->%s<--", messageList.c_str() );
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending this command chain: -->%s<--", messageList.c_str() );
 
     Message *pMessage = new Message(messageList);    // empty message (to only caryy the rest with him).
-	g_pPlutoLogger->Write(LV_STATUS, "Message to: %d type: %d id: %d extra %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message to: %d type: %d id: %d extra %d",
 			pMessage->m_dwID,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) pMessage->m_vectExtraMessages.size());
 
 	QueueMessageToRouter( pMessage  );
-    g_pPlutoLogger->Write(LV_STATUS, "After queing the message to the router queue!");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "After queing the message to the router queue!");
 }
 
 //<-dceag-sample-b->!
@@ -414,7 +414,7 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 	if( sForce=="" )
 		sForce = "H"; // HACK - todo: figure out how to determine if we have suspend capabilities
 
-	g_pPlutoLogger->Write(LV_STATUS,"CMD_Halt_Device %s",sForce.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Halt_Device %s",sForce.c_str());
 
 	switch( sForce[0] )
 	{
@@ -427,7 +427,7 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 		DisplayMessageOnOrbVFD("Suspending...");
 
 #ifndef WIN32
-		g_pPlutoLogger->Write(LV_STATUS,"Calling halt");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling halt");
 		system("halt");  // Don't know how to do this
 #else
 		EnablePrivileges();
@@ -447,7 +447,7 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 		DisplayMessageOnOrbVFD("Rebooting...");
 
 #ifndef WIN32
-		g_pPlutoLogger->Write(LV_STATUS,"Calling reboot");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling reboot");
 		system("reboot");  // Don't know how to do this
 #else
 		EnablePrivileges();
@@ -463,7 +463,7 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 		DisplayMessageOnOrbVFD("Powering off...");
 
 #ifndef WIN32
-		g_pPlutoLogger->Write(LV_STATUS,"Calling halt");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling halt");
 		system("halt");
 #else
 		EnablePrivileges();
@@ -480,7 +480,7 @@ void App_Server::DisplayMessageOnOrbVFD(string sMessage)
 	DeviceData_Base *pDevice_OSD = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Orbiter_CONST);
 	DeviceData_Base *pDevice_VFD = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_LCDVFD_Displays_CONST);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Displaying on OSD: %d VFD: %d %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Displaying on OSD: %d VFD: %d %s",
 		(pDevice_OSD ? pDevice_OSD->m_dwPK_Device : 0),
 		(pDevice_VFD ? pDevice_VFD->m_dwPK_Device : 0),
 		sMessage.c_str());
@@ -527,7 +527,7 @@ void App_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMe
 	bool bLastMute = m_bLastMute;
 	m_bLastMute=false;
 	m_iLastVolume+=iRepeat_Command;
-	g_pPlutoLogger->Write(LV_STATUS,"Volume is now %d",m_iLastVolume);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Volume is now %d",m_iLastVolume);
 	DATA_Set_Volume_Level(m_iLastVolume,true);
 
 #ifndef WIN32
@@ -559,7 +559,7 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 	bool bLastMute = m_bLastMute;
 	m_bLastMute=false;
 	m_iLastVolume-=iRepeat_Command;
-	g_pPlutoLogger->Write(LV_STATUS,"Volume is now %d",m_iLastVolume);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Volume is now %d",m_iLastVolume);
 	DATA_Set_Volume_Level(m_iLastVolume,true);
 
 #ifndef WIN32
@@ -602,7 +602,7 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 	bool bLastMute = m_bLastMute;
 	m_bLastMute=false;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Volume is now %d%%", iVolume);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Volume is now %d%%", iVolume);
 	DATA_Set_Volume_Level(iVolume, true);
 
 #ifndef WIN32
@@ -634,7 +634,7 @@ void App_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
 	int pid = fork();
 	if (pid == 0)
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Mute is now %d",(int) m_bLastMute);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Mute is now %d",(int) m_bLastMute);
 		if (bLastMute)
 		{
 			char * args[] = { (char *) AudioVolumeScript, "set", "unmute", NULL };

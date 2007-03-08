@@ -93,7 +93,7 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
         m_strDisplayName = pDisplayName;
     else
     {
-		g_pPlutoLogger->Write(LV_CRITICAL, "getenv returned NULL for variable DISPLAY! Assuming it's :0");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "getenv returned NULL for variable DISPLAY! Assuming it's :0");
 		m_strDisplayName = ":0";
     }
 	
@@ -130,7 +130,7 @@ OrbiterLinux::~OrbiterLinux()
 
 void OrbiterLinux::HideOtherWindows()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::HideOtherWindows: Hidding other windows...");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::HideOtherWindows: Hidding other windows...");
 
 	list<WinInfo> listWinInfo;
 	m_pWinListManager->GetWindows(listWinInfo);
@@ -149,7 +149,7 @@ void OrbiterLinux::HideOtherWindows()
         }
 		if(sClassName != "" && string::npos == sClassName.find("Orbiter"))
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::HideOtherWindows, hidding %s", sClassName.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::HideOtherWindows, hidding %s", sClassName.c_str());
 			m_pWinListManager->HideWindow(sClassName);
 		}
 	}
@@ -157,7 +157,7 @@ void OrbiterLinux::HideOtherWindows()
 
 void OrbiterLinux::reinitGraphics()
 {
-    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::reinitGraphics()");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::reinitGraphics()");
     m_pWinListManager->ShowSdlWindow(m_bIsExclusiveMode, m_bYieldInput);
 }
 
@@ -175,10 +175,10 @@ bool OrbiterLinux::X11_Init()
 {
     if ((m_pX11 != NULL) && m_pX11->IsInitialized())
     {
-        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::X11_Init(): already initialized");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::X11_Init(): already initialized");
         return true;
     }
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init()");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::X11_Init()");
 
 	// we need to use the same Display and Window with SDL
     SDL_SysWMinfo info;
@@ -186,20 +186,20 @@ bool OrbiterLinux::X11_Init()
     bool bResult = SDL_GetWMInfo(&info);
     if (bResult == false)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::X11_Init() : error in SDL_GetWMInfo()");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::X11_Init() : error in SDL_GetWMInfo()");
     }
-    g_pPlutoLogger->Write(LV_STATUS, "SDL uses pDisplay=%p, Window=%d", info.info.x11.display, info.info.x11.window);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "SDL uses pDisplay=%p, Window=%d", info.info.x11.display, info.info.x11.window);
     // save the SDL display
     m_pDisplay_SDL = info.info.x11.display;
     // initialize the X11wrapper
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : X11wrapper");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::X11_Init() : X11wrapper");
     m_pX11 = new X11wrapper();
     m_pX11->Assign_MainWindow(info.info.x11.window);
     m_pX11->Assign_WmWindow(info.info.x11.wmwindow);
     m_pX11->Display_Open();
     m_pX11->GetDisplaySize(m_nDesktopWidth, m_nDesktopHeight);
     // initialize other classes
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Init() : done");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::X11_Init() : done");
     
     return true;
 }
@@ -208,15 +208,15 @@ bool OrbiterLinux::X11_Exit()
 {
     if (m_pX11 == NULL)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "OrbiterLinux::X11_Exit() : NULL pointer");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "OrbiterLinux::X11_Exit() : NULL pointer");
         return false;
     }
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Exit()");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::X11_Exit()");
     // display was opened by SDL, it should be closed by SDL
     delete m_pX11;
     m_pX11 = NULL;
     m_pDisplay_SDL = NULL;
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::X11_Exit() : done");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::X11_Exit() : done");
     return true;
 }
 
@@ -256,7 +256,7 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 	bool bApplicationInBackground = pObj->m_mapObjParms_Find(DESIGNOBJPARAMETER_In_Background_CONST) == "1";
 	
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::RenderDesktop() : ptr=%p coord=[%d,%d,%d,%d], in background %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::RenderDesktop() : ptr=%p coord=[%d,%d,%d,%d], in background %d",
                           pObj,
                           rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height,
 						  bApplicationInBackground
@@ -278,14 +278,14 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 			if ( (rectTotal.Width == -1) && (rectTotal.Height == -1) )
 			{
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS, "RenderDesktop : maximize sWindowName='%s'", sWindowName.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "RenderDesktop : maximize sWindowName='%s'", sWindowName.c_str());
 #endif
 				m_pWinListManager->MaximizeWindow(sWindowName);
 			}
 			else
 			{
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS, "RenderDesktop : position sWindowName='%s'", sWindowName.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "RenderDesktop : position sWindowName='%s'", sWindowName.c_str());
 #endif
 				m_pWinListManager->PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
 			}
@@ -301,7 +301,7 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
     }
 
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::RenderDesktop() : done");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::RenderDesktop() : done");
 #endif
 	return true;
 }
@@ -314,21 +314,21 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 
 	bool bIsWindowAvailable = m_pWinListManager->IsWindowAvailable(sWindowName);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::ActivateExternalWindowAsync() : IsWindowAvailable(%s) ==> %s", sWindowName.c_str(), bIsWindowAvailable ? "Yes, it is!" : "No, it's NOT!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::ActivateExternalWindowAsync() : IsWindowAvailable(%s) ==> %s", sWindowName.c_str(), bIsWindowAvailable ? "Yes, it is!" : "No, it's NOT!");
 #endif
 	if (bIsWindowAvailable)
     {
         if ( (rectTotal.Width == -1) && (rectTotal.Height == -1) )
         {
 #ifdef DEBUG
-            g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::ActivateExternalWindowAsync() : maximize sWindowName='%s'", sWindowName.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::ActivateExternalWindowAsync() : maximize sWindowName='%s'", sWindowName.c_str());
 #endif
 			m_pWinListManager->MaximizeWindow(sWindowName);
         }
         else
         {
 #ifdef DEBUG
-            g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::ActivateExternalWindowAsync() : position sWindowName='%s'", sWindowName.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::ActivateExternalWindowAsync() : position sWindowName='%s'", sWindowName.c_str());
 #endif
             m_pWinListManager->PositionWindow(sWindowName, rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
         }
@@ -343,11 +343,11 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 
 void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
-    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Initialize()");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Initialize()");
 	Orbiter::Initialize(Type, iPK_Room, iPK_EntertainArea);
 
     //we know here the ui version!
-    g_pPlutoLogger->Write(LV_WARNING, "Orbiter UI Version is %d", m_iUiVersion);
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Orbiter UI Version is %d", m_iUiVersion);
 
     if(UsesUIVersion2())
 	{
@@ -371,14 +371,14 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
 		event.data.button.m_iPK_Button = 0;
 		PreprocessEvent(event);
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"OrbiterLinux::Initialize scancode %d is button %d", iScanCode, event.data.button.m_iPK_Button);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterLinux::Initialize scancode %d is button %d", iScanCode, event.data.button.m_iPK_Button);
 #endif
 		if( event.data.button.m_iPK_Button )
 		{
 			if( m_mapHardKeys.find( event.data.button.m_iPK_Button )!=m_mapHardKeys.end() )
 			{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"OrbiterLinux::Initialize removing hardkey %d", event.data.button.m_iPK_Button);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterLinux::Initialize removing hardkey %d", event.data.button.m_iPK_Button);
 #endif
 				Message *pMessage = m_mapHardKeys[event.data.button.m_iPK_Button];
 				m_mapHardKeys.erase(event.data.button.m_iPK_Button);
@@ -393,50 +393,50 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
     if(UsesUIVersion2() && NULL != m_pWinListManager && !m_pWinListManager->ResetOrbiterWindow())
 		OnQuit();    
 
-    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Initialize() : done");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Initialize() : done");
 }
 
 void OrbiterLinux::Destroy()
 {
-    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy()");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy()");
     delete m_pRecordHandler;
     m_pRecordHandler = NULL;
     if (m_pMouseBehavior)
     {
-	    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() killing mouse behavior");
+	    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy() killing mouse behavior");
         delete m_pMouseBehavior;
         m_pMouseBehavior = NULL;
     }
-	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() calling X11 Exit");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy() calling X11 Exit");
     X11_Exit();
-	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() deleting Window manager");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy() deleting Window manager");
     delete m_pWinListManager;
     m_pWinListManager = NULL;
-    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::Destroy() : done");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy() : done");
 }
 
 void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 {
-    g_pPlutoLogger->Write(LV_WARNING, "CMD off not implemented on the orbiter yet");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD off not implemented on the orbiter yet");
 }
 
 void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)
 {
 	m_sApplicationName = sWindowName;
-    g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
 	m_pWinListManager->SetExternApplicationName(sWindowName);
 }
 
 void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 {
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Simulate_Keypress() : m_bYieldInput==%d", m_bYieldInput);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::CMD_Simulate_Keypress() : m_bYieldInput==%d", m_bYieldInput);
 #endif
     if( m_bYieldInput )
     {
         pair<bool,int> XKeySym = PlutoButtonsToX(atoi(sPK_Button.c_str()));
 #ifdef DEBUG
-        g_pPlutoLogger->Write(LV_WARNING, "Need to forward pluto key %s to X key %d (shift %d)", sPK_Button.c_str(),XKeySym.second,XKeySym.first);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Need to forward pluto key %s to X key %d (shift %d)", sPK_Button.c_str(),XKeySym.second,XKeySym.first);
 #endif
         // TODO: clean this code
         Display *dpy = GetDisplay();
@@ -456,13 +456,13 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
 
 void OrbiterLinux::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Moving mouse (relative %d,%d)", iPosition_X, iPosition_Y);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Moving mouse (relative %d,%d)", iPosition_X, iPosition_Y);
     m_pX11->Mouse_SetPosition(iPosition_X, iPosition_Y);
 }
 
 void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Clicking mouse %s",sType.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Clicking mouse %s",sType.c_str());
 
     {
         Display *pDisplay = GetDisplay();
@@ -479,13 +479,13 @@ void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboa
     // then
     // sOnOff should be 1
     // and bFully_release_keyboard should be true
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS(%s, %d)", sOnOff.c_str(), bFully_release_keyboard);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS(%s, %d)", sOnOff.c_str(), bFully_release_keyboard);
     GrabPointer(sOnOff != "1");
     GrabKeyboard(sOnOff != "1");
     Orbiter::CMD_Surrender_to_OS(sOnOff, bFully_release_keyboard, sCMD_Result, pMessage);
     if (m_bYieldInput)
     {
-        g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS() : ActivateWindow('%s')", m_pWinListManager->GetExternApplicationName().c_str());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS() : ActivateWindow('%s')", m_pWinListManager->GetExternApplicationName().c_str());
         m_pWinListManager->ActivateWindow(m_pWinListManager->GetExternApplicationName());
 		m_pWinListManager->ApplyContext();
     }
@@ -496,7 +496,7 @@ void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboa
 			ResetAppliedMask();
 	}
 
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS(%s, %d) : done", sOnOff.c_str(), bFully_release_keyboard);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::CMD_Surrender_to_OS(%s, %d) : done", sOnOff.c_str(), bFully_release_keyboard);
 }
 
 /*virtual*/ ScreenHandler *OrbiterLinux::CreateScreenHandler()
@@ -517,7 +517,7 @@ void OrbiterLinux::X_UnlockDisplay()
 void OrbiterLinux::GrabPointer(bool bEnable)
 {
 #ifndef MAEMO_NOKIA770
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabPointer(%d)", bEnable);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::GrabPointer(%d)", bEnable);
     if (bEnable)
     {
         m_pX11->Mouse_Grab(GetMainWindow());
@@ -526,14 +526,14 @@ void OrbiterLinux::GrabPointer(bool bEnable)
     {
         m_pX11->Mouse_Ungrab();
     }
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabPointer(%d) : done", bEnable);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::GrabPointer(%d) : done", bEnable);
 #endif
 }
 
 void OrbiterLinux::GrabKeyboard(bool bEnable)
 {
 #ifndef MAEMO_NOKIA770
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabKeyboard(%d)", bEnable);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::GrabKeyboard(%d)", bEnable);
     if (bEnable)
     {
         m_pX11->Keyboard_Grab(GetMainWindow());
@@ -542,7 +542,7 @@ void OrbiterLinux::GrabKeyboard(bool bEnable)
     {
         m_pX11->Keyboard_Ungrab();
     }
-    g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::GrabKeyboard(%d) : done", bEnable);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::GrabKeyboard(%d) : done", bEnable);
 #endif
 }
 
@@ -553,7 +553,7 @@ bool OrbiterLinux::MaskApplied()
 
 void OrbiterLinux::ResetAppliedMask()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Reseting mask");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Reseting mask");
 
 	XRectangle rect = {0, 0, m_iImageWidth, m_iImageHeight};
 	
@@ -570,7 +570,7 @@ void OrbiterLinux::ResetAppliedMask()
 
 void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point)
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Applying mask: rectangle %d,%d,%d,%d",
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Applying mask: rectangle %d,%d,%d,%d",
 		point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
 
 	enum rectIndex
@@ -680,7 +680,7 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode,int Type)
 	if( iPK_Button )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"OrbiterLinux::TranslateXKeyCodeToPlutoButton Keycode %d = media button %d", Keycode, iPK_Button);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterLinux::TranslateXKeyCodeToPlutoButton Keycode %d = media button %d", Keycode, iPK_Button);
 #endif
 		return iPK_Button;
 	}
@@ -692,14 +692,14 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode,int Type)
     XLookupString(&kevent, buf, sizeof(buf), &keysym, 0);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"OrbiterLinux::TranslateXKeyCodeToPlutoButton Keycode %d = keysym %d/%d", Keycode, (int)keysym, (unsigned int)keysym);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterLinux::TranslateXKeyCodeToPlutoButton Keycode %d = keysym %d/%d", Keycode, (int)keysym, (unsigned int)keysym);
 #endif
 
     switch ( keysym )
     {
         case XK_Shift_L:   case XK_Shift_R:
 			iPK_Button = BUTTON_left_shift_CONST;
-			g_pPlutoLogger->Write(LV_STATUS, "shift %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "shift %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up");
             m_bShiftDown = ( Type == Orbiter::Event::BUTTON_DOWN );
 			m_bShiftDownOnScreenKeyboard = false;
             break;
@@ -719,9 +719,9 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode,int Type)
         case XK_F3:     iPK_Button = BUTTON_F3_CONST; break;
         case XK_F4:     iPK_Button = BUTTON_F4_CONST; break;
         case XK_F5:     iPK_Button = BUTTON_F5_CONST; break;
-		case XK_F6:     iPK_Button = BUTTON_F6_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F6 %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
-		case XK_F7:     iPK_Button = BUTTON_F7_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F7 %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
-		case XK_F8:     iPK_Button = BUTTON_F8_CONST; g_pPlutoLogger->Write(LV_STATUS, "Key F8 %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F6:     iPK_Button = BUTTON_F6_CONST; LoggerWrapper::GetInstance()->Write(LV_STATUS, "Key F6 %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F7:     iPK_Button = BUTTON_F7_CONST; LoggerWrapper::GetInstance()->Write(LV_STATUS, "Key F7 %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
+		case XK_F8:     iPK_Button = BUTTON_F8_CONST; LoggerWrapper::GetInstance()->Write(LV_STATUS, "Key F8 %s", Type == Orbiter::Event::BUTTON_DOWN ? "down" : "up"); break;
 
         case XK_0: case XK_KP_0:
             if(m_bShiftDown)
@@ -842,7 +842,7 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode,int Type)
     }
 
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "The keysym was %d, the final Type %d, button %d", keysym, Type, iPK_Button);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "The keysym was %d, the final Type %d, button %d", keysym, Type, iPK_Button);
 #endif
 
 	return iPK_Button;

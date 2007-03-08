@@ -72,7 +72,7 @@ void DatagridAnimationManager::Cleanup()
 	{
 		AnimationScrollDatagrid *pAnimation = *it;
 
-		g_pPlutoLogger->Write(LV_STATUS, "DatagridAnimationManager::StopAnimation (anim %p) B(%p) - A(%p), pending %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridAnimationManager::StopAnimation (anim %p) B(%p) - A(%p), pending %d",
 			pAnimation, pAnimation->BeforeGrid, pAnimation->AfterGrid, m_vectCurrentAnimations.size() - 1);
 
 		m_pEngine->RemoveMeshFrameFromDesktop(pAnimation->BeforeGrid);
@@ -103,7 +103,7 @@ void DatagridAnimationManager::PrepareForAnimation(string ObjectID, MeshFrame *B
 
 	m_vectPendingAnimations.push_back(pAnimation);
 
-	g_pPlutoLogger->Write(LV_STATUS, "DatagridAnimationManager::PrepareForAnimation %s B(%p) - A(%p), pending %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridAnimationManager::PrepareForAnimation %s B(%p) - A(%p), pending %d",
 		ObjectID.c_str(), BeforeGrid, AfterGrid, m_vectPendingAnimations.size());
 
 	pAnimation->StartAnimation();
@@ -150,7 +150,7 @@ void DatagridAnimationManager::OnStartAnimation()
 
 	Cleanup();
 
-	g_pPlutoLogger->Write(LV_STATUS, "DatagridAnimationManager::OnStartAnimation");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridAnimationManager::OnStartAnimation");
 
 	int StartTime = SDL_GetTicks();
 	for(vector<AnimationScrollDatagrid*>::iterator it = m_vectPendingAnimations.begin();
@@ -159,7 +159,7 @@ void DatagridAnimationManager::OnStartAnimation()
 	{
 		AnimationScrollDatagrid *pAnimation = *it;
 		
-		g_pPlutoLogger->Write(LV_STATUS, "DatagridAnimationManager::OnStartAnimation %s B(%p) - A(%p)",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridAnimationManager::OnStartAnimation %s B(%p) - A(%p)",
 			pAnimation->ObjectID.c_str(), pAnimation->BeforeGrid, pAnimation->AfterGrid);
 
 		m_pEngine->AddMeshFrameToDesktop("", pAnimation->AfterGrid);
@@ -218,7 +218,7 @@ void DatagridAnimationManager::StopPendingAnimations()
 	{
 		AnimationScrollDatagrid *pAnimation = *it;
 
-		g_pPlutoLogger->Write(LV_STATUS, "DatagridAnimationManager::StopPendingAnimation (anim %p) B(%p) - A(%p), pending %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridAnimationManager::StopPendingAnimation (anim %p) B(%p) - A(%p), pending %d",
 			pAnimation, pAnimation->BeforeGrid, pAnimation->AfterGrid, m_vectPendingAnimations.size() - 1);
 
 		m_pEngine->RemoveMeshFrameFromDesktop(pAnimation->BeforeGrid);

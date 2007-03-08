@@ -51,9 +51,9 @@ void* SerialD::startUp(void * device)
 {
 	running = true;
 	
-	g_pPlutoLogger->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
 	Sleep(10000);
-	g_pPlutoLogger->Write(LV_DEBUG, "############ SerialD Start ");
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ SerialD Start ");
 	
 	if( device == NULL )
 	{
@@ -78,7 +78,7 @@ void* SerialD::startUp(void * device)
 		CMD_Get_Unused_Serial_Ports_DT cmd(halDevice->m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST, BL_SameHouse, halDevice->m_dwPK_Device, &val2assign);
 		halDevice->SendCommand(cmd, &response);
 		
-		g_pPlutoLogger->Write(LV_DEBUG, "Serial ports %s -- %s\n", response.c_str(), val2assign.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Serial ports %s -- %s\n", response.c_str(), val2assign.c_str());
 		
 		if( !val2assign.empty() )
 		{
@@ -100,7 +100,7 @@ void* SerialD::startUp(void * device)
 				
 				if( serialPort.IsBusy() )
 				{
-					g_pPlutoLogger->Write(LV_DEBUG, "++++++++++++ SerialD Busy %s", sPort.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "++++++++++++ SerialD Busy %s", sPort.c_str());
 					// fire event 
 					halDevice->EVENT_Device_Detected("", "", "", 0, "", 2, 0, "", "37|" + sPort, "serial");
 					// remove it from tests
@@ -109,12 +109,12 @@ void* SerialD::startUp(void * device)
 				}
 				else
 				{
-//					g_pPlutoLogger->Write(LV_DEBUG, "------------ SerialD Not Busy %s", sPort.c_str());
+//					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "------------ SerialD Not Busy %s", sPort.c_str());
 				}
 			}
 			catch(string sError)
 			{
-//				g_pPlutoLogger->Write(LV_DEBUG, "Exception: %s", sError.c_str());
+//				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Exception: %s", sError.c_str());
 			}
 			
 			++it;
@@ -123,13 +123,13 @@ void* SerialD::startUp(void * device)
 		usleep(1000000);
 	}
 	
-	g_pPlutoLogger->Write(LV_DEBUG, "############ SerialD END ");
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ SerialD END ");
 	
 	return NULL;
 }
 
 void SerialD::shutDown()
 {
-	g_pPlutoLogger->Write(LV_DEBUG, "############ SerialD shutDown ");
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ SerialD shutDown ");
 	running = false;
 }

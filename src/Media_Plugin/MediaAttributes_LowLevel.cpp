@@ -65,7 +65,7 @@ void MediaAttributes_LowLevel::TransformFilenameToDeque(string sFilename,deque<M
 		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow( atoi(sFilename.substr(2).c_str()) );
 		if( !pRow_Attribute )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Attribute lookup on %s is invalid",sFilename.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Attribute lookup on %s is invalid",sFilename.c_str());
 			return;
 		}
 
@@ -293,7 +293,7 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
         {
             if( DatabaseFile.length( )==0 )
             {
-                g_pPlutoLogger->Write( LV_CRITICAL, "There appears to be a foreign file in the system %d %s", PK_File, File.c_str( ) );
+                LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "There appears to be a foreign file in the system %d %s", PK_File, File.c_str( ) );
                 return 0;
             }
             else
@@ -302,13 +302,13 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
                 FILE *file = fopen( DatabaseFile.c_str( ), "rb" );
                 if( file )
                 {
-                    g_pPlutoLogger->Write( LV_CRITICAL, "There are 2 files with id %d %s and: %s", PK_File, File.c_str( ), DatabaseFile.c_str( ) );
+                    LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "There are 2 files with id %d %s and: %s", PK_File, File.c_str( ), DatabaseFile.c_str( ) );
                     return 0;
                 }
                 else
                 {
                     // They must have moved it
-                    g_pPlutoLogger->Write( LV_MEDIA, "File %d moved from %s to %s", PK_File, DatabaseFile.c_str( ), File.c_str( ) );
+                    LoggerWrapper::GetInstance()->Write( LV_MEDIA, "File %d moved from %s to %s", PK_File, DatabaseFile.c_str( ), File.c_str( ) );
 
                     string path = FileUtils::BasePath( File );
                     string name = FileUtils::FilenameWithoutPath( File, true );
@@ -388,13 +388,13 @@ string MediaAttributes_LowLevel::GetAnyPictureUnderDirectory( string File, int *
     struct dirent *direntp = &entry;
     if ( dirp == NULL )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "opendir2 %s failed: %s", File.c_str( ), strerror( errno ) );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "opendir2 %s failed: %s", File.c_str( ), strerror( errno ) );
         return "";
     }
     while ( dirp != NULL && ( readdir_r( dirp, direntp, &direntp ) == 0 ) && direntp )
     {
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_STATUS, "GetPicture: Reading %s %s depth %d",File.c_str(),entry.d_name,MaxDepthToSearch);
+LoggerWrapper::GetInstance()->Write( LV_STATUS, "GetPicture: Reading %s %s depth %d",File.c_str(),entry.d_name,MaxDepthToSearch);
 #endif
         if( MaxDepthToSearch && ( entry.d_type==DT_DIR ) && entry.d_name[0]!='.' )
         {
@@ -411,7 +411,7 @@ g_pPlutoLogger->Write( LV_STATUS, "GetPicture: Reading %s %s depth %d",File.c_st
             string Extension = GetPictureFromFilePath( File + "/" + entry.d_name, PK_Picture );
 
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_STATUS, "GetPicture: Reading %s %s got pic %d %s",File.c_str(),entry.d_name,*PK_Picture,Extension.c_str());
+LoggerWrapper::GetInstance()->Write( LV_STATUS, "GetPicture: Reading %s %s got pic %d %s",File.c_str(),entry.d_name,*PK_Picture,Extension.c_str());
 #endif
             if( *PK_Picture )
             {
@@ -435,7 +435,7 @@ string MediaAttributes_LowLevel::GetPictureFromFilePath( string File, int *PK_Pi
 {
     int PK_File = GetFileIDFromFilePath( File );
 
-// g_pPlutoLogger->Write(LV_STATUS, "Got file id: %d", PK_File);
+// LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got file id: %d", PK_File);
 
     if( PK_File )
         return GetPictureFromFileID( PK_File, PK_Picture );
@@ -456,7 +456,7 @@ string MediaAttributes_LowLevel::GetPictureFromFileID( int PK_File, int *PK_Pict
         "FK_Picture=PK_Picture "\
         "WHERE FK_File=" + StringUtils::itos( PK_File );
 
-//	g_pPlutoLogger->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromFileID() Running query: %s", SQL.c_str());
+//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromFileID() Running query: %s", SQL.c_str());
     PlutoSqlResult result;
     MYSQL_ROW row;
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
@@ -471,7 +471,7 @@ string MediaAttributes_LowLevel::GetPictureFromFileID( int PK_File, int *PK_Pict
         "JOIN Picture ON FK_Picture=PK_Picture "\
         "WHERE FK_File=" + StringUtils::itos( PK_File );
 
-//	g_pPlutoLogger->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromFileID() Running another query: %s", SQL.c_str());
+//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromFileID() Running another query: %s", SQL.c_str());
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
@@ -494,7 +494,7 @@ string MediaAttributes_LowLevel::GetPictureFromDiscID( int PK_Disc, int *PK_Pict
         "FK_Picture=PK_Picture "\
         "WHERE FK_Disc=" + StringUtils::itos( PK_Disc );
 
-//	g_pPlutoLogger->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromDiscID() Running query: %s", SQL.c_str());
+//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromDiscID() Running query: %s", SQL.c_str());
     PlutoSqlResult result;
     MYSQL_ROW row;
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
@@ -509,7 +509,7 @@ string MediaAttributes_LowLevel::GetPictureFromDiscID( int PK_Disc, int *PK_Pict
         "JOIN Picture ON FK_Picture=PK_Picture "\
         "WHERE FK_Disc=" + StringUtils::itos( PK_Disc );
 
-//	g_pPlutoLogger->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromDiscID() Running another query: %s", SQL.c_str());
+//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromDiscID() Running another query: %s", SQL.c_str());
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
@@ -593,7 +593,7 @@ void MediaAttributes_LowLevel::PurgeDequeMediaFile(deque<MediaFile *> &dequeMedi
 
 void MediaAttributes_LowLevel::MarkAsMissing(int iKey, string fileName)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Marking %s as missing", fileName.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Marking %s as missing", fileName.c_str());
 
     string SQL = "UPDATE File SET Missing=1 WHERE PK_File=" + StringUtils::itos( iKey );
 
@@ -610,7 +610,7 @@ Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_Medi
 {
 	if( StringUtils::OnlyWhiteSpace(sName) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"MediaAttributes_LowLevel::GetAttributeFromDescription got a blank attribute");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MediaAttributes_LowLevel::GetAttributeFromDescription got a blank attribute");
 		return NULL;
 	}
 	vector<Row_Attribute *> vectRow_Attribute;
@@ -667,14 +667,14 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 	string sMediaPicsFolder = "/home/mediapics/";
 #endif
 
-	g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddPicture %d %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddPicture %d %s",
 		pRow_Picture->PK_Picture_get(),sURL.c_str());
 
 	string sPictureFileName = sMediaPicsFolder + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + sFormat;
 	FILE *file = fopen(sPictureFileName.c_str(), "wb");
 	if( !file )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create bookmark pic file");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot create bookmark pic file");
 		pRow_Picture->Delete();
 		m_pDatabase_pluto_media->Picture_get()->Commit();
 		pRow_Picture=NULL;
@@ -699,7 +699,7 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 			FileUtils::DelFile(sDownloadedFile);
 			iData_Size = int(nSize);
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Wget command line: '%s' ; file saved size: %d; file path: %s", sCommand.c_str(), nSize, sPictureFileName.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Wget command line: '%s' ; file saved size: %d; file path: %s", sCommand.c_str(), nSize, sPictureFileName.c_str());
 #endif			
 		}
 
@@ -709,7 +709,7 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 			" /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "_tn." + sFormat;
 		int result;
 		if( ( result=system( Cmd.c_str( ) ) )!=0 )
-			g_pPlutoLogger->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
 	}
 
 	return pRow_Picture;
@@ -756,7 +756,7 @@ void MediaAttributes_LowLevel::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
         }
     }
     else
-        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot update tokens for %d", PK_Attribute );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot update tokens for %d", PK_Attribute );
 }
 
 int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttribute &listMediaAttribute_,string sValue,int PK_File)
@@ -771,7 +771,7 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 	StringUtils::Tokenize(sValue,"\n",vectAttributes);
 	if( vectAttributes.size()<1 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"MediaAttributes_LowLevel::Parse_Misc_Media_ID -- empty");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MediaAttributes_LowLevel::Parse_Misc_Media_ID -- empty");
 		return 0;
 	}
 
@@ -788,7 +788,7 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 	    pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Disc_ID_CONST,vectAttributes[0]); 
 		if( pRow_Attribute==NULL )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute disc is empty");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute disc is empty");
 			return PK_Disc;
 		}
 		
@@ -804,7 +804,7 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 			string sWholeName = StringUtils::Tokenize(sLine,"\t",pos);
 			if( !PK_AttributeType || sWholeName.size()==0 )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Empty/invalid media attribute");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Empty/invalid media attribute");
 				continue;
 			}
 
@@ -837,14 +837,14 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 				pRow_Attribute = GetAttributeFromDescription(PK_MediaType,PK_AttributeType,sName);
 				if( pRow_Attribute==NULL )
 				{
-					g_pPlutoLogger->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute %d is empty",PK_AttributeType);
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute %d is empty",PK_AttributeType);
 					return PK_Disc;
 				}
 
 				if( PK_AttributeType==ATTRIBUTETYPE_Performer_CONST )
 					mapPerformer[ make_pair<int,int> (Track,Section) ] = pRow_Attribute->PK_Attribute_get();
 
-				g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
 					pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
 
 				listMediaAttribute_.push_back( new MediaAttribute(
@@ -859,10 +859,10 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_Album_CONST,it->second,PK_Attribute_Performer);
 			if( pRow_Attribute==NULL )
 			{
-				g_pPlutoLogger->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute ATTRIBUTETYPE_Album_CONST is empty");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute ATTRIBUTETYPE_Album_CONST is empty");
 				return PK_Disc;
 			}
-			g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
 				pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), it->second.c_str());
 
 			listMediaAttribute_.push_back( new MediaAttribute(
@@ -893,7 +893,7 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 	
 	int Tracks;
 	FixMediaAttributes(listMediaAttribute_,Tracks);
-g_pPlutoLogger->Write(LV_STATUS,"Parse_misc_Media_ID done");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Parse_misc_Media_ID done");
 	return PK_Disc;
 }
 
@@ -909,13 +909,13 @@ int MediaAttributes_LowLevel::Parse_CDDB_Media_ID(int PK_MediaType,listMediaAttr
 	int PK_Disc=0;
 	if( (PK_Disc=IsDiscAlreadyIdentified(sCDDBID,listMediaAttribute_))==0 )
 	{
-g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 
 		// The cddb info is space delimited
 	    pRow_Attribute = GetAttributeFromDescription(PK_MediaType,ATTRIBUTETYPE_CDDB_CONST,StringUtils::Tokenize(sCDDBID," ",pos2)); 
 		if( pRow_Attribute==NULL )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"ediaAttributes_LowLevel::Parse_CDDB_Media_ID attribute id is empty");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"ediaAttributes_LowLevel::Parse_CDDB_Media_ID attribute id is empty");
 			return PK_Disc;
 		}
 
@@ -972,7 +972,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 
 	int Tracks;
 	FixMediaAttributes(listMediaAttribute_,Tracks);
-g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID done");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Parse_CDDB_Media_ID done");
 	return PK_Disc;
 }
 
@@ -1017,7 +1017,7 @@ bool MediaAttributes_LowLevel::FixMediaAttributes(listMediaAttribute &listMediaA
 				}
 			
 			bOK=false;
-			g_pPlutoLogger->Write(LV_WARNING,"MediaAttributes_LowLevel::FixMediaAttributes missing song info for %s",sMissing.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MediaAttributes_LowLevel::FixMediaAttributes missing song info for %s",sMissing.c_str());
 		}
 	}
 	return bOK;
@@ -1056,7 +1056,7 @@ int MediaAttributes_LowLevel::IsDiscAlreadyIdentified(Row_Disc *pRow_Disc,listMe
 	{
 		Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[s];
 		Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
-g_pPlutoLogger->Write(LV_STATUS,"Already in DB %p %p %d",pRow_Disc_Attribute,pRow_Attribute,(pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0));
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Already in DB %p %p %d",pRow_Disc_Attribute,pRow_Attribute,(pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0));
 		if( !pRow_Attribute )
 			continue; // Should never happen
 		listMediaAttribute_.push_back( new MediaAttribute(
@@ -1134,7 +1134,7 @@ int MediaAttributes_LowLevel::AddIdentifiedDiscToDB(int PK_MediaType,string sIde
 			pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(pMediaAttribute->m_PK_Attribute);
 		if( !pRow_Attribute )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"MediaAttributes_LowLevel::AddIdentifiedDiscToDB now can't find attribute %d",pMediaAttribute->m_PK_Attribute);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MediaAttributes_LowLevel::AddIdentifiedDiscToDB now can't find attribute %d",pMediaAttribute->m_PK_Attribute);
 			continue;
 		}
 		Row_Disc_Attribute *pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->GetRow(pRow_Disc->PK_Disc_get(),pRow_Attribute->PK_Attribute_get(),pMediaAttribute->m_Title_Track,pMediaAttribute->m_Section);
@@ -1185,7 +1185,7 @@ int MediaAttributes_LowLevel::AddIdentifiedFileToDB(int PK_MediaType,int PK_File
 			pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(pMediaAttribute->m_PK_Attribute);
 		if( !pRow_Attribute )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"MediaAttributes_LowLevel::AddIdentifiedFileToDB now can't find attribute %d",pMediaAttribute->m_PK_Attribute);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MediaAttributes_LowLevel::AddIdentifiedFileToDB now can't find attribute %d",pMediaAttribute->m_PK_Attribute);
 			continue;
 		}
 		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->GetRow(pRow_File->PK_File_get(),pRow_Attribute->PK_Attribute_get(),pMediaAttribute->m_Title_Track,pMediaAttribute->m_Section);
@@ -1315,7 +1315,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 	if(FileUtils::DirExists(sDestination))
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is a dir: %s",sDestination.c_str(),sTracks.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is a dir: %s",sDestination.c_str(),sTracks.c_str());
 #endif
 		Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : PK_MediaType,sDestination);
 		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,0);  // Track ==0
@@ -1343,7 +1343,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 			FileUtils::FindFiles(listFiles,sDestination,sTrackName + ".*.lock");
 			if( listFiles.size()!=1 )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped track lock file: %s/%s",sDestination.c_str(),sTrackName.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find ripped track lock file: %s/%s",sDestination.c_str(),sTrackName.c_str());
 				continue;
 			}
 			string sLockFile = listFiles.front();
@@ -1351,7 +1351,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 			FileUtils::FindFiles(listFiles,sDestination,FileUtils::FileWithoutExtension(sLockFile)); // Now find the file without the lock
 			if( listFiles.size()!=1 )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped track for lock file: %s",sLockFile.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find ripped track for lock file: %s",sLockFile.c_str());
 				continue;
 			}
 			string sRippedFile = listFiles.front();
@@ -1377,7 +1377,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 			m_pDatabase_pluto_media->File_get()->Commit();
 
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s calling AddDiscAttributesToFile for %s",sDestination.c_str(),s.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s calling AddDiscAttributesToFile for %s",sDestination.c_str(),s.c_str());
 #endif
 			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,iTrack);
 
@@ -1403,7 +1403,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 	else
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is not a dir",sDestination.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is not a dir",sDestination.c_str());
 #endif
 		string sFileNameBase = FileUtils::FilenameWithoutPath(sDestination);
 		sDestination = FileUtils::BasePath(sDestination);
@@ -1413,7 +1413,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		FileUtils::FindFiles(listFiles,sDestination,sFileNameBase + ".*.lock");
 		if( listFiles.size()!=1 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc lock file: %s / %s %d",sDestination.c_str(),sFileNameBase.c_str(),(int) listFiles.size());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find ripped disc lock file: %s / %s %d",sDestination.c_str(),sFileNameBase.c_str(),(int) listFiles.size());
 			return;
 		}
 		string sLockFile = listFiles.front();
@@ -1421,13 +1421,13 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		FileUtils::FindFiles(listFiles,sDestination,FileUtils::FileWithoutExtension(sLockFile)); // Now find the file without the lock
 		if( listFiles.size()!=1 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc for lock file: %s",sLockFile.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find ripped disc for lock file: %s",sLockFile.c_str());
 			return;
 		}
 		string sRippedFile = listFiles.front();
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is not a dir, calling AddDirectoryToDatabase",sDestination.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is not a dir, calling AddDirectoryToDatabase",sDestination.c_str());
 #endif
 		AddDirectoryToDatabase(PK_MediaType,FileUtils::BasePath(sDestination));
 
@@ -1449,7 +1449,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		m_pDatabase_pluto_media->File_get()->Commit();
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is not a dir, calling AddDiscAttributesToFile",sDestination.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is not a dir, calling AddDiscAttributesToFile",sDestination.c_str());
 #endif
 		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
 		FileUtils::DelFile(sDestination + "/" + sLockFile);
@@ -1462,7 +1462,7 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow( PK_File );
 	if( !pRow_Disc || !pRow_File )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::AddDiscAttributesToFile called with missing file %d disc %d",PK_File,PK_Disc);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::AddDiscAttributesToFile called with missing file %d disc %d",PK_File,PK_Disc);
 		return;
 	}
 /*

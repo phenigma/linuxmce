@@ -62,11 +62,6 @@ extern HWND	g_hWndList; //maindialog logger list
     static const string g_sOrbiterConfName = "Orbiter.conf";
 #endif
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger = NULL;
-}
-
 extern map<int,PlutoLock *> *g_pmapLocks;
 extern pluto_pthread_mutex_t *g_mapLockMutex;
 #ifdef LL_DEBUG_FILE
@@ -254,16 +249,16 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 		//Creating the logger
 		if(Simulator::GetInstance()->m_bLogToServer)
-			g_pPlutoLogger = new ServerLogger(CmdLineParams.PK_Device, 0, CmdLineParams.sRouter_IP.c_str());
+			LoggerWrapper::SetInstance(new ServerLogger(CmdLineParams.PK_Device, 0, CmdLineParams.sRouter_IP.c_str()));
 		else
 		{
 			try
 			{
 				if( sLogger=="null" )
-					g_pPlutoLogger = new NullLogger();
+					LoggerWrapper::SetType(LT_LOGGER_NULL);
 				else 
 					if( sLogger == "orbiter" )
-						g_pPlutoLogger = new WinOrbiterLogger(g_hWndList);
+						LoggerWrapper::SetInstance(new WinOrbiterLogger(g_hWndList));
 					else
                     {
 #ifndef DEBUG    
@@ -275,7 +270,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
                             //::DeleteFile(sLogger.c_str());
                         #endif		
 #endif
-						g_pPlutoLogger = new FileLogger(sLogger.c_str());
+						LoggerWrapper::SetType(LT_LOGGER_FILE,sLogger);
                     }
 			}
 			catch(...)
@@ -286,7 +281,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		}
 
 		//It's safe now to use the logger
-		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",CmdLineParams.PK_Device,
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",CmdLineParams.PK_Device,
 			CmdLineParams.sRouter_IP.c_str());
 
 		//Starting orbiter's thread
@@ -326,7 +321,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
         }
 #endif        
 
-		g_pPlutoLogger->Write(LV_STATUS, "Exited process messages loop. We are shutting down....");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Exited process messages loop. We are shutting down....");
 
 		if(NULL != Orbiter::Instance())
 			Orbiter::DestroyInstance();
@@ -339,8 +334,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
 #endif
 
-		g_pPlutoLogger->Write(LV_STATUS, "About to delete logger. Logger out.");
-		delete g_pPlutoLogger;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "About to delete logger. Logger out.");
+		
 	}
 
 	//Aaron's profiler

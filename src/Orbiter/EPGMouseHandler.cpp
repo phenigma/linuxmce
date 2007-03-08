@@ -37,7 +37,7 @@ EPGMouseHandler::EPGMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBe
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"MouseHandler const %p",this);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseHandler const %p",this);
 #endif
 	m_pDatagridMouseHandlerHelper = new DatagridMouseHandlerHelper(this);
 	m_pDesignObj_DataGrid_Active=NULL;
@@ -51,7 +51,7 @@ EPGMouseHandler::EPGMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBe
 EPGMouseHandler::~EPGMouseHandler()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"MouseHandler dest %p",this);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseHandler dest %p",this);
 #endif
 	delete m_pDatagridMouseHandlerHelper;
 }
@@ -77,7 +77,7 @@ void EPGMouseHandler::Start()
 
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_UpDown);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"EPGMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"EPGMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
 #endif
 
 	if( true ) // for now just do it the one way, the absolute seeking was too tough.  m_pMouseBehavior->m_iTime_Last_Mouse_Up )
@@ -155,9 +155,9 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 		return; // Also shouldn't happen
 
 	if( m_pDesignObj_DataGrid_Active && m_pDesignObj_DataGrid_Active->m_iBaseObjectID==DESIGNOBJ_dgTvChannels_UI2_CONST )
-		g_pPlutoLogger->Write(LV_CRITICAL,"left grid X %d right %d", X, m_pDesignObj_DataGrid_Active->m_rPosition.Right());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"left grid X %d right %d", X, m_pDesignObj_DataGrid_Active->m_rPosition.Right());
 	if( m_pDesignObj_DataGrid_Active && m_pDesignObj_DataGrid_Active->m_iBaseObjectID==DESIGNOBJ_dgUpcomingShows_CONST )
-		g_pPlutoLogger->Write(LV_CRITICAL,"right grid X %d left %d", X, m_pDesignObj_DataGrid_Active->m_rPosition.X );
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"right grid X %d left %d", X, m_pDesignObj_DataGrid_Active->m_rPosition.X );
 
 	if( m_pDesignObj_DataGrid_Active && m_pDesignObj_DataGrid_Active->m_iBaseObjectID==DESIGNOBJ_dgTvChannels_UI2_CONST && X>=m_pDesignObj_DataGrid_Active->m_rPosition.Right()-5 )
 	{

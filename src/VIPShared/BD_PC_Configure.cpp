@@ -72,7 +72,7 @@ bool BD_PC_Configure::ProcessCommand(BDCommandProcessor *pProcessor)
 
 	if(NULL == pOrbiter || NULL == pOrbiter->m_pOrbiter || pOrbiter->m_pOrbiter->m_bQuit_get())
 	{
-        g_pPlutoLogger->Write(LV_WARNING, "No configure command will be dispatch: Orbiter was killed or is exiting.");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "No configure command will be dispatch: Orbiter was killed or is exiting.");
 		return false;
 	}
 

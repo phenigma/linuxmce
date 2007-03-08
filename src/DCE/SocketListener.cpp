@@ -65,10 +65,10 @@ SocketListener::SocketListener( string sName )
 SocketListener::~SocketListener()
 {
 	m_bTerminate = true;
-	g_pPlutoLogger->Write( LV_SOCKET, "~SocketListener %d", m_Socket );
+	LoggerWrapper::GetInstance()->Write( LV_SOCKET, "~SocketListener %d", m_Socket );
 	if ( m_Socket != INVALID_SOCKET )
 	{
-		g_pPlutoLogger->Write( LV_SOCKET, "closing listener m_Socket: %d", m_Socket );
+		LoggerWrapper::GetInstance()->Write( LV_SOCKET, "closing listener m_Socket: %d", m_Socket );
 		closesocket( m_Socket ); // closing the socket
 		m_Socket = INVALID_SOCKET; // now it is invalid
 	}
@@ -103,7 +103,7 @@ void SocketListener::Run()
 
 	if ( m_Socket == INVALID_SOCKET ) // error
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Couldn't create listener socket.\r" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Couldn't create listener socket.\r" );
 		m_bRunning = false;
 		return;
 	}
@@ -111,14 +111,14 @@ void SocketListener::Run()
 	int iOpt = 1;
 	if( setsockopt( m_Socket, SOL_SOCKET, SO_REUSEADDR, (SOCKOPTTYPE)&iOpt, sizeof(iOpt) ) ) // error
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "setsockopt failed" ); // couldn't set the sock option
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "setsockopt failed" ); // couldn't set the sock option
 		closesocket(m_Socket);
 		m_Socket = INVALID_SOCKET;
 		m_bRunning=false;
 		return;
 	}
 
-	g_pPlutoLogger->Write( LV_SOCKET, "TCPIP: Listening on %d.", m_iListenPort ); // from now trying to start listening
+	LoggerWrapper::GetInstance()->Write( LV_SOCKET, "TCPIP: Listening on %d.", m_iListenPort ); // from now trying to start listening
 
 	memset( &addrT, 0, sizeof(addrT) ); // clearing it
 	addrT.sin_family = AF_INET;
@@ -127,11 +127,11 @@ void SocketListener::Run()
 
 	if ( SOCKFAIL( bind( m_Socket, (struct sockaddr*)&addrT, sizeof(addrT) ) ) ) // test if we can bind the socket with the desired properties @todo ask
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Failed to bind to port.\r" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Failed to bind to port.\r" );
 	}
 	else if ( SOCKFAIL( listen( m_Socket, SOMAXCONN ) ) )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Failed to listen to port.\r" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Failed to listen to port.\r" );
 	}
 	else // no errors
 	{
@@ -174,7 +174,7 @@ void SocketListener::Run()
 
 			if(!m_bAllowIncommingConnections)
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Got an incoming connection, but the server is closing." );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Got an incoming connection, but the server is closing." );
 				send( newsock, "CLOSED\n", 6, 0 );
 				closesocket( newsock );
 				break;
@@ -184,13 +184,13 @@ void SocketListener::Run()
 			{
 				if ( m_bClosed )
 				{
-					g_pPlutoLogger->Write( LV_STATUS, "Got an incoming connection, but the server state is closed." );
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Got an incoming connection, but the server state is closed." );
 					send( newsock, "CLOSED\n", 6, 0 );
 					closesocket( newsock );
 				}
 				else
 				{
-					g_pPlutoLogger->Write( LV_SOCKET, "TCPIP: Accepting incoming connection on socket %d, port %d, from IP %s.", newsock, m_iListenPort, inet_ntoa(addr.sin_addr) );
+					LoggerWrapper::GetInstance()->Write( LV_SOCKET, "TCPIP: Accepting incoming connection on socket %d, port %d, from IP %s.", newsock, m_iListenPort, inet_ntoa(addr.sin_addr) );
 #ifdef WIN32
 					unsigned long on = 1;
 					::ioctlsocket( newsock, FIONBIO, &on );
@@ -213,7 +213,7 @@ void SocketListener::Run()
 			{
 				if ( !m_bTerminate )
 				{
-					g_pPlutoLogger->Write( LV_CRITICAL, "Invalid connection socket (accept failed).\r" );
+					LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Invalid connection socket (accept failed).\r" );
 					Sleep( 1000 );
 				}
 			}
@@ -247,25 +247,25 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 	if(pServerSocket->m_iReferencesOutstanding_get() > 1)
 	{  
 		// Something besides us is still referencing this pointer
-		g_pPlutoLogger->Write(LV_CRITICAL, "Removing socket %d, ourstanding refercences: %d",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Removing socket %d, ourstanding refercences: %d",
 			pServerSocket->m_dwPK_Device, pServerSocket->m_iReferencesOutstanding_get());
 		Sleep(100);
 	}
 
-	g_pPlutoLogger->Write(LV_SOCKET, "Removing socket %p from socket listener", pServerSocket);
+	LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Removing socket %p from socket listener", pServerSocket);
 
 	if(pServerSocket->m_dwPK_Device)
 	{
 		ServerSocketMap::iterator i = m_mapServerSocket.find( pServerSocket->m_dwPK_Device );
 		if (i != m_mapServerSocket.end() && (*i).second == pServerSocket)
 		{
-			g_pPlutoLogger->Write( LV_REGISTRATION, "Command handler (%p) for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
+			LoggerWrapper::GetInstance()->Write( LV_REGISTRATION, "Command handler (%p) for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
 			OnDisconnected( pServerSocket->m_dwPK_Device );
 			m_mapServerSocket.erase(i);
 		}
 		else
 		{
-			g_pPlutoLogger->Write( LV_REGISTRATION, "Stale Command handler (%p) for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
+			LoggerWrapper::GetInstance()->Write( LV_REGISTRATION, "Stale Command handler (%p) for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
 		}
 	}
 
@@ -274,7 +274,7 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 	{
 		m_vectorServerSocket.erase(it_serversocket);
 
-		g_pPlutoLogger->Write( LV_REGISTRATION, "Map server socket size %d, vector server socket size %d",
+		LoggerWrapper::GetInstance()->Write( LV_REGISTRATION, "Map server socket size %d, vector server socket size %d",
 			m_mapServerSocket.size(), m_vectorServerSocket.size());
 
 		// Will be true if the socket's destructor is calling this
@@ -305,7 +305,7 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 	GET_SERVER_SOCKET(gs, pSocket_Old, iDeviceID ); // search if device is allready in the map
 	if ( pSocket_Old )
 	{
-		g_pPlutoLogger->Write( LV_REGISTRATION, "!!! Replacing command handler on device ID \x1b[34;1m%d!\x1b[0m", iDeviceID );
+		LoggerWrapper::GetInstance()->Write( LV_REGISTRATION, "!!! Replacing command handler on device ID \x1b[34;1m%d!\x1b[0m", iDeviceID );
 		if( pSocket_Old && Socket->m_sIPAddress != pSocket_Old->m_sIPAddress )
 			pSocket_Old->SendString("REPLACE " + Socket->m_sIPAddress);
 
@@ -318,7 +318,7 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 	Socket->SetReceiveTimeout( IsPlugin(iDeviceID) ? SOCKET_TIMEOUT_PLUGIN : SOCKET_TIMEOUT );
 	ll.Release();
 
-	g_pPlutoLogger->Write( LV_REGISTRATION, "Device ID \x1b[34;1m%d's command handler\x1b[0m registered on socket: %d with counter %d %p",
+	LoggerWrapper::GetInstance()->Write( LV_REGISTRATION, "Device ID \x1b[34;1m%d's command handler\x1b[0m registered on socket: %d with counter %d %p",
 		iDeviceID,
 		Socket->m_Socket, Socket->m_iSocketCounter,
 		Socket );
@@ -392,7 +392,7 @@ bool SocketListener::SendData( int iDeviceID, int iLength, const char *pcData )
 
 void SocketListener::DropAllSockets()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Dropping all sockets...");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Dropping all sockets...");
 
 	time_t tStart = time(NULL);
 
@@ -401,7 +401,7 @@ void SocketListener::DropAllSockets()
 	{
 		if(time(NULL) - tStart > 10)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Big problem: can't wait for server sockets anymore!");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Big problem: can't wait for server sockets anymore!");
 			break;
 		}
 	
@@ -419,7 +419,7 @@ void SocketListener::DropAllSockets()
 	{
 		if(time(NULL) - tStart > 10)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Big problem: can't wait for server sockets anymore!");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Big problem: can't wait for server sockets anymore!");
 			break;
 		}		
 		
@@ -433,5 +433,5 @@ void SocketListener::DropAllSockets()
 		lm.Relock();
 	}
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Done dropping sockets!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Done dropping sockets!");
 }

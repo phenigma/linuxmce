@@ -54,10 +54,7 @@ using namespace DCE;
 
 map<string,bool> g_DebianPackages;
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 
 // When we need to move files, we will use a list of this structure
 class FileInfo
@@ -170,8 +167,6 @@ fstream fstr_compile,fstr_make_release;
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger(stdout);
-
 	int iVersion=-1;
 	bool bError=false,bUseFileLog=false;
 	string sDefines;
@@ -319,10 +314,10 @@ int main(int argc, char *argv[])
 	fstr_compile.open("Compile.script",fstream::out);  // A log of all the commands we executed to do the compile
 	fstr_make_release.open("MakeRelease.script",fstream::out);  // A log of all the commands we executed to make the release
 
-	g_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	g_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if(!g_pDatabase_pluto_main->Connect(&dceConfig))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		return 0;
 	}
 
@@ -334,7 +329,7 @@ int main(int argc, char *argv[])
 			delete g_pMySqlHelper_pluto_builder;
 			g_pMySqlHelper_pluto_builder=NULL;
 			cout << "Cannot connect to pluto_builder" << endl;
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot connect to pluto_builder");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot connect to pluto_builder");
 		}
 	}
 

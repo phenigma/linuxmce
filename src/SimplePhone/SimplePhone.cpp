@@ -77,7 +77,7 @@ bool SimplePhone::GetConfig()
 
 	/* Get MD Audio Settings */
 	string sAudioSettings = Get_MD_AudioSettings();
-	g_pPlutoLogger->Write(LV_STATUS, "MD Audio Settings: %s", sAudioSettings.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MD Audio Settings: %s", sAudioSettings.c_str());
 	string sAlsaDevice = "plughw:0";
 
 	for (size_t i = 0; i < sAudioSettings.length(); i++)
@@ -93,7 +93,7 @@ bool SimplePhone::GetConfig()
 				sAlsaDevice = "plughw:0";
 				break;
 			default:
-				g_pPlutoLogger->Write(LV_STATUS, "Flag unprocessed: '%c'", sAudioSettings[i]);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Flag unprocessed: '%c'", sAudioSettings[i]);
 		}
 	}
 
@@ -113,22 +113,22 @@ bool SimplePhone::GetConfig()
 	m_sExtension = m_pEvent->GetDeviceDataFromDatabase(m_dwPK_Device, DEVICEDATA_PhoneNumber_CONST);
 	if (m_sExtension.length() == 0)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "SimplePhone::GetConfig: Extension is empty. Attempting to sync with AMP");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SimplePhone::GetConfig: Extension is empty. Attempting to sync with AMP");
 
 		char * cmd[] = { "/usr/pluto/bin/LaunchRemoteCmd.sh", "dcerouter", "/usr/pluto/bin/sync_pluto2amp.pl", NULL };
 		string sOutput;
 		ProcessUtils::GetCommandOutput(cmd[0], cmd, sOutput);
 
-		g_pPlutoLogger->Write(LV_STATUS, "SimplePhone::GetConfig: Output of sync command:\n%s\nSimplePhone::GetConfig: End of output", sOutput.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone::GetConfig: Output of sync command:\n%s\nSimplePhone::GetConfig: End of output", sOutput.c_str());
 
 		m_sExtension = m_pEvent->GetDeviceDataFromDatabase(m_dwPK_Device, DEVICEDATA_PhoneNumber_CONST);
 		if (m_sExtension.length() == 0)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "SimplePhone::GetConfig: Extension is empty after sync. This is wrong.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "SimplePhone::GetConfig: Extension is empty after sync. This is wrong.");
 			return false;
 		}
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "SimplePhone::GetConfig: Starting with extension '%s'", m_sExtension.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone::GetConfig: Starting with extension '%s'", m_sExtension.c_str());
 
     return true;
 }
@@ -281,11 +281,11 @@ void SimplePhone::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,strin
 {
     if(LS_ActiveCall())
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Already have a call");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Already have a call");
         sCMD_Result="ERROR";
         return;
     }
-    g_pPlutoLogger->Write(LV_STATUS, "Try to call %s", sPhoneExtension.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Try to call %s", sPhoneExtension.c_str());
 	StopMedia();
 	LS_InitiateCall(sPhoneExtension.c_str());
     sCMD_Result="OK";
@@ -342,7 +342,7 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 
 void SimplePhone::StopMedia()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "SimplePhone::StopMedia()");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone::StopMedia()");
 	DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"",false);
 	SendCommand(CMD_MH_Stop_Media_);
 	Sleep(1000);
@@ -374,7 +374,7 @@ void SimplePhone::CreateChildren()
 {
     if (pthread_create(&m_SIP_Thread, NULL, LS_Thread, (void *) this))
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Linphone SIP Thread");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create Linphone SIP Thread");
         m_bQuit_set(true);
         exit(1);
     }
@@ -395,25 +395,25 @@ void SimplePhone::CMD_Simulate_Keypress(string sPK_Button,string sName,string &s
 
     char ch;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Received '%s'",sPK_Button.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received '%s'",sPK_Button.c_str());
     sCMD_Result="ERROR";
     if(LS_ActiveCall())
     {
 		ch = atoi(sPK_Button.c_str());
         if((ch>='0' && ch<='9') || (ch=='*') || (ch == '#'))
         {
-            g_pPlutoLogger->Write(LV_STATUS, "Will send '%d'(%c) as DTMF",ch,ch);
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will send '%d'(%c) as DTMF",ch,ch);
             LS_SentDTMF(ch);
             sCMD_Result="OK";
         }
         else
         {
-            g_pPlutoLogger->Write(LV_STATUS, "'%d'(%c) is invalid DTMF character",ch,ch);
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "'%d'(%c) is invalid DTMF character",ch,ch);
         }
     }
     else
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Looks like there is no call");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Looks like there is no call");
     }
 }
 

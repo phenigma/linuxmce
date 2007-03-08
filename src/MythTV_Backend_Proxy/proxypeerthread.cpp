@@ -73,7 +73,7 @@ namespace MYTHTV {
 	//			cout << "Performing Source --> Destination." << endl;
 				if(replData(true) < 0) {
 					// cout << "Source disconnected" << endl;
-					g_pPlutoLogger->Write(LV_STATUS, "Source disconnected");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Source disconnected");
 					break;
 				}
 			}
@@ -82,7 +82,7 @@ namespace MYTHTV {
 	//			cout << "Performing Destination --> Source." << endl;
 				if(replData(false) < 0) {
 	//				cout << "Destination disconnected" << endl;
-					g_pPlutoLogger->Write(LV_STATUS, "Destination disconnected");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Destination disconnected");
 					break;
 				}
 			}
@@ -107,7 +107,7 @@ namespace MYTHTV {
 		}
 
 	//	cout << "Received data: " << endl << datastr << endl;
-	// 	g_pPlutoLogger->Write(LV_STATUS, "Received data: %s", datastr.c_str());
+	// 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received data: %s", datastr.c_str());
 
 		/*process data with interceptors*/
 		bool processed = false;
@@ -185,7 +185,7 @@ namespace MYTHTV {
 		sizestr.resize(SIZEBUFF_SIZE, '\t');
 
 		string outstr = sizestr + data;
-	//	g_pPlutoLogger->Write(LV_STATUS, "Sending data: %s", outstr.c_str());
+	//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending data: %s", outstr.c_str());
 	//	cout << "Sending data: " << outstr << endl;
 		if((send(sockfd, outstr.c_str(), outstr.length(), 0) <= 0)) {
 		//	cout << "Error sending data to destination." << endl;

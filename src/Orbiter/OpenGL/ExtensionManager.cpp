@@ -177,12 +177,12 @@ void ExtensionManager::Resize(int Width, int Height)
 	#endif
 
 	#ifdef VIA_OVERLAY
-          g_pPlutoLogger->Write(LV_WARNING, "VIA : set env VIA_3D_OVERLAY");
+          LoggerWrapper::GetInstance()->Write(LV_WARNING, "VIA : set env VIA_3D_OVERLAY");
 		
 	  unsigned long dwRet = setenv("VIA_3D_OVERLAY","no",1);
 	  if(dwRet !=0)
 	  {
-		  g_pPlutoLogger->Write(LV_CRITICAL, "VIA : couldn't set env VIA_3D_OVERLAY");
+		  LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VIA : couldn't set env VIA_3D_OVERLAY");
 	  }
 	#endif
 	

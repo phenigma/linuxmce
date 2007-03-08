@@ -75,14 +75,14 @@ void Slim_Server_Streamer::PostConnect()
 	DeviceData_Base *pDevice_AppServer = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST,this);
 	if (! pDevice_AppServer)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Slim_Server_Streamer::PostConnect App_Server device not found in installation. Bailing out.");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Slim_Server_Streamer::PostConnect App_Server device not found in installation. Bailing out.");
 		return;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "App_Server started");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "App_Server started");
 
 	if (! ConnectToSlimServerCliCommandChannel())
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Connection failed. Sending a start command to the application server.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connection failed. Sending a start command to the application server.");
 
 		StartSlimServer();
 
@@ -94,7 +94,7 @@ void Slim_Server_Streamer::PostConnect()
 			{
 				Sleep(6000);  // Wait another 6 seconds for it to finish spawning
 				if (! ConnectToSlimServerCliCommandChannel()) // try again the connection after the command was sent.
-					g_pPlutoLogger->Write(LV_WARNING, "I could not connect to the streaming server after i have launched it with the application server.");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "I could not connect to the streaming server after i have launched it with the application server.");
 			}
 		}
 	}
@@ -179,7 +179,7 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,s
 {
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Processing Start streaming command for target devices: %s", sStreamingTargets.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing Start streaming command for target devices: %s", sStreamingTargets.c_str());
 
     vector<string> vectPlayersIds;
     vector<DeviceData_Base*> vectDevices;
@@ -196,7 +196,7 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,s
 
         if ( iPlayerId == 0 )
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Player id string %s parsed to 0. Ignoring.", (*itPlayerIds).c_str() );
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Player id string %s parsed to 0. Ignoring.", (*itPlayerIds).c_str() );
 			itPlayerIds++;
             continue;
         }
@@ -204,25 +204,25 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,s
         DeviceData_Base *pPlayerDeviceData = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(iPlayerId);
         if ( pPlayerDeviceData == NULL )
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Child with id: %d was not found. Ignoring", iPlayerId);
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Child with id: %d was not found. Ignoring", iPlayerId);
 			itPlayerIds++;
             continue;
         }
 
         currentPlayerAddress = getMacAddressForDevice(pPlayerDeviceData);
 
-		g_pPlutoLogger->Write(LV_STATUS, "Slim_Server_Streamer::CMD_Start_Streaming() Making sure that the player \"%s\" is connected before doing anything.", StringUtils::URLDecode(currentPlayerAddress).c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Slim_Server_Streamer::CMD_Start_Streaming() Making sure that the player \"%s\" is connected before doing anything.", StringUtils::URLDecode(currentPlayerAddress).c_str());
 		int nTries = 10;
 		while ( nTries && SendReceiveCommand(currentPlayerAddress + " connected ?") != currentPlayerAddress + " connected 1" )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Slim_Server_Streamer::CMD_Start_Streaming() Not yet connected");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Slim_Server_Streamer::CMD_Start_Streaming() Not yet connected");
 			Sleep(500);
 			nTries--;
 		}
 
 		if ( nTries == 0 )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Start_Streaming() Device %d (%s) with mac address %s was not detected as connected. Ignoring device.",
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Start_Streaming() Device %d (%s) with mac address %s was not detected as connected. Ignoring device.",
 				pPlayerDeviceData->m_dwPK_Device, pPlayerDeviceData->m_sDescription.c_str(), currentPlayerAddress.c_str());
 			return;
 		}
@@ -260,7 +260,7 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
 	// PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
 
-	g_pPlutoLogger->Write(LV_STATUS, "Processing Stop Streaming command for target devices: %s size: %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing Stop Streaming command for target devices: %s size: %d",
 		sStreamingTargets.c_str(),(int) m_mapStreamsToPlayers.size());
 
 	map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itPlayers;
@@ -268,7 +268,7 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
 	itPlayers = m_mapStreamsToPlayers.find(iStreamID);
 	if ( itPlayers == m_mapStreamsToPlayers.end() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Stop_Streaming() got a command for a stream that is not registered here: %d", iStreamID);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Stop_Streaming() got a command for a stream that is not registered here: %d", iStreamID);
 		return;
 	}
 
@@ -287,7 +287,7 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
         if ( iPlayerId == 0 )
         {
 			itPlayerIds++;
-            g_pPlutoLogger->Write(LV_WARNING, "Player id string %s parsed to 0. Ignoring.", (*itPlayerIds).c_str() );
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Player id string %s parsed to 0. Ignoring.", (*itPlayerIds).c_str() );
             continue;
         }
 
@@ -295,7 +295,7 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
         if ( pPlayerDeviceData == NULL )
         {
 			itPlayerIds++;
-            g_pPlutoLogger->Write(LV_WARNING, "Child with id: %d was not found. Ignoring", iPlayerId);
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Child with id: %d was not found. Ignoring", iPlayerId);
             continue;
         }
 
@@ -311,7 +311,7 @@ void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string sStreamingTar
 			itPlaybackDevices++;
 
 		if ( itPlaybackDevices == vectDevices.end() )
-			g_pPlutoLogger->Write(LV_WARNING, "Asked to stop a stream on a client that was not playing the stream!");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Asked to stop a stream on a client that was not playing the stream!");
 		else
 			vectDevices.erase(itPlaybackDevices);
 
@@ -331,17 +331,17 @@ bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
     m_iServerSocket = socket(PF_INET, SOCK_STREAM, 0);
     if ( m_iServerSocket == -1 )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Could create client test socket. This should not happend here. Returning empty mrl.");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could create client test socket. This should not happend here. Returning empty mrl.");
         return false;
     }
 
     if( (host = gethostbyname(m_strSlimServerCliAddress.c_str())) == NULL )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Could not resolve IP address: %s. Not connecting.", m_strSlimServerCliAddress.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not resolve IP address: %s. Not connecting.", m_strSlimServerCliAddress.c_str());
         return false;
     }
 
-    g_pPlutoLogger->Write(LV_WARNING, "Trying to connect to SlimServer at address: %s:%d", m_strSlimServerCliAddress.c_str(), m_iSlimServerCliPort );
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Trying to connect to SlimServer at address: %s:%d", m_strSlimServerCliAddress.c_str(), m_iSlimServerCliPort );
     serverSocket.sin_family = AF_INET;
     memcpy((char *) &serverSocket.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
     serverSocket.sin_port = htons(m_iSlimServerCliPort);
@@ -357,18 +357,18 @@ bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
 
         if ( connect(m_iServerSocket, (struct sockaddr*)&serverSocket, sizeof(serverSocket)) == 0 )
         {
-            g_pPlutoLogger->Write(LV_STATUS, "We have made a successful connection to the slim server on %s:%d. Life is good.", m_strSlimServerCliAddress.c_str(), m_iSlimServerCliPort);
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "We have made a successful connection to the slim server on %s:%d. Life is good.", m_strSlimServerCliAddress.c_str(), m_iSlimServerCliPort);
             socketNotOpen = false;
         }
         else
         {
-            g_pPlutoLogger->Write(LV_STATUS, "We can't connect yet to the server. Waiting!");
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "We can't connect yet to the server. Waiting!");
             Sleep(500);
         }
 
         if ( socketNotOpen && timeSpent >= 15 * 1000000 ) // wait at most 15 seconds;
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Couldn't contact the slim server for the past 3 seconds..");
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't contact the slim server for the past 3 seconds..");
             m_iServerSocket = -1;
             return false;
         }
@@ -381,24 +381,24 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
 {
     if ( m_iServerSocket == 0 || m_iServerSocket == -1 )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Connection is down. Trying to reconnect.");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connection is down. Trying to reconnect.");
         if ( ! ConnectToSlimServerCliCommandChannel() )
         {
-            g_pPlutoLogger->Write(LV_STATUS, "Reconnection failed. Sending a start command to the application server.");
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Reconnection failed. Sending a start command to the application server.");
 
 			StartSlimServer();
 
             Sleep(3000);
             if ( ! ConnectToSlimServerCliCommandChannel() ) // try again the connection after the command was sent.
             {
-                g_pPlutoLogger->Write(LV_WARNING, "I could not connect to the streaming server after i have launched it with the application server.");
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "I could not connect to the streaming server after i have launched it with the application server.");
                 return "";
             }
         }
     }
 
 	if (bLogCommand)
-    	g_pPlutoLogger->Write(LV_STATUS, "Sending command: %s", StringUtils::URLDecode(command).c_str());
+    	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending command: %s", StringUtils::URLDecode(command).c_str());
 
     unsigned int nBytes;
     const char *sendBuffer;
@@ -415,7 +415,7 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
 
         if ( result == 0 || result == -1 )
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Error while sending to socket: %s.", strerror(errno));
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error while sending to socket: %s.", strerror(errno));
             close((int)m_iServerSocket);
             m_iServerSocket = -1;
         }
@@ -444,7 +444,7 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
 
 		if(iRet <= 0 || iRet > 1)
 		{
-	        g_pPlutoLogger->Write(LV_STATUS, "Invalid select on the socket. Closing connection");
+	        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invalid select on the socket. Closing connection");
     	    close((int)m_iServerSocket);
         	m_iServerSocket = -1;
 			return "";
@@ -453,7 +453,7 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
 		nBytesRead = recv( m_iServerSocket, receiveBuffer + pos, 1023 - pos, 0 );
 		if ( nBytesRead == -1 )
 		{
-	        g_pPlutoLogger->Write(LV_STATUS, "Invalid recv from socket. Closing connection");
+	        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invalid recv from socket. Closing connection");
     	    close((int)m_iServerSocket);
         	m_iServerSocket = -1;
 			return "";
@@ -466,7 +466,7 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
     receiveBuffer[pos - 1] = '\0';
     if ( pos == 1023 )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Invalid read from socket. Closing connection");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invalid read from socket. Closing connection");
         close((int)m_iServerSocket);
         m_iServerSocket = -1;
     }
@@ -475,7 +475,7 @@ string Slim_Server_Streamer::SendReceiveCommand(string command, bool bLogCommand
     delete receiveBuffer;
 
 	if (bLogCommand)
-    	g_pPlutoLogger->Write(LV_STATUS, "Got response: %s", StringUtils::URLDecode(result).c_str());
+    	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got response: %s", StringUtils::URLDecode(result).c_str());
 
     return result;
 }
@@ -514,7 +514,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 			// do a SendReceive without actually logging the command ( this will potentially fill out the logs. );
  			strResult = pStreamer->SendReceiveCommand(macAddress + " mode ?", false);
 
-// 			g_pPlutoLogger->Write(LV_STATUS, "Current status for stream %d is %d (result: %s)",
+// 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current status for stream %d is %d (result: %s)",
 // 					itStreamsToPlayers->first,
 // 					itStreamsToPlayers->second.first,
 // 					StringUtils::URLDecode(strResult).c_str());
@@ -524,10 +524,10 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 				time_t tNow = time(NULL);
 				time_t tStreamStart = pStreamer->m_mapStreamsToTimeStreamStarted[itStreamsToPlayers->first];
 				if( tNow - tStreamStart<3 )
-					g_pPlutoLogger->Write(LV_STATUS,"Ignoring stop mode since it has only been %d seconds",tNow-tStreamStart);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring stop mode since it has only been %d seconds",tNow-tStreamStart);
 				else
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "Sending playback completed event for stream %d started %d seconds ago", itStreamsToPlayers->first,tNow-tStreamStart);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending playback completed event for stream %d started %d seconds ago", itStreamsToPlayers->first,tNow-tStreamStart);
 					pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_STOP);
 					pStreamer->EVENT_Playback_Completed("",(*itStreamsToPlayers).first,false);
 				}
@@ -554,14 +554,14 @@ string Slim_Server_Streamer::FindControllingMacForStream(int iStreamID)
 
     if ( m_mapStreamsToPlayers.find(iStreamID) != m_mapStreamsToPlayers.end() )
     {
-		g_pPlutoLogger->Write(LV_STATUS,"Slim_Server_Streamer::FindControllingMacForStream vect: found the m_mapStreamsToPlayers");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Slim_Server_Streamer::FindControllingMacForStream vect: found the m_mapStreamsToPlayers");
 		vector<DeviceData_Base *> *pvectDeviceData_Base = &(m_mapStreamsToPlayers[iStreamID].second);
-		g_pPlutoLogger->Write(LV_STATUS,"Slim_Server_Streamer::FindControllingMacForStream vect: %p size: %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Slim_Server_Streamer::FindControllingMacForStream vect: %p size: %d",
 			pvectDeviceData_Base,(int) pvectDeviceData_Base->size());
 
 		if( pvectDeviceData_Base->size()==0 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Slim_Server_Streamer::FindControllingMacForStream vect is 0");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Slim_Server_Streamer::FindControllingMacForStream vect is 0");
 			return "";
 		}
 
@@ -570,7 +570,7 @@ string Slim_Server_Streamer::FindControllingMacForStream(int iStreamID)
 		return getMacAddressForDevice(playerDevice);
     }
 
-	g_pPlutoLogger->Write(LV_WARNING, "Could not find an controlling device for stream: %d", iStreamID);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not find an controlling device for stream: %d", iStreamID);
 	return "";
 }
 
@@ -581,7 +581,7 @@ StreamStateType Slim_Server_Streamer::GetStateForStream(int iStreamID)
 
 	if ( m_mapStreamsToPlayers.find(iStreamID) == m_mapStreamsToPlayers.end() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Can't get the state of an invalid stream: %d!", iStreamID);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Can't get the state of an invalid stream: %d!", iStreamID);
 		return STATE_UNDEFINED;
 	}
 
@@ -593,18 +593,18 @@ void Slim_Server_Streamer::SetStateForStream(int iStreamID, StreamStateType newS
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
 	//PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
 
-	g_pPlutoLogger->Write(LV_STATUS, "Setting state for stream %d to %d", iStreamID, newState);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Setting state for stream %d to %d", iStreamID, newState);
 
     if ( m_mapStreamsToPlayers.find(iStreamID) == m_mapStreamsToPlayers.end() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Can't change the state of an invalid stream: %d!", iStreamID);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Can't change the state of an invalid stream: %d!", iStreamID);
 		return;
 	}
 
 	m_mapStreamsToPlayers[iStreamID].first = newState;
 	if( newState==STATE_PLAY )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Noting start time for stream %d", iStreamID);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Noting start time for stream %d", iStreamID);
 		m_mapStreamsToTimeStreamStarted[iStreamID] = time(NULL);
 	}
 }
@@ -630,7 +630,7 @@ void Slim_Server_Streamer::CMD_Play_Media(int iPK_MediaType,int iStreamID,string
 	string sControlledPlayerMac;
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "No controlling mac was found for this stream id: %d", iStreamID);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "No controlling mac was found for this stream id: %d", iStreamID);
 		return;
 	}
 
@@ -643,12 +643,12 @@ void Slim_Server_Streamer::CMD_Play_Media(int iPK_MediaType,int iStreamID,string
 		// 2005-10-8 For some reason, slimserver often reports its state is stopped the first time it tries to play a file,
 		// but it works on subsequent plays.  It seems to be a bug in slimserver, but since I don't know this code well,
 		// just put a hack in here for the moment by making it try again
-		g_pPlutoLogger->Write(LV_WARNING,"Squeeze box reports it's state is stopped right after a new start.  Try again");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Squeeze box reports it's state is stopped right after a new start.  Try again");
 		SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sMediaURL,"//", "/")));
 		strResult = SendReceiveCommand(sControlledPlayerMac + " mode ?", false);
 		if( strResult == sControlledPlayerMac + " mode stop" || strResult == sControlledPlayerMac + " mode %3F" )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"A second time!  Try again");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"A second time!  Try again");
 			SendReceiveCommand(sControlledPlayerMac + " playlist clear");
 			SendReceiveCommand(sControlledPlayerMac + " stop");
 			SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sMediaURL,"//", "/")));
@@ -680,7 +680,7 @@ void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,string *sMediaPosition,s
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
 		return;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Stop Media for stream %d",iStreamID);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stop Media for stream %d",iStreamID);
 	string sOptions;
 	int mediaPosition;
 	int mediaLength;
@@ -812,7 +812,7 @@ void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sT
 
 	iMedia_Length = (int)(floatValue * 1000);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Detected data: position %d from %d", iMediaPosition, iMedia_Length);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Detected data: position %d from %d", iMediaPosition, iMedia_Length);
 }
 //<-dceag-createinst-b->!
 //<-dceag-c89-b->
@@ -830,7 +830,7 @@ void Slim_Server_Streamer::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Me
 
 	if ( pMessage->m_mapParameters.find(COMMANDPARAMETER_StreamID_CONST) == pMessage->m_mapParameters.end() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "The stream id was not set on the message! The media plugin should have set this parameter in this message!");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "The stream id was not set on the message! The media plugin should have set this parameter in this message!");
 		return;
 	}
 
@@ -861,7 +861,7 @@ void Slim_Server_Streamer::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,
 
 	if ( pMessage->m_mapParameters.find(COMMANDPARAMETER_StreamID_CONST) == pMessage->m_mapParameters.end() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "The stream id was not set on the message! The media plugin should have set this parameter in this message!");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "The stream id was not set on the message! The media plugin should have set this parameter in this message!");
 		return;
 	}
 
@@ -890,7 +890,7 @@ void Slim_Server_Streamer::CMD_Mute(string &sCMD_Result,Message *pMessage)
 
 	if ( pMessage->m_mapParameters.find(COMMANDPARAMETER_StreamID_CONST) == pMessage->m_mapParameters.end() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "The stream id was not set on the message! The media plugin should have set this parameter in this message!");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "The stream id was not set on the message! The media plugin should have set this parameter in this message!");
 		return;
 	}
 
@@ -903,11 +903,11 @@ void Slim_Server_Streamer::CMD_Mute(string &sCMD_Result,Message *pMessage)
 
 void Slim_Server_Streamer::OnQuit()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Calling base impl ");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Calling base impl ");
 
 	Command_Impl::OnQuit();
 
-	g_pPlutoLogger->Write(LV_STATUS, "Quitting and signalling. ");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Quitting and signalling. ");
 	pthread_cond_signal(&m_stateChangedCondition);
 }
 

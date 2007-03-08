@@ -28,20 +28,17 @@
 const char *g_szCompile_Date="<=compile_date=>";
 /*SVN_REVISION*/
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 using namespace DCE;
 
 bool g_WatchDogFlag=false;
 void* WatchDogRoutine(void* param)
 {
-        g_pPlutoLogger->Write(LV_STATUS,"Started watchdog routine\n");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"Started watchdog routine\n");
         usleep(10000000);
 	if (g_WatchDogFlag)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Terminating Xine_Player: watchdog detected hard deadlock, seems soft reload failed\n");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Terminating Xine_Player: watchdog detected hard deadlock, seems soft reload failed\n");
 		fflush(stdout);
 		kill(getpid(), SIGKILL);
 	}
@@ -69,8 +66,7 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
 	if( g_pCommand_Impl )
 	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
 		
 		// force reload - otherwise libxine locks can block us forever
 		pthread_t watchdog_thread;
@@ -84,8 +80,7 @@ void SocketCrashHandler(Socket *pSocket)
 	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
 	if( g_pCommand_Impl )
 	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
 		
 		// force reload - otherwise libxine locks can block us forever
 		pthread_t watchdog_thread;
@@ -99,8 +94,7 @@ void Plugin_DeadlockHandler(PlutoLock *pPlutoLock)
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
 	}
 }
@@ -108,8 +102,7 @@ void Plugin_SocketCrashHandler(Socket *pSocket)
 {
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Socket problem.  %d",g_pCommand_Impl->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Plugin Socket problem.  %d",g_pCommand_Impl->m_dwPK_Device);
 		// g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);  // Don't reload plugins since sockets can fail
 	}
 }
@@ -133,8 +126,8 @@ extern "C" {
 extern "C" {
 	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,Logger *pPlutoLogger)
 	{
-		g_pPlutoLogger = pPlutoLogger;
-		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
+		LoggerWrapper::SetInstance(pPlutoLogger);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Xine_Player *pXine_Player = new Xine_Player(PK_Device, "localhost",true,false,pRouter);
 		if( pXine_Player->m_bQuit_get()|| !pXine_Player->GetConfig() )
@@ -226,20 +219,19 @@ int main(int argc, char* argv[])
 	try
 	{
 		if( sLogger=="dcerouter" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, Xine_Player::PK_DeviceTemplate_get_static(), sRouter_IP);
+			LoggerWrapper::SetInstance(new ServerLogger(PK_Device, Xine_Player::PK_DeviceTemplate_get_static(), sRouter_IP));
 		else if( sLogger=="null" )
-			g_pPlutoLogger = new NullLogger();
-		else if( sLogger=="stdout" )
-			g_pPlutoLogger = new FileLogger(stdout);
-		else
-			g_pPlutoLogger = new FileLogger(sLogger.c_str());
+			LoggerWrapper::SetType(LT_LOGGER_NULL);
+		else if( sLogger!="stdout" )
+			LoggerWrapper::SetType(LT_LOGGER_FILE,sLogger);
+
 	}
 	catch(...)
 	{
 		cerr << "Unable to create logger" << endl;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
 	bool bReload=false;
 	try
@@ -252,7 +244,7 @@ int main(int argc, char* argv[])
 		{
 			g_pCommand_Impl=pXine_Player;
 			
-			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connect OK");
 			pXine_Player->CreateChildren();
 			if( bLocalMode )
 				pXine_Player->RunLocalMode();
@@ -263,7 +255,7 @@ int main(int argc, char* argv[])
 		} 
 		else 
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() Failed");
 		}
 
 		if( pXine_Player->m_bReload )
@@ -279,7 +271,7 @@ int main(int argc, char* argv[])
 	{
 		cerr << "Exception: " << s << endl;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Device: %d ending",PK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d ending",PK_Device);
 #ifdef WIN32
     WSACleanup();
 #endif

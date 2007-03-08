@@ -104,7 +104,7 @@ MessagePool::_Run() {
 		/*check if we are connected*/
 		if(!pbusconn_->isOpened()) {
 			if(pbusconn_->Open(serport_.c_str(),serbps_,serparity_)) {
-				g_pPlutoLogger->Write(LV_STATUS, "Could not connect to EIB Bus. Sleeping for %d second...", SLEEP_IO_ERROR);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Could not connect to EIB Bus. Sleeping for %d second...", SLEEP_IO_ERROR);
 				sleep(SLEEP_IO_ERROR / 1000);
 				continue;
 			}
@@ -135,7 +135,7 @@ MessagePool::handleNewState() {
 	else 
 		statestr = "UNKNOWN";
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Now in %s state.", statestr.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Now in %s state.", statestr.c_str());
 */
 }
 
@@ -143,7 +143,7 @@ int
 MessagePool::sendTelegram(const TelegramMessage *ptelegram, bool waitack) {
 	msq_.Lock();
 	sendqueue_.push_back(*ptelegram);
-	g_pPlutoLogger->Write(LV_STATUS, "New telegram in Send Queue.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "New telegram in Send Queue.");
 	esq_.Signal();
 	msq_.Unlock();
 	return 0;
@@ -201,14 +201,14 @@ bool MessagePool::BaseState::readAcknowledge() {
 	AckMessage ackmsg;
 	while((ret = ackmsg.Recv(BUSCONNECTOR)) != 0) {
 		if(tk.getCurrentPeriodInMiliSecs() > SLEEP_WAIT_ACKNOWLEDGE) {
-			g_pPlutoLogger->Write(LV_WARNING, "Timeout receiving Acknowledge message.");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Timeout receiving Acknowledge message.");
 			return false;
 		}
 		if(ret == Message::RECV_UNKNOWN){
 			BUSCONNECTOR->Skip(1);
 		}
 	}
-	//g_pPlutoLogger->Write(LV_STATUS, "Acknowledge received.");
+	//LoggerWrapper::GetInstance()->Write(LV_STATUS, "Acknowledge received.");
 	return true;
 }
 
@@ -216,26 +216,26 @@ void
 MessagePool::BaseState::logTelegram(const TelegramMessage *pt) {
 	unsigned char usrdata[MAX_STRING_DATA_LEN];
 	pt->getUserData(usrdata, sizeof(usrdata));
-	g_pPlutoLogger->Write(LV_STATUS, "Telegram: graddr: %s, LENGTH: %d, SUD: %d, UD: <%s>.", pt->getGroupAddress(), 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telegram: graddr: %s, LENGTH: %d, SUD: %d, UD: <%s>.", pt->getGroupAddress(), 
 									pt->getDataLength(), pt->getShortUserData(), FormatHexBuffer(usrdata, pt->getDataLength()).c_str());
 }
 
 
 void MessagePool::InitState::Handle(void* p) {
-	g_pPlutoLogger->Write(LV_STATUS, "Sending BAU Initialization.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending BAU Initialization.");
 
 	BauInitMessage bimsg;
 	if(bimsg.Send(BUSCONNECTOR)) {
-		g_pPlutoLogger->Write(LV_WARNING, "Error sending BAU Initialization. Waiting for next retry.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error sending BAU Initialization. Waiting for next retry.");
 		return;
 	}
 
 	if(MONITORMODE) {
-		g_pPlutoLogger->Write(LV_STATUS, "Requesting Monitor mode.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Requesting Monitor mode.");
 
 		MonitorRequestMessage mrmsg;
 		if(mrmsg.Send(MPSM(pbusconn_))) {
-			g_pPlutoLogger->Write(LV_WARNING, "Error requesting Monitor mode. Waiting for next retry.");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error requesting Monitor mode. Waiting for next retry.");
 			return;
 		}
 		if(readAcknowledge()) {
@@ -266,7 +266,7 @@ void MessagePool::ReadyState::Handle(void* p) {
 }
 
 void MessagePool::RecvState::Handle(void* p) {
-	//g_pPlutoLogger->Write(LV_STATUS, "Data available. Checking for telegrams...");
+	//LoggerWrapper::GetInstance()->Write(LV_STATUS, "Data available. Checking for telegrams...");
 	
 	TelegramMessage tlmsg;
 	int ret = tlmsg.Recv(BUSCONNECTOR);
@@ -285,7 +285,7 @@ void MessagePool::RecvState::Handle(void* p) {
 		/* put telegram into recv queue and unlock readers */
 		MSGLOCK.Lock();
 		if(RECVQUEUE.size() >= MAX_RECVQUEUE_SIZE) {
-			/* g_pPlutoLogger->Write(LV_STATUS, "Recv queue FULL. Removing front message.");*/
+			/* LoggerWrapper::GetInstance()->Write(LV_STATUS, "Recv queue FULL. Removing front message.");*/
 			RECVQUEUE.pop_front();
 		}
 		RECVQUEUE.push_back(tlmsg);
@@ -294,7 +294,7 @@ void MessagePool::RecvState::Handle(void* p) {
 
 		AckMessage ackmsg;
 		if(ackmsg.Send(BUSCONNECTOR)) {
-			g_pPlutoLogger->Write(LV_WARNING, "Error sending Acknowledge.");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error sending Acknowledge.");
 		}
 	}
 	
@@ -306,7 +306,7 @@ void MessagePool::SendState::Handle(void* p) {
 		errcount_ = 0;
 		setState(READYSTATE);
 		
-		g_pPlutoLogger->Write(LV_WARNING, "Acknowledge not received. Abandoning message send.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Acknowledge not received. Abandoning message send.");
 		return;
 	}
 	
@@ -316,25 +316,25 @@ void MessagePool::SendState::Handle(void* p) {
 		TelegramMessage& tlmsg = *SENDQUEUE.begin();
 	
 		if(errcount_ == 0) {
-			g_pPlutoLogger->Write(LV_STATUS, "Sending telegram...");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending telegram...");
 		} else {
-			g_pPlutoLogger->Write(LV_STATUS, "Sending telegram. Retry %d.", errcount_);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending telegram. Retry %d.", errcount_);
 		}
 	
 		TimeTracker tk;
 		tk.Start();
 		if(tlmsg.Send(BUSCONNECTOR)) {
-			g_pPlutoLogger->Write(LV_WARNING, "Error sending telegram.");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error sending telegram.");
 			setState(READYSTATE);
 		} else {
 			tk.Stop();
-			g_pPlutoLogger->Write(LV_STATUS, "Telegram sent in %.04f seconds", tk.getTotalPeriodInSecs());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telegram sent in %.04f seconds", tk.getTotalPeriodInSecs());
 	
 			if(!waitack || readAcknowledge()) {
 				SENDQUEUE.pop_front();
 				errcount_ = 0;
 				
-				g_pPlutoLogger->Write(LV_STATUS, "Acknowledge received.");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Acknowledge received.");
 				
 				setState(READYSTATE);
 			} else {

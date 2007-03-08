@@ -95,7 +95,7 @@ bool EIB::Connect(int iPK_DeviceTemplate) {
 	}
 	
 	if(sPort.length() > 0) {
-		g_pPlutoLogger->Write(LV_STATUS, "Using serial port: %s.", sPort.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using serial port: %s.", sPort.c_str());
 		string bps = DATA_Get_COM_Port_BaudRate();
 		int ibps = DEFAULT_EIB_BPS;
 		if(!bps.empty() && bps[0] == 'B') {
@@ -135,7 +135,7 @@ bool EIB::Connect(int iPK_DeviceTemplate) {
 	while(1) {
 		m_msgPool.readTelegram(&tlmsg1);
 		if(tlmsg1.getActionType() == TelegramMessage::ANSWER) {
-			g_pPlutoLogger->Write(LV_STATUS, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Value for %s is: %d", 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Value for %s is: %d", 
 			tlmsg1.getGroupAddress(), tlmsg1.getShortUserData());
 		}
 	}
@@ -167,7 +167,7 @@ EIB_Command *Create_EIB(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pD
 void EIB::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Command %d received for CHILD", pMessage->m_dwID);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command %d received for CHILD", pMessage->m_dwID);
     
 	TelegramMessage tlmsg;
 	switch(pMessage->m_dwID) {
@@ -180,12 +180,12 @@ void EIB::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD
 						string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 						tlmsg.setGroupAddress(sChannel.c_str());
 						tlmsg.setShortUserData((unsigned int)atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()));
-						g_pPlutoLogger->Write(LV_STATUS, "Turning ON");
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Turning ON");
 						m_msgPool.sendTelegram(&tlmsg);
 					}
 				} break;
 				default: {
-					g_pPlutoLogger->Write(LV_WARNING, "Device type NOT Supported.");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device type NOT Supported.");
 				} break;
 			}
 		} break;
@@ -203,14 +203,14 @@ void EIB::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD
 					if(getParamsFromChannel(sChannel, addrs) >= 1) {
 						tlmsg.setGroupAddress(addrs[0].c_str());
 						tlmsg.setShortUserData(1);
-						g_pPlutoLogger->Write(LV_STATUS, "Turning ON");
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Turning ON");
 						m_msgPool.sendTelegram(&tlmsg);
 					} else {
-						g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect.");
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Channel format is incorrect.");
 					}
 				} break;
 				default: {
-					g_pPlutoLogger->Write(LV_WARNING, "Device type NOT Supported.");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device type NOT Supported.");
 				} break;
 			}
 			
@@ -228,14 +228,14 @@ void EIB::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD
 					if(getParamsFromChannel(sChannel, addrs) >= 1) {
 						tlmsg.setGroupAddress(addrs[0].c_str());
 						tlmsg.setShortUserData(0);
-						g_pPlutoLogger->Write(LV_STATUS, "Turning OFF");
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Turning OFF");
 						m_msgPool.sendTelegram(&tlmsg);
 					} else {
-						g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect.");
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Channel format is incorrect.");
 					}
 				} break;
 				default: {
-					g_pPlutoLogger->Write(LV_WARNING, "Device type NOT Supported.");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device type NOT Supported.");
 				} break;
 			}
 			} break;
@@ -253,10 +253,10 @@ void EIB::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD
 						unsigned char dimm 
 								= (255 * dimmval) / 100;
 						tlmsg.setUserData(&dimm, 1);
-						g_pPlutoLogger->Write(LV_STATUS, "Dimming to %d%%.", dimmval);
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Dimming to %d%%.", dimmval);
 						m_msgPool.sendTelegram(&tlmsg);
 					} else {
-						g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect.");
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Channel format is incorrect.");
 					}
 				} break;
 				
@@ -273,9 +273,9 @@ void EIB::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD
 						unsigned nsteps = 
 								(dimmval > 0) ? dimmval : -dimmval;
 						if(stepfwrd) {
-							g_pPlutoLogger->Write(LV_STATUS, "Stepping FORWARD by %d.", nsteps);
+							LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stepping FORWARD by %d.", nsteps);
 						} else {
-							g_pPlutoLogger->Write(LV_STATUS, "Stepping BACKWORD by %d.", nsteps);
+							LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stepping BACKWORD by %d.", nsteps);
 						}
 						tlmsg.setShortUserData(stepfwrd);
 						while(nsteps-- > 0) {
@@ -283,11 +283,11 @@ void EIB::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD
 							usleep(500*1000); // sleep 10 sec
 						}
 					} else {
-						g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect.");
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Channel format is incorrect.");
 					}
 				} break;
 				default: {
-					g_pPlutoLogger->Write(LV_WARNING, "Device type NOT Supported.");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device type NOT Supported.");
 				} break;
 			}
 			} break;
@@ -304,19 +304,19 @@ void EIB::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD
 								atof(pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST].c_str());
 						unsigned short stempr = getUShortFromFloat(tempval);
 						tlmsg.setUserData((unsigned char*)&stempr, sizeof(stempr));
-						g_pPlutoLogger->Write(LV_STATUS, "Setting temperature to %.2f (%.2f).", getFloatFromUShort(stempr), tempval);
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Setting temperature to %.2f (%.2f).", getFloatFromUShort(stempr), tempval);
 						m_msgPool.sendTelegram(&tlmsg);
 					} else {
-						g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect.");
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Channel format is incorrect.");
 					}
 				} break;
 				default: {
-					g_pPlutoLogger->Write(LV_WARNING, "Device type NOT Supported.");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device type NOT Supported.");
 				} break;
 			}
 			} break;
 		default:
-			g_pPlutoLogger->Write(LV_WARNING, "Unknown command %d received.", pMessage->m_dwID);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unknown command %d received.", pMessage->m_dwID);
 			return;
 	}
 	
@@ -336,7 +336,7 @@ void EIB::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 }
 
 void EIB::handleUniqueTelegram(const TelegramMessage *pt) {
-	g_pPlutoLogger->Write(LV_STATUS, "Processing received Telegram..."); 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing received Telegram..."); 
 	
 	VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
     for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
@@ -360,7 +360,7 @@ bool EIB::processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pD
 			if(sInputOrOutput == "0" || sInputOrOutput == "2") { /* check if output */
 				string sChannel = pDevData->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 				if(sChannel == pt->getGroupAddress()) {
-					g_pPlutoLogger->Write(LV_STATUS, "Sensor triggered. Sending Event."); 
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sensor triggered. Sending Event."); 
 					pMessage = new Message(pDevData->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 									EVENT_Sensor_Tripped_CONST, 1, 25, StringUtils::itos(pt->getShortUserData()).c_str());
 				}
@@ -372,7 +372,7 @@ bool EIB::processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pD
 			vector<string> addrs;
 			if(getParamsFromChannel(sChannel, addrs) >= 2) {
 				if(addrs[0] == pt->getGroupAddress()) {
-					g_pPlutoLogger->Write(LV_STATUS, "SetPoint Temperature changed. Sending Event."); 
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "SetPoint Temperature changed. Sending Event."); 
 					
 					unsigned short stempr;
 					if(pt->getUserData((unsigned char*)&stempr, sizeof(stempr)) == sizeof(stempr)) {
@@ -382,11 +382,11 @@ bool EIB::processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pD
 								EVENT_Thermostat_Set_Point_Chan_CONST, 1, 
 								EVENTPARAMETER_Value_CONST, tempstr);
 					} else {
-						g_pPlutoLogger->Write(LV_WARNING, "The received data length is incorrect. Possible wrong group adress..");
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "The received data length is incorrect. Possible wrong group adress..");
 					}
 				} else 
 				if(addrs[1] == pt->getGroupAddress()) {
-					g_pPlutoLogger->Write(LV_STATUS, "Actual Temperature changed. Sending Event."); 
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Actual Temperature changed. Sending Event."); 
 					
 					unsigned short stempr;
 					if(pt->getUserData((unsigned char*)&stempr, sizeof(stempr)) == sizeof(stempr)) {
@@ -396,11 +396,11 @@ bool EIB::processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pD
 								EVENT_Temperature_Changed_CONST, 1, 
 								EVENTPARAMETER_Value_CONST, tempstr);
 					} else {
-						g_pPlutoLogger->Write(LV_WARNING, "The received data length is incorrect. Possible wrong group adress..");
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "The received data length is incorrect. Possible wrong group adress..");
 					}
 				}
 			} else {
-				g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect for device %d.", pDevData->m_dwPK_Device);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Channel format is incorrect for device %d.", pDevData->m_dwPK_Device);
 			}
 		} break;
 		default: {
@@ -409,7 +409,7 @@ bool EIB::processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pD
 
 	if(pMessage) {
 		if(!GetEvents()->SendMessage(pMessage)) {
-			g_pPlutoLogger->Write(LV_WARNING, "Error sending Event."); 
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error sending Event."); 
 		}
 	}
 		
@@ -638,11 +638,11 @@ void EIB::SomeFunction()
 void EIB::CMD_EIB_Write(string sAddress,string sData_String,int iDataType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c273-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Received a Write request: (To= %s, Data Type=%d, Data=%s) ", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received a Write request: (To= %s, Data Type=%d, Data=%s) ", 
 												sAddress.c_str(), iDataType, sData_String.c_str());
 	
 	if(sAddress.length() == 0) {
-		g_pPlutoLogger->Write(LV_STATUS, "Empty Group Address passed as parameter");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Empty Group Address passed as parameter");
 		return;
 	}
 												
@@ -688,7 +688,7 @@ void EIB::CMD_EIB_Write(string sAddress,string sData_String,int iDataType,string
 		} break;
 	
 	default:
-		g_pPlutoLogger->Write(LV_WARNING, "Unknown TYPE specified for Write request");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unknown TYPE specified for Write request");
 		return;
 	}
 	

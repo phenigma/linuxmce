@@ -112,7 +112,7 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, i
 	{
 		DataGridCell *pCell = GetData(0,row);
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d graphic data: %p rowstart: %d rowCount: %d totalrows: %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"filelistgrid::row %d graphic data: %p rowstart: %d rowCount: %d totalrows: %d",
 	row,(pCell ? pCell->m_pGraphicData : NULL),*RowStart,RowCount,m_TotalRows);
 #endif
 		if( (!pCell || !pCell->m_pGraphicData) && (!pCell || pCell->m_Text==NULL || pCell->m_Text[0]==0) ) // We haven't already set a picture for this cell.  Skip it if it's a cell with text
@@ -137,7 +137,7 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d graphic data: %p rowstart:
 			}
 
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Pic for %s is: %d",flInfo->m_sPath.c_str( ), PKID_MED_Picture);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Pic for %s is: %d",flInfo->m_sPath.c_str( ), PKID_MED_Picture);
 #endif
 
 #else //USE_PRECACHED_DATABASE_MAP
@@ -148,13 +148,13 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d graphic data: %p rowstart:
 			if(!PK_File ||  !(PKID_MED_Picture = PlutoMediaFile_.GetPicAttribute(PK_File)))
 			{
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS, "No id3 tag for picture id for %s", flInfo->m_sPath.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "No id3 tag for picture id for %s", flInfo->m_sPath.c_str());
 #endif
 				continue;
 			}
 
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Pic for %s is: %d",flInfo->m_sPath.c_str( ), PKID_MED_Picture);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Pic for %s is: %d",flInfo->m_sPath.c_str( ), PKID_MED_Picture);
 #endif
 
 			Extension = "jpg";
@@ -169,7 +169,7 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d graphic data: %p rowstart:
 				PictureFile = "/home/mediapics/" + StringUtils::itos(PKID_MED_Picture) + "_tn." + Extension;
 				pIconBuffer = FileUtils::ReadFileIntoBuffer(PictureFile,stIconSize);
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS, "Pic file: %s has size: %d", PictureFile.c_str(),stIconSize);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Pic file: %s has size: %d", PictureFile.c_str(),stIconSize);
 #endif
 				format = GR_JPG;
 			}
@@ -189,14 +189,14 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d graphic data: %p rowstart:
 	clock_t cStop = clock();
 	if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"file grid pics took %d ms",(int) (cStop-cStart));
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"file grid pics took %d ms",(int) (cStop-cStart));
 	} 
 	else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"file grid pics took %d ms",(int) (cStop-cStart));
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"file grid pics took %d ms",(int) (cStop-cStart));
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING,"file grid pics took %d ms",(int) (cStop-cStart));
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"file grid pics took %d ms",(int) (cStop-cStart));
 #endif
 
 	DataGridTable::ToData(GridID,Size,Data,ColStart,RowStart,ColCount,RowCount);

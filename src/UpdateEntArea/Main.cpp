@@ -48,16 +48,13 @@ using namespace DCE;
 using namespace DefaultScenarios;
 DCEConfig dceConfig;
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 
 extern bool g_bChangedScenarios;
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/UpdateEntArea.log");
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/UpdateEntArea.log");
 
 	bool bError=false;
 	int iPK_EntertainArea=0;
@@ -112,7 +109,7 @@ int main(int argc, char *argv[])
 	UpdateEntArea updateEntArea;
 	if( !updateEntArea.Connect(dceConfig.m_iPK_Installation,dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot connect to database");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot connect to database");
 		return 1;
 	}
 
@@ -138,7 +135,7 @@ int main(int argc, char *argv[])
 
 	if( g_bChangedScenarios )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Scenarios were changed.  Updating Orbiters");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Scenarios were changed.  Updating Orbiters");
 		string sSQL = "UPDATE Orbiter SET ScenariosFloorplans=NULL";
 		updateEntArea.m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
 	}

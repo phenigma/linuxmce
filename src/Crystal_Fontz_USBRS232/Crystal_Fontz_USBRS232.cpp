@@ -58,12 +58,12 @@ Crystal_Fontz_USBRS232::Crystal_Fontz_USBRS232(int DeviceID, string ServerAddres
 Crystal_Fontz_USBRS232::~Crystal_Fontz_USBRS232()
 //<-dceag-dest-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Waiting for Incoming data thread to exit");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Waiting for Incoming data thread to exit");
 	m_bQuit_set(true);
 	while( m_bCF_ThreadRunning )
 		Sleep(100);
 	delete m_pSerialPort;
-	g_pPlutoLogger->Write(LV_STATUS,"Incoming data thread exited...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Incoming data thread exited...");
 }
 
 //<-dceag-getconfig-b->
@@ -147,7 +147,7 @@ extern FILE *filer;
 
 bool Crystal_Fontz_USBRS232::send_packet(COMMAND_PACKET *pCOMMAND_PACKET,COMMAND_PACKET &pCOMMAND_PACKET_Response)
 {
-g_pPlutoLogger->Write(LV_STATUS,"Going to send packet");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Going to send packet");
 	PLUTO_SAFETY_LOCK(sm,m_CF_SendMutex);
 	PLUTO_SAFETY_LOCK(cf,m_CF_Mutex);
 	delete m_pCOMMAND_PACKET_LastResponse;
@@ -180,7 +180,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Going to send packet");
 			cf.Relock();
 			if( m_pCOMMAND_PACKET_LastResponse )
 			{
-g_pPlutoLogger->Write(LV_STATUS,"Got response to packet");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got response to packet");
 				pCOMMAND_PACKET_Response=*m_pCOMMAND_PACKET_LastResponse;
 				return true;
 			}
@@ -189,7 +189,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Got response to packet");
 		// No ack after 500ms, try sending the command again by looping back
 	}
 fwrite("\nno response to packet\n",string("\nno response to packet\n").size(),1,filer);
-g_pPlutoLogger->Write(LV_CRITICAL,"No response to packet");
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"No response to packet");
 	return false; // Failed after 5 attempts
 }
 
@@ -204,42 +204,42 @@ void Crystal_Fontz_USBRS232::RunCFThread()
 		if( MAX_COMMAND < (0x3F & command_packet.command) )
 		{
 fwrite("\ngarbagecommand\n",string("\ngarbagecommand\n").size(),1,filer);
-			g_pPlutoLogger->Write(LV_WARNING,"Getting garbage command %d",(int) command_packet.command);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Getting garbage command %d",(int) command_packet.command);
 			continue;
 		}
 
 		if( m_pSerialPort->Read((char *) &command_packet.data_length,1,250)==0 || command_packet.data_length>MAX_DATA_LENGTH )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"***garbage data testing again %d",(int) command_packet.data_length);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"***garbage data testing again %d",(int) command_packet.data_length);
 fwrite("\ngarbage data length\n",string("\ngarbage data length\n").size(),1,filer);
 			command_packet.command = command_packet.data_length;
 			if( MAX_COMMAND < (0x3F & command_packet.command) || m_pSerialPort->Read((char *) &command_packet.data_length,1,250)==0 || command_packet.data_length>MAX_DATA_LENGTH )
 			{
-				g_pPlutoLogger->Write(LV_WARNING,"Getting garbage data length %d",(int) command_packet.data_length);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Getting garbage data length %d",(int) command_packet.data_length);
 				continue;
 			}
-g_pPlutoLogger->Write(LV_WARNING,"trying to recover");
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"trying to recover");
 fwrite("\ntrying to recover\n",string("\ntrying to recover\n").size(),1,filer);
 		}
 
 		if( m_pSerialPort->Read((char *) &command_packet.data,command_packet.data_length,250)!= command_packet.data_length )
 		{
 fwrite("\ngarbage data\n",string("\ngarbage data\n").size(),1,filer);
-			g_pPlutoLogger->Write(LV_WARNING,"Getting garbage data");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Getting garbage data");
 			continue;
 		}
 
 		if( m_pSerialPort->Read((char *) &command_packet.CRC.as_bytes,2,250)!= 2 )
 		{
 fwrite("\nno crc\n",string("\nno crc\n").size(),1,filer);
-			g_pPlutoLogger->Write(LV_WARNING,"Couldn't get CRC");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Couldn't get CRC");
 			continue;
 		}
 		if( command_packet.CRC.as_word!=
 			 get_crc((ubyte *)&command_packet,command_packet.data_length+2))
 		{
 fwrite("\nbad crc\n",string("\nbad crc\n").size(),1,filer);
-			g_pPlutoLogger->Write(LV_WARNING,"CRC doesn't match");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"CRC doesn't match");
 			continue;
 		}
 SYSTEMTIME lt;
@@ -256,7 +256,7 @@ tv.tv_usec = lt.wMilliseconds * 1000;
 		// It's good!
 		if( command_packet.command & 0x40 )
 		{
-g_pPlutoLogger->Write(LV_STATUS,"resp packet");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"resp packet");
 fprintf(filer,"\ngood resp packet %d:%02d:%06.3f\n",(int)t->tm_hour, (int)t->tm_min, dwSec );
 fclose(filer);
 filer=fopen("C:\\serialread.cpp","ab");
@@ -268,7 +268,7 @@ filer=fopen("C:\\serialread.cpp","ab");
 		}
 		else if( command_packet.command & 0x80 )
 		{
-g_pPlutoLogger->Write(LV_STATUS,"inc packet");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"inc packet");
 fprintf(filer,"\ngood inc packet %d:%02d:%06.3f\n",(int)t->tm_hour, (int)t->tm_min, dwSec );
 fclose(filer);
 filer=fopen("C:\\serialread.cpp","ab");
@@ -307,7 +307,7 @@ void Crystal_Fontz_USBRS232::HandleIncomingPacket(COMMAND_PACKET *pcommand_packe
 
 void Crystal_Fontz_USBRS232::DoUpdateDisplay(vector<string> *vectString)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Updating Display with %d lines: %s",vectString->size(),vectString->size() ? (*vectString)[0].c_str() : "");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Updating Display with %d lines: %s",vectString->size(),vectString->size() ? (*vectString)[0].c_str() : "");
 	for(size_t s=0;s<m_iNumLines;++s)
 	{
 		string str = s<vectString->size() ? (*vectString)[s] : "";

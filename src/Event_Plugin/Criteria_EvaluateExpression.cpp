@@ -178,7 +178,7 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 			return *iLValue<iRValue;
 	}
 
-	g_pPlutoLogger->Write(LV_CRITICAL,"Criteria::EvaluateExpression unhandled criteria operator %d",pCriteriaParm->m_Operator);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Criteria::EvaluateExpression unhandled criteria operator %d",pCriteriaParm->m_Operator);
 	return false;
 }
 

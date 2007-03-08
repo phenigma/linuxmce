@@ -47,7 +47,7 @@ bool EPG::ReadFromFile(string sFileEPG,string sFileChannels)
 	size_t size,size_channels;
 	char *pBuffer = FileUtils::ReadFileIntoBuffer(sFileEPG,size);
 	char *pBuffer_Channels = FileUtils::ReadFileIntoBuffer(sFileChannels,size_channels);
-	g_pPlutoLogger->Write(LV_STATUS,"PG::ReadFromFile %s=%d %s=%d bytes %p %p",sFileEPG.c_str(),(int) size,
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PG::ReadFromFile %s=%d %s=%d bytes %p %p",sFileEPG.c_str(),(int) size,
 		sFileChannels.c_str(),(int) size_channels,pBuffer,pBuffer_Channels);
 	if( !pBuffer || !pBuffer_Channels )
 	{
@@ -138,7 +138,7 @@ bool EPG::ReadFromFile(string sFileEPG,string sFileChannels)
 		Channel *pChannel = *it;
 		pChannel->m_ChannelID = mapChannelsFrequencies[pChannel->m_sFrequency];
 		if( !pChannel->m_ChannelID )
-			g_pPlutoLogger->Write(LV_WARNING,"Channel %s isn't mapped to a number",pChannel->m_sFrequency.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Channel %s isn't mapped to a number",pChannel->m_sFrequency.c_str());
 		m_mapChannelNumber[pChannel->m_ChannelID]=pChannel;
 	}
 
@@ -172,7 +172,7 @@ void EPG::ProcessLine(char *szLine)
 		m_pEvent_Reading = new Event(szLine+2,m_pChannel_Reading);
 		if( m_mapEvent.find(m_pEvent_Reading->m_EventID)!=m_mapEvent.end() )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Line %s has duplicate event number",szLine);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Line %s has duplicate event number",szLine);
 			m_pEvent_Reading->m_EventID = m_Event_DuplicateID++;
 		}
 
@@ -239,9 +239,9 @@ void EPG::ProcessLine(char *szLine)
 	else if( *szLine=='c' )
 	{
 		if( !m_pChannel_Reading )
-			g_pPlutoLogger->Write(LV_CRITICAL,"got a c, but not reading a channel");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"got a c, but not reading a channel");
 		else
-			g_pPlutoLogger->Write(LV_STATUS,"Read channel %s with events from %d-%d",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Read channel %s with events from %d-%d",
 				m_pChannel_Reading->m_sChannelName.c_str(),
 				(m_pChannel_Reading->m_pEvent_First ? m_pChannel_Reading->m_pEvent_First->m_tStartTime : 0),
 				(m_pChannel_Reading->m_pEvent_Last ? m_pChannel_Reading->m_pEvent_Last->m_tStopTime : 0));
@@ -271,11 +271,11 @@ void EPG::ReadLogos(string sPath)
 		{
 			// Either the jpg doesn't exist or it's older than the mng
 			string sCmd = "convert \"" + sPath + "/" + pChannel->m_sChannelName + ".mng\" \"" + sPath + "/" + pChannel->m_sChannelName + ".jpg\"";
-			g_pPlutoLogger->Write(LV_STATUS,"Will convert %s",sCmd.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Will convert %s",sCmd.c_str());
 			system(sCmd.c_str());
 		}
 		else
-			g_pPlutoLogger->Write(LV_STATUS,"Will not convert %s %d %d",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Will not convert %s %d %d",
 				pChannel->m_sChannelName.c_str(),tModTime_mng,tModTime_jpg);
 #endif
 
@@ -303,7 +303,7 @@ Event::Event(char *szLine,Channel *pChannel)
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Event::Event EPG data is malformed");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Event::Event EPG data is malformed");
 		return;
 	}
 }
@@ -348,7 +348,7 @@ Channel::Channel(char *szLine)
 	char *pSpace = strchr(szLine,' ');
 	if( !pSpace )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Channel::Channel EPG data is malformed");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Channel::Channel EPG data is malformed");
 		return;
 	}
 	*pSpace=0;

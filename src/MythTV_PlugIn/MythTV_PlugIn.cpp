@@ -132,7 +132,7 @@ bool MythTV_PlugIn::Register()
 	m_pGeneral_Info_Plugin=( General_Info_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pMedia_Plugin || !m_pGeneral_Info_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to myth plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to myth plugin");
 		return false;
 	}
 
@@ -186,11 +186,11 @@ bool MythTV_PlugIn::Register()
 			string sDirectory = sFilename + StringUtils::itos(PK_Device);
 
 			string sCmd = "mkdir -p \"" + sDirectory + "\"";
-			g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::Register %s",sCmd.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::Register %s",sCmd.c_str());
 			system(sCmd.c_str());
 
 			sCmd = "chmod 775 \"" + sDirectory +"\"";
-			g_pPlutoLogger->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
 			system(sCmd.c_str());
 
 			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
@@ -224,7 +224,7 @@ void MythTV_PlugIn::BuildAttachedInfraredTargetsMap()
 		{
 			if( !row[1] || !row[0])
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::BuildAttachedInfraredTargetsMap() found a database row with null entries. Ignoring!");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::BuildAttachedInfraredTargetsMap() found a database row with null entries. Ignoring!");
 				continue;
 			}
 
@@ -233,13 +233,13 @@ void MythTV_PlugIn::BuildAttachedInfraredTargetsMap()
 
 			if ( PK_Device == 0 || mythConnectionID == 0 )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,
 							"MythTV_PlugIn::BuildAttachedInfraredTargetsMap() one of the device ID or the mythconnection specification is 0: (device: %d, mythconnID: %d)",
 							PK_Device, mythConnectionID);
 				continue;
 			}
 
-			g_pPlutoLogger->Write(LV_STATUS, "Mapping MythTV tuner input with ID %d to device ID %d", mythConnectionID, PK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Mapping MythTV tuner input with ID %d to device ID %d", mythConnectionID, PK_Device);
 			m_mapMythInputsToDevices[mythConnectionID] = PK_Device;
 		}
 	}
@@ -309,7 +309,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 {
     PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
-    g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
 
 	map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
     if( it!=m_mapDevicesToStreams.end() )
@@ -335,9 +335,9 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 	// since this mutex is recursive the release here is useless and the same apply for all the media plugin processing functions.
 	mm.Release();
 
-	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Sending command to stop media to the player: %d", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Sending command to stop media to the player: %d", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	SendCommand(cmd);
-	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Returning from stop media command to the player: %d last pos %s", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Returning from stop media command to the player: %d last pos %s", 
 		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, sLastPosition.c_str());
 	pMediaStream->m_sLastPosition=sLastPosition;
 
@@ -366,7 +366,7 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMed
 		if( pListMediaDevice && pListMediaDevice->size())
 		{
 			if ( pListMediaDevice->size() > 1 )
-				g_pPlutoLogger->Write(LV_STATUS, "There are multiple Myth Player's (%d devices) in the ent area %d. This is an error picking only the first one!", pListMediaDevice->size(), pEntertainArea->m_iPK_EntertainArea);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "There are multiple Myth Player's (%d devices) in the ent area %d. This is an error picking only the first one!", pListMediaDevice->size(), pEntertainArea->m_iPK_EntertainArea);
 
 		    pMediaDevice = pListMediaDevice->front();
 		}
@@ -374,11 +374,11 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMed
 
     if( ! pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate != DEVICETEMPLATE_MythTV_Player_CONST )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Myth plugin being told to play in an entertainment area without a MythTV Player");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Myth plugin being told to play in an entertainment area without a MythTV Player");
         return NULL;
     }
 
-	g_pPlutoLogger->Write(LV_STATUS, "Found playback device to be: %d %s (at IP address: %s)!",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found playback device to be: %d %s (at IP address: %s)!",
 				pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 				pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str(),
 				pMediaDevice->m_pDeviceData_Router->GetIPAddress().c_str());
@@ -398,13 +398,13 @@ MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaSt
 {
 	if ( pMediaStream == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is a NULL stream!").c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, (callerIdMessage + "Stream is a NULL stream!").c_str());
 		return NULL;
 	}
 
 	if ( pMediaStream->GetType() != MEDIASTREAM_TYPE_MYTHTV )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is not a MythTvMediaStream!").c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, (callerIdMessage + "Stream is not a MythTvMediaStream!").c_str());
 		return NULL;
 	}
 
@@ -426,12 +426,12 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	int iPK_EntertainArea = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
 
 	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
-    g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::AllShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::AllShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
     
 	EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find( iPK_EntertainArea );
 	if( !pEntertainArea || !pEntertainArea->m_pMediaStream || !pEntertainArea->m_pMediaStream->m_pMediaDevice_Source )
 	{
-	    g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::AllShows cannot find a stream %p",pEntertainArea);
+	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::AllShows cannot find a stream %p",pEntertainArea);
 		return pDataGridTable;
 	}
 
@@ -595,7 +595,7 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	DataGridCell *pCell;
 
 	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
-    g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
 
 	string sBookmark_Program = m_mapProgramBookmarks[0];
 	string sBookmark_Program2 = m_mapProgramBookmarks[iPK_Users];
@@ -689,13 +689,13 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
 		int tunedChannel = atoi(pMessage->m_mapParameters[EVENTPARAMETER_MythTV_ChannelID_CONST].c_str());
 		if ( playbackDevice == 0 )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "MythTV_PlugIn::MediaInfoChanged() called for an event which didn't provided a proper device ID");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_PlugIn::MediaInfoChanged() called for an event which didn't provided a proper device ID");
 			return false;
 		}
 
 		if ( (pMythTvStream = ConvertToMythMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[playbackDevice],pMessage->m_dwPK_Device_From), "MythTV_PlugIn::MediaInfoChanged() ")) == NULL)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Could not detect a valid MythTV media stream based on the device %d", pDeviceFrom->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not detect a valid MythTV media stream based on the device %d", pDeviceFrom->m_dwPK_Device);
 			return false;
 		}
 /*
@@ -735,7 +735,7 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Jump to position called %s", sValue_To_Assign.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Jump to position called %s", sValue_To_Assign.c_str());
 
      MythTvMediaStream *pMediaStream =
          (MythTvMediaStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
@@ -762,7 +762,7 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result
 #ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Jump to position called %s", sProgramID.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Jump to position called %s", sProgramID.c_str());
 
     class MythTvStream *pMediaStream =
         (MythTvStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
@@ -850,14 +850,14 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
-    g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::CMD_Set_Active_Menu %s", sText.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Set_Active_Menu %s", sText.c_str());
 
     MythTvMediaStream *pMythTvMediaStream =
 		ConvertToMythMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[pMessage->m_dwPK_Device_From],pMessage->m_dwPK_Device_From));
 
     if( !pMythTvMediaStream )
 	{
-	    g_pPlutoLogger->Write(LV_WARNING, "MythTV_PlugIn::CMD_Set_Active_Menu stream is NULL");
+	    LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_PlugIn::CMD_Set_Active_Menu stream is NULL");
         return;  /** Can't do anything */
 	}
 
@@ -882,7 +882,7 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 	for( MapEntertainArea::iterator itEA = pMythTvMediaStream->m_mapEntertainArea.begin( );itEA != pMythTvMediaStream->m_mapEntertainArea.end( );++itEA )
 	{
 		EntertainArea *pEntertainArea = ( *itEA ).second;
-		g_pPlutoLogger->Write( LV_STATUS, "Looking into the ent area (%p) with id %d and %d remotes", pEntertainArea, pEntertainArea->m_iPK_EntertainArea, (int) pEntertainArea->m_mapBoundRemote.size() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Looking into the ent area (%p) with id %d and %d remotes", pEntertainArea, pEntertainArea->m_iPK_EntertainArea, (int) pEntertainArea->m_mapBoundRemote.size() );
 		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
 		{
 			BoundRemote *pBoundRemote = ( *itBR ).second;
@@ -895,7 +895,7 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 					pRemoteControlSet->m_iPK_Screen_Remote = PK_Screen_Remote;
 					pRemoteControlSet->m_iPK_Screen_OSD = PK_Screen_OSD;
 
-					g_pPlutoLogger->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 					m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 						pMythTvMediaStream,false,true);
 				}
@@ -916,21 +916,21 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 {
 	if( DATA_Get_Dont_Auto_Configure() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- skipping because Don't Auto Configure is set");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- skipping because Don't Auto Configure is set");
 		return;
 	}
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	m_bBookmarksNeedRefreshing=true;
 	m_mapDevicesToSources.clear();
-	g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders");
     MYSQL_ROW row,row2;
 
 	string sSQL = "select data from settings where value='DBSchemaVer'";
 	PlutoSqlResult result_set_check;
 	if( (result_set_check.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))==NULL || (row=mysql_fetch_row(result_set_check.r))==NULL || atoi(row[0])<MINIMUM_MYTH_SCHEMA )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards skipping now because I need at least schema %d insted of %s",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards skipping now because I need at least schema %d insted of %s",
 			MINIMUM_MYTH_SCHEMA, (NULL != result_set_check.r && row && row[0]) ? row[0] : "*none*");
 		return;
 	}
@@ -950,7 +950,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 
 			if( !pRow_Device )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders cannot find device %s provider %s",row[0],row[1]);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders cannot find device %s provider %s",row[0],row[1]);
 				continue;
 			}
 
@@ -975,7 +975,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				pRow_Device = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 				if( !pRow_Device )
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find capture card for %d", pRow_Device_Source->PK_Device_get());
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find capture card for %d", pRow_Device_Source->PK_Device_get());
 					continue;
 				}
 			}
@@ -986,7 +986,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				if( !pRow_Device_CaptureCard || !DatabaseUtils::DeviceIsWithinCategory(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICECATEGORY_Capture_Cards_CONST) )
 				{
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders not a capture card device %s provider %s",row[0],row[1]);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders not a capture card device %s provider %s",row[0],row[1]);
 #endif
 					continue;
 				}
@@ -1020,7 +1020,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 			string sPortNumber = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_PortChannel_Number_CONST);
 			if( sPortName.empty() )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders no port name for device %s provider %s",row[0],row[1]);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders no port name for device %s provider %s",row[0],row[1]);
 				continue;
 			}
 			if( !cardid )
@@ -1035,11 +1035,11 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 					Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_PC->FK_DeviceTemplate_getrow();
 					if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Core_CONST )
 						sHostname = "moon" + StringUtils::itos(pRow_Device_PC->PK_Device_get());
-					g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards topmost for %d is %d host %s",
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards topmost for %d is %d host %s",
 						pRow_Device->PK_Device_get(),pRow_Device_PC->PK_Device_get(),sHostname.c_str());
 				}
 				else
-					g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find topmost device for %d", pRow_Device->PK_Device_get());
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find topmost device for %d", pRow_Device->PK_Device_get());
 
 				sSQL = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Configuration_CONST);
 				if( sSQL.empty() )
@@ -1175,7 +1175,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 	bool bLockFileExists = FileUtils::FileExists("/usr/pluto/bin/FillDbAndFetchIcons.start");
 	if( bModifiedRows || bLockFileExists )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders records changed %d/%d",(int) bModifiedRows, (int) bLockFileExists);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders records changed %d/%d",(int) bModifiedRows, (int) bLockFileExists);
 		// Create the file
 		system("touch /usr/pluto/bin/FillDbAndFetchIcons.start");
 		DeviceData_Router *pDevice_App_Server=NULL,*pDevice_Us = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
@@ -1265,7 +1265,7 @@ void MythTV_PlugIn::CheckForNewRecordings()
 	vector<Row_File *> vectRow_File;
 	m_pMedia_Plugin->m_pDatabase_pluto_media->File_get()->GetRows( sSQL, &vectRow_File );
 
-	g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::CheckForNewRecordings PK_File_Max %d m_dwPK_File_LastCheckedForNewRecordings %d files: %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CheckForNewRecordings PK_File_Max %d m_dwPK_File_LastCheckedForNewRecordings %d files: %d",
 		PK_File_Max, m_dwPK_File_LastCheckedForNewRecordings, (int) vectRow_File.size());
 
 	for(vector<Row_File *>::iterator it=vectRow_File.begin();it!=vectRow_File.end();++it)
@@ -1344,7 +1344,7 @@ void MythTV_PlugIn::CheckForNewRecordings()
 			}
 		}
 		else
-			g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CheckForNewRecordings couldn't locate file %s", pRow_File->Filename_get().c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MythTV_PlugIn::CheckForNewRecordings couldn't locate file %s", pRow_File->Filename_get().c_str());
 	}
 	
 	m_pMedia_Plugin->m_pDatabase_pluto_media->File_get()->Commit();
@@ -1637,7 +1637,7 @@ void MythTV_PlugIn::StartScanningScript(Row_Device *pRow_Device_Tuner,Row_Device
 	map< int, ScanJob * >::iterator it=m_mapPendingScans.find( pRow_Device_Tuner->PK_Device_get() );
 	if( it!=m_mapPendingScans.end() )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d already scanning", pRow_Device_Tuner->PK_Device_get(), pRow_Device_CaptureCard->PK_Device_get() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d already scanning", pRow_Device_Tuner->PK_Device_get(), pRow_Device_CaptureCard->PK_Device_get() );
 		return;
 	}
 
@@ -1650,14 +1650,14 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 {
 	if( pScanJob->m_bActive )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d active", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get());
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d active", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get());
 		return;
 	}
 
 	// If we're still busy downloading packages we don't want to do this yet since the files may not be installed yet
 	if( m_pGeneral_Info_Plugin->PendingTasks() )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d waiting for packages", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d waiting for packages", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
 		m_pAlarmManager->AddRelativeAlarm(30,this,SYNC_PROVIDERS,(void *) pScanJob);  /* check again in 30 seconds */
 		return;
 	}
@@ -1688,7 +1688,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 		string sResponse;
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- app server didn't respond");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- app server didn't respond");
 			m_pAlarmManager->AddRelativeAlarm(30,this,SYNC_PROVIDERS,(void *) pScanJob);  /* check again in 30 seconds */
 			pScanJob->m_pRow_Device_CaptureCard->NeedConfigure_set(1);
 			pScanJob->m_pRow_Device_Tuner->NeedConfigure_set(1);
@@ -1702,7 +1702,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- no app server");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- no app server");
 		pScanJob->m_pRow_Device_CaptureCard->NeedConfigure_set(1);
 		pScanJob->m_pRow_Device_Tuner->NeedConfigure_set(1);
 		m_mapPendingScans.erase( pScanJob->m_pRow_Device_Tuner->PK_Device_get() );
@@ -1714,7 +1714,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 bool MythTV_PlugIn::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
-	g_pPlutoLogger->Write( LV_STATUS, "checking scanning jobs %d %d",m_dwPK_Device, (int) m_mapPendingScans.size());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "checking scanning jobs %d %d",m_dwPK_Device, (int) m_mapPendingScans.size());
 
 	if( m_mapPendingScans.size() )
 	{
@@ -1748,14 +1748,14 @@ bool MythTV_PlugIn::ScanningProgress( class Socket *pSocket, class Message *pMes
 	map< int, ScanJob * >::iterator it=m_mapPendingScans.find(iPK_Device);
 	if( it==m_mapPendingScans.end() )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"MythTV_PlugIn::ScanningProgress cannot find job for %d", iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::ScanningProgress cannot find job for %d", iPK_Device);
 		return false;
 	}
 
 	ScanJob *pScanJob = it->second;
 	if( iResult!=0 )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::ScanningProgress done for job %d", iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::ScanningProgress done for job %d", iPK_Device);
 
 		// See if we've found a tv format, or can otherwise determine the provider
 		CheckForTvFormatAndProvider( iPK_Device );
@@ -1778,7 +1778,7 @@ void MythTV_PlugIn::CheckForTvFormatAndProvider( int iPK_Device )
 	Row_Device_DeviceData *pRow_Device_DeviceData = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(iPK_Device,DEVICEDATA_Port_CONST);
 	if( !pRow_Device_DeviceData || pRow_Device_DeviceData->IK_DeviceData_get().empty() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"MythTV_PlugIn::CheckForTvFormatAndProvider cannot determine anything without a port");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CheckForTvFormatAndProvider cannot determine anything without a port");
 		return;
 	}
 
@@ -1792,7 +1792,7 @@ void MythTV_PlugIn::CheckForTvFormatAndProvider( int iPK_Device )
 	if( (result.r = m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && ( row=mysql_fetch_row( result.r ) ) && row[0] && row[1] )
 	{
 		if( result.r->row_count>1 )
-			g_pPlutoLogger->Write(LV_WARNING,"MythTV_PlugIn::CheckForTvFormatAndProvider found more than 1 tv format for %d",iPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MythTV_PlugIn::CheckForTvFormatAndProvider found more than 1 tv format for %d",iPK_Device);
 		DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Type_CONST,row[0]);
 /*
 		// TEMP -- remove this before .44

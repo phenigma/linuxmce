@@ -124,7 +124,7 @@ bool gc100::GetConfig()
 	
 	if (!Open_gc100_Socket())
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't open socket connection to GC100");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Couldn't open socket connection to GC100");
 	    exit(1);
 	}
 	return true;
@@ -218,7 +218,7 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 	if (pDeviceData_Impl->WithinCategory(DEVICECATEGORY_Environment_CONST) )
 	{ // this is our guy
 		SendString("OK");
-		g_pPlutoLogger->Write(LV_STATUS, "Message for %s passed to Relay", pDeviceData_Impl->m_sDescription.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message for %s passed to Relay", pDeviceData_Impl->m_sDescription.c_str());
 
 		bool bParm;
 		if (pMessage->m_dwID == COMMAND_Toggle_Power_CONST)
@@ -283,7 +283,7 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 	//	return true;
 	//}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Mesage Received %d completely unhandled",pMessage->m_dwID);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Mesage Received %d completely unhandled",pMessage->m_dwID);
 	//SendString("OK"); // DEBUG
 	//return true; // DEBUG
 
@@ -344,7 +344,7 @@ bool gc100::ConvertPronto(string ProntoCode, string &gc_code)
 
 	if (ProntoCode.length() < 29)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "convert_pronto: Total code length is %d, below minimum possible length",ProntoCode.length());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "convert_pronto: Total code length is %d, below minimum possible length",ProntoCode.length());
 		return_value=false;
 	}
 	else
@@ -375,7 +375,7 @@ bool gc100::ConvertPronto(string ProntoCode, string &gc_code)
 			gc_code+=","+StringUtils::itos(num_single*2+1);
 
 			expected_length=(num_single+num_repeat)*10+19;
-			g_pPlutoLogger->Write(LV_STATUS, "convert_pronto: Total code length is %d, expecting %d",ProntoCode.length(),expected_length);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "convert_pronto: Total code length is %d, expecting %d",ProntoCode.length(),expected_length);
 
 			if (true)
 			{ // For right now don't enforce the length check
@@ -384,7 +384,7 @@ bool gc100::ConvertPronto(string ProntoCode, string &gc_code)
 					token=StringUtils::Tokenize(ProntoCode," ",pos);
 					if (token=="")
 					{
-						g_pPlutoLogger->Write(LV_WARNING, "convert_pronto: Token was NULL, probably because code was too short or incorrectly formatted");
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "convert_pronto: Token was NULL, probably because code was too short or incorrectly formatted");
 						error=true;
 					}
 					else
@@ -396,19 +396,19 @@ bool gc100::ConvertPronto(string ProntoCode, string &gc_code)
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "convert_pronto: Total code length is %d, expecting %d",ProntoCode.length(),expected_length);
-				g_pPlutoLogger->Write(LV_STATUS, "convert_pronto: Code was incorrect length");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "convert_pronto: Total code length is %d, expecting %d",ProntoCode.length(),expected_length);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "convert_pronto: Code was incorrect length");
 				return_value=false;
 			}
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "convert_pronto: Can't convert code types other than 0000");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "convert_pronto: Can't convert code types other than 0000");
 			return_value=false;
 		}
 
 		// Ending
-		//g_pPlutoLogger->Write(LV_STATUS, "convert_pronto: Final conversion: %s",gc_code.c_str());
+		//LoggerWrapper::GetInstance()->Write(LV_STATUS, "convert_pronto: Final conversion: %s",gc_code.c_str());
 
 		//gc_code="58000,1,1,192,193,48,146,48,146,48,48,48,146,48,146,48,146,48,48,48,146,48,146,48,146,48,48,48,48,48,48,48,146,48,48,48,48,48,48,48,146,48,48,48,48,48,48,48,146,48,2160"; // DEBUG
 	}
@@ -423,7 +423,7 @@ string gc100::IRL_uncompress(string IRL_string)
 	string::size_type pos = 0;
 	string sResult = "";
 
-	g_pPlutoLogger->Write(LV_WARNING, "IRL_uncompress: compressed string: %s", IRL_string.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "IRL_uncompress: compressed string: %s", IRL_string.c_str());
 	
 	string token1, token2, digits2, comp2;
 
@@ -435,7 +435,7 @@ string gc100::IRL_uncompress(string IRL_string)
 	{
 		if ((pos >= IRL_string.length()) || (++pair_num > 5000))
 		{
-			//g_pPlutoLogger->Write(LV_STATUS, "IRL_uncompress: no more pairs; we're done");
+			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "IRL_uncompress: no more pairs; we're done");
 			done = true;
 		}
 		else
@@ -445,7 +445,7 @@ string gc100::IRL_uncompress(string IRL_string)
 
 			if (token1 == "X" || token2 == "X" || token1 == "Z" || token2 == "Z")
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "IRL_uncompress: end-of sequence X or Z character detected");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "IRL_uncompress: end-of sequence X or Z character detected");
 				done = true;
 			}
 			else
@@ -478,7 +478,7 @@ string gc100::IRL_uncompress(string IRL_string)
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "IRL_uncompress: uncompressed code: %s", sResult.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "IRL_uncompress: uncompressed code: %s", sResult.c_str());
 	return sResult;
 }
 
@@ -517,12 +517,12 @@ std::string gc100::IRL_to_pronto(string raw_learned_string)
 		trunc_prefix = raw_learned_string.rfind(LEARN_PREFIX_IRE);
 		if (trunc_prefix < 0)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "IRL_to_pronto: trunc_prefix was %d", trunc_prefix);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "IRL_to_pronto: trunc_prefix was %d", trunc_prefix);
 			trunc_prefix = 0;
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: trunc_prefix is %d",trunc_prefix);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "IRL_to_pronto: trunc_prefix is %d",trunc_prefix);
 
 	learned_string = IRL_uncompress(raw_learned_string.substr(trunc_prefix));
 	pos=0;
@@ -531,11 +531,11 @@ std::string gc100::IRL_to_pronto(string raw_learned_string)
 	result="0000 "; // Pronto raw pwm prefix
 
 	token=StringUtils::Tokenize(learned_string,",",pos); // First token is "GC-IRL" or "receiveir" header
-	g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: prefix is %s",token.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "IRL_to_pronto: prefix is %s",token.c_str());
 
 	token=StringUtils::Tokenize(learned_string,",",pos); // Next token is frequency
 	sscanf(token.c_str(),"%d",&freq);
-	g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: freq is %d",freq);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "IRL_to_pronto: freq is %d",freq);
 	freq_token = (int) (4145146 / freq);
 	sprintf(conv_buf,"%04x ",freq_token);
 	// Output: frequency word
@@ -543,11 +543,11 @@ std::string gc100::IRL_to_pronto(string raw_learned_string)
 
 	/*token=StringUtils::Tokenize(learned_string,",",pos); // Next token is count?
 	sscanf(token.c_str(),"%d",&count);
-	g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: count is %d",count);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "IRL_to_pronto: count is %d",count);
 
 	token=StringUtils::Tokenize(learned_string,",",pos); // Next token is offset?
 	sscanf(token.c_str(),"%d",&offset);
-	g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: offset is %d",offset);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "IRL_to_pronto: offset is %d",offset);
 	*/
 
 	done=false;
@@ -557,7 +557,7 @@ std::string gc100::IRL_to_pronto(string raw_learned_string)
 	{
 		if ((pos>=learned_string.length())||(pair_num>5000))
 		{
-			//g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: no more pairs; we're done");
+			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "IRL_to_pronto: no more pairs; we're done");
 			done=true;
 		}
 		else
@@ -568,12 +568,12 @@ std::string gc100::IRL_to_pronto(string raw_learned_string)
 			sscanf(token.c_str(),"%d",&v1);
 			sscanf(token2.c_str(),"%d",&v2);
 
-			//g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: data pair #%d: %d/%d",pair_num,v1,v2);
+			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "IRL_to_pronto: data pair #%d: %d/%d",pair_num,v1,v2);
 			// Do any necessary correcting of values here
 
 			if (token == "X" || token2 == "X" || token == "Z" || token2 == "Z")
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: end-of sequence X or Z character detected");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "IRL_to_pronto: end-of sequence X or Z character detected");
 				done=true;
 			}
 			else
@@ -581,7 +581,7 @@ std::string gc100::IRL_to_pronto(string raw_learned_string)
 				if (v2==0)
 				{
 					v2=v1;
-					g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: corrected 0 to %d",v2);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "IRL_to_pronto: corrected 0 to %d",v2);
 				}
 
 				sprintf(conv_buf," %04x %04x",v1,v2);
@@ -622,13 +622,13 @@ bool gc100::send_to_gc100(string Cmd)
 //	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 
 	sprintf(command, "%s\r", Cmd.c_str()); // gc100 commands end in CR (w/o LF)
-	g_pPlutoLogger->Write(LV_STATUS, "Sending command %s\n", command);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending command %s\n", command);
 
 	result = send(gc100_socket,command,strlen(command), 0);
 	if (result < (int) strlen(command))
 	{
 		string x = strerror(errno);
-		g_pPlutoLogger->Write(LV_CRITICAL, "Short write to GC100: %s (wrote: %d)\n", strerror(errno), result);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Short write to GC100: %s (wrote: %d)\n", strerror(errno), result);
 		return_value = false;
 	}
 
@@ -656,7 +656,7 @@ void gc100::parse_message_device(std::string message)
 	token=StringUtils::Tokenize(message,",",pos);
 	if (token != "device")
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Sanity check: was expecting 'device' not %s",token.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Sanity check: was expecting 'device' not %s",token.c_str());
 	}
 
 	// second token is module number
@@ -664,7 +664,7 @@ void gc100::parse_message_device(std::string message)
 	sscanf(token.c_str(),"%d",&module);
 	if (module<1)
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Sanity check: module number should be positive not %d",module);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Sanity check: module number should be positive not %d",module);
 	}
 
 	// third token is number and type of device, e.g. '3 IR'
@@ -675,7 +675,7 @@ void gc100::parse_message_device(std::string message)
 	sscanf(token.c_str(),"%d",&count);
 	if (count<1)
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Sanity check: slot count should be positive not %d",count);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Sanity check: slot count should be positive not %d",count);
 	}
 
 	type=StringUtils::Tokenize(token," ",pos2); // Module type is the only thing left
@@ -685,19 +685,19 @@ void gc100::parse_message_device(std::string message)
 	slot_iter=slot_map.find(type);
 	if (slot_iter==slot_map.end())
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Entering default value for type %s",type.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Entering default value for type %s",type.c_str());
 		slot_map.insert(pair<std::string,int> (type,1));
 	}
 
 	slot_iter=slot_map.find(type);
 	if (slot_iter==slot_map.end())
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Sanity check: slot number not found for type %s",type.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Sanity check: slot number not found for type %s",type.c_str());
 	}
 	else
 	{
 		next_slot=slot_iter->second;
-		g_pPlutoLogger->Write(LV_STATUS,"The next slot for this type should be %d",next_slot);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"The next slot for this type should be %d",next_slot);
 
 		for (int i=0; i<count; i++) {
 			key=StringUtils::itos(module)+":"+StringUtils::itos(i+1);
@@ -709,7 +709,7 @@ void gc100::parse_message_device(std::string message)
 			scratch.global_slot=next_slot;
 
 			module_map.insert(pair<std::string, class module_info> (key,scratch));
-			g_pPlutoLogger->Write(LV_STATUS,"Created new module: mod=%d slot=%d type=%s key=%s global=%d",scratch.module,scratch.slot,scratch.type.c_str(),scratch.key.c_str(),scratch.global_slot);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created new module: mod=%d slot=%d type=%s key=%s global=%d",scratch.module,scratch.slot,scratch.type.c_str(),scratch.key.c_str(),scratch.global_slot);
 
 			// An IR module might be used for input, so request the state.  
 			// Either it will return the state, or an error if it's really for IR (which we ignore)
@@ -756,7 +756,7 @@ void gc100::Start_seriald()
 	//}
 
 	snprintf(command, 512, "/usr/bin/killall -9 socat");
-	g_pPlutoLogger->Write(LV_STATUS, "killing all socats: %s", command);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "killing all socats: %s", command);
 	system(command);
 	for (serial_iter=module_map.begin(); serial_iter!=module_map.end(); ++serial_iter)
 	{
@@ -776,21 +776,21 @@ void gc100::Start_seriald()
 //			sprintf(command, "socat -v TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw >>/var/log/pluto/%s.log 2>&1 &",
 //				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str(), sDevName.c_str());
 			snprintf(command, 512, "/usr/pluto/bin/gc100-serial-bridge.sh %s %d %s &", ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str());
-			g_pPlutoLogger->Write(LV_STATUS, "seriald cmd: %s", command);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "seriald cmd: %s", command);
 			system(command);
 
 #if 0
 			struct stat Stat;
 			while (lstat(sDevice.c_str(), &Stat) == -1)
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Waiting for %s symlink to be created", sDevice.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Waiting for %s symlink to be created", sDevice.c_str());
 				Sleep(1000);
 			}
 #endif
 		}
 	}
 	snprintf(command, 512, "/usr/pluto/bin/UpdateAvailableSerialPorts.sh");
-	g_pPlutoLogger->Write(LV_STATUS, "Update Available Serial Ports cmd: %s", command);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Update Available Serial Ports cmd: %s", command);
 	system(command);
 }
 
@@ -809,7 +809,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	std::string target_type;
 
 	pos=0;
-	//g_pPlutoLogger->Write(LV_STATUS, "statechange Reply received from GC100: %s",message.c_str());
+	//LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply received from GC100: %s",message.c_str());
 
 	token=StringUtils::Tokenize(message,",",pos); // state/statechange
 	token=StringUtils::Tokenize(message,",",pos); // address
@@ -818,7 +818,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	token=StringUtils::Tokenize(message,",",pos); // input state
 	sscanf(token.c_str(),"%d",&input_state);
 
-	g_pPlutoLogger->Write(LV_STATUS, "statechange Reply interpreted as module: %s change to %d",module_address.c_str(),input_state);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply interpreted as module: %s change to %d",module_address.c_str(),input_state);
 
 	// Now figure out which child this belongs to.
 	nomination=NULL;
@@ -830,7 +830,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	
 	if (map_iter != module_map.end())
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: found module of type %s, %d", map_iter->second.type.c_str(), map_iter->second.global_slot);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: found module of type %s, %d", map_iter->second.type.c_str(), map_iter->second.global_slot);
 		target_type = map_iter->second.type;
 
 		if ( (target_type == "IR") || (target_type=="RELAY"))
@@ -839,12 +839,12 @@ void gc100::parse_message_statechange(std::string message, bool change)
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "statechange Reply: found module but it's not IR/RELAY; it's %s",target_type.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "statechange Reply: found module but it's not IR/RELAY; it's %s",target_type.c_str());
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: did not find module %s in map",module_address.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: did not find module %s in map",module_address.c_str());
 	}
 
 	// Now do the search of all the children.  We're going to look at the pin number.
@@ -872,10 +872,10 @@ void gc100::parse_message_statechange(std::string message, bool change)
 			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
 
 		
-			g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: testing %s, %s (state %d) default state: %s", 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: testing %s, %s (state %d) default state: %s", 
 				child->m_sName.c_str(), this_pin.c_str(), input_state, child->m_pData->m_mapParameters[DEVICEDATA_Default_State_CONST].c_str());
 
-			//g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
+			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
 
 			if ((target_type == "IR" && io_direction == "IN") ||
 				(target_type == "RELAY" && io_direction == "OUT"))
@@ -883,7 +883,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 				// See if it matches exactly
 				if (this_pin == module_address)
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: matches exactly in m:s format");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: matches exactly in m:s format");
 					result = child;
 					target_direction = io_direction;
 				}
@@ -891,21 +891,21 @@ void gc100::parse_message_statechange(std::string message, bool change)
 				// See if it matches the global number
 				if (global_pin_target > 0 && atoi(this_pin.c_str()) == global_pin_target)
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: matches global number");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: matches global number");
 					nomination = child;
 					nomination_direction = io_direction;
 				}
 			}
 			else
 			{
-				//g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: Sorry, not eligible (not the correct type)");
+				//LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: Sorry, not eligible (not the correct type)");
 			}
 		}
 	}
 
 	if (result==NULL)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: no exact match in m:s format, trying global pin number");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: no exact match in m:s format, trying global pin number");
 		result=nomination;
 		target_direction = nomination_direction;
 	}
@@ -922,7 +922,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: target_direction not IN, not sending event");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: target_direction not IN, not sending event");
 		}
 
 		if (change)
@@ -936,7 +936,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "statechange Reply: Sorry, after all that searching, I can't determine which child device should be sent the pin_changed");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "statechange Reply: Sorry, after all that searching, I can't determine which child device should be sent the pin_changed");
 	}
 }
 
@@ -946,7 +946,7 @@ void gc100::parse_gc100_reply(std::string message)
 	// Specific message types are dispatched to a specific handling routine
 	// so that this routine stays a manageable size!
 
-	g_pPlutoLogger->Write(LV_STATUS, "Reply received from GC100: %s",message.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Reply received from GC100: %s",message.c_str());
 
 	if (message.length()>6)
 	{
@@ -986,7 +986,7 @@ void gc100::parse_gc100_reply(std::string message)
 		// unknowncommand 5/6/7 = Connector address 1/2/3 is set up as "sensor in" when attempting to send an IR command.
 		if (message.substr(15) == "5" || message.substr(15) == "6" || message.substr(15) == "7")
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Attepted to send IR through a sensor input");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Attepted to send IR through a sensor input");
 			m_bIRComplete = true;
 		}
 	}
@@ -1039,21 +1039,21 @@ bool gc100::Open_gc100_Socket()
 	return_value=false;
 
 	ip_addr=GetData()->m_sIPAddress;
-	g_pPlutoLogger->Write(LV_STATUS, "Connecting to gc100: %s", ip_addr.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connecting to gc100: %s", ip_addr.c_str());
 
 	// Do the socket connect
 	hp = gethostbyname(ip_addr.c_str());
 
 	if (!hp)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Unable to resolve host name.  Could not connect to GC100");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to resolve host name.  Could not connect to GC100");
 	}
 	else
 	{
 		gc100_socket = socket(PF_INET, SOCK_STREAM, 0);
 		if (gc100_socket < 0)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to allocate socket.  Could not connect to GC100");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to allocate socket.  Could not connect to GC100");
 		}
 		else
 		{
@@ -1064,7 +1064,7 @@ bool gc100::Open_gc100_Socket()
 			memcpy(&sin.sin_addr, hp->h_addr, sizeof(sin.sin_addr));
 			if (connect(gc100_socket, (sockaddr *) &sin, sizeof(sin)))
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Unable to connect to GC100 on socket.");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to connect to GC100 on socket.");
 				close(gc100_socket);
 			}
 			else
@@ -1080,12 +1080,12 @@ bool gc100::Open_gc100_Socket()
 				if ((res < 0) || (fcntl(gc100_socket, F_SETFL, res /*| O_NONBLOCK*/) < 0))
 #endif
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL, "Unable to set flags on GC100 socket.");
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to set flags on GC100 socket.");
 					close(gc100_socket);
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "GC100 socket connect OK");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "GC100 socket connect OK");
 					return_value=true;
 				}
 			}
@@ -1102,9 +1102,9 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 	Command_Impl *pChildDeviceCommand;
 	int target_device;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.");
 	target_device=pMessage->m_dwPK_Device_To;
-	g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: target device is %d",target_device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: target device is %d",target_device);
 
 	for (child_iter=m_mapCommandImpl_Children.begin(); child_iter!=m_mapCommandImpl_Children.end(); ++child_iter)
 	{
@@ -1125,13 +1125,13 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 				io_direction = directions[InOrOut];
 			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
 
-			g_pPlutoLogger->Write(LV_STATUS, "This pin: %s; Pin direction: %s", this_pin.c_str(), io_direction.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "This pin: %s; Pin direction: %s", this_pin.c_str(), io_direction.c_str());
 			if (io_direction == "OUT")
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: Pin direction is out, OK");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Pin direction is out, OK");
 				this_device_id = child->m_dwPK_Device;
 
-				g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: This device is %d",this_device_id);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: This device is %d",this_device_id);
 
 				PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 				if (this_device_id == target_device)
@@ -1139,23 +1139,23 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 					std::string module_id;
 					std::map<std::string,class module_info>::iterator module_iter;
 
-					g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: Matched target device");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Matched target device");
 					module_iter=module_map.find(this_pin);
 
 					if (module_iter==module_map.end())
 					{
 						std::map<std::string,class module_info>::iterator module_iter2;
-						g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: Did not find %s in module map",this_pin.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Did not find %s in module map",this_pin.c_str());
 
 						// OK, it must be in the global number format.  Search through the RELAY modules until you find it.
 						for (module_iter2=module_map.begin(); module_iter2!=module_map.end(); ++module_iter2++)
 						{
 							if (module_iter2->second.type == "RELAY") {
-								g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: Found a Relay number %d",module_iter2->second.global_slot);
+								LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Found a Relay number %d",module_iter2->second.global_slot);
 
 								if (StringUtils::itos(module_iter2->second.global_slot) == this_pin)
 								{
-									g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: Matched Relay number %d.  ID will be %s",module_iter2->second.global_slot,module_iter2->first.c_str());
+									LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Matched Relay number %d.  ID will be %s",module_iter2->second.global_slot,module_iter2->first.c_str());
 									module_id=module_iter2->first;
 								}
 							}
@@ -1163,19 +1163,19 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 					}
 					else
 					{
-						g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: Found %s in module map",this_pin.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Found %s in module map",this_pin.c_str());
 						module_id=this_pin;
 					}
 
 					// Module ID should now be the key of the desired relay
-					g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: Regardless, module ID is %s",module_id.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Regardless, module ID is %s",module_id.c_str());
 
 					// Sanity check.  Make sure module_id really is there
 					module_iter=module_map.find(module_id);
 
 					if (module_iter==module_map.end())
 					{
-						g_pPlutoLogger->Write(LV_WARNING,"Relay Pwr.: Module_iter %s should be found but isn't",module_id.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_WARNING,"Relay Pwr.: Module_iter %s should be found but isn't",module_id.c_str());
 					}
 					else
 					{
@@ -1190,7 +1190,7 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: This pin is not a relay (direction not OUT)");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: This pin is not a relay (direction not OUT)");
 			} // End if direction is OUT
 		}
 	}
@@ -1204,30 +1204,30 @@ void gc100::SendIR(string Port, string IRCode,int iRepeat)
 		while(pos<IRCode.size() && pos!=string::npos )
 		{
 			string _ircode = StringUtils::Tokenize(IRCode,"&",pos);
-			g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) IRCode.size(),IRCode.c_str(),_ircode.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) IRCode.size(),IRCode.c_str(),_ircode.c_str());
 			SendIR(Port,_ircode,iRepeat);
 			if( pos<IRCode.size() )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
 				Sleep(2000);
 			}
 		}
 		return;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "SendIR wrapper: Port = %s code = %s", Port.c_str(), IRCode.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SendIR wrapper: Port = %s code = %s", Port.c_str(), IRCode.c_str());
 	SendIR_Loop(Port, IRCode, 1);
 }
 
 void gc100::SendIR_Loop(string Port, string IRCode, int Times)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "SendIR_Loop: Port = %s, Times = %d", Port.c_str(), Times);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SendIR_Loop: Port = %s, Times = %d", Port.c_str(), Times);
 	for (int i = 0; i < Times; i++)
 		SendIR_Real(Port,IRCode);
 }
 
 void gc100::SendIR_Real(string Port, string IRCode)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "SendIR: Port = %s", Port.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SendIR: Port = %s", Port.c_str());
 	
 	m_bIRComplete = false;
 
@@ -1237,11 +1237,11 @@ void gc100::SendIR_Real(string Port, string IRCode)
 
 	//ConvertPronto(IRCode.substr(2), gc_code);
 	bool ConvertReturn = ConvertPronto(IRCode, gc_code);
-	g_pPlutoLogger->Write(LV_STATUS, "SendIR: Result of Pronto conversion was: %s", gc_code.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SendIR: Result of Pronto conversion was: %s", gc_code.c_str());
 
 	if (! ConvertReturn)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "SendIR: Pronto conversion failed");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SendIR: Pronto conversion failed");
 		return;
 	}
 
@@ -1251,7 +1251,7 @@ void gc100::SendIR_Real(string Port, string IRCode)
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	for (slot_iter=module_map.begin(); slot_iter !=module_map.end(); ++slot_iter)
 	{
-		//g_pPlutoLogger->Write(LV_STATUS, "SendIR: Examining slot %s",slot_iter->second.key.c_str());
+		//LoggerWrapper::GetInstance()->Write(LV_STATUS, "SendIR: Examining slot %s",slot_iter->second.key.c_str());
 
 		if ( (slot_iter->second.type=="IR") &&
 			(
@@ -1261,7 +1261,7 @@ void gc100::SendIR_Real(string Port, string IRCode)
 			)
 		)
 		{
-			//g_pPlutoLogger->Write(LV_STATUS, "SendIR: Yes, this is one I should send to %s",slot_iter->second.key.c_str());
+			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "SendIR: Yes, this is one I should send to %s",slot_iter->second.key.c_str());
 // TODO: actual send, not queue
 			// Create header for this command: sendir,<address>,<id>,
 
@@ -1284,7 +1284,7 @@ void gc100::SendIR_Real(string Port, string IRCode)
 
 				if (tsCurTime > tsStartTime + READY_TIMEOUT)
 				{
-					g_pPlutoLogger->Write(LV_WARNING, "Timed out waiting for completeir");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Timed out waiting for completeir");
 					// Do not reissue the previous command, because it may be a sendir command to an ir port
 					// that is configured as discrete input.  In that situation the command will never work
 					// and you'll be forced to retry it forever
@@ -1292,18 +1292,18 @@ void gc100::SendIR_Real(string Port, string IRCode)
 				}
 			}
 			// we get here when event thread got a completeir
-			g_pPlutoLogger->Write(LV_STATUS, "Finished sending IR");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished sending IR");
 
 			ir_cmd_id++;
 		} // end if it's IR
 	} // end loop through devices
-	g_pPlutoLogger->Write(LV_STATUS, "Finished sending all IRs");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished sending all IRs");
 }
 
 // TODO: Create LearningInfo object and spawn new thread
 void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, long PK_Text)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"RECEIVED LEARN_IR PKID_Device='%ld' CommandID='%ld'", PK_Device, PK_Command);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"RECEIVED LEARN_IR PKID_Device='%ld' CommandID='%ld'", PK_Device, PK_Command);
 
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 
@@ -1316,7 +1316,7 @@ void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, lo
 			LearningInfo * pLI = new LearningInfo(PK_Device, PK_Command, PK_Device_Orbiter, PK_Text, this);
 			if (pthread_create(&m_LearningThread, NULL, StartLearningThread, (void *) pLI))
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create Event Thread");
 				m_bQuit_set(true);
 				exit(1);
 			}
@@ -1325,12 +1325,12 @@ void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, lo
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Learning thread already running");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Learning thread already running");
 		}
 //	}
 //	else
 //	{
-//		g_pPlutoLogger->Write(LV_WARNING,"Can't learn because no learning port is open");
+//		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Can't learn because no learning port is open");
 //		DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Can't learn because no learning port is open", PK_Text);
 //		SendCommand(CMD_Set_Text);
 //	}
@@ -1338,7 +1338,7 @@ void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, lo
 
 int gc100::LEARN_IR_via_Socket()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Received LEARN_IR via Socket");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received LEARN_IR via Socket");
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 
 	learn_input_string = "";
@@ -1347,7 +1347,7 @@ int gc100::LEARN_IR_via_Socket()
 	{
 		if (pthread_create(&m_LearningThread, NULL, StartLearningThread_via_Socket, (void *) this))
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create Event Thread");
 			m_bQuit_set(true);
 			exit(1);
 		}
@@ -1357,7 +1357,7 @@ int gc100::LEARN_IR_via_Socket()
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Learning thread already running");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Learning thread already running");
 		string sMsg = "BUSY\n";
 		send(learn_client, sMsg.c_str(), sMsg.length(), 0);
 		return -1;
@@ -1376,17 +1376,17 @@ bool gc100::open_for_learning()
 #define open _open
 #endif
 
-	g_pPlutoLogger->Write(LV_STATUS, "Trying to open learning device: %s", learn_device.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Trying to open learning device: %s", learn_device.c_str());
 	learn_fd = open(learn_device.c_str(), O_RDONLY /*| O_NONBLOCK*/);
 
 	if (learn_fd < 0)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Failed to open learning device: %s %s", learn_device.c_str(), strerror(errno));
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to open learning device: %s %s", learn_device.c_str(), strerror(errno));
 		return_value = false;
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Opened learning device successfully: %s (%d)", learn_device.c_str(), learn_fd);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Opened learning device successfully: %s (%d)", learn_device.c_str(), learn_fd);
 	}
 
 #ifdef WIN32
@@ -1426,7 +1426,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 		PK_Command = PK_Device = PK_Device_Orbiter = PK_Text = 0;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Learning thread started");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Learning thread started");
 	timeval StartTime;
 	gettimeofday(&StartTime, NULL);
 	timespec tsStartTime;
@@ -1454,7 +1454,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 			if (read(learn_fd, learn_buffer, 511) < 0)
 			{
 				retval = errno;
-				g_pPlutoLogger->Write(LV_WARNING, "Buffer clearing loop exited with read() error: errno=%d (%s)\n", retval, strerror(retval));
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Buffer clearing loop exited with read() error: errno=%d (%s)\n", retval, strerror(retval));
 				m_bQuit_set(true);
 				break;
 			}
@@ -1504,7 +1504,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 					// Z from GC-IRL indicates error (rarely seen though): "IR signal corruption" according to GC-IRE docs
 					learning_error = true;
 					ErrorMsg = "GC100 reported X or Z error.";
-					g_pPlutoLogger->Write(LV_WARNING, ErrorMsg.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, ErrorMsg.c_str());
 				}
 				else
 				{
@@ -1516,11 +1516,11 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 							continue;
 						learning_error = true;
 						ErrorMsg = "Garbage data received. Wrong baud rate?";
-						g_pPlutoLogger->Write(LV_WARNING, ErrorMsg.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, ErrorMsg.c_str());
 					}
 				}
 
-				g_pPlutoLogger->Write(LV_STATUS, "IR %d Data received: %s", retval, learn_buffer);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "IR %d Data received: %s", retval, learn_buffer);
 				learn_input_string += learn_buffer;
 				receiving_data = true;
 
@@ -1547,19 +1547,19 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 					// Only send this if there was no error detected
 					if (pLearningInfo)
 					{
-						g_pPlutoLogger->Write(LV_STATUS, "Finished learning, Device=%d, Command=%d, Orbiter=%d, size=%d", PK_Device,
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished learning, Device=%d, Command=%d, Orbiter=%d, size=%d", PK_Device,
 							PK_Command, PK_Device_Orbiter, learn_input_string.length());
 					}
 					else
 					{
-						g_pPlutoLogger->Write(LV_STATUS, "Finished learning, socket");
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished learning, socket");
 					}
 
-					g_pPlutoLogger->Write(LV_STATUS, "Terminating on retval of %d err=%d, desc=%s", retval, ErrNo, strerror(ErrNo));
-					g_pPlutoLogger->Write(LV_STATUS, "Raw learn string received: %s\n", learn_input_string.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Terminating on retval of %d err=%d, desc=%s", retval, ErrNo, strerror(ErrNo));
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Raw learn string received: %s\n", learn_input_string.c_str());
 
 					pronto_result=IRL_to_pronto(learn_input_string);
-					g_pPlutoLogger->Write(LV_STATUS, "Conversion to Pronto: %s", pronto_result.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Conversion to Pronto: %s", pronto_result.c_str());
 
 					if (pLearningInfo)
 					{
@@ -1582,7 +1582,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_WARNING, "'Learned' event not sent because GC-IRL indicated error");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "'Learned' event not sent because GC-IRL indicated error");
 					if (pLearningInfo)
 					{
 						DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", string("'Learned' event not sent because GC-IRL indicated error: ") + ErrorMsg, PK_Text);
@@ -1600,7 +1600,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 		{
 			if (! m_bStopLearning && ! m_bQuit_get())
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Timeout");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Timeout");
 				if (pLearningInfo)
 				{
 					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
@@ -1639,7 +1639,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 	//	pLearningInfo->m_pgc100->SendCommand(CMD_Goto_DesignObj);
 	//}
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Learning thread finished");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Learning thread finished");
 }
 
 // Must override so we can call IRBase::Start() after creating children
@@ -1662,14 +1662,14 @@ void gc100::CreateChildren()
 
 	if (pthread_create(&m_EventThread, NULL, StartEventThread, (void *) this))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create Event Thread");
 		m_bQuit_set(true);
 		exit(1);
 	}
 
 	if (pthread_create(&m_SocketThread, NULL, StartSocketThread, (void *) this))
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Failed to create Socket Thread");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to create Socket Thread");
 	}
 }
 
@@ -1678,7 +1678,7 @@ void gc100::EventThread()
 	while (! m_bQuit_get())
 	{
 		Sleep(50);
-		g_pPlutoLogger->Write(LV_STATUS,"EventThread");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"EventThread");
 		if(read_from_gc100() == "error")
 		{
 			close(gc100_socket);
@@ -1689,7 +1689,7 @@ void gc100::EventThread()
 
 void gc100::LEARN_IR_CANCEL()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Telling learning thread to stop: %d", m_bLearning);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telling learning thread to stop: %d", m_bLearning);
 	if (m_bLearning)
 	{
 		m_bStopLearning = true;
@@ -1698,7 +1698,7 @@ void gc100::LEARN_IR_CANCEL()
 
 void gc100::SetQuitFlag()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Setting 'quit' flag");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Setting 'quit' flag");
 	m_bQuit_set(true);
 }
 
@@ -1725,7 +1725,7 @@ void gc100::SocketThread(int port)
 	while (! m_bQuit_get())
 	{
 		learn_client = accept(learn_server, NULL, NULL);
-		g_pPlutoLogger->Write(LV_STATUS, "Accepted client on socket");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Accepted client on socket");
 		while (! m_bQuit_get()&& (count = recv(learn_client, buffer, buff_size - 1, 0)) > 0)
 		{
 			buffer[count] = 0;
@@ -1777,7 +1777,7 @@ void gc100::SocketThread(int port)
 		
 		}
 		close(learn_client);
-		g_pPlutoLogger->Write(LV_STATUS, "Socket client disconnected");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Socket client disconnected");
 	}
 }
 //<-dceag-createinst-b->!
@@ -1794,7 +1794,7 @@ void gc100::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 	if( sText.size() && (sText[0]=='5' || sText[0]=='6') )
 	{
 		string sTextNew = ConvertRC5_6(sText);
-g_pPlutoLogger->Write(LV_STATUS,"Converted %s to %s",sText.c_str(),sTextNew.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Converted %s to %s",sText.c_str(),sTextNew.c_str());
 sText=sTextNew;
 	}
 	SendIR("",sText,1);

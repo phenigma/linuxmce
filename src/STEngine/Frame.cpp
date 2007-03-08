@@ -40,7 +40,7 @@ Frame::~Frame(void)
 
 /*virtual*/ void Frame::CleanUp()
 {
-	//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "xxxxx Frame::CleanUp: %pMesh", this);	
+	//DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "xxxxx Frame::CleanUp: %pMesh", this);	
 
 	vector<Frame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end(); Child++)
@@ -63,19 +63,19 @@ void Frame::AddChild(Frame* Frame)
 {
 	if(Frame == NULL)
 	{
-		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "Frame::AddChild: Frame is NULL!!!");	
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Frame::AddChild: Frame is NULL!!!");	
 		return;
 	}
 
 	if(NULL != Frame->Parent)
 	{
-		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "Frame::AddChild: Frame %pMesh/%s already has a parent %pMesh!",
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Frame::AddChild: Frame %pMesh/%s already has a parent %pMesh!",
 			Frame, Frame->Name_.c_str(), Frame->Parent);	
 
 		//throw "Frame already has a parent";
 	}
 
-//	DCE::g_pPlutoLogger->Write(LV_STATUS, "Frame::AddChild: Added %pMesh/%s to %pMesh/%s", Frame, Frame->Name_.c_str(),
+//	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Frame::AddChild: Added %pMesh/%s to %pMesh/%s", Frame, Frame->Name_.c_str(),
 //		this, Name_.c_str());	
 	Children.push_back(Frame);
 	Frame->Parent = this;
@@ -87,7 +87,7 @@ void Frame::RemoveChild(Frame* pFrame)
 
 	if(pFrame == NULL)
 	{
-		//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "Frame::RemoveChild: Frame is NULL!!!");
+		//DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Frame::RemoveChild: Frame is NULL!!!");
 		return;
 	}
 
@@ -97,14 +97,14 @@ void Frame::RemoveChild(Frame* pFrame)
 			find(pFrame->Parent->Children.begin(), pFrame->Parent->Children.end(), pFrame);
 		if(Child == pFrame->Parent->Children.end())
 		{
-			DCE::g_pPlutoLogger->Write(LV_CRITICAL, "Frame::RemoveChild: Got a parent, but doesn't have us as child!");
+			DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Frame::RemoveChild: Got a parent, but doesn't have us as child!");
 			//throw "Got a parent, but doesn't have us as child";
 		}
 		else
 		{
 			pFrame->Parent->Children.erase(Child);
 
-//			DCE::g_pPlutoLogger->Write(LV_STATUS, "Frame::RemoveChild %pMesh/%s from parent %pMesh/%s", 
+//			DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Frame::RemoveChild %pMesh/%s from parent %pMesh/%s", 
 //				Frame, Frame->Name_.c_str(), Frame->Parent, Frame->Parent->Name_.c_str());
 
 			pFrame->Parent = NULL;
@@ -112,7 +112,7 @@ void Frame::RemoveChild(Frame* pFrame)
 	}
 	else
 	{
-		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "Frame::RemoveChild: Got no parent! :(");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Frame::RemoveChild: Got no parent! :(");
 		//throw "Got no parent! :( I'm all alone!";
 	}
 }
@@ -121,7 +121,7 @@ void Frame::Paint(Transform ChildTransform)
 {
 	if(!Visible_)
 	{
-		//DCE::g_pPlutoLogger->Write(LV_STATUS, "NOT Painting %pMesh. It's invisible.", this);	
+		//DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "NOT Painting %pMesh. It's invisible.", this);	
 		return; 
 	}
 	
@@ -132,7 +132,7 @@ void Frame::Paint(Transform ChildTransform)
 	if(pMesh!= NULL)
 		Painter->PaintContainer(*pMesh, pTransform);
 
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Painting %pMesh with %d children: ", this, Children.size());
+	//DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "xxxxx Painting %pMesh with %d children: ", this, Children.size());
 
 	vector<Frame *>::iterator Child, EndChild;
 	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
@@ -141,7 +141,7 @@ void Frame::Paint(Transform ChildTransform)
 		pFrame->Paint(pTransform);
 	}
 
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Painting %pMesh END ", this);
+	//DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "xxxxx Painting %pMesh END ", this);
 }
 
 /*virtual*/ void Frame::SetTransform(Transform& pTransform)

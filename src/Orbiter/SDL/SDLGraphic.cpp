@@ -68,7 +68,7 @@ SDLGraphic::SDLGraphic(struct SDL_Surface *pSDL_Surface)
 	m_pSDL_Surface = pSDL_Surface;
     if (m_pSDL_Surface == NULL)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"SDLGraphic::SDLGraphic() : NULL m_pSDL_Surface");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"SDLGraphic::SDLGraphic() : NULL m_pSDL_Surface");
         return;
     }
 	m_nWidth = m_pSDL_Surface->w;
@@ -94,7 +94,7 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 			"Please uncheck 'Use OCG' device data for this device (" + 
 				StringUtils::ltos(m_pOrbiterRenderer->OrbiterLogic()->m_dwPK_Device) + ").";
 
-        g_pPlutoLogger->Write(LV_CRITICAL, sErrorMessage.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, sErrorMessage.c_str());
 		m_pOrbiterRenderer->PromptUser(sErrorMessage.c_str(), 100);
         exit(1);
 		return false;
@@ -107,7 +107,7 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 	if( !m_pSDL_Surface )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read sdl graphic from data %p with size %d", pData, iSize);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to read sdl graphic from data %p with size %d", pData, iSize);
 		return false;
 	}
 
@@ -138,7 +138,7 @@ PlutoGraphic *SDLGraphic::GetHighlightedVersion()
 {
     if (m_pSDL_Surface == NULL)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"SDLGraphic::GetHighlightedVersion() : NULL m_pSDL_Surface");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"SDLGraphic::GetHighlightedVersion() : NULL m_pSDL_Surface");
         return NULL;
     }
 	if( m_pSDL_Surface->format->BytesPerPixel!=4 )

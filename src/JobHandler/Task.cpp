@@ -52,7 +52,7 @@ void Task::Execute()
 	if (pthread_create(&m_TaskThread, NULL, StartTaskThread, (void *) this))
 	{
 		m_bThreadRunning=false;
-		g_pPlutoLogger->Write(LV_CRITICAL,"Task::Execute - cannot start helper thread");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Task::Execute - cannot start helper thread");
 	}
 	else
 	{

@@ -31,7 +31,7 @@ DeviceData_Impl *Generic_Input_Ouput_Data::CreateData(DeviceData_Impl *Parent,ch
 		case 43:
 			return new Generic_Input_Ouput_Data();
 	};
-	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
 	return NULL;
 }
 
@@ -41,7 +41,7 @@ Event_Impl *Generic_Input_Ouput_Event::CreateEvent(int PK_DeviceTemplate, Client
 		case 43:
 			return (Event_Impl *) new Generic_Input_Ouput_Event(pOCClientSocket, DeviceID);
 	};
-	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateEvent for unknown type %d.", PK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got CreateEvent for unknown type %d.", PK_DeviceTemplate);
 	return NULL;
 }
 Command_Impl  *Generic_Input_Ouput_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)
@@ -51,6 +51,6 @@ Command_Impl  *Generic_Input_Ouput_Command::CreateCommand(int PK_DeviceTemplate,
 		case 43:
 			return (Command_Impl *) new Generic_Input_Ouput_Command(pPrimaryDeviceCommand, pData, pEvent, m_pRouter);
 	};
-	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
 	return NULL;
 }

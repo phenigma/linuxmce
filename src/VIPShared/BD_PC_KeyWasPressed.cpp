@@ -79,18 +79,18 @@ bool BD_PC_KeyWasPressed::ProcessCommand(BDCommandProcessor *pProcessor)
 
 	if(NULL == pOrbiter || NULL == pOrbiter->m_pOrbiter || pOrbiter->m_pOrbiter->m_bQuit_get())
 	{
-        g_pPlutoLogger->Write(LV_WARNING, "No keypress command will be dispatch: Orbiter was killed or is exiting.");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "No keypress command will be dispatch: Orbiter was killed or is exiting.");
 		return false;
 	}
 
     if(m_EventType == 2) //execute
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Received BD_PC_KeyWasPressed from PlutoMO. Phone code: %d, 'execute'", m_Key);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received BD_PC_KeyWasPressed from PlutoMO. Phone code: %d, 'execute'", m_Key);
         pOrbiter->m_pOrbiter->HandleButtonEvent(m_Key);
     }
     else
     {
-	    g_pPlutoLogger->Write(LV_WARNING, "Received BD_PC_KeyWasPressed from PlutoMO. Phone code: %d, %s", m_Key,
+	    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received BD_PC_KeyWasPressed from PlutoMO. Phone code: %d, %s", m_Key,
             m_EventType ? "key up" : "key down");
 
 	    Orbiter::Event orbiterEvent;

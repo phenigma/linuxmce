@@ -87,15 +87,15 @@ void Asterisk::PostConnect()
        	DeviceData_Base *pDevice_AppServer = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST,this);
         if (! pDevice_AppServer)
         {
-                g_pPlutoLogger->Write(LV_CRITICAL, "Asterisk::PostConnect App_Server device not found in installation. Bailing out.");
+                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Asterisk::PostConnect App_Server device not found in installation. Bailing out.");
                 return;
         }
-	g_pPlutoLogger->Write(LV_STATUS, "App_Server started");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "App_Server started");
 
 
 	if ( ! IsAsteriskServerRunning() ) {
 		// Starting the asterisk daemon
-		g_pPlutoLogger->Write(LV_STATUS, "Starting asterisk.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Starting asterisk.");
 		DCE::CMD_Spawn_Application spawnApplication(
 				m_dwPK_Device, pDevice_AppServer->m_dwPK_Device,
 				"/usr/sbin/amportal",  	    	// launch this
@@ -257,7 +257,7 @@ void Asterisk::SomeFunction()
 void Asterisk::CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c233-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Command Originate called with param: "
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command Originate called with param: "
                                             "Extension: %s "
                                             "PhoneNumber: %s "
                                             "PhoneType: %s "
@@ -283,7 +283,7 @@ void Asterisk::CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sP
 void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,bool bIsConference,string &sCMD_Result,Message *pMessage)
 //<-dceag-c235-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Command %s called with param: "
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command %s called with param: "
                                                 "PhoneExtension: %s "
                                                 "PhoneCallID: %s "
                                                 "CommandID: %d",(bIsConference?"Conference":"Transfer"),sPhoneExtension.c_str(), sPhoneCallID.c_str(), iCommandID);
@@ -295,14 +295,14 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
         int pos = sPhoneCallID.find_first_not_of(' ');
         if(pos < 0)
         {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Transfer on empty channel ???");
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Transfer on empty channel ???");
             return;
         }
         string stripped=sPhoneCallID.substr(pos,sPhoneCallID.length());
 		pos = stripped.find(' ');
         if(pos<0)
         {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Transfer on unconnected channel ???");
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Transfer on unconnected channel ???");
             return;
 		}
 		string p1=stripped.substr(0, pos);
@@ -322,7 +322,7 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
 			rest=p2;
 			hang=p1;
 		}
-		g_pPlutoLogger->Write(LV_STATUS, "Will tranfer %s to %s and hangup %s",rest.c_str(),sPhoneExtension.c_str(),hang.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will tranfer %s to %s and hangup %s",rest.c_str(),sPhoneExtension.c_str(),hang.c_str());
         manager->Transfer(rest,sPhoneExtension,iCommandID);
 		//This sleep should be enough, but it may depend on system load.
 		Sleep(500);
@@ -369,7 +369,7 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
 						}
 						else
 						{
-							g_pPlutoLogger->Write(LV_CRITICAL, "Can not join more than 2 channels !!!");
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Can not join more than 2 channels !!!");
 						}
 					}
 				}
@@ -380,10 +380,10 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
 
 		if((rest1=="") || (rest2==""))
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Conference on empty/unconnected channels ???");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Conference on empty/unconnected channels ???");
 			return;
 		}
-		g_pPlutoLogger->Write(LV_STATUS, "Will put %s and %s in conference room %s",rest1.c_str(), rest2.c_str(),sPhoneExtension.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will put %s and %s in conference room %s",rest1.c_str(), rest2.c_str(),sPhoneExtension.c_str());
 		manager->Conference(rest1,rest2,sPhoneExtension,iCommandID);
 		//This sleep should be enough, but it may depend on system load.
 		Sleep(300);
@@ -402,7 +402,7 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
 void Asterisk::CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c237-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Command Hangup called with param: "
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command Hangup called with param: "
                                                 "PhoneCallID: %s"
                                                   "CommandID: %d"
                                                 , sPhoneCallID.c_str(), iCommandID);
@@ -438,7 +438,7 @@ std::map <int,int> ext2user;
 void * startVoiceMailThread(void * Arg)
 {
     Asterisk *asterisk = (Asterisk *) Arg;
-    g_pPlutoLogger->Write(LV_STATUS, "Started VoiceMail Thread");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started VoiceMail Thread");
     std::map <int,std::string> users2vm;
 
     char buffer[1024];
@@ -491,11 +491,11 @@ void * startVoiceMailThread(void * Arg)
                             }
                             closedir(dir2);
                         }
-                        g_pPlutoLogger->Write(LV_STATUS, "Found voicemail for user %d (ext %d) new:%d, old:%d",ext2user[exten],exten,vm_new_count,vm_old_count);
+                        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found voicemail for user %d (ext %d) new:%d, old:%d",ext2user[exten],exten,vm_new_count,vm_old_count);
 						std::string joined_values=StringUtils::itos(vm_new_count)+string(" ")+StringUtils::itos(vm_old_count);
                         if((joined_values != users2vm[exten]) && (ext2user[exten] != 0))
                         {
-                            g_pPlutoLogger->Write(LV_STATUS, "Will send an event that user voicemail count has changed");
+                            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will send an event that user voicemail count has changed");
                             Message *msg=new Message(asterisk->GetData()->m_dwPK_Device, DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Voice_Mail_Changed_CONST,0);
                             msg->m_mapParameters[EVENTPARAMETER_PK_Users_CONST] = StringUtils::itos(ext2user[exten]);
                             msg->m_mapParameters[EVENTPARAMETER_Value_CONST] = joined_values;
@@ -524,7 +524,7 @@ void Asterisk::CreateChildren()
     char *sql_buff1="SELECT PK_Users,Extension FROM Users";
     if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff1)) == NULL )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff1);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED : %s",sql_buff1);
         return;
     }
     while((row = mysql_fetch_row(result_set.r)))
@@ -537,7 +537,7 @@ void Asterisk::CreateChildren()
     char *sql_buff2="SELECT FK_Device,IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=31";
     if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff2)) == NULL )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff2);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED : %s",sql_buff2);
         return;
     }
     while((row = mysql_fetch_row(result_set.r)))
@@ -550,7 +550,7 @@ void Asterisk::CreateChildren()
 
     if (pthread_create(&voicemailThread, NULL, startVoiceMailThread, (void *) this))
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create VoiceMail Thread");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create VoiceMail Thread");
         m_bQuit_set(true);
         exit(1);
     }
@@ -569,17 +569,17 @@ bool Asterisk::IsAsteriskServerRunning() {
 	socketAsterisk = socket(PF_INET, SOCK_STREAM, 0);
 	if (socketAsterisk == -1) 
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Could create client test socket for asterisk daemon. This should not happend here. Returning empty mrl.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could create client test socket for asterisk daemon. This should not happend here. Returning empty mrl.");
 		return false;
 	}
 
 	if( (host = gethostbyname(asteriskHost.c_str())) == NULL )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Could not resolve IP address. Not connecting.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not resolve IP address. Not connecting.");
 		return false;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "Trying to connect to Asterisk daemon to see if is running.");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Trying to connect to Asterisk daemon to see if is running.");
 
 	serverSocket.sin_family = AF_INET;
 	memcpy((char *) &serverSocket.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
@@ -587,13 +587,13 @@ bool Asterisk::IsAsteriskServerRunning() {
 
 	if ( connect(socketAsterisk, (struct sockaddr*)&serverSocket, sizeof(serverSocket)) == 0 )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "We have made a successful connection to asterisk on %s:%d. Life is good.", asteriskHost.c_str(), asteriskPort);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "We have made a successful connection to asterisk on %s:%d. Life is good.", asteriskHost.c_str(), asteriskPort);
 		close(socketAsterisk);
 		return true;
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "We can't connect yet to the server.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "We can't connect yet to the server.");
 		return false;
 	}
 }

@@ -67,8 +67,8 @@ CTaskBarApp::~CTaskBarApp()
 	delete g_pPlutoConfig;
 	g_pPlutoConfig = NULL;
 
-	delete g_pPlutoLogger;
-	g_pPlutoLogger = NULL;
+	
+	
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -77,10 +77,6 @@ CTaskBarApp::~CTaskBarApp()
 CTaskBarApp  theApp;
 
 PlutoConfig* g_pPlutoConfig=new PlutoConfig();
-namespace DCE
-{
-	Logger*   g_pPlutoLogger=new FileLogger("log.txt");
-}
 
 //image list
 //CImageList		PlutoVIPImageList;

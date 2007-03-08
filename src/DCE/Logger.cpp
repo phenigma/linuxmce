@@ -53,6 +53,11 @@
 using namespace ::std;
 using namespace DCE;
 
+Logger *LoggerWrapper::m_pPlutoLogger=NULL;
+int LoggerWrapper::m_iType=LT_LOGGER_FILE;
+string LoggerWrapper::m_sFilename;
+
+
 #ifdef WINCE
     #include "wince.h"
 #endif

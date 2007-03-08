@@ -29,10 +29,10 @@
 #  elif (defined DCECommon)
 */
 #    include "DCE/Logger.h"
-#    define _LOG_NFO(x, ...) DCE::g_pPlutoLogger->Write(LV_STATUS,   x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
-#    define _LOG_ERR(x, ...) DCE::g_pPlutoLogger->Write(LV_WARNING, x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
-#    define _LOG_WRN(x, ...) DCE::g_pPlutoLogger->Write(LV_WARNING,  x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
-#    define _LOG_DBG(x, ...) DCE::g_pPlutoLogger->Write(LV_WARNING,  x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
+#    define _LOG_NFO(x, ...) DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS,   x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
+#    define _LOG_ERR(x, ...) DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
+#    define _LOG_WRN(x, ...) DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING,  x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
+#    define _LOG_DBG(x, ...) DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING,  x " \033[0m\033[32m// %s\033[0m" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)
 /*
 #  else
 #    define _LOG_NFO(x, ...) fprintf(stderr, "\n\033[0m\033[36mINFO:\033[1m "    x " \033[0m\033[32m// %s\033[0m\n" , ## __VA_ARGS__ , __PRETTY_FUNCTION__)

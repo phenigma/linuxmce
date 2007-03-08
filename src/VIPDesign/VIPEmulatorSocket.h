@@ -37,8 +37,6 @@ public:
 	map<string,string> m_mapHTTPHeaders;
 	string m_CMDString;
     
-	class Logger *g_pPlutoLogger;
-
 	VIPEmulator *m_pListener;
 	class OCDeviceCommand *m_pCommand;
 

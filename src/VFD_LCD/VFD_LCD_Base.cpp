@@ -52,25 +52,25 @@ VFD_LCD_Base::VFD_LCD_Base(int iNumColumns,int iNumLines,int iNumVisibleColumns)
 	if( pthread_create(&m_ptVL_Thread, NULL, VL_Thread, (void*)this) )
 	{
 		m_bVL_ThreadRunning=false;
-		g_pPlutoLogger->Write(LV_CRITICAL, "VFD_LCD_Base::VFD_LCD_Base failed to create thread");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VFD_LCD_Base::VFD_LCD_Base failed to create thread");
 	}
 }
 
 VFD_LCD_Base::~VFD_LCD_Base()
 {
 	m_bQuit_VL=true;
-	g_pPlutoLogger->Write(LV_STATUS,"VFD_LCD_Base::~VFD_LCD_Base waiting for thread to exit");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"VFD_LCD_Base::~VFD_LCD_Base waiting for thread to exit");
 	while( m_bVL_ThreadRunning )
 	{
 		pthread_cond_broadcast(&m_VL_MessageCond);
 		Sleep(100);
 	}
-	g_pPlutoLogger->Write(LV_STATUS,"VFD_LCD_Base::~VFD_LCD_Base joining thread");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"VFD_LCD_Base::~VFD_LCD_Base joining thread");
 	if( m_ptVL_Thread )
 		pthread_join( m_ptVL_Thread, NULL );
 	delete m_pMenuStructure;
 	m_pMenuStructure=NULL;
-	g_pPlutoLogger->Write(LV_STATUS,"VFD_LCD_Base::~VFD_LCD_Base done");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"VFD_LCD_Base::~VFD_LCD_Base done");
 }
 
 void VFD_LCD_Base::RunThread()
@@ -81,14 +81,14 @@ void VFD_LCD_Base::RunThread()
 	{
 		vl.TimedCondWait(iSecondsToSleep ? iSecondsToSleep : 10 ,0);
 		iSecondsToSleep=UpdateDisplay();
-g_pPlutoLogger->Write(LV_STATUS,"Sleeping %d ",iSecondsToSleep);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sleeping %d ",iSecondsToSleep);
 	}
 }
 
 void VFD_LCD_Base::NewMessage(int iMessageType,string sName,string sMessage,int ExpiresSeconds)
 {
 	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
-	g_pPlutoLogger->Write(LV_STATUS,"Message %d=%s",iMessageType,sMessage.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Message %d=%s",iMessageType,sMessage.c_str());
 	MapMessages *pMapMessages = m_mapMessages_Get(iMessageType);
 
 	if( sMessage.size() )
@@ -117,7 +117,7 @@ void VFD_LCD_Base::NewMessage(int iMessageType,string sName,string sMessage,int 
 
 int VFD_LCD_Base::UpdateDisplay()
 {
-g_pPlutoLogger->Write(LV_STATUS,"UpdateDisp");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateDisp");
 	if( m_pMenuNode_Current )
 	{
 		vector<string> str;
@@ -126,10 +126,10 @@ g_pPlutoLogger->Write(LV_STATUS,"UpdateDisp");
 		return 60;
 	}
 
-g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp");
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UpdateDisp");
 	if( m_pVFD_LCD_Message_new && (m_pVFD_LCD_Message_new->m_iMessageType==VL_MSGTYPE_RUNTIME_ERRORS || m_pVFD_LCD_Message_new->m_iMessageType==VL_MSGTYPE_RUNTIME_NOTICES ) )
 	{
-g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp 2");
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UpdateDisp 2");
 		DisplayMessage(m_pVFD_LCD_Message_new);
 		m_pVFD_LCD_Message_new=NULL;
 		return 5;  // After 5 seconds we'll see if something else belongs on the display
@@ -137,21 +137,21 @@ g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp 2");
 	int SecondsToRedisplay;
 	if(	SecondsToRedisplay=DisplayErrorMessages() )
 		return SecondsToRedisplay;
-g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp 3");
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UpdateDisp 3");
 
 	if(	SecondsToRedisplay=DisplayNoticesMessages() )
 		return SecondsToRedisplay;
-g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp 4");
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UpdateDisp 4");
 
 	if(	SecondsToRedisplay=DisplayNowPlayingRippingMessages() )
 		return SecondsToRedisplay;
-g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp 5");
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UpdateDisp 5");
 
 	if(	SecondsToRedisplay=DisplayStatusMessages() )
 		return SecondsToRedisplay;
-	g_pPlutoLogger->Write(LV_CRITICAL,"DispDate");
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"DispDate");
 	DisplayDate();
-g_pPlutoLogger->Write(LV_CRITICAL,"DispDate done");
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"DispDate done");
 	return 60;
 }
 
@@ -370,7 +370,7 @@ void VFD_LCD_Base::GetRipping(vector<string> *vectString,int iNumLines)
 
 void VFD_LCD_Base::Up()
 {
-g_pPlutoLogger->Write(LV_STATUS,"UP");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"UP");
 	if( CheckActivateMenu() || !m_pMenuNode_Current )
 		return;
 	m_pMenuNode_Current->Up();
@@ -378,7 +378,7 @@ g_pPlutoLogger->Write(LV_STATUS,"UP");
 
 void VFD_LCD_Base::Down()
 {
-g_pPlutoLogger->Write(LV_STATUS,"dOWN");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"dOWN");
 	if( CheckActivateMenu() || !m_pMenuNode_Current )
 		return;
 	m_pMenuNode_Current->Down();

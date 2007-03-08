@@ -91,11 +91,11 @@ bool DeserializeMessageXML(Message *pMessage, char *pData, size_t nSize);
 bool g_WatchDogFlag=false;
 void* WatchDogRoutine(void* param)
 {
-    g_pPlutoLogger->Write(LV_STATUS,"DCERouter Started watchdog routine\n");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"DCERouter Started watchdog routine\n");
     Sleep(20000);
-	if (g_WatchDogFlag && NULL != g_pPlutoLogger)
+	if (g_WatchDogFlag)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Terminating DCERouter: watchdog detected hard deadlock, seems soft reload failed\n");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Terminating DCERouter: watchdog detected hard deadlock, seems soft reload failed\n");
 #ifndef WIN32
 		fflush(stdout);
 		kill(getpid(), SIGKILL);
@@ -129,16 +129,14 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 	if( g_pRouter )
 	{
 		int Delay = atoi(g_DCEConfig.ReadString("DelayReloadOnDeadlock").c_str());
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock detected.  DCERouter will die and reload in %d seconds",Delay);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Deadlock detected.  DCERouter will die and reload in %d seconds",Delay);
 
 		time_t tTimeout = time(NULL) + Delay;
 		if( Delay )
 			while( tTimeout > time(NULL) )
 				Sleep(10);
 
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Telling DCERouter to reload and quit");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Telling DCERouter to reload and quit");
 		g_pRouter->Reload();
 		g_pRouter->Quit();
 	}
@@ -175,7 +173,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 
     if(pthread_create(&m_pthread_queue_id, NULL, MessageQueueThread_DCER, (void*)this))
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Cannot create device event thread1");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot create device event thread1");
     }
 
     // Parse the config file
@@ -187,11 +185,11 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 
     m_Port = ListenPort;
 
-    m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+    m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 
     if(!m_pDatabase_pluto_main->Connect(m_sDBHost,m_sDBUser,m_sDBPassword,m_sDBName,m_dwIDBPort) )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		exit(1);
     }
 
@@ -216,7 +214,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
         m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST), &vectRow_Device);
         if( vectRow_Device.size()!=1 )
         {
-            g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine my device ID automatically.  # of records in DB: %d",(int) vectRow_Device.size());
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot determine my device ID automatically.  # of records in DB: %d",(int) vectRow_Device.size());
             cerr << "Sorry...   I cannot figure out what my device ID is automatically.  To do this there must be only" << endl;
             cerr << "1 record in the database for a device with the device template of 1 (DCE Router).  There are " << (int) vectRow_Device.size() << endl;
             cerr << "You will need to specify the device id or the installation id on the command line." << endl;
@@ -230,7 +228,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
         m_pRow_Device_Me = m_pDatabase_pluto_main->Device_get()->GetRow(m_dwPK_Device);
         if( m_pRow_Device_Me && m_dwPK_Installation && m_pRow_Device_Me->FK_Installation_get()!=m_dwPK_Installation )
         {
-            g_pPlutoLogger->Write(LV_WARNING,"You specified an installation ID of %d on the command line, but also a device of %d which belongs to installation %d",
+            LoggerWrapper::GetInstance()->Write(LV_WARNING,"You specified an installation ID of %d on the command line, but also a device of %d which belongs to installation %d",
 				m_dwPK_Installation,m_dwPK_Device,m_pRow_Device_Me->FK_Installation_get());
         }
     }
@@ -243,11 +241,11 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 		{
 	        m_pDatabase_pluto_main->Device_get()->GetRows( DEVICE_FK_DEVICETEMPLATE_FIELD "=" TOSTRING(DEVICETEMPLATE_DCERouter_CONST),&vectRow_Device);
 	        if( vectRow_Device.size()==1 )
-				g_pPlutoLogger->Write(LV_WARNING,"Not using the installation #%d you specified",m_dwPK_Installation);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Not using the installation #%d you specified",m_dwPK_Installation);
 		}
         if( vectRow_Device.size()!=1 )
         {
-            g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine my device ID automatically.  # of records in DB: %d",(int) vectRow_Device.size());
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot determine my device ID automatically.  # of records in DB: %d",(int) vectRow_Device.size());
             cerr << "Sorry...   I cannot figure out what my device ID is automatically.  To do this there must be only" << endl;
             cerr << "1 record in the database for a device with the device template type of 1 (DCE Router) in installation " << m_dwPK_Installation << ".  There are " << (int) vectRow_Device.size() << endl;
             cerr << "You will need to specify the device id on the command line." << endl;
@@ -273,7 +271,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 #endif
     }
 
-    g_pPlutoLogger->Write(LV_STATUS,"Running as device: %d installation: %d using path: %s",m_dwPK_Device,m_dwPK_Installation,m_sBasePath.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"Running as device: %d installation: %d using path: %s",m_dwPK_Device,m_dwPK_Installation,m_sBasePath.c_str());
 
     m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(4);      //4 = number of worker threads
@@ -420,7 +418,7 @@ void Router::RegisterAllPlugins()
 
         if( !pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get() )
         {
-            g_pPlutoLogger->Write(LV_CRITICAL,"The router has a child device %d (%s).  But this isn't a valid plug-in.  ImplementsDCE must be true.",
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"The router has a child device %d (%s).  But this isn't a valid plug-in.  ImplementsDCE must be true.",
                 pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_getrow()->Description_get().c_str());
             continue;
         }
@@ -448,7 +446,7 @@ void Router::RegisterAllPlugins()
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Cannot load plug-in for device: %d. Be sure the file %s exists",
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot load plug-in for device: %d. Be sure the file %s exists",
 				iPK_Device, CommandLine.c_str());
 		}
 #endif
@@ -501,19 +499,19 @@ void Router::RegisterAllPlugins()
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Cannot load plug-in for device: %d. Be sure the file %s exists",
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot load plug-in for device: %d. Be sure the file %s exists",
 					iPK_Device, sFile.c_str());
 			}
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Activating %d plug-ins",(int) list_fRAP.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Activating %d plug-ins",(int) list_fRAP.size());
 	for (i_fRAP = list_fRAP.begin(); i_fRAP != list_fRAP.end(); i_fRAP++)
 	{
 		Command_Impl * pPlugIn = PlugIn_Activate(i_fRAP->PK_Device, i_fRAP->func, i_fRAP->log);
         if( !pPlugIn )
         {
-            g_pPlutoLogger->Write(LV_CRITICAL,"Cannot initialize plug-in for device: %d", i_fRAP->PK_Device);
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot initialize plug-in for device: %d", i_fRAP->PK_Device);
         }
         else
         {
@@ -528,12 +526,12 @@ void Router::RegisterAllPlugins()
         }
     }
 
-	g_pPlutoLogger->Write(LV_STATUS, "Registering %d plug-ins",(int) m_mapPlugIn.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Registering %d plug-ins",(int) m_mapPlugIn.size());
     map<int,class Command_Impl *>::iterator it;
     for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
     {
         Command_Impl *pPlugIn = (*it).second;
-        g_pPlutoLogger->Write(LV_STATUS,"Registering plugin: %s",pPlugIn->m_sName.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"Registering plugin: %s",pPlugIn->m_sName.c_str());
         pPlugIn->Register();
     }
 }
@@ -570,7 +568,7 @@ RAP_FType Router::PlugIn_Load(int PK_Device, int PK_DeviceTemplate, string sComm
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), MS_ErrorMessage, 1024 / sizeof(TCHAR), NULL);
         ErrorMessage = MS_ErrorMessage;
 #endif
-        g_pPlutoLogger->Write(LV_CRITICAL, "Can't open plug-in file '%s': %s", sCommandLine.c_str(), ErrorMessage.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Can't open plug-in file '%s': %s", sCommandLine.c_str(), ErrorMessage.c_str());
         return NULL;
     }
 
@@ -589,11 +587,11 @@ RAP_FType Router::PlugIn_Load(int PK_Device, int PK_DeviceTemplate, string sComm
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), MS_ErrorMessage, 1024 / sizeof(TCHAR), NULL);
         ErrorMessage = MS_ErrorMessage;
 #endif
-        g_pPlutoLogger->Write(LV_CRITICAL, "Failed to load symbol 'RegisterAsPlugin' from file '%s': %s", sCommandLine.c_str(), ErrorMessage.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to load symbol 'RegisterAsPlugin' from file '%s': %s", sCommandLine.c_str(), ErrorMessage.c_str());
         return NULL;
     }
 
-    g_pPlutoLogger->Write(LV_WARNING, "Loaded plug-in device: %d master device: %d -- %s",PK_Device, PK_DeviceTemplate, sCommandLine.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Loaded plug-in device: %d master device: %d -- %s",PK_Device, PK_DeviceTemplate, sCommandLine.c_str());
 
 	return RegisterAsPlugin;
 }
@@ -611,14 +609,14 @@ Command_Impl * Router::PlugIn_Activate(int PK_Device, RAP_FType RegisterAsPlugin
 	Command_Impl *pCommand_Impl=NULL;
 	try
 	{
-		pCommand_Impl = RegisterAsPlugin(this, PK_Device, g_pPlutoLogger);
+		pCommand_Impl = RegisterAsPlugin(this, PK_Device, LoggerWrapper::GetInstance());
 	}
 	catch(...)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Plugin %d threw an exception",PK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Plugin %d threw an exception",PK_Device);
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "Plugin %d activated", PK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Plugin %d activated", PK_Device);
 	return pCommand_Impl;
 }
 
@@ -649,7 +647,7 @@ int Router::DynamicallyLoadPlugin(string sFile)
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), MS_ErrorMessage, 1024 / sizeof(TCHAR), NULL);
         ErrorMessage = MS_ErrorMessage;
 #endif
-        g_pPlutoLogger->Write(LV_CRITICAL, "Can't open plug-in file '%s': %s", sFile.c_str(), ErrorMessage.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Can't open plug-in file '%s': %s", sFile.c_str(), ErrorMessage.c_str());
         return NULL;
     }
 
@@ -678,7 +676,7 @@ void Router::RegisterMsgInterceptor(Message *pMessage)
     int MessageType = atoi( pMessage->m_mapParameters[PARM_MESSAGE_TYPE].c_str() );
     int MessageID = atoi( pMessage->m_mapParameters[PARM_MESSAGE_ID].c_str() );
 
-	g_pPlutoLogger->Write(LV_STATUS,"Device %d registered Message interceptor %d/%d/%d/%d/%d/%d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device %d registered Message interceptor %d/%d/%d/%d/%d/%d",
 		pMessage->m_dwPK_Device_From,PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID);
 
     RegisterMsgInterceptor(
@@ -704,7 +702,7 @@ void Router::StopPendingCommandGroup(int PK_CommandGroup,string sDescription,str
 				|| (sDescription.empty()==false && pDelayedCommandInfo->m_sDescription==sDescription)
 				|| (sHint.empty()==false && sHint==pDelayedCommandInfo->m_sHint) )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Router::StopPendingCommandGroup Canceling pending alarm %d",pDelayedCommandInfo->m_PK_CommandGroup);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Router::StopPendingCommandGroup Canceling pending alarm %d",pDelayedCommandInfo->m_PK_CommandGroup);
 				pAlarmEntry->deleted=true;
 				bGotEntry=true;
 			}
@@ -722,7 +720,7 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
     MYSQL_ROW row;
 	if( (result_set.r=mysql_query_result(sSql)) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Execute command group: %d with %d commands from %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Execute command group: %d with %d commands from %d",
 			PK_CommandGroup,result_set.r->row_count,sStartingCommand);
 		while ((row = mysql_fetch_row(result_set.r)))
 		{
@@ -757,7 +755,7 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
 					return;
 				}
 				else
-					g_pPlutoLogger->Write(LV_CRITICAL,"Cannot execute command group delay: %d",PK_CommandGroup);
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot execute command group delay: %d",PK_CommandGroup);
 			}
 			else
 			{
@@ -792,7 +790,7 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
 		}
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot execute command group db error: %d",PK_CommandGroup);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot execute command group db error: %d",PK_CommandGroup);
 }
 
 void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bool bAutoDelete)
@@ -857,7 +855,7 @@ int k=2;
 
     if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_LIST && (*SafetyMessage)->m_sPK_Device_List_To.length()==0 )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Received message type: %d id: %d from: %d going to an empty device list md: %d cat: %d",
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Received message type: %d id: %d from: %d going to an empty device list md: %d cat: %d",
             (*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID,(*SafetyMessage)->m_dwPK_Device_From,(*SafetyMessage)->m_dwPK_Device_Template,(*SafetyMessage)->m_dwPK_Device_Category_To);
         ErrorResponse(pSocket,(*SafetyMessage));
         return;
@@ -906,7 +904,7 @@ int k=2;
 			MessageInterceptorFn pMessageInterceptorFn = pMessageInterceptorCallBack->m_pMessageInterceptorFn;
 
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"DCERouter calling message interceptor for msg type %d id %d, device %d",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"DCERouter calling message interceptor for msg type %d id %d, device %d",
 				(*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID,(pPlugIn ? pPlugIn->m_dwPK_Device : pMessageInterceptorCallBack->m_dwPK_Device));
 #endif
 
@@ -915,7 +913,7 @@ int k=2;
 			{
 				if( CALL_MEMBER_FN(*pPlugIn,pMessageInterceptorFn) (pSocket, pMessageWillBeDeleted, pDeviceFrom, pDeviceTo) )
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"void Router::ReceivedMessage -- Aborting further processing of message type %d id %d as per interceptor plugin",(*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"void Router::ReceivedMessage -- Aborting further processing of message type %d id %d as per interceptor plugin",(*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID);
 					return;
 				}
 			}
@@ -931,7 +929,7 @@ int k=2;
 				delete pMessageInterceptor;
 				if( bAbort ) // Special case
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"void Router::ReceivedMessage -- Aborting further processing of message type %d id %d as per interceptor",(*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"void Router::ReceivedMessage -- Aborting further processing of message type %d id %d as per interceptor",(*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID);
 					return;
 				}
 			}
@@ -984,7 +982,7 @@ int k=2;
 							DeviceList += "**unknown dev: " + Device + ",";
 					}
 
-					g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %s type %d id %d %s, parameters:",
+					LoggerWrapper::GetInstance()->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %s type %d id %d %s, parameters:",
 						pMessage->m_dwPK_Device_From,
 						(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
 						(pDeviceFrom  && pDeviceFrom->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
@@ -992,7 +990,7 @@ int k=2;
 						pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str());
 				}
 				else if (pMessage->m_dwPK_Device_To != DEVICEID_LOGGER)
-					g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %d (\x1b[36;1m%s / %s\x1b[0m), type %d id %d %s, parameters:",
+					LoggerWrapper::GetInstance()->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %d (\x1b[36;1m%s / %s\x1b[0m), type %d id %d %s, parameters:",
 						pMessage->m_dwPK_Device_From,
 						(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
 						(pDeviceFrom  && pDeviceFrom->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
@@ -1002,7 +1000,7 @@ int k=2;
 						pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str());
 			}
 			else if( pMessage->m_dwMessage_Type != MESSAGETYPE_LOG )
-				g_pPlutoLogger->Write(LV_STATUS, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d, parameters:",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d, parameters:",
 					pMessage->m_dwPK_Device_From,
 					(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),pMessage->m_dwPK_Device_To,
 					(pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
@@ -1029,7 +1027,7 @@ int k=2;
 					}
 
 
-					g_pPlutoLogger->Write(LogType, "  Parameter %d(%s): %s", (*i).first, Desc.c_str(), (*i).second.c_str());
+					LoggerWrapper::GetInstance()->Write(LogType, "  Parameter %d(%s): %s", (*i).first, Desc.c_str(), (*i).second.c_str());
 				}
 				map<long,unsigned long>::iterator il;
 				for(il=pMessage->m_mapData_Lengths.begin();il!=pMessage->m_mapData_Lengths.end();++il)
@@ -1040,7 +1038,7 @@ int k=2;
 					else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
 						Desc = m_mapEventParmNames[(*il).first];
 					if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-						g_pPlutoLogger->Write(LogType, "  Data Parm %d(%s): %d bytes", (*il).first, Desc.c_str(), (*il).second);
+						LoggerWrapper::GetInstance()->Write(LogType, "  Data Parm %d(%s): %d bytes", (*il).first, Desc.c_str(), (*il).second);
 				}
 			}
 		}
@@ -1074,7 +1072,7 @@ int k=2;
                 break;
             case SYSCOMMAND_SEGFAULT:
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Forcing a crash");
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Forcing a crash");
 					char *pNULLPointer=NULL;
 					strcpy(pNULLPointer,"this always crashes any os");
 				}
@@ -1083,7 +1081,7 @@ int k=2;
             case SYSCOMMAND_DEVICE_DOWN:
 				{
 #ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS,"Device up down %d is %s",(*SafetyMessage)->m_dwPK_Device_From,(*SafetyMessage)->m_dwID==SYSCOMMAND_DEVICE_UP ? "UP" : "DOWN");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device up down %d is %s",(*SafetyMessage)->m_dwPK_Device_From,(*SafetyMessage)->m_dwID==SYSCOMMAND_DEVICE_UP ? "UP" : "DOWN");
 #endif
 					pair<time_t,time_t> pOldValue = m_mapDeviceUpStatus_Find((*SafetyMessage)->m_dwPK_Device_From);
 					pOldValue.second = time(NULL);  // The second is the last communication
@@ -1113,7 +1111,7 @@ int k=2;
 				DoLogRotation();
 				break;
 			default:
-				g_pPlutoLogger->Write(LV_WARNING, "Received unknown SYSCOMMAND %d", iMessageID);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received unknown SYSCOMMAND %d", iMessageID);
 				break;
 			}
             return;
@@ -1122,7 +1120,7 @@ int k=2;
         {
             Logger::Entry e;
             e.SerializeRead( (*SafetyMessage)->m_mapData_Lengths[0], (*SafetyMessage)->m_mapData_Parameters[0] );
-            g_pPlutoLogger->WriteEntry(e);
+            LoggerWrapper::GetInstance()->WriteEntry(e);
         }
 		else if ( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE )
 		{
@@ -1133,7 +1131,7 @@ int k=2;
 		else if ( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_DATAPARM_REQUEST )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"DCERouter MESSAGETYPE_DATAPARM_REQUEST");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"DCERouter MESSAGETYPE_DATAPARM_REQUEST");
 #endif
 			map<long, string>::iterator p = (*SafetyMessage)->m_mapParameters.begin();
 			if ( p != (*SafetyMessage)->m_mapParameters.end() )
@@ -1145,7 +1143,7 @@ int k=2;
 				{
 					pRow_Device_DeviceData->Reload();
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"DCERouter MESSAGETYPE_DATAPARM_REQUEST device %d data %d=%s",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"DCERouter MESSAGETYPE_DATAPARM_REQUEST device %d data %d=%s",
 				pRow_Device_DeviceData->FK_Device_get(),pRow_Device_DeviceData->FK_DeviceData_get(),
 				pRow_Device_DeviceData->IK_DeviceData_get().c_str());
 #endif
@@ -1227,7 +1225,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
         class DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pServerSocket->m_dwPK_Device);
         if (!pDevice)
         {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Device ID %d is requesting its configuration, but it does not exist.", pServerSocket->m_dwPK_Device);
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Device ID %d is requesting its configuration, but it does not exist.", pServerSocket->m_dwPK_Device);
             pSocket->SendString(string("ERROR"));
         }
         else
@@ -1252,7 +1250,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
     }
     else if (Line=="CORRUPT SOCKET")
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Upon connection, the socket received an invalid response (socket %d).  Terminating.", pSocket->m_Socket);
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Upon connection, the socket received an invalid response (socket %d).  Terminating.", pSocket->m_Socket);
         closesocket(pSocket->m_Socket);
 	return false;
     }
@@ -1270,7 +1268,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		int PK_Device = atoi(StringUtils::Tokenize(Line," ",pos).c_str());
 		DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
 		if( !pDevice )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Device in %s",Line.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Invalid Device in %s",Line.c_str());
 		else if( pos!=Line.length() && pos!=string::npos )
 			pDevice->m_sStatus_set( Line.substr(pos) );
 		else
@@ -1283,7 +1281,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		int PK_Device = atoi(StringUtils::Tokenize(Line," ",pos).c_str());
 		DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
 		if( !pDevice )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Device in %s",Line.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Invalid Device in %s",Line.c_str());
 		else if( pos!=Line.length() && pos!=string::npos )
 			pDevice->m_sState_set( Line.substr(pos) );
 		else
@@ -1299,7 +1297,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 			pSocket->SendString( pDevice->m_sState_get() );
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid get_State %s",Line.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Invalid get_State %s",Line.c_str());
 			pSocket->SendString( "BAD DEVICE" );
 		}
         return true;
@@ -1313,7 +1311,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 			pSocket->SendString( pDevice->m_sStatus_get() );
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid get_State %s",Line.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Invalid get_State %s",Line.c_str());
 			pSocket->SendString( "BAD DEVICE" );
 		}
         return true;
@@ -1422,7 +1420,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		pSocket->SendString( "PARENT " + sDevice_ControlledVia );
         return true;
 	}
-	g_pPlutoLogger->Write(LV_WARNING, "Router: Don't know how to handle %s.", Line.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Router: Don't know how to handle %s.", Line.c_str());
     pSocket->SendString("ERROR");
     return false;
 }
@@ -1443,7 +1441,7 @@ void Router::RegisteredEventHandler(ServerSocket *pSocket, int DeviceID)
     DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(DeviceID);
     if( !pDevice )
     {
-        g_pPlutoLogger->Write(LV_WARNING,"Device: %d tried to register event handler but it doesn't exist",DeviceID);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,"Device: %d tried to register event handler but it doesn't exist",DeviceID);
         return;
     }
 
@@ -1458,13 +1456,13 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 
     DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(DeviceID);
     if( !pDevice )
-        g_pPlutoLogger->Write(LV_WARNING,"Device: %d tried to register but it doesn't exist",DeviceID);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,"Device: %d tried to register but it doesn't exist",DeviceID);
 
     if( pDevice && pDevice->m_bForceReloadOnFirstConnect )
     {
         pDevice->m_bForceReloadOnFirstConnect = false;
         pDevice->m_bIsReady=false;
-        g_pPlutoLogger->Write(LV_STATUS, "Controller %d's first connection since the server rebooted it, reloading.", DeviceID);
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Controller %d's first connection since the server rebooted it, reloading.", DeviceID);
         sl.Release();
         ReceivedMessage(NULL, new Message(0, DeviceID, PRIORITY_NORMAL, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_RELOAD, 0));
     }
@@ -1500,7 +1498,7 @@ void Router::DoReload()
 {
     m_bIsLoading=true;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Starting Reload....");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Starting Reload....");
 
     m_bClosed = true;
     // TODO - reload config
@@ -1523,7 +1521,7 @@ void Router::DoReload()
 
 void Router::DoLogRotation()
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "Starting log rotation...");
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Starting log rotation...");
 	PLUTO_SAFETY_LOCK(lm,m_ListenerMutex); // I don't know if this is needed, but DoReload uses it...
     ServerSocketMap::iterator iDC;
     for(iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
@@ -1555,17 +1553,17 @@ string Message::ToXML()
 	while( !m_bRunning && Timeout++<10 )
 	{
 		Sleep(500); // Give the listener socket a chance to start before we load the plugins
-		g_pPlutoLogger->Write(LV_STATUS, "Waiting for listener thread");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Waiting for listener thread");
 	}
 	if( !m_bRunning )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Could not start listening");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not start listening");
 		exit(1);
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "DCERouter Version: %s",VERSION);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DCERouter Version: %s",VERSION);
     RegisterAllPlugins();
     m_bIsLoading=false;
-    g_pPlutoLogger->Write(LV_STATUS, "Plug-ins loaded");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Plug-ins loaded");
 
     //TODO keep track of the 'status'..and set it here
 //  if(m_pCorpClient)
@@ -1583,7 +1581,7 @@ string Message::ToXML()
         Sleep(1000);
     }
 
-	g_pPlutoLogger->Write(LV_STATUS, "DCERouter will exit quit %d running %d reload %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DCERouter will exit quit %d running %d reload %d",
 		(int) m_bQuit, (int) m_bRunning, (int) m_bReload);
 
 	m_bQuit=true;
@@ -1592,7 +1590,7 @@ string Message::ToXML()
 
 	if (m_bReload)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Detected m_bReload=true %d %d",(int) m_bQuit,(int) m_bRunning);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Detected m_bReload=true %d %d",(int) m_bQuit,(int) m_bRunning);
 
 		DoReload();
 		Sleep(3000); // Wait 3 seconds for all devices to get the message before dropping the sockets
@@ -1606,7 +1604,7 @@ string Message::ToXML()
 	g_WatchDogFlag = true;
 	pthread_create(&watchdog_thread, NULL,WatchDogRoutine, NULL);
 
-	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: All Done!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoServer: All Done!");
     return bReload;
 }
 
@@ -1636,7 +1634,7 @@ bool Router::GetParameter(int ToDevice,int ParmType, string &sResult)
         PLUTO_SAFETY_LOCK(slConn,pSocket->m_ConnectionMutex);
         if (!pSocket->SendMessage(new Message(0, ToDevice, PRIORITY_NORMAL, MESSAGETYPE_DATAPARM_REQUEST, ParmType, 0)))
         {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending dataparm request to device %d",
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Socket %p failure sending dataparm request to device %d",
                 pSocket, ToDevice);
 
             // TODO :  The socket failed, core needs to remove client socket
@@ -1662,7 +1660,7 @@ bool Router::GetParameterWithDefinedMessage(Message *sendMessage, string &sResul
 	int messageID;
 	PLUTO_SAFETY_LOCK(slock,m_CoreMutex);
 
-    g_pPlutoLogger->Write(LV_CRITICAL, "GetParameterWithDefinedMessage %s", StringUtils::itos(sendMessage->m_dwID).c_str());
+    LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "GetParameterWithDefinedMessage %s", StringUtils::itos(sendMessage->m_dwID).c_str());
 	messageID = sendMessage->m_dwID;
 
     map<int,int>::iterator iRoute = m_Routing_DeviceToController.find(sendMessage->m_dwPK_Device_To);
@@ -1675,7 +1673,7 @@ bool Router::GetParameterWithDefinedMessage(Message *sendMessage, string &sResul
             PLUTO_SAFETY_LOCK(slConn,pServerSocket->m_ConnectionMutex);
             if (!pServerSocket->SendMessage(sendMessage)) //This evidentally overwrite sendMessage, do not use sendMessage after here
             {
-                g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending dataparm request to device %d", pServerSocket, sendMessage->m_dwPK_Device_To);
+                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Socket %p failure sending dataparm request to device %d", pServerSocket, sendMessage->m_dwPK_Device_To);
 
                 // TODO :  The socket failed, core needs to remove client socket
 
@@ -1701,14 +1699,14 @@ bool Router::GetParameterWithDefinedMessage(Message *sendMessage, string &sResul
 
 string Router::GetPublicIP()
 {
-    g_pPlutoLogger->Write(LV_STATUS,"Trying to obtain public IP");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"Trying to obtain public IP");
 #ifndef WIN32
     char buf[20];
     FILE* f = popen("wget -q -O - http://www.1control.com/cgi-bin/remoteaddress.pl", "r");
     if(f == NULL)
     {
 #endif
-        g_pPlutoLogger->Write(LV_WARNING, "Couldn't get the my public IP");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't get the my public IP");
         return "";
 #ifndef WIN32
     }
@@ -1719,7 +1717,7 @@ string Router::GetPublicIP()
         size_t len = strlen(buf);
         if(buf[len-1] == '\n');
             buf[len-1] = 0;
-        g_pPlutoLogger->Write(LV_CORPCLIENT, "My public IP is '%s'",buf);
+        LoggerWrapper::GetInstance()->Write(LV_CORPCLIENT, "My public IP is '%s'",buf);
         return string(buf);
     }
 #endif
@@ -1743,14 +1741,14 @@ void Router::AddMessageToQueue(Message *pMessage)
 {
     PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS,"AddMessageToQueue(ProcessQueue) adding message from %d to %d type %d id %d to queue size was: %d",
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"AddMessageToQueue(ProcessQueue) adding message from %d to %d type %d id %d to queue size was: %d",
         pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) m_MessageQueue.size());
 #endif
     m_MessageQueue.push_back(pMessage);
 	mm.Release();
     pthread_cond_broadcast(&m_MessageQueueCond);
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS,"AddMessageToQueue(ProcessQueue) sent broadcast");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"AddMessageToQueue(ProcessQueue) sent broadcast");
 #endif
 }
 
@@ -1762,11 +1760,11 @@ void Router::ProcessQueue()
         while(!m_bReload && m_MessageQueue.size()==0)
         {
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue going to sleep");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ProcessQueue going to sleep");
 #endif
 			mm.CondWait();
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue woke up with size: %d",(int) m_MessageQueue.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ProcessQueue woke up with size: %d",(int) m_MessageQueue.size());
 #endif
         }
 
@@ -1777,19 +1775,19 @@ g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue woke up with size: %d",(int) m_Mes
         Message *pMessage = m_MessageQueue.front();
         m_MessageQueue.pop_front();
 #ifdef DEBUG
-        g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue sending message from %d to %d type %d id %d to queue now size: %d",
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"ProcessQueue sending message from %d to %d type %d id %d to queue now size: %d",
             pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) m_MessageQueue.size());
 #endif
         mm.Release();
 
         SafetyMessage pSafetyMessage(pMessage);
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue Calling realsendmessage from queue");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ProcessQueue Calling realsendmessage from queue");
 #endif
         RealSendMessage(NULL,&pSafetyMessage);
         mm.Relock();
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue finished Calling realsendmessage from queue");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ProcessQueue finished Calling realsendmessage from queue");
 #endif
     }
 }
@@ -1888,7 +1886,7 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 				Pipe *pPipe = (*it).second;
 
 	#ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS, "Walking the command pipe: Command input: %d Command_Output: %d Device From: %d, FK_Pipe: %d",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Walking the command pipe: Command input: %d Command_Output: %d Device From: %d, FK_Pipe: %d",
 					pPipe->m_pCommand_Input ? pPipe->m_pCommand_Input->m_dwPK_Command : 0,
 					pPipe->m_pCommand_Output ? pPipe->m_pCommand_Output->m_dwPK_Command : 0,
 					pPipe->m_pDevice_From->m_dwPK_Device);
@@ -1966,7 +1964,7 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 					(*(*pSafetyMessage))->m_dwPK_Device_To = pPipe->m_pDevice_To->m_dwPK_Device;
 	#ifdef DEBUG
 					DeviceData_Router *pDevice = m_mapDeviceData_Router_Find((*(*pSafetyMessage))->m_dwPK_Device_To);
-					g_pPlutoLogger->Write(LV_ACTION,"Forwarding %d Command:\x1b[35;1m%s\x1b[0m up pipe to %d (\x1b[36;1m%s\x1b[0m)",
+					LoggerWrapper::GetInstance()->Write(LV_ACTION,"Forwarding %d Command:\x1b[35;1m%s\x1b[0m up pipe to %d (\x1b[36;1m%s\x1b[0m)",
 						pCommand->m_dwPK_Command,pCommand->m_sDescription.c_str(),
 						(*(*pSafetyMessage))->m_dwPK_Device_To,pDevice!=NULL ? pDevice->m_sDescription.c_str() : "*unknown*");
 	#endif
@@ -2009,7 +2007,7 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
         HandleCommandPipes(pSocket,pSafetyMessage);
 		if( pDeviceTo && pDeviceTo->m_bIgnoreOnOff && ((*(*pSafetyMessage))->m_dwID==COMMAND_Generic_On_CONST || (*(*pSafetyMessage))->m_dwID==COMMAND_Generic_Off_CONST) )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Skipping on/off's to device %d", pDeviceTo->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Skipping on/off's to device %d", pDeviceTo->m_dwPK_Device);
 			return;
 		}
 	}
@@ -2022,19 +2020,19 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 			Message *pMessage = (*(*pSafetyMessage))->m_vectExtraMessages[s];
 			if( pMessage )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Setting route to for message %p",pMessage);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting route to for message %p",pMessage);
 				(*(*pSafetyMessage))->m_vectExtraMessages[s]->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
 			}
 		}
 	}
 #ifdef DEBUG
-  g_pPlutoLogger->Write(LV_STATUS,"begin realsendmessage before lock");
+  LoggerWrapper::GetInstance()->Write(LV_STATUS,"begin realsendmessage before lock");
 #endif
     PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
     int RouteToDevice = DEVICEID_NULL;
 
 #ifdef DEBUG
-  g_pPlutoLogger->Write(LV_STATUS,"realsendmessage from %d to %d type %d id %d ",
+  LoggerWrapper::GetInstance()->Write(LV_STATUS,"realsendmessage from %d to %d type %d id %d ",
       (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 #endif
 
@@ -2059,7 +2057,7 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
     }
     slCore.Release();
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after core release from %d to %d type %d id %d ",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"realsendmessage after core release from %d to %d type %d id %d ",
   (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 #endif
     if (RouteToDevice > 0)
@@ -2072,7 +2070,7 @@ g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after core release from %d to %
         {
             {
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"realsendmessage before device conn mutex from %d to %d type %d id %d ",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"realsendmessage before device conn mutex from %d to %d type %d id %d ",
   (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 #endif
 
@@ -2080,9 +2078,9 @@ g_pPlutoLogger->Write(LV_STATUS,"realsendmessage before device conn mutex from %
                 DeviceData_Router *pDest = m_mapDeviceData_Router_Find(pServerSocket->m_dwPK_Device);
                 if( !pDest )
                 {
-                    g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find destination device: %d",pServerSocket->m_dwPK_Device);
+                    LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find destination device: %d",pServerSocket->m_dwPK_Device);
                 }
-                g_pPlutoLogger->Write(LV_SOCKET, "Ready to send message type %d id %d to %d %s on socket %d(%p) using lock: %p",
+                LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Ready to send message type %d id %d to %d %s on socket %d(%p) using lock: %p",
                     (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pServerSocket->m_dwPK_Device,
                     (pDest ? pDest->m_sDescription.c_str() : "*UNKNOWN DEVICE*"),
                     pServerSocket->m_iSocketCounter,pServerSocket,&pServerSocket->m_ConnectionMutex);
@@ -2094,7 +2092,7 @@ g_pPlutoLogger->Write(LV_STATUS,"realsendmessage before device conn mutex from %
 #endif
 
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after device conn mutex from %d to %d type %d id %d ",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"realsendmessage after device conn mutex from %d to %d type %d id %d ",
   (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 #endif
 
@@ -2103,7 +2101,7 @@ g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after device conn mutex from %d
                 clock_t clk = clock();
 #endif
     #ifdef LL_DEBUG
-                g_pPlutoLogger->Write(LV_SOCKET, "%d Sending....", pDeviceConnection->m_dwPK_Device);
+                LoggerWrapper::GetInstance()->Write(LV_SOCKET, "%d Sending....", pDeviceConnection->m_dwPK_Device);
     #endif
                 int MessageType = (*(*pSafetyMessage))->m_dwMessage_Type;
                 int ID = (*(*pSafetyMessage))->m_dwID;
@@ -2113,12 +2111,12 @@ g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after device conn mutex from %d
                 bool bResult = pServerSocket->SendMessage(pSafetyMessage->m_pMessage,false);
 
 #ifdef DEBUG
-                g_pPlutoLogger->Write(LV_SOCKET, "Response %d to realsendmessage type %d id %d socket %d using lock: %p  expected response: %d",
+                LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Response %d to realsendmessage type %d id %d socket %d using lock: %p  expected response: %d",
                     bResult ? 1 : 0,MessageType,ID,pServerSocket->m_Socket,&pServerSocket->m_ConnectionMutex,(int) (*(*pSafetyMessage))->m_eExpectedResponse);
 #endif
 
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %d %s on socket %d using lock: %p",
+LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %d %s on socket %d using lock: %p",
     (bResult ? 1 : 0),
     (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pServerSocket->m_dwPK_Device,
     (pDest ? pDest->m_sDescription.c_str() : "*UNKNOWN DEVICE*"),
@@ -2126,7 +2124,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
 #endif
                 if (!bResult)
                 {
-                    g_pPlutoLogger->Write(LV_WARNING, "Socket %p failure sending message to device %d", pServerSocket,pServerSocket->m_dwPK_Device);
+                    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Socket %p failure sending message to device %d", pServerSocket,pServerSocket->m_dwPK_Device);
 					pServerSocket->Close();
                     bServerSocket_Failed = true;;
                 }
@@ -2135,12 +2133,12 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
 #ifdef DEBUG
                     clock_t clk2 = clock();
                     if( clk2-clk>(CLOCKS_PER_SEC*4) )
-                        g_pPlutoLogger->Write(LV_CRITICAL,"Took %d secs (%d ticks) to send message to %d",(int) ((clk2-clk)/CLOCKS_PER_SEC),(int) (clk2-clk),pServerSocket->m_dwPK_Device);
+                        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Took %d secs (%d ticks) to send message to %d",(int) ((clk2-clk)/CLOCKS_PER_SEC),(int) (clk2-clk),pServerSocket->m_dwPK_Device);
 #endif
 
                     if( (*(*pSafetyMessage))->m_eExpectedResponse==ER_None )
                     {
-                        g_pPlutoLogger->Write(LV_SOCKET,"No response expected.  returning");
+                        LoggerWrapper::GetInstance()->Write(LV_SOCKET,"No response expected.  returning");
                         return;
                     }
                     string sResponse;
@@ -2149,25 +2147,25 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
 
 #ifdef DEBUG
                         if( clock()-clk2>(CLOCKS_PER_SEC*4) )
-                            g_pPlutoLogger->Write(LV_CRITICAL,"Took %d secs (ticks: %d) to receive response from %d",(int) ((clock()-clk2)/CLOCKS_PER_SEC),(int) (clock()-clk2),pServerSocket->m_dwPK_Device);
-                        g_pPlutoLogger->Write(LV_STATUS, "%d Destination realsendmessage responded with %s.", pServerSocket->m_dwPK_Device, sResponse.c_str());
+                            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Took %d secs (ticks: %d) to receive response from %d",(int) ((clock()-clk2)/CLOCKS_PER_SEC),(int) (clock()-clk2),pServerSocket->m_dwPK_Device);
+                        LoggerWrapper::GetInstance()->Write(LV_STATUS, "%d Destination realsendmessage responded with %s.", pServerSocket->m_dwPK_Device, sResponse.c_str());
 #endif
 
                         if (sResponse.substr(0,7)  == "MESSAGE" && sResponse.size()>7 )
                         {
 #ifdef DEBUG
-                            g_pPlutoLogger->Write(LV_STATUS, "1 pSocket=%p", pSocket);
+                            LoggerWrapper::GetInstance()->Write(LV_STATUS, "1 pSocket=%p", pSocket);
 #endif
                             if (!(*(*pSafetyMessage))->m_bRespondedToMessage)
                             {
 								DCE::Message *pMessage = pServerSocket->ReceiveMessageRaw(sResponse);
 								if( !pMessage )
 								{
-									g_pPlutoLogger->Write(LV_CRITICAL,"Sent message, got response but it's not a real message: %s",sResponse.c_str());
+									LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Sent message, got response but it's not a real message: %s",sResponse.c_str());
 								}
 								else if ( pSocket && pSocket->SendMessage(pMessage) == false )
 								{
-									g_pPlutoLogger->Write(LV_WARNING, "Failed to forward response message properly" );
+									LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to forward response message properly" );
 								}
 								else if( !pSocket )  // This must be past in internally.  Just merge the resulting output values
 								{
@@ -2181,7 +2179,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                         else if (sResponse.substr(0,7)=="BYE" && MessageType==MESSAGETYPE_SYSCOMMAND )
                         {
                             // delete the other sockets
-                            g_pPlutoLogger->Write(LV_STATUS, "Got BYE in response to message.  Dropping socket");
+                            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got BYE in response to message.  Dropping socket");
                             DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pServerSocket->m_dwPK_Device);
                             // cause the server to remove the socket
 // AB 1-4-2004 TODO -- have to fix this.  it crashed???
@@ -2198,16 +2196,16 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                             }
                             // If the socket was waiting for a message, we'll just report an error at the end of the loop if a response wasn't already sent
 #ifdef DEBUG
-                            g_pPlutoLogger->Write(LV_STATUS, "3 iMessageType= %d pSocket=%p ",MessageType, pSocket);
+                            LoggerWrapper::GetInstance()->Write(LV_STATUS, "3 iMessageType= %d pSocket=%p ",MessageType, pSocket);
 #endif
                             // This wasn't a request, so the sender is not concerned with the response.  No need to keep it waiting
                             // around for a reponse. We'll just log it.
-    //                      g_pPlutoLogger->Write(LV_CRITICAL, "Destination responded with %s.", sResponse.c_str());
+    //                      LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Destination responded with %s.", sResponse.c_str());
                         }
                     }
                     else
                     {
-                        g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure waiting for response to message from device %d type %d id %d",
+                        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Socket %p failure waiting for response to message from device %d type %d id %d",
                             pServerSocket,pServerSocket->m_dwPK_Device,
 							(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
                         bServerSocket_Failed = true;
@@ -2215,7 +2213,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                 }
             }
 #ifdef DEBUG
-          g_pPlutoLogger->Write(LV_STATUS, "realsendmessage - before failed socket");
+          LoggerWrapper::GetInstance()->Write(LV_STATUS, "realsendmessage - before failed socket");
 #endif
 
 			if (bServerSocket_Failed)
@@ -2223,7 +2221,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
 				if( pServerSocket->m_dwPK_Device && m_mapPlugIn.find(pServerSocket->m_dwPK_Device)!=m_mapPlugIn.end() )
 				{
 					// We've got a big problem -- a plugin has stopped responding so we'll need to reload
-					g_pPlutoLogger->Write(LV_CRITICAL, "Plugin %d stopped responding",pServerSocket->m_dwPK_Device );
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Plugin %d stopped responding",pServerSocket->m_dwPK_Device );
 					Reload();
 					Quit();
 					return;
@@ -2234,14 +2232,14 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
         }
         else
         {
-            g_pPlutoLogger->Write(LV_WARNING, "The target device %d (routed to %d) has not registered.",(*(*pSafetyMessage))->m_dwPK_Device_To,RouteToDevice);
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "The target device %d (routed to %d) has not registered.",(*(*pSafetyMessage))->m_dwPK_Device_To,RouteToDevice);
             // If this is a request we have to let the sender know so it doesn't wait in vain.
             // also, send responses back to corpserver
         }
     }
     ErrorResponse(pSocket,(*(*pSafetyMessage)));
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "realsendmessage - end");
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "realsendmessage - end");
 #endif
 }
 
@@ -2253,20 +2251,20 @@ void Router::ErrorResponse(Socket *pSocket,Message *pMessage)
     if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
     {
         pMessage->m_bRespondedToMessage=true;
-        g_pPlutoLogger->Write(LV_WARNING,"Sender: %d sent message type: %d ID: %d and expected a message reply from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,"Sender: %d sent message type: %d ID: %d and expected a message reply from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
         Message *pMessageOut=new Message(0,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,-1,0);
         pSocket->SendMessage(pMessageOut);
     }
     if( pMessage->m_eExpectedResponse==ER_ReplyString )
     {
         pMessage->m_bRespondedToMessage=true;
-        g_pPlutoLogger->Write(LV_WARNING,"Sender: %d sent message type: %d ID: %d and expected a reply string from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,"Sender: %d sent message type: %d ID: %d and expected a reply string from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
         pSocket->SendString("No Response");
     }
     if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation )
     {
         pMessage->m_bRespondedToMessage=true;
-        g_pPlutoLogger->Write(LV_WARNING,"Sender: %d sent message type: %d ID: %d and expected a confirmation from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,"Sender: %d sent message type: %d ID: %d and expected a confirmation from %d",pMessage->m_dwPK_Device_From,pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_To);
         pSocket->SendString("Delivery failed");
     }
 }
@@ -2283,7 +2281,7 @@ void Router::ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceDat
 
     if (MasterDeviceID == DEVICEID_DCEROUTER)
     {
-        g_pPlutoLogger->Write(LV_STATUS,"Created the server device: %d %s",pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created the server device: %d %s",pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str());
         m_Routing_DeviceToController[pDevice->m_dwPK_Device] = pDevice->m_dwPK_Device;
     }
     else
@@ -2296,13 +2294,13 @@ void Router::ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceDat
 
 		if( pDevice->m_bImplementsDCE && !pDevice->m_bIsEmbedded )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Created DCE device %d %s (mdl: %d) routed to: %d (%s)",pDevice->m_dwPK_Device,
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created DCE device %d %s (mdl: %d) routed to: %d (%s)",pDevice->m_dwPK_Device,
 				pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,pDevice->m_dwPK_Device,sTop.c_str());
 			m_Routing_DeviceToController[pDevice->m_dwPK_Device] = pDevice->m_dwPK_Device;
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Created device %d %s (mdl: %d) routed to: %d (%s)",pDevice->m_dwPK_Device,
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created device %d %s (mdl: %d) routed to: %d (%s)",pDevice->m_dwPK_Device,
 				pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,MasterDeviceID,sTop.c_str());
 			m_Routing_DeviceToController[pDevice->m_dwPK_Device] = MasterDeviceID;
 		}
@@ -2366,7 +2364,7 @@ void Router::Configure()
 		{
 			if( pCat2->m_pDeviceCategory_Parent==pCat )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Category %d recurses",pCat->m_dwPK_DeviceCategory);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Category %d recurses",pCat->m_dwPK_DeviceCategory);
 				pCat->m_pDeviceCategory_Parent = NULL;
 				pCat->m_dwPK_DeviceCategory_Parent = 0;
 		        Row_DeviceCategory *pRow_DeviceCategory = 
@@ -2386,7 +2384,7 @@ void Router::Configure()
 		Row_CommandCategory *pRow_CommandCategory = pRow_Command->FK_CommandCategory_getrow();
 		if( !pRow_CommandCategory )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Command %d has no category",pRow_Command->PK_Command_get());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Command %d has no category",pRow_Command->PK_Command_get());
 			continue;
 		}
         Command *pCommand = new Command(pRow_Command->PK_Command_get(),pRow_Command->Description_get(),
@@ -2424,7 +2422,7 @@ void Router::Configure()
 
 		if(NULL == pRow_Device->FK_DeviceTemplate_getrow())
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Got a device %d with wrong device template %d", 
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got a device %d with wrong device template %d", 
 				pRow_Device->PK_Device_get(), pRow_Device->FK_DeviceTemplate_get());
 			continue;
 		}
@@ -2699,7 +2697,7 @@ void Router::Configure()
     vector<Row_CommandGroup *> vectRow_CommandGroup;
 	m_pRow_Installation = GetDatabase()->Installation_get()->GetRow(m_dwPK_Installation);
 	if (m_pRow_Installation == NULL)
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get data from Installation(PK_Installation=%d).", m_dwPK_Installation);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get data from Installation(PK_Installation=%d).", m_dwPK_Installation);
 	// TODO: clean exit if m_pRow_Installation == NULL; next line segfaults if this condition is true
     m_pRow_Installation->CommandGroup_FK_Installation_getrows(&vectRow_CommandGroup);  // All rows
     for(size_t s=0;s<vectRow_CommandGroup.size();++s)
@@ -2718,7 +2716,7 @@ void Router::Configure()
 
 			if( !pCommandGroup_Command->m_pCommand )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"CommandGroup %d with invalid command",pRow_CommandGroup->PK_CommandGroup_get());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CommandGroup %d with invalid command",pRow_CommandGroup->PK_CommandGroup_get());
 				delete pCommandGroup_Command;
 				continue; // Shouldn't happen
 			}
@@ -2780,7 +2778,7 @@ string Router::GetDevicesByDeviceTemplate(DeviceData_Router *pDeviceData_From,in
         if( !pDevice )
         {
 #pragma warning("this shouldn't happen");
-            g_pPlutoLogger->Write(LV_CRITICAL,"m_mapDeviceData_Router has a NULL assciated with id: %d", (*itDevice).first);
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"m_mapDeviceData_Router has a NULL assciated with id: %d", (*itDevice).first);
             continue;
         }
 
@@ -2812,7 +2810,7 @@ string Router::GetDevicesByCategory(DeviceData_Router *pDeviceData_From,int PK_D
 if( !pDevice )
 {
 #pragma warning("this shouldn't happen");
-g_pPlutoLogger->Write(LV_CRITICAL,"m_mapDeviceData_Router has a NULL in it");
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"m_mapDeviceData_Router has a NULL in it");
 continue;
 }
         if( !pDevice->WithinCategory(PK_DeviceCategory) ||
@@ -2854,7 +2852,7 @@ void Router::AlarmCallback(int id, void* param)
 int Router::GetDeviceID( int iPK_DeviceTemplate, string sMacAddress, string sIPAddress )
 {
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"Looking for device with temp: %d ip %s mac",iPK_DeviceTemplate,sIPAddress.c_str(),sMacAddress.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Looking for device with temp: %d ip %s mac",iPK_DeviceTemplate,sIPAddress.c_str(),sMacAddress.c_str());
 #endif
 	if( sIPAddress.length()==0 && sMacAddress.length()==0 ) // We gotta have something to go on
 		return 0;
@@ -2910,7 +2908,7 @@ int Router::ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate )
 
 void Router::PingFailed( ServerSocket *pServerSocket, int dwPK_Device )
 {
-	g_pPlutoLogger->Write( LV_CRITICAL, "Router::PingFailed %p %s %d", 
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Router::PingFailed %p %s %d", 
 		pServerSocket, pServerSocket->m_sName.c_str(), dwPK_Device );
 
 	pServerSocket->IncrementReferences(); // The ping is one thing that doesn't keep an increment on the counter.  Increment it since RemoveAndDeleteSocket
@@ -2920,7 +2918,7 @@ void Router::PingFailed( ServerSocket *pServerSocket, int dwPK_Device )
 
 void Router::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelete )
 {
-	g_pPlutoLogger->Write( LV_WARNING, "Router::RemoveAndDeleteSocket %p %d", pServerSocket, pServerSocket ? pServerSocket->m_dwPK_Device : 0 );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Router::RemoveAndDeleteSocket %p %d", pServerSocket, pServerSocket ? pServerSocket->m_dwPK_Device : 0 );
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
 	string sSQL = "UPDATE Device SET Registered=0,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(pServerSocket->m_dwPK_Device);
 	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
@@ -2970,7 +2968,7 @@ void Router::CheckForRecursiveControlledVia(DeviceData_Router *pDevice,vector<in
 	for(size_t s=0;s<pvect_Device_ControlledVia->size();++s)
 		if( (*pvect_Device_ControlledVia)[s]==pDevice->m_dwPK_Device )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Device %d is recursive controlled via",pDevice->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Device %d is recursive controlled via",pDevice->m_dwPK_Device);
 			pDevice->m_pDevice_ControlledVia=NULL;
 			pDevice->m_dwPK_Device_ControlledVia=0;
 			pDevice->m_pRow_Device->FK_Device_ControlledVia_setNull(true);
@@ -2988,7 +2986,7 @@ void Router::CheckForRecursiveRouteTo(DeviceData_Router *pDevice,vector<int> *pv
 	for(size_t s=0;s<pvect_Device_RouteTo->size();++s)
 		if( (*pvect_Device_RouteTo)[s]==pDevice->m_dwPK_Device )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Device %d is recursive route to",pDevice->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Device %d is recursive route to",pDevice->m_dwPK_Device);
 			pDevice->m_pDevice_RouteTo=NULL;
 			pDevice->m_pRow_Device->FK_Device_RouteTo_setNull(true);
 			pDevice->m_pRow_Device->Table_Device_get()->Commit();
@@ -3009,7 +3007,7 @@ void Router::CheckForRecursivePipes(DeviceData_Router *pDevice,vector<int> *pvec
 		for(size_t s=0;s<pvect_Device_Pipe->size();++s)
 			if( (*pvect_Device_Pipe)[s]==pDevice->m_dwPK_Device )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Device %d is recursive pipe",pDevice->m_dwPK_Device);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Device %d is recursive pipe",pDevice->m_dwPK_Device);
 				bPipesRecurse=true;
 				Row_Device_Device_Pipe *pRow_Device_Device_Pipe = m_pDatabase_pluto_main->Device_Device_Pipe_get()->GetRow(pPipe->m_pDevice_From->m_dwPK_Device,pPipe->m_pDevice_To->m_dwPK_Device,pPipe->m_PK_Pipe);
 				if( pRow_Device_Device_Pipe )
@@ -3058,7 +3056,7 @@ void Router::ShowSockets()
 		if( pSocketInfo->m_tDestroyed==0 )
 			continue;
 		string sDestroyed=asctime(localtime(&pSocketInfo->m_tDestroyed));
-		g_pPlutoLogger->Write(LV_DEBUG,"CLOSED SOCKET: %p #%d %s\nComment %s Device %s\nCreated %s Destroyed %s Log %s\nLast In %s\nLast Out %s",
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"CLOSED SOCKET: %p #%d %s\nComment %s Device %s\nCreated %s Destroyed %s Log %s\nLast In %s\nLast Out %s",
 			pSocketInfo->m_pSocket,pSocketInfo->m_iSocketCounter,pSocketInfo->m_sName.c_str(),
 			pSocketInfo->m_sComment.c_str(),pSocketInfo->m_sDevice.c_str(),
 			asctime(localtime(&pSocketInfo->m_tCreated)),sDestroyed.c_str(),
@@ -3069,7 +3067,7 @@ void Router::ShowSockets()
 		SocketInfo *pSocketInfo = it->second;
 		if( pSocketInfo->m_tDestroyed!=0 )
 			continue;
-		g_pPlutoLogger->Write(LV_DEBUG,"OPEN SOCKET: %p #%d %s\nComment %s Device %s\nCreated %s Log %s\nLast In %s\nLast Out %s",
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"OPEN SOCKET: %p #%d %s\nComment %s Device %s\nCreated %s Log %s\nLast In %s\nLast Out %s",
 			pSocketInfo->m_pSocket,pSocketInfo->m_iSocketCounter,pSocketInfo->m_sName.c_str(),
 			pSocketInfo->m_sComment.c_str(),pSocketInfo->m_sDevice.c_str(),
 			asctime(localtime(&pSocketInfo->m_tCreated)),

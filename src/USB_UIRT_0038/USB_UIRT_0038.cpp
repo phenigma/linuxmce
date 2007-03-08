@@ -168,7 +168,7 @@ void WINAPI IRReceiveCallback (char *IREventStr, void *userData)
 {
 	g_pUsbUirt->OurCallback(IREventStr);
 
-	g_pPlutoLogger->Write(LV_STATUS, "<IR Receive: Code = %s, UserData = %08x!!!\n", IREventStr, (UINT32)userData);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "<IR Receive: Code = %s, UserData = %08x!!!\n", IREventStr, (UINT32)userData);
 }
 
 /*****************************************************************************/
@@ -184,7 +184,7 @@ void WINAPI IRLearnCallback (unsigned int progress, unsigned int sigQuality, uns
 	// Got something from the learn., lets reset our clock. 
 	
 	g_pUsbUirt->m_tLearningStarted = clock();
-	g_pPlutoLogger->Write(LV_STATUS,"<Learn Progress: %d%%, Signal = %d%%, Freq = %ld, UserData = %08x!!!\n", progress, sigQuality & 0xff, carrierFreq, (UINT32)userData);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"<Learn Progress: %d%%, Signal = %d%%, Freq = %ld, UserData = %08x!!!\n", progress, sigQuality & 0xff, carrierFreq, (UINT32)userData);
 }
 
 
@@ -268,25 +268,25 @@ bool USB_UIRT_0038::GetConfig()
 		strcpy(devicePath, TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
 	if (devicePath[0]==0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "No port specified.");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No port specified.");
 		return false;
 	}
 #else
 	devicePath[0]=0;
 #endif
 
-	g_pPlutoLogger->Write(LV_STATUS,"Opening on port %s",devicePath);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Opening on port %s",devicePath);
 
 	if (!loadDLL())
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to load uuirtdrv,dll!\n");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ERROR: Unable to load uuirtdrv,dll!\n");
 		Sleep(1000);
 		return 0;
 	}
 
 	if (!fn_UUIRTGetDrvInfo(&drvVersion))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to retrieve uuirtdrv version!\n");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ERROR: Unable to retrieve uuirtdrv version!\n");
 		Sleep(1000);
 		unLoadDLL();
 		return 0;
@@ -294,7 +294,7 @@ bool USB_UIRT_0038::GetConfig()
 
 	if (drvVersion != 0x0100)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Invalid uuirtdrv version!\n");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ERROR: Invalid uuirtdrv version!\n");
 		Sleep(1000);
 		unLoadDLL();
 		return 0;
@@ -313,23 +313,23 @@ bool USB_UIRT_0038::GetConfig()
 
 		if (err == UUIRTDRV_ERR_NO_DLL)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to find USB-UIRT Driver. Please make sure driver is Installed!\n");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ERROR: Unable to find USB-UIRT Driver. Please make sure driver is Installed!\n");
 		}
 		else if (err == UUIRTDRV_ERR_NO_DEVICE)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to connect to USB-UIRT device on %s!  Please ensure device is connected to the computer!\n",devicePath);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ERROR: Unable to connect to USB-UIRT device on %s!  Please ensure device is connected to the computer!\n",devicePath);
 		}
 		else if (err == UUIRTDRV_ERR_NO_RESP)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to communicate with USB-UIRT device %s!  Please check connections and try again.  If you still have problems, try unplugging and reconnecting your USB-UIRT.  If problem persists, contact Technical Support!\n",devicePath);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ERROR: Unable to communicate with USB-UIRT device %s!  Please check connections and try again.  If you still have problems, try unplugging and reconnecting your USB-UIRT.  If problem persists, contact Technical Support!\n",devicePath);
 		}
 		else if (err == UUIRTDRV_ERR_VERSION)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Your USB-UIRT's firmware is not compatible with this API DLL. Please verify you are running the latest API DLL and that you're using the latest version of USB-UIRT firmware!  If problem persists, contact Technical Support!\n");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ERROR: Your USB-UIRT's firmware is not compatible with this API DLL. Please verify you are running the latest API DLL and that you're using the latest version of USB-UIRT firmware!  If problem persists, contact Technical Support!\n");
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"ERROR: Unable to initialize USB-UIRT (unknown error)!\n");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ERROR: Unable to initialize USB-UIRT (unknown error)!\n");
 		}
 
 		unLoadDLL();
@@ -364,7 +364,7 @@ bool USB_UIRT_0038::GetConfig()
 			{
 				vector<string> vectCodes;
 				int PK_DeviceRemote = atoi(vectRemoteConfigs[0].c_str());
-				g_pPlutoLogger->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
 				StringUtils::Tokenize(vectRemoteConfigs[2],"\r\n",vectCodes);
 				for(size_t s=0;s<vectCodes.size();++s)
 				{
@@ -375,7 +375,7 @@ bool USB_UIRT_0038::GetConfig()
 						string sCode = StringUtils::Tokenize(vectCodes[s]," ",pos);
 						m_mapCodesToButtons[sCode] = make_pair<string,int> (sButton,PK_DeviceRemote);
 						// Jon -- sCode will the code in whatever format you want.  sButton is the button name it corresponds to
-						g_pPlutoLogger->Write(LV_STATUS,"Code: %s will fire button %s",sCode.c_str(),sButton.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Code: %s will fire button %s",sCode.c_str(),sButton.c_str());
 					}
 				}
 			}
@@ -395,7 +395,7 @@ bool USB_UIRT_0038::GetConfig()
 		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
 			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_USBUIRT_Remote_Controls_CONST )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Using remote %d %s",pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Using remote %d %s",pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str());
 			string sType;
 			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat2(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
 				pDevice->m_dwPK_Device,DEVICEDATA_Remote_Layout_CONST,true,&sType);
@@ -418,7 +418,7 @@ bool USB_UIRT_0038::GetConfig()
 						string sCode = StringUtils::Tokenize(vectCodes[s]," ",pos);
 						m_mapCodesToButtons[sCode] = make_pair<string,int> (sButton,pDevice->m_dwPK_Device);
 						// Jon -- sCode will the code in whatever format you want.  sButton is the button name it corresponds to
-						g_pPlutoLogger->Write(LV_STATUS,"Code: %s will fire button %s",sCode.c_str(),sButton.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Code: %s will fire button %s",sCode.c_str(),sButton.c_str());
 					}
 				}
 			}
@@ -594,7 +594,7 @@ void USB_UIRT_0038::SendIR(string Port, string IRCode,int iRepeat)
 		pBuffer = FileUtils::ReadFileIntoBuffer(pBuffer,size);
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS,"UsbUirt Sending with repeat %d: %s",iRepeat,pBuffer);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UsbUirt Sending with repeat %d: %s",iRepeat,pBuffer);
 
 
 	if (!fn_UUIRTTransmitIR(hDrvHandle,
@@ -607,7 +607,7 @@ void USB_UIRT_0038::SendIR(string Port, string IRCode,int iRepeat)
 										NULL /* reserved2 */
 										))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"UsbUirt transmit failed sending %s!",pBuffer);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UsbUirt transmit failed sending %s!",pBuffer);
 	}
 
 	// Jon this function needs to hook into your stuff to send the code contained in pBuffer
@@ -617,7 +617,7 @@ void USB_UIRT_0038::SendIR(string Port, string IRCode,int iRepeat)
                             size);*/
 
 //    if ( res != 0 ) 
-//		g_pPlutoLogger->Write(LV_CRITICAL,"UsbUirt failed Sending(%d): %s",res,IRCode.c_str());
+//		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UsbUirt failed Sending(%d): %s",res,IRCode.c_str());
 
 	if( bDeleteBuffer )
 		delete pBuffer;
@@ -649,7 +649,7 @@ void USB_UIRT_0038::OurCallback(const char *szButton)
 
 	map<string,pair<string,int> >::iterator it=m_mapCodesToButtons.find(szButton);
 	if( it==m_mapCodesToButtons.end() )
-		g_pPlutoLogger->Write(LV_WARNING,"Cannot find anything for IR %s",szButton);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Cannot find anything for IR %s",szButton);
 	else
 	{
 		ReceivedCode(it->second.second,it->second.first.c_str());
@@ -678,17 +678,17 @@ void USB_UIRT_0038::LearningWatchdogThread()
 	}
 	if (m_LrnAbort == 0)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Forceful expire of learn.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Forceful expire of learn.");
 		m_LrnAbort = -1;
 	}
 }
 
 void USB_UIRT_0038::LearningThread()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "\nCalling LearnIR...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "\nCalling LearnIR...");
 	if (!fn_UUIRTLearnIR(hDrvHandle, UUIRTDRV_IRFMT_PRONTO, gLearnBuffer, IRLearnCallback, (void *)0x5a5a5a5a, &m_LrnAbort, 0, NULL, NULL))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"*** ERROR calling UUIRTLearnIR! ***\n");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"*** ERROR calling UUIRTLearnIR! ***\n");
 	}
 	else
 	{
@@ -702,7 +702,7 @@ void USB_UIRT_0038::LearningThread()
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Learned code device %d command %d orbiter %d text %d code %s",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Learned code device %d command %d orbiter %d text %d code %s",
 							m_iPK_Device_Learning,m_iPK_Command_Learning,m_iPK_Orbiter,m_iPK_Text,gLearnBuffer);
 				DCE::CMD_Store_Infrared_Code CMD_Store_Infrared_Code(m_dwPK_Device,m_dwPK_Device_IRPlugin,
 						m_iPK_Device_Learning,gLearnBuffer,m_iPK_Command_Learning);
@@ -718,7 +718,7 @@ void USB_UIRT_0038::LearningThread()
 		}			
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "...*** LEARN ABORTED ***\n");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "...*** LEARN ABORTED ***\n");
 		}
 	}
 	m_LrnAbort = 1;
@@ -728,25 +728,25 @@ void USB_UIRT_0038::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,in
 {
 	if( !PK_Device || !PK_Command || !m_dwPK_Device_IRPlugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot learn without a device, command & IR Plugin %d %d %d",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot learn without a device, command & IR Plugin %d %d %d",
 			PK_Device, PK_Command, m_dwPK_Device_IRPlugin);
 		return;
 	}
 	m_iPK_Device_Learning=PK_Device; m_iPK_Command_Learning=PK_Command;
 	m_iPK_Orbiter=PK_Orbiter; m_iPK_Text=PK_Text;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Start learning Command %d Device %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Start learning Command %d Device %d",
 		PK_Command,PK_Device);
 
 	pthread_t LearnThreadHandle;
 	m_LrnAbort = 0;
 	if (pthread_create(&LearnThreadHandle, NULL, (void*(*)(void*))LearnWatchdogThread, this) != 0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"\n\t*** ERROR creating Learn Watchdog Thread! ***\n");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"\n\t*** ERROR creating Learn Watchdog Thread! ***\n");
 	}
 	if (pthread_create(&LearnThreadHandle, NULL, (void*(*)(void*))LearnThread, this) != 0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"\n\t*** ERROR creating Learn Thread! ***\n");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"\n\t*** ERROR creating Learn Thread! ***\n");
 	}
 }
 
@@ -767,7 +767,7 @@ void USB_UIRT_0038::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *
 //<-dceag-c687-e->
 {
 	m_cCurrentScreen=(char) iValue;
-	g_pPlutoLogger->Write(LV_STATUS,"USB_UIRT_0038::CMD_Set_Screen_Type Screen type now %c",m_cCurrentScreen);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"USB_UIRT_0038::CMD_Set_Screen_Type Screen type now %c",m_cCurrentScreen);
 }
 
 

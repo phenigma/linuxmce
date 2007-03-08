@@ -114,11 +114,11 @@ BusConnector::Open(const char* serport,int serbps, eParityBitStop serparity) {
 		}
    	
 	} catch(...) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed Opening EIB serial port: %s", serport);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed Opening EIB serial port: %s", serport);
 		return -1;
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS, "EIB serial port opened.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "EIB serial port opened.");
 	return 0;
 }
 

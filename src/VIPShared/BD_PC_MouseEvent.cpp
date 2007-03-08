@@ -82,11 +82,11 @@ bool BD_PC_MouseEvent::ProcessCommand(BDCommandProcessor *pProcessor)
 
 	if(NULL == pOrbiter || NULL == pOrbiter->m_pOrbiter || pOrbiter->m_pOrbiter->m_bQuit_get())
 	{
-        g_pPlutoLogger->Write(LV_WARNING, "No MouseEvent command will be dispatch: Orbiter was killed or is exiting.");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "No MouseEvent command will be dispatch: Orbiter was killed or is exiting.");
 		return false;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "Received BD_PC_MouseEvent from PlutoMO.");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received BD_PC_MouseEvent from PlutoMO.");
 	OrbiterBluetooth *pOrbiterBluetooth = dynamic_cast<OrbiterBluetooth *>(pOrbiter->m_pOrbiter);
 	if ( NULL!=pOrbiterBluetooth )
 		pOrbiterBluetooth->HandleMouseEvent( m_iX, m_iY, m_EventType );

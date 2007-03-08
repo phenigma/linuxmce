@@ -68,10 +68,10 @@ bool Climate_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		m_bQuit_set(true);
 		return false;
 	}
@@ -97,7 +97,7 @@ bool Climate_Plugin::Register()
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to climate plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to climate plugin");
 		return false;
 	}
 

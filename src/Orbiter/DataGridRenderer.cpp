@@ -71,7 +71,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 	DataGridTable *pDataGridTable = m_pObj_Owner_DataGrid->DataGridTable_Get();
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",m_pObj_Owner_DataGrid->m_ObjectID.c_str(),pDataGridTable);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"RenderDataGrid %s %p",m_pObj_Owner_DataGrid->m_ObjectID.c_str(),pDataGridTable);
 #endif
 	if( !pDataGridTable )
 		return;
@@ -142,7 +142,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 #if ( defined( PROFILING_GRID ) )
 	clock_t clkFinished = clock(  );
 
-	g_pPlutoLogger->Write( LV_CONTROLLER, "Grid: %s took %d ms to acquire and %d ms to render",
+	LoggerWrapper::GetInstance()->Write( LV_CONTROLLER, "Grid: %s took %d ms to acquire and %d ms to render",
 		m_pObj_Owner_DataGrid->m_sGridID.c_str(), int(clkAcquired-clkStart), int(clkFinished-clkAcquired));
 #endif
 
@@ -156,7 +156,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 	if ( Colspan < 1 )
 	{
-		g_pPlutoLogger->Write( LV_WARNING,  "Data grid cell has column span of zero!" );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING,  "Data grid cell has column span of zero!" );
 		x=y=w=h=0;
 		return;
 	}
@@ -238,7 +238,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 	if ( w<0 || h<0 )
 	{
-		g_pPlutoLogger->Write( LV_WARNING,  "Data grid cell has negative size values."  );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING,  "Data grid cell has negative size values."  );
 		x=y=w=h=0;
 		return;
 	}
@@ -294,7 +294,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 	if(  !pTextStyle  )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Trying to render cell,  but cannot find any style" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Trying to render cell,  but cannot find any style" );
 		return false;
 	}
 	int x, y, w, h;
@@ -343,7 +343,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 			);
 		}
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_WARNING,"Rendering cell with %s",pCell->GetText());        
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Rendering cell with %s",pCell->GetText());        
 #endif
 		DesignObjText Text(m_pObj_Owner_DataGrid);
 		// todo         Text.m_Rect = PlutoRectangle( x+pObj->BorderWidth,  y+pObj->BorderWidth,  w-( 2*pObj->BorderWidth ),  h-( 2*pObj->BorderWidth ) );
@@ -365,7 +365,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 			pTextStyle->m_ForeColor.R( pTextStyle->m_ForeColor.R() ^ 0xff );
 			pTextStyle->m_ForeColor.G( pTextStyle->m_ForeColor.G() ^ 0xff );
 			pTextStyle->m_ForeColor.B( pTextStyle->m_ForeColor.B() ^ 0xff );
-			g_pPlutoLogger->Write( LV_WARNING,  "Datagrid foreground is same as background.  Using xor" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING,  "Datagrid foreground is same as background.  Using xor" );
 		}
 
 		PlutoColor BackColor = pTextStyle->m_BackColor;
@@ -375,7 +375,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		pTextStyle->m_ForeColor = TextColor;
 	}
 	else
-		g_pPlutoLogger->Write( LV_WARNING,  "Datagrid width or height is too small" );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING,  "Datagrid width or height is too small" );
 
 
 	return bTransparentCell;
@@ -492,7 +492,7 @@ void DataGridRenderer::DataGridCacheThread()
 		
 			if(  !m_pObj_Owner_DataGrid->m_pOrbiter->SendCommand( CMD_Request_Datagrid_Contents )  )
 			{
-				g_pPlutoLogger->Write( LV_CRITICAL, "Request datagrid: %s failed", m_pObj_Owner_DataGrid->m_ObjectID.c_str(  ) );
+				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Request datagrid: %s failed", m_pObj_Owner_DataGrid->m_ObjectID.c_str(  ) );
 				DirectionCur[Direction] = -1;
 			}
 			else

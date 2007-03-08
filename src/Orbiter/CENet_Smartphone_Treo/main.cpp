@@ -46,10 +46,7 @@
 //const char *g_szCompile_Date="<=compile_date=>";
 /*SVN_REVISION*/
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 using namespace DCE;
 //<-dceag-incl-e->
 
@@ -86,18 +83,9 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	g_sBinaryPath = FileUtils::BasePath(pFullPath) + "/";
 
 	string sLogger = g_sBinaryPath + "OrbiterLog.txt";
-	g_pPlutoLogger = NULL;
+	
 
-    try
-    {
-		//g_pPlutoLogger = new NullLogger();
-		g_pPlutoLogger = new FileLogger(sLogger.c_str());
-    }
-    catch(...)
-    {
-		printf("Unable to create logger\n");
-		return -1;
-    }
+	LoggerWrapper::SetType(LT_LOGGER_FILE,sLogger.c_str());
 
 	WORD    wVersion;
 	WSADATA wsaData;
@@ -114,8 +102,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
     WSACleanup();
 
-	g_pPlutoLogger->Write(LV_STATUS, "About to delete logger...");
-	delete g_pPlutoLogger;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "About to delete logger...");
+	
 
 	return 0;
 }

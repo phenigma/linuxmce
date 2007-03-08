@@ -50,7 +50,7 @@ void *ServerSocket::BeginWapClientThread(void *SvSock)
 	if(pServerSocket->ServeClient() && !pServerSocket->m_bAlreadyRemoved && NULL != pServerSocket->m_pListener && !pServerSocket->m_pListener->m_bTerminate)
 	{
 		//I'll do it by myself
-		g_pPlutoLogger->Write(LV_STATUS, "Detected disconnect: detaching thread for %d", pServerSocket->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Detected disconnect: detaching thread for %d", pServerSocket->m_dwPK_Device);
 		pServerSocket->SelfDestroying();
 		pthread_detach(pServerSocket->m_ClientThreadID);
 		pServerSocket->m_ClientThreadID = (pthread_t)NULL;
@@ -75,7 +75,7 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 	m_dwPK_Device = (long unsigned int)-1;
 	m_Socket = Sock;
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::Created %p m_Socket: %d", this, m_Socket );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "ServerSocket::Created %p m_Socket: %d", this, m_Socket );
 #endif
 	m_pListener = pListener;
 	m_bThreadRunning=true;
@@ -86,7 +86,7 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 ServerSocket::~ServerSocket()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket(): @%p/%d Is it running %d?", this, m_Socket, m_bThreadRunning);
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "ServerSocket::~ServerSocket(): @%p/%d Is it running %d?", this, m_Socket, m_bThreadRunning);
 #endif
 
 	//Announce socket we're done
@@ -95,7 +95,7 @@ ServerSocket::~ServerSocket()
 	//Wait for our thread to finish
 	if( ((pthread_t)NULL) != m_ClientThreadID )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Forcing a disconnect: joining thread for %d", m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Forcing a disconnect: joining thread for %d", m_dwPK_Device);
 		pthread_join(m_ClientThreadID, NULL);
 		m_ClientThreadID = (pthread_t)NULL;
 	}
@@ -123,20 +123,20 @@ void ServerSocket::Run()
 	if(iResult != 0)
 	{
 		m_bThreadRunning = false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Pthread create returned %d %s dev %d ptr %p", (int)iResult, m_sName.c_str(), m_dwPK_Device,this );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Pthread create returned %d %s dev %d ptr %p", (int)iResult, m_sName.c_str(), m_dwPK_Device,this );
 
 		//TODO: leaks ?
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Thread created for %s dev %d ptr %p", m_sName.c_str(), m_dwPK_Device, this);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thread created for %s dev %d ptr %p", m_sName.c_str(), m_dwPK_Device, this);
 	}
 }
 
 bool ServerSocket::ServeClient()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "Running socket %p... m_bTerminate: %d", this, m_pListener->m_bTerminate );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Running socket %p... m_bTerminate: %d", this, m_pListener->m_bTerminate );
 #endif
 
 	string sMessage;
@@ -177,7 +177,7 @@ bool ServerSocket::ServeClient()
 				lt.tm_hour, lt.tm_min, lt.tm_sec, lt.tm_mon+1, lt.tm_mday,
 				lt.tm_year+1900, (long unsigned int)t, (long unsigned int) mktime(&lt) - mktime(&gt), lt.tm_isdst );
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Device %d requested time: sending %s",m_dwPK_Device,s);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device %d requested time: sending %s",m_dwPK_Device,s);
 #endif
 			SendString( s );
 			continue;
@@ -225,7 +225,7 @@ bool ServerSocket::ServeClient()
 			if( !m_dwPK_Device && PK_DeviceTemplate )
 			{
 				m_dwPK_Device = m_pListener->GetDeviceID(PK_DeviceTemplate,sMacAddress,m_sIPAddress);
-				g_pPlutoLogger->Write(LV_WARNING,"Could not determine device id based on ip or mac with %s",sMessage.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Could not determine device id based on ip or mac with %s",sMessage.c_str());
 			}
 
 			if( !m_dwPK_Device )
@@ -237,18 +237,18 @@ bool ServerSocket::ServeClient()
 				if( iResponse==0 )
 				{
 					SendString( "NOT IN THIS INSTALLATION" + sIPAndMac);
-					g_pPlutoLogger->Write(LV_CRITICAL,"Device %d registered but it doesn't exist",m_dwPK_Device);
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Device %d registered but it doesn't exist",m_dwPK_Device);
 					m_bThreadRunning=false;
 					return true;
 				}
 
 				if( PK_DeviceTemplate && iResponse!=2 )
-					g_pPlutoLogger->Write(LV_STATUS,"Device %d connected as foreign template %d",m_dwPK_Device, PK_DeviceTemplate);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device %d connected as foreign template %d",m_dwPK_Device, PK_DeviceTemplate);
 
 				if( iResponse==3 )
 				{
 					SendString( "NEED RELOAD" + sIPAndMac);
-					g_pPlutoLogger->Write(LV_WARNING,"Device %d registered but the router needs to be reloaded",m_dwPK_Device);
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Device %d registered but the router needs to be reloaded",m_dwPK_Device);
 				}
 				else
 					SendString( "OK " + StringUtils::itos(m_dwPK_Device) + sIPAndMac );
@@ -310,7 +310,7 @@ bool ServerSocket::ServeClient()
 
 		if ( m_dwPK_Device == -1 )
 		{
-			g_pPlutoLogger->Write( LV_WARNING, "Received %s, but device hasn't identified itself yet.", sMessage.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Received %s, but device hasn't identified itself yet.", sMessage.c_str() );
 			m_pListener->ReceivedString( this, sMessage );
 		}
 		else
@@ -342,7 +342,7 @@ bool ServerSocket::ServeClient()
 	}
 
 
-	g_pPlutoLogger->Write( LV_WARNING, "TCPIP: Closing connection to %d (%s) %p m_Socket: %d", m_dwPK_Device,m_pListener->m_sName.c_str(), this, m_Socket );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "TCPIP: Closing connection to %d (%s) %p m_Socket: %d", m_dwPK_Device,m_pListener->m_sName.c_str(), this, m_Socket );
 
 	m_pListener->OnDisconnected( m_dwPK_Device );
 	m_bThreadRunning=false;
@@ -352,7 +352,7 @@ bool ServerSocket::ServeClient()
 
 void ServerSocket::PingFailed()
 {
-	g_pPlutoLogger->Write( LV_WARNING, "ServerSocket::PingFailed");
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "ServerSocket::PingFailed");
 	Close();
 	m_pListener->PingFailed( this, m_dwPK_Device );
 }

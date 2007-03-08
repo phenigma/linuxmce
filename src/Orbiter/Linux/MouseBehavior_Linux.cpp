@@ -74,7 +74,7 @@ OrbiterLinux * MouseBehavior_Linux::ptrOrbiterLinux()
     OrbiterLinux * pOrbiterLinux = dynamic_cast<OrbiterLinux *>(m_pOrbiter);
     if (pOrbiterLinux == NULL)
     {
-        g_pPlutoLogger->Write(
+        LoggerWrapper::GetInstance()->Write(
             LV_CRITICAL, "MouseBehavior_Linux::ptrOrbiterLinux() : NULL dynamic_cast<OrbiterLinux *>(%p)",
             m_pOrbiter
             );
@@ -87,12 +87,12 @@ void MouseBehavior_Linux::SetMousePosition(int X,int Y)
 {
 	if(0 == ptrOrbiterLinux()->GetMainWindow())
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::SetMousePosition error: main window not created yet!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MouseBehavior_Linux::SetMousePosition error: main window not created yet!");
 		return;
 	}
 
 	MouseBehavior::SetMousePosition(X,Y);
-    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePosition() : Moving mouse (relative %d,%d)",X,Y);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePosition() : Moving mouse (relative %d,%d)",X,Y);
     ptrOrbiterLinux()->m_pX11->Mouse_SetPosition(X, Y);
 
 	// Now purge any pending mouse move events
@@ -131,7 +131,7 @@ void MouseBehavior_Linux::ShowMouse(bool bShow, SetMouseBehaviorRemote setMouseB
 #endif
 	m_bMouseVisible=bShow;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ShowMouse %d",(int) bShow);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior_Linux::ShowMouse %d",(int) bShow);
 #endif
     if (bShow)
 	{
@@ -146,7 +146,7 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 {
 	if(0 == ptrOrbiterLinux()->GetMainWindow())
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse error: main window not created yet!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse error: main window not created yet!");
 		return false;
 	}
 
@@ -156,14 +156,14 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 	if(rect.Width == ptrOrbiterLinux()->m_iImageWidth && rect.Height == ptrOrbiterLinux()->m_iImageHeight)
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse: releasing constrain mouse ");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse: releasing constrain mouse ");
 #endif
 		return ptrOrbiterLinux()->m_pX11->Mouse_Constrain_Release();
 	}
 	else
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d)", rect.X, rect.Y, rect.Width, rect.Height);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d)", rect.X, rect.Y, rect.Width, rect.Height);
 #endif
 		bResult = ptrOrbiterLinux()->m_pX11->Mouse_Constrain(rect.X, rect.Y, rect.Width, rect.Height, ptrOrbiterLinux()->GetMainWindow());
 	}
@@ -172,13 +172,13 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 	{
 		ptrOrbiterLinux()->m_pWinListManager->ActivateSdlWindow();
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : done",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : done",
 			rect.X, rect.Y, rect.Width, rect.Height);
 #endif
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : error",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : error",
 			rect.X, rect.Y, rect.Width, rect.Height);
 	}
 	return bResult;
@@ -187,7 +187,7 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
 {
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePointerStyle(%d)",(int) mouseCursorStyle);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePointerStyle(%d)",(int) mouseCursorStyle);
 #endif
 
 	m_LastCursorStyle = mouseCursorStyle;
@@ -203,7 +203,7 @@ void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
             nShape = XC_left_ptr;
             if (! ptrOrbiterLinux()->m_pX11->Mouse_SetCursor_Font(ptrOrbiterLinux()->GetMainWindow(), nShape))
             {
-                g_pPlutoLogger->Write(
+                LoggerWrapper::GetInstance()->Write(
                     LV_CRITICAL, "MouseBehavior_Linux::SetMousePointerStyle(%d) : shape==%d",
                     mouseCursorStyle, nShape
                     );
@@ -227,7 +227,7 @@ void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
             sName = "horiz_vert.xbm";
             break;
         default:
-            g_pPlutoLogger->Write(
+            LoggerWrapper::GetInstance()->Write(
                 LV_CRITICAL, "MouseBehavior_Linux::SetMousePointerStyle(%d) : bad value",
                 mouseCursorStyle
                 );
@@ -243,7 +243,7 @@ bool MouseBehavior_Linux::SetMouseCursorImage(const string &sPath, const string 
 {
     if (! ptrOrbiterLinux()->m_pX11->Mouse_SetCursor_Image(ptrOrbiterLinux()->GetMainWindow(), sPath, sPathMask))
     {
-        g_pPlutoLogger->Write(
+        LoggerWrapper::GetInstance()->Write(
             LV_CRITICAL, "MouseBehavior_Linux::SetMouseCursorImage() : path==%s, pathmask==%s",
             sPath.c_str(), sPathMask.c_str()
             );

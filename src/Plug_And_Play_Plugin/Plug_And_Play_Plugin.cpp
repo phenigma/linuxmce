@@ -74,7 +74,7 @@ Plug_And_Play_Plugin::~Plug_And_Play_Plugin()
 void Plug_And_Play_Plugin::PrepareToDelete()
 {
 	Command_Impl::PrepareToDelete();
-	g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::PrepareToDelete waiting for thread");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::PrepareToDelete waiting for thread");
 	while( m_pPnpQueue && m_pPnpQueue->m_bThreadRunning )
 	{
 		pthread_cond_broadcast( &m_PnpCond );
@@ -83,7 +83,7 @@ void Plug_And_Play_Plugin::PrepareToDelete()
 
 	if(m_pPnpQueue->m_PnpQueueThread_Id)
 		pthread_join(m_pPnpQueue->m_PnpQueueThread_Id, NULL);
-	g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::PrepareToDelete done");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::PrepareToDelete done");
 }
 
 //<-dceag-getconfig-b->
@@ -93,17 +93,17 @@ bool Plug_And_Play_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-    m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+    m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
     if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
         m_bQuit_set(true);
         return false;
     }
 
 	if( !DatabaseUtils::AlreadyHasRooms(m_pDatabase_pluto_main,m_pRouter->iPK_Installation_get()) || !DatabaseUtils::AlreadyHasUsers(m_pDatabase_pluto_main,m_pRouter->iPK_Installation_get()) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::GetConfig System has no rooms or users yet.  Suspending processing.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::GetConfig System has no rooms or users yet.  Suspending processing.");
 		m_bSuspendProcessing=true;
 	}
 
@@ -129,7 +129,7 @@ bool Plug_And_Play_Plugin::Register()
 	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 	if( !m_pOrbiter_Plugin || !m_pDatagrid_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to pnp plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to pnp plugin");
 		return false;
 	}
 
@@ -194,7 +194,7 @@ bool Plug_And_Play_Plugin::DeviceDetected( class Socket *pSocket, class Message 
 		pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_VendorModelID_CONST]);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::DeviceDetected %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::DeviceDetected %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 // no, then auto-create are blocked?	m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry);
 	m_pPnpQueue->NewEntry(pPnpQueueEntry);
 	return false;
@@ -216,7 +216,7 @@ bool Plug_And_Play_Plugin::DeviceRemoved( class Socket *pSocket, class Message *
 		pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_VendorModelID_CONST]);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::DeviceRemoved %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::DeviceRemoved %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 	m_pPnpQueue->NewEntry(pPnpQueueEntry);
 
 	return false;
@@ -243,7 +243,7 @@ void Plug_And_Play_Plugin::CMD_Choose_Pnp_Device_Template(int iPK_Room,int iPK_D
 	PnpQueueEntry *pPnpQueueEntry = m_pPnpQueue->m_mapPnpQueueEntry_Find(iPK_PnpQueue);
 	if( !pPnpQueueEntry )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "PnpQueue::PickDeviceTemplate queue %d is invalid", iPK_PnpQueue);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PnpQueue::PickDeviceTemplate queue %d is invalid", iPK_PnpQueue);
 		return;
 	}
 
@@ -282,10 +282,10 @@ void Plug_And_Play_Plugin::CMD_Set_Pnp_Options(string sValue_To_Assign,int iPK_D
 	PnpQueueEntry *pPnpQueueEntry = m_pPnpQueue->m_mapPnpQueueEntry_Find(iPK_PnpQueue);
 	if( !pPnpQueueEntry )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "PnpQueue::CMD_Set_Pnp_Options queue %d is invalid", iPK_PnpQueue);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PnpQueue::CMD_Set_Pnp_Options queue %d is invalid", iPK_PnpQueue);
 		return;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "PnpQueue::CMD_Set_Pnp_Options queue %d option %d set to %s", iPK_PnpQueue,iPK_DeviceData,sValue_To_Assign.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::CMD_Set_Pnp_Options queue %d option %d set to %s", iPK_PnpQueue,iPK_DeviceData,sValue_To_Assign.c_str());
 	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 	pPnpQueueEntry->m_mapPK_DeviceData[iPK_DeviceData] = sValue_To_Assign;
@@ -305,7 +305,7 @@ class DataGridTable *Plug_And_Play_Plugin::PNPDevices( string GridID, string Par
 	PnpQueueEntry *pPnpQueueEntry = m_pPnpQueue->m_mapPnpQueueEntry_Find(atoi(Parms.c_str()));
 	if( !pPnpQueueEntry )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::PNPDevices Parms=%s is invalid", Parms.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Plug_And_Play_Plugin::PNPDevices Parms=%s is invalid", Parms.c_str());
 		return pDataGrid;
 	}
 
@@ -316,7 +316,7 @@ class DataGridTable *Plug_And_Play_Plugin::PNPDevices( string GridID, string Par
 	{
 		pCell = new DataGridCell( pRow_DeviceTemplate->Description_get(), "-1" );
         pDataGrid->SetData( 0, 0, pCell );
-		g_pPlutoLogger->Write(LV_WARNING, "Plug_And_Play_Plugin::PNPDevices Parms=%s returning sole device template %d %s", Parms.c_str(),pRow_DeviceTemplate->PK_DeviceTemplate_get(),pRow_DeviceTemplate->Description_get().c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Plug_And_Play_Plugin::PNPDevices Parms=%s returning sole device template %d %s", Parms.c_str(),pRow_DeviceTemplate->PK_DeviceTemplate_get(),pRow_DeviceTemplate->Description_get().c_str());
 		return pDataGrid;
 	}
 
@@ -334,7 +334,7 @@ class DataGridTable *Plug_And_Play_Plugin::PNPDevices( string GridID, string Par
         pDataGrid->SetData( 0, RowCount++, pCell );
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Plug_And_Play_Plugin::PNPDevices Parms=%s returning templates %s", Parms.c_str(), sPK_DeviceTemplate.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Plug_And_Play_Plugin::PNPDevices Parms=%s returning templates %s", Parms.c_str(), sPK_DeviceTemplate.c_str());
 	return pDataGrid;
 }
 
@@ -354,7 +354,7 @@ void Plug_And_Play_Plugin::CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,s
 	PnpQueueEntry *pPnpQueueEntry = m_pPnpQueue->m_mapPnpQueueEntry_Find(iPK_PnpQueue);
 	if( !pPnpQueueEntry )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::CMD_Ignore_PNP_Device queue %d is invalid", iPK_PnpQueue);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Plug_And_Play_Plugin::CMD_Ignore_PNP_Device queue %d is invalid", iPK_PnpQueue);
 		return;
 	}
 	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
@@ -414,7 +414,7 @@ void Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished(string sFilename,st
 	PnpQueueEntry *pPnpQueueEntry = m_pPnpQueue->m_mapPnpQueueEntry_Find(iPK_PnpQueue);
 	if( !pPnpQueueEntry )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d is invalid", iPK_PnpQueue);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d is invalid", iPK_PnpQueue);
 		return;
 	}
 
@@ -424,12 +424,12 @@ for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_po
 	Row_DHCPDevice *pRow_DHCPDevice = it->second;
 	sFilesInQueue+=pRow_DHCPDevice->PnpDetectionScript_get() + "/";
 }
-g_pPlutoLogger->Write(LV_WARNING, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d got %s %d script: %s (NOW RUNNING %s).  files %d %s", 
+LoggerWrapper::GetInstance()->Write(LV_WARNING, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d got %s %d script: %s (NOW RUNNING %s).  files %d %s", 
 iPK_PnpQueue,sErrors.c_str(),iPK_DeviceTemplate,sFilename.c_str(),pPnpQueueEntry->m_sDetectionScript_Running.c_str(),pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size(),sFilesInQueue.c_str());
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )  // This could just be confirming after it was assigned
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d already assigned", iPK_PnpQueue);  
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d already assigned", iPK_PnpQueue);  
 		return;
 	}
 
@@ -440,11 +440,11 @@ iPK_PnpQueue,sErrors.c_str(),iPK_DeviceTemplate,sFilename.c_str(),pPnpQueueEntry
 		pPnpQueueEntry->m_sDetectionScript_Running="";  // This isn't running anymore
 		pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_set(iPK_DeviceTemplate);
 		pPnpQueueEntry->ParseDeviceData(sData_String);
-		g_pPlutoLogger->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d prompting user", iPK_PnpQueue);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d prompting user", iPK_PnpQueue);
 		Row_Device *pRow_Device = m_pPnpQueue->FindDisabledDeviceTemplateOnPC(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),iPK_DeviceTemplate);
 		if( pRow_Device )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d re-enabling %d", iPK_PnpQueue,pRow_Device->PK_Device_get());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d re-enabling %d", iPK_PnpQueue,pRow_Device->PK_Device_get());
 			m_pPnpQueue->ReenableDevice(pPnpQueueEntry,pRow_Device);
 			return; 
 		}
@@ -467,10 +467,10 @@ iPK_PnpQueue,sErrors.c_str(),iPK_DeviceTemplate,sFilename.c_str(),pPnpQueueEntry
 				sMessage = "**script reported: " + sErrors + "**";
 
 			if( sMessage.size() )  // If it's empty, this isn't an error.  Just a normal 'this isn't the right device' message.  We'll wake up the process later and check the next one
-				g_pPlutoLogger->Write(LV_CRITICAL,"Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d script %s PK_DHCPDevice %d %s",
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d script %s PK_DHCPDevice %d %s",
 					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pPnpQueueEntry->m_sDetectionScript_Running.c_str(), pRow_DHCPDevice->PK_DHCPDevice_get(),sMessage.c_str());
 
-			g_pPlutoLogger->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d erasing possible template %d (%d)", iPK_PnpQueue, pRow_DHCPDevice->FK_DeviceTemplate_get(),pRow_DHCPDevice->PK_DHCPDevice_get());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_PNP_Detection_Script_Finished queue %d erasing possible template %d (%d)", iPK_PnpQueue, pRow_DHCPDevice->FK_DeviceTemplate_get(),pRow_DHCPDevice->PK_DHCPDevice_get());
 			pPnpQueueEntry->m_mapPK_DHCPDevice_possible.erase(it++);
 			continue;
 		}
@@ -490,14 +490,14 @@ void Plug_And_Play_Plugin::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &s
 //<-dceag-c192-e->
 {
 	PLUTO_SAFETY_LOCK(pnp,m_PnpMutex);
-	g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::CMD_On with %d entries",(int) m_pPnpQueue->m_mapPnpQueueEntry.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::CMD_On with %d entries",(int) m_pPnpQueue->m_mapPnpQueueEntry.size());
 	m_bSuspendProcessing=false;
 	for(map<int,class PnpQueueEntry *>::iterator it=m_pPnpQueue->m_mapPnpQueueEntry.begin();it!=m_pPnpQueue->m_mapPnpQueueEntry.end();++it)
 	{
 		PnpQueueEntry *pPnpQueueEntry = it->second;
 		if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_block_processing_suspended )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Plug_And_Play_Plugin::CMD_On unblocking %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::CMD_On unblocking %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 		}
 	}
@@ -535,7 +535,7 @@ void Plug_And_Play_Plugin::CMD_Pre_Pnp_Script_Done(string sData_String,bool bTru
 	PnpQueueEntry *pPnpQueueEntry = m_pPnpQueue->m_mapPnpQueueEntry_Find(iPK_PnpQueue);
 	if( !pPnpQueueEntry )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Plug_And_Play_Plugin::CMD_Pre_Pnp_Script_Done queue %d is invalid", iPK_PnpQueue);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Plug_And_Play_Plugin::CMD_Pre_Pnp_Script_Done queue %d is invalid", iPK_PnpQueue);
 		return;
 	}
 

@@ -151,7 +151,7 @@ bool HAL::GetConfig()
 	if( 0 != ret )
 	{
 		d->running = false;
-		g_pPlutoLogger->Write(LV_WARNING, "Couldn't create hald thread. return = %d", ret);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't create hald thread. return = %d", ret);
 		return false;
 	}
 	d->running = true;
@@ -160,7 +160,7 @@ bool HAL::GetConfig()
 	if( 0 != ret )
 	{
 		d->serial_running = false;
-		g_pPlutoLogger->Write(LV_WARNING, "Couldn't create seriald thread. return = %d", ret);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't create seriald thread. return = %d", ret);
 		return false;
 	}
 	d->serial_running = true;
@@ -315,11 +315,11 @@ bool HAL::sendMessage(Message * pMsg, std::string &returnValue)
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "pMsg object is NULL");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "pMsg object is NULL");
 		}
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL, "m_pEvent == NULL");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "m_pEvent == NULL");
 	
 	return false;
 }
@@ -344,11 +344,11 @@ bool HAL::sendMessage(std::string params, std::string &returnValue)
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "cannot allocate pMsg object");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "cannot allocate pMsg object");
 		}
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL, "m_pEvent == NULL");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "m_pEvent == NULL");
 	
 	return false;
 }

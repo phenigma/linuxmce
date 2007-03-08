@@ -85,7 +85,7 @@ void DatagridMouseHandlerHelper::ScrollGrid(int dwPK_Direction,int X,int Y)
 {
 	if( dwPK_Direction!=m_dwPK_Direction_ScrollGrid)
 	{
-g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid direction changed from %d to %d",
+LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid direction changed from %d to %d",
 					  m_dwPK_Direction_ScrollGrid,dwPK_Direction);
 		// We moved past the top
 		m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
@@ -135,7 +135,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid direct
 
 	if( Notch!=m_pMouseHandler->m_iLastNotch )
 	{
-g_pPlutoLogger->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid Notch %d",Notch);
+LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::ScrollGrid Notch %d",Notch);
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "scroll" );
 		m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_ScrollingGrid);
 		// We know the notch can't go in reverse since that would stop the scrolling
@@ -163,7 +163,7 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 {
 	m_iLastX=X;
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativeMove(%d, %d, %d) bottom %d top %d direction %s",
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativeMove(%d, %d, %d) bottom %d top %d direction %s",
 		X, Y, m_iLastNotch,m_Bottom,m_Top,m_eCapturingOffscreenMovement == cosm_UP ? "UP" : "DOWN");
 #endif
 	int Notch;
@@ -221,7 +221,7 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 
 	int Frequency;
 	Frequency = (6-Notch)*400;
-g_pPlutoLogger->Write(LV_ACTION, "Frequency: %d Y: %d notch %d",Frequency,Y,Notch);
+LoggerWrapper::GetInstance()->Write(LV_ACTION, "Frequency: %d Y: %d notch %d",Frequency,Y,Notch);
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaGrid,0,"",Frequency,this->m_pMouseHandler);
 	#ifdef ORBITER_OPENGL
 		if( m_pObj_ScrollingGrid )
@@ -235,10 +235,10 @@ bool DatagridMouseHandlerHelper::ReleaseRelative()
 	if( m_eCapturingOffscreenMovement==cosm_NO )
 		return false;
 
-g_pPlutoLogger->Write(LV_ACTION, "**stop**");
+LoggerWrapper::GetInstance()->Write(LV_ACTION, "**stop**");
 	m_iLastNotch=-1;
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::ReleaseRelative()");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::ReleaseRelative()");
 #endif
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
     RelativePointer_Clear();
@@ -259,7 +259,7 @@ bool DatagridMouseHandlerHelper::Move(int X,int Y,int PK_Direction)
 	if( X<m_iLeft || (m_iRight && X>m_iRight) )
 		return false;
 
-g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move Y %d m_Bottom %d m_eCapturingOffscreenMovement %d m_bHitBottom %d currow %d",
+LoggerWrapper::GetInstance()->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move Y %d m_Bottom %d m_eCapturingOffscreenMovement %d m_bHitBottom %d currow %d",
 					  Y,m_Bottom,(int) m_eCapturingOffscreenMovement,(int) m_bHitBottom,m_pObj_ScrollingGrid->m_GridCurRow);
 	if (m_eCapturingOffscreenMovement != cosm_NO)
 	{
@@ -274,7 +274,7 @@ g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move Y %d m_Bottom
 	if ( (Y <= m_Top+1 && m_pObj_ScrollingGrid->m_GridCurRow>0) || (Y >= m_Bottom-1 && !m_bHitBottom) )
 #endif
 	{
-g_pPlutoLogger->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move ****GO**** Y %d m_Bottom %d m_eCapturingOffscreenMovement %d m_bHitBottom %d currow %d",
+LoggerWrapper::GetInstance()->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move ****GO**** Y %d m_Bottom %d m_eCapturingOffscreenMovement %d m_bHitBottom %d currow %d",
 					  Y,m_Bottom,(int) m_eCapturingOffscreenMovement,(int) m_bHitBottom,m_pObj_ScrollingGrid->m_GridCurRow);
 
 #ifndef WIN32
@@ -318,11 +318,11 @@ bool DatagridMouseHandlerHelper::DoIteration()
 {
 	if(NULL == m_pMouseBehavior)
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"m_pMouseBehavior is NULL! Race condition!?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"m_pMouseBehavior is NULL! Race condition!?");
 		return true;
 	}
 	m_pMouseBehavior->m_pOrbiter->CMD_Remove_Popup("","coverart");
-g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
+LoggerWrapper::GetInstance()->Write(LV_ACTION,"********SCROLL  --  START***");
 	NeedToRender render( m_pMouseBehavior->m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command
 	bool bResult;
 
@@ -352,7 +352,7 @@ g_pPlutoLogger->Write(LV_ACTION,"********SCROLL  --  START***");
 
 bool DatagridMouseHandlerHelper::RelativePointer_SetStatus(int nSpeedShape)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_SetStatus(%d)", nSpeedShape);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_SetStatus(%d)", nSpeedShape);
     nSpeedShape = RelativePointer_AdjustSpeedShape(nSpeedShape);
     // check range
     // compare with current status
@@ -410,14 +410,14 @@ int DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(int nSpeedShape
     if ( (nSpeedShape > 0) && (nSpeedShape > nPeakSpeed) )
     {
 #ifdef DEBUG
-        g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
 #endif
         nSpeedShape = nPeakSpeed;
     }
     if ( (nSpeedShape < 0) && (nSpeedShape < nPeakSpeed*-1) )
     {
 #ifdef DEBUG
-        g_pPlutoLogger->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
 #endif
         nSpeedShape = -nPeakSpeed;
     }
@@ -426,7 +426,7 @@ int DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(int nSpeedShape
 
 bool DatagridMouseHandlerHelper::RelativePointer_ImageLoad(int nSpeedShape)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_ImageLoad(%d)", nSpeedShape);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_ImageLoad(%d)", nSpeedShape);
     nSpeedShape = RelativePointer_AdjustSpeedShape(nSpeedShape);
 
     // compare with current status
@@ -451,10 +451,10 @@ bool DatagridMouseHandlerHelper::RelativePointer_ImageLoad(int nSpeedShape)
     char * pData = FileUtils::ReadFileIntoBuffer(m_sImagePath.c_str(), iSize);
     if (pData == NULL)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "DatagridMouseHandlerHelper::RelativePointer_ImageLoad(%d) : cannot load graphic file %s", nSpeedShape, m_sImagePath.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "DatagridMouseHandlerHelper::RelativePointer_ImageLoad(%d) : cannot load graphic file %s", nSpeedShape, m_sImagePath.c_str());
         return false;
     }
-    g_pPlutoLogger->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_ImageLoad(%d) : loaded graphic file %s", nSpeedShape, m_sImagePath.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_ImageLoad(%d) : loaded graphic file %s", nSpeedShape, m_sImagePath.c_str());
 	delete m_pRelativePointer_Image;
 	m_pRelativePointer_Image = m_pMouseBehavior->m_pOrbiter->m_pOrbiterRenderer->CreateGraphic();
     m_pRelativePointer_Image->LoadGraphic(pData, iSize);
@@ -468,7 +468,7 @@ void DatagridMouseHandlerHelper::RelativePointer_ImageDraw(PlutoGraphic *pImage,
 	RelativePointer_ImageRemove();
 
 #ifdef ORBITER_OPENGL
-	g_pPlutoLogger->Write(LV_ACTION,"DatagridMouseHandlerHelper::RelativePointer_ImageDraw");
+	LoggerWrapper::GetInstance()->Write(LV_ACTION,"DatagridMouseHandlerHelper::RelativePointer_ImageDraw");
     OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = dynamic_cast<OrbiterRenderer_OpenGL *>(m_pMouseBehavior->m_pOrbiter->Renderer());
     if (pOrbiterRenderer_OpenGL)
     {

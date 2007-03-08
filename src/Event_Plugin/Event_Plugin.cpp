@@ -78,10 +78,10 @@ bool Event_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-    m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+    m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
     if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
         m_bQuit_set(true);
         return false;
     }
@@ -112,12 +112,12 @@ bool Event_Plugin::GetConfig()
 		{
 			TimedEvent *pTimedEvent = new TimedEvent(pRow_EventHandler);
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"Adding timed event %d",pRow_EventHandler->PK_EventHandler_get());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Adding timed event %d",pRow_EventHandler->PK_EventHandler_get());
 #endif
 			pTimedEvent->m_pCommandGroup = m_pRouter->m_mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get());
 			if( !pTimedEvent->m_pCommandGroup )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Timed event %d has no commands",pRow_EventHandler->PK_EventHandler_get());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Timed event %d has no commands",pRow_EventHandler->PK_EventHandler_get());
 				delete pTimedEvent;
 			}
 			else
@@ -192,7 +192,7 @@ CriteriaParmNesting *Event_Plugin::LoadCriteriaParmNesting(CriteriaParmNesting *
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "In CriteriaParm we have a wrong value for FK_CriteriaParmList. "
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "In CriteriaParm we have a wrong value for FK_CriteriaParmList. "
 				"PK_CriteriaParam is %d", pRow_CriteriaParm->PK_CriteriaParm_get());
 		}
 	}
@@ -241,7 +241,7 @@ bool Event_Plugin::Register()
 	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 	if( !m_pDatagrid_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to event plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to event plugin");
 		return false;
 	}
 
@@ -285,14 +285,14 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 	ListEventHandler *pListEventHandler = m_mapListEventHandler_Find(pMessage->m_dwID);
 	if( pListEventHandler==NULL ) // No handlers for this type of event
 	{
-		g_pPlutoLogger->Write(LV_EVENT,"Event #%d has no handlers",pMessage->m_dwID);
+		LoggerWrapper::GetInstance()->Write(LV_EVENT,"Event #%d has no handlers",pMessage->m_dwID);
 		return false;
 	}
 
 	EventInfo *pEventInfo = new EventInfo(pMessage->m_dwID,pMessage,(DeviceData_Router *)pDeviceFrom,1 /*m_iPKID_C_HouseMode*/);
 //	m_listEventInfo.push_back(pEventInfo);
 
-//	g_pPlutoLogger->Write(LV_EVENT,"Event #%d has %d handlers",pEventInfo->m_iPKID_Event,(int)pEvent->m_vectEventHandlers.size());
+//	LoggerWrapper::GetInstance()->Write(LV_EVENT,"Event #%d has %d handlers",pEventInfo->m_iPKID_Event,(int)pEvent->m_vectEventHandlers.size());
 	for(ListEventHandler::iterator it=pListEventHandler->begin();it!=pListEventHandler->end();++it)
 	{
 		EventHandler *pEventHandler = *it;
@@ -306,7 +306,7 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 
 		if( pEventHandler->m_OncePerSeconds && pEventHandler->m_tLastFired && time(NULL)-pEventHandler->m_tLastFired<pEventHandler->m_OncePerSeconds )
 		{
-			g_pPlutoLogger->Write(LV_EVENTHANDLER,"Skipping Event Handler: %d last fired %d (time is %d)",pEventHandler->m_PK_EventHander,(int) pEventHandler->m_tLastFired,(int) time(NULL));
+			LoggerWrapper::GetInstance()->Write(LV_EVENTHANDLER,"Skipping Event Handler: %d last fired %d (time is %d)",pEventHandler->m_PK_EventHander,(int) pEventHandler->m_tLastFired,(int) time(NULL));
 			bResult=false;
 		}
 		else if( pEventHandler->m_pCriteria!=NULL )
@@ -318,12 +318,12 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 			}
 			catch(exception e)
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Problem with criteria for Event ID: %d - result: %s",pEventHandler->m_PK_EventHander,"??");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Problem with criteria for Event ID: %d - result: %s",pEventHandler->m_PK_EventHander,"??");
 				bResult=false;
 			}
 		}
 
-		g_pPlutoLogger->Write(LV_EVENTHANDLER,"Evaluated Event Handler: %d to: %d once per: %d last fired %d (time is %d)",
+		LoggerWrapper::GetInstance()->Write(LV_EVENTHANDLER,"Evaluated Event Handler: %d to: %d once per: %d last fired %d (time is %d)",
 			pEventHandler->m_PK_EventHander,(int) bResult,
 			pEventHandler->m_OncePerSeconds,(int) pEventHandler->m_tLastFired,(int) time(NULL));
 		if( bResult ) 
@@ -372,7 +372,7 @@ void Event_Plugin::SetNextTimedEventCallback()
 	if( m_pTimedEvent_Next )
 	{
 		m_pAlarmManager->AddAbsoluteAlarm( m_pTimedEvent_Next->m_tTime, this, ALARM_TIMED_EVENT, (void *) m_pTimedEvent_Next );
-		g_pPlutoLogger->Write(LV_STATUS,"Timer: next event is %s in %d seconds",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Timer: next event is %s in %d seconds",
 			m_pTimedEvent_Next->m_pRow_EventHandler->Description_get().c_str(),
 			m_pTimedEvent_Next->m_tTime - time(NULL));
 	}
@@ -385,7 +385,7 @@ void Event_Plugin::AlarmCallback(int id, void* param)
 	{
 		TimedEvent *pTimedEvent = (TimedEvent *) param;
 
-		g_pPlutoLogger->Write(LV_STATUS,"Timer: %s firing command group %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Timer: %s firing command group %d",
 			pTimedEvent->m_pRow_EventHandler->Description_get().c_str(),pTimedEvent->m_pCommandGroup->m_PK_CommandGroup);
 
 		ExecCommandGroup(pTimedEvent->m_pCommandGroup->m_PK_CommandGroup);
@@ -488,7 +488,7 @@ void Event_Plugin::CMD_Toggle_Event_Handler(int iPK_EventHandler,string &sCMD_Re
 	Row_EventHandler *pRow_EventHandler = m_pDatabase_pluto_main->EventHandler_get()->GetRow(iPK_EventHandler);
 	if( !pRow_EventHandler )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot toggle event handler: %d",iPK_EventHandler);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot toggle event handler: %d",iPK_EventHandler);
 		return;
 	}
 	pRow_EventHandler->Disabled_set( pRow_EventHandler->Disabled_get()!=1 );
@@ -501,7 +501,7 @@ void Event_Plugin::SetFirstSunriseSunset()
 	m_bIsDaytime=true;
 	m_tNextSunriseSunset=0;
 	if( m_fLongitude==0 && m_fLatitude==0 )
-		g_pPlutoLogger->Write(LV_WARNING,"No sunrise/sunset since no city or longitude/latitude set");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"No sunrise/sunset since no city or longitude/latitude set");
 	else
 	{
 		time_t tNow=time(NULL);
@@ -513,10 +513,10 @@ void Event_Plugin::SetFirstSunriseSunset()
 		tm tmm;
 		localtime_r(&tSunrise,&tmm);
 
-		g_pPlutoLogger->Write(LV_STATUS,"tSunrise: %s",asctime(localtime(&tSunrise)));
-		g_pPlutoLogger->Write(LV_STATUS,"tSunset: %s",asctime(localtime(&tSunset)));
-		g_pPlutoLogger->Write(LV_STATUS,"tSunriseTomorrow: %s",asctime(localtime(&tSunriseTomorrow)));
-		g_pPlutoLogger->Write(LV_STATUS,"tSunsetTomorrow: %s",asctime(localtime(&tSunsetTomorrow)));
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"tSunrise: %s",asctime(localtime(&tSunrise)));
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"tSunset: %s",asctime(localtime(&tSunset)));
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"tSunriseTomorrow: %s",asctime(localtime(&tSunriseTomorrow)));
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"tSunsetTomorrow: %s",asctime(localtime(&tSunsetTomorrow)));
 
 		if( tSunset>tSunrise )  // I think this is always the case unless in the Arctic somewhere sunset is at 1am and sunrise at 2am????
 		{
@@ -558,7 +558,7 @@ void Event_Plugin::SetFirstSunriseSunset()
 		Seconds -= Hours * 3600;
 		int Minutes = Seconds / 60;
 		Seconds -= Minutes * 60;
-		g_pPlutoLogger->Write(LV_STATUS,"Currently %s next event in %d:%d:%d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Currently %s next event in %d:%d:%d",
 			(m_bIsDaytime ? "daytime" : "night"), Hours, Minutes, Seconds);
 
 		m_pAlarmManager->AddAbsoluteAlarm( m_tNextSunriseSunset, this, ALARM_SUNRISE_SUNSET, NULL );

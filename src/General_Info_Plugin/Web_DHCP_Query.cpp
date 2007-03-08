@@ -42,7 +42,7 @@ namespace nsWeb_DHCP_Query
 			}
 		}
 		
-		g_pPlutoLogger->Write(LV_WARNING, "Running Web Query: %s?%s", m_sURL_Base.c_str(), sQueryString.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Running Web Query: %s?%s", m_sURL_Base.c_str(), sQueryString.c_str());
 		
 		string sURL = m_sURL_Base + "?" + sQueryString;
 
@@ -52,7 +52,7 @@ namespace nsWeb_DHCP_Query
 		
 		if (size==0)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Error fetching page: %s", sURL.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error fetching page: %s", sURL.c_str());
 			return;
 		}
 		else

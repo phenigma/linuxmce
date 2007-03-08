@@ -78,7 +78,7 @@ namespace UpdateMediaSig
 
 void sigtrap_hook(int sig)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "Signal %d caught! Exiting...",  sig);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Signal %d caught! Exiting...",  sig);
 	UpdateMediaSig::bSignalTrapCaught = true;
 }
 
@@ -101,17 +101,17 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string 
 #endif
 
     //connect to the databases
-	m_pDatabase_pluto_media = new Database_pluto_media(g_pPlutoLogger);
+	m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
 	if( !m_pDatabase_pluto_media->Connect( host, user, pass, sPlutoMediaDbName, port ) )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
 		return;
 	}
 
-	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if( !m_pDatabase_pluto_main->Connect( host, user, pass, sPlutoMainDbName, port ) )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
 		return;
 	}
 
@@ -251,7 +251,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 	{
 		if(UpdateMediaSig::bSignalTrapCaught)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "SIGTERM received. Exiting...");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "SIGTERM received. Exiting...");
 			return 0;
 		}
 		
@@ -267,7 +267,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 
 		if(!FileUtils::FileExists(sDirectory + "/" + sFile)) //the file was just being deleted
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "The file %s/%s was just being deleted. We'll skip it!",
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The file %s/%s was just being deleted. We'll skip it!",
 				sDirectory.c_str(), sFile.c_str());
 			continue;
 		}
@@ -275,7 +275,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		string sLockFile = sDirectory + "/" + sFile + ".lock";
 		if(FileUtils::FileExists(sLockFile))
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Found lock file %s", sLockFile.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found lock file %s", sLockFile.c_str());
 
 			time_t tFileTimestamp = FileUtils::GetLastModifiedDate(sLockFile);
 
@@ -283,12 +283,12 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 			// deleting locks if they are >2hours old
 			if(tFileTimestamp == -1 || tNow - tFileTimestamp > 7200) //Media_Plugin has more the enough time to add the file in the database
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "The lock file %s is old (%d seconds). Deleting it!", sLockFile.c_str(), tNow - tFileTimestamp);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "The lock file %s is old (%d seconds). Deleting it!", sLockFile.c_str(), tNow - tFileTimestamp);
 				FileUtils::DelFile(sLockFile);
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "The lock file %s is still active (%d seconds old). Ignoring the protected file!", sLockFile.c_str(), tNow - tFileTimestamp);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "The lock file %s is still active (%d seconds old). Ignoring the protected file!", sLockFile.c_str(), tNow - tFileTimestamp);
 				continue;
 			}
 		}
@@ -298,7 +298,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		if(sync_mode == modeNone)
 			continue;
 
-		g_pPlutoLogger->Write(LV_STATUS, "Sync mode for %s/%s: %s", sDirectory.c_str(), sFile.c_str(), MediaSyncModeStr[sync_mode]); 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sync mode for %s/%s: %s", sDirectory.c_str(), sFile.c_str(), MediaSyncModeStr[sync_mode]); 
 
         PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation,
             sDirectory, sFile);
@@ -317,7 +317,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 		if( itMapFiles==mapFiles.end() )
 		{
 			PK_File = PlutoMediaFile_.HandleFileNotInDatabase();
-			g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
 			if(!PK_File)
 			{
 				if(m_bAsDaemon)
@@ -340,7 +340,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			Sleep(300);
 		
 		int PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File);
-		g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory File %d Picture %d",PK_File,PK_Picture);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory File %d Picture %d",PK_File,PK_Picture);
 
 		if( PK_Picture )
 		{
@@ -358,7 +358,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 				Row_Picture_Attribute *pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->GetRow(PK_Picture,pRow_Attribute->PK_Attribute_get());
 				if( !pRow_Picture_Attribute )
 				{
-		g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory Adding Picture_Attribute File %d Picture %d attr %d size %d %s",PK_File,PK_Picture,pRow_Attribute->PK_Attribute_get(),(int) vectRow_Attribute.size(),sSql.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory Adding Picture_Attribute File %d Picture %d attr %d size %d %s",PK_File,PK_Picture,pRow_Attribute->PK_Attribute_get(),(int) vectRow_Attribute.size(),sSql.c_str());
 					pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->AddRow();
 					pRow_Picture_Attribute->FK_Picture_set(PK_Picture);
 					pRow_Picture_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
@@ -382,7 +382,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 	string sBaseDirectory = FileUtils::BasePath(sDirectory);
 	string sDirectoryName = FileUtils::FilenameWithoutPath(sDirectory);
 	MediaSyncMode dir_sync_mode = MediaState::Instance().SyncModeNeeded(sBaseDirectory, sDirectoryName);
-	g_pPlutoLogger->Write(LV_STATUS, "Sync mode for dir %s/%s: %s", sBaseDirectory.c_str(), sDirectoryName.c_str(), MediaSyncModeStr[dir_sync_mode]); 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sync mode for dir %s/%s: %s", sBaseDirectory.c_str(), sDirectoryName.c_str(), MediaSyncModeStr[dir_sync_mode]); 
 
 	if(dir_sync_mode != modeNone)
 	{
@@ -417,7 +417,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			 {
 				 // Add this directory like it were a file
 				 int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(MEDIATYPE_pluto_StoredVideo_CONST);
-				 g_pPlutoLogger->Write(LV_STATUS,"UpdateMedia::ReadDirectory MEDIATYPE_pluto_StoredVideo_CONST PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
+				 LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory MEDIATYPE_pluto_StoredVideo_CONST PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
 				 Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
 				 pRow_File->IsDirectory_set(false);
 				 m_pDatabase_pluto_media->File_get()->Commit();
@@ -464,12 +464,12 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 
 			if(!bAlreadyinDb)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Adding parent folder to db: %s PlutoMediaParentFolder.HandleFileNotInDatabase", sDirectory.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Adding parent folder to db: %s PlutoMediaParentFolder.HandleFileNotInDatabase", sDirectory.c_str());
 				spPlutoMediaParentFolder->HandleFileNotInDatabase(0);
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Parent folder already in the database: %s", sDirectory.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Parent folder already in the database: %s", sDirectory.c_str());
 			}
 		}
 
@@ -487,7 +487,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 
 void UpdateMedia::UpdateSearchTokens()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Updating search tokens...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Updating search tokens...");
 	
 	string SQL = "DELETE FROM SearchToken_Attribute";
 	m_pDatabase_pluto_media->threaded_mysql_query(SQL);
@@ -534,12 +534,12 @@ void UpdateMedia::UpdateSearchTokens()
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Update search tokens ended.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Update search tokens ended.");
 }
 
 void UpdateMedia::UpdateThumbnails()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Updating thumbs...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Updating thumbs...");
 	
 	string SQL = "SELECT PK_Picture,Extension FROM Picture";
 	PlutoSqlResult result;
@@ -566,7 +566,7 @@ void UpdateMedia::UpdateThumbnails()
 					" /home/mediapics/" + row[0] + "_tn." + row[1];
 				int result;
 				if( ( result=system( Cmd.c_str( ) ) )!=0 )
-					g_pPlutoLogger->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
+					LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
 			}
 			else if( tModTime==0 && tTnModTime==0 )
 			{
@@ -578,14 +578,14 @@ void UpdateMedia::UpdateThumbnails()
 				m_pDatabase_pluto_media->threaded_mysql_query("UPDATE Bookmark SET FK_Picture=NULL WHERE FK_Picture=" + string(row[0]));
 			}
 
-			g_pPlutoLogger->Write(LV_STATUS, "Thumbs updated!");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thumbs updated!");
 		}
 	}
 }
 
 void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Sync'ing db with directory...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sync'ing db with directory...");
 
 	string sSql =
 		"SELECT PK_File, Path, Filename, Missing, EK_Device, pluto_main.Device_DeviceData.IK_DeviceData "
@@ -637,7 +637,7 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 							bRowsAffected = true;
 							string sUpdateSql = "UPDATE File SET Missing = 1 WHERE PK_File = " + StringUtils::ltos(nFileID);
 							m_pDatabase_pluto_media->threaded_mysql_query(sUpdateSql);
-							g_pPlutoLogger->Write(LV_STATUS, "Marking record as missing in database: %s", sFilePath.c_str());
+							LoggerWrapper::GetInstance()->Write(LV_STATUS, "Marking record as missing in database: %s", sFilePath.c_str());
 
 							if(m_bAsDaemon)
 								Sleep(50);
@@ -648,19 +648,19 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 						bRowsAffected = true;
 						string sUpdateSql = "UPDATE File SET Missing = 0 WHERE PK_File = " + StringUtils::ltos(nFileID);
 						m_pDatabase_pluto_media->threaded_mysql_query(sUpdateSql);
-						g_pPlutoLogger->Write(LV_STATUS, "Marking record as NOT missing in database: %s", sFilePath.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Marking record as NOT missing in database: %s", sFilePath.c_str());
 
 						if(m_bAsDaemon)
 							Sleep(50);
 					}
 				}
 				else
-					g_pPlutoLogger->Write(LV_STATUS, "Device is offline, skipping the file %s", sFilePath.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device is offline, skipping the file %s", sFilePath.c_str());
 			}
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "DB sync'd with directory!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DB sync'd with directory!");
 }
 
 bool UpdateMedia::ConfirmDeviceIsOnline(long /*EK_Device*/)

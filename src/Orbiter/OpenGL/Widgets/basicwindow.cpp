@@ -100,7 +100,7 @@ void TBasicWindow::Paint()
 		return;
 		
 	TBaseWidget::Paint();
-	//g_pPlutoLogger->Write(LV_WARNING, "TBasicWindow::Paint %d, %d", Width, Height);
+	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "TBasicWindow::Paint %d, %d", Width, Height);
 }
 
 bool TBasicWindow::SetBackgroundImage(OpenGLGraphic* Background)

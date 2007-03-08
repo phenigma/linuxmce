@@ -26,10 +26,7 @@ extern "C"
 #include <mysql/mysql.h>
 }
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 using namespace DCE;
 using namespace std;
 string URL="http://192.168.125.1/tribune/";
@@ -99,7 +96,6 @@ void createTempTables(){
 }
 
 int main(int argc, char *argv[]) {
-	g_pPlutoLogger = new FileLogger(stdout);
 	string host="dcerouter",user="root",passwd="",db="pluto_myth";
 	bool bError=false;
 	char c;

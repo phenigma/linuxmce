@@ -82,12 +82,12 @@ public:
 	void DumpResults()
 	{
 		for(MapProfiles::iterator it = m_MapProfiles.begin();it != m_MapProfiles.end();++it)
-			g_pPlutoLogger->Write(LV_PROFILER,"PROFILE ID: %s used %d nanoseconds (ie %d seconds %d ms)",it->first.c_str(),it->second.second,it->second.second/1000000,it->second.second/1000);
+			LoggerWrapper::GetInstance()->Write(LV_PROFILER,"PROFILE ID: %s used %d nanoseconds (ie %d seconds %d ms)",it->first.c_str(),it->second.second,it->second.second/1000000,it->second.second/1000);
 	}
 
 	void Error(string sID,string sMessage)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Profiling failed: %s %s",sID.c_str(),sMessage.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Profiling failed: %s %s",sID.c_str(),sMessage.c_str());
 	}
 
 	void ClearResults() { m_MapProfiles.clear(); }

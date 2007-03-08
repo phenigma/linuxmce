@@ -339,7 +339,7 @@ public:
     {
         vector<class EntertainArea *> vectEntertainArea;
 		DetermineEntArea(iPK_Device_Orbiter,0,"",vectEntertainArea);
-        if( (vectEntertainArea.size()!=1 || !vectEntertainArea[0]->m_pMediaStream) && bErrorIfNotFound ) g_pPlutoLogger->Write(LV_WARNING,"No stream on orbiter: %d",iPK_Device_Orbiter);
+        if( (vectEntertainArea.size()!=1 || !vectEntertainArea[0]->m_pMediaStream) && bErrorIfNotFound ) LoggerWrapper::GetInstance()->Write(LV_WARNING,"No stream on orbiter: %d",iPK_Device_Orbiter);
         return vectEntertainArea.size()==1 ? vectEntertainArea[0]->m_pMediaStream : NULL;
     }
 
@@ -575,7 +575,7 @@ public:
 	// This sends the set now playing command to an orbiter.  If pMessage is passed, it adds the command without sending it
 	void SetNowPlaying( int dwPK_Device, MediaStream *pMediaStream, bool bRefreshScreen, bool bGotoRemote=false, Message *pMessage=NULL )
 	{
-g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying stream %p refresh %d"
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying stream %p refresh %d"
 					  ,pMediaStream,(int) bRefreshScreen);
 		string sRemotes;
 		RemoteControlSet *pRemoteControlSet = NULL;
@@ -585,18 +585,18 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying stream %p refresh %
 			// set of menu options than others, and yet stored dvd's need menu, subtitle, etc., options that normal
 			// media doesn't.  We should comed up with a 'stream capabilities' function that allows us to add playback 
 			// options on the fly, but until then, if it's a stored video file, and it has titles/sections, use the dvd's menu options
-g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying type %d containstitles %d",pMediaStream->m_iPK_MediaType,(int) pMediaStream->m_bContainsTitlesOrSections);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying type %d containstitles %d",pMediaStream->m_iPK_MediaType,(int) pMediaStream->m_bContainsTitlesOrSections);
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST && pMediaStream->m_bContainsTitlesOrSections )
 			{
 				pRemoteControlSet = GetRemoteControlSet(dwPK_Device,pMediaStream,MEDIATYPE_pluto_DVD_CONST);
-g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying pRemoteControlSet_dvd %p",pRemoteControlSet);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying pRemoteControlSet_dvd %p",pRemoteControlSet);
 			}
 			else
 				pRemoteControlSet = GetRemoteControlSet(dwPK_Device,pMediaStream);
 			if( !pRemoteControlSet )
 				return;
 
-g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d alt osd %d alt remote %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d alt osd %d alt remote %d",
 					  (int) pMediaStream->m_bUseAltScreens,pRemoteControlSet->m_iPK_Screen_Alt_OSD,pRemoteControlSet->m_iPK_Screen_Alt_Remote);
 
 			sRemotes = StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_Remote ? pRemoteControlSet->m_iPK_Screen_Alt_Remote : pRemoteControlSet->m_iPK_Screen_Remote) + ","
@@ -698,7 +698,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use alt screens %d 
 				PK_MediaType ? PK_MediaType : pMediaStream->m_iPK_MediaType);
 			if( !pRemoteControlSet )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying Cannot find a remote for %d %d %d",
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::SetNowPlaying Cannot find a remote for %d %d %d",
 					dwPK_Device,pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
 					pMediaStream->m_iPK_MediaType);
 				return NULL;

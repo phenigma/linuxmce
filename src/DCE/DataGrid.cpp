@@ -133,7 +133,7 @@ DataGridCell::~DataGridCell()
 		m_pMessage = NULL;
 	}
 
-g_pPlutoLogger->Write(LV_STATUS,"delete ~DataGridCell m_pCell->m_pGraphic %p:%p",this,m_pGraphic);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"delete ~DataGridCell m_pCell->m_pGraphic %p:%p",this,m_pGraphic);
 	if(NULL != m_pGraphicData)
 	{
 		delete m_pGraphicData;
@@ -341,7 +341,7 @@ DataGridTable::DataGridTable(int Size, char *Data,bool bShiftDown)
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
-		//g_pPlutoLogger->Write(LV_CRITICAL,"lzo decompress data failed %p %d %p",
+		//LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"lzo decompress data failed %p %d %p",
 		//	Data,Size,UncompressedData);
 	}
 #else
@@ -455,12 +455,12 @@ void DataGridTable::DetachGraphics()
 void DataGridTable::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_DATAGRID, "inside todata" );
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "inside todata" );
 #endif
 
 	if( *ColStart<0 || *RowStart<0 )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "DataGridTable::ToData colstart: %d rowstart: %d",
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "DataGridTable::ToData colstart: %d rowstart: %d",
 			*ColStart, *RowStart );
 		return;
 	}
@@ -488,7 +488,7 @@ g_pPlutoLogger->Write( LV_DATAGRID, "inside todata" );
 	int ActualFirstColumn = m_bKeepColumnHeader ? 1 : 0;
 	register int i;
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_DATAGRID, "rows: %d cols: %d",m_RowCount,m_ColumnCount );
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "rows: %d cols: %d",m_RowCount,m_ColumnCount );
 #endif
 
 	for(i=0;i<m_RowCount;++i)
@@ -543,7 +543,7 @@ g_pPlutoLogger->Write( LV_DATAGRID, "rows: %d cols: %d",m_RowCount,m_ColumnCount
 		}
 	}
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_DATAGRID, "after loop" );
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "after loop" );
 #endif
 
 	int IndexSize = sizeof(DataGridTableCellIndex) * m_CellCount;
@@ -561,7 +561,7 @@ g_pPlutoLogger->Write( LV_DATAGRID, "after loop" );
 	memcpy(Datap, ntIndex, IndexSize);
 	Datap+=IndexSize;
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_DATAGRID, "cell count %d",m_CellCount );
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "cell count %d",m_CellCount );
 #endif
     for(i=0;i<m_CellCount;++i)
 	{
@@ -588,7 +588,7 @@ g_pPlutoLogger->Write( LV_DATAGRID, "cell count %d",m_CellCount );
     lzo1x_1_compress((lzo_byte *)UncompressedData,UncompressedSize,(lzo_byte *)Data+4,&out_len,wrkmem);
 	Size = (int)out_len+4;
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_DATAGRID, "before delete[]" );
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "before delete[]" );
 #endif
 
 	// Shouldn't this have been here?

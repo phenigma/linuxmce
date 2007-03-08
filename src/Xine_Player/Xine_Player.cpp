@@ -80,7 +80,7 @@ bool Xine_Player::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 	m_pDeviceData_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", 0);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", 0);
 	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
 
 	string sNbdClient;
@@ -105,7 +105,7 @@ bool Xine_Player::GetConfig()
 	if( !pPtr || sNbdClient!=pPtr )
 	{
 		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdClient.c_str(), sNbdClient.size() );
-		g_pPlutoLogger->Write(LV_WARNING,"Wrote nbd-client file %d.  changed from %s to %s",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Wrote nbd-client file %d.  changed from %s to %s",
 			(int) bResult,(pPtr ? pPtr : "*NONE*\n"),sNbdClient.c_str());
 	}
 
@@ -182,7 +182,7 @@ void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &s
 //<-dceag-c28-e->
 {
 	int PK_Button = atoi(sPK_Button.c_str());
-	g_pPlutoLogger->Write(LV_WARNING,"Xine_Player::CMD_Simulate_Keypress %d",PK_Button);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Xine_Player::CMD_Simulate_Keypress %d",PK_Button);
 	switch(PK_Button)
 	{
 		case BUTTON_Up_Arrow_CONST:
@@ -201,7 +201,7 @@ void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &s
 			CMD_EnterGo();
 			break;
 		default:
-			g_pPlutoLogger->Write(LV_WARNING,"Xine_Player::CMD_Simulate_Keypress -- Can't handle %d",PK_Button);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Xine_Player::CMD_Simulate_Keypress -- Can't handle %d",PK_Button);
 			break;
 	}
 }
@@ -221,11 +221,11 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 	//HACK we have to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Simulate_Mouse_Click() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Simulate_Mouse_Click() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Simulate_Mouse_Click() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Simulate_Mouse_Click() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -257,7 +257,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 		string mPosition;
 		if( prevStream->m_iStreamID==iStreamID )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::CMD_Play_Media not firing the playback completed since it's still the same stream");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::CMD_Play_Media not firing the playback completed since it's still the same stream");
 			prevStream->m_bDontReportCompletion = true;
 		}
 		CMD_Stop_Media( prevStream->m_iStreamID, &mPosition);
@@ -275,13 +275,13 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	ptrFactory->m_iLastRenderingStream = iStreamID;
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage?pMessage->m_dwPK_Device_From:0);
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s (%s) with corresponding stream %p.", sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s (%s) with corresponding stream %p.", sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
 	
 	if (pStream==NULL)
 	{
 		StopNbdDevice();
 		EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stream is NULL, aborting - init failure?");
 		return;
 	}
 	
@@ -292,14 +292,14 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	
 	if( sMediaURL.size()==0 && sMediaPosition.size()==0)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() with empty filename and position");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() with empty filename and position");
 		pStream->changePlaybackSpeed(Xine_Stream::PLAYBACK_NORMAL);
 		return;
 	}
 	
 	if( sMediaURL.size()==0 && pStream->m_bIsRendering)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() with empty filename");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() with empty filename");
 		pStream->changePlaybackSpeed(Xine_Stream::PLAYBACK_STOP);
 		pStream->playStream( sMediaPosition);
 		return;
@@ -316,21 +316,21 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	{
 		if (pStream->playStream( sMediaPosition))
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
 			EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() failed to play -- retrying without starting position info");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() failed to play -- retrying without starting position info");
 			if (pStream->playStream( sMediaPosition))
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
 				EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,pStream->m_sAudioInfo,pStream->m_sVideoInfo);
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() failed to play %s without position info",sMediaURL.c_str());
-				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", iStreamID);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() failed to play %s without position info",sMediaURL.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", iStreamID);
 				StopNbdDevice();
 				EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
 			}
@@ -340,11 +340,11 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	{
 		StopNbdDevice();
 		EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() Failed to open media");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() Failed to open media");
 	}
 	
 	Sleep(1000);  // There's a bug in libxine that if you send other commands like change playback speed right after the stream starts it deadlocks
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with stream %p.", sMediaURL.c_str(), pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with stream %p.", sMediaURL.c_str(), pStream);
 	
 }
 
@@ -362,11 +362,11 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Stop_Media() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Stop_Media() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Stop_Media() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Stop_Media() stream is NULL, aborting - init failure?");
 		return;
 	}
 		
@@ -387,7 +387,7 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 				string sPos;
 				DCE::CMD_Stop_Media cmd(m_dwPK_Device, targetDevice, pStream->m_iStreamID, &sPos );
 				SendCommandNoResponse(cmd);
-				g_pPlutoLogger->Write(LV_WARNING, "Stopping playback on device %i %s, stream ID=%i", targetDevice, "[remote]", pStream->m_iStreamID );
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Stopping playback on device %i %s, stream ID=%i", targetDevice, "[remote]", pStream->m_iStreamID );
 			}
 				
 			curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
@@ -412,11 +412,11 @@ void Xine_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMe
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Pause_Media() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Pause_Media() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Pause_Media() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Pause_Media() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -435,7 +435,7 @@ void Xine_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMe
 					string sPos;
 					DCE::CMD_Pause_Media cmd(m_dwPK_Device, targetDevice, pStream->m_iStreamID );
 					SendCommandNoResponse(cmd);
-					g_pPlutoLogger->Write(LV_WARNING, "Changing playback speed on device %i %s, stream ID=%i", targetDevice, "[remote]", pStream->m_iStreamID );
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Changing playback speed on device %i %s, stream ID=%i", targetDevice, "[remote]", pStream->m_iStreamID );
 				}
 					
 				curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
@@ -458,11 +458,11 @@ void Xine_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *p
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Restart_Media() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Restart_Media() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Restart_Media() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Restart_Media() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -485,11 +485,11 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Change_Playback_Speed() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Change_Playback_Speed() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Change_Playback_Speed() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Change_Playback_Speed() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -508,7 +508,7 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 					string sPos;
 					DCE::CMD_Change_Playback_Speed cmd(m_dwPK_Device, targetDevice, pStream->m_iStreamID, iMediaPlaybackSpeed, bReport );
 					SendCommandNoResponse(cmd);
-					g_pPlutoLogger->Write(LV_WARNING, "Changing playback speed on device %i %s, stream ID=%i", targetDevice, "[remote]", pStream->m_iStreamID );
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Changing playback speed on device %i %s, stream ID=%i", targetDevice, "[remote]", pStream->m_iStreamID );
 				}
 					
 				curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
@@ -534,12 +534,12 @@ void Xine_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iSt
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Jump_to_Position_in_Stream() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Jump_to_Position_in_Stream() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Change_Playback_Speed() with corresponding stream %p and value %s", pStream, sValue_To_Assign.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Change_Playback_Speed() with corresponding stream %p and value %s", pStream, sValue_To_Assign.c_str());
 		if (sValue_To_Assign!="")
 		{
 				int currentTime, totalTime;
@@ -560,13 +560,13 @@ void Xine_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iSt
 				if (iMediaPosition<=0)
 					iMediaPosition = 0;
 				
-				g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Change_Playback_Speed() jumping to position %i", iMediaPosition);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Change_Playback_Speed() jumping to position %i", iMediaPosition);
 				pStream->Seek( iMediaPosition, 0 );
 				pStream->changePlaybackSpeed(Xine_Stream::PLAYBACK_NORMAL);
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Jump_to_Position_in_Stream() - empty argument, skipping");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Jump_to_Position_in_Stream() - empty argument, skipping");
 		}
 	}
 }
@@ -582,11 +582,11 @@ void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message 
 	//HACK we need to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -607,11 +607,11 @@ void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *
 	//HACK we need to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Lower() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Lower() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Lower() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Lower() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -637,11 +637,11 @@ void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &
 	//HACK we need to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Jump_Position_In_Playlist() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Jump_Position_In_Playlist() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Jump_Position_In_Playlist() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Jump_Position_In_Playlist() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -656,7 +656,7 @@ void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &
 		else
 			ChaptersToSkip = atoi(sValue_To_Assign.c_str())-pStream->m_iChapter;
 
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::Skipping %d chapters",ChaptersToSkip);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::Skipping %d chapters",ChaptersToSkip);
 
 		if( ChaptersToSkip<0 )
 			for(int i=0;i>ChaptersToSkip;i--)
@@ -680,11 +680,11 @@ void Xine_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *p
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Navigate_Next() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Navigate_Next() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Navigate_Next() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Navigate_Next() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -703,11 +703,11 @@ void Xine_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *p
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Navigate_Prev() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Navigate_Prev() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Navigate_Prev() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Navigate_Prev() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -736,11 +736,11 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Get_Video_Frame() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Get_Video_Frame() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Get_Video_Frame() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Get_Video_Frame() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -765,11 +765,11 @@ void Xine_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_R
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Goto_Media_Menu() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Goto_Media_Menu() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Goto_Media_Menu() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Goto_Media_Menu() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -831,11 +831,11 @@ void Xine_Player::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Me
 	//HACK we need to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Audio_Track() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Audio_Track() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Audio_Track() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Audio_Track() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -855,11 +855,11 @@ void Xine_Player::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Messa
 	//HACK we need to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Subtitle() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Subtitle() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Audio_Track() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Audio_Track() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -879,11 +879,11 @@ void Xine_Player::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message 
 	//HACK we need to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Angle() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Angle() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Angle() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Angle() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -901,11 +901,11 @@ void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 	//HACK we need to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_EnterGo() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_EnterGo() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_EnterGo() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_EnterGo() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -923,11 +923,11 @@ void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 	//HACK we need to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Up() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Up() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Up() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Up() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -945,11 +945,11 @@ void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 	//HACK we need to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Down() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Down() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Down() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Down() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -967,11 +967,11 @@ void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 	//HACK we need to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Left() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Left() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Left() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Left() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -989,11 +989,11 @@ void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 	//HACK we need to know stream ID here
 	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Right() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Right() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Move_Right() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Right() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -1008,7 +1008,7 @@ void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_0(string &sCMD_Result,Message *pMessage)
 //<-dceag-c204-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_0() Not implemented!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_0() Not implemented!");
 }
 
 //<-dceag-c205-b->
@@ -1019,7 +1019,7 @@ void Xine_Player::CMD_0(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_1(string &sCMD_Result,Message *pMessage)
 //<-dceag-c205-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_1() Not implemented!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_1() Not implemented!");
 }
 
 //<-dceag-c206-b->
@@ -1030,7 +1030,7 @@ void Xine_Player::CMD_1(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_2(string &sCMD_Result,Message *pMessage)
 //<-dceag-c206-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_2() Not implemented!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_2() Not implemented!");
 }
 
 //<-dceag-c207-b->
@@ -1041,7 +1041,7 @@ void Xine_Player::CMD_2(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_3(string &sCMD_Result,Message *pMessage)
 //<-dceag-c207-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_3() Not implemented!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_3() Not implemented!");
 }
 
 //<-dceag-c208-b->
@@ -1052,7 +1052,7 @@ void Xine_Player::CMD_3(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_4(string &sCMD_Result,Message *pMessage)
 //<-dceag-c208-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_4() Not implemented!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_4() Not implemented!");
 }
 
 //<-dceag-c209-b->
@@ -1063,7 +1063,7 @@ void Xine_Player::CMD_4(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_5(string &sCMD_Result,Message *pMessage)
 //<-dceag-c209-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_5() Not implemented!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_5() Not implemented!");
 }
 
 //<-dceag-c210-b->
@@ -1074,7 +1074,7 @@ void Xine_Player::CMD_5(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_6(string &sCMD_Result,Message *pMessage)
 //<-dceag-c210-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_6() Not implemented!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_6() Not implemented!");
 }
 
 //<-dceag-c211-b->
@@ -1085,7 +1085,7 @@ void Xine_Player::CMD_6(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_7(string &sCMD_Result,Message *pMessage)
 //<-dceag-c211-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_7() Not implemented!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_7() Not implemented!");
 }
 
 //<-dceag-c212-b->
@@ -1096,7 +1096,7 @@ void Xine_Player::CMD_7(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_8(string &sCMD_Result,Message *pMessage)
 //<-dceag-c212-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_8() Not implemented!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_8() Not implemented!");
 }
 
 //<-dceag-c213-b->
@@ -1107,7 +1107,7 @@ void Xine_Player::CMD_8(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 //<-dceag-c213-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_9() Not implemented!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_9() Not implemented!");
 }
 
 //<-dceag-c240-b->
@@ -1118,7 +1118,7 @@ void Xine_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 //<-dceag-c240-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Back_Prior_Menu() Not implemented!");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Back_Prior_Menu() Not implemented!");
 }
 
 //<-dceag-c259-b->
@@ -1137,11 +1137,11 @@ void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,strin
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Report_Playback_Position() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Report_Playback_Position() with corresponding stream %p.", pStream);
 	
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Report_Playback_Position() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Report_Playback_Position() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
@@ -1162,7 +1162,7 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );	
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() called for filename: %s (%s) with stream %p.", 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() called for filename: %s (%s) with stream %p.", 
 			      (pStream!=NULL)?(pStream->m_sCurrentFile.c_str()):"",sMediaPosition.c_str(),pStream);
 	
 	if(	sMediaPosition.substr(0,5)==" POS:" && sMediaPosition.size()<15 ) // See if there's only a POS and nothing else.  If so, just do a seek
@@ -1171,12 +1171,12 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 	
 		if (pStream==NULL)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() stream is NULL, aborting - init failure?");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() stream is NULL, aborting - init failure?");
 			return;
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() just a seek within current called for filename: %s (%s) with stream %p. to pos %d", pStream->m_sCurrentFile.c_str(),sMediaPosition.c_str(),pStream,Position);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() just a seek within current called for filename: %s (%s) with stream %p. to pos %d", pStream->m_sCurrentFile.c_str(),sMediaPosition.c_str(),pStream,Position);
 			pStream->changePlaybackSpeed( Xine_Stream::PLAYBACK_NORMAL );
 			pStream->Seek( Position,0 );
 			pStream->DisplaySpeedAndTimeCode();
@@ -1210,7 +1210,7 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, false );	
 	if (pStream == NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::ReportTimecodeViaIP() stream is NULL");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::ReportTimecodeViaIP() stream is NULL");
 		return;
 	}
 
@@ -1232,7 +1232,7 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 	string sIPTimeCodeInfo = StringUtils::itos(Speed) + "," + buffer_current + "," + buffer_total + "," + StringUtils::itos(iStreamID)
 		+ "," + StringUtils::itos(pStream->m_iTitle) + "," + StringUtils::itos(pStream->m_iChapter);
 	
-	g_pPlutoLogger->Write(LV_STATUS,"reporting timecode stream %d speed %d %s", iStreamID, Speed, sIPTimeCodeInfo.c_str() );
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"reporting timecode stream %d speed %d %s", iStreamID, Speed, sIPTimeCodeInfo.c_str() );
 	m_pNotificationSocket->SendStringToAll( sIPTimeCodeInfo );
 }
 
@@ -1249,7 +1249,7 @@ bool Xine_Player::Connect(int iPK_DeviceTemplate )
 		return false;
 
 	int iPort = DATA_Get_Port();
-	g_pPlutoLogger->Write(LV_STATUS, "Configured port for time/speed notification is: %i, IP is %s", iPort, m_sIPofMD.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Configured port for time/speed notification is: %i, IP is %s", iPort, m_sIPofMD.c_str());
 
 	m_pNotificationSocket->StartListening (iPort);
 
@@ -1258,8 +1258,8 @@ bool Xine_Player::Connect(int iPK_DeviceTemplate )
 
 void Xine_Player::FireMenuOnScreen(int iDestinationDevice, int iStreamID, bool bOnOff)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Sending Menu on screen event %s for stream %d", bOnOff ? "on" : "off", iStreamID);
-    g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::EVENT_Menu_Onscreen(streamID=%i)", iStreamID);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending Menu on screen event %s for stream %d", bOnOff ? "on" : "off", iStreamID);
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::EVENT_Menu_Onscreen(streamID=%i)", iStreamID);
     EVENT_Menu_Onscreen(iStreamID, bOnOff);
 }
 
@@ -1315,23 +1315,23 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 		
 	if (pStream==NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() stream is NULL, aborting - init failure?");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() stream is NULL, aborting - init failure?");
 		return;
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - starting main target playback");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - starting main target playback");
 		pStream->m_sBroadcastTargets = sStreamingTargets;
 		CMD_Play_Media( iPK_MediaType, pStream->m_iStreamID, sMediaPosition, sMediaURL);
 		
-		g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - calling slaves");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - calling slaves");
 		// telling to all slaves to start playback
 		if (pStream->m_iBroadcastPort!=0)
 		{
 			string sSlaveMediaURL;
 			sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
 //			sSlaveMediaURL = sSlaveMediaURL + "slave://localhost:" + StringUtils::itos(pStream->m_iBroadcastPort);
-			g_pPlutoLogger->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
 			string streamingTargets = pStream->m_sBroadcastTargets;
 			string::size_type tokenPos=0;
 			string curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
@@ -1343,14 +1343,14 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 					// if local instance, adding 1000 to streamID
 					DCE::CMD_Play_Media cmd(m_dwPK_Device, targetDevice, iPK_MediaType, pStream->m_iStreamID, sMediaPosition, sSlaveMediaURL);
 					SendCommandNoResponse(cmd);
-					g_pPlutoLogger->Write(LV_WARNING, "Starting playback on device %i %s, stream ID=%i", targetDevice, "[remote]", pStream->m_iStreamID );
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Starting playback on device %i %s, stream ID=%i", targetDevice, "[remote]", pStream->m_iStreamID );
 				}
 					
 				curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
 			}
 		}
 		else
-			g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - error, broadcast is not enabled");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - error, broadcast is not enabled");
 				
 	}
 }
@@ -1364,12 +1364,12 @@ void Xine_Player::StartNbdDevice(string sMediaURL)
 	if( pos==string::npos )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s is not a nbd",sMediaURL.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s is not a nbd",sMediaURL.c_str());
 #endif
 		return;
 	}
 	m_iNbdDevice = atoi(sMediaURL.substr(pos + 12).c_str());
-	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %d / %s",m_iNbdDevice,sMediaURL.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::StartNbdDevice %d / %s",m_iNbdDevice,sMediaURL.c_str());
 
 	string sIPAddress;
 	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find( m_iNbdDevice );
@@ -1382,13 +1382,13 @@ void Xine_Player::StartNbdDevice(string sMediaURL)
 
 	if( sIPAddress.empty() )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::StartNbdDevice can't find ip for %d",m_iNbdDevice);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Player::StartNbdDevice can't find ip for %d",m_iNbdDevice);
 		m_iNbdDevice=0;
 		return;
 	}
 
 	string sCmd = "/usr/pluto/bin/nbd-client-wrapper add " + StringUtils::itos(m_iNbdDevice) + " \"" + sIPAddress + "\"";
-	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s",sCmd.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s",sCmd.c_str());
 	system(sCmd.c_str());
 }
 
@@ -1408,13 +1408,13 @@ void Xine_Player::StopNbdDevice()
 
 	if( sIPAddress.empty() )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::StopNbdDevice can't find ip for %d",m_iNbdDevice);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Player::StopNbdDevice can't find ip for %d",m_iNbdDevice);
 		m_iNbdDevice=0;
 		return;
 	}
 
 	string sCmd = "/usr/pluto/bin/nbd-client-wrapper del " + StringUtils::itos(m_iNbdDevice) + " \"" + sIPAddress + "\"";
-	g_pPlutoLogger->Write(LV_STATUS,"Xine_Player::StopNbdDevice %s",sCmd.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::StopNbdDevice %s",sCmd.c_str());
 	system(sCmd.c_str());
 	m_iNbdDevice=0;
 }

@@ -92,7 +92,7 @@ using namespace DCE;
 
 void *HandleBDCommandProcessorThread( void *p )
 {
-g_pPlutoLogger->Write(LV_STATUS,"HandleBDCommandProcessorThread started");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"HandleBDCommandProcessorThread started");
 
 	BD_Orbiter_Plus_DongleHandle *pBD_Orbiter_Plus_DongleHandle = (BD_Orbiter_Plus_DongleHandle *)p;
 
@@ -112,7 +112,7 @@ g_pPlutoLogger->Write(LV_STATUS,"HandleBDCommandProcessorThread started");
 			delete pBD_Orbiter->m_pBDCommandProcessor;
 			pBD_Orbiter->m_pBDCommandProcessor=NULL;
 		}
-		g_pPlutoLogger->Write( LV_CRITICAL, "Command processor is invalid. Aborting" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Command processor is invalid. Aborting" );
 		return NULL;
 	}
 
@@ -132,7 +132,7 @@ g_pPlutoLogger->Write(LV_STATUS,"HandleBDCommandProcessorThread started");
 
         if(pData)
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", sVMC_File.c_str(), iSize);
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", sVMC_File.c_str(), iSize);
 
             BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile(
                 const_cast<char *>(sDestinationVMCFileName.c_str()), 
@@ -155,7 +155,7 @@ g_pPlutoLogger->Write(LV_STATUS,"HandleBDCommandProcessorThread started");
 
         if(pData)
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", sConfig_File.c_str(), iSize);
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", sConfig_File.c_str(), iSize);
 
             BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile(
                 const_cast<char *>(sDestinationCfgFileName.c_str()), 
@@ -177,28 +177,28 @@ g_pPlutoLogger->Write(LV_STATUS,"HandleBDCommandProcessorThread started");
         pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL )
     ); // loop for receiving commands
 
-	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor...");
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Exiting command processor...");
 
     if(pBluetooth_Dongle->m_bQuit_get())
     {
-        g_pPlutoLogger->Write( LV_STATUS, "Going to quit...");
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Going to quit...");
 
-        g_pPlutoLogger->Write( LV_STATUS, "Deleting command processor...");
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Deleting command processor...");
         PLUTO_SAFE_DELETE(pBD_Orbiter->m_pBDCommandProcessor);
 
-        g_pPlutoLogger->Write( LV_STATUS, "Deleting orbiter... %p", pBD_Orbiter->m_pOrbiter);
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Deleting orbiter... %p", pBD_Orbiter->m_pOrbiter);
         PLUTO_SAFE_DELETE(pBD_Orbiter->m_pOrbiter);
 
-        g_pPlutoLogger->Write( LV_STATUS, "HandleBDCommandProcessorThread existed for %s", sMacAddress.c_str());
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "HandleBDCommandProcessorThread existed for %s", sMacAddress.c_str());
         return NULL;
     }
 
 	bm.Relock();
 
-	g_pPlutoLogger->Write( LV_STATUS, "Sending 'Mobile_orbiter_lost' to Orbiter_Plugin...");
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Sending 'Mobile_orbiter_lost' to Orbiter_Plugin...");
 	pBluetooth_Dongle->GetEvents()->Mobile_orbiter_lost( sMacAddress, true );
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Removing phone from the detection list...");
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Removing phone from the detection list...");
 	pBluetooth_Dongle->RemoveDeviceFromDetectionList( iMacAddress );
 	
 	if( NULL != pBD_Orbiter->m_pPhoneDevice )
@@ -210,23 +210,23 @@ g_pPlutoLogger->Write(LV_STATUS,"HandleBDCommandProcessorThread started");
 		if( pDevice )
 		    pBluetooth_Dongle->m_mapPhoneDevice_Detected[iMacAddress]->m_bIsConnected = false;
 		
-		g_pPlutoLogger->Write( LV_STATUS, "Setting PhoneDevice IsConnected flag to false...");
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Setting PhoneDevice IsConnected flag to false...");
 	}
 
-    g_pPlutoLogger->Write( LV_STATUS, "Deleting command processor...");
+    LoggerWrapper::GetInstance()->Write( LV_STATUS, "Deleting command processor...");
     PLUTO_SAFE_DELETE(pBD_Orbiter->m_pBDCommandProcessor);
 
-	g_pPlutoLogger->Write( LV_STATUS, "Deleting orbiter... %p", pBD_Orbiter->m_pOrbiter);
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Deleting orbiter... %p", pBD_Orbiter->m_pOrbiter);
 	PLUTO_SAFE_DELETE(pBD_Orbiter->m_pOrbiter);
-	g_pPlutoLogger->Write( LV_STATUS, "Orbiter deleted. %p", pBD_Orbiter->m_pOrbiter);
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter deleted. %p", pBD_Orbiter->m_pOrbiter);
 
     //don't need it anymore
     bm.Release();
 
-	g_pPlutoLogger->Write( LV_STATUS, "Deleting parameter...");
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Deleting parameter...");
 	PLUTO_SAFE_DELETE(pBD_Orbiter_Plus_DongleHandle);
 
-	g_pPlutoLogger->Write( LV_STATUS, "Exiting HandleBDCommandProcessorThread...");
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Exiting HandleBDCommandProcessorThread...");
 	return NULL;
 }
 
@@ -234,13 +234,13 @@ g_pPlutoLogger->Write(LV_STATUS,"HandleBDCommandProcessorThread started");
 
 void *ReconnectToBluetoothDongleThread(void *p)
 {
-g_pPlutoLogger->Write(LV_STATUS,"ReconnectToBluetoothDongleThread started");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ReconnectToBluetoothDongleThread started");
 
     BD_ReconnectInfo *pReconnectInfo = (BD_ReconnectInfo *)p;
 
     if(!pReconnectInfo)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "BD_ReconnectInfo is invalid!");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "BD_ReconnectInfo is invalid!");
         return NULL;
     }
 
@@ -250,7 +250,7 @@ g_pPlutoLogger->Write(LV_STATUS,"ReconnectToBluetoothDongleThread started");
     string sPhoneMacAddress = pReconnectInfo->m_sPhoneMacAddress;
     int iDeviceToLink = pReconnectInfo->m_iDeviceToLink;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Waiting HandleBDCommandProcessor for %s to exit...", sPhoneMacAddress.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Waiting HandleBDCommandProcessor for %s to exit...", sPhoneMacAddress.c_str());
     while(1)
     {
         PLUTO_SAFETY_LOCK(bm, pBluetooth_Dongle->m_BTMutex);
@@ -266,21 +266,21 @@ g_pPlutoLogger->Write(LV_STATUS,"ReconnectToBluetoothDongleThread started");
         
         bm.Release();
 
-        g_pPlutoLogger->Write(LV_WARNING, "HandleBDCommandProcessor for %s still running. I'll try again in 250 ms... (cp %p, orb %p)", sPhoneMacAddress.c_str(), pBD_Orbiter->m_pBDCommandProcessor, pBD_Orbiter->m_pOrbiter);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "HandleBDCommandProcessor for %s still running. I'll try again in 250 ms... (cp %p, orb %p)", sPhoneMacAddress.c_str(), pBD_Orbiter->m_pBDCommandProcessor, pBD_Orbiter->m_pOrbiter);
         Sleep(250);
     }
 
     //BDCommandProcessor is disconnected now, let's give mobile a little time to disconnect
-    //g_pPlutoLogger->Write(LV_WARNING, "Sleeping 2 sec. to give mobile a little time to disconnect...");
+    //LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sleeping 2 sec. to give mobile a little time to disconnect...");
     //Sleep(2000); 
 
-    g_pPlutoLogger->Write(LV_WARNING, "HandleBDCommandProcessor for %s BDCommandProcessor is disconnected now, we can connect to new dongle with id %d", sPhoneMacAddress.c_str(), iDeviceToLink);
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "HandleBDCommandProcessor for %s BDCommandProcessor is disconnected now, we can connect to new dongle with id %d", sPhoneMacAddress.c_str(), iDeviceToLink);
     DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(iDeviceToLink, iDeviceToLink, sPhoneMacAddress, sVMC_File, sConfig_File);
     pBluetooth_Dongle->SendCommand(CMD_Link_with_mobile_orbiter);
 
     delete pReconnectInfo;
 
-    g_pPlutoLogger->Write(LV_STATUS, "ReconnectToBluetoothDongleThread exiting...");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "ReconnectToBluetoothDongleThread exiting...");
     return NULL;
 }
 
@@ -323,10 +323,10 @@ bool Bluetooth_Dongle::GetConfig()
 				m_mapOrbiterSockets[pDeviceData_Base->m_sMacAddress] = new BD_Orbiter;
 				// We're definitely not connected to this right now.
 				GetEvents()->Mobile_orbiter_lost( pDeviceData_Base->m_sMacAddress, false );
-				g_pPlutoLogger->Write( LV_STATUS, "Accepting bluetooth connections from %s", pDeviceData_Base->m_sMacAddress.c_str() );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Accepting bluetooth connections from %s", pDeviceData_Base->m_sMacAddress.c_str() );
 			}
 			else
-				g_pPlutoLogger->Write( LV_WARNING, "Mobile orbiter: %d found, with no mac address", pDeviceData_Base->m_dwPK_Device );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Mobile orbiter: %d found, with no mac address", pDeviceData_Base->m_dwPK_Device );
 		}
 	}
 	bm.Release();
@@ -345,7 +345,7 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
     //just to be sure
     m_bQuit_set(true);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Starting Bluetooth_Dongle destructor... ");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Starting Bluetooth_Dongle destructor... ");
 
 	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
 
@@ -357,19 +357,19 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
 
         if(!pBD_Orbiter)
         {
-            g_pPlutoLogger->Write(LV_STATUS, "Skipping device %s... ", sMacAddress.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Skipping device %s... ", sMacAddress.c_str());
             continue;
         }
 
         if(pBD_Orbiter->m_pBDCommandProcessor)
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Marking BDCommandProcessor as dead for %s mac... ", sMacAddress.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Marking BDCommandProcessor as dead for %s mac... ", sMacAddress.c_str());
             pBD_Orbiter->m_pBDCommandProcessor->m_bDead = true;
         }
     }
     bm.Release();
 
-    g_pPlutoLogger->Write(LV_WARNING, "Waiting all HandleBDCommandProcessor to exit...");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Waiting all HandleBDCommandProcessor to exit...");
     bool bThreadsRunning = true;
     int nRetries = 5;
     while(bThreadsRunning && nRetries > 0)
@@ -386,7 +386,7 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
 
             if(pBD_Orbiter && (pBD_Orbiter->m_pBDCommandProcessor || pBD_Orbiter->m_pOrbiter))
             {
-                g_pPlutoLogger->Write(LV_WARNING, "HandleBDCommandProcessor for %s device is still running...", sMacAddress.c_str());
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "HandleBDCommandProcessor for %s device is still running...", sMacAddress.c_str());
                 bThreadsRunning = true;
                 break;
             }
@@ -402,7 +402,7 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
 	pthread_mutex_destroy(&m_BTMutex.mutex);
     pthread_mutex_destroy(&m_ScreenMutex.mutex);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Exiting Bluetooth_Dongle destructor... ");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Exiting Bluetooth_Dongle destructor... ");
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -425,7 +425,7 @@ bool Bluetooth_Dongle::Connect(int iPK_DeviceTemplate)
 	DCE::CMD_Get_EntAreas_For_Device_Cat CMD_Get_EntAreas_For_Device_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,&sPK_EntertainArea);
 	SendCommand(CMD_Get_EntAreas_For_Device_Cat);
 	m_dwPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
-	g_pPlutoLogger->Write(LV_STATUS,"Set EA to %d",m_dwPK_EntertainArea);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Set EA to %d",m_dwPK_EntertainArea);
 
 	return true;
 }
@@ -462,10 +462,10 @@ void Bluetooth_Dongle::BugReport()
 #ifndef WIN32
 	if ( !fork() ) 
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "In child process.");
-		g_pPlutoLogger->Write(LV_STATUS, "Creating bug report in /var/log/BluetoothDongle_BugReport.log ...");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "In child process.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Creating bug report in /var/log/BluetoothDongle_BugReport.log ...");
 		execl ("/usr/pluto/bin/BluetoothDongle_BugReport.sh",NULL);
-		g_pPlutoLogger->Write(LV_CRITICAL, "Could not launch BluetoothDongle_BugReport.sh !");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not launch BluetoothDongle_BugReport.sh !");
 
 		_exit(1);
 	}
@@ -493,7 +493,7 @@ bool Bluetooth_Dongle::ScanningLoop()
 			BD_Orbiter *p_BD_Orbiter = ( *iMos ).second;
 			if ( NULL != p_BD_Orbiter->m_pBDCommandProcessor && p_BD_Orbiter->m_pBDCommandProcessor->m_bDead )
 			{
-                g_pPlutoLogger->Write(LV_STATUS, "Sending orbiter lost from ScanningLoop");
+                LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending orbiter lost from ScanningLoop");
 				GetEvents()->Mobile_orbiter_lost( ( *iMos ).first.c_str(), false );
 				BDCommandProcessor *pSock = p_BD_Orbiter->m_pBDCommandProcessor;
 				p_BD_Orbiter->m_pBDCommandProcessor = NULL;
@@ -514,12 +514,12 @@ bool Bluetooth_Dongle::ScanningLoop()
 
     if(!bResult) //something wrong happened
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "The detection loop is broken.");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "The detection loop is broken.");
         extern Command_Impl *g_pCommand_Impl;
 
 	BugReport();
 	
-	g_pPlutoLogger->Write(LV_CRITICAL, "Going to reload.");
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Going to reload.");
 		if(NULL != g_pCommand_Impl)
 			g_pCommand_Impl->OnReload();
     }
@@ -546,15 +546,15 @@ void Bluetooth_Dongle::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
 	if ( pBD_Orbiter==NULL || pBD_Orbiter->m_pOrbiter==NULL || pBD_Orbiter->m_pBDCommandProcessor==NULL || pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  We're not connected.  Proceeding like normal.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  We're not connected.  Proceeding like normal.");
 		PhoneDetectionEngine::Intern_NewDeviceDetected(pDevice);
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  We're connected.  Ignoring it %p",pBD_Orbiter);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  We're connected.  Ignoring it %p",pBD_Orbiter);
 
 		if( pBD_Orbiter )
-			g_pPlutoLogger->Write(LV_STATUS,"Status: %p %p %p %d %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Status: %p %p %p %d %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,
 					pBD_Orbiter->m_pPhoneDevice, pBD_Orbiter->m_pPhoneDevice->m_bIsConnected,
 					pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
 
@@ -584,14 +584,14 @@ void Bluetooth_Dongle::Intern_LostDevice(class PhoneDevice *pDevice)
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
 	if ( pBD_Orbiter==NULL || pBD_Orbiter->m_pOrbiter==NULL || pBD_Orbiter->m_pBDCommandProcessor==NULL || pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted lost device.  We're not connected.  Proceeding like normal");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Bluetooth dongle intercepted lost device.  We're not connected.  Proceeding like normal");
 		PhoneDetectionEngine::Intern_LostDevice(pDevice);
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted lost device.  We are connected.  Ignoring it%p", pBD_Orbiter);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Bluetooth dongle intercepted lost device.  We are connected.  Ignoring it%p", pBD_Orbiter);
 		if( pBD_Orbiter )
-			g_pPlutoLogger->Write(LV_STATUS,"Status: %p %p %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Status: %p %p %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
 	}
 }
 
@@ -622,24 +622,24 @@ void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 		&& NULL != pBD_Orbiter->m_pPhoneDevice
 		&& !pBD_Orbiter->m_pPhoneDevice->m_bIsConnected;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Sending orbiter lost from LostDevice...");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending orbiter lost from LostDevice...");
 	GetEvents()->Mobile_orbiter_lost( pDevice->m_sMacAddress.c_str(), bConnectionFailed );
 
 	if ( NULL != pBD_Orbiter && NULL != pBD_Orbiter->m_pOrbiter )
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Lost %s device!", pDevice->m_sMacAddress.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Lost %s device!", pDevice->m_sMacAddress.c_str() );
 		
 		if( NULL != pBD_Orbiter->m_pPhoneDevice )
 			pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = false;
 
 		delete pBD_Orbiter->m_pOrbiter;
 		pBD_Orbiter->m_pOrbiter = NULL;
-		g_pPlutoLogger->Write( LV_WARNING, "Orbiter deleted for %s device!", pDevice->m_sMacAddress.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Orbiter deleted for %s device!", pDevice->m_sMacAddress.c_str() );
 			
 		if( NULL != pBD_Orbiter->m_pBDCommandProcessor )
 		{
 			pBD_Orbiter->m_pBDCommandProcessor->m_bDead = true;
-			g_pPlutoLogger->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", pDevice->m_sMacAddress.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", pDevice->m_sMacAddress.c_str() );
 		}
 	}
 }
@@ -658,7 +658,7 @@ void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 
  	if ( !pDevice->m_bIsConnected )
 	{
-		g_pPlutoLogger->Write( LV_WARNING, "Detected device mac: %s link quality: %d", 
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Detected device mac: %s link quality: %d", 
 			pDevice->m_sMacAddress.c_str(), pDevice->m_iLinkQuality );
 
 		GetEvents()->Mobile_orbiter_detected( pDevice->m_sMacAddress, pDevice->m_iLinkQuality, pDevice->m_sID );
@@ -698,7 +698,7 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string s
 				m_mapOrbiterSockets[sMac_address] = new BD_Orbiter;
 				iMos = m_mapOrbiterSockets.find( sMac_address );
 			#else
-				g_pPlutoLogger->Write( LV_CRITICAL, "Got link with MO for nonexistent ID %s!", sMac_address.c_str() );
+				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Got link with MO for nonexistent ID %s!", sMac_address.c_str() );
 				return;
 			#endif
 		}
@@ -709,14 +709,14 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string s
 		{
 			if( pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Try to reconnect to MO %s. The connection with the app seems to be dead.", sMac_address.c_str() );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Try to reconnect to MO %s. The connection with the app seems to be dead.", sMac_address.c_str() );
 
 				delete pBD_Orbiter->m_pBDCommandProcessor;
 				pBD_Orbiter->m_pBDCommandProcessor = NULL;
 			}
 			else
 			{
-				g_pPlutoLogger->Write( LV_STATUS, "Got link with MO %s that's already linked!", sMac_address.c_str() );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Got link with MO %s that's already linked!", sMac_address.c_str() );
 				return;
 			}
 		}
@@ -730,12 +730,12 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string s
 	PhoneDevice *pD = it==m_mapPhoneDevice_Detected.end() ? NULL : (*it).second;
 	if( !pD )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot find device %s anymore to link to, map has %d entries", sMac_address.c_str(), (int) m_mapPhoneDevice_Detected.size());
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot find device %s anymore to link to, map has %d entries", sMac_address.c_str(), (int) m_mapPhoneDevice_Detected.size());
 		return;
 	}
     mm.Release();
 
-    g_pPlutoLogger->Write( LV_WARNING, "About to connect to PlutoMO. We'll suspend scanning..." );
+    LoggerWrapper::GetInstance()->Write( LV_WARNING, "About to connect to PlutoMO. We'll suspend scanning..." );
     SuspendScanning();
 
 #ifdef BT_SOCKET
@@ -744,14 +744,13 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string s
 	EstablishmentSocket *pSocket = new EstablishmentSocket( 1, "localhost:3461", "foo" );
 	if( !pSocket->Connect() )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to phone on Socket sServerAddress" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to phone on Socket sServerAddress" );
 		return;
 	}
 
 	BDCommandProcessor *pProcessor = 
 		new BDCommandProcessor_BluetoothDongle( this, sMac_address, pSocket );
 #else
-	//printf( "create cmd proc: %p\n\n", g_pPlutoLogger );
 	BDCommandProcessor *pProcessor = 
 		new BDCommandProcessor_BluetoothDongle( this, sMac_address, pD );
 #endif
@@ -770,10 +769,10 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string s
                 sConfig_File
 			);
 
-        g_pPlutoLogger->Write( LV_WARNING, "Connected to PlutoMO." );
+        LoggerWrapper::GetInstance()->Write( LV_WARNING, "Connected to PlutoMO." );
 	    int ret = pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, ( void* )pBD_Orbiter_Plus_DongleHandle );
 		pthread_detach(pProcessor->m_BDSockThreadID);
-g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"pthread_create returned with %d", ret);
 	}
     else
     {
@@ -783,7 +782,7 @@ g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
             pBD_Orbiter->m_pBDCommandProcessor = NULL;
         }
 
-        g_pPlutoLogger->Write( LV_WARNING, "Failed to connect to PlutoMO. We'll resume scanning" );
+        LoggerWrapper::GetInstance()->Write( LV_WARNING, "Failed to connect to PlutoMO. We'll resume scanning" );
         ResumeScanning();
     }
 
@@ -809,7 +808,7 @@ void Bluetooth_Dongle::CMD_Get_Signal_Strength(string sMac_address,int *iValue,s
 	cout << "Parm #48 - Value_int_=" << *iValue << endl;
 
 	int iLinkQuality = GetLinkQuality(sMac_address.c_str());
-	g_pPlutoLogger->Write( LV_WARNING, "Link quality for %s device is %d", sMac_address.c_str(), iLinkQuality );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Link quality for %s device is %d", sMac_address.c_str(), iLinkQuality );
 
 	*iValue = iLinkQuality;
 } 
@@ -838,11 +837,11 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
 	map<string, class BD_Orbiter *>::iterator it = m_mapOrbiterSockets.find( sMac_address );
 	BD_Orbiter *pBD_Orbiter = it == m_mapOrbiterSockets.end() ? NULL : ( *it ).second;
 
-	g_pPlutoLogger->Write( LV_WARNING, "$$$ CMD_Create_Mobile_Orbiter received for %s device $$$", sMac_address.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "$$$ CMD_Create_Mobile_Orbiter received for %s device $$$", sMac_address.c_str() );
 	
 	if( NULL != pBD_Orbiter->m_pBDCommandProcessor && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Ready to cleanup orbiter. %p", pBD_Orbiter->m_pOrbiter);
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Ready to cleanup orbiter. %p", pBD_Orbiter->m_pOrbiter);
 		
 		if( NULL != pBD_Orbiter->m_pOrbiter )
 		{
@@ -850,7 +849,7 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
 			pBD_Orbiter->m_pOrbiter = NULL;
 		}
 
-		g_pPlutoLogger->Write( LV_WARNING, "Orbiter created for %s device", sMac_address.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Orbiter created for %s device", sMac_address.c_str() );
 
 		class OrbiterBluetooth *pOrbiter;
 		if( atoi(sPK_EntertainArea.c_str()) || iPK_Room )
@@ -869,7 +868,7 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
             if( NULL != pBD_Orbiter->m_pBDCommandProcessor )
             {
                 pBD_Orbiter->m_pBDCommandProcessor->m_bDead = true;
-                g_pPlutoLogger->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", sMac_address.c_str() );
+                LoggerWrapper::GetInstance()->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", sMac_address.c_str() );
             }
         }
 
@@ -891,9 +890,9 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
     else
 	{
 		if( NULL == pBD_Orbiter->m_pBDCommandProcessor )
-			g_pPlutoLogger->Write( LV_WARNING, "Cannot create orbiter for %s device: the CommandProcessor is null!", sMac_address.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Cannot create orbiter for %s device: the CommandProcessor is null!", sMac_address.c_str() );
 		else
-			g_pPlutoLogger->Write( LV_WARNING, "Cannot create orbiter for %s device: the CommandProcessor is dead!", sMac_address.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Cannot create orbiter for %s device: the CommandProcessor is dead!", sMac_address.c_str() );
 	}
 
     ResumeScanning();
@@ -911,7 +910,7 @@ void Bluetooth_Dongle::CMD_Ignore_MAC_Address(string sMac_address,string &sCMD_R
 {
 	PhoneDevice p("",sMac_address,0); // Just need a numeric mac
 	m_mapIgnoreMacs[p.m_iMacAddress]=true;
-	g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",sMac_address.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Ignoring MAC: %s",sMac_address.c_str());
 }
 //<-dceag-c333-b->
 
@@ -930,7 +929,7 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 //<-dceag-c333-e->
 {
 	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
-	g_pPlutoLogger->Write( LV_WARNING, "Have to disconnect from MO with mac %s", sMac_address.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Have to disconnect from MO with mac %s", sMac_address.c_str() );
 	
 	// Lookup the mobile orbiter entry
 	map<string, class BD_Orbiter *>::iterator it = m_mapOrbiterSockets.find( sMac_address );
@@ -944,7 +943,7 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 		delete pBD_Orbiter->m_pOrbiter;
 		pBD_Orbiter->m_pOrbiter = NULL;
 
-		g_pPlutoLogger->Write( LV_WARNING, "Orbiter deleted for %s device!", sMac_address.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Orbiter deleted for %s device!", sMac_address.c_str() );
 
 		if( NULL != pBD_Orbiter->m_pPhoneDevice )
 		{
@@ -959,7 +958,7 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 		if( NULL != pBD_Orbiter->m_pBDCommandProcessor )
 		{
 			pBD_Orbiter->m_pBDCommandProcessor->m_bDead = true;
-			g_pPlutoLogger->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", sMac_address.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", sMac_address.c_str() );
 		}
 	}
 
@@ -970,7 +969,7 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
     pthread_t pthread_id;
     int ret = pthread_create( &pthread_id, NULL, ReconnectToBluetoothDongleThread, (void*)pReconnectInfo );
 	pthread_detach(pthread_id);
-g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"pthread_create returned with %d", ret);
 }
 //<-dceag-createinst-b->! I don't need it.
 //<-dceag-createinst-e->

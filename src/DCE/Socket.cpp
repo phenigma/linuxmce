@@ -142,7 +142,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 			string sResponse=pSocket->SendReceiveString("PING",PING_TIMEOUT);
 			
 	#ifdef DEBUG
-			g_pPlutoLogger->Write( LV_STATUS, "Sent PING on %p and got %s",pSocket,sResponse.c_str());
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Sent PING on %p and got %s",pSocket,sResponse.c_str());
 	#endif
 			if( sResponse!="PONG" )
 			{
@@ -223,7 +223,7 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 Socket::~Socket()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_SOCKET, "Socket::~Socket(): deleting socket @%p %s (socket id in destructor: m_Socket: %d)", this, m_sName.c_str(), m_Socket );
+	LoggerWrapper::GetInstance()->Write( LV_SOCKET, "Socket::~Socket(): deleting socket @%p %s (socket id in destructor: m_Socket: %d)", this, m_sName.c_str(), m_Socket );
 #endif
 
 	if ( m_Socket != INVALID_SOCKET )
@@ -253,7 +253,7 @@ Socket::~Socket()
 bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Socket::SendMessage type %d id %d from %d to %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Socket::SendMessage type %d id %d from %d to %d",
 		pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To);
 #endif
 	bool bReturnValue;
@@ -333,7 +333,7 @@ Message *Socket::SendReceiveMessage( Message *pMessage)
 		pOutMessage = ReceiveMessageRaw(sResult);
 		return pOutMessage; // return the response
 	}
-	g_pPlutoLogger->Write(LV_WARNING,"Socket::SendReceiveMessage didn't get valid response");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Socket::SendReceiveMessage didn't get valid response");
 	return NULL; // what we got wasn't what we expected it to be
 }
 
@@ -350,7 +350,7 @@ Message *Socket::ReceiveMessage( int iLength, DataFormat format)
 		{
 			if( m_bQuit_get()|| m_bCancelSocketOp)
 				return NULL;
-			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed to allocate buffer - m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed to allocate buffer - m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 			if( g_pSocketCrashHandler )
 				(*g_pSocketCrashHandler)(this);
 		}
@@ -364,7 +364,7 @@ Message *Socket::ReceiveMessage( int iLength, DataFormat format)
 			delete[] pcBuffer;
 			if( m_bQuit_get()|| m_bCancelSocketOp )
 				return NULL;
-			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed ReceiveData - m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed ReceiveData - m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 			PlutoLock::DumpOutstandingLocks();
 			if( g_pSocketCrashHandler )
 				(*g_pSocketCrashHandler)(this);
@@ -378,7 +378,7 @@ Message *Socket::ReceiveMessage( int iLength, DataFormat format)
 	{
 		if( m_bQuit_get()|| m_bCancelSocketOp )
 			return NULL;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - out of memory? m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - out of memory? m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
 			(*g_pSocketCrashHandler)(this);
@@ -391,7 +391,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 {
 	if( m_Socket == INVALID_SOCKET ) // m_Socket wasn't propperlly initializated
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData socket is invalid");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Socket::SendData socket is invalid");
 		return false;
 	}
 
@@ -428,7 +428,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 
 		if ( m_Socket == INVALID_SOCKET )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData Socket became invalid before FD_SET");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Socket::SendData Socket became invalid before FD_SET");
 			return false;
 		}
 
@@ -440,7 +440,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 			if( m_Socket == INVALID_SOCKET || m_bQuit_get()|| m_bCancelSocketOp)
 			{
 				// This causes a recursive failure
-//				g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData m_Socket %d quit %d",(int) m_Socket,(int) m_bQuit_get());
+//				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Socket::SendData m_Socket %d quit %d",(int) m_Socket,(int) m_bQuit_get());
 				return false;
 			}
 
@@ -482,14 +482,14 @@ bool Socket::SendData( int iSize, const char *pcData )
 				iBytesLeft -= iSendBytes;
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData sendbytes==0");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Socket::SendData sendbytes==0");
 				Close();
 				return false;
 			}
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData iRet %d",iRet);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Socket::SendData iRet %d",iRet);
 			Close();
 			return false;
 		}
@@ -508,7 +508,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 	{
 		if( m_bQuit_get()|| m_bCancelSocketOp )
 			return false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, m_Socket: %d (%p) %s ch: %p", this, m_Socket, this, m_sName.c_str(), g_pSocketCrashHandler );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, m_Socket: %d (%p) %s ch: %p", this, m_Socket, this, m_sName.c_str(), g_pSocketCrashHandler );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
 			(*g_pSocketCrashHandler)(this);
@@ -549,12 +549,12 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 
 			tv_total.tv_sec = nInternalReceiveTimeout;
 			tv_total.tv_usec = 0;
-			//g_pPlutoLogger->Write(LV_STATUS, "Socket::ReceiveData timeout %d socket %d", nInternalReceiveTimeout, m_Socket);
+			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "Socket::ReceiveData timeout %d socket %d", nInternalReceiveTimeout, m_Socket);
 			do
 			{
 				if( m_Socket == INVALID_SOCKET || m_bQuit_get()|| m_bCancelSocketOp )
 				{
-					g_pPlutoLogger->Write(LV_WARNING,"Socket::ReceiveData m_Socket %d m_bQuit_get()%d",(int) m_Socket,(int) m_bQuit_get());
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Socket::ReceiveData m_Socket %d m_bQuit_get()%d",(int) m_Socket,(int) m_bQuit_get());
 					return false;
 				}
 
@@ -600,16 +600,16 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 			{
 				if( nInternalReceiveTimeout==-2 )
 					return false; // Special value means don't timeout
-				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData-a %p failed",this);
+				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::ReceiveData-a %p failed",this);
 				Close();
 				if( m_bQuit_get()|| m_bCancelSocketOp )
 					return false;
 #ifdef DEBUG
-				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d start: %d 1: %d 1b: %d 2: %d 2b: %d, m_Socket: %d %s ch: %p",
+				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d start: %d 1: %d 1b: %d 2: %d 2b: %d, m_Socket: %d %s ch: %p",
 					this, iRet, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 					PlutoLock::DumpOutstandingLocks();
 #else
-				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d m_Socket: %d %s ch: %p", this, iRet, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d m_Socket: %d %s ch: %p", this, iRet, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 				PlutoLock::DumpOutstandingLocks();
 #endif
 				if( g_pSocketCrashHandler )
@@ -621,14 +621,14 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 			if ( m_iSockBufBytesLeft <= 0 )
 			{
 #ifdef WIN32
-				g_pPlutoLogger->Write(LV_STATUS,"Socket closure error code: %d", WSAGetLastError());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Socket closure error code: %d", WSAGetLastError());
 #endif
 
 #ifdef DEBUG
-				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveData %p failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d m_Socket: %d %s",
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Socket::ReceiveData %p failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d m_Socket: %d %s",
 				this, m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
 #else
-				g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveData failed, bytes left %d m_Socket: %d %s", m_iSockBufBytesLeft, m_Socket, m_sName.c_str() );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Socket::ReceiveData failed, bytes left %d m_Socket: %d %s", m_iSockBufBytesLeft, m_Socket, m_sName.c_str() );
 #endif
 				Close();
 				return false;
@@ -667,7 +667,7 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 		if( m_bQuit_get()|| m_bCancelSocketOp )
 			return false;
 		{
-			g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString1 %p failed, m_Socket: %d buf %p %s ch: %p", this, m_Socket, acBuf, m_sName.c_str(), g_pSocketCrashHandler );
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::ReceiveString1 %p failed, m_Socket: %d buf %p %s ch: %p", this, m_Socket, acBuf, m_sName.c_str(), g_pSocketCrashHandler );
 			PlutoLock::DumpOutstandingLocks();
 			if( g_pSocketCrashHandler )
 				(*g_pSocketCrashHandler)(this);
@@ -684,7 +684,7 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 			if( nTimeout!=-2 )
 			{
 				sRefString = "ReceiveData failed";
-				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveString2 ReceiveData failed m_Socket: %d %s", m_Socket, m_sName.c_str() );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Socket::ReceiveString2 ReceiveData failed m_Socket: %d %s", m_Socket, m_sName.c_str() );
 			}
 			return false;
 		}
@@ -711,7 +711,7 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 			return false;
 
 		// Yikes, we received more than sizeof(acBuf) characters.  Must be spewing.  Drop the connection.
-		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString3 %p failed len: %d m_Socket: %d %s ch: %p", this, iLen, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::ReceiveString3 %p failed len: %d m_Socket: %d %s ch: %p", this, iLen, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 		Close();
 		sRefString = "Not a string, or excessive length";
 
@@ -756,7 +756,7 @@ void Socket::StartPingLoop()
 	if(pthread_create( &m_pthread_pingloop_id, NULL, PingLoop, (void*)this) )
 	{
 		m_bUsePingToKeepAlive=false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create ping loop %p ch: %p", this, g_pSocketCrashHandler );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create ping loop %p ch: %p", this, g_pSocketCrashHandler );
 	}
 
 	//we have a design issue here: we can't join PingLoop thread because 
@@ -767,7 +767,7 @@ void Socket::StartPingLoop()
 
 void Socket::PingFailed()
 {
-	g_pPlutoLogger->Write( LV_CRITICAL, "Socket::PingFailed %p %s (socket id in destructor: %d %p, ch: %p)", 
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::PingFailed %p %s (socket id in destructor: %d %p, ch: %p)", 
 		this, m_sName.c_str(), m_Socket, m_pSocket_PingFailure, g_pSocketCrashHandler );
 	if( m_pSocket_PingFailure )
 	{
@@ -782,14 +782,14 @@ void Socket::Close()
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_SOCKET, "Socket::Close() m_Socket %d", m_Socket );
+	LoggerWrapper::GetInstance()->Write( LV_SOCKET, "Socket::Close() m_Socket %d", m_Socket );
 #endif
 
 	if ( m_Socket != INVALID_SOCKET )
  	{
 #ifdef DEBUG
 		int iResult2=closesocket( m_Socket );
-		g_pPlutoLogger->Write( LV_SOCKET, "Socket::Close() m_Socket %d closesocket: %d", m_Socket, iResult2 );
+		LoggerWrapper::GetInstance()->Write( LV_SOCKET, "Socket::Close() m_Socket %d closesocket: %d", m_Socket, iResult2 );
 #else
 		closesocket(m_Socket);
 #endif
@@ -802,7 +802,7 @@ void Socket::SetReceiveTimeout( int TimeoutSeconds )
 	m_iReceiveTimeout = TimeoutSeconds;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "Setting timeout for socket %d to %d", m_Socket, m_iReceiveTimeout);
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Setting timeout for socket %d to %d", m_Socket, m_iReceiveTimeout);
 #endif
 }
 

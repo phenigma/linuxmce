@@ -64,10 +64,7 @@
 using namespace std;
 using namespace DCE;
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 
 int iPK_Device=0;
 class CreateDevice *g_pCreateDevice;
@@ -192,10 +189,8 @@ void PrintCmd(int argc, char * argv[])
 
 int main(int argc, char *argv[])
 {
-#ifdef WIN32
-	g_pPlutoLogger = new FileLogger("stdout");
-#else
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/ConfirmDependencies.log");
+#ifndef WIN32
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/ConfirmDependencies.log");
 #endif
 
 	bool bError=false,bIncludeDisklessMD=true,bSourceCode=false; // An error parsing the command line
@@ -334,10 +329,10 @@ int main(int argc, char *argv[])
 	}
 	PrintCmd(argc, argv);
 
-	Database_pluto_main database_pluto_main(g_pPlutoLogger);
+	Database_pluto_main database_pluto_main(LoggerWrapper::GetInstance());
 	if(!database_pluto_main.Connect(&dceConfig))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		cout << "# ERROR: Cannot connect to database!" << endl;
 		return 0;
 	}
@@ -345,7 +340,7 @@ int main(int argc, char *argv[])
 	Row_Device *pRow_Device = database_pluto_main.Device_get()->GetRow(iPK_Device);
 	if( !pRow_Device )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot get device information!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot get device information!");
 		cout << "# ERROR: Cannot get device information!" << endl;
 		exit(1);
 	}

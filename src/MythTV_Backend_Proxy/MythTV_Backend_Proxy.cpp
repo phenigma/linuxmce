@@ -87,7 +87,7 @@ bool MythTV_Backend_Proxy::Connect(int iPK_DeviceTemplate ) {
 	DeviceData_Base *pThisDeviceData = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device);
 	if ( pThisDeviceData == NULL )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "I could not find myself (%d) in the list of devices that i got from the router!", m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "I could not find myself (%d) in the list of devices that i got from the router!", m_dwPK_Device);
 		return false;
 	}
 
@@ -123,7 +123,7 @@ void MythTV_Backend_Proxy::ChannelChanged(const char *host, int channelid)
 {
 	PLUTO_SAFETY_LOCK( mutexData, m_mutexInternalData );
 
-	g_pPlutoLogger->Write(LV_STATUS, "Client with address %s changed to channel: %d", host, channelid);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Client with address %s changed to channel: %d", host, channelid);
 	map<string, pair<int, int> >::const_iterator itAdresses;
 
 	if ( (itAdresses = m_mapAddressToDeviceState.find(host)) == m_mapAddressToDeviceState.end() )

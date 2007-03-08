@@ -177,7 +177,7 @@ public:
 					if( !event_Impl.m_pClientSocket->ReceiveString( sResponse ) || sResponse!="OK" )
 					{
 						CannotReloadRouter();
-						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
 					}
 				Sleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away
 				}	

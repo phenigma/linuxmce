@@ -41,7 +41,7 @@ Command_Impl *Router::CreatePlugInHardCoded(int PK_Device, int PK_DeviceTemplate
     if (sCommandLine == "")
         return NULL;
 
-    g_pPlutoLogger->Write(LV_WARNING, "Loading plug-in device: %d master device: %d -- %s",PK_Device, PK_DeviceTemplate, sCommandLine.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Loading plug-in device: %d master device: %d -- %s",PK_Device, PK_DeviceTemplate, sCommandLine.c_str());
 
     switch (PK_DeviceTemplate)
     {
@@ -85,7 +85,7 @@ Command_Impl *Router::CreatePlugInHardCoded(int PK_Device, int PK_DeviceTemplate
             return new MythTV_PlugIn(PK_Device, "localhost", true, false, this);
 
         default:
-            g_pPlutoLogger->Write(LV_WARNING, "Invalid plugin ID: %d. Returning NULL.", PK_Device);
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Invalid plugin ID: %d. Returning NULL.", PK_Device);
             return NULL;
     }
 }

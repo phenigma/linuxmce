@@ -49,7 +49,7 @@ bool WizardLogic::Setup()
 #else
     const char *pMySqlHost = getenv("MySqlHost");
 	string sHost = pMySqlHost && strlen(pMySqlHost) ? pMySqlHost : m_pOrbiter->m_sIPAddress;
-	g_pPlutoLogger->Write(LV_STATUS,"WizardLogic::Setup using host %s (%p)",sHost.c_str(),pMySqlHost);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"WizardLogic::Setup using host %s (%p)",sHost.c_str(),pMySqlHost);
 	if( !MySQLConnect(sHost, "root", "", "pluto_main") )
 #endif
 		return false;
@@ -141,7 +141,7 @@ void WizardLogic::FindPnpDevices(string sPK_DeviceCategory)
 			sPnpDevices += (sPnpDevices.size() ? ", " : "") + string(row[1]) + ":" + row[0];
 
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPnpDevices);
-	g_pPlutoLogger->Write(LV_STATUS,"WizardLogic::FindPnpDevices Category %s devices %s", sPK_DeviceCategory.c_str(), sPnpDevices.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"WizardLogic::FindPnpDevices Category %s devices %s", sPK_DeviceCategory.c_str(), sPnpDevices.c_str());
 }
 
 /*
@@ -190,7 +190,7 @@ int WizardLogic::PreSeedRoomInfo( map<int, int > &mapRooms )
 	if( (result_set_room.r=mysql_query_result(sSQL)) )
 		while ((row = mysql_fetch_row(result_set_room.r)))
 		{
-            g_pPlutoLogger->Write(LV_STATUS,"Room type %d : %d", atoi(row[0]), atoi(row[1]));
+            LoggerWrapper::GetInstance()->Write(LV_STATUS,"Room type %d : %d", atoi(row[0]), atoi(row[1]));
             
 			mapRooms[ atoi(row[0]) ] = atoi(row[1]);
 			iNumRooms += atoi(row[1]);
@@ -254,7 +254,7 @@ void WizardLogic::RemoveRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int N
 
 		if( !PK_Room )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"WizardLogic::RemoveRoomsOfType cannot find a room to delete: type %d current %d desired %d",
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WizardLogic::RemoveRoomsOfType cannot find a room to delete: type %d current %d desired %d",
                             PK_RoomType, NumRoomsCurrent, NumRoomsDesired);
 			continue;
 		}
@@ -476,7 +476,7 @@ bool WizardLogic::SetLocation(string sLocation)
 
 	if( !PK_City || City.size()==0 || Latitude.size()==0 || Longitude.size()==0 || TimeZone.size()==0 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"WizardLogic::SetLocation City %d %s lat %s long %s",PK_City,City.c_str(),Latitude.c_str(),Longitude.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WizardLogic::SetLocation City %d %s lat %s long %s",PK_City,City.c_str(),Latitude.c_str(),Longitude.c_str());
 		return false;
 	}
 
@@ -623,15 +623,15 @@ void WizardLogic::AddAVDeviceInput()
 
 		aux = "Inputs ,MediaType+ConectorType,name:  ";
 		aux += sInputs + "," + sMediaType + "," + sConnectorType + "," + name;
-		g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
-		g_pPlutoLogger->Write( LV_WARNING, aux.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, aux.c_str() );
 
 		sSQL =string("INSERT IGNORE INTO DeviceTemplate_Input\
 		(FK_DeviceTemplate,FK_Command,FK_ConnectorType) VALUES (") + 
 		StringUtils::ltos(m_nPKAVTemplate) + "," + sInputs + "," + StringUtils::ltos(m_nPKConnectorType) + ")";
 		threaded_mysql_query(sSQL);
-		g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
-		g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
 		sSQL = "INSERT IGNORE INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,FK_ConnectorType,OrderNo)";
 		sSQL += " VALUES (";
@@ -644,8 +644,8 @@ void WizardLogic::AddAVDeviceInput()
 		sSQL += "AND FK_Command='" + sInputs + "'";
 		threaded_mysql_query(sSQL);
 
-		g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
-		g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
 		if( sMediaType != "0" )
 		{
@@ -655,8 +655,8 @@ void WizardLogic::AddAVDeviceInput()
 			sSQL = "INSERT INTO DeviceTemplate (Description,FK_Manufacturer,FK_DeviceCategory) VALUES(" ;
 			sSQL += name + "," + StringUtils::ltos(m_nPKManufacuter) + "," + StringUtils::ltos(m_nPKDeviceCategory) + ")";
 			embeddedId = threaded_mysql_query_withID(sSQL);
-			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
-			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
 			// link the embedded device with parent device
 			sSQL =	"INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia\
@@ -664,8 +664,8 @@ void WizardLogic::AddAVDeviceInput()
 				VALUES(";
 			sSQL += embeddedId + "," + StringUtils::ltos(m_nPKAVTemplate) + ",1,1)";
 			insertId = threaded_mysql_query_withID(sSQL);
-			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
-			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
 			//create audio video pipes 2 insert 1&2 pipes
 			sSQL + "INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe\
@@ -673,28 +673,28 @@ void WizardLogic::AddAVDeviceInput()
 			VALUES (";
 			sSQL += insertId + ",1," + sInputs + ")";
 			threaded_mysql_query(sSQL);	
-			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
-			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
 			sSQL + "INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe\
 			 (FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)\
 			VALUES (";
 			sSQL += insertId + ",2," + sInputs + ")";
 			threaded_mysql_query(sSQL);	
-			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
-			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
 			sSQL = "INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command) VALUES(" ;
 			sSQL += embeddedId + "," + sInputs + ")";
 			threaded_mysql_query(sSQL);	
-			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
-			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
 			sSQL = "INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES(";
 			sSQL += embeddedId + "," + sMediaType + ")";
 			threaded_mysql_query(sSQL);	
-			g_pPlutoLogger->Write( LV_WARNING, "AddAVDeviceInput" );
-			g_pPlutoLogger->Write( LV_WARNING, sSQL.c_str() );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 		}
 	}
 }
@@ -1090,7 +1090,7 @@ void WizardLogic::SetRoomForDevice(string sPK_Device, string sFK_Room)
 	string sResponse;
 	if( !m_pOrbiter->SendCommand(CMD_Set_Room_For_Device,&sResponse) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"WizardLogic::SetRoomForDevice failed");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WizardLogic::SetRoomForDevice failed");
 		string sSQL = "UPDATE Device SET FK_Room = " + sFK_Room + " WHERE PK_Device = " + sPK_Device;
 		threaded_mysql_query(sSQL);
 	}

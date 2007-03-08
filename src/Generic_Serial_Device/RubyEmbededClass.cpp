@@ -45,10 +45,10 @@ RubyEmbededClass::_callclass(VALUE arg) {
 VALUE 
 RubyEmbededClass::_callmethod(VALUE arg) {
 	ARGUMENTS& a = *reinterpret_cast<ARGUMENTS*>(arg);
-	g_pPlutoLogger->Write(LV_STATUS, "Calling method %s in class %s with parameters",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Calling method %s in class %s with parameters",
 		a.member_, a.class_.classvalue_, a.argc_);
 	VALUE v = rb_funcall2(a.class_.classvalue_, rb_intern(a.member_), a.argc_, a.argv_);
-	g_pPlutoLogger->Write(LV_STATUS, "Method call ended.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Method call ended.");
 	return v;
 }
 

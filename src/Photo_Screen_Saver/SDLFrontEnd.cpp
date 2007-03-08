@@ -37,8 +37,7 @@ void *SDLQuitWatchDogThread(void *)
 
 	if( SDLFrontEnd::Quitting )
 	{
-		if(NULL != g_pPlutoLogger)
-			g_pPlutoLogger->Write(LV_CRITICAL, "SDL_Quit hangs (nvidia drivers bug?). Restarting...");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "SDL_Quit hangs (nvidia drivers bug?). Restarting...");
 
 #ifndef WIN32
 		kill(getpid(), SIGKILL);
@@ -107,7 +106,7 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	//Test if SDL inits nicely
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE)== -1)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"SDL library cannot init properly!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"SDL library cannot init properly!");
 		return -1;
 	}
 		
@@ -118,17 +117,17 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 //	Flags |=  SDL_NOFRAME;
 
 #ifdef VIA_OVERLAY
-	g_pPlutoLogger->Write(LV_WARNING, "VIA : set env VIA_3D_OVERLAY");	
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "VIA : set env VIA_3D_OVERLAY");	
 	unsigned long dwRet = setenv("VIA_3D_OVERLAY","yes",1);
 	if(dwRet !=0)
-		g_pPlutoLogger->Write(LV_CRITICAL, "VIA : couldn't set env VIA_3D_OVERLAY");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VIA : couldn't set env VIA_3D_OVERLAY");
 #endif 	
 	
 	Display = SDL_SetVideoMode(Width, Height, 0, Flags);
-	g_pPlutoLogger->Write(LV_STATUS,"Setting video to w: %d h: %d",Width,Height);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting video to w: %d h: %d",Width,Height);
 	if(!Display)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot init the video mode! (%s)", SDL_GetError());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot init the video mode! (%s)", SDL_GetError());
 		return -1;
 	}
 	atexit(SDL_Quit);
@@ -164,7 +163,7 @@ int SDLFrontEnd::TextOutWidth(std::string Text)
 	}
 	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"SDLFrontEnd::TextOutWidth : TTF_RenderText_Blended crashed!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"SDLFrontEnd::TextOutWidth : TTF_RenderText_Blended crashed!");
 		return -1;
 	}
 	int Result = 0;
@@ -181,7 +180,7 @@ int SDLFrontEnd::PaintFont(char* Text,
 {
 	if(CurrentFont == NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Warning: there is no font setup for rendering!");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Warning: there is no font setup for rendering!");
 		return -1;
 	}
 	SDL_Color SDL_color;
@@ -199,14 +198,14 @@ int SDLFrontEnd::PaintFont(char* Text,
 	}
 	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Renderer::RealRenderText : TTF_RenderText_Blended crashed!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Renderer::RealRenderText : TTF_RenderText_Blended crashed!");
 	}
 
 
 	if (RenderedText == NULL)
 	{	
 		TTF_Quit();
-		g_pPlutoLogger->Write(LV_CRITICAL,"Renderer::RealRenderText: Can't render text: %s", Text);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Renderer::RealRenderText: Can't render text: %s", Text);
 		return -1;
 	}
 
@@ -234,7 +233,7 @@ int SDLFrontEnd::PaintFont(char* Text,
 	}
 	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Renderer::RealRenderText : SDL_FreeSurface crashed!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Renderer::RealRenderText : SDL_FreeSurface crashed!");
 	}
 	return Result;
 }

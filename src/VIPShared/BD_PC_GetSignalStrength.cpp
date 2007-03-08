@@ -58,7 +58,7 @@ bool BD_PC_GetSignalStrength::ProcessCommand(BDCommandProcessor *pProcessor)
 
     string sMacAddress = m_pProcessor->m_sMacAddressPhone;
     int iQualityLink = m_pProcessor->m_pBluetooth_Dongle->GetLinkQuality(sMacAddress.c_str());
-    g_pPlutoLogger->Write(LV_STATUS, "Phone %s requested link quality, which is %d. Sending reply...",
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Phone %s requested link quality, which is %d. Sending reply...",
         sMacAddress.c_str(), iQualityLink);
 
     BD_CP_CurrentSignalStrength *pBD_CP_CurrentSignalStrength = new BD_CP_CurrentSignalStrength(iQualityLink);

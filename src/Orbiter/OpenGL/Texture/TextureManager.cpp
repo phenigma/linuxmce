@@ -153,7 +153,7 @@ void TextureManager::PrepareRelease(OpenGLTexture TextureGraphic)
 void TextureManager::ConvertImagesToTextures()
 {
 	//if(WaitForConvert.size())
-	//	g_pPlutoLogger->Write(LV_CRITICAL, "TextureManager::ConvertImagesToTextures size %d", WaitForConvert.size());
+	//	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "TextureManager::ConvertImagesToTextures size %d", WaitForConvert.size());
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, TextureLock);
 	std::list <OpenGLGraphic*>::iterator Item, End = WaitForConvert.end();
 	for(Item = WaitForConvert.begin(); Item != End; ++Item)
@@ -170,7 +170,7 @@ void TextureManager::ReleaseTextures()
 		return;
 #ifdef DEBUG
 	if(WaitForRelease.size())
-		DCE::g_pPlutoLogger->Write(LV_STATUS, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
 #endif
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, TextureLock);

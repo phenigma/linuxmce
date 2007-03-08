@@ -511,8 +511,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Orbiter_asS
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_CachedScreens::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CachedScreens::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -575,8 +574,7 @@ update_values_list = update_values_list + "`FK_Orbiter`="+pRow->FK_Orbiter_asSQL
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_CachedScreens::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CachedScreens::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -628,8 +626,7 @@ condition = condition + "`FK_Orbiter`=" + tmp_FK_Orbiter+" AND "+"`FK_DesignObj`
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Table_CachedScreens::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CachedScreens::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		
@@ -664,8 +661,7 @@ bool Table_CachedScreens::GetRows(string where_statement,vector<class Row_Cached
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_CachedScreens::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CachedScreens::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return false;
 	}	
 
@@ -674,8 +670,7 @@ bool Table_CachedScreens::GetRows(string where_statement,vector<class Row_Cached
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_CachedScreens::GetRows mysql_store_result returned NULL handler");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CachedScreens::GetRows mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
@@ -910,8 +905,7 @@ condition = condition + "`FK_Orbiter`=" + tmp_FK_Orbiter+" AND "+"`FK_DesignObj`
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_CachedScreens::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CachedScreens::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return NULL;
 	}	
 
@@ -920,8 +914,7 @@ condition = condition + "`FK_Orbiter`=" + tmp_FK_Orbiter+" AND "+"`FK_DesignObj`
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Table_CachedScreens::FetchRow mysql_store_result returned NULL handler");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CachedScreens::FetchRow mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	

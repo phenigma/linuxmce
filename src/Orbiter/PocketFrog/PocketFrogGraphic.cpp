@@ -117,7 +117,7 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 	if( !m_pSurface )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read pf graphic from data %p with size %d", pData, iSize);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to read pf graphic from data %p with size %d", pData, iSize);
 		return false;
 	}
 

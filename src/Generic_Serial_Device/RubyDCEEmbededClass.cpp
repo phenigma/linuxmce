@@ -52,7 +52,7 @@ RubyDCEEmbededClass::RubyDCEEmbededClass(RubyDCECodeSupplier* pcs, int dwPK_Devi
 	char buff[20];
 	sprintf(buff, "Device_%d", m_dwPK_Device);
 	Init(buff);
-	g_pPlutoLogger->Write(LV_STATUS, "Class: %s instantiated.", buff);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Class: %s instantiated.", buff);
 }
 
 
@@ -64,7 +64,7 @@ bool
 RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	if(!pcs_->isCmdImplemented(m_dwPK_Device, pMessage->m_dwID)) {
 		if(pMessage->m_dwID != COMMAND_Process_IDLE_CONST) {
-			g_pPlutoLogger->Write(LV_STATUS, "Command %d not supported.", pMessage->m_dwID);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command %d not supported.", pMessage->m_dwID);
 			pMessage->m_bRespondedToMessage=true;
 		}
 		if(pMessage->m_dwID == COMMAND_Process_Initialize_CONST) 
@@ -97,13 +97,13 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 		};
 	} catch(RubyException e) {
 		pembclass = NULL;
-		g_pPlutoLogger->Write(LV_CRITICAL, "Exception in Ruby occured: %s.", e.getMessage());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Exception in Ruby occured: %s.", e.getMessage());
 		return false;
 	}
 	params.push_back(pembclass->getValue());
 	
 	for(std::list<int>::iterator pmit = paramids.begin(); pmit != paramids.end(); pmit++) {
-		g_pPlutoLogger->Write(LV_WARNING, "Parameter: %s", (pMessage->m_mapParameters[*pmit]).c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Parameter: %s", (pMessage->m_mapParameters[*pmit]).c_str());
 		params.push_back(StrToValue((pMessage->m_mapParameters[*pmit]).c_str()));
 	}
 	VALUE result;
@@ -121,7 +121,7 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 			Message *pMessageOut=new Message(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 			if(TYPE(result)==T_ARRAY)
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Got returnParamArray from Ruby");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got returnParamArray from Ruby");
 		    	char *tmpbuf[RARRAY(result)->len];
 				for(int i=0;i<RARRAY(result)->len;i++)
 				{
@@ -155,9 +155,9 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 								break;
 						}
 						if(this->pcs_->getParamType(i) != PARAMETERTYPE_Data_CONST)
-							g_pPlutoLogger->Write(LV_STATUS, "    Parameter %d = \"%s\"",i,pMessageOut->m_mapParameters[i].c_str());
+							LoggerWrapper::GetInstance()->Write(LV_STATUS, "    Parameter %d = \"%s\"",i,pMessageOut->m_mapParameters[i].c_str());
 						else
-							g_pPlutoLogger->Write(LV_STATUS, "    Parameter %d is %d bytes long",i,pMessageOut->m_mapData_Lengths[i]);
+							LoggerWrapper::GetInstance()->Write(LV_STATUS, "    Parameter %d is %d bytes long",i,pMessageOut->m_mapData_Lengths[i]);
 					}
 				}
 			}
@@ -180,7 +180,7 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 		}
 	} catch(RubyException e) {
 		delete pembclass;
-		g_pPlutoLogger->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
 		return false;
 	}
 
@@ -191,7 +191,7 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 void 
 RubyDCEEmbededClass::CallCmdForChildHandler(unsigned devid, Message *pMessage) {
 	if(!pcs_->isProcChildCommandAssigned(devid)) {
-		g_pPlutoLogger->Write(LV_STATUS, "Command For Child not supported.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command For Child not supported.");
 		pMessage->m_bRespondedToMessage=true;
 		return;
 	}
@@ -217,7 +217,7 @@ RubyDCEEmbededClass::CallCmdForChildHandler(unsigned devid, Message *pMessage) {
 		};
 	} catch(RubyException e) {
 		pembclass = NULL;
-		g_pPlutoLogger->Write(LV_CRITICAL, "Exception in Ruby occured: %s.", e.getMessage());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Exception in Ruby occured: %s.", e.getMessage());
 		return;
 	}
 	
@@ -227,7 +227,7 @@ RubyDCEEmbededClass::CallCmdForChildHandler(unsigned devid, Message *pMessage) {
 		callmethod("cmd_ReceiveCommandForChild", params);
 		pMessage->m_bRespondedToMessage=true;
 	} catch(RubyException e) {
-		g_pPlutoLogger->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
 	}
 
 	delete pembclass;

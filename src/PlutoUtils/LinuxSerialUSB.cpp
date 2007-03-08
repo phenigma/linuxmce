@@ -23,7 +23,7 @@ string TranslateSerialUSB(string sInput,string sIPAddress)
 	
 	if( sInput.size()<6 || sInput.substr(0,3)!="pci" )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB %s isn't serial usb",sInput.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"TranslateSerialUSB %s isn't serial usb",sInput.c_str());
 		return sInput;
 	}
 
@@ -45,18 +45,18 @@ string TranslateSerialUSB(string sInput,string sIPAddress)
 	vector<string> vectStr;
 	FileUtils::ReadFileIntoVector(tmpFile,vectStr);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB Cmd %s size %d",sCmd.c_str(),(int) vectStr.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"TranslateSerialUSB Cmd %s size %d",sCmd.c_str(),(int) vectStr.size());
 #endif
 	for(vector<string>::iterator it=vectStr.begin();it!=vectStr.end();++it)
 	{
 		if( (*it).find(sPciId)!=string::npos )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB found %s, returning %s",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"TranslateSerialUSB found %s, returning %s",
 				(*it).c_str(),("/dev/" + FileUtils::FilenameWithoutPath(*it)).c_str());
 			return "/dev/" + FileUtils::FilenameWithoutPath(*it);
 		}
 	}
-	g_pPlutoLogger->Write(LV_CRITICAL,"TranslateSerialUSB %s couldn't find a match",sInput.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"TranslateSerialUSB %s couldn't find a match",sInput.c_str());
 	
 /*
 	char tmpFile[40] = "/tmp/devusbXXXXXX";
@@ -69,12 +69,12 @@ string TranslateSerialUSB(string sInput,string sIPAddress)
 	{
 		if( (*it).find(sInput)!=string::npos )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB found %s, returning %s",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"TranslateSerialUSB found %s, returning %s",
 				(*it).c_str(),("/dev/" + FileUtils::FilenameWithoutPath(*it)).c_str());
 			return "/dev/" + FileUtils::FilenameWithoutPath(*it);
 		}
 	}
-	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB %s couldn't find a match",sInput.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"TranslateSerialUSB %s couldn't find a match",sInput.c_str());
 */
 #endif
 

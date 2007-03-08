@@ -103,12 +103,12 @@ bool HorizMenuMouseHandler::ButtonUp(int PK_Button)
 		if( !m_bStartedMovement || Diff<1000 )  // Must have started moving and held the button at least 500 ms
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"HorizMenuMouseHandler::ButtonUp not activating started %d diff %d",(int) m_bStartedMovement,Diff);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"HorizMenuMouseHandler::ButtonUp not activating started %d diff %d",(int) m_bStartedMovement,Diff);
 #endif
 			return false;
 		}
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"HorizMenuMouseHandler::ButtonUp activating diff %d",Diff);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"HorizMenuMouseHandler::ButtonUp activating diff %d",Diff);
 #endif
 		// Treat this like the user clicked the mouse button
 		Orbiter::Event event;
@@ -162,7 +162,7 @@ void HorizMenuMouseHandler::Move(int X,int Y,int PK_Direction)
 		if( pObj_ToHighlight && pObj_ToHighlight!=m_pObj_ActiveMenuPad )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"HorizMenuMouseHandler::Move 1 m_bStartedMovement=true");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"HorizMenuMouseHandler::Move 1 m_bStartedMovement=true");
 #endif
 			if( m_pObj_ActiveMenuPad )
 				m_pObj_ActiveMenuPad->m_GraphicToDisplay_set("hmm3",GRAPHIC_NORMAL);
@@ -193,7 +193,7 @@ PlutoRectangle r = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition
 int k=2;
 }
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"HorizMenuMouseHandler::Move 2 m_bStartedMovement=true");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"HorizMenuMouseHandler::Move 2 m_bStartedMovement=true");
 #endif
 			m_bStartedMovement=true;
 			DesignObj_Orbiter *pObj_ToHighlight_TopMost=NULL;

@@ -59,7 +59,7 @@ MouseIterator::MouseIterator(MouseBehavior *pMouseBehavior) : m_IteratorMutex("I
 	if(pthread_create( &pthread_id, NULL, IteratorThread, (void*)this) )
 	{
 		m_bThreadRunning=false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create Iterator thread" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create Iterator thread" );
 	}
 	else
 		pthread_detach(pthread_id);
@@ -67,15 +67,15 @@ MouseIterator::MouseIterator(MouseBehavior *pMouseBehavior) : m_IteratorMutex("I
 
 MouseIterator::~MouseIterator()
 {
-	g_pPlutoLogger->Write(LV_WARNING,"MouseIterator::~MouseIterator");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseIterator::~MouseIterator");
 	m_bQuit=true;
 	while( m_bThreadRunning )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"MouseIterator::~MouseIterator broadcasting");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseIterator::~MouseIterator broadcasting");
 		pthread_cond_broadcast( &m_IteratorCond );
 		Sleep(5);
 	}
-	g_pPlutoLogger->Write(LV_WARNING,"MouseIterator::~MouseIterator done");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseIterator::~MouseIterator done");
 }
 
 void MouseIterator::Run()
@@ -117,7 +117,7 @@ void MouseIterator::SetIterator(EIteratorFunction eIteratorFunction,int dwParm,s
 	m_dwFrequency_Ms=dwFrequency_Ms;
 	if( m_dwFrequency_Ms<0 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"MouseIterator::SetIterator frequency <0");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MouseIterator::SetIterator frequency <0");
 		m_dwFrequency_Ms = 1000;  // shouldn't happen
 	}
 	switch(eIteratorFunction)

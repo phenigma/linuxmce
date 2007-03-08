@@ -48,7 +48,7 @@ BDCommandProcessor_Windows_Bluetooth::BDCommandProcessor_Windows_Bluetooth(strin
 		m_IsConnected = m_ptr_rfcm->TransportOpen( sMacAddressPhone.c_str() );
 		if( !m_IsConnected )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"WIDCOM failed to open RFCOM Port.  Try #%d",RetryCount);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WIDCOM failed to open RFCOM Port.  Try #%d",RetryCount);
 			Sleep(1000);
 		}
 	}
@@ -57,7 +57,7 @@ BDCommandProcessor_Windows_Bluetooth::BDCommandProcessor_Windows_Bluetooth(strin
 	//  application, rather than start the application's message pump.
 	if( !m_IsConnected )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to open bluetooth device");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to open bluetooth device");
 		m_bExit=m_bDead=true;
 	}
 	else
@@ -86,7 +86,7 @@ BDCommandProcessor_Windows_Bluetooth::~BDCommandProcessor_Windows_Bluetooth()
 
 void BDCommandProcessor_Windows_Bluetooth::OnTranspDataReceived( BYTE* data, ULONG len )
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Received data %d bytes long.  buffer was %d",(int) len,(int) m_iSizeReceiveBuffer);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Received data %d bytes long.  buffer was %d",(int) len,(int) m_iSizeReceiveBuffer);
 	PLUTO_SAFETY_LOCK(rb,m_ReceiveBufferMutex);
 	if( m_pReceiveBuffer)
 		m_pReceiveBuffer=(char *)realloc(m_pReceiveBuffer,m_iSizeReceiveBuffer+len);
@@ -103,7 +103,7 @@ void BDCommandProcessor_Windows_Bluetooth::OnTranspDataReceived( BYTE* data, ULO
 
 bool BDCommandProcessor_Windows_Bluetooth::SendData(int size,const char *data)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Sending %d bytes of data", size);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sending %d bytes of data", size);
 
 	m_ptr_rfcm->TransportWrite( (BYTE *)data, size );
 
@@ -113,7 +113,7 @@ bool BDCommandProcessor_Windows_Bluetooth::SendData(int size,const char *data)
 		return false;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Sent %d bytes of data", size);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sent %d bytes of data", size);
 
 	return true;
 }
@@ -122,7 +122,7 @@ bool BDCommandProcessor_Windows_Bluetooth::SendData(int size,const char *data)
 // are received.  
 char *BDCommandProcessor_Windows_Bluetooth::ReceiveData(int size)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Request for data %d bytes long buffer has %d",(int) size,(int) m_iSizeReceiveBuffer);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Request for data %d bytes long buffer has %d",(int) size,(int) m_iSizeReceiveBuffer);
 	// Wait until we get that many characters in our buffer
 	while( (int) m_iSizeReceiveBuffer<size )
 	{
@@ -145,14 +145,14 @@ rb.Relock();
 		if(ETIMEDOUT == pm.TimedCondWait(abstime))
 		{
 			m_bDead = true;
-			g_pPlutoLogger->Write(LV_WARNING,"Receive data timed_out! The connection is down.");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Receive data timed_out! The connection is down.");
 			return NULL;
 		}
 	}
 
 	PLUTO_SAFETY_LOCK(rb,m_ReceiveBufferMutex);
 
-	g_pPlutoLogger->Write(LV_STATUS,"returning %d of data",(int) size);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"returning %d of data",(int) size);
 	// We're holding the mutex and have the data.  The caller will have to delete the buffer
 	char *Buffer = (char *)malloc(size);
 	memcpy(Buffer,m_pReceiveBuffer,size);

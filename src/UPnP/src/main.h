@@ -37,9 +37,4 @@
 
 using namespace DCE;
 
-namespace DCE
-{
-	extern	Logger *g_pPlutoLogger;
-}
-
 #endif //_MAIN_H_

@@ -59,7 +59,7 @@ using namespace DCE;
 
 PlutoDHCP::PlutoDHCP(int PK_Installation,string host, string user, string pass, string db_name, int port) 
 {
-    m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+    m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
     if( !m_pDatabase_pluto_main->Connect( host, user, pass, db_name, port ) )
 	{
 		cerr << "Cannot connect to database" << endl;
@@ -77,13 +77,13 @@ PlutoDHCP::PlutoDHCP(int PK_Installation,string host, string user, string pass, 
 		if( vectRow_Installation.size()==0 )
 		{
 			cerr << "ERROR: Cannot determine Installation #" << endl;
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine installation");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot determine installation");
 			return;
 		}
 		else if( vectRow_Installation.size()>1 )
 		{
 			cerr << "WARNING: Cannot determine Installation # definitively" << endl;
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine Installation # definitively");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot determine Installation # definitively");
 		}
 		m_iPK_Installation = vectRow_Installation[0]->PK_Installation_get();
 	}
@@ -116,13 +116,13 @@ Row_Device *PlutoDHCP::DetermineCore()
 	if( vectRow_Device.size()==0 )
 	{
 		cerr << "ERROR: Cannot determine Core #" << endl;
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine core");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot determine core");
 		return NULL;
 	}
 	else if( vectRow_Device.size()>1 )
 	{
 		cerr << "WARNING: Cannot determine core # definitively" << endl;
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine core # definitively");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot determine core # definitively");
 	}
 	return vectRow_Device[0];
 }
@@ -136,7 +136,7 @@ bool PlutoDHCP::DetermineIPRange(IPAddress &ipAddressDhcpStart,IPAddress &ipAddr
 	if (!pRow_Device_DeviceData)
 	{
 		cerr << "ERROR: Cannot find dhcp data" << endl;
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find dhcp data");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find dhcp data");
 		return false;
 	}
 
@@ -153,7 +153,7 @@ bool PlutoDHCP::DetermineIPRange(IPAddress &ipAddressDhcpStart,IPAddress &ipAddr
 	if (posDash == string::npos || (bGenericExists && pos2ndDash == string::npos))
 	{
 		cerr << "ERROR: dhcp data incomplete" << endl;
-		g_pPlutoLogger->Write(LV_CRITICAL,"dhcp data incomplete");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"dhcp data incomplete");
 		return false;
 	}
 
@@ -176,7 +176,7 @@ bool PlutoDHCP::DetermineIPRange(IPAddress &ipAddressDhcpStart,IPAddress &ipAddr
 		(bGenericExists && (ipAddressDhcpStart.BadIP() || ipAddressDhcpStop.BadIP())))
 	{
 		cerr << "ERROR: dhcp data malformed" << endl;
-		g_pPlutoLogger->Write(LV_CRITICAL,"dhcp data malformed");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"dhcp data malformed");
 		return false;
 	}
 
@@ -361,7 +361,7 @@ void PlutoDHCP::GetNetParams(string &sCoreInternalAddress, string &sInternalSubn
 	if (!pRow_Device_DeviceData)
 	{
 		cerr << "ERROR: Cannot find network data" << endl;
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot find network data");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot find network data");
 		return;
 	}
 
@@ -376,7 +376,7 @@ void PlutoDHCP::GetNetParams(string &sCoreInternalAddress, string &sInternalSubn
 	if (sIntData.size() == 0)
 	{
 		cerr << "ERROR: No internal interface" << endl;
-		g_pPlutoLogger->Write(LV_CRITICAL, "No internal interface");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No internal interface");
 		return;
 	}
 

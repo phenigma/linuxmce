@@ -49,10 +49,7 @@ bool Simulator::m_bInstanceCreated = false;
 //-----------------------------------------------------------------------------------------------------
 void *GeneratorThread( void *p)
 {
-	while(!g_pPlutoLogger)
-		Sleep(2000);
-	
-	g_pPlutoLogger->Write(LV_WARNING, "Simulator enabled");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Simulator enabled");
 
 	Simulator *pSimulator = (Simulator *)p;
 
@@ -89,11 +86,11 @@ void *GeneratorThread( void *p)
 
 	while(true)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event (orbiter : %p)", pOrbiter);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Simulator: generating new event (orbiter : %p)", pOrbiter);
 
 		if(!pOrbiter || pOrbiter->m_bQuit_get())
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter is NULL!");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Orbiter is NULL!");
 			pSimulator->m_bIsRunning = false;
 			return NULL;
 		}
@@ -106,7 +103,7 @@ void *GeneratorThread( void *p)
 
 		if(time(NULL) - pOrbiter->GetLastScreenChangedTime() > iTimeout) //1 hour
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "@@@ Got stuck into the screen with id: %s @@@",
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "@@@ Got stuck into the screen with id: %s @@@",
 				pOrbiter->GetCurrentScreenID().c_str());
 
 			if(!pOrbiter->m_bQuit_get()&& HomeScreen != "")
@@ -264,7 +261,7 @@ Simulator::~Simulator()
         Sleep(10);
         if( tTime + 5 < time(NULL) )
         {
-            g_pPlutoLogger->Write(LV_CRITICAL,"Failed to stop the simulator thread!");
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to stop the simulator thread!");
             return;
         }
     }

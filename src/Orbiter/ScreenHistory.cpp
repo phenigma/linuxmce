@@ -39,7 +39,7 @@ ScreenHistory::ScreenHistory(int nPK_Screen, class ScreenHistory *pScreenHistory
 		for(map<long, string>::iterator it = pMessage->m_mapParameters.begin(); it != pMessage->m_mapParameters.end(); it++)
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"ScreenHistory::ScreenHistory %d with %d=%s",m_nPK_Screen,it->first,it->second.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHistory::ScreenHistory %d with %d=%s",m_nPK_Screen,it->first,it->second.c_str());
 #endif
 			m_mapParameters[it->first]=it->second;
 		}
@@ -62,7 +62,7 @@ void ScreenHistory::SetObj(DesignObj_Orbiter *pObj)
 { 
 	m_pObj = pObj;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "ScreenHistory - replaced in screen %d obj with %d", 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "ScreenHistory - replaced in screen %d obj with %d", 
 		m_nPK_Screen, pObj->m_iBaseObjectID);
 #endif
 }
@@ -73,7 +73,7 @@ void ScreenHistory::AddToHistory()
 	m_listObjs.push_front(m_pObj);
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Added %d obj to stack m_listObjs (size %d) - screen %d this: %p", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Added %d obj to stack m_listObjs (size %d) - screen %d this: %p", 
 		m_pObj->m_iBaseObjectID, m_listObjs.size(), m_nPK_Screen, this);
 #endif
 }
@@ -88,7 +88,7 @@ void ScreenHistory::PurgeHistory()
 { 
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "ScreenHistory::PurgeHistory m_listObjs %d obj (size %d) - screen %d this: %p", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ScreenHistory::PurgeHistory m_listObjs %d obj (size %d) - screen %d this: %p", 
 		m_pObj->m_iBaseObjectID, m_listObjs.size(), m_nPK_Screen, this);
 #endif
 	m_listObjs.clear(); 
@@ -110,7 +110,7 @@ bool ScreenHistory::GoBack()
 	if( m_bCantGoBack )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "m_listObjs obj %d cannot go back (size left %d) - screen %d, front left: %d this: %p", 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "m_listObjs obj %d cannot go back (size left %d) - screen %d, front left: %d this: %p", 
 			m_pObj->m_iBaseObjectID, m_listObjs.size(), m_nPK_Screen, 
 			m_listObjs.size() ? m_listObjs.front()->m_iBaseObjectID : 0, this);
 #endif
@@ -123,7 +123,7 @@ bool ScreenHistory::GoBack()
 		m_listObjs.pop_front();
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "Removing  m_listObjs %d from stack (size left %d) - screen %d, front left: %d this: %p", 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Removing  m_listObjs %d from stack (size left %d) - screen %d, front left: %d this: %p", 
 			m_pObj->m_iBaseObjectID, m_listObjs.size(), m_nPK_Screen, 
 			m_listObjs.size() ? m_listObjs.front()->m_iBaseObjectID : 0, this);
 #endif
@@ -131,7 +131,7 @@ bool ScreenHistory::GoBack()
 	}
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "m_listObjs Nothing to remove from queue screen %d", m_nPK_Screen);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "m_listObjs Nothing to remove from queue screen %d", m_nPK_Screen);
 #endif
 
 	return false;
@@ -197,7 +197,7 @@ void ScreenHistory::SaveContext(const map<int, string>& mapVariable,
 								const map<DesignObj_Orbiter *, bool>& mapVisibilityContext)
 {
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-	g_pPlutoLogger->Write(LV_WARNING, "Saving context for screen %d / %p, object %s (%d variables, %d visibility status) ...", 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Saving context for screen %d / %p, object %s (%d variables, %d visibility status) ...", 
 		m_nPK_Screen, this, m_pObj->m_ObjectID.c_str(), mapVariable.size(), mapVisibilityContext.size());
 
 	m_mapVariable.clear();
@@ -205,7 +205,7 @@ void ScreenHistory::SaveContext(const map<int, string>& mapVariable,
 	{
 #ifdef DEBUG
 		if(it->second != "")
-			g_pPlutoLogger->Write(LV_STATUS, "Saving var %d = %s", it->first, it->second.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Saving var %d = %s", it->first, it->second.c_str());
 #endif
 
 		m_mapVariable[it->first] = it->second;
@@ -216,7 +216,7 @@ void ScreenHistory::SaveContext(const map<int, string>& mapVariable,
 	{
 #ifdef DEBUG
 		DesignObj_Orbiter *pObj = itv->first;
-		g_pPlutoLogger->Write(LV_STATUS, "Saving state for obj %s hidden %d", pObj->m_ObjectID.c_str(), itv->second);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Saving state for obj %s hidden %d", pObj->m_ObjectID.c_str(), itv->second);
 #endif
 		m_mapVisibilityContext[itv->first] = itv->second;
 	}
@@ -226,14 +226,14 @@ void ScreenHistory::RestoreContext(map<int, string>& mapVariable,
 								   map<DesignObj_Orbiter *, bool>& mapVisibilityContext)
 {
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-	g_pPlutoLogger->Write(LV_WARNING, "Restoring context for screen %d / %p, object %s (%d variables, %d visibility status) ...", 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Restoring context for screen %d / %p, object %s (%d variables, %d visibility status) ...", 
 		m_nPK_Screen, this, m_pObj->m_ObjectID.c_str(), mapVariable.size(), mapVisibilityContext.size());
 
 	for(map<int, string>::iterator it = m_mapVariable.begin(); it != m_mapVariable.end(); ++it)
 	{
 #ifdef DEBUG	
 		if(it->second != "")
-			g_pPlutoLogger->Write(LV_STATUS, "Restoring var %d = %s", it->first, it->second.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Restoring var %d = %s", it->first, it->second.c_str());
 #endif
 		mapVariable[it->first] = it->second;
 	}
@@ -243,7 +243,7 @@ void ScreenHistory::RestoreContext(map<int, string>& mapVariable,
 	{
 #ifdef DEBUG
 		DesignObj_Orbiter *pObj = itv->first;
-		g_pPlutoLogger->Write(LV_STATUS, "Restoring state for %s hidden %d", pObj->m_ObjectID.c_str(), itv->second);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Restoring state for %s hidden %d", pObj->m_ObjectID.c_str(), itv->second);
 #endif
 		mapVisibilityContext[itv->first] = itv->second;
 	}

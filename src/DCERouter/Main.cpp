@@ -37,7 +37,6 @@ using namespace DCE;
 
 namespace DCE 
 {
-	class Logger *g_pPlutoLogger;
 	class Router *g_pRouter;
 }
 
@@ -46,11 +45,7 @@ DCEConfig g_DCEConfig;
 #define SIGINT_NOTIFY_MESSAGE	"Got SIGINT, exiting\n"
 void sig_int(int sig)
 {
-	if(g_pPlutoLogger) {
-		g_pPlutoLogger->Write(LV_STATUS, SIGINT_NOTIFY_MESSAGE);
-	} else {
-		cout << SIGINT_NOTIFY_MESSAGE;
-	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, SIGINT_NOTIFY_MESSAGE);
 	
 	if(g_pRouter) {
 		g_pRouter->Quit();
@@ -166,11 +161,9 @@ int main(int argc, char *argv[])
 	try
 	{
 		if( sLogger=="null" )
-			g_pPlutoLogger = new NullLogger();
-		else if( sLogger=="stdout" )
-			g_pPlutoLogger = new FileLogger(stdout);
-		else
-			g_pPlutoLogger = new FileLogger(sLogger.c_str());
+			LoggerWrapper::SetType(LT_LOGGER_NULL);
+		else if( sLogger!="stdout" )
+			LoggerWrapper::SetType(LT_LOGGER_FILE,sLogger);
 	}
 	catch(...)
 	{
@@ -190,13 +183,13 @@ int main(int argc, char *argv[])
 
 	g_pRouter = new Router(PK_Device,Installation,BasePath,DBHost,DBUser,DBPassword,DBName,DBPort,ListenPort);
 	bool bResult = g_pRouter->Run();
-	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: Exited with %d",(int) bResult);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoServer: Exited with %d",(int) bResult);
 
 #ifdef _WIN32
 	WSACleanup();
 #endif
 
-	g_pPlutoLogger->Write(LV_STATUS, "Ready to delete router");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to delete router");
 	delete g_pRouter;
 	g_pRouter = NULL;
 
@@ -206,10 +199,7 @@ int main(int argc, char *argv[])
 		delete g_mapLockMutex;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bResult);
-
-	delete g_pPlutoLogger;
-	g_pPlutoLogger = NULL;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bResult);
 
 	if( bResult )
 		return 2;

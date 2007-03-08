@@ -68,7 +68,7 @@ void PopupCollection::Reset()
 void PopupCollection::HidePopup(string ID, string ObjectHash)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "PopupCollection::HidePopup %s", ObjectHash.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PopupCollection::HidePopup %s", ObjectHash.c_str());
 #endif
 	PopupDescription* Item;
 	Item = Popups[ObjectHash];
@@ -83,7 +83,7 @@ void PopupCollection::HidePopup(string ID, string ObjectHash)
 void PopupCollection::PaintPopup(string ID, string ObjectHash, PlutoPopup *Popup, int EffectID)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "PopupCollection::PaintPopup %s", ObjectHash.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PopupCollection::PaintPopup %s", ObjectHash.c_str());
 #endif
 	PopupDescription* Item;
 	if(Current == ObjectHash)
@@ -99,7 +99,7 @@ void PopupCollection::PaintPopup(string ID, string ObjectHash, PlutoPopup *Popup
 	else
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "Added in map popup %s, now size is %d", ID.c_str(), Popups.size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Added in map popup %s, now size is %d", ID.c_str(), Popups.size());
 #endif
 		
 		Engine->StartFrameDrawing(ObjectHash);
@@ -126,7 +126,7 @@ bool PopupCollection::Exists(string ID)
 {
 	bool Result = Popups.find(ID) != Popups.end();
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Searching in map (size = %d): %s and the result is: %d ", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Searching in map (size = %d): %s and the result is: %d ", 
 		Popups.size(),
 		ID.c_str(), 
 		Result);
@@ -142,7 +142,7 @@ void PopupCollection::ResetObjectInPopup(std::string PopupID, DesignObj_Orbiter 
 	{
 		if( it->second==NULL )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"PopupCollection::ResetObjectInPopup frame is null");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PopupCollection::ResetObjectInPopup frame is null");
 			return;
 		}
 		MeshFrame *pPopupFrame = it->second->Frame();

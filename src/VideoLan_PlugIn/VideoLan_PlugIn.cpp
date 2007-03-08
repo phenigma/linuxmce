@@ -69,7 +69,7 @@ bool VideoLan_PlugIn::Register()
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 	if( !m_pMedia_Plugin || !m_pOrbiter_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins");
 		return false;
 	}
 
@@ -139,7 +139,7 @@ class MediaStream *VideoLan_PlugIn::CreateMediaStream( class MediaHandlerInfo *p
 	pMediaDevice_PassedIn = NULL;
 	if ( vectEntertainArea.size()==0 && pMediaDevice == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
 		return NULL;
 	}
 
@@ -161,12 +161,12 @@ class MediaStream *VideoLan_PlugIn::CreateMediaStream( class MediaHandlerInfo *p
 		}
 		if( !pMediaDevice )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
 			return NULL;
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Selected device (%d: %s) as playback device!",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Selected device (%d: %s) as playback device!",
 			pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 			pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
@@ -183,13 +183,13 @@ VideoLanMediaStream *VideoLan_PlugIn::ConvertToVideoLanMediaStream(MediaStream *
 
 	if ( pMediaStream == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is a NULL stream!").c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, (callerIdMessage + "Stream is a NULL stream!").c_str());
 		return NULL;
 	}
 
 	if ( pMediaStream->GetType() != MEDIASTREAM_TYPE_VIDEOLAN )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is not a VideoLanMediaStream!").c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, (callerIdMessage + "Stream is not a VideoLanMediaStream!").c_str());
 		return NULL;
 	}
 
@@ -200,7 +200,7 @@ bool VideoLan_PlugIn::StartMedia( class MediaStream *pMediaStream,string &sError
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	g_pPlutoLogger->Write( LV_STATUS, "VideoLan_PlugIn::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "VideoLan_PlugIn::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
 
 	VideoLanMediaStream *pVideoLanMediaStream = NULL;
 	if ( (pVideoLanMediaStream = ConvertToVideoLanMediaStream(pMediaStream, "VideoLan_PlugIn::StartMedia(): ")) == NULL )
@@ -227,7 +227,7 @@ bool VideoLan_PlugIn::StartMedia( class MediaStream *pMediaStream,string &sError
 
 	string sFileToPlay = pVideoLanMediaStream->GetFilenameToPlay("Empty file name");
 
-	g_pPlutoLogger->Write( LV_STATUS, "VideoLan_PlugIn::StartMedia() Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "VideoLan_PlugIn::StartMedia() Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
 
 	string mediaURL;
 	string Response;
@@ -235,13 +235,13 @@ bool VideoLan_PlugIn::StartMedia( class MediaStream *pMediaStream,string &sError
 	mediaURL = sFileToPlay;
 
 
-	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 // 	if( !SendCommand( cmd, &Response ) )
-// 		g_pPlutoLogger->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
+// 		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
 // 					pVideoLanMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 // 					pVideoLanMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_sDescription.c_str());
 // 	else
-// 		g_pPlutoLogger->Write(LV_STATUS, "The sources device responded to play media command!" );
+// 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "The sources device responded to play media command!" );
 
 	// If there are more than 1 song in the queue, we likely added to an existing queue, so we want
 	// to refresh=true so any orbiters will re-render the play list
@@ -252,7 +252,7 @@ bool VideoLan_PlugIn::StopMedia( class MediaStream *pMediaStream )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	g_pPlutoLogger->Write(LV_STATUS, "Stopping media in VideoLan_PlugIn!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopping media in VideoLan_PlugIn!");
 
 	VideoLanMediaStream *pVideoLanMediaStream = NULL;
 
@@ -265,7 +265,7 @@ bool VideoLan_PlugIn::StopMedia( class MediaStream *pMediaStream )
 
 	if( !pVideoLanMediaStream->m_pMediaDevice_Source )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Stopping media in VideoLan_PlugIn but mediadevice_source is null");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Stopping media in VideoLan_PlugIn but mediadevice_source is null");
 		return false;
 	}
 	int PK_Device = pVideoLanMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
@@ -282,17 +282,17 @@ bool VideoLan_PlugIn::StopMedia( class MediaStream *pMediaStream )
 	if( !SendCommand( cmd ) ) // hack - todo see above, &Response ) )
 	{
 		// TODO: handle failure when sending the command. This is ignored now.
-		g_pPlutoLogger->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
 	}
 	else
 	{
 		if( pVideoLanMediaStream->m_iDequeMediaFile_Pos>=0 && pVideoLanMediaStream->m_iDequeMediaFile_Pos<pVideoLanMediaStream->m_dequeMediaFile.size() )
 		{
 			pVideoLanMediaStream->m_dequeMediaFile[pVideoLanMediaStream->m_iDequeMediaFile_Pos]->m_sStartPosition = SavedPosition;
-			g_pPlutoLogger->Write( LV_STATUS, "Media stopped at %s",SavedPosition.c_str());
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media stopped at %s",SavedPosition.c_str());
 		}
 
-		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped",
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}
 
@@ -313,7 +313,7 @@ bool VideoLan_PlugIn::StopStreaming(VideoLanMediaStream *pVideoLanMediaStream, v
 {
 	if ( ! pVideoLanMediaStream->isStreaming() )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "VideoLan_PlugIn::StopStreaming() Function was called for a MediaStream that is not streaming currently!");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoLan_PlugIn::StopStreaming() Function was called for a MediaStream that is not streaming currently!");
 		return false;
 	}
 
@@ -343,7 +343,7 @@ bool VideoLan_PlugIn::StopStreaming(VideoLanMediaStream *pVideoLanMediaStream, v
 			break;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "VideoLan_PlugIn::StopStreaming() Send stop streaming command to the Streamer with targets: %s!", strSqueezesToStopList.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoLan_PlugIn::StopStreaming() Send stop streaming command to the Streamer with targets: %s!", strSqueezesToStopList.c_str());
 	if ( strSqueezesToStopList.size() != 0 )
 	{
 		// send the StopStreaming command to the VideoLanStreamer
@@ -369,13 +369,13 @@ bool VideoLan_PlugIn::StartStreaming(VideoLanMediaStream *pMediaStream)
 
 	if ( ! pMediaStream->isStreaming() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Called VideoLan_PlugIn::StartStreaming but with a MediaStream (streamid: %d) that is non streamable.", pMediaStream->m_iStreamID_get());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Called VideoLan_PlugIn::StartStreaming but with a MediaStream (streamid: %d) that is non streamable.", pMediaStream->m_iStreamID_get());
 		return false;
 	}
 
 	if ( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router == NULL )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "VideoLan_PlugIn::StartStreaming() was passed a stream with a NULL source device! Ignoring request!.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "VideoLan_PlugIn::StartStreaming() was passed a stream with a NULL source device! Ignoring request!.");
 		return false;
 	}
 
@@ -404,7 +404,7 @@ bool VideoLan_PlugIn::StartStreaming(VideoLanMediaStream *pMediaStream)
 
 	if( !SendCommand(startStreamingCommand) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Send StartStreaming Command failed");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Send StartStreaming Command failed");
 		return false;
 	}
 
@@ -430,7 +430,7 @@ bool VideoLan_PlugIn::StartStreaming(VideoLanMediaStream *pMediaStream)
 				mediaURL = "dvdsimple:/" + mediaURL;
 		}
 
-	g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
@@ -445,7 +445,7 @@ bool VideoLan_PlugIn::StartStreaming(VideoLanMediaStream *pMediaStream)
 	if( pMediaFile )
 		pMediaFile->m_sStartPosition=""; // Be sure to reset the start position so next time we start at the beginning of the file if this is in a queue
 
-	g_pPlutoLogger->Write(LV_STATUS, "Established streaming configuration: %d -> [%s]!",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Established streaming configuration: %d -> [%s]!",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 											strTargetDevices.c_str());
 	return true;
@@ -456,7 +456,7 @@ MediaDevice *VideoLan_PlugIn::FindMediaDeviceForEntertainArea(EntertainArea *pEn
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 	MediaDevice *pMediaDevice;
 	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_VideoLan_Client_CONST);
-	g_pPlutoLogger->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 	return pMediaDevice;
 }

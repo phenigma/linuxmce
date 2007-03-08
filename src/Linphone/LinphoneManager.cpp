@@ -71,7 +71,7 @@ LinphoneManager::Open() {
 	try {	
 		linphone_core_init(linphone_, &LinphoneVTable, (gchar*)conffile.c_str(), (void*)this);
 	} catch (...) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Exception occured during linphone initialization...");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Exception occured during linphone initialization...");
 		return false;
 	}
 	return true;
@@ -84,7 +84,7 @@ LinphoneManager::Close() {
 
 bool 
 LinphoneManager::Invite(std::string extension) {
-	g_pPlutoLogger->Write(LV_STATUS, "Inviting: %s...", extension.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Inviting: %s...", extension.c_str());
 	
 	linphone_->sound_conf.enabled = 1;
 	linphone_->video_conf.enabled = 1;
@@ -95,26 +95,26 @@ LinphoneManager::Invite(std::string extension) {
 
 bool 
 LinphoneManager::Answer() {
-	g_pPlutoLogger->Write(LV_STATUS, "Answering incoming CALL.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Answering incoming CALL.");
 	
 	int retry = 0;
 	for (retry = 5; linphone_core_accept_dialog (linphone_, NULL) < 0 && retry > 0; retry--) {
-		g_pPlutoLogger->Write(LV_WARNING, "Accept CALL attempt failed.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Accept CALL attempt failed.");
 		sleep(1);
 	}
 	if (retry > 0) {
 		linphone_core_set_video(linphone_, LINPHONE_FPS, LINPHONE_RESOLUTION);  
-		g_pPlutoLogger->Write(LV_STATUS, "Accept CALL succeeded.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Accept CALL succeeded.");
 		return true;
 	} else {
-		g_pPlutoLogger->Write(LV_WARNING, "Accept CALL failed.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Accept CALL failed.");
 		return false;
 	}
 }
 
 void 
 LinphoneManager::Drop() {
-	g_pPlutoLogger->Write(LV_STATUS, "Dropping CALL.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Dropping CALL.");
 	linphone_core_terminate_dialog (linphone_, NULL);
 }
 
@@ -130,7 +130,7 @@ LinphoneManager::Linphone_NOOP_CB() {
 
 void 
 LinphoneManager::Linphone_INVITE_CB(LinphoneCore *lc, char *from) {
-	g_pPlutoLogger->Write(LV_WARNING, "LinponeInvite: %s", from);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "LinponeInvite: %s", from);
 	
 	LinphoneManager* pme = (LinphoneManager*)(lc->impl_this_ptr);
 	if(pme->pint_ != NULL) {
@@ -140,12 +140,12 @@ LinphoneManager::Linphone_INVITE_CB(LinphoneCore *lc, char *from) {
 
 void 
 LinphoneManager::Linphone_BYE_CB(LinphoneCore *lc, char *from) {
-	g_pPlutoLogger->Write(LV_WARNING, "LinponeBye: %s", from);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "LinponeBye: %s", from);
 }
 
 void 
 LinphoneManager::Linphone_STATUS_CB(LinphoneCore * lc, char *something) {
-	g_pPlutoLogger->Write(LV_STATUS, "LinponeStatus: %s", something);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "LinponeStatus: %s", something);
 	
 	LinphoneManager* pme = (LinphoneManager*)(lc->impl_this_ptr);
 	if (strncmp(something, "Connected.", 10) == 0) {
@@ -165,19 +165,19 @@ LinphoneManager::Linphone_STATUS_CB(LinphoneCore * lc, char *something) {
 
 void 
 LinphoneManager::Linphone_WARNING_CB(LinphoneCore * lc, char *something) {
-	g_pPlutoLogger->Write(LV_WARNING, "LinponeWarning: %s", something);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "LinponeWarning: %s", something);
 }
 
 void 
 LinphoneManager::Linphone_URL_CB(LinphoneCore * lc, char *something, char *url) {
-	g_pPlutoLogger->Write(LV_WARNING, "LinponeUrl: %s, %s", something, url);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "LinponeUrl: %s, %s", something, url);
 }
 
 std::string 
 LinphoneManager::generateConfigFile() {
 	ofstream f(LINPHONE_CONFIG_FILE_PATH, fstream::out | fstream::trunc);
 	if(!f.is_open()) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Could not open temporary Linphone config file.");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not open temporary Linphone config file.");
 		return NULL;
 	}
 	

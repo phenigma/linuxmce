@@ -31,10 +31,7 @@
 const char *g_szCompile_Date="<=compile_date=>";
 /*SVN_REVISION*/
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 using namespace DCE;
 
 // You can override this block if you don't want the app to reload in the event of a problem
@@ -46,8 +43,7 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
 	if( g_pCommand_Impl )
 	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->OnReload();
 	}
 }
@@ -56,8 +52,7 @@ void SocketCrashHandler(Socket *pSocket)
 	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
 	if( g_pCommand_Impl )
 	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->OnReload();
 	}
 }
@@ -66,8 +61,7 @@ void Plugin_DeadlockHandler(PlutoLock *pPlutoLock)
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
 	}
 }
@@ -75,8 +69,7 @@ void Plugin_SocketCrashHandler(Socket *pSocket)
 {
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Socket problem.  %d",g_pCommand_Impl->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Plugin Socket problem.  %d",g_pCommand_Impl->m_dwPK_Device);
 		// g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);  // Don't reload plugins since sockets can fail
 	}
 }
@@ -100,8 +93,8 @@ extern "C" {
 extern "C" {
 	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,Logger *pPlutoLogger)
 	{
-		g_pPlutoLogger = pPlutoLogger;
-		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
+		LoggerWrapper::SetInstance(pPlutoLogger);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		SMPTE_Fountain *pSMPTE_Fountain = new SMPTE_Fountain(PK_Device, "localhost",true,false,pRouter);
 		if( pSMPTE_Fountain->m_bQuit_get()|| !pSMPTE_Fountain->GetConfig() )
@@ -192,20 +185,19 @@ int main(int argc, char* argv[])
 	try
 	{
 		if( sLogger=="dcerouter" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, SMPTE_Fountain::PK_DeviceTemplate_get_static(), sRouter_IP);
+			LoggerWrapper::SetInstance(new ServerLogger(PK_Device, SMPTE_Fountain::PK_DeviceTemplate_get_static(), sRouter_IP));
 		else if( sLogger=="null" )
-			g_pPlutoLogger = new NullLogger();
-		else if( sLogger=="stdout" )
-			g_pPlutoLogger = new FileLogger(stdout);
-		else
-			g_pPlutoLogger = new FileLogger(sLogger.c_str());
+			LoggerWrapper::SetType(LT_LOGGER_NULL);
+		else if( sLogger!="stdout" )
+			LoggerWrapper::SetType(LT_LOGGER_FILE,sLogger);
+
 	}
 	catch(...)
 	{
 		cerr << "Unable to create logger" << endl;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
 	bool bReload=false;
 	try
@@ -216,7 +208,7 @@ int main(int argc, char* argv[])
 			g_pCommand_Impl=pSMPTE_Fountain;
 			g_pDeadlockHandler=DeadlockHandler;
 			g_pSocketCrashHandler=SocketCrashHandler;
-			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connect OK");
 			pSMPTE_Fountain->CreateChildren();
 			if( bLocalMode )
 				pSMPTE_Fountain->RunLocalMode();
@@ -227,7 +219,7 @@ int main(int argc, char* argv[])
 		} 
 		else 
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() Failed");
 		}
 
 		if( pSMPTE_Fountain->m_bReload )
@@ -243,7 +235,7 @@ int main(int argc, char* argv[])
 	{
 		cerr << "Exception: " << s << endl;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Device: %d ending",PK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d ending",PK_Device);
 #ifdef WIN32
     WSACleanup();
 #endif

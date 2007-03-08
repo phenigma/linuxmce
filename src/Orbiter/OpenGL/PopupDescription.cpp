@@ -59,7 +59,7 @@ PopupDescription::~PopupDescription(void)
 void PopupDescription::Hide()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Remove popup: %s", ObjectHash.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Remove popup: %s", ObjectHash.c_str());
 #endif
 
 	Engine->RemoveMeshFrameFromDesktopForID(ObjectHash);
@@ -68,7 +68,7 @@ void PopupDescription::Hide()
 void PopupDescription::Show()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "Add popup: %s to scene", ObjectHash.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Add popup: %s to scene", ObjectHash.c_str());
 #endif
 	Engine->AddMeshFrameToDesktop("", PopupFrame);
 }

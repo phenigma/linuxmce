@@ -73,19 +73,19 @@ bool Linphone::Connect(int iPK_DeviceTemplate) {
 	
 	string sPhoneNumber = m_pData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 	if(!sPhoneNumber.length()) {
-		g_pPlutoLogger->Write(LV_WARNING, "PhoneNumber parameter is not specified for Linphone");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "PhoneNumber parameter is not specified for Linphone");
 		return false;
 	}
 	
 	DeviceData_Base *pCoreDevData = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
 	if ( pCoreDevData == NULL )
 	{
-			g_pPlutoLogger->Write(LV_CRITICAL, 
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, 
 					"I could not find CORE in the list of devices that i got from the router!");
 			return false;
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Using CORE ip address %s as registrar IP", pCoreDevData->GetIPAddress().c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using CORE ip address %s as registrar IP", pCoreDevData->GetIPAddress().c_str());
 	
 	manager_.setHost(pCoreDevData->GetIPAddress().c_str());
 	manager_.setPhoneNum(sPhoneNumber.c_str());
@@ -250,7 +250,7 @@ void Linphone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,Mes
 //<-dceag-c334-e->
 {
 	if(!manager_.Invite(sPhoneExtension.c_str())) {
-		g_pPlutoLogger->Write(LV_WARNING, "Failed inviting %s.", sPhoneExtension.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed inviting %s.", sPhoneExtension.c_str());
 	}
 }
 
@@ -264,7 +264,7 @@ void Linphone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
 {
 	if(!manager_.Answer()) {
-		g_pPlutoLogger->Write(LV_WARNING, "Failed answering CALL.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed answering CALL.");
 	}
 }
 

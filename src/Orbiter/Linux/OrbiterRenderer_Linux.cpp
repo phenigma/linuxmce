@@ -90,7 +90,7 @@ bool OrbiterRenderer_Linux::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Positi
 	{
 		m_bHasPopups = true;
 
-		g_pPlutoLogger->Write(LV_STATUS, "qqq Shape_PixmapMask_Rectangle %d,%d,%d,%d opaque",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "qqq Shape_PixmapMask_Rectangle %d,%d,%d,%d opaque",
 			Popup->m_Position.X,
 			Popup->m_Position.Y,
 			Popup->m_pObj->m_rPosition.Width,
@@ -119,7 +119,7 @@ bool OrbiterRenderer_Linux::HandleHidePopup(PlutoPopup* Popup)
 	{
 		m_bHasPopups = true;
 
-		g_pPlutoLogger->Write(LV_STATUS, "qqq Shape_PixmapMask_Rectangle %d,%d,%d,%d transparent",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "qqq Shape_PixmapMask_Rectangle %d,%d,%d,%d transparent",
 			Popup->m_Position.X,
 			Popup->m_Position.Y,
 			Popup->m_pObj->m_rPosition.Width,
@@ -164,7 +164,7 @@ void OrbiterRenderer_Linux::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint p
 		{
 			string sMaskPath = OrbiterLogic()->GetLocalDirectory() + pObj->m_vectGraphic[0]->m_Filename + ".mask.xbm";
 
-			g_pPlutoLogger->Write(LV_STATUS, "qqq Shape_PixmapMask_Copy object %s -  position %d,%d,%d,%d / popup offset %d,%d",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "qqq Shape_PixmapMask_Copy object %s -  position %d,%d,%d,%d / popup offset %d,%d",
 				pObj->m_ObjectID.c_str(), pObj->m_rPosition.X, pObj->m_rPosition.Y,
 				pObj->m_rPosition.Width, pObj->m_rPosition.Height, point.X, point.Y);
 
@@ -172,14 +172,14 @@ void OrbiterRenderer_Linux::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint p
 				pOrbiterLinux->m_pX11->GetWmWindow(), sMaskPath, m_screenMaskObjects,
 				pObj->m_rPosition.X, pObj->m_rPosition.Y))
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "qqq Shape_PixmapMask_Copy ERROR!");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "qqq Shape_PixmapMask_Copy ERROR!");
 			}
 		}
 		else
 		{
 			if(pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST)
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "qqq Shape_PixmapMask_Rectangle %d,%d,%d,%d opaque",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "qqq Shape_PixmapMask_Rectangle %d,%d,%d,%d opaque",
 					pObj->m_rPosition.X, pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height);
 
 				//modify mask
@@ -202,7 +202,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 		{
 			if(m_screenMaskCurrent == None)
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "qqq Pixmap_Create %d,%d,%d,%d transparent (reset), wmwindow %p",
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "qqq Pixmap_Create %d,%d,%d,%d transparent (reset), wmwindow %p",
 					0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight, pOrbiterLinux->m_pX11->GetWmWindow());
 
 				m_screenMaskObjects = pOrbiterLinux->m_pX11->Pixmap_Create(pOrbiterLinux->m_pX11->GetWmWindow(),
@@ -216,7 +216,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 			m_bHasPopups = false;
 
 			//reset masks
-			g_pPlutoLogger->Write(LV_WARNING, "qqq Shape_PixmapMask_Rectangle %d,%d,%d,%d transparent (reset), wmwindow %p",
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "qqq Shape_PixmapMask_Rectangle %d,%d,%d,%d transparent (reset), wmwindow %p",
 				0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight, pOrbiterLinux->m_pX11->GetWmWindow());
 			pOrbiterLinux->m_pX11->Shape_PixmapMask_Rectangle(
 				m_screenMaskObjects, 0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight, false);
@@ -242,7 +242,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 		{
 			if(NULL == pOrbiterLinux->GetDisplay())
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "The display is not available");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "The display is not available");
 				return;
 			}
 
@@ -266,7 +266,7 @@ void OrbiterRenderer_Linux::ApplyMasks()
 	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
 	if(NULL != pOrbiterLinux)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "qqq Shape_Window_Apply!");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "qqq Shape_Window_Apply!");
 
 		if(m_bHasPopups)
 		{
@@ -279,14 +279,14 @@ void OrbiterRenderer_Linux::ApplyMasks()
 
 			if( !pOrbiterLinux->m_pX11->Shape_Window_Apply(pOrbiterLinux->m_pX11->GetWmWindow(), m_screenMaskCurrent))
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "qqq Shape_Window_Apply ERROR!");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "qqq Shape_Window_Apply ERROR!");
 			}
 		}
 		else
 		{
 			if( !pOrbiterLinux->m_pX11->Shape_Window_Apply(pOrbiterLinux->m_pX11->GetWmWindow(), m_screenMaskObjects) )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "qqq Shape_Window_Apply ERROR!");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "qqq Shape_Window_Apply ERROR!");
 			}
 		}
 	}
@@ -294,16 +294,16 @@ void OrbiterRenderer_Linux::ApplyMasks()
 
 void OrbiterRenderer_Linux::InitializeAfterSetVideoMode()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::InitializeAfterSetVideoMode() START");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::InitializeAfterSetVideoMode() START");
 
 	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
 	if(NULL != pOrbiterLinux)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::InitializeAfterSetVideoMode()");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::InitializeAfterSetVideoMode()");
 		pOrbiterLinux->X11_Init();
-		g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::InitializeAfterSetVideoMode() : HideOtherWindows");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::InitializeAfterSetVideoMode() : HideOtherWindows");
 		pOrbiterLinux->HideOtherWindows();
-		g_pPlutoLogger->Write(LV_STATUS, "OrbiterLinux::InitializeAfterSetVideoMode() : done");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::InitializeAfterSetVideoMode() : done");
 	}
 }
 
@@ -313,10 +313,10 @@ void OrbiterRenderer_Linux::InitializeAfterRelatives()
 	if(NULL != pOrbiterLinux)
 	{
 		// allow initial "extern" dialogs to receive clicks until this point
-		g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::InitializeAfterRelatives()");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::InitializeAfterRelatives()");
 		pOrbiterLinux->GrabPointer(true);
 		pOrbiterLinux->GrabKeyboard(true);
-		g_pPlutoLogger->Write(LV_WARNING, "OrbiterLinux::InitializeAfterRelatives() : done");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::InitializeAfterRelatives() : done");
 	}
 }
 
@@ -480,7 +480,7 @@ void OrbiterRenderer_Linux::EventLoop()
 
 			if (Event.type == SDL_QUIT)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Received sdl event SDL_QUIT");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received sdl event SDL_QUIT");
 				break;
 			}
 #ifdef ORBITER_OPENGL

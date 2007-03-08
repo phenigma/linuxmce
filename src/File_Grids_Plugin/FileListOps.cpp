@@ -50,7 +50,7 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sVali
     string BasePath;
 
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "get dir contents Base Path: %s",Path.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "get dir contents Base Path: %s",Path.c_str());
 #endif
     string::size_type pos=0;
 	int iDirNumber=0;
@@ -103,11 +103,11 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sVali
         struct dirent entry;
         struct dirent * direntp = & entry;
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
 #endif
         if (dirp == NULL)
         {
-            g_pPlutoLogger->Write(LV_CRITICAL, "opendir1 %s failed: %s", BasePath.c_str(), strerror(errno));
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "opendir1 %s failed: %s", BasePath.c_str(), strerror(errno));
             continue;
         }
 
@@ -119,7 +119,7 @@ g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
 			// LSB-generic Large file support standard for accessing large files
             if ( lstat64((BasePath + "/" + entry.d_name).c_str(), &dirEntryStat) != 0 )
             {
-                g_pPlutoLogger->Write(LV_STATUS, "Could not stat directory entry: %s (%s)", entry.d_name, strerror(errno));
+                LoggerWrapper::GetInstance()->Write(LV_STATUS, "Could not stat directory entry: %s (%s)", entry.d_name, strerror(errno));
                 continue;
             }
 			
@@ -132,7 +132,7 @@ g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
 				{
 					FileDetails * fi = new FileDetails(BasePath, entry.d_name, true, iDirNumber, dirEntryStat.st_mtime);
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "adding autofs symlink as directory");
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "adding autofs symlink as directory");
 #endif
 					listFileNames.push_back(fi);
 				}
@@ -146,13 +146,13 @@ g_pPlutoLogger->Write(LV_STATUS, "adding autofs symlink as directory");
             if ( S_ISDIR(dirEntryStat.st_mode) )
             {
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "found dir entry %s", entry.d_name);
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "found dir entry %s", entry.d_name);
 #endif
                 if (entry.d_name[0] != '.') // ignore folders starting with . {hidden and the . .. ones}
                 {
                     FileDetails *fi = new FileDetails(BasePath, entry.d_name, true, iDirNumber, dirEntryStat.st_mtime);
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "adding dir");
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "adding dir");
 #endif
                     listFileNames.push_back(fi);
                 }
@@ -160,7 +160,7 @@ g_pPlutoLogger->Write(LV_STATUS, "adding dir");
             else if ( S_ISREG(dirEntryStat.st_mode) && entry.d_name[0] != '.' && FileUtils::FindExtension(entry.d_name)!="id3" && FileUtils::FindExtension(entry.d_name)!="lock") // ignore hidden files
             {
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "found file entry %s", entry.d_name);
 #endif
                 size_t pos = 0;
                 while(pos<sValidExtensions_CSV.length() || sValidExtensions_CSV.length()==0 )
@@ -174,7 +174,7 @@ g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
                     {
                         FileDetails *fi = new FileDetails(BasePath, entry.d_name, false, iDirNumber, dirEntryStat.st_mtime);
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "added file %s", entry.d_name);
 #endif
                         listFileNames.push_back(fi);
                         break;
@@ -188,6 +188,6 @@ g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
     }
 
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "get dir contents returning: %d records",(int) listFileNames.size());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "get dir contents returning: %d records",(int) listFileNames.size());
 #endif
 }

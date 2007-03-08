@@ -71,7 +71,7 @@ bool GalleryScenario::Update(void)
 	{
 		if(Status == STATUS_STARTUP)
 		{
-			g_pPlutoLogger->Write(LV_ALARM, "Painting the image...");
+			LoggerWrapper::GetInstance()->Write(LV_ALARM, "Painting the image...");
 			BeforePicture->LoadFromFile(Browser->NextFile());
 			BeforePicture->SetZoomKind(CurrentTime, ZoomTime);
 			BeforePicture->Update(CurrentTime);
@@ -82,7 +82,7 @@ bool GalleryScenario::Update(void)
 
 		if(int(SDL_GetTicks()) - nLastTimeUpdated > ZoomTime)
 		{
-			g_pPlutoLogger->Write(LV_ALARM, "Painting the image...");
+			LoggerWrapper::GetInstance()->Write(LV_ALARM, "Painting the image...");
 			BeforePicture->LoadFromFile(Browser->NextFile());
 			BeforePicture->SetZoomKind(CurrentTime, ZoomTime);
 			BeforePicture->Update(CurrentTime);
@@ -124,7 +124,7 @@ bool GalleryScenario::Update(void)
 
 		if (Result)
 		{
-			g_pPlutoLogger->Write(LV_ALARM, "Start zoom one image");
+			LoggerWrapper::GetInstance()->Write(LV_ALARM, "Start zoom one image");
 			StateMachine->AnimateCurrentImage();
 		}
 
@@ -134,7 +134,7 @@ bool GalleryScenario::Update(void)
 		AfterPicture->Paint();
 		if (Result)
 		{
-			g_pPlutoLogger->Write(LV_ALARM, "Start fade images");
+			LoggerWrapper::GetInstance()->Write(LV_ALARM, "Start fade images");
 			AnimatedPicture* Temp = AfterPicture;
 			AfterPicture = BeforePicture;
 			BeforePicture = Temp;

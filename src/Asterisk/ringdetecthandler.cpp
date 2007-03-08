@@ -45,11 +45,11 @@ namespace ASTERISK {
 
 RingDetectHandler::RingDetectHandler()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Ring Detect SM created.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ring Detect SM created.");
 };
 
 RingDetectHandler::~RingDetectHandler() {
-	g_pPlutoLogger->Write(LV_STATUS, "Ring Detect SM destroyed.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ring Detect SM destroyed.");
 };
 
 	
@@ -74,7 +74,7 @@ RingDetectHandler::handleToken(Token* ptoken) {
 				{
 					string channel = ptoken->getKey(TOKEN_CHANNEL);
 					map_ringext[extension] += string(" ")+channel;
-					g_pPlutoLogger->Write(LV_STATUS, "Will connect channel %s to extension %s", channel.c_str(),extension.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will connect channel %s to extension %s", channel.c_str(),extension.c_str());
 				}
 				else
 				{
@@ -89,13 +89,13 @@ RingDetectHandler::handleToken(Token* ptoken) {
 							{
 								string number = party.substr(pos+1,party.length());
 								map_ringext[ringphoneid] += string(MARK_DIALING)+number+string("/ ");
-								g_pPlutoLogger->Write(LV_STATUS, "Will mark channel %s as dialing to %s", channel.c_str(),number.c_str());								
+								LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will mark channel %s as dialing to %s", channel.c_str(),number.c_str());								
 							}
 						}
 					}
 				}
 			} else {
-				g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing party:%s", party.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error parsing party:%s", party.c_str());
 				return 0;
 			}
 			party = rest;
@@ -110,7 +110,7 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		int pos2 = channel.find("@trusted");
 		int newpos = 0;
 		
-		g_pPlutoLogger->Write(LV_STATUS, "Hangup: %s, %d, %d, %d", channel.c_str(), pos, pos1, pos2);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup: %s, %d, %d, %d", channel.c_str(), pos, pos1, pos2);
 		
 		// Don't hangup if it's a conference transfer
 		// Don't hangup if it's a local trusted channel, it comes before joining to a conference
@@ -125,15 +125,15 @@ RingDetectHandler::handleToken(Token* ptoken) {
 				pos = newchan.find(channel);
 				if( pos >=0)
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "Will delete channel %s from extension %s", channel.c_str(),(*it).first.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will delete channel %s from extension %s", channel.c_str(),(*it).first.c_str());
 					newchan = newchan.substr(0,pos)+newchan.substr(pos+channel.length(),newchan.length());
-					g_pPlutoLogger->Write(LV_STATUS, "Change from [%s] to [%s]",(*it).second.c_str(),newchan.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Change from [%s] to [%s]",(*it).second.c_str(),newchan.c_str());
 					(*it).second = newchan;
 
 					if ((*it).second.find_first_not_of(' ')<0)
 					{
 						delete_list.push_back(it);
-						g_pPlutoLogger->Write(LV_STATUS, "Will delete as empty");
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will delete as empty");
 					}
 					else
 					{
@@ -144,7 +144,7 @@ RingDetectHandler::handleToken(Token* ptoken) {
 						    if(ringphoneid == exten)
 						    {
 							delete_list.push_back(it);
-							g_pPlutoLogger->Write(LV_STATUS, "Will delete as same extension");
+							LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will delete as same extension");
 							continue;
 						    }
 						}
@@ -158,11 +158,11 @@ RingDetectHandler::handleToken(Token* ptoken) {
 							if((newpos=newchan.find_first_not_of(' '))<0)
 							{
 								delete_list.push_back(it);
-								g_pPlutoLogger->Write(LV_STATUS, "Will delete empty DIAL");
+								LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will delete empty DIAL");
 	    						}
 							else
 							{
-								g_pPlutoLogger->Write(LV_STATUS, "DIAL is not empty '%s' %d",newchan.c_str(),newpos);
+								LoggerWrapper::GetInstance()->Write(LV_STATUS, "DIAL is not empty '%s' %d",newchan.c_str(),newpos);
 							}
 						}
 					}
@@ -170,7 +170,7 @@ RingDetectHandler::handleToken(Token* ptoken) {
 				}
 				string ringphoneid;
 				Utils::ParseChannel(channel, &ringphoneid);
-				g_pPlutoLogger->Write(LV_STATUS, "Will notify hangup on %s",ringphoneid.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will notify hangup on %s",ringphoneid.c_str());
 				manager->NotifyHangup(ringphoneid);
 			}
 			for(list<map<string,string>::iterator>::iterator it=delete_list.begin();it!=delete_list.end();it++)
@@ -181,7 +181,7 @@ RingDetectHandler::handleToken(Token* ptoken) {
 			{
 				if(channel.find("Local")<0)
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL, "Hangup on unknown channel %s", channel.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Hangup on unknown channel %s", channel.c_str());
 				}
 				return 0;
 			}
@@ -192,18 +192,18 @@ RingDetectHandler::handleToken(Token* ptoken) {
 	{
 		string channel = ptoken->getKey(TOKEN_CHANNEL);
 
-		g_pPlutoLogger->Write(LV_STATUS, "Channel Ringing: %s", channel.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Channel Ringing: %s", channel.c_str());
 		int pos=channel.find("Local");
 		if(pos>=0)
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Ignore call on Local channel, wait for real one %d in %s ",pos,channel.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ignore call on Local channel, wait for real one %d in %s ",pos,channel.c_str());
 			return 0;
 		}
 		string ringphoneid;
 		if(!Utils::ParseChannel(channel, &ringphoneid)) {
 			if(map_ringext.find(ringphoneid) == map_ringext.end())
 			{
-//					g_pPlutoLogger->Write(LV_WARNING, "No previos ring to this channel !!!");
+//					LoggerWrapper::GetInstance()->Write(LV_WARNING, "No previos ring to this channel !!!");
 				map_ringext[ringphoneid]="";
 //					return 0;
 			}
@@ -242,18 +242,18 @@ RingDetectHandler::handleToken(Token* ptoken) {
 					while(pos>=0);
 				}
 				if(RuntimeConfig::getInstance()->isCallOriginating(ringphoneid)) {
-					g_pPlutoLogger->Write(LV_STATUS, "Phone %s is originating a call. Skipping issue Ring event.",
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Phone %s is originating a call. Skipping issue Ring event.",
 							ringphoneid.c_str());
 				} else {
 					manager->NotifyRing(callerid, ringphoneid, map_ringext[ringphoneid]);
-					g_pPlutoLogger->Write(LV_STATUS, "Phone %s is Ringing. Fire Ring event. with callerid %s",ringphoneid.c_str(),callerid.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Phone %s is Ringing. Fire Ring event. with callerid %s",ringphoneid.c_str(),callerid.c_str());
 				}
 			}
 
 			/* as idea 	:  we need both  map_ringext[ringphoneid] and channel, and use one or another or both depending on situation */
 		}
 		else {
-			g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing channel:%s", channel.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error parsing channel:%s", channel.c_str());
 		}
 	}
 	if(ptoken->getKey(TOKEN_EVENT) == EVENT_LINK) 
@@ -262,20 +262,20 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		string channel2 = ptoken->getKey(TOKEN_CHANNEL2);
 		
 
-		g_pPlutoLogger->Write(LV_STATUS, "Linking channels %s and %s", channel1.c_str(),channel2.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Linking channels %s and %s", channel1.c_str(),channel2.c_str());
 		
 		string ringphoneid;
 		int chan=1;
 		if(Utils::ParseChannel(channel1, &ringphoneid)) {
 			chan=2;
 			if(Utils::ParseChannel(channel2, &ringphoneid)) {
-				g_pPlutoLogger->Write(LV_CRITICAL, "Could not extract phone id from channels");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not extract phone id from channels");
 				return 0;
 			}
 		}
 		if(map_ringext.find(ringphoneid) == map_ringext.end())
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "No previos ring to this channel !!!");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "No previos ring to this channel !!!");
 			return 0;
 		}
 		if(chan==1)
@@ -300,7 +300,7 @@ RingDetectHandler::handleToken(Token* ptoken) {
 				break;
 			}
 		}
-		g_pPlutoLogger->Write(LV_STATUS, "Extension %s has channels %s",ringphoneid.c_str(), map_ringext[ringphoneid].c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Extension %s has channels %s",ringphoneid.c_str(), map_ringext[ringphoneid].c_str());
 		manager->NotifyRing("", ringphoneid, map_ringext[ringphoneid]);
 	}
 	if((ptoken->getKey(TOKEN_EVENT) == EVENT_NEWEXTEN) && ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_CONF)
@@ -309,17 +309,17 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		string extension = ptoken->getKey(TOKEN_EXTENSION);
 		string ringphoneid;
 		if(Utils::ParseChannel(channel, &ringphoneid)) {
-			g_pPlutoLogger->Write(LV_CRITICAL, "Could not extract phone id from channels");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not extract phone id from channels");
 			return 0;
 		}
-		g_pPlutoLogger->Write(LV_STATUS, "Conference event in room %s with channel %s", extension.c_str(),channel.c_str());		
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Conference event in room %s with channel %s", extension.c_str(),channel.c_str());		
 		if(map_ringext.find(extension) == map_ringext.end())
 		{
 			map_ringext[extension] = string("C")+extension;
 		}
-		g_pPlutoLogger->Write(LV_STATUS, "Change from %s",map_ringext[extension].c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Change from %s",map_ringext[extension].c_str());
 		map_ringext[extension] += string(" ")+channel;
-		g_pPlutoLogger->Write(LV_STATUS, "         to %s",map_ringext[extension].c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "         to %s",map_ringext[extension].c_str());
 		manager->NotifyRing("", ringphoneid, map_ringext[extension]);
 	}
 	return 0;

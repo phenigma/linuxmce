@@ -138,7 +138,7 @@ int UserUtils::AddUser(string sUsername,Command_Impl *pCommand_Impl)
 	else
 	{
 		string sCmd = "/usr/pluto/bin/SetPasswords.sh " + StringUtils::itos(PK_Users) + " \"" + sUsername + "\"";
-		g_pPlutoLogger->Write(LV_STATUS,"Executing %s",sCmd.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing %s",sCmd.c_str());
 		system(sCmd.c_str());
 	}
 

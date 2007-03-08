@@ -1080,7 +1080,7 @@ int k=2;
 					if( g_GlobalConfig.m_bNoPrompts )
 					{
 						cerr << "No prompts specified.  Not delete changes" << endl;
-						g_pPlutoLogger->Write(LV_CRITICAL,"While importing into table: %s pscid: %d was deleted.  Skipping",sTableName.c_str(),i_psc_id);
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"While importing into table: %s pscid: %d was deleted.  Skipping",sTableName.c_str(),i_psc_id);
 						continue;
 					}
 					if( !AskYNQuestion("Delete anyway and lose your changes?",false) )
@@ -1121,7 +1121,7 @@ int k=2;
 					if( g_GlobalConfig.m_bNoPrompts )
 					{
 						cerr << "No prompts specified.  Not overwriting changes" << endl;
-						g_pPlutoLogger->Write(LV_CRITICAL,"While importing into table: %s pscid: %d was modified.  Skipping",sTableName.c_str(),i_psc_id);
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"While importing into table: %s pscid: %d was modified.  Skipping",sTableName.c_str(),i_psc_id);
 						Response='n';
 					}
 					else

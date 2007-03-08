@@ -340,7 +340,7 @@ void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, 
     SDL_Surface* pTextSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, W, H, 32, rmask, gmask, bmask, amask);
 	if( !pTextSurface )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"WrapAndRenderText pTextSurface is NULL for %s",text.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WrapAndRenderText pTextSurface is NULL for %s",text.c_str());
 		return;
 	}
 

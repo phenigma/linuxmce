@@ -50,7 +50,7 @@ MeshFrame::MeshFrame(string Name, MeshContainer* Mesh)
 	m_sName = Name;
 
 #if defined(DEBUG_MESH_FRAMES)
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "aaa MeshFrame constructor %p/%s", this, m_sName.c_str());
+	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "aaa MeshFrame constructor %p/%s", this, m_sName.c_str());
 #endif
 
 #if defined(DETECT_LEAKS)
@@ -65,7 +65,7 @@ MeshFrame::~MeshFrame(void)
 {
 #ifdef DEBUG_MESH_FRAMES
 	if(m_bDontReleaseTexture)
-		DCE::g_pPlutoLogger->Write(LV_STATUS, "Not releasing texture for %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Not releasing texture for %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
 #endif
 
 	if(IsVolatile() && NULL != m_pMeshContainer && !m_bDontReleaseTexture)
@@ -78,7 +78,7 @@ MeshFrame::~MeshFrame(void)
 		TextureManager::Instance()->InvalidateItem(this);
 
 #if defined(DEBUG_MESH_FRAMES)
-	DCE::g_pPlutoLogger->Write(LV_WARNING, "aaa MeshFrame destructor %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
+	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "aaa MeshFrame destructor %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
 #endif
 
 #if defined(DETECT_LEAKS)
@@ -109,7 +109,7 @@ void MeshFrame::MarkAsVolatileRecursively()
 /*virtual*/ void MeshFrame::CleanUp(bool VolatilesOnly/* = false*/)
 {
 #ifdef DEBUG_MESH_FRAMES
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::CleanUp: %p/%s", this, m_sName.c_str());	
+	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::CleanUp: %p/%s", this, m_sName.c_str());	
 #endif
 
 	vector<MeshFrame*>::iterator Child;
@@ -141,20 +141,20 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 {
 	if(Frame == NULL)
 	{
-		DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::AddChild: Frame is NULL!!!");	
+		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::AddChild: Frame is NULL!!!");	
 		return;
 	}
 
 	if(NULL != Frame->m_pParent)
 	{
-		DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::AddChild: Frame %p/%s already has a parent %p!",
+		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::AddChild: Frame %p/%s already has a parent %p!",
 			Frame, Frame->m_sName.c_str(), Frame->m_pParent);	
 
 		//throw "Frame already has a parent";
 	}
 
 #ifdef DEBUG_MESH_FRAMES
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::AddChild: Added %p/%s to %p/%s", Frame, Frame->m_sName.c_str(),
+	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::AddChild: Added %p/%s to %p/%s", Frame, Frame->m_sName.c_str(),
 		this, m_sName.c_str());	
 #endif
 
@@ -170,7 +170,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 
 	if(Frame == NULL)
 	{
-		//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Frame is NULL!!!");
+		//DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Frame is NULL!!!");
 		return;
 	}
 
@@ -180,7 +180,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 			find(Frame->m_pParent->Children.begin(), Frame->m_pParent->Children.end(), Frame);
 		if(Child == Frame->m_pParent->Children.end())
 		{
-			DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::RemoveChild: Got a parent, but doesn't have us as child!");
+			DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::RemoveChild: Got a parent, but doesn't have us as child!");
 			//throw "Got a parent, but doesn't have us as child";
 		}
 		else
@@ -188,7 +188,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 			Frame->m_pParent->Children.erase(Child);
 
 #ifdef DEBUG_MESH_FRAMES
-			DCE::g_pPlutoLogger->Write(LV_STATUS, "MeshFrame::RemoveChild %p/%s from parent %p/%s", 
+			DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::RemoveChild %p/%s from parent %p/%s", 
 				Frame, Frame->m_sName.c_str(), Frame->m_pParent, Frame->m_pParent->m_sName.c_str());
 #endif
 
@@ -204,7 +204,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 	}
 	else
 	{
-		DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::RemoveChild: Got no parent! :(");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::RemoveChild: Got no parent! :(");
 		//throw "Got no parent! :( I'm all alone!";
 	}
 }
@@ -215,7 +215,7 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 
 	if(OldFrame == NULL)
 	{
-		//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Frame is NULL!!!");
+		//DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Frame is NULL!!!");
 		return NULL;
 	}
 
@@ -226,7 +226,7 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 
 		if(Child == OldFrame->m_pParent->Children.end())
 		{
-			DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::ReplaceChild: Got a parent, but doesn't have us as child!");
+			DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::ReplaceChild: Got a parent, but doesn't have us as child!");
 			//throw "Got a parent, but doesn't have us as child";
 		}
 		else
@@ -235,14 +235,14 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 			*Child = NewFrame;
 
 #ifdef DEBUG_MESH_FRAMES
-			DCE::g_pPlutoLogger->Write(LV_STATUS, "ttt MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
+			DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "ttt MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
 				OldFrame, OldFrame->m_sName.c_str(), OldFrame->m_pParent, OldFrame->m_pParent->m_sName.c_str(),
 				NewFrame, NewFrame->m_sName.c_str());
 #endif
 
 			if(NewFrame != OldFrame && NULL != OldFrame && OldFrame->IsVolatile())
 			{
-				//DCE::g_pPlutoLogger->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: replaced a volatile %p/%s",
+				//DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: replaced a volatile %p/%s",
 				//	OldFrame, OldFrame->Name().c_str());
 
 				OldFrame->CleanUp(true);
@@ -257,7 +257,7 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 	}
 	else
 	{
-		DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::ReplaceChild: Got no parent! :(");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::ReplaceChild: Got no parent! :(");
 		//throw "Got no parent! :( I'm all alone!";
 	}
 
@@ -268,7 +268,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 {
 	if(!m_bVisible)
 	{
-		//DCE::g_pPlutoLogger->Write(LV_STATUS, "NOT Painting %p. It's invisible.", this);	
+		//DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "NOT Painting %p. It's invisible.", this);	
 		return; 
 	}
 	
@@ -279,7 +279,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 	if(m_pMeshContainer!= NULL)
 		Painter->PaintContainer(*m_pMeshContainer, Transform, TextureTransform);
 
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Painting %p with %d children: ", this, Children.size());
+	//DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "xxxxx Painting %p with %d children: ", this, Children.size());
 
 	vector<MeshFrame *>::iterator Child, EndChild;
 	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
@@ -288,7 +288,7 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 		pMeshFrame->Paint(Transform);
 	}
 
-	//DCE::g_pPlutoLogger->Write(LV_STATUS, "xxxxx Painting %p END ", this);
+	//DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "xxxxx Painting %p END ", this);
 }
 
 /*virtual*/ void MeshFrame::SetTransform(MeshTransform& Transform)
@@ -392,7 +392,7 @@ void MeshFrame::Print(string sIndent)
 	//if(m_sName.find("text") != string::npos)
 	//	return;
 
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "%s%s '%s' %s %p", sIndent.c_str(), 
+	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s%s '%s' %s %p", sIndent.c_str(), 
 		Children.size() ? "+ " : "- ", m_sName.c_str(), m_bVolatile ? "(v)" : "", this);
 
 	for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
@@ -443,7 +443,7 @@ bool MeshFrame::CheckIntegrity(MeshFrame *Frame)
 
 	if(!Result)
 	{
-		DCE::g_pPlutoLogger->Write(LV_WARNING, "MeshFrame::CheckIntegrity failed for %p/%s",
+		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::CheckIntegrity failed for %p/%s",
 			Frame, NULL != Frame ? Frame->Name().c_str() : "null frame");
 	}
 

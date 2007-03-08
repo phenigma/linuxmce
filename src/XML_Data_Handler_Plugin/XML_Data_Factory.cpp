@@ -43,7 +43,7 @@ int XML_Data_Factory::RegisterForeignFactory(const char *szDataID,int PK_Device)
 	map<string,int>::iterator it=m_mapForeignFactories.find(szDataID);
 	if( it!=m_mapForeignFactories.end() )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"XML_Data_Factory::RegisterForeignFactory ID %s already exists", szDataID);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"XML_Data_Factory::RegisterForeignFactory ID %s already exists", szDataID);
 		return -1;
 	}
 
@@ -62,7 +62,7 @@ int XML_Data_Factory::Register(XML_Data_Source_Instantantiate _XML_Data_Source_I
 	map<string,XML_Data_Source_Info *>::iterator it=m_mapXML_Data_Source_Info.find(sDataID);
 	if( it!=m_mapXML_Data_Source_Info.end() )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"XML_Data_Factory::RegisterForeignFactory ID %s already exists", *_XML_Data_Source_DataID());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"XML_Data_Factory::RegisterForeignFactory ID %s already exists", *_XML_Data_Source_DataID());
 		return -1;
 	}
 
@@ -90,7 +90,7 @@ int XML_Data_Factory::Populate(int PK_Device_Requestor,string sDataID,string sXm
 		map<string,int>::iterator itFF=m_mapForeignFactories.find(sDataID);
 		if( itFF==m_mapForeignFactories.end() )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"XML_Data_Factory::Populate nothing to handle %s", sDataID.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"XML_Data_Factory::Populate nothing to handle %s", sDataID.c_str());
 			return -1;
 		}
 

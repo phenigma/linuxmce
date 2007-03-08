@@ -38,12 +38,12 @@ bool
 SerialIOConnection::Open() {	
 	Close();
 	serport_ = TranslateSerialUSB(serport_);
-    g_pPlutoLogger->Write(LV_STATUS, "Opening connection to %s.", serport_.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Opening connection to %s.", serport_.c_str());
     try {
         psp_ = new CSerialPort(serport_, bps_, bs_, fc_);
 		Sleep(100);
 	} catch(...) {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Failed Opening serial port: %s.", serport_.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed Opening serial port: %s.", serport_.c_str());
 		Close();
         return false;
     }
@@ -61,13 +61,13 @@ SerialIOConnection::Close() {
 int 
 SerialIOConnection::Send(const char* buff, unsigned int size) {
 	if(psp_ != NULL) {
-		g_pPlutoLogger->Write(LV_STATUS, "Sending buffer to %s with size %d: <%s>.", 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending buffer to %s with size %d: <%s>.", 
 									serport_.c_str(), size, IOUtils::FormatHexAsciiBuffer(buff, size, "31").c_str());
 		psp_->Write((char*)buff, size);
-		g_pPlutoLogger->Write(LV_STATUS, "Buffer sent.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Buffer sent.");
 		return size;
 	} else {
-		g_pPlutoLogger->Write(LV_WARNING, "Trying to send DATA while not connected.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Trying to send DATA while not connected.");
 		return -1;
 	}
 }
@@ -75,14 +75,14 @@ SerialIOConnection::Send(const char* buff, unsigned int size) {
 int 
 SerialIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 	if(psp_ != NULL) {
-		g_pPlutoLogger->Write(LV_STATUS, "Receiving buffer from %s with max size %d and timeout %d...", 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Receiving buffer from %s with max size %d and timeout %d...", 
 									serport_.c_str(), size, timeout);
 		size_t retsize = psp_->Read(buff, size, timeout);
 		if(retsize == 0) {
-			g_pPlutoLogger->Write(LV_STATUS, "Received nothing.");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received nothing.");
 		}
 		else {
-			g_pPlutoLogger->Write(LV_STATUS, "Received buffer from %s: <%s>", 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received buffer from %s: <%s>", 
 									serport_.c_str(), IOUtils::FormatHexAsciiBuffer(buff, retsize, "33").c_str());
 		}
 		
@@ -90,7 +90,7 @@ SerialIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 		// try to use size_t
 		return (int)retsize;
 	} else {
-		g_pPlutoLogger->Write(LV_WARNING, "Trying to receive DATA while not connected.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Trying to receive DATA while not connected.");
 		return -1;
 	}
 }

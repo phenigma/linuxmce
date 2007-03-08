@@ -33,10 +33,7 @@
 const char *g_szCompile_Date="<=compile_date=>";
 /*SVN_REVISION*/
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 using namespace DCE;
 //<-dceag-incl-e->
 
@@ -134,25 +131,23 @@ bool ParseCommandLineParams(int argc, char* argv[], CommandLineParams &commandli
         return false;
     }
 
-	g_pPlutoLogger = NULL;
+	
 
     try
     {
         if( commandlineparams.sLogger=="dcerouter" )
-            g_pPlutoLogger = new ServerLogger(commandlineparams.PK_Device, Orbiter::PK_DeviceTemplate_get_static(), commandlineparams.sRouter_IP);
+			LoggerWrapper::SetInstance(new ServerLogger(PK_Device, App_Server::PK_DeviceTemplate_get_static(), sRouter_IP));
         else if( commandlineparams.sLogger=="null" )
-            g_pPlutoLogger = new NullLogger();
-        else if( commandlineparams.sLogger=="stdout" )
-            g_pPlutoLogger = new FileLogger(stdout);
-        else
-            g_pPlutoLogger = new FileLogger(commandlineparams.sLogger.c_str());
+            LoggerWrapper::SetType(LT_LOGGER_NULL);
+        else if( commandlineparams.sLogger!="stdout" )
+			LoggerWrapper::SetType(LT_LOGGER_FILE,commandlineparams.sLogger.c_str());
     }
     catch(...)
     {
         cerr << "Unable to create logger" << endl;
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",commandlineparams.PK_Device);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting",commandlineparams.PK_Device);
 
     if( commandlineparams.sLocalDirectory.length()>0 && commandlineparams.sLocalDirectory[ commandlineparams.sLocalDirectory.length()-1 ]!='/' )
         commandlineparams.sLocalDirectory += "/";

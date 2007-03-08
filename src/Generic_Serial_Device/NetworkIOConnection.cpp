@@ -39,13 +39,13 @@ NetworkIOConnection::~NetworkIOConnection()
 bool 
 NetworkIOConnection::Open() {
 	if(host_.empty()) {
-		g_pPlutoLogger->Write(LV_WARNING, "Host ADDRESS was not specified.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Host ADDRESS was not specified.");
 		return false;
 	}
 	
 	struct hostent *hent;
 	if ((hent = gethostbyname(host_.c_str())) == 0) {
-		g_pPlutoLogger->Write(LV_WARNING, "Error resolving host name: %s", host_.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error resolving host name: %s", host_.c_str());
 		return false;
 	}
 
@@ -59,18 +59,18 @@ NetworkIOConnection::Open() {
 
 	if (::connect(sockfd_, (sockaddr *) &addr, sizeof(sockaddr)))
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Error connecting to %s on port %d", host_.c_str(), port_);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error connecting to %s on port %d", host_.c_str(), port_);
 		Close();
 		return false;
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Connected to %s on port %d, socket %d", host_.c_str(), port_, sockfd_);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connected to %s on port %d, socket %d", host_.c_str(), port_, sockfd_);
 	return true;
 }
 
 void 
 NetworkIOConnection::Close() {
-	g_pPlutoLogger->Write(LV_STATUS, "Closing connection to %s", host_.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Closing connection to %s", host_.c_str());
 	shutdown(sockfd_, SHUT_RDWR);
 	close(sockfd_);
 	sockfd_ = -1;
@@ -79,23 +79,23 @@ NetworkIOConnection::Close() {
 int 
 NetworkIOConnection::Send(const char* buff, unsigned int size) {
 	if(sockfd_ < 0) {
-		g_pPlutoLogger->Write(LV_WARNING, "Trying to send DATA while not connected.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Trying to send DATA while not connected.");
 		return -1;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Sending buffer to %s with size %d: <%s>.", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending buffer to %s with size %d: <%s>.", 
 									host_.c_str(), size, IOUtils::FormatHexAsciiBuffer(buff, size).c_str(),"31");
 	size = send(sockfd_, buff, size, 0);
-	g_pPlutoLogger->Write(LV_STATUS, "Buffer sent.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Buffer sent.");
 	return size;
 }
 
 int 
 NetworkIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 	if(sockfd_ < 0) {
-		g_pPlutoLogger->Write(LV_WARNING, "Trying to receive DATA while not connected.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Trying to receive DATA while not connected.");
 		return -1;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Receiving buffer from %s with max size %d and timeout %d...", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Receiving buffer from %s with max size %d and timeout %d...", 
 									host_.c_str(), size, timeout);
 	
 	int retsize = 0;
@@ -108,7 +108,7 @@ NetworkIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 	}
 	
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Received buffer from %s: <%s>", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received buffer from %s: <%s>", 
 									host_.c_str(), IOUtils::FormatHexAsciiBuffer(buff, retsize).c_str(),"33");
 #endif
 

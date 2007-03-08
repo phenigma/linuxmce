@@ -36,10 +36,6 @@
 
 #define  VERSION "<=version=>"
 //-----------------------------------------------------------------------------------------------------
-namespace DCE
-{
-	class Logger *g_pPlutoLogger;
-}
 //-----------------------------------------------------------------------------------------------------
 static string g_sAppPath;
 static const string csTemplateFile = "AllScreensTemplate.h";
@@ -68,7 +64,6 @@ public:
 int main(int argc, char* argv[])
 {
 	g_sAppPath = FileUtils::BasePath(argv[0]); 
-	g_pPlutoLogger=new FileLogger(stdout);
 
 	string DBHost="dcerouter",DBUser="root",DBPassword="",DBName="pluto_main";	
 	int DBPort=3306;
@@ -124,10 +119,10 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
-	Database_pluto_main mds(g_pPlutoLogger); 
+	Database_pluto_main mds(LoggerWrapper::GetInstance()); 
 	if(!mds.Connect(DBHost, DBUser, DBPassword, DBName, DBPort))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to connect to database (host %s, user %s, password %s, dbname %s, "
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to connect to database (host %s, user %s, password %s, dbname %s, "
 			"port %d", DBHost.c_str(), DBUser.c_str(), DBPassword.c_str(), DBName.c_str(), DBPort);
 		return 1;
 	}
@@ -135,7 +130,7 @@ int main(int argc, char* argv[])
 	auto_ptr<ScreenGenerator> psScreenGenerator(new ScreenGenerator(&mds, OutputPath));
 	if(!psScreenGenerator->GenerateScreensFile())
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to generate 'AllScreens.h' file. Aborting...");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to generate 'AllScreens.h' file. Aborting...");
 		return 2;
 	}
 
@@ -163,7 +158,7 @@ bool ScreenGenerator::GenerateScreensFile()
 
 			if(!FileUtils::FileExists(sTemplateFile))
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Unable to find template file '%s'", csTemplateFile.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to find template file '%s'", csTemplateFile.c_str());
 				return false;
 			}
 		}
@@ -188,7 +183,7 @@ bool ScreenGenerator::GenerateScreensFile()
 			m_sOutputPath = "../Gen_Devices";
 			if(!FileUtils::DirExists(m_sOutputPath))
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Unable to save generated file. Cannot find 'Gen_Devices' folder");    
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to save generated file. Cannot find 'Gen_Devices' folder");    
 				return false;
 			}
 		}
@@ -197,7 +192,7 @@ bool ScreenGenerator::GenerateScreensFile()
 	string sOutputFile = FileUtils::IncludeTrailingSlash(m_sOutputPath) + "AllScreens.h";
 	if(!FileUtils::WriteTextFile(sOutputFile, sGeneratedData))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot write file '%s'", sOutputFile.c_str());    
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot write file '%s'", sOutputFile.c_str());    
 		return false;
 	}
     
@@ -206,7 +201,7 @@ bool ScreenGenerator::GenerateScreensFile()
 //-----------------------------------------------------------------------------------------------------
 string ScreenGenerator::GenerateClasses()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Generating classes...");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Generating classes...");
 
 	string sGeneratedClassesData;
 	vector<Row_Screen *> vectRow_Screen;
@@ -218,7 +213,7 @@ string ScreenGenerator::GenerateClasses()
 		Row_Screen *pRow_Screen = *it;
 		string sClassName = GetClassOrMethod(pRow_Screen);
 
-		g_pPlutoLogger->Write(LV_STATUS, "Generating class %s...", sClassName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Generating class %s...", sClassName.c_str());
 
 		string sConstructorParams;
 		string sParams;
@@ -345,7 +340,7 @@ string ScreenGenerator::GenerateClasses()
 //-----------------------------------------------------------------------------------------------------
 string ScreenGenerator::GenerateMethods()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Generating methods...");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Generating methods...");
 
 	string sGeneratedMethodsData;
 
@@ -359,7 +354,7 @@ string ScreenGenerator::GenerateMethods()
 		string sMethodName = GetClassOrMethod(pRow_Screen);
 		string sPK_Screen = StringUtils::ltos(pRow_Screen->PK_Screen_get());
 
-		g_pPlutoLogger->Write(LV_STATUS, "Generating method %s...", sMethodName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Generating method %s...", sMethodName.c_str());
 
 		string sParams;
 
@@ -394,7 +389,7 @@ string ScreenGenerator::GenerateMethods()
 //-----------------------------------------------------------------------------------------------------
 string ScreenGenerator::GenerateSwitchBlock()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Generating cases for switch block...");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Generating cases for switch block...");
 
 	string sGeneratedCasesData;
 
@@ -408,7 +403,7 @@ string ScreenGenerator::GenerateSwitchBlock()
 		string sMethodName = GetClassOrMethod(pRow_Screen);
 		string sPK_Screen = StringUtils::ltos(pRow_Screen->PK_Screen_get());
 
-		g_pPlutoLogger->Write(LV_STATUS, "Generating case for %s...", sPK_Screen.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Generating case for %s...", sPK_Screen.c_str());
 
 		string sParams;
 		string sMessageParamsLines;

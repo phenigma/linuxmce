@@ -74,11 +74,11 @@ void TimedEvent::CalcNextTime()
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Interval timer %s has no time: %s",
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Interval timer %s has no time: %s",
 					m_pRow_EventHandler->Description_get().c_str(),m_sTimes.c_str());
 				return;
 			}
-g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d",
 	m_pRow_EventHandler->Description_get().c_str(),(int) m_tTime,(int) time(NULL), (int) m_tTime-time(NULL));
 		}
 		break;
@@ -88,7 +88,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d
 			struct tm tm_Now;
 			localtime_r(&t,&tm_Now);
 			int CurrentDow = tm_Now.tm_wday==0 ? 7 : tm_Now.tm_wday; // We use M=1, Sunday=7
-			g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::CalcNextTime about to see if another time occurs today %d  after %d Checking %d/%d/%d", CurrentDow, t, tm_Now.tm_mday,tm_Now.tm_mon+1,tm_Now.tm_year);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::CalcNextTime about to see if another time occurs today %d  after %d Checking %d/%d/%d", CurrentDow, t, tm_Now.tm_mday,tm_Now.tm_mon+1,tm_Now.tm_year);
 
 			if( (m_sDaysOfWeek.length() && !m_sDaysOfWeek.find(StringUtils::itos(CurrentDow))==string::npos) ||
 				!SetNextTime(&tm_Now,&tm_Now,m_sTimes) )
@@ -112,22 +112,22 @@ g_pPlutoLogger->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d
 					tm_Now.tm_mday += (7-CurrentDow+iDowFirst);  // wrap around to the next week
 				else
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Day of week timer %s has no day of week: %s",
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Day of week timer %s has no day of week: %s",
 						m_pRow_EventHandler->Description_get().c_str(),m_sDaysOfWeek.c_str());
 					return;
 				}
 
-				g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::CalcNextTime no other time today.  Checking %d %d/%d/%d", iDowNext, tm_Now.tm_mday,tm_Now.tm_mon+1,tm_Now.tm_year);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::CalcNextTime no other time today.  Checking %d %d/%d/%d", iDowNext, tm_Now.tm_mday,tm_Now.tm_mon+1,tm_Now.tm_year);
 				if( !SetNextTime(NULL,&tm_Now,m_sTimes) )
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Day of week timer %s has no next time: %s",
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Day of week timer %s has no next time: %s",
 						m_pRow_EventHandler->Description_get().c_str(),m_sTimes.c_str());
 					return;
 				}
-				g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::CalcNextTime no stage 2.  Checking %d %d/%d/%d", iDowNext, tm_Now.tm_mday,tm_Now.tm_mon+1,tm_Now.tm_year);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::CalcNextTime no stage 2.  Checking %d %d/%d/%d", iDowNext, tm_Now.tm_mday,tm_Now.tm_mon+1,tm_Now.tm_year);
 			}
 			m_tTime = mktime(&tm_Now);
-g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::CalcNextTime dow done using %d %d/%d/%d %d:%d:%d", 
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::CalcNextTime dow done using %d %d/%d/%d %d:%d:%d", 
 					  m_tTime, tm_Now.tm_mday,tm_Now.tm_mon+1,tm_Now.tm_year,tm_Now.tm_hour,tm_Now.tm_min,tm_Now.tm_sec);
 		}
 		break;
@@ -160,14 +160,14 @@ g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::CalcNextTime dow done using %d %d/%
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Day of week timer %s has no day of week: %s",
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Day of week timer %s has no day of week: %s",
 						m_pRow_EventHandler->Description_get().c_str(),m_sDaysOfMonth.c_str());
 					return;
 				}
 
 				if( !SetNextTime(NULL,&tm_Now,m_sTimes) )  // First time that day
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Day of week timer %s has no next time: %s",
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Day of week timer %s has no next time: %s",
 						m_pRow_EventHandler->Description_get().c_str(),m_sTimes.c_str());
 					return;
 				}
@@ -180,12 +180,12 @@ g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::CalcNextTime dow done using %d %d/%
 	}
 	if( m_tTime && m_tTime < time(NULL) && m_iTimedEventType!=ABSOLUTE_TIME )
 	{
-g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::CalcNextTime Adjusting relative time because %d < %d ", m_tTime, time(NULL));
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::CalcNextTime Adjusting relative time because %d < %d ", m_tTime, time(NULL));
 		m_tTime = time(NULL);
 	}
 struct tm tmLocal;
 localtime_r(&m_tTime,&tmLocal);
-g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::CalcNextTime Timer: %s set for %d/%d/%d %d:%d:%d in %d seconds",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::CalcNextTime Timer: %s set for %d/%d/%d %d:%d:%d in %d seconds",
 	m_pRow_EventHandler->Description_get().c_str(),tmLocal.tm_mon+1,tmLocal.tm_mday,tmLocal.tm_year-100,tmLocal.tm_hour,tmLocal.tm_min,tmLocal.tm_sec,m_tTime - time(NULL));
 }
 
@@ -231,7 +231,7 @@ public:
 bool TimedEvent::SetNextTime(tm *tmAfter,tm *tmOutput,string sTimes)
 {
   	TimeOfDay tod;
-g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::SetNextTime starting %d/%d/%d %d:%d:%d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::SetNextTime starting %d/%d/%d %d:%d:%d",
 	tmOutput->tm_mday,tmOutput->tm_mon+1,tmOutput->tm_year,
 	tmOutput->tm_hour,tmOutput->tm_min,tmOutput->tm_sec);
 
@@ -245,11 +245,11 @@ g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::SetNextTime starting %d/%d/%d %d:%d
 
 	if( tod.m_H==-1 )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::SetNextTime didn't find a valid time");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::SetNextTime didn't find a valid time");
 		return false; // We didn't find a valid time
 	}
 
-g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::SetNextTime ready to assign %d/%d/%d %d:%d:%d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::SetNextTime ready to assign %d/%d/%d %d:%d:%d",
 	tmOutput->tm_mday,tmOutput->tm_mon+1,tmOutput->tm_year,
 	tmOutput->tm_hour,tmOutput->tm_min,tmOutput->tm_sec);
 
@@ -257,7 +257,7 @@ g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::SetNextTime ready to assign %d/%d/%
 	tmOutput->tm_min = tod.m_M;
 	tmOutput->tm_sec = tod.m_S;
 
-	g_pPlutoLogger->Write(LV_STATUS,"TimedEvent::SetNextTime returning %d/%d/%d %d:%d:%d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::SetNextTime returning %d/%d/%d %d:%d:%d",
 		tmOutput->tm_mday,tmOutput->tm_mon+1,tmOutput->tm_year,
 		tod.m_H,tod.m_M,tod.m_S);
 	return true;

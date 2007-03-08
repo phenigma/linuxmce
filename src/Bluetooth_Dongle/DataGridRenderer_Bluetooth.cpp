@@ -48,7 +48,7 @@ void DataGridRenderer_Bluetooth::RenderObject(DesignObj_Orbiter *pObj_Screen, Pl
 		return;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", m_pObj_Owner_DataGrid->m_sExtraInfo.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Extraoptions in grid: %s", m_pObj_Owner_DataGrid->m_sExtraInfo.c_str());
 #endif
 
 #if (defined(PROFILING))
@@ -78,7 +78,7 @@ void DataGridRenderer_Bluetooth::RenderObject(DesignObj_Orbiter *pObj_Screen, Pl
 	if(m_pObj_Owner_DataGrid->m_sExtraInfo.find( 'F' ) != string::npos) 
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "OrbiterBluetooth: I won't render this grid on the phone");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterBluetooth: I won't render this grid on the phone");
 #endif
 		DataGridRenderer::RenderObject(pObj_Screen);
 		return;
@@ -93,14 +93,14 @@ void DataGridRenderer_Bluetooth::RenderObject(DesignObj_Orbiter *pObj_Screen, Pl
 	if(pDataGridTable)
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", pDataGridTable->m_ColumnCount);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Got to render a datagrid with %d columns", pDataGridTable->m_ColumnCount);
 #endif
 		if(pDataGridTable->m_ColumnCount == 1)//we can render on column datagrid
 			bUsePhoneGrid = true;
 
 		if(!bUsePhoneGrid)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "OrbiterBluetooth: I won't render this grid on the phone");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterBluetooth: I won't render this grid on the phone");
 			m_pObj_Owner_DataGrid->RenderObject(pObj_Screen);
 			return;
 		}
@@ -124,7 +124,7 @@ void DataGridRenderer_Bluetooth::RenderObject(DesignObj_Orbiter *pObj_Screen, Pl
 		int iHighlightedRow = m_pObj_Owner_DataGrid->m_iHighlightedRow >= 0 ? m_pObj_Owner_DataGrid->m_iHighlightedRow : atoi(sCurrentSelected.c_str());
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d, selected item %d, send 'selected item' %d",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d, selected item %d, send 'selected item' %d",
 			iSelectedColumn, bTurnOn, pDataGridTable->getTotalRowCount(), iHighlightedRow, (int)bSendSelectedOnMove);
 #endif
 
@@ -133,7 +133,7 @@ void DataGridRenderer_Bluetooth::RenderObject(DesignObj_Orbiter *pObj_Screen, Pl
 			DataGridCell * pCell = pDataGridTable->GetData(iSelectedColumn, i);
 			string sItem = pCell != NULL ? pCell->GetText() : "<empty>";
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Item %d : '%s'. Ignoring esc seq for now...", i, sItem.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Item %d : '%s'. Ignoring esc seq for now...", i, sItem.c_str());
 #endif
 
 			//ignoring esc seq
@@ -146,7 +146,7 @@ void DataGridRenderer_Bluetooth::RenderObject(DesignObj_Orbiter *pObj_Screen, Pl
 			}            
 
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Item %d : '%s'.", i, sItem.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Item %d : '%s'.", i, sItem.c_str());
 #endif
 
 			listGrid.push_back(sItem);

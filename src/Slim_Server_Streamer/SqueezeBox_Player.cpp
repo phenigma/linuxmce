@@ -115,7 +115,7 @@ Slim_Server_Streamer *SqueezeBox_Player::findSlimServerController()
     }
     else
     {
-        g_pPlutoLogger->Write(LV_STATUS, "");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "");
         return NULL;
     }
 }
@@ -227,16 +227,16 @@ void SqueezeBox_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sM
     Slim_Server_Streamer *pSlimServer  = findSlimServerController();
     if  (pSlimServer == NULL )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "The Controlling object is not a SlimServerStreamer object. Ignoring command request!");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "The Controlling object is not a SlimServerStreamer object. Ignoring command request!");
         return;
     }
 
     // start to stream another file.
     string mediaUrl;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Invoking Start Streaming on the server!");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invoking Start Streaming on the server!");
 //z    pSlimServer->CMD_Start_Streaming(sFilename, iStreamID, "", /* iMediaPosition, */ &mediaUrl, sCMD_Result, pMessage);
-    g_pPlutoLogger->Write(LV_STATUS, "Invoked Start Streaming on the server!");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invoked Start Streaming on the server!");
 }
 
 //<-dceag-c38-b->

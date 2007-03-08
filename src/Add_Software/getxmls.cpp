@@ -31,10 +31,7 @@ See the GNU General Public License for more details.
 
 #define MaxBuf 17
 #define UserAgent "--user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\""
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 using namespace DCE;
 using namespace std;
 
@@ -43,7 +40,7 @@ const string templEnd[2]={"\">","</em>"};
 
 void ProcessXML(string sFileName, vector<string> &virusFree)
 {
-	//g_pPlutoLogger->Write(LV_WARNING, "Processing XML %s", sFileName.c_str());
+	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "Processing XML %s", sFileName.c_str());
 	
 	string sXmlData;
 	FileUtils::ReadTextFile(sFileName, sXmlData);
@@ -66,7 +63,6 @@ bool FetchURL(string sUrl, string sOutputFile, string sUserAgent)
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger(stdout);
 	int res;
 	bool bError=false;
 	string host="dcerouter",user="root",passwd="",db="pluto_main";

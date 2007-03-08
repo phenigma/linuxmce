@@ -47,7 +47,7 @@ void MessageXML::ParseXML(xmlNode *pNode/* = NULL*/)
 		xmlDoc *doc = xmlReadMemory(m_sXMLData.c_str(), static_cast<int>(m_sXMLData.length()), NULL, NULL, 0);
 		if(NULL == doc) 
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to parse xml %s", m_sXMLData.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to parse xml %s", m_sXMLData.c_str());
 			m_bFailed = true;
 			return;
 		}
@@ -90,7 +90,7 @@ void MessageXML::ParseXML(xmlNode *pNode/* = NULL*/)
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot find 'message' node");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot find 'message' node");
 	}
 
 	if(NULL != doc)

@@ -171,7 +171,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 
 #ifdef DEBUG
 	clock_t cStart=clock(); // move this to within #debug
-	g_pPlutoLogger->Write( LV_DATAGRID, "Requesting grid: %s", sDataGrid_ID.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "Requesting grid: %s", sDataGrid_ID.c_str() );
 #endif
 	PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
 
@@ -179,12 +179,12 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 	DataGridMap::iterator dg = m_DataGrids.find( sDataGrid_ID );
 	if ( dg == m_DataGrids.end() )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Requesting data from unknown grid %s", sDataGrid_ID.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Requesting data from unknown grid %s", sDataGrid_ID.c_str() );
 		return;
 	}
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_DATAGRID, "Found grid: %s", sDataGrid_ID.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "Found grid: %s", sDataGrid_ID.c_str() );
 #endif
 
 		pDataGridTable = ( *dg ).second;
@@ -201,7 +201,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 			dg = m_DataGrids.find( sDataGrid_ID );
 			if ( dg == m_DataGrids.end() )
 			{
-				g_pPlutoLogger->Write( LV_CRITICAL, "Requesting twice data from unknown grid %s", sDataGrid_ID.c_str() );
+				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Requesting twice data from unknown grid %s", sDataGrid_ID.c_str() );
 				return;
 			}
 			pDataGridTable = ( *dg ).second;
@@ -216,7 +216,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 		if( sSeek.length() )
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write( LV_DATAGRID, "it has a seek value grid: %s rows: %d seek %s offset: %d bValue: %d", 
+			LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "it has a seek value grid: %s rows: %d seek %s offset: %d bValue: %d", 
 				  sDataGrid_ID.c_str(),(int) pDataGridTable->GetRows(),sSeek.c_str(), iOffset, (int) bValue );
 #endif
 			sSeek = StringUtils::ToUpper(sSeek);
@@ -230,14 +230,14 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 				DataGridCell *pCell = pDataGridTable->GetData(iOffset,dgrow);
 				if( !pCell )
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Cannot seek because there's an empty cell");
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot seek because there's an empty cell");
 					break;
 				}
 				string::size_type posStart=0,posEnd=0;
 				string CellText = bValue ? StringUtils::ToUpper(pCell->m_Value ? pCell->m_Value : "") : StringUtils::ToUpper(pCell->m_Text ? pCell->m_Text : "");
 				if( CellText.length()==0 )
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Request grid, we're seeking on a column that has empty cells ioffset: %d seek: %s id: %s",iOffset,sSeek.c_str(),sDataGrid_ID.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Request grid, we're seeking on a column that has empty cells ioffset: %d seek: %s id: %s",iOffset,sSeek.c_str(),sDataGrid_ID.c_str());
 					continue;
 				}
 
@@ -249,7 +249,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 					else
 						CellText = CellText.substr(1);
 
-					g_pPlutoLogger->Write(LV_STATUS,"Stripping leading ~ pos %d now %s",
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Stripping leading ~ pos %d now %s",
 						nexttilde,CellText.c_str());
 				};
 
@@ -261,7 +261,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 					else
 						CellText = CellText.substr(1);
 
-					g_pPlutoLogger->Write(LV_STATUS,"Stripping leading ` pos %d now %s",
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Stripping leading ` pos %d now %s",
 						nexttilde,CellText.c_str());
 				};
 
@@ -291,19 +291,19 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 				*iRow = iPage * iRow_count;
 			}
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_DATAGRID, "Seek row %d",*iRow);
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "Seek row %d",*iRow);
 #endif
 		}
 		pDataGridTable->m_bKeepColumnHeader = bKeep_Column_Header;
 		pDataGridTable->m_bKeepRowHeader = bKeep_Row_Header;
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_DATAGRID, "ready to call todata: %s ", sDataGrid_ID.c_str() );
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "ready to call todata: %s ", sDataGrid_ID.c_str() );
 #endif
 
 		pDataGridTable->ToData( sDataGrid_ID, *iData_Size, *pData, iColumn, iRow, iColumn_count, iRow_count );
 #ifdef DEBUG
 		clock_t cStop = clock();
-		g_pPlutoLogger->Write( LV_DATAGRID, "Sending datagrid %s, size: %d, cols: %d, rows: %d %d ms", 
+		LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "Sending datagrid %s, size: %d, cols: %d, rows: %d %d ms", 
 			sDataGrid_ID.c_str(), *iData_Size, iColumn_count, iRow_count, (int) (cStop-cStart) );
 #endif
 }
@@ -342,22 +342,22 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 
 #ifdef DEBUG
 	clock_t cStart=clock(); // move this to within #debug
-	g_pPlutoLogger->Write( LV_STATUS, "About to populate grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "About to populate grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
 #endif
 
 	DataGridGeneratorCallBack *pCB = GetCallBack(iPK_DataGrid,iPK_DeviceTemplate);
 	DataGridTable *pDataGridTable=NULL;
 
 	if( !pCB )
-		g_pPlutoLogger->Write(LV_WARNING,"Datagrid_Plugin::CMD_Populate_Datagrid map is empty??");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Datagrid_Plugin::CMD_Populate_Datagrid map is empty??");
 	else
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS, "About to call member function: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "About to call member function: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
 #endif
 		pDataGridTable = CALL_MEMBER_FN( *pCB->m_pDataGridGeneratorPlugIn, pCB->m_pDCEDataGridGeneratorFn ) ( sDataGrid_ID, sOptions, NULL, iPK_Variable, sValue_To_Assign, pMessage );
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS, "Called datagrid populate function for grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Called datagrid populate function for grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
 #endif
 
 		if( pCB->m_bRePopulateEachTimeRequested && pDataGridTable )
@@ -370,7 +370,7 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 
 	if( !pDataGridTable )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot populate grid: %s", sDataGrid_ID.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot populate grid: %s", sDataGrid_ID.c_str() );
 		pDataGridTable = new DataGridTable();
 		DataGridCell *pCell;
 		pCell = new DataGridCell( "Datagrid: " + sDataGrid_ID, "" );
@@ -392,7 +392,7 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 	m_DataGrids[sDataGrid_ID]=pDataGridTable;
 #ifdef DEBUG
 	clock_t cStop = clock();
-	g_pPlutoLogger->Write( LV_STATUS, "Returning from populate grid successful? %s %d ms", (*bIsSuccessful ? "Y" : "N"), (int) (cStop-cStart) );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Returning from populate grid successful? %s %d ms", (*bIsSuccessful ? "Y" : "N"), (int) (cStop-cStart) );
 #endif
 	return;
 }

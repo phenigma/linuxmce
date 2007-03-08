@@ -259,7 +259,7 @@ void OpenGLGraphic::Convert()
 	}
 
 #ifdef DEBUG
-	DCE::g_pPlutoLogger->Write(LV_STATUS, "Freeing surface %p" , LocalSurface);
+	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Freeing surface %p" , LocalSurface);
 #endif
 	SDL_FreeSurface(LocalSurface);
 	LocalSurface = NULL;
@@ -368,7 +368,7 @@ g_PlutoProfiler->Start("OpenGLGraphic::LoadGraphic");
 			"Please uncheck 'Use OCG' device data for this device (" + 
 			StringUtils::ltos(m_pOrbiterRenderer->OrbiterLogic()->m_dwPK_Device) + ").";
 
-		g_pPlutoLogger->Write(LV_CRITICAL, sErrorMessage.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, sErrorMessage.c_str());
 		m_pOrbiterRenderer->PromptUser(sErrorMessage.c_str(), 100);
 		exit(1);
 		return false;
@@ -442,7 +442,7 @@ OpenGLGraphic* OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, Pluto
 	Uint32 PlutoPixelDest, PlutoPixelSrc, Pixel;
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS, "ReplaceColor: %u %u %u : %u %u %u",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ReplaceColor: %u %u %u : %u %u %u",
 		ColorToReplace.R(), ColorToReplace.G(), ColorToReplace.B(),
 		ReplacementColor.R(), ReplacementColor.G(), ReplacementColor.B());
 #endif

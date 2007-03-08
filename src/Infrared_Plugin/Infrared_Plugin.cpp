@@ -76,10 +76,10 @@ bool Infrared_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		m_bQuit_set(true);
 		return false;
 	}
@@ -114,7 +114,7 @@ bool Infrared_Plugin::Register()
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to ir plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to ir plugin");
 		return false;
 	}
 
@@ -605,14 +605,14 @@ class DataGridTable *Infrared_Plugin::IRGroupCategories(string GridID,string Par
 void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c188-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS,"start infrared codes");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"start infrared codes");
 	IRDevice irDevice;
 	GetInfraredCodes(iPK_Device,irDevice);
 	irDevice.SerializeWrite();
 	*iData_Size = irDevice.m_dwAllocatedSize;
 	*pData = irDevice.m_pcDataBlock;
 	sCMD_Result = "OK";
-	g_pPlutoLogger->Write(LV_STATUS,"endinfrared codes");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"endinfrared codes");
 }
 
 void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bNoIRData)
@@ -626,14 +626,14 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
 	if( !pRow_Device )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Infrared_Plugin::GetInfraredCodes invalid device");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Infrared_Plugin::GetInfraredCodes invalid device");
 		return;
 	}
 	pRow_Device->Reload();  // Get the latest so the user doesn't need to do a quick reload router
 	Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
 	if( !pRow_DeviceTemplate )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Infrared_Plugin::GetInfraredCodes invalid device template");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Infrared_Plugin::GetInfraredCodes invalid device template");
 		return;
 	}
 	pRow_DeviceTemplate->Reload();
@@ -679,7 +679,7 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 		if( irDevice.m_mapCodes.find(it->first)==irDevice.m_mapCodes.end() )
 			irDevice.m_vectCommands_WithoutCodes.push_back(it->first);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Infrared_Plugin::GetInfraredCodes %d records %d cmds without codes %d codes",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Infrared_Plugin::GetInfraredCodes %d records %d cmds without codes %d codes",
 		(int) vectRow_InfraredGroup_Command.size(), (int) irDevice.m_vectCommands_WithoutCodes.size(), (int) irDevice.m_mapCodes.size() );
 }
 //<-dceag-c250-b->
@@ -700,7 +700,7 @@ void Infrared_Plugin::CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_As
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
 	if( !pRow_Device )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Infrared_Plugin::CMD_Store_Infrared_Code Device %d is invalid",iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Infrared_Plugin::CMD_Store_Infrared_Code Device %d is invalid",iPK_Device);
 		return;
 	}
 
@@ -708,14 +708,14 @@ void Infrared_Plugin::CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_As
 	Row_InfraredGroup *pRow_InfraredGroup;
 	if( !pRow_DeviceTemplate || (pRow_InfraredGroup = pRow_DeviceTemplate->FK_InfraredGroup_getrow())==NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Infrared_Plugin::CMD_Store_Infrared_Code Device %d has no dt %p or no i/r group",iPK_Device,pRow_DeviceTemplate);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Infrared_Plugin::CMD_Store_Infrared_Code Device %d has no dt %p or no i/r group",iPK_Device,pRow_DeviceTemplate);
 		return;
 	}
 
 	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command;
 	pTable_InfraredGroup_Command->GetRows("FK_InfraredGroup=" + StringUtils::itos(pRow_InfraredGroup->PK_InfraredGroup_get()) +
 		" AND FK_Command=" + StringUtils::itos(iPK_Command_Input), &vectRow_InfraredGroup_Command);
-g_pPlutoLogger->Write(LV_STATUS,"StoreIR Code.  Found %d rows for this already",(int) vectRow_InfraredGroup_Command.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"StoreIR Code.  Found %d rows for this already",(int) vectRow_InfraredGroup_Command.size());
 	bool bNew = false;
 	Row_InfraredGroup_Command *pRow_InfraredGroup_Command=NULL;
 	if (vectRow_InfraredGroup_Command.size() == 0)
@@ -734,7 +734,7 @@ g_pPlutoLogger->Write(LV_STATUS,"StoreIR Code.  Found %d rows for this already",
 		pRow_InfraredGroup_Command->IRData_set(sValue_To_Assign);
 	}
 	pTable_InfraredGroup_Command->Commit();
-g_pPlutoLogger->Write(LV_STATUS,"In the database as PK_IRG_C %d",pRow_InfraredGroup_Command->PK_InfraredGroup_Command_get());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"In the database as PK_IRG_C %d",pRow_InfraredGroup_Command->PK_InfraredGroup_Command_get());
 
 }
 //<-dceag-createinst-b->!
@@ -759,42 +759,42 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 	SendCommand(SCREEN_DialogGC100Error);
 
 	returned = system(Command.c_str());
-	g_pPlutoLogger->Write(LV_STATUS, "Find gc100 returned %d",returned);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Find gc100 returned %d",returned);
 	exit_status=WEXITSTATUS(returned);
 	if ( returned == -1) {
-		g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Failed Spawning configure script");
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, Spwning config script",false,30);
 		DCE::SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "GC100 Failed, Spawning config script", "0");
 		SendCommand(SCREEN_DialogGC100Error);
 	} else if( returned == 0) {
 		size_t s;
 		const char *ptr = FileUtils::ReadFileIntoBuffer("/var/log/pluto/gc100-conf.log",s);
-		g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success.  log %d bytes: %s",s,ptr ? ptr : "NULL");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "The configure script returned with success.  log %d bytes: %s",s,ptr ? ptr : "NULL");
 // The script will fire the new pp		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 added with success",false,30);
 	} else if( exit_status == 1) {
-		g_pPlutoLogger->Write(LV_WARNING, "GC100 as default not found");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "GC100 as default not found");
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Not Found as factory default",false,30);
 		DCE::SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "GC100 Not Found as factory default", "0");
 		SendCommand(SCREEN_DialogGC100Error);
 	} else if( exit_status == 2) {
-		g_pPlutoLogger->Write(LV_WARNING, "GC100 already exist in the databse");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "GC100 already exist in the databse");
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Allready exists",false,30);
 		DCE::SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "GC100 Allready exists", "0");
 		SendCommand(SCREEN_DialogGC100Error);
 
 	} else if( exit_status == 3) {
-		g_pPlutoLogger->Write(LV_WARNING, "GC100 config did not found instalation number");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "GC100 config did not found instalation number");
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, invalid instalation number",false,30);
 		DCE::SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "GC100 Failed, invalid instalation number", "0");
 		SendCommand(SCREEN_DialogGC100Error);
 
 	} else if( exit_status == 4) {
-		g_pPlutoLogger->Write(LV_WARNING, "GC100 config did not found Template number");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "GC100 config did not found Template number");
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, invalid Template number",false,30);
 		DCE::SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "GC100 Failed, invalid Template number", "0");
 		SendCommand(SCREEN_DialogGC100Error);
 	} else {
-		g_pPlutoLogger->Write(LV_WARNING, "The config script returned weird error %d",exit_status);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "The config script returned weird error %d",exit_status);
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed. "
         //    "Please make sure that the device was reseted to factory settings (response " + 
         //    StringUtils::itos(exit_status) + ")",false,30);
@@ -890,13 +890,13 @@ void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sVa
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);
 	if( !pRow_Device )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Get sibling remote called from device %d that's not in the database!", pMessage->m_dwPK_Device_From);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Get sibling remote called from device %d that's not in the database!", pMessage->m_dwPK_Device_From);
 		return;
 	}
 	int FK_Device_ControlledVia = pRow_Device->FK_Device_ControlledVia_get();
 	if (!FK_Device_ControlledVia)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Parent of calling device %d not found!", pMessage->m_dwPK_Device_From);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Parent of calling device %d not found!", pMessage->m_dwPK_Device_From);
 		return;
 	}
 	vector<Row_Device *> vectRow_Device;
@@ -904,7 +904,7 @@ void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sVa
 	string sWhere = "FK_Device_ControlledVia = "+StringUtils::itos(FK_Device_ControlledVia);
 	if (!m_pDatabase_pluto_main->Device_get()->GetRows(sWhere, &vectRow_Device))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Device GetRows Failed, WHERE %s", sWhere.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Device GetRows Failed, WHERE %s", sWhere.c_str());
 		return;
 	}
 	(*sValue_To_Assign).empty();
@@ -915,7 +915,7 @@ void Infrared_Plugin::CMD_Get_Sibling_Remotes(int iPK_DeviceCategory,string *sVa
 			if ((*sValue_To_Assign).length() > 0)
 				(*sValue_To_Assign)+="`";
 
-			g_pPlutoLogger->Write(LV_STATUS,"Using remote %d %s",vectRow_Device[i]->PK_Device_get(), vectRow_Device[i]->Description_get().c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Using remote %d %s",vectRow_Device[i]->PK_Device_get(), vectRow_Device[i]->Description_get().c_str());
 			string sRemoteLayout = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(vectRow_Device[i]->PK_Device_get(), DEVICEDATA_Remote_Layout_CONST)->IK_DeviceData_get();
 			string sConfiguration = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(vectRow_Device[i]->PK_Device_get(), DEVICEDATA_Configuration_CONST)->IK_DeviceData_get();
 			(*sValue_To_Assign)+=StringUtils::itos(vectRow_Device[i]->PK_Device_get())+"~"+sRemoteLayout+"~"+sConfiguration;

@@ -57,7 +57,7 @@ RubyIOPool::Init(RubyDCECodeSupplier* pcs) {
 	
 	/*init connection*/
 	if(getConnection() == NULL) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "No connection in Serial IO pool.");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No connection in Serial IO pool.");
 		return false;
 	}
 	

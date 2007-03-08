@@ -33,7 +33,7 @@
 void 
 IRBase::handleStart() {
 	// get details (IR sequences, Delays, etc.) of all child devices
-	g_pPlutoLogger->Write(LV_STATUS, "In IRBase::ParseDevices");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "In IRBase::ParseDevices");
 	Command_Impl *pCommand_Impl = getCommandImpl();
 	if(!pCommand_Impl) {
 		return;
@@ -51,7 +51,7 @@ void
 IRBase::handleStart(Command_Impl *pCommand_Impl) {
 	long devid = pCommand_Impl->m_pData->m_dwPK_Device;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Requested IR cored for device: %lu", devid);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Requested IR cored for device: %lu", devid);
 	
 	map<int,string> mapClass;  
 	// this will have all the Ruby code, where int is the PK_Command and string is the codeint 
@@ -61,13 +61,13 @@ IRBase::handleStart(Command_Impl *pCommand_Impl) {
 	getCommandImpl()->SendCommand(CMD_Get_Infrared_Codes_DT);  // Get the codes from I/R Plugin
 	if( !iSize || !pData )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get i/r codes for %d",devid);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot get i/r codes for %d",devid);
 		return;
 	}
 	IRDevice irDevice;
 	irDevice.SerializeRead(iSize, pData); // De-serialize the data
 	
-	g_pPlutoLogger->Write(LV_STATUS, "IR Code count: %d", mapClass.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "IR Code count: %d", mapClass.size());
 	m_mapDevice_IRRepeat[devid] = make_pair<int,int> (irDevice.m_iRepeatIR,irDevice.m_iRepeatVolume);
 			
 	for(map<int,string>::iterator it = irDevice.m_mapCodes.begin(); it != irDevice.m_mapCodes.end(); it++ ) {
@@ -76,7 +76,7 @@ IRBase::handleStart(Command_Impl *pCommand_Impl) {
 			codemap_[longPair(devid, cmdid)] = ConvertRC5_6((*it).second);
 		else
 			codemap_[longPair(devid, cmdid)] = (*it).second;
-		g_pPlutoLogger->Write(LV_STATUS, "Loaded IR code for Device %ld, Action %ld", devid, cmdid);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded IR code for Device %ld, Action %ld", devid, cmdid);
 	}
 	MapCommand_Impl::iterator it;
 	for(MapCommand_Impl::iterator it = pCommand_Impl->m_mapCommandImpl_Children.begin(); 
@@ -96,13 +96,13 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 	Message* pmsg = &inrepl.getMessage();
 	if(pmsg == NULL)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "IRBase::Translate : null message");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "IRBase::Translate : null message");
 		return false;
 	}
 	
 	DeviceData_Base *pTargetDev = AVMessageTranslator::FindTargetDevice(pmsg->m_dwPK_Device_To);
 	if(!pTargetDev) {
-		g_pPlutoLogger->Write(LV_WARNING, "Target Device %d Not Found.", pmsg->m_dwPK_Device_To);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Target Device %d Not Found.", pmsg->m_dwPK_Device_To);
 		return false;
 	}
 	long devid = pTargetDev->m_dwPK_Device;
@@ -128,7 +128,7 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 	} 
 	
 	if( !irFound ) {
-		g_pPlutoLogger->Write(LV_WARNING, "Infrared Code not found for Command %d. Will not be processed by IRBase.", pmsg->m_dwID);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Infrared Code not found for Command %d. Will not be processed by IRBase.", pmsg->m_dwID);
 		return false;
 	} else {
 		outrepls.push_back(inrepl);
@@ -141,11 +141,11 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 
 void 
 IRBase::DispatchMessage(Message* pmsg) {
-	g_pPlutoLogger->Write(LV_STATUS, "In IRBase::DispatchMessage");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "In IRBase::DispatchMessage");
 	
 	if( m_bQuit_ )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Didn't process the message, quiting");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Didn't process the message, quiting");
 	}
 	
 	string irport, ircode;
@@ -153,7 +153,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 
 	DeviceData_Base *pTargetDev = AVMessageDispatcher::FindTargetDevice(devid);
 	if(!pTargetDev) {
-		g_pPlutoLogger->Write(LV_WARNING, "Could not find target device %d...", devid);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not find target device %d...", devid);
 		return;
 	}
 	
@@ -166,7 +166,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 				// Is an action ID specified?
 				cmd = atoi(pmsg->m_mapParameters[COMMANDPARAMETER_ID_CONST].c_str());
 			} else {
-				g_pPlutoLogger->Write(LV_WARNING, "Command Send Code does not contain any info about infrared code...");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Command Send Code does not contain any info about infrared code...");
 				return;
 			}
 		} else {
@@ -174,11 +174,11 @@ IRBase::DispatchMessage(Message* pmsg) {
 			while(pos<ircode.size() && pos!=string::npos && !m_bQuit_)
 			{
 				string _ircode = StringUtils::Tokenize(ircode,"&",pos);
-				g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) ircode.size(),ircode.c_str(),_ircode.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) ircode.size(),ircode.c_str(),_ircode.c_str());
 				SendIR(irport,_ircode,1);
 				if( pos<ircode.size() && !m_bQuit_ )
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
 					Sleep(500);
 				}
 			}
@@ -190,7 +190,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 		
 	map <longPair, string>::iterator it = codemap_.find(longPair(devid, cmd));
 	if(it == codemap_.end()) {
-		g_pPlutoLogger->Write(LV_WARNING, "Could not find Infrared Code for Command %d.", cmd);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not find Infrared Code for Command %d.", cmd);
 		return;
 	} else {
 		ircode = (*it).second;
@@ -214,7 +214,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 		if( iRepeat<1 )
 			iRepeat=4;
 
-		g_pPlutoLogger->Write(LV_STATUS, "Sending Infrared Code for dev <%d> cmd <%d>, channel <%s>, repeat <%d> code <%s>", 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending Infrared Code for dev <%d> cmd <%d>, channel <%s>, repeat <%d> code <%s>", 
 					devid, cmd, irport.c_str(), iRepeat, ircode.c_str());
 
 		string::size_type pos=0;
@@ -222,17 +222,17 @@ IRBase::DispatchMessage(Message* pmsg) {
 		{
 			string _ircode = StringUtils::Tokenize(ircode,"&",pos);
 
-			g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) ircode.size(),ircode.c_str(),_ircode.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) ircode.size(),ircode.c_str(),_ircode.c_str());
 
 			SendIR(irport,_ircode,iRepeat);
 			if( pos<ircode.size() && !m_bQuit_ )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
 				Sleep(500);
 			}
 		}
 	} else {
-		g_pPlutoLogger->Write(LV_WARNING, "Infrared Code Data is Empty...");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Infrared Code Data is Empty...");
 	}
 }
 

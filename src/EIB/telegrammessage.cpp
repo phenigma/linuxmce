@@ -159,7 +159,7 @@ TelegramMessage::Send(BusConnector *pbusconn) {
 	}
 	outmsglength = 8 + userlength - 1;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Sending telegram with Group Address: %d(%s), Length: %d, Short User Data: %d", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending telegram with Group Address: %d(%s), Length: %d, Short User Data: %d", 
 														groupaddr, gaddr_.c_str(), length_, shortusrdata_);
 
 													

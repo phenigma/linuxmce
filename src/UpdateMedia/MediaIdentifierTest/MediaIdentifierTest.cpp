@@ -21,10 +21,6 @@
 #include "DCE/Logger.h"
 using namespace std;
 
-namespace DCE
-{
-		Logger *g_pPlutoLogger;
-}
 using namespace DCE;
 
 int main(int argc, char* argv[]) 

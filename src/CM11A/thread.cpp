@@ -38,9 +38,9 @@ Thread::Thread()
 
 
 Thread::~Thread() {
-	g_pPlutoLogger->Write(LV_STATUS,"Destroying Thread - before Wait");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Destroying Thread - before Wait");
 	Wait(true);
-	g_pPlutoLogger->Write(LV_STATUS,"Destroying Thread - After Wait");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Destroying Thread - After Wait");
 }
 
 bool
@@ -56,9 +56,9 @@ Thread::Run(bool wait) {
 	
 	int ret = pthread_create(&threadid_, NULL, _threadproc, (void*)this);
 	if(ret == 0) {
-//		DCE::g_pPlutoLogger->Write(LV_STATUS, "Thread %d created", threadid);
+//		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thread %d created", threadid);
 	} else {
-//		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "Error creating thread");
+//		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error creating thread");
 		threadid_ = 0;
 	}
 	

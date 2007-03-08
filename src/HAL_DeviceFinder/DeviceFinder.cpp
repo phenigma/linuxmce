@@ -32,10 +32,6 @@ using namespace std;
 #include "hald_helper.h"
 #endif
 
-namespace DCE
-{
-	class Logger *g_pPlutoLogger = NULL;
-}
 
 using namespace DCE;
 

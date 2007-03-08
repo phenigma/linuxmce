@@ -38,18 +38,18 @@ int ControlPointMediaBrowser::MediaBrowserCallbackEventHandler(Upnp_EventType ev
 		case UPNP_DISCOVERY_ADVERTISEMENT_ALIVE:
 		case UPNP_DISCOVERY_SEARCH_RESULT:
 		{
-			g_pPlutoLogger->Write(LV_DEBUG, "some discovery is on the way");
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "some discovery is on the way");
 			Upnp_Discovery *d_event = (Upnp_Discovery *)event;
 			IXML_Document *descDoc = NULL;
 			int ret = UpnpDownloadXmlDoc(d_event->Location, &descDoc);
 			if(ret != UPNP_E_SUCCESS)
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "unable to get the xml file from device");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "unable to get the xml file from device");
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_DEBUG, "got the XML document from device");
-				g_pPlutoLogger->Write(LV_DEBUG, "friendly name %s", GetFirstDocumentItem(descDoc, "friendlyName"));
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "got the XML document from device");
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "friendly name %s", GetFirstDocumentItem(descDoc, "friendlyName"));
 				
 			}
 			if(NULL != descDoc)
@@ -60,15 +60,15 @@ int ControlPointMediaBrowser::MediaBrowserCallbackEventHandler(Upnp_EventType ev
 		}
 
 		case UPNP_DISCOVERY_SEARCH_TIMEOUT:
-			g_pPlutoLogger->Write(LV_DEBUG, "search timed out");
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "search timed out");
 			break;
 		
 		case UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE:
-			g_pPlutoLogger->Write(LV_DEBUG, "discovery buh-bye");
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "discovery buh-bye");
 			break;
 		
 		default:
-			g_pPlutoLogger->Write(LV_DEBUG, "invalid event type");
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "invalid event type");
 			break;
 	}
 	return 0;

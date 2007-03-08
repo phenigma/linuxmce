@@ -75,17 +75,17 @@ class MediaStream *Generic_NonPluto_Media::CreateMediaStream( class MediaHandler
 	}
 	if ( pMediaDevice == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
 		return NULL;
 	}
 /*
 	if ( ! pMediaDevice && (pMediaDevice = FindMediaDeviceForEntertainArea(pEntertainArea)) == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
 		return NULL;
 	}
 */
-	g_pPlutoLogger->Write(LV_STATUS, "Selected device (%d) as playback device!", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Selected device (%d) as playback device!", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 
 	MediaStream *pMediaStream
 		= new MediaStream( pMediaHandlerInfo, iPK_MediaProvider,
@@ -99,7 +99,7 @@ bool Generic_NonPluto_Media::StartMedia( class MediaStream *pMediaStream,string 
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	g_pPlutoLogger->Write( LV_STATUS, "Starting media stream playback--sending command, waiting for response" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Starting media stream playback--sending command, waiting for response" );
 
 	return MediaHandlerBase::StartMedia(pMediaStream,sError);
 }
@@ -108,7 +108,7 @@ bool Generic_NonPluto_Media::StopMedia( class MediaStream *pMediaStream )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	g_pPlutoLogger->Write(LV_STATUS, "Stopping media in Generic_NonPluto_Media!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopping media in Generic_NonPluto_Media!");
 
 	return MediaHandlerBase::StopMedia(pMediaStream);
 }

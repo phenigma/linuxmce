@@ -28,10 +28,7 @@ extern "C"
 #define WORK "work"
 string URL="http://192.168.125.1/tribune/";
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 using namespace DCE;
 using namespace std;
 string device="empty";
@@ -629,7 +626,6 @@ void postXMLTomythconverg(const string sourceid, const string lineupname){
 }
 
 int main(int argc, char *argv[]){
- 	g_pPlutoLogger = new FileLogger(stdout);
 	bool bError=false;
 	char c;
 	string sourceid="";

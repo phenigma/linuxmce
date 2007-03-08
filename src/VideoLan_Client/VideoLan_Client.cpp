@@ -201,7 +201,7 @@ void VideoLan_Client::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMed
         m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 */
 	if( ProcessUtils::SpawnApplication("vlc", sCommand.c_str(), "vlc_c")==false )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to start videolan client");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to start videolan client");
 
     selectWindow();
 /*
@@ -210,15 +210,15 @@ void VideoLan_Client::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMed
 	VideoLanClientInstance *pVideoLanClientInstance = new VideoLanClientInstance(this,iStreamID,sCommand);
 	pthread_create(&pVideoLanClientInstance->m_pthread_t, NULL, SpawnVideoLanClient, (void *) pVideoLanClientInstance);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 5 seconds");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sleeping for 5 seconds");
 	Sleep(5000);
-	g_pPlutoLogger->Write(LV_STATUS,"active frame");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"active frame");
     makeActive("frame");
 	Sleep(5000);
-	g_pPlutoLogger->Write(LV_STATUS,"active Frame");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"active Frame");
     makeActive("Frame");
 	Sleep(5000);
-	g_pPlutoLogger->Write(LV_STATUS,"active Unnamed");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"active Unnamed");
     makeActive("Unnamed");
 	Sleep(5000);
 */
@@ -231,13 +231,13 @@ bool VideoLan_Client::checkXServerConnection()
 	{
 		if ( !m_pRatWrapper )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "The ratpoison command handler value is null. This usually means the XServer connection is down or useless");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "The ratpoison command handler value is null. This usually means the XServer connection is down or useless");
 			return false;
 		}
 
 		if ( !m_pRatWrapper->getDisplay() )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "The Display* value in the ratpoison command handler is null. This ususally means the XServer connection is down or useless");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "The Display* value in the ratpoison command handler is null. This ususally means the XServer connection is down or useless");
 			return false;
 		}
 	}
@@ -273,7 +273,7 @@ bool VideoLan_Client::locateVlcFrontendWindow(long unsigned int window)
 
     if ( checkWindowName(window, VLC_WINDOW_NAME ) )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Found window id: 0x%x", window );
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found window id: 0x%x", window );
         m_iVideoLanWindowId = window;
         return true;
     }
@@ -307,7 +307,7 @@ void VideoLan_Client::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string
 
 	vector<void *> data;
 	if( ProcessUtils::KillApplication("vlc_c" + StringUtils::itos(iStreamID),data)==false )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to stop VideoLan Client");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to stop VideoLan Client");
 }
 
 //<-dceag-c39-b->
@@ -381,9 +381,9 @@ void VideoLan_Client::ProcessExited(int pid, int status)
 	void *data;
 
 	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
-		g_pPlutoLogger->Write(LV_WARNING, "VideoLan_Client::ProcessExited() Child with pid %d was not found in our internal data structure. Ignoring signal!", pid);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoLan_Client::ProcessExited() Child with pid %d was not found in our internal data structure. Ignoring signal!", pid);
 	else
-		g_pPlutoLogger->Write(LV_WARNING, "VideoLan_Client::ProcessExited() Child with pid %d terminated", pid);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoLan_Client::ProcessExited() Child with pid %d terminated", pid);
 }
 //<-dceag-c412-b->
 

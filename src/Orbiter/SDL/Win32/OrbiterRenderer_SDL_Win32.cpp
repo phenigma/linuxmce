@@ -163,7 +163,7 @@ void OrbiterRenderer_SDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM
 	{
 		orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Key down %d bControlDown %d bAltDown %d bCapsLock %d bShiftDown %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Key down %d bControlDown %d bAltDown %d bCapsLock %d bShiftDown %d",
 			wParam,(int) OrbiterLogic()->m_bControlDown,(int) OrbiterLogic()->m_bAltDown,(int) OrbiterLogic()->m_bCapsLock,(int) OrbiterLogic()->m_bShiftDown);
 #endif
 	}
@@ -259,7 +259,7 @@ void OrbiterRenderer_SDL_Win32::SetupWindow()
 
 			RECT r;
 			::GetClientRect( m_hSDLWindow, &r );
-			g_pPlutoLogger->Write(LV_CRITICAL, "After fullscreen GetClientRect reports: %d, %d, %d, %d",
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "After fullscreen GetClientRect reports: %d, %d, %d, %d",
 				r.left, r.top, r.right, r.bottom);
 		}
 	}

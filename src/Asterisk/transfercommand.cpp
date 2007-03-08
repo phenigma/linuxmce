@@ -41,11 +41,11 @@ namespace ASTERISK {
 
 TransferCommand::TransferCommand()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Transfer command created.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transfer command created.");
 };
 
 TransferCommand::~TransferCommand() {
-	g_pPlutoLogger->Write(LV_STATUS, "Transfer command destroyed.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transfer command destroyed.");
 };
 
 void 
@@ -87,7 +87,7 @@ TransferCommand::handleToken(Token* ptoken) {
 
 void 
 TransferCommand::handleTerminate() {
-	g_pPlutoLogger->Write(LV_STATUS, "Transfer completed.");	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transfer completed.");	
     Release();
 }
 

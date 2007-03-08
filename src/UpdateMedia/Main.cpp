@@ -77,14 +77,11 @@ namespace UpdateMediaVars
 
 using namespace UpdateMediaVars;
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 
 void SyncAttributes()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Synchronizing attributes... "); 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Synchronizing attributes... "); 
 
     int nAffectedRecords = g_pDatabase_pluto_media->threaded_mysql_query(
 		"INSERT INTO Picture_Attribute(FK_Attribute,FK_Picture) "
@@ -100,9 +97,9 @@ void SyncAttributes()
 	);
 
 	if(nAffectedRecords == -1)
-		g_pPlutoLogger->Write(LV_CRITICAL, "Attributes sync failed!"); 
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Attributes sync failed!"); 
 	else
-		g_pPlutoLogger->Write(LV_WARNING, "Attributes sync succeeded! Records affected %d", nAffectedRecords); 
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Attributes sync succeeded! Records affected %d", nAffectedRecords); 
 }
 
 void *UpdateMediaThread(void *)
@@ -116,11 +113,11 @@ void *UpdateMediaThread(void *)
 	while(true)
 	{
 		//load info about ModificationData, AttrCount, AttrDate, attributes, timestamp for all files
-		g_pPlutoLogger->Write(LV_STATUS, "Loading fresh data from db...");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading fresh data from db...");
 		MediaState::Instance().LoadDbInfo(g_pDatabase_pluto_media, FileUtils::ExcludeTrailingSlash(UpdateMediaVars::sDirectory));
-		g_pPlutoLogger->Write(LV_STATUS, "Loaded fresh data from db");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded fresh data from db");
 
-		g_pPlutoLogger->Write(LV_STATUS, "Worker thread: \"I'm wake!\"");        
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Worker thread: \"I'm wake!\"");        
 
 		PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
 		while(vectModifiedFolders.size())
@@ -128,9 +125,9 @@ void *UpdateMediaThread(void *)
 			string sItem = vectModifiedFolders.front();
 			flm.Release();
 
-			g_pPlutoLogger->Write(LV_WARNING, "Folder to process: %s", sItem.c_str());	
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Folder to process: %s", sItem.c_str());	
 			PLUTO_SAFETY_LOCK(cm, g_ConnectionMutex );
-			g_pPlutoLogger->Write(LV_STATUS, "Synchronizing '%s'...", sItem.c_str());	
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Synchronizing '%s'...", sItem.c_str());	
 
 			PlutoMediaFile::ResetNewFilesAddedStatus();
 				
@@ -144,15 +141,15 @@ void *UpdateMediaThread(void *)
 			if( bUpdateThumbnails )
 				engine.UpdateThumbnails();
 
-			g_pPlutoLogger->Write(LV_STATUS, "Synchronized '%s'.", sItem.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Synchronized '%s'.", sItem.c_str());
 
 			if(PlutoMediaFile::NewFilesAdded())
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "New files were added to db for '%s'.", sItem.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "New files were added to db for '%s'.", sItem.c_str());
 
 				SyncAttributes();
 
-				g_pPlutoLogger->Write(LV_STATUS, "Sending \"Check for new files\" command to Media_Plugin...");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending \"Check for new files\" command to Media_Plugin...");
 				Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, "dcerouter");
 				Message* pMessage = new Message(0, DEVICETEMPLATE_Media_Plugin_CONST, BL_SameHouse, 
 					MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
@@ -161,14 +158,14 @@ void *UpdateMediaThread(void *)
 				delete pEvent;
 				pEvent = NULL;
 
-				g_pPlutoLogger->Write(LV_STATUS, "Command \"Check for new files\" sent!");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command \"Check for new files\" sent!");
 			}
 
 			flm.Relock();
 			vectModifiedFolders.erase(vectModifiedFolders.begin());
 		}
 
-		g_pPlutoLogger->Write(LV_WARNING, "Nothing to process, sleeping 2 minute...");        
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Nothing to process, sleeping 2 minute...");        
 		timespec abstime;
 		abstime.tv_sec = (long) (time(NULL) + 120);  //2 minutes
 		abstime.tv_nsec = 0;
@@ -193,7 +190,7 @@ void OnModify(list<string> &listFiles)
 				sItem = sItem.substr(0, nPos);
 		}
 
-		g_pPlutoLogger->Write(LV_STATUS, "New folder %s to sync...", sItem.c_str());        
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "New folder %s to sync...", sItem.c_str());        
 		PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
 
 		bool bFound = false;
@@ -216,7 +213,6 @@ void OnModify(list<string> &listFiles)
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger(stdout);
 	dceConfig.m_sDBName="pluto_media";
 	bError=false;
 	bUpdateThumbnails=false;
@@ -304,7 +300,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Running as daemon... ");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Running as daemon... ");
 
 		pthread_cond_init(&g_ActionCond, NULL);
         g_ConnectionMutex.Init(NULL);
@@ -319,17 +315,17 @@ int main(int argc, char *argv[])
 #endif
 
         //connect to the databases
-        g_pDatabase_pluto_media = new Database_pluto_media(g_pPlutoLogger);
+        g_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
         if( !g_pDatabase_pluto_media->Connect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword, sPlutoMediaDbName,dceConfig.m_iDBPort) )
         {
-            g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+            LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
             return 1;
         }
 
-        g_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+        g_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
         if( !g_pDatabase_pluto_main->Connect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword, sPlutoMainDbName,dceConfig.m_iDBPort) )
         {
-            g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+            LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
             return 2;
         }
 
@@ -355,8 +351,8 @@ int main(int argc, char *argv[])
 	delete g_pmapLocks;
 	g_pmapLocks = NULL;
 
-	delete g_pPlutoLogger;
-	g_pPlutoLogger = NULL;
+	
+	
 	return 0;
 }
 

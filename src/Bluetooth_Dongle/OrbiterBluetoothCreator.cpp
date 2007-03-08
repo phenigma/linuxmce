@@ -51,9 +51,9 @@ OrbiterBluetooth *CreateOrbiterBluetooth(
 
 	    if (bLocalMode || (pOrbiterBluetooth->GetConfig() && pOrbiterBluetooth->Connect(0))) // Don't validate the device template
 	    {
-		    g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
+		    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connect OK");
 		    pOrbiterBluetooth->Initialize(gtSDLGraphic,PK_Room,PK_EntertainArea);
-		    g_pPlutoLogger->Write(LV_STATUS, "SDLGraphic initialized");
+		    LoggerWrapper::GetInstance()->Write(LV_STATUS, "SDLGraphic initialized");
     		
 		    if( !bLocalMode  )
 			    pOrbiterBluetooth->CreateChildren();
@@ -62,17 +62,17 @@ OrbiterBluetooth *CreateOrbiterBluetooth(
     }
     catch(string s)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,s.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,s.c_str());
         pOrbiterBluetooth = NULL;
     }
     catch(const char *s)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, s);
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, s);
         pOrbiterBluetooth = NULL;
     }
     catch(...)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter threw an unknown exception.");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Orbiter threw an unknown exception.");
         pOrbiterBluetooth = NULL;
     }
 

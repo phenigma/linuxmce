@@ -671,7 +671,7 @@ bool Renderer::SaveSurfaceToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, 
 	char *pRawImage = new char[width * height];
 	if (pRawImage == NULL)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "cannot allocate memory");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "cannot allocate memory");
 		return false;
 	}
 	// compute the image
@@ -688,7 +688,7 @@ bool Renderer::SaveSurfaceToXbmMaskFile(SDL_Surface *pSurface, int nMaxOpacity, 
 	delete pRawImage;
 	if (! bResult)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "cannot write to xbm mask file '%s'", sFileName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "cannot write to xbm mask file '%s'", sFileName.c_str());
 		return false;
 	}
 #endif

@@ -57,10 +57,7 @@ See the GNU General Public License for more details.
 
 #define  VERSION "<=version=>"
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 
 using namespace std;
 using namespace DCE;
@@ -83,7 +80,6 @@ map<PAIR_SI,int> mapUsersWeeks;
 
 int main( int argc, char *argv[] )
 {
-	g_pPlutoLogger = new FileLogger(stdout);
 	chdir("/home/MakeRelease/trunk");
 	unlink("output.all");
 	cout << "About to execute command" << endl;

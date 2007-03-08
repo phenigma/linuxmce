@@ -107,7 +107,7 @@ bool Tira::GetConfig()
 			if (vectRemoteConfigs.size() == 3)
 			{
 				int PK_DeviceRemote = atoi(vectRemoteConfigs[0].c_str());
-				g_pPlutoLogger->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding remote ID %d, layout %s\r\n", PK_DeviceRemote, vectRemoteConfigs[1].c_str());
 				char cRemoteLayout = 'W';
 				if( vectRemoteConfigs[1].size() )
 					cRemoteLayout = vectRemoteConfigs[1][0];
@@ -125,7 +125,7 @@ bool Tira::GetConfig()
 					{
 						string sCode = StringUtils::Tokenize(vectCodes[s]," ",pos);
 						m_mapCodesToButtons[sCode] = make_pair<string,int> (sButton,pDevice->m_dwPK_Device);
-						g_pPlutoLogger->Write(LV_STATUS,"Code: %s will fire button %s",sCode.c_str(),sButton.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Code: %s will fire button %s",sCode.c_str(),sButton.c_str());
 					}
 				}
 			}
@@ -138,7 +138,7 @@ bool Tira::GetConfig()
 	res = LoadTiraDLL();
 	if ( res != 0 ) 
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to load Tira DLL");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to load Tira DLL");
 		return true;  // Not much to do, return true so we don't try to reload over and over
 	}
 	*/
@@ -147,7 +147,7 @@ bool Tira::GetConfig()
 	int port;
 	for(port=0;port<9;++port)
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Trying to start Tira on port %d",port);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Trying to start Tira on port %d",port);
 		res = tira_start(port);
 		if ( res == 0 ) 
 			break;
@@ -155,18 +155,18 @@ bool Tira::GetConfig()
 	
 	if( res!=0 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to start Tira on any port");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to start Tira on any port");
 		return true;  // Not much to do, return true so we don't try to reload over and over
 	}
 
     	res = tira_set_handler(OurCalback);
 	if( res!=0 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to register our callback");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to register our callback");
 		return true;  // Not much to do, return true so we don't try to reload over and over
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Tira running on port %d",port);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Tira running on port %d",port);
 #endif
 
 	return true;
@@ -247,7 +247,7 @@ void Tira::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 	if( sText.size() && (sText[0]=='5' || sText[0]=='6') )
 	{
 		string sTextNew = ConvertRC5_6(sText);
-g_pPlutoLogger->Write(LV_STATUS,"Converted %s to %s",sText.c_str(),sTextNew.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Converted %s to %s",sText.c_str(),sTextNew.c_str());
 sText=sTextNew;
 	}
 	SendIR("",sText,1);
@@ -287,7 +287,7 @@ void Tira::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c687-e->
 {
 	m_cCurrentScreen=(char) iValue;
-	g_pPlutoLogger->Write(LV_STATUS,"Screen type now %c",m_cCurrentScreen);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Screen type now %c",m_cCurrentScreen);
 }
 
 
@@ -305,7 +305,7 @@ void Tira::SendIR(string Port, string IRCode,int iRepeat)
 		pBuffer = FileUtils::ReadFileIntoBuffer(pBuffer,size);
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS,"Tira Sending: %s",pBuffer);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Tira Sending: %s",pBuffer);
 
 #ifndef WIN32
     int res = tira_transmit(iRepeat, /* the docs say to repeat more than once, but I found with pronto codes that means the code is seen more than once */
@@ -314,7 +314,7 @@ void Tira::SendIR(string Port, string IRCode,int iRepeat)
                             size);
 
     if ( res != 0 ) 
-		g_pPlutoLogger->Write(LV_CRITICAL,"Tira failed Sending(%d): %s",res,IRCode.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Tira failed Sending(%d): %s",res,IRCode.c_str());
 #endif
 	if( bDeleteBuffer )
 		delete pBuffer;
@@ -345,7 +345,7 @@ void Tira::OurCallback(const char *szButton)
 
 	map<string,pair<string,int> >::iterator it=m_mapCodesToButtons.find(szButton);
 	if( it==m_mapCodesToButtons.end() )
-		g_pPlutoLogger->Write(LV_WARNING,"Cannot find anything for IR %s",szButton);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Cannot find anything for IR %s",szButton);
 	else
 		ReceivedCode(it->second.second,it->second.first.c_str());
 }
@@ -360,14 +360,14 @@ void Tira::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text
 {
 	if( !PK_Device || !PK_Command || !m_dwPK_Device_IRPlugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot learn without a device, command & IR Plugin %d %d %d",
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot learn without a device, command & IR Plugin %d %d %d",
 			PK_Device, PK_Command, m_dwPK_Device_IRPlugin);
 		return;
 	}
 	m_iPK_Device_Learning=PK_Device; m_iPK_Command_Learning=PK_Command;
 	m_iPK_Orbiter=PK_Orbiter; m_iPK_Text=PK_Text;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Start learning Command %d Device %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Start learning Command %d Device %d",
 		PK_Command,PK_Device);
 
 	PLUTO_SAFETY_LOCK(tm,m_TiraMutex);
@@ -378,7 +378,7 @@ void Tira::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text
 void Tira::StopLearning()
 {
 	PLUTO_SAFETY_LOCK(tm,m_TiraMutex);
-	g_pPlutoLogger->Write(LV_STATUS,"Stop learning");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Stop learning");
 	m_bAbortLearning=true;
 
 	// Wait up to 1 second for the learning thread to die
@@ -389,7 +389,7 @@ void Tira::StopLearning()
 		tm.Relock();
 	}
 	if( m_bLearningIR )
-		g_pPlutoLogger->Write(LV_CRITICAL,"Could not stop the learning thread");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not stop the learning thread");
 }
 int iCounter=0;
 
@@ -409,7 +409,7 @@ void Tira::LearningThread()
 			char CCF[4096];
 			if( ConvertToCCF(CCF, 4096, Data)==0 )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Learned code device %d command %d orbiter %d text %d code %s",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Learned code device %d command %d orbiter %d text %d code %s",
 						m_iPK_Device_Learning,m_iPK_Command_Learning,m_iPK_Orbiter,m_iPK_Text,CCF);
 				DCE::CMD_Store_Infrared_Code CMD_Store_Infrared_Code(m_dwPK_Device,m_dwPK_Device_IRPlugin,
 					m_iPK_Device_Learning,CCF,m_iPK_Command_Learning);
@@ -423,11 +423,11 @@ void Tira::LearningThread()
 				}
 FileUtils::WriteBufferIntoFile( ("/tira_pronto.buf"+StringUtils::itos(iCounter)).c_str(),(const char *) CCF,4096);
 iCounter++;
-g_pPlutoLogger->Write(LV_STATUS,"Got %d",getCodeMap().size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got %d",getCodeMap().size());
 
 			}
 			else
-				g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't convert %d %s to CCF",Size,Data);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Couldn't convert %d %s to CCF",Size,Data);
 			tira_cancel_capture();
 			return;
 		}

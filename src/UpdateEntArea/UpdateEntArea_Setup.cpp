@@ -58,11 +58,11 @@ using namespace DefaultScenarios;
 
 bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string pass, string db_name, int port)
 {
-	g_pPlutoLogger->Write( LV_STATUS, "Starting UpdateEnt Areas" );
-	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Starting UpdateEnt Areas" );
+	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if( !m_pDatabase_pluto_main->Connect( host, user, pass, db_name, port ) )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
 		return false;
 	}
 	m_iPK_Installation=PK_Installation;
@@ -77,7 +77,7 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
 	if( vectRow_Device.size()!=1 )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Cannot find a media plugin" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Cannot find a media plugin" );
 		return false; // It's useless without one of these
 	}
 	m_dwPK_Device_MediaPlugIn=vectRow_Device[0]->PK_Device_get();
@@ -86,12 +86,12 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	Row_Installation *pRow_Installation = m_pDatabase_pluto_main->Installation_get()->GetRow(m_iPK_Installation);
 	if( !pRow_Installation )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Got Media Plugin %d but installation %d is invalid",
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Got Media Plugin %d but installation %d is invalid",
 			m_dwPK_Device_MediaPlugIn,m_iPK_Installation);
 		return false;
 	}
 	else
-		g_pPlutoLogger->Write( LV_STATUS, "Using Media Plugin %d Installation %d",
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Using Media Plugin %d Installation %d",
 			m_dwPK_Device_MediaPlugIn,m_iPK_Installation);
 
 	// ******** Orbiter Plugin ******************
@@ -102,7 +102,7 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
 	if( vectRow_Device.size()!=1 )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Cannot find a Orbiter plugin" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Cannot find a Orbiter plugin" );
 		return false; // It's useless without one of these
 	}
 	else
@@ -116,7 +116,7 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
 	if( vectRow_Device.size()!=1 )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Cannot find a lighting plugin" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Cannot find a lighting plugin" );
 		m_dwPK_Device_LightingPlugIn=0;
 	}
 	else
@@ -130,7 +130,7 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
 	if( vectRow_Device.size()!=1 )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Cannot find a Climate plugin" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Cannot find a Climate plugin" );
 		m_dwPK_Device_ClimatePlugIn=0;
 	}
 	else
@@ -144,7 +144,7 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
 	if( vectRow_Device.size()!=1 )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Cannot find a Security plugin" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Cannot find a Security plugin" );
 		m_dwPK_Device_SecurityPlugIn=0;
 	}
 	else
@@ -158,7 +158,7 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
 	if( vectRow_Device.size()!=1 )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Cannot find a Telecom plugin" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Cannot find a Telecom plugin" );
 		m_dwPK_Device_TelecomPlugIn=0;
 	}
 	else
@@ -172,7 +172,7 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
 	if( vectRow_Device.size()!=1 )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "Cannot find a DCERouter" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Cannot find a DCERouter" );
 		m_dwPK_Device_DCERouter=0;
 	}
 	else
@@ -247,7 +247,7 @@ void UpdateEntArea::GetMediaAndRooms()
 
 	if( !pRow_Installation )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"UpdateEntArea::GetMediaAndRooms cannot continue with invalid installation %d", m_iPK_Installation);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UpdateEntArea::GetMediaAndRooms cannot continue with invalid installation %d", m_iPK_Installation);
 		return;
 	}
 
@@ -260,7 +260,7 @@ void UpdateEntArea::GetMediaAndRooms()
 
 		vector<Row_Device *> vectRow_Device; 
 		pRow_Room->Device_FK_Room_getrows(&vectRow_Device);
-		g_pPlutoLogger->Write(LV_STATUS,"Room: %d %s is auto configure",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Room: %d %s is auto configure",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 
 		// We'll want to configure this room's entertainment area automatically.  See if there's a media director in the room
 		for(size_t s=0;s<vectRow_Device.size();++s)
@@ -281,7 +281,7 @@ void UpdateEntArea::GetMediaAndRooms()
 
 		if( levelOfMedia==lomNone )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Room: %d %s has no md",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Room: %d %s has no md",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 			// See if there is some other video device
 
 			for(size_t s=0;s<vectRow_Device.size();++s)
@@ -300,7 +300,7 @@ void UpdateEntArea::GetMediaAndRooms()
 			}
 			if( levelOfMedia==lomNone )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Room: %d %s has no video",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Room: %d %s has no video",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 				for(size_t s=0;s<vectRow_Device.size();++s)
 				{
 					Row_Device *pRow_Device = vectRow_Device[s];
@@ -346,7 +346,7 @@ void UpdateEntArea::SetEAInRooms()
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Room: %d %s has media ea %d",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str(),(int) vectEntertainArea.size());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Room: %d %s has media ea %d",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str(),(int) vectEntertainArea.size());
 
 			// There is media in this room.  Add an entertainment area and any a/v equipment to it
 			// First, see if there are already too many ent areas (maybe the user changed from manual to automatic)
@@ -358,7 +358,7 @@ void UpdateEntArea::SetEAInRooms()
 			if( !pRow_EntertainArea )
 			{
 				pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->AddRow();
-				g_pPlutoLogger->Write(LV_STATUS,"set ent area %d %s to Room: %d %s creating default commands",pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str(),pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"set ent area %d %s to Room: %d %s creating default commands",pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str(),pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 				pRow_EntertainArea->FK_Room_set(pRow_Room->PK_Room_get());
 				pRow_EntertainArea->Description_set(pRow_Room->Description_get());
 				m_pDatabase_pluto_main->EntertainArea_get()->Commit();
@@ -495,7 +495,7 @@ void UpdateEntArea::AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 			Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
 			if( !pRow_Device_EntertainArea )
 			{
-				g_pPlutoLogger->Write( LV_WARNING, "adding device %d %s to ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "adding device %d %s to ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),
 					pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
 				pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
 				pRow_Device_EntertainArea->FK_Device_set(pRow_Device->PK_Device_get());
@@ -533,7 +533,7 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea
 		Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
 		if( !pRow_Device_EntertainArea )
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "adding device %d %s to all ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "adding device %d %s to all ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
 			pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
 			pRow_Device_EntertainArea->FK_Device_set(pRow_Device->PK_Device_get());
 			pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
@@ -559,7 +559,7 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_Device *pRow_Device,Row_Entertain
 	Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
 	if( !pRow_Device_EntertainArea )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "adding device %d %s to ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "adding device %d %s to ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
 		pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
 		pRow_Device_EntertainArea->FK_Device_set(pRow_Device->PK_Device_get());
 		pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());

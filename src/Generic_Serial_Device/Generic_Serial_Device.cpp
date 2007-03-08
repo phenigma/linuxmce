@@ -87,13 +87,13 @@ void Generic_Serial_Device::ReceivedCommandForChild(DeviceData_Impl *pDeviceData
 		!GSDMessageProcessor::ProcessMessage(pMessage) )
 	{
 		// TODO: should those messages be translated in future ?
-		g_pPlutoLogger->Write(LV_STATUS, "Message %d NOT pre-processed.", pMessage->m_dwID);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message %d NOT pre-processed.", pMessage->m_dwID);
 		sCMD_Result = "OK";
 		DispatchMessage(pMessage);
 	}
 	else
 	{
-	    g_pPlutoLogger->Write(LV_STATUS, "Message processed by Translator.");
+	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message processed by Translator.");
 	}
 }
 
@@ -107,20 +107,20 @@ void Generic_Serial_Device::ReceivedUnknownCommand(string &sCMD_Result,Message *
 //<-dceag-cmduk-e->
 {
 	sCMD_Result = "OK";
-//    g_pPlutoLogger->Write(LV_STATUS, "Received UNKNOWN command.");
+//    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received UNKNOWN command.");
 	
 	if( ( (pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_DeliveryConfirmation) && 
 			!pMessage->m_bRespondedToMessage ) ||
 		!GSDMessageProcessor::ProcessMessage(pMessage) )
 	{
 		// TODO: should those messages be translated in future ?
-		g_pPlutoLogger->Write(LV_STATUS, "Message %d NOT pre-processed.", pMessage->m_dwID);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message %d NOT pre-processed.", pMessage->m_dwID);
 		sCMD_Result = "OK";
 		DispatchMessage(pMessage);
 	}
 	else
 	{
-	    g_pPlutoLogger->Write(LV_STATUS, "Message processed by Translator.");
+	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message processed by Translator.");
 	}
 }
 
@@ -162,11 +162,11 @@ void Generic_Serial_Device::Transmit(const char *pData,int iSize)
 void Generic_Serial_Device::DispatchMessage(Message* pmsg) {
 	if( pmsg == NULL )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Generic_Serial_Device::DispatchMessage( NULL )");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Generic_Serial_Device::DispatchMessage( NULL )");
 		return;
 	}
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Routing Message %d to %d...", pmsg->m_dwID, pmsg->m_dwPK_Device_To);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Routing Message %d to %d...", pmsg->m_dwID, pmsg->m_dwPK_Device_To);
 
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
 	DeviceData_Base *pDeviceData_Base = 
@@ -177,7 +177,7 @@ void Generic_Serial_Device::DispatchMessage(Message* pmsg) {
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Routing Message for Device_To %d which is NULL", pmsg->m_dwPK_Device_To);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Routing Message for Device_To %d which is NULL", pmsg->m_dwPK_Device_To);
 	}
 }
 
@@ -188,19 +188,19 @@ void Generic_Serial_Device::RunThread() {
 	pmanager->Run(false);
 	Generic_Serial_Device_Command::RunThread();
 	pmanager->Wait(true);
-    g_pPlutoLogger->Write(LV_STATUS, "Generic Serial Device RunThread ended.");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Generic Serial Device RunThread ended.");
 }
 
 void Generic_Serial_Device::ParseDeviceHierarchy(DeviceData_Impl *pdevdata) {
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
 	if(pdevdata->m_bRunningWithoutDeviceData)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Running without DeviceData, will try to add device");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Running without DeviceData, will try to add device");
 		pmanager->addDevice(this, pdevdata);
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Device %d has commad line <%s>.", pdevdata->m_dwPK_Device, pdevdata->m_sCommandLine.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device %d has commad line <%s>.", pdevdata->m_dwPK_Device, pdevdata->m_sCommandLine.c_str());
 		if(pdevdata->m_sCommandLine == GSD_COMMAND_LINE || pdevdata->m_bImplementsDCE) {
 			if(pmanager->addDevice(this, pdevdata) >= 0) {
 				VectDeviceData_Impl& vDeviceData = pdevdata->m_vectDeviceData_Impl_Children;
@@ -211,7 +211,7 @@ void Generic_Serial_Device::ParseDeviceHierarchy(DeviceData_Impl *pdevdata) {
 				}
 			}
 		} else {
-	    	g_pPlutoLogger->Write(LV_STATUS, "Device %d has no GSD specified as command line. No ruby code will be executed.",pdevdata->m_dwPK_Device);
+	    	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device %d has no GSD specified as command line. No ruby code will be executed.",pdevdata->m_dwPK_Device);
 		}
 	}
 }

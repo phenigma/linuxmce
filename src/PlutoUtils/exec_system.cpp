@@ -59,9 +59,9 @@ void exec_system(std::string cmd, bool wait) {
 
 	args[arg_count]=0; // NULL terminte the arg list
 
-        g_pPlutoLogger->Write(LV_STATUS,"exec_system: args parsed like this:");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"exec_system: args parsed like this:");
 	for (int i=0; i<arg_count; i++) {
-             g_pPlutoLogger->Write(LV_STATUS,"exec_system: arg %d is %s",i,args[i]);
+             LoggerWrapper::GetInstance()->Write(LV_STATUS,"exec_system: arg %d is %s",i,args[i]);
 	}
 
         fork_res=fork();
@@ -69,29 +69,29 @@ void exec_system(std::string cmd, bool wait) {
         // Child thread
         if (fork_res==0) {
            int retval;
-           g_pPlutoLogger->Write(LV_STATUS,"exec_system: within child fork");
+           LoggerWrapper::GetInstance()->Write(LV_STATUS,"exec_system: within child fork");
 	   retval=execvp(args[0],args);
            if (retval<0) {
-               g_pPlutoLogger->Write(LV_WARNING,"exec_system: child exec returned res=%d, errno=%d, err=%s",retval,errno,strerror(errno));
+               LoggerWrapper::GetInstance()->Write(LV_WARNING,"exec_system: child exec returned res=%d, errno=%d, err=%s",retval,errno,strerror(errno));
            }
            exit(0);
         }
 
         if (fork_res<0) {
-            g_pPlutoLogger->Write(LV_CRITICAL,"exec_system: fork failed with result %d, errno=%d, err=%s",fork_res,errno,strerror(errno));
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"exec_system: fork failed with result %d, errno=%d, err=%s",fork_res,errno,strerror(errno));
         } else {
-            g_pPlutoLogger->Write(LV_STATUS,"exec_system: fork ok");
+            LoggerWrapper::GetInstance()->Write(LV_STATUS,"exec_system: fork ok");
 
             if (wait) {
                 int wait_res;
-                g_pPlutoLogger->Write(LV_STATUS,"exec_system: waiting for child process %d to finish",fork_res);
+                LoggerWrapper::GetInstance()->Write(LV_STATUS,"exec_system: waiting for child process %d to finish",fork_res);
 
                 wait_res=waitpid(fork_res,NULL,0);
 
                 if (wait_res<0) {
-                    g_pPlutoLogger->Write(LV_WARNING,"exec_system: wait_res returned res=%d, errno=%d, err=%s",wait_res,errno,strerror(errno));
+                    LoggerWrapper::GetInstance()->Write(LV_WARNING,"exec_system: wait_res returned res=%d, errno=%d, err=%s",wait_res,errno,strerror(errno));
                 } else if (wait_res==fork_res) {
-                    g_pPlutoLogger->Write(LV_STATUS,"exec_system: detected end of child process OK");
+                    LoggerWrapper::GetInstance()->Write(LV_STATUS,"exec_system: detected end of child process OK");
                 }
             }
         }

@@ -41,11 +41,11 @@ namespace ASTERISK {
 
 HangupCommand::HangupCommand()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Hangup command created.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup command created.");
 };
 
 HangupCommand::~HangupCommand() {
-	g_pPlutoLogger->Write(LV_STATUS, "Hangup command destroyed.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup command destroyed.");
 };
 
 void 
@@ -79,7 +79,7 @@ HangupCommand::handleToken(Token* ptoken) {
 
 void 
 HangupCommand::handleTerminate() {
-	g_pPlutoLogger->Write(LV_STATUS, "Hangup completed.");	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup completed.");	
     Release();
 }
 

@@ -103,18 +103,18 @@ bool Telecom_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		m_bQuit_set(true);
 		return false;
 	}
 
-	m_pDatabase_pluto_telecom = new Database_pluto_telecom(g_pPlutoLogger);
+	m_pDatabase_pluto_telecom = new Database_pluto_telecom(LoggerWrapper::GetInstance());
 	if(!m_pDatabase_pluto_telecom->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),"pluto_telecom",m_pRouter->iDBPort_get()) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to telecom database!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to telecom database!");
 		m_bQuit_set(true);
 		return false;
 	}
@@ -156,7 +156,7 @@ bool Telecom_Plugin::GetConfig()
 	m_pDevice_pbx = find_AsteriskDevice();
 	if( !m_pDevice_pbx )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Telecom_Plugin::GetConfig - no pbx device");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Telecom_Plugin::GetConfig - no pbx device");
 		return false;
 	}
 
@@ -190,7 +190,7 @@ bool Telecom_Plugin::Register()
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to telecom plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to telecom plugin");
 		return false;
 	}
 
@@ -233,7 +233,7 @@ bool Telecom_Plugin::Register()
 	
     if (pthread_create(&m_displayThread, NULL, startDisplayThread, (void *) this))
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Display Thread");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create Display Thread");
         m_bQuit_set(true);
         exit(1);
     }
@@ -288,7 +288,7 @@ class DataGridTable *Telecom_Plugin::TelecomScenariosGrid(string GridID,string P
 
 class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Phone Book Autocomplete request received for GridID: %s with Params: %s.",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Phone Book Autocomplete request received for GridID: %s with Params: %s.",
 																					GridID.c_str(), Parms.c_str());
 
 	DataGridTable *pDataGrid = new DataGridTable();
@@ -358,7 +358,7 @@ class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Par
 
 class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Phone Book List of NOS request received for GridID: %s with Params: %s.",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Phone Book List of NOS request received for GridID: %s with Params: %s.",
 																					GridID.c_str(), Parms.c_str());
 
 	DataGridTable *pDataGrid = new DataGridTable();
@@ -416,7 +416,7 @@ bool
 Telecom_Plugin::CommandResult( class Socket *pSocket, class Message *pMessage,
 		                                class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
 
-	g_pPlutoLogger->Write(LV_STATUS, "Command Result received from PBX.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command Result received from PBX.");
 	int iCommandID = atoi(pMessage->m_mapParameters[EVENTPARAMETER_CommandID_CONST].c_str());
 	int iResult = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str());
 	string sMessage = pMessage->m_mapParameters[EVENTPARAMETER_Message_CONST];
@@ -431,13 +431,13 @@ Telecom_Plugin::ProcessResult(int iCommandID, int iResult, std::string sMessage)
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	CallData *pCallData	= pCallManager->findCallByPendingCmdID(iCommandID);
 	if(!pCallData) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Obsolete command reply received.");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Obsolete command reply received.");
 		return;
 	}
 
 	DeviceData_Router* pDeviceData = find_Device(pCallData->getOwnerDevID());
 	if(!pDeviceData) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Device %d is no more Available. Destroying call.", pCallData->getOwnerDevID());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Device %d is no more Available. Destroying call.", pCallData->getOwnerDevID());
 		pCallManager->removeCall(pCallData);
 		return;
 	}
@@ -472,7 +472,7 @@ Telecom_Plugin::ProcessResult(int iCommandID, int iResult, std::string sMessage)
 bool
 Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage,
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
-	g_pPlutoLogger->Write(LV_STATUS, "Ring event received from PBX.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ring event received from PBX.");
 
 	string sPhoneExtension = pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST];
 	string sPhoneCallID = pMessage->m_mapParameters[EVENTPARAMETER_PhoneCallID_CONST];
@@ -498,12 +498,12 @@ Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCalle
 			pCallData->setCallerID(sPhoneCallerID);
 			CallManager::getInstance()->addCall(pCallData);
 
-			g_pPlutoLogger->Write(LV_STATUS, "Creating calldata for ringing device %d (ext %s, id %s)",phoneID,sPhoneExtension.c_str(),sPhoneCallID.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Creating calldata for ringing device %d (ext %s, id %s)",phoneID,sPhoneExtension.c_str(),sPhoneCallID.c_str());
 			pCallData->setState(CallData::STATE_NOTDEFINED);
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Will modify calldata for device %d in state %d with channelid %s",phoneID,pCallData->getState(),sPhoneCallID.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Will modify calldata for device %d in state %d with channelid %s",phoneID,pCallData->getState(),sPhoneCallID.c_str());
 			pCallData->setID(sPhoneCallID);
 			pCallData->setState(CallData::STATE_NOTDEFINED);
 		}
@@ -535,12 +535,12 @@ Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCalle
 					pCallData->setCallerID(sPhoneCallerID);
 					CallManager::getInstance()->addCall(pCallData);
 
-					g_pPlutoLogger->Write(LV_STATUS, "Creating calldata for ringing device %d (ext %s, id %s)",phoneID,sext.c_str(),sPhoneCallID.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Creating calldata for ringing device %d (ext %s, id %s)",phoneID,sext.c_str(),sPhoneCallID.c_str());
 					pCallData->setState(CallData::STATE_NOTDEFINED);
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_WARNING, "Will modify calldata for device %d in state %d with channelid %s",phoneID,pCallData->getState(),sPhoneCallID.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Will modify calldata for device %d in state %d with channelid %s",phoneID,pCallData->getState(),sPhoneCallID.c_str());
 					pCallData->setID(sPhoneCallID);
 					pCallData->setState(CallData::STATE_NOTDEFINED);
 				}
@@ -573,13 +573,13 @@ Telecom_Plugin::find_AsteriskDevice() {
 				errStr += ' ' + StringUtils::ltos((*it)->m_dwPK_Device);
 				it++;
 			}
-			g_pPlutoLogger->Write(LV_CRITICAL, errStr.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, errStr.c_str());
 			//return -1;
 		}
 
 		pDeviceData = pListDeviceData->front();
 	} else {
-		g_pPlutoLogger->Write(LV_STATUS, "Asterisk Handler not found...");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Asterisk Handler not found...");
 	}
 	return pDeviceData;
 }
@@ -613,36 +613,36 @@ Telecom_Plugin::generate_NewCommandID() {
 void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c232-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Originate command called with params: DeviceID=%d, PhoneExtension=%s!", iPK_Device, sPhoneExtension.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Originate command called with params: DeviceID=%d, PhoneExtension=%s!", iPK_Device, sPhoneExtension.c_str());
 
 	if(sPhoneExtension.empty()) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Error validating input parameters");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error validating input parameters");
 		return;
 	}
 
     /*search device by id*/
     DeviceData_Router *pDeviceData = find_Device(iPK_Device);
  	if(!pDeviceData) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
 		return;
 	}
 	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_OnScreen_Orbiter_CONST)
 	{
     	pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
  		if(!pDeviceData) {
-			g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
 			return;
 		}
 		iPK_Device = map_orbiter2embedphone[iPK_Device];
 	}
 
-g_pPlutoLogger->Write(LV_CRITICAL, "our device is : id %d template %d", 
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "our device is : id %d template %d", 
 					  pDeviceData->m_dwPK_Device,
 					  pDeviceData->m_dwPK_DeviceTemplate);
 
 /*	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Will originate using CMD_Phone_Initiate device#%d dial %s",iPK_Device,sPhoneExtension.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will originate using CMD_Phone_Initiate device#%d dial %s",iPK_Device,sPhoneExtension.c_str());
 		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,iPK_Device,sPhoneExtension);
 		SendCommand(cmd);
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(iPK_Device);
@@ -665,7 +665,7 @@ g_pPlutoLogger->Write(LV_CRITICAL, "our device is : id %d template %d",
 	string sSrcPhoneType = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneType_CONST);
 	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Using source phone with parameters: PhoneType=%s, PhoneNumber=%s!",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using source phone with parameters: PhoneType=%s, PhoneNumber=%s!",
 													sSrcPhoneType.c_str(), sSrcPhoneNumber.c_str());
 
 	if(m_pDevice_pbx) {
@@ -714,21 +714,21 @@ g_pPlutoLogger->Write(LV_CRITICAL, "our device is : id %d template %d",
 void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sCallID,string sPK_Device_From,bool bIsConference,string &sCMD_Result,Message *pMessage)
 //<-dceag-c234-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Transfer command called with params: DeviceID=%d UserID=%d Extension=%s", iPK_Device,iPK_Users,sPhoneExtension.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transfer command called with params: DeviceID=%d UserID=%d Extension=%s", iPK_Device,iPK_Users,sPhoneExtension.c_str());
 	string sPhoneNumber;
 	if(iPK_Device != 0)
 	{
 		/*search device by id*/
 		DeviceData_Router *pDeviceData = find_Device(iPK_Device);
 		if(!pDeviceData) {
-			g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
 			return;
 	    }
 		if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST)
 		{
 	    	pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
  			if(!pDeviceData) {
-				g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
 				return;
 			}
 		}
@@ -746,7 +746,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "No user found with id: %d", iPK_Users);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No user found with id: %d", iPK_Users);
 			return;
 		}
 	}
@@ -756,7 +756,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	}
 	if(sPhoneNumber == "")
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Nowhere to transfer !!!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Nowhere to transfer !!!");
 		return;
 	}
 
@@ -768,7 +768,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	{
 		pCallData = CallManager::getInstance()->findCallByCallId(sCallID);
 		if( !pCallData )
-			g_pPlutoLogger->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer cannot locate call id %s",sCallID.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer cannot locate call id %s",sCallID.c_str());
 	}
 
 	// then by the sPK_Device_From
@@ -778,7 +778,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 		if( pCallData==NULL )
 			pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[atoi(sPK_Device_From.c_str())]);
 		if( pCallData==NULL )
-			g_pPlutoLogger->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer cannot locate call from %s",sPK_Device_From.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer cannot locate call from %s",sPK_Device_From.c_str());
 	}
 
 	// Lastly by the originator of the message
@@ -790,7 +790,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 
 		if( pCallData==NULL )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer No calldata found for device %d",pMessage->m_dwPK_Device_From);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer No calldata found for device %d",pMessage->m_dwPK_Device_From);
 			return;
 		}
 	}
@@ -798,7 +798,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	if(m_pDevice_pbx) {
 		if( pCallData==NULL )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer No calldata found for PBX device %d", m_pDevice_pbx->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer No calldata found for PBX device %d", m_pDevice_pbx->m_dwPK_Device);
 			return;
 		}
 	
@@ -808,7 +808,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 		{
 			if(!bIsConference)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Transfer command called, but call is already in the conference, will continue this way");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Transfer command called, but call is already in the conference, will continue this way");
 				bIsConference=true;				
 			}
 		}
@@ -856,7 +856,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 void Telecom_Plugin::CMD_PL_Hangup(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c236-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Hangup command called.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup command called.");
 
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	if( iPK_Device==-1 )
@@ -866,15 +866,15 @@ void Telecom_Plugin::CMD_PL_Hangup(int iPK_Device,string &sCMD_Result,Message *p
 
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(iPK_Device);
 	if(!pCallData) {
-		g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "No calldata found for device %d",iPK_Device);
 
 		pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[iPK_Device]);
 		if(!pCallData) {
-			g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",map_orbiter2embedphone[iPK_Device]);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "No calldata found for device %d",map_orbiter2embedphone[iPK_Device]);
 			return;
 		}
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Will hangup on channelid %s", pCallData->getID().c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will hangup on channelid %s", pCallData->getID().c_str());
 
 	if(m_pDevice_pbx) {
 		/*send transfer command to PBX*/
@@ -893,7 +893,7 @@ void Telecom_Plugin::HangupAllCalls()
 	std::list<CallData*>::iterator it = calls->begin();
 	std::list<std::string> text_list;
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::HangupAllCalls hanging up %d -- disabled for now",calls->size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::HangupAllCalls hanging up %d -- disabled for now",calls->size());
 #endif
 	while(it != calls->end())
 	{
@@ -974,16 +974,16 @@ void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Route
 void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCallerID,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c414-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Originate external command called with params: PhoneNumber=%s, PhoneExtension=%s!", sPhoneNumber.c_str(), sPhoneExtension.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Originate external command called with params: PhoneNumber=%s, PhoneExtension=%s!", sPhoneNumber.c_str(), sPhoneExtension.c_str());
 
     if(sPhoneExtension.empty()) {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Error validating input parameters");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error validating input parameters");
         return;
     }
 
     string sSrcPhoneType = "Local";
 
-    g_pPlutoLogger->Write(LV_STATUS, "Using source phone with parameters: PhoneChannel=%s, PhoneNumber=%s!",
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using source phone with parameters: PhoneChannel=%s, PhoneNumber=%s!",
         sSrcPhoneType.c_str(), sPhoneNumber.c_str());
 
 	sPhoneNumber+="@trusted";
@@ -1120,7 +1120,7 @@ void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 			pCallData = new CallData();
 			pCallData->setOwnerDevID(phoneID);
 			CallManager::getInstance()->addCall(pCallData);
-			g_pPlutoLogger->Write(LV_WARNING, "Answering a call for which have no data");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Answering a call for which have no data");
 		}
 		pCallData->setState(CallData::STATE_OPENED);
 	}
@@ -1146,7 +1146,7 @@ void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Dropping a call for which have no data");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Dropping a call for which have no data");
 		}
 	}
 	sCMD_Result="OK";
@@ -1166,7 +1166,7 @@ void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sC
 	if( !iPK_Users )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Set_User_Mode no user specified.  Doing current user on orbiter %d",pMessage->m_dwPK_Device_From);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::CMD_Set_User_Mode no user specified.  Doing current user on orbiter %d",pMessage->m_dwPK_Device_From);
 #endif
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 		if( pOH_Orbiter && pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_iPK_Users )
@@ -1183,7 +1183,7 @@ void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sC
 		m_pDatabase_pluto_main->Users_get()->Commit();
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"Trying to set user mode for invalid user %d",iPK_Users);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Trying to set user mode for invalid user %d",iPK_Users);
 
 	for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 	{
@@ -1242,14 +1242,14 @@ void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,st
 	}
 
 	cmdline+= string(" ")+sUsers+(" ")+sPassword+string(" ")+sPhoneNumber;
-	g_pPlutoLogger->Write(LV_WARNING, "Will call %s",cmdline.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Will call %s",cmdline.c_str());
 	system(cmdline.c_str());
 }
 
 bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
 	bool bRegistered = pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST]=="1";
-	g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::OrbiterRegistered orbiter %d registered %d",pMessage->m_dwPK_Device_From,(int) bRegistered);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::OrbiterRegistered orbiter %d registered %d",pMessage->m_dwPK_Device_From,(int) bRegistered);
 	
 	if( bRegistered )
 	{
@@ -1263,7 +1263,7 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pMessage->m_dwPK_Device_From,
 				StringUtils::itos(pRow_Users->FK_UserMode_get()),"","user" + StringUtils::itos(pRow_Users->PK_Users_get()));
 			SendCommand(CMD_Set_Bound_Icon);
-			g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::OrbiterRegistered Set_Bound_Icon(usermode = %d, user = %d)",pRow_Users->FK_UserMode_get(),pRow_Users->PK_Users_get());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::OrbiterRegistered Set_Bound_Icon(usermode = %d, user = %d)",pRow_Users->FK_UserMode_get(),pRow_Users->PK_Users_get());
 
 			std::map<int, std::pair<string, string> >::iterator it = m_mapVoiceMailStatus.find(pRow_Users->PK_Users_get());
 			if(it != m_mapVoiceMailStatus.end())
@@ -1281,7 +1281,7 @@ bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMes
 class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-	g_pPlutoLogger->Write(LV_STATUS, "ActiveCalls request received for GridID: %s",GridID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ActiveCalls request received for GridID: %s",GridID.c_str());
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 	int Row = 0;
@@ -1294,7 +1294,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 		list<int> ext_list;
 		string ext_txt;
 		int pos = 0, oldpos = 0, count = 0;
-		g_pPlutoLogger->Write(LV_STATUS,"Channels : %s associated with %d",channels.c_str(),(*it)->getOwnerDevID());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Channels : %s associated with %d",channels.c_str(),(*it)->getOwnerDevID());
 		do
 		{
 			pos = channels.find(' ',oldpos);
@@ -1326,21 +1326,21 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 			{
 				if(chan.find(CONFERENCE_PREFIX)!=0)
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"   chan [%s], callerid [%s]",chan.c_str(),(*it)->getCallerID().c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"   chan [%s], callerid [%s]",chan.c_str(),(*it)->getCallerID().c_str());
 					if((*it)->getCallerID().find_first_not_of(" \"<>")>=0)
 					{
-						g_pPlutoLogger->Write(LV_STATUS,"   chan add");
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"   chan add");
 						ext_txt+=((*it)->getCallerID())+string(" ");
 					}
 					else
 					{
 						ext_txt+= "UNKNOWN ";
-						g_pPlutoLogger->Write(LV_STATUS,"   chan skip");
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"   chan skip");
 					}
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"   this is a conference");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"   this is a conference");
 				}
 			}
 			oldpos=pos+1;
@@ -1351,7 +1351,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 		{
 			if(find(text_list.begin(), text_list.end(), ext_txt) == text_list.end())
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW CALLDATA %s",ext_txt.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW CALLDATA %s",ext_txt.c_str());
 				pCell = new DataGridCell(ext_txt,channels);
 		        pCell->m_AltColor = UniqueColors[Row%MAX_TELECOM_COLORS];
 				pDataGrid->SetData(0,Row,pCell);
@@ -1360,12 +1360,12 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"ALREADY HAVE THIS ONE %s",ext_txt.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"ALREADY HAVE THIS ONE %s",ext_txt.c_str());
 			}
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"INSUFFICIENT CALLDATA %s",ext_txt.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"INSUFFICIENT CALLDATA %s",ext_txt.c_str());
 		}
 		it++;
 	}
@@ -1386,7 +1386,7 @@ static char* sec2str(int sec)
 
 class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "RecentCalls request received for GridID: %s",GridID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RecentCalls request received for GridID: %s",GridID.c_str());
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 	int Row = 0;
@@ -1397,7 +1397,7 @@ class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,
 	MYSQL_ROW row=NULL;
 	if( (result_set.r=mySqlHelper.mysql_query_result("SELECT src, dst, calldate, billsec, channel FROM cdr ORDER BY calldate DESC LIMIT 0,20")) == NULL )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED");
 		return pDataGrid;
 	}
 	while((row = mysql_fetch_row(result_set.r)))
@@ -1407,11 +1407,11 @@ class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,
 		string sext2=row[1];
 		if((sext2.find_first_not_of("0123456789")==sext2.npos) && (sext2.find("000")!=0))
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"   sext1='%s'",sext.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"   sext1='%s'",sext.c_str());
 			if(sext == "")
 			{
 				ParseChannel(row[4],&ext,&sext);
-				g_pPlutoLogger->Write(LV_STATUS,"   sext2='%s'",sext.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"   sext2='%s'",sext.c_str());
 				if(sext == "")
 				{
 					sext="Unknown";
@@ -1420,7 +1420,7 @@ class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,
 			if(sext != sext2)
 			{
 				string text = sext+string(" to ")+sext2+string(" at ")+string(row[2])+string("(")+string(sec2str(atoi(row[3])))+string(")");
-				g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW  %s",text.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW  %s",text.c_str());
 				pCell = new DataGridCell(text,sext2);
 				pCell->m_pMessage=NULL;
 				pDataGrid->SetData(0,Row,pCell);
@@ -1434,7 +1434,7 @@ class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,
 
 class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "SpeedDial request received for GridID: %s with Params: %s",GridID.c_str(),Parms.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SpeedDial request received for GridID: %s with Params: %s",GridID.c_str(),Parms.c_str());
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 	int Row = 0;
@@ -1443,7 +1443,7 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 	string room = StringUtils::Tokenize(Parms,",",pos);
 	if( room.size()==0 )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "SpeedDial request has no room");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SpeedDial request has no room");
 		return pDataGrid;
 	}
 
@@ -1464,7 +1464,7 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 	MYSQL_ROW row=NULL;
 	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED");
 		return pDataGrid;
 	}
 	char desc[256];
@@ -1478,27 +1478,27 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"This should not happend (1st row not PK_Device)");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (1st row not PK_Device)");
 			break;
 		}
 		if((row = mysql_fetch_row(result_set.r))==NULL)
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"This should not happend (no 2nd row for '%s')",desc);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (no 2nd row for '%s')",desc);
 			break;
 		}
 		if(atoi(row[1])!=COMMANDPARAMETER_PhoneExtension_CONST)
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"This should not happend (2nd row not PhoneExtension)");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (2nd row not PhoneExtension)");
 			break;
 		}
 		if(strcmp(row[0],desc))
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"This should not happend ('%s' != '%s')",desc,row[0]);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend ('%s' != '%s')",desc,row[0]);
 			break;
 		}
 
 		string text = string(row[0])+string(" (")+string(row[2])+string(")");
-		g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW  %s / %d",text.c_str(),device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW  %s / %d",text.c_str(),device);
 		pCell = new DataGridCell(text,"");
 		DCE::CMD_PL_Originate CMD_PL_Originate_(m_dwPK_Device,m_dwPK_Device,device,row[2],"");
 		pCell->m_pMessage=CMD_PL_Originate_.m_pMessage;
@@ -1516,12 +1516,12 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage,
 //	CallManager::getInstance()->printCalls();
 	
 	int iPhoneExtension = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST].c_str());
-	g_pPlutoLogger->Write(LV_STATUS, "Hangup %d(#%d) event received from PBX.",iPhoneExtension,map_ext2device[iPhoneExtension]);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup %d(#%d) event received from PBX.",iPhoneExtension,map_ext2device[iPhoneExtension]);
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_ext2device[iPhoneExtension]);
 	if(pCallData) {
-		g_pPlutoLogger->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iPhoneExtension],pCallData->getID().c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iPhoneExtension],pCallData->getID().c_str());
 
-		g_pPlutoLogger->Write(LV_STATUS, "Removed calldata %p/%s", pCallData, pCallData->getID().c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Removed calldata %p/%s", pCallData, pCallData->getID().c_str());
 		CallManager::getInstance()->removeCall(pCallData);
 	}
 	else
@@ -1541,7 +1541,7 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage,
 				CallData *pCallDataSlave = CallManager::getInstance()->findCallByOwnerDevID(map_ext2device[iSlavePhoneExtension]);
 				if(NULL != pCallDataSlave) 
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iSlavePhoneExtension],pCallDataSlave->getID().c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iSlavePhoneExtension],pCallDataSlave->getID().c_str());
 
 					if(NULL != m_pDevice_pbx) 
 					{
@@ -1553,7 +1553,7 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage,
 						SendCommand(cmd_PBX_Hangup);
 					}
 
-					g_pPlutoLogger->Write(LV_STATUS, "slave: Removed calldata %p/%s", pCallDataSlave, pCallDataSlave->getID().c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "slave: Removed calldata %p/%s", pCallDataSlave, pCallDataSlave->getID().c_str());
 					CallManager::getInstance()->removeCall(pCallDataSlave);
 				}
 			}
@@ -1648,7 +1648,7 @@ void Telecom_Plugin::RemoveExtesionFromChannels(const string & sExtension)
 						channels.erase(oldpos, pos - oldpos);
 					
 					pCallData->setID(channels);
-//					g_pPlutoLogger->Write(LV_WARNING, "****** CallManager::Remove: %s", channels.c_str());
+//					LoggerWrapper::GetInstance()->Write(LV_WARNING, "****** CallManager::Remove: %s", channels.c_str());
 					
 					break;
 				}
@@ -1663,17 +1663,17 @@ bool Telecom_Plugin::VoIP_Problem(class Socket *pSocket,class Message *pMessage,
 {
 	int iLevel = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST].c_str());
 	string sText = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
-	g_pPlutoLogger->Write(LV_WARNING, "Received VoIP problem : level %d, description :\n%s",iLevel,sText.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received VoIP problem : level %d, description :\n%s",iLevel,sText.c_str());
 	time_t now=time(NULL);
 	pthread_mutex_lock(&mtx_err_messages);
 	if(map_err_messages.find(sText) != map_err_messages.end())
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Already have this message");	
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Already have this message");	
 	}
 	else
 	{
 		map_err_messages[sText]=now;
-		g_pPlutoLogger->Write(LV_STATUS, "Will add to queue");	
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will add to queue");	
 	}
 	pthread_mutex_unlock(&mtx_err_messages);
 	if((iLevel == 7) && (sText.length()>0))
@@ -1693,7 +1693,7 @@ bool Telecom_Plugin::VoIP_Problem(class Socket *pSocket,class Message *pMessage,
 void * startDisplayThread(void * Arg)
 {
     Telecom_Plugin *telecom_pugin = (Telecom_Plugin *) Arg;
-    g_pPlutoLogger->Write(LV_STATUS, "Started Display Thread");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started Display Thread");
     telecom_pugin->doDisplayMessages();
     return NULL;
 }
@@ -1716,7 +1716,7 @@ void Telecom_Plugin::doDisplayMessages()
 			}
 			if(message.length()>0)
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Will write mesaage : %s",message.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will write mesaage : %s",message.c_str());
 				map_err_messages.clear();
 				//Don't send it yet				
 				//SCREEN_DialogGenericNoButtons_Cat SCREEN_DialogGenericNoButtons_(m_dwPK_Device, 5, false, BL_SameHouse,message,"0","0","0");
@@ -1740,7 +1740,7 @@ void Telecom_Plugin::doDisplayMessages()
 void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c797-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Command PL_Join_Call (call=%s, devices=%s)",sCallID.c_str(),sList_PK_Device.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command PL_Join_Call (call=%s, devices=%s)",sCallID.c_str(),sList_PK_Device.c_str());
 	list <int> dev_join_list;
 	list <int> dev_gts_list;
 	int pos = 0, oldpos = 0;
@@ -1763,7 +1763,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 		}
 		if(map_device2ext[idev] == 0)
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Ignoring device %s(%d) as has no extension",device.c_str(),idev);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ignoring device %s(%d) as has no extension",device.c_str(),idev);
 			oldpos=pos+1;
 			continue;
 		}
@@ -1773,21 +1773,21 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 		{
 			if(pCallData->getID() == sCallID)
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Device #%d is already connected to this call",idev);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device #%d is already connected to this call",idev);
 				if(map_embedphone2orbiter[idev] != 0)
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "Add #%d in GTS list",idev);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Add #%d in GTS list",idev);
 					dev_gts_list.push_back(idev);
 				}
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Device #%d has some other call '%s'",idev,pCallData->getID().c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device #%d has some other call '%s'",idev,pCallData->getID().c_str());
 			}
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Add #%d in JOIN list",idev);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Add #%d in JOIN list",idev);
 			dev_join_list.push_back(idev);
 		}
 		oldpos=pos+1;
@@ -1821,12 +1821,12 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 				int idev = map_ext2device[ext];
 				if(map_embedphone2orbiter[idev] != 0)
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "Add #%d in GTS list",idev);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Add #%d in GTS list",idev);
 					dev_gts_list.push_back(idev);
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "Don't add #%d in GTS list",idev);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Don't add #%d in GTS list",idev);
 				}
 			}
 		}
@@ -1849,7 +1849,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 		{
 			room="000"+StringUtils::itos(next_conf_room);
 			next_conf_room++;
-			g_pPlutoLogger->Write(LV_STATUS, "Will create conference room %d",room.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will create conference room %d",room.c_str());
 
 			if(m_pDevice_pbx) {
 				CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, room, generate_NewCommandID(), sCallID, true);
@@ -1857,7 +1857,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Could not found Asterisk device");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not found Asterisk device");
 				return;
 			}
 		}
@@ -1865,7 +1865,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(string sCallID,string sList_PK_Device,stri
 		{
 			pos=sCallID.find(' ');
 			room=sCallID.substr(1,pos-1);
-			g_pPlutoLogger->Write(LV_STATUS, "Will join into conference room %d",room.c_str());		
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will join into conference room %d",room.c_str());		
 		}
 		Sleep(2000);
 		for(it=dev_join_list.begin();it!=dev_join_list.end();it++)
@@ -1884,7 +1884,7 @@ bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMess
 	// TODO: implement: for userid 0, send to all users on the system with Users.AccessGeneralVoiceMail=1
 	if (userid == 0)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Telecom_Plugin::VoiceMailChanged: Event for all users not implemented");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::VoiceMailChanged: Event for all users not implemented");
 		return false;
 	}
 
@@ -1923,7 +1923,7 @@ bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMess
 #define VOICEMAIL_LOCATION "/var/spool/asterisk/voicemail/default/"
 class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "UserVoiceMailGrid request received for GridID: %s with Params: %s",GridID.c_str(),Parms.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "UserVoiceMailGrid request received for GridID: %s with Params: %s",GridID.c_str(),Parms.c_str());
 	DataGridTable *pDataGrid = new DataGridTable();
 #ifndef WIN32
 	DataGridCell *pCell;
@@ -1932,14 +1932,14 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 
 	if( userid.size()==0 )
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "UserVoiceMailGrid request has no user");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UserVoiceMailGrid request has no user");
 		return pDataGrid;
 	}
 
 	Row_Users *pRow_Users = m_pDatabase_pluto_main->Users_get()->GetRow(atoi(userid.c_str()));
 	if(NULL == pRow_Users)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Got now record for user %s", userid.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Got now record for user %s", userid.c_str());
 		return pDataGrid;
 	}
 
@@ -1949,21 +1949,21 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 	DIR * dir=opendir(user_path.c_str());
 	struct dirent *dir_ent = NULL;
 	
-	g_pPlutoLogger->Write(LV_WARNING, "Getting new voicemails from %s", user_path.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Getting new voicemails from %s", user_path.c_str());
 	while(NULL != dir && (dir_ent = readdir(dir)))
 	{
 	    struct stat statbuf;
 		string buffer = user_path+dir_ent->d_name;
         stat(buffer.c_str(),&statbuf);
 
-		g_pPlutoLogger->Write(LV_STATUS, "Voicemail ? %s", buffer.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Voicemail ? %s", buffer.c_str());
 
         if((S_ISREG(statbuf.st_mode)) && (dir_ent->d_name[0] != '.') && (strstr(dir_ent->d_name,".txt") != NULL))
         {
 			string text = "New message " + StringUtils::itos(Row+1);
 			string file_path=user_path+(dir_ent->d_name);
 			file_path.replace(file_path.length()-4,4,".wav");
-			g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW %s / %s",text.c_str(),file_path.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW %s / %s",text.c_str(),file_path.c_str());
 
 			string url="http://dcerouter/pluto-admin/amp/recordings/misc/audio.php?recording="+file_path;
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
@@ -1987,7 +1987,7 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			string text = "Old message " + StringUtils::itos(Row+1);
 			string file_path=user_path+(dir_ent->d_name);
 			file_path.replace(file_path.length()-4,4,".wav");
-			g_pPlutoLogger->Write(LV_STATUS,"WILL SHOW %s / %s",text.c_str(),file_path.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW %s / %s",text.c_str(),file_path.c_str());
 			string url="http://dcerouter/pluto-admin/amp/recordings/misc/audio.php?recording="+file_path;
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
 			
@@ -2052,23 +2052,23 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 				vector<DeviceData_Router *> vectDeviceData_Router;
                 pDevice->FindChildrenWithinCategory(DEVICECATEGORY_Soft_Phones_CONST, vectDeviceData_Router);
 
-				g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found %d simple phones", vectDeviceData_Router.size());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found %d simple phones", vectDeviceData_Router.size());
 				if(vectDeviceData_Router.size() >= 1)
 				{
 					DeviceData_Router *pDeviceData_Router = *vectDeviceData_Router.begin();
 					dwDevice_Caller = pDeviceData_Router->m_dwPK_Device;
 					bEmbeddedPhone = pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST;
 
-					g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found device %d", pDeviceData_Router->m_dwPK_Device);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found device %d", pDeviceData_Router->m_dwPK_Device);
 					sPhoneNumber = pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
-					g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found phone number of embedded phone %s", sPhoneNumber.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::CMD_Speak_in_house : found phone number of embedded phone %s", sPhoneNumber.c_str());
 				}
 			}
 		}
 
 		if( sPhoneNumber.empty() )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Telecom_Plugin::CMD_Speak_in_house -- can't find a phone number");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Telecom_Plugin::CMD_Speak_in_house -- can't find a phone number");
 			return;
 		}
 	}
@@ -2124,7 +2124,7 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 					for(list<int>::iterator it = listDevices.begin(); it != listDevices.end(); ++it)
 					{
 						// all of us will call 997
-						g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %d", *it);
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Doing a speak in house with %d", *it);
 						DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, "997");
 						SendCommand(cmd);
 					}
@@ -2136,7 +2136,7 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 			}
 
 			// If we got here there was a problem
-			g_pPlutoLogger->Write(LV_CRITICAL,"Doing a speak in house no phone relates to %d",iPK_Device_Related);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Doing a speak in house no phone relates to %d",iPK_Device_Related);
 		}
 	}
 
@@ -2146,7 +2146,7 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 		ListDeviceData_Router *pListDeviceData = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST);
 		if(NULL != pListDeviceData)
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in ALL house with master %s", sPhoneNumber.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Doing a speak in ALL house with master %s", sPhoneNumber.c_str());
 
 			list<int> listDevices;
 			list<string> listSlavesExtensions;
@@ -2158,7 +2158,7 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 					string sExtension = pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 					if(sExtension.empty() == false && sExtension != sPhoneNumber) //all except the master
 					{
-						g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in ALL house with slave %s", sExtension.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Doing a speak in ALL house with slave %s", sExtension.c_str());
 						listSlavesExtensions.push_back(sExtension);
 						listDevices.push_back(pDeviceData_Router->m_dwPK_Device);
 					}
@@ -2172,20 +2172,20 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 			for(list<int>::iterator it = listDevices.begin(); it != listDevices.end(); ++it)
 			{
 				// all of us will call 997
-				g_pPlutoLogger->Write(LV_STATUS,"Doing a speak in house with %d", *it);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Doing a speak in house with %d", *it);
 				DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, "997");
 				SendCommand(cmd);
 			}
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Telecom_Plugin::CMD_Speak_in_house: failed to "
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::CMD_Speak_in_house: failed to "
 				"get the list with embedded phones from the house");
 		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Telecom_Plugin::CMD_Speak_in_house: ain't got "
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::CMD_Speak_in_house: ain't got "
 			"the extension/phone number of the caller");
 	}
 }
@@ -2203,7 +2203,7 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom orbiter %d device %d user %d room %d calls %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom orbiter %d device %d user %d room %d calls %d",
 		iPK_Orbiter, iPK_Device, iPK_Users, iPK_RoomOrEntArea, (int) calls->size());
 #endif
 
@@ -2228,7 +2228,7 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 	CallData *pCallData = pCallData_Remote ? pCallData_Remote : (pCallData_User ? pCallData_User : pCallData_Room);
 	if( !pCallData )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom no call to transfer.  size %d",(int) calls->size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom no call to transfer.  size %d",(int) calls->size());
 		return;
 	}
 
@@ -2262,7 +2262,7 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 	
 	if( pDevice_HardPhone==NULL && pDevice_SoftPhone==NULL )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Telecom_Plugin::FollowMe_EnteredRoom no phones in room %d",iPK_RoomOrEntArea);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Telecom_Plugin::FollowMe_EnteredRoom no phones in room %d",iPK_RoomOrEntArea);
 		return;
 	}
 

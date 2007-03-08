@@ -50,10 +50,7 @@ char *hostname = NULL;
 
 using namespace DCE;
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-};
+;
 
 
 void mainloop_integration (LibHalContext *ctx, DBusConnection * dbus_connection)
@@ -72,7 +69,7 @@ void sendMessage(char *params[], int count, string &returnValue)
 			string sResponse;
 			if( !pEvent->m_pClientSocket->ReceiveString(sResponse,5) )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot communicate with router");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot communicate with router");
 				throw(new string("Cannot communicate with router"));
 			}
 			if( sResponse=="YES" )
@@ -81,15 +78,15 @@ void sendMessage(char *params[], int count, string &returnValue)
 			{
 				if( i>5 )
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Router not ready after 30 seconds.  Aborting....");
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Router not ready after 30 seconds.  Aborting....");
 					throw(new string("Router not ready after 30 seconds.  Aborting...."));
 				}
-				g_pPlutoLogger->Write(LV_STATUS,"DCERouter still loading.  Waiting 5 seconds");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"DCERouter still loading.  Waiting 5 seconds");
 				Sleep(5000);
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Router gave unknown response to ready request %s",sResponse.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Router gave unknown response to ready request %s",sResponse.c_str());
 				throw(new string("Router gave unknown response to ready request"));
 			}
 		}
@@ -109,7 +106,7 @@ void sendMessage(char *params[], int count, string &returnValue)
 						delete pResponse;
 						pResponse = NULL;
 					}								
-					g_pPlutoLogger->Write(LV_DEBUG, "Failed to send message" );
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Failed to send message" );
 				}
 				else
 				{
@@ -124,7 +121,7 @@ void sendMessage(char *params[], int count, string &returnValue)
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_DEBUG, "message should have out parameters (PK_Device (int))");
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "message should have out parameters (PK_Device (int))");
 			}
 		}
 		else
@@ -217,7 +214,7 @@ void myDeviceAdded(LibHalContext * ctx, const char * udi)
 			}
 			catch(string ex)
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "exception thrown: %s", ex.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "exception thrown: %s", ex.c_str());
 			}
 
 			g_free (product);
@@ -327,7 +324,7 @@ int main(int argc, char* argv[])
 	LibHalContext * ctx;
 	GMainLoop *loop = NULL;
 	
-	g_pPlutoLogger = new FileLogger("hal.log");
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"hal.log");
 	
 	if(argc >= 2)
 	{

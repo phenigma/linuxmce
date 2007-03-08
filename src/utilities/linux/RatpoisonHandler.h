@@ -71,10 +71,10 @@ class RatpoisonHandler
 		void resetRatpoison()
 		{
             PLUTO_SAFETY_LOCK(cm, commandMutexRec);
-g_pPlutoLogger->Write(LV_CRITICAL, "**NOT** Reseting ratpoison...");
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "**NOT** Reseting ratpoison...");
 return; // Sometimes it's reporting that ratpoison is dead when it really isn't.  10-8-2005 AB TODO
 			int PID_Ratpoison=0;
-			g_pPlutoLogger->Write(LV_CRITICAL, "Reseting ratpoison...");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Reseting ratpoison...");
 			vector<string> vectPids;
             FileUtils::ReadFileIntoVector("/var/log/pluto/running.pids", vectPids);
 			for(size_t s=0;s<vectPids.size();++s)
@@ -83,16 +83,16 @@ return; // Sometimes it's reporting that ratpoison is dead when it really isn't.
 
             if(PID_Ratpoison)
             {
-                g_pPlutoLogger->Write(LV_STATUS, "Found ratpoison pid (%d), sending command to kill it", PID_Ratpoison);
+                LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found ratpoison pid (%d), sending command to kill it", PID_Ratpoison);
                 kill(PID_Ratpoison,SIGKILL);
             }
             else
-                g_pPlutoLogger->Write(LV_STATUS, "Ratpoison isn't running...");
+                LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ratpoison isn't running...");
 
             string sStartRatpoisonCmd = "/usr/pluto/bin/Start_ratpoison.sh";
 			system(sStartRatpoisonCmd.c_str());
-            g_pPlutoLogger->Write(LV_STATUS, "Starting ratpoison with command: %s", sStartRatpoisonCmd.c_str());
-            g_pPlutoLogger->Write(LV_STATUS, "Sleeping 5 seconds, then restarting...");
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Starting ratpoison with command: %s", sStartRatpoisonCmd.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sleeping 5 seconds, then restarting...");
             Sleep(5000);
 	    system("/usr/pluto/bin/MessageSend dcerouter 0 -1000 7 1 163 ratpoison");
             exit(13);
@@ -106,14 +106,14 @@ return; // Sometimes it's reporting that ratpoison is dead when it really isn't.
 			if ( display == NULL )
 				return false;
 
-            g_pPlutoLogger->Write(LV_STATUS, "Instructing ratpoison to do this: \"%s\"", command.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Instructing ratpoison to do this: \"%s\"", command.c_str());
 
 
 			XLockDisplay(display);
 			int result;
 			if ( (result = XInternAtoms(display, atom_names, 3, True, atoms)) == 0 || atoms[RP_COMMAND] == 0  || atoms[RP_COMMAND_REQUEST] == 0 || atoms[RP_COMMAND_RESULT] == 0)
 			{
-                g_pPlutoLogger->Write(LV_WARNING, "Ratpoison window manager does not seem to be running on this server got those results: %d [%d, %d, %d]",
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ratpoison window manager does not seem to be running on this server got those results: %d [%d, %d, %d]",
 						result, atoms[RP_COMMAND], atoms[RP_COMMAND_REQUEST], atoms[RP_COMMAND_RESULT]);
 
 				resetRatpoison();
@@ -164,7 +164,7 @@ return; // Sometimes it's reporting that ratpoison is dead when it really isn't.
                 }
                 else // timeout reading command response
                 {
-                    g_pPlutoLogger->Write(LV_WARNING, "The ratpoison window manager didn't reply to the command. It is either crashed or not started at all");
+                    LoggerWrapper::GetInstance()->Write(LV_WARNING, "The ratpoison window manager didn't reply to the command. It is either crashed or not started at all");
                     done = 1;
 					resetRatpoison();
                 }
@@ -174,7 +174,7 @@ return; // Sometimes it's reporting that ratpoison is dead when it really isn't.
             XDestroyWindow (display, commandWindow);
             XUnlockDisplay(display);
 
-            g_pPlutoLogger->Write(LV_STATUS, "Exiting rat poison command");
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Exiting rat poison command");
             return true;
         }
 
@@ -201,7 +201,7 @@ return; // Sometimes it's reporting that ratpoison is dead when it really isn't.
             /* Failed to retrieve property. */
             if (status != Success || result == NULL)
             {
-                g_pPlutoLogger->Write(LV_WARNING, "Failed to get command result length for the ratpoison command output");
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to get command result length for the ratpoison command output");
                 return;
             }
 
@@ -219,13 +219,13 @@ return; // Sometimes it's reporting that ratpoison is dead when it really isn't.
             /* Failed to retrieve property. */
             if (status != Success || result == NULL)
             {
-                g_pPlutoLogger->Write(LV_WARNING, "Failed to get command result for the ratpoison command output");
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to get command result for the ratpoison command output");
                 return;
             }
 
             /* If result is not the empty string, print it. */
             // if ( strlen ((char*)result) )
-            g_pPlutoLogger->Write(LV_STATUS, "Command result: \"%s\"", result);
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command result: \"%s\"", result);
 
             /* Free the result. */
             XFree (result);

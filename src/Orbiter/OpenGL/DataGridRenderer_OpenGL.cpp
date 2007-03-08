@@ -51,7 +51,7 @@ DataGridRenderer_OpenGL::DataGridRenderer_OpenGL(DesignObj_Orbiter *pOwner)
 	OrbiterRenderer_OpenGL* pRendererGL = dynamic_cast<OrbiterRenderer_OpenGL*>(pOrbiter->Renderer());
 	if(NULL == pRendererGL)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot get a reference to the OrbiterRenderer!... quiting");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot get a reference to the OrbiterRenderer!... quiting");
 		Engine = NULL;
 		return;
 	}
@@ -88,7 +88,7 @@ void DataGridRenderer_OpenGL::Reset()
 	MeshFrame *BeforeDataGrid = m_pRenderFrame;
 
 	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
-	g_pPlutoLogger->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject %s", DatagridFrameID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject %s", DatagridFrameID.c_str());
 
 	//render datagrid in a frame
 	if(0 != StartAnimation)
@@ -103,7 +103,7 @@ void DataGridRenderer_OpenGL::Reset()
 	if(0 != StartAnimation)
 		Engine->BeginModifyGeometry();
 
-	g_pPlutoLogger->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject %s MIDDLE", DatagridFrameID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject %s MIDDLE", DatagridFrameID.c_str());
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, Engine->GetSceneMutex());
 	
@@ -127,7 +127,7 @@ void DataGridRenderer_OpenGL::Reset()
 		//prepare animation
 		vector<string> Dependencies;
 		BuildDependencies(Dependencies);
-		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject StartAnimation %s B(%p) - A(%p)",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject StartAnimation %s B(%p) - A(%p)",
 			DatagridFrameID.c_str(), BeforeDataGridClone, m_pRenderFrame);
 
 		Engine->GetDatagridAnimationManager()->PrepareForAnimation(
@@ -137,7 +137,7 @@ void DataGridRenderer_OpenGL::Reset()
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject normal render... stopping all animations! Current datagrid frame %p/%s",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject normal render... stopping all animations! Current datagrid frame %p/%s",
 			m_pRenderFrame, m_pRenderFrame->Name().c_str());
 
 		Engine->GetDatagridAnimationManager()->StopAnimations();
@@ -148,7 +148,7 @@ void DataGridRenderer_OpenGL::Reset()
 
     sm.Release();
 
-	g_pPlutoLogger->Write(LV_STATUS, "abc DataGridRenderer_OpenGL::RenderObject ENDED %s", DatagridFrameID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "abc DataGridRenderer_OpenGL::RenderObject ENDED %s", DatagridFrameID.c_str());
 }
 
 void DataGridRenderer_OpenGL::m_AnimationSpeed_set(int AnimationSpeed)

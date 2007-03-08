@@ -48,10 +48,7 @@ using namespace std;
 using namespace DCE;
 DCEConfig dceConfig;
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 
 void AssignWorkDays(string sUserID);
 void AssignWorkDaysForUser(string sUserID);
@@ -70,7 +67,7 @@ void OutputUser(string sUser,int iHourStart,int iHourStop,string sComment);
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger("MantisAssign.log");
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"MantisAssign.log");
 
 	if( argc!=5 )
 	{
@@ -249,7 +246,7 @@ void AssignWorkDaysForUser(string sUserID)
 void AssignTaskByDate(string sFirstTask,string sUserID,time_t tFirstDate,time_t tEndTime,list<int> &listNextTasks)
 {
 	int Hours;
-	g_pPlutoLogger->Write(LV_STATUS,"AssignTaskByDate task %s user %s number %d",sFirstTask.c_str(),sUserID.c_str(),(int) listNextTasks.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"AssignTaskByDate task %s user %s number %d",sFirstTask.c_str(),sUserID.c_str(),(int) listNextTasks.size());
 	tFirstDate = GetActualStartTimeAndWorkHours(GetUserForTask(sFirstTask),tFirstDate,Hours);
 
 	if( g_mapBugs[atoi(sFirstTask.c_str())] )
@@ -333,7 +330,7 @@ int k=2;
 
 time_t GetEndTime(string sTaskID,time_t tStartTime)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"GetEndTime %s",sTaskID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"GetEndTime %s",sTaskID.c_str());
 	int Duration = GetDuration(sTaskID);
 	if( Duration<1 )
 		Duration=1;
@@ -343,7 +340,7 @@ time_t GetEndTime(string sTaskID,time_t tStartTime)
 		int Hours;
 		tStartTime = GetActualStartTimeAndWorkHours(GetUserForTask(sTaskID),tStartTime,Hours);
 		time_t tStopTime = tStartTime + Hours * 3600;
-		g_pPlutoLogger->Write(LV_STATUS,"GetEndTime %s duration is %d  start %d  stop %d Hours %d",sTaskID.c_str(),Duration,(int) tStartTime, (int) tStopTime, Hours);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"GetEndTime %s duration is %d  start %d  stop %d Hours %d",sTaskID.c_str(),Duration,(int) tStartTime, (int) tStopTime, Hours);
 		if( (tStopTime - tStartTime)/3600 >= Duration )
 			return tStartTime + Duration * 3600;
 		Duration -= Hours; // Subtract the hours for this day, and continue to the next
@@ -353,7 +350,7 @@ time_t GetEndTime(string sTaskID,time_t tStartTime)
 
 int GetDuration(string sTaskID)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"GetDuration %s",sTaskID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"GetDuration %s",sTaskID.c_str());
 	string sSQL = "select hours_estimate,hours_actual from mantis_bug_table where id=" + sTaskID;
 	PlutoSqlResult result;
 	MYSQL_ROW row;

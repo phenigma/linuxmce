@@ -57,10 +57,10 @@ bool Basic_XML_Data_Source_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		m_bQuit_set(true);
 		return false;
 	}
@@ -78,7 +78,7 @@ bool Basic_XML_Data_Source_Plugin::Register()
 	m_pXML_Data_Handler_Plugin=( XML_Data_Handler_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_XML_Data_Handler_Plugin_CONST);
 	if( !m_pXML_Data_Handler_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to Basic_XML_Data_Source_Plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to Basic_XML_Data_Source_Plugin");
 		return false;
 	}
 

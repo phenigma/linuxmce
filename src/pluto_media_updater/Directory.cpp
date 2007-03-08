@@ -189,6 +189,6 @@ void Directory::fireFileAdded(File *pFile)
 
 void Directory::fireFileChanged(File *pFile)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "File changed: %s", (pFile->parent->getPath() + "/" + pFile->name).c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "File changed: %s", (pFile->parent->getPath() + "/" + pFile->name).c_str());
     m_controller.addFile(pFile);
 }

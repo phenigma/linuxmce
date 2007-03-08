@@ -26,10 +26,7 @@
 using namespace std;
 using namespace DCE;
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 
 DCEConfig *g_dceConfig;
 map<string,bool> g_mapBlocks;  // List of all the blocks to include
@@ -38,8 +35,6 @@ bool ReplaceTags(string &str,string sFilename);
 
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger = new FileLogger(stdout);
-
 	bool bError=false;
 	string sInputPath,sExtensions,sConfFile;
 	char c;
@@ -84,7 +79,7 @@ int main(int argc, char *argv[])
 	list<string> listFiles;
 	FileUtils::FindFiles(listFiles,sInputPath,sExtensions,true,true);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Found %d files",(int) listFiles.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d files",(int) listFiles.size());
 
 	for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 	{
@@ -123,7 +118,7 @@ bool ReplaceTags(string &str,string sFilename)
 		string::size_type end_pos=str.find("->",tag_pos+1);
 		if( end_pos==string::npos || end_pos - tag_pos < 12 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find matching tag in %s",sFilename.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find matching tag in %s",sFilename.c_str());
 			return false;
 		}
 		char cType = str[ tag_pos+6 ];
@@ -159,7 +154,7 @@ bool ReplaceTags(string &str,string sFilename)
 					string::size_type end_tag = str.find(sEndTag,tag_pos);
 					if( end_tag==string::npos )
 					{
-						g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find end block for %s in %s",sTag.c_str(),sFilename.c_str());
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find end block for %s in %s",sTag.c_str(),sFilename.c_str());
 						continue;
 					}
 					str.replace(tag_pos,end_tag-tag_pos+sEndTag.size(),"");
@@ -174,7 +169,7 @@ bool ReplaceTags(string &str,string sFilename)
 			}
 			break;
 		default:
-			g_pPlutoLogger->Write(LV_CRITICAL,"Unknown tag type %c in %s",cType,sFilename.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unknown tag type %c in %s",cType,sFilename.c_str());
 			break;
 		};
 	}

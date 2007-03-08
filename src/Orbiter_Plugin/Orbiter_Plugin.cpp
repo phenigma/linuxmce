@@ -124,26 +124,26 @@ bool Orbiter_Plugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-    m_pDatabase_pluto_main = new Database_pluto_main(g_pPlutoLogger);
+    m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
     if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
         m_bQuit_set(true);
         return false;
     }
 
-    m_pDatabase_pluto_security = new Database_pluto_security(g_pPlutoLogger);
+    m_pDatabase_pluto_security = new Database_pluto_security(LoggerWrapper::GetInstance());
     if( !m_pDatabase_pluto_security->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_security", m_pRouter->iDBPort_get( ) ) )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
         m_bQuit_set(true);
         return false;
     }
 
-    m_pDatabase_pluto_media = new Database_pluto_media(g_pPlutoLogger);
+    m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
     if( !m_pDatabase_pluto_media->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) ) )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
         m_bQuit_set(true);
         return false;
     }
@@ -151,7 +151,7 @@ bool Orbiter_Plugin::GetConfig()
 	m_pRegenMonitor=new RegenMonitor(m_pDatabase_pluto_main,m_pDatabase_pluto_media);
 	m_sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
 //#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::GetConfig Starting up with m_sRegenAllDevicesRooms=%s",m_sRegenAllDevicesRooms.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::GetConfig Starting up with m_sRegenAllDevicesRooms=%s",m_sRegenAllDevicesRooms.c_str());
 //#endif
 
 	vector<Row_Users *> vectRow_Users;
@@ -170,7 +170,7 @@ bool Orbiter_Plugin::GetConfig()
             m_sPK_Device_AllOrbiters += StringUtils::itos(pDeviceData_Router->m_dwPK_Device) + ",";
             if( pDeviceData_Router->m_sMacAddress.size()==0 )
             {
-                g_pPlutoLogger->Write(LV_STATUS,"Orbiter: %d %s doesn't have a mac address.",
+                LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter: %d %s doesn't have a mac address.",
                     pDeviceData_Router->m_dwPK_Device,pDeviceData_Router->m_sDescription.c_str());
 
             }
@@ -197,7 +197,7 @@ bool Orbiter_Plugin::GetConfig()
 	string sStatus = GetStatus();
 	if( sStatus.size() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Starting to regen CMD_Regen from GetStatus %s",sStatus.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Starting to regen CMD_Regen from GetStatus %s",sStatus.c_str());
 		if( sStatus=="*" )
 			CMD_Regen_Orbiter(0,"","");
 		else
@@ -225,7 +225,7 @@ bool Orbiter_Plugin::GetConfig()
 			{
 				int PK_User = atoi(it->c_str());
 				string sID = it->substr( pos+1 );
-				g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin user %d has id %s",PK_User,sID.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin user %d has id %s",PK_User,sID.c_str());
 				m_mapUsersID[ sID ] = PK_User;
 			}
 		}
@@ -313,7 +313,7 @@ bool Orbiter_Plugin::Register()
 
 	if( !m_pDatagrid_Plugin || !m_pLighting_Floorplan || !m_pClimate_Floorplan || !m_pMedia_Floorplan || !m_pSecurity_Floorplan || !m_pTelecom_Floorplan || !m_pGeneral_Info_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins to orbiter plugin");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to orbiter plugin");
 		return false;
 	}
 
@@ -333,7 +333,7 @@ bool Orbiter_Plugin::Register()
 				pOH_Orbiter = m_mapOH_Orbiter_Find(vectDeviceData_Router[0]->m_dwPK_Device);
 
 			if( !pOH_Orbiter )
-				g_pPlutoLogger->Write(LV_WARNING,"Remote Control %d has no orbiter",pDeviceData_Router->m_dwPK_Device);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Remote Control %d has no orbiter",pDeviceData_Router->m_dwPK_Device);
 			else
 				m_mapRemote_2_Orbiter[pDeviceData_Router->m_dwPK_Device] = pOH_Orbiter;
         }
@@ -392,7 +392,7 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
 {
     if (!pDeviceFrom)
     {
-        g_pPlutoLogger->Write(LV_WARNING,"GotRouteToOrbitersInRoom, but pDeviceFrom is NULL");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,"GotRouteToOrbitersInRoom, but pDeviceFrom is NULL");
         return false;
     }
 
@@ -435,10 +435,10 @@ bool Orbiter_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTask
 		return false;
 
 	string sOrbiters;
-	g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot m_listRegenCommands %d pending %p",(int) m_listRegenCommands.size(),vectPendingTasks);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Cannot reboot m_listRegenCommands %d pending %p",(int) m_listRegenCommands.size(),vectPendingTasks);
 
 	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PendingTasks m_listRegenCommands %d",*it);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::PendingTasks m_listRegenCommands %d",*it);
 
 	if( vectPendingTasks )
 	{
@@ -490,7 +490,7 @@ bool Orbiter_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTask
 
 void Orbiter_Plugin::ProcessUnknownDevice()
 {
-g_pPlutoLogger->Write(LV_STATUS,"in process");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"in process");
 
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 
@@ -521,13 +521,13 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 
     if(!IdentifyDevice(sMacAddress, sDeviceCategory, iPK_DeviceTemplate, sManufacturer))
     {
-        g_pPlutoLogger->Write(LV_STATUS, "skipping detection of %s.  it's just a dongle",sMacAddress.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "skipping detection of %s.  it's just a dongle",sMacAddress.c_str());
         DCE::CMD_Ignore_MAC_Address CMD_Ignore_MAC_Address(m_dwPK_Device,pUnknownDeviceInfos->m_iDeviceIDFrom,sMacAddress);
         SendCommand(CMD_Ignore_MAC_Address);
         return;
     }
 
-    g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s", sMacAddress.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Detected unknown bluetooth device %s", sMacAddress.c_str());
     pUnknownDeviceInfos->m_iPK_DeviceTemplate = iPK_DeviceTemplate;
 
     string Description;
@@ -547,12 +547,12 @@ bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCa
     ostringstream sql;
     sql << "Mac_Range_Low<=" << pd.m_iMacAddress << " AND Mac_Range_High>=" << pd.m_iMacAddress;
     m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sql.str(),&vectRow_DHCPDevice);
-    g_pPlutoLogger->Write(LV_WARNING, "Search %s returned %d rows", sql.str().c_str(), (int) vectRow_DHCPDevice.size() );
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Search %s returned %d rows", sql.str().c_str(), (int) vectRow_DHCPDevice.size() );
 	Row_DHCPDevice *pRow_DHCPDevice = vectRow_DHCPDevice.size() ? vectRow_DHCPDevice[0] : NULL;
 
     if(NULL == pRow_DHCPDevice)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Unknown type of bluetooth device detected. Is this a phone? Mac: %s", sMacAddress.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unknown type of bluetooth device detected. Is this a phone? Mac: %s", sMacAddress.c_str());
 
         sDeviceCategoryDesc = "Unknown";
         iPK_DeviceTemplate = 0;
@@ -579,13 +579,13 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 	if( m_pPlug_And_Play_Plugin && m_pPlug_And_Play_Plugin->m_bSuspendProcessing_get()==true )
 	{
 		// Just ignore this.  Another detected event will be fired soon.
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::MobileOrbiterDetected processing is now suspended.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::MobileOrbiterDetected processing is now suspended.");
 		return false;
 	}
 
     if (NULL == pDeviceFrom)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Got orbiter detected, but pDeviceFrom is NULL. "
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Got orbiter detected, but pDeviceFrom is NULL. "
 			"We are assuming that it's a bluetooth_dongle and the router wasn't reloaded");
     }
 
@@ -601,7 +601,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
         vector<Row_Device *> vectRow_Device;
         m_pDatabase_pluto_main->Device_get()->GetRows( DEVICE_MACADDRESS_FIELD + string("='") + sMacAddress + "' ", &vectRow_Device );
 
-        g_pPlutoLogger->Write(LV_STATUS,"Found: %d rows in devices for %s",(int) vectRow_Device.size(),sMacAddress.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found: %d rows in devices for %s",(int) vectRow_Device.size(),sMacAddress.c_str());
 
         // If we have any records, then it's something that is already in our database, and it's not a phone, since it's
         // not in the OH_Orbiter map.  Just ignore it.
@@ -624,7 +624,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 			else
             {
                 //this is a known 'unknown device' :)
-                g_pPlutoLogger->Write(LV_STATUS, "Skipping detection of %s. It is an 'unknown device'",sMacAddress.c_str());
+                LoggerWrapper::GetInstance()->Write(LV_STATUS, "Skipping detection of %s. It is an 'unknown device'",sMacAddress.c_str());
                 DCE::CMD_Ignore_MAC_Address CMD_Ignore_MAC_Address(m_dwPK_Device, pMessage->m_dwPK_Device_From, sMacAddress);
                 SendCommand(CMD_Ignore_MAC_Address);
             }
@@ -641,7 +641,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
         {
             int SignalStrength = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Signal_Strength_CONST].c_str());
             pOH_Orbiter->m_iLastSignalStrength = SignalStrength;
-			g_pPlutoLogger->Write(LV_STATUS, "Redetecting the same device with strength: %d", pOH_Orbiter->m_iLastSignalStrength);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Redetecting the same device with strength: %d", pOH_Orbiter->m_iLastSignalStrength);
         }
         else
         {
@@ -660,10 +660,10 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                     sMacAddress,
                     &iCurrentSignalStrength);
 
-                g_pPlutoLogger->Write(LV_STATUS,"Getting the signal strength ... (1)");
+                LoggerWrapper::GetInstance()->Write(LV_STATUS,"Getting the signal strength ... (1)");
                 if( SendCommand(CMD_Get_Signal_Strength1) )
 			    {
-                    g_pPlutoLogger->Write(LV_WARNING,"Mobile Orbiter %s dongle %d reported strength of %d (1)",sMacAddress.c_str(),pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,iCurrentSignalStrength);
+                    LoggerWrapper::GetInstance()->Write(LV_WARNING,"Mobile Orbiter %s dongle %d reported strength of %d (1)",sMacAddress.c_str(),pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,iCurrentSignalStrength);
 					if(iCurrentSignalStrength)
                     {
 						pOH_Orbiter->m_iLastSignalStrength = iCurrentSignalStrength;
@@ -672,7 +672,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                 }
 				else
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"Dongle %d failed to respond once",pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Dongle %d failed to respond once",pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device);
 					bFailedToCommunicateWithDongle=true;
 				}
 
@@ -682,16 +682,16 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                     sMacAddress,
                     &iCurrentSignalStrength);
 
-                g_pPlutoLogger->Write(LV_STATUS,"Getting the signal strength ... (2)");
+                LoggerWrapper::GetInstance()->Write(LV_STATUS,"Getting the signal strength ... (2)");
                 if( SendCommand(CMD_Get_Signal_Strength2) )
                 {
-                    g_pPlutoLogger->Write(LV_WARNING,"Mobile Orbiter %s dongle %d reported strength of %d (2)",sMacAddress.c_str(),pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,iCurrentSignalStrength);
+                    LoggerWrapper::GetInstance()->Write(LV_WARNING,"Mobile Orbiter %s dongle %d reported strength of %d (2)",sMacAddress.c_str(),pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,iCurrentSignalStrength);
                     if(iCurrentSignalStrength)
                         pOH_Orbiter->m_iLastSignalStrength = iCurrentSignalStrength;
                 }
 				else if( bFailedToCommunicateWithDongle )
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"Dongle %d failed to respond twice",pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Dongle %d failed to respond twice",pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device);
 					pOH_Orbiter->m_pDevice_CurrentDetected=NULL;
 				}
             }
@@ -701,7 +701,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 			)
             {
                 //the current signal strength or the last signal strength are higher then the thresh hold
-                g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s already has a strong association with %d (%d/%d/%d)",
+                LoggerWrapper::GetInstance()->Write(LV_STATUS,"Mobile Orbiter %s already has a strong association with %d (%d/%d/%d)",
                     sMacAddress.c_str(),
                     pOH_Orbiter->m_pDevice_CurrentDetected->m_sDescription.c_str(),
                     iOldSignalStrength, iCurrentSignalStrength, m_iThreshHold);
@@ -709,7 +709,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
             else
             {
                 //the current signal strength and the last signal strength are lower then the thresh hold
-                g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d (%d,%d,%d)", sMacAddress.c_str(),
+                LoggerWrapper::GetInstance()->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d (%d,%d,%d)", sMacAddress.c_str(),
                     pMessage->m_dwPK_Device_From, iOldSignalStrength, iCurrentSignalStrength, m_iThreshHold);
 
 				if( pOH_Orbiter->NeedApp())
@@ -733,7 +733,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                     m_mapAllowedConnections[sMacAddress] = new AllowedConnections(time(NULL) + EXPIRATION_INTERVAL, pMessage->m_dwPK_Device_From);
                     ac.Release();
 
-                    g_pPlutoLogger->Write(LV_WARNING, "Only %d dongle will be allow to connect to %s phone in %d seconds", pMessage->m_dwPK_Device_From,
+                    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Only %d dongle will be allow to connect to %s phone in %d seconds", pMessage->m_dwPK_Device_From,
                         sMacAddress.c_str(), EXPIRATION_INTERVAL);
 
                     //this dongle will send a link with mobile orbiter when it has finished disconnecting
@@ -768,21 +768,21 @@ bool Orbiter_Plugin::ConnectionAllowed(int iDevice, string sMacAddress)
     {
         if(pAllowedConnections->m_iDeviceIDAllowed == iDevice)
         {
-            g_pPlutoLogger->Write(LV_WARNING, "This device (%d) is allowed to connect to PlutoMO %s", iDevice, sMacAddress.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "This device (%d) is allowed to connect to PlutoMO %s", iDevice, sMacAddress.c_str());
             m_mapAllowedConnections[sMacAddress] = NULL;
             delete pAllowedConnections;
         }
         else //other device
             if(pAllowedConnections->m_tExpirationTime < time(NULL)) 
             {
-                g_pPlutoLogger->Write(LV_WARNING, "The connection interval expired. Device %d is now allowed to connect to PlutoMO %s", iDevice,
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "The connection interval expired. Device %d is now allowed to connect to PlutoMO %s", iDevice,
                     sMacAddress.c_str());
                 m_mapAllowedConnections[sMacAddress] = NULL;
                 delete pAllowedConnections;
             }
             else
             {
-                g_pPlutoLogger->Write(LV_WARNING, "Device %d is not allowed to connect to PlutoMO %s. Waiting for %d device to link", iDevice,
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device %d is not allowed to connect to PlutoMO %s. Waiting for %d device to link", iDevice,
                     sMacAddress.c_str(), pAllowedConnections->m_iDeviceIDAllowed);
                 return false;
             }
@@ -798,7 +798,7 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
 
 	if (!pDeviceFrom || !pOH_Orbiter)
     {
-        g_pPlutoLogger->Write(LV_WARNING,"Got orbiter detected, but pDeviceFrom is NULL or unknown dev %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,"Got orbiter detected, but pDeviceFrom is NULL or unknown dev %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
 		return false;
     }
 
@@ -806,7 +806,7 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
         return false;
 
     pOH_Orbiter->m_sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
-g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH_Orbiter,pOH_Orbiter->m_sVersion.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH_Orbiter,pOH_Orbiter->m_sVersion.c_str());
 
     Row_Device *pRow_Device = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device;
 	if( pOH_Orbiter->NeedApp() || pOH_Orbiter->m_sVersion != g_sLatestMobilePhoneVersion )
@@ -815,7 +815,7 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH
 		// are sending a new version to one, while another is detecting the phone.  Give the user 15 minutes
 		// to acknowledge and install before we try again
 		if( pOH_Orbiter->m_tSendAppTime && time(NULL)-pOH_Orbiter->m_tSendAppTime<900 )
-			g_pPlutoLogger->Write(LV_STATUS,"We already tried to send app to phone %s within the last 15 minutes",sMacAddress.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"We already tried to send app to phone %s within the last 15 minutes",sMacAddress.c_str());
 		else
 			SendAppToPhone(pOH_Orbiter,pDeviceFrom->m_dwPK_Device, sMacAddress);
 	}
@@ -873,7 +873,7 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
 {
     if (!pDeviceFrom)
     {
-        g_pPlutoLogger->Write(LV_WARNING,"Got orbiter detected, but pDeviceFrom is NULL");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,"Got orbiter detected, but pDeviceFrom is NULL");
         return false;
     }
 
@@ -884,7 +884,7 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
 
     if(!pOH_Orbiter)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Detected unknown bluetooth device %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
     }
     else
     {
@@ -929,7 +929,7 @@ void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Mess
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
     if( !pOH_Orbiter )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
         return;
     }
 
@@ -961,14 +961,14 @@ void Orbiter_Plugin::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string 
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
     if( !pOH_Orbiter )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
         return;
     }
 	EntertainArea *pEntertainArea_Last = pOH_Orbiter->m_pEntertainArea;
     pOH_Orbiter->m_pEntertainArea=pEntertainArea;
 
 // Somehow it happened that an orbiter was set to an ent area, but when it did a play media, it says it wasn't
-g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p %d now in ea %p %d",pOH_Orbiter,
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter %p %d now in ea %p %d",pOH_Orbiter,
 					  pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pEntertainArea,
 					  (pEntertainArea ? pEntertainArea->m_iPK_EntertainArea : 0));
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
@@ -1003,7 +1003,7 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
     if( !pOH_Orbiter )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
         return;
     }
 
@@ -1167,7 +1167,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 	int PK_Device = createDevice.DoIt(0,iPK_DeviceTemplate,"","",sMac_address,0,"",0,iPK_Room);
 	(*iPK_Device) = PK_Device;
 
-	g_pPlutoLogger->Write(
+	LoggerWrapper::GetInstance()->Write(
         LV_STATUS,
 		"New mobile orbiter, setting: %d to mac: %s user: %d",
         PK_Device,
@@ -1202,21 +1202,21 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		ProcessUtils::SpawnDaemon(args[0], args);
 
 		m_listRegenCommands.push_back(PK_Device);
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_New_Orbiter Executing regen PK_Device: %d now m_listRegenCommands is: %d",PK_Device,(int) m_listRegenCommands.size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_New_Orbiter Executing regen PK_Device: %d now m_listRegenCommands is: %d",PK_Device,(int) m_listRegenCommands.size());
 	}
 	else
-		g_pPlutoLogger->Write(LV_STATUS,"Already generating %d",iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Already generating %d",iPK_Device);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_New_Orbiter now pending jobs size is m_listRegenCommands: %d",(int) m_listRegenCommands.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_New_Orbiter now pending jobs size is m_listRegenCommands: %d",(int) m_listRegenCommands.size());
 	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
-		g_pPlutoLogger->Write(LV_STATUS,"Still generating m_listRegenCommands %d",*it);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Still generating m_listRegenCommands %d",*it);
 
 	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
 
 	bool bDontSendInstructions = false;
 
     if(!pUnknownDeviceInfos || !pUnknownDeviceInfos->m_iDeviceIDFrom )
-        g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
     else if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST )
     {
         Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
@@ -1249,7 +1249,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		bDontSendInstructions = true;
     }
 
-g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"setting process flag to false");
 
 	if(!bDontSendInstructions)
 	{
@@ -1279,7 +1279,7 @@ void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_
     pRow_Device->Description_set(sID);
     m_pDatabase_pluto_main->UnknownDevices_get()->Commit();
 
-    g_pPlutoLogger->Write(
+    LoggerWrapper::GetInstance()->Write(
         LV_STATUS,
         "Added phone to unknown devices table, setting: %d to mac: %s",
         pRow_Device->PK_UnknownDevices_get(),
@@ -1310,17 +1310,17 @@ void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &s
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
     if( !pOH_Orbiter )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find orbiter for floorplan layout: %d",pMessage->m_dwPK_Device_From);
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find orbiter for floorplan layout: %d",pMessage->m_dwPK_Device_From);
         return;
     }
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
     (*sValue_To_Assign) = StringUtils::itos((int) pOH_Orbiter->m_mapFloorplanObjectVector.size()) + "|";
 
-    g_pPlutoLogger->Write(LV_STATUS, "Set value of floorplan layout to: %s", (*sValue_To_Assign).c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Set value of floorplan layout to: %s", (*sValue_To_Assign).c_str());
 
     map<int,FloorplanObjectVectorMap *>::iterator itFloorplanObjectVectorMap;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Size of the map is: %d", pOH_Orbiter->m_mapFloorplanObjectVector.size() );
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Size of the map is: %d", pOH_Orbiter->m_mapFloorplanObjectVector.size() );
     for(itFloorplanObjectVectorMap = pOH_Orbiter->m_mapFloorplanObjectVector.begin();itFloorplanObjectVectorMap!=pOH_Orbiter->m_mapFloorplanObjectVector.end();itFloorplanObjectVectorMap++)
     {
         int Page = (*itFloorplanObjectVectorMap).first;
@@ -1328,7 +1328,7 @@ void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &s
 
         if( !pfpObjVectorMap )
         {
-            g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in m_mapFloorplanObjectVector with Page: %d controller: %d",Page,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"There's a null in m_mapFloorplanObjectVector with Page: %d controller: %d",Page,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
             (*sValue_To_Assign) += StringUtils::itos(Page) + "|0|";
             continue;
         }
@@ -1345,7 +1345,7 @@ void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &s
             {
                 // 2004 I don't fully understand why this null gets in there, but it's harmless--it just
                 // means there are no floorplan objects of this type on the given page
-                g_pPlutoLogger->Write(LV_STATUS,"There's a null in m_FloorplanObjectVector with Page: %d Type: %d Controller: %d",Page,Type,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+                LoggerWrapper::GetInstance()->Write(LV_STATUS,"There's a null in m_FloorplanObjectVector with Page: %d Type: %d Controller: %d",Page,Type,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
                 (*sValue_To_Assign) += StringUtils::itos(Type) + "|0|";
                 continue;
             }
@@ -1383,7 +1383,7 @@ void Orbiter_Plugin::CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 	if( !pOH_Orbiter )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find controller for floorplan: %d",pMessage->m_dwPK_Device_From);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find controller for floorplan: %d",pMessage->m_dwPK_Device_From);
 		return;
 	}
 	int Page = atoi(sID.c_str());
@@ -1410,7 +1410,7 @@ void Orbiter_Plugin::CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,
 
 	if( !pFloorplanInfoProvider )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Dont have a provider for floorplan: %d",pMessage->m_dwPK_Device_From);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Dont have a provider for floorplan: %d",pMessage->m_dwPK_Device_From);
 		return;
 	}
 
@@ -1419,7 +1419,7 @@ void Orbiter_Plugin::CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,
 	if( pFloorplanObjectVectorMap )
 		fpObjVector = (*pFloorplanObjectVectorMap)[iPK_FloorplanType];
 
-g_pPlutoLogger->Write(LV_STATUS, "get floorplan for page %d type %d map %p objs %d", Page, iPK_FloorplanType, pFloorplanObjectVectorMap,(fpObjVector ? (int) fpObjVector->size() : 0));
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "get floorplan for page %d type %d map %p objs %d", Page, iPK_FloorplanType, pFloorplanObjectVectorMap,(fpObjVector ? (int) fpObjVector->size() : 0));
 
 	if( fpObjVector )
 	{
@@ -1478,7 +1478,7 @@ g_pPlutoLogger->Write(LV_STATUS, "get floorplan for page %d type %d map %p objs 
 
 void Orbiter_Plugin::PrepareFloorplanInfo()
 {
-g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Preparing floorplan");
     for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
         PrepareFloorplanInfo(it->second);
     m_bFloorPlansArePrepared = true;
@@ -1496,7 +1496,7 @@ void Orbiter_Plugin::PrepareFloorplanInfo(OH_Orbiter *pOH_Orbiter)
 			FloorplanObjectVector *pFloorplanObjectVector = it2->second;
 			if( !pFloorplanObjectVector )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::PrepareFloorplanInfo pFloorplanObjectVector is NULL %d",it2->first);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Orbiter_Plugin::PrepareFloorplanInfo pFloorplanObjectVector is NULL %d",it2->first);
 				continue;
 			}
 			for(size_t s=0;s<pFloorplanObjectVector->size();++s)
@@ -1510,7 +1510,7 @@ void Orbiter_Plugin::PrepareFloorplanInfo(OH_Orbiter *pOH_Orbiter)
 	Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
     if( !pRow_Orbiter )
     {
-        g_pPlutoLogger->Write(LV_STATUS,"Cannot find Row_Orbiter for: %d",
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"Cannot find Row_Orbiter for: %d",
             pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
         return;
     }
@@ -1519,14 +1519,14 @@ void Orbiter_Plugin::PrepareFloorplanInfo(OH_Orbiter *pOH_Orbiter)
     string s = pRow_Orbiter->FloorplanInfo_get();
     string::size_type pos=0;
 
-    g_pPlutoLogger->Write(LV_STATUS, "This is a valid orbiter: %d fpinfo = %s", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, s.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "This is a valid orbiter: %d fpinfo = %s", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, s.c_str());
     int NumDevices = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
-g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
     for(int iDevice=0;iDevice<NumDevices;++iDevice)
     {
 		// The device can be either a device, or an EntertainArea if this is the media floorplan
         int PK_Device = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
-        g_pPlutoLogger->Write(LV_STATUS, "DeviceID: %d", PK_Device);
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "DeviceID: %d", PK_Device);
         DeviceData_Router *pDeviceData_Router = NULL;
 		EntertainArea *pEntertainArea = NULL;
 		if( PK_Device>0 )
@@ -1536,7 +1536,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
 			pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(PK_Device * -1);
 			if( !pEntertainArea )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Device referred by the floorplan %d for orbiter %d does not exist", PK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Device referred by the floorplan %d for orbiter %d does not exist", PK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 				// clean the bogus data
 				StringUtils::Tokenize(s, "\t", pos);
 				StringUtils::Tokenize(s, "\t", pos);
@@ -1562,17 +1562,17 @@ g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
         int FillX = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
         int FillY = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
 
-        g_pPlutoLogger->Write(LV_STATUS, "Got this data for the floorplan %d %d %d, %s", Page, FillX, FillY, ObjectID.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got this data for the floorplan %d %d %d, %s", Page, FillX, FillY, ObjectID.c_str());
         if ( pRow_FloorplanObjectType == NULL )
         {
-            g_pPlutoLogger->Write(LV_STATUS, "Invalid Floorplan object type: %d Device %d", FloorplanObjectType,PK_Device);
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invalid Floorplan object type: %d Device %d", FloorplanObjectType,PK_Device);
             return;
         }
 
         string Description = pRow_FloorplanObjectType->Description_get();
-        g_pPlutoLogger->Write(LV_STATUS, "Got description %s", Description.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got description %s", Description.c_str());
         int FloorplanType = pRow_FloorplanObjectType->FK_FloorplanType_get();
-        g_pPlutoLogger->Write(LV_STATUS, "Got type %d page %d", FloorplanType,Page);
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got type %d page %d", FloorplanType,Page);
 
         FloorplanObjectVectorMap *pFpObjMap = pOH_Orbiter->m_mapFloorplanObjectVector_Find(Page);
         if( !pFpObjMap )
@@ -1622,7 +1622,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
 	if( !pOH_Orbiter )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Received registration from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Received registration from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
 		return;
 	}
 	else
@@ -1691,12 +1691,12 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 
 		string sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
 //#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sRegenAllDevicesRooms \n%s\n%s\n",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sRegenAllDevicesRooms \n%s\n%s\n",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
 //#endif
 		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms )
 		{
 //#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms %d not equal %s=%s",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms %d not equal %s=%s",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
 //#endif
 			DCE::SCREEN_Need_Reload_Router SCREEN_Need_Reload_Router(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			SendCommand(SCREEN_Need_Reload_Router);
@@ -1709,12 +1709,12 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 			{
 				pRow_Orbiter->Reload();
 //#ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sScenariosFloorplans %s=%s",pMessage->m_dwPK_Device_From,pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sScenariosFloorplans %s=%s",pMessage->m_dwPK_Device_From,pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
 //#endif
 				if( pRow_Orbiter->ScenariosFloorplans_get()!=sScenariosFloorplans )
 				{
 //#ifdef DEBUG
-					g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered not equal sScenariosFloorplans \n%s\n%s\n",pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered not equal sScenariosFloorplans \n%s\n%s\n",pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
 //#endif
 					DCE::SCREEN_Need_Regen_Orbiter SCREEN_Need_Regen_Orbiter(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 					SendCommand(SCREEN_Need_Regen_Orbiter);
@@ -1746,13 +1746,13 @@ void Orbiter_Plugin::CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find( iPK_Device );
 	if( !pOH_Orbiter || sText.length()<2 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Invalid set follow me: %d %s",iPK_Device,sText.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Invalid set follow me: %d %s",iPK_Device,sText.c_str());
 		return;
 	}
 
 	bool bOnOff = sText[1]=='0';
 
-g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK_Device,sText.c_str(),iPK_Users);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK_Device,sText.c_str(),iPK_Users);
 
 	switch( sText[0] )
 	{
@@ -1812,7 +1812,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK
 void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sReset,string &sCMD_Result,Message *pMessage)
 //<-dceag-c266-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Starting regen orbiter for %d reset: %s with m_listRegenCommands %d size",iPK_Device,sReset.c_str(),(int) m_listRegenCommands.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Starting regen orbiter for %d reset: %s with m_listRegenCommands %d size",iPK_Device,sReset.c_str(),(int) m_listRegenCommands.size());
 	if( sReset.size() && (sReset[0]=='Y' || sReset[0]=='1') )
 	{
 		// Particularly when A/V Wizard does a request to reload we must always do it even if other packages are
@@ -1873,7 +1873,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 				sOrbiterList += ",";
 			sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			m_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-			g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter iPK_Device==0 Added %d to m_listRegenCommands %d size",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter iPK_Device==0 Added %d to m_listRegenCommands %d size",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
 		}
 	}
 
@@ -1882,7 +1882,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 		if( iPK_Device )
 		{
 			m_listRegenCommands.push_back(iPK_Device);
-			g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Added %d to m_listRegenCommands %d size",iPK_Device,(int) m_listRegenCommands.size());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Added %d to m_listRegenCommands %d size",iPK_Device,(int) m_listRegenCommands.size());
 		}
 
 		// construct strings outside of array initializer so they don't destroy after the array is initialized, leaving us with invalid pointers
@@ -1891,10 +1891,10 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 		char * args[] = { "/usr/pluto/bin/RegenOrbiterOnTheFly.sh", (char*)(sThingsToRegen.c_str()), (char *)(sOrbiter.c_str()), (char *)(sForce.c_str()), NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
 
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Execution returned for %d",iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Execution returned for %d",iPK_Device);
 	}
 	else
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Already generating %d",iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Already generating %d",iPK_Device);
 }
 
 //<-dceag-c267-b->
@@ -1907,10 +1907,10 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c267-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Got a CMD_Regen_Orbiter_Finished");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got a CMD_Regen_Orbiter_Finished");
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter_Finished Regen finished for: %d m_listRegenCommands size is: %d",iPK_Device,(int) m_listRegenCommands.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter_Finished Regen finished for: %d m_listRegenCommands size is: %d",iPK_Device,(int) m_listRegenCommands.size());
 	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
 	{
 		if(*it == iPK_Device)
@@ -1920,15 +1920,15 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"after Regen finished for: %d m_listRegenCommands size is: %d",iPK_Device,(int) m_listRegenCommands.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"after Regen finished for: %d m_listRegenCommands size is: %d",iPK_Device,(int) m_listRegenCommands.size());
 	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
-		g_pPlutoLogger->Write(LV_STATUS,"Still generating %d",*it);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Still generating %d",*it);
 
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
 	if( pOH_Orbiter )  // It may be a new orbiter
 	{
 		pOH_Orbiter->m_tRegenTime = 0;
-		g_pPlutoLogger->Write(LV_STATUS,"Ready to reload the orbiter with id %d", iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ready to reload the orbiter with id %d", iPK_Device);
 		mm.Release();
 		PrepareFloorplanInfo(pOH_Orbiter);
 	}
@@ -2019,7 +2019,7 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pDeviceTo->m_pDevice_MD->m_dwPK_Device);
 		if( pMediaDevice && pMediaDevice->m_dwPK_Command_LastPower==pMessage->m_dwID && time(NULL)-pMediaDevice->m_tLastPowerCommand < DONT_RESEND_POWER_WITHIN_X_SECONDS )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::OSD_OnOff Not resending power command");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::OSD_OnOff Not resending power command");
 			return false;
 		}
 		else if( pMediaDevice )
@@ -2039,13 +2039,13 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 
 void Orbiter_Plugin::FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left)
 {
-	g_pPlutoLogger->Write(LV_WARNING,"Orbiter_Plugin::FireFollowMe mask %s orb %d user %d r/e %d r/e left %d",
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Orbiter_Plugin::FireFollowMe mask %s orb %d user %d r/e %d r/e left %d",
 					  sMask.c_str(),iPK_Orbiter,iPK_Users,iPK_RoomOrEntArea,iPK_RoomOrEntArea_Left);
 
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Orbiter);
 	if( !pOH_Orbiter )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot fire follow me for unknown orbiter: %d",iPK_Orbiter);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot fire follow me for unknown orbiter: %d",iPK_Orbiter);
 		return;
 	}
 
@@ -2080,7 +2080,7 @@ void Orbiter_Plugin::SetBoundIcons(int iPK_Users,bool bOnOff,string sType)
 
 void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter, int nDeviceID, string sMacAddress)
 {
-    g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - NeedApp: %d, NeedVMC: %d,  version: / %s / %s",
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"Phone needs file - NeedApp: %d, NeedVMC: %d,  version: / %s / %s",
 		(int) pOH_Orbiter->NeedApp(),(int) pOH_Orbiter->NeedVMC(),
         g_sLatestMobilePhoneVersion.c_str(),pOH_Orbiter->m_sVersion.c_str());
 
@@ -2105,12 +2105,12 @@ long Orbiter_Plugin::GetAppServerAssociatedWithDevice(int nDeviceID)
 
 	if(NULL != pDevice_MD)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Searching for a App_Server associated to device %d", pDevice_MD->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Searching for a App_Server associated to device %d", pDevice_MD->m_dwPK_Device);
 		DeviceData_Base *pDevice_AppServer = ((DeviceData_Impl *)pDevice_MD)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
 
 		if(NULL == pDevice_AppServer)
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Searching for a App_Server associated to its parent %d (is this a hybrid?)", pDevice_MD->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Searching for a App_Server associated to its parent %d (is this a hybrid?)", pDevice_MD->m_dwPK_Device);
 
 			//this might be a hybrid, which doesn't have an App_Server child anymore
 			//let's search for generic pc device and then let's grab its App_Server child
@@ -2124,10 +2124,10 @@ long Orbiter_Plugin::GetAppServerAssociatedWithDevice(int nDeviceID)
 		if(NULL != pDevice_AppServer)
 			return pDevice_AppServer->m_dwPK_Device;
 		else
-			g_pPlutoLogger->Write(LV_CRITICAL, "Got the MD %d, but couldn't find the App_Server on it.", pDevice_MD->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got the MD %d, but couldn't find the App_Server on it.", pDevice_MD->m_dwPK_Device);
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", nDeviceID);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", nDeviceID);
 
 	return 0;
 }
@@ -2162,7 +2162,7 @@ void Orbiter_Plugin::GenerateVMCFiles()
         pOH_Orbiter->m_sUpdateVMCFile = sDestFileName;
         if(sOldChecksum != FileUtils::FileChecksum(sDestFileName))
         {
-            g_pPlutoLogger->Write(LV_STATUS, "Need to send %s to PlutoMO, the checksum is changed", sDestFileName.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to send %s to PlutoMO, the checksum is changed", sDestFileName.c_str());
             pOH_Orbiter->NeedVMC(true);
         }
     }
@@ -2196,7 +2196,7 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
             string sPKDevice = StringUtils::ltos(dwPKDevice);
             string sPlutoMOConfFile = csPlutoMOConf + "_" + sPKDevice + ".cfg";
 
-            g_pPlutoLogger->Write(LV_STATUS, "About to generate '%s' file", sPlutoMOConfFile.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "About to generate '%s' file", sPlutoMOConfFile.c_str());
 
 	        //generating the list with alert types
             vector<Row_AlertType *> vectRow_AlertType;
@@ -2241,7 +2241,7 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
 
             if(vectRow_Device_DeviceData.size() != 1)
             {
-                g_pPlutoLogger->Write(LV_CRITICAL, "No user for %s mobile or too many: %d", sPKDevice.c_str(),
+                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No user for %s mobile or too many: %d", sPKDevice.c_str(),
                     vectRow_Device_DeviceData.size());
                 vectRow_Device_DeviceData.clear();
                 continue;
@@ -2254,7 +2254,7 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
 
             if(!pRow_Users)
             {
-                g_pPlutoLogger->Write(LV_CRITICAL, "No record found in the database for user %s, rows %d", sPK_User.c_str(),
+                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No record found in the database for user %s, rows %d", sPK_User.c_str(),
                     vectRow_Device_DeviceData.size());
                 vectRow_Device_DeviceData.clear();
                 continue;
@@ -2271,7 +2271,7 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
 
             if(vectRow_Device_DeviceData.size() != 1)
             {
-                g_pPlutoLogger->Write(LV_WARNING, "No phone number for %s mobile or too many: %d", sPKDevice.c_str(),
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "No phone number for %s mobile or too many: %d", sPKDevice.c_str(),
                     vectRow_Device_DeviceData.size());
                 vectRow_Device_DeviceData.clear();
             }
@@ -2289,7 +2289,7 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
     }
     else
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "'%s' file not found. No PlutoMO.cfg will be generated", csWapConfFile.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "'%s' file not found. No PlutoMO.cfg will be generated", csWapConfFile.c_str());
     }
 }
 
@@ -2321,7 +2321,7 @@ void Orbiter_Plugin::SetPipesEnable(DeviceData_Router *pDevice,bool bOverride)
 		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_Dest->m_dwPK_Device);
 		if( !pMediaDevice )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Problem overriding a/v pipe to device %d which isn't categorized as media",pPipe->m_pDevice_To->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Problem overriding a/v pipe to device %d which isn't categorized as media",pPipe->m_pDevice_To->m_dwPK_Device);
 			continue; // shouldn't happen -- it's not a/v equipment
 		}
 		pMediaDevice->m_bDontSendOffIfOSD_ON=bOverride;
@@ -2426,10 +2426,10 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
 {
 	if( sCommand_Line.size()==0 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot send file to %s with empty command line",sMac_address.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot send file to %s with empty command line",sMac_address.c_str());
 		return;
 	}
-    g_pPlutoLogger->Write(LV_STATUS, "About to send file to phone. Command line: '%s', device %s.", sCommand_Line.c_str(), sMac_address.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "About to send file to phone. Command line: '%s', device %s.", sCommand_Line.c_str(), sMac_address.c_str());
 
     //get phone's name
     string sDisplayedInfo = sMac_address;
@@ -2476,7 +2476,7 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
 		StringUtils::itos(COMMANDPARAMETER_Description_CONST) + " " + "\"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>\"" + " " + 
 		StringUtils::itos(COMMANDPARAMETER_PhoneName_CONST) + " " + " \"" + sDisplayedInfo + "\"";
 
-    g_pPlutoLogger->Write(LV_STATUS, "Launching send to phone job: \"%s\"", sName.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Launching send to phone job: \"%s\"", sName.c_str());
 
     DCE::CMD_Spawn_Application cmd_Spawn_Application(m_dwPK_Device, iApp_Server_Device_ID,
         sCommand_Line, sName, sArguments, sCommOnFailure, sCommOnSuccess, false,false,false,true);
@@ -2519,7 +2519,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 		}
 		else
 			*sValue_To_Assign = "O";
-		g_pPlutoLogger->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
 		return;
 	}
 
@@ -2527,7 +2527,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 	if( !pRow_Device )  // We know nothing about this
 	{
 		*sValue_To_Assign = "U";
-		g_pPlutoLogger->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
 		return;
 	}
 
@@ -2546,7 +2546,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 	if( !bIsOrbiter )
 	{
 		*sValue_To_Assign = "D";  // Not an orbiter
-		g_pPlutoLogger->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
 		return;
 	}
 
@@ -2560,7 +2560,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 		}
 		else
 			*iValue = 0;  // Shouldn't happen
-		g_pPlutoLogger->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
 		return;
 	}
 
@@ -2568,7 +2568,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 		*sValue_To_Assign = "N";
 	else
 		*sValue_To_Assign = "n";
-	g_pPlutoLogger->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
 }
 
 bool Orbiter_Plugin::IsRegenerating(int iPK_Device)
@@ -2577,25 +2577,25 @@ bool Orbiter_Plugin::IsRegenerating(int iPK_Device)
 	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 		if( *it == iPK_Device )
 		{
-g_pPlutoLogger->Write(LV_STATUS, "RowOrbiter for %d", iPK_Device);			
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "RowOrbiter for %d", iPK_Device);			
 			Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(iPK_Device);
 			if(pRow_Orbiter)
 			{
-g_pPlutoLogger->Write(LV_STATUS, "About to reload row for %d", iPK_Device);				
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "About to reload row for %d", iPK_Device);				
 				pRow_Orbiter->Reload();
-g_pPlutoLogger->Write(LV_STATUS, "Reloaded row for %d", iPK_Device);					
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "Reloaded row for %d", iPK_Device);					
 				if(pRow_Orbiter->RegenPercent_get() == 100)
 				{
-					g_pPlutoLogger->Write(LV_STATUS,"IsRegenerating %d = false (scheduled)",iPK_Device);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"IsRegenerating %d = false (scheduled)",iPK_Device);
 					return false;
 				}
 			}
 
-			g_pPlutoLogger->Write(LV_STATUS,"IsRegenerating %d = true",iPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"IsRegenerating %d = true",iPK_Device);
 			return true;
 		}
 
-	g_pPlutoLogger->Write(LV_STATUS,"IsRegenerating %d = false",iPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IsRegenerating %d = false",iPK_Device);
 	return false;
 	
 }
@@ -2663,7 +2663,7 @@ bool Orbiter_Plugin::CheckForNewWizardDevices(DeviceData_Router *pDevice_MD)
 //					if( !pDevice_AppServer || !pDevice_Orbiter_OSD )
 //						return false; // Should never happen
 
-					g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CheckForNewWizardDevices device %d needs config",pRow_Device->PK_Device_get());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CheckForNewWizardDevices device %d needs config",pRow_Device->PK_Device_get());
 					/*
 					Message *pMessage = m_pGeneral_Info_Plugin->BuildMessageToSpawnApp(NULL,pDeviceData_Router_MD,
 						pDevice_AppServer,pDevice_Orbiter_OSD,
@@ -2701,7 +2701,7 @@ void Orbiter_Plugin::CMD_Send_Orbiter_Popups(bool bTrueFalse,int iPK_Orbiter,str
 		if( it->second->m_bSendPopups )
 			m_sPK_Device_AllOrbiters_AllowingPopups += StringUtils::itos(it->first) + ",";
 
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Send_Orbiter_Popups list is now %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Send_Orbiter_Popups list is now %s",
 		m_sPK_Device_AllOrbiters_AllowingPopups.c_str());
 }
 
@@ -2709,7 +2709,7 @@ bool Orbiter_Plugin::DeviceConfigured(class Socket *pSocket,class Message *pMess
 {
 	string sName = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
 
-	g_pPlutoLogger->Write(LV_STATUS,"Device %s configured! Processing next unknown device...", sName.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device %s configured! Processing next unknown device...", sName.c_str());
     ProcessUnknownDevice();
 	return false;
 }
@@ -2818,7 +2818,7 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 			string sResponse;
 			if( !SendCommand(CMD_Spawn_Application,&sResponse) )
 			{
-				g_pPlutoLogger->Write(LV_STATUS,"Failed to start flickr script.  Trying again in 1 minute");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Failed to start flickr script.  Trying again in 1 minute");
 				m_pAlarmManager->AddRelativeAlarm(60,this,PROCESS_SCREEN_SAVER_PHOTOS,NULL);
 				return;
 			}
@@ -2847,14 +2847,14 @@ bool Orbiter_Plugin::PresenceDetected( class Socket *pSocket, class Message *pMe
 		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pMessage->m_dwPK_Device_From);
 		if( !pMediaDevice || pMediaDevice->m_mapEntertainArea.size()==0 )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PresenceDetected -- sender is not a media device or has no ent area %p",pMediaDevice);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::PresenceDetected -- sender is not a media device or has no ent area %p",pMediaDevice);
 			return false;
 		}
 
 		EVENT_Follow_Me_Media(0, 0, it->second, pMediaDevice->m_mapEntertainArea.begin()->first, 0);
 	}
 	else
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::PresenceDetected no user associated with %s",sID.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::PresenceDetected no user associated with %s",sID.c_str());
 	return false;
 }
 
@@ -2905,7 +2905,7 @@ void Orbiter_Plugin::CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,s
 	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Get_Remote_ID %s is %d",sUID.c_str(),*iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Get_Remote_ID %s is %d",sUID.c_str(),*iPK_Device);
 #endif
 		*iPK_Device = atoi(row[0]);
 		string sValue = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,*iPK_Device,DEVICEDATA_PortChannel_Number_CONST);
@@ -2917,7 +2917,7 @@ void Orbiter_Plugin::CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,s
 		"",0,"","",0,0,"",pMessage->m_dwPK_Device_From,0,iPK_Device);
 	if( !SendCommand(CMD_Create_Device) || *iPK_Device==0 )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_Get_Remote_ID error creating remote");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_Get_Remote_ID error creating remote");
 		return;
 	}
 
@@ -2953,7 +2953,7 @@ void Orbiter_Plugin::CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int i
 	if( pOH_Orbiter )
 	{
 		pOH_Orbiter->m_dwPK_Device_CurrentRemote=iPK_Device;
-		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Set_Active_Remote Orbiter %d has remote %d previously orbiter %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Set_Active_Remote Orbiter %d has remote %d previously orbiter %d",
 			iPK_Orbiter,iPK_Device,PK_Orbiter_Prior);
 		if( bFire_Event )
 		{
@@ -2971,13 +2971,13 @@ void Orbiter_Plugin::CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int i
 		m_mapRemote_Orbiter[iPK_Device]=iPK_Orbiter;
 	}
 	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_Set_Active_Remote No orbiter %d",iPK_Orbiter);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_Set_Active_Remote No orbiter %d",iPK_Orbiter);
 }
 
 class DataGridTable *Orbiter_Plugin::FloorplanDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::FloorplanDevices");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::FloorplanDevices");
 #endif
 
 	DataGridTable *pDataGrid = new DataGridTable();

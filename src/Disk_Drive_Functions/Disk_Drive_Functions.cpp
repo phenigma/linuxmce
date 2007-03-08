@@ -50,10 +50,10 @@ Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const s
 	{
 		m_pDevice_MediaIdentifier = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Identifiers_CONST);  // Try again ignoring registration.  Maybe it will register later
 		if( m_pDevice_MediaIdentifier )
-			g_pPlutoLogger->Write(LV_WARNING,"Disk_Drive_Functions::Disk_Drive_Functions warning m_pDevice_MediaIdentifier %d isn't registered",m_pDevice_MediaIdentifier->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Disk_Drive_Functions::Disk_Drive_Functions warning m_pDevice_MediaIdentifier %d isn't registered",m_pDevice_MediaIdentifier->m_dwPK_Device);
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive_Functions::Disk_Drive_Functions m_pDevice_MediaIdentifier %d",m_pDevice_MediaIdentifier ? m_pDevice_MediaIdentifier->m_dwPK_Device : 0);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::Disk_Drive_Functions m_pDevice_MediaIdentifier %d",m_pDevice_MediaIdentifier ? m_pDevice_MediaIdentifier->m_dwPK_Device : 0);
 
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
 	DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
@@ -80,7 +80,7 @@ bool Disk_Drive_Functions::internal_monitor_step(bool bFireEvent)
 {
     if ( ! internal_reset_drive(bFireEvent) )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Monitor drive returned false.");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Monitor drive returned false.");
         return false;
     }
     return true;
@@ -95,7 +95,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 
     int result = cdrom_checkdrive(m_sDrive.c_str(), &m_mediaDiskStatus, bFireEvent);
 
-    //     g_pPlutoLogger->Write(LV_STATUS, "Disc Reset: checkdrive status: %d  result: %d", m_mediaDiskStatus, result);
+    //     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disc Reset: checkdrive status: %d  result: %d", m_mediaDiskStatus, result);
 
     // we only care if a new CD was inserted in the meantime.
     if (result >= 0 && m_mediaDiskStatus != DISCTYPE_NONE && m_mediaInserted == false)
@@ -103,7 +103,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
         int fd = open( m_sDrive.c_str(), O_RDONLY | O_NONBLOCK );
         if (fd < 0)
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Failed to open device: %s", m_sDrive.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to open device: %s", m_sDrive.c_str());
             // throw ("failed to open cdrom device" );
             return false;
         }
@@ -136,17 +136,17 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
         }
         close (fd);
 
-        g_pPlutoLogger->Write(LV_WARNING, "Disc of type %d was detected", status, mrl.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc of type %d was detected", status, mrl.c_str());
 
 		m_discid=time(NULL);
         if ( bFireEvent && status )
         {
-		g_pPlutoLogger->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", mrl.c_str(),m_discid);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", mrl.c_str(),m_discid);
             EVENT_Media_Inserted(status, mrl,StringUtils::itos(m_discid),m_sDrive);
         }
         else
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Not firing the event");
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Not firing the event");
         }
 
 		if( m_pDevice_MediaIdentifier )
@@ -171,7 +171,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 			DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
 				BL_SameHouse,m_pCommand_Impl->m_dwPK_Device,"");
 			m_pCommand_Impl->SendCommand(CMD_Report_Discs_in_Drive_DT);
-            g_pPlutoLogger->Write(LV_STATUS, "Disk is not in the drive at the moment");
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk is not in the drive at the moment");
         }
     }
 #endif
@@ -197,12 +197,12 @@ int Disk_Drive_Functions::cdrom_has_dir(int fd, const char *directory)
     lseek (fd, 0x8080, SEEK_SET);
     int iFirstRead = read (fd, &bs, 2);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Looking for folder: %s.", directory);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Looking for folder: %s.", directory);
 
-    g_pPlutoLogger->Write(LV_STATUS, "FirstRead: %d fd: %d  directory: %s", iFirstRead, fd, directory);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "FirstRead: %d fd: %d  directory: %s", iFirstRead, fd, directory);
     if( iFirstRead < 0 )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Try again - Cannot read from drive.");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Try again - Cannot read from drive.");
         return -1;
     }
 
@@ -217,7 +217,7 @@ int Disk_Drive_Functions::cdrom_has_dir(int fd, const char *directory)
     // seek to the path table
     lseek (fd, ((int) (bs) * tl), SEEK_SET);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Ready to loop through ts: %d.",ts);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to loop through ts: %d.",ts);
 
     // loop through the path table entries
     while (pos < ts)
@@ -238,7 +238,7 @@ int Disk_Drive_Functions::cdrom_has_dir(int fd, const char *directory)
         // read the name
         int iRead3 = read (fd, dirname, len_di);
 
-        g_pPlutoLogger->Write(LV_STATUS, "Directory: %s parent: %d (pos: %d  ts: %d read: %d read2: %d  read3: %d  seek: %d)",
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Directory: %s parent: %d (pos: %d  ts: %d read: %d read2: %d  read3: %d  seek: %d)",
                     dirname, parent,
                     pos, ts, iRead, iRead2, iRead3, iSeek);
 
@@ -246,7 +246,7 @@ int Disk_Drive_Functions::cdrom_has_dir(int fd, const char *directory)
         // then return success
         if ((parent == 1) && (strcasecmp (dirname, directory) == 0))
         {
-            g_pPlutoLogger->Write(LV_STATUS, "It's a match.");
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "It's a match.");
             ret = 1;
             free (dirname);
             break;
@@ -296,21 +296,21 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
     fd = open(filename, O_RDONLY | O_NONBLOCK);
     if (fd < 0)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Error: couldn't open %s.", filename);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error: couldn't open %s.", filename);
         return -1;
     }
 
-//     g_pPlutoLogger->Write(LV_STATUS, "Disk Drive %s file handle was opened!", DATA_Get_Drive().c_str());
+//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk Drive %s file handle was opened!", DATA_Get_Drive().c_str());
     // read the drive status info
     status = ioctl(fd, CDROM_DRIVE_STATUS, CDSL_CURRENT);
-//     g_pPlutoLogger->Write(LV_STATUS, "Current disk status %d", status);
+//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current disk status %d", status);
 
     switch (status)
     {
         // if there's a ok disc in there
     case CDS_DISC_OK:
-		//g_pPlutoLogger->Write(LV_WARNING, "Media inserted value here: %d", m_mediaInserted);
-		//g_pPlutoLogger->Write(LV_WARNING, "Disk type value here: %d", *flag);
+		//LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media inserted value here: %d", m_mediaInserted);
+		//LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disk type value here: %d", *flag);
 
 		m_bTrayOpen = false;
 		if (*flag != DISCTYPE_NONE || m_mediaInserted)
@@ -318,13 +318,13 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 
 		if (bFireEvent)
 			DisplayMessageOnOrbVFD("Disc detected in drive.");
-        g_pPlutoLogger->Write(LV_STATUS, "Got a disc. Sleep a sec, then reopen. One hack to allow the disk to spin I think.");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got a disc. Sleep a sec, then reopen. One hack to allow the disk to spin I think.");
         close(fd);
         sleep(1);
         fd = open(filename, O_RDONLY | O_NONBLOCK);
         if (fd < 0)
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Error: couldn't open %s.", filename);
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Error: couldn't open %s.", filename);
             return -1;
         }
 
@@ -332,7 +332,7 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
         status = ioctl (fd, CDROM_DRIVE_STATUS, CDSL_CURRENT);
         if (status != CDS_DISC_OK)
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Disc was detected, but the status is no longer disc ok.");
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc was detected, but the status is no longer disc ok.");
 			close(fd);
             return 0;  // Don't change anything, we'll try again later
         }
@@ -341,7 +341,7 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
         status = ioctl(fd, CDROMREADTOCHDR, &th);
         if (status != 0)
         {
-            g_pPlutoLogger->Write(LV_STATUS, "Can't read disc TOC. The disc is either a blank, or has a broken TOC.");
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Can't read disc TOC. The disc is either a blank, or has a broken TOC.");
             * flag = DISCTYPE_BLANK;
             break;
         }
@@ -353,7 +353,7 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
         {
         case CDS_AUDIO:
             // found a audio cd
-            g_pPlutoLogger->Write(LV_STATUS, "Detected audio cd!");
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Detected audio cd!");
             * flag = DISCTYPE_CD_AUDIO;
             break;
 
@@ -368,30 +368,30 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
                     result = cdrom_has_dir(fd, "video_ts");
                     if (result == -1)
                     {
-                        g_pPlutoLogger->Write(LV_STATUS, "Not ready to read the directories yet.");
+                        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Not ready to read the directories yet.");
                         sleep(1);
                     }
-                    g_pPlutoLogger->Write(LV_STATUS, "Result of video_ts search: %d.", result);
+                    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Result of video_ts search: %d.", result);
                 }
 
                 if (result > 0)
                 {
-                    g_pPlutoLogger->Write(LV_STATUS, "I think it's a DVD...");
+                    LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a DVD...");
                     * flag =DISCTYPE_DVD_VIDEO;
                 }
                 else if (cdrom_has_dir(fd, "vcd") > 0)
                 {
-                    g_pPlutoLogger->Write(LV_STATUS, "I think it's a VCD...");
+                    LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a VCD...");
                     * flag = DISCTYPE_CD_VCD;
                 }
                 else if (cdrom_has_dir(fd, "svcd") > 0)
                 {
-                    g_pPlutoLogger->Write(LV_STATUS, "I think it's a SVCD...");
+                    LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a SVCD...");
                     * flag = DISCTYPE_CD_SVCD;
                 }
                 else
                 {
-                    g_pPlutoLogger->Write(LV_STATUS, "Doesn't have any directories -- must be data.");
+                    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Doesn't have any directories -- must be data.");
                     * flag = DISCTYPE_DATA;
                 }
             }
@@ -399,19 +399,19 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 
         case CDS_MIXED:
             // found a mixed cd
-            g_pPlutoLogger->Write(LV_STATUS, "Detected mixed audio/data cd!");
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Detected mixed audio/data cd!");
             * flag = DISCTYPE_CD_MIXED;
             break;
 
         default:
-            g_pPlutoLogger->Write(LV_WARNING, "Could not determine disc type: Doing nothing!");
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not determine disc type: Doing nothing!");
             break;
         }
         break;
 
     case CDS_NO_INFO:
         // drive doesnt support querying, so this program will never work on that drive.
-        g_pPlutoLogger->Write(LV_WARNING, "%s does not support status queries.", filename);
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "%s does not support status queries.", filename);
         	* flag = DISCTYPE_NONE;
 		break;
 
@@ -426,7 +426,7 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 		break;
 
 	default:
-        // g_pPlutoLogger->Write(LV_STATUS, "Nothing interesting hapened");
+        // LoggerWrapper::GetInstance()->Write(LV_STATUS, "Nothing interesting hapened");
         // release the device
         * flag = DISCTYPE_NONE;
     }
@@ -443,29 +443,29 @@ bool Disk_Drive_Functions::mountDVD(string fileName, string & strMediaUrl)
 	string sDrive = bDriveMount ? fileName : m_sDrive;
 
 	string cmd = "ln -sf " + sDrive + " /dev/dvd";
-	g_pPlutoLogger->Write(LV_STATUS,"cmd drivemount: %d - %s",(int) bDriveMount,cmd.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"cmd drivemount: %d - %s",(int) bDriveMount,cmd.c_str());
 	system(cmd.c_str());  // Don't care about the return.  Just making sure it's not loop 5 so we can delete it
 	if (bDriveMount)
 	{
-g_pPlutoLogger->Write(LV_ACTION,"returning mounted drive");
+LoggerWrapper::GetInstance()->Write(LV_ACTION,"returning mounted drive");
 		strMediaUrl = "dvd:/";
 Sleep(500); // TODO: HACK  -- sometimes xine can't play dvd's.  Throw a small delay in to see if it has an effect
 		return true;
 	}
 
 	string cmdUnmount = "losetup -d /dev/loop5";
-	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmdUnmount.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"cmd: %s",cmdUnmount.c_str());
 	system(cmdUnmount.c_str());  // Don't care about the return. 
 
     cmd = "losetup /dev/loop5 \"" + fileName + "\"";
-	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"cmd: %s",cmd.c_str());
     int iResult2 = 0, iResult = system(cmd.c_str());
 	
 	if (iResult != 0)
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"first attempt to mount failed %s",cmd.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"first attempt to mount failed %s",cmd.c_str());
 Sleep(1000);
-		g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmdUnmount.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"cmd: %s",cmdUnmount.c_str());
 		system(cmdUnmount.c_str());  // Don't care about the return. 
 Sleep(500);
 		iResult = system(cmd.c_str());
@@ -476,21 +476,21 @@ Sleep(500);
 
 Sleep(500); // TODO: HACK  -- sometimes xine can't play dvd's.  Throw a small delay in to see if it has an effect
 		cmd = "ln -sf /dev/loop5 /dev/dvd";
-		g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"cmd: %s",cmd.c_str());
 		iResult2 = system(cmd.c_str());
 	}
 
 	if (iResult == 0 && iResult2 == 0)
 	{
-g_pPlutoLogger->Write(LV_ACTION,"returning mounted dvd");
+LoggerWrapper::GetInstance()->Write(LV_ACTION,"returning mounted dvd");
 		strMediaUrl = "dvd:/";
 Sleep(500); // TODO: HACK  -- sometimes xine can't play dvd's.  Throw a small delay in to see if it has an effect
 		return true;
 	}
 
-g_pPlutoLogger->Write(LV_CRITICAL,"Failed to mount %d %d",iResult,iResult2);
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to mount %d %d",iResult,iResult2);
 	cmd = "ln -sf " + sDrive + " /dev/dvd";
-	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"cmd: %s",cmd.c_str());
 	system(cmd.c_str());  // Can't do anything if it fails
 
 	return false;
@@ -501,11 +501,11 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 {
 	if (!m_pDevice_AppServer)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot rip -- no appserver");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot rip -- no appserver");
 		sCMD_Result = "NO App_Server";
 		return;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Going to rip %s; drive number: %d", sName.c_str(), iDrive_Number);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Going to rip %s; drive number: %d", sName.c_str(), iDrive_Number);
 
 	if (m_isRipping)
 	{
@@ -547,7 +547,7 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 		+ StringUtils::itos(iPK_Users) + "\t" 
 		+ sFormat + "\t" + sTracks;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Launching ripping job2 with name \"%s\" for disk with type \"%d\" parms %s", sName.c_str(), m_mediaDiskStatus, strParameters.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Launching ripping job2 with name \"%s\" for disk with type \"%d\" parms %s", sName.c_str(), m_mediaDiskStatus, strParameters.c_str());
 
 	string sResultMessage =
 		StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " " + StringUtils::itos(DEVICEID_EVENTMANAGER) + " " + StringUtils::itos(MESSAGETYPE_EVENT) + 
@@ -569,7 +569,7 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 	string sResponse;
     if (! m_pCommand_Impl->SendCommand(spawnApplication,&sResponse) || sResponse != "OK")
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Trying to rip - App server returned %s",sResponse.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Trying to rip - App server returned %s",sResponse.c_str());
 		sCMD_Result = "App_Server: " + sResponse;
 		return;
 	}
@@ -581,19 +581,19 @@ string Disk_Drive_Functions::getTracks(string mrl)
     string tracks = "";
 
 #ifndef WIN32
-    g_pPlutoLogger->Write(LV_STATUS, "Finding CD tracks for prefix %s",mrl.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finding CD tracks for prefix %s",mrl.c_str());
 
 //     time_t startTime=time(NULL);
 
 	try
 	{
-        g_pPlutoLogger->Write(LV_STATUS, "Opening drive first time.");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Opening drive first time.");
 
         fd = open(m_sDrive.c_str(), O_RDONLY | O_NONBLOCK);
         if (fd < 0)
             throw string("Failed to open CD device") + strerror(errno);
 
-        g_pPlutoLogger->Write(LV_STATUS, "Checking media with ioctl");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Checking media with ioctl");
         status = ioctl(fd, CDROM_DISC_STATUS, CDSL_CURRENT);
         if (status != CDS_AUDIO && status != CDS_MIXED)
             throw string("Invalid media detected");
@@ -621,7 +621,7 @@ string Disk_Drive_Functions::getTracks(string mrl)
 			
 			if (te.cdte_ctrl & CDROM_DATA_TRACK)
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Ending track scan at track %d (data track)", i);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ending track scan at track %d (data track)", i);
 				break;
 			}
 			
@@ -632,11 +632,11 @@ string Disk_Drive_Functions::getTracks(string mrl)
     }
     catch (string err)
     {
-        g_pPlutoLogger->Write (LV_WARNING, "w1: %s",err.c_str());
+        LoggerWrapper::GetInstance()->Write (LV_WARNING, "w1: %s",err.c_str());
     }
     catch (...)
     {
-        g_pPlutoLogger->Write (LV_WARNING, "Unknown error in getTracks()");
+        LoggerWrapper::GetInstance()->Write (LV_WARNING, "Unknown error in getTracks()");
     }
 
 	close(fd);
@@ -649,7 +649,7 @@ void Disk_Drive_Functions::DisplayMessageOnOrbVFD(string sMessage)
 	DeviceData_Base *pDevice_OSD = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Orbiter_CONST);
 	DeviceData_Base *pDevice_VFD = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_LCDVFD_Displays_CONST);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Displaying on OSD: %d VFD: %d %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Displaying on OSD: %d VFD: %d %s",
 		(pDevice_OSD ? pDevice_OSD->m_dwPK_Device : 0),
 		(pDevice_VFD ? pDevice_VFD->m_dwPK_Device : 0),
 		sMessage.c_str());
@@ -681,14 +681,14 @@ void Disk_Drive_Functions::StartNbdServer()
 
 	ProcessUtils::SpawnApplication("start-stop-daemon", sArgs, "Start nbd server", NULL, true, true);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive_Functions::StartNbdServer %s",sArgs.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::StartNbdServer %s",sArgs.c_str());
 }
 
 void Disk_Drive_Functions::StopNbdServer()
 {
 	if( !m_bNbdServerRunning )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive_Functions::StopNbdServer is not running");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::StopNbdServer is not running");
 		return;
 	}
 	m_bNbdServerRunning=false;
@@ -696,5 +696,5 @@ void Disk_Drive_Functions::StopNbdServer()
 
 	ProcessUtils::SpawnApplication("start-stop-daemon", sArgs, "Stop nbd server", NULL, true, true);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive_Functions::StopNbdServer %s",sArgs.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::StopNbdServer %s",sArgs.c_str());
 }

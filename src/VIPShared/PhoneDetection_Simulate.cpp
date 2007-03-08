@@ -40,7 +40,7 @@ bool PhoneDetection_Simulate::ScanningLoop()
 
 	m_mapDevicesDetectedThisScan.clear();
 
-	g_pPlutoLogger->Write(LV_STATUS,"Inquiry started (simulation)");	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Inquiry started (simulation)");	
 
 	if( file )
 	{
@@ -88,7 +88,7 @@ bool PhoneDetection_Simulate::ScanningLoop()
 		fclose(file);
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Inquiry completed (simulation)");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Inquiry completed (simulation)");
 
 	Sleep(1000);  // Don't this run wild
 	return !m_bAbortScanLoop;

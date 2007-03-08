@@ -160,11 +160,11 @@ void AsteriskManager::Initialize(DCE::Asterisk* lpAsterisk) {
 	plogin->setUserName(DEFAUL_LOGIN_NAME);
 	plogin->setSecret(DEFAUL_LOGIN_SECRET);
 	if(plogin->Run()) {
-	       g_pPlutoLogger->Write(LV_CRITICAL, "Login to asterisk manager failed");
+	       LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Login to asterisk manager failed");
 	       return;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Login successfull.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Login successfull.");
 	*/
 
 

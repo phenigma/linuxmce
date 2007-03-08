@@ -70,7 +70,7 @@ void SignalHandler_Action()
 {
 	if ( g_pAppServer && g_pAppServer->m_bQuit_get() )
 		return;
-	g_pPlutoLogger->Write(LV_STATUS, "SignalHandler_Action: Started");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SignalHandler_Action: Started");
 	PLUTO_SAFETY_LOCK(ap,g_pAppServer->m_AppMutex);
 
 	int status = 0;
@@ -86,11 +86,11 @@ void SignalHandler_Action()
 		int ExitStatus = WEXITSTATUS(status);
 		int Signal = WIFSIGNALED(status) ? WTERMSIG(status) : 0;
 		
-		g_pPlutoLogger->Write(LV_STATUS, "SIGCHLD -- PID %d; Return code: %d; Signal: %d", pid, ExitStatus, Signal);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SIGCHLD -- PID %d; Return code: %d; Signal: %d", pid, ExitStatus, Signal);
 
 		if (g_pAppServer)
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "SignalHandler_Action: Sending 'Application Exited' message to App_Server");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "SignalHandler_Action: Sending 'Application Exited' message to App_Server");
 			// Send ourselves a message that calls the ApplicationExited function
 			// We don't call it directly to avoid a deadlock if the SIGCHLD signal was received while in ProcessUtils::SpawnApplication
 			DCE::CMD_Application_Exited CMD_Application_Exited(g_pAppServer->m_dwPK_Device, g_pAppServer->m_dwPK_Device, pid, ExitStatus);
@@ -98,15 +98,15 @@ void SignalHandler_Action()
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "SignalHandler_Action: g_pAppServer is NULL; can't sent 'Application Exited' message");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "SignalHandler_Action: g_pAppServer is NULL; can't sent 'Application Exited' message");
 		}
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "SignalHandler_Action: Exited");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SignalHandler_Action: Exited");
 }
 
 void * SignalHandler_Thread(void * Args)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "SignalHandler_Thread: Started");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SignalHandler_Thread: Started");
 	g_pAppServer = (App_Server *) Args;
 	signal(SIGCHLD, sh); /* install signal handler */
 
@@ -124,30 +124,30 @@ void * SignalHandler_Thread(void * Args)
 		if (ret == 0)
 			SignalHandler_Action();
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "SignalHandler_Thread: Exited");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SignalHandler_Thread: Exited");
 
 	return NULL;
 }
 
 void SignalHandler_Start(App_Server *pApp_Server)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Starting signal handler thread");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Starting signal handler thread");
 	g_iSemID = semget(IPCKEY_APPSERVER, 1, IPC_CREAT | 0600);
 
 	if (g_iSemID == -1)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to initialize semaphore. Signal handler not enabled. AppServer will leave lots of zombies behind.");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to initialize semaphore. Signal handler not enabled. AppServer will leave lots of zombies behind.");
 		return;
 	}
 	semctl(g_iSemID, 0, SETVAL, (int) 0);
 	
 	pthread_create(&g_SignalHandler_Thread, NULL, SignalHandler_Thread, (void *) pApp_Server);
-	g_pPlutoLogger->Write(LV_STATUS, "Started signal handler thread");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started signal handler thread");
 }
 
 void SignalHandler_Stop()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Stopping signal handler thread");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopping signal handler thread");
 	signal(SIGCHLD, SIG_DFL);
 	g_bQuit = true;
 
@@ -158,5 +158,5 @@ void SignalHandler_Stop()
 		pthread_join(g_SignalHandler_Thread, NULL);
 		g_SignalHandler_Thread = 0;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Stopped signal handler thread");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopped signal handler thread");
 }

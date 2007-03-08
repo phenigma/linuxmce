@@ -99,11 +99,11 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_Med
         m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream[m_iStreamID] = this;
 
     if( !m_pMediaDevice_Source || !m_pMediaHandlerInfo )
-        g_pPlutoLogger->Write( LV_CRITICAL, "Media stream is invalid because of NULL pointers! %p %p", m_pMediaDevice_Source, m_pMediaHandlerInfo);
+        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Media stream is invalid because of NULL pointers! %p %p", m_pMediaDevice_Source, m_pMediaHandlerInfo);
 
 	m_pMediaDevice_Source->m_iLastPlaybackSpeed = 1000;
-g_pPlutoLogger->Write( LV_STATUS, "MediaStream::MediaStream %p on stream id: %d type %d", this, m_iStreamID, m_iPK_MediaType );
-g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapEntArea size %d", m_mapEntertainArea.size( ) );
+LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaStream::MediaStream %p on stream id: %d type %d", this, m_iStreamID, m_iPK_MediaType );
+LoggerWrapper::GetInstance()->Write( LV_STATUS, "Mediastream mapEntArea size %d", m_mapEntertainArea.size( ) );
 }
 
 bool MediaStream::isMovable()
@@ -118,7 +118,7 @@ void MediaStream::setIsMovable(bool bIsMovable)
 
 void MediaStream::SetPlaylistPosition(int position)
 {
-g_pPlutoLogger->Write(LV_STATUS,"SetPlaylistPosition with position %d dequepos %d size %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SetPlaylistPosition with position %d dequepos %d size %d",
 	position,m_iDequeMediaFile_Pos,(int) m_dequeMediaFile.size());
 
 	if ( (unsigned int)position == m_iDequeMediaFile_Pos )
@@ -136,7 +136,7 @@ g_pPlutoLogger->Write(LV_STATUS,"SetPlaylistPosition with position %d dequepos %
 
 void MediaStream::ChangePositionInPlaylist(int iHowMuch)
 {
-g_pPlutoLogger->Write(LV_STATUS,"ChangePositionInPlaylist with position %d how much %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ChangePositionInPlaylist with position %d how much %d",
 	m_iDequeMediaFile_Pos,iHowMuch);
 
 	SetPlaylistPosition(m_iDequeMediaFile_Pos + iHowMuch);
@@ -144,7 +144,7 @@ g_pPlutoLogger->Write(LV_STATUS,"ChangePositionInPlaylist with position %d how m
 
 string MediaStream::GetFilenameToPlay(string sNoFilesFileName )
 {
-g_pPlutoLogger->Write(LV_STATUS,"GetFilenameToPlay called with size: %d pos: %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"GetFilenameToPlay called with size: %d pos: %d",
 	(int) m_dequeMediaFile.size(), m_iDequeMediaFile_Pos);
 
     if ( m_dequeMediaFile.size() == 0 )
@@ -161,10 +161,10 @@ void MediaStream::DumpPlaylist()
     deque<MediaFile *>::iterator itPlaylist;
 
     itPlaylist = m_dequeMediaFile.begin();
-    g_pPlutoLogger->Write(LV_STATUS, "Position: %d", m_iDequeMediaFile_Pos);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Position: %d", m_iDequeMediaFile_Pos);
     while ( itPlaylist != m_dequeMediaFile.end() )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "File%c%d: %s",
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "File%c%d: %s",
                     (m_iDequeMediaFile_Pos == (unsigned int)(itPlaylist - m_dequeMediaFile.begin())) ? '*' : ' ',
                     itPlaylist - m_dequeMediaFile.begin(),
                     (*itPlaylist)->FullyQualifiedFile().c_str());
@@ -181,7 +181,7 @@ void MediaStream::ClearPlaylist()
 
 bool MediaStream::CanPlayMore()
 {
-    g_pPlutoLogger->Write(LV_WARNING, "HaveMoreInQueue: position %d, size: %d, result %d", m_iDequeMediaFile_Pos, m_dequeMediaFile.size(), m_iDequeMediaFile_Pos < (m_dequeMediaFile.size() - 1));
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "HaveMoreInQueue: position %d, size: %d, result %d", m_iDequeMediaFile_Pos, m_dequeMediaFile.size(), m_iDequeMediaFile_Pos < (m_dequeMediaFile.size() - 1));
     DumpPlaylist();
 
     return m_iDequeMediaFile_Pos < (m_dequeMediaFile.size() - 1);
@@ -189,7 +189,7 @@ bool MediaStream::CanPlayMore()
 
 MediaStream::~MediaStream( )
 {
-	g_pPlutoLogger->Write(LV_STATUS,"MediaStream::~MediaStream %p %d mhi %p",this,m_iStreamID,m_pMediaHandlerInfo); 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaStream::~MediaStream %p %d mhi %p",this,m_iStreamID,m_pMediaHandlerInfo); 
 	for(size_t s=0;s<m_dequeMediaSection.size();++s)
 		if( m_dequeMediaSection[s] )
 			delete m_dequeMediaSection[s];
@@ -206,7 +206,7 @@ MediaStream::~MediaStream( )
 	{
 		size_t sizebefore = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream.size();
         m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream_Remove( m_iStreamID );
-		g_pPlutoLogger->Write(LV_STATUS,"MediaStream::~MediaStream size %d - %d",(int) sizebefore,(int) m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream.size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaStream::~MediaStream size %d - %d",(int) sizebefore,(int) m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream.size());
 	}
     ClearPlaylist();
 }
@@ -524,7 +524,7 @@ int MediaStream::GetRemoteControlScreen(int PK_Orbiter)
 		PK_MediaType);
 	if( !pRemoteControlSet )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"MediaStream::GetRemoteControlScreen Cannot find remote controls for Orbiter %d",PK_Orbiter);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MediaStream::GetRemoteControlScreen Cannot find remote controls for Orbiter %d",PK_Orbiter);
 		return 0;
 	}
 	m_mapRemoteControlSet[PK_Orbiter]=pRemoteControlSet;

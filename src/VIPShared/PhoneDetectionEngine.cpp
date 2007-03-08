@@ -38,7 +38,7 @@ public:
 
 void *HandleDetectionThread(void *p)
 {
-g_pPlutoLogger->Write(LV_STATUS,"HandleDetectionThread started");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"HandleDetectionThread started");
 
 	PhoneDetectionEngine *pe = (PhoneDetectionEngine *)p;
 	pe->m_bInScanLoop=true;
@@ -67,7 +67,7 @@ g_pPlutoLogger->Write(LV_STATUS,"HandleDetectionThread started");
 
 void *NewDeviceThread(void *p)
 {
-g_pPlutoLogger->Write(LV_STATUS,"NewDeviceThread started");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"NewDeviceThread started");
 	EnginePlusDevice *ed = (EnginePlusDevice *)p;
 	
 	if( !ed->m_pEngine->m_bAbortScanLoop )
@@ -80,7 +80,7 @@ g_pPlutoLogger->Write(LV_STATUS,"NewDeviceThread started");
 
 void *LostDeviceThread(void *p)
 {
-g_pPlutoLogger->Write(LV_STATUS,"LostDeviceThread started");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"LostDeviceThread started");
 	EnginePlusDevice *ed = (EnginePlusDevice *)p;
 
 	if(!ed->m_pEngine->m_bAbortScanLoop)
@@ -97,7 +97,7 @@ g_pPlutoLogger->Write(LV_STATUS,"LostDeviceThread started");
 
 void *SignalStrengthThread(void *p)
 {
-g_pPlutoLogger->Write(LV_STATUS,"SignalStrengthThread started");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"SignalStrengthThread started");
 	EnginePlusDevice *ed = (EnginePlusDevice *)p;
 
 	if(!ed->m_pEngine->m_bAbortScanLoop)
@@ -116,13 +116,13 @@ void PhoneDetectionEngine::DetectionLogic()
 {
     if(m_bScanningSuspended)
     {
-        g_pPlutoLogger->Write(LV_STATUS, "The scanning is suspended. We'll ignore the results of this scan");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "The scanning is suspended. We'll ignore the results of this scan");
         return; 
     }
 
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
-	g_pPlutoLogger->Write(LV_STATUS, "Devices detected last loop: %d", m_mapPhoneDevice_Detected.size());
-	g_pPlutoLogger->Write(LV_STATUS, "Devices detected this loop: %d", m_mapDevicesDetectedThisScan.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Devices detected last loop: %d", m_mapPhoneDevice_Detected.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Devices detected this loop: %d", m_mapDevicesDetectedThisScan.size());
 
 	list<PhoneDevice *> listDevicesLost;
 	map<u_int64_t,class PhoneDevice *>::iterator itDevice;
@@ -133,13 +133,13 @@ void PhoneDetectionEngine::DetectionLogic()
 
 		if( !pDeviceDetectedThisScan && pDeviceDetected->m_bIsConnected) //not found this loop
 		{
-			 g_pPlutoLogger->Write(LV_STATUS,"It seems that device %s wasn't detected this loop, but it is connected.", pDeviceDetected->m_sID.c_str());
+			 LoggerWrapper::GetInstance()->Write(LV_STATUS,"It seems that device %s wasn't detected this loop, but it is connected.", pDeviceDetected->m_sID.c_str());
 		}
 		
 		if( !pDeviceDetectedThisScan && !pDeviceDetected->m_bIsConnected) //not found this loop
 		{
 			PhoneDevice *pPhoneDevice = (*itDevice).second;
-			g_pPlutoLogger->Write(LV_STATUS,"Deleting lost device from map: %s size: %d",pPhoneDevice->m_sID.c_str(),(int) m_mapPhoneDevice_Detected.size());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Deleting lost device from map: %s size: %d",pPhoneDevice->m_sID.c_str(),(int) m_mapPhoneDevice_Detected.size());
 
 			listDevicesLost.push_back( (*itDevice).second );
 			m_mapPhoneDevice_Detected.erase(itDevice++);
@@ -155,12 +155,12 @@ void PhoneDetectionEngine::DetectionLogic()
         PLUTO_SAFETY_LOCK(vm,m_VariableMutex);
         if( m_mapIgnoreMacs.find((*itLost)->m_iMacAddress)!=m_mapIgnoreMacs.end() )
         {
-            g_pPlutoLogger->Write(LV_STATUS,"%s device is ignored. No lost connection sent",(*itLost)->m_sMacAddress.c_str());
+            LoggerWrapper::GetInstance()->Write(LV_STATUS,"%s device is ignored. No lost connection sent",(*itLost)->m_sMacAddress.c_str());
             continue;
         }
         vm.Release();
 		
-		g_pPlutoLogger->Write(LV_WARNING, "Lost connection to device: mac %s, id %s", (*itLost)->m_sMacAddress.c_str(), (*itLost)->m_sID.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Lost connection to device: mac %s, id %s", (*itLost)->m_sMacAddress.c_str(), (*itLost)->m_sID.c_str());
 		Intern_LostDevice(*itLost);
 	}
 
@@ -170,18 +170,18 @@ void PhoneDetectionEngine::DetectionLogic()
 
 void PhoneDetectionEngine::StartScanning()
 {
-g_pPlutoLogger->Write(LV_STATUS,"Start scanning size m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Start scanning size m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 	m_bAbortScanLoop=false;
 	int ret = pthread_create(&m_ThreadID, NULL, HandleDetectionThread, (void*)this);
 	if (ret == 0)
 		pthread_detach(m_ThreadID);
 
-g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"pthread_create returned with %d", ret);
 }
 
 void PhoneDetectionEngine::StopScanning()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Stopping scan loop...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopping scan loop...");
 	m_bAbortScanLoop=true;
 	RequestStopScanning();
 
@@ -189,7 +189,7 @@ void PhoneDetectionEngine::StopScanning()
 
 	while( m_bInScanLoop )
 		Sleep(100);  // Just wait until the thread exits
-	g_pPlutoLogger->Write(LV_STATUS, "Scan loop ended");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Scan loop ended");
 }
 
 
@@ -207,7 +207,7 @@ void PhoneDetectionEngine::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 
 	m_mapPhoneDevice_Detected[pDevice->m_iMacAddress] = pDevice;
 
-	g_pPlutoLogger->Write(LV_STATUS,"Adding device to map1: %s m_mapPhoneDevice_Detected size is now: %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Adding device to map1: %s m_mapPhoneDevice_Detected size is now: %d",
 		pDevice->m_sID.c_str(), (int) m_mapPhoneDevice_Detected.size());
 
 	pthread_t t;
@@ -216,19 +216,19 @@ void PhoneDetectionEngine::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 	if (ret == 0)
 		pthread_detach(t);
 
-	g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"pthread_create returned with %d", ret);
 }
 
 void PhoneDetectionEngine::Intern_LostDevice(class PhoneDevice *pDevice)
 {
-g_pPlutoLogger->Write(LV_STATUS,"lost dev 1 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"lost dev 1 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 	pthread_t t;
 	EnginePlusDevice *pED = new EnginePlusDevice(this,pDevice);
 	int ret = pthread_create(&t, NULL, LostDeviceThread, (void*)pED);
 	if (ret == 0)
 		pthread_detach(t);
-g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
-g_pPlutoLogger->Write(LV_STATUS,"lost dev 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"pthread_create returned with %d", ret);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"lost dev 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 }
 
 void PhoneDetectionEngine::Intern_SignalStrengthChanged(class PhoneDevice *pDevice)
@@ -237,14 +237,14 @@ void PhoneDetectionEngine::Intern_SignalStrengthChanged(class PhoneDevice *pDevi
 
 	m_mapPhoneDevice_Detected[pDevice->m_iMacAddress]->m_iLinkQuality = pDevice->m_iLinkQuality;
 
-g_pPlutoLogger->Write(LV_STATUS,"ssc1 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ssc1 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 	pthread_t t;
 	EnginePlusDevice *pED = new EnginePlusDevice(this,pDevice);
 	int ret = pthread_create(&t, NULL, SignalStrengthThread, (void*)pED);
 	if (ret == 0)
 		pthread_detach(t);
-g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
-g_pPlutoLogger->Write(LV_STATUS,"ssc 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"pthread_create returned with %d", ret);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ssc 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 }
 
 void PhoneDetectionEngine::RemoveDeviceFromDetectionList(u_int64_t iMacAddress)
@@ -254,15 +254,15 @@ void PhoneDetectionEngine::RemoveDeviceFromDetectionList(u_int64_t iMacAddress)
 
 	if(itDevice != m_mapPhoneDevice_Detected.end())
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Need to remove device %d from the detection list", iMacAddress);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to remove device %d from the detection list", iMacAddress);
 		m_mapPhoneDevice_Detected.erase(itDevice);
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Cannot remove device %d from the detection list of %d", iMacAddress,(int) m_mapPhoneDevice_Detected.size());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Cannot remove device %d from the detection list of %d", iMacAddress,(int) m_mapPhoneDevice_Detected.size());
 		for(map<u_int64_t,class PhoneDevice *>::iterator itDevice = m_mapPhoneDevice_Detected.begin();itDevice != m_mapPhoneDevice_Detected.end();++itDevice)		{
 			class PhoneDevice *pPhoneDevice = (*itDevice).second;
-g_pPlutoLogger->Write(LV_WARNING, "Map contains Cannot remove device %s from the detection list", pPhoneDevice->m_sMacAddress.c_str());
+LoggerWrapper::GetInstance()->Write(LV_WARNING, "Map contains Cannot remove device %s from the detection list", pPhoneDevice->m_sMacAddress.c_str());
 		}
 	}
 }
@@ -272,7 +272,7 @@ void PhoneDetectionEngine::AddDeviceToDetectionList(class PhoneDevice *pDevice)
     PLUTO_SAFETY_LOCK(vm,m_VariableMutex);
 	if( m_mapIgnoreMacs.find(pDevice->m_iMacAddress)!=m_mapIgnoreMacs.end() )
 	{
-g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",pDevice->m_sMacAddress.c_str());
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"Ignoring MAC: %s",pDevice->m_sMacAddress.c_str());
 		delete pDevice;
 		return;
 	}
@@ -284,7 +284,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",pDevice->m_sMacAddress.c_str
 	PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDevice->m_iMacAddress);
 	bool bConnected = pDExisting && pDExisting->m_bIsConnected;
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Analyzing device %s. Existing %p, connected %d ", pDevice->m_sMacAddress.c_str(),
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Analyzing device %s. Existing %p, connected %d ", pDevice->m_sMacAddress.c_str(),
 			pDExisting, bConnected);
 	
 	//first time detected or not connected yet
@@ -294,7 +294,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",pDevice->m_sMacAddress.c_str
 	}
 	else 
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "This is not a new device");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "This is not a new device");
 		if(pDExisting && pDExisting->m_bIsConnected) //let's get the link quality
 		{
 			int iLinkQuality = GetLinkQuality(pDevice->m_sMacAddress.c_str());
@@ -317,12 +317,12 @@ g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",pDevice->m_sMacAddress.c_str
 
 /*virtual*/ void PhoneDetectionEngine::SuspendScanning()
 {
-    g_pPlutoLogger->Write(LV_WARNING, "Suspending scanning...");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Suspending scanning...");
     m_bScanningSuspended = true;
 }
 
 /*virtual*/ void PhoneDetectionEngine::ResumeScanning()
 {
-    g_pPlutoLogger->Write(LV_WARNING, "Resuming scanning...");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Resuming scanning...");
     m_bScanningSuspended = false;
 }

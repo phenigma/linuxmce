@@ -58,7 +58,7 @@ void* MessageQueueThread_DCECI( void* param ) // renamed to cancel link-time nam
 		p->ProcessMessageQueue();
 	p->m_bMessageQueueThreadRunning=false;
 	
-	g_pPlutoLogger->Write(LV_SOCKET,"Exiting MessageQueueThread_DCECI thread...");
+	LoggerWrapper::GetInstance()->Write(LV_SOCKET,"Exiting MessageQueueThread_DCECI thread...");
 
 	return NULL;
 }
@@ -75,28 +75,28 @@ void *WatchDogThread( void *pData )
 	while( !pCommand_Impl->m_bStopWatchdog)
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "About to send PING to the router.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "About to send PING to the router.");
 #endif
 		string sResponse = pCommand_Impl->SendReceiveString( "PING " + StringUtils::itos( pCommand_Impl->m_dwPK_Device ), PING_TIMEOUT );
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS, "Sent PING to the router.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sent PING to the router.");
 #endif
 
 		if ( sResponse != "PONG" )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Before Disconnect.");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Before Disconnect.");
 			pCommand_Impl->Disconnect();
-			g_pPlutoLogger->Write(LV_STATUS, "After Disconnect.");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "After Disconnect.");
 
 			bConnectionLost = true;
-			g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d",
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d",
 				sResponse.c_str(), pCommand_Impl->m_dwPK_Device );
 			break;
 		}
 		else
 		{
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS, "Received PONG from the router.");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received PONG from the router.");
 #endif
 			Sleep(5000);
 		}
@@ -104,11 +104,11 @@ void *WatchDogThread( void *pData )
 
 	if(bConnectionLost)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Before MB_ICONEXCLAMATION.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Before MB_ICONEXCLAMATION.");
 		::MessageBeep( MB_ICONEXCLAMATION );
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "WatchDog stopped");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WatchDog stopped");
 	pCommand_Impl->m_bWatchdogRunning = false;
 
 #endif
@@ -140,7 +140,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	{
 		m_pthread_queue_id=0;
 		m_bMessageQueueThreadRunning=false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create message processing queue" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create message processing queue" );
 	}
 #ifdef LL_DEBUG
 	SendString("COMMENT COMMAND " + StringUtils::itos(DeviceID));
@@ -172,7 +172,7 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	{
 		m_pthread_queue_id=0;
 		m_bMessageQueueThreadRunning=false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create message processing queue" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create message processing queue" );
 	}
 
 	// Connect the primary device's event processor
@@ -183,7 +183,7 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 Command_Impl::~Command_Impl()
 {
 	g_pCommand_Impl = NULL;
-	g_pPlutoLogger->Write( LV_STATUS, "Waiting for message queue thread to quit" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Waiting for message queue thread to quit" );
 
 	m_bQuit_set(true);
 	
@@ -204,7 +204,7 @@ Command_Impl::~Command_Impl()
 	}
 	m_listMessageQueue.clear();
 
-	g_pPlutoLogger->Write( LV_STATUS, "~Command_Impl finished" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "~Command_Impl finished" );
 
 	pthread_mutex_destroy(&m_listMessageQueueMutex.mutex);
 }
@@ -226,22 +226,22 @@ void Command_Impl::PrepareToDelete()
 		Sleep(10); // Should happen right away
 		if( tTime + 5 < time(NULL) )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"m_bMessageQueueThreadRunning had blocked!!!!");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"m_bMessageQueueThreadRunning had blocked!!!!");
 			exit(1);
 		}
 	}
 	
-	g_pPlutoLogger->Write( LV_STATUS, "Message queue thread quit" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Message queue thread quit" );
 	if( m_pthread_queue_id != 0 )
 	{
 		pthread_join(m_pthread_queue_id, NULL);
 		m_pthread_queue_id = 0;
 	}
-	g_pPlutoLogger->Write( LV_STATUS, "Message queue thread joined" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Message queue thread joined" );
 
 	if( m_bKillSpawnedDevicesOnExit )
 	{
-		g_pPlutoLogger->Write( LV_STATUS, "About to call kill spawned devices" );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "About to call kill spawned devices" );
 		KillSpawnedDevices();
 	}
 }
@@ -264,10 +264,10 @@ void Command_Impl::CreateChildren()
 		// This device was marked as disabled
 		if (pDeviceData_Impl_Child->m_bDisabled)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Child device %d is disabled", pDeviceData_Impl_Child->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Child device %d is disabled", pDeviceData_Impl_Child->m_dwPK_Device);
 			continue;
 		}
-		g_pPlutoLogger->Write(LV_WARNING, "Creating child %d", pDeviceData_Impl_Child->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Creating child %d", pDeviceData_Impl_Child->m_dwPK_Device);
 		
 		// This device has it's own executible. Try to spawn it. If that fails, we will try to create it ourselves
 		if( pDeviceData_Impl_Child->m_bImplementsDCE && !pDeviceData_Impl_Child->m_bIsEmbedded )
@@ -279,7 +279,7 @@ void Command_Impl::CreateChildren()
 		if ( !pEvent )
 		{
 			pEvent = new Event_Impl( m_pPrimaryDeviceCommand->m_pEvent->m_pClientSocket, pDeviceData_Impl_Child->m_dwPK_Device );
-			g_pPlutoLogger->Write( LV_WARNING, "Note: Device manager has attached a device of type %d that this has no custom event handler for.  It will not fire events.",
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Note: Device manager has attached a device of type %d that this has no custom event handler for.  It will not fire events.",
 					pDeviceData_Impl_Child->m_dwPK_DeviceTemplate);
 		}
 		Command_Impl *pCommand = m_pPrimaryDeviceCommand->CreateCommand( pDeviceData_Impl_Child->m_dwPK_DeviceTemplate, m_pPrimaryDeviceCommand, pDeviceData_Impl_Child, pEvent );
@@ -287,7 +287,7 @@ void Command_Impl::CreateChildren()
 		{
 			pCommand = new Command_Impl(m_pPrimaryDeviceCommand, pDeviceData_Impl_Child, pEvent, m_pRouter);
 			pCommand->m_bGeneric=true;
-			g_pPlutoLogger->Write(LV_WARNING, "Note: Device manager has attached a device of type %d that this has no custom handler for.  This is normal for IR.", pDeviceData_Impl_Child->m_dwPK_DeviceTemplate);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Note: Device manager has attached a device of type %d that this has no custom handler for.  This is normal for IR.", pDeviceData_Impl_Child->m_dwPK_DeviceTemplate);
 		}
 		pCommand->m_pParent = this;
 		pCommand->CreateChildren();
@@ -323,13 +323,13 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 			sPrefix = "/usr/bin/pluto";
 			if( !FileUtils::FileExists( sPrefix + "Spawn_Device.sh" ) )
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find Spawn_Device.sh");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Spawn_Device.sh");
 				return false;
 			}
 		}
 	}
 
-	g_pPlutoLogger->Write( LV_STATUS, "Spawning device: %d %s on display: %s ip: %s", pDeviceData_Impl_Child->m_dwPK_Device, pDeviceData_Impl_Child->m_sCommandLine.c_str(), sDisplay.c_str(), m_sIPAddress.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Spawning device: %d %s on display: %s ip: %s", pDeviceData_Impl_Child->m_dwPK_Device, pDeviceData_Impl_Child->m_sCommandLine.c_str(), sDisplay.c_str(), m_sIPAddress.c_str() );
 	system( ("screen -d -m -h 3000 -S " + pDeviceData_Impl_Child->m_sCommandLine + "_" + StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) +
 			" /bin/bash -x " + sPrefix + "Spawn_Device.sh " + StringUtils::itos(pDeviceData_Impl_Child->m_dwPK_Device) + " " + m_sIPAddress + " " + sDisplay + " " + pDeviceData_Impl_Child->m_sCommandLine).c_str() );
 #else
@@ -362,23 +362,23 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 void Command_Impl::KillSpawnedDevices()
 {
 #ifndef WIN32
-	g_pPlutoLogger->Write(LV_STATUS, "Need to kill %d child devices", (int)m_vectSpawnedDevices.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to kill %d child devices", (int)m_vectSpawnedDevices.size());
 	string sSpawnedDevices("");
 	for( size_t s=0; s < m_vectSpawnedDevices.size(); ++s )
 	{
 		sSpawnedDevices += m_vectSpawnedDevices[s] + " ";
 //		string sCmd = string("") + "screen -list | grep '" + m_vectSpawnedDevices[s] + "' | cut -f 1 -d '.' | cut -f 2 -d '\t' | xargs kill -9";
-//		g_pPlutoLogger->Write(LV_WARNING,"Killing spawned device %s with %s",m_vectSpawnedDevices[s].c_str(),sCmd.c_str());
+//		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Killing spawned device %s with %s",m_vectSpawnedDevices[s].c_str(),sCmd.c_str());
 //		system( sCmd.c_str() );
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Initiating kill for: %s", sSpawnedDevices.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Initiating kill for: %s", sSpawnedDevices.c_str());
 //	string sCmd = string("/usr/pluto/bin/KillScreens.sh ") + sSpawnedDevices;
-//	g_pPlutoLogger->Write(LV_STATUS, "Cmd: %s", sCmd.c_str());
+//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Cmd: %s", sCmd.c_str());
 // Temporary hack - for some unexplainable reason, the KillScreens script, although it appears correct
 // is actually causing *everything* to die, including the screen session and bash that runs Orbiter, preventing them from 
 // ever restarting.  Temporarily remove this, and let the spawned devices re-spawn themselves, not being tied to Orbiter
 	//	system(sCmd.c_str());
-	g_pPlutoLogger->Write(LV_STATUS, "Killing completed.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Killing completed.");
 #endif
 }
 
@@ -425,7 +425,7 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate)
 	// Must have an event socket to proceed.
 	if (!m_pEvent)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"No event handler for device ID: %d", this->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"No event handler for device ID: %d", this->m_dwPK_Device);
 		bResult = false;
 	}
 
@@ -434,14 +434,14 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate)
 		m_pEvent->m_pClientSocket->Connect(iPK_DeviceTemplate);
 		if (m_pEvent->m_pClientSocket->m_Socket == INVALID_SOCKET)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"No client socket for device ID: %d", this->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"No client socket for device ID: %d", this->m_dwPK_Device);
 			bResult = false;
 		}
 	}
 	if (bResult && !ClientSocket::Connect(iPK_DeviceTemplate,m_iInstanceID ? " INSTANCE " + StringUtils::itos(m_iInstanceID) : ""))
 	{
 #if (!defined(UNDER_CE) || !defined(DEBUG))
-		g_pPlutoLogger->Write(LV_CRITICAL,"DeviceCommand connect failed %p, device ID: %d",this,this->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"DeviceCommand connect failed %p, device ID: %d",this,this->m_dwPK_Device);
 #endif
 
 		if (m_pEvent)
@@ -492,7 +492,7 @@ void Command_Impl::SetDeviceCategories(DeviceData_Impl *pData)
 
 bool Command_Impl::RouterNeedsReload()
 {
-	g_pPlutoLogger->Write(LV_WARNING,"The router must be reloaded before this device is fully functional");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"The router must be reloaded before this device is fully functional");
 	return false;
 }
 
@@ -648,7 +648,7 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_RELOAD && pMessage->m_dwPK_Device_To==m_dwPK_Device )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Got a reload command from %d %s",pMessage->m_dwPK_Device_From,pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST].c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Got a reload command from %d %s",pMessage->m_dwPK_Device_From,pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST].c_str());
 		SendString("BYE");
 		Sleep(250);
 		OnReload();
@@ -656,8 +656,8 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 	}
 	if(pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_ROTATE && pMessage->m_dwPK_Device_To==m_dwPK_Device)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Going to rotate logs...");
-		g_pPlutoLogger->Rotate();
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Going to rotate logs...");
+		LoggerWrapper::GetInstance()->Rotate();
 		return rmr_Processed;
 	}
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_START_PING)
@@ -724,14 +724,14 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 				string ValueOld = m_pData->m_mapParameters[(*p).first];
 				m_pData->m_mapParameters[(*p).first] = (*p).second;
 #ifdef DEBUG
-				g_pPlutoLogger->Write( LV_STATUS, "Updating data parm %d with %s (Device %d).", (*p).first, (*p).second.c_str(), m_dwPK_Device );
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updating data parm %d with %s (Device %d).", (*p).first, (*p).second.c_str(), m_dwPK_Device );
 #endif
 				SendString( "OK" );
 				OnDataChange( (*p).first, ValueOld, (*p).second );
 			}
 			else
 			{
-				g_pPlutoLogger->Write( LV_WARNING, "Got a data parm change without the value to change." );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Got a data parm change without the value to change." );
 				SendString( "ERR Input" );
 			}
 			return rmr_Processed;
@@ -791,11 +791,11 @@ void Command_Impl::ProcessMessageQueue()
 				// let the framework restart us
 #ifdef LINK_TO_ROUTER
 				if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-					g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 				else
 #endif
 				{
-					g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Going to quit");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Going to quit");
 					OnReload();
 				}
 			}
@@ -810,7 +810,7 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 	if( iConfirmation == 0 || ( iConfirmation == -1 && !pPreformedCommand.m_pcResponse ) )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand queue  id %d conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand queue  id %d conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
 #endif
 		if( m_bLocalMode )
 		{
@@ -829,7 +829,7 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 	if( !pPreformedCommand.m_pcResponse )
 	{
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation id %d conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand confirmation id %d conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
 #endif
 		pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;  // i.e. just an "OK"
 		string sResponse; // We'll use this only if a response wasn't passed in
@@ -856,7 +856,7 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation id %d conf %d 
 			bResult = m_pcRequestSocket->SendMessage( pPreformedCommand.m_pMessage, *p_sResponse );
 
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done id %d conf %d resp %p (%d) %s type %d id %d to %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand confirmation done id %d conf %d resp %p (%d) %s type %d id %d to %d",
 					  pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str(),Type,ID,PK_Device_To);
 #endif
 		if( !bResult )
@@ -866,11 +866,11 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done id %d con
 			// let the framework restart us
 #ifdef LINK_TO_ROUTER
 			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-				g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 			else
 #endif
 			{
-				g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand cannot send message type %d id %d to %d with confirmation.  Going to quit",
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand cannot send message type %d id %d to %d with confirmation.  Going to quit",
 					Type,ID,PK_Device_To);
 				OnReload();
 			}
@@ -878,7 +878,7 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done id %d con
 		return bResult && *p_sResponse == "OK";
 	}
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand id %d out parm conf %d resp %p",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand id %d out parm conf %d resp %p",
 					  pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
 #endif
 	// There are out parameters, we need to get a message back in return
@@ -900,7 +900,7 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand id %d out parm conf %d resp
 	else
 		pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done id %d conf %d resp %p %p %d type %d id %d to %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out done id %d conf %d resp %p %p %d type %d id %d to %d",
 	pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0),Type,ID,PK_Device_To);
 #endif
 	if( !pResponse || pResponse->m_dwID != 0 )
@@ -914,11 +914,11 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done id %d conf %d resp
 			// let the framework restart us
 #ifdef LINK_TO_ROUTER
 			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-				g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 			else
 #endif
 			{
-				g_pPlutoLogger->Write(LV_WARNING,"InternalSendCommand cannot send with return message.  type %d id %d to %d Going to quit",
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand cannot send with return message.  type %d id %d to %d Going to quit",
 					Type,ID,PK_Device_To);
 				OnReload();
 			}
@@ -934,7 +934,7 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done id %d conf %d resp
 
 	bool bResult = sResponse=="OK";
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out id %d parm exiting conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out id %d parm exiting conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
 #endif
 	delete pResponse;
 	return bResult;
@@ -997,7 +997,7 @@ void Command_Impl::InterceptedMessage(Message *pMessage)
 	MessageInterceptorFn pMessageInterceptorFn = m_mapMessageInterceptorFn_Find(pMessage->m_dwID);
 	if( !pMessageInterceptorFn || pMessage->m_vectExtraMessages.size()!=1)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Got intercepted message, but there is no corresponding callback");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Got intercepted message, but there is no corresponding callback");
 		return;
 	}
 
@@ -1023,7 +1023,7 @@ void Command_Impl::ExecCommandGroup(int PK_CommandGroup)
 {
 	if( !PK_CommandGroup )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Ignoring ExecCommandGroup 0");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Ignoring ExecCommandGroup 0");
 		return;
 	}
 	Message *pMessage = new Message(m_dwPK_Device,0,PRIORITY_NORMAL,MESSAGETYPE_EXEC_COMMAND_GROUP,PK_CommandGroup,0);
@@ -1087,7 +1087,7 @@ bool Command_Impl::PendingTasksFromDevice(int PK_Device,vector< pair<string,stri
 				continue;
 			string::size_type p_tab = s.find('\t');
 			if( p_tab==string::npos )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Command_Impl::PendingTasks response %s malformed",sResponse.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Command_Impl::PendingTasks response %s malformed",sResponse.c_str());
 			else
 			{
 				bFoundTasks=true;
@@ -1175,7 +1175,7 @@ char Command_Impl::DeviceIsRegistered(int PK_Device) // Returns Y, N, D (for dis
 	string sResponse = m_pEvent->m_pClientSocket->SendReceiveString("DEVICE_REGISTERED " + StringUtils::itos(PK_Device));
 	if( sResponse.substr(0,17)!="DEVICE_REGISTERED" )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine if device %d registered",PK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot determine if device %d registered",PK_Device);
 		return 'E';
 	}
 	return sResponse[18];

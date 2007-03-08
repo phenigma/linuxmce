@@ -92,7 +92,6 @@ namespace DCE
 	* 2 strings that the main() function can use to store the currently executing binary and path
 	* which may be useful for logging
 	*/ 
-	extern class Logger *g_pPlutoLogger;
 	extern string g_sBinary,g_sBinaryPath;
 
 	/**
@@ -324,6 +323,55 @@ namespace DCE
 
 	typedef map<string, Logger*> NameLoggerMap;
 	typedef map<string, string> StringStringMap;
+
+
+	class LoggerWrapper
+	{
+	private:
+		static Logger *m_pPlutoLogger;
+		static int m_iType;
+		static string m_sFilename;
+
+	public:
+		static void Delete()
+		{
+			delete m_pPlutoLogger;
+			m_pPlutoLogger=NULL;
+		}
+		static Logger *GetInstance()
+		{
+			if( m_pPlutoLogger==NULL )
+			{
+				switch( m_iType )
+				{
+				case LT_LOGGER_NULL:
+					m_pPlutoLogger = new NullLogger();
+					break;
+
+				default:
+					if( m_sFilename.empty() )
+						m_pPlutoLogger = new FileLogger(stdout);
+					else
+						m_pPlutoLogger = new FileLogger(m_sFilename.c_str());
+					break;
+				}
+			}
+			return m_pPlutoLogger;
+		}
+
+		static void SetInstance(Logger *pLogger)
+		{
+			m_pPlutoLogger=pLogger;
+		}
+
+		static int GetType() { return m_iType; }
+
+		static void SetType(int Type,string sFilename="")
+		{
+			m_iType=Type;
+			m_sFilename=sFilename;
+		}
+	};
 }
 
 #endif

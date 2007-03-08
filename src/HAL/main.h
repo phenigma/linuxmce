@@ -24,11 +24,6 @@
 
 using namespace DCE;
 
-namespace DCE
-{
-	extern	Logger *g_pPlutoLogger;
-}
-
 #define DEBUG
 #ifdef DEBUG
 #define PLUTO_DEBUG

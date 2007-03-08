@@ -244,7 +244,7 @@ void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMess
 
 void Photo_Screen_Saver::Terminate()
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Received CMD_Off. Terminating...");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received CMD_Off. Terminating...");
 	WM_Event Event;
 	Event.Quit();
 	Gallery::Instance().m_bQuit_set(true);
@@ -261,7 +261,7 @@ void Photo_Screen_Saver::Terminate()
 
 void* ThreadAnimation(void* ThreadInfo)
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Start Gallery thread");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Start Gallery thread");
 	GallerySetup* Info = (GallerySetup*) ThreadInfo;
 	Gallery::Instance().Setup(Info->GetWidth(), Info->GetHeight(), 
 		Info->GetFaddingTime(),
@@ -273,7 +273,7 @@ void* ThreadAnimation(void* ThreadInfo)
 
 	*(Info->ThreadID) = 0;
 	delete Info;
-	g_pPlutoLogger->Write(LV_WARNING, "Finish Gallery thread");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Finish Gallery thread");
 	return NULL;
 }
 

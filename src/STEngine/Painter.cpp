@@ -69,7 +69,7 @@ void Painter::Setup(ExtensionManager *ExtensionManager)
 	}
 #ifdef DEBUG
 	//if(Container.NoTriangles)
-		//DCE::g_pPlutoLogger->Write(LV_WARNING, "GL_TRIANGLES");
+		//DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "GL_TRIANGLES");
 #endif
 
 	glBegin(GL_TRIANGLES);

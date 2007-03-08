@@ -70,7 +70,7 @@ DuplicateFilterPoolInterceptor::handleTelegram(const TelegramMessage *pt) {
 		messages_.push_back(tmsg);
 		handleUniqueTelegram(&tmsg.msg);
 	} else {
-		g_pPlutoLogger->Write(LV_WARNING, "Message is a duplicate.");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Message is a duplicate.");
 	}
 }
 

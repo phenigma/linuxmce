@@ -49,7 +49,7 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
         ListDeviceData_Router *pListDeviceData_Router=m_pMediaHandlerBase->m_pMedia_Plugin->m_pRouter->m_mapDeviceByTemplate_Find( m_PK_DeviceTemplate );
 		if( !pListDeviceData_Router )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Media Handler Info cannot find any devices for template: %d",m_PK_DeviceTemplate);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media Handler Info cannot find any devices for template: %d",m_PK_DeviceTemplate);
 			return;
 		}
         for( ListDeviceData_Router::iterator it=pListDeviceData_Router->begin( );it!=pListDeviceData_Router->end( );++it )
@@ -57,7 +57,7 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
             DeviceData_Router *pDeviceData_Router = *it;
             MediaDevice *pMediaDevice = m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaDevice_Find( pDeviceData_Router->m_dwPK_Device );
             if( !pMediaDevice )
-                g_pPlutoLogger->Write( LV_WARNING, "Device %d (%s) isn't in an entertainment area", pDeviceData_Router->m_dwPK_Device, pDeviceData_Router->m_sDescription.c_str() );
+                LoggerWrapper::GetInstance()->Write( LV_WARNING, "Device %d (%s) isn't in an entertainment area", pDeviceData_Router->m_dwPK_Device, pDeviceData_Router->m_sDescription.c_str() );
             else
                 m_listMediaDevice.push_back( pMediaDevice );
         }

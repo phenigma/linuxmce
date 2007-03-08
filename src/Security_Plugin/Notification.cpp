@@ -176,7 +176,7 @@ bool Notification::NotifyLoop(int iType,bool bProcessInBackground)
 				(m_pRow_Alert->FK_AlertType_get()==ALERTTYPE_Air_Quality_CONST && !bAirQuality) ||
 				(m_pRow_Alert->FK_AlertType_get()==ALERTTYPE_Doorbell_CONST && !bDoorbell) )
 {
-g_pPlutoLogger->Write(LV_STATUS,"Skipping orbiter %s",sPhoneNumber.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Skipping orbiter %s",sPhoneNumber.c_str());
 			continue;
 }
 
@@ -215,13 +215,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Skipping orbiter %s",sPhoneNumber.c_str());
 
 bool Notification::NotifyOrbiter(string sPhoneNumber, int iDelay)
 {
-	g_pPlutoLogger->Write(LV_WARNING,"Notifying %s, delay %d",sPhoneNumber.c_str(),iDelay);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Notifying %s, delay %d",sPhoneNumber.c_str(),iDelay);
     return ExecuteNotification(sPhoneNumber, iDelay, true);
 }
 
 bool Notification::NotifyOther(string sPhoneNumber,int iDelay)
 {
-	g_pPlutoLogger->Write(LV_WARNING,"Notifying %s, delay %d",sPhoneNumber.c_str(),iDelay);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Notifying %s, delay %d",sPhoneNumber.c_str(),iDelay);
     return ExecuteNotification(sPhoneNumber, iDelay, false);
 }
 
@@ -229,7 +229,7 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
 {
 	if( sPhoneNumber.empty() )
 	{
-        g_pPlutoLogger->Write(LV_WARNING, "Notification::ExecuteNotification Unable to notify user with no phone number");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Notification::ExecuteNotification Unable to notify user with no phone number");
         return false;
 	}
 
@@ -263,11 +263,11 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
 
     if(!bResponse)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Unable to notify user");
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unable to notify user");
         return false;
     }
 
-    g_pPlutoLogger->Write(LV_WARNING, "User notified");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "User notified");
     return true;
 }
 
@@ -296,7 +296,7 @@ string Notification::GenerateWavFile(long nAlertType, long nDeviceID)
 
     if(!pData)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Text to speech device couldn't create the wav file");
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Text to speech device couldn't create the wav file");
         return string();
     }
 

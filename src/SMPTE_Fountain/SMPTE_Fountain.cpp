@@ -88,7 +88,7 @@ bool SMPTE_Fountain::GetConfig()
 	m_pDevice_Xine = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
 	if( !m_pDevice_Xine )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"SMPTE_Fountain::GetConfig  cannot find xine");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"SMPTE_Fountain::GetConfig  cannot find xine");
 		return false;
 	}
 
@@ -213,10 +213,10 @@ bool SMPTE_Fountain::MediaStopped( class Socket *pSocket, class Message *pMessag
 {
 	if( false && !m_bIsActive )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Ignoring -- we're not active");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring -- we're not active");
 		return false;
 	}
-	g_pPlutoLogger->Write(LV_STATUS,"Stopping SMPTE output");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Stopping SMPTE output");
 	smpte_stop = -1;
 	smpte_cur = 0;
 	m_smpteXineReportedTime=0;
@@ -228,14 +228,14 @@ bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessag
 {
 	if( false && !m_bIsActive )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Ignoring -- we're not active");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring -- we're not active");
 		return false;
 	}
 
 	if( pMessage->m_mapParameters.find(COMMANDPARAMETER_OriginatorNumber_CONST)!=pMessage->m_mapParameters.end() && 
 		atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OriginatorNumber_CONST].c_str()) == m_dwPK_Device )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Ignoring -- it came from us");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring -- it came from us");
 		return false;
 	}
 
@@ -243,7 +243,7 @@ bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessag
 	string sFileName = pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
 	if( m_mapFilesTimeCode.find(sFileName)==m_mapFilesTimeCode.end() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Ignoring unknown file %s",sFileName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring unknown file %s",sFileName.c_str());
 		return false;
 	}
 
@@ -258,13 +258,13 @@ bool SMPTE_Fountain::MediaPlaying( class Socket *pSocket, class Message *pMessag
 	m_pStartMediaInfo->m_iStreamID = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str()); 
 	m_pStartMediaInfo->m_sMediaPosition = pMessage->m_mapParameters[COMMANDPARAMETER_MediaPosition_CONST]; 
 
-	g_pPlutoLogger->Write(LV_STATUS,"Setting Time Offset to: %d", pTimeCodeInfo->m_PadBefore);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting Time Offset to: %d", pTimeCodeInfo->m_PadBefore);
 	smpte_stop = m_smpteSongOffset = pTimeCodeInfo->m_StartTime;
 	smpte_cur = smpte_stop - pTimeCodeInfo->m_PadBefore;
 	m_smpteStartXineTime = smpte_stop - m_smpteXineStartupOffset;
 	m_smpteXineSongStop = -1;
 
-	g_pPlutoLogger->Write(LV_STATUS,"SMPTE start: %d, stop %d, xine-start %d", smpte_cur, smpte_stop, m_smpteStartXineTime);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SMPTE start: %d, stop %d, xine-start %d", smpte_cur, smpte_stop, m_smpteStartXineTime);
 	
 	if( pTimeCodeInfo->m_PadBefore )
 	{
@@ -302,12 +302,12 @@ void SMPTE_Fountain::SynchronizationThread()
 				m_smpteXineReportedTime = 0;
 				m_smpteXineSongStop = -1;
 				m_smpteStartXineTime = 0;
-				g_pPlutoLogger->Write(LV_STATUS, "Sending Xine start command");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending Xine start command");
 				DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,m_pDevice_Xine->m_dwPK_Device,
 					m_pStartMediaInfo->m_iPK_MediaType,m_pStartMediaInfo->m_iStreamID,m_pStartMediaInfo->m_sMediaPosition,m_pStartMediaInfo->m_sFilename);
 				CMD_Play_Media.m_pMessage->m_mapParameters[COMMANDPARAMETER_OriginatorNumber_CONST] = StringUtils::itos(m_dwPK_Device);
 				SendCommand(CMD_Play_Media);
-				g_pPlutoLogger->Write(LV_STATUS, "Finished sending Xine start command");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished sending Xine start command");
 			}
 		}
 		else

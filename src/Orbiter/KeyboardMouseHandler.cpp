@@ -102,7 +102,7 @@ void KeyboardMouseHandler::Move(int X,int Y,int PK_Direction)
 {
 	if( !m_pObj && !m_spDatagridMouseHandlerHelper->m_dwPK_Direction_ScrollGrid && m_PK_Direction_Last && PK_Direction!=m_PK_Direction_Last && m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 	{
-g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed direction");
+LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed direction");
 		// The user is reversing direction.  Recenter so we don't switch back to easily, to give that 'pop' feel to the button
 		PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();
 		m_pMouseBehavior->SetMousePosition( rect.X + rect.Width/2,
@@ -136,7 +136,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move changed directio
 	PK_Direction = m_pMouseBehavior->GetDirectionAwayFromHighlight(X,Y);
 	if( PK_Direction )
 	{
-g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highlight %d at %d,%d",PK_Direction,X,Y);
+LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highlight %d at %d,%d",PK_Direction,X,Y);
 		DesignObj_Orbiter *pObj_Before = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted;
 /*
 		// Let's see if we've been highlighting a datagrid and moved past the top or bottom
@@ -164,7 +164,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::Move away from highli
 		if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted && 
 			pObj_Before!=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 		{
-g_pPlutoLogger->Write(LV_FESTIVAL,"KeyboardMouseHandler::Move was %s now %s after direction %d",
+LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"KeyboardMouseHandler::Move was %s now %s after direction %d",
 					  pObj_Before->m_ObjectID.c_str(),m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_ObjectID.c_str(),PK_Direction);
 			m_pMouseBehavior->HighlightObject(m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted);
 
@@ -209,7 +209,7 @@ void KeyboardMouseHandler::MoveExternalApp(int X,int Y)
 		Notch = X/NotchSize - 10;
 	else
 		Notch = Y/NotchSize - 10;
-g_pPlutoLogger->Write(LV_FESTIVAL,"Notch %d  horizontal %d  %d,%d",Notch,(int) bHorizontal,X,Y);
+LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"Notch %d  horizontal %d  %d,%d",Notch,(int) bHorizontal,X,Y);
 
 	if( Notch<-10 )
 		Notch = -10;
@@ -235,7 +235,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Notch %d  horizontal %d  %d,%d",Notch,(int) b
 			else
 				Frequency = (6-abs(Notch))*400;
 
-g_pPlutoLogger->Write(LV_FESTIVAL,"Frequency %d",Frequency);
+LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"Frequency %d",Frequency);
 			if( bHorizontal )
 			{
 				if( bPage )
@@ -259,7 +259,7 @@ g_pPlutoLogger->Write(LV_FESTIVAL,"Frequency %d",Frequency);
 
 void KeyboardMouseHandler::DoIteration()
 {
-g_pPlutoLogger->Write(LV_FESTIVAL,"Direction %c",m_cDirection);
+LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"Direction %c",m_cDirection);
 	if( m_pObj )
 		IterateObject();
 	else
@@ -436,7 +436,7 @@ bool KeyboardMouseHandler::SlowDrift(int &X,int &Y)
 {
 	if( m_spDatagridMouseHandlerHelper->m_dwPK_Direction_ScrollGrid )
 		return false;
-g_pPlutoLogger->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::SlowDrift");
+LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"xxKeyboardMouseHandler::SlowDrift");
 	if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 	{
 		PlutoRectangle rect = m_pMouseBehavior->GetHighlighedObjectCoordinates();

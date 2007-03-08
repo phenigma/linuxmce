@@ -51,7 +51,7 @@ void Proxy_OrbiterRenderer_SDL::DisplayImageOnScreen(SDL_Surface *pScreenImage)
 
 	if(NULL != OrbiterLogic()->m_pScreenHistory_Current)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen Current screen: %s",  
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen Current screen: %s",  
 			OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
 	}
 

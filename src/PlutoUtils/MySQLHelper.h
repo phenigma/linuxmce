@@ -111,8 +111,8 @@ public:
 		PLUTO_SAFETY_LOCK_ERRORSONLY(sl,m_MySqlMutex);
 		if( bReset && m_pMySQL )
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_WARNING,"Resetting mysql connection");
+			
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Resetting mysql connection");
 			mysql_close(m_pMySQL);
 			m_pMySQL=NULL;
 		}
@@ -123,14 +123,14 @@ public:
 
 // commented since it can taint the Confirm dependencies output.
 // 		if  ( m_bConnectFromConstructor )
-// 			g_pPlutoLogger->Write(LV_STATUS, "MysqlHelper connecting to: %s, Port: %d, Database: %s", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
+// 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MysqlHelper connecting to: %s, Port: %d, Database: %s", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
 // 		else
-// 			g_pPlutoLogger->Write(LV_WARNING, "MysqlHelper reconnecting to failed Host: %s, Port: %d, Database: %s", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
+// 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "MysqlHelper reconnecting to failed Host: %s, Port: %d, Database: %s", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
 
 		if (mysql_real_connect(m_pMySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Connect failed %s",mysql_error(m_pMySQL));
+			
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Connect failed %s",mysql_error(m_pMySQL));
 			m_bConnected=false;
 		}
 		else
@@ -165,33 +165,33 @@ public:
 		int iresult;
 		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
+			
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			MySQLConnect(true);
 			return NULL;
 		}
 	//	else
-	//		g_pPlutoLogger->Write(LV_WARNING,"Query succeeded: %s (%d)",query.c_str(),iresult);
+	//		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query succeeded: %s (%d)",query.c_str(),iresult);
 
-	//	g_pPlutoLogger->Write(LV_STATUS,"store result: %s",query.c_str());
+	//	LoggerWrapper::GetInstance()->Write(LV_STATUS,"store result: %s",query.c_str());
 
 	#ifdef DEBUG
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 
 		MYSQL_RES *pMYSQL_RES = mysql_store_result(m_pMySQL);
 #ifdef LOG_ALL_QUERIES
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_STATUS,"Query returned %d rows: %s",(int) (pMYSQL_RES ? pMYSQL_RES->row_count : 0), query.c_str());
+		
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Query returned %d rows: %s",(int) (pMYSQL_RES ? pMYSQL_RES->row_count : 0), query.c_str());
 #endif
 		return pMYSQL_RES;
 	}
@@ -207,8 +207,8 @@ public:
 		{
 			if( bIgnoreErrors )
 				return -1;
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
+			
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			MySQLConnect(true);
 			return -1;
 		}
@@ -217,17 +217,17 @@ public:
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 #ifdef LOG_ALL_QUERIES
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_STATUS,"Executed query %s (%d rows)", query.c_str(), (int) mysql_affected_rows(m_pMySQL));
+		
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executed query %s (%d rows)", query.c_str(), (int) mysql_affected_rows(m_pMySQL));
 #endif
 		return (int) mysql_affected_rows(m_pMySQL);
 	}
@@ -241,8 +241,8 @@ public:
 		int iresult;
 		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
+			
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			MySQLConnect(true);
 			return 0;
 		}
@@ -251,17 +251,17 @@ public:
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 #ifdef LOG_ALL_QUERIES
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_STATUS,"Query has ID %d: %s", (int) mysql_insert_id(m_pMySQL), query.c_str());
+		
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Query has ID %d: %s", (int) mysql_insert_id(m_pMySQL), query.c_str());
 #endif
 		return (int) mysql_insert_id(m_pMySQL);
 	}

@@ -43,7 +43,7 @@ void* MessageBufferThread( void* param ) // renamed to cancel link-time name col
 		p->Run();
 	p->m_bThreadRunning=false;
 	
-	g_pPlutoLogger->Write(LV_STATUS,"Exiting MessageBufferThread thread...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Exiting MessageBufferThread thread...");
 
 	return NULL;
 }
@@ -60,7 +60,7 @@ MessageBuffer::MessageBuffer(class Command_Impl *pCommand_Impl)
 	if(pthread_create( &pt, NULL, MessageBufferThread, (void*)this) )
 	{
 		m_bThreadRunning=false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create message processing queue" );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create message processing queue" );
 	}
 	m_pMessage_In_Process=NULL;
 }
@@ -77,12 +77,12 @@ bool MessageBuffer::BufferMessage(Message *pMessage)
 		Message *pMessageInQueue = *it;
 		if( MessagesConflict(pMessageInQueue,pMessage) )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"MessageBuffer::BufferMessage dropping message %p",pMessageInQueue);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MessageBuffer::BufferMessage dropping message %p",pMessageInQueue);
 			m_listMessage.erase(it);
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"MessageBuffer::BufferMessage adding to queue message %p",pMessage);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MessageBuffer::BufferMessage adding to queue message %p",pMessage);
 
 	m_listMessage.push_back(pMessage);
 	pthread_cond_broadcast( &m_MessageBufferCond );
@@ -103,7 +103,7 @@ void MessageBuffer::Run()
 			m_pMessage_In_Process = m_listMessage.front();
 			m_listMessage.pop_front();
 			mb.Release();
-			g_pPlutoLogger->Write(LV_STATUS,"MessageBuffer::Run processing message %p",m_pMessage_In_Process);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MessageBuffer::Run processing message %p",m_pMessage_In_Process);
 			m_pMessage_In_Process->m_bCanBuffer = false;
 			m_pCommand_Impl->ReceivedMessage(m_pMessage_In_Process);
 			delete m_pMessage_In_Process; // Since it wasn't auto-deleted like non-buffered messages

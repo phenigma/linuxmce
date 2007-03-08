@@ -47,17 +47,14 @@ using namespace std;
 using namespace DCE;
 DCEConfig dceConfig;
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger;
-}
+
 
 int main(int argc, char *argv[])
 {
 #ifndef WIN32
-	g_pPlutoLogger = new FileLogger("/var/log/pluto/PlutoDHCP.log");
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/PlutoDHCP.log");
 #else
-	g_pPlutoLogger = new FileLogger("c:/temp/PlutoDHCP.log");
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"c:/temp/PlutoDHCP.log");
 #endif
 
 	int iPK_Device=0;
@@ -118,7 +115,7 @@ int main(int argc, char *argv[])
 	string args;
 	for(int optnum=1;optnum<argc;++optnum)
 		args += string(argv[optnum]) + " ";
-	g_pPlutoLogger->Write(LV_STATUS,"Called with: %s",args.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Called with: %s",args.c_str());
 
 	PlutoDHCP PlutoDHCP(dceConfig.m_iPK_Installation,dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
 	if( !PlutoDHCP.IsConnected() )

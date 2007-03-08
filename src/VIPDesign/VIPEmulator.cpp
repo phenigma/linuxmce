@@ -35,21 +35,17 @@
 
 
 class PlutoConfig *gp_PlutoConfig=NULL;
-class Logger *g_pPlutoLogger;
 
 void* EmulatorThread(void* param)
 {
-	g_pPlutoLogger = new DCEFileLogger("C:\\temp.log");
-	if(g_pPlutoLogger == NULL)
-		fprintf(stderr,"Problem creating logger.  Check params.\n");
-
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"C:\\temp.log");
 
 	VIPEmulator *pServer = new VIPEmulator();
 	pServer->Initialize();
 	pServer->StartListening(3461);//gp_PlutoConfig->m_iServerPort);
 	pServer->Run();
 	delete pServer;
-	delete g_pPlutoLogger;
+	
 	return NULL;
 }
 

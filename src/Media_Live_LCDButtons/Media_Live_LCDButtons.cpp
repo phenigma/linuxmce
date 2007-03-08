@@ -79,14 +79,14 @@ Media_Live_LCDButtons::~Media_Live_LCDButtons()
 {
 	g_QuitButtonThread=true;
 	g_pMedia_Live_LCDButtons=NULL;
-	g_pPlutoLogger->Write( LV_STATUS, "Joining Keyboard Loop Thread" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Joining Keyboard Loop Thread" );
 	if( m_KeyboardLoopThread_Id )
 	{
 		pthread_cancel(m_KeyboardLoopThread_Id);
 		pthread_join(m_KeyboardLoopThread_Id,NULL);
 	}
 	delete m_pKeyboardDevice;
-	g_pPlutoLogger->Write( LV_STATUS, "Done" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Done" );
 }
 
 //<-dceag-getconfig-b->
@@ -103,10 +103,10 @@ bool Media_Live_LCDButtons::GetConfig()
 		if( sBlockDevice.empty() )
 			sBlockDevice = "/dev/input/event0";
 		m_pKeyboardDevice = strdup( sBlockDevice.c_str() );
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::GetConfig Orbiter: %d dev: %s", m_pDevice_Orbiter->m_dwPK_Device, m_pKeyboardDevice);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::GetConfig Orbiter: %d dev: %s", m_pDevice_Orbiter->m_dwPK_Device, m_pKeyboardDevice);
 		if(pthread_create( &m_KeyboardLoopThread_Id, NULL, KeyboardLoop, (void*) m_pKeyboardDevice) )
 		{
-			g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create PNP thread" );
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create PNP thread" );
 		}
 	}
 
@@ -183,7 +183,7 @@ void Media_Live_LCDButtons::CMD_Display_Message(string sText,string sType,string
 		return;
 	NewMessage(atoi(sType.c_str()),sName,sText,atoi(sTime.c_str()));
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Display_Message type %d name: %s text: %s time: %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Display_Message type %d name: %s text: %s time: %d",
 		atoi(sType.c_str()),sName.c_str(),sText.c_str(),atoi(sTime.c_str()));
 #endif
 }
@@ -228,7 +228,7 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		{
 			m_bSpeakerIcon_Last=bSpeakerIcon_Last;
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State speaker icon to: %d", (int) m_bSpeakerIcon_Last);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State speaker icon to: %d", (int) m_bSpeakerIcon_Last);
 #endif
 			if( m_bSpeakerIcon_Last )
 				VFDIconOn(m_VfdHandle, VFD_ICON_SPEAKER);
@@ -240,7 +240,7 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		{
 			m_bVolumeIcon_Last=bVolumeIcon_Last;
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume icon to: %d", (int) m_bVolumeIcon_Last);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume icon to: %d", (int) m_bVolumeIcon_Last);
 #endif
 			if( m_bVolumeIcon_Last )
 				VFDIconOn(m_VfdHandle, VFD_ICON_VOLUME);
@@ -252,7 +252,7 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		{
 			m_iVfdVolumeLevel_Last=iVfdVolumeLevel_Last;
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume level: %d", (int) m_bVolumeIcon_Last);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume level: %d", (int) m_bVolumeIcon_Last);
 #endif
 			VFDSetVolume(m_VfdHandle, m_iVfdVolumeLevel_Last);
 		}
@@ -305,7 +305,7 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		return; // Nothing to do.  The state is unchanged
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Changing playback state %s from %d to %d source %d from %d to %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Changing playback state %s from %d to %d source %d from %d to %d",
 		sValue_To_Assign.c_str(),m_iPlayBackIcon_Last,PlayBackIcon,iPK_MediaType,m_iSourceIcon_Last,iSourceIcon_Last);
 #endif
 
@@ -343,7 +343,7 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 		{
 			VFDSetString(m_VfdHandle, VFD_STR_REGION_1, 0, (unsigned char *) sLine1.c_str());
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 1 %d=%s", size1, sLine1.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 1 %d=%s", size1, sLine1.c_str());
 #endif
 			m_sLine1Last=sLine1;
 		}
@@ -356,7 +356,7 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 		{
 			VFDSetString(m_VfdHandle, VFD_STR_REGION_3, 0, (unsigned char *) sLine2.c_str());
 #ifdef DEBUG
-			g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 2 %d=%s", size2, sLine2.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 2 %d=%s", size2, sLine2.c_str());
 #endif
 			m_sLine2Last = sLine2;
 		}
@@ -377,7 +377,7 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 	if( iVfdScrollRegionLast!=m_iVfdScrollRegionLast )
 	{
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay m_iVfdScrollRegionLast %d iVfdScrollRegionLast %d",m_iVfdScrollRegionLast, iVfdScrollRegionLast);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay m_iVfdScrollRegionLast %d iVfdScrollRegionLast %d",m_iVfdScrollRegionLast, iVfdScrollRegionLast);
 #endif
 		m_iVfdScrollRegionLast = iVfdScrollRegionLast;
 		VFDSetScrollRegion( m_VfdHandle, m_iVfdScrollRegionLast );
@@ -387,7 +387,7 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 
 void Media_Live_LCDButtons::ButtonCallBack(int PK_Button)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Live_LCDButtons::ButtonCallBackFn Button %d",PK_Button);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::ButtonCallBackFn Button %d",PK_Button);
 	DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_dwPK_Device,m_pDevice_Orbiter->m_dwPK_Device,StringUtils::itos(PK_Button),"keypad");
 	SendCommand(CMD_Simulate_Keypress);
 }

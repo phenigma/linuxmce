@@ -322,20 +322,20 @@ bool XPromptUser::EventLoop()
 			if( XCheckTypedEvent(m_pDisplay, Expose, &event) ||
 				XCheckTypedEvent(m_pDisplay, ButtonRelease, &event) )
 					break;
-			g_pPlutoLogger->Write(LV_STATUS,"nO EVENT time %d timeout %d",(int) time(NULL), (int) m_tTimeout);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"nO EVENT time %d timeout %d",(int) time(NULL), (int) m_tTimeout);
 			if( m_tTimeout && m_tTimeout<time(NULL) )
 			{
-g_pPlutoLogger->Write(LV_STATUS,"Timed out waiting for prompt user");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Timed out waiting for prompt user");
 				return true;
 }
 			usleep(250000); // Don't hog the cpu
 		}
 
-g_pPlutoLogger->Write(LV_STATUS,"got event %d (%d)",(int) event.type,(int) ButtonRelease);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"got event %d (%d)",(int) event.type,(int) ButtonRelease);
 
 		switch (event.type) {
 		case Expose:
-			if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "XPromptUser: Expose event");
+			if (LoggerWrapper::GetInstance()) LoggerWrapper::GetInstance()->Write(LV_STATUS, "XPromptUser: Expose event");
 			DrawWindow();
 			break;
 		case ButtonRelease:
@@ -372,7 +372,7 @@ void XPromptUser::UnloadFonts()
 void XPromptUser::Init()
 {
 	Display *pDisplay = XOpenDisplay(NULL);
-    g_pPlutoLogger->Write(LV_STATUS, "XPromptUser::Init(): pDisplay=%d ->Opened", pDisplay);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "XPromptUser::Init(): pDisplay=%d ->Opened", pDisplay);
 	int nScreenNo = DefaultScreen(pDisplay);
 	int nDesktopX = DisplayWidth(pDisplay, nScreenNo);
 	int nDesktopY = DisplayHeight(pDisplay, nScreenNo);
@@ -401,7 +401,7 @@ void XPromptUser::DeInit()
 	DestroyWindow();
 	XSync(m_pDisplay, false);
 	XCloseDisplay(m_pDisplay);
-    g_pPlutoLogger->Write(LV_STATUS, "XPromptUser::DeInit(): pDisplay=%d ->Closed", m_pDisplay);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "XPromptUser::DeInit(): pDisplay=%d ->Closed", m_pDisplay);
 	m_pDisplay = NULL;
 	
 }

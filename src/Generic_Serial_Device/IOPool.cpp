@@ -32,7 +32,7 @@ IOPool::handleStartup() {
 	IOConnection* pconn = getConnection();
 	if(pconn) {
 		if( pconn->Open()==false )
-			g_pPlutoLogger->Write(LV_CRITICAL,"IOPool::handleStartup Open() failed");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"IOPool::handleStartup Open() failed");
 	}
 	return LoopStateMachine::handleStartup();
 }
@@ -48,7 +48,7 @@ IOPool::handleIteration() {
 	if(pstate != NULL) {
 		if(!pconn->isOpened()) {
 			if(!pconn->Open()) {	
-				g_pPlutoLogger->Write(LV_CRITICAL,"IOPool::handleIteration Open() failed");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"IOPool::handleIteration Open() failed");
 				usleep(FAIL_SLEEP_TIME * 1000);
 				return true;
 			} else {

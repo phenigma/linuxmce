@@ -53,14 +53,9 @@
 #define EOL "\n"
 #endif
 
-namespace DCE
-{
-	class Logger *g_pPlutoLogger;
-}
-
 int main(int argc, char *argv[])
 {
-	g_pPlutoLogger=new FileLogger("DCEGen.log");
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"DCEGen.log");
 	string DBHost="dcerouter",DBUser="root",DBPassword="",DBName="pluto_main";
 	string TemplateInput="../DCEGen",TemplateOutput="",GeneratedOutput="../Gen_Devices";
 	int DBPort=3306,PK_DeviceTemplate=0;
@@ -216,7 +211,7 @@ DCEGen::DCEGen(int PK_DeviceTemplate,string GeneratedOutput,string TemplateInput
 	m_sTemplateInput=TemplateInput;
 	m_sTemplateOutput=TemplateOutput;
 
-	m_spDatabase_pluto_main.reset(new Database_pluto_main(g_pPlutoLogger));
+	m_spDatabase_pluto_main.reset(new Database_pluto_main(LoggerWrapper::GetInstance()));
 
 	if( !m_spDatabase_pluto_main->Connect(DBHost,DBUser,DBPassword,DBName,DBPort) )
 	{
@@ -576,7 +571,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\t\t\tif( !event_Impl.m_pClientSocket->ReceiveString( sResponse ) || sResponse!=\"OK\" )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tCannotReloadRouter();" << endl;
-	fstr_DeviceCommand << "\t\t\t\t\t\tg_pPlutoLogger->Write(LV_WARNING,\"Reload request denied: %s\",sResponse.c_str());" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\tLoggerWrapper::GetInstance()->Write(LV_WARNING,\"Reload request denied: %s\",sResponse.c_str());" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t\t\tSleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away" << endl;
 	fstr_DeviceCommand << "\t\t\t\t}\t" << endl;
@@ -956,7 +951,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 
 		fstr_DeviceCommand << "\t};" << endl;
 	}
-	fstr_DeviceCommand << "\tg_pPlutoLogger->Write(LV_STATUS, \"Got CreateData for unknown type %d.\", iPK_DeviceTemplate);"<< endl;
+	fstr_DeviceCommand << "\tLoggerWrapper::GetInstance()->Write(LV_STATUS, \"Got CreateData for unknown type %d.\", iPK_DeviceTemplate);"<< endl;
 	fstr_DeviceCommand << "\treturn NULL;" << endl;
 	fstr_DeviceCommand << "}" << endl << endl;
 
@@ -979,7 +974,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		}
 		fstr_DeviceCommand << "\t};"<< endl;
 	}
-	fstr_DeviceCommand << "\tg_pPlutoLogger->Write(LV_STATUS, \"Got CreateEvent for unknown type %d.\", dwPK_DeviceTemplate);"<< endl;
+	fstr_DeviceCommand << "\tLoggerWrapper::GetInstance()->Write(LV_STATUS, \"Got CreateEvent for unknown type %d.\", dwPK_DeviceTemplate);"<< endl;
 	fstr_DeviceCommand << "\treturn NULL;"<< endl;
 	fstr_DeviceCommand << "}"<< endl;
 
@@ -1006,7 +1001,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		}
 		fstr_DeviceCommand << "\t};" << endl;
 	}
-	fstr_DeviceCommand << "\tg_pPlutoLogger->Write(LV_STATUS, \"Got CreateCommand for unknown type %d.\", PK_DeviceTemplate);"<< endl;
+	fstr_DeviceCommand << "\tLoggerWrapper::GetInstance()->Write(LV_STATUS, \"Got CreateCommand for unknown type %d.\", PK_DeviceTemplate);"<< endl;
 	fstr_DeviceCommand << "\treturn NULL;"<< endl;
 	fstr_DeviceCommand << "}"<< endl;
 	fstr_DeviceCommand.close();

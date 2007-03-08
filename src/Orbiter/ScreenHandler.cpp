@@ -81,7 +81,7 @@ void ScreenHandler::RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCa
 void ScreenHandler::ResetCallBacks()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::ResetCallBacks");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ResetCallBacks");
 #endif
 	PLUTO_SAFETY_LOCK(vm, m_MapMutex);
 	m_mapCallBack.clear();
@@ -271,7 +271,7 @@ bool ScreenHandler::MediaBrowsre_Intercepted(CallBackData *pData)
 	{
 		DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get();
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowsre_Intercepted got the play button %p",pDataGridTable);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowsre_Intercepted got the play button %p",pDataGridTable);
 #endif
 		if( pDataGridTable )
 		{
@@ -466,7 +466,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		if( !mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get() )
 			return false; //shouldn't happen
 
-g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play Media higlighted %s",mediaFileBrowserOptions.m_sSelectedFile.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play Media higlighted %s",mediaFileBrowserOptions.m_sSelectedFile.c_str());
 
 //		m_pOrbiter->CMD_Remove_Popup("","filedetails");
 /*
@@ -606,7 +606,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_DatagridSelected sel value %s text %s row %d col %d cell value %s",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_DatagridSelected sel value %s text %s row %d col %d cell value %s",
 			pCellInfoData->m_sValue.c_str(),pCellInfoData->m_sText.c_str(),
 			pCellInfoData->m_Row,pCellInfoData->m_Column,
 			pCellInfoData->m_pDataGridCell && pCellInfoData->m_pDataGridCell->m_Value ? pCellInfoData->m_pDataGridCell->m_Value : "*NONE*");
@@ -644,7 +644,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 		}
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid pic %p list %p pich %d,%d  listh %d,%d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid pic %p list %p pich %d,%d  listh %d,%d",
 			pCell_Pic,pCell_List,mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn : -999,
 			mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow : -999,
 			0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
@@ -654,7 +654,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 			return true; // Shouldn't happen
 
 #ifdef DEBUG
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid value %s text %s",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid value %s text %s",
 			pCell_List->m_Value ? pCell_List->m_Value : "*NULL*",pCell_List->m_Text ? pCell_List->m_Text : "*NULL*");
 #endif
 
@@ -1052,16 +1052,16 @@ void ScreenHandler::SCREEN_CurrentlyActiveRemote(long PK_Screen)
 	if( !m_pOrbiter->UsesUIVersion2() &&  // TODO -- Is this right?????  When we say go to remote, we always want the chapters, right??
 		m_pOrbiter->m_bIsOSD && m_pOrbiter->m_iPK_Screen_RemoteOSD && m_pOrbiter->m_iLocation_Initial==m_pOrbiter->m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SCREEN_CurrentlyActiveRemote osd ui2 going to %d",m_pOrbiter->m_iPK_Screen_RemoteOSD);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SCREEN_CurrentlyActiveRemote osd ui2 going to %d",m_pOrbiter->m_iPK_Screen_RemoteOSD);
 		m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_RemoteOSD);
 	}
 	else if( m_pOrbiter->m_iPK_Screen_Remote )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SCREEN_CurrentlyActiveRemote going to %d",m_pOrbiter->m_iPK_Screen_Remote);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SCREEN_CurrentlyActiveRemote going to %d",m_pOrbiter->m_iPK_Screen_Remote);
 		m_pOrbiter->CMD_Goto_Screen("",m_pOrbiter->m_iPK_Screen_Remote);
 	}
 	else
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::SCREEN_CurrentlyActiveRemote no remote");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SCREEN_CurrentlyActiveRemote no remote");
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Computing(long PK_Screen)
@@ -1434,7 +1434,7 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 	string sOption1, string sMessage1, string sOption2, string sMessage2,
 	string sOption3, string sMessage3, string sOption4, string sMessage4,string sID)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::DisplayMessageOnOrbiter screen %d message %s option 1 %s / %s 2: %s / %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::DisplayMessageOnOrbiter screen %d message %s option 1 %s / %s 2: %s / %s",
 		PK_Screen,sMessage.c_str(),sOption1.c_str(),sMessage1.c_str(),sOption2.c_str(),sMessage2.c_str());
 
 	NeedToRender render2( m_pOrbiter, "ScreenHandler::DisplayMessageOnOrbiter" );  // Redraw anything that was changed by this command
@@ -1732,7 +1732,7 @@ bool ScreenHandler::Sensors_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::BadGotoScreen(int PK_Screen)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHandler::BadGotoScreen %d",PK_Screen);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ScreenHandler::BadGotoScreen %d",PK_Screen);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void ScreenHandler::SCREEN_Download_are_ready_to_install(long PK_Screen, int iPK_Device,
@@ -1929,7 +1929,7 @@ bool ScreenHandler::AddSoftware_ObjectSelected(CallBackData *pData)
 			string sID = m_pOrbiter->m_pScreenHistory_Current->ScreenID();
 			int PK_Software = atoi( StringUtils::Tokenize( sID, ",", pos ).c_str() );
 			string sInstallation_Status = StringUtils::Tokenize( sID, ",", pos );
-g_pPlutoLogger->Write(LV_CRITICAL,"Fix this, the id is always the first one, then remove the variables below %s",sID.c_str());
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Fix this, the id is always the first one, then remove the variables below %s",sID.c_str());
 		 PK_Software=m_PK_Software;
 		sInstallation_Status=m_sInstallationStatus;
 			// Valid Installation status are: [I]nstalled, [i]nstalling, [R]emoved, [r]emoving
@@ -1973,7 +1973,7 @@ bool ScreenHandler::AddSoftware_GridRendering(CallBackData *pData)
 		string sStatus = pCell->m_mapAttributes_Find("Installation_status");
 #ifdef DEBUG
 		string s = (pCell->GetText() ? pCell->GetText() : "*NO TEXT") + string("/") + (pCell->GetValue() ? pCell->GetValue() : "*NO VALUE");
-		g_pPlutoLogger->Write(LV_STATUS,"ScreenHandler::AddSoftware_GridRendering %s=%s",s.c_str(),sStatus.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::AddSoftware_GridRendering %s=%s",s.c_str(),sStatus.c_str());
 #endif
 
 		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
