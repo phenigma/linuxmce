@@ -35,6 +35,8 @@ class Database_pluto_media;
 class MediaAttributes_LowLevel;
 class Row_Disc;
 
+#define MTX_CMD "/opt/mtx-pluto/bin/mtx"
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -329,6 +331,7 @@ only slots that were scheduled for ripping will appear in the string */
 			vector<pair<string, string> > m_vectDrive; // first: /dev/sr0 (disc), second: /dev/sg1 (generic SCSI)
 			string m_sChanger;
 			vector<Disk_Drive_Functions *> m_vectDDF;
+			bool m_bMtxAltres;
 
 			bool Get_Jukebox_Status(string * sJukebox_Status, bool bForce = false);
 			

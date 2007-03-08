@@ -55,7 +55,7 @@ namespace nsJobHandler
 Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Powerfile_C200_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, m_bStatusCached(false), m_pJob(NULL), m_DriveMutex("Powerfile drive mutex", true)
+	, m_bStatusCached(false), m_pJob(NULL), m_DriveMutex("Powerfile drive mutex", true), m_bMtxAltres(false)
 {
     m_pDatabase_pluto_media = NULL;
 	m_pMediaAttributes_LowLevel = NULL;
@@ -160,7 +160,9 @@ bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 #ifdef EMULATE_PF
 		char * args[] = {"/bin/cat", "/tmp/samples/mtx-status", NULL};
 #else
-		char * args[] = {"/usr/sbin/mtx", "-f", (char *) m_sChanger.c_str(), "nobarcode", "status", NULL};
+		char * args1[] = {MTX_CMD, "-f", (char *) m_sChanger.c_str(), "nobarcode", "status", NULL};
+		char * args2[] = {MTX_CMD, "-f", (char *) m_sChanger.c_str(), "altres", "nobarcode", "status", NULL};
+		char ** args = m_bMtxAltres ? args2 : args1;
 #endif
 		if (ProcessUtils::GetCommandOutput(args[0], args, sOutput))
 		{
@@ -332,7 +334,7 @@ bool Powerfile_C200::GetConfig()
 			if (1 == 0
 					|| /* Powerfile C200 */     (vsFF[2] == "Escient"  && vsFF[3] == "Powerfile"    && vsFF[4] == "C200" && (iField = 7))
 					|| /* Powerfile R200 DLC */ (vsFF[2] == "PowrFile" && vsFF[3] == "C200"                              && (iField = 6))
-					|| /* Sony VAIO XL1B2 */    (vsFF[2] == "Sony"     && vsFF[3] == "VAIOChanger1"                      && (iField = 6))
+					|| /* Sony VAIO XL1B2 */    (vsFF[2] == "Sony"     && vsFF[3] == "VAIOChanger1"                      && (iField = 6, m_bMtxAltres = true))
 				)
 			{
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found changer unit: %s", vsFF[iField].c_str());
@@ -449,7 +451,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 #ifdef EMULATE_PF
 	string sCmd = "/bin/true";
 #else
-	string sCmd = string("mtx -f ") + m_sChanger + " nobarcode load " + itos(iSlot_Number) + " " + itos(iDrive_Number);
+	string sCmd = string(MTX_CMD " -f ") + m_sChanger + (m_bMtxAltres ? "altres" : "") + " nobarcode load " + itos(iSlot_Number) + " " + itos(iDrive_Number);
 #endif
 
 	sCMD_Result = "FAILED";
@@ -475,7 +477,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 			//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 			//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			//system(sCmd.c_str());
-			sCmd = "mtx -f " + m_vectDrive[iDrive_Number].second + " nobarcode eject"; // this is a patched version of mtx
+			sCmd = MTX_CMD " -f " + m_vectDrive[iDrive_Number].second + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			int iRet = system(sCmd.c_str());
 			if (iRet == -1)
@@ -540,7 +542,7 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 #ifdef EMULATE_PF
 	string sCmd = "/bin/true";
 #else
-	string sCmd = string("mtx -f ") + m_sChanger + " nobarcode unload " + itos(iSlot_Number) + " " + itos(iDrive_Number);
+	string sCmd = string(MTX_CMD " -f ") + m_sChanger + (m_bMtxAltres ? "altres" : "") + " nobarcode unload " + itos(iSlot_Number) + " " + itos(iDrive_Number);
 #endif
 	
 	sCMD_Result = "FAILED";
@@ -562,7 +564,7 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 			//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 			//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			//system(sCmd.c_str());
-			sCmd = "mtx -f " + m_vectDrive[iDrive_Number].second + " nobarcode eject"; // this is a patched version of mtx
+			sCmd = MTX_CMD " -f " + m_vectDrive[iDrive_Number].second + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			int iRet = system(sCmd.c_str());
 			if (iRet == -1)
