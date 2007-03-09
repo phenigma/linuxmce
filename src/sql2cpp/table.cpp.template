@@ -188,7 +188,7 @@ bool Table_@table_name@::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailed
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrappper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -236,7 +236,7 @@ bool Table_@table_name@::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailed
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrappper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -276,7 +276,7 @@ bool Table_@table_name@::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailed
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrappper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		
@@ -311,7 +311,7 @@ bool Table_@table_name@::GetRows(string where_statement,vector<class Row_@table_
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		LoggerWrappper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return false;
 	}	
 
@@ -320,7 +320,7 @@ bool Table_@table_name@::GetRows(string where_statement,vector<class Row_@table_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
-		LoggerWrappper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::GetRows mysql_store_result returned NULL handler");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::GetRows mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
@@ -411,7 +411,7 @@ Row_@table_name@* Table_@table_name@::FetchRow(@table_key@ &key)
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		LoggerWrappper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 		return NULL;
 	}	
 
@@ -420,7 +420,7 @@ Row_@table_name@* Table_@table_name@::FetchRow(@table_key@ &key)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
-		LoggerWrappper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::FetchRow mysql_store_result returned NULL handler");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_@table_name@::FetchRow mysql_store_result returned NULL handler");
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
