@@ -33,6 +33,7 @@
 	#include <unistd.h>
 	#include <fcntl.h>
 	#include <fnmatch.h>
+	#include <sys/vfs.h>
 #ifdef USE_HTTP_FETCHER
 	extern "C"
 	{
@@ -642,6 +643,26 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 
     _findclose(ptrFileList);
 #else // Linux
+	/*
+	 * Blacklist filesystems
+	 */
+	{
+		struct statfs s;
+		if (statfs(sDirectory.c_str(), &s) == -1)
+		{
+			printf("Error doing statfs on '%s'.\n", sDirectory.c_str());
+			return false;
+		}
+
+		switch (s.f_type)
+		{
+			case 0x9fa0 /*PROC_SUPER_MAGIC*/:
+				printf("Skipping proc filesystem in '%s'\n", sDirectory.c_str());
+				return false;
+				break;
+		}
+	}
+
 	bool bCreatedTempMap=false;
 	map<u_int64_t,bool>::iterator itInode;
 	if( bRecurse && pMapInodes==NULL )
