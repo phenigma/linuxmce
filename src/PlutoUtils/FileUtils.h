@@ -74,6 +74,8 @@ namespace FileUtils
     string ValidCPPName( string sInput ); /** < converts the input file name to a valid CPP file name */
     time_t FileDate(string sFileName); /** < returns the date of the last file modification or 0 if error */
 
+	bool BlackListedFileSystem(string sDirectory); /** < check if a directory is on a blacklisted filesystem (ex: proc) */
+
 	/** < scan sDirectory, for files matching any of the sFileSpec_TabSep (ie *.jpg\ta*\tbcd*.mpg), and store the names in listFiles.  
 	Optionally recurse into sub-directories up to a level (0 = no limit). If the max depth was hit return true. 
 	The prepended path will be prepended to any files that are found.  Normally this is for internal use only while recursing. 

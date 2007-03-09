@@ -588,6 +588,29 @@ time_t FileUtils::FileDate(string sFile)
 
 }
 
+/*
+ * Blacklist filesystems
+ */
+bool FileUtils::BlackListedFileSystem(string sDirectory)
+{
+	struct statfs s;
+	if (statfs(sDirectory.c_str(), &s) == -1)
+	{
+		printf("Error doing statfs on '%s'.\n", sDirectory.c_str());
+		return true;
+	}
+
+	switch (s.f_type)
+	{
+		case 0x9fa0 /*PROC_SUPER_MAGIC*/:
+			return true;
+			break;
+	}
+
+	// if we don't know anything about it, it means it's not on the black list
+	return false;
+}
+
 #include <iostream>
 using namespace std;
 
@@ -630,12 +653,18 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
             }
 
 			if ( iMaxFileCount && iMaxFileCount < int(listFiles.size()) )
+			{
+				_findclose(ptrFileList);
 				return true; // max depth hit
+			}
         }
         else if (bRecurse && (finddata.attrib & _A_SUBDIR) && finddata.name[0] != '.')
 		{
 			if ( FindFiles(listFiles, sDirectory + finddata.name, sFileSpec_TabSep, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
+			{
+				_findclose(ptrFileList);
 				return true; // if one recursive call hit the maximum depth then return now.
+			}
 		}
         if (_findnext(ptrFileList, & finddata) < 0)
             break;
@@ -643,25 +672,8 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 
     _findclose(ptrFileList);
 #else // Linux
-	/*
-	 * Blacklist filesystems
-	 */
-	{
-		struct statfs s;
-		if (statfs(sDirectory.c_str(), &s) == -1)
-		{
-			printf("Error doing statfs on '%s'.\n", sDirectory.c_str());
-			return false;
-		}
-
-		switch (s.f_type)
-		{
-			case 0x9fa0 /*PROC_SUPER_MAGIC*/:
-				printf("Skipping proc filesystem in '%s'\n", sDirectory.c_str());
-				return false;
-				break;
-		}
-	}
+	if (BlackListedFileSystem(sDirectory))
+		return false;
 
 	bool bCreatedTempMap=false;
 	map<u_int64_t,bool>::iterator itInode;
@@ -783,9 +795,15 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
 	            listDirectories.push_back(PrependedPath + finddata.name);
 
 			if ( iMaxFileCount && iMaxFileCount < int(listDirectories.size()) )
+			{
+				_findclose(ptrFileList);
 				return true; // max depth hit
+			}
 			if (bRecurse && FindDirectories(listDirectories, sDirectory + finddata.name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
-					return true; // if one recursive call hit the maximum depth then return now.
+			{
+				_findclose(ptrFileList);
+				return true; // if one recursive call hit the maximum depth then return now.
+			}
 		}
         if (_findnext(ptrFileList, & finddata) < 0)
             break;
@@ -793,6 +811,9 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
 
     _findclose(ptrFileList);
 #else // Linux
+	if (BlackListedFileSystem(sDirectory))
+		return false;
+
 	bool bCreatedTempMap=false;
 	map<u_int64_t,bool>::iterator itInode;
 	if( bRecurse && pMapInodes==NULL )
@@ -853,6 +874,7 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
 			{
 				if( bCreatedTempMap )
 					delete pMapInodes;
+				closedir(dirp);
 				return true;
 			}
         
@@ -860,6 +882,7 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
 			{
 				if( bCreatedTempMap )
 					delete pMapInodes;
+				closedir(dirp);
 				return true;
 			}
 		}
