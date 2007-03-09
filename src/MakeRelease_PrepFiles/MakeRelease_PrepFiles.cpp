@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
 			continue;
 
 		size_t s;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing file '%s'", sFile.c_str());
 		char *pBuffer = FileUtils::ReadFileIntoBuffer(sFile,s);
 		if( pBuffer )
 		{
@@ -95,6 +96,10 @@ int main(int argc, char *argv[])
 			if( ReplaceTags(str,*it) )
 				FileUtils::WriteBufferIntoFile(sFile,str.c_str(),str.size());
 			delete pBuffer;
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to process file '%s'", sFile.c_str());
 		}
 	}
 
