@@ -36,9 +36,7 @@ ReloadWatcher_Background()
 	/usr/pluto/bin/Start_LocalDevices.sh
 }
 
-#<-mkr_B_via_b->
 export LD_LIBRARY_PATH=/opt/libxine1-pluto/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib
-#<-mkr_B_via_e->
 
 Log "$LogFile" "== ATTEMPT FRESH START =="
 AlreadyRunning="/usr/pluto/locks/pluto_spawned_local_devices.txt"
