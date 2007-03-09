@@ -78,11 +78,12 @@ Logger::Logger( const char* pcName ) : m_Lock( "logger" )
 //  m_dwPK_Installation = atoi( StringUtils::get_pluto_parameter( "INSTALLATION" ).c_str() );
 
 	m_bLogLevels=NULL;
-	ReloadLogLevels();
 
     pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
     m_Lock.Init( &m_MutexAttr );
+
+	ReloadLogLevels();
 }
 
 Logger::~Logger()
@@ -106,6 +107,7 @@ void Logger::SetName( const char* pcName )
 
 void Logger::ReloadLogLevels()
 {
+    PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
 	delete m_bLogLevels;
 	m_bLogLevels=NULL;
 	m_iMaxLogLevel=0;
