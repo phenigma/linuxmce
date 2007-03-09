@@ -61,11 +61,6 @@
 
 #define  VERSION "<=version=>"
 
-namespace DCE
-{
-	Logger *
-}
-
 using namespace DCE;
 
 int WINAPI WinMain(	HINSTANCE hInstance,
