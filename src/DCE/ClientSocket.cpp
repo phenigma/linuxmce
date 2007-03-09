@@ -72,20 +72,16 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 
 	if ( m_Socket != INVALID_SOCKET )
 	{
-#ifdef DEBUG
 		
-			LoggerWrapper::GetInstance()->Write( LV_SOCKET, "ClientSocket::Connect - disconnecting previous socket this: %p device: %d m_Socket: %d", this, m_dwPK_Device, m_Socket );
-#endif
+			LoggerWrapper::GetInstance()->Write( LV_DEBUG, "ClientSocket::Connect - disconnecting previous socket this: %p device: %d m_Socket: %d", this, m_dwPK_Device, m_Socket );
 		Disconnect();
 	}
 
 	m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
 
-//#ifdef DEBUG
 		//commented this because we don't want messagesend to output debug info like this.
 		//
 		//	LoggerWrapper::GetInstance()->Write( LV_SOCKET, "ClientSocket::Connect - created m_Socket: %d", m_Socket );
-//#endif
 
 	/** @todo check comment */
 	//int b = 1;

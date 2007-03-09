@@ -43,9 +43,7 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 
 	m_bTapAndRelease=false; // We'll set it to true later
 	string sResponse;
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler setting playback speed to 0 device %d",m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::SpeedMouseHandler setting playback speed to 0 device %d",m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying);
 
 	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","1","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0,0);  // 0 for the screen means don't send us to the real remote if we're on the wrong one
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
@@ -59,9 +57,7 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar || !m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying )
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler skipping because the speed wasn't changed by the mouse or nothing is playing");
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::SpeedMouseHandler skipping because the speed wasn't changed by the mouse or nothing is playing");
 		return;
 	}
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,0,true);
@@ -72,14 +68,10 @@ SpeedMouseHandler::~SpeedMouseHandler()
 {
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::]`SpeedMouseHandler skipping because the speed wasn't changed by the mouse");
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::]`SpeedMouseHandler skipping because the speed wasn't changed by the mouse");
 		return;
 	}
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::~SpeedMouseHandler setting playback speed to normal");
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::~SpeedMouseHandler setting playback speed to normal");
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","0","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0,0);
@@ -90,9 +82,7 @@ void SpeedMouseHandler::Start()
 {
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar || !m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying )
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::Start skipping because the speed wasn't changed by the mouse");
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::Start skipping because the speed wasn't changed by the mouse");
 		return;
 	}
 	PlutoRectangle rect(m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X,
@@ -100,9 +90,7 @@ void SpeedMouseHandler::Start()
 		m_pObj->m_rPosition.Width,1);
 	m_pMouseBehavior->ConstrainMouse(rect);
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::Start timeline %d m_iTime_Last_Mouse_Up); %d",(int) m_pMouseBehavior->m_bHasTimeline, (int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::Start timeline %d m_iTime_Last_Mouse_Up); %d",(int) m_pMouseBehavior->m_bHasTimeline, (int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(500);
 	if( !m_pMouseBehavior->m_bHasTimeline || m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 		m_bTapAndRelease=true;
@@ -138,18 +126,14 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 {
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::ButtonDown skipping because the speed wasn't changed by the mouse");
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::ButtonDown skipping because the speed wasn't changed by the mouse");
 		return false; // Keep processing
 	}
 	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
 	{
 		m_pMouseBehavior->m_tIgnoreSpeedChangesUntil = time(NULL) + 3;  // Ignore all speed changes for 2 seconds so the player has a chance to settle down
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::ButtonDown setting playback speed to 0");
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::ButtonDown setting playback speed to 0");
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 		if( PK_Button==BUTTON_Mouse_2_CONST && m_pMouseBehavior->m_bHasTimeline )
@@ -167,18 +151,14 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 {
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::ButtonUp skipping because the speed wasn't changed by the mouse");
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::ButtonUp skipping because the speed wasn't changed by the mouse");
 		return false; // Keep processing
 	}
 	if( PK_Button==BUTTON_Mouse_6_CONST )  // The user was in press and hold mode, or tapped again after the menu appeared on screen
 	{
 		// There is a logic flaw that when there's only a speed control and no vertical, it goes straight here and immediately stops
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::ButtonUp setting playback speed to 0");
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::ButtonUp setting playback speed to 0");
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 		m_pMouseBehavior->Clear(true);
@@ -191,9 +171,7 @@ void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 {
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::Move skipping because the speed wasn't changed by the mouse");
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::Move skipping because the speed wasn't changed by the mouse");
 		return;
 	}
 	m_iLastGoodPosition = X;
@@ -212,9 +190,7 @@ void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 		}
 		if( Notch!=m_iLastNotch )
 		{
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::Move setting playback speed to %d",Speed);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"SpeedMouseHandler::Move setting playback speed to %d",Speed);
 			DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,Speed,true);
 			m_pMouseBehavior->m_pMouseGovernor->SendMessage(CMD_Change_Playback_Speed.m_pMessage);
 			m_iLastNotch=Notch;

@@ -892,9 +892,7 @@ void Telecom_Plugin::HangupAllCalls()
 	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
 	std::list<CallData*>::iterator it = calls->begin();
 	std::list<std::string> text_list;
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::HangupAllCalls hanging up %d -- disabled for now",calls->size());
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Telecom_Plugin::HangupAllCalls hanging up %d -- disabled for now",calls->size());
 	while(it != calls->end())
 	{
 		CallData *pCallData = *it;
@@ -1165,9 +1163,7 @@ void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sC
 {
 	if( !iPK_Users )
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::CMD_Set_User_Mode no user specified.  Doing current user on orbiter %d",pMessage->m_dwPK_Device_From);
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Telecom_Plugin::CMD_Set_User_Mode no user specified.  Doing current user on orbiter %d",pMessage->m_dwPK_Device_From);
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 		if( pOH_Orbiter && pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_iPK_Users )
 			iPK_Users = pOH_Orbiter->m_pOH_User->m_iPK_Users;
@@ -2202,10 +2198,8 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 
 	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom orbiter %d device %d user %d room %d calls %d",
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Telecom_Plugin::FollowMe_EnteredRoom orbiter %d device %d user %d room %d calls %d",
 		iPK_Orbiter, iPK_Device, iPK_Users, iPK_RoomOrEntArea, (int) calls->size());
-#endif
 
 	for(std::list<CallData*>::iterator it = calls->begin();it != calls->end();++it)
 	{

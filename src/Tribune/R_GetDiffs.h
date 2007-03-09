@@ -48,6 +48,7 @@ public:
 	map <string,string> m_mapGenre;
 	map <string,string> m_mapRole;
 	std::ostringstream clientfile;
+	std::ostringstream mythclientfile;
 
 	/** @brief Response Variables */
 	string m_clientfile;

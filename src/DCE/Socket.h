@@ -185,9 +185,7 @@ namespace DCE
 		bool m_bQuit_get() { return m_bQuit; }
 		void m_bQuit_set(bool bQuit)
 		{
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Socket m_Socket %d/%p %s m_bQuit=%d",(int) m_Socket, this, m_sName.c_str(),(int) bQuit);
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Socket m_Socket %d/%p %s m_bQuit=%d",(int) m_Socket, this, m_sName.c_str(),(int) bQuit);
 			m_bQuit=bQuit;
 		}
 

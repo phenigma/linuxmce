@@ -63,10 +63,8 @@ MeshFrame::MeshFrame(string Name, MeshContainer* Mesh)
 
 MeshFrame::~MeshFrame(void)
 {
-#ifdef DEBUG_MESH_FRAMES
 	if(m_bDontReleaseTexture)
 		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Not releasing texture for %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
-#endif
 
 	if(IsVolatile() && NULL != m_pMeshContainer && !m_bDontReleaseTexture)
 		m_pMeshContainer->DisposeTextures();
@@ -108,9 +106,7 @@ void MeshFrame::MarkAsVolatileRecursively()
 
 /*virtual*/ void MeshFrame::CleanUp(bool VolatilesOnly/* = false*/)
 {
-#ifdef DEBUG_MESH_FRAMES
 	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::CleanUp: %p/%s", this, m_sName.c_str());	
-#endif
 
 	vector<MeshFrame*>::iterator Child;
 	for(Child = Children.begin(); Child!=Children.end();++Child)
@@ -153,10 +149,8 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 		//throw "Frame already has a parent";
 	}
 
-#ifdef DEBUG_MESH_FRAMES
 	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::AddChild: Added %p/%s to %p/%s", Frame, Frame->m_sName.c_str(),
 		this, m_sName.c_str());	
-#endif
 
 	Children.push_back(Frame);
 	Frame->m_pParent = this;
@@ -187,10 +181,8 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 		{
 			Frame->m_pParent->Children.erase(Child);
 
-#ifdef DEBUG_MESH_FRAMES
 			DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::RemoveChild %p/%s from parent %p/%s", 
 				Frame, Frame->m_sName.c_str(), Frame->m_pParent, Frame->m_pParent->m_sName.c_str());
-#endif
 
 			Frame->m_pParent = NULL;
 
@@ -234,11 +226,9 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 			NewFrame->m_pParent = OldFrame->m_pParent;
 			*Child = NewFrame;
 
-#ifdef DEBUG_MESH_FRAMES
 			DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "ttt MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
 				OldFrame, OldFrame->m_sName.c_str(), OldFrame->m_pParent, OldFrame->m_pParent->m_sName.c_str(),
 				NewFrame, NewFrame->m_sName.c_str());
-#endif
 
 			if(NewFrame != OldFrame && NULL != OldFrame && OldFrame->IsVolatile())
 			{

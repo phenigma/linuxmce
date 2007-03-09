@@ -88,10 +88,8 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 		Vertexes[Count].ApplyTransform(Transform);
 	}
 	
-#ifdef DEBUG
 	//if(Container.NoTriangles)
 		//DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "GL_TRIANGLES");
-#endif
 
 	glBegin(GL_TRIANGLES);
 	for(Count = 0; Count < Container.NoTriangles; Count++)
@@ -137,7 +135,7 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 	}
 	glEnd();
 
-#ifdef DEBUG_LINES
+#ifdef DEBUG
 	for(Count = 0; Count < Container.NoTriangles; Count++) 
 	{
 		MeshTriangle& Triangle = Container.Triangles[Count];

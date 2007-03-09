@@ -39,9 +39,7 @@ void LightMouseHandler::Start()
 	m_pMouseBehavior->ConstrainMouse(rect);
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_UpDown);
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"LightMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"LightMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(500);
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{
@@ -66,9 +64,7 @@ void LightMouseHandler::Stop()
 {
 NeedToRender render( m_pMouseBehavior->m_pOrbiter, "change light" );
 m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj);
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_CORPCLIENT,"m_pObj.disabled = true");
-#endif
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"m_pObj.disabled = true");
 }
 
 bool LightMouseHandler::ButtonDown(int PK_Button)

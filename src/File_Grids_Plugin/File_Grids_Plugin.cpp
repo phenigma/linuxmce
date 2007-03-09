@@ -139,9 +139,8 @@ void File_Grids_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMes
 
 class DataGridTable * File_Grids_Plugin::FileList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_WARNING,"Starting File list");
-#endif
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Starting File list");
+
 	int iMaxColumns = atoi( pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str() );
 	int PK_DataGrid = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_DataGrid_CONST].c_str());
 	FileListGrid *pDataGrid = new FileListGrid(m_pDatagrid_Plugin,m_pMedia_Plugin);

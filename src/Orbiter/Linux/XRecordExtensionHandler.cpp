@@ -221,37 +221,27 @@ bool XRecordExtensionHandler::enableRecording(bool bEnable)
 void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInterceptData *pRecordedData)
 {
 	XRecordExtensionHandler *pRecordingHandler = (XRecordExtensionHandler*)pData;
-#ifdef DEBUG
 //	LoggerWrapper::GetInstance()->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback cat %d rrr",(int)pRecordedData->category);
-#endif
 	switch ( pRecordedData->category )
 	{
 		case XRecordStartOfData:
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "XRecordExtensionHandler::XRecordingDataCallback(): Recording context enabled.");
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "XRecordExtensionHandler::XRecordingDataCallback(): Recording context enabled.");
 			pRecordingHandler->m_iMouseX = pRecordingHandler->m_iMouseY = -1;
 
 			pRecordingHandler->m_isRecordingEnabled = true;
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "XRecordExtensionHandler::XRecordingDataCallback(): Signalling.");
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "XRecordExtensionHandler::XRecordingDataCallback(): Signalling.");
 			pthread_cond_signal(&pRecordingHandler->recordingStateChangedCondition);
 			break;
 
 		case XRecordEndOfData:
 			pRecordingHandler->m_isRecordingEnabled = false;
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "XRecordExtensionHandler::XRecordingDataCallback(): Recording context got end of data.");
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "XRecordExtensionHandler::XRecordingDataCallback(): Recording context got end of data.");
 			pthread_cond_signal(&pRecordingHandler->recordingStateChangedCondition);
 			break;
 
 		default:
 			pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent, pRecordingHandler->m_pDisplay);
-#ifdef DEBUG
 //LoggerWrapper::GetInstance()->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback pRecordingHandler->processXRecordToOrbiterEvent %p rrr",pRecordingHandler->m_pOrbiter);
-#endif
 			if ( pRecordingHandler->m_pOrbiter )
 			{
 				Orbiter::Event *pEvent = new Orbiter::Event;
@@ -268,17 +258,13 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 							pEvent_cb && pEvent_cb->type==Orbiter::Event::MOUSE_MOVE )
 								pCallBackInfo->m_bStop=true;
 					}
-#ifdef DEBUG
 //LoggerWrapper::GetInstance()->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback queueing to orbiter mouse x %d y %d",
 //					  pEvent->data.region.m_iX,pEvent->data.region.m_iY);
-#endif
 				}
 				else
 				{
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback queueing to orbiter button type %d key %d keycode %d",
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"XRecordExtensionHandler::XRecordingDataCallback queueing to orbiter button type %d key %d keycode %d",
 					  pEvent->type,pEvent->data.button.m_iPK_Button,pEvent->data.button.m_iKeycode);
-#endif
 				}
 				pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 			}
@@ -289,9 +275,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"XRecordExtensionHandler::XRecordi
 
 void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData *pRecordedData, Orbiter::Event *orbiterEvent, Display *pDisplay)
 {
-#ifdef DEBUG
 //LoggerWrapper::GetInstance()->Write(LV_STATUS, "XRecordExtensionHandler::processXRecordToOrbiterEvent cat %d",(int) pRecordedData->category);
-#endif
 	switch (pRecordedData->category )
 	{
 		case XRecordFromServer:
@@ -303,9 +287,7 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 			{
 				case KeyPress: case KeyRelease: // key related events types
 	                    orbiterEvent->type = pxEvent->u.u.type == KeyPress ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
-#ifdef DEBUG
-    	                LoggerWrapper::GetInstance()->Write(LV_WARNING, "Key %s with keycode %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail);
-#endif
+    	                LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Key %s with keycode %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail);
 						orbiterEvent->data.button.m_bSimulated = false;
         	            orbiterEvent->data.button.m_iKeycode = pxEvent->u.u.detail;
         	            orbiterEvent->data.button.m_iPK_Button = 0;

@@ -77,9 +77,7 @@ public:
 	{
 if( m_ObjectID.find(".5110.")!=string::npos )
 int k=2;
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"m_GraphicToDisplay_set %s %s=%d",sCalling.c_str(),m_ObjectID.c_str(),GraphicToDisplay);
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"m_GraphicToDisplay_set %s %s=%d",sCalling.c_str(),m_ObjectID.c_str(),GraphicToDisplay);
 		m_GraphicToDisplay=GraphicToDisplay;
 		if( bSetUnhighlightedState )
 			m_GraphicBeforeHighlight=GraphicToDisplay;

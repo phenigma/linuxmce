@@ -64,9 +64,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 	usb_set_debug(255);
 
 	usb_init();
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents starting");
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PlutoHIDInterface::ProcessHIDEvents starting");
 
 	while(!m_pOrbiter->m_bQuit_get())  // an outer loop so this will retry a connect if the remote is removed and reconnected
 	{
@@ -82,16 +80,12 @@ void PlutoHIDInterface::ProcessHIDEvents()
 
 		for (bus = busses; bus; bus = bus->next) 
 		{
-	#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents bus %s",bus->dirname);
-	#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PlutoHIDInterface::ProcessHIDEvents bus %s",bus->dirname);
 			struct usb_device *dev;
 
 			for (dev = bus->devices; dev; dev = dev->next) {
 
-	#ifdef DEBUG
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents %04x:%04x\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
-	#endif
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PlutoHIDInterface::ProcessHIDEvents %04x:%04x\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
 				if ( (dev->descriptor.idVendor==0x0c16) && (dev->descriptor.idProduct==0x0006) )  // The gyration remote
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDEvents device found!");
@@ -255,9 +249,7 @@ bool PlutoHIDInterface::DoStartMouse()
 		perror("error: ");
 		return false;
 	}
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::StartMouse remote %d",m_iRemoteID);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PlutoHIDInterface::StartMouse remote %d",m_iRemoteID);
 	return true;
 }
 
@@ -282,9 +274,7 @@ bool PlutoHIDInterface::DoStopMouse()
 		perror("error: ");
 		return false;
 	}
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::StopMouse remote %d",m_iRemoteID);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PlutoHIDInterface::StopMouse remote %d",m_iRemoteID);
 	return true;
 }
 
@@ -368,9 +358,7 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 		m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 		if( p_Packet[3]==0 )
 		{
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton button %d was released",m_iHoldingDownButton);
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PlutoHIDInterface::ProcessHIDButton button %d was released",m_iHoldingDownButton);
 			m_iHoldingDownButton=0;  // we're not holding down any buttons anymore
 			return true;
 		}

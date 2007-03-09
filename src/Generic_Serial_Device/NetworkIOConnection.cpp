@@ -107,10 +107,8 @@ NetworkIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 		}
 	}
 	
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received buffer from %s: <%s>", 
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Received buffer from %s: <%s>", 
 									host_.c_str(), IOUtils::FormatHexAsciiBuffer(buff, retsize).c_str(),"33");
-#endif
 
 	return retsize;
 }

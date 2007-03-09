@@ -448,7 +448,7 @@ public:
 	}
 
 	void Write_long(long v) {
-#ifdef DEBUG_SERIALIZATION
+#ifdef DEBUG
 		cout << "Writing long " << v << " size: " << (int) CurrentSize() << endl;
 #endif
 		CheckWrite(sizeof(long));
@@ -491,7 +491,7 @@ public:
 
 	void Write_string(string &str)
 	{
-#ifdef DEBUG_SERIALIZATION
+#ifdef DEBUG
 		cout << "Writing string " << str << " size: " << (int) CurrentSize() << endl;
 #endif
 #ifndef SYMBIAN
@@ -590,7 +590,7 @@ public:
 		/** @todo check comment */
 		//long myval = long(*pl);
 
-#ifdef DEBUG_SERIALIZATION
+#ifdef DEBUG
 		cout << "Reading long " << ((long) myval2) << " size: " << (int) CurrentSize() << endl;
 #endif
 		//return (long)*pl;
@@ -656,7 +656,7 @@ public:
 
 */
 
-#ifdef DEBUG_SERIALIZATION
+#ifdef DEBUG
 		cout << "Reading string " << str << " size: " << (int) CurrentSize() << endl;
 #endif
 	}

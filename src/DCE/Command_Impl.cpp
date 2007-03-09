@@ -74,13 +74,9 @@ void *WatchDogThread( void *pData )
 
 	while( !pCommand_Impl->m_bStopWatchdog)
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "About to send PING to the router.");
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "About to send PING to the router.");
 		string sResponse = pCommand_Impl->SendReceiveString( "PING " + StringUtils::itos( pCommand_Impl->m_dwPK_Device ), PING_TIMEOUT );
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sent PING to the router.");
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Sent PING to the router.");
 
 		if ( sResponse != "PONG" )
 		{
@@ -95,9 +91,7 @@ void *WatchDogThread( void *pData )
 		}
 		else
 		{
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received PONG from the router.");
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Received PONG from the router.");
 			Sleep(5000);
 		}
 	}
@@ -732,9 +726,7 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 			{
 				string ValueOld = m_pData->m_mapParameters[(*p).first];
 				m_pData->m_mapParameters[(*p).first] = (*p).second;
-#ifdef DEBUG
-				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updating data parm %d with %s (Device %d).", (*p).first, (*p).second.c_str(), m_dwPK_Device );
-#endif
+				LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Updating data parm %d with %s (Device %d).", (*p).first, (*p).second.c_str(), m_dwPK_Device );
 				SendString( "OK" );
 				OnDataChange( (*p).first, ValueOld, (*p).second );
 			}
@@ -818,9 +810,7 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 	// Just put it in the queue.  The queue will delete pPreformedCommand.m_pMessage after sending
 	if( iConfirmation == 0 || ( iConfirmation == -1 && !pPreformedCommand.m_pcResponse ) )
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand queue  id %d conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"InternalSendCommand queue  id %d conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
 		if( m_bLocalMode )
 		{
 #ifndef WINCE
@@ -837,9 +827,7 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 	// We need a response.  It will be a string if there are no out parameters
 	if( !pPreformedCommand.m_pcResponse )
 	{
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand confirmation id %d conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
-#endif
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"InternalSendCommand confirmation id %d conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
 		pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;  // i.e. just an "OK"
 		string sResponse; // We'll use this only if a response wasn't passed in
 		if( !p_sResponse )
@@ -864,10 +852,8 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand confirmation 
 		else
 			bResult = m_pcRequestSocket->SendMessage( pPreformedCommand.m_pMessage, *p_sResponse );
 
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand confirmation done id %d conf %d resp %p (%d) %s type %d id %d to %d",
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"InternalSendCommand confirmation done id %d conf %d resp %p (%d) %s type %d id %d to %d",
 					  pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str(),Type,ID,PK_Device_To);
-#endif
 		if( !bResult )
 		{
 			// If the connection between this device and dcerouter is still ok, we will have always gotten a response,
@@ -886,10 +872,8 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand confirmation 
 		}
 		return bResult && *p_sResponse == "OK";
 	}
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand id %d out parm conf %d resp %p",
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"InternalSendCommand id %d out parm conf %d resp %p",
 					  pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
-#endif
 	// There are out parameters, we need to get a message back in return
 	pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse;
@@ -908,10 +892,8 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand id %d out par
 	}
 	else
 		pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out done id %d conf %d resp %p %p %d type %d id %d to %d",
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"InternalSendCommand out done id %d conf %d resp %p %p %d type %d id %d to %d",
 	pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0),Type,ID,PK_Device_To);
-#endif
 	if( !pResponse || pResponse->m_dwID != 0 )
 	{
 		if(pResponse)
@@ -942,9 +924,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out done id %
 		*p_sResponse = sResponse;
 
 	bool bResult = sResponse=="OK";
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out id %d parm exiting conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
-#endif
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"InternalSendCommand out id %d parm exiting conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
 	delete pResponse;
 	return bResult;
 }

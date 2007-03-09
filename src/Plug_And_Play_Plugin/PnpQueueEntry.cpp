@@ -142,9 +142,7 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,Row_Pnp
 
 void PnpQueueEntry::Stage_set(int Stage)
 { 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueueEntry::Stage_set queue %d now set to %d", m_pRow_PnpQueue->PK_PnpQueue_get(),Stage);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "PnpQueueEntry::Stage_set queue %d now set to %d", m_pRow_PnpQueue->PK_PnpQueue_get(),Stage);
 	m_pRow_PnpQueue->Stage_set(Stage); 
 	if( Stage==PNP_DETECT_STAGE_DONE || Stage==PNP_REMOVE_STAGE_DONE )
 		m_pRow_PnpQueue->Processed_set(1);
@@ -173,9 +171,7 @@ void PnpQueueEntry::Stage_set(int Stage)
 
 void PnpQueueEntry::Block(EBlockedState eBlockedState)
 {
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueueEntry::Block queue %d blocked state was %d, now %d", m_pRow_PnpQueue->PK_PnpQueue_get(),(int) m_EBlockedState,(int) eBlockedState);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "PnpQueueEntry::Block queue %d blocked state was %d, now %d", m_pRow_PnpQueue->PK_PnpQueue_get(),(int) m_EBlockedState,(int) eBlockedState);
 	m_EBlockedState=eBlockedState;
 	m_tTimeBlocked=time(NULL);
 }
@@ -208,11 +204,9 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PnpQueueEntry::FindTopLevelDevi
 					  m_pRow_PnpQueue->PK_PnpQueue_get(),m_pRow_PnpQueue->FK_Device_Reported_get());
 		m_pRow_Device_Reported = m_pDatabase_pluto_main->Device_get()->GetRow(m_pPlug_And_Play_Plugin->m_dwPK_Device);
 	}
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueueEntry::FindTopLevelDevice queue %d has reporter %d/ room%d",
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PnpQueueEntry::FindTopLevelDevice queue %d has reporter %d/ room%d",
 		m_pRow_PnpQueue->PK_PnpQueue_get(),
 		m_pRow_Device_Reported->PK_Device_get(),m_pRow_Device_Reported->FK_Room_get());
-#endif
 	m_dwPK_Device_TopLevel=0;
 	Row_Device *pRow_Device=m_pRow_Device_Reported;
 	while(pRow_Device)
@@ -226,10 +220,8 @@ void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 {
 	for(map<int,string>::iterator it=m_mapPK_DeviceData.begin();it!=m_mapPK_DeviceData.end();++it)
 	{
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueueEntry::AssignDeviceData queue %d Device Data %d=%s",
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PnpQueueEntry::AssignDeviceData queue %d Device Data %d=%s",
 		m_pRow_PnpQueue->PK_PnpQueue_get(),it->first,it->second.c_str());
-#endif
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),it->first,it->second);
 	}
 	if( m_pRow_PnpQueue->SerialNumber_get().size() )
@@ -263,34 +255,26 @@ bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 			m_pRow_PnpQueue->FK_Device_Reported_get()!=pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Reported_get() )
 		{
 			// It's a local, internal device and it's on a different machine so it's not a match
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueueEntry::IsDuplicate queue %d and %d are on different systems",
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PnpQueueEntry::IsDuplicate queue %d and %d are on different systems",
 			m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-#endif
 	return false;
 		}
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueueEntry::IsDuplicate queue %d and %d match so far.  comparing %d to %d",
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PnpQueueEntry::IsDuplicate queue %d and %d match so far.  comparing %d to %d",
 			m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),
 			(int) m_mapPK_DeviceData.size(),(int) pPnpQueueEntry->m_mapPK_DeviceData.size());
-#endif
 
 		// So far it's a match.  Check if there's a com port, since there can be the same identical device on 2 serial ports
 		if( m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==m_mapPK_DeviceData.end() ||
 			pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() ||
 			m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST]==pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST] )
 		{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueueEntry::IsDuplicate queue %d and %d are a match",
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PnpQueueEntry::IsDuplicate queue %d and %d are a match",
 			m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-#endif
 			return true;
 		}
 	}
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueueEntry::IsDuplicate queue %d and %d are no match",
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PnpQueueEntry::IsDuplicate queue %d and %d are no match",
 			m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
-#endif
 	return false;
 }
 

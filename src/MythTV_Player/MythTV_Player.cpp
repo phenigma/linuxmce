@@ -221,9 +221,7 @@ void MythTV_Player::updateMode(string toMode)
 
 void MythTV_Player::pollMythStatus()
 {
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Player::pollMythStatus %d",m_mythStatus);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MythTV_Player::pollMythStatus %d",m_mythStatus);
 	if (m_mythStatus == MYTHSTATUS_STARTUP)
 	{
 		PLUTO_SAFETY_LOCK(mm,m_MythMutex);

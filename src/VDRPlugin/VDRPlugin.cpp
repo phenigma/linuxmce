@@ -624,14 +624,12 @@ class DataGridTable *VDRPlugin::FavoriteShows(string GridID, string Parms, void 
 bool VDRPlugin::GetVdrAndEpgFromOrbiter(int PK_Device,MediaDevice *&pMediaDevice_VDR,VDREPG::EPG *&pEPG,VDRMediaStream *&pVDRMediaStream)
 {
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 1");
-#ifdef DEBUG
 	if( m_VDRMutex.m_NumLocks==0 || m_pMedia_Plugin->m_MediaMutex.m_NumLocks==0 )
 	{
 		// EPG is volatile and the mutex must be blocked whenever we get a pointer to it, also media plugin to protect teh stream
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::GetVdrAndEpgFromOrbiter you're not holding the vdr mutex");
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"VDRPlugin::GetVdrAndEpgFromOrbiter you're not holding the vdr mutex");
 		return false;
 	}
-#endif
 
 	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device);
 	if( pOH_Orbiter && pOH_Orbiter->m_pEntertainArea )

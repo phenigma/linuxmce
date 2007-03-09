@@ -43,10 +43,8 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl)
 
 	int iResult=pthread_cond_init(&m_RepeatThreadCond, NULL);
 	int iResult2=m_RepeatThreadMutex.Init(NULL,&m_RepeatThreadCond);
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::IRReceiverBase r1 %d r2 %d cond %p",
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"IRReceiverBase::IRReceiverBase r1 %d r2 %d cond %p",
 		iResult,iResult2,&m_RepeatThreadCond);
-#endif
 
 	m_bRepeatKey=false;
 	m_pt_Repeat=0;
@@ -152,10 +150,8 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 	if( m_bIgnore )
 		return;
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::ReceivedCode device %d code %s repeat %s/%d",
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"IRReceiverBase::ReceivedCode device %d code %s repeat %s/%d",
 		PK_Device_Remote,pCode,pRepeat,iRepeat);
-#endif
 
 	char cRemoteLayout = m_mapRemoteLayout[PK_Device_Remote];
 	map<string,MapKeysToMessages *>::iterator it = m_mapKeyMapping.find(StringUtils::ToUpper(pCode));
@@ -211,9 +207,7 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode,const c
 
 void IRReceiverBase::StopRepeatCode()
 {
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::StopRepeatCode");
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"IRReceiverBase::StopRepeatCode");
 	m_bRepeatKey=false;
 	if( m_pt_Repeat )
 	{
@@ -232,19 +226,15 @@ void IRReceiverBase::RepeatThread()
 		return;
 
 	int iRepeat=0;
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::RepeatThread device %d code %s/%d",
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"IRReceiverBase::RepeatThread device %d code %s/%d",
 			m_PK_Device_Remote,m_sRepeatCode.c_str(),iRepeat);
-#endif
 	ReceivedCode(m_PK_Device_Remote,m_sRepeatCode.c_str());
 
 	while( m_bRepeatKey )
 	{
 		rm.TimedCondWait(0,250 * 1000000);
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::RepeatThread_while device %d code %s/%d",
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"IRReceiverBase::RepeatThread_while device %d code %s/%d",
 			m_PK_Device_Remote,m_sRepeatCode.c_str(),iRepeat);
-#endif
 		if( !m_bRepeatKey )
 			return;
 		ReceivedCode(m_PK_Device_Remote,m_sRepeatCode.c_str(),NULL,iRepeat++);

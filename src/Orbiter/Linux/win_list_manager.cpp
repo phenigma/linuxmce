@@ -135,9 +135,7 @@ void WinListManager::ShowSdlWindow(bool bExclusive, bool bYieldInput)
 
 void WinListManager::ShowWindow(const string &sWindowName)
 {
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::ShowWindow %s",sWindowName.c_str());
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WinListManager::ShowWindow %s",sWindowName.c_str());
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	PendingContext(sWindowName).Visible(true);
 }
@@ -160,9 +158,7 @@ void WinListManager::PositionWindow(const string &sWindowName, int x, int y, int
 
 void WinListManager::HideAllWindows()
 {
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::HideAllWindows");
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WinListManager::HideAllWindows");
 	
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	for(WindowsContext::iterator it_pending = m_PendingContext.begin(); it_pending != m_PendingContext.end(); ++it_pending)
@@ -190,9 +186,7 @@ string WinListManager::GetExternApplicationName()
 
 void WinListManager::SetExternApplicationName(const string &sWindowName)
 {
-#ifdef DEBUG
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::SetExternApplicationName(%s)", sWindowName.c_str());
-#endif
+    LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WinListManager::SetExternApplicationName(%s)", sWindowName.c_str());
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     m_sExternApplicationName = sWindowName;
 }
@@ -205,9 +199,7 @@ void WinListManager::GetExternApplicationPosition(PlutoRectangle &coord)
 
 void WinListManager::SetExternApplicationPosition(const PlutoRectangle &coord)
 {
-#ifdef DEBUG
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::SetExternApplicationPosition(), name=%s", m_sExternApplicationName.c_str());
-#endif
+    LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WinListManager::SetExternApplicationPosition(), name=%s", m_sExternApplicationName.c_str());
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     m_coordExternalApplication = coord;
 }
@@ -229,9 +221,7 @@ bool WinListManager::IsWindowAvailable(const string &sClassName)
 
 bool WinListManager::HideWindow(const string &sClassName)
 {
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::ShowWindow %s",sClassName.c_str());
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WinListManager::ShowWindow %s",sClassName.c_str());
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	PendingContext(sClassName).Visible(false);
     return true;
@@ -242,15 +232,13 @@ void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	m_pWMController->ListWindows(listWinInfo);
 
-#ifdef DEBUG
 for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"WinListManager::GetWindows1 %d/%s",it->first,it->second.c_str());
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"WinListManager::GetWindows1 %d/%s",it->first,it->second.c_str());
 
 for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end(); ++it)
 {
-LoggerWrapper::GetInstance()->Write(LV_WARNING,"WinListManager::GetWindows1b id %d desktop %d class %s title %s",it->ulWindowId,it->lDesktop,it->sClassName.c_str(),it->sTitle.c_str());
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"WinListManager::GetWindows1b id %d desktop %d class %s title %s",it->ulWindowId,it->lDesktop,it->sClassName.c_str(),it->sTitle.c_str());
 }
-#endif
 
 	bool bChangesDetected=false;
 
@@ -263,18 +251,14 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"WinListManager::GetWindows1b id 
 		map<unsigned long,string>::iterator itKnownWindows=m_mapKnownWindows.find( it->ulWindowId );
 		if( itKnownWindows == m_mapKnownWindows.end() || itKnownWindows->second != it->sClassName )
 		{
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"WinListManager::GetWindows windows %d-%s is new",
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"WinListManager::GetWindows windows %d-%s is new",
 				it->ulWindowId,it->sClassName.c_str());
-#endif
 			m_mapKnownWindows[it->ulWindowId] = it->sClassName;
 			bChangesDetected=true;
 		}
 		else
 		{
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_WARNING,"WinListManager::GetWindows %d found %d",it->ulWindowId,itKnownWindows == m_mapKnownWindows.end());
-#endif
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"WinListManager::GetWindows %d found %d",it->ulWindowId,itKnownWindows == m_mapKnownWindows.end());
 			mapFoundWindows[ it->ulWindowId ] = true;
 		}
 	}
@@ -284,18 +268,14 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"WinListManager::GetWindows %d fo
 		if( it->second==false )
 		{
 			bChangesDetected=true;
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"WinListManager::GetWindows windows %d-%s is gone",
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"WinListManager::GetWindows windows %d-%s is gone",
 				it->first,m_mapKnownWindows[it->first].c_str());
-#endif
 			m_mapKnownWindows.erase( it->first );
 		}
 	}
 
-#ifdef DEBUG
 for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
-LoggerWrapper::GetInstance()->Write(LV_WARNING,"WinListManager::GetWindows2 %d/%s",it->first,it->second.c_str());
-#endif
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"WinListManager::GetWindows2 %d/%s",it->first,it->second.c_str());
 	if( bChangesDetected )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"WinListManager::GetWindows m_bExternalChange set");
@@ -322,9 +302,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 	list<WinInfo> listWinInfo;
 	GetWindows(listWinInfo);  // Do this first since it may set m_bExternalChange
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"WinListManager::ApplyContext m_bExternalChange %d",(int) m_bExternalChange);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"WinListManager::ApplyContext m_bExternalChange %d",(int) m_bExternalChange);
 	
 	string sExternalWindowToActivate;
 	for(WindowsContext::iterator it_pending = m_PendingContext.begin(); it_pending != m_PendingContext.end(); ++it_pending)
@@ -343,10 +321,8 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 		if(it_current != m_CurrentContext.end() && m_bExternalChange==false && pending_context.IsErrorFlag()==false )
 		{
 			WindowContext &current_context = it_current->second;
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::ApplyContext: applying partial context for '%s': %s vs %s",
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WinListManager::ApplyContext: applying partial context for '%s': %s vs %s",
 				sWindowName.c_str(), pending_context.ToString().c_str(), current_context.ToString().c_str());
-#endif
 
 			if(current_context != pending_context)
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager::ApplyContext: applying diff context for '%s': %s",
@@ -394,10 +370,8 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 		}
 		else
 		{
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::ApplyContext: applying whole context for '%s': %s (ExternalChange: %d ErrorFlag %d)",
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WinListManager::ApplyContext: applying whole context for '%s': %s (ExternalChange: %d ErrorFlag %d)",
 				sWindowName.c_str(), pending_context.ToString().c_str(),(int) m_bExternalChange,(int) pending_context.IsErrorFlag());
-#endif
 			bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 			bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
 			bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());

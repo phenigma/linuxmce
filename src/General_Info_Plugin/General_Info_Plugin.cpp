@@ -1448,9 +1448,7 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 		return pDataGrid;
 	}
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::AddSoftware Starting install list with distro %d Version %s",PK_Distro,sPlutoVersion.c_str());
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"General_Info_Plugin::AddSoftware Starting install list with distro %d Version %s",PK_Distro,sPlutoVersion.c_str());
 	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(atoi(Parms.c_str()));
 	if( pDevice )
 		pDevice = pDevice->GetTopMostDevice();
@@ -2053,11 +2051,9 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 			m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device]=true;
 		}
 	}
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig %d pending configs",(int) m_mapMediaDirectors_PendingConfig.size());
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig %d pending configs",(int) m_mapMediaDirectors_PendingConfig.size());
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig md %d=%d",it->first,(int) it->second);
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig md %d=%d",it->first,(int) it->second);
 }
 
 //<-dceag-c396-b->
@@ -2085,11 +2081,9 @@ void General_Info_Plugin::CMD_Check_for_updates_done(bool bFailed,string &sCMD_R
 
 	m_mapMediaDirectors_PendingConfig[pDevice_AppServer->m_pDevice_ControlledVia->m_dwPK_Device]=false;
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig from %d, %d pending configs",pMessage->m_dwPK_Device_From,(int) m_mapMediaDirectors_PendingConfig.size());
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig from %d, %d pending configs",pMessage->m_dwPK_Device_From,(int) m_mapMediaDirectors_PendingConfig.size());
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig md %d=%d",it->first,(int) it->second);
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"General_Info_Plugin::CMD_Check_for_updates_done m_mapMediaDirectors_PendingConfig md %d=%d",it->first,(int) it->second);
 
 	if( PendingConfigs() )
 		return; // Others are still running
@@ -2509,10 +2503,8 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Create_Device Device Template not specified");
 		return;
 	}
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device template %d mac %s room %d ip %d data %s",
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"General_Info_Plugin::CMD_Create_Device template %d mac %s room %d ip %d data %s",
 		iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str());
-#endif
 	OH_Orbiter *pOH_Orbiter = NULL;
 	if( iPK_Orbiter )
 		pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Orbiter);
@@ -2521,10 +2513,8 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	createDevice.m_bInstallPackagesInBackground = true;
 	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sDescription,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData_String,iPK_Device_Related,iPK_Room > 0 ? iPK_Room : 0);
 
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",
 			*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str());
-#endif
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
 	if( pRow_Device ) // Should always be there
 	{
@@ -2823,9 +2813,7 @@ void General_Info_Plugin::CMD_Check_Mounts(string &sCMD_Result,Message *pMessage
 	ListDeviceData_Router *pListDeviceData_Router = 
 		m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_App_Server_CONST);
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::CMD_Check_Mounts %p",pListDeviceData_Router);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"General_Info_Plugin::CMD_Check_Mounts %p",pListDeviceData_Router);
 
 	if( !pListDeviceData_Router )
 		return;

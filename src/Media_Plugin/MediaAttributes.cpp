@@ -97,17 +97,13 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING, "pl3 = %s %s",sPlaylistName.c_st
 		// We'll just re-write the whole thing out again anyway
 	    vector<Row_PlaylistEntry*> vectRow_PlaylistEntry;
 		pRow_Playlist->PlaylistEntry_FK_Playlist_getrows(&vectRow_PlaylistEntry);
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Deleting %d rows from old playlist",(int) vectRow_PlaylistEntry.size());
-#endif
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Deleting %d rows from old playlist",(int) vectRow_PlaylistEntry.size());
 		for(size_t s=0;s<vectRow_PlaylistEntry.size();++s)
 			vectRow_PlaylistEntry[s]->Delete();
 	}
 
     iPK_Playlist = pRow_Playlist->PK_Playlist_get();
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Save playlist id %d with %d rows",iPK_Playlist,(int) dequeMediaFile.size());
-#endif
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Save playlist id %d with %d rows",iPK_Playlist,(int) dequeMediaFile.size());
 
 	string sFiles;
 	for(size_t s=0;s<dequeMediaFile.size();++s)

@@ -59,13 +59,11 @@ string FileBrowser::NextFile()
 		
 	int Position = -1;
 	do {
-#ifdef DEBUG
 		int r = rand();
 		Position = int(r % m_vectFileList.size());
-		LoggerWrapper::GetInstance()->Write(LV_ALARM, "Purpose file rand %d Position %d", r, Position);
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Purpose file rand %d Position %d", r, Position);
 #else
 		Position = int(rand() % m_vectFileList.size());
-#endif
 		Result = m_vectFileList[Position];
 	} while(Result == LastFile);
 	LastFile = Result;

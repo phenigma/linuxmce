@@ -203,9 +203,9 @@ std::string WizardPageFinalSelections::GetDolbyTestStatus(SettingsDictionary* AV
 
 	if (Wizard::GetInstance()->GetAnalogSoundMode())
 	{
-	#ifdef DEBUG
+#ifdef DEBUG
 		std::cout<<"GetDolbyTestStatus: not available - Analog sound selected"<<std::endl;
-	#endif
+#endif
 		return "not available";
 	}
 
@@ -230,9 +230,9 @@ std::string WizardPageFinalSelections::GetDTSTestStatus(SettingsDictionary* AVWi
 {
 	if (Wizard::GetInstance()->GetAnalogSoundMode())
 	{
-	#ifdef DEBUG
+#ifdef DEBUG
 		std::cout<<"GetDolbyTestStatus: not available - Analog sound selected"<<std::endl;
-	#endif
+#endif
 		return "not available";
 	}
 

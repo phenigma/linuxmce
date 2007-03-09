@@ -67,9 +67,7 @@ void *ProcessCommandsThread(void *p)
 
 				PLUTO_SAFETY_LOCK(csm, pBDCommandProcessor->m_ClientSocketMutex);
 
-				#ifdef DEBUG_BLUETOOTH
-							LoggerWrapper::GetInstance()->Write(LV_STATUS, "Nothing to process right now, sleeping 1 sec");
-				#endif
+							LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Nothing to process right now, sleeping 1 sec");
 
 				csm.TimedCondWait(abstime);
 			#endif
@@ -225,7 +223,7 @@ BDCommandProcessor_Smartphone_Bluetooth::~BDCommandProcessor_Smartphone_Bluetoot
 //------------------------------------------------------------------------------------------------------------
 bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data)
 {
-#ifdef DEBUG_BLUETOOTH
+#ifdef DEBUG
 //	PROF_START();
 #endif
 
@@ -235,9 +233,7 @@ bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data
 		return false;
 	}
 
-#ifdef DEBUG_BLUETOOTH
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sending %d bytes of data", size);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Sending %d bytes of data", size);
 	
 	int br;
 	int bytes_to_send = size;
@@ -259,9 +255,7 @@ bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data
 			bytes_sent += br;
 			bytes_to_send -= br;
 
-#ifdef DEBUG_BLUETOOTH
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sent %d bytes [total %d/%d]", br, bytes_sent, size);
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Sent %d bytes [total %d/%d]", br, bytes_sent, size);
 		}
 
 		if ( br == 0 || WSAGetLastError() == WSAECONNRESET ) 
@@ -277,11 +271,9 @@ bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data
 		return false;
 	}
 
-#ifdef DEBUG_BLUETOOTH
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sent %d bytes of data", size);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Sent %d bytes of data", size);
 
-#ifdef DEBUG_BLUETOOTH
+#ifdef DEBUG
 //	PROF_STOP("Send data");
 #endif
 
@@ -290,7 +282,7 @@ bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data
 //------------------------------------------------------------------------------------------------------------
 char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 {
-#ifdef DEBUG_BLUETOOTH
+#ifdef DEBUG
 //	PROF_START();
 #endif
 
@@ -302,9 +294,7 @@ char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 
 	char *buffer = (char *)malloc(size);
 
-#ifdef DEBUG_BLUETOOTH
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to receive %d bytes of data", size);
-#endif		
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Ready to receive %d bytes of data", size);
 
 	int br = 0;
 	int bytes_to_receive = size;
@@ -325,9 +315,7 @@ char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 			bytes_received += br;
 			bytes_to_receive -= br;
 
-#ifdef DEBUG_BLUETOOTH			
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received %d bytes [total %d/%d]", br, bytes_received, size);
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Received %d bytes [total %d/%d]", br, bytes_received, size);
 		}
 
 		if ( br == 0 || WSAGetLastError() == WSAECONNRESET ) 
@@ -343,11 +331,9 @@ char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 		return NULL;
 	}
 
-#ifdef DEBUG_BLUETOOTH
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received %d bytes of data", size);
-#endif		
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Received %d bytes of data", size);
 
-#ifdef DEBUG_BLUETOOTH
+#ifdef DEBUG
 //	PROF_STOP("Receive data");
 #endif
 
@@ -404,9 +390,7 @@ void BDCommandProcessor_Smartphone_Bluetooth::AddCommand(BDCommand *pCommand)
 {
 	BDCommandProcessor::AddCommand(pCommand);
 
-#ifdef DEBUG_BLUETOOTH
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "You got mail! Wake up and process the command, dear Mr. Socket.");
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "You got mail! Wake up and process the command, dear Mr. Socket.");
 
 	pthread_cond_broadcast(&m_ClientSocketCond);
 }

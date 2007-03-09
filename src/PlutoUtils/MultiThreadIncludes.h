@@ -76,7 +76,7 @@ void valid_timespec(struct timespec &ts);
 		#define PLUTO_SAFETY_LOCK_ERRORSONLY(x,y) PlutoLock x(&y,__FILE__,__LINE__,true);
 		#define PLUTO_SAFETY_LOCK(x,y) PlutoLock x(&y,__FILE__,__LINE__,true);
 		#define PLUTO_SAFETY_LOCK_MESSAGE(x,y,z) PlutoLock x(&y,__FILE__,__LINE__,true,z);
-	#endif
+#endif
 #else
 	#ifdef THREAD_LOG
 		#define PLUTO_SAFETY_LOCK_ERRORSONLY(x,y) PlutoLock x(&y,__FILE__,__LINE__,true);

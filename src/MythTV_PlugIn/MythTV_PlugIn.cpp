@@ -985,9 +985,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				pRow_Device_CaptureCard = pRow_Device_CaptureCard->FK_Device_ControlledVia_getrow();
 				if( !pRow_Device_CaptureCard || !DatabaseUtils::DeviceIsWithinCategory(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_CaptureCard->PK_Device_get(),DEVICECATEGORY_Capture_Cards_CONST) )
 				{
-#ifdef DEBUG
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders not a capture card device %s provider %s",row[0],row[1]);
-#endif
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MythTV_PlugIn::SyncCardsAndProviders not a capture card device %s provider %s",row[0],row[1]);
 					continue;
 				}
 			}

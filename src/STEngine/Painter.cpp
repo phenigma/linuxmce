@@ -67,10 +67,8 @@ void Painter::Setup(ExtensionManager *ExtensionManager)
 		Vertexes[Count] = Container.Vertexes[Count];
 		Vertexes[Count].ApplyTransform(Transform);
 	}
-#ifdef DEBUG
 	//if(Container.NoTriangles)
 		//DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "GL_TRIANGLES");
-#endif
 
 	glBegin(GL_TRIANGLES);
 	for(Count = 0; Count < Container.NoTriangles; Count++)
@@ -116,7 +114,7 @@ void Painter::Setup(ExtensionManager *ExtensionManager)
 	}
 	glEnd();
 
-#ifdef DEBUG_LINES
+#ifdef DEBUG
 	for(Count = 0; Count < Container.NoTriangles; Count++) 
 	{
 		Triangle& Triangle = Container.Triangles[Count];

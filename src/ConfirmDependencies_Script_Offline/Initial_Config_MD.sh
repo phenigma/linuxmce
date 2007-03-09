@@ -29,6 +29,7 @@ UseVideoWizard = 1
 TestInstallation = <-mkr_t_test_installation->
 PK_Device = $Device 
 Activation_Code = 1111
+LogLevels = 1,2,3,4,5,6,7,8,9
 " >> /etc/pluto.conf
 
 chmod 666 /etc/pluto.conf

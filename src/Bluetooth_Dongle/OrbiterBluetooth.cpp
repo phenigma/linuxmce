@@ -97,12 +97,10 @@ void OrbiterBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int
         )
     )
     {
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sending BD_CP_CaptureKeyboard command with parameters: On: %d, Reset: %d, PinType: %d, DataGrid: %d, PK_Variable: %d, Text: %s",
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Sending BD_CP_CaptureKeyboard command with parameters: On: %d, Reset: %d, PinType: %d, DataGrid: %d, PK_Variable: %d, Text: %s",
 			m_bCaptureKeyboard_OnOff, m_bCaptureKeyboard_Reset, m_iCaptureKeyboard_EditType,
 			m_bCaptureKeyboard_DataGrid, m_iCaptureKeyboard_PK_Variable, m_sCaptureKeyboard_Text.c_str()
 		);
-#endif
 		BD_CP_CaptureKeyboard *pBD_CP_CaptureKeyboard = new BD_CP_CaptureKeyboard(
 				m_bCaptureKeyboard_OnOff,
 				m_bCaptureKeyboard_DataGrid,
@@ -171,17 +169,13 @@ void OrbiterBluetooth::ImageGenerated(const string& csImageFileName)
 
 	string sRepeatedKeysList;
 	GetRepeatedKeysForScreen(m_pScreenHistory_Current->GetObj(), sRepeatedKeysList);
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Repeated keys list %s: ", sRepeatedKeysList.c_str());
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Repeated keys list %s: ", sRepeatedKeysList.c_str());
 
 	//load the image into a buffer and create 'BD_CP_ShowImage' command
 	size_t iImageSize;
 	char *pImage = FileUtils::ReadFileIntoBuffer(csImageFileName, iImageSize);
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ready to send a picture, size %d, reporting signal strength %d", iImageSize, bSignalStrengthScreen);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Ready to send a picture, size %d, reporting signal strength %d", iImageSize, bSignalStrengthScreen);
 
 	BD_CP_ShowImage *pBD_CP_ShowImage = new BD_CP_ShowImage(0, (unsigned long)iImageSize, pImage, 
 		(unsigned long)(sRepeatedKeysList.length()), sRepeatedKeysList.c_str(), bSignalStrengthScreen,
@@ -205,9 +199,7 @@ void OrbiterBluetooth::ImageGenerated(const string& csImageFileName)
 	if( m_pBDCommandProcessor )
 		m_pBDCommandProcessor->AddCommand(pBD_CP_ShowImage);
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ShowImage command added to the queue");
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "ShowImage command added to the queue");
 
 }
 //-----------------------------------------------------------------------------------------------------
@@ -256,15 +248,11 @@ void OrbiterBluetooth::Configure( PhoneConfig& cfg )
 
 void OrbiterBluetooth::SelectedItem( string& sItemId )
 {	
-	#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "#	Received SelectedItem: %s", sItemId.c_str() );
-	#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "#	Received SelectedItem: %s", sItemId.c_str() );
 
 	DesignObj_Orbiter *pObj = FindObject(sItemId);
 	if(NULL != pObj) {
-		#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "#	Object found!" );
-		#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "#	Object found!" );
 		SelectedObject(pObj, smKeyboard, 0, 0);
 	}
 }

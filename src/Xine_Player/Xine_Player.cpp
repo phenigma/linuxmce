@@ -1363,9 +1363,7 @@ void Xine_Player::StartNbdDevice(string sMediaURL)
 	string::size_type pos = sMediaURL.find("/dev/device_");
 	if( pos==string::npos )
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s is not a nbd",sMediaURL.c_str());
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Xine_Player::StartNbdDevice %s is not a nbd",sMediaURL.c_str());
 		return;
 	}
 	m_iNbdDevice = atoi(sMediaURL.substr(pos + 12).c_str());

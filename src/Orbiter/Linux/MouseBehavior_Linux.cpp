@@ -130,9 +130,7 @@ void MouseBehavior_Linux::ShowMouse(bool bShow, SetMouseBehaviorRemote setMouseB
 	}
 #endif
 	m_bMouseVisible=bShow;
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior_Linux::ShowMouse %d",(int) bShow);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "MouseBehavior_Linux::ShowMouse %d",(int) bShow);
     if (bShow)
 	{
         ptrOrbiterLinux()->m_pX11->Mouse_ShowStandardCursor(ptrOrbiterLinux()->GetMainWindow());
@@ -155,26 +153,20 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 	bool bResult = true;
 	if(rect.Width == ptrOrbiterLinux()->m_iImageWidth && rect.Height == ptrOrbiterLinux()->m_iImageHeight)
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse: releasing constrain mouse ");
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "MouseBehavior_Linux::ConstrainMouse: releasing constrain mouse ");
 		return ptrOrbiterLinux()->m_pX11->Mouse_Constrain_Release();
 	}
 	else
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d)", rect.X, rect.Y, rect.Width, rect.Height);
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d)", rect.X, rect.Y, rect.Width, rect.Height);
 		bResult = ptrOrbiterLinux()->m_pX11->Mouse_Constrain(rect.X, rect.Y, rect.Width, rect.Height, ptrOrbiterLinux()->GetMainWindow());
 	}
 
 	if (bResult)
 	{
 		ptrOrbiterLinux()->m_pWinListManager->ActivateSdlWindow();
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : done",
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : done",
 			rect.X, rect.Y, rect.Width, rect.Height);
-#endif
 	}
 	else
 	{
@@ -186,9 +178,7 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 
 void MouseBehavior_Linux::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
 {
-#ifdef DEBUG
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior_Linux::SetMousePointerStyle(%d)",(int) mouseCursorStyle);
-#endif
+    LoggerWrapper::GetInstance()->Write(LV_DEBUG, "MouseBehavior_Linux::SetMousePointerStyle(%d)",(int) mouseCursorStyle);
 
 	m_LastCursorStyle = mouseCursorStyle;
 

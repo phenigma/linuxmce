@@ -70,9 +70,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 #endif
 
 	DataGridTable *pDataGridTable = m_pObj_Owner_DataGrid->DataGridTable_Get();
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"RenderDataGrid %s %p",m_pObj_Owner_DataGrid->m_ObjectID.c_str(),pDataGridTable);
-#endif
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"RenderDataGrid %s %p",m_pObj_Owner_DataGrid->m_ObjectID.c_str(),pDataGridTable);
 	if( !pDataGridTable )
 		return;
 
@@ -342,9 +340,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 				sCellObjectHash  //Object hash
 			);
 		}
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Rendering cell with %s",pCell->GetText());        
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Rendering cell with %s",pCell->GetText());        
 		DesignObjText Text(m_pObj_Owner_DataGrid);
 		// todo         Text.m_Rect = PlutoRectangle( x+pObj->BorderWidth,  y+pObj->BorderWidth,  w-( 2*pObj->BorderWidth ),  h-( 2*pObj->BorderWidth ) );
 		Text.m_rPosition = PlutoRectangle( x,  y,  w,  h );

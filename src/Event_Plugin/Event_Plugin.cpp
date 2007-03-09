@@ -111,9 +111,7 @@ bool Event_Plugin::GetConfig()
 		if( pRow_EventHandler->TimedEvent_get() )
 		{
 			TimedEvent *pTimedEvent = new TimedEvent(pRow_EventHandler);
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Adding timed event %d",pRow_EventHandler->PK_EventHandler_get());
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Adding timed event %d",pRow_EventHandler->PK_EventHandler_get());
 			pTimedEvent->m_pCommandGroup = m_pRouter->m_mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get());
 			if( !pTimedEvent->m_pCommandGroup )
 			{

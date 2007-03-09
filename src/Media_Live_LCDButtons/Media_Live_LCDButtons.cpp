@@ -182,10 +182,8 @@ void Media_Live_LCDButtons::CMD_Display_Message(string sText,string sType,string
 	if( !m_VfdHandle )
 		return;
 	NewMessage(atoi(sType.c_str()),sName,sText,atoi(sTime.c_str()));
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Display_Message type %d name: %s text: %s time: %d",
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Live_LCDButtons::CMD_Display_Message type %d name: %s text: %s time: %d",
 		atoi(sType.c_str()),sName.c_str(),sText.c_str(),atoi(sTime.c_str()));
-#endif
 }
 
 //<-dceag-c837-b->
@@ -227,9 +225,7 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		if( bSpeakerIcon_Last!=m_bSpeakerIcon_Last )
 		{
 			m_bSpeakerIcon_Last=bSpeakerIcon_Last;
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State speaker icon to: %d", (int) m_bSpeakerIcon_Last);
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State speaker icon to: %d", (int) m_bSpeakerIcon_Last);
 			if( m_bSpeakerIcon_Last )
 				VFDIconOn(m_VfdHandle, VFD_ICON_SPEAKER);
 			else
@@ -239,9 +235,7 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		if( bVolumeIcon_Last!=m_bVolumeIcon_Last )
 		{
 			m_bVolumeIcon_Last=bVolumeIcon_Last;
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume icon to: %d", (int) m_bVolumeIcon_Last);
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume icon to: %d", (int) m_bVolumeIcon_Last);
 			if( m_bVolumeIcon_Last )
 				VFDIconOn(m_VfdHandle, VFD_ICON_VOLUME);
 			else
@@ -251,9 +245,7 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 		if( iVfdVolumeLevel_Last!=m_iVfdVolumeLevel_Last )
 		{
 			m_iVfdVolumeLevel_Last=iVfdVolumeLevel_Last;
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume level: %d", (int) m_bVolumeIcon_Last);
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Volume level: %d", (int) m_bVolumeIcon_Last);
 			VFDSetVolume(m_VfdHandle, m_iVfdVolumeLevel_Last);
 		}
 	}
@@ -304,10 +296,8 @@ void Media_Live_LCDButtons::CMD_Show_Media_Playback_State(string sValue_To_Assig
 	if( PlayBackIcon==m_iPlayBackIcon_Last && m_iSourceIcon_Last==iSourceIcon_Last )
 		return; // Nothing to do.  The state is unchanged
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Changing playback state %s from %d to %d source %d from %d to %d",
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Live_LCDButtons::CMD_Show_Media_Playback_State Changing playback state %s from %d to %d source %d from %d to %d",
 		sValue_To_Assign.c_str(),m_iPlayBackIcon_Last,PlayBackIcon,iPK_MediaType,m_iSourceIcon_Last,iSourceIcon_Last);
-#endif
 
 	if( m_iPlayBackIcon_Last!=PlayBackIcon )
 	{
@@ -342,9 +332,7 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 		if( sLine1!=m_sLine1Last )
 		{
 			VFDSetString(m_VfdHandle, VFD_STR_REGION_1, 0, (unsigned char *) sLine1.c_str());
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 1 %d=%s", size1, sLine1.c_str());
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Live_LCDButtons::DoUpdateDisplay line 1 %d=%s", size1, sLine1.c_str());
 			m_sLine1Last=sLine1;
 		}
 	}
@@ -355,9 +343,7 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 		if( sLine2!=m_sLine2Last )
 		{
 			VFDSetString(m_VfdHandle, VFD_STR_REGION_3, 0, (unsigned char *) sLine2.c_str());
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay line 2 %d=%s", size2, sLine2.c_str());
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Live_LCDButtons::DoUpdateDisplay line 2 %d=%s", size2, sLine2.c_str());
 			m_sLine2Last = sLine2;
 		}
 	}
@@ -376,9 +362,7 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 
 	if( iVfdScrollRegionLast!=m_iVfdScrollRegionLast )
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::DoUpdateDisplay m_iVfdScrollRegionLast %d iVfdScrollRegionLast %d",m_iVfdScrollRegionLast, iVfdScrollRegionLast);
-#endif
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Live_LCDButtons::DoUpdateDisplay m_iVfdScrollRegionLast %d iVfdScrollRegionLast %d",m_iVfdScrollRegionLast, iVfdScrollRegionLast);
 		m_iVfdScrollRegionLast = iVfdScrollRegionLast;
 		VFDSetScrollRegion( m_VfdHandle, m_iVfdScrollRegionLast );
 	}

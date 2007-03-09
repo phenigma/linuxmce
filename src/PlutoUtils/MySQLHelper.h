@@ -158,9 +158,9 @@ public:
 
 	MYSQL_RES *mysql_query_result(string query)
 	{
-	#ifdef DEBUG
+#ifdef DEBUG
 		clock_t cStart = clock();
-	#endif
+#endif
 		PLUTO_SAFETY_LOCK_ERRORSONLY(sl,m_MySqlMutex);
 		int iresult;
 		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
@@ -175,18 +175,16 @@ public:
 
 	//	LoggerWrapper::GetInstance()->Write(LV_STATUS,"store result: %s",query.c_str());
 
-	#ifdef DEBUG
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
 			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
 			
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
-	#endif
 
 		MYSQL_RES *pMYSQL_RES = mysql_store_result(m_pMySQL);
 #ifdef LOG_ALL_QUERIES
@@ -198,9 +196,9 @@ public:
 
 	int threaded_mysql_query(string query,bool bIgnoreErrors=false)
 	{
-	#ifdef DEBUG
+#ifdef DEBUG
 		clock_t cStart = clock();
-	#endif
+#endif
 		PLUTO_SAFETY_LOCK_ERRORSONLY(sl,m_MySqlMutex);
 		int iresult;
 		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
@@ -213,18 +211,16 @@ public:
 			return -1;
 		}
 
-	#ifdef DEBUG
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
 			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
 			
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
-	#endif
 #ifdef LOG_ALL_QUERIES
 		
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executed query %s (%d rows)", query.c_str(), (int) mysql_affected_rows(m_pMySQL));
@@ -234,9 +230,9 @@ public:
 
 	int threaded_mysql_query_withID(string query)
 	{
-	#ifdef DEBUG
+#ifdef DEBUG
 		clock_t cStart = clock();
-	#endif
+#endif
 		PLUTO_SAFETY_LOCK_ERRORSONLY(sl,m_MySqlMutex);
 		int iresult;
 		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
@@ -247,18 +243,16 @@ public:
 			return 0;
 		}
 
-	#ifdef DEBUG
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
 			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
 			
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
-	#endif
 #ifdef LOG_ALL_QUERIES
 		
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Query has ID %d: %s", (int) mysql_insert_id(m_pMySQL), query.c_str());

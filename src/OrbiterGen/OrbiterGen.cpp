@@ -835,10 +835,8 @@ m_bNoEffects = true;
 		m_sizeScreen->Width = m_pRow_Size->Width_get() * 1000 / m_sScale.Width;
 	}
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterGen before adj spacing X %d Y %d W %d H %d scale W %d H %d",
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"OrbiterGen before adj spacing X %d Y %d W %d H %d scale W %d H %d",
 		m_rSpacing.X,m_rSpacing.Y,m_rSpacing.Width,m_rSpacing.Height,m_sScale.Width,m_sScale.Height);
-#endif
 
 	m_sScale_Orig = m_sScale;
 	// See if we need to reduce the scaling because of borders around the screen
@@ -848,10 +846,8 @@ m_bNoEffects = true;
 	if( m_rSpacing.Y || m_rSpacing.Height )
 		m_sScale.Height = int((double) m_sScale.Height * (100-iSpacingParameter) / 100);
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterGen after adj spacing X %d Y %d W %d H %d scale W %d H %d",
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"OrbiterGen after adj spacing X %d Y %d W %d H %d scale W %d H %d",
 		m_rSpacing.X,m_rSpacing.Y,m_rSpacing.Width,m_rSpacing.Height,m_sScale.Width,m_sScale.Height);
-#endif
 
 	int i=0;
 

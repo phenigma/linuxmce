@@ -74,9 +74,7 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 	m_iReferencesOutstanding=0;
 	m_dwPK_Device = (long unsigned int)-1;
 	m_Socket = Sock;
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "ServerSocket::Created %p m_Socket: %d", this, m_Socket );
-#endif
+	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "ServerSocket::Created %p m_Socket: %d", this, m_Socket );
 	m_pListener = pListener;
 	m_bThreadRunning=true;
 
@@ -85,9 +83,7 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 
 ServerSocket::~ServerSocket()
 {
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "ServerSocket::~ServerSocket(): @%p/%d Is it running %d?", this, m_Socket, m_bThreadRunning);
-#endif
+	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "ServerSocket::~ServerSocket(): @%p/%d Is it running %d?", this, m_Socket, m_bThreadRunning);
 
 	//Announce socket we're done
 	Close();
@@ -135,9 +131,7 @@ void ServerSocket::Run()
 
 bool ServerSocket::ServeClient()
 {
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Running socket %p... m_bTerminate: %d", this, m_pListener->m_bTerminate );
-#endif
+	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Running socket %p... m_bTerminate: %d", this, m_pListener->m_bTerminate );
 
 	string sMessage;
 	while( !m_pListener->m_bTerminate )
@@ -176,9 +170,7 @@ bool ServerSocket::ServeClient()
 			sprintf( s, "TIME|%d|%d|%d|%d|%d|%d|UGMT|%lu|BIAS|%lu|%d",
 				lt.tm_hour, lt.tm_min, lt.tm_sec, lt.tm_mon+1, lt.tm_mday,
 				lt.tm_year+1900, (long unsigned int)t, (long unsigned int) mktime(&lt) - mktime(&gt), lt.tm_isdst );
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device %d requested time: sending %s",m_dwPK_Device,s);
-#endif
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Device %d requested time: sending %s",m_dwPK_Device,s);
 			SendString( s );
 			continue;
 		}

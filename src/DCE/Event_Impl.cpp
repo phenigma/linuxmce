@@ -52,10 +52,10 @@ Event_Impl::Event_Impl( long dwDevice, long dwDeviceTemplate, string sServerAddr
 	
 	/** @todo check comment */	
 	/*
-	#ifdef DEBUG
+#ifdef DEBUG
 		g_pDCELogger->Write(LV_SOCKET,"DeviceEvent constructor %p device ID %d server IP %s socket %p %d",
 			this,m_DeviceID,ServerAddress.c_str(),m_pDCEClientSocket,m_pDCEClientSocket->m_Socket);
-	#endif
+#endif
 	*/
 }
 
