@@ -125,14 +125,23 @@ void Logger::ReloadLogLevels()
 		}
 	}
 	if( m_iMaxLogLevel<1 || TempList.empty() )
+	{
+		Write(0,"Logger::ReloadLogLevels logging all");
 		return;
+	}
 
 	m_bLogLevels = new bool[m_iMaxLogLevel+1];
 	for(int i=0;i<=m_iMaxLogLevel;++i)
 		m_bLogLevels[i]=false;
 
+	string sLogs;
 	for(list<int>::iterator it=TempList.begin();it!=TempList.end();++it)
+	{
 		m_bLogLevels[*it]=true;
+		sLogs += StringUtils::itos(*it) + ",";
+	}
+
+	Write(0,"Logger::ReloadLogLevels logging %s",sLogs.c_str());
 }
 
 void Logger::Write( int iLevel, const char *pcFormat, ... )
@@ -144,7 +153,20 @@ void Logger::Write( int iLevel, const char *pcFormat, ... )
 
 	// See if we're not supposed to log this level
 	if( m_bLogLevels && iLevel>=0 && (iLevel>m_iMaxLogLevel || m_bLogLevels[iLevel]==false) )
+	{
+    timeval tv;
+    gettimeofday( &tv, NULL );
+Entry e( iLevel, tv, m_Name, "Skipping log max:" + StringUtils::itos(m_iMaxLogLevel), 0 ); // reating the entry
+WriteEntry( e ); // writting it
 		return;
+	}
+	else
+	{
+    timeval tv;
+    gettimeofday( &tv, NULL );
+		Entry e( iLevel, tv, m_Name, "Logging max:" + StringUtils::itos(m_iMaxLogLevel) + " m_b " + (m_bLogLevels ? "NOT NULL" : "NULL"), 0 ); // reating the entry
+WriteEntry( e ); // writting it
+	}
 
     timeval tv;
     gettimeofday( &tv, NULL );
@@ -184,7 +206,7 @@ void Logger::Write( int iLevel, const char *pcFormat, ... )
     else
         sData = s;
 
-    Entry e( iLevel, tv, m_Name, sData, 0 ); // creating the entry
+    Entry e( iLevel, tv, m_Name, sData, 0 ); // reating the entry
 
     WriteEntry( e ); // writting it
 }
