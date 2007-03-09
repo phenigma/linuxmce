@@ -153,6 +153,10 @@ void Logger::Write( int iLevel, const char *pcFormat, ... )
 		return;
 #endif
 
+	// See if we're not supposed to log this level
+	if( m_bLogLevels && iLevel>=0 && (iLevel>m_iMaxLogLevel || m_bLogLevels[iLevel]==false) )
+		return;
+
     timeval tv;
     gettimeofday( &tv, NULL );
     PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
@@ -190,23 +194,6 @@ void Logger::Write( int iLevel, const char *pcFormat, ... )
         sData = string( "\x1b[33;1m" ) + string(s) + string( "\x1b[0m" ); // setting the text color to yellow and back to black
     else
         sData = s;
-// See if we're not supposed to log this level
-if( m_bLogLevels && iLevel>=0 && (iLevel>m_iMaxLogLevel || m_bLogLevels[iLevel]==false) )
-{
-timeval tv;
-gettimeofday( &tv, NULL );
-Entry e( iLevel, tv, m_Name, "Skipping log max:" + StringUtils::itos(m_iMaxLogLevel), 0 ); // reating the entry
-WriteEntry( e ); // writting it
-	return;
-}
-else
-{
-timeval tv;
-gettimeofday( &tv, NULL );
-	Entry e( iLevel, tv, m_Name, "Logging max:" + StringUtils::itos(m_iMaxLogLevel) + " m_b " + (m_bLogLevels ? "NOT NULL" : "NULL"), 0 ); // reating the entry
-WriteEntry( e ); // writting it
-}
-
 
     Entry e( iLevel, tv, m_Name, sData, 0 ); // reating the entry
 
