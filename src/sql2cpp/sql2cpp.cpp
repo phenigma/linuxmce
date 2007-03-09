@@ -409,15 +409,11 @@ int main( int argc, char *argv[] )
 	db_cpp_out << endl << "#include \"Database_" + sDBName + ".h\"" << endl << endl;
 	db_cpp_out << endl << "#include \"DCEConfig.h\"" << endl << endl;
 
-	db_cpp_out << endl << "namespace DCE";
-    db_cpp_out << endl << "{";
-    db_cpp_out << endl << "\tLogger *g_pPlutoLogger; //dummy";
-    db_cpp_out << endl << "}";
     db_cpp_out << endl << "using namespace DCE;" << endl;
 
 	db_cpp_out << "Database_" << sDBName << "::Database_" << sDBName << "(Logger *pLogger)" << endl;
 	db_cpp_out << "{" << endl;
-	db_cpp_out << "\tg_pPlutoLogger=pLogger;" << endl;
+	db_cpp_out << "\tLoggerWrapper::SetInstance(pLogger);" << endl;
 	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i!=dbInfo.listTableInfo_get()->end(); i++)
 	{
 		db_cpp_out << "tbl"+(*i)->get_table_name()+"=NULL;" << endl;
