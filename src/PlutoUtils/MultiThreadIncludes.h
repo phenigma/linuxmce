@@ -148,6 +148,65 @@ public:
 	static void ConfirmNoLocks(string File,int Line);
 };
 
+class MutexTracking
+{
+private:
+	int m_iNextLock;  // A counter to keep track of locks
+
+	// Make this a pointer, rather than an instance.  When it's an instance, sometimes when the app
+	// exits it destroys it before all the threads using it have died
+	map<int,PlutoLock *> *m_p_mapLocks;
+
+	pluto_pthread_mutex_t *m_p_mapLockMutex;
+
+	static MutexTracking *m_pMutexTracking;
+
+	static MutexTracking *GetInstance()
+	{
+		if( m_pMutexTracking==NULL )
+			m_pMutexTracking = new MutexTracking();
+		return m_pMutexTracking;
+	}
+
+public:
+
+	MutexTracking();
+	static void Delete();
+
+	static int GetNextLock()
+	{
+		MutexTracking *pMutexTracking = MutexTracking::GetInstance();
+		return pMutexTracking->m_iNextLock++;
+	}
+
+	static int Lock()
+	{
+		MutexTracking *pMutexTracking = MutexTracking::GetInstance();
+		return pthread_mutex_lock(&pMutexTracking->m_p_mapLockMutex->mutex);
+	}
+
+	static int UnLock()
+	{
+		MutexTracking *pMutexTracking = MutexTracking::GetInstance();
+		return pthread_mutex_unlock(&pMutexTracking->m_p_mapLockMutex->mutex);
+	}
+
+	static int AddToMap(int LockNum,PlutoLock *pPlutoLock);
+	static int RemoveFromMap(int LockNum);
+
+	static int GetSize()
+	{
+		MutexTracking *pMutexTracking = MutexTracking::GetInstance();
+		return (int) (*pMutexTracking->m_p_mapLocks).size();
+	}
+
+	static map<int,PlutoLock *> *GetMap()
+	{
+		MutexTracking *pMutexTracking = MutexTracking::GetInstance();
+		return pMutexTracking->m_p_mapLocks;
+	}
+};
+
 #endif
 
 

@@ -32,7 +32,6 @@
 const char *g_szCompile_Date="<=compile_date=>";
 /*SVN_REVISION*/
 
-extern pluto_pthread_mutex_t *g_mapLockMutex;
 using namespace DCE;
 
 namespace DCE 
@@ -193,11 +192,7 @@ int main(int argc, char *argv[])
 	delete g_pRouter;
 	g_pRouter = NULL;
 
-	if( g_mapLockMutex )
-	{
-		pthread_mutex_destroy(&g_mapLockMutex->mutex);
-		delete g_mapLockMutex;
-	}
+	MutexTracking::Delete();
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bResult);
 

@@ -1,17 +1,17 @@
 /* 
-	MultiThreadIncludes
-	
-	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
-	Phone: +1 (877) 758-8648
-	
-	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
-	See the GNU General Public License for more details.
+MultiThreadIncludes
+
+Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+
+www.plutohome.com		
+
+Phone: +1 (877) 758-8648
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+
+See the GNU General Public License for more details.
 */
 
 #include "PlutoUtils/CommonIncludes.h"	 
@@ -22,33 +22,77 @@
 #include "PlutoUtils/Other.h"
 
 #if  defined(WINCE) && !defined(SMARTPHONE2005) && !defined(_VC80_UPGRADE)//--- CHANGED4WM5 ----//
-	#include _STLP_NATIVE_C_HEADER(time.h)
-	#include "wince.h"
+#include _STLP_NATIVE_C_HEADER(time.h)
+#include "wince.h"
 #elif defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)
-	#include <wce_time.h>
-	#define time		wceex_time
-	#define localtime	wceex_localtime
-	#define mktime		wceex_mktime
+#include <wce_time.h>
+#define time		wceex_time
+#define localtime	wceex_localtime
+#define mktime		wceex_mktime
 #endif
 
-// Make this a pointer, rather than an instance.  When it's an instance, sometimes when the app
-// exits it destroys it before all the threads using it have died
-map<int,PlutoLock *> *g_pmapLocks=NULL;
-int iNextLock=1;  // A counter to keep track of locks
-
-pluto_pthread_mutex_t *g_mapLockMutex=NULL;
-
 using namespace DCE;
+
+MutexTracking::MutexTracking()
+{
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MutexTracking::MutexTracking %p",  m_pMutexTracking);
+	m_p_mapLocks = new map<int,PlutoLock *>;
+	m_iNextLock=1;
+	m_p_mapLockMutex = new pluto_pthread_mutex_t("maplock");
+	m_p_mapLockMutex->Init(NULL);
+}
+
+void MutexTracking::Delete()
+{
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MutexTracking::Delete %p",  m_pMutexTracking);
+	if( m_pMutexTracking==NULL )
+		return;
+
+	if( m_pMutexTracking->m_p_mapLockMutex )
+	{
+		pthread_mutex_destroy(&m_pMutexTracking->m_p_mapLockMutex->mutex);
+		m_pMutexTracking->m_p_mapLockMutex=NULL;
+	}
+
+	if( m_pMutexTracking->m_p_mapLocks )
+	{
+		m_pMutexTracking->m_p_mapLocks->clear();
+		delete m_pMutexTracking->m_p_mapLocks;
+		m_pMutexTracking->m_p_mapLocks=NULL;
+	}
+
+	delete m_pMutexTracking;
+	m_pMutexTracking=NULL;
+}
+
+int MutexTracking::AddToMap(int LockNum,PlutoLock *pPlutoLock)
+{
+	MutexTracking *pMutexTracking = MutexTracking::GetInstance();
+	(*pMutexTracking->m_p_mapLocks)[LockNum] = pPlutoLock;
+	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::AddToMap %p %d",  m_pMutexTracking,LockNum);
+	return 0;
+}
+
+int MutexTracking::RemoveFromMap(int LockNum)
+{
+	MutexTracking *pMutexTracking = MutexTracking::GetInstance();
+
+	map<int,PlutoLock *>::iterator itMapLock = (*pMutexTracking->m_p_mapLocks).find(LockNum);
+	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::RemoveFromMap %p %d %s",m_pMutexTracking,LockNum,(itMapLock==(*pMutexTracking->m_p_mapLocks).end() ? "****FAIL****" : ""));
+	if( itMapLock==(*pMutexTracking->m_p_mapLocks).end() )
+		return -1;
+
+	(*pMutexTracking->m_p_mapLocks).erase(itMapLock);
+	return 0;
+}
+
+MutexTracking *MutexTracking::m_pMutexTracking=NULL;
 
 // An application can create another handler that gets called instead in the event of a deadlock
 void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock)=NULL;
 
-// This may get called before the logger is initialized.  If so, we don't want to log until  is true
-
 PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock)
 {
-	if( !g_pmapLocks )
-		g_pmapLocks = new map<int,PlutoLock *>;
 	m_bLogErrorsOnly=true;
 	m_bReleased=false;
 	m_bIgnoreDeadlock=false;
@@ -64,57 +108,39 @@ PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock)
 
 PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock,string File,int Line,bool bLogErrorsOnly,string Message)
 {
-	if( !g_pmapLocks )
-		g_pmapLocks = new map<int,PlutoLock *>;
-
 	m_sMessage=Message;
 	m_pMyLock=pLock;
 	m_bIgnoreDeadlock=false;
 	m_bLogErrorsOnly=bLogErrorsOnly;
 	m_sFileName=File;
 	m_Line=Line;
-	m_LockNum = ++iNextLock;
+	m_LockNum = MutexTracking::GetNextLock();
 	m_tTime = time(NULL);
 	m_bGotLock = false;
 	m_thread = pthread_self();
 
-	if( g_mapLockMutex==NULL )
-	{
-		g_mapLockMutex = new pluto_pthread_mutex_t("maplock");
-		g_mapLockMutex->Init(NULL);
-	}
-
-	pthread_mutex_lock(&g_mapLockMutex->mutex);
-	(*g_pmapLocks)[m_LockNum] = this;
-	pthread_mutex_unlock(&g_mapLockMutex->mutex);
+	MutexTracking::Lock();
+	MutexTracking::AddToMap(m_LockNum,this);
+	MutexTracking::UnLock();
 	DoLock();
 	m_pMyLock->m_NumLocks++;
 }
 
 PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock,string File,int Line,bool bLogErrorsOnly)
 {
-	if( !g_pmapLocks )
-		g_pmapLocks = new map<int,PlutoLock *>;
-
 	m_pMyLock=pLock;
 	m_bLogErrorsOnly=bLogErrorsOnly;
 	m_bIgnoreDeadlock=false;
 	m_sFileName=File;
-		m_Line=Line;
-	m_LockNum = ++iNextLock;
+	m_Line=Line;
+	m_LockNum = MutexTracking::GetNextLock();
 	m_tTime = time(NULL);
 	m_bGotLock = false;
 	m_thread = pthread_self();
 
-	if( g_mapLockMutex==NULL )
-	{
-		g_mapLockMutex = new pluto_pthread_mutex_t("maplock");
-		g_mapLockMutex->Init(NULL);
-	}
-
-	pthread_mutex_lock(&g_mapLockMutex->mutex);
-	(*g_pmapLocks)[m_LockNum] = this;
-	pthread_mutex_unlock(&g_mapLockMutex->mutex);
+	MutexTracking::Lock();
+	MutexTracking::AddToMap(m_LockNum,this);
+	MutexTracking::UnLock();
 	DoLock();
 	m_pMyLock->m_NumLocks++;
 }
@@ -124,29 +150,25 @@ PlutoLock::~PlutoLock()
 	Release();
 	if( m_LockNum )
 	{
-		pthread_mutex_lock(&g_mapLockMutex->mutex);
-		map<int,PlutoLock *>::iterator itMapLock = (*g_pmapLocks).find(m_LockNum);
-		if( itMapLock==(*g_pmapLocks).end() )
+		MutexTracking::Lock();
+		int size1 = MutexTracking::GetSize();
+		if( MutexTracking::RemoveFromMap(m_LockNum)!=0 )
 		{
-			pthread_mutex_unlock(&g_mapLockMutex->mutex);
-			
-			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot find self in maplock! (%p) (>%d) %s: %s:%d %s", 
-					&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+			MutexTracking::UnLock();
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot find self in maplock! (%p) (>%d) %s: %s:%d %s", 
+				&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 			DumpOutstandingLocks();
 		}
 		else
 		{
-int size1 = int((*g_pmapLocks).size());
-			(*g_pmapLocks).erase(itMapLock);	
-int size2 = int((*g_pmapLocks).size());
-            pthread_mutex_unlock(&g_mapLockMutex->mutex);
+			int size2 = MutexTracking::GetSize();
+			MutexTracking::UnLock();
 
 #ifdef THREAD_LOG
-if( !m_bLogErrorsOnly )
-LoggerWrapper::GetInstance()->Write(LV_LOCKING, "removed from map (%p) #%d (>%d) %s: %s:%d %s was: %d size, now %d Rel: %s Got: %s", 
-&m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),
-m_Line,m_sMessage.c_str(),size1,size2,(m_bReleased ? "Y" : "N"),(m_bGotLock ? "Y" : "N"));
+			if( !m_bLogErrorsOnly )
+				LoggerWrapper::GetInstance()->Write(LV_LOCKING, "removed from map (%p) #%d (>%d) %s: %s:%d %s was: %d size, now %d Rel: %s Got: %s", 
+				&m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),
+				m_Line,m_sMessage.c_str(),size1,size2,(m_bReleased ? "Y" : "N"),(m_bGotLock ? "Y" : "N"));
 #endif
 
 		}
@@ -157,16 +179,16 @@ m_Line,m_sMessage.c_str(),size1,size2,(m_bReleased ? "Y" : "N"),(m_bGotLock ? "Y
 void PlutoLock::ConfirmNoLocks(string File,int Line)
 {
 	map<int,PlutoLock *>::iterator itMapLock;
-	pthread_mutex_lock(&g_mapLockMutex->mutex);  // Protect the map
-	if( (*g_pmapLocks).size()==0 )
+	MutexTracking::Lock();
+	if( MutexTracking::GetSize()==0 )
 	{
-		pthread_mutex_unlock(&g_mapLockMutex->mutex);
+		MutexTracking::UnLock();
 		return;
 	}
 
 	string sProblems="Check requested in file: " + File + ":" + StringUtils::itos(Line) + "\n";
 	int iNumProblems=0;
-	for(itMapLock=(*g_pmapLocks).begin();itMapLock!=(*g_pmapLocks).end();++itMapLock)
+	for(itMapLock=MutexTracking::GetMap()->begin();itMapLock!=MutexTracking::GetMap()->end();++itMapLock)
 	{
 		PlutoLock *pSafetyLock = (*itMapLock).second;
 		if( pSafetyLock->m_bReleased )
@@ -174,31 +196,31 @@ void PlutoLock::ConfirmNoLocks(string File,int Line)
 		++iNumProblems;
 		sProblems+=pSafetyLock->m_sFileName + ":" + StringUtils::itos(pSafetyLock->m_Line) + pSafetyLock->m_pMyLock->m_sName + "\n";
 	}
-	pthread_mutex_unlock(&g_mapLockMutex->mutex);
+	MutexTracking::UnLock();
 	if( !iNumProblems )
 		return;
 
-/*
-#ifdef WIN32
+	/*
+	#ifdef WIN32
 	const char *cfn = sProblems.c_str();
 	const TCHAR *tfn = TCHARNEW(cfn);
 	::MessageBox(NULL, tfn, _T("LocksFound"), MB_OK);	
 	TCHARDELETE(tfn);
-#else
-*/
-	
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Locks found: %s",sProblems.c_str());
-//#endif
+	#else
+	*/
+
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Locks found: %s",sProblems.c_str());
+	//#endif
 }
 
 
 void PlutoLock::CheckLocks()
 {
 	map<int,PlutoLock *>::iterator itMapLock;
-	pthread_mutex_lock(&g_mapLockMutex->mutex);  // Protect the map
+	MutexTracking::Lock();
 
 	PlutoLock *pSafetyLock_Problem=NULL;
-	for(itMapLock=(*g_pmapLocks).begin();itMapLock!=(*g_pmapLocks).end();++itMapLock)
+	for(itMapLock=MutexTracking::GetMap()->begin();itMapLock!=MutexTracking::GetMap()->end();++itMapLock)
 	{
 		PlutoLock *pSafetyLock = (*itMapLock).second;
 		if( time(NULL)-pSafetyLock->m_tTime>DEADLOCK_TIMEOUT_ERROR )
@@ -211,7 +233,7 @@ void PlutoLock::CheckLocks()
 		}
 
 	}
-	pthread_mutex_unlock(&g_mapLockMutex->mutex);
+	MutexTracking::UnLock();
 	if( pSafetyLock_Problem )
 	{
 		DumpOutstandingLocks();
@@ -233,20 +255,13 @@ void PlutoLock::DumpOutstandingLocks()
 	return;
 #endif
 
-	if( !g_mapLockMutex )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "g_mapLockMutex is NULL!");
-		return;
-	}
+	LoggerWrapper::GetInstance()->Write(LV_LOCKING,"Dumping %d locks",(int) MutexTracking::GetSize());
 
-	
-		LoggerWrapper::GetInstance()->Write(LV_LOCKING,"Dumping locks %p mutex %p\n",&(*g_pmapLocks),&g_mapLockMutex); // This way it'll get in the log without doing any locks
-
-	pthread_mutex_lock(&g_mapLockMutex->mutex);
+	MutexTracking::Lock();
 
 	//the mutex is locked, it's ok to access the size() method of (*g_pmapLocks).
-	
-		LoggerWrapper::GetInstance()->Write(LV_LOCKING,"Size of locks: %d\n",(*g_pmapLocks).size());
+
+	LoggerWrapper::GetInstance()->Write(LV_LOCKING,"Size of locks: %d\n", MutexTracking::GetSize());
 
 	// We cannot use a logger in here because the logger will need to get at the map mutex if logging is over a socket
 	map<int,PlutoLock *>::iterator itMapLock;
@@ -255,8 +270,8 @@ void PlutoLock::DumpOutstandingLocks()
 
 	// We can't use the logger from here on because if it's a socket logger it will need the (*g_pmapLocks).  Store
 	// all messages in listMessages and log after we remove the mutex lock
-	listMessages.push_back(string("Dumping " + StringUtils::itos((int) (*g_pmapLocks).size()) + " locks"));
-	for(itMapLock=(*g_pmapLocks).begin();itMapLock!=(*g_pmapLocks).end();)
+	listMessages.push_back(string("Dumping " + StringUtils::itos(MutexTracking::GetSize()) + " locks"));
+	for(itMapLock=MutexTracking::GetMap()->begin();itMapLock!=MutexTracking::GetMap()->end();)
 	{
 		PlutoLock *pSafetyLock = (*itMapLock).second;
 
@@ -291,11 +306,11 @@ void PlutoLock::DumpOutstandingLocks()
 			try
 			{
 				char Message[1024];
-				
+
 				sprintf(Message,"^01\t (>%d) %s l:%d time: (%d s) thread: %lu Rel: %s Got: %s",
-						pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
-						(unsigned long)pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
-				
+					pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
+					(unsigned long)pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
+
 				listMessages.push_back(Message);
 
 			}
@@ -315,14 +330,14 @@ void PlutoLock::DumpOutstandingLocks()
 			++itMapLock;
 			continue;
 		}
-		
+
 		struct tm ptm;
 		localtime_r(&pSafetyLock->m_tTime,&ptm);
 		string sTime = (((int) time(NULL)-pSafetyLock->m_tTime)>=TRYLOCK_TIMEOUT_WARNING && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased ? "*****DL******" : "") + 
 			StringUtils::itos(ptm.tm_hour==0 ? 12 : (ptm.tm_hour>13 ? ptm.tm_hour-12 : ptm.tm_hour)) + ":" + 
 			(ptm.tm_min<10 ? "0" : "") + StringUtils::itos(ptm.tm_min) + (ptm.tm_sec<10 ? ":0" : ":") + 
 			StringUtils::itos(ptm.tm_sec) + (ptm.tm_hour>11 ? "p" : "a");
-		
+
 		char Message[400];
 
 		sprintf(Message,"OL: (%p) (>%d) %s %s l:%d time: %s (%d s) thread: %lu Rel: %s Got: %s",
@@ -337,33 +352,33 @@ void PlutoLock::DumpOutstandingLocks()
 			pSafetyLock->m_bReleased=true;
 			pSafetyLock->m_pMyLock->m_NumLocks--;
 			pthread_mutex_unlock(&pSafetyLock->m_pMyLock->mutex);
-/*
+			/*
 
-AB 19 Apr 05.  Disable the killing of threads.  Just release the lock as above.
+			AB 19 Apr 05.  Disable the killing of threads.  Just release the lock as above.
 			bool bKilledAlready=false;
 			list<pthread_t>::iterator itKilledThreads;
 			for(itKilledThreads=listKilledPthreads.begin();itKilledThreads!=listKilledPthreads.end();++itKilledThreads)
 			{
-				if( (*itKilledThreads) == pSafetyLock->m_thread )
-				{
-					bKilledAlready=true;
-					break;
-				}
+			if( (*itKilledThreads) == pSafetyLock->m_thread )
+			{
+			bKilledAlready=true;
+			break;
 			}
-#ifdef WIN32
+			}
+			#ifdef WIN32
 			sprintf(Message,"killing thread: %p (>%d), killed already: %s",pSafetyLock->m_thread,pSafetyLock->m_LockNum,bKilledAlready ? "Y" : "N");
-#else
+			#else
 			sprintf(Message,"killing thread %ld (>%d), killed already: %s",
-				pSafetyLock->m_thread,pSafetyLock->m_LockNum,bKilledAlready ? "Y" : "N");
-#endif
+			pSafetyLock->m_thread,pSafetyLock->m_LockNum,bKilledAlready ? "Y" : "N");
+			#endif
 
 			if( !bKilledAlready )
 			{
-				listKilledPthreads.push_back(pSafetyLock->m_thread);
+			listKilledPthreads.push_back(pSafetyLock->m_thread);
 			}
 
 			(*g_pmapLocks).erase(itMapLock++);
-*/
+			*/
 		}
 		else
 			++itMapLock;
@@ -378,7 +393,7 @@ AB 19 Apr 05.  Disable the killing of threads.  Just release the lock as above.
 #ifdef UNDER_CE
 #ifdef CENET
 #ifndef DISABLE_REBOOTS
-					KernelIoControl(IOCTL_HAL_REBOOT, NULL, 0, NULL, 0, NULL);
+		KernelIoControl(IOCTL_HAL_REBOOT, NULL, 0, NULL, 0, NULL);
 #endif
 #endif
 #endif
@@ -386,13 +401,13 @@ AB 19 Apr 05.  Disable the killing of threads.  Just release the lock as above.
 		list<pthread_t>::iterator itKilledThreads;
 		for(itKilledThreads=listKilledPthreads.begin();itKilledThreads!=listKilledPthreads.end();++itKilledThreads)
 		{
-			for(itMapLock=(*g_pmapLocks).begin();itMapLock!=(*g_pmapLocks).end();)
+			for(itMapLock=MutexTracking::GetMap()->begin();itMapLock!=MutexTracking::GetMap()->end();)
 			{
 				PlutoLock *pSafetyLock = (*itMapLock).second;
 				if( pSafetyLock->m_thread == (*itKilledThreads) )
 				{
 					listMessages.push_back("already killed (>" + StringUtils::itos(pSafetyLock->m_LockNum) + ")");
-					(*g_pmapLocks).erase(itMapLock++);
+					MutexTracking::GetMap()->erase(itMapLock++);
 				}
 				else
 					++itMapLock;
@@ -409,7 +424,7 @@ AB 19 Apr 05.  Disable the killing of threads.  Just release the lock as above.
 		}
 
 	}
-	pthread_mutex_unlock(&g_mapLockMutex->mutex);
+	MutexTracking::UnLock();
 
 #ifndef WINCE
 	printf("ready to dump locks using logger: %p\n",LoggerWrapper::GetInstance());
@@ -418,10 +433,10 @@ AB 19 Apr 05.  Disable the killing of threads.  Just release the lock as above.
 	list<string>::iterator itMessages;
 	for(itMessages=listMessages.begin();itMessages!=listMessages.end();++itMessages)
 	{
-		
-			LoggerWrapper::GetInstance()->Write(LV_LOCKING,"logging message %s\n",(*itMessages).c_str());
-		
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,(*itMessages).c_str());
+
+		LoggerWrapper::GetInstance()->Write(LV_LOCKING,"logging message %s\n",(*itMessages).c_str());
+
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,(*itMessages).c_str());
 	}
 }
 
@@ -429,8 +444,8 @@ void PlutoLock::Relock()
 {
 	if( !m_bReleased )
 	{
-		
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failure relocking(%p): (>%d) %s:%d %s",&m_pMyLock->mutex, m_LockNum, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failure relocking(%p): (>%d) %s:%d %s",&m_pMyLock->mutex, m_LockNum, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
 
 		return; // We don't have a lock
 	}
@@ -438,8 +453,8 @@ void PlutoLock::Relock()
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly )
 	{
-		
-			LoggerWrapper::GetInstance()->Write(LV_LOCKING, "relocking (%p) (>%d) %s", &m_pMyLock->mutex,m_LockNum,m_sMessage.c_str());
+
+		LoggerWrapper::GetInstance()->Write(LV_LOCKING, "relocking (%p) (>%d) %s", &m_pMyLock->mutex,m_LockNum,m_sMessage.c_str());
 
 		DoLock();
 	}
@@ -449,8 +464,8 @@ void PlutoLock::Relock()
 		pthread_mutex_lock(&m_pMyLock->mutex);
 	}
 #else
-		m_bReleased=false;
-		pthread_mutex_lock(&m_pMyLock->mutex);
+	m_bReleased=false;
+	pthread_mutex_lock(&m_pMyLock->mutex);
 #endif
 	m_pMyLock->m_NumLocks++;
 }
@@ -460,8 +475,8 @@ int PlutoLock::CondWait()
 {
 	if( !m_pMyLock->m_pthread_cond_t )
 	{
-		
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failure cond wait -- no condition (%p): %s:%d %s",&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failure cond wait -- no condition (%p): %s:%d %s",&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
 		return EINVAL;
 	}
 
@@ -491,9 +506,9 @@ int PlutoLock::TimedCondWait(timespec &ts)
 
 	if( !m_pMyLock->m_pthread_cond_t )
 	{
-		
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failure cond timed wait -- no condition (%p): %s:%d %s",
-				&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failure cond timed wait -- no condition (%p): %s:%d %s",
+			&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
 		return EINVAL;
 	}
 
@@ -560,16 +575,16 @@ void PlutoLock::DoLock()
 	m_bReleased=false;
 	if( !m_pMyLock->m_bInitialized )
 	{
-		
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "attempting to use un-initialized lock (%p) (>%d) %s: %s:%d %s",
-				&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "attempting to use un-initialized lock (%p) (>%d) %s: %s:%d %s",
+			&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 		return;  // We just won't get the lock this first time
 	}
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly )
 	{
-		
-			LoggerWrapper::GetInstance()->Write(LV_LOCKING, "lock(%p) (>%d) %s: %s:%d %s",&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+
+		LoggerWrapper::GetInstance()->Write(LV_LOCKING, "lock(%p) (>%d) %s: %s:%d %s",&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 	}
 #endif
 	time_t t = time(NULL);
@@ -581,17 +596,17 @@ void PlutoLock::DoLock()
 #else
 	while( t+TRYLOCK_TIMEOUT_WARNING>time(NULL) && !m_bGotLock)
 	{
-		 int iResult = pthread_mutex_trylock(&m_pMyLock->mutex);
-		 if( iResult==0 )
-			 m_bGotLock=true;
-		 else if( iResult!= EBUSY )
-		 {
-			 // Some other error condition
-			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "pthread_mutex_trylock returned %d  (%p) (>%d) %s: %s:%d %s", iResult,
-					&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+		int iResult = pthread_mutex_trylock(&m_pMyLock->mutex);
+		if( iResult==0 )
+			m_bGotLock=true;
+		else if( iResult!= EBUSY )
+		{
+			// Some other error condition
+
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "pthread_mutex_trylock returned %d  (%p) (>%d) %s: %s:%d %s", iResult,
+				&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 			Sleep(1000);  // Something went terribly wrong.  Pause a second so we don't log these errors a zillion times in 5 seconds
-		 }
+		}
 
 		if( m_bGotLock )
 			break;
@@ -600,9 +615,9 @@ void PlutoLock::DoLock()
 #endif
 	if( !m_bGotLock )
 	{
-		
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get lock(%p) %s: %s:%d last used %s:%d thread: %p (>%d) %s",
-				&m_pMyLock->mutex, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_pMyLock->m_sFileName.c_str(),m_pMyLock->m_Line,m_pMyLock->m_thread,m_pMyLock->m_LockNum,m_sMessage.c_str()); 
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get lock(%p) %s: %s:%d last used %s:%d thread: %p (>%d) %s",
+			&m_pMyLock->mutex, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_pMyLock->m_sFileName.c_str(),m_pMyLock->m_Line,m_pMyLock->m_thread,m_pMyLock->m_LockNum,m_sMessage.c_str()); 
 		DumpOutstandingLocks();
 #ifndef WINCE
 		cout << "Calling deadlock handler 1" << endl;
@@ -619,9 +634,9 @@ void PlutoLock::DoLock()
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly )
 	{
-		
-			LoggerWrapper::GetInstance()->Write(LV_LOCKING, "acquired(%p) #%d (>%d) %s %s:%d %s", 
-				&m_pMyLock->mutex,m_pMyLock->m_NumLocks,m_LockNum,m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+
+		LoggerWrapper::GetInstance()->Write(LV_LOCKING, "acquired(%p) #%d (>%d) %s %s:%d %s", 
+			&m_pMyLock->mutex,m_pMyLock->m_NumLocks,m_LockNum,m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 	}
 #endif
 }
@@ -635,8 +650,8 @@ void PlutoLock::Release()
 #ifdef THREAD_LOG
 		if( !m_bLogErrorsOnly )
 		{
-			
-				LoggerWrapper::GetInstance()->Write(LV_LOCKING, "unlock(%p) #%d (>%d) %s: %s:%d %s", &m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+
+			LoggerWrapper::GetInstance()->Write(LV_LOCKING, "unlock(%p) #%d (>%d) %s: %s:%d %s", &m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 		}
 #endif
 	}
@@ -644,32 +659,32 @@ void PlutoLock::Release()
 }
 
 #ifdef WIN32
-	void filetime_to_timespec(const FILETIME *ft, struct timespec *ts)
-		/*
-		* -------------------------------------------------------------------
-		* converts FILETIME (as set by GetSystemTimeAsFileTime), where the time is
-		* expressed in 100 nanoseconds from Jan 1, 1601,
-		* into struct timespec
-		* where the time is expressed in seconds and nanoseconds from Jan 1, 1970.
-		* -------------------------------------------------------------------
-		*/
-	{
-		ts->tv_sec = (int)((*(LONGLONG *)ft - PTW32_TIMESPEC_TO_FILETIME_OFFSET) / 10000000);
-		ts->tv_nsec = (int)((*(LONGLONG *)ft - PTW32_TIMESPEC_TO_FILETIME_OFFSET - ((LONGLONG)ts->tv_sec * (LONGLONG)10000000)) * 100);
-	}
+void filetime_to_timespec(const FILETIME *ft, struct timespec *ts)
+/*
+* -------------------------------------------------------------------
+* converts FILETIME (as set by GetSystemTimeAsFileTime), where the time is
+* expressed in 100 nanoseconds from Jan 1, 1601,
+* into struct timespec
+* where the time is expressed in seconds and nanoseconds from Jan 1, 1970.
+* -------------------------------------------------------------------
+*/
+{
+	ts->tv_sec = (int)((*(LONGLONG *)ft - PTW32_TIMESPEC_TO_FILETIME_OFFSET) / 10000000);
+	ts->tv_nsec = (int)((*(LONGLONG *)ft - PTW32_TIMESPEC_TO_FILETIME_OFFSET - ((LONGLONG)ts->tv_sec * (LONGLONG)10000000)) * 100);
+}
 
-	int gettimeofday(struct timeval *tv, struct timezone *tz)
-	 {
-		FILETIME ft;
-		SYSTEMTIME st;
-        /* Get the current system time */
-		GetSystemTime(&st);
-		SystemTimeToFileTime(&st, &ft);
-		timespec ts;
-		filetime_to_timespec(&ft,&ts);
-		timespec_to_timeval(&ts,tv);
-		return 0;
-	 }
+int gettimeofday(struct timeval *tv, struct timezone *tz)
+{
+	FILETIME ft;
+	SYSTEMTIME st;
+	/* Get the current system time */
+	GetSystemTime(&st);
+	SystemTimeToFileTime(&st, &ft);
+	timespec ts;
+	filetime_to_timespec(&ft,&ts);
+	timespec_to_timeval(&ts,tv);
+	return 0;
+}
 #endif
 
 int gettimeofday(struct timespec *ts, struct timezone *tz)

@@ -62,8 +62,6 @@ extern HWND	g_hWndList; //maindialog logger list
     static const string g_sOrbiterConfName = "Orbiter.conf";
 #endif
 
-extern map<int,PlutoLock *> *g_pmapLocks;
-extern pluto_pthread_mutex_t *g_mapLockMutex;
 #ifdef LL_DEBUG_FILE
 	extern pluto_pthread_mutex_t *m_LL_DEBUG_Mutex;
 #endif
@@ -349,12 +347,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		g_pmapLocks = NULL;
 	}
 
-	if(NULL != g_mapLockMutex)
-	{
-		pthread_mutex_destroy(&g_mapLockMutex->mutex);
-		delete g_mapLockMutex;
-		g_mapLockMutex = NULL;
-	}
+	MutexTracking::Delete();
 #ifdef LL_DEBUG_FILE
 	if(NULL != m_LL_DEBUG_Mutex)
 	{

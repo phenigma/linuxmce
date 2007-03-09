@@ -1121,12 +1121,9 @@ void Command_Impl::SetDeviceDataInDB(int PK_Device,int PK_DeviceData,string Valu
 	m_pcRequestSocket->SendMessage(pMessage);
 }
 
-extern pluto_pthread_mutex_t *g_mapLockMutex;
 void Command_Impl::DeleteGlobalAllocs()
 {
-	delete g_mapLockMutex;
-	g_mapLockMutex=NULL;
-
+	MutexTracking::Delete();
 }
 
 void Command_Impl::WaitForMessageQueue()

@@ -5069,6 +5069,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	if ( !pObj_New )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not find design object matching this specification: %s", sDestScreen.c_str());
+		CMD_Go_back("","1");
 		return;
 	}
 

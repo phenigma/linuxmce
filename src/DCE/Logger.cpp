@@ -127,10 +127,7 @@ void Logger::ReloadLogLevels()
 		}
 	}
 	if( m_iMaxLogLevel<1 || TempList.empty() )
-	{
-//		Write(0,"Logger::ReloadLogLevels logging all");
 		return;
-	}
 
 	m_bLogLevels = new bool[m_iMaxLogLevel+1];
 	for(int i=0;i<=m_iMaxLogLevel;++i)
@@ -142,8 +139,6 @@ void Logger::ReloadLogLevels()
 		m_bLogLevels[*it]=true;
 		sLogs += StringUtils::itos(*it) + ",";
 	}
-
-//	Write(0,"Logger::ReloadLogLevels logging %s",sLogs.c_str());
 }
 
 void Logger::Write( int iLevel, const char *pcFormat, ... )
