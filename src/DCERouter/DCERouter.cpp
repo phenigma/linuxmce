@@ -1547,7 +1547,7 @@ void Router::DoLogReload()
         ServerSocket *pServerSocket = (*iDC).second;
         PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
         {
-            pServerSocket->SendMessage(new Message(0, (*iDC).first, PRIORITY_URGENT, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_ROTATE, 0));
+            pServerSocket->SendMessage(new Message(0, (*iDC).first, PRIORITY_URGENT, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_RELOAD_LOGLEVEL, 0));
         }
     }
 }
