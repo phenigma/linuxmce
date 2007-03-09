@@ -620,7 +620,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 			m_iSockBufBytesLeft = recv( m_Socket, m_pcInSockBuffer, INSOCKBUFFER_SIZE - 1, 0 );
 
 
-#ifndef MOXI
+#ifndef PLATFORM_PR_MC1_CABLE
 			if ( m_iSockBufBytesLeft <= 0 )
 #else
 			if ( m_iSockBufBytesLeft < 0 )

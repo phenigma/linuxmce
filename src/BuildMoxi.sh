@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-export SNR_CPPFLAGS="-DMOXI"
+export SNR_CPPFLAGS=""
 
 ## SerializeClass
 pushd SerializeClass
