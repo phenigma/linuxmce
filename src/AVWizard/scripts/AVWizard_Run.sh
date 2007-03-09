@@ -40,8 +40,8 @@ UI_V2_Normal_Horizontal=4
 . /usr/pluto/bin/X-CleanupVideo.sh
 
 #<-mkr_b_via_b->
-	bash -x /home/via/ApplyViaPatch.sh
 	CleanupVideo
+	bash -x /home/via/ApplyViaPatch.sh
 	ConfSet "AVWizardDone" "1"
 	exit
 #<-mkr_b_via_e->
