@@ -1760,7 +1760,8 @@
 #define DEVICETEMPLATE_Zone_CONST 1867
 #define DEVICETEMPLATE_XML_Data_Handler_Plugin_CONST 1868
 #define DEVICETEMPLATE_Basic_XML_Data_Source_Plugin_CONST 1869
-//TODO: re-sync with SVN
+#define DEVICETEMPLATE_Moxi_Orbiter_CONST 1872
+#define DEVICETEMPLATE_Moxi_PlugIn_CONST 1873
 #define DEVICETEMPLATE_Moxi_PVR_CONST 1871
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
