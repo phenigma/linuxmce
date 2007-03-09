@@ -16,7 +16,7 @@ fi
 #DEST="chris.m@plutohome.com -c radu.c@plutohome.com -c rob.r@plutohome.com -c kirill.b@plutohome.com -c eugen.c@plutohome.com -c remus.c@plutohome.com -c razvan.g@plutohome.com -c ciprian.m@plutohome.com -c aaron.b@plutohome.com"
 
 REPO_DIR=/home/sources/svn-repositories/pluto
-BASE_REPO_URL=http://10.0.0.170/pluto/trunk/
+BASE_REPO_URL=http://10.0.0.170/pluto
 
 STATE_DIR=~/build_state
 BUILD_DIR=~/build
@@ -172,15 +172,15 @@ PrivateSymlinks()
 	done
 }
 
-GetSVN sources/src src
-GetSVN private-sources/src src private
+GetSVN sources/src trunk/src
+GetSVN private-sources/src trunk/src private
 PrivateSymlinks private-sources/src sources/src
 GetMercurial sources/src/drivers/v4l-dvb v4l-dvb
-GetSVN sources/libs libs
-GetSVN sources/config-pkgs config-pkgs
-GetSVN sources/web web
-GetSVN sources/installers installers
-GetSVN sources/misc_utils misc_utils
+GetSVN sources/libs trunk/libs
+GetSVN sources/config-pkgs trunk/config-pkgs
+GetSVN sources/web trunk/web
+GetSVN sources/installers trunk/installers
+GetSVN sources/misc_utils trunk/misc_utils
 
 echo Building
 export PATH=/usr/lib/ccache:$PATH
