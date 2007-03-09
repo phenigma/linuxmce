@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+export SNR_CPPFLAGS=""
 
 ## SerializeClass
 pushd SerializeClass
@@ -25,3 +26,6 @@ pushd MessageSend
 make -f Makefile.Moxi clean
 make -f Makefile.Moxi
 popd
+
+sudo cp lib/* /export/obj/via-mc.limonite-dev/apps/aaa/build/mc/lib
+sudo cp bin/* /export/obj/via-mc.limonite-dev/apps/aaa/build/mc/bin
