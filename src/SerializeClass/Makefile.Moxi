@@ -8,13 +8,14 @@ VIP = ../VIPShared
 GDEV = ./Gen_Devices
 CXXFLAGS += -Wall -g -ggdb3 -D_GNU_SOURCE -fexceptions
 CPPFLAGS += -I./ -I../../ -I../ -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS)
+LDFLAGS += -lPlutoUtils
 
 sources = SerializeClass.cpp
 
 all: libSerializeClass.so all-recursive
 
 libSerializeClass.so: $(sources:.cpp=.o)
-	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $(call cpath,$+)
 	cp $@ ../lib
 	
 libSerializeClass.a: $(sources:.cpp=.o)
