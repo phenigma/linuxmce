@@ -326,6 +326,7 @@ int main(int argc, char *argv[])
 	{
 		cout << "#!/bin/bash" << endl;
 		cout << "error=0" << endl;
+		cout << ". /usr/pluto/bin/SQL_Ops.sh" << endl;
 	}
 	PrintCmd(argc, argv);
 
@@ -491,8 +492,9 @@ int main(int argc, char *argv[])
 					<< " -d " + StringUtils::itos(pRow_Device->PK_Device_get()) << " -i \"" << pRow_Device->IPaddress_get()
 					<< "\" -m \"" + pRow_Device->MACaddress_get() + "\"" << endl;
 
-				cout << "if[ $? ==0 " << endl
-					<< "echo \"UPDATE Device SET Status='' WHERE PK_Device=" << pRow_Device->PK_Device_get() << " | mysql $MySqlHost -u $MySqlUser -p$MySqlPass" << endl
+				cout << "if [[ $? -eq 0 ]]; then" << endl
+					<< "\tQ=\"UPDATE Device SET Status='' WHERE PK_Device='" << pRow_Device->PK_Device_get() << "'\"" << endl
+					<< "\tRunSQL \"$Q\"" << endl
 					<< "fi" << endl;
 
 				if( iPK_Orbiter )
@@ -514,7 +516,7 @@ int main(int argc, char *argv[])
 		}
 
 		cout <<
-			"if [ \"$error\" -ne 0 ]; then" EOL
+			"if [[ \"$error\" -ne 0 ]]; then" EOL
 			"\techo \"Note: Some packages failed to install\"" EOL
 			"fi" EOL
 			;
