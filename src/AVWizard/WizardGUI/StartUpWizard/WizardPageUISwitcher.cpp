@@ -67,9 +67,9 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("UIScroll"));
 	if(NULL == List)
 	{
-#ifdef DEBUG
+	#ifdef DEBUG
 		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
-#endif
+	#endif
 		return -1;
 	}
 
@@ -86,9 +86,9 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("UIScroll"));
 	if(NULL == List)
 	{
-#ifdef DEBUG
+	#ifdef DEBUG
 		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
-#endif
+	#endif
 		return;
 	}
 	List->AddItem("Static images, no overlay (lightweight)", "UI1");
@@ -102,9 +102,9 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("UIScroll"));
 	if(NULL == List)
 	{
-#ifdef DEBUG
+	#ifdef DEBUG
 		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
-#endif
+	#endif
 		return;
 	}
 	List->SetItemIndex(List->GetItemIndex()+1);
@@ -115,9 +115,9 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("UIScroll"));
 	if(NULL == List)
 	{
-#ifdef DEBUG
+	#ifdef DEBUG
 		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
-#endif
+	#endif
 		return;
 	}
 	List->SetItemIndex(List->GetItemIndex()-1);
@@ -128,9 +128,9 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("UIScroll"));
 	if(NULL == List)
 	{
-#ifdef DEBUG
+	#ifdef DEBUG
 		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
-#endif
+	#endif
 		return;
 	}
 	List->SetItemIndex(List->GetItemIndex()+1);
@@ -141,9 +141,9 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("UIScroll"));
 	if(NULL == List)
 	{
-#ifdef DEBUG
+	#ifdef DEBUG
 		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
-#endif
+	#endif
 		return;
 	}
 	List->SetItemIndex(List->GetItemIndex()-1);

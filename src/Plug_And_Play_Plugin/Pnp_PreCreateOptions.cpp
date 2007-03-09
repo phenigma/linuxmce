@@ -145,7 +145,9 @@ bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntr
 	bool bUserSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_PK_Users_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
 	bool bPhoneSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Mobile_Orbiter_Phone_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Pnp_PreCreateOptions::OkayToCreate_MobilePhone %d/%d",(int) bUserSpecified,(int) bPhoneSpecified);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_MobilePhone %d/%d",(int) bUserSpecified,(int) bPhoneSpecified);
+#endif
 
 	if( bUserSpecified && bPhoneSpecified )
 	{
@@ -192,7 +194,9 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 	bool bUseAutoSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Use_Automatically_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
 	bool bDirectoryStructSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_PK_Users_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage %d/%d",(int) bUseAutoSpecified,(int) bDirectoryStructSpecified);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage %d/%d",(int) bUseAutoSpecified,(int) bDirectoryStructSpecified);
+#endif
 	if( bUseAutoSpecified && bDirectoryStructSpecified )
 	{
 		DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
@@ -232,8 +236,10 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 
 bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Pnp_PreCreateOptions::OkayToCreate_Cameras queue %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_Cameras queue %d",
 		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+#endif
 	string sSqlSensors = "SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory="
 		+ StringUtils::itos(DEVICECATEGORY_Security_Device_CONST) + " LIMIT 1";
 

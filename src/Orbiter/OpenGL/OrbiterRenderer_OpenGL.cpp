@@ -312,7 +312,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	while( pObj_WithGraphic && pObj_WithGraphic->m_vectGraphic.size()==0 )
 		pObj_WithGraphic = (DesignObj_Orbiter *) pObj_WithGraphic->m_pParentObject;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ReplaceColorInRectangle size: %d %d %d %d", x, y, width, height);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ReplaceColorInRectangle size: %d %d %d %d", x, y, width, height);
+#endif
 
 	if( pObj_WithGraphic==NULL )
 	{
@@ -483,8 +485,10 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 
 	TextureManager::Instance()->PrepareConvert(Graphic);
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "AddMeshFrameToDesktop (%d,%d,%d,%d)",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "AddMeshFrameToDesktop (%d,%d,%d,%d)",
 		point.X, point.Y, rectTotal.Width, rectTotal.Height);
+#endif
 
 	if(TextureManager::Instance()->CacheEnabled())
 		TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
@@ -735,7 +739,9 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	int OnScreenTransition = m_spPendingGLEffects->m_nOnScreenTransitionEffectID;
 	//int OnSelectWithChange = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
+#endif
 
 	PlutoRectangle rectLastSelected(0, 0, 0, 0);
 
@@ -787,7 +793,9 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 {
 	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"OrbiterRenderer_OpenGL::RenderPopup ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_OpenGL::RenderPopup ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
+#endif
 
 	if(Popups)
 		Popups->PaintPopup(pPopup->m_pObj->GenerateObjectHash(pPopup->m_Position, false), 

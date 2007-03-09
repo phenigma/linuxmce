@@ -36,7 +36,9 @@ using namespace DCE;
 EPGMouseHandler::EPGMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseHandler const %p",this);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseHandler const %p",this);
+#endif
 	m_pDatagridMouseHandlerHelper = new DatagridMouseHandlerHelper(this);
 	m_pDesignObj_DataGrid_Active=NULL;
 	m_pDesignObj_UpcomingChannels= (DesignObj_DataGrid *) m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_dgUpcomingShows_CONST);
@@ -48,7 +50,9 @@ EPGMouseHandler::EPGMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBe
 
 EPGMouseHandler::~EPGMouseHandler()
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseHandler dest %p",this);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseHandler dest %p",this);
+#endif
 	delete m_pDatagridMouseHandlerHelper;
 }
 
@@ -72,7 +76,9 @@ void EPGMouseHandler::Start()
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(2000);
 
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_UpDown);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"EPGMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"EPGMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+#endif
 
 	if( true ) // for now just do it the one way, the absolute seeking was too tough.  m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{

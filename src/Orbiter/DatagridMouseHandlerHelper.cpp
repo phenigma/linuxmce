@@ -162,8 +162,10 @@ LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::Scr
 void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 {
 	m_iLastX=X;
-    LoggerWrapper::GetInstance()->Write(LV_DEBUG, "DatagridMouseHandlerHelper::RelativeMove(%d, %d, %d) bottom %d top %d direction %s",
+#ifdef DEBUG
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativeMove(%d, %d, %d) bottom %d top %d direction %s",
 		X, Y, m_iLastNotch,m_Bottom,m_Top,m_eCapturingOffscreenMovement == cosm_UP ? "UP" : "DOWN");
+#endif
 	int Notch;
 	if( m_eCapturingOffscreenMovement == cosm_UP )
 	{
@@ -235,7 +237,9 @@ bool DatagridMouseHandlerHelper::ReleaseRelative()
 
 LoggerWrapper::GetInstance()->Write(LV_ACTION, "**stop**");
 	m_iLastNotch=-1;
-    LoggerWrapper::GetInstance()->Write(LV_DEBUG, "DatagridMouseHandlerHelper::ReleaseRelative()");
+#ifdef DEBUG
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::ReleaseRelative()");
+#endif
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
     RelativePointer_Clear();
 #ifdef WIN32
@@ -405,12 +409,16 @@ int DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(int nSpeedShape
     const int nPeakSpeed = 5;
     if ( (nSpeedShape > 0) && (nSpeedShape > nPeakSpeed) )
     {
-        LoggerWrapper::GetInstance()->Write(LV_DEBUG, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
+#ifdef DEBUG
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
+#endif
         nSpeedShape = nPeakSpeed;
     }
     if ( (nSpeedShape < 0) && (nSpeedShape < nPeakSpeed*-1) )
     {
-        LoggerWrapper::GetInstance()->Write(LV_DEBUG, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
+#ifdef DEBUG
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
+#endif
         nSpeedShape = -nPeakSpeed;
     }
     return nSpeedShape;

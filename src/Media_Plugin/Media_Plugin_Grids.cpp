@@ -596,7 +596,9 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
 void Media_Plugin::FileBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int *iPK_Variable, string *sValue_To_Assign )
 {
 	// Maybe we won't use the FileBrowser anymore, and just always get the data from the database
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Starting File list");
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_WARNING,"Starting File list");
+#endif
 	// A comma separated list of file extensions.  Blank means all files
 	Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
 	if( !pRow_MediaType )

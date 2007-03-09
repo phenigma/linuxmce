@@ -408,7 +408,9 @@ void OrbiterApp::PreTranslateVirtualKey( UINT uMsg, WPARAM* wParam, bool *bLongK
 		m_bDataKeys = false;
 		nTimeDown = clock();				
 		bIsLongKey = false;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Key down %d, time %d", wParam, nTimeDown);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Key down %d, time %d", wParam, nTimeDown);
+#endif
 	}
 	else
 	{
@@ -1840,7 +1842,9 @@ void OrbiterApp::SetKeybdHook( bool bClear )
        
 LRESULT OrbiterApp::OnCancelMode( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
 {
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"OrbiterApp::OnCancelMode");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterApp::OnCancelMode");
+#endif
 	if ( !m_bQuit_get()) {
 		bHandled = TRUE;
 		return 0;

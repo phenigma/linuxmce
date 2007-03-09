@@ -94,8 +94,10 @@ void PostCreateOptions::PostCreateSecurityDevice(Row_Device *pRow_Device, OH_Orb
 
 void PostCreateOptions::PostCreateDevice_FileServer(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PostCreateOptions::PostCreateDevice_NetworkStorage device  %d template %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_NetworkStorage device  %d template %d",
 		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get());
+#endif
 	string sName = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Description_CONST);
 	if( sName.empty()==false )
 	{
@@ -106,8 +108,10 @@ void PostCreateOptions::PostCreateDevice_FileServer(Row_Device *pRow_Device, OH_
 
 void PostCreateOptions::PostCreateDevice_NetworkStorage(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PostCreateOptions::PostCreateDevice_NetworkStorage device  %d template %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_NetworkStorage device  %d template %d",
 		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get());
+#endif
 
 	Command_Impl *pCommand_Impl_GIP = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
 	if( pCommand_Impl_GIP ) // Should always be there
@@ -126,14 +130,18 @@ void PostCreateOptions::PostCreateDevice_NetworkStorage(Row_Device *pRow_Device,
 
 void PostCreateOptions::PostCreateDevice_Cameras(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PostCreateOptions::PostCreateDevice_Cameras device  %d template %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_Cameras device  %d template %d",
 		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get());
+#endif
 }
 
 void PostCreateOptions::PostCreateDevice_DisklessMD(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PostCreateOptions::PostCreateDevice_DisklessMD device  %d template %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_DisklessMD device  %d template %d",
 		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get());
+#endif
 	string sPK_Device = StringUtils::itos(pRow_Device->PK_Device_get());
 	char * args[] = { "/usr/pluto/bin/New_PnP_MD.sh", (char *)(pRow_Device->IPaddress_get().c_str()), (char *)(pRow_Device->MACaddress_get().c_str()),
 		(char *)(sPK_Device.c_str()), NULL };
@@ -151,8 +159,10 @@ void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PostCreateOptions::PostCreateDevice_CaptureCard - no app server for %d",pRow_Device->PK_Device_get());
 		return;
 	}
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"PostCreateOptions::PostCreateDevice_CaptureCard device  %d template %d top %d %p",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_CaptureCard device  %d template %d top %d %p",
 		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get(),PK_Device_TopMost,pDevice_AppServer);
+#endif
 
 	DCE::CMD_Spawn_Application CMD_Spawn_Application(g_pCommand_Impl->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,"/usr/pluto/bin/CaptureCards_Setup.sh","captcard",
 		"","","",false,false,false,true);

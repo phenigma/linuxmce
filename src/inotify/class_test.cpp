@@ -20,15 +20,14 @@
 #include <iostream>
 using namespace std;
 
-int main()
+int main(int argc, char * argv[])
 {
 	inotify obj;
 
-	int wd1 = obj.watch("/tmp", IN_ALL_EVENTS);
-	int wd2 = obj.watch("/", IN_ALL_EVENTS);
-	obj.unwatch(wd2);
-	while (! obj.pending_events()) sleep(1);
-	cout << "Pending events" << endl;
+	int wd1 = obj.watch(argv[1], IN_ALL_EVENTS);
+	int wd2 = obj.watch("/home", IN_ALL_EVENTS);
+
+	cout << "wd1:" << wd1 <<"; wd2:" << wd2 << endl;
 	while (1)
 	{
 		cpp_inotify_event event = obj.get_event();

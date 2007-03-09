@@ -791,11 +791,13 @@ int Orbiter::CurrentScreen()
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::ScreenSaver( void *data )
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ScreenSaver Bypass screen saver now: %d obj %s ss %s",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ScreenSaver Bypass screen saver now: %d obj %s ss %s",
 		(int)m_bBypassScreenSaver,
 		m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() ? m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : "*NONE*",
 		m_pDesignObj_Orbiter_ScreenSaveMenu ? m_pDesignObj_Orbiter_ScreenSaveMenu->m_ObjectID.c_str() : "*NONE*");
 
+#endif
 	if( m_bBypassScreenSaver )
 		return;
 
@@ -807,7 +809,9 @@ void Orbiter::ScreenSaver( void *data )
 	if( time(NULL) - m_tLastMouseMove < Timeout )
 	{
 		// The mouse has moved.  Reset it
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Orbiter::ScreenSaver mouse moved");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter::ScreenSaver mouse moved");
+#endif
 		CallMaintenanceInMiliseconds( ( m_tLastMouseMove + Timeout - time(NULL) ) * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 		return;
 	}
@@ -818,7 +822,9 @@ void Orbiter::ScreenSaver( void *data )
 		// Don't shut the tv off if we're playing media
 		if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation )
 		{
-			LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Orbiter::ScreenSaver not turning off display because we're playing media");
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter::ScreenSaver not turning off display because we're playing media");
+#endif
 		}
 		else
 			CMD_Display_OnOff("0",false);
@@ -831,7 +837,9 @@ void Orbiter::ScreenSaver( void *data )
 
 void Orbiter::Timeout( void *data )
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Screen %s timed out data: %p",m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(),data);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Screen %s timed out data: %p",m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(),data);
+#endif
 	if( !data || data!=(void *) m_pScreenHistory_Current->GetObj() )
 		return;
 
@@ -889,9 +897,11 @@ g_PlutoProfiler->DumpResults();
 	m_bShiftDown = false;
 	m_sCaptureKeyboard_InternalBuffer = "";
 
+#ifdef DEBUG
 	if(pScreenHistory)
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::NeedToChangeScreens Need to change screens executed to %s",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::NeedToChangeScreens Need to change screens executed to %s",
 		pScreenHistory->GetObj()->m_ObjectID.c_str());
+#endif
 
 	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 	m_vectObjs_GridsOnScreen.clear(  );
@@ -927,12 +937,16 @@ g_PlutoProfiler->DumpResults();
 		// If the screen saver is on, and we're not changing to the screen saver, in UI1 this means shut it off
 		if( m_bScreenSaverActive && pScreenHistory->GetObj()!=m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::NeedToChangeScreens Goto Screen -- wakign up from screen saver");
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Orbiter::NeedToChangeScreens Goto Screen -- wakign up from screen saver");
+#endif
 			StopScreenSaver();  // The function will ignore this for ui2 if there's no media playing
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Orbiter::NeedToChangeScreens calling CMD_Show_Mouse_Pointer mb %p vis %d",
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::NeedToChangeScreens calling CMD_Show_Mouse_Pointer mb %p vis %d",
 				m_pMouseBehavior, m_pMouseBehavior ? (int) m_pMouseBehavior->m_bMouseVisible : 0);
+#endif
 			if( NULL != m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )  // If m_bMouseVisible is true, it should be visible since screen saver doesn't set this, and that way if the screen saver hid it we'll restore it
 				CMD_Show_Mouse_Pointer("1");
 #endif
@@ -956,7 +970,9 @@ g_PlutoProfiler->DumpResults();
 			if(ScreenHistory::m_bAddToHistory)
 			{
 				m_listScreenHistory.push_back( m_pScreenHistory_Current );
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Orbiter::NeedToChangeScreens m_listScreenHistory Adding to screens history list screen %d size %d", m_pScreenHistory_Current->PK_Screen(),(int) m_listScreenHistory.size());
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Orbiter::NeedToChangeScreens m_listScreenHistory Adding to screens history list screen %d size %d", m_pScreenHistory_Current->PK_Screen(),(int) m_listScreenHistory.size());
+#endif
 			}
 
 			if ( m_listScreenHistory.size(  ) > 64 )
@@ -983,29 +999,39 @@ g_PlutoProfiler->DumpResults();
 	{
 		m_tTimeoutTime = time(NULL) + m_iTimeoutBlank;
 
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Orbiter::NeedToChangeScreens About to call maint for display off with timeout: %d ms", m_iTimeoutBlank * 1000);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter::NeedToChangeScreens About to call maint for display off with timeout: %d ms", m_iTimeoutBlank * 1000);
+#endif
 
 		CallMaintenanceInMiliseconds( m_iTimeoutBlank * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 	}
 	else if( !(m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu) && !m_bBypassScreenSaver && m_iTimeoutScreenSaver )
 	{
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Orbiter::NeedToChangeScreens About to call maint for screen saver with timeout: %d ms", m_iTimeoutScreenSaver * 1000);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter::NeedToChangeScreens About to call maint for screen saver with timeout: %d ms", m_iTimeoutScreenSaver * 1000);
+#endif
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 	}
 
 	m_pScreenHistory_Current=pScreenHistory;
 	m_pScreenHistory_Current->GetObj()->m_bActive=true;
-LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Orbiter::NeedToChangeScreens need to change timeout %d",m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds);
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter::NeedToChangeScreens need to change timeout %d",m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds);
+#endif
 
 	if( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds )
 	{
-LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Orbiter::NeedToChangeScreens calling timeout");
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter::NeedToChangeScreens calling timeout");
+#endif
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->GetObj(), pe_ALL );
 	}
 
 	m_cCurrentScreen=m_pScreenHistory_Current->GetObj()->m_cScreenType;
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Orbiter::NeedToChangeScreens Changing screen to %s ir %d type %c",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter::NeedToChangeScreens Changing screen to %s ir %d type %c",
 		m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ), m_dwPK_Device_LocalOsdIRReceiver, m_cCurrentScreen);
+#endif
 
 	if( m_dwPK_Device_LocalOsdIRReceiver && m_bIsOSD )
 	{
@@ -1062,16 +1088,20 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 		PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 		if( X>=0 && Y>=0 )
 		{
-			LoggerWrapper::GetInstance()->Write( LV_DEBUG,  "Selected datagrid: %s", pObj->m_ObjectID.c_str(  ) );
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write( LV_WARNING,  "Selected datagrid: %s", pObj->m_ObjectID.c_str(  ) );
+#endif
 			if ( !SelectedGrid( ( DesignObj_DataGrid * ) pObj,  X-pObj->m_rPosition.X,  Y-pObj->m_rPosition.Y, selectionMethod ) )
 				return;
 		}
 		else if( pDataGridTable )
 		{
 			PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Enter key press. Status: iHighlightedColumn %d, GridCurCol %d, iHighlightedRow %d, GridCurRow %d",
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Enter key press. Status: iHighlightedColumn %d, GridCurCol %d, iHighlightedRow %d, GridCurRow %d",
 				pDesignObj_DataGrid->m_iHighlightedColumn, pDesignObj_DataGrid->m_GridCurCol,
 				pDesignObj_DataGrid->m_iHighlightedRow, pDesignObj_DataGrid->m_GridCurRow);
+#endif
 			int Column = pDesignObj_DataGrid->m_iHighlightedColumn != -1 ? 
 				pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : 
 				pDesignObj_DataGrid->m_GridCurCol;
@@ -1089,7 +1119,9 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 		}
 	}
 
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG,  "Selected objs: %s with %d zones", pObj->m_ObjectID.c_str(  ), ( int ) pObj->m_ZoneList.size(  ) );
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_WARNING,  "Selected objs: %s with %d zones", pObj->m_ObjectID.c_str(  ), ( int ) pObj->m_ZoneList.size(  ) );
+#endif
 
 	// There's a problem that we draw the selected state before we show or hide other objects,  and this causes
 	// the other objects to be drawn on top of the selected state.  We'll execute the commands first so that
@@ -1131,15 +1163,19 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 				DesignObj_Orbiter *pObj_Sel = m_vectObjs_Selected[s];
 				if(  pObj_Sel->m_GraphicToDisplay==GRAPHIC_SELECTED && !pObj_Sel->m_bDontResetState )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "About to reset state for object with id %s",
+#ifdef DEBUG
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "About to reset state for object with id %s",
 						pObj_Sel->m_ObjectID.c_str());
+#endif
 					//if it is playing, cancel this
 					pObj_Sel->m_pvectCurrentPlayingGraphic = NULL;
 					pObj_Sel->m_iCurrentFrame = 0;
 					pObj_Sel->m_GraphicToDisplay_set("o2",GRAPHIC_NORMAL);
 
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "State reseted for object with id %s",
+#ifdef DEBUG
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "State reseted for object with id %s",
 						pObj_Sel->m_ObjectID.c_str());
+#endif
 					m_pOrbiterRenderer->RenderObjectAsync(pObj_Sel);
 				}
 			}
@@ -1196,7 +1232,9 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 	/* todo 2.0
 	if(  pButtonTouchMessage  )
 	{
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG,  "\x1b[33;1m#%d Selected object: %s # \x1b[0m  click: %d, %d", m_dwPK_Device, pObj->m_ObjectID.c_str(  ), X, Y );
+	#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_CONTROLLER,  "\x1b[33;1m#%d Selected object: %s # \x1b[0m  click: %d, %d", m_dwPK_Device, pObj->m_ObjectID.c_str(  ), X, Y );
+	#endif
 	Message *pThisMessage = new Message( m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Orbiter_BUTTON_TOUCHED_CONST, 4,
 	C_EVENTPARAMETER_PK_OBJECT_CONST, pObj->m_ObjectID.c_str(  ),
 	C_EVENTPARAMETER_ID_CONST, StringUtils::itos( CTRLCOMMAND_ACTIVATE ).c_str(  ),
@@ -1228,7 +1266,9 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 	if ( !pDesignObj_DataGrid->DataGridTable_Get() )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Selected grid %s but DataGridTable_Get() is NULL",pDesignObj_DataGrid->m_ObjectID.c_str());
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Selected grid %s but DataGridTable_Get() is NULL",pDesignObj_DataGrid->m_ObjectID.c_str());
+#endif
 		return false;
 	}
 
@@ -1329,7 +1369,9 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 //------------------------------------------------------------------------
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell, SelectionMethod selectionMethod, int iRow, int iColumn )
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Orbiter::SelectedGrid cell %p row %d col %d",pCell,iRow,iColumn);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::SelectedGrid cell %p row %d col %d",pCell,iRow,iColumn);
+#endif
 	if( pDesignObj_DataGrid->m_iPK_Datagrid==DATAGRID_Floorplan_Devices_CONST )
 	{
 		if( pDesignObj_DataGrid->m_pFloorplanObject==NULL )
@@ -1384,7 +1426,9 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 			pMessage->m_dwID==COMMAND_Populate_Datagrid_CONST &&
 			pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_ID_CONST]==pDesignObj_DataGrid->m_sGridID  )
 		{
-			LoggerWrapper::GetInstance()->Write( LV_DEBUG, "re-rendering grid: ( %s", pDesignObj_DataGrid->GetParameterValue( DESIGNOBJPARAMETER_Data_grid_ID_CONST ).c_str(  ) );
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write( LV_CONTROLLER, "re-rendering grid: ( %s", pDesignObj_DataGrid->GetParameterValue( DESIGNOBJPARAMETER_Data_grid_ID_CONST ).c_str(  ) );
+#endif
 			string GridID = pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_ID_CONST];
 			DesignObj_DataGrid *pDesignObj_DataGrid_OnScreen=NULL;
 			// See if this grid is onscreen
@@ -1423,7 +1467,9 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 				}
 				else
 				{
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "NOT setting the datagrid variable. It's 0!");
+#ifdef DEBUG
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "NOT setting the datagrid variable. It's 0!");
+#endif
 				}
 
 				delete pMessage_Out;
@@ -1464,7 +1510,9 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 	// Side-effect on single select interface: the clicked row was redrawn after drawing the new grid
 	if ( !pDesignObj_DataGrid->m_iPK_Variable || !pCell->m_bSelectable )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "No datagrid variable was updated");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "No datagrid variable was updated");
+#endif
 		return true;
 	}
 
@@ -1507,8 +1555,10 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 		NewValue =  pCell->GetValue(  );
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Need to update variable %d of the datagrid with value %s",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Need to update variable %d of the datagrid with value %s",
 		pDesignObj_DataGrid->m_iPK_Variable, NewValue.c_str());
+#endif
 
 	if( pDesignObj_DataGrid->m_iPK_Datagrid!=DATAGRID_Floorplan_Devices_CONST )
 		CMD_Set_Variable(PK_Variable, NewValue); // we already set this in the custom block above
@@ -1559,8 +1609,10 @@ bool Orbiter::SelectedGrid( int DGRow )
 	pDesignObj_DataGrid->m_iHighlightedRow = DGRow;
 	pDesignObj_DataGrid->m_GridCurCol = iSelectedColumn;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Selected row: %d, selected column: %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Selected row: %d, selected column: %d",
 		DGRow, iSelectedColumn);
+#endif
 
 	if( pCell )
 		CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, pCell->GetValue());
@@ -2015,14 +2067,18 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			for( size_t s=0;s<m_dequeLocation.size();++s)
 			{
 				class LocationInfo *pLocationInfo = m_dequeLocation[s];
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Checing %d/%d room: %d ea %d against %d %d",
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Checing %d/%d room: %d ea %d against %d %d",
 					(int) s,pLocationInfo->iLocation,pLocationInfo->PK_Room,pLocationInfo->PK_EntertainArea,iPK_Room,iPK_EntertainArea);
+#endif
 				// If a room/ent area is passed in use that location instead of m_iLocation_Initial
 				if( (pLocationInfo->iLocation==m_iLocation_Initial && !m_pLocationInfo_Initial) ||
 					(pLocationInfo->PK_Room==iPK_Room && pLocationInfo->PK_EntertainArea==0) ||
 					(iPK_EntertainArea && pLocationInfo->PK_EntertainArea==iPK_EntertainArea) )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG,"using location in size: %d",(int) m_dequeLocation.size());
+#ifdef DEBUG
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"using location in size: %d",(int) m_dequeLocation.size());
+#endif
 					m_pLocationInfo_Initial = pLocationInfo;
 				}
 			}
@@ -2033,7 +2089,9 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				m_pOrbiterRenderer->PromptUser("Something went very wrong. No initial location!");
 				exit( 1 );
 			}
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Setting current location and initial screen %s",m_sInitialScreen.c_str());
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting current location and initial screen %s",m_sInitialScreen.c_str());
+#endif
 
 			if( m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD )
 			{
@@ -2088,7 +2146,9 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			if( m_bNewOrbiter )
 				m_iTimeoutScreenSaver=m_iTimeoutBlank=0;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"monitor m_bDisplayOn initially set to %d",(int) m_bDisplayOn);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"monitor m_bDisplayOn initially set to %d",(int) m_bDisplayOn);
+#endif
 
 			char *pData=NULL; int iSize=0;
 			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
@@ -2194,7 +2254,9 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 	}
 
 	++m_dwIDataGridRequestCounter;
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Initializing grid: %d ( %s ) dev %d options: %s ( # %d )", pObj->m_iPK_Datagrid, pObj->m_sGridID.c_str(  ), m_dwPK_Device, pObj->m_sOptions.c_str(  ), m_dwIDataGridRequestCounter );
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_CONTROLLER, "Initializing grid: %d ( %s ) dev %d options: %s ( # %d )", pObj->m_iPK_Datagrid, pObj->m_sGridID.c_str(  ), m_dwPK_Device, pObj->m_sOptions.c_str(  ), m_dwIDataGridRequestCounter );
+#endif
 
 	if(m_bQuit_get())	
 		return;
@@ -2315,7 +2377,9 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 
 	string::size_type pos=0;
 	int NumPages = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Get Floorplan layout found %d pages in %s", NumPages,sResult.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Get Floorplan layout found %d pages in %s", NumPages,sResult.c_str());
+#endif
 	for(int PageCount=0;PageCount<NumPages;++PageCount)
 	{
 		int PageNum = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
@@ -2324,7 +2388,9 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 		m_mapFloorplanObjectVector[PageNum]=pFloorplanObjectVectorMap ;
 
 		int NumTypes = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Page %d had %d types", PageNum, NumTypes);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Page %d had %d types", PageNum, NumTypes);
+#endif
 		for(int TypeCount=0;TypeCount<NumTypes;++TypeCount)
 		{
 			int TypeNum = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
@@ -2351,7 +2417,9 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 				if( !fpObj->pObj )
 					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find floorplan object: %s",fpObj->ObjectID.c_str());
 
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Adding device %d %s to floorplan", fpObj->PK_Device, fpObj->DeviceDescription.c_str());
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Adding device %d %s to floorplan", fpObj->PK_Device, fpObj->DeviceDescription.c_str());
+#endif
 
 				fpObjVector->push_back(fpObj);
 				if( fpObj->pObj )
@@ -2395,7 +2463,9 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 			TranslateVirtualDevice(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_To );
 		if( !pMessage->m_dwPK_Device_From )
 			pMessage->m_dwPK_Device_From = m_dwPK_Device;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Orbiter::ParseHardKeys key %d = message %s", iKey, sToken.c_str() );
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::ParseHardKeys key %d = message %s", iKey, sToken.c_str() );
+#endif
 		m_mapHardKeys[iKey] = pMessage;
 	}
 }
@@ -2560,8 +2630,10 @@ bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rect
     int y = point.Y + pObj->m_rPosition.Y;
     int width = pObj->m_rPosition.Width;
     int height = pObj->m_rPosition.Height;
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Orbiter::RenderDesktop(pObj=%p) : Render desktop (%d,%d,%d,%d)",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter::RenderDesktop(pObj=%p) : Render desktop (%d,%d,%d,%d)",
                            pObj, x, y, width, height );
+#endif
     // background color
     PlutoColor color( 0, 0, 255 );
     // in some cases, make the background transparent
@@ -2588,20 +2660,24 @@ ACCEPT OUTSIDE INPUT
 void Orbiter::QueueEventForProcessing( void *eventData )
 {
 	Orbiter::Event *pEvent = (Orbiter::Event*)eventData;
+#ifdef DEBUG
 	if( pEvent->type == Orbiter::Event::MOUSE_MOVE )
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::QueueEventForProcessing mouse x %d y %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing mouse x %d y %d",
 			pEvent->data.region.m_iX,pEvent->data.region.m_iY);
 	else
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::QueueEventForProcessing type %d key %d keycode %d (sim=%d)",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d keycode %d (sim=%d)",
 			pEvent->type, pEvent->data.button.m_iPK_Button, pEvent->data.button.m_iKeycode, (int) pEvent->data.button.m_bSimulated);
+#endif
 
 	map< pair<int,int>,pair<int,int> >::iterator it = m_mapEventToSubstitute.find( make_pair<int,int> (pEvent->type,pEvent->data.button.m_iKeycode) );
 	if( it!=m_mapEventToSubstitute.end() )
 	{
 		pEvent->type = (DCE::Orbiter::Event::EventType) it->second.first;
 		pEvent->data.button.m_iKeycode = it->second.second;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::QueueEventForProcessing translated to type %d key %d",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to type %d key %d",
 		  pEvent->type, pEvent->data.button.m_iKeycode);
+#endif
 	}
 
 	PreprocessEvent(*pEvent);  // This will fill in the PK_Button if it's not already there
@@ -2639,8 +2715,10 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 			gettimeofday(&tButtonUp,NULL);
 			timespec m_tInterval = tButtonUp - m_tButtonDown;
 			long tMilisecondsPassed = m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::QueueEventForProcessing m_tButtonDown %d.%d up %d.%d interval %d",
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing m_tButtonDown %d.%d up %d.%d interval %d",
 				(int) m_tButtonDown.tv_sec,(int) m_tButtonDown.tv_nsec,(int) tButtonUp.tv_sec,(int) tButtonUp.tv_nsec,(int) tMilisecondsPassed);
+#endif
 
 			if( tMilisecondsPassed > KEY_DOWN_DURATION )
 				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'H'));
@@ -2656,7 +2734,9 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 				if( m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'D'))!=m_mapScanCodeToRemoteButton.end() ||
 					m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'R'))!=m_mapScanCodeToRemoteButton.end() )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::QueueEventForProcessing ignoring keycode %d up because there's a DOWN",pEvent->data.button.m_iKeycode);
+#ifdef DEBUG
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing ignoring keycode %d up because there's a DOWN",pEvent->data.button.m_iKeycode);
+#endif
 					return;
 				}
 			}
@@ -2664,7 +2744,9 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		else
 		{
 			gettimeofday(&m_tButtonDown,NULL);
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::QueueEventForProcessing m_tButtonDown %d.%d",(int) m_tButtonDown.tv_sec,(int) m_tButtonDown.tv_nsec);
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing m_tButtonDown %d.%d",(int) m_tButtonDown.tv_sec,(int) m_tButtonDown.tv_nsec);
+#endif
 			it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'D') );
 
 			map< pair<int,char>, string>::iterator itRepeat = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'R'));
@@ -2680,7 +2762,9 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 			if( it==m_mapScanCodeToRemoteButton.end() && 
 				m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'U') )!=m_mapScanCodeToRemoteButton.end() )
 			{
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::QueueEventForProcessing ignoring keycode %d down because there's an UP",pEvent->data.button.m_iKeycode);
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing ignoring keycode %d down because there's an UP",pEvent->data.button.m_iKeycode);
+#endif
 				return;
 			}
 		}
@@ -2688,7 +2772,9 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		if( it!=m_mapScanCodeToRemoteButton.end() )
 		{
 			string sKey = it->second;
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::QueueEventForProcessing received key %s repeat %s",sKey.c_str(),sRepeatKey.c_str());
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s repeat %s",sKey.c_str(),sRepeatKey.c_str());
+#endif
 			ReceivedCode(0,sKey.c_str(),sRepeatKey.c_str());
 			return;
 		}
@@ -2712,8 +2798,10 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 		&& !GotActivity( event.type == Orbiter::Event::BUTTON_DOWN ? event.data.button.m_iPK_Button : 0 ) )
 			return true;
 
+#ifdef DEBUG
 //	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ProcessEvent1 type %d key %d",
 //					  event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
+#endif
 	if ( event.type == Orbiter::Event::MOUSE_MOVE )
 	{
 #ifdef ENABLE_MOUSE_BEHAVIOR
@@ -2728,16 +2816,18 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 		m_tLastMouseMove=time(NULL);
 	}
 
+#ifdef DEBUG
 	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(
 	if ( event.type != Orbiter::Event::QUIT && event.type != Orbiter::Event::NOT_PROCESSED )
 	{
 		if ( event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP )
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Button %s: button ID: %d m_bForward_local_kb_to_OSD %d", 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Button %s: button ID: %d m_bForward_local_kb_to_OSD %d", 
 				(event.type == Orbiter::Event::BUTTON_DOWN) ? "down" : "up", event.data.button.m_iPK_Button, (int) m_bForward_local_kb_to_OSD );
 
 		if ( event.type == Orbiter::Event::REGION_DOWN || event.type == Orbiter::Event::REGION_UP )
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Region %s: position: [%d, %d]", (event.type == Orbiter::Event::REGION_DOWN) ? "down" : "up", event.data.region.m_iX, event.data.region.m_iY);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Region %s: position: [%d, %d]", (event.type == Orbiter::Event::REGION_DOWN) ? "down" : "up", event.data.region.m_iX, event.data.region.m_iY);
 	}
+#endif
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 // some temporary stuff
@@ -2745,8 +2835,10 @@ if(UsesUIVersion2())
 {
 	bool bSkipProcessing=false;
 
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ProcessEvent2 %p type %d key %d",
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ProcessEvent2 %p type %d key %d",
 					  m_pMouseBehavior, event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
+#endif
 	if(event.type == Orbiter::Event::BUTTON_DOWN && NULL != m_pMouseBehavior)
 	{
 		if(event.data.button.m_iPK_Button == BUTTON_F6_CONST || event.data.button.m_iPK_Button == BUTTON_Mouse_6_CONST)
@@ -2791,8 +2883,10 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ProcessEvent2 %p type %d 
 		if ( event.type == Orbiter::Event::REGION_UP && event.data.region.m_iButton==2 )
 			bSkipProcessing=m_pMouseBehavior->ButtonUp(BUTTON_Mouse_3_CONST);
 	}
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ProcessEvent3 %d type %d key %d",
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d key %d",
 					  (int) bSkipProcessing, event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
+#endif
 
 	if( bSkipProcessing )
 		return true;
@@ -2866,7 +2960,9 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ProcessEvent3 %d type %d 
 
 /*virtual*/ bool Orbiter::HandleButtonEvent(int PK_Button)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "HandleButtonEvent button %d, shift %d, caps %d", PK_Button, m_bShiftDown, m_bCapsLock);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "HandleButtonEvent button %d, shift %d, caps %d", PK_Button, m_bShiftDown, m_bCapsLock);
+#endif
 	
 	if( !PK_Button || !m_pScreenHistory_Current )
 		return false;
@@ -3084,19 +3180,25 @@ bool Orbiter::ButtonDown( int iPK_Button )
 	if(iPK_Button == BUTTON_left_shift_CONST || iPK_Button == BUTTON_right_shift_CONST)
 	{
 		m_bShiftDown = true; //different logic with the on screen keyboard
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Button Down - shift");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Button Down - shift");
+#endif
 	}
 	else if(iPK_Button == BUTTON_caps_lock_CONST)
 		m_bCapsLock = !m_bCapsLock;
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Button Down - key");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Button Down - key");
+#endif
 	}
 
 	//this is not a repeated button
 	//it will be handled in ButtonUp
 	gettimeofday(&m_tButtonDown,NULL);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ButtonDown m_tButtonDown %d.%d",(int) m_tButtonDown.tv_sec,(int) m_tButtonDown.tv_nsec);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ButtonDown m_tButtonDown %d.%d",(int) m_tButtonDown.tv_sec,(int) m_tButtonDown.tv_nsec);
+#endif
 	return false;
 }
 
@@ -3117,7 +3219,9 @@ bool Orbiter::ButtonUp( int iPK_Button )
 
 	if( m_mapHardKeys.find(iPK_Button)!=m_mapHardKeys.end() )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ButtonUp HardKey %d", iPK_Button);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ButtonUp HardKey %d", iPK_Button);
+#endif
 		Message *pMessage = m_mapHardKeys[iPK_Button];
 		if( pMessage->m_dwPK_Device_To==m_dwPK_Device )
 			ReceivedMessage( pMessage );
@@ -3192,10 +3296,14 @@ bool Orbiter::ButtonUp( int iPK_Button )
 #endif
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Long key %d", iPK_Button);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Long key %d", iPK_Button);
+#endif
 	}
+#ifdef DEBUG
 	else
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Short key %d", iPK_Button);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Short key %d", iPK_Button);
+#endif
 
 	if(m_bShiftDown && m_bShiftDownOnScreenKeyboard)
 	{
@@ -3216,13 +3324,17 @@ bool Orbiter::ButtonUp( int iPK_Button )
 		if(m_bShiftDown && m_bShiftDownOnScreenKeyboard)
 			m_bShiftDown = false;
 
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Button up - key");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Button up - key");
+#endif
 	}
 	else
 	{
 		if(m_bShiftDown && !m_bShiftDownOnScreenKeyboard)
 			m_bShiftDown = false;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Button up - shift");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Button up - shift");
+#endif
 	}
 
 	if(!m_bShiftDown)
@@ -3338,7 +3450,9 @@ bool Orbiter::RegionDown( int x,  int y )
 	NeedToRender render( this, "Region Down" );  // Redraw anything that was changed by this command
 	if( !GotActivity( 0 ) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Ignoring click %d,%d",x,y);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
+#endif
 		return true;
 	}
 
@@ -3418,15 +3532,19 @@ bool Orbiter::GotActivity( int PK_Button )
 {
 	m_LastActivityTime=time( NULL );
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::GotActivity m_bDisplayOn is %d m_bScreenSaverActive %d ui2 %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::GotActivity m_bDisplayOn is %d m_bScreenSaverActive %d ui2 %d",
 		(int) m_bDisplayOn,(int) m_bScreenSaverActive,(int) UsesUIVersion2());
+#endif
 
 	// If the display is off, or we're in screen saver mode
 	if( !m_bDisplayOn || 
 		(m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu) )
 	{
 		bool bReturnValue=false;  // Normally we won't want this key to be processed, with one exception below
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"GotActiity monitor m_bDisplayOn is %d",(int) m_bDisplayOn);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"GotActiity monitor m_bDisplayOn is %d",(int) m_bDisplayOn);
+#endif
 		if( !m_bDisplayOn )
 			CMD_Display_OnOff( "1",false );
 
@@ -3449,27 +3567,35 @@ bool Orbiter::GotActivity( int PK_Button )
 		{
 			StopScreenSaver();
 #ifdef ENABLE_MOUSE_BEHAVIOR
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Orbiter::GotActivity calling CMD_Show_Mouse_Pointer mb %p vis %d",
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::GotActivity calling CMD_Show_Mouse_Pointer mb %p vis %d",
 				m_pMouseBehavior, NULL != m_pMouseBehavior ? (int) m_pMouseBehavior->m_bMouseVisible : -1);
+#endif
 			if( m_pMouseBehavior && m_pMouseBehavior->m_bMouseVisible )   // If m_bMouseVisible is true, it should be visible since screen saver doesn't set this, and that way if the screen saver hid it we'll restore it
 				CMD_Show_Mouse_Pointer("1");
 #endif
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Ignoring click because screen saver was active");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring click because screen saver was active");
+#endif
 		return bReturnValue; // Don't do anything with this
 	}
 
 	if(  NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds  )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Got activity - calling Timeout in %d ",m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got activity - calling Timeout in %d ",m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds);
+#endif
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->GetObj()->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->GetObj(), pe_ALL );
 	}
 
 	// If the screen saver is not active, then start a countdown to activate it
 	if( !m_bBypassScreenSaver && !(m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu) && !m_bScreenSaverActive && m_iTimeoutScreenSaver )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Got activity - calling ScreenSaver in %d ",m_iTimeoutScreenSaver);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got activity - calling ScreenSaver in %d ",m_iTimeoutScreenSaver);
+#endif
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 	}
 	return true;
@@ -3627,7 +3753,9 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 			&Orbiter::ReselectObject, pObj, pe_ALL, true );
 	}
 
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Executing %d commands in object: %s", ( int ) pDesignObjCommandList->size(  ),  pObj->m_ObjectID.c_str(  ) );
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Executing %d commands in object: %s", ( int ) pDesignObjCommandList->size(  ),  pObj->m_ObjectID.c_str(  ) );
+#endif
 
 	bool bRefreshGrids=false;
 	Message *pMessage=NULL;
@@ -3642,7 +3770,9 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 		if( pCommand->m_bDeliveryConfirmation )
 			bGetConfirmation=true;
 
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Executing command %d in object: %s", PK_Command,  pObj->m_ObjectID.c_str(  ) );
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Executing command %d in object: %s", PK_Command,  pObj->m_ObjectID.c_str(  ) );
+#endif
 if( PK_Command==35 )
 int k=2;
 		if(
@@ -3849,7 +3979,9 @@ int k=2;
 				if( ( *iap ).first==COMMANDPARAMETER_Repeat_Command_CONST )
 					bAlreadySetRepeat=true;
 
-				LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Parm %d = %s",( *iap ).first,Value.c_str());
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Parm %d = %s",( *iap ).first,Value.c_str());
+#endif
 			}
 			if( Repeat && !bAlreadySetRepeat )
 				pThisMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST]=StringUtils::itos(Repeat);
@@ -3891,7 +4023,9 @@ int k=2;
 			}
 			else if( pMessage->m_dwID==COMMAND_Bind_to_Media_Remote_CONST )
 			{
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ExecuteCommandInList sending bind to media remote");
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ExecuteCommandInList sending bind to media remote");
+#endif
 				pMessage->m_eExpectedResponse = ER_ReplyMessage;  // a set now playing command
 				Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pMessage );
 				if( pResponse && pResponse->m_dwID )
@@ -4336,7 +4470,9 @@ for(map<int,class FloorplanObject *>::iterator it2=m_mapFloorplanObject_Selected
 		{
 			PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 			string sVarValue = m_mapVariable[PK_Variable];
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG," Variable: %d has value %s",PK_Variable,sVarValue.c_str());
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS," Variable: %d has value %s",PK_Variable,sVarValue.c_str());
+#endif
 
 			vm.Release();
 
@@ -4346,7 +4482,9 @@ for(map<int,class FloorplanObject *>::iterator it2=m_mapFloorplanObject_Selected
 	}
 	Output+=Input.substr( pos );
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Substituted '%s' with '%s'", Input.c_str(), Output.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Substituted '%s' with '%s'", Input.c_str(), Output.c_str());
+#endif
 
 	return Output;
 }
@@ -4436,7 +4574,9 @@ void *MaintThread(void *p)
 		if(pOrbiter->m_mapPendingCallbacks.size() == 0)
 		{
 			//nothing to process. let's sleep...
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MaintThread empty");
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MaintThread empty");
+#endif
 			cm.CondWait(); // This will unlock the mutex and lock it on awakening
 		}
 		else
@@ -4448,7 +4588,9 @@ void *MaintThread(void *p)
 			ts_NextCallBack.tv_sec=0;
 			gettimeofday(&ts_now,NULL);
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "MaintThread woke up with %d callbacks",(int) pOrbiter->m_mapPendingCallbacks.size());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MaintThread woke up with %d callbacks",(int) pOrbiter->m_mapPendingCallbacks.size());
+#endif
 
 			//let's choose the one which must be processed first
 			for(map<int,PendingCallBackInfo *>::iterator it=pOrbiter->m_mapPendingCallbacks.begin();it!=pOrbiter->m_mapPendingCallbacks.end();)
@@ -4456,21 +4598,27 @@ void *MaintThread(void *p)
 				PendingCallBackInfo *pCallBackInfo = (*it).second;
 				if( pCallBackInfo->m_bStop )
 				{
+#ifdef DEBUG
 //					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MaintThread Going to delete member %X::%X %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
+#endif
 					pOrbiter->m_mapPendingCallbacks.erase( it++ );  // This is dead anyway
 					delete pCallBackInfo;
 					continue;
 				}
 				else if(pCallBackInfo->m_abstime <= ts_now)
 				{
+#ifdef DEBUG
 //					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MaintThread Going to execute member %X::%X %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
+#endif
 					pOrbiter->m_mapPendingCallbacks.erase( it );
 					pCallBackInfoGood = pCallBackInfo;
 					break;  // We got one to execute now
 				}
 				else
 				{
+#ifdef DEBUG
 //					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MaintThread Going to wait for member %X::%X %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
+#endif
 					if( ts_NextCallBack.tv_sec==0 || pCallBackInfo->m_abstime<ts_NextCallBack )
 						ts_NextCallBack = pCallBackInfo->m_abstime;  // This is the next one to call
 				}
@@ -4480,14 +4628,18 @@ void *MaintThread(void *p)
 			if( pCallBackInfoGood )
 			{
 				cm.Release(); // Don't keep the mutex locked while executing
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MaintThread calling member %X::%X %d:%d",pCallBackInfoGood->m_fnCallBack,(int) pCallBackInfoGood->m_abstime.tv_sec,(int) pCallBackInfoGood->m_abstime.tv_nsec);
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MaintThread calling member %X::%X %d:%d",pCallBackInfoGood->m_fnCallBack,(int) pCallBackInfoGood->m_abstime.tv_sec,(int) pCallBackInfoGood->m_abstime.tv_nsec);
+#endif
 				CALL_MEMBER_FN(*(pCallBackInfoGood->m_pOrbiter), pCallBackInfoGood->m_fnCallBack)(pCallBackInfoGood->m_pData);
 				cm.Relock();
 				delete pCallBackInfoGood;
 			}
 			else if( ts_NextCallBack.tv_sec!=0 ) // Should be the case
 			{
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MaintThread sleep ts_NextCallBack %d:%d",(int) ts_NextCallBack.tv_sec,(int) ts_NextCallBack.tv_nsec);
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MaintThread sleep ts_NextCallBack %d:%d",(int) ts_NextCallBack.tv_sec,(int) ts_NextCallBack.tv_nsec);
+#endif
 				cm.TimedCondWait(ts_NextCallBack);
 			}
 		}
@@ -4514,7 +4666,9 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 				(e_PurgeExisting==pe_ALL || pCallBackInfo->m_pData==data) )
 			{
 				pCallBackInfo->m_bStop=true;
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CallMaintenanceInMiliseconds Stopping member %X::%X %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CallMaintenanceInMiliseconds Stopping member %X::%X %d:%d",pCallBackInfo->m_fnCallBack,(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
+#endif
 			}
 		}
 	}
@@ -4528,8 +4682,10 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 	pCallBackInfo->m_pData=data;
 	pCallBackInfo->m_pOrbiter=this;
 
+#ifdef DEBUG
 //	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CallMaintenanceInMiliseconds %X::%X %d ms started with mapPendingCallbacks size: %d time %d:%d",
 //		fnCallBack,(int) milliseconds,m_mapPendingCallbacks.size(),(int) pCallBackInfo->m_abstime.tv_sec,(int) pCallBackInfo->m_abstime.tv_nsec);
+#endif
 
 	m_mapPendingCallbacks[pCallBackInfo->m_nCallbackID]=pCallBackInfo;
 
@@ -4556,7 +4712,9 @@ void Orbiter::DeselectObjects( void *data )
 	if( m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()!=pObj->m_pObj_Screen /*&& !GetActivePopup()*/)
 		return; // We must have since changed screens
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Deselecting %s object, state '%s'", pObj->m_ObjectID.c_str(), pObj->m_GraphicToDisplay==GRAPHIC_SELECTED ? "'selected'" : "'normal'");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Deselecting %s object, state '%s'", pObj->m_ObjectID.c_str(), pObj->m_GraphicToDisplay==GRAPHIC_SELECTED ? "'selected'" : "'normal'");
+#endif
 
 	if(pObj->m_GraphicToDisplay == GRAPHIC_SELECTED)
 	{
@@ -4604,7 +4762,9 @@ void Orbiter::GetVideoFrame( void *data )
 
 	DesignObj_Orbiter *pObj = m_vectObjs_VideoOnScreen[m_iLastVideoObjectRendered++];
 	vm.Release();
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Orbiter::GetVideoFrame() The target object is: %s", pObj->m_ObjectID.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::GetVideoFrame() The target object is: %s", pObj->m_ObjectID.c_str());
+#endif
 	if( pObj->m_bOnScreen && !pObj->IsHidden(  )  )
 	{
 		char *pBuffer=NULL; int Size=0;  string sFormat = "jpg";
@@ -4687,7 +4847,9 @@ void Orbiter::CMD_Display_OnOff(string sOnOff,bool bAlready_processed,string &sC
 //<-dceag-c3-e->
 {
 	m_bDisplayOn = sOnOff=="1";
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Display_OnOff Setting monitor display on/off: %s %d m_bDisplayOn: %d",sOnOff.c_str(),(int) bAlready_processed,(int) m_bDisplayOn);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Display_OnOff Setting monitor display on/off: %s %d m_bDisplayOn: %d",sOnOff.c_str(),(int) bAlready_processed,(int) m_bDisplayOn);
+#endif
 	if( bAlready_processed )
 		return;
 
@@ -4765,7 +4927,9 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 
 			if(!pScreenHistory->GoBack())
 			{
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Removing from screen history screen %d", pScreenHistory->PK_Screen());
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removing from screen history screen %d", pScreenHistory->PK_Screen());
+#endif
 
 				// We now took the prior screen off teh list
 				m_listScreenHistory.pop_back(  );
@@ -4803,14 +4967,18 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 		string sCMD_Result;
 		if( m_mapPK_Screen_GoBackToScreen.find(m_pScreenHistory_Current->PK_Screen())!=m_mapPK_Screen_GoBackToScreen.end() )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"CMD_Go_back to %d is a gobacktoscreen",m_pScreenHistory_Current->PK_Screen());
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Go_back to %d is a gobacktoscreen",m_pScreenHistory_Current->PK_Screen());
+#endif
 			Message *pMessageTemp=NULL;
 			if( pScreenHistory->m_mapParameters.size() )
 			{
 				pMessageTemp = new Message();
 				for(map<long, string>::iterator it = pScreenHistory->m_mapParameters.begin(); it != pScreenHistory->m_mapParameters.end(); it++)
 				{
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG,"CMD_Go_back to %d with %d=%s",pScreenHistory->PK_Screen(),it->first,it->second.c_str());
+#ifdef DEBUG
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Go_back to %d with %d=%s",pScreenHistory->PK_Screen(),it->first,it->second.c_str());
+#endif
 					pMessageTemp->m_mapParameters[it->first]=it->second;
 				}
 
@@ -4906,7 +5074,9 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 
 	if( pObj_New->m_iBaseObjectID == atoi(m_sMainMenu.c_str()) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Forcing go to the main menu");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Forcing go to the main menu");
+#endif
 		pObj_New=m_ScreenMap_Find( m_sMainMenu );
 	}
 
@@ -4974,8 +5144,10 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	else
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "We have all in screen history item. Nothing new to save.");
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"CMD_Goto_DesignObj: %s pScreenHistory_New->m_bCantGoBack %d bCant_Go_Back %d pObj_New->m_bCantGoBack %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Goto_DesignObj: %s pScreenHistory_New->m_bCantGoBack %d bCant_Go_Back %d pObj_New->m_bCantGoBack %d",
 		sPK_DesignObj.c_str(),(int) pScreenHistory_New->CantGoBack(),(int) bCant_Go_Back,(int) pObj_New->m_bCantGoBack);
+#endif
 
 	if(bNewScreenHistoryItem)
 		pScreenHistory_New->CantGoBack(bCant_Go_Back ? true : pObj_New->m_bCantGoBack);
@@ -5048,13 +5220,17 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
 			m_pOrbiterRenderer->UnHighlightObject();
 
 		pObj->m_bHidden = !bShow;
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) !pObj->m_bHidden );
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) !pObj->m_bHidden );
+#endif
 		m_pOrbiterRenderer->RenderObjectAsync(pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
 		if( pObj->m_bHidden && pObj->m_pParentObject )
 			m_pOrbiterRenderer->RenderObjectAsync((DesignObj_Orbiter *) pObj->m_pParentObject);
 	}
+#ifdef DEBUG
 	else
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Ignoring show object for %s",sPK_DesignObj.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Ignoring show object for %s",sPK_DesignObj.c_str() );
+#endif
 }
 
 //<-dceag-c7-b->
@@ -5082,16 +5258,22 @@ void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &s
 {
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"CMD_Remove_Screen_From_History %d - %s size: %d",iPK_Screen,sID.c_str(),(int) m_listScreenHistory.size());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Remove_Screen_From_History %d - %s size: %d",iPK_Screen,sID.c_str(),(int) m_listScreenHistory.size());
 	DumpScreenHistory();
+#endif
 
 	for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();)
 	{
 		ScreenHistory *pScreenHistory = *it;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Comparing %s - %s",pScreenHistory->GetObj()->m_ObjectID.c_str(),pScreenHistory->ScreenID().c_str());
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Comparing %s - %s",pScreenHistory->GetObj()->m_ObjectID.c_str(),pScreenHistory->ScreenID().c_str());
+#endif
 		if( pScreenHistory->PK_Screen() == iPK_Screen && (sID.length()==0 || sID == pScreenHistory->ScreenID()) )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Remove_Screen_From_History deleting %d - %s",iPK_Screen,pScreenHistory->ScreenID().c_str());
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Remove_Screen_From_History deleting %d - %s",iPK_Screen,pScreenHistory->ScreenID().c_str());
+#endif
 			delete (*it);
 			it = m_listScreenHistory.erase( it );
 		}
@@ -5099,8 +5281,10 @@ void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &s
 			++it;
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"After CMD_Remove_Screen_From_History %d - %s size: %d",iPK_Screen,sID.c_str(),(int) m_listScreenHistory.size());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"After CMD_Remove_Screen_From_History %d - %s size: %d",iPK_Screen,sID.c_str(),(int) m_listScreenHistory.size());
 	DumpScreenHistory();
+#endif
 
 	if( m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen() == iPK_Screen && (sID.length()==0 || sID==m_pScreenHistory_Current->ScreenID()) )
 	{
@@ -5139,7 +5323,9 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 // Do this is a separate function that will return false when it can't scroll anymore
 bool Orbiter::Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::Scroll_Grid %s/%s/%d",sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::Scroll_Grid %s/%s/%d",sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction);
+#endif
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 	PLUTO_SAFETY_LOCK( dng, m_DatagridMutex );  // Lock them in the same order as render screen
 	// todo 2.0?    NeedsUpdate( 2 ); // Moving grids is slow; take care of an animation if necessary
@@ -5241,7 +5427,9 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 void Orbiter::CMD_Regen_Screen(string &sCMD_Result,Message *pMessage)
 //<-dceag-c15-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Regen_Screen");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Regen_Screen");
+#endif
 //	m_pMessage from screen history with parms
 
 	NeedToRender render( this, "Regen Screen" );
@@ -5455,7 +5643,9 @@ void Orbiter::CMD_Set_Size_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,in
 void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string &sCMD_Result,Message *pMessage)
 //<-dceag-c25-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Set_Text %s/%d=%s",sPK_DesignObj.c_str(),iPK_Text,sText.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Set_Text %s/%d=%s",sPK_DesignObj.c_str(),iPK_Text,sText.c_str());
+#endif
 	DesignObj_Orbiter *pObj=( m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj() : NULL );
 	if(  sPK_DesignObj.length(  )  )
 		pObj = FindObject( sPK_DesignObj );
@@ -5524,7 +5714,9 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sText,string sTy
 void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c27-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Variable: %d set to %s",iPK_Variable,sValue_To_Assign.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Variable: %d set to %s",iPK_Variable,sValue_To_Assign.c_str());
+#endif
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 	m_mapVariable[iPK_Variable] = sValue_To_Assign;
 
@@ -5691,7 +5883,9 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 void Orbiter::CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage)
 //<-dceag-c72-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Surrender_to_OS %s %d",sOnOff.c_str(),(int) bFully_release_keyboard);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Surrender_to_OS %s %d",sOnOff.c_str(),(int) bFully_release_keyboard);
+#endif
 	m_bYieldScreen = ( sOnOff=="1" );
 	m_bYieldInput = bFully_release_keyboard;
 }
@@ -5774,7 +5968,9 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
 	else
 		if( NULL == m_pScreenHistory_Current )
 		{
-			LoggerWrapper::GetInstance()->Write( LV_DEBUG,  "CMD_Capture_Keyboard_To_Variable: m_pScreenHistory_Current is null!" );
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write( LV_CONTROLLER,  "CMD_Capture_Keyboard_To_Variable: m_pScreenHistory_Current is null!" );
+#endif
 			return true;
 		}
 		else
@@ -5783,7 +5979,9 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
 
 	if(!pObj)
 	{
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG,  "CMD_Capture_Keyboard_To_Variable: pObj is null!" );
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_CONTROLLER,  "CMD_Capture_Keyboard_To_Variable: pObj is null!" );
+#endif
 		return true;
 	}
 
@@ -5800,7 +5998,9 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
 	m_sCaptureKeyboard_Text = "";
 	if( NULL == m_pCaptureKeyboard_Text )
 	{
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG,  "CMD_Capture_Keyboard_To_Variable: text object is null!" );
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_CONTROLLER,  "CMD_Capture_Keyboard_To_Variable: text object is null!" );
+#endif
 		return true;
 	}
 	else
@@ -5994,8 +6194,10 @@ void Orbiter::FireEntAreaRoomCommands()
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Orbiter::FireEntAreaRoomCommands no location");
 		return;
 	}
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"set current location to ea %d room %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"set current location to ea %d room %d",
 		m_pLocationInfo->PK_EntertainArea,m_pLocationInfo->PK_Room);
+#endif
 	DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(m_pLocationInfo->PK_EntertainArea) );
 	SendCommand( CMD_Set_Entertainment_Area );
 	DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pLocationInfo->PK_Room );
@@ -6022,8 +6224,10 @@ void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Messa
 		{
 			FireEntAreaRoomCommands();
 		}
+#ifdef DEBUG
 		else
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Not firing set current location because we're starting up");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Not firing set current location because we're starting up");
+#endif
 
 		m_sMainMenu = StringUtils::itos( atoi( m_sMainMenu.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";
 
@@ -6044,8 +6248,10 @@ void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Messa
 		else
 			m_pDesignObj_Orbiter_SleepingMenu = pObj;
 
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Set location %d ea %d rm %d (%s) now %s",iLocationID,pLocationInfo->PK_EntertainArea,
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Set location %d ea %d rm %d (%s) now %s",iLocationID,pLocationInfo->PK_EntertainArea,
 			pLocationInfo->PK_Room,pLocationInfo->Description.c_str(),m_sMainMenu.c_str());
+#endif
 	}
 }
 
@@ -6065,7 +6271,9 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 	if( pFloorplanObjectVectorMap )
 		fpObjVector = (*pFloorplanObjectVectorMap)[Type];
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Get current floorplan %d page %d returned %s",Type, pDesignObj_Orbiter->m_iPage, sResult.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Get current floorplan %d page %d returned %s",Type, pDesignObj_Orbiter->m_iPage, sResult.c_str());
+#endif
 
 	if( fpObjVector )
 	{
@@ -6098,9 +6306,11 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 				{
 					PlutoColor Magenta(255,102,255);
 
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Replacing obj %s %d,%d-%d,%d with color %d",
+#ifdef DEBUG
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Replacing obj %s %d,%d-%d,%d with color %d",
 						fpObj->pObj->m_ObjectID.c_str(),fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
 						fpObj->pObj->m_rBackgroundPosition.Height, (int) Color);
+#endif
 					m_pOrbiterRenderer->ReplaceColorInRectangle(point.X + fpObj->pObj->m_rBackgroundPosition.X, point.Y + fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
 						fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color, fpObj->pObj);
 
@@ -6150,7 +6360,9 @@ NeedToRender::~NeedToRender()
 
 			m_pOrbiter->NeedToChangeScreens(pScreenHistory);
 		}
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "NeedToRender::~NeedToRender() calling redraw for: %s", m_pWhere);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "NeedToRender::~NeedToRender() calling redraw for: %s", m_pWhere);
+#endif
 		if(!m_pOrbiter->m_bQuit_get())
 			m_pOrbiter->Renderer()->RedrawObjects();
 	}
@@ -6163,7 +6375,9 @@ ScreenHistory *NeedToRender::m_pScreenHistory_get()
 //-----------------------------------------------------------------------------------------------------
 void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScreenHistory/*, bool bAddToHistory*/ )
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Need to change screens logged to %s",pScreenHistory->GetObj()->m_ObjectID.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHistory->GetObj()->m_ObjectID.c_str());
+#endif
 	m_pScreenHistory = pScreenHistory;
 
 	//purge pending tasks, if need it.  Do it here, so that things will happen in the right order.
@@ -6224,7 +6438,9 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	if(m_bQuit_get())
 		return;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Received 'Set Now Playing' with window %s", sName.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received 'Set Now Playing' with window %s", sName.c_str());
+#endif
 
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
@@ -6264,10 +6480,12 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	else
 		m_sNowPlaying_MediaType = "";
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"CMD_Set_Now_Playing value: %s sdesign: %s m_dwPK_Device_NowPlaying %d m_dwPK_Device_NowPlaying_Video %d m_dwPK_Device_NowPlaying_Audio %d m_dwPK_Device_CaptureCard %d m_bPK_Device_NowPlaying_Audio_DiscreteVolume %d m_bContainsVideo %d m_bUsingLiveAVPath %d m_iPK_Screen_Remote %d m_iPK_DesignObj_Remote_Popup %d m_iPK_Screen_FileList %d m_iPK_Screen_RemoteOSD %d m_iPK_Screen_OSD_Speed %d m_iPK_Screen_OSD_Track %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Set_Now_Playing value: %s sdesign: %s m_dwPK_Device_NowPlaying %d m_dwPK_Device_NowPlaying_Video %d m_dwPK_Device_NowPlaying_Audio %d m_dwPK_Device_CaptureCard %d m_bPK_Device_NowPlaying_Audio_DiscreteVolume %d m_bContainsVideo %d m_bUsingLiveAVPath %d m_iPK_Screen_Remote %d m_iPK_DesignObj_Remote_Popup %d m_iPK_Screen_FileList %d m_iPK_Screen_RemoteOSD %d m_iPK_Screen_OSD_Speed %d m_iPK_Screen_OSD_Track %d",
 		sValue_To_Assign.c_str(),sPK_DesignObj.c_str(),
 		m_dwPK_Device_NowPlaying, m_dwPK_Device_NowPlaying_Video, m_dwPK_Device_NowPlaying_Audio, m_dwPK_Device_CaptureCard, (int) m_bPK_Device_NowPlaying_Audio_DiscreteVolume, 
 		(int) m_bContainsVideo, (int) m_bUsingLiveAVPath, m_iPK_Screen_Remote, m_iPK_DesignObj_Remote_Popup, m_iPK_Screen_FileList, m_iPK_Screen_RemoteOSD, m_iPK_Screen_OSD_Speed, m_iPK_Screen_OSD_Track);
+#endif
 
 	if( bRetransmit )
 	{
@@ -6380,17 +6598,21 @@ bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
 void Orbiter::ContinuousRefresh( void *data )
 {
 	ContinuousRefreshInfo *pContinuousRefreshInfo = (ContinuousRefreshInfo *) data;
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ContinuousRefresh %d %p %p %s %s",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ContinuousRefresh %d %p %p %s %s",
 		pContinuousRefreshInfo->m_iInterval,m_pScreenHistory_Current->GetObj(),pContinuousRefreshInfo->m_pObj,
 		m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(),
 		(pContinuousRefreshInfo->m_pObj ? pContinuousRefreshInfo->m_pObj->m_ObjectID.c_str() : "NULL"));
+#endif
 
 	if( m_pScreenHistory_Current->GetObj()!=pContinuousRefreshInfo->m_pObj )
 		delete pContinuousRefreshInfo;
 	else
 	{
 		CMD_Refresh("*");
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ContinuousRefresh restarting");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ContinuousRefresh restarting");
+#endif
 		CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, pe_ALL );
 	}
 }
@@ -6406,8 +6628,10 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 //<-dceag-c238-e->
 {
 	ContinuousRefreshInfo *pContinuousRefreshInfo = new ContinuousRefreshInfo(m_pScreenHistory_Current->GetObj(),atoi(sTime.c_str()));
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Continuous_Refresh %d %p",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Continuous_Refresh %d %p",
 		pContinuousRefreshInfo->m_iInterval,&Orbiter::ContinuousRefresh);
+#endif
 	CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, pe_ALL );
 }
 
@@ -6530,7 +6754,9 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	if(m_bQuit_get())
 		return;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Simulate mouse click at position: %d, %d", x, y);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Simulate mouse click at position: %d, %d", x, y);
+#endif
 
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
 
@@ -6568,7 +6794,9 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	if(m_bQuit_get())
 		return;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Simulate mouse move to position: %d, %d", x, y);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Simulate mouse move to position: %d, %d", x, y);
+#endif
 
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
 
@@ -6593,7 +6821,9 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	if(m_bQuit_get())
 		return;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Simulate key press. Key code: %d", key);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Simulate key press. Key code: %d", key);
+#endif
 
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
 
@@ -6719,8 +6949,10 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 	if(NULL == pObj->m_pvectCurrentPlayingGraphic)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "MNG playing was canceled for object with id %s",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MNG playing was canceled for object with id %s",
 			pObj->m_ObjectID.c_str());
+#endif
 		return; //playing was canceled
 	}
 
@@ -6757,8 +6989,10 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	{
 		pObj->m_iCurrentFrame = 0;
 		pObj->m_pvectCurrentPlayingGraphic = NULL;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "MNG playing was completed for object with id %s",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MNG playing was completed for object with id %s",
 			pObj->m_ObjectID.c_str());
+#endif
 		CallMaintenanceInMiliseconds( iDelay, &Orbiter::DeselectObjects, ( void * ) pObj, pe_NO );
 	}
 	else
@@ -6806,7 +7040,9 @@ void Orbiter::CMD_Set_Main_Menu(string sText,string &sCMD_Result,Message *pMessa
 		else if( sText[0]=='V' && m_pDesignObj_Orbiter_ScreenSaveMenu )
 			m_sMainMenu = m_pDesignObj_Orbiter_ScreenSaveMenu->m_ObjectID;
 	}
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Set menu: %s now %s",sText.c_str(),m_sMainMenu.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Set menu: %s now %s",sText.c_str(),m_sMainMenu.c_str());
+#endif
 }
 //<-dceag-c265-b->
 
@@ -6822,7 +7058,9 @@ void Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
 
 void Orbiter::KillMaintThread()
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Kill Maint Thread %d",(int) bMaintThreadIsRunning);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Kill Maint Thread %d",(int) bMaintThreadIsRunning);
+#endif
 	m_bQuit_set(true);
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
 	time_t tTime = time(NULL);
@@ -6984,7 +7222,9 @@ void Orbiter::CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Res
 
 	pObj->m_dwTimeoutSeconds = atoi(sTime.c_str());
 
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "set timeout on %s to %d  %p = %p",pObj->m_ObjectID.c_str(),pObj->m_dwTimeoutSeconds,pObj,m_pScreenHistory_Current->GetObj() );
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "set timeout on %s to %d  %p = %p",pObj->m_ObjectID.c_str(),pObj->m_dwTimeoutSeconds,pObj,m_pScreenHistory_Current->GetObj() );
+#endif
 	if( NULL != m_pScreenHistory_Current && pObj==m_pScreenHistory_Current->GetObj() && pObj->m_dwTimeoutSeconds )
 		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, pe_ALL, true );
 }
@@ -6999,7 +7239,9 @@ void Orbiter::CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,Message *pMes
 //<-dceag-c325-e->
 {
 	m_bBypassScreenSaver = sOnOff!="0";
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Bypass screen saver now: %d",(int)m_bBypassScreenSaver);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Bypass screen saver now: %d",(int)m_bBypassScreenSaver);
+#endif
 }
 //<-dceag-c192-b->
 
@@ -7014,7 +7256,9 @@ void Orbiter::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Me
 //<-dceag-c192-e->
 {
 	m_bDisplayOn = true;
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"cmd_on m_bDisplayOn set to %d",(int) m_bDisplayOn);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"cmd_on m_bDisplayOn set to %d",(int) m_bDisplayOn);
+#endif
 	if( !(m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu) && !m_bBypassScreenSaver && m_iTimeoutScreenSaver )
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, pe_ALL );
 }
@@ -7030,7 +7274,9 @@ void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 //<-dceag-c193-e->
 {
 	m_bDisplayOn = false;
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"cmd_off m_bDisplayOn set to %d",(int) m_bDisplayOn);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"cmd_off m_bDisplayOn set to %d",(int) m_bDisplayOn);
+#endif
 	m_pOrbiterRenderer->BeginPaint();
 	PlutoColor color(200, 200, 200, 100);
 	m_pOrbiterRenderer->SolidRectangle(5, m_iImageHeight - 30, 200, 25, color);
@@ -7074,7 +7320,9 @@ void Orbiter::CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj,string &sCM
 void Orbiter::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c354-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Orbiter::CMD_Show_Mouse_Pointer %s", sOnOff.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::CMD_Show_Mouse_Pointer %s", sOnOff.c_str());
+#endif
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if(	m_pMouseBehavior )
 		m_pMouseBehavior->ShowMouse(sOnOff=="1");
@@ -7092,7 +7340,9 @@ void Orbiter::CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMes
 //<-dceag-c366-e->
 {
 	m_sApplicationName = sName;
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Received 'Activate Window' for %s", sName.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received 'Activate Window' for %s", sName.c_str());
+#endif
 }
 
 bool Orbiter::OkayToDeserialize(int iSC_Version)
@@ -7210,7 +7460,9 @@ void Orbiter::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMe
 void Orbiter::CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Message *pMessage)
 //<-dceag-c389-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Send_Message %s",sText.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Send_Message %s",sText.c_str());
+#endif
 	bool bContainsGoto=false;
 	string sMessage = SubstituteVariables(sText,NULL,0,0);
 
@@ -7302,7 +7554,9 @@ PlutoPopup *Orbiter::FindPopupByName(DesignObj_Orbiter *pObj,string sName)
 void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,Message *pMessage)
 //<-dceag-c397-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"show popup %s/%s",sName.c_str(),sPK_DesignObj.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"show popup %s/%s",sName.c_str(),sPK_DesignObj.c_str());
+#endif
 
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
@@ -7376,7 +7630,9 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 
 	DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj_CurrentScreen);
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"remove popup %s",sName.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"remove popup %s",sName.c_str());
+#endif
 
 	bool bExistsPopupToHide = false;
 	bool bNeedRefresh = false;
@@ -7637,7 +7893,9 @@ void Orbiter::CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType,st
 void Orbiter::CMD_Forward_local_kb_to_OSD(bool bTrueFalse,string &sCMD_Result,Message *pMessage)
 //<-dceag-c413-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Forward_local_kb_to_OSD %d", (int) bTrueFalse);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Forward_local_kb_to_OSD %d", (int) bTrueFalse);
+#endif
 	m_bForward_local_kb_to_OSD=bTrueFalse;
 }
 //<-dceag-c415-b->
@@ -7838,7 +8096,9 @@ void Orbiter::CMD_Guide(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c194-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"toggle power m_bDisplayOn was %d",(int) m_bDisplayOn);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"toggle power m_bDisplayOn was %d",(int) m_bDisplayOn);
+#endif
 	if( m_dwPK_Device_NowPlaying )
 	{
 		DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_dwPK_Device,m_dwPK_Device_MediaPlugIn,0,0,0,StringUtils::itos( m_pLocationInfo->PK_EntertainArea ),false);
@@ -7850,12 +8110,16 @@ void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessa
 	{
 		if( m_bDisplayOn )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Powering off monitor");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Powering off monitor");
+#endif
 		CMD_Display_OnOff("0",false);
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Monitor already off");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Monitor already off");
+#endif
 		CMD_Display_OnOff("0",false);
 	  TODO -- This makes it too easy to power off accidentally by hitting the button multiple times
 		For now the user will just hit the 'power' option
@@ -7926,10 +8190,12 @@ void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 		*/
 		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
 	}
+#ifdef DEBUG
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Ignoring enter");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring enter");
 	}
+#endif
 }
 
 //<-dceag-c200-b->
@@ -7948,10 +8214,12 @@ void Orbiter::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 		*/
 		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Up_Arrow_CONST), "");
 	}
+#ifdef DEBUG
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Ignoring move");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring move");
 	}
+#endif
 }
 
 //<-dceag-c201-b->
@@ -7969,10 +8237,12 @@ void Orbiter::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 		HandleButtonEvent(BUTTON_Any_key_CONST);*/
 		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Down_Arrow_CONST), "");
 	}
+#ifdef DEBUG
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Ignoring move");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring move");
 	}
+#endif
 }
 
 //<-dceag-c202-b->
@@ -7990,10 +8260,12 @@ void Orbiter::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 		HandleButtonEvent(BUTTON_Any_key_CONST);*/
 		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Left_Arrow_CONST), "");
 	}
+#ifdef DEBUG
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Ignoring move");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring move");
 	}
+#endif
 }
 
 //<-dceag-c203-b->
@@ -8011,10 +8283,12 @@ void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 		HandleButtonEvent(BUTTON_Any_key_CONST);*/
 		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Right_Arrow_CONST), "");
 	}
+#ifdef DEBUG
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Ignoring move");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ignoring move");
 	}
+#endif
 }
 //<-dceag-c689-b->
 
@@ -8088,17 +8362,23 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 	{
 		if( m_pMouseBehavior )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Update_Time_Code SetMediaInfo-%s-%s-%s-%s-%s",
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code SetMediaInfo-%s-%s-%s-%s-%s",
 				sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str());
+#endif
 			m_pMouseBehavior->SetMediaInfo(sTime,sTotal,sSpeed,sTitle,sSection,true);
 		}
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Update_Time_Code SetMediaInfo np:%s showing %d",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code SetMediaInfo np:%s showing %d",
 			m_sNowPlaying_Speed.c_str(),(int) m_bShowingSpeedBar);
+#endif
 		if( m_sNowPlaying_Speed.empty()==true && m_bShowingSpeedBar )
 		{
 			// We displayed a speed bar, per below.  Remove it
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Update_Time_Code m_pScreenHistory_Current %p current %d osd %d",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code m_pScreenHistory_Current %p current %d osd %d",
 			m_pScreenHistory_Current,m_pScreenHistory_Current->PK_Screen(),m_iPK_Screen_OSD_Speed);
+#endif
 			if( m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()==m_iPK_Screen_OSD_Speed )
 				CMD_Go_back("","1");
 			/*
@@ -8118,7 +8398,9 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 			// Display the speed bar just as a goto designobj, not a full screen, and we'll go back when the speed returns to normal
 			m_bShowingSpeedBar=true;  // SpeedMouseHandler knows to ignore mouse movements when this is true
 			CMD_Goto_Screen("",m_iPK_Screen_OSD_Speed);
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Update_Time_Code going to %d",m_iPK_Screen_OSD_Speed);
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code going to %d",m_iPK_Screen_OSD_Speed);
+#endif
 		}
 	}
 #endif
@@ -9030,13 +9312,17 @@ void Orbiter::ServiceAlerts( void *iData )
 	string sMessages;
 	time_t t = time(NULL);
 	time_t tNextStop = 0;
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ServiceAlerts in queue: %d",(int) m_listPlutoAlert.size());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ServiceAlerts in queue: %d",(int) m_listPlutoAlert.size());
+#endif
 
 	// See what alerts we need to display
 	for( list<PlutoAlert *>::iterator it=m_listPlutoAlert.begin();it!=m_listPlutoAlert.end(); )
 	{
 		PlutoAlert *p = *it;
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ServiceAlerts alert %s stop: %d now: %d",p->m_sMessage.c_str(),(int) p->m_tStopTime,(int) t);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ServiceAlerts alert %s stop: %d now: %d",p->m_sMessage.c_str(),(int) p->m_tStopTime,(int) t);
+#endif
 		if( p->m_tStopTime && p->m_tStopTime <= t )
 		{
 			delete p;
@@ -9054,7 +9340,9 @@ void Orbiter::ServiceAlerts( void *iData )
 	}
 	vm.Release();
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::ServiceAlerts in queue: %d messages %s",(int) m_listPlutoAlert.size(),sMessages.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ServiceAlerts in queue: %d messages %s",(int) m_listPlutoAlert.size(),sMessages.c_str());
+#endif
 
 	if( sMessages.size() )
 	{
@@ -9174,10 +9462,14 @@ void Orbiter::UpdateTimeCodeLoop()
 	if( m_bQuit_get()|| !m_bReportTimeCode )
 		return;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"UpdateTimeCodeLoop starting...");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCodeLoop starting...");
+#endif
 	PLUTO_SAFETY_LOCK(tcm, m_TimeCodeMutex);
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"UpdateTimeCodeLoop: got the mutex, we are ready to go!");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCodeLoop: got the mutex, we are ready to go!");
+#endif
 
 	// If this is a xine, determine the ip address and connect to it to pull time code info
 	if( !m_pAskXine_Socket || m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
@@ -9233,16 +9525,22 @@ void Orbiter::UpdateTimeCodeLoop()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCode exiting -- not active anymore");
 			return;
 		}
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"UpdateTimeCode BEFORE");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCode BEFORE");
+#endif
 		string sLine;
 		if( !m_pAskXine_Socket->ReceiveString(sLine, -2) )  // Wait at most 1 second for the line
 		{
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"UpdateTimeCode EMPTY %d %s",(int) sLine.size(),sLine.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCode EMPTY %d %s",(int) sLine.size(),sLine.c_str());
+#endif
 			Sleep(500);
 			continue;
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"UpdateTimeCode AFTER %d %s",(int) sLine.size(),sLine.c_str());
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCode AFTER %d %s",(int) sLine.size(),sLine.c_str());
+#endif        
 		string::size_type pos=0;
 		int iSpeed = atoi(StringUtils::Tokenize( sLine,",",pos ).c_str());
 		m_sTime = StringUtils::Tokenize( sLine,",",pos );
@@ -9275,7 +9573,9 @@ void Orbiter::UpdateTimeCodeLoop()
 				sSpeed = "." + StringUtils::itos(iSpeed) + "x";
 		}
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"UpdateTimeCode calling CMD_Update_Time_Code");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCode calling CMD_Update_Time_Code");
+#endif
 
 		if( m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD )
 		{
@@ -9336,15 +9636,19 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 		if(UsesUIVersion2() && m_pMouseBehavior )
 		{
 			bool bMouseVisible=m_pMouseBehavior->m_bMouseVisible;  // Save the state
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Orbiter::StartScreenSaver calling CMD_Show_Mouse_Pointer vis %d",
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::StartScreenSaver calling CMD_Show_Mouse_Pointer vis %d",
 				(int) m_pMouseBehavior->m_bMouseVisible);
+#endif
 			CMD_Show_Mouse_Pointer("0");
 			m_pMouseBehavior->Clear();
 			m_pMouseBehavior->m_bMouseVisible=bMouseVisible;  // Restore it
 		}
 #endif
 		
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::StartScreenSaver goto screen m_bDisplayOn = true; %p", m_pDesignObj_Orbiter_ScreenSaveMenu);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::StartScreenSaver goto screen m_bDisplayOn = true; %p", m_pDesignObj_Orbiter_ScreenSaveMenu);
+#endif
 	}
 
 	if( m_pDevice_ScreenSaver && m_pDevice_ScreenSaver->m_bDisabled==false )
@@ -9354,7 +9658,9 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
         string sName = m_pDevice_ScreenSaver->m_mapParameters_Find(DEVICEDATA_Name_CONST);
         CMD_Activate_Window(sName);
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"::Screen saver activate app m_bDisplayOn = true;");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"::Screen saver activate app m_bDisplayOn = true;");
+#endif
 	}
 	m_bScreenSaverActive=true;
 }
@@ -9384,7 +9690,9 @@ void Orbiter::StopScreenSaver()
 void Orbiter::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c548-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter::CMD_Menu display %d",(int) m_bDisplayOn);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Menu display %d",(int) m_bDisplayOn);
+#endif
 
 	GotActivity(0);  // Keep processing this regardless
 

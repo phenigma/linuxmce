@@ -903,8 +903,10 @@ int k=2;
 			class Command_Impl *pPlugIn = pMessageInterceptorCallBack->m_pPlugIn;
 			MessageInterceptorFn pMessageInterceptorFn = pMessageInterceptorCallBack->m_pMessageInterceptorFn;
 
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"DCERouter calling message interceptor for msg type %d id %d, device %d",
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"DCERouter calling message interceptor for msg type %d id %d, device %d",
 				(*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID,(pPlugIn ? pPlugIn->m_dwPK_Device : pMessageInterceptorCallBack->m_dwPK_Device));
+#endif
 
 
 			if( pMessageInterceptorFn )  // It's a plug-in
@@ -1078,7 +1080,9 @@ int k=2;
             case SYSCOMMAND_DEVICE_UP:
             case SYSCOMMAND_DEVICE_DOWN:
 				{
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Device up down %d is %s",(*SafetyMessage)->m_dwPK_Device_From,(*SafetyMessage)->m_dwID==SYSCOMMAND_DEVICE_UP ? "UP" : "DOWN");
+#ifdef DEBUG
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device up down %d is %s",(*SafetyMessage)->m_dwPK_Device_From,(*SafetyMessage)->m_dwID==SYSCOMMAND_DEVICE_UP ? "UP" : "DOWN");
+#endif
 					pair<time_t,time_t> pOldValue = m_mapDeviceUpStatus_Find((*SafetyMessage)->m_dwPK_Device_From);
 					pOldValue.second = time(NULL);  // The second is the last communication
 					if( (*SafetyMessage)->m_dwID==SYSCOMMAND_DEVICE_DOWN )
@@ -1129,7 +1133,9 @@ int k=2;
 		}
 		else if ( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_DATAPARM_REQUEST )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"DCERouter MESSAGETYPE_DATAPARM_REQUEST");
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"DCERouter MESSAGETYPE_DATAPARM_REQUEST");
+#endif
 			map<long, string>::iterator p = (*SafetyMessage)->m_mapParameters.begin();
 			if ( p != (*SafetyMessage)->m_mapParameters.end() )
 			{
@@ -1139,9 +1145,11 @@ int k=2;
 				if( pRow_Device_DeviceData )
 				{
 					pRow_Device_DeviceData->Reload();
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"DCERouter MESSAGETYPE_DATAPARM_REQUEST device %d data %d=%s",
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"DCERouter MESSAGETYPE_DATAPARM_REQUEST device %d data %d=%s",
 				pRow_Device_DeviceData->FK_Device_get(),pRow_Device_DeviceData->FK_DeviceData_get(),
 				pRow_Device_DeviceData->IK_DeviceData_get().c_str());
+#endif
 					pSocket->SendMessage(new Message(m_dwPK_Device, (*SafetyMessage)->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, (*SafetyMessage)->m_dwID, pRow_Device_DeviceData->IK_DeviceData_get().c_str()));
 					(*SafetyMessage)->m_bRespondedToMessage=true;
 				}
@@ -1750,12 +1758,16 @@ void Router::CleanFileName(string &FileName)
 void Router::AddMessageToQueue(Message *pMessage)
 {
     PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
-    LoggerWrapper::GetInstance()->Write(LV_DEBUG,"AddMessageToQueue(ProcessQueue) adding message from %d to %d type %d id %d to queue size was: %d",
+#ifdef DEBUG
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"AddMessageToQueue(ProcessQueue) adding message from %d to %d type %d id %d to queue size was: %d",
         pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) m_MessageQueue.size());
+#endif
     m_MessageQueue.push_back(pMessage);
 	mm.Release();
     pthread_cond_broadcast(&m_MessageQueueCond);
-    LoggerWrapper::GetInstance()->Write(LV_DEBUG,"AddMessageToQueue(ProcessQueue) sent broadcast");
+#ifdef DEBUG
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"AddMessageToQueue(ProcessQueue) sent broadcast");
+#endif
 }
 
 void Router::ProcessQueue()
@@ -1765,9 +1777,13 @@ void Router::ProcessQueue()
     {
         while(!m_bReload && m_MessageQueue.size()==0)
         {
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ProcessQueue going to sleep");
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ProcessQueue going to sleep");
+#endif
 			mm.CondWait();
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ProcessQueue woke up with size: %d",(int) m_MessageQueue.size());
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ProcessQueue woke up with size: %d",(int) m_MessageQueue.size());
+#endif
         }
 
 		if(m_bReload)
@@ -1776,15 +1792,21 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ProcessQueue woke up with size: %d
         // We are holding the mutex
         Message *pMessage = m_MessageQueue.front();
         m_MessageQueue.pop_front();
-        LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ProcessQueue sending message from %d to %d type %d id %d to queue now size: %d",
+#ifdef DEBUG
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"ProcessQueue sending message from %d to %d type %d id %d to queue now size: %d",
             pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) m_MessageQueue.size());
+#endif
         mm.Release();
 
         SafetyMessage pSafetyMessage(pMessage);
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ProcessQueue Calling realsendmessage from queue");
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ProcessQueue Calling realsendmessage from queue");
+#endif
         RealSendMessage(NULL,&pSafetyMessage);
         mm.Relock();
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ProcessQueue finished Calling realsendmessage from queue");
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"ProcessQueue finished Calling realsendmessage from queue");
+#endif
     }
 }
 
@@ -1881,10 +1903,12 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 			{
 				Pipe *pPipe = (*it).second;
 
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Walking the command pipe: Command input: %d Command_Output: %d Device From: %d, FK_Pipe: %d",
+	#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Walking the command pipe: Command input: %d Command_Output: %d Device From: %d, FK_Pipe: %d",
 					pPipe->m_pCommand_Input ? pPipe->m_pCommand_Input->m_dwPK_Command : 0,
 					pPipe->m_pCommand_Output ? pPipe->m_pCommand_Output->m_dwPK_Command : 0,
 					pPipe->m_pDevice_From->m_dwPK_Device);
+	#endif
 				if( PK_Pipe && PK_Pipe!=pPipe->m_PK_Pipe )
 					continue;
 
@@ -1956,10 +1980,12 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 				{
 					Pipe *pPipe=itMP->second;
 					(*(*pSafetyMessage))->m_dwPK_Device_To = pPipe->m_pDevice_To->m_dwPK_Device;
+	#ifdef DEBUG
 					DeviceData_Router *pDevice = m_mapDeviceData_Router_Find((*(*pSafetyMessage))->m_dwPK_Device_To);
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Forwarding %d Command:\x1b[35;1m%s\x1b[0m up pipe to %d (\x1b[36;1m%s\x1b[0m)",
+					LoggerWrapper::GetInstance()->Write(LV_ACTION,"Forwarding %d Command:\x1b[35;1m%s\x1b[0m up pipe to %d (\x1b[36;1m%s\x1b[0m)",
 						pCommand->m_dwPK_Command,pCommand->m_sDescription.c_str(),
 						(*(*pSafetyMessage))->m_dwPK_Device_To,pDevice!=NULL ? pDevice->m_sDescription.c_str() : "*unknown*");
+	#endif
 					RealSendMessage(pSocket,pSafetyMessage);
 				}
 				(*(*pSafetyMessage))->m_dwPK_Device_To = PK_Device;
@@ -2017,12 +2043,16 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 			}
 		}
 	}
-  LoggerWrapper::GetInstance()->Write(LV_DEBUG,"begin realsendmessage before lock");
+#ifdef DEBUG
+  LoggerWrapper::GetInstance()->Write(LV_STATUS,"begin realsendmessage before lock");
+#endif
     PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
     int RouteToDevice = DEVICEID_NULL;
 
-  LoggerWrapper::GetInstance()->Write(LV_DEBUG,"realsendmessage from %d to %d type %d id %d ",
+#ifdef DEBUG
+  LoggerWrapper::GetInstance()->Write(LV_STATUS,"realsendmessage from %d to %d type %d id %d ",
       (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
+#endif
 
     map<int,int>::iterator iRoute;
     /* NOT needed for 2.0  -- a video plug-in will handle this
@@ -2044,8 +2074,10 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
         }
     }
     slCore.Release();
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"realsendmessage after core release from %d to %d type %d id %d ",
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"realsendmessage after core release from %d to %d type %d id %d ",
   (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
+#endif
     if (RouteToDevice > 0)
     {
 		ServerSocket *pServerSocket;
@@ -2055,15 +2087,18 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG,"realsendmessage after core release
         if (pServerSocket)
         {
             {
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"realsendmessage before device conn mutex from %d to %d type %d id %d ",
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"realsendmessage before device conn mutex from %d to %d type %d id %d ",
   (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
+#endif
 
+#ifdef DEBUG
                 DeviceData_Router *pDest = m_mapDeviceData_Router_Find(pServerSocket->m_dwPK_Device);
                 if( !pDest )
                 {
-                    LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Cannot find destination device: %d",pServerSocket->m_dwPK_Device);
+                    LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find destination device: %d",pServerSocket->m_dwPK_Device);
                 }
-                LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Ready to send message type %d id %d to %d %s on socket %d(%p) using lock: %p",
+                LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Ready to send message type %d id %d to %d %s on socket %d(%p) using lock: %p",
                     (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pServerSocket->m_dwPK_Device,
                     (pDest ? pDest->m_sDescription.c_str() : "*UNKNOWN DEVICE*"),
                     pServerSocket->m_iSocketCounter,pServerSocket,&pServerSocket->m_ConnectionMutex);
@@ -2072,9 +2107,12 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG,"realsendmessage before device conn
                 PLUTO_SAFETY_LOCK_MESSAGE(slConnMutex,pServerSocket->m_ConnectionMutex,Message)
 #else
                 PLUTO_SAFETY_LOCK(slConnMutex,pServerSocket->m_ConnectionMutex)
+#endif
 
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"realsendmessage after device conn mutex from %d to %d type %d id %d ",
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"realsendmessage after device conn mutex from %d to %d type %d id %d ",
   (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
+#endif
 
 #ifdef DEBUG
                 // Let's see how long it takes to send
@@ -2090,14 +2128,18 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG,"realsendmessage after device conn 
                 bool bResult = pDeviceConnection->SendMessage(pSafetyMessage->Detach()); */
                 bool bResult = pServerSocket->SendMessage(pSafetyMessage->m_pMessage,false);
 
-                LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Response %d to realsendmessage type %d id %d socket %d using lock: %p  expected response: %d",
+#ifdef DEBUG
+                LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Response %d to realsendmessage type %d id %d socket %d using lock: %p  expected response: %d",
                     bResult ? 1 : 0,MessageType,ID,pServerSocket->m_Socket,&pServerSocket->m_ConnectionMutex,(int) (*(*pSafetyMessage))->m_eExpectedResponse);
+#endif
 
-LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Got response: %d to message type %d id %d to %d %s on socket %d using lock: %p",
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %d %s on socket %d using lock: %p",
     (bResult ? 1 : 0),
     (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pServerSocket->m_dwPK_Device,
     (pDest ? pDest->m_sDescription.c_str() : "*UNKNOWN DEVICE*"),
     pServerSocket->m_Socket,&pServerSocket->m_ConnectionMutex);
+#endif
                 if (!bResult)
                 {
                     LoggerWrapper::GetInstance()->Write(LV_WARNING, "Socket %p failure sending message to device %d", pServerSocket,pServerSocket->m_dwPK_Device);
@@ -2106,9 +2148,11 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Got response: %d to message type 
                 }
                 else
                 {
+#ifdef DEBUG
                     clock_t clk2 = clock();
                     if( clk2-clk>(CLOCKS_PER_SEC*4) )
-                        LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Took %d secs (%d ticks) to send message to %d",(int) ((clk2-clk)/CLOCKS_PER_SEC),(int) (clk2-clk),pServerSocket->m_dwPK_Device);
+                        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Took %d secs (%d ticks) to send message to %d",(int) ((clk2-clk)/CLOCKS_PER_SEC),(int) (clk2-clk),pServerSocket->m_dwPK_Device);
+#endif
 
                     if( (*(*pSafetyMessage))->m_eExpectedResponse==ER_None )
                     {
@@ -2119,13 +2163,17 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Got response: %d to message type 
                     if (pServerSocket->ReceiveString(sResponse))
                     {
 
+#ifdef DEBUG
                         if( clock()-clk2>(CLOCKS_PER_SEC*4) )
-                            LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Took %d secs (ticks: %d) to receive response from %d",(int) ((clock()-clk2)/CLOCKS_PER_SEC),(int) (clock()-clk2),pServerSocket->m_dwPK_Device);
-                        LoggerWrapper::GetInstance()->Write(LV_DEBUG, "%d Destination realsendmessage responded with %s.", pServerSocket->m_dwPK_Device, sResponse.c_str());
+                            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Took %d secs (ticks: %d) to receive response from %d",(int) ((clock()-clk2)/CLOCKS_PER_SEC),(int) (clock()-clk2),pServerSocket->m_dwPK_Device);
+                        LoggerWrapper::GetInstance()->Write(LV_STATUS, "%d Destination realsendmessage responded with %s.", pServerSocket->m_dwPK_Device, sResponse.c_str());
+#endif
 
                         if (sResponse.substr(0,7)  == "MESSAGE" && sResponse.size()>7 )
                         {
-                            LoggerWrapper::GetInstance()->Write(LV_DEBUG, "1 pSocket=%p", pSocket);
+#ifdef DEBUG
+                            LoggerWrapper::GetInstance()->Write(LV_STATUS, "1 pSocket=%p", pSocket);
+#endif
                             if (!(*(*pSafetyMessage))->m_bRespondedToMessage)
                             {
 								DCE::Message *pMessage = pServerSocket->ReceiveMessageRaw(sResponse);
@@ -2165,7 +2213,9 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Got response: %d to message type 
                                 pSocket->SendString(sResponse);  // Will be okay if it was successful
                             }
                             // If the socket was waiting for a message, we'll just report an error at the end of the loop if a response wasn't already sent
-                            LoggerWrapper::GetInstance()->Write(LV_DEBUG, "3 iMessageType= %d pSocket=%p ",MessageType, pSocket);
+#ifdef DEBUG
+                            LoggerWrapper::GetInstance()->Write(LV_STATUS, "3 iMessageType= %d pSocket=%p ",MessageType, pSocket);
+#endif
                             // This wasn't a request, so the sender is not concerned with the response.  No need to keep it waiting
                             // around for a reponse. We'll just log it.
     //                      LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Destination responded with %s.", sResponse.c_str());
@@ -2180,7 +2230,9 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Got response: %d to message type 
                     }
                 }
             }
-          LoggerWrapper::GetInstance()->Write(LV_DEBUG, "realsendmessage - before failed socket");
+#ifdef DEBUG
+          LoggerWrapper::GetInstance()->Write(LV_STATUS, "realsendmessage - before failed socket");
+#endif
 
 			if (bServerSocket_Failed)
 			{
@@ -2204,7 +2256,9 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Got response: %d to message type 
         }
     }
     ErrorResponse(pSocket,(*(*pSafetyMessage)));
-LoggerWrapper::GetInstance()->Write(LV_DEBUG, "realsendmessage - end");
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "realsendmessage - end");
+#endif
 }
 
 // Will send an error if somebody's waiting for a response and didn't get it
@@ -2815,7 +2869,9 @@ void Router::AlarmCallback(int id, void* param)
 
 int Router::GetDeviceID( int iPK_DeviceTemplate, string sMacAddress, string sIPAddress )
 {
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Looking for device with temp: %d ip %s mac",iPK_DeviceTemplate,sIPAddress.c_str(),sMacAddress.c_str());
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Looking for device with temp: %d ip %s mac",iPK_DeviceTemplate,sIPAddress.c_str(),sMacAddress.c_str());
+#endif
 	if( sIPAddress.length()==0 && sMacAddress.length()==0 ) // We gotta have something to go on
 		return 0;
 

@@ -66,7 +66,9 @@ WindowLayer WindowContext::Layer()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::Layer(WindowLayer layer)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WindowContext::Layer '%s' : %s", m_sWindowName.c_str(), WindowLayerStr[layer]);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WindowContext::Layer '%s' : %s", m_sWindowName.c_str(), WindowLayerStr[layer]);
+#endif
 	m_WindowLayer = layer;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -77,7 +79,9 @@ bool WindowContext::IsMaximized()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::Maximize(bool bValue)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WindowContext::Maximize '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WindowContext::Maximize '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#endif
 	m_bMaximized = bValue;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -88,7 +92,9 @@ bool WindowContext::IsFullScreen()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::FullScreen(bool bValue)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WindowContext::FullScreen '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WindowContext::FullScreen '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#endif
 	m_bFullScreen = bValue;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -99,7 +105,9 @@ bool WindowContext::IsVisible()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::Visible(bool bValue)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WindowContext::Visible '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WindowContext::Visible '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#endif
 
 	m_bVisible = bValue;
 	if( bValue==false )
@@ -113,7 +121,9 @@ bool WindowContext::IsActivated()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::Activate(bool bValue)
 {	
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WindowContext::Activate '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WindowContext::Activate '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#endif
 	m_bActivated = bValue;
 }
 
@@ -125,7 +135,9 @@ bool WindowContext::IsErrorFlag()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::ErrorFlag(bool bValue)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WindowContext::IsErrorFlag '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WindowContext::IsErrorFlag '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
+#endif
 	m_bErrorFlag = bValue;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -136,8 +148,10 @@ PlutoRectangle WindowContext::Position()
 //-----------------------------------------------------------------------------------------------------
 void WindowContext::Position(PlutoRectangle rectangle)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "WindowContext::Position '%s' : x %d, y %d, w %d, h %d", 
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WindowContext::Position '%s' : x %d, y %d, w %d, h %d", 
 		m_sWindowName.c_str(), rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+#endif
 	m_rectPosition = rectangle;
 }
 //-----------------------------------------------------------------------------------------------------

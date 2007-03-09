@@ -35,13 +35,17 @@ using namespace DCE;
 MediaMouseHandler::MediaMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseHandler const %p",this);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseHandler const %p",this);
+#endif
 	m_pDatagridMouseHandlerHelper = new DatagridMouseHandlerHelper(this);
 }
 
 MediaMouseHandler::~MediaMouseHandler()
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseHandler dest %p",this);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseHandler dest %p",this);
+#endif
 	delete m_pDatagridMouseHandlerHelper;
 }
 
@@ -60,7 +64,9 @@ void MediaMouseHandler::Start()
 	m_pMouseBehavior->m_pMouseGovernor->SetBuffer(2000);
 
 	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_UpDown);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MediaMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+#endif
 
 	if( true ) // for now just do it the one way, the absolute seeking was too tough.  m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 	{

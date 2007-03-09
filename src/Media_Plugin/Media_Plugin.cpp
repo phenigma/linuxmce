@@ -1168,11 +1168,13 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 		(dequeMediaFile->size() &&
 			((*dequeMediaFile)[0]->m_sExtension=="DVD" || StringUtils::StartsWith((*dequeMediaFile)[0]->m_sPath,"DVD:",true))	) )
 				bContainsTitlesOrSections=true;
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Plugin::StartMedia type %d size %d extension %s path %s cont %d",
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StartMedia type %d size %d extension %s path %s cont %d",
 pMediaHandlerInfo->m_PK_MediaType,dequeMediaFile->size(),
 dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sExtension.c_str() : "NO",
 dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
 (int) bContainsTitlesOrSections);
+#endif
 
     // If all EA's are playing the same stream, it might be possible to queue it
     MediaStream *pMediaStream_AllEAsPlaying = NULL;
@@ -1230,7 +1232,9 @@ dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
 	if( !pOH_Orbiter )
 	{
 		pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia );
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Plugin::StartMedia assuming parent of %d started media", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StartMedia assuming parent of %d started media", pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
+#endif
 	}
 
 	if( pOH_Orbiter )
@@ -2136,7 +2140,9 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Plugin::StreamEnded ID %d auto resume %d resume: %c",pMediaStream->m_iStreamID_get(),(int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StreamEnded ID %d auto resume %d resume: %c",pMediaStream->m_iStreamID_get(),(int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
+#endif
 
 	if( bNoAutoResume )
 	{
@@ -2516,7 +2522,9 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::DetermineEntArea past in stream id %d but found %d",*p_iStreamID,pMediaStream->m_iStreamID_get());
 		*p_iStreamID = pMediaStream->m_iStreamID_get();
 	}
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Found the proper ent area: %d", (int) vectEntertainArea.size());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found the proper ent area: %d", (int) vectEntertainArea.size());
+#endif
 }
 
 int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
@@ -3304,7 +3312,9 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 				pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia && 
 				pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Also turning on MD and OSD");
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Also turning on MD and OSD");
+#endif
 
 			MediaDevice *pMediaDevice_MD = m_mapMediaDevice_Find(pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device);
 
@@ -3551,8 +3561,10 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 	for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
 	{
 		MediaStream *pMS = (*it).second;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Plugin::FollowMe_EnteredRoom stream %d use %d device %d, comp to %d %d",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::FollowMe_EnteredRoom stream %d use %d device %d, comp to %d %d",
 			pMS->m_iStreamID_get(),pMS->m_iPK_Users,pMS->m_dwPK_Device_Remote,iPK_Users,iPK_Device);
+#endif
 		if( iPK_Device && pMS->m_dwPK_Device_Remote==iPK_Device )
 		{
 			pMediaStream = pMS;
@@ -5140,8 +5152,10 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 		pRow_Bookmark->EK_Users_set(iPK_Users);
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Plugin::CMD_Save_Bookmark stream %p description %s start %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Save_Bookmark stream %p description %s start %d",
 		pMediaStream,sDescription.c_str(),(int) bIsStart);
+#endif
 
 	if( pMediaStream )
 	{
@@ -5304,7 +5318,9 @@ void Media_Plugin::SaveLastPlaylistPosition(MediaStream *pMediaStream)
 	}
 
 	pRow_Bookmark->Position_set(" QUEUE_POS:" + StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos) + " " + pMediaStream->m_sLastPosition);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Plugin::SaveLastPlaylistPosition %s QUEUE_POS: %d %s",sWhere.c_str(),pMediaStream->m_iDequeMediaFile_Pos,pMediaStream->m_sLastPosition.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SaveLastPlaylistPosition %s QUEUE_POS: %d %s",sWhere.c_str(),pMediaStream->m_iDequeMediaFile_Pos,pMediaStream->m_sLastPosition.c_str());
+#endif
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 }
 
@@ -5327,7 +5343,9 @@ void Media_Plugin::SaveLastDiscPosition(MediaStream *pMediaStream)
 	}
 
 	pRow_Bookmark->Position_set(" QUEUE_POS:" + StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos) + " " + pMediaStream->m_sLastPosition);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Plugin::SaveLastDiscPosition %s QUEUE_POS: %d %s",sWhere.c_str(),pMediaStream->m_iDequeMediaFile_Pos,pMediaStream->m_sLastPosition.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SaveLastDiscPosition %s QUEUE_POS: %d %s",sWhere.c_str(),pMediaStream->m_iDequeMediaFile_Pos,pMediaStream->m_sLastPosition.c_str());
+#endif
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 }
 
@@ -5354,7 +5372,9 @@ void Media_Plugin::SaveLastFilePosition(MediaStream *pMediaStream)
 	}
 
 	pRow_Bookmark->Position_set(pMediaStream->m_sLastPosition);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Plugin::SaveLastDiscPosition %s %s",sWhere.c_str(),pMediaStream->m_sLastPosition.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SaveLastDiscPosition %s %s",sWhere.c_str(),pMediaStream->m_sLastPosition.c_str());
+#endif
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 }
 
@@ -5661,7 +5681,9 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		pMediaStream->m_dwPK_Disc = PK_Disc;
 		m_pMediaAttributes->LoadStreamAttributesForDisc(pMediaStream);
 		int iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Plugin::CMD_Media_Identified disc %d resume on orbiter %d",PK_Disc,iPK_Orbiter_PromptingToResume);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified disc %d resume on orbiter %d",PK_Disc,iPK_Orbiter_PromptingToResume);
+#endif
 	}
 
 	m_pMediaAttributes->m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
@@ -6074,7 +6096,9 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
 
 	m_tLastScanOfOnlineDevices=time(NULL);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Plugin::CMD_Refresh_List_of_Online_Devices now %s",m_sPK_Devices_Online.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Refresh_List_of_Online_Devices now %s",m_sPK_Devices_Online.c_str());
+#endif
 }
 
 //<-dceag-c832-b->
@@ -6129,7 +6153,9 @@ void Media_Plugin::CMD_Check_For_New_Files(string &sCMD_Result,Message *pMessage
 {
 	if( !m_dwPK_Device_MediaIdentification || !m_pRouter->DeviceIsRegistered(m_dwPK_Device_MediaIdentification) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Media_Plugin::CMD_Check_For_New_Files no media id device %d", m_dwPK_Device_MediaIdentification);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Check_For_New_Files no media id device %d", m_dwPK_Device_MediaIdentification);
+#endif
 		return;
 	}
 	int PK_File_Last=0;

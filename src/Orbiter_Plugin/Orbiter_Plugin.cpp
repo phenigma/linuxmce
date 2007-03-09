@@ -150,7 +150,9 @@ bool Orbiter_Plugin::GetConfig()
 
 	m_pRegenMonitor=new RegenMonitor(m_pDatabase_pluto_main,m_pDatabase_pluto_media);
 	m_sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter_Plugin::GetConfig Starting up with m_sRegenAllDevicesRooms=%s",m_sRegenAllDevicesRooms.c_str());
+//#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::GetConfig Starting up with m_sRegenAllDevicesRooms=%s",m_sRegenAllDevicesRooms.c_str());
+//#endif
 
 	vector<Row_Users *> vectRow_Users;
 	m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
@@ -1688,10 +1690,14 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 			CheckForNewWizardDevices( (DeviceData_Router *) pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia);
 
 		string sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter_Plugin::CMD_Orbiter_Registered %d sRegenAllDevicesRooms \n%s\n%s\n",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
+//#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sRegenAllDevicesRooms \n%s\n%s\n",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
+//#endif
 		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms )
 		{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms %d not equal %s=%s",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
+//#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms %d not equal %s=%s",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
+//#endif
 			DCE::SCREEN_Need_Reload_Router SCREEN_Need_Reload_Router(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			SendCommand(SCREEN_Need_Reload_Router);
 		}
@@ -1702,10 +1708,14 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 			if( pRow_Orbiter )
 			{
 				pRow_Orbiter->Reload();
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter_Plugin::CMD_Orbiter_Registered %d sScenariosFloorplans %s=%s",pMessage->m_dwPK_Device_From,pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
+//#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sScenariosFloorplans %s=%s",pMessage->m_dwPK_Device_From,pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
+//#endif
 				if( pRow_Orbiter->ScenariosFloorplans_get()!=sScenariosFloorplans )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter_Plugin::CMD_Orbiter_Registered not equal sScenariosFloorplans \n%s\n%s\n",pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
+//#ifdef DEBUG
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered not equal sScenariosFloorplans \n%s\n%s\n",pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
+//#endif
 					DCE::SCREEN_Need_Regen_Orbiter SCREEN_Need_Regen_Orbiter(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 					SendCommand(SCREEN_Need_Regen_Orbiter);
 				}
@@ -2894,7 +2904,9 @@ void Orbiter_Plugin::CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,s
     MYSQL_ROW row;
 	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Orbiter_Plugin::CMD_Get_Remote_ID %s is %d",sUID.c_str(),*iPK_Device);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Get_Remote_ID %s is %d",sUID.c_str(),*iPK_Device);
+#endif
 		*iPK_Device = atoi(row[0]);
 		string sValue = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,*iPK_Device,DEVICEDATA_PortChannel_Number_CONST);
 		*iValue = atoi(sValue.c_str());
@@ -2964,7 +2976,9 @@ void Orbiter_Plugin::CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int i
 
 class DataGridTable *Orbiter_Plugin::FloorplanDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"General_Info_Plugin::FloorplanDevices");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::FloorplanDevices");
+#endif
 
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;

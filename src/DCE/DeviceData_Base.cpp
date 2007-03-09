@@ -248,8 +248,10 @@ DeviceData_Base *DeviceData_Base::FindFirstRelatedDeviceOfCategory(int PK_Device
 								LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d never registered",PK_DeviceCategory,m_dwPK_Device);
 							return NULL;
 						}
+#ifdef DEBUG
 						
-							LoggerWrapper::GetInstance()->Write(LV_DEBUG, "FindFirstRelatedDeviceOfCategory %d dev %d waiting for device",PK_DeviceCategory,m_dwPK_Device);
+							LoggerWrapper::GetInstance()->Write(LV_STATUS, "FindFirstRelatedDeviceOfCategory %d dev %d waiting for device",PK_DeviceCategory,m_dwPK_Device);
+#endif
 						Sleep(1000);
 						break;
 					case 'D':

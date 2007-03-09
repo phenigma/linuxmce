@@ -517,8 +517,10 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				bSendEnter = (tok=="E");
 			}
 			
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Input=%s || Nr=%d || Enter=%s\n",
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Input=%s || Nr=%d || Enter=%s\n",
 				sNumDigits.c_str(), NumDigits, tok.c_str());
+#endif
 			
 		} else {
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device id %ld has no number digits parameter. Sending as is with an enter.\n", devid);

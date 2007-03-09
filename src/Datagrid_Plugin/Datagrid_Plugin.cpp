@@ -169,8 +169,10 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 	*iData_Size=0;
 	*pData=NULL;
 
+#ifdef DEBUG
 	clock_t cStart=clock(); // move this to within #debug
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Requesting grid: %s", sDataGrid_ID.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "Requesting grid: %s", sDataGrid_ID.c_str() );
+#endif
 	PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
 
 	DataGridTable *pDataGridTable=NULL;
@@ -181,7 +183,9 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 		return;
 	}
 
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Found grid: %s", sDataGrid_ID.c_str() );
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "Found grid: %s", sDataGrid_ID.c_str() );
+#endif
 
 		pDataGridTable = ( *dg ).second;
 
@@ -211,8 +215,10 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 		}
 		if( sSeek.length() )
 		{
-			LoggerWrapper::GetInstance()->Write( LV_DEBUG, "it has a seek value grid: %s rows: %d seek %s offset: %d bValue: %d", 
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "it has a seek value grid: %s rows: %d seek %s offset: %d bValue: %d", 
 				  sDataGrid_ID.c_str(),(int) pDataGridTable->GetRows(),sSeek.c_str(), iOffset, (int) bValue );
+#endif
 			sSeek = StringUtils::ToUpper(sSeek);
 			// We need to do a seek for this value
 			int dgrow;
@@ -284,16 +290,22 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 				int iPage = *iRow / iRow_count;
 				*iRow = iPage * iRow_count;
 			}
-LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Seek row %d",*iRow);
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "Seek row %d",*iRow);
+#endif
 		}
 		pDataGridTable->m_bKeepColumnHeader = bKeep_Column_Header;
 		pDataGridTable->m_bKeepRowHeader = bKeep_Row_Header;
-LoggerWrapper::GetInstance()->Write( LV_DEBUG, "ready to call todata: %s ", sDataGrid_ID.c_str() );
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "ready to call todata: %s ", sDataGrid_ID.c_str() );
+#endif
 
 		pDataGridTable->ToData( sDataGrid_ID, *iData_Size, *pData, iColumn, iRow, iColumn_count, iRow_count );
+#ifdef DEBUG
 		clock_t cStop = clock();
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Sending datagrid %s, size: %d, cols: %d, rows: %d %d ms", 
+		LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "Sending datagrid %s, size: %d, cols: %d, rows: %d %d ms", 
 			sDataGrid_ID.c_str(), *iData_Size, iColumn_count, iRow_count, (int) (cStop-cStart) );
+#endif
 }
 
 //<-dceag-c35-b->
@@ -328,8 +340,10 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 	PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
 	string::size_type pos=0;
 
+#ifdef DEBUG
 	clock_t cStart=clock(); // move this to within #debug
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "About to populate grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "About to populate grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+#endif
 
 	DataGridGeneratorCallBack *pCB = GetCallBack(iPK_DataGrid,iPK_DeviceTemplate);
 	DataGridTable *pDataGridTable=NULL;
@@ -338,9 +352,13 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Datagrid_Plugin::CMD_Populate_Datagrid map is empty??");
 	else
 	{
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "About to call member function: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "About to call member function: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+#endif
 		pDataGridTable = CALL_MEMBER_FN( *pCB->m_pDataGridGeneratorPlugIn, pCB->m_pDCEDataGridGeneratorFn ) ( sDataGrid_ID, sOptions, NULL, iPK_Variable, sValue_To_Assign, pMessage );
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Called datagrid populate function for grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Called datagrid populate function for grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+#endif
 
 		if( pCB->m_bRePopulateEachTimeRequested && pDataGridTable )
 		{
@@ -372,8 +390,10 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 	if( it!=m_DataGrids.end() )
 		delete it->second;
 	m_DataGrids[sDataGrid_ID]=pDataGridTable;
+#ifdef DEBUG
 	clock_t cStop = clock();
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Returning from populate grid successful? %s %d ms", (*bIsSuccessful ? "Y" : "N"), (int) (cStop-cStart) );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Returning from populate grid successful? %s %d ms", (*bIsSuccessful ? "Y" : "N"), (int) (cStop-cStart) );
+#endif
 	return;
 }
 

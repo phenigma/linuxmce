@@ -78,9 +78,9 @@ void PageFileParser::ParseLine(char* LineToParse, WizardWidgetBase* & Control)
 			Control = Control->Parent;
 		return;
 	}
-#ifdef DEBUG
+    #ifdef DEBUG
 	std::cout<<LineToParse<<std::endl;
-#endif
+    #endif
 }
 
 WizardWidgetBase* PageFileParser::LoadFromFile(char* FileName)

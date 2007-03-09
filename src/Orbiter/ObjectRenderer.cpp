@@ -238,8 +238,10 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 	if(!pPlutoGraphic->IsEmpty())
 	m_pObj_Owner->m_pOrbiter->Renderer()->RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
+	#ifdef DEBUG
 	else
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
+	#endif
 
 	if(!bIsMNG && m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_SELECTED)
 		m_pObj_Owner->m_pOrbiter->SelectObject(m_pObj_Owner, point);
@@ -310,7 +312,9 @@ int k=2;
 	case DESIGNOBJTYPE_Broadcast_Video_CONST:
 		if ( m_pObj_Owner->m_bOnScreen && !m_pObj_Owner->m_pOrbiter->m_bAlreadyQueuedVideo )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Scheduling object @%p: %s", this, m_pObj_Owner->m_ObjectID.c_str());
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Scheduling object @%p: %s", this, m_pObj_Owner->m_ObjectID.c_str());
+#endif
 
 			// If we've got no current graphic, such as during the first redraw since ObjectOnScreen
 			// deletes it, then request a video frame right away, otherwise we're redrawing
@@ -321,7 +325,9 @@ int k=2;
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Not Scheduling object @%p: %s because is not on screen.", this, m_pObj_Owner->m_ObjectID.c_str());
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Not Scheduling object @%p: %s because is not on screen.", this, m_pObj_Owner->m_ObjectID.c_str());
+#endif
 		}
 
 		break;
@@ -377,7 +383,9 @@ int k=2;
 
 	if ( m_pObj_Owner->m_bHidden || m_pObj_Owner->m_rPosition.Width==0 || m_pObj_Owner->m_rPosition.Height==0 )
 	{
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "object: %s  not visible: %d", m_pObj_Owner->m_ObjectID.c_str(), (int) m_pObj_Owner->m_bHidden );
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "object: %s  not visible: %d", m_pObj_Owner->m_ObjectID.c_str(), (int) m_pObj_Owner->m_bHidden );
+#endif
 
 		HideObject();
 
@@ -390,8 +398,10 @@ int k=2;
 	PROFILE_START( ctObj )
 		PlutoRectangle rectBackground = m_pObj_Owner->m_rBackgroundPosition;
 	PlutoRectangle rectTotal = m_pObj_Owner->m_rPosition;
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"xzx Rendering %s with %d %p=%p size %d",m_pObj_Owner->m_ObjectID.c_str(),m_pObj_Owner->m_GraphicToDisplay,
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"xzx Rendering %s with %d %p=%p size %d",m_pObj_Owner->m_ObjectID.c_str(),m_pObj_Owner->m_GraphicToDisplay,
 					  m_pObj_Owner->m_pvectCurrentGraphic,&m_pObj_Owner->m_vectGraphic,(int) m_pObj_Owner->m_vectAltGraphics.size());
+#endif
 if( m_pObj_Owner->m_iBaseObjectID==2355 )
 int k=2;
 	if(

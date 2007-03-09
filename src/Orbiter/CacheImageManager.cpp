@@ -57,8 +57,10 @@ CacheImageManager::~CacheImageManager()
 //----------------------------------------------------------------------------------------
 bool CacheImageManager::VerifyCache(string sTimeStamp)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Server skins timestamp: %s. Cache skins timestamp: %s",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Server skins timestamp: %s. Cache skins timestamp: %s",
 		sTimeStamp.c_str(), m_sTimeStamp.c_str());
+#endif
 
 	if(sTimeStamp != m_sTimeStamp)
 	{
@@ -93,8 +95,10 @@ void CacheImageManager::CacheImage(char *pData, int iSize, string sFileName,
 	{
 		if(!FileUtils::WriteBufferIntoFile(GetCacheImageFileName(sFileName), pData, iSize))
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unable to add image '%s' to cache", sFileName.c_str());
+#ifdef DEBUG
 		else
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Added image '%s' to cache", sFileName.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Added image '%s' to cache", sFileName.c_str());
+#endif
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -122,7 +126,9 @@ bool CacheImageManager::IsImageInCache(string sFileName, int iPriority/*=0*/)
 
 		AdjustCacheSize();
 
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Image '%s' found in cache folder. Added to our list.", sFileName.c_str());
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Image '%s' found in cache folder. Added to our list.", sFileName.c_str());
+#endif
 		return IsImageInCache(sFileName);
 	}
 

@@ -309,7 +309,9 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 	if( bRenderGraphicsOnly )
 		return;
 
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Render screen: %s finished", OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Render screen: %s finished", OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(  ) );
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer::ShowProgress(int nPercent)
@@ -924,7 +926,9 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 /*virtual*/ void OrbiterRenderer::HidePopups(DesignObj_Orbiter *pObj)
 {
 	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"hide popups");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"hide popups");
+#endif
 	if( pObj )
 	{
 		for(list<class PlutoPopup*>::iterator it=pObj->m_listPopups.begin();it!=pObj->m_listPopups.end();)
@@ -955,7 +959,9 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, int EffectID)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
+#endif
 	PLUTO_SAFETY_LOCK(sm, OrbiterLogic()->m_ScreenMutex);
 
 	int nPopupEffect = 1;
@@ -983,7 +989,9 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer::RefreshScreen(void *data)
 {
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "OrbiterRenderer::RefreshScreen %d",(int) OrbiterLogic()->m_bRerenderScreen );
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "OrbiterRenderer::RefreshScreen %d",(int) OrbiterLogic()->m_bRerenderScreen );
+#endif
 
 	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );
 	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
@@ -1008,12 +1016,16 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 			DoHighlightObject();
 
 		OrbiterLogic()->m_bRerenderScreen = false;
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Exiting Redraw Objects" );
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Exiting Redraw Objects" );
+#endif
 		return;
 	}
 
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "I won't render the whole screen. Objects to be rendered: %d, texts to be rendered: %d",	
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_CONTROLLER, "I won't render the whole screen. Objects to be rendered: %d, texts to be rendered: %d",	
 		m_vectObjs_NeedRedraw.size(), m_vectTexts_NeedRedraw.size()	);
+#endif
 
 	if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0)
 		return;
@@ -1112,7 +1124,9 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer::RenderObjectAsync(DesignObj_Orbiter *pObj)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "RenderObjectAsync: %s", pObj->m_ObjectID.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RenderObjectAsync: %s", pObj->m_ObjectID.c_str());
+#endif
 
 	PLUTO_SAFETY_LOCK(nd, m_NeedRedrawVarMutex);
 	m_vectObjs_NeedRedraw.push_back(pObj);
@@ -1121,7 +1135,9 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer::RenderTextAsync(DesignObjText *pObj)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "RenderTextAsync: %d", pObj->m_PK_Text);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RenderTextAsync: %d", pObj->m_PK_Text);
+#endif
 
 	PLUTO_SAFETY_LOCK(nd, m_NeedRedrawVarMutex);
 	m_vectTexts_NeedRedraw.push_back(pObj);
@@ -1271,7 +1287,9 @@ void OrbiterRenderer::ObjectOffScreen( DesignObj_Orbiter *pObj )
 
 void *ImageLoadThread(void *p)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ImageLoadThread running");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ImageLoadThread running");
+#endif
 	OrbiterRenderer *pRenderer = (OrbiterRenderer *)p;
 	bool bContinue = true, bRedraw = false;
 	do
@@ -1281,14 +1299,18 @@ void *ImageLoadThread(void *p)
 		// the visible ones first
 		if( pRenderer->m_listBackgroundImage.size()==0 )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ImageLoadThread pRenderer->m_listBackgroundImage.size()==0");
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"ImageLoadThread pRenderer->m_listBackgroundImage.size()==0");
+#endif
 			return NULL;  // Must have had another imageloadthread also running that serviced the last one at the same split second.  No problem.
 		}
 		BackgroundImage *pBackgroundImage = pRenderer->m_listBackgroundImage.front();
 		pRenderer->m_listBackgroundImage.pop_front();
 		if( !pBackgroundImage->m_pObj_Grid->m_bOnScreen )  // This may have gone off screen, if so ignore it
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ImageLoadThread pBackgroundImage %s is off screen",pBackgroundImage->m_sPic.c_str());
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"ImageLoadThread pBackgroundImage %s is off screen",pBackgroundImage->m_sPic.c_str());
+#endif
 			continue;
 		}
 		vm.Release();
@@ -1302,8 +1324,10 @@ void *ImageLoadThread(void *p)
 		DataGridTable *pDataGridTable = pBackgroundImage->m_pObj_Grid->DataGridTable_Get(pBackgroundImage->m_DataGridTable_Cache.first,pBackgroundImage->m_DataGridTable_Cache.second);
 		if( !pDataGridTable || !pBackgroundImage->m_pObj_Grid->m_bOnScreen || pDataGridTable->m_iRequestID!=pBackgroundImage->m_iRequestID )  // This may have gone off screen while loading the graphic with the mutex unlocked
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ImageLoadThread pBackgroundImage %s request %d!=%d",
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"ImageLoadThread pBackgroundImage %s request %d!=%d",
 				pBackgroundImage->m_sPic.c_str(),pBackgroundImage->m_iRequestID,pDataGridTable ? pDataGridTable->m_iRequestID : -999);
+#endif
 
 			delete pGraphicData;
 			continue;
@@ -1327,13 +1351,17 @@ void *ImageLoadThread(void *p)
 			DataGridTable *pDataGridTable2 = pBackgroundImage->m_pObj_Grid->DataGridTable_Get(pBackgroundImage->m_DataGridTable_Cache.first,pBackgroundImage->m_DataGridTable_Cache.second);
 			if( !pDataGridTable2 || pDataGridTable2->m_iRequestID!=pBackgroundImage->m_iRequestID || !pBackgroundImage->m_pObj_Grid->CellIsVisible( pBackgroundImage->m_ColRow.first, pBackgroundImage->m_ColRow.second ) )
 			{
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ImageLoadThread pBackgroundImage2 %s request %d!=%d",
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"ImageLoadThread pBackgroundImage2 %s request %d!=%d",
 					pBackgroundImage->m_sPic.c_str(),pBackgroundImage->m_iRequestID,pDataGridTable2 ? pDataGridTable2->m_iRequestID : -999);
+#endif
 				delete pPlutoGraphic;
 				continue;
 			}
 
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"delete1 pBackgroundImage->m_pCell->m_pGraphic %p:%p",pBackgroundImage->m_pCell,pBackgroundImage->m_pCell->m_pGraphic);
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"delete1 pBackgroundImage->m_pCell->m_pGraphic %p:%p",pBackgroundImage->m_pCell,pBackgroundImage->m_pCell->m_pGraphic);
+#endif
 			delete pBackgroundImage->m_pCell->m_pGraphic;
 
 			pBackgroundImage->m_pCell->m_pGraphic = pPlutoGraphic;
@@ -1356,9 +1384,13 @@ void *ImageLoadThread(void *p)
 
 		bContinue = (pRenderer->m_listBackgroundImage.size() > 0);
 		bRedraw = ((pRenderer->m_listBackgroundImage.size() % 10) == 0);
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ImageLoadThread %s size: %d (%d) %d",pBackgroundImage->m_sPic.c_str(),(int) pRenderer->m_listBackgroundImage.size(),(int) bRedraw,(int) bContinue);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_EVENT,"ImageLoadThread %s size: %d (%d) %d",pBackgroundImage->m_sPic.c_str(),(int) pRenderer->m_listBackgroundImage.size(),(int) bRedraw,(int) bContinue);
+#endif
 	} while(bContinue);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ImageLoadThread exiting");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_EVENT,"ImageLoadThread exiting");
+#endif
 	return NULL;
 }
 
@@ -1382,11 +1414,13 @@ LoggerWrapper::GetInstance()->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLo
 		int result;
 		if( (result=pthread_create( &pthread_id, NULL, ImageLoadThread, (void*) this)) )
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"OrbiterRenderer::BackgroundImageLoad Cannot start image loading thread %d",result);
+#ifdef DEBUG
 		else
 		{
 			pthread_detach(pthread_id);
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"OrbiterRenderer::BackgroundImageLoad started thread %d",pthread_id);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer::BackgroundImageLoad started thread %d",pthread_id);
 		}
+#endif
 	}
 }
 
@@ -1413,7 +1447,9 @@ char *pData, int iData_Size, string sDisable_Aspect_Lock)
 		return;
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"OrbiterRenderer::UpdateObjectImage with image of size %d",iData_Size);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer::UpdateObjectImage with image of size %d",iData_Size);
+#endif
 
 	int PriorWidth=0, PriorHeight=0;
 	if(  pObj->m_pvectCurrentGraphic  )

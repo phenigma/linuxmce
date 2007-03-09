@@ -54,11 +54,13 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 /*virtual*/ void ObjectRenderer_OpenGL::RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point)
 {
-LoggerWrapper::GetInstance()->Write(LV_DEBUG, "mmmm RenderGraphic  %s state %s",
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "mmmm RenderGraphic  %s state %s",
 					   m_pObj_Owner->m_ObjectID.c_str(), 
 					   m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_NORMAL ? "normal" : 
 						 m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_SELECTED ? "selected" : "highlighted"
 	);
+#endif
 	string sParentObjectID = "";
 	DesignObj_Orbiter *pParentObj = dynamic_cast<DesignObj_Orbiter *>(m_pObj_Owner->m_pParentObject);
 	if(NULL != pParentObj)
@@ -108,8 +110,10 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG, "mmmm RenderGraphic  %s state %s",
 			m_pObj_Owner->GenerateObjectHash(point, false),
 			m_pObj_Owner->GenerateObjectHash(point));
 	}
+#ifdef DEBUG
 	else
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "No graphic to render for object %s", m_pObj_Owner->m_ObjectID.c_str());
+#endif
 }
 
 

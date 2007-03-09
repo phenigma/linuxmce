@@ -716,9 +716,6 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 
 				if( it == m_mapStation.end() ){
 					clientfile<<"INSERT INTO Station(PK_Station, TimeZone, Name, CallSign, Affil, City, State, ZipCode, Country, DmaName, DmaNum, FccChannelNum, Checksum, TimestampF) VALUES (\""<<row[0]<<"\",\""<<row[1]<<"\",\""<<row[2]<<"\",\""<<row[3]<<"\",\""<<row[4]<<"\",\""<<row[5]<<"\",\""<<row[6]<<"\",\""<<row[7]<<"\",\""<<row[8]<<"\",\""<<row[9]<<"\",\""<<row[10]<<"\",\""<<row[11]<<"\",\""<<row[12]<<"\",\""<<row[13]<<"\") \n";
-
-					mythclientfile<<"INSERT INTO program(chanid, channum, freqid, sourceid, callsign, name, icon, finetune, videofilters, xmltvid, recpriority, contrast, brightness, colour, hue, tvformat, commfree, visible, outputfilters, useonairguide, mplexid, serviceid, atscsrcid, tmoffset, atsc_major_chan, atsc_minor_chan) VALUES (\""<<row[0]<<"\",\""<<row[0]<<"\",'','1',\""<<row[3]<<"\",\""<<row[2]<<"\",'','','','',\"0\",'32768','32768','32768','32768','Default','0','1','','0','32767','NULL','0','0','0') \n";
-
 					m_mapStation.insert( make_pair( atoi(row[0]), row[13] ) ); 
 				}
 				

@@ -111,7 +111,9 @@ g_PlutoProfiler->Stop("RequestDatagridContents");
 	m_PagesCached = make_pair<int,int> (0,0); // Start caching again
 
 LoggerWrapper::GetInstance()->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"from grid %s DataGridTable_Get() is now %p",m_ObjectID.c_str(),DataGridTable_Get());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"from grid %s DataGridTable_Get() is now %p",m_ObjectID.c_str(),DataGridTable_Get());
+#endif
 
 	m_CachedCurRow=m_GridCurRow;
 	m_CachedCurCol=m_GridCurCol;
@@ -152,13 +154,17 @@ DataGridTable *DesignObj_DataGrid::RequestDatagridContents( int &GridCurCol, int
 	DataGridTable *pDataGridTable = DataGridTable_Get(GridCurRow,GridCurCol);
 	if (  m_bReAcquire || !pDataGridTable || m_sSeek.length() )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"acquiring %s",m_ObjectID.c_str());
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_ACTION,"acquiring %s",m_ObjectID.c_str());
+#endif
 		m_bReAcquire=false;
 
 		++m_pOrbiter->m_dwIDataGridRequestCounter;
 
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG,  "requesting grid ( # %d ),  %s.",  m_pOrbiter->m_dwIDataGridRequestCounter,
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS,  "requesting grid ( # %d ),  %s.",  m_pOrbiter->m_dwIDataGridRequestCounter,
 			m_sGridID.c_str(  ) );
+#endif
 		int size = 0;
 		char *data = NULL;
 
@@ -215,7 +221,9 @@ g_PlutoProfiler->Stop("send command");
 						pCell->m_GraphicFormat = GR_JPG;
 
 //				M.Release();
-						LoggerWrapper::GetInstance()->Write(LV_DEBUG,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,pDataGridTable->CovertColRowType(it->first).first,pDataGridTable->CovertColRowType(it->first).second);
+#ifdef DEBUG
+						LoggerWrapper::GetInstance()->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,pDataGridTable->CovertColRowType(it->first).first,pDataGridTable->CovertColRowType(it->first).second);
+#endif
 //						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, m_pOrbiter->m_dwIDataGridRequestCounter, make_pair<int,int> (GridCurRow, GridCurCol), pCell, pDataGridTable->CovertColRowType(it->first),!bCache);
 					}
 	//				M.Relock();
@@ -242,7 +250,9 @@ g_PlutoProfiler->Stop("send command");
 					}
 				}
 
-				LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Got %d rows %d cols in new %s DataGridTable_Get() %p", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ), m_ObjectID.c_str(), pDataGridTable );
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Got %d rows %d cols in new %s DataGridTable_Get() %p", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ), m_ObjectID.c_str(), pDataGridTable );
+#endif
 				if(  !pDataGridTable->GetRows(  ) || !pDataGridTable->GetCols(  )  )
 				{
 					// Initialize grid will set these to 0,  assuming there will be data.  If the grid is empty,  change that
@@ -514,7 +524,9 @@ bool DesignObj_DataGrid::Scroll_Grid(string sRelative_Level, int iPK_Direction)
 			pObj_Datagrid->Scroll_Grid(sRelative_Level, iPK_Direction);
 		}
 	}
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Scrolled datagrid %s to row %d col %d",m_sGridID.c_str(),m_GridCurRow,m_GridCurCol);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_EVENTHANDLER,"Scrolled datagrid %s to row %d col %d",m_sGridID.c_str(),m_GridCurRow,m_GridCurCol);
+#endif
 	DataGridRenderer *pDataGridRenderer = dynamic_cast<DataGridRenderer *>(m_pObjectRenderer);
 	pDataGridRenderer->iPK_Direction = iPK_Direction;
 	pDataGridRenderer->StartAnimation = 1;

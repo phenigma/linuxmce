@@ -454,7 +454,9 @@ void DataGridTable::DetachGraphics()
 
 void DataGridTable::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
-LoggerWrapper::GetInstance()->Write( LV_DEBUG, "inside todata" );
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "inside todata" );
+#endif
 
 	if( *ColStart<0 || *RowStart<0 )
 	{
@@ -485,7 +487,9 @@ LoggerWrapper::GetInstance()->Write( LV_DEBUG, "inside todata" );
 
 	int ActualFirstColumn = m_bKeepColumnHeader ? 1 : 0;
 	register int i;
-LoggerWrapper::GetInstance()->Write( LV_DEBUG, "rows: %d cols: %d",m_RowCount,m_ColumnCount );
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "rows: %d cols: %d",m_RowCount,m_ColumnCount );
+#endif
 
 	for(i=0;i<m_RowCount;++i)
 	{
@@ -538,7 +542,9 @@ LoggerWrapper::GetInstance()->Write( LV_DEBUG, "rows: %d cols: %d",m_RowCount,m_
 			}
 		}
 	}
-LoggerWrapper::GetInstance()->Write( LV_DEBUG, "after loop" );
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "after loop" );
+#endif
 
 	int IndexSize = sizeof(DataGridTableCellIndex) * m_CellCount;
 
@@ -554,7 +560,9 @@ LoggerWrapper::GetInstance()->Write( LV_DEBUG, "after loop" );
 	Datap+=sizeof(DataGridTableSerializableData);
 	memcpy(Datap, ntIndex, IndexSize);
 	Datap+=IndexSize;
-LoggerWrapper::GetInstance()->Write( LV_DEBUG, "cell count %d",m_CellCount );
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "cell count %d",m_CellCount );
+#endif
     for(i=0;i<m_CellCount;++i)
 	{
 		unsigned long CellSize=pCellSize[i];
@@ -579,7 +587,9 @@ LoggerWrapper::GetInstance()->Write( LV_DEBUG, "cell count %d",m_CellCount );
 	*((int *)Data)=UncompressedSize;
     lzo1x_1_compress((lzo_byte *)UncompressedData,UncompressedSize,(lzo_byte *)Data+4,&out_len,wrkmem);
 	Size = (int)out_len+4;
-LoggerWrapper::GetInstance()->Write( LV_DEBUG, "before delete[]" );
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "before delete[]" );
+#endif
 
 	// Shouldn't this have been here?
 	delete[] UncompressedData;

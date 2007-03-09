@@ -162,8 +162,10 @@ void OrbiterRenderer_SDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM
 	if(uMsg == WM_KEYDOWN)
 	{
 		orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Key down %d bControlDown %d bAltDown %d bCapsLock %d bShiftDown %d",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Key down %d bControlDown %d bAltDown %d bCapsLock %d bShiftDown %d",
 			wParam,(int) OrbiterLogic()->m_bControlDown,(int) OrbiterLogic()->m_bAltDown,(int) OrbiterLogic()->m_bCapsLock,(int) OrbiterLogic()->m_bShiftDown);
+#endif
 	}
 	else if(uMsg == WM_KEYUP)
 		orbiterEvent.type = Orbiter::Event::BUTTON_UP;

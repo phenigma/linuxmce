@@ -58,13 +58,17 @@ PopupDescription::~PopupDescription(void)
 
 void PopupDescription::Hide()
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Remove popup: %s", ObjectHash.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Remove popup: %s", ObjectHash.c_str());
+#endif
 
 	Engine->RemoveMeshFrameFromDesktopForID(ObjectHash);
 }
 
 void PopupDescription::Show()
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Add popup: %s to scene", ObjectHash.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Add popup: %s to scene", ObjectHash.c_str());
+#endif
 	Engine->AddMeshFrameToDesktop("", PopupFrame);
 }

@@ -258,7 +258,9 @@ void OpenGLGraphic::Convert()
 		LocalSurface = LocalSurfaceConverted;
 	}
 
+#ifdef DEBUG
 	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Freeing surface %p" , LocalSurface);
+#endif
 	SDL_FreeSurface(LocalSurface);
 	LocalSurface = NULL;
 
@@ -439,9 +441,11 @@ OpenGLGraphic* OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, Pluto
 	SDL_PixelFormat * PF = LocalSurface->format;
 	Uint32 PlutoPixelDest, PlutoPixelSrc, Pixel;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "ReplaceColor: %u %u %u : %u %u %u",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ReplaceColor: %u %u %u : %u %u %u",
 		ColorToReplace.R(), ColorToReplace.G(), ColorToReplace.B(),
 		ReplacementColor.R(), ReplacementColor.G(), ReplacementColor.B());
+#endif
 
 	int x = Area.Left();
 	int y = Area.Top();

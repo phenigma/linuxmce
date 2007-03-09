@@ -245,8 +245,10 @@ void OrbiterRenderer_PocketFrog::GameLoop()
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::StylusDown( Point p, MouseButton aMouseButton )
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, ">>> >>> OrbiterRenderer_PocketFrog::StylusDown(%d, %d, button: %d)",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, ">>> >>> OrbiterRenderer_PocketFrog::StylusDown(%d, %d, button: %d)",
 		p.x, p.y, aMouseButton);
+#endif
 
 	OrbiterLogic()->RegionDown(p.x, p.y);
 	RecordMouseAction(p.x, p.y);
@@ -254,8 +256,10 @@ void OrbiterRenderer_PocketFrog::StylusDown( Point p, MouseButton aMouseButton )
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::StylusUp( Point p, MouseButton aMouseButton )
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, ">>> >>> OrbiterRenderer_PocketFrog::StylusUp(%d, %d, button: %d)",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, ">>> >>> OrbiterRenderer_PocketFrog::StylusUp(%d, %d, button: %d)",
 		p.x, p.y, aMouseButton);
+#endif
 
 	OrbiterLogic()->RegionUp(p.x, p.y);
 }
@@ -272,8 +276,10 @@ void OrbiterRenderer_PocketFrog::StylusMove( Point p )
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::StylusWheel( Point p, int delta)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, ">>> >>> OrbiterRenderer_PocketFrog::StylusWheel(%d, %d, delta: %d)",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, ">>> >>> OrbiterRenderer_PocketFrog::StylusWheel(%d, %d, delta: %d)",
 		p.x, p.y, delta);
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterRenderer_PocketFrog::PocketFrogButtonDown(int button)
@@ -298,8 +304,10 @@ void OrbiterRenderer_PocketFrog::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARA
     if(uMsg == WM_KEYDOWN)
 	{
         orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Key down %d bControlDown %d bAltDown %d bCapsLock %d bShiftDown %d",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Key down %d bControlDown %d bAltDown %d bCapsLock %d bShiftDown %d",
 			wParam,(int) OrbiterLogic()->m_bControlDown,(int) OrbiterLogic()->m_bAltDown,(int) OrbiterLogic()->m_bCapsLock,(int) OrbiterLogic()->m_bShiftDown);
+#endif
 	}
     else if(uMsg == WM_KEYUP)
         orbiterEvent.type = Orbiter::Event::BUTTON_UP;
@@ -429,8 +437,10 @@ void OrbiterRenderer_PocketFrog::RenderScreen( bool bRenderGraphicsOnly )
 	}
 
 	CHECK_STATUS();
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"$$$ RENDER SCREEN $$$ %s",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",
 		(OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
+#endif
 	
 	if (OrbiterLogic()->m_pScreenHistory_Current)
 	{

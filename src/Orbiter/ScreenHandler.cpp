@@ -80,7 +80,9 @@ void ScreenHandler::RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCa
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::ResetCallBacks()
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::ResetCallBacks");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ResetCallBacks");
+#endif
 	PLUTO_SAFETY_LOCK(vm, m_MapMutex);
 	m_mapCallBack.clear();
 
@@ -268,7 +270,9 @@ bool ScreenHandler::MediaBrowsre_Intercepted(CallBackData *pData)
 	if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMsgInterceptorCellBackData->m_pMessage->m_dwID==COMMAND_Play_Media_CONST && mediaFileBrowserOptions.m_pObj_ListGrid )
 	{
 		DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get();
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::MediaBrowsre_Intercepted got the play button %p",pDataGridTable);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowsre_Intercepted got the play button %p",pDataGridTable);
+#endif
 		if( pDataGridTable )
 		{
 			DataGridCell *pCell = pDataGridTable->GetData( 0, mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow );
@@ -601,11 +605,13 @@ string ScreenHandler::GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad)
 bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::MediaBrowser_DatagridSelected sel value %s text %s row %d col %d cell value %s",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_DatagridSelected sel value %s text %s row %d col %d cell value %s",
 			pCellInfoData->m_sValue.c_str(),pCellInfoData->m_sText.c_str(),
 			pCellInfoData->m_Row,pCellInfoData->m_Column,
 			pCellInfoData->m_pDataGridCell && pCellInfoData->m_pDataGridCell->m_Value ? pCellInfoData->m_pDataGridCell->m_Value : "*NONE*");
 
+#endif
 
 	if(	pCellInfoData->m_pDesignObj_DataGrid->m_iBaseObjectID == DESIGNOBJ_dgFileList2_CONST || pCellInfoData->m_pDesignObj_DataGrid->m_iBaseObjectID == DESIGNOBJ_dgFileList2_Pics_CONST )
 	{
@@ -637,16 +643,20 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 			}
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::MediaBrowser_ObjectSelected sel grid pic %p list %p pich %d,%d  listh %d,%d",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid pic %p list %p pich %d,%d  listh %d,%d",
 			pCell_Pic,pCell_List,mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn : -999,
 			mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow : -999,
 			0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
+#endif
 
 		if( !pCell_List )
 			return true; // Shouldn't happen
 
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::MediaBrowser_ObjectSelected sel grid value %s text %s",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid value %s text %s",
 			pCell_List->m_Value ? pCell_List->m_Value : "*NULL*",pCell_List->m_Text ? pCell_List->m_Text : "*NULL*");
+#endif
 
 		if( !pCell_List->m_Value || strstr(pCell_List->m_Value,"\t!D")!=NULL )  // If it contains this, the user is going into a subdirectory
 		{
@@ -1961,8 +1971,10 @@ bool ScreenHandler::AddSoftware_GridRendering(CallBackData *pData)
 	{
 		DataGridCell *pCell = it->second;
 		string sStatus = pCell->m_mapAttributes_Find("Installation_status");
+#ifdef DEBUG
 		string s = (pCell->GetText() ? pCell->GetText() : "*NO TEXT") + string("/") + (pCell->GetValue() ? pCell->GetValue() : "*NO VALUE");
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::AddSoftware_GridRendering %s=%s",s.c_str(),sStatus.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::AddSoftware_GridRendering %s=%s",s.c_str(),sStatus.c_str());
+#endif
 
 		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
 		if( colRow.second == pDatagridAcquiredBackData->m_pDataGridTable->m_iDownRow || colRow.second == pDatagridAcquiredBackData->m_pDataGridTable->m_iUpRow )

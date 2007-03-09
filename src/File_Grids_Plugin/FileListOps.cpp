@@ -49,9 +49,9 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sVali
 {
     string BasePath;
 
-
-    LoggerWrapper::GetInstance()->Write(LV_DEBUG, "get dir contents Base Path: %s",Path.c_str());
-
+#ifdef DEBUG
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "get dir contents Base Path: %s",Path.c_str());
+#endif
     string::size_type pos=0;
 	int iDirNumber=0;
     while( (BasePath=StringUtils::Tokenize(Path,"\t",pos)).length() )
@@ -102,9 +102,9 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sVali
         DIR * dirp = opendir(BasePath.c_str());
         struct dirent entry;
         struct dirent * direntp = & entry;
-
-LoggerWrapper::GetInstance()->Write(LV_DEBUG, "opened dir %s", BasePath.c_str());
-
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
+#endif
         if (dirp == NULL)
         {
             LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "opendir1 %s failed: %s", BasePath.c_str(), strerror(errno));
@@ -131,9 +131,9 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG, "opened dir %s", BasePath.c_str())
 				if (strstr(buffer, "/mnt/device/") == buffer)
 				{
 					FileDetails * fi = new FileDetails(BasePath, entry.d_name, true, iDirNumber, dirEntryStat.st_mtime);
-
-LoggerWrapper::GetInstance()->Write(LV_DEBUG, "adding autofs symlink as directory");
-
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "adding autofs symlink as directory");
+#endif
 					listFileNames.push_back(fi);
 				}
 				else
@@ -145,23 +145,23 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG, "adding autofs symlink as director
             // if (entry.d_type == DT_DIR )
             if ( S_ISDIR(dirEntryStat.st_mode) )
             {
-
-LoggerWrapper::GetInstance()->Write(LV_DEBUG, "found dir entry %s", entry.d_name);
-
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "found dir entry %s", entry.d_name);
+#endif
                 if (entry.d_name[0] != '.') // ignore folders starting with . {hidden and the . .. ones}
                 {
                     FileDetails *fi = new FileDetails(BasePath, entry.d_name, true, iDirNumber, dirEntryStat.st_mtime);
-
-LoggerWrapper::GetInstance()->Write(LV_DEBUG, "adding dir");
-
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "adding dir");
+#endif
                     listFileNames.push_back(fi);
                 }
             }
             else if ( S_ISREG(dirEntryStat.st_mode) && entry.d_name[0] != '.' && FileUtils::FindExtension(entry.d_name)!="id3" && FileUtils::FindExtension(entry.d_name)!="lock") // ignore hidden files
             {
-
-LoggerWrapper::GetInstance()->Write(LV_DEBUG, "found file entry %s", entry.d_name);
-
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "found file entry %s", entry.d_name);
+#endif
                 size_t pos = 0;
                 while(pos<sValidExtensions_CSV.length() || sValidExtensions_CSV.length()==0 )
                 {
@@ -173,9 +173,9 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG, "found file entry %s", entry.d_nam
 						FileUtils::FindExtension(entry.d_name)==s )
                     {
                         FileDetails *fi = new FileDetails(BasePath, entry.d_name, false, iDirNumber, dirEntryStat.st_mtime);
-
-LoggerWrapper::GetInstance()->Write(LV_DEBUG, "added file %s", entry.d_name);
-
+#ifdef DEBUG
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "added file %s", entry.d_name);
+#endif
                         listFileNames.push_back(fi);
                         break;
                     }
@@ -187,5 +187,7 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG, "added file %s", entry.d_name);
 		iDirNumber++;
     }
 
-    LoggerWrapper::GetInstance()->Write(LV_DEBUG, "get dir contents returning: %d records",(int) listFileNames.size());
+#ifdef DEBUG
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "get dir contents returning: %d records",(int) listFileNames.size());
+#endif
 }

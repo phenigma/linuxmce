@@ -70,7 +70,9 @@ void LockedMouseHandler::Start()
 		m_pMouseBehavior->m_pStartMovement.Y=m_pObj_Highlighted->m_rPosition.Y + m_pObj_Highlighted->m_pPopupPoint.Y + (m_pObj_Highlighted->m_rPosition.Height/2);
 		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y);
 	}
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"LockedMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"LockedMouseHandler::Start m_iTime_Last_Mouse_Up %d",(int) m_pMouseBehavior->m_iTime_Last_Mouse_Up);
+#endif
 
 	if( m_pMouseBehavior->m_iTime_Last_Mouse_Up )
 		m_bTapAndRelease=true;

@@ -983,8 +983,10 @@ int Security_Plugin::GetModeID(string Mode)
 bool Security_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
 	bool bRegistered = pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST]=="1";
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Security_Plugin::OrbiterRegistered orbiter %d registered %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Security_Plugin::OrbiterRegistered orbiter %d registered %d",
 		pMessage->m_dwPK_Device_From,(int) bRegistered);
+#endif
 	if( bRegistered )
 	{
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
@@ -1107,8 +1109,10 @@ void Security_Plugin::SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare)
 void Security_Plugin::SetHouseModeBoundIcon(int PK_DeviceGroup,OH_Orbiter *pOH_Orbiter_Compare)
 {
 	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Security_Plugin::SetHouseModeBoundIcon group %d orbiter %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Security_Plugin::SetHouseModeBoundIcon group %d orbiter %d",
 		PK_DeviceGroup,(pOH_Orbiter_Compare ? pOH_Orbiter_Compare->m_pDeviceData_Router->m_dwPK_Device : 0));
+#endif
 	for(map<int,int>::iterator itHM=m_mapPK_HouseMode.begin();itHM!=m_mapPK_HouseMode.end();++itHM)
 	{
 		if( PK_DeviceGroup==-1 || PK_DeviceGroup==itHM->first )
@@ -1122,9 +1126,11 @@ void Security_Plugin::SetHouseModeBoundIcon(int PK_DeviceGroup,OH_Orbiter *pOH_O
 					DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,StringUtils::itos(PK_HouseMode),"","housemode" + StringUtils::itos(itHM->first));
 					SendCommand(CMD_Set_Bound_Icon);
 				}
+#ifdef DEBUG
 				else
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Security_Plugin::SetHouseModeBoundIcon skipping orbiter group %d orbiter %d",
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Security_Plugin::SetHouseModeBoundIcon skipping orbiter group %d orbiter %d",
 						PK_DeviceGroup,(pOH_Orbiter_Compare ? pOH_Orbiter_Compare->m_pDeviceData_Router->m_dwPK_Device : 0));
+#endif
 			}
 		}
 	}

@@ -224,8 +224,10 @@ void OrbiterRenderer_SDL::SetOrbiterWindowTransparency(double TransparencyLevel)
 //----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::RenderScreen( bool bRenderGraphicsOnly )
 {
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"$$$ RENDER SCREEN $$$ %s",
+	#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",
 			(OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
+	#endif
 	
 	if (OrbiterLogic()->m_pScreenHistory_Current)
 	{
@@ -420,9 +422,11 @@ void OrbiterRenderer_SDL::ReplaceColorInRectangle(int x, int y, int width, int h
     SDL_PixelFormat * PF = m_pScreenImage->format;
     Uint32 PlutoPixelDest, PlutoPixelSrc, Pixel;
 
-    LoggerWrapper::GetInstance()->Write(LV_DEBUG, "ReplaceColor: %u %u %u : %u %u %u",
+#ifdef DEBUG
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "ReplaceColor: %u %u %u : %u %u %u",
         ColorToReplace.R(), ColorToReplace.G(), ColorToReplace.B(),
         ReplacementColor.R(), ReplacementColor.G(), ReplacementColor.B());
+#endif
 
     PlutoPixelSrc = (ColorToReplace.R() << PF->Rshift) | (ColorToReplace.G() << PF->Gshift) | (ColorToReplace.B() << PF->Bshift) | (ColorToReplace.A() << PF->Ashift);
     unsigned char *Source = (unsigned char *) &PlutoPixelSrc;

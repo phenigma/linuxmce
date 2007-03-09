@@ -103,7 +103,9 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 	ResetSamples();
 	ConstrainMouse(PlutoRectangle(0,0,0,0));
 	m_pLastPosition.X=m_pLastPosition.Y=-1;
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseBehavior::Clear MouseHandler dest %p goto menu %d",m_pMouseHandler,(int) bGotoMainMenu);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseBehavior::Clear MouseHandler dest %p goto menu %d",m_pMouseHandler,(int) bGotoMainMenu);
+#endif
 	delete m_pMouseHandler;
 	m_pMouseHandler=NULL;
 	m_pMouseGovernor->SetBuffer(0);
@@ -131,8 +133,10 @@ void MouseBehavior::Clear(bool bGotoMainMenu)
 void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sDirection,string sDesignObj)
 {
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s- -%s-",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::Set_Mouse_Behavior -%s- %d -%s- -%s-",
 					  sOptions.c_str(),(int) bExclusive,sDirection.c_str(),sDesignObj.c_str());
+#endif
 	if( sOptions.size()==0 )
 	{
 		Clear();
@@ -192,7 +196,9 @@ void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sD
 
 void MouseBehavior::Move(int X,int Y)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseBehavior::Move %d,%d",X,Y);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::Move %d,%d",X,Y);
+#endif
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	if( m_pMouseHandler )
 		m_pMouseHandler->Move(X,Y,0);
@@ -259,7 +265,9 @@ m_pOrbiter->Renderer()->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
 
 bool MouseBehavior::ButtonDown(int PK_Button)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseBehavior::ButtonDown %d resetting m_iTime_Last_Mouse_Up",(int) PK_Button);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown %d resetting m_iTime_Last_Mouse_Up",(int) PK_Button);
+#endif
 	PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
 	m_iPK_Button_Mouse_Last=PK_Button;
 	m_iTime_Last_Mouse_Down=ProcessUtils::GetMsTime();
@@ -271,7 +279,9 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	// Special case for the media control
 	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_7_CONST && (PK_Screen_OnScreen!=SCREEN_Main_CONST || (m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() == m_pOrbiter->m_pDesignObj_Orbiter_ScreenSaveMenu) ) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseBehavior::ButtonDown showing main menu");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
+#endif
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Set_Main_Menu("N");
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
@@ -293,7 +303,9 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && PK_Screen_OnScreen!=SCREEN_mnuPlaybackControl_CONST 
 		&& PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Speed && PK_Screen_OnScreen!=m_pOrbiter->m_iPK_Screen_OSD_Track )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseBehavior::ButtonDown showing media menu");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
+#endif
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		if( m_pOrbiter->m_iPK_Screen_OSD_Speed && m_pOrbiter->m_iPK_Screen_OSD_Track )
 			m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuPlaybackControl_CONST);
@@ -308,7 +320,9 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && PK_Screen_OnScreen!=SCREEN_mnuAmbiance_CONST 
 		&& PK_Screen_OnScreen!=SCREEN_mnuVolume_CONST && PK_Screen_OnScreen!=SCREEN_mnuLights_CONST )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseBehavior::ButtonDown showing ambiance menu");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
+#endif
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuAmbiance_CONST);
 		ShowMouse(true);
@@ -318,16 +332,22 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 	else if( (m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST && (PK_Screen_OnScreen==SCREEN_mnuPlaybackControl_CONST || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Speed || PK_Screen_OnScreen==m_pOrbiter->m_iPK_Screen_OSD_Track)) ||
 		(m_iPK_Button_Mouse_Last==BUTTON_Mouse_8_CONST && (PK_Screen_OnScreen==SCREEN_mnuAmbiance_CONST || PK_Screen_OnScreen==SCREEN_mnuVolume_CONST || PK_Screen_OnScreen==SCREEN_mnuLights_CONST)) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseBehavior::ButtonDown removing menu");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown removing menu");
+#endif
 		Clear(true);
 		return true;
 	}
 	else if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_2_CONST || (m_iPK_Button_Mouse_Last==BUTTON_escape_CONST && PK_Screen_OnScreen==SCREEN_Main_CONST && m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() != m_pOrbiter->m_pDesignObj_Orbiter_ScreenSaveMenu) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseBehavior::ButtonDown right click %d %d==%d | %d",m_pOrbiter->m_iPK_MediaType,PK_Screen_OnScreen,m_pOrbiter->m_iPK_Screen_Remote,m_pOrbiter->m_iPK_Screen_RemoteOSD);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown right click %d %d==%d | %d",m_pOrbiter->m_iPK_MediaType,PK_Screen_OnScreen,m_pOrbiter->m_iPK_Screen_Remote,m_pOrbiter->m_iPK_Screen_RemoteOSD);
+#endif
 		if( PK_Screen_OnScreen && PK_Screen_OnScreen==m_pOrbiter->m_PK_Screen_ActiveApp_OSD )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseBehavior::ButtonDown right click ignoring so on screen app can get it");
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown right click ignoring so on screen app can get it");
+#endif
 			return false;
 		}
 		else if( !m_pOrbiter->m_iPK_MediaType && PK_Screen_OnScreen==SCREEN_Main_CONST )
@@ -375,7 +395,9 @@ bool MouseBehavior::ButtonUp(int PK_Button)
     PLUTO_SAFETY_LOCK(mb,m_pOrbiter->m_ScreenMutex);
     m_iPK_Button_Mouse_Last=PK_Button;
     m_iTime_Last_Mouse_Up=ProcessUtils::GetMsTime();
-    LoggerWrapper::GetInstance()->Write(LV_DEBUG,"MouseBehavior::ButtonUp %d %p m_iTime_Last_Mouse_Up=%d",(int) PK_Button,m_pMouseHandler,(int) m_iTime_Last_Mouse_Up);
+#ifdef DEBUG
+    LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonUp %d %p m_iTime_Last_Mouse_Up=%d",(int) PK_Button,m_pMouseHandler,(int) m_iTime_Last_Mouse_Up);
+#endif
 
 	if( m_iPK_Button_Mouse_Last==BUTTON_Mouse_3_CONST && m_bMouseKilled )
 	{
@@ -394,8 +416,10 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 	{
 		if( pObj==m_pObj_Previously_Highlighted )
 			return;  // Nothing to do
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "mmm MouseBehavior::HighlightObject : UNHIGHLIGHT %s %d",
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "mmm MouseBehavior::HighlightObject : UNHIGHLIGHT %s %d",
 			m_pObj_Previously_Highlighted->m_ObjectID.c_str(), m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight);
+#endif		
 		m_pObj_Previously_Highlighted->m_GraphicToDisplay_set("mbho",m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight);
 		m_pOrbiter->ExecuteCommandsInList( &m_pObj_Previously_Highlighted->m_Action_UnhighlightList, m_pObj_Previously_Highlighted, smHighlight, 0, 0 );
 		m_pOrbiter->Renderer()->RenderObjectAsync(m_pObj_Previously_Highlighted);
@@ -410,8 +434,10 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 	m_pObj_Previously_Highlighted->m_GraphicBeforeHighlight = m_pObj_Previously_Highlighted->m_GraphicToDisplay;
 
 	pObj->m_GraphicToDisplay_set("mbho2",GRAPHIC_HIGHLIGHTED,true);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "mmm MouseBehavior::HighlightObject : HIGHLIGHT %s",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "mmm MouseBehavior::HighlightObject : HIGHLIGHT %s",
 		pObj->m_ObjectID.c_str());
+#endif
 	m_pOrbiter->Renderer()->DoHighlightObject();
 	NeedToRender render( m_pOrbiter, "start speed" );
 	m_pOrbiter->Renderer()->RenderObjectAsync(m_pOrbiter->m_pObj_Highlighted);

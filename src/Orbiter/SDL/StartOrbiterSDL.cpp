@@ -146,13 +146,15 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
             if(SDL_KEYDOWN == sdlEvent.type && SDLK_CAPSLOCK == sdlEvent.key.keysym.sym)
                 kbdState->bCapsLock = !kbdState->bCapsLock;
 
-            LoggerWrapper::GetInstance()->Write(LV_DEBUG, "key %s %d shif: %d ctrl: %d alt: %d caps: %d",
+#ifdef DEBUG
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "key %s %d shif: %d ctrl: %d alt: %d caps: %d",
                                   SDL_KEYDOWN == sdlEvent.type ? "down" : "up",
                                   (int) sdlEvent.key.keysym.sym,
                                   (int) kbdState->bShiftDown,
                                   (int) kbdState->bControlDown,
                                   (int) kbdState->bAltDown,
                                   (int) kbdState->bCapsLock);
+#endif
 
 #ifndef PHONEKEYS
             if ( SDLK_a <= sdlEvent.key.keysym.sym && sdlEvent.key.keysym.sym <= SDLK_z )

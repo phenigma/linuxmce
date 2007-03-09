@@ -73,7 +73,9 @@ void HandleRequestSocket::Disconnect()
 
 void HandleRequestSocket::DisconnectAndWait()
 {
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG, "~HandleRequestSocket %p device: %d ip: %s", this, m_dwPK_Device, m_sIPAddress.c_str() );
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_SOCKET, "~HandleRequestSocket %p device: %d ip: %s", this, m_dwPK_Device, m_sIPAddress.c_str() );
+#endif
 	Disconnect();
 
 	time_t tTimeout = time(NULL) + 15;  // Wait only 15 seconds
@@ -148,7 +150,9 @@ void HandleRequestSocket::RunThread()
 			if( m_bQuit_get() )
 				break;
 
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Receive string: %s", sMessage.c_str());
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Receive string: %s", sMessage.c_str());
+#endif
 			if ( sMessage == "CORRUPT SOCKET" )
 			{
 				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Socket flagged as corrupted %p device: %d", this, m_dwPK_Device );
@@ -163,14 +167,18 @@ void HandleRequestSocket::RunThread()
                 if(OnReplaceHandler(sMessage.substr(7)))
                     return;
 			}
-			LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Received %s %p device: %d", sMessage.c_str(), this, m_dwPK_Device);
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Received %s %p device: %d", sMessage.c_str(), this, m_dwPK_Device);
+#endif
 			if ( sMessage.substr(0,7)  == "MESSAGE" && sMessage.size()>7 )
 			{
 				Message *pMessage = ReceiveMessageRaw(sMessage);
 				if ( pMessage )
 				{
-					LoggerWrapper::GetInstance()->Write( LV_DEBUG, "Received Message type %d ID %d from %d to %d (device: %d)",
+#ifdef DEBUG
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Received Message type %d ID %d from %d to %d (device: %d)",
 						pMessage->m_dwMessage_Type, pMessage->m_dwID, pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To, m_dwPK_Device );
+#endif
 					ReceivedMessageResult receivedMessageResult = ReceivedMessage( pMessage );
 					if ( receivedMessageResult == rmr_NotProcessed )
 					{

@@ -81,7 +81,9 @@ void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
     ::GetModuleFileName(NULL, pProcessFilePath, 256);
 #endif
 
-    LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Orbiter's full path: %s", pProcessFilePath);
+#ifdef DEBUG
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter's full path: %s", pProcessFilePath);
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 string OrbiterSelfUpdate::GetOrbiterCheckSum()
@@ -320,11 +322,15 @@ bool OrbiterSelfUpdate::Run()
         }
 	}
 
-	LoggerWrapper::GetInstance()->Write( LV_DEBUG,  "Last update didn't fail or the user decided to try to update again." );
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Last update didn't fail or the user decided to try to update again." );
+#endif
 
 	if(!UpdateAvailable())
 	{
-		LoggerWrapper::GetInstance()->Write( LV_DEBUG,  "No update available on the server." );
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS,  "No update available on the server." );
+#endif
 		return false;
 	}
 	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Update available on the server." );

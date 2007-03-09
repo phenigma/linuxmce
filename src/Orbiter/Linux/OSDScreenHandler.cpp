@@ -1344,7 +1344,9 @@ void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butDoneMediaSetup_CONST));
 	ScreenHandler::SCREEN_Wizard_Done(PK_Screen);
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"OSDScreenHandler::SCREEN_Wizard_Done selected DESIGNOBJ_Final_CONST already played %d",(int) m_bAlreadyPlayFinalGreeting);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::SCREEN_Wizard_Done selected DESIGNOBJ_Final_CONST already played %d",(int) m_bAlreadyPlayFinalGreeting);
+#endif
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizardDone_OnScreen, new RenderScreenCallBackData());
 }
 
@@ -2538,7 +2540,9 @@ bool OSDScreenHandler::CaptureCardPort_DatagridSelected(CallBackData *pData)
 void OSDScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butProviders_CONST));
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::SCREEN_Choose_Provider_for_Device");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SCREEN_Choose_Provider_for_Device");
+#endif
 
 	ScreenHandlerBase::SCREEN_Choose_Provider_for_Device(PK_Screen);
 
@@ -2574,7 +2578,9 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	int PK_Device = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str());
 
 	string sValue; // If this is a set variable for VARIABLE_Execution_Result_CONST, then we got back a response and can continue
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::ChooseProvider_Intercepted");
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted");
+#endif
 	MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
 	if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
 		pMsgInterceptorCellBackData->m_pMessage->m_dwID==COMMAND_Set_Variable_CONST )
@@ -2587,11 +2593,15 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 		if( it==pMsgInterceptorCellBackData->m_pMessage->m_mapParameters.end() )
 			return false;  // Should never happen
 		sValue = it->second;
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::ChooseProvider_Intercepted value is %s",sValue.c_str());
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted value is %s",sValue.c_str());
+#endif
 	}
 	else
 	{
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::ChooseProvider_Intercepted not set variable %d",pMsgInterceptorCellBackData->m_pMessage->m_dwID);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted not set variable %d",pMsgInterceptorCellBackData->m_pMessage->m_dwID);
+#endif
 		return false;
 	}
 
@@ -2611,7 +2621,9 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	vector<string>::iterator it = vectLines.begin();
 	while(it!=vectLines.end() && *it!="OK")
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::ChooseProvider_Intercepted skipping %s",it->c_str());
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted skipping %s",it->c_str());
+#endif
 		++it;
 	}
 
@@ -2619,7 +2631,9 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	while( it!=vectLines.end() )
 	{
 		string::size_type pos = it->find('\t');
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::ChooseProvider_Intercepted processing %s",it->c_str());
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted processing %s",it->c_str());
+#endif
 		if( pos == string::npos )
 		{
 			it++;
@@ -2635,7 +2649,9 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 	
 	if(iRow==0)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::ChooseProvider_Intercepted no OK CALLING CMD_Goto_Screen");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted no OK CALLING CMD_Goto_Screen");
+#endif
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Choose_Provider_for_Device_CONST);
 		string sText = m_pOrbiter->m_mapTextString[TEXT_error_with_provider_CONST];
 		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,sText,"","errorprovider","1","","1");
@@ -2648,8 +2664,10 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 
 	m_iStage++;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::ChooseProvider_Intercepted row %d col %d stage %d",
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProvider_Intercepted row %d col %d stage %d",
 		pDataGridTable->m_RowCount,pDataGridTable->m_ColumnCount,m_iStage);
+#endif
 
 	string sText;
 	switch( m_iStage )
@@ -2869,7 +2887,9 @@ void OSDScreenHandler::ChooseProviderGetNextStage()
 		int PK_Device = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str());
 		DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,sAllArguments);
 		m_pOrbiter->SendCommand(CMD_Specify_Media_Provider);
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::ChooseProviderGetNextStage CALLING CMD_Goto_Screen");
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProviderGetNextStage CALLING CMD_Goto_Screen");
+#endif
 
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Choose_Provider_for_Device_CONST);
 
@@ -2881,7 +2901,9 @@ void OSDScreenHandler::ChooseProviderGetNextStage()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SpawnProviderScript(string sCommandLine,string sArguments)
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"ScreenHandler::SpawnProviderScript CMD %s args %s stage %d",sCommandLine.c_str(),sArguments.c_str(),m_iStage);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SpawnProviderScript CMD %s args %s stage %d",sCommandLine.c_str(),sArguments.c_str(),m_iStage);
+#endif
 	DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfTemplate(DEVICETEMPLATE_DCERouter_CONST);
 	DeviceData_Base *pDevice_AppServer = pDevice_Core->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
 	if( !pDevice_AppServer )
