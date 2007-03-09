@@ -74,6 +74,9 @@ echo -en '#!/bin/bash\necho "WARNING: fake start-stop-daemon called"\n' >"$TEMP_
 chmod +x "$TEMP_DIR"/usr/sbin/invoke-rc.d
 chmod +x "$TEMP_DIR"/sbin/start-stop-daemon
 
+## Setup initial resolv.conf
+cp /etc/resolv.conf "$TEMP_DIR"/etc/resolv.conf
+
 ## Create the temporary sources.list file for the media director 
 
 ## Enable some needed mount points
