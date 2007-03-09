@@ -646,19 +646,28 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 		}
 	}
 
-	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_RELOAD && pMessage->m_dwPK_Device_To==m_dwPK_Device )
+	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Got a reload command from %d %s",pMessage->m_dwPK_Device_From,pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST].c_str());
-		SendString("BYE");
-		Sleep(250);
-		OnReload();
-		return rmr_Processed;
-	}
-	if(pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_ROTATE && pMessage->m_dwPK_Device_To==m_dwPK_Device)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Going to rotate logs...");
-		LoggerWrapper::GetInstance()->Rotate();
-		return rmr_Processed;
+		if( pMessage->m_dwID == SYSCOMMAND_RELOAD && pMessage->m_dwPK_Device_To==m_dwPK_Device )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Got a reload command from %d %s",pMessage->m_dwPK_Device_From,pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST].c_str());
+			SendString("BYE");
+			Sleep(250);
+			OnReload();
+			return rmr_Processed;
+		}
+		if( pMessage->m_dwID == SYSCOMMAND_ROTATE && pMessage->m_dwPK_Device_To==m_dwPK_Device)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Going to rotate logs...");
+			LoggerWrapper::GetInstance()->Rotate();
+			return rmr_Processed;
+		}
+		if( pMessage->m_dwID == SYSCOMMAND_RELOAD_LOGLEVEL && pMessage->m_dwPK_Device_To==m_dwPK_Device)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Going to reload log levels...");
+			LoggerWrapper::GetInstance()->ReloadLogLevels();
+			return rmr_Processed;
+		}
 	}
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_START_PING)
 	{

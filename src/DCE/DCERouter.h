@@ -343,6 +343,7 @@ namespace DCE
         void ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceData_Impl *pDevice);
         void DoReload();
 		void DoLogRotation();
+		void DoLogReload();
 		bool RequestReload(int PK_Device_Requesting)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Received reload command from %d",PK_Device_Requesting);

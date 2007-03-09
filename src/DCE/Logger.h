@@ -39,39 +39,39 @@
 #include <queue>
 
 #define LV_CRITICAL 		1
-#define LV_WARNING 		5
+#define LV_WARNING 			5
 #define LV_EVENTHANDLER 	6
-#define LV_EVENT 		7
-#define LV_ACTION 		8
+#define LV_EVENT 			7
+#define LV_ACTION 			8
 #define LV_CRITERIA 		9
-#define LV_STATUS 		10
-#define LV_EPG			11
-#define LV_ALARM		12
-#define LV_SOCKET		13
-#define LV_LIGHTING		14
+#define LV_STATUS 			10
+#define LV_EPG				11
+#define LV_ALARM			12
+#define LV_SOCKET			13
+#define LV_LIGHTING			14
 #define LV_CONTROLLER		15
 #define LV_APPDAEMON		16
-#define LV_CAMERA		17	
+#define LV_CAMERA			17	
 #define LV_CORPCLIENT		18
 #define LV_FILEREQUEST		19
-#define LV_DATAGRID		20
-#define LV_LOCKING		21
+#define LV_DATAGRID			20
+#define LV_LOCKING			21
 #define LV_REGISTRATION		22
-#define LV_XINE			23
-#define LV_BURNER		24
-#define LV_1394			25
-#define LV_SPHINX		26
-#define LV_FESTIVAL		27
-#define LV_IR			28
-#define LV_START		29
-#define LV_START_DEVICE	30
-#define LV_STOP			31
-#define LV_MOUSE_CLICKS	32
-#define LV_EPG_UPDATE	33
-#define LV_MEDIA		34
-#define LV_DEBUG		35
-#define LV_ZWAVE		36
-#define LV_PROFILER		37
+#define LV_XINE				23
+#define LV_BURNER			24
+#define LV_1394				25
+#define LV_SPHINX			26
+#define LV_FESTIVAL			27
+#define LV_IR				28
+#define LV_START			29
+#define LV_START_DEVICE		30
+#define LV_STOP				31
+#define LV_MOUSE_CLICKS		32
+#define LV_EPG_UPDATE		33
+#define LV_MEDIA			34
+#define LV_DEBUG			35
+#define LV_ZWAVE			36
+#define LV_PROFILER			37
 
 #include "SerializeClass/SerializeClass.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
@@ -106,6 +106,8 @@ namespace DCE
 		int m_dwPK_Installation; /** < the installation */
 		pluto_pthread_mutex_t m_Lock; /** < @todo ask */
 		pthread_mutexattr_t m_MutexAttr; /** < @todo ask */
+		bool *m_bLogLevels;
+		int m_iMaxLogLevel;
 	
 	public:
 	
@@ -161,11 +163,17 @@ namespace DCE
 		* @brief writes an entry to the log
 		*/
 		virtual void WriteEntry( class Logger::Entry& entry ) = 0;
+
 		/**
 		* @bried rotates the log
 		*/
 		virtual void Rotate() {}
-	
+
+		/**
+		* @bried Reload the log levels from the conf file
+		*/
+		virtual void ReloadLogLevels();
+
 		/**
 		* @brief an entry to the logger
 		*/

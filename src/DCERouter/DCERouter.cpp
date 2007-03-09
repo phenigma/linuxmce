@@ -1110,6 +1110,9 @@ int k=2;
 			case SYSCOMMAND_ROTATE:
 				DoLogRotation();
 				break;
+			case SYSCOMMAND_RELOAD_LOGLEVEL:
+				DoLogReload();
+				break;
 			default:
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received unknown SYSCOMMAND %d", iMessageID);
 				break;
@@ -1522,6 +1525,21 @@ void Router::DoReload()
 void Router::DoLogRotation()
 {
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Starting log rotation...");
+	PLUTO_SAFETY_LOCK(lm,m_ListenerMutex); // I don't know if this is needed, but DoReload uses it...
+    ServerSocketMap::iterator iDC;
+    for(iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
+    {
+        ServerSocket *pServerSocket = (*iDC).second;
+        PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
+        {
+            pServerSocket->SendMessage(new Message(0, (*iDC).first, PRIORITY_URGENT, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_ROTATE, 0));
+        }
+    }
+}
+
+void Router::DoLogReload()
+{
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Starting log reload...");
 	PLUTO_SAFETY_LOCK(lm,m_ListenerMutex); // I don't know if this is needed, but DoReload uses it...
     ServerSocketMap::iterator iDC;
     for(iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)

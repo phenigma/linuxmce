@@ -34,6 +34,7 @@
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/StringUtils.h"
 #include "Message.h"
+#include "DCEConfig.h"
 
 #if (defined WIN32) && !defined(UNDER_CE) && !defined(UNICODE)
 #include "PlutoUtils/ConsoleColor.h"
@@ -76,6 +77,9 @@ Logger::Logger( const char* pcName ) : m_Lock( "logger" )
 
 //  m_dwPK_Installation = atoi( StringUtils::get_pluto_parameter( "INSTALLATION" ).c_str() );
 
+	m_bLogLevels=NULL;
+	ReloadLogLevels();
+
     pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
     m_Lock.Init( &m_MutexAttr );
@@ -83,6 +87,9 @@ Logger::Logger( const char* pcName ) : m_Lock( "logger" )
 
 Logger::~Logger()
 {
+	delete m_bLogLevels;
+	m_bLogLevels=NULL;
+	m_iMaxLogLevel=0;
     pthread_mutex_destroy(&m_Lock.mutex);
     pthread_mutexattr_destroy(&m_MutexAttr);
 }
@@ -97,12 +104,47 @@ void Logger::SetName( const char* pcName )
     m_Name = pcName;
 }
 
+void Logger::ReloadLogLevels()
+{
+	delete m_bLogLevels;
+	m_bLogLevels=NULL;
+	m_iMaxLogLevel=0;
+
+	DCEConfig _DCEConfig;
+	string sLevels = _DCEConfig.m_mapParameters_Find("LogLevels");
+	string::size_type pos=0;
+	list<int> TempList;
+	while(pos<sLevels.size())
+	{
+		int iLevel = atoi( StringUtils::Tokenize(sLevels,",",pos).c_str() );
+		if( iLevel>0 )
+		{
+			if( iLevel>m_iMaxLogLevel )
+				m_iMaxLogLevel = iLevel;
+			TempList.push_back(iLevel);
+		}
+	}
+	if( m_iMaxLogLevel<1 || TempList.empty() )
+		return;
+
+	m_bLogLevels = new bool[m_iMaxLogLevel+1];
+	for(int i=0;i<=m_iMaxLogLevel;++i)
+		m_bLogLevels[i]=false;
+
+	for(list<int>::iterator it=TempList.begin();it!=TempList.end();++it)
+		m_bLogLevels[*it]=true;
+}
+
 void Logger::Write( int iLevel, const char *pcFormat, ... )
 {
 #ifdef ERROR_LOGGING_ONLY
 	if( iLevel != LV_CRITICAL && iLevel != LV_WARNING )
 		return;
 #endif
+
+	// See if we're not supposed to log this level
+	if( m_bLogLevels && iLevel>=0 && (iLevel>m_iMaxLogLevel || m_bLogLevels[iLevel]==false) )
+		return;
 
     timeval tv;
     gettimeofday( &tv, NULL );
