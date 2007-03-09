@@ -714,6 +714,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 			{
 				if( bCreatedTempMap )
 					delete pMapInodes;
+				closedir(dirp);
 				return true;
 			}
         }
@@ -723,6 +724,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 			{
 				if( bCreatedTempMap )
 					delete pMapInodes;
+				closedir(dirp);
 				return true;
 			}
 		}
