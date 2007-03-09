@@ -390,7 +390,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_designe
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_designer_batdet::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_designer_batdet::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -407,7 +407,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_designe
 		
 			if (id!=0)
 		pRow->m_PK_psc_designer_batdet=id;
-else 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_psc_designer_batdet is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
+else 
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_psc_designer_batdet is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_psc_designer_batdet);	
@@ -449,7 +450,7 @@ update_values_list = update_values_list + "`PK_psc_designer_batdet`="+pRow->PK_p
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_designer_batdet::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_designer_batdet::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -495,7 +496,7 @@ condition = condition + "`PK_psc_designer_batdet`=" + tmp_PK_psc_designer_batdet
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_designer_batdet::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_psc_designer_batdet::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		

@@ -13,6 +13,7 @@
      See the GNU General Public License for more details.
 
 */
+
 #ifndef __Table_Download_Attribute_H__
 #define __Table_Download_Attribute_H__
 

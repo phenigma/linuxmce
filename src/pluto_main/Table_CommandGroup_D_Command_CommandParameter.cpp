@@ -435,7 +435,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGrou
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CommandGroup_D_Command_CommandParameter::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CommandGroup_D_Command_CommandParameter::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -495,7 +495,7 @@ update_values_list = update_values_list + "`FK_CommandGroup_D_Command`="+pRow->F
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CommandGroup_D_Command_CommandParameter::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CommandGroup_D_Command_CommandParameter::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -544,7 +544,7 @@ condition = condition + "`FK_CommandGroup_D_Command`=" + tmp_FK_CommandGroup_D_C
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CommandGroup_D_Command_CommandParameter::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CommandGroup_D_Command_CommandParameter::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		

@@ -111,6 +111,8 @@
 #define DEVICECATEGORY_Raid_Generic_CONST 166
 #define DEVICECATEGORY_Raid_Hard_Drives_CONST 167
 #define DEVICECATEGORY_Output_Zone_CONST 168
+#define DEVICECATEGORY_XML_Data_Handler_Plugins_CONST 169
+#define DEVICECATEGORY_XML_Data_Source_Plugins_CONST 170
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"

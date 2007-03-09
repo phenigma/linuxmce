@@ -467,7 +467,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_CannedEvent
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -484,7 +484,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_CannedEvent
 		
 			if (id!=0)
 		pRow->m_PK_CannedEvents=id;
-else 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_CannedEvents is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
+else 
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_CannedEvents is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_CannedEvents);	
@@ -526,7 +527,7 @@ update_values_list = update_values_list + "`PK_CannedEvents`="+pRow->PK_CannedEv
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -572,7 +573,7 @@ condition = condition + "`PK_CannedEvents`=" + tmp_PK_CannedEvents;
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		

@@ -401,7 +401,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_System_asSQ
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_System::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_System::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -418,7 +418,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_System_asSQ
 		
 			if (id!=0)
 		pRow->m_PK_System=id;
-else 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_System is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
+else 
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_System is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_System);	
@@ -460,7 +461,7 @@ update_values_list = update_values_list + "`PK_System`="+pRow->PK_System_asSQL()
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_System::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_System::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -506,7 +507,7 @@ condition = condition + "`PK_System`=" + tmp_PK_System;
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_System::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_System::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		

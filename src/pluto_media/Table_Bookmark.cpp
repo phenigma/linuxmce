@@ -13,6 +13,7 @@
      See the GNU General Public License for more details.
 
 */
+
 // If using the thread logger, these generated classes create lots of activity
 #ifdef NO_SQL_THREAD_LOG
 #undef THREAD_LOG
@@ -650,7 +651,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Bookmark_as
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Bookmark::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Bookmark::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -667,7 +668,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Bookmark_as
 		
 			if (id!=0)
 		pRow->m_PK_Bookmark=id;
-else 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_Bookmark is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
+else 
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_Bookmark is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_Bookmark);	
@@ -709,7 +711,7 @@ update_values_list = update_values_list + "`PK_Bookmark`="+pRow->PK_Bookmark_asS
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Bookmark::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Bookmark::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -755,7 +757,7 @@ condition = condition + "`PK_Bookmark`=" + tmp_PK_Bookmark;
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Bookmark::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Bookmark::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
 			return false;
 		}	
 		

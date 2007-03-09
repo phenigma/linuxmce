@@ -13,6 +13,7 @@
      See the GNU General Public License for more details.
 
 */
+
 #ifndef __Table_Contact_Users_Sync_H__
 #define __Table_Contact_Users_Sync_H__
 

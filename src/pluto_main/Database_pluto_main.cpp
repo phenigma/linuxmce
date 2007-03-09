@@ -17,14 +17,10 @@ using namespace std;
 #include "DCEConfig.h"
 
 
-namespace DCE
-{
-	Logger *g_pPlutoLogger; //dummy
-}
 using namespace DCE;
 Database_pluto_main::Database_pluto_main(Logger *pLogger)
 {
-	g_pPlutoLogger=pLogger;
+	LoggerWrapper::SetInstance(pLogger);
 tblArray=NULL;
 tblBroadcast=NULL;
 tblButton=NULL;
