@@ -347,11 +347,7 @@ int main(int argc, char *argv[])
 		g_pDatabase_pluto_main = NULL;
 	}
 
-	extern map<int,PlutoLock *> *g_pmapLocks;
-	delete g_pmapLocks;
-	g_pmapLocks = NULL;
-
-	
+	MutexTracking::Delete();
 	
 	return 0;
 }

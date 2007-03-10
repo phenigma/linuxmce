@@ -242,12 +242,7 @@ int main(int argc, char* argv[])
     WSACleanup();
 #endif
 
-	
-	
-
-	extern map<int,PlutoLock *> *g_pmapLocks;
-	delete g_pmapLocks;
-	g_pmapLocks = NULL;
+	MutexTracking::Delete();
 
 	if( bReload )
 		return 2;

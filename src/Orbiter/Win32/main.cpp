@@ -341,12 +341,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	delete g_PlutoProfiler;
 	g_PlutoProfiler = NULL;
 
-	if(NULL != g_pmapLocks)
-	{
-		delete g_pmapLocks;
-		g_pmapLocks = NULL;
-	}
-
 	MutexTracking::Delete();
 #ifdef LL_DEBUG_FILE
 	if(NULL != m_LL_DEBUG_Mutex)
