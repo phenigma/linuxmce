@@ -35,7 +35,7 @@ using namespace DCE;
 
 MutexTracking::MutexTracking()
 {
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MutexTracking::MutexTracking %p",  m_pMutexTracking);
+//	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MutexTracking::MutexTracking %p",  m_pMutexTracking);
 	m_p_mapLocks = new map<int,PlutoLock *>;
 	m_iNextLock=1;
 	m_p_mapLockMutex = new pluto_pthread_mutex_t("maplock");
@@ -44,7 +44,7 @@ MutexTracking::MutexTracking()
 
 void MutexTracking::Delete()
 {
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MutexTracking::Delete %p",  m_pMutexTracking);
+//	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MutexTracking::Delete %p",  m_pMutexTracking);
 	if( m_pMutexTracking==NULL )
 		return;
 
@@ -69,7 +69,7 @@ int MutexTracking::AddToMap(int LockNum,PlutoLock *pPlutoLock)
 {
 	MutexTracking *pMutexTracking = MutexTracking::GetInstance();
 	(*pMutexTracking->m_p_mapLocks)[LockNum] = pPlutoLock;
-	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::AddToMap %p %d",  m_pMutexTracking,LockNum);
+//	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::AddToMap %p %d",  m_pMutexTracking,LockNum);
 	return 0;
 }
 
@@ -78,7 +78,7 @@ int MutexTracking::RemoveFromMap(int LockNum)
 	MutexTracking *pMutexTracking = MutexTracking::GetInstance();
 
 	map<int,PlutoLock *>::iterator itMapLock = (*pMutexTracking->m_p_mapLocks).find(LockNum);
-	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::RemoveFromMap %p %d %s",m_pMutexTracking,LockNum,(itMapLock==(*pMutexTracking->m_p_mapLocks).end() ? "****FAIL****" : ""));
+//	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::RemoveFromMap %p %d %s",m_pMutexTracking,LockNum,(itMapLock==(*pMutexTracking->m_p_mapLocks).end() ? "****FAIL****" : ""));
 	if( itMapLock==(*pMutexTracking->m_p_mapLocks).end() )
 		return -1;
 

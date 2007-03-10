@@ -593,6 +593,7 @@ time_t FileUtils::FileDate(string sFile)
  */
 bool FileUtils::BlackListedFileSystem(string sDirectory)
 {
+#ifndef WIN32
 	struct statfs s;
 	if (statfs(sDirectory.c_str(), &s) == -1)
 	{
@@ -606,7 +607,7 @@ bool FileUtils::BlackListedFileSystem(string sDirectory)
 			return true;
 			break;
 	}
-
+#endif
 	// if we don't know anything about it, it means it's not on the black list
 	return false;
 }

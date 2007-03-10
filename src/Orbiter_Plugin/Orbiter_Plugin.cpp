@@ -177,15 +177,27 @@ bool Orbiter_Plugin::GetConfig()
             else
                 m_mapOH_Orbiter_Mac[StringUtils::ToUpper(pDeviceData_Router->m_sMacAddress)] = pOH_Orbiter;
 
-            if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia &&
+			// In special cases where the media director is something other than a standard pluto media director
+			// and the on-screen orbiter is a proxy running on another device, we'll allow the media director
+			// to be specified in DEVICEDATA_PK_Device_CONST, and treat it like a normal m/d
+			string sPK_Device = pOH_Orbiter->m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PK_Device_CONST);
+			DeviceData_Router *pDevice_MD = NULL;
+			if( sPK_Device.empty()==false )
+				pDevice_MD = m_pRouter->m_mapDeviceData_Router_Find( atoi(sPK_Device.c_str()) );
+			if( pDevice_MD==NULL &&
+				pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia &&
                 pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
+					pDevice_MD = (DeviceData_Router *) pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia;
+
+			if( pDevice_MD )
             {
+				pOH_Orbiter->m_pDeviceData_Router->m_pDevice_MD=pDevice_MD;
                 RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST);
                 RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST);
 
-                RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST);
-                RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST);
-                m_mapMD_2_Orbiter[pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device] = pOH_Orbiter;
+                RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pDevice_MD->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST);
+                RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pDevice_MD->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST);
+                m_mapMD_2_Orbiter[pDevice_MD->m_dwPK_Device] = pOH_Orbiter;
             }
         }
     }
