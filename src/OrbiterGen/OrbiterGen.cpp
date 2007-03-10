@@ -1045,6 +1045,7 @@ m_bNoEffects = true;
 			li->PK_EntertainArea = pRow_EntertainArea->PK_EntertainArea_get();
 
 			Row_Device *pRow_Device_MediaDirector = NULL;
+			Row_Device *pRow_Device_Orbiter = NULL;
 			vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea;
 			pRow_EntertainArea->Device_EntertainArea_FK_EntertainArea_getrows(&vectRow_Device_EntertainArea);
 			for(size_t s=0;s<vectRow_Device_EntertainArea.size();++s)
@@ -1052,10 +1053,9 @@ m_bNoEffects = true;
 				Row_Device_EntertainArea *pRow_Device_EntertainArea = vectRow_Device_EntertainArea[s];
 				Row_Device *pRow_Device = pRow_Device_EntertainArea->FK_Device_getrow();
 				if( pRow_Device && pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST )
-				{
 					pRow_Device_MediaDirector = pRow_Device_EntertainArea->FK_Device_getrow();
-					break;
-				}
+				if( pRow_Device && pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Standard_Orbiter_CONST )
+					pRow_Device_Orbiter = pRow_Device_EntertainArea->FK_Device_getrow();
 			}
 
 			// There's a media director here.  Match up all the virtual devices
@@ -1064,6 +1064,8 @@ m_bNoEffects = true;
 				li->m_dwPK_Device_MediaDirector = pRow_Device_MediaDirector->PK_Device_get();
 				MatchChildDevicesToLocation(li,pRow_Device_MediaDirector);
 			}
+			if( li->m_dwPK_Device_Orbiter==-1 && pRow_Device_Orbiter )
+				li->m_dwPK_Device_Orbiter = pRow_Device_Orbiter->PK_Device_get();
 		}
 	}
 

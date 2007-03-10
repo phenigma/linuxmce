@@ -114,12 +114,12 @@ PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock,string File,int Line,bool bLog
 	m_bLogErrorsOnly=bLogErrorsOnly;
 	m_sFileName=File;
 	m_Line=Line;
-	m_LockNum = MutexTracking::GetNextLock();
 	m_tTime = time(NULL);
 	m_bGotLock = false;
 	m_thread = pthread_self();
 
 	MutexTracking::Lock();
+	m_LockNum = MutexTracking::GetNextLock();
 	MutexTracking::AddToMap(m_LockNum,this);
 	MutexTracking::UnLock();
 	DoLock();
@@ -133,12 +133,12 @@ PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock,string File,int Line,bool bLog
 	m_bIgnoreDeadlock=false;
 	m_sFileName=File;
 	m_Line=Line;
-	m_LockNum = MutexTracking::GetNextLock();
 	m_tTime = time(NULL);
 	m_bGotLock = false;
 	m_thread = pthread_self();
 
 	MutexTracking::Lock();
+	m_LockNum = MutexTracking::GetNextLock();
 	MutexTracking::AddToMap(m_LockNum,this);
 	MutexTracking::UnLock();
 	DoLock();

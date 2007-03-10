@@ -183,7 +183,11 @@ bool Orbiter_Plugin::GetConfig()
 			string sPK_Device = pOH_Orbiter->m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PK_Device_CONST);
 			DeviceData_Router *pDevice_MD = NULL;
 			if( sPK_Device.empty()==false )
+			{
 				pDevice_MD = m_pRouter->m_mapDeviceData_Router_Find( atoi(sPK_Device.c_str()) );
+				if( pDevice_MD->m_pDevice_MD )
+					pDevice_MD = (DeviceData_Router *) pDevice_MD->m_pDevice_MD;
+			}
 			if( pDevice_MD==NULL &&
 				pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia &&
                 pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
