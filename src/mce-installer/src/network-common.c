@@ -6,171 +6,91 @@
      See the GNU General Public License for more details.
 
 */
- #include "common.h"
+#include "common.h"
+#include <unistd.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h> 
  
-OobsIfaceEthernet* get_external_interface(OobsList *interfaces);
-OobsIfaceEthernet* get_internal_interface(OobsList *interfaces);
-gboolean connect_test(const gchar* sourceIp);
-
-void* start_network_wizard_thread(void *args) {
-
-
-	OobsSession      *oobs_session = oobs_session_get();
-	OobsIfacesConfig *ifaces_config = OOBS_IFACES_CONFIG(oobs_ifaces_config_get(oobs_session));
-	OobsList         *interfaces = oobs_ifaces_config_get_ifaces(ifaces_config, OOBS_IFACE_TYPE_ETHERNET);
-	OobsHostsConfig  *hosts_config = OOBS_HOSTS_CONFIG(oobs_hosts_config_get(oobs_session));
-	GList            *nameservers = oobs_hosts_config_get_dns_servers(hosts_config);
-
-	setting_netIfaceNo = oobs_list_get_n_items(interfaces);
-
-	setting_netExtName=g_strdup("");
-	if (setting_netIfaceNo == 0) {
-		printf("No Cards!\n");
-	       displayStep2F();
-	} else {
-		OobsIfaceEthernet* iface = get_external_interface(interfaces);
-		if (iface != NULL) {
-			setting_netExtName    = g_strdup(oobs_iface_get_device_name(OOBS_IFACE(iface)));
-			setting_netExtIP      = g_strdup(oobs_iface_ethernet_get_ip_address(iface));
-			setting_netExtMask    = g_strdup(oobs_iface_ethernet_get_network_mask(iface));
-			setting_netExtGateway = g_strdup(oobs_iface_ethernet_get_gateway_address(iface));
-			setting_netExtDNS1    = g_list_nth_data(nameservers, 0);
-			setting_netExtDNS2    = g_list_nth_data(nameservers, 1);
-			setting_netExtUseDhcp = (oobs_iface_ethernet_get_configuration_method(iface) == OOBS_METHOD_STATIC ? FALSE : TRUE);
-
-			OobsIfaceEthernet *iface_o = get_internal_interface(interfaces);
-
-			if (setting_netIfaceNo > 1 || iface_o) {
-				setting_netIntName = g_strdup(oobs_iface_get_device_name(OOBS_IFACE(iface_o)));
-			} else {
-				setting_netIntName = g_strdup_printf("%s:0", setting_netExtName);
-			}
-		
-			gdk_threads_enter();	
-			displayStep2A();
-			gdk_threads_leave();
-
-		} else {
-			iface = get_internal_interface(interfaces);
-			setting_netExtName    = g_strdup(oobs_iface_get_device_name(OOBS_IFACE(iface)));
-			setting_netExtIP      = g_strdup(oobs_iface_ethernet_get_ip_address(iface));
-			setting_netExtMask    = g_strdup(oobs_iface_ethernet_get_network_mask(iface));
-			setting_netExtGateway = g_strdup(oobs_iface_ethernet_get_gateway_address(iface));
-			setting_netExtDNS1    = g_list_nth_data(nameservers, 0);
-			setting_netExtDNS2    = g_list_nth_data(nameservers, 1);
-			setting_netExtUseDhcp = (oobs_iface_ethernet_get_configuration_method(iface) == OOBS_METHOD_STATIC ? FALSE : TRUE);
-
-			OobsIfaceEthernet *iface_o = get_internal_interface(interfaces);
-			if (setting_netIfaceNo > 1 || iface_o) {
-                                setting_netIntName = g_strdup(oobs_iface_get_device_name(OOBS_IFACE(iface_o)));
-                        } else {
-                                setting_netIntName = g_strdup_printf("%s:0", setting_netExtName);
-                        }
-
-			gdk_threads_enter();	
-			displayStep2C();
-			gdk_threads_leave();
-	       }
-	}
-
-	return NULL;
-}
-
 void start_network_wizard(void) {
-	pthread_t snetwiz_tid;
 
-        cleanupContainer(mainBox); 
+	// Display wait message
+	cleanupContainer(mainBox); 
         cleanupContainer(mainButtonBox); 
 			 
-	// Wizard text 
 	GtkWidget *label = gtk_label_new_for_wizard ("Detecting current network settings, please wait ...");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	gtk_widget_show_all(mainBox);
 	gtk_widget_show_all(mainButtonBox);
 
+	// Read network configuration
+	int fd[2];
+	pid_t script_pid;
+	int hasInternet = 0;
 
-	pthread_create(&snetwiz_tid, NULL, start_network_wizard_thread, NULL);
+	pipe(fd);
+	script_pid=fork();
 
-}
+	if (script_pid == 0) {
+		close(fd[0]);
+		close(1);
+		dup(fd[1]);
+		execlp("./mce-installer-getnetdata.sh","./mce-installer-getnetdata.sh",NULL);
 
-OobsIfaceEthernet* get_external_interface(OobsList *interfaces) {
-	OobsListIter iter;
-	gboolean valid;
-	valid = oobs_list_get_iter_first(interfaces, &iter);
+	} else if (script_pid > 0) {
+		close(fd[1]);
+		gchar readbuffer[1024];
+		int size=0;
 
-	while (valid) {
-		OobsIfaceEthernet *iface = OOBS_IFACE_ETHERNET(oobs_list_get(interfaces, &iter));
+		memset(readbuffer, 0, 1024);
+		size = read(fd[0], readbuffer, 1023);
+		readbuffer[size-1] = '\0';
+		printf("Read: %s --\n",readbuffer);
 
-		if (oobs_iface_get_configured(OOBS_IFACE(iface)) && oobs_iface_has_gateway(OOBS_IFACE(iface))) {
+		if(size==0 || g_ascii_strcasecmp(readbuffer, "0")==0) {
+			printf("No network cards detected\n");
+			setting_netIfaceNo=0;
+		} else {
+			gchar **tokens;
+			setting_netIfaceNo = g_ascii_strtoll(readbuffer, NULL, 10);
 
-			const gchar *ip = oobs_iface_ethernet_get_ip_address(iface);
+			// Get inerface names
+			memset(readbuffer, 0, 1024);
+			size = read(fd[0], readbuffer, 1023);
+			readbuffer[size-1] = '\0';
+			printf("Read: %s --\n",readbuffer);
 
-			if (connect_test(ip)) {
-			       return iface;
-			}
+			tokens = g_strsplit(readbuffer, "|", 2);
+			setting_netExtName = tokens[0];	
+			setting_netIntName = tokens[1];
+
+			// Get external interface settings
+			memset(readbuffer, 0, 1024);
+			size = read(fd[0], readbuffer, 1023);
+			readbuffer[size-1] = '\0';
+			printf("Read: %s --\n",readbuffer);
+
+			tokens = g_strsplit(readbuffer, "|", 7);
+			setting_netExtIP = tokens[0];
+			setting_netExtMask = tokens[1];
+			setting_netExtGateway = tokens[2];
+			setting_netExtDNS1 = tokens[3];
+			setting_netExtDNS2 = tokens[4];
+			setting_netExtUseDhcp = g_ascii_strtoll(tokens[5], NULL, 10);
+			hasInternet = g_ascii_strtoll(tokens[6], NULL, 10);
 		}
 
-		g_object_unref (iface);
-		valid = oobs_list_iter_next(interfaces, &iter);
 	}
 
-	return NULL;
-}
 
-OobsIfaceEthernet* get_internal_interface(OobsList *interfaces) {
-	OobsListIter iter;
-	gboolean valid;
-	valid = oobs_list_get_iter_first(interfaces, &iter);
-
-	while (valid) {
-		OobsIfaceEthernet *iface = OOBS_IFACE_ETHERNET(oobs_list_get(interfaces, &iter));
-		if (g_ascii_strcasecmp(oobs_iface_get_device_name(OOBS_IFACE(iface)), setting_netExtName) != 0) {
-		       return iface;
+	if (setting_netIfaceNo == 0) {
+	       displayStep2F();
+	
+	} else {
+		if (hasInternet) {
+			displayStep2A();
+		} else {
+			displayStep2C();
 		}
-
-		g_object_unref (iface);
-		valid = oobs_list_iter_next(interfaces, &iter);
 	}
-
-	return NULL;
-
 }
 
-gboolean connect_test(const gchar* sourceIp) {
-       int                sockfd;
-       struct sockaddr_in serv_addr;
-       struct hostent     *server;
-
-       printf("Testing interface : %s\n", sourceIp);
-
-       sockfd = socket(AF_INET, SOCK_STREAM, 0);
-       if (sockfd < 0) {
-               fprintf(stderr, "WARNING: error opening socket\n");
-               return FALSE;
-       }
-
-       server = gethostbyname("www.google.com");
-       if (server == NULL) {
-               printf(" - can't find hostname www.google.com\n");
-               return FALSE;
-       }
-
-       memset ((char*) &serv_addr, sizeof(serv_addr), 0);
-       serv_addr.sin_family = AF_INET;
-       serv_addr.sin_port = htons(80);
-       bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
-
-       if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-               printf(" - can't connect to host\n");
-               return FALSE;
-       }
-	   close(sockfd);
-
-       printf("- can connect to internet \n");
-       return TRUE;
-}

@@ -13,8 +13,7 @@ fi
 ## If we didn't got any external netwoking interface thill now, we might well quit
 ## Since is nothing that we can do
 if [[ "$netExtName" == "" ]] ;then
-	echo ""
-	echo ""
+	echo "0"
 	exit 0
 fi
 
@@ -23,7 +22,9 @@ fi
 netIntName=$(ifconfig -a | grep "^eth" | grep -v "^${netExtName}" | awk '{print $1}' | head -1)
 
 ## If we didn't get one going, we'll use an alias for the external one
+netCards=2
 if [[ "$netIntName" == "" ]] ;then
+	netCards=1
 	netIntName="${netExtName}:0"
 fi
 
@@ -36,5 +37,11 @@ netExtDNS2=$(cat /etc/resolv.conf | grep "^nameserver" | tail -1 | awk '{print $
 netInternetWorking=0
 nc -z www.google.com 80 2>/dev/null && netInternetWorking=1
 
-echo "$netExtName|$netExtIP|$netExtMask|$netExtGate|$netExtDNS1|$netExtDNS2|$netInternetWorking"
-echo "$netIntName"
+netUseDhcp=0
+if  ps ax | grep -q " dhclient ${netExtName}$" ;then
+	netUseDhcp=1
+fi
+
+echo "$netCards"
+echo "$netExtName|$netIntName"
+echo "$netExtIP|$netExtMask|$netExtGate|$netExtDNS1|$netExtDNS2|$netUseDhcp|$netInternetWorking"
