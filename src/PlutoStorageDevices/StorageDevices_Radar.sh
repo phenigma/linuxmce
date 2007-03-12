@@ -40,7 +40,7 @@ function Detect {
 	auxPart=""
 	for part in $availPart ;do
 		## If is extended partition
-		if file -s /dev/$part | grep -q "extended partition table$"  ;then
+		if file -s /dev/$part | grep -q "extended partition table"  ;then
 			continue
 		fi
 
