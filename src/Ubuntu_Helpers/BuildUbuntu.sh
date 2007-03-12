@@ -38,17 +38,20 @@ function Install_Build_Needed_Packages {
 
 
 function Checkout_Pluto_Svn {
+	local Branch="${1:-trunk}"
+
 	[[ -d $svn_dir ]] && mkdir -p $svn_dir
 	rm -rf ${svn_dir}/trunk
 	mkdir -p ${svn_dir}/trunk
-	svn co ${svn_url}/pluto/trunk  ${svn_dir}/trunk
+	svn co ${svn_url}/pluto/"$Branch"  ${svn_dir}/trunk
 	cp -f /root/images-pluto-admin/*.jpg ${svn_dir}/trunk/web/pluto-admin/include/images/
 	cp -f /root/images-pluto-adin/generic_xml_error_linuxmce.png ${svn_dir}/trunk/web/pluto-admin/security_images/generic_xml_error.png
 
 	#/bin/sql2cpp -h localhost -u root -D pluto_main
 	pushd ${svn_dir}/trunk/src
-	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/trunk/src/ZWave/
-	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/trunk/src/RFID_Interface/
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/ZWave/
+	
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/RFID_Interface/
 	popd
 }
 
@@ -171,6 +174,12 @@ function Build_Pluto_Replacements {
 		cp ../mce-installer_*.deb "${temp_dir}"
 	popd
 
+	#Package: mtx-pluto
+	pushd "${snv_dir}"/trunk/external/mtx-1.3.10
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../mtx-pluto_*.deb "${temp_dir}"
+	popd
+
 	#Download arch independent packages from 150
 	pushd $temp_dir
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libflickr-api-perl_1_all.deb
@@ -182,7 +191,18 @@ function Build_Pluto_Replacements {
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/Pluto/tee-pluto_1.0_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/slimdevices-slim-server_6.2.2-2_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/msttcorefonts_1.2.pluto.4_all.deb
-	popd
+	popd 
+
+	#Put the extrapackages on the cd and repo
+	cp /var/plutobuild/extra/*.deb $temp_dir
+}
+
+function Build_Pluto_Stuff_Compile {
+	:
+}
+
+function Build_Pluto_Stuff_Debs {
+	:
 }
 
 function Build_Pluto_Stuff {
@@ -252,11 +272,11 @@ function Create_Fake_Windows_Binaries {
 
 
 	pushd ${svn_dir}/trunk/src/bin
-	scp root@10.0.0.150/home/builds/Windows_Output/src/bin/* ./
+	scp root@10.0.0.150:/home/builds/Windows_Output_LinuxMCE/src/bin/* ./
 	popd
 
 	pushd ${svn_dir}/trunk/src/lib
-	scp root@10.0.0.150/home/builds/Windows_Output/src/lib/* ./
+	scp root@10.0.0.150:/home/builds/Windows_Output_LinuxMCE/src/lib/* ./
 	popd
 }
 
@@ -297,7 +317,7 @@ function Import_Build_Database {
 		mv myth_sqlcvs.dump $temp_file_myth 
 	popd
 
-	## Import other datanases from 150
+	## Import other databases from 150
 	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db > $temp_file        
 	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db_media > $temp_file_media
 	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db_security > $temp_file_security
@@ -374,13 +394,13 @@ function Create_Diskless_Archive {
 	rm -rf $temp_dir
 }
 
-Create_Diskless_Archive
 #Install_Build_Needed_Packages
-Import_Build_Database
+Create_Diskless_Archive
 Import_Pluto_Skins
-Checkout_Pluto_Svn
+Checkout_Pluto_Svn #branches/2.0.0.44
 Build_Pluto_Replacements
 Build_MakeRelease_Binary
+Import_Build_Database
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
 Create_Local_Repository
@@ -395,4 +415,6 @@ pushd $local_mirror_dir
 	scp /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
 popd
 
+echo "Finished"
+date -R
 read
