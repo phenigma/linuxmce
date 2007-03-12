@@ -79,8 +79,15 @@ Q="SELECT Package_Source.Name
 
 packages=$(RunSQL "$Q")
 
+
 for package in $packages ;do
 	ComputeDependencies "$package" "1"
+done
+
+for debfile in /var/plutobuild/extra/*.deb ;do 
+	debfile=$(basename $debfile) 
+	debfile=$(echo ${debfile} | cut -d'_' -f1) 
+	ComputeDependencies "$debfile" "1"
 done
 
 Q="SELECT DISTINCT PackageName FROM Dependencies"
