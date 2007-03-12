@@ -329,6 +329,74 @@ NODEP_CPP_CLIEN=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\DCE\DCEConfig.cpp
+
+!IF  "$(CFG)" == "UpdateBinary - Win32 (WCE emulator) Release"
+
+DEP_CPP_DCECO=\
+	"..\..\..\DCE\DCEConfig.h"\
+	
+NODEP_CPP_DCECO=\
+	"..\..\..\DCE\PlutoUtils\FileUtils.h"\
+	"..\..\..\DCE\PlutoUtils\StringUtils.h"\
+	"..\..\..\DCE\RA\RA_Config.h"\
+	
+
+!ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE emulator) Debug"
+
+DEP_CPP_DCECO=\
+	"..\..\..\DCE\DCEConfig.h"\
+	
+NODEP_CPP_DCECO=\
+	"..\..\..\DCE\PlutoUtils\FileUtils.h"\
+	"..\..\..\DCE\PlutoUtils\StringUtils.h"\
+	"..\..\..\DCE\RA\RA_Config.h"\
+	
+
+!ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_DCECO=\
+	"..\..\..\DCE\DCEConfig.h"\
+	
+NODEP_CPP_DCECO=\
+	"..\..\..\DCE\PlutoUtils\FileUtils.h"\
+	"..\..\..\DCE\PlutoUtils\StringUtils.h"\
+	"..\..\..\DCE\RA\RA_Config.h"\
+	
+
+!ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_DCECO=\
+	"..\..\..\DCE\DCEConfig.h"\
+	"..\..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\..\PlutoUtils\FileUtils.h"\
+	"..\..\..\PlutoUtils\MyString.h"\
+	"..\..\..\PlutoUtils\StringUtils.h"\
+	"..\..\..\RA\RA_Config.h"\
+	
+NODEP_CPP_DCECO=\
+	"..\..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE x86) Debug_x86"
+
+DEP_CPP_DCECO=\
+	"..\..\..\DCE\DCEConfig.h"\
+	"..\..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\..\PlutoUtils\FileUtils.h"\
+	"..\..\..\PlutoUtils\MyString.h"\
+	"..\..\..\PlutoUtils\StringUtils.h"\
+	"..\..\..\RA\RA_Config.h"\
+	
+NODEP_CPP_DCECO=\
+	"..\..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\PlutoUtils\FileUtils.cpp
 
 !IF  "$(CFG)" == "UpdateBinary - Win32 (WCE emulator) Release"
@@ -384,6 +452,10 @@ DEP_CPP_FILEU=\
 !ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE x86) Debug_x86"
 
 DEP_CPP_FILEU=\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\..\PlutoUtils\FileUtils.h"\
 	"..\..\..\PlutoUtils\getch.h"\
@@ -485,6 +557,7 @@ DEP_CPP_LOGGE=\
 	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\..\DCE\DCEConfig.h"\
 	"..\..\..\DCE\Logger.h"\
 	"..\..\..\DCE\Message.h"\
 	"..\..\..\DCE\PlutoLockLogger.h"\
@@ -498,6 +571,7 @@ DEP_CPP_LOGGE=\
 	"..\..\..\PlutoUtils\MyString.h"\
 	"..\..\..\PlutoUtils\Other.h"\
 	"..\..\..\PlutoUtils\StringUtils.h"\
+	"..\..\..\RA\RA_Config.h"\
 	"..\..\..\SerializeClass\SerializeClass.h"\
 	"..\..\CENET\wince.h"\
 	

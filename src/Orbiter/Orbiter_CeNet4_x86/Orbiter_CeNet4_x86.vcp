@@ -199,14 +199,19 @@ DEP_CPP_COMMA=\
 	"..\..\DCE\ServerSocket.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\SocketListener.h"\
+	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\pluto_main\Database_pluto_main.h"\
+	"..\..\pluto_main\Define_Command.h"\
+	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_Device.h"\
+	"..\..\pluto_main\Define_Device_Device_Pipe.h"\
 	"..\..\pluto_main\Define_Device_DeviceData.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Table_Device.h"\
+	"..\..\pluto_main\Table_Device_Device_Pipe.h"\
 	"..\..\pluto_main\Table_Device_DeviceData.h"\
 	"..\..\pluto_main\Table_DeviceTemplate.h"\
 	"..\..\pluto_main\TableRow.h"\
@@ -244,6 +249,7 @@ DEP_CPP_DATAG=\
 	"..\..\PlutoUtils\getch.h"\
 	"..\..\PlutoUtils\GraphicFormat.h"\
 	"..\..\PlutoUtils\lzoconf.h"\
+	"..\..\PlutoUtils\lzodefs.h"\
 	"..\..\PlutoUtils\minilzo.h"\
 	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyMap.h"\
@@ -282,17 +288,21 @@ DEP_CPP_DATAGR=\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
 	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DataGrid.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceData.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_FloorplanType.h"\
 	"..\..\pluto_main\Define_UI.h"\
+	"..\..\pluto_main\Define_Variable.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -328,28 +338,50 @@ NODEP_CPP_DATAGR=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\DCE\DCEConfig.cpp
+DEP_CPP_DCECO=\
+	"..\..\DCE\DCEConfig.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\RA\RA_Config.h"\
+	
+NODEP_CPP_DCECO=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
 SOURCE=..\DesignObj_Data.cpp
 DEP_CPP_DESIG=\
-	"..\..\DCE\Message.h"\
-	"..\..\DCE\PreformedCommand.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\OrbiterGen\DesignObj_Generator.h"\
+	"..\..\OrbiterGen\OGText.h"\
+	"..\..\pluto_main\Database_pluto_main.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_DesignObjVariation_Text_Skin_Language.h"\
+	"..\..\pluto_main\Table_DesignObjVariation_Text_Skin_Language.h"\
+	"..\..\pluto_main\TableRow.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
 	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MySQLHelper.h"\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_DataGrid.h"\
 	"..\DesignObj_Orbiter.h"\
@@ -384,10 +416,12 @@ DEP_CPP_DESIGN=\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
 	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObj.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceData.h"\
@@ -395,6 +429,8 @@ DEP_CPP_DESIGN=\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_UI.h"\
+	"..\..\pluto_main\Define_Variable.h"\
+	"..\..\pluto_media\Define_MediaSource.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -409,6 +445,7 @@ DEP_CPP_DESIGN=\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
+	"..\CallBackData.h"\
 	"..\CallBackTypes.h"\
 	"..\CENet\WinCE.h"\
 	"..\DataGridRenderer.h"\
@@ -422,6 +459,7 @@ DEP_CPP_DESIGN=\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
+	"..\ScreenHandler.h"\
 	"..\TextStyle.h"\
 	
 NODEP_CPP_DESIGN=\
@@ -501,6 +539,7 @@ DEP_CPP_DESIGNO=\
 	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_UI.h"\
 	"..\..\pluto_main\Define_Variable.h"\
+	"..\..\pluto_media\Define_MediaSource.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -512,6 +551,7 @@ DEP_CPP_DESIGNO=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
@@ -528,7 +568,6 @@ DEP_CPP_DESIGNO=\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
 	"..\TextStyle.h"\
@@ -586,7 +625,9 @@ DEP_CPP_DEVICE=\
 	"..\..\DCE\DeviceData_Base.h"\
 	"..\..\DCE\DeviceData_Impl.h"\
 	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
@@ -599,6 +640,7 @@ DEP_CPP_DEVICE=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\CENet\WinCE.h"\
 	
 NODEP_CPP_DEVICE=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
@@ -639,6 +681,10 @@ NODEP_CPP_EVENT=\
 
 SOURCE=..\..\PlutoUtils\FileUtils.cpp
 DEP_CPP_FILEU=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -696,16 +742,7 @@ DEP_CPP_GRAPH=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\DCE\Logger.h"\
-	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
-	"..\..\OrbiterGen\Renderer.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -716,6 +753,7 @@ DEP_CPP_GRAPH=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CENet\WinCE.h"\
@@ -727,7 +765,6 @@ DEP_CPP_GRAPH=\
 	"..\OpenGL\Texture\TextureManager.h"\
 	"..\PlutoGraphic.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\TextStyle.h"\
@@ -792,6 +829,7 @@ DEP_CPP_IRREC=\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
@@ -803,6 +841,7 @@ DEP_CPP_IRREC=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\PlutoDefs.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\CENet\WinCE.h"\
@@ -819,6 +858,7 @@ DEP_CPP_LOGGE=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\DCEConfig.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
@@ -832,6 +872,7 @@ DEP_CPP_LOGGE=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\RA\RA_Config.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\CENet\WinCE.h"\
 	
@@ -862,7 +903,7 @@ DEP_CPP_MAIN_=\
 	"..\..\DCE\ServerLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -899,6 +940,7 @@ DEP_CPP_MAIN_=\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\PlutoGraphic.h"\
+	"..\Resource.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
 	"..\Win32\main.h"\
@@ -945,7 +987,7 @@ DEP_CPP_MAIND=\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -986,6 +1028,7 @@ DEP_CPP_MAIND=\
 	"..\PocketFrog\OrbiterRenderer_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\Resource.h"\
 	"..\SelfUpdate.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
@@ -1070,7 +1113,12 @@ SOURCE=..\..\PlutoUtils\minilzo.cpp
 DEP_CPP_MINIL=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\PlutoUtils\lzoconf.h"\
+	"..\..\PlutoUtils\lzodefs.h"\
 	"..\..\PlutoUtils\minilzo.h"\
+	
+NODEP_CPP_MINIL=\
+	"..\..\PlutoUtils\lzo\lzo1x.h"\
+	"..\..\PlutoUtils\lzo\lzoconf.h"\
 	
 # End Source File
 # Begin Source File
@@ -1172,6 +1220,7 @@ DEP_CPP_OBJEC=\
 	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\pluto_main\Define_UI.h"\
 	"..\..\pluto_main\Define_Variable.h"\
+	"..\..\pluto_media\Define_MediaSource.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1183,6 +1232,7 @@ DEP_CPP_OBJEC=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
 	"..\CacheImageManager.h"\
@@ -1199,7 +1249,6 @@ DEP_CPP_OBJEC=\
 	"..\OrbiterData.h"\
 	"..\OrbiterRenderer.h"\
 	"..\PlutoGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
 	"..\TextStyle.h"\
@@ -1230,7 +1279,7 @@ DEP_CPP_OBJECT=\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -1342,6 +1391,7 @@ DEP_CPP_ORBIT=\
 	"..\..\pluto_main\Define_Button.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DataGrid.h"\
 	"..\..\pluto_main\Define_DesignObj.h"\
 	"..\..\pluto_main\Define_DesignObjParameter.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
@@ -1357,11 +1407,13 @@ DEP_CPP_ORBIT=\
 	"..\..\pluto_main\Define_UI.h"\
 	"..\..\pluto_main\Define_Variable.h"\
 	"..\..\pluto_main\Define_VertAlignment.h"\
+	"..\..\pluto_media\Define_MediaSource.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
 	"..\..\PlutoUtils\GraphicFormat.h"\
 	"..\..\PlutoUtils\lzoconf.h"\
+	"..\..\PlutoUtils\lzodefs.h"\
 	"..\..\PlutoUtils\minilzo.h"\
 	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyMap.h"\
@@ -1371,8 +1423,12 @@ DEP_CPP_ORBIT=\
 	"..\..\PlutoUtils\ProcessUtils.h"\
 	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
+	"..\..\VFD_LCD\MenuNode.h"\
+	"..\..\VFD_LCD\MenuStructure.h"\
+	"..\..\VFD_LCD\VFD_LCD_Base.h"\
 	"..\..\Xine_Player\AskXine_Socket.h"\
 	"..\CacheImageManager.h"\
 	"..\CallBackData.h"\
@@ -1386,6 +1442,8 @@ DEP_CPP_ORBIT=\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
 	"..\GraphicBuilder.h"\
+	"..\HorizMenuMouseHandler.h"\
+	"..\Linux\HIDInterface.h"\
 	"..\Linux\OSDScreenHandler.h"\
 	"..\MediaBrowserMouseHandler.h"\
 	"..\MouseBehavior.h"\
@@ -1398,7 +1456,6 @@ DEP_CPP_ORBIT=\
 	"..\OrbiterRenderer.h"\
 	"..\OrbiterRendererFactory.h"\
 	"..\PlutoGraphic.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\ScreenHandler.h"\
 	"..\ScreenHistory.h"\
@@ -1433,7 +1490,7 @@ DEP_CPP_ORBITE=\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -1582,6 +1639,7 @@ DEP_CPP_ORBITERR=\
 	"..\..\pluto_main\Define_UI.h"\
 	"..\..\pluto_main\Define_Variable.h"\
 	"..\..\pluto_main\Define_VertAlignment.h"\
+	"..\..\pluto_media\Define_MediaSource.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1660,7 +1718,7 @@ DEP_CPP_ORBITERRE=\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Button.h"\
@@ -1709,8 +1767,10 @@ DEP_CPP_ORBITERRE=\
 	"..\PocketFrog\OrbiterRenderer_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
+	"..\Resource.h"\
 	"..\ScreenHistory.h"\
 	"..\TextStyle.h"\
+	"..\Win32\DrawTextExUTF8.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\MouseBehavior_Win32.h"\
 	"..\Win32\PopupMessage.h"\
@@ -1781,7 +1841,7 @@ DEP_CPP_ORBITERREN=\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -1881,7 +1941,7 @@ DEP_CPP_PFGHE=\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -1948,6 +2008,7 @@ DEP_CPP_PLUTO=\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
 	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -2015,15 +2076,7 @@ DEP_CPP_POCKE=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\DCE\Logger.h"\
-	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\PreformedCommand.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
-	"..\..\pluto_main\Define_Command.h"\
-	"..\..\pluto_main\Define_CommandParameter.h"\
-	"..\..\pluto_main\Define_DeviceTemplate.h"\
-	"..\..\pluto_main\Define_Event.h"\
-	"..\..\pluto_main\Define_EventParameter.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -2081,6 +2134,7 @@ DEP_CPP_POPUP=\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\CENET\stdafx.h"\
+	"..\Resource.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\PopupMessage.h"\
 	"..\Win32\StartOrbiter.h"\
@@ -2102,6 +2156,7 @@ DEP_CPP_PROCE=\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\PlutoDefs.h"\
 	"..\..\PlutoUtils\ProcessUtils.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	
@@ -2114,6 +2169,7 @@ NODEP_CPP_PROCE=\
 SOURCE=..\Win32\ProgressDialog.cpp
 DEP_CPP_PROGR=\
 	"..\CENET\stdafx.h"\
+	"..\Resource.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\ProgressDialog.h"\
 	"..\Win32\StartOrbiter.h"\
@@ -2170,9 +2226,9 @@ DEP_CPP_RENDE=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SDL_Helpers\RendererImage.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
-	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	
 NODEP_CPP_RENDE=\
@@ -2186,6 +2242,7 @@ DEP_CPP_RENDER=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\lzoconf.h"\
+	"..\..\PlutoUtils\lzodefs.h"\
 	"..\..\PlutoUtils\minilzo.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\PlutoDefs.h"\
@@ -2218,6 +2275,8 @@ DEP_CPP_SCREE=\
 	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
+	"..\..\pluto_main\Define_Array.h"\
+	"..\..\pluto_main\Define_Button.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\pluto_main\Define_DataGrid.h"\
@@ -2234,6 +2293,8 @@ DEP_CPP_SCREE=\
 	"..\..\pluto_main\Define_UI.h"\
 	"..\..\pluto_main\Define_Variable.h"\
 	"..\..\pluto_media\Define_AttributeType.h"\
+	"..\..\pluto_media\Define_FileFormat.h"\
+	"..\..\pluto_media\Define_MediaSource.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -2257,6 +2318,7 @@ DEP_CPP_SCREE=\
 	"..\DesignObj_DataGrid.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\HorizMenuMouseHandler.h"\
 	"..\MediaBrowserMouseHandler.h"\
 	"..\MouseBehavior.h"\
 	"..\ObjectRendererFactory.h"\
@@ -2280,16 +2342,31 @@ DEP_CPP_SCREEN=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
+	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\PreformedCommand.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_DeviceData.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Define_Event.h"\
 	"..\..\pluto_main\Define_EventParameter.h"\
+	"..\..\pluto_main\Define_UI.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -2299,13 +2376,20 @@ DEP_CPP_SCREEN=\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\Profiler.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CacheImageManager.h"\
+	"..\CallBackTypes.h"\
 	"..\CENet\WinCE.h"\
 	"..\DesignObj_Data.h"\
+	"..\DesignObj_DataGrid.h"\
 	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
 	"..\ObjectRendererFactory.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
 	"..\PlutoGraphic.h"\
 	"..\ScreenHistory.h"\
 	"..\TextStyle.h"\
@@ -2336,6 +2420,7 @@ DEP_CPP_SELFU=\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
 	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
@@ -2454,7 +2539,7 @@ DEP_CPP_SIMUL=\
 	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Button.h"\
@@ -2553,7 +2638,7 @@ DEP_CPP_START=\
 	"..\..\DCE\ServerLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
-	"..\..\Gen_Devices\AllCommandsRequests.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
 	"..\..\pluto_main\Define_Command.h"\
