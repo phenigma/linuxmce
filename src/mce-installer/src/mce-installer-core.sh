@@ -353,7 +353,7 @@ stop on runlevel-5
 script
 /usr/share/mce-launcher/scripts/mce-launcher-core.sh
 end script
-"
+" > /etc/event.d/pluto
 fi
 
 apt-get -y dist-upgrade
