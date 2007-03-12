@@ -6,6 +6,7 @@ RemoteSrc=()
 LocalSrc=()
 Packages=()
 FinalList=()
+MissingPackages=()
 
 Debug=Debug
 
@@ -89,15 +90,18 @@ LoadSrc()
 	esac
 }
 
-AddToFinalList()
+AddToList()
 {
-	local Package="$1"
+	local List="$1" Package="$2"
+	local Var
 
-	if [[ " ${FinalList[*]} " == *" $Package "* ]]; then
+	Var="$List[*]"
+	if [[ " ${!Var} " == *" $Package "* ]]; then
 		return 0
 	fi
 
-	FinalList=("${FinalList[@]}" "$Package")
+	Var="$List[@]"
+	eval "$List=(\"\${$Var}\" \"$Package\")"
 }
 
 ComputeDependencies()
@@ -112,13 +116,14 @@ ComputeDependencies()
 	
 	local pkg_var_name="${Package//[-+.]/_}"
 
-	Var="Pkg_${Package}"
+	Var="Pkg_${pkg_var_name}"
 	if [[ -z "${!Var}" ]]; then
+		AddToList "MissingPackages" "$Package"
 		return 1
 	fi
 
-	Var="Pkg_${Package}_Depends[@]"
-	AddToFinalList "$Package"
+	Var="Pkg_${pkg_var_name}_Depends[@]"
+	AddToList "FinalList" "$Package"
 	for PkgDep in "${!Var}"; do
 		ComputeDependencies "$PkgDep"
 	done
@@ -153,4 +158,5 @@ for pkg in "${Packages[@]}"; do
 	ComputeDependencies "$pkg"
 done
 
-echo "${FinalList[@]}"
+echo "Final list: ${FinalList[*]}"
+echo "Missing packages: ${MissingPackages[*]}"
