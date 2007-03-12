@@ -1469,7 +1469,7 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 		"SELECT PK_Software,PackageName,Title,IconStr,Category,Rating,Description,Status FROM Software_Source "
 		"JOIN Software ON Software_Source.FK_Software=PK_Software "
 		"LEFT JOIN Software_Device ON Software_Device.FK_Software=PK_Software AND FK_Device=" + StringUtils::itos(pDevice->m_dwPK_Device) + " "
-		"WHERE Distro='" + pRow_Distro->Description_get() + "' AND Required_Version_Min<='" + sPlutoVersion + "' AND Required_Version_Max>='" + sPlutoVersion + "' AND Virus_Free=1 "
+		"WHERE Distro='" + pRow_Distro->Description_get() + "' AND Required_Version_Min<='" + sPlutoVersion + "' AND Required_Version_Max>='" + sPlutoVersion + "' "
 		"ORDER BY PackageName,Version DESC";
 
 	int PK_Software_Last = 0;

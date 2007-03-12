@@ -534,12 +534,13 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	if( !pListMythChannel ) // Shouldn't happen
 		return NULL;
 
+	bool bAllSource = mapVideoSourcesToUse.empty();
 	int iPositionInChannelList = 0;  // Keep track of how far down we are in pListMythChannel, so we know if we're still in the favorites
 	int iFavorites = m_mapUserFavoriteChannels[iPK_Users];
 	for(ListMythChannel::iterator it=pListMythChannel->begin();it!=pListMythChannel->end();++it)
 	{
 		MythChannel *pMythChannel = *it;
-		if( mapVideoSourcesToUse[ pMythChannel->m_dwSource ]==false )  // Not a source for this list
+		if( bAllSource==false && mapVideoSourcesToUse[ pMythChannel->m_dwSource ]==false )  // Not a source for this list
 			continue;
 
 		if( pMythChannel->m_cAddedAlready=='F' && iPositionInChannelList<iFavorites )
