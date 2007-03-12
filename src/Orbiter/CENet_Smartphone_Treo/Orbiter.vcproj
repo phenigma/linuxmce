@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="Orbiter"
 	ProjectGUID="{17770A0F-2882-4E1B-88E9-9A2B68D8A373}"
 	>
@@ -2143,6 +2143,10 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\DCE\DCEConfig.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\..\PlutoUtils\FileUtils.cpp"

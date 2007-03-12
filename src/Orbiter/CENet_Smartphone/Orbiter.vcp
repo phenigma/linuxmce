@@ -824,8 +824,10 @@ DEP_CPP_BD_PC=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -940,8 +942,10 @@ DEP_CPP_BD_PC_G=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -1081,8 +1085,10 @@ DEP_CPP_BD_PC_K=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -1166,8 +1172,10 @@ DEP_CPP_BD_PC_M=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -1370,8 +1378,10 @@ DEP_CPP_BD_PC_S=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -1451,8 +1461,10 @@ DEP_CPP_BD_PC_SE=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -1535,8 +1547,10 @@ DEP_CPP_BD_PC_SET=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -1615,8 +1629,10 @@ DEP_CPP_BD_PC_SETV=\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\MessageBuffer.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\PreformedCommand.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\DCE\Virtual_Device_Translator.h"\
+	"..\..\Gen_Devices\AllScreens.h"\
 	"..\..\Gen_Devices\Bluetooth_DongleBase.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\LIRC_DCE\IRReceiverBase.h"\
@@ -1845,8 +1861,27 @@ NODEP_CPP_BDCOMMA=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\DCE\DCEConfig.cpp
+DEP_CPP_DCECO=\
+	"..\..\DCE\DCEConfig.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\RA\RA_Config.h"\
+	
+NODEP_CPP_DCECO=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\PlutoUtils\FileUtils.cpp
 DEP_CPP_FILEU=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1917,6 +1952,7 @@ DEP_CPP_LOGGE=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\DCEConfig.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
@@ -1930,6 +1966,7 @@ DEP_CPP_LOGGE=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\RA\RA_Config.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\CENet\wince.h"\
 	
@@ -2065,6 +2102,7 @@ DEP_CPP_MAIN_=\
 	"..\..\DCE\AlarmManager.h"\
 	"..\..\DCE\ClientSocket.h"\
 	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\ServerLogger.h"\
 	"..\..\DCE\Socket.h"\
