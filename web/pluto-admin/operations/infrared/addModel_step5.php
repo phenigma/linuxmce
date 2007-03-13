@@ -342,6 +342,11 @@
 	}
 	
 function deleteEmbeddedDT($dtID,$publicADO){
+	$devices=array_keys(getAssocArray('Device','PK_Device','Description',$publicADO,'WHERE FK_DeviceTemplate='.$dtID));
+	foreach ($devices AS $embeddedID){
+		deleteDevice($embeddedID,$publicADO);
+	}
+	
 	$publicADO->Execute('
 	DELETE DeviceTemplate_DeviceTemplate_ControlledVia_Pipe 
 	FROM DeviceTemplate_DeviceTemplate_ControlledVia_Pipe 
@@ -351,5 +356,6 @@ function deleteEmbeddedDT($dtID,$publicADO){
 	$publicADO->Execute('DELETE FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE FK_DeviceTemplate=?',$dtID);
 	
 	$publicADO->Execute('DELETE FROM DeviceTemplate WHERE PK_DeviceTemplate=?',$dtID);
+	
 }
 ?>
