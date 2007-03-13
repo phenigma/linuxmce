@@ -105,6 +105,7 @@ fi
 
 StartService "Setting SSH Keys" "/usr/pluto/bin/SSH_Keys.sh" "&"
 StartService "Confirm Installation" "/usr/pluto/bin/ConfirmInstallation.sh"
+StartService "Applying Updates" "/usr/pluto/bin/ApplyUpdates.sh"
 StartService "Starting DCE Router" "/usr/pluto/bin/Start_DCERouter.sh"
 StartService "Configure Device Changes" "/usr/pluto/bin/Config_Device_Changes.sh"
 StartService "Setting Coredump Location" "/usr/pluto/bin/corefile.sh"
