@@ -76,7 +76,6 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	pcs_->getParamsOrderForCmd(m_dwPK_Device, pMessage->m_dwID, paramids);
 	
 	// build the params
-	// let's start with the command itself first
 	std::list<VALUE> params;
 	RubyEmbededClassImpl<>* pembclass = NULL;
 	try {	
@@ -100,12 +99,13 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Exception in Ruby occured: %s.", e.getMessage());
 		return false;
 	}
-	params.push_back(pembclass->getValue());
 	
 	for(std::list<int>::iterator pmit = paramids.begin(); pmit != paramids.end(); pmit++) {
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Parameter: %s", (pMessage->m_mapParameters[*pmit]).c_str());
 		params.push_back(StrToValue((pMessage->m_mapParameters[*pmit]).c_str()));
 	}
+	// the last parameter is the command itself
+	params.push_back(pembclass->getValue());
 	VALUE result;
 
 	RubyIOManager* pmanager=NULL;
