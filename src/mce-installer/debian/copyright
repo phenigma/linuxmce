@@ -1,4 +1,4 @@
-This package was debianized by Razvan Gavril <razvan.g@plutohome.com> on
+This package was debianized by Paul Webber <webpaul1@gmail.com> on
 Tue, 20 Feb 2007 10:53:47 +0200.
 
 It was downloaded from <fill in http/ftp site>
@@ -13,7 +13,7 @@ License:
 <Put the license of the package here>
 
 
-The Debian packaging is (C) 2007, Razvan Gavril <razvan.g@plutohome.com> and
+The Debian packaging is (C) 2007, Paul Webber <webpaul1@gmail.com> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
 
 
