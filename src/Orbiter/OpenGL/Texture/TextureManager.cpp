@@ -187,6 +187,10 @@ void TextureManager::ReleaseTextures()
 					(*it)->Texture = 0;
 			}
 
+#ifdef VIDEO_RAM_USAGE
+		VideoRAMUsageObserver::Instance().ObserveReleasingProcess(*Item);
+#endif
+
 			glDeleteTextures(1, &(*Item));
 		}
 	}

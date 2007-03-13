@@ -46,7 +46,8 @@ class PlutoRectangle;
 class PlutoColor;
 
 //#define DETECT_LEAKS
-
+#define VIDEO_RAM_USAGE
+//-----------------------------------------------------------------------------------------------------
 #ifdef DETECT_LEAKS
 class LeaksDetector
 {
@@ -70,6 +71,25 @@ public:
 	void DestroyedGraphicObject();
 };
 #endif
+//-----------------------------------------------------------------------------------------------------
+#ifdef VIDEO_RAM_USAGE
+class VideoRAMUsageObserver
+{
+private:
+	map<OpenGLTexture, int> mapTexturesInfo;
+	static VideoRAMUsageObserver m_Instance;
+
+	void DumpVideoMemoryInfo();
+
+public:
+	
+	static VideoRAMUsageObserver& Instance() { return m_Instance; }
+	
+	void ObserveConvertingProcess(OpenGLTexture texture, int x, int y, int bpp);
+	void ObserveReleasingProcess(OpenGLTexture texture);
+};
+#endif
+//-----------------------------------------------------------------------------------------------------
 
 class OpenGLGraphic : public PlutoGraphic
 {

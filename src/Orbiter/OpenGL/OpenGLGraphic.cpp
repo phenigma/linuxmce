@@ -214,6 +214,10 @@ void OpenGLGraphic::Convert()
 	glGenTextures( 1, &Texture);
 	glBindTexture(GL_TEXTURE_2D, Texture);
 
+#ifdef VIDEO_RAM_USAGE
+	VideoRAMUsageObserver::Instance().ObserveConvertingProcess(Texture, LocalSurface->w, LocalSurface->h, LocalSurface->format->BytesPerPixel);
+#endif
+
 	if(LocalSurface->format->BytesPerPixel == 4)
 	{
 		// Generate The Texture 
@@ -424,6 +428,10 @@ void OpenGLGraphic::ReleaseTexture()
 
 	if(Texture)
 	{
+#ifdef VIDEO_RAM_USAGE
+		VideoRAMUsageObserver::Instance().ObserveReleasingProcess(Texture);
+#endif
+
 		glDeleteTextures(1, &Texture);
 		Texture = 0;
 	}
@@ -532,7 +540,7 @@ void OpenGLGraphic::ResetAlphaMask()
 		memset(m_pAlphaMask, 0x00, LocalSurface->h * LocalSurface->w);
 	}
 }
-
+//-----------------------------------------------------------------------------------------------------
 #ifdef DETECT_LEAKS
 
 LeaksDetector LeaksDetector::m_Instance;
@@ -586,3 +594,57 @@ void LeaksDetector::DestroyedGraphicObject()
 }
 
 #endif
+//-----------------------------------------------------------------------------------------------------
+#ifdef VIDEO_RAM_USAGE
+
+VideoRAMUsageObserver VideoRAMUsageObserver::m_Instance; 
+
+void VideoRAMUsageObserver::ObserveConvertingProcess(OpenGLTexture texture, int x, int y, int bpp)
+{
+	map<OpenGLTexture, int>::iterator it = mapTexturesInfo.find(texture);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VideoRAMUsageObserver: texture %d allocated with size %d", x * y * bpp);
+
+	if(it == mapTexturesInfo.end())
+	{
+		mapTexturesInfo.insert(make_pair(texture, x * y * bpp));
+	}
+	else
+	{
+		//LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VideoRAMUsageObserver: texture %d allocated before and never released!", texture);
+		it->second += x * y * bpp;
+	}
+
+	DumpVideoMemoryInfo();
+}
+
+void VideoRAMUsageObserver::ObserveReleasingProcess(OpenGLTexture texture)
+{
+	map<OpenGLTexture, int>::iterator it = mapTexturesInfo.find(texture);
+
+	if(it == mapTexturesInfo.end())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VideoRAMUsageObserver: texture %d not allocated!", texture);
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "VideoRAMUsageObserver: texture %d deallocated with size %d", it->second);
+		mapTexturesInfo.erase(it);
+	}
+
+	DumpVideoMemoryInfo();
+}
+
+void VideoRAMUsageObserver::DumpVideoMemoryInfo()
+{
+	int nVRAMUsed = 0;
+
+	for(map<OpenGLTexture, int>::iterator it= mapTexturesInfo.begin(); it != mapTexturesInfo.end(); ++it)
+	{
+		nVRAMUsed += it->second;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoRAMUsageObserver: Video RAM used by Orbiter: %d bytes!", nVRAMUsed);
+}
+#endif
+//-----------------------------------------------------------------------------------------------------
