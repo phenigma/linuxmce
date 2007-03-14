@@ -1,7 +1,7 @@
 #!/bin/bash
 
-old_version=9629
-version=9746
+old_version=9746
+version=9755
 changedate="$(date -R)"
 changelog=$(cat <<'END'
 nvidia-graphics-drivers (1.0.$version-1) unstable; urgency=low

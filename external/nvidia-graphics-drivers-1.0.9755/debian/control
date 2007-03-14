@@ -8,7 +8,7 @@ Standards-Version: 3.6.2
 Package: nvidia-glx
 Architecture: i386 amd64
 Depends: , nvidia-kernel-2.6.18-3-k7, nvidia-kernel-2.6.18-1-k7, x11-common (>= 1:7.0.0), ${shlibs:Depends}
-Suggests: nvidia-settings, nvidia-kernel-source (>= 1.0.9746)
+Suggests: nvidia-settings, nvidia-kernel-source (>= 1.0.9755)
 Conflicts: nvidia-glx-src
 #Provides: xserver-xorg-video
 Replaces: nvidia-glx-src
@@ -31,7 +31,7 @@ Description: NVIDIA binary XFree86 4.x driver
  
 Package: nvidia-glx-dev
 Architecture: i386 amd64
-Depends: nvidia-glx (>= 1.0.9746)
+Depends: nvidia-glx (>= 1.0.9755)
 Provides: libgl-dev
 Conflicts: nvidia-glx (>= 1.0.9630), libgl-dev, mesa-common-dev
 Replaces: libgl-dev
@@ -45,7 +45,7 @@ Description: NVIDIA binary XFree86 4.x / Xorg driver development files
 Package: nvidia-kernel-source
 Architecture: i386 amd64
 Depends: debhelper (>> 4.0.0), make, sed (>> 3.0), dpatch (>= 2.0.0)
-Recommends: nvidia-glx (>= 1.0.9746), kernel-package (>= 8.082), devscripts
+Recommends: nvidia-glx (>= 1.0.9755), kernel-package (>= 8.082), devscripts
 Conflicts: nvidia-kernel-src
 Replaces: nvidia-kernel-src
 Description: NVIDIA binary kernel module source
