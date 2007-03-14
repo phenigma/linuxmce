@@ -125,8 +125,9 @@ void OpenGL3DEngine::Finalize(void)
 
 bool OpenGL3DEngine::Paint()
 {
-	TextureManager::Instance()->ReleaseTextures();	
 	TextureManager::Instance()->ConvertImagesToTextures();
+	TextureManager::Instance()->ReleaseTextures();	
+
 	if(ForceReleaseTextures)
 	{
 		ForceReleaseTextures = false;
@@ -151,6 +152,10 @@ bool OpenGL3DEngine::Paint()
 #endif
 		return false;
 	}
+
+	//skip broken trees
+	if(!CurrentLayer->TreeIsValid())
+		return false;
 
 	GL.SetClearColor(.0f, .0f, 0.0f);
 	GL.ClearScreen(true, false);

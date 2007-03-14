@@ -124,7 +124,6 @@ public:
 	bool SetupFromImage(std::string FileName);
 	void Prepare();
 	void Convert();
-	void ReleaseTexture();
 
 	OpenGLGraphic* ReplaceColorInRectangle(PlutoRectangle Area, 
 		PlutoColor ColorToReplace, 

@@ -208,14 +208,14 @@ void OpenGLGraphic::Convert()
 	if( NULL == LocalSurface || NULL == LocalSurface->format)
 		return;
 
-	ReleaseTexture();
+	OpenGLTexture NewTexture = 0;
 
 	/* Typical Texture Generation Using Data From The Bitmap */
-	glGenTextures( 1, &Texture);
-	glBindTexture(GL_TEXTURE_2D, Texture);
+	glGenTextures( 1, &NewTexture);
+	glBindTexture(GL_TEXTURE_2D, NewTexture);
 
 #ifdef VIDEO_RAM_USAGE
-	VideoRAMUsageObserver::Instance().ObserveConvertingProcess(Texture, LocalSurface->w, LocalSurface->h, LocalSurface->format->BytesPerPixel);
+	VideoRAMUsageObserver::Instance().ObserveConvertingProcess(NewTexture, LocalSurface->w, LocalSurface->h, LocalSurface->format->BytesPerPixel);
 #endif
 
 	if(LocalSurface->format->BytesPerPixel == 4)
@@ -265,12 +265,26 @@ void OpenGLGraphic::Convert()
 #ifdef DEBUG
 	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Freeing surface %p" , LocalSurface);
 #endif
-	SDL_FreeSurface(LocalSurface);
-	LocalSurface = NULL;
+
+	if(m_GraphicManagement != GR_KEEPCOMPRESSED)
+	{
+		//we'll also keep the SDL surface to reuse; the texture will be release after using it
+		SDL_FreeSurface(LocalSurface);
+		LocalSurface = NULL;
+	}
 
 	/* Linear Filtering */
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+	OpenGLTexture OldTexture = Texture;
+	Texture = NewTexture;
+
+	if(OldTexture)
+	{
+		//release it right away!
+		glDeleteTextures(1, &OldTexture);
+	}
 }
 
 PlutoGraphic* OpenGLGraphic::Clone()
@@ -363,7 +377,16 @@ void OpenGLGraphic::putpixel(SDL_Surface *pSDL_Surface,int x, int y, Uint32 pixe
 bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
 g_PlutoProfiler->Start("OpenGLGraphic::LoadGraphic");
-	Clear();
+	
+	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
+	if(LocalSurface != NULL)
+	{
+		if(m_GraphicManagement != GR_KEEPCOMPRESSED)
+		{
+			SDL_FreeSurface(LocalSurface);
+			LocalSurface = NULL;
+		}
+	}
 
 	if(m_GraphicFormat == GR_OCG)
 	{
@@ -385,14 +408,12 @@ g_PlutoProfiler->Start("OpenGLGraphic::LoadGraphic");
 
 	if(!LocalSurface)
 	{
-g_PlutoProfiler->Stop("OpenGLGraphic::LoadGraphic");
 		return false;
 	}
 
 	m_nWidth = LocalSurface->w;
 	m_nHeight = LocalSurface->h;
 	Prepare();
-g_PlutoProfiler->Stop("OpenGLGraphic::LoadGraphic");
 
 	return LocalSurface != NULL;
 }
@@ -408,8 +429,11 @@ void OpenGLGraphic::Clear()
 	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 	if(LocalSurface != NULL)
 	{
-		SDL_FreeSurface(LocalSurface);
-		LocalSurface = NULL;
+		if(m_GraphicManagement != GR_KEEPCOMPRESSED)
+		{
+			SDL_FreeSurface(LocalSurface);
+			LocalSurface = NULL;
+		}
 	}
 }
 
@@ -420,21 +444,6 @@ bool OpenGLGraphic::GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize)
 	pRawBitmapData = NULL;
 	ulSize = 0;
 	return false;
-}
-
-void OpenGLGraphic::ReleaseTexture()
-{
-	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
-
-	if(Texture)
-	{
-#ifdef VIDEO_RAM_USAGE
-		VideoRAMUsageObserver::Instance().ObserveReleasingProcess(Texture);
-#endif
-
-		glDeleteTextures(1, &Texture);
-		Texture = 0;
-	}
 }
 
 OpenGLGraphic* OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, PlutoColor ColorToReplace, PlutoColor ReplacementColor)

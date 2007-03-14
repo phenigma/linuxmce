@@ -64,7 +64,11 @@ TextureManager::TextureManager(void)
 {
 	m_bCacheEnabled = true;
 
-	TextureLock.Init(NULL);
+	pthread_mutexattr_t MutexAttr;
+	pthread_mutexattr_init(&MutexAttr);
+	pthread_mutexattr_settype(&MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+	TextureLock.Init(&MutexAttr);
+	pthread_mutexattr_destroy(&MutexAttr);
 }
 
 TextureManager::~TextureManager(void)
@@ -152,8 +156,11 @@ void TextureManager::PrepareRelease(OpenGLTexture TextureGraphic)
 
 void TextureManager::ConvertImagesToTextures()
 {
-	//if(WaitForConvert.size())
-	//	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "TextureManager::ConvertImagesToTextures size %d", WaitForConvert.size());
+#ifdef DEBUG
+	if(WaitForConvert.size())
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "TextureManager::ConvertImagesToTextures size %d", WaitForConvert.size());
+#endif
+
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, TextureLock);
 	std::list <OpenGLGraphic*>::iterator Item, End = WaitForConvert.end();
 	for(Item = WaitForConvert.begin(); Item != End; ++Item)
@@ -170,7 +177,7 @@ void TextureManager::ReleaseTextures()
 		return;
 #ifdef DEBUG
 	if(WaitForRelease.size())
-		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
+		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
 #endif
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, TextureLock);

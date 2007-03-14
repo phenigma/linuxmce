@@ -107,13 +107,16 @@ namespace DCE
 		virtual void RenderObjectAsync(DesignObj_Orbiter *pObj);
 		virtual void ShowProgress(int nPercent);
 
-		virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic) {}
-
 		virtual void ObjectOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj,					PlutoPoint *ptPopup = NULL);
 		virtual void ObjectOffScreen(DesignObj_Orbiter *pObj);
 
 		void WakeupFromCondWait();
 		void OnIdle();
+
+		/**
+		* @brief A graphic is no longer on screen. Maybe remove it from cache
+		*/
+		virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic);
 
 		/**
 		 *	Notify Orbiter Renderer that OpenGL windows was created	

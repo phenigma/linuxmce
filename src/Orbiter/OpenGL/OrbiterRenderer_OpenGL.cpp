@@ -31,6 +31,11 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
+
+//#ifdef VIA_OVERLAY
+#define VIA_OVERLAY_TEXTURE_MANAGEMENT
+//#endif
+
 #include "OrbiterRenderer_OpenGL.h"
 //-----------------------------------------------------------------------------------------------------
 #ifdef WIN32
@@ -491,7 +496,14 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 #endif
 
 	if(TextureManager::Instance()->CacheEnabled())
-		TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
+	{
+#ifdef VIA_OVERLAY_TEXTURE_MANAGEMENT
+		if(pPlutoGraphic->m_GraphicManagement == GR_KEEPUNCOMPRESSED || point.X != 0 || point.Y != 0)
+#endif
+		{
+			TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
+		}
+	}
 	else
 	{
 		Frame->DontReleaseTexture();
@@ -723,6 +735,12 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 			pDatagridRenderer->Reset();
 	}
 
+	if(pObj->m_pPopupPoint.X != 0 || pObj->m_pPopupPoint.Y != 0)
+	{
+		//we are on a popup; keep me cached!
+		pObj->m_bKeepGraphicInCache = true;
+	}
+
 	OrbiterRenderer::ObjectOffScreen(pObj);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -740,7 +758,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	//int OnSelectWithChange = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
 #endif
 
 	PlutoRectangle rectLastSelected(0, 0, 0, 0);
@@ -990,3 +1008,10 @@ void OrbiterRenderer_OpenGL::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint 
 
 #endif
 } 
+
+/*virtual*/ void OrbiterRenderer_OpenGL::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic)
+{
+#ifdef VIA_OVERLAY_TEXTURE_MANAGEMENT
+	OrbiterRenderer::GraphicOffScreen(pvectGraphic);
+#endif
+}
