@@ -28,7 +28,7 @@ function BuildModules() {
 	find '(' -type d -name 'compiledModules' -prune -false ')' -or -name '*.ko' -exec cp  '{}' "$COMP_MODULES_DIR/$KVER/misc" ';'
 }
 
-if [[ "$MakeRelease_Kernel" == "" && $name_upper == "LINUXMCE"]] ;then
+if [[ "$MakeRelease_Kernel" == "" ]] && [[ "$name_upper" == "LINUXMCE" ]] ;then
 	MakeRelease_Kernel=$(uname -r)
 fi
 
