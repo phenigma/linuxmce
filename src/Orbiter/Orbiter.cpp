@@ -1907,6 +1907,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		if (pData)
 		{
 			m_pBackgroundImage = m_pOrbiterRenderer->CreateGraphic();
+			m_pBackgroundImage->m_Filename = "OrbiterBkg.png";
 			m_pBackgroundImage->LoadGraphic(pData, iSize);
 			delete [] pData;
 		}

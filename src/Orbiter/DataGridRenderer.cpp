@@ -322,6 +322,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		if ( pCell->m_pGraphicData && !pCell->m_pGraphic )
 		{
 			pCell->m_pGraphic = m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->CreateGraphic();
+			pCell->m_pGraphic->m_Filename = "datagrid cell";
 			pCell->m_pGraphic->m_GraphicFormat = pCell->m_GraphicFormat;
 			pCell->m_pGraphic->LoadGraphic(pCell->m_pGraphicData,  pCell->m_GraphicLength, m_pObj_Owner_DataGrid->m_pOrbiter->m_iRotation);
 			// Todo, since we're leaving the graphic in native format from this point foward,

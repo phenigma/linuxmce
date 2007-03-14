@@ -393,6 +393,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &OrbiterLogic()->m_mapTextStyle);
 
 	OpenGLGraphic *pGraphic = new OpenGLGraphic(pSurface);
+	pGraphic->m_Filename = TextUniqueID;
 	MeshContainer* Container = MeshBuilder::BuildRectangle(rectPosition, pGraphic);
 
 	MeshFrame* Frame = new MeshFrame(TextUniqueID);
@@ -905,6 +906,8 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	OpenGLGraphic *pOpenGLGraphic = dynamic_cast<OpenGLGraphic *>(pPlutoGraphic);
 	if(NULL != pOpenGLGraphic)
 	{
+		pOpenGLGraphic->m_Filename = "dynamic object " + pObj->GenerateObjectHash(pObj->m_pPopupPoint);
+
 		TextureManager::Instance()->InvalidateItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));
 
 		if(NULL != pData && iData_Size != 0)

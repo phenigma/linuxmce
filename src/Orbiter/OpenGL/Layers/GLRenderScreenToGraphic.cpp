@@ -71,6 +71,7 @@ void GLRenderScreenToGraphic::CreateRenderTexture()
 	if(RenderGraphic)
 		return;
 	RenderGraphic = new OpenGLGraphic(Width, Height);
+	RenderGraphic->m_Filename = "screen";
 	TextureManager::Instance()->PrepareConvert(RenderGraphic);
 }
 

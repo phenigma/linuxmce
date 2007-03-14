@@ -73,10 +73,13 @@ public:
 #endif
 //-----------------------------------------------------------------------------------------------------
 #ifdef VIDEO_RAM_USAGE
+
+typedef map<OpenGLTexture, pair<string, int> > TextureInfoMap;
+
 class VideoRAMUsageObserver
 {
 private:
-	map<OpenGLTexture, int> mapTexturesInfo;
+	TextureInfoMap mapTexturesInfo;
 	static VideoRAMUsageObserver m_Instance;
 
 	VideoRAMUsageObserver() {};
@@ -88,8 +91,8 @@ public:
 
 	static VideoRAMUsageObserver& Instance() { return m_Instance; }
 	
-	void ObserveConvertingProcess(OpenGLTexture texture, int x, int y, int bpp);
-	void ObserveReleasingProcess(OpenGLTexture texture);
+	void ObserveConvertingProcess(OpenGLTexture texture, int x, int y, int bpp, string sFileName);
+	void ObserveReleasingProcess(OpenGLTexture texture, string sFileName = "dynamic-unknown");
 };
 #endif
 //-----------------------------------------------------------------------------------------------------

@@ -128,6 +128,7 @@ MeshContainer* MeshContainer::Clone(bool bShareGraphic)
 				if(TextureIterator == TextureClones.end())
 				{
 					GraphicClone = new OpenGLGraphic();
+					GraphicClone->m_Filename = "clone of " + Texture->m_Filename;
 					GraphicClone->Texture = Triangles[Counter].Texture->Texture;
 					TextureClones[Texture] = GraphicClone;
 				}

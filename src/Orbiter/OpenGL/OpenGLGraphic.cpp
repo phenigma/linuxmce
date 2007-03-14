@@ -215,7 +215,9 @@ void OpenGLGraphic::Convert()
 	glBindTexture(GL_TEXTURE_2D, NewTexture);
 
 #ifdef VIDEO_RAM_USAGE
-	VideoRAMUsageObserver::Instance().ObserveConvertingProcess(NewTexture, LocalSurface->w, LocalSurface->h, LocalSurface->format->BytesPerPixel);
+	VideoRAMUsageObserver::Instance().ObserveConvertingProcess(
+		NewTexture, LocalSurface->w, LocalSurface->h, 
+		LocalSurface->format->BytesPerPixel, m_Filename);
 #endif
 
 	if(LocalSurface->format->BytesPerPixel == 4)
@@ -471,6 +473,7 @@ OpenGLGraphic* OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, Pluto
 
 
 	OpenGLGraphic* Result = new OpenGLGraphic(Area.Width, Area.Height);
+	Result->m_Filename = "replace color in rectangle";
 	SDL_SetAlpha(Result->LocalSurface, 0, 0);
 
 	SDL_Rect SDLArea;
@@ -608,36 +611,47 @@ void LeaksDetector::DestroyedGraphicObject()
 
 VideoRAMUsageObserver VideoRAMUsageObserver::m_Instance; 
 
-void VideoRAMUsageObserver::ObserveConvertingProcess(OpenGLTexture texture, int x, int y, int bpp)
+void VideoRAMUsageObserver::ObserveConvertingProcess(OpenGLTexture texture, int x, int y, int bpp, string sFileName)
 {
-	map<OpenGLTexture, int>::iterator it = mapTexturesInfo.find(texture);
+	if(sFileName == "")
+	{
+		int mumu_was_here = 13;
+	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VideoRAMUsageObserver: texture %d allocated with size %d", texture, x * y * bpp);
+	TextureInfoMap::iterator it = mapTexturesInfo.find(texture);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VideoRAMUsageObserver: texture %d (%s) allocated with size %d", 
+		texture, sFileName.c_str(), x * y * bpp);
 
 	if(it == mapTexturesInfo.end())
 	{
-		mapTexturesInfo.insert(make_pair(texture, x * y * bpp));
+		mapTexturesInfo.insert(make_pair(texture, make_pair(sFileName, x * y * bpp)));
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VideoRAMUsageObserver: texture %d allocated before and never released!", texture);
-		it->second += x * y * bpp;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VideoRAMUsageObserver: texture %d (%s) allocated before and never released!", 
+			texture, sFileName.c_str());
+
+		it->second.second += x * y * bpp;
 	}
 
 	DumpVideoMemoryInfo();
 }
 
-void VideoRAMUsageObserver::ObserveReleasingProcess(OpenGLTexture texture)
+void VideoRAMUsageObserver::ObserveReleasingProcess(OpenGLTexture texture, string sFileName)
 {
-	map<OpenGLTexture, int>::iterator it = mapTexturesInfo.find(texture);
+	TextureInfoMap::iterator it = mapTexturesInfo.find(texture);
 
 	if(it == mapTexturesInfo.end())
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VideoRAMUsageObserver: texture %d not allocated or already released!", texture);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VideoRAMUsageObserver: texture %d (%s) not allocated or already released!", 
+			texture, sFileName.c_str());
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "VideoRAMUsageObserver: texture %d deallocated with size %d", texture, it->second);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "VideoRAMUsageObserver: texture %d (%s) deallocated with size %d", 
+			texture, it->second.first.c_str(), it->second.second);
+
 		mapTexturesInfo.erase(it);
 	}
 
@@ -648,8 +662,8 @@ void VideoRAMUsageObserver::DumpVideoMemoryInfo()
 {
 	int nVRAMUsed = 0;
 
-	for(map<OpenGLTexture, int>::iterator it= mapTexturesInfo.begin(); it != mapTexturesInfo.end(); ++it)
-		nVRAMUsed += it->second;
+	for(TextureInfoMap::iterator it= mapTexturesInfo.begin(); it != mapTexturesInfo.end(); ++it)
+		nVRAMUsed += it->second.second;
 
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoRAMUsageObserver: Video RAM used by Orbiter: %d bytes (%d textures) !", nVRAMUsed, mapTexturesInfo.size());
 }
@@ -661,10 +675,11 @@ VideoRAMUsageObserver::~VideoRAMUsageObserver()
 	pLeaksDetectorLogger->Write(LV_STATUS, "Dumping textures:");
 
 	int nVRAMUsed = 0;
-	for(map<OpenGLTexture, int>::iterator it= mapTexturesInfo.begin(); it != mapTexturesInfo.end(); ++it)
+	for(TextureInfoMap::iterator it= mapTexturesInfo.begin(); it != mapTexturesInfo.end(); ++it)
 	{
-		pLeaksDetectorLogger->Write(LV_STATUS, "\t- texture %d: %d bytes", it->first, it->second);
-		nVRAMUsed += it->second;
+		pLeaksDetectorLogger->Write(LV_STATUS, "\t- texture %d (%s): %d bytes", 
+			it->first, it->second.first.c_str(), it->second.second);
+		nVRAMUsed += it->second.second;
 	}
 
 	pLeaksDetectorLogger->Write(LV_STATUS, "Video RAM used by Orbiter and not released: %d bytes (%d textures) !", nVRAMUsed, mapTexturesInfo.size());

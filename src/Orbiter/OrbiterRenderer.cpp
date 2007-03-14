@@ -1341,6 +1341,7 @@ void *ImageLoadThread(void *p)
 
 			// Again load the graphic without holding the mutex
 			PlutoGraphic *pPlutoGraphic = pBackgroundImage->m_pObj_Grid->m_pOrbiter->Renderer()->CreateGraphic();;
+			pPlutoGraphic->m_Filename = "datagrid thumb";
 			pPlutoGraphic->m_GraphicFormat = pBackgroundImage->m_pCell->m_GraphicFormat;
 			pPlutoGraphic->LoadGraphic(pGraphicData, GraphicLength, pBackgroundImage->m_pObj_Grid->m_pOrbiter->m_iRotation);
 
@@ -1474,6 +1475,7 @@ char *pData, int iData_Size, string sDisable_Aspect_Lock)
 	}
 
 	PlutoGraphic *pPlutoGraphic = CreateGraphic();
+	pPlutoGraphic->m_Filename = "dynamic object";
 
 	if(sType == "bmp")
 		pPlutoGraphic->m_GraphicFormat = GR_BMP;

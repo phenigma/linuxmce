@@ -457,6 +457,7 @@ bool DatagridMouseHandlerHelper::RelativePointer_ImageLoad(int nSpeedShape)
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_ImageLoad(%d) : loaded graphic file %s", nSpeedShape, m_sImagePath.c_str());
 	delete m_pRelativePointer_Image;
 	m_pRelativePointer_Image = m_pMouseBehavior->m_pOrbiter->m_pOrbiterRenderer->CreateGraphic();
+	m_pRelativePointer_Image->m_Filename = "relative pointer image";
     m_pRelativePointer_Image->LoadGraphic(pData, iSize);
     delete [] pData;
     pData = NULL;
