@@ -108,11 +108,13 @@ void OpenGL3DEngine::Finalize(void)
 	UnHighlight();
 	UnSelect();
 
+	bool ReleaseVolatileOnly = !TextureManager::Instance()->MemoryManagementEnabled();
+
 	if(OldLayer)
-		OldLayer->CleanUp(true);
+		OldLayer->CleanUp(ReleaseVolatileOnly);
 
 	if(CurrentLayer)
-		CurrentLayer->CleanUp(true);
+		CurrentLayer->CleanUp(ReleaseVolatileOnly);
 
 	delete OldLayer;
 	delete CurrentLayer;
@@ -238,7 +240,8 @@ void OpenGL3DEngine::NewScreen(string ScreenName)
 
 	if(NULL != OldLayer)
 	{
-		OldLayer->CleanUp(true);
+		bool ReleaseVolatileOnly = !TextureManager::Instance()->MemoryManagementEnabled();
+		OldLayer->CleanUp(ReleaseVolatileOnly);
 		delete OldLayer;
 	}
 	OldLayer = CurrentLayer;

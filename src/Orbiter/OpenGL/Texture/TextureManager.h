@@ -73,10 +73,15 @@ class TextureManager
 
 	OpenGL3DEngine *Engine;
 	int ReleaseTextureSuspended;
+	bool m_bMemoryManagementEnabled;
 
 public:
 	static TextureManager* Instance();
 	virtual ~TextureManager(void);
+
+	void EnableMemoryManagement()   { m_bMemoryManagementEnabled = true; }
+	bool MemoryManagementEnabled()  { return m_bMemoryManagementEnabled; }
+
 	
 	bool ExistInCache(MeshFrame *pFrame);
 	void Setup(OpenGL3DEngine *Engine);

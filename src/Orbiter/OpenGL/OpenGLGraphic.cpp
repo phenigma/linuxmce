@@ -284,6 +284,8 @@ void OpenGLGraphic::Convert()
 
 	if(OldTexture)
 	{
+		VideoRAMUsageObserver::Instance().ObserveReleasingProcess(OldTexture, m_Filename);
+
 		//release it right away!
 		glDeleteTextures(1, &OldTexture);
 	}
@@ -383,11 +385,8 @@ g_PlutoProfiler->Start("OpenGLGraphic::LoadGraphic");
 	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 	if(LocalSurface != NULL)
 	{
-		if(m_GraphicManagement != GR_KEEPCOMPRESSED)
-		{
-			SDL_FreeSurface(LocalSurface);
-			LocalSurface = NULL;
-		}
+		SDL_FreeSurface(LocalSurface);
+		LocalSurface = NULL;
 	}
 
 	if(m_GraphicFormat == GR_OCG)

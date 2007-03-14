@@ -179,6 +179,9 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::Configure()
 {
+	if(OrbiterLogic()->m_bMemoryManagementEnabled)
+		TextureManager::Instance()->EnableMemoryManagement();
+
 	pthread_cond_init(&Condition, NULL);
 	Mutex.Init(NULL, &Condition);
 

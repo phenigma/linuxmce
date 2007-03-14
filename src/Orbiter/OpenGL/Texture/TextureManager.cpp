@@ -60,7 +60,8 @@ TextureManager::TextureManager(void)
 	SupportTextureNonPowerOfTwo_(-1),
 	Engine(NULL),
 	TextureLock("texture mutex"),
-	ReleaseTextureSuspended(0)
+	ReleaseTextureSuspended(0),
+	m_bMemoryManagementEnabled(false)
 {
 	m_bCacheEnabled = true;
 

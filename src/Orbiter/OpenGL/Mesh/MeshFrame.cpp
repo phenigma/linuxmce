@@ -116,7 +116,7 @@ void MeshFrame::MarkAsVolatileRecursively()
 	for(Child = Children.begin(); Child!=Children.end();++Child)
 	{
 		MeshFrame *pMeshFrame = *Child;
-		pMeshFrame->CleanUp(true);
+		pMeshFrame->CleanUp(VolatilesOnly);
 
 		if(!VolatilesOnly || pMeshFrame->IsVolatile())
 		{
@@ -240,14 +240,23 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 				NewFrame, NewFrame->m_sName.c_str());
 #endif
 
-			if(NewFrame != OldFrame && NULL != OldFrame && OldFrame->IsVolatile())
+			bool bRemoveAllReplacedFrame = TextureManager::Instance()->MemoryManagementEnabled();
+
+			if(
+				NewFrame != OldFrame && NULL != OldFrame && 
+				(OldFrame->IsVolatile() || bRemoveAllReplacedFrame)
+			)
 			{
 				//DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: replaced a volatile %p/%s",
 				//	OldFrame, OldFrame->Name().c_str());
 
 				OldFrame->CleanUp(true);
-				delete OldFrame;
-				OldFrame = NULL;
+
+				if(OldFrame->IsVolatile())
+				{
+					delete OldFrame;
+					OldFrame = NULL;
+				}
 			}
 
 			CheckIntegrity(NewFrame);
