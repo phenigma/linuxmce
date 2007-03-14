@@ -494,7 +494,7 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	if(TextureManager::Instance()->CacheEnabled())
 	{
 		if(
-			OrbiterLogic()->m_bMemoryManagementEnabled &&
+			!OrbiterLogic()->m_bMemoryManagementEnabled ||
 			(pPlutoGraphic->m_GraphicManagement == GR_KEEPUNCOMPRESSED || point.X != 0 || point.Y != 0)
 		)
 		{
