@@ -1,5 +1,5 @@
 ROOT = ..
-CXXFLAGS = -Wall -ggdb3
+CXXFLAGS = -fPIC -Wall -ggdb3
 CPPFLAGS = -I./ -I../ -I../DCE/ -I../VIPShared/ -I/usr/include/mysql
 CXX = g++
 
