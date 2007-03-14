@@ -3,7 +3,7 @@ SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 ROOT = ..
 VIP = ../VIPShared
 GDEV = ./Gen_Devices
-CXXFLAGS = -Wall -g -ggdb3 -D_GNU_SOURCE
+CXXFLAGS = -fPIC -Wall -g -ggdb3 -D_GNU_SOURCE
 CPPFLAGS = -I./ -I../../ -I../ -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS)
 CXX = g++
 
