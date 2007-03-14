@@ -1,15 +1,15 @@
 #ifndef Moxi_PVRBase_h
 #define Moxi_PVRBase_h
-#include <DCE/DeviceData_Impl.h>
-#include <DCE/Message.h>
-#include <DCE/Command_Impl.h>
-#include <DCE/Logger.h>
-#include <pluto_main/Define_Command.h>
-#include <pluto_main/Define_CommandParameter.h>
-#include <pluto_main/Define_DeviceTemplate.h>
-#include <pluto_main/Define_Event.h>
-#include <pluto_main/Define_EventParameter.h>
-#include <pluto_main/Define_DeviceData.h>
+#include "DeviceData_Impl.h"
+#include "Message.h"
+#include "Command_Impl.h"
+#include "Logger.h"
+#include "../pluto_main/Define_Command.h"
+#include "../pluto_main/Define_CommandParameter.h"
+#include "../pluto_main/Define_DeviceTemplate.h"
+#include "../pluto_main/Define_Event.h"
+#include "../pluto_main/Define_EventParameter.h"
+#include "../pluto_main/Define_DeviceData.h"
 
 
 /**
@@ -187,6 +187,7 @@ public:
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Pause_Media(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
@@ -201,6 +202,8 @@ public:
 	virtual void CMD_Guide(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_EnterGo(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Move_Up(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Move_Down(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Move_Left(string &sCMD_Result,class Message *pMessage) {};
@@ -275,6 +278,36 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Update_Object_Image_CONST:
+					{
+						string sCMD_Result="OK";
+						string sPK_DesignObj=pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
+						string sType=pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST];
+						char *pData=pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST];
+						int iData_Size=pMessage->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST];
+						string sDisable_Aspect_Lock=pMessage->m_mapParameters[COMMANDPARAMETER_Disable_Aspect_Lock_CONST];
+						CMD_Update_Object_Image(sPK_DesignObj.c_str(),sType.c_str(),pData,iData_Size,sDisable_Aspect_Lock.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Update_Object_Image(sPK_DesignObj.c_str(),sType.c_str(),pData,iData_Size,sDisable_Aspect_Lock.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -641,6 +674,59 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_EnterGo(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Generic_On_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Pipe=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
+						string sPK_Device_Pipes=pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
+						CMD_On(iPK_Pipe,sPK_Device_Pipes.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_On(iPK_Pipe,sPK_Device_Pipes.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Generic_Off_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Pipe=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
+						CMD_Off(iPK_Pipe,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Off(iPK_Pipe,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

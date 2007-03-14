@@ -12,7 +12,6 @@ DeviceData_Impl *Moxi_PVR_Data::CreateData(DeviceData_Impl *Parent,char *pDataBl
 	b.ResumeReadWrite(pDataBlock,AllocatedSize,CurrentPosition);
 	int iPK_Device = b.Read_unsigned_long();
 	int iPK_Installation = b.Read_unsigned_long();
-	if (iPK_Device && iPK_Installation) ;
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
 	switch(iPK_DeviceTemplate) {
 		case 1871:
