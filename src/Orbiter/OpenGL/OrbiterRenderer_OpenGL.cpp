@@ -32,10 +32,6 @@
 
  */
 
-#ifdef VIA_OVERLAY
-#define VIA_OVERLAY_TEXTURE_MANAGEMENT
-#endif
-
 #include "OrbiterRenderer_OpenGL.h"
 //-----------------------------------------------------------------------------------------------------
 #ifdef WIN32
@@ -497,9 +493,10 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 
 	if(TextureManager::Instance()->CacheEnabled())
 	{
-#ifdef VIA_OVERLAY_TEXTURE_MANAGEMENT
-		if(pPlutoGraphic->m_GraphicManagement == GR_KEEPUNCOMPRESSED || point.X != 0 || point.Y != 0)
-#endif
+		if(
+			OrbiterLogic()->m_bMemoryManagementEnabled &&
+			(pPlutoGraphic->m_GraphicManagement == GR_KEEPUNCOMPRESSED || point.X != 0 || point.Y != 0)
+		)
 		{
 			TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
 		}
@@ -1011,7 +1008,6 @@ void OrbiterRenderer_OpenGL::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint 
 
 /*virtual*/ void OrbiterRenderer_OpenGL::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic)
 {
-#ifdef VIA_OVERLAY_TEXTURE_MANAGEMENT
-	OrbiterRenderer::GraphicOffScreen(pvectGraphic);
-#endif
+	if(OrbiterLogic()->m_bMemoryManagementEnabled)
+		OrbiterRenderer::GraphicOffScreen(pvectGraphic);
 }

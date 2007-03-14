@@ -335,7 +335,8 @@ namespace DCE
 		// '0' - no item is selected until the user moves the arrows
 		// '1' - automatically highlight the first object when the screen changes
 		// '2' - selection/hightlighing routines disabled
-		int m_nSelectionBehaviour;    
+		int m_nSelectionBehaviour;
+		bool m_bMemoryManagementEnabled;
 		bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
 
 		class DesignObj_Orbiter *m_pObj_Highlighted,*m_pObj_Highlighted_Last; /** < The current object highlighted, changed with the scrolling functions */
@@ -986,6 +987,7 @@ namespace DCE
 	bool DATA_Get_Get_Time_Code_for_Media();
 	string DATA_Get_Shortcut();
 	bool DATA_Get_Expert_Mode();
+	bool DATA_Get_Enable_Memory_Management();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
@@ -1889,6 +1891,7 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Bind_to_Wireless_Keyboard() { string sCMD_Result; CMD_Bind_to_Wireless_Keyboard(sCMD_Result,NULL);};
 	virtual void CMD_Bind_to_Wireless_Keyboard(string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 

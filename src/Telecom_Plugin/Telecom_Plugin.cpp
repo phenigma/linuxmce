@@ -94,6 +94,7 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
 	m_TelecomMutex.Init(&m_MutexAttr);
 	m_pDevice_pbx=NULL;
+	m_displayThread = NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -178,7 +179,11 @@ Telecom_Plugin::~Telecom_Plugin()
 void Telecom_Plugin::PrepareToDelete()
 {
 	Command_Impl::PrepareToDelete();
-	pthread_join(m_displayThread,NULL);
+	if(m_displayThread)
+	{
+		pthread_join(m_displayThread,NULL);
+		m_displayThread = NULL;
+	}
 }
 
 //<-dceag-reg-b->

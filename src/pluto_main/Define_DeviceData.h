@@ -191,6 +191,7 @@
 #define DEVICEDATA_Expert_Mode_CONST 218
 #define DEVICEDATA_sPK_Command_CONST 219
 #define DEVICEDATA_Process_Child_Commands_In_Pare_CONST 220
+#define DEVICEDATA_Enable_Memory_Management_CONST 221
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

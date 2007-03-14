@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef OrbiterBase_h
 #define OrbiterBase_h
 #include "DeviceData_Impl.h"
@@ -376,6 +361,14 @@ public:
 			return (m_mapParameters[DEVICEDATA_Expert_Mode_CONST]=="1" ? true : false);
 	}
 
+	bool Get_Enable_Memory_Management()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Enable_Memory_Management_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Enable_Memory_Management_CONST]=="1" ? true : false);
+	}
+
 };
 
 
@@ -515,6 +508,7 @@ public:
 	bool DATA_Get_Get_Time_Code_for_Media() { return GetData()->Get_Get_Time_Code_for_Media(); }
 	string DATA_Get_Shortcut() { return GetData()->Get_Shortcut(); }
 	bool DATA_Get_Expert_Mode() { return GetData()->Get_Expert_Mode(); }
+	bool DATA_Get_Enable_Memory_Management() { return GetData()->Get_Enable_Memory_Management(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server

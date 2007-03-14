@@ -609,6 +609,7 @@ bool Orbiter::GetConfig()
 	WriteStatusOutput("Got the config");
 
 	m_nSelectionBehaviour = DATA_Get_Using_Infrared();
+	m_bMemoryManagementEnabled = DATA_Get_Enable_Memory_Management();
 
 	if(  !m_bLocalMode  )
 	{
