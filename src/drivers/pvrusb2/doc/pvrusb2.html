@@ -1,0 +1,410 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>pvrusb2 Linux Driver</TITLE>
+	<META NAME="keywords" content="Hauppauge, WinTV-PVR-USB2, WinTV, pvrusb2, PVR, USB2, video4linux, v4l, v4l2">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>pvrusb2 driver information</H1>
+<P>$Id: pvrusb2.html 1562 2007-02-28 02:40:40Z isely $</P>
+<P>Mike Isely &lt;isely at pobox dot com&gt;</P>
+
+<P>The home location for this page is <A HREF="http://www.isely.net/pvrusb2/pvrusb2.html">here</A>.</P>
+
+<P>If you have any suggestions for improving either this web page or
+the driver itself, please drop me a message.</P>
+
+<HR>
+<P>Contents</P>
+
+<BLOCKQUOTE>
+<A HREF="#Contact">Contacting People / Discussion List</A><BR>
+<A HREF="#Overview">Overview</A><BR>
+<A HREF="http://www.isely.net/pvrusb2/download.html">Download</A><BR>
+<A HREF="#Setup">Setup</A><BR>
+<A HREF="#Usage">Usage</A><BR>
+<A HREF="#FAQ">FAQ</A><BR>
+<A HREF="#Utilities">Utilities</A><BR>
+<A HREF="#Bugs">Bugs</A><BR>
+<A HREF="#ChangeHistory">Change History</A><BR>
+</BLOCKQUOTE>
+
+<HR>
+<H2><A NAME="Contact">Contacting People / Discussion List</A></H2>
+
+<P>If you wish to contact me, my e-mail address is spelled out at the
+top of this page.</P>
+
+<P>There is also a pvrusb2 e-mail discussion list, hosted here at this
+site.  This is a mailman-operated list, so you can subscribe,
+unsubscribe, access your subscription, scan archives, etc via the web.
+(You can also initiate a subscription by sending a message to
+&lt;pvrusb2-subscribe at isely dot net&gt;.)  Any pvrusb2 relevant
+topic there is fair game.  Posting to the pvrusb2 list is limited to
+just subscribers, but I encourage you to subscribe to the list.  The
+main web page for the discussion list can be found <A
+HREF="http://www.isely.net/cgi-bin/mailman/listinfo/pvrusb2">here</A>.</P>
+
+
+<P>Note also for those who use IRC, the channel #pvrusb2 has been set
+up on freenode.  I tend to idle there (with a fairly obvious handle)
+when I can.</P>
+
+<HR>
+<H2><A NAME="Overview">Overview</A></H2>
+
+<H3>Device Summary</H3>
+
+<P>This driver is intended for the <CITE>Hauppauge <A
+HREF="http://www.hauppauge.com/pages/products/data_pvrusb2.html">WinTV
+PVR USB2</A></CITE>, which is a USB 2.0 hosted TV Tuner. Examples for
+sale can be found at <A
+HREF="http://www.pricegrabber.com/search_getprod.php/masterid=3017802">pricegrabber</A>.
+This device is an analog tuner, but it has a hardware mpeg encoder,
+which makes it ideal for use in PVR applications.  Functionally, the
+&quot;PVR USB2&quot; device is very similar to Hauppauge's line of
+&quot;PVR-nnn&quot; PCI based tuner cards - except this device uses
+USB instead of PCI which makes it suitable for laptop, xbox, or
+embedded device applications where there would otherwise not be a PCI
+slot available.</P>
+
+<P>Please note that this driver is <em>only</em> for the <CITE>WinTV
+PVR USB2</CITE>, and in particular this driver is not for the
+seemingly similar sounding <CITE>Hauppauge <A
+HREF="http://www.hauppauge.com/pages/products/data_usb2.html">WinTV
+USB2</A></CITE> which is in fact a <em>completely</em> different and
+less capable device from Hauppauge.  (See <A
+HREF="http://www.linuxtv.org/v4lwiki/index.php/Em2820">here</A> for a
+driver that should work with the WinTV USB2 hardware.)</P>
+
+<H3>History</H3>
+
+<P>This driver is very much a work in progress. Its history started
+with the reverse-engineering effort by Bj&ouml;rn Danielsson whose web
+page can be found <A HREF="http://pvrusb2.dax.nu/">here</A>. From
+there Aurelien Alleaume began an effort to create a video4linux
+compatible driver. His web page about this driver can be found <A
+HREF="http://justiceforall.free.fr/pvrusb2.html">here</A>.  However
+after October 2004, work there seemed to have stopped and repeated
+attempts to contact him over several months since then were not
+successful.  The driver hosted here picks up from that point.  I have
+been maintaining / improving this since February 2005.</P>
+
+<H3>Driver software versions: standalone vs in-V4L vs in-kernel</H3>
+
+<P>There are three variations of this driver available.  One is here
+on this site.  Another is hosted within the official <A
+HREF="http://linuxtv.org">video4linux</A> Mercurial <A
+HREF="http://linuxtv.org/hg/v4l-dvb">source tree</A>, and the third
+variation is available in the Linux kernel tree, as of version 2.6.18.
+I maintain them all and they are closely related.  You can use any;
+the &quot;master&quot; version is currently the standalone version on
+this site; the others are derived from here.  As for deciding which
+you might want to try: The version in the kernel is of course
+considered to be the most stable, so if you are using 2.6.18 or later
+then just stick with that.  The version in V4L is more bleeding edge
+than the kernel and what's in V4L today is expected to always be what
+gets into the next kernel release.  If you want a more recent version of
+the driver and if you are already into building &amp; running all of
+V4L then the V4L version is probably what you want.  If on the other
+hand you want the absolute latest version available and just want to
+get this one driver working (damnit!) and don't want to learn about
+Mercurial (V4L's source code manager), and you don't like the idea of
+pulling in 50+ modules just to run one piece of hardware, then you may
+prefer to run the standalone version hosted here.  It's up to you.
+Right now the way I do development is that the standalone version is
+the &quot;primary&quot; version.  All others derive from this version.
+To update the V4L version I process the sources through a Perl script
+that reconfigures the driver for use inside of V4L (strips out source
+files and code that don't make sense there, and enables some bits for
+in-V4L-tree operation that might otherwise be shut off).  The kernel
+version is processed out of V4L.  I'm using Subversion to maintain the
+driver sources and do diff / patching as needed for any changes from
+that come back my way, regardless of variation.</P>
+
+<BLOCKQUOTE>Note: Even if you choose to run the in-kernel version or
+V4L hosted version of this driver, you will <strong>still</strong>
+need to extract and install the firmware - and the extraction script
+is not (yet) part of the V4L repository or the kernel tree (but that
+may change soon).  If you need just the extraction script (something
+normally contained in the standalone driver snapshot), you can
+download a reasonably recent version from here: <A
+HREF="http://www.isely.net/downloads/fwextract.pl">http://www.isely.net/downloads/fwextract.pl</A>.</BLOCKQUOTE>
+
+<H3>Hardware versions</H3>
+
+<P>As of this writing, there are two major variants of the PVR USB2
+hardware in circulation.  They can be physically distinguished by the
+white sticker on the underside of the device - the retail boxes are
+<em>identical</em>, unfortunately.  You can also distiguish the two
+variants through the USB ID reported to the host when the device is
+plugged in.
+
+<UL>
+
+<LI>The older device variant has a model number on that white sticker
+which matches the pattern &quot;29xxx&quot;, and its reported USB ID
+will be <tt>2040:2900</tt>.  Throughout this documentation, the older
+device variant will be referred to as &quot;29xxx hardware&quot;.</LI>
+
+<LI>The new device variant has a model number on that white sticker
+which matches the pattern &quot;24xxx&quot;, and its reported USB ID
+will be <tt>2040:2400</tt>.  Throughout this documentation, the newer
+device variant will be referred to as &quot;24xxx hardware&quot;.</LI>
+
+</UL>
+
+<P>This driver (and including the other two variations) is intended to
+work with both old and new hardware.  Right now things appear stable
+with both the old and new hardware.  See the <A HREF="#Bugs">Bugs</A>
+section for more details.  Also, the firmware situation and chip-level
+modules are different in the two cases, which may impact how you set
+things up.  The documentation on this site covers both model
+variants.</P>
+
+<BLOCKQUOTE>I've been trying to collect a census of the various model
+variants in circulation.  You can find the current results in <A
+HREF="models.txt">models.txt</A>; please e-mail me if you would like
+to add your device to the tally.</BLOCKQUOTE>
+
+<H3>Encouragement...</H3>
+
+<P>If you have trouble getting the driver to work, please read through
+this site again - there are a lot of details here and it is easy to
+miss something.  Also, I've written a short <A HREF="faq.html">FAQ</A>
+covering common situations that people have found themselves in.  Try
+scanning the mailing list archives <A
+HREF="http://www.isely.net/pipermail/pvrusb2/">here</A>.  If none of
+that helps, send me a message or subscribe and post to the mailing
+list (information <A HREF="#Contact">here</A>) - it's entirely
+possible that you might have encountered something new and thus I want
+to hear about it so I can address the problem for everyone...</P>
+
+<HR>
+<H2><A NAME="Download">Download</A></H2>
+<P>Downloads can be found <A HREF="http://www.isely.net/pvrusb2/download.html">here</A>.
+</P>
+
+<HR>
+<H2><A NAME="Setup">Setup</A></H2>
+
+<P>To operate your PVR USB2 device in Linux, there are several
+prerequisites and a number of things you must do first.</P>
+
+<P>You must satisfy at least these prerequisites before the driver
+will work:</P>
+
+<UL>
+
+<LI>You absolutely need a 2.6.x series kernel.  For new 24xxx model
+series hardware, you will generally need 2.6.15 or later.  For older
+29xxx models you can use 2.6.11 or later though things there will be
+easier as well if you move up to at least 2.6.15.</LI>
+
+<LI>Your system needs to be configured for hotplug support or whatever
+else might be a functional stand-in (udev in the future?) for loading
+firmware.</LI>
+
+<LI>Your kernel needs to be configured with video4linux support,
+including enough individual modules to support operation of this
+device.</LI>
+
+</UL>
+
+<P>The <A HREF="setup.html#Prerequisites">Prerequisites /
+Compatibility</A> section of <A HREF="setup.html">setup.html</A> has
+the details for the above.</P>
+
+<P>There are 3 basic steps you must complete in order to operate your
+PVR USB2 device in Linux:</P>
+
+<UL>
+
+<LI>You must (of course) compile and install the pvrusb2 driver
+itself.</LI>
+
+<LI>You must extract and install the required firmware images.</LI>
+
+<LI>You <em>might</em> have to compile and install some support
+modules.</LI>
+
+</UL>
+
+<P>If you are trying the in-V4L or in-kernel driver version, then the
+compilation steps above are a part of the surrounding build and so you
+don't have to do anything special there.  However even in that case
+you still have to deal with the firmware part of the puzzle.</P>
+
+<P>The following sections of <A HREF="setup.html">setup.html</A> have
+the details for getting your PVR USB2 device working:</P>
+
+<BLOCKQUOTE>
+<A HREF="setup.html#Compilation">Driver compilation and installation</A><BR>
+<A HREF="setup.html#Firmware">Firmware extraction and installation</A><BR>
+<A HREF="setup.html#Modules">Support Modules</A><BR>
+</BLOCKQUOTE>
+
+<HR>
+<H2><A NAME="Usage">Usage</A></H2>
+
+<P>The page <A HREF="usage.html">usage.html</A> has everything you
+ever wanted to know about using this driver, but contained below is a
+basic summary to get you going.</P>
+
+<P>Plug in your WinTV-PVR-USB-2.0 device and after a few seconds the
+driver should be ready to go. Progress can be monitored through the
+kernel log.</P>
+
+<P>If you have udev installed on your system, then within a few
+seconds after the driver initializes, you should see something like
+this appear in your system: <tt>/dev/video0</tt> (if this is the only
+video device in your system).  If you're not running udev, then you
+need to make sure that appropriate <tt>/dev</tt> entries have been
+configured into your system; details for that (e.g. correct major /
+minor numbers) are a V4L specific issue and outside the scope of
+documentation.  Really, save yourself a headache and just use
+udev...</P>
+
+<P>One you have a valid <tt>/dev</tt> entry, then you can start
+playing!  Any V4L application which can handle mpeg stream data should
+be able to work.  You can also just &quot;cat&quot;
+<tt>/dev/video</tt> and you'll get a stream for whatever the device is
+currently configured to capture (television, radio, composite, or
+s-video).</P>
+
+<P>In addition to the V4L API, this driver also implements a
+sysfs-hosted interface, which can be found in
+<tt>/sys/class/pvrusb2/sn-xxxxxx</tt> (substitute your device's serial
+number for <tt>xxxxxx</tt>).  Through that interface you can operate
+the device right from your shell prompt without need for any kind of
+utility program(s).  The driver snapshot even includes some
+contributed shell scripts that do exactly this.</P>
+
+<P>For <em>significantly</em> more information how to use this device,
+please don't forget to examine <A
+HREF="usage.html">usage.html</A>.</P>
+
+<HR>
+<H2><A NAME="FAQ">FAQ</A></H2>
+
+<P>I've written up a short list of common mis-steps and solutions
+encountered by people trying the driver.  If you have any suggestions
+for things to add here, please let me know.  Hopefully you can find
+your situation described <A HREF="faq.html">here</A>.
+</P>
+
+<HR>
+<H2><A NAME="Utilities">Utilities</A></H2>
+
+<P>The driver package now includes a few utilities related to
+operation of this device.  This topic can be found in <A
+HREF="utils.html">utils.html</A>.</P>
+
+<HR>
+<H2><A NAME="Bugs">Bugs</A></H2>
+
+<P>Stability appears to be pretty decent now for both old and new
+hardware.  Well except for what's below...  Current known
+problems:</P>
+
+<UL>
+
+<LI>
+
+<P>For either type of device, there are certain values for horizontal
+resolution which produce distorted video.  This might be a hardware
+limitation, so I might &quot;solve&quot; this by just causing the
+driver to round-away from the bad values.  Currently this formula can
+be used to predict if a given horizontal resolution is watchable:</P>
+
+<blockquote>watchable = ((hres - 1) >> 1) & 1) != 0</blockquote>
+
+<P>For a given choice of &quot;hres&quot;, if &quot;watchable&quot; is
+true then it should work.</P>
+
+</LI>
+
+<LI><P>For both 29xxx and 24xxx devices, there is a problem with
+distortion in the audio when the volume is set too high.  The pvrusb2
+driver starts with the volume set to the max, so you get the
+distortion.  A while back (I think kernel 2.6.15 and previous), the
+msp3400 chip-level driver scaled back the requested audio gain so that
+&quot;maximum&quot; worked out to be a reasonable maximum for the part
+(apparently).  Versions of msp3400 after that point eliminated the
+scaling, so now &quot;maximum&quot; is simply mapped by that
+chip-level driver to be the largest value possible that can be
+programmed into the chip.  The pvrusb2 driver currently doesn't
+attempt to scale this value - it just passes the value through,
+untouched, to whatever chip-level driver is interested - so now the
+result is clipping when the volume is at the max.</P>
+
+<P>Though the msp3400 chip is specific to the 29xxx model series, the
+same problem appears with the cx25840 chip in the 24xxx model series
+as well.  The workaround is easy: lower the volume.  Empirical testing
+here (on both types of devices) suggests that right now 62000 (roughly
+95%) is a good value for maximum gain distortion free audio.</P>
+
+<P>Probably the right thing to do here is to have the pvrusb2 driver
+attempt to scale the volume as appropriate for the model / hardware
+since it's really only at that place where we know what's
+&quot;right&quot; for the entire combination of hardware that defines
+the device as a whole.  This has been on my to-do list for a while,
+but it just hasn't been a priority for me since the workaround is
+fairly trivial (e.g. just reduce the volume).</P>
+
+<P>Note: the default volume level is set now at a point where there
+isn't any distortion.</P>
+
+</UL>
+
+<P>Current missing features:</P>
+
+<UL>
+
+<LI><P>No VBI support.  This is a much harder problem.  In fact I find
+it amusing that apparently the Windows driver doesn't support VBI
+either.  However after a short conversation with the current ivtv
+maintainer, I understand now how they made it work in ivtv and I
+believe a similar implementation should be possible here.</P></LI>
+
+<LI><P>No DVB support.  Your author here needs to learn about Linux
+DVB architecture first, but my gut feeling is that this should be
+doable.</P></LI>
+
+<LI><P>No support for any v4l I/O methods <em>except</em> for standard
+<tt>read()</tt> style streaming.  This is not such a big problem that
+one might think - the other two v4l I/O methods are really intended
+for fast transfer of very large amounts of video data with hard record
+boundaries.  What we have here however is a simple byte stream with
+significantly lighter bandwidth demands (after all, this is compressed
+mpeg2 video data we're talking about).  The v4l spec discourages use
+of <tt>read()</tt> since there's no way to frame such data - but in
+our case there is no framing needed anyway so it isn't a real issue.
+However, for completeness, the other two methods need to be
+implemented.  The driver as it exists now has an abstraction layer on
+top of which this may be done; it just hasn't been done yet.</P></LI>
+
+<LI><P>Probably lots of missing v4l2 <tt>ioctl()</tt> codes which need
+to be implemented...</P></LI>
+
+</UL>
+
+<HR>
+<H2><A NAME="ChangeHistory">Change History</A></H2>
+<P>Change history can be found here: <A HREF="history.html">history.html</A></P>
+
+<P>Note: If you are viewing a local sandbox copy of this page, the
+file <tt>history.html</tt> will not exist.  This file is
+generated from <tt>change_history.txt</tt> which you can find in the
+same directory.</P>
+
+<HR>
+<P>Feel free to e-mail me (address at the top of this page) if you
+have any questions or just want to say hello...</P>
+<BLOCKQUOTE>
+Mike Isely
+</BLOCKQUOTE>
+<BR><BR>
+</BODY>
+</HTML>

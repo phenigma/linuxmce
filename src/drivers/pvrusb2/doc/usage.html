@@ -1,0 +1,801 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>pvrusb2 Linux Driver - Usage</TITLE>
+	<META NAME="keywords" content="Hauppauge, WinTV-PVR-USB2, WinTV, pvrusb2, PVR, USB2, video4linux, v4l, v4l2">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>pvrusb2 driver usage information</H1>
+<P>$Id: usage.html 1542 2007-01-27 18:29:15Z isely $</P>
+<P>Mike Isely &lt;isely at pobox dot com&gt;</P>
+
+<P>You can find the main driver page on the web at <A
+HREF="http://www.isely.net/pvrusb2/pvrusb2.html">http://www.isely.net/pvrusb2/pvrusb2.html</A>.</P>
+
+<P>This page describes how to use the driver, including module
+options, interface control, and information about driver-specific
+effects with certain apps.</P>
+
+<HR>
+<P>Contents</P>
+
+<BLOCKQUOTE>
+<A HREF="#Logging">Driver logging / parameters</A><BR>
+<A HREF="#Hotplug">Hotplug behavior / recovery</A><BR>
+<A HREF="#V4L">V4L apps</A><BR>
+<A HREF="#sysfs">Sysfs Interface</A><BR>
+<A HREF="#DVB">DVB Interface</A><BR>
+<A HREF="#IR_handling">IR handling</A><BR>
+<A HREF="#Radio_mode">Radio Mode</A><BR>
+<A HREF="#FreqTab">Frequency Table</A><BR>
+<A HREF="#Interactions">Playing well with others</A><BR>
+</BLOCKQUOTE>
+
+<HR>
+<H2><A NAME="Logging">Driver logging / parameters</A></H2>
+
+<P>The level of log verbosity within the pvrusb2 driver is controlled
+through a global bit mask variable whose name is <tt>debug</tt>.  This
+mask is set initially at compile time; you might want to change it.
+Set / clear bits in this mask to enable / disable various forms of
+logging to the kernel.  The default value of this bit mask is
+currently fairly quiet.</P>
+
+<P>The debug bit mask definitions are all contained in the driver
+source inside <tt>pvrusb2-debug.h</tt>.  The bits are generally
+organized in order of increasing noise level.  There are three ways to
+adjust these bits:</P>
+
+<UL>
+
+<LI>Edit <tt>pvrusb2-main.c</tt> and change the default setting (the
+place to change will be obvious).  Recompile and reinstall.  This is
+the most intuitive but probably the least convenient method.</LI>
+
+<LI>Specify the <tt>debug</tt> module option.  The value for the
+<tt>debug</tt> is expected to be a decimal number, which unfortunately
+means that it is rather clumsy to set but this can't be helped.</LI>
+
+<LI>Echo a new (unfortunately again) decimal mask value for the debug
+mask into the path <tt>/sys/module/pvrusb2/parameters/debug</tt>.
+This is actually nothing special - any module option anywhere can be
+adjusted this way.  But in this case it provides a way to change the
+debug mask in real-time.</LI>
+
+</UL>
+
+<P>There are a number of module parameters you may specify to the
+pvrusb2 module when it is loaded; none however are strictly needed.
+Note that these parameters are also all visible at run-time by
+examining the directory <TT>/sys/module/pvrusb2/parameters/</TT>.
+Most parameters there are read-only (because they only are looked at
+during initialization).  However as pointed out above the debug
+parameter in particular can be changed at any time simply by echoing a
+new value into its file name within that directory.</P>
+
+<P>Note that unless otherwise pointed out, these parameters are global
+to all instances of the driver (i.e. if you have two PVR USB2 devices
+plugged in the effect is the same on both corresponding driver
+instances).  The following parameters exist:</P>
+
+<DL>
+
+<DT><tt>ctlchg</tt></DT> <DD>(Think ConTroLCHanGe - yeah I stink at
+creating names.)  This enables an optimization in the driver involving
+update when controls are changed.  The default value of zero means
+that any control change are always propagated to all affected logic.
+If the value is set to one, then a given control change will only be
+propagated if the new value is actually different than the previously
+known value.  Enabling this can speed up frequency changes (slightly)
+for applications that insist on dumping out piles of other redundant
+control changes at the same time.</DD>
+
+<DT><tt>debug</tt></DT> <DD>This controls logging verbosity.  This is
+a bit mask, though unfortunately you get to specify it as a decimal
+number (get out your hex / decimal calculator).  The bit definitions
+are in the header <TT>pvrusb2-debug.h</TT>, and a default value is set
+near the front of <TT>pvrusb2-main.c</TT>.  You can change this mask
+at any time via sysfs (the directory just mentioned above); the effect
+will be immediate.</DD>
+
+<DT><tt>i2cscan</tt></DT> <DD>This parameter when set to non-zero
+enables a full scan of the internal I2C bus as part of the
+initialization of the device.  The results of the scan will go to the
+kernel log; driver operation itself is unaffected.</DD>
+
+<DT><tt>init_pause_msec</tt></DT><DD>This parameter defines a wait
+time to be used after forcing a reset of the device hardware.  The
+units are milliseconds.  The idea here is to allow the hardware some
+settling time after a reset, before we start poking at it again.  The
+default is currently zero (because at the moment it appears that there
+is no wait time needed).</DD>
+
+<DT><tt>initusbreset</tt></DT> <DD>This parameter when set to non-zero
+enables the issuance of a USB-standard reset command to the PVR USB2
+device when it is probed.  It might help recover from a stuck device
+(which is why I implemented it) but I haven't actually seen it help
+when I've tried in the past.  It is on by default since it shouldn't
+hurt.</DD>
+
+<DT><tt>procreload</tt></DT> <DD>This parameter when set to non-zero
+permits the driver to forcibly reload the microcontroller firmware as
+a recovery strategy from a failed device initialization.  It is off by
+default because I haven't it found it to be too helpful.</DD>
+
+<DT><tt>radio_nr</tt></DT> <DD>This parameter allows you to force the
+driver to use a specific v4l minor device number for the radio device
+(assuming that the requested value isn't already allocated elsewhere).
+This parameter takes a list of comma-separated values; each value is
+used for successive instances of the driver (i.e. you can specify this
+per-instance).  Some advice: If you find yourself having to play with
+this option, I suggest instead that maybe you should try setting up
+udev.</DD>
+
+<DT><tt>tolerance</tt></DT> <DD>This parameter allows you to specify a
+tolerance level for dealing with USB streaming errors.  This parameter
+takes a list of comma-separated values; each value is used for
+successive instances of the driver, providing you a way to raise the
+tolerance level for a specific device that you know might be
+connecting through flakey intervening hardware.  The default is zero,
+which means no errors are tolerated at all and if one is encountered
+the stream will be terminated.  Otherwise a non-zero tolerance value
+specifies how many consecutive errors will be ignored before the
+stream is errored-out.  (If a URB succeeds after a failure, the
+running error count will be reset back to zero, thus what this option
+does is permit the driver to tolerate a certain level of spurious
+errors.)  Note that errors ignored means that data will be lost and
+there will likely be a discontinuity in the stream data.  You might
+realize that this parameter is &quot;pasting over&quot; what is
+probably a real problem in your USB controller, cabling, and/or core
+driver software.  Don't use this lightly.  I would suggest this as an
+act of last desparate resort if you can't otherwise solve your flakey
+hardware problem.  Realize that even with a non-zero tolerance value,
+errors during control transfers are <em>still</em> not tolerated at
+all and will likely kill the stream - if you're lucky.  It would be
+much better to just solve the underlying problem(s) in your system -
+but if you can't, then well I guess you can just tell the pvrusb2
+driver here to try and tolerate some level of junk.</DD>
+
+<DT><tt>tuner</tt></DT> <DD>This parameter allows you to override the
+v4l tuner type associated with the device.  Normally the correct value
+is detected through a scan of data from the device's internal eeprom.
+If however there is a problem with that (which has been known to
+happen in the past due to bugs, missing mappings, etc) and if you know
+what the correct actual type should be, then you can use this
+parameter to work around the problem.  This parameter takes a list of
+comma-separated values; each value is used for successive instances of
+the driver (i.e. you can specify a tuner type per-instance).</DD>
+
+<DT><tt>vbi_nr</tt></DT> <DD>This parameter allows you to force the
+driver to use a specific v4l minor device number for the vbi device
+(assuming that the requested value isn't already allocated elsewhere).
+This parameter takes a list of comma-separated values; each value is
+used for successive instances of the driver (i.e. you can specify this
+per-instance).  Some advice: If you find yourself having to play with
+this option, I suggest instead that maybe you should try setting up
+udev. <STRONG>Important: VBI is not yet implemented, so this option
+doesn't do much.</STRONG>  But it's documented here since the option
+technically is present.</DD>
+
+<DT><tt>video_nr</tt></DT> <DD>This parameter allows you to force the
+driver to use a specific v4l minor device number for the video device
+(assuming that the requested value isn't already allocated elsewhere).
+This parameter takes a list of comma-separated values; each value is
+used for successive instances of the driver (i.e. you can specify this
+per-instance).  Some advice: If you find yourself having to play with
+this option, I suggest instead that maybe you should try setting up
+udev.</DD>
+
+<DT><tt>video_std</tt></DT> <DD>This parameter allows you to specify
+the initial video standard to use with the device.  This is a
+per-instance driver option.  The value is interpreted to be a bit mask
+as defined by the V4L v4l2_std_id type.  Note that even if you use
+this option, an application can still change the video standard choice
+to something else.  Also, if the choice falls outside the set of
+supported video standards as reported by the eeprom, then that set is
+expanded to include this value.</DD>
+
+</DL>
+
+<HR>
+<H2><A NAME="Hotplug">Hotplug behavior / recovery</A></H2>
+
+<P>The pvrusb2 driver should be robust enough now that it can survive
+about any hardware abuse you can throw at it.  There are no known
+situations where it should <EM>ever</EM> generate a kernel oops.  You
+should be able to plug / unplug the hardware or insert / remove the
+driver (or just about any support module) to your devious heart's
+content and the Linux kernel should just keep merrily going on its
+way.  (Obviously if you find out otherwise, please let me know.)</P>
+
+<P>There is one potential issue however with the device itself.  From
+experiments I have done, it seems that if the device is in the middle
+of transaction with the driver, that unplugging the device at that
+instant can leave it in a useless (maybe crashed?) state.  The only
+recovery is to power cycle the device.  I have tried numerous
+approaches to implementing automatic recovery in the driver, but there
+doesn't seem to be any strategy possible that guarantees recovery.
+However I did the next best thing: If the driver detects that the
+device might be jammed, it will log a message suggesting that the
+device be power cycled.  The driver should come through all this just
+fine of course.  (Update 4-Jan-2006: It has been a very long time
+since I've seen this problem repeat; it might have been something else
+long since fixed in the driver.)</P>
+
+<HR>
+<H2><A NAME="V4L">V4L apps</A></H2>
+
+<P>This driver provides an implementation of the video4linux version 2
+and version 1 driver APIs.  Any v4l application which can handle an
+mpeg2 stream should in theory be able to use this driver.
+(Unfortunately there seem to be very few v4l apps which can...)  If
+the v4l app you want to use does <em>not</em> support decoding of an
+mpeg2 stream from the driver, then it will definitely <em>not</em>
+work.</P>
+
+<H3>xawtv</H3>
+
+<P>One application you can try is <A
+HREF="http://linux.bytesex.org/xawtv/">xawtv</A> 4.x. Note that
+anything before version 4 will definitely not work with this since
+earlier versions did not support mpeg2 decoding.</P>
+
+<P>Note that when you compile xawtv, make sure that you've configured
+it for mpeg2 video decoding and mp3 audio decoding.  The app's
+configuration process tries to detect what libraries you have
+installed on your system, and if it doesn't find what it is looking
+for then it will silently disable parts of itself, i.e. no mpeg2
+decoding.  Inspect the configuration output and make sure it looks
+OK...</P>
+
+<P>The xawtv application seems to have a number of rough edges.  Best
+advice is to make sure you're running a recent snapshot.  Some
+specific details:</P>
+
+<UL>
+
+<LI>Snapshots of xawtv from roughly 20050518 to likely back at least
+a month (I've gotten failure reports going back that far) have a fatal
+bug that totally prevents mpeg2 streaming from working properly.  Use
+a later (or far earlier) xawtv snapshot.</LI>
+
+<LI>You might have to run xawtv once before scantv (part of xawtv)
+will find anything.  This might have been a driver bug or an
+xawtv bug; I'm not sure.  However 20050516 driver snapshot with a
+correspondingly recent xawtv snapshot (after patching for the fatal
+bug) appears not to have this problem.</LI>
+
+<LI>There appears to be another long-standing problem in xawtv where
+it will every once in a while it will issue a read of zero bytes.
+This seems to happen within a second of first starting a streaming
+operation.  When it happens, the driver responds with zero (e.g. "ask
+for zero bytes, get zero bytes"), but then xawtv treats the zero
+response as an EOF and closes the stream.  The outward symptom will be
+just that it quits displaying video.</LI>
+
+<LI>If you attempt to tune a very weak (almost not there) station, the
+pvrusb2 hardware may be unable to render a continuous stream of
+frames.  This causes the video stream to pause, and if the pause is
+long enough, xawtv will give up with a "select timeout".  When this
+happens, consider trying to tune a stronger station.</LI>
+
+</UL>
+
+<H3>mplayer</H3>
+
+<P>Another application that works is mplayer.  There are two ways to
+use mplayer: You can tell mplayer it's dealing with a tv device, or
+just pass it <TT>/dev/video0</TT> (or whatever the right name is on
+your system) as the &quot;file&quot; to play.  The first method does
+not work.  The second method (pass the device name as a plain file
+argument) however works well.  The reason why you just can't tell
+mplayer it is talking to a tv device is because once you do that then
+mplayer goes &quot;dumb&quot; and decides to only attempt streaming of
+uncompressed video (i.e. no mpeg2 streaming), which of course won't
+work since our hardware here produces mpeg2...</P>
+
+<P>I've seen floating around the net a variant of mplayer which has
+been adjusted to work with the ivtv driver.  I imagine that the
+adjustment is to cause mplayer to still attempt mpeg2 streaming when
+in tv mode.  If that is the case, then that version should work here.
+However I have never gotten around to trying it.</P>
+
+<P>Several people have encountered problems reading pvrusb2 output
+with mplayer if the the <tt>avisynth.dll</tt> codec is installed in
+mplayer.  This can be found in <tt>/usr/lib/win32/avisynth.dll</tt>.
+I can't profess to know what that codec might provide (or even if it
+is a codec) since I don't use it.  However for those who have
+encountered problems in mplayer with this driver, removing this codec
+solves the problem.</P>
+
+<P>One issue I've seen with mplayer: It sometimes poorly handles
+things when the mpeg2 stream is temporarily disrupted.  A disruption
+can happen if for example you change the channel, or if the RF signal
+is lost.  This seems to confuse mplayer in such a way as to cause the
+audio and video to get out of sync.  If the &quot;gap&quot; is small
+enough then mplayer seems able to bring things back into sync within a
+few seconds.  But the larger the gap, the less likely it is that it
+will recover.  How do I know this is mplayer and not the driver?
+Because if I instead cat the video stream into a file, introduce a gap
+there, and then later play that file with mplayer, then it works fine.
+It seems that mplayer is sensitive to real-time pauses in the video,
+and since playing back the recorded file means there is effectively no
+real-time pause, then it's fine.  I can make this issue happen using
+both 24xxx and 29xxx devices, but it seems more likely to be a problem
+with 29xxx devices.  This might be because 29xxx devices might simply
+be a little slower in reacquiring video sync after a channel change
+(the digitizer chip is different between the two).</P>
+
+<H3>xine and vlc</H3>
+
+<P>Similar to mplayer, xine and vlc are reported to work provided you
+treat the device file as just a normal file with mpeg contents.  There
+is a v4l mode apparently for xine (I haven't tried it), but I've heard
+that it is very immature and definitely does not work with this driver
+when run in that manner.  I've been told that these example
+invocations should work:</P>
+
+<blockquote><pre><code>xine - < /dev/video
+vlc - < /dev/video</code></pre></blockquote>
+
+<H3>Kaffeine</H3>
+
+<P>It is possible to get Kaffeine to work with this driver (streaming
+only?) using the following MRL:</P>
+
+<blockquote><pre><code>fifo:/dev/video#demux:mpeg</code></pre></blockquote>
+
+
+<H3>MythTV</H3>
+
+<P>The <A HREF="http://www.mythtv.org">MythTV</A> application of
+course is the holy grail for this driver.  I got sucked into this
+whole effort because of this desire.  Several people have since tested
+this driver against MythTV and are reporting success.</P>
+
+<P>If want to try MythTV, here are some tips:</P>
+
+<UL>
+
+<LI>Configure MythTV to treat the pvrusb2 driver as an ivtv type of
+device (e.g. PVR-250).</LI>
+
+<LI>Disable the use of VBI - that definitely does not work in the
+driver, and while missing this detail seems to be non-fatal (just
+extra noise in the system log about additional missing
+<tt>ioctl()</tt> functions), it is probably a good idea to just leave
+VBI off.</LI>
+
+</UL>
+
+<H3>tvtime</H3>
+
+<P>I think one of the best v4l TV apps out there is tvtime.  It's
+got a clean and simple interface, yet is very powerful and just
+produces a wonderful video image.</P>
+
+<P>Unfortunately tvtime does not support mpeg2 decoding and thus has
+no chance of working with the pvrusb2 driver.</P>
+
+<P>Realize that this isn't so much a deficiency of tvtime as it is a
+result of its overall architecture.  The tvtime app is designed to
+work directly with uncompressed video frames from a capture device.
+As such, it relies on the capture device for video frame timing, and
+hardly has to bother with audio (since for an analog capture card the
+audio is usually directly shunted to the line-in of your sound card).
+To support mpeg2, tvtime not only must decode the frames, but it must
+also generate its own timing.  It must also deal with audio decoding
+and therefore also implement its own communications pathway into your
+sound subsystem.  And it must do all that while keeping the audio and
+video in sync.  None of that is impossible, but I have been told that
+it pretty much completely contradicts the internal architecture of
+tvtime.  It seems doubtful that tvtime will ever support a v4l device
+which speaks mpeg2.  It'd be great if it did handle mpeg2 - that nice
+interface is something I dearly miss.  But I'm not holding my breath
+for it to happen.</P>
+
+<H3>Other V4L info</H3>
+
+<P>Please contact me if you find other apps which work, and I'll list
+them here.</P>
+
+<P>This v4l implementation should allow for multiple opens.  Said
+another way, if you have one application reading video from
+<TT>/dev/video0</TT>, it should be possible to have another
+application still open <TT>/dev/video0</TT> and successfully
+manipulate driver controls.  Of course, only one application at a time
+can stream video.  A second attempt at streaming will be greeted with
+an I/O error.</P>
+
+<HR>
+<H2><A NAME="sysfs">Sysfs Interface</A></H2>
+
+<P>There is an additional interface available with this driver. In
+parallel with the v4l interface, you can access all driver controls
+via sysfs. Once the device is plugged in and the driver is loaded, try
+this:</P>
+
+<CODE># cd /sys/class/pvrusb2/sn-XXXXXXX</CODE>
+
+<P>where <TT>XXXXXXX</TT> is the serial number of your device (just
+let tab-completion do the hard work here or use &quot;<tt>*</tt>&quot;
+since unless you have multiple tuners there will only be one file
+there anyway).  Now use &quot;ls&quot; and you'll see a whole bunch of
+directories all starting with &quot;ctl_&quot;.  Here is what my
+system looks like:</P>
+
+<BLOCKQUOTE><PRE>londo:~# cd /sys/class/pvrusb2/sn-6829718/
+londo:/sys/class/pvrusb2/sn-6829718# ls
+ctl_audio_bitrate             ctl_resolution_ver
+ctl_audio_crc                 ctl_saturation
+ctl_audio_emphasis            ctl_signal_present
+ctl_audio_layer               ctl_srate
+ctl_audio_mode                ctl_streaming_enabled
+ctl_balance                   ctl_treble
+ctl_bass                      ctl_usb_speed
+ctl_brightness                ctl_vbr
+ctl_channel                   ctl_video_average_bitrate
+ctl_contrast                  ctl_video_peak_bitrate
+ctl_debug_subsys_mask         ctl_video_standard
+ctl_debug_subsys_stream_mask  ctl_video_standard_mask_active
+ctl_freq_table_channel        ctl_video_standard_mask_available
+ctl_freq_table_value          ctl_volume
+ctl_frequency                 debugcmd
+ctl_hue                       debuginfo
+ctl_input                     device
+ctl_interlace                 uevent
+ctl_mute                      unit_number
+ctl_resolution_hor            v4l_minor_number
+londo:/sys/class/pvrusb2/sn-6829718#</PRE></BLOCKQUOTE>
+
+<P>(The device and driver links you see there by the way are standard
+things which point off to other parts of sysfs where the driver's and
+device's lower level control files can be found.)</P>
+
+<BLOCKQUOTE>Note: As said above, the &quot;XXXXXXX&quot; part of the
+path is the device's serial number.  It is possible that the driver
+might not be able to retrieve a serial number from the device (if
+there were problems reading the device's PROM).  In this situation,
+the sysfs implementation here will substitute the device's unit id
+using the form &quot;unit-X&quot; (instead of &quot;sn-XXXXXXX&quot;)
+where &quot;X&quot; is the letter for the unit assigned to the device
+instance.</BLOCKQUOTE>
+
+<P>Each <TT>ctl_</TT> directory has some subset of these files:</P>
+
+<UL>
+
+<LI><TT>cur_val</TT> - This will contain the current value of the
+control. It will be either an integer, an enumeration constant or a
+set of keywords corresponding to bits in a bit mask.</LI>
+
+<LI><TT>enum_val</TT> - This will contain the full set of legal
+enumeration constants available for this control.  It will only be
+present if the control is an enumerated type.</LI>
+
+<LI><TT>bit_val</TT> - This will contain the full set of defined bits
+available for this control.  It will only be present if the control is
+a bit mask type.</LI>
+
+<LI><TT>max_val</TT> - This will contain the maximum legal value for
+this control. It will only be present if the control is an integer
+type.</LI>
+
+<LI><TT>min_val</TT> - This will contain the minimum legal value for
+this control. It will only be present if the control is an integer
+type.</LI>
+
+<LI><TT>name</TT> - This will contain the descriptive name of the
+control.</LI>
+
+<LI><TT>type</TT> - This will contain the type of the control; it will
+be one of <TT>integer</TT>, <TT>boolean</TT>, <TT>enum</TT>, or
+<TT>bitmask</TT>.</LI>
+
+<LI><TT>custom_val</TT> - This will contain the current value of the
+control similar to cur_val, except it may be formatted in a way that
+is more compact and/or easier to read.</LI>
+
+</UL>
+
+<P>You can read any of these files just by cat'ing it out. All are
+read-only except for <TT>cur_val</TT> and <TT>custom_val</TT>, most of
+which can be set by just writing the new value into it (a few of those
+controls are actually completely read-only).  The incoming value must
+be either an integer within the legal range specified by
+<TT>min_val</TT> and <TT>max_val</TT>, a legal enumeration constant
+(for enumerated controls), a <TT>true</TT> / <TT>false</TT> or
+<TT>yes</TT> / <TT>no</TT> literal (for boolean controls), or a bit
+mask assignment (for bit mask controls) in order for the assignment to
+&quot;take&quot;. Otherwise the program doing the write should get
+back an EINVAL or ERANGE error status.</P>
+
+<P>Bit mask controls have a somewhat more complex expected format in
+order to support the setting and clearing of individual bits within
+the mask.  The values you write in are expected to be a set of
+whitespace-seprated bit names.  If <em>just</em> the names are used
+then the entire mask is set to just those bits.  If however each bit
+name is prefixed with a "+" or a "-", then just those corresponding
+bits will be set or cleared (respectively) without affecting the other
+bits in the mask.</P>
+
+<P>The contents of the <TT>custom_val</TT> file is determined entirely
+by the specific control itself; there is no defined format unlike with
+<TT>cur_val</TT>.  This will only appear if the control has a way to
+format its own value.  Currently it is only used to show video
+standard mask values, where this custom form adheres closer to normal
+conventions for expressing multiple standards.  If the control in
+question is writable, then this may be writable as well (in which case
+the control will parse the symbolic value itself to determine the
+desired underlying internal value).  If none of this makes sense to
+you, then you can just safely ignore the existence of the
+<TT>custom_val</TT> file.</P>
+
+<P>I initially put together this interface to make it easier to debug
+the driver, independent of an application like xawtv. But the
+possibilities here are obvious. For example, it is possible open the
+/dev/ entry into mplayer and then completely control everything else
+with this sysfs interface while mplayer is running.  (I routinely test
+the driver this way.)  One could write a shell script control program
+with this interface...</P>
+
+<P>Please be aware that with this interface one has complete run of
+all the driver's controls. There are certainly combinations of
+settings which, uh, won't work very well.  But as I said, I had
+initially put this here to make it easier to debug the driver.  It was
+either this or invent a pile of new ioctl()'s and write a test program
+to operate those settings (the ioctl() approach is what ivtv
+does).</P>
+
+<P>In the driver source tree, there is a file <A
+HREF="controls.txt"><tt>doc/controls.txt</tt></A> which annotates each
+of the controls with information about what it is expected to do, what
+effects may or may not happen, and whether certain settings work or
+not.  I put this together after experimentation with the device.
+Others may find it handy so I've made the results available.</P>
+
+<HR>
+<H2><A NAME="DVB">DVB Interface</A></H2>
+
+<P>I have several interesting thoughts towards also making a DVB
+interface concurrently available.  This device after all deals in
+mpeg2 streams not video frames, so from a purist standpoint it's
+probably closer to DVB in behavior than v4l.  The internal
+architecture of the driver should make this sort of stunt possible,
+but I need to do more research before I can determine if it is truly
+feasible.  In the mean time, there's no DVB interface.</P>
+
+<HR>
+<H2><A NAME="IR_handling">IR handling</A></H2>
+
+<P>The IR receiver within the model 29xxx series devices is an I2C
+part that is already understood by the <A
+HREF="http://www.lirc.org/html/lircd.html">lircd</A> software package
+(0.7 or later).  Previously Aurelien's driver hardcoded something here
+which made the IR receiver into another source for
+<TT>/dev/input</TT>, but I had stability problems with this and just
+decided to rip it out in favor of letting more stable external
+software handle this function.</P>
+
+<P>The IR receiver within the model 24xxx series devices is some glue
+logic and firmware within the FX2 microcontroller that is operating
+the device.  There's no actual I2C interface and thus no way for any
+external chip-level driver to reach into the pvrusb2 driver and
+operate the part.  The pvrusb2 driver handles this situation by
+operating this feature itself and presenting the results as an
+emulation of the I2C chip that would otherwise be present in 29xxx
+devices.  Thus, even though 24xxx devices don't actually <em>have</em>
+the expected chip, everything still works properly and outside logic
+(e.g. lirc) still thinks it is talking to a normal Hauppauge I2C-based
+IR receiver.</P>
+
+<P>Making IR reception work is mostly just a case of install lircd and
+go.  It's the same thing you would do to get IR working in ivtv.  In
+other words, grab lircd 0.7 or later, build it, modprobe the I2C
+driver into the kernel and when configured with the appropriate
+lircd.conf (one appropriate for the PVR USB2's included remote is
+provided with the standalone pvrusb2 driver), it will &quot;just
+work&quot;.  The I2C driver will discover the internal I2C bus made
+available by the pvrusb2 driver, probe that bus, and attach itself
+when it finds the IR receiver chip it will be looking for.</P>
+
+<BLOCKQUOTE>Note that if you are a Debian user, there is an
+lirc-modules-source package which you can in theory just install and
+build against your kernel tree.  I and others have found that package
+to be broken.  It won't compile cleanly.  (See <A
+HREF="http://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=lirc-modules-source">here</A>
+for the current situation with this package.)  You're probably better
+off just using the vanilla version from the lirc web
+site.</BLOCKQUOTE>
+
+<P>There is a second way to make IR work with the pvrusb2 driver, if
+you dislike lirc and would prefer something which works with a
+<tt>/dev/input</tt> style interface.  Included as part of the V4L core
+is the module <tt>ir-kbd-i2c.ko</tt>.  If you insert that module into
+your kernel, then it will drive the I2C chip and present the results
+via <tt>/dev/input</tt>.</P>
+
+<HR>
+<H2><A NAME="Radio_mode">Radio Mode</A></H2>
+
+<P>As of the 20061227 snapshot, the pvrusb2 driver supports operation
+of the FM tuner.  Many thanks go to Pantelis Koukousoulas
+<pakt223@freemail.gr> for implementing the key pieces.  So far I've
+only tested this with mplayer and kradio, but a lot should be
+possible.  To use the PVR USB2 as an FM radio, you really only need to
+do two things:</P>
+
+<OL>
+<LI>Change the input selection to &quot;radio&quot;.</LI>
+<LI>Set the desired frequency to be tuned.</LI>
+</OL>
+
+<P>That is trivially done through sysfs, but it can also be easily
+done through the normal V4L api as well.  Once in radio mode, just
+stream data as you normally would.  The result is still an mpeg
+stream; video will be blank and the audio will be the radio station
+you have tuned.  Other things to be aware of:</P>
+
+<UL>
+
+<LI>The pvrusb2 driver now registers a V4L radio device
+(e.g. <tt>/dev/radio0</tt>) in addition to the usual video device
+(e.g. <tt>/dev/video0</tt>).  The mere act of opening it will cause
+the driver input to switch to the radio (but you can switch it back at
+any time in the usual way(s)).  Other than that, there is nothing special
+about the radio device node.  All the usual ioctl()'s should also work
+with the radio device node.</LI>
+
+<LI>The pvrusb2 driver tracks the current frequency in radio mode
+separately from television mode.  It does this since the two frequency
+ranges are otherwise not really legal in the &quot;other&quot;
+mode.  The outward effect of this is that when you switch modes, the
+frequency will magically also switch to whatever the last value was
+when it was last in that mode.</LI>
+
+<LI>The PVR USB2 hardware has separate F-connectors for the FM tuner
+versus the television tuner.  Don't forget to connect something to the
+FM tuner's F-connector is you plan on using the radio!</LI>
+
+ </UL>
+
+<P>Getting a full mpeg stream with (blanked) video embedded is kind of
+wasteful.  Usually you really only want the more familiar mp3 audio
+stream packaged within that full mpeg stream.  The driver doesn't
+(currently) do anything to process the mpeg stream; it only passes on
+what it gets from the hardware and right now all that we can do in the
+hardware is spit out mpeg.  But there's no reason why you can
+post-process the data in a user process.  You can use the app
+mpeg2desc to filter for the audio stream.  For example:</P>
+
+<blockquote><code>
+cat /dev/video0 | mpeg2desc -a0 >/tmp/audio_data.mp3
+</code></blockquote>
+
+<P>To get regular old pcm, go one step further, with the help of
+mpg123:</P>
+
+<blockquote><code>
+cat /dev/video0 | mpeg2desc -a0 | mpg123 >/tmp/audio_data.wav
+</code></blockquote>
+
+<P>The mpeg2desc program can be usually found as a tool within the
+dvdauthor package, and mpg123 (or mpg321) is usually available in
+various distros.  Credit again to Pantelis Koukousoulas for suggesting
+this.</P>
+
+<P>A somewhat less clever variation of the above is also possible with
+a single invocation mplayer:</P>
+
+<blockquote><code>
+mplayer -vo null -ao pcm:file=/tmp/audio_data.wav /dev/video0
+</code></blockquote>
+
+<P>That last trick is actually useful for getting digital audio out of
+just about any stream format - if mplayer has a codec for it, then you
+extract out the digital audio from it.</P>
+
+<HR>
+<H2><A NAME="FreqTab">Frequency Table</A></H2>
+
+<P>There is a frequency table implemented inside this driver.  It is
+not available for v4l, but it can be used with the sysfs control
+interface.  You must program it first before using it, but once
+programmed it becomes possible to change the channel just by, well,
+writing the new channel number to the driver.  The table size is
+currently limited to channel numbers 1 through 500 (far in excess of
+anything anyone should need), and the channel ids must be integers not
+something cute like station call letters.</P>
+
+<blockquote>Note: You do <em>not</em> need to program this frequency
+table or otherwise even touch it when using this driver with any v4l
+application.  This table is not even visible in the v4l API; it is
+only present here to make it easier to debug the driver using
+sysfs.</blockquote>
+
+<P>The frequency table must be programmed a slot at a time.  You do
+this by first selecting the slot's id (a.k.a. the channel number) into
+the <TT>freq_table_channel</TT> variable through sysfs.  Once
+selected, you can read / write the frequency (in Hz) for that slot
+using the <TT>freq_table_value</TT> variable through sysfs.  Repeat
+this process for all channels to be programmed.  Yes, this is just
+<em>begging</em> for a shell script to do the dirty work.  Thanks to
+Per Christian Henden, one example of such a script exists now in the
+<TT>utils</TT> subdirectory (see <A HREF="utils.html">utils.html</A>
+for more information about this).</P>
+
+<P>Once you've programmed the desired slots in the table, just
+&quot;change the channel&quot; by writing the desired channel number
+to the <TT>channel</TT> variable through sysfs.  That's it.</P>
+
+<P>The frequency can still be set as before by writing the actual
+frequency to the <TT>frequency</TT> variable.  If that is done, then
+the <TT>channel</TT> will be implicitly set to zero, which means
+&quot;none&quot;.  Thus the channel and frequency variables at all
+times stay consistent with each other and there's no loss of
+flexibility or any implied confusion.</P>
+
+<P>The frequency variable can of course be read back at any time to
+see what the actual frequency is, regardless of whether it was set
+directly or implied by a channel setting.  And of course the channel
+variable can be read back at any time to find out what the current
+channel is or if it is not being used due to the frequency being
+directly set (in which case the value read back will be zero).</P>
+
+<P>Why do this?  Well it was dirt-cheap easy to implement, and it does
+help with debugging, though in a minor way.  Besides it's cool to do.
+OK, OK.  Enough playing and back to the real rework...</P>
+
+<HR>
+<H2><A NAME="Interactions">Playing well with others</A></H2>
+
+<P>The following is a summary of issues / tips when using this driver
+alongside other software or in less-typical environments.</P>
+
+<H3>Playing well with ivtv</H3>
+
+<P>Even though the PVR USB2 hardware is a USB device while everything
+else driven by ivtv is a PCI device, there really is more than a
+passing resemblance among them.  As such it's no coincidence that both
+happen to share the same chip-level drivers.  This is in fact where
+the chip-level drivers in the <tt>ivtv</tt> subdirectory of the
+standalone driver snapshot came from.  Even the same cx23416 mpeg2
+encoder - which is the heart of ivtv - is also used in the PVR USB2
+device.  If you have / need to also use ivtv, it should be possible
+for this driver to coexist with it.  Any ivtv-provided chip-level
+drivers should also work fine with the PVR USB2 driver, thus the two
+drivers should be able to coexist nicely on the same system.</P>
+
+<H3>Playing well with xbox</H3>
+
+<P>The X-box has an internal I2C bus, and the code that was hacked
+together for it makes the assumption that it is the only I2C bus that
+can possibly exist on an xbox. That assumption becomes false when a
+PVR USB2 device is introduced, unfortunately. The problem here is that
+the I2C driver code for the xbox tries to attach to the PVR USB2's I2C
+bus, causing dangling pointers in the xbox driver code and chaos
+ensues. If you have an xbox, I have a patch for the xbox I2C driver
+code that makes it play nicer (it's still a horrible hack though).
+Contact me for the patch.</P>
+
+<H3>Playing well in v4l</H3>
+
+<P>The v4l system in Linux is undergoing rapid development.  This can
+cause issues for an out-of-tree driver like the pvrusb2 driver.  The
+standalone version of the pvrusb2 driver goes to some length to detect
+and interoperate correctly with whatever surrounding v4l environment
+it finds itself operating inside of, however it can be hard to keep
+up.  The in-V4L version of the pvrusb2 driver is less complex in this
+area since it can always assume exactly what v4l environment in which
+it is running.  If you find you are having problems with the pvrusb2
+standalone driver and you suspect v4l incompatibilities as the cause,
+then contact me or check the mailing list for chatter about such
+a problem.  And of course you can elect to simply update to the latest
+v4l repository snapshot, with its included in-V4L version of the
+pvrusb2 driver.</P>
+
+<HR>
+<BR><BR>
+</BODY>
+</HTML>

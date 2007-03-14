@@ -1,0 +1,153 @@
+
+$Id: notes.txt 1572 2007-02-28 04:57:33Z isely $
+
+CHANGES
+
+TODO
+
+  o Suspend the encoder when we're not using it.  Perhaps this will
+    reduce the heat generation when the device is idle.
+
+  o Can we completely turn off video encoding when in radio mode?
+    Right now the cx23416 is probably wasting a lot of bandwidth and
+    cycles generating blank video frames.
+
+  o Email from Chris Mosier (was posted to ivtv-users, subject "bug(?)
+    in reporting / setting pvrusb2 controls"
+
+    On Sun, 19 Nov 2006, Chris Mosier wrote:
+
+    > The definition of 0/1 appear flipped for the pvrusb2 "sample_rate"
+    > control.
+    >
+    > Using v4l2-ctl -d /dev/video1 -L, I see
+    >
+    >                     sample_rate (menu) : min=0 max=1 default=0 value=1
+    >                               0: 48KHz
+    >                               1: 44.1KHz
+    >
+    > But, mplayer reports an mpeg recorded with this setting as 48KHz:
+    >
+    > Opening audio decoder: [mp3lib] MPEG layer-2, layer-3
+    > AUDIO: 48000 Hz, 2 ch, s16le, 384.0 kbit/25.00% (ratio: 48000->192000)
+    > Selected audio codec: [mp3] afm:mp3lib (mp3lib MPEG layer-2, layer-3)
+    >
+    > If I set 0, then mplayer reports 44.1
+    >
+
+  o Circular lock dependency involving context lock and v4l's internal
+    registration lock.
+
+  o Implement new web pages for distro-specific installation info.
+
+  o Investigate firmware loading corruption in 2.6.18
+
+  o Update controls.txt
+
+  o Need new, brief, ascii documentation for inclusion into the kernel.
+
+  o Rework pvrui.sh.
+
+  o Rework FAQ.
+
+  o Implement means to cancel and later resubmit USB streaming request
+    blocks.  I think we need to cancel these requests whenever we
+    suspend the encoder.  This may help prevent video corruption -
+    suspecting buffer corruption in the device.  This has been a
+    longstanding problem but tends not to manifest itself since we
+    don't normally suspend the encoder while an app is streaming from
+    it.
+
+  o Implement filter controls for the non-cx2341x mode encoder
+    operation (make compatible with cx2341x case).
+
+  o FAQ item about what to do if "No decoder present" shows up in the
+    system log.
+
+  o Need to thoroughly clean up logic for fetching status from the
+    hardware (signal strength, audio mode, etc).
+
+  o Document what it looks like if the wrong FX2 firmware is loaded.
+
+  o Figure out how msp3400 is killing the kernel when I2C times out.
+
+  o Probably update the ivtv directory of the source snapshot (and
+    rename it to v4l).
+
+  o Probably should stop / start streaming when switching video source.
+
+  o Bring back indirect method into V4L sources, ifdef'ed out.
+
+  o Pull in Java based control app
+
+  o Use usb_buffer_alloc() / usb_buffer_free().
+
+  o Make all debug trace printing functions use the run-time created
+    name for the device.
+
+  o FAQ item (or something) warning that mplayer with win32 codecs
+    loaded might fail to read the device.
+
+  o Make debug variable controllable in each instance (but not
+    necessarily per instance); then we can provide more intelligent
+    ways to query / set it.
+
+  o Experiment with VDR - investigate reports of hangs / black screen
+    issues still happening.
+
+  o Pull in Mark's frequency table & channel searching stuff into the
+    driver sources.
+
+  o Find some way to propagate an I/O failure up to pvr2_main.
+
+  o When a device gets rendered useless, how about we unregister the
+    v4l interface?
+
+  o Look at removing some redundant semaphores (like the one in
+    pvrusb2-io.c - only single-threaded code should get there anyway).
+
+  o Implement missing v4l ioctl()'s.
+
+  o Investigate a dvb conforming implementation front-end.
+
+  o Write a script to program a frequency table into the driver via
+    sysfs.  Create several candidate frequency tables that may be used
+    with the script.
+
+
+DOCUMENTATION REWORK:
+
+  o Rework driver faq.html page.
+
+  o Remove or rewrite eeprom.html page.
+
+  o Do something about tda9887.html.
+
+  o Create theory of operation document and link to it.
+
+
+ISSUES
+
+  o Pulling the cable while a USB transaction is underway seems to
+    leave the device in a screwed up state that can only be cleared by
+    power cycling it.
+
+  o What is up with V4L2_PIX_FMT_MPEG?  When tried with xawtv,
+    everything failed.
+
+  o Do we want to implement mmap and user-pointer I/O methods?  These
+    make more sense for real frame buffer oriented I/O, but we are not
+    dealing with frame buffers here.
+
+Some test frequencies (Chicago broadcast NTSC):
+
+Channel   Frequency  Station
+   7	  175250000  WLS-TV
+   9      187250000  WGN-TV
+  32      579250000  WFLD-TV
+
+Possible new emacs config settings:
+ * c-basic-offset: 8
+ * End:
+ * kate: eol "unix"; indent-width 3; remove-trailing-space on; replace-trailing-space-save on; tab-width 8; replace-tabs off; space-indent off; mixed-indent off
+

@@ -1,0 +1,1608 @@
+[pvrusb2-mci-20070227]
+
+  (+) Pulled up a pile of minor changes from V4L, including a compat.h
+      reorg in the V4L repo and a changed register access API.  The
+      register access changes are merged here in a manner that should
+      maintain backwards compatibility with older kernels.
+
+  (+) Structure change in source code: Options moved from compat.h to
+      pvrusb2-options.h.  This became necessary because the use of
+      compat.h within v4l has changed in a way that makes continued
+      use of that header here unsuitable.
+
+[pvrusb2-mci-20070207]
+
+  (+) Get rid of I2C configuration warning in system log.  This issue
+      appears to have been around all along, but the warning message
+      began appearing in kernel 2.6.20.
+
+  (+) Be able to handle encoder firmware whose size is not a multiple
+      of 8KB.
+
+[pvrusb2-mci-20070127]
+
+  (+) Encoder setup tweaks to get rid of video corruption during rapid
+      channel changes.  This seems to fix the problem for both 24xxx
+      and 29xxx devices.
+
+  (+) Minor rework in the encoder communications protocol to exploit
+      updated knowledge for how the encoder works.  This should
+      hopefully put an end to the "It is likely that this is a bad
+      idea..." errors.
+
+[pvrusb2-mci-20070121]
+
+  (+) Eliminate some recently introduced compilation warnings for
+      AMD64 (from Mauro Carvalho Chehab <mchehab@infradead.org>).
+
+  (+) Change all FX2 command byte values to be symbolic constants, and
+      collect all the definitions into a header file.  Clean up done
+      by Michael Krufky  <mkrufky@linuxtv.org>.
+
+  (+) Only respond to VIDIOC_G_TUNER for tuner #0.  For all other
+      tuner indices return -EINVAL.  This is how an app figures out
+      how many tuners there are.  Without this filter in place, an app
+      (e.g. v4l-info) thinks there will be an infinite number of
+      tuners.
+
+[pvrusb2-mci-20070119]
+
+  (+) Implement some hackery in pvrusb2-v4l2.c in order to get mplayer
+      working in pvr:// mode.  Credit to Pantelis Koukousoulas
+      <pakt223@freemail.gr> for figuring this out.
+
+  (+) Enable reception of FM radio in stereo mode.  Root cause was due
+      to VIDIOC_S_TUNER not being properly broadcast to all I2C chip
+      level drivers.
+
+[pvrusb2-mci-20070118]
+
+  (+) Code cleanups: Use kzalloc() in place of kmalloc()+memset()
+      wherever we can.  Also replace sizeof(x)/sizeof(x[0]) idiom with
+      standard ARRAY_SIZE macro (most of these changes came from a
+      kernel janitor).
+
+  (+) Fix misplaced #endif which had the effect of leaving an empty
+      control definition in the driver.  This empty definition
+      propagated out to the sysfs interface, which resulted in various
+      null pointers and other kernel badness taking place.  The #endif
+      which caused all this havoc was added as part of the change to
+      disable auto_mode_switch, so this bug was only introduced in the
+      previous snapshot.
+
+[pvrusb2-mci-20070114]
+
+  (+) If a VIDIOC_[S|G|TRY]_EXT_CTRLS command is issued by an app
+      where the number of controls passed in is zero, let the command
+      succeed.  Previously it returned a failure.
+
+  (+) Allow mpeg streaming from /dev/radioX, same as /dev/videoX.
+      This change was made on advice from the V4L maintainer.  V4L
+      radio apps generally expect the audio to come from the sound
+      card input via a loop-around cable so there's no problem
+      spitting mpeg out of the radio device.
+
+  (+) Clean up handling of VIDIOC_G_TUNER in pvrusb2-v4l2.c.  Proper
+      frequency ranges should be returned now for all modes.  With
+      this change, kradio works.
+
+  (+) Rework internal architecture with respect to how the driver
+      executes status gathering from I2C chip-level drivers.  This was
+      a long-standing piece of cruft, now gone.  The driver now can
+      report signal strength (as opposed to just a signal present
+      flag).  Also, proper audio mode (stereo / mono / lang1 / lang2)
+      is reported.
+
+  (+) Numerous minor clode cleanups.
+
+  (+) Remove auto_mode_switch feature.  Currently this is just
+      ifdef'ed out.  This concept was not really safe (in some area FM
+      radio band can overlap TV band) and it got in the way of the
+      VIDIOC_G_TUNER cleanup.
+
+  (+) Fix missing break statement pvrusb2-v4l2.c; this bug caused
+      bogus VIDIOC_S_TUNER errors reported by xawtv.
+
+[pvrusb2-mci-20061230]
+
+  (+) When /dev/radioX is closed, set the input selection back to what
+      it had been previously set to, but only if it was still set to
+      the radio.
+
+  (+) When /dev/radioX is opened and the input control is switched to
+      the radio, we also have to commit this in order for the control
+      change to take effect.
+
+  (+) Clean up various hacks in pvrusb2-v4l2.c that are
+      conditionalized on the v4l type being the radio.  These hacks
+      are needed to prevent streaming of the radio device node.
+      Better solution: Make the radio's device node stream type be
+      pcm, then only allow streaming on ANY device node which has a
+      valid stream pointer inside of it.  Since pcm is not implemented
+      at the moment, then the stream pointer will be NULL and thus
+      everything else will work itself out without needing any special
+      hacks.
+
+  (+) Clean up how pvr2_config is dealt with; this enum really
+      describes the type of stream not the type of v4l device node.
+      So we use normal VFL_TYPE_xxxx symbols in pvrusb2-v4l2.c to
+      track information about the device node and then let _that_ type
+      drive the actual stream type.  Along the way, change the
+      pvr2_config enumeration so it more closely maps the expected
+      stream types we think we can support.
+
+[pvrusb2-mci-20061229]
+
+  (+) Fix cut/paste bug involving auto_mode_switch control.
+
+[pvrusb2-mci-20061227]
+
+  (+) Implement various bits of V4L1 functionality so that radio mode
+      hopefully even works with older kernels.  This is _untested_.
+
+  (+) Clean up V4L2 frequency set / get operations in pvrusb2-v4l2.c
+      to account for radio mode.
+
+  (+) Implement ability to execute a television <-> radio mode switch
+      based on the frequency being set.  This behavior is controlled
+      by a flag and is disabled by default.  See the
+      "auto_mode_switch" control and the "auto_mode_switch" module
+      parameter.
+
+  (+) Implement intelligent handling of the current frequency, by
+      storing two values - one for television mode and one for radio
+      mode.  When switching modes, the frequency is transparently
+      switched at the same time.  Thus we should always have a valid
+      frequency set.
+
+  (+) Implement radio support for 24xxx devices.  (Pantelis was only
+      able to test on a 29xxx device.)
+
+  (+) Implement radio mode.  Many thanks to Pantelis Koukousoulas
+      <pakt223@freemail.gr> for implementing the key pieces of this
+      puzzle.  To use the radio, just change the input selection to
+      "radio"...
+
+  (+) Change default volume setting from 65536 to 62000.  I can't
+      re-scale the volume unfortunately because at least one app
+      (MythTV) implies this scaling already.  So if I scale it down
+      (i.e. make 65536 correspond to a reasonable maximum) then
+      MythTV's audio will be out of whack.
+
+  (+) Some minor tweaks / cleanups committed by kernel janitors.
+
+  (+) Minor fixes to permit compilation in kernel 2.6.20.
+
+  (+) Eliminate 3:2 pulldown API usage; Hans reports this function is
+      a nop in the hardware.
+
+[pvrusb2-mci-20061119]
+
+  (+) Fix long-standing issue which prevented use of 24xxx devices at
+      any horizontal resolution other an 720.  The problem is in the
+      cx25840 module, if no attempt is made to initialize VBI there.
+      Such a thing should not be needed, but the pvrusb2 driver is
+      updated now to deal with this.
+
+[pvrusb2-mci-20061029]
+
+  (+) Minor changes to permit clean compilation under 2.6.19
+
+  (+) Refactored a bunch of stuff in decode_log.cpp to permit more
+      flexible tracking of different types of I2C chips.
+
+[pvrusb2-mci-20061007]
+
+  (+) Implement IR reception for 24xxx series devices.  This is
+      implemented by emulating the presence of the IR receiver that
+      29xxx devices contain.  The emulation is very low overhead and
+      it is only in the execution path when a 24xxx device is being
+      controlled.  The net effect of this is that IR for 24xxx devices
+      externally now works *exactly* the same way as it has all along
+      for 29xxx devices.
+
+[pvrusb2-mci-20061003]
+
+  (+) Update fwextract.pl to work with latest Hauppauge driver
+      package.  (This does not affect the driver itself.)
+
+  (+) Fix some nasty bugs in decode_log utility that caused SEGV's and
+      bad statistics.  (This does not affect the driver itself.)
+
+  (+) Fixes for VIDIOC_INT_S_REGISTER and VIDIOC_INT_G_REGISTER
+      commands - it actually works properly now.
+
+[pvrusb2-mci-20060924]
+
+  (+) Rework how driver context pointers are handled in
+      pvrusb2-v4l2.c.  This fixes a circular locking problem
+      introduced when I have to get rid of any use of
+      video_set_drvdata() and video_get_drvdata().
+
+  (+) Implement VIDIOC_INT_S_REGISTER and VIDIOC_INT_G_REGISTER
+      commands.  This is a debugging aid.
+
+[pvrusb2-mci-20060903]
+
+  (+) Change resolution range limits.  Minimum vertical and horizontal
+      resolutions now are set to empirically tested values.  Maximum
+      horizontal resolution is 720.  Maximum vertical resolution is
+      set based on video standard in use (480 or 576).  Note that
+      24XXX specific horizontal hack is still in place.
+
+  (+) Fix flipped handling of vertical / horizontal resolution limits
+      in the implementation of VIDIOC_S_FMT.  (This gets filed into
+      the category of "I can't believe this bug survived this long".)
+
+  (+) Eliminate all internal uses of CONFIG_VIDEO_PVRUSB2_24XXX.  We
+      always turn that on for standalone builds and now the V4L build
+      no longer requires it.  So it goes away...
+
+[pvrusb2-mci-20060726]
+
+  (+) Correctly handle failures to create various parts of the sysfs
+      interface.
+
+  (+) Hack the horizontal resolution setting control to not allow
+      anything except 720 if we're dealing with a 24xxx device.  This
+      is a workaround for an unsolved bug involving capture resolution
+      on the 24xxx device type.  It should reduce the pain a bit for
+      apps (e.g. MythTV) which try to use a different default value
+      (e.g. 480).
+
+[pvrusb2-mci-20060702]
+
+  (+) Support PAL-M in places where NTSC-M is supported by the
+      hardware.
+
+  (+) Prioritize NTSC if NTSC is available along with PAL and/or
+      SECAM.  This is needed so that the driver doesn't default-choose
+      the less common PAL-M standard over NTSC-M.
+
+  (+) Always printk device registration / unregistration messages to
+      the log regardless of debug mask setting.
+
+  (+) Stop using tda9887 module when under kernel 2.6.18 or later
+      (module goes away).
+
+  (+) Sanitize code against Linus' sparse tool.  Implement tiny hack
+      in Makefile to enable automatic sparse checking of the driver:
+      If you pass SPARSE=y on the make command line then sparse will
+      be used.  Note: You must have sparse installed of course for
+      this to work.
+
+  (+) Fix bug where changes to encoding parameters were not having any
+      effect until the stream was restarted.  This problem had been
+      introduced when cx2341x was integrated.
+
+  (+) Fix mixed up audio sampling rate setting values; problem was
+      introduced when cx2341x was integrated and only manifests itself
+      when using cx2341x.
+
+  (+) Harmonize the names and functions of all the various encoding
+      controls when not using cx2341x to match behavior when cx2341x
+      is in use.  This allows for uniformity of sysfs controls and
+      behavior for older kernels where cx2341x would not otherwise be
+      available.
+
+  (+) Turn off lots of debug output (it can still be turned on later).
+
+
+[pvrusb2-mci-20060626]
+
+  (+) Fix build problem involving cx2341x.h
+
+
+[pvrusb2-mci-20060625]
+
+  (+) Cut back on the amount of noise that goes into the system log.
+
+  (+) Don't stop / start the encoder when changing encoder attributes.
+      Leaving the stream going doesn't seem to have any ill effects
+      and the stop / start action seems to cause other issues.
+
+  (+) Fix a misbehavior during encoder error recovery - under certain
+      scenarios, the firmware wasn't being reloaded when the recovery
+      procedure was signaling for it.
+
+  (+) Support more efficient method for V4L2 apps that are trying to
+      discover what controls are implemented.  The driver can be told
+      to find the "next" control id given a previous id.  This is
+      better than a brute force scan.
+
+  (+) Correctly handle V4L flags attributes for all V4L controls.
+
+  (+) Defined new internal boolean control type.  Implemented new type
+      sysfs member for unambiguously discovering the type of a
+      control.  Converted a number of controls to this type.
+
+  (+) Implement new V4L extended controls (should appear in 2.6.18).
+
+  (+) Implement new logic to take advantage of new cx2341x module in
+      V4L.  This is enabled at compile time through the use of the
+      PVR2_ENABLE_CX2341XMOD option.
+
+  (+) Remove longstanding cruft with behavior of
+      VIDIOC_[S|G|TRY]_FORMAT commands.  Just set the resolution
+      requested and cleanly return what's been set.  The business with
+      interlace has been a broken piece of junk for far too long.
+
+  (+) Make possible the compilation of the standalone driver against a
+      V4L source tree snapshot, by passing V4LDIR=path_to_v4l_tree on
+      the make command line.  This is something you don't normally
+      need to do (especially since there's a pvrusb2 driver already in
+      the v4l tree), but I implemented this to help with my own
+      debugging of the stanalone driver under certain circumstances.
+
+  (+) Conditionally change how v4l2 context tracking is done, in
+      preparation for upcoming changes in V4L API (likely to be
+      present starting with 2.6.18 kernel).
+
+
+[pvrusb2-mci-20060607]
+
+  (+) Arrange things so that pvrusb2-audio-old is optionally built and
+      then disable it for any kernel 2.6.17 or later.  This module
+      implemented an old obsolete interface for communicating with
+      msp3400.  For recent kernels it is useless anyway, and starting
+      with 2.6.17, it stopped building correctly due to a missing
+      structure (which had disappeared from the kernel as part of the
+      removal of the obsolete interface).
+
+  (+) Fix compilation error involving how cx2341x.h is used when
+      building against 2.6.17-rcX.
+
+
+[pvrusb2-mci-20060517]
+
+  (+) Fix composite and s-video input for 24xxx devices when running
+      under the 2.6.15 kernel.  Previously audio wasn't working at all
+      and only composite video worked.  Note that this only affected
+      24xxx hardware.
+
+  (+) Use cx23416 firmware file name from cx2341x.h (this doesn't
+      change anything externally).
+
+  (+) Include config.h where potentially needed (this has no immediate
+      impact but becomes important for future in-kernel builds).
+
+  (+) Documentation rewritten.
+
+  (+) ifdef-out the definition of msp_matrix in the ivtv-resident
+      version of msp3400.h when the kernel is 2.6.16 or newer.  This
+      header gets included by the pvrusb2 driver when we aren't doing
+      "new routing" (which is the case for kernels 2.6.16 or older).
+      However specifically in 2.6.16, msp_matrix is already being
+      defined in v4l2-common.h, so we don't need or want it here.  In
+      my own debugging I never saw this problem because I have been
+      using a kernel source tree which has an updated msp3400.h within
+      it which was overriding the use of this header.
+      Distro-generated kernel source trees tend not to include this
+      header because it is in an unusual spot - and that is in fact
+      the reason why I dropped that msp3400.h into the ivtv directory
+      in the first place...
+
+
+[pvrusb2-mci-20060423]
+
+  (+) Update wm8775 support in the driver to use new routing API that
+      is currently in the V4L repository and will be in the next
+      kernel release (2.6.17).
+
+  (+) Work around cx25840 bad behavior where cx25840 will stomp on our
+      internal state.  The problem is that cx25840 is trying to reach
+      through an I2C adapter-private context pointer in an attempt to
+      manipulate the driver.  The problem however is that it is
+      assuming a specific type of I2C adapter driver which is
+      incorrect in the case of pvrusb2.  The cx25840 module really has
+      no business trying to touch the "private parts" of another
+      driver.  This is being fixed in the main V4L repo, but for older
+      kernels (2.6.15 and probably also 2.6.16) we still need to do a
+      workaround.  What this will do is pad the front of the pvr2_hdw
+      structure so that what cx25840 messes with won't actually harm
+      anything.
+
+  (+) Add V4L2_STD_NTSC_M_KR to pvrusb2-std.c.
+
+  (+) B/G and D/K video standard combinations are "special".  We need
+      to allow for selection of B+G or D+K together because they can
+      each be used at the same time.  When that happens "B" (or "D")
+      are for VHF reception while "G" (or "K") are used for UHF
+      reception.  Modify video standard enumeration generation so that
+      these combinations are also generated as enumerated values if
+      their constituent components are present.
+
+
+[pvrusb2-mci-20060418]
+
+  (+) Fix off-by-1 problem with V4L video standards enumeration API.
+
+  (+) Fix problems involving the return value not being initialized in
+      the V4L2 ioctl() implementation.  This bug resulted in none of
+      the controls (e.g. volume) being visible to a V4L app.
+
+  (+) Adjust build configuration such that setting a CONFIG option to
+      'n' produces the desired result.
+
+  (+) Make logic that maps additional supported video standards be
+      table-driven (previously it was just open-coded).  Add a table
+      entry to enable PAL-N if any of PAL-B/G/D/K/I are reported by
+      tveeprom.
+
+
+[pvrusb2-mci-20060417]
+
+Note: Model 24xxx series hardware should work considerably better with
+this driver version.
+
+  (+) Move change history out of the main pvrusb2.html file and into
+      change_history.txt, transformed into a simpler format.  A perl
+      script is used now to generate an html version of the same data,
+      to which pvrusb2.html is linked now.  The main page was getting
+      too long, mainly due to the change history.
+
+  (+) Make it possible to not have to compile in sysfs support or the
+      debug interface.  These choices will become kernel CONFIG
+      variables.
+
+  (+) Make support for new 24xxx hardware a configuration option
+      (normally enabled).
+
+  (+) Eliminate translation of control ids in the V4L interface.
+
+  (+) Internal "controls" logic reworked.  Ability to handle bit masks
+      implemented in sysfs interface.  This touches lots of code in
+      the driver - nearly everything.  Controls handling should be
+      cleaner now, though somewhat more verbose than before.
+
+  (+) Completely new logic to deal with handling various video
+      standards.  This should make possible support of any V4L defined
+      video standard provided that the hardware can handle it.  Also,
+      the driver now will only advertise video standards that it knows
+      the hardware can support.  (Previously the driver was working
+      with a hardcoded subset regardless of hardware.)
+
+  (+) New video_std module option, which is a per-device instance
+      array.  If this is non-zero, it is interpreted to be a
+      v4l2_std_id bit position and will be the default video standard
+      to use.  Note: If the chosen standard falls outside the list of
+      eeprom-reported supported standards, then the supported list is
+      expanded to include this chosen value.
+
+  (+) Modify output of eeprom video standard query a bit so that if
+      NTSC-M is reported, also make NTSC-Mj available.  The white
+      sticker says that these devices are also NTSC-Mj capable, yet
+      tveeprom appears not to be reporting that fact.
+
+  (+) Change cx23416 SET_OUTPUT_PORT command to send 0x00 as the
+      second argument instead of 0x02.  This undocumented behavior
+      seems to still let things work, and now xawtv is happy again.  A
+      lengthy comment about this is written up in pvrusb2-encoder.c.
+
+  (+) Include linux/mutex.h not asm/mutex.h everywhere.  Fixes
+      compilation problems on amd64.  Mutexes were introduced in the
+      2.6.16 kernel; so this change is only relevant when compiling
+      for kernel 2.6.16 or later.
+
+  (+) Implement new I2C transfer filter framework, which allows the
+      driver to take special actions on behalf of an I2C chip to which
+      a transfer is being targeted.
+
+  (+) Implement I2C filter for wm8775.  On new (24xxx) hardware this
+      filter is activated.  The only special thing it does is return
+      success on probe attempts; all other operations pass through.
+      This should nicely work around the fact that we can't autodetect
+      the wm8775 chip.
+
+  (+) Implement I2C filter for cx25840.  On new (24xxx) hardware this
+      filter is activated.  Things are a little complex here.
+      Basically this filter watches for a specific attempt to read
+      either revision byte out of the chip.  Until that successfully
+      happens, all other I2C accesses are blocked (and probe attempts
+      will silently return success).  Once the revision register is
+      read, the returned byte is snooped for one of two bad values.
+      If either bad value appears, the chip is considered wedged and
+      the driver is rendered useless (along with some warning messages
+      to the log explaining what has happened).  Otherwise everything
+      is good to go and then the filter will unlink itself, and all
+      further transfers to the part will go straight through.
+
+  (+) Modify request_module() behavior - only request modules to be
+      loaded that are relevant for the model of device that we are
+      dealing with.  The previous approach technically worked, but it
+      was an elephant gun strategy.  Now we take aim and only load
+      what we really need.
+
+  (+) Enhance I2C filter for cx25840 to detect attempts to send
+      firmware data to the chip where the chunk size is too large.
+      When this situation is detected, break the data into smaller
+      bite-sized chunks and perform the load operation.  This
+      effectively eliminates the need for the FWSEND patch in the
+      in-kernel version of cx25840 for kernels older than 2.6.17.
+
+
+[pvrusb2-mci-20060329]
+
+  (+) Stop calling pvr2_reset_ctl_endpoints() during initialization.
+      This is an unsafe operation because it can stomp on a command
+      that might be underway with the hardware (going on in a
+      different thread).  While we can make this thread safe, there's
+      really no reason to even keep this around.  This logic is very
+      old code, and it's been lurking undetected in the driver for
+      over a year.  It's time to just get rid of this step in the
+      initialization.  This fixes a recently discovered kernel oops
+      problem (and is the reason for this snapshot).
+
+
+[pvrusb2-mci-20060326]
+
+Note: While this driver version includes even more changes to support
+operation of the newer 24xxx model series, we're still not quite there
+yet.
+
+  (+) Don't start the I2C adapter until after the powerup command has
+      been sent.  It seems that some I2C chips won't respond until
+      after this command has been issued to the FX2.
+
+  (+) Implement mechanism to issue a reset to the decoder module.
+
+  (+) New logic to control cx25840 module.
+
+  (+) New logic to control wm8775 module.
+
+  (+) Adjust encoder module to properly operate new 24xxx model series
+      hardware.
+
+  (+) Integrate new input routing API from V4L; this is needed when
+      operating modules from current V4L repository sources or when in
+      any kernel 2.6.17 or later.
+
+  (+) Return control's default value in addition to min & max when a
+      V4L app queries about a control.
+
+  (+) Fix compilation error involving pvrusb2-audio-old with older
+      kernels.
+
+
+[pvrusb2-mci-20060318]
+
+Note: While this driver version includes a number of changes to
+support operation of the newer 24xxx model series, we're still not
+quite there yet.
+
+  (+) Don't hardcode eeprom I2C address anymore in the driver.  Query
+      the controller for the right address.  This is needed because
+      newer PVR USB2 devices appear to be using a different eeprom
+      now.
+
+  (+) Implemented VIDIOC_LOG_STATUS out to all V4L2 modules.  This may
+      be directly triggered via a V4L ioctl, or by cat'ing debuginfo
+      in sysfs.
+
+  (+) Modify I2C adapter implementation slightly so it will look
+      appetizing to cx25840.ko - which is needed for newer tuner
+      devices.
+
+  (+) Rename encoder firmware to v4l-cx2341x-enc.fw and controller
+      firmware to v4l-fx2-pvrusb2.fw.  Driver will attempt to load the
+      new names first but fall back to the old names if a given new
+      name could not be located.  System log messages have been
+      improved significantly as well so that the actual firmware file
+      loaded is logged and if there is a failure loading firmware, the
+      name(s) tried will also be logged.
+
+  (+) Enforce a configurable pause (currently zero) after forcing a
+      hardware reset during initialization.  The delay is measured in
+      msec and configured through a new module option init_pause_msec.
+      This can potentially be needed to deal with a race where we
+      might try to perform I2C operations to the device before it is
+      ready (but at the moment it appears not to be a problem).
+
+  (+) New decode_eeprom program in utils.
+
+  (+) New detection method implemented to discover if the FX2 firmware
+      needs to be loaded.  This method should work with the newer PVR
+      USB2 hardware.
+
+  (+) Renamed FX2 firmware to v4l-pvrusb2-29xxx-01.fw, since we know
+      that newer hardware devices require different firmware.  Damnit.
+
+  (+) Adjust legal upper bound on tuned frequency to 850MHz.  Some
+      areas need to tune that high.
+
+  (+) New logic to keep track of specific hardware type of device.
+      This is largely a hack right now, but it is needed immediately.
+      With that logic in place, we now adapt FX2 firmware name to
+      track with hardware device type.
+
+  (+) Minor textual cosmetic fixes to conform with V4L standards.
+
+  (+) Copy pvrusb2-audio to pvrusb2-audio-old, update pvrusb2-audio to
+      V4L2 standard.  This should improve compatibility with various
+      msp3400 versions floating around too.
+
+  (+) Rework pvrusb2-ioread.c to implement a synchronization filter
+      that will discard all data at the front of the stream until a
+      specifically given key sequence is seen.  The key sequence is
+      programmed in pvrusb2-context.c, and is set to be the beginning
+      of a legitimate mpeg2 frame.  This allows the driver to discard
+      garbage at the front of the streaming buffer that the device
+      appears to be emitting.  With model 29xxx this problem was
+      benign but with model 24xxx device this problem became malignant
+      due to the garbage data having a legitimnate packet header
+      (followed by more garbage).  This fix is for both models of
+      device, but it is critical for model 24xxx devices.
+
+
+[pvrusb2-mci-20060209]
+
+  (+) Fix minor bug involving incorrect audio mode switching (but the
+      supporting module is still busted so this doesn't really fix
+      anything yet).
+
+  (+) Use mutexes for 2.6.16 or later.  Apply same hackish trick as
+      was done in the V4L repository (by defining the new API
+      functions to expand to the old semaphore code if compiling for
+      earlier than 2.6.16).
+
+  (+) Hack up ivtv/tveeprom.c a bit such that its function prototype
+      will hopefully now match the corresponding prototype in the
+      kernel.  This should in theory put an end to the symbol version
+      mismatch errors that people encounter when using the snapshot's
+      tveeprom.ko in a kernel with CONFIG_MODVERSIONS enabled.  Note
+      however that this change is really only useful for older
+      kernels; for kernels 2.6.15 or later just use what is in the
+      kernel and ignore the modules here.
+
+  (+) Update decode_log.cpp in utils to address a SEGV bug, and also
+      account for more recent knowledge about the known device
+      commands.
+
+  (+) New pvrui.sh utility; implements a dialog-driven front end that
+      uses sysfs.  Known to work for Debian, unsure about other
+      distributions (needs the dialog program which exists in Debian).
+
+
+[pvrusb2-mci-20060121]
+
+  (+) Changed sense of various configuration options in compat.h so
+      that things are not as confusing as before.
+
+  (+) Define more configuration settings to improve compilability
+      within V4L CVS when using old kernel versions.
+
+  (+) Use cx2341x.h from V4L where possible for definition of encoder
+      commands.
+
+  (+) Use v4l_print_ioctl() wherever possible.
+
+  (+) Change global "debug" variable to namespace-cleaner
+      "pvrusb2_debug".
+
+  (+) Various changes / fixes to permit successful compilation in
+      kernel 2.6.16-rc1.
+
+  (+) Detect tda9887 module also using its driver ID if available.
+
+  (+) Detect tda9887 module by searching for substring "tda9887" in
+      its name if available.
+
+  (+) Improve information reported about detected / driven support
+      modules.
+
+
+[pvrusb2-mci-20060107]
+
+  (+) Implemented the ability to optionally tolerate a certain level
+      of streaming errors.  To activate, you must use the new
+      "tolerance" module parameter (see the module parameters
+      description on the main pvrusb2 page for more information on how
+      this parameter works).  A debug mask bit has been defined to
+      track ignored errors if they happen.  The implementation of this
+      was inspired by some work done by Ingo Flaschberger.
+
+  (+) Bit mask definitions for debug parameter and subsystem
+      definitions changed to be shift expressions instead of raw
+      values (purely cosmetic).
+
+  (+) Driver now detects if a firmware image load fails due to file(s)
+      being missing and will warn the user of this fact in the log.
+      Also solved of problem of the misleading log message about
+      firmware having been reloaded when in fact the load had actually
+      failed.
+
+  (+) Removed some module parameters that weren't actually being used
+      (piece of bit rot from the distant past).
+
+
+[pvrusb2-mci-20060103]
+
+  (+) Fix compilation problem when building under 2.6.15 (bug
+      introduced in previous snapshot).
+
+
+[pvrusb2-mci-20060102A]
+
+  (+) Fixed compilation problem for kernel versions older than 2.6.13
+      (thanks for Michael Roitzsch for finding and fixing this).
+
+  (+) New debug code added to log I2C transactions (off by default).
+
+  (+) Fixed problem where side effects (specifically regarding the
+      vertical capture resolution) were not happening correctly when
+      the video standard is first initialized.  (This problem had been
+      around all along and only came to the surface with the recent
+      PAL B/G vs SECAM change.)
+
+  (+) Minor configuration change to maintain better compatibility with
+      V4L CVS repository.
+
+
+[pvrusb2-mci-20060102]
+
+  (+) Fixed initialization code for saa711x which didn't always
+      initialize all the properties of the driver.  (This was the same
+      issue that was already fixed for saa7115.)  Note: You are only
+      affected by this if you are running under 2.6.15 and using
+      saa711x instead of saa7115.
+
+  (+) Minor tweak to tveeprom.c to remove the inclusion of
+      asm/segment.h, a header that we don't seem to need and which
+      causes problems with other architectures.  (Yes this violates my
+      policy of exactly tracking ivtv however ivtv is being merged
+      into V4L now and it already isn't supplying tveeprom.c anymore
+      so there's nothing left to track.)
+
+
+[pvrusb2-mci-20060101]
+
+  (+) Fixed initialization code for saa7115 and audio which didn't
+      always initialize all the properties of the driver.  This was a
+      simple stupid thing involving incorrect prioritization of
+      elements in a bit shifting expression.  Credit to Per Christian
+      Henden for hitting it first and helping with the bug chase and
+      solution.
+
+  (+) Adjust use of V4L header files in several modules in order to
+      stay compatible with upcoming V4L changes for 2.6.15 and onward.
+
+
+[pvrusb2-mci-20051231A]
+
+  (+) Fixed compilation breakage in saa711x support, introduced by
+      previous large change.  This only affects builds under 2.6.15
+      (where saa711x might be present).  Also fixed a few cosmetic
+      issues in the code.
+
+
+[pvrusb2-mci-20051231]
+
+Note: This snapshot implements a considerable amount of new logic
+surrounding operation of the support modules.  There might be some new
+instabilities introduced here.  If you have new problems with this
+snapshot, please post on the pvrusb2 list.  (So far however it looks
+solid.)
+
+  (+) Prefer PAL-B/G to SECAM-L.  NOTE! If you have a multistandard
+      tuner and you are in SECAM territory, you will now have to reset
+      the video standard (either through sysfs or the V4L app you are
+      using).  This is a change in behavior from earlier snapshots;
+      the reasoning is that PAL as a standard is far more common and
+      thus it is the more likely correct choice.  For folks in
+      SECAM-land, sorry about this.
+
+  (+) Updated decode_log to recognize tda9887 transactions.
+
+  (+) Completely new I2C module control system in place.  This version
+      is capable of broadcasting to multiple I2C driver modules, while
+      still selectively sending specific commands where it makes
+      sense.  In addition, logic is rearranged to contain the actual
+      "configuration" choices for the I2C modules into one small area
+      which can be easily edited / replaced as module APIs change.
+      With this change, the pvrusb2 driver should do a much better job
+      of keeping the support modules in sync with the overall state of
+      the driver.  (In particular, you should now be able to actually
+      rmmod / insmod modules on the fly while the driver is running
+      and the driver will re-update each module when it (re)appears.)
+
+  (+) Automatically command tda9887 to set port2=0 and port1=0 when
+      the tuner type is PHILIPS_FM1216ME_MK3 or PHILIPS_FM1236_MK3.
+      This hopefully should remove any need for manually loading
+      tda9887 with port2=0 as a module option.
+
+  (+) Fix busted i2c scan logic - this has been broken for quite some
+      time and had gone unnoticed until recently.
+
+  (+) Modify debuginfo sysfs variable such that a list of attached I2C
+      modules and their configuration state (as viewed by pvrusb2) is
+      dumped as part of the info.
+
+
+[pvrusb2-mci-20051226]
+
+  (+) Fix error in tracking V4L_minor_number - the driver was erasing
+      this when the V4L device was closed (something that happens
+      routinely) rather than when it was removed (the actual point
+      when the minor number became invalid).
+
+  (+) Remove hackish I2C code in pvrusb2-tuner.c which had been
+      issuing "magic" commands to the device that we didn't
+      understand.  It's clear now that this is what tda9887 is
+      supposed to be doing; now we must just stay out of its way.
+
+
+[pvrusb2-mci-20051208]
+
+  (+) Fix fatal typo in fwextract.pl (stupid quoting error when I
+      added the new firmware definition).
+
+
+[pvrusb2-mci-20051206]
+
+  (+) Use NTSC_M instead of NTSC when communicating with support
+      modules, needed for more recent v4l tuner.ko module (and should
+      be harmless for other older versions).
+
+  (+) New firmware signature added (credit to Fedor Bezrukov).
+
+  (+) Support PAL-M (credit to Mauro Carvalho Chehab)
+
+  (+) Fix uninitialized data problem when setting tuner frequency.
+      This problem surfaced when the v4l2_frequency struct in v4l
+      added a new field that we weren't setting.  Now we memset() the
+      whole structure to zero first, so that fields we don't care
+      about will take on a default value.
+
+  (+) Support use of tda9887 module where appropriate.  This is needed
+      for newer versions of the PVR USB2 device which contains a
+      different (type 103) tuner.  Changes are harmless for older
+      devices.  Also it appears that tda9887 may be merged into v4l's
+      tuner core; if that happens this change will be obsolete, but it
+      will also be harmless (but you'll need it for running at least
+      up to 2.6.15 since in those cases tda9887 still exists).
+
+
+[pvrusb2-mci-20051126]
+
+  (+) New global configuration switches in compat.h.  This is a
+      special header.  It is set up to flip switches various ways
+      appropriate to the build environment.  In particular, it is set
+      up so that when the header is not present, the settings will be
+      appropriate for compilation as part of v4l itself (in the v4l
+      environment this header is replaced with something else).  The
+      idea here is to ease the transition into v4l.
+
+  (+) Reworked pvrusb2-video so that actual choice can be made at
+      run-time depending on which type of driver is found.  Arranged
+      things so that newer driver (which is now pvrusb2-video-v4l) is
+      only compiled with 2.6.15 or later.  Older driver renamed from
+      pvrusb2-video-old to pvrusb2-video-ivtv.
+
+  (+) Restructured pvrusb2-eeprom so that it can play nicer within v4l
+      (by using compat.h).
+
+
+[pvrusb2-mci-20051113]
+
+Note that this snapshot does not implement ANY new features.  The
+changes here are all code reorganization and adaptations in
+preparation for possible inclusion into v4l.
+
+  (+) Remove download links from pvrusb2.html and place into a
+      separate file, pvrusb2-download.html.
+
+  (+) Move driver version info into a new file pvrusb2-version.h.
+
+  (+) Split pvrusb2-video.c into two versions, pvrusb2-video.c and
+      pvrusb2-video-old.c.  The file pvrusb2-video-old.c has the
+      original ivtv-compatible saa7115 glue logic, while
+      pvrusb2-video.c is a rewritten version designed to operate with
+      the new saa7115 module that has just been placed into v4l (and
+      should show up in the 2.6.15 kernel).
+
+  (+) New script in the utilities area, release_snapshot.pl.  I plan
+      on use this to automate the snapshot process better.  With the
+      appearance of v4l, things are too complex to continue doing
+      manually.  This script automates tagging and tarring of the
+      source tree, creating pvrusb2-version.h, and it can create
+      pvrusb2-download.html as well.
+
+  (+) Minor tweak made to Makefile so that KDIR or KREL set in the
+      environment will be properly noticed.
+
+
+[pvrusb2-mci-20051110]
+
+  (+) Modify the build slightly so that msp3400.h can be pulled from
+      the ivtv subdirectory of the driver snapshot if needed by
+      pvrusb2-audio.c.  Normally that header can be found in the
+      kernel tree under drivers/media/video but that subtree
+      apparently is not always fully there in some distributions'
+      kernel development package.
+
+
+[pvrusb2-mci-20051109]
+
+Note that this snapshot does not implement ANY new features.  The
+changes here are all code reorganization in preparation for possible
+inclusion into v4l.
+
+  (+) Source tree reorganized to physically separate the ivtv-provided
+      parts from the rest of the driver.  Build files have been
+      adjusted accordingly and the documentation has been updated to
+      account for the two sibling build areas that now exist.  This is
+      a precursor towards subsequently jettisoning the ivtv parts and
+      finally merging the driver itself into the v4l source tree.
+
+  (+) pvrusb2-main.[ch] renamed to pvrusb2-context.[ch], to better
+      reflect what it is really for.  The pvr2_main struct exported by
+      this module has also been renamed everywhere to pvr2_context.
+
+  (+) pvrusb2-msp34x5.[ch] renamed to pvrusb2-audio.[ch], to avoid
+      confusion from others examining the source tree.
+
+  (+) pvrusb2-saa7115.[ch] renamed to pvrusb2-video.[ch], to avoid
+      confusion from others examining the source tree.
+
+  (+) pvrusb2-hdw-low and pvrusb2-firmware merged into pvrusb2-hdw.
+      The entire semi-public hardware interface (i.e. that which is
+      used by the various high level interfaces) is now in
+      pvrusb2-hdw.h.
+
+  (+) driver/README expanded considerably to document the overall
+      function(s) of each source file.
+
+
+[pvrusb2-mci-20051016]
+
+  (+) Tested each control in sysfs and documented the resulting effect
+      or breakage (see doc/controls.txt).  Updated sysfs description
+      in main web page to point out this new information.
+
+  (+) Fixed the setting negative values for bass, treble, balance, hue
+      in sysfs.  This was due to the fact that the number parser in
+      pvrusb2-sysfs.c didn't bother noticing or dealing with the '-'
+      sign prefix.
+
+  (+) Noticed broken bass, treble, balance and audio mode settings.
+      Problem can't be fixed in pvrusb2 itself.  FAQ items added to
+      explain this.
+
+  (+) Updated to modules from ivtv 0.4.0.  Implemented a hack in
+      pvrusb2-saa7115.c to permit detection and operation with both
+      older saa7115.ko and newer saa7115.ko modules (a critical
+      command code had changed).
+
+  (+) A lot of random changes to support compilation and operation in
+      kernel 2.6.14.  (Successfully tested for continued correct
+      operation with older kernels back to 2.6.12.3.)
+
+  (+) Adopt tveeprom as an attached i2c client if we can.  This is
+      needed if pvrusb2-eeprom.c is configured to use the indirect
+      method of tveeprom.c to read PROM contents (normally this is not
+      the case).
+
+  (+) Rework pvrusb2-eeprom.c so that it can continue to operate
+      correctly with either tveeprom provided by either ivtv (copied
+      into this driver) or v4l.  Large comment added into
+      pvrusb2-eeprom.c explaining the issues and choices here.  New
+      HTML file (pvrusb2-eeprom.html) created that explains all of
+      this, and references to it added in the FAQ and in the main web
+      page.
+
+  (+) Modify sysfs code to use a unit id in the class path if there is
+      no serial number available (which can happen if there is trouble
+      reading the device PROM).
+
+
+[pvrusb2-mci-20050921]
+
+  (+) Fixed kernel oops caused by linked list foul-up in pvrusb2-io.c.
+      This was a rare hard to reproduce race condition, which has
+      apparently been present all along but only recently noticed.
+      When shutting down a stream, pending URBs are flushed, but if
+      every once in a long while one completes during the flushing
+      operation and the flush loop happened to hold a pointer to that
+      buffer at the same instant, then the flush loop will leak over
+      to the wrong list, resulting a wild pointer dereference upon
+      exhausting that wrong list.  (Long story.)  The flush function
+      has been rewritten to no longer be sensitive to buffers
+      completing at the same time as when flushing takes place.
+
+  (+) Fix utils/decode_log.cpp so that gcc 4.x can compile it - a
+      silly stupid problem involving a forward class declaration
+      implied by being named in a friend declaration that no longer
+      appears to work in gcc 4.x - probably because the previous
+      behavior wasn't very clean.  Duh.
+
+  (+) Included contributed channel changing script
+      (utils/change-channel.sh) from Per Christian Henden.
+
+
+[pvrusb2-mci-20050911]
+
+  (+) Fixed kernel oops when cable was yanked while video was
+      streaming.  The driver internally doesn't tear everything down
+      inside the USB core's disconnect hook due to the need to wait
+      for other references (e.g. open file handles) to go away first.
+      When it finally does tear things down, it was also disconnecting
+      at that time its association(s) with the USB core.  But that's
+      too late, and doing that can result in dangling pointers being
+      dereferenced from within the core.  This is not a USB problem;
+      the root cause is that the driver must remove itself from the
+      USB core before the disconnect hook returns.  Now the driver
+      disassociates from USB immediately on device disconnect, while
+      still delaying its own internal tear-down until other references
+      go away, as usual.
+
+  (+) Fixed memory leak in pvrusb2-io.c - buffer control structures
+      were never being freed (happens only when streaming is stopped).
+      Also cleaned up a potential dangling pointer (which actually
+      should never have been touched anyway, but I'm paranoid).
+
+  (+) Updated misc/lircd.conf to match the "Hauppauge grey" remote
+      more typically included with the PVR USB2 hardware.  (Some
+      corresponding tweaks to misc/lircrc.)  This is a conf file I've
+      been using with a PVR-250 (it's the same remote).
+
+  (+) Added sanity / debug code to buffer management, in an attempt to
+      trap any possibly corrupted buffer control structures.  This is
+      turned off by default right now.  To enable, turn on the
+      SANITY_CHECK_BUFFERS symbol pvrusb2-io.c.  When on, there will
+      be some additional noise during stream start / stop but
+      otherwise no additional log messages will appear unless a bad
+      buffer has been spotted.
+
+
+[pvrusb2-mci-20050828]
+
+  (+) Got rid of dead pvrusb2-data.h.  Cleaned up pvrusb2.h (removed
+      remaining old junk which had long since stopped being used).
+
+  (+) Implemented unit number concept which is used to uniquely name
+      driver / device instances.  Other parts of the driver will use
+      the unit number to select per-unit module options (like tuner
+      override, minor device number, etc).
+
+  (+) Implemented tuner=x module option to allow overriding of tuner
+      type.  This is an array, so the tuner type can be individually
+      overridden for each pvrusb2 unit you might have (yeah, as if
+      that will ever actually be tested)...
+
+  (+) Changed video_nr module option from a scalar to an array.
+      Similar to the tuner option, this can be specified on a
+      per-instance basis.
+
+  (+) The v4l minor device number is published now in sysfs as
+      v4l_minor_number.
+
+  (+) The unit number is published now in sysfs as unit_number.
+
+
+[pvrusb2-mci-20050824]
+
+  (+) Updated ivtv-sourced modules to those from ivtv 0.3.7i.
+
+  (+) Fixed pvrusb2-tuner.c so that driver works under 2.6.13
+      (verified with 2.6.13-rc6).
+
+
+[pvrusb2-mci-20050804]
+
+  (+) Fixed longstanding and nasty bug which prevented tuning any
+      frequency below 76.00MHz (roughly below US broadcast channel 5).
+      It's amazing that something like this went undetected for so
+      long.  Cause: brain-fart while reading the FM1236 datasheet back
+      in February (read off the floor frequency for FM instead of
+      VHF).  Thanks go to a pvrusb2 user for tracking this one down.
+
+  (+) Minor clarifications / updates to web page info based on
+      feedback from many others.
+
+
+[pvrusb2-mci-20050722]
+
+  (+) New firmware signature added to fwextract.pl (corresponding to
+      driver 2.5.22329 found on a CDROM distribution).
+
+  (+) Modified fwextract.pl to exit with a non-zero status if
+      extraction is not completely successful.
+
+  (+) Contributed script fwfind.sh added to utilities and described.
+      Firmware extraction procedure reworked to include fwfind.sh, and
+      extra information added about where to place firmware files
+      after extraction.
+
+  (+) Adjusted log messages slightly which are related to firmware
+      upload.  We don't want to mislead the user if the upload had not
+      succeeded.
+
+
+[pvrusb2-mci-20050717]
+
+  (+) Various tweaks / improvements to firmware extraction script.
+
+  (+) Teach extraction script how to pull firmware from 3 additional
+      Hauppauge driver releases.
+
+
+[pvrusb2-mci-20050716]
+
+  (+) New firmware extraction procedure, along with new tools and a
+      driver feature to support it.
+
+  (+) Moved all files into Subversion.  Rearranged distribution
+      layout; there are now separate utils, doc, and driver
+      subdirectories.  Utilities now included as part of driver
+      snapshot.
+
+  (+) Added pvrusb2-utils.html web page, which describes detailed
+      firmware extraction info, along with how to use the decompiler.
+
+
+[pvrusb2-mci-20050626]
+
+  (+) Detect when encoder stops responding to commands and return an
+      error code to higher level code in the driver.  We don't know
+      why this can happen, but at least now we can detect when it
+      happens...
+
+  (+) Rewrote low level request / response logic
+      (pvr2_send_request()).  New version can issue simultaneous write
+      / read pairs, and eliminates some of the hacks that previously
+      existed (and from what I can tell over 5 months of working on
+      this driver that these hacks were completely unneeded).
+
+  (+) Defined encoder firmware reloading as a callable configuration
+      step.
+
+  (+) Reworked device configuration function
+      (pvr2_hdw_subsys_bit_chg_no_lock()) to react to failures and
+      retry appropriate pieces as needed.  Specifically, we can
+      recover from a hung encoder now by causing an encoder firmware
+      reload (and reconfiguration of all affected pieces).
+
+  (+) Reworked all code involved in encoder register read/write to use
+      little-endian ordering instead of big-endian.  (This wasn't a
+      bug, but now we match what ivtv is doing which makes it easier
+      to analyze other issues.)
+
+  (+) Fixed error in pvrusb2-encoder.c which caused too many words to
+      be read back from encoder (was 32, should have been 16).
+
+  (+) Always send 16 words to the encoder for every request instead of
+      4 plus the number of arguments.
+
+  (+) Fixed bug in pvrusb2-encoder.c which caused it to misbehave if
+      more than 8 words were being sent to the encoder.
+
+  (+) Implemented "reset firmware" command in debug interface, which
+      can be used to force an encoder firmware reload.
+
+  (+) Added lots of new stuff to protocol-info.txt, all regarding
+      operation of the encoder chip.  (See a running theme here yet
+      for this snapshot?...)
+
+  (+) Implemented functions in pvrusb2-hdw-low.c for direct
+      manipulation of GPIO signals.
+
+  (+) Discovered that bit position d7 of the GPIO direction(?)
+      register appears to control the LED.  Confirmed that flipping
+      this bit does not seem to impact video streaming, so now we
+      ensure that the LED is on when the encoder is running and off
+      when not the encoder is stopped.  (We really need to understand
+      these GPIO bits a lot better.)
+
+
+[pvrusb2-mci-20050620]
+
+  (+) After auditing the encoder configuration command sequence
+      against the same sequence snooped from the Windows driver, one
+      unexplained difference was found.  Changing this driver to match
+      the Windows driver seems to have cleared up video corruption
+      problems.  Because of this, streaming control now toggles the
+      USB link again and also now reconfigures the encoder when the
+      encoder is started / stopped.
+
+  (+) Additional debug abilities added to help debug driver lockups.
+
+
+[pvrusb2-mci-20050619]
+
+  (+) Updated ivtv-sourced modules to those from ivtv 0.3.6n.
+
+  (+) All pointers are formatted with %p now instead of my usual
+      pattern of hacking, I mean uh casting the value into an unsigned
+      int and printing with %x.  Using %p is more portable across
+      machine architectures, and the previous method caused a flood of
+      warnings when compiled on AMD64.  A few related AMD64
+      compilation warning were also fixed.
+
+  (+) Internal state handling code has been reworked so that we can
+      track when we need to configure various parts ("subsystems") of
+      the device and know what parts of the stream pipeline are
+      running.  This is all in an effort to better implement stream
+      start / stop, which so far has been very unstable.  It's now
+      possible to easily configure what gets manipulated when
+      streaming is started and stopped.
+
+  (+) A new command parsing debug interface has been implemented,
+      currently accessible through the sysfs interface under the name
+      debugifc.  cat'ing out this file will dump a human-readable
+      report of the driver's internal state (which subsystems are
+      running or configured, whether streaming is in progress, speed
+      of USB link).  Commands can be echoed into it to adjust driver
+      operation and / or (attempt to) recover from strange errors.
+      This is not meant for routine access; it is purely a debugging
+      aid.
+
+  (+) Identified the true purpose of a number of previously mysterious
+      commands sent over USB and abstracted them to separate
+      functions.  Numerous ways to reset internal device state have
+      been uncovered, and a means for querying the device's view of
+      the link speed is available now (see ctl_usb_speed in the sysfs
+      interface).  The speed query function is also a useful way to
+      ping the device - it's a single command & response requiring
+      virtually nothing else in order to work.  So if you can read the
+      USB speed value, then you can be assured that communication is
+      working between the device and the driver.
+
+  (+) Reverse-engineered the actual underlying encoder communication
+      protocol and reworked pvrusb2-encoder.c to expose and exploit
+      that.  This makes our operation of the encoder somewhat more
+      honest than before (unfortunately this work didn't actually fix
+      any known problems).  Interestingly enough, our communication
+      with the encoder bears a spooky resemblence to the mailbox
+      communication used within the ivtv driver.  Coincidence?  I
+      think not...
+
+  (+) Adjusted driver's streaming start / stop function to no longer
+      shut down the USB link portion of the video streaming pipeline
+      when streaming is stopped.  Numerous experiments seem to show
+      that leaving the USB link running at all times seems to avoid
+      the rampant accumulating video corruption problems that I and
+      many others have observed (at least in the tests I've done with
+      mplayer).
+
+  (+) Added a text file to the driver sources protocol-info.txt which
+      documents the control protocol that the device expects.  This is
+      of course far from complete, but I have spent far too long
+      trying to fill in this picture already and it doesn't do any
+      good if the knowledge is kept only in my head.
+
+
+[pvrusb2-mci-20050605]
+
+  (+) Ensured that "make install" does the right thing (this bug had
+      been introduced in the 20050527 snapshot).
+
+  (+) Fixed a severe bug in the frequency table handling that
+      essentially made the frequency table useless.  This problem had
+      been introduced a few snapshots back.
+
+  (+) Combed through pvrusb2-encoder.c and symbolically name all of
+      the commands being sent to the encoder chip.  The information
+      source for this was the ivtv driver; this is a minor steps
+      towards trying to understand how the encoder works.  No
+      functional change here, not yet at least.
+
+  (+) Cleaned up and regularized copyright attributions and CVS Id
+      keywords everywhere.
+
+  (+) Tweaked sysfs implementation a bit - if a control file is
+      written with multiple value now, each value will be set in rapid
+      sequence.  This is a mostly useless feature, but it is good for
+      debugging scenarios where one wants to rapidly toggle something
+      on / off (like chasing the streaming startup problem).
+
+
+[pvrusb2-mci-20050527]
+
+  (+) Eliminated race condition that was possible during a disconnect
+      or permanent failure where somebody might be attempting a
+      control transaction at the same time.  The logic which does the
+      disconnect or marks the permanent failure now takes the same
+      semaphore as the logic which performs transactions.  This is
+      needed because I2C chip drivers might try to operate
+      autonomously with respect to this driver.
+
+  (+) Cleaned up build process; we no longer have to specify KREL.
+      Kbuild-specific stuff is now moved to its own file.  The
+      resulting Makefile is significantly shorter.  Added lots of
+      comments.
+
+
+[pvrusb2-mci-20050520]
+
+  (+) Turned on a debug log message ("ZERO Request? Returning zero.")
+      that will report when somebody attempts a read of length zero.
+      The driver responds to such a read by returning zero, but
+      unfortunately xawtv then treats that as an EOF and closes the
+      channel.  This is an xawtv problem; the log statement is there
+      so it's possible to detect when it happens.
+
+  (+) Fixed a bunch of brain-damage involving the file permissions
+      mask for all the module parameters.  Now all the permissions are
+      reasonable.
+
+  (+) Seriously improved error handling in the streaming logic.  If
+      the cable is yanked while streaming video, the device will now
+      cause the stream to fail gracefully.  This should cause the app
+      to close the channel, after which point the driver should
+      deactivate itself.
+
+  (+) Found and fixed a nasty race condition that can happen if the
+      cable is yanked while it is being initialized.
+
+  (+) Implemented a set of informational summary log messages that
+      print at the end of device initialization which explain what
+      state the device is probably in.  If it detects that the device
+      is jammed, a message will print suggesting that the device be
+      power-cycled.  It will also print a message if it is allowed to
+      reload the firmware and decide to do so.  If initialization is
+      successful, a message to that affect will also be printed.  If
+      initialization is incomplete due to a firmware reload, an
+      advisory message will print that a reconnect is to be expected.
+
+  (+) Implemented experimental code to force a new firmware download
+      if the device fails to initialize properly.  Unfortunately this
+      doesn't seem to help.  This is controlled by the "procreload"
+      module parameter.  For now I've left it off by default.
+
+  (+) Perform a device reset during set up (after primary firmware
+      download).  Doing this allows recovery from some inconsistent
+      device states.  This step is controlled by the "initusbreset"
+      module parameter.  It is on by default.
+
+  (+) Fix call to I2C adapter tear-down function so that it is called
+      every time, not just when the device has been successfully
+      initialized.  Why?  Because we might have initialized the
+      adapter anyway; the overall initialization could have failed
+      after adapter initialization, thus without this fix we could
+      leave the kernel's I2C core with dangling pointers - which would
+      eventually end badly with a kernel oops.
+
+
+[pvrusb2-mci-20050516]
+
+  (+) Fix the driver version info to match the snapshot. D'oh!!
+
+
+[pvrusb2-mci-20050515]
+
+  (+) The old streaming logic has been completely ripped out and
+      replaced.  This is by far the biggest change for this snapshot.
+      Previously logic was in pvrusb2-buffer.c and pvrusb2-stream.c.
+      New logic is pvrusb2-io.[ch] and pvrusb2-ioread.[ch].  The new
+      logic currently only implements the "read" method, however even
+      though the old logic did all three v4l methods, it appears that
+      the other two methods were broken there anyway.  The new
+      streaming logic has two well-defined internal shearing layers.
+      The lowest level handles all USB buffering, and the middle level
+      translates that into stream data for the read() system call.
+      Other middle levels can later be implemented alongside for other
+      forms of I/O as appropriate.
+
+  (+) The entire v4l API implementation has now been isolated and
+      stuffed into a single place, pvrusb2-v4l2.c.  The old streaming
+      logic had been entangled with v4l, so this step could not happen
+      until that the new streaming logic had been implemented first.
+
+  (+) Debug logging has been further cleaned up.  High-bandwidth log
+      messages are isolated behind specific debug mask bits and their
+      formatting has been regularized so that a post-processing script
+      may scrape useful data out of the kernel log.  There's enough
+      information available now to theoretically reconstruct
+      blow-by-blow events in the streaming path.  (Obviously that
+      level of logging should normally remain off.)
+
+  (+) Pulled in the following modules from ivtv: tuner.ko, msp3400.ko,
+      and tveeprom.ko.  Requiring people to hunt these down from other
+      sources seemed to be too much trouble.  The final straw was the
+      type 58 tuner problem in v4l.  However that doesn't mean I've
+      forked the code.  It should still be possible to continue using
+      other versions.  The copies in this driver snapshot are exact
+      copies from ivtv and I intend to keep it that way.  I hope.
+
+  (+) Isolated usage struct tveeprom; this is an internal structure
+      from tveeprom.ko which may be subject to thrashing and changes.
+      It is now only visible inside of pvrusb2-eeprom.c.
+
+  (+) Defined more controls that can be accessed through sysfs.
+      Signal presence (ctl_signal_present) can be queried (but
+      obviously not set), the streaming state (ctl_streaming_enabled)
+      can be queried (but not set), and there's a control present
+      (ctl_streaming_force_suspend) that can be used to explicitly,
+      temporarily suspend streaming (for debugging).
+
+  (+) We now tell tuner.ko about which video standard we are using.
+      Most of the time this probably isn't going to matter much since
+      it seems that the tuner type also implies the standard.  But the
+      module has the ability to be told and there probably are some
+      cases where it matters, so we're telling it now.
+
+  (+) Do a better job of logging which video standards have been
+      detected from the eeprom.  This should make things easier to
+      understand for multi-standard tuners where we happen to "pick"
+      the wrong choice.  (Picking the wrong standard is no big deal
+      since it is easily corrected through sysfs and a v4l app should
+      probably be setting the choice of standard anyway.)
+
+
+[pvrusb2-mci-20050505]
+
+  (+) The video standard is now initialized to a value that is
+      determined by what has been read from the Hauppauge eeprom.
+      Previously it had been default-initialized to NTSC.
+
+  (+) A frequency table has been implemented in the driver and made
+      available through sysfs.
+
+
+[pvrusb2-mci-20050430]
+
+  (+) Fixed bug in video standard enumeration.  This problem was
+      introduced in the previous snapshot due to the v4l driver
+      abstraction layer cleanup.
+
+  (+) New sysfs control interface.  This is the big change here for
+      this snapshot.  It's possible now to operate all driver controls
+      just by examining / changing files under
+      /sys/class/pvrusb2/sn-XXXX (XXXX is the device's serial number).
+
+  (+) More junk gutted out of pvrusb2-main.c.
+
+
+[pvrusb2-mci-20050427]
+
+  (+) New driver abstraction layer implemented, the definition for
+      which can be found in pvrusb2-base.h.  This is an attempt to
+      isolate code which manages the driver as a whole, and also
+      provides a shearing layer where we can plug in additional
+      control interfaces.  The existing v4l code is hacked up to work
+      through this abstraction layer as just "another interface".  The
+      previously-mentioned "shell" remnant struct in pvrusb2.h (see
+      further back in the history) is now completely removed, in favor
+      of this new layer.
+
+  (+) First attempt made at trying to understand what is going on in
+      pvrusb2-encoder.c (the part which handles the mpeg2 encoder
+      hardware).  As part of this, a large amount of debug code is
+      added.  Bugs fixed here; these problems were collateral damage
+      from all the other rework.
+
+  (+) Implemented a kernel thread for the driver.  Each driver
+      instance gets a kernel thread now, to handle whatever background
+      tasks are needed which otherwise would block the caller.
+
+  (+) All major device initialization moved to the kernel thread.  All
+      firmware loading happens here now instead of being inline with
+      the USB probe function.  This seems to have noticably sped up
+      driver initialization.  And hotplug auto-loading of the driver
+      works now.  Yay!
+
+
+[pvrusb2-mci-20050423]
+
+  (+) Fixed problem with video standard handling and audio processing.
+      We need to tell msp3400.ko what video standard is in use,
+      because that driver uses it in determining how to configure the
+      audio processor.  Previously this was working "by accident", but
+      a recent change to msp3400.ko exposed this bug in the pvrusb2
+      driver
+
+  (+) Brought in new saa7115.c from ivtv.  The only real change is a
+      largely cosmetic fix required due to a change in the kernel's
+      I2C subsystem.  Unfortunately lots of lines changed anyway
+      because it appears that the ivtv driver author decided to fix
+      all the tabbing / spacing in the driver at this time.
+
+
+[pvrusb2-mci-20050421]
+
+  (+) Driver author info updated.
+
+  (+) Most of the debug code has been scrubbed and cleaned up.  It's
+      now possible to selectively enable different kinds of debugging
+      printk()'s via the debug module parameter which is now a bit
+      mask.  Possible bit mask choices are defined in pvrusb2-debug.h
+
+  (+) The first really big change: New hardware abstraction layer
+      implemented, core interface is defined pvrusb2-hdw.h.
+      Implementation is spread across other new modules:
+      pvrusb2-hdw-internal.h, pvrusb2-hdw.c, pvrusb2-hdw-low.c.  All
+      other modules which touch the hardware except the streaming code
+      are restructured to now hide behind this interface.  All driver
+      controls are abstracted as part of this, with a unified
+      interface laid out in pvrusb2-hdw.h.  The driver's ioctl()
+      (where much of the v4l part of this puzzle exists) is reworked
+      to operate through this interface.  The master control structure
+      in pvrusb2.h is gutted down to a shell, and fitted with an
+      instance of the new layer.  The driver's global state variable
+      is history now, no longer needed.
+
+  (+) Moved all code which handles firmware loading into its own
+      module: pvrusb2-firmware.c.
+
+  (+) New streaming code written, which can be found in pvrusb2-io.c,
+      pvrusb2-ioread.c, and pvrusb2-iommap.c.  All of it compiles, but
+      none of it is being put to use it.  This big shakeup must wait
+      until later...
+
+  (+) Beginnings of a new driver abstraction layer put together but
+      not put in use yet.
+
+
+[pvrusb2-mci-20050313]
+
+  (+) Removed all code for handling the video capture chip, and
+      replaced it with far simpler code that merely calls out to
+      saa7115.ko, a module available from the ivtv driver (not
+      currently in v4l).
+
+  (+) Imported CVS snapshots of ivtv driver, and copied saa7115.c from
+      there into this driver.  What is in this driver is an
+      exact copy of what came from ivtv - no local changes.
+      I intend to keep it exact.  Several header files were also
+      brought over and one was hacked up in order to make it possible
+      for saa7115.c to compile cleanly outside of ivtv.
+
+  (+) More I2C low level fixes.
+
+  (+) Minor cleanup in driver's ioctl() function.
+
+
+[pvrusb2-mci-20050311]
+
+  (+) Additional eeprom handling cleanup.
+
+  (+) More I2C adapter driver cleanup / fixes.
+
+  (+) Removed all code for handling audio, and replaced it with far
+      simpler code that merely calls out to msp3400.ko which is
+      already in v4l.
+
+  (+) Reworked existing pvrusb2-saa7115.c code (video digitizer) to
+      use new I2C adapter driver
+
+  (+) Additional tuner handling cleanup.
+
+  (+) Control handling cleanup in the driver's ioctl() implementation.
+
+  (+) Added code to module initialization such that other needed I2C
+      based modules (e.g. tuner.ko) are explicitly loaded at the same
+      time, if not already present.
+
+
+[pvrusb2-mci-20050227]
+
+  (+) New module: pvrusb2-i2c.c, containing low level logic for
+      appropriate interfacing with kernel's I2C layer.
+
+  (+) Removed IR handling logic, killing an instability problem when
+      the driver is removed.
+
+  (+) Removed all code for handling the Hauppauge eeprom, and replaced
+      it with far simpler code that merely calls out to tveeprom.ko
+      which is already in v4l.
+
+  (+) Removed all tuner handling code (scattered around in various
+      places), and replaced it with far simpler code that merely
+      passes off the actual work to tuner.ko which is already in v4l.
+
+
+[pvrusb2-mci-20050217]
+
+  (+) Fixed USB run-time warning: changed call to usb_unlink_urb() to
+      usb_kill_urb().
+
+  (+) Defined two new tuner types.
+
+  (+) Minor tuner handling tweak.
+
+  (+) Renamed video standard string names and video input string names
+      to better match expectations of xawtv.
+
+
+[(Aurelien's 07112004 snapshot starting point)]
+

@@ -1,0 +1,718 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>pvrusb2 Linux Driver - Setup</TITLE>
+	<META NAME="keywords" content="Hauppauge, WinTV-PVR-USB2, WinTV, pvrusb2, PVR, USB2, video4linux, v4l, v4l2">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>pvrusb2 driver setup information</H1>
+<P>$Id: setup.html 1389 2006-10-25 02:39:44Z isely $</P>
+<P>Mike Isely &lt;isely at pobox dot com&gt;</P>
+
+<P>You can find the main driver page on the web at <A
+HREF="http://www.isely.net/pvrusb2/pvrusb2.html">http://www.isely.net/pvrusb2/pvrusb2.html</A>.</P>
+
+<P>This page describes the various prerequisites to using the pvrusb2
+Linux driver and what steps you need to take in order to get your PVR
+USB2 hardware working.</P>
+
+<P>To use the pvrusb2 driver in your Linux system, you must (1)
+satisfy the prerequisites, (2) compile the driver, and (3) extract and
+install appropriate firmware images.  You might also (4) have to deal
+with various support modules (chip-level drivers) if you are using an
+old kernel.  This page is divided into sections corresponding to those
+steps.</P>
+
+<HR>
+<P>Contents</P>
+
+<BLOCKQUOTE>
+<A HREF="#Prerequisites">Prerequisites / Compatibility</A><BR>
+<A HREF="#Compilation">Driver compilation and installation</A><BR>
+<A HREF="#Firmware">Firmware extraction and installation</A><BR>
+<A HREF="#Modules">Support Modules</A><BR>
+</BLOCKQUOTE>
+
+<HR>
+<H2><A NAME="Prerequisites">Prerequisites / Compatibility</A></H2>
+
+<H3>Fun with kernel versions...</H3>
+
+<P>This driver only works under Linux 2.6.x. I have not made any
+attempt to even try it in 2.4.x and I know there are environmental
+differences which likely prevent it from running or even loading.</P>
+
+<P>Note: If you are using kernel version 2.6.18 or later and wish to
+use the in-kernel version of the driver, then you can ignore
+everything below about kernel versions.  If you are using any kernel
+older than 2.6.18, then keep reading.</P>
+
+<P>Within the 2.6.x kernel series and if you are using the standalone
+driver (as opposed to the in-V4L or in-kernel variations), then there
+are additional limits, due mainly to the state of V4L in a given
+kernel.  You really want to use a recent version of kernel; generally
+the later the kernel version probably the easier the time you will
+have.  Going backwards in time:</P>
+
+<DL>
+
+<DT>2.6.18</DT><DD>Starting with 2.6.18, the pvrusb2 driver is a part
+of the kernel tree.  You can just use that if you want...  However if
+you want to use the standalone version, then things should still be
+fine (just build the standalone driver normally and replace the
+in-kernel pvrusb2.ko with it).</DD>
+
+<P>Note that only the 2.6.18 kernel (and later) have the pvrusb2
+driver in-kernel.  Everything below this point requires you to use the
+standalone driver or the in-V4L driver version.</P>
+
+<DT>2.6.17 - 2.6.16</DT><DD>This kernel is known to work just fine.
+You don't need to replace any supporting chip-level drivers (and the
+supplied versions won't compile there anyway).</DD>
+
+<DT>2.6.15</DT><DD>This kernel is known to work just fine with the
+model 29xxx series, but for the newer model 24xxx series it has not
+had a lot of burn-in yet.  You don't need to replace any supporting
+chip-level drivers.</DD>
+
+<DT>2.6.14 - 2.6.11</DT><DD>These kernels are known to work just fine
+with the model 29xxx series (after installing a suitable saa7115.ko
+chip-level driver from the standalone driver snapshot), but they will
+not work for the newer model 24xxx series at all, since the critical
+cx25840 support module did not appear until 2.6.15.  You might need to
+replace one or more of the kernel-supplied chip-level drivers with
+versions from elsewhere or included with the driver snapshot.</DD>
+
+<DT>2.6.10</DT><DD>This kernel version will work with the older model
+29xxx series (after installing a suitable saa7115.ko chip-level driver
+from the standalone driver snapshot), but I strongly recommend you
+patch up the kernel using the corresponding V4L patch from that time
+period (try <A
+HREF="http://dl.bytesex.org/patches/2.6.10-3/All-2.6.10.diff.gz">this</A>).
+There is simply no chance of this working with the newer model 24xxx
+series.</DD>
+
+<DT>2.6.9</DT><DD>I could probably get this one to work, but is it
+really worth it?</DD>
+
+<DT>2.6.8 and earlier</DT><DD>With these older kernels, there are
+build system differences which appear to break pvrusb2 driver
+compilation.  If your distro is still shipping one of these kernels
+(Debian does), just upgrade to a later vanilla kernel.</DD>
+
+</DL>
+
+<P>If the kernel version you are using is listed as one which may
+require replacement of chip-level drivers, read the <A
+HREF="#Modules">modules</A> section below and then see <A
+HREF="chipdrivers.html">chipdrivers.html</A> for more details.</P>
+
+<P>The above constraints only apply for the standalone variant of the
+pvrusb2 driver.  The in-V4L variant of the driver is separately
+constrained by the V4L environment there itself - but it also means
+that it should work anywhere that the V4L repository can be made to
+work.  Basically, if the current Mercurial snapshot of V4L is known to
+work well in kernel 2.6.X, then the in-V4L pvrusb2 driver will
+probably work there as well (including the newer model 24xxx series).
+This is because most of the constraints that limit the standalone
+driver have to do with whatever V4L modules were included in that
+kernel.  When you build the in-V4L variant of the driver you are also
+building <em>all</em> of the V4L modules as well and therefore you
+will be using the latest versions regardless of whatever the kernel
+might have included.  I said in the background section that if you use
+the driver in-V4L that you would also have to install the other 50+
+modules that come with it.  Well, for older kernels that might
+actually be considered to be an advantage...</P>
+
+<P>None of the above applies for the in-kernel variant of the driver.
+As one might expect all support needs for the in-kernel pvrusb2 driver
+are already in-kernel as well.</P>
+
+<P>I routinely build and test this driver using a Debian based system,
+and I run only vanilla Kernel trees here from <A
+HREF="http://www.kernel.org/pub/linux/kernel/v2.6/">kernel.org</A>.  I
+do not run any distro-specific kernels, thus I cannot guarantee or
+otherwise support this driver in any distro-specific kernel.  You are
+of course welcome to try, but you may have problems if the vendor is
+in the habit of back-porting newer-kernel changes into older kernels.
+The reason why is this: There are various APIs that have been getting
+thrashed / changed etc in each version of the kernel.  Some changes
+have been in V4L while others have been in the kernel itself.  An
+out-of-tree driver like the standalone pvrusb2 driver has only a
+single defense against this - by implementing conditionally compiled
+code that conditions itself on the kernel version against which the
+driver is being compiled.  That works well for vanilla
+kernels. However when a distribution vendor back-ports changes between
+different versions of the kernel then you can get problems where an
+unexpected API change shows up in a different version of the kernel
+and then compilation breaks.</P>
+
+<P>I can't get into the business of identifying distro-specific
+versions and modifying the driver to adapt to stuff like that.  I'm
+not a Fedora user so there's no way I can test this sort of thing.
+Also if I were to try to support Fedora in this way, then where does
+it stop?  The burden of having to test compile against each possible
+kernel variant can be overwhelming. I have a hard enough time just
+test compiling against 4-6 kernel versions for each snapshot - and if
+you look at the change history you'll see I've even failed in that
+regard multiple times...</P>
+
+<P>If you find yourself in this situation, all is not lost.  Seriously
+consider moving to a vanilla kernel anyway.  Or hunt around your
+distro for a later kernel that doesn't choke the driver build.  You
+could also just try to edit the driver sources and if you want to send
+me a patch I'll look at it - but I can't promise I'll include it if it
+might be hazardous to the vanilla kernels.  Also of course even if I
+apply such a patch I can't support it or guarantee that it will
+continue to build correctly in the future.</P>
+
+<P>I'm not trying to be a pain; it's just that there's a limit to how
+many kernel variants I can juggle here and still have time left to
+actually improve the driver.</P>
+
+<H3>Firmware loading support (hotplug)</H3>
+
+<P>This driver uses a standard kernel facility for
+loading firmware images from the file system, and that facility
+requires a userspace utility to be present.  Currently that utility is
+hotplug.  Supposedly udev can also fill this role but I have not
+tested this so I can't be sure.  If hotplug (or whatever can stand in
+as a functional replacement) is not installed on your system, then the
+driver will fail when it tries to load required firmware images into
+the hardware.  Therefore, <strong>you must have hotplug or its
+equivalent installed in order for this driver to work.</strong></P>
+
+<H3>Kernel configuration</H3>
+
+<P>There are a number of things you must have configured into your
+kernel in order for the standalone driver to work.  (For the in-kernel
+driver, the appropriate dependencies should be set automatically when
+you select the driver.)  You have to enable firmware loading, you have
+to enable V4L, and you have to enable various options so that required
+support modules, a.k.a. &quot;chip-level drivers&quot; are built for
+your kernel.  Note that if you are using a pre-built vendor kernel
+then you may want to at least ensure that these options have been set
+(and if not, go build a vanilla kernel):</P>
+
+<DL>
+
+<DT><tt>CONFIG_FW_LOADER</tt></DT> <DD>This enables firmware
+retrieval and loading - needed because the pvrusb2 driver has to load
+2-3 firmware images (depending on hardware type).</DD>
+
+</DL>
+
+<P>A subset (depending on kernel version and hardware type) of the
+remaining options must be configured for the standalone driver.  None
+of these should be required for the in-V4L version of the driver,
+since in that case the surrounding V4L source tree should provide
+everything needed:</P>
+
+<DL>
+
+<DT><tt>CONFIG_VIDEO_DEV</tt></DT> <DD>This enables the whole V4L
+subsystem.  Being that this is a V4L driver...</DD>
+
+<DT><tt>CONFIG_VIDEO_BT848</tt></DT> <DD>We need this for 2.6.16 or
+earlier because the msp3400.ko chip-level driver is built as part of
+the bt848 driver.  (You don't need this for model 24xxx
+hardware).</DD>
+
+<DT><tt>CONFIG_VIDEO_MSP3400</tt></DT> <DD>This switch enables the
+msp3400.ko chip-level driver for 2.6.17 or later kernels (not needed
+for model 24xxx hardware).</DD>
+
+<DT><tt>CONFIG_VIDEO_TUNER</tt></DT> <DD>We need this for the tuner.ko
+and tda9887.ko chip-level drivers.</DD>
+
+<DT><tt>CONFIG_VIDEO_TVEEPROM</tt></DT> <DD>We need this for the
+tveeprom.ko chip-level driver.</DD>
+
+<DT><tt>CONFIG_VIDEO_DECODER</tt></DT> <DD>For kernels 2.6.15 and
+2.6.16, this enables inclusion of the saa7115.ko and cx25840.ko
+chip-level drivers (one is needed only for 29xxx hardware, the other
+for 24xxx hardware).  This enables inclusion of the wm8775.ko
+chip-level driver (again, for 2.6.15 and 2.6.16), needed only for
+24xxx hardware when composite or s-video input is used.</DD>
+
+<DT><tt>CONFIG_VIDEO_SAA711X</tt></DT> <DD>For kernel 2.6.17 or later,
+this enables inclusion of the saa7115.ko chip-level driver, needed
+only for 29xxx hardware.</DD>
+
+<DT><tt>CONFIG_VIDEO_CX25840</tt></DT> <DD>For kernel 2.6.17 or later,
+this enables inclusion of the cx25840.ko chip-level driver, needed for
+24xxx hardware.</DD>
+
+<DT><tt>CONFIG_VIDEO_WM8775</tt></DT> <DD>For kernel 2.6.17 or later,
+this enables inclusion of the wm8775.ko chip-level driver, needed for
+only 24xxx hardware when composite or s-video input is used.</DD>
+
+<DT><tt>CONFIG_VIDEO_CX2341X</tt></DT> <DD>For kernel 2.6.18 or later,
+this enables inclusion of a new cx2341x.ko chip-level driver.  This
+corresponds to the cx23416 mpeg2 encoder, which exists in the PVR USB2
+and in the various PVR-xxx devices supported by ivtv.  This new module
+is intended to be shared by all V4L drivers which must operate a
+cx23416.  The pvrusb2 standalone driver will be expecting to use this
+module if it is compiled under 2.6.18 or later (for kernels before
+2.6.18 the standalone driver will handle this part on its own).</DD>
+
+</DL>
+
+<P>There might yet still be other configuration options that must be
+turned on - the above are only what I've identified so far.  In my
+test builds, I basically build <em>everything</em> anyway as modules
+so I tend not to notice if something might be missing...</P>
+
+<P>If you are compiling against a kernel older than 2.6.15, then
+things get a little trickier, because it wasn't until 2.6.15 when all
+the chip-level drivers actually made it into the kernel tree.  See the
+<A HREF="#Modules">Support Modules</A> section below for more
+information about this.  Best advice: stick to kernel versions 2.6.15
+or later.</P>
+
+<P>If you see messages in the log of the form &quot;No decoder
+present&quot;, that is an indication that saa7115 or (if you have
+24xxx hardware) cx25840 was not configured into your kernel.  It's
+always a good idea to check that you have the appropriate options set,
+as defined above.</P>
+
+<HR>
+<H2><A NAME="Compilation">Driver compilation and installation</A></H2>
+
+<P>The following subsections describe the various different build
+scenarios possible.  Pick the appropriate heading and read on...</P>
+
+<H3>Standalone driver compilation and installation</H3>
+
+<P>Compiling and installing the standalone driver itself it actually
+the easiest part of this process; the driver is just a collection of
+sources which you must compile together to produce the pvrusb2.ko
+module, which is then inserted into your running kernel to implement
+control of your device.</P>
+
+<P>The standalone pvrusb2 driver sources and build files can be found
+in the <TT>driver</TT> subdirectory of the <A
+HREF="http://www.isely.net/pvrusb2/download.html">driver snapshot</A>;
+follow the rest of this section to build it.</P>
+
+<P>Compile this driver more or less in the usual way one does to build
+2.6.x kernel modules outside of the kernel source tree.  Said another
+way, you need a kernel source tree somewhere nearby, and you need to
+run <TT>make</TT> in the <TT>driver</TT> directory with <TT>KDIR</TT>
+or <TT>KREL</TT> variables set to help make find where you put that
+source tree.  For example (starting from the root of the driver
+snapshot tree):</P>
+
+<BLOCKQUOTE><CODE>export KREL=`uname -r`<BR>
+export KDIR=/lib/modules/$KREL/source<BR>
+make --directory driver<BR></CODE></BLOCKQUOTE>
+
+<P>If you set neither <TT>KDIR</TT> nor <TT>KREL</TT>, then
+<TT>KREL</TT> is assumed to be the output of <TT>uname -r</TT> and
+<TT>KDIR</TT> is assumed to be <TT>/lib/modules/$(KREL)/source</TT>
+(same as the example above).  Since nothing else except the default
+<TT>KDIR</TT> value needs <TT>KREL</TT>, then you can skip setting
+<TT>KREL</TT> if you set <TT>KDIR</TT>.  This is all explained in the
+comments that you can find within the <TT>Makefile</TT> itself (both
+in the <TT>driver</TT> and <TT>ivtv</TT> subdirectories).</P>
+
+<P>Once you have the driver compiled, you must copy the the
+<TT>pvrusb2.ko</TT> module into your kernel's module area.  The target
+directory is typically under <TT>/lib/modules/$(KREL)</TT>.  I usually
+use <TT>/lib/modules/$(KREL)/pvrusb2/</TT> as the destination but the
+choice is up to you.  After <TT>pvrusb2.ko</TT> is copied, run
+<TT>depmod -a</TT> so that the module loader will recognize any needed
+dependencies.</P>
+
+<P>You should be able to also just run <TT>make install</TT> and the
+driver should be copied into the appropriate place.</P>
+
+<P>You can next execute <TT>modprobe pvrusb2</TT> to load the driver.
+After this point, <TT>lsmod</TT> should show pvrusb2 present.  This
+step is not strictly needed however, as hotplug (which you likely have
+set up anyway due to firmware loading requirements) will do the needed
+module loading when the device hardware appears in the system.</P>
+
+<H3>Compilation and installation of the in-V4L driver</H3>
+
+<P>If you are using the in-V4L version of this driver, then you must
+build and install V4L itself - there's nothing special here related to
+the pvrusb2 driver.  Go instead to linuxtv.org and read their
+documentation for how to check out, build, and install the full V4L
+subsystem from their repository.</P>
+
+<H3>Compilation and installation of the in-kernel driver</H3>
+
+<P>There's no special knowledge needed to build the in-kernel driver,
+since obviously the kernel build process takes care of that.  Just
+select it as a configuration option when you configure the kernel.
+So, nothing to see here, move along...</P>
+
+<H3>Compilation and installation of the standalone driver combined
+with out-of-tree V4L</H3>
+
+<P>This is an uncommon scenario, but it can prove useful in the
+following situation:</P>
+
+<UL>
+<LI>You are using the V4L Mercurial repository with your kernel...</LI>
+<LI>...but you also want to use the standalone pvrusb2 driver.</LI>
+</UL>
+
+<P>In this case apparently you still want to use the standalone
+pvrusb2 driver <em>at the same time</em> you are using a V4L repo.
+Typically I'd just say use the in-V4L version of the pvrusb2 driver,
+but perhaps there's some reason you don't want to.  (Maybe you just
+want to make more work for yourself...)  In order for this scenario to
+build correctly, then you need to compile the standalone pvrusb2
+driver against both the kernel and your V4L repository snapshot.  This
+is important because the pvrusb2 driver depends on headers from V4L
+and they tend to change when you replace V4L.  For standalone driver
+snapshots from 20060625 onward, there is a way to do this.</P>
+
+<P>To compile the standalone pvrusb2 driver against V4L and the
+kernel, follow the normal standalone build procedure above, but you
+must also pass another environment variable that tells the pvrusb2
+build about the V4L repository.  That variable is <TT>V4LDIR</TT>, and
+is expected to be set to the path where the top of your V4L tree is
+residing.  For example (and assuming that the pvrusb2 driver is in
+your CWD), if your V4L tree is in <TT>/usr/src/v4l-dvb</TT>, then do
+this:</P>
+
+<BLOCKQUOTE><CODE>export KREL=`uname -r`<BR>
+export KDIR=/lib/modules/$KREL/source<BR>
+export V4LDIR=/usr/src/v4l-dvb<BR>
+make --directory driver<BR></CODE></BLOCKQUOTE>
+
+<P>This build process may produce some warnings.  You might see
+messages like this:</P>
+
+<blockquote><pre>*** Warning: "cx2341x_fill_defaults" [/home/isely/pvrusb2/driver/pvrusb2.ko] undefined!
+*** Warning: "cx2341x_log_status" [/home/isely/pvrusb2/driver/pvrusb2.ko] undefined!
+*** Warning: "cx2341x_ctrl_get_menu" [/home/isely/pvrusb2/driver/pvrusb2.ko] undefined!
+*** Warning: "cx2341x_update" [/home/isely/pvrusb2/driver/pvrusb2.ko] undefined!
+*** Warning: "cx2341x_ctrl_query" [/home/isely/pvrusb2/driver/pvrusb2.ko] undefined!
+*** Warning: "cx2341x_ext_ctrls" [/home/isely/pvrusb2/driver/pvrusb2.ko] undefined!</pre></blockquote>
+
+<P>The warnings might vary, depending on the kernel you are using.
+These can be safely ignored.  What is happening here is that the
+kernel build system is finding references which are actually resolved
+by modules in the V4L repository but happen to not be in the kernel
+tree.  This is OK.  Provided you have the V4L repository compiled and
+installed as well, then everything should be fine.</P>
+
+<HR>
+<H2><A NAME="Firmware">Firmware extraction and installation</A></H2>
+
+<blockquote><strong>NOTE: Even if you intend to use the in-V4L or
+in-kernel versions of the driver, you must still extract the firmware
+using the instructions here.</strong></blockquote>
+
+<P>The PVR USB2 hardware has several parts within it that require
+firmware in order to operate correctly.  That firmware is not a part
+of this driver; you must obtain it from elsewhere (e.g. your Windows
+driver CD or from Hauppauge's web site).  In addition, the exact
+firmware files you will need will depend on which model of the PVR
+USB2 device you have.</P>
+
+<P>The central piece of the firmware extraction puzzle is a Perl
+script, called <tt>fwextract.pl</tt>.  This program is fairly smart;
+you need only point it at a directory where the Windows driver files
+have been placed and it will automatically hunt down and extract
+appropriate firmware images.  This script uses MD5 sums to identify
+its target(s) and so it works across all currently known driver
+package versions and hardware variants.  It also verifies the
+extracted results with additional MD5 sums, so if it writes a firmware
+image file at all, you can have high confidence that it is indeed
+correct.</P>
+
+<BLOCKQUOTE>Note: The <tt>fwextract.pl</tt> program will scan any
+nested subdirectories it might find.  This means two things: First, if
+the driver package you are trying to extract from has nested
+subdirectories (it usually will), then you can avoid trying to guess
+the exact directory to scan.  Second, if you were to accidentally
+specify, oh, say &quot;/&quot; as the &quot;driver directory&quot;
+then <tt>fwextract.pl</tt> will likely take a <em>very</em> long time
+to find the firmware.  (It will however probably still find it if you
+wait long enough and have enough virtual memory
+available...)</BLOCKQUOTE>
+
+<P>The <tt>fwextract.pl</tt> script is included in the <tt>utils</tt>
+subdirectory of the standalone driver snapshot.  If you are using the
+in-V4L driver driver version however you won't want to deal with
+grabbing that whole snapshot - in that case you can download a
+reasonably recent version of the script from here:</P>
+
+<blockquote><A
+HREF="http://www.isely.net/downloads/fwextract.pl">http://www.isely.net/downloads/fwextract.pl</A></blockquote>
+
+<P>The general process of firmware extraction is this:</P>
+
+<OL>
+
+<LI>Create an empty subdirectory somewhere
+(e.g. &quot;<tt>win_driver</tt>&quot;) and unpack or copy the Windows
+driver files into it.</LI>
+
+<LI>Execute &quot;<tt>fwextract.pl</tt>&quot; with no arguments beyond
+specifying the driver directory you created (just name it on the
+command line).  If you named that directory <tt>win_driver</tt> then
+you can even omit the command argument.</LI>
+
+</OL>
+
+<BLOCKQUOTE>Note that when the term &quot;Windows driver files&quot;
+is used above, it is refering to a directory tree full of files that
+contains the drivers from Hauppauge.  That unfortunately is easier
+defined than found because Hauppauge seems to like packaging these
+drivers in different ways.  If you're working from a CDROM
+distribution, then we're refering to the root directory of the CDROM -
+for 29xxx hardware but the <tt>DriverD2</tt> subdirectory of the CDROM
+for 24xxx harware(!).  If you are working from a download package,
+there might be several such packages but only one has the files you
+want.  For example, the packages pvrusb2_23_31351.exe and
+pvrusb2_27_23178.zip each contain a driver set, but
+pvrusb2_26_23055.exe does not - instead in that case the actual
+drivers are in pvrusb2_inf.zip.  Why did they do this?  I have no
+idea; it just confuses.  Best advice here is make a guess and if
+<tt>fwextract.pl</tt> doesn't spot anything then try a related
+package.</BLOCKQUOTE>
+
+<P>Stated more literally, here is an example of the set of steps you
+can do:</P>
+
+<OL>
+
+<LI><TT>mkdir win_driver</TT></LI>
+
+<LI><TT>chdir win_driver</TT></LI>
+
+<LI><TT>unzip driver_package.EXE</TT></LI>
+
+<LI><TT>chdir ..</TT></LI>
+
+<LI><TT>$UTIL_DIR/fwextract.pl</TT></LI>
+
+</OL>
+
+<P>Substitute the name of the driver package you got from Hauppauge
+for &quot;<tt>driver_package.EXE</tt>&quot; which is just a
+placeholder above.  If you're starting from a CDROM copy of the
+drivers, then just copy the driver subdirectory contents into
+&quot;win_driver&quot; <em>or</em> just list the directory name as a
+command argument to fwextract instead of doing the unzip step above.
+For <tt>$UTIL_DIR</tt>, substitute the path where you have located the
+fwextract script.</P>
+
+<P>If you extracted from a driver package for 29xxx hardware, you
+should then see the following two firmware files:</P>
+
+<BLOCKQUOTE><TABLE BORDER=1>
+<TR><TH>File</TH><TH>Size</TH><TH>Description</TH></TR>
+
+<TR><TD><TT>v4l-pvrusb2-29xxx-01.fw</TT></TD><TD>8KB</TD><TD>FX2 program</TD></TR>
+
+<TR><TD><TT>v4l-cx2341x-enc.fw</TT></TD><TD>256KB</TD><TD>cx23416
+encoder firmware</TD></TR>
+
+</TABLE></BLOCKQUOTE>
+
+<BLOCKQUOTE>Note: The above two files used to be known as
+<TT>pvrusb2.f1</TT> and <TT>pvrusb2.f2</TT>, respectively.  Starting
+with the 20060318 snapshot they have been renamed (but the snapshot
+should also locate and use the old files if they are
+present).</BLOCKQUOTE>
+
+<P>If you extracted from a driver package for 24xxx hardware, you
+should then see the following three firmware files:</P>
+
+<BLOCKQUOTE><TABLE BORDER=1>
+<TR><TH>File</TH><TH>Size</TH><TH>Description</TH></TR>
+
+<TR><TD><TT>v4l-pvrusb2-24xxx-01.fw</TT></TD><TD>8KB</TD><TD>FX2
+program</TD></TR>
+
+<TR><TD><TT>v4l-cx2341x-enc.fw</TT></TD><TD>256KB</TD><TD>cx23416
+encoder firmware</TD></TR>
+
+<TR><TD><TT>v4l-cx25840.fw</TT></TD><TD>13KB
+(approx)</TD><TD>cx25840 audio/video decoder firmware</TD></TR>
+
+</TABLE></BLOCKQUOTE>
+
+<P>With more recent Hauppauge firmware packages both sets of firmware
+will be in the same package, in which case <tt>fwextract.pl</tt> will
+locate and extract everything:</P>
+
+<BLOCKQUOTE><TABLE BORDER=1>
+<TR><TH>File</TH><TH>Size</TH><TH>Description</TH></TR>
+
+<TR><TD><TT>v4l-pvrusb2-29xxx-01.fw</TT></TD><TD>8KB</TD><TD>FX2
+program for 29xxx devices</TD></TR>
+
+<TR><TD><TT>v4l-pvrusb2-24xxx-01.fw</TT></TD><TD>8KB</TD><TD>FX2
+program for 24xxx devices</TD></TR>
+
+<TR><TD><TT>v4l-cx2341x-enc.fw</TT></TD><TD>256KB</TD><TD>cx23416
+encoder firmware</TD></TR>
+
+<TR><TD><TT>v4l-cx25840.fw</TT></TD><TD>13KB
+(approx)</TD><TD>cx25840 audio/video decoder firmware</TD></TR>
+
+</TABLE></BLOCKQUOTE>
+
+<P>If the extraction didn't work, then possibly you're dealing with a
+later driver version that <tt>fwextract.pl</tt> doesn't know how to
+handle yet.  Solving this requires a more complex manual extraction.
+See <A HREF="firmware.html">firmware.html</A> for more info.</P>
+
+<P>What this all really boils down to is just a matter of expanding
+all the Windows driver files into a single place and then letting
+<tt>fwextract.pl</tt> chew on it for a while to locate the firmware.
+The extract script doesn't care about file names or history; it works
+purely by recognizing file MD5 sums and acting on what it finds.</P>
+
+<P>Assuming that <tt>fwextract.pl</tt> recognizes the driver files, it
+will automatically locate and extract the firmware.  No more firmware
+file guesswork, ever.</P>
+
+<P>Failing all of the above, you can still try to extract the firmware
+using an older method (before I started working on this) - but such a
+method does <strong>not</strong> verify the image, is specific to a
+single version of the Hauppauge driver package and is of no use to
+anyone with 24xxx hardware.  Information on this can be found on
+Bj&ouml;rn's <A HREF="http://pvrusb2.dax.nu/">web page</A>.  Note that
+you may need to rename the firmware file names in that case (see table
+above for clues on the correct names).  If you find you <em>must</em>
+use this (frankly obsolete) method of extraction, please contact me so
+we can figure out why <tt>fwextract.pl</tt> apparently did not work
+for you.</P>
+
+<BLOCKQUOTE>The pvrusb2 standalone driver also includes a wrapper
+script in the <tt>utils</tt> subdirectory that will attempt to further
+simplify the process.  This is a contributed script, called
+<tt>fwfind.sh</tt>.  What this does is attempt the surrounding steps:
+It will locate or download the Windows drivers for you and then it
+will run <tt>fwextract.pl</tt> to perform the actual extraction.  Thus
+to extract using this method involves just one step: run
+<tt>fwfind.sh</tt>.  If it works for you, great.  If not, then just
+use <tt>fwextract.pl</tt> directly, as described above.  As of this
+writing, <tt>fwfind.sh</tt> will only work for 29xxx hardware, i.e. it
+only downloads and extracts using a Hauppauge driver package for 29xxx
+hardware - so if you're using 24xxx hardware then this is not an
+option for you.</BLOCKQUOTE>
+
+<P>The result of the extraction process will be two to four firmware
+files that have to be put somewhere.  During its initialization the
+pvrusb2 driver (and possibly also the cx25840.ko chip-level driver)
+will expect to find these files, load them into memory and then upload
+their contents to the pvrusb2 device.  For this to work, you have to
+be using hotplug (or something that supports the kernel firmware
+request facility), and you have to place these files in a spot where
+they can be found.  The exact location may be distribution and utility
+dependant.  On my Debian system while using hotplug, viable locations
+include:</P>
+
+<BLOCKQUOTE><CODE>
+/lib/firmware<BR>
+/usr/local/lib/firmware<BR>
+/usr/lib/hotplug/firmware<BR>
+</CODE></BLOCKQUOTE>
+
+<P><strong>However</strong>, your distribution may have things
+configured differently.  For example, perhaps your system is
+configured to look in <tt>/lib/hotplug/firmware</tt> instead.  When
+hotplug is in use, the <tt>firmware.agent</tt> script is programmed
+with these locations.  Try this command to find out your list of
+candidate firmware directories:</P>
+
+<BLOCKQUOTE><CODE>grep FIRMWARE_DIRS
+/etc/hotplug/firmware.agent</CODE></BLOCKQUOTE>
+
+<P>Copy the firmware images to the appopriate location.  Once there,
+then the pvrusb2 driver will be able to retrieve what it needs and
+upload appropriate data to the device hardware.</P>
+
+<HR>
+<H2><A NAME="Modules">Support Modules</A></H2>
+
+<P>The architecture of the pvrusb2 driver (and for that matter
+probably all V4L drivers) is that &quot;the&quot; driver doesn't
+actually do all of the work.  Most chip-level operations are instead
+handled by an ensemble of common chip-level drivers - the exact
+modules needed will depend on which chips are in your device.  The
+pvrusb2 driver performs in the role of the &quot;conductor&quot;
+within that ensemble, sending commands to those attached chip-level
+drivers as needed to accomplish whatever overall task is being
+executed at a given moment.  (And the chip-level drivers in turn work
+back through the pvrusb2 driver to communicate with the controlled
+hardware in the device.)  This scheme works because many different TV
+tuner / capture devices happen to use a lot of common chips.  All that
+the &quot;conductor&quot; driver has to do is ensure that the various
+chip-level drivers work in concert correctly to operate the
+device.</P>
+
+<P>Unfortunately, working with common modules like that means that
+it's another boundary where compatibility / breakage can occur.  In an
+ideal world, all the chip-level drivers you will ever need will
+already be present and perfect.  But in the V4L world, things
+constantly change, and that may require you to update / replace a few
+of those modules before your hardware is going to work...</P>
+
+<P>If you are using the standalone driver in kernel version 2.6.15 or
+later, then you should be able to safely ignore everything about
+dealing with chip-level drivers.  This is because in those cases all
+the drivers you need will already be present and are usually mature
+enough not to be a problem.</P>
+
+<P>On the other hand if you are compiling against a kernel older than
+2.6.15, then things get a little trickier, because it wasn't until
+2.6.15 when all the chip-level drivers actually made it into the
+kernel tree.  Worse still, some of those drivers that do exist in the
+older kernels can be broken in various subtle ways.  Basically in
+those cases you are faced with having to use replacement chip-level
+drivers.  There are three ways to meet this requirement:</P>
+
+<UL>
+
+<LI>Use the in-V4L version of the pvrusb2 driver.  This is an elephant
+gun solution but probably has the least amount of potential pain
+associated with it.  When you build all of V4L which includes the
+pvrusb2 driver, then you're building the latest versions of all the
+chip-level drivers anyway so then you're fine.  Using this method you
+might be able to use just about any 2.6.x kernel version.</LI>
+
+<LI>Install an ivtv distribution appropriate for your desired kernel.
+The <A HREF=" http://ivtvdriver.org">ivtv driver</A> comes bundled
+with all the chip-level drivers that you might need.</LI>
+
+<LI>Build the chip-level drivers bundled with the pvrusb2 driver.  As
+an attempt to ease the pain, a set of chip-level drivers are included
+with the pvrusb2 driver (in the <tt>ivtv</tt> subdirectory of the
+snapshot).  These just came from ivtv, from roughly September 2005.
+By today's standard they are fairly ancient now, but they work for
+kernels 2.6.11 through 2.6.15.  You don't need them for 2.6.15
+actually, and they no longer even compile for 2.6.16 or later.  In
+addition, those modules only include enough to handle 29xxx hardware;
+if you have 24xxx hardware then this is not an option for you at
+all.</LI>
+
+</UL>
+
+<P>No kernel older than 2.6.15 includes the saa7115.ko or cx25840.ko
+chip-level drivers so you unavoidably need to deal with that if you
+want to run an old kernel.  Other than that, kernels at least back to
+2.6.11 include the other chip-level drivers, though sometimes in an
+incomplete or less than functional form.</P>
+
+<P>For a complete discussion of all these chip-level driver
+requirements and what to do in various scenarios, see <A
+HREF="chipdrivers.html">here</A>.  A better and far less painful
+choice however is to just run kernel 2.6.15 or later - then you won't
+have to worry about any of this.</P>
+
+<HR>
+<BR><BR>
+</BODY>
+</HTML>

@@ -1,0 +1,447 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>pvrusb2 Linux Driver tveeprom issues</TITLE>
+	<META NAME="keywords" content="Hauppauge, WinTV-PVR-USB2, pvrusb2, PVR, USB2, video4linux, v4l, v4l2">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>The pvrusb2 driver tveeprom mess</H1>
+<P>$Id: eeprom.html 1153 2006-05-17 04:39:09Z isely $</P>
+<P>Mike Isely &lt;isely at pobox dot com&gt;</P>
+
+<P>This page describes issues involving the pvrusb2 driver's use of
+the tveeprom module that is both a part of Vidoe4Linux and ivtv.
+Unfortunately these two implementations are somewhat divergent and can
+cause problems when used with the <A HREF="pvrusb2.html">pvrusb2</A>
+driver distribution.</P>
+
+<P>If you find you are having problems that involve tveeprom.ko or are
+experiencing problems involving the correct determination of your PVR
+USB2 device's configuration, then you might be getting victimized by
+issues with tveeprom.  You probably should read everything below
+before asking any questions...</P>
+
+<P>You can find the main pvrusb2 driver page on the web at <A
+HREF="http://www.isely.net/pvrusb2/pvrusb2.html">http://www.isely.net/pvrusb2/pvrusb2.html</A>.</P>
+
+<HR>
+<H2>Background</H2>
+
+<P>The PVR USB2 device contains within it a block of data that helps
+drivers determine how best to control the device.  This information,
+typically held inside a I2C-accessed PROM device, needs to be
+retrieved by the driver during initialization.  Information contained
+therein can include any of:</P>
+
+<UL>
+<LI>RF tuner type</LI>
+<LI>Supported video standard(s)</LI>
+<LI>Audio processor type</LI>
+<LI>Device serial number</LI>
+<LI>Device model information</LI>
+<LI>Device revision info</LI>
+</UL>
+
+<P>In the case of the pvrusb2 driver, we're specifically interested
+in the tuner type, set of support video standards (there may be more
+than one), and the device's serial number.  We can probably live
+without the serial number or supported video standards (just assume
+them all), but we really really need that tuner type.  Hauppauge seems
+to like changing out tuners within a product without telling anyone,
+and we have to be able to recognize and handle that situation.</P>
+
+<P>It turns out that with apparently all Hauppauge TV tuner products,
+a common data format is used within all embedded PROMs.  Thus it
+becomes possible to write a parser for that data a single time and
+have it be useful to many different drivers.  That is indeed the case
+within Video4Linux; it provides a module known as <tt>tveeprom.ko</tt>
+which parses Hauppauge PROM data.  So, for the pvrusb2 driver to
+retrieve data from the device's PROM, it's just a simple matter of
+using <tt>tveeprom.ko</tt> to do the work, right?  Well read on...</P>
+
+<HR>
+<H2>tveeprom.ko</H2>
+
+<H3>Theory and Reality</H3>
+
+<P>The <tt>tveeprom.ko</tt> module (we'll just call it tveeprom from
+here on out) is designed to operate as a typical I2C client driver
+within Video4Linux.  When loaded into the kernel, it will register
+itself as a chip driver, and as I2C buses are registered it will check
+each bus for the presence of a PROM and if found it will attach itself
+to that bus and make available its command interface for any
+interested parties.  When asked via that command interface, tveeprom
+will read in the contents of the associated PROM, parse the contents,
+and hand back the results to the caller in a structure.</P>
+
+<P>The tveeprom module, in an ideal world, is really doing 3 things
+here:</P>
+
+<OL>
+<LI>It is detecting the presence of the PROM chip.</LI>
+<LI>It is reading the entire contents of the PROM chip.</LI>
+<LI>It is parsing the contents to find data of interest.</LI>
+</OL>
+
+<P>In an ideal world, those three things will always work perfectly
+and will never need to change...</P>
+
+<P>But things are not this simple.  A number of factors seriously
+complicate the operation of this module.  First and most aggravating
+is that incompatible variations of this module exist in v4l and ivtv -
+how do we use tveeprom in pvrusb2 if we're not sure which module has
+been loaded?  Another problem is that while tveeprom does a great job
+of parsing the PROM contents, it doesn't do so well at detecting the
+PROM nor correctly reading the area that needs to be parsed.  A number
+of issues like this conspire to make it very difficult to reliably use
+this module.</P>
+
+<H3>tveeprom variants</H3>
+
+<P>For starters, there is more than one tveeprom floating around in
+Linux - there's one version provided by v4l and another version
+provided by the out-of-tree ivtv driver.  While the two versions may
+have a common ancestor, they are forked code and have recently
+diverged.  (Yes, I know that there is an effort underway to bring this
+back together, but that doesn't change what I've recently
+observed.)</P>
+
+<P>The pvrusb2 driver does not really want to get into the business of
+implementing a third variation of this module, nor does it want to
+re-implement what has already been done elsewhere.  Thus the pvrusb2
+driver is designed to (attempt to) work with either variant of
+tveeprom.  Being able to stay compatible with both variants is proving
+to be quite a challenge.</P>
+
+<BLOCKQUOTE>Note: the tveeprom.ko built as part of pvrusb2 is not
+another variant.  It is an exact mirror of tveeprom.c taken from a
+recent snapshot of ivtv.  I have hit situations in the past where the
+v4l implementation of tveeprom causes problems (e.g. not correctly
+mapping a particular tuner type).  Rather than require everyone to
+then also find and install ivtv, the pvrusb2 driver snapshot contains
+copies of a few modules (like tveeprom) from ivtv.  These files are
+unmodified, and kept up-to-date whenever possible.</BLOCKQUOTE>
+
+<H3>tveeprom alternate API</H3>
+
+<P>Earlier it was mentioned that tveeprom really does 3 things,
+detection, retrieval, and parsing.  That third thing is exported
+outside of tveeprom with a direct subroutine entry point.  Its
+prototype is basically this:</P>
+
+<code><pre>void tveeprom_hauppauge_analog(struct tveeprom *tvee,unsigned char *eeprom_data);</pre></code>
+
+<P>(Starting with the v4l variant kernel 2.6.14, this function has
+changed to expect an additional <tt>struct i2c_client</tt> pointer as
+the first argument, with the other arguments shifted down.  The
+implementation uses this pointer to emit additional information when
+printing to the log.)</P>
+
+<P>By calling this entry point directly rather than using the I2C
+command interface, it becomes up to the user to detect the PROM and
+read the appropriate contents.  The results are returned inside of the
+<tt>tveeprom</tt> structure, which provides more information than
+would otherwise be possible with the I2C command interface method.
+Using this direct call, we can retrieve the device's stored serial
+number, which can't be had any other way.</P>
+
+<P>For all further discussion, we'll refer to the I2C command
+interface way of retrieving data as the &quot;indirect method&quot;
+and this direct call means of retrieving data as the &quot;direct
+method&quot;.  (Note: as of 20051231, the indirect method is
+completely broken right now so don't even bother trying it...)</P>
+
+<P>There is however a major downside to the direct method: It is an
+unstable API.  Though both v4l and ivtv variations of tveeprom provide
+this method, they use different and incompatible definitions for
+<tt>struct tveeprom</tt>.  This makes it very difficult to compile a
+driver that can use either variation of tveeprom - which <tt>struct
+tveeprom</tt> definition do you use?</P>
+
+<HR>
+<H2>pvrusb2 handling of tveeprom</H2>
+
+<P>The pvrusb2 driver, not wanting to foreclose any choices, attempts
+to support both indirect and direct methods using either variation of
+tveeprom available.  This does not work well in every combination.  In
+fact right now, the indirect method does not even work at all for your
+author here (and as of the 20051231 snapshot the indirect method is
+currently broken anyway), and the direct method requires an ugly,
+disgusting, sickening hack in order to operate correctly.</P>
+
+<P>The choice of indirect versus direct method is determined by the
+<tt>PVR2_EEPROM_INDIRECT</tt> macro (or
+<tt>PVRUSB2_EEPROM_DIRECT_CALL</tt> macro for snapshots older than
+20051113), which is used within <tt>pvrusb2-eeprom.c</tt>.  Based on
+this macro, one of two versions of the function
+<tt>pvr2_eeprom_analyze()</tt> are compiled into the pvrusb2 driver.
+As shipped, the direct method is selected by default (since it is the
+method that actually works for all known cases).  If you want to try
+the indirect method, you'll need to edit <tt>pvrusb2-eeprom.c</tt> to
+enable or disable the macro as appropriate, and then rebuild the
+driver.</P>
+
+<blockquote>Actually, post 20051113, the above is not quite exactly
+true.  There are now <em>three</em> versions of
+<tt>pvr2_eeprom_analyze()</tt> implemented.  The direct method now has
+two implementations.  They are selected through the use of the
+<tt>PVR2_EEPROM_IVTV</tt> macro.  Basically, the extra version comes
+into play when this macro is not defined; it doesn't do any of the
+hackish junk described below.  It instead assumes that it is always
+always working with a V4L-provided tveeprom.ko, and is intended that
+this non-hacked version will find its way into a V4L resident version
+of this driver.  For the sake of everything discussed below, consider
+that <tt>PVR2_EEPROM_IVTV</tt> is defined. </blockquote>
+
+<P>Probably the best way to describe the problems here is just to walk
+through the choices and see where that leads us.  Have your painkiller
+ready...</P>
+
+<H3>Using the indirect method</H3>
+
+<P>Clearly, the ideal method should be the ideal choice, and that
+method appears to be the indirect method.  Why go to all the work to
+detect and read the PROM when the tveeprom module is clearly designed
+to do this for you?  It's supported by both tveeprom variants and
+should work the same in both cases.  This has in fact been implemented
+in the function <tt>pvr2_eeprom_analyze()</tt> in
+<tt>pvrusb2-eeprom.c</tt> within the driver but left disabled.  Here's
+what <em>should</em> happen if you enable it:</P>
+
+<OL>
+
+<LI>The tveeprom module will be called to scan the pvrusb2's I2C bus
+when the device is plugged in.</LI>
+
+<LI>The tveeprom module will find the PROM and attach itself to the
+bus.  The pvrusb2 driver will notice this and remember the client for
+future use.</LI>
+
+<LI>The pvrusb2 driver as part of its initialization will ask tveeprom
+to read the PROM and parse the results into a small data structure
+which is then given back to the pvrusb2 driver.</LI>
+
+<LI>The pvrusb2 driver will read that small data structure to learn
+the tuner type, supported video formats and serial number of the
+device.</LI>
+
+</OL>
+
+<P>What really happens unfortunately is quite a bit different...</P>
+
+<blockquote>
+
+<P>At step 2, tveeprom fails to detect the PROM.  This is a problem on
+my PVR USB2 at least.  An investigation of the cause suggests that the
+PROM in my device simply won't ack an I2C write of zero length (this
+is the type of operation which the I2C core uses to detect connected
+devices).  My knowledge of I2C says that the device actually has to
+ack before the transfer length is known so this should be impossible.
+But there it is.  My suspicion is that the &quot;proxy&quot; I2C
+implementation that we operate in the device's 8051 controller may be
+causing a problem here, but changing that firmware is out of the scope
+of this driver, so I have to accept that we can't detect the device.
+This problem can however be worked around by providing options to the
+tveeprom module to force recognition of the PROM part.  Specifying for
+example &quot;<tt>force=-1,80</tt>&quot; will get past this
+problem.</P>
+
+<P>At step 3, reading of the entire PROM fails because tveeprom tries
+to read 256 bytes in one single operation - but the I2C adapter proxy
+implementation over USB to the 8051 can't transfer that much data at a
+time.  I've worked around this in the I2C adapter driver within the
+pvrusb2 driver by fragmenting oversized transfers into smaller pieces.
+However this really isn't clean since the fragments become separate
+transfers on the bus, and that might cause other problems.  But for
+this purpose fragmenting the transfers gets around the problem.</P>
+
+<P>At step 3, parsing of the entire PROM's contents fails because it
+appears that in the PVR USB2 device's PROM data, only the upper 128
+bytes contain valid data.  Unfortunately, the parsing algorithm in
+tveeprom just gives up as soon as it sees what it thinks is corrupted
+data.  There is no work-around for this.  Since tveeprom in this
+method is controlling the actual PROM reading operation, there is no
+way to limit what it reads.</P>
+
+<P>At step 4, the data provided by the official command interface
+doesn't actually provide all of the data.  There is no way to use this
+interface to retrieve the device's serial number.</P>
+
+</blockquote>
+
+<P>I have seen two reports on the pvrusb2 mailing list that suggest
+that detection probably does work for some people.  Perhaps it depends
+on the particular PROM chip that Hauppauge has used on a particular
+production run.</P>
+
+<P>I have also modified the driver to not require a device serial
+number - sysfs needed it to generate a class path but if there is no
+serial number then a unit number will be used instead.</P>
+
+<P>I have also modified the driver to handle large I2C transfers by
+fragmenting such large blocks into smaller transfers.</P>
+
+<P>Given all of the above, then the only issue really standing in the
+way of using the &quot;indirect&quot; method here is that of
+accidentally trying to parse the lower 128 bytes of the PROM.  I
+suppose it's conceivable that there are PVR USB2 devices out there
+which might have fully parseable PROM contents.  If you think you have
+such a device, then you can probably try enabling the indirect method
+in pvrusb2-eeprom.c, rebuilding, and everything should work.</P>
+
+<P>Otherwise, the indirect method just isn't an option for this driver.</P>
+
+<P>By the way, if you see messages like this in your system log:</P>
+
+<blockquote><pre>tveeprom 2-0050: Encountered bad packet header [c2]. Corrupt or not a Hauppauge eeprom.</pre></blockquote>
+
+<P>yet the device works just fine, then you're probably seeing
+tveeprom attempting the indirect method on its own and failing.
+That's a strong hint that the pvrusb2 driver will stop correctly
+reading the PROM if you try to switch to the indirect method.</P>
+
+<H3>Using the direct method</H3>
+
+<P>It should be pretty clear from the preceding section that using the
+normal I2C command interface &quot;indirect&quot; method to retrieve
+device configuration data just isn't going to work for the pvrusb2
+driver.  It's a shame too, because the indirect method is a stable
+interface and it &quot;works&quot; the same way regardless of which
+tveeprom variant has actually been loaded into the kernel.</P>
+
+<P>The showstopper problem with the indirect method is that it is
+reading too much of the PROM.  In the case of the PVR USB2, only the
+upper 128 bytes seem to contain useful data.  Thus we have to resort
+to the &quot;direct&quot; method for data retrieval.</P>
+
+<P>Unfortunately the direct method has its own problems.  Unlike the
+indirect method, the direct method's interface is not stable.
+Currently (as of kernel 2.6.14 and ivtv 0.4.0) that critical
+<tt>struct tveeprom</tt>, which defines all the fields we can
+retrieve, is radically different between the two variants of the
+tveeprom module.  In fact, in the ivtv variant, the struct is
+completely private to the <tt>tveeprom.c</tt> module source file.</P>
+
+<BLOCKQUOTE>In fact, if your kernel is built with CONFIG_MODVERSIONS
+enabled, the above mentioned interface incompatibility causes an
+nastier problem, which you'll know you have if you see a message like
+&quot;pvrusb2 disagrees about version of symbol
+tveeprom_hauppauge_analog&quot; in your system log.  Rather than
+repeat the explanation for that here, please see the <A
+HREF="faq.html#Q19">FAQ item</A> that discusses this
+issue.</BLOCKQUOTE>
+
+<P>Another incompatible change was made to
+<tt>tveeprom_hauppauge_analog()</tt> in kernel 2.6.14 - an argument
+was added.  There is a new first argument to the function which is the
+<tt>i2c_client</tt> structure that had been used to retrieve the PROM
+contents.  (All that <tt>tveeprom_hauppauge_analog()</tt> uses this
+for is to enhance the printk's going to the kernel log.)  Fortunately,
+ivtv 0.4.0's version of this function will also expect this argument
+if compiled under kernel 2.6.14 so the impact of that change is
+lessened somewhat.</P>
+
+<P>The pvrusb2 driver's implementation for the direct method (also
+implemented in the function <tt>pvr2_eeprom_analyze()</tt> in
+<tt>pvrusb2-eeprom.c</tt>) doesn't have to detect the PROM since it
+knows it has to be there.  It will also only read the upper 128 bytes
+of PROM data, thus avoiding the issue that kills the indirect method.
+But that so far is just piker stuff....</P>
+
+<P>If the pvrusb2 driver is compiled for kernel 2.6.14, then
+<tt>pvr2_eeprom_analyze()</tt> will assume the need for that extra
+argument, and temporarily fake up an <tt>i2_client</tt> structure so
+that <tt>tveeprom_hauppauge_analog()</tt> in v4l will continue to work
+properly (the ivtv tveeprom implementation doesn't care).</P>
+
+<P>That leaves just one problem, the worst problem: the conflicting
+<tt>tveeprom</tt> structure defintion.  We really want to be able to
+support either tveeprom variant, and we really want that to work at
+run time not compile time.  Based on whichever tveeprom is loaded into
+the kernel, we need to somehow know which &quot;tveeprom&quot; struct
+definition to use in order to communicate with that module's data
+parsing code.  After a lot of thought, I came up with something
+completely sick, twisted, and disgusting.  But it works (well, only
+when <A HREF="faq.html#Q19">CONFIG_MODVERSIONS</A> is not enabled in the kernel).  This is what
+is implemented in <tt>pvr2_eeprom_analyze()</tt> in
+<tt>pvrusb2-eeprom.c</tt> when the default direct method is
+compiled:</P>
+
+<OL>
+
+<LI>Include <tt>&lt;media/tveeprom.h&gt;</tt> and also physically copy
+the exact <tt>struct tveeprom</tt> declaration from the ivtv variant
+of tveeprom, except we rename that structure to <tt>struct
+tveeprom_ivtv</tt> in order to avoid the otherwise obvious name
+conflict.</LI>
+
+<LI>Instance a union of the two competing structures (call it
+&quot;<tt>tvdata</tt>&quot;).  Fill the entire thing with obvious bad
+values.  Pass the address of this <tt>tvdata</tt> union to
+<tt>tveeprom_hauppauge_analog()</tt> in place of the normal
+<tt>tveeprom</tt> structure.</LI>
+
+<LI>Scan the <tt>tvdata</tt> structure afterwards, from back to front,
+looking to see at what offset data was first modified.</LI>
+
+<LI>From the determined offset, calculate the actual size of the
+structure that <tt>tveeprom_hauppauge_analog()</tt> assumed and
+modified.  Compare that size with the size of the two union variants
+and from that determine which union variant (i.e. which <tt>struct
+tveeprom</tt> definition) was the correct one.</LI>
+
+<LI>Extract and remember data from the correctly chosen variant.</LI>
+
+</OL>
+
+<P>Logically what is going on here is that since we don't know which
+structure definition to use, we'll just use them both.  They are both
+being simultaneously passed in to <tt>tveeprom_hauppauge_analog()</tt>
+as members of a union.  Before making that function call, we seed the
+data structure so we can tell what's been changed afterwards.  By
+noting the changes afterwards, we can make a reasonable guess as to
+which <tt>tveeprom</tt> definition
+<tt>tveeprom_hauppauge_analog()</tt> has assumed and then act on the
+data accordingly.</P>
+
+<P>This is ugly, repulsive, and revolting.  However I see no other way
+short of telling everyone that either (1) this driver can't be used
+concurrently with ivtv, or (2) one must replace tveeprom.c in the
+kernel (or ivtv) with ivtv's version (or the kernel's version) before
+anything is going to work.  (And of course as said earlier, even this
+hack won't work if you have <A
+HREF="faq.html#Q19">CONFIG_MODVERSIONS</A> enabled in your
+kernel.)</P>
+
+<HR>
+<H2>Restoring Sanity</H2>
+
+<P>Clearly the tveeprom module is useful to drivers outside of ivtv,
+and to that end, there really only should be a single official version
+of it in the Video4Linux core within the kernel sources.  Not having
+an official version causes the implementation to diverge over time,
+which is the principle cause of that disgusting hack described above
+with the direct method.</P>
+
+<P>Even with a single official tveeprom version, the (apparent)
+official indirect API is insufficient.  I'm not sure what the right
+answer here is.  Certainly the indirect API should include commands to
+retrieve other bits of data like the device serial number.  But even
+with that in place, device detection can be difficult, and the module
+is going to have to deal with situations where apparently not all of
+the PROM contents contains parseable data.</P>
+
+<P>If it is not possible to make the indirect interface work for
+everyone, then the direct interface needs to be stabilized.</P>
+
+<P>Hopefully everything stated here should help you to understand the
+issues behind reading of the PVR USB2 device's PROM and thus maybe
+hopefully will help you to help me work out any further issues that
+come up in this area of the driver...</P>
+
+<blockquote>Mike Isely</blockquote>
+
+<BR><BR>
+</BODY>
+</HTML>

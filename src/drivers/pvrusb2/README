@@ -1,0 +1,34 @@
+
+$Id: README 1153 2006-05-17 04:39:09Z isely $
+Mike Isely <isely@pobox.com>
+
+This is the root of the pvrusb2 driver distribution.  The
+subdirectories are:
+
+  doc    - Contains various bits of documentation (HTML pages mainly)
+  driver - Sources for pvrusb2 driver (but not the modules)
+  ivtv   - Support modules for pvrusb2, copied from ivtv
+  misc   - Stuff that doesn't fit anywhere else
+  utils  - Things that aid in the use of the driver
+
+Please look in the individual subdirectories for more information.
+You will definitely need to build the contents of the driver
+directory.
+
+You ONLY need the ivtv directory if you are using a kernel version
+older than 2.6.15 and you otherwise don't have the ivtv driver
+installed in your system.  With 2.6.15 all needed modules are part of
+the kernel now and in fact as of 2.6.16, the modules in the ivtv
+directory no longer compile (and there's really no reason to fix them
+since they're already in the kernel sources).  See the pvrusb2
+documentation in the doc directory (setup.html) for more information
+about when/if to use the ivtv part of this driver.
+
+NOTE: Complete documentation on the driver is contained in the html
+files within the doc directory; these are exactly the same as what is
+on the web site at the time.  Please browse those files before asking
+questions.
+
+  -Mike Isely
+  isely@pobox.com
+

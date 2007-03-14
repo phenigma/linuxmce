@@ -1,0 +1,28 @@
+
+$Id: README 1153 2006-05-17 04:39:09Z isely $
+Mike Isely <isely@pobox.com>
+
+This directory contains documentation and notes about the driver.  The
+files are:
+
+  README               - This file
+  change_history.txt   - Log of all significant changes made to the driver
+  chipdrivers.html     - Documentation related to chip-level drivers
+  controls.txt         - Description of sysfs-visible controls
+  eeprom.html          - Documentation about interactions with tveeprom
+  faq.html             - Common questions with answers
+  firmware.html        - Documentation about firmware manual extraction
+  models.txt           - Census of device model numbers
+  notes.txt            - My scratchpad of notes, to-do list, etc
+  protocol-info.txt    - Description of driver <-> device wire protocol
+  pvrusb2.html         - This is the main project page
+  setup.html           - Documentation about compiling and installation
+  tda9887.html         - Documentation about interactions with tda9887
+  usage.html           - Documentation related to using the driver
+  utils.html           - Documentation related to stuff in utils
+
+The *.html files are the same files visible on the pvrusb2 web site.
+
+  -Mike Isely
+  isely@pobox.com
+

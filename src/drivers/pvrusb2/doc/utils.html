@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>pvrusb2 Linux Driver Utilities Info</TITLE>
+	<META NAME="keywords" content="Hauppauge, WinTV-PVR-USB2, pvrusb2, PVR, USB2, video4linux, v4l, v4l2, FAQ">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>pvrusb2 driver utilities</H1>
+<P>$Id: utils.html 1274 2006-07-03 05:07:20Z isely $</P>
+<P>Mike Isely &lt;isely at pobox dot com&gt;</P>
+<HR>
+
+<P>This page briefly describes the usage of the utilities included
+with the pvrusb2 driver distribution.</P>
+
+<P>You can find the main driver page on the web at <A
+HREF="http://www.isely.net/pvrusb2/pvrusb2.html">http://www.isely.net/pvrusb2/pvrusb2.html</A>.</P>
+
+<HR>
+<H2>Overview</H2>
+
+<P>The utilities can be found in the <tt>utils</tt> subdirectory.  They
+include the following:</P>
+
+<UL>
+
+<LI><em><tt>change-channel.sh</tt></em> - This is a bash program which
+provides an interface for managing channel IDs and changing channels
+through the driver's sysfs interface.  This script works with a
+configuration file that associates channel IDs with frequencies; it
+does not need or use the sysfs frequency table logic in the driver.
+This was created and contributed by Per Christian Henden; for his
+e-mail address and a description on how to use the script along with a
+brief method to generate the frequency data from xawtv, please see the
+comments at the top of the script.</LI>
+
+<LI><em><tt>decode_log.cpp</tt></em> - This is a decompiler, which is
+used to interpret the USB traffic flowing between the pvrusb2 device
+and the driver.</LI>
+
+<LI><em><tt>fwextract.pl</tt></em> - This is a Perl program which
+handles extraction of firmware data out of Hauppauge's Windows driver
+files.  See <A HREF="setup.html#Firmware">setup.html</A> and <A
+HREF="firmware.html">firmware.html</A> for more information about this
+program.</LI>
+
+<LI><em><tt>fwfind.sh</tt></em> - This is a contributed bash program
+which further automates firmware extraction.  This is discussed
+briefly on the <A HREF="setup.html#Firmware">setup.html</A> page.</LI>
+
+<LI><em><tt>old-extract-firmware.pl</tt></em> - This is the old
+firmware extractor created by Bj&ouml;rn Danielsson.  Use the newer
+<tt>fwextract.pl</tt> program instead; this is included here for
+historical reasons and also as a last resort fallback in case problems
+are encountered with the new extractor (but please contact me if you
+find yourself having to use it).</LI>
+
+<LI><em><tt>pvrui.sh</tt></em> - This is a contributed shell script that
+uses the dialog utility to implement a nice interactive front end to
+the driver's sysfs interface.  This script was written by Phil
+Endecott; see the comments at the top of the script for his contact
+information.  Note: This script is somewhat broken right now; it needs
+to be updated to account for new types possible in sysfs and the fact
+that enumeration values can have embedded spaces.</LI>
+
+<LI><em><tt>usbreplayprep.pl</tt></em> - This is a Perl script which
+can postprocess USB sniffer output into a compact form that the
+decompiler can parse.  This also originally came from Bj&ouml;rn
+however it has been modified to also preserve data coming from the
+device (older version only preserved data going *to* the device).</LI>
+
+</UL>
+
+<HR>
+<H2><A NAME="sniff">Sniffing and decompiling USB traffic</A></H2>
+
+<P>There is a free USB sniffer that can be run under Windows for
+capturing all traffic between a USB device and its driver.  The home
+page for it is <A
+HREF="http://benoit.papillault.free.fr/usbsnoop/">here</A>.  Using
+this tool we can learn about how the Windows driver operates the
+device.  If you want to explore, download that tool and follow the
+related instructions.</P>
+
+<P>To help with understanding the log data from the sniffer, there are
+two tools provided with this driver:</P>
+
+<blockquote>The first tool is <tt>usbreplayprep.pl</tt>, which will
+preprocess the USB sniffer data into a more compact form.  This tool
+was originally written by Bj&ouml;rn but I have since modified it to
+provide more data.  The version provided here saves both directions of
+traffic; the previous one only saved data going in the
+driver-to-device direction.</blockquote>
+
+<blockquote>The second tool is <tt>decode_log</tt>, which is compiled
+from the similarly named C++ source file.  This program interprets the
+output from usbreplayprep.pl and produces a concise listing of all the
+commands and data moving to / from the device and the driver.  (This
+tool can also capture and save the encoder firmware if seen as part of
+the log.)</blockquote>
+
+<P>The decompiler is a 2-weekend hack that I wrote in C++ and must be
+built first.  Run make in the utils directory to build this tool.
+Note that this program has no other dependencies beyond needing C++ so
+it should be a straight-forward build.</P>
+
+<P>To capture and decompile a session with the device when run with
+the Windows driver, do the following:</P>
+
+<OL>
+
+<LI>Boot windows, start the sniffer and enable it, and plug in the
+device.</LI>
+
+<LI>Run your TV app for a little while.  NOTE: The sniffer log data
+can get ENORMOUS so you may not want to run it for long.  Also the
+capture process does slow things down so the video playback in the TV
+app might get choppy, but that's OK.</LI>
+
+<LI>Copy the log data to your Linux system or reboot to Linux</LI>
+
+<LI>Run <tt>usbreplayprep.pl < data.log >data.txt</tt> where
+<tt>data.log</tt> is the name of the log output from the sniffer.</LI>
+
+<LI>Run <tt>decode_log < data.txt > data.src</tt> and the decompiled
+output will be in data.src.</LI>
+
+</OL>
+
+<P>The decompiler also has an option for saving off the encoder
+firmware captured, which is useful when one has to figure out the
+firmware extraction details for a newer Hauppauge driver snapshot.
+There's lots more about that feature described in <A
+HREF="firmware.html">firmware.html</A>.</P>
+
+<HR>
+<BR><BR>
+</BODY>
+</HTML>

@@ -1,0 +1,384 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>pvrusb2 Linux Driver - Chip-level drivers</TITLE>
+	<META NAME="keywords" content="Hauppauge, WinTV-PVR-USB2, WinTV, pvrusb2, PVR, USB2, video4linux, v4l, v4l2">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>pvrusb2 chip-level drivers information</H1>
+<P>$Id: chipdrivers.html 1153 2006-05-17 04:39:09Z isely $</P>
+<P>Mike Isely &lt;isely at pobox dot com&gt;</P>
+
+<P>You can find the main driver page on the web at <A
+HREF="http://www.isely.net/pvrusb2/pvrusb2.html">http://www.isely.net/pvrusb2/pvrusb2.html</A>.</P>
+
+<P>This page discuss the various chip-level drivers needed to support
+operation of the pvrusb2 driver.</P>
+
+<HR>
+<P>Contents</P>
+
+<BLOCKQUOTE>
+<A HREF="#Overview">Overview</A></BR>
+<A HREF="#Survey">Chip-level driver survey</A></BR>
+<A HREF="#Situations">Situations requiring chip-level driver
+replacement</A></BR>
+<A HREF="#Replacements">Replacing chip-level drivers</A></BR>
+</BLOCKQUOTE>
+
+<HR>
+<H2><A NAME="Overview">Overview</A></H2>
+
+<P>As previously mentioned <A HREF="setup.html#Modules">here</A> on
+the <A HREF="setup.html">setup.html</A> page, the pvrusb2 driver
+itself outsources much of the actual work to various chip-level
+drivers.  A chip-level driver is just a kernel module that is a part
+of the v4l core within the kernel.  This type of architecture exists
+because frequently the same chips are used across multiple different
+types of video capture cards, and by collecting the chip-level drivers
+into the v4l core itself, the complexity of each driver can be reduced
+and redundant code eliminated.  The pvrusb2 driver need only
+coordinate the operation of the chip-level drivers and provide a
+communications path from each chip-level driver back to the chip that
+it is controlling.</P>
+
+<P>If you are running a recent Linux kernel version, i.e. 2.6.15 or
+later, then the chip-level drivers that are a part of the included v4l
+core with those kernels should be sufficient to work with the pvrusb2
+driver.  For older kernel versions however you may need to replace one
+or more of the chip-level drivers before the pvrusb2 driver will
+function correctly.  While the standalone pvrusb2 driver tries hard to
+work with the different versions of chip-level drivers found in
+various environments, it can't handle everything.  For example, the
+tuner.ko you have in your kernel might not recognize the particular
+tuner type in your device.  In cases like that you will have to
+replace tuner.ko with a version that works better.</P>
+
+<HR>
+<H2><A NAME="Survey">Chip-level driver survey</A></H2>
+
+<P>The exact set of chip-level drivers required by the pvrusb2 driver
+will depend on the hardware type you have (i.e. 24xxx or 29xxx) and
+possible also its tuner type.  The following is a list of these
+chip-level drivers:</P>
+
+<DL>
+
+<DT><TT>cx25840.ko</TT></DT> <DD>This is a driver for the cx2584x
+series of video and audio processor chips, which is used by 24xxx
+hardware.  You do not need this for 29xxx hardware.  This driver did
+not appear in the kernel until 2.6.15.</DD>
+
+<DT><TT>msp3400.ko</TT></DT> <DD>This is a driver for the msp34xx
+series of audio processors, which is used by 29xxx hardware.  You
+don't need it for 24xxx hardware.</DD>
+
+<DT><TT>saa7115.ko</TT></DT> <DD>This is a driver for the saa7115
+video digitizer chip, which is used by 29xxx hardware.  You don't need
+it for 24xxx hardware.  Unfortunately this driver did not appear in
+the kernel until 2.6.15.  If you are using an older kernel you will
+definitely have to supply a replacement (keep reading).</DD>
+
+<DT><TT>tda9887.ko</TT></DT> <DD>This is a driver for the tda9887
+demodulator chip.  Some PVR USB2 devices don't seem to need this
+driver (from looking at the datasheet for this part it's possible to
+hardwire it for NTSC operation).  There are a number of issues with
+this module; the reader is advised to read <A
+HREF="tda9887.html">tda9887.html</A> for further information.</DD>
+
+<DT><TT>tuner.ko</TT></DT> <DD>This is a generic tuner driver; it
+deals with the RF side of a TV capture device.  If you were to examine
+the inside of your PVR USB2 device, this would be the driver that
+controls the big &quot;metal can&quot; part of the circuit board.</DD>
+
+<DT><TT>tveeprom.ko</TT></DT> <DD>This is a module which knows how to
+interpret the contents of a Hauppauge EEPROM.  All PVR USB2 devices
+include an EEPROM, and its contents tell us things like the serial
+number of the device, the supported video standards, and the type of
+installed tuner (which is translated and passed to <TT>tuner.ko</TT>).
+Unlike the other chip-level drivers which attach to the driver at
+run-time, this driver is unusual in that it has to be bound to
+<TT>pvrusb2.ko</TT> at the time <TT>pvrusb2.ko</TT> is loaded into the
+kernel.  This is because we have to directly call into it to do the
+translation, which forces the module loader to immediately resolve the
+symbolic reference.  This causes a number of subtle issues; the reader
+is advised read <A HREF="eeprom.html">eeprom.html</A> for further
+information if trouble is suspected here.</DD>
+
+<DT><TT>wm8775.ko</TT></DT> <DD>This is a driver for the wm8775 audio
+digitizer chip.  It is used only for 24xxx hardware and only comes
+into play if you select composite or s-video input - it is used to
+sample the line level audio input into a bit stream.  You don't need
+this for 29xxx hardware.  Also, this driver did not appear in the
+kernel until 2.6.15.</DD>
+
+</DL>
+
+<P>Here is a summary of which chip-level drivers need to be available,
+based on hardware type:</P>
+
+<P>For 29xxx hardware:</P>
+<blockquote><code>
+msp3400.ko<BR>
+saa7115.ko<BR>
+tda9887.ko<BR>
+tuner.ko<BR>
+tveeprom.ko<BR>
+</code></blockquote>
+
+<P>For 24xxx hardware:</P>
+<blockquote><code>
+cx25840.ko<BR>
+tda9887.ko<BR>
+tuner.ko<BR>
+tveeprom.ko<BR>
+wm8775.ko<BR>
+</code></blockquote>
+
+<P>You <em>might not</em> actually need <TT>tda9887.ko</TT> but it is
+impossible to know for sure until the tuner type has been discovered
+by the driver.</P>
+
+<P>If you are running a recent enough (i.e. 2.6.15 or later) kernel
+and it has been properly configured (see the <A
+HREF="setup.html#Prerequisites">prerequisites</A> section of <A
+HREF="setup.html">setup.html</A>) then you don't need to do anything
+else.  The pvrusb2 driver will automatically load the appropriate
+kernel modules when the hardware is plugged in.  If you are however
+running an older kernel or you find for some reason that you need to
+replace one or more of these chip-level drivers, then read on.</P>
+
+<P>Note that if you are running the in-V4L version of the pvrusb2
+driver (i.e. you are building the official V4L repository and
+therefore getting the pvrusb2 driver as part of it), then you are
+using all the official v4l chip-level drivers in their latest versions
+already.  In that case, you can disregard the rest of this page.</P>
+
+<HR>
+<H2><A NAME="Situations">Situations requiring chip-level driver
+replacement</A></H2>
+
+<H4><TT>cx25840.ko</TT> and <TT>wm8775.ko</TT></H4>
+
+<P>The absence of <TT>cx25840.ko</TT> and <TT>wm8775.ko</TT> from the
+kernel for versions older than 2.6.15 is the reason why it is
+difficult to run 24xxx hardware with older kernel releases.  It is not
+impossible, but I've never tried it and I don't recommend it.  However
+if you can locate and install replacement versions of those modules,
+then in theory it should still work for you.</P>
+
+<H4><TT>saa7115.ko</TT></H4>
+
+<P>The absence of <TT>saa7115.ko</TT> from the kernel for versions
+older than 2.6.15 causes an issue for running 29xxx hardware for older
+kernel releases.  This is not as bad as the 24xxx case because there
+is a replacement supplied with the pvrusb2 driver snapshot.</P>
+
+<H4><TT>tveeprom.ko</TT> and <TT>tuner.ko</TT></H4>
+
+<P>Another problem that can arise with older kernels is that
+<TT>tuner.ko</TT> might not know how to handle your tuner type or that
+<TT>tveeprom.ko</TT> might not map the type correctly.</P>
+
+<BLOCKQUOTE>There are on the order of 100 different tuner types that
+can reside inside that metal can, and Hauppauge likes swapping them
+out without any other clue beyond what is in the EEPROM.  Identifying
+the proper type is in fact the primary reason why reading that EEPROM
+is so important - there's simply no other way for the pvrusb2 driver
+to correctly determine the actual type of tuner your device is using.
+Back before I began work on this driver, Aurelien's version of this
+driver was hardcoded for about 5 tuner types.  My tuner type wasn't in
+that list, and it was one of the first things I attacked in this
+driver...</BLOCKQUOTE>
+
+<P>The pvrusb2 driver figures out the tuner type by retrieving it via
+<TT>tveeprom.ko</TT> and then passing that information to
+<TT>tuner.ko</TT>.  The type encoded into the EEPROM is a
+Hauppauge-specific ID, so <TT>tveeprom.ko</TT> has to also map that ID
+to a v4l-generic tuner type value before handing the result back to
+the pvrusb2 driver.  Some older versions of <TT>tveeprom.ko</TT> may
+not have a map entry for your tuner type.  Here's an example of what a
+tveeprom bad mapping will look like in the system log:</P>
+
+<BLOCKQUOTE><CODE>tveeprom: tuner = Philips FM1236 MK3 (idx = 58, type = 4)</CODE></BLOCKQUOTE>
+
+<P>In the above case, <TT>tveeprom.ko</TT> recognized a Hauppauge type
+58 tuner, but mapped that value to v4l type 4.  Unfortunately type 4
+in v4l means &quot;unknown&quot;.  If you see a message like this in
+the system log where the value for &quot;type =&quot; is 4, then you
+have a bad mapping and you'll have to replace <TT>tveeprom.ko</TT>.
+This situation in fact is a problem for the <TT>tveeprom.ko</TT>
+included with kernel versions 2.6.11 or older.</P>
+
+<P>Also, some older versions of <TT>tuner.ko</TT> may have incorrect
+information for the declared type.  This is a less common problem, but
+generally it's probably safest to also replace <TT>tuner.ko</TT> when
+replacing <TT>tveeprom.ko</TT> since if <TT>tveeprom.ko</TT> decided
+the type was unknown then it's possible that the needed type just
+simply might not be present in <TT>tuner.ko</TT>.</P>
+
+<H4><TT>msp3400.ko</TT></H4>
+
+<P>Another more subtle problem you might encounter has to deal with
+audio demodulation in NTSC territory.  Until recently,
+<TT>msp3400.ko</TT> failed to correct decode SAP or mono broadcasts.
+This went unnoticed for a long time because (a) the original
+<TT>msp3400.ko</TT> author did not live in NTSC territory, and (b)
+those of us in NTSC tend to only use stereo audio anyway.  But if you
+want SAP and/or mono, you will need to replace <TT>msp3400.ko</TT>,
+and in this case the only choices for replacements are in the 2.6.17
+(or later) kernel or in the V4L master repository (in both cases
+you'll probably end up upgrading everything due to other dependencies
+between msp3400 and the surrounding environment).</P>
+
+<P>There is a known issue involving audio volume in the pvrusb2
+driver.  The default volume setting is 100% which frequently causes
+distortion.  (Just lower the volume.)  The reason I mention this here
+is that some versions of <TT>msp3400.ko</TT> scaled their volume
+setting so that 100% didn't distort.  Current versions don't scale
+anymore, but you should be aware of this side-effect when trying
+different versions of this chip-level driver.</P>
+
+<HR>
+<H2><A NAME="Replacements">Replacing chip-level drivers</A></H2>
+
+<P>For the in-V4L pvrusb2 driver, there's nothing to replace since
+everything needed is already in the V4L repository you would be
+building from and those are the latest versions.</P>
+
+<P>For the standalone pvrusb2 driver, if you find you need to replace
+one or more chip-level drivers, you have three choices:</P>
+
+<UL>
+
+<LI>Just use the in-V4L version of the pvrusb2 driver.  Said another
+way, don't use the standalone pvrusb2 driver - go get the official v4l
+repository and build it instead, which includes the in-V4L version of
+the pvrusb2 driver.</LI>
+
+<P>This &quot;just go get the official v4l repository&quot; choice is
+not really a chip-level driver replacement so much as it is a
+&quot;give up and go run the latest V4L&quot; sort of choice.  As
+mentioned elsewhere, this is an elephant gun solution.  But you gain
+the advantage that it should work cleanly with just about any 2.6.x
+kernel version - and if you're running 24xxx hardware this is really
+your only choice for older kernels.  If you choose to go this route,
+then the procedure you need is outside the scope of this
+documentation.  What you need to do is go to <A
+HREF="http://linuxtv.org">linuxtv.org</A> and follow their process for
+downloading and building the official v4l repository.</P>
+
+<BLOCKQUOTE>If you do go the &quot;official v4l&quot; route, you might
+also want to try <A
+HREF="http://linuxtv.org/hg/~mcisely/v4l-dvb">my</A> v4l repository
+there in lieu of the master repo.  When I make changes to the
+standalone driver, I also generate and push a corresponding changeset
+for the in-V4L driver.  These changes are pushed into <A
+HREF="http://linuxtv.org/hg/~mcisely/v4l-dvb">http://linuxtv.org/hg/~mcisely/v4l-dvb</A>,
+and once I'm convinced it is stable there, then the changes are pulled
+up to the master repository (<A
+HREF="http://linuxtv.org/hg/v4l-dvb">http://linuxtv.org/hg/v4l-dvb</A>)
+by the v4l maintainer.</BLOCKQUOTE>
+
+<LI>Install an ivtv distribution appropriate for your desired kernel
+and use the chip level drivers supplied with it.</LI>
+
+<P>Many of the chip-level drivers used by the pvrusb2 had their
+genesis as part of the ivtv driver.  As such, you might find that the
+chip-level drivers supplied there as part of the ivtv driver are more
+recent and more stable.  You can find the ivtv driver project at <A
+HREF=" http://ivtvdriver.org">ivtvdriver.org</A>.  Just grab an
+appropriate snapshot there and install it; the pvrusb2 driver should
+be able to operate fine with it.</P>
+
+<LI>Build the chip-level drivers bundled with the pvrusb2 driver.</LI>
+
+<P>The standalone pvrusb2 driver snapshot includes a few of the
+chip-level drivers.  These are directly ripped from ivtv, from roughly
+back around September 2005.  You can find them in the <tt>ivtv</tt>
+subdirectory of the snapshot.  Building them is the same procedure as
+described <A HREF="setup.html#Compilation">here</A> for building the
+pvrusb2 driver itself, just the directory has changed.  For example:</P>
+
+<BLOCKQUOTE><CODE>export KREL=`uname -r`<BR>
+export KDIR=/lib/modules/$KREL/source<BR>
+make --directory ivtv<BR></CODE></BLOCKQUOTE>
+
+<P>Note that these chip-level drivers are considered to be a bit
+outdated now, and in fact they won't even compile for kernel versions
+2.6.16 or later.  You definitely do NOT want to use them unless your
+kernel is 2.6.15 or older.  However they are known to work well for
+those older kernels and it's certainly easier than installing all of
+ivtv or sucking down the entire V4L repository if you just need to
+replace some of the chip-level drivers.</P>
+
+</UL>
+
+<P>You might have noticed by now that dealing with these chip-level
+drivers might get tricky.  Perhaps at this point you might reconsider
+moving to a later kernel version?...</P>
+
+<P>Regardless of how you choose to replace the modules, there are some
+other caveats you need to be careful about for actually installing
+them.  You see, in this case you are potentially replacing kernel
+modules that were already present in your kernel so you need to be
+sure that the replacement actually replaces what you expect.  To that
+end, here are some important tips:</P>
+
+<UL>
+
+<LI>You need to remove or otherwise disable the existing copy of the
+module you are replacing.  For example, if you copy a new
+<TT>tuner.ko</TT> into your kernel module tree and you still leave the
+original <TT>tuner.ko</TT> in <TT>kernel/drivers/media/video</TT>
+untouched, then the module loader might still load the old version
+without you knowing it.  This means that you must do something to the
+old module file.  If you don't want to simple remove or overwrite it,
+then you should rename it with a different file extension so that the
+module loader won't see it anymore.  My personal preference is just to
+tack on a &quot;<TT>.disabled</TT>&quot; extension.  If you aren't
+sure where the original module is, try a find command to locate it.
+For example to find <TT>tuner.ko</TT>:</LI>
+
+<BLOCKQUOTE><CODE>find /lib/modules -name tuner.ko -print</CODE></BLOCKQUOTE>
+
+<LI>If the module you are replacing is already loaded into the kernel,
+then you need to unload it before your replacement module will have
+any effect.  This is a common mistake.  Just because the module loader
+might have automatically loaded <TT>tuner.ko</TT> for you doesn't mean
+that it will be automatically unloaded!  Use &quot;<TT>modprobe
+-r</TT>&quot; or &quot;<TT>rmmod</TT>&quot; to unload it.  To
+determine if the module you are replacing is already loaded, run
+<TT>lsmod</TT> and look for it in the list.  Continuing with our
+<TT>tuner.ko</TT> example:</LI>
+
+<BLOCKQUOTE><CODE>lsmod | grep tuner</CODE></BLOCKQUOTE>
+
+<LI>The pvrusb2 driver will auto-load its required chip-level drivers
+when the hardware is plugged in.  But if you replace a module and
+therefore also unload it from the kernel, you'll need to load it again
+afterwards (e.g. execute &quot;<TT>modprobe tuner</TT>&quot;) if there
+is a running pvrusb2 instance with active hardware.  The pvrusb2
+driver will notice when the module reappears and should usually
+reconfigure it correctly (thus you can replace these chip-level
+drivers on-the-fly).</LI>
+
+<LI>If you are installing a module that wasn't previously present,
+e.g. <TT>saa7115.ko</TT> in an old kernel, you need to also tell the
+module loader about it the first time you install it.  After you copy
+in the new module, run &quot;<TT>depmod -a</TT>&quot;; this will cause
+the module loader to rescan the tree and rebuild its database of known
+modules.</LI>
+
+<LI>Kernel modules (i.e. our chip-level drivers) can be placed
+anywhere in the kernel's module tree for your running kernel; the
+loader doesn't care.  So long as you place it somewhere under
+<TT>/lib/modules/`uname -r`</TT> then things should be fine.</LI>
+
+</UL>
+
+<HR>
+<BR><BR>
+</BODY>
+</HTML>

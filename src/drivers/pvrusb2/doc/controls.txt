@@ -1,0 +1,270 @@
+
+$Id: controls.txt 1299 2006-07-27 05:10:44Z isely $
+
+The following list describes known information about each control
+available in the driver's sysfs interface.  Some items are known
+because the driver directly implements them.  Other items are not so
+well known, being that they get passed directly to the hardware and it
+is up to the hardware to act on their meaning.
+
+**** NOTE: Many of these control names and functions have changed due
+     to the transition to the new mpeg API and the cx2341x module in
+     later kernels.  This needs to be updated.
+
+
+	    Results of experimenting with various settings
+
+ctl_audio_bitrate:
+    384kb/s  OK
+    320kb/s  OK
+    256kb/s  OK
+    224kb/s  OK  <--- default
+    192kb/s  OK
+    160kb/s  stuttering
+    128kb/s  stuttering
+    112kb/s  stuttering, sync issues
+    96kb/s   severe stuttering
+    80kb/s   nothing but skips
+    64kb/s   max headroom syndrome
+    56kb/s   severe stuttering, picture seizes
+    48kb/s   severe stuttering, picture seizes
+    32kb/s   no audio, slideshow
+    VBR      no datastream at all, apparently
+
+    This is the compressed physical bit rate in the stream.  This corresponds
+    to the MP3 encoding rate.  The underlying logical bit rate is
+    determined by ctl_srate.
+
+
+ctl_audio_crc - This is on by default.  Turning it off doesn't seem to
+    break anything, but I could not notice any difference in mplayer
+    at all (probably because not having audio crcs is not a big
+    deal).  Otherwise, no idea what this does.
+
+
+ctl_audio_emphasis - Default is "None".  Other values don't seem to
+    have any ill effects.  Possibly this may change audio quality, but
+    using mplayer with a cheap motherboard audio chip and mid-grade PC
+    speakers, I don't hear any difference.
+
+
+ctl_audio_layer:
+    0   mplayer freezes when detecting audio, video data present
+    1   mplayer freezes when detecting audio, video data present
+    2   OK (canonical mp3 format apparently) <-- default
+    3   mplayer freezes when detecting audio, video data present
+
+    No idea what this really does.
+
+
+ctl_audio_mode - Default is Stereo.  Intended for controlling audio
+    program choice, e.g. "Stereo", "Mono", "SAP".  Unfortunately for
+    NTSC folks it appears not to work, due to problems in msp3400.ko.
+    With NTSC there are two audio standard choices and msp3400.ko has
+    to switch between them.  This is only the case for NTSC, not any
+    other standard.  Unfortunately msp3400.ko (at least the versions I
+    have looked at) doesn't handle this correctly and thus you can't
+    select SAP (can't really tell if Mono is working at all since it
+    sounds approximately the same).  There is more information in the
+    driver's FAQ about this issue.
+
+
+ctl_balance - Input of any value will not have any effect if the
+    underlying msp34xx variant in the device doesn't support this
+    function (and my device seems not to support it).
+
+
+ctl_bass - Same problem(s) as ctl_balance.
+
+
+ctl_brightness - Video brightness.
+
+
+ctl_channel - This is part of the internal frequency table management.
+    If this is set to a non-zero value, then that corresponding
+    channel's frequency is set as the frequency to tune.  You can read
+    this back at any time to see what channel has been tuned by this
+    logic.  If at any time ctl_frequency is directly set, then the
+    notion of "current channel" is erased and you'll read back a zero
+    here.  Note: This feature has nothing to do with any application's
+    idea of channel - an application is free to do its own channel
+    management and to program frequencies directly.  This is usually
+    the case; V4L doesn't implicitly see this part of the driver.
+
+
+ctl_contrast - Video contrast.
+
+
+ctl_debug_subsys_mask - This is a bit mask showing what parts of the
+    driver are enabled at any given moment.  When streaming starts /
+    stops, various subsystems have to be stopped / started in the
+    correct order.  This is a debugging aid.  Don't mess with it
+    unless you know what you are doing.
+
+
+ctl_debug_subsys_stream_mask - This is a bit mask showing exactly
+    which subsystems are enabled / disabled when streaming is enabled
+    / disabled.  This is a debugging aid.  Don't mess with it unless
+    you know what you are doing.
+
+
+ctl_freq_table_channel - This is part of the internal frequency table
+    management.  Set this to select a channel to examine or change.
+    Channel must be an integer.  This works in concert with
+    ctl_freq_table_value.  Note: The driver's notion of a frequency
+    table is COMPLETELY independent of V4L.  This is only present to
+    help with non-V4L situations.  You do not need to program
+    channels; you can just write to ctl_frequency directly.
+
+
+ctl_freq_table_value - This is part of the internal frequency table
+    management.  Set this to program a frequency for the currently
+    selected channel (selected by ctl_freq_table_channel) or read it
+    to see what the current frequency is for the given channel.
+
+
+ctl_frequency - Works fine (default is US Broadcast channel 7).  Note
+    that this value is expressed in Hz.
+
+
+ctl_hue - Video hue.
+
+
+ctl_input:
+    television   OK
+    s-video      OK
+    composite    OK
+    radio        kills driver (safely)
+
+    Select input source on the device.  Note: Radio support does not
+    yet exist in the driver.  Attempting to set up the radio input is
+    not exactly a good idea right now.
+
+
+ctl_interlace - Default is 0 (for NTSC).  Setting it to 1 appears to
+    cut the vertical resolution in half and overall picture quality
+    degrades significantly (even beyond that which one would expect
+    from losing half the vertical resolution).  No real idea what this
+    control really should be doing.  Note: This value may get silently
+    reset when changing the video standard.
+
+
+ctl_mute - Works fine (default is off).  Note: Some apps like to mute
+    the audio on exit (e.g. xawtv), and other apps have no idea about
+    mute (e.g. mplayer) because they must treat the driver as just a
+    file.  This can cause confusion when for example you stop xawtv
+    and then start mplayer.  Check this setting and fix it before
+    asking for help.
+
+
+ctl_resolution_hor - Default is 720 (for NTSC).  Selects horizontal
+    frame resolution.  Entire range (320-720) seems to work just fine.
+    Note: This value may get silently reset when changing the video
+    standard.
+
+
+ctl_resolution_ver - Default is 480 (for NTSC).  Selects vertical
+    frame resolution.  Any value above 480 seems to corrupt the video
+    display (as if the vertical sync pulse were in the wrong place).
+    480 is a reasonable limit for NTSC, probably (hopefully) for video
+    standards with greater vertical resolution this effective limit
+    may be higher.  Note: This value may get silently reset when
+    changing the video standard.
+
+
+ctl_saturation - Video saturation, also known as "color" control on
+    some televisions.
+
+
+ctl_signal_present - This is a read only boolean value, reports true
+    when there is a valid signal present for the television input.  If
+    any other input is selected this will always be true.
+
+
+ctl_srate - Default is 48KHz.  Alternate setting is 44.1KHz.  Works
+    perfectly.  This selects the underlying logical sample rate for
+    the audio stream.
+
+
+ctl_streaming_enabled - This is a read only boolean value which is
+    true any time data streaming has been enabled.
+
+
+ctl_treble - Same problem(s) as ctl_balance.
+
+
+ctl_usb_speed - This is a read only enumerated value which reports the
+    connection speed of the device.  Normally this should be "High",
+    unless you connected using a USB 1.1 host adapter or hub somewhere
+    in the USB datapath.  Note: While it's possible to make a single
+    PVR USB2 work this way, there isn't enough bandwidth at "Full"
+    speed to multiplex more than one PVR USB2 on the same USB
+    connection.  (You'll probably get video breakup and corruption.)
+
+
+ctl_vbr - Default value is zero.  Probably enable VBR encoding of
+    video stream, however I can't be sure.  There is no effect of this
+    setting at all if the average and peak video rates are the same.
+    However if the peak rate is higher, then mplayer reports the
+    "rate" to be the peak rate if this is off, and reports the "rate"
+    to be the average rate if this is on.  It's possible that with
+    this on that the average rate is indeed the requested average,
+    but can vary up to the peak rate.  But I can't really tell if this
+    is happening.
+
+
+ctl_video_average_bitrate - Seems to work perfectly, but watch out
+    that you don't set this to be greater than the peak rate
+    (ctl_video_peak_bitrate).  With encoder firmware from the
+    older(!!) pvrusb2_23_31351 driver package, this situation seems to
+    be correctly handled by the hardware (rate capped to the actual
+    peak rate).  With all other driver packages however the result is
+    corrupted video.  This seems to be the setting for the desired
+    video stream bit rate.
+
+
+ctl_video_peak_bitrate - Seems to work perfectly This seems to be a
+    setting for setting the maximum video stream bit rate.  The actual
+    bit rate at any given time seems to the result of this setting,
+    the average bit rate setting, and the vbr setting.
+
+
+ctl_video_standard - This enumeration value corresponds to the video
+    standard currently set in the driver.  The default value
+    corresponds to the supported standard as detected in the hardware,
+    so in the USA this typically will default to NTSC-M, but in other
+    places the default might be different.  If the PVR USB2 device is
+    a multi-standard tuner, then one choice will be arbitrarily chosen
+    as the default.  You can examine this to see what standard is in
+    effect, or change it to adjust the device and the driver to the
+    desired standard.
+
+
+ctl_video_standard_mask_active - This is a bit mask that shows exactly
+    which video standard settings are currently active.  Usually only
+    a single bit should be set (exceptions: B/G and D/K combinations).
+    Note that while ctl_video_standard is an enumeration (that is made
+    available to the app through a normal V4L ioctl), internally
+    everyone speaks in terms of a bit mask; this control is the actual
+    bit mask.  You should not need to mess with this at all, because
+    the setting of ctl_video_standard should drive this correctly.  It
+    is present as a debugging aide.
+
+
+ctl_video_standard_mask_available - This is a bit mask that shows
+    exactly which video standard settings are available for use.  This
+    value is normally determined by the particular hardware PVR USB2
+    device you have connected.  The bits set here will drive the
+    calculation of the enumeration choices available in
+    ctl_video_standard.  The bits set here are initialized based on
+    what tveeprom reports as being supportable in the hardware.  You
+    can change this mask, if you suspect your hardware supports a
+    standard not already set - but you normally should not have to do
+    this.
+
+
+ctl_volume - This is the volume setting for the audio part of the
+    tuner.  Note that this only affects the television input; volume
+    level for all other inputs is currently fixed.
+
+

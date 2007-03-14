@@ -1,0 +1,33 @@
+
+$Id: README 1153 2006-05-17 04:39:09Z isely $
+Mike Isely <isely@pobox.com>
+
+This directory contains a snapshot of the support modules that the
+pvrusb2 driver needs in order to function.  These are all copies from
+ivtv (as of ivtv 0.4.0).  All modules here are also separately
+available in the main kernel tree as part of V4L (though these
+versions are slightly different).  You can use either.  The modules
+here are provided as a convenience in case you prefer the ivtv
+versions but don't want to go grab that tarball.
+
+IMPORTANT NOTE: As of the 2.6.16 kernel, these module no longer
+compile correctly.  At this point I am NOT correcting these errors
+since these same modules are already fully available as part of the
+kernel tree as of 2.6.15 - and the kernel versions are more up-to-date
+anyway.  The only reason I am leaving these here for the moment is so
+that people using older kernels can still use the pvrusb2 driver.
+
+To build these modules essentially amounts to just running "Make", but
+you need the kernel source tree nearby and you will likely also want
+to set a few controlling environment variables first in order to link
+things up with that source tree.  Please see the Makefile here for
+comments that explain how to do that.
+
+NOTE: Complete documentation on the pvrusb2 driver is contained in the
+html files within the doc directory; these are exactly the same as
+what is on the web site at the time.  Please browse those files before
+asking questions.
+
+  -Mike Isely
+  isely@pobox.com
+

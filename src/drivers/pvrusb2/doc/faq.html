@@ -1,0 +1,702 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>pvrusb2 Linux Driver FAQ</TITLE>
+	<META NAME="keywords" content="Hauppauge, WinTV-PVR-USB2, pvrusb2, PVR, USB2, video4linux, v4l, v4l2, FAQ">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>pvrusb2 driver FAQ</H1>
+<P>$Id: faq.html 1153 2006-05-17 04:39:09Z isely $</P>
+<P>Mike Isely &lt;isely at pobox dot com&gt;</P>
+
+<P>You can find the main driver page on the web at <A
+HREF="http://www.isely.net/pvrusb2/pvrusb2.html">http://www.isely.net/pvrusb2/pvrusb2.html</A>.</P>
+
+<HR>
+
+<P>This page describes list of common pitfalls (in no particular
+order) and their corresponding solutions when using the <A
+HREF="pvrusb2.html">pvrusb2 linux driver</A>.  I have gathered up this
+list from e-mail correspondence over time, along with some lessons
+learned here.  If there are things you think should be added here,
+please let me know.</P>
+
+<P>Feel free to e-mail me if you have any other questions.</P>
+
+<BLOCKQUOTE>
+Mike Isely &lt;isely at pobox dot com&gt;
+</BLOCKQUOTE>
+<P>Contents</P>
+
+<BLOCKQUOTE>
+<P>
+
+<A HREF="#Q1">1. When I try to install the driver with &quot;make
+install&quot; the installation fails.</A><BR>
+
+<A HREF="#Q2">2. Why am I not getting any sound?</A><BR>
+
+<A HREF="#Q3">3. Why can't I get this driver to work on an
+xbox?</A><BR>
+
+<A HREF="#Q4">4. The image is jumpy and the audio tends to lag.</A><BR>
+
+<A HREF="#Q5">5. I can't tune anything.  I get either video snow or
+a blank screen.</A><BR>
+
+<A HREF="#Q6">6. I can't get xawtv to work.</A><BR>
+
+<A HREF="#Q7">7. I can't get mplayer to work.</A><BR>
+
+<A HREF="#Q8">8. I can't compile because <TT>tveeprom.h</TT> is
+missing or the compilation dies with a complaint about <TT>tvdata</TT>
+being an incomplete type.</A><BR>
+
+<A HREF="#Q9">9. I'm getting errors in the log about being unable to
+find <TT>pvrusb2.f1</TT> or <TT>pvrusb2.f2</TT>.</A><BR>
+
+<A HREF="#Q10">10. I copied the driver module(s) into my system but
+the kernel is not loading them.</A><BR>
+
+<A HREF="#Q11">11. Sometimes streaming quits in xawtv.</A><BR>
+
+<A HREF="#Q12">12. Where the heck is <tt>/dev/input/event</tt>X for
+my device?</A><BR>
+
+<A HREF="#Q13">13. Why did the device go batty when my air
+conditioning turned on?</A><BR>
+
+<A HREF="#Q14">14. Why must I be root to access the control files
+in sysfs?</A><BR>
+
+<A HREF="#Q15">15. I just added a second PVR USB2 and now the video is
+stuttering, corrupted and/or unstable.</A><BR>
+
+<A HREF="#Q16">16. Changing the balance, bass or treble doesn't have
+any effect.</A><BR>
+
+<A HREF="#Q17">17. Changing the audio mode (stereo / mono / sap)
+doesn't do anything!</A><BR>
+
+<A HREF="#Q18">18. Should I be worried if I see a message about a
+corrupt Hauppauge PROM?</A><BR>
+
+<A HREF="#Q19">19. What's up with &quot;pvrusb2 disagrees about version of symbol tveeprom_hauppauge_analog&quot;?</A><BR>
+
+</P>
+</BLOCKQUOTE>
+
+<H3><A NAME="Q1">1. When I try to install the driver with &quot;make
+install&quot; the installation fails.</A></H3>
+
+<BLOCKQUOTE>
+That's because I screwed up when reworking the build process with the
+20050527 snapshot.  We're using Kbuild and the correct internal target
+is "modules_install" not "install".  Previous snapshots should be OK
+because they predate the bug.  Anything after 20050527 should be OK
+because it's been fixed.  Note that in any case if you follow the
+procedure on the pvrusb2.html, then you're copying the modules by hand
+anyway, in which case this isn't an issue.
+</BLOCKQUOTE>
+
+<H3><A NAME="Q2">2. Why am I not getting any sound?</A></H3>
+
+<BLOCKQUOTE>
+
+<P>There are multiple possible causes for this problem.  Check the
+following:</P>
+
+<UL>
+
+<LI>Is <TT>msp3400.ko</TT> present and loaded?  Try <TT>lsmod | grep
+msp3400</TT>.  The pvrusb2 driver itself does not directly control the
+sound processor; instead that duty is offloaded to <TT>msp3400.ko</TT>
+which is included with video4linux (and the ivtv driver and for
+completeness there's a spare copy included with the driver snapshot).
+You need to ensure that <TT>msp3400.ko</TT> can be loaded.  The driver
+will attempt to pull it in via modprobe when the driver itself is
+loaded, but any failure of that attempt will be silent (literally and
+figuratively).  If it isn't there, then either rebuild your kernel
+with the module enabled within video4linux or ensure that you've
+installed the spare copy included with this snapshot.</LI>
+
+<LI>Did you just run xawtv and now you're trying to use mplayer (or
+probably anything else that pulls mpeg video)?  In this case, xawtv
+mutes the audio on exit, and it will <em>stay muted</em> if the next
+application doesn't do anything to change the situation.  This is in
+fact what will happen with mplayer if you run it in &quot;dumb&quot;
+mode.  You can fix this by manually unmuting the sound using the sysfs
+interface.  Turn off the &quot;mute&quot; control (and see the main
+pvrusb2 web page for information on how to use the sysfs
+interface).</LI>
+
+<LI>Is the driver's audio volume too low?  Check that your app
+(e.g. xawtv) has the volume up.</LI>
+
+<LI>Check your mixer settings.  Make sure your pcm channel is unmuted
+and the volume is high enough.</LI>
+
+<LI>It's possible (with newer driver snapshots) that your hardware
+needs <TT>tda9887.ko</TT> loaded and attached.  If this module isn't
+in your <TT>lsmod</TT> output, load it and see if that makes a
+difference.  If it is in your <TT>lsmod</TT> output (and especially if
+you are a PAL user), you <em>might</em> need to tweak the module's
+configuration.  Please see <A HREF="tda9887.html">tda9887.html</A> for
+more information.</LI>
+
+</UL>
+</BLOCKQUOTE>
+
+<H3><A NAME="Q3">3. Why can't I get this driver to work on an xbox?</A></H3>
+
+<BLOCKQUOTE>
+The problem is that the xbox has an I2C adapter controller in the xbox
+Linux software that is very hostile to the presence of other I2C
+busses showing up in the system.  The pvrusb2 hardware has an internal
+I2C bus.  The fix for this is to patch the xbox Linux software.
+Contact me for a patch.
+</BLOCKQUOTE>
+
+<H3><A NAME="Q4">4. The image is jumpy and the audio tends to lag.</A></H3>
+
+<BLOCKQUOTE>
+<P>Possibly your system isn't keeping up with the driver's bit rate.
+There are some things you can do to determine what is going on:</P>
+
+<UL>
+
+<LI>Run <TT>top</TT> while running your app.  How much CPU is left
+over?  If you have less than about 20% CPU left (approx guess), then
+I'd suggest you need a faster system.</LI>
+
+<LI>Is the pvrusb2 device really connected to a USB2.0 controller and
+/ or hub?  Run <TT>usbview</TT> to inspect the device and see what
+rate it is going at.  You may have problems if you are only running
+the device at USB 1.1 &quot;hi-speed&quot; rate.</LI>
+
+<LI>Try tweaking the video rendering settings of your app.  For
+example, with mplayer, the "xv" output setting uses the XVideo
+extension and tries to do hardware video scaling - if your video card
+doesn't do hardware scaling very well, then the CPU could be getting
+taxed.  Try the "x11" output setting and see if things improve.  (In
+this case, <TT>top</TT> will likely reveal that you're gassing out the
+CPU.)</LI>
+
+<LI>Separate the video capture operation from the video rendering
+operation and see which side is taking all the CPU: Try just cat'ing
+/dev/video0 (or whatever the pvrusb2 device got assign) into a file.
+Then view that file in a separate step with mplayer.  Look at the CPU
+utilization (e.g. use <TT>top</TT>) during both steps and see which
+part is taking all the CPU.</LI>
+
+</UL>
+
+<P>It is possible to have a very fast system but still have lousy
+video rendering performance.  Good video rendering depends <em>a
+lot</em> on the video card you are using.  For example I have found
+that Nvidia 5200-class video cards do hardware video scaling
+significantly better than ATI 9200-class video cards.</P>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q5">5. I can't tune anything.  I get either video snow or
+a blank screen.</A></H3>
+
+<BLOCKQUOTE>
+
+<P>There are multiple possible causes for this problem.  Check the
+following:</P>
+
+<UL>
+
+<LI>Is <TT>tuner.ko</TT> present and loaded?  Try <TT>lsmod | grep
+tuner</TT>.  The pvrusb2 driver itself does not directly control the
+tuner; instead that duty is offloaded to <TT>tuner.ko</TT> which is
+included with video4linux (and the ivtv driver and for completeness
+there's a spare copy included with the driver snapshot).  You need to
+ensure that <TT>tuner.ko</TT> can be loaded.  The driver will attempt
+to pull it in via modprobe when the driver itself is loaded, but any
+failure of that attempt will be silent.  If it isn't there, then
+either rebuild your kernel with the module enabled within video4linux
+or ensure that you've installed the spare copy included with this
+snapshot.</LI>
+
+<LI>
+
+You might have a Hauppauge "type 58" tuner in your pvrusb2.  Some
+versions of <TT>tveeprom.ko</TT> floating around don't correctly map
+this to a type that <TT>tuner.ko</TT> can use - which then causes
+<TT>tuner.ko</TT> to give up trying to control your tuner.  Do you see
+something like this in your system log?<BR>
+
+<BLOCKQUOTE><CODE>tveeprom: tuner = Philips FM1236 MK3 (idx = 58, type = 4)</CODE></BLOCKQUOTE>
+
+If you do, then you have a type 58 tuner and it isn't being mapped
+properly (the mapped value &quot;type = 4&quot; part indicates a bad
+mapping.  Definitely if you are using the <TT>tveeprom.ko</TT> that is
+part of your kernel tree then this may be a problem.  Try using the
+<TT>tveeprom.ko</TT> module that is part of this driver snapshot.  The
+main pvrusb2 web page has more information about this.
+
+</LI>
+
+<LI>It's possible (with newer driver snapshots) that your hardware
+needs <TT>tda9887.ko</TT> loaded and attached.  If this module isn't
+in your <TT>lsmod</TT> output, load it and see if that makes a
+difference.  If it is in your <TT>lsmod</TT> output (and especially if
+you are a PAL user), you <em>might</em> need to tweak the module's
+configuration.  Please see <A HREF="tda9887.html">tda9887.html</A> for
+more information.</LI>
+
+<LI>You might have a tuner that is more recent than can be recognized
+by <TT>tveeprom.ko</TT> and / or <TT>tuner.ko</TT>.  So far I know of
+no instances of this particular problem, but it can happen.  This is a
+more general variant of the "type 58" problem above.  Try to locate
+and use later versions of <TT>tuner.ko</TT> and <TT>tveeprom.ko</TT> -
+and <em>please</em> tell me if this happens.</LI>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q6">6. I can't get xawtv to work.</A></H3>
+
+<BLOCKQUOTE>
+
+<P>There are multiple possible causes for this problem.  Check the
+following:</P>
+
+<UL>
+
+<LI>Any version of xawtv before 4.x has no chance - those earlier
+versions could not decode an mpeg2 stream.  Update to something in 4.x
+if you are trying an older verison.</LI>
+
+<LI>You might not have compiled xawtv correctly.  If the configuration
+step didn't find ffmpeg (I think) then it won't compile in any mpeg2
+decoding logic and then you're no better off that a 3.x version.
+Similarly, it has to find and configure an mp3 decoder in order to
+correctly decode the audio.</LI>
+
+<LI>You might have a broken 4.x xawtv snapshot.  Versions from early
+February 2005 are known to work (been using that as a test case).
+However there was a video streaming bug found & fixed around
+20-May-2005 that would have prevented snapshots prior to that from
+working properly (and I guess since my Feb version worked, the bug
+must have been introduced into the code some time after that
+point).</LI>
+
+</UL>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q7">7. I can't get mplayer to work.</A></H3>
+
+<BLOCKQUOTE>
+
+<P>Even though this driver is a video4linux driver, and mplayer is
+able to handle video4linux devices, you can't run mplayer against this
+driver in such a way that mplayer tries to treat it as a video4linux
+device.  What happens when you try is that mplayer (1) can't grok v4l
+frames as mpeg2 data, and (2) even if it could, mplayer tries to use
+<TT>mmap()</TT> style I/O to fetch the video &quot;frames&quot; and
+that is not currently supported by the pvrusb2 driver.</P>
+
+<P>The way to make mplayer work is just to not do anything special.
+Specify your video device name (e.g. <TT>/dev/video0</TT>) as the
+&quot;file&quot; to read - mplayer will then happily stream plain old
+mpeg2 data from the device.  Yes, I know that means you can't use
+mplayer to adjust the device's controls, like for example changing the
+channel.  However you can still use the driver's sysfs interface to do
+this while mplayer is running.</P>
+
+<P>Another alternative solution you can try is the patched mplayer
+available with the ivtv driver.  I haven't tried this, but I suspect
+the ivtv driver author patched mplayer to deal with exactly the
+problems I describe above.  Thus if it works for ivtv it may very well
+also work for the pvrusb2 driver.  (Please tell me if you try this and
+let me know if it worked.)</P>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q8">8. I can't compile because <TT>tveeprom.h</TT> is
+missing or the compilation dies with a complaint about <TT>tvdata</TT>
+being an incomplete type.</A></H3>
+
+<BLOCKQUOTE>
+
+<P>The <TT>tvdata</TT> structure is defined in <TT>tveeprom.h</TT> so
+the common solution is to find <TT>tveeprom.h</TT>.  That header file
+is part of your kernel source tree.  If it isn't there, then your
+kernel sources are too old to work with this driver.  Update your
+kernel.  Alternatively you can probably also work with a slightly
+older kernel that has been patched up with the latest video4linux
+snapshot.  However I really recommend you go to a later kernel.  A
+good choice known to work is 2.6.11.10.</P>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q9">9. I'm getting errors in the log about being unable
+to find <TT>pvrusb2.f1</TT> or <TT>pvrusb2.f2</TT>.</A></H3>
+
+<BLOCKQUOTE>
+<P>Those two files are the firmware images that must be loaded into
+the pvrusb2 hardware before it will work properly.  The firmware is
+<em>not</em> part of this snapshot, but you can extract it from your
+Windows drivers - which you should have gotten with the device.  The
+extraction process is described <A HREF="firmware.html">here.</P>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q10">10. I copied the driver module(s) into my system but
+the kernel is not loading them.</A></H3>
+
+<BLOCKQUOTE>
+<P>You might have compiled for the wrong kernel version.  The kernel
+loader will usually report this in a very unsubtle way in the system
+log.</P>
+
+<P>If the kernel is complaining that it can't find the module, you
+might want to try this first:</P>
+
+<BLOCKQUOTE><TT>depmod -a</TT></BLOCKQUOTE>
+
+<P>I leave it as an exercise to the reader to look up the man page for
+<TT>depmod</TT> to see why this is important :-)</P>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q11">11. Sometimes streaming quits in xawtv.</A></H3>
+
+<BLOCKQUOTE>
+
+<P>This problem was mostly fixed as of the 20050626 snapshot of the
+driver.  Are you using a recent enough snapshot?</P>
+
+<P>The remaining issues right now I consider to be xawtv application
+issues.  These problems include:</P>
+
+<UL>
+
+<LI>Zero byte read requests - Sometimes xawtv will issue a read to the
+driver of size zero.  Why?  I have no idea.  When this happens, the
+only thing the driver can do is return zero, but that is really an
+EOF, and xawtv responds by closing the stream.  The driver will detect
+and report zero byte read requests to the system log.  Look for
+messages of this form: &quot;ZERO Request? Returning zero.&quot;</LI>
+
+<LI>If you are tuned to a weak station, video streaming can pause, due
+apparently to the pvrusb2 hardware struggling to acquire a lock on the
+video frames.  If this pause is long enough (about 3 seconds) then
+xawtv will timeout with a &quot;select timeout&quot;.  There really
+isn't much the driver can do here when this happens.  Instead xawtv
+should not give up reading.</LI>
+
+</UL>
+
+<P>Any time streaming quits in xawtv, you can always restart it by
+doing something that causes xawtv to stop then start again.  Changing
+the channel for example is a way to kick the streaming going again.</P>
+
+ </BLOCKQUOTE>
+
+<H3><A NAME="Q12">12. Where the heck is <tt>/dev/input/event</tt>X for
+my device?</A></H3>
+
+<BLOCKQUOTE>
+
+<P>There isn't any such device node entry for this driver.  Aurelien's
+older driver directly integrated with the kernel's input system for IR
+processing; I removed all that logic in favor of allowing the lirc
+package to do the work of handling the IR processing.  When you use
+lirc, input is captured differently, thus no
+<tt>/dev/input/event</tt>X will be found for this driver.  More info
+about this is described <A HREF="usage.html#IR_handling">here</A>.</P>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q13">13. Why did the device go batty when my air
+conditioning turned on?</A></H3>
+
+<BLOCKQUOTE>
+
+<P>This is because your air conditioning compressor caused a temporary
+sag in your line power.  While modern PC power supplies are pretty
+good at surviving such power abuse, your PVR USB2 device is externally
+powered using a cheap wall-wart which just can't defend against a
+power sag.  So the result is a power glitch into the tuner's hardware
+and that can screw up video capture.</P>
+
+<P>This sort of issue is not unique to the PVR USB2 device - it can
+happen for any device which has a separate external power supply
+(which would be typical of many USB devices).  If this is a problem
+for you, get a UPS and plug your PVR USB2 device into it (along with
+the PC of course).</P>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q14">14. Why must I be root to access the control files
+in sysfs?</A></H3>
+
+<BLOCKQUOTE>
+
+<P>Files created in sysfs are initialized with a default user and
+group ids of root.  There's no way to initialize them to anything
+else.  Now, though the driver can't set the uid or gid, the driver can
+set the mode for each sysfs file it creates.  So why not just make the
+files world writable?  Because that would violate the security of the
+system.  The simple fact is that there are things one can tweak here
+that would probably cause the driver to fail, which might be a way to
+destablize the system.  (No, I don't know that for certain, but when
+you don't know, the correct action is really to not allow it in the
+first place.)  Just accept the fact that for the same reason that
+permissions should be restricted for access, to say your CD burner,
+that it should not be possible for just anyone to write information or
+otherwise control the pvrusb2 driver.  That is why only root can
+access the control files in sysfs.</P>
+
+<P>Now, with that said, there are other possibilities.  While it
+should not be the business of the pvrusb2 driver to set fine grained
+security policy, there's no reason why one couldn't do other things in
+user space to solve the problem.  Some possibilities include:</P>
+
+<UL>
+
+<LI>Have a simple setuid wrapper program manipulate sysfs, based on
+sanitized commands given to it.  The wrapper then effectively becomes
+the security cop.</LI>
+
+<LI>Modify the uid and gid of desired sysfs files from user space.
+You can chown / chgrp files directly.  Perhaps you can set up
+designated &quot;video&quot; group whose members are permitted to
+touch the device.</LI>
+
+<LI>Program hotplug to adjust uids and/or gids for the driver's sysfs
+when it sees the device appear in the system.  Such a script could
+implement a distribution-specific security policy, much like what is
+done for other devices (e.g. scanners).  This is a refinement of the
+previous idea.  If someone would like to contribute something to do
+this I can include it in the driver source tree.</LI>
+
+</UL>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q15">15. I just added a second PVR USB2 and now the video
+is stuttering, corrupted and/or unstable.</A></H3>
+
+<BLOCKQUOTE>
+
+<P>Beyond instancing itself again, the driver doesn't have to do
+anything special to support multiple devices.  So it should &quot;just
+work&quot;.</P>
+
+<P>However there can be hardware issues with such a configuration.
+The thing to watch out for is how you have your device(s) connected to
+the computer.  If everything is using USB 2.0 running at hi-speed,
+then you should be fine (and if you are not contact me).  A single PVR
+USB2 device plugged into a &quot;full speed&quot; USB 1.1 port will
+also work fine, but since &quot;full speed&quot; is at best 12mbps and
+your average mpeg2 stream is going to be around 6mbps or higher, then
+a second PVR USB2 device sharing that connection through a hub is
+going to cause trouble.  There just isn't enough USB bandwidth in this
+case.  If you are going to run multiple PVR USB2 devices, make sure
+that each has enough bandwidth available between it and the PC.
+Generally this means that if you are going to share a port using a
+hub, the hub at least must be a hi-speed hub and it must be connected
+to a hi-speed port.</P>
+
+<P>Note that you can dump out the <tt>ctl_usb_speed</tt> control in
+sysfs for each device to find out what speed it thinks it is running
+at.</P>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q16">16. Changing the balance, bass or treble doesn't have
+any effect.</A></H3>
+
+<BLOCKQUOTE>
+
+<P>Handling of the various audio tone / balance settings is not
+directly implemented by the pvrusb2 driver.  It just passes everything
+through to <tt>msp3400.ko</tt> for processing, and that module
+processes the settings into commands for the msp34xx chip inside the
+device.  The problem here (at least for me and probably everyone) is
+that the particular msp34xx variant inside the PVR USB2 doesn't have
+the ability to adjust any of the balance, bass, or treble.  The
+<tt>msp3400.ko</tt> tries to act like the capability is there, but it
+just doesn't work because it isn't implemented in the silicon.  That's
+why it probably isn't working for you.</P>
+
+<P>This of course leads to the obvious question: If it isn't going to
+work, then why do the controls exist in the driver?  Answer: Because
+I'm not sure that it isn't going to work.  It is conceivable that
+there might be some PVR USB2 variants floating around that happen to
+have the right kind of msp34xx part to implement this.  Given
+Hauppauge's penchant for changing out parts without changing models,
+I'm not prepared to assume that the ability won't be there.  So the
+driver makes these controls available and dutifully passes that
+information down to <tt>msp3400.ko</tt> which in turn tries to influence
+the (apparently) non-existent functionality.  What would really be
+nice would be for <tt>msp3400.ko</tt> to provide a means to detect if
+balance / bass / treble are supported and to tell the parent driver
+this information.  Then I could disable controls that obviously aren't
+going to work.  But that ability as far as I can tell isn't there, and
+for now I'm going to assume that it <em>might</em> be there.</P>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q17">17. Changing the audio mode (stereo / mono / sap)
+doesn't do anything!</A></H3>
+
+<BLOCKQUOTE>
+
+<P>After a night of bug chasing, I believe I understand this problem,
+and it only affects those of us in NTSC territory.</P>
+
+<P>Again, this is a case where the pvrusb2 driver just passes the
+information down to <tt>msp3400.ko</tt> and it's up to that module to
+act on the information to implement the correct mode.  There's very
+little that the pvrusb2 driver can do to foul this up.</P>
+
+<P>For all areas except NTSC there are 2 possible audio subchannels
+(I'm guessing this), and the msp34xx chip has the ability to select
+combinations of those two within a given mode.  But with NTSC there
+are actually 3 possible audio subchannels that can be broadcast at the
+same time (stereo left, stereo right, sap), and the msp34xx chip has
+to handle this by pre-selecting a subset based on the mode setting.
+There are two NTSC &quot;modes&quot; because of this, so when
+switching between either stereo or sap one has to switch this mode in
+addition to switching the source.  Unfortunately the implementation in
+<tt>msp3400.ko</tt> fails to do this.  It just locks onto the first
+mode which selects the stereo choice.  Given that many people using
+this module do not live in an NTSC area (I presume), this problem has
+probably gone unnoticed.  I imagine that the ivtv driver likely has
+the same issue.</P>
+
+<P>The fix for this needs to be in <tt>msp3400.ko</tt>, which I don't
+maintain.  When switching to/from sap, the mode has to be manually
+switched to/from 0x0020 (BTSC stereo) and 0x0021 (BTSC sap).  It might
+be possible to force this by disabling automatic mode selection in the
+mode and forcing video standard code 0x0021 on the module's option
+line, but I haven't tried this and it's really clunky to try to
+operate the tuner in this manner.  If someone else would like to look
+into this, I would welcome the effort.</P>
+
+<P>At some point in the future I may try to code a fix for this, but
+now isn't the time.  There are two variants of this rather messy
+<tt>msp3400.ko</tt> module already floating around (kernel and ivtv)
+and I don't want to fork a 3rd version.  The versions I'm looking at
+are already several months old.  Before attacking something like this
+one would need to first go to bleeding edge versions and talk to the
+corresponding maintainers.  I just don't have the time right now.</P>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q18">18. Should I be worried if I see a message about a
+corrupt Hauppauge PROM?</A></H3>
+
+<BLOCKQUOTE>
+
+<P>You might see a message in your system log that looks like this:</P>
+
+<blockquote><pre>tveeprom 2-0050: Encountered bad packet header [c2]. Corrupt or not a Hauppauge eeprom.</pre></blockquote>
+
+<P>Yet even with such an alarming thing in the log, the PVR USB2
+device operates correctly.  This is because the <tt>tveeprom.ko</tt>
+module is trying on its own to parse the PROM data in the PVR USB2 and
+it frequently can't do that correctly without outside help.  Later on
+the pvrusb2 driver will orchestrate that action, this time with the
+correct results, therefore this warning message can be ignored.</P>
+
+<P>This message is coming from a support module, not the pvrusb2
+driver itself, and so the pvrusb2 driver can't do much to control its
+appearance in the log.  The interested reader may wish to read all
+about operation of tveeprom.ko, which is laid out in gory detail over
+in <A HREF="eeprom.html">eeprom.html</A>.</P>
+
+</BLOCKQUOTE>
+
+<H3><A NAME="Q19">19. What's up with &quot;pvrusb2 disagrees about version of symbol tveeprom_hauppauge_analog&quot;?</A></H3>
+
+<BLOCKQUOTE>
+
+<P>This is the result of an interaction between CONFIG_MODVERSIONS (a
+kernel build option) and the horrid hacked up way in which the pvrusb2
+driver attempts to deal with tveeprom.ko (see <A
+HREF="eeprom.html">eeprom.html</A> for more about that
+hack).</P>
+
+<P>When CONFIG_MODVERSIONS is in use, the kernel build system
+generates these per-symbol CRCs by taking into account every aspect
+related to the symbol's declaration - like its argument types, the
+definition of those argument types, the return type, etc.  This is
+done for each symbol exported by a module (a definition) and for each
+symbol that needs to be imported into a module (a declaration).  The
+idea here is to make sure that the symbol has been defined in
+precisely the same way it has been declared.  If the declaration and
+definition disagree, then their CRCs won't match and the module loader
+catches this, prints that nasty message and aborts the load of the
+module in question.  Obviously if a symbol's declaration and
+definition do not match, then there may be an incompatibility and this
+is how the kernel CONFIG_MODVERSIONS mechanism prevents usage of
+incompatible symbols.</P>
+
+<P>For example, if I declare and call function <TT>foobar</TT> this
+way:</P>
+
+<PRE><CODE>
+   void foobar(short abc, char *def);
+</CODE></PRE>
+
+<P>But the module actually defines foobar this way:</P>
+
+<PRE><CODE>
+   void foobar(char *def) {
+ 	/* whatever */
+   }
+</CODE></PRE>
+
+<P>Obviously such a mismatched call will likely generate bad behavior
+and possibly a kernel oops.  But since the CRC for <TT>foobar</TT>
+stored in the module defining <TT>foobar</TT> won't match the CRC for
+<TT>foobar</TT> stored in the module using foobar, the mismatch will
+be caught and the kernel won't let you load that combination of
+modules at the same time.</P
+
+<P>In theory this all looks great.  But why, might you ask, is this
+mechanism not working for <TT>tveeprom_hauppauge_analog</TT>?  That's
+because we <em>really do</em> have conflicting definitions here.</P>
+
+<P>Look back at my diatribe in <A HREF="eeprom.html">eeprom.html</A>,
+and you'll see how I point out that the V4L defined version of this
+function uses a <TT>struct tveeprom</TT> that is different than the
+<TT>struct tveeprom</TT> used by the ivtv defined version of this
+function.  The CRC generation algorithm is apparently using the full
+definition of the <TT>tveeprom</TT> structure as input into the CRC
+value.  Now, in pvrusb2-eeprom.c I do some really ugly hackery to make
+a run time determination of which <TT>struct tveeprom</TT> is really
+the correct one so the code is actually fairly safe.  But this sort of
+thing still trips up the CRC generation.  It turns out that in the
+pvrusb2 driver build, pvrusb2-eeprom.c will see the V4L defined
+prototype for <TT>tveeprom_hauppauge_analog</TT> and <TT>struct
+tveeprom</TT>, so the expected CRC will be the V4L version of the
+function.  Thus we now see why we get this "disagrees about version of
+symbol" error when we try to load the ivtv version of tveeprom.ko with
+the other definition - and a different CRC.</P>
+
+<P>Right now I don't see a good solution.  The simple fact is that I'm
+trying to make the pvrusb2 driver survive a screwed up situation
+between V4L and ivtv and there's only so much I can do here.  There's
+really only two choices here: (1) Don't enable CONFIG_MODVERSIONS in
+your kernel build (if you can), or (2) Don't bother trying to use the
+tveeprom.ko supplied with the pvrusb2 driver.  I should also point out
+here that the same problem should happen if you try to use the "real"
+ivtv driver's tveeprom.ko, for exactly the same reason.  This means
+that if you really do want ivtv to run co-resident with the pvrusb2
+driver, then you are only really left with choice (1).</P>
+
+</BLOCKQUOTE>
+
+<BR><BR>
+</BODY>
+</HTML>

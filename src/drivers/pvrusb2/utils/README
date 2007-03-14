@@ -1,0 +1,82 @@
+
+$Id: README 1274 2006-07-03 05:07:20Z isely $
+Mike Isely <isely@pobox.com>
+
+This directory contains utilities which aid in the use and maintenance
+of the pvrusb2 driver.  Things that can be found here include:
+
+  decode_log.cpp - This is the source for a decompiler, which is used
+    to interpret the USB traffic flowing between the pvrusb2 device
+    and the driver.
+
+  decode_eeprom.cpp - This is the source for a utility that can parse
+    out an FX2 load image from an eeprom image.  The FX2 loads code
+    from a resident eeprom using packets in the eeprom.  This program
+    can parse each packet and emit a set of s-records of the contained
+    data (which can then be fed to a disassembler).
+
+  fwextract.pl - This is a Perl program which can extract firmware
+    data out of Hauppauge's Windows driver files.
+
+  fwfind.sh - This is a shell script which is a wrapper around
+    fwextract.pl.  It attempts to download an appropriate driver
+    package, expand it, and then feed it to fwextract.pl for further
+    processing.
+
+  old-extract-firmware.pl - This is the old firmware extractor created
+    by Björn Danielsson <pvrusb2@dax.nu>.  Use the newer fwextract.pl
+    program instead; this is included here for historical reasons and
+    also as a fallback in case problems are encountered with the new
+    extractor.
+
+  pvrui.sh - Shell script that uses the dialog utility to implement an
+    interactive front end to the sysfs interface of the driver.  NOTE:
+    This script is fairly broken at the moment.  New types have since
+    been introduced into the sysfs interface and the script doesn't
+    handle enum values with embedded spaces very well.  This needs to
+    be fixed.
+
+  usbreplayprep.pl - This is a Perl script which can postprocess USB
+    sniffer output into a compact form that the decompiler can parse.
+    This also originally came from Björn however it has been modified
+    to also preserve data coming from the device (older version only
+    preserved data going *to* the device).
+
+  (The following are hacks I threw together to help with maintaining
+  the source code.)
+
+  release_snapshot.pl - This is a Perl script I use for releasing
+    snapshots and creating the generated HTML pages.
+
+  svn_helper.pl - This is a utility I wrote for massaging a snapshot
+    of the driver sources into something appropriate for the V4L
+    source tree.  This uses Subversion to set up a proposed tag
+    sandbox with all the sources appropriately places, all Id keywords
+    stripped down (to make diffs easier) and all conditionally
+    compiled code which is false for V4L to be removed.
+
+Run "make" in this directory and decode_log & decode_eeprom will be
+compiled.  These programs have no external dependencies; you only need
+a C++ compiler to build them.
+
+To use this decompiler (decode_log), feed the output of
+usbreplayprep.pl into its stdin.  The results will be sent to stdout.
+Examine the contents at the top of decode_log.cpp for more
+information.
+
+To use decode_eeprom, specify the name of the raw eeprom image file as
+the first argument, and if you wish to emit the s-record result then
+also specify the name of the s-record output file as the second
+argument.
+
+The usbreplayprep.pl script expects USB sniffer data in its stdin,
+while its results will go to stdout.  The USB sniffer can be found
+here:  http://benoit.papillault.free.fr/usbsnoop/
+
+See pvrusb2-utils.html in the doc sibling directory for information on
+what you can do with these utilities.
+
+
+  -Mike Isely
+  isely@pobox.com
+

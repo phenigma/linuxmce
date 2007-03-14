@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>pvrusb2 Linux Driver tda9887 issues</TITLE>
+	<META NAME="keywords" content="Hauppauge, WinTV-PVR-USB2, pvrusb2, PVR, USB2, video4linux, v4l, v4l2">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>The pvrusb2 driver and tda9887</H1>
+<P>$Id: tda9887.html 1153 2006-05-17 04:39:09Z isely $</P>
+<P>Mike Isely &lt;isely at pobox dot com&gt;</P>
+
+<P>This page describes issues involving the pvrusb2 driver's use of
+the tda9887 module that is a part of Vidoe4Linux.  What is described
+here is general information about the chip and its module, some tips
+on making it work for the pvrusb2 driver, and a short history of
+driver changes related to this module.  If you are having problems
+related to bad tuning or no sound - or if you suspect TDA9887 problems
+- reading this page might help.</P>
+
+<P>Note that for pvrusb2 driver snapshots from 20051231 onward, this
+should all be automatic now.  So hopefully if I got everything right
+then you can ignore the rest of this page.  On the other hand...</P>
+
+<P>You can find the main pvrusb2 driver page on the web at <A
+HREF="http://www.isely.net/pvrusb2/pvrusb2.html">http://www.isely.net/pvrusb2/pvrusb2.html</A>.</P>
+
+<HR>
+<H2>General tda9887 information</H2>
+
+<P>The TDA9887 is an I2C-accessed chip that is involved in
+demodulation of the TV signal.  To do this job, it needs to be given
+some configuration information relating to the video standard in use,
+the mode (radio vs TV), the surrounding circuitry, and maybe also
+related to the frequency being tuned (not sure about that last part).
+This job is handled within V4L by the <tt>tda9887.ko</tt> module
+(we'll just call it &quot;tda9887&quot; from here onward).</P>
+
+<P>Like any I2C module in V4L, the tda9887 module when loaded will
+scan a device's I2C bus for a TDA9887 chip, and upon finding one it
+will attach to the bus and receive commands which it will interpret
+into configuration changes for the chip.</P>
+
+<P>One complication involved in the configuration of the TDA9887 is
+that it has several binary configuration bits - &quot;port1&quot;,
+&quot;port2&quot;, and &quot;qss&quot; - whose settings depend
+apparently on the type of tuner being used and the surrounding
+circuitry on the device.  This information unfortunately cannot be
+easily learned just by monitoring the parent driver (i.e. pvrusb2) for
+state changes, nor can the parent driver always know how these
+settings should be controlled.  To get around this problem, the
+tda9887 module has three module options that may be manually specified
+when the module is loaded.  They are:</P>
+
+<blockquote><code>
+port1=&lt;x&gt;<br>
+port2=&lt;x&gt;<br>
+qss=&lt;x&gt;<br>
+</code></blockquote>
+
+<P>In each case <tt>&lt;x&gt;</tt> must be either 0 or 1.  I don't
+entirely understand what these all are supposed to do, however they
+all default to 1 if not otherwise controlled and I am told that
+<tt>port1</tt> and <tt>port2</tt> at least must be set to 0 in order
+to get sound when using PAL.  (In other cases it apparently doesn't do
+any harm to have them be zero and without these set you may still at
+least have tuning problems.)</P>
+
+<P>A side note...  One other handy module option for tda9887 is
+<TT>debug</TT>.  If you set <TT>debug=2</TT> as an option for tda9887,
+i.e. if you do this:</P>
+
+<blockquote><code>modprobe -r tda9887; modprobe tda9887
+debug=2</code></blockquote>
+
+<P>Then the tda9887 module will dump a verbose interpretation of the
+commands it is sending to the chip, every time it configures the chip.
+You'll be able to tell from that what the port1 and port2 settings
+currently are.</P>
+
+<P>The take-away here is that if you encounter a situation where sound
+does not work, or tuning in general seems flakey, you may want to try
+adjusting these settings.  This situation exists for any device which
+has a TDA9887 inside of it; this is not specific to the pvrusb2
+driver.</P>
+
+<P>Unfortunately, with the pvrusb2 driver, the situation gets yet more
+interesting...</P>
+
+<H2>pvrusb2 and TDA9887</H2>
+
+<P>There are two complications involving the pvrusb2 driver.  One is
+that some PVR USB2 devices don't actually need the tda9887 module to
+operate.  The other is that the pvrusb2 driver has had in it all along
+some old hacked up code which had been trying to manipulate the
+TDA9887 anyway.  These two complications just serve to further muddy
+up any understanding of TDA9887 issues within this driver.</P>
+
+<P>The first complication has to do with even having a TDA9887 present
+at all.  It turns out that the PVR USB2 device I had been testing
+against for the better part of a year doesn't need this help at all.
+I <em>think</em> there may still be a TDA9887 inside of it, but I am
+in NTSC territory here and my reading of the TDA9887 datasheet
+suggests that it is possible to hardwire the TDA9887's configuration
+for NTSC (thus no need for it to even be connected to the I2C bus).
+So, there are PVR USB2 devices out there for which this TDA9887
+nonsense is just, well, a non-issue.  Unfortunately that fact was true
+for your driver author here and therefore I never even knew to suspect
+issues here.  That all changed when I acquired a second PVR USB2
+device, which <em>does</em> have a live TDA9887 in it.</P>
+
+<P>The second complication has to do with some old logic in the
+driver.  As I had stated at the top of the main driver web page, I
+didn't write this driver.  The original version of this driver
+directly coded for all those I2C chips within the driver itself and
+did not depend on any outside I2C modules to assist in its operation.
+All that hardwired code unfortunately wasn't very flexible and
+couldn't account for all the various situations that people can find
+themselves in while using the device.  One of the first things I did
+therefore was to rip out all that old redundant code in favor of using
+the already-debugged I2C modules in V4L.  During my initial work, I
+did this for everything I could identify, and that resulted in the
+pvrusb2 driver using tuner, saa7115, tveeprom, and msp3400.  However
+at the time there was one block of wierd I2C commands that I could not
+identify.  At the time - not wishing to mess with what apparently
+wasn't harming anything - I decided to just leave that logic intact.
+It turns out that this unidentified logic was in fact the hardwired
+stand-in for the tda9887 module.  Upon finally understanding this I
+recently ripped out that old code from the pvrusb2 driver so that
+tda9887 could do its job properly.</P>
+
+<P><strong>What the above means is that people who didn't think they
+needed tda9887 nearby may now suddenly find that they need
+it.</strong></P>
+
+<P>The pvrusb2 driver as it stands for the 20051231 snapshot and
+onward should have everything correct now.  With that snapshot, all
+the old hack code is gone, and the driver attempts to correctly
+operate the tda9887 module.  But for clarity, here is a summary of the
+snapshots over time and how each interacted with the TDA9887 chip:</P>
+
+
+<H3>Before 20051206</H3>
+
+<P>For everything before the 20051206 snapshot, the pvrusb2 driver
+made no attempt to interact with the tda9887 module and that old
+TDA9887-controlling hack code was present.</P>
+
+<H3>20051206 to 20051208</H3>
+
+<P>In late November 2005, I began learning the wonders of TDA9887
+(said with tongue in cheek), and thus with the 20051206 snapshot, the
+pvrusb2 driver now recognized the tda9887 module and attempted to
+operate it.  But this was very minimal - I still had yet to learn
+about the port1 / port2 nonsense and I hadn't yet stumbled back on
+that old hacked up TDA9887-controlling code that was still lurking in
+the driver.  So what worked here at all probably worked badly.</P>
+
+<H3>20051226</H3>
+
+<P>Unfortunately in parallel to the TDA9887 craziness I was also in
+the middle of a large round of driver changes that involved how the
+driver interacts with all of the I2C modules.  But in the middle of
+all that I ran into the old hacked TDA9887 code and suddenly realized
+that it was probably clashing with the tda9887 module.  The purpose of
+this snapshot was to remove that hacked code.  At this point there was
+still no attempt in the pvrusb2 driver to deal with the port1 / port2
+configuration issues.  Anyone using this snapshot therefore still has
+to possibly specify &quot;port1=0 port2=0&quot; as options to the
+tda9887 module.  The exact workaround for this snapshot should be
+this:</P>
+
+<OL>
+<LI><TT>modprobe -r tda9887</TT></LI>
+<LI><TT>modprobe tda9887 port1=0 port2=0</TT></LI>
+<LI>Unplug, then plug the PVR USB2 device back in.</LI>
+</OL>
+
+<P>The last step is needed because this driver snapshot did not know
+to reconfigure the tda9887 module when it reappears in the system.
+Re-plugging the hardware forces the entire driver to re-initialize
+itself and thus tda9887 along with it.  (The big change in the next
+snapshot solves that issue.)</P>
+
+<H3>20051231 to present</H3>
+
+<P>From the New Years Eve snapshot onward, the pvrusb2 driver includes
+new logic to handle all the I2C modules.  With this change comes a new
+ability implemented for tda9887.  Now when the pvrusb2 driver detects
+tuner types 38 or 43, AND if tda9887 is attached, it will issue a
+command to the tda9887 module to set port1=0 and port2=0.  The new I2C
+control logic is also smart enough to autonomously (re)do this change
+when circumstances change, e.g. if the tda9887 module is unloaded then
+reloaded.</P>
+
+<P>At this point, everything should be correct.</P>
+
+<P>The decision to only set port1=0 and port2=0 on tuner types 38 and
+43 follows behavior in the ivtv driver (well, for type 38, where this
+seems to work).  I have no idea if this is good enough however.  It's
+possible that other tuner types with tda9887 loaded may require this
+tweak.  In any case however the settings for port1, port2 (and qss)
+can still always be overridden using the usual tda9887 module
+options.</P>
+
+<BR><BR>
+</BODY>
+</HTML>
