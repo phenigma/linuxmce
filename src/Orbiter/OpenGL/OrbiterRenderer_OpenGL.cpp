@@ -32,9 +32,9 @@
 
  */
 
-//#ifdef VIA_OVERLAY
+#ifdef VIA_OVERLAY
 #define VIA_OVERLAY_TEXTURE_MANAGEMENT
-//#endif
+#endif
 
 #include "OrbiterRenderer_OpenGL.h"
 //-----------------------------------------------------------------------------------------------------
