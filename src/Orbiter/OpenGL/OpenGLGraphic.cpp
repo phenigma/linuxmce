@@ -612,11 +612,6 @@ VideoRAMUsageObserver VideoRAMUsageObserver::m_Instance;
 
 void VideoRAMUsageObserver::ObserveConvertingProcess(OpenGLTexture texture, int x, int y, int bpp, string sFileName)
 {
-	if(sFileName == "")
-	{
-		int mumu_was_here = 13;
-	}
-
 	TextureInfoMap::iterator it = mapTexturesInfo.find(texture);
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VideoRAMUsageObserver: texture %d (%s) allocated with size %d", 

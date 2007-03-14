@@ -495,21 +495,6 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 		point.X, point.Y, rectTotal.Width, rectTotal.Height);
 #endif
 
-	if(TextureManager::Instance()->CacheEnabled())
-	{
-		if(
-			!OrbiterLogic()->m_bMemoryManagementEnabled ||
-			(pPlutoGraphic->m_GraphicManagement == GR_KEEPUNCOMPRESSED || point.X != 0 || point.Y != 0)
-		)
-		{
-			TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
-		}
-	}
-	else
-	{
-		Frame->DontReleaseTexture();
-	}
-
 #ifdef VIA_OVERLAY
 	//make datagrid's thumbs opaque
 	if(Frame->Name().find("datagrid-thumb") == 0)
@@ -522,6 +507,23 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
 g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
+
+	if(TextureManager::Instance()->CacheEnabled())
+	{
+		if(!OrbiterLogic()->m_bMemoryManagementEnabled || (point.X != 0 || point.Y != 0))
+		{
+			TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
+		}
+		else
+		{
+			Frame->MarkAsVolatile();
+			Frame->DontReleaseTexture();
+		}
+	}
+	else
+	{
+		Frame->DontReleaseTexture();
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::BeginPaint()
