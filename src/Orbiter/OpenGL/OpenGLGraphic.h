@@ -45,7 +45,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 class PlutoRectangle;
 class PlutoColor;
 
-//#define DETECT_LEAKS
+#define DETECT_LEAKS
 #define VIDEO_RAM_USAGE
 //-----------------------------------------------------------------------------------------------------
 #ifdef DETECT_LEAKS
@@ -79,10 +79,13 @@ private:
 	map<OpenGLTexture, int> mapTexturesInfo;
 	static VideoRAMUsageObserver m_Instance;
 
+	VideoRAMUsageObserver() {};
 	void DumpVideoMemoryInfo();
 
 public:
 	
+	~VideoRAMUsageObserver();
+
 	static VideoRAMUsageObserver& Instance() { return m_Instance; }
 	
 	void ObserveConvertingProcess(OpenGLTexture texture, int x, int y, int bpp);
