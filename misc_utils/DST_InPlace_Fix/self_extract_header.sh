@@ -4,6 +4,9 @@ echo ""
 echo "Pluto fix for North America DST"
 echo ""
 
+echo "Before:"
+zdump -v /usr/share/zoneinfo/America/New_York | grep 2007
+
 # create a temp directory to extract to.
 export WRKDIR=`mktemp -d /tmp/selfextract.XXXXXX`
 
@@ -22,6 +25,9 @@ popd >/dev/null
 
 # delete the temp files
 rm -rf $WRKDIR
+
+echo "After:"
+zdump -v /usr/share/zoneinfo/America/New_York | grep 2007
 
 exit 0
 
