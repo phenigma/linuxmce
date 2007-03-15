@@ -75,11 +75,14 @@ function softwareList($compSelected,$dbADO){
 		return $TEXT_ERROR_NO_COMPUTER_SELECTED_CONST;		
 	}
 	
-	$res=$dbADO->Execute('SELECT PK_Software,Iconstr,Title,Category,Rating,Virus_Free,Installation_status FROM Software WHERE FK_Device=?',array($compSelected));
+	$res=$dbADO->Execute('SELECT PK_Software,PackageName,Iconstr,Title,Category,Rating,Virus_Free,`Status`,Version,Distro FROM Software_Device INNER JOIN Software ON Software_Device.FK_Software=PK_Software LEFT JOIN Software_Source ON Software_Device.FK_Software_Source=PK_Software_Source WHERE FK_Device=?',array($compSelected));
 	
 	$out='<table>
 		<tr class="tablehead">
 			<td align="center">'.$TEXT_ICON_CONST.'</td>
+			<td align="center">'.$TEXT_PACKAGENAME_CONST.'</td>
+			<td align="center">'.$TEXT_VERSION_CONST.'</td>
+			<td align="center">'.$TEXT_DISTRO_CONST.'</td>
 			<td align="center">'.$TEXT_TITLE_CONST.'</td>
 			<td align="center">'.$TEXT_CATEGORY_CONST.'</td>
 			<td align="center">'.$TEXT_RATING_CONST.'</td>
@@ -97,11 +100,14 @@ function softwareList($compSelected,$dbADO){
 	
 	$pos=0;
 	while($row=$res->FetchRow()){
-		switch ($row['Installation_status']){
-			case 'No':
+		switch ($row['Status']){
+			case 'N':
+			case 'r':
+			case 'R':
 				$button='<input type="button" class="button" name="btn_'.$row['PK_Software'].'" value="'.$TEXT_INSTALL_CONST.'" onClick="self.location=\'index.php?section=addSoftware&action=install&computer='.$compSelected.'&sID='.$row['PK_Software'].'\'">';
 			break;
-			case 'Yes':
+			case 'i':
+			case 'I':
 				$button='<input type="button" class="button" name="btn_'.$row['PK_Software'].'" value="'.$TEXT_REMOVE_CONST.'" onClick="self.location=\'index.php?section=addSoftware&action=remove&computer='.$compSelected.'&sID='.$row['PK_Software'].'\'">';
 			break;
 			default:
@@ -113,11 +119,14 @@ function softwareList($compSelected,$dbADO){
 		$out.='
 		<tr class="'.$class.'">
 			<td align="center"><img src="softwareIcon.php?sID='.$row['PK_Software'].'"></td>
+			<td align="center">'.$row['PackageName'].'</td>
+			<td align="center">'.$row['Version'].'</td>
+			<td align="center">'.$row['Distro'].'</td>
 			<td align="center">'.$row['Title'].'</td>
 			<td align="center">'.$row['Category'].'</td>
 			<td align="center">'.$row['Rating'].'</td>
 			<td align="center">'.$row['Virus_Free'].'</td>
-			<td align="center">'.$row['Installation_status'].'</td>
+			<td align="center">'.$row['Status'].'</td>
 			<td align="center">'.$button.'</td>
 		</tr>';
 		$pos++;
