@@ -197,8 +197,10 @@ public:
 	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Input_Select(int iPK_Command_Input,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Pause(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop(bool bEject,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Record(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Guide(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_EnterGo(string &sCMD_Result,class Message *pMessage) {};
@@ -223,6 +225,9 @@ public:
 	virtual void CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Live_TV(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Recorded_TV_Menu(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Data(string sText,string *sData_String,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -552,6 +557,32 @@ public:
 					};
 					iHandled++;
 					continue;
+				case COMMAND_Input_Select_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Command_Input=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Command_Input_CONST].c_str());
+						CMD_Input_Select(iPK_Command_Input,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Input_Select(iPK_Command_Input,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
 				case COMMAND_Pause_CONST:
 					{
 						string sCMD_Result="OK";
@@ -599,6 +630,31 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Stop(bEject,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Record_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Record(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Record(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1215,6 +1271,84 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Menu(sText.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Live_TV_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Live_TV(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Live_TV(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Recorded_TV_Menu_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Recorded_TV_Menu(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Recorded_TV_Menu(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Get_Data_CONST:
+					{
+						string sCMD_Result="OK";
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+						string sData_String=pMessage->m_mapParameters[COMMANDPARAMETER_Data_String_CONST];
+						CMD_Get_Data(sText.c_str(),&sData_String,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Data_String_CONST]=sData_String;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Data(sText.c_str(),&sData_String,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
