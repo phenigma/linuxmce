@@ -2,6 +2,8 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 
+DEVICEDATA_Network_Interfaces=32
+
 CommaField()
 {
 	echo "$2" | cut -d, -f "$1"
@@ -112,7 +114,7 @@ NCards=$(ip addr | grep -cF 'link/ether')
 
 Q="SELECT IK_DeviceData
 FROM Device_DeviceData
-WHERE FK_DeviceData=32"
+WHERE FK_DeviceData=$DEVICEDATA_Network_Interfaces"
 R=$(RunSQL "$Q")
 
 ExtractData "$R"
