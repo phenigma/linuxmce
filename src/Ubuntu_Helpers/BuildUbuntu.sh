@@ -153,7 +153,8 @@ function Build_Pluto_Replacements {
 			apt-get update
 		fi
 		aptitude download ivtv-firmware
-		cp ivtv-firmware_*.dev "${temp_dir}"
+		cp ivtv-firmware_*.deb "${temp_dir}"
+		rm ivtv-firmware_*.deb
 	popd
 
 	#Package: lirc-pluto
