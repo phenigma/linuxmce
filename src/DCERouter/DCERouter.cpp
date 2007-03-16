@@ -119,6 +119,7 @@ class DelayedCommandInfo {
 	public:
 		int m_PK_CommandGroup,m_iStartingCommand;
 		string m_sDescription,m_sHint;
+		DeviceData_Router *m_pDevice_Sender;
 };
 
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
@@ -710,7 +711,7 @@ void Router::StopPendingCommandGroup(int PK_CommandGroup,string sDescription,str
 	}
 }
 
-void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
+void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_Sender,int sStartingCommand)
 {
 	string sSql = "SELECT PK_CommandGroup_Command,FK_Command,FK_Device,FK_DeviceGroup,DeliveryConfirmation "
 		"FROM CommandGroup_Command WHERE FK_CommandGroup=" + StringUtils::itos(PK_CommandGroup) + " ORDER BY OrderNum";
@@ -740,6 +741,7 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
 					DelayedCommandInfo *pDelayedCommandInfo = new DelayedCommandInfo;
 					pDelayedCommandInfo->m_PK_CommandGroup=PK_CommandGroup;
 					pDelayedCommandInfo->m_iStartingCommand=RowCount+1;
+					pDelayedCommandInfo->m_pDevice_Sender=pDevice_Sender;
 
 					sSql = "SELECT Description,Hint FROM CommandGroup WHERE PK_CommandGroup=" + StringUtils::itos(PK_CommandGroup);
 					PlutoSqlResult result_set2;
@@ -771,7 +773,11 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
 					pMessage->m_dwPK_Device_Group_ID_To = atoi(row[3]);
 				}
 				else
+				{
 					pMessage->m_dwPK_Device_To = atoi(row[2]);
+					if( pMessage->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
+						pMessage->m_dwPK_Device_To = pDevice_Sender->m_dwPK_Device;
+				}
 
 				sSql = "SELECT FK_CommandParameter,IK_CommandParameter FROM CommandGroup_Command_CommandParameter "
 					"WHERE FK_CommandGroup_Command=" + string(row[0]);
@@ -831,7 +837,7 @@ int k=2;
     }
     else if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EXEC_COMMAND_GROUP )
     {
-		ExecuteCommandGroup((*SafetyMessage)->m_dwID);
+		ExecuteCommandGroup((*SafetyMessage)->m_dwID,pDeviceFrom);
         return;
     }
 
@@ -2863,7 +2869,7 @@ void Router::AlarmCallback(int id, void* param)
 	if( id==ALARM_DELAYED_COMMAND_EXECUTION )
 	{
 		DelayedCommandInfo *pDelayedCommandInfo = (DelayedCommandInfo *) param;
-		ExecuteCommandGroup(pDelayedCommandInfo->m_PK_CommandGroup,pDelayedCommandInfo->m_iStartingCommand);
+		ExecuteCommandGroup(pDelayedCommandInfo->m_PK_CommandGroup,pDelayedCommandInfo->m_pDevice_Sender,pDelayedCommandInfo->m_iStartingCommand);
 		delete pDelayedCommandInfo;
 	}
 }
@@ -2966,7 +2972,10 @@ bool Router::HandleRouterMessage(Message *pMessage)
 	{
 		int PK_CommandGroup = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_CommandGroup_CONST].c_str());
 		if( PK_CommandGroup )
-			ExecuteCommandGroup(PK_CommandGroup);
+		{
+			DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From);
+			ExecuteCommandGroup(PK_CommandGroup,pDevice);
+		}
 		return true;
 
 	}

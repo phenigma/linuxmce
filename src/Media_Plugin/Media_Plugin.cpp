@@ -2569,6 +2569,8 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
+	MediaDevice *pMediaDevice_Source = iPK_Device ? m_mapMediaDevice_Find(iPK_Device) : NULL;
+
 	int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
 	vector<EntertainArea *> vectEntertainArea;
 
@@ -2680,16 +2682,12 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 
 	// What is the media?  It must be a Device, DeviceTemplate, or a media type, or filename
 	// If there's a filename, we'll use that to determine the media type
-    if( !iPK_MediaType && (iPK_Device || iPK_DeviceTemplate) && !sFilename.size() )
+    if( !iPK_MediaType && (pMediaDevice_Source || iPK_DeviceTemplate) && !sFilename.size() )
     {
 		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
 		Row_DeviceTemplate *pRow_DeviceTemplate=NULL;
-		if( iPK_Device )
-		{
-			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
-			if( pRow_Device )
-				pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
-		}
+		if( pMediaDevice_Source )
+			pRow_DeviceTemplate = pMediaDevice_Source->m_pDeviceData_Router->m_pRow_Device->FK_DeviceTemplate_getrow();
 
 		if( !pRow_DeviceTemplate && iPK_DeviceTemplate )
 			pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
@@ -2708,32 +2706,44 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		}
     }
 
-    if( vectEntertainArea.size()==1 && dequeMediaFile.size()==0 && iPK_MediaType==0 ) // We got nothing -- find a disk drive within the entertainment area and send it a reset
+    if( vectEntertainArea.size()==1 && 
+		( pMediaDevice_Source && pMediaDevice_Source->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Disc_Drives_CONST) )
+		 || (dequeMediaFile.size()==0 && iPK_MediaType==0) ) // We got nothing -- find a disk drive within the entertainment area and send it a reset
     {
 		EntertainArea *pEntertainArea = vectEntertainArea[0];
 		bool bDiskIsRipping = false;
 		bool bDiskWasReset  = false;
 		int PK_Device_Ripping=0;
-        for(map<int,class MediaDevice *>::iterator itDevice=pEntertainArea->m_mapMediaDevice.begin();itDevice!=pEntertainArea->m_mapMediaDevice.end();++itDevice)
-        {
-            class MediaDevice *pMediaDevice = (*itDevice).second;
-            if( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
-            {
-				if ( ! DiskDriveIsRipping(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device) )
-				{
-					pMediaDevice->m_pOH_Orbiter_Reset = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Device_Orbiter);
-					pMediaDevice->m_tReset = time(NULL);
 
-					DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, 0);
-                	SendCommand(CMD_Reset_Disk_Drive);
-					bDiskWasReset = true;
-				}
-				else
+		if( !pMediaDevice_Source )
+		{
+			for(map<int,class MediaDevice *>::iterator itDevice=pEntertainArea->m_mapMediaDevice.begin();itDevice!=pEntertainArea->m_mapMediaDevice.end();++itDevice)
+			{
+				class MediaDevice *pMediaDevice = (*itDevice).second;
+				if( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
 				{
-					PK_Device_Ripping=pMediaDevice->m_pDeviceData_Router->m_dwPK_Device;
-					bDiskIsRipping = true;
+					pMediaDevice_Source = pMediaDevice;
+					break;
 				}
-            }
+			}
+		}
+
+		if( pMediaDevice_Source )
+		{
+			if ( ! DiskDriveIsRipping(pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device) )
+			{
+				pMediaDevice_Source->m_pOH_Orbiter_Reset = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Device_Orbiter);
+				pMediaDevice_Source->m_tReset = time(NULL);
+
+				DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_dwPK_Device, pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, 0);
+                SendCommand(CMD_Reset_Disk_Drive);
+				bDiskWasReset = true;
+			}
+			else
+			{
+				PK_Device_Ripping=pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+				bDiskIsRipping = true;
+			}
         }
 
 		if ( !bDiskWasReset && bDiskIsRipping ) // we weren't able to reset any drives and at least one of them was ripping.

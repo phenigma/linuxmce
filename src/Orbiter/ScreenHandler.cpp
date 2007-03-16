@@ -2398,3 +2398,19 @@ bool ScreenHandler::Thumbnail_DatagridSelected(CallBackData *pData)
 	m_pOrbiter->CMD_Go_back("","");
 	return true;
 }
+
+void ScreenHandler::SCREEN_Drive_Overview(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_Drive_Overview(PK_Screen);
+}
+
+void ScreenHandler::SCREEN_Jukebox_Manager(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_Jukebox_Manager(PK_Screen);
+}
+
+void ScreenHandler::SCREEN_NAS_Manager(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_NAS_Manager(PK_Screen);
+}
+

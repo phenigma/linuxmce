@@ -282,6 +282,10 @@ public:
 	void SCREEN_Thumbnail(long PK_Screen);
 	bool Thumbnail_DatagridSelected(CallBackData *pData);
 
+	void SCREEN_Drive_Overview(long PK_Screen);
+	void SCREEN_Jukebox_Manager(long PK_Screen);
+	void SCREEN_NAS_Manager(long PK_Screen);
+
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
 	void SaveFile_SendCommand(int PK_Users);

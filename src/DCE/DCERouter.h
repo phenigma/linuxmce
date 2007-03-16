@@ -452,7 +452,7 @@ namespace DCE
 			pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
 		}
 
-        void ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand=0);
+        void ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_Sender,int sStartingCommand=0);
 		void StopPendingCommandGroup(int PK_CommandGroup,string sDescription,string sHint);
 
         Database_pluto_main *GetDatabase() { return m_pDatabase_pluto_main; }

@@ -30,6 +30,7 @@
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 
 class Database_pluto_main;
+class Database_pluto_media;
 class Row_Device;
 
 namespace DCE
@@ -65,6 +66,7 @@ public:
 	
 	// Private member variables
 	Database_pluto_main *m_pDatabase_pluto_main;
+	Database_pluto_media *m_pDatabase_pluto_media;
 	class Datagrid_Plugin *m_pDatagrid_Plugin;
 	class Orbiter_Plugin *m_pOrbiter_Plugin;
 	class Event_Plugin *m_pEvent_Plugin;
@@ -137,6 +139,13 @@ public:
 
 	class DataGridTable *AVIRCodesSets( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );	
 	class DataGridTable *IRCommands( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );	
+
+	class DataGridTable *Discs( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	class DataGridTable *JukeBoxes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	class DataGridTable *HardDiscs( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	class DataGridTable *CompactFlashes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	class DataGridTable *NetworkStorage( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	
 /*
 	void GetAppServerAndOsdForMD(DeviceData_Router *pDevice_MD,DeviceData_Router **pDevice_AppServer,DeviceData_Router **pDevice_Orbiter_OSD);
 	Message *BuildMessageToSpawnApp(DeviceData_Router *pDevice_OrbiterRequesting,DeviceData_Router *pDevice_MD,DeviceData_Router *pDevice_AppServer,DeviceData_Router *pDevice_Orbiter_OSD,

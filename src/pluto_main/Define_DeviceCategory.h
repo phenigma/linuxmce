@@ -113,6 +113,7 @@
 #define DEVICECATEGORY_Output_Zone_CONST 168
 #define DEVICECATEGORY_XML_Data_Handler_Plugins_CONST 169
 #define DEVICECATEGORY_XML_Data_Source_Plugins_CONST 170
+#define DEVICECATEGORY_Flash_Memory_CONST 171
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"

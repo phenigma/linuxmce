@@ -68,6 +68,10 @@ using namespace DCE;
 #include "pluto_main/Table_Software.h"
 #include "pluto_main/Table_Software_Device.h"
 #include "pluto_main/Table_FloorplanObjectType_Color.h"
+#include "pluto_media/Database_pluto_media.h"
+#include "pluto_media/Table_Disc.h"
+#include "pluto_media/Table_Disc_Attribute.h"
+#include "pluto_media/Define_AttributeType.h"
 
 #include "DataGrid.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
@@ -105,6 +109,7 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 	m_pPostCreateOptions=NULL;
 	m_bRerunConfigWhenDone=false;
 	m_pDatabase_pluto_main=NULL;
+	m_pDatabase_pluto_media=NULL;
 	m_dwPK_Device_Prompting_For_A_Room=0;
 	m_bNewInstall=false;
 }
@@ -118,6 +123,14 @@ bool General_Info_Plugin::GetConfig()
 
 	m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
+		m_bQuit_set(true);
+		return false;
+	}
+
+	m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
+	if(!m_pDatabase_pluto_media->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(), "pluto_media" ,m_pRouter->iDBPort_get()) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		m_bQuit_set(true);
@@ -267,6 +280,7 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVDSPModeOrder)), 
 		DATAGRID_Confirm_DSPModes_Order_CONST,PK_DeviceTemplate_get());
+
 	//AV Wizard - IR Codes
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AVIRCodesSets)), 
@@ -276,6 +290,26 @@ bool General_Info_Plugin::Register()
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::IRCommands)), 
 		DATAGRID_IR_Commands_CONST,PK_DeviceTemplate_get());
 	
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::Discs)), 
+		DATAGRID_Discs_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::JukeBoxes)), 
+		DATAGRID_JukeBoxes_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::HardDiscs)), 
+		DATAGRID_HardDiscs_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::CompactFlashes)), 
+		DATAGRID_CompactFlashes_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::NetworkStorage)), 
+		DATAGRID_NetworkStorage_CONST,PK_DeviceTemplate_get());
+
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::LowSystemDiskSpace ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Low_System_Disk_Space_CONST );
 
@@ -1971,6 +2005,122 @@ class DataGridTable *General_Info_Plugin::IRCommands( string GridID, string Parm
 	return pDataGrid;
 }
 
+class DataGridTable *General_Info_Plugin::Discs( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Disc_Drives_CONST);
+	if( !pListDeviceData_Router )
+		return pDataGrid;
+
+	DataGridCell *pCell;
+	int iRow=0;
+	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();
+		it!=pListDeviceData_Router->end();++it)
+	{
+		DeviceData_Router *pDevice = *it;
+		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+		if( pDevice->m_pRoom )
+			pCell->m_mapAttributes["Room"]=pDevice->m_pRoom->m_sDescription;
+
+		vector<Row_Disc *> vectRow_Disc;
+		m_pDatabase_pluto_media->Disc_get()->GetRows("EK_Device=" + StringUtils::itos(pDevice->m_dwPK_Device),&vectRow_Disc);
+		if( vectRow_Disc.size() )
+		{
+			Row_Disc *pRow_Disc = vectRow_Disc[0];
+			string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get())
+				+ " AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Album_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ")";
+
+			vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+			m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sSQL,&vectRow_Disc_Attribute);
+		}
+		pDataGrid->SetData(0,iRow++,pCell);
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::JukeBoxes( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_CDDVD_Jukeboxes_CONST);
+	if( !pListDeviceData_Router )
+		return pDataGrid;
+
+	DataGridCell *pCell;
+	int iRow=0;
+	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();
+		it!=pListDeviceData_Router->end();++it)
+	{
+		DeviceData_Router *pDevice = *it;
+		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+		pDataGrid->SetData(0,iRow++,pCell);
+	}
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::HardDiscs( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Hard_Drives_CONST);
+	if( !pListDeviceData_Router )
+		return pDataGrid;
+
+	DataGridCell *pCell;
+	int iRow=0;
+	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();
+		it!=pListDeviceData_Router->end();++it)
+	{
+		DeviceData_Router *pDevice = *it;
+		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+		pDataGrid->SetData(0,iRow++,pCell);
+	}
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::CompactFlashes( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Flash_Memory_CONST);
+	if( !pListDeviceData_Router )
+		return pDataGrid;
+
+	DataGridCell *pCell;
+	int iRow=0;
+	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();
+		it!=pListDeviceData_Router->end();++it)
+	{
+		DeviceData_Router *pDevice = *it;
+		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+		pDataGrid->SetData(0,iRow++,pCell);
+	}
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::NetworkStorage( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Network_Storage_CONST);
+	if( !pListDeviceData_Router )
+		return pDataGrid;
+
+	DataGridCell *pCell;
+	int iRow=0;
+	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();
+		it!=pListDeviceData_Router->end();++it)
+	{
+		DeviceData_Router *pDevice = *it;
+		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+		pDataGrid->SetData(0,iRow++,pCell);
+	}
+	return pDataGrid;
+}
 
 //<-dceag-c395-b->
 
