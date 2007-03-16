@@ -334,7 +334,7 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 	if(m_dwDelayMax <= m_dwDelayMin)
 		m_dwDelayMax = m_dwDelayMin + 1;
 
-#ifndef BLUETOOTH_DONGLE
+#if !defined(BLUETOOTH_DONGLE) && !defined(MOXI_ORBITER)
 	#ifdef WIN32
 		LoadUI_From_ConfigurationData();
 	#endif

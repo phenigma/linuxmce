@@ -28,20 +28,17 @@
 #define FILEUTILS
 
 #ifndef SYMBIAN
-#include <string>
-#include <vector>
-#include <map>
-#include <list>
-using namespace ::std;
+	#include <string>
+	#include <vector>
+	#include <map>
+	#include <list>
+	using namespace std;
 #else
-
-#include "MyString.h" //for Symbian compatibility
-
-#define abs(x) Abs(x)
-#define atoi(x) SymbianAtoi(x, 0)
-#define itos(x) SymbianItoa(x)
-#define strchr(x, y) (x)
-
+	#include "MyString.h" //for Symbian compatibility
+	#define abs(x) Abs(x)
+	#define atoi(x) SymbianAtoi(x, 0)
+	#define itos(x) SymbianItoa(x)
+	#define strchr(x, y) (x)
 #endif
 
 namespace FileUtils

@@ -25,6 +25,7 @@
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_media/Define_MediaSource.h"
+#include "DesignObj_DataGrid.h"
 
 //-----------------------------------------------------------------------------------------------------
 typedef bool (ScreenHandler::*ScreenHandlerCallBack)(CallBackData *pData);

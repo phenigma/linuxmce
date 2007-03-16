@@ -93,7 +93,7 @@ using namespace DCE;
 //#define PROFILING_GRID
 PlutoProfiler *g_PlutoProfiler = new PlutoProfiler();
 
-#if defined(WIN32) && !defined(BLUETOOTH_DONGLE)
+#if defined(WIN32) && !defined(BLUETOOTH_DONGLE) && !defined(MOXI_ORBITER)
 #include "MainDialog.h" //for debugging in main window
 #else //linux
 void WriteStatusOutput(const char *) {} //do nothing

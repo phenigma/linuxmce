@@ -67,12 +67,12 @@
 	#include <SDL/SDL_syswm.h>
 #endif
 
-#if !defined(WIN32) && !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER)
+#if !defined(WIN32) && !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER) && !defined(MOXI_ORBITER)
 	#include "utilities/linux/transparency/transparency.h"
 	#include "utilities/linux/wrapper/wrapper_x11.h"
 #endif
 
-#if !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER)
+#if !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER) && !defined(MOXI_ORBITER)
 #define USE_ONLY_SCREEN_SURFACE
 #endif
 
@@ -201,7 +201,7 @@ void OrbiterRenderer_SDL::SetOrbiterWindowTransparency(double TransparencyLevel)
 {
     // FIXME: we shold go until we find the root window
     // FIXME: use GetMainWindow(), to avoid duplicate code
-#if !defined(WIN32) && !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER)
+#if !defined(WIN32) && !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER) && !defined(MOXI_ORBITER)
 	X11_Locker_NewDisplay locker_NewDisplay;
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version); // this is important!
@@ -550,7 +550,7 @@ void OrbiterRenderer_SDL::EventLoop()
 				orbiterEvent.data.region.m_iButton = Event.button.button;
 				OrbiterLogic()->ProcessEvent(orbiterEvent);
 
-#if defined(WIN32) && !defined(PROXY_ORBITER) && !defined(BLUETOOTH_DONGLE)
+#if defined(WIN32) && !defined(PROXY_ORBITER) && !defined(BLUETOOTH_DONGLE) && !defined(MOXI_ORBITER)
 				RecordMouseAction(Event.button.x, Event.button.y);
 #endif
 			}

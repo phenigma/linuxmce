@@ -24,6 +24,8 @@
 	#include "../Proxy_Orbiter/Proxy_OrbiterRenderer_SDL.h"
 #elif defined(BLUETOOTH_DONGLE)
 	#include "../Bluetooth_Dongle/OrbiterRenderer_SDL_Bluetooth.h"	
+#elif defined(MOXI_ORBITER)
+	#include "../Moxi_Orbiter/OrbiterRenderer_Moxi.h"	
 #else
 	#ifdef WIN32
 		#if defined(POCKETFROG)
@@ -42,6 +44,8 @@
 	return new Proxy_OrbiterRenderer_SDL(pOrbiter);
 #elif defined(BLUETOOTH_DONGLE)
 	return new OrbiterRenderer_SDL_Bluetooth(pOrbiter);
+#elif defined(MOXI_ORBITER)
+	return new OrbiterRenderer_Moxi(pOrbiter);
 #else
 	#ifdef WIN32
 		#if defined(POCKETFROG)
