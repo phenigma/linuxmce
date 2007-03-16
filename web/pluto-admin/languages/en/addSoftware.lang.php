@@ -14,4 +14,6 @@ $TEXT_RATING_CONST='Rating';
 $TEXT_VIRUS_FREE_CONST='Virus free';
 $TEXT_IS_INSTALLED_CONST='Is installed';
 $TEXT_INSTALL_CONST='Install';
+$TEXT_PACKAGENAME_CONST='Package name';
+$TEXT_DISTRO_CONST='Distro';
 ?>
