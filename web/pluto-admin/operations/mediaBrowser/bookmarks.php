@@ -40,9 +40,10 @@ function bookmarks($output,$mediadbADO,$dbADO) {
 				<td><B>'.$TEXT_MEDIA_PROVIDER_CONST.'</B></td>
 				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 				<td><B>'.$TEXT_CHANNEL_CONST.'</B></td>
+				<td><B>'.$TEXT_FILENAME_CONST.'</B></td>
 				<td><B>'.$TEXT_ACTION_CONST.'</B></td>
 			</tr>';
-		$bookmarksArray=getFieldsAsArray('Bookmark','PK_Bookmark,FK_MediaProvider,EK_MediaType,FK_Picture,Description,Position',$mediadbADO,'WHERE EK_MediaType IN ('.join(',',$mediaTypes).')');
+		$bookmarksArray=getFieldsAsArray('Bookmark','PK_Bookmark,FK_MediaProvider,Bookmark.EK_MediaType,FK_Picture,Description,Position,Filename',$mediadbADO,'LEFT JOIN File on FK_File=PK_File WHERE Bookmark.EK_MediaType IN ('.join(',',$mediaTypes).')');
 		if(count(@$bookmarksArray['PK_Bookmark'])==0){
 			$out.='
 			<tr>
@@ -57,6 +58,7 @@ function bookmarks($output,$mediadbADO,$dbADO) {
 				<td>'.$bookmarksArray['FK_MediaProvider'][$i].'</td>
 				<td>'.$bookmarksArray['Description'][$i].'</td>
 				<td>'.$bookmarksArray['Position'][$i].'</td>
+				<td>'.$bookmarksArray['Filename'][$i].'</td>
 				<td><a href="javascript:if(confirm(\''.$TEXT_DELETE_BOOKMARK_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=bookmarks&type='.$type.'&action=del&did='.$bookmarksArray['PK_Bookmark'][$i].'\'">'.$TEXT_DELETE_CONST.'</a></td>
 			</tr>';
 		}
