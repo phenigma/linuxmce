@@ -178,7 +178,7 @@ function Build_Pluto_Replacements {
 	popd
 
 	#Package: mtx-pluto
-	pushd "${snv_dir}"/trunk/external/mtx-1.3.10
+	pushd "${svn_dir}"/trunk/external/mtx-1.3.10
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../mtx-pluto_*.deb "${temp_dir}"
 	popd
