@@ -127,19 +127,21 @@ function Build_Pluto_Replacements {
 	#Package: lirc-modules
 	apt-get -y install linux-source linux-headers module-assistant lirc-modules-source
 	pushd .
-		cd "${svn_dir}"/trunk/src/Ubuntu_Helpers
-		./Preseed_lirc-modules-source.sh
-		rm -f /etc/lirc/lirc-modules-source.conf
-		dpkg-reconfigure -fnoninteractive lirc-modules-source
-		tar -xjf linux-source-2.6.17.tar.bz2
-		cd /usr/src/linux-source-2.6.17/drivers/media/video/bt8xx
-		cp -a * /usr/src/linux/drivers/media/video/bt8xx/
-		cd /usr/src/linux/drivers/media/video
-		cp bt8xx/bt* .
-		cd /usr/src/linux-source-2.6.17/drivers/media/video
-		cp -a btcx-risc.h /usr/src/linux/drivers/media/video
-		m-a -ft a-b lirc-modules
-		cp /usr/src/lirc-modules*.deb "${temp_dir}"
+                cd "${svn_dir}"/trunk/src/Ubuntu_Helpers
+                ./Preseed_lirc-modules-source.sh
+                rm -f /etc/lirc/lirc-modules-source.conf
+                dpkg-reconfigure -fnoninteractive lirc-modules-source
+
+                mkdir -p /usr/src/modules/lirc/drivers/media/video/bt8xx/
+                cp -a /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video/bt8xx/* /lib/modules/`uname -r`/build/drivers/media/video
+                cp -a /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video/* /lib/modules/`uname -r`/build/drivers/media/video
+
+                cd /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video
+                cp -a btcx-risc.h /usr/src/modules/lirc/drivers/media/video
+                cd /usr/src/modules/lirc/drivers
+                ln -s ../../../linux-source-2.6.17/drivers/video/ ./  || :
+                m-a -ft a-b lirc-modules
+                cp /usr/src/lirc-modules*.deb "${temp_dir}"
 	popd
 
 	#Package: ivtv-modules
