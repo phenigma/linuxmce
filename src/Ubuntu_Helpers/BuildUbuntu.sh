@@ -127,7 +127,7 @@ function Build_Pluto_Replacements {
 	#Package: lirc-modules
 	apt-get -y install linux-source linux-headers module-assistant lirc-modules-source
 	pushd .
-		cd "${svn_dir}"/trunk/src/UbuntuHelpers
+		cd "${svn_dir}"/trunk/src/Ubuntu_Helpers
 		./Preseed_lirc-modules-source.sh
 		rm -f /etc/lirc/lirc-modules-source.conf
 		dpkg-reconfigure -fnoninteractive lirc-modules-source
