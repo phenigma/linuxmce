@@ -10,7 +10,7 @@ echo "IP: $IP ; Cmd: $Cmd" >>"$Log"
 
 if [ -n "$IP" -a "$#" -ne 0 ]; then
 	if ping -c 1 -w 1 "$IP" &>/dev/null; then
-		Output="$(ssh -l root -i /usr/pluto/keys/id_dsa_pluto_apache "$IP" "$Cmd; echo \$?; sleep 1; kill \$PPID" > >(tee -a "$Log") 2> >(cat >>"$Log"))"
+		Output="$(ssh -l root -i /usr/pluto/keys/id_dsa_pluto_apache "$IP" "$Cmd $(printf "\n") echo \$?; sleep 1; kill \$PPID" > >(tee -a "$Log") 2> >(cat >>"$Log"))"
 		Ret="$(echo "$Output" | tail -1)"
 	else
 		Ret=9
