@@ -30,6 +30,9 @@ namespace DCE
 	class OrbiterRenderer_Moxi : public OrbiterRenderer_SDL
 	{
 	private:
+
+		map<int, string> m_mapJumpPoints;
+
 		friend class ::OrbiterRendererFactory;
 		OrbiterRenderer_Moxi(Orbiter *pOrbiter);
 

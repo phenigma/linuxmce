@@ -23,6 +23,7 @@
 #include "../Orbiter/SDL/JpegWrapper.h"
 #include "../Orbiter/Orbiter.h"
 #include "../Orbiter/ScreenHistory.h"
+#include "../pluto_main/Define_Screen.h"
 using namespace DCE;
 
 #include "SDL_rotozoom.h"
@@ -40,7 +41,8 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName);
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_Moxi::OrbiterRenderer_Moxi(Orbiter *pOrbiter) : OrbiterRenderer_SDL(pOrbiter)
 {
-
+	//WARNING! hardcoded values
+	m_mapJumpPoints[SCREEN_Main_CONST] = "menu";
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_Moxi::~OrbiterRenderer_Moxi()
@@ -57,26 +59,39 @@ void OrbiterRenderer_Moxi::DisplayImageOnScreen(SDL_Surface *pScreenImage)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DisplayImageOnScreen Current screen: %s",  
 		OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
 
-	Moxi_Orbiter *pMoxi_Orbiter = dynamic_cast<Moxi_Orbiter *>(OrbiterLogic());
+	map<int, string>::iterator it = m_mapJumpPoints.find(OrbiterLogic()->m_pScreenHistory_Current->PK_Screen());
+	if(it == m_mapJumpPoints.end())
+	{
+		Moxi_Orbiter *pMoxi_Orbiter = dynamic_cast<Moxi_Orbiter *>(OrbiterLogic());
 
-	double ZoomX = 512 / double(pScreenImage->w);
-	double ZoomY = 512 / double(pScreenImage->h);
+		double ZoomX = 512 / double(pScreenImage->w);
+		double ZoomY = 512 / double(pScreenImage->h);
 
-	//resize here
-	SDL_Surface *pResizedSurface = zoomSurface(pScreenImage, ZoomX, ZoomY, SMOOTHING_ON);
+		//resize here
+		SDL_Surface *pResizedSurface = zoomSurface(pScreenImage, ZoomX, ZoomY, SMOOTHING_ON);
 
-	int nSize = pResizedSurface->h * pResizedSurface->pitch;
-	char *pData = new char[nSize];
-	memcpy(pData, pResizedSurface->pixels, nSize);
+		int nSize = pResizedSurface->h * pResizedSurface->pitch;
+		char *pData = new char[nSize];
+		memcpy(pData, pResizedSurface->pixels, nSize);
 
-	SDL_FreeSurface(pResizedSurface);
+		SDL_FreeSurface(pResizedSurface);
 
-	CMD_Update_Object_Image_DT cmd_Update_Object_Image_DT(OrbiterLogic()->m_dwPK_Device, 
-		DEVICETEMPLATE_Moxi_PVR_CONST, BL_SameHouse,
-		OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(),
-		"jpg", pData, nSize, ""
-	);
-	OrbiterLogic()->SendCommand(cmd_Update_Object_Image_DT);
+		CMD_Menu_DT cmd_Menu_DT(OrbiterLogic()->m_dwPK_Device, DEVICETEMPLATE_Moxi_PVR_CONST, 
+			BL_SameHouse, "orbiter");
+		OrbiterLogic()->SendCommand(cmd_Menu_DT);
+
+		CMD_Update_Object_Image_DT cmd_Update_Object_Image_DT(OrbiterLogic()->m_dwPK_Device, 
+			DEVICETEMPLATE_Moxi_PVR_CONST, BL_SameHouse,
+			OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str(),
+			"jpg", pData, nSize, "");
+		OrbiterLogic()->SendCommand(cmd_Update_Object_Image_DT);
+	}
+	else
+	{
+		CMD_Menu_DT cmd_Menu_DT(OrbiterLogic()->m_dwPK_Device, DEVICETEMPLATE_Moxi_PVR_CONST, 
+			BL_SameHouse, it->second);
+		OrbiterLogic()->SendCommand(cmd_Menu_DT);
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_Moxi::BeginPaint()
