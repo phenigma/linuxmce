@@ -13,19 +13,47 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Moxi_Orbiter
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1872mplateID
+MYDEVTEMPLATEID = 1827mplateID
 
-Gen_Dev_Files = $(GENDEV)/Moxi_OrbiterBase.cpp
+Gen_Dev_Files = $(GENDEV)/OrbiterBase.cpp
 sources = Main.cpp Moxi_Orbiter.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS +=
+CPPFLAGS += -I/usr/include/SDL -DORBITER -DMOXI_ORBITER
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lSDL_Helpers -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lcurl -lGL -lXrender -ljpeg
 
-Gen_Dev_Files +=
-sources +=
+sources += \
+	OrbiterRenderer_Moxi.cpp \
+	../Orbiter/OrbiterRenderer.cpp \
+	../Orbiter/SDL/OrbiterRenderer_SDL.cpp \
+	../Orbiter/OrbiterRendererFactory.cpp \
+	../Orbiter/OrbiterFileBrowser.cpp \
+	../Orbiter/Simulator.cpp \
+	../Orbiter/DesignObj_Data.cpp \
+	../Orbiter/DesignObj_Orbiter.cpp \
+	../Orbiter/DesignObj_DataGrid.cpp \
+	../Orbiter/Orbiter.cpp \
+	../Orbiter/GraphicBuilder.cpp \
+	../Orbiter/RendererMNG.cpp \
+	../Orbiter/TextStyle.cpp \
+	../Orbiter/CacheImageManager.cpp \
+	../Orbiter/RendererOCG.cpp \
+	../Orbiter/ScreenHandler.cpp \
+	../Orbiter/ScreenHistory.cpp \
+	../Orbiter/SDL/SDLRendererOCGHelper.cpp \
+	../Orbiter/SDL/SDLGraphic.cpp \
+	../Orbiter/SDL/JpegWrapper.cpp \
+	../Orbiter/CallBackData.cpp \
+	../Orbiter/PlutoGraphic.cpp \
+	../Orbiter/DataGridRenderer.cpp \
+	../Orbiter/ObjectRenderer.cpp \
+	../Orbiter/ObjectRendererFactory.cpp \
+	../Splitter/TextWrapper.cpp \
+	../Splitter/TextSplitter.cpp \
+	../PlutoUtils/HttpUtils.cpp \
+	../LIRC_DCE/IRReceiverBase.cpp 
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
