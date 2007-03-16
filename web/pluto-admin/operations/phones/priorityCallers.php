@@ -90,15 +90,17 @@ function getPriorityCallersTable($dbADO,$telecomADO){
 			<td align="center"><B>'.$TEXT_PHONE_NUMBER_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 		</tr>';
-
-		foreach ($phoneNumbers[$userID] AS $id=>$number){
-			$idArray[]=$id;
-			$out.='
-			<tr>
-				<td><input type="text" name="phone_'.$id.'" value="'.$number.'"></td>
-				<td><input type="button" class="button" name="del" value="'.$TEXT_DELETE_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_PRIORITY_NUMBER_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=priorityCallers&action=del&did='.$id.'\'"></td>
-			</tr>';
-			$jsValidation.='frmvalidator.addValidation("phone_'.$id.'","numeric","'.$TEXT_WARNING_NUMERICAL_ONLY_CONST.'");';
+		
+		if(isset($phoneNumbers[$userID])){
+			foreach (@$phoneNumbers[$userID] AS $id=>$number){
+				$idArray[]=$id;
+				$out.='
+				<tr>
+					<td><input type="text" name="phone_'.$id.'" value="'.$number.'"></td>
+					<td><input type="button" class="button" name="del" value="'.$TEXT_DELETE_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_PRIORITY_NUMBER_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=priorityCallers&action=del&did='.$id.'\'"></td>
+				</tr>';
+				$jsValidation.='frmvalidator.addValidation("phone_'.$id.'","numeric","'.$TEXT_WARNING_NUMERICAL_ONLY_CONST.'");';
+			}
 		}
 		$out.='
 		<tr >
