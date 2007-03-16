@@ -250,7 +250,6 @@ function telecomScenarios($output,$dbADO) {
 		}
 		
 		if(isset($_POST['addSpeedDial'])){
-
 			$telecomPluginID=getTelecomPlugin($installationID,$dbADO);
 			if($telecomPluginID!==null){
 				$description=$_POST['description'];
@@ -276,6 +275,7 @@ function telecomScenarios($output,$dbADO) {
 
 				$values=array();
 				$values[$GLOBALS['commandPhoneExtension']]=$number;
+				$values[$GLOBALS['commandParamPK_Device']]=$phone;
 					
 				addScenarioCommandParameters($CG_C_insertID,$GLOBALS['commandPL_Originate'],$dbADO,$values);						
 				
@@ -286,7 +286,7 @@ function telecomScenarios($output,$dbADO) {
 				// error case
 			}
 		}
-		
+
 		if(isset($_POST['update']) || $action=='externalSubmit'){
 			$displayedSpeedDialArray=explode(',',$_POST['displayedSpeedDial']);
 			foreach($displayedSpeedDialArray AS $speedDial){
