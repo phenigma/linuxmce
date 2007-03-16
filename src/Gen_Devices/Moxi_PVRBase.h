@@ -240,7 +240,8 @@ public:
 	virtual void CMD_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Live_TV(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Recorded_TV_Menu(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_Data(string sText,string *sData_String,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,int iInterruption,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Data(string sText,char **pData,int *iData_Size,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -1338,17 +1339,18 @@ public:
 					};
 					iHandled++;
 					continue;
-				case COMMAND_Get_Data_CONST:
+				case COMMAND_Display_Alert_CONST:
 					{
 						string sCMD_Result="OK";
 						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
-						string sData_String=pMessage->m_mapParameters[COMMANDPARAMETER_Data_String_CONST];
-						CMD_Get_Data(sText.c_str(),&sData_String,sCMD_Result,pMessage);
+						string sTokens=pMessage->m_mapParameters[COMMANDPARAMETER_Tokens_CONST];
+						string sTimeout=pMessage->m_mapParameters[COMMANDPARAMETER_Timeout_CONST];
+						int iInterruption=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Interruption_CONST].c_str());
+						CMD_Display_Alert(sText.c_str(),sTokens.c_str(),sTimeout.c_str(),iInterruption,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapParameters[COMMANDPARAMETER_Data_String_CONST]=sData_String;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -1361,7 +1363,36 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_Data(sText.c_str(),&sData_String,sCMD_Result,pMessage);
+								CMD_Display_Alert(sText.c_str(),sTokens.c_str(),sTimeout.c_str(),iInterruption,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Get_Data_CONST:
+					{
+						string sCMD_Result="OK";
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+						char *pData=pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST];
+						int iData_Size=pMessage->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST];
+						CMD_Get_Data(sText.c_str(),&pData,&iData_Size,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST]=pData; pMessageOut->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST]=iData_Size;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Data(sText.c_str(),&pData,&iData_Size,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
