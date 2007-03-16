@@ -988,6 +988,7 @@ namespace DCE
 	string DATA_Get_Shortcut();
 	bool DATA_Get_Expert_Mode();
 	bool DATA_Get_Enable_Memory_Management();
+	int DATA_Get_Border_Size();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

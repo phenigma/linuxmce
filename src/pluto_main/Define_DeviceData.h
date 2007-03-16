@@ -193,6 +193,7 @@
 #define DEVICEDATA_Process_Child_Commands_In_Pare_CONST 220
 #define DEVICEDATA_PROXY_TCP_Port_CONST 221
 #define DEVICEDATA_Enable_Memory_Management_CONST 222
+#define DEVICEDATA_Border_Size_CONST 223
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
