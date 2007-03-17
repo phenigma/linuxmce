@@ -40,6 +40,8 @@ class Table_CoverArtScanEntry* tblCoverArtScanEntry;
 bool Commit_CoverArtScanEntry(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Disc* tblDisc;
 bool Commit_Disc(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_DiscLocation* tblDiscLocation;
+bool Commit_DiscLocation(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Disc_Attribute* tblDisc_Attribute;
 bool Commit_Disc_Attribute(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Disc_Users* tblDisc_Users;
@@ -114,6 +116,7 @@ class Table_Bookmark* Bookmark_get() { if( !tblBookmark ) CreateTable_Bookmark()
 class Table_CoverArtScan* CoverArtScan_get() { if( !tblCoverArtScan ) CreateTable_CoverArtScan(); return tblCoverArtScan; }
 class Table_CoverArtScanEntry* CoverArtScanEntry_get() { if( !tblCoverArtScanEntry ) CreateTable_CoverArtScanEntry(); return tblCoverArtScanEntry; }
 class Table_Disc* Disc_get() { if( !tblDisc ) CreateTable_Disc(); return tblDisc; }
+class Table_DiscLocation* DiscLocation_get() { if( !tblDiscLocation ) CreateTable_DiscLocation(); return tblDiscLocation; }
 class Table_Disc_Attribute* Disc_Attribute_get() { if( !tblDisc_Attribute ) CreateTable_Disc_Attribute(); return tblDisc_Attribute; }
 class Table_Disc_Users* Disc_Users_get() { if( !tblDisc_Users ) CreateTable_Disc_Users(); return tblDisc_Users; }
 class Table_Download* Download_get() { if( !tblDownload ) CreateTable_Download(); return tblDownload; }
@@ -160,6 +163,7 @@ void CreateTable_Bookmark();
 void CreateTable_CoverArtScan();
 void CreateTable_CoverArtScanEntry();
 void CreateTable_Disc();
+void CreateTable_DiscLocation();
 void CreateTable_Disc_Attribute();
 void CreateTable_Disc_Users();
 void CreateTable_Download();
@@ -200,6 +204,7 @@ void DeleteTable_Bookmark();
 void DeleteTable_CoverArtScan();
 void DeleteTable_CoverArtScanEntry();
 void DeleteTable_Disc();
+void DeleteTable_DiscLocation();
 void DeleteTable_Disc_Attribute();
 void DeleteTable_Disc_Users();
 void DeleteTable_Download();

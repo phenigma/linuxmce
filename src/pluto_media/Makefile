@@ -13,6 +13,7 @@ Table_Bookmark.cpp \
 Table_CoverArtScan.cpp \
 Table_CoverArtScanEntry.cpp \
 Table_Disc.cpp \
+Table_DiscLocation.cpp \
 Table_Disc_Attribute.cpp \
 Table_Disc_Users.cpp \
 Table_Download.cpp \

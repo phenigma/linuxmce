@@ -28,6 +28,7 @@ tblBookmark=NULL;
 tblCoverArtScan=NULL;
 tblCoverArtScanEntry=NULL;
 tblDisc=NULL;
+tblDiscLocation=NULL;
 tblDisc_Attribute=NULL;
 tblDisc_Users=NULL;
 tblDownload=NULL;
@@ -91,6 +92,9 @@ if( tblCoverArtScanEntry!=NULL )
 		bResult=false;
 if( tblDisc!=NULL )
 	if( !Commit_Disc(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblDiscLocation!=NULL )
+	if( !Commit_DiscLocation(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
 if( tblDisc_Attribute!=NULL )
 	if( !Commit_Disc_Attribute(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
@@ -204,6 +208,7 @@ DeleteTable_Bookmark();
 DeleteTable_CoverArtScan();
 DeleteTable_CoverArtScanEntry();
 DeleteTable_Disc();
+DeleteTable_DiscLocation();
 DeleteTable_Disc_Attribute();
 DeleteTable_Disc_Users();
 DeleteTable_Download();

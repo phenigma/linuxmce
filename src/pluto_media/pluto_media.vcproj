@@ -139,6 +139,9 @@
 				RelativePath=".\Table_Disc.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_DiscLocation.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Disc_Attribute.cpp">
 			</File>
 			<File

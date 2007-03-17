@@ -14,13 +14,13 @@
 
 */
 
-#ifndef __Table_Disc_H__
-#define __Table_Disc_H__
+#ifndef __Table_DiscLocation_H__
+#define __Table_DiscLocation_H__
 
 #include "TableRow.h"
 #include "Database_pluto_media.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "Define_Disc.h"
+#include "Define_DiscLocation.h"
 #include "SerializeClass/SerializeClass.h"
 
 // If we declare the maps locally, the compiler will create multiple copies of them
@@ -31,33 +31,34 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_Disc : public TableBase , SingleLongKeyBase
+class DECLSPECIFIER Table_DiscLocation : public TableBase , DoubleLongKeyBase
 {
 private:
 	Database_pluto_media *database;
 	struct Key;	//forward declaration
 	
 public:
-	Table_Disc(Database_pluto_media *pDatabase):database(pDatabase)
+	Table_DiscLocation(Database_pluto_media *pDatabase):database(pDatabase)
 	{
 	};
-	~Table_Disc();
+	~Table_DiscLocation();
 
 private:		
-	friend class Row_Disc;
+	friend class Row_DiscLocation;
 	struct Key
 	{
-		friend class Row_Disc;
-		long int pk_PK_Disc;
+		friend class Row_DiscLocation;
+		long int pk_EK_Device;
+long int pk_Slot;
 
 		
-		Key(long int in_PK_Disc);
+		Key(long int in_EK_Device, long int in_Slot);
 	
-		Key(class Row_Disc *pRow);
+		Key(class Row_DiscLocation *pRow);
 	};
 	struct Key_Less
 	{			
-		bool operator()(const Table_Disc::Key &key1, const Table_Disc::Key &key2) const;
+		bool operator()(const Table_DiscLocation::Key &key1, const Table_DiscLocation::Key &key2) const;
 	};	
 
 	
@@ -70,39 +71,33 @@ public:
 	// the rows since they will be re-attempted.  If you set either flag to true, the failed
 	// row can be deleted.  Use with caution since your pointers become invalid!
 	bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
-	bool GetRows(string where_statement,vector<class Row_Disc*> *rows);
-	class Row_Disc* AddRow();
+	bool GetRows(string where_statement,vector<class Row_DiscLocation*> *rows);
+	class Row_DiscLocation* AddRow();
 	Database_pluto_media *Database_pluto_media_get() { return database; }
 	
 		
-	class Row_Disc* GetRow(long int in_PK_Disc);
+	class Row_DiscLocation* GetRow(long int in_EK_Device, long int in_Slot);
 	
 
 private:	
 	
 		
-	class Row_Disc* FetchRow(SingleLongKey &key);
+	class Row_DiscLocation* FetchRow(DoubleLongKey &key);
 		
 			
 };
 
-class DECLSPECIFIER Row_Disc : public TableRow, public SerializeClass
+class DECLSPECIFIER Row_DiscLocation : public TableRow, public SerializeClass
 	{
-		friend struct Table_Disc::Key;
-		friend class Table_Disc;
+		friend struct Table_DiscLocation::Key;
+		friend class Table_DiscLocation;
 	private:
-		Table_Disc *table;
+		Table_DiscLocation *table;
 		
-		long int m_PK_Disc;
-string m_ID;
-long int m_EK_MediaType;
-long int m_FK_MediaSubType;
-long int m_FK_FileFormat;
-long int m_EK_Device;
+		long int m_EK_Device;
 long int m_Slot;
-long int m_EK_Users_Private;
-string m_DateLastViewed;
-short int m_IsNew;
+long int m_FK_Disc;
+string m_Type;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -110,19 +105,13 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[16];
+		bool is_null[10];
 	
 	public:
-		long int PK_Disc_get();
-string ID_get();
-long int EK_MediaType_get();
-long int FK_MediaSubType_get();
-long int FK_FileFormat_get();
-long int EK_Device_get();
+		long int EK_Device_get();
 long int Slot_get();
-long int EK_Users_Private_get();
-string DateLastViewed_get();
-short int IsNew_get();
+long int FK_Disc_get();
+string Type_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -131,16 +120,10 @@ string psc_mod_get();
 long int psc_restrict_get();
 
 		
-		void PK_Disc_set(long int val);
-void ID_set(string val);
-void EK_MediaType_set(long int val);
-void FK_MediaSubType_set(long int val);
-void FK_FileFormat_set(long int val);
-void EK_Device_set(long int val);
+		void EK_Device_set(long int val);
 void Slot_set(long int val);
-void EK_Users_Private_set(long int val);
-void DateLastViewed_set(string val);
-void IsNew_set(short int val);
+void FK_Disc_set(long int val);
+void Type_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -149,13 +132,8 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool ID_isNull();
-bool FK_MediaSubType_isNull();
-bool FK_FileFormat_isNull();
-bool EK_Device_isNull();
-bool Slot_isNull();
-bool EK_Users_Private_isNull();
-bool DateLastViewed_isNull();
+		bool FK_Disc_isNull();
+bool Type_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -163,13 +141,8 @@ bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void ID_setNull(bool val);
-void FK_MediaSubType_setNull(bool val);
-void FK_FileFormat_setNull(bool val);
-void EK_Device_setNull(bool val);
-void Slot_setNull(bool val);
-void EK_Users_Private_setNull(bool val);
-void DateLastViewed_setNull(bool val);
+		void FK_Disc_setNull(bool val);
+void Type_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -180,44 +153,30 @@ void psc_restrict_setNull(bool val);
 		void Delete();
 		void Reload();		
 	
-		Row_Disc(Table_Disc *pTable);
+		Row_DiscLocation(Table_DiscLocation *pTable);
 	
 		bool IsDeleted(){return is_deleted;};
 		bool IsModified(){return is_modified;};			
-		class Table_Disc *Table_Disc_get() { return table; };
+		class Table_DiscLocation *Table_DiscLocation_get() { return table; };
 
 		// Return the rows for foreign keys 
-		class Row_MediaSubType* FK_MediaSubType_getrow();
-class Row_FileFormat* FK_FileFormat_getrow();
+		class Row_Disc* FK_Disc_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Bookmark_FK_Disc_getrows(vector <class Row_Bookmark*> *rows);
-void CoverArtScan_FK_Disc_getrows(vector <class Row_CoverArtScan*> *rows);
-void DiscLocation_FK_Disc_getrows(vector <class Row_DiscLocation*> *rows);
-void Disc_Attribute_FK_Disc_getrows(vector <class Row_Disc_Attribute*> *rows);
-void Disc_Users_FK_Disc_getrows(vector <class Row_Disc_Users*> *rows);
-void LongAttribute_FK_Disc_getrows(vector <class Row_LongAttribute*> *rows);
-void Picture_Disc_FK_Disc_getrows(vector <class Row_Picture_Disc*> *rows);
-
+		
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Disc+ m_ID+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_EK_Device+ m_Slot+ m_EK_Users_Private+ m_DateLastViewed+ m_IsNew+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_EK_Device+ m_Slot+ m_FK_Disc+ m_Type+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_Disc_asSQL();
-string ID_asSQL();
-string EK_MediaType_asSQL();
-string FK_MediaSubType_asSQL();
-string FK_FileFormat_asSQL();
-string EK_Device_asSQL();
+		string EK_Device_asSQL();
 string Slot_asSQL();
-string EK_Users_Private_asSQL();
-string DateLastViewed_asSQL();
-string IsNew_asSQL();
+string FK_Disc_asSQL();
+string Type_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
