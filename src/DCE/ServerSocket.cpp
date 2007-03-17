@@ -74,6 +74,10 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 	m_iReferencesOutstanding=0;
 	m_dwPK_Device = (long unsigned int)-1;
 	m_Socket = Sock;
+
+	m_bAskBeforeReload=false;
+	m_bImplementsPendingTasks=false;
+
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "ServerSocket::Created %p m_Socket: %d", this, m_Socket );
 #endif
@@ -285,6 +289,15 @@ bool ServerSocket::ServeClient()
 			if( pos_instance!=string::npos )
 				m_iInstanceID = atoi(sMessage.substr(pos_instance+8).c_str());
 
+			if( sMessage.find("ASK_BEFORE_RELOAD")!=string::npos )
+				m_bAskBeforeReload=true;
+			if( sMessage.find("IMPLEMENTS_PENDING_TASKS")!=string::npos )
+				m_bImplementsPendingTasks=true;
+
+			string::size_type pos_flags = sMessage.find("INSTANCE");
+			if( pos_instance!=string::npos )
+				m_iInstanceID = atoi(sMessage.substr(pos_instance+8).c_str());
+
 			if( m_dwPK_Device!=DEVICEID_MESSAGESEND )  // Special for temporary, 1 way devices
 				m_pListener->RegisterCommandHandler( this, m_dwPK_Device );
 
@@ -355,4 +368,21 @@ void ServerSocket::PingFailed()
 	LoggerWrapper::GetInstance()->Write( LV_WARNING, "ServerSocket::PingFailed");
 	Close();
 	m_pListener->PingFailed( this, m_dwPK_Device );
+}
+
+bool ServerSocket::SafeToReload(string &sReason)
+{
+	string sResponse = SendReceiveString("SAFE_TO_RELOAD");
+	if( StringUtils::StartsWith(sResponse,"RELOAD_YES") )
+		return true;
+	else if( StringUtils::StartsWith(sResponse,"RELOAD_NO") )
+	{
+		sReason = sResponse.substr(10);
+		return false;
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "SafeToReload failed with %d (%s) %p m_Socket: %d", m_dwPK_Device,m_pListener->m_sName.c_str(), this, m_Socket );
+		return true; // Don't let this device stop a reload, it's not responding anyway
+	}
 }

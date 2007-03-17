@@ -185,7 +185,7 @@ public:
 		void StartScanJob(ScanJob *pScanJob);
 		void CheckForTvFormatAndProvider( int iPK_Device );
 
-		bool PendingTasks(vector< pair<string,string> > *vectPendingTasks);
+		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList=NULL);
 
         //<-dceag-h-b->
 	/*

@@ -115,6 +115,8 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 	m_pRegenMonitor=NULL;
 	m_bFloorPlansArePrepared = false;
 	m_pAlarmManager=NULL;
+	m_bAskBeforeReload=true;
+	m_bImplementsPendingTasks=true;
 }
 
 //<-dceag-getconfig-b->
@@ -444,19 +446,19 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
     return false;  // Continue to process it
 }
 
-bool Orbiter_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
+bool Orbiter_Plugin::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 {
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	if( m_listRegenCommands.size()==0 )
 		return false;
 
 	string sOrbiters;
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Cannot reboot m_listRegenCommands %d pending %p",(int) m_listRegenCommands.size(),vectPendingTasks);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Cannot reboot m_listRegenCommands %d pending %p",(int) m_listRegenCommands.size(),pPendingTaskList);
 
 	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::PendingTasks m_listRegenCommands %d",*it);
 
-	if( vectPendingTasks )
+	if( pPendingTaskList )
 	{
 		for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 		{
@@ -497,7 +499,10 @@ bool Orbiter_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTask
 				}
 			}
 
-			vectPendingTasks->push_back( make_pair<string,string> ("regen",sProgress) );
+			pPendingTaskList->m_listPendingTask.push_back(new PendingTask(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+				m_dwPK_Device,m_dwPK_Device,
+				"orbitergen",sProgress,
+				-1,0,false));
 		}
 	}
 

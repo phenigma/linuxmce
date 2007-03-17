@@ -1,4 +1,4 @@
-/**
+ /**
  *
  * @file MythTV_PlugIn.cpp
  * @brief source file for the MythTvStream, MythTV_PlugIn classes
@@ -71,6 +71,9 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 	m_pMySqlHelper_Myth = NULL;
 	m_pAlarmManager=NULL;
 	m_dwPK_File_LastCheckedForNewRecordings=0;
+
+	m_bAskBeforeReload=true;
+	m_bImplementsPendingTasks=true;
 }
 
 //<-dceag-getconfig-b->
@@ -1656,7 +1659,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 	}
 
 	// If we're still busy downloading packages we don't want to do this yet since the files may not be installed yet
-	if( m_pGeneral_Info_Plugin->PendingTasks() )
+	if( m_pGeneral_Info_Plugin->ReportPendingTasks() )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d waiting for packages", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
 		m_pAlarmManager->AddRelativeAlarm(30,this,SYNC_PROVIDERS,(void *) pScanJob);  /* check again in 30 seconds */
@@ -1712,14 +1715,14 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 	m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->Commit();
 }
 
-bool MythTV_PlugIn::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
+bool MythTV_PlugIn::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "checking scanning jobs %d %d",m_dwPK_Device, (int) m_mapPendingScans.size());
 
 	if( m_mapPendingScans.size() )
 	{
-		if( vectPendingTasks )
+		if( pPendingTaskList )
 		{
 			for( map< int, ScanJob * >::iterator it=m_mapPendingScans.begin();it!=m_mapPendingScans.end();++it )
 			{
@@ -1729,7 +1732,11 @@ bool MythTV_PlugIn::PendingTasks(vector< pair<string,string> > *vectPendingTasks
 					sDesc += StringUtils::itos(pScanJob->m_iPercentCompletion) + "% ";
 				else
 					sDesc += "waiting...";
-				vectPendingTasks->push_back( make_pair<string,string> ("channelscan",sDesc + "\n" + pScanJob->m_sStatus) );
+
+				pPendingTaskList->m_listPendingTask.push_back(new PendingTask(pScanJob->m_pRow_Device_Tuner->PK_Device_get(),
+					m_dwPK_Device,m_dwPK_Device,
+					"channel_scan","Scanning Channels: " + sDesc + " " + pScanJob->m_sStatus,
+					-1,0,true));
 			}
 		}
 		return true;

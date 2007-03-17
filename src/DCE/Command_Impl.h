@@ -37,6 +37,83 @@ namespace DCE
 	class DeviceData_Impl;
 	class Event_Impl;
 
+	// A helper class for reporting this device's pending tasks
+	class PendingTask
+	{
+	public:
+		int m_dwID; // A unique id to identify this task
+		int m_dwPK_Device_Processing; // The device that is processing this task
+		int m_dwPK_Device_Abort; // The device to send the ABORT_TASK syscommand to with the ID
+		string m_sType,m_sDescription;
+		char m_cPercentComplete; // From 0 - 100
+		int m_dwSecondsLeft; // How many seconds are left before this task will be done
+		bool m_bCanAbort; // True if the task can be aborted
+		
+		PendingTask(int dwID, int dwPK_Device_Processing, int dwPK_Device_Abort,
+            string sType, string sDescription, char cPercentComplete, int dwSecondsLeft,
+			bool bCanAbort)
+		{
+			m_dwID=dwID;
+			m_dwPK_Device_Processing=dwPK_Device_Processing;
+			m_dwPK_Device_Abort=dwPK_Device_Abort;
+			m_sType=sType;
+			m_sDescription=sDescription;
+			m_cPercentComplete=cPercentComplete;
+			m_dwSecondsLeft=dwSecondsLeft;
+			m_bCanAbort=bCanAbort;
+		}
+
+		// Parse from a string
+		PendingTask(string sValue)
+		{
+			string::size_type pos=0;
+			m_dwID=atoi( StringUtils::Tokenize( sValue, "\t", pos ).c_str() );
+			m_dwPK_Device_Processing=atoi( StringUtils::Tokenize( sValue, "\t", pos ).c_str() );
+			m_dwPK_Device_Abort=atoi( StringUtils::Tokenize( sValue, "\t", pos ).c_str() );
+			m_sType=StringUtils::Tokenize( sValue, "\t", pos );
+			m_sDescription=StringUtils::Tokenize( sValue, "\t", pos );
+			m_cPercentComplete=(unsigned char) atoi( StringUtils::Tokenize( sValue, "\t", pos ).c_str() );
+			m_dwSecondsLeft=atoi( StringUtils::Tokenize( sValue, "\t", pos ).c_str() );
+			m_bCanAbort=StringUtils::Tokenize( sValue, "\t", pos )=="1";
+		}
+
+		virtual ~PendingTask() {}
+
+		string ToString()
+		{
+			return StringUtils::itos(m_dwID) + "\t"
+				+ StringUtils::itos(m_dwPK_Device_Processing) + "\t"
+				+ StringUtils::itos(m_dwPK_Device_Abort) + "\t"
+				+ m_sType + "\t"
+				+ m_sDescription + "\t"
+				+ StringUtils::itos(m_cPercentComplete) + "\t"
+				+ StringUtils::itos(m_dwSecondsLeft) + "\t"
+				+ (m_bCanAbort ? "1" : "0");
+		}
+	};
+
+	// A wrapper for a list of tasks that will automatically delete any allocated tasks
+	// Create this on the stack to have all allocated memory clean up on exit
+	class PendingTaskList
+	{
+	public:
+		list<PendingTask *> m_listPendingTask;
+		PendingTaskList() {}
+		~PendingTaskList()
+		{
+			for(list<PendingTask *>::iterator it=m_listPendingTask.begin();it!=m_listPendingTask.end();++it)
+				delete *it;
+		}
+
+		string ToString()
+		{
+			string sResponse;
+			for(list<PendingTask *>::iterator it=m_listPendingTask.begin();it!=m_listPendingTask.end();++it)
+				sResponse += (*it)->ToString() + "\n";
+			return sResponse;
+		}
+	};
+
 	typedef map<int, class Command_Impl *> MapCommand_Impl;
 	typedef list<class Command_Impl *> ListCommand_Impl;
 
@@ -58,7 +135,12 @@ namespace DCE
 	
 		list<Message *> m_listMessageQueue;  /** < there are two ways of sending a message: realtime and queued (in a sepparted thread); this is the queue of messages */
 		vector<string> m_vectSpawnedDevices;  /** < Keep track of all the devices we spawned so we can kill them on create */
+
 	public:
+		// Set the following two flags in your DCE Device's constructor since the flags are passed in on the Connect()
+		bool m_bAskBeforeReload, // If set to true ask this device if it's ok to reload before processing a reload request
+			m_bImplementsPendingTasks; // If set to true, this device implements the PendingTasks() to report pending tasks it may be doing
+
 		Command_Impl *m_pParent; /** < if the command was created as an embedded command, keep a pointer to it's parent */
 		MapCommand_Impl m_mapCommandImpl_Children; /** < map containing the commands that this command has created */
 		pluto_pthread_mutex_t m_listMessageQueueMutex; /** < for protecin the access to the MessageQueue */
@@ -234,17 +316,23 @@ namespace DCE
 		virtual void OnReload(); 
 		
 		/**
-		* @brief For now will only be used by plugins, but later this member function could
-		* be implemented in all devices; should be overriden.  returns false if there are no pending tasks
-		* A pending task means something the device is in the middle of doing that it doesn't want to
-		* be interrupted on with a reload request
+		* @brief If your device implements this function set m_bImplementsPendingTasks to true
+		* in the constructor before Connect().
+		* Return true if you have pending tasks, and if listPendingTask is not NULL
+		* add info on your tasks to it
 		*/
-		virtual bool PendingTasks(vector< pair<string,string> > *vectPendingTasks=NULL) { return false; };
+		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList=NULL) { return false; }
 
 		/**
 		* @brief Clients can call this to get the list of pending tasks from PK_Device, where the pair is task type, description
+		* Pass in the request socket to use to get the response
 		*/
-		virtual bool PendingTasksFromDevice(int PK_Device,vector< pair<string,string> > *vectPendingTasks=NULL);
+		static bool ReportPendingTasksFromDevice(Socket *pSocket,int PK_Device_Requestor,int PK_Device,PendingTaskList *pPendingTaskList=NULL);
+
+		virtual bool AbortTask(int PK_Device_Requestor,int ID) { return true; } // Abort the task with ID per PK_Device_Requestor
+
+		// Override this if there are times when you can't allow a reload, and if so, return false and fill in sReason
+		virtual bool SafeToReload(string &sReason) { return true; }
 
 		/**
 		 * @brief just calls OnQuit()

@@ -94,7 +94,7 @@ public:
 		}
 		return false;
 	}
-	virtual bool PendingTasks(vector< pair<string,string> > *vectPendingTasks=NULL);
+	virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList=NULL);
 
 	// Private methods
 	list<pair<string, string> > GetUserBookmarks(string sPK_User);

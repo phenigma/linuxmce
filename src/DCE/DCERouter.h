@@ -176,7 +176,8 @@ namespace DCE
 
         // Miscellaneous Data for internal use
         AlarmManager* m_pAlarmManager;
-        pluto_pthread_mutex_t m_CoreMutex,m_InterceptorMutex;
+        pluto_pthread_mutex_t m_CoreMutex, // Protects all the map's within DCERouter
+			m_InterceptorMutex;
         pluto_pthread_mutex_t m_MessageQueueMutex;
         pthread_cond_t m_MessageQueueCond;
         int m_Port,m_dwPK_Language;
@@ -346,33 +347,36 @@ namespace DCE
 		void DoLogReload();
 		bool RequestReload(int PK_Device_Requesting)
 		{
+			// If it's not safe to do a reload now returns false and fires a EVENT_Reload_Aborted_CONST event
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Received reload command from %d",PK_Device_Requesting);
-			PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Checking %d plugins",(int)m_mapPlugIn.size()); 
-			map<int,class Command_Impl *>::iterator it;
-			for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
+			PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
+			ServerSocketMap::iterator iDC;
+			for(iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
 			{
-				Command_Impl *pPlugIn = (*it).second;
-				vector< pair<string,string> > vectPendingTasks;
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
-				if( pPlugIn->PendingTasks(&vectPendingTasks) )
+				ServerSocket *pServerSocket = (*iDC).second;
+				PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
 				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"plugin %d denied reload",pPlugIn->m_dwPK_Device);
-					if( PK_Device_Requesting )
+					if( pServerSocket->m_bAskBeforeReload )
 					{
-						string sPendingTasks;
-						for(vector< pair<string,string> >::iterator it=vectPendingTasks.begin();it!=vectPendingTasks.end();++it)
-							sPendingTasks += /*pPlugIn->m_sName + ": " +*/ it->second + "\n";
-						ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
-							EVENT_Reload_Aborted_CONST,3,
-							EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),
-							EVENTPARAMETER_Text_CONST,sPendingTasks.c_str(),
-							EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos(PK_Device_Requesting).c_str()));
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Checking device %d for reload",(*iDC).first);
+						string sReason;
+						if( !pServerSocket->SafeToReload(sReason) )
+						{
+							if( PK_Device_Requesting )
+							{
+								ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+									EVENT_Reload_Aborted_CONST,3,
+									EVENTPARAMETER_PK_Device_CONST,StringUtils::itos((*iDC).first).c_str(),
+									EVENTPARAMETER_Text_CONST,sReason.c_str(),
+									EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos(PK_Device_Requesting).c_str()));
+							}
+							return false;
+						}
 					}
-					return false;
 				}
 			}
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PLUGINS OK");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"RELOAD OK");
+
 			return true;
 		}
         void OutputChildren(class DeviceData_Impl *pDevice,string &Response);

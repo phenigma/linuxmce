@@ -129,7 +129,7 @@ public:
 	bool PromptForMissingCapture_Card_Port();
 
 	//from command_impl class
-	virtual bool PendingTasks(vector< pair<string,string> > *vectPendingTasks=NULL);
+	virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList=NULL);
 	list<int> m_listRegenCommands;
 
 	pluto_pthread_mutex_t m_AllowedConnectionsMutex;

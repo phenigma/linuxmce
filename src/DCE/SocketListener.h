@@ -58,7 +58,7 @@ namespace DCE
 	public:
 
 		string m_sName; /** < the socket listener name */
-		pluto_pthread_mutex_t m_ListenerMutex; /** < to control access to the shared memory */
+		pluto_pthread_mutex_t m_ListenerMutex; /** < to control access to the shared memory.  Don't use m_mapServerSocket or m_vectorServerSocket without this  */
 		pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
 
 		bool m_bTerminate; /** < set to true when the listener terminates (from the destructor)  */

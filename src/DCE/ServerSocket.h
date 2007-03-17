@@ -46,6 +46,9 @@ namespace DCE
 		bool m_bSelfDestroying; /** < The thread is responsible for destroying the server socket and removing it from the map */
 
 	public:
+		bool m_bAskBeforeReload, // If true ask this device if it's ok to reload before processing a reload request
+			m_bImplementsPendingTasks; // If true, this device implements the PendingTasks() to report pending tasks it may be doing
+
 		long m_dwPK_Device; /** < the device ID */
 
 		pluto_pthread_mutex_t m_ConnectionMutex; /** < for controlling access to the shared memory */
@@ -79,6 +82,8 @@ namespace DCE
 		
 		bool IsSelfDestroying() { return m_bSelfDestroying; }
 		void SelfDestroying() { m_bSelfDestroying = true; }
+
+		bool SafeToReload(string &sReason);
 
 	private:
 		/**

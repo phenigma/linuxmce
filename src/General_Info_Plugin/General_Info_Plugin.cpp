@@ -92,10 +92,6 @@ static const string sURL_Base = "http://10.0.0.175/plutohome-com/getRegisteredDe
 #include "DCEConfig.h"
 DCEConfig dceConfig; // Needed by CreateDevice
 
-
-
-
-
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -113,6 +109,8 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 	m_pDatabase_pluto_media=NULL;
 	m_dwPK_Device_Prompting_For_A_Room=0;
 	m_bNewInstall=false;
+	m_bAskBeforeReload=true;
+	m_bImplementsPendingTasks=true;
 }
 
 //<-dceag-getconfig-b->
@@ -163,6 +161,7 @@ General_Info_Plugin::~General_Info_Plugin()
 bool General_Info_Plugin::Register()
 //<-dceag-reg-e->
 {
+	return Connect(PK_DeviceTemplate_get()); 
     // Get the datagrid plugin
 	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
@@ -715,19 +714,21 @@ void General_Info_Plugin::CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,Me
 }
 
 
-bool General_Info_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
+bool General_Info_Plugin::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 {
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "General_Info_Plugin::PendingTasks m_mapMediaDirectors_PendingConfig %d %d",m_dwPK_Device, (int) m_mapMediaDirectors_PendingConfig.size());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "General_Info_Plugin::ReportPendingTasks m_mapMediaDirectors_PendingConfig %d %d",m_dwPK_Device, (int) m_mapMediaDirectors_PendingConfig.size());
 	bool bPendingTasks=false;
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
 	{
 		if( it->second )
 		{
 			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(it->first);
-			if( vectPendingTasks )
-				vectPendingTasks->push_back( make_pair<string,string> ("download","Still downloading packages m_mapMediaDirectors_PendingConfig on: " + (pRow_Device ? pRow_Device->Description_get() : StringUtils::itos(it->first))));
-			LoggerWrapper::GetInstance()->Write( LV_STATUS, "General_Info_Plugin::PendingTasks m_mapMediaDirectors_PendingConfig md %d is busy",it->first);
+			if( pPendingTaskList )
+				pPendingTaskList->m_listPendingTask.push_back(new PendingTask(it->first,m_dwPK_Device,m_dwPK_Device,
+					"software_update","Updating software on: " + (pRow_Device ? pRow_Device->Description_get() : StringUtils::itos(it->first)),-1,0,false));
+
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "General_Info_Plugin::ReportPendingTasks m_mapMediaDirectors_PendingConfig md %d is busy",it->first);
 			bPendingTasks=true;
 		}
 	}
@@ -736,31 +737,32 @@ bool General_Info_Plugin::PendingTasks(vector< pair<string,string> > *vectPendin
 
 class DataGridTable *General_Info_Plugin::PendingTasksGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-	vector< pair<string,string> > vectPendingTasks;
+	PLUTO_SAFETY_LOCK(lm,m_pRouter->m_ListenerMutex);
+	list<int> DevicesWithPendingTasks;
+	ServerSocketMap::iterator iDC;
+	for(iDC = m_pRouter->m_mapServerSocket.begin(); iDC!=m_pRouter->m_mapServerSocket.end(); ++iDC)
+	{
+		ServerSocket *pServerSocket = (*iDC).second;
+		if( pServerSocket->m_bImplementsPendingTasks )
+			DevicesWithPendingTasks.push_back((*iDC).first);
+	}
+	lm.Release();
 
-    for(map<int,class Command_Impl *>::const_iterator it=m_pRouter->m_mapPlugIn_get()->begin();it!=m_pRouter->m_mapPlugIn_get()->end();++it)
-    {
-		Command_Impl *pPlugIn = (*it).second;
-		// We don't care about the return code, just what tasks are pending
-		vector< pair<string,string> > vpt;
-		pPlugIn->PendingTasks(&vpt);
-		for(vector< pair<string,string> >::iterator it=vpt.begin();it!=vpt.end();++it)
-		{
-			if( Parms.empty() || Parms==it->first )
-				vectPendingTasks.push_back( *it );
-		}
+	PendingTaskList pendingTaskList;
+	for(list<int>::iterator it=DevicesWithPendingTasks.begin();it!=DevicesWithPendingTasks.end();++it)
+	{
+		ReportPendingTasksFromDevice(m_pcRequestSocket->m_pClientSocket,m_dwPK_Device,*it,&pendingTaskList);
 	}
 
     DataGridTable *pDataGrid = new DataGridTable( );
     DataGridCell *pCell;
-
 	int RowCount=0;
-	for(vector< pair<string,string> >::iterator it=vectPendingTasks.begin();it!=vectPendingTasks.end();++it)
+	for(list<PendingTask *>::iterator it=pendingTaskList.m_listPendingTask.begin();it!=pendingTaskList.m_listPendingTask.end();++it)
 	{
-		pCell = new DataGridCell( it->second );
+		PendingTask *pPendingTask = *it;
+		pCell = new DataGridCell( pPendingTask->m_sDescription, StringUtils::itos(pPendingTask->m_dwID) );
         pDataGrid->SetData( 0, RowCount++, pCell );
 	}
-
 	return pDataGrid;
 }
 

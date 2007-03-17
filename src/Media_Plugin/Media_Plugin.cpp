@@ -224,7 +224,10 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 
 	srand((int) time(NULL)); // Shuffle uses a random generator
 
-    m_iStreamID=0;
+	m_bAskBeforeReload=true;
+	m_bImplementsPendingTasks=true;
+
+	m_iStreamID=0;
 	m_iPK_File_Last_Scanned_For_New=0;
 	m_pDatabase_pluto_main=NULL;
 	m_pDatabase_pluto_media=NULL;
@@ -4254,17 +4257,19 @@ bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 	return itRippingJobs!=m_mapRippingJobs.end();
 }
 
-bool Media_Plugin::PendingTasks(vector< pair<string,string> > *vectPendingTasks)
+bool Media_Plugin::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 {
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "safe to reload before lock %d %s %d",m_MediaMutex.m_NumLocks,m_MediaMutex.m_sFileName.c_str(),m_MediaMutex.m_Line);
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "checking ripping jobs %d %d",m_dwPK_Device, (int) m_mapRippingJobs.size());
 	if( m_mapRippingJobs.size() )
 	{
-		if( vectPendingTasks )
+		if( pPendingTaskList )
 		{
 			for(map<int, class RippingJob *>::iterator it=m_mapRippingJobs.begin();it!=m_mapRippingJobs.end();++it)
-				vectPendingTasks->push_back( make_pair<string,string> ("rip","Ripping: " + it->second->m_sName + "\n" + it->second->m_sStatus + "  " + it->second->m_sPercentage));
+				pPendingTaskList->m_listPendingTask.push_back(new PendingTask(it->first,m_dwPK_Device,m_dwPK_Device,
+					"rip","Ripping: " + it->second->m_sName + "\n" + it->second->m_sStatus,
+					atoi(it->second->m_sPercentage.c_str()),0,true));
 		}
 		return true;
 	}
