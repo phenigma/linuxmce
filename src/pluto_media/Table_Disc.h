@@ -98,8 +98,6 @@ string m_ID;
 long int m_EK_MediaType;
 long int m_FK_MediaSubType;
 long int m_FK_FileFormat;
-long int m_EK_Device;
-long int m_Slot;
 long int m_EK_Users_Private;
 string m_DateLastViewed;
 short int m_IsNew;
@@ -110,7 +108,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[16];
+		bool is_null[14];
 	
 	public:
 		long int PK_Disc_get();
@@ -118,8 +116,6 @@ string ID_get();
 long int EK_MediaType_get();
 long int FK_MediaSubType_get();
 long int FK_FileFormat_get();
-long int EK_Device_get();
-long int Slot_get();
 long int EK_Users_Private_get();
 string DateLastViewed_get();
 short int IsNew_get();
@@ -136,8 +132,6 @@ void ID_set(string val);
 void EK_MediaType_set(long int val);
 void FK_MediaSubType_set(long int val);
 void FK_FileFormat_set(long int val);
-void EK_Device_set(long int val);
-void Slot_set(long int val);
 void EK_Users_Private_set(long int val);
 void DateLastViewed_set(string val);
 void IsNew_set(short int val);
@@ -152,8 +146,6 @@ void psc_restrict_set(long int val);
 		bool ID_isNull();
 bool FK_MediaSubType_isNull();
 bool FK_FileFormat_isNull();
-bool EK_Device_isNull();
-bool Slot_isNull();
 bool EK_Users_Private_isNull();
 bool DateLastViewed_isNull();
 bool psc_id_isNull();
@@ -166,8 +158,6 @@ bool psc_restrict_isNull();
 		void ID_setNull(bool val);
 void FK_MediaSubType_setNull(bool val);
 void FK_FileFormat_setNull(bool val);
-void EK_Device_setNull(bool val);
-void Slot_setNull(bool val);
 void EK_Users_Private_setNull(bool val);
 void DateLastViewed_setNull(bool val);
 void psc_id_setNull(bool val);
@@ -203,7 +193,7 @@ void Picture_Disc_FK_Disc_getrows(vector <class Row_Picture_Disc*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Disc+ m_ID+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_EK_Device+ m_Slot+ m_EK_Users_Private+ m_DateLastViewed+ m_IsNew+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Disc+ m_ID+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_EK_Users_Private+ m_DateLastViewed+ m_IsNew+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -213,8 +203,6 @@ string ID_asSQL();
 string EK_MediaType_asSQL();
 string FK_MediaSubType_asSQL();
 string FK_FileFormat_asSQL();
-string EK_Device_asSQL();
-string Slot_asSQL();
 string EK_Users_Private_asSQL();
 string DateLastViewed_asSQL();
 string IsNew_asSQL();
