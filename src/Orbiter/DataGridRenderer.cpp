@@ -80,7 +80,10 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 	if( bContainsCells )
 	{
 		for(map< pair<int,int>, DesignObj_Orbiter *>::iterator it=m_pObj_Owner_DataGrid->m_mapChildDgObjects.begin();it!=m_pObj_Owner_DataGrid->m_mapChildDgObjects.end();++it)
+		{
+DesignObj_Orbiter *pObj = it->second;
 			it->second->m_bHidden=true;  // Set them all to hidden.  We will unhide them if there is data for this cell
+		}
 	}
 
 	int nAlphaChannel = GetAlphaLevel();
@@ -107,6 +110,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 					map< pair<int,int>, DesignObj_Orbiter *>::iterator it=m_pObj_Owner_DataGrid->m_mapChildDgObjects.find( make_pair<int,int> (DGColumn,DGRow % pDataGridTable->m_RowCount) );
 					if(	it!=m_pObj_Owner_DataGrid->m_mapChildDgObjects.end() )
 					{
+DesignObj_Orbiter *pObj = it->second;
 						it->second->m_bHidden=false;
 						continue; // No need to render it here; the object will self-render
 					}

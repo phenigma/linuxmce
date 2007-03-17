@@ -218,6 +218,9 @@ void ScreenHistory::SaveContext(const map<int, string>& mapVariable,
 		DesignObj_Orbiter *pObj = itv->first;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Saving state for obj %s hidden %d", pObj->m_ObjectID.c_str(), itv->second);
 #endif
+
+if( pObj->m_ObjectID.find("5286")!=string::npos )
+break;
 		m_mapVisibilityContext[itv->first] = itv->second;
 	}
 }

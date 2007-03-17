@@ -12961,104 +12961,120 @@ namespace DCE
 	class SCREEN_Jukebox_Manager : public PreformedCommand
 	{
 	public:
-		SCREEN_Jukebox_Manager(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Jukebox_Manager(long DeviceIDFrom, long DeviceIDTo,
+			int iPK_Device,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "260" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				2 /* The Jukebox to manage */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
 	class SCREEN_Jukebox_Manager_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_Jukebox_Manager_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Jukebox_Manager_DL(long DeviceIDFrom, string sDeviceIDTo,
+			int iPK_Device,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "260" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				2 /* The Jukebox to manage */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
 	class SCREEN_Jukebox_Manager_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_Jukebox_Manager_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Jukebox_Manager_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			int iPK_Device,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "260" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				2 /* The Jukebox to manage */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
 	class SCREEN_Jukebox_Manager_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_Jukebox_Manager_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Jukebox_Manager_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			int iPK_Device,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "260" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				2 /* The Jukebox to manage */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
 	class SCREEN_NAS_Manager : public PreformedCommand
 	{
 	public:
-		SCREEN_NAS_Manager(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_NAS_Manager(long DeviceIDFrom, long DeviceIDTo,
+			int iPK_Device,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "261" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				2 /* The NAS to manage */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
 	class SCREEN_NAS_Manager_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_NAS_Manager_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_NAS_Manager_DL(long DeviceIDFrom, string sDeviceIDTo,
+			int iPK_Device,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "261" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				2 /* The NAS to manage */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
 	class SCREEN_NAS_Manager_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_NAS_Manager_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_NAS_Manager_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			int iPK_Device,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "261" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				2 /* The NAS to manage */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
 	class SCREEN_NAS_Manager_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_NAS_Manager_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_NAS_Manager_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			int iPK_Device,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
 				COMMANDPARAMETER_PK_Screen_CONST, "261" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				2 /* The NAS to manage */, StringUtils::ltos(iPK_Device).c_str());
 		}
 	};
 
@@ -13330,8 +13346,8 @@ namespace DCE
 		virtual void SCREEN_Thumbnail(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Scanning_Progress(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Drive_Overview(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Jukebox_Manager(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_NAS_Manager(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Jukebox_Manager(long PK_Screen, int iPK_Device){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_NAS_Manager(long PK_Screen, int iPK_Device){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -14863,13 +14879,15 @@ namespace DCE
 				case 260:
 				{
 					ResetCallBacks();
-					SCREEN_Jukebox_Manager(nPK_Screen);
+					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
+					SCREEN_Jukebox_Manager(nPK_Screen, iPK_Device);
 					break;
 				}
 				case 261:
 				{
 					ResetCallBacks();
-					SCREEN_NAS_Manager(nPK_Screen);
+					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
+					SCREEN_NAS_Manager(nPK_Screen, iPK_Device);
 					break;
 				}
 

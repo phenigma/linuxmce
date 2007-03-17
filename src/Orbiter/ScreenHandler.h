@@ -283,8 +283,11 @@ public:
 	bool Thumbnail_DatagridSelected(CallBackData *pData);
 
 	void SCREEN_Drive_Overview(long PK_Screen);
-	void SCREEN_Jukebox_Manager(long PK_Screen);
-	void SCREEN_NAS_Manager(long PK_Screen);
+	void SCREEN_Jukebox_Manager(long PK_Screen, int iPK_Device);
+	void SCREEN_NAS_Manager(long PK_Screen, int iPK_Device);
+	bool DriveOverview_ObjectSelected(CallBackData *pData);
+	bool JukeboxManager_ObjectSelected(CallBackData *pData);
+	bool NASManager_ObjectSelected(CallBackData *pData);
 
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();

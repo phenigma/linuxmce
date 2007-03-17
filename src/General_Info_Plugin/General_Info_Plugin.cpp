@@ -71,6 +71,7 @@ using namespace DCE;
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Table_Disc.h"
 #include "pluto_media/Table_Disc_Attribute.h"
+#include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Define_AttributeType.h"
 
 #include "DataGrid.h"
@@ -309,6 +310,14 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::NetworkStorage)), 
 		DATAGRID_NetworkStorage_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::JukeboxDrives)), 
+		DATAGRID_Jukebox_Drives_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::JukeboxSlots)), 
+		DATAGRID_Jukebox_Slots_CONST,PK_DeviceTemplate_get());
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::LowSystemDiskSpace ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Low_System_Disk_Space_CONST );
@@ -2020,6 +2029,8 @@ class DataGridTable *General_Info_Plugin::Discs( string GridID, string Parms, vo
 		it!=pListDeviceData_Router->end();++it)
 	{
 		DeviceData_Router *pDevice = *it;
+//		if( !m_pRouter->DeviceIsRegistered(pDevice->m_dwPK_Device) )
+//			continue; // skip devices that aren't online
 		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
 		if( pDevice->m_pRoom )
 			pCell->m_mapAttributes["Room"]=pDevice->m_pRoom->m_sDescription;
@@ -2034,6 +2045,13 @@ class DataGridTable *General_Info_Plugin::Discs( string GridID, string Parms, vo
 
 			vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
 			m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sSQL,&vectRow_Disc_Attribute);
+			if( vectRow_Disc_Attribute.size() )
+			{
+				Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[0];
+				Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
+				if( pRow_Attribute )
+					pCell->m_mapAttributes["Disc"]=pRow_Attribute->Name_get();
+			}
 		}
 		pDataGrid->SetData(0,iRow++,pCell);
 	}
@@ -2119,6 +2137,104 @@ class DataGridTable *General_Info_Plugin::NetworkStorage( string GridID, string 
 		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
 		pDataGrid->SetData(0,iRow++,pCell);
 	}
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::JukeboxDrives( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+
+	// The Jukebox is the parms, the drives are the children
+	DeviceData_Router *pDevice_Jukebox = m_pRouter->m_mapDeviceData_Router_Find( atoi(Parms.c_str()) );
+	if( !pDevice_Jukebox )
+		return pDataGrid;  // Shouldn't happen
+
+	DataGridCell *pCell;
+	int iRow=0;
+	for(VectDeviceData_Impl::iterator it=pDevice_Jukebox->m_vectDeviceData_Impl_Children.begin();
+		it!=pDevice_Jukebox->m_vectDeviceData_Impl_Children.end();++it)
+	{
+		DeviceData_Router *pDevice_Drive = (DeviceData_Router *) *it;
+		string sPort = pDevice_Drive->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
+		pCell = new DataGridCell(sPort,StringUtils::itos(pDevice_Drive->m_dwPK_Device));
+
+		vector<Row_Disc *> vectRow_Disc;
+		m_pDatabase_pluto_media->Disc_get()->GetRows("EK_Device=" + StringUtils::itos(pDevice_Drive->m_dwPK_Device),&vectRow_Disc);
+		if( vectRow_Disc.size() )
+		{
+			Row_Disc *pRow_Disc = vectRow_Disc[0];
+
+			pCell->m_mapAttributes["PK_Disc"] = StringUtils::itos(pRow_Disc->PK_Disc_get());
+
+			string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get())
+				+ " AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Album_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ")";
+
+			vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+			m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sSQL,&vectRow_Disc_Attribute);
+			if( vectRow_Disc_Attribute.size() )
+			{
+				Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[0];
+				Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
+				if( pRow_Attribute )
+					pCell->m_mapAttributes["Disc"]=pRow_Attribute->Name_get();
+			}
+		}
+		pDataGrid->SetData(0,iRow++,pCell);
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::JukeboxSlots( string GridID, string Parms, void *ExtraData, 
+	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+
+	// The Jukebox is the parms, the drives are the children
+	DeviceData_Router *pDevice_Jukebox = m_pRouter->m_mapDeviceData_Router_Find( atoi(Parms.c_str()) );
+	if( !pDevice_Jukebox )
+		return pDataGrid;  // Shouldn't happen
+
+	// Store all the children (the drives) in a comma separates list so we can do a sql find
+	string sPK_Drives;
+	for(VectDeviceData_Impl::iterator it=pDevice_Jukebox->m_vectDeviceData_Impl_Children.begin();
+		it!=pDevice_Jukebox->m_vectDeviceData_Impl_Children.end();++it)
+	{
+		DeviceData_Router *pDevice_Drive = (DeviceData_Router *) *it;
+		if( sPK_Drives.empty()==false )
+			sPK_Drives += ",";
+		sPK_Drives += StringUtils::itos(pDevice_Drive->m_dwPK_Device);
+	}
+
+	DataGridCell *pCell;
+	int iRow=0;
+
+	vector<Row_Disc *> vectRow_Disc;
+	m_pDatabase_pluto_media->Disc_get()->GetRows("EK_Device IN (" + StringUtils::itos(pDevice_Jukebox->m_dwPK_Device) + "," + sPK_Drives + ")",&vectRow_Disc);
+	for(vector<Row_Disc *>::iterator it=vectRow_Disc.begin();it!=vectRow_Disc.end();++it)
+	{
+		Row_Disc *pRow_Disc = *it;
+		pCell = new DataGridCell(StringUtils::itos(pRow_Disc->PK_Disc_get()),StringUtils::itos(pRow_Disc->PK_Disc_get()));
+		pCell->m_mapAttributes["PK_Disc"] = StringUtils::itos(pRow_Disc->PK_Disc_get());
+		pCell->m_mapAttributes["Slot_Drive"] = pRow_Disc->EK_Device_get()==pDevice_Jukebox->m_dwPK_Device ? "slot" : "drive";
+		pCell->m_mapAttributes["Slot"] = StringUtils::itos(pRow_Disc->Slot_get());
+
+		string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get())
+			+ " AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Album_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ")";
+
+		vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+		m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sSQL,&vectRow_Disc_Attribute);
+		if( vectRow_Disc_Attribute.size() )
+		{
+			Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[0];
+			Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
+			if( pRow_Attribute )
+				pCell->m_mapAttributes["Disc"]=pRow_Attribute->Name_get();
+		}
+		pDataGrid->SetData(0,iRow++,pCell);
+	}
+
 	return pDataGrid;
 }
 

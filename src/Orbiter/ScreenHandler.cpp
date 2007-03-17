@@ -2402,15 +2402,131 @@ bool ScreenHandler::Thumbnail_DatagridSelected(CallBackData *pData)
 void ScreenHandler::SCREEN_Drive_Overview(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_Drive_Overview(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::DriveOverview_ObjectSelected,	new ObjectInfoBackData());
 }
 
-void ScreenHandler::SCREEN_Jukebox_Manager(long PK_Screen)
+bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 {
-	ScreenHandlerBase::SCREEN_Jukebox_Manager(PK_Screen);
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( (pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST || 
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoPlay_CONST ||
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butManage_CONST) && 
+		pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject &&
+		pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		int Row=-1,Col=-1;
+		DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject;
+		for(map< pair<int,int>, DesignObj_Orbiter *>::iterator it=pObj_Grid->m_mapChildDgObjects.begin();it!=pObj_Grid->m_mapChildDgObjects.end();++it)
+		{
+			if( it->second == pObjectInfoData->m_pObj->m_pParentObject )
+			{
+				Col=it->first.first;
+				Row=it->first.second;
+				break;
+			}
+		}
+
+		if( Row!=-1 && Col!=-1 )
+		{
+			DataGridTable *pDataGridTable = pObj_Grid->m_pDataGridTable_Current_get();
+			DataGridCell *pCell = pDataGridTable->GetData(Col,Row);
+			if( pCell && pCell->GetValue() )
+			{
+				if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST )
+				{
+					DCE::CMD_Eject CMD_Eject(m_pOrbiter->m_dwPK_Device,atoi(pCell->GetValue()));
+					m_pOrbiter->SendCommand(CMD_Eject);
+				}
+				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoPlay_CONST && m_pOrbiter->m_pLocationInfo ) // play requires a location to play at
+				{
+					DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+						atoi(pCell->GetValue()),"",0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0);
+					m_pOrbiter->SendCommand(CMD_MH_Play_Media);
+				}
+				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butManage_CONST )
+				{
+					DCE::SCREEN_Jukebox_Manager SCREEN_Jukebox_Manager(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->GetValue()));
+					m_pOrbiter->SendCommand(SCREEN_Jukebox_Manager);
+				}
+			}
+		}
+	}
+	return false; // Keep processing it
 }
 
-void ScreenHandler::SCREEN_NAS_Manager(long PK_Screen)
+void ScreenHandler::SCREEN_Jukebox_Manager(long PK_Screen, int iPK_Device)
 {
-	ScreenHandlerBase::SCREEN_NAS_Manager(PK_Screen);
+	ScreenHandlerBase::SCREEN_Jukebox_Manager(PK_Screen,iPK_Device);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST,StringUtils::itos(iPK_Device));
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::JukeboxManager_ObjectSelected,	new ObjectInfoBackData());
 }
 
+bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST && 
+		pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject &&
+		pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		int Row=-1,Col=-1;
+		DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject;
+		for(map< pair<int,int>, DesignObj_Orbiter *>::iterator it=pObj_Grid->m_mapChildDgObjects.begin();it!=pObj_Grid->m_mapChildDgObjects.end();++it)
+		{
+			if( it->second == pObjectInfoData->m_pObj->m_pParentObject )
+			{
+				Col=it->first.first;
+				Row=it->first.second;
+				break;
+			}
+		}
+
+		if( Row!=-1 && Col!=-1 )
+		{
+			DataGridTable *pDataGridTable = pObj_Grid->m_pDataGridTable_Current_get();
+			DataGridCell *pCell = pDataGridTable->GetData(Col,Row);
+			if( pCell && pCell->GetValue() )
+			{
+				// toodo
+			}
+		}
+	}
+	return false; // Keep processing it
+}
+
+void ScreenHandler::SCREEN_NAS_Manager(long PK_Screen, int iPK_Device)
+{
+	ScreenHandlerBase::SCREEN_NAS_Manager(PK_Screen,iPK_Device);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::NASManager_ObjectSelected,	new ObjectInfoBackData());
+}
+
+bool ScreenHandler::NASManager_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST && 
+		pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject &&
+		pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		int Row=-1,Col=-1;
+		DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject;
+		for(map< pair<int,int>, DesignObj_Orbiter *>::iterator it=pObj_Grid->m_mapChildDgObjects.begin();it!=pObj_Grid->m_mapChildDgObjects.end();++it)
+		{
+			if( it->second == pObjectInfoData->m_pObj->m_pParentObject )
+			{
+				Col=it->first.first;
+				Row=it->first.second;
+				break;
+			}
+		}
+
+		if( Row!=-1 && Col!=-1 )
+		{
+			DataGridTable *pDataGridTable = pObj_Grid->m_pDataGridTable_Current_get();
+			DataGridCell *pCell = pDataGridTable->GetData(Col,Row);
+			if( pCell && pCell->GetValue() )
+			{
+				// toodo
+			}
+		}
+	}
+	return false; // Keep processing it
+}
