@@ -1449,7 +1449,7 @@ void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign
 		PK_Disc = m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(iMediaType, listMediaAttribute_, sValue_To_Assign);
 	if( sFormat=="MISC-TAB" )
 		PK_Disc = m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(iMediaType, listMediaAttribute_, sValue_To_Assign, 0);
-
+/*
 	if( PK_Disc )
 	{
 		vector<Row_Disc *> vectRow_Disc;
@@ -1469,6 +1469,7 @@ void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign
 		m_pDatabase_pluto_media->Disc_get()->Commit();
 		m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size,sURL);
 	}
+	*/
 	m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
 }
 //<-dceag-c743-b->
