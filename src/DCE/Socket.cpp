@@ -287,6 +287,12 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 			pMessage->SerializeToData(m_DataFormat, pData, nSize);
 
 			bReturnValue = SendData(static_cast<int>(nSize), pData);
+
+			if(NULL != pData)
+			{
+				delete[] pData;
+				pData = NULL;
+			}
 		}
 		break;
 	}
