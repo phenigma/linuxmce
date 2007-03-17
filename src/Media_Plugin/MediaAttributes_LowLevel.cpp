@@ -34,6 +34,7 @@
 #include "pluto_media/Table_Disc.h"
 #include "pluto_media/Table_Picture_Disc.h"
 #include "pluto_media/Table_Disc_Attribute.h"
+#include "pluto_media/Table_DiscLocation.h"
 #include "pluto_media/Table_Picture.h"
 #include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture_Attribute.h"
@@ -1036,13 +1037,13 @@ int MediaAttributes_LowLevel::IsDiscAlreadyIdentified(string sIdentifiedDisc,lis
 
 int MediaAttributes_LowLevel::IsDiscAlreadyIdentified(int PK_Device,int Slot,listMediaAttribute &listMediaAttribute_)
 {
-	vector<Row_Disc *> vectRow_Disc;
-	m_pDatabase_pluto_media->Disc_get()->GetRows("EK_Device=" + StringUtils::itos(PK_Device) + " AND Slot=" + StringUtils::itos(Slot),&vectRow_Disc);
-	if( vectRow_Disc.size()==0 )
+	vector<Row_DiscLocation *> vectRow_DiscLocation;
+	m_pDatabase_pluto_media->DiscLocation_get()->GetRows("EK_Device=" + StringUtils::itos(PK_Device) + " AND Slot=" + StringUtils::itos(Slot),&vectRow_DiscLocation);
+	if( vectRow_DiscLocation.size()==0 )
 		return 0;
 
-	Row_Disc *pRow_Disc = vectRow_Disc[0];
-	return IsDiscAlreadyIdentified(pRow_Disc,listMediaAttribute_);
+	Row_DiscLocation *pRow_DiscLocation = vectRow_DiscLocation[0];
+	return IsDiscAlreadyIdentified(pRow_DiscLocation->FK_Disc_getrow(),listMediaAttribute_);
 }
 
 int MediaAttributes_LowLevel::IsDiscAlreadyIdentified(Row_Disc *pRow_Disc,listMediaAttribute &listMediaAttribute_)

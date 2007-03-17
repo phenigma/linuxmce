@@ -70,6 +70,7 @@ using namespace DCE;
 #include "pluto_main/Table_FloorplanObjectType_Color.h"
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Table_Disc.h"
+#include "pluto_media/Table_DiscLocation.h"
 #include "pluto_media/Table_Disc_Attribute.h"
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Define_AttributeType.h"
@@ -2037,12 +2038,12 @@ class DataGridTable *General_Info_Plugin::Discs( string GridID, string Parms, vo
 		if( pDevice->m_pRoom )
 			pCell->m_mapAttributes["Room"]=pDevice->m_pRoom->m_sDescription;
 
-		vector<Row_Disc *> vectRow_Disc;
-		m_pDatabase_pluto_media->Disc_get()->GetRows("EK_Device=" + StringUtils::itos(pDevice->m_dwPK_Device),&vectRow_Disc);
-		if( vectRow_Disc.size() )
+		vector<Row_DiscLocation *> vectRow_DiscLocation;
+		m_pDatabase_pluto_media->DiscLocation_get()->GetRows("EK_Device=" + StringUtils::itos(pDevice->m_dwPK_Device),&vectRow_DiscLocation);
+		if( vectRow_DiscLocation.size() )
 		{
-			Row_Disc *pRow_Disc = vectRow_Disc[0];
-			string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get())
+			Row_DiscLocation *pRow_DiscLocation = vectRow_DiscLocation[0];
+			string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_DiscLocation->FK_Disc_get())
 				+ " AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Album_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ")";
 
 			vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;

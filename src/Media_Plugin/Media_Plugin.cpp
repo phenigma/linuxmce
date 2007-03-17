@@ -266,7 +266,7 @@ bool Media_Plugin::GetConfig()
     }
 
 	// We'll set these when the disks start up
-	string sSQL = "UPDATE Disc SET EK_Device=NULL";
+	string sSQL = "UPDATE DiscLocation SET EK_Device=NULL";
 	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
 
 	vector<Row_MediaType_AttributeType *> vectMediaType_AttributeType;
@@ -6128,7 +6128,7 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 void Media_Plugin::CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c832-e->
 {
-	string sSQL = "UPDATE Disc SET EK_Device=NULL WHERE EK_Device=" + StringUtils::itos(iPK_Device);
+	string sSQL = "UPDATE DiscLocation SET EK_Device=NULL WHERE EK_Device=" + StringUtils::itos(iPK_Device);
 	if( ssEK_Disc_List.empty()==false )
 		sSQL += " AND PK_Disc NOT IN( " + ssEK_Disc_List + " )";
 	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
@@ -6143,7 +6143,7 @@ void Media_Plugin::CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_Lis
 
 string Media_Plugin::GetMRLFromDiscID( int PK_Disc )
 {
-    string SQL = "SELECT EK_Device FROM Disc WHERE PK_Disc=" + StringUtils::itos( PK_Disc );
+    string SQL = "SELECT EK_Device FROM DiscLocation WHERE FK_Disc=" + StringUtils::itos( PK_Disc );
     PlutoSqlResult result;
     MYSQL_ROW row;
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && NULL != row[0] )

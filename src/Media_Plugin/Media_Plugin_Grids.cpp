@@ -288,7 +288,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		sSQL_File = "SELECT PK_File FROM File ";
 
 	if( bDiscs || bBookmarksOnly  )
-		sSQL_Disc = "SELECT PK_Disc FROM Disc ";
+		sSQL_Disc = "SELECT PK_Disc FROM Disc JOIN DiscLocation ON DiscLocation.FK_Disc=PK_Disc ";
 	
 	if( sPK_Attribute_Genres.size() )
 	{
