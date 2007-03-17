@@ -2419,6 +2419,14 @@
 #define DESIGNOBJ_butSubMenuSecurity_CONST 5417
 #define DESIGNOBJ_popNonPlutoDVD_CONST 5418
 #define DESIGNOBJ_mnuFileDetails_SmallUI_CONST 5419
+#define DESIGNOBJ_icoRip_CONST 5420
+#define DESIGNOBJ_mnuManageJukebox_CONST 5421
+#define DESIGNOBJ_mnuManageNAS_HDD_CONST 5422
+#define DESIGNOBJ_cellJukeBoxSlot_CONST 5423
+#define DESIGNOBJ_cellJukeBoxDrive_CONST 5424
+#define DESIGNOBJ_dgJukeboxSlots_CONST 5425
+#define DESIGNOBJ_dgJukeboxDrives_CONST 5426
+#define DESIGNOBJ_icoID_CONST 5427
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

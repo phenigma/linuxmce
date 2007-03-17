@@ -1183,6 +1183,7 @@
 #define TEXT_Bookmark_Show_Abb_CONST 1907
 #define TEXT_Pending_Channel_Scan_CONST 1908
 #define TEXT_Direct_AV_CONST 1909
+#define TEXT_ID_CONST 1910
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
