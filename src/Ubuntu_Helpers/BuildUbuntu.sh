@@ -106,8 +106,8 @@ function Build_Pluto_Replacements {
 	apt-get -y install libcaca-dev liblircclient-dev libtheora-dev libflac-dev libmodplug-dev libgnomevfs2-dev libsmbclient-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch transfig libavformat-dev libpostproc-dev libavcodec-dev libraw1394-dev libdc1394-13-dev
 	pushd ${svn_dir}/trunk/external/xine-lib-1.1.3
 		dpkg-buildpackage -rfakeroot -us -uc -b
-		dpkg -i ../libxine1-pluto_1.1.2+dfsg+cvs20061111-1pluto3_i386.deb
-		dpkg -i ../libxine-pluto-dev_1.1.2+dfsg+cvs20061111-1pluto3_i386.deb
+		dpkg -i ../libxine1-pluto_1.1.3+dfsg+cvs20061111-1pluto3_i386.deb
+		dpkg -i ../libxine-pluto-dev_1.1.3+dfsg+cvs20061111-1pluto3_i386.deb
 		cp ../libxine*.deb ${temp_dir}
 	popd
 
