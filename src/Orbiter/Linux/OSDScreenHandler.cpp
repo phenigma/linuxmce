@@ -2547,17 +2547,18 @@ void OSDScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen)
 	ScreenHandlerBase::SCREEN_Choose_Provider_for_Device(PK_Screen);
 
 	// See if there are any pending channel scans.  If so, switch to the screen to wait for the channel scan to finish
-	vector< pair<string,string> > vectPendingTasks;
+	PendingTaskList pendingTaskList;
 	for(map<int,class DeviceData_Base *>::iterator it = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it != m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
 	{
 		DeviceData_Base *pDevice = it->second;
 		if( pDevice->WithinCategory(DEVICECATEGORY_Media_Player_Plugins_CONST) )
-			m_pOrbiter->PendingTasksFromDevice(pDevice->m_dwPK_Device,&vectPendingTasks);
+			m_pOrbiter->ReportPendingTasksFromDevice(m_pOrbiter->m_pcRequestSocket->m_pClientSocket,m_pOrbiter->m_dwPK_Device,pDevice->m_dwPK_Device,&pendingTaskList);
 	}
 
-	for(vector< pair<string,string> >::iterator it=vectPendingTasks.begin();it!=vectPendingTasks.end();++it)
+	for(list<PendingTask *>::iterator it=pendingTaskList.m_listPendingTask.begin();it!=pendingTaskList.m_listPendingTask.end();++it)
 	{
-		if( it->first == "channelscan" )
+		PendingTask *pPendingTask = *it;
+		if( pPendingTask->m_sType == "channel_scan" )
 		{
 			// Send ourselves a message, don't just call CMD_Goto_Screen because we want go back to return here
 			// and this screen isn't in the history yet
