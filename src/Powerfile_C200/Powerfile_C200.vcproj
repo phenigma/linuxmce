@@ -126,9 +126,6 @@
 				RelativePath="..\Disk_Drive_Functions\Disk_Drive_Functions.cpp">
 			</File>
 			<File
-				RelativePath=".\exec_grab_output.cpp">
-			</File>
-			<File
 				RelativePath="..\JobHandler\Job.cpp">
 			</File>
 			<File

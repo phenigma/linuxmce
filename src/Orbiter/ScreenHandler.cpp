@@ -2464,7 +2464,11 @@ void ScreenHandler::SCREEN_Jukebox_Manager(long PK_Screen, int iPK_Device)
 bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST && 
+	if( (pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST ||
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoPlay_CONST ||
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST ||
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST
+		) && 
 		pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject &&
 		pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
@@ -2486,7 +2490,36 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 			DataGridCell *pCell = pDataGridTable->GetData(Col,Row);
 			if( pCell && pCell->GetValue() )
 			{
-				// toodo
+				if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST )
+				{
+					int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
+					int Slot = atoi( pCell->m_mapAttributes_Find("Slot").c_str() );
+					DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,PK_Device,Slot);
+					m_pOrbiter->SendCommand(CMD_Eject_Disk);
+				}
+				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
+				{
+					string sRipMessage = 
+						StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " +
+						StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 "
+						TOSTRING(COMMAND_Rip_Disk_CONST) " "
+						TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=EU%> "
+						TOSTRING(COMMANDPARAMETER_Name_CONST) " <%=E17%> "
+						TOSTRING(COMMANDPARAMETER_DriveID_CONST) " <%=E45%> "
+						TOSTRING(COMMANDPARAMETER_Directory_CONST) " <%=E9%> ";
+
+					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
+					
+					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,sTitle,sRipMessage,"1");
+					m_pOrbiter->SendCommand(SCREEN_FileSave);
+				}
+				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST )
+				{
+					int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
+					DCE::CMD_Mass_identify_media CMD_Mass_identify_media(
+						m_pOrbiter->m_dwPK_Device,PK_Device,pCell->m_mapAttributes_Find("Slot"));
+					m_pOrbiter->SendCommand(CMD_Mass_identify_media);
+				}
 			}
 		}
 	}

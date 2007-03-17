@@ -2216,6 +2216,7 @@ class DataGridTable *General_Info_Plugin::JukeboxSlots( string GridID, string Pa
 	{
 		Row_Disc *pRow_Disc = *it;
 		pCell = new DataGridCell(StringUtils::itos(pRow_Disc->PK_Disc_get()),StringUtils::itos(pRow_Disc->PK_Disc_get()));
+		pCell->m_mapAttributes["PK_Device"] = StringUtils::itos(pRow_Disc->EK_Device_get());
 		pCell->m_mapAttributes["PK_Disc"] = StringUtils::itos(pRow_Disc->PK_Disc_get());
 		pCell->m_mapAttributes["Slot_Drive"] = pRow_Disc->EK_Device_get()==pDevice_Jukebox->m_dwPK_Device ? "slot" : "drive";
 		pCell->m_mapAttributes["Slot"] = StringUtils::itos(pRow_Disc->Slot_get());

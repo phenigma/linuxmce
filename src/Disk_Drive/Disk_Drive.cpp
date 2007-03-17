@@ -79,9 +79,6 @@ bool Disk_Drive::GetConfig()
 	
 	m_pDisk_Drive_Functions = new Disk_Drive_Functions(this, sDrive);
 
-	DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
-		BL_SameHouse,m_dwPK_Device,"");
-	SendCommand(CMD_Report_Discs_in_Drive_DT);
 /*
 	// Quick and dirty, get nbd-server working
 	string sNbdServer;
