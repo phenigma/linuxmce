@@ -94,7 +94,6 @@ using namespace DCE;
 #include "File_Grids_Plugin/FileListOps.h"
 #include "File_Grids_Plugin/FileListGrid.h"
 #include "SerializeClass/ShapesColors.h"
-#include "RippingJob.h"
 #include "../VFD_LCD/VFD_LCD_Base.h"
 
 extern int UniqueColors[MAX_MEDIA_COLORS];
