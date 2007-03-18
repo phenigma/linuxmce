@@ -7,7 +7,7 @@ LDFLAGS = -L$(ROOT)/lib
 
 MYNAME = Disk_Drive_Functions
 
-sources = Disk_Drive_Functions.cpp
+sources = Disk_Drive_Functions.cpp RipTask.cpp RipJob.cpp
 
 all: $(sources:.cpp=.o)
 	$(CXX) -shared -o lib$(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
