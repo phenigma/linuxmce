@@ -23436,5 +23436,93 @@ namespace DCE
 			COMMANDPARAMETER_Task_CONST, sTask.c_str(),
 			COMMANDPARAMETER_Job_CONST, sJob.c_str()); }
 	};
+	class RESP_Lock : public PreformedCommandResponse {
+		string *m_sText;bool *m_bIsSuccessful;
+	public:
+		RESP_Lock(string *sText,bool *bIsSuccessful) { 
+		m_sText=sText; m_bIsSuccessful=bIsSuccessful; }
+		void ParseResponse(Message *pMessage) {
+			*m_sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST]; *m_bIsSuccessful=(pMessage->m_mapParameters[COMMANDPARAMETER_IsSuccessful_CONST]=="1" ? true : false); };
+	};
+	class CMD_Lock : public PreformedCommand {
+	public:
+		CMD_Lock(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Lock_CONST,
+			5 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0"),
+			COMMANDPARAMETER_Text_CONST, (*sText).c_str(),
+			COMMANDPARAMETER_IsSuccessful_CONST, (*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Lock(sText,bIsSuccessful); }
+	};
+	class CMD_Lock_DL : public PreformedCommand {
+	public:
+		CMD_Lock_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Lock_CONST,
+			5 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0"),
+			COMMANDPARAMETER_Text_CONST, (*sText).c_str(),
+			COMMANDPARAMETER_IsSuccessful_CONST, (*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Lock(sText,bIsSuccessful); }
+	};
+	class CMD_Lock_DT : public PreformedCommand {
+	public:
+		CMD_Lock_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Lock_CONST,
+			5 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0"),
+			COMMANDPARAMETER_Text_CONST, (*sText).c_str(),
+			COMMANDPARAMETER_IsSuccessful_CONST, (*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Lock(sText,bIsSuccessful); }
+	};
+	class CMD_Lock_Cat : public PreformedCommand {
+	public:
+		CMD_Lock_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Lock_CONST,
+			5 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0"),
+			COMMANDPARAMETER_Text_CONST, (*sText).c_str(),
+			COMMANDPARAMETER_IsSuccessful_CONST, (*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Lock(sText,bIsSuccessful); }
+	};
+	class CMD_NOREP_Lock : public PreformedCommand {
+	public:
+		CMD_NOREP_Lock(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sID,bool bTurn_On) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Lock_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0")); }
+	};
+	class CMD_NOREP_Lock_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Lock_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sID,bool bTurn_On) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Lock_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0")); }
+	};
+	class CMD_NOREP_Lock_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Lock_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sID,bool bTurn_On) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Lock_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0")); }
+	};
+	class CMD_NOREP_Lock_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Lock_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sID,bool bTurn_On) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Lock_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_Turn_On_CONST, (bTurn_On ? "1" : "0")); }
+	};
 }
 #endif

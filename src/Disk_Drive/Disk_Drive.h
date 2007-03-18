@@ -267,6 +267,23 @@ Powerfile: 0, 1, ... */
 	virtual void CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob) { string sCMD_Result; CMD_Update_Ripping_Status(sFilename.c_str(),sTime.c_str(),sStatus.c_str(),iPercent,sTask.c_str(),sJob.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #872 - Lock */
+	/** Lock the drive for use by something else, normally the player */
+		/** @param #2 PK_Device */
+			/** The device requesting the lock */
+		/** @param #9 Text */
+			/** A description of the lock */
+		/** @param #10 ID */
+			/** The ID of what needs to be locked.  For a jukebox, this would be the slot. */
+		/** @param #40 IsSuccessful */
+			/** returns true if the lock was succesfull.  If not, it puts the current lock in Text */
+		/** @param #252 Turn On */
+			/** True to set the lock, false to release it */
+
+	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful) { string sCMD_Result; CMD_Lock(iPK_Device,sID.c_str(),bTurn_On,sText,bIsSuccessful,sCMD_Result,NULL);};
+	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 	private:
 		Disk_Drive_Functions * m_pDisk_Drive_Functions;

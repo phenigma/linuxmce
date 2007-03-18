@@ -788,6 +788,7 @@
 #define COMMAND_Request_XML_Data_CONST 869
 #define COMMAND_Get_Data_CONST 870
 #define COMMAND_Update_Ripping_Status_CONST 871
+#define COMMAND_Lock_CONST 872
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

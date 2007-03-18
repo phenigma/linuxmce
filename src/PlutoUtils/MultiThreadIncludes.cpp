@@ -69,16 +69,35 @@ int MutexTracking::AddToMap(int LockNum,PlutoLock *pPlutoLock)
 {
 	MutexTracking *pMutexTracking = MutexTracking::GetInstance();
 	(*pMutexTracking->m_p_mapLocks)[LockNum] = pPlutoLock;
-	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::AddToMap %p %d",  m_pMutexTracking,LockNum);
+
+string sAllLocks;
+for(map<int,PlutoLock *>::iterator itMapLock2=MutexTracking::GetMap()->begin();itMapLock2!=MutexTracking::GetMap()->end();itMapLock2++)
+{
+PlutoLock *pSafetyLock = itMapLock2->second;
+sAllLocks += StringUtils::itos(itMapLock2->first) + "/" + StringUtils::itos(pSafetyLock->m_LockNum) + " ";
+}
+
+	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::AddToMap (%p) %p (>%d) size: %d inst %p all: %s", 
+		&pPlutoLock->m_pMyLock->mutex, m_pMutexTracking,LockNum,(int) (*pMutexTracking->m_p_mapLocks).size(), pMutexTracking,sAllLocks.c_str());
 	return 0;
 }
 
-int MutexTracking::RemoveFromMap(int LockNum)
+int MutexTracking::RemoveFromMap(int LockNum,PlutoLock *pPlutoLock)
 {
 	MutexTracking *pMutexTracking = MutexTracking::GetInstance();
 
 	map<int,PlutoLock *>::iterator itMapLock = (*pMutexTracking->m_p_mapLocks).find(LockNum);
-	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::RemoveFromMap %p %d %s",m_pMutexTracking,LockNum,(itMapLock==(*pMutexTracking->m_p_mapLocks).end() ? "****FAIL****" : ""));
+
+string sAllLocks;
+for(map<int,PlutoLock *>::iterator itMapLock2=MutexTracking::GetMap()->begin();itMapLock2!=MutexTracking::GetMap()->end();itMapLock2++)
+{
+PlutoLock *pSafetyLock = itMapLock2->second;
+sAllLocks += StringUtils::itos(itMapLock2->first) + "/" + StringUtils::itos(pSafetyLock->m_LockNum) + " ";
+}
+
+	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::RemoveFromMap (%p) %p (>%d) %s size: %d inst %p all: %s",
+		&pPlutoLock->m_pMyLock->mutex, m_pMutexTracking,LockNum,(itMapLock==(*pMutexTracking->m_p_mapLocks).end() ? "****FAIL****" : ""),
+		(int) (*pMutexTracking->m_p_mapLocks).size(), pMutexTracking,sAllLocks.c_str());
 	if( itMapLock==(*pMutexTracking->m_p_mapLocks).end() )
 		return -1;
 
@@ -152,7 +171,7 @@ PlutoLock::~PlutoLock()
 	{
 		MutexTracking::Lock();
 		int size1 = MutexTracking::GetSize();
-		if( MutexTracking::RemoveFromMap(m_LockNum)!=0 )
+		if( MutexTracking::RemoveFromMap(m_LockNum,this)!=0 )
 		{
 			MutexTracking::UnLock();
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot find self in maplock! (%p) (>%d) %s: %s:%d %s", 
@@ -915,4 +934,22 @@ void valid_timespec(struct timespec &ts)
 		ts.tv_sec += ts.tv_nsec / (1000 * 1000000);
 		ts.tv_nsec = ts.tv_nsec % (1000 * 1000000);
 	}
+}
+
+pluto_pthread_mutex_t MutexTracking::m_MutexForGetInstance("MutexTracking::GetInstance");  // Used just once so there's only one instance
+
+MutexTracking *MutexTracking::GetInstance()
+{
+	if( m_pMutexTracking==NULL )
+	{
+		pthread_mutex_lock(&m_MutexForGetInstance.mutex);
+		if( m_pMutexTracking==NULL )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"create mutex trackign");
+			m_pMutexTracking = new MutexTracking();
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"created mutex tracking %p",m_pMutexTracking);
+		}
+		pthread_mutex_unlock(&m_MutexForGetInstance.mutex);
+	}
+	return m_pMutexTracking;
 }

@@ -153,6 +153,8 @@ class MutexTracking
 private:
 	int m_iNextLock;  // A counter to keep track of locks
 
+	static pluto_pthread_mutex_t m_MutexForGetInstance;  // Used just once so there's only one instance
+
 	// Make this a pointer, rather than an instance.  When it's an instance, sometimes when the app
 	// exits it destroys it before all the threads using it have died
 	map<int,PlutoLock *> *m_p_mapLocks;
@@ -161,12 +163,7 @@ private:
 
 	static MutexTracking *m_pMutexTracking;
 
-	static MutexTracking *GetInstance()
-	{
-		if( m_pMutexTracking==NULL )
-			m_pMutexTracking = new MutexTracking();
-		return m_pMutexTracking;
-	}
+	static MutexTracking *GetInstance();
 
 public:
 
@@ -192,7 +189,7 @@ public:
 	}
 
 	static int AddToMap(int LockNum,PlutoLock *pPlutoLock);
-	static int RemoveFromMap(int LockNum);
+	static int RemoveFromMap(int LockNum,PlutoLock *pPlutoLock);
 
 	static int GetSize()
 	{
