@@ -24,13 +24,14 @@
 
 #include "Gen_Devices/Powerfile_C200Base.h"
 //<-dceag-d-e->
-
+#ifdef NOTDEF
 #include "Disk_Drive_Functions/Disk_Drive_Functions.h"
 #include <JobHandler/Job.h>
 #include <JobHandler/Task.h>
 #include "Media_Plugin/MediaAttributes_LowLevel.h"
-#include <vector>
 using namespace nsJobHandler;
+#endif
+#include <vector>
 class Database_pluto_media;
 class MediaAttributes_LowLevel;
 class Row_Disc;
@@ -326,6 +327,7 @@ only slots that were scheduled for ripping will appear in the string */
 
 
 //<-dceag-h-e->
+#ifdef NOTDEF
 		private:
 			// corresponding devices
 			vector<pair<string, string> > m_vectDrive; // first: /dev/sr0 (disc), second: /dev/sg1 (generic SCSI)
@@ -352,13 +354,14 @@ only slots that were scheduled for ripping will appear in the string */
 		private:
 			void ReleaseDrive(int iDrive_Number, int iSlot);
 			void ReleaseDrive_NoMutex(int iDrive_Number, int iSlot);
+#endif
 	};
 
 //<-dceag-end-b->
 }
 #endif
 //<-dceag-end-e->
-
+/*
 namespace DCE
 {
 	class Powerfile_Job : public Job
@@ -421,3 +424,4 @@ namespace DCE
 			void Run();
 	};
 }
+	*/

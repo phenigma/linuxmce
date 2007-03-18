@@ -55,7 +55,9 @@ namespace nsJobHandler
 Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Powerfile_C200_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+#ifdef NOTDEF
 	, m_bStatusCached(false), m_pJob(NULL), m_DriveMutex("Powerfile drive mutex", true), m_bMtxAltres(false)
+#endif
 {
     m_pDatabase_pluto_media = NULL;
 	m_pMediaAttributes_LowLevel = NULL;
@@ -67,9 +69,11 @@ Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectE
 Powerfile_C200::~Powerfile_C200()
 //<-dceag-dest-e->
 {
+#ifdef NOTDEF
 	for (size_t i = 0; i < m_vectDDF.size(); i++)
 		delete m_vectDDF[i];
 	delete m_pDatabase_pluto_media;
+#endif
 }
 
 // Call Tokenize directly if you don't need to strip out eventual empty fields
@@ -87,9 +91,11 @@ static void ExtractFields(string &sRow, vector<string> &vect_sResult, const char
 		vect_sResult.push_back(vect_sFields[i]);
 	}
 }
+#ifdef NOTDEF
 
 bool Powerfile_C200::RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo)
 {
+/*
 	int iDrive_Number = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Drive_Number_CONST].c_str());
 	int iResult = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str());
 	int iPK_Device = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
@@ -130,7 +136,7 @@ bool Powerfile_C200::RippingProgress(class Socket *pSocket, class Message *pMess
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ripping progress for drive number %d, result '%s'", iDrive_Number, iResult == RIP_RESULT_SUCCESS ? "success" : "fail");
 		m_pJob->RippingProgress_End(iDrive_Number, iResult);
 	}
-	
+*/	
 	return false;
 }
 
@@ -147,6 +153,7 @@ Disk_Drive_Functions * Powerfile_C200::GetDDF(int iDrive_Number)
 
 bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 {
+	/*
 	bool bComma = false, bResult = false;
 	string sOutput;
 	if (sJukebox_Status)
@@ -266,9 +273,10 @@ bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished getting device status");
 		bResult = true;
 	}
-
+*/
 	return bResult;
 }
+#endif
 
 //<-dceag-getconfig-b->
 bool Powerfile_C200::GetConfig()
@@ -277,6 +285,7 @@ bool Powerfile_C200::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 //m_sIPAddress = ;  // todo
+#ifdef NOTDEF
     m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
 	// TODO: the connection data is stored in pluto.conf; use it
     if (!m_pDatabase_pluto_media->Connect("dcerouter", "root", "", "pluto_media", 3306))
@@ -378,7 +387,7 @@ bool Powerfile_C200::GetConfig()
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::RippingProgress), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST);
 	
 	m_pJob = new Powerfile_Job("Powerfile job", this);
-
+#endif
 	return true;
 }
 
@@ -446,6 +455,7 @@ void Powerfile_C200::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c701-e->
 {
+#ifdef NOTDEF
 	PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc from slot %d into drive %d", iSlot_Number, iDrive_Number);
 #ifdef EMULATE_PF
@@ -523,6 +533,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Loading disc failed");
 		}
 	}
+#endif
 }
 
 //<-dceag-c702-b->
@@ -537,6 +548,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c702-e->
 {
+#ifdef NOTDEF
 	PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc from drive %d into slot %d", iDrive_Number, iSlot_Number);
 #ifdef EMULATE_PF
@@ -601,6 +613,7 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc failed");
 		}
 	}
+#endif
 }
 
 //<-dceag-c703-b->
@@ -618,6 +631,7 @@ where:
 void Powerfile_C200::CMD_Get_Jukebox_Status(string sForce,string *sJukebox_Status,string &sCMD_Result,Message *pMessage)
 //<-dceag-c703-e->
 {
+#ifdef NOTDEF
 	bool bForce = sForce.size() != 0;
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting jukebox status");
@@ -627,6 +641,7 @@ void Powerfile_C200::CMD_Get_Jukebox_Status(string sForce,string *sJukebox_Statu
 	{
 		sCMD_Result = "OK";
 	}
+#endif
 
 }
 //<-dceag-c45-b->
@@ -661,6 +676,7 @@ Powerfile: 0, 1, ... */
 void Powerfile_C200::CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c47-e->
 {
+#ifdef NOTDEF
 	Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
 	if (pDDF)
 	{
@@ -670,6 +686,7 @@ void Powerfile_C200::CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,
 
 		pDDF->internal_reset_drive(true);
 	}
+#endif
 }
 
 //<-dceag-c48-b->
@@ -684,11 +701,13 @@ Powerfile: 0, 1, ... */
 void Powerfile_C200::CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
+#ifdef NOTDEF
 	Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
 	if (pDDF)
 	{
 		// put disc back in origin slot
 	}
+#endif
 }
 
 //<-dceag-c49-b->
@@ -807,11 +826,13 @@ Powerfile: 0, 1, ... */
 void Powerfile_C200::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
+#ifdef NOTDEF
 	Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
 	if (pDDF)
 	{
 		pDDF->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, iDrive_Number, sCMD_Result, pMessage);
 	}
+#endif
 }
 //<-dceag-c720-b->
 
@@ -831,6 +852,7 @@ If this parameter starts with a "/" it is considered absolute.  Otherwise it is 
 void Powerfile_C200::CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,string sDisks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c720-e->
 {
+#ifdef NOTDEF
 	size_t i;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Bulk_Rip; sDisks='%s'", sDisks.c_str());
 
@@ -891,6 +913,7 @@ void Powerfile_C200::CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,
 			break;
 	}
 	sCMD_Result = "OK";
+#endif
 }
 //<-dceag-c738-b->
 
@@ -921,12 +944,14 @@ only slots that were scheduled for ripping will appear in the string */
 void Powerfile_C200::CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string &sCMD_Result,Message *pMessage)
 //<-dceag-c739-e->
 {
+#ifdef NOTDEF
 #ifdef EMULATE_PF
 	* sBulk_rip_status = "S1-F~S2-S~S3-R~S4-N";
 #else
 	* sBulk_rip_status = m_pJob->ToString();
 #endif
 	sCMD_Result = "OK";
+#endif
 }
 //<-dceag-c740-b->
 
@@ -938,6 +963,7 @@ void Powerfile_C200::CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string
 void Powerfile_C200::CMD_Mass_identify_media(string sDisks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c740-e->
 {
+#ifdef NOTDEF
 	size_t i;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Mass_identify_media: sDisks: %s", sDisks.c_str());
 
@@ -992,8 +1018,9 @@ void Powerfile_C200::CMD_Mass_identify_media(string sDisks,string &sCMD_Result,M
 		else
 			break;
 	}
+#endif
 }
-
+#ifdef NOTDEF
 int Powerfile_C200::GetFreeDrive(int iSlot)
 {
 	PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
@@ -1400,7 +1427,7 @@ void Powerfile_Job::Remove_PowerfileTask_Slot(int iSlot)
 	}
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Slot %d not found in task list!", iSlot);
 }
-
+#endif
 //<-dceag-c742-b->
 
 	/** @brief COMMAND: #742 - Media Identified */
@@ -1423,7 +1450,7 @@ void Powerfile_Job::Remove_PowerfileTask_Slot(int iSlot)
 void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
-
+#ifdef NOTDEF
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media Identified. Slot '%s', Format: '%s', MRL: '%s', PK_Device: '%d', Value: '%s'",
 		sID.c_str(), sFormat.c_str(), sMediaURL.c_str(), iPK_Device, sValue_To_Assign.c_str());
 
@@ -1471,6 +1498,7 @@ void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign
 	}
 	*/
 	m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
+#endif
 }
 //<-dceag-c743-b->
 
@@ -1482,6 +1510,8 @@ void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign
 void Powerfile_C200::CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c743-e->
 {
+#ifdef NOTDEF
 	m_pJob->Remove_PowerfileTask_Slot(iSlot_Number);
+#endif
 	sCMD_Result = "OK";
 }

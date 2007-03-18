@@ -24,13 +24,14 @@ LDFLAGS +=
 XTRALDLIBS = -lpluto_media -lpluto_main -lid3 -lattr -lDisk_Drive_Functions
 
 Gen_Dev_Files +=
-sources += ../JobHandler/Job.cpp \
-	../JobHandler/Task.cpp \
-	../Media_Plugin/MediaAttributes_LowLevel.cpp \
-	../UpdateMedia/PlutoMediaFile.cpp \
-	../UpdateMedia/id3info/id3info.cpp \
-	../UpdateMedia/MediaIdentifier.cpp \
-	../UpdateMedia/PlutoMediaAttributes.cpp	
+sources += 
+#../JobHandler/Job.cpp \
+#	../JobHandler/Task.cpp \
+#	../Media_Plugin/MediaAttributes_LowLevel.cpp \
+#	../UpdateMedia/PlutoMediaFile.cpp \
+#	../UpdateMedia/id3info/id3info.cpp \
+#	../UpdateMedia/MediaIdentifier.cpp \
+#	../UpdateMedia/PlutoMediaAttributes.cpp	
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
