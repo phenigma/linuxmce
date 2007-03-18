@@ -489,9 +489,6 @@ void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,str
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Media_Identified disc is %d",*iEK_Disc);
 	if( *iEK_Disc )
 	{
-		DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
-			BL_SameHouse,m_dwPK_Device,StringUtils::itos(*iEK_Disc));
-		SendCommand(CMD_Report_Discs_in_Drive_DT);
 
 	}
 }

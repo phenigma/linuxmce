@@ -24,7 +24,7 @@ LDFLAGS +=
 XTRALDLIBS = -lcddb -lDisk_Drive_Functions -lpluto_media
 
 Gen_Dev_Files +=
-sources +=
+sources += ../JobHandler/Job.cpp ../JobHandler/JobHandler.cpp ../JobHandler/Task.cpp
 
 #<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
