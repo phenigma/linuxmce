@@ -35,7 +35,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "MeshPainter.h"
 #include "DCE/Logger.h"
 
-//#define DEBUG_MESH_FRAMES
+#define DEBUG_MESH_FRAMES
 
 MeshFrame::MeshFrame(string Name, MeshContainer* Mesh) 
 	: 
@@ -50,7 +50,7 @@ MeshFrame::MeshFrame(string Name, MeshContainer* Mesh)
 	m_sName = Name;
 
 #if defined(DEBUG_MESH_FRAMES)
-	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "aaa MeshFrame constructor %p/%s", this, m_sName.c_str());
+	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame constructor %p/%s", this, m_sName.c_str());
 #endif
 
 #if defined(DETECT_LEAKS)
@@ -65,7 +65,7 @@ MeshFrame::~MeshFrame(void)
 {
 #ifdef DEBUG_MESH_FRAMES
 	if(m_bDontReleaseTexture)
-		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Not releasing texture for %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame:Dtor Not releasing texture for %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
 #endif
 
 	if(IsVolatile() && NULL != m_pMeshContainer && !m_bDontReleaseTexture)
@@ -78,7 +78,7 @@ MeshFrame::~MeshFrame(void)
 		TextureManager::Instance()->InvalidateItem(this);
 
 #if defined(DEBUG_MESH_FRAMES)
-	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "aaa MeshFrame destructor %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
+	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame destructor %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
 #endif
 
 #if defined(DETECT_LEAKS)
@@ -235,7 +235,7 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 			*Child = NewFrame;
 
 #ifdef DEBUG_MESH_FRAMES
-			DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "ttt MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
+			DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::ReplaceChild %p/%s from parent %p/%s with %p/%s", 
 				OldFrame, OldFrame->m_sName.c_str(), OldFrame->m_pParent, OldFrame->m_pParent->m_sName.c_str(),
 				NewFrame, NewFrame->m_sName.c_str());
 #endif
