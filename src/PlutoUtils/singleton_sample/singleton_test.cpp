@@ -15,7 +15,7 @@ public:
 	void DoSomethingFromThread() { cout << "Thread: I'm doin' something" << endl; }
 };
 
-typedef Singleton<MyClassImpl, CreateUsingNew<MyClassImpl>, DefaultLifetime, MultiThreaded> MyClass; //not safe threaded
+typedef Singleton<MyClassImpl, CreateUsingNew<MyClassImpl>, DefaultLifetime, MultiThreaded> MyClass; //safe threaded
 
 void *MyThread(void *)
 {
