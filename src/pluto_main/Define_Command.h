@@ -752,7 +752,6 @@
 #define COMMAND_Get_Remote_ID_CONST 829
 #define COMMAND_Set_Active_Remote_CONST 830
 #define COMMAND_Refresh_List_of_Online_Devices_CONST 831
-#define COMMAND_Report_Discs_in_Drive_CONST 832
 #define COMMAND_Get_User_Name_CONST 833
 #define COMMAND_Execute_Shortcut_CONST 834
 #define COMMAND_Get_Network_Devices_Shares_CONST 835
