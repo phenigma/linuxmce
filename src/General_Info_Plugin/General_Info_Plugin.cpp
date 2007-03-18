@@ -162,7 +162,6 @@ General_Info_Plugin::~General_Info_Plugin()
 bool General_Info_Plugin::Register()
 //<-dceag-reg-e->
 {
-	return Connect(PK_DeviceTemplate_get()); 
     // Get the datagrid plugin
 	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
