@@ -36,17 +36,29 @@ JobHandler::~JobHandler()
 	StopThread();
 }
 
-void JobHandler::AbortAllJobs()
+bool JobHandler::AbortAllJobs()
 {
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+	bool bAbortedOk=true;
 	for(list<Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
-		 (*it)->Abort();
+	{
+		Job *pJob = *it;
+		if( !pJob->Abort() )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"JobHandler::AbortAllJobs cannot abort %s", pJob->m_sName.c_str());
+			bAbortedOk=false;
+		}
+	}
 
 	BroadcastCond();
+	return bAbortedOk;
 }
 
 bool JobHandler::WaitForJobsToFinish(bool bAbort,int iSeconds)
 {
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::WaitForJobsToFinish");
+#endif
 	if( bAbort )
 		AbortAllJobs();
 
@@ -56,10 +68,18 @@ bool JobHandler::WaitForJobsToFinish(bool bAbort,int iSeconds)
 		PurgeCompletedJobs();
 
 		if( HasJobs()==false )
+		{
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::WaitForJobsToFinish COMPLETED OK");
+#endif
 			return true;
+		}
 
 		if( tTimeout<=time(NULL) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"JobHandler::WaitForJobsToFinish failed to complete");
 			return false;  // Jobs failed to end in designated amount of time
+		}
 
 		Sleep(500); // Wait 1/2 second and check again
 	}
@@ -80,6 +100,7 @@ void JobHandler::PurgeCompletedJobs()
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::PurgeCompletedJobs purge job %d %s status %d",
 				pJob->m_iID_get(),pJob->m_sName_get().c_str(),(int) pJob->m_eJobStatus_get());
 #endif
+			pJob->StopThread(5);  // Job should immediately, but give it 5 seconds to be sure
 			m_listJob.erase(it++);
 		}
 		else
@@ -132,6 +153,9 @@ void JobHandler::Run()
 		for(list<class Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
 		{
 			Job *pJob = *it;
+			if( pJob->m_eJobStatus_get()!=Job::job_WaitingToStart )
+				continue;
+
 			if( pJob->ReadyToRun() )
 				pJob->StartThread();
 

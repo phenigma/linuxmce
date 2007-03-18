@@ -45,6 +45,7 @@ namespace nsJobHandler
 
 	protected:
 		friend class Task;
+		friend class JobHandler;
 
 		string m_sName;
 		int m_iID;
@@ -67,10 +68,11 @@ namespace nsJobHandler
 		time_t m_tNextRunAttempt_get() { return m_tNextRunAttempt; }
 
 		int PendingTasks();
-		void Abort();
+		bool Abort();
 
 		void SetMaxTasks(int MaxTasks) { m_iMaxTasks=MaxTasks; }
 		virtual bool StartThread();
+		virtual bool StopThread(int iTimeout);
 		virtual bool ReadyToRun() { return true; }
 
 		enum JobStatus m_eJobStatus_get() { return m_eJobStatus; }

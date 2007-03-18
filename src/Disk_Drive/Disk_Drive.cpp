@@ -223,6 +223,7 @@ Powerfile: 0, 1, ... */
 void Disk_Drive::CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c47-e->
 {
+	PLUTO_SAFETY_LOCK(dm,m_pDisk_Drive_Functions->m_DiskMutex);
 	m_pDisk_Drive_Functions->m_mediaInserted = false;
 	m_pDisk_Drive_Functions->m_mediaDiskStatus = DISCTYPE_NONE;
 	m_pDisk_Drive_Functions->DisplayMessageOnOrbVFD("Checking disc...");
@@ -438,6 +439,8 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string s
 //<-dceag-c337-e->
 {
 	m_pDisk_Drive_Functions->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, iDrive_Number, sCMD_Result, pMessage);
+Sleep(1000);
+int k=2;
 }
 //<-dceag-c817-b->
 
@@ -489,6 +492,11 @@ void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,str
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Media_Identified disc is %d",*iEK_Disc);
 	if( *iEK_Disc )
 	{
-		m_pDisk_Drive_Functions->UpdateDiscLocation('M',*iEK_Disc,0);
+		char cMediaType='M'; // The default
+		if( iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+			cMediaType='c';
+		else if( iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+			cMediaType='d';
+		m_pDisk_Drive_Functions->UpdateDiscLocation(cMediaType,*iEK_Disc,0);
 	}
 }

@@ -35,6 +35,9 @@ namespace nsJobHandler
 
 	class Task
 	{
+		friend class Job;
+		TaskStatus m_eTaskStatus;
+
 	protected:
 		string m_sName;
 		class Job *m_pJob;
@@ -42,7 +45,6 @@ namespace nsJobHandler
 	public:
 		string m_sResult;
 
-		TaskStatus m_eTaskStatus;
 		Task(Job *pJob,string sName);
 
 		bool Abort();
@@ -50,6 +52,13 @@ namespace nsJobHandler
 		virtual string ToString() { return m_sName; }
 		virtual string Type() { return "Unknown Task"; }  // Should override
 		virtual int Run()=0;  // Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms
+		TaskStatus m_eTaskStatus_get() { return m_eTaskStatus; }
+		void m_eTaskStatus_set(TaskStatus taskStatus) 
+		{ 
+			if( taskStatus==TASK_IN_PROGRESS && m_eTaskStatus!=TASK_NOT_STARTED )
+				int k=2;
+			m_eTaskStatus=taskStatus;
+		}
 	};
 };
 

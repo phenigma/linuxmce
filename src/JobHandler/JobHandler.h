@@ -58,7 +58,7 @@ namespace nsJobHandler
 		JobHandler();
 		virtual ~JobHandler();
 
-		void AbortAllJobs();
+		bool AbortAllJobs();
 		void PurgeCompletedJobs();
 		bool WaitForJobsToFinish(bool bAbort=true,int iSeconds=5);  // By default abort and wait 5 seconds for jobs to finish
 

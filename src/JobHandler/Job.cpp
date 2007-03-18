@@ -24,6 +24,7 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
+using namespace DCE;
 using namespace nsJobHandler;
 
 int Job::m_NextJobID=0;
@@ -45,13 +46,26 @@ Job::~Job()
 }
 
 // cancel all tasks in this job
-void Job::Abort()
+bool Job::Abort()
 {
 	m_bQuit=true;
+	if( m_eJobStatus==job_Aborted )
+		return true;
+	bool bAbortedOk=true;
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 
 	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
-		(*it)->Abort();
+	{
+		Task *pTask = *it;
+		if( !pTask->Abort() )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Job::Abort %s cannot abort task %s", m_sName.c_str(), pTask->m_sName.c_str());
+			bAbortedOk=false;
+		}
+	}
+	if( m_eJobStatus==job_WaitingToStart || m_eJobStatus==job_InProgress )
+		m_eJobStatus=job_Aborted;
+	return bAbortedOk;
 }
 
 // return a task that was not started yet
@@ -61,9 +75,9 @@ Task *Job::GetNextTask()
 	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
 	{
 		Task *pTask = *it;
-		if (pTask->m_eTaskStatus == TASK_NOT_STARTED || pTask->m_eTaskStatus == TASK_IN_PROGRESS )
+		if (pTask->m_eTaskStatus_get() == TASK_NOT_STARTED || pTask->m_eTaskStatus_get() == TASK_IN_PROGRESS )
 			return pTask;
-		if (pTask->m_eTaskStatus == TASK_FAILED )
+		if (pTask->m_eTaskStatus_get() == TASK_FAILED )
 			return NULL;  // Don't continue if this task failed
 	}
 	return NULL;
@@ -83,7 +97,7 @@ int Job::PendingTasks()
 	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
 	{
 		Task *pTask = *it;
-		int eTaskStatus = pTask->m_eTaskStatus;
+		int eTaskStatus = pTask->m_eTaskStatus_get();
 		if (eTaskStatus == TASK_NOT_STARTED || eTaskStatus == TASK_IN_PROGRESS)
 			Tasks++;
 	}
@@ -96,18 +110,28 @@ bool Job::StartThread()
 	return ThreadedClass::StartThread();
 }
 
+bool Job::StopThread(int iTimeout)
+{
+	if( !Abort() )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Job::StopThread %s cannot abort tasks", m_sName.c_str());
+		return false;
+	}
+	return ThreadedClass::StopThread();
+}
+
 // run each task
 void Job::Run()
 {
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	Task * pTask;
-	while (pTask = GetNextTask())
+	while (m_bQuit==false && (pTask = GetNextTask())!=NULL)
 	{
 		jm.Release();
-		pTask->m_eTaskStatus=TASK_IN_PROGRESS;
+		pTask->m_eTaskStatus_set(TASK_IN_PROGRESS);
 		int iResult = pTask->Run();
-		if( iResult==0 && pTask->m_eTaskStatus==TASK_IN_PROGRESS )
-			pTask->m_eTaskStatus=TASK_COMPLETED;
+		if( iResult==0 && pTask->m_eTaskStatus_get()==TASK_IN_PROGRESS )
+			pTask->m_eTaskStatus_set(TASK_COMPLETED);
 		else if( iResult )
 		{
 			int iSeconds = iResult / 1000;

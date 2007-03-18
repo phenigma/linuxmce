@@ -83,7 +83,7 @@ class Disk_Drive_Functions
 
 	private:
 		Command_Impl * m_pCommand_Impl;
-	    pluto_pthread_mutex_t m_DiskMutex;
+	    pthread_mutexattr_t m_ThreadAttribute;
 		bool m_bNbdServerRunning;
 		DeviceData_Base *m_pDevice_MediaIdentifier;
 		JobHandler *m_pJobHandler;
@@ -94,6 +94,8 @@ class Disk_Drive_Functions
 		void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc);
 		
 	public:
+	    pluto_pthread_mutex_t m_DiskMutex;
+
 		Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel);
 		~Disk_Drive_Functions();
 		bool internal_monitor_step(bool bFireEvent);

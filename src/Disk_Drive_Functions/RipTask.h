@@ -31,6 +31,7 @@ namespace nsJobHandler
 
 	public:
 		RipTask(class RipJob *pRipJob,string sName,int iTrack);
+		virtual ~RipTask() {}
 
 		virtual int Run();  // Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms
 		int RunAlreadySpawned(); // Called by Run if we've already spawned the ripping process

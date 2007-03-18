@@ -50,7 +50,10 @@ Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const s
 	m_pDatabase_pluto_media=pDatabase_pluto_media;
 	m_pMediaAttributes_LowLevel=pMediaAttributes_LowLevel;
 	m_bNbdServerRunning=false;
-	m_DiskMutex.Init(NULL);
+
+    pthread_mutexattr_init( &m_ThreadAttribute );
+    pthread_mutexattr_settype( &m_ThreadAttribute, PTHREAD_MUTEX_RECURSIVE_NP );
+	m_DiskMutex.Init(&m_ThreadAttribute);
 	m_pDevice_MediaIdentifier = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Identifiers_CONST,m_pCommand_Impl);
 	if( !m_pDevice_MediaIdentifier )
 	{
@@ -82,6 +85,7 @@ void Disk_Drive_Functions::EVENT_Ripping_Progress(string sText, int iResult, str
 
 bool Disk_Drive_Functions::internal_monitor_step(bool bFireEvent)
 {
+	PLUTO_SAFETY_LOCK(dm,m_DiskMutex);
 	if ( ! internal_reset_drive(bFireEvent) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Monitor drive returned false.");

@@ -5,7 +5,7 @@ CXX = g++
 CXXFLAGS = -W -Wall -fPIC -ggdb3
 CPPFLAGS = -I. -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS = lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -lpluto_media 
+LDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -lpluto_media 
 MYNAME = Disk_Drive_Functions
 
 sources = Disk_Drive_Functions.cpp RipTask.cpp RipJob.cpp

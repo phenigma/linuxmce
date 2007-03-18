@@ -41,7 +41,7 @@ namespace nsJobHandler
 			JukeBox *pJukeBox,
 			int iPK_Users, int iEK_Disc, int iDrive_Number,
 			string sFormat, string sFileName, string sTracks);
-		~RipJob() {};
+		virtual ~RipJob() {};
 
 		virtual bool ReadyToRun();
 		void AddRippingTasks();

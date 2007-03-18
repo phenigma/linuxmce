@@ -35,5 +35,10 @@ Task::Task(Job *pJob,string sName)
 
 bool Task::Abort()
 {
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Task::Abort abort task %s", m_sName.c_str());
+#endif
+	if( m_eTaskStatus_get()==TASK_IN_PROGRESS || m_eTaskStatus_get()==TASK_NOT_STARTED)
+		m_eTaskStatus_set(TASK_CANCELED);
 	return true;
 }
