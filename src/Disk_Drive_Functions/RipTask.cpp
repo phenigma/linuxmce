@@ -92,14 +92,15 @@ Message *pMessage=NULL; // ?? what's this again
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Launching ripping job2 with name \"%s\" for disk with type \"%d\" parms %s", 
 		m_sName.c_str(), pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus, strParameters.c_str());
 
-	string sResultMessage =
+	string sResultMessage;
+	/*=
 		StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) + " " + StringUtils::itos(DEVICEID_EVENTMANAGER) + " " + StringUtils::itos(MESSAGETYPE_EVENT) + 
 			" " + StringUtils::itos(EVENT_Ripping_Progress_CONST) + " " + StringUtils::itos(EVENTPARAMETER_EK_Disc_CONST) + " " + StringUtils::itos(pRipJob->m_iEK_Disc) +
 			" " + StringUtils::itos(EVENTPARAMETER_Name_CONST) + " \"" + m_sName + "\" " +
 			StringUtils::itos(EVENTPARAMETER_Drive_Number_CONST) + " " + StringUtils::itos(pRipJob->m_iDrive_Number) + " " +
 			StringUtils::itos(EVENTPARAMETER_PK_Device_CONST) + " " + StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) + " " +
 			StringUtils::itos(EVENTPARAMETER_Result_CONST) + " ";
-
+*/
 	DCE::CMD_Spawn_Application
 		spawnApplication(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device,
 						pRipJob->m_pDisk_Drive_Functions->m_pDevice_AppServer->m_dwPK_Device,

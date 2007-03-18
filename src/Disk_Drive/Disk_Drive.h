@@ -76,7 +76,6 @@ public:
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
-	void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc,string sDrive_Number);
 
 			*****COMMANDS***** we need to implement
 	*/

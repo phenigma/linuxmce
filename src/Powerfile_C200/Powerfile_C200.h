@@ -79,7 +79,6 @@ public:
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
-	void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc,string sDrive_Number);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -190,23 +189,25 @@ Powerfile: 0, 1, ... */
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #13 Filename */
+			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #17 PK_Users */
 			/** The user who needs this rip in his private area. */
 		/** @param #20 Format */
 			/** wav, flac, ogg, etc. */
-		/** @param #50 Name */
-			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 		/** @param #131 EK_Disc */
-			/** The ID of the disc to rip */
-		/** @param #152 Drive Number */
-			/** Disc unit index number
-Disk_Drive: 0
-Powerfile: 0, 1, ... */
+			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
+		/** @param #151 Slot Number */
+			/** The slot if this is a jukebox */
+		/** @param #233 DriveID */
+			/** The ID of the storage drive. Can be the ID of the core. */
+		/** @param #234 Directory */
+			/** The relative directory for the file to rip */
 
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory) { string sCMD_Result; CMD_Rip_Disk(sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDriveID,sDirectory.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #701 - Load from Slot into Drive */
@@ -297,7 +298,7 @@ only slots that were scheduled for ripping will appear in the string */
 
 
 	/** @brief COMMAND: #742 - Media Identified */
-	/** A disc has been ID's */
+	/** Media has been identified */
 		/** @param #2 PK_Device */
 			/** The disk drive */
 		/** @param #5 Value To Assign */
@@ -308,13 +309,17 @@ only slots that were scheduled for ripping will appear in the string */
 			/** The picture/cover art */
 		/** @param #20 Format */
 			/** The format of the data */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
 		/** @param #59 MediaURL */
 			/** The URL for the disc drive */
+		/** @param #131 EK_Disc */
+			/** If a disc was added accordingly, this reports the disc id */
 		/** @param #193 URL */
 			/** The URL for the picture */
 
-	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL) { string sCMD_Result; CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sURL.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc) { string sCMD_Result; CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),iPK_MediaType,sMediaURL.c_str(),sURL.c_str(),iEK_Disc,sCMD_Result,NULL);};
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #743 - Cancel Pending Task */
@@ -325,6 +330,41 @@ only slots that were scheduled for ripping will appear in the string */
 	virtual void CMD_Cancel_Pending_Task(int iSlot_Number) { string sCMD_Result; CMD_Cancel_Pending_Task(iSlot_Number,sCMD_Result,NULL);};
 	virtual void CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #817 - Get Default Ripping Info */
+	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
+		/** @param #13 Filename */
+			/** Default ripping name. */
+		/** @param #131 EK_Disc */
+			/** The disc to rip.  If not specified, it will be whatever is playing in the entertainment area that sent this */
+		/** @param #219 Path */
+			/** Base path for ripping. */
+		/** @param #233 DriveID */
+			/** The id of the storage device with most free space. */
+		/** @param #235 Storage Device Name */
+			/** The name of the storage device with most free space. */
+
+	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name) { string sCMD_Result; CMD_Get_Default_Ripping_Info(iEK_Disc,sFilename,sPath,iDriveID,sStorage_Device_Name,sCMD_Result,NULL);};
+	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #871 - Update Ripping Status */
+	/** Update the status of a ripping job */
+		/** @param #13 Filename */
+			/** The filename being ripped */
+		/** @param #102 Time */
+			/** How much longer in seconds it will take */
+		/** @param #199 Status */
+			/** The status: [p] in progress, [e]rror, [s]uccess */
+		/** @param #256 Percent */
+			/** The percentage of completion */
+		/** @param #257 Task */
+			/** The task id */
+		/** @param #258 Job */
+			/** The job id */
+
+	virtual void CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob) { string sCMD_Result; CMD_Update_Ripping_Status(sFilename.c_str(),sTime.c_str(),sStatus.c_str(),iPercent,sTask.c_str(),sJob.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 #ifdef NOTDEF

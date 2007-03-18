@@ -427,12 +427,14 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 void Powerfile_C200::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 //<-dceag-cmduk-e->
 {
+#ifdef NOTDEF
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unknown command: type %d, id %d", pMessage->m_dwMessage_Type, pMessage->m_dwID);
 	if (pMessage->m_dwMessage_Type == MESSAGETYPE_EVENT && pMessage->m_dwID == EVENT_Ripping_Progress_CONST)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received event Ripping_Progress as unknown command");
 	}
 	sCMD_Result = "UNKNOWN DEVICE";
+#endif
 }
 
 //<-dceag-sample-b->!
@@ -808,22 +810,24 @@ void Powerfile_C200::CMD_Close_Tray(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #13 Filename */
+			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #17 PK_Users */
 			/** The user who needs this rip in his private area. */
 		/** @param #20 Format */
 			/** wav, flac, ogg, etc. */
-		/** @param #50 Name */
-			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 		/** @param #131 EK_Disc */
-			/** The ID of the disc to rip */
-		/** @param #152 Drive Number */
-			/** Disc unit index number
-Disk_Drive: 0
-Powerfile: 0, 1, ... */
+			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
+		/** @param #151 Slot Number */
+			/** The slot if this is a jukebox */
+		/** @param #233 DriveID */
+			/** The ID of the storage drive. Can be the ID of the core. */
+		/** @param #234 Directory */
+			/** The relative directory for the file to rip */
 
-void Powerfile_C200::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 #ifdef NOTDEF
@@ -1431,7 +1435,7 @@ void Powerfile_Job::Remove_PowerfileTask_Slot(int iSlot)
 //<-dceag-c742-b->
 
 	/** @brief COMMAND: #742 - Media Identified */
-	/** A disc has been ID's */
+	/** Media has been identified */
 		/** @param #2 PK_Device */
 			/** The disk drive */
 		/** @param #5 Value To Assign */
@@ -1442,12 +1446,16 @@ void Powerfile_Job::Remove_PowerfileTask_Slot(int iSlot)
 			/** The picture/cover art */
 		/** @param #20 Format */
 			/** The format of the data */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
 		/** @param #59 MediaURL */
 			/** The URL for the disc drive */
+		/** @param #131 EK_Disc */
+			/** If a disc was added accordingly, this reports the disc id */
 		/** @param #193 URL */
 			/** The URL for the picture */
 
-void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
 #ifdef NOTDEF
@@ -1514,4 +1522,45 @@ void Powerfile_C200::CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Resul
 	m_pJob->Remove_PowerfileTask_Slot(iSlot_Number);
 #endif
 	sCMD_Result = "OK";
+}
+//<-dceag-c817-b->
+
+	/** @brief COMMAND: #817 - Get Default Ripping Info */
+	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
+		/** @param #13 Filename */
+			/** Default ripping name. */
+		/** @param #131 EK_Disc */
+			/** The disc to rip.  If not specified, it will be whatever is playing in the entertainment area that sent this */
+		/** @param #219 Path */
+			/** Base path for ripping. */
+		/** @param #233 DriveID */
+			/** The id of the storage device with most free space. */
+		/** @param #235 Storage Device Name */
+			/** The name of the storage device with most free space. */
+
+void Powerfile_C200::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
+//<-dceag-c817-e->
+{
+}
+
+//<-dceag-c871-b->
+
+	/** @brief COMMAND: #871 - Update Ripping Status */
+	/** Update the status of a ripping job */
+		/** @param #13 Filename */
+			/** The filename being ripped */
+		/** @param #102 Time */
+			/** How much longer in seconds it will take */
+		/** @param #199 Status */
+			/** The status: [p] in progress, [e]rror, [s]uccess */
+		/** @param #256 Percent */
+			/** The percentage of completion */
+		/** @param #257 Task */
+			/** The task id */
+		/** @param #258 Job */
+			/** The job id */
+
+void Powerfile_C200::CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage)
+//<-dceag-c871-e->
+{
 }

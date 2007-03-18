@@ -55,19 +55,6 @@ public:
 			EVENTPARAMETER_Name_CONST, sName.c_str()));
 	}
 
-	virtual void Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc,string sDrive_Number)
-	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
-			EVENT_Ripping_Progress_CONST,
-			6 /* number of parameter's pairs (id, value) */,
-			EVENTPARAMETER_Text_CONST, sText.c_str(),
-			EVENTPARAMETER_Result_CONST, StringUtils::itos(iResult).c_str(),
-			EVENTPARAMETER_Value_CONST, sValue.c_str(),
-			EVENTPARAMETER_Name_CONST, sName.c_str(),
-			EVENTPARAMETER_EK_Disc_CONST, StringUtils::itos(iEK_Disc).c_str(),
-			EVENTPARAMETER_Drive_Number_CONST, sDrive_Number.c_str()));
-	}
-
 };
 
 
@@ -224,7 +211,6 @@ public:
 	void DATA_Set_Drive(string Value,bool bUpdateDatabase=false) { GetData()->Set_Drive(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,6,Value); }
 	//Event accessors
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str(),sName.c_str()); }
-	void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc,string sDrive_Number) { GetEvents()->Ripping_Progress(sText.c_str(),iResult,sValue.c_str(),sName.c_str(),iEK_Disc,sDrive_Number.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,class Message *pMessage) {};

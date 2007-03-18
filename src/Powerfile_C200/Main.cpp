@@ -212,7 +212,10 @@ int main(int argc, char* argv[])
 			if( bLocalMode )
 				pPowerfile_C200->RunLocalMode();
 			else
-				pthread_join(pPowerfile_C200->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			{
+				if(pPowerfile_C200->m_RequestHandlerThread)
+					pthread_join(pPowerfile_C200->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 
