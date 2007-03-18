@@ -104,13 +104,14 @@ class Disk_Drive_Functions
 		int cdrom_lock(int lock);
 		int cdrom_checkdrive(const char * filename, int * flag, bool bFireEvent);
 		bool mountDVD(string fileName, string & strMediaUrl);
-		void CMD_Rip_Disk(int iPK_Users, string sFormat, string sName, string sTracks, int iEK_Disc, int iDriveNumber, string &sCMD_Result, Message *pMessage);
+		void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory, string &sCMD_Result, Message *pMessage);
 		string getTracks(string mrl); // We use cddb for nothing other than determining how many tracks there are
 		void DisplayMessageOnOrbVFD(string sMessage);
 		void StartNbdServer();
 		void StopNbdServer();
 		bool isRipping();
 		void UpdateDiscLocation(char cType,int PK_Disc=0,int Slot=0);  // An unknown type
+		void GetTracksForDisc(class Row_Disc *pRow_Disc,map<int,string> &mapTracks);
 
 		// TODO: write accessors for these
 		DeviceData_Base *m_pDevice_AppServer;

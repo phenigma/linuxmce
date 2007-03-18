@@ -128,7 +128,8 @@ void Job::Run()
 	while (m_bQuit==false && (pTask = GetNextTask())!=NULL)
 	{
 		jm.Release();
-		pTask->m_eTaskStatus_set(TASK_IN_PROGRESS);
+		if( pTask->m_eTaskStatus_get()==TASK_NOT_STARTED )
+			pTask->m_eTaskStatus_set(TASK_IN_PROGRESS);
 		int iResult = pTask->Run();
 		if( iResult==0 && pTask->m_eTaskStatus_get()==TASK_IN_PROGRESS )
 			pTask->m_eTaskStatus_set(TASK_COMPLETED);

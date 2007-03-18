@@ -416,29 +416,27 @@ void Disk_Drive::RunMonitorLoop()
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #13 Filename */
+			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #17 PK_Users */
 			/** The user who needs this rip in his private area. */
 		/** @param #20 Format */
 			/** wav, flac, ogg, etc. */
-		/** @param #50 Name */
-			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 		/** @param #131 EK_Disc */
-			/** The ID of the disc to rip */
-		/** @param #152 Drive Number */
-			/** Disc unit index number
-Disk_Drive: 0
-Powerfile: 0, 1, ... */
+			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
+		/** @param #151 Slot Number */
+			/** The slot if this is a jukebox */
 		/** @param #233 DriveID */
 			/** The ID of the storage drive. Can be the ID of the core. */
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
-	m_pDisk_Drive_Functions->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, iDrive_Number, sCMD_Result, pMessage);
+	m_pDisk_Drive_Functions->CMD_Rip_Disk( sFilename,iPK_Users,sFormat,sTracks,iEK_Disc,iSlot_Number,iDriveID,sDirectory, sCMD_Result, pMessage);
 Sleep(1000);
 int k=2;
 }
@@ -448,6 +446,8 @@ int k=2;
 	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
 		/** @param #13 Filename */
 			/** Default ripping name. */
+		/** @param #131 EK_Disc */
+			/** The disc to rip.  If not specified, it will be whatever is playing in the entertainment area that sent this */
 		/** @param #219 Path */
 			/** Base path for ripping. */
 		/** @param #233 DriveID */
@@ -455,7 +455,7 @@ int k=2;
 		/** @param #235 Storage Device Name */
 			/** The name of the storage device with most free space. */
 
-void Disk_Drive::CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
 //<-dceag-c817-e->
 {
 }
@@ -499,4 +499,25 @@ void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,str
 			cMediaType='d';
 		m_pDisk_Drive_Functions->UpdateDiscLocation(cMediaType,*iEK_Disc,0);
 	}
+}
+//<-dceag-c871-b->
+
+	/** @brief COMMAND: #871 - Update Ripping Status */
+	/** Update the status of a ripping job */
+		/** @param #13 Filename */
+			/** The filename being ripped */
+		/** @param #102 Time */
+			/** How much longer in seconds it will take */
+		/** @param #199 Status */
+			/** The status: [p] in progress, [e]rror, [s]uccess */
+		/** @param #256 Percent */
+			/** The percentage of completion */
+		/** @param #257 Task */
+			/** The task id */
+		/** @param #258 Job */
+			/** The job id */
+
+void Disk_Drive::CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage)
+//<-dceag-c871-e->
+{
 }

@@ -121,9 +121,6 @@ private:
 //  Have to always include it so all plugins see the same header.  Delete the following when removing sim_jukebox #ifdef SIM_JUKEBOX
 	map< int, string > m_mapPK_FilesForSimulatedPurchase;   // Simulate downloadable premium content
 
-	// mapping from disk drive to the job info
-	map<int, class RippingJob *> m_mapRippingJobs;
-	RippingJob *m_mapRippingJobs_Find(int iPK_Device) { map<int,class RippingJob *>::iterator it = m_mapRippingJobs.find(iPK_Device); return it==m_mapRippingJobs.end() ? NULL : (*it).second; }
 	map<int,string> m_mapMediaType_2_Directory;
 	map<int,bool> m_mapMediaType_Bookmarkable;
 
@@ -455,16 +452,6 @@ public:
      * @brief EVENT_Media_Followme event interceptor. Called when the router finds an event of this type in the queue.
      */
 	bool MediaFollowMe( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
-
-	/**
-	 * @brief EVENT_Ripping_Completed_CONST event interceptor.
-	 */
-	bool RippingProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
-
-	/**
-	 * @brief COMMAND_Abort_Ripping_CONST command interceptor.
-	 */
-	bool RippingAborted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 	/**
 	 * @brief EVENT_Device_On_Off_CONST event interceptor, when some equipment was turned on or off manually
@@ -874,27 +861,25 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #13 Filename */
+			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #17 PK_Users */
 			/** The user who needs this rip in his private area. */
 		/** @param #20 Format */
 			/** wav, flac, ogg, etc. */
-		/** @param #50 Name */
-			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 		/** @param #131 EK_Disc */
 			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
-		/** @param #152 Drive Number */
-			/** Disc unit index number
-Disk_Drive: 0
-Powerfile: 0, 1, ... */
+		/** @param #151 Slot Number */
+			/** The slot if this is a jukebox */
 		/** @param #233 DriveID */
 			/** The ID of the storage drive. Can be the ID of the core. */
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,int iDriveID,string sDirectory) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,iDriveID,sDirectory.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory) { string sCMD_Result; CMD_Rip_Disk(sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDriveID,sDirectory.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #372 - MH Set Volume */
@@ -1188,6 +1173,25 @@ VI=Video Input */
 
 	virtual void CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainArea) { string sCMD_Result; CMD_Retransmit_AV_Commands(sText.c_str(),sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #871 - Update Ripping Status */
+	/** Update the status of a ripping job */
+		/** @param #13 Filename */
+			/** The filename being ripped */
+		/** @param #102 Time */
+			/** How much longer in seconds it will take */
+		/** @param #199 Status */
+			/** The status: [p] in progress, [e]rror, [s]uccess */
+		/** @param #256 Percent */
+			/** The percentage of completion */
+		/** @param #257 Task */
+			/** The task id */
+		/** @param #258 Job */
+			/** The job id */
+
+	virtual void CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob) { string sCMD_Result; CMD_Update_Ripping_Status(sFilename.c_str(),sTime.c_str(),sStatus.c_str(),iPercent,sTask.c_str(),sJob.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };

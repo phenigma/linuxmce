@@ -55,8 +55,6 @@ namespace nsJobHandler
 		TaskStatus m_eTaskStatus_get() { return m_eTaskStatus; }
 		void m_eTaskStatus_set(TaskStatus taskStatus) 
 		{ 
-			if( taskStatus==TASK_IN_PROGRESS && m_eTaskStatus!=TASK_NOT_STARTED )
-				int k=2;
 			m_eTaskStatus=taskStatus;
 		}
 	};

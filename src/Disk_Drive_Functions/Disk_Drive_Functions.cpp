@@ -28,6 +28,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 
+#include "pluto_media/Table_Disc.h"
 #include "pluto_media/Table_DiscLocation.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "VFD_LCD/VFD_LCD_Base.h"
@@ -530,10 +531,63 @@ bool Disk_Drive_Functions::mountDVD(string fileName, string & strMediaUrl)
 	return false;
 }
 
-// generic CMD_Rip_Disk
-void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sName, string sTracks, int iEK_Disc, int iDrive_Number, string &sCMD_Result, Message *pMessage)
+void Disk_Drive_Functions::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result, Message *pMessage)
 {
-	RipJob *pRipJob = new RipJob(m_pJobHandler,this,NULL,iPK_Users,iEK_Disc,iDrive_Number,sFormat,sName,sTracks);
+	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
+//if !
+	StringUtils::Replace( &sFilename, "'", "" );
+	StringUtils::Replace( &sFilename, "[", "" );
+	StringUtils::Replace( &sFilename, "]", "" );
+	StringUtils::Replace( &sDirectory, "'", "" );
+	StringUtils::Replace( &sDirectory, "[", "" );
+	StringUtils::Replace( &sDirectory, "]", "" );
+
+	if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST )
+	{
+		map<int,string> mapTracks;
+		GetTracksForDisc(pRow_Disc,mapTracks);
+
+		string sNewTracks="";
+		if( sTracks=="A" )
+		{
+			for(map<int,string>::iterator it=mapTracks.begin();it!=mapTracks.end();++it)
+				sNewTracks += StringUtils::itos(it->first) + "," + it->second + "|";
+		}
+		else
+		{
+			string::size_type pos=0;
+			while( pos<sTracks.size() && pos!=string::npos )
+			{
+				string sTrack = StringUtils::Tokenize(sTracks,"|",pos);
+				int iTrack = atoi(sTrack.c_str());
+				sNewTracks += StringUtils::itos(iTrack+1);
+				sNewTracks += mapTracks[iTrack] + "|";
+			}
+		}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
+		sTracks=sNewTracks;
+	}
+
+	bool bUsingUnknownDiscName=false;
+	// Validate the name and be sure it's unique
+	if( sFilename.size()==0 )
+	{
+		sFilename = "Unknown disc";
+		bUsingUnknownDiscName=true;
+	}
+
+	sFilename = sDirectory + sFilename;
+
+	if( bUsingUnknownDiscName && FileUtils::DirExists(sFilename) )  // Be sure the directory name is unique if we're using the default
+	{
+		int Counter=1;
+		string sNewName = sFilename + "_" + StringUtils::itos(Counter++);
+		while( FileUtils::DirExists(sFilename) )
+			sNewName = sFilename + "_" + StringUtils::itos(Counter++);
+		sFilename = sNewName;
+	}
+
+	RipJob *pRipJob = new RipJob(m_pJobHandler,this,NULL,iPK_Users,iEK_Disc,iSlot_Number,sFormat,sFilename,sTracks);
 	m_pJobHandler->AddJob(pRipJob);
 }
 
@@ -685,3 +739,8 @@ bool Disk_Drive_Functions::isRipping()
 	return false;
 }
 
+void Disk_Drive_Functions::GetTracksForDisc(Row_Disc *pRow_Disc,map<int,string> &mapTracks)
+{
+//	string sTrackName = pMediaFile->m_sDescription.size() && pMediaFile->m_sDescription.find("<%=")==string::npos  ?
+//			pMediaFile->m_sDescription : "Track " + StringUtils::itos(s+1);
+}

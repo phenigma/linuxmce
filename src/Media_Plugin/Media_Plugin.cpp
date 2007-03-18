@@ -74,6 +74,7 @@ using namespace DCE;
 #include "pluto_media/Table_File_Attribute.h"
 #include "pluto_media/Table_File.h"
 #include "pluto_media/Table_Disc.h"
+#include "pluto_media/Table_DiscLocation.h"
 #include "pluto_media/Table_Picture_Disc.h"
 #include "pluto_media/Table_Disc_Attribute.h"
 #include "pluto_media/Table_Playlist.h"
@@ -92,7 +93,6 @@ using namespace DCE;
 #include "DataGrid.h"
 #include "File_Grids_Plugin/FileListGrid.h"
 #include "SerializeClass/ShapesColors.h"
-#include "RippingJob.h"
 #include "../VFD_LCD/VFD_LCD_Base.h"
 #include "UpdateMedia/PlutoMediaFile.h"
 
@@ -533,11 +533,9 @@ bool Media_Plugin::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackStarted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Media_CONST );
-	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::RippingProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::DeviceOnOff ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_OnOff_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::AvInputChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_AV_Input_Changed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaDescriptionChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Description_Changed_CONST );
-    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::RippingAborted ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Abort_Ripping_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::VolumeChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Volume_Changed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::VolumeChanged ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Set_Volume_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::VolumeChanged ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Mute_CONST );
@@ -3636,26 +3634,24 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #13 Filename */
+			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #17 PK_Users */
 			/** The user who needs this rip in his private area. */
 		/** @param #20 Format */
 			/** wav, flac, ogg, etc. */
-		/** @param #50 Name */
-			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 		/** @param #131 EK_Disc */
 			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
-		/** @param #152 Drive Number */
-			/** Disc unit index number
-Disk_Drive: 0
-Powerfile: 0, 1, ... */
+		/** @param #151 Slot Number */
+			/** The slot if this is a jukebox */
 		/** @param #233 DriveID */
 			/** The ID of the storage drive. Can be the ID of the core. */
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	// we only have the sources device. This should be an orbiter
@@ -3666,170 +3662,94 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 	// is this required here ?!
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
-	StringUtils::Replace( &sName, "'", "" );
-	StringUtils::Replace( &sName, "[", "" );
-	StringUtils::Replace( &sName, "]", "" );
-	StringUtils::Replace( &sDirectory, "'", "" );
-	StringUtils::Replace( &sDirectory, "[", "" );
-	StringUtils::Replace( &sDirectory, "]", "" );
-
-	vector<EntertainArea *> vectEntertainArea;
-	DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
-	if ( vectEntertainArea.size()!=1 )
+	// Figure out what disc to rip
+	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
+	if( !pRow_Disc )
 	{
-		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>");
-		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
-			"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>", "0");
-		SendCommand(SCREEN_DialogRippingError);
+		vector<EntertainArea *> vectEntertainArea;
+		DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
+		if ( vectEntertainArea.size()!=1 )
+		{
+			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>");
+			SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+				"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>", "0");
+			SendCommand(SCREEN_DialogRippingError);
 
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): The source device ID in the message is not in an ent area or is not an orbiter. Ignoring request");
-		return;
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): The source device ID in the message is not in an ent area or is not an orbiter. Ignoring request");
+			return;
+		}
+
+		EntertainArea *pEntertainArea = vectEntertainArea[0];
+
+		if( !pEntertainArea->m_pMediaStream )
+		{
+			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>");
+			SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+				"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>", "0");
+			SendCommand(SCREEN_DialogRippingError);
+
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): no media stream");
+			return;
+		}
+
+		MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->GetCurrentMediaFile();
+		if( pMediaFile )
+			pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(pEntertainArea->m_pMediaStream->m_dwPK_Disc);
+		if( !pMediaFile || !pRow_Disc )
+		{
+			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>");
+			SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+				"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>", "0");
+			SendCommand(SCREEN_DialogRippingError);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): not a drive");
+			return;
+		}
 	}
 
-	EntertainArea *pEntertainArea = vectEntertainArea[0];
-
-	if( !pEntertainArea->m_pMediaStream )
+	DeviceData_Base *pDevice_Disk=NULL;
+	vector<Row_DiscLocation *> vectRow_DiscLocation;
+	pRow_Disc->DiscLocation_FK_Disc_getrows(&vectRow_DiscLocation);
+	for(vector<Row_DiscLocation *>::iterator it=vectRow_DiscLocation.begin();it!=vectRow_DiscLocation.end();++it)
 	{
-		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>");
-		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
-			"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>", "0");
-		SendCommand(SCREEN_DialogRippingError);
-
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): no media stream");
-		return;
+		Row_DiscLocation *pRow_DiscLocation = *it;
+		pDevice_Disk = m_pRouter->m_mapDeviceData_Router_Find( pRow_DiscLocation->EK_Device_get() );
+		if( pDevice_Disk )
+			break;
 	}
 
-	if( pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos<0 || 
-		pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() ||
-		pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()==0 ||
-		( StringUtils::StartsWith(
-			pEntertainArea->m_pMediaStream->GetCurrentMediaFile()->FullyQualifiedFile(),"/dev/")==false &&
-		  StringUtils::StartsWith(
-			pEntertainArea->m_pMediaStream->GetCurrentMediaFile()->FullyQualifiedFile(),"cdda:/")==false 
-		) )
+	if( !pDevice_Disk )
 	{
-		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>");
 		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
 			"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>", "0");
 		SendCommand(SCREEN_DialogRippingError);
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): not a drive");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): no drive for disk %d", pRow_Disc->PK_Disc_get());
 		return;
 	}
 
 	// If it's a cd and no tracks were specified, prompt the user, otherwise fill in the file names
-	if( pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+	if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST && sTracks.size()==0 )
 	{
-		if( sTracks.size()==0 )
-		{
-			SCREEN_CDTrackCopy SCREEN_CDTrackCopy(m_dwPK_Device,pMessage->m_dwPK_Device_From, iPK_Users,sName,iDriveID);
-			SendCommand(SCREEN_CDTrackCopy);
-			return;
-		}
-		else 
-		{
-			string sNewTracks="";
-			if( sTracks=="A" )
-			{
-				for(size_t s=0;s<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size();++s)
-				{
-					MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->m_dequeMediaFile[s];
-					string sTrackName = pMediaFile->m_sDescription.size() && pMediaFile->m_sDescription.find("<%=")==string::npos  ?
-						pMediaFile->m_sDescription : "Track " + StringUtils::itos(s+1);
-					sNewTracks += StringUtils::itos(s+1) +
-						"," + sTrackName + "|";
-				}
-			}
-			else
-			{
-				string::size_type pos=0;
-				while( pos<sTracks.size() && pos!=string::npos )
-				{
-					string sTrack = StringUtils::Tokenize(sTracks,"|",pos);
-					int iTrack = atoi(sTrack.c_str());
-					sNewTracks += StringUtils::itos(iTrack+1);
-					if( iTrack<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() && pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription.size() )
-					{
-						string sTrackName = pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription;
-						if( sTrackName.size()==0 || sTrackName.find("<%=")!=string::npos  )
-							sTrackName = "Track " + StringUtils::itos(iTrack+1);
-						sNewTracks += "," + sTrackName + "|";
-					}
-					else
-						sNewTracks += ",Track " + StringUtils::itos(iTrack+1) + "|";
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"%s %d %s",sTrack.c_str(),iTrack,sNewTracks.c_str());
-				}
-			}
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
-			sTracks=sNewTracks;
-		}
-	}
-
-	bool bUsingUnknownDiscName=false;
-	// Validate the name and be sure it's unique
-	if( sName.size()==0 )
-	{
-		sName = "Unknown disc";
-		bUsingUnknownDiscName=true;
-	}
-
-	/*
-	string sBasePath = "/home";
-	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(iDriveID);
-	if(NULL != pDeviceData_Router && pDeviceData_Router->m_pDeviceCategory->m_dwPK_DeviceCategory != DEVICECATEGORY_Core_CONST)
-	{
-		sBasePath = "/mnt/device/" + StringUtils::ltos(iDriveID);
-	}
-
-	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
-	if( iPK_Users==0 )
-		sName = sBasePath + "/public/data/" + sSubDir + "/" + sName;
-	else
-		sName = sBasePath + "/user_" + StringUtils::itos(iPK_Users) + "/data/" + sSubDir + "/" + sName;
-	*/
-
-	sName = sDirectory + sName;
-
-	if( bUsingUnknownDiscName && FileUtils::DirExists(sName) )  // Be sure the directory name is unique if we're using the default
-	{
-		int Counter=1;
-		string sNewName = sName + "_" + StringUtils::itos(Counter++);
-		while( FileUtils::DirExists(sNewName) )
-			sNewName = sName + "_" + StringUtils::itos(Counter++);
-		sName = sNewName;
-	}
-	// If we have a proper name (aka. non empty one) we need to look in the current entertainment area for the disk drive and forward the received command to him.
-	MediaDevice *pDiskDriveMediaDevice = NULL;
-	map<int, class MediaDevice *>::const_iterator itMediaDevicesInEntArea;
-	for ( itMediaDevicesInEntArea = pEntertainArea->m_mapMediaDevice.begin(); itMediaDevicesInEntArea != pEntertainArea->m_mapMediaDevice.end(); itMediaDevicesInEntArea++ )
-	{
-		MediaDevice * pMediaDevice = (*itMediaDevicesInEntArea).second;
-		if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory == DEVICECATEGORY_Disc_Drives_CONST )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found a disk drive in the target ent area");
-			pDiskDriveMediaDevice = pMediaDevice;
-			break;
-		}
-	}
-
-	if ( pDiskDriveMediaDevice == NULL )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): No disk drive was found in the target ent. area with id: %d. Not ripping anything.", pEntertainArea->m_iPK_EntertainArea);
+		SCREEN_CDTrackCopy SCREEN_CDTrackCopy(m_dwPK_Device,pMessage->m_dwPK_Device_From, iPK_Users,sFilename,iDriveID);
+		SendCommand(SCREEN_CDTrackCopy);
 		return;
 	}
 
-	int PK_Disc=0,PK_MediaType=0;
-	if( pEntertainArea->m_pMediaStream )
+	MediaStream *pMediaStream=NULL; // See if there's a media stream using this disc or this device
+	for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
 	{
-		MediaStream *pTmpMediaStream = pEntertainArea->m_pMediaStream;
-		mm.Release();
-
-		PK_Disc=pEntertainArea->m_pMediaStream->m_dwPK_Disc;
-		PK_MediaType=pEntertainArea->m_pMediaStream->m_iPK_MediaType;
-
+		MediaStream *pMS = (*it).second;
+		if( pMS->m_dwPK_Disc==pRow_Disc->PK_Disc_get() )
+		{
+			pMediaStream = pMS;
+			break;
+		}
+	}
+	if( pMediaStream )
+	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Sending stop media before rip" );
-		pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
+		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Called StopMedia begfore rip" );
-		StreamEnded(pTmpMediaStream);
+		StreamEnded(pMediaStream);
 	}
 
 	if( sFormat.size()==0 )
@@ -3837,189 +3757,24 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Transformed %s into %s",sTracks.c
 	if( sFormat.size()==0 )
 		sFormat = "flac";
 	string sResponse;
-	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, 
-		sFormat, sName, sTracks, PK_Disc, 0, iDriveID, sDirectory);
+	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDevice_Disk->m_dwPK_Device, sFilename, iPK_Users, 
+		sFormat, sTracks, pRow_Disc->PK_Disc_get(), iSlot_Number, iDriveID, sDirectory);
 	if( !SendCommand(cmdRipDisk,&sResponse) || sResponse!="OK" )
 	{
-		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Cannot copy disk " + sResponse,
-		//	false,40,false);
 		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
 			"Cannot copy disk " + sResponse, "40");
 		SendCommand(SCREEN_DialogRippingError);
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Rip_Disk %s",sResponse.c_str());
 		return;
 	}
-	//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>",
-	//	false,40,false,"<%=T" + StringUtils::itos(TEXT_Monitor_progress_CONST) + "%>","0 " + StringUtils::itos(DEVICETEMPLATE_This_Orbiter_CONST) + 
-	//	" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + StringUtils::itos(DESIGNOBJ_mnuPendingTasks_CONST) );
+
 	SCREEN_DialogRippingInstructions SCREEN_DialogRippingInstructions(m_dwPK_Device, pMessage->m_dwPK_Device_From);
 	SendCommand(SCREEN_DialogRippingInstructions);
 
-	m_mapRippingJobs[pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device] = new RippingJob(pDiskDriveMediaDevice, 
-		pMessage->m_dwPK_Device_From, PK_Disc, PK_MediaType, iPK_Users, sName, sTracks);
+//	m_mapRippingJobs[pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device] = new RippingJob(pDiskDriveMediaDevice, 
+//		pMessage->m_dwPK_Device_From, PK_Disc, PK_MediaType, iPK_Users, sName, sTracks);
 	return;
 }
-
-// This should be in sync with the typedef in the Disk_Drive.h
-typedef enum {
-	RIP_RESULT_BEGIN_ENUM		 = 0x01,
-	RIP_RESULT_ALREADY_RIPPING,
-	RIP_RESULT_NO_DISC,
-	RIP_RESULT_INVALID_DISC_TYPE,
-	RIP_RESULT_SUCCESS,
-	RIP_RESULT_FAILURE,
-	RIP_RESULT_STILLGOING,
-	RIP_RESULT_END_ENUM
-} rippingResult;
-
-bool Media_Plugin::RippingAborted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
-{
-	RippingJob *pRippingJob = m_mapRippingJobs_Find(pMessage->m_dwPK_Device_To);
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Aborted ripping of job %p %s",pRippingJob,pRippingJob ? pRippingJob->m_sName.c_str() : "");
-	if( pRippingJob )
-		pRippingJob->m_bAborted=true;
-	return false;
-}
-
-bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
-{
-	string      sJobName = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
-	int		iResult  = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str( ) );
-	int		iPK_Disc = atoi( pMessage->m_mapParameters[EVENTPARAMETER_EK_Disc_CONST].c_str( ) );
-
-	// See Disk_Drive.h for the defines
-	if ( iResult <= RIP_RESULT_BEGIN_ENUM || iResult >= RIP_RESULT_END_ENUM )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invalid result parameters. Ignoring event.");
-		return false;
-	}
-
-	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-
-	RippingJob *pRippingJob = m_mapRippingJobs_Find(pMessage->m_dwPK_Device_From);
-	if ( !pRippingJob )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unrecognized ripping job: %s. Ignoring event.", sJobName.c_str());
-		return false;
-	}
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got a ripping completed event for job named \"%s\" from device: \"%d\" job %p aborted %d iResult: %d", 
-		sJobName.c_str(), pMessage->m_dwPK_Device_From,pRippingJob,(int) pRippingJob->m_bAborted,iResult);
-
-	string sMessage;
-	switch ( iResult )
-	{
-		case RIP_RESULT_ALREADY_RIPPING: 	sMessage = "There is already a ripping job in this entertainment area!"; 	break;
-		case RIP_RESULT_NO_DISC:			sMessage = "There is no disk in the Media Director which is controlling this entertainment area!";	break;
-		case RIP_RESULT_INVALID_DISC_TYPE:	sMessage = "Can't rip the disk that is in the unit at this moment (unknown format)!";	break;
-		case RIP_RESULT_FAILURE:			
-			if( pRippingJob->m_bAborted )	sMessage = "Ripping canceled";
-			else							sMessage = "While ripping the disk, pluto encountered a disk read problem. Please check if the disc is not scratched."; break;
-		case RIP_RESULT_SUCCESS:			sMessage = "The disk was ripped succesfully.";	break;
-		case RIP_RESULT_BEGIN_ENUM:
-		case RIP_RESULT_END_ENUM:
-			break;
-	}
-
-	if( pRippingJob->m_bAborted )
-	{
-		if( FileUtils::DirExists(pRippingJob->m_sName) )
-		{
-			string::size_type pos=0;
-			while(pos<pRippingJob->m_sTracks.size())
-			{
-				string sTrack = StringUtils::Tokenize( pRippingJob->m_sTracks, "|", pos );
-				string::size_type pos_name = sTrack.find(",");
-				if( pos_name!=string::npos )
-				{
-					FileUtils::DelFile(pRippingJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*");
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*").c_str() );
-				}
-			}
-			list<string> listFiles;
-			FileUtils::FindFiles(listFiles,pRippingJob->m_sName,"*",true,false,1);
-			FileUtils::FindDirectories(listFiles,pRippingJob->m_sName,false);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"It's a directory %s with %d files",pRippingJob->m_sName.c_str(),(int) listFiles.size());
-			if( listFiles.size()==0 )  // There's nothing else in that directory.  Delete it
-			{
-				FileUtils::DelDir(pRippingJob->m_sName);
-				string sParent = FileUtils::BasePath(pRippingJob->m_sName);
-				FileUtils::FindFiles(listFiles,sParent,"*",true,false,1);
-				FileUtils::FindDirectories(listFiles,sParent,false);
-			}
-		}
-		else
-		{
-			FileUtils::DelFile(pRippingJob->m_sName + ".*");  // Delete any temporary or in progress
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (pRippingJob->m_sName + ".*").c_str() );
-		}
-	}
-
-	if( iResult==RIP_RESULT_STILLGOING )
-	{
-		pRippingJob->m_sStatus = FileUtils::FilenameWithoutPath(sJobName);
-		pRippingJob->m_sPercentage = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST] + "%";
-
-		for( MapEntertainArea::iterator it=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.begin( );it!=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.end( );++it )
-		{
-			EntertainArea *pEntertainArea = ( *it ).second;
-			for(ListMediaDevice::iterator itVFD=pEntertainArea->m_listVFD_LCD_Displays.begin();itVFD!=pEntertainArea->m_listVFD_LCD_Displays.end();++itVFD)
-			{
-				MediaDevice *pMediaDevice = *itVFD;
-				DCE::CMD_Display_Message CMD_Display_Message_Name(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-					pRippingJob->m_sStatus,
-					StringUtils::itos(VL_MSGTYPE_RIPPING_NAME),"tc","","");
-
-				DCE::CMD_Display_Message CMD_Display_Message_SP(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-					pRippingJob->m_sPercentage,
-					StringUtils::itos(VL_MSGTYPE_RIPPING_PROGRESS),"tc","","");
-				CMD_Display_Message_SP.m_pMessage->m_vectExtraMessages.push_back(CMD_Display_Message_Name.m_pMessage);
-				SendCommand(CMD_Display_Message_SP);
-			}
-		}
-
-		return false;
-	}
-	else if( iResult==RIP_RESULT_SUCCESS )
-		m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddRippedDiscToDatabase(pRippingJob->m_iPK_Disc,
-			pRippingJob->m_iPK_MediaType,pRippingJob->m_sName,pRippingJob->m_sTracks);
-	else
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ripping wasn't successful--not adding it to the database");
-
-	if( pRippingJob->m_iPK_Orbiter )
-	{
-		SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, pRippingJob->m_iPK_Orbiter,
-			sMessage, // Main message
-			"", // Command Line
-			"ripping_failed", // Description
-			"0", // sPromptToResetRouter
-			"0", // sTimeout
-			"1"); // sCannotGoBack
-		SendCommand(SCREEN_PopupMessage);
-	}
-
-	for( MapEntertainArea::iterator it=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.begin( );it!=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.end( );++it )
-	{
-		EntertainArea *pEntertainArea = ( *it ).second;
-		for(ListMediaDevice::iterator itVFD=pEntertainArea->m_listVFD_LCD_Displays.begin();itVFD!=pEntertainArea->m_listVFD_LCD_Displays.end();++itVFD)
-		{
-			MediaDevice *pMediaDevice = *itVFD;
-			DCE::CMD_Display_Message CMD_Display_Message(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-				sMessage,
-				StringUtils::itos(VL_MSGTYPE_RUNTIME_NOTICES),"tc","","");
-
-			DCE::CMD_Display_Message CMD_Display_Message_Name(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-				"",
-				StringUtils::itos(VL_MSGTYPE_RIPPING_NAME),"tc","","");
-			CMD_Display_Message_Name.m_pMessage->m_vectExtraMessages.push_back(CMD_Display_Message.m_pMessage);
-			SendCommand(CMD_Display_Message);
-		}
-	}
-
-	delete pRippingJob;
-	m_mapRippingJobs.erase(pMessage->m_dwPK_Device_From);
-	return false;
-}
-
 
 bool Media_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
@@ -4249,26 +4004,13 @@ void Media_Plugin::ShowMediaPlaybackState(EntertainArea *pEntertainArea)
 
 bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 {
-	map<int, class RippingJob *>::const_iterator itRippingJobs = m_mapRippingJobs.find(iPK_Device);
-	return itRippingJobs!=m_mapRippingJobs.end();
+//	map<int, class RippingJob *>::const_iterator itRippingJobs = m_mapRippingJobs.find(iPK_Device);
+//	return itRippingJobs!=m_mapRippingJobs.end();
+	return false;
 }
 
 bool Media_Plugin::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 {
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "safe to reload before lock %d %s %d",m_MediaMutex.m_NumLocks,m_MediaMutex.m_sFileName.c_str(),m_MediaMutex.m_Line);
-    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "checking ripping jobs %d %d",m_dwPK_Device, (int) m_mapRippingJobs.size());
-	if( m_mapRippingJobs.size() )
-	{
-		if( pPendingTaskList )
-		{
-			for(map<int, class RippingJob *>::iterator it=m_mapRippingJobs.begin();it!=m_mapRippingJobs.end();++it)
-				pPendingTaskList->m_listPendingTask.push_back(new PendingTask(it->first,m_dwPK_Device,m_dwPK_Device,
-					"rip","Ripping: " + it->second->m_sName + "\n" + it->second->m_sStatus,
-					atoi(it->second->m_sPercentage.c_str()),0,true));
-		}
-		return true;
-	}
 	return false;
 }
 
@@ -6477,3 +6219,24 @@ void Media_Plugin::CheckForCustomPipe(EntertainArea *pEntertainArea,Message *pMe
 		pMessage->m_mapParameters[COMMANDPARAMETER_PipeID_CONST]=StringUtils::itos(pEntertainArea->m_iPK_EntertainArea);
 }
 
+//<-dceag-c871-b->
+
+	/** @brief COMMAND: #871 - Update Ripping Status */
+	/** Update the status of a ripping job */
+		/** @param #13 Filename */
+			/** The filename being ripped */
+		/** @param #102 Time */
+			/** How much longer in seconds it will take */
+		/** @param #199 Status */
+			/** The status: [p] in progress, [e]rror, [s]uccess */
+		/** @param #256 Percent */
+			/** The percentage of completion */
+		/** @param #257 Task */
+			/** The task id */
+		/** @param #258 Job */
+			/** The job id */
+
+void Media_Plugin::CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage)
+//<-dceag-c871-e->
+{
+}
