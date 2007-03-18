@@ -21,46 +21,69 @@
 
 #include <string>
 #include <list>
-#include "PlutoUtils/MultiThreadIncludes.h"
+#include "PlutoUtils/ThreadedClass.h"
+
 using namespace std;
+using namespace nsThreadedClass;
 
 namespace nsJobHandler
 {
-	extern int g_ID;
-
-	class Job
+	class Job : public ThreadedClass
 	{
+	public:
+		enum JobStatus
+		{
+			job_WaitingToStart,
+			job_InProgress,
+			job_Error,
+			job_Aborted,
+			job_Done
+		};
+
+	private:
+		static int m_NextJobID;
+
 	protected:
 		friend class Task;
 
-		list<class Task *> m_listTask;
 		string m_sName;
 		int m_iID;
 		int m_iMaxTasks;
-		bool m_bCancel;
-	    pthread_mutexattr_t m_MutexAttr;
-		pthread_cond_t m_JobMutexCond; 
+		JobStatus m_eJobStatus;
+		class JobHandler *m_pJobHandler;
+		list<Task *> m_listTask;
+		time_t m_tNextRunAttempt;  // Set this to non-zero if you want to your ReadyToRun() to be called no later than this time.  Zero means don't call until something changes
 		
 	public:
-	    pluto_pthread_mutex_t m_JobMutex; // Other classes may need this
-
-		Job(string sName);
+		Job(JobHandler *pJobHandler,string sName);
 		virtual ~Job();
 
-		virtual int PercentComplete()=0;
-		virtual int SecondsRemaining()=0;
-		virtual string ToString()=0;
+		// Override these for better reporting of the Job's progress
+		virtual int PercentComplete() { return 0; }
+		virtual int SecondsRemaining() { return 0; }
+		virtual string ToString() { return m_sName; }
+
+		int m_iID_get() { return m_iID; }
+		time_t m_tNextRunAttempt_get() { return m_tNextRunAttempt; }
+
+		int PendingTasks();
+		void Abort();
 
 		void SetMaxTasks(int MaxTasks) { m_iMaxTasks=MaxTasks; }
-		int m_iID_get() { return m_iID; }
-		int PendingTasks();
-		bool Cancel();
-		virtual bool CanHandleAnotherTask() { return PendingTasks()<m_iMaxTasks; }
+		virtual bool StartThread();
+		virtual bool ReadyToRun() { return true; }
+
+		enum JobStatus m_eJobStatus_get() { return m_eJobStatus; }
+
+		virtual bool CanHandleAnotherTask() { return m_iMaxTasks==0 || PendingTasks()<m_iMaxTasks; }
+
 		Task *GetNextTask();
 		void AddTask(Task *pTask);
-		void ServiceTasks();
+
 		string m_sName_get() { return m_sName; }
 		void Reset(bool bDelete = true);
+
+		virtual void Run();
 	};
 };
 

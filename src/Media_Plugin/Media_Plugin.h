@@ -1136,17 +1136,6 @@ Powerfile: 0, 1, ... */
 	virtual void CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #832 - Report Discs in Drive */
-	/** Report which PK_Disc's are in a given drive */
-		/** @param #2 PK_Device */
-			/** The drive */
-		/** @param #243 sEK_Disc_List */
-			/** A comma separated of the discs in the drive in the format: PK_Disc, Slot \t PK_Disc, slot, etc. */
-
-	virtual void CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_List) { string sCMD_Result; CMD_Report_Discs_in_Drive(iPK_Device,ssEK_Disc_List.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_List,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #839 - Check For New Files */
 	/** Check to see if there are any new files that have been picked up by UpdateMedia that we should do some post processing on */
 

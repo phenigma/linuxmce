@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef Media_PluginBase_h
 #define Media_PluginBase_h
 #include "DeviceData_Impl.h"
@@ -277,7 +262,6 @@ public:
 	virtual void CMD_Specify_Media_Provider(int iPK_Device,string sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Specify_Capture_Card_Port(int iPK_Device,int iPK_Device_Related,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_List,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_For_New_Files(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Delete_File(string sFilename,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size,string &sCMD_Result,class Message *pMessage) {};
@@ -1191,33 +1175,6 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Refresh_List_of_Online_Devices(sCMD_Result,pMessage);
-						}
-					};
-					iHandled++;
-					continue;
-				case COMMAND_Report_Discs_in_Drive_CONST:
-					{
-						string sCMD_Result="OK";
-						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
-						string ssEK_Disc_List=pMessage->m_mapParameters[COMMANDPARAMETER_sEK_Disc_List_CONST];
-						CMD_Report_Discs_in_Drive(iPK_Device,ssEK_Disc_List.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
-						{
-							int iRepeat=atoi(itRepeat->second.c_str());
-							for(int i=2;i<=iRepeat;++i)
-								CMD_Report_Discs_in_Drive(iPK_Device,ssEK_Disc_List.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

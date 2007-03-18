@@ -18,6 +18,7 @@
  */
 #include "Job.h"
 #include "Task.h"
+#include "JobHandler.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
@@ -25,59 +26,52 @@
 
 using namespace nsJobHandler;
 
-int g_ID=0;
+int Job::m_NextJobID=0;
 
-Job::Job(string sName) : m_JobMutex("job")
+Job::Job(JobHandler *pJobHandler,string sName)
 { 
+	m_pJobHandler=pJobHandler;
+	m_eJobStatus=job_WaitingToStart;
 	m_sName=sName; 
-	m_bCancel=0;
-	m_iMaxTasks=1;
-	m_iID=g_ID++; 
-
-	pthread_mutexattr_init( &m_MutexAttr );
-    pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
-	pthread_cond_init( &m_JobMutexCond, NULL );
-	m_JobMutex.Init( &m_MutexAttr, &m_JobMutexCond );
+	m_iMaxTasks=0; // No limit to number of tasks
+	m_iID=m_NextJobID++;
+	m_tNextRunAttempt=0;
 }
 
 Job::~Job()
 {
-    pthread_mutexattr_destroy(&m_MutexAttr);
+	for(list<Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
+		delete *it;
 }
 
 // cancel all tasks in this job
-bool Job::Cancel()
+void Job::Abort()
 {
-	m_bCancel=true;
-	PLUTO_SAFETY_LOCK(jm,m_JobMutex);
-	bool bSuccess=true;
+	m_bQuit=true;
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+
 	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
-	{
-		Task *pTask = *it;
-		if( !pTask->Cancel() )
-			bSuccess=false;
-	}
-	return bSuccess;
+		(*it)->Abort();
 }
 
 // return a task that was not started yet
 Task *Job::GetNextTask()
 {
-	PLUTO_SAFETY_LOCK(jm,m_JobMutex);
-	//if( !CanHandleAnotherTask() )
-	//	return NULL;
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
 	{
 		Task *pTask = *it;
-		if (pTask->m_eTaskStatus == TASK_NOT_STARTED)
+		if (pTask->m_eTaskStatus == TASK_NOT_STARTED || pTask->m_eTaskStatus == TASK_IN_PROGRESS )
 			return pTask;
+		if (pTask->m_eTaskStatus == TASK_FAILED )
+			return NULL;  // Don't continue if this task failed
 	}
 	return NULL;
 }
 
 void Job::AddTask(Task *pTask)
 {
-	PLUTO_SAFETY_LOCK(jm,m_JobMutex);
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	m_listTask.push_back(pTask);
 }
 
@@ -85,7 +79,7 @@ void Job::AddTask(Task *pTask)
 int Job::PendingTasks()
 {
 	int Tasks=0;
-	PLUTO_SAFETY_LOCK(jm,m_JobMutex);
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
 	{
 		Task *pTask = *it;
@@ -96,21 +90,36 @@ int Job::PendingTasks()
 	return Tasks;
 }
 
-// run each task
-void Job::ServiceTasks()
+bool Job::StartThread()
 {
-	PLUTO_SAFETY_LOCK(jm,m_JobMutex);
+	m_eJobStatus=job_InProgress;
+	return ThreadedClass::StartThread();
+}
+
+// run each task
+void Job::Run()
+{
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	Task * pTask;
 	while (pTask = GetNextTask())
 	{
-		pTask->Execute();
-		while (pTask->m_bThreadRunning_get() && ! m_bCancel)
+		jm.Release();
+		pTask->m_eTaskStatus=TASK_IN_PROGRESS;
+		int iResult = pTask->Run();
+		if( iResult==0 && pTask->m_eTaskStatus==TASK_IN_PROGRESS )
+			pTask->m_eTaskStatus=TASK_COMPLETED;
+		else if( iResult )
 		{
-			jm.Release();
-			Sleep(1000);
-			jm.Relock();
+			int iSeconds = iResult / 1000;
+			int iNanoSeconds = (iResult % 1000) * 1000000;
+			jm.Relock();  // we want to be holding the mutex before starting a cond wait
+			jm.TimedCondWait(iSeconds,iNanoSeconds);
+			jm.Release(); // We will relock it below
 		}
+		jm.Relock();
 	}
+	m_eJobStatus=job_Done;
+	m_pJobHandler->BroadcastCond();
 }
 
 void Job::Reset(bool bDelete)

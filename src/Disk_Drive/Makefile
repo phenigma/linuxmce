@@ -21,7 +21,7 @@ sources = Main.cpp Disk_Drive.cpp $(Gen_Dev_Files)
 CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lcddb -lDisk_Drive_Functions
+XTRALDLIBS = -lcddb -lDisk_Drive_Functions -lpluto_media
 
 Gen_Dev_Files +=
 sources +=

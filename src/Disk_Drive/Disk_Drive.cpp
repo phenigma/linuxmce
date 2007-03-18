@@ -34,20 +34,24 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
+#include "pluto_media/Database_pluto_media.h"
 #include "PlutoUtils/ProcessUtils.h"
+#include "Media_Plugin/MediaAttributes_LowLevel.h"
+#include "DCE/DCEConfig.h"
+DCEConfig g_DCEConfig;
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#ifndef WIN32
 #include <stropts.h>
-
 #include <sys/wait.h>
-
 extern "C"
 {
     #include <linux/cdrom.h>
 }
+#endif
 
 #define SERVER_PORT 5150
 
@@ -57,6 +61,9 @@ Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHand
         m_monitorEnabled(true), m_serverPid(-1), m_serverPort(SERVER_PORT)
 //<-dceag-const-e->
 {
+	m_pJobHandler = new JobHandler();
+	m_bAskBeforeReload=true;
+	m_bImplementsPendingTasks=true;
 }
 
 //<-dceag-getconfig-b->
@@ -77,7 +84,23 @@ bool Disk_Drive::GetConfig()
 			sDrive = "/dev/cdrom1";
 	}
 	
-	m_pDisk_Drive_Functions = new Disk_Drive_Functions(this, sDrive);
+	m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
+	string sIP = g_DCEConfig.m_mapParameters_Find("MySqlHost");
+	if( sIP.empty() )
+		sIP = m_sIPAddress;
+
+	if( !m_pDatabase_pluto_media->Connect(sIP,"root","","pluto_media") )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Disk_Drive::GetConfig cannot connect to database on %s", sIP.c_str());
+		delete m_pDatabase_pluto_media;
+		m_pDatabase_pluto_media=NULL;
+	}
+	
+	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media,g_DCEConfig.m_iPK_Installation);
+
+	m_pDisk_Drive_Functions = new Disk_Drive_Functions(this, sDrive, m_pJobHandler,m_pDatabase_pluto_media,m_pMediaAttributes_LowLevel);
+
+	m_pJobHandler->StartThread();
 
 /*
 	// Quick and dirty, get nbd-server working
@@ -109,6 +132,9 @@ Disk_Drive::~Disk_Drive()
 //<-dceag-dest-e->
 {
 	delete m_pDisk_Drive_Functions;
+	delete m_pJobHandler;
+	delete m_pDatabase_pluto_media;
+	delete m_pMediaAttributes_LowLevel;
 }
 
 //<-dceag-reg-b->
@@ -146,6 +172,12 @@ void Disk_Drive::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
+void Disk_Drive::PostConnect()
+{
+	DCE::CMD_Refresh_List_of_Online_Devices_Cat CMD_Refresh_List_of_Online_Devices_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,
+		true,BL_SameHouse);
+	SendCommand(CMD_Refresh_List_of_Online_Devices_Cat);
+}
 
 /*
 
@@ -373,7 +405,7 @@ void Disk_Drive::RunMonitorLoop()
     while ( ! done  && !m_bQuit_get())
     {
         done = ! m_pDisk_Drive_Functions->internal_monitor_step(true);
-        sleep(3); // Sleep 3 seconds
+        Sleep(3000); // Sleep 3 seconds
     }
 }
 

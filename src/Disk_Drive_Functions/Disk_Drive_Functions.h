@@ -21,6 +21,7 @@
 
 #include "Command_Impl.h"
 #include "pluto_main/Define_MediaType.h"
+#include "JobHandler/JobHandler.h"
 
 #ifndef WIN32
 extern "C"
@@ -33,6 +34,7 @@ extern "C"
 
 using namespace std;
 using namespace DCE;
+using namespace nsJobHandler;
 
 typedef enum {
     MEDIA_NOT_LOADED        = 0x00,
@@ -77,17 +79,22 @@ enum DiscTypes {
 
 class Disk_Drive_Functions
 {
+	friend class RipTask;
+
 	private:
 		Command_Impl * m_pCommand_Impl;
 	    pluto_pthread_mutex_t m_DiskMutex;
 		bool m_bNbdServerRunning;
 		DeviceData_Base *m_pDevice_MediaIdentifier;
+		JobHandler *m_pJobHandler;
+		class Database_pluto_media *m_pDatabase_pluto_media;
+		class MediaAttributes_LowLevel *m_pMediaAttributes_LowLevel;
 
 		void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
 		void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc);
 		
 	public:
-		Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive);
+		Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel);
 		~Disk_Drive_Functions();
 		bool internal_monitor_step(bool bFireEvent);
 		bool internal_reset_drive(bool bFireEvent);
@@ -100,12 +107,13 @@ class Disk_Drive_Functions
 		void DisplayMessageOnOrbVFD(string sMessage);
 		void StartNbdServer();
 		void StopNbdServer();
+		bool isRipping();
+		void UpdateDiscLocation(char cType,int PK_Disc=0,int Slot=0);  // An unknown type
 
 		// TODO: write accessors for these
 		DeviceData_Base *m_pDevice_AppServer;
 	    int m_mediaDiskStatus;
 	    int m_discid;		// A unique ID to indicate the insertion of this disc, will be set to the time(NULL) at insertion
-		bool m_isRipping;
 	    bool m_mediaInserted;
 		int m_what_is_ripping;
 		bool m_bTrayOpen;

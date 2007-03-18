@@ -265,10 +265,6 @@ bool Media_Plugin::GetConfig()
         return false;
     }
 
-	// We'll set these when the disks start up
-	string sSQL = "UPDATE DiscLocation SET EK_Device=NULL";
-	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
-
 	vector<Row_MediaType_AttributeType *> vectMediaType_AttributeType;
 	m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRows("Identifier=1",&vectMediaType_AttributeType);
 	for(vector<Row_MediaType_AttributeType *>::iterator it=vectMediaType_AttributeType.begin();it!=vectMediaType_AttributeType.end();++it)
@@ -6114,31 +6110,6 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Refresh_List_of_Online_Devices now %s",m_sPK_Devices_Online.c_str());
 #endif
-}
-
-//<-dceag-c832-b->
-
-	/** @brief COMMAND: #832 - Report Discs in Drive */
-	/** Report which PK_Disc's are in a given drive */
-		/** @param #2 PK_Device */
-			/** The drive */
-		/** @param #243 sEK_Disc_List */
-			/** A comma separated of the discs in the drive in the format: PK_Disc, Slot \t PK_Disc, slot, etc. */
-
-void Media_Plugin::CMD_Report_Discs_in_Drive(int iPK_Device,string ssEK_Disc_List,string &sCMD_Result,Message *pMessage)
-//<-dceag-c832-e->
-{
-	string sSQL = "UPDATE DiscLocation SET EK_Device=NULL WHERE EK_Device=" + StringUtils::itos(iPK_Device);
-	if( ssEK_Disc_List.empty()==false )
-		sSQL += " AND PK_Disc NOT IN( " + ssEK_Disc_List + " )";
-	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
-
-	if( ssEK_Disc_List.empty()==false )
-	{
-		sSQL = "UPDATE Disc SET EK_Device=" + StringUtils::itos(iPK_Device) + " WHERE PK_Disc IN ( " + ssEK_Disc_List + " )";
-		m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
-	}
-	CMD_Refresh_List_of_Online_Devices(); // Check again which devices are online because a disk drive has now registered
 }
 
 string Media_Plugin::GetMRLFromDiscID( int PK_Disc )

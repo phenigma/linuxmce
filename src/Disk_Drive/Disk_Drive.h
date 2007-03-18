@@ -24,6 +24,11 @@
 
 #include <pthread.h>
 #include "Disk_Drive_Functions/Disk_Drive_Functions.h"
+#include "JobHandler/JobHandler.h"
+
+using namespace nsJobHandler;
+
+class Database_pluto_media;
 
 //<-dceag-decl-b->
 namespace DCE
@@ -31,6 +36,8 @@ namespace DCE
 	class Disk_Drive : public Disk_Drive_Command
 	{
 //<-dceag-decl-e->
+		Database_pluto_media *m_pDatabase_pluto_media;
+		MediaAttributes_LowLevel *m_pMediaAttributes_LowLevel;
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
@@ -41,16 +48,19 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
-    // Private member variables
-    bool m_monitorEnabled;
+		
+		// Private member variables
 
-    int  m_serverPid;
-    int  m_serverPort;
+		JobHandler *m_pJobHandler;
+		bool m_monitorEnabled;
+		int  m_serverPid;
+		int  m_serverPort;
 
-    char *m_args[100];
+		char *m_args[100];
 
 public:
     // Public member variables
+	virtual void PostConnect();
 
     virtual void RunMonitorLoop();
 //<-dceag-h-b->

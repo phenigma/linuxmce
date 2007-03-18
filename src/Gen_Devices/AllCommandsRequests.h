@@ -22236,38 +22236,6 @@ namespace DCE
 			COMMAND_Refresh_List_of_Online_Devices_CONST,
 			0 /* number of parameters */); }
 	};
-	class CMD_Report_Discs_in_Drive : public PreformedCommand {
-	public:
-		CMD_Report_Discs_in_Drive(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string ssEK_Disc_List) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
-			COMMAND_Report_Discs_in_Drive_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
-			COMMANDPARAMETER_sEK_Disc_List_CONST, ssEK_Disc_List.c_str()); }
-	};
-	class CMD_Report_Discs_in_Drive_DL : public PreformedCommand {
-	public:
-		CMD_Report_Discs_in_Drive_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string ssEK_Disc_List) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Report_Discs_in_Drive_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
-			COMMANDPARAMETER_sEK_Disc_List_CONST, ssEK_Disc_List.c_str()); }
-	};
-	class CMD_Report_Discs_in_Drive_DT : public PreformedCommand {
-	public:
-		CMD_Report_Discs_in_Drive_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string ssEK_Disc_List) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Report_Discs_in_Drive_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
-			COMMANDPARAMETER_sEK_Disc_List_CONST, ssEK_Disc_List.c_str()); }
-	};
-	class CMD_Report_Discs_in_Drive_Cat : public PreformedCommand {
-	public:
-		CMD_Report_Discs_in_Drive_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string ssEK_Disc_List) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Report_Discs_in_Drive_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
-			COMMANDPARAMETER_sEK_Disc_List_CONST, ssEK_Disc_List.c_str()); }
-	};
 	class RESP_Get_User_Name : public PreformedCommandResponse {
 		string *m_sValue_To_Assign;
 	public:

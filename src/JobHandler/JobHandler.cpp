@@ -24,51 +24,88 @@
 #include "PlutoUtils/Other.h"
 
 using namespace nsJobHandler;
+using namespace DCE;
 
-JobHandler::JobHandler() : m_JobHandlerMutex("jobhandler", true)
+JobHandler::JobHandler()
 {
 }
 
-bool JobHandler::Cancel()
+JobHandler::~JobHandler()
 {
-	PLUTO_SAFETY_LOCK(jm,m_JobHandlerMutex);
-	bool bSuccess=true;
+	WaitForJobsToFinish();
+	StopThread();
+}
+
+void JobHandler::AbortAllJobs()
+{
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	for(list<Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
+		 (*it)->Abort();
+
+	BroadcastCond();
+}
+
+bool JobHandler::WaitForJobsToFinish(bool bAbort,int iSeconds)
+{
+	if( bAbort )
+		AbortAllJobs();
+
+	time_t tTimeout = time(NULL) + iSeconds;
+	while(true)
 	{
-		if( !(*it)->Cancel() )
-			bSuccess=false;
+		PurgeCompletedJobs();
+
+		if( HasJobs()==false )
+			return true;
+
+		if( tTimeout<=time(NULL) )
+			return false;  // Jobs failed to end in designated amount of time
+
+		Sleep(500); // Wait 1/2 second and check again
 	}
-	return bSuccess;
+}
+
+void JobHandler::PurgeCompletedJobs()
+{
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+	for(list<Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();)
+	{
+		Job *pJob = *it;
+		if( pJob->m_eJobStatus_get()==Job::job_Done || pJob->m_eJobStatus_get()==Job::job_Aborted || pJob->m_eJobStatus_get()==Job::job_Error )
+		{
+			if( pJob->m_eJobStatus_get()==Job::job_Error )
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"JobHandler::PurgeCompletedJobs purge job %d %s status %d",
+					pJob->m_iID_get(),pJob->m_sName_get().c_str(),(int) pJob->m_eJobStatus_get());
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::PurgeCompletedJobs purge job %d %s status %d",
+				pJob->m_iID_get(),pJob->m_sName_get().c_str(),(int) pJob->m_eJobStatus_get());
+#endif
+			m_listJob.erase(it++);
+		}
+		else
+			++it;
+	}
+}
+
+bool JobHandler::HasJobs()
+{ 
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+	return m_listJob.empty()==false; 
 }
 
 void JobHandler::AddJob(Job *pJob)
 {
-	PLUTO_SAFETY_LOCK(jm,m_JobHandlerMutex);
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::AddJob job %d %s",pJob->m_iID_get(),pJob->m_sName_get().c_str());
+#endif
+	BroadcastCond();
 	m_listJob.push_back(pJob);
-}
-
-void JobHandler::RemoveJob(Job *pJob)
-{
-	PLUTO_SAFETY_LOCK(jm,m_JobHandlerMutex);
-	m_listJob.remove(pJob);
-}
-
-void JobHandler::RemoveJob(int Job)
-{
-	PLUTO_SAFETY_LOCK(jm,m_JobHandlerMutex);
-	for(list<class Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
-	{
-		if( (*it)->m_iID_get()==Job )
-		{
-			m_listJob.erase(it);
-			return;
-		}
-	}
 }
 
 string JobHandler::ToString()
 {
-	PLUTO_SAFETY_LOCK(jm,m_JobHandlerMutex);
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	string sResult = StringUtils::itos((int) m_listJob.size()) + "\t";
 
 	for(list<class Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
@@ -78,10 +115,43 @@ string JobHandler::ToString()
 
 bool JobHandler::ContainsJob(string sName)
 {
-	PLUTO_SAFETY_LOCK(jm,m_JobHandlerMutex);
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	for(list<class Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
 		if( (*it)->m_sName_get()==sName )
 			return true;
 	return false;
 }
 
+void JobHandler::Run()
+{
+	while(!m_bQuit)
+	{
+		Job *pJob_Next_Timed=NULL;
+		PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+		PurgeCompletedJobs();
+		for(list<class Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
+		{
+			Job *pJob = *it;
+			if( pJob->ReadyToRun() )
+				pJob->StartThread();
+
+			// This Job wants to be called no later than a certain time.  See what is the next job (ie nearest next runattempt)
+			if( pJob->m_tNextRunAttempt_get() )
+			{
+				if( !pJob_Next_Timed || pJob_Next_Timed->m_tNextRunAttempt_get()>pJob->m_tNextRunAttempt_get() )
+					pJob_Next_Timed=pJob;
+			}
+		}
+
+		// See if there's a time limit by which we should check the jobs again
+		if( pJob_Next_Timed )
+		{
+			int Seconds = pJob_Next_Timed->m_tNextRunAttempt_get() - time(NULL);
+			if( Seconds<0 )
+				Seconds=0;
+			jm.TimedCondWait( Seconds, 0 );  // Yes, wait only up until this job wants to be called again
+		}
+		else
+			jm.CondWait();  // Nope, wait until something happens
+	}
+}

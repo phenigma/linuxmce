@@ -201,6 +201,9 @@
 				RelativePath="..\PlutoUtils\StringUtils.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoUtils\ThreadedClass.cpp">
+			</File>
+			<File
 				RelativePath="..\PlutoUtils\uuencode.cpp">
 			</File>
 			<File

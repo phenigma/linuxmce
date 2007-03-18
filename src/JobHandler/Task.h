@@ -36,28 +36,20 @@ namespace nsJobHandler
 	class Task
 	{
 	protected:
-		int m_iPriority;
 		string m_sName;
 		class Job *m_pJob;
-		bool m_bThreadRunning;
-		pthread_t m_TaskThread;
 
 	public:
 		string m_sResult;
 
 		TaskStatus m_eTaskStatus;
-		Task(string sName,int iPriority,Job *pJob);
+		Task(Job *pJob,string sName);
 
-		//TaskStatus m_eTaskStatus_get() { return m_eTaskStatus; }
-		bool m_bThreadRunning_get() { return m_bThreadRunning; }
-		void Execute();
-		bool Cancel();
-		virtual void ThreadStarted() {}
-		virtual void ThreadEnded() { m_bThreadRunning=false; }
+		bool Abort();
 
-		virtual string ToString()=0;
-		virtual string Type()=0;
-		virtual void Run()=0;
+		virtual string ToString() { return m_sName; }
+		virtual string Type() { return "Unknown Task"; }  // Should override
+		virtual int Run()=0;  // Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms
 	};
 };
 
