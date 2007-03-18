@@ -50,7 +50,7 @@ namespace nsThreadedClass
 
 	public:
 		ThreadedClass();
-		~ThreadedClass();
+		virtual ~ThreadedClass();
 
 		bool StartThread();  // Returns false if it fails to start the thread
 		bool StopThread(int iTimeout=-1);  // Returns false if it fails to stop the thread.  Don't specify a timeout to use the default

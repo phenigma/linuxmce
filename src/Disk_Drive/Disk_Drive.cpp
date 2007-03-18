@@ -489,6 +489,6 @@ void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,str
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Media_Identified disc is %d",*iEK_Disc);
 	if( *iEK_Disc )
 	{
-
+		m_pDisk_Drive_Functions->UpdateDiscLocation('M',*iEK_Disc,0);
 	}
 }

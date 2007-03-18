@@ -883,7 +883,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 		/** @param #121 Tracks */
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 		/** @param #131 EK_Disc */
-			/** The ID of the disc to rip */
+			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
 		/** @param #152 Drive Number */
 			/** Disc unit index number
 Disk_Drive: 0
@@ -1085,6 +1085,8 @@ Powerfile: 0, 1, ... */
 	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
 		/** @param #13 Filename */
 			/** Default ripping name. */
+		/** @param #131 EK_Disc */
+			/** The disc to rip.  If not specified, it will be whatever is playing in the entertainment area that sent this */
 		/** @param #219 Path */
 			/** Base path for ripping. */
 		/** @param #233 DriveID */
@@ -1092,8 +1094,8 @@ Powerfile: 0, 1, ... */
 		/** @param #235 Storage Device Name */
 			/** The name of the storage device with most free space. */
 
-	virtual void CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name) { string sCMD_Result; CMD_Get_Default_Ripping_Info(sFilename,sPath,iDriveID,sStorage_Device_Name,sCMD_Result,NULL);};
-	virtual void CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name) { string sCMD_Result; CMD_Get_Default_Ripping_Info(iEK_Disc,sFilename,sPath,iDriveID,sStorage_Device_Name,sCMD_Result,NULL);};
+	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #819 - Get ID from Filename */

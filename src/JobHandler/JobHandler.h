@@ -56,7 +56,7 @@ namespace nsJobHandler
 
 	public:
 		JobHandler();
-		~JobHandler();
+		virtual ~JobHandler();
 
 		void AbortAllJobs();
 		void PurgeCompletedJobs();

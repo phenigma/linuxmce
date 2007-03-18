@@ -62,9 +62,7 @@ Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const s
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::Disk_Drive_Functions m_pDevice_MediaIdentifier %d",m_pDevice_MediaIdentifier ? m_pDevice_MediaIdentifier->m_dwPK_Device : 0);
 
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
-	DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
-		BL_SameHouse,m_pCommand_Impl->m_dwPK_Device,"");
-	m_pCommand_Impl->SendCommand(CMD_Report_Discs_in_Drive_DT);
+	UpdateDiscLocation('E',0,0); // For now say the drive is empty, when the script starts it will get set again
 }
 
 Disk_Drive_Functions::~Disk_Drive_Functions()
@@ -179,9 +177,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 			m_discid=0;
 			StopNbdServer();
 			m_mediaInserted = false;
-			DCE::CMD_Report_Discs_in_Drive_DT CMD_Report_Discs_in_Drive_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
-				BL_SameHouse,m_pCommand_Impl->m_dwPK_Device,"");
-			m_pCommand_Impl->SendCommand(CMD_Report_Discs_in_Drive_DT);
+			UpdateDiscLocation('E',0,0); // Now the drive is empty
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk is not in the drive at the moment");
 		}
 	}

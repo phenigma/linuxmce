@@ -2048,7 +2048,7 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sCaption, string sCom
 		//get default ripping info
 		string sMounterFolder;
 		CMD_Get_Default_Ripping_Info cmd_CMD_Get_Default_Ripping_Info(m_pOrbiter->m_dwPK_Device,
-			m_pOrbiter->m_dwPK_Device_MediaPlugIn, &m_pOrbiter->m_sDefaultRippingName,
+			m_pOrbiter->m_dwPK_Device_MediaPlugIn, 0, &m_pOrbiter->m_sDefaultRippingName,
 			&sMounterFolder, &m_pOrbiter->m_nDefaultStorageDeviceForRipping, 
 			&m_pOrbiter->m_sDefaultStorageDeviceForRippingName);
 		m_pOrbiter->SendCommand(cmd_CMD_Get_Default_Ripping_Info);

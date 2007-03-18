@@ -3645,7 +3645,7 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 		/** @param #121 Tracks */
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 		/** @param #131 EK_Disc */
-			/** The ID of the disc to rip */
+			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
 		/** @param #152 Drive Number */
 			/** Disc unit index number
 Disk_Drive: 0
@@ -5904,6 +5904,8 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
 		/** @param #13 Filename */
 			/** Default ripping name. */
+		/** @param #131 EK_Disc */
+			/** The disc to rip.  If not specified, it will be whatever is playing in the entertainment area that sent this */
 		/** @param #219 Path */
 			/** Base path for ripping. */
 		/** @param #233 DriveID */
@@ -5911,7 +5913,7 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		/** @param #235 Storage Device Name */
 			/** The name of the storage device with most free space. */
 
-void Media_Plugin::CMD_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
 //<-dceag-c817-e->
 {
 	*sFilename = "Unknown disk";
