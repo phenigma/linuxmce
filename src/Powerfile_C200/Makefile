@@ -21,7 +21,8 @@ sources = Main.cpp Powerfile_C200.cpp $(Gen_Dev_Files)
 CXXFLAGS += $(XXXFLAGS)
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lpluto_media -lpluto_main -lid3 -lattr -lDisk_Drive_Functions
+XTRALDLIBS = -lpluto_media -lpluto_main -lid3 -lattr 
+#-lDisk_Drive_Functions
 
 Gen_Dev_Files +=
 sources += 
