@@ -404,6 +404,20 @@ function Create_Diskless_Archive {
 	rm -rf $temp_dir
 }
 
+function Create_ISO {
+	# Create the iso
+	pushd $local_mirror_dir
+	        /root/Ubuntu_Helpers/get-packages.sh
+	popd
+}
+
+function Upload_Build_Archive {
+	pushd $local_mirror_dir
+		ar -zcf /var/plutobuild/linuxmce-uploads.tar.gz *
+		scp /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
+	popd
+}
+
 #Install_Build_Needed_Packages
 Create_Diskless_Archive
 Import_Pluto_Skins
@@ -414,16 +428,8 @@ Import_Build_Database
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
 Create_Local_Repository
-# Create the iso
-pushd $local_mirror_dir
-	/root/Ubuntu_Helpers/get-packages.sh
-popd
-
-# Move them to linuxmce.com
-pushd $local_mirror_dir
-	tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz *
-	scp /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
-popd
+Create_ISO
+Upload_Build_Archive
 
 echo "Finished"
 date -R
