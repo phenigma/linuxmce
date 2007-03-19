@@ -28,6 +28,9 @@ using namespace nsThreadedClass;
 
 namespace nsJobHandler
 {
+	class Task;
+	class JobHandler;
+	
 	class Job : public ThreadedClass
 	{
 	public:
