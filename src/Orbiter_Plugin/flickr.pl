@@ -301,12 +301,13 @@ sub get_files{
 	
 	$r=$xs->Scale(width=>$image->{'width'}, 
 		      height=>$image->{'height'});
-	$r = $xs->Annotate( font=>'/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf', 
-				pointsize=>20, 
-				fill=>'red', 
-				x=>'20',
-				y=>'40',
-				text=>chr(169).$image->{'username'});
+
+#	$r = $xs->Annotate( font=>'/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf', 
+#				pointsize=>20, 
+#				fill=>'red', 
+#				x=>'20',
+#				y=>'40',
+#				text=>chr(169).$image->{'username'});
 	warn "$r" if "$r";
 	$r=$xs->Write($finaldst);
 	print "[flickr.pl] Writing file $finaldst.\n";
