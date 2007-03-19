@@ -2,7 +2,7 @@
 
 flavor="ubuntu"
 
-if [[ $build_dir="" || $local_mirror_dir="" ]] ;then
+if [[ $build_dir == "" || $local_mirror_dir == "" ]] ;then
 	build_dir="/var/plutobuild"
 	local_mirror_dir="/var/www"
 fi
