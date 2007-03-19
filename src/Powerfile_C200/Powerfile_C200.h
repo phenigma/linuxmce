@@ -36,7 +36,7 @@ class Database_pluto_media;
 class MediaAttributes_LowLevel;
 class Row_Disc;
 
-#define MTX_CMD "/opt/mtx-pluto/bin/mtx"
+#define MTX_CMD "/opt/mtx-pluto/sbin/mtx"
 
 //<-dceag-decl-b->
 namespace DCE
