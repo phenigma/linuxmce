@@ -620,12 +620,12 @@ function editMasterDevice($output,$dbADO) {
 			$relValue=($pipePos!==false)?substr($rowRel['Value'],0,$pipePos):$rowRel['Value'];
 			$dtRelatedRows.='
 					<tr class="alternate_back">
-						<td>&nbsp;</td>
+						<td align="center">#'.$rowRel['FK_DeviceTemplate_Related'].'</td>
 						<td>'.$rowRel['Description'].'</td>
 						<td>'.$dtRelatedValues[$relValue].'</td>
 						<td>'.$TEXT_EXTRA_CONST.'</td>
 						<td>'.((strpos($rowRel['Value'],'|')!==false)?substr($rowRel['Value'],strpos($rowRel['Value'],'|')+1):'').'</td>
-						<td bgcolor="#EEEEEE"><a href="javascript:if(confirm(\''.$TEXT_DELETE_RELATION_CONFIRMATION_CONST.'\')){document.editMasterDevice.delRelated.value='.$rowRel['FK_DeviceTemplate_Related'].';document.editMasterDevice.submit();}">Delete</a></td>
+						<td bgcolor="#EEEEEE"><a href="javascript:if(confirm(\''.$TEXT_DELETE_RELATION_CONFIRMATION_CONST.'\')){document.editMasterDevice.delRelated.value='.$rowRel['PK_DeviceTemplate_DeviceTemplate_Related'].';document.editMasterDevice.submit();}">Delete</a></td>
 					</tr>';
 		}
 		$out.='
@@ -974,20 +974,15 @@ function editMasterDevice($output,$dbADO) {
 					header("Location: index.php?section=editMasterDevice&model=$deviceID&errRelated=Device Template no $addRelated does not exist!#dtRelated");
 					exit();
 				}else{
-					$alreadyExist=getFieldsAsArray('DeviceTemplate_DeviceTemplate_Related','FK_DeviceTemplate_Related',$dbADO,'WHERE FK_DeviceTemplate='.$deviceID.' AND FK_DeviceTemplate_Related='.$addRelated);
-					if(count($alreadyExist)>0){
-						header("Location: index.php?section=editMasterDevice&model=$deviceID&errRelated=Device Template is already related with $addRelated!#dtRelated");
-						exit();
-					}else{
-						$valueRelated=($extra!='')?$valueRelated.'|'.$extra:$valueRelated;
-						$dbADO->Execute('INSERT INTO DeviceTemplate_DeviceTemplate_Related (FK_DeviceTemplate,FK_DeviceTemplate_Related,Value) VALUES (?,?,?)',array($deviceID,$addRelated,$valueRelated));
-						$locationGoTo='#dtRelated';
-					}
+					//$alreadyExist=getFieldsAsArray('DeviceTemplate_DeviceTemplate_Related','FK_DeviceTemplate_Related',$dbADO,'WHERE FK_DeviceTemplate='.$deviceID.' AND FK_DeviceTemplate_Related='.$addRelated);
+					$valueRelated=($extra!='')?$valueRelated.'|'.$extra:$valueRelated;
+					$dbADO->Execute('INSERT INTO DeviceTemplate_DeviceTemplate_Related (FK_DeviceTemplate,FK_DeviceTemplate_Related,Value) VALUES (?,?,?)',array($deviceID,$addRelated,$valueRelated));
+					$locationGoTo='#dtRelated';
 				}
 			}
 
 			if((int)@$_POST['delRelated']>0){
-				$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceTemplate_Related WHERE FK_DeviceTemplate=? AND FK_DeviceTemplate_Related=?',array($deviceID,(int)$_POST['delRelated']));
+				$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceTemplate_Related WHERE PK_DeviceTemplate_DeviceTemplate_Related=?',array((int)$_POST['delRelated']));
 				$locationGoTo='#dtRelated';
 			}
 
