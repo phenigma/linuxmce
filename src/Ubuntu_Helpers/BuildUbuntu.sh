@@ -47,6 +47,12 @@ function Checkout_Pluto_Svn {
 	rm -rf ${svn_dir}/trunk
 	mkdir -p ${svn_dir}/trunk
 	svn co ${svn_url}/pluto/"$Branch"  ${svn_dir}/trunk
+	
+	for svn_dir in src ubuntu web ;do
+		mkdir -p ${svn_dir}/trunk/$svn_dir
+		svn co ${svn_url}/pluto/"$Branch"/$svn_dir  ${svn_dir}/trunk/$svn_dir
+	done
+
 	cp -f /root/images-pluto-admin/*.jpg ${svn_dir}/trunk/web/pluto-admin/include/images/
 	cp -f /root/images-pluto-adin/generic_xml_error_linuxmce.png ${svn_dir}/trunk/web/pluto-admin/security_images/generic_xml_error.png
 
