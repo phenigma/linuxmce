@@ -107,7 +107,7 @@ function Build_Pluto_Replacements {
 
 	#Package: libxine
 	apt-get -y install libcaca-dev liblircclient-dev libtheora-dev libflac-dev libmodplug-dev libgnomevfs2-dev libsmbclient-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch transfig libavformat-dev libpostproc-dev libavcodec-dev libraw1394-dev libdc1394-13-dev
-	pushd ${svn_dir}/trunk/external/xine-lib-1.1.3
+	pushd ${svn_dir}/trunk/ubuntu/xine-lib-1.1.3
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		dpkg -i ../libxine1-pluto_1.1.3*_i386.deb
 		dpkg -i ../libxine-pluto-dev_1.1.3*_i386.deb
@@ -116,13 +116,13 @@ function Build_Pluto_Replacements {
 
 	#Package: pluto-asterisk
 	apt-get -y install linux-headers-`uname -r`
-	pushd ${svn_dir}/trunk/external/asterisk
+	pushd ${svn_dir}/trunk/ubuntu/asterisk
 		./make_package_ubuntu.sh `uname -r`
 		cp -r asterisk-pluto_*.deb ${temp_dir}
 	popd
 
 	#Package: lshwd
-	pushd ${svn_dir}/trunk/external/lshwd-2.0-rc4
+	pushd ${svn_dir}/trunk/ubuntu/lshwd-2.0-rc4
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../lshwd_2.0*.deb ${temp_dir}
 	popd
@@ -163,7 +163,7 @@ function Build_Pluto_Replacements {
 	popd
 
 	#Package: lirc-pluto
-	pushd "${svn_dir}"/trunk/external/lirc-pluto-0.1
+	pushd "${svn_dir}"/trunk/ubuntu/lirc-pluto-0.1
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../lirc-pluto_*.deb "${temp_dir}"
 	popd
@@ -181,7 +181,7 @@ function Build_Pluto_Replacements {
 	popd
 
 	#Package: mtx-pluto
-	pushd "${svn_dir}"/trunk/external/mtx-1.3.10
+	pushd "${svn_dir}"/trunk/ubuntu/mtx-1.3.10
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../mtx-pluto_*.deb "${temp_dir}"
 	popd
