@@ -36,6 +36,7 @@ Job::Job(JobHandler *pJobHandler,string sName)
 	m_sName=sName; 
 	m_iMaxTasks=0; // No limit to number of tasks
 	m_iID=m_NextJobID++;
+	m_NextTaskID=0; // Unique id's for each task within this job
 	m_tNextRunAttempt=0;
 }
 
@@ -158,3 +159,15 @@ void Job::Reset(bool bDelete)
 	}
 	m_listTask.clear();
 }
+
+Task *Job::FindTask(int taskID)
+{
+	for(list<Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
+	{
+		Task *pTask = *it;
+		if( pTask->m_iID_get()==taskID )
+			return pTask;
+	}
+	return NULL;
+}
+

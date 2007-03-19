@@ -70,6 +70,10 @@ namespace nsJobHandler
 		bool HasJobs();
 
 		void Run();
+
+		// Be sure to grab a mutex before using these, like this: PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+		Job *FindJob(int jobID);
+		class Task *FindTask(int jobID,int taskID);
 	};
 };
 

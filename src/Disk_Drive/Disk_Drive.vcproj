@@ -141,6 +141,9 @@
 				RelativePath="Main.cpp">
 			</File>
 			<File
+				RelativePath="..\Media_Plugin\MediaAttributes_LowLevel.cpp">
+			</File>
+			<File
 				RelativePath="..\Disk_Drive_Functions\RipJob.cpp">
 			</File>
 			<File

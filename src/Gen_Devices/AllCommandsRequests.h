@@ -23390,9 +23390,10 @@ namespace DCE
 	};
 	class CMD_Update_Ripping_Status : public PreformedCommand {
 	public:
-		CMD_Update_Ripping_Status(long DeviceIDFrom, long DeviceIDTo,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Update_Ripping_Status(long DeviceIDFrom, long DeviceIDTo,string sText,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Update_Ripping_Status_CONST,
-			6 /* number of parameters */,
+			7 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
 			COMMANDPARAMETER_Time_CONST, sTime.c_str(),
 			COMMANDPARAMETER_Status_CONST, sStatus.c_str(),
@@ -23402,9 +23403,10 @@ namespace DCE
 	};
 	class CMD_Update_Ripping_Status_DL : public PreformedCommand {
 	public:
-		CMD_Update_Ripping_Status_DL(long DeviceIDFrom, string DeviceIDTo,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Update_Ripping_Status_DL(long DeviceIDFrom, string DeviceIDTo,string sText,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Update_Ripping_Status_CONST,
-			6 /* number of parameters */,
+			7 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
 			COMMANDPARAMETER_Time_CONST, sTime.c_str(),
 			COMMANDPARAMETER_Status_CONST, sStatus.c_str(),
@@ -23414,9 +23416,10 @@ namespace DCE
 	};
 	class CMD_Update_Ripping_Status_DT : public PreformedCommand {
 	public:
-		CMD_Update_Ripping_Status_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Update_Ripping_Status_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sText,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Update_Ripping_Status_CONST,
-			6 /* number of parameters */,
+			7 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
 			COMMANDPARAMETER_Time_CONST, sTime.c_str(),
 			COMMANDPARAMETER_Status_CONST, sStatus.c_str(),
@@ -23426,9 +23429,10 @@ namespace DCE
 	};
 	class CMD_Update_Ripping_Status_Cat : public PreformedCommand {
 	public:
-		CMD_Update_Ripping_Status_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Update_Ripping_Status_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sText,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Update_Ripping_Status_CONST,
-			6 /* number of parameters */,
+			7 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_Filename_CONST, sFilename.c_str(),
 			COMMANDPARAMETER_Time_CONST, sTime.c_str(),
 			COMMANDPARAMETER_Status_CONST, sStatus.c_str(),

@@ -28,13 +28,22 @@ namespace nsJobHandler
 	{
 		int m_iTrack;
 		bool m_bSpawnedRip;
+		string m_sText,m_sSpawnName;
+		int m_iPercent,m_iTime;
+		class RipJob *m_pRipJob;
 
 	public:
 		RipTask(class RipJob *pRipJob,string sName,int iTrack);
 		virtual ~RipTask() {}
 
 		virtual int Run();  // Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms
+
+		virtual bool Abort();
 		int RunAlreadySpawned(); // Called by Run if we've already spawned the ripping process
+		void UpdateProgress(string sStatus,int iPercent,int iTime,string sText,string sFilename); // Update the progress of this rip
+		void ReportFailure();
+		void ReportSuccess();
+		void ReportProgress();
 	};
 };
 

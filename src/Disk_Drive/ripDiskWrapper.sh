@@ -42,7 +42,7 @@ function isReadOnly
 
 function printUsage
 {
-	echo "$0 <Disk_Drive device id> <Media_Plugin device id> <target file name> <source device> <disk type> <ownerID> <rip format> ['<tracklist>']";
+	echo "$0 <Disk_Drive device id> <target file name> <source device> <disk type> <ownerID> <rip format> ['<tracklist>']";
 	echo "tracklist format: t1,name1[|t2,name2[|t3,name3]...]"
 	echo "  t1 = track number"
 	echo "  name1 = file name track is to be saved as"
@@ -55,13 +55,14 @@ for i in "$@"; do
 done
 
 diskDriveDeviceID="$1"
-mediaPluginDeviceID="$2"
-targetFileName="$3"
-sourceDevice="$4"
-diskType="$5"
-ownerID="$6"
-ripFormatString="$7" # mp3, ogg, flac, wav
-trackList="$8"
+jobID="$2"
+taskID="$3"
+targetFileName="$4"
+sourceDevice="$5"
+diskType="$6"
+ownerID="$7"
+ripFormatString="$8" # mp3, ogg, flac, wav
+trackList="$9"
 
 ripFormat=${ripFormatString%%;*}
 
@@ -78,7 +79,7 @@ command="";
 result=$ERR_NONE;
 case $diskType in 
 	2)
-		ProgressOutput='>(/usr/pluto/bin/DiskCopy_ProgressExtract.sh|/usr/pluto/bin/Pluto_Progress.sh "$diskDriveDeviceID" "$targetFileName" "$sourceDevice" "$mediaPluginDeviceID")'
+		ProgressOutput='>(/usr/pluto/bin/DiskCopy_ProgressExtract.sh|/usr/pluto/bin/Pluto_Progress.sh "$diskDriveDeviceID" "$jobID" "$taskID")'
 		command='/usr/pluto/bin/disc_unlock "$sourceDevice"; nice -n 15 /usr/pluto/bin/disk_copy "$sourceDevice" "$targetFileName.dvd.in-progress" > '"$ProgressOutput"
 	;;
 	0|1|6|7|8)
@@ -109,7 +110,7 @@ case $diskType in
 				exit 1
 			;;
 		esac
-		ProgressOutput='>(/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh "$diskDriveDeviceID" "$Dir/$FileName" "$sourceDevice" "$mediaPluginDeviceID")'
+		ProgressOutput='>(/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh "$diskDriveDeviceID" "$jobID" "$taskID" "$Dir/$FileName")'
 		command='nice -n 15 cdparanoia -e -d "$sourceDevice" "$Track" - 2> '"$ProgressOutput"' > '"$OutputFile"
 	;;
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
@@ -140,7 +141,7 @@ if [[ "$diskType" == 2 ]]; then
 			fi
 		fi
 		echo "Ripping failed: $Message"
-		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" -1000 2 35 35 "$targetFileName" 20 0 13 "$sourceDevice" 30 "$Message" 26 "$mediaPluginDeviceID" >/dev/null
+		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "e" 9 "$Message" >/dev/null
 		rm "$targetFileName.dvd.in-progress";
 		exit 1;
 	fi
@@ -148,7 +149,7 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 	mkdir -p "$Dir"
 	if [[ ! -d "$Dir" ]]; then
 		$Message="Couldn't create directory";
-		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" -1000 2 35 35 "$targetFileName" 20 0 13 "$sourceDevice" 30 "$Message" 26 "$mediaPluginDeviceID" >/dev/null
+		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "e" 9 "$Message" >/dev/null
 		echo "Ripping failed: $Message"
 		exit 1
 	fi
@@ -185,7 +186,7 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 			fi
 			
 			echo "Ripping failed: $Message"
-			/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" -1000 2 35 35 "$targetFileName" 20 0 13 "$sourceDevice" 30 "$Message" 26 "$mediaPluginDeviceID" >/dev/null
+			/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "e" 9 "$Message" >/dev/null
 			rm "$Dir/$Filename.$FinalExt.in-progress" &>/dev/null
 			exit 1;
 		fi

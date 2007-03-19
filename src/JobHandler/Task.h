@@ -40,6 +40,7 @@ namespace nsJobHandler
 
 	protected:
 		string m_sName;
+		int m_iID;
 		class Job *m_pJob;
 
 	public:
@@ -47,8 +48,9 @@ namespace nsJobHandler
 
 		Task(Job *pJob,string sName);
 
-		bool Abort();
+		virtual bool Abort();
 
+		int m_iID_get() { return m_iID; }
 		virtual string ToString() { return m_sName; }
 		virtual string Type() { return "Unknown Task"; }  // Should override
 		virtual int Run()=0;  // Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms

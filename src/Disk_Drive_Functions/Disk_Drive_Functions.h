@@ -34,6 +34,11 @@ extern "C"
 
 using namespace std;
 using namespace DCE;
+
+namespace nsJobHandler
+{
+	class RipTask;
+}
 using namespace nsJobHandler;
 
 typedef enum {

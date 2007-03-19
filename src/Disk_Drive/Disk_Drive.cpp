@@ -40,6 +40,8 @@ using namespace DCE;
 #include "DCE/DCEConfig.h"
 DCEConfig g_DCEConfig;
 
+#include "Disk_Drive_Functions/RipTask.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -52,6 +54,8 @@ extern "C"
     #include <linux/cdrom.h>
 }
 #endif
+
+using namespace nsJobHandler;
 
 #define SERVER_PORT 5150
 
@@ -504,6 +508,8 @@ void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,str
 
 	/** @brief COMMAND: #871 - Update Ripping Status */
 	/** Update the status of a ripping job */
+		/** @param #9 Text */
+			/** A text message */
 		/** @param #13 Filename */
 			/** The filename being ripped */
 		/** @param #102 Time */
@@ -517,9 +523,19 @@ void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,str
 		/** @param #258 Job */
 			/** The job id */
 
-void Disk_Drive::CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Update_Ripping_Status(string sText,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage)
 //<-dceag-c871-e->
 {
+	PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+	Task *pTask = m_pJobHandler->FindTask(atoi(sJob.c_str()),atoi(sTask.c_str()));
+	if( !pTask )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Disk_Drive::CMD_Update_Ripping_Status invalid job %s task %s",sJob.c_str(),sTask.c_str());
+		return;
+	}
+
+	RipTask *pRipTask = (RipTask *) pTask;
+	pRipTask->UpdateProgress(sStatus,iPercent,atoi(sTime.c_str()),sText,sFilename);
 }
 //<-dceag-c872-b->
 

@@ -2153,10 +2153,6 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				else
 				{
 					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "user_" + StringUtils::itos(m_pOrbiter->m_dwPK_Users) + "/data/" + sSubDir + "/";
-
-					//also append the user
-//  this is wrong.  there's no quotes, and it's the filename, not the username					m_sSaveFile_Command += " " + StringUtils::ltos(COMMANDPARAMETER_Name_CONST) + 
-//						" " + "<%=" + StringUtils::ltos(VARIABLE_Seek_Value_CONST) + "%>";
 				} 
 				
 				m_nPK_Users_SaveFile = pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePrivate_CONST ? m_pOrbiter->m_dwPK_Users : 0;
@@ -2504,7 +2500,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 						StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 "
 						TOSTRING(COMMAND_Rip_Disk_CONST) " "
 						TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=EU%> "
-						TOSTRING(COMMANDPARAMETER_Name_CONST) " <%=E17%> "
+						TOSTRING(COMMANDPARAMETER_Filename_CONST) " <%=E17%> "
 						TOSTRING(COMMANDPARAMETER_DriveID_CONST) " <%=E45%> "
 						TOSTRING(COMMANDPARAMETER_Directory_CONST) " <%=E9%> ";
 

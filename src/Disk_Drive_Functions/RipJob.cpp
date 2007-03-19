@@ -28,6 +28,7 @@ RipJob::RipJob(class JobHandler *pJobHandler,
 			Disk_Drive_Functions *pDisk_Drive_Functions,
 			JukeBox *pJukeBox,
 			int iPK_Users, int iEK_Disc, int iDrive_Number,
+			int iPK_Orbiter,
 			string sFormat, string sFileName, string sTracks)
 	: Job(pJobHandler,"RipJob")
 {
@@ -36,6 +37,7 @@ RipJob::RipJob(class JobHandler *pJobHandler,
 	m_iPK_Users=iPK_Users;
 	m_iEK_Disc=iEK_Disc;
 	m_iDrive_Number=iDrive_Number;
+	m_iPK_Orbiter=iPK_Orbiter;
 	m_sFormat=sFormat;
 	m_sFileName=sFileName;
 	m_sTracks=sTracks;

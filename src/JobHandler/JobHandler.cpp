@@ -179,3 +179,23 @@ void JobHandler::Run()
 			jm.CondWait();  // Nope, wait until something happens
 	}
 }
+
+Job *JobHandler::FindJob(int jobID)
+{
+	for(list<class Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
+	{
+		Job *pJob = *it;
+		if( pJob->m_iID_get()==jobID )
+			return pJob;
+	}
+	return NULL;
+}
+
+Task *JobHandler::FindTask(int jobID,int taskID)
+{
+	Job *pJob = FindJob(jobID);
+	if( !pJob )
+		return NULL;
+
+	return pJob->FindTask(taskID);
+}

@@ -6223,6 +6223,8 @@ void Media_Plugin::CheckForCustomPipe(EntertainArea *pEntertainArea,Message *pMe
 
 	/** @brief COMMAND: #871 - Update Ripping Status */
 	/** Update the status of a ripping job */
+		/** @param #9 Text */
+			/** A text message */
 		/** @param #13 Filename */
 			/** The filename being ripped */
 		/** @param #102 Time */
@@ -6236,7 +6238,7 @@ void Media_Plugin::CheckForCustomPipe(EntertainArea *pEntertainArea,Message *pMe
 		/** @param #258 Job */
 			/** The job id */
 
-void Media_Plugin::CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Update_Ripping_Status(string sText,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage)
 //<-dceag-c871-e->
 {
 }

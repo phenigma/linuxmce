@@ -42,6 +42,7 @@ namespace nsJobHandler
 
 	private:
 		static int m_NextJobID;
+		int m_NextTaskID;
 
 	protected:
 		friend class Task;
@@ -80,6 +81,7 @@ namespace nsJobHandler
 		virtual bool CanHandleAnotherTask() { return m_iMaxTasks==0 || PendingTasks()<m_iMaxTasks; }
 
 		Task *GetNextTask();
+		Task *FindTask(int taskID);
 		void AddTask(Task *pTask);
 
 		string m_sName_get() { return m_sName; }
