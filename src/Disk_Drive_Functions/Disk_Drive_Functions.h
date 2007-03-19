@@ -84,7 +84,7 @@ enum DiscTypes {
 
 class Disk_Drive_Functions
 {
-	friend class RipTask;
+	friend class nsJobHandler::RipTask;
 
 	private:
 		Command_Impl * m_pCommand_Impl;
