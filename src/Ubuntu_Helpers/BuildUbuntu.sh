@@ -1,8 +1,12 @@
 #!/bin/bash -x
 
 flavor="ubuntu"
-flavor_master="pluto"
-build_dir="/var/plutobuild"
+
+if [[ $build_dir="" || $local_mirror_dir="" ]] ;then
+	build_dir="/var/plutobuild"
+	local_mirror_dir="/var/www"
+fi
+
 svn_dir="${build_dir}/svn"
 svn_url="http://10.0.0.170/"
 
@@ -23,7 +27,6 @@ sql_slave_db_telecom="pluto_telecom"
 sql_slave_user="root"
 
 replacements_dir="${build_dir}/replacements"
-local_mirror_dir="/var/www"
 out_dir="${build_dir}/out"
 mkr_dir="${build_dir}/MakeRelease"
 
