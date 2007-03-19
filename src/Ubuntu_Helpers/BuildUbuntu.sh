@@ -45,8 +45,6 @@ function Checkout_Pluto_Svn {
 
 	[[ -d $svn_dir ]] && mkdir -p $svn_dir
 	rm -rf ${svn_dir}/trunk
-	mkdir -p ${svn_dir}/trunk
-	svn co ${svn_url}/pluto/"$Branch"  ${svn_dir}/trunk
 	
 	for svn_dir in src ubuntu web ;do
 		mkdir -p ${svn_dir}/trunk/$svn_dir
