@@ -78,7 +78,7 @@ int RipTask::Run()
 	strParameters = StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) + "\t" 
 		+ StringUtils::itos(m_pJob->m_iID_get()) + "\t" 
 		+ StringUtils::itos(m_iID_get()) + "\t"
-		+ "\"" + ((RipJob *) m_pJob)->m_sFileName + "\"\t" + pRipJob->m_pDisk_Drive_Functions->m_sDrive + "\t" 
+		+ ((RipJob *) m_pJob)->m_sFileName + "\t" + pRipJob->m_pDisk_Drive_Functions->m_sDrive + "\t" 
 		+ StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus) + "\t" 
 		+ StringUtils::itos(pRipJob->m_iPK_Users) + "\t" 
 		+ pRipJob->m_sFormat + "\t" + pRipJob->m_sTracks;
