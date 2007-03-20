@@ -103,7 +103,7 @@ int RipTask::Run()
 						strParameters,
 						sResultMessage + StringUtils::itos(RIP_RESULT_FAILURE),
 						sResultMessage + StringUtils::itos(RIP_RESULT_SUCCESS),
-						false, false, false, false);
+						false, false, false, true);
 
 	string sResponse;
     if (! pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->SendCommand(spawnApplication,&sResponse) || sResponse != "OK")
