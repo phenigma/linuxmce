@@ -163,7 +163,19 @@ private:
 
 	static MutexTracking *m_pMutexTracking;
 
-	static MutexTracking *GetInstance();
+	static MutexTracking *GetInstance()
+	{
+		if( m_pMutexTracking==NULL )
+		{
+			pthread_mutex_lock(&m_MutexForGetInstance.mutex);
+			if( m_pMutexTracking==NULL )
+			{
+				m_pMutexTracking = new MutexTracking();
+			}
+			pthread_mutex_unlock(&m_MutexForGetInstance.mutex);
+		}
+		return m_pMutexTracking;
+	}
 
 public:
 

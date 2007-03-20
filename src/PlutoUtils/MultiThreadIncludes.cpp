@@ -69,7 +69,7 @@ int MutexTracking::AddToMap(int LockNum,PlutoLock *pPlutoLock)
 {
 	MutexTracking *pMutexTracking = MutexTracking::GetInstance();
 	(*pMutexTracking->m_p_mapLocks)[LockNum] = pPlutoLock;
-
+/*
 string sAllLocks;
 for(map<int,PlutoLock *>::iterator itMapLock2=MutexTracking::GetMap()->begin();itMapLock2!=MutexTracking::GetMap()->end();itMapLock2++)
 {
@@ -79,6 +79,7 @@ sAllLocks += StringUtils::itos(itMapLock2->first) + "/" + StringUtils::itos(pSaf
 
 	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::AddToMap (%p) %p (>%d) size: %d inst %p all: %s", 
 		&pPlutoLock->m_pMyLock->mutex, m_pMutexTracking,LockNum,(int) (*pMutexTracking->m_p_mapLocks).size(), pMutexTracking,sAllLocks.c_str());
+		*/
 	return 0;
 }
 
@@ -87,7 +88,7 @@ int MutexTracking::RemoveFromMap(int LockNum,PlutoLock *pPlutoLock)
 	MutexTracking *pMutexTracking = MutexTracking::GetInstance();
 
 	map<int,PlutoLock *>::iterator itMapLock = (*pMutexTracking->m_p_mapLocks).find(LockNum);
-
+/*
 string sAllLocks;
 for(map<int,PlutoLock *>::iterator itMapLock2=MutexTracking::GetMap()->begin();itMapLock2!=MutexTracking::GetMap()->end();itMapLock2++)
 {
@@ -98,6 +99,7 @@ sAllLocks += StringUtils::itos(itMapLock2->first) + "/" + StringUtils::itos(pSaf
 	LoggerWrapper::GetInstance()->Write(LV_LOCKING, "MutexTracking::RemoveFromMap (%p) %p (>%d) %s size: %d inst %p all: %s",
 		&pPlutoLock->m_pMyLock->mutex, m_pMutexTracking,LockNum,(itMapLock==(*pMutexTracking->m_p_mapLocks).end() ? "****FAIL****" : ""),
 		(int) (*pMutexTracking->m_p_mapLocks).size(), pMutexTracking,sAllLocks.c_str());
+*/
 	if( itMapLock==(*pMutexTracking->m_p_mapLocks).end() )
 		return -1;
 
@@ -937,19 +939,3 @@ void valid_timespec(struct timespec &ts)
 }
 
 pluto_pthread_mutex_t MutexTracking::m_MutexForGetInstance("MutexTracking::GetInstance");  // Used just once so there's only one instance
-
-MutexTracking *MutexTracking::GetInstance()
-{
-	if( m_pMutexTracking==NULL )
-	{
-		pthread_mutex_lock(&m_MutexForGetInstance.mutex);
-		if( m_pMutexTracking==NULL )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"create mutex trackign");
-			m_pMutexTracking = new MutexTracking();
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"created mutex tracking %p",m_pMutexTracking);
-		}
-		pthread_mutex_unlock(&m_MutexForGetInstance.mutex);
-	}
-	return m_pMutexTracking;
-}

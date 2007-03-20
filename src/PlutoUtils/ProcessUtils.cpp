@@ -16,6 +16,7 @@
 #include "ProcessUtils.h"
 #include "CommonIncludes.h"
 #include "MultiThreadIncludes.h"
+#include "DCE/Logger.h"
 
 #include <vector>
 #include <map>
@@ -39,6 +40,7 @@
 	extern int errno;
 #endif
 using namespace std;
+using namespace DCE;
 
 #include "StringUtils.h"
 #include "FileUtils.h"
@@ -72,7 +74,7 @@ int ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, str
 
     if (sCmdExecutable == "" && sCmdParams == "")
     {
-		printf("ProcessUtils::SpawnApplication() Received empty Executable and Parameters for '%s'\n", sAppIdentifier.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::SpawnApplication() Received empty Executable and Parameters for '%s'\n", sAppIdentifier.c_str());
         return 0;
     }
 
@@ -84,26 +86,26 @@ int ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, str
 	string::size_type pos = 0;
     int i = 0;
 
-	printf("ProcessUtils::SpawnApplication() sCMDExec %s parms: %s size: %d\n",
+	LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::SpawnApplication() sCMDExec %s parms: %s size: %d\n",
 		sCmdExecutable.c_str(),sCmdParams.c_str(),(int) sCmdParams.size());
 
 	// this looks to complicated but i don;t have time to make it cleaner :-( mtoader@gmail.com)
     args[0] = (char *) strdup(sCmdExecutable.c_str());
-printf("dupped exec %s\n",args[0]);
+LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"dupped exec %s\n",args[0]);
 	while ( pos!=string::npos && pos<sCmdParams.size() && i < MaxArgs - 1)
 {
 string s=StringUtils::Tokenize(sCmdParams,"\t",pos);
 const char *ps=strdup(s.c_str());
-printf("dupped arg %d %s\n",i,ps);
+LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"dupped arg %d %s\n",i,ps);
 
 		args[++i] = strdup(s.c_str());
 }
 
 	args[++i] = 0;
-	printf("ProcessUtils::SpawnApplication() Found %d arguments\n", i);
+	LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::SpawnApplication() Found %d arguments\n", i);
 
     for (int x = 0 ; x < i; x++)
-		printf("ProcessUtils::SpawnApplication() Argument %d: %s\n", x, args[x]);
+		LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::SpawnApplication() Argument %d: %s\n", x, args[x]);
 
 	int in[2];
 	pipe(in);
@@ -121,7 +123,7 @@ printf("dupped arg %d %s\n",i,ps);
         {
 			// setenv("DISPLAY", ":0", 1);
             //now, exec the process
-            printf("ProcessUtils::SpawnApplication(): Spawning\n");
+            LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::SpawnApplication(): Spawning\n");
 			setpgrp();
 
 			string sLogFile;
@@ -158,7 +160,7 @@ printf("dupped arg %d %s\n",i,ps);
         }
 
         case -1:
-            printf("ProcessUtils::SpawnApplication() Error starting %s, err: %s\n", sCmdExecutable.c_str(), strerror(errno));
+            LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::SpawnApplication() Error starting %s, err: %s\n", sCmdExecutable.c_str(), strerror(errno));
             return 0;
 
 		default:
@@ -166,9 +168,9 @@ printf("dupped arg %d %s\n",i,ps);
 			for(int i=0;i<i;++i)
 				free(args[i]);
 
-			printf("Freed args\n");
+			LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"Freed args\n");
 
-			printf("ProcessUtils::SpawnApplication() adding this %d pid to the spawned list for %s\n", pid, sAppIdentifier.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::SpawnApplication() adding this %d pid to the spawned list for %s\n", pid, sAppIdentifier.c_str());
 
 			if ( g_mapIdentifierToPidData.find(sAppIdentifier) == g_mapIdentifierToPidData.end() )
                 g_mapIdentifierToPidData[sAppIdentifier] = map<int, PidData *>();
@@ -214,12 +216,12 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 
 	if (element == g_mapIdentifierToPidData.end())
     {
-        printf("ProcessUtils::KillApplication() No application '%s' found. None killed\n", sAppIdentifier.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::KillApplication() No application '%s' found. None killed\n", sAppIdentifier.c_str());
 		return false;
     }
 
 	MapPidToData &mapPidsToData = element->second;
-	printf("ProcessUtils::KillApplication(): Found %d '%s' applications.\n", mapPidsToData.size(), sAppIdentifier.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::KillApplication(): Found %d '%s' applications.\n", mapPidsToData.size(), sAppIdentifier.c_str());
 
 	associatedData.clear();
 	MapPidToData::const_iterator itPidsToData = mapPidsToData.begin();
@@ -235,7 +237,7 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 	g_mapIdentifierToPidData.erase(element);
 	sl.Release();
 
-	printf("ProcessUtils::KillApplication(): Mutex unlocked Sending kill signal.\n");
+	LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::KillApplication(): Mutex unlocked Sending kill signal.\n");
 	// we are doing the killing without the lock taken (since this killing might trigger another call into one of our functions which might cause a deadlock).
 	vector<int>::const_iterator itPids = pidsArray.begin();
 	while ( itPids != pidsArray.end() )
@@ -251,20 +253,20 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 
 bool ProcessUtils::ApplicationExited(int pid, string &associatedName, void *&associatedData, bool removeIt)
 {
-	printf("ProcessUtils::ApplicationExited() pid exited: %d\n", pid);
+	LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::ApplicationExited() pid exited: %d\n", pid);
 
 	PLUTO_SAFETY_LOCK(sl,g_ProcessUtilsMutex);
 
 	MapIdentifierToPidData::iterator applicationElement = g_mapIdentifierToPidData.begin();
 	while ( applicationElement != g_mapIdentifierToPidData.end() )
 	{
-		printf("ProcessUtils::ApplicationExited() Looking at: %s\n", applicationElement->first.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::ApplicationExited() Looking at: %s\n", applicationElement->first.c_str());
 
 		MapPidToData &mapPidsToData = applicationElement->second;
 		MapPidToData::iterator itPidsToData = mapPidsToData.begin();
 		while ( itPidsToData != mapPidsToData.end() && itPidsToData->first != pid )
 		{
-			printf("ProcessUtils::ApplicationExited() checking pid %d\n", itPidsToData->first);
+			LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::ApplicationExited() checking pid %d\n", itPidsToData->first);
 			itPidsToData++;
 		}
 
@@ -289,7 +291,7 @@ bool ProcessUtils::ApplicationIsLaunchedByMe(string applicationName)
 {
 	PLUTO_SAFETY_LOCK(sl,g_ProcessUtilsMutex);
 
-	printf("ApplicationIsLaunchedByMe %s size: %d",applicationName.c_str(),(int) g_mapIdentifierToPidData.size());
+	LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ApplicationIsLaunchedByMe %s size: %d",applicationName.c_str(),(int) g_mapIdentifierToPidData.size());
 	if ( g_mapIdentifierToPidData.find(applicationName) == g_mapIdentifierToPidData.end() )
 	{
 		return false;
@@ -308,12 +310,12 @@ bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
 
 	if (element == g_mapIdentifierToPidData.end())
     {
-        printf("ProcessUtils::KillApplication() No application '%s' found. None to send keys to\n", sAppIdentifier.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::KillApplication() No application '%s' found. None to send keys to\n", sAppIdentifier.c_str());
 		return false;
     }
 
 	MapPidToData &mapPidsToData = element->second;
-	printf("ProcessUtils::SendKeysToProcess(): Found %d '%s' applications, sending %s.\n", mapPidsToData.size(), sAppIdentifier.c_str(), sKeys.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::SendKeysToProcess(): Found %d '%s' applications, sending %s.\n", mapPidsToData.size(), sAppIdentifier.c_str(), sKeys.c_str());
 
 	MapPidToData::const_iterator itPidsToData = mapPidsToData.begin();
 	while ( itPidsToData != mapPidsToData.end() )
@@ -423,7 +425,7 @@ bool ProcessUtils::SpawnDaemon(const char * path, char * args[], bool bLogOutput
 		string sArgs;
 		for (int i = 0; args[i] != NULL; i++)
 			sArgs += string("") + args[i] + ",";
-		printf("ProcessUtils::SpawnDaemon: path=%s; args=%s\n", path, sArgs.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::SpawnDaemon: path=%s; args=%s\n", path, sArgs.c_str());
 	}
 
 	switch (pid = fork())
