@@ -1,9 +1,9 @@
 #!/bin/bash
 
 . /tmp/mce_wizard_data.sh
+Version=_SNR_VERSION_
 
-ISO="http://linuxmce.com/ubuntu/linuxmce-0.1-packages.iso"
-#ISO="http://10.0.0.82/linuxmce-0.1-packages.iso"
+ISO="http://linuxmce.com/ubuntu/linuxmce-$Version-packages.iso"
 
 function Setup_Network_Intefaces {
 	killall dhclient3 &>/dev/null
