@@ -401,18 +401,6 @@ void Command_Impl::ReplaceParams( ::std::string sReplacement ) {
 
 bool Command_Impl::Connect(int iPK_DeviceTemplate, std::string)
 {
-	m_bMessageQueueThreadRunning = true;
-	if(m_pthread_queue_id==0 && pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
-	{
-		m_pthread_queue_id=0;
-		m_bMessageQueueThreadRunning=false;
-		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create message processing queue" );
-	}
-#ifdef LL_DEBUG
-	SendString("COMMENT COMMAND " + StringUtils::itos(DeviceID));
-	m_pEvent->SendString("COMMENT EVENT " + StringUtils::itos(DeviceID));
-	m_pRequestHandler->SendString("COMMENT REQHAND " + StringUtils::itos(DeviceID));
-#endif
 	if( m_bLocalMode )
 	{
 		PostConnect();
@@ -436,6 +424,22 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate, std::string)
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"No client socket for device ID: %d", this->m_dwPK_Device);
 			bResult = false;
 		}
+	}
+
+	if( bResult )
+	{
+		m_bMessageQueueThreadRunning = true;
+		if(m_pthread_queue_id==0 && pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
+		{
+			m_pthread_queue_id=0;
+			m_bMessageQueueThreadRunning=false;
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create message processing queue" );
+		}
+#ifdef LL_DEBUG
+		SendString("COMMENT COMMAND " + StringUtils::itos(DeviceID));
+		m_pEvent->SendString("COMMENT EVENT " + StringUtils::itos(DeviceID));
+		m_pRequestHandler->SendString("COMMENT REQHAND " + StringUtils::itos(DeviceID));
+#endif
 	}
 
 	string sFlags;
