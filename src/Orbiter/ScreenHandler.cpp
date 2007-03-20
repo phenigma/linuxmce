@@ -2506,7 +2506,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 
 					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
 					
-					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,sTitle,sRipMessage,"1");
+					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,sTitle,sRipMessage,true);
 					m_pOrbiter->SendCommand(SCREEN_FileSave);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST )
