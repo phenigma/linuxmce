@@ -12,7 +12,7 @@ function editDeviceControlledVia($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
 	$deviceID = (int)@$_REQUEST['deviceID'];
-	
+	$GLOBALS['DT_&_Room']=1;
 	
 	if ($action=='form') {
 		$data=getFieldsAsArray('Device','Device.Description AS Description,FK_DeviceTemplate,FK_DeviceCategory,FK_Device_ControlledVia',$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device='.$deviceID);
