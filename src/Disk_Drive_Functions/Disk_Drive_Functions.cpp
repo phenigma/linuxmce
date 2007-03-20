@@ -187,12 +187,32 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 		}
 	}
 #else
-	// Pretend there's a dvd in here for windows
+	// Pretend there's a dvd/cd in here for windows
 	if( m_mediaInserted==false )
 	{
+		// DVD Block
+		/*
 		m_mediaDiskStatus = DISCTYPE_DVD_VIDEO;
 		int status = MEDIATYPE_pluto_DVD_CONST;
 		string mrl=m_sDrive;
+		*/
+
+		// CD Block
+		m_mediaDiskStatus = DISCTYPE_CD_AUDIO;
+		int status = MEDIATYPE_pluto_CD_CONST;
+		string mrl=
+			"cdda:///dev/cdrom/1\n"
+			"cdda:///dev/cdrom/2\n"
+			"cdda:///dev/cdrom/3\n"
+			"cdda:///dev/cdrom/4\n"
+			"cdda:///dev/cdrom/5\n"
+			"cdda:///dev/cdrom/6\n"
+			"cdda:///dev/cdrom/7\n"
+			"cdda:///dev/cdrom/8\n"
+			"cdda:///dev/cdrom/9\n"
+			"cdda:///dev/cdrom/10\n"
+			"cdda:///dev/cdrom/11";
+
 		if ( bFireEvent )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", mrl.c_str(),m_discid);
@@ -205,6 +225,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 				m_pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_pCommand_Impl->m_dwPK_Device);
 			m_pCommand_Impl->SendCommand(CMD_Identify_Media);
 		}
+
 		m_mediaInserted = true;
 	}
 #endif

@@ -442,8 +442,6 @@ void Disk_Drive::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,stri
 //<-dceag-c337-e->
 {
 	m_pDisk_Drive_Functions->CMD_Rip_Disk( sFilename,iPK_Users,sFormat,sTracks,iEK_Disc,iSlot_Number,iDriveID,sDirectory, sCMD_Result, pMessage);
-Sleep(1000);
-int k=2;
 }
 //<-dceag-c817-b->
 

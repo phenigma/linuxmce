@@ -89,7 +89,7 @@ int RipTask::Run()
 	string sResultMessage =
 		StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) + " " + StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) +
 			" " + StringUtils::itos(MESSAGETYPE_COMMAND) +
-			" " + StringUtils::itos(COMMAND_Update_Ripping_Status_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_Task_CONST) + " " + StringUtils::itos(1) +
+			" " + StringUtils::itos(COMMAND_Update_Ripping_Status_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_Task_CONST) + " " + StringUtils::itos(m_iID_get()) +
 			" " + StringUtils::itos(COMMANDPARAMETER_Job_CONST) + " " + StringUtils::itos(m_pJob->m_iID_get()) + " " +
 			StringUtils::itos(COMMANDPARAMETER_Status_CONST) + " ";
 
@@ -101,8 +101,8 @@ int RipTask::Run()
 						"/usr/pluto/bin/ripDiskWrapper.sh", 
 						m_sSpawnName,
 						strParameters,
-						sResultMessage + StringUtils::itos(RIP_RESULT_FAILURE),
-						sResultMessage + StringUtils::itos(RIP_RESULT_SUCCESS),
+						sResultMessage + "e",
+						sResultMessage + "s",
 						false, false, false, true);
 
 	string sResponse;
