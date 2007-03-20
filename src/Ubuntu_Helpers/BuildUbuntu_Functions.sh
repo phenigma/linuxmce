@@ -46,7 +46,7 @@ function Checkout_Pluto_Svn {
 	[[ -d $svn_dir ]] && mkdir -p $svn_dir
 	rm -rf ${svn_dir}/trunk
 	
-	for svn_module in src ubuntu web/pluto-admin web/amp ;do
+	for svn_module in src ubuntu web misc_utils ;do
 		mkdir -p ${svn_dir}/trunk/$svn_module
 		svn co ${svn_url}/pluto/"$Branch"/$svn_module  ${svn_dir}/trunk/$svn_module
 	done
