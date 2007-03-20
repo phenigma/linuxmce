@@ -3757,8 +3757,8 @@ void Media_Plugin::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,st
 	if( sFormat.size()==0 )
 		sFormat = "flac";
 	string sResponse;
-	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDevice_Disk->m_dwPK_Device, sFilename, iPK_Users, 
-		sFormat, sTracks, pRow_Disc->PK_Disc_get(), iSlot_Number, iDriveID, sDirectory);
+	DCE::CMD_Rip_Disk cmdRipDisk(pMessage->m_dwPK_Device_From, pDevice_Disk->m_dwPK_Device, sFilename, iPK_Users, 
+		sFormat, sTracks, pRow_Disc->PK_Disc_get(), iSlot_Number, iDriveID, sDirectory);  // Send it from the Orbiter so disk drive knows who requested it
 	if( !SendCommand(cmdRipDisk,&sResponse) || sResponse!="OK" )
 	{
 		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,

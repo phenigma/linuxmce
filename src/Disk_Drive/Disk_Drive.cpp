@@ -135,10 +135,10 @@ bool Disk_Drive::GetConfig()
 Disk_Drive::~Disk_Drive()
 //<-dceag-dest-e->
 {
-	delete m_pDisk_Drive_Functions;
-	delete m_pJobHandler;
+	delete m_pJobHandler;  // Delete this first since it can reference the others
 	delete m_pDatabase_pluto_media;
 	delete m_pMediaAttributes_LowLevel;
+	delete m_pDisk_Drive_Functions;
 }
 
 //<-dceag-reg-b->

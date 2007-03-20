@@ -1412,20 +1412,31 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		// There should be a '.lock' file
 		list<string> listFiles;
 		FileUtils::FindFiles(listFiles,sDestination,sFileNameBase + ".*.lock");
+#ifndef WIN32  // For testing under windows
 		if( listFiles.size()!=1 )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find ripped disc lock file: %s / %s %d",sDestination.c_str(),sFileNameBase.c_str(),(int) listFiles.size());
 			return;
 		}
 		string sLockFile = listFiles.front();
+#else
+		string sLockFile = sDestination + "/" + sFileNameBase + ".dvd.lock";
+#endif
+
 		listFiles.clear();
 		FileUtils::FindFiles(listFiles,sDestination,FileUtils::FileWithoutExtension(sLockFile)); // Now find the file without the lock
+#ifndef WIN32 // For testing
 		if( listFiles.size()!=1 )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find ripped disc for lock file: %s",sLockFile.c_str());
 			return;
 		}
 		string sRippedFile = listFiles.front();
+#else
+		StringUtils::Replace(&sDestination, "\\", "/"); // replacing all the \ in a windows path with /
+		StringUtils::Replace(&sFileNameBase, "\\", "/"); // replacing all the \ in a windows path with /
+		string sRippedFile = sDestination + "/" + sFileNameBase + ".dvd";
+#endif
 
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is not a dir, calling AddDirectoryToDatabase",sDestination.c_str());

@@ -32,14 +32,14 @@ namespace nsJobHandler
 	private:
 		Disk_Drive_Functions *m_pDisk_Drive_Functions;
 		class JukeBox *m_pJukeBox;
-		int m_iPK_Users, m_iEK_Disc, m_iDrive_Number,m_iPK_Orbiter;
+		int m_iPK_Users, m_iEK_Disc, m_iDrive_Number,m_iPK_Orbiter,m_iPK_MediaType;
 		string m_sFormat, m_sFileName, m_sTracks;
 
 	public:
 		RipJob(class JobHandler *pJobHandler,
 			Disk_Drive_Functions *pDisk_Drive_Functions,
 			JukeBox *pJukeBox,
-			int iPK_Users, int iEK_Disc, int iDrive_Number,
+			int iPK_Users, int iEK_Disc, int iDrive_Number, int iPK_MediaType,
 			int iPK_Orbiter,
 			string sFormat, string sFileName, string sTracks);
 		virtual ~RipJob() {};
