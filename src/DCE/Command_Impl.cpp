@@ -128,7 +128,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_bReload = false;
 	m_pPrimaryDeviceCommand = this;
 	m_bHandleChildren = false;
-	m_bMessageQueueThreadRunning = true;
+	m_bMessageQueueThreadRunning = false;
 	m_pParent = NULL;
 	m_bAskBeforeReload=false;
 	m_bImplementsPendingTasks=false;
@@ -138,17 +138,6 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_dwMessageInterceptorCounter=1;
 	m_pMessageBuffer=NULL;
 	m_pthread_queue_id=0;
-	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
-	{
-		m_pthread_queue_id=0;
-		m_bMessageQueueThreadRunning=false;
-		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create message processing queue" );
-	}
-#ifdef LL_DEBUG
-	SendString("COMMENT COMMAND " + StringUtils::itos(DeviceID));
-	m_pEvent->SendString("COMMENT EVENT " + StringUtils::itos(DeviceID));
-	m_pRequestHandler->SendString("COMMENT REQHAND " + StringUtils::itos(DeviceID));
-#endif
 }
 
 Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, class Router *pRouter )
@@ -163,7 +152,7 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_pData = pData;
 	m_pEvent = pEvent;
 	m_bHandleChildren = false;
-	m_bMessageQueueThreadRunning = true;
+	m_bMessageQueueThreadRunning = false;
 	m_bAskBeforeReload=false;
 	m_bImplementsPendingTasks=false;
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
@@ -172,12 +161,6 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_dwMessageInterceptorCounter=0;
 	m_pMessageBuffer=NULL;
 	m_pthread_queue_id=0;
-	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
-	{
-		m_pthread_queue_id=0;
-		m_bMessageQueueThreadRunning=false;
-		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create message processing queue" );
-	}
 
 	// Connect the primary device's event processor
 	// to the Data class so Data class changes can be sent.
@@ -418,6 +401,18 @@ void Command_Impl::ReplaceParams( ::std::string sReplacement ) {
 
 bool Command_Impl::Connect(int iPK_DeviceTemplate, std::string)
 {
+	m_bMessageQueueThreadRunning = true;
+	if(m_pthread_queue_id==0 && pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
+	{
+		m_pthread_queue_id=0;
+		m_bMessageQueueThreadRunning=false;
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create message processing queue" );
+	}
+#ifdef LL_DEBUG
+	SendString("COMMENT COMMAND " + StringUtils::itos(DeviceID));
+	m_pEvent->SendString("COMMENT EVENT " + StringUtils::itos(DeviceID));
+	m_pRequestHandler->SendString("COMMENT REQHAND " + StringUtils::itos(DeviceID));
+#endif
 	if( m_bLocalMode )
 	{
 		PostConnect();
