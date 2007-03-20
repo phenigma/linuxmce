@@ -30,6 +30,8 @@ replacements_dir="${build_dir}/replacements"
 out_dir="${build_dir}/out"
 mkr_dir="${build_dir}/MakeRelease"
 
+export Version=$("select VersionName from Version" | mysql $sql_slave_db | tail -1);
+
 
 function Install_Build_Needed_Packages {
 	local pkgs="subversion build-essential dh-make libmysqlclient12-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server"
@@ -367,6 +369,8 @@ function Import_Build_Database {
 	echo 'update Package_Directory SET FK_Distro = NULL WHERE PK_Package_Directory = 675' | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db
 
 	rm -rf $temp_file $temp_file_main $temp_file_myth $temp_file_media $temp_file_security $temp_file_telecom $temp_sqlcvsdir
+
+	export Version=$("select VersionName from Version" | mysql $sql_slave_db | tail -1);
 }
 
 function Import_Pluto_Skins {
