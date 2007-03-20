@@ -71,6 +71,7 @@
 #define EVENT_UserPassword_Mismatch_CONST 70
 #define EVENT_Volume_Changed_CONST 71
 #define EVENT_Channel_Scan_Progress_CONST 72
+#define EVENT_Media_List_Changed_CONST 73
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"
