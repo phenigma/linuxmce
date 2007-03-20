@@ -74,6 +74,7 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
 
     m_ImageQuality = DATA_Get_ImageQuality();
 	m_sRemotePhoneIP = DATA_Get_Remote_Phone_IP();
+	m_bReportTimeCode = false;
 
     if(m_ImageQuality < 10 || m_ImageQuality > 100)
         m_ImageQuality = 70; //default
