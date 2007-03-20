@@ -42,6 +42,8 @@ namespace nsJobHandler
 		string m_sName;
 		int m_iID;
 		class Job *m_pJob;
+		time_t m_tStarted;
+		int m_iPercent;
 
 	public:
 		string m_sResult;
@@ -56,8 +58,21 @@ namespace nsJobHandler
 		virtual int Run()=0;  // Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms
 		TaskStatus m_eTaskStatus_get() { return m_eTaskStatus; }
 		void m_eTaskStatus_set(TaskStatus taskStatus) 
-		{ 
+		{
+			if( m_eTaskStatus==TASK_NOT_STARTED && taskStatus==TASK_IN_PROGRESS )
+				m_tStarted=time(NULL);
+
 			m_eTaskStatus=taskStatus;
+		}
+		virtual int PercentComplete() { return m_iPercent; }
+		virtual int SecondsRemaining()
+		{ 
+			if( m_iPercent==0 || m_tStarted==0 )
+				return 0;
+
+			int Duration = (int) (time(NULL) - m_tStarted);
+			int TotalTime = Duration * 100 / m_iPercent;
+			return TotalTime - Duration;
 		}
 	};
 };

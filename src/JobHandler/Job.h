@@ -26,6 +26,12 @@
 using namespace std;
 using namespace nsThreadedClass;
 
+namespace DCE
+{
+	class PendingTaskList;
+}
+using namespace DCE;
+
 namespace nsJobHandler
 {
 	class Task;
@@ -91,6 +97,8 @@ namespace nsJobHandler
 		void Reset(bool bDelete = true);
 
 		virtual void Run();
+
+		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList);  // override to accurately report this job
 	};
 };
 

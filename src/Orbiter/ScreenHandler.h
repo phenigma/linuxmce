@@ -289,6 +289,10 @@ public:
 	bool JukeboxManager_ObjectSelected(CallBackData *pData);
 	bool NASManager_ObjectSelected(CallBackData *pData);
 
+	virtual void SCREEN_PendingTasks(long PK_Screen);
+	bool PendingTasks_GridRendering(CallBackData *pData);
+	bool PendingTasks_ObjectSelected(CallBackData *pData);
+
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
 	void SaveFile_SendCommand(int PK_Users);

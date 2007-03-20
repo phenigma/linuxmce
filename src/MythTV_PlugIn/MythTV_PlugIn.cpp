@@ -1811,3 +1811,14 @@ void MythTV_PlugIn::CheckForTvFormatAndProvider( int iPK_Device )
 */
 	}
 }
+//<-dceag-c882-b->
+
+	/** @brief COMMAND: #882 - Abort Task */
+	/** Abort a pending task */
+		/** @param #248 Parameter ID */
+			/** The ID of the task to abort */
+
+void MythTV_PlugIn::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c882-e->
+{
+}

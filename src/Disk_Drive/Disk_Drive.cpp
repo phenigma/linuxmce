@@ -37,6 +37,7 @@ using namespace DCE;
 #include "pluto_media/Database_pluto_media.h"
 #include "PlutoUtils/ProcessUtils.h"
 #include "Media_Plugin/MediaAttributes_LowLevel.h"
+#include "JobHandler/Job.h"
 #include "DCE/DCEConfig.h"
 DCEConfig g_DCEConfig;
 
@@ -555,4 +556,29 @@ void Disk_Drive::CMD_Update_Ripping_Status(string sText,string sFilename,string 
 void Disk_Drive::CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage)
 //<-dceag-c872-e->
 {
+}
+
+bool Disk_Drive::ReportPendingTasks(PendingTaskList *pPendingTaskList)
+{
+	return m_pJobHandler->ReportPendingTasks(pPendingTaskList);
+}
+//<-dceag-c882-b->
+
+	/** @brief COMMAND: #882 - Abort Task */
+	/** Abort a pending task */
+		/** @param #248 Parameter ID */
+			/** The ID of the task to abort */
+
+void Disk_Drive::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c882-e->
+{
+	PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+	Job *pJob = m_pJobHandler->FindJob(iParameter_ID);
+	if( !pJob )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Disk_Drive::CMD_Abort_Task invalid job %d",iParameter_ID);
+		return;
+	}
+
+	pJob->Abort();
 }

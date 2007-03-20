@@ -3124,3 +3124,14 @@ class DataGridTable *Orbiter_Plugin::FloorplanDevices( string GridID, string Par
 
 	return pDataGrid;
 }
+//<-dceag-c882-b->
+
+	/** @brief COMMAND: #882 - Abort Task */
+	/** Abort a pending task */
+		/** @param #248 Parameter ID */
+			/** The ID of the task to abort */
+
+void Orbiter_Plugin::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c882-e->
+{
+}

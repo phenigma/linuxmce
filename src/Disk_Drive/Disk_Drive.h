@@ -63,6 +63,8 @@ public:
 	virtual void PostConnect();
 
     virtual void RunMonitorLoop();
+
+	virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -285,6 +287,15 @@ Powerfile: 0, 1, ... */
 
 	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful) { string sCMD_Result; CMD_Lock(iPK_Device,sID.c_str(),bTurn_On,sText,bIsSuccessful,sCMD_Result,NULL);};
 	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #882 - Abort Task */
+	/** Abort a pending task */
+		/** @param #248 Parameter ID */
+			/** The ID of the task to abort */
+
+	virtual void CMD_Abort_Task(int iParameter_ID) { string sCMD_Result; CMD_Abort_Task(iParameter_ID,sCMD_Result,NULL);};
+	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	private:

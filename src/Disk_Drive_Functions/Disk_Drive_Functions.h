@@ -126,6 +126,7 @@ class Disk_Drive_Functions
 		int m_what_is_ripping;
 		bool m_bTrayOpen;
 		string m_sDrive;
+		Command_Impl *m_pCommand_Impl_get() { return m_pCommand_Impl; }
 };
 
 #endif

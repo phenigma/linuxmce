@@ -22,6 +22,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "DCE/Command_Impl.h"
 
 using namespace nsJobHandler;
 using namespace DCE;
@@ -199,3 +200,17 @@ Task *JobHandler::FindTask(int jobID,int taskID)
 
 	return pJob->FindTask(taskID);
 }
+
+bool JobHandler::ReportPendingTasks(PendingTaskList *pPendingTaskList)
+{
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+	bool bPendingTasks=false;
+	for(list<class Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
+	{
+		Job *pJob = *it;
+		bPendingTasks |= pJob->ReportPendingTasks(pPendingTaskList);
+	}
+
+	return bPendingTasks;
+}
+

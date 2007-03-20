@@ -48,6 +48,12 @@ return and set the status to ABORTED.
 using namespace std;
 #include "PlutoUtils/ThreadedClass.h"
 
+namespace DCE
+{
+	class PendingTaskList;
+}
+using namespace DCE;
+
 namespace nsJobHandler
 {
 	class JobHandler : public nsThreadedClass::ThreadedClass
@@ -74,6 +80,8 @@ namespace nsJobHandler
 		// Be sure to grab a mutex before using these, like this: PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
 		Job *FindJob(int jobID);
 		class Task *FindTask(int jobID,int taskID);
+
+		bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
 	};
 };
 

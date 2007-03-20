@@ -26,10 +26,9 @@ namespace nsJobHandler
 {
 	class RipTask : public Task
 	{
-		int m_iTrack;
+		int m_iTrack,m_iTime;
 		bool m_bSpawnedRip;
 		string m_sText,m_sSpawnName;
-		int m_iPercent,m_iTime;
 		class RipJob *m_pRipJob;
 
 	public:
@@ -44,6 +43,7 @@ namespace nsJobHandler
 		void ReportFailure();
 		void ReportSuccess();
 		void ReportProgress();
+		virtual int SecondsRemaining();
 	};
 };
 

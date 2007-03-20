@@ -23,6 +23,12 @@
 #include "JobHandler/Job.h"
 class Disk_Drive_Functions;
 
+namespace DCE
+{
+	class PendingTaskList;
+}
+using namespace DCE;
+
 namespace nsJobHandler
 {
 	class RipJob : public Job
@@ -46,6 +52,11 @@ namespace nsJobHandler
 
 		virtual bool ReadyToRun();
 		void AddRippingTasks();
+
+		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
+		virtual int PercentComplete();
+		virtual int SecondsRemaining();
+		virtual string ToString();
 	};
 };
 

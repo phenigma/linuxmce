@@ -265,6 +265,15 @@ live, nonlive, osd */
 	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size) { string sCMD_Result; CMD_Make_Thumbnail(sFilename.c_str(),pData,iData_Size,sCMD_Result,NULL);};
 	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #882 - Abort Task */
+	/** Abort a pending task */
+		/** @param #248 Parameter ID */
+			/** The ID of the task to abort */
+
+	virtual void CMD_Abort_Task(int iParameter_ID) { string sCMD_Result; CMD_Abort_Task(iParameter_ID,sCMD_Result,NULL);};
+	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
     };
 //<-dceag-end-b->

@@ -20,6 +20,8 @@
 #include "RipJob.h"
 #include "RipTask.h"
 #include "DCE/Logger.h"
+#include "DCE/Command_Impl.h"
+#include "Disk_Drive_Functions/Disk_Drive_Functions.h"
 
 using namespace nsJobHandler;
 using namespace DCE;
@@ -74,3 +76,68 @@ void RipJob::AddRippingTasks()
 	AddTask(new RipTask(this,"Rip",0));
 }
 
+bool RipJob::ReportPendingTasks(PendingTaskList *pPendingTaskList)
+{
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+	if( m_eJobStatus==job_WaitingToStart || m_eJobStatus==job_InProgress )
+	{
+		if( pPendingTaskList )
+		{
+			pPendingTaskList->m_listPendingTask.push_back(new PendingTask(m_iID,m_pDisk_Drive_Functions->m_pCommand_Impl_get()->m_dwPK_Device,
+				m_pDisk_Drive_Functions->m_pCommand_Impl_get()->m_dwPK_Device,
+				"rip",ToString(),(char) PercentComplete(),SecondsRemaining(),true));
+		}
+
+		return true;
+	}
+	else
+		return false;
+}
+
+int RipJob::PercentComplete()
+{ 
+	int iTaskNum=0;  // This will be which task we're working on
+	Task *pTask_Current=NULL;
+	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
+	{
+		Task *pTask = *it;
+		if( pTask->m_eTaskStatus_get()==TASK_NOT_STARTED )
+			break;
+		pTask_Current=pTask;
+		iTaskNum++;  // All the tasks
+	}
+
+	if( pTask_Current==NULL || iTaskNum==0 )
+		return 0; // We haven't started yet
+
+	int RangeThisTask = 100 / m_listTask.size(); // What range each task occupies in the percentage of the total
+	int ScaledPercent = pTask_Current->PercentComplete() * RangeThisTask / 100;  // What percentage this task is done, scaled to the range
+	// if there are 3 tasks, the range is 33%.  if a task is 50% done, it represents 16.5% of the total (ScaledPercent)
+
+	return (ScaledPercent*(iTaskNum-1)) /* for the tasks we've done so far */ + ScaledPercent /* plus the current task */;
+}
+
+int RipJob::SecondsRemaining()
+{ 
+	return 0; 
+}
+
+string RipJob::ToString()
+{ 
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+	int iTaskNum=0;  // This will be which task we're working on
+	Task *pTask_Current=NULL;
+	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
+	{
+		Task *pTask = *it;
+		if( pTask->m_eTaskStatus_get()==TASK_NOT_STARTED )
+			break;
+		pTask_Current=pTask;
+		iTaskNum++;  // All the tasks
+	}
+
+	string sTimeLeft;
+	if( pTask_Current )
+		sTimeLeft = "(" + StringUtils::SecondsAsTime(pTask_Current->SecondsRemaining()) + ")";
+	return "Ripping " + StringUtils::itos(iTaskNum) + " of " + StringUtils::itos((int) m_listTask.size()) + " " + sTimeLeft + ": " + m_sFileName;
+}

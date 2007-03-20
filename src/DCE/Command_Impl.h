@@ -41,7 +41,7 @@ namespace DCE
 	class PendingTask
 	{
 	public:
-		int m_dwID; // A unique id to identify this task
+		int m_dwID; // A unique id to identify this task.  Can be a job ID
 		int m_dwPK_Device_Processing; // The device that is processing this task
 		int m_dwPK_Device_Abort; // The device to send the ABORT_TASK syscommand to with the ID
 		string m_sType,m_sDescription;

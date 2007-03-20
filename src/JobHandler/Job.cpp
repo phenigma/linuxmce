@@ -23,6 +23,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "DCE/Command_Impl.h"
 
 using namespace DCE;
 using namespace nsJobHandler;
@@ -171,3 +172,19 @@ Task *Job::FindTask(int taskID)
 	return NULL;
 }
 
+bool Job::ReportPendingTasks(PendingTaskList *pPendingTaskList)
+{
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+	if( m_eJobStatus==job_WaitingToStart || m_eJobStatus==job_InProgress )
+	{
+		if( pPendingTaskList )
+		{
+			pPendingTaskList->m_listPendingTask.push_back(new PendingTask(m_iID,0,0,
+				"generic_job","Job: " + m_sName,-1,0,true));
+		}
+
+		return true;
+	}
+	else
+		return false;
+}

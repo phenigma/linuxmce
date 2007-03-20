@@ -750,9 +750,7 @@ class DataGridTable *General_Info_Plugin::PendingTasksGrid( string GridID, strin
 
 	PendingTaskList pendingTaskList;
 	for(list<int>::iterator it=DevicesWithPendingTasks.begin();it!=DevicesWithPendingTasks.end();++it)
-	{
 		ReportPendingTasksFromDevice(m_pcRequestSocket->m_pClientSocket,m_dwPK_Device,*it,&pendingTaskList);
-	}
 
     DataGridTable *pDataGrid = new DataGridTable( );
     DataGridCell *pCell;
@@ -761,6 +759,17 @@ class DataGridTable *General_Info_Plugin::PendingTasksGrid( string GridID, strin
 	{
 		PendingTask *pPendingTask = *it;
 		pCell = new DataGridCell( pPendingTask->m_sDescription, StringUtils::itos(pPendingTask->m_dwID) );
+		pCell->m_mapAttributes["Title"] = pPendingTask->m_sDescription;
+		string sStatus;
+		if( pPendingTask->m_cPercentComplete>0 )
+			sStatus += StringUtils::itos((int) pPendingTask->m_cPercentComplete) + "% ";
+		if( pPendingTask->m_dwSecondsLeft )
+			sStatus += StringUtils::itos(pPendingTask->m_dwSecondsLeft) + "sec ";
+
+		pCell->m_mapAttributes["Status"] = sStatus;
+		if( pPendingTask->m_bCanAbort )
+			pCell->m_mapAttributes["Abort"] = "1";
+		pCell->m_mapAttributes["PK_Device"] = StringUtils::itos(pPendingTask->m_dwPK_Device_Abort);
         pDataGrid->SetData( 0, RowCount++, pCell );
 	}
 	return pDataGrid;
@@ -3753,4 +3762,15 @@ void General_Info_Plugin::CMD_RemoteAssistance_GetStatus(bool *bEnable,string &s
 		}
 	}
 	fclose(f);
+}
+//<-dceag-c882-b->
+
+	/** @brief COMMAND: #882 - Abort Task */
+	/** Abort a pending task */
+		/** @param #248 Parameter ID */
+			/** The ID of the task to abort */
+
+void General_Info_Plugin::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c882-e->
+{
 }

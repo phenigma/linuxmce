@@ -32,6 +32,8 @@ Task::Task(Job *pJob,string sName)
 	m_pJob=pJob;
 	m_eTaskStatus=TASK_NOT_STARTED;
 	m_iID=m_pJob->m_NextTaskID++;
+	m_tStarted=0;
+	m_iPercent=0;
 }
 
 bool Task::Abort()

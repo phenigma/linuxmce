@@ -2559,3 +2559,84 @@ bool ScreenHandler::NASManager_ObjectSelected(CallBackData *pData)
 	}
 	return false; // Keep processing it
 }
+
+void ScreenHandler::SCREEN_PendingTasks(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_PendingTasks(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::PendingTasks_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::PendingTasks_GridRendering,	new DatagridAcquiredBackData());
+}
+
+bool ScreenHandler::PendingTasks_GridRendering(CallBackData *pData)
+{
+	// This is called every time a new section of the grid is to be rendered.  We want to find the child object for the 'abort' icon and remove it if we can't abort
+	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
+
+	// Iterate through all the cells
+	for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+	{
+		DataGridCell *pCell = it->second;
+		string sAbort = pCell->m_mapAttributes_Find("Abort");
+
+		pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+		if( colRow.second == pDatagridAcquiredBackData->m_pDataGridTable->m_iDownRow || colRow.second == pDatagridAcquiredBackData->m_pDataGridTable->m_iUpRow )
+			continue;
+
+		colRow.second -= pDatagridAcquiredBackData->m_pObj->m_GridCurRow;
+		colRow.first -= pDatagridAcquiredBackData->m_pObj->m_GridCurCol;
+
+		// See if there is an object assigned for this column/row
+		map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+		if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+		{
+			DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+			DesignObj_DataList::iterator iHao;
+
+			// Iterate through all the object's children
+			for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+			{
+				DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+				if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_iconAbort_CONST )
+					pDesignObj_Orbiter->m_bHidden = sAbort!="1";
+			}
+		}
+	}
+	return false;
+}
+
+bool ScreenHandler::PendingTasks_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_iconAbort_CONST && 
+		pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject &&
+		pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		int Row=-1,Col=-1;
+		DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject;
+		for(map< pair<int,int>, DesignObj_Orbiter *>::iterator it=pObj_Grid->m_mapChildDgObjects.begin();it!=pObj_Grid->m_mapChildDgObjects.end();++it)
+		{
+			if( it->second == pObjectInfoData->m_pObj->m_pParentObject )
+			{
+				Col=it->first.first;
+				Row=it->first.second;
+				break;
+			}
+		}
+
+		if( Row!=-1 && Col!=-1 )
+		{
+			DataGridTable *pDataGridTable = pObj_Grid->m_pDataGridTable_Current_get();
+			if( pDataGridTable )
+			{
+				DataGridCell *pCell = pDataGridTable->GetData(Col,Row);
+				if( pCell && pCell->GetValue() )
+				{
+					int PK_Device = atoi(pCell->m_mapAttributes["PK_Device"].c_str());
+					DCE::CMD_Abort_Task CMD_Abort_Task(m_pOrbiter->m_dwPK_Device,PK_Device,atoi(pCell->GetValue()));
+					m_pOrbiter->SendCommand(CMD_Abort_Task);
+				}
+			}
+		}
+	}
+	return false; // Keep processing it
+}

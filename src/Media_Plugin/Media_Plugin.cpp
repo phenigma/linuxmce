@@ -6242,3 +6242,14 @@ void Media_Plugin::CMD_Update_Ripping_Status(string sText,string sFilename,strin
 //<-dceag-c871-e->
 {
 }
+//<-dceag-c882-b->
+
+	/** @brief COMMAND: #882 - Abort Task */
+	/** Abort a pending task */
+		/** @param #248 Parameter ID */
+			/** The ID of the task to abort */
+
+void Media_Plugin::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c882-e->
+{
+}

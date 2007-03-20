@@ -33,8 +33,8 @@ using namespace nsJobHandler;
 RipTask::RipTask(RipJob *pRipJob,string sName,int iTrack)
 	: Task(pRipJob,sName)
 {
-	m_iPercent=m_iTime=0;
 	m_iTrack=iTrack;
+	m_iTime=0;
 	m_bSpawnedRip=false;
 	m_pRipJob=pRipJob; // A duplicate of m_pJob, but we don't need to keep recasting
 }
@@ -258,3 +258,11 @@ void RipTask::ReportSuccess()
 	}
 
 */
+
+int RipTask::SecondsRemaining()
+{ 
+	if( m_iTime )
+		return m_iTime;
+
+	return Task::SecondsRemaining();
+}

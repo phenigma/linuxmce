@@ -557,6 +557,15 @@ format */
 	virtual void CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int iPK_Orbiter) { string sCMD_Result; CMD_Set_Active_Remote(iPK_Device,bFire_Event,iPK_Orbiter,sCMD_Result,NULL);};
 	virtual void CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #882 - Abort Task */
+	/** Abort a pending task */
+		/** @param #248 Parameter ID */
+			/** The ID of the task to abort */
+
+	virtual void CMD_Abort_Task(int iParameter_ID) { string sCMD_Result; CMD_Abort_Task(iParameter_ID,sCMD_Result,NULL);};
+	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 };
 

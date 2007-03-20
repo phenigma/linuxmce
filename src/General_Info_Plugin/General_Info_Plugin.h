@@ -504,6 +504,15 @@ Delimiter: '\n' */
 	virtual void CMD_RemoteAssistance_GetStatus(bool *bEnable) { string sCMD_Result; CMD_RemoteAssistance_GetStatus(bEnable,sCMD_Result,NULL);};
 	virtual void CMD_RemoteAssistance_GetStatus(bool *bEnable,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #882 - Abort Task */
+	/** Abort a pending task */
+		/** @param #248 Parameter ID */
+			/** The ID of the task to abort */
+
+	virtual void CMD_Abort_Task(int iParameter_ID) { string sCMD_Result; CMD_Abort_Task(iParameter_ID,sCMD_Result,NULL);};
+	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;
