@@ -2568,7 +2568,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 
 	MediaDevice *pMediaDevice_Source = iPK_Device ? m_mapMediaDevice_Find(iPK_Device) : NULL;
 
-	int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
+	int iPK_Device_Orbiter = pMessage ? pMessage->m_dwPK_Device_From : 0;
 	vector<EntertainArea *> vectEntertainArea;
 
 	// Only an Orbiter will tell us to play media

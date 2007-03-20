@@ -281,6 +281,7 @@ public:
     // Public member variables
     map<int,EntertainArea *> m_mapEntertainAreas;  // Plug-ins may want this
     map<int,MediaDevice *> m_mapMediaDevice;
+	MapMediaStream *m_mapMediaStream_get() { return &m_mapMediaStream; }
 
     EntertainArea *m_mapEntertainAreas_Find(int iPK_EntertainArea) { map<int,class EntertainArea *>::iterator it = m_mapEntertainAreas.find(iPK_EntertainArea); return it==m_mapEntertainAreas.end() ? NULL : (*it).second; }
     MediaDevice *m_mapMediaDevice_Find(int iPK_Device) { map<int,class MediaDevice *>::iterator it = m_mapMediaDevice.find(iPK_Device); return it==m_mapMediaDevice.end() ? NULL : (*it).second; }
