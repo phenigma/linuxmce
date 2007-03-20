@@ -413,7 +413,7 @@ function Create_ISO {
 
 function Upload_Build_Archive {
 	pushd $local_mirror_dir
-		ar -zcf /var/plutobuild/linuxmce-uploads.tar.gz *
+		tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz *
 		scp /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
 	popd
 }
