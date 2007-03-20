@@ -56,6 +56,13 @@ public:
 			EVENTPARAMETER_Video_CONST, sVideo.c_str()));
 	}
 
+	virtual void Media_List_Changed()
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Media_List_Changed_CONST,
+			0 /* number of parameter's pairs (id, value) */));
+	}
+
 };
 
 
@@ -198,6 +205,7 @@ public:
 	//Data accessors
 	//Event accessors
 	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo) { GetEvents()->Playback_Started(sMRL.c_str(),iStream_ID,sSectionDescription.c_str(),sAudio.c_str(),sVideo.c_str()); }
+	void EVENT_Media_List_Changed() { GetEvents()->Media_List_Changed(); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,class Message *pMessage) {};
