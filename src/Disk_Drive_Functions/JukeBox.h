@@ -67,11 +67,14 @@ namespace nsJukeBox
 		}
 	};
 
+	typedef map<int,Slot *> map_int_Slotp;
+	typedef map<int,Drive *> map_int_Drivep;
+
 	class JukeBox
 	{
 	protected:
-		map<int,Slot *> m_mapSlot;
-		map<int,Drive *> m_mapDrive;
+		map_int_Slotp m_mapSlot;
+		map_int_Drivep m_mapDrive;
 
 	public:
 		enum JukeBoxReturnCode
@@ -81,7 +84,21 @@ namespace nsJukeBox
 			jukebox_communication_failure
 		};
 
-		virtual ~JukeBox() {};
+		virtual ~JukeBox()
+		{
+			map_int_Slotp::iterator itSlot;
+			map_int_Drivep::iterator itDrive;
+
+			for (itSlot = m_mapSlot.begin(); itSlot != m_mapSlot.end(); itSlot++)
+			{
+				delete itSlot->second;
+			}
+
+			for (itDrive = m_mapDrive.begin(); itDrive != m_mapDrive.end(); itDrive++)
+			{
+				delete itDrive->second;
+			}
+		}
 
 		virtual void Init()=0;
 
