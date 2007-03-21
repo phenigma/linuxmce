@@ -141,6 +141,9 @@ public:
 	// Albums are special situations because they should be combined as one only when the performer is the same.  
 	// Pass in the performer as PK_Attribute_Related to have album attributes consolidated
     Row_Attribute *GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName,int PK_Attribute_Related=0); 
+	void AddAttributeToFile(Row_File *pRow_File,Row_Attribute *pRow_Attribute,int Track,int Section);
+	void AddAttributeToDisc(Row_Disc *pRow_Disc,Row_Attribute *pRow_Attribute,int Track,int Section);
+
 	void TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeMediaFile);
 
 	MediaSection *GetMediaSection(deque<MediaSection *> *p_dequeMediaSection,unsigned int Section) 

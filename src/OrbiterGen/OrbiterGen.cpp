@@ -1069,6 +1069,8 @@ m_bNoEffects = true;
 		}
 	}
 
+	FixupSpecialOrbiters(listLocationInfo);
+
 	listLocationInfo.sort(LocationComparer);
 
 	// First add the location numbers so they're available from the beginning, and put them in 
@@ -2777,3 +2779,52 @@ void OrbiterGenerator::PopulateEffects(map<int, int> &mapEffects, int FK_Skin)
 		mapEffects[pRow->FK_EffectType_get()] = pRow->FK_Effect_get();
 	}
 }
+
+void OrbiterGenerator::FixupSpecialOrbiters(list<LocationInfo *> &listLocationInfo)
+{
+	// There are special cases with Orbiter's that have device data to refer to a device that is their m/d
+	vector<Row_Device *> vectRow_Device;
+	m_spDatabase_pluto_main->Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Standard_Orbiter_CONST),&vectRow_Device);
+	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
+	{
+		Row_Device *pRow_Device = *it;
+		Row_Device_DeviceData *pRow_Device_DeviceData = m_spDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_PK_Device_CONST);
+		if( pRow_Device_DeviceData )
+		{
+			Row_Device *pRow_Device_MD = m_spDatabase_pluto_main->Device_get()->GetRow(atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()));
+			if( !pRow_Device_MD )
+				continue;  // Nothing to do
+
+			// This may point to an m/d, or the child of an m/d
+			Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_MD->FK_DeviceTemplate_getrow();
+			if( !pRow_DeviceTemplate )
+				continue;
+
+			if( pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Media_Director_CONST )
+			{
+				// See if it was the child
+				pRow_Device_MD = pRow_Device_MD->FK_Device_ControlledVia_getrow();
+				pRow_DeviceTemplate = pRow_Device_MD->FK_DeviceTemplate_getrow();
+				if( !pRow_DeviceTemplate )
+					continue;
+				if( pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Media_Director_CONST )
+					continue;
+			}
+
+			// Yep pRow_Device_MD is now the m/d.  Find the location
+			list<LocationInfo *>::iterator it;
+			for(it=listLocationInfo.begin();it!=listLocationInfo.end();++it)
+			{
+				LocationInfo *pLocationInfo = (*it);
+				if( pLocationInfo->m_dwPK_Device_MediaDirector==pRow_Device_MD->PK_Device_get() )
+				{
+					// Got it
+					if( pLocationInfo->m_dwPK_Device_Orbiter<1 )
+						pLocationInfo->m_dwPK_Device_Orbiter = pRow_Device->PK_Device_get();
+					continue;
+				}
+			}
+		}
+	}
+}
+

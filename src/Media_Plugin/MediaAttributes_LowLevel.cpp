@@ -1576,3 +1576,31 @@ int MediaAttributes_LowLevel::GetAttributeFromFile(int PK_File,int PK_AttributeT
 	return vectRow_Attribute[0]->PK_Attribute_get();
 }
 
+
+void MediaAttributes_LowLevel::AddAttributeToFile(Row_File *pRow_File,Row_Attribute *pRow_Attribute,int Track,int Section)
+{
+	Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->GetRow(pRow_File->PK_File_get(),pRow_Attribute->PK_Attribute_get(),Track,Section);
+	if( !pRow_File_Attribute )
+	{
+		pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+		pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
+		pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+		pRow_File_Attribute->Track_set(Track);
+		pRow_File_Attribute->Section_set(Section);
+		m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+	}
+}
+
+void MediaAttributes_LowLevel::AddAttributeToDisc(Row_Disc *pRow_Disc,Row_Attribute *pRow_Attribute,int Track,int Section)
+{
+	Row_Disc_Attribute *pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->GetRow(pRow_Disc->PK_Disc_get(),pRow_Attribute->PK_Attribute_get(),Track,Section);
+	if( !pRow_Disc_Attribute )
+	{
+		pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->AddRow();
+		pRow_Disc_Attribute->FK_Disc_set(pRow_Disc->PK_Disc_get());
+		pRow_Disc_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+		pRow_Disc_Attribute->Track_set(Track);
+		pRow_Disc_Attribute->Section_set(Section);
+		m_pDatabase_pluto_media->Disc_Attribute_get()->Commit();
+	}
+}

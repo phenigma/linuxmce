@@ -2117,7 +2117,16 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 			delete *it;
 		pEntertainArea->m_vectMediaStream_Interrupted.clear();
 		if( !pEntertainArea->m_pMediaStream )
+		{
+			// Just send an 'off' to the media director if there is one.
+			if( pEntertainArea->m_pMediaDevice_MD )
+			{
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::CMD_MH_Stop_Media turning off %d", pEntertainArea->m_pMediaDevice_MD->m_pDeviceData_Router->m_dwPK_Device);
+				DCE::CMD_Off CMD_Off(m_dwPK_Device,pEntertainArea->m_pMediaDevice_MD->m_pDeviceData_Router->m_dwPK_Device,0);
+				SendCommand(CMD_Off);
+			}
 			continue; // Don't know what area it should be played in, or there's no media playing there
+		}
 
 		pEntertainArea->m_pMediaStream->m_sLastPosition = ""; // Be sure we get a real position
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
@@ -2814,6 +2823,7 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 		if( pDeviceData_Router && pDeviceData_Router->m_mapCommands.find(pMessage->m_dwID)!=pDeviceData_Router->m_mapCommands.end() )
 		{
 			// The plugin has it's own method for handling this.  Give it the message instead
+			pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST] = StringUtils::itos(pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 			pMessage->m_dwPK_Device_To=pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_dwPK_Device;
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->ReceivedMessage(pMessage);
 			return;
