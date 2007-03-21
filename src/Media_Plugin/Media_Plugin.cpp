@@ -1110,7 +1110,10 @@ int Media_Plugin::GetMediaTypeForFile(deque<MediaFile *> *p_dequeMediaFile,vecto
 		if( pRow_Disc )
 			return pRow_Disc->EK_MediaType_get();
 	}
-	
+
+	if( pMediaFile->m_dwPK_MediaType>0 )
+		return pMediaFile->m_dwPK_MediaType;
+
 	string Extension = StringUtils::ToUpper(FileUtils::FindExtension(pMediaFile->m_sFilename));
 
 	map<int,MediaHandlerInfo *> mapMediaHandlerInfo;
@@ -2429,7 +2432,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 	MediaStream *pMediaStream = NULL;
 
     // See if we need to figure out the entertainment area on our own. If so, the only way to do this is if the message came from an orbiter
-    if( sPK_EntertainArea.size()==0 )
+    if( sPK_EntertainArea.size()==0 || sPK_EntertainArea=="0" )  // if the ent area isn't specified
     {
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( iPK_Device_Orbiter );
 		if( !pOH_Orbiter ) // It could be a remote control
