@@ -26,7 +26,8 @@ XTRALDLIBS = -lpluto_media -lpluto_main -lid3 -lattr
 #-lDisk_Drive_Functions
 
 Gen_Dev_Files +=
-sources += 
+sources += \
+	PowerfileJukebox.cpp \
 #../JobHandler/Job.cpp \
 #	../JobHandler/Task.cpp \
 #	../Media_Plugin/MediaAttributes_LowLevel.cpp \
