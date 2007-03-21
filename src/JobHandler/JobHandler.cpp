@@ -89,6 +89,11 @@ bool JobHandler::WaitForJobsToFinish(bool bAbort,int iSeconds)
 void JobHandler::PurgeCompletedJobs()
 {
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::PurgeCompletedJobs purge job %d",
+		m_listJob.size());
+#endif
+
 	for(list<Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();)
 	{
 		Job *pJob = *it;
@@ -105,7 +110,13 @@ void JobHandler::PurgeCompletedJobs()
 			m_listJob.erase(it++);
 		}
 		else
+		{
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::PurgeCompletedJobs keep job %d %s status %d",
+				pJob->m_iID_get(),pJob->m_sName_get().c_str(),(int) pJob->m_eJobStatus_get());
+#endif
 			++it;
+		}
 	}
 }
 
@@ -151,6 +162,9 @@ void JobHandler::Run()
 		Job *pJob_Next_Timed=NULL;
 		PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 		PurgeCompletedJobs();
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::Run jobs %d", m_listJob.size());
+		
 		for(list<class Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
 		{
 			Job *pJob = *it;
@@ -158,7 +172,13 @@ void JobHandler::Run()
 				continue;
 
 			if( pJob->ReadyToRun() )
+			{
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::Run ready to run job %d %s status %d",
+					pJob->m_iID_get(),pJob->m_sName_get().c_str(),(int) pJob->m_eJobStatus_get());
+#endif
 				pJob->StartThread();
+			}
 
 			// This Job wants to be called no later than a certain time.  See what is the next job (ie nearest next runattempt)
 			if( pJob->m_tNextRunAttempt_get() )
@@ -167,6 +187,14 @@ void JobHandler::Run()
 					pJob_Next_Timed=pJob;
 			}
 		}
+
+		if( !m_bQuit )
+			return;
+
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::Run ready to sleep %d jobs %p",
+			(int) m_listJob.size(), pJob_Next_Timed );
+#endif
 
 		// See if there's a time limit by which we should check the jobs again
 		if( pJob_Next_Timed )

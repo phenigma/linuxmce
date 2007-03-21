@@ -58,6 +58,7 @@ bool ThreadedClass::StopThread(int iTimeout)
 	if( iTimeout<1 )
 	{
 		tm.Release();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ThreadedClass::StopThread waiting to join");
 		pthread_join(m_pthread, NULL);
 		m_pthread=0;
 		return true;
