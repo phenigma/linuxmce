@@ -6133,6 +6133,8 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 
 	if( sText.size()<2 )
 		return;  // Invalid parameter
+
+	bool bFoundMatching=false;  // This way if we don't ever find a matching stream, we'll go ahead and resend on's to the m/d
 	vector<EntertainArea *> vectEntertainArea;
 	// Only an Orbiter will tell us to do this.  should only be one stream
     DetermineEntArea( pMessage->m_dwPK_Device_From, 0, sPK_EntertainArea, vectEntertainArea );
@@ -6141,10 +6143,11 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 		EntertainArea *pEntertainArea = vectEntertainArea[s];
 		if( !pEntertainArea->m_pMediaStream )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Retransmit_AV_Commands no media stream");
-			return;
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no media stream");
+			continue;
 		}
 
+		bFoundMatching=true;
 		// If we're not viewing a live path, it's running through the media director, so use those inputs
 		MediaDevice *pMediaDevice;
 		if( pEntertainArea->m_pMediaDevice_MD && !pEntertainArea->m_bViewingLiveAVPath )
@@ -6152,60 +6155,78 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 		else
 			pMediaDevice = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source;
 
-		if( sText[0]=='A' )
+		HandleRetransmitOnOff(sText[0],sText[1],pMediaDevice,pMessage->m_dwPK_Device_From,pEntertainArea);
+	}
+	
+	if( bFoundMatching==false )
+	{
+		DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From);
+		MediaDevice *pMediaDevice = pDevice ? m_mapMediaDevice_Find(pDevice->m_dwPK_Device_ControlledVia) : NULL;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Retransmit_AV_Commands Forwarding to %d %p", pMessage->m_dwPK_Device_From, pMediaDevice);
+		if( pMediaDevice )
+			HandleRetransmitOnOff(sText[0],sText[1],pMediaDevice,pMessage->m_dwPK_Device_From,NULL);
+	}
+}
+
+void Media_Plugin::HandleRetransmitOnOff(char A_or_V,char P_or_I,MediaDevice *pMediaDevice,int PK_Device_From,EntertainArea *pEntertainArea)
+{
+	if( A_or_V=='A' )
+	{
+		if( !pMediaDevice->m_pDevice_Audio )
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no audio device");
+		else
 		{
-			if( !pMediaDevice->m_pDevice_Audio )
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no audio device");
-			else
+			if( P_or_I=='P' )
 			{
-				if( sText[1]=='P' )
-				{
-					DCE::CMD_On CMD_On(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Audio->m_dwPK_Device,
-						0,"");
-					CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]="1";
+				DCE::CMD_On CMD_On(PK_Device_From,pMediaDevice->m_pDevice_Audio->m_dwPK_Device,
+					0,"");
+				CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]="1";
+				if( pEntertainArea )
 					CheckForCustomPipe(pEntertainArea,CMD_On.m_pMessage);
-					SendCommand(CMD_On);
-				}
-				else if( sText[1]=='I' )
+				SendCommand(CMD_On);
+			}
+			else if( P_or_I=='I' )
+			{
+				if( pMediaDevice->m_dwPK_Command_Audio )
 				{
-					if( pMediaDevice->m_dwPK_Command_Audio )
-					{
-						DCE::CMD_Input_Select CMD_Input_Select(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Audio->m_dwPK_Device,
-							pMediaDevice->m_dwPK_Command_Audio);
+					DCE::CMD_Input_Select CMD_Input_Select(PK_Device_From,pMediaDevice->m_pDevice_Audio->m_dwPK_Device,
+						pMediaDevice->m_dwPK_Command_Audio);
+					if( pEntertainArea )
 						CheckForCustomPipe(pEntertainArea,CMD_Input_Select.m_pMessage);
-						SendCommand(CMD_Input_Select);
-					}
-					else
-						LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no input on audio device");
+					SendCommand(CMD_Input_Select);
 				}
+				else
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no input on audio device");
 			}
 		}
-		else if( sText[0]=='V' )
+	}
+	else if( A_or_V=='V' )
+	{
+		if( !pMediaDevice->m_pDevice_Video )
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no Video device");
+		else
 		{
-			if( !pMediaDevice->m_pDevice_Video )
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no Video device");
-			else
+			if( P_or_I=='P' )
 			{
-				if( sText[1]=='P' )
-				{
-					DCE::CMD_On CMD_On(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Video->m_dwPK_Device,
-						0,"");
-					CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]="1";
+				DCE::CMD_On CMD_On(PK_Device_From,pMediaDevice->m_pDevice_Video->m_dwPK_Device,
+					0,"");
+				CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]="1";
+				if( pEntertainArea )
 					CheckForCustomPipe(pEntertainArea,CMD_On.m_pMessage);
-					SendCommand(CMD_On);
-				}
-				else if( sText[1]=='I' )
+				SendCommand(CMD_On);
+			}
+			else if( P_or_I=='I' )
+			{
+				if( pMediaDevice->m_dwPK_Command_Video )
 				{
-					if( pMediaDevice->m_dwPK_Command_Video )
-					{
-						DCE::CMD_Input_Select CMD_Input_Select(pMessage->m_dwPK_Device_From,pMediaDevice->m_pDevice_Video->m_dwPK_Device,
-							pMediaDevice->m_dwPK_Command_Video);
+					DCE::CMD_Input_Select CMD_Input_Select(PK_Device_From,pMediaDevice->m_pDevice_Video->m_dwPK_Device,
+						pMediaDevice->m_dwPK_Command_Video);
+					if( pEntertainArea )
 						CheckForCustomPipe(pEntertainArea,CMD_Input_Select.m_pMessage);
-						SendCommand(CMD_Input_Select);
-					}
-					else
-						LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no input on Video device");
+					SendCommand(CMD_Input_Select);
 				}
+				else
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_Retransmit_AV_Commands no input on Video device");
 			}
 		}
 	}

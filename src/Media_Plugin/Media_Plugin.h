@@ -460,6 +460,11 @@ public:
 	bool DeviceOnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 	/**
+	 * @brief Process in response to a CMD_Retransmit
+	 */
+	void HandleRetransmitOnOff(char A_or_V,char P_or_I,MediaDevice *pMediaDevice,int PK_Device_From,EntertainArea *pEntertainArea);
+
+	/**
 	 * @brief EVENT_AV_Input_Changed_CONST event interceptor, when some equipment was has the input changed manually
 	 */
 	bool AvInputChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
