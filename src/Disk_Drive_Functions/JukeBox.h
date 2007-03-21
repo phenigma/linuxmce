@@ -20,6 +20,8 @@
 #ifndef JukeBox_h
 #define JukeBox_h
 
+#include "Disk_Drive_Functions.h"
+
 namespace nsJukeBox
 {
 	// A slot is one of the slots in the Jukebox to hold discs.  A Drive is a physical drive
@@ -57,7 +59,7 @@ namespace nsJukeBox
 		} m_eStatus;
 		Disk_Drive_Functions *m_pDisk_Drive_Functions;
 
-		Drive( int DriveNumber, Status status, Disk_Drive_Functions *pDisk_Drive_Functions; )
+		Drive(int DriveNumber, Status status, Disk_Drive_Functions *pDisk_Drive_Functions)
 		{
 			m_DriveNumber=DriveNumber;
 			m_eStatus=status;
@@ -79,10 +81,14 @@ namespace nsJukeBox
 			jukebox_communication_failure
 		};
 
-		JukeBoxReturnCode MoveFromSlotToDrive(Slot *pSlot,Drive *pDrive)=0;
-		JukeBoxReturnCode MoveFromDriveToSlot(Slot *pSlot,Drive *pDrive)=0;
-		JukeBoxReturnCode Eject(Slot *pSlot)=0;  // Elect the disc in pSlot
-		JukeBoxReturnCode Load(Slot *pSlot=NULL)=0;  // If NULL, just allow bulk inserting into slots.
+		virtual ~JukeBox() {};
+
+		virtual void Init()=0;
+
+		virtual JukeBoxReturnCode MoveFromSlotToDrive(Slot *pSlot,Drive *pDrive)=0;
+		virtual JukeBoxReturnCode MoveFromDriveToSlot(Slot *pSlot,Drive *pDrive)=0;
+		virtual JukeBoxReturnCode Eject(Slot *pSlot)=0;  // Elect the disc in pSlot
+		virtual JukeBoxReturnCode Load(Slot *pSlot=NULL)=0;  // If NULL, just allow bulk inserting into slots.
 	};
 }
 
