@@ -3769,6 +3769,13 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 	{
 		DesignObjCommand *pCommand = *iCommand;
 		int PK_Command = pCommand->m_PK_Command;
+
+		if(	
+			Simulator::GetInstance()->IsRunning() &&
+			(PK_Command == COMMAND_Regen_Orbiter_CONST || PK_Command == COMMAND_Reload_CONST)
+		)
+			continue;
+
 		if( pCommand->m_bDeliveryConfirmation )
 			bGetConfirmation=true;
 
