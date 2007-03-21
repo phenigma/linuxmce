@@ -46,6 +46,7 @@ SimplePhone::SimplePhone(int DeviceID, string ServerAddress,bool bConnectEventHa
 	: SimplePhone_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	m_SIP_Thread = (pthread_t)NULL;
 }
 
 //<-dceag-const2-b->
@@ -54,6 +55,7 @@ SimplePhone::SimplePhone(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *p
 	: SimplePhone_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
 {
+	m_SIP_Thread = (pthread_t)NULL;
 }
 
 //<-dceag-dest-b->
@@ -61,7 +63,7 @@ SimplePhone::~SimplePhone()
 //<-dceag-dest-e->
 {
 	LS_bQuit = true;
-	if (m_SIP_Thread != 0)
+	if (m_SIP_Thread != (pthread_t)NULL)
 		pthread_join(m_SIP_Thread, NULL);
 }
 
@@ -372,12 +374,13 @@ void SimplePhone::CallInProgressScreen()
 
 void SimplePhone::CreateChildren()
 {
-    if (pthread_create(&m_SIP_Thread, NULL, LS_Thread, (void *) this))
-    {
-        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create Linphone SIP Thread");
-        m_bQuit_set(true);
-        exit(1);
-    }
+	if (pthread_create(&m_SIP_Thread, NULL, LS_Thread, (void *) this))
+	{
+		m_SIP_Thread = (pthread_t)NULL;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create Linphone SIP Thread");
+		m_bQuit_set(true);
+		exit(1);
+	}
 }
 //<-dceag-c28-b->
 
