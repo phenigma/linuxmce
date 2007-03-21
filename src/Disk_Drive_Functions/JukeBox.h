@@ -55,13 +55,13 @@ namespace nsJukeBox
 			drive_empty,
 			drive_full
 		} m_eStatus;
-		Disk_Drive_Function *m_pDisk_Drive_Function;
+		Disk_Drive_Functions *m_pDisk_Drive_Functions;
 
-		Drive( int DriveNumber, Status status, Disk_Drive_Function *pDisk_Drive_Function; )
+		Drive( int DriveNumber, Status status, Disk_Drive_Functions *pDisk_Drive_Functions; )
 		{
 			m_DriveNumber=DriveNumber;
 			m_eStatus=status;
-			m_pDisk_Drive_Function=pDisk_Drive_Function;
+			m_pDisk_Drive_Functions=pDisk_Drive_Functions;
 		}
 	};
 
