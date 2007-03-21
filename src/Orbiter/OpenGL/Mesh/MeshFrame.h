@@ -114,8 +114,9 @@ public:
 	void AddChild(MeshFrame* Frame);
 	/**
 	 *	Search in it's childs and if finds it it removes it
+	 *  @bDetachOnly - if true, the frame won't be deleted, if false, the frame will be deleted
 	 */
-	void RemoveChild(MeshFrame* Frame);
+	void RemoveChild(MeshFrame* Frame, bool bDetachOnly);
 	/**
 	 *	Replaces in it's childrens one frame with another
 	 */

@@ -478,9 +478,8 @@ inline void OpenGL3DEngine::DumpScene()
 	if(NULL != HighLightFrame)
 	{
 		//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
-		CurrentLayer->RemoveChild(HighLightFrame);
+		CurrentLayer->RemoveChild(HighLightFrame, true);
 		HighLightFrame->CleanUp();
-
 		delete HighLightFrame;
 		HighLightFrame = NULL;
 	}
@@ -492,9 +491,8 @@ inline void OpenGL3DEngine::DumpScene()
 
 	if(NULL != SelectedFrame)
 	{
-		CurrentLayer->RemoveChild(SelectedFrame);
+		CurrentLayer->RemoveChild(SelectedFrame, true);
 		SelectedFrame->CleanUp();
-
 		delete SelectedFrame;
 		SelectedFrame = NULL;
 	}
@@ -522,7 +520,7 @@ void OpenGL3DEngine::RemoveMeshFrameFromDesktop(MeshFrame* Frame)
 		return;
 
 	m_bWorldChanged = true;
-	OriginalCurrentLayer->RemoveChild(Frame);
+	OriginalCurrentLayer->RemoveChild(Frame, false);
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RemoveMeshFrameFromDesktop: removed object %p, size is not %d", 
 		Frame, OriginalCurrentLayer->Children.size());
@@ -687,9 +685,8 @@ void OpenGL3DEngine::HideHighlightRectangle()
 	if(NULL != HighLightFrame)
 	{
 		//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
-		CurrentLayer->RemoveChild(HighLightFrame);
+		CurrentLayer->RemoveChild(HighLightFrame, true);
 		HighLightFrame->CleanUp();
-
 		delete HighLightFrame;
 		HighLightFrame = NULL;
 	}
@@ -759,7 +756,7 @@ void OpenGL3DEngine::UpdateTopMostObjects()
 		}
 		else
 		{
-			OriginalCurrentLayer->RemoveChild(Frame);
+			OriginalCurrentLayer->RemoveChild(Frame, true);
 			OriginalCurrentLayer->AddChild(Frame);
 			++Item;
 		}

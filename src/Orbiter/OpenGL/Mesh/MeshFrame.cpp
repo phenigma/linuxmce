@@ -164,7 +164,7 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 	CheckIntegrity(Frame);
 }
 
-void MeshFrame::RemoveChild(MeshFrame* Frame)
+void MeshFrame::RemoveChild(MeshFrame* Frame, bool bDetachOnly)
 {
 	//CheckIntegrity(Frame);
 
@@ -194,7 +194,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame)
 
 			Frame->m_pParent = NULL;
 
-			if(Frame->IsVolatile())
+			if(!bDetachOnly && Frame->IsVolatile())
 			{
 				Frame->CleanUp(true);
 				delete Frame;

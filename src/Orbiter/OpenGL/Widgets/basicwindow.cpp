@@ -86,7 +86,7 @@ TBasicWindow::TBasicWindow(MeshFrame* Context,
 }
 
 TBasicWindow::~TBasicWindow() {
-	Context->RemoveChild(Frame);
+	Context->RemoveChild(Frame, true);
 	Frame->CleanUp();
 	delete Frame;
 }
