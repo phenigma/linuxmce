@@ -35,8 +35,12 @@ void displayStep0A(void) {
 	cleanupContainer(mainBox);
 	cleanupContainer(mainButtonBox);
 
+	GtkWidget *label = gtk_label_new_for_wizard ("Please insert the LinuxMCE Install CD");
+	gtk_box_pack_start(GTK_BOX(mainBox), label, FALSE, FALSE, 0);
+
+	// NEXT OPTIONS ARE DISABLED SINCE HITING THE FRAGILE LINUXMCE SERVER TO OFTER WOULD CAUSE IT TO GO DOWN
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("What method do you want to use to install Linux MCE ?");
+/*	GtkWidget *label = gtk_label_new_for_wizard ("What method do you want to use to install Linux MCE ?");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, FALSE, FALSE, 0);
 
 	// Questions
@@ -63,7 +67,7 @@ void displayStep0A(void) {
 	if (setting_installType == INSTALL_TYPE_CD) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioThree), TRUE);
 	}	
-
+*/
 
 
 	// Button Back

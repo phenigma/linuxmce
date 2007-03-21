@@ -31,18 +31,18 @@ void displayStep4(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("When the system first starts up, what graphical user interface do you want to see?");
+	GtkWidget *label = gtk_label_new_for_wizard ("How do you plan to use this computer ?");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	// Questions
 	GSList *group = NULL;
 	GtkWidget *radio[3];
 
-	radio[0] = gtk_radio_button_new_with_label(group, "Ubuntu’s, and give me the option of switching to LinuxMCE’s.");
+	radio[0] = gtk_radio_button_new_with_label(group, "Primarily used as a PC -- Ubuntu starts up by default, and you can start\nLinuxMCE manually when you need it.");
 	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio[0]));
-	radio[1] = gtk_radio_button_new_with_label(group, "LinuxMCE’s only. This will be used only as a media player, and not as a computer.");
+	radio[1] = gtk_radio_button_new_with_label(group, "A dedicated LinuxMCE System -- Start LinuxMCE and not Ubuntu.");
 	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio[0]));
-	radio[2] = gtk_radio_button_new_with_label(group, "Both Ubuntu and LinuxMCE (for core only installation).");
+	radio[2] = gtk_radio_button_new_with_label(group, "Both -- Start both Ubuntu and LinuxMCE.  LinuxMCE will appear by default,\nbut you can switch to Ubuntu by pressing Ctrl+Alt+F7");
 
 	int i;
 	for (i=0; i<3; i++) {
