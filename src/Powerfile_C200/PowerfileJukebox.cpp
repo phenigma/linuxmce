@@ -6,7 +6,7 @@ namespace nsJukeBox
 	{
 	}
 
-	/*virtual*/ JukeBox::JukeBoxReturnCode MoveFromSlotToDrive(Slot *pSlot,Drive *pDrive)
+	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::MoveFromSlotToDrive(Slot *pSlot,Drive *pDrive)
 	{
 	}
 
