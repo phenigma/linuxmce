@@ -77,7 +77,7 @@ namespace nsJukeBox
 			jukebox_ok,
 			jukebox_transport_failure,
 			jukebox_communication_failure
-		}
+		};
 
 		JukeBoxReturnCode MoveFromSlotToDrive(Slot *pSlot,Drive *pDrive)=0;
 		JukeBoxReturnCode MoveFromDriveToSlot(Slot *pSlot,Drive *pDrive)=0;
