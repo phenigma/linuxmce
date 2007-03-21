@@ -136,6 +136,9 @@ bool Disk_Drive::GetConfig()
 Disk_Drive::~Disk_Drive()
 //<-dceag-dest-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::~Disk_Drive");
+	m_pJobHandler->StopThread(5); // Give it at most 5 seconds to stop 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::~Disk_Drive Stopped Job Handler");
 	delete m_pJobHandler;  // Delete this first since it can reference the others
 	delete m_pDatabase_pluto_media;
 	delete m_pMediaAttributes_LowLevel;
