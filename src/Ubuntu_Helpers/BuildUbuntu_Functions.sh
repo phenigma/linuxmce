@@ -30,7 +30,7 @@ replacements_dir="${build_dir}/replacements"
 out_dir="${build_dir}/out"
 mkr_dir="${build_dir}/MakeRelease"
 
-export Version=$("select VersionName from Version" | mysql $sql_slave_db | tail -1);
+export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
 
 
 function Install_Build_Needed_Packages {

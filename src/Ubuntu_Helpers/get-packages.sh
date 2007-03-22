@@ -107,7 +107,7 @@ popd
 
 if [[ -z "$Version" ]]; then
 	sql_slave_db="pluto_main_build"
-	export Version=$("select VersionName from Version" | mysql $sql_slave_db | tail -1);
+	export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
 fi
 mkisofs -f -J -r -o linuxmce-$Version-packages.iso $TMP_DIR
 
