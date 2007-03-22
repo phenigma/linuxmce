@@ -46,6 +46,8 @@ namespace nsJukeBox
 			m_SlotNumber=SlotNumber;
 			m_eStatus=status;
 		}
+
+		virtual ~Slot() {};
 	};
 
 	class Drive
@@ -65,6 +67,8 @@ namespace nsJukeBox
 			m_eStatus=status;
 			m_pDisk_Drive_Functions=pDisk_Drive_Functions;
 		}
+
+		virtual ~Drive() {};
 	};
 
 	typedef map<int,Slot *> map_int_Slotp;
@@ -100,7 +104,7 @@ namespace nsJukeBox
 			}
 		}
 
-		virtual void Init()=0;
+		virtual bool Init()=0;
 
 		virtual JukeBoxReturnCode MoveFromSlotToDrive(Slot *pSlot,Drive *pDrive)=0;
 		virtual JukeBoxReturnCode MoveFromDriveToSlot(Slot *pSlot,Drive *pDrive)=0;
