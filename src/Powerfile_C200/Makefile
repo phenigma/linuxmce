@@ -22,16 +22,16 @@ sources = Main.cpp Powerfile_C200.cpp $(Gen_Dev_Files)
 CXXFLAGS += $(XXXFLAGS)
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lpluto_media -lpluto_main -lid3 -lattr 
-#-lDisk_Drive_Functions
+XTRALDLIBS = -lpluto_media -lpluto_main -lid3 -lattr -lDisk_Drive_Functions
 
 Gen_Dev_Files +=
 sources += \
 	PowerfileJukebox.cpp \
 	Utils.cpp \
-#../JobHandler/Job.cpp \
-#	../JobHandler/Task.cpp \
-#	../Media_Plugin/MediaAttributes_LowLevel.cpp \
+	../JobHandler/JobHandler.cpp \
+	../JobHandler/Job.cpp \
+	../JobHandler/Task.cpp \
+	../Media_Plugin/MediaAttributes_LowLevel.cpp \
 #	../UpdateMedia/PlutoMediaFile.cpp \
 #	../UpdateMedia/id3info/id3info.cpp \
 #	../UpdateMedia/MediaIdentifier.cpp \
