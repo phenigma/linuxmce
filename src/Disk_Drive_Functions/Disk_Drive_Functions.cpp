@@ -32,6 +32,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "pluto_media/Table_DiscLocation.h"
 #include "pluto_media/Table_Disc_Attribute.h"
 #include "pluto_media/Table_Attribute.h"
+#include "pluto_media/Define_AttributeType.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "VFD_LCD/VFD_LCD_Base.h"
 
@@ -574,7 +575,14 @@ void Disk_Drive_Functions::CMD_Rip_Disk(string sFilename,int iPK_Users,string sF
 		if( sTracks=="A" )
 		{
 			for(map<int,string>::iterator it=mapTracks.begin();it!=mapTracks.end();++it)
-				sNewTracks += StringUtils::itos(it->first) + "," + it->second + "|";
+			{
+				sNewTracks += StringUtils::itos(it->first) + ",";
+				if( it->second.empty() )
+					sNewTracks += "Track " + StringUtils::itos(it->first);
+				else
+					sNewTracks += it->second;
+				sNewTracks += "|";
+			}
 		}
 		else
 		{
@@ -584,7 +592,11 @@ void Disk_Drive_Functions::CMD_Rip_Disk(string sFilename,int iPK_Users,string sF
 				string sTrack = StringUtils::Tokenize(sTracks,"|",pos);
 				int iTrack = atoi(sTrack.c_str());
 				sNewTracks += StringUtils::itos(iTrack+1);
-				sNewTracks += mapTracks[iTrack] + "|";
+
+				string sName = mapTracks[iTrack];
+				if( sName.empty() )
+					sName = "Track " + StringUtils::itos(iTrack);
+				sNewTracks += sName + "|";
 			}
 		}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
