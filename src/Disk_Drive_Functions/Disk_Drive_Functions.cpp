@@ -591,7 +591,7 @@ void Disk_Drive_Functions::CMD_Rip_Disk(string sFilename,int iPK_Users,string sF
 			{
 				string sTrack = StringUtils::Tokenize(sTracks,"|",pos);
 				int iTrack = atoi(sTrack.c_str());
-				sNewTracks += StringUtils::itos(iTrack+1);
+				sNewTracks += StringUtils::itos(iTrack+1) + ",";
 
 				string sName = mapTracks[iTrack];
 				if( sName.empty() )

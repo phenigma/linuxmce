@@ -114,7 +114,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 	timespec ts_NextPing;
 	ts_NextPing.tv_nsec=0;
 
-	PLUTO_SAFETY_LOCK(sSM,pSocket->m_SocketMutex);  // lock this first
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,pSocket->m_SocketMutex);  // lock this first
 
 	while(true)
 	{
@@ -228,7 +228,7 @@ Socket::~Socket()
 
 	if ( m_Socket != INVALID_SOCKET )
 	{
-		PLUTO_SAFETY_LOCK(sSM,m_SocketMutex);  // don't log anything but failures
+		PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 		Close();
 		sSM.Release();
 	}
@@ -327,7 +327,7 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 Message *Socket::SendReceiveMessage( Message *pMessage)
 {
 	pMessage->m_eExpectedResponse=ER_ReplyMessage;
-	PLUTO_SAFETY_LOCK( sSM, m_SocketMutex );  // Don't log anything but failures
+	PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, m_SocketMutex );  // Don't log anything but failures
 
 	if( !SendMessage( pMessage ) ) // message couldn't be send
 		return NULL;
@@ -401,7 +401,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 		return false;
 	}
 
-	PLUTO_SAFETY_LOCK(sSM,m_SocketMutex);  // don't log anything but failures
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 
 #ifdef LL_DEBUG
 	char *pcTmp = new char[iSize+1]; // freeing it after writing data to the file
@@ -508,7 +508,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 {
     int nInternalReceiveTimeout = nTimeout != -1 ? nTimeout : m_iReceiveTimeout;
 
-	PLUTO_SAFETY_LOCK(sSM,m_SocketMutex);  // don't log anything but failures
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 	sSM.m_bIgnoreDeadlock=true;  // This socket can block a long time on receive.  Don't treat that as a deadlock
 	if( m_Socket == INVALID_SOCKET )
 	{
@@ -753,7 +753,7 @@ bool Socket::SendString( string sLine )
 string Socket::SendReceiveString( string sLine, int nTimeout/* = -1*/)
 {
 	// Protect the whole operation
-	PLUTO_SAFETY_LOCK( sSM, m_SocketMutex );  // Don't log anything but failures
+	PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, m_SocketMutex );  // Don't log anything but failures
 	SendString( sLine );
 
 	string sResponse;
@@ -793,7 +793,7 @@ void Socket::Close()
 {
     m_bCancelSocketOp = true;
 
-	PLUTO_SAFETY_LOCK(sSM,m_SocketMutex);  // don't log anything but failures
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write( LV_SOCKET, "Socket::Close() m_Socket %d", m_Socket );
 #endif
