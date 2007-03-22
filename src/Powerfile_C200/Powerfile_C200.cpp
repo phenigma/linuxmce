@@ -38,8 +38,11 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_media/Table_Disc.h"
 #include "pluto_media/Define_AttributeType.h"
+#include "Utils.h"
 
 using namespace StringUtils;
+
+#include "PowerfileJukebox.h"
 
 namespace nsJobHandler
 {
@@ -55,9 +58,7 @@ namespace nsJobHandler
 Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Powerfile_C200_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-#ifdef NOTDEF
-	, m_bStatusCached(false), m_pJob(NULL), m_DriveMutex("Powerfile drive mutex", true), m_bMtxAltres(false)
-#endif
+	, m_DriveMutex("Powerfile drive mutex", true)
 {
     m_pDatabase_pluto_media = NULL;
 	m_pMediaAttributes_LowLevel = NULL;
@@ -76,21 +77,6 @@ Powerfile_C200::~Powerfile_C200()
 #endif
 }
 
-// Call Tokenize directly if you don't need to strip out eventual empty fields
-static void ExtractFields(string &sRow, vector<string> &vect_sResult, const char * separator = " \t")
-{
-	vector<string> vect_sFields;
-	vect_sResult.clear();
-	vect_sFields.clear();
-	Tokenize(sRow, separator, vect_sFields);
-
-	for (size_t i = 0; i < vect_sFields.size(); i++)
-	{
-		if (vect_sFields[i] == "")
-			continue; // skip empty fields since there is no such thing
-		vect_sResult.push_back(vect_sFields[i]);
-	}
-}
 #ifdef NOTDEF
 
 bool Powerfile_C200::RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo)
@@ -285,109 +271,17 @@ bool Powerfile_C200::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 //m_sIPAddress = ;  // todo
+	
+	m_pPowerfileJukebox = new nsJukeBox::PowerfileJukebox(this);
+	if (!m_pPowerfileJukebox->Init())
+		return false;
+
 #ifdef NOTDEF
-    m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
-	// TODO: the connection data is stored in pluto.conf; use it
-    if (!m_pDatabase_pluto_media->Connect("dcerouter", "root", "", "pluto_media", 3306))
-    {
-        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
-        m_bQuit_set(true);
-        return false;
-    }
-	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media, 0);
-
-	string sOutput;
-#ifdef EMULATE_PF
-	char * args[] = {"/bin/cat", "/tmp/samples/lsscsi", NULL};
-#else
-	char * args[] = {"/usr/bin/lsscsi", "-g", NULL};
-#endif
-	if (! ProcessUtils::GetCommandOutput(args[0], args, sOutput))
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get device names");
-		return false;
-	}
-
-#ifdef WIN32
-	size_t size;
-	char *pBuffer = FileUtils::ReadFileIntoBuffer("/temp/lsscsi",size);
-	sOutput=pBuffer;
-#endif
-
-	vector<string> vect_sOutput_Rows;
-	Tokenize(sOutput, "\n", vect_sOutput_Rows);
-	int nDrive = 0;
-	for (size_t i = 0; i < vect_sOutput_Rows.size(); i++)
-	{
-		vector<string> vsFF; // FF = Filtered Fields
-		ExtractFields(vect_sOutput_Rows[i], vsFF);
-		if (vsFF[1] == "cd/dvd" &&
-				(
-				 0 == 1
-				 || /* Powerfile C200 */      (vsFF[2] == "TOSHIBA"  && vsFF[3] == "DVD-ROM" && vsFF[4] == "SD-M1212")
-				 || /* Powerfile R200 DLC */  (vsFF[2] == "MATSHITA" && vsFF[3] == "DVD-RAM" && vsFF[4] == "SW-9585S")
-				 || /* Sony VAIO XL1B2 */     (vsFF[2] == "MATSHITA" && vsFF[3] == "DVD-RAM" && vsFF[4] == "SW-9584" )
-				)
-			)
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found DVD unit %d: %s", nDrive, vsFF[6].c_str());
-			pair<string, string> devPair(vsFF[6], vsFF[7]);
-			m_vectDrive.push_back(devPair);
-			Disk_Drive_Functions * pDDF = new Disk_Drive_Functions(this, vsFF[6]);
-			m_vectDDF.push_back(pDDF);
-			nDrive++;
-		}
-		else if (vsFF[1] == "mediumx")
-		{
-			int iField = 0;
-			if (1 == 0
-					|| /* Powerfile C200 */     (vsFF[2] == "Escient"  && vsFF[3] == "Powerfile"    && vsFF[4] == "C200" && (iField = 7))
-					|| /* Powerfile R200 DLC */ (vsFF[2] == "PowrFile" && vsFF[3] == "C200"                              && (iField = 6))
-					|| /* Sony VAIO XL1B2 */    (vsFF[2] == "Sony"     && vsFF[3] == "VAIOChanger1"                      && (iField = 6, m_bMtxAltres = true))
-				)
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found changer unit: %s", vsFF[iField].c_str());
-				m_sChanger = vsFF[iField];
-			}
-			else
-			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Found an unknown changer unit. Things won't work.");
-			}
-		}
-	}
-
-	if (!Get_Jukebox_Status(NULL, true))
-		return false;
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished config");
-
-	for (size_t i = 0; i < m_vectDriveStatus.size(); i++)
-	{
-		if (m_vectDriveStatus[i].first != 0)
-			CMD_Unload_from_Drive_into_Slot(m_vectDriveStatus[i].first, i);
-	}
-	
-	string sDefective = DATA_Get_Defective_Units();
-	vector<string> vect_sDefective;
-	Tokenize(sDefective, ",", vect_sDefective);
-	const int iDrive_Number_Max = m_vectDriveStatus.size() - 1;
-	for (size_t i = 0; i < vect_sDefective.size(); i++)
-	{
-		int iDrive_Number = atoi(vect_sDefective[i].c_str());
-		if (iDrive_Number < 0 || iDrive_Number > iDrive_Number_Max)
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Defective unit %d out of range (0-%d)", iDrive_Number, iDrive_Number_Max);
-			continue;
-		}
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Marking user-marked-as-defective drive %d as OFFLINE", iDrive_Number);
-		m_vectDriveStatus[iDrive_Number].second = false;
-	}
-	
 	PurgeInterceptors();
 	// MessageInterceptorFn, int Device_From, int Device_To, int Device_Type, int Device_Category, int Message_Type, int Message_ID
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::RippingProgress), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST);
-	
-	m_pJob = new Powerfile_Job("Powerfile job", this);
 #endif
+
 	return true;
 }
 

@@ -36,7 +36,10 @@ class Database_pluto_media;
 class MediaAttributes_LowLevel;
 class Row_Disc;
 
-#define MTX_CMD "/opt/mtx-pluto/sbin/mtx"
+namespace nsJukeBox
+{
+	class PowerfileJukebox;
+}
 
 //<-dceag-decl-b->
 namespace DCE
@@ -367,21 +370,8 @@ only slots that were scheduled for ripping will appear in the string */
 	virtual void CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
-#ifdef NOTDEF
 		private:
-			// corresponding devices
-			vector<pair<string, string> > m_vectDrive; // first: /dev/sr0 (disc), second: /dev/sg1 (generic SCSI)
-			string m_sChanger;
-			vector<Disk_Drive_Functions *> m_vectDDF;
-			bool m_bMtxAltres;
-
-			bool Get_Jukebox_Status(string * sJukebox_Status, bool bForce = false);
-			
-			vector<pair<int, bool> > m_vectDriveStatus; // first: slot of provenience (0 = empty, n>0 = occupied by disc from slot n; n<0 = reserved for slot |n|), second: unit is usable
-			vector<bool> m_vectSlotStatus; // occupied or not
-			bool m_bStatusCached;
-
-			class Powerfile_Job * m_pJob;
+			nsJukeBox::PowerfileJukebox * m_pPowerfileJukebox;
 
 			pluto_pthread_mutex_t m_DriveMutex;
 
@@ -389,12 +379,13 @@ only slots that were scheduled for ripping will appear in the string */
 			bool RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo);
 
 			int GetFreeDrive(int iSlot);
+#ifdef NOTDEF
 			Disk_Drive_Functions * GetDDF(int iDrive_Number);
+#endif
 
 		private:
 			void ReleaseDrive(int iDrive_Number, int iSlot);
 			void ReleaseDrive_NoMutex(int iDrive_Number, int iSlot);
-#endif
 	};
 
 //<-dceag-end-b->
