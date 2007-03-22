@@ -25,7 +25,7 @@ void displayStep6(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("LinuxMCE Finished installing, you need to reboot you computer before starting the pluto services.");
+	GtkWidget *label = gtk_label_new_for_wizard ("Installation Finished. You need to reboot you computer before starting Linux MCE.");
 	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 	

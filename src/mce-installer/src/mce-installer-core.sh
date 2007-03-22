@@ -33,8 +33,8 @@ function Setup_Network_Intefaces {
 		ifconfig $c_netExtName down
 		ifconfig $c_netExtName $c_netExtIP netmask $c_netExtMask up
 
-		route del default gw
-		route add default gw $c_netExtGateway
+		route del default gw 2>/dev/null
+		route add default gw $c_netExtGateway 2>/dev/null
 	fi
 
 }

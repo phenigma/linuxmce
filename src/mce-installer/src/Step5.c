@@ -32,7 +32,7 @@ void displayStep5(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("Installing base pluto software");
+	GtkWidget *label = gtk_label_new_for_wizard ("Installing base Linux MCE software");
 	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
