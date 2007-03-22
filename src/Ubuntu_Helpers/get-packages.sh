@@ -104,9 +104,12 @@ pushd $TMP_DIR
 dpkg-scanpackages . /dev/null > Packages
 cat Packages | gzip -9c > Packages.gz
 popd
-					
 
-mkisofs -f -J -r -o linuxmce-0.1-packages.iso $TMP_DIR
+if [[ -z "$Version" ]]; then
+	sql_slave_db="pluto_main_build"
+	export Version=$("select VersionName from Version" | mysql $sql_slave_db | tail -1);
+fi
+mkisofs -f -J -r -o linuxmce-$Version-packages.iso $TMP_DIR
 
 #for package in $(dpkg -l | cut -d " " -f 3) ;do 
 #	pkg=$(grep "Package: $package$" $REP_LISTS/*_Packages | cut -d":" -f1,3 | cut -d '_' -f4,5,7 | cut -d':' -f2)

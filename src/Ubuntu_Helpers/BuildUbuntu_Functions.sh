@@ -48,13 +48,15 @@ function Checkout_Pluto_Svn {
 	[[ -d $svn_dir ]] && mkdir -p $svn_dir
 	rm -rf ${svn_dir}/trunk
 	
-	for svn_module in src ubuntu web misc_utils ;do
+	for svn_module in src ubuntu web misc_utils installers config-pkgs;do
 		mkdir -p ${svn_dir}/trunk/$svn_module
 		svn co ${svn_url}/pluto/"$Branch"/$svn_module  ${svn_dir}/trunk/$svn_module
 	done
 
 	cp -f /root/images-pluto-admin/*.jpg ${svn_dir}/trunk/web/pluto-admin/include/images/
-	cp -f /root/images-pluto-adin/generic_xml_error_linuxmce.png ${svn_dir}/trunk/web/pluto-admin/security_images/generic_xml_error.png
+	cp -f /root/images-pluto-admin/generic_xml_error_linuxmce.png ${svn_dir}/trunk/web/pluto-admin/security_images/generic_xml_error.png
+
+	sed -i "s,\\\$wikiHost=.*\$,\$wikiHost='http://wiki.linuxmce.com/';,g" ${svn_dir}/trunk/web/plutohome-com/globalconfig/localconfig.inc.php
 
 	#/bin/sql2cpp -h localhost -u root -D pluto_main
 	pushd ${svn_dir}/trunk/src
@@ -328,7 +330,6 @@ function Import_Build_Database {
 		mv main_sqlcvs.dump $temp_file_main
 		mv myth_sqlcvs.dump $temp_file_myth 
 	popd
-
 	## Import other databases from 150
 	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db > $temp_file        
 	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db_media > $temp_file_media
@@ -341,10 +342,10 @@ function Import_Build_Database {
 
 	echo "DROP DATABASE $sql_slave_db;
 		DROP DATABASE $sql_slave_db_mainsqlcvs;
-		DROP DATABASE $sql_slave_db_mythsqlcvs;
 		DROP DATABASE $sql_slave_db_media;
 		DROP DATABASE $sql_slave_db_security;
 		DROP DATABASE $sql_slave_db_telecom;
+		DROP DATABASE $sql_slave_db_mythsqlcvs;
 		DROP DATABASE pluto_main;
 	" | mysql -f -h $sql_slave_host -u $sql_slave_user
 	echo "CREATE DATABASE $sql_slave_db;
@@ -384,7 +385,7 @@ function Import_Pluto_Skins {
 	mkdir -p $skins_dir
 
 	pushd /
-	ssh root@10.0.0.150 tar -c $skins_dir | tar -x
+	ssh pluto@10.0.0.150 tar -c $skins_dir | tar -x
 	popd
 	
 	pushd /usr/pluto/orbiter/skins
