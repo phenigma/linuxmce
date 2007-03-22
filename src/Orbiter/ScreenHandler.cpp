@@ -732,6 +732,8 @@ void ScreenHandler::SelectedMediaFile(string sFile)
 	m_pOrbiter->CMD_Goto_DesignObj(0,pObj_Play->m_pParentObject->m_ObjectID,"","",false,true);
 
 	string sPicture = m_mapKeywords_Find("PICTURE");
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SelectedMediaFile file %s pic %s", sFile.c_str(), sPicture.c_str());
 	if( sPicture.empty()==false )
 	{
 		size_t size;

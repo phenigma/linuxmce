@@ -1477,6 +1477,9 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::AddDiscAttributesToFile called with missing file %d disc %d",PK_File,PK_Disc);
 		return;
 	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::AddDiscAttributesToFile called with file %d disc %d",PK_File,PK_Disc);
+
 /*
 	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation, pRow_File->Path_get(), pRow_File->Filename_get());
 	PlutoMediaFile_.SetFileAttribute(PK_File);
@@ -1495,6 +1498,10 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 			pRow_Picture_File->FK_Picture_set( vectRow_Picture_Disc[s]->FK_Picture_get() );
 			m_pDatabase_pluto_media->Picture_File_get()->Commit();
 		}
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::AddDiscAttributesToFile called with file %d disc %d PIC %d",
+			PK_File,PK_Disc,pRow_Picture_File->FK_Picture_get);
+
 /*
 		PlutoMediaFile_.SetPicAttribute(pRow_Picture_File->FK_Picture_get(), 
 			pRow_Picture_File->FK_Picture_getrow()->URL_get());

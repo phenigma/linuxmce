@@ -780,12 +780,10 @@ void Disk_Drive_Functions::GetTracksForDisc(Row_Disc *pRow_Disc,map<int,string> 
 {
 	string sAllTracks=getTracks("");
 	string::size_type pos=0;
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::GetTracksForDisc all tracks %s", sAllTracks.c_str());
 	while(pos<sAllTracks.size())
 	{
 		int Track = atoi( StringUtils::Tokenize( sAllTracks, "\n", pos ).c_str() );
 		mapTracks[Track] = "";
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::GetTracksForDisc added %d", Track);
 	}
 
 	string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get()) + " AND FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST);
@@ -798,8 +796,10 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::GetTracksFo
 		if( pRow_Attribute )
 		{
 			string sName = FileUtils::ValidFileName(pRow_Attribute->Name_get());
+			StringUtils::Replace( &sName, "'", "" );  // Samba shares don't allow this
+			StringUtils::Replace( &sName, "[", "" );
+			StringUtils::Replace( &sName, "]", "" );
 			mapTracks[ pRow_Disc_Attribute->Track_get() ] = sName;
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::GetTracksForDisc added %d %s", pRow_Disc_Attribute->Track_get(), sName.c_str());
 		}
 	}
 }

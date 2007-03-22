@@ -5817,6 +5817,7 @@ void Orbiter::CMD_Store_Variables(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage)
 //<-dceag-c32-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Update_Object_Image obj %s size %d",sPK_DesignObj.c_str(),iData_Size);
 	m_pOrbiterRenderer->UpdateObjectImage(sPK_DesignObj, sType, pData, iData_Size, sDisable_Aspect_Lock);
 }
 
@@ -9586,7 +9587,7 @@ void Orbiter::UpdateTimeCodeLoop()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCode calling CMD_Update_Time_Code");
 #endif
 
-		if( m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD )
+		if( m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD>0 )
 		{
 			DCE::CMD_Display_Message CMD_Display_Message_TC(m_dwPK_Device,m_pLocationInfo_Initial->m_dwPK_Device_LCD_VFD,
 				m_sTime, //pos_TimeCode==string::npos ? m_sTime : m_sTime.substr(0,pos_TimeCode),
