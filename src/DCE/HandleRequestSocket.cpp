@@ -165,7 +165,10 @@ void HandleRequestSocket::RunThread()
                 m_bUnexpected = true;
                 m_bTerminate = true;
                 if(OnReplaceHandler(sMessage.substr(7)))
+				{
+					m_bRunning = false;
                     return;
+				}
 			}
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Received %s %p device: %d", sMessage.c_str(), this, m_dwPK_Device);

@@ -9223,8 +9223,7 @@ void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *
     {
         string sMessage = "An Orbiter with the same device id was started on " + sIP + ".\r\nThis Orbiter will be closed.";
         m_pOrbiterRenderer->PromptUser(sMessage);
-        m_bQuit_set(true);
-        exit(1);
+		OnQuit();
         return true;
     }
 
