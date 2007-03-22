@@ -158,6 +158,7 @@ CREATE TABLE IF NOT EXISTS Actor(
 );
 
 CREATE TABLE IF NOT EXISTS Actor_Role(
+ PK_ActorRole varchar(60),
  FK_Actor varchar(50),
  FK_Role int(11)
 );

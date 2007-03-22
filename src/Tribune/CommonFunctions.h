@@ -75,6 +75,7 @@ namespace Tribune
 		MapStringString mapPrimaryKey_Actor;
 		MapStringString mapPrimaryKey_Genre;
 		MapStringString mapPrimaryKey_Role;
+		MapStringString mapPrimaryKey_ActorRole;
 		
 		Database *m_pDatabase;		/**< points to the database */
 		

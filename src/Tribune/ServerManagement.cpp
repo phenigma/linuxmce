@@ -107,14 +107,20 @@ void ServerManagement::Run(){
 				cerr << "Cannot fill the genre map " << endl;
 			}
 
-			cout << "Station " << maptmpGenre.size() <<endl;
+			cout << "Genre " << maptmpGenre.size() <<endl;
 
 			if (! MapManagement::GetRoleMap(maptmpRole) ){
 			
 				cerr << "Cannot fill the role map: " << endl;
 			}
 
-			cout << "Schedule " << maptmpRole.size() <<endl;
+			cout << "Role " << maptmpRole.size() <<endl;
+
+			if (! MapManagement::GetActorRoleMap(maptmpActorRole) ){
+		
+				cerr << "Cannot fill the actor_role map " << endl;
+			}
+			cout << "Actor_Role " << maptmpActorRole.size() <<endl;
 
 
 			PLUTO_SAFETY_LOCK(tb,TribuneMutex);
@@ -126,6 +132,7 @@ void ServerManagement::Run(){
 			(g_GlobalConfig.mapPrimaryKey_Actor).clear(); 
 			(g_GlobalConfig.mapPrimaryKey_Genre).clear(); 
 			(g_GlobalConfig.mapPrimaryKey_Role).clear();
+			(g_GlobalConfig.mapPrimaryKey_ActorRole).clear();
 
 			g_GlobalConfig.mapPrimaryKey_Timestam_ProgramRecord=maptmpProgramRecord;
 			g_GlobalConfig.mapPrimaryKey_Timestam_Station=maptmpStation;
@@ -134,9 +141,10 @@ void ServerManagement::Run(){
 			g_GlobalConfig.mapPrimaryKey_Actor=maptmpActor;
 			g_GlobalConfig.mapPrimaryKey_Genre=maptmpGenre;
 			g_GlobalConfig.mapPrimaryKey_Role=maptmpRole;
+			g_GlobalConfig.mapPrimaryKey_ActorRole=maptmpActorRole;
 
 			maptmpProgramRecord.clear(); maptmpStation.clear(); maptmpSchedule.clear();
-			maptmpActor.clear(); maptmpGenre.clear(); maptmpRole.clear();
+			maptmpActor.clear(); maptmpGenre.clear(); maptmpRole.clear(); maptmpActorRole.clear();
 
 			
 	cout << ">>>>>>>>In server management : " << endl;
@@ -146,6 +154,7 @@ void ServerManagement::Run(){
 	cout << "Actor size " <<(g_GlobalConfig.mapPrimaryKey_Actor).size()<<endl;
 	cout << "Genre sieze " <<(g_GlobalConfig.mapPrimaryKey_Genre).size()<<endl;
 	cout << "Role size " <<(g_GlobalConfig.mapPrimaryKey_Role).size()<<endl;
+	cout << "Actor_Role size " <<(g_GlobalConfig.mapPrimaryKey_ActorRole).size()<<endl;
 
 			g_GlobalConfig.m_bImportTable=false;
 		}

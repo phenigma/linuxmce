@@ -50,6 +50,8 @@ public:
 	/** get maps from the database.*/
 	static bool GetRoleMap(map<string,string>&);
 
+	static bool GetActorRoleMap(map<string,string>&);
+
 };
 
 #endif

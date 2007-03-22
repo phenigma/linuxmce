@@ -1,21 +1,3 @@
-/*
- Main
-
- Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
- www.plutohome.com
- 
-
- Phone: +1 (877) 758-8648
-
-
- This program is distributed according to the terms of the Pluto Public License, available at:
- http://plutohome.com/index.php?section=public_license
-
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
-
- */
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -35,11 +17,6 @@ extern "C"
 
 using namespace std;
 
-
-extern "C"
-{
-#include <mysql/mysql.h>
-}
 
 struct actors_t {
   	string firstname;
@@ -783,7 +760,11 @@ void ImportActorTable(const char *pProgramRecordID, actors_t actors[]){
 				} else {
 					roleiter=multimapRoleDesc_To_Key.find(actors[i].role);
 					if( roleiter!= multimapRoleDesc_To_Key.end() ){
-						sprintf(actorSQL,"INSERT INTO Actor_Role(FK_Actor, FK_Role) VALUES(\"%s\",\"%d\")", (iter->first).c_str(), roleiter->second);
+						char rolekey[20];
+						sprintf(rolekey,"%d",roleiter->second);
+						string ar_key = iter->first + (string)rolekey;
+						sprintf(actorSQL,"INSERT INTO Actor_Role( PK_ActorRole, FK_Actor, FK_Role) VALUES(\"%s\",\"%s\",\"%d\")", ar_key.c_str(), (iter->first).c_str(), roleiter->second);
+
 						if( mysql_query( mysqltribune, actorSQL) ){
 							cerr<<"query: "<<actorSQL<<endl
 								<<"Error executing query: "<<mysql_error(mysqltribune)<<endl;
@@ -799,7 +780,11 @@ void ImportActorTable(const char *pProgramRecordID, actors_t actors[]){
 						int retrievedD = mysql_insert_id(mysqltribune);
 						multimapRoleDesc_To_Key.insert(pair<string,int>(actors[i].role, retrievedD) );
 						
-						sprintf(actorSQL,"INSERT INTO Actor_Role(FK_Actor, FK_Role) VALUES(\"%s\",\"%d\")", (iter->first).c_str(), retrievedD);
+						char rolekey[20];
+						sprintf(rolekey,"%d",retrievedD);
+						string ar_key = iter->first + (string)rolekey;
+						sprintf(actorSQL,"INSERT INTO Actor_Role( PK_ActorRole, FK_Actor, FK_Role) VALUES(\"%s\",\"%s\",\"%d\")", ar_key.c_str(), (iter->first).c_str(), retrievedD);
+
 						if( mysql_query( mysqltribune, actorSQL) ){
 							cerr<<"query: "<<actorSQL<<endl
 								<<"Error executing query: "<<mysql_error(mysqltribune)<<endl;
@@ -831,7 +816,10 @@ void ImportActorTable(const char *pProgramRecordID, actors_t actors[]){
 				roleiter=multimapRoleDesc_To_Key.find(actors[i].role);
 
 				if( roleiter!= multimapRoleDesc_To_Key.end() ){
-					sprintf(actorSQL,"INSERT INTO Actor_Role( FK_Actor, FK_Role) VALUES(\"%s\",\"%d\")", id.c_str(), roleiter->second);
+					char rolekey[20];
+					sprintf(rolekey,"%d",roleiter->second);
+					string ar_key = id + (string)rolekey;
+					sprintf(actorSQL,"INSERT INTO Actor_Role( PK_ActorRole, FK_Actor, FK_Role) VALUES(\"%s\",\"%s\",\"%d\")", ar_key.c_str(), id.c_str(), roleiter->second);
 					if( mysql_query( mysqltribune, actorSQL) ){
 						cerr<<"query: "<<actorSQL<<endl
 							<<"Error executing query: "<<mysql_error(mysqltribune)<<endl;
@@ -849,7 +837,11 @@ void ImportActorTable(const char *pProgramRecordID, actors_t actors[]){
 					int retrievedID = (int) mysql_insert_id(mysqltribune);
 					multimapRoleDesc_To_Key.insert(pair<string,int>(actors[i].role, retrievedID) );
 
-					sprintf(actorSQL,"INSERT INTO Actor_Role( FK_Actor, FK_Role) VALUES(\"%s\",\"%d\")", id.c_str(), retrievedID);
+					char rolekey[20];
+					sprintf(rolekey,"%d",retrievedID);
+					string ar_key = id + (string)rolekey;
+					sprintf(actorSQL,"INSERT INTO Actor_Role( PK_ActorRole, FK_Actor, FK_Role) VALUES(\"%s\",\"%s\",\"%d\")", ar_key.c_str(), id.c_str(), retrievedID);
+
 					if( mysql_query( mysqltribune, actorSQL) ){
 						cerr<<"query: "<<actorSQL<<endl
 							<<"Error executing query: "<<mysql_error(mysqltribune)<<endl;
@@ -1197,5 +1189,6 @@ int main(int argc, char *argv[]){
 	ImportScheduleTable();
 
 	command = "rm /var/Tribune/flagfile";
-	system(command.c_str());	
+	system(command.c_str());
+	
 }

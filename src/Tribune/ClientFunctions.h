@@ -63,7 +63,7 @@ public:
 	string GetClientLineup();
 
 	/** get the 'diffs' for the client*/
-	string CalcDiffs(string lineup, string blacklist, map <string,string> &mapProgramRecord, map <int,string> &mapStation, map <u_int64_t,string> &mapSchedule, map <string,string> &mapActor, map <string,string> &mapGenre, map <string,string> &mapRole);
+	string CalcDiffs(string lineup, string blacklist, map <string,string> &mapProgramRecord, map <int,string> &mapStation, map <u_int64_t,string> &mapSchedule, map <string,string> &mapActor, map <string,string> &mapGenre, map <string,string> &mapRole, map <string,string> &mapActorRole);
 
 	/** execute mysql commands from the file provided by the server */
 	bool ModifyClientDatabase(string path);

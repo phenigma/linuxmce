@@ -47,6 +47,7 @@ public:
 	map <string,string> m_mapActor;
 	map <string,string> m_mapGenre;
 	map <string,string> m_mapRole;
+	map <string,string> m_mapActorRole;
 	std::ostringstream clientfile;
 
 	/** @brief Response Variables */
@@ -54,7 +55,7 @@ public:
 
 	/** @brief constructor */
 	
-	R_GetDiffs(string lineup, string blacklist, map <string,string> mapProgramRecord, map <int,string> mapStation, map <u_int64_t,string> mapSchedule, map <string,string> mapActor, map <string,string> mapGenre, map <string,string> mapRole);
+	R_GetDiffs(string lineup, string blacklist, map <string,string> mapProgramRecord, map <int,string> mapStation, map <u_int64_t,string> mapSchedule, map <string,string> mapActor, map <string,string> mapGenre, map <string,string> mapRole, map <string,string> mapActorRole);
 
 
 	/** @brief constructor */
@@ -81,12 +82,8 @@ public:
 		StartSerializeList( ) + m_mapActor;
 		StartSerializeList( ) + m_mapGenre;
 		StartSerializeList( ) + m_mapRole;
+		StartSerializeList( ) + m_mapActorRole;
 		StartSerializeList( ) + m_mapSchedule;
-/*		try {
-			StartSerializeList( ) + m_mapSchedule;
-		} catch (...){
-			cout << "********Exceptie la serializare" << endl;
-		}*/
 	}
 
 	/**

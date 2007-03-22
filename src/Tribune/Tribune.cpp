@@ -326,10 +326,17 @@ int main(int argc, char *argv[]){
 				exit(1);
 			}
 			cout << "Role map: " << mapRole.size() << endl;
+
+			map<string,string> mapActorRole;
+			if (! MapManagement::GetActorRoleMap( mapActorRole ) ){
+				cerr << "Cannot fill the actor_role map" << endl;
+				exit(1);
+			}
+			cout << "Actor role map: " << mapActorRole.size() << endl;
 			
 			/** send the client maps to the server and receive a file with all the changes that must
 			be done */
-			string clientfile = clientFunct->CalcDiffs(lineup,blacklist,mapProgramRecord,mapStation,mapSchedule,mapActor,mapGenre,mapRole);
+			string clientfile = clientFunct->CalcDiffs(lineup,blacklist,mapProgramRecord,mapStation,mapSchedule,mapActor,mapGenre,mapRole,mapActorRole);
 
 			string path = "/tmp/testfile";
  			ofstream testfile(path.c_str());
@@ -338,6 +345,9 @@ int main(int argc, char *argv[]){
 
 			/** modify the client database*/
  			clientFunct->ModifyClientDatabase(path);
+
+			string command = "/usr/pluto/bin/FillMythDatabase";
+			system(command.c_str());
 		}
 		else {
 			cerr << "Unknown command: " << g_GlobalConfig.m_sCommand << endl;

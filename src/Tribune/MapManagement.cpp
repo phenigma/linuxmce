@@ -214,3 +214,34 @@ bool MapManagement::GetRoleMap(map<string,string> & mapPrimaryKey_Timestam_Role)
 
 	return true;
 }
+
+bool MapManagement::GetActorRoleMap(map<string,string> & mapPrimaryKey_Timestam_ActorRole){
+
+	std::ostringstream sSQL;
+	
+	sSQL << "SELECT PK_ActorRole FROM Actor_Role";
+
+	PlutoSqlResult res;
+	MYSQL_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	if( !res.r )
+	{
+		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+		return false;
+	}
+	else
+	{
+		while( ( row = mysql_fetch_row( res.r ) ) )
+		{
+			if( !row[0] )
+			{
+				cerr << "Found NULL in query: " << sSQL.str() << endl;
+				return false;
+				
+			}
+			mapPrimaryKey_Timestam_ActorRole[ row[0] ] = "";
+		}
+	}
+
+	return true;
+}

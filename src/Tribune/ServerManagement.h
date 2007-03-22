@@ -46,6 +46,7 @@ private:
 	map<string,string> maptmpActor;
 	map<string,string> maptmpGenre;
 	map<string,string> maptmpRole;
+	map<string,string> maptmpActorRole;
 
 };
 

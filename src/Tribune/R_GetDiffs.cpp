@@ -34,7 +34,7 @@
 using namespace Tribune;
 using namespace std;
 
-R_GetDiffs::R_GetDiffs(string lineup, string blacklist, map <string,string> mapProgramRecord, map <int,string> mapStation, map <u_int64_t,string> mapSchedule, map <string,string> mapActor, map <string,string> mapGenre, map <string,string> mapRole)
+R_GetDiffs::R_GetDiffs(string lineup, string blacklist, map <string,string> mapProgramRecord, map <int,string> mapStation, map <u_int64_t,string> mapSchedule, map <string,string> mapActor, map <string,string> mapGenre, map <string,string> mapRole, map <string,string> mapActorRole)
 {
 	m_lineup = lineup;
 	m_blacklist = blacklist;
@@ -44,6 +44,7 @@ R_GetDiffs::R_GetDiffs(string lineup, string blacklist, map <string,string> mapP
 	m_mapActor = mapActor;
 	m_mapGenre = mapGenre;
 	m_mapRole = mapRole;
+	m_mapActorRole = mapActorRole;
 }
 
 bool R_GetDiffs::UpdateProgramRecord(string pk_programrecord, bool conversion){
@@ -568,126 +569,10 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		}
 	}
 	
-		/** update or delete schedule table*/
-
-		/** this must not be commented after the serialization bug is fixed*/
-		map<u_int64_t,string>::iterator iter_uint;
-		for( iter_uint = m_mapSchedule.begin(); iter_uint != m_mapSchedule.end(); iter_uint++ ) {
-
-			conversion = false;
-			sSQL.str("");
-			map<u_int64_t,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).find(iter_uint->first);
-
-			if ((iter_uint->second).length()>14){
-				convtime = ChangedTime(iter_uint->second);
-				conversion = true;
-			} else {
-				convtime = iter_uint->second;
-			}
-
-			if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).end() ){
-
-				clientfile << "DELETE FROM Schedule WHERE PK_Schedule='"<<iter_uint->first<<"'\n";	
-
-			} else if ( ( (iter_uint->second).compare(it->second) ) != 0 ) {
-				
-				sSQL << "SELECT * FROM Schedule WHERE PK_Schedule=" << it->first;
-		
-				PlutoSqlResult res;
-				MYSQL_ROW row=NULL;
-				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
-				if( !res.r )
-				{
-					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
-					m_cProcessOutcome=INTERNAL_ERROR;
-				}
-				else
-				{
-					row = mysql_fetch_row( res.r );
-					string timestamp;
-
-					if( !row[0] )
-					{
-						cerr << "Found NULL in query: " << sSQL.str() << endl;
-						m_cProcessOutcome=INTERNAL_ERROR;
-						return true; /**<< Request successfully processed */
-					}
-					if (conversion){
-						timestamp = ChangedLongFormatTime(row[31]);
-					} else{
-						timestamp = row[31];
-					}
-					clientfile<<"UPDATE Schedule SET FK_Station=\""<<row[1]<<"\", FK_ProgramRecord=\""<<row[2]<<"\", AirDate=\""<<row[3]<<"\", AirTime=\""<<row[4]<<"\", Duration=\""<<row[5]<<"\", PartNum=\""<<row[6]<<"\", NumOfParts=\""<<row[7]<<"\", CCaptioning=\""<<row[8]<<"\", Stereo=\""<<row[9]<<"\", Repeating=\""<<row[10]<<"\", LiveTapeDelay=\""<<row[11]<<"\", Subtitled=\""<<row[12]<<"\", PremiereFinale=\""<<row[13]<<"\", JoinedInProgress=\""<<row[14]<<"\", CableInTheClassroom=\""<<row[15]<<"\", TVRating=\""<<row[16]<<"\", Sap=\""<<row[17]<<"\", Blackout=\""<<row[18]<<"\", SexRating=\""<<row[19]<<"\", ViolenceRating=\""<<row[20]<<"\", LanguageRating=\""<<row[21]<<"\", DialogRating=\""<<row[22]<<"\", FvRating=\""<<row[23]<<"\", Enhanced=\""<<row[24]<<"\", ThreeD=\""<<row[25]<<"\", LetterBox=\""<<row[26]<<"\", Hdtv=\""<<row[27]<<"\", Dolby=\""<<row[28]<<"\", Dvs=\""<<row[29]<<"\", Checksum=\""<<row[30]<<"\", TimestampF=\""<<timestamp<<"\" WHERE PK_Schedule=\""<<it->first<<"\"\n";
-
-				}
- 
-			}
-		}
-
-		/** update or delete station table*/
-		map<int,string>::iterator iter1;
-
-		for( iter1 = m_mapStation.begin(); iter1 != m_mapStation.end(); iter1++ ) {
-
-			conversion = false;
-			sSQL.str("");
-			map<int,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Station).find(iter1->first);
-
-			if ((iter1->second).length()>14){
-				convtime = ChangedTime(iter1->second);
-				conversion = true;
-			} else {
-				convtime = iter1->second;
-			}
-
-			if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_Station).end() ){
-
-				clientfile << "DELETE FROM Station WHERE PK_Station='"<<iter1->first<<"'\n";	
-
-			} else if ( ( (convtime).compare(it->second) ) != 0 ) {
-				
-				sSQL << "SELECT * FROM Station WHERE PK_Station=" << it->first;
-		
-				PlutoSqlResult res;
-				MYSQL_ROW row=NULL;
-				string timestamp;
-				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
-				if( !res.r )
-				{
-					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
-					m_cProcessOutcome=INTERNAL_ERROR;
-				}
-				else
-				{
-					row = mysql_fetch_row( res.r );
-
-					if( !row[0] )
-					{
-						cerr << "Found NULL in query: " << sSQL.str() << endl;
-						m_cProcessOutcome=INTERNAL_ERROR;
-						return true; /**<< Request successfully processed */
-					}
-					if (conversion){
-						timestamp = ChangedLongFormatTime(row[13]);
-					} else{
-						timestamp = row[13];
-					}
-					clientfile<<"UPDATE Station SET TimeZone=\""<<row[1]<<"\", Name=\""<<row[2]<<"\", CallSign=\""<<row[3]<<"\", Affil=\""<<row[4]<<"\", City=\""<<row[5]<<"\", State=\""<<row[6]<<"\", ZipCode=\""<<row[7]<<"\", Country=\""<<row[8]<<"\", DmaName=\""<<row[9]<<"\", DmaNum=\""<<row[10]<<"\", FccChannelNum=\""<<row[11]<<"\", Checksum=\""<<row[12]<<"\", TimestampF=\""<<timestamp<<"\" WHERE PK_Station=\""<<it->first<<"\"\n";
-
-				}
- 
-			}
-		}
-
-		/** insert for station table*/
-		int statnr =0;
-		sSQL.str("");
-		if (m_blacklist.length( )==0){
-			sSQL << "SELECT s.* FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_lineup;
-		} else {
-			sSQL << "SELECT s.* FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_lineup << " AND s.Name NOT IN (" << m_blacklist << ")";
-		}
-
+	sSQL.str("");
+	/** update or delete actor_role table*/
+	if (m_mapActorRole.empty()){
+		sSQL << "SELECT PK_ActorRole, FK_Actor, FK_Role FROM Actor_Role";
 		PlutoSqlResult res;
 		MYSQL_ROW row=NULL;
 		res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
@@ -700,9 +585,88 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		else
 		{
 			while ( ( row = mysql_fetch_row( res.r ) ) ){
+				clientfile<<"INSERT INTO Actor_Role(PK_ActorRole, FK_Actor, FK_Role) VALUES (\""<<row[0]<<"\",\""<<row[1]<<"\",\""<<row[2]<<"\")\n";
+			}
+		}
+	} else {
+		for( iter = m_mapActorRole.begin(); iter != m_mapActorRole.end(); iter++ ) {
+	
+			map<string,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_ActorRole).find(iter->first);
+	
+	
+			if( it == (g_GlobalConfig.mapPrimaryKey_ActorRole).end() ){
+				
+				clientfile << "DELETE FROM Actor_Role WHERE PK_ActorRole='"<<iter->first<<"'\n";	
+	
+			} 
+		}
+	
+		for( iter = (g_GlobalConfig.mapPrimaryKey_ActorRole).begin(); iter != (g_GlobalConfig.mapPrimaryKey_ActorRole).end(); iter++ ) {
+	
+			map<string,string>::iterator it=m_mapActorRole.find(iter->first);
+	
+			sSQL.str("");
+			if( it == m_mapActorRole.end() ){
+				//std::ostringstream sSQL;
+				sSQL << "SELECT FK_Actor, FK_Role FROM Actor_Role WHERE PK_ActorRole='" << iter->first<<"'";
+							
+				PlutoSqlResult res;
+				MYSQL_ROW row=NULL;
+				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	
+				if( !res.r )
+				{
+					cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+					m_cProcessOutcome=INTERNAL_ERROR;
+				}
+				else
+				{
+					row = mysql_fetch_row( res.r );
+					clientfile<<"INSERT INTO Actor_Role(PK_ActorRole, FK_Actor, FK_Role) VALUES (\""<<iter->first<<"\",\""<<row[0]<<"\", \""<<row[1]<<"\") \n";
+					m_mapActorRole[iter->first]="";
+	
+				}	
+	
+			} 
+		}
+	}
+	/** update or delete schedule table*/
 
-				statnr++;
-				cout << "[ "<< statnr << " ]" <<"----> Inserting station: " << row[2] <<endl;
+	/** this must not be commented after the serialization bug is fixed*/
+	map<u_int64_t,string>::iterator iter_uint;
+	for( iter_uint = m_mapSchedule.begin(); iter_uint != m_mapSchedule.end(); iter_uint++ ) {
+
+		conversion = false;
+		sSQL.str("");
+		map<u_int64_t,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).find(iter_uint->first);
+
+		if ((iter_uint->second).length()>14){
+			convtime = ChangedTime(iter_uint->second);
+			conversion = true;
+		} else {
+			convtime = iter_uint->second;
+		}
+
+		if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_Schedule).end() ){
+
+			clientfile << "DELETE FROM Schedule WHERE PK_Schedule='"<<iter_uint->first<<"'\n";	
+
+		} else if ( ( (iter_uint->second).compare(it->second) ) != 0 ) {
+			
+			sSQL << "SELECT * FROM Schedule WHERE PK_Schedule=" << it->first;
+	
+			PlutoSqlResult res;
+			MYSQL_ROW row=NULL;
+			res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+			if( !res.r )
+			{
+				cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+				m_cProcessOutcome=INTERNAL_ERROR;
+			}
+			else
+			{
+				row = mysql_fetch_row( res.r );
+				string timestamp;
 
 				if( !row[0] )
 				{
@@ -710,30 +674,129 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 					m_cProcessOutcome=INTERNAL_ERROR;
 					return true; /**<< Request successfully processed */
 				}
-			
-				/** insert for Station*/
-				map<int,string>::iterator it=m_mapStation.find(atoi(row[0]));
-
-				if( it == m_mapStation.end() ){
-					clientfile<<"INSERT INTO Station(PK_Station, TimeZone, Name, CallSign, Affil, City, State, ZipCode, Country, DmaName, DmaNum, FccChannelNum, Checksum, TimestampF) VALUES (\""<<row[0]<<"\",\""<<row[1]<<"\",\""<<row[2]<<"\",\""<<row[3]<<"\",\""<<row[4]<<"\",\""<<row[5]<<"\",\""<<row[6]<<"\",\""<<row[7]<<"\",\""<<row[8]<<"\",\""<<row[9]<<"\",\""<<row[10]<<"\",\""<<row[11]<<"\",\""<<row[12]<<"\",\""<<row[13]<<"\") \n";
-					m_mapStation.insert( make_pair( atoi(row[0]), row[13] ) ); 
+				if (conversion){
+					timestamp = ChangedLongFormatTime(row[31]);
+				} else{
+					timestamp = row[31];
 				}
-				
-				/** insert for Schedule for every station*/
-				//insert for Schedule
-				if (!InsertSchedule((string)row[0])){
-					return true;
-				}
-				
-				/** insert for ProgramRecord for every station*/
-				if (!InsertProgramRecord((string)row[0])){
-					return true;
- 				}
+				clientfile<<"UPDATE Schedule SET FK_Station=\""<<row[1]<<"\", FK_ProgramRecord=\""<<row[2]<<"\", AirDate=\""<<row[3]<<"\", AirTime=\""<<row[4]<<"\", Duration=\""<<row[5]<<"\", PartNum=\""<<row[6]<<"\", NumOfParts=\""<<row[7]<<"\", CCaptioning=\""<<row[8]<<"\", Stereo=\""<<row[9]<<"\", Repeating=\""<<row[10]<<"\", LiveTapeDelay=\""<<row[11]<<"\", Subtitled=\""<<row[12]<<"\", PremiereFinale=\""<<row[13]<<"\", JoinedInProgress=\""<<row[14]<<"\", CableInTheClassroom=\""<<row[15]<<"\", TVRating=\""<<row[16]<<"\", Sap=\""<<row[17]<<"\", Blackout=\""<<row[18]<<"\", SexRating=\""<<row[19]<<"\", ViolenceRating=\""<<row[20]<<"\", LanguageRating=\""<<row[21]<<"\", DialogRating=\""<<row[22]<<"\", FvRating=\""<<row[23]<<"\", Enhanced=\""<<row[24]<<"\", ThreeD=\""<<row[25]<<"\", LetterBox=\""<<row[26]<<"\", Hdtv=\""<<row[27]<<"\", Dolby=\""<<row[28]<<"\", Dvs=\""<<row[29]<<"\", Checksum=\""<<row[30]<<"\", TimestampF=\""<<timestamp<<"\" WHERE PK_Schedule=\""<<it->first<<"\"\n";
 
 			}
+
+		}
+	}
+
+	/** update or delete station table*/
+	map<int,string>::iterator iter1;
+
+	for( iter1 = m_mapStation.begin(); iter1 != m_mapStation.end(); iter1++ ) {
+
+		conversion = false;
+		sSQL.str("");
+		map<int,string>::iterator it=(g_GlobalConfig.mapPrimaryKey_Timestam_Station).find(iter1->first);
+
+		if ((iter1->second).length()>14){
+			convtime = ChangedTime(iter1->second);
+			conversion = true;
+		} else {
+			convtime = iter1->second;
 		}
 
-		m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
+		if( it == (g_GlobalConfig.mapPrimaryKey_Timestam_Station).end() ){
+
+			clientfile << "DELETE FROM Station WHERE PK_Station='"<<iter1->first<<"'\n";	
+
+		} else if ( ( (convtime).compare(it->second) ) != 0 ) {
+			
+			sSQL << "SELECT * FROM Station WHERE PK_Station=" << it->first;
+	
+			PlutoSqlResult res;
+			MYSQL_ROW row=NULL;
+			string timestamp;
+			res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+			if( !res.r )
+			{
+				cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+				m_cProcessOutcome=INTERNAL_ERROR;
+			}
+			else
+			{
+				row = mysql_fetch_row( res.r );
+
+				if( !row[0] )
+				{
+					cerr << "Found NULL in query: " << sSQL.str() << endl;
+					m_cProcessOutcome=INTERNAL_ERROR;
+					return true; /**<< Request successfully processed */
+				}
+				if (conversion){
+					timestamp = ChangedLongFormatTime(row[13]);
+				} else{
+					timestamp = row[13];
+				}
+				clientfile<<"UPDATE Station SET TimeZone=\""<<row[1]<<"\", Name=\""<<row[2]<<"\", CallSign=\""<<row[3]<<"\", Affil=\""<<row[4]<<"\", City=\""<<row[5]<<"\", State=\""<<row[6]<<"\", ZipCode=\""<<row[7]<<"\", Country=\""<<row[8]<<"\", DmaName=\""<<row[9]<<"\", DmaNum=\""<<row[10]<<"\", FccChannelNum=\""<<row[11]<<"\", Checksum=\""<<row[12]<<"\", TimestampF=\""<<timestamp<<"\" WHERE PK_Station=\""<<it->first<<"\"\n";
+
+			}
+
+		}
+	}
+
+	/** insert for station table*/
+	int statnr =0;
+	sSQL.str("");
+	if (m_blacklist.length( )==0){
+		sSQL << "SELECT s.* FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_lineup;
+	} else {
+		sSQL << "SELECT s.* FROM Lineup l LEFT JOIN Headend h ON h.HeadendID=l.HeadendID LEFT JOIN Station s ON s.PK_Station=l.FK_Station WHERE h.PK_Headend=" << m_lineup << " AND s.Name NOT IN (" << m_blacklist << ")";
+	}
+
+	PlutoSqlResult res;
+	MYSQL_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	
+	if( !res.r )
+	{
+		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
+		m_cProcessOutcome=INTERNAL_ERROR;
+	}
+	else
+	{
+		while ( ( row = mysql_fetch_row( res.r ) ) ){
+
+			statnr++;
+			cout << "[ "<< statnr << " ]" <<"----> Inserting station: " << row[2] <<endl;
+
+			if( !row[0] )
+			{
+				cerr << "Found NULL in query: " << sSQL.str() << endl;
+				m_cProcessOutcome=INTERNAL_ERROR;
+				return true; /**<< Request successfully processed */
+			}
+		
+			/** insert for Station*/
+			map<int,string>::iterator it=m_mapStation.find(atoi(row[0]));
+
+			if( it == m_mapStation.end() ){
+				clientfile<<"INSERT INTO Station(PK_Station, TimeZone, Name, CallSign, Affil, City, State, ZipCode, Country, DmaName, DmaNum, FccChannelNum, Checksum, TimestampF) VALUES (\""<<row[0]<<"\",\""<<row[1]<<"\",\""<<row[2]<<"\",\""<<row[3]<<"\",\""<<row[4]<<"\",\""<<row[5]<<"\",\""<<row[6]<<"\",\""<<row[7]<<"\",\""<<row[8]<<"\",\""<<row[9]<<"\",\""<<row[10]<<"\",\""<<row[11]<<"\",\""<<row[12]<<"\",\""<<row[13]<<"\") \n";
+
+				m_mapStation.insert( make_pair( atoi(row[0]), row[13] ) ); 
+			}
+			
+			/** insert for Schedule for every station*/
+			//insert for Schedule
+			if (!InsertSchedule((string)row[0])){
+				return true;
+			}
+			
+			/** insert for ProgramRecord for every station*/
+			if (!InsertProgramRecord((string)row[0])){
+				return true;
+			}
+
+		}
+	}
+
+	m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
 	
 	m_clientfile = clientfile.str();
 
