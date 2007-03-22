@@ -30,6 +30,8 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 
 #include "pluto_media/Table_Disc.h"
 #include "pluto_media/Table_DiscLocation.h"
+#include "pluto_media/Table_Disc_Attribute.h"
+#include "pluto_media/Table_Attribute.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "VFD_LCD/VFD_LCD_Base.h"
 
@@ -764,7 +766,29 @@ bool Disk_Drive_Functions::isRipping()
 
 void Disk_Drive_Functions::GetTracksForDisc(Row_Disc *pRow_Disc,map<int,string> &mapTracks)
 {
-//	string sTrackName = pMediaFile->m_sDescription.size() && pMediaFile->m_sDescription.find("<%=")==string::npos  ?
-//			pMediaFile->m_sDescription : "Track " + StringUtils::itos(s+1);
+	string sAllTracks=getTracks("");
+	string::size_type pos=0;
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::GetTracksForDisc all tracks %s", sAllTracks.c_str());
+	while(pos<sAllTracks.size())
+	{
+		int Track = atoi( StringUtils::Tokenize( sAllTracks, "\n", pos ).c_str() );
+		mapTracks[Track] = "";
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::GetTracksForDisc added %d", Track);
+	}
+
+	string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get()) + " AND FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST);
+	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+	m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sSQL,&vectRow_Disc_Attribute);
+	for(vector<Row_Disc_Attribute *>::iterator it=vectRow_Disc_Attribute.begin();it!=vectRow_Disc_Attribute.end();++it)
+	{
+		Row_Disc_Attribute *pRow_Disc_Attribute = *it;
+		Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
+		if( pRow_Attribute )
+		{
+			string sName = FileUtils::ValidFileName(pRow_Attribute->Name_get());
+			mapTracks[ pRow_Disc_Attribute->Track_get() ] = sName;
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::GetTracksForDisc added %d %s", pRow_Disc_Attribute->Track_get(), sName.c_str());
+		}
+	}
 }
 
