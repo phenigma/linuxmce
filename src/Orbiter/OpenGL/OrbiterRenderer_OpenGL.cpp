@@ -980,13 +980,11 @@ void OrbiterRenderer_OpenGL::ProcessingInputEvent()
 
 void OrbiterRenderer_OpenGL::DestroyGraphic(string sObjectID)
 {
-	MeshFrame *pMeshFrame = Engine->GetMeshFrameFromDesktop(sObjectID);
-
+	//remove it from the list with top most objects too, if needed
 	Engine->RemoveTopMostObject(sObjectID);
-	Engine->RemoveMeshFrameFromDesktopForID(sObjectID);
 
-	if(NULL != pMeshFrame)
-		delete pMeshFrame;
+	//this will detach the frame from the tree and also delete it
+	Engine->RemoveMeshFrameFromDesktopForID(sObjectID);
 }
 
 void OrbiterRenderer_OpenGL::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint point)
