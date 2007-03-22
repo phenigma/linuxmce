@@ -88,8 +88,7 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, i
 		PlutoSqlResult result;
 		MYSQL_ROW row;
 		if( 
-			mysql_query(m_pMedia_Plugin->m_pDatabase_pluto_media->m_pMySQL, sSql.c_str()) == 0 && 
-			(result.r = mysql_store_result(m_pMedia_Plugin->m_pDatabase_pluto_media->m_pMySQL)) 
+			(result.r = m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSql.c_str())) 
 		)
 		{
 			while(NULL != result.r && (row = mysql_fetch_row(result.r)))

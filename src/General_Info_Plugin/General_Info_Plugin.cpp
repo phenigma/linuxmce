@@ -574,7 +574,7 @@ void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string sM
 
 		int iDeviceID = 0;
 		// Execute query
-		if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+		if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sSQL.c_str())) )
 		{
 			while((row = mysql_fetch_row(result.r)))	
 			{
@@ -1059,7 +1059,7 @@ class DataGridTable *General_Info_Plugin::StorageDevices( string GridID, string 
 			StringUtils::ltos(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST) + " " +
 		"ORDER BY CAST(Device_DeviceData.IK_DeviceData AS UNSIGNED) DESC";
 
-	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sSQL.c_str())) )
 	{
 		while((row = mysql_fetch_row(result.r)))
 		{
@@ -1164,7 +1164,7 @@ class DataGridTable *General_Info_Plugin::CitiesGrid( string GridID, string Parm
 				"AND City.FK_Country=" + StringUtils::itos(PK_Country) + " " 
 				"ORDER BY City.City like '" + Parms + "%' desc,City.City,Region.Region";  // Put the cities that start with this string first
 
-		if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+		if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sSQL.c_str())) )
 		{
 			while( ( row=mysql_fetch_row( result.r ) ) )
 			{
@@ -1238,9 +1238,9 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 
 	PlutoSqlResult result;
     MYSQL_ROW row;
-	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str())) )
 	{
-			while( ( row=mysql_fetch_row( result.r ) ) )
+		while( ( row=mysql_fetch_row( result.r ) ) )
 		{
 			pCell = new DataGridCell( row[1], row[0] );
 			pDataGrid->SetData( iCol++, iRow, pCell );
@@ -1269,7 +1269,7 @@ class DataGridTable *General_Info_Plugin::RoomTypes(string GridID, string Parms,
 		"ORDER BY Description";
 	PlutoSqlResult result;
 	MYSQL_ROW row;
-	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	if((result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str())))
 	{
 		while((row=mysql_fetch_row(result.r)))
 		{
@@ -1305,7 +1305,7 @@ class DataGridTable *General_Info_Plugin::ChildrenInfo(string GridID, string Par
 		"WHERE FK_Device_ControlledVia = " + sPK_Device_Parent;
 	PlutoSqlResult result;
 	MYSQL_ROW row;
-	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	if((result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str())))
 	{
 		while((row=mysql_fetch_row(result.r)))
 		{
@@ -1384,7 +1384,7 @@ class DataGridTable *General_Info_Plugin::LightsTypes(string GridID, string Parm
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
-	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str())) )
 	{
 		while( ( row=mysql_fetch_row( result.r ) ) )
 		{
@@ -1443,7 +1443,7 @@ class DataGridTable *General_Info_Plugin::InstalledAVDevices(string GridID, stri
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
-	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str()) ))
 	{
 		while((row = mysql_fetch_row( result.r )))
 		{
@@ -1475,7 +1475,7 @@ class DataGridTable *General_Info_Plugin::SensorType(string GridID, string Parms
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
-	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str())) )
 	{
 		while( ( row=mysql_fetch_row( result.r ) ) )
 		{
@@ -3593,7 +3593,7 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 		fnDeviceDataValue
 	};
 
-	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sSQL.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sSQL.c_str())) )
 	{
 		while((row = mysql_fetch_row(result.r)))	
 		{

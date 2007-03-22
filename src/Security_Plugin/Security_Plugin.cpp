@@ -146,7 +146,7 @@ bool Security_Plugin::GetConfig()
 
 	PlutoSqlResult result;
     MYSQL_ROW row;
-	if( mysql_query(m_pDatabase_pluto_security->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_security->m_pMySQL)) )
+	if( (result.r = m_pDatabase_pluto_security->mysql_query_result(sql.c_str())) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
 			m_mapRow_ModeChange_Last[row[1] ? atoi(row[1]) : 0] = m_pDatabase_pluto_security->ModeChange_get()->GetRow( atoi(row[0]) );
