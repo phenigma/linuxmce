@@ -1500,7 +1500,7 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 		}
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::AddDiscAttributesToFile called with file %d disc %d PIC %d",
-			PK_File,PK_Disc,pRow_Picture_File->FK_Picture_get);
+			PK_File,PK_Disc,pRow_Picture_File->FK_Picture_get());
 
 /*
 		PlutoMediaFile_.SetPicAttribute(pRow_Picture_File->FK_Picture_get(), 

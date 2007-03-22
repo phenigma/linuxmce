@@ -49,6 +49,7 @@ namespace nsJobHandler
 		string m_sResult;
 
 		Task(Job *pJob,string sName);
+		~Task();
 
 		virtual bool Abort();
 
