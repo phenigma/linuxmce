@@ -6204,6 +6204,7 @@ void Media_Plugin::HandleRetransmitOnOff(char A_or_V,char P_or_I,MediaDevice *pM
 				{
 					DCE::CMD_Input_Select CMD_Input_Select(PK_Device_From,pMediaDevice->m_pDevice_Audio->m_dwPK_Device,
 						pMediaDevice->m_dwPK_Command_Audio);
+					CMD_Input_Select.m_pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]="1";
 					if( pEntertainArea )
 						CheckForCustomPipe(pEntertainArea,CMD_Input_Select.m_pMessage);
 					SendCommand(CMD_Input_Select);
@@ -6234,6 +6235,7 @@ void Media_Plugin::HandleRetransmitOnOff(char A_or_V,char P_or_I,MediaDevice *pM
 				{
 					DCE::CMD_Input_Select CMD_Input_Select(PK_Device_From,pMediaDevice->m_pDevice_Video->m_dwPK_Device,
 						pMediaDevice->m_dwPK_Command_Video);
+					CMD_Input_Select.m_pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]="1";
 					if( pEntertainArea )
 						CheckForCustomPipe(pEntertainArea,CMD_Input_Select.m_pMessage);
 					SendCommand(CMD_Input_Select);
