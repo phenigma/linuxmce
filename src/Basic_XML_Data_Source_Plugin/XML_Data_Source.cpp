@@ -103,6 +103,14 @@ XML_Data_InstantiationInfo_Basic::XML_Data_InstantiationInfo_Basic(Basic_XML_Dat
 
 /*virtual*/ int CommandGroupList::Populate(xmlDocPtr xmlDocPtr_Parms_In,xmlDocPtr xmlDocPtr_Data,xmlNodePtr xmlNodePtr_Root)
 {
+	vector<Row_Device *> vectRow_Moxi;
+	m_pDatabase_pluto_main->Device_get()->GetRows("FK_DeviceTemplate=1870",&vectRow_Moxi);
+	Row_Device *pRow_Device = NULL;
+	if( vectRow_Moxi.empty()==FALSE )
+		pRow_Device = vectRow_Moxi[0];
+
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CommandGroupList::Populate delete this hack device %d room %d",
+	pRow_Device ? pRow_Device->PK_Device_get() : 0,pRow_Device ? pRow_Device->FK_Room_get() : 0);
 	// As we go through the devices, keep track of the rooms, device templates, and device categories we reference so we can include them
 	map<int,Row_Room *> m_mapRow_Room;
 	map<int,Row_Array *> m_mapRow_Array;
@@ -114,6 +122,20 @@ XML_Data_InstantiationInfo_Basic::XML_Data_InstantiationInfo_Basic(Basic_XML_Dat
 	for(vector<Row_CommandGroup *>::iterator it=vectRow_CommandGroup.begin();it!=vectRow_CommandGroup.end();++it)
 	{
 		Row_CommandGroup *pRow_CommandGroup = *it;
+
+if( pRow_Device )
+{
+	Row_CommandGroup_Room *pRow_CommandGroup_Room = this->m_pDatabase_pluto_main->CommandGroup_Room_get()->GetRow(pRow_CommandGroup->PK_CommandGroup_get(),
+		pRow_Device->FK_Room_get());
+	if( !pRow_CommandGroup_Room )
+	{
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CommandGroupList::Populate skipping %d",pRow_CommandGroup->PK_CommandGroup_get()); 
+continue;
+	}
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CommandGroupList::Populate letting through %d",pRow_CommandGroup->PK_CommandGroup_get()); 
+}
+
+
 		xmlNodePtr xmlNodePtr_commandgroup = xmlNewTextChild (xmlNodePtr_commandgroup_list, NULL, BAD_CAST "CommandGroup", BAD_CAST pRow_CommandGroup->Description_get().c_str());
 		xmlNewProp (xmlNodePtr_commandgroup, BAD_CAST "PK_CommandGroup", BAD_CAST StringUtils::itos(pRow_CommandGroup->PK_CommandGroup_get()).c_str());
 		
