@@ -106,7 +106,7 @@ XML_Data_InstantiationInfo_Basic::XML_Data_InstantiationInfo_Basic(Basic_XML_Dat
 	vector<Row_Device *> vectRow_Moxi;
 	m_pDatabase_pluto_main->Device_get()->GetRows("FK_DeviceTemplate=1870",&vectRow_Moxi);
 	Row_Device *pRow_Device = NULL;
-	if( vectRow_Moxi.empty()==FALSE )
+	if( vectRow_Moxi.empty()==false )
 		pRow_Device = vectRow_Moxi[0];
 
 LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CommandGroupList::Populate delete this hack device %d room %d",
