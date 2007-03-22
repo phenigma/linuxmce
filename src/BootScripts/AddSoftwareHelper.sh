@@ -93,14 +93,16 @@ case $Action in
 					break
 				else
 					echo "Installation failed, checksums not match: MD5=$MD5Package (should be $MD5Sum), SHA1=$SHA1Package (should be $SHA1Sum)"
+					Err="yes"
 					break
 				fi
 			else
 				echo "Download failed (direct link)"
+				Err="yes"
 			fi
 			
 		done
-
+		[ -n "$Err" ] && exit 10 || exit 0
 	;;
 
 	remove-actual)
@@ -108,7 +110,7 @@ case $Action in
 		PackageName="$(FindPackageName "$PackageID")"
 		if [[ -z "$PackageName" ]]; then
 			echo "Package with ID=$PackageID is not found"
-			exit 1
+			exit 10
 		fi
 		
 		echo "Removing package $PackageName"
@@ -122,12 +124,14 @@ case $Action in
 			echo "Package removed OK"
 		else
 			echo "Package removing error: installer returned non-zero code ($RetCode), marking package as non-installed anyway"
+			Err="yes"
 		fi
 		
 		Q="UPDATE Software_Device SET Status='N' WHERE FK_Device=$DeviceID AND FK_Software=$PackageID"
 		Row="$(RunSQL "$Q")"
 		
 		Unlock "RemoveNewDevice"
+		[ -n "$Err" ] && exit 10 || exit 0
 	;;
 	
 	*)
