@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/LockUtils.sh
+
 DisplayProgress() {
 	Text=$1
 	[[ -z "$(pidof mce-launcher)" ]] || echo "${Progress}%${Text}" > /tmp/mce-launcher-pipe
@@ -50,6 +52,12 @@ StartDaemon() {
 	return $err
 }
 
+## Permanent lock: it is never unlocked
+## Only one MCE Launcher should be run per session (i.e. after the machine is powered)
+if ! Lock "MCE_Launcher" "MCE_Launcher" nolog; then
+	echo "MCE Launcher has already been started this session"
+	exit 0
+fi
 
 ThisFile=$0
 Progress=0
