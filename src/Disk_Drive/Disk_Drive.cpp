@@ -105,7 +105,8 @@ bool Disk_Drive::GetConfig()
 
 	m_pDisk_Drive_Functions = new Disk_Drive_Functions(this, sDrive, m_pJobHandler,m_pDatabase_pluto_media,m_pMediaAttributes_LowLevel);
 
-	m_pJobHandler->StartThread();
+	bool bResult = m_pJobHandler->StartThread();
+	LoggerWrapper::GetInstance()->Write(LV_SOCKET,"Disk_Drive::GetConfig StartThread %d", (int) bResult);
 
 /*
 	// Quick and dirty, get nbd-server working

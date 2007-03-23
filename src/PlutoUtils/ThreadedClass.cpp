@@ -85,6 +85,7 @@ bool ThreadedClass::StopThread(int iTimeout)
 void* ThreadedClassThread( void* param ) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
 {
 	ThreadedClass *p = (ThreadedClass*)param;
+	LoggerWrapper::GetInstance()->Write(LV_SOCKET,"ThreadedClassThread::ThreadedClassThread running internal run");
 	p->InternalRun();
 	
 	LoggerWrapper::GetInstance()->Write(LV_SOCKET,"Exiting ThreadedClassThread thread...");
@@ -107,6 +108,10 @@ bool ThreadedClass::StartThread()
 void ThreadedClass::InternalRun()
 {
 	if( !m_bQuit && m_bThreadRunning )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_SOCKET,"ThreadedClass::InternalRun");
 		Run();
+	}
+	LoggerWrapper::GetInstance()->Write(LV_SOCKET,"ThreadedClass::InternalRun ended");
 	m_bThreadRunning=false;
 }
