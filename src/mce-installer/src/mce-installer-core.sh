@@ -15,12 +15,13 @@ function ExitInstaller {
 	exit 1
 }
 
+
 function StatsMessage {
 	echo "MESSAGE: $*"
 }
 
 if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
-	ExitInstaller "Wizard Information is corupted or missing."
+	ExitInstaller "Wizard Information is corrupted or missing."
 fi
 . /tmp/mce_wizard_data.sh
 
@@ -287,7 +288,7 @@ function Configure_Network_Options {
 function CreateDebCache() {
 	StatsMessage "Caching LinuxMCE CD on the harddrive"
 	mkdir -p /usr/pluto/deb-cache
-	cp /media/cdrom/*.deb /usr/pluto/deb-cache/ ||  ExitInstaller "Failed to read corectly from the LinuxMCE CDROM"
+	cp /media/cdrom/*.deb /usr/pluto/deb-cache/ ||  ExitInstaller "Failed to read correctly from the LinuxMCE CDROM"
 	cp /media/cdrom/Packages* /usr/pluto/deb-cache/
 }
 
