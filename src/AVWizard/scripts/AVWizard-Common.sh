@@ -14,6 +14,7 @@ XorgConfLogging "Starting $0 $*"
 trap 'XorgConfLogging "Ending"' EXIT
 
 . /usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/Config_Ops.sh
 
 BaseDir=/usr/pluto/bin
 
@@ -155,8 +156,8 @@ StartX()
 	for Parm in "$@"; do
 		XParm=("${XParm[@]}" -parm "$Parm")
 	done
-	"$BaseDir"/Start_X.sh -fg -client /usr/pluto/bin/AVWizard -srvparm '-config' -srvparm "$XF86Config" -display :1 "${XParm[@]}"
-	#"$BaseDir"/Start_X.sh -fg -client /usr/bin/valgrind -parm --tool=memcheck -parm --leak-check=yes -parm --show-reachable=yes -parm --num-callers=15 -parm /usr/pluto/bin/AVWizard -srvparm '-config' -srvparm "$XF86Config" -display :1 "${XParm[@]}"
+	"$BaseDir"/Start_X.sh -fg -client /usr/pluto/bin/AVWizard -srvparm '-config' -srvparm "$XF86Config" -display $((Display+1)) "${XParm[@]}"
+	#"$BaseDir"/Start_X.sh -fg -client /usr/bin/valgrind -parm --tool=memcheck -parm --leak-check=yes -parm --show-reachable=yes -parm --num-callers=15 -parm /usr/pluto/bin/AVWizard -srvparm '-config' -srvparm "$XF86Config" -display $((Display+1)) "${XParm[@]}"
 }
 
 WizSet()
