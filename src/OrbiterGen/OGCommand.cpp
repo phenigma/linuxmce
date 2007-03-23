@@ -202,7 +202,7 @@ CGZone::CGZone(Row_CommandGroup * drCommandGroup,DesignObj_Generator *Parent)
 		{
 			class Row_CommandGroup_Command * drAGA = vectraga[s];
 			CGCommand *oca = new CGCommand(drAGA,Parent);
-			m_Commands.push_back((DesignObjCommand *) oca);
+			m_Commands.push_front((DesignObjCommand *) oca);
 		}
 	}
 }
