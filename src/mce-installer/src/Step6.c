@@ -38,7 +38,7 @@ void displayStep6(void) {
 		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 		close (fdError);
 
-		label = gtk_label_new_for_wizard ("If you want to send a bug report on this, don't forget to include the content of the /var/log/mce_installer_*.log files.");
+		label = gtk_label_new_for_wizard ("If you want to send a bug report on this, don't forget to include the contents of /var/log/mce_installer_*.log files.");
 		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	} else {
