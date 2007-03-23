@@ -25,9 +25,27 @@ void displayStep6(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("Installation Finished. You need to reboot you computer before starting Linux MCE.");
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
-	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
+	GtkWidget *label;
+	if (access("/tmp/mce_installer_error", F_OK) == 0) {
+		label = gtk_label_new_for_wizard ("Installation Failed :");
+		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
+
+		gint fdError = open("/tmp/mce_installer_error", O_RDONLY);
+		gchar errorMessage[1024];
+		memset(errorMessage, 0, 1024);
+		read(fdError, errorMessage, 1023);
+		label = gtk_label_new_for_wizard (errorMessage);
+		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
+		close (fdError);
+
+		label = gtk_label_new_for_wizard ("If you want to send a bug report on this, don't forget to include the conent of the /var/log/mce_installer_*.log files.");
+		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
+
+	} else {
+		label = gtk_label_new_for_wizard ("Installation Finished. You need to reboot you computer before starting Linux MCE.");
+		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
+	}
+
 	
 	// Button Finish
 	buttonFinish = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
