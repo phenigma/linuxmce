@@ -271,7 +271,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			
 			if( !sysfsPath.empty() )
 			{
-				if( deviceData.empty() )
+				if( !deviceData.empty() )
 				{
 					deviceData += "|";
 				}
