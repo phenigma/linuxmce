@@ -43,6 +43,8 @@
 #include "pluto_main/Table_Image.h"
 #include "pluto_main/Table_Installation.h"
 #include "pluto_main/Table_Installation_Users.h"
+#include "pluto_main/Table_CommandGroup_Command.h"
+#include "pluto_main/Table_CommandGroup_D_Command.h"
 #include "pluto_main/Table_DesignObj.h"
 #include "pluto_main/Table_DesignObjParameter.h"
 #include "pluto_main/Table_DesignObjVariation.h"
