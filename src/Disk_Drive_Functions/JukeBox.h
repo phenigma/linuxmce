@@ -76,7 +76,7 @@ namespace nsJukeBox
 
 	class JukeBox
 	{
-	protected:
+	public:
 		map_int_Slotp m_mapSlot;
 		map_int_Drivep m_mapDrive;
 
