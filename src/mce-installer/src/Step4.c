@@ -38,9 +38,9 @@ void displayStep4(void) {
 	GSList *group = NULL;
 	GtkWidget *radio[3];
 
-	radio[0] = gtk_radio_button_new_with_label(group, "Primarily used as a PC -- Ubuntu starts up by default, and you can start\nLinuxMCE manually when you need it.");
+	radio[0] = gtk_radio_button_new_with_label(group, "Primarily used as a PC -- Ubuntu starts up by default, and you can\nstart LinuxMCE manually when you need it.");
 	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio[0]));
-	radio[1] = gtk_radio_button_new_with_label(group, "A dedicated LinuxMCE System -- Start LinuxMCE and you can start Ubuntu\nmanually when you need it.");
+	radio[1] = gtk_radio_button_new_with_label(group, "A dedicated LinuxMCE System -- Start LinuxMCE and you can start\nUbuntu manually when you need it.");
 //	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio[0]));
 //	radio[2] = gtk_radio_button_new_with_label(group, "Both -- Start both Ubuntu and LinuxMCE.  LinuxMCE will appear by default,\nbut you can switch to Ubuntu by pressing Ctrl+Alt+F7");
 

@@ -286,7 +286,7 @@ function Configure_Network_Options {
 }
 
 function CreateDebCache() {
-	StatsMessage "Caching LinuxMCE CD on the harddrive"
+	StatsMessage "Cacheing LinuxMCE CD on the harddrive"
 	mkdir -p /usr/pluto/deb-cache
 	cp /media/cdrom/*.deb /usr/pluto/deb-cache/ ||  ExitInstaller "Failed to read correctly from the LinuxMCE CDROM"
 	cp /media/cdrom/Packages* /usr/pluto/deb-cache/
