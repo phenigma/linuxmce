@@ -11,16 +11,23 @@
 
 
 GtkWidget *buttonFinish;
+GtkWidget *progressBar;
+gint tagProgressBarPulse;
 
 void on_Step5_forward_clicked(GtkWidget *widget, gpointer data) {
 }
 
 
 void on_terminal_child_exited(VteTerminal *terminal, gpointer data) {
-	gtk_widget_set_sensitive (GTK_WIDGET(buttonFinish), TRUE);
+	//gtk_widget_set_sensitive (GTK_WIDGET(buttonFinish), TRUE);
+	g_source_remove(tagProgressBarPulse);
 	displayStep6();
 }
 
+gint update_progress_bar(gpointer data) {
+	gtk_progress_bar_pulse(GTK_PROGRESS_BAR(progressBar));
+	return 1;
+}
 
 void displayStep5(void) {
 	printf("Step5\n");
@@ -37,8 +44,9 @@ void displayStep5(void) {
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	// Progress Bar
-	GtkWidget *progressBar = gtk_progress_bar_new();
+	progressBar = gtk_progress_bar_new();
 	gtk_box_pack_start(GTK_BOX(mainBox), progressBar, TRUE, TRUE, 0);
+	tagProgressBarPulse = g_timeout_add(200, update_progress_bar, NULL);
 
 	// Terminal widget
 	GtkWidget *terminal = vte_terminal_new();
