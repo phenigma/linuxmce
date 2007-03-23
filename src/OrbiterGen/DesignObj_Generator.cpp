@@ -1449,10 +1449,6 @@ int k=2;
             for(itActions=oz->m_Commands.begin();itActions!=oz->m_Commands.end();++itActions)
             {
                 CGCommand *oa = (CGCommand *) *itActions;
-				if( oa->m_drCommandGroup_Command )
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"action load adding %d %d",oa->m_drCommandGroup_Command->FK_CommandGroup_get(),oa->m_PK_Command);
-				else if( oa->m_drCommandGroup_D_Command )
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"action load 2 adding %d %d",oa->m_drCommandGroup_D_Command->FK_CommandGroup_D_get(),oa->m_PK_Command);
                 if( oa->m_PK_Command == COMMAND_Set_Variable_CONST )
                 {
                     int PK_Variable=0;
