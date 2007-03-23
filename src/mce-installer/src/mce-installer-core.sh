@@ -1,23 +1,37 @@
 #!/bin/bash
 
-if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
-	echo "ERROR: Cannot find wizard data";
-	exit 1
-fi
 exec &> >(tee /var/log/mce-installer.log)
 
+function ExitInstaller {
+	echo 
+	echo "ERROR : $*" >&2
+	echo 
+	exit 1
+}
+
+function StatsMessage {
+	echo "MESSAGE: $*"
+}
+
+if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
+	ExitInstaller "Wizard Information is corupted or missing."
+fi
 . /tmp/mce_wizard_data.sh
 
 function Setup_Network_Intefaces {
+	StatsMessage "Seting Up Networking"
+	# If user is was using dhcp and now wants static ip is safe to kill this here
 	killall dhclient  &>/dev/null
 	killall dhclient3 &>/dev/null
+
 	if [[ $c_netExtUseDhcp  == "1" ]] ;then
 		echo "iface $c_netExtName inet dhcp" > /etc/network/interfaces
-		dhclient $c_netExtName
+		dhclient $c_netExtName || ExitInstaller "Failed to get an IP address for the external nic via DHCP."
 	else
 		echo > /etc/network/interfaces
 		echo "auto lo" >> /etc/network/interfaces
 		echo "iface lo inet loopback" >> /etc/network/interfaces
+
 		echo "" >> /etc/network/interfaces
 		echo "auto $c_netExtName" >> /etc/network/interfaces
 		echo "iface $c_netExtName inet static" >> /etc/network/interfaces
@@ -31,15 +45,16 @@ function Setup_Network_Intefaces {
 
 		ifconfig $c_netIntName down
 		ifconfig $c_netExtName down
-		ifconfig $c_netExtName $c_netExtIP netmask $c_netExtMask up
+		ifconfig $c_netExtName $c_netExtIP netmask $c_netExtMask up || ExitInstaller "Cannot set an IP address to '$c_netExtName'."
 
 		route del default gw 2>/dev/null
-		route add default gw $c_netExtGateway 2>/dev/null
+		route add default gw $c_netExtGateway 2>/dev/null || ExitInstaller "Cannot setup default gateway to '$c_netExtGateway'."
 	fi
 
 }
 
 function Setup_Apt_Conffiles {
+	StatsMessage "Setting up APT Package Manager"
 	## Setup apt sources.list
 	local Sources="# Pluto sources - start
 deb file:/usr/pluto/deb-cache/ ./
@@ -68,12 +83,14 @@ APT::Get::AllowUnauthenticated "true";
 
 	ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
 
+	StatsMessage "Preseeding debconf options"
 	./mce-installer-preseed.sh
 	apt-get update
 }
 
 
 function Setup_Pluto_Conf {
+	StatsMessage "Generating Default Config File"
 	PlutoConf="# Pluto config file
 MySqlHost = localhost
 MySqlUser = root
@@ -96,6 +113,7 @@ LogLevels = 1,5,7,8
 }
 
 function Setup_NIS {
+	StatsMessage "Configuring Network Information Service (NIS)"
 	## Put a temporar nis config files that will prevent ypbind to start
 	echo "
 NISSERVER=false
@@ -113,18 +131,9 @@ echo > /etc/init.d/yp.conf
 }
 
 function Install_DCERouter {
+	StatsMessage "Installing LinuxMCE Base Software"
 	apt-get update
-	apt-get -y -f install pluto-dcerouter
-	local err=$?
-	if [[ "$err" != "0" ]] ;then
-		echo "-------------------------------------------------------"
-		echo "-                                                     -"
-		echo "-           !!  Installation Failed !!                -"
-		echo "-                                                     -"
-		echo "-------------------------------------------------------"
-
-		exit 1
-	fi
+	apt-get -y -f install pluto-dcerouter || ExitInstaller "Failed to install and configure the base software"
 }
 
 function Create_And_Config_Devices {
@@ -139,17 +148,20 @@ function Create_And_Config_Devices {
 	RunSQL "$Q"
 
 	## Create the Core device and set it's description
+	StatsMessage "Setting up your computer to act as a 'Core'"
 	Core_PK_Device=$(/usr/pluto/bin/CreateDevice -d $DEVICE_TEMPLATE_Core | tee /dev/stderr | tail -1)
 	Q="UPDATE Device SET Description='CORE' WHERE PK_Device='$Core_PK_Device'"
 	RunSQL "$Q"
 
 	## Create a hybrid if needed
 	if [[ "$c_deviceType" == "2" ]] ;then
+		StatsMessage "Setting up you computer to act as a 'Media Director'"
 		Hybrid_DT=$(/usr/pluto/bin/CreateDevice -d $DEVICE_TEMPLATE_MediaDirector -C "$Core_PK_Device")
 		Q="UPDATE Device SET Description='The core/hybrid' WHERE PK_Device='$Hybrid_DT'"
 		RunSQL "$Q"
 	fi
 
+	StatsMessage "Configuring the LinuxMCE devices"
         # "DCERouter postinstall"
         devices=$(echo "SELECT PK_Device FROM Device;" | /usr/bin/mysql pluto_main | tail +2 | tr '\n' ' ')
 
@@ -192,7 +204,7 @@ function Create_And_Config_Devices {
 }
 
 function Configure_Network_Options {
-	
+	StatsMessage "Configuring your internal network"
 	. /usr/pluto/bin/SQL_Ops.sh
 
 	## Setup /etc/hosts
@@ -267,13 +279,10 @@ function Configure_Network_Options {
 }
 
 function CreateDebCache() {
+	StatsMessage "Caching LinuxMCE CD on the harddrive"
 	mkdir -p /usr/pluto/deb-cache
-	cp /media/cdrom/*.deb /usr/pluto/deb-cache/
+	cp /media/cdrom/*.deb /usr/pluto/deb-cache/ ||  ExitInstaller "Failed to read corectly from the LinuxMCE CDROM"
 	cp /media/cdrom/Packages* /usr/pluto/deb-cache/
-
-#	pushd /usr/pluto/deb-cache >/dev/null
-#	dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
-#	popd >/dev/null
 }
 
 function Setup_DebCache() {
@@ -284,9 +293,9 @@ function Setup_DebCache() {
 		case "$c_installType" in
 			1) # ISO on CD
 				echo "Mounting CD"
-				mount /dev/cdrom /media/cdrom
+				mount /dev/cdrom /media/cdrom 2>/dev/null
 				CreateDebCache
-				umount /media/cdrom
+				umount /media/cdrom 2>/dev/null
 				OK=1
 			;;
 			2) # ISO in /var/linuxmce/linux-mce.iso
@@ -321,6 +330,8 @@ Configure_Network_Options
 /usr/pluto/bin/Timezone_Detect.sh
 /usr/pluto/bin/Network_Setup.sh
 /usr/pluto/bin/DHCP_config.sh
+
+StatsMessage "Building a disk image for your Diskless Media Directors"
 /usr/pluto/bin/Diskless_CreateTBZ.sh
 
 
@@ -357,17 +368,6 @@ end script
 " > /etc/event.d/pluto
 fi
 
-apt-get -y dist-upgrade
+apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
 
-echo 
-echo
-echo
-echo
-echo "-------------------------------------------------------"
-echo "-              Installation Finished                  -"
-echo "-                                                     -"
-echo "-                                                     -"
-echo "- Reboot you computer and then run the Start_Pluto.sh -"
-echo "- script to get pluto hybrid/core started.            -"
-echo "-                                                     -"
-echo "-------------------------------------------------------"
+StatsMessage "Installation Finished"
