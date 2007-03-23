@@ -373,8 +373,6 @@ only slots that were scheduled for ripping will appear in the string */
 		private:
 			nsJukeBox::PowerfileJukebox * m_pPowerfileJukebox;
 
-			pluto_pthread_mutex_t m_DriveMutex;
-
 		public:
 			bool RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo);
 

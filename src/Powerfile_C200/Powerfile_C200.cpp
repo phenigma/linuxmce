@@ -58,7 +58,6 @@ namespace nsJobHandler
 Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Powerfile_C200_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, m_DriveMutex("Powerfile drive mutex", true)
 {
     m_pDatabase_pluto_media = NULL;
 	m_pMediaAttributes_LowLevel = NULL;
@@ -351,85 +350,14 @@ void Powerfile_C200::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c701-e->
 {
-#ifdef NOTDEF
-	PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc from slot %d into drive %d", iSlot_Number, iDrive_Number);
-#ifdef EMULATE_PF
-	string sCmd = "/bin/true";
-#else
-	string sCmd = string(MTX_CMD " -f ") + m_sChanger + (m_bMtxAltres ? "altres" : "") + " nobarcode load " + itos(iSlot_Number) + " " + itos(iDrive_Number);
-#endif
-
-	sCMD_Result = "FAILED";
-	if (m_vectDriveStatus[iDrive_Number].first > 0)
+	if (m_pPowerfileJukebox->MoveFromSlotToDrive(m_pPowerfileJukebox->m_mapSlot[iSlot_Number], m_pPowerfileJukebox->m_mapDrive[iDrive_Number]))
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unit %d full", iDrive_Number);
-	}
-	else if (! m_vectSlotStatus[iSlot_Number - 1])
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Slot %d empty", iSlot_Number);
-	}
-	else if (m_vectDriveStatus[iDrive_Number].first < 0 && m_vectDriveStatus[iDrive_Number].first != -iSlot_Number)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Drive asked for by slot %d is reserved by slot %d", iSlot_Number, m_vectDriveStatus[iDrive_Number].first);
+		sCMD_Result = "OK";
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
-		int status = system(sCmd.c_str());
-		if (WEXITSTATUS(status) == 0)
-		{
-#ifndef EMULATE_PF
-			//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
-			//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
-			//system(sCmd.c_str());
-			sCmd = MTX_CMD " -f " + m_vectDrive[iDrive_Number].second + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
-			int iRet = system(sCmd.c_str());
-			if (iRet == -1)
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to execute mtx");
-			}
-			else
-			{
-				if (WEXITSTATUS(iRet) == 1)
-				{
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc loaded but failed to refresh state. Marking drive %d as OFFLINE", iDrive_Number);
-					m_vectDriveStatus[iDrive_Number].second = false;
-				}
-				else
-#endif
-				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc succeeded");
-				}
-				
-				m_vectDriveStatus[iDrive_Number].first = iSlot_Number;
-				m_vectSlotStatus[iSlot_Number - 1] = false;
-
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting disc type");
-				Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
-				pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
-				pDDF->m_mediaInserted = false;
-				pDDF->cdrom_checkdrive(pDDF->m_sDrive.c_str(), &pDDF->m_mediaDiskStatus, false);
-				if (pDDF->m_mediaDiskStatus != -1)
-				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded disc of type %d", pDDF->m_mediaDiskStatus);
-					pDDF->m_mediaInserted = true;
-					sCMD_Result = "OK";
-				}
-				else
-				{
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't get disc type. Since we're sure there's a disc in there (we just loaded it), assuming defective unit. Marking drive %d as OFFLINE", iDrive_Number);
-					m_vectDriveStatus[iDrive_Number].second = false;
-				}
-			}
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Loading disc failed");
-		}
+		sCMD_Result = "FAILED";
 	}
-#endif
 }
 
 //<-dceag-c702-b->
@@ -444,72 +372,14 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c702-e->
 {
-#ifdef NOTDEF
-	PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc from drive %d into slot %d", iDrive_Number, iSlot_Number);
-#ifdef EMULATE_PF
-	string sCmd = "/bin/true";
-#else
-	string sCmd = string(MTX_CMD " -f ") + m_sChanger + (m_bMtxAltres ? "altres" : "") + " nobarcode unload " + itos(iSlot_Number) + " " + itos(iDrive_Number);
-#endif
-	
-	sCMD_Result = "FAILED";
-	if (m_vectDriveStatus[iDrive_Number].first == 0)
+	if (m_pPowerfileJukebox->MoveFromDriveToSlot(m_pPowerfileJukebox->m_mapSlot[iSlot_Number], m_pPowerfileJukebox->m_mapDrive[iDrive_Number]))
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unit %d empty", iDrive_Number);
-	}
-	else if (m_vectSlotStatus[iSlot_Number - 1])
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Slot %d full", iSlot_Number);
+		sCMD_Result = "OK";
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
-		int status = system(sCmd.c_str());
-		if (WEXITSTATUS(status) == 0)
-		{
-#ifndef EMULATE_PF
-			//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
-			//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
-			//system(sCmd.c_str());
-			sCmd = MTX_CMD " -f " + m_vectDrive[iDrive_Number].second + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
-			int iRet = system(sCmd.c_str());
-			if (iRet == -1)
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to execute mtx");
-			}
-			else
-			{
-				if (WEXITSTATUS(iRet) == 1)
-				{
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unloaded but failed to refresh state. Marking drive %d as OFFLINE", iDrive_Number);
-					m_vectDriveStatus[iDrive_Number].second = false;
-				}
-				else
-#endif
-				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc succeeded");
-				}
-				
-				m_vectDriveStatus[iDrive_Number].first = -iSlot_Number;
-				m_vectSlotStatus[iSlot_Number - 1] = true;
-				
-				Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
-				pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
-				pDDF->m_mediaInserted = false;
-				
-				ReleaseDrive_NoMutex(iDrive_Number, iSlot_Number);
-				
-				sCMD_Result = "OK";
-			}
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc failed");
-		}
+		sCMD_Result = "FAILED";
 	}
-#endif
 }
 
 //<-dceag-c703-b->

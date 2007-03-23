@@ -26,6 +26,9 @@ namespace nsJukeBox
 
 	class PowerfileJukebox : public JukeBox
 	{
+		private:
+			pluto_pthread_mutex_t m_DriveMutex;
+
 		public:
 			string m_sChangerDev;
 			bool m_bMtxAltres;

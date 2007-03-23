@@ -35,6 +35,7 @@ namespace nsJukeBox
 	 */
 
 	PowerfileJukebox::PowerfileJukebox(Powerfile_C200 * pPowerfile)
+		: m_DriveMutex("PowerfileJukebox drive mutex", true)
 	{
 		m_pPowerfile = pPowerfile;
 		m_bStatusCached = false;
@@ -305,10 +306,164 @@ namespace nsJukeBox
 
 	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::MoveFromSlotToDrive(Slot *pSlot,Drive *pDrive)
 	{
+		PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
+		PowerfileDrive * pPowerfileDrive = dynamic_cast<PowerfileDrive *> (pDrive);
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc from slot %d into drive %d", pSlot->m_SlotNumber, pPowerfileDrive->m_DriveNumber);
+#ifdef EMULATE_PF
+		string sCmd = "/bin/true";
+#else
+		string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? "altres" : "") + " nobarcode load " + itos(pSlot->m_SlotNumber) + " " + itos(pPowerfileDrive->m_DriveNumber);
+#endif
+
+		JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
+
+		if (pPowerfileDrive->m_eStatus == Drive::drive_full)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unit %d full", pPowerfileDrive->m_DriveNumber);
+		}
+		else if (pPowerfileDrive->m_eStatus == Drive::drive_empty)
+		{
+			if (pPowerfileDrive->m_iSlotOfProvenience == 0)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Slot %d empty", pSlot->m_SlotNumber);
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Drive asked for by slot %d is reserved by slot %d", pSlot->m_SlotNumber, -pPowerfileDrive->m_DriveNumber);
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+			int status = system(sCmd.c_str());
+			if (WEXITSTATUS(status) == 0)
+			{
+#ifndef EMULATE_PF
+				//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
+				//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+				//system(sCmd.c_str());
+				sCmd = MTX_CMD " -f " + pPowerfileDrive->m_sSGdev + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+				int iRet = system(sCmd.c_str());
+				if (iRet == -1)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to execute mtx");
+				}
+				else
+				{
+					if (WEXITSTATUS(iRet) == 1)
+					{
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc loaded but failed to refresh state. Marking drive %d as OFFLINE", pPowerfileDrive->m_DriveNumber);
+						pPowerfileDrive->m_bFunctional = false;
+					}
+					else
+#endif
+					{
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc succeeded");
+					}
+					
+					pPowerfileDrive->m_iSlotOfProvenience = pSlot->m_SlotNumber;
+					pSlot->m_eStatus = Slot::slot_empty;
+
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting disc type");
+					Disk_Drive_Functions * pDDF = pPowerfileDrive->m_pDisk_Drive_Functions;
+					pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
+					pDDF->m_mediaInserted = false;
+					pDDF->cdrom_checkdrive(pDDF->m_sDrive.c_str(), &pDDF->m_mediaDiskStatus, false);
+					if (pDDF->m_mediaDiskStatus != -1)
+					{
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded disc of type %d", pDDF->m_mediaDiskStatus);
+						pDDF->m_mediaInserted = true;
+						jbRetCode = JukeBox::jukebox_ok;
+					}
+					else
+					{
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't get disc type. Since we're sure there's a disc in there (we just loaded it), assuming defective unit. Marking drive %d as OFFLINE", pPowerfileDrive->m_DriveNumber);
+						pPowerfileDrive->m_bFunctional = false;
+					}
+				}
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Loading disc failed");
+			}
+		}
+
+		return jbRetCode;
 	}
 
 	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::MoveFromDriveToSlot(Slot *pSlot,Drive *pDrive)
 	{
+		PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
+		PowerfileDrive * pPowerfileDrive = dynamic_cast<PowerfileDrive *> (pDrive);
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc from drive %d into slot %d", pPowerfileDrive->m_DriveNumber, pSlot->m_SlotNumber);
+#ifdef EMULATE_PF
+		string sCmd = "/bin/true";
+#else
+		string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? "altres" : "") + " nobarcode unload " + itos(pSlot->m_SlotNumber) + " " + itos(pDrive->m_DriveNumber);
+#endif
+		
+		JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
+
+		if (pPowerfileDrive->m_eStatus == Drive::drive_empty)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unit %d empty", pPowerfileDrive->m_DriveNumber);
+		}
+		else if (pSlot->m_eStatus != Slot::slot_empty)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Slot %d not empty", pSlot->m_SlotNumber);
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+			int status = system(sCmd.c_str());
+			if (WEXITSTATUS(status) == 0)
+			{
+#ifndef EMULATE_PF
+				//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
+				//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+				//system(sCmd.c_str());
+				sCmd = MTX_CMD " -f " + pPowerfileDrive->m_sSGdev + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+				int iRet = system(sCmd.c_str());
+				if (iRet == -1)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to execute mtx");
+				}
+				else
+				{
+					if (WEXITSTATUS(iRet) == 1)
+					{
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unloaded but failed to refresh state. Marking drive %d as OFFLINE", pPowerfileDrive->m_DriveNumber);
+						pPowerfileDrive->m_bFunctional = false;
+					}
+					else
+#endif
+					{
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc succeeded");
+					}
+					
+					pPowerfileDrive->m_iSlotOfProvenience = -pSlot->m_SlotNumber;
+					pSlot->m_eStatus = Slot::slot_unknown_medium; // TODO: distinguish between slot_unknown_medium and slot_identified_disc
+					
+					Disk_Drive_Functions * pDDF = pPowerfileDrive->m_pDisk_Drive_Functions;
+					pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
+					pDDF->m_mediaInserted = false;
+					
+					//ReleaseDrive_NoMutex(iDrive_Number, iSlot_Number);
+					
+					jbRetCode = JukeBox::jukebox_ok;
+				}
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc failed");
+			}
+		}
+
+		return JukeBox::jukebox_transport_failure;
 	}
 
 	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(Slot *pSlot)
