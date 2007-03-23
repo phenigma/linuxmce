@@ -40,12 +40,12 @@ void displayStep4(void) {
 
 	radio[0] = gtk_radio_button_new_with_label(group, "Primarily used as a PC -- Ubuntu starts up by default, and you can start\nLinuxMCE manually when you need it.");
 	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio[0]));
-	radio[1] = gtk_radio_button_new_with_label(group, "A dedicated LinuxMCE System -- Start LinuxMCE and not Ubuntu.");
-	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio[0]));
-	radio[2] = gtk_radio_button_new_with_label(group, "Both -- Start both Ubuntu and LinuxMCE.  LinuxMCE will appear by default,\nbut you can switch to Ubuntu by pressing Ctrl+Alt+F7");
+	radio[1] = gtk_radio_button_new_with_label(group, "A dedicated LinuxMCE System -- Start LinuxMCE and you can start Ubuntu\nmanually when you need it.");
+//	group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radio[0]));
+//	radio[2] = gtk_radio_button_new_with_label(group, "Both -- Start both Ubuntu and LinuxMCE.  LinuxMCE will appear by default,\nbut you can switch to Ubuntu by pressing Ctrl+Alt+F7");
 
 	int i;
-	for (i=0; i<3; i++) {
+	for (i=0; i<2; i++) {
 		g_signal_connect(G_OBJECT(radio[i]), "toggled", G_CALLBACK(on_Step4_radio_toggled), (gpointer)i);
 		gtk_box_pack_start(GTK_BOX(mainBox), radio[i], TRUE, FALSE, i);
 		if (setting_startupType == i) { 
