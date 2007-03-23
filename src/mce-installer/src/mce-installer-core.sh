@@ -350,7 +350,7 @@ if [[ "$c_startupType" == "1" ]] ;then
 	echo "
 start on runlevel-2
 
-stop on shutdonw
+stop on shutdown
 stop on runlevel-3
 stop on runlevel-4
 stop on runlevel-5
@@ -363,7 +363,7 @@ elif [[ "$c_startupType" == "2" ]] ;then
 	echo "
 start on runlevel-2
 
-stop on shutdonw
+stop on shutdown
 stop on runlevel-3
 stop on runlevel-4
 stop on runlevel-5
