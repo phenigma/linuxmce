@@ -14,7 +14,6 @@ function ExitInstaller {
 	echo "$*" > /tmp/mce_installer_error
 	exit 1
 }
-ExitInstaller "Testing"
 
 function StatsMessage {
 	echo "MESSAGE: $*"
