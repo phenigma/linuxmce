@@ -118,7 +118,7 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CommandGroupList::Populate dele
 	xmlNodePtr xmlNodePtr_commandgroup_list = xmlNewTextChild (xmlNodePtr_Root, NULL, BAD_CAST "CommandGroupList", BAD_CAST "");
 
 	vector<Row_CommandGroup *> vectRow_CommandGroup;
-	m_pDatabase_pluto_main->CommandGroup_get()->GetRows("1=1",&vectRow_CommandGroup);
+	m_pDatabase_pluto_main->CommandGroup_get()->GetRows("FK_Array IN (1,2,3,4)",&vectRow_CommandGroup);
 	for(vector<Row_CommandGroup *>::iterator it=vectRow_CommandGroup.begin();it!=vectRow_CommandGroup.end();++it)
 	{
 		Row_CommandGroup *pRow_CommandGroup = *it;
