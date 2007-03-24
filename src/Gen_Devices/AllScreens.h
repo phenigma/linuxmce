@@ -13078,6 +13078,66 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_AutoConfigure_TV : public PreformedCommand
+	{
+	public:
+		SCREEN_AutoConfigure_TV(long DeviceIDFrom, long DeviceIDTo,
+			int iPK_PnpQueue,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "262" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				224 /* The TV Tuner device */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_AutoConfigure_TV_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_AutoConfigure_TV_DL(long DeviceIDFrom, string sDeviceIDTo,
+			int iPK_PnpQueue,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "262" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				224 /* The TV Tuner device */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_AutoConfigure_TV_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_AutoConfigure_TV_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			int iPK_PnpQueue,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "262" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				224 /* The TV Tuner device */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_AutoConfigure_TV_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_AutoConfigure_TV_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			int iPK_PnpQueue,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "262" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				224 /* The TV Tuner device */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -13348,6 +13408,7 @@ namespace DCE
 		virtual void SCREEN_Drive_Overview(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Jukebox_Manager(long PK_Screen, int iPK_Device){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_NAS_Manager(long PK_Screen, int iPK_Device){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -14888,6 +14949,13 @@ namespace DCE
 					ResetCallBacks();
 					int iPK_Device = atoi(pMessage->m_mapParameters[2].c_str());
 					SCREEN_NAS_Manager(nPK_Screen, iPK_Device);
+					break;
+				}
+				case 262:
+				{
+					ResetCallBacks();
+					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
+					SCREEN_AutoConfigure_TV(nPK_Screen, iPK_PnpQueue);
 					break;
 				}
 

@@ -45,6 +45,7 @@ namespace DCE
 		bool OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate);
 		bool OkayToCreateDevice_Username(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate);
 		bool OkayToCreateDevice_Room(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate);
+		bool OkayToCreate_CaptureCard(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate);
 	};
 }
 

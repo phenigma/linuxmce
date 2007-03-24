@@ -293,6 +293,8 @@ public:
 	bool PendingTasks_GridRendering(CallBackData *pData);
 	bool PendingTasks_ObjectSelected(CallBackData *pData);
 
+	virtual void SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue);
+
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
 	void SaveFile_SendCommand(int PK_Users);

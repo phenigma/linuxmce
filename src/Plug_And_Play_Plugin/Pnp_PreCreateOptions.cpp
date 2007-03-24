@@ -51,6 +51,9 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice(PnpQueueEntry *pPnpQueueEntry)
 	if( !pDeviceCategory )
 		return true;
 
+	if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty() )
+		m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,false);  // Don't block since we may not need to ask anyway
+	
 	if( !OkayToCreateDevice_Username(pPnpQueueEntry,pRow_DeviceTemplate) )  // It needs a username
 		return false;
 	if( !OkayToCreateDevice_Room(pPnpQueueEntry,pRow_DeviceTemplate) )  // It needs a room
@@ -61,6 +64,8 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice(PnpQueueEntry *pPnpQueueEntry)
 		return OkayToCreate_Cameras(pPnpQueueEntry,pRow_DeviceTemplate);
 	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Mobile_Orbiter_CONST) )
 		return OkayToCreate_MobilePhone(pPnpQueueEntry,pRow_DeviceTemplate);
+	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Capture_Cards_CONST) )
+		return OkayToCreate_CaptureCard(pPnpQueueEntry,pRow_DeviceTemplate);
 
 	return true;
 }
@@ -278,4 +283,37 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 		return false;
 	}
 	return true;
+}
+
+bool Pnp_PreCreateOptions::OkayToCreate_CaptureCard(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
+{
+	bool bUseAutoSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Use_Automatically_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
+
+	if( bUseAutoSpecified )
+	{
+		DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+			 m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,  m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, 
+			 StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_Auto_Configure_TV_CONST);
+		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
+		return true;  // The user specified this option
+	}
+
+	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
+		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+	
+	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
+
+	if( pPnpQueueEntry->m_pOH_Orbiter )
+	{
+		DCE::SCREEN_AutoConfigure_TV SCREEN_AutoConfigure_TV(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_AutoConfigure_TV);
+	}
+	else
+	{
+		DCE::SCREEN_AutoConfigure_TV_DL SCREEN_AutoConfigure_TV_DL(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, 
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_AutoConfigure_TV_DL);
+	}
+	return false;
 }

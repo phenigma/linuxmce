@@ -23,6 +23,7 @@ using namespace DCE;
 #include "PlutoUtils/DatabaseUtils.h"
 #include "../Datagrid_Plugin/Datagrid_Plugin.h"
 #include "../pluto_main/Define_DataGrid.h"
+#include "../pluto_main/Define_DeviceData.h"
 #include "../pluto_main/Define_DesignObj.h"
 #include "../pluto_main/Define_Event.h"
 #include "../pluto_main/Define_DeviceData.h"
@@ -918,7 +919,8 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
 //<-dceag-c824-e->
 {
-	if( DATA_Get_Dont_Auto_Configure() )
+	string sNoConfig = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,m_dwPK_Device,DEVICEDATA_Dont_Auto_Configure_CONST);
+	if( atoi(sNoConfig.c_str()) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- skipping because Don't Auto Configure is set");
 		return;

@@ -153,6 +153,7 @@ void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH
 	int PK_Device_TopMost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
 	DeviceData_Router *pDevice_PC = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_TopMost);
 	DeviceData_Router *pDevice_AppServer = pDevice_PC ? (DeviceData_Router *) pDevice_PC->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST) : NULL;
+	DeviceData_Router *pDevice_Orbiter = pDevice_PC ? (DeviceData_Router *) pDevice_PC->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_OnScreen_Orbiter_CONST) : NULL;
 
 	if( !pDevice_AppServer )
 	{
@@ -160,15 +161,24 @@ void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH
 		return;
 	}
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_CaptureCard device  %d template %d top %d %p",
-		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get(),PK_Device_TopMost,pDevice_AppServer);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_CaptureCard device  %d template %d top %d %p %P",
+		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get(),PK_Device_TopMost,pDevice_AppServer,pDevice_Orbiter);
 #endif
 
 	DCE::CMD_Spawn_Application CMD_Spawn_Application(g_pCommand_Impl->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,"/usr/pluto/bin/CaptureCards_Setup.sh","captcard",
 		"","","",false,false,false,true);
 	g_pCommand_Impl->SendCommand(CMD_Spawn_Application);
 
-	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(g_pCommand_Impl->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,pOH_Orbiter ? pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0);
-	g_pCommand_Impl->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
-
+	string sUseAutomatically = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Use_Automatically_CONST);
+	if( atoi(sUseAutomatically.c_str()) )
+	{
+		DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(g_pCommand_Impl->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,pOH_Orbiter ? pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0);
+		g_pCommand_Impl->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
+		if( pDevice_Orbiter )
+		{
+			Sleep(2000);  // temporary hack to allow sync providers to send it's "this will take 10 minutes" before this goto screen so they come in the right order
+			DCE::SCREEN_Choose_Provider_for_Device SCREEN_Choose_Provider_for_Device(g_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
+			g_pCommand_Impl->SendCommand(SCREEN_Choose_Provider_for_Device);
+		}
+	}
 }
