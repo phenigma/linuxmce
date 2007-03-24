@@ -188,7 +188,7 @@ void JobHandler::Run()
 			}
 		}
 
-		if( !m_bQuit )
+		if( m_bQuit )
 			return;
 
 #ifdef DEBUG
