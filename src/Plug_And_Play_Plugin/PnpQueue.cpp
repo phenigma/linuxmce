@@ -765,6 +765,12 @@ bool PnpQueue::Process_Detect_Stage_Running_Pre_Pnp_Script(PnpQueueEntry *pPnpQu
 	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get());
 	if( pRow_DeviceTemplate  ) // Should always be true
 	{
+		Row_Device *pRow_Device = FindDisabledDeviceTemplateOnPC(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pRow_DeviceTemplate->PK_DeviceTemplate_get());
+		if( pRow_Device )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Plug_And_Play_Plugin::Process_Detect_Stage_Running_Pre_Pnp_Script queue %d re-enabling %d", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pRow_Device->PK_Device_get());
+			return ReenableDevice(pPnpQueueEntry,pRow_Device);
+		}
 		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow( pRow_DeviceTemplate->PK_DeviceTemplate_get(), DEVICEDATA_Pre_Pnp_Script_CONST);
 		if( pRow_DeviceTemplate_DeviceData && pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().empty()==false )
 		{
