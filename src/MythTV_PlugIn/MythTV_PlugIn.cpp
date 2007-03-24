@@ -919,7 +919,7 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
 //<-dceag-c824-e->
 {
-	string sNoConfig = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,m_dwPK_Device,DEVICEDATA_Dont_Auto_Configure_CONST);
+ 	string sNoConfig = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,m_dwPK_Device,DEVICEDATA_Dont_Auto_Configure_CONST);
 	if( atoi(sNoConfig.c_str()) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- skipping because Don't Auto Configure is set");
@@ -940,6 +940,9 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 			MINIMUM_MYTH_SCHEMA, (NULL != result_set_check.r && row && row[0]) ? row[0] : "*none*");
 		return;
 	}
+
+	sSQL = "update settings set data='xv' where data='xvmc' and value='PreferredMPEG2Decoder'";  // xvmc causes the video to go crazy when overlaid
+	m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 
 	// Find either inputs with a provider specified, or certain types of devices which should be added, but still need a provider
 	sSQL = "select PK_Device,IK_DeviceData FROM Device LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_EK_MediaProvider_CONST) " AND IK_DeviceData IS NOT NULL AND IK_DeviceData<>'' AND IK_DeviceData<>'NONE' "

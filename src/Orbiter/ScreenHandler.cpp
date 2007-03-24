@@ -2656,7 +2656,7 @@ void ScreenHandler::SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue)
 
 	string sManualConfig = StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn) + " 1 " 
 		TOSTRING(COMMAND_Set_Device_Data_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " " + StringUtils::itos(pDevice ? pDevice->m_dwPK_Device : 0) + " "
-		TOSTRING(COMMANDPARAMETER_Value_To_Assign_CONST) " \"1\" "
+add with 0 also		TOSTRING(COMMANDPARAMETER_Value_To_Assign_CONST) " \"1\" "
 		TOSTRING(COMMANDPARAMETER_PK_DeviceData_CONST) " " TOSTRING(DEVICEDATA_Dont_Auto_Configure_CONST);
 
 	string sMessage = m_pOrbiter->m_mapTextString[TEXT_Confirm_PNP_TV_Tuner_CONST];
