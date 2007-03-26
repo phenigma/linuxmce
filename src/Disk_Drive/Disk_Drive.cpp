@@ -69,6 +69,9 @@ Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHand
 	m_pJobHandler = new JobHandler();
 	m_bAskBeforeReload=true;
 	m_bImplementsPendingTasks=true;
+	m_pDatabase_pluto_media = NULL;
+	m_pMediaAttributes_LowLevel = NULL;
+	m_pDisk_Drive_Functions = NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -141,9 +144,13 @@ Disk_Drive::~Disk_Drive()
 	m_pJobHandler->StopThread(5); // Give it at most 5 seconds to stop 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::~Disk_Drive Stopped Job Handler");
 	delete m_pJobHandler;  // Delete this first since it can reference the others
+	m_pJobHandler = NULL;
 	delete m_pDatabase_pluto_media;
+	m_pDatabase_pluto_media = NULL;
 	delete m_pMediaAttributes_LowLevel;
+	m_pMediaAttributes_LowLevel = NULL;
 	delete m_pDisk_Drive_Functions;
+	m_pDisk_Drive_Functions = NULL;
 }
 
 //<-dceag-reg-b->
