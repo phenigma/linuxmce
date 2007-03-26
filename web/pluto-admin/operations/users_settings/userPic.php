@@ -25,8 +25,6 @@ function userPic($output,$dbADO) {
 				window.open(locationA,\'\',attributes);
 			}
 		</script>
-		<div class="err">'.stripslashes(@$_GET['error']).'</div>
-		<div class="confirm">'.stripslashes(@$_GET['msg']).'</div>
 		
 		<form action="index.php" method="post" name="userPic" enctype="multipart/form-data">
 			<input type="hidden" name="section" value="userPic">
@@ -35,6 +33,14 @@ function userPic($output,$dbADO) {
 			<input type="hidden" name="userID" value="'.$userID.'">
 		
 		<h3>'.$TEXT_UPDATE_USER_PICTURE_CONST.'</h3>
+		<table width="100%">
+			<tr>
+				<td bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
+			</tr>
+		</table>
+		<div class="err">'.stripslashes(@$_GET['error']).'</div>
+		<div class="confirm">'.stripslashes(@$_GET['msg']).'</div>
+							
 		<table>	
 			<tr>
 				<td align="center">'.@$userImage.'</td>
@@ -91,11 +97,15 @@ function userPic($output,$dbADO) {
 				opener.document.forms[0].submit();
 				self.close();
 			</script>';
-		}
+
+		}else{
+			header("Location: index.php?section=userPic&from=$from&userID=$userID&error=$TEXT_PICTURE_NOT_SELECTED_CONST");
+			exit();		
+		}		
 	}
-		
+	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_UPDATE_USER_PICTURE_CONST);			
-	$output->output();
+	$output->output();	
 }
 ?>
