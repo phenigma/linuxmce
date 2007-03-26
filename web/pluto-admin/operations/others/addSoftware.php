@@ -94,7 +94,7 @@ function softwareList($compSelected,$dbADO){
 	if($res->RecordCount()==0){
 		$out.='
 		<tr class="alternate_back">
-			<td colspan="7">'.$TEXT_NO_RECORDS_CONST.'</td>
+			<td colspan="10">'.$TEXT_NO_RECORDS_CONST.'</td>
 		</tr>';
 	}
 	
