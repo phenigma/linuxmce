@@ -17,6 +17,7 @@ function deviceTemplatePicker($output,$dbADO) {
 	$_SESSION['categoryID']=($_SESSION['categoryID']==0)?NULL:$_SESSION['categoryID'];
 	$allowAddDT=((int)@$_REQUEST['allowAdd']==1)?1:0;
 	
+	$_SESSION['parentID']=(isset($_REQUEST['parentID']))?(int)$_REQUEST['parentID']:@$_SESSION['parentID'];
 	
 	$genericSerialDevices=(isset($_REQUEST['from']) && $_REQUEST['from']=='genericSerialDevices')?1:0;
 	
