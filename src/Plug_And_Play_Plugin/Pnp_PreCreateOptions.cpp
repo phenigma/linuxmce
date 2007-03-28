@@ -293,7 +293,7 @@ bool Pnp_PreCreateOptions::OkayToCreate_CaptureCard(PnpQueueEntry *pPnpQueueEntr
 	{
 		DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 			 m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,  m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, 
-			 StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_Auto_Configure_TV_CONST);
+			 StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_AutoConfigure_TV_CONST);
 		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
 		return true;  // The user specified this option
 	}
