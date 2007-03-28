@@ -114,6 +114,7 @@ void Logger::ReloadLogLevels()
 
 	DCEConfig _DCEConfig;
 	string sLevels = _DCEConfig.m_mapParameters_Find("LogLevels");
+	g_bFlushLog = _DCEConfig.m_mapParameters_Find("ImmediatelyFlushLog")=="1";
 	string::size_type pos=0;
 	list<int> TempList;
 	while(pos<sLevels.size())
