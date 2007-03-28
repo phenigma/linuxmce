@@ -29,7 +29,7 @@ fi
 
 ## Test if XFree86 is running else manualy start it
 XPID=$(</var/run/plutoX$Display.pid)
-if [[ -z "$XPID" || ! -d /proc/"$XPID" || "$(</proc/"$XPID"/cmdline)" != *"XWM_Wrapper.sh"* ]]; then
+if [[ -z "$XPID" || ! -d /proc/"$XPID" || "$(</proc/"$XPID"/cmdline)" != *"xfwm4"* ]]; then
 	/usr/pluto/bin/Start_X.sh
 	export DISPLAY=:$Display
 fi
