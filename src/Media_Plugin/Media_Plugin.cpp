@@ -1761,6 +1761,14 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 				QueueMessageToRouter( pNewMessage );
 				return rmr_Processed;
 			}
+			else if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST) 
+					&& pMessage->m_mapParameters[COMMANDPARAMETER_Eject_CONST]=="1" )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got a stop with no media.  Will eject 4");
+				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
+				SendCommand(CMD_Eject_Disk_Cat);
+				return rmr_Processed;
+			}
 			else
 			{
 				LoggerWrapper::GetInstance()->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but there's no stream in ea %d", pMessage->m_dwMessage_Type, pMessage->m_dwID, pEntertainArea->m_iPK_EntertainArea );
