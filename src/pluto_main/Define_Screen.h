@@ -245,7 +245,7 @@
 #define SCREEN_Drive_Overview_CONST 259
 #define SCREEN_Jukebox_Manager_CONST 260
 #define SCREEN_NAS_Manager_CONST 261
-#define SCREEN_Auto_Configure_TV_CONST 262
+#define SCREEN_AutoConfigure_TV_CONST 262
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

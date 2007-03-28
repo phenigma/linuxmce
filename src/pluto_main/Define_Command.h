@@ -789,13 +789,13 @@
 #define COMMAND_Get_Data_CONST 870
 #define COMMAND_Update_Ripping_Status_CONST 871
 #define COMMAND_Lock_CONST 872
-#define COMMAND_Tuner_Digital_CONST 872
-#define COMMAND_Cinema_CONST 872
-#define COMMAND_Wide_CONST 872
-#define COMMAND_Dotbydot_CONST 872
-#define COMMAND_4_3_CONST 872
-#define COMMAND_Full_CONST 872
-#define COMMAND_Full2_CONST 872
+#define COMMAND_Tuner_Digital_CONST 873
+#define COMMAND_Cinema_CONST 874
+#define COMMAND_Wide_CONST 875
+#define COMMAND_Dotbydot_CONST 876
+#define COMMAND_4_3_CONST 877
+#define COMMAND_Full_CONST 878
+#define COMMAND_Full2_CONST 880
 #define COMMAND_Abort_Task_CONST 882
 
 #define COMMAND_TABLE "Command"

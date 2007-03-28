@@ -2427,7 +2427,10 @@
 #define DESIGNOBJ_dgJukeboxSlots_CONST 5425
 #define DESIGNOBJ_dgJukeboxDrives_CONST 5426
 #define DESIGNOBJ_icoID_CONST 5427
-#define DESIGNOBJ_iconAbort_CONST 5421
+#define DESIGNOBJ_dgFileList2_SmallUI_CONST 5428
+#define DESIGNOBJ_but_FileBrowser_SmallUI_CONST 5429
+#define DESIGNOBJ_cellPendingTasks_CONST 5430
+#define DESIGNOBJ_iconAbort_CONST 5431
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

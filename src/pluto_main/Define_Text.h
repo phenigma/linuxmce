@@ -1184,7 +1184,7 @@
 #define TEXT_Pending_Channel_Scan_CONST 1908
 #define TEXT_Direct_AV_CONST 1909
 #define TEXT_ID_CONST 1910
-#define TEXT_Confirm_PNP_TVner_CONST 1911
+#define TEXT_Cell_Attributes_Status_CONST 1911
 #define TEXT_Confirm_PNP_TV_Tuner_CONST 1912
 
 #define TEXT_TABLE "Text"
