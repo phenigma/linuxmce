@@ -89,6 +89,7 @@ for debfile in /var/plutobuild/extra/*.deb ;do
 	debfile=$(echo ${debfile} | cut -d'_' -f1) 
 	ComputeDependencies "$debfile" "1"
 done
+apt-get --download-only -y install --reinstall ivtv-firmware
 
 Q="SELECT DISTINCT PackageName FROM Dependencies"
 packages=$(RunSQL "$Q")

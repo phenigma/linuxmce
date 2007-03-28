@@ -165,9 +165,9 @@ function Build_Pluto_Replacements {
 			echo "$Src" >> /etc/apt/sources.list
 			apt-get update
 		fi
-		aptitude download ivtv-firmware
-		cp ivtv-firmware_*.deb "${temp_dir}"
-		rm ivtv-firmware_*.deb
+		#aptitude download ivtv-firmware
+		#cp ivtv-firmware_*.deb "${temp_dir}"
+		#rm ivtv-firmware_*.deb
 	popd
 
 	#Package: lirc-pluto
@@ -286,11 +286,11 @@ function Create_Fake_Windows_Binaries {
 
 
 	pushd ${svn_dir}/trunk/src/bin
-	scp root@10.0.0.150:/home/builds/Windows_Output_LinuxMCE/src/bin/* ./
+	scp pluto@10.0.0.150:/home/builds/Windows_Output_LinuxMCE/src/bin/* ./
 	popd
 
 	pushd ${svn_dir}/trunk/src/lib
-	scp root@10.0.0.150:/home/builds/Windows_Output_LinuxMCE/src/lib/* ./
+	scp pluto@10.0.0.150:/home/builds/Windows_Output_LinuxMCE/src/lib/* ./
 	popd
 }
 
@@ -305,6 +305,7 @@ function Create_Local_Repository {
 		cat Packages | gzip -9c > Packages.gz
 	popd
 	ln -s . $local_mirror_dir/ubuntu
+	cp -f /root/build-files/virus_free.php /var/www
 }
 
 function Import_Build_Database {
