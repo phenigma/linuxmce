@@ -157,7 +157,10 @@ bool OpenGL3DEngine::Paint()
 
 	//skip broken trees
 	if(!CurrentLayer->TreeIsValid())
-		return false;
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Won't Flip: the tree has invalid nodes!");
+//		return false;
+	}
 
 	GL.SetClearColor(.0f, .0f, 0.0f);
 	GL.ClearScreen(true, false);
@@ -202,7 +205,7 @@ bool OpenGL3DEngine::Paint()
 	UpdateTopMostObjects();
 
 	Compose->Paint();
-
+	//LoggerWrapper::GetInstance()->Write(LV_STATUS, "Flip!");
 	GL.Flip();
 	
 	if(m_bWorldChanged && !m_bDatagridRendering)// && !m_spDatagridAnimationManager->HasAnimations())
