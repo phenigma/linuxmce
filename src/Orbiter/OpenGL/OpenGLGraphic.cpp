@@ -623,8 +623,9 @@ void VideoRAMUsageObserver::ObserveConvertingProcess(OpenGLTexture texture, int 
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VideoRAMUsageObserver: texture %d (%s) allocated before and never released!", 
-			texture, sFileName.c_str());
+		if(sFileName != "dynamic-unknown")
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoRAMUsageObserver: texture %d (%s) allocated before and never released!", 
+				texture, sFileName.c_str());
 
 		it->second.second += x * y * bpp;
 	}
@@ -638,8 +639,9 @@ void VideoRAMUsageObserver::ObserveReleasingProcess(OpenGLTexture texture, strin
 
 	if(it == mapTexturesInfo.end())
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VideoRAMUsageObserver: texture %d (%s) not allocated or already released!", 
-			texture, sFileName.c_str());
+		if(sFileName != "dynamic-unknown")
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoRAMUsageObserver: texture %d (%s) not allocated or already released!", 
+				texture, sFileName.c_str());
 	}
 	else
 	{
