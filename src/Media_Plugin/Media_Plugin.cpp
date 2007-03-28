@@ -6178,6 +6178,16 @@ void Media_Plugin::CMD_Retransmit_AV_Commands(string sText,string sPK_EntertainA
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Retransmit_AV_Commands Forwarding to %d %p", pMessage->m_dwPK_Device_From, pMediaDevice);
 		if( pMediaDevice )
 			HandleRetransmitOnOff(sText[0],sText[1],pMediaDevice,pMessage->m_dwPK_Device_From,NULL);
+		// Find any md's in the ea's and reset their paths
+		for(size_t s=0;s<vectEntertainArea.size();++s)
+		{
+			EntertainArea *pEntertainArea = vectEntertainArea[s];
+			if( pEntertainArea->m_pMediaDevice_MD && pEntertainArea->m_pMediaDevice_MD!=pMediaDevice )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Retransmit_AV_Commands Forwarding to %d", pEntertainArea->m_pMediaDevice_MD->m_pDeviceData_Router->m_dwPK_Device );
+				HandleRetransmitOnOff(sText[0],sText[1],pEntertainArea->m_pMediaDevice_MD,pMessage->m_dwPK_Device_From,NULL);
+			}
+		}
 	}
 }
 
