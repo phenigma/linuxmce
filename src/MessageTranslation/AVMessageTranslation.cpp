@@ -173,8 +173,12 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			}
 			else
 			{
-				// todo ?
-				// laststatus_power_[devid] =
+				if( pmsg->m_dwID == COMMAND_Generic_On_CONST )
+					laststatus_power_[devid] = 1;
+				else if( pmsg->m_dwID == COMMAND_Generic_Off_CONST )
+					laststatus_power_[devid] = 0;
+				else if( pmsg->m_dwID == COMMAND_Toggle_Power_CONST )
+					laststatus_power_[devid] = !laststatus_power_[devid];
 				
 				// reset the select input
 				laststatus_input_[devid] = 0;
