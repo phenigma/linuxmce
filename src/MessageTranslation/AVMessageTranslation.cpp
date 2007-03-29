@@ -166,8 +166,9 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		// check if the power commands are useless
 		if( !retransmit )
 		{
-			if( (!laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_Off_CONST)) ||
-				( laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_On_CONST)) )
+			if( laststatus_power_.end() != laststatus_power_.find(devid) &&
+				((!laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_Off_CONST)) ||
+				 ( laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_On_CONST))) )
 			{
 				inrepl.setUseless(true);
 			}
@@ -177,8 +178,6 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 					laststatus_power_[devid] = 1;
 				else if( pmsg->m_dwID == COMMAND_Generic_Off_CONST )
 					laststatus_power_[devid] = 0;
-				else if( pmsg->m_dwID == COMMAND_Toggle_Power_CONST )
-					laststatus_power_[devid] = !laststatus_power_[devid];
 				
 				// reset the select input
 				laststatus_input_[devid] = 0;

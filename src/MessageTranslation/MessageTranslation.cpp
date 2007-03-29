@@ -162,11 +162,15 @@ MessageTranslationManager::ProcessReplicator(MessageReplicator& msgrepl, Message
 					{
 						for(MessageReplicatorList::iterator itPrepls = prepls.begin(); itPrepls != prepls.end(); ++itPrepls)
 						{
+							// we don't allow to avoid commands at this moment
+							(*itPrepls).setUseless(false);
 							replicators.push_back(*itPrepls);
 						}
 					}
 					else
 					{
+						// we don't allow to avoid commands at this moment
+						(*it).setUseless(false);
 						replicators.push_back(*it);
 					}
 				}
