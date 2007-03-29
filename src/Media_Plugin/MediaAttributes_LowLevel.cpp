@@ -657,51 +657,46 @@ Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_Medi
 Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,string sFormat,string sURL)
 {
 	sFormat = StringUtils::ToLower(sFormat);
-	Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
-	pRow_Picture->Extension_set(sFormat);
-	pRow_Picture->URL_set(sURL);
-	m_pDatabase_pluto_media->Picture_get()->Commit();
-
-#ifdef WIN32
-	string sMediaPicsFolder = "c:\\home\\mediapics\\";
-#else
 	string sMediaPicsFolder = "/home/mediapics/";
-#endif
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddPicture %d %s",
-		pRow_Picture->PK_Picture_get(),sURL.c_str());
-
-	string sPictureFileName = sMediaPicsFolder + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + sFormat;
-	FILE *file = fopen(sPictureFileName.c_str(), "wb");
-	if( !file )
+	if(NULL == pData) //picture not downloaded yet 
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot create bookmark pic file");
-		pRow_Picture->Delete();
-		m_pDatabase_pluto_media->Picture_get()->Commit();
-		pRow_Picture=NULL;
-	}
-	else
-	{
-		if(!pData) //picture not downloaded yet 
-		{
-			//TODO: use FileUtils::DownloadFile instead!!!
-
 #ifdef WIN32
-			string sDownloadedFile = "C:\\Temp\\picture.tmp";
+		string sDownloadedFile = "C:\\Temp\\picture.tmp";
 #else
-			string sDownloadedFile = "/tmp/picture.tmp";
+		string sDownloadedFile = "/tmp/picture.tmp";
 #endif
 
-			string sCommand = "wget " + sURL + " -O " + sDownloadedFile + " -T 10 -t 1";
-			system(sCommand.c_str());
+		string sCommand = "wget " + sURL + " -O " + sDownloadedFile + " -T 10 -t 1";
+		system(sCommand.c_str());
 
-			size_t nSize = 0;
-			pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, nSize);
-			FileUtils::DelFile(sDownloadedFile);
-			iData_Size = int(nSize);
+		size_t nSize = 0;
+		pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, nSize);
+		FileUtils::DelFile(sDownloadedFile);
+		iData_Size = int(nSize);
 #ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Wget command line: '%s' ; file saved size: %d; file path: %s", sCommand.c_str(), nSize, sPictureFileName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Wget command line: '%s' ; file saved size: %d; file path: %s", sCommand.c_str(), nSize, sPictureFileName.c_str());
 #endif			
+	}
+
+	if(iData_Size != 0 && NULL != pData )
+	{
+		Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
+		pRow_Picture->Extension_set(sFormat);
+		pRow_Picture->URL_set(sURL);
+		m_pDatabase_pluto_media->Picture_get()->Commit();
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddPicture %d %s",
+			pRow_Picture->PK_Picture_get(),sURL.c_str());
+
+		string sPictureFileName = sMediaPicsFolder + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + sFormat;
+		FILE *file = fopen(sPictureFileName.c_str(), "wb");
+		if( !file )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot create bookmark pic file");
+			pRow_Picture->Delete();
+			m_pDatabase_pluto_media->Picture_get()->Commit();
+			pRow_Picture = NULL;
 		}
 
 		fwrite((void *) pData,iData_Size,1,file);
@@ -711,9 +706,11 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 		int result;
 		if( ( result=system( Cmd.c_str( ) ) )!=0 )
 			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
+
+		return pRow_Picture;
 	}
 
-	return pRow_Picture;
+	return NULL;
 }
 
 void MediaAttributes_LowLevel::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
