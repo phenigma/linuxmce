@@ -215,18 +215,19 @@ g_PlutoProfiler->Stop("send command");
 					const char *pPath = pCell->GetImagePath();
 					if (pPath && !pCell->m_pGraphicData && !pCell->m_pGraphic)
 					{
-						size_t s=0;
-						pCell->m_pGraphicData = m_pOrbiter->ReadFileIntoBuffer(pPath,s);
-						pCell->m_GraphicLength = (unsigned long) s;
-						pCell->m_GraphicFormat = GR_JPG;
-
-//				M.Release();
 #ifdef DEBUG
 						LoggerWrapper::GetInstance()->Write(LV_EVENT,"DataGridRenderer::RenderCell loading %s in bg for %d,%d",pPath,pDataGridTable->CovertColRowType(it->first).first,pDataGridTable->CovertColRowType(it->first).second);
 #endif
-//						m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, m_pOrbiter->m_dwIDataGridRequestCounter, make_pair<int,int> (GridCurRow, GridCurCol), pCell, pDataGridTable->CovertColRowType(it->first),!bCache);
+						if( m_pOrbiter->UsesUIVersion2()==false )
+						{
+							size_t s=0;
+							pCell->m_pGraphicData = m_pOrbiter->ReadFileIntoBuffer(pPath,s);
+							pCell->m_GraphicLength = (unsigned long) s;
+							pCell->m_GraphicFormat = GR_JPG;
+						}
+						else
+							m_pOrbiter->Renderer()->BackgroundImageLoad(pPath, this, m_pOrbiter->m_dwIDataGridRequestCounter, make_pair<int,int> (GridCurRow, GridCurCol), pCell, pDataGridTable->CovertColRowType(it->first),!bCache);
 					}
-	//				M.Relock();
 				}
 				
 				DataGridTable_Set(pDataGridTable,GridCurRow, GridCurCol );
