@@ -696,7 +696,7 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot create bookmark pic file");
 			pRow_Picture->Delete();
 			m_pDatabase_pluto_media->Picture_get()->Commit();
-			pRow_Picture = NULL;
+			return NULL;
 		}
 
 		fwrite((void *) pData,iData_Size,1,file);
