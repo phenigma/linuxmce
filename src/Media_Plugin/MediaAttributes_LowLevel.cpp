@@ -674,8 +674,9 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 		pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, nSize);
 		FileUtils::DelFile(sDownloadedFile);
 		iData_Size = int(nSize);
+
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Wget command line: '%s' ; file saved size: %d; file path: %s", sCommand.c_str(), nSize, sPictureFileName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Wget command line: '%s' ; file saved size: %d", sCommand.c_str(), nSize);
 #endif			
 	}
 
