@@ -243,7 +243,7 @@ legend
 table.regular_table {
 	border-width: 1px 1px 1px 1px;
 	border-spacing: 0px;
-	border-style: none none none none;
+	border-style: solid solid solid solid;
 	border-color: gray gray gray gray;
 	border-collapse: collapse;
 	background-color: #EFEFEF;

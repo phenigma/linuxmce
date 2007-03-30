@@ -280,7 +280,7 @@ function avWizard($output,$dbADO) {
 						<td class="alternate_back">'.@$devicePipes['1']['to'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['input'].'</td>
 						<td class="alternate_back" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">Edit</a></td>
-						<td rowspan="2" valign="top" align="right">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased']).'</td>
+						<td rowspan="2" valign="top" align="right">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased'],0,1,'textarea').'</td>
 						<td class="alternate_back" align="center" rowspan="2" valign="center">'.$buttons.'</td>
 					</tr>
 					<tr>			
