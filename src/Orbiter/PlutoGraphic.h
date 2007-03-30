@@ -43,7 +43,9 @@ enum eGraphicManagement { GR_KEEPUNCOMPRESSED, GR_KEEPCOMPRESSED, GR_DISCARDONCH
 	#define RGB(r,g,b)          ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
 	#define GetRValue(rgb)      ((BYTE)(rgb))
 	#define GetGValue(rgb)      ((BYTE)(((WORD)(rgb)) >> 8))
-	#define GetBValue(rgb)      ((BYTE)((rgb)>>16))
+	#ifndef ARMV4I
+		#define GetBValue(rgb)      ((BYTE)((rgb)>>16))
+	#endif
 #endif
 //-------------------------------------------------------------------------------------------------------
 enum GraphicType

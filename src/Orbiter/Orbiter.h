@@ -1906,7 +1906,6 @@ light, climate, media, security, telecom */
 	};
 
 	extern int g_iDontRender; /** < @todo ask */
-	extern clock_t g_cLastTime; /** < time of he last input from the user @todo ask */
 
 	class NeedToRender
 	{

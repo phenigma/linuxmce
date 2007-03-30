@@ -124,7 +124,6 @@ cout_dummy cout_dummy::cout_dummy_;
 namespace DCE
 {
 	int g_iDontRender=0;
-	clock_t g_cLastTime=clock(); // debug only
 }
 
 extern void (*g_pReceivePingHandler)(Socket *pSocket);
@@ -4659,7 +4658,7 @@ void *MaintThread(void *p)
 }
 
 //------------------------------------------------------------------------
-void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBack fnCallBack,
+void Orbiter::CallMaintenanceInMiliseconds( time_t milliseconds, OrbiterCallBack fnCallBack,
 										   void *data, ePurgeExisting e_PurgeExisting,
 										   bool bPurgeTaskWhenScreenIsChanged/*= true*/
 										   )
@@ -6346,16 +6345,8 @@ ScreenHistory *NeedToRender::m_pScreenHistory=NULL;
 //////////////////////////////////////////////////////////////////////////
 NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
 {
-	/*
-	if ( g_cLastTime && ( clock() - g_cLastTime ) > CLOCKS_PER_SEC * 3 && g_iDontRender )
-	{
-	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Need to render has blocked!!!" );
-	g_iDontRender=0;
-	}
-	*/
 	m_pWhere = pWhere;
 	m_pOrbiter = pOrbiter;
-	g_cLastTime = clock();
 	g_iDontRender++;
 }
 //-----------------------------------------------------------------------------------------------------

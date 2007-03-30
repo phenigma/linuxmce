@@ -58,7 +58,6 @@ extern CommandLineParams CmdLineParams;
 //-----------------------------------------------------------------------------------------------------
 OrbiterSelfUpdate::OrbiterSelfUpdate(Orbiter *pOrbiter)
 {
-	assert(NULL != pOrbiter);
 	m_pOrbiter = pOrbiter;
 
 	char pProcessFilePath[256];

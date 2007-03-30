@@ -334,19 +334,7 @@ DataGridTable::DataGridTable(int Size, char *Data,bool bShiftDown)
 	char *UncompressedData = new char[UncompressedLength];
 	lzo_uint new_len;
 
-#ifdef UNDER_CE
-	__try
-	{
-		lzo1x_decompress((lzo_byte *)Data+4,Size - 4,(lzo_byte *)UncompressedData,&new_len,NULL);
-	}
-	__except(EXCEPTION_EXECUTE_HANDLER)
-	{
-		//LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"lzo decompress data failed %p %d %p",
-		//	Data,Size,UncompressedData);
-	}
-#else
 	lzo1x_decompress((lzo_byte *)Data+4,Size - 4,(lzo_byte *)UncompressedData,&new_len,NULL);
-#endif
 
 #else
 	int UncompressedLength = Size;

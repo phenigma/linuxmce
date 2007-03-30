@@ -30,6 +30,10 @@
 #include <vector>
 using namespace ::std;
 
+#if defined(ARMV4I)
+	#include "WinCE.h"
+#endif
+
 #ifndef WIN32
 #include "getch.h"	// Windows already has a getch
 #endif

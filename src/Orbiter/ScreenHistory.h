@@ -24,6 +24,7 @@
 #include <map>
 using namespace std;
 
+#include <time.h>
 #include "DesignObj_Orbiter.h"
 using namespace DCE;
 

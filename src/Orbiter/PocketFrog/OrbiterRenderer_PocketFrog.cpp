@@ -106,7 +106,9 @@ typedef struct _VIDEO_POWER_MANAGEMENT {
 //-----------------------------------------------------------------------------------------------------
 #ifdef WINCE
 	#define DT_MODIFYSTRING 0
-	#define DT_END_ELLIPSIS 0
+	#ifndef ARMV4I
+		#define DT_END_ELLIPSIS 0
+	#endif
 #endif
 //-----------------------------------------------------------------------------------------------------
 #define CHECK_STATUS() { if(OrbiterLogic()->m_bQuit_get()) return; }
