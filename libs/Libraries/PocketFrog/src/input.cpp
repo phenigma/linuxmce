@@ -104,7 +104,7 @@ void InputDevice::DeviceToLogical( Point& P ) const
 
 
 
-const InputDevice::KeyList& InputDevice::GetKeyList() const
+const KeyList& InputDevice::GetKeyList() const
 {
     return m_driver->GetKeyList();
 }

@@ -33,25 +33,24 @@ namespace Internal
 //
 //////////////////////////////////////////////////////////////////////////////
 
+// List of available keys (through GAPI)
+struct KeyList
+{
+    int16_t vkUp;       // D-Pad <up>
+    int16_t vkDown;     // D-Pad <down>
+    int16_t vkLeft;     // D-Pad <left>
+    int16_t vkRight;    // D-Pad <right>
+    int16_t vkA;        // Button <A>
+    int16_t vkB;        // Button <B>
+    int16_t vkC;        // Button <C>
+    int16_t vkStart;    // Button <Start>
+    int16_t vkAux1;     // Button <Aux1> (0 if not available)
+    int16_t vkAux2;     // Button <Aux2> (0 if not available)
+};
+
 class InputDevice : noncopyable
 {
 public:
-
-    // List of available keys (through GAPI)
-    struct KeyList
-    {
-        int16_t vkUp;       // D-Pad <up>
-        int16_t vkDown;     // D-Pad <down>
-        int16_t vkLeft;     // D-Pad <left>
-        int16_t vkRight;    // D-Pad <right>
-        int16_t vkA;        // Button <A>
-        int16_t vkB;        // Button <B>
-        int16_t vkC;        // Button <C>
-        int16_t vkStart;    // Button <Start>
-        int16_t vkAux1;     // Button <Aux1> (0 if not available)
-        int16_t vkAux2;     // Button <Aux2> (0 if not available)
-    };
-
 
     // Destruction
     ~InputDevice();

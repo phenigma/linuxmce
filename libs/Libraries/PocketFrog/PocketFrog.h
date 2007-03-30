@@ -36,7 +36,11 @@
 #if !defined(FROG_NO_FORCE_LIBS)
 
 #if defined(_ARM_)
-    #define LIBTARGET "ARM"
+	#ifdef ARMV4I
+	    #define LIBTARGET "ARMV4I"
+	#else
+		#define LIBTARGET "ARM"
+	#endif
 #elif defined(_MIPS_)
     #define LIBTARGET "MIPS"
 #elif defined(_SH3_)

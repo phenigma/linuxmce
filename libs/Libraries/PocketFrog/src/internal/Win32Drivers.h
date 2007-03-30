@@ -27,8 +27,6 @@ extern long g_lWindowHeight;
 namespace Frog {
 namespace Internal {
 
-using InputDevice::KeyList;
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // Win32Display
@@ -96,7 +94,7 @@ public:
 
 private:
 
-    KeyList m_keyList;
+   KeyList m_keyList;
 };
 
 

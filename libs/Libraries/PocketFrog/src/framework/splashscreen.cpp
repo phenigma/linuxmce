@@ -16,7 +16,7 @@
 #include "game.h"
 #include "../surface.h"
 
-#ifdef _WIN32_WCE
+#if defined(_WIN32_WCE) && !defined(ARMV4I)
 namespace
 {
     inline int MulDiv( int a, int b, int c)
