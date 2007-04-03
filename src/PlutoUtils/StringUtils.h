@@ -35,6 +35,10 @@
 	using namespace ::std;
 #endif //ifndef SYMBIAN
 
+#ifdef ARMV4I
+#include "WinCE.h"
+#endif
+
 #ifdef SYMBIAN
 struct StringUtils
 #else

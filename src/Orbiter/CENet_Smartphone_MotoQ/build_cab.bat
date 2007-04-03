@@ -1,16 +1,13 @@
-del c:\$Installers\$OrbiterCE\*.dll /Q
-del c:\$Installers\$OrbiterCE\*.exe /Q
+del "c:\$Installers\$OrbiterSmartphone_MotoQ\*.exe" /Q
+del "c:\$Installers\$OrbiterSmartphone_MotoQ\*.dll" /Q
 
-cd
 cd ..\..\bin
-copy Orbiter_CeNet4_XScale.exe "c:\$Installers\$OrbiterCE\"
-cd "..\Orbiter\CENet\Misc files"
+copy Orbiter_MotoQ.exe "c:\$Installers\$OrbiterSmartphone_MotoQ\"
+cd ..\Orbiter\CENet_Smartphone_MotoQ
 
-cd Misc
-copy AYGSHELL.DLL c:\$Installers\$OrbiterCE\
-copy PthreadsCE.dll c:\$Installers\$OrbiterCE\
-cd ..\..\CENet_PocketFrog
+copy ..\..\..\libs\Libraries\pthreads-snap-2002-11-04\PThreadsCE\ARMV4IRel\PthreadsCE.dll "c:\$Installers\$OrbiterSmartphone_MotoQ\"
+copy Misc\Logo.gif "c:\$Installers\$OrbiterSmartphone_MotoQ\"
 
-"C:\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Tools\Cabwiz.exe" Orbiter_CeNet4_XScale.inf
+"C:\Program Files\Microsoft Visual Studio 8\smartdevices\sdk\sdktools\cabwiz.exe" Orbiter_MotoQ.inf
 
-move Orbiter_CeNet4_XScale.CAB "..\..\bin"
+move Orbiter_MotoQ.cab "..\..\bin"

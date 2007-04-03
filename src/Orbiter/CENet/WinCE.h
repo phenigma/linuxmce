@@ -37,6 +37,10 @@
 #include <windows.h>
 //#include <windef.h>
 
+#ifdef ARMV4I
+	#define time_t __int64
+#endif
+
 #define endl '\n'
 #define localtime(x) wince_localtime(x)
 #define time(x) wince_time(x)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="Orbiter"
 	ProjectGUID="{465E1AC0-AA57-432B-9F51-C62D09A90D53}"
 	RootNamespace="Orbiter"
@@ -320,7 +320,7 @@
 				ForceDirty="-1"
 				RemoteDirectory=""
 				RegisterOutput="0"
-				AdditionalFiles=""
+				AdditionalFiles="PthreadsCE.dll|c:\pluto\trunk\libs\Libraries\pthreads-snap-2002-11-04\PthreadsCE\ARMV4IDbg|%CSIDL_PROGRAM_FILES%\Orbiter|0;logo.gif|c:\pluto\trunk\src\Orbiter\CENet_Smartphone_MotoQ\Misc|%CSIDL_PROGRAM_FILES%\Orbiter|0"
 			/>
 			<DebuggerTool
 			/>
@@ -563,8 +563,8 @@
 				ExecutionBucket="7"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories=".,..,../Win32,../SDL,../..,../../DCE,../../../libs/Libraries/pthreads-snap-2002-11-04,../../../libs/Libraries/pthreads-win32/include,../../../libs/CrossPlatform/sge030809-w32/src,../../../libs/CrossPlatform/SDL_ttf-2.0.6,../../../libs/CrossPlatform/SDL_image-1.2.3,../../../libs/CrossPlatform/SDL-1.2.7/include,../../Splitter,../../../libs/CrossPlatform/zlib,../../../libs/CrossPlatform/lpng127,../../../libs/Libraries/STLport-4.5.3/stlport,../../../libs/Libraries/STLport-4.5.3/src,../../PlutoUtils,../../../libs/CrossPlatform/SDL_rotozoom-1.6,../../OrbiterGen,../CENET,../PocketFrog,../../../libs/Libraries/PocketFrog"
-				PreprocessorDefinitions="ARM;_ARM_;ARMV4;UNDER_CE=$(CEVER);_WIN32_WCE=$(CEVER);$(CePlatform);UNICODE;WIN32;WINCE;ORBITER;__STL_NO_IOSTREAMS;LOAD_PNG;POCKETFROG;NDEBUG"
+				AdditionalIncludeDirectories=".;..;../Win32;../SDL;../..;../../DCE;&quot;../../../libs/Libraries/pthreads-snap-2002-11-04&quot;;&quot;../../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../Splitter;../../../libs/CrossPlatform/zlib;../../../libs/CrossPlatform/lpng127;../../PlutoUtils;&quot;../../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../../OrbiterGen;../CENET;../PocketFrog;../../../libs/Libraries/PocketFrog;../wcelibcex;../CENet_Smartphone"
+				PreprocessorDefinitions="ARM;_ARM_;ARMV4;UNDER_CE=$(CEVER);_WIN32_WCE=$(CEVER);$(CePlatform);UNICODE;WIN32;WINCE;ORBITER;__STL_NO_IOSTREAMS;LOAD_PNG;POCKETFROG;SMARTPHONE;SMARTPHONE2005;ARMV4I;NDEBUG"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -591,10 +591,10 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem)  "
 				AdditionalDependencies="commctrl.lib coredll.lib aygshell.lib PthreadsCE.lib winsock.lib ccrtrtti.lib zlib_wince.lib"
-				OutputFile="../../bin/Orbiter_CeNet4_XScale.exe"
+				OutputFile="../../bin/Orbiter_MotoQ.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../CENET/Ritti/ArmV4,../../../libs/CrossPlatform/zlib/zlib_wince/ARMV4Dbg,../../../libs/CrossPlatform/sge030809-w32/sge_wince/ARMV4Dbg,../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg\,../../../libs/CrossPlatform/SDL_rotozoom-1.6/WinCE/ARMV4Dbg,../../../libs/CrossPlatform/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg,../../../libs/CrossPlatform/SDL_image-1.2.3/WINCE/ARMV4Dbg,../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg,../../../libs/Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg,../../../libs/CrossPlatform/SDL_ttf-2.0.6/WinCE/ARMV4Dbg,../../../libs/CrossPlatform/freetype-2.1.9/freetype_wince/ARMV4Dbg,../../../libs/Libraries/PocketFrog/lib/ARM/Release/"
+				AdditionalLibraryDirectories="../CENET/Ritti/ArmV4;../../../libs/CrossPlatform/zlib/zlib_wince/ARMV4Dbg;&quot;../../../libs/CrossPlatform/sge030809-w32/sge_wince/ARMV4Dbg&quot;;../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg\;&quot;../../../libs/CrossPlatform/SDL_rotozoom-1.6/WinCE/ARMV4Dbg&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg&quot;;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3/WINCE/ARMV4Dbg&quot;;../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg;&quot;../../../libs/Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg&quot;;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6/WinCE/ARMV4Dbg&quot;;&quot;../../../libs/CrossPlatform/freetype-2.1.9/freetype_wince/ARMV4Dbg&quot;;../../../libs/Libraries/PocketFrog/lib/ARMV4I/Release/"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/Orbiter_CeNet4_XScale.pdb"
 				StackReserveSize="65536"
@@ -621,9 +621,9 @@
 			/>
 			<DeploymentTool
 				ForceDirty="-1"
-				RemoteDirectory=""
+				RemoteDirectory="%CSIDL_PROGRAM_FILES%\Orbiter"
 				RegisterOutput="0"
-				AdditionalFiles=""
+				AdditionalFiles="PthreadsCE.dll|c:\pluto\trunk\libs\Libraries\pthreads-snap-2002-11-04\PthreadsCE\ARMV4IRel|%CSIDL_PROGRAM_FILES%\Orbiter|0;logo.gif|c:\pluto\trunk\src\Orbiter\CENet_Smartphone_MotoQ\Misc|%CSIDL_PROGRAM_FILES%\Orbiter|0"
 			/>
 			<DebuggerTool
 			/>
@@ -3775,10 +3775,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="Vgarom.fnt"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

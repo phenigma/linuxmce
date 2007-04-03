@@ -4577,7 +4577,7 @@ void *MaintThread(void *p)
 	Orbiter* pOrbiter = (Orbiter *)p;
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(cm, pOrbiter->m_MaintThreadMutex);// Keep this locked to protect the map
-	while(!pOrbiter->m_bQuit_get())
+	while(NULL != pOrbiter && !pOrbiter->m_bQuit_get())
 	{
 		if(pOrbiter->m_mapPendingCallbacks.size() == 0)
 		{
