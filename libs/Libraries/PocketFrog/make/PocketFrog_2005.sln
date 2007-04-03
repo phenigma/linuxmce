@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PocketFrog_2005", "PocketFrog_2005.vcproj", "{89D202B7-874A-44BB-B159-6A20507EDFE5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|MQSPXA270 (ARMV4I) = Debug|MQSPXA270 (ARMV4I)
+		Debug|Pocket PC 2003 (ARMV4) = Debug|Pocket PC 2003 (ARMV4)
+		Debug|Smartphone 2003 (ARMV4) = Debug|Smartphone 2003 (ARMV4)
+		Debug|Windows Mobile 5.0 Smartphone SDK (ARMV4I) = Debug|Windows Mobile 5.0 Smartphone SDK (ARMV4I)
+		Release|MQSPXA270 (ARMV4I) = Release|MQSPXA270 (ARMV4I)
+		Release|Pocket PC 2003 (ARMV4) = Release|Pocket PC 2003 (ARMV4)
+		Release|Smartphone 2003 (ARMV4) = Release|Smartphone 2003 (ARMV4)
+		Release|Windows Mobile 5.0 Smartphone SDK (ARMV4I) = Release|Windows Mobile 5.0 Smartphone SDK (ARMV4I)
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|MQSPXA270 (ARMV4I).ActiveCfg = Debug|MQSPXA270 (ARMV4I)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|MQSPXA270 (ARMV4I).Build.0 = Debug|MQSPXA270 (ARMV4I)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|MQSPXA270 (ARMV4I).Deploy.0 = Debug|MQSPXA270 (ARMV4I)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Pocket PC 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|Pocket PC 2003 (ARMV4).Build.0 = Debug|Pocket PC 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|Pocket PC 2003 (ARMV4).Deploy.0 = Debug|Pocket PC 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|Smartphone 2003 (ARMV4).ActiveCfg = Debug|Smartphone 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|Smartphone 2003 (ARMV4).Build.0 = Debug|Smartphone 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|Smartphone 2003 (ARMV4).Deploy.0 = Debug|Smartphone 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|Windows Mobile 5.0 Smartphone SDK (ARMV4I).ActiveCfg = Debug|Windows Mobile 5.0 Smartphone SDK (ARMV4I)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|Windows Mobile 5.0 Smartphone SDK (ARMV4I).Build.0 = Debug|Windows Mobile 5.0 Smartphone SDK (ARMV4I)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Debug|Windows Mobile 5.0 Smartphone SDK (ARMV4I).Deploy.0 = Debug|Windows Mobile 5.0 Smartphone SDK (ARMV4I)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|MQSPXA270 (ARMV4I).ActiveCfg = Release|MQSPXA270 (ARMV4I)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|MQSPXA270 (ARMV4I).Build.0 = Release|MQSPXA270 (ARMV4I)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|MQSPXA270 (ARMV4I).Deploy.0 = Release|MQSPXA270 (ARMV4I)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|Pocket PC 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|Pocket PC 2003 (ARMV4).Build.0 = Release|Pocket PC 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|Pocket PC 2003 (ARMV4).Deploy.0 = Release|Pocket PC 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|Smartphone 2003 (ARMV4).ActiveCfg = Release|Smartphone 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|Smartphone 2003 (ARMV4).Build.0 = Release|Smartphone 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|Smartphone 2003 (ARMV4).Deploy.0 = Release|Smartphone 2003 (ARMV4)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|Windows Mobile 5.0 Smartphone SDK (ARMV4I).ActiveCfg = Release|Windows Mobile 5.0 Smartphone SDK (ARMV4I)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|Windows Mobile 5.0 Smartphone SDK (ARMV4I).Build.0 = Release|Windows Mobile 5.0 Smartphone SDK (ARMV4I)
+		{89D202B7-874A-44BB-B159-6A20507EDFE5}.Release|Windows Mobile 5.0 Smartphone SDK (ARMV4I).Deploy.0 = Release|Windows Mobile 5.0 Smartphone SDK (ARMV4I)
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
