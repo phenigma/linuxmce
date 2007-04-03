@@ -1285,6 +1285,24 @@ switch ($section) {
 	    include_once('operations/myDevices/editQuickStartTemplates.php');
 	    editQuickStartTemplates($output,$dbADO);
 	break;	
+	case 'editQuickStartCategory';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/editQuickStartCategory.php');
+	    editQuickStartCategory($output,$dbADO);
+	break;	
+	case 'editQuickStartTemplate';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/editQuickStartTemplate.php');
+	    editQuickStartTemplate($output,$dbADO);
+	break;	
+	case 'addQuickStartTemplate';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/addQuickStartTemplate.php');
+	    addQuickStartTemplate($output,$dbADO);
+	break;	
 	
 	case 'sqlcvs_update';
 		$output = new Template($dbADO);
