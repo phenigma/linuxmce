@@ -51,7 +51,7 @@ class Surface;
 Surface* LoadImage( DisplayDevice* display, const TCHAR* filename );
 
 // Load an image from a resource
-Surface* LoadImage( DisplayDevice* display, unsigned resourceID, const TCHAR* resclass = _T("GIF"), HINSTANCE hModule = 0 );
+Surface* LoadImage( DisplayDevice* display, unsigned resourceID, const TCHAR* resclass = _T("image"), HINSTANCE hModule = 0 );
 
 // Load an image from a memory buffer
 Surface* LoadImage( DisplayDevice* display, const uint8_t* pBegin, const uint8_t* pEnd );
@@ -68,8 +68,8 @@ Surface* LoadImage( DisplayDevice* display, const uint8_t* pBegin, const uint8_t
 
 // Save an image to a .BMP file
 bool SaveImage( const Surface* surface, const TCHAR* filename );
-
-
+// Save an image to a memory block of data
+bool SaveImage( const Surface* const_surface, char*& pRawBitmapData, size_t& ulSize);
 
 } // end of namespace Frog
 

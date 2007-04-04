@@ -11,8 +11,6 @@
 // about the suitability of this software for any purpose.
 // It is provided "as is" without express or implied warranty.
 //
-// 30 September 2005 - John Till - Removed dependency on imgdecmp.dll
-//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "image.h"
@@ -22,7 +20,12 @@
 #include "internal/memfile.h"
 #include <cassert>
 
-#ifndef _WIN32_WCE
+#ifdef _WIN32_WCE
+   #include "foreign/imgdecmp/imgdecmp.h"
+	#ifdef ARMV4
+		#pragma comment( lib, "imgdecmp.lib" )
+	#endif
+#else
    #include <olectl.h>
    #pragma comment( lib, "ole32.lib" )
    #pragma comment( lib, "olepro32.lib" )
@@ -71,76 +74,77 @@ static Surface* CreateSurface( DisplayDevice* display, HBITMAP hBitmap )
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //
-// Desktop PC code
+// PocketPC code
 //
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Callbacks for DecompressImageIndirect()
+//
+//////////////////////////////////////////////////////////////////////////////
+
+static DWORD CALLBACK LoadImage( char* buffer, DWORD dwBufferMax, LPARAM lparam )
+{
+   // We already have locked or memory mapped the image, simply return it's size.
+   return dwBufferMax;
+}
+
+
+
+static void CALLBACK LoadImageProgress( IImageRender* pRender, BOOL bComplete, LPARAM lparam )
+{
+   // We don't care about the load progress...
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// LoadImage()
+// DecompressImage() - Invoke imgdecmp.dll to decompress the image
 //
 //////////////////////////////////////////////////////////////////////////////
 
-Surface* LoadImage( DisplayDevice* display, const TCHAR* filename )
+static Surface* DecompressImage( DisplayDevice* display, const uint8_t* pBegin, const uint8_t* pEnd )
 {
-  TCHAR pathname[MAX_PATH];
-  PocketPC::GetFullPathName( filename, pathname );
-  HBITMAP hBmp = ::SHLoadImageFile( pathname );
-  if(!hBmp)
-    return 0;
-  Surface *surface = CreateSurface(display, hBmp);
-  ::DeleteObject(hBmp);
-  return surface;
-}
+   // This will be filled with a handle to the image
+   HBITMAP hBitmap = 0;    
 
-Surface* LoadImage( DisplayDevice* display, unsigned resourceID, const TCHAR* resclass, HINSTANCE hModule )
-{
-    // If the module instance is not specified, get the application's instance
-    if (!hModule) hModule = ::GetModuleHandle(0);
-    
-    // If the class is RT_BITMAP, imgdecmp.dll won't be able to decompress it as the file header
-    // is not present (BITMAPFILEHEADER). In any case, it's better to use LoadBitmap()
-    if (resclass == RT_BITMAP)
-    {
-        HBITMAP hBitmap = ::LoadBitmap( hModule, (LPCTSTR)resourceID );
-        if (!hBitmap)
-            return 0;
-        
-        Surface* surface = CreateSurface( display, hBitmap );
-        ::DeleteObject( hBitmap );
-        
-        return surface;
-    }
-    else
-    {
-        // Lock the resource in memory
-        HRSRC hResource = ::FindResource( hModule, (LPCTSTR)resourceID, resclass );
-        if (!hResource)
-        {
-            // Try RT_BITMAP
-            if (resclass != RT_BITMAP)
-                return LoadImage( display, resourceID, RT_BITMAP, hModule );
-            
-            return 0;
-        }
-        
-        HBITMAP hBmp = ::SHLoadImageResource( hModule, resourceID ); 
-        if(!hBmp)
-          return 0;
-        Surface *surface = CreateSurface(display, hBmp); 
-        ::DeleteObject( hBmp );
-        return surface;
-    }
+   // Prepare the decompression process
+   // Here I use 24 bits output because if I select 16, imgdecmp.dll will
+   // create a 555 DIB instead of a 565 (darn).
+   DecompressImageInfo dii;
+
+   dii.dwSize                = sizeof(dii);       // Size of this structure
+   dii.pbBuffer              = (BYTE*)pBegin;     // Pointer to the buffer to use for data
+   dii.dwBufferMax           = pEnd - pBegin;     // Size of the buffer
+   dii.dwBufferCurrent       = 0;                 // The amount of data which is current in the buffer
+   dii.phBM                  = &hBitmap;          // Pointer to the bitmap returned (can be NULL)
+   dii.ppImageRender         = 0;                 // Pointer to an IImageRender object (can be NULL)
+   dii.iBitDepth             = 24;                // Bit depth of the output image
+   dii.lParam                = 0;                 // User parameter for callback functions
+   dii.hdc                   = 0;                 // HDC to use for retrieving palettes
+   dii.iScale                = 100;               // Scale factor (1 - 100)
+   dii.iMaxWidth             = 8192;              // Maximum width of the output image
+   dii.iMaxHeight            = 8192;              // Maxumum height of the output image
+   dii.pfnGetData            = LoadImage;         // Callback function to get image data
+   dii.pfnImageProgress      = LoadImageProgress; // Callback function to notify caller of progress decoding the image
+   dii.crTransparentOverride = -1;                // If this color is not (UINT)-1, it will override the
+                                                  // transparent color in the image with this color. (GIF ONLY)
+
+   // Process and decompress the image data
+   HRESULT hr = ::DecompressImageIndirect( &dii );
+   if (FAILED(hr)) return 0;
+
+   Surface* surface = CreateSurface( display, hBitmap );
+   ::DeleteObject( hBitmap );
+
+   return surface;
 }
 
 
-Surface* LoadImage( DisplayDevice* display, const uint8_t* pBegin, const uint8_t* pEnd )
-{
-    return 0; // This breaks the splash screen image loading
-}
 
 #else
 
@@ -204,6 +208,23 @@ static Surface* DecompressImage( DisplayDevice* display, const uint8_t* pBegin, 
 }
 
 
+
+#endif
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//
+// Common code
+//
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // LoadImage()
@@ -218,6 +239,8 @@ Surface* LoadImage( DisplayDevice* display, const TCHAR* filename )
     
     return DecompressImage( display, file.begin(), file.end() );
 }
+
+
 
 Surface* LoadImage( DisplayDevice* display, unsigned resourceID, const TCHAR* resclass, HINSTANCE hModule )
 {
@@ -259,24 +282,12 @@ Surface* LoadImage( DisplayDevice* display, unsigned resourceID, const TCHAR* re
     }
 }
 
+
+
 Surface* LoadImage( DisplayDevice* display, const uint8_t* pBegin, const uint8_t* pEnd )
 {
     return DecompressImage( display, pBegin, pEnd );
 }
-
-#endif
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//
-// Common code
-//
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -354,6 +365,89 @@ bool SaveImage( const Surface* const_surface, const TCHAR* filename )
     return true;
 }
 
+bool SaveImage( const Surface* const_surface, char*& pRawBitmapData, size_t& ulSize )
+{	
+	Surface* surface = const_cast<Surface*>( const_surface );
+
+	if (!surface)
+		return false;
+
+	// Lock the surface
+	Surface::LockInfo lockinfo;
+	if (!surface->Lock( lockinfo ))
+		return false;
+
+	//added 0-3 pixels to have width a multiple of 4
+	int width = surface->GetWidth() + ((surface->GetWidth() * sizeof(Pixel)) & 3);
+
+	BITMAPINFOHEADER info;
+	info.biSize          = sizeof(BITMAPINFOHEADER);
+	info.biWidth         = width;
+	info.biHeight        = surface->GetHeight();
+	info.biPlanes        = 1;
+	info.biBitCount      = 16;
+	info.biCompression   = BI_BITFIELDS;
+	info.biSizeImage     = info.biWidth * info.biHeight;
+	info.biXPelsPerMeter = 0;
+	info.biYPelsPerMeter = 0;
+	info.biClrUsed       = 0;
+	info.biClrImportant  = 0; 
+
+	uint32_t colors[3] = { RED_MASK, GREEN_MASK, BLUE_MASK };
+
+
+	BITMAPFILEHEADER header;
+	header.bfType      = 0x4d42;
+	header.bfSize      = sizeof(BITMAPFILEHEADER) + info.biSize + sizeof(colors) + info.biSizeImage;
+	header.bfReserved1 = 0;
+	header.bfReserved2 = 0;
+	header.bfOffBits   = sizeof(BITMAPFILEHEADER) + info.biSize + sizeof(colors);
+
+
+	ulSize = sizeof(header) + sizeof(info) + sizeof(colors) + 
+		(surface->GetHeight() + 1) * width * sizeof(Pixel);
+
+	pRawBitmapData = new char[ulSize];
+	if(NULL == pRawBitmapData)
+	{
+		//not enough memory ??
+		surface->Unlock( true );
+		ulSize = 0;
+		return false;
+	}
+	
+	char *pRawDataCursor = pRawBitmapData;
+	memcpy(pRawDataCursor, &header, sizeof(header));
+	pRawDataCursor += sizeof(header);
+	memcpy(pRawDataCursor, &info, sizeof(info));
+	pRawDataCursor += sizeof(info);
+	memcpy(pRawDataCursor, colors, sizeof(colors));
+	pRawDataCursor += sizeof(colors);
+	
+	// Write the image (must flip image vertically)
+	const Pixel* pixels = lockinfo.pixels;
+	pixels = (Pixel*)((uint8_t*)pixels + lockinfo.pitch * (surface->GetHeight()-1));
+
+	for (int h = surface->GetHeight(); h; --h)
+	{
+		memcpy(pRawDataCursor, pixels, surface->GetWidth() * sizeof(Pixel));
+		pRawDataCursor += surface->GetWidth() * sizeof(Pixel);
+
+		//added eventually extra black pixels
+		if(width > surface->GetWidth())
+		{
+			memset(pRawDataCursor, 0, (width - surface->GetWidth() + 1) * sizeof(Pixel));
+			pRawDataCursor += (width - surface->GetWidth() + 1) * sizeof(Pixel);
+		}
+
+		pixels = (Pixel*)((uint8_t*)pixels - lockinfo.pitch);
+	}
+
+	surface->Unlock( true );
+	return true;
+}
+
 
 
 } // end of namespace Frog
+
