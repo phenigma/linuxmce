@@ -219,16 +219,18 @@ DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 	catch(string s)
 	{
 		s = "Fatal error: " + s;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, s.c_str());
 		WriteStatusOutput(s.c_str());
 		exit(1);
 	}
 	catch(const char *s)
 	{
 		string sErrorMessage = string("Fatal error: ") + s;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, sErrorMessage.c_str());
 		WriteStatusOutput(sErrorMessage.c_str());
 		exit(1);
 	}
-
+	
 	PostMessage(g_hwndMainDialog, WM_QUIT, 0, 0);
 
 	return 0L;
