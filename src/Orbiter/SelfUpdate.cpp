@@ -38,6 +38,9 @@ using namespace std;
 	#ifdef WINCE_x86
 		const string csUpdateBinaryName("UpdateBinaryCE_x86.exe");
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_x86.dat");
+	#elif defined(ARMV4I)
+		const string csUpdateBinaryName("UpdateBinary_ARMV4I.exe");
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_ARMVI.dat");		
 	#else
 		const string csUpdateBinaryName("UpdateBinaryCE.exe");
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_XScale.dat");

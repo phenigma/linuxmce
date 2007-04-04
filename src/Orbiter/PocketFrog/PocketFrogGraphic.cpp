@@ -222,6 +222,6 @@ PlutoGraphic *PocketFrogGraphic::Clone()
 //-------------------------------------------------------------------------------------------------------
 bool PocketFrogGraphic::GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize)
 {
-	return SaveImage(m_pSurface, pRawBitmapData, ulSize);
+	return false;
 }
 //-------------------------------------------------------------------------------------------------------

@@ -343,11 +343,17 @@ void OrbiterRenderer::ShowProgress(int nPercent)
 
 	m_spTextStyle->m_ForeColor = TextShadowColor;
 	text.m_rPosition = PlutoRectangle(rect.Left() + 1, rect.Top() + 1, rect.Width, rect.Height);
+
+#ifndef ARMV4I	
 	RenderText(sText, &text, m_spTextStyle.get());
+#endif
 
 	m_spTextStyle->m_ForeColor = TextColor;
 	text.m_rPosition = rect;
+
+#ifndef ARMV4I	
 	RenderText(sText, &text, m_spTextStyle.get());
+#endif
 
 	BatchedTextRendering(true);
 

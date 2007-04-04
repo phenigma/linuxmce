@@ -375,7 +375,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     rc.left = 0;
     rc.top = 0;
 
-    #ifndef SMARTPHONE
+    #if !defined(SMARTPHONE) || defined(ARMV4I)
         rc.right = 240;
         rc.bottom = 280;
     #else
@@ -415,7 +415,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	MyRegisterClass(hInstance, szWindowClass);
 
 #ifdef WINCE
-	#ifdef SMARTPHONE //no border or sysmenu
+	#if defined(SMARTPHONE) //&& !defined(ARMV4I)
 		hWnd = CreateWindow(szWindowClass, szTitle, WS_VISIBLE, 
 			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 	#else
@@ -647,7 +647,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				RECT rt;
 				hdc = BeginPaint(hWnd, &ps);
 				GetClientRect(hWnd, &rt);
-#ifdef SMARTPHONE
+#if defined(SMARTPHONE) && !defined(ARMV4I)
 				COLORREF crBkColor = 0x00FFFFFF;
 #else
 				COLORREF crBkColor = ::GetSysColor(COLOR_3DFACE);
@@ -979,11 +979,7 @@ HWND CreateLabel(HWND hParentWnd, int x, int y, int width, char* caption, int he
 //-----------------------------------------------------------------------------------------------------
 HWND CreateEdit(HWND hParentWnd, int x, int y,  int width, char* caption, bool bNumber, bool bAlignRight)
 {
-#ifdef SMARTPHONE
 	RECT rt_edit = { x, y, width, 20 };
-#else
-	RECT rt_edit = { x, y, width, 20 };
-#endif
 
 #ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
