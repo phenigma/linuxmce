@@ -4,6 +4,7 @@
 #enable MySQL networking
 MyCnf=/etc/mysql/my.cnf
 DefTableType=innodb
+cp "$MyCnf" "$MyCnf".pbackup
 sed -i "s/^skip-networking/#skip-networking/; s/^skip-innodb/#skip-innodb/; s/^default-table-type=.*$/default-table-type=$DefTableType/" "$MyCnf"
 sed -i 's/^bind-address.*$/bind-address=0.0.0.0/; s/\(^log.*=.*$\)/#\1/g' "$MyCnf"
 sed -i 's/^expire_logs_days/#expire_logs_days/g' "$MyCnf"
