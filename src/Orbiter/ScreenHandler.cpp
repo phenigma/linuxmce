@@ -1454,6 +1454,7 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Display_Message_Button_4_CONST, sOption4);
 
 	m_pOrbiter->CMD_Goto_DesignObj(0, sPK_DesignObj, sID, "", false, bCantGoBack );
+	m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_objControllerBack_CONST), 0, "", "", bCantGoBack ? "0" : "1" );
 
 	m_pOrbiter->CMD_Set_Text(sPK_DesignObj, "<%=" + StringUtils::ltos(VARIABLE_Display_Message_Text_CONST) + "%>", TEXT_STATUS_CONST);
 
