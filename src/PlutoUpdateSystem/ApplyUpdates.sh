@@ -42,10 +42,15 @@ fi
 ## If a cron job for DownloadUpdates.sh is not allready made, do it now
 if [[ $RunningOnMD == "No" ]] ;then
 	cronEntry="0 3 * * * root /usr/pluto/bin/DownloadUpdates.sh"
-	if ! grep -qF "$cronEntry" /etc/crontab; then
-		echo "$cronEntry" >>/etc/crontab
-		invoke-rc.d cron reload
+	#if ! grep -qF "$cronEntry" /etc/crontab; then
+	#	echo "$cronEntry" >>/etc/crontab
+	#	invoke-rc.d cron reload
+	#fi
+	if [[ ! -e /etc/cron.d/DownloadUpdates ]] ;then
+	   echo "$cronEntry" >>/etc/cron.d/DownloadUpdates
+	   invoke-rc.d cron reload
 	fi
+			
 fi
 
 ## Try to force NFS to sync so we can read the flags/locks in realtime
