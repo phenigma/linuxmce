@@ -266,6 +266,9 @@ export LC_ALL=C
 #cp /etc/apt/sources.list "$DlPath"/etc/apt/sources.list
 
 # Configure apt
+if [ ! -e /etc/apt/sources.list.pbackup ]; then
+	cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+fi
 sed 's/localhost/dcerouter/g' /etc/apt/apt.conf.d/30pluto > $DlPath/etc/apt/apt.conf.d/30pluto
 
 . /usr/pluto/install/AptSources.sh
