@@ -89,6 +89,9 @@ case "$URL_TYPE" in
 #		echo "Repository test string: '$FilteredRepos.+$REPOS.+$SECTIONS'"
 		results=$(cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep -v "^#" | egrep -c -- "$FilteredRepos.+$REPOS.+$SECTIONS" 2>/dev/null)
 		if [ "$results" -eq 0 ]; then
+			if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+				cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+			fi
 			echo "deb $FilteredRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
 			apt-get update
 #			[ "$Type" == "router" ] && apt-proxy-import-simple /usr/pluto/install/deb-cache
