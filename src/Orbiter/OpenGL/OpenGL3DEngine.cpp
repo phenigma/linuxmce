@@ -155,13 +155,6 @@ bool OpenGL3DEngine::Paint()
 		return false;
 	}
 
-	//skip broken trees
-	if(!CurrentLayer->TreeIsValid())
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Won't Flip: the tree has invalid nodes!");
-//		return false;
-	}
-
 	GL.SetClearColor(.0f, .0f, 0.0f);
 	GL.ClearScreen(true, false);
 		
@@ -243,8 +236,8 @@ void OpenGL3DEngine::NewScreen(string ScreenName)
 
 	if(NULL != OldLayer)
 	{
-		bool ReleaseVolatileOnly = !TextureManager::Instance()->MemoryManagementEnabled();
-		OldLayer->CleanUp(ReleaseVolatileOnly);
+		bool bReleaseVolatileOnly = !TextureManager::Instance()->MemoryManagementEnabled();
+		OldLayer->CleanUp(bReleaseVolatileOnly);
 		delete OldLayer;
 	}
 	OldLayer = CurrentLayer;

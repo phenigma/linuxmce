@@ -209,7 +209,7 @@ public:
 	void DontReleaseTexture() { m_bDontReleaseTexture = true; }
 	void AllowReleaseTexture() { m_bDontReleaseTexture = false; }
 
-	bool TreeIsValid();
+	bool MeshIsValid();
 };
 
 #endif

@@ -231,10 +231,11 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 				 : Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
 				 m_MaintThreadMutex("MaintThread"), m_ScreenMutex( "rendering" ),
 				 m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
-				 m_TimeCodeMutex( "timecode" ), m_TimeCodeID(0),
-				 IRReceiverBase(this)
+				 m_TimeCodeMutex( "timecode" ), m_TimeCodeID(0), IRReceiverBase()
 				 //<-dceag-const-e->
 {
+	IRReceiverBase::Setup(this);
+
 #ifdef HID_REMOTE
     m_pHIDInterface=NULL;
 	m_HidThreadID=(pthread_t)NULL;
@@ -4490,10 +4491,6 @@ for(map<int,class FloorplanObject *>::iterator it2=m_mapFloorplanObject_Selected
 	}
 	Output+=Input.substr( pos );
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Substituted '%s' with '%s'", Input.c_str(), Output.c_str());
-#endif
-
 	return Output;
 }
 
@@ -4684,7 +4681,7 @@ void Orbiter::CallMaintenanceInMiliseconds( time_t milliseconds, OrbiterCallBack
 	PendingCallBackInfo *pCallBackInfo = new PendingCallBackInfo(m_nCallbackCounter++, bPurgeTaskWhenScreenIsChanged );
 
 	gettimeofday(&pCallBackInfo->m_abstime,NULL);
-	pCallBackInfo->m_abstime += milliseconds;
+	pCallBackInfo->m_abstime += static_cast<long>(milliseconds);
 
 	pCallBackInfo->m_fnCallBack=fnCallBack;
 	pCallBackInfo->m_pData=data;
@@ -5726,7 +5723,11 @@ void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Variable: %d set to %s",iPK_Variable,sValue_To_Assign.c_str());
 #endif
+	
+#ifndef ARMV4I
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+#endif	
+
 	m_mapVariable[iPK_Variable] = sValue_To_Assign;
 
 	//hook for capture keyboard

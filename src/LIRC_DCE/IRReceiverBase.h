@@ -44,8 +44,9 @@ namespace DCE
 		string m_sRepeatCode; // The code that we're repeating
 		int m_PK_Device_Remote; // The remote corresponding to the repeat code
 
-		IRReceiverBase(Command_Impl *pCommand_Impl);
+		IRReceiverBase(Command_Impl *pCommand_Impl = NULL);
 		~IRReceiverBase();
+		void Setup(Command_Impl *pCommand_Impl) { m_pCommand_Impl = pCommand_Impl; }
         
 		void ReceivedCode(int PK_Device_Remote,const char *pCode,const char *pRepeat=NULL,int iRepeat=0);  // if Repeat>0 this will be in COMMANDPARAMETER_Repeat_Command_CONST, which is used by i/r devices
 		void GetConfig(DeviceData_Impl *pData);

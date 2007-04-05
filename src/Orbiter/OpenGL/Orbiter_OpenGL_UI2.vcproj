@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..;../../;../Win32;../../DCE;&quot;../../../libs/Libraries/pthreads-win32/include&quot;;.;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../../../../../libs/CrossPlatform/lpng127;../../../../PlutoUtils;../SDL;../../OrbiterGen;../../../libs/CrossPlatform/zlib;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;\mysql\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;ORBITER_OPENGL;ENABLE_MOUSE_BEHAVIOR;TEST_OSD;DEBUG;THREAD_LOG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;ORBITER_OPENGL;ENABLE_MOUSE_BEHAVIOR;TEST_OSD"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -29,6 +29,7 @@
 				ObjectFile="Debug_OpenGL_UI2/"
 				ProgramDataBaseFileName="Debug_OpenGL_UI2/vc70.pdb"
 				WarningLevel="3"
+				WarnAsError="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
 			<Tool

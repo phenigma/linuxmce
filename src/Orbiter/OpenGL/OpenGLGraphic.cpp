@@ -284,7 +284,9 @@ void OpenGLGraphic::Convert()
 
 	if(OldTexture)
 	{
+#ifdef VIDEO_RAM_USAGE
 		VideoRAMUsageObserver::Instance().ObserveReleasingProcess(OldTexture, m_Filename);
+#endif
 
 		//release it right away!
 		glDeleteTextures(1, &OldTexture);
@@ -624,7 +626,7 @@ void VideoRAMUsageObserver::ObserveConvertingProcess(OpenGLTexture texture, int 
 	else
 	{
 		if(sFileName != "dynamic-unknown")
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoRAMUsageObserver: texture %d (%s) allocated before and never released!", 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "VideoRAMUsageObserver: texture %d (%s) allocated before and never released!", 
 				texture, sFileName.c_str());
 
 		it->second.second += x * y * bpp;
@@ -640,7 +642,7 @@ void VideoRAMUsageObserver::ObserveReleasingProcess(OpenGLTexture texture, strin
 	if(it == mapTexturesInfo.end())
 	{
 		if(sFileName != "dynamic-unknown")
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoRAMUsageObserver: texture %d (%s) not allocated or already released!", 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "VideoRAMUsageObserver: texture %d (%s) not allocated or already released!", 
 				texture, sFileName.c_str());
 	}
 	else
@@ -661,7 +663,7 @@ void VideoRAMUsageObserver::DumpVideoMemoryInfo()
 	for(TextureInfoMap::iterator it= mapTexturesInfo.begin(); it != mapTexturesInfo.end(); ++it)
 		nVRAMUsed += it->second.second;
 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "VideoRAMUsageObserver: Video RAM used by Orbiter: %d bytes (%d textures) !", nVRAMUsed, mapTexturesInfo.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VideoRAMUsageObserver: Video RAM used by Orbiter: %d bytes (%d textures) !", nVRAMUsed, mapTexturesInfo.size());
 }
 
 VideoRAMUsageObserver::~VideoRAMUsageObserver()

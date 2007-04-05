@@ -35,7 +35,9 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "MeshPainter.h"
 #include "DCE/Logger.h"
 
-#define DEBUG_MESH_FRAMES
+#ifdef DEBUG
+	#define DEBUG_MESH_FRAMES
+#endif
 
 MeshFrame::MeshFrame(string Name, MeshContainer* Mesh) 
 	: 
@@ -74,8 +76,7 @@ MeshFrame::~MeshFrame(void)
 	delete m_pMeshContainer;
 	m_pMeshContainer = NULL;
 
-	if(!m_bVolatile)
-		TextureManager::Instance()->InvalidateItem(this);
+	TextureManager::Instance()->InvalidateItem(this);
 
 #if defined(DEBUG_MESH_FRAMES)
 	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame destructor %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
@@ -149,8 +150,6 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 	{
 		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::AddChild: Frame %p/%s already has a parent %p!",
 			Frame, Frame->m_sName.c_str(), Frame->m_pParent);	
-
-		//throw "Frame already has a parent";
 	}
 
 #ifdef DEBUG_MESH_FRAMES
@@ -166,13 +165,8 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 
 void MeshFrame::RemoveChild(MeshFrame* Frame, bool bDetachOnly)
 {
-	//CheckIntegrity(Frame);
-
 	if(Frame == NULL)
-	{
-		//DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MeshFrame::RemoveChild: Frame is NULL!!!");
 		return;
-	}
 
 	if(NULL != Frame->m_pParent)
 	{
@@ -181,7 +175,6 @@ void MeshFrame::RemoveChild(MeshFrame* Frame, bool bDetachOnly)
 		if(Child == Frame->m_pParent->Children.end())
 		{
 			DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::RemoveChild: Got a parent, but doesn't have us as child!");
-			//throw "Got a parent, but doesn't have us as child";
 		}
 		else
 		{
@@ -205,7 +198,6 @@ void MeshFrame::RemoveChild(MeshFrame* Frame, bool bDetachOnly)
 	else
 	{
 		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::RemoveChild: Got no parent! :(");
-		//throw "Got no parent! :( I'm all alone!";
 	}
 }
 
@@ -214,10 +206,7 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 	CheckIntegrity(OldFrame);
 
 	if(OldFrame == NULL)
-	{
-		//DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: Frame is NULL!!!");
 		return NULL;
-	}
 
 	if(NULL != OldFrame->m_pParent)
 	{
@@ -227,7 +216,6 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 		if(Child == OldFrame->m_pParent->Children.end())
 		{
 			DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::ReplaceChild: Got a parent, but doesn't have us as child!");
-			//throw "Got a parent, but doesn't have us as child";
 		}
 		else
 		{
@@ -247,9 +235,6 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 				(OldFrame->IsVolatile() || bRemoveAllReplacedFrame)
 			)
 			{
-				//DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MeshFrame::ReplaceChild: replaced a volatile %p/%s",
-				//	OldFrame, OldFrame->Name().c_str());
-
 				OldFrame->CleanUp(true);
 
 				if(OldFrame->IsVolatile())
@@ -267,7 +252,6 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 	else
 	{
 		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::ReplaceChild: Got no parent! :(");
-		//throw "Got no parent! :( I'm all alone!";
 	}
 
 	return OldFrame;
@@ -276,19 +260,15 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 void MeshFrame::Paint(MeshTransform ChildTransform)
 {
 	if(!m_bVisible)
-	{
-		//DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "NOT Painting %p. It's invisible.", this);	
 		return; 
-	}
 	
 	MeshTransform Transform;
 	Transform.ApplyTransform(this->Transform);
 	Transform.ApplyTransform(ChildTransform);
 	MeshPainter* Painter = MeshPainter::Instance();
-	if(m_pMeshContainer!= NULL)
-		Painter->PaintContainer(*m_pMeshContainer, Transform, TextureTransform);
 
-	//DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "xxxxx Painting %p with %d children: ", this, Children.size());
+	if(m_pMeshContainer != NULL && MeshIsValid())
+		Painter->PaintContainer(*m_pMeshContainer, Transform, TextureTransform);
 
 	vector<MeshFrame *>::iterator Child, EndChild;
 	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
@@ -296,8 +276,6 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 		MeshFrame *pMeshFrame = *Child;
 		pMeshFrame->Paint(Transform);
 	}
-
-	//DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "xxxxx Painting %p END ", this);
 }
 
 /*virtual*/ void MeshFrame::SetTransform(MeshTransform& Transform)
@@ -459,19 +437,15 @@ bool MeshFrame::CheckIntegrity(MeshFrame *Frame)
 	return Result;
 }
 
-bool MeshFrame::TreeIsValid()
+bool MeshFrame::MeshIsValid()
 {
-	if(NULL != m_pMeshContainer && m_pMeshContainer->Triangles && m_pMeshContainer->NoTriangles > 0)
+	if(NULL != m_pMeshContainer && NULL != m_pMeshContainer->Triangles && m_pMeshContainer->NoTriangles > 0)
 		for(int i = 0; i < m_pMeshContainer->NoTriangles; ++i)
 			if(m_pMeshContainer->Triangles[i].Texture && m_pMeshContainer->Triangles[i].Texture->Texture == 0)
 			{
 				DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame is invalid %s", m_sName.c_str());
 				return false;
 			}
-
-	for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
-		if(!(*it)->TreeIsValid())
-			return false;
 
 	return true;
 }

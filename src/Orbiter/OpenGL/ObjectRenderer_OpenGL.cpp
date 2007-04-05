@@ -54,13 +54,6 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 
 /*virtual*/ void ObjectRenderer_OpenGL::RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point)
 {
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_STATUS, "mmmm RenderGraphic  %s state %s",
-					   m_pObj_Owner->m_ObjectID.c_str(), 
-					   m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_NORMAL ? "normal" : 
-						 m_pObj_Owner->m_GraphicToDisplay == GRAPHIC_SELECTED ? "selected" : "highlighted"
-	);
-#endif
 	string sParentObjectID = "";
 	DesignObj_Orbiter *pParentObj = dynamic_cast<DesignObj_Orbiter *>(m_pObj_Owner->m_pParentObject);
 	if(NULL != pParentObj)
@@ -88,16 +81,10 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS, "mmmm RenderGraphic  %s state %s"
 
 	//we have nothing to render
 	if(NULL == pPlutoGraphic)
-	{
 		return;
-	}
 
-//todo: new method
 	LoadPicture(pPlutoGraphic);
 
-	//LoggerWrapper::GetInstance()->Write(LV_STATUS, "(4) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
-	//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
-	
 	if(!pPlutoGraphic->IsEmpty())
 	{
 		OrbiterRenderer_OpenGL *pOrbiterRenderer_OpenGL = 
@@ -150,7 +137,6 @@ void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 		if (!iSizeGraphicFile)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
-	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			return;
 		}
 
@@ -166,7 +152,6 @@ void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 		{
 			delete pGraphicFile;
 			pGraphicFile = NULL;
-	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			return;
 		}
 
@@ -174,18 +159,11 @@ void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 		pGraphicFile = NULL;
 	}
 
-
-
-
-//LoggerWrapper::GetInstance()->Write(LV_STATUS, "(3) RenderGraphic %d - (%d,%d,%d,%d)", m_pObj_Owner->m_iBaseObjectID,
-//	rectTotal.X, rectTotal.Y, rectTotal.Width, rectTotal.Height);
-
 	if(pPlutoGraphic->IsEmpty() && !sFileName.empty())
 	{
 		if(!FileUtils::FileExists(sFileName))
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
-	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 			return;
 		}
 
@@ -203,13 +181,11 @@ void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 
 				if(!size)
 				{
-	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 					return;
 				}
 
 				if(!pPlutoGraphic->LoadGraphic(pData, size))
 				{
-	g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic1");
 					return;
 				}
 

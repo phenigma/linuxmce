@@ -67,17 +67,14 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 /*virtual*/ void MeshPainter::PaintContainer(MeshContainer& Container, MeshTransform& Transform,
 	MeshTransform& TextureTransform)
 {
-	if(NULL == ExtensionManager_)
-		throw "ExtensionManager_ not set!";
+	if(NULL == Container.Triangles)
+		return;
 
 	if(Container.Blended_)
 	{
 		ExtensionManager_->EnableZBuffer(false);
 		ExtensionManager_->EnableBlended(true);
 	}
-
-	if(NULL == Container.Triangles)
-		return;
 
 	int Count;
 	MeshVertex* Vertexes = new MeshVertex[Container.NoVertexes];
@@ -88,11 +85,6 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 		Vertexes[Count].ApplyTransform(Transform);
 	}
 	
-#ifdef DEBUG
-	//if(Container.NoTriangles)
-		//DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "GL_TRIANGLES");
-#endif
-
 	glBegin(GL_TRIANGLES);
 	for(Count = 0; Count < Container.NoTriangles; Count++)
 	{
