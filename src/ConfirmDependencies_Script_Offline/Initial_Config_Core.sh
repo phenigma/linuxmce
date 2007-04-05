@@ -23,6 +23,9 @@ mkdir -p /usr/pluto/var
 Activation_Code=1111
 
 ## Setup apt sources.list
+if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+	cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+fi
 AptSrc_AddSource "deb file:/usr/pluto/deb-cache/ sarge main"
 AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main"
 AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main"
