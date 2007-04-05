@@ -161,6 +161,9 @@ function Build_Pluto_Replacements {
 		m-a -ft a-b ivtv
 		cp /usr/src/ivtv-modules*.deb "${temp_dir}"
 		Src="deb http://dl.ivtvdriver.org/ubuntu edgy firmware"
+		if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+			cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+		fi
 		if ! grep -qF "$Src" /etc/apt/sources.list; then
 			echo "$Src" >> /etc/apt/sources.list
 			apt-get update
