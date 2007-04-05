@@ -114,6 +114,9 @@ else
 	WhereCode="in diskless.conf"
 fi
 
+if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+	cp /etc/apt/sources.list  /etc/apt/sources.list.pbackup
+fi
 echo "deb file:/usr/pluto/deb-cache/ sarge main" | cat - /etc/apt/sources.list >/etc/apt/sources.list.2
 mv /etc/apt/sources.list.2 /etc/apt/sources.list
 apt-get update &>/dev/null
