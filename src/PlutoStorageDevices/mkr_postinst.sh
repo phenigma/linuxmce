@@ -6,10 +6,6 @@ mkdir -p /mnt/device
 
 ## Add a cron entry that scans for Internal Storage Devices
 cronEntry="*/10 * * * * root /usr/pluto/bin/StorageDevices_Radar.sh"
-#if ! grep -qF '/usr/pluto/bin/StorageDevices_Radar.sh' /etc/crontab; then
-#        echo "$cronEntry" >>/etc/crontab
-#        invoke-rc.d cron reload
-#fi
 if [[ ! -e /etc/cron.d/StorageDevicesRadar ]] ;then
 	echo "$cronEntry" >>/etc/cron.d/StorageDevicesRadar
 	invoke-rc.d cron reload
@@ -46,11 +42,15 @@ chmod 600 /usr/pluto/var/sambaCredentials.secret
 ## Add the sambahelper user to smbpasswd
 if [[ -r /usr/pluto/var/sambaCredentials.secret ]] ;then
 	smbpass=$(cat /usr/pluto/var/sambaCredentials.secret | grep '^password' | cut -d '=' -f2)
-	smbpass=$(/usr/pluto/bin/smbpass.pl $smbpass)
 
 	smbuser=$(cat /usr/pluto/var/sambaCredentials.secret | grep '^user' | cut -d '=' -f2)
 	smbuserid=$(id -u $smbuser)
 
+	# This is the correct way to do it but is not tested
+	# echo -e "${smbpass}\n${smbpass}" | smbpasswd -a "${smbuser}" -s
+
+	# This is not the correct way but it works(tm)
+	smbpass=$(/usr/pluto/bin/smbpass.pl $smbpass)
 	echo "$smbuser:$LinuxUserID:$smbpass:[U          ]:LCT-00000001:,,," >> /etc/samba/smbpasswd 
 fi
 
