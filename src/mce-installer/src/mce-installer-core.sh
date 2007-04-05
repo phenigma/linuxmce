@@ -62,6 +62,10 @@ function Setup_Network_Intefaces {
 
 function Setup_Apt_Conffiles {
 	StatsMessage "Setting up APT Package Manager"
+	## Backup initial apt sources.list
+	if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+		cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+	fi
 	## Setup apt sources.list
 	local Sources="# Pluto sources - start
 deb file:/usr/pluto/deb-cache/ ./
