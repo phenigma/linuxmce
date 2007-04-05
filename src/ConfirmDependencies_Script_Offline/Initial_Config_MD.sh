@@ -8,6 +8,9 @@ mkdir -p /etc/apt/apt.conf.d/
 ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline 2>/dev/null
 
 ## Append local deb-cache to sources.list and sources.list.offline
+if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+	cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+fi
 echo "deb file:/usr/pluto/deb-cache/ sarge main" | cat - /etc/apt/sources.list >/etc/apt/sources.list.2
 mv /etc/apt/sources.list.2 /etc/apt/sources.list
 echo "deb file:/usr/pluto/deb-cache/ sarge main" > /etc/apt/sources.list.offline
