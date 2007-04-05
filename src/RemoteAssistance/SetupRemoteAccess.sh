@@ -44,20 +44,36 @@ shopt -s nullglob
 AddCronEntry()
 {
 	# if this script is not in a cron job
-	if ! grep -qF "$cronCmd" /etc/crontab; then
+	#if ! grep -qF "$cronCmd" /etc/crontab; then
 		# add it to crontab
-		echo "$cronEntry" >>/etc/crontab
+	#	echo "$cronEntry" >>/etc/crontab
+	#	invoke-rc.d cron reload
+	#	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Added crontab entry"
+	#else
+	#	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry already present. Not adding."
+	#fi
+
+	if [[ ! -e /etc/cron.d/SetupRemoteAccess ]] ;then
+		echo "$cronEntry" >>/etc/cron.d/SetupRemoteAccess
 		invoke-rc.d cron reload
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Added crontab entry"
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Added crontab entry"				
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry already present. Not adding."
 	fi
 	
-	if ! grep -qF "$cronCmd_Special" /etc/crontab; then
-		# add it to crontab
-		echo "$cronEntry_Special" >>/etc/crontab
-		invoke-rc.d cron reload
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Added crontab entry (special)"
+	#if ! grep -qF "$cronCmd_Special" /etc/crontab; then
+	#	# add it to crontab
+	#	echo "$cronEntry_Special" >>/etc/crontab
+	#	invoke-rc.d cron reload
+	#	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Added crontab entry (special)"
+	#else
+	#	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) already present. Not adding."
+	#fi
+
+	if [[ ! -e /etc/cron.d/SetupRA-Special ]] ;then
+		echo "$cronEntry_Special" >>/etc/cron.d/SetupRA-Special
+	    invoke-rc.d cron reload
+	    Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Added crontab entry (special)"
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) already present. Not adding."
 	fi
@@ -68,23 +84,40 @@ DelCronEntry()
 	local CronReload
 
 	# remove script from crontab
-	if grep -qF "$cronCmd" /etc/crontab; then
-		grep -vF "$cronCmd" /etc/crontab >/etc/crontab.$$
-		mv /etc/crontab.$$ /etc/crontab
+	#if grep -qF "$cronCmd" /etc/crontab; then
+	#	grep -vF "$cronCmd" /etc/crontab >/etc/crontab.$$
+	#	mv /etc/crontab.$$ /etc/crontab
+	#	CronReload="1"
+	#	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry found. Removed."
+	#else
+	#	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry not found. Not removing."
+	#fi
+	
+	if [[ -e /etc/cron.d/SetupRemoteAccess ]] ;then
+		rm -f /etc/cron.d/SetupRemoteAccess
 		CronReload="1"
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry found. Removed."
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry found. Removed."		 
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry not found. Not removing."
 	fi
 	
-	if grep -qF "$cronCmd_Special" /etc/crontab; then
-		grep -vF "$cronCmd_Special" /etc/crontab >/etc/crontab.$$
-		mv /etc/crontab.$$ /etc/crontab
-		CronReload="1"
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) found. Removed."
+	#if grep -qF "$cronCmd_Special" /etc/crontab; then
+	#	grep -vF "$cronCmd_Special" /etc/crontab >/etc/crontab.$$
+	#	mv /etc/crontab.$$ /etc/crontab
+	#	CronReload="1"
+	#	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) found. Removed."
+	#else
+	#	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) not found. Not removing."
+	#fi
+
+	if [[ -e /etc/cron.d/SetupRA-Special ]] ;then
+	    rm -f /etc/cron.d/SetupRA-Special
+	    CronReload="1"
+	    Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) found. Removed."
 	else
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) not found. Not removing."
+	    Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) not found. Not removing."
 	fi
+													
 
 	if [[ -n "$CronReload" ]]; then
 		invoke-rc.d cron reload
