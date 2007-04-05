@@ -6,11 +6,16 @@
 PH="plutohome.com"
 
 cronEntry="0 2 * * * root /usr/pluto/bin/Report_Machine_Status.sh"
-if ! grep -qF "$cronEntry" /etc/crontab; then
-	echo "$cronEntry" >>/etc/crontab
+#if ! grep -qF "$cronEntry" /etc/crontab; then
+#	echo "$cronEntry" >>/etc/crontab
+#	invoke-rc.d cron reload
+#fi
+
+if [[ ! -e /etc/cron.d/ReportMachineStatus ]] ;then
+	echo "$cronEntry" >>/etc/cron.d/ReportMachineStatus
 	invoke-rc.d cron reload
 fi
-
+		
 Q="SELECT FK_DeviceTemplate
 	FROM Device
 	WHERE PK_Device='$PK_Device' LIMIT 1"
