@@ -36,6 +36,14 @@ function DisplayUsage() {
 
 }
 
+## Backup initial conf files first
+if [ ! -e /etc/ddclient.conf.pbackup ]; then
+	cp /etc/ddclient.conf /etc/ddclient.conf.pbackup
+fi
+if [ -e /etc/default/ddclient ] && [ ! -e /etc/default/ddclient.pbackup ] ;then
+	cp /etc/default/ddclient /etc/default/ddclient.pbackup
+fi
+
 ## Called to set the dynamic dns settings
 if [[ "$1" == "set" ]] ;then
 	shift

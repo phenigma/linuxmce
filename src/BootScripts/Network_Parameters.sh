@@ -43,6 +43,13 @@ ParseInterfaces()
 {
 	local Script File
 
+	if [ ! -e /etc/network/interfaces.pbackup ] ;then
+		cp /etc/network/interfaces /etc/network/interfaces.pbackup
+	fi
+
+	if [ ! -e /etc/resolv.conf.pbackup ] ;then
+		cp /etc/resolv.conf /etc/resolv.conf.pbackup
+	fi	
 	File="/etc/network/interfaces"
 
 	Script='

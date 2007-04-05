@@ -31,6 +31,9 @@ using namespace Tribune;
 
 class ClientFunctions
 {
+private:
+	string update_list;
+	string delete_list;
 public:
 	class RA_Processor *ra_Processor;
 	DCE::Socket **m_pSocket;
@@ -67,6 +70,9 @@ public:
 
 	/** execute mysql commands from the file provided by the server */
 	bool ModifyClientDatabase(string path);
+
+	string getUpdateList();
+	string getDeleteList();
 
 	virtual ~ClientFunctions( ) 
 	{ 

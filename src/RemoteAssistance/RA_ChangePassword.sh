@@ -14,6 +14,9 @@ if [[ -n "$remote" ]]; then
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "User 'remote' already exists. Not adding."
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Setting password for 'remote' user"
+		if [ ! -e /etc/shadow.pbackup ] ;then
+			cp /etc/shadow /etc/shadow.pbackup
+		fi	
 		sed -i '/^remote:/ s/^\([^:]*\):[^:]*:\(.*\)$/\1:'"${Pass//\//\/}"':\2/' /etc/shadow
 	fi
 else

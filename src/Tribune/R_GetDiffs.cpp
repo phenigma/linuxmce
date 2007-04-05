@@ -80,6 +80,8 @@ bool R_GetDiffs::UpdateProgramRecord(string pk_programrecord, bool conversion){
 		}
 		
 		clientfile<<"UPDATE ProgramRecord SET Title=\""<<row[1]<<"\", ReducedTitle1=\""<<row[2]<<"\", ReducedTitle2=\""<<row[3]<<"\", ReducedTitle3=\""<<row[4]<<"\", ReducedTitle4=\""<<row[5]<<"\", AltTitle=\""<<row[6]<<"\", ReducedDesc1=\""<<row[7]<<"\", ReducedDesc2=\""<<row[8]<<"\", ReducedDesc3=\""<<row[9]<<"\", AdvisoryAdultContent=\""<<row[10]<<"\", AdvisoryExplicitLanguage=\""<<row[11]<<"\", AdvisoryNudity=\""<<row[12]<<"\", AdvisoryViolence=\""<<row[13]<<"\", AdvisorySexualContent=\""<<row[14]<<"\", AdvisoryRapeContent=\""<<row[15]<<"\", Description=\""<<row[16]<<"\", RealYear=\""<<row[17]<<"\", MpaaRating=\""<<row[18]<<"\", StarRating=\""<<row[19]<<"\", RunTime=\""<<row[20]<<"\", ColorCode=\""<<row[21]<<"\", ProgramLanguage=\""<<row[22]<<"\", OrgCountry=\""<<row[23]<<"\", MadeForTV=\""<<row[24]<<"\", SourceType=\""<<row[25]<<"\", ShowType=\""<<row[26]<<"\", Holiday=\""<<row[27]<<"\", SynEpiNum=\""<<row[28]<<"\", AltSynEpiNum=\""<<row[29]<<"\", EpiTitle=\""<<row[30]<<"\", NetSynSource=\""<<row[31]<<"\", NetSynType=\""<<row[32]<<"\", DescWithActors=\""<<row[33]<<"\", ReducedDescWithActors=\""<<row[34]<<"\", OrgStudio=\""<<row[35]<<"\", Gamedate=\""<<row[36]<<"\", GameTime=\""<<row[37]<<"\", GameTimeZone=\""<<row[38]<<"\", OrgAirDate=\""<<row[39]<<"\", UniqueID=\""<<row[40]<<"\", Checksum=\""<<row[41]<<"\", TimestampF=\""<<timestamp<<"\" WHERE PK_ProgramRecord=\""<<pk_programrecord<<"\"\n";
+		
+		updatelist<<pk_programrecord<<"\n";
 
 		//m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
 	}
@@ -358,6 +360,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 			clientfile << "DELETE FROM ProgramRecord WHERE PK_ProgramRecord='"<<iter->first<<"'\n";	
 			clientfile << "DELETE FROM ProgramRecord_Genre WHERE FK_ProgramRecord='"<<iter->first<<"'\n";	
 			clientfile << "DELETE FROM Actor_ProgramRecord WHERE FK_ProgramRecord='"<<iter->first<<"'\n";	
+
+			deletelist<<iter->first<<"\n";
 
 		} else if ( ( (convtime).compare(it->second) ) != 0 ) { 
 
@@ -799,6 +803,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 	m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
 	
 	m_clientfile = clientfile.str();
+	m_deletelist = deletelist.str();
+	m_updatelist = updatelist.str(); 
 
 	return true; /**<< Request successfully processed */
 }

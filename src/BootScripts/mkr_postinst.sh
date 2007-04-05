@@ -8,6 +8,22 @@
 Version=$(dpkg -s pluto-boot-scripts | grep '^Version:' | sed  's/Version: //')
 ConfSet "PlutoVersion" "$Version"
 
+if [ ! -e /etc/apt/apt.conf.d/30pluto.pbackup ] ;then
+	cp /etc/apt/apt.conf.d/30pluto /etc/apt/apt.conf.d/30pluto.pbackup
+fi
+
+if [ ! -e /etc/logrotate.d/pluto.pbackup ] ;then
+	cp /etc/logrotate.d/pluto /etc/logrotate.d/pluto.pbackup
+fi
+
+if [ ! -e /etc/asound.conf.pbackup ] ;then
+	cp /etc/asound.conf /etc/asound.conf.pbackup
+fi
+
+if [ ! -e /etc/updatedb.conf.pbackup ] ;then
+	cp /etc/updatedb.conf /etc/updatedb.conf.pbackup
+fi
+
 ## Generate the /etc/apt/apt.conf.d/30pluto file
 rm -rf /var/cache/polipo/*
 pluto_apt_conf='// Pluto apt conf add-on

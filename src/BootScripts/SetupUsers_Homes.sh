@@ -19,6 +19,26 @@ while [[ "$#" -gt 0 ]]; do
 	shift
 done
 
+if [ ! -e /etc/samba/smbpasswd.pbackup ] ;then
+	cp /etc/samba/smbpasswd /etc/samba/smbpasswd.pbackup
+fi
+
+if [ ! -e /etc/samba/usermap.txt.pbackup ] ;then
+	cp /etc/samba/usermap.txt /etc/samba/usermap.txt.pbackup 
+fi
+
+if [ ! -e /etc/group.pbackup ] ;then
+	cp /etc/group /etc/group.pbackup 
+fi
+
+if [ ! -e /etc/passwd.pbackup ] ;then
+	cp /etc/passwd /etc/passwd.pbackup 
+fi
+
+if [ ! -e /etc/shadow.pbackup ] ;then
+	cp /etc/shadow /etc/shadow.pbackup 
+fi
+
 if [[ "$MakeUsers" == yes ]]; then
 	# Extract non-pluto entries
 	awk '!/^pluto_/' /etc/group >/etc/group.$$

@@ -71,6 +71,18 @@ function Run_Installer_Script
 	. /usr/pluto/install/activation.sh
 }
 
+if [ ! -e /etc/group.pbackup ] ;then
+    cp /etc/group /etc/group.pbackup
+fi
+
+if [ ! -e /etc/passwd.pbackup ] ;then
+   cp /etc/passwd /etc/passwd.pbackup
+fi
+
+if [ ! -e /etc/shadow.pbackup ] ;then
+   cp /etc/shadow /etc/shadow.pbackup
+fi
+			
 Setup_NIS
 Configure_Mounts
 Unpack_Config_Files

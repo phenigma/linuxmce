@@ -48,10 +48,12 @@ public:
 	map <string,string> m_mapGenre;
 	map <string,string> m_mapRole;
 	map <string,string> m_mapActorRole;
-	std::ostringstream clientfile;
+	std::ostringstream clientfile, updatelist, deletelist;
 
 	/** @brief Response Variables */
 	string m_clientfile;
+	string m_updatelist;
+	string m_deletelist;
 
 	/** @brief constructor */
 	

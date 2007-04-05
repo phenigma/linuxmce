@@ -346,8 +346,21 @@ int main(int argc, char *argv[]){
 			/** modify the client database*/
  			clientFunct->ModifyClientDatabase(path);
 
-			string command = "/usr/pluto/bin/FillMythDatabase";
-			system(command.c_str());
+			string updatelist = clientFunct->GetUpdateList();
+			string deletelist = clientFunct->GetDeleteList();
+
+			path = "/tmp/updatefile";
+ 			ofstream updatefile(path.c_str());
+ 			updatefile << updatelist;
+ 			updatefile.close();
+
+			path = "/tmp/deletefile";
+ 			ofstream deletefile(path.c_str());
+ 			deletefile << deletelist;
+ 			deletefile.close();
+
+			//string command = "/usr/pluto/bin/FillMythDatabase";
+			//system(command.c_str());
 		}
 		else {
 			cerr << "Unknown command: " << g_GlobalConfig.m_sCommand << endl;

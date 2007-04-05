@@ -175,6 +175,9 @@ string ClientFunctions::CalcDiffs(string lineup,string blacklist, map <string,st
 		cerr << "Cannot get list of records from server (clarifying local deletions destiny):" << (int) r_GetDiffs.m_cProcessOutcome << endl;
 		return r_GetDiffs.m_clientfile;
 	}
+	
+	update_list = r_GetDiffs.m_updatelist;
+	delete_list = r_GetDiffs.m_deletelist;
 
 	return r_GetDiffs.m_clientfile;
 }
@@ -206,6 +209,17 @@ bool ClientFunctions::ModifyClientDatabase(string path){
 		
 	return true;
 }
+
+string ClientFunctions::GetUpdateList(){
+	return this.update_list;
+}
+
+
+string ClientFunctions::GetDeleteList(){
+	return this.delete_list;
+}
+
+
 
 
 

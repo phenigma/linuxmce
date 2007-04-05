@@ -12,6 +12,15 @@ if [ ! -f /etc/diskless.conf ] && ! [ -f $Dir/$Key -a -f $Dir/$Key.pub ]; then
 fi
 
 mkdir -m 0700 -p /root/.ssh
+
+if [ ! -e /etc/ssh/ssh_config.pbackup ] && [ -e /etc/ssh/ssh_config ] ;then
+	cp /etc/ssh/ssh_config /etc/ssh/ssh_config.pbackup
+fi
+
+if [ ! -e /root/.ssh/config.pbackup ] ;then
+	cp /root/.ssh/config /root/.ssh/config.pbackup
+fi
+
 if ! grep -q "^ *StrictHostKeyChecking no *$" /etc/ssh/ssh_config ;then
 	echo "Writing defaults to ssh_config"
 	cp /usr/pluto/templates/ssh_config.tmpl /etc/ssh/ssh_config

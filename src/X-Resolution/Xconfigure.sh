@@ -251,6 +251,10 @@ esac
 #	libXvMC="$ForcedXvMC"
 #fi
 
+if [ ! -e /etc/X11/XvMCConfig.pbackup ] && [ -e /etc/X11/XvMCConfig ] ;then
+	cp /etc/X11/XvMCConfig /etc/X11/XvMCConfig.pbackup
+fi
+
 echo "$libXvMC" >/etc/X11/XvMCConfig
 #XineConfSet video.driver "$XineVideoDriver"
 

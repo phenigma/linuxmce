@@ -57,6 +57,9 @@ echo "Writing network configuration with one in database"
 
 invoke-rc.d networking stop
 
+if [ ! -e /etc/network/interfaces.backup ] ;then
+	cp /etc/network/interfaces /etc/network/interfaces.backup
+fi	
 File=/etc/network/interfaces
 #cp "$File" "$File.%(date +%F-%T)"
 IfConf="auto lo
@@ -75,6 +78,9 @@ iface $ExtIf inet static
 
 	DNSservers=$(echo "$DNS,"; echo "$NetSettings" | tail -1)
 	DNSservers=$(echo "$DNSservers" | tr ',' '\n' | sort -u | tr '\n' ' ')
+	if [ ! -e /etc/resolv.conf.pbackup ] ;then
+		cp /etc/resolv.conf /etc/resolv.conf.pbackup
+	fi
 	: >/etc/resolv.conf
 	for i in $DNSservers; do
 		echo "nameserver $i" >>/etc/resolv.conf
@@ -91,6 +97,10 @@ iface $IntIf inet static
 	netmask $IntNetmask"
 echo "$IfConf" >>"$File"
 
+if [ ! -e /etc/default/dhcp3-server.pbackup ] && [ -e /etc/default/dhcp3-server ] ;then
+	cp /etc/default/dhcp3-server /etc/default/dhcp3-server.pbackup
+fi
+
 if [[ -n "$DHCPcard" ]]; then
 	echo "INTERFACES=\"$DHCPcard\"" >/etc/default/dhcp3-server
 elif [[ "$IntIf" != *:* ]]; then
@@ -100,12 +110,19 @@ else
 fi
 
 invoke-rc.d networking start
+if [ ! -e /etc/bind/named.conf.forwarders.pbackup ] && [ -e /etc/bind/named.conf.forwarders ] ;then
+	cp /etc/bind/named.conf.forwarders /etc/bind/named.conf.forwarders.pbackup
+fi	
+
 if [[ "$Setting" == static ]]; then
 	/usr/pluto/bin/Network_DNS.sh
 else
 	touch /etc/bind/named.conf.forwarders # Make sure file exists so BIND starts
 fi
 
+if [ ! -e /etc/bind/named.conf.options.pbackup ] ;then
+	cp /etc/bind/named.conf.options /etc/bind/named.conf.options.pbackup
+fi
 awk 'BEGIN { Replace = 0 }
 /\/\/ forwarders/ {
 	Replace = 3;
@@ -115,6 +132,10 @@ Replace == 0 { print }
 Replace != 0 { Replace-- }
 ' /etc/bind/named.conf.options >/etc/bind/named.conf.options.$$
 mv /etc/bind/named.conf.options.$$ /etc/bind/named.conf.options
+
+if [ ! -e /etc/bind/named.conf.local.pbackup ] ;then
+	cp /etc/bind/named.conf.local /etc/bind/named.conf.local.pbackup
+fi
 
 if ! grep -qF 'zone "activate.plutohome.com"' /etc/bind/named.conf.local; then
 	cat /usr/pluto/templates/named.zone.pluto.activate.local.conf.tmpl >>/etc/bind/named.conf.local
@@ -175,9 +196,17 @@ fi
 Q="UPDATE Device SET IPaddress='$dcerouterIP' WHERE PK_Device='$PK_Device'"
 RunSQL "$Q"
 
+if [ ! -e /etc/hostname.pbackup ] ;then
+	cp /etc/hostname /etc/hostname.pbackup
+fi
+
 # set the hostname to 'dcerouter'
 echo dcerouter >/etc/hostname
 hostname dcerouter
+
+if [ ! -e /etc/hosts.pbackup ] ;then
+	cp /etc/hosts /etc/hosts.pbackup
+fi
 
 hosts="
 127.0.0.1       localhost.localdomain   localhost
@@ -212,6 +241,10 @@ ComputerName=$(RunSQL "$Q")
 ComputerName=$(Field "1" "$ComputerName")
 
 ## Configure Samba Server
+if [ ! -e /etc/samba/smb.conf.pbackup ] ;then
+	cp /etc/samba/smb.conf /etc/samba/smb.conf.pbackup
+fi
+
 SambaDomainHost="
 	workgroup = $DomainName
 	server string =	$ComputerName
@@ -220,6 +253,15 @@ SambaDomainHost="
 PopulateSection "/etc/samba/smb.conf" "Domain and Hostname" "$SambaDomainHost"
 if [[ "$(pidof smbd)" != "" ]] ;then
 	invoke-rc.d samba reload
+fi
+
+if [ ! -e /etc/defaultdomain.pbackup ] ;then
+	cp /etc/defaultdomain /etc/defaultdomain.pbackup
+fi
+
+
+if [ ! -e /etc/default/nis.pbackup ] ;then
+	cp /etc/default/nis /etc/default/nis.pbackup
 fi
 
 ## Configure NIS Server
@@ -234,6 +276,9 @@ for i in 1 2 3 4 ;do
 	IntNetIP="${IntNetIP}$(($ipPart&$maskPart))"
 done
 
+if [ ! -e /etc/ypserv.securenets.pbackup ] ;then
+	cp /etc/ypserv.securenets /etc/ypserv.securenets.pbackup
+fi
 echo "
 host 127.0.0.1
 $IntNetmask $IntNetIP

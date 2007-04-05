@@ -140,7 +140,7 @@ if [[ "$diskType" == 2 ]]; then
 				Message=$(</tmp/rip_message)
 			fi
 		fi
-		echo "Ripping failed: $Message"
+		echo "Ripping failed: $Message" >> /tmp/riplog
 		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "e" 9 "$Message" >/dev/null
 		rm "$targetFileName.dvd.in-progress";
 		exit 1;
@@ -150,7 +150,7 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 	if [[ ! -d "$Dir" ]]; then
 		$Message="Couldn't create directory";
 		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "e" 9 "$Message" >/dev/null
-		echo "Ripping failed: $Message"
+		echo "Ripping failed: $Message" >> /tmp/riplog
 		exit 1
 	fi
 	trackList=${trackList// /@~#}
@@ -185,7 +185,7 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 				fi
 			fi
 			
-			echo "Ripping failed: $Message"
+			echo "Ripping failed: $Message" >> /tmp/riplog
 			/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "e" 9 "$Message" >/dev/null
 			rm "$Dir/$Filename.$FinalExt.in-progress" &>/dev/null
 			exit 1;

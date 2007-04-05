@@ -269,7 +269,11 @@ bool Lighting_Plugin::GetVideoFrame( class Socket *pSocket, class Message *pMess
 		}
 
 		// We've got a light.  Restore it's current state in 30 seconds
+
 		string sState = pDevice_Light->m_sState_get();
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Lighting_Plugin::GetVideoFrame We've got a light with state %s for %d",sState.c_str(),pDevice_Light->m_dwPK_Device);
+	
 		if( sState.empty()==false )
 			m_mapLightsToRestore[ pDevice_Light->m_dwPK_Device ] = make_pair<time_t,string> ( time(NULL)+m_iCameraTimeout, sState );
 
@@ -450,9 +454,11 @@ void Lighting_Plugin::AlarmCallback(int id, void* param)
 	PLUTO_SAFETY_LOCK(lm,m_LightingMutex);
 
 	time_t tNow = time(NULL);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Lighting_Plugin::AlarmCallback at time %s with map size %d",tNow,m_mapLightsToRestore.size());
 	// Find the next alarm
 	for(map<int, pair<time_t,string> >::iterator it=m_mapLightsToRestore.begin();it!=m_mapLightsToRestore.end();)
 	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Lighting_Plugin::AlarmCallback We've got a light for %d with state %s and time %s",it->first,(it->second.second).c_str(),it->second.first);
 		if( it->second.first<=tNow )
 		{
 			string sState = it->second.second;
@@ -476,6 +482,8 @@ void Lighting_Plugin::AlarmCallback(int id, void* param)
 				}
 				else
 				{
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Lighting_Plugin::AlarmCallback We've got a light for %d with state %s",it->first,sState.c_str());
+
 					DCE::CMD_On CMD_On(m_dwPK_Device,it->first,0,"");
 					DCE::CMD_Set_Level CMD_Set_Level(m_dwPK_Device,it->first,StringUtils::itos(iLevel));
 					CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Advanced_options_CONST]="1";  // Means don't process it in the interceptor

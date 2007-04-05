@@ -32,6 +32,9 @@ if [[ -n "$PrevVer" ]]; then
 	echo "Upgrading from version '$PrevVer'. Not setting up X again"
 else
 	# only on standalone MDs, not hybrids
+	if [ ! -e /etc/default/ntpdate.pbackup ] ;then
+		cp /etc/default/ntpdate /etc/default/ntpdate.pbackup
+	fi
 	if ! PackageIsInstalled pluto-dcerouter; then
 		sed -i 's/^NTPSERVERS=.*$/NTPSERVERS="dcerouter"/' /etc/default/ntpdate
 	fi

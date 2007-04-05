@@ -34,6 +34,18 @@ if [[ ! -f /etc/modprobe.d/alsa-base ]]; then
 	exit 0
 fi
 
+if [ ! -e /etc/hotplug/blacklist.pbackup ] ;then
+	cp /etc/hotplug/blacklist /etc/hotplug/blacklist.pbackup
+fi
+
+if [ ! -e /etc/modules.d/alsa.pbackup ] ;then
+	cp /etc/modules.d/alsa /etc/modules.d/alsa.pbackup
+fi
+
+if [ ! -e /etc/modules.d/sound.pbackup ] ;then
+	cp /etc/modules.d/sound /etc/modules.d/sound.pbackup
+fi 
+
 ForceRun=no
 if [[ -d /etc/hotplug && -f /etc/hotplug/blacklist ]] && ! grep -q bttv /etc/hotplug/blacklist 2>/dev/null; then
 	echo "blacklisting bttv"
@@ -606,6 +618,9 @@ fi
     if [ -n "$cfgout" ]; then
 	[ ! -r "$cfgfile" ] || cmp -s "$TMP" "$cfgfile" || cat "$TMP" > "$cfgfile"
 	if [ "$kernel" = old ] ; then
+		if [ ! -e /etc/modutils/alsa-base.pbackup ] ;then
+			cp /etc/modutils/alsa-base /etc/modutils/alsa-base.pbackup
+		fi
 	    if [ -f /etc/modutils/alsa-base ] ; then
 		# Don't duplicate any lines already in /etc/modutils/alsa-base
 		grep -Fv -f /etc/modutils/alsa-base "$addcfg" > "$TMP"
@@ -626,6 +641,9 @@ if false; then
 	echo "$ACB
 # --- ALSACONF verion $version ---" >> $TMP
 fi
+	if [ ! -e /etc/modutils/alsa-base.pbackup ] ;then
+		cp /etc/modutils/alsa-base /etc/modutils/alsa-base.pbackup
+	fi					 
 	if [ "$kernel" = old ] ; then
 	    # Don't duplicate any lines already in /etc/modutils/alsa-base
 	    grep -Fv -f /etc/modutils/alsa-base "$addcfg" >> "$TMP"

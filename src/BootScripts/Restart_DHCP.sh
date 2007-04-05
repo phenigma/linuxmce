@@ -8,6 +8,9 @@
 . /usr/pluto/bin/LockUtils.sh
 . /usr/pluto/bin/Network_Parameters.sh
 
+if [ ! -e /etc/dhcp3/dhcpd.conf.pbackup ] ;then
+	cp /etc/dhcp3/dhcpd.conf /etc/dhcp3/dhcpd.conf.pbackup
+fi
 while :; do
 	WaitLock "PlutoDHCP" "DHCP_Restart" nolog
 	IsRunning=$(pgrep dhcpd3)

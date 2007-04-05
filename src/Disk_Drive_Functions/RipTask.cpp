@@ -124,6 +124,9 @@ int RipTask::RunAlreadySpawned()
 void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,string sFilename)
 {
 	m_sText=sText;
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "RipTask::UpdateProgress message %s", m_sText.c_str());
+
 	if( sStatus=="p" )
 	{
 		m_iPercent=iPercent;

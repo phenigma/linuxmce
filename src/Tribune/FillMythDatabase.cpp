@@ -122,12 +122,15 @@ string GetCategory(string programid){
 	std::ostringstream sSQL;
 	string category="";
 
-	sSQL <<"select Genre.Description from Genre join ProgramRecord_Genre on ProgramRecord_Genre.FK_Genre=PK_Genre join ProgramRecord on ProgramRecord.PK_ProgramRecord=ProgramRecord_Genre.FK_ProgramRecord where ProgramRecord.PK_ProgramRecord='"<<programid<<"'";
+	cout << "categ for "<<programid<<endl;
+
+	sSQL <<"select Genre.Description from Genre join ProgramRecord_Genre on ProgramRecord_Genre.FK_Genre=PK_Genre join ProgramRecord on ProgramRecord.PK_ProgramRecord=ProgramRecord_Genre.FK_ProgramRecord where ProgramRecord.PK_ProgramRecord="<<programid<<"'";
 
 	if(mysql_real_query(mysqltribune,(sSQL.str()).c_str(),(unsigned int) (sSQL.str()).length())==0&&(mrestribune=mysql_store_result(mysqltribune))){ 
 
-		rowtribune=mysql_fetch_row(mrestribune);
-		category = (string)rowtribune[0];
+		while((rowtribune=mysql_fetch_row(mrestribune))){
+			category = (string)rowtribune[0];
+		}
 		
 	}
 
@@ -186,7 +189,7 @@ string GetRole(string actorid){
 
 	cout << "AID: "<<actorid<<endl;
 
-	sSQL <<"select distinct Role.Description from Role join Actor_Role on Actor_Role.FK_Role=PK_Role join Actor on Actor.PK_Actor=Actor_Role.FK_Actor where Actor.PK_Actor='"<<actorid<<"'";
+	sSQL <<"select distinct Role.Description from Role join Actor_Role on Actor_Role.FK_Role=PK_Role join Actor on Actor.PK_Actor=Actor_Role.FK_Actor where Actor.PK_Actor=\""<<actorid<<"\"";
 
 	if(mysql_real_query(mysqltribune,(sSQL.str()).c_str(),(unsigned int) (sSQL.str()).length())==0&&(mrestribune=mysql_store_result(mysqltribune))){ 
 
@@ -197,7 +200,26 @@ string GetRole(string actorid){
 	return role;
 }
 
-void InsertPeople(string programid, string startime){
+int IsPersonInDB(string name){
+	MYSQL_RES *mresmyth;
+	MYSQL_ROW rowmyth;
+	std::ostringstream sSQL;
+	int personid;
+
+	sSQL <<"select person from people where name=\""<<name<<"\"";
+
+	if(mysql_real_query(mysqlmyth,(sSQL.str()).c_str(),(unsigned int) (sSQL.str()).length())==0&&(mresmyth=mysql_store_result(mysqlmyth))){ 
+
+		while ((rowmyth=mysql_fetch_row(mresmyth))){
+			return atoi(rowmyth[0]);
+		}
+		
+	}
+	
+	return -1;
+}
+
+void InsertPeople(string programid, string chanid, string startime){
 	MYSQL_RES *mrestribune;
 	MYSQL_ROW rowtribune;
 	std::ostringstream sSQL;
@@ -209,17 +231,21 @@ void InsertPeople(string programid, string startime){
 		sSQL.str("");
 
 		while( (rowtribune=mysql_fetch_row(mrestribune)) ) {
-			sSQL<<"insert into people(name) VALUES (\""<<rowtribune[0]<<" "<<rowtribune[1]<<"\")";
-			
-			if( mysql_query( mysqlmyth, (sSQL.str()).c_str()) ){
-				cerr<<"query: "<<sSQL.str()<<endl
-						<<"Error executing query: "<<mysql_error(mysqlmyth)<<endl;
-				exit(1);
+			string fullname=(string)rowtribune[0] + " " + (string)rowtribune[1];
+			int id=IsPersonInDB(fullname);
+			if (id==-1){
+				sSQL<<"insert into people(name) VALUES (\""<<fullname<<"\")";
+				if( mysql_query( mysqlmyth, (sSQL.str()).c_str()) ){
+					cerr<<"query: "<<sSQL.str()<<endl
+							<<"Error executing query: "<<mysql_error(mysqlmyth)<<endl;
+					exit(1);
+				}
+				sSQL.str("");
+				id = mysql_insert_id(mysqlmyth);
 			}
-			sSQL.str("");
-			int id = mysql_insert_id(mysqlmyth);
+
 			string role = GetRole((string) rowtribune[2]); 
-			sSQL<<"insert into credits (person,chanid,startime,role) VALUES ("<<id<<", \""<<id<<"\", \""<<startime<<"\", \""<<role<<"\")";
+			sSQL<<"insert into credits (person,chanid,starttime,role) VALUES ("<<id<<", \""<<chanid<<"\", \""<<startime<<"\", \""<<role<<"\")";
 			
 			if( mysql_query( mysqlmyth, (sSQL.str()).c_str()) ){
 				cerr<<"query: "<<sSQL.str()<<endl
@@ -277,7 +303,7 @@ void InsertProgram(){
 					string endtime = CalcEndTime((string)rowtribune[0], (string)rowtribune[1],(string)rowtribune[2]);
 					string category = GetCategory((string)rowtribune[11]);
 					float stars = CalcStars((string)rowtribune[7]);
-					InsertPeople((string)rowtribune[11],starttime);
+					InsertPeople((string)rowtribune[11],(string)rowmyth[0],starttime);
 					sSQL<<"insert into program(chanid,starttime,endtime,title,subtitle,description,category,category_type,airdate,stars,stereo,originalairdate,syndicatedepisodenumber,programid) VALUES ("<<rowmyth[0]<<", \""<<starttime<<"\", \""<<endtime<<"\",  \""<<rowtribune[4]<<"\", \""<<rowtribune[3]<<"\", \""<<rowtribune[5]<<"\", \""<<category<<"\", \""<<category<<"\", \""<<rowtribune[6]<<"\", \""<<stars<<"\", \""<<rowtribune[8]<<"\", \""<<rowtribune[9]<<"\", \""<<rowtribune[10]<<"\", \""<<rowtribune[11]<<"\")";
 			
 					if( mysql_query( mysqlmyth, (sSQL.str()).c_str()) ){
@@ -288,6 +314,97 @@ void InsertProgram(){
 					sSQL.str("");
 				}
 			}
+		}
+	}
+}
+
+void DeleteProgram(string programid){
+	MYSQL_RES *mresmyth;
+	MYSQL_ROW rowmyth;
+	std::ostringstream sSQL;
+	string chanid, starttime;
+
+	sSQL <<"select chanid, starttime from program where programid='"<<programid<<"'";
+
+	if(mysql_real_query(mysqlmyth,(sSQL.str()).c_str(),(unsigned int) (sSQL.str()).length())==0&&(mresmyth=mysql_store_result(mysqlmyth))){ 
+
+		while ((rowmyth=mysql_fetch_row(mresmyth))){
+			chanid = rowmyth[0];
+			starttime = rowmyth[1];
+		}
+	}
+	sSQL.str("");
+
+	sSQL<<"delete from program where programid='"<<programid<<"'";
+	if( mysql_query(mysqlmyth, (sSQL.str()).c_str()) ){
+		cerr<<"query: "<<sSQL.str()<<endl
+			<<"Error executing query: "<<mysql_error(mysqltribune)<<endl;
+		exit(1);
+	}
+	sSQL.str("");
+
+	sSQL<<"delete from credits where chanid='"<<chanid<<"' and starttime='"<<starttime<<"'";
+	if( mysql_query(mysqlmyth, (sSQL.str()).c_str()) ){
+		cerr<<"query: "<<sSQL.str()<<endl
+			<<"Error executing query: "<<mysql_error(mysqltribune)<<endl;
+		exit(1);
+	}
+	sSQL.str("");
+}
+
+void UpdateProgram(string programid){
+	
+	MYSQL_RES *mrestribune, *mresmyth;
+	MYSQL_ROW rowtribune, rowmyth;
+	std::ostringstream sSQL;
+
+	cout <<"Intru cu "<<programid<<endl;
+	
+	sSQL <<"SELECT Schedule.AirDate, Schedule.AirTime, Schedule.Duration, ProgramRecord.ReducedTitle1, ProgramRecord.Title, ProgramRecord.ReducedDesc1, ProgramRecord.OrgAirDate, ProgramRecord.StarRating, Schedule.Stereo, ProgramRecord.OrgAirDate, ProgramRecord.SynEpiNum, Schedule.FK_Station  FROM Schedule JOIN ProgramRecord ON ProgramRecord.PK_ProgramRecord = Schedule.FK_ProgramRecord WHERE PK_ProgramRecord ='"<<programid<<"'";
+
+	if(mysql_real_query(mysqltribune,(sSQL.str()).c_str(),(unsigned int) (sSQL.str()).length())==0&&(mrestribune=mysql_store_result(mysqltribune))){ 
+
+		sSQL.str("");
+
+		while( (rowtribune=mysql_fetch_row(mrestribune)) ) {
+
+			string starttime = CalcStartTime((string)rowtribune[0], (string)rowtribune[1]);
+			string endtime = CalcEndTime((string)rowtribune[0], (string)rowtribune[1],(string)rowtribune[2]);
+			string category = GetCategory(programid);
+			float stars = CalcStars((string)rowtribune[7]);
+			InsertPeople(programid,(string)rowtribune[11],starttime);
+			
+
+			sSQL<<"delete from credits where starttime=\""<<starttime<<"\" and chanid=\""<<rowtribune[11]<<"\"";
+	
+			if( mysql_query( mysqlmyth, (sSQL.str()).c_str()) ){
+				cerr<<"query: "<<sSQL.str()<<endl
+						<<"Error executing query: "<<mysql_error(mysqlmyth)<<endl;
+				exit(1);
+			}
+			sSQL.str("");
+
+			sSQL<<"delete from program where programid=\""<<programid<<"\" and starttime=\""<<starttime<<"\"";
+	
+			if( mysql_query( mysqlmyth, (sSQL.str()).c_str()) ){
+				cerr<<"query: "<<sSQL.str()<<endl
+						<<"Error executing query: "<<mysql_error(mysqlmyth)<<endl;
+				exit(1);
+			}
+			sSQL.str("");
+			
+			cout<<"Title: "<<rowtribune[4]<<endl;
+
+			sSQL<<"insert into program(chanid,starttime,endtime,title,subtitle,description,category,category_type,airdate,stars,stereo,originalairdate,syndicatedepisodenumber,programid) VALUES ("<<rowtribune[11]<<", \""<<starttime<<"\", \""<<endtime<<"\",  \""<<rowtribune[4]<<"\", \""<<rowtribune[3]<<"\", \""<<rowtribune[5]<<"\", \""<<category<<"\", \""<<category<<"\", \""<<rowtribune[6]<<"\", \""<<stars<<"\", \""<<rowtribune[8]<<"\", \""<<rowtribune[9]<<"\", \""<<rowtribune[10]<<"\", \""<<programid<<"\")";
+
+// 			sSQL<<"update program set starttime=\""<<starttime<<"\", endtime=\""<<endtime<<"\", title=\""<<rowtribune[4]<<"\", subtitle=\""<<rowtribune[3]<<"\", description=\""<<rowtribune[5]<<"\", category=\""<<category<<"\", category_type=\""<<category<<"\", airdate=\""<<rowtribune[6]<<"\", stars=\""<<stars<<"\", stereo=\""<<rowtribune[8]<<"\", originalairdate=\""<<rowtribune[9]<<"\", syndicatedepisodenumber=\""<<rowtribune[10]<<"\" where programid=\""<<programid<<"\"";
+	
+			if( mysql_query( mysqlmyth, (sSQL.str()).c_str()) ){
+				cerr<<"query: "<<sSQL.str()<<endl
+						<<"Error executing query: "<<mysql_error(mysqlmyth)<<endl;
+				exit(1);
+			}
+			sSQL.str("");
 		}
 	}
 }
@@ -312,9 +429,75 @@ int main(int argc, char *argv[]){
 		return false;
 	}
 
-	InsertChannel();
+	MYSQL_RES *mresmyth;
+	MYSQL_ROW rowmyth;
+	std::ostringstream sSQL;
+	int nrrec;
 
-	InsertProgram();
+	sSQL <<"select count(*) from program";
+
+	if(mysql_real_query(mysqlmyth,(sSQL.str()).c_str(),(unsigned int) (sSQL.str()).length())==0&&(mresmyth=mysql_store_result(mysqlmyth))){ 
+
+		while ((rowmyth=mysql_fetch_row(mresmyth))){
+			nrrec = atoi(rowmyth[0]);
+		}
+		
+	}
+
+	if (nrrec>0){
+
+		ifstream deletefile("/tmp/deletefile");
+		string line;
+
+		if (!deletefile) {
+			cerr<<"Error opening file /tmp/deletefile"<<endl;
+			return false;
+		}
+	
+		if (deletefile.is_open()) {
+			
+			while(! deletefile.eof())
+			{
+				getline (deletefile,line);
+	
+				if (line.length()!=0){
+					cout << line << endl;
+					DeleteProgram(line);
+				}
+				
+				
+			}
+		}
+
+		ifstream updatefile("/tmp/updatefile");
+		
+		if (!updatefile) {
+			cerr<<"Error opening file /tmp/updatefile"<<endl;
+			return false;
+		}
+	
+		if (updatefile.is_open()) {
+			
+			while(! updatefile.eof())
+			{
+				getline (updatefile,line);
+	
+				if (line.length()!=0){
+					cout << line << endl;
+					UpdateProgram(line);
+				}
+				
+				
+			}
+		}
+
+	} else{
+	
+		InsertChannel();
+
+		InsertProgram();
+
+	}
 
 	//cout<<CalcEndTime("20070131", "2315", "100") <<endl;
 	//cout << CalcStars("+") <<endl;
