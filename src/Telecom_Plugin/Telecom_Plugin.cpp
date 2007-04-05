@@ -2109,7 +2109,7 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 						listDevices.push_back(pDeviceRelation->m_pDevice->m_dwPK_Device);
 					}
 				}
-				if( listDevices.size() == 0) // still no extension -- just send to all phones in the same room
+				if( 0 == listDevices.size() && NULL != pDevice->m_pRoom ) // still no extension -- just send to all phones in the same room
 				{
 					for(list<class DeviceData_Router *>::iterator it=pDevice->m_pRoom->m_listDevices.begin();it!=pDevice->m_pRoom->m_listDevices.end();++it)
 					{
