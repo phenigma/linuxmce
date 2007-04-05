@@ -117,8 +117,10 @@ void OpenGL3DEngine::Finalize(void)
 		CurrentLayer->CleanUp(ReleaseVolatileOnly);
 
 	delete OldLayer;
-	delete CurrentLayer;
+	OldLayer = NULL;
 
+	delete CurrentLayer;
+	CurrentLayer = NULL;
 
 	MeshPainter::Instance()->CleanUp();
 	GLEffect2D::LayersCompose::Instance()->CleanUp();
@@ -127,6 +129,9 @@ void OpenGL3DEngine::Finalize(void)
 
 bool OpenGL3DEngine::Paint()
 {
+	if(m_bQuit)
+		return false;
+
 	TextureManager::Instance()->ConvertImagesToTextures();
 	TextureManager::Instance()->ReleaseTextures();	
 

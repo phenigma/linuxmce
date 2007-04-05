@@ -406,7 +406,7 @@ bool ProcessUtils::SpawnDaemon(string sPath, string sArguments, bool bLogOutput)
 	pArgs[0] = (char *) sPath.c_str();
 
 	// args[1..n], n == vectArguments.size() == iSize
-	for (int i = 0; i < iSize; i++)
+	for (size_t i = 0; i < iSize; i++)
 		pArgs[i + 1] = (char *) vectArguments[i].c_str();
 	pArgs[iSize + 1] = NULL; // NULL pointer in the last element, args[n+1]
 

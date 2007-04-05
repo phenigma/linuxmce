@@ -328,9 +328,17 @@ void PlutoLock::DumpOutstandingLocks()
 			{
 				char Message[1024];
 
+#ifdef WIN32
+#pragma warning(disable: 4311)
+#endif
+
 				sprintf(Message,"^01\t (>%d) %s l:%d time: (%d s) thread: %lu Rel: %s Got: %s",
 					pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
 					(unsigned long)pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
+
+#ifdef WIN32
+#pragma warning(default: 4311)
+#endif
 
 				listMessages.push_back(Message);
 
@@ -361,9 +369,17 @@ void PlutoLock::DumpOutstandingLocks()
 
 		char Message[400];
 
+#ifdef WIN32
+#pragma warning(disable: 4311)
+#endif
+
 		sprintf(Message,"OL: (%p) (>%d) %s %s l:%d time: %s (%d s) thread: %lu Rel: %s Got: %s",
 			&pSafetyLock->m_pMyLock->mutex,pSafetyLock->m_LockNum,pSafetyLock->m_pMyLock->m_sName.c_str(),pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,sTime.c_str(),(int) (time(NULL)-pSafetyLock->m_tTime),
 			(unsigned long)pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
+
+#ifdef WIN32
+#pragma warning(default: 4311)
+#endif
 
 		if( ((int) time(NULL)-pSafetyLock->m_tTime)>=KILL_THREAD_TIMEOUT && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased )
 		{

@@ -521,7 +521,7 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
 
     if ( bWithHeader )
     {
-        dwHeaderPosition = m_pcCurrentPosition - m_pcDataBlock + 8;
+        dwHeaderPosition = static_cast<unsigned long>(m_pcCurrentPosition - m_pcDataBlock) + 8;
 #ifndef WIN32
 #ifdef LL_DEBUG
         string s("MESSAGE                      ");     //possibly this is a compiler bug  - gcc 3.3.3
@@ -540,7 +540,7 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
 
 #endif
         // Save a pointer to store the header size
-        dwStartOfMessagePosition = m_pcCurrentPosition - m_pcDataBlock;
+        dwStartOfMessagePosition = static_cast<unsigned long>(m_pcCurrentPosition - m_pcDataBlock);
     }
 
     Write_long( 1234 ); // Just a sanity check
@@ -619,14 +619,14 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
 		Size += "," + StringUtils::itos(m_MessageID);
 #endif
         // Don't do a Write_String(StringUtils::itos(MessageSize)) because that will add a null term
-        Write_block((char *)Size.c_str(),Size.length());
+        Write_block((char *)Size.c_str(), static_cast<unsigned long>(Size.length()));
         m_pcCurrentPosition = pcFreezePosition;
     }
 
     // Normally we would want to delete the memory in serialize class.  But here we assign the 'out' data pointer pcData
     // to the memory block.  Socket::SendMessage needs the data block since that's what it sends, and it will delete it there.
     pcData = m_pcDataBlock;
-    dwSize = ( m_pcCurrentPosition - m_pcDataBlock );
+    dwSize = static_cast<unsigned long>(m_pcCurrentPosition - m_pcDataBlock);
 
     m_pcDataBlock=NULL; // Be sure the SerializeClass destructor doesn't also try to delete this
 
@@ -671,7 +671,7 @@ string Message::ToString( bool bWithHeader )
 
 		size_t SizeEncoded = MaxEncodedSize(SizeRaw);
 		char *pDataEncoded = new char[SizeEncoded];
-		int Bytes=Ns_HtuuEncode((unsigned char *) itD->second, SizeRaw, (unsigned char *) pDataEncoded);
+		int Bytes=Ns_HtuuEncode((unsigned char *) itD->second, static_cast<unsigned int>(SizeRaw), (unsigned char *) pDataEncoded);
 		pDataEncoded[Bytes]=0;
 		sOutput += pDataEncoded;
 		delete[] pDataEncoded;
@@ -689,7 +689,7 @@ string Message::ToString( bool bWithHeader )
 	if( bWithHeader )
 	{
 		string::size_type size = sOutput.size();
-		sOutput="MESSAGET " + StringUtils::itos(size) + "\n" + sOutput;
+		sOutput="MESSAGET " + StringUtils::itos(static_cast<int>(size)) + "\n" + sOutput;
 	}
 	return sOutput;
 }

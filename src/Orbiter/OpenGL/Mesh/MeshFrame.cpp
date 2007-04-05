@@ -441,7 +441,7 @@ bool MeshFrame::MeshIsValid()
 {
 	if(NULL != m_pMeshContainer && NULL != m_pMeshContainer->Triangles && m_pMeshContainer->NoTriangles > 0)
 		for(int i = 0; i < m_pMeshContainer->NoTriangles; ++i)
-			if(m_pMeshContainer->Triangles[i].Texture && m_pMeshContainer->Triangles[i].Texture->Texture == 0)
+			if(NULL != m_pMeshContainer->Triangles[i].Texture && m_pMeshContainer->Triangles[i].Texture->Texture == 0)
 			{
 				DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame is invalid %s", m_sName.c_str());
 				return false;
