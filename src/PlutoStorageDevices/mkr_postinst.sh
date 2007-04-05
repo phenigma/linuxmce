@@ -6,9 +6,13 @@ mkdir -p /mnt/device
 
 ## Add a cron entry that scans for Internal Storage Devices
 cronEntry="*/10 * * * * root /usr/pluto/bin/StorageDevices_Radar.sh"
-if ! grep -qF '/usr/pluto/bin/StorageDevices_Radar.sh' /etc/crontab; then
-        echo "$cronEntry" >>/etc/crontab
-        invoke-rc.d cron reload
+#if ! grep -qF '/usr/pluto/bin/StorageDevices_Radar.sh' /etc/crontab; then
+#        echo "$cronEntry" >>/etc/crontab
+#        invoke-rc.d cron reload
+#fi
+if [[ ! -e /etc/cron.d/StorageDevicesRadar ]] ;then
+	echo "$cronEntry" >>/etc/cron.d/StorageDevicesRadar
+	invoke-rc.d cron reload
 fi
 
 ## Add a init script on the core which will look for samba shares over the network

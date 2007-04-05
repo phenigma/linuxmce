@@ -1,8 +1,9 @@
 #!/bin/bash
 
 ## Remove the cron entry
-cat  /etc/crontab  | grep -v "StorageDevices_Radar.sh" > /etc/crontab.$$
-mv /etc/crontab.$$ /etc/crontab
+#cat  /etc/crontab  | grep -v "StorageDevices_Radar.sh" > /etc/crontab.$$
+#mv /etc/crontab.$$ /etc/crontab
+rm -f /etc/cron.d/StorageDevicesRadar
 
 ## Remove the init script that does the samba server scanning
 rm -f /etc/rc2.d/StorageDevices_SambaRadar.sh
