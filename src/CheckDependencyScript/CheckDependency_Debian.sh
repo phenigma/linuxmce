@@ -50,6 +50,9 @@ keep_sending_enters()
 case "$URL_TYPE" in
 	apt)
 		if ! cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep "$REPOS_SRC.+$REPOS" 2>/dev/null; then
+			if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+				cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+			fi
 			echo "$REPOS_SRC $REPOS $SECTIONS" >>/etc/apt/sources.list
 			apt-get update
 		fi
