@@ -1068,7 +1068,9 @@ void ScreenHandler::SCREEN_CurrentlyActiveRemote(long PK_Screen)
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Computing(long PK_Screen)
 {
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
 	ScreenHandlerBase::SCREEN_Computing(PK_Screen);
+
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Computing_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Computing_DatagridSelected, new DatagridCellBackData());
 
