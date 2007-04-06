@@ -2,7 +2,8 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
-	
+. /usr/pluto/bin/Utils.sh	
+
 # if user doesn't exist
 if [[ -n "$remote" ]]; then
 	Pass=$(mkpasswd -H md5 "$remote" 'RAPlutoP')
@@ -14,10 +15,12 @@ if [[ -n "$remote" ]]; then
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "User 'remote' already exists. Not adding."
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Setting password for 'remote' user"
-		if [ ! -e /etc/shadow.pbackup ] ;then
-			cp /etc/shadow /etc/shadow.pbackup
-		fi	
-		sed -i '/^remote:/ s/^\([^:]*\):[^:]*:\(.*\)$/\1:'"${Pass//\//\/}"':\2/' /etc/shadow
+		if ! BlacklistConfFiles '/etc/shadow' ;then
+			if [ ! -e /etc/shadow.pbackup ] ;then
+				cp /etc/shadow /etc/shadow.pbackup
+			fi	
+			sed -i '/^remote:/ s/^\([^:]*\):[^:]*:\(.*\)$/\1:'"${Pass//\//\/}"':\2/' /etc/shadow
+		fi
 	fi
 else
 	if grep -q remote /etc/passwd; then

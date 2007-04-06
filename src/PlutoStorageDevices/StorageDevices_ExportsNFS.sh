@@ -4,6 +4,7 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Section_Ops.sh
+. /usr/pluto/bin/Utils.sh
 
 TPL_GENERIC_INTERNAL_DRIVE=1790
 DD_BLOCK_DEVICE=152
@@ -39,7 +40,12 @@ for Device in $InternalOwnStorageDevices; do
 	Exports_InternalStorageDevices="$Exports_InternalStorageDevices\n$Device_MountPoint ${INTERNAL_SUBNET}/${INTERNAL_SUBNET_MASK}(rw,no_root_squash,no_all_squash,async,nohide,no_subtree_check)"
 done
 
-PopulateSection "/etc/exports" "InternalStorageDevices" "$Exports_InternalStorageDevices"
+if ! BlacklistConfFiles '/etc/exports' ;then
+	if [ -e /etc/exports ] && [ ! -e /etc/exports.pbackup ] ;then
+		cp /etc/exports /etc/exports.pbackup
+	fi
+	PopulateSection "/etc/exports" "InternalStorageDevices" "$Exports_InternalStorageDevices"
+fi
 
 ## Check and start/reload the nfs-kernel-server
 if [[ "$(pidof rpc.mountd)" == "" ]] ;then

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Utils.sh
+
 Dir=/usr/pluto/keys
 Key=id_dsa_pluto
 
@@ -31,10 +33,12 @@ for i in /etc/ssh/ssh_config /root/.ssh/config; do
 done
 
 File='/root/.ssh/config'
-if [ -z "$HostFound" ] || ! grep "IdentityFile $Dir/$Key" "$File" &>/dev/null; then
-	HostEntry="Host *
-	IdentityFile $Dir/$Key"
-	echo "$HostEntry" >>"$File"
+if ! BlacklistConfFiles "$File" ;then
+	if [ -z "$HostFound" ] || ! grep "IdentityFile $Dir/$Key" "$File" &>/dev/null; then
+		HostEntry="Host *
+		IdentityFile $Dir/$Key"
+		echo "$HostEntry" >>"$File"
+	fi
 fi
 
 KeyString="$(cat $Dir/$Key.pub)"

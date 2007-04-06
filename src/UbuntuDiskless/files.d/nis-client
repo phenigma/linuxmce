@@ -6,6 +6,7 @@ set -e
 
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Section_Ops.sh
+. /usr/pluto/bin/Utils.sh
 
 ## Config for nis to act as a client
 File="/etc/default/nis"
@@ -58,15 +59,15 @@ if [ ! -e ${Parm_RootLocation}/etc/shadow.pbackup ] ;then
 fi
 
 ## Force a diskless client to get passwd/shadow & group from nis
-if [[ -f ${Parm_RootLocation}/etc/passwd ]] ;then
+if [[ -f ${Parm_RootLocation}/etc/passwd ]] && ! BlacklistConfFiles "${Parm_RootLocation}/etc/passwd" ;then
 	grep -q "+::::::"   ${Parm_RootLocation}/etc/passwd || echo "+::::::"   >> ${Parm_RootLocation}/etc/passwd
 	sed -ir '/.*:.*:[0-9]{4}:.*/d' ${Parm_RootLocation}/etc/passwd
 fi
-if [[ -f ${Parm_RootLocation}/etc/shadow ]] ;then
+if [[ -f ${Parm_RootLocation}/etc/shadow ]] &&  ! BlacklistConfFiles "${Parm_RootLocation}/etc/shadow" ;then
 	grep -q "+::::::::" ${Parm_RootLocation}/etc/shadow || echo "+::::::::" >> ${Parm_RootLocation}/etc/shadow
 fi
 
-if [[ -f ${Parm_RootLocation}/etc/group ]] ;then
+if [[ -f ${Parm_RootLocation}/etc/group ]] &&  ! BlacklistConfFiles "${Parm_RootLocation}/etc/group" ;then
 	grep -q "+:::"      ${Parm_RootLocation}/etc/group  || echo "+:::"      >> ${Parm_RootLocation}/etc/group
 fi
 

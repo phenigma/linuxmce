@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Utils.sh
 
 DEVICEDATA_Network_Interfaces=32
 
@@ -50,6 +51,8 @@ ParseInterfaces()
 	if [ ! -e /etc/resolv.conf.pbackup ] ;then
 		cp /etc/resolv.conf /etc/resolv.conf.pbackup
 	fi	
+
+if ! BlacklistConfFiles '/etc/network/interfaces' ;then
 	File="/etc/network/interfaces"
 
 	Script='
@@ -104,8 +107,10 @@ ParsingInterface == 1 {
 }
 END { Display(ParsingInterface, interface, address, netmask, gateway, dns); }'
 	awk "$Script" "$File"
-
-	grep nameserver /etc/resolv.conf | grep -v '#' | sed 's/nameserver//g; s/ *//g' | tr '\n' ',' | sed 's/,$//'
+fi
+	if ! BlacklistConfFiles '/etc/resolv.conf' ;then
+		grep nameserver /etc/resolv.conf | grep -v '#' | sed 's/nameserver//g; s/ *//g' | tr '\n' ',' | sed 's/,$//'
+	fi
 }
 
 IntIf=

@@ -16,6 +16,20 @@
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
 #
+#. /usr/pluto/bin/Utils.sh
+
+function BlacklistConfFiles()
+{
+	local file=$1
+
+    while read line; do
+	    if [[ "$line" == "$file" ]] ;then
+		    return 0
+		fi
+	done < /etc/confblacklist
+
+	return 1				
+}
 
 if [[ -f /etc/chroot-install ]]; then
 	exit 0 # don't do anything if run in chroot
@@ -47,10 +61,12 @@ if [ ! -e /etc/modules.d/sound.pbackup ] ;then
 fi 
 
 ForceRun=no
-if [[ -d /etc/hotplug && -f /etc/hotplug/blacklist ]] && ! grep -q bttv /etc/hotplug/blacklist 2>/dev/null; then
-	echo "blacklisting bttv"
-	echo bttv >>/etc/hotplug/blacklist
-	ForceRun=yes
+if ! BlacklistConfFiles '/etc/hotplug/blacklist' ;then
+	if [[ -d /etc/hotplug && -f /etc/hotplug/blacklist ]] && ! grep -q bttv /etc/hotplug/blacklist 2>/dev/null; then
+		echo "blacklisting bttv"
+		echo bttv >>/etc/hotplug/blacklist
+		ForceRun=yes
+	fi
 fi
 
 if [[ ! -f /usr/pluto/install/alsa.configured ]]; then

@@ -4,6 +4,7 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Section_Ops.sh
+. /usr/pluto/bin/Utils.sh
 
 TemplateDir=/usr/pluto/templates
 
@@ -45,7 +46,9 @@ if [[ "$MakeUsers" == yes ]]; then
 	awk '!/^pluto_/' /etc/passwd >/etc/passwd.$$
 	awk '!/^pluto_/' /etc/shadow >/etc/shadow.$$
 
-	cp $TemplateDir/smbpasswd.tmpl /etc/samba/smbpasswd.$$
+	if ! BlacklistConfFiles '/etc/samba/smbpasswd' ;then
+		cp $TemplateDir/smbpasswd.tmpl /etc/samba/smbpasswd.$$
+	fi 
 	: >/etc/samba/usermap.txt
 fi
 
@@ -102,7 +105,9 @@ for Users in $R; do
 		echo "$ShadowEntry" >>/etc/shadow.$$
 		echo "$PasswdEntry" >>/etc/passwd.$$
 		echo "$GroupEntry" >>/etc/group.$$
-		echo "$SambaUnixMap" >>/etc/samba/usermap.txt
+		if ! BlacklistConfFiles '/etc/samba/usermap.txt' ;then
+			echo "$SambaUnixMap" >>/etc/samba/usermap.txt
+		fi
 	fi
 
 	mkdir -p -m 0770 "$BaseDir/user_$PlutoUserID"
@@ -187,7 +192,9 @@ done
 if [[ "$MakeUsers" == yes ]]; then
 	files="samba/smbpasswd shadow passwd group"
 	for file in $files; do
-		mv -f /etc/$file.$$ /etc/$file
+		if ! BlacklistConfFiles "/etc/$file" ;then
+			mv -f /etc/$file.$$ /etc/$file
+		fi
 	done
 
 	# Only now we have the copies in place of the originals so we can add users and set ownerships
@@ -214,7 +221,9 @@ if [[ -r /usr/pluto/var/sambaCredentials.secret ]] ;then
 	smbuser=$(cat /usr/pluto/var/sambaCredentials.secret | grep '^user' | cut -d '=' -f2)
 	smbuserid=$(id -u $smbuser)
 
-	echo "$smbuser:$LinuxUserID:$smbpass:[U          ]:LCT-00000001:,,," >> /etc/samba/smbpasswd 
+	if ! BlacklistConfFiles '/etc/samba/smbpasswd' ;then
+		echo "$smbuser:$LinuxUserID:$smbpass:[U          ]:LCT-00000001:,,," >> /etc/samba/smbpasswd 
+	fi
 fi
 
 ## Rebuild NIS cache

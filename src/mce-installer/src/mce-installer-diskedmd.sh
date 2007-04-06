@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Utils.sh
 
 #if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
 #	echo "ERROR: Cannot find wizard data";
@@ -17,9 +18,15 @@ function Create_Device
 
 function Setup_NIS 
 {
-	grep -q "+::::::"   /etc/passwd || echo "+::::::"   >> /etc/passwd
-	grep -q "+::::::::" /etc/shadow || echo "+::::::::" >> /etc/shadow
-	grep -q "+:::"      /etc/group  || echo "+:::"      >> /etc/group
+	if ! BlacklistConfFiles '/etc/passwd' ;then
+		grep -q "+::::::"   /etc/passwd || echo "+::::::"   >> /etc/passwd
+	fi
+	if ! BlacklistConfFiles '/etc/shadow' ;then
+		grep -q "+::::::::" /etc/shadow || echo "+::::::::" >> /etc/shadow
+	fi
+	if ! BlacklistConfFiles '/etc/group' ;then
+		grep -q "+:::"      /etc/group  || echo "+:::"      >> /etc/group
+	fi
 }
 
 function Configure_Mounts

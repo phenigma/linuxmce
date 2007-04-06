@@ -2,8 +2,14 @@
 
 ## TrigerCascade="true" result in script being run on the other computers too
 . /usr/pluto/bin/Section_Ops.sh
+. /usr/pluto/bin/Utils.sh
 AutoMaster_StorageDevices="/mnt/device /etc/auto.PlutoStorageDevices --timeout=10"
-PopulateSection "/etc/auto.master" "PlutoStorageDevices" "$AutoMaster_StorageDevices"
+if ! BlacklistConfFiles '/etc/auto.master' ;then
+	if [ -e /etc/auto.master ] && [ ! -e /etc/auto.master/pbackup ] ;then
+		cp /etc/auto.master /etc/auto.master/pbackup
+	fi
+	PopulateSection "/etc/auto.master" "PlutoStorageDevices" "$AutoMaster_StorageDevices"
+fi
 mkdir -p /mnt/device
 
 

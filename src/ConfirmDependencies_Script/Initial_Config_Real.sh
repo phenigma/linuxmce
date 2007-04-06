@@ -2,6 +2,7 @@
 
 Type="$1"
 . /usr/pluto/install/Common.sh
+. /usr/pluto/bin/Utils.sh
 
 if [ "$Type" == "diskless" -a -f /etc/diskless.conf ]; then
 	. /etc/diskless.conf
@@ -114,12 +115,14 @@ else
 	WhereCode="in diskless.conf"
 fi
 
-if [ ! -e /etc/apt/sources.list.pbackup ] ;then
-	cp /etc/apt/sources.list  /etc/apt/sources.list.pbackup
+if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
+	if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+		cp /etc/apt/sources.list  /etc/apt/sources.list.pbackup
+	fi
+	echo "deb file:/usr/pluto/deb-cache/ sarge main" | cat - /etc/apt/sources.list >/etc/apt/sources.list.2
+	mv /etc/apt/sources.list.2 /etc/apt/sources.list
+	apt-get update &>/dev/null
 fi
-echo "deb file:/usr/pluto/deb-cache/ sarge main" | cat - /etc/apt/sources.list >/etc/apt/sources.list.2
-mv /etc/apt/sources.list.2 /etc/apt/sources.list
-apt-get update &>/dev/null
 
 # Format: OK-Device-Code
 ok=0

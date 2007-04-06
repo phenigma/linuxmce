@@ -4,6 +4,7 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Section_Ops.sh
+. /usr/pluto/bin/Utils.sh
 
 # vars:
 # CORE_INTERNAL_ADDRESS
@@ -57,15 +58,17 @@ echo "Writing network configuration with one in database"
 
 invoke-rc.d networking stop
 
-if [ ! -e /etc/network/interfaces.backup ] ;then
-	cp /etc/network/interfaces /etc/network/interfaces.backup
-fi	
-File=/etc/network/interfaces
-#cp "$File" "$File.%(date +%F-%T)"
-IfConf="auto lo
-iface lo inet loopback
-"
-echo "$IfConf" >"$File"
+if ! BlacklistConfFiles '/etc/network/interfaces' ;then
+	if [ ! -e /etc/network/interfaces.backup ] ;then
+		cp /etc/network/interfaces /etc/network/interfaces.backup
+	fi	
+	File=/etc/network/interfaces
+	#cp "$File" "$File.%(date +%F-%T)"
+	IfConf="auto lo
+	iface lo inet loopback
+	"
+	echo "$IfConf" >"$File"
+fi
 
 [[ "$ExtIP" == "dhcp" ]] && Setting="dhcp" || Setting="static"
 if [[ "$Setting" == "static" ]]; then
@@ -82,9 +85,11 @@ iface $ExtIf inet static
 		cp /etc/resolv.conf /etc/resolv.conf.pbackup
 	fi
 	: >/etc/resolv.conf
-	for i in $DNSservers; do
-		echo "nameserver $i" >>/etc/resolv.conf
-	done
+	if ! BlacklistConfFiles '/etc/resolv.conf' ;then
+		for i in $DNSservers; do
+			echo "nameserver $i" >>/etc/resolv.conf
+		done
+	fi
 else
 	IfConf="auto $ExtIf
 iface $ExtIf inet dhcp"
@@ -97,19 +102,23 @@ iface $IntIf inet static
 	netmask $IntNetmask"
 echo "$IfConf" >>"$File"
 
-if [ ! -e /etc/default/dhcp3-server.pbackup ] && [ -e /etc/default/dhcp3-server ] ;then
-	cp /etc/default/dhcp3-server /etc/default/dhcp3-server.pbackup
-fi
+if ! BlacklistConfFiles '/etc/default/dhcp3-server' ;then
+	if [ ! -e /etc/default/dhcp3-server.pbackup ] && [ -e /etc/default/dhcp3-server ] ;then
+		cp /etc/default/dhcp3-server /etc/default/dhcp3-server.pbackup
+	fi
 
-if [[ -n "$DHCPcard" ]]; then
-	echo "INTERFACES=\"$DHCPcard\"" >/etc/default/dhcp3-server
-elif [[ "$IntIf" != *:* ]]; then
-	echo "INTERFACES=\"$IntIf\"" >/etc/default/dhcp3-server
-else
-	echo "INTERFACES=\"$ExtIf\"" >/etc/default/dhcp3-server
+	if [[ -n "$DHCPcard" ]]; then
+		echo "INTERFACES=\"$DHCPcard\"" >/etc/default/dhcp3-server
+	elif [[ "$IntIf" != *:* ]]; then
+		echo "INTERFACES=\"$IntIf\"" >/etc/default/dhcp3-server
+	else
+		echo "INTERFACES=\"$ExtIf\"" >/etc/default/dhcp3-server
+	fi
 fi
 
 invoke-rc.d networking start
+
+if ! BlacklistConfFiles '/etc/bind/named.conf.forwarders' && ! BlacklistConfFiles '/etc/bind/named.conf.options';then
 if [ ! -e /etc/bind/named.conf.forwarders.pbackup ] && [ -e /etc/bind/named.conf.forwarders ] ;then
 	cp /etc/bind/named.conf.forwarders /etc/bind/named.conf.forwarders.pbackup
 fi	
@@ -132,13 +141,16 @@ Replace == 0 { print }
 Replace != 0 { Replace-- }
 ' /etc/bind/named.conf.options >/etc/bind/named.conf.options.$$
 mv /etc/bind/named.conf.options.$$ /etc/bind/named.conf.options
-
-if [ ! -e /etc/bind/named.conf.local.pbackup ] ;then
-	cp /etc/bind/named.conf.local /etc/bind/named.conf.local.pbackup
 fi
 
-if ! grep -qF 'zone "activate.plutohome.com"' /etc/bind/named.conf.local; then
-	cat /usr/pluto/templates/named.zone.pluto.activate.local.conf.tmpl >>/etc/bind/named.conf.local
+if ! BlacklistConfFiles '/etc/bind/named.conf.local' ;then
+	if [ ! -e /etc/bind/named.conf.local.pbackup ] ;then
+		cp /etc/bind/named.conf.local /etc/bind/named.conf.local.pbackup
+	fi
+
+	if ! grep -qF 'zone "activate.plutohome.com"' /etc/bind/named.conf.local; then
+		cat /usr/pluto/templates/named.zone.pluto.activate.local.conf.tmpl >>/etc/bind/named.conf.local
+	fi
 fi
 cat /usr/pluto/templates/named.zone.pluto.activate.data.tmpl >"/etc/bind/named.zone.pluto.activate"
 
@@ -196,33 +208,37 @@ fi
 Q="UPDATE Device SET IPaddress='$dcerouterIP' WHERE PK_Device='$PK_Device'"
 RunSQL "$Q"
 
-if [ ! -e /etc/hostname.pbackup ] ;then
-	cp /etc/hostname /etc/hostname.pbackup
+if ! BlacklistConfFiles '/etc/hostname' ;then
+	if [ ! -e /etc/hostname.pbackup ] ;then
+		cp /etc/hostname /etc/hostname.pbackup
+	fi
+
+	# set the hostname to 'dcerouter'
+	echo dcerouter >/etc/hostname
+	hostname dcerouter
 fi
 
-# set the hostname to 'dcerouter'
-echo dcerouter >/etc/hostname
-hostname dcerouter
+if ! BlacklistConfFiles '/etc/hosts' ;then
+	if [ ! -e /etc/hosts.pbackup ] ;then
+		cp /etc/hosts /etc/hosts.pbackup
+	fi
 
-if [ ! -e /etc/hosts.pbackup ] ;then
-	cp /etc/hosts /etc/hosts.pbackup
+	hosts="
+	127.0.0.1       localhost.localdomain   localhost
+	$dcerouterIP	dcerouter
+	#%MOON_HOSTS%
+
+	# The following lines are desirable for IPv6 capable hosts
+	::1     ip6-localhost ip6-loopback
+	fe00::0 ip6-localnet
+	ff00::0 ip6-mcastprefix
+	ff02::1 ip6-allnodes
+	ff02::2 ip6-allrouters
+	ff02::3 ip6-allhosts
+	"
+
+	echo "$hosts" >/etc/hosts
 fi
-
-hosts="
-127.0.0.1       localhost.localdomain   localhost
-$dcerouterIP	dcerouter
-#%MOON_HOSTS%
-
-# The following lines are desirable for IPv6 capable hosts
-::1     ip6-localhost ip6-loopback
-fe00::0 ip6-localnet
-ff00::0 ip6-mcastprefix
-ff02::1 ip6-allnodes
-ff02::2 ip6-allrouters
-ff02::3 ip6-allhosts
-"
-
-echo "$hosts" >/etc/hosts
 
 Q="FLUSH PRIVILEGES"
 RunSQL "$Q"
@@ -250,23 +266,28 @@ SambaDomainHost="
 	server string =	$ComputerName
 	netbios name = $ComputerName
 "
-PopulateSection "/etc/samba/smb.conf" "Domain and Hostname" "$SambaDomainHost"
+if ! BlacklistConfFiles '/etc/samba/smb.conf' ;then
+	PopulateSection "/etc/samba/smb.conf" "Domain and Hostname" "$SambaDomainHost"
+fi
+
 if [[ "$(pidof smbd)" != "" ]] ;then
 	invoke-rc.d samba reload
 fi
 
-if [ ! -e /etc/defaultdomain.pbackup ] ;then
-	cp /etc/defaultdomain /etc/defaultdomain.pbackup
+if ! BlacklistConfFiles '/etc/defaultdomain' && ! BlacklistConfFiles '/etc/default/nis' ;then
+	if [ ! -e /etc/defaultdomain.pbackup ] ;then
+		cp /etc/defaultdomain /etc/defaultdomain.pbackup
+	fi
+
+
+	if [ ! -e /etc/default/nis.pbackup ] ;then
+		cp /etc/default/nis /etc/default/nis.pbackup
+	fi
+
+	## Configure NIS Server
+	echo "pluto" > /etc/defaultdomain
+	cp /usr/pluto/templates/nis-server.template /etc/default/nis
 fi
-
-
-if [ ! -e /etc/default/nis.pbackup ] ;then
-	cp /etc/default/nis /etc/default/nis.pbackup
-fi
-
-## Configure NIS Server
-echo "pluto" > /etc/defaultdomain
-cp /usr/pluto/templates/nis-server.template /etc/default/nis
 
 IntNetIP=""
 for i in 1 2 3 4 ;do
@@ -276,13 +297,15 @@ for i in 1 2 3 4 ;do
 	IntNetIP="${IntNetIP}$(($ipPart&$maskPart))"
 done
 
-if [ ! -e /etc/ypserv.securenets.pbackup ] ;then
-	cp /etc/ypserv.securenets /etc/ypserv.securenets.pbackup
+if ! BlacklistConfFiles '/etc/ypserv.securenets' ;then
+	if [ ! -e /etc/ypserv.securenets.pbackup ] ;then
+		cp /etc/ypserv.securenets /etc/ypserv.securenets.pbackup
+	fi
+	echo "
+	host 127.0.0.1
+	$IntNetmask $IntNetIP
+	" > /etc/ypserv.securenets
 fi
-echo "
-host 127.0.0.1
-$IntNetmask $IntNetIP
-" > /etc/ypserv.securenets
 invoke-rc.d nis stop
 invoke-rc.d nis start
 echo | /usr/lib/yp/ypinit -m

@@ -1,4 +1,7 @@
 #!/bin/bash
+
+. /usr/pluto/bin/Utils.sh
+
 /usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
 ## Create the main mount directory
@@ -50,8 +53,13 @@ if [[ -r /usr/pluto/var/sambaCredentials.secret ]] ;then
 	# echo -e "${smbpass}\n${smbpass}" | smbpasswd -a "${smbuser}" -s
 
 	# This is not the correct way but it works(tm)
-	smbpass=$(/usr/pluto/bin/smbpass.pl $smbpass)
-	echo "$smbuser:$LinuxUserID:$smbpass:[U          ]:LCT-00000001:,,," >> /etc/samba/smbpasswd 
+	if ! BlacklistConfFiles '/etc/samba/smbpasswd' ;then
+		if [ ! -e '/etc/samba/smbpasswd.pbackup' ] ;then
+			cp /etc/samba/smbpasswd /etc/samba/smbpasswd.pbackup || :
+		fi
+		smbpass=$(/usr/pluto/bin/smbpass.pl $smbpass)
+		echo "$smbuser:$LinuxUserID:$smbpass:[U          ]:LCT-00000001:,,," >> /etc/samba/smbpasswd 
+	fi
 fi
 
 

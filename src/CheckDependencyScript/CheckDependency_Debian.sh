@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Utils.sh
+
 ERR_OK=0
 ERR_UNKNOWN_REP_TYPE=1
 ERR_UNKNOWN_REPOS_SRC_FORM=2
@@ -50,11 +52,13 @@ keep_sending_enters()
 case "$URL_TYPE" in
 	apt)
 		if ! cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep "$REPOS_SRC.+$REPOS" 2>/dev/null; then
-			if [ ! -e /etc/apt/sources.list.pbackup ] ;then
-				cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+			if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
+				if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+					cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+				fi
+				echo "$REPOS_SRC $REPOS $SECTIONS" >>/etc/apt/sources.list
+				apt-get update
 			fi
-			echo "$REPOS_SRC $REPOS $SECTIONS" >>/etc/apt/sources.list
-			apt-get update
 		fi
 		keep_sending_enters | apt-get -t "$REPOS" -y install "$PKG_NAME" || exit $ERR_APT
 	;;

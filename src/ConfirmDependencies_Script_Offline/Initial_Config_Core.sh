@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Utils.sh
+
 ## Test to see if we are in upgrade mode or not
 UpgradeMode="false"
 if [[ -d /.backup ]] ;then
@@ -23,16 +25,18 @@ mkdir -p /usr/pluto/var
 Activation_Code=1111
 
 ## Setup apt sources.list
-if [ ! -e /etc/apt/sources.list.pbackup ] ;then
-	cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
+	if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+		cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+	fi
+	AptSrc_AddSource "deb file:/usr/pluto/deb-cache/ sarge main"
+	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main"
+	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main"
+	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ sarge main non-free contrib"
+	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ unstable mythtv"
+	AptSrc_AddSource "deb http://www.yttron.as.ro/ sarge main"
+	AptSrc_WriteSourcesList >/etc/apt/sources.list
 fi
-AptSrc_AddSource "deb file:/usr/pluto/deb-cache/ sarge main"
-AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main"
-AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main"
-AptSrc_AddSource "deb http://deb.plutohome.com/debian/ sarge main non-free contrib"
-AptSrc_AddSource "deb http://deb.plutohome.com/debian/ unstable mythtv"
-AptSrc_AddSource "deb http://www.yttron.as.ro/ sarge main"
-AptSrc_WriteSourcesList >/etc/apt/sources.list
 
 SourcesOffline="# Pluto sources offline - start
 deb file:/usr/pluto/deb-cache/ sarge main
@@ -417,10 +421,12 @@ while :; do
 		while :; do
 			ExtraRepository=$(Ask "Add a new repository? [y/N]")
 			if [[ "$ExtraRepository" == y || "$ExtraRepository" == Y ]]; then
-				ExtraRepositoryPath=$(Ask "Enter repository path")
-				AptSrc_AddSource "$ExtraRepositoryPath"
-				AptSrc_WriteSourcesList >/etc/apt/sources.list
-				apt-get update
+				if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
+					ExtraRepositoryPath=$(Ask "Enter repository path")
+					AptSrc_AddSource "$ExtraRepositoryPath"
+					AptSrc_WriteSourcesList >/etc/apt/sources.list
+					apt-get update
+				fi
 				break
 			elif [[ "$ExtraRepository" == n || "$ExtraRepository" == N || -z "$ExtraRepository" ]]; then
 				break

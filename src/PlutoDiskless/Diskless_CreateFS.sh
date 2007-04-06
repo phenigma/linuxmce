@@ -3,6 +3,7 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Diskless_Utils.sh
 . /usr/pluto/bin/Network_Parameters.sh
+. /usr/pluto/bin/Utils.sh
 
 if [[ "$#" -ne 4 ]]; then
 	echo "Syntax: $0 <IP> <MAC> <Device> <Architecture>"
@@ -266,22 +267,23 @@ export LC_ALL=C
 #cp /etc/apt/sources.list "$DlPath"/etc/apt/sources.list
 
 # Configure apt
-if [ ! -e /etc/apt/sources.list.pbackup ]; then
-	cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
+	if [ ! -e /etc/apt/sources.list.pbackup ]; then
+		cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+	fi
+	sed 's/localhost/dcerouter/g' /etc/apt/apt.conf.d/30pluto > $DlPath/etc/apt/apt.conf.d/30pluto
+
+	. /usr/pluto/install/AptSources.sh
+	AptSrc_ParseSourcesList "$DlPath"/etc/apt/sources.list
+	AptSrc_AddSource "deb file:/usr/pluto/deb-cache/ sarge main"
+	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main"
+	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main"
+	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ sarge main non-free contrib"
+	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ unstable mythtv"
+	AptSrc_AddSource "deb http://www.yttron.as.ro/ sarge main"
+
+	AptSrc_WriteSourcesList >"$DlPath"/etc/apt/sources.list
 fi
-sed 's/localhost/dcerouter/g' /etc/apt/apt.conf.d/30pluto > $DlPath/etc/apt/apt.conf.d/30pluto
-
-. /usr/pluto/install/AptSources.sh
-AptSrc_ParseSourcesList "$DlPath"/etc/apt/sources.list
-AptSrc_AddSource "deb file:/usr/pluto/deb-cache/ sarge main"
-AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main"
-AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main"
-AptSrc_AddSource "deb http://deb.plutohome.com/debian/ sarge main non-free contrib"
-AptSrc_AddSource "deb http://deb.plutohome.com/debian/ unstable mythtv"
-AptSrc_AddSource "deb http://www.yttron.as.ro/ sarge main"
-
-AptSrc_WriteSourcesList >"$DlPath"/etc/apt/sources.list
-
 RequiredModules="ide-cd ide-disk psmouse mousedev"
 for Module in $RequiredModules; do
 	if ! grep -q "$Module" "$DlPath"/etc/modules; then

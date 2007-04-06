@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/Config_Ops.sh 2>/dev/null || exit 1
 . /usr/pluto/bin/Network_Parameters.sh 2>/dev/null || exit 1
+. /usr/pluto/bin/Utils.sh
 
 function DisplayUsage() {
 	echo
@@ -59,14 +60,18 @@ if [[ "$1" == "set" ]] ;then
 	DD_ETH="$ExtIf"
 
 	Vars="DD_LOGIN DD_PASS DD_SERVICE DD_DOMAINS DD_ETH"
-	cp /usr/pluto/templates/ddclient.conf.template /etc/ddclient.conf.$$
-	ReplaceVars /etc/ddclient.conf.$$
-	mv /etc/ddclient.conf.$$ /etc/ddclient.conf
+	if ! BlacklistConfFiles '/etc/ddclient.conf' ;then
+		cp /usr/pluto/templates/ddclient.conf.template /etc/ddclient.conf.$$
+		ReplaceVars /etc/ddclient.conf.$$
+		mv /etc/ddclient.conf.$$ /etc/ddclient.conf
+	fi
 
-	echo > /etc/default/ddclient
-	echo 'run_ipup="true"' >> /etc/default/ddclient
-	echo 'run_daemon="true"' >> /etc/default/ddclient
-	echo 'daemon_interval="300"' >> /etc/default/ddclient
+	if ! BlacklistConfFiles '/etc/default/ddclient' ;then
+		echo > /etc/default/ddclient
+		echo 'run_ipup="true"' >> /etc/default/ddclient
+		echo 'run_daemon="true"' >> /etc/default/ddclient
+		echo 'daemon_interval="300"' >> /etc/default/ddclient
+	fi
 
 	invoke-rc.d ddclient restart
 

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Utils.sh
+
 rm -rf /tmp/mce_installer_error
 InstallerLogFile="/var/log/mce-installer-$(date +%s).log"
 echo "--- start mce wizard data ---" >> $InstallerLogFile
@@ -62,6 +64,8 @@ function Setup_Network_Intefaces {
 
 function Setup_Apt_Conffiles {
 	StatsMessage "Setting up APT Package Manager"
+	
+if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
 	## Backup initial apt sources.list
 	if [ ! -e /etc/apt/sources.list.pbackup ] ;then
 		cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
@@ -76,6 +80,7 @@ deb http://linuxmce.com/ubuntu ./
 #deb http://10.0.0.82/ ./
 # Pluto sources - end"
 	echo "$Sources" >/etc/apt/sources.list
+fi
 
 	local SourcesOffline="# Pluto sources offline - start
 deb file:/usr/pluto/deb-cache/ ./

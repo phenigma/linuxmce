@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+. /usr/pluto/bin/Utils.sh
+
 flavor="ubuntu"
 
 if [[ $build_dir == "" || $local_mirror_dir == "" ]] ;then
@@ -161,12 +163,14 @@ function Build_Pluto_Replacements {
 		m-a -ft a-b ivtv
 		cp /usr/src/ivtv-modules*.deb "${temp_dir}"
 		Src="deb http://dl.ivtvdriver.org/ubuntu edgy firmware"
-		if [ ! -e /etc/apt/sources.list.pbackup ] ;then
-			cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
-		fi
-		if ! grep -qF "$Src" /etc/apt/sources.list; then
-			echo "$Src" >> /etc/apt/sources.list
-			apt-get update
+		if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
+			if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+				cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+			fi
+			if ! grep -qF "$Src" /etc/apt/sources.list; then
+				echo "$Src" >> /etc/apt/sources.list
+				apt-get update
+			fi
 		fi
 		#aptitude download ivtv-firmware
 		#cp ivtv-firmware_*.deb "${temp_dir}"

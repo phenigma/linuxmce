@@ -3,6 +3,7 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Utils.sh
 
 Q="SELECT FK_DeviceCategory FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device=$PK_Device"
 DeviceCategory=$(RunSQL "$Q")
@@ -32,11 +33,13 @@ if [[ -n "$PrevVer" ]]; then
 	echo "Upgrading from version '$PrevVer'. Not setting up X again"
 else
 	# only on standalone MDs, not hybrids
-	if [ ! -e /etc/default/ntpdate.pbackup ] ;then
-		cp /etc/default/ntpdate /etc/default/ntpdate.pbackup
-	fi
-	if ! PackageIsInstalled pluto-dcerouter; then
-		sed -i 's/^NTPSERVERS=.*$/NTPSERVERS="dcerouter"/' /etc/default/ntpdate
+	if ! BlacklistConfFiles '/etc/default/ntpdate' ;then
+		if [ ! -e /etc/default/ntpdate.pbackup ] && [ -e /etc/default/ntpdate ] ;then
+			cp /etc/default/ntpdate /etc/default/ntpdate.pbackup || :
+		fi
+		if ! PackageIsInstalled pluto-dcerouter; then
+			sed -i 's/^NTPSERVERS=.*$/NTPSERVERS="dcerouter"/' /etc/default/ntpdate
+		fi
 	fi
 fi
 exit 0

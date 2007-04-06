@@ -342,3 +342,17 @@ Log()
 	echo "LOG: $Msg"
 	echo "$Msg" >>"$File"
 }
+
+
+function BlacklistConfFiles()
+{
+	local file=$1
+
+    while read line; do
+	    if [[ "$line" == "$file" ]] ;then
+		    return 0
+		fi
+	done < /etc/confblacklist
+
+	return 1				
+}

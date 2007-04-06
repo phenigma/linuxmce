@@ -4,6 +4,7 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Section_Ops.sh
+. /usr/pluto/bin/Utils.sh
 
 TPL_GENERIC_INTERNAL_DRIVE=1790
 TPL_RAID_0=1854
@@ -35,7 +36,12 @@ force group = root
 "
 done
 
-PopulateSection "/etc/samba/smb.conf" "InternalStorageDevices" "$Exports_InternalStorageDevices"
+if ! BlacklistConfFiles '/etc/samba/smb.conf' ;then
+	if [ ! -e /etc/samba/smb.conf.pbackup ] ;then
+		cp /etc/samba/smb.conf /etc/samba/smb.conf.pbackup
+	fi
+	PopulateSection "/etc/samba/smb.conf" "InternalStorageDevices" "$Exports_InternalStorageDevices"
+fi
 
 ## Run SetupUsers_Homes so it readds the sambahelper user to smbpasswd file
 /usr/pluto/bin/SetupUsers_Homes.sh

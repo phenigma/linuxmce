@@ -2,19 +2,22 @@
 
 . /usr/pluto/install/Common.sh
 . /etc/diskless.conf
+. /usr/pluto/bin/Utils.sh
 
 # This is used so the offline apt mode (see OfflineMode.sh) can work
 mkdir -p /etc/apt/apt.conf.d/
 ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline 2>/dev/null
 
 ## Append local deb-cache to sources.list and sources.list.offline
-if [ ! -e /etc/apt/sources.list.pbackup ] ;then
-	cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
+	if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+		cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+	fi
+	echo "deb file:/usr/pluto/deb-cache/ sarge main" | cat - /etc/apt/sources.list >/etc/apt/sources.list.2
+	mv /etc/apt/sources.list.2 /etc/apt/sources.list
+	echo "deb file:/usr/pluto/deb-cache/ sarge main" > /etc/apt/sources.list.offline
+	apt-get update &>/dev/null
 fi
-echo "deb file:/usr/pluto/deb-cache/ sarge main" | cat - /etc/apt/sources.list >/etc/apt/sources.list.2
-mv /etc/apt/sources.list.2 /etc/apt/sources.list
-echo "deb file:/usr/pluto/deb-cache/ sarge main" > /etc/apt/sources.list.offline
-apt-get update &>/dev/null
 
 ## Populate pluto.conf file
 echo "

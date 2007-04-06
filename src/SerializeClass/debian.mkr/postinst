@@ -1,7 +1,21 @@
 #!/bin/bash
+
+. /usr/pluto/bin/Utils.sh
+
 set -e
 
 if [[ "$1" == "configure" ]] ;then
-	echo "/usr/pluto/lib" > /etc/ld.so.conf.d/pluto-serializeclass.conf
+	if [ ! -e /etc/ld.so.conf.d ] ;then
+		if ! BlacklistConfFiles '/etc/ld.so.conf' ;then
+			if [ ! -e /etc/ld.so.conf.pbackup ] ;then
+				cp /etc/ld.so.conf /etc/ld.so.conf.pbackup || :
+			fi
+			if ! grep -qF '/usr/pluto/lib' /etc/ld.so.conf; then
+				echo "/usr/pluto/lib" >> /etc/ld.so.conf	
+			fi
+		fi	
+	else
+		echo "/usr/pluto/lib" > /etc/ld.so.conf.d/pluto-serializeclass.conf
+	fi
 	ldconfig
 fi
