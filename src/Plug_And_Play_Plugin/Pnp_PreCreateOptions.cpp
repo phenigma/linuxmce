@@ -27,6 +27,7 @@
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_PnpQueue.h"
 #include "pluto_main/Table_DeviceTemplate.h"
+#include "pluto_main/Table_Orbiter.h"
 #include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_DeviceData.h"
@@ -287,6 +288,18 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 
 bool Pnp_PreCreateOptions::OkayToCreate_CaptureCard(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
 {
+	DeviceData_Base *pDevice = m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
+	if( pDevice )
+	{
+		DeviceData_Base *pDevice_OSD = pDevice->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_OnScreen_Orbiter_CONST);
+		if( pDevice_OSD )
+		{
+			Row_Orbiter *pRow_Orbiter = m_pPnpQueue->m_pDatabase_pluto_main->Orbiter_get()->GetRow(pDevice_OSD->m_dwPK_Device);
+			if( pRow_Orbiter && pRow_Orbiter->FirstRegen_get()==1 )
+				return true;
+		}
+	}
+
 	bool bUseAutoSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Use_Automatically_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
 
 	if( bUseAutoSpecified )

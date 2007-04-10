@@ -104,6 +104,8 @@ namespace DCE
 
 		int m_dwPK_File_LastCheckedForNewRecordings;
 		bool m_bBookmarksNeedRefreshing;
+		bool m_bFillDbRunning,  // true if the fill process is currently active
+			m_bNeedToRunFillDb; // if we get more changes, while a fill is active, we'll set this so when the fill stops we know to restart it
         // MythTvEPGWrapper *m_pAllShowsDataGrid;
 
         /** Private methods */
@@ -186,6 +188,10 @@ public:
 		void CheckForTvFormatAndProvider( int iPK_Device );
 
 		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList=NULL);
+
+		void SetPaths();
+		void RunBackendStarter();
+		void StartFillDatabase();
 
         //<-dceag-h-b->
 	/*
@@ -273,6 +279,19 @@ live, nonlive, osd */
 
 	virtual void CMD_Abort_Task(int iParameter_ID) { string sCMD_Result; CMD_Abort_Task(iParameter_ID,sCMD_Result,NULL);};
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #883 - Reporting EPG Status */
+	/** Reporting the status of an EPG update */
+		/** @param #9 Text */
+			/** Any messages about this */
+		/** @param #40 IsSuccessful */
+			/** true if the process succeeded */
+		/** @param #257 Task */
+			/** The type of EPG task: channel (retrieving channels), guide (retrieving guide) */
+
+	virtual void CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask) { string sCMD_Result; CMD_Reporting_EPG_Status(sText.c_str(),bIsSuccessful,sTask.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
     };

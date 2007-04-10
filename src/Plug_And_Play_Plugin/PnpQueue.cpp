@@ -1114,8 +1114,22 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 			}
 		}
 
-		// Don't bother checking criteria if this isn't a DHCP device
-		if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 || DeviceMatchesCriteria(pRow_Device,pPnpQueueEntry) )
+		bool bDhcpDevice=true;
+		// Don't bother checking criteria if this isn't a DHCP device.  First see if this is a DHCP Device, but just didn't match
+		if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 )
+		{
+			bDhcpDevice=false;
+			Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
+			if( pRow_DeviceTemplate )
+			{
+				vector<Row_DHCPDevice *> vectRow_DHCPDevice;
+				pRow_DeviceTemplate->DHCPDevice_FK_DeviceTemplate_getrows(&vectRow_DHCPDevice);
+				if( vectRow_DHCPDevice.size() )
+					bDhcpDevice=true;  // It is after all
+			}
+		}
+		// Don't bother checking criteria if this isn't a DHCP device.
+		if( bDhcpDevice==false || DeviceMatchesCriteria(pRow_Device,pPnpQueueEntry) )
 		{
 			pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
 #ifdef DEBUG

@@ -330,8 +330,11 @@ int OrbiterGenerator::DoIt()
 		m_bNewOrbiter=true;
 		m_pRow_Orbiter = m_spDatabase_pluto_main->Orbiter_get()->AddRow();
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
+		m_pRow_Orbiter->FirstRegen_set(true);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 	}
+	else
+		m_pRow_Orbiter->FirstRegen_set(false);
 
 	if( m_pRow_Orbiter->RegenInProgress_get() )
 	{

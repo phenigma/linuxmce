@@ -1714,7 +1714,11 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 //#ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sRegenAllDevicesRooms \n%s\n%s\n",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
 //#endif
-		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms )
+
+		Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+
+		// Don't do this on the first start
+		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms && pRow_Orbiter && pRow_Orbiter->FirstRegen_get()==0 )
 		{
 //#ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms %d not equal %s=%s",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
@@ -1725,7 +1729,6 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		else
 		{
 			string sScenariosFloorplans = m_pRegenMonitor->AllScenariosFloorplans();
-			Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			if( pRow_Orbiter )
 			{
 				pRow_Orbiter->Reload();

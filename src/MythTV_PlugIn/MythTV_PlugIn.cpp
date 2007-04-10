@@ -51,6 +51,7 @@ using namespace DCE;
 #define MINIMUM_MYTH_SCHEMA		1123
 #define CHECK_FOR_NEW_RECORDINGS	1
 #define SYNC_PROVIDERS				2
+#define RUN_BACKEND_STARTER			3
 
 #include "../Orbiter_Plugin/OH_Orbiter.h"
 
@@ -67,6 +68,7 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 //<-dceag-const-e->
 {
 	m_pEPGGrid = NULL;
+	m_bFillDbRunning = m_bNeedToRunFillDb = false;
 //	m_bPreProcessSpeedControl=false;  // We do some ridiculous hacks in Myth player to convert speed control commands to keystrokes
 //	m_pMythWrapper = NULL;
 	m_pMySqlHelper_Myth = NULL;
@@ -95,6 +97,7 @@ bool MythTV_PlugIn::GetConfig()
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(1);      //4 = number of worker threads
 	m_pAlarmManager->AddRelativeAlarm(30,this,CHECK_FOR_NEW_RECORDINGS,NULL);
+	m_pAlarmManager->AddRelativeAlarm(5,this,RUN_BACKEND_STARTER,NULL);
 	return true;
 }
 
@@ -166,41 +169,8 @@ bool MythTV_PlugIn::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewBookmarks ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::ScanningProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Channel_Scan_Progress_CONST );
 
-	// Get all the backend ip's so we can match the hostname myth uses to our own device id
-	map<string,int> mapIpToDevice;
-	vector<Row_Device *> vectRow_Device;
-	// Get the top level devices
-	m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRows("FK_Device_ControlledVia IS NULL",&vectRow_Device);
-	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
-		mapIpToDevice[ (*it)->IPaddress_get() ] = (*it)->PK_Device_get();
+	SetPaths();
 
-	int PK_Device_Storage = atoi(DATA_Get_PK_Device().c_str());
-	string sFilename = PK_Device_Storage ? "/mnt/device/" + StringUtils::itos(PK_Device_Storage) + "/public/data/videos/tv_shows_" : "/home/public/data/videos/tv_shows_";
-
-	string sSQL = "SELECT data,hostname from settings where value='BackendServerIP'";
-	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if( (result.r = m_pMySqlHelper_Myth->mysql_query_result(sSQL)) )
-	{
-		while( ( row=mysql_fetch_row( result.r ) ) )
-		{
-			if( !row[1] || !row[1][0] )
-				continue;
-			int PK_Device = row[0] ? mapIpToDevice[row[0]] : 0;
-			string sDirectory = sFilename + StringUtils::itos(PK_Device);
-
-			string sCmd = "mkdir -p \"" + sDirectory + "\"";
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::Register %s",sCmd.c_str());
-			system(sCmd.c_str());
-
-			sCmd = "chmod 775 \"" + sDirectory +"\"";
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
-			system(sCmd.c_str());
-
-			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
-		}
-	}
-	
 	// Don't actually build the bookmark/channel list because Sync_Cards_Providers will fill in m_mapDevicesToSources,
 	// but it's not run until about 20 seconds after everything starts so if it needs to send a message to the orbiters
 	// or use AppServer, those devices will be available
@@ -927,6 +897,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 	}
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	SetPaths();
 	m_bBookmarksNeedRefreshing=true;
 	m_mapDevicesToSources.clear();
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders");
@@ -1178,33 +1149,16 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 		}
 	}
 
-	// We create /usr/pluto/bin/FillDbAndFetchIcons.start when we first start, and delete it when 
-	// the script finishes.  So if the file is still there, that means the user reloaded the router
-	// without letting the script finish, so we should restart it
-	bool bLockFileExists = FileUtils::FileExists("/usr/pluto/bin/FillDbAndFetchIcons.start");
-	if( bModifiedRows || bLockFileExists )
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- bModifiedRows %d m_bFillDbRunning %d m_bNeedToRunFillDb %d",
+		(int) bModifiedRows,(int) m_bFillDbRunning,(int) m_bNeedToRunFillDb);
+	if( bModifiedRows )  // We've changed stuff.  Need to run the fill process
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders records changed %d/%d",(int) bModifiedRows, (int) bLockFileExists);
-		// Create the file
-		system("touch /usr/pluto/bin/FillDbAndFetchIcons.start");
-		DeviceData_Router *pDevice_App_Server=NULL,*pDevice_Us = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
-		if( pDevice_Us )
-			pDevice_App_Server = (DeviceData_Router *) pDevice_Us->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
-
-		if( pDevice_App_Server )
+		if( m_bFillDbRunning )
+			m_bNeedToRunFillDb = true;  // A fill is already running.  Need to re-run it when we're done
+		else
 		{
-			DCE::CMD_Spawn_Application CMD_Spawn_Application_fill(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-				"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,true,false);
-			SendCommand(CMD_Spawn_Application_fill);
-
-			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
-				"It will take about 10 minutes to retrieve your guide data before you can start using the TV features.", // Main message
-				"", // Command Line
-				"generic message", // Description
-				"0", // sPromptToResetRouter
-				"300", // sTimeout
-				"1"); // sCannotGoBack
-			SendCommand(SCREEN_PopupMessage);
+			m_bFillDbRunning=true;
+			StartFillDatabase();
 		}
 	}
 }
@@ -1371,6 +1325,8 @@ void MythTV_PlugIn::AlarmCallback(int id, void* param)
 		ScanJob *pScanJob = (ScanJob *) param;
 		StartScanJob(pScanJob);
 	}
+	else if( id==RUN_BACKEND_STARTER )
+		RunBackendStarter();
 }
 
 bool MythTV_PlugIn::NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -1496,7 +1452,7 @@ void MythTV_PlugIn::BuildChannelList()
 					listMythChannel_Favs.push_back( pMythChannel );
 			}
 		}
-		m_mapUserFavoriteChannels[pRow_Users->PK_Users_get()]=listMythChannel_Favs.size();
+		m_mapUserFavoriteChannels[pRow_Users->PK_Users_get()]=(int) listMythChannel_Favs.size();
 		listMythChannel_Favs.sort(ChannelComparer);
 
 		for(ListMythChannel::reverse_iterator itri=listMythChannel_Favs.rbegin();itri!=listMythChannel_Favs.rend();++itri)
@@ -1826,4 +1782,123 @@ void MythTV_PlugIn::CheckForTvFormatAndProvider( int iPK_Device )
 void MythTV_PlugIn::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c882-e->
 {
+}
+
+void MythTV_PlugIn::SetPaths()
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SetPaths");
+
+	// Get all the backend ip's so we can match the hostname myth uses to our own device id
+	map<string,int> mapIpToDevice;
+	vector<Row_Device *> vectRow_Device;
+	// Get the top level devices
+	m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRows("FK_Device_ControlledVia IS NULL",&vectRow_Device);
+	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
+		mapIpToDevice[ (*it)->IPaddress_get() ] = (*it)->PK_Device_get();
+
+	int PK_Device_Storage = atoi(DATA_Get_PK_Device().c_str());
+	string sFilename = PK_Device_Storage ? "/mnt/device/" + StringUtils::itos(PK_Device_Storage) + "/public/data/videos/tv_shows_" : "/home/public/data/videos/tv_shows_";
+
+	string sSQL = "SELECT data,hostname from settings where value='BackendServerIP'";
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( (result.r = m_pMySqlHelper_Myth->mysql_query_result(sSQL)) )
+	{
+		while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			if( !row[1] || !row[1][0] )
+				continue;
+			int PK_Device = row[0] ? mapIpToDevice[row[0]] : 0;
+			string sDirectory = sFilename + StringUtils::itos(PK_Device);
+
+			string sCmd = "mkdir -p \"" + sDirectory + "\"";
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::Register %s",sCmd.c_str());
+			system(sCmd.c_str());
+
+			sCmd = "chmod 775 \"" + sDirectory +"\"";
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
+			system(sCmd.c_str());
+
+			sCmd = "chown mythtv \"" + sDirectory +"\"";
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
+			system(sCmd.c_str());
+
+			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
+		}
+	}
+}
+
+void MythTV_PlugIn::RunBackendStarter()
+{
+	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
+	if( pDevice_App_Server )
+	{
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			"/usr/bin/screen","restart_myth","-d\t-m\t-S\tRestart_Myth_Backend\t/usr/pluto/bin/Restart_MythBackend.sh","","",false,false,false,false);
+		if( SendCommand(CMD_Spawn_Application) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::RunBackendStarter ok");
+			return; // We're ok
+		}
+	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::RunBackendStarter try again");
+	m_pAlarmManager->AddRelativeAlarm(5,this,RUN_BACKEND_STARTER,NULL);
+}
+
+void MythTV_PlugIn::StartFillDatabase()
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+
+	DeviceData_Router *pDevice_App_Server=NULL,*pDevice_Us = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
+	if( pDevice_Us )
+		pDevice_App_Server = (DeviceData_Router *) pDevice_Us->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+
+	if( pDevice_App_Server )
+	{
+		string sResponse = "fill done";
+		DCE::CMD_Spawn_Application CMD_Spawn_Application_fill(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,true,false);
+		if( !SendCommand(CMD_Spawn_Application_fill) )
+		{
+			m_bFillDbRunning=false;
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartFillDatabase failed");
+		}
+
+		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
+			"It will take about 10 minutes to retrieve your channel listing.  Wait until you see the message \"MythTV is ready\" before you start using TV features.", // Main message
+			"", // Command Line
+			"generic message", // Description
+			"0", // sPromptToResetRouter
+			"300", // sTimeout
+			"1"); // sCannotGoBack
+		SendCommand(SCREEN_PopupMessage);
+	}
+}
+
+//<-dceag-c883-b->
+
+	/** @brief COMMAND: #883 - Reporting EPG Status */
+	/** Reporting the status of an EPG update */
+		/** @param #9 Text */
+			/** Any messages about this */
+		/** @param #40 IsSuccessful */
+			/** true if the process succeeded */
+		/** @param #257 Task */
+			/** The type of EPG task: channel (retrieving channels), guide (retrieving guide) */
+
+void MythTV_PlugIn::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask,string &sCMD_Result,Message *pMessage)
+//<-dceag-c883-e->
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Report_EPG Success %d m_bNeedToRunFillDb %d m_bFillDbRunning %d",
+		bIsSuccessful,(int) m_bNeedToRunFillDb,(int) m_bFillDbRunning);
+	if( m_bNeedToRunFillDb )
+	{
+		m_bFillDbRunning=true;
+		StartFillDatabase();
+	}
+	else
+	{
+		m_bFillDbRunning=false;
+	}
 }
