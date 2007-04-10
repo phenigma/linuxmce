@@ -1876,32 +1876,6 @@ void MythTV_PlugIn::StartFillDatabase()
 	}
 }
 
-//<-dceag-c883-b->
-
-	/** @brief COMMAND: #883 - Reporting EPG Status */
-	/** Reporting the status of an EPG update */
-		/** @param #9 Text */
-			/** Any messages about this */
-		/** @param #40 IsSuccessful */
-			/** true if the process succeeded */
-		/** @param #257 Task */
-			/** The type of EPG task: channel (retrieving channels), guide (retrieving guide) */
-
-void MythTV_PlugIn::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask,string &sCMD_Result,Message *pMessage)
-//<-dceag-c883-e->
-{
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Report_EPG Success %d m_bNeedToRunFillDb %d m_bFillDbRunning %d",
-		bIsSuccessful,(int) m_bNeedToRunFillDb,(int) m_bFillDbRunning);
-	if( m_bNeedToRunFillDb )
-	{
-		m_bFillDbRunning=true;
-		StartFillDatabase();
-	}
-	else
-	{
-		m_bFillDbRunning=false;
-	}
-}
 //<-dceag-c910-b->
 
 	/** @brief COMMAND: #910 - Reporting EPG Status */
@@ -1915,3 +1889,16 @@ void MythTV_PlugIn::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,str
 
 void MythTV_PlugIn::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask,string &sCMD_Result,Message *pMessage)
 //<-dceag-c910-e->
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Report_EPG Success %d m_bNeedToRunFillDb %d m_bFillDbRunning %d",
+		bIsSuccessful,(int) m_bNeedToRunFillDb,(int) m_bFillDbRunning);
+	if( m_bNeedToRunFillDb )
+	{
+		m_bFillDbRunning=true;
+		StartFillDatabase();
+	}
+	else
+	{
+		m_bFillDbRunning=false;
+	}
+}
