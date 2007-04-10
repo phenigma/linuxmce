@@ -200,13 +200,15 @@ Powerfile: 0, 1, ... */
 			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
 		/** @param #151 Slot Number */
 			/** The slot if this is a jukebox */
+		/** @param #152 Drive Number */
+			/** For jukeboxes this is a slot, for other drives it's not used */
 		/** @param #233 DriveID */
-			/** The ID of the storage drive. Can be the ID of the core. */
+			/** The PK_Device ID of the storage drive that will be ripped to. Can be the ID of the core to store in /home */
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory) { string sCMD_Result; CMD_Rip_Disk(sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDriveID,sDirectory.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDrive_Number,int iDriveID,string sDirectory) { string sCMD_Result; CMD_Rip_Disk(sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDrive_Number,iDriveID,sDirectory.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #742 - Media Identified */

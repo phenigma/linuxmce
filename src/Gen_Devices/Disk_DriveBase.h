@@ -225,7 +225,7 @@ public:
 	virtual void CMD_Abort_Ripping(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Format_Drive(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Close_Tray(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Update_Ripping_Status(string sText,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,class Message *pMessage) {};
@@ -602,9 +602,10 @@ public:
 						string sTracks=pMessage->m_mapParameters[COMMANDPARAMETER_Tracks_CONST];
 						int iEK_Disc=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST].c_str());
 						int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
+						int iDrive_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Drive_Number_CONST].c_str());
 						int iDriveID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_DriveID_CONST].c_str());
 						string sDirectory=pMessage->m_mapParameters[COMMANDPARAMETER_Directory_CONST];
-						CMD_Rip_Disk(sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDriveID,sDirectory.c_str(),sCMD_Result,pMessage);
+						CMD_Rip_Disk(sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDrive_Number,iDriveID,sDirectory.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -621,7 +622,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Rip_Disk(sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDriveID,sDirectory.c_str(),sCMD_Result,pMessage);
+								CMD_Rip_Disk(sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDrive_Number,iDriveID,sDirectory.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
