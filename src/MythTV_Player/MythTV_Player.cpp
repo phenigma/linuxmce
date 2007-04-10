@@ -59,20 +59,6 @@ MythTV_Player *g_pMythPlayer = NULL;
 #include <sys/wait.h>
 
 
-void sh(int i) /* signal handler */
-{
-    if ( g_pMythPlayer && g_pMythPlayer->m_bQuit_get())
-		return;
-
-    int status = 0;
-    pid_t pid = 0;
-
-    pid = wait(&status);
-
-    if ( g_pMythPlayer )
-        g_pMythPlayer->ProcessExited(pid, status);
-}
-
 #define MYTH_WINDOW_NAME "mythfrontend"
 
 #endif
@@ -126,7 +112,6 @@ bool MythTV_Player::GetConfig()
 	
  	system("killall mythfrontend");
 	Sleep(500);
-	signal(SIGCHLD, sh); /* install handler */
  	pthread_create(&m_threadMonitorMyth, NULL, monitorMythThread, NULL);
 	
 	m_pDisplay = XOpenDisplay(getenv("DISPLAY")); 
@@ -167,7 +152,7 @@ MythTV_Player::~MythTV_Player()
 
 bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 {
-	DeviceData_Base *pDevice_App_Server = (DeviceData_Router *) m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
+	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
 	if( pDevice_App_Server )
 	{
 		string sMessage = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " 
@@ -183,6 +168,7 @@ bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 	}
 	else
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_Player::LaunchMythFrontend - no app server");
+	return false;
  }
 
 //<-dceag-reg-b->
@@ -1422,16 +1408,11 @@ void MythTV_Player::CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_
 //<-dceag-c812-e->
 {
 #ifndef WIN32
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Process exited %d %d", pid, status);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Process exited %d %d", iPID, iExit_Code);
 
 	void *data;
-	string applicationName;
-	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
-		return;
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got application name: %s compare with %s", applicationName.c_str(), MYTH_WINDOW_NAME);
-
-	if ( applicationName.compare(MYTH_WINDOW_NAME) == 0 )
+//	if ( applicationName.compare(MYTH_WINDOW_NAME) == 0 )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Send go back to the caller!");
 		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
