@@ -80,10 +80,8 @@ void sh(int i) /* signal handler */
 void* monitorMythThread(void* param)
 {
 	while(g_pMythPlayer->m_bExiting==false)
-	{
-		// If we're disconnected, check more frequently for the signal to start up Myth.
-		
-		Sleep((g_pMythPlayer->m_mythStatus == MYTHSTATUS_DISCONNECTED) ? 10 : 900);
+	{		
+		Sleep((g_pMythPlayer->m_mythStatus == MYTHSTATUS_DISCONNECTED) ? 1000 : 500);
 		g_pMythPlayer->pollMythStatus();
 	}
 	return NULL;
@@ -133,6 +131,17 @@ bool MythTV_Player::GetConfig()
 	
 	m_pDisplay = XOpenDisplay(getenv("DISPLAY")); 
 
+	bool bStarted=false;
+	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
+	if( pDevice_App_Server )
+	{
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			"/usr/bin/screen","restart_myth","-d\t-m\t-S\tRestart_Myth_Backend\t/usr/pluto/bin/Restart_MythBackend.sh","","",false,false,false,false);
+		if( SendCommand(CMD_Spawn_Application) )
+			bStarted=true;
+	}
+	if( !bStarted )
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_Player::GetConfig cannot find app server");
  
 	return true;
 }
@@ -158,15 +167,22 @@ MythTV_Player::~MythTV_Player()
 
 bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 {
-#ifndef WIN32
-	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "-w", MYTH_WINDOW_NAME);
-	
-	if( bSelectWindow )
+	DeviceData_Base *pDevice_App_Server = (DeviceData_Router *) m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
+	if( pDevice_App_Server )
 	{
-		selectWindow();
+		string sMessage = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " 
+			TOSTRING(MESSAGETYPE_COMMAND) " " TOSTRING(COMMAND_Application_Exited_CONST) " " 
+			TOSTRING(COMMANDPARAMETER_Exit_Code_CONST);
+
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			"/usr/bin/mythfrontend", "mythfrontend", "-w\t" MYTH_WINDOW_NAME,
+			sMessage + "1",sMessage + "0",false,false,true,false);
+		if( SendCommand(CMD_Spawn_Application) )
+		 	return true;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_Player::LaunchMythFrontend - failed to launch");
 	}
-#endif	
- 	return true;
+	else
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_Player::LaunchMythFrontend - no app server");
  }
 
 //<-dceag-reg-b->
@@ -501,27 +517,6 @@ void MythTV_Player::KillSpawnedDevices()
 	// We had a problem that KillSpawnedDevices called KillPids.sh, which when exited, called the sh signal handler and hung at wait
 }
 
-void MythTV_Player::ProcessExited(int pid, int status)
-{
-#ifndef WIN32
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Process exited %d %d", pid, status);
-
-	void *data;
-	string applicationName;
-	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
-		return;
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got application name: %s compare with %s", applicationName.c_str(), MYTH_WINDOW_NAME);
-
-	if ( applicationName.compare(MYTH_WINDOW_NAME) == 0 )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Send go back to the caller!");
-		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
-		SendCommand(CMD_MH_Stop_Media_Cat);
-	}
-	m_mythStatus = MYTHSTATUS_DISCONNECTED;
-#endif
-}
 
 //<-dceag-c84-b->
 
@@ -1218,7 +1213,7 @@ void MythTV_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
 //<-dceag-c367-b->
 
 	/** @brief COMMAND: #367 - Text */
-	/**  */
+	/** text */
 
 void MythTV_Player::CMD_Text(string &sCMD_Result,Message *pMessage)
 //<-dceag-c367-e->
@@ -1363,4 +1358,85 @@ void MythTV_Player::CMD_Input_Select(int iPK_Command_Input,string &sCMD_Result,M
 void MythTV_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
+}
+//<-dceag-c32-b->
+
+	/** @brief COMMAND: #32 - Update Object Image */
+	/** Display an image on the media player */
+		/** @param #3 PK_DesignObj */
+			/** The object in which to put the bitmap */
+		/** @param #14 Type */
+			/** 1=bmp, 2=jpg, 3=png */
+		/** @param #19 Data */
+			/** The contents of the bitmap, like reading from the file into a memory buffer */
+		/** @param #23 Disable Aspect Lock */
+			/** If 1, the image will be stretched to fit the object */
+
+void MythTV_Player::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage)
+//<-dceag-c32-e->
+{
+}
+
+//<-dceag-c809-b->
+
+	/** @brief COMMAND: #809 - Display Alert */
+	/** Displays alert on the box */
+		/** @param #9 Text */
+			/** The text in the alert */
+		/** @param #70 Tokens */
+			/** File this alert with this token, and if another alert comes in before timeout with the same token, replace it. */
+		/** @param #182 Timeout */
+			/** Make the alert go away after this many seconds */
+		/** @param #251 Interruption */
+			/** How to interrupt the user if something is happening */
+
+void MythTV_Player::CMD_Display_Alert(string sText,string sTokens,string sTimeout,int iInterruption,string &sCMD_Result,Message *pMessage)
+//<-dceag-c809-e->
+{
+}
+
+//<-dceag-c870-b->
+
+	/** @brief COMMAND: #870 - Get Data */
+	/** Get data from a device */
+		/** @param #9 Text */
+			/** What data to return.  This is free form */
+		/** @param #19 Data */
+			/** The data being returned */
+
+void MythTV_Player::CMD_Get_Data(string sText,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
+//<-dceag-c870-e->
+{
+}
+
+//<-dceag-c812-b->
+
+	/** @brief COMMAND: #812 - Application Exited */
+	/** Notify us that Myth Player exited */
+		/** @param #227 PID */
+			/** Process ID to be passed to the ApplicationExited function */
+		/** @param #228 Exit Code */
+			/** Exit Code to be passed to the ApplicationExited function */
+
+void MythTV_Player::CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_Result,Message *pMessage)
+//<-dceag-c812-e->
+{
+#ifndef WIN32
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Process exited %d %d", pid, status);
+
+	void *data;
+	string applicationName;
+	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
+		return;
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got application name: %s compare with %s", applicationName.c_str(), MYTH_WINDOW_NAME);
+
+	if ( applicationName.compare(MYTH_WINDOW_NAME) == 0 )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Send go back to the caller!");
+		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
+		SendCommand(CMD_MH_Stop_Media_Cat);
+	}
+	m_mythStatus = MYTHSTATUS_DISCONNECTED;
+#endif
 }
