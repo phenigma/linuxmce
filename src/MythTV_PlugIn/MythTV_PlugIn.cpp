@@ -1902,3 +1902,16 @@ void MythTV_PlugIn::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,str
 		m_bFillDbRunning=false;
 	}
 }
+//<-dceag-c910-b->
+
+	/** @brief COMMAND: #910 - Reporting EPG Status */
+	/** Reporting the status of an EPG update */
+		/** @param #9 Text */
+			/** Any messages about this */
+		/** @param #40 IsSuccessful */
+			/** true if the process succeeded */
+		/** @param #257 Task */
+			/** The type of EPG task: channel (retrieving channels), guide (retrieving guide) */
+
+void MythTV_PlugIn::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask,string &sCMD_Result,Message *pMessage)
+//<-dceag-c910-e->

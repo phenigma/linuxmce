@@ -281,7 +281,7 @@ live, nonlive, osd */
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #883 - Reporting EPG Status */
+	/** @brief COMMAND: #910 - Reporting EPG Status */
 	/** Reporting the status of an EPG update */
 		/** @param #9 Text */
 			/** Any messages about this */
