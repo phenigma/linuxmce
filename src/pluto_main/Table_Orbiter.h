@@ -102,6 +102,7 @@ short int m_RegenInProgress;
 string m_RegenStatus;
 long int m_RegenPercent;
 string m_ScenariosFloorplans;
+short int m_FirstRegen;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -109,7 +110,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[15];
+		bool is_null[16];
 	
 	public:
 		long int PK_Orbiter_get();
@@ -121,6 +122,7 @@ short int RegenInProgress_get();
 string RegenStatus_get();
 long int RegenPercent_get();
 string ScenariosFloorplans_get();
+short int FirstRegen_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -138,6 +140,7 @@ void RegenInProgress_set(short int val);
 void RegenStatus_set(string val);
 void RegenPercent_set(long int val);
 void ScenariosFloorplans_set(string val);
+void FirstRegen_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -154,6 +157,7 @@ bool RegenInProgress_isNull();
 bool RegenStatus_isNull();
 bool RegenPercent_isNull();
 bool ScenariosFloorplans_isNull();
+bool FirstRegen_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -169,6 +173,7 @@ void RegenInProgress_setNull(bool val);
 void RegenStatus_setNull(bool val);
 void RegenPercent_setNull(bool val);
 void ScenariosFloorplans_setNull(bool val);
+void FirstRegen_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -199,7 +204,7 @@ void Room_Users_FK_Orbiter_getrows(vector <class Row_Room_Users*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Orbiter+ m_FloorplanInfo+ m_Modification_LastGen+ m_Regen+ m_Size+ m_RegenInProgress+ m_RegenStatus+ m_RegenPercent+ m_ScenariosFloorplans+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Orbiter+ m_FloorplanInfo+ m_Modification_LastGen+ m_Regen+ m_Size+ m_RegenInProgress+ m_RegenStatus+ m_RegenPercent+ m_ScenariosFloorplans+ m_FirstRegen+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -213,6 +218,7 @@ string RegenInProgress_asSQL();
 string RegenStatus_asSQL();
 string RegenPercent_asSQL();
 string ScenariosFloorplans_asSQL();
+string FirstRegen_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

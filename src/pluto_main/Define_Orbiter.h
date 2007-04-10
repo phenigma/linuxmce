@@ -21,6 +21,8 @@
 #define ORBITER_REGENPERCENT_TABLE_FIELD "Orbiter.RegenPercent"
 #define ORBITER_SCENARIOSFLOORPLANS_FIELD "ScenariosFloorplans"
 #define ORBITER_SCENARIOSFLOORPLANS_TABLE_FIELD "Orbiter.ScenariosFloorplans"
+#define ORBITER_FIRSTREGEN_FIELD "FirstRegen"
+#define ORBITER_FIRSTREGEN_TABLE_FIELD "Orbiter.FirstRegen"
 #define ORBITER_PSC_ID_FIELD "psc_id"
 #define ORBITER_PSC_ID_TABLE_FIELD "Orbiter.psc_id"
 #define ORBITER_PSC_BATCH_FIELD "psc_batch"
