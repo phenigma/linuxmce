@@ -74,6 +74,7 @@
 #define LV_PROFILER			37
 #define LV_PROCESSUTILS		38
 #define LV_TV				39
+#define LV_COLOR			99
 
 #include "SerializeClass/SerializeClass.h"
 #include "PlutoUtils/MultiThreadIncludes.h"

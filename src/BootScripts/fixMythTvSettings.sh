@@ -7,11 +7,11 @@ if [ ! -e /etc/mythtv/mysql.txt ]; then
 	exit 0;
 fi;
 
-Q="select IK_DeviceData from Device_DeviceData where FK_DeviceData=206"
+Q="select IK_DeviceData from Device_DeviceData JOIN Device ON FK_Device=PK_Device where FK_DeviceData=206 AND FK_DeviceTemplate=36"
 AutoConf=$(echo "$Q" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2)
 
 if [[ "$AutoConf" == "1" ]]; then 
-	echo "Auto Configure is set"
+	echo "Dont Auto Configure is set"
 	exit 0
 fi
 
@@ -76,7 +76,7 @@ addEntries VertScanPercentage	2	$hostname;
 addEntries HorizScanPercentage	1	$hostname;
 addEntries NetworkControlEnabled	1	$hostname;
 addEntries NetworkControlPort	10001	$hostname;
-addEntries PreferredMPEG2Decoder	xvmc 	$hostname;
+addEntries PreferredMPEG2Decoder	xv 	$hostname;
 addEntries UseChromaKeyOSD 0    $hostname;
 addEntries UseOpenGLVSync	0	$hostname;
 addEntries SelectChangesChannel	1	$hostname;

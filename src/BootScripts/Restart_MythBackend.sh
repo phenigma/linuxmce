@@ -7,21 +7,26 @@
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Config_Ops.sh
 
-MythPass=$(cat /etc/mythtv/mysql.txt |grep ^DBPassword|cut -d= -f2)
-MysqlCommand="mysql -D mythconverg -h $MySqlHost -u mythtv -p$MythPass";
+if Lock "Restart_MythBackend" "Restart_MythBackend"; then
+	MythPass=$(cat /etc/mythtv/mysql.txt |grep ^DBPassword|cut -d= -f2)
+	MysqlCommand="mysql -D mythconverg -h $MySqlHost -u mythtv -p$MythPass";
 
-while :; do
-	# Lock the MythBackend lock to prevent backend restarting when MythTV Setup is running
-	# launchMythSetup holds this lock while MythTV is running
-	WaitLock "MythBackend" "MythBackend_Restart" nolog
-	Backend=$(pgrep mythbackend)
-	#MythSetup=$(pgrep mythtv-setup)
-	if [[ -z "$Backend" && -x /etc/init.d/mythtv-backend ]]; then
-		Logging "$TYPE" "$SEVERITY_CRITICAL" "MythBackend_Restart" "MythBackend not found running; restarting it"
-		echo "LOCK TABLE schemalock WRITE;" | $MysqlCommand  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
-		invoke-rc.d mythtv-backend restart
-		Logging "$TYPE" "$SEVERITY_CRITICAL" "MythBackend_Restart" "MythBackend restarted"
-	fi
-	Unlock "MythBackend" "MythBackend_Restart" nolog
-	sleep 5
-done
+	# We don't unlock this one, ever, so that way we can run this multiple times in
+	# both the myth plugin and myth player and know that it will always be running
+
+	while :; do
+		# Lock the MythBackend lock to prevent backend restarting when MythTV Setup is running
+		# launchMythSetup holds this lock while MythTV is running
+		WaitLock "MythBackend" "MythBackend_Restart" nolog
+		Backend=$(pgrep mythbackend)
+		#MythSetup=$(pgrep mythtv-setup)
+		if [[ -z "$Backend" && -x /etc/init.d/mythtv-backend ]]; then
+			Logging "$TYPE" "$SEVERITY_CRITICAL" "MythBackend_Restart" "MythBackend not found running; restarting it"
+			echo "LOCK TABLE schemalock WRITE;" | $MysqlCommand  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
+			invoke-rc.d mythtv-backend restart
+			Logging "$TYPE" "$SEVERITY_CRITICAL" "MythBackend_Restart" "MythBackend restarted"
+		fi
+		Unlock "MythBackend" "MythBackend_Restart" nolog
+		sleep 5
+	done
+fi
