@@ -97,6 +97,17 @@ public:
 
 		void LockOrbiterPointer();
 		void ReleaseOrbiterPointer();
+
+		eMythState m_mythStatus_get() { return m_mythStatus; }
+		void m_mythStatus_set(eMythState _eMythState)
+		{ 
+#ifdef DEBUG
+			if( m_mythStatus!=_eMythState )
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Player::m_mythStatus_set was %d now %d",m_mythStatus,_eMythState);
+#endif
+			m_mythStatus = _eMythState;
+		}
+
     //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

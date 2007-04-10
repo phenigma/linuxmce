@@ -66,9 +66,14 @@ MythTV_Player *g_pMythPlayer = NULL;
 void* monitorMythThread(void* param)
 {
 	while(g_pMythPlayer->m_bExiting==false)
-	{		
-		Sleep((g_pMythPlayer->m_mythStatus == MYTHSTATUS_DISCONNECTED) ? 1000 : 500);
-		g_pMythPlayer->pollMythStatus();
+	{
+		if( g_pMythPlayer->m_mythStatus_get() == MYTHSTATUS_DISCONNECTED )
+			Sleep(500);
+		else
+		{
+			g_pMythPlayer->pollMythStatus();
+			Sleep(1000);
+		}
 	}
 	return NULL;
 }
@@ -224,9 +229,9 @@ void MythTV_Player::updateMode(string toMode)
 void MythTV_Player::pollMythStatus()
 {
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Player::pollMythStatus %d",m_mythStatus);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Player::pollMythStatus %d",m_mythStatus_get());
 #endif
-	if (m_mythStatus == MYTHSTATUS_STARTUP)
+	if (m_mythStatus_get() == MYTHSTATUS_STARTUP)
 	{
 		PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
@@ -234,7 +239,7 @@ void MythTV_Player::pollMythStatus()
 		//locateMythTvFrontendWindow(DefaultRootWindow(getDisplay()));
 		m_CurrentMode.clear();
 		m_CurrentProgram.clear();
-		m_mythStatus = MYTHSTATUS_LIVETV;
+		m_mythStatus_set(MYTHSTATUS_LIVETV);
 		
 		// TODO: The controllers don't get updated if I set this there. Why?
 		// updateMode("live");
@@ -249,19 +254,19 @@ void MythTV_Player::pollMythStatus()
 		    mm.Relock();
 		    sResult = sendMythCommand("jump livetv");
 		    LoggerWrapper::GetInstance()->Write(LV_WARNING, "%s", sResult.c_str());
-		} while(time(NULL) < timeout && sResult != "OK" && m_mythStatus == MYTHSTATUS_LIVETV);
+		} while(time(NULL) < timeout && sResult != "OK" && m_mythStatus_get() == MYTHSTATUS_LIVETV);
 		if (time(NULL) >= timeout)
 		{
 			DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
 			SendCommand(CMD_MH_Stop_Media_Cat);
-			m_mythStatus = MYTHSTATUS_DISCONNECTED;
+			m_mythStatus_set(MYTHSTATUS_DISCONNECTED);
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed initial communications with Mythfrontend.");
 			vector<void *> data;
 			ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data);			
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Killed Mythfrontend.");
 		}
 	} 
-	else if (m_mythStatus != MYTHSTATUS_DISCONNECTED)
+	else if (m_mythStatus_get() != MYTHSTATUS_DISCONNECTED)
 	{
 		PLUTO_SAFETY_LOCK(mm2,m_MythMutex);
 		
@@ -289,7 +294,7 @@ void MythTV_Player::pollMythStatus()
 			string SetMode = vectResults[0];
 			if (SetMode == "Playback")
 			{
-				m_mythStatus = MYTHSTATUS_PLAYBACK;
+				m_mythStatus_set(MYTHSTATUS_PLAYBACK);
 				if (vectResults[1]=="LiveTV")
 				{
 					m_CurTime = StringUtils::TimeAsSeconds(vectResults[2]);
@@ -321,9 +326,9 @@ void MythTV_Player::pollMythStatus()
 			else
 			{
 				if (SetMode == "GuideGrid")
-					m_mythStatus = MYTHSTATUS_GUIDEGRID;
+					m_mythStatus_set(MYTHSTATUS_GUIDEGRID);
 				else
-					m_mythStatus = MYTHSTATUS_MENU;
+					m_mythStatus_set(MYTHSTATUS_MENU);
 			}
 			updateMode(SetMode);	
 		}
@@ -812,13 +817,13 @@ void MythTV_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedia
 #ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	
-	if ( m_mythStatus == MYTHSTATUS_DISCONNECTED )
+	if ( m_mythStatus_get() == MYTHSTATUS_DISCONNECTED )
 	{
-		m_mythStatus = MYTHSTATUS_STARTUP;
+		m_mythStatus_set(MYTHSTATUS_STARTUP);
 	}
 	else
 	{
-		if (m_mythStatus == MYTHSTATUS_LIVETV || m_mythStatus == MYTHSTATUS_PLAYBACK)
+		if (m_mythStatus_get() == MYTHSTATUS_LIVETV || m_mythStatus_get() == MYTHSTATUS_PLAYBACK)
 			sendMythCommand("play speed normal");
 		else
 			sendMythCommand("key P");
@@ -847,7 +852,7 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 
 	*sMediaPosition = m_sChannel;
 
-	m_mythStatus = MYTHSTATUS_DISCONNECTED;
+	m_mythStatus_set(MYTHSTATUS_DISCONNECTED);
 
 	vector<void *> data;
 	if ( ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data) == false )
@@ -984,14 +989,14 @@ void MythTV_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 
 	if( sValue_To_Assign.size()==0 || sValue_To_Assign[0]=='+')
 	{
-		if (m_mythStatus == MYTHSTATUS_PLAYBACK)
+		if (m_mythStatus_get() == MYTHSTATUS_PLAYBACK)
 			sendMythCommand("play channel up");
 		else
 			sendMythCommand("key pageup");
 	}
 	else
 	{
-		if (m_mythStatus == MYTHSTATUS_PLAYBACK)
+		if (m_mythStatus_get() == MYTHSTATUS_PLAYBACK)
 			sendMythCommand("play channel down");
 		else
 			sendMythCommand("key pagedown");
@@ -1015,7 +1020,7 @@ void MythTV_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,str
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
-	if (m_mythStatus == MYTHSTATUS_PLAYBACK)
+	if (m_mythStatus_get() == MYTHSTATUS_PLAYBACK)
 	{
 		*sText="325 HBO\tSopranos";
 		*sMediaPosition=StringUtils::Format(" POS:%d TOTAL:%d PROG:SH8196770000 SERIES:sh019875 CHAN:1325", m_CurTime, m_EndTime);
@@ -1189,7 +1194,7 @@ void MythTV_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	updateMode("GuideGrid");	
 
-	if (m_mythStatus == MYTHSTATUS_PLAYBACK)
+	if (m_mythStatus_get() == MYTHSTATUS_PLAYBACK)
 		sendMythCommand("key S");
 	else
 		sendMythCommand("jump guidegrid");
@@ -1418,6 +1423,6 @@ void MythTV_Player::CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_
 		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
 		SendCommand(CMD_MH_Stop_Media_Cat);
 	}
-	m_mythStatus = MYTHSTATUS_DISCONNECTED;
+	m_mythStatus_set(MYTHSTATUS_DISCONNECTED);
 #endif
 }
