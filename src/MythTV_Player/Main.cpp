@@ -197,7 +197,10 @@ int main(int argc, char* argv[])
 			if( bLocalMode )
 				pMythTV_Player->RunLocalMode();
 			else
-				pthread_join(pMythTV_Player->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			{
+				if(pMythTV_Player->m_RequestHandlerThread)
+					pthread_join(pMythTV_Player->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 
