@@ -37,7 +37,7 @@
 
 #include "DCE/PlainClientSocket.h"
 class RatPoisonWrapper;
-typedef enum  { MYTHSTATUS_DISCONNECTED, MYTHSTATUS_STARTUP, MYTHSTATUS_LIVETV, MYTHSTATUS_MENU, MYTHSTATUS_PLAYBACK, MYTHSTATUS_GUIDEGRID } eMythState;
+typedef enum  { MYTHSTATUS_DISCONNECTED=0, MYTHSTATUS_STARTUP, MYTHSTATUS_LIVETV, MYTHSTATUS_MENU, MYTHSTATUS_PLAYBACK, MYTHSTATUS_GUIDEGRID } eMythState;
 
 //<-dceag-decl-b->
 namespace DCE
@@ -138,6 +138,21 @@ public:
 
 	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y) { string sCMD_Result; CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,NULL);};
 	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #32 - Update Object Image */
+	/** Display an image on the media player */
+		/** @param #3 PK_DesignObj */
+			/** The object in which to put the bitmap */
+		/** @param #14 Type */
+			/** 1=bmp, 2=jpg, 3=png */
+		/** @param #19 Data */
+			/** The contents of the bitmap, like reading from the file into a memory buffer */
+		/** @param #23 Disable Aspect Lock */
+			/** If 1, the image will be stretched to fit the object */
+
+	virtual void CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock) { string sCMD_Result; CMD_Update_Object_Image(sPK_DesignObj.c_str(),sType.c_str(),pData,iData_Size,sDisable_Aspect_Lock.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #37 - Play Media */
@@ -469,7 +484,7 @@ public:
 
 
 	/** @brief COMMAND: #367 - Text */
-	/**  */
+	/** text */
 
 	virtual void CMD_Text() { string sCMD_Result; CMD_Text(sCMD_Result,NULL);};
 	virtual void CMD_Text(string &sCMD_Result,Message *pMessage);
@@ -514,6 +529,43 @@ public:
 
 	virtual void CMD_Recorded_TV_Menu() { string sCMD_Result; CMD_Recorded_TV_Menu(sCMD_Result,NULL);};
 	virtual void CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #809 - Display Alert */
+	/** Displays alert on the box */
+		/** @param #9 Text */
+			/** The text in the alert */
+		/** @param #70 Tokens */
+			/** File this alert with this token, and if another alert comes in before timeout with the same token, replace it. */
+		/** @param #182 Timeout */
+			/** Make the alert go away after this many seconds */
+		/** @param #251 Interruption */
+			/** How to interrupt the user if something is happening */
+
+	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,int iInterruption) { string sCMD_Result; CMD_Display_Alert(sText.c_str(),sTokens.c_str(),sTimeout.c_str(),iInterruption,sCMD_Result,NULL);};
+	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,int iInterruption,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #812 - Application Exited */
+	/** Notify us that Myth Player exited */
+		/** @param #227 PID */
+			/** Process ID to be passed to the ApplicationExited function */
+		/** @param #228 Exit Code */
+			/** Exit Code to be passed to the ApplicationExited function */
+
+	virtual void CMD_Application_Exited(int iPID,int iExit_Code) { string sCMD_Result; CMD_Application_Exited(iPID,iExit_Code,sCMD_Result,NULL);};
+	virtual void CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #870 - Get Data */
+	/** Get data from a device */
+		/** @param #9 Text */
+			/** What data to return.  This is free form */
+		/** @param #19 Data */
+			/** The data being returned */
+
+	virtual void CMD_Get_Data(string sText,char **pData,int *iData_Size) { string sCMD_Result; CMD_Get_Data(sText.c_str(),pData,iData_Size,sCMD_Result,NULL);};
+	virtual void CMD_Get_Data(string sText,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };
