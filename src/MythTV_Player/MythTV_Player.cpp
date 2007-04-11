@@ -85,7 +85,7 @@ void* monitorMythThread(void* param)
 MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: MythTV_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	,m_MythMutex("myth")
+	,m_MythMutex("myth"), m_pMythSocket(NULL)
 {
 	m_MythMutex.Init(NULL);
 	g_pMythPlayer = this;
@@ -150,7 +150,10 @@ MythTV_Player::~MythTV_Player()
 	m_bExiting = true;
 	if (m_threadMonitorMyth != 0)
 		pthread_join(m_threadMonitorMyth, NULL);
+
 	delete m_pMythSocket;
+	m_pMythSocket = NULL;
+
 	if (m_pDisplay)
 		XCloseDisplay(m_pDisplay);
 }
