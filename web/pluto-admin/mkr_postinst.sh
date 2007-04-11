@@ -1,11 +1,18 @@
 #!/bin/bash
 
+PHP_CONFIG_FILE=
+if [[ -e /etc/php5/apache2/php.ini ]] ;then
+	PHP_CONFIG_FILE=/etc/php5/apache2/php.ini
+else
+	PHP_CONFIG_FILE=/etc/php4/apache2/php.ini
+fi
+
 mkdir -p /home/pluto/floorplans
 chmod -R 777 /home/pluto/floorplans
 chown -R www-data.www-data /home/pluto/floorplans
 rm -f /var/www/pluto-admin/floorplans 2>/dev/null
-ln -sn /home/pluto/floorplans /usr/pluto/orbiter/floorplans
-ln -sn /usr/pluto/orbiter/floorplans/ /var/www/pluto-admin/
+[[ -e /usr/pluto/orbiter/floorplans ]] || ln -sn /home/pluto/floorplans /usr/pluto/orbiter/floorplans
+[[ -e /var/www/pluto-admin/floorplans ]] || ln -sn /usr/pluto/orbiter/floorplans/ /var/www/pluto-admin/
 
 mkdir -p /usr/pluto/orbiter/users
 chmod -R 777 /usr/pluto/orbiter/users
@@ -142,11 +149,11 @@ echo "$sudo" >>/etc/sudoers.$$
 mv -f /etc/sudoers.$$ /etc/sudoers
 chmod 440 /etc/sudoers
 
-sed -i 's/^session.gc_maxlifetime = 1440$/session.gc_maxlifetime = 144000/' /etc/php4/apache2/php.ini
+sed -i 's/^session.gc_maxlifetime = 1440$/session.gc_maxlifetime = 144000/' $PHP_CONFIG_FILE
 /etc/init.d/apache2 reload
 
 [[ -f /etc/wap.conf ]] || : >/etc/wap.conf
 chown www-data.root /etc/wap.conf
 chmod 664 /etc/wap.conf
 
-sed -i 's/memory_limit =.*/memory_limit = 16M ;/g' /etc/php4/apache2/php.ini
+sed -i 's/memory_limit =.*/memory_limit = 16M ;/g' $PHP_CONFIG_FILE
