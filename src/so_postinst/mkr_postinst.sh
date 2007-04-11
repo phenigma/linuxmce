@@ -16,7 +16,7 @@ if [[ "$1" == "configure" ]] ;then
 			fi
 		fi	
 	else
-		echo "/usr/pluto/lib" > /etc/ld.so.conf.d/plutolibs
+		echo "/usr/pluto/lib" > /etc/ld.so.conf.d/plutolibs.conf
 	fi
 	ldconfig
 fi
