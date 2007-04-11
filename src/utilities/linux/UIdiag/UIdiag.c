@@ -380,15 +380,22 @@ int main( int argc, char **argv )
 
 	sTextureName = "logo.png";
 
+	printf("Usage : ./UIdiag [composite|mask|both]\n");
+
 	if(argc >= 2)
 	{
-		bUseComposite = string(argv[1]) == "composite";
-		bUseMask = string(argv[1]) == "mask";
+		string sArg(argv[1]);
+
+		bUseComposite = sArg == "composite";
+		bUseMask = sArg == "mask";
+
+		if(sArg == "both")
+			bUseComposite = bUseMask = true;
 	}
 
 	printf("Texture to use: %s\n", sTextureName.c_str());
-	printf("Composite: %s\n\n", bUseComposite ? "enabled" : "disabled");
-	printf("Mask: %s\n\n", bUseMask ? "enabled" : "disabled");
+	printf("Composite: %s\n", bUseComposite ? "enabled" : "disabled");
+	printf("Mask: %s\n", bUseMask ? "enabled" : "disabled");
 
 	/* initialize SDL */
 	if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE ) < 0 )
