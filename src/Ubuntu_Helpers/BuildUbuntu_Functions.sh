@@ -238,6 +238,12 @@ function Build_Pluto_Stuff {
 	MakeRelease_PrepFiles="${mkr_dir}/MakeRelease_PrepFiles"
 	$MakeRelease_PrepFiles -p ${svn_dir}/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk" -c ${build_dir}/${flavor}.conf
 
+	LinphoneVersion="$(dpkg -s 'liblinphone1' | grep '^Version: ' | cut -d' ' -f2)"
+	if [[ "$LinphoneVersion" == "1.5."* ]]; then
+		# Linphone 1.5.1 in Ubuntu Feisty makes SimplePhone to need this
+		export LINPHONE_CONST=const
+	fi
+
 	rm -rf $out_dir
 	mkdir -p $out_dir
 #	336,337 - IVTV Video Drivers
@@ -427,7 +433,7 @@ function Create_ISO {
 function Upload_Build_Archive {
 	pushd $local_mirror_dir
 		tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz *
-		scp /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
+		scp -i /root/.ssh/uploads_linuxmce_build_150_key /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
 	popd
 }
 
