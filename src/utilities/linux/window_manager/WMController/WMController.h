@@ -36,6 +36,9 @@ public:
 
 protected:
     WmCtrl wmctrl;
+
+	string m_sPrimaryDestop;
+	string m_sSecondaryDestop;
 };
 
 //-------------------------------------------------------------------------------------------------------------

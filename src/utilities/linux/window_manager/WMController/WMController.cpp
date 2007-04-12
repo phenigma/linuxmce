@@ -14,6 +14,23 @@ using namespace DCE;
 //-------------------------------------------------------------------------------------------------------------
 WMControllerImpl::WMControllerImpl()
 {
+    const char *pPrimaryDesktopName = getenv("ORBITER_PRIMARY_DESKTOP");
+    if(NULL != pPrimaryDesktopName)
+        m_sPrimaryDestop = pPrimaryDesktopName;
+    else
+ 		m_sPrimaryDestop = "0";
+
+    const char *pSecondaryDesktopName = getenv("ORBITER_SECONDARY_DESKTOP");
+    if(NULL != pSecondaryDesktopName)
+        m_sSecondaryDestop = pSecondaryDesktopName;
+    else
+ 		m_sSecondaryDestop = "1";
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: primary desktop %s", m_sPrimaryDestop.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: secondary desktop %s", m_sSecondaryDestop.c_str());
+
+	//Switch to primary desktop
+    wmctrl.ActionCommand('s', NULL, m_sPrimaryDestop.c_str());
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -27,7 +44,7 @@ bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetVisible() : window name: %s, visible: %d\n", sWindowName.c_str(), bVisible);
 #endif
-    return wmctrl.ActionCommand('t', sWindowName.c_str(), bVisible ? "0" : "1");
+    return wmctrl.ActionCommand('t', sWindowName.c_str(), bVisible ? m_sPrimaryDestop.c_str() : m_sSecondaryDestop.c_str());
 }
 
 //-------------------------------------------------------------------------------------------------------------
