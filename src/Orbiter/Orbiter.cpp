@@ -2804,6 +2804,17 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 //	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ProcessEvent1 type %d key %d",
 //					  event.type, (event.type == Orbiter::Event::BUTTON_DOWN || event.type == Orbiter::Event::BUTTON_UP ? event.data.button.m_iPK_Button : -999));
 #endif
+
+	if(event.type == Orbiter::Event::BUTTON_DOWN && m_bControlDown && m_bAltDown)
+	{
+		if(event.data.button.m_iPK_Button == BUTTON_s_CONST)
+		{
+			//toggle surrender to OS
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Surrendering to OS: %d", !m_bYieldScreen);
+			CMD_Surrender_to_OS(m_bYieldScreen ? "0" : "1", m_bYieldScreen ? "0" : "1");
+		}
+	}
+
 	if ( event.type == Orbiter::Event::MOUSE_MOVE )
 	{
 #ifdef ENABLE_MOUSE_BEHAVIOR
