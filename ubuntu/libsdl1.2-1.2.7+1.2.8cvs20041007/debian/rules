@@ -135,7 +135,7 @@ binary-arch: $(STAMP_DIR)/install
 	cd debian/libsdl1.2-pluto-dev/usr/share/doc/libsdl1.2-pluto-dev/examples; \
 	tar cf examples.tar test; \
 	rm -rf test
-	dh_installmanpages -plibsdl1.2-pluto-dev
+	#dh_installmanpages -plibsdl1.2-pluto-dev
 	#dh_undocumented
 	dh_installchangelogs
 	dh_install --sourcedir=debian/tmp

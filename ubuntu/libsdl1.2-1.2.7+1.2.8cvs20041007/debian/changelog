@@ -1,3 +1,10 @@
+libsdl1.2 (1.2.7+1.2.8cvs20041007+pluto-3) unstable; urgency=low
+
+  * Don't install manpages. libsdl1.2-dev installs the same files and
+    conflicts arise
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Thu, 22 Feb 2007 12:15:04 +0200
+ 
 libsdl1.2 (1.2.7+1.2.8cvs20041007+pluto-2) unstable; urgency=low
 
   * Building with prefix=/opt/libsdl1.2-1.2.7+1.2.8cvs20041007
