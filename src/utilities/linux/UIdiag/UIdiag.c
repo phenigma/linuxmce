@@ -50,6 +50,8 @@ GLuint texture[1]; /* Storage For One Texture ( NEW ) */
 string sTextureName;
 bool bUseComposite = false;
 bool bUseMask = false;
+bool bRemoveMask = false;
+bool bFullScreen = false;
 
 float MaxU = 1.0f;
 float MaxV = 1.0f;
@@ -188,25 +190,36 @@ int resizeWindow( int width, int height )
 }
 
 /* function to handle key press events */
-void handleKeyPress( SDL_keysym *keysym )
+bool handleKeyPress( SDL_keysym *keysym )
 {
 	switch ( keysym->sym )
 	{
-	case SDLK_ESCAPE:
-		/* ESC key was pressed */
-		Quit( 0 );
-		break;
-	case SDLK_F1:
-		/* F1 key was pressed
-		* this toggles fullscreen mode
-		*/
-		SDL_WM_ToggleFullScreen( surface );
-		break;
-	default:
-		break;
+		case SDLK_F1:
+			/* F1 key was pressed
+			* this toggles fullscreen mode
+			*/
+			bFullScreen = !bFullScreen;
+			SDL_WM_ToggleFullScreen( surface );
+			break;
+
+		case SDLK_m:
+			bUseMask = !bUseMask;
+
+			if(!bUseMask)
+				bRemoveMask = true;
+
+			return false;
+
+		case SDLK_c:
+			bUseComposite = !bUseComposite;
+			return true;
+
+		default:
+			Quit( 0 );
+			break;
 	}
 
-	return;
+	return false;
 }
 
 /* general OpenGL initialization function */
@@ -309,27 +322,50 @@ int drawGLScene( GLvoid )
 
 	GLint t = SDL_GetTicks();
 	
-	if(bUseMask && t - T1mask >= 1000)
+	if((bUseMask || bRemoveMask) && t - T1mask >= 500)
 	{
 		SDL_SysWMinfo info;
 		SDL_VERSION(&info.version); 
 		if(SDL_GetWMInfo(&info))
 		{
-			XRectangle rects[2] = 
+			if(bUseMask)
 			{
-				{0, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2},
-				{SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT}
-			};
-			
-			XShapeCombineRectangles (
-				info.info.x11.display,
-				info.info.x11.wmwindow,
-				ShapeBounding,
-				0, 0,
-				rects,
-				2, ShapeSet, Unsorted);
+				XRectangle rects[2] = 
+				{
+					{0, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2},
+					{SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT}
+				};
 
-			printf("Applied mask\n");
+				XShapeCombineRectangles (
+					info.info.x11.display,
+					info.info.x11.wmwindow,
+					ShapeBounding,
+					0, 0,
+					rects,
+					2, ShapeSet, Unsorted);
+
+				printf("Applied mask\n");
+			}
+			else
+			{
+				//remove mask
+				XRectangle rects[1] = 
+				{
+					{0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}
+				};
+
+				XShapeCombineRectangles (
+					info.info.x11.display,
+					info.info.x11.wmwindow,
+					ShapeBounding,
+					0, 0,
+					rects,
+					1, ShapeSet, Unsorted);
+
+				printf("Removed mask\n");
+				bRemoveMask = false;
+			}
+
 			T1mask = t;
 		}
 		else
@@ -361,6 +397,8 @@ int drawGLScene( GLvoid )
 	return( TRUE );
 }
 
+
+
 #ifdef WIN32
 int _tmain(int argc, char * /*_TCHAR*/ argv[])
 #else
@@ -381,6 +419,11 @@ int main( int argc, char **argv )
 	sTextureName = "logo.png";
 
 	printf("Usage : ./UIdiag [composite|mask|both]\n");
+	printf("Keys:\n");
+	printf("	c - toggle composite\n");
+	printf("	m - toggle masking\n");
+	printf("	F1 - toggle fullscreen/windowed\n");
+	printf("	any other key - quit\n");
 
 	if(argc >= 2)
 	{
@@ -397,128 +440,136 @@ int main( int argc, char **argv )
 	printf("Composite: %s\n", bUseComposite ? "enabled" : "disabled");
 	printf("Mask: %s\n", bUseMask ? "enabled" : "disabled");
 
-	/* initialize SDL */
-	if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE ) < 0 )
+	while(true)
 	{
-		fprintf( stderr, "Video initialization failed: %s\n",
-			SDL_GetError( ) );
-		Quit(1);
-	}
+		done = FALSE;
 
-	/* Fetch the video info */
-	videoInfo = SDL_GetVideoInfo( );
-
-	if ( !videoInfo )
-	{
-		fprintf( stderr, "Video query failed: %s\n", SDL_GetError( ) );
-		Quit(1);
-	}
-
-	/* the flags to pass to SDL_SetVideoMode */
-	videoFlags  = SDL_OPENGL;          /* Enable OpenGL in SDL */
-	videoFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
-	videoFlags |= SDL_HWPALETTE;       /* Store the palette in hardware */
-	videoFlags |= SDL_RESIZABLE;       /* Enable window resizing */
-
-	/* This checks to see if surfaces can be stored in memory */
-	if ( videoInfo->hw_available )
-		videoFlags |= SDL_HWSURFACE;
-	else
-		videoFlags |= SDL_SWSURFACE;
-
-	/* This checks if hardware blits can be done */
-	if ( videoInfo->blit_hw )
-		videoFlags |= SDL_HWACCEL;
-
-	/* Sets up OpenGL double buffering */
-	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-
-#ifndef WIN32
-	if(bUseComposite)
-	{
-		//composite stuff
-		SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
-		SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
-
-		SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      8);
-		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    8);
-		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     8);
-		SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
-		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  0);
-		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    0);
-	}
-#endif
-
-	/* get a SDL surface */
-	surface = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags );
-
-	/* Verify there is a surface */
-	if ( !surface )
-	{
-		fprintf( stderr,  "Video mode set failed: %s\n", SDL_GetError( ) );
-		Quit(1);
-	}
-
-	/* initialize OpenGL */
-	initGL( );
-
-	/* resize the initial window */
-	resizeWindow( SCREEN_WIDTH, SCREEN_HEIGHT );
-
-	/* wait for events */
-	while ( !done )
-	{
-		/* handle the events in the queue */
-
-		while ( SDL_PollEvent( &event ) )
+		/* initialize SDL */
+		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE ) < 0 )
 		{
-			switch( event.type )
-			{
-
-			case SDL_ACTIVEEVENT:
-				/* Something's happend with our focus
-				* If we lost focus or we are iconified, we
-				* shouldn't draw the screen
-				*/
-				if ( event.active.gain == 0 )
-					isActive = FALSE;
-				else
-					isActive = TRUE;
-				break;			    
-
-			case SDL_VIDEORESIZE:
-				/* handle resize event */
-				surface = SDL_SetVideoMode( event.resize.w,
-					event.resize.h,
-					32, videoFlags );
-				if ( !surface )
-				{
-					fprintf( stderr, "Could not get a surface after resize: %s\n", SDL_GetError( ) );
-					Quit( 1 );
-				}
-				resizeWindow( event.resize.w, event.resize.h );
-				break;
-			case SDL_KEYDOWN:
-				/* handle key presses */
-				handleKeyPress( &event.key.keysym );
-				break;
-			case SDL_QUIT:
-				/* handle quit requests */
-				printf("about to quit!\n");
-				done = TRUE;
-				break;
-			default:
-				break;
-			}
+			fprintf( stderr, "Video initialization failed: %s\n",
+				SDL_GetError( ) );
+			Quit(1);
 		}
 
-		/* draw the scene */
-		//if ( isActive )
-		drawGLScene( );
-	}
+		/* Fetch the video info */
+		videoInfo = SDL_GetVideoInfo( );
 
-	/* clean ourselves up and exit */
-	Quit(0);
+		if ( !videoInfo )
+		{
+			fprintf( stderr, "Video query failed: %s\n", SDL_GetError( ) );
+			Quit(1);
+		}
+
+		/* the flags to pass to SDL_SetVideoMode */
+		videoFlags  = SDL_OPENGL;          /* Enable OpenGL in SDL */
+		videoFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
+		videoFlags |= SDL_HWPALETTE;       /* Store the palette in hardware */
+		videoFlags |= SDL_RESIZABLE;       /* Enable window resizing */
+
+		/* This checks to see if surfaces can be stored in memory */
+		if ( videoInfo->hw_available )
+			videoFlags |= SDL_HWSURFACE;
+		else
+			videoFlags |= SDL_SWSURFACE;
+
+		/* This checks if hardware blits can be done */
+		if ( videoInfo->blit_hw )
+			videoFlags |= SDL_HWACCEL;
+
+		/* Sets up OpenGL double buffering */
+		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+
+	#ifndef WIN32
+		if(bUseComposite)
+		{
+			//composite stuff
+			SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
+			SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
+
+			SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      8);
+			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    8);
+			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     8);
+			SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
+			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  0);
+			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    0);
+		}
+	#endif
+
+		/* get a SDL surface */
+		surface = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags );
+
+		/* Verify there is a surface */
+		if ( !surface )
+		{
+			fprintf( stderr,  "Video mode set failed: %s\n", SDL_GetError( ) );
+			Quit(1);
+		}
+
+		/* initialize OpenGL */
+		initGL( );
+
+		/* resize the initial window */
+		resizeWindow( SCREEN_WIDTH, SCREEN_HEIGHT );
+
+		if(bFullScreen)
+			SDL_WM_ToggleFullScreen( surface );
+
+		/* wait for events */
+		while ( !done )
+		{
+			/* handle the events in the queue */
+
+			while ( !done && SDL_PollEvent( &event ) )
+			{
+				switch( event.type )
+				{
+
+				case SDL_ACTIVEEVENT:
+					/* Something's happend with our focus
+					* If we lost focus or we are iconified, we
+					* shouldn't draw the screen
+					*/
+					if ( event.active.gain == 0 )
+						isActive = FALSE;
+					else
+						isActive = TRUE;
+					break;			    
+
+				case SDL_VIDEORESIZE:
+					/* handle resize event */
+					surface = SDL_SetVideoMode( event.resize.w,
+						event.resize.h,
+						32, videoFlags );
+					if ( !surface )
+					{
+						fprintf( stderr, "Could not get a surface after resize: %s\n", SDL_GetError( ) );
+						Quit( 1 );
+					}
+					resizeWindow( event.resize.w, event.resize.h );
+					break;
+				case SDL_KEYDOWN:
+					/* handle key presses */
+					if(handleKeyPress( &event.key.keysym))
+						done = TRUE;
+
+					break;
+				case SDL_QUIT:
+					/* handle quit requests */
+					printf("about to quit!\n");
+					done = TRUE;
+					break;
+				default:
+					break;
+				}
+			}
+
+			drawGLScene( );
+		}
+
+		/* clean up the window */
+		SDL_Quit( );
+	}
 
 	/* Should never get here */
 	return(0);
