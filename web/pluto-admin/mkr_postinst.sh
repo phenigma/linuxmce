@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Utils.sh
+
 PHP_CONFIG_FILE=
 if [[ -e /etc/php5/apache2/php.ini ]] ;then
 	PHP_CONFIG_FILE=/etc/php5/apache2/php.ini
@@ -135,8 +137,14 @@ NameVirtualHost *
 echo "$Site" >/etc/apache2/sites-available/pluto
 a2ensite pluto
 
+if ! BlacklistConfFiles '/etc/apache2/ports.conf' ;then
+	if [ ! -e '/etc/apache2/ports.conf.pbackup' ] && [ -e '/etc/apache2/ports.conf' ] ;then
+		cp /etc/apache2/ports.conf /etc/apache2/ports.conf.pbackup || :
+	fi
+						
 echo "Listen 80
 Listen 8080" >/etc/apache2/ports.conf
+fi
 
 #cmd_alias="Cmnd_Alias	PLUTO_WEBCMD = /usr/pluto/bin/SetupRemoteAccess.sh, /usr/pluto/bin/Network_Firewall.sh, /usr/pluto/bin/SetupUsers.sh, /usr/pluto/bin/Diskless_Setup.sh, /usr/pluto/bin/LaunchRemoteCmd.sh, /usr/pluto/bin/SetTimeZone.sh, /usr/pluto/bin/Update_StartupScrips.sh, /usr/pluto/bin/UpdateMedia"
 cmd_alias="Cmnd_Alias	PLUTO_WEBCMD = /usr/pluto/bin/*, /usr/bin/find, /sbin/reboot, /bin/cp, /bin/mv, /bin/rm, /bin/mkdir"
@@ -144,16 +152,30 @@ sudo="www-data	ALL=(root) NOPASSWD:PLUTO_WEBCMD"
 
 awk '!/Cmnd_Alias.*PLUTO_WEBCMD/ && !/www-data.*ALL=\(root\)/' /etc/sudoers >>/etc/sudoers.$$
 
-echo "$cmd_alias" >>/etc/sudoers.$$
-echo "$sudo" >>/etc/sudoers.$$
-mv -f /etc/sudoers.$$ /etc/sudoers
-chmod 440 /etc/sudoers
+if ! BlacklistConfFiles '/etc/sudoers' ;then
+	if [ ! -e '/etc/sudoers.pbackup' ] ;then
+		cp /etc/sudoers /etc/sudoers.pbackup || :
+	fi
+											
+	echo "$cmd_alias" >>/etc/sudoers.$$
+	echo "$sudo" >>/etc/sudoers.$$
+	mv -f /etc/sudoers.$$ /etc/sudoers
+	chmod 440 /etc/sudoers
+fi
 
-sed -i 's/^session.gc_maxlifetime = 1440$/session.gc_maxlifetime = 144000/' $PHP_CONFIG_FILE
+if ! BlacklistConfFiles "$PHP_CONFIG_FILE" ;then
+	    if [ ! -e "$PHP_CONFIG_FILE.pbackup" ] ;then
+			        cp "$PHP_CONFIG_FILE" "$PHP_CONFIG_FILE.pbackup" || :
+		fi				
+		sed -i 's/^session.gc_maxlifetime = 1440$/session.gc_maxlifetime = 144000/' $PHP_CONFIG_FILE
+fi
+
 /etc/init.d/apache2 reload
 
 [[ -f /etc/wap.conf ]] || : >/etc/wap.conf
 chown www-data.root /etc/wap.conf
 chmod 664 /etc/wap.conf
 
-sed -i 's/memory_limit =.*/memory_limit = 16M ;/g' $PHP_CONFIG_FILE
+if ! BlacklistConfFiles "$PHP_CONFIG_FILE" ;then
+	sed -i 's/memory_limit =.*/memory_limit = 16M ;/g' $PHP_CONFIG_FILE
+fi
