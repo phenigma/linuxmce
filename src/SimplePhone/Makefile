@@ -19,7 +19,7 @@ sources = Main.cpp SimplePhone.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS += $(shell pkg-config --cflags glib-2.0 linphone)
-CPPFLAGS += $(shell pkg-config --cflags glib-2.0 linphone) -DHAVE_CONFIG_H
+CPPFLAGS += $(shell pkg-config --cflags glib-2.0 linphone) -DHAVE_CONFIG_H -DLINPHONE_CONST=$(LINPHONE_CONST)
 LDFLAGS += $(shell pkg-config --libs-only-L glib-2.0 linphone)
 XTRALDLIBS = $(shell pkg-config --libs-only-l glib-2.0 linphone)
 
