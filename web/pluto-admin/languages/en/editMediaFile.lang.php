@@ -35,4 +35,6 @@ $TEXT_EDIT_LONGATTRIBUTE_CONST='Edit long attribute';
 $TEXT_ATTRIBUTE_TYPE_CONST='Attribute type';
 $TEXT_ATTRIBUTE_UPDATED_CONST='Attribute updated';
 $TEXT_TYPE_TEXT_REQUIRED_CONST='Both attribute type and attribute content are required.';
+$TEXT_SUB_TYPE_CONST='Media sub-type';
+$TEXT_FILE_FORMAT_CONST='File format';
 ?>

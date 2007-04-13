@@ -76,7 +76,9 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			$externalAttributesBtn='<input type="button" class="button_fixed" value="Check Amazon" onClick="self.location=\'index.php?section=checkAmazon&fileID='.$fileID.'\'">';
 		}
 
-
+		$mediaSubTypes=getAssocArray('MediaSubType','PK_MediaSubType','Description',$mediadbADO,'ORDER BY Description ASC');
+		$fileFormat=getAssocArray('FileFormat','PK_FileFormat','Description',$mediadbADO,'ORDER BY Description ASC');
+		
 		$out.='
 		
 		<a href="javascript:syncPath(\''.$rowFile['Path'].'\')">Back</a>
@@ -107,6 +109,14 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			$out.='
 				</select> '.$externalAttributesBtn.'</td>
 			</tr>
+			<tr bgcolor="#EEEEEE">
+				<td><B>'.$TEXT_SUB_TYPE_CONST.':</B></td>
+				<td>'.pulldownFromArray($mediaSubTypes,'subtype',$rowFile['FK_MediaSubType']).'</td>
+			</tr>			
+			<tr bgcolor="#EEEEEE">
+				<td><B>'.$TEXT_FILE_FORMAT_CONST.':</B></td>
+				<td>'.pulldownFromArray($fileFormat,'fileFormat',$rowFile['FK_FileFormat']).'</td>
+			</tr>				
 			<tr bgcolor="#EBEFF9">
 				<td valign="top"><B>'.$TEXT_ATTRIBUTES_CONST.':</B></td>
 				<td><table width="100%">';
@@ -374,7 +384,11 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		
 		if(isset($_POST['update'])){
 			$type=(int)$_POST['type'];
-						
+			$subtype=(int)$_POST['subtype'];
+			$subtype=($subtype==0)?NULL:$subtype;
+			$fileFormat=(int)$_POST['fileFormat'];
+			$fileFormat=($fileFormat==0)?NULL:$fileFormat;
+					
 			if(file_exists($oldFilePath)){
 				if($path==$oldPath){
 					if($fileName!=$oldFilename){
@@ -387,7 +401,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 					exec('sudo -u root rm -f '.$oldFilePath);
 				}
 			}
-			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, EK_MediaType=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));
+			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, EK_MediaType=?,FK_MediaSubType=?,FK_FileFormat=? WHERE PK_File=?',array($fileName,$path,$type,$subtype,$fileFormat,$fileID));
 			
 			// update pics urls
 			$picsArray=explode(',',$_POST['picsArray']);
@@ -398,7 +412,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			
 			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"';
 			exec_batch_command($cmd);
-			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST.': '.$cmd.'&err='.@$error);			
+			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST.'&err='.@$error);			
 			exit();
 		}
 		
