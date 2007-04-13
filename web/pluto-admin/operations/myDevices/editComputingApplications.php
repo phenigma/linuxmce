@@ -91,7 +91,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		
 		$color=($i%2!=0)?'#F0F3F8':'#FFFFFF';
 		$pic=(!is_null($appArray['EK_Picture'][$i]))?'<img src="include/image.php?imagepath='.$fixedPath.'/'.$picsByKey[$appArray['EK_Picture'][$i]].'" align="middle">':'&nbsp;';
-		$buttons=(!is_null($appArray['PK_Device_QuickStart'][$i]))?'<input type="submit" class="button" value="U" name="u_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';">&nbsp;<input type="submit" class="button" value="D" name="d_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';">':'';
+		$buttons=(!is_null($appArray['PK_Device_QuickStart'][$i]))?'<input type="submit" class="button" value="U" name="u_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';">&nbsp;<input type="submit" class="button" value="D" name="d_'.$appArray['PK_Device_QuickStart'][$i].'" onClick="document.editComputingApplications.currentPos.value='.$appArray['SortOrder'][$i].';">':'-';
 		$out.='
 			<input type="hidden" name="device_qs_'.$appArray['PK_QuickStartTemplate'][$i].'" value="'.$appArray['PK_Device_QuickStart'][$i].'">
 			<tr bgcolor="'.$color.'">

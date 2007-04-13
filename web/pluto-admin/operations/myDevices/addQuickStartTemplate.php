@@ -42,7 +42,7 @@ function addQuickStartTemplate($output,$dbADO) {
 			</tr>
 			
 			<tr>
-				<td><B>Description</B></td>
+				<td><B>Description **</B></td>
 				<td><input type="text" name="description" value=""></td>
 			</tr>
 			<tr>
@@ -81,9 +81,14 @@ function addQuickStartTemplate($output,$dbADO) {
 				<td colspan="2" align="center"><input type="submit" class="button" name="save" value="Add"></td>
 			</tr>			
 		</table>
-		<em>* Type the new quick start category if it\'s not in the list</em>
+		<em>* Type the new quick start category if it\'s not in the list<br>
+		** Required field</em>
 
 	</form>
+		<script>
+		 	var frmvalidator = new formValidator("addQuickStartTemplate"); 			
+			frmvalidator.addValidation("description","req","Required field");
+		</script>	
 	';
 	} else {
 		// check if the user has the right to modify installation

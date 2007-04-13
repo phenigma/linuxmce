@@ -78,8 +78,11 @@ function editQuickStartTemplate($output,$dbADO) {
 				<td colspan="2" align="center"><input type="submit" class="button" name="save" value="Update"></td>
 			</tr>			
 		</table>
-
 	</form>
+		<script>
+		 	var frmvalidator = new formValidator("editQuickStartTemplate"); 			
+			frmvalidator.addValidation("description","req","Required field");
+		</script>	
 	';
 	} else {
 		// check if the user has the right to modify installation

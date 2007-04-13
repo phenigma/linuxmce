@@ -25,9 +25,16 @@ function editQuickStartTemplates($output,$dbADO) {
 		<input type="hidden" name="action" value="add">	
 		<input type="hidden" name="currentPos" value="">
 		
-	<div align="center"><h3>Edit Quick Start templates</h3></div><br>
+		<h3>Edit Quick Start templates</h3>
+		<table width="100%">
+			<tr>
+				<td bgcolor="black"><img src="include/images/spacer.gif" border="0" height="1" width="1"></td>
+			</tr>
+		</table>	
+	
 	'.$tree.'
 	</form>
+	<div align="center"><input type="button" class="button" name="close" value="Close" onClick="self.close();"></div>
 	';
 	} else {
 		// check if the user has the right to modify installation
@@ -125,175 +132,101 @@ function editQuickStartTemplates($output,$dbADO) {
 
 
 function getQuickStartTemplates($dbADO){
-	$res=$dbADO->Execute('SELECT * FROM QuickStartTemplate');
+	$res=$dbADO->Execute('SELECT QuickStartTemplate.*, Package.Description AS Package,DesignObj.Description AS DesignObj,DesignObj_osd.Description AS Osd FROM QuickStartTemplate LEFT JOIN Package ON FK_Package=PK_Package LEFT JOIN DesignObj ON FK_DesignObj=DesignObj.PK_DesignObj LEFT JOIN DesignObj DesignObj_osd ON FK_DesignObj_OSD=DesignObj_osd.PK_DesignObj');
 	$qsTemplates=array();
 	while($row=$res->FetchRow()){
-		
-		$key=$row['PK_QuickStartTemplate'];
-		
-		$qsTemplates[$key]['category']=$row['FK_QuickStartCategory'];
-		$qsTemplates[$key]['description']=$row['Description'];
-		$qsTemplates[$key]['package']=$row['FK_Package'];
-		$qsTemplates[$key]['binary']=$row['Binary'];
-		$qsTemplates[$key]['arguments']=$row['Arguments'];
-		$qsTemplates[$key]['homepage']=$row['Homepage'];
-		$qsTemplates[$key]['icon']=$row['Icon'];
-		$qsTemplates[$key]['designobj']=$row['FK_DesignObj'];
-		$qsTemplates[$key]['osd']=$row['FK_DesignObj_OSD'];
-		$qsTemplates[$key]['windowclass']=$row['WindowClass'];
+		$qsTemplates[$row['FK_QuickStartCategory']][]=$row;
 	}
 	
 	return $qsTemplates;
 }
 
 function getQuickStartTree($dbADO){
-	global $designobj,$categories;
+	global $gstArray;
+	
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	
 	$nodes=getNodesArray('QuickStartCategory','PK_QuickStartCategory','FK_QuickStartCategory_Parent',$dbADO);
-	$quickStartTemplates=getQuickStartTemplates($dbADO);
-	$packages=getAssocArray('Package','PK_Package','Description',$dbADO,'','ORDER BY Description ASC');
-	$designobj=getAssocArray('DesignObj','PK_DesignObj','Description',$dbADO,'','ORDER BY Description ASC');
-	$categories=getQSCategories($nodes);
+	$qstArray=getQuickStartTemplates($dbADO);
 
 	$out='
 		<input type="hidden" name="deleteCategory" value="">
 		<input type="hidden" name="deleteTemplate" value="">
-	<table cellpadding="3" cellspacing="0" align="center">
+	<table cellpadding="3" cellspacing="0" border="0">
 		<tr class="tablehead">
-			<td colspan="9"><B>Quick start templates</B></td>
-		</tr>';
+			<td><B>#</B></td>
+			<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+			<td><B>'.$TEXT_ACTION_CONST.'</B></td>
+		</tr>
+		<tr class="alternate_back">
+			<td>-</td>
+			<td><B>Undefined category</b></td>
+			<td align="center">-</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td colspan="2">'.qstTable(NULL,$qstArray).'</td>
+		</tr>			';
 	
 	// added to tree templates without category
-	$nodes['root_node'][]='';
 	
 	$templates=array();
 	foreach ($nodes['root_node'] AS $rootNode){
-		$available_parents=$categories;
-		unset($available_parents[$rootNode]);
-
 		$out.='
 		<tr class="alternate_back">
-			<td colspan="2"><B>Category: <input type="text" name="category_'.$rootNode.'" value="'.@$nodes['description'][$rootNode].'"></B></td>
-			<td colspan="4"><B>Parent category: '.pulldownFromArray($available_parents,'parent_'.$rootNode,@$nodes['parent'][$rootNode]).'</B></td>
-			<td colspan="3" align="right"><B><input type="button" class="button" name="qsc_'.$rootNode.'" value="Delete" onclick="if(confirm(\'Are you sure you want to delete this quick start category? All templates from this category will be deleted too.\')){document.editQuickStartTemplates.deleteCategory.value=\''.$rootNode.'\';document.editQuickStartTemplates.submit();}"></B></td>
+			<td>'.$rootNode.'</td>
+			<td><a href="index.php?section=editQuickStartCategory&id='.$rootNode.'"><B>'.@$nodes['description'][$rootNode].'</b></a></td>
+			<td align="right"><input type="button" class="button" name="qsc_'.$rootNode.'" value="Delete" onclick="if(confirm(\'Are you sure you want to delete this quick start category? All templates from this category will be deleted too.\')){document.editQuickStartTemplates.deleteCategory.value=\''.$rootNode.'\';document.editQuickStartTemplates.submit();}"></td>
 		</tr>
-		<tr bgcolor="#EFFEFF">
-			<td align="center"><B>Description</B></td>
-			<td align="center"><B>Package</B></td>
-			<td align="center"><B>Binary</B></td>
-			<td align="center"><B>Arguments</B></td>
-			<td align="center"><B>Homepage</B></td>
-			<td align="center"><B>Icon</B></td>
-			<td align="center"><B>WindowClass</B></td>
-			<td align="center"><B>DesignObj</B></td>
-			<td align="center"><B>OSD</B></td>
-			<td align="center"><B>Action</B></td>
-		</tr>		';		
-
-		foreach ($quickStartTemplates AS $qsTemplate=>$data){
-			if($data['category']==$rootNode){
-				$out.='
-				<tr>
-					<td><input type="text" name="description_'.$qsTemplate.'" value="'.@$data['description'].'"></td>
-					<td>'.pulldownFromArray($packages,'package_'.$qsTemplate,@$data['package']).'</td>
-					<td><input type="text" name="binary_'.$qsTemplate.'" value="'.@$data['binary'].'"></td>
-					<td><input type="text" name="arguments_'.$qsTemplate.'" value="'.@$data['arguments'].'"></td>
-					<td><input type="text" name="homepage_'.$qsTemplate.'" value="'.@$data['homepage'].'"></td>
-					<td><input type="text" name="icon_'.$qsTemplate.'" value="'.@$data['icon'].'"></td>
-					<td><input type="text" name="windowclass_'.$qsTemplate.'" value="'.@$data['windowclass'].'"></td>
-					<td>'.pulldownFromArray($designobj,'designobj_'.$qsTemplate,@$data['designobj']).'</td>
-					<td>'.pulldownFromArray($designobj,'osd_'.$qsTemplate,@$data['osd']).'</td>
-					<td align="right"><input type="button" class="button" name="del" value="Delete" onclick="if(confirm(\'Are you sure you want to delete this quick start template?\')){document.editQuickStartTemplates.deleteTemplate.value=\''.$qsTemplate.'\';document.editQuickStartTemplates.submit();}"></td>
-				</tr>
-				';
-			}
+		<tr>
+			<td></td>
+			<td colspan="2">'.qstTable($rootNode,$qstArray).'</td>
+		</tr>		
+		';		
+		$out.=getQuickStartChilds($nodes,$rootNode,$qstArray);		
 		}
-		$out.=getQuickStartChilds($nodes,$quickStartTemplates,$rootNode,$packages);
-
-	}
 	$out.='
-		<input type="hidden" name="templates" value="'.@join(',',array_keys($quickStartTemplates)).'">	
-		<tr>
-			<td colspan="9" align="center"><input type="submit" class="button" name="update" value="Update"></td>
-		</tr>
-		<tr>
-			<td colspan="4" align="right"><B>Add category:</B> <input type="text" name="newCategory" value=""></td>
-			<td colspan="5"> in '.pulldownFromArray($categories,'newParent',0).'</td>
-		</tr>	
-		<tr>
-			<td colspan="4" align="right"><B>Add template:</B> <input type="text" name="newTemplate" value=""></td>
-			<td colspan="5"> in '.pulldownFromArray($categories,'newTemplateCategory',0).'</td>
-		</tr>	
-		<tr>
-			<td colspan="9" align="center"><input type="submit" class="button" name="add" value="Add"> <input type="button" class="button" name="close" value="Close" onclick="self.close();"></td>
-		</tr>	
-		<tr>
-			<td colspan="9" align="left">* To make this changes permanent, please use sqlCVS module from <B>Advanced &gt; sqlCVS &gt; CheckIn</B></td>
-		</tr>	
 	</table>
-	<input type="hidden" name="categories" value="'.join(',',array_keys($categories)).'">';
+	<br><a href="index.php?section=addQuickStartTemplate">Add quick start template</a>';
 	
 	return $out;
 }
 
-function getQuickStartChilds($nodes,$quickStartTemplates,$selectedCategory,$packages){
-	global $designobj,$categories;
+function getQuickStartChilds($nodes,$selectedCategory,$qstArray){
 	$out='';
-	foreach ($nodes[$selectedCategory] AS $childNode){
-		$available_parents=$categories;
-		unset($available_parents[$childNode]);
-
-		$out.='
-		<tr>
-			<td bgcolor="#EEEEEE" colspan="2"><B>Category: <input type="text" name="category_'.$childNode.'" value="'.$nodes['description'][$childNode].'"></B></td>
-			<td bgcolor="#EEEEEE" colspan="4"><B>Parent category: '.pulldownFromArray($available_parents,'parent_'.$childNode,$nodes['parent'][$childNode]).'</B></td>
-			<td bgcolor="#EEEEEE" colspan="3" align="right"><B><input type="button" class="button" name="qsc_'.$childNode.'" value="Delete" onclick="if(confirm(\'Are you sure you want to delete this quick start category? All templates from this category will be deleted too.\')){document.editQuickStartTemplates.deleteCategory.value=\''.$childNode.'\';document.editQuickStartTemplates.submit();}"></B></td>
-		</tr>
-		<tr bgcolor="#EFFEFF">
-			<td><B>Description</B></td>
-			<td><B>Package</B></td>
-			<td><B>Binary</B></td>
-			<td><B>Arguments</B></td>
-			<td><B>Homepage</B></td>
-			<td><B>Icon</B></td>
-			<td><B>WindowClass</B></td>
-			<td><B>DesignObj</B></td>
-			<td><B>OSD</B></td>
-			<td align="center"><B>Action</B></td>
-		</tr>';		
-
-		foreach ($quickStartTemplates AS $qsTemplate=>$data){
-			if($data['category']==$childNode){
-				$out.='
-				<tr>
-					<td><input type="text" name="description_'.$qsTemplate.'" value="'.@$data['description'].'"></td>
-					<td>'.pulldownFromArray($packages,'package_'.$qsTemplate,@$data['package']).'</td>
-					<td><input type="text" name="binary_'.$qsTemplate.'" value="'.@$data['binary'].'"></td>
-					<td><input type="text" name="arguments_'.$qsTemplate.'" value="'.@$data['arguments'].'"></td>
-					<td><input type="text" name="homepage_'.$qsTemplate.'" value="'.@$data['homepage'].'"></td>
-					<td><input type="text" name="icon_'.$qsTemplate.'" value="'.@$data['icon'].'"></td>
-					<td><input type="text" name="windowclass_'.$qsTemplate.'" value="'.@$data['windowclass'].'"></td>
-					<td>'.pulldownFromArray($designobj,'designobj_'.$qsTemplate,@$data['designobj']).'</td>
-					<td>'.pulldownFromArray($designobj,'osd_'.$qsTemplate,@$data['osd']).'</td>
-					<td align="right"><input type="button" class="button" name="del" value="Delete" onclick="if(confirm(\'Are you sure you want to delete this quick start template?\')){document.editQuickStartTemplates.deleteTemplate.value=\''.$qsTemplate.'\';document.editQuickStartTemplates.submit();}"></td>
-				</tr>
-				';
-			}
-		}
-
-		$out.=getQuickStartChilds($nodes,$quickStartTemplates,$childNode,$packages);		
-	}
+	if(isset($nodes[$selectedCategory])){
+		foreach ($nodes[$selectedCategory] AS $childNode){
 	
+			$out.='
+			<tr class="alternate_back">
+				<td>'.$childNode.'</td>
+				<td><a href="index.php?section=editQuickStartCategory&id='.$childNode.'"><B>'.(($nodes['description'][$selectedCategory]!='')?$nodes['description'][$selectedCategory].' &gt;&gt;':'').' '.@$nodes['description'][$childNode].'</b></a></td>
+				<td align="right"><input type="button" class="button" name="qsc_'.$childNode.'" value="Delete" onclick="if(confirm(\'Are you sure you want to delete this quick start category? All templates from this category will be deleted too.\')){document.editQuickStartTemplates.deleteCategory.value=\''.$childNode.'\';document.editQuickStartTemplates.submit();}"></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td colspan="2">'.qstTable($childNode,$qstArray).'</td>
+			</tr>			
+		';		
+	
+
+	
+			$out.=getQuickStartChilds($nodes,$childNode,$qstArray);		
+		}
+	}	
 	return $out;
 }
 
 function getQSCategories($nodes){
 	$reorderedArray=array();
-	foreach ($nodes['root_node'] AS $rootNode){
-		$reorderedArray[$rootNode]=$nodes['description'][$rootNode];
-		
-		$reorderedArray=$reorderedArray+getReorderedChilds($nodes,$rootNode,$nodes['description'][$rootNode]);
+	if(isset($nodes['root_node'])){
+		foreach ($nodes['root_node'] AS $rootNode){
+			$reorderedArray[$rootNode]=$nodes['description'][$rootNode];
+			
+			$reorderedArray=$reorderedArray+getReorderedChilds($nodes,$rootNode,$nodes['description'][$rootNode]);
+		}
 	}
-	
+		
 	return $reorderedArray;
 }
 
@@ -306,5 +239,49 @@ function getReorderedChilds($nodes,$rootNode,$description){
 	}
 	
 	return $reorderedArray;
+}
+
+function qstTable($node,$qstArray){
+	if(count(@$qstArray[$node])==0){
+		$out='<table border="0" cellpadding="2" cellspacing="0" width="100%">
+				<tr>
+					<td>No records</td>
+				</tr>
+			</table>';
+		return $out;
+	}
+	
+	$out='<table class="regular_table" border="1" cellpadding="2" cellspacing="0" width="100%">
+				<tr class="alternate_back">
+					<td><B>Description</B></td>
+					<td><B>Package</B></td>
+					<td><B>Binary</B></td>
+					<td><B>Arguments</B></td>
+					<td><B>Homepage</B></td>
+					<td><B>Icon</B></td>
+					<td><B>Window Class</B></td>
+					<td><B>Design Obj</B></td>
+					<td><B>Osd</B></td>
+					<td align="center"><B>Action</B></td>
+				</tr>	';
+	foreach (@$qstArray[$node] AS $qsTemplate=>$data){
+		$out.='
+				<tr>
+					<td><a href="index.php?section=editQuickStartTemplate&id='.$data['PK_QuickStartTemplate'].'">'.@$data['Description'].'</a></td>
+					<td>'.@$data['Package'].'&nbsp;</td>
+					<td>'.@$data['Binary'].'&nbsp;</td>
+					<td>'.@$data['Arguments'].'</td>
+					<td>'.@$data['Homepage'].'&nbsp;</td>
+					<td>'.((strpos(@$data['Icon'],'http://')!==false)?'<img src="'.$data['Icon'].'" border="0">':'').'&nbsp;</td>
+					<td>'.@$data['WindowClass'].'&nbsp;</td>
+					<td>'.@$data['DesignObj'].'&nbsp;</td>
+					<td>'.@$data['Osd'].'&nbsp;</td>
+					<td align="center"><input type="button" class="button" name="del" value="Delete" onclick="if(confirm(\'Are you sure you want to delete this quick start template?\')){document.editQuickStartTemplates.deleteTemplate.value=\''.$data['PK_QuickStartTemplate'].'\';document.editQuickStartTemplates.submit();}"></td>
+				</tr>
+				';
+	}
+	$out.='</table>';
+	
+	return $out;
 }
 ?>
