@@ -66,6 +66,10 @@ using namespace DCE;
 #include "ScreenHandler.h"
 #include "ScreenHistory.h"
 
+#ifdef VIA_OVERLAY
+#include "OpenGL/VIA/ViaOverlay.h"
+#endif
+
 #include "OrbiterRenderer.h"
 #include "OrbiterRendererFactory.h"
 
@@ -2820,7 +2824,8 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 	{
 		if(event.data.button.m_iPK_Button == BUTTON_F10_CONST)
 		{
-			//ViaOverlay::Instance().DumpMask();
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Dumping mask to /home/mask-dump.png and .raw");
+			ViaOverlay::Instance().DumpMask();
 		}
 	}
 #endif

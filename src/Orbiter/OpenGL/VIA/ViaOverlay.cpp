@@ -34,6 +34,10 @@
 #include "ViaOverlay.h"
 
 #include "DCE/Logger.h"
+#include "SDL_Helpers/SDL_Defs.h"
+#include "SDL_Helpers/SDL_pixel.h"
+#include "SDL_Helpers/SDL_SavePNG.h"
+#include "SDL.h"
 using namespace DCE;
 //-------------------------------------------------------------------------------------------------------
 ViaOverlay ViaOverlay::m_Instance;
@@ -139,6 +143,7 @@ void ViaOverlay::ResetAlphaMask()
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA Reseting alpha surface...");
 	memset(m_BufferMask, 0xFF, m_nWidth * m_nHeight);
+	memset(m_ScreenMask, 0xFF, m_nWidth * m_nHeight);
 	memset(m_lpAlphaSurface, 0xFF, m_nWidth * m_nHeight);
 	m_bHasPopups = false;
 }
@@ -277,17 +282,14 @@ bool ViaOverlay::UpdateAlphaSurface()
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::DumpMask()
 {
-	string sData;
-	for(int j = 0; j < m_nHeight; j++)
-	{
-		for(int i = 0; i < m_nWidth; i++)
-		{
-			sData += StringUtils::ltos(m_BufferMask[i + j * m_nWidth]) + "\t";
-		}
-		sData += "\n";
-	}
+	SDL_Surface *pSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_nWidth, m_nHeight, 32, rmask, gmask, bmask, amask);
 
-	FileUtils::WriteTextFile("/home/mask-dump.dat", sData);
+	for(int j = 0; j < m_nHeight; j++)
+		for(int i = 0; i < m_nWidth; i++)
+			putpixel(pSurface, i, j, SDL_MapRGBA(pSurface->format, 128, 128, 128, m_BufferMask[i + j * m_nWidth])); 
+
+	IMG_SavePNG(pSurface, "/home/mask-dump.png");
+	SDL_FreeSurface(pSurface);
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ShowPopup(int x, int y, int w, int h)

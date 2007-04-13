@@ -148,8 +148,7 @@ public:
 	bool GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize);
 
 	const unsigned char *GetAlphaMask() const;
-	void RegenerateAlphaMask();
-	void ResetAlphaMask();
+	void ResetAlphaMask(int nObjectWidth, int nObjectHeight);
 };
 
 #endif /*OPENGLGRAPHIC_H_*/

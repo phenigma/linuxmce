@@ -149,7 +149,6 @@ bool OpenGLGraphic::SetupFromImage(std::string FileName)
 	SDL_Surface *LocalSurface = IMG_Load(FileName.c_str());
 
 	Prepare();
-	
 	return true;
 }
 
@@ -517,7 +516,7 @@ const unsigned char *OpenGLGraphic::GetAlphaMask() const
 	return m_pAlphaMask;
 }
 
-void OpenGLGraphic::GenerateAlphaMask()
+void OpenGLGraphic::GenerateAlphaMask() //TODO
 {
 	if(NULL != LocalSurface && NULL != LocalSurface->pixels && NULL == m_pAlphaMask)
 	{
@@ -534,23 +533,15 @@ void OpenGLGraphic::GenerateAlphaMask()
 	}
 }
 
-void OpenGLGraphic::RegenerateAlphaMask()
-{
-	delete [] m_pAlphaMask;
-	m_pAlphaMask = NULL; 
-
-	GenerateAlphaMask();
-}
-
-void OpenGLGraphic::ResetAlphaMask()
+void OpenGLGraphic::ResetAlphaMask(int nObjectWidth, int nObjectHeight)
 {
 	delete [] m_pAlphaMask;
 	m_pAlphaMask = NULL; 
 
 	if(NULL != LocalSurface && NULL != LocalSurface->pixels && NULL == m_pAlphaMask)
 	{
-		m_pAlphaMask = new unsigned char[LocalSurface->w * LocalSurface->h];
-		memset(m_pAlphaMask, 0x00, LocalSurface->h * LocalSurface->w);
+		m_pAlphaMask = new unsigned char[nObjectWidth * nObjectHeight];
+		memset(m_pAlphaMask, 0x00, nObjectWidth * nObjectHeight);
 	}
 }
 //-----------------------------------------------------------------------------------------------------

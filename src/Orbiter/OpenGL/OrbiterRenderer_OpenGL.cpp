@@ -920,7 +920,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 			pOpenGLGraphic->LoadGraphic(pData, iData_Size, OrbiterLogic()->m_iRotation);  // These weren't pre-rotated
 
 #ifdef VIA_OVERLAY
-			pOpenGLGraphic->ResetAlphaMask();
+			pOpenGLGraphic->ResetAlphaMask(pObj->m_rPosition.Width, pObj->m_rPosition.Height);
 #endif
 
 			pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
