@@ -2811,9 +2811,19 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 		{
 			//toggle surrender to OS
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Surrendering to OS: %d", !m_bYieldScreen);
-			CMD_Surrender_to_OS(m_bYieldScreen ? "0" : "1", m_bYieldScreen ? "0" : "1");
+			CMD_Surrender_to_OS(m_bYieldScreen ? "0" : "1", !m_bYieldScreen);
 		}
 	}
+
+#ifdef VIA_OVERLAY
+	if(event.type == Orbiter::Event::BUTTON_DOWN)
+	{
+		if(event.data.button.m_iPK_Button == BUTTON_F10_CONST)
+		{
+			//ViaOverlay::Instance().DumpMask();
+		}
+	}
+#endif
 
 	if ( event.type == Orbiter::Event::MOUSE_MOVE )
 	{
