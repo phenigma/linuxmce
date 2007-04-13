@@ -171,10 +171,6 @@ void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsign
 				memcpy(m_BufferMask + (y + i) * m_nWidth + x, mask + i * w, w);
 		}
 	}
-	else
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "#VIA Unable to apply alpha for %p (%d,%d,%d,%d) !", mask, x, y, w, h);
-	}
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value)
