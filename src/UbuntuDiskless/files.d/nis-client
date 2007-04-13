@@ -47,15 +47,15 @@ echo "$Content" > "${Parm_RootLocation}/${File}"
 
 
 if [ ! -e ${Parm_RootLocation}/etc/group.pbackup ] ;then
-    cp ${Parm_RootLocation}/etc/group ${Parm_RootLocation}/etc/group.pbackup
+   cp ${Parm_RootLocation}/etc/group ${Parm_RootLocation}/etc/group.pbackup 2>/dev/null || :
 fi
 
 if [ ! -e ${Parm_RootLocation}/etc/passwd.pbackup ] ;then
-   cp ${Parm_RootLocation}/etc/passwd ${Parm_RootLocation}/etc/passwd.pbackup
+   cp ${Parm_RootLocation}/etc/passwd ${Parm_RootLocation}/etc/passwd.pbackup 2>/dev/null || :
 fi
 
 if [ ! -e ${Parm_RootLocation}/etc/shadow.pbackup ] ;then
-   cp ${Parm_RootLocation}/etc/shadow ${Parm_RootLocation}/etc/shadow.pbackup
+   cp ${Parm_RootLocation}/etc/shadow ${Parm_RootLocation}/etc/shadow.pbackup 2>/dev/null || :
 fi
 
 ## Force a diskless client to get passwd/shadow & group from nis
