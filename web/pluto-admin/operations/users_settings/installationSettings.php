@@ -371,10 +371,10 @@ function getCities($selectedRegion,$dbADO){
 	/* @var $dbADO ADOConnection */
 	$res=$dbADO->Execute('SHOW TABLES LIKE "City"');
 	if($res->RecordCount()!=0){
-		$existing=getAssocArray('City','PK_City','City',$dbADO,'WHERE FK_Region='.$selectedRegion);
+		$existing=getAssocArray('City','PK_City','City',$dbADO,'WHERE FK_Region='.$selectedRegion,'ORDER BY City ASC');
 		if(count($existing)==0){
 			$isImported=import_remote_sql($PlutoHomeHost.'/GetCity.php?PK_Region='.$selectedRegion,$dbADO);
-			return getAssocArray('City','PK_City','City',$dbADO,'WHERE FK_Region='.$selectedRegion);
+			return getAssocArray('City','PK_City','City',$dbADO,'WHERE FK_Region='.$selectedRegion,'ORDER BY City ASC');
 		}
 		return $existing;
 	}else{
