@@ -237,7 +237,10 @@ function editCommandGroup($output,$dbADO) {
 		
 		//die();				
 		if ($canModifyInstallation) {
-
+			
+			// update command group
+			list ($isModified,$parametersUpdatedAlert)=processEditScenarioCommands($commandGroupID,$dbADO);
+			
 			if(isset($_REQUEST['cgcID'])){
 				// test command
 				$cgcID=$_REQUEST['cgcID'];
@@ -262,8 +265,7 @@ function editCommandGroup($output,$dbADO) {
 			}
 			
 			
-			list ($isModified,$parametersUpdatedAlert)=processEditScenarioCommands($commandGroupID,$dbADO);
-			
+		
 			$description = cleanString($_POST['description']);
 			$hint = cleanString($_POST['hint']);
 			$arrayID = cleanInteger($_POST['arrayType']);
