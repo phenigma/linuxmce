@@ -1073,7 +1073,10 @@ int k=2;
             case SYSCOMMAND_RELOAD:
 			case SYSCOMMAND_RELOAD_FORCED:
 				if( (*SafetyMessage)->m_dwID!=SYSCOMMAND_RELOAD_FORCED && !RequestReload((*SafetyMessage)->m_dwPK_Device_From) )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Aborting reload per RequestReload");
 					return;
+				}
 				m_bReload = true;
                 break;
             case SYSCOMMAND_SEGFAULT:

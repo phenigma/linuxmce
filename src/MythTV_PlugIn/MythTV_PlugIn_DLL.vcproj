@@ -188,6 +188,9 @@
 				RelativePath="..\Media_Plugin\MediaStream.cpp">
 			</File>
 			<File
+				RelativePath=".\MythBackEnd_Socket.cpp">
+			</File>
+			<File
 				RelativePath="MythTV_PlugIn.cpp">
 			</File>
 			<File

@@ -65,6 +65,8 @@ void EPGMouseHandler::Start()
 	m_pObj_QuickNav = m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_grpPVR_UI2_Channels_CONST);
 	m_pObj_Bookmark_Channel = m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Chan_CONST);
 	m_pObj_Bookmark_Show = m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Show_CONST);
+	m_pObj_Record_Once = m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_butUI2_Ch_Prev_Record_Once_CONST);
+	m_pObj_Record_All = m_pMouseBehavior->m_pOrbiter->FindObject(DESIGNOBJ_butUI2_Ch_Prev_Record_All_CONST);
 
 	m_pDesignObj_DataGrid_Active = (DesignObj_DataGrid *) m_pObj;
 
@@ -219,6 +221,8 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 					m_pDesignObjText_Synopsis->m_sText = pCell->m_mapAttributes_Find("Synopsis");
 					m_pMouseBehavior->m_pOrbiter->Renderer()->RenderObjectAsync((DesignObj_Orbiter *) m_pDesignObj_DataGrid_Active->m_pParentObject);
 					m_pObj_Bookmark_Show->m_GraphicToDisplay_set( "EPMH1", pCell->m_mapAttributes_Find("Favorite").empty()==false ? GRAPHIC_SELECTED : GRAPHIC_NORMAL );
+					m_pObj_Record_Once->m_GraphicToDisplay_set( "EPMH3", pCell->m_mapAttributes_Find("recording")=="O" ? GRAPHIC_SELECTED : GRAPHIC_NORMAL );
+					m_pObj_Record_All->m_GraphicToDisplay_set( "EPMH4", pCell->m_mapAttributes_Find("recording")=="C" ? GRAPHIC_SELECTED : GRAPHIC_NORMAL );
 					DataGridTable *pDataGridTable_Channel = m_pObj ? ((DesignObj_DataGrid *) m_pObj)->m_pDataGridTable_Current_get() : NULL;
 					if( pDataGridTable_Channel )
 					{

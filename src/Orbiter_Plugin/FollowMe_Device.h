@@ -65,6 +65,7 @@ namespace DCE
 		virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)=0;
 
 		FollowMe_Device() { m_bOneAtATime=false; }
+		virtual ~FollowMe_Device() {}
 	};
 }
 

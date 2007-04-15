@@ -1842,10 +1842,20 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 				if( !pCell )
 					return false;
 
-				DCE::CMD_Schedule_Recording CMD_Schedule_Recording(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
-					pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Record_Once_CONST ? "O" : "C",
-					"", pCell->m_mapAttributes["chanid"] + "," + pCell->m_mapAttributes["starttime"] + "," + pCell->m_mapAttributes["endtime"]);
-				m_pOrbiter->SendCommand(CMD_Schedule_Recording);
+				string sRecordID = pCell->m_mapAttributes_Find("recordid");
+				if( sRecordID.empty()==false )
+				{
+					DCE::CMD_Remove_Scheduled_Recording CMD_Remove_Scheduled_Recording(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+						sRecordID,"");
+					m_pOrbiter->SendCommand(CMD_Remove_Scheduled_Recording);
+				}
+				else
+				{
+					DCE::CMD_Schedule_Recording CMD_Schedule_Recording(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+						pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Record_Once_CONST ? "O" : "C",
+						"", pCell->m_mapAttributes["chanid"] + "," + pCell->m_mapAttributes["starttime"] + "," + pCell->m_mapAttributes["endtime"]);
+					m_pOrbiter->SendCommand(CMD_Schedule_Recording);
+				}
 			}
 		}
 	}
@@ -1925,6 +1935,8 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 					}
 					else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoFavorite_CONST )
 						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("Favorite")==pCell->m_mapAttributes.end();
+					else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoScheduledRecording_CONST )
+						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("recording")==pCell->m_mapAttributes.end();
 				}
 			}
 		}

@@ -39,6 +39,8 @@ bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse)
 	SendData(8,szSize);
 	SendData(sValue.size(),sValue.c_str());
 
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket send-%s: %s", sResponse==NULL ? "N" : "Y",sValue.c_str());
+
 	// The user may not care about the response
 	if( sResponse==NULL )
 		return true;
@@ -65,6 +67,7 @@ bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse)
 
 	pcBuffer[Size]=0;
 	*sResponse = pcBuffer;
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket receive: %s", sResponse->c_str());
 	delete[] pcBuffer;
 	return true;
 }
@@ -148,6 +151,8 @@ void MythBackEnd_Socket::PurgeSocketBuffer()
 		char pcBuff[10];
 		bool bRet = true;
 		recv( m_Socket, pcBuff, 9, 0 );
+pcBuff[9]=0;
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket purge: %s", pcBuff);
 	}
 }
 
@@ -158,13 +163,3 @@ void MythBackEnd_Socket::Close()
 	ClientSocket::Close();
 }
 
-
-/*
-
-    define('rectype_once',        1);
-    define('rectype_daily',       2);
-    define('rectype_channel',     3);
-
-*/
-
-//         backend_command('RESCHEDULE_RECORDINGS ' . $recordid);

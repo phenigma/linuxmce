@@ -358,10 +358,10 @@ namespace DCE
 				{
 					if( pServerSocket->m_bAskBeforeReload )
 					{
-						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Checking device %d for reload",(*iDC).first);
 						string sReason;
 						if( !pServerSocket->SafeToReload(sReason) )
 						{
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Aborting reload per device %d = %s",(*iDC).first, sReason.c_str());
 							if( PK_Device_Requesting )
 							{
 								ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 

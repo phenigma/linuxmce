@@ -2431,6 +2431,7 @@
 #define DESIGNOBJ_but_FileBrowser_SmallUI_CONST 5429
 #define DESIGNOBJ_cellPendingTasks_CONST 5430
 #define DESIGNOBJ_iconAbort_CONST 5431
+#define DESIGNOBJ_icoScheduledRecording_CONST 5432
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

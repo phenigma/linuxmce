@@ -53,6 +53,7 @@ using namespace DCE;
 #define CHECK_FOR_NEW_RECORDINGS	1
 #define SYNC_PROVIDERS				2
 #define RUN_BACKEND_STARTER			3
+#define CHECK_FOR_SCHEDULED_RECORDINGS	4
 
 #include "../Orbiter_Plugin/OH_Orbiter.h"
 
@@ -107,6 +108,7 @@ bool MythTV_PlugIn::GetConfig()
     m_pAlarmManager->Start(1);      //4 = number of worker threads
 	m_pAlarmManager->AddRelativeAlarm(30,this,CHECK_FOR_NEW_RECORDINGS,NULL);
 	m_pAlarmManager->AddRelativeAlarm(5,this,RUN_BACKEND_STARTER,NULL);
+	m_pAlarmManager->AddRelativeAlarm(15,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
 	return true;
 }
 
@@ -422,21 +424,24 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	map<int,bool> mapVideoSourcesToUse;
 	// The source is 0, means all myth channels and video sources.  Otherwise, just those for the given device (like a cable box)
 	int PK_Device_Source = pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_LiveTV_CONST ? 0 : pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
-	list_int *p_list_int = &(m_mapDevicesToSources[PK_Device_Source]);
-	if( p_list_int->size() )
+	if( PK_Device_Source )
 	{
-		sProvider = " AND sourceid in (";
-		bool bFirst=true;
-		for(list_int::iterator it=p_list_int->begin();it!=p_list_int->end();++it)
+		list_int *p_list_int = &(m_mapDevicesToSources[PK_Device_Source]);
+		if( p_list_int->size() )
 		{
-			if( bFirst )
-				bFirst = false;
-			else
-				sProvider += ",";
-			sProvider += StringUtils::itos( *it );
-			mapVideoSourcesToUse[ *it ] = true;
+			sProvider = " AND sourceid in (";
+			bool bFirst=true;
+			for(list_int::iterator it=p_list_int->begin();it!=p_list_int->end();++it)
+			{
+				if( bFirst )
+					bFirst = false;
+				else
+					sProvider += ",";
+				sProvider += StringUtils::itos( *it );
+				mapVideoSourcesToUse[ *it ] = true;
+			}
+			sProvider += ")";
 		}
-		sProvider += ")";
 	}
 
 	for(map<int,MythChannel *>::iterator it=m_mapMythChannel.begin();it!=m_mapMythChannel.end();++it)
@@ -597,6 +602,9 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	if( sBookmark_Series.empty() )
 		sBookmark_Series = "-999";  // Something we know is not going to happen so the sql syntax is correct
 
+	MythRecording mythRecording;
+	mythRecording.data.time.channel_id = atoi(sChanId.c_str());
+
 	string sProvider;
 	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
 	string sSQL =
@@ -613,6 +621,9 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	int iRow=0;
+	char szRecording[2];
+	szRecording[1]=0; // This will be a 1 character null terminated string
+	map< u_int64_t, pair<char,int> >::iterator it_mapScheduledRecordings;
 	if( (result.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))!=NULL )
 	{
 		while((row = mysql_fetch_row(result.r)))
@@ -621,11 +632,18 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 			pCell->m_mapAttributes["chanid"]=row[0];
 			pCell->m_mapAttributes["programid"]=row[1];
 			pCell->m_mapAttributes["seriesid"]=row[2];
-			pCell->m_mapAttributes["starttime"]=row[4] ? row[4] : "";
-			pCell->m_mapAttributes["endtime"]=row[5] ? row[5] : "";
-			time_t tStart = StringUtils::SQLDateTime( row[4] );
-			time_t tStop = StringUtils::SQLDateTime( row[5] );
-			
+			time_t tStart = row[4] ? StringUtils::SQLDateTime( row[4] ) : 0;
+			time_t tStop = row[5] ? StringUtils::SQLDateTime( row[5] ) : 0;
+			pCell->m_mapAttributes["starttime"]=StringUtils::itos(tStart);
+			pCell->m_mapAttributes["endtime"]=StringUtils::itos(tStop);
+			mythRecording.data.time.StartTime = tStart;
+			if( (it_mapScheduledRecordings=m_mapScheduledRecordings.find(mythRecording.data.int64))!=m_mapScheduledRecordings.end() )
+			{
+				szRecording[0] = it_mapScheduledRecordings->second.first;
+				pCell->m_mapAttributes["recording"] = szRecording;
+				pCell->m_mapAttributes["recordid"] = StringUtils::itos(it_mapScheduledRecordings->second.second);
+			}
+
 			struct tm t;
 			localtime_r(&tStart,&t);
 			string sDate;
@@ -751,15 +769,43 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sType,string sOptions,string s
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording type %s options %s program id %s",
-		sType.c_str(),sOptions.c_str(),sProgramID.c_str());
+	string::size_type pos=0;
+	string sChanId = StringUtils::Tokenize(sProgramID,",",pos);
+	time_t tStart = atoi(StringUtils::Tokenize(sProgramID,",",pos).c_str());
+	time_t tStop = atoi(StringUtils::Tokenize(sProgramID,",",pos).c_str());
+	string sStart = StringUtils::SQLDateTime(tStart);
+	string sStop = StringUtils::SQLDateTime(tStop);
+	string::size_type pos_start = sStart.find(' ');
+	string::size_type pos_stop = sStop.find(' ');
+	if( pos_start==string::npos || pos_stop==string::npos )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Schedule_Recording sProgramID %s is malformed", sProgramID.c_str());
+		return;
+	}
 
-	m_pMythBackEnd_Socket->SendMythStringGetOk("RESCHEDULE_RECORDINGS " + StringUtils::itos(1));
-	string sResponse;
-	m_pMythBackEnd_Socket->SendMythString("QUERY_RECORDINGS",&sResponse);
-FileUtils::WriteBufferIntoFile("/temp.txt",sResponse.c_str(),sResponse.size());
-int k=2;
-	
+	if( sType=="O" )
+		sType="1";
+	else
+		sType="3";
+
+	string sSQL = "INSERT INTO record(type,chanid,startdate,starttime,enddate,endtime,title,subtitle,description,category,"
+		"station,seriesid,programid,autocommflag,autoexpire,autouserjob1) "
+		"SELECT " + sType + ",program.chanid,"
+		"'" + sStart.substr(0,pos_start) + "','" + sStart.substr(pos_start) + "','" + // Start Time 
+		sStop.substr(0,pos_stop) + "','" + sStop.substr(pos_stop) + "'," // Stop Time
+		"title,subtitle,description,category,callsign,seriesid,programid,0,1,1 "
+		"FROM program join channel on program.chanid=channel.chanid "
+		"WHERE program.chanid=" + sChanId + " AND starttime='" + sStart + "'";
+
+	int iID = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording %d=%s", iID, sSQL.c_str());
+	m_pMythBackEnd_Socket->SendMythStringGetOk("RESCHEDULE_RECORDINGS -1");
+
+	// This 20 seconds is totally arbitrary.  If I ask myth too soon after sending RESCHEDULE_RECORDINGS, it doesn't give me
+	// the updated values.  I don't know how to synchronize this so it waits until myth is done redoing the schedule, so
+	// I just threw in 20 seconds to be on the safe side.
+	m_pAlarmManager->AddRelativeAlarm(20,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
 }
 
 //<-dceag-createinst-b->!
@@ -986,6 +1032,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,bTunersAsSeparateDevices ? pRow_Device->PK_Device_get() : pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST,"");
 				continue;
 			}
+			else if( pRow_Device->Disabled_get()==1 || pRow_Device_CaptureCard->Disabled_get()==1 )
+				continue;
 
 			string sPortName = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Name_CONST);
 			string sBlockDevice = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
@@ -1144,6 +1192,12 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
 		bModifiedRows=true;
 	}
+	// Since we're sometimes removing and re-adding devices as the user unplugs/plugs them in, be sure we cleanup the database
+	// and don't leave any stray channel or programs around
+	sSQL = "delete channel FROM channel left join videosource on channel.sourceid=videosource.sourceid where videosource.sourceid is null";
+	m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
+	sSQL = "delete program FROM program left join channel on program.chanid=channel.chanid where channel.chanid is null";
+	m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 
 	if( m_mapPendingScans.empty()==false )
 		return;
@@ -1347,6 +1401,8 @@ void MythTV_PlugIn::AlarmCallback(int id, void* param)
 	}
 	else if( id==RUN_BACKEND_STARTER )
 		RunBackendStarter();
+	else if( id==CHECK_FOR_SCHEDULED_RECORDINGS )
+		UpdateUpcomingRecordings();
 }
 
 bool MythTV_PlugIn::NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -1953,8 +2009,9 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 {
 	string sResponse;
 	m_pMythBackEnd_Socket->SendMythString("QUERY_GETALLPENDING",&sResponse);
-	if( sResponse.size()==0 )
+	if( sResponse.size()<20 )  // Invalid data, try again in 1 minute
 	{
+		m_pAlarmManager->AddRelativeAlarm(60,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings no recordings");
 		return;
 	}
@@ -1964,6 +2021,8 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 	string::size_type pos=0;
 	const char *pToken = "[]:[]"; // What kind of token is this??
 	MythRecording mythRecording;
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings got %d",(int) sResponse.size());
 	while(pos<sResponse.size())
 	{
 		string s1 = StringUtils::Tokenize(sResponse,pToken,pos,true);
@@ -1990,8 +2049,8 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 		string s22 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s23 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s24 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s25 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s26 = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecordID = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sType = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s27 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s28 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s29 = StringUtils::Tokenize(sResponse,pToken,pos,true);
@@ -2011,7 +2070,36 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 
 		mythRecording.data.time.channel_id = atoi(sChanId.c_str());
 		mythRecording.data.time.StartTime = atoi(sStartTime.c_str());
-		m_mapScheduledRecordings[mythRecording.data.int64] = 'c';
+
+		if( sType=="1" )
+			m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('O',atoi(sRecordID.c_str()));
+		else if( sType=="3")
+			m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('C',atoi(sRecordID.c_str()));;
 	}
+	m_pAlarmManager->CancelAlarmByType(CHECK_FOR_SCHEDULED_RECORDINGS);
+	m_pAlarmManager->AddRelativeAlarm(60 * 60,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);  // Update once an hour just in case
 }
 
+//<-dceag-c911-b->
+
+	/** @brief COMMAND: #911 - Remove Scheduled Recording */
+	/** Remove a scheduled recording */
+		/** @param #10 ID */
+			/** The ID of the recording rule to remove.  This will remove all recordings with this ID, and ProgramID is ignored if this is specified. */
+		/** @param #68 ProgramID */
+			/** The ID of the program to remove.  If ID is empty, remove just this program. */
+
+void MythTV_PlugIn::CMD_Remove_Scheduled_Recording(string sID,string sProgramID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c911-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	string sSQL = "delete from record where recordid=" + sID;
+	m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
+
+	m_pMythBackEnd_Socket->SendMythStringGetOk("RESCHEDULE_RECORDINGS -1");
+
+	// This 20 seconds is totally arbitrary.  If I ask myth too soon after sending RESCHEDULE_RECORDINGS, it doesn't give me
+	// the updated values.  I don't know how to synchronize this so it waits until myth is done redoing the schedule, so
+	// I just threw in 20 seconds to be on the safe side.
+	m_pAlarmManager->AddRelativeAlarm(20,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
+}

@@ -101,6 +101,9 @@ public:
 class FloorplanInfoProvider
 {
 public:
+
+	virtual ~FloorplanInfoProvider() {}
+
 	// Color is the color to fill the icon with, Description is the status which
 	// appears at the bottom of the floorplan when the item is selected, OSD is
 	// the text will be put into any text object within the icon (like the temperature

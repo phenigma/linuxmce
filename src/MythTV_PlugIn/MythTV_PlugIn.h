@@ -111,7 +111,7 @@ namespace DCE
 
 		map< int, ScanJob * > m_mapPendingScans; // Map tuner device, capture card to string of scan script,percent complete
 
-		map< u_int64_t, char > m_mapScheduledRecordings;  // A list of all upcoming recordings and the type of recording
+		map< u_int64_t, pair<char,int> > m_mapScheduledRecordings;  // A list of all upcoming recordings and the char=type of recording, int=recording id
 
         MythTvWrapper *m_pMythWrapper;
 
@@ -316,6 +316,17 @@ live, nonlive, osd */
 
 	virtual void CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask) { string sCMD_Result; CMD_Reporting_EPG_Status(sText.c_str(),bIsSuccessful,sTask.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #911 - Remove Scheduled Recording */
+	/** Remove a scheduled recording */
+		/** @param #10 ID */
+			/** The ID of the recording rule to remove.  This will remove all recordings with this ID, and ProgramID is ignored if this is specified. */
+		/** @param #68 ProgramID */
+			/** The ID of the program to remove.  If ID is empty, remove just this program. */
+
+	virtual void CMD_Remove_Scheduled_Recording(string sID,string sProgramID) { string sCMD_Result; CMD_Remove_Scheduled_Recording(sID.c_str(),sProgramID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Remove_Scheduled_Recording(string sID,string sProgramID,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
     };

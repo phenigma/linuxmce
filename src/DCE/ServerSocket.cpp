@@ -377,6 +377,7 @@ bool ServerSocket::SafeToReload(string &sReason)
 		return true;
 	else if( StringUtils::StartsWith(sResponse,"RELOAD_NO") )
 	{
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "ServerSocket::SafeToReload device %d returned %s", m_dwPK_Device, sResponse.c_str() );
 		sReason = sResponse.substr(10);
 		return false;
 	}

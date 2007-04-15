@@ -24348,5 +24348,37 @@ namespace DCE
 			COMMANDPARAMETER_IsSuccessful_CONST, (bIsSuccessful ? "1" : "0"),
 			COMMANDPARAMETER_Task_CONST, sTask.c_str()); }
 	};
+	class CMD_Remove_Scheduled_Recording : public PreformedCommand {
+	public:
+		CMD_Remove_Scheduled_Recording(long DeviceIDFrom, long DeviceIDTo,string sID,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Remove_Scheduled_Recording_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
+	};
+	class CMD_Remove_Scheduled_Recording_DL : public PreformedCommand {
+	public:
+		CMD_Remove_Scheduled_Recording_DL(long DeviceIDFrom, string DeviceIDTo,string sID,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Remove_Scheduled_Recording_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
+	};
+	class CMD_Remove_Scheduled_Recording_DT : public PreformedCommand {
+	public:
+		CMD_Remove_Scheduled_Recording_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Remove_Scheduled_Recording_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
+	};
+	class CMD_Remove_Scheduled_Recording_Cat : public PreformedCommand {
+	public:
+		CMD_Remove_Scheduled_Recording_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Remove_Scheduled_Recording_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_ID_CONST, sID.c_str(),
+			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
+	};
 }
 #endif
