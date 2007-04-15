@@ -5478,30 +5478,38 @@ namespace DCE
 	};
 	class CMD_Schedule_Recording : public PreformedCommand {
 	public:
-		CMD_Schedule_Recording(long DeviceIDFrom, long DeviceIDTo,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Schedule_Recording(long DeviceIDFrom, long DeviceIDTo,string sType,string sOptions,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Schedule_Recording_CONST,
-			1 /* number of parameters */,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Type_CONST, sType.c_str(),
+			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
 	};
 	class CMD_Schedule_Recording_DL : public PreformedCommand {
 	public:
-		CMD_Schedule_Recording_DL(long DeviceIDFrom, string DeviceIDTo,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Schedule_Recording_DL(long DeviceIDFrom, string DeviceIDTo,string sType,string sOptions,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Schedule_Recording_CONST,
-			1 /* number of parameters */,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Type_CONST, sType.c_str(),
+			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
 	};
 	class CMD_Schedule_Recording_DT : public PreformedCommand {
 	public:
-		CMD_Schedule_Recording_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Schedule_Recording_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sType,string sOptions,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Schedule_Recording_CONST,
-			1 /* number of parameters */,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Type_CONST, sType.c_str(),
+			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
 	};
 	class CMD_Schedule_Recording_Cat : public PreformedCommand {
 	public:
-		CMD_Schedule_Recording_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Schedule_Recording_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sType,string sOptions,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Schedule_Recording_CONST,
-			1 /* number of parameters */,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_Type_CONST, sType.c_str(),
+			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
 	};
 	class RESP_Get_Current_Floorplan : public PreformedCommandResponse {

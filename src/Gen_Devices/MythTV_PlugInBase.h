@@ -231,7 +231,7 @@ public:
 	void EVENT_PVR_Rec_Sched_Conflict() { GetEvents()->PVR_Rec_Sched_Conflict(); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Schedule_Recording(string sType,string sOptions,string sProgramID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Result,class Message *pMessage) {};
@@ -299,8 +299,10 @@ public:
 				case COMMAND_Schedule_Recording_CONST:
 					{
 						string sCMD_Result="OK";
+						string sType=pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST];
+						string sOptions=pMessage->m_mapParameters[COMMANDPARAMETER_Options_CONST];
 						string sProgramID=pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST];
-						CMD_Schedule_Recording(sProgramID.c_str(),sCMD_Result,pMessage);
+						CMD_Schedule_Recording(sType.c_str(),sOptions.c_str(),sProgramID.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -317,7 +319,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Schedule_Recording(sProgramID.c_str(),sCMD_Result,pMessage);
+								CMD_Schedule_Recording(sType.c_str(),sOptions.c_str(),sProgramID.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

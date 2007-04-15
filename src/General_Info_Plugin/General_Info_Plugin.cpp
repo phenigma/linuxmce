@@ -3774,3 +3774,23 @@ void General_Info_Plugin::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,M
 //<-dceag-c882-e->
 {
 }
+
+bool General_Info_Plugin::SafeToReload(string &sReason)
+{
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+	if( m_mapMediaDirectors_PendingConfig.size()==0 )
+		return true;
+
+	sReason = "See Pending Tasks.  General Info Plugin Download Software on: ";
+
+	bool bFirst=true;
+	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
+	{
+		if( bFirst )
+			bFirst=false;
+		else
+			sReason += ",";
+		sReason += StringUtils::itos(it->first);
+	}
+}
+

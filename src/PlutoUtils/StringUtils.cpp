@@ -72,7 +72,7 @@
     #endif
 #endif //#ifndef SYMBIAN
 
-string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &CurPos )
+string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &CurPos, bool bMultiCharacterTokens )
 {
     if ( CurPos >= sInput.length() ) // allready extracted all the pices
 	{
@@ -81,7 +81,7 @@ string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &
 
     string::size_type TokenPos;
 
-    if ( sToken.length() > 1 )
+    if ( bMultiCharacterTokens==false && sToken.length() > 1 )
     {
         TokenPos = sInput.length() + 1;
 
@@ -104,7 +104,7 @@ string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &
     }
 
 	string sReturnValue = sInput.substr( CurPos, (TokenPos - CurPos) );
-    CurPos = TokenPos + 1;
+	CurPos = TokenPos + (bMultiCharacterTokens ? sToken.size() : 1);
     return sReturnValue;
 }
 

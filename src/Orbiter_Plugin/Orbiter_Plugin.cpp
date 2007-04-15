@@ -3138,3 +3138,23 @@ void Orbiter_Plugin::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Messag
 //<-dceag-c882-e->
 {
 }
+
+bool Orbiter_Plugin::SafeToReload(string &sReason)
+{
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+	if( m_listRegenCommands.size()==0 )
+		return true;
+
+	sReason = "See Pending Tasks.  Orbiter Plugin Generating Orbiters: ";
+
+	bool bFirst=true;
+	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
+	{
+		if( bFirst )
+			bFirst=false;
+		else
+			sReason += ",";
+		sReason += StringUtils::itos(*it);
+	}
+}
+

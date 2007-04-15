@@ -47,11 +47,13 @@ namespace StringUtils
 {
     /**
      * @brief breakes the input string into pieces sparated by sTokens; call it repeatedly to get all the pieces
+	 * Normally if sTokens is more than 1 character, any character in Token will serve as a delimiter.  If bMultiCharacterTokens=true
+	 * then only the full string of tokens will count
      */
 #ifdef SYMBIAN
 	static
 #endif
-    string Tokenize( string &sInput, string sTokens, string::size_type &CurPos );
+    string Tokenize( string &sInput, string sTokens, string::size_type &CurPos, bool bMultiCharacterTokens=false);
 
     /**
      * @brief converts input string to lowercase

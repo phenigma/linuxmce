@@ -163,6 +163,8 @@ public:
 	void PromptUserToReloadAfterNewDevices();
 	void ServiceRoomPromptRequests();
 
+	virtual bool SafeToReload(string &sReason);
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

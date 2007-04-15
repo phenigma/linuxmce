@@ -289,12 +289,15 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 bool Pnp_PreCreateOptions::OkayToCreate_CaptureCard(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
 {
 	DeviceData_Base *pDevice = m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard 1 %p %d",pDevice,pDevice ? pDevice->m_dwPK_Device : -1);
 	if( pDevice )
 	{
 		DeviceData_Base *pDevice_OSD = pDevice->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_OnScreen_Orbiter_CONST);
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard 2 %p %d",pDevice_OSD,pDevice_OSD ? pDevice_OSD->m_dwPK_Device : -1);
 		if( pDevice_OSD )
 		{
 			Row_Orbiter *pRow_Orbiter = m_pPnpQueue->m_pDatabase_pluto_main->Orbiter_get()->GetRow(pDevice_OSD->m_dwPK_Device);
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard 3 %p %d",pRow_Orbiter,pRow_Orbiter ? (int) pRow_Orbiter->FirstRegen_get() : -1);
 			if( pRow_Orbiter && pRow_Orbiter->FirstRegen_get()==1 )
 				return true;
 		}

@@ -2,9 +2,9 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-Q="SELECT IK_DeviceData
-	FROM Device_DeviceData
-	WHERE FK_Device='$1' AND FK_DeviceData=152 LIMIT 1"
+Q="SELECT IPAddress
+        FROM Device
+        WHERE PK_Device='$2'"
 DeviceID=$(RunSQL "$Q")
 
 Q="SELECT IK_DeviceData

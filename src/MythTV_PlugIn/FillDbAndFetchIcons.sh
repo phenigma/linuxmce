@@ -20,8 +20,8 @@ mv /root/.mythtv/channels/* /home/mythtv/channels
 
 # Notify all the orbiters that myth is ready to be used
 /usr/pluto/bin/MessageSend $DCERouter -targetType template -r 0 12 1 406 9 "MythTV is ready.  However it may take several more minutes before the guide data is fully populated." 102 300
+/usr/pluto/bin/MessageSend $DCERouter -targetType template -r 0 36 1 910 9 "Finished retrieving channels"
 
 # Now that we have channels and icons, go ahead and fill the database.  If the user interrupts this now it's ok
 # because it will grab partial data and continue the next time
 /usr/bin/mythfilldatabase
-rm /usr/pluto/bin/FillDbAndFetchIcons.start

@@ -83,6 +83,19 @@ namespace DCE
 		}
 	};
 
+	struct MythRecording
+	{
+		union
+		{
+			u_int64_t int64;
+			struct
+			{
+				int channel_id;
+				time_t StartTime;
+			} time;
+		} data;
+	};
+
     //<-dceag-decl-b->!
     class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaHandlerBase, public AlarmEvent, public DataGridGeneratorPlugIn
     {
@@ -98,6 +111,8 @@ namespace DCE
 
 		map< int, ScanJob * > m_mapPendingScans; // Map tuner device, capture card to string of scan script,percent complete
 
+		map< u_int64_t, char > m_mapScheduledRecordings;  // A list of all upcoming recordings and the type of recording
+
         MythTvWrapper *m_pMythWrapper;
 
 		class AlarmManager *m_pAlarmManager;
@@ -106,6 +121,8 @@ namespace DCE
 		bool m_bBookmarksNeedRefreshing;
 		bool m_bFillDbRunning,  // true if the fill process is currently active
 			m_bNeedToRunFillDb; // if we get more changes, while a fill is active, we'll set this so when the fill stops we know to restart it
+
+		class MythBackEnd_Socket *m_pMythBackEnd_Socket;
         // MythTvEPGWrapper *m_pAllShowsDataGrid;
 
         /** Private methods */
@@ -172,6 +189,8 @@ public:
 		class DataGridTable *FavoriteShows( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 		class DataGridTable *ThumbnailableAttributes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
+		bool SafeToReload(string &sReason);
+
 		// Set a value in mythconverg's setting table.  If hostname=*, all known hosts will be set.  If it's empty, hostname will be NULL
 		void UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting=false);
 
@@ -192,6 +211,7 @@ public:
 		void SetPaths();
 		void RunBackendStarter();
 		void StartFillDatabase();
+		void UpdateUpcomingRecordings();
 
         //<-dceag-h-b->
 	/*
@@ -224,11 +244,15 @@ public:
 
 	/** @brief COMMAND: #185 - Schedule Recording */
 	/** This will schedule a recording. */
+		/** @param #14 Type */
+			/** The type of recording: O=Once, C=Channel */
+		/** @param #39 Options */
+			/** Options for this recording, tbd later */
 		/** @param #68 ProgramID */
 			/** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
 
-	virtual void CMD_Schedule_Recording(string sProgramID) { string sCMD_Result; CMD_Schedule_Recording(sProgramID.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Schedule_Recording(string sType,string sOptions,string sProgramID) { string sCMD_Result; CMD_Schedule_Recording(sType.c_str(),sOptions.c_str(),sProgramID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Schedule_Recording(string sType,string sOptions,string sProgramID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #698 - Get Extended Media Data */

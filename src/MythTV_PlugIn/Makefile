@@ -25,7 +25,7 @@ INTERNAL_LIBS_NAMES += pluto_main pluto_media
 
 Gen_Dev_Files += 
 sources += \
-	MythTvMediaStream.cpp EPGGrid.cpp 
+	MythTvMediaStream.cpp EPGGrid.cpp MythBackEnd_Socket.cpp
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)

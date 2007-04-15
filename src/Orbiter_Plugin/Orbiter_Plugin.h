@@ -200,6 +200,7 @@ public:
 
 	class DataGridTable *FloorplanDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
+	virtual bool SafeToReload(string &sReason);
 
 	/*  If the user wants to use the onscreen display, he may want the tv to always stay on and only
 	turn off when the orbiter is specifcally turned off or goes to sleep.  In those cases the user

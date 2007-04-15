@@ -1829,7 +1829,26 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 			}
 		}
 	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Record_Once_CONST ||
+		pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Record_All_CONST )
+	{
+		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgUpcomingShows_CONST);
+		if( pDesignObj_DataGrid )
+		{
+			DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
+			if( pDataGridTable )
+			{
+				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+				if( !pCell )
+					return false;
 
+				DCE::CMD_Schedule_Recording CMD_Schedule_Recording(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+					pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Record_Once_CONST ? "O" : "C",
+					"", pCell->m_mapAttributes["chanid"] + "," + pCell->m_mapAttributes["starttime"] + "," + pCell->m_mapAttributes["endtime"]);
+				m_pOrbiter->SendCommand(CMD_Schedule_Recording);
+			}
+		}
+	}
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------

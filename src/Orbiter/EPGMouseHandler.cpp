@@ -119,18 +119,6 @@ bool EPGMouseHandler::ButtonDown(int PK_Button)
 			m_pDatagridMouseHandlerHelper->ReleaseRelative();
 		return true;
 	}
-
-	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
-	{
-		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
-		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
-
-		if( !m_bTapAndRelease && PK_Button==BUTTON_Mouse_1_CONST )
-		{
-			m_pMouseBehavior->m_pOrbiter->SelectedObject(m_pObj,smNavigation);
-		}
-		return false; // this is now invalid
-	}
 	return false; // Keep processing
 }
 

@@ -2893,10 +2893,6 @@ void OSDScreenHandler::ChooseProviderGetNextStage()
 #endif
 
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Choose_Provider_for_Device_CONST);
-
-		string sText = m_pOrbiter->m_mapTextString[TEXT_Media_provider_specified_CONST];
-		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,sText,"","errorprovider","1","","1");
-		m_pOrbiter->ReceivedMessage(SCREEN_PopupMessage.m_pMessage);
 	}
 }
 //-----------------------------------------------------------------------------------------------------
