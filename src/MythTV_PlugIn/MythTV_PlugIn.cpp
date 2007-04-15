@@ -1640,9 +1640,24 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 	}
 
 	// If we're still busy downloading packages we don't want to do this yet since the files may not be installed yet
-	if( m_pGeneral_Info_Plugin->ReportPendingTasks() )
+	if( m_pGeneral_Info_Plugin->PendingConfigs() )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d waiting for packages", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
+		m_pAlarmManager->AddRelativeAlarm(30,this,SYNC_PROVIDERS,(void *) pScanJob);  /* check again in 30 seconds */
+		return;
+	}
+
+	if( pScanJob->m_pRow_Device_Tuner )
+		pScanJob->m_pRow_Device_Tuner->Reload();
+
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript card %d %s",
+		(pScanJob->m_pRow_Device_CaptureCard ? pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() : -1),
+		(pScanJob->m_pRow_Device_CaptureCard ? pScanJob->m_pRow_Device_CaptureCard->Status_get().c_str() : "none") );
+
+	if( pScanJob->m_pRow_Device_Tuner && pScanJob->m_pRow_Device_Tuner->Status_get()=="**RUN_CONFIG**" )
+	{
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d waiting for configure", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),
+			pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
 		m_pAlarmManager->AddRelativeAlarm(30,this,SYNC_PROVIDERS,(void *) pScanJob);  /* check again in 30 seconds */
 		return;
 	}
