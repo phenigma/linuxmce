@@ -500,6 +500,12 @@ int main(int argc, char *argv[])
 				if( iPK_Orbiter )
 					cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 5 9 'Configuring " << pRow_Device->Description_get() << " done.'" << endl;
 			}
+			else
+			{
+				cout << "#No configure script" << endl;
+				cout << "\tQ=\"UPDATE Device SET Status='' WHERE PK_Device='" << pRow_Device->PK_Device_get() << "'\"" << endl
+					 << "\tRunSQL \"$Q\"" << endl;
+			}
 
 			cout << "#Cleared RUN_CONFIG flag" << endl;
 		}
