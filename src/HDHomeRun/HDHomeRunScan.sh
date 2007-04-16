@@ -12,9 +12,7 @@ Q="SELECT IK_DeviceData
 	WHERE FK_Device='$1' AND FK_DeviceData=12 LIMIT 1"
 Port=$(RunSQL "$Q")
 
-echo "$(date -R) HDHomeRunScan waiting for lock"
-WaitLock "HDHomeRun_Setup" "HDHomeRun_Setup" nolog
-echo "$(date -R) HDHomeRunScan obtained lock Starting /usr/pluto/bin/hdhomerun_mythconfig $1 $DeviceID $Port"
+echo "$(date -R) HDHomeRunScan Starting /usr/pluto/bin/hdhomerun_mythconfig $1 $DeviceID $Port"
 
 /usr/pluto/bin/hdhomerun_mythconfig $1 $DeviceID $Port $MySqlHost root "" mythconverg
 
@@ -24,5 +22,4 @@ else
 	/usr/pluto/bin/MessageSend dcerouter -targetType template 0 36 2 72 26 $1 20 -1
 fi
 
-Unlock "HDHomeRun_Setup" "HDHomeRun_Setup" nolog
-echo "$(date -R) HDHomeRunScan unlocked"
+echo "$(date -R) HDHomeRunScan done"

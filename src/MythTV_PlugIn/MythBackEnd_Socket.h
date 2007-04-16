@@ -16,6 +16,7 @@ namespace DCE
 	{
 	private:
 		bool m_bConnected;
+		bool InternalSendMythString(string sValue,string *sResponse); // For internal use only.  Use SendMythString which will retry on 1 failure
 void PurgeSocketBuffer();  // move to socket.h
 
 	public:

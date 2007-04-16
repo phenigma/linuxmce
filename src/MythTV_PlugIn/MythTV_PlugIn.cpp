@@ -106,7 +106,7 @@ bool MythTV_PlugIn::GetConfig()
 	UpdateMythSetting("Language","EN","*",true);
 
 	m_pAlarmManager = new AlarmManager();
-    m_pAlarmManager->Start(1);      //4 = number of worker threads
+    m_pAlarmManager->Start(2);      //4 = number of worker threads
 	m_pAlarmManager->AddRelativeAlarm(30,this,CHECK_FOR_NEW_RECORDINGS,NULL);
 	m_pAlarmManager->AddRelativeAlarm(5,this,RUN_BACKEND_STARTER,NULL);
 	m_pAlarmManager->AddRelativeAlarm(15,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
@@ -1403,7 +1403,7 @@ void MythTV_PlugIn::CheckForNewRecordings()
 			PlutoSqlResult result_person;
 			if( (result_person.r=m_pMySqlHelper_Myth->mysql_query_result( sSQL ) ) )
 			{
-				while( row=mysql_fetch_row( result_person.r ) )
+				while( (row=mysql_fetch_row( result_person.r )) )
 				{
 					string sRole = row[0];
 					if( sRole=="director" )
@@ -2061,6 +2061,12 @@ bool MythTV_PlugIn::SafeToReload(string &sReason)
 		sReason = "MythTV_PlugIn loading EPG data";
 		return false;
 	}
+	if( m_mapPendingScans.size() )
+	{
+		sReason = "MythTV_PlugIn scanning channels";
+		return false;
+	}
+
 	return true;
 }
 

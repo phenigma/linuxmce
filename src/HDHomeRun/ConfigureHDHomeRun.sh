@@ -2,13 +2,10 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/pluto.func
-. /usr/pluto/bin/LockUtils.sh
 
 Device=$2
 
-echo "$(date -R) ConfigureHDHomeRun waiting for lock"
-WaitLock "HDHomeRun_Setup" "HDHomeRun_Setup" nolog
-echo "$(date -R) ConfigureHDHomeRun obtained lock"
+echo "$(date -R) ConfigureHDHomeRun start"
 
 Q="SELECT IPaddress FROM Device WHERE PK_Device='$Device'"
 IPAddress=$(RunSQL "$Q")
@@ -29,7 +26,6 @@ done
 /usr/pluto/bin/hdhomerun_config $IPAddress upgrade hdhomerun_firmware_20070121.bin
 sleep 30  # give it time to recover after the firmware upgrade
 
-Unlock "HDHomeRun_Setup" "HDHomeRun_Setup" nolog
-echo "$(date -R) ConfigureHDHomeRun unlocked"
+echo "$(date -R) ConfigureHDHomeRun done"
 
 #./hdhomerun_config 192.168.80.252 set /lineup/location us:94005  # opt-in to do channel scanning  /hdhomerun_config 192.168.80.252 set /lineup/location disabled
