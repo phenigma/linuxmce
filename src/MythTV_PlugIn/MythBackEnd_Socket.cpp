@@ -30,6 +30,8 @@ bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse)
 	if( InternalSendMythString(sValue,sResponse) )
 		return true;
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythBackEnd_Socket::SendMythString trying to reconnect");
+
 	bool bResult = Connect();
 	if( bResult )
 	{
@@ -56,7 +58,7 @@ bool MythBackEnd_Socket::InternalSendMythString(string sValue,string *sResponse)
 	szSize[8]=0;
 	if( !SendData(8,szSize) || !SendData(sValue.size(),sValue.c_str()) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket cannot send");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket cannot send %s", sValue.c_str());
 		Close();
 		return false;
 	}

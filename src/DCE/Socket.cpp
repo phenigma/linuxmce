@@ -606,7 +606,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 			{
 				if( nInternalReceiveTimeout==-2 )
 					return false; // Special value means don't timeout
-				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::ReceiveData-a %p failed",this);
+				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::ReceiveData-a %p failed ret %d",this, (int) iRet);
 				Close();
 				if( m_bQuit_get()|| m_bCancelSocketOp )
 					return false;
