@@ -173,7 +173,7 @@ void MediaState::FileSynchronized(Database_pluto_media *pDatabase_pluto_media, s
 	item.m_sOldFileDate = sFileTimestamp;
 
 	sUpdateSql += "AttrCount = " + StringUtils::ltos(item.m_sCurrentDbAttrCount) + ", ";
-	sUpdateSql += "AttrDate = NOW()";
+	sUpdateSql += "AttrDate = NOW() ";
 	item.m_sOldDbAttrCount = item.m_sCurrentDbAttrCount;
 	item.m_sOldDbAttrDate = item.m_sCurrentDbAttrDate;
 
