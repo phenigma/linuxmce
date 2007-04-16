@@ -1745,8 +1745,8 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 		return;
 	}
 
-	if( pScanJob->m_pRow_Device_Tuner )
-		pScanJob->m_pRow_Device_Tuner->Reload();
+	if( pScanJob->m_pRow_Device_CaptureCard )
+		pScanJob->m_pRow_Device_CaptureCard->Reload();
 
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript card %d %s",
 		(pScanJob->m_pRow_Device_CaptureCard ? pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() : -1),
@@ -1804,7 +1804,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 	}
 
 	string sDevices = StringUtils::itos(pScanJob->m_pRow_Device_CaptureCard->PK_Device_get()) + "," 
-			+ StringUtils::itos(pScanJob->m_pRow_Device_Tuner->PK_Device_get()) + ")";
+			+ StringUtils::itos(pScanJob->m_pRow_Device_Tuner->PK_Device_get());
 	string sSQL;
 
 	if( bNeedConfigure )
