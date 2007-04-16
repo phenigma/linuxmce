@@ -11,7 +11,7 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "MythTV_PlugIn.h"
-#include "../Media_PlugIn/Media_PlugIn.h"
+#include "../Media_Plugin/Media_Plugin.h"
 
 #include <iostream>
 using namespace std;
