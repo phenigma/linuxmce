@@ -76,11 +76,11 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 //	m_pMythWrapper = NULL;
 	m_pMySqlHelper_Myth = NULL;
 	m_pAlarmManager=NULL;
+	m_pMythBackEnd_Socket=NULL;
 	m_dwPK_File_LastCheckedForNewRecordings=0;
 
 	m_bAskBeforeReload=true;
 	m_bImplementsPendingTasks=true;
-	m_pMythBackEnd_Socket = new MythBackEnd_Socket(ServerAddress);
 }
 
 //<-dceag-getconfig-b->
@@ -89,8 +89,6 @@ bool MythTV_PlugIn::GetConfig()
 	if( !MythTV_PlugIn_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-
-	m_pMythBackEnd_Socket->Connect();
 
 	m_pMySqlHelper_Myth = new MySqlHelper(m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ),"mythconverg");
 
@@ -137,6 +135,8 @@ void MythTV_PlugIn::PrepareToDelete()
 	Command_Impl::PrepareToDelete();
 	delete m_pAlarmManager;
 	m_pAlarmManager = NULL;
+	delete m_pMythBackEnd_Socket;
+	m_pMythBackEnd_Socket=NULL;
 }
 
 //<-dceag-reg-b->
@@ -189,6 +189,9 @@ bool MythTV_PlugIn::Register()
 	m_bBookmarksNeedRefreshing=true;
 
 	BuildAttachedInfraredTargetsMap();
+
+	m_pMythBackEnd_Socket = new MythBackEnd_Socket(this,m_pRouter->sDBHost_get( ));  // The master backend is on the same server as mysql
+	m_pMythBackEnd_Socket->Connect();
 
     return Connect(PK_DeviceTemplate_get());
 }
@@ -800,7 +803,8 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sType,string sOptions,string s
 	int iID = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording %d=%s", iID, sSQL.c_str());
-	m_pMythBackEnd_Socket->SendMythStringGetOk("RESCHEDULE_RECORDINGS -1");
+	if( m_pMythBackEnd_Socket )
+		m_pMythBackEnd_Socket->SendMythStringGetOk("RESCHEDULE_RECORDINGS -1");
 
 	// This 20 seconds is totally arbitrary.  If I ask myth too soon after sending RESCHEDULE_RECORDINGS, it doesn't give me
 	// the updated values.  I don't know how to synchronize this so it waits until myth is done redoing the schedule, so
@@ -2072,6 +2076,9 @@ bool MythTV_PlugIn::SafeToReload(string &sReason)
 
 void MythTV_PlugIn::UpdateUpcomingRecordings()
 {
+	if( !m_pMythBackEnd_Socket )
+		return;
+
 	string sResponse;
 	m_pMythBackEnd_Socket->SendMythString("QUERY_GETALLPENDING",&sResponse);
 	if( sResponse.size()<20 )  // Invalid data, try again in 1 minute
@@ -2161,7 +2168,8 @@ void MythTV_PlugIn::CMD_Remove_Scheduled_Recording(string sID,string sProgramID,
 	string sSQL = "delete from record where recordid=" + sID;
 	m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 
-	m_pMythBackEnd_Socket->SendMythStringGetOk("RESCHEDULE_RECORDINGS -1");
+	if( m_pMythBackEnd_Socket )
+		m_pMythBackEnd_Socket->SendMythStringGetOk("RESCHEDULE_RECORDINGS -1");
 
 	// This 20 seconds is totally arbitrary.  If I ask myth too soon after sending RESCHEDULE_RECORDINGS, it doesn't give me
 	// the updated values.  I don't know how to synchronize this so it waits until myth is done redoing the schedule, so
@@ -2171,6 +2179,8 @@ void MythTV_PlugIn::CMD_Remove_Scheduled_Recording(string sID,string sProgramID,
 
 void MythTV_PlugIn::ConfirmMasterBackendOk(int iMediaStreamID)
 {
+	if( !m_pMythBackEnd_Socket )
+		return;
 	// If Myth isn't reachable, forcibly kill it and notify the user
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(iMediaStreamID,0);

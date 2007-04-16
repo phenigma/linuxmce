@@ -10,6 +10,8 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "MythTV_PlugIn.h"
+#include "../Media_PlugIn/Media_PlugIn.h"
 
 #include <iostream>
 using namespace std;
@@ -18,15 +20,17 @@ using namespace DCE;
 #define MYTH_PROTOCOL	31
 #include "Gen_Devices/AllCommandsRequests.h"
 
-MythBackEnd_Socket::MythBackEnd_Socket(string sIPAddress)
-: ClientSocket(0, /*sIPAddress*/ "192.168.80.1:6543", "MythBackend")
+MythBackEnd_Socket::MythBackEnd_Socket(MythTV_PlugIn *pMythTV_PlugIn,string sIPAddress)
 {
+	m_pMythTV_PlugIn = pMythTV_PlugIn;
+	m_sIPAddress = sIPAddress;
 	m_bConnected=false;
+	m_pSocket = NULL;
 }
 
 bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
+	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
 	if( InternalSendMythString(sValue,sResponse) )
 		return true;
 
@@ -45,8 +49,8 @@ bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse)
 
 bool MythBackEnd_Socket::InternalSendMythString(string sValue,string *sResponse)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
-	if( (!m_bConnected || m_Socket == INVALID_SOCKET) && !Connect() )
+	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
+	if( (!m_bConnected || m_pSocket==NULL || m_pSocket->m_Socket == INVALID_SOCKET) && !Connect() )
 		return false;
 
 	// There might be stray stuff left in the buffer
@@ -56,10 +60,10 @@ bool MythBackEnd_Socket::InternalSendMythString(string sValue,string *sResponse)
 	char szSize[20];
 	sprintf(szSize,"%d          ",sValue.size());
 	szSize[8]=0;
-	if( !SendData(8,szSize) || !SendData(sValue.size(),sValue.c_str()) )
+	if( !m_pSocket->SendData(8,szSize) || !m_pSocket->SendData(sValue.size(),sValue.c_str()) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket cannot send %s", sValue.c_str());
-		Close();
+		DeleteSocket();
 		return false;
 	}
 
@@ -71,10 +75,10 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythStr
 
 	// Get the size of the response
 	char pcData[1000];
-	if( !ReceiveData( 8, pcData, 5 ) )
+	if( !m_pSocket->ReceiveData( 8, pcData, 5 ) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString cannot receive");
-		Close();
+		DeleteSocket();
 		return false;
 	}
 
@@ -83,15 +87,15 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythStr
 	if( Size<1 || Size>100000 ) // Arbitrary upper limit
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString invalid size %d",(int) Size);
-		Close();
+		DeleteSocket();
 		return false;
 	}
 	char *pcBuffer = new char[Size+1];
-    if( !ReceiveData( Size, pcBuffer, 5 ) )
+    if( !m_pSocket->ReceiveData( Size, pcBuffer, 5 ) )
 	{
 		delete pcBuffer;
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString failed to read %d",(int) Size);
-		Close();
+		DeleteSocket();
 		return false;
 	}
 
@@ -108,31 +112,39 @@ bool MythBackEnd_Socket::SendMythStringGetOk(string sValue)
 	if( !SendMythString(sValue,&sResponse) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythStringGetOk couldn't send");
+		DeleteSocket();
 		return false;
 	}
 
 	if( sResponse!="OK" )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythStringGetOk");
-		Close();
+		DeleteSocket();
 		return false;
 	}
 	return true;
 }
 
-bool MythBackEnd_Socket::Connect( int PK_DeviceTemplate,string sExtraInfo )
+bool MythBackEnd_Socket::Connect( )
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythBackEnd_Socket::Connect m_bConnected %d m_Socket %d",
-		(int) m_bConnected, (int) m_Socket);
-	if( m_bConnected && m_Socket != INVALID_SOCKET )
+	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythBackEnd_Socket::Connect m_bConnected %d m_Socket %p",
+		(int) m_bConnected, m_pSocket);
+
+	if( m_bConnected && m_pSocket && m_pSocket->m_Socket != INVALID_SOCKET )
 		return true;
 
-	if( ClientSocket::Connect(0,"")==false )
+	if( m_pSocket==NULL || m_pSocket->m_Socket == INVALID_SOCKET )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Connect failed m_bConnected=false");
-		m_bConnected=false;
-		return false;
+		if( m_pSocket )
+			delete m_pSocket;
+		m_pSocket = new MythBackEnd_Socket_Wrapper(this,m_sIPAddress + ":6543");
+		if( m_pSocket->Connect(0,"")==false )
+		{
+			DeleteSocket();
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Connect failed m_bConnected=false");
+			return false;
+		}
 	}
 
 	m_bConnected=true;
@@ -141,16 +153,14 @@ bool MythBackEnd_Socket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 	if( !InternalSendMythString("MYTH_PROTO_VERSION " TOSTRING(MYTH_PROTOCOL),&sResponse) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Connect couldn't send MYTH_PROTO_VERSION m_bConnected=false");
-		Close();
-		m_bConnected=false;
+		DeleteSocket();
 		return false;
 	}
 
 	if( StringUtils::StartsWith(sResponse,"ACCEPT")==false )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Connect sent MYTH_PROTO_VERSION: m_bConnected=false got %s", sResponse.c_str());
-		Close();
-		m_bConnected=false;
+		DeleteSocket();
 		return false;
 	}
 
@@ -158,8 +168,7 @@ bool MythBackEnd_Socket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 	if( !InternalSendMythString("ANN Playback mythtv_plugin 01",&sResponse) || sResponse!="OK" )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Connect couldn't send ANN m_bConnected=false");
-		Close();
-		m_bConnected=false;
+		DeleteSocket();
 		return false;
 	}
 
@@ -170,25 +179,25 @@ bool MythBackEnd_Socket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 
 void MythBackEnd_Socket::PurgeSocketBuffer()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
-	if( m_Socket == INVALID_SOCKET )
+	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
+	if( !m_pSocket || m_pSocket->m_Socket == INVALID_SOCKET )
 		return;
 
 	fd_set rfds;
 	struct timeval tv;
 	tv.tv_sec=tv.tv_usec=0;
 	FD_ZERO(&rfds);
-	FD_SET(m_Socket, &rfds);
+	FD_SET(m_pSocket->m_Socket, &rfds);
 
 	while( true )
 	{
-		int iRet = select((int) (m_Socket+1), &rfds, NULL, NULL, &tv);
+		int iRet = select((int) (m_pSocket->m_Socket+1), &rfds, NULL, NULL, &tv);
 		if( iRet<1 )
 			return;
 
 		char pcBuff[10];
 		bool bRet = true;
-		int iResult = recv( m_Socket, pcBuff, 9, 0 );
+		int iResult = recv( m_pSocket->m_Socket, pcBuff, 9, 0 );
 		if( iResult<1 )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket purge socket is dead");
@@ -201,10 +210,13 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket purge: %s", 
 
 void MythBackEnd_Socket::Close()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
+	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Close");
 	m_bConnected=false;
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Close m_bConnected=false");
-	ClientSocket::Close();
-	m_bCancelSocketOp = false;  // Normally sockets aren't re-usable.  We'll reuse this one
 }
 
+void MythBackEnd_Socket_Wrapper::Close()
+{ 
+	m_pMythBackEnd_Socket->Close(); 
+	ClientSocket::Close(); 
+}
