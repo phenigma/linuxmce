@@ -142,11 +142,7 @@ bool MythTV_Player::GetConfig()
 MythTV_Player::~MythTV_Player()
 //<-dceag-dest-e->
 {
-	// Kill any instances we spawned
-	vector<void *> data;
-#ifndef WIN32
-	ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data);
-#endif
+	StopMythFrontend();
 	m_bExiting = true;
 	if (m_threadMonitorMyth != 0)
 		pthread_join(m_threadMonitorMyth, NULL);
@@ -264,8 +260,7 @@ void MythTV_Player::pollMythStatus()
 			SendCommand(CMD_MH_Stop_Media_Cat);
 			m_mythStatus_set(MYTHSTATUS_DISCONNECTED);
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed initial communications with Mythfrontend.");
-			vector<void *> data;
-			ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data);			
+			StopMythFrontend();
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Killed Mythfrontend.");
 		}
 	} 
@@ -499,18 +494,6 @@ void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string
 	string sTuneCMD = string("play chanid ")+numbers[0];
 	sendMythCommand(sTuneCMD.c_str());
 }
-
-void MythTV_Player::KillSpawnedDevices()
-{
-#ifndef WIN32
-	signal(SIGCHLD, SIG_IGN);
-#endif
-	MythTV_Player_Command::KillSpawnedDevices();
-
-	// This will only be called when we are dying, so we won't care about what happens to our spawned children.
-	// We had a problem that KillSpawnedDevices called KillPids.sh, which when exited, called the sh signal handler and hung at wait
-}
-
 
 //<-dceag-c84-b->
 
@@ -850,17 +833,12 @@ void MythTV_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedia
 void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
-#ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
 	*sMediaPosition = m_sChannel;
 
 	m_mythStatus_set(MYTHSTATUS_DISCONNECTED);
-
-	vector<void *> data;
-	if ( ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data) == false )
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "I failed to kill the application launched with name: %s", MYTH_WINDOW_NAME);
-#endif
+	StopMythFrontend();
 }
 
 //<-dceag-c39-b->
@@ -1429,3 +1407,16 @@ void MythTV_Player::CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_
 	m_mythStatus_set(MYTHSTATUS_DISCONNECTED);
 #endif
 }
+
+bool MythTV_Player::StopMythFrontend()
+{
+	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::StopMythFrontend %p", pDevice_App_Server);
+	if( pDevice_App_Server )
+	{
+		DCE:::CMD_Kill_Application CMD_Kill_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			"mythfrontend", false);
+		SendCommand(CMD_Kill_Application);
+	}
+}
+

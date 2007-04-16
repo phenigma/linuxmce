@@ -65,6 +65,7 @@ namespace DCE
 
     protected:
         bool LaunchMythFrontend(bool bSelectWindow=true);
+        bool StopMythFrontend();
 
 	Display *getDisplay() { return m_pDisplay; };
         void processKeyBoardInputRequest(int iXKeySym);
@@ -92,7 +93,6 @@ public:
 		void updateMode(string toMode);
 		void pollMythStatus();
 
-		virtual void KillSpawnedDevices();
 		virtual void CreateChildren();
 
 		void LockOrbiterPointer();
