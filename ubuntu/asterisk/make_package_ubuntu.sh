@@ -68,7 +68,8 @@ ln -sf asterisk-[0-9]* asterisk
 	
 	touch ${PKGFOLDER}/etc/conf.modules
 
-	
+
+	if /bin/false ;then
 	for Kernel in ${PLUTO_KERNELS[@]} ;do	
 		#cd ${SRCFOLDER}/zaptel-*/
 		
@@ -98,6 +99,7 @@ ln -sf asterisk-[0-9]* asterisk
 		popd	
 		rm -rf ${SRCFOLDER}/build-zaptel
 	done
+	fi
 	# Unil zaptel fixes the makefile we are forced to do this here
 	rm -rf ${PKGFOLDER}/usr/share/man/man8
 	
