@@ -486,33 +486,33 @@ static int myth_scan_tuner(struct hdhomerun_device_t *pHD)
 		sourceid = atoi(row[2]);
 	if( sourceid==0 )
 	{
-		sprintf(sSQL, "INSERT INTO videosource(name,xmltvgrabber) VALUES('UNKNOWN_%d','/bin/true')",cardid);
-		if( (iresult=mysql_query(g_pMySQL,sSQL))!=0 )
+		sprintf(sSQL, "SELECT sourceid FROM videosource where name='UNKNOWN_%d'",cardid);
+		MYSQL_RES *pMYSQL_RES;
+		MYSQL_ROW row;
+		if( (iresult=mysql_query(g_pMySQL,sSQL))!=0 || (pMYSQL_RES = mysql_store_result(g_pMySQL))==NULL
+			|| (row = mysql_fetch_row(pMYSQL_RES))==NULL )
 		{
-			printf("Cannot execute query %s", sSQL);
-			return 1;
+			printf("card %08lX tuner %u has no existing source %s\n", (unsigned long)DeviceID, Tuner, sSQL);
+			sprintf(sSQL, "INSERT INTO videosource(name,xmltvgrabber) VALUES('UNKNOWN_%d','/bin/true')",cardid);
+			if( (iresult=mysql_query(g_pMySQL,sSQL))!=0 )
+			{
+				printf("Cannot execute query %s", sSQL);
+				return 1;
+			}
+			sourceid = (int) mysql_insert_id(g_pMySQL);
 		}
-		sourceid = (int) mysql_insert_id(g_pMySQL);
+		else
+		{
+			sourceid = atoi(row[0]);
+			printf("card %08lX tuner %u has an existing unknown source %d\n", (unsigned long)DeviceID, Tuner, sourceid);
+		}
 	}
 
 	int cardinputid=0;
 	if( row[1] )
 		cardinputid = atoi(row[2]);
-	if( cardinputid==0 )
-	{
-		sprintf(sSQL, 
-			"INSERT INTO cardinput(cardid,sourceid,inputname) VALUES(%d,%d,'MPEG2TS')",
-			cardid,sourceid);
 
-		if( (iresult=mysql_query(g_pMySQL,sSQL))!=0 )
-		{
-			printf("Cannot execute query %s", sSQL);
-			return 1;
-		}
-		cardinputid = (int) mysql_insert_id(g_pMySQL);
-	}
-
-	if( cardid==0 || sourceid==0 || cardinputid==0 )
+	if( cardid==0 || sourceid==0 )
 	{
 		printf("Error getting card id, sourceid, and cardinput id\n");
 		return 1;

@@ -163,9 +163,9 @@ bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
 	if( pDevice_App_Server )
 	{
-		string sMessage = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " 
-			TOSTRING(MESSAGETYPE_COMMAND) " " TOSTRING(COMMAND_Application_Exited_CONST) " " 
-			TOSTRING(COMMANDPARAMETER_Exit_Code_CONST);
+		string sMessage = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " 1 " 
+			TOSTRING(COMMAND_Application_Exited_CONST) " " 
+			TOSTRING(COMMANDPARAMETER_Exit_Code_CONST) " ";
 
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 			"/usr/bin/mythfrontend", "mythfrontend", "-w\t" MYTH_WINDOW_NAME,

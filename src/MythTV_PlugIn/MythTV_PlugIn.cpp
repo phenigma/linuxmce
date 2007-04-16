@@ -1035,6 +1035,17 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 			else if( pRow_Device->Disabled_get()==1 || pRow_Device_CaptureCard->Disabled_get()==1 )
 				continue;
 
+			PlutoSqlResult result_confirm_cardid_is_valid;
+			sSQL = "select cardid from capturecard where cardid=" + StringUtils::itos(cardid);
+			if( ( result_confirm_cardid_is_valid.r=m_pMySqlHelper_Myth->mysql_query_result( sSQL ) )==NULL 
+				|| result_confirm_cardid_is_valid.r->row_count<1 )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cardid %d is invalid",cardid);
+				cardid=0;
+				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,bTunersAsSeparateDevices ? pRow_Device->PK_Device_get() : pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST,"");
+			}
+
+
 			string sPortName = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Name_CONST);
 			string sBlockDevice = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Block_Device_CONST);
 			if( sBlockDevice.empty() )
@@ -1106,44 +1117,72 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				continue;
 			}
 
+			// When we're first doing a channel scan, we'll add a source, but not a card input, and give the source the name UNKNOWN_[cardid]
+			// See if there is such a source, and if it has any channels
 			int sourceid=0;
-			if( pRow_MediaProvider!=NULL )
+			bool bHasChannels = false;
+			PlutoSqlResult result_set_us;
+			sSQL = "SELECT sourceid FROM videosource WHERE name='UNKNOWN_" + StringUtils::itos(cardid) + "'";
+			if( (result_set_us.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set_us.r)) && atoi(row2[0]) )
 			{
-				Row_ProviderSource *pRow_ProviderSource = pRow_MediaProvider->FK_ProviderSource_getrow();
-				string sGrabber;
-				if( pRow_ProviderSource )
-					sGrabber = pRow_ProviderSource->FillCommandLine_get();
+				sourceid = atoi(row2[0]);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards card id %d has unknown source %d", cardid, sourceid);
+			}
+			else
+			{
+				// See what source we have for this card already
+				sSQL = "SELECT sourceid FROM cardinput WHERE cardid=" + StringUtils::itos(cardid) + " LIMIT 1";
+				PlutoSqlResult result_set_has_source;
+				if( (result_set_has_source.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && 
+					(row2=mysql_fetch_row(result_set_has_source.r)) && atoi(row2[0]) )
+						sourceid = atoi(row2[0]);
+			}
 
-				// See if the provider is in the database already
-				string sProviderName = "Provider " + StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get());
-				sSQL = "SELECT sourceid FROM `videosource` WHERE name='" + sProviderName + "'";
-				PlutoSqlResult result_set2;
-				if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set2.r)) && atoi(row2[0]) )
-					sourceid = atoi(row2[0]);
-				else
+			// This it the query to see if we have channels
+			if( sourceid )
+			{
+				sSQL = "SELECT sourceid FROM channel WHERE sourceid=" + StringUtils::itos(sourceid) + " LIMIT 1";
+				PlutoSqlResult result_set_has_channels;
+				if( (result_set_has_channels.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && result_set_has_channels.r->row_count>0 )
+					bHasChannels = true;
+			}
+
+			if( pRow_MediaProvider!=NULL || bHasChannels )  // If we have channels, we must already have a source id
+			{
+				if( !sourceid && pRow_MediaProvider )  // No source, but we do have a provider
 				{
-					// It's possible this was already added as an 'unknown' source.  If so convert that record instead
-					sSQL = "SELECT cardinput.sourceid FROM cardinput JOIN videosource ON cardinput.sourceid=videosource.sourceid "
-						"WHERE cardid=" + StringUtils::itos(cardid) + " AND inputname = '" + sPortName + "' AND videosource.name like 'UNKNOWN%'";
+					Row_ProviderSource *pRow_ProviderSource = pRow_MediaProvider->FK_ProviderSource_getrow();
+					string sGrabber;
+					if( pRow_ProviderSource )
+						sGrabber = pRow_ProviderSource->FillCommandLine_get();
 
+					// See if the provider is in the database already
+					string sProviderName = "Provider " + StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get());
+					sSQL = "SELECT sourceid FROM `videosource` WHERE name='" + sProviderName + "'";
 					PlutoSqlResult result_set2;
 					if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set2.r)) && atoi(row2[0]) )
 						sourceid = atoi(row2[0]);
 					else
 					{
+						PlutoSqlResult result_set2;
+						if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set2.r)) && atoi(row2[0]) )
+							sourceid = atoi(row2[0]);
+						else
+						{
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
+							bModifiedRows=true;
+							// The data direct shouldn't be hardcoded
+							sSQL = "INSERT INTO `videosource`(name) VALUES ('" + sProviderName + "')";
+							sourceid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
+						}
+					}
+
+					sSQL = "UPDATE `videosource` SET name='" + sProviderName + "',xmltvgrabber='" + sGrabber + "',userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE sourceid=" + StringUtils::itos(sourceid);
+					if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
+					{
 						LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
 						bModifiedRows=true;
-						// The data direct shouldn't be hardcoded
-						sSQL = "INSERT INTO `videosource`(name) VALUES ('" + sProviderName + "')";
-						sourceid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 					}
-				}
-
-				sSQL = "UPDATE `videosource` SET name='" + sProviderName + "',xmltvgrabber='" + sGrabber + "',userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE sourceid=" + StringUtils::itos(sourceid);
-				if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
-				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
-					bModifiedRows=true;
 				}
 
 				m_mapDevicesToSources[pRow_Device_Source->PK_Device_get()].push_back(sourceid);
@@ -1231,6 +1270,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 			m_bNeedToRunFillDb = true;  // A fill is already running.  Need to re-run it when we're done
 		else
 		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- setting m_bFillDbRunning=true and starting fill");
 			m_bFillDbRunning=true;
 			StartFillDatabase();
 		}
@@ -1710,7 +1750,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 		(pScanJob->m_pRow_Device_CaptureCard ? pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() : -1),
 		(pScanJob->m_pRow_Device_CaptureCard ? pScanJob->m_pRow_Device_CaptureCard->Status_get().c_str() : "none") );
 
-	if( pScanJob->m_pRow_Device_Tuner && pScanJob->m_pRow_Device_Tuner->Status_get()=="**RUN_CONFIG**" )
+	if( pScanJob->m_pRow_Device_CaptureCard && pScanJob->m_pRow_Device_CaptureCard->Status_get()=="**RUN_CONFIG**" )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d waiting for configure", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),
 			pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
@@ -1730,6 +1770,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 		m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 	}
 
+	bool bNeedConfigure=true;
 	DeviceData_Base *pDevice_App_Server = (DeviceData_Router *) m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
 	if( pDevice_App_Server )
 	{
@@ -1746,25 +1787,33 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- app server didn't respond");
 			m_pAlarmManager->AddRelativeAlarm(30,this,SYNC_PROVIDERS,(void *) pScanJob);  /* check again in 30 seconds */
-			pScanJob->m_pRow_Device_CaptureCard->NeedConfigure_set(1);
-			pScanJob->m_pRow_Device_Tuner->NeedConfigure_set(1);
 		}
 		else
 		{
 			pScanJob->m_bActive=true;
-			pScanJob->m_pRow_Device_CaptureCard->NeedConfigure_set(0);
-			pScanJob->m_pRow_Device_Tuner->NeedConfigure_set(0);
+			bNeedConfigure=false;
 		}
 	}
 	else
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- no app server");
-		pScanJob->m_pRow_Device_CaptureCard->NeedConfigure_set(1);
-		pScanJob->m_pRow_Device_Tuner->NeedConfigure_set(1);
 		m_mapPendingScans.erase( pScanJob->m_pRow_Device_Tuner->PK_Device_get() );
 		delete pScanJob;
 	}
-	m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->Commit();
+
+	string sDevices = StringUtils::itos(pScanJob->m_pRow_Device_CaptureCard->PK_Device_get()) + "," 
+			+ StringUtils::itos(pScanJob->m_pRow_Device_Tuner->PK_Device_get()) + ")";
+	string sSQL;
+
+	if( bNeedConfigure )
+		sSQL = "UPDATE Device SET NeedConfigure=1,Status='**RUN_CONFIG**' WHERE PK_Device IN(" + sDevices + ")";
+	else
+		sSQL = "UPDATE Device SET NeedConfigure=0 WHERE PK_Device IN(" + sDevices + ")";
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"myth plugin check %s",sSQL.c_str());
+	
+	m_pMedia_Plugin->m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+	pScanJob->m_pRow_Device_CaptureCard->Reload();
+	pScanJob->m_pRow_Device_Tuner->Reload();
 }
 
 bool MythTV_PlugIn::ReportPendingTasks(PendingTaskList *pPendingTaskList)
@@ -1941,6 +1990,8 @@ void MythTV_PlugIn::StartFillDatabase()
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::StartFillDatabase starting fill");
+
 	DeviceData_Router *pDevice_App_Server=NULL,*pDevice_Us = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
 	if( pDevice_Us )
 		pDevice_App_Server = (DeviceData_Router *) pDevice_Us->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
@@ -1953,7 +2004,7 @@ void MythTV_PlugIn::StartFillDatabase()
 		if( !SendCommand(CMD_Spawn_Application_fill) )
 		{
 			m_bFillDbRunning=false;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartFillDatabase failed");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartFillDatabase failed m_bFillDbRunning=false");
 		}
 
 		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
@@ -1981,15 +2032,19 @@ void MythTV_PlugIn::StartFillDatabase()
 void MythTV_PlugIn::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask,string &sCMD_Result,Message *pMessage)
 //<-dceag-c910-e->
 {
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Report_EPG Success %d m_bNeedToRunFillDb %d m_bFillDbRunning %d",
 		bIsSuccessful,(int) m_bNeedToRunFillDb,(int) m_bFillDbRunning);
-	if( m_bNeedToRunFillDb )
+	if( m_bNeedToRunFillDb )  // A flag to fill the database again when the first one finished
 	{
-		m_bFillDbRunning=true;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Reporting_EPG_Status restarting m_bFillDbRunning=true");
+		m_bNeedToRunFillDb=false;
+		m_bFillDbRunning=true;  // Reset the flag
 		StartFillDatabase();
 	}
 	else
 	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Reporting_EPG_Status done m_bFillDbRunning=false");
 		m_bFillDbRunning=false;
 	}
 }
@@ -1997,6 +2052,8 @@ void MythTV_PlugIn::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,str
 bool MythTV_PlugIn::SafeToReload(string &sReason)
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SafeToReload m_bFillDbRunning %d m_bNeedToRunFillDb %d",
+		(int) m_bFillDbRunning,(int) m_bNeedToRunFillDb);
 	if( m_bFillDbRunning )
 	{
 		sReason = "MythTV_PlugIn loading EPG data";
