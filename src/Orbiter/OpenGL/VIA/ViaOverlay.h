@@ -81,7 +81,7 @@ public:
 	*/
 	void ResetAlphaMask();
 	void ApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask);
-	void FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value);
+	void FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value, bool bMergeToScreen = false);
 
 	/*
 	* Special methods for alpha surface access
@@ -129,7 +129,7 @@ private:
 	*  Internal methods
 	*/ 
 	void InternalApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask);
-	void InternalFillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value);
+	void InternalFillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value, bool bMergeToScreen = false);
 };
 //-------------------------------------------------------------------------------------------------------
 #endif

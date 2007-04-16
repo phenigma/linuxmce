@@ -58,6 +58,12 @@ ViaOverlay::ViaOverlay() :
 //-------------------------------------------------------------------------------------------------------
 ViaOverlay::~ViaOverlay()
 {
+	//restore transparency when orbiter is reloading
+	ResetAlphaMask();
+
+	//apply the mask before dying
+	WorldChanged();
+    
 	delete [] m_ScreenMask;
 	m_ScreenMask = NULL;
 
@@ -155,11 +161,11 @@ void ViaOverlay::ApplyAlphaMask(int x, int y, int w, int h, const unsigned char 
 	InternalApplyAlphaMask(x, y, w, h, mask);
 }
 //-------------------------------------------------------------------------------------------------------
-void ViaOverlay::FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value)
+void ViaOverlay::FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value, bool bMergeToScreen/*=false*/)
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 
-	InternalFillRectangleInAlphaMask(x, y, w, h, value);
+	InternalFillRectangleInAlphaMask(x, y, w, h, value, bMergeToScreen);
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask)
@@ -178,7 +184,7 @@ void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsign
 	}
 }
 //-------------------------------------------------------------------------------------------------------
-void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value)
+void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value, bool bMergeToScreen/*=false*/)
 {
 	if(x + w <= m_nWidth && x >= 0 && y >= 0 && y + h <= m_nHeight)
 	{
@@ -186,11 +192,21 @@ void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, un
 			x, y, w, h, value);
 
 		if(x == 0 && y == 0 && w == m_nWidth && h == m_nHeight)
+		{
 			memset(m_BufferMask, value, w * h);
+
+			if(bMergeToScreen)
+				memset(m_ScreenMask, value, w * h);
+		}
 		else
 		{
 			for(int i = 0; i < h; i++)
+			{
 				memset(m_BufferMask + (y + i) * m_nWidth + x, value, w);
+
+				if(bMergeToScreen)
+					memset(m_ScreenMask + (y + i) * m_nWidth + x, value, w);
+			}
 		}
 	}
 	else
