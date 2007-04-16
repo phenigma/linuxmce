@@ -75,7 +75,7 @@ function softwareList($compSelected,$dbADO){
 		return $TEXT_ERROR_NO_COMPUTER_SELECTED_CONST;		
 	}
 	
-	$res=$dbADO->Execute('SELECT PK_Software,PackageName,Iconstr,Title,Category,Rating,Virus_Free,`Status`,Version,Distro FROM Software_Device INNER JOIN Software ON Software_Device.FK_Software=PK_Software LEFT JOIN Software_Source ON Software_Device.FK_Software_Source=PK_Software_Source WHERE FK_Device=?',array($compSelected));
+	$res=$dbADO->Execute('SELECT FK_Software_Source,PK_Software,PackageName,Iconstr,Title,Category,Rating,Virus_Free,`Status`,Version,Distro FROM Software_Device INNER JOIN Software ON Software_Device.FK_Software=PK_Software LEFT JOIN Software_Source ON Software_Device.FK_Software_Source=PK_Software_Source WHERE FK_Device=?',array($compSelected));
 	
 	$out='<table>
 		<tr class="tablehead">
@@ -118,7 +118,7 @@ function softwareList($compSelected,$dbADO){
 		$class=($pos%2==0)?'alternate_back':'';
 		$out.='
 		<tr class="'.$class.'">
-			<td align="center"><img src="softwareIcon.php?sID='.$row['PK_Software'].'"></td>
+			<td align="center"><img src="softwareIcon.php?sID='.$row['FK_Software_Source'].'"></td>
 			<td align="center">'.$row['PackageName'].'</td>
 			<td align="center">'.$row['Version'].'</td>
 			<td align="center">'.$row['Distro'].'</td>
