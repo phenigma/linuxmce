@@ -116,6 +116,7 @@ main (int argc, char *argv[])
 		displayStep1D();
 	}
 
+	//displayStepAptMirror();
 
 //	displayStep0A();
 

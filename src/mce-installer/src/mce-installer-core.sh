@@ -1,5 +1,6 @@
 #!/bin/bash
 
+exit 0
 . /usr/pluto/bin/Utils.sh
 
 rm -rf /tmp/mce_installer_error
@@ -62,6 +63,30 @@ function Setup_Network_Intefaces {
 
 }
 
+function Replace_Mirror {
+	local mirror=$1
+	local flag='0'
+	local newlines="deb $mirror edgy main restricted universe multiverse
+deb $mirror edgy-security main restricted universe multiverse
+deb $mirror edgy-updates  main restricted universe multiverse"
+
+	while read line ;do
+		if [[ "$line" == '# Choosed mirror - end' ]] ;then
+			echo "$newlines" >> /etc/apt/sources.list.$$
+			flag='0'
+		fi
+		if [[ "$line" == '# Choosed mirror - start' ]] ;then
+			echo "$line" >> /etc/apt/sources.list.$$		
+			flag='1'
+		fi
+		if [[ "$flag" == '0' ]] ;then
+			echo "$line" >> /etc/apt/sources.list.$$
+		fi
+	done < /etc/apt/sources.list
+
+	mv -f /etc/apt/sources.list.$$ /etc/apt/sources.list
+}
+
 function Setup_Apt_Conffiles {
 	StatsMessage "Setting up APT Package Manager"
 	
@@ -76,10 +101,19 @@ deb file:/usr/pluto/deb-cache/ ./
 deb http://archive.ubuntu.com/ubuntu edgy main restricted multiverse universe
 deb http://archive.ubuntu.com/ubuntu edgy-security main restricted multiverse universe
 deb http://archive.ubuntu.com/ubuntu edgy-updates main restricted multiverse universe
+# Choosed mirror - start
+deb $c_installMirror edgy main restricted multiverse universe
+deb $c_installMirror edgy-security main restricted multiverse universe
+deb $c_installMirror edgy-updates main restricted multiverse universe
+# Choosed mirror - end
 deb http://linuxmce.com/ubuntu ./
 #deb http://10.0.0.82/ ./
 # Pluto sources - end"
-	echo "$Sources" >/etc/apt/sources.list
+	if ! grep -qF '# Pluto sources - start' /etc/apt/sources.list ;then
+		echo "$Sources" >>/etc/apt/sources.list
+	else
+		Replace_Mirror "$c_installMirror"
+	fi
 fi
 
 	local SourcesOffline="# Pluto sources offline - start
@@ -152,6 +186,33 @@ function Install_DCERouter {
 	apt-get -y -f install pluto-dcerouter || ExitInstaller "Failed to install and configure the base software"
 }
 
+function UI_SetOptions {
+	local OrbiterDev="$1"
+	local OpenGLeffects="$2"
+	local AlphaBlending="$3"
+	local UI_Version="$4"
+
+	DEVICEDATA_Use_OpenGL_effects=172
+	DEVICEDATA_Use_alpha_blended_UI=169
+	DEVICEDATA_PK_UI=104
+
+	# disable OpenGL effects
+	Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+	     VALUES ('$OrbiterDev', '$DEVICEDATA_Use_OpenGL_effects', '$OpenGLeffects')"
+	RunSQL "$Q"
+
+	# disable alpha blending
+	Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+	     VALUES ('$OrbiterDev', '$DEVICEDATA_Use_alpha_blended_UI', '$AlphaBlending')"
+	RunSQL "$Q"
+
+	# set UI	
+	Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+	     VALUES ('$OrbiterDev', '$DEVICEDATA_PK_UI', '$UI_Version')"
+	RunSQL "$Q"
+
+}
+
 function Create_And_Config_Devices {
 
 	. /usr/pluto/bin/SQL_Ops.sh
@@ -175,6 +236,28 @@ function Create_And_Config_Devices {
 		Hybrid_DT=$(/usr/pluto/bin/CreateDevice -d $DEVICE_TEMPLATE_MediaDirector -C "$Core_PK_Device")
 		Q="UPDATE Device SET Description='The core/hybrid' WHERE PK_Device='$Hybrid_DT'"
 		RunSQL "$Q"
+ 
+		## Set UI interface
+		Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$Hybrid_DT'"
+		OrbiterDevice=$(RunSQL "$Q")
+
+		case "$c_installUI" in
+			"0")
+				# select UI1
+				UI_SetOptions "$OrbiterDevice" 0 0 1
+			;;
+			"1")
+				# select UI2 without alpha blending
+				UI_SetOptions "$OrbiterDevice" 1 0 4
+			;;
+			"2")
+				# select UI2 with alpha blending
+				UI_SetOptions "$OrbiterDevice" 1 1 4
+			;;
+			*)
+				echo "Unknown UI version: $c_installUI"
+			;;
+		esac
 	fi
 
 	StatsMessage "Configuring the LinuxMCE devices"
@@ -333,7 +416,9 @@ function Setup_DebCache() {
 }
 
 Core_PK_Device="0"
-Setup_Network_Intefaces
+if [[ "$c_netExtKeep" == "true" ]] ;then
+	Setup_Network_Intefaces
+fi
 Setup_Apt_Conffiles
 Setup_Pluto_Conf
 Setup_NIS

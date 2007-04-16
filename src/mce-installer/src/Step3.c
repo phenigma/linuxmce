@@ -14,7 +14,11 @@ void on_Step3_forward_clicked(GtkWidget *widget, gpointer data) {
 	setting_netIntIPN = g_strdup(gtk_entry_get_text(entry));
 
 	g_queue_push_head(history, (gpointer)STEP3);
-	displayStep4();
+	if (setting_deviceType == 2) {
+		displayStepUI();
+	} else {
+		displayStep4();
+	}
 }
 
 void on_Step3_dhcp_changed(GtkWidget *widget, gpointer data) {

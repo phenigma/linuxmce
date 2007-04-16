@@ -2,7 +2,7 @@
 
 ## Try to figure out what is the external network interface 
 ## by looking at the defaul router interface
-netExtName=$(route -n | grep "^0.0.0.0" | head -1 | awk '{print $8}')
+netExtName=$(route -n | grep "^0.0.0.0" | tail -1 | awk '{print $8}')
 
 ## If the external interface is still null, nada, niente, nimic
 ## just use the first one in the list

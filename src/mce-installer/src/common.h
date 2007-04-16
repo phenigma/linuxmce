@@ -46,6 +46,8 @@
 #include "Step4.h"
 #include "Step5.h"
 #include "Step6.h"
+#include "StepAptMirror.h"
+#include "StepUI.h"
 
 #include "network-common.h"
 
@@ -63,6 +65,8 @@
 #define STEP2F 12
 #define STEP0A 13
 #define STEP0B 14
+#define STEPAPTMIRROR 15
+#define STEPUI 16 
 
 #define INSTALL_TYPE_CD   1
 #define INSTALL_TYPE_ISO  2
@@ -106,4 +110,7 @@ gchar*   setting_deviceID;
 gint     setting_startupType;
 gint	 setting_installType;
 
+gint	 setting_UI;
+
+gchar*   setting_installMirror;
 #endif
