@@ -348,11 +348,13 @@ function BlacklistConfFiles()
 {
 	local file=$1
 
-    while read line; do
-	    if [[ "$line" == "$file" ]] ;then
-		    return 0
-		fi
-	done < /etc/confblacklist
+	if [[ -e /etc/confblacklist ]] ;then
+		while read line; do
+			if [[ "$line" == "$file" ]] ;then
+				return 0
+			fi
+		done < /etc/confblacklist
+	fi
 
 	return 1				
 }
