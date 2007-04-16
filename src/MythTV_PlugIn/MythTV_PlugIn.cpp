@@ -54,6 +54,7 @@ using namespace DCE;
 #define SYNC_PROVIDERS				2
 #define RUN_BACKEND_STARTER			3
 #define CHECK_FOR_SCHEDULED_RECORDINGS	4
+#define CONFIRM_MASTER_BACKEND_OK	5
 
 #include "../Orbiter_Plugin/OH_Orbiter.h"
 
@@ -259,7 +260,6 @@ void MythTV_PlugIn::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage
 
 bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 {
-#ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
 	MythTvMediaStream *pMythTvMediaStream = NULL;
@@ -287,7 +287,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMythTvMediaStream->m_iPK_MediaType,pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sLastPosition,"");
 	SendCommand(cmd);
 
-#endif
+	m_pAlarmManager->AddRelativeAlarm(1,this,CONFIRM_MASTER_BACKEND_OK,(void*)pMythTvMediaStream->m_iStreamID_get());
 	return MediaHandlerBase::StartMedia(pMediaStream,sError);
 }
 
@@ -1443,6 +1443,8 @@ void MythTV_PlugIn::AlarmCallback(int id, void* param)
 		RunBackendStarter();
 	else if( id==CHECK_FOR_SCHEDULED_RECORDINGS )
 		UpdateUpcomingRecordings();
+	else if( id==CONFIRM_MASTER_BACKEND_OK )
+		ConfirmMasterBackendOk((int) param);
 }
 
 bool MythTV_PlugIn::NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -2159,4 +2161,37 @@ void MythTV_PlugIn::CMD_Remove_Scheduled_Recording(string sID,string sProgramID,
 	// the updated values.  I don't know how to synchronize this so it waits until myth is done redoing the schedule, so
 	// I just threw in 20 seconds to be on the safe side.
 	m_pAlarmManager->AddRelativeAlarm(20,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
+}
+
+void MythTV_PlugIn::ConfirmMasterBackendOk(int iMediaStreamID)
+{
+	// If Myth isn't reachable, forcibly kill it and notify the user
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(iMediaStreamID,0);
+	string sResponse;
+	m_pMythBackEnd_Socket->SendMythString("QUERY_UPTIME",&sResponse);
+	if( sResponse.empty() )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::ConfirmMasterBackendOk -- lost communication with it.  Forcing it to die");
+		DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+		if( pDevice_App_Server )
+		{
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+				"/usr/pluto/bin/ForciblyKillProcess.sh","killmyth","mythbackend","","",false,false,false,true);
+			SendCommand(CMD_Spawn_Application);
+		}
+
+		string sMessage = "MythTV seems to have died.  I'm trying to reset it now.  If you do not see tv, try stopping the tv and restarting it.  If you still have problems, you may need to reboot.";
+		if( pMediaStream )
+		{
+			int PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia;
+			if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+				PK_Device = pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device;
+			DCE::SCREEN_DialogGenericError SCREEN_DialogGenericError(m_dwPK_Device,PK_Device,
+				sMessage,"0","20000","1");
+			SendCommand(SCREEN_DialogGenericError);
+		}
+	}
+	else
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::ConfirmMasterBackendOk got %s", sResponse.c_str());
 }

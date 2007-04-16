@@ -212,6 +212,7 @@ public:
 		void RunBackendStarter();
 		void StartFillDatabase();
 		void UpdateUpcomingRecordings();
+		void ConfirmMasterBackendOk(int iMediaStreamID);
 
         //<-dceag-h-b->
 	/*
