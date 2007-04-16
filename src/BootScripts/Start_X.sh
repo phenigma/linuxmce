@@ -42,7 +42,7 @@ XClient=/usr/bin/xfwm4
 XClientParm=()
 
 #<-mkr_b_ubuntu_b->
-XClientParm=(--conpositor=off)
+XClientParm=(--compositor=off)
 #<-mkr_b_ubuntu_e->
 
 XServerParm=(-logverbose 9 -br -config /etc/X11/xorg.conf.pluto)
