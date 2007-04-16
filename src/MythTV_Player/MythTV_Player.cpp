@@ -1411,12 +1411,13 @@ void MythTV_Player::CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_
 bool MythTV_Player::StopMythFrontend()
 {
 	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::StopMythFrontend %p", pDevice_App_Server);
+	string sResponse;
 	if( pDevice_App_Server )
 	{
 		DCE::CMD_Kill_Application CMD_Kill_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 			"mythfrontend", false);
-		SendCommand(CMD_Kill_Application);
+		SendCommand(CMD_Kill_Application,&sResponse);  // Get return confirmation so we know it's gone before we continue
 	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::StopMythFrontend %p %s", pDevice_App_Server,sResponse.c_str());
 }
 
