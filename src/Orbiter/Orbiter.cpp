@@ -66,7 +66,7 @@ using namespace DCE;
 #include "ScreenHandler.h"
 #include "ScreenHistory.h"
 
-#ifdef VIA_OVERLAY
+#if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
 #include "OpenGL/VIA/ViaOverlay.h"
 #endif
 
@@ -2819,7 +2819,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 		}
 	}
 
-#ifdef VIA_OVERLAY
+#if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
 	if(event.type == Orbiter::Event::BUTTON_DOWN)
 	{
 		if(event.data.button.m_iPK_Button == BUTTON_F10_CONST)
