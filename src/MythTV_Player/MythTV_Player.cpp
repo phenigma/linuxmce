@@ -1414,7 +1414,7 @@ bool MythTV_Player::StopMythFrontend()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::StopMythFrontend %p", pDevice_App_Server);
 	if( pDevice_App_Server )
 	{
-		DCE:::CMD_Kill_Application CMD_Kill_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+		DCE::CMD_Kill_Application CMD_Kill_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 			"mythfrontend", false);
 		SendCommand(CMD_Kill_Application);
 	}
