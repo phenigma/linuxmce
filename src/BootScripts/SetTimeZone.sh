@@ -15,7 +15,7 @@ function setTimezone() {
 		ln -s "$zoneFile" $rootDir/etc/localtime
 	fi
 	
-	if ! BlacklistConfFiles "$rootDir/etc/timezone"
+	if ! BlacklistConfFiles "$rootDir/etc/timezone" ;then
 		mv $rootDir/etc/timezone $rootDir/etc/timezone.pbackup
 		echo "$timeZone" >$rootDir/etc/timezone
 	fi
