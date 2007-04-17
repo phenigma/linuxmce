@@ -6942,7 +6942,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 /*virtual*/ bool Orbiter::IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button, bool bDown)
 {
 	//no valid button
-	if(iPK_Button == 0)
+	if(iPK_Button == 0 || m_bQuit_get())
 		return false;
 
 	static DesignObj_Orbiter *pObj_Highlighted_With_Repeat = NULL;
