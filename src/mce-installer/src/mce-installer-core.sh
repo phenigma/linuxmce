@@ -65,9 +65,9 @@ function Setup_Network_Intefaces {
 function Replace_Mirror {
 	local mirror=$1
 	local flag='0'
-	local newlines="deb $mirror edgy main restricted universe multiverse
-deb $mirror edgy-security main restricted universe multiverse
-deb $mirror edgy-updates  main restricted universe multiverse"
+	local newlines="deb $mirror feisty main restricted universe multiverse
+deb $mirror feisty-security main restricted universe multiverse
+deb $mirror feisty-updates  main restricted universe multiverse"
 
 	while read line ;do
 		if [[ "$line" == '# Choosed mirror - end' ]] ;then
@@ -98,9 +98,9 @@ if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
 	local Sources="# Pluto sources - start
 deb file:/usr/pluto/deb-cache/ ./
 # Choosed mirror - start
-deb $c_installMirror edgy main restricted multiverse universe
-deb $c_installMirror edgy-security main restricted multiverse universe
-deb $c_installMirror edgy-updates main restricted multiverse universe
+deb $c_installMirror feisty main restricted multiverse universe
+deb $c_installMirror feisty-security main restricted multiverse universe
+deb $c_installMirror feisty-updates main restricted multiverse universe
 # Choosed mirror - end
 deb http://linuxmce.com/ubuntu ./
 #deb http://10.0.0.82/ ./
@@ -177,8 +177,12 @@ echo > /etc/init.d/yp.conf
 }
 
 function Install_DCERouter {
-	StatsMessage "Installing LinuxMCE Base Software"
+	StatsMessage "Installing MySQL Server"
 	apt-get update
+	apt-get -y -f install mysql-server || ExitInstaller "Failed to install mysql server"
+	invoke-rc.d mysql start # Because of this : https://bugs.launchpad.net/bugs/107224
+
+	StatsMessage "Installing LinuxMCE Base Software"
 	apt-get -y -f install pluto-dcerouter || ExitInstaller "Failed to install and configure the base software"
 }
 
