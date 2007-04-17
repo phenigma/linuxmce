@@ -388,6 +388,12 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	SDL_Surface *pSurface = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, rectPosition.Width, rectPosition.Height, 32, 
 		rmask, gmask, bmask, amask);
 
+	if(NULL == pSurface)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Not enough memory!");
+		return;
+	}
+
 	SDL_Rect rectBar;
 	rectBar.x = 0; rectBar.y = 0; rectBar.w = rectPosition.Width; rectBar.h = rectPosition.Height;
 	SDL_FillRect(pSurface, &rectBar, SDL_MapRGBA(pSurface->format, 0, 0, 0, 0));
@@ -918,11 +924,6 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 		if(NULL != pData && iData_Size != 0)
 		{
 			pOpenGLGraphic->LoadGraphic(pData, iData_Size, OrbiterLogic()->m_iRotation);  // These weren't pre-rotated
-
-#ifdef VIA_OVERLAY
-			pOpenGLGraphic->ResetAlphaMask(pObj->m_rPosition.Width, pObj->m_rPosition.Height);
-#endif
-
 			pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 
 			TextureManager::Instance()->PrepareConvert(pOpenGLGraphic);
@@ -932,8 +933,12 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 		}
 		else
 		{
-			pOpenGLGraphic->Clear();
+			pOpenGLGraphic->Cleanup();
 		}
+
+#ifdef VIA_OVERLAY
+			pOpenGLGraphic->ResetAlphaMask(pObj->m_rPosition.Width, pObj->m_rPosition.Height);
+#endif
 
 		RenderObjectAsync(pObj);
 		RedrawObjects();

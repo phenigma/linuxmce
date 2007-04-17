@@ -439,6 +439,22 @@ void OpenGLGraphic::Clear()
 	}
 }
 
+void OpenGLGraphic::Cleanup()
+{
+	if(Texture)
+	{
+		TextureManager::Instance()->PrepareRelease(Texture);
+		Texture = 0;
+	}
+
+	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
+	if(LocalSurface != NULL)
+	{
+			SDL_FreeSurface(LocalSurface);
+			LocalSurface = NULL;
+	}
+}
+
 bool OpenGLGraphic::GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize)
 {
 	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);

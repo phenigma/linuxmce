@@ -144,6 +144,7 @@ public:
 	bool IsEmpty(); 
 	bool LoadGraphic(char *pData, size_t iSize,int iRotation=0); 
 	void Clear(); 
+	void Cleanup();
 	PlutoGraphic *GetHighlightedVersion() { return NULL; }
 	bool GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize);
 
