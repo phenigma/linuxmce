@@ -3565,6 +3565,9 @@ bool Orbiter::GotActivity( int PK_Button )
 		(int) m_bDisplayOn,(int) m_bScreenSaverActive,(int) UsesUIVersion2());
 #endif
 
+	if(m_bQuit_get())
+		return false;
+
 	// If the display is off, or we're in screen saver mode
 	if( !m_bDisplayOn || 
 		(m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu) )
