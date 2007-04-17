@@ -412,7 +412,7 @@ function Setup_DebCache() {
 }
 
 Core_PK_Device="0"
-if [[ "$c_netExtKeep" == "true" ]] ;then
+if [[ "$c_netExtKeep" != "true" ]] ;then
 	Setup_Network_Intefaces
 fi
 Setup_Apt_Conffiles
