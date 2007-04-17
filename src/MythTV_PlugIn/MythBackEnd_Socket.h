@@ -10,6 +10,8 @@
 
 #include "DCE/ClientSocket.h"
 
+#define MYTH_SOCKET_BUFFER_SIZE		1024
+
 namespace DCE
 {
 	class MythTV_PlugIn;
@@ -40,13 +42,15 @@ namespace DCE
 		MythBackEnd_Socket_Wrapper *m_pSocket;
 		string m_sIPAddress;
 		MythTV_PlugIn *m_pMythTV_PlugIn;
+		char *m_pSocketBuffer;
 void PurgeSocketBuffer();  // move to socket.h
 
 	public:
 		
 		MythBackEnd_Socket(MythTV_PlugIn *pMythTV_PlugIn,string sIPAddress);
+		~MythBackEnd_Socket();
 
-		virtual bool Connect( );
+		bool Connect( );
 
 		void Close();
 

@@ -1356,7 +1356,7 @@ void MythTV_PlugIn::CheckForNewRecordings()
 
 		sSQL = 
 			"SELECT recorded.chanid,recorded.starttime,recorded.title,recorded.subtitle,recorded.stars,recorded.category,recorded.description,"
-			"recordedprogram.hdtv,recordedprogram.category_type,channel.name,recordedrating.rating FROM recorded "
+			"recordedprogram.hdtv,recordedprogram.category_type,channel.name,recordedrating.rating,recgroup FROM recorded "
 			"LEFT JOIN recordedprogram ON recorded.chanid=recordedprogram.chanid and recorded.starttime=recordedprogram.starttime "
 			"LEFT JOIN channel ON recorded.chanid=channel.chanid "
 			"LEFT JOIN recordedrating ON recorded.chanid=recordedrating.chanid and recorded.starttime=recordedrating.starttime "
@@ -1365,6 +1365,13 @@ void MythTV_PlugIn::CheckForNewRecordings()
 		PlutoSqlResult result;
 		if( (result.r=m_pMySqlHelper_Myth->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
 		{
+			// If it's just a live tv buffer that hasn't been purged yet, ignore it
+			if( row[11] && strcmp(row[11],"LiveTV")==0 )
+			{
+				pRow_File->Ignore_set(1);
+				continue;
+			}
+
 			if( row[2] )
 				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[2],0,"",ATTRIBUTETYPE_Title_CONST,"",pRow_File->PK_File_get());
 			if( row[3] )

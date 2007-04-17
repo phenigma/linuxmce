@@ -22,10 +22,17 @@ using namespace DCE;
 
 MythBackEnd_Socket::MythBackEnd_Socket(MythTV_PlugIn *pMythTV_PlugIn,string sIPAddress)
 {
+	m_pSocketBuffer = new char[MYTH_SOCKET_BUFFER_SIZE];
 	m_pMythTV_PlugIn = pMythTV_PlugIn;
 	m_sIPAddress = sIPAddress;
 	m_bConnected=false;
 	m_pSocket = NULL;
+}
+
+MythBackEnd_Socket::~MythBackEnd_Socket()
+{
+	delete m_pSocket;
+	delete m_pSocketBuffer;
 }
 
 bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse)
