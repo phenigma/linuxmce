@@ -133,7 +133,6 @@ DataGridCell::~DataGridCell()
 		m_pMessage = NULL;
 	}
 
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"delete ~DataGridCell m_pCell->m_pGraphic %p:%p",this,m_pGraphic);
 	if(NULL != m_pGraphicData)
 	{
 		delete m_pGraphicData;
