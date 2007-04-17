@@ -107,7 +107,8 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythStr
 			Sleep(50);  // Don't hog the cpu.  There's nothing coming in, so give Myth a chance to reply
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString sent %s but timeout getting response", sValue.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString sent %s but timeout getting response containing %s", 
+		sValue.c_str(), sContaining.c_str());
 	return false;
 }
 
@@ -276,10 +277,16 @@ void MythBackEnd_Socket::ProcessIncomingString(string sResponse)
 {
 	if( sResponse.empty()==true )
 	{
-		m_sStringBuffer=sResponse;
+		sResponse=m_sStringBuffer;
 		m_sStringBuffer="";
 	}
 
+	if( sResponse.substr(0,15)=="BACKEND_MESSAGE" )
+	{
+string x=sResponse.substr(20,15);
+		if( sResponse.substr(20,15)=="SCHEDULE_CHANGE" )
+			m_pMythTV_PlugIn->m_pAlarmManager->AddRelativeAlarm(0,m_pMythTV_PlugIn,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
+	}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythBackEnd_Socket::ProcessIncomingString %s", 
 		sResponse.c_str());
 }

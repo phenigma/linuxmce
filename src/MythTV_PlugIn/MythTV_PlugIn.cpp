@@ -49,14 +49,6 @@ using namespace DCE;
 //#include <libmythtv/frame.h>
 #endif
 
-#define MINIMUM_MYTH_SCHEMA		1123
-#define CHECK_FOR_NEW_RECORDINGS	1
-#define START_SCAN_JOB				2
-#define RUN_BACKEND_STARTER			3
-#define CHECK_FOR_SCHEDULED_RECORDINGS	4
-#define CONFIRM_MASTER_BACKEND_OK	5
-#define SYNC_PROVIDERS_AND_CARDS	6
-
 #include "../Orbiter_Plugin/OH_Orbiter.h"
 
 // For sorting channels
@@ -548,6 +540,12 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 		{
 			string sChannelName = StringUtils::itos(pMythChannel->m_dwChanNum) + " " + pMythChannel->m_sShortName;
 			pMythChannel->m_pCell = new DataGridCell(sChannelName,StringUtils::itos(pMythChannel->m_dwID));
+			if( pMythChannel->m_pPic )
+			{
+				char *pPic = new char[ pMythChannel->m_Pic_size ];
+				memcpy(pPic,pMythChannel->m_pPic,pMythChannel->m_Pic_size);
+				pMythChannel->m_pCell->SetImage( pPic, pMythChannel->m_Pic_size, GR_JPG );
+			}
 			pMythChannel->m_pCell->m_mapAttributes["Number"] = StringUtils::itos(pMythChannel->m_dwID);
 			pMythChannel->m_pCell->m_mapAttributes["Name"] = sChannelName;
 		}
@@ -809,12 +807,7 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sType,string sOptions,string s
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording %d=%s", iID, sSQL.c_str());
 	if( m_pMythBackEnd_Socket )
-		m_pMythBackEnd_Socket->SendMythStringGetOk("RESCHEDULE_RECORDINGS -1");
-
-	// This 20 seconds is totally arbitrary.  If I ask myth too soon after sending RESCHEDULE_RECORDINGS, it doesn't give me
-	// the updated values.  I don't know how to synchronize this so it waits until myth is done redoing the schedule, so
-	// I just threw in 20 seconds to be on the safe side.
-	m_pAlarmManager->AddRelativeAlarm(20,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
+		m_pMythBackEnd_Socket->SendMythString("RESCHEDULE_RECORDINGS " + StringUtils::itos(iID));
 }
 
 //<-dceag-createinst-b->!
@@ -2236,5 +2229,5 @@ void MythTV_PlugIn::ConfirmMasterBackendOk(int iMediaStreamID)
 	}
 
 	m_pAlarmManager->CancelAlarmByType(CONFIRM_MASTER_BACKEND_OK);  // Just be sure we're not in here more than once
-	m_pAlarmManager->AddRelativeAlarm(60,this,CONFIRM_MASTER_BACKEND_OK,NULL);
+	m_pAlarmManager->AddRelativeAlarm(30,this,CONFIRM_MASTER_BACKEND_OK,NULL);
 }

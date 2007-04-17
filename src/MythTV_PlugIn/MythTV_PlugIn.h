@@ -29,6 +29,15 @@ class EPGGrid;
 class MythTvWrapper;
 class MySqlHelper;
 
+#define MINIMUM_MYTH_SCHEMA		1123
+
+#define CHECK_FOR_NEW_RECORDINGS	1
+#define START_SCAN_JOB				2
+#define RUN_BACKEND_STARTER			3
+#define CHECK_FOR_SCHEDULED_RECORDINGS	4
+#define CONFIRM_MASTER_BACKEND_OK	5
+#define SYNC_PROVIDERS_AND_CARDS	6
+
 namespace DCE
 {
     using namespace std;
@@ -115,8 +124,6 @@ namespace DCE
 
         MythTvWrapper *m_pMythWrapper;
 
-		class AlarmManager *m_pAlarmManager;
-
 		int m_dwPK_File_LastCheckedForNewRecordings;
 		bool m_bBookmarksNeedRefreshing;
 		bool m_bFillDbRunning,  // true if the fill process is currently active
@@ -129,7 +136,9 @@ namespace DCE
     public:
         /** Public member variables */
         int m_dwTargetDevice;
-		
+
+		class AlarmManager *m_pAlarmManager;
+
 		// Map of PK_User to bookmarked channel,series,program, where bookmark is a comma delimited list
 		// populated by RefreshBookmarks
 		map<int,string> m_mapChannelBookmarks,m_mapSeriesBookmarks,m_mapProgramBookmarks;
