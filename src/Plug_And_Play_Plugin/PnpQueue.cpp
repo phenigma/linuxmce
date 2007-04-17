@@ -1649,6 +1649,7 @@ bool PnpQueue::ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Dev
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::ReenableDevice queue %d Device %d",
 		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get());
 #endif
+	pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set( pRow_Device->PK_Device_get() );
 	pPnpQueueEntry->RemoveBlockedDeviceData();
 	pPnpQueueEntry->AssignDeviceData(pRow_Device);
 	SetDisableFlagForDeviceAndChildren(pRow_Device,false);
