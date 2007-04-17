@@ -347,7 +347,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	string sPK_File,sPK_Disc;
     PlutoSqlResult resultf,resultd;
     MYSQL_ROW row;
-	if( (bFile || bBookmarksOnly) && ( resultf.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sSQL_Where + sOnline + " AND Ignore=0 AND Missing=0 " + 
+	if( (bFile || bBookmarksOnly) && ( resultf.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sSQL_Where + sOnline + " AND `Ignore`=0 AND Missing=0 " + 
 		(sPath.size() ? " AND Path in (" + sPath + ")" : "") + (PK_AttributeType_Sort!=0 ? " AND IsDirectory=0" : "") ) ) )
         while( ( row=mysql_fetch_row( resultf.r ) ) )
 			sPK_File += row[0] + string(",");
