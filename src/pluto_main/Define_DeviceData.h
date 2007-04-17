@@ -194,6 +194,7 @@
 #define DEVICEDATA_PROXY_TCP_Port_CONST 221
 #define DEVICEDATA_Enable_Memory_Management_CONST 222
 #define DEVICEDATA_Border_Size_CONST 223
+#define DEVICEDATA_Pnp_Ignore_Device_Data_CONST 224
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

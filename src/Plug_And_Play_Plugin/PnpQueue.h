@@ -93,6 +93,7 @@ namespace DCE
 
 		bool ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Device);
 		Row_Device *FindDisabledDeviceTemplateOnPC(int PK_Device_PC,int PK_DeviceTemplate);
+		void RunSetupScript(PnpQueueEntry *pPnpQueueEntry); // Run any setup script in the parameter 'Setup Script' with the parms Device Location_ON_PCI_Bus
 
 		// The various process functions,
 		bool Process(PnpQueueEntry *pPnpQueueEntry);

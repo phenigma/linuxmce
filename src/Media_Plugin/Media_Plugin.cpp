@@ -101,6 +101,7 @@ DCEConfig g_DCEConfig;
 
 // Alarm Types
 #define MEDIA_PLAYBACK_TIMEOUT					1
+#define CHECK_FOR_NEW_FILES						2
 
 int UniqueColors[MAX_MEDIA_COLORS];
 
@@ -417,6 +418,7 @@ continue;
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(1);      // number of worker threads
 	CMD_Refresh_List_of_Online_Devices();
+	m_pAlarmManager->AddRelativeAlarm(15,this,CHECK_FOR_NEW_FILES,NULL);
 
 	return true;
 }
@@ -5481,6 +5483,8 @@ void Media_Plugin::AlarmCallback(int id, void* param)
 		if( pMediaStream )
 			ProcessMediaFileTimeout(pMediaStream);
 	}
+	else if( id==CHECK_FOR_NEW_FILES )
+		CMD_Check_For_New_Files();
 }
 
 void Media_Plugin::ProcessMediaFileTimeout(MediaStream *pMediaStream)

@@ -87,26 +87,11 @@ void PnpQueue::Run()
 	ReadOutstandingQueueEntries();
 	while( m_pPlug_And_Play_Plugin->m_pRouter->m_bIsLoading_get() )
 		Sleep(1000); // Wait for the router to be ready before we start to process
-	time_t tTimeout = time(NULL) + 30; // Wait another 30 seconds for the on screen orbiter's to startup
+	time_t tTimeout = time(NULL) + 20; // Wait another 20 seconds for the on screen orbiter's to startup
 	while( time(NULL) < tTimeout && !m_pPlug_And_Play_Plugin->m_bQuit_get())
 		Sleep(1000);
 
 	pnp.Relock();
-
-	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_pPlug_And_Play_Plugin->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,0);
-	m_pPlug_And_Play_Plugin->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
-
-	if( m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin && m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_pMedia_Plugin )
-	{
-		DCE::CMD_Check_For_New_Files CMD_Check_For_New_Files(m_pPlug_And_Play_Plugin->m_dwPK_Device,m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_pMedia_Plugin->m_dwPK_Device);
-		m_pPlug_And_Play_Plugin->SendCommand(CMD_Check_For_New_Files);
-	}
-
-	/* no, then auto create are blocked
-	// we don't do this during the read phase above because the orbiter plugin may not have registered, nor the orbiters
-	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
-		DetermineOrbitersForPrompting(it->second);
-*/
 
 	bool bOnlyBlockedEntries=false;  // Set this to true if every entry in the list is blocked and we don't need to process anymore until something happens
 	while( !m_pPlug_And_Play_Plugin->m_bQuit_get())
@@ -305,6 +290,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 	{
 		DetermineOrbitersForPrompting(pPnpQueueEntry,false); // For the Display Alert
 
+		pPnpQueueEntry->RemoveBlockedDeviceData();
 		pPnpQueueEntry->AssignDeviceData(pRow_Device_Created);
 		int PK_Device_Topmost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get());
 		// See if this is a local device that has since moved from one system to another, like rs232 or usb
@@ -357,7 +343,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			}
 			if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
 				DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get());
-
+			RunSetupScript(pPnpQueueEntry);
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Detected queue %d was existing device, nothing to do",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
@@ -861,6 +847,7 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 	}
 
 	pPnpQueueEntry->m_sDescription = GetDeviceName(pPnpQueueEntry);
+	pPnpQueueEntry->RemoveBlockedDeviceData();
 	int iPK_Device=0;
 	DCE::CMD_Create_Device CMD_Create_Device( m_pPlug_And_Play_Plugin->m_dwPK_Device, pCommand_Impl_GIP->m_dwPK_Device, 
 		pRow_DeviceTemplate->PK_DeviceTemplate_get(), pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(), pPnpQueueEntry->m_iPK_Room, pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get(),
@@ -913,7 +900,38 @@ bool PnpQueue::Process_Detect_Stage_Add_Software(PnpQueueEntry *pPnpQueueEntry)
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);   // CMD_Check_for_updates starts any devices, so no need to do anything here
 	}
 
+	RunSetupScript(pPnpQueueEntry);
 	return true;
+}
+
+void PnpQueue::RunSetupScript(PnpQueueEntry *pPnpQueueEntry)
+{
+	Row_Device *pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow();
+	if( pRow_Device_Created )
+	{
+		Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device_Created->PK_Device_get(),DEVICEDATA_Setup_Script_CONST);
+		if( pRow_Device_DeviceData )
+		{
+			string sBinary = pRow_Device_DeviceData->IK_DeviceData_get();
+			if( sBinary.empty()==false )
+			{
+				DeviceData_Router *pDevice_AppServer=NULL,*pDevice_Detector = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
+				if( pDevice_Detector )
+					pDevice_AppServer = (DeviceData_Router *) pDevice_Detector->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );  // Don't wait for it
+				if( pDevice_AppServer )
+				{
+					string sArguments = StringUtils::itos(pRow_Device_Created->PK_Device_get());
+					pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device_Created->PK_Device_get(),DEVICEDATA_Location_on_PCI_bus_CONST);
+					if( pRow_Device_DeviceData )
+						sArguments += "\t" + pRow_Device_DeviceData->IK_DeviceData_get();
+
+					DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+						sBinary,"setup_script",sArguments,"","",false,false,false,true);
+					m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
+				}
+			}
+		}
+	}
 }
 
 bool PnpQueue::Process_Detect_Stage_Start_Device(PnpQueueEntry *pPnpQueueEntry)
@@ -1615,6 +1633,7 @@ bool PnpQueue::ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Dev
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::ReenableDevice queue %d Device %d",
 		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get());
 #endif
+	pPnpQueueEntry->RemoveBlockedDeviceData();
 	pPnpQueueEntry->AssignDeviceData(pRow_Device);
 	SetDisableFlagForDeviceAndChildren(pRow_Device,false);
 	m_pDatabase_pluto_main->Device_get()->Commit();

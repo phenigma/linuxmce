@@ -51,10 +51,11 @@ using namespace DCE;
 
 #define MINIMUM_MYTH_SCHEMA		1123
 #define CHECK_FOR_NEW_RECORDINGS	1
-#define SYNC_PROVIDERS				2
+#define START_SCAN_JOB				2
 #define RUN_BACKEND_STARTER			3
 #define CHECK_FOR_SCHEDULED_RECORDINGS	4
 #define CONFIRM_MASTER_BACKEND_OK	5
+#define SYNC_PROVIDERS_AND_CARDS	6
 
 #include "../Orbiter_Plugin/OH_Orbiter.h"
 
@@ -109,6 +110,8 @@ bool MythTV_PlugIn::GetConfig()
 	m_pAlarmManager->AddRelativeAlarm(5,this,RUN_BACKEND_STARTER,NULL);
 	m_pAlarmManager->AddRelativeAlarm(15,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
 	m_pAlarmManager->AddRelativeAlarm(60,this,CONFIRM_MASTER_BACKEND_OK,NULL);
+	m_pAlarmManager->AddRelativeAlarm(45,this,SYNC_PROVIDERS_AND_CARDS,NULL);  // Do this after pnp has had a chance to update all incoming devices
+
 	return true;
 }
 
@@ -1447,7 +1450,7 @@ void MythTV_PlugIn::AlarmCallback(int id, void* param)
 {
 	if( id==CHECK_FOR_NEW_RECORDINGS )
 		CheckForNewRecordings();
-	else if( id==SYNC_PROVIDERS )
+	else if( id==START_SCAN_JOB )
 	{
 		ScanJob *pScanJob = (ScanJob *) param;
 		StartScanJob(pScanJob);
@@ -1458,6 +1461,8 @@ void MythTV_PlugIn::AlarmCallback(int id, void* param)
 		UpdateUpcomingRecordings();
 	else if( id==CONFIRM_MASTER_BACKEND_OK )
 		ConfirmMasterBackendOk((int) param);
+	else if( id==SYNC_PROVIDERS_AND_CARDS )
+		CMD_Sync_Providers_and_Cards(0);
 }
 
 bool MythTV_PlugIn::NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -1754,7 +1759,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 	if( m_pGeneral_Info_Plugin->PendingConfigs() )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d waiting for packages", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
-		m_pAlarmManager->AddRelativeAlarm(30,this,SYNC_PROVIDERS,(void *) pScanJob);  /* check again in 30 seconds */
+		m_pAlarmManager->AddRelativeAlarm(30,this,START_SCAN_JOB,(void *) pScanJob);  /* check again in 30 seconds */
 		return;
 	}
 
@@ -1769,7 +1774,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d waiting for configure", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),
 			pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
-		m_pAlarmManager->AddRelativeAlarm(30,this,SYNC_PROVIDERS,(void *) pScanJob);  /* check again in 30 seconds */
+		m_pAlarmManager->AddRelativeAlarm(30,this,START_SCAN_JOB,(void *) pScanJob);  /* check again in 30 seconds */
 		return;
 	}
 
@@ -1801,7 +1806,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- app server didn't respond");
-			m_pAlarmManager->AddRelativeAlarm(30,this,SYNC_PROVIDERS,(void *) pScanJob);  /* check again in 30 seconds */
+			m_pAlarmManager->AddRelativeAlarm(30,this,START_SCAN_JOB,(void *) pScanJob);  /* check again in 30 seconds */
 		}
 		else
 		{

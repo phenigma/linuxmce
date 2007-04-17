@@ -26,6 +26,7 @@
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_CommMethod.h"
+#include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "Plug_And_Play_Plugin.h"
 #include "Gen_Devices/AllScreens.h"
 
@@ -236,6 +237,34 @@ void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,m_pRow_PnpQueue->SerialNumber_get());
 }
 
+void PnpQueueEntry::RemoveBlockedDeviceData()
+{
+	Row_DeviceTemplate *pRow_DeviceTemplate = NULL;
+	
+	if( m_pRow_PnpQueue->FK_Device_Created_get() )
+	{
+		Row_Device *pRow_Device = m_pRow_PnpQueue->FK_Device_Created_getrow();
+		if( pRow_Device )
+			pRow_DeviceTemplate=pRow_Device->FK_DeviceTemplate_getrow();
+	}
+	if( pRow_DeviceTemplate==NULL && m_pRow_PnpQueue->FK_DeviceTemplate_get() )
+		pRow_DeviceTemplate=m_pRow_PnpQueue->FK_DeviceTemplate_getrow();
+
+	if( pRow_DeviceTemplate )
+	{
+		Row_DeviceTemplate_DeviceData *Row_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_Pnp_Ignore_Device_Data_CONST);
+		if( Row_DeviceTemplate_DeviceData )
+		{
+			string sData = Row_DeviceTemplate_DeviceData->IK_DeviceData_get();
+			string::size_type pos=0;
+			while(pos<sData.size())
+			{
+				int PK_DeviceData = atoi(StringUtils::Tokenize(sData,",",pos).c_str());
+				m_mapPK_DeviceData.erase(PK_DeviceData);
+			}
+		}
+	}
+}
 bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 {
 	bool bForcedMatch=false;  // So we can do some additional determinations of matching

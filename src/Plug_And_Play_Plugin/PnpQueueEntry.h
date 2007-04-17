@@ -108,6 +108,7 @@ namespace DCE
 		void ParseDeviceData(string sDeviceData);
 		void FindTopLevelDevice();
 		void AssignDeviceData(Row_Device *pRow_Device);
+		void RemoveBlockedDeviceData();  // Remove any device data from HAL that is blocked per the device data Pnp Ignore Device Data in DeviceTemplate_DeviceData
 		bool IsDuplicate(PnpQueueEntry *pPnpQueueEntry);  // Returns true if the entry passed in is the same as this one
 		string StageAsText();
 		string ToString();
