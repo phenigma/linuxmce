@@ -36,6 +36,7 @@ tblDownloadSource=NULL;
 tblDownload_Attribute=NULL;
 tblFile=NULL;
 tblFileFormat=NULL;
+tblFileGroup=NULL;
 tblFile_Attribute=NULL;
 tblFile_Users=NULL;
 tblLongAttribute=NULL;
@@ -116,6 +117,9 @@ if( tblFile!=NULL )
 		bResult=false;
 if( tblFileFormat!=NULL )
 	if( !Commit_FileFormat(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblFileGroup!=NULL )
+	if( !Commit_FileGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
 if( tblFile_Attribute!=NULL )
 	if( !Commit_File_Attribute(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
@@ -216,6 +220,7 @@ DeleteTable_DownloadSource();
 DeleteTable_Download_Attribute();
 DeleteTable_File();
 DeleteTable_FileFormat();
+DeleteTable_FileGroup();
 DeleteTable_File_Attribute();
 DeleteTable_File_Users();
 DeleteTable_LongAttribute();

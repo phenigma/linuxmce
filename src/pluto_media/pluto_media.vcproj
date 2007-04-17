@@ -163,6 +163,9 @@
 				RelativePath=".\Table_FileFormat.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_FileGroup.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_File_Attribute.cpp">
 			</File>
 			<File

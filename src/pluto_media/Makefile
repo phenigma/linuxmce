@@ -21,6 +21,7 @@ Table_DownloadSource.cpp \
 Table_Download_Attribute.cpp \
 Table_File.cpp \
 Table_FileFormat.cpp \
+Table_FileGroup.cpp \
 Table_File_Attribute.cpp \
 Table_File_Users.cpp \
 Table_LongAttribute.cpp \
