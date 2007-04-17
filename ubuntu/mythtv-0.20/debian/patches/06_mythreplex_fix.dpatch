@@ -1,0 +1,49 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 06_mythreplex_fix.dpatch by Mario Limonciello <superm1@ubuntu.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad mythtv-0.20~/programs/mythtranscode/replex/element.c mythtv-0.20/programs/mythtranscode/replex/element.c
+--- mythtv-0.20~/programs/mythtranscode/replex/element.c	2006-08-28 12:09:05.000000000 -0500
++++ mythtv-0.20/programs/mythtranscode/replex/element.c	2006-10-15 13:17:48.000000000 -0500
+@@ -480,7 +480,7 @@
+ {
+ 	int c = 0;
+ 	int fr =0;
+-	uint8_t headr[4];
++	uint8_t headr[7];
+ 
+ 	af->set=0;
+ 
+@@ -529,7 +529,7 @@
+ int get_ac3_info(ringbuffer *rbuf, audio_frame_t *af, int off, int le)
+ {
+ 	int c=0;
+-	uint8_t headr[6];
++	uint8_t headr[7];
+ 	uint8_t frame;
+ 	int half = 0;
+ 	int fr;
+diff -urNad mythtv-0.20~/programs/mythtranscode/replex/replex.c mythtv-0.20/programs/mythtranscode/replex/replex.c
+--- mythtv-0.20~/programs/mythtranscode/replex/replex.c	2006-08-28 12:09:05.000000000 -0500
++++ mythtv-0.20/programs/mythtranscode/replex/replex.c	2006-10-15 13:17:48.000000000 -0500
+@@ -294,10 +294,13 @@
+ 						// add each extra frame required direct to the output file
+ 						int x;
+ 						for (x = 0; x < framesdiff; x++){
+-							if (type == AC3)
+-								write(rx->dmx_out[num+1+rx->apidn], framebuf, aframe->framesize);
+-							else
+-								write(rx->dmx_out[num+1], framebuf, aframe->framesize);
++							if (type == AC3){
++								if (rx->dmx_out[num+1+rx->apidn])	
++									write(rx->dmx_out[num+1+rx->apidn], framebuf, aframe->framesize);
++							}else{
++								if (rx->dmx_out[num+1])
++									write(rx->dmx_out[num+1], framebuf, aframe->framesize);
++							}
+ 							*acount += 1;
+ 						}
+ 						

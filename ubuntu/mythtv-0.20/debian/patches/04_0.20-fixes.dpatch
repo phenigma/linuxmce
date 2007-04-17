@@ -1,0 +1,863 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 01_debian-patch.dpatch by Christian Marillat <marillat@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Diff from svn 0.20 fixes.
+
+@DPATCH@
+
+--- mythtv/libs/libmythtv/NuppelVideoPlayer.cpp (revision 11047)
++++ release-0-20-fixes/mythtv/libs/libmythtv/NuppelVideoPlayer.cpp (revision 11326)
+@@ -574,5 +574,5 @@
+ void NuppelVideoPlayer::ReinitOSD(void)
+ {
+-    if (videoOutput)
++    if (videoOutput && !using_null_videoout)
+     {
+         QRect visible, total;
+@@ -6315,9 +6315,8 @@
+     bool osdshown = osd->IsSetDisplaying("subtitles");
+     long long menupktpts = ringBuffer->DVD()->GetMenuPktPts();
+-    bool instillframe = ringBuffer->DVD()->InStillFrame();
+ 
+     if ((numbuttons == 0) || 
+         (osdshown) ||
+-        (instillframe && buffer->timecode > 0) ||
++        (indvdstillframe && buffer->timecode > 0) ||
+         ((!osdshown) && 
+             (!indvdstillframe) &&
+
+--- mythtv/libs/libmythtv/avformatdecoder.cpp (revision 11024)
++++ release-0-20-fixes/mythtv/libs/libmythtv/avformatdecoder.cpp (revision 11326)
+@@ -465,7 +465,11 @@
+                                 bool doflush, bool discardFrames)
+ {
+-    if (ringBuffer->InDVDMenuOrStillFrame())
+-        return;
+-
++    if (ringBuffer->isDVD())
++    {
++        if (ringBuffer->InDVDMenuOrStillFrame() ||
++            newKey == 0) 
++            return;
++    }
++            
+     VERBOSE(VB_PLAYBACK, LOC +
+             QString("SeekReset(%1, %2, %3 flush, %4 discard)")
+@@ -1498,18 +1502,20 @@
+             SetTrack(kTrackTypeAudio, trackNo);
+         }
+-        if (tracks[kTrackTypeSubtitle].size() > 1)
++        if (tracks[kTrackTypeSubtitle].size() > 0)
+         {
+             qBubbleSort(tracks[kTrackTypeSubtitle]);
+             int trackNo = ringBuffer->DVD()->GetTrack(kTrackTypeSubtitle);
+             uint captionmode = GetNVP()->GetCaptionMode();
+-            if (captionmode == kDisplayAVSubtitle) {
+-                if (trackNo < 0 || trackNo >= (int)GetTrackCount(kTrackTypeSubtitle))
++            if (captionmode == kDisplayAVSubtitle &&
++                (trackNo < 0 || trackNo >= (int)GetTrackCount(kTrackTypeSubtitle)))
++            {
++                GetNVP()->SetCaptionsEnabled(false, false);
++            }
++            else
++            {
++                if (!ringBuffer->InDVDMenuOrStillFrame() && trackNo >= 0)
+                 {
+-                    GetNVP()->SetCaptionsEnabled(false, false);
+-                }
+-                else
+-                {
+-                    if (!ringBuffer->InDVDMenuOrStillFrame() && trackNo >= 0)
+-                        GetNVP()->SetCaptionsEnabled(true, false);
++                    SetTrack(kTrackTypeSubtitle, trackNo);
++                    GetNVP()->SetCaptionsEnabled(true, false);
+                 }
+             }
+
+--- mythtv/libs/libmythtv/osdtypes.cpp (revision 11028)
++++ release-0-20-fixes/mythtv/libs/libmythtv/osdtypes.cpp (revision 11201)
+@@ -2147,5 +2147,5 @@
+                (int)round(pos.y() / hmult)));
+ 
+-    VERBOSE(VB_IMPORTANT,
++    VERBOSE(VB_OSD,
+             "OSDTypePositionImage::AddPosition["<<m_numpositions<<"]("
+             <<pos.x()<<"x"<<pos.y()
+@@ -2158,5 +2158,5 @@
+                                 int xoff, int yoff)
+ {
+-    VERBOSE(VB_IMPORTANT,
++    VERBOSE(VB_OSD,
+             "OSDTypePositionImage::Draw["<<m_curposition<<"]("
+             <<m_wmult<<", "<<m_hmult<<")");
+
+--- mythtv/libs/libmythtv/DVDRingBuffer.cpp (revision 10966)
++++ release-0-20-fixes/mythtv/libs/libmythtv/DVDRingBuffer.cpp (revision 11326)
+@@ -316,5 +316,5 @@
+ 
+                 if (autoselectsubtitle)
+-                    curSubtitleTrack = dvdnav_get_active_spu_stream(dvdnav) & 0x1F;
++                    curSubtitleTrack = dvdnav_get_active_spu_stream(dvdnav);
+ 
+                 if (parent)
+
+--- mythtv/libs/libmythtv/diseqc.h (revision 10591)
++++ release-0-20-fixes/mythtv/libs/libmythtv/diseqc.h (revision 11318)
+@@ -160,5 +160,6 @@
+     virtual uint  GetChildCount(void)  const { return 0;             }
+     virtual bool  IsCommandNeeded(
+-        const DiSEqCDevSettings&)      const { return false;         }
++        const DiSEqCDevSettings&, const DVBTuning&)
++                                       const { return false;         }
+     virtual uint  GetVoltage(
+         const DiSEqCDevSettings&, const DVBTuning&) const = 0;
+@@ -231,6 +232,9 @@
+     dvbdev_switch_t GetType(void)       const { return m_type;      }
+     uint            GetNumPorts(void)   const { return m_num_ports; }
++    bool            ShouldSwitch(const DiSEqCDevSettings &settings,
++                                 const DVBTuning &tuning) const;
+     virtual uint    GetChildCount(void) const;
+-    virtual bool    IsCommandNeeded(const DiSEqCDevSettings&) const;
++    virtual bool    IsCommandNeeded(const DiSEqCDevSettings&,
++                                    const DVBTuning&) const;
+     virtual uint    GetVoltage(const DiSEqCDevSettings&,
+                                const DVBTuning&) const;
+@@ -258,4 +262,6 @@
+     uint            m_num_ports;
+     uint            m_last_pos;
++    uint            m_last_high_band;
++    uint            m_last_horizontal;
+     dvbdev_vec_t    m_children;
+ 
+@@ -292,5 +298,7 @@
+     bool           IsPositionKnown(void) const;
+     virtual uint   GetChildCount(void)   const { return 1;           }
+-    virtual bool   IsCommandNeeded(const DiSEqCDevSettings&) const;
++    virtual bool   IsCommandNeeded(const DiSEqCDevSettings&,
++                                   const DVBTuning&) const;
++    bool           IsMoving(const DiSEqCDevSettings&) const;
+     virtual uint   GetVoltage(const DiSEqCDevSettings&,
+                               const DVBTuning&) const;
+
+--- mythtv/libs/libmythtv/dbcheck.cpp (revision 11124)
++++ release-0-20-fixes/mythtv/libs/libmythtv/dbcheck.cpp (revision 11163)
+@@ -11,5 +11,5 @@
+ 
+ /// This is the DB schema version expected by the running MythTV instance.
+-const QString currentDatabaseVersion = "1158";
++const QString currentDatabaseVersion = "1160";
+ 
+ static bool UpdateDBVersionNumber(const QString &newnumber);
+@@ -2511,4 +2511,39 @@
+     }
+ 
++    if (dbver == "1158")
++    {
++        const QString updates[] = {
++"ALTER TABLE recorded ADD COLUMN watched TINYINT NOT NULL DEFAULT '0';",
++""
++};
++
++        if (!performActualUpdate(updates, "1159", dbver))
++            return false;
++    }
++
++    if (dbver == "1159")
++    {
++        MSqlQuery query(MSqlQuery::InitCon());
++        query.prepare("SELECT DISTINCT chanid, starttime FROM recordedmarkup "
++                      "WHERE type = 1;");
++        if (query.exec() && query.isActive() && query.size() > 0)
++        {
++            MSqlQuery fixup(MSqlQuery::InitCon());
++            while (query.next())
++            {
++                fixup.prepare(
++                       "UPDATE recorded SET cutlist = 1 "
++                       "WHERE chanid = :CHANID AND starttime =  :STARTTIME;");
++                fixup.bindValue(":CHANID", query.value(0).toString());
++                fixup.bindValue(":STARTTIME", query.value(1).toDateTime());
++
++                fixup.exec();
++            }
++        }
++
++        const QString updates[] = { "" };
++        if (!performActualUpdate(updates, "1160", dbver))
++            return false;
++    }
+ 
+ //"ALTER TABLE capturecard DROP COLUMN dvb_recordts;" in 0.21
+
+--- mythtv/libs/libmythtv/firewirerecorder.cpp (revision 10151)
++++ release-0-20-fixes/mythtv/libs/libmythtv/firewirerecorder.cpp (revision 11209)
+@@ -26,5 +26,5 @@
+ const int FirewireRecorder::kConnectionP2P       = 0;
+ const int FirewireRecorder::kConnectionBroadcast = 1;
+-const uint FirewireRecorder::kMaxBufferedPackets = 8000;
++const uint FirewireRecorder::kMaxBufferedPackets = 2000;
+ 
+ // callback function for libiec61883
+
+--- mythtv/libs/libmythtv/mpeg/dvbdescriptors.h (revision 10736)
++++ release-0-20-fixes/mythtv/libs/libmythtv/mpeg/dvbdescriptors.h (revision 11244)
+@@ -619,5 +619,5 @@
+     QString ModulationString() const
+     {
+-        static QString ms[] = { "qpsk", "qpsk", "qpsk_8", "qam_16" };
++        static QString ms[] = { "qpsk", "qpsk", "8psk", "qam_16" };
+         return (Modulation() <= kModulationQAM16) ? ms[Modulation()] : "auto";
+     }
+@@ -1161,4 +1161,18 @@
+         kServiceTypeDVB_MHP                  = 0x10,
+         kServiceTypeHDTV                     = 0x19,
++        kServiceTypeEchoStarTV1              = 0x91,
++        kServiceTypeEchoStarTV2              = 0x9a,
++        kServiceTypeEchoStarTV3              = 0xa4,
++        kServiceTypeEchoStarTV4              = 0xa6,
++        kServiceTypeNimiqTV1                 = 0x81,
++        kServiceTypeNimiqTV2                 = 0x85,
++        kServiceTypeNimiqTV3                 = 0x86,
++        kServiceTypeNimiqTV4                 = 0x89,
++        kServiceTypeNimiqTV5                 = 0x8a,
++        kServiceTypeNimiqTV6                 = 0x8d, 
++        kServiceTypeNimiqTV7                 = 0x8f,
++        kServiceTypeNimiqTV8                 = 0x90,
++        kServiceTypeNimiqTV9                 = 0x96,
++
+     };
+     // service_type             8   2.0
+@@ -1179,5 +1193,18 @@
+     }
+     bool IsDTV(void) const
+-        { return ServiceType() ==  kServiceTypeDigitalTelevision; }
++        { return ((ServiceType() ==  kServiceTypeDigitalTelevision) ||
++                  (ServiceType() ==  kServiceTypeEchoStarTV1) ||
++                  (ServiceType() ==  kServiceTypeEchoStarTV2) ||
++                  (ServiceType() ==  kServiceTypeEchoStarTV3) ||
++                  (ServiceType() ==  kServiceTypeEchoStarTV4) ||
++                  (ServiceType() ==  kServiceTypeNimiqTV1) ||
++                  (ServiceType() ==  kServiceTypeNimiqTV2) ||
++                  (ServiceType() ==  kServiceTypeNimiqTV3) ||
++                  (ServiceType() ==  kServiceTypeNimiqTV4) ||
++                  (ServiceType() ==  kServiceTypeNimiqTV5) ||
++                  (ServiceType() ==  kServiceTypeNimiqTV6) ||
++                  (ServiceType() ==  kServiceTypeNimiqTV7) ||
++                  (ServiceType() ==  kServiceTypeNimiqTV8) ||
++                  (ServiceType() ==  kServiceTypeNimiqTV9)); }
+     bool IsDigitalAudio(void) const
+         { return ServiceType() ==  kServiceTypeDigitalRadioSound; }
+
+--- mythtv/libs/libmythtv/DVDRingBuffer.h (revision 10711)
++++ release-0-20-fixes/mythtv/libs/libmythtv/DVDRingBuffer.h (revision 11326)
+@@ -148,5 +148,5 @@
+     long long      menupktpts;
+     int            curAudioTrack;
+-    int            curSubtitleTrack;
++    int8_t         curSubtitleTrack;
+     bool           autoselectaudio;
+     bool           autoselectsubtitle;
+
+--- mythtv/libs/libmythtv/videodev2_myth.h (revision 10589)
++++ release-0-20-fixes/mythtv/libs/libmythtv/videodev2_myth.h (revision 11274)
+@@ -722,5 +722,5 @@
+ 		void *reserved;
+ 	};
+-};
++}  __attribute__ ((packed));
+ 
+ struct v4l2_ext_controls
+
+--- mythtv/libs/libmythtv/programinfo.h (revision 10511)
++++ release-0-20-fixes/mythtv/libs/libmythtv/programinfo.h (revision 11331)
+@@ -14,5 +14,5 @@
+ typedef QMap<long long, int> frm_dir_map_t;
+ 
+-#define NUMPROGRAMLINES 41
++#define NUMPROGRAMLINES 42
+ 
+ typedef enum {
+@@ -60,4 +60,5 @@
+ 
+ enum RecStatusType {
++    rsFailed = -9,
+     rsTunerBusy = -8,
+     rsLowDiskSpace = -7,
+@@ -158,6 +159,6 @@
+     // Quick gets
+     bool SetRecordBasename(QString basename);
+-    QString GetRecordBasename(void) const;
+-    QString GetRecordFilename(const QString &prefix) const;
++    QString GetRecordBasename(bool fromDB = false) const;
++    QString GetRecordFilename(const QString &prefix, bool fromDB = false) const;
+     QString GetPlaybackURL(QString playbackHost = "") const;
+     QString MakeUniqueKey(void) const;
+
+--- mythtv/libs/libmythtv/tv_rec.cpp (revision 11091)
++++ release-0-20-fixes/mythtv/libs/libmythtv/tv_rec.cpp (revision 11331)
+@@ -555,4 +555,8 @@
+     WaitForEventThreadSleep();
+ 
++    if ((curRecording) && (curRecording->recstatus == rsFailed) &&
++        (retval == rsRecording))
++        retval = rsFailed;
++
+     return retval;
+ }
+@@ -676,17 +680,18 @@
+                                      .arg(curRec->title).arg(pigrp));
+ 
+-    curRec->recstatus = rsRecorded;
++    if (curRec->recstatus != rsFailed)
++        curRec->recstatus = rsRecorded;
+     curRec->recendts = mythCurrentDateTime();
+ 
+     if (tvchain)
+         tvchain->FinishedRecording(curRec);
++
++    // Make sure really short recordings have positive run time.
++    if (curRec->recendts <= curRec->recstartts)
++        curRec->recendts = curRec->recstartts.addSecs(60);
+ 
+     curRec->recendts.setTime(QTime(
+         curRec->recendts.addSecs(30).time().hour(),
+         curRec->recendts.addSecs(30).time().minute()));
+-
+-    // Make sure really short recordings have positive run time.
+-    if (curRec->recendts <= curRec->recstartts)
+-        curRec->recendts = mythCurrentDateTime().addSecs(1);
+ 
+     if (pigrp != "LiveTV")
+@@ -700,5 +705,6 @@
+         gContext->dispatch(me);
+     }
+-    curRec->FinishedRecording(false);
++
++    curRec->FinishedRecording(curRec->recstatus != rsRecorded);
+ }
+ 
+@@ -3444,4 +3450,7 @@
+         if (!(request.flags & kFlagLiveTV))
+         {
++            if (curRecording)
++                curRecording->recstatus = rsFailed;
++
+             VERBOSE(VB_IMPORTANT, LOC_ERR +
+                     QString("Failed to set channel to %1. "
+
+--- mythtv/libs/libmythtv/programinfo.cpp (revision 11124)
++++ release-0-20-fixes/mythtv/libs/libmythtv/programinfo.cpp (revision 11331)
+@@ -310,4 +310,5 @@
+     STR_TO_LIST((playgroup != "") ? playgroup : "Default")
+     INT_TO_LIST(recpriority2)
++    INT_TO_LIST(parentid)
+ }
+ 
+@@ -408,4 +409,5 @@
+     STR_FROM_LIST(playgroup)
+     INT_FROM_LIST(recpriority2)
++    INT_FROM_LIST(parentid)
+ 
+     return true;
+@@ -1040,5 +1042,9 @@
+                   "SET recordid = :RECID "
+                   "WHERE chanid = :CHANID AND starttime = :START");
+-    query.bindValue(":RECID",  getRecordID());
++
++    if (rectype == kOverrideRecord && parentid > 0)
++        query.bindValue(":RECID", parentid);
++    else
++        query.bindValue(":RECID",  getRecordID());
+     query.bindValue(":CHANID", chanid);
+     query.bindValue(":START",  recstartts);
+@@ -1420,13 +1426,13 @@
+ }               
+ 
+-/** \fn ProgramInfo::GetRecordBasename(void) const
++/** \fn ProgramInfo::GetRecordBasename() const
+  *  \brief Returns a filename for a recording based on the
+  *         recording channel and date.
+  */
+-QString ProgramInfo::GetRecordBasename(void) const
++QString ProgramInfo::GetRecordBasename(bool fromDB) const
+ {
+     QString retval = "";
+ 
+-    if (!pathname.isEmpty())
++    if (!fromDB && !pathname.isEmpty())
+         retval = pathname.section('/', -1);
+     else
+@@ -1453,11 +1459,11 @@
+ }               
+ 
+-/** \fn ProgramInfo::GetRecordFilename(const QString&) const
++/** \fn ProgramInfo::GetRecordFilename() const
+  *  \brief Returns prefix+"/"+GetRecordBasename()
+  *  \param prefix Prefix to apply to GetRecordBasename().
+  */
+-QString ProgramInfo::GetRecordFilename(const QString &prefix) const
+-{
+-    return QString("%1/%2").arg(prefix).arg(GetRecordBasename());
++QString ProgramInfo::GetRecordFilename(const QString &prefix, bool fromDB) const
++{
++    return QString("%1/%2").arg(prefix).arg(GetRecordBasename(fromDB));
+ }               
+ 
+@@ -1567,7 +1573,9 @@
+     query.prepare("REPLACE INTO recordedprogram"
+                  " SELECT * from program"
+-                 " WHERE chanid = :CHANID AND starttime = :START;");
++                 " WHERE chanid = :CHANID AND starttime = :START"
++                 " AND title = :TITLE;");
+     query.bindValue(":CHANID", chanid);
+     query.bindValue(":START", startts);
++    query.bindValue(":TITLE", title);
+     if (!query.exec() || !query.isActive())
+         MythContext::DBError("Copy program data on record", query);
+@@ -1663,5 +1671,10 @@
+ 
+     bool ok = query.exec() && (query.numRowsAffected() > 0);
+-    if (!ok && !query.isActive())
++    bool active = query.isActive();
++
++    query.prepare("UNLOCK TABLES");
++    query.exec();
++
++    if (!ok && !active)
+         MythContext::DBError("insert_program -- insert", query);
+     else
+@@ -1669,9 +1682,15 @@
+         query.prepare("UPDATE record SET last_record = NOW() "
+                       "WHERE recordid = :RECORDID");
+-        query.bindValue(":RECORDID",    pg->recordid);
++        query.bindValue(":RECORDID", pg->recordid);
+         query.exec();
+-    }
+-    query.prepare("UNLOCK TABLES");
+-    query.exec();
++
++        if (pg->rectype == kOverrideRecord && pg->parentid > 0)
++        {
++            query.prepare("UPDATE record SET last_record = NOW() "
++                          "WHERE recordid = :PARENTID");
++            query.bindValue(":PARENTID", pg->parentid);
++            query.exec();
++        }
++    }
+ 
+     return ok;
+@@ -1716,5 +1735,10 @@
+                   "    starttime = :STARTTIME ");
+     query.bindValue(":ENDTIME", recendts);
+-    query.bindValue(":RECORDID", recordid);
++
++    if (rectype == kOverrideRecord && parentid > 0)
++        query.bindValue(":RECORDID", parentid);
++    else
++        query.bindValue(":RECORDID", recordid);
++
+     query.bindValue(":CHANID", chanid);
+     query.bindValue(":STARTTIME", recstartts);
+@@ -2824,4 +2848,6 @@
+     case rsTunerBusy:
+         return QObject::tr("B", "RecStatusChar rsTunerBusy");
++    case rsFailed:
++        return QObject::tr("f", "RecStatusChar rsFailed");
+     case rsNotListed:
+         return QObject::tr("N", "RecStatusChar rsNotListed");
+@@ -2880,4 +2906,6 @@
+         case rsTunerBusy:
+             return QObject::tr("Tuner Busy");
++        case rsFailed:
++            return QObject::tr("Recorder Failed");
+         case rsNotListed:
+             return QObject::tr("Not Listed");
+@@ -2932,4 +2960,7 @@
+         case rsTunerBusy:
+             message += QObject::tr("the tuner card was already being used.");
++            break;
++        case rsFailed:
++            message += QObject::tr("the recording failed.");
+             break;
+         default:
+
+--- mythtv/libs/libmythtv/diseqc.cpp (revision 10708)
++++ release-0-20-fixes/mythtv/libs/libmythtv/diseqc.cpp (revision 11318)
+@@ -451,5 +451,5 @@
+ 
+     // turn off tone burst first if commands need to be sent
+-    if (m_root->IsCommandNeeded(settings))
++    if (m_root->IsCommandNeeded(settings, tuning))
+     {
+         SetTone(false);
+@@ -970,39 +970,38 @@
+         return false;
+ 
+-    // determine if switch command needs to be sent based on last pos
+-    if ((m_last_pos == (uint)pos) && m_children[pos])
+-        return m_children[pos]->Execute(settings, tuning);
+-
+     // perform switching
+-    switch (m_type)
+-    {
+-        case kTypeTone:
+-            success = ExecuteTone(settings, tuning, pos);
+-            break;
+-        case kTypeDiSEqCCommitted:
+-        case kTypeDiSEqCUncommitted:
+-            success = ExecuteDiseqc(settings, tuning, pos);
+-            break;
+-        case kTypeLegacySW21:
+-        case kTypeLegacySW42:
+-        case kTypeLegacySW64:
+-            success = ExecuteLegacy(settings, tuning, pos);
+-            break;
+-        default:
+-            success = false;
+-            VERBOSE(VB_IMPORTANT, LOC_ERR +
+-                    QString("Unknown switch type (%1)")
+-                    .arg((uint)m_type));
+-            break;
+-    }
+-
+-    // if a child device will be sending a diseqc command, wait 100ms
+-    if (m_children[pos]->IsCommandNeeded(settings))
+-    {
+-        VERBOSE(VB_CHANNEL, LOC + "Waiting for switch");
+-        usleep(DISEQC_LONG_WAIT);
+-    }
+-
+-    m_last_pos = pos;
++    if (ShouldSwitch(settings, tuning))
++    {
++        switch (m_type)
++        {
++            case kTypeTone:
++                success = ExecuteTone(settings, tuning, pos);
++                break;
++            case kTypeDiSEqCCommitted:
++            case kTypeDiSEqCUncommitted:
++                success = ExecuteDiseqc(settings, tuning, pos);
++                break;
++            case kTypeLegacySW21:
++            case kTypeLegacySW42:
++            case kTypeLegacySW64:
++                success = ExecuteLegacy(settings, tuning, pos);
++                break;
++            default:
++                success = false;
++                VERBOSE(VB_IMPORTANT, LOC_ERR +
++                        QString("Unknown switch type (%1)")
++                        .arg((uint)m_type));
++                break;
++        }
++
++        // if a child device will be sending a diseqc command, wait 100ms
++        if (m_children[pos]->IsCommandNeeded(settings, tuning))
++        {
++            VERBOSE(VB_CHANNEL, LOC + "Waiting for switch");
++            usleep(DISEQC_LONG_WAIT);
++        }
++
++        m_last_pos = pos;
++    }
+ 
+     // chain to child if the switch was successful
+@@ -1016,4 +1015,6 @@
+ {
+     m_last_pos = (uint) -1;
++    m_last_high_band = (uint) -1;
++    m_last_horizontal = (uint) -1;
+     dvbdev_vec_t::iterator it = m_children.begin();
+     for (; it != m_children.end(); ++it)
+@@ -1024,17 +1025,13 @@
+ }
+ 
+-bool DiSEqCDevSwitch::IsCommandNeeded(const DiSEqCDevSettings &settings) const
+-{
+-    // sanity check switch position
++bool DiSEqCDevSwitch::IsCommandNeeded(const DiSEqCDevSettings &settings,
++                                      const DVBTuning         &tuning) const
++{
+     int pos = GetPosition(settings);
+     if (pos < 0)
+         return false;
+ 
+-    // if position is changing, a command is definitely needed
+-    if ((uint)pos != m_last_pos)
+-        return true;
+-
+-    // otherwise, the child that will be selected may need a command
+-    return m_children[pos]->IsCommandNeeded(settings);
++    return (ShouldSwitch(settings, tuning) ||
++            m_children[pos]->IsCommandNeeded(settings, tuning));
+ }
+ 
+@@ -1349,4 +1346,32 @@
+ }
+ 
++bool DiSEqCDevSwitch::ShouldSwitch(const DiSEqCDevSettings &settings,
++                                   const DVBTuning &tuning) const
++{
++    int pos = GetPosition(settings);
++    if (pos < 0)
++        return false;
++
++    // committed switch should change for band and polarity as well
++    if (kTypeDiSEqCCommitted == m_type)
++    {
++        // retrieve LNB info
++        bool high_band  = false;
++        bool horizontal = false;
++        DiSEqCDevLNB *lnb  = m_tree.FindLNB(settings);
++        if (lnb)
++        {
++            high_band   = lnb->IsHighBand(tuning);
++            horizontal  = lnb->IsHorizontal(tuning);
++        }
++
++        if(high_band != m_last_high_band ||
++           horizontal != m_last_horizontal)
++            return true;
++    }
++
++    return m_last_pos != (uint)pos;
++}
++
+ bool DiSEqCDevSwitch::ExecuteDiseqc(const DiSEqCDevSettings &settings,
+                                     const DVBTuning &tuning,
+@@ -1386,5 +1411,11 @@
+             QString("%1/%2").arg(pos + 1).arg(m_num_ports));
+ 
+-    return m_tree.SendCommand(DISEQC_ADR_SW_ALL, cmd, m_repeat, 1, &data);
++    bool ret = m_tree.SendCommand(DISEQC_ADR_SW_ALL, cmd, m_repeat, 1, &data);
++    if(ret)
++    {
++        m_last_high_band = high_band;
++        m_last_horizontal = horizontal;
++    }
++    return ret;
+ }
+ 
+@@ -1491,5 +1522,6 @@
+ }
+ 
+-bool DiSEqCDevRotor::IsCommandNeeded(const DiSEqCDevSettings &settings) const
++bool DiSEqCDevRotor::IsCommandNeeded(const DiSEqCDevSettings &settings,
++                                     const DVBTuning         &tuning) const
+ {
+     double position = settings.GetValue(GetDeviceID());
+@@ -1499,5 +1531,5 @@
+ 
+     if (m_child)
+-        return m_child->IsCommandNeeded(settings);
++        return m_child->IsCommandNeeded(settings, tuning);
+ 
+     return false;
+@@ -1529,6 +1561,5 @@
+ }
+ 
+-uint DiSEqCDevRotor::GetVoltage(const DiSEqCDevSettings &settings,
+-                                const DVBTuning         &tuning) const
++bool DiSEqCDevRotor::IsMoving(const DiSEqCDevSettings &settings) const
+ {
+     double position = settings.GetValue(GetDeviceID());
+@@ -1536,6 +1567,12 @@
+     bool   moving   = (completed < 1.0) || (position != m_last_position);
+ 
++    return (m_last_pos_known && moving);
++}
++
++uint DiSEqCDevRotor::GetVoltage(const DiSEqCDevSettings &settings,
++                                const DVBTuning         &tuning) const
++{
+     // override voltage if the last position is known and the rotor is moving
+-    if (m_last_pos_known && moving)
++    if (IsMoving(settings))
+     {
+         VERBOSE(VB_CHANNEL, LOC +
+
+--- mythtv/libs/libmyth/mythcontext.h (revision 10974)
++++ release-0-20-fixes/mythtv/libs/libmyth/mythcontext.h (revision 11281)
+@@ -230,5 +230,5 @@
+  *   mythplugins/mythweb/includes/mythbackend.php
+  */
+-#define MYTH_PROTO_VERSION "30"
++#define MYTH_PROTO_VERSION "31"
+ 
+ /** \class MythContext
+
+--- mythtv/libs/libmythdvdnav/vm.c (revision 9487)
++++ release-0-20-fixes/mythtv/libs/libmythdvdnav/vm.c (revision 11326)
+@@ -758,9 +758,9 @@
+   }
+ 
+-  if((vm->state).domain == VTS_DOMAIN && !((vm->state).SPST_REG & 0x40))
++  if((vm->state).SPST_REG & 0x40)
+     /* Bit 7 set means hide, and only let Forced display show */
+-    return (streamN | 0x80);
++    return (streamN & 0x1F);
+   else
+-    return streamN;
++    return -1;
+ }
+ 
+
+--- mythtv/libs/libmythupnp/httprequest.cpp (revision 10141)
++++ release-0-20-fixes/mythtv/libs/libmythupnp/httprequest.cpp (revision 11304)
+@@ -258,10 +258,14 @@
+         m_nResponseStatus = 404;
+ 
++    QString sDate = QDateTime::currentDateTime().toString( "d MMM yyyy hh:mm:ss" );  
++
+     sHeader   = QString("HTTP/%1.%2 %3\r\n"
+-                        "Content-Type: %4\r\n"
+-                        "Content-Length: %5\r\n" )
++                        "Date: %4\r\n"
++                        "Content-Type: %5\r\n"
++                        "Content-Length: %6\r\n" )
+                         .arg( m_nMajor )
+                         .arg( m_nMinor )
+                         .arg( GetResponseStatus())
++                        .arg( sDate )
+                         .arg( sContentType )
+                         .arg( llSize       ).utf8();
+@@ -282,5 +286,17 @@
+         __off64_t offset = llStart;
+         int       file   = open( sFileName.ascii(), O_RDONLY | O_LARGEFILE );
+-        sendfile64( getSocketHandle(), file, &offset, llSize );
++        ssize_t   sent   = 0;  
++
++        do 
++        {  
++            // SSIZE_MAX should work in kernels 2.6.16 and later.  
++            // The loop is needed in any case.  
++
++            sent = sendfile64( getSocketHandle(), file, &offset, 
++                               (size_t)(llSize > INT_MAX ? INT_MAX : llSize));  
++
++            llSize -= sent;  
++        } 
++        while (( sent >= 0 ) && ( llSize > 0 ));  
+ 
+         close( file );
+
+--- mythtv/programs/mythbackend/mainserver.cpp (revision 11124)
++++ release-0-20-fixes/mythtv/programs/mythbackend/mainserver.cpp (revision 11331)
+@@ -670,4 +670,34 @@
+                 cerr << "Cannot find program info for '" << me->Message()
+                      << "', while attempting to Auto-Expire." << endl;
++            }
++
++            return;
++        }
++
++        if ((me->Message().left(16) == "DELETE_RECORDING") ||
++            (me->Message().left(22) == "FORCE_DELETE_RECORDING"))
++        {
++            QStringList tokens = QStringList::split(" ", me->Message());
++            if (tokens.size() != 3)
++            {
++                VERBOSE(VB_IMPORTANT, QString("Bad %1 message").arg(tokens[0]));
++                return;
++            }
++
++            QDateTime startts = QDateTime::fromString(tokens[2], Qt::ISODate);
++            ProgramInfo *pinfo = ProgramInfo::GetProgramFromRecorded(tokens[1],
++                                                                     startts);
++            if (pinfo)
++            {
++                if (tokens[0] == "FORCE_DELETE_RECORDING")
++                    DoHandleDeleteRecording(pinfo, NULL, true);
++                else
++                    DoHandleDeleteRecording(pinfo, NULL, false);
++            }
++            else
++            {
++                VERBOSE(VB_IMPORTANT,
++                    QString("Cannot find program info for '%1' while "
++                            "attempting to delete.").arg(me->Message()));
+             }
+ 
+@@ -1394,4 +1424,5 @@
+     bool slowDeletes = gContext->GetNumSetting("TruncateDeletesSlowly", 0);
+     int fd = -1;
++    off_t size = 0;
+     bool errmsg = false;
+ 
+@@ -1399,4 +1430,9 @@
+     if (slowDeletes)
+     {
++        // Since stat fails after unlinking on some filesystems,
++        // get the filesize first
++        struct stat st;
++        if (stat(ds->filename.ascii(), &st) == 0)
++            size = st.st_size;
+         fd = DeleteFile(ds->filename, followLinks);
+ 
+@@ -1446,5 +1482,5 @@
+     {
+         m_expirer->TruncatePending();
+-        TruncateAndClose(m_expirer, fd, ds->filename);
++        TruncateAndClose(m_expirer, fd, ds->filename, size);
+         m_expirer->TruncateFinished();
+     }
+@@ -1601,5 +1637,6 @@
+  */
+ bool MainServer::TruncateAndClose(const AutoExpire *expirer,
+-                                  int fd, const QString &filename)
++                                  int fd, const QString &filename,
++                                  off_t fsize)
+ {
+     QMutexLocker locker(&truncate_and_close_lock);
+@@ -1621,15 +1658,4 @@
+             .arg(increment / (1024.0 * 1024.0), 0, 'f', 2)
+             .arg(sleep_time));
+-
+-    // Get the on disk file size and preferred I/O block size.
+-    struct stat buf;
+-    fstat(fd, &buf);
+-    // Estimate the file size.  Don't use buf.st_blksize * buf.st_blocks
+-    // The unit for st_blocks is undefined.  See section "RATIONALE" at
+-    // http://www.opengroup.org/onlinepubs/000095399/basedefs/sys/stat.h.html
+-    off_t fsize = ((buf.st_size / buf.st_blksize) + 1) * buf.st_blksize;
+-
+-    // Round truncate increment up to a blocksize, w/min of 1 block.
+-    increment = ((increment / buf.st_blksize) + 1) * buf.st_blksize;
+ 
+     while (fsize > 0)
+@@ -1811,5 +1837,5 @@
+ 
+     QString fileprefix = gContext->GetFilePrefix();
+-    QString filename = pginfo->GetRecordFilename(fileprefix);
++    QString filename = pginfo->GetRecordFilename(fileprefix, true);
+ 
+     // If this recording was made by a another recorder, and that
+
+--- mythtv/programs/mythbackend/scheduler.cpp (revision 11080)
++++ release-0-20-fixes/mythtv/programs/mythbackend/scheduler.cpp (revision 11331)
+@@ -1385,4 +1385,12 @@
+             VERBOSE(VB_GENERAL, msg << ": " << details);
+             gContext->LogEntry("scheduler", LP_NOTICE, msg, details);
++
++            if (nextRecording->recstatus == rsFailed)
++            {
++                MythEvent me(QString("FORCE_DELETE_RECORDING %1 %2")
++                         .arg(nextRecording->chanid)
++                         .arg(nextRecording->recstartts.toString(Qt::ISODate)));
++                gContext->dispatch(me);
++            }
+         }
+ 
+
+--- mythtv/programs/mythbackend/mainserver.h (revision 10370)
++++ release-0-20-fixes/mythtv/programs/mythbackend/mainserver.h (revision 11313)
+@@ -153,5 +153,6 @@
+     static int  OpenAndUnlink(const QString &filename);
+     static bool TruncateAndClose(const AutoExpire *expirer,
+-                                 int fd, const QString &filename);
++                                 int fd, const QString &filename,
++                                 off_t fsize);
+ 
+     QPtrList<LiveTVChain> liveTVChains;
