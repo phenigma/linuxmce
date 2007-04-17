@@ -497,12 +497,12 @@ bool Orbiter_Plugin::ReportPendingTasks(PendingTaskList *pPendingTaskList)
                             StringUtils::itos(pRow_Orbiter->RegenPercent_get()) + "%";
                     }
 				}
-			}
 
-			pPendingTaskList->m_listPendingTask.push_back(new PendingTask(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				m_dwPK_Device,m_dwPK_Device,
-				"orbitergen",sProgress,
-				-1,0,false));
+				pPendingTaskList->m_listPendingTask.push_back(new PendingTask(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+					m_dwPK_Device,m_dwPK_Device,
+					"orbitergen",sProgress,
+					-1,0,false));
+			}
 		}
 	}
 
