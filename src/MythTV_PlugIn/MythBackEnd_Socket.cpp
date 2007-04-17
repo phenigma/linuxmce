@@ -27,6 +27,7 @@ MythBackEnd_Socket::MythBackEnd_Socket(MythTV_PlugIn *pMythTV_PlugIn,string sIPA
 	m_sIPAddress = sIPAddress;
 	m_bConnected=false;
 	m_pSocket = NULL;
+	m_iCharsInBuffer=m_iSizeIncomingMessage=0;
 }
 
 MythBackEnd_Socket::~MythBackEnd_Socket()
@@ -35,10 +36,10 @@ MythBackEnd_Socket::~MythBackEnd_Socket()
 	delete m_pSocketBuffer;
 }
 
-bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse)
+bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse,string sContaining)
 {
 	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
-	if( InternalSendMythString(sValue,sResponse) )
+	if( InternalSendMythString(sValue,sResponse,sContaining) )
 		return true;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythBackEnd_Socket::SendMythString trying to reconnect");
@@ -47,14 +48,14 @@ bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse)
 	if( bResult )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING,"MythBackEnd_Socket::SendMythString failed -- reconnected");
-		return InternalSendMythString(sValue,sResponse);
+		return InternalSendMythString(sValue,sResponse,sContaining);
 	}
 
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString failed to reconnect");
 	return false;
 }
 
-bool MythBackEnd_Socket::InternalSendMythString(string sValue,string *sResponse)
+bool MythBackEnd_Socket::InternalSendMythString(string sValue,string *sResponse,string sContaining)
 {
 	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
 	if( (!m_bConnected || m_pSocket==NULL || m_pSocket->m_Socket == INVALID_SOCKET) && !Connect() )
@@ -67,7 +68,7 @@ bool MythBackEnd_Socket::InternalSendMythString(string sValue,string *sResponse)
 	char szSize[20];
 	sprintf(szSize,"%d          ",sValue.size());
 	szSize[8]=0;
-	if( !m_pSocket->SendData(8,szSize) || !m_pSocket->SendData(sValue.size(),sValue.c_str()) )
+	if( !m_pSocket->SendData(8,szSize) || !m_pSocket->SendData((int) sValue.size(),sValue.c_str()) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket cannot send %s", sValue.c_str());
 		DeleteSocket();
@@ -80,55 +81,46 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythStr
 	if( sResponse==NULL )
 		return true;
 
-	// Get the size of the response
-	char pcData[1000];
-	if( !m_pSocket->ReceiveData( 8, pcData, 5 ) )
+	time_t tTimeout = time(NULL) + MYTH_RESPONSE_TIMEOUT;
+
+	while(time(NULL)<tTimeout)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString cannot receive");
-		DeleteSocket();
-		return false;
+		eReceiveCharResult _eReceiveCharResult = ReceiveChar();
+		if( _eReceiveCharResult==eReceiveCharResult_String )
+		{
+			// We got a string.  If sContaining is empty, that's what we'll use, otherwise, use it only if it contains sContaining
+			if( sContaining.empty()==true || m_sStringBuffer.find(sContaining)!=string::npos )
+			{
+				*sResponse = m_sStringBuffer;
+				m_sStringBuffer="";
+				return true;
+			}
+			else
+				ProcessIncomingString();  // It's not what we're looking for, process it
+		}
+		else if( _eReceiveCharResult==eReceiveCharResult_Error )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString sent %s but error getting response", sValue.c_str());
+			return false;
+		}
+		else if( _eReceiveCharResult==eReceiveCharResult_Nothing )
+			Sleep(50);  // Don't hog the cpu.  There's nothing coming in, so give Myth a chance to reply
 	}
 
-	// Get the size of the response
-	size_t Size = atoi(pcData);
-	if( Size<1 || Size>100000 ) // Arbitrary upper limit
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString invalid size %d",(int) Size);
-		DeleteSocket();
-		return false;
-	}
-	char *pcBuffer = new char[Size+1];
-    if( !m_pSocket->ReceiveData( Size, pcBuffer, 5 ) )
-	{
-		delete pcBuffer;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString failed to read %d",(int) Size);
-		DeleteSocket();
-		return false;
-	}
-
-	pcBuffer[Size]=0;
-	*sResponse = pcBuffer;
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket receive: %s", sResponse->c_str());
-	delete[] pcBuffer;
-	return true;
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString sent %s but timeout getting response", sValue.c_str());
+	return false;
 }
 
 bool MythBackEnd_Socket::SendMythStringGetOk(string sValue)
 {
 	string sResponse;
-	if( !SendMythString(sValue,&sResponse) )
+	if( !SendMythString(sValue,&sResponse,"OK") )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythStringGetOk couldn't send");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythStringGetOk couldn't send and get OK");
 		DeleteSocket();
 		return false;
 	}
 
-	if( sResponse!="OK" )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythStringGetOk");
-		DeleteSocket();
-		return false;
-	}
 	return true;
 }
 
@@ -140,6 +132,8 @@ bool MythBackEnd_Socket::Connect( )
 
 	if( m_bConnected && m_pSocket && m_pSocket->m_Socket != INVALID_SOCKET )
 		return true;
+
+	m_iSizeIncomingMessage=0;
 
 	if( m_pSocket==NULL || m_pSocket->m_Socket == INVALID_SOCKET )
 	{
@@ -157,22 +151,15 @@ bool MythBackEnd_Socket::Connect( )
 	m_bConnected=true;
 
 	string sResponse;
-	if( !InternalSendMythString("MYTH_PROTO_VERSION " TOSTRING(MYTH_PROTOCOL),&sResponse) )
+	if( !InternalSendMythString("MYTH_PROTO_VERSION " TOSTRING(MYTH_PROTOCOL),&sResponse,"ACCEPT") )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Connect couldn't send MYTH_PROTO_VERSION m_bConnected=false");
 		DeleteSocket();
 		return false;
 	}
 
-	if( StringUtils::StartsWith(sResponse,"ACCEPT")==false )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Connect sent MYTH_PROTO_VERSION: m_bConnected=false got %s", sResponse.c_str());
-		DeleteSocket();
-		return false;
-	}
-
 	sResponse="";
-	if( !InternalSendMythString("ANN Playback mythtv_plugin 01",&sResponse) || sResponse!="OK" )
+	if( !InternalSendMythString("ANN Playback mythtv_plugin 01",&sResponse,"OK") )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Connect couldn't send ANN m_bConnected=false");
 		DeleteSocket();
@@ -183,6 +170,27 @@ bool MythBackEnd_Socket::Connect( )
 	return true;
 }
 
+bool MythBackEnd_Socket::ProcessSocket()
+{
+	eReceiveCharResult _eReceiveCharResult;
+	
+	// Process all incoming characters
+	while( (_eReceiveCharResult=ReceiveChar())==eReceiveCharResult_Char );
+
+	if( _eReceiveCharResult==eReceiveCharResult_String )
+	{
+		ProcessIncomingString();  // Process it
+		return true;
+	}
+	else if( _eReceiveCharResult==eReceiveCharResult_Error )
+	{
+		delete m_pSocket;
+		m_pSocket=NULL;
+		bool bResult = Connect();
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::ProcessSocket error reconnect %d", (int) bResult);
+	}
+	return false;
+}
 
 void MythBackEnd_Socket::PurgeSocketBuffer()
 {
@@ -190,28 +198,13 @@ void MythBackEnd_Socket::PurgeSocketBuffer()
 	if( !m_pSocket || m_pSocket->m_Socket == INVALID_SOCKET )
 		return;
 
-	fd_set rfds;
-	struct timeval tv;
-	tv.tv_sec=tv.tv_usec=0;
-	FD_ZERO(&rfds);
-	FD_SET(m_pSocket->m_Socket, &rfds);
-
-	while( true )
+	while(true)
 	{
-		int iRet = select((int) (m_pSocket->m_Socket+1), &rfds, NULL, NULL, &tv);
-		if( iRet<1 )
+		eReceiveCharResult _eReceiveCharResult = ReceiveChar();
+		if( _eReceiveCharResult==eReceiveCharResult_String )
+			ProcessIncomingString();
+		else if( _eReceiveCharResult!=eReceiveCharResult_Char )
 			return;
-
-		char pcBuff[10];
-		bool bRet = true;
-		int iResult = recv( m_pSocket->m_Socket, pcBuff, 9, 0 );
-		if( iResult<1 )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket purge socket is dead");
-			return;
-		}
-pcBuff[9]=0;
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket purge: %s", pcBuff);
 	}
 }
 
@@ -222,8 +215,78 @@ void MythBackEnd_Socket::Close()
 	m_bConnected=false;
 }
 
+eReceiveCharResult MythBackEnd_Socket::ReceiveChar()
+{
+	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
+	if( (!m_bConnected || m_pSocket==NULL || m_pSocket->m_Socket == INVALID_SOCKET) && !Connect() )
+		return eReceiveCharResult_Error;
+
+	char pcBuf[1];
+	if ( !m_pSocket->ReceiveData( 1, pcBuf, -2 ) )
+		return eReceiveCharResult_Nothing;
+
+	// Unless we're receiving a fixed size message, treat \n as the end of the message.
+	// If we're only expecting 1 more character in the message, this is it
+	if( (m_iSizeIncomingMessage==0 && pcBuf[0]=='\n') || m_iSizeIncomingMessage==1 )
+	{
+		if( m_iSizeIncomingMessage==1 )
+		{
+			m_pSocketBuffer[m_iCharsInBuffer++] = pcBuf[0];  // It's not a \n
+			m_pSocketBuffer[m_iCharsInBuffer] = 0;
+			m_sStringBuffer += m_pSocketBuffer;
+			m_sStringBuffer = m_sStringBuffer.substr(8);  // Strip the initial size
+		}
+		else
+		{
+			m_pSocketBuffer[m_iCharsInBuffer] = 0;
+			m_sStringBuffer += m_pSocketBuffer;
+		}
+		m_iCharsInBuffer=0;
+		m_iSizeIncomingMessage=0;
+		return eReceiveCharResult_String;
+	}
+	
+	m_pSocketBuffer[m_iCharsInBuffer++] = pcBuf[0];
+	if( m_iSizeIncomingMessage )  // We're expecting a fixed size message.  Decrement the amount we're still expecting
+		m_iSizeIncomingMessage--;
+
+	if( m_iCharsInBuffer+2>=MYTH_SOCKET_BUFFER_SIZE )  // Allow room for the final numm term, plus a last char on the next loop
+	{
+		m_pSocketBuffer[m_iCharsInBuffer] = 0;
+		m_sStringBuffer += m_pSocketBuffer;
+		m_iCharsInBuffer=0;
+	}
+	else if( m_iCharsInBuffer==8 && m_sStringBuffer.empty()==true )
+	{
+		// If we've received 8 characters, and nothing more, see if they're all numeric, and if so, this is a fixed-size message
+		for(int i=0;i<8;++i)
+		{
+			if( m_pSocketBuffer[i]!=' ' && (m_pSocketBuffer[i]<'0' || m_pSocketBuffer[i]>'9') ) 
+				return eReceiveCharResult_Char;
+		}
+
+		// It's a fixed size message
+		m_pSocketBuffer[8]=0;
+		m_iSizeIncomingMessage=atoi(m_pSocketBuffer);
+	}
+	return eReceiveCharResult_Char;
+}
+
+void MythBackEnd_Socket::ProcessIncomingString(string sResponse)
+{
+	if( sResponse.empty()==true )
+	{
+		m_sStringBuffer=sResponse;
+		m_sStringBuffer="";
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythBackEnd_Socket::ProcessIncomingString %s", 
+		sResponse.c_str());
+}
+
 void MythBackEnd_Socket_Wrapper::Close()
 { 
 	m_pMythBackEnd_Socket->Close(); 
 	ClientSocket::Close(); 
 }
+

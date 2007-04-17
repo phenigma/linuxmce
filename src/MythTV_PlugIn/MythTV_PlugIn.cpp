@@ -108,6 +108,7 @@ bool MythTV_PlugIn::GetConfig()
 	m_pAlarmManager->AddRelativeAlarm(30,this,CHECK_FOR_NEW_RECORDINGS,NULL);
 	m_pAlarmManager->AddRelativeAlarm(5,this,RUN_BACKEND_STARTER,NULL);
 	m_pAlarmManager->AddRelativeAlarm(15,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
+	m_pAlarmManager->AddRelativeAlarm(60,this,CONFIRM_MASTER_BACKEND_OK,NULL);
 	return true;
 }
 
@@ -290,6 +291,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMythTvMediaStream->m_iPK_MediaType,pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sLastPosition,"");
 	SendCommand(cmd);
 
+	m_pAlarmManager->CancelAlarmByType(CONFIRM_MASTER_BACKEND_OK);  // Do this immediately 
 	m_pAlarmManager->AddRelativeAlarm(1,this,CONFIRM_MASTER_BACKEND_OK,(void*)pMythTvMediaStream->m_iStreamID_get());
 	return MediaHandlerBase::StartMedia(pMediaStream,sError);
 }
@@ -2190,7 +2192,10 @@ void MythTV_PlugIn::ConfirmMasterBackendOk(int iMediaStreamID)
 		return;
 	// If Myth isn't reachable, forcibly kill it and notify the user
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
-	MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(iMediaStreamID,0);
+	MediaStream *pMediaStream = iMediaStreamID ? m_pMedia_Plugin->m_mapMediaStream_Find(iMediaStreamID,0) : NULL;
+
+	while(m_pMythBackEnd_Socket->ProcessSocket());  // Keep processing as long as there's incoming strings
+
 	string sResponse;
 	m_pMythBackEnd_Socket->SendMythString("QUERY_UPTIME",&sResponse);
 	if( sResponse.empty() )
@@ -2216,5 +2221,15 @@ void MythTV_PlugIn::ConfirmMasterBackendOk(int iMediaStreamID)
 		}
 	}
 	else
+	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::ConfirmMasterBackendOk got %s", sResponse.c_str());
+
+		// The protocol is really lame since messages can come in asyncronously and there's way to know what incoming
+		// message is in response to which outgoing message.  Chances are we received the response to uptime, but it's 
+		// possible that it's some other back end message, so process it anyway
+		m_pMythBackEnd_Socket->ProcessIncomingString(sResponse);
+	}
+
+	m_pAlarmManager->CancelAlarmByType(CONFIRM_MASTER_BACKEND_OK);  // Just be sure we're not in here more than once
+	m_pAlarmManager->AddRelativeAlarm(60,this,CONFIRM_MASTER_BACKEND_OK,NULL);
 }
