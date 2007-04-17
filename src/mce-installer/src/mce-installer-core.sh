@@ -1,6 +1,5 @@
 #!/bin/bash
 
-exit 0
 . /usr/pluto/bin/Utils.sh
 
 rm -rf /tmp/mce_installer_error
@@ -98,9 +97,6 @@ if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
 	## Setup apt sources.list
 	local Sources="# Pluto sources - start
 deb file:/usr/pluto/deb-cache/ ./
-deb http://archive.ubuntu.com/ubuntu edgy main restricted multiverse universe
-deb http://archive.ubuntu.com/ubuntu edgy-security main restricted multiverse universe
-deb http://archive.ubuntu.com/ubuntu edgy-updates main restricted multiverse universe
 # Choosed mirror - start
 deb $c_installMirror edgy main restricted multiverse universe
 deb $c_installMirror edgy-security main restricted multiverse universe
