@@ -1,3 +1,9 @@
+mce-installer (2.0.0-1) unstable; urgency=low
+
+  * Installer for feisty 
+
+ -- Paul Webber <webpaul1@gmail.com>  Tue, 17 Apr 2007 18:10:46 +0300
+
 mce-installer (1.0.0-1) unstable; urgency=low
 
   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
