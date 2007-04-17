@@ -8856,12 +8856,9 @@ bool SendPingHandler(Socket *pSocket)
 	return true;
 }
 
-//TODO: disable this to use wx custom progress bar dialogs
-//#define X11_PROGRESS_BARS 0
-
 bool Orbiter::WaitForRelativesIfOSD()
 {
-#ifdef NO_WaitForRelativesIfOSD
+#ifdef NO_WAIT_FOR_RELATIVES
     return true;
 #endif
 
