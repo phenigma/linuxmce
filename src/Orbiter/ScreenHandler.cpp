@@ -484,7 +484,16 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 		string sMessage = m_pOrbiter->m_mapTextString[TEXT_confirm_file_delete_CONST];
 		StringUtils::Replace(&sMessage,"<%=FILE%>",m_mapKeywords["FILE"]);
 		StringUtils::Replace(&sMessage,"<%=FILENAME%>",mediaFileBrowserOptions.m_sSelectedFile);
+
+		int ListCol = mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurCol;
+		int ListRow = mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow;
+		int PicCol = mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurCol;
+		int PicRow = mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow;
 		mediaFileBrowserOptions.ReacquireGrids();  // Since we'll be deleting a file, re-acquire the grid next time
+		mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurCol = ListCol;
+		mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow = ListRow;
+		mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurCol = PicCol;
+		mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow = PicRow;
 
 		DisplayMessageOnOrbiter(0, sMessage,
 			false, "0", true,

@@ -926,7 +926,7 @@ void PnpQueue::RunSetupScript(PnpQueueEntry *pPnpQueueEntry)
 						sArguments += "\t" + pRow_Device_DeviceData->IK_DeviceData_get();
 
 					DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
-						sBinary,"setup_script",sArguments,"","",false,false,false,true);
+						"/usr/pluto/bin/" + sBinary,"setup_script",sArguments,"","",false,false,false,true);
 					m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
 				}
 			}
