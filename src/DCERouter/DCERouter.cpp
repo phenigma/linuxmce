@@ -774,6 +774,12 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 				}
 				else
 				{
+					if(NULL == pDevice_Sender)
+					{
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot execute command group %d - the sender device is NULL!)", PK_CommandGroup);
+						return;
+					}
+
 					pMessage->m_dwPK_Device_To = atoi(row[2]);
 					if( pMessage->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
 						pMessage->m_dwPK_Device_To = pDevice_Sender->m_dwPK_Device;
