@@ -312,5 +312,13 @@
 	// criticals device templates; user will be notified not to delete them
 	$GLOBALS['CriticalDeviceTemplates']=array(1,2,6,7,8,9,10,12,27,28,31,32,33,34,36,39);
 
-	$GLOBALS['hardware_acceleration']=array('xv'=>'xv', 'xxmc'=>'xxmc', 'opengl'=>'opengl', 'sdl'=>'sdl','xshm'=>'xshm');
+	$GLOBALS['hardware_acceleration']=array(
+	#<-mkr_b_via_b->
+	'cle266x11'=>'cle266x11',
+	#<-mkr_b_via_e->	
+	'xv'=>'xv',
+	'xxmc'=>'xxmc',
+	'opengl'=>'opengl',
+	'sdl'=>'sdl',
+	'xshm'=>'xshm');
 ?>
