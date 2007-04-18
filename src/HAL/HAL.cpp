@@ -94,8 +94,6 @@ HAL::HAL(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl
 	: HAL_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
 {
-	m_sSignature = StringUtils::itos(DeviceID) + ",HAL"; // A unique signature for all the device we detect
-
 	d = new HalPrivate(this);
 	if( d == NULL )
 	{
