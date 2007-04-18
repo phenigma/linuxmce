@@ -29,6 +29,8 @@
 #define PNPQUEUE_FK_DEVICE_CREATED_TABLE_FIELD "PnpQueue.FK_Device_Created"
 #define PNPQUEUE_FK_DEVICE_REPORTED_FIELD "FK_Device_Reported"
 #define PNPQUEUE_FK_DEVICE_REPORTED_TABLE_FIELD "PnpQueue.FK_Device_Reported"
+#define PNPQUEUE_SIGNATURE_FIELD "Signature"
+#define PNPQUEUE_SIGNATURE_TABLE_FIELD "PnpQueue.Signature"
 #define PNPQUEUE_REMOVED_FIELD "Removed"
 #define PNPQUEUE_REMOVED_TABLE_FIELD "PnpQueue.Removed"
 #define PNPQUEUE_STAGE_FIELD "Stage"

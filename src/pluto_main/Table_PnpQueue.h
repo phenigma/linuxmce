@@ -106,6 +106,7 @@ long int m_FK_PnpProtocol;
 long int m_FK_DeviceTemplate;
 long int m_FK_Device_Created;
 long int m_FK_Device_Reported;
+string m_Signature;
 long int m_Removed;
 short int m_Stage;
 short int m_Processed;
@@ -117,7 +118,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[23];
+		bool is_null[24];
 	
 	public:
 		long int PK_PnpQueue_get();
@@ -133,6 +134,7 @@ long int FK_PnpProtocol_get();
 long int FK_DeviceTemplate_get();
 long int FK_Device_Created_get();
 long int FK_Device_Reported_get();
+string Signature_get();
 long int Removed_get();
 short int Stage_get();
 short int Processed_get();
@@ -158,6 +160,7 @@ void FK_PnpProtocol_set(long int val);
 void FK_DeviceTemplate_set(long int val);
 void FK_Device_Created_set(long int val);
 void FK_Device_Reported_set(long int val);
+void Signature_set(string val);
 void Removed_set(long int val);
 void Stage_set(short int val);
 void Processed_set(short int val);
@@ -182,6 +185,7 @@ bool FK_PnpProtocol_isNull();
 bool FK_DeviceTemplate_isNull();
 bool FK_Device_Created_isNull();
 bool FK_Device_Reported_isNull();
+bool Signature_isNull();
 bool Removed_isNull();
 bool Stage_isNull();
 bool Processed_isNull();
@@ -205,6 +209,7 @@ void FK_PnpProtocol_setNull(bool val);
 void FK_DeviceTemplate_setNull(bool val);
 void FK_Device_Created_setNull(bool val);
 void FK_Device_Reported_setNull(bool val);
+void Signature_setNull(bool val);
 void Removed_setNull(bool val);
 void Stage_setNull(bool val);
 void Processed_setNull(bool val);
@@ -238,7 +243,7 @@ class Row_Device* FK_Device_Reported_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_PnpQueue+ m_DetectedDate+ m_VendorModelId+ m_Path+ m_IPaddress+ m_MACaddress+ m_Category+ m_SerialNumber+ m_FK_CommMethod+ m_FK_PnpProtocol+ m_FK_DeviceTemplate+ m_FK_Device_Created+ m_FK_Device_Reported+ m_Removed+ m_Stage+ m_Processed+ m_Parms+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_PnpQueue+ m_DetectedDate+ m_VendorModelId+ m_Path+ m_IPaddress+ m_MACaddress+ m_Category+ m_SerialNumber+ m_FK_CommMethod+ m_FK_PnpProtocol+ m_FK_DeviceTemplate+ m_FK_Device_Created+ m_FK_Device_Reported+ m_Signature+ m_Removed+ m_Stage+ m_Processed+ m_Parms+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -256,6 +261,7 @@ string FK_PnpProtocol_asSQL();
 string FK_DeviceTemplate_asSQL();
 string FK_Device_Created_asSQL();
 string FK_Device_Reported_asSQL();
+string Signature_asSQL();
 string Removed_asSQL();
 string Stage_asSQL();
 string Processed_asSQL();
