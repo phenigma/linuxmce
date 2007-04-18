@@ -83,6 +83,7 @@ gchar*		detectCoreIpAddress(void);
 void		write_config_file(void);
 void		on_back_clicked(GObject object, gpointer data);
 GtkWidget*	gtk_label_new_for_wizard(const gchar *text);
+void		run_as_root(void);
 
 #define DT_CORE 1
 #define DT_HYBRID 2

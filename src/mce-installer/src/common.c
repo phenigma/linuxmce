@@ -25,6 +25,18 @@ void cleanupContainer (GtkWidget *container) {
 	}	
 }
 
+void run_as_root(void) {
+	if (getuid() == 0 ) {
+		return;
+	}
+
+	printf("Try to run gksu ...");
+	execl("/usr/bin/gksu","gksu","./mce-installer",NULL);
+	execl("/usr/bin/kdesu","kdesu","-u","root","-c","./mce-installer",NULL);
+	execl("/bin/su","su","-u","root","-c","./mce-installer", NULL);
+	exit(1);
+}
+
 void on_back_clicked(GObject object, gpointer data) {
 	if (!g_queue_is_empty(history) != 0) {
 		gint prevScreen = (gint) g_queue_pop_head(history);
