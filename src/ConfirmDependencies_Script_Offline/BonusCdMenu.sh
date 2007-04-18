@@ -13,7 +13,7 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	if [[ ! -d /media/cdrom ]]; then
 		mkdir -p /media/cdrom
 	fi
-	/bin/mount /dev/cdrom /media/cdrom 2>/dev/null
+	/bin/mount -t iso9660 /dev/cdrom /media/cdrom 2>/dev/null
 
 	count=0
 	until [[ -d "/media/cdrom/bonuscd1" || "$counter" -eq 5 ]]; do
@@ -22,7 +22,7 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 		/usr/bin/eject /media/cdrom &>/dev/null
 		echo "Press any key when you inserted the correct CD in drive."
 		read
-		/bin/mount /dev/cdrom /media/cdrom 2>/dev/null
+		/bin/mount -t iso9660 /dev/cdrom /media/cdrom 2>/dev/null
 	done
 	if [[ "$counter" -eq 5 && ! -d /media/cdrom/bonuscd1 ]]; then
 		echo "Skipping BonusCD due to invalid data"
