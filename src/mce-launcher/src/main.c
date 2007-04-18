@@ -44,6 +44,7 @@
 #define GLADE_FILE PACKAGE_DATA_DIR"/mce-launcher/glade/mce-launcher.glade"
 #define LOGO_FILE  PACKAGE_DATA_DIR"/mce-launcher/images/mce-logo.png"
 #define SCRIPT_DIR PACKAGE_DATA_DIR"/mce-launcher/scripts/"
+#define MCE_LAUNCHER "/usr/bin/mce-launcher"
 /*
 #define GLADE_FILE "mce-launcher.glade" 
 #define LOGO_FILE "mce-logo.png"
@@ -54,10 +55,25 @@ static gboolean delete_event( GtkWidget *widget, GdkEvent *event, gpointer data)
 	gtk_main_quit ();
 	return FALSE;
 }
+void run_as_root(void) {
+	if (getuid() == 0 ) {
+		return;
+	}
+
+	printf("Try to run gksu ...");
+	execl("/usr/bin/gksu","gksu",MCE_LAUNCHER,NULL);
+	execl("/usr/bin/kdesu","kdesu","-u","root","-c",MCE_LAUNCHER,NULL);
+	execl("/bin/su","su","-u","root","-c",MCE_LAUNCHER, NULL);
+	exit(1);
+}
+
 
 int
 main (int argc, char *argv[])
 {
+
+	run_as_root();
+
 	GtkWidget *mainWindow;
 	GtkWidget *expanderMain;
 	GtkWidget *progressMain;
