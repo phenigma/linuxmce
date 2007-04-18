@@ -150,7 +150,7 @@ Activation_Code = 1111
 PK_Installation = 1
 PK_Users = 1
 PK_Distro = 14
-Display = 4
+Display = 0
 OfflineMode = false
 LogLevels = 1,5,7,8
 "
