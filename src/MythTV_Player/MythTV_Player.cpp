@@ -295,7 +295,7 @@ void MythTV_Player::pollMythStatus()
 					if( m_sChannel != vectResults[6] )
 					{
 						m_sChannel = vectResults[6];
-						EVENT_Playback_Started(m_sChannel,im_iStreamID,"","","ch_" + m_sChannel);
+						EVENT_Playback_Started(m_sChannel,m_iStreamID,"","","ch_" + m_sChannel);
 					}
 					
 					// Have a 2 second "buffer" for switching between live and nonlive modes so we don't get 
