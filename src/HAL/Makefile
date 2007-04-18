@@ -25,7 +25,7 @@ CPPFLAGS += -I/usr/include/dbus-1.0/ -I/usr/include/hal \
 	$(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -D_GNU_SOURCE
 CXXFLAGS += -Wno-deprecated
 LDFLAGS +=
-XTRALDLIBS = -ldbus-glib-1 -lgthread-2.0 -ldbus-1 -lglib-2.0 -lhal
+XTRALDLIBS = -lSerial -ldbus-glib-1 -lgthread-2.0 -ldbus-1 -lglib-2.0 -lhal
 
 Gen_Dev_Files +=
 sources += pluto-hald.cpp seriald.cpp
