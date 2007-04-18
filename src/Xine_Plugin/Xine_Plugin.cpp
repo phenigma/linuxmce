@@ -1,5 +1,3 @@
-int g_iLastStreamIDPlayed=0;
-
 /*
 	Xine_Plugin
 
@@ -212,7 +210,6 @@ XineMediaStream *Xine_Plugin::ConvertToXineMediaStream(MediaStream *pMediaStream
 bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Plugin::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
 
@@ -337,13 +334,6 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Stopping media in Xine_Plugin!");
 
-/*
- what if pMediaStream is null ? :)
-if( pMediaStream->m_iStreamID_get()<g_iLastStreamIDPlayed )
-{
-int k=2;
-}
-*/
 	XineMediaStream *pXineMediaStream = NULL;
 
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StopMedia() ")) == NULL )

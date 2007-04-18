@@ -65,7 +65,7 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_Med
 {
 	m_dwPK_Device_Remote=0;
 	m_dwPK_Disc=m_discid=0;
-	m_iTrackOrSection=-1;
+	m_iTrackOrSectionOrChapter=-1;
     m_iStreamID = iStreamID;
     m_pMediaHandlerInfo=pMediaHandlerInfo;
 	m_IdentifiedPriority=0;

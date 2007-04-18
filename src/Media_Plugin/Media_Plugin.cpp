@@ -907,8 +907,6 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 
 bool Media_Plugin::PlaybackStarted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo);
-
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
 	string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];

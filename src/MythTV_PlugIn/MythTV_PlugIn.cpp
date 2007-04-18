@@ -176,6 +176,7 @@ bool MythTV_PlugIn::Register()
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Channel_Changed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewBookmarks ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::ScanningProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Channel_Scan_Progress_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::PlaybackStarted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
 
 	SetPaths();
 
@@ -2239,4 +2240,40 @@ void MythTV_PlugIn::ConfirmMasterBackendOk(int iMediaStreamID)
 
 	m_pAlarmManager->CancelAlarmByType(CONFIRM_MASTER_BACKEND_OK);  // Just be sure we're not in here more than once
 	m_pAlarmManager->AddRelativeAlarm(30,this,CONFIRM_MASTER_BACKEND_OK,NULL);
+}
+
+bool MythTV_PlugIn::PlaybackStarted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
+	string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
+	/*
+	string sSectionDescription = pMessage->m_mapParameters[EVENTPARAMETER_SectionDescription_CONST];
+	string sAudio = pMessage->m_mapParameters[EVENTPARAMETER_Audio_CONST];
+	string sVideo = pMessage->m_mapParameters[EVENTPARAMETER_Video_CONST];
+	*/
+    MediaStream * pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
+
+    if ( pMediaStream == NULL )
+    {
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_PlugIn::PlaybackStarted Stream ID %d is not mapped to a media stream object", iStreamID);
+        return false;
+    }
+
+	MythChannel *pMythChannel = m_mapMythChannel_Find( atoi(sMRL.c_str()) );
+	string sSQL = "select title,subtitle,description FROM program where chanid=" + sMRL + " AND "
+		"WHERE starttime < '" + StringUtils::SQLDateTime() + "' AND endtime>'" + StringUtils::SQLDateTime() + "'";
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( !pMythChannel || (result.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))==NULL || (row=mysql_fetch_row(result.r))==NULL )
+	{
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::PlaybackStarted Stream ID %d no guide data for %s", iStreamID,sMRL.c_str());
+        return false;
+	}
+
+	pMediaStream->m_sMediaDescription = pMythChannel->m_sLongName;
+	pMediaStream->m_sSectionDescription = row[0] ? row[0] : "";
+	pMediaStream->m_sMediaSynopsis = row[2] ? row[2] : "";
+	pMediaStream->m_iTrackOrSectionOrChapter=atoi(sMRL.c_str());
+	return false;
 }

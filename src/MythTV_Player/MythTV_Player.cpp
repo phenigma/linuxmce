@@ -150,6 +150,8 @@ MythTV_Player::~MythTV_Player()
 	delete m_pMythSocket;
 	m_pMythSocket = NULL;
 
+ 	system("killall mythfrontend");  // Be sure there's no front end running
+
 	if (m_pDisplay)
 		XCloseDisplay(m_pDisplay);
 }
@@ -1416,8 +1418,9 @@ bool MythTV_Player::StopMythFrontend()
 	{
 		DCE::CMD_Kill_Application CMD_Kill_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 			"mythfrontend", false);
-		SendCommand(CMD_Kill_Application,&sResponse);  // Get return confirmation so we know it's gone before we continue
+		return SendCommand(CMD_Kill_Application,&sResponse);  // Get return confirmation so we know it's gone before we continue
 	}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::StopMythFrontend %p %s", pDevice_App_Server,sResponse.c_str());
+	return false;
 }
 

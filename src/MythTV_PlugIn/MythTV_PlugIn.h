@@ -167,8 +167,6 @@ public:
 		MythChannel *m_mapMythChannel_Find(int chanid) { map<int,class MythChannel *>::iterator it = m_mapMythChannel.find(chanid); return it==m_mapMythChannel.end() ? NULL : (*it).second; }
 		map<int,ListMythChannel> m_map_listMythChannel; // User ID to a sorted list of that users channels with favorites first
 
-        // finds the nearest (up to 30 minutes rounding) previous date since the currentTime
-//         QDateTime findCurrentStartTime();
 
     public:
         /** Mandatory implementations */
@@ -191,6 +189,9 @@ public:
 
 		/** The interceptor to monitor progress on channel scans */
 		bool ScanningProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
+		/** Some new show is being watched */
+		bool PlaybackStarted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
 		/** What tv options are available in the area -- this is a temporary hack until we get a proper source for this */
 		class DataGridTable *TvProviders(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
