@@ -62,6 +62,18 @@ public:
 			EVENTPARAMETER_Error_Message_CONST, sError_Message.c_str()));
 	}
 
+	virtual void Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Playback_Started_CONST,
+			5 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_MRL_CONST, sMRL.c_str(),
+			EVENTPARAMETER_Stream_ID_CONST, StringUtils::itos(iStream_ID).c_str(),
+			EVENTPARAMETER_SectionDescription_CONST, sSectionDescription.c_str(),
+			EVENTPARAMETER_Audio_CONST, sAudio.c_str(),
+			EVENTPARAMETER_Video_CONST, sVideo.c_str()));
+	}
+
 	virtual void MythTV_Show_Recorded(int iMythTV_ChannelID,string sName,string sDateTime)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
@@ -224,6 +236,7 @@ public:
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Error_Occured(string sError_Message) { GetEvents()->Error_Occured(sError_Message.c_str()); }
+	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo) { GetEvents()->Playback_Started(sMRL.c_str(),iStream_ID,sSectionDescription.c_str(),sAudio.c_str(),sVideo.c_str()); }
 	void EVENT_MythTV_Show_Recorded(int iMythTV_ChannelID,string sName,string sDateTime) { GetEvents()->MythTV_Show_Recorded(iMythTV_ChannelID,sName.c_str(),sDateTime.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};

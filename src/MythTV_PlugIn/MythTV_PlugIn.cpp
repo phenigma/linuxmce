@@ -805,6 +805,15 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sType,string sOptions,string s
 
 	int iID = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 
+	// Add it to our local cache so the user sees the change instantly
+	MythRecording mythRecording;
+	mythRecording.data.time.channel_id = atoi(sChanId.c_str());
+	mythRecording.data.time.StartTime = tStart;
+	if( sType=="1" )
+		m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('O',iID);
+	else if( sType=="3")
+		m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('C',iID);;
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording %d=%s", iID, sSQL.c_str());
 	if( m_pMythBackEnd_Socket )
 		m_pMythBackEnd_Socket->SendMythString("RESCHEDULE_RECORDINGS " + StringUtils::itos(iID));

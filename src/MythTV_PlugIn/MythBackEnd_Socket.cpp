@@ -283,7 +283,6 @@ void MythBackEnd_Socket::ProcessIncomingString(string sResponse)
 
 	if( sResponse.substr(0,15)=="BACKEND_MESSAGE" )
 	{
-string x=sResponse.substr(20,15);
 		if( sResponse.substr(20,15)=="SCHEDULE_CHANGE" )
 			m_pMythTV_PlugIn->m_pAlarmManager->AddRelativeAlarm(0,m_pMythTV_PlugIn,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
 	}

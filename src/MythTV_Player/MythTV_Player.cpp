@@ -97,7 +97,7 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
     m_mythStatus = MYTHSTATUS_DISCONNECTED;
     m_CurTime=0;
     m_EndTime=0;
-    
+	m_iStreamID=0;
 }
 
 //<-dceag-getconfig-b->
@@ -284,11 +284,6 @@ void MythTV_Player::pollMythStatus()
 			vector<string> vectResults;
 			StringUtils::Tokenize(sResult, " ", vectResults);
 
-			if (vectResults[0]=="Playback")
-			{
-				DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDevice_MythTV_Plugin->m_dwPK_Device, 0, vectResults[2], vectResults[4], (vectResults[5]=="1x") ? string("") : vectResults[5], "", ""); 
-				SendCommand(CMD_Update_Time_Code_);                
-			}
 			string SetMode = vectResults[0];
 			if (SetMode == "Playback")
 			{
@@ -297,7 +292,11 @@ void MythTV_Player::pollMythStatus()
 				{
 					m_CurTime = StringUtils::TimeAsSeconds(vectResults[2]);
 					m_EndTime = StringUtils::TimeAsSeconds(vectResults[4]);
-					m_sChannel = vectResults[6];
+					if( m_sChannel != vectResults[6] )
+					{
+						m_sChannel = vectResults[6];
+						EVENT_Playback_Started(m_sChannel,im_iStreamID,"","","ch_" + m_sChannel);
+					}
 					
 					// Have a 2 second "buffer" for switching between live and nonlive modes so we don't get 
 					// flapping.    Unfortunately it takes live TV so long to start up at times that we need
@@ -818,6 +817,7 @@ void MythTV_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedia
 
 	// Set the initial channel to tune to after startup
 	m_sInitialChannel = sMediaPosition;
+	m_iStreamID=iStreamID;
 #endif
 }
 
@@ -1185,7 +1185,7 @@ void MythTV_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
 //<-dceag-c367-b->
 
 	/** @brief COMMAND: #367 - Text */
-	/** text */
+	/**  */
 
 void MythTV_Player::CMD_Text(string &sCMD_Result,Message *pMessage)
 //<-dceag-c367-e->

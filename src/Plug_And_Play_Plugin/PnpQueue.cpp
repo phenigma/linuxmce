@@ -907,24 +907,12 @@ bool PnpQueue::Process_Detect_Stage_Add_Software(PnpQueueEntry *pPnpQueueEntry)
 void PnpQueue::RunSetupScript(PnpQueueEntry *pPnpQueueEntry)
 {
 	Row_Device *pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow();
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::RunSetupScript queue %d %p",
-		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device_Created);
-#endif
 	if( pRow_Device_Created )
 	{
 		Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device_Created->PK_Device_get(),DEVICEDATA_Setup_Script_CONST);
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::RunSetupScript queue %d %p",
-		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device_DeviceData);
-#endif
 		if( pRow_Device_DeviceData )
 		{
 			string sBinary = pRow_Device_DeviceData->IK_DeviceData_get();
-#ifdef DEBUG
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::RunSetupScript queue %d binary %s",
-					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sBinary.c_str());
-#endif
 			if( sBinary.empty()==false )
 			{
 #ifdef DEBUG

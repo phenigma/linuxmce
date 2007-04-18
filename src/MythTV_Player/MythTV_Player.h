@@ -57,6 +57,7 @@ namespace DCE
 	pthread_t		     m_threadMonitorMyth;
         int                          m_iControllingDevice;
         pthread_t                    m_qApplicationThreadId;
+		int m_iStreamID;  // The current stream ID
 	Display *m_pDisplay;
 	string m_CurrentMode, m_CurrentProgram;
 	int m_CurTime, m_EndTime;
@@ -121,6 +122,7 @@ public:
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
 	void EVENT_Error_Occured(string sError_Message);
+	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo);
 	void EVENT_MythTV_Show_Recorded(int iMythTV_ChannelID,string sName,string sDateTime);
 
 			*****COMMANDS***** we need to implement
@@ -493,7 +495,7 @@ public:
 
 
 	/** @brief COMMAND: #367 - Text */
-	/** text */
+	/**  */
 
 	virtual void CMD_Text() { string sCMD_Result; CMD_Text(sCMD_Result,NULL);};
 	virtual void CMD_Text(string &sCMD_Result,Message *pMessage);
