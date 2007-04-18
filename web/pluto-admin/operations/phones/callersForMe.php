@@ -84,34 +84,38 @@ function getCallersForMeTable($dbADO,$telecomADO){
 	$out.='
 	<table align="center" cellpadding="2" cellspacing="0">';
 	$idArray=array();
-	foreach ($users AS $userID=>$username){
-
-		$jsValidation.='frmvalidator.addValidation("new_phone_'.$userID.'","numeric","'.$TEXT_WARNING_NUMERICAL_ONLY_CONST.'");';
-		$out.='
-		<tr>
-			<td colspan="2" align="center" class="tablehead"><B>'.$username.'</B></td>
-		</tr>
-		<tr bgcolor="#EEEEEE">
-			<td align="center"><B>Phone number</B></td>
-			<td align="center"><B>Action</B></td>
-		</tr>';
-		foreach ($phoneNumbers[$userID] AS $id=>$number){
-			$idArray[]=$id;
+	if(count($users)>0){
+		foreach ($users AS $userID=>$username){
+	
+			$jsValidation.='frmvalidator.addValidation("new_phone_'.$userID.'","numeric","'.$TEXT_WARNING_NUMERICAL_ONLY_CONST.'");';
 			$out.='
 			<tr>
-				<td><input type="text" name="phone_'.$id.'" value="'.$number.'"></td>
-				<td><input type="button" class="button" name="del" value="'.$TEXT_DELETE_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_CALLER_FOR_ME_NUMBER_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=callersForMe&action=del&did='.$id.'\'"></td>
+				<td colspan="2" align="center" class="tablehead"><B>'.$username.'</B></td>
+			</tr>
+			<tr bgcolor="#EEEEEE">
+				<td align="center"><B>Phone number</B></td>
+				<td align="center"><B>Action</B></td>
 			</tr>';
-			$jsValidation.='frmvalidator.addValidation("phone_'.$id.'","numeric","'.$TEXT_WARNING_NUMERICAL_ONLY_CONST.'");';
+			if(count(@$phoneNumbers[$userID])>0){
+				foreach ($phoneNumbers[$userID] AS $id=>$number){
+					$idArray[]=$id;
+					$out.='
+					<tr>
+						<td><input type="text" name="phone_'.$id.'" value="'.$number.'"></td>
+						<td><input type="button" class="button" name="del" value="'.$TEXT_DELETE_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_CALLER_FOR_ME_NUMBER_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=callersForMe&action=del&did='.$id.'\'"></td>
+					</tr>';
+					$jsValidation.='frmvalidator.addValidation("phone_'.$id.'","numeric","'.$TEXT_WARNING_NUMERICAL_ONLY_CONST.'");';
+				}
+			}
+			$out.='
+			<tr >
+				<td><input type="text" name="new_phone_'.$userID.'" value=""></td>
+				<td align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
+			</tr>		
+			<tr>
+				<td colspan="2">&nbsp;</td>
+			</tr>';
 		}
-		$out.='
-		<tr >
-			<td><input type="text" name="new_phone_'.$userID.'" value=""></td>
-			<td align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
-		</tr>		
-		<tr>
-			<td colspan="2">&nbsp;</td>
-		</tr>';
 	}
 	if(count($idArray)>0){
 	$out.='	
