@@ -87,9 +87,15 @@ void PnpQueue::Run()
 	ReadOutstandingQueueEntries();
 	while( m_pPlug_And_Play_Plugin->m_pRouter->m_bIsLoading_get() )
 		Sleep(1000); // Wait for the router to be ready before we start to process
-	time_t tTimeout = time(NULL) + 20; // Wait another 20 seconds for the on screen orbiter's to startup
+
+	// We used to put a wait in here for GSD devices and OSD to start up.  However now 
+	// that we have a built-in mechanism for RS-232 devices to wait until 20 seconds after the 'md up' event
+	// and the architecture will wait for Orbiter, this isn't needed anymore.
+	/*
+	time_t tTimeout = time(NULL) + 30; 
 	while( time(NULL) < tTimeout && !m_pPlug_And_Play_Plugin->m_bQuit_get())
 		Sleep(1000);
+	*/
 
 	pnp.Relock();
 
@@ -111,6 +117,14 @@ void PnpQueue::Run()
 		for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)  // The pnp mutex is held so we can safely do what we like
 		{
 			PnpQueueEntry *pPnpQueueEntry = it->second;
+
+			// If we're blocked waiting for a device like HAL to startup, check if it's since finished registering
+			if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_waiting_for_initial_detection )
+			{
+				if( m_mapSignaturesReady.find(pPnpQueueEntry->m_pRow_PnpQueue->Signature_get())!=m_mapSignaturesReady.end() )
+					pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
+			}
+
 			// If we've been sitting too long at either a user prompt or a detection script we need to continue anyway
 			if( pPnpQueueEntry->m_EBlockedState != PnpQueueEntry::pnpqe_blocked_none &&
 				( (pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_options && pPnpQueueEntry->m_EBlockedState!=PnpQueueEntry::pnpqe_blocked_prompting_device_template) || time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER) &&
@@ -229,6 +243,12 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: %s", pPnpQueueEntry->ToString().c_str());
 #endif
+
+	if( pPnpQueueEntry->m_pRow_PnpQueue->Signature_get().empty()==false && m_mapSignaturesReady.find(pPnpQueueEntry->m_pRow_PnpQueue->Signature_get())==m_mapSignaturesReady.end() )
+	{
+		pPnpQueueEntry->Block( PnpQueueEntry::pnpqe_blocked_waiting_for_initial_detection );
+		return false;
+	}
 
 	// If this is using RS232 we need to wait until the machine it's running on has finished starting all devices
 	// at least 20 seconds ago.  This way if the user has moved serial devices around on the ports this will give 
@@ -1720,3 +1740,14 @@ bool PnpQueue::LocateFileServer(PnpQueueEntry *pPnpQueueEntry)
 
 	return false;
 }
+
+void PnpQueue::DoneDetectingDevices(string sSignature)
+{
+	PLUTO_SAFETY_LOCK(pnp,m_pPlug_And_Play_Plugin->m_PnpMutex);
+
+	m_mapSignaturesReady[sSignature]=true;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DoneDetectingDevices %s", sSignature.c_str());
+	pnp.Release();
+	pthread_cond_broadcast( &m_pPlug_And_Play_Plugin->m_PnpCond );
+}
+

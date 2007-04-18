@@ -45,7 +45,8 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	int PK_PnpProtocol,
 	string sPnpSerialNumber,
 	string sText,
-	string sVendorModelId)
+	string sVendorModelId,
+	string sSignature)
 {
 	m_pPlug_And_Play_Plugin=pPlug_And_Play_Plugin;
 	m_pDatabase_pluto_main=pDatabase_pluto_main;
@@ -65,6 +66,7 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	m_pRow_PnpQueue->Removed_set(0);
 	m_pRow_PnpQueue->Stage_set(PNP_DETECT_STAGE_DETECTED);
 	m_pRow_PnpQueue->Parms_set(sDeviceData);
+	m_pRow_PnpQueue->Signature_set(sSignature);
 	m_pRow_PnpQueue->Processed_set(0);
 	pDatabase_pluto_main->PnpQueue_get()->Commit();
 	m_sText=sText;

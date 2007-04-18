@@ -135,6 +135,7 @@ bool Plug_And_Play_Plugin::Register()
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Plug_And_Play_Plugin::DeviceDetected ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_Detected_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Plug_And_Play_Plugin::DeviceRemoved ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_Removed_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Plug_And_Play_Plugin::DoneDetectingDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Done_Detecting_Devices_CONST );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&Plug_And_Play_Plugin::PNPDevices)), 
@@ -192,11 +193,19 @@ bool Plug_And_Play_Plugin::DeviceDetected( class Socket *pSocket, class Message 
 		atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_PnpProtocol_CONST].c_str()),
 		pMessage->m_mapParameters[EVENTPARAMETER_PNP_Serial_Number_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST],
-		pMessage->m_mapParameters[EVENTPARAMETER_VendorModelID_CONST]);
+		pMessage->m_mapParameters[EVENTPARAMETER_VendorModelID_CONST],
+		pMessage->m_mapParameters[EVENTPARAMETER_Signature_CONST]);
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::DeviceDetected %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 // no, then auto-create are blocked?	m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry);
 	m_pPnpQueue->NewEntry(pPnpQueueEntry);
+	return false;
+}
+
+bool Plug_And_Play_Plugin::DoneDetectingDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	string sSignature = pMessage->m_mapParameters[EVENTPARAMETER_Signature_CONST];
+	m_pPnpQueue->DoneDetectingDevices(sSignature);
 	return false;
 }
 

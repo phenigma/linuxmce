@@ -212,7 +212,10 @@ int main(int argc, char* argv[])
 			if( bLocalMode )
 				pHAL->RunLocalMode();
 			else
-				pthread_join(pHAL->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			{
+				if(pHAL->m_RequestHandlerThread)
+					pthread_join(pHAL->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 

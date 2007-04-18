@@ -48,7 +48,8 @@ namespace DCE
 			pnpqe_blocked_waiting_for_other_prompting=6, // Waiting for other orbiters to respond to the pnp message
 			pnpqe_block_processing_suspended=7, 
 			pnpqe_blocked_waiting_for_other_device=8,
-			pnpqe_blocked_waiting_for_orbiters=9  // There are no orbiters registered, block this until there are
+			pnpqe_blocked_waiting_for_orbiters=9,  // There are no orbiters registered, block this until there are
+			pnpqe_blocked_waiting_for_initial_detection=10  // Waiting for the 'Done Detecting Devices' event for this signature
 		} EBlockedState;
 
 		EBlockedState m_EBlockedState;
@@ -81,7 +82,8 @@ namespace DCE
 			int PK_PnpProtocol,
 			string sPnpSerialNumber,
 			string sText,
-			string sVendorModelId);
+			string sVendorModelId,
+			string sSignature);
 
 		// Constructor for device removed
 		PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,

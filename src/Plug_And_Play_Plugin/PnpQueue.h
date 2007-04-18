@@ -70,6 +70,15 @@ namespace DCE
 		map<string,fnLocateDevice> m_mapCategoryLocateDevice;
 		pthread_t m_PnpQueueThread_Id;
 
+		// When the Detected Device event has a value in the 'Signature' parameter, then we will hold up processing all events
+		// from that signature until we get a Done Detecting Devices event.  When we do get a Done Detecting Devices, then 
+		// before starting to process those events, we will first disable any events that were not detected.  So, if the user has 
+		// a device X attached detected by signature "16,HAL", and then the user removes X while the system is off, so we don't get 
+		// the removed event, at bootup, HAL will fire all the Device Detected events.  When it fires Done Detecting Devices we'll
+		// see that it didn't detect X and disable it, before we process the new detected events since maybe X is there but on 
+		// a different USB port/PCI Slot
+		map<string,bool> m_mapSignaturesReady;
+
 	public:
 		PnpQueue(class Plug_And_Play_Plugin *pPlug_And_Play_Plugin);
 		~PnpQueue();
@@ -94,6 +103,7 @@ namespace DCE
 		bool ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Device);
 		Row_Device *FindDisabledDeviceTemplateOnPC(int PK_Device_PC,int PK_DeviceTemplate);
 		void RunSetupScript(PnpQueueEntry *pPnpQueueEntry); // Run any setup script in the parameter 'Setup Script' with the parms Device Location_ON_PCI_Bus
+		void DoneDetectingDevices(string sSignature);
 
 		// The various process functions,
 		bool Process(PnpQueueEntry *pPnpQueueEntry);
