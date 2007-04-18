@@ -127,12 +127,12 @@ apt-get -V -f -y dist-upgrade || exit 1
 if [[ "$Count" != "0" ]]; then
 	Q="UPDATE Device SET NeedConfigure=1"
 	RunSQL "$Q"
-#<-mkr_B_ubuntu_e->
+#<-mkr_B_ubuntu_b->
 	if [[ "$DoReboot" == y ]]; then
 		echo "New kernel installed. Rebooting"
 		reboot
 	fi
-#<-mkr_B_ubuntu_b->
+#<-mkr_B_ubuntu_e->
 fi
 
 echo "- Copying kernel package(s) for later use"
