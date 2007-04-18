@@ -412,7 +412,6 @@ inline void OpenGL3DEngine::DumpScene()
 	if(NULL == HightlightArea)
 		return;
 
-	Compose->UpdateLayers(CurrentLayer, OldLayer);
 	MeshTransform Transform;
 
 	MeshBuilder MB;
