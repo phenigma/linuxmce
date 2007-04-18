@@ -188,6 +188,9 @@ string PnpQueueEntry::DeviceDataAsString()
 	string sResult;
 	for(map<int,string>::iterator it=m_mapPK_DeviceData.begin();it!=m_mapPK_DeviceData.end();++it)
 		sResult += StringUtils::itos(it->first) + "|" + it->second + "|";
+
+	if( m_pRow_PnpQueue->Signature_get().empty()==false )
+		sResult += StringUtils::itos(DEVICEDATA_PNP_Signature_CONST) + "|" + m_pRow_PnpQueue->Signature_get() + "|";
 	return sResult;
 }
 
@@ -237,6 +240,8 @@ void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 	}
 	if( m_pRow_PnpQueue->SerialNumber_get().size() )
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,m_pRow_PnpQueue->SerialNumber_get());
+	if( m_pRow_PnpQueue->Signature_get().size() )
+		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_PNP_Signature_CONST,m_pRow_PnpQueue->Signature_get());
 }
 
 void PnpQueueEntry::RemoveBlockedDeviceData()

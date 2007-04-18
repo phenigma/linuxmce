@@ -1745,6 +1745,50 @@ void PnpQueue::DoneDetectingDevices(string sSignature)
 {
 	PLUTO_SAFETY_LOCK(pnp,m_pPlug_And_Play_Plugin->m_PnpMutex);
 
+	// Find all devices using this signature that are not processed
+	map<int,bool> mapDevices_Signature;
+	string sSQL = "SELECT PK_Device FROM Device JOIN Device_DeviceData ON FK_Device=PK_Device WHERE Disabled=0 AND FK_DeviceData=" TOSTRING(DEVICEDATA_PNP_Signature_CONST) " AND IK_DeviceData='" + sSignature + "'";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase_pluto_main->mysql_query_result( sSQL ) ) )
+	{
+		while( row = mysql_fetch_row( result_set.r ) )
+			mapDevices_Signature[ atoi(row[0]) ] = true;
+	}
+
+	int InitialCount = mapDevices_Signature.size();
+
+	// Now mapDevices_Signature has all devices with sSignature.  See which have been detected so far
+	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)  // The pnp mutex is held so we can safely do what we like
+	{
+		PnpQueueEntry *pPnpQueueEntry = it->second;
+
+		// If we're blocked waiting for a device like HAL to startup, check if it's since finished registering
+		if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_waiting_for_initial_detection && 
+			pPnpQueueEntry->m_pRow_PnpQueue->Signature_get()==sSignature )
+		{
+			LocateDevice(pPnpQueueEntry);
+			if( pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() )
+				mapDevices_Signature.erase(pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get());
+		}
+	}
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DoneDetectingDevices %d devices with signature %s, %d not found", 
+		InitialCount, sSignature.c_str(), mapDevices_Signature.size());
+#endif
+
+	// So all that's left in mapDevices_Signature are ones that were reported previously and are no longer detected
+	for(map<int,bool>::iterator it=mapDevices_Signature.begin();it!=mapDevices_Signature.end();++it)
+	{
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DoneDetectingDevices disabling %d", it->first);
+#endif
+		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(it->first);
+		if( pRow_Device )
+			SetDisableFlagForDeviceAndChildren(pRow_Device,true);
+	}
+	m_pDatabase_pluto_main->Device_get()->Commit();
+
 	m_mapSignaturesReady[sSignature]=true;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DoneDetectingDevices %s", sSignature.c_str());
 	pnp.Release();

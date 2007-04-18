@@ -11,7 +11,6 @@ function printHelp()
 
 /usr/pluto/bin/UpdateAvailableSerialPorts.sh
 bash -x /usr/pluto/bin/SoundCards_Setup.sh | tee-pluto /var/log/pluto/SoundCards_Setup.log
-bash -x /usr/pluto/bin/CaptureCards_Setup.sh | tee-pluto /var/log/pluto/CaptureCards_Setup.log
 
 [[ $# -ne 4 && $# -ne 2 && $# -ne 0 ]] && printHelp && exit
 CurrentDevice=$PK_Device
