@@ -2,7 +2,8 @@ Source: mce-launcher
 Section: unknown
 Priority: optional
 Maintainer: Paul Webber <paul.webber@linuxmce.com>
-Build-Depends: debhelper (>= 5), autotools-dev
+Depends: libgtk2.0-0, libvte4
+Build-Depends: debhelper, autotools-dev, libgtk2.0-dev, libvte-dev
 Standards-Version: 3.7.2
 
 Package: mce-launcher

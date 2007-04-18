@@ -1,3 +1,11 @@
+mce-launcher (0.2.0-1) unstable; urgency=low
+
+  * Dinamicaly use kdesu, gksu or su when run as non root
+  * Remove dependency to gnome libs
+  * Cleaned up debian/ files
+
+ -- Paul Webber <webpaul1@gmail.com>  Wed, 18 Apr 2007 15:09:38 +0300
+
 mce-launcher (0.1.0-1) unstable; urgency=low
 
   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
