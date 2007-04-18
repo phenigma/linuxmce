@@ -32,6 +32,7 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		string m_sSignature;
 
 		// Private methods
 public:
@@ -73,6 +74,8 @@ public:
 		bool sendMessage(std::string params, std::string &returnValue);
 		
 		bool sendMessage(Message * pMsg, std::string &returnValue);
+
+		string m_sSignature_get() { return m_sSignature; }
 
 //<-dceag-h-b->
 	/*

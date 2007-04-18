@@ -102,7 +102,7 @@ void* SerialD::startUp(void * device)
 				{
 					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "++++++++++++ SerialD Busy %s", sPort.c_str());
 					// fire event 
-					halDevice->EVENT_Device_Detected("", "", "", 0, "", 2, 0, "", "37|" + sPort, "serial");
+					halDevice->EVENT_Device_Detected("", "", "", 0, "", 2, 0, "", "37|" + sPort, "serial", halDevice->m_sSignature_get());
 					// remove it from tests
 					it = serialDevices.erase(it);
 					continue;

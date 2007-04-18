@@ -101,7 +101,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 		char buffer[64];
 		snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 		
-		halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, udi, "", "");
+		halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, udi, "", "",halDevice->m_sSignature_get());
 		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 	}
 	else if( category != NULL )
@@ -125,7 +125,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 				char buffer[64];
 				snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 			
-				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, info_udi, "37|" + portID, category);
+				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, info_udi, "37|" + portID, category,halDevice->m_sSignature_get());
 				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			}
 		
@@ -149,7 +149,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 		
-			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, info_udi, "", category);
+			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, info_udi, "", category,halDevice->m_sSignature_get());
 			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			
 			g_free (parent);
@@ -213,7 +213,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 							deviceData += blockdevice;
 						}
 						
-						halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
+						halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category,halDevice->m_sSignature_get());
 						
 						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			
@@ -281,7 +281,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 				deviceData += sysfsPath.c_str();
 			}
 			
-			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
+			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category, halDevice->m_sSignature_get());
 
 			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 			
@@ -303,7 +303,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 				(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
 				(unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
 			
-			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, "", "");
+			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, "", "", halDevice->m_sSignature_get());
 
 			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 	}
@@ -348,7 +348,7 @@ void PlutoHalD::myDeviceNewCapability(LibHalContext * ctx, const char * udi, con
 			
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x", (*it).first);
-			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, "");
+			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, "", halDevice->m_sSignature_get());
 			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 		}
 		
@@ -406,7 +406,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 			
 			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ New device added = %s", udi);
 			
-			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "", "");
+			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, udi, "", "", halDevice->m_sSignature_get());
 			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 		}
 		else if( category != NULL )
@@ -430,7 +430,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 					char buffer[64];
 					snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 				
-					halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, category);
+					halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, category, halDevice->m_sSignature_get());
 					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 				}
 				
@@ -455,7 +455,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				char buffer[64];
 				snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 				
-				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "", category);
+				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "", category, halDevice->m_sSignature_get());
 				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 				
 				g_free (parent);
@@ -519,7 +519,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 								deviceData += blockdevice;
 							}
 							
-							halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
+							halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category, halDevice->m_sSignature_get());
 							
 							LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 				
@@ -587,7 +587,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 					deviceData += sysfsPath.c_str();
 				}
 			
-				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category);
+				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category, halDevice->m_sSignature_get());
 
 				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 				
@@ -609,7 +609,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 					(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
 					(unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
 				
-				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, "", "");
+				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, "", "", halDevice->m_sSignature_get());
 	
 				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 		}
