@@ -142,7 +142,8 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		if(!pOrbiterRenderer->Engine->NeedUpdateScreen())
 			pOrbiterRenderer->ScreenUpdated();
 
-		pOrbiterRenderer->Engine->Paint();
+		if(!pOrbiterRenderer->OrbiterLogic()->m_bQuit_get())
+			pOrbiterRenderer->Engine->Paint();
 
 		Sleep(40);
 	}
