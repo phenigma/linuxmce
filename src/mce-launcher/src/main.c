@@ -26,14 +26,13 @@
 #  include <config.h>
 #endif
 
+#include <gtk/gtk.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 
-#include <bonobo.h>
-//#include <gnome.h>
 #include <glade/glade.h>
 #include <vte/vte.h>
 #include <pthread.h>
