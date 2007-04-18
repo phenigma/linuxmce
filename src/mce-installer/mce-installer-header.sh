@@ -18,6 +18,7 @@ tail -n +$SKIP $0 | tar xz -C $WRKDIR
 
 PREV=`pwd`
 cd $WRKDIR
+export LD_LIBRARY_PATH=$WRKDIR
 ./mce-installer
 
 # delete the temp files
