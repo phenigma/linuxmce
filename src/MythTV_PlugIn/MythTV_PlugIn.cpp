@@ -2265,7 +2265,7 @@ bool MythTV_PlugIn::PlaybackStarted( class Socket *pSocket,class Message *pMessa
 
 	MythChannel *pMythChannel = m_mapMythChannel_Find( atoi(sMRL.c_str()) );
 	string sSQL = "select title,subtitle,description FROM program where chanid=" + sMRL + " AND "
-		"WHERE starttime < '" + StringUtils::SQLDateTime() + "' AND endtime>'" + StringUtils::SQLDateTime() + "'";
+		"starttime <= '" + StringUtils::SQLDateTime() + "' AND endtime>='" + StringUtils::SQLDateTime() + "'";
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	if( !pMythChannel || (result.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))==NULL || (row=mysql_fetch_row(result.r))==NULL )
