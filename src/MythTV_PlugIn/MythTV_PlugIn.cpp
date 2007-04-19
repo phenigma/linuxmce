@@ -2256,7 +2256,7 @@ bool MythTV_PlugIn::PlaybackStarted( class Socket *pSocket,class Message *pMessa
     MediaStream * pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
     MythTvMediaStream * pMythTvMediaStream;
 
-    if ( pMediaStream == NULL || (pMythTvMediaStream = ConvertToMythMediaStream(pMediaStream, "MythTV_PlugIn::ThumbnailableAttributes() "))==NULL )
+    if ( pMediaStream == NULL || (pMythTvMediaStream = ConvertToMythMediaStream(pMediaStream, "MythTV_PlugIn::PlaybackStarted() "))==NULL )
     {
         LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_PlugIn::PlaybackStarted Stream ID %d is not mapped to a media stream object", iStreamID);
         return false;
@@ -2264,20 +2264,27 @@ bool MythTV_PlugIn::PlaybackStarted( class Socket *pSocket,class Message *pMessa
 
 
 	MythChannel *pMythChannel = m_mapMythChannel_Find( atoi(sMRL.c_str()) );
+	if( pMythChannel==NULL )
+	{
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::PlaybackStarted Stream ID %d no channel for %s", iStreamID,sMRL.c_str());
+        return false;
+	}
+
+	pMythTvMediaStream->m_sMediaDescription = pMythChannel->m_sLongName;
+	pMythTvMediaStream->m_iCurrentProgramChannelID = pMythTvMediaStream->m_iTrackOrSectionOrChannel = pMythChannel->m_dwID;
+
 	string sSQL = "select title,subtitle,description FROM program where chanid=" + sMRL + " AND "
 		"starttime <= '" + StringUtils::SQLDateTime() + "' AND endtime>='" + StringUtils::SQLDateTime() + "'";
 	PlutoSqlResult result;
 	MYSQL_ROW row;
-	if( !pMythChannel || (result.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))==NULL || (row=mysql_fetch_row(result.r))==NULL )
+	if( (result.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))==NULL || (row=mysql_fetch_row(result.r))==NULL )
 	{
         LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::PlaybackStarted Stream ID %d no guide data for %s", iStreamID,sMRL.c_str());
         return false;
 	}
 
-	pMythTvMediaStream->m_sMediaDescription = pMythChannel->m_sLongName;
 	pMythTvMediaStream->m_sSectionDescription = row[0] ? row[0] : "";
 	pMythTvMediaStream->m_sMediaSynopsis = row[2] ? row[2] : "";
-	pMythTvMediaStream->m_iCurrentProgramChannelID = pMythTvMediaStream->m_iTrackOrSectionOrChannel=pMythChannel->m_dwID;
 	return false;
 }
 
