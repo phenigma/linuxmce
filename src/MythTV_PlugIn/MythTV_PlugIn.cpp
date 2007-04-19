@@ -2256,7 +2256,7 @@ bool MythTV_PlugIn::PlaybackStarted( class Socket *pSocket,class Message *pMessa
     MediaStream * pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
     MythTvMediaStream * pMythTvMediaStream;
 
-    if ( pMediaStream == NULL || (pMythTvMediaStream = ConvertToMythMediaStream(pEntertainArea->m_pMediaStream, "MythTV_PlugIn::ThumbnailableAttributes() "))==NULL )
+    if ( pMediaStream == NULL || (pMythTvMediaStream = ConvertToMythMediaStream(pMediaStream, "MythTV_PlugIn::ThumbnailableAttributes() "))==NULL )
     {
         LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_PlugIn::PlaybackStarted Stream ID %d is not mapped to a media stream object", iStreamID);
         return false;
@@ -2277,7 +2277,7 @@ bool MythTV_PlugIn::PlaybackStarted( class Socket *pSocket,class Message *pMessa
 	pMythTvMediaStream->m_sMediaDescription = pMythChannel->m_sLongName;
 	pMythTvMediaStream->m_sSectionDescription = row[0] ? row[0] : "";
 	pMythTvMediaStream->m_sMediaSynopsis = row[2] ? row[2] : "";
-	pMythTvMediaStream->m_iCurrentProgramChannelID = pMythTvMediaStream->m_iTrackOrSectionOrChannel=pMythChannel->atoi(sMRL.c_str());
+	pMythTvMediaStream->m_iCurrentProgramChannelID = pMythTvMediaStream->m_iTrackOrSectionOrChannel=pMythChannel->m_dwID;
 	return false;
 }
 
