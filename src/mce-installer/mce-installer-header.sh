@@ -19,15 +19,20 @@ tail -n +$SKIP $0 | tar xz -C $WRKDIR
 PREV=`pwd`
 cd $WRKDIR
 export LD_LIBRARY_PATH=$WRKDIR
-echo "$WRKDIR" > /etc/ld.so.conf.d/mce-installer.conf
-ldconfig
-./mce-installer
+if [[ $UID != "0" ]] ;then
+	mv ./mce-installer ./mce-installer-user
+	echo "#!/bin/bash
+              LD_LIBRARY_PATH=$WRKDIR ./mce-installer-user
+	      " > ./mce-installer
+	chmod +x ./mce-installer
+else
+	./mce-installer
+fi
 
 
 # delete the temp files
 cd $PREV
 rm -rf $WRKDIR
-rm -rf /etc/ld.so.conf.d/mce-installer.conf
 
 exit 0
 
