@@ -1441,7 +1441,21 @@ void PnpQueue::ReadOutstandingQueueEntries()
 	m_pDatabase_pluto_main->PnpQueue_get()->GetRows("Processed=0",&vectRow_PnpQueue);
 	for(vector<Row_PnpQueue *>::iterator it=vectRow_PnpQueue.begin();it!=vectRow_PnpQueue.end();++it)
 	{
-		PnpQueueEntry *pPnpQueueEntry = new PnpQueueEntry(m_pPlug_And_Play_Plugin,*it);
+		Row_PnpQueue *pRow_PnpQueue = *it;
+		if( pRow_PnpQueue->Signature_get().size() )
+		{
+			// It's possible a HAL device fired events that were added a previous time, and we've since rebooted and they're 
+			// not here anymore.  So if there's a signature, don't read in old entries because they'll be redetected anyway
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::ReadOutstandingQueueEntries not adding signatured queue %d",
+				pRow_PnpQueue->PK_PnpQueue_get());
+#endif
+			pRow_PnpQueue->Processed_set(1);
+			m_pDatabase_pluto_main->PnpQueue_get()->Commit();
+			continue;
+		}
+
+		PnpQueueEntry *pPnpQueueEntry = new PnpQueueEntry(m_pPlug_And_Play_Plugin,pRow_PnpQueue);
 		bool bWasDuplicate=false;
 		for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
 		{
