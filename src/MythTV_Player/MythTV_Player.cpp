@@ -517,11 +517,23 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 //<-dceag-c84-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Method was called here");
-	size_t size;
-	*pData = FileUtils::ReadFileIntoBuffer("/home/mediapics/10.jpg",size);
-	*iData_Size = size;
-//     if ( m_pMythTV == NULL || m_pMythTV->GetState() != kState_WatchingLiveTV )
+	FileUtils::DelFile("/tmp/MythScreenshot");
+	sendMythCommand("play save screenshot /tmp/MythScreenshot");
+	time_t tTimeout = time(NULL) + 3;  // wait 3 seconds for it
+	while(tTimeout>time(NULL))
+	{
+		if( FileUtils::FileExists("/tmp/MythScreenshot") )
+		{
+			size_t size;
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::CMD_Get_Video_Frame got it");
+//			*pData = FileUtils::ReadFileIntoBuffer("/home/mediapics/10.jpg",size);
+//			*iData_Size = size;
+			return;
+		}
+	}
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::CMD_Get_Video_Frame never got it");
+
+	//     if ( m_pMythTV == NULL || m_pMythTV->GetState() != kState_WatchingLiveTV )
 //     {
 //         LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invalid state.");
 //         EVENT_Error_Occured("Not playing TV at this time. Can't take a screen shot");
