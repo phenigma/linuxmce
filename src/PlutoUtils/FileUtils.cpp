@@ -108,7 +108,8 @@ bool FileUtils::WriteBufferIntoFile( string sFileName, const char *pBuffer, size
 
 char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 {
-#ifdef USE_HTTP_FETCHER
+//	Logic:	under Windows platform there is no httpfetcher at all,
+//		so we checking for Windows first, and for httpfetcher then
 
 #ifdef WIN32
 	string sDownloadedFile = "/temp/wget.tmp";
@@ -117,13 +118,17 @@ char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 #ifndef WINCE
 	//not working under ce. todo: use ShellExecuteEx instead
 	system(sCommand.c_str());
-#endif
+#endif	// WINCE
 
 	char *pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, Size);
 	FileUtils::DelFile(sDownloadedFile);
 
 	return pData; // This always null terminates anyway
-#else
+
+#else	// non-Windows platform
+
+#ifdef USE_HTTP_FETCHER
+
 	char * buffer = NULL;
 	int iResult = http_fetch(sUrl.c_str(), &buffer);
 	if( bNullTerminate && iResult>0 )
@@ -137,11 +142,32 @@ char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 	else
 		Size = 0;
 	return buffer;
-#endif
 
-#else
-	return NULL;
-#endif
+#else	// we don't have libhttpfetcher here
+	char fileName[] = "/tmp/PlutoFileUtils.XXXXXX";
+	if (!mkstemp(fileName))
+	{
+		Size = 0;
+		return NULL;
+	}
+		
+	string sDownloadedFile = fileName;
+	
+	string sCommand = "wget " + sUrl + " -O " + sDownloadedFile;
+	int iRetCode = system(sCommand.c_str());
+	if (iRetCode)
+	{
+		Size = 0;
+		return NULL;
+	}
+	
+	char *pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, Size);
+	FileUtils::DelFile(sDownloadedFile);
+
+	return pData;
+#endif	// USE_HTTP_FETCHER
+
+#endif	// WIN32
 }
 
 bool FileUtils::ReadTextFile(string sFileName, string& sData)
