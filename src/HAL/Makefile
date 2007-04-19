@@ -1,8 +1,8 @@
 #<-dceag-mh-b->
 GENDEV=../Gen_Devices
 
-SNR_CPPFLAGS ?= -DDEBUG -DTHREAD_LOG -DLOG_ALL_QUERIES -I/opt/libxine1-pluto/include
-SNR_LDFLAGS ?= -L/opt/libxine1-pluto/lib
+SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
 CXX = g++
