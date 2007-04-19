@@ -623,6 +623,8 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 		g_free(category);
 		category = NULL;
 	}
+	
+	halDevice->EVENT_Done_Detecting_Devices( halDevice->m_sSignature_get() );
 }
 
 void PlutoHalD::getProductVendorId(	LibHalContext * ctx, const char * udi,
@@ -712,8 +714,8 @@ void PlutoHalD::getProductVendorId(	LibHalContext * ctx, const char * udi,
 
 void* PlutoHalD::startUp(void *device)
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
-	Sleep(10000);
+/*	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
+	Sleep(10000);*/
 	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ Start ");
 	
 	if( device == NULL )
