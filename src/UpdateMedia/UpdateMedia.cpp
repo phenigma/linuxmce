@@ -244,8 +244,6 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 			make_pair<Row_File *, bool>(pRow_File,false);
 	}
 
-	cout << "===============" << sDirectory << " disk: " << (int) listFilesOnDisk.size() << " db: " << (int) vectRow_File.size() << endl;
-
 	// Now start matching them up
 	for(list<string>::iterator it=listFilesOnDisk.begin();it!=listFilesOnDisk.end();++it)
 	{
@@ -382,6 +380,11 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 	string sBaseDirectory = FileUtils::BasePath(sDirectory);
 	string sDirectoryName = FileUtils::FilenameWithoutPath(sDirectory);
 	MediaSyncMode dir_sync_mode = MediaState::Instance().SyncModeNeeded(sBaseDirectory, sDirectoryName);
+	
+	//no id3 for folders
+	if(dir_sync_mode == modeDbToFile)
+		dir_sync_mode = modeNone;
+		
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sync mode for dir %s/%s: %s", sBaseDirectory.c_str(), sDirectoryName.c_str(), MediaSyncModeStr[dir_sync_mode]); 
 
 	if(dir_sync_mode != modeNone)
