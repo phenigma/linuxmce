@@ -34,7 +34,14 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 {
 	string sSql = 
 		"SELECT PK_File, Path, Filename, "
-		"GREATEST(File.psc_mod, MAX(Bookmark.psc_mod), MAX(File_Attribute.psc_mod), MAX(Attribute.psc_mod), MAX(LongAttribute.psc_mod), MAX(Picture_File.psc_mod)) AS CurrentDbAttrDate, "
+		"GREATEST("
+		"	IF(File.psc_mod IS NULL,CAST('0000-00-00 00:00:00' AS DATE),File.psc_mod), "
+		"	IF(MAX(Bookmark.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(Bookmark.psc_mod)), "
+		"	IF(MAX(File_Attribute.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(File_Attribute.psc_mod)), "
+		"	IF(MAX(Attribute.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(Attribute.psc_mod)), "
+		"	IF(MAX(LongAttribute.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(LongAttribute.psc_mod)), "
+		"	IF(MAX(Picture_File.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(Picture_File.psc_mod)) "
+		") AS CurrentDbAttrDate, "
 		"(COUNT(Bookmark.PK_Bookmark) + COUNT(File_Attribute.FK_Attribute) + COUNT(Attribute.PK_Attribute) + COUNT(LongAttribute.PK_LongAttribute) + COUNT(Picture_File.FK_Picture)) AS CurrentDbAttrCount, "
 		"AttrDate AS OldDbAttrDate, AttrCount AS OldDbAttrCount, ModificationDate AS OldFileDate, "
 		"(COUNT(File_Attribute.FK_Attribute) + COUNT(LongAttribute.PK_LongAttribute)) AS HasAttributes "
@@ -212,7 +219,14 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 {
 	string sSql = 
 		"SELECT PK_File, Path, Filename, "
-		"GREATEST(File.psc_mod, MAX(Bookmark.psc_mod), MAX(File_Attribute.psc_mod), MAX(Attribute.psc_mod), MAX(LongAttribute.psc_mod), MAX(Picture_File.psc_mod)) AS CurrentDbAttrDate, "
+		"GREATEST("
+		"	IF(File.psc_mod IS NULL,CAST('0000-00-00 00:00:00' AS DATE),File.psc_mod), "
+		"	IF(MAX(Bookmark.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(Bookmark.psc_mod)), "
+		"	IF(MAX(File_Attribute.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(File_Attribute.psc_mod)), "
+		"	IF(MAX(Attribute.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(Attribute.psc_mod)), "
+		"	IF(MAX(LongAttribute.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(LongAttribute.psc_mod)), "
+		"	IF(MAX(Picture_File.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(Picture_File.psc_mod)) "
+		") AS CurrentDbAttrDate, "
 		"(COUNT(Bookmark.PK_Bookmark) + COUNT(File_Attribute.FK_Attribute) + COUNT(Attribute.PK_Attribute) + COUNT(LongAttribute.PK_LongAttribute) + COUNT(Picture_File.FK_Picture)) AS CurrentDbAttrCount, "
 		"AttrDate AS OldDbAttrDate, AttrCount AS OldDbAttrCount, ModificationDate AS OldFileDate, "
 		"(COUNT(File_Attribute.FK_Attribute) + COUNT(LongAttribute.PK_LongAttribute)) AS HasAttributes "
