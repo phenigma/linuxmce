@@ -517,21 +517,24 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 //<-dceag-c84-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	FileUtils::DelFile("/tmp/MythScreenshot");
-	sendMythCommand("play save screenshot /tmp/MythScreenshot");
+	FileUtils::DelFile("/tmp/MythScreenshot.png");
+	FileUtils::DelFile("/tmp/MythScreenshot.jpg");
+	sendMythCommand("play save screenshot /tmp/MythScreenshot.png");
 	time_t tTimeout = time(NULL) + 3;  // wait 3 seconds for it
 	while(tTimeout>time(NULL))
 	{
-		if( FileUtils::FileExists("/tmp/MythScreenshot") )
+		if( FileUtils::FileExists("/tmp/MythScreenshot.png") )
 		{
+			system("convert -sample 600x600 /tmp/MythScreenshot.png /tmp/MythScreenshot.jpg");
 			size_t size;
-LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::CMD_Get_Video_Frame got it");
-//			*pData = FileUtils::ReadFileIntoBuffer("/home/mediapics/10.jpg",size);
-//			*iData_Size = size;
+			*pData = FileUtils::ReadFileIntoBuffer("/tmp/MythScreenshot.jpg",size);
+			*iData_Size = size;
 			return;
 		}
 	}
-LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::CMD_Get_Video_Frame never got it");
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MythTV_Player::CMD_Get_Video_Frame never got it");
+	*pData = NULL;
+	*iData_Size = 0;
 
 	//     if ( m_pMythTV == NULL || m_pMythTV->GetState() != kState_WatchingLiveTV )
 //     {
