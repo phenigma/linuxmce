@@ -17,7 +17,7 @@ function matchCoverArt($output,$mediadbADO) {
 		$rs=$mediadbADO->Execute('
 			SELECT 
 			Keyword1Type,Keyword1Search,Keyword2Type,Keyword2Search,Keyword3Type,Keyword3Search,Attributes,
-			FK_CoverArtScan,PK_CoverArtScanEntry,FK_File,FK_Disc,FK_Attribute,File.Path,File.Filename,Disc.Slot,Attribute.Name,Engine 
+			FK_CoverArtScan,PK_CoverArtScanEntry,FK_File,FK_Disc,FK_Attribute,File.Path,File.Filename,Attribute.Name,Engine 
 			FROM CoverArtScanEntry 
 			INNER JOIN CoverArtScan ON FK_CoverArtScan=PK_CoverArtScan
 			LEFT JOIN File ON FK_File=PK_File
@@ -30,7 +30,6 @@ function matchCoverArt($output,$mediadbADO) {
 			$scannedArray[$row['FK_CoverArtScan']]['FK_Attribute']=$row['FK_Attribute'];
 			$scannedArray[$row['FK_CoverArtScan']]['Path']=$row['Path'];
 			$scannedArray[$row['FK_CoverArtScan']]['Filename']=$row['Filename'];
-			$scannedArray[$row['FK_CoverArtScan']]['Slot']=$row['Slot'];
 			$scannedArray[$row['FK_CoverArtScan']]['Name']=$row['Name'];
 			$scannedArray[$row['FK_CoverArtScan']]['Engine']=$row['Engine'];
 			$scannedArray[$row['FK_CoverArtScan']]['Entries'][]=$row['PK_CoverArtScanEntry'];
@@ -165,7 +164,7 @@ function formatScannedItems($scannedArray){
 			<input type="hidden" name="itemType_'.$id.'" value="'.$itemType.'">
 			<input type="hidden" name="itemValue_'.$id.'" value="'.$itemValue.'">
 			<tr>
-				<td class="alternate_back">'.$itemLabel.': '.$data['Path'].$data['Filename'].$data['Slot'].$data['Name'].' ('.$data['Filters'].')</td>
+				<td class="alternate_back">'.$itemLabel.': '.$data['Path'].$data['Filename'].$data['Name'].' ('.$data['Filters'].')</td>
 			</tr>
 			<tr>
 				<td>'.$picsTable.'</td>

@@ -188,12 +188,12 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 			$title=$TEXT_SHOW_FILES_NO_COVERART_CONST;
 		break;
 		case 'allDiscs':
-			$dataArray=getAssocArray('Disc','PK_Disc','Slot AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_Disc=PK_Disc WHERE (EK_MediaType ='.$mediaType.' OR EK_MediaType=5) AND (Scanned IS NULL OR Scanned=0)');
+			$dataArray=getAssocArray('Disc','PK_Disc','ID AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_Disc=PK_Disc WHERE (EK_MediaType ='.$mediaType.' OR EK_MediaType=5) AND (Scanned IS NULL OR Scanned=0)');
 			$itemName='discID';
 			$title=$TEXT_SHOW_ALL_DISCS_CONST;
 		break;
 		case 'discsNoCover':
-			$dataArray=getAssocArray('Disc','PK_Disc','Slot AS Label',$mediadbADO,'LEFT JOIN Picture_Disc ON  Picture_Disc.FK_Disc=PK_Disc LEFT JOIN CoverArtScan ON CoverArtScan.FK_Disc=PK_Disc WHERE EK_MediaType='.$mediaType.' AND (Scanned IS NULL OR Scanned=0) GROUP BY PK_Disc HAVING count(FK_Picture)=0');
+			$dataArray=getAssocArray('Disc','PK_Disc','ID AS Label',$mediadbADO,'LEFT JOIN Picture_Disc ON  Picture_Disc.FK_Disc=PK_Disc LEFT JOIN CoverArtScan ON CoverArtScan.FK_Disc=PK_Disc WHERE EK_MediaType='.$mediaType.' AND (Scanned IS NULL OR Scanned=0) GROUP BY PK_Disc HAVING count(FK_Picture)=0');
 			$itemName='discID';
 			$title=$TEXT_SHOW_FILES_NO_COVERART_CONST;
 		break;
@@ -294,7 +294,7 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 
 	//get title video media
 	if(($type=='filesNoCover' || $type=='allFiles') && $mediaType==3 && count($dataArray)>0){
-		$rs=$mediadbADO->Execute('SELECT * FROM File_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=13 AND FK_File IN ('.join(',',array_keys($dataArray)).')');
+		$rs=$mediadbADO->Execute('SELECT * FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType WHERE FK_AttributeType=13 AND FK_File IN ('.join(',',array_keys($dataArray)).')');
 		while($row=$rs->FetchRow()){
 			$filters[$row['FK_File']][$row['FK_AttributeType']]=$row['Name'];
 		}
