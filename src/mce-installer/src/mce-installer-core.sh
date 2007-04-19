@@ -416,6 +416,8 @@ function Setup_DebCache() {
 }
 
 Core_PK_Device="0"
+killall NetworkManager
+killall NetworkManagerDispatcher
 if [[ "$c_netExtKeep" != "true" ]] ;then
 	Setup_Network_Intefaces
 fi
@@ -442,6 +444,7 @@ sed -i 's/"nvidia"/"vesa"/g' /etc/X11/xorg.conf
 
 if [[ "$c_startupType" == "1" ]] ;then
 	mv /etc/init.d/gdm /etc/init.d/gdm.saved
+	mv /etc/init.d/kdm /etc/init.d/kdm.saved
 	echo "
 start on runlevel-2
 
