@@ -6,7 +6,7 @@
 
 mkdir -p /etc/X11
 bash -x /usr/pluto/bin/Xconfigure.sh --update-video-driver --keep-resolution | tee-pluto /var/log/pluto/Xconfigure.log
-#rm -f /etc/modprobe.d/lrm-video || :
+rm -f /etc/modprobe.d/lrm-video || :
 if ! BlacklistConfFiles '/etc/X11/xorg.conf' ;then
 	if [ ! -e /etc/X11/xorg.conf.pbackup ] ;then
 		cp /etc/X11/xorg.conf /etc/X11/xorg.conf.pbackup || :
