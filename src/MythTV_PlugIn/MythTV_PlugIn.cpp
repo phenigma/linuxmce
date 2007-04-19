@@ -470,7 +470,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
 	string sSQL = "SELECT program.chanid, title, starttime, endtime, seriesid, programid, "
 		"program.seriesid in (" + sBookmark_Series + ") as fav_seriesid, program.programid in (" + sBookmark_Program + ") as fav_programid "
-		"FROM program JOIN channel on program.chanid=channel.chanid "
+		"FROM program "
 		"WHERE starttime < '" + StringUtils::SQLDateTime() + "' AND endtime>'" + StringUtils::SQLDateTime() + "' " + sProvider;
 
 	int iRow=0;
