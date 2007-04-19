@@ -109,3 +109,11 @@ fi
 
 ## Add the myth user to the public group so it will be able to write intro /public/data dir
 adduser --quiet mythtv public
+
+## Set root user to mythtv group
+if grep -q 'mythtv' /etc/group ;then
+	useradd -G mythtv root || :
+else
+	groupadd mythtv || :
+	useradd -G mythtv root || :
+fi
