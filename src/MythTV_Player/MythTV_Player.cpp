@@ -527,6 +527,7 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 		{
 			system("convert -sample 600x600 /tmp/MythScreenshot.png /tmp/MythScreenshot.jpg");
 			size_t size;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::CMD_Get_Video_Frame got %d",size);
 			*pData = FileUtils::ReadFileIntoBuffer("/tmp/MythScreenshot.jpg",size);
 			*iData_Size = size;
 			return;
