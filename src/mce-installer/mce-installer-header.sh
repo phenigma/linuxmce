@@ -25,6 +25,7 @@ if [[ $UID != "0" ]] ;then
               LD_LIBRARY_PATH=$WRKDIR ./mce-installer-user
 	      " > ./mce-installer
 	chmod +x ./mce-installer
+	./mce-installer-user
 else
 	./mce-installer
 fi
