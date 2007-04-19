@@ -174,6 +174,7 @@ bool MythTV_PlugIn::Register()
 										        , DATAGRID_Thumbnailable_Attributes_CONST,DEVICETEMPLATE_MythTV_Player_CONST );
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Channel_Changed_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewRecording), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Show_Recorded_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewBookmarks ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::ScanningProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Channel_Scan_Progress_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::PlaybackStarted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
@@ -2098,10 +2099,10 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 
 	string sResponse;
 	m_pMythBackEnd_Socket->SendMythString("QUERY_GETALLPENDING",&sResponse);
-	if( sResponse.size()<20 )  // Invalid data, try again in 1 minute
+	if( sResponse.empty() )  // Invalid data, try again in 1 minute
 	{
 		m_pAlarmManager->AddRelativeAlarm(60,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings no recordings");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::UpdateUpcomingRecordings no recordings");
 		return;
 	}
 
@@ -2187,11 +2188,6 @@ void MythTV_PlugIn::CMD_Remove_Scheduled_Recording(string sID,string sProgramID,
 
 	if( m_pMythBackEnd_Socket )
 		m_pMythBackEnd_Socket->SendMythStringGetOk("RESCHEDULE_RECORDINGS -1");
-
-	// This 20 seconds is totally arbitrary.  If I ask myth too soon after sending RESCHEDULE_RECORDINGS, it doesn't give me
-	// the updated values.  I don't know how to synchronize this so it waits until myth is done redoing the schedule, so
-	// I just threw in 20 seconds to be on the safe side.
-	m_pAlarmManager->AddRelativeAlarm(20,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
 }
 
 void MythTV_PlugIn::ConfirmMasterBackendOk(int iMediaStreamID)
@@ -2275,5 +2271,13 @@ bool MythTV_PlugIn::PlaybackStarted( class Socket *pSocket,class Message *pMessa
 	pMediaStream->m_sSectionDescription = row[0] ? row[0] : "";
 	pMediaStream->m_sMediaSynopsis = row[2] ? row[2] : "";
 	pMediaStream->m_iTrackOrSectionOrChapter=atoi(sMRL.c_str());
+	return false;
+}
+
+bool MythTV_PlugIn::NewRecording( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	string sFile = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::NewRecording Should_I Add it, or let updatemedia??");
 	return false;
 }

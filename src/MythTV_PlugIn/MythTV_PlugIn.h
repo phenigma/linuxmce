@@ -193,6 +193,9 @@ public:
 		/** Some new show is being watched */
 		bool PlaybackStarted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
+		/** A new file was recorded */
+		bool NewRecording( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+
 		/** What tv options are available in the area -- this is a temporary hack until we get a proper source for this */
 		class DataGridTable *TvProviders(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 		class DataGridTable *FavoriteChannels( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
