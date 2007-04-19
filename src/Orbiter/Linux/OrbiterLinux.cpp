@@ -55,6 +55,10 @@
 #include "MouseBehavior_Linux.h"
 #include "pluto_main/Define_DesignObjParameter.h"
 
+#if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
+#include "OpenGL/VIA/ViaOverlay.h"
+#endif
+
 #include "../CallBackTypes.h"
 
 #include "../dialog_types.h"
@@ -634,6 +638,11 @@ void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point)
 		4, ShapeSet, Unsorted);
 	
 	m_bMaskApplied = true;
+
+#if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
+	ViaOverlay::Instance().FillRectangleInAlphaMask(point.X + rectTotal.X, point.Y + rectTotal.Y, 
+		rectTotal.Width, rectTotal.Height, 0x00);
+#endif
 }
 
 bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
