@@ -83,6 +83,9 @@ void on_back_clicked(GObject object, gpointer data) {
 			case STEPUI:
 				displayStepUI();
 				break;
+			case STEPCONF:
+				displayStepConfFiles();
+				break;
 			default:
 				printf("Unknown screen in history [%d]", prevScreen);
 		}

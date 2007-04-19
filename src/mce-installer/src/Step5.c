@@ -21,6 +21,7 @@ void on_Step5_forward_clicked(GtkWidget *widget, gpointer data) {
 void on_terminal_child_exited(VteTerminal *terminal, gpointer data) {
 	//gtk_widget_set_sensitive (GTK_WIDGET(buttonFinish), TRUE);
 	g_source_remove(tagProgressBarPulse);
+	//displayStepConfFiles();
 	displayStep6();
 }
 
@@ -31,6 +32,7 @@ gint update_progress_bar(gpointer data) {
 
 void displayStep5(void) {
 	printf("Step5\n");
+	printf("mirror: %s\n",setting_installMirror);
 
 	int script_pid = -1;
 

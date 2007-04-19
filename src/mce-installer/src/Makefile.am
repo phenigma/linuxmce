@@ -54,7 +54,9 @@ mce_installer_SOURCES = \
 	StepAptMirror.h \
 	StepAptMirror.c \
 	StepUI.h \
-	StepUI.c
+	StepUI.c \
+	StepConfFiles.h \
+	StepConfFiles.c
 
 
 mce_installer_LDFLAGS = 

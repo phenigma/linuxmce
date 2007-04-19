@@ -96,7 +96,7 @@ AM_CFLAGS =  	 -Wall 	 -g
 
 bin_PROGRAMS = mce-installer
 
-mce_installer_SOURCES =  	main.c         	Step1A.c         	Step1A.h         	common.h         	common.c         	Step1B.c         	Step1B.h         	Step1C.c         	Step1C.h         	Step1D.c         	Step1D.h         	network-common.c         	network-common.h         	Step2A.c         	Step2A.h         	Step3.c         	Step3.h         	Step2E.c         	Step2E.h         	Step2C.c         	Step2C.h         	Step4.c         	Step4.h         	Step5.c         	Step5.h         	Step0B.c         	Step0B.h         	Step2F.c         	Step2F.h         	Step0A.c         	Step0A.h         	Step6.c         	Step6.h 		StepAptMirror.h 	StepAptMirror.c 	StepUI.h 	StepUI.c
+mce_installer_SOURCES =  	main.c         	Step1A.c         	Step1A.h         	common.h         	common.c         	Step1B.c         	Step1B.h         	Step1C.c         	Step1C.h         	Step1D.c         	Step1D.h         	network-common.c         	network-common.h         	Step2A.c         	Step2A.h         	Step3.c         	Step3.h         	Step2E.c         	Step2E.h         	Step2C.c         	Step2C.h         	Step4.c         	Step4.h         	Step5.c         	Step5.h         	Step0B.c         	Step0B.h         	Step2F.c         	Step2F.h         	Step0A.c         	Step0A.h         	Step6.c         	Step6.h 		StepAptMirror.h 	StepAptMirror.c 	StepUI.h 	StepUI.c 	StepConfFiles.h 	StepConfFiles.c
 
 
 mce_installer_LDFLAGS = 
@@ -116,7 +116,8 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 mce_installer_OBJECTS =  main.o Step1A.o common.o Step1B.o Step1C.o \
 Step1D.o network-common.o Step2A.o Step3.o Step2E.o Step2C.o Step4.o \
-Step5.o Step0B.o Step2F.o Step0A.o Step6.o StepAptMirror.o StepUI.o
+Step5.o Step0B.o Step2F.o Step0A.o Step6.o StepAptMirror.o StepUI.o \
+StepConfFiles.o
 mce_installer_DEPENDENCIES = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -134,8 +135,8 @@ GZIP_ENV = --best
 DEP_FILES =  .deps/Step0A.P .deps/Step0B.P .deps/Step1A.P .deps/Step1B.P \
 .deps/Step1C.P .deps/Step1D.P .deps/Step2A.P .deps/Step2C.P \
 .deps/Step2E.P .deps/Step2F.P .deps/Step3.P .deps/Step4.P .deps/Step5.P \
-.deps/Step6.P .deps/StepAptMirror.P .deps/StepUI.P .deps/common.P \
-.deps/main.P .deps/network-common.P
+.deps/Step6.P .deps/StepAptMirror.P .deps/StepConfFiles.P \
+.deps/StepUI.P .deps/common.P .deps/main.P .deps/network-common.P
 SOURCES = $(mce_installer_SOURCES)
 OBJECTS = $(mce_installer_OBJECTS)
 

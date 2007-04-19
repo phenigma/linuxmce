@@ -67,6 +67,7 @@
 #define STEP0B 14
 #define STEPAPTMIRROR 15
 #define STEPUI 16 
+#define STEPCONF 17
 
 #define INSTALL_TYPE_CD   1
 #define INSTALL_TYPE_ISO  2
@@ -114,4 +115,7 @@ gint	 setting_installType;
 gint	 setting_UI;
 
 gchar*   setting_installMirror;
+
+gint	 flag_mirror;
+gchar	 *other_mirror;
 #endif

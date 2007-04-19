@@ -118,6 +118,7 @@ main (int argc, char *argv[])
 	}
 
 	//displayStepAptMirror();
+	//displayStepConfFiles();
 
 //	displayStep0A();
 
