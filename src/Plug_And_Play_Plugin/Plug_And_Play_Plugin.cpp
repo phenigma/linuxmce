@@ -101,16 +101,23 @@ bool Plug_And_Play_Plugin::GetConfig()
         return false;
     }
 
+	string sSQL = "SELECT max(PK_PnpQueue) FROM PnpQueue";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase_pluto_main->mysql_query_result( sSQL ) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+		m_iPK_PnpQueue_Starting = atoi( row[0] );
+	else
+		m_iPK_PnpQueue_Starting = 0;
+
 	if( !DatabaseUtils::AlreadyHasRooms(m_pDatabase_pluto_main,m_pRouter->iPK_Installation_get()) || !DatabaseUtils::AlreadyHasUsers(m_pDatabase_pluto_main,m_pRouter->iPK_Installation_get()) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::GetConfig System has no rooms or users yet.  Suspending processing.");
 		m_bSuspendProcessing=true;
 	}
 
-
 	// Serial->usb adapters don't keep valid serial numbers in between reboots
 	// Reset any serial numbers so the match will occur only on the usb bus
-	string sSQL="UPDATE Device_DeviceData "
+	sSQL="UPDATE Device_DeviceData "
 		" JOIN Device ON FK_Device=PK_Device "
 		" JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
 		" SET IK_DeviceData='' "

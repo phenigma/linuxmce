@@ -45,6 +45,7 @@ namespace DCE
 	    class Orbiter_Plugin *m_pOrbiter_Plugin;
 		class Datagrid_Plugin *m_pDatagrid_Plugin;
 		bool m_bSuspendProcessing;
+		int m_iPK_PnpQueue_Starting;  // The last queue id when this device started, so we know which entries are new vs. old
 
 		// Private methods
 public:
