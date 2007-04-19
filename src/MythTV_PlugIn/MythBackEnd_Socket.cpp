@@ -220,7 +220,7 @@ void MythBackEnd_Socket::Close()
 eReceiveCharResult MythBackEnd_Socket::ReceiveChar()
 {
 	// Don't bother locking the mutex, since it will always be locked by the calling app and this is looped a lot
-	if( (!m_bConnected || m_pSocket==NULL || m_pSocket->m_Socket == INVALID_SOCKET) && !Connect() )
+	if( (!m_bConnected || m_pSocket==NULL || m_pSocket->m_Socket == INVALID_SOCKET) )  // Don't bother reconnecting at this low-level.  The high level will
 		return eReceiveCharResult_Error;
 
 	char pcBuf[1];
