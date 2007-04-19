@@ -173,6 +173,7 @@ bool MythBackEnd_Socket::Connect( )
 
 bool MythBackEnd_Socket::ProcessSocket()
 {
+	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
 	eReceiveCharResult _eReceiveCharResult;
 	
 	// Process all incoming characters
@@ -218,7 +219,7 @@ void MythBackEnd_Socket::Close()
 
 eReceiveCharResult MythBackEnd_Socket::ReceiveChar()
 {
-	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
+	// Don't bother locking the mutex, since it will always be locked by the calling app and this is looped a lot
 	if( (!m_bConnected || m_pSocket==NULL || m_pSocket->m_Socket == INVALID_SOCKET) && !Connect() )
 		return eReceiveCharResult_Error;
 
