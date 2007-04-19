@@ -1772,8 +1772,15 @@ void PnpQueue::DoneDetectingDevices(string sSignature)
 				mapDevices_Signature.erase(pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get());
 
 			if( pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()<=m_pPlug_And_Play_Plugin->m_iPK_PnpQueue_Starting )
+			{
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DoneDetectingDevices removing old queue %d for %s",
+					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),sSignature.c_str());
+
+#endif
 				// This is an old entry using the same signature.  Get rid of it
 				pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
+			}
 		}
 	}
 #ifdef DEBUG
