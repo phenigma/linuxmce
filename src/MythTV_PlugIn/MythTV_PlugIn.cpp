@@ -1653,12 +1653,17 @@ class DataGridTable *MythTV_PlugIn::ThumbnailableAttributes( string GridID, stri
 	EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find( atoi(Parms.c_str()) );
 	if( !pEntertainArea || !pEntertainArea->m_pMediaStream || 
 		(pMythTvMediaStream = ConvertToMythMediaStream(pEntertainArea->m_pMediaStream, "MythTV_PlugIn::ThumbnailableAttributes() ")) == NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::ThumbnailableAttributes can't get stream or ea");
 		return pDataGrid;
+	}
 
-pMythTvMediaStream->m_iCurrentProgramChannelID=1003; // temp hack until i get this working
 	MythChannel *pMythChannel = m_mapMythChannel_Find( pMythTvMediaStream->m_iCurrentProgramChannelID );
 	if( !pMythChannel )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::ThumbnailableAttributes can't get channel %d", pMythTvMediaStream->m_iCurrentProgramChannelID );
 		return pDataGrid;
+	}
 
 	int iRow=0;
 	DataGridCell *pCell = new DataGridCell( "Channel: " + StringUtils::itos(pMythChannel->m_dwChanNum) + " " + pMythChannel->m_sShortName, 
@@ -2249,12 +2254,14 @@ bool MythTV_PlugIn::PlaybackStarted( class Socket *pSocket,class Message *pMessa
 	string sVideo = pMessage->m_mapParameters[EVENTPARAMETER_Video_CONST];
 	*/
     MediaStream * pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
+    MythTvMediaStream * pMythTvMediaStream;
 
-    if ( pMediaStream == NULL )
+    if ( pMediaStream == NULL || (pMythTvMediaStream = ConvertToMythMediaStream(pEntertainArea->m_pMediaStream, "MythTV_PlugIn::ThumbnailableAttributes() "))==NULL )
     {
         LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_PlugIn::PlaybackStarted Stream ID %d is not mapped to a media stream object", iStreamID);
         return false;
     }
+
 
 	MythChannel *pMythChannel = m_mapMythChannel_Find( atoi(sMRL.c_str()) );
 	string sSQL = "select title,subtitle,description FROM program where chanid=" + sMRL + " AND "
@@ -2267,10 +2274,10 @@ bool MythTV_PlugIn::PlaybackStarted( class Socket *pSocket,class Message *pMessa
         return false;
 	}
 
-	pMediaStream->m_sMediaDescription = pMythChannel->m_sLongName;
-	pMediaStream->m_sSectionDescription = row[0] ? row[0] : "";
-	pMediaStream->m_sMediaSynopsis = row[2] ? row[2] : "";
-	pMediaStream->m_iTrackOrSectionOrChapter=atoi(sMRL.c_str());
+	pMythTvMediaStream->m_sMediaDescription = pMythChannel->m_sLongName;
+	pMythTvMediaStream->m_sSectionDescription = row[0] ? row[0] : "";
+	pMythTvMediaStream->m_sMediaSynopsis = row[2] ? row[2] : "";
+	pMythTvMediaStream->m_iCurrentProgramChannelID = pMythTvMediaStream->m_iTrackOrSectionOrChannel=pMythChannel->atoi(sMRL.c_str());
 	return false;
 }
 

@@ -608,10 +608,10 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 			bool bIsOSD=pMediaStream->OrbiterIsOSD(dwPK_Device,&pEntertainArea_OSD);
 			int PK_Screen = pMediaStream->GetRemoteControlScreen(dwPK_Device);
 			PK_Device_Source = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
-			if( pMediaStream->m_iTrackOrSectionOrChapter==-1 )
+			if( pMediaStream->m_iTrackOrSectionOrChannel==-1 )
 				iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
 			else
-				iDequeMediaFile = pMediaStream->m_iTrackOrSectionOrChapter;
+				iDequeMediaFile = pMediaStream->m_iTrackOrSectionOrChannel;
 
 			string sMediaDevices = StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
 				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Video ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device) : "")

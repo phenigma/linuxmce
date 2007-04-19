@@ -88,7 +88,7 @@ namespace DCE
         deque<MediaTitle *>  m_dequeMediaTitle;      /** The titles, if this is something like a DVD */
         deque<MediaSection *>  m_dequeMediaSection;      /** The titles, if this is something like a DVD */
         unsigned int m_iDequeMediaFile_Pos;   /** The play position in the m_dequeFilename deque. */
-		int m_iTrackOrSectionOrChapter; /** Gets sent to Orbiter in set now playing and becomes the seek value for the tracks/media sections grid, or if -1, m_iDequeMediaFile_Pos is used */
+		int m_iTrackOrSectionOrChannel; /** Gets sent to Orbiter in set now playing and becomes the seek value for the tracks/media sections grid, or if -1, m_iDequeMediaFile_Pos is used */
         int m_iDequeMediaTitle_Pos;  /** The play position in the m_dequeMediaTitle deque. */
         int m_iDequeMediaSection_Pos;/** The play position in the m_dequeMediaSection deque. */
         int m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
