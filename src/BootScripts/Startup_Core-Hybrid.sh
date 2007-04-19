@@ -9,7 +9,7 @@ fi
 
 if [[ "$X_Is_Ok" == "true" ]] ;then
 	X_Start_Time=$(date +%s)
-	xinit /usr/bin/mce-launcher -- :3 -config /etc/X11/xorg.conf.pluto -br
+	xinit /usr/bin/mce-launcher -- :3 -config /usr/share/mce-launcher/mce-launcher.xorg.conf -br
 	X_Stop_Time=$(date +%s)
 
 	## If X exited to quick
