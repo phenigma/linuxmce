@@ -6133,7 +6133,8 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 		";
 	$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($commandGroupID));
 
-	$out='';
+	$out='
+	<input type="hidden" name="cgcID" id="cgcID" value="">';
 	if ($resCommandAssigned->RecordCount()>0) {
 		$out.='	<fieldset>
 					<legend>'.$TEXT_COMMANDS_CONST.'</legend>
@@ -6260,7 +6261,9 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 						</td>						
 					</tr>
 					<tr class="'.$class_color.'">
-						<td align="center" colspan="3"><input type="button" class="button" name="testCommand" value="'.$TEXT_TEST_COMMAND_CONST.'" onClick="self.location=\'index.php?section=editCommandGroup&cgID='.$commandGroupID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'&action=testCommand\'"></td>
+						<td align="center" colspan="3">
+							<input type="submit" class="button" name="testCommand" value="'.$TEXT_TEST_COMMAND_CONST.'" onClick="document.getElementById(\'cgcID\').value='.$rowCommandAssigned['PK_CommandGroup_Command'].';">
+						</td>
 					</tr>
 					';
 			$pos++;
