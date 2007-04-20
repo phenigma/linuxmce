@@ -65,14 +65,34 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 				<td colspan="2" class="left_menu">'.$linksTree.'</td>
 			</tr>
 			<tr>
+				<td colspan="2" class="left_menu"><hr></td>
+			</tr>			
+			<tr>
 				<td colspan="2" class="left_menu"><input type="checkbox" name="UpdateMediaDaemon" value="1" '.((get_update_media_daemon_status($dbADO)==1)?'checked':'').' onClick="document.leftMediaFilesSync.submit();"> '.$TEXT_UPDATE_MEDIA_DAEMON_CONST.'</td>
 			</tr>		
+			<tr>
+				<td colspan="2" align="center" class="left_menu"><input type="submit" class="button_fixed" name="updateThumbnails" value="Update thumbnails"></td>
+			</tr>			
+			<tr>
+				<td colspan="2" align="center" class="left_menu"><input type="submit" class="button_fixed" name="searchTokens" value="Search tokens"></td>
+			</tr>			
 			</table>
 		</form>';
 	}else{
 		// processing area
 		set_update_media_daemon_status((int)@$_REQUEST['UpdateMediaDaemon'],$dbADO);
 
+		if(isset($_POST['updateThumbnails'])){
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -h localhost -d /home/public/data/ -t';
+			exec_batch_command($cmd);
+		}
+
+		if(isset($_POST['searchTokens'])){
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -h localhost -d /home/public/data/ -s';
+			exec_batch_command($cmd);
+		}
+		
+		
 		header('Location: index.php?section=leftMediaFilesSync&startPath='.urlencode($_REQUEST['startPath']));
 		exit();
 	}	
