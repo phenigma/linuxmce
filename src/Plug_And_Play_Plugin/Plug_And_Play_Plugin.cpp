@@ -104,7 +104,7 @@ bool Plug_And_Play_Plugin::GetConfig()
 	string sSQL = "SELECT max(PK_PnpQueue) FROM PnpQueue";
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
-	if( ( result_set.r=m_pDatabase_pluto_main->mysql_query_result( sSQL ) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+	if( ( result_set.r=m_pDatabase_pluto_main->mysql_query_result( sSQL ) ) && ( row = mysql_fetch_row( result_set.r ) ) && row[0] )
 		m_iPK_PnpQueue_Starting = atoi( row[0] );
 	else
 		m_iPK_PnpQueue_Starting = 0;
