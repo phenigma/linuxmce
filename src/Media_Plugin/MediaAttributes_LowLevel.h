@@ -186,6 +186,11 @@ public:
 	int AddIdentifiedFileToDB(int PK_MediaType,int PK_File,listMediaAttribute &listMediaAttribute_);
 	int AddPictureToDisc(int PK_Disc,char *pPictureData,size_t sizePicture,string sURL);
 	int AddPictureToFile(int PK_File,char *pPictureData,size_t sizePicture,string sURL);
+	int AddPictureToAttribute(int PK_File,char *pPictureData,size_t sizePicture,string sURL);
+	void AddPictureToDisc(int PK_Disc,int PK_Picture);
+	void AddPictureToFile(int PK_File,int PK_Picture);
+	void AddPictureToAttribute(int PK_Attribute,int PK_Picture);
+
 	void PurgeListMediaAttribute(listMediaAttribute &listMediaAttribute_)
 	{
 		for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)

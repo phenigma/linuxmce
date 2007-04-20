@@ -134,6 +134,8 @@ public:
 
 	std::string GenerateObjectHash(const PlutoPoint& point, bool bObjectState = true);
 
+	DesignObj_Orbiter *FindChildObjectWithBaseID(int PK_DesignObj);
+
 protected:
 
 	virtual bool PreRenderActions(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));

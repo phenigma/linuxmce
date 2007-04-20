@@ -1782,10 +1782,10 @@ void ScreenHandler::BadGotoScreen(int PK_Screen)
 bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-	if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Show_CONST ||
-		pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Chan_CONST )
+	if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Show_CONST )
 	{
 		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgUpcomingShows_CONST);
+
 		if( pDesignObj_DataGrid )
 		{
 			DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
@@ -1794,37 +1794,57 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
 				if( !pCell )
 					return false;
+
 				string sBookmark,sDescription;
-				if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Show_CONST )
-				{
-					if( pCell->m_Text )
-						sDescription = pCell->m_Text;
-					string sSeries = pCell->m_mapAttributes_Find("seriesid");
-					if( sSeries.empty()==false )
-						sBookmark = " SERIES:" + sSeries;
-					else
-					{
-						string sProgram = pCell->m_mapAttributes_Find("programid");
-						if( sProgram.empty()==false )
-							sBookmark = " PROG:" + sProgram;
-					}
-				}
+				if( pCell->m_Text )
+					sDescription = pCell->m_Text;
+				string sSeries = pCell->m_mapAttributes_Find("seriesid");
+				if( sSeries.empty()==false )
+					sBookmark = " SERIES:" + sSeries;
 				else
 				{
-					string sChannel = pCell->m_mapAttributes_Find("chanid");
-					if( sChannel.empty()==false )
+					string sProgram = pCell->m_mapAttributes_Find("programid");
+					if( sProgram.empty()==false )
+						sBookmark = " PROG:" + sProgram;
+				}
+				if( sBookmark.empty()==false )
+				{
+					DCE::CMD_Save_Bookmark CMD_Save_Bookmark(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+						0,NULL,0,MEDIATYPE_pluto_LiveTV_CONST,"",sDescription,sBookmark,false);
+					m_pOrbiter->SendCommand(CMD_Save_Bookmark);
+					pCell->m_mapAttributes["PK_Bookmark"]="0";
+				}
+			}
+			m_pOrbiter->Renderer()->RenderObjectAsync(pDesignObj_DataGrid);
+		}
+	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Bookmark_Chan_CONST )
+	{
+		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgTvChannels_UI2_CONST);
+
+		if( pDesignObj_DataGrid )
+		{
+			DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
+			if( pDataGridTable )
+			{
+				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+				if( !pCell )
+					return false;
+
+				string sBookmark,sDescription;
+				string sChannel = pCell->GetValue();
+				if( sChannel.empty()==false )
+				{
+					sBookmark = " CHAN:" + sChannel;
+					DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgTvChannels_UI2_CONST);
+					if( pDesignObj_DataGrid )
 					{
-						sBookmark = " CHAN:" + sChannel;
-						DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgTvChannels_UI2_CONST);
-						if( pDesignObj_DataGrid )
+						DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
+						if( pDataGridTable )
 						{
-							DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
-							if( pDataGridTable )
-							{
-								DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
-								if( pCell->m_Text )
-									sDescription = pCell->m_Text;
-							}
+							DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+							if( pCell->m_Text )
+								sDescription = pCell->m_Text;
 						}
 					}
 				}
@@ -1833,9 +1853,10 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 					DCE::CMD_Save_Bookmark CMD_Save_Bookmark(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
 						0,NULL,0,MEDIATYPE_pluto_LiveTV_CONST,"",sDescription,sBookmark,false);
 					m_pOrbiter->SendCommand(CMD_Save_Bookmark);
-					m_pOrbiter->CMD_Refresh("");
+					pCell->m_mapAttributes["PK_Bookmark"]="0";
 				}
 			}
+			m_pOrbiter->Renderer()->RenderObjectAsync(pDesignObj_DataGrid);
 		}
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Record_Once_CONST ||
@@ -1851,12 +1872,16 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 				if( !pCell )
 					return false;
 
+				m_pOrbiter->Renderer()->RenderObjectAsync(pDesignObj_DataGrid);  // re-render the grid with the record icon
 				string sRecordID = pCell->m_mapAttributes_Find("recordid");
+
 				if( sRecordID.empty()==false )
 				{
 					DCE::CMD_Remove_Scheduled_Recording CMD_Remove_Scheduled_Recording(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
 						sRecordID,"");
 					m_pOrbiter->SendCommand(CMD_Remove_Scheduled_Recording);
+					pCell->m_mapAttributes.erase("recording");  // temporarily set it so we don't have to re-acquire the grid
+					pCell->m_mapAttributes.erase("recordid");  // temporarily set it so we don't have to re-acquire the grid
 				}
 				else
 				{
@@ -1864,6 +1889,8 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 						pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Record_Once_CONST ? "O" : "C",
 						"", pCell->m_mapAttributes["chanid"] + "," + pCell->m_mapAttributes["starttime"] + "," + pCell->m_mapAttributes["endtime"]);
 					m_pOrbiter->SendCommand(CMD_Schedule_Recording);
+					pCell->m_mapAttributes["recording"] = pObjectInfoData->m_PK_DesignObj_SelectedObject==DESIGNOBJ_butUI2_Ch_Prev_Record_Once_CONST ? "O" : "C";
+					pCell->m_mapAttributes["recordid"] = "0";  // not good.  this means if the user adds and immediately deletes without refreshing the grid, it won't delete the right id.  But we want speed and requesting the record id would slow this down
 				}
 			}
 		}
@@ -1910,7 +1937,7 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 							pCell->m_pGraphicData, pCell->m_GraphicLength, "0");  // Store the icon, which is cell's picture
 					}
 					else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoFavorite_CONST )
-						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("Favorite")==pCell->m_mapAttributes.end();
+						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("PK_Bookmark")==pCell->m_mapAttributes.end();
 				}
 			}
 		}
@@ -1943,7 +1970,7 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 							pCell->m_pGraphicData, pCell->m_GraphicLength, "0");  // Store the icon, which is cell's picture
 					}
 					else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoFavorite_CONST )
-						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("Favorite")==pCell->m_mapAttributes.end();
+						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("PK_Bookmark")==pCell->m_mapAttributes.end();
 					else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoScheduledRecording_CONST )
 						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("recording")==pCell->m_mapAttributes.end();
 				}

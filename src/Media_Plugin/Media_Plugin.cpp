@@ -3667,12 +3667,14 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
 		/** @param #151 Slot Number */
 			/** The slot if this is a jukebox */
+		/** @param #152 Drive Number */
+			/** For jukeboxes this is a slot, for other drives it's not used */
 		/** @param #233 DriveID */
-			/** The ID of the storage drive. Can be the ID of the core. */
+			/** The PK_Device ID of the storage drive that will be ripped to. Can be the ID of the core to store in /home */
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-void Media_Plugin::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	// we only have the sources device. This should be an orbiter
@@ -4361,14 +4363,17 @@ void Media_Plugin::CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFals
 			/** If empty, the attribute is for the disc.  If specified, it is for this track number */
 		/** @param #122 EK_AttributeType */
 			/** The type of attribute to set */
+		/** @param #123 EK_Attribute */
+			/** The ID of the attribute */
 		/** @param #135 Section */
 			/** If specified the attribute is added for this section only */
 		/** @param #145 EK_File */
 			/** The file to add the attribute for.  If not specified, then a stream ID must be specified and the current file in that stream will be used */
 
-void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,int *iEK_Attribute,string &sCMD_Result,Message *pMessage)
 //<-dceag-c391-e->
 {
+	*iEK_Attribute=0;
 	MediaStream *pMediaStream = NULL;
 	if( !iEK_File )
 	{
@@ -4399,6 +4404,7 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 	Row_Attribute *pRow_Attribute = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeFromDescription(pRow_File->EK_MediaType_get(),iEK_AttributeType,sValue_To_Assign);
 	if( pRow_Attribute )
 	{
+		*iEK_Attribute=pRow_Attribute->PK_Attribute_get();
 		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->GetRow(iEK_File,pRow_Attribute->PK_Attribute_get(),atoi(sTracks.c_str()),atoi(sSection.c_str()));
 		if( !pRow_File_Attribute )
 		{
@@ -4408,13 +4414,6 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 			pRow_File_Attribute->Track_set(atoi(sTracks.c_str()));
 			pRow_File_Attribute->Section_set(atoi(sSection.c_str()));
 			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
-
-			/* Don't do this now.  It takes too long.  Let updatemedia do it later
-            PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
-                pRow_File->Path_get(), pRow_File->Filename_get());
-			PlutoMediaFile_.SetSyncMode(modeDbToFile);
-            PlutoMediaFile_.SetFileAttribute(iEK_File); //also updates id3tags
-			*/
 		}
 	}
 }

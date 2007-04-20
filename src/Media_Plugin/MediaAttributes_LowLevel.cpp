@@ -1211,10 +1211,7 @@ int MediaAttributes_LowLevel::AddPictureToDisc(int PK_Disc,char *pPictureData,si
 		if( !pRow_Picture )
 			return 0;
 
-		Row_Picture_Disc *pRow_Picture_Disc = m_pDatabase_pluto_media->Picture_Disc_get()->AddRow();
-		pRow_Picture_Disc->FK_Disc_set( pRow_Disc->PK_Disc_get() );
-		pRow_Picture_Disc->FK_Picture_set( pRow_Picture->PK_Picture_get() );
-		m_pDatabase_pluto_media->Picture_Disc_get()->Commit();
+		AddPictureToDisc(pRow_Disc->PK_Disc_get(),pRow_Picture->PK_Picture_get());
 
 		// Find all attributes that we added that identify this disc and need the same picture
 		string sWhere="SELECT Attribute.* FROM Attribute"
@@ -1228,14 +1225,7 @@ int MediaAttributes_LowLevel::AddPictureToDisc(int PK_Disc,char *pPictureData,si
 		for(size_t s=0;s<vectRow_Attribute.size();++s)
 		{
 			Row_Attribute *pRow_Attribute = vectRow_Attribute[s];
-			Row_Picture_Attribute *pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->GetRow(pRow_Picture->PK_Picture_get(),pRow_Attribute->PK_Attribute_get());
-			if( !pRow_Picture_Attribute )
-			{
-				pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->AddRow();
-				pRow_Picture_Attribute->FK_Picture_set(pRow_Picture->PK_Picture_get());
-				pRow_Picture_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-				m_pDatabase_pluto_media->Picture_Attribute_get()->Commit();
-			}
+			AddPictureToAttribute(pRow_Picture->PK_Picture_get(),pRow_Attribute->PK_Attribute_get());
 		}
 		return pRow_Picture->PK_Picture_get();
 	}
@@ -1251,10 +1241,7 @@ int MediaAttributes_LowLevel::AddPictureToFile(int PK_File,char *pPictureData,si
 		if( !pRow_Picture )
 			return 0;
 
-		Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
-		pRow_Picture_File->FK_File_set( pRow_File->PK_File_get() );
-		pRow_Picture_File->FK_Picture_set( pRow_Picture->PK_Picture_get() );
-		m_pDatabase_pluto_media->Picture_File_get()->Commit();
+		AddPictureToFile(pRow_File->PK_File_get(),pRow_Picture->PK_Picture_get());
 
 		// Find all attributes that we added that identify this File and need the same picture
 		string sWhere="SELECT Attribute.* FROM Attribute"
@@ -1268,14 +1255,7 @@ int MediaAttributes_LowLevel::AddPictureToFile(int PK_File,char *pPictureData,si
 		for(size_t s=0;s<vectRow_Attribute.size();++s)
 		{
 			Row_Attribute *pRow_Attribute = vectRow_Attribute[s];
-			Row_Picture_Attribute *pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->GetRow(pRow_Picture->PK_Picture_get(),pRow_Attribute->PK_Attribute_get());
-			if( !pRow_Picture_Attribute )
-			{
-				pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->AddRow();
-				pRow_Picture_Attribute->FK_Picture_set(pRow_Picture->PK_Picture_get());
-				pRow_Picture_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-				m_pDatabase_pluto_media->Picture_Attribute_get()->Commit();
-			}
+			AddPictureToAttribute(pRow_Picture->PK_Picture_get(),pRow_Attribute->PK_Attribute_get());
 		}
 		return pRow_Picture->PK_Picture_get();
 	}
@@ -1607,5 +1587,56 @@ void MediaAttributes_LowLevel::AddAttributeToDisc(Row_Disc *pRow_Disc,Row_Attrib
 		pRow_Disc_Attribute->Track_set(Track);
 		pRow_Disc_Attribute->Section_set(Section);
 		m_pDatabase_pluto_media->Disc_Attribute_get()->Commit();
+	}
+}
+
+int MediaAttributes_LowLevel::AddPictureToAttribute(int PK_Attribute,char *pPictureData,size_t sizePicture,string sURL)
+{
+	Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
+	if( pPictureData && sizePicture && pRow_Attribute )
+	{
+		Row_Picture *pRow_Picture = AddPicture(pPictureData, int(sizePicture), "jpg",sURL);
+		if( !pRow_Picture )
+			return 0;
+
+		AddPictureToAttribute(pRow_Attribute->PK_Attribute_get(),pRow_Picture->PK_Picture_get());
+		return pRow_Picture->PK_Picture_get();
+	}
+	return 0;
+}
+
+void MediaAttributes_LowLevel::AddPictureToDisc(int PK_Disc,int PK_Picture)
+{
+	Row_Picture_Disc *pRow_Picture_Disc = m_pDatabase_pluto_media->Picture_Disc_get()->GetRow(PK_Picture,PK_Disc);
+	if( !pRow_Picture_Disc )
+	{
+		pRow_Picture_Disc = m_pDatabase_pluto_media->Picture_Disc_get()->AddRow();
+		pRow_Picture_Disc->FK_Disc_set( PK_Disc );
+		pRow_Picture_Disc->FK_Picture_set( PK_Picture );
+		m_pDatabase_pluto_media->Picture_Disc_get()->Commit();
+	}
+}
+
+void MediaAttributes_LowLevel::AddPictureToFile(int PK_File,int PK_Picture)
+{
+	Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->GetRow(PK_Picture,PK_File);
+	if( !pRow_Picture_File )
+	{
+		pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
+		pRow_Picture_File->FK_File_set( PK_File );
+		pRow_Picture_File->FK_Picture_set( PK_Picture );
+		m_pDatabase_pluto_media->Picture_File_get()->Commit();
+	}
+}
+
+void MediaAttributes_LowLevel::AddPictureToAttribute(int PK_Attribute,int PK_Picture)
+{
+	Row_Picture_Attribute *pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->GetRow(PK_Picture,PK_Attribute);
+	if( !pRow_Picture_Attribute )
+	{
+		pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->AddRow();
+		pRow_Picture_Attribute->FK_Attribute_set( PK_Attribute );
+		pRow_Picture_Attribute->FK_Picture_set( PK_Picture );
+		m_pDatabase_pluto_media->Picture_Attribute_get()->Commit();
 	}
 }

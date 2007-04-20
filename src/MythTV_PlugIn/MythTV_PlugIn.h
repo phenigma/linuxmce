@@ -42,6 +42,7 @@ namespace DCE
 {
     using namespace std;
 
+	typedef map<int,int> MapBookmark;  // Map of PK_Users to PK_Bookmarks 
 	class MythChannel
 	{
 	public:
@@ -49,9 +50,8 @@ namespace DCE
 		string m_sShortName,m_sLongName;
 		char *m_pPic;
 		size_t m_Pic_size;
+		MapBookmark m_mapBookmark;  // Map of PK_Users to PK_Bookmarks who have bookmarked this
 		DataGridCell *m_pCell;  // A temporary pointer only valid while created a grid
-		char m_cAddedAlready;  // Also temporary since the same channel can appear multiple times in a list.  Values are 'N', 'Y', 'F' for favorite program
-		bool m_bFavorite;
 
 		MythChannel(int dwID,int dwChanNum,int dwSource, string sShortName,string sLongName,char *pPic, size_t Pic_size)
 		{
@@ -114,6 +114,8 @@ namespace DCE
 		map<int, int> m_mapMythInputsToDevices;
 		EPGGrid *m_pEPGGrid;
 
+		ListMythChannel m_ListMythChannel; // The channels in the right order for display
+
 		/** Private member variables */
         map<int, int> m_mapDevicesToStreams;
 		map<int,list_int> m_mapDevicesToSources; // First int is a device (like a tv tuner, sat box, etc.), second is a list of video sources.  First int is '0' for all myth systems
@@ -130,7 +132,9 @@ namespace DCE
 			m_bNeedToRunFillDb; // if we get more changes, while a fill is active, we'll set this so when the fill stops we know to restart it
 
 		class MythBackEnd_Socket *m_pMythBackEnd_Socket;
-        // MythTvEPGWrapper *m_pAllShowsDataGrid;
+		map<string,MapBookmark *> m_mapSeriesBookmarks,m_mapProgramBookmarks;  // What users have bookmarked series and programs
+		MapBookmark *m_mapSeriesBookmarks_Find(string sSeries) { map<string,MapBookmark *>::iterator it = m_mapSeriesBookmarks.find(sSeries); return it==m_mapSeriesBookmarks.end() ? NULL : (*it).second; }
+		MapBookmark *m_mapProgramBookmarks_Find(string sProgram) { map<string,MapBookmark *>::iterator it = m_mapProgramBookmarks.find(sProgram); return it==m_mapProgramBookmarks.end() ? NULL : (*it).second; }
 
         /** Private methods */
     public:
@@ -138,12 +142,6 @@ namespace DCE
         int m_dwTargetDevice;
 
 		class AlarmManager *m_pAlarmManager;
-
-		// Map of PK_User to bookmarked channel,series,program, where bookmark is a comma delimited list
-		// populated by RefreshBookmarks
-		map<int,string> m_mapChannelBookmarks,m_mapSeriesBookmarks,m_mapProgramBookmarks;
-		map<int,int> m_mapUserFavoriteChannels; // Map the user id to the number of favorite channels he has
-
 
         //<-dceag-const-b->
 public:
@@ -165,7 +163,6 @@ public:
 		class General_Info_Plugin *m_pGeneral_Info_Plugin;
 		map<int,MythChannel *> m_mapMythChannel;  // A Channel ID to channel info
 		MythChannel *m_mapMythChannel_Find(int chanid) { map<int,class MythChannel *>::iterator it = m_mapMythChannel.find(chanid); return it==m_mapMythChannel.end() ? NULL : (*it).second; }
-		map<int,ListMythChannel> m_map_listMythChannel; // User ID to a sorted list of that users channels with favorites first
 
 
     public:
@@ -212,7 +209,7 @@ public:
 
 		bool NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 		void RefreshBookmarks();
-		void BuildChannelList(); // Build a list of all channels with their icons and store as MythChannel objects in m_mapMythChannel, and store sorted versions in m_map_listMythChannel
+		void BuildChannelList(); // Build a list of all channels with their icons and store as MythChannel objects in m_mapMythChannel
 		void PurgeChannelList(); // Purge the list of channels, freeing all memory used
 
 		void StartScanningScript(Row_Device *pRow_Device_Tuner,Row_Device *pRow_Device_CaptureCard,int iPK_Orbiter,string sScanningScript);

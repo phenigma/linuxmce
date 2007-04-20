@@ -103,7 +103,6 @@ bool MythTV_PlugIn::GetConfig()
 	m_pAlarmManager->AddRelativeAlarm(15,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
 	m_pAlarmManager->AddRelativeAlarm(60,this,CONFIRM_MASTER_BACKEND_OK,NULL);
 	m_pAlarmManager->AddRelativeAlarm(45,this,SYNC_PROVIDERS_AND_CARDS,NULL);  // Do this after pnp has had a chance to update all incoming devices
-
 	return true;
 }
 
@@ -446,34 +445,15 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 		}
 	}
 
-	for(map<int,MythChannel *>::iterator it=m_mapMythChannel.begin();it!=m_mapMythChannel.end();++it)
-	{
-		it->second->m_cAddedAlready='N';
-		it->second->m_pCell=NULL;
-	}
-
-	string sBookmark_Program = m_mapProgramBookmarks[0];
-	string sBookmark_Program2 = m_mapProgramBookmarks[iPK_Users];
-	if( sBookmark_Program.empty()==false && sBookmark_Program2.empty()==false )
-		sBookmark_Program += ",";
-	sBookmark_Program += sBookmark_Program2;
-	if( sBookmark_Program.empty() )
-		sBookmark_Program = "-999";  // Something we know is not going to happen so the sql syntax is correct
-
-	string sBookmark_Series = m_mapSeriesBookmarks[0];
-	string sBookmark_Series2 = m_mapSeriesBookmarks[iPK_Users];
-	if( sBookmark_Series.empty()==false && sBookmark_Series2.empty()==false )
-		sBookmark_Series += ",";
-	sBookmark_Series += sBookmark_Series2;
-	if( sBookmark_Series.empty() )
-		sBookmark_Series = "-999";  // Something we know is not going to happen so the sql syntax is correct
+	for(ListMythChannel::iterator it=m_ListMythChannel.begin();it!=m_ListMythChannel.end();++it)
+		(*it)->m_pCell=NULL;
 
 	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
-	string sSQL = "SELECT program.chanid, title, starttime, endtime, seriesid, programid, "
-		"program.seriesid in (" + sBookmark_Series + ") as fav_seriesid, program.programid in (" + sBookmark_Program + ") as fav_programid "
+	string sSQL = "SELECT program.chanid, title, starttime, endtime, seriesid, programid "
 		"FROM program "
 		"WHERE starttime < '" + StringUtils::SQLDateTime() + "' AND endtime>'" + StringUtils::SQLDateTime() + "' " + sProvider;
 
+	bool bAllSource = mapVideoSourcesToUse.empty();
 	int iRow=0;
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -485,9 +465,13 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			if( !pMythChannel )
 				continue; // Shouldn't happen
 
+			if( bAllSource==false && mapVideoSourcesToUse[ pMythChannel->m_dwSource ]==false )  // Not a source for this list
+				continue;
+
 			string sChannelName = StringUtils::itos(pMythChannel->m_dwChanNum) + " " + pMythChannel->m_sShortName;
 			string sDesc = sChannelName + " " + row[1];
 			pCell = new DataGridCell(sDesc,row[0]);
+			pMythChannel->m_pCell = pCell; // So we can display it in the right order below
 			if( pMythChannel->m_pPic )
 			{
 				char *pPic = new char[ pMythChannel->m_Pic_size ];
@@ -509,60 +493,43 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 				pCell->m_mapAttributes["Series"] = row[4];
 			if( row[5] )
 				pCell->m_mapAttributes["Program"] = row[5];
-
-			pMythChannel->m_pCell = pCell;
-
-			if( (row[6] && row[6][0]=='1') || (row[7] && row[7][0]=='1') )
+			MapBookmark *pMapBookmark_Series_Or_Program;
+			MapBookmark::iterator it;
+			if( (it=pMythChannel->m_mapBookmark.find(0))!=pMythChannel->m_mapBookmark.end() ||
+				(it=pMythChannel->m_mapBookmark.find(iPK_Users))!=pMythChannel->m_mapBookmark.end() )
 			{
-				pMythChannel->m_cAddedAlready = 'F';
-				pDataGridTable->SetData(0,iRow++,pMythChannel->m_pCell);
+				// It's a user's favorited channel
+				pCell->m_mapAttributes["PK_Bookmark"] = it->second;
+				pDataGridTable->SetData(0,iRow++,new DataGridCell(pCell)); // A copy since we'll add this one later too
+			}
+			else if( row[4] &&
+				(pMapBookmark_Series_Or_Program=m_mapSeriesBookmarks_Find(row[4])) &&
+				(
+					(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
+					(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
+				))
+			{
+				// It's a user's favorited series
+				pDataGridTable->SetData(0,iRow++,new DataGridCell(pCell)); // A copy since we'll add this one later too
+			}
+			else if( row[5] &&
+				(pMapBookmark_Series_Or_Program=m_mapProgramBookmarks_Find(row[5])) &&
+				(
+					(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
+					(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
+				))
+			{
+				// It's a user's favorited series.
+				pDataGridTable->SetData(0,iRow++,new DataGridCell(pCell)); // A copy since we'll add this one later too
 			}
 		}
 	}
 
-	ListMythChannel *pListMythChannel = &(m_map_listMythChannel[iPK_Users]);
-	if( !pListMythChannel ) // Shouldn't happen
-		return NULL;
-
-	bool bAllSource = mapVideoSourcesToUse.empty();
-	int iPositionInChannelList = 0;  // Keep track of how far down we are in pListMythChannel, so we know if we're still in the favorites
-	int iFavorites = m_mapUserFavoriteChannels[iPK_Users];
-	for(ListMythChannel::iterator it=pListMythChannel->begin();it!=pListMythChannel->end();++it)
+	for(ListMythChannel::iterator it=m_ListMythChannel.begin();it!=m_ListMythChannel.end();++it)
 	{
 		MythChannel *pMythChannel = *it;
-		if( bAllSource==false && mapVideoSourcesToUse[ pMythChannel->m_dwSource ]==false )  // Not a source for this list
-			continue;
-
-		if( pMythChannel->m_cAddedAlready=='F' && iPositionInChannelList<iFavorites )
-		{
-			iPositionInChannelList++;
-			continue; // Don't put it in the favorites twice
-		}
-		if( !pMythChannel->m_pCell )  // There's nothing in the program guide for this channel
-		{
-			string sChannelName = StringUtils::itos(pMythChannel->m_dwChanNum) + " " + pMythChannel->m_sShortName;
-			pMythChannel->m_pCell = new DataGridCell(sChannelName,StringUtils::itos(pMythChannel->m_dwID));
-			if( pMythChannel->m_pPic )
-			{
-				char *pPic = new char[ pMythChannel->m_Pic_size ];
-				memcpy(pPic,pMythChannel->m_pPic,pMythChannel->m_Pic_size);
-				pMythChannel->m_pCell->SetImage( pPic, pMythChannel->m_Pic_size, GR_JPG );
-			}
-			pMythChannel->m_pCell->m_mapAttributes["Number"] = StringUtils::itos(pMythChannel->m_dwID);
-			pMythChannel->m_pCell->m_mapAttributes["Name"] = sChannelName;
-		}
-
-		if( pMythChannel->m_cAddedAlready )
-			// The cell is in the list twice (ie favorites + the main list).  Make a copy since you can't have the same cell there twice or it will get deleted twice
-			pMythChannel->m_pCell = new DataGridCell( pMythChannel->m_pCell );  
-
-		if( iPositionInChannelList<iFavorites )
-			pMythChannel->m_pCell->m_mapAttributes["Favorite"]="1";
-
-		iPositionInChannelList++;
-
-		pMythChannel->m_cAddedAlready='Y';
-		pDataGridTable->SetData(0,iRow++,pMythChannel->m_pCell);
+		if( pMythChannel->m_pCell )
+			pDataGridTable->SetData(0,iRow++,pMythChannel->m_pCell);
 	}
 
 	return pDataGridTable;
@@ -594,30 +561,13 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
 
-	string sBookmark_Program = m_mapProgramBookmarks[0];
-	string sBookmark_Program2 = m_mapProgramBookmarks[iPK_Users];
-	if( sBookmark_Program.empty()==false && sBookmark_Program2.empty()==false )
-		sBookmark_Program += ",";
-	sBookmark_Program += sBookmark_Program2;
-	if( sBookmark_Program.empty() )
-		sBookmark_Program = "-999";  // Something we know is not going to happen so the sql syntax is correct
-
-	string sBookmark_Series = m_mapSeriesBookmarks[0];
-	string sBookmark_Series2 = m_mapSeriesBookmarks[iPK_Users];
-	if( sBookmark_Series.empty()==false && sBookmark_Series2.empty()==false )
-		sBookmark_Series += ",";
-	sBookmark_Series += sBookmark_Series2;
-	if( sBookmark_Series.empty() )
-		sBookmark_Series = "-999";  // Something we know is not going to happen so the sql syntax is correct
-
 	MythRecording mythRecording;
 	mythRecording.data.time.channel_id = atoi(sChanId.c_str());
 
 	string sProvider;
 	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
 	string sSQL =
-		"SELECT program.chanid, program.programid, program.seriesid, title, starttime, endtime, description, Picture_series.EK_Picture AS Picture_series, Picture_program.EK_Picture AS Picture_program, "
-		"program.seriesid in (" + sBookmark_Series + ") as fav_seriesid, program.programid in (" + sBookmark_Program + ") as fav_programid "
+		"SELECT program.chanid, program.programid, program.seriesid, title, starttime, endtime, description, Picture_series.EK_Picture AS Picture_series, Picture_program.EK_Picture AS Picture_program "
 		"FROM program "
 		"LEFT JOIN `pluto_myth`.`Picture` AS Picture_series ON Picture_series.seriesid=program.seriesid "
 		"LEFT JOIN `pluto_myth`.`Picture` AS Picture_program ON Picture_program.programid=program.programid "
@@ -632,6 +582,8 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	char szRecording[2];
 	szRecording[1]=0; // This will be a 1 character null terminated string
 	map< u_int64_t, pair<char,int> >::iterator it_mapScheduledRecordings;
+	MapBookmark *pMapBookmark_Series_Or_Program;
+	MapBookmark::iterator it;
 	if( (result.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))!=NULL )
 	{
 		while((row = mysql_fetch_row(result.r)))
@@ -675,8 +627,27 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 				if( pPic )
 					pCell->SetImage( pPic, size, GR_JPG );
 			}
-			if( (row[9] && row[9][0]=='1') || (row[10] && row[10][0]=='1') )
-				pCell->m_mapAttributes["Favorite"]="1";
+
+			if( row[2] &&
+				(pMapBookmark_Series_Or_Program=m_mapSeriesBookmarks_Find(row[2])) &&
+				(
+					(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
+					(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
+				))
+			{
+				// It's a user's favorited series
+				pCell->m_mapAttributes["PK_Bookmark"] = it->second;
+			}
+			else if( row[1] &&
+				(pMapBookmark_Series_Or_Program=m_mapProgramBookmarks_Find(row[1])) &&
+				(
+					(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
+					(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
+				))
+			{
+				// It's a user's favorited series.
+				pCell->m_mapAttributes["PK_Bookmark"] = it->second;
+			}
 
 			pCell->m_mapAttributes["Date"] = sDate;
 			pCell->m_mapAttributes["Time"] = sTime;
@@ -1361,11 +1332,11 @@ void MythTV_PlugIn::CheckForNewRecordings()
 	for(vector<Row_File *>::iterator it=vectRow_File.begin();it!=vectRow_File.end();++it)
 	{
 		Row_File *pRow_File = *it;
-		// Find the file in mythconverg.recorded and import the attributes
+		// Find the file isn mythconverg.recorded and import the attributes
 
 		sSQL = 
 			"SELECT recorded.chanid,recorded.starttime,recorded.title,recorded.subtitle,recorded.stars,recorded.category,recorded.description,"
-			"recordedprogram.hdtv,recordedprogram.category_type,channel.name,recordedrating.rating,recgroup FROM recorded "
+			"recordedprogram.hdtv,recordedprogram.category_type,channel.name,recordedrating.rating,recgroup,recordedprogram.seriesid,recordedprogram.programid FROM recorded "
 			"LEFT JOIN recordedprogram ON recorded.chanid=recordedprogram.chanid and recorded.starttime=recordedprogram.starttime "
 			"LEFT JOIN channel ON recorded.chanid=channel.chanid "
 			"LEFT JOIN recordedrating ON recorded.chanid=recordedrating.chanid and recorded.starttime=recordedrating.starttime "
@@ -1381,14 +1352,16 @@ void MythTV_PlugIn::CheckForNewRecordings()
 				continue;
 			}
 
+			int PK_Attribute_Title=0,PK_Attribute_Episode=0,PK_Attribute_Channel=0,PK_Attribute_Misc;
+
 			if( row[2] )
-				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[2],0,"",ATTRIBUTETYPE_Title_CONST,"",pRow_File->PK_File_get());
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[2],0,"",ATTRIBUTETYPE_Title_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Title);
 			if( row[3] )
-				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[3],0,"",ATTRIBUTETYPE_Episode_CONST,"",pRow_File->PK_File_get());
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[3],0,"",ATTRIBUTETYPE_Episode_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Episode);
 			if( row[4] )
-				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[4],0,"",ATTRIBUTETYPE_Rating_CONST,"",pRow_File->PK_File_get());
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[4],0,"",ATTRIBUTETYPE_Rating_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
 			if( row[5] )
-				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[5],0,"",ATTRIBUTETYPE_Genre_CONST,"",pRow_File->PK_File_get());
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[5],0,"",ATTRIBUTETYPE_Genre_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
 			if( row[6] )
 			{
 				Row_LongAttribute *pRow_LongAttribute = m_pMedia_Plugin->m_pDatabase_pluto_media->LongAttribute_get()->AddRow();
@@ -1412,9 +1385,9 @@ void MythTV_PlugIn::CheckForNewRecordings()
 					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_Sports_Events_CONST);
 			}
 			if( row[9] )
-				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[9],0,"",ATTRIBUTETYPE_Channel_CONST,"",pRow_File->PK_File_get());
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[9],0,"",ATTRIBUTETYPE_Channel_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Channel);
 			if( row[10] )
-				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[10],0,"",ATTRIBUTETYPE_Rated_CONST,"",pRow_File->PK_File_get());
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[10],0,"",ATTRIBUTETYPE_Rated_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
 
 			sSQL = 
 				"SELECT role,name FROM recordedcredits JOIN people on recordedcredits.person=people.person "
@@ -1427,16 +1400,45 @@ void MythTV_PlugIn::CheckForNewRecordings()
 				{
 					string sRole = row[0];
 					if( sRole=="director" )
-						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Director_CONST,"",pRow_File->PK_File_get());
+						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Director_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
 					else if( sRole=="actor" )
-						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Performer_CONST,"",pRow_File->PK_File_get());
+						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Performer_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
 					else if( sRole=="producer" )
-						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Producer_CONST,"",pRow_File->PK_File_get());
+						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Producer_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
 					else if( sRole=="executive_producer" )
-						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Executive_Producer_CONST,"",pRow_File->PK_File_get());
+						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Executive_Producer_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
 					else if( sRole=="writer" )
-						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_ComposerWriter_CONST,"",pRow_File->PK_File_get());
+						m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_ComposerWriter_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
 
+				}
+			}
+
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings %d %d",PK_Attribute_Title,PK_Attribute_Episode);
+
+			if( PK_Attribute_Title || PK_Attribute_Episode )
+			{
+				if( row[12] )
+					sSQL = string("seriesid='") + row[12] + "'";
+				else
+					sSQL = "";
+
+				if( row[13] )
+				{
+					if( sSQL.empty()==false )
+						sSQL += " OR ";
+					sSQL += string("programid='") + row[13] + "'";
+				}
+				
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings %s",sSQL.c_str());
+
+				PlutoSqlResult result;
+				if( (result.r=m_pMySqlHelper_Myth->mysql_query_result( "SELECT EK_Picture FROM `pluto_myth`.Picture WHERE " + sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+				{
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings ok - %s",sSQL.c_str());
+					if( PK_Attribute_Title )
+						m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Title,atoi(row[0]));
+					if( PK_Attribute_Episode )
+						m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Episode,atoi(row[0]));
 				}
 			}
 		}
@@ -1479,11 +1481,19 @@ void MythTV_PlugIn::RefreshBookmarks()
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	m_bBookmarksNeedRefreshing=false;
-	map<int,string> *p_m_mapBookmark=NULL;
-	m_mapChannelBookmarks.clear();
+
+	for(map<string,MapBookmark *>::iterator it=m_mapSeriesBookmarks.begin();it!=m_mapSeriesBookmarks.end();++it)
+		delete it->second;
 	m_mapSeriesBookmarks.clear();
+	for(map<string,MapBookmark *>::iterator it=m_mapProgramBookmarks.begin();it!=m_mapProgramBookmarks.end();++it)
+		delete it->second;
 	m_mapProgramBookmarks.clear();
-	string sSQL = "SELECT EK_Users,Position FROM Bookmark WHERE EK_MediaType=" TOSTRING(MEDIATYPE_pluto_LiveTV_CONST);
+	for(map<int,MythChannel *>::iterator it=m_mapMythChannel.begin();it!=m_mapMythChannel.end();++it)
+		it->second->m_mapBookmark.clear();
+
+	BuildChannelList();
+
+	string sSQL = "SELECT PK_Bookmark,EK_Users,Position FROM Bookmark WHERE EK_MediaType=" TOSTRING(MEDIATYPE_pluto_LiveTV_CONST);
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	if( (result.r = m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSQL)) )
@@ -1491,47 +1501,53 @@ void MythTV_PlugIn::RefreshBookmarks()
 		while( ( row=mysql_fetch_row( result.r ) ) )
 		{
 			char *pPos = NULL;
-			if( !row[1] )
+			if( !row[2] )
 				continue;
-			if( (pPos=strstr(row[1]," PROG:"))!=NULL )
+			if( (pPos=strstr(row[2]," PROG:"))!=NULL )
 			{
-				p_m_mapBookmark = &m_mapProgramBookmarks;
-				pPos += 6;
-			}
-			else if( (pPos=strstr(row[1]," CHAN:"))!=NULL )
-			{
-				p_m_mapBookmark = &m_mapChannelBookmarks;
-				pPos += 6;
-			}
-			else if( (pPos=strstr(row[1]," SERIES:"))!=NULL )
-			{
-				p_m_mapBookmark = &m_mapSeriesBookmarks;
-				pPos += 8;
-			}
-
-			if( pPos && p_m_mapBookmark )
-			{
-				string sCurrent = (*p_m_mapBookmark)[ row[0] ? atoi(row[0]) : 0];
-				if( sCurrent.empty()==false )
-					sCurrent += ",";
-
-				if( p_m_mapBookmark == &m_mapChannelBookmarks) // Channels are int's.  Don't quote
-					sCurrent += pPos;
+				string sProgram = (const char *) &row[2][6];
+				MapBookmark *pMapBookmark;
+				map<string,MapBookmark *>::iterator it=m_mapProgramBookmarks.find(sProgram);
+				if( it==m_mapProgramBookmarks.end() )
+				{
+					pMapBookmark = new MapBookmark;
+					m_mapProgramBookmarks[sProgram]=pMapBookmark;
+				}
 				else
-					sCurrent += string("'") + pPos + "'";
-				(*p_m_mapBookmark)[ row[0] ? atoi(row[0]) : 0] = sCurrent;
+					pMapBookmark = it->second;
+				(*pMapBookmark)[ row[1] ? atoi(row[1]) : 0 ] = atoi(row[0]);
+			}
+			else if( (pPos=strstr(row[2]," SERIES:"))!=NULL )
+			{
+				string sProgram = (const char *) &row[2][8];
+				MapBookmark *pMapBookmark;
+				map<string,MapBookmark *>::iterator it=m_mapSeriesBookmarks.find(sProgram);
+				if( it==m_mapSeriesBookmarks.end() )
+				{
+					pMapBookmark = new MapBookmark;
+					m_mapSeriesBookmarks[sProgram]=pMapBookmark;
+				}
+				else
+					pMapBookmark = it->second;
+				(*pMapBookmark)[ row[1] ? atoi(row[1]) : 0 ] = atoi(row[0]);
+			}
+			else if( (pPos=strstr(row[2]," CHAN:"))!=NULL )
+			{
+				int ChanId = atoi( (const char *) &row[2][6] );
+				MythChannel *pMythChannel = m_mapMythChannel_Find(ChanId);
+				if( pMythChannel )
+					pMythChannel->m_mapBookmark[ row[1] ? atoi(row[1]) : 0 ] = atoi(row[0]);
 			}
 		}
 	}
-	BuildChannelList();
 }
 
 void MythTV_PlugIn::PurgeChannelList()
 {
-	m_map_listMythChannel.clear();
 	for(map<int,MythChannel *>::iterator it=m_mapMythChannel.begin();it!=m_mapMythChannel.end();++it)
 		delete it->second;
 	m_mapMythChannel.clear();
+	m_ListMythChannel.clear();
 }
 
 void MythTV_PlugIn::BuildChannelList()
@@ -1559,45 +1575,11 @@ void MythTV_PlugIn::BuildChannelList()
 
 			MythChannel *pMythChannel = new MythChannel( atoi(row[0]), atoi(row[1]), atoi(row[6]), row[2] ? row[2] : "", row[3] ? row[3] : "", pData, size );
 			m_mapMythChannel[pMythChannel->m_dwID] = pMythChannel;
+			m_ListMythChannel.push_back(pMythChannel);
 		}
 	}
 
-	vector<Row_Users *> vectRow_Users;
-	m_pMedia_Plugin->m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
-
-	for(vector<Row_Users *>::iterator it=vectRow_Users.begin();it!=vectRow_Users.end();++it)
-	{
-		Row_Users *pRow_Users = *it;
-		ListMythChannel *pListMythChannel = &(m_map_listMythChannel[pRow_Users->PK_Users_get()]);
-
-		string sBookmarks = m_mapChannelBookmarks[0];
-		string sBookmarks2 = m_mapChannelBookmarks[pRow_Users->PK_Users_get()];
-		if( sBookmarks.empty()==false && sBookmarks2.empty()==false )
-			sBookmarks += ",";
-		sBookmarks += sBookmarks2;
-
-		for(map<int,MythChannel *>::iterator it=m_mapMythChannel.begin();it!=m_mapMythChannel.end();++it)
-			pListMythChannel->push_back( it->second );
-		pListMythChannel->sort(ChannelComparer);
-
-		ListMythChannel listMythChannel_Favs;
-		string::size_type pos=0;
-		while(pos<sBookmarks.size())
-		{
-			int Channel = atoi( StringUtils::Tokenize( sBookmarks, ",", pos ).c_str() );
-			if( m_mapMythChannel.find(Channel)!=m_mapMythChannel.end() )
-			{
-				MythChannel *pMythChannel = m_mapMythChannel[ Channel ];
-				if( pMythChannel )
-					listMythChannel_Favs.push_back( pMythChannel );
-			}
-		}
-		m_mapUserFavoriteChannels[pRow_Users->PK_Users_get()]=(int) listMythChannel_Favs.size();
-		listMythChannel_Favs.sort(ChannelComparer);
-
-		for(ListMythChannel::reverse_iterator itri=listMythChannel_Favs.rbegin();itri!=listMythChannel_Favs.rend();++itri)
-			pListMythChannel->push_front(*itri);
-	}
+	m_ListMythChannel.sort(ChannelComparer);
 }
 
 class DataGridTable *MythTV_PlugIn::FavoriteChannels( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
@@ -2162,6 +2144,7 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 		string s40 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s41 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s42 = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string s43 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 
 		mythRecording.data.time.channel_id = atoi(sChanId.c_str());
 		mythRecording.data.time.StartTime = atoi(sStartTime.c_str());
@@ -2170,6 +2153,9 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 			m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('O',atoi(sRecordID.c_str()));
 		else if( sType=="3")
 			m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('C',atoi(sRecordID.c_str()));;
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings adding record id %s type %s chan %d start %d",
+			sRecordID.c_str(),sType.c_str(),mythRecording.data.time.channel_id,mythRecording.data.time.StartTime);
 	}
 	m_pAlarmManager->CancelAlarmByType(CHECK_FOR_SCHEDULED_RECORDINGS);
 	m_pAlarmManager->AddRelativeAlarm(60 * 60,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);  // Update once an hour just in case

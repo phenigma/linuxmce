@@ -520,7 +520,7 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 	FileUtils::DelFile("/tmp/MythScreenshot.png");
 	FileUtils::DelFile("/tmp/MythScreenshot.jpg");
 	sendMythCommand("play save screenshot /tmp/MythScreenshot.png");
-	time_t tTimeout = time(NULL) + 3;  // wait 3 seconds for it
+	time_t tTimeout = time(NULL) + 6;  // wait 6 seconds for it
 	while(tTimeout>time(NULL))
 	{
 		if( FileUtils::FileExists("/tmp/MythScreenshot.png") )

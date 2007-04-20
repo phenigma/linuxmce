@@ -10792,33 +10792,69 @@ namespace DCE
 			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_Go_Back_CONST, (bGo_Back ? "1" : "0")); }
 	};
+	class RESP_Add_Media_Attribute : public PreformedCommandResponse {
+		int *m_iEK_Attribute;
+	public:
+		RESP_Add_Media_Attribute(int *iEK_Attribute) { 
+		m_iEK_Attribute=iEK_Attribute; }
+		void ParseResponse(Message *pMessage) {
+			*m_iEK_Attribute=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Attribute_CONST].c_str()); };
+	};
 	class CMD_Add_Media_Attribute : public PreformedCommand {
 	public:
-		CMD_Add_Media_Attribute(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Add_Media_Attribute(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,int *iEK_Attribute) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Add_Media_Attribute_CONST,
-			6 /* number of parameters */,
+			7 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
 			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
 			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
 			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
 			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
-			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str()); }
+			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str(),
+			COMMANDPARAMETER_EK_Attribute_CONST, StringUtils::itos(*iEK_Attribute).c_str());		m_pcResponse = new RESP_Add_Media_Attribute(iEK_Attribute); }
 	};
 	class CMD_Add_Media_Attribute_DL : public PreformedCommand {
 	public:
-		CMD_Add_Media_Attribute_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Add_Media_Attribute_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,int *iEK_Attribute) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Add_Media_Attribute_CONST,
-			6 /* number of parameters */,
+			7 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
 			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
 			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
 			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
 			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
-			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str()); }
+			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str(),
+			COMMANDPARAMETER_EK_Attribute_CONST, StringUtils::itos(*iEK_Attribute).c_str());		m_pcResponse = new RESP_Add_Media_Attribute(iEK_Attribute); }
 	};
 	class CMD_Add_Media_Attribute_DT : public PreformedCommand {
 	public:
-		CMD_Add_Media_Attribute_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Add_Media_Attribute_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,int *iEK_Attribute) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Add_Media_Attribute_CONST,
+			7 /* number of parameters */,
+			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
+			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
+			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
+			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
+			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
+			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str(),
+			COMMANDPARAMETER_EK_Attribute_CONST, StringUtils::itos(*iEK_Attribute).c_str());		m_pcResponse = new RESP_Add_Media_Attribute(iEK_Attribute); }
+	};
+	class CMD_Add_Media_Attribute_Cat : public PreformedCommand {
+	public:
+		CMD_Add_Media_Attribute_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,int *iEK_Attribute) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Add_Media_Attribute_CONST,
+			7 /* number of parameters */,
+			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
+			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
+			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
+			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
+			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
+			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str(),
+			COMMANDPARAMETER_EK_Attribute_CONST, StringUtils::itos(*iEK_Attribute).c_str());		m_pcResponse = new RESP_Add_Media_Attribute(iEK_Attribute); }
+	};
+	class CMD_NOREP_Add_Media_Attribute : public PreformedCommand {
+	public:
+		CMD_NOREP_Add_Media_Attribute(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Add_Media_Attribute_CONST,
 			6 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
@@ -10828,9 +10864,33 @@ namespace DCE
 			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
 			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str()); }
 	};
-	class CMD_Add_Media_Attribute_Cat : public PreformedCommand {
+	class CMD_NOREP_Add_Media_Attribute_DL : public PreformedCommand {
 	public:
-		CMD_Add_Media_Attribute_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_NOREP_Add_Media_Attribute_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Add_Media_Attribute_CONST,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
+			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
+			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
+			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
+			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
+			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str()); }
+	};
+	class CMD_NOREP_Add_Media_Attribute_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Add_Media_Attribute_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Add_Media_Attribute_CONST,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
+			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
+			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
+			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
+			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
+			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str()); }
+	};
+	class CMD_NOREP_Add_Media_Attribute_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Add_Media_Attribute_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Add_Media_Attribute_CONST,
 			6 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),

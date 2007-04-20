@@ -240,3 +240,25 @@ string DesignObj_Orbiter::GenerateObjectHash(const PlutoPoint& point, bool bObje
 	else
 		return m_ObjectID;
 }
+
+DesignObj_Orbiter *DesignObj_Orbiter::FindChildObjectWithBaseID(int PK_DesignObj)
+{
+	DesignObj_DataList::iterator iHao;
+	for( iHao=m_ChildObjects.begin(  ); iHao != m_ChildObjects.end(  ); ++iHao )
+	{
+		DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) *iHao;
+		if( pObj->m_iBaseObjectID==PK_DesignObj )
+			return pObj;
+	}
+
+	// Recurse
+	for( iHao=m_ChildObjects.begin(  ); iHao != m_ChildObjects.end(  ); ++iHao )
+	{
+		DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) *iHao;
+		DesignObj_Orbiter *pObj_Child = pObj->FindChildObjectWithBaseID(PK_DesignObj);
+		if( pObj_Child )
+			return pObj_Child;
+	}
+	return NULL;
+}
+
