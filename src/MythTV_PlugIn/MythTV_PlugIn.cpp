@@ -1389,6 +1389,7 @@ void MythTV_PlugIn::CheckForNewRecordings()
 			if( row[10] )
 				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[10],0,"",ATTRIBUTETYPE_Rated_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
 
+
 LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings %d %d",PK_Attribute_Title,PK_Attribute_Episode);
 /*
 			if( PK_Attribute_Title || PK_Attribute_Episode )
@@ -1404,8 +1405,20 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings %d %d",PK
 						sSQL += " OR ";
 					sSQL += string("programid='") + row[13] + "'";
 				}
-*/				
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings %s",sSQL.c_str());
+
+				PlutoSqlResult result;
+				if( (result.r=m_pMySqlHelper_Myth->mysql_query_result( "SELECT EK_Picture FROM `pluto_myth`.Picture WHERE " + sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+				{
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings ok - %s",sSQL.c_str());
+					if( PK_Attribute_Title )
+						m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Title,atoi(row[0]));
+					if( PK_Attribute_Episode )
+						m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Episode,atoi(row[0]));
+				}
+			}
+
+*/				
 
 			sSQL = 
 				"SELECT role,name FROM recordedcredits JOIN people on recordedcredits.person=people.person "
@@ -1431,16 +1444,6 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings %d %d",PK
 				}
 			}
 
-				PlutoSqlResult result;
-				if( (result.r=m_pMySqlHelper_Myth->mysql_query_result( "SELECT EK_Picture FROM `pluto_myth`.Picture WHERE " + sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
-				{
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings ok - %s",sSQL.c_str());
-					if( PK_Attribute_Title )
-						m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Title,atoi(row[0]));
-					if( PK_Attribute_Episode )
-						m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Episode,atoi(row[0]));
-				}
-			}
 		}
 		else
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MythTV_PlugIn::CheckForNewRecordings couldn't locate file %s", pRow_File->Filename_get().c_str());
