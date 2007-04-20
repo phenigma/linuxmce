@@ -79,7 +79,7 @@ MeshFrame::~MeshFrame(void)
 	TextureManager::Instance()->InvalidateItem(this);
 
 #if defined(DEBUG_MESH_FRAMES)
-	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame destructor %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
+	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame destructor %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
 #endif
 
 #if defined(DETECT_LEAKS)
@@ -142,13 +142,13 @@ void MeshFrame::AddChild(MeshFrame* Frame)
 {
 	if(Frame == NULL)
 	{
-		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::AddChild: Frame is NULL!!!");	
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::AddChild: Frame is NULL!!!");	
 		return;
 	}
 
 	if(NULL != Frame->m_pParent)
 	{
-		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::AddChild: Frame %p/%s already has a parent %p!",
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::AddChild: Frame %p/%s already has a parent %p!",
 			Frame, Frame->m_sName.c_str(), Frame->m_pParent);	
 	}
 
@@ -174,7 +174,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame, bool bDetachOnly)
 			find(Frame->m_pParent->Children.begin(), Frame->m_pParent->Children.end(), Frame);
 		if(Child == Frame->m_pParent->Children.end())
 		{
-			DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::RemoveChild: Got a parent, but doesn't have us as child!");
+			DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::RemoveChild: Got a parent, but doesn't have us as child!");
 		}
 		else
 		{
@@ -197,7 +197,7 @@ void MeshFrame::RemoveChild(MeshFrame* Frame, bool bDetachOnly)
 	}
 	else
 	{
-		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::RemoveChild: Got no parent! :(");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::RemoveChild: Got no parent! :(");
 	}
 }
 
@@ -215,7 +215,7 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 
 		if(Child == OldFrame->m_pParent->Children.end())
 		{
-			DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::ReplaceChild: Got a parent, but doesn't have us as child!");
+			DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::ReplaceChild: Got a parent, but doesn't have us as child!");
 		}
 		else
 		{
@@ -251,7 +251,7 @@ MeshFrame* MeshFrame::ReplaceChild(MeshFrame* OldFrame, MeshFrame* NewFrame)
 	}
 	else
 	{
-		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::ReplaceChild: Got no parent! :(");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::ReplaceChild: Got no parent! :(");
 	}
 
 	return OldFrame;
@@ -430,7 +430,7 @@ bool MeshFrame::CheckIntegrity(MeshFrame *Frame)
 
 	if(!Result)
 	{
-		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame::CheckIntegrity failed for %p/%s",
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame::CheckIntegrity failed for %p/%s",
 			Frame, NULL != Frame ? Frame->Name().c_str() : "null frame");
 	}
 
@@ -443,7 +443,7 @@ bool MeshFrame::MeshIsValid()
 		for(int i = 0; i < m_pMeshContainer->NoTriangles; ++i)
 			if(NULL != m_pMeshContainer->Triangles[i].Texture && m_pMeshContainer->Triangles[i].Texture->Texture == 0)
 			{
-				DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "MeshFrame is invalid %s", m_sName.c_str());
+				DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame is invalid %s", m_sName.c_str());
 				return false;
 			}
 
