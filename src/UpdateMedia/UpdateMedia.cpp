@@ -57,9 +57,14 @@
 #include <conio.h>
 #define chdir _chdir  // Why, Microsoft, why?
 #define mkdir _mkdir  // Why, Microsoft, why?
+#define stat64 _stat64
 #else
 #endif
 
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
 
 #define  VERSION "<=version=>"
 //#define  USE_DEVEL_DATABASES 
@@ -554,15 +559,20 @@ void UpdateMedia::UpdateThumbnails()
 			if(m_bAsDaemon)
 				Sleep(40);
 
+#ifdef WIN32
+			__time64_t tModTime=0,tTnModTime=0;
+			struct __stat64 dirEntryStat;
+#else
 			time_t tModTime=0,tTnModTime=0;
-#ifndef WIN32
 			struct stat64 dirEntryStat;
+#endif
+
             if ( stat64((string("/home/mediapics/") + row[0] + "." + row[1]).c_str(), &dirEntryStat) == 0 )
 				tModTime = dirEntryStat.st_mtime;
 
             if ( stat64((string("/home/mediapics/") + row[0] + "_tn." + row[1]).c_str(), &dirEntryStat) == 0 )
 				tTnModTime = dirEntryStat.st_mtime;
-#endif
+
 			if( tModTime>tTnModTime )
 			{
 				string Cmd = "convert -sample 75x75 /home/mediapics/" + string(row[0])  + "." + row[1] +
