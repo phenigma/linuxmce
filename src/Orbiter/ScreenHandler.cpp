@@ -780,6 +780,7 @@ bool ScreenHandler::FileList_GridRendering(CallBackData *pData)
 		{
 			DataGridCell *pCell = it->second;
 			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+			colRow.second -= pDatagridAcquiredBackData->m_pObj->m_GridCurRow;
 
 			int PK_FileFormat = atoi(pCell->m_mapAttributes_Find("PK_FileFormat").c_str());
 			char cMediaSource = pCell->m_mapAttributes_Find("Source").c_str()[0];
