@@ -271,13 +271,13 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 	the system using arrows when there are popup messages on the screen.  Moving these to NeedToChangeScreens and instead
 	only setting them to NULL if the objects are off screen or hidden
 	OrbiterLogic()->m_pObj_Highlighted_Last = NULL;
-	OrbiterLogic()->m_pObj_Highlighted = NULL;
+	OrbiterLogic()->m_pObj_Highlighted_set(NULL);
 	*/
 
 	if( OrbiterLogic()->m_pObj_Highlighted_Last && (OrbiterLogic()->m_pObj_Highlighted_Last->m_bOnScreen==false || OrbiterLogic()->m_pObj_Highlighted_Last->m_bHidden==true) )
 		OrbiterLogic()->m_pObj_Highlighted_Last = NULL;
 	if( OrbiterLogic()->m_pObj_Highlighted && (OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen==false || OrbiterLogic()->m_pObj_Highlighted->m_bHidden==true) )
-		OrbiterLogic()->m_pObj_Highlighted = NULL;
+		OrbiterLogic()->m_pObj_Highlighted_set(NULL);
 
 	if ( OrbiterLogic()->m_pScreenHistory_Current  )
 	{
@@ -447,7 +447,7 @@ void OrbiterRenderer::OnReload()
 /*virtual*/ void OrbiterRenderer::HighlightFirstObject()
 {
 	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );  // Protect the highlighed object
-	OrbiterLogic()->m_pObj_Highlighted = FindFirstObjectByDirection('1',true,NULL,NULL);
+	OrbiterLogic()->m_pObj_Highlighted_set(FindFirstObjectByDirection('1',true,NULL,NULL));
 }
 //-----------------------------------------------------------------------------------------------------
 DesignObj_Orbiter *OrbiterRenderer::FindFirstObjectByDirection(char cDirection /* u,d,l,r,1 (ul),2 (ur),3(dl),4(dr) */,bool bPreferGrid,DesignObj_Orbiter *pObj_Parent,DesignObj_Orbiter *pObj_RelativeTo)
@@ -660,7 +660,7 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 	if(NULL == OrbiterLogic()->m_pObj_Highlighted || (OrbiterLogic()->m_pObj_Highlighted && 
 		(!OrbiterLogic()->m_pObj_Highlighted->m_bOnScreen || OrbiterLogic()->m_pObj_Highlighted->IsHidden())))
 	{
-		OrbiterLogic()->m_pObj_Highlighted=NULL;
+		OrbiterLogic()->m_pObj_Highlighted_set(NULL);
 		if(sbNoSelection != OrbiterLogic()->m_nSelectionBehaviour)
 			HighlightFirstObject();
 
@@ -873,12 +873,12 @@ DesignObj_Orbiter *OrbiterRenderer::FindObjectToHighlight( DesignObj_Orbiter *pO
 	DesignObj_Orbiter *pObj_Highlighted_Before = OrbiterLogic()->m_pObj_Highlighted;
 	if(!pNextObject || pNextObject == OrbiterLogic()->m_pObj_Highlighted)
 	{
-		OrbiterLogic()->m_pObj_Highlighted = FindObjectToHighlight( OrbiterLogic()->m_pObj_Highlighted, PK_Direction );
+		OrbiterLogic()->m_pObj_Highlighted_set(FindObjectToHighlight( OrbiterLogic()->m_pObj_Highlighted, PK_Direction ));
 		if( OrbiterLogic()->m_pObj_Highlighted==pObj_Highlighted_Before )
 			return false;
 	}
 	else
-		OrbiterLogic()->m_pObj_Highlighted = pNextObject;
+		OrbiterLogic()->m_pObj_Highlighted_set(pNextObject);
 
 	if( pObj_Highlighted_Before && OrbiterLogic()->m_pObj_Highlighted!=pObj_Highlighted_Before )
 		OrbiterLogic()->ExecuteCommandsInList( &pObj_Highlighted_Before->m_Action_UnhighlightList, pObj_Highlighted_Before, smHighlight, 0, 0 );
@@ -1187,7 +1187,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 
 	case sbSelectOnFirstMove:
 	case sbNoSelection:
-		OrbiterLogic()->m_pObj_Highlighted=NULL;
+		OrbiterLogic()->m_pObj_Highlighted_set(NULL);
 		break;
 	}
 
@@ -1259,7 +1259,7 @@ void OrbiterRenderer::ObjectOffScreen( DesignObj_Orbiter *pObj )
 	PLUTO_SAFETY_LOCK(sm, m_pOrbiter->m_ScreenMutex);
 
 	if( OrbiterLogic()->m_pObj_Highlighted==pObj )
-		OrbiterLogic()->m_pObj_Highlighted = NULL;  // Otherwise an object on popup removed from the screen may remain highlighted
+		OrbiterLogic()->m_pObj_Highlighted_set(NULL);  // Otherwise an object on popup removed from the screen may remain highlighted
 		
 	pObj->m_bOnScreen=false;
 	if(  pObj->m_pGraphicToUndoSelect  )

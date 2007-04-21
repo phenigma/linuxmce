@@ -104,13 +104,12 @@ void EPGMouseHandler::Start()
 			m_pMouseBehavior->SetMousePosition(X,Y);
 		}
 	}
-	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=m_pDesignObj_DataGrid_Active;
+	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(m_pDesignObj_DataGrid_Active);
 }
 
 void EPGMouseHandler::Stop()
 {
 	m_pDatagridMouseHandlerHelper->Stop();
-	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=NULL;
 }
 
 bool EPGMouseHandler::ButtonDown(int PK_Button)
@@ -173,7 +172,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 		m_pMouseBehavior->SetMousePosition(rect.Right(),Y);
 
 //		m_pMouseBehavior->ConstrainMouse(rect);
-		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=m_pDesignObj_DataGrid_Active;
+		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(m_pDesignObj_DataGrid_Active);
 		m_pMouseBehavior->m_pOrbiter->CMD_Refresh( m_pDesignObj_DataGrid_Active->m_sGridID );
 		m_pDatagridMouseHandlerHelper->Start(m_pDesignObj_DataGrid_Active,10,m_pDesignObj_DataGrid_Active->m_rPosition.Y,m_pDesignObj_DataGrid_Active->m_rPosition.Bottom());
 	}
@@ -190,7 +189,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 			m_pDesignObj_DataGrid_Active->m_rPosition.Width / 2,m_pDesignObj_DataGrid_Active->m_rPosition.Height);
 		m_pMouseBehavior->SetMousePosition(rect.X,Y);
 //		m_pMouseBehavior->ConstrainMouse(rect);
-		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=m_pDesignObj_DataGrid_Active;
+		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(m_pDesignObj_DataGrid_Active);
 		m_pMouseBehavior->m_pOrbiter->CMD_Refresh( "" );
 		m_pDatagridMouseHandlerHelper->Start(m_pDesignObj_DataGrid_Active,10,m_pDesignObj_DataGrid_Active->m_rPosition.Y,m_pDesignObj_DataGrid_Active->m_rPosition.Bottom());
 		m_pObj_QuickNav->m_bHidden=true;
@@ -212,7 +211,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 				NeedToRender render( m_pMouseBehavior->m_pOrbiter, "Move on grid" );
 				m_pDesignObj_DataGrid_Active->m_iHighlightedRow=Row;
 				m_iRow_Last = Row;
-				m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pDesignObj_DataGrid_Active;
+//				m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(m_pDesignObj_DataGrid_Active);
 				m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
 				DataGridCell *pCell = pDataGridTable->GetData(0,Row + m_pDesignObj_DataGrid_Active->m_GridCurRow );
 
@@ -250,7 +249,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 				NeedToRender render( m_pMouseBehavior->m_pOrbiter, "Move on grid" );
 				m_pDesignObj_DataGrid_Active->m_iHighlightedRow=Row;
 				m_iRow_Last = Row;
-				m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pDesignObj_DataGrid_Active;
+//				m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(m_pDesignObj_DataGrid_Active);
 
 				DataGridTable *pDataGridTable = m_pDesignObj_DataGrid_Active->m_pDataGridTable_Current_get();
 				if( !pDataGridTable )

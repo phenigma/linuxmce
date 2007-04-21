@@ -589,3 +589,14 @@ bool DesignObj_DataGrid::CellIsVisible(int Column,int Row)
 	return true;
 }
 
+bool DesignObj_DataGrid::GridObjectIsHighlighted(DesignObj_Orbiter *pObj)
+{
+	if( m_iHighlightedColumn==-1 && m_iHighlightedRow==-1 )
+		return false;
+
+	if( (m_iHighlightedColumn==-1 || m_iHighlightedColumn==pObj->m_iGridCol)
+		&& (m_iHighlightedRow==-1 || m_iHighlightedRow==pObj->m_iGridRow) )
+			return true;
+	return false;
+}
+

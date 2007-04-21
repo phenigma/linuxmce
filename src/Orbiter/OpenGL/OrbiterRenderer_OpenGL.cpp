@@ -597,7 +597,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 		}
 	}
 
-	OrbiterLogic()->m_pObj_Highlighted = NULL;
+	OrbiterLogic()->m_pObj_Highlighted_set(NULL);
 
 	if(NULL != Engine)
 		Engine->UnHighlight();
@@ -621,9 +621,9 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	if(NULL != m_pLastHighlightedObject &&	m_pLastHighlightedObject != OrbiterLogic()->m_pObj_Highlighted)
 	{
 		DesignObj_Orbiter *pCurrentHighlightedObject = OrbiterLogic()->m_pObj_Highlighted;
-		OrbiterLogic()->m_pObj_Highlighted = m_pLastHighlightedObject;
+		OrbiterLogic()->m_pObj_Highlighted_set(m_pLastHighlightedObject);
 		UnHighlightObject();
-		OrbiterLogic()->m_pObj_Highlighted = pCurrentHighlightedObject;
+		OrbiterLogic()->m_pObj_Highlighted_set(pCurrentHighlightedObject);
 	}
 
 	if(!OrbiterLogic()->m_pObj_Highlighted)

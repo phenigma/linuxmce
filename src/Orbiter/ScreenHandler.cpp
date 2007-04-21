@@ -444,7 +444,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Close_CONST )
 	{
-		m_pOrbiter->m_pObj_Highlighted = mediaFileBrowserOptions.m_pObj_ListGrid;
+		m_pOrbiter->m_pObj_Highlighted_set(mediaFileBrowserOptions.m_pObj_ListGrid);
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 		if( m_pOrbiter->m_pMouseBehavior )
@@ -760,7 +760,7 @@ void ScreenHandler::SelectedMediaFile(string sFile)
 	if(NULL != pParentObject)
 		m_pOrbiter->Renderer()->RenderObjectAsync(pParentObject);
 
-	m_pOrbiter->m_pObj_Highlighted = pObj_Play;
+	m_pOrbiter->m_pObj_Highlighted_set(pObj_Play);
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pOrbiter->m_pMouseBehavior )
 		m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
@@ -1937,17 +1937,21 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 							pCell->m_pGraphicData, pCell->m_GraphicLength, "0");  // Store the icon, which is cell's picture
 					}
 					else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoFavorite_CONST )
+					{
 						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("PK_Bookmark")==pCell->m_mapAttributes.end();
+					}
 				}
 			}
 		}
 	}
 	else if( pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid==DATAGRID_EPG_Current_Shows_CONST )
 	{
+		string sSelected = m_pOrbiter->m_mapVariable_Find( pDatagridAcquiredBackData->m_pObj->m_iPK_Variable );
 		// Iterate through all the cells
 		for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
 		{
 			DataGridCell *pCell = it->second;
+			bool bSelected = pCell->m_Value && pCell->m_Value == sSelected;
 
 			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
 			if(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size() != 0)
@@ -1960,6 +1964,8 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 				DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
 				DesignObj_DataList::iterator iHao;
 
+				pObj->m_GraphicToDisplay_set("tvprogrend", bSelected ? GRAPHIC_SELECTED : GRAPHIC_NORMAL);
+
 				// Iterate through all the object's children
 				for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
 				{
@@ -1970,9 +1976,13 @@ bool ScreenHandler::TV_Channels_GridRendering(CallBackData *pData)
 							pCell->m_pGraphicData, pCell->m_GraphicLength, "0");  // Store the icon, which is cell's picture
 					}
 					else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoFavorite_CONST )
+					{
 						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("PK_Bookmark")==pCell->m_mapAttributes.end();
+					}
 					else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoScheduledRecording_CONST )
+					{
 						pDesignObj_Orbiter->m_bHidden = pCell->m_mapAttributes.find("recording")==pCell->m_mapAttributes.end();
+					}
 				}
 			}
 		}

@@ -427,7 +427,8 @@ void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 
 	m_pOrbiter->Renderer()->UnHighlightObject();
 
-	m_pObj_Previously_Highlighted = m_pOrbiter->m_pObj_Highlighted = pObj;
+	m_pObj_Previously_Highlighted = pObj;
+	m_pOrbiter->m_pObj_Highlighted_set(pObj);
 	if( !pObj )
 		return;
 
@@ -464,7 +465,8 @@ LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::GetHighlighedObj
 void MouseBehavior::SelectFirstObject(char cDirection,DesignObj_Orbiter *pObj_Parent)
 {
 	// Select the first object to highlight if we didn't already and center over it
-	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted = m_pOrbiter->Renderer()->FindFirstObjectByDirection(cDirection,true,pObj_Parent,NULL);
+	m_pOrbiter->m_pObj_Highlighted_set(m_pOrbiter->Renderer()->FindFirstObjectByDirection(cDirection,true,pObj_Parent,NULL));
+	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted;
 	if( pObj )
 	{
 		PlutoRectangle rect = GetHighlighedObjectCoordinates();

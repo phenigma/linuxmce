@@ -52,7 +52,8 @@ HorizMenuMouseHandler::HorizMenuMouseHandler(DesignObj_Orbiter *pObj,string sOpt
 		m_pMouseBehavior->m_pStartMovement.Y=pObj_First->m_rPosition.Y + pObj_First->m_pPopupPoint.Y + (pObj_First->m_rPosition.Height/2);
 		m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y);
 		PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
-		m_pObj_ActiveMenuPad=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_First;
+		m_pObj_ActiveMenuPad=pObj_First;
+		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(pObj_First);
 		if( m_pObj_ActiveMenuPad )
 			ShowPopup(m_pObj_ActiveMenuPad);
 	}
@@ -129,7 +130,7 @@ bool HorizMenuMouseHandler::ButtonUp(int PK_Button)
 		{
 			m_pObj_ActiveMenuPad->m_GraphicToDisplay_set("hmm2",GRAPHIC_NORMAL);
 			// If there's a menu pad, temporarily make it highlighted so the following function can easliy calculate left/right accurately
-			m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ActiveMenuPad;
+			m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(m_pObj_ActiveMenuPad);
 		}
 		
 		// Now move

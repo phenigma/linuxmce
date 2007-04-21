@@ -262,3 +262,17 @@ DesignObj_Orbiter *DesignObj_Orbiter::FindChildObjectWithBaseID(int PK_DesignObj
 	return NULL;
 }
 
+
+void DesignObj_Orbiter::m_GraphicToDisplay_set(string sCalling,int GraphicToDisplay,bool bRecurseChildren,bool bSetUnhighlightedState)
+{
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"m_GraphicToDisplay_set %s %s=%d",sCalling.c_str(),m_ObjectID.c_str(),GraphicToDisplay);
+#endif
+
+	m_GraphicToDisplay=GraphicToDisplay;
+	if( bSetUnhighlightedState )
+		m_GraphicBeforeHighlight=GraphicToDisplay;
+	if( bRecurseChildren )
+		for(DesignObj_DataList::iterator it=m_ChildObjects.begin();it!=m_ChildObjects.end();++it)
+			((DesignObj_Orbiter *)(*it))->m_GraphicToDisplay_set("recurse",GraphicToDisplay,true,bSetUnhighlightedState);
+}

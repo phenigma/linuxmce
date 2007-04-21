@@ -302,7 +302,8 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_iPK_MediaType=0;
 	m_iStreamID=0;
 	m_pScreenHistory_Current=NULL;
-	m_pObj_LastSelected=m_pObj_Highlighted=m_pObj_Highlighted_Last=NULL;
+	m_pObj_LastSelected=m_pObj_Highlighted_Last=NULL;
+	m_pObj_Highlighted_set(NULL);
 	m_iRow_Floorplan_LastSelected=-1;
 	m_pObj_SelectedLastScreen=NULL;
 	m_pGraphicBeforeHighlight=NULL;
@@ -918,7 +919,7 @@ g_PlutoProfiler->DumpResults();
 	m_pObj_NowPlaying_TimeLong_OnScreen=NULL;
 	m_pObj_NowPlaying_Speed_OnScreen=NULL;
 	m_pObj_Highlighted_Last = NULL;
-	m_pObj_Highlighted = NULL;
+	m_pObj_Highlighted_set(NULL);
 	dg.Release(  );
 
 	PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
@@ -1609,7 +1610,7 @@ bool Orbiter::SelectedGrid( int DGRow )
 	if(m_pObj_Highlighted == pDesignObj_DataGrid) //datagrid already highlighted. remove first old highlighting
 		m_pOrbiterRenderer->UnHighlightObject();
 
-	m_pObj_Highlighted = pDesignObj_DataGrid;
+	m_pObj_Highlighted_set(pDesignObj_DataGrid);
 	pDesignObj_DataGrid->m_iHighlightedColumn = -1;
 	pDesignObj_DataGrid->m_iHighlightedRow = DGRow;
 	pDesignObj_DataGrid->m_GridCurCol = iSelectedColumn;
@@ -5366,7 +5367,7 @@ bool Orbiter::Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Di
 	// todo 2.0?    NeedsUpdate( 2 ); // Moving grids is slow; take care of an animation if necessary
 
 	DesignObj_Orbiter *pObj=NULL;
-	//m_pObj_Highlighted = NULL;
+	//m_pObj_Highlighted_set(NULL);
 
 	int LoopNum=-1;
 	if ( sPK_DesignObj.empty(  ) )
@@ -6179,7 +6180,7 @@ void Orbiter::CMD_Reset_Highlight(string sPK_DesignObj,string &sCMD_Result,Messa
 				m_pOrbiterRenderer->UnHighlightObject();
 				ExecuteCommandsInList( &m_pObj_Highlighted->m_Action_UnhighlightList, m_pObj_Highlighted, smHighlight, 0, 0 );
 			}
-			m_pObj_Highlighted = pObj;
+			m_pObj_Highlighted_set(pObj);
 			return;
 		}
 		else

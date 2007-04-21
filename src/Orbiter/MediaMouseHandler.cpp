@@ -88,13 +88,13 @@ void MediaMouseHandler::Start()
 			m_pMouseBehavior->SetMousePosition(X,Y);
 		}
 	}
-	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_Grid;
+	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(pObj_Grid);
 }
 
 void MediaMouseHandler::Stop()
 {
 	m_pDatagridMouseHandlerHelper->Stop();
-	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=NULL;
+	m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(NULL);
 }
 
 bool MediaMouseHandler::ButtonDown(int PK_Button)

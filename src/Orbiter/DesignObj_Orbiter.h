@@ -73,19 +73,7 @@ public:
 
 	int m_GraphicToDisplay;
 	int m_GraphicBeforeHighlight;
-	void m_GraphicToDisplay_set(string sCalling,int GraphicToDisplay,bool bRecurseChildren=false,bool bSetUnhighlightedState=false)
-	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"m_GraphicToDisplay_set %s %s=%d",sCalling.c_str(),m_ObjectID.c_str(),GraphicToDisplay);
-#endif
-		m_GraphicToDisplay=GraphicToDisplay;
-		if( bSetUnhighlightedState )
-			m_GraphicBeforeHighlight=GraphicToDisplay;
-		if( bRecurseChildren )
-			for(DesignObj_DataList::iterator it=m_ChildObjects.begin();it!=m_ChildObjects.end();++it)
-				((DesignObj_Orbiter *)(*it))->m_GraphicToDisplay_set("recurse",GraphicToDisplay,true,bSetUnhighlightedState);
-	}
-
+	void m_GraphicToDisplay_set(string sCalling,int GraphicToDisplay,bool bRecurseChildren=false,bool bSetUnhighlightedState=false);
 	int m_GraphicToPlay;
 
 	// m_pGraphicToUndoSelect is a temporary snapshot of the background that may be created during a select or restore

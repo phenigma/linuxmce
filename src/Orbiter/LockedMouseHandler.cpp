@@ -37,7 +37,7 @@ using namespace DCE;
 LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,MouseBehavior *pMouseBehavior)
 	: MouseHandler(pObj,sOptions,pMouseBehavior)
 {
-	m_pObj_Highlighted = NULL;
+	m_pObj_Highlighted=NULL;
 	m_bFirstTime=true;
 	m_bActivatedObject = false;
 	if( m_pObj->m_iBaseObjectID==DESIGNOBJ_popMainMenu_CONST )
@@ -50,7 +50,8 @@ LockedMouseHandler::LockedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,M
 			m_pMouseBehavior->m_pStartMovement.Y=pObj_First->m_rPosition.Y + pObj_First->m_pPopupPoint.Y + (pObj_First->m_rPosition.Height/2);
 			m_pMouseBehavior->SetMousePosition(m_pMouseBehavior->m_pStartMovement.X,m_pMouseBehavior->m_pStartMovement.Y);
 			PLUTO_SAFETY_LOCK( cm, m_pMouseBehavior->m_pOrbiter->m_ScreenMutex );  // Protect the highlighed object
-			m_pObj_Highlighted=m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted=pObj_First;
+			m_pObj_Highlighted=pObj_First;
+			m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(pObj_First);
 			m_pMouseBehavior->HighlightObject(m_pObj_Highlighted);
 		}
 	}
@@ -173,7 +174,8 @@ void LockedMouseHandler::Move(int X,int Y,int PK_Direction)
 			}
 			else
 			{
-				m_pObj_Highlighted = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = pObj_ToHighlight;
+				m_pObj_Highlighted = pObj_ToHighlight;
+				m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(m_pObj_Highlighted);
 				m_pMouseBehavior->HighlightObject(m_pObj_Highlighted);
 			}
 		}

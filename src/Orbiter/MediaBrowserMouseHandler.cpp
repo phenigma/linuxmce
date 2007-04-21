@@ -65,7 +65,7 @@ MediaBrowserMouseHandler::MediaBrowserMouseHandler(DesignObj_Orbiter *pObj,strin
 	{
 		m_pObj_ListGrid->m_iHighlightedRow=0;
 		m_pObj_PicGrid->m_iHighlightedRow=m_pObj_PicGrid->m_iHighlightedColumn=0;
-		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ListGrid;
+		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(m_pObj_ListGrid);
 		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
 		m_rSortFilterMenu = PlutoRectangle::Union(m_pObj_Sort->m_rPosition, m_pObj_More->m_rPosition );
 	}
@@ -221,7 +221,7 @@ void MediaBrowserMouseHandler::Move(int X,int Y,int PK_Direction)
 				m_pMouseBehavior->m_pOrbiter->CMD_Set_Text( TOSTRING(DESIGNOBJ_objLongFileName_CONST), pCell->m_Text, TEXT_STATUS_CONST );
 		}
 
-		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted = m_pObj_ListGrid;
+		m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted_set(m_pObj_ListGrid);
 		m_pMouseBehavior->m_pOrbiter->Renderer()->DoHighlightObject();
 	}
 }

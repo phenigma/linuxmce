@@ -87,6 +87,7 @@ public:
 	bool HasMoreDown();
 	void CacheGrid(); // Cache one more page of grid
 	virtual bool CalculateGridMovement(int Direction, int &Cur,  int CellsToSkip, DataGridTable *pDataGridTable=NULL);
+	bool GridObjectIsHighlighted(DesignObj_Orbiter *pObj);
 
 	virtual void Flush(bool bFlushGraphics=false); // Flush data that is cached with this object, such as the contents of a datagrid.  If bFlushGraphics, then any cached graphics are also purged
 	virtual bool Scroll_Grid(string sRelative_Level, int iPK_Direction);

@@ -340,6 +340,7 @@ namespace DCE
 		bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
 
 		class DesignObj_Orbiter *m_pObj_Highlighted,*m_pObj_Highlighted_Last; /** < The current object highlighted, changed with the scrolling functions */
+		void m_pObj_Highlighted_set(DesignObj_Orbiter *pObj) { m_pObj_Highlighted=pObj; }
 		vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
 
 		string GetLocalDirectory()
