@@ -192,7 +192,9 @@ void Renderer::RenderObject(RendererImage *pRenderImage, DesignObj_Generator *pD
         bool bIsMenu=false;
 		// If iOnlyVersion is -999, then we've already hit an object with non-standard versions, so we're not
 		// going to write out children as separate objects anymore
-        if( iOnlyVersion==-999 && (iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage ||
+		/* AB 4-20-2007 -- Argh, another issue.  When iOnlyVersion==-999 is there, then on the tv channel grid, where the cell object
+		5197 now has selected and highlighted states, the children which can be hidden (favorites check icon) are always merged in. */
+        if( /* iOnlyVersion==-999 && */ (iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage ||
 			pDesignObj_Generator->m_vectOrigAltGraphicFilename.size() || pDesignObj_Generator->m_sOrigHighlightGraphicFilename.size() || pDesignObj_Generator->m_sOrigSelectedFile.size()) )
         {
             // We're going to save this out as a separate file
