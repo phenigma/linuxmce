@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/Utils.sh
 
 /usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
