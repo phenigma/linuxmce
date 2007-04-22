@@ -643,7 +643,7 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 		{
 			SendString("BYE");
 			Sleep(250);
-			OnReload();
+			OnQuit();
 			/* see notes in header file 1/2/2004
 			Disconnect();
 			if (m_pEvent && m_pEvent->m_pClientSocket)
