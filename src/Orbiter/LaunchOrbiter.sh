@@ -27,11 +27,38 @@ if [[ "$UseOpenGL" == "1"  ]]; then
 	Executable=./OrbiterGL
 fi
 
-## Test if XFree86 is running else manualy start it
-XPID=$(</var/run/plutoX$Display.pid)
-if [[ -z "$XPID" || ! -d /proc/"$XPID" || "$(</proc/"$XPID"/cmdline)" != *"xfwm4"* ]]; then
-	/usr/pluto/bin/Start_X.sh
-	export DISPLAY=:$Display
+export DISPLAY=:$Display
+## Detect if we're running dedicated or a shared desktop system
+if [[ "$SharedDesktop" != 1 ]]; then
+	### Dedicated desktop
+	## Test if XFree86 is running else manualy start it
+	XPID=$(</var/run/plutoX$Display.pid)
+	if [[ -z "$XPID" || ! -d /proc/"$XPID" || "$(</proc/"$XPID"/cmdline)" != *"xfwm4"* ]]; then
+		/usr/pluto/bin/Start_X.sh
+	fi
+
+	## Have two desktops on a dedicated desktop
+	N_Desktops=2
+	wmctrl -n "$N_Desktops"
+
+	export ORBITER_PRIMARY_DESKTOP=0
+	export ORBITER_SECONDARY_DESKTOP=1
+else
+	### Shared desktop
+	## Kill kwin, xcompmgr
+	killall kwin
+	killall xcompmgr
+	## Start xfwm4
+	xfwm4 &>/dev/null </dev/null &
+	sleep 1
+	
+	## Increase number of desktops by 2
+	N_Desktops=$(wmctrl -d | wc -l) # zero based
+	wmctrl -n $((N_Desktops + 2))
+
+	## Export Orbiter desktop information variables
+	export ORBITER_PRIMARY_DESKTOP=$((N_Desktops))
+	export ORBITER_SECONDARY_DESKTOP=$((N_Desktops + 1))
 fi
 
 Counter=0
@@ -60,10 +87,20 @@ xset m 1 1
 #xterm -class bogus_xterm -name bogus_xterm -geometry 1x1+2000+2000 &
 #sleep 1
 if [[ "$Valgrind" == *"$Executable"* ]]; then
-	exec $VGcmd "$Executable" "$@"
+	$VGcmd "$Executable" "$@"
+	Orbiter_RetCode=$?
 else
-	exec "$Executable" "$@"
+	"$Executable" "$@"
+	Orbiter_RetCode=$?
 fi
+
+## Restore number of desktops
+if [[ "$SharedDesktop" == 1 ]]; then
+	wmctrl -n "$N_Desktops"
+fi
+
 #sleep 5
 #Logging "$TYPE" "$SEVERITY_CRITICAL" "LaunchOrbiter" "Hack to kill xterm"
 #killall xterm
+
+exit ${Orbiter_RetCode}
