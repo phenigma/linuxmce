@@ -90,12 +90,6 @@ bool MythTV_PlugIn::GetConfig()
 	m_pMySqlHelper_Myth->threaded_mysql_query("alter table `mythconverg`.`program` add index `starttime` ( `starttime` )",true);
 	m_pEPGGrid = new EPGGrid(m_pMySqlHelper_Myth);
 
-	UpdateMythSetting("JobAllowUserJob1","1","*");
-	UpdateMythSetting("AutoRunUserJob1","1","");
-	UpdateMythSetting("UserJob1","/usr/pluto/bin/SaveMythRecording.sh %CHANID% %STARTTIME% %DIR% %FILE%","");
-	UpdateMythSetting("UserJobDesc1","Save the recorded show into Pluto's database","");
-	UpdateMythSetting("Language","EN","*",true);
-
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(2);      //4 = number of worker threads
 	m_pAlarmManager->AddRelativeAlarm(30,this,CHECK_FOR_NEW_RECORDINGS,NULL);
@@ -928,6 +922,59 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 	}
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	UpdateMythSetting("JobAllowUserJob1","1","*");
+	UpdateMythSetting("AutoRunUserJob1","1","");
+	UpdateMythSetting("UserJob1","/usr/pluto/bin/SaveMythRecording.sh %CHANID% %STARTTIME% %DIR% %FILE%","");
+	UpdateMythSetting("UserJobDesc1","Save the recorded show into Pluto's database","");
+	UpdateMythSetting("Language","EN","*",true);
+
+	UpdateMythSetting("PreferredMPEG2Decoder","xv","*");
+	UpdateMythSetting("AutoCommercialFlag","0","*");
+	UpdateMythSetting("AutoCommflagWhileRecording","0","*");
+	UpdateMythSetting("VertScanPercentage","2","*");
+	UpdateMythSetting("HorizScanPercentage","1","*");
+	UpdateMythSetting("NetworkControlEnabled","1","*");
+	UpdateMythSetting("NetworkControlPort","10001","*");
+	UpdateMythSetting("UseChromaKeyOSD","0","*");
+	UpdateMythSetting("UseOpenGLVSync","0","*");
+	UpdateMythSetting("SelectChangesChannel","1","*");
+	UpdateMythSetting("Deinterlace","1","*");
+	UpdateMythSetting("DeinterlaceFilter","bobdeint","*");
+	UpdateMythSetting("FFRewSpeed0","1","*");
+	UpdateMythSetting("FFRewSpeed1","2","*");
+	UpdateMythSetting("FFRewSpeed2","4","*");
+	UpdateMythSetting("FFRewSpeed3","8","*");
+	UpdateMythSetting("FFRewSpeed4","16","*");
+
+	UpdateMythSetting("MasterServerIP",m_pRouter->sDBHost_get( ),"");
+	UpdateMythSetting("MasterServerPort","6543","");
+
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
+	if( pListDeviceData_Router )
+	{
+		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+		{
+			DeviceData_Router *pDevice_MythPlayer = *it;
+
+			string sHostname = "dcerouter";
+			int PK_Device_PC = DatabaseUtils::GetTopMostDevice(m_pMedia_Plugin->m_pDatabase_pluto_main,pDevice_MythPlayer->m_dwPK_Device);
+			Row_Device *pRow_Device_PC = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device_PC);
+			if( pRow_Device_PC )
+			{
+				Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_PC->FK_DeviceTemplate_getrow();
+				if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Core_CONST )
+					sHostname = "moon" + StringUtils::itos(pRow_Device_PC->PK_Device_get());
+				UpdateMythSetting("BackendServerIP",pRow_Device_PC->IPaddress_get(),sHostname);
+				UpdateMythSetting("MasterServerPort","6543",sHostname);
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find topmost device to setup %d", pDevice_MythPlayer->m_dwPK_Device);
+				continue;
+			}
+		}
+	}
+
 	SetPaths();
 	m_bBookmarksNeedRefreshing=true;
 	m_mapDevicesToSources.clear();
@@ -942,9 +989,6 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 			MINIMUM_MYTH_SCHEMA, (NULL != result_set_check.r && row && row[0]) ? row[0] : "*none*");
 		return;
 	}
-
-	sSQL = "update settings set data='xv' where data='xvmc' and value='PreferredMPEG2Decoder'";  // xvmc causes the video to go crazy when overlaid
-	m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 
 	// Find either inputs with a provider specified, or certain types of devices which should be added, but still need a provider
 	sSQL = "select PK_Device,IK_DeviceData FROM Device LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_EK_MediaProvider_CONST) " AND IK_DeviceData IS NOT NULL AND IK_DeviceData<>'' AND IK_DeviceData<>'NONE' "
@@ -1978,6 +2022,7 @@ void MythTV_PlugIn::SetPaths()
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
 			system(sCmd.c_str());
 
+			UpdateMythSetting("LiveBufferDir",sDirectory,row[1]);
 			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
 		}
 	}
@@ -1988,9 +2033,10 @@ void MythTV_PlugIn::RunBackendStarter()
 	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
 	if( pDevice_App_Server )
 	{
+		string sResponse;
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 			"/usr/bin/screen","restart_myth","-d\t-m\t-S\tRestart_Myth_Backend\t/usr/pluto/bin/Restart_MythBackend.sh","","",false,false,false,false);
-		if( SendCommand(CMD_Spawn_Application) )
+		if( SendCommand(CMD_Spawn_Application,&sResponse) && sResponse=="OK" )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::RunBackendStarter ok");
 			return; // We're ok

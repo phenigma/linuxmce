@@ -724,7 +724,7 @@ bool Orbiter::GetConfig()
 
 	m_pDevice_ScreenSaver = m_pData->FindSelfOrChildWithinCategory(DEVICECATEGORY_Screen_Savers_CONST);
 	m_sOperatingSystem = m_pEvent->GetDeviceDataFromDatabase( m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_Operating_System_CONST );
-	
+
 	return true;
 }
 
@@ -5545,14 +5545,7 @@ void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string 
 	}
 
 	cm.Release();
-	PLUTO_SAFETY_LOCK( mt, m_MaintThreadMutex );
-	for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();++it)
-	{
-		PendingCallBackInfo *pCallBackInfo = (*it).second;
-		if( pCallBackInfo->m_fnCallBack==&Orbiter::DeselectObjects && pCallBackInfo->m_pData==(void *) pObj )
-			pCallBackInfo->m_bStop=true;
-	}
-	mt.Release();
+	PurgeCallBack(&Orbiter::DeselectObjects,(void *) pObj);
 	cm.Relock();
 
 	pObj->m_GraphicToDisplay_set("o5",atoi( sID.c_str(  ) ));
@@ -9684,15 +9677,10 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 
 	if( m_pDevice_ScreenSaver && m_pDevice_ScreenSaver->m_bDisabled==false )
 	{
-        DCE::CMD_On CMD_On(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0,"");
-        SendCommand(CMD_On);
-        string sName = m_pDevice_ScreenSaver->m_mapParameters_Find(DEVICEDATA_Name_CONST);
-        CMD_Activate_Window(sName);
-
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"::Screen saver activate app m_bDisplayOn = true;");
-#endif
+		PurgeCallBack(&Orbiter::SendOffToSS);
+		CallMaintenanceInMiliseconds( 0, &Orbiter::SendOnToSS, NULL, pe_ALL, false );
 	}
+
 	m_bScreenSaverActive=true;
 }
 
@@ -9707,8 +9695,8 @@ void Orbiter::StopScreenSaver()
 
 	if( m_pDevice_ScreenSaver && m_pDevice_ScreenSaver->m_bDisabled==false )
 	{
-		DCE::CMD_Off CMD_Off(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0);
-		SendCommand(CMD_Off);
+		PurgeCallBack(&Orbiter::SendOnToSS);
+		CallMaintenanceInMiliseconds( 0, &Orbiter::SendOffToSS, NULL, pe_ALL, false );
 	}
 }
 //<-dceag-c548-b->
@@ -9819,4 +9807,49 @@ char *Orbiter::ReadFileIntoBuffer( string sFileName, size_t &Size )
 	SendCommand( CMD_Request_File );
 	Size = Length;
 	return pGraphicData;
+}
+
+void Orbiter::PurgeCallBack(OrbiterCallBack fnCallBack,void *pVoidPtr)
+{
+	PLUTO_SAFETY_LOCK( mt, m_MaintThreadMutex );
+	for(map<int,PendingCallBackInfo *>::iterator it=m_mapPendingCallbacks.begin();it!=m_mapPendingCallbacks.end();++it)
+	{
+		PendingCallBackInfo *pCallBackInfo = (*it).second;
+		if( pCallBackInfo->m_fnCallBack == fnCallBack && (pVoidPtr==NULL || pVoidPtr==pCallBackInfo->m_pData) )
+			pCallBackInfo->m_bStop=true;
+	}
+}
+
+void Orbiter::SendOffToSS( void *data )
+{
+	string sResponse;
+	DCE::CMD_Off CMD_Off(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0);
+	if( !SendCommand(CMD_Off,&sResponse) || sResponse!="OK" )
+	{
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::SendOffToSS screen saver not available.  try again in 1 second");
+#endif
+		CallMaintenanceInMiliseconds( 1000, &Orbiter::SendOffToSS, NULL, pe_ALL, false );
+	}
+}
+
+void Orbiter::SendOnToSS( void *data )
+{
+	string sResponse;
+	DCE::CMD_On CMD_On(m_dwPK_Device,m_pDevice_ScreenSaver->m_dwPK_Device,0,"");
+    if( SendCommand(CMD_On,&sResponse) && sResponse=="OK" )
+	{
+	    string sName = m_pDevice_ScreenSaver->m_mapParameters_Find(DEVICEDATA_Name_CONST);
+		CMD_Activate_Window(sName);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::SendOnToSS saver activate app m_bDisplayOn = true;");
+#endif
+	}
+	else
+	{
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::SendOnToSS screen saver not available.  try again in 1 second");
+#endif
+		CallMaintenanceInMiliseconds( 1000, &Orbiter::SendOnToSS, NULL, pe_ALL, false );
+	}
 }

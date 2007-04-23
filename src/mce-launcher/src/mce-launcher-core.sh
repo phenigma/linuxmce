@@ -151,7 +151,6 @@ fi
 #Pluto_qos.pl \
 #Pluto_Report_MachineOn.sh \
 #Pluto_WakeMDs.sh \
-#Pluto_fixMythTvSettings.sh \
 #Pluto_Backup_Database.sh \
 #Pluto_Share_IRCodes.sh \
 

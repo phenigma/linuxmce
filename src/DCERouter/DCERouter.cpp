@@ -1064,6 +1064,7 @@ int k=2;
             {
             case SYSCOMMAND_QUIT:
                 m_bQuit=true;
+				m_bReload=false;
                 break;
 #ifdef LL_DEBUG
             case SYSCOMMAND_SHOW_SOCKETS:
@@ -1077,6 +1078,7 @@ int k=2;
 					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Aborting reload per RequestReload");
 					return;
 				}
+				m_bQuit = false;
 				m_bReload = true;
                 break;
             case SYSCOMMAND_SEGFAULT:
@@ -1506,7 +1508,7 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 }
 
 
-void Router::DoReload()
+void Router::StopAllDevices(bool bReload)
 {
     m_bIsLoading=true;
 
@@ -1523,7 +1525,7 @@ void Router::DoReload()
         ServerSocket *pServerSocket = (*iDC).second;
         PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
         {
-            pServerSocket->SendMessage(new Message(0, (*iDC).first, PRIORITY_URGENT, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_RELOAD, 0));
+			pServerSocket->SendMessage(new Message(0, (*iDC).first, PRIORITY_URGENT, MESSAGETYPE_SYSCOMMAND, bReload ? SYSCOMMAND_RELOAD : SYSCOMMAND_QUIT, 0));
         }
     }
 
@@ -1616,14 +1618,16 @@ string Message::ToXML()
 	m_bRunning=false;
 	RefuseIncomingConnections();
 
-	if (m_bReload)
+	if (m_bReload || m_bQuit)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Detected m_bReload=true %d %d",(int) m_bQuit,(int) m_bRunning);
 
-		DoReload();
+		bReload=m_bReload;  // Return true if we want to be restarted
+		StopAllDevices(m_bReload);
 		Sleep(3000); // Wait 3 seconds for all devices to get the message before dropping the sockets
-		bReload=true;
 	}
+	else
+		bReload=true; // We quit for some other reason, like a system crash
 
 	pthread_cond_broadcast(&m_MessageQueueCond);
 	Sleep(1000); // Let the sockets close

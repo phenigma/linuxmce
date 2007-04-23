@@ -104,7 +104,6 @@ StartService "Report machine is on" "/usr/pluto/bin/Report_MachineOn.sh" "&"
 #Pluto_Report_MachineOn.sh \
 #Pluto_Net_Mount_All.sh \
 #Pluto_WakeMDs.sh \
-#Pluto_fixMythTvSettings.sh \
 #Pluto_Backup_Database.sh \
 #Pluto_Share_IRCodes.sh \
 

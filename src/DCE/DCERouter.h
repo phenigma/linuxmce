@@ -342,7 +342,7 @@ namespace DCE
         void RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage);
         void CreatedDevice(DeviceData_Router *pDevice);
         void ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceData_Impl *pDevice);
-        void DoReload();
+        void StopAllDevices(bool bReload);
 		void DoLogRotation();
 		void DoLogReload();
 		bool RequestReload(int PK_Device_Requesting)

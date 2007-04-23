@@ -530,6 +530,8 @@ namespace DCE
 		void ScreenSaver( void *data );
 		void StartScreenSaver(bool bGotoScreenSaverDesignObj=true);
 		void StopScreenSaver();
+		void SendOffToSS( void *data ); // Send the actual on/off in a separate thread in case pss isn't registered
+		void SendOnToSS( void *data );  // Send the actual on/off in a separate thread in case pss isn't registered
 
 		/**
 		* @brief renders a floorplan
@@ -908,6 +910,7 @@ namespace DCE
 		* @brief We need the maintenance function to be called in this many clock ticks
 		*/
 		void CallMaintenanceInMiliseconds( time_t miliseconds, OrbiterCallBack fnCallBack, void *iData, ePurgeExisting e_PurgeExisting, bool bPurgeTaskWhenScreenIsChanged = true );
+		void PurgeCallBack(OrbiterCallBack fnCallBack,void *pVoidPtr=NULL); // Purge a pending callback
 
 		// Report our current EntArea/Room to orbiter plugin
 		void FireEntAreaRoomCommands();

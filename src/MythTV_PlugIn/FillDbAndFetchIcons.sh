@@ -2,9 +2,6 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 
-# First do just enough to get the channel list.  The user shouldn't interrupt this
-/usr/pluto/bin/fixMythTvSettings.sh
-
 /usr/bin/mythfilldatabase --only-update-channels
 /usr/bin/mythfilldatabase --import-icon-map /home/mythtv/master_iconmap.xml --update-icon-map
 echo "LOCK TABLE schemalock WRITE;" | mysql mythconverg  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
@@ -15,8 +12,6 @@ mv /root/.mythtv/channels/* /home/mythtv/channels
 
 # Send a sync command to fix up the directories
 /usr/pluto/bin/MessageSend $DCERouter -targetType template -r 0 36 1 824
-
-/usr/pluto/bin/fixMythTvSettings.sh
 
 # Notify all the orbiters that myth is ready to be used
 /usr/pluto/bin/MessageSend $DCERouter -targetType template -r 0 12 1 406 9 "MythTV is ready.  However it may take several more minutes before the guide data is fully populated." 102 300
