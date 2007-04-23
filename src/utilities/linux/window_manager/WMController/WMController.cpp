@@ -136,7 +136,30 @@ bool WMControllerImpl::ListWindows(list<WinInfo> &listWinInfo)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::ListWindows()\n");
 #endif
 
-    return wmctrl.ActionCommand('l', NULL, NULL, &listWinInfo);
+	bool bResult = wmctrl.ActionCommand('l', NULL, NULL, &listWinInfo);
+
+	int nPrimaryDesktop = atoi(m_sPrimaryDesktop.c_str());
+	int nSecondaryDesktop = atoi(m_sSecondaryDesktop.c_str());
+
+	//filter the windows; we need only those from our desktops
+	for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end();)
+	{
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Window %s, desktop %d", it->sClassName.c_str(), it->lDesktop); 
+#endif
+
+		if(static_cast<int>(it->lDesktop) != nPrimaryDesktop && static_cast<int>(it->lDesktop) != nSecondaryDesktop)
+		{
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Skipping %s (it's not on our desktops)", it->sClassName.c_str()); 
+#endif
+			listWinInfo.erase(it++);
+		}
+		else
+			++it;
+	}
+
+    return bResult;
 }
 
 //-------------------------------------------------------------------------------------------------------------
