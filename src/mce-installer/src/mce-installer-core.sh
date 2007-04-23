@@ -172,8 +172,6 @@ YPBINDARGS=
 YPPASSWDDARGS=
 YPXFRDARGS=
 " > /etc/default/nis
-
-echo > /etc/init.d/yp.conf
 }
 
 function Install_DCERouter {
