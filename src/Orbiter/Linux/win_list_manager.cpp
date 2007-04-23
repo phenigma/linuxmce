@@ -458,3 +458,18 @@ WindowContext& WinListManager::PendingContext(string sWindowName)
 	return it->second;
 }
 
+void WinListManager::HandleOnCommand()
+{
+	//store what desktop is currently active
+	m_pWMController->SaveCurrentUserDesktop();
+	
+	//switch to orbiter’s desktop
+	m_pWMController->SwitchToPrimaryDesktop();
+}
+
+void WinListManager::HandleOffCommand()
+{
+	//switch back to whatever desktop was active before. 
+	m_pWMController->SwitchToUserDesktop();
+}
+

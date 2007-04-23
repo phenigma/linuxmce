@@ -85,12 +85,12 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
         , m_pWaitList(NULL)
         , m_bButtonPressed_WaitList(false)
         , m_pWaitUser(NULL)
+		, m_bMaskApplied(false)
         , m_bOrbiterReady(false)
         , m_bIsExclusiveMode(false)
         , m_pDisplay_SDL(NULL)
         , m_pWinListManager(NULL)
         , m_pX11(NULL)
-	, m_bMaskApplied(false)
 {
     const char *pDisplayName = getenv("DISPLAY");
     if(NULL != pDisplayName)
@@ -419,9 +419,28 @@ void OrbiterLinux::Destroy()
     LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy() : done");
 }
 
+void OrbiterLinux::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD on");
+
+	Orbiter::CMD_On(iPK_Pipe, sPK_Device_Pipes, sCMD_Result, pMessage);
+
+	if(NULL != m_pWinListManager)
+		m_pWinListManager->HandleOnCommand();
+
+	Orbiter::CMD_Surrender_to_OS(m_bYieldScreen ? "1" : "0", m_bYieldInput);
+}
+
 void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 {
-    LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD off not implemented on the orbiter yet");
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD off");
+
+	Orbiter::CMD_Off(iPK_Pipe, sCMD_Result, pMessage);
+
+	if(NULL != m_pWinListManager)
+		m_pWinListManager->HandleOffCommand();	
+
+	Orbiter::CMD_Surrender_to_OS("1", true);
 }
 
 void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)

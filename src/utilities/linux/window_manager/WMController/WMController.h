@@ -34,10 +34,14 @@ public:
 
     bool ListWindows(list<WinInfo> &listWinInfo);
 
+	void SaveCurrentUserDesktop();
+	void SwitchToPrimaryDesktop();
+	void SwitchToUserDesktop();
+
 protected:
     WmCtrl wmctrl;
 
-	unsigned long ulUserCurrentDesktop;
+	unsigned long m_ulUserCurrentDesktop;
 	string m_sPrimaryDesktop;
 	string m_sSecondaryDesktop;
 };

@@ -83,6 +83,8 @@ public:
 
 	void KeepSdlWindowActive( bool bKeepSdlWindowActive ) { m_bKeepSdlWindowActive=bKeepSdlWindowActive; }
 
+	void HandleOnCommand();
+	void HandleOffCommand();
 	
 private:
 
@@ -126,11 +128,9 @@ private:
 	void Internal_SetSdlWindowVisibility(bool bValue);
 	void Internal_ResetOrbiterWindow();
 
-private:
-	
+	//variables
 	string m_sSdlWindowName;
 	WMControllerImpl *m_pWMController;
-
 };
 
 #endif

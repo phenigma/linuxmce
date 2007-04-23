@@ -14,11 +14,7 @@ using namespace DCE;
 //-------------------------------------------------------------------------------------------------------------
 WMControllerImpl::WMControllerImpl()
 {
-	ulUserCurrentDesktop = 0;
-	wmctrl.CurrentDesktop(ulUserCurrentDesktop);
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: users's current desktop: %d", ulUserCurrentDesktop);
-
-    const char *pPrimaryDesktopName = getenv("ORBITER_PRIMARY_DESKTOP");
+	const char *pPrimaryDesktopName = getenv("ORBITER_PRIMARY_DESKTOP");
     if(NULL != pPrimaryDesktopName)
         m_sPrimaryDesktop = pPrimaryDesktopName;
     else
@@ -33,8 +29,10 @@ WMControllerImpl::WMControllerImpl()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: primary desktop %s", m_sPrimaryDesktop.c_str());
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: secondary desktop %s", m_sSecondaryDesktop.c_str());
 
-	//Switch to primary desktop
-    wmctrl.ActionCommand('s', NULL, m_sPrimaryDesktop.c_str());
+	m_ulUserCurrentDesktop = 0;
+
+	SaveCurrentUserDesktop();
+	SwitchToPrimaryDesktop();
 }
 //-------------------------------------------------------------------------------------------------------------
 WMControllerImpl::~WMControllerImpl()
@@ -166,3 +164,29 @@ bool WMControllerImpl::ListWindows(list<WinInfo> &listWinInfo)
 }
 
 //-------------------------------------------------------------------------------------------------------------
+void WMControllerImpl::SaveCurrentUserDesktop()
+{
+	unsigned long ulUserCurrentDesktop = 0;
+	if(wmctrl.CurrentDesktop(ulUserCurrentDesktop) && ulUserCurrentDesktop != atoi(m_sPrimaryDesktop.c_str()))
+		m_ulUserCurrentDesktop = ulUserCurrentDesktop;
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: user's current desktop: %d", m_ulUserCurrentDesktop);
+}
+//-------------------------------------------------------------------------------------------------------------
+void WMControllerImpl::SwitchToPrimaryDesktop()
+{
+	//Switch to primary desktop
+    wmctrl.ActionCommand('s', NULL, m_sPrimaryDesktop.c_str());
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: switching to primary desktop %s", m_sPrimaryDesktop.c_str());
+}
+//-------------------------------------------------------------------------------------------------------------
+void WMControllerImpl::SwitchToUserDesktop()
+{
+	//Switch to user's desktop
+	wmctrl.ActionCommand('s', NULL, StringUtils::ltos(m_ulUserCurrentDesktop).c_str());
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: switching back to user's desktop %d", m_ulUserCurrentDesktop);
+}
+//-------------------------------------------------------------------------------------------------------------
+
