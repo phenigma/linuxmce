@@ -553,7 +553,7 @@ public:
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sTime,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,bool bAlways,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Reset_Highlight(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,class Message *pMessage) {};
@@ -1516,7 +1516,8 @@ public:
 						string sCMD_Result="OK";
 						string sOnOff=pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
 						bool bFully_release_keyboard=(pMessage->m_mapParameters[COMMANDPARAMETER_Fully_release_keyboard_CONST]=="1" ? true : false);
-						CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,pMessage);
+						bool bAlways=(pMessage->m_mapParameters[COMMANDPARAMETER_Always_CONST]=="1" ? true : false);
+						CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,bAlways,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1533,7 +1534,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,pMessage);
+								CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,bAlways,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

@@ -2634,35 +2634,39 @@ namespace DCE
 	};
 	class CMD_Surrender_to_OS : public PreformedCommand {
 	public:
-		CMD_Surrender_to_OS(long DeviceIDFrom, long DeviceIDTo,string sOnOff,bool bFully_release_keyboard) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Surrender_to_OS(long DeviceIDFrom, long DeviceIDTo,string sOnOff,bool bFully_release_keyboard,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Surrender_to_OS_CONST,
-			2 /* number of parameters */,
+			3 /* number of parameters */,
 			COMMANDPARAMETER_OnOff_CONST, sOnOff.c_str(),
-			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0")); }
+			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0"),
+			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
 	};
 	class CMD_Surrender_to_OS_DL : public PreformedCommand {
 	public:
-		CMD_Surrender_to_OS_DL(long DeviceIDFrom, string DeviceIDTo,string sOnOff,bool bFully_release_keyboard) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Surrender_to_OS_DL(long DeviceIDFrom, string DeviceIDTo,string sOnOff,bool bFully_release_keyboard,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Surrender_to_OS_CONST,
-			2 /* number of parameters */,
+			3 /* number of parameters */,
 			COMMANDPARAMETER_OnOff_CONST, sOnOff.c_str(),
-			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0")); }
+			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0"),
+			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
 	};
 	class CMD_Surrender_to_OS_DT : public PreformedCommand {
 	public:
-		CMD_Surrender_to_OS_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sOnOff,bool bFully_release_keyboard) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Surrender_to_OS_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sOnOff,bool bFully_release_keyboard,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Surrender_to_OS_CONST,
-			2 /* number of parameters */,
+			3 /* number of parameters */,
 			COMMANDPARAMETER_OnOff_CONST, sOnOff.c_str(),
-			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0")); }
+			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0"),
+			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
 	};
 	class CMD_Surrender_to_OS_Cat : public PreformedCommand {
 	public:
-		CMD_Surrender_to_OS_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sOnOff,bool bFully_release_keyboard) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Surrender_to_OS_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sOnOff,bool bFully_release_keyboard,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Surrender_to_OS_CONST,
-			2 /* number of parameters */,
+			3 /* number of parameters */,
 			COMMANDPARAMETER_OnOff_CONST, sOnOff.c_str(),
-			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0")); }
+			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0"),
+			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
 	};
 	class CMD_Bind_to_Media_Remote : public PreformedCommand {
 	public:
