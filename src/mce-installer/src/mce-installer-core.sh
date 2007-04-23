@@ -472,6 +472,25 @@ end script
 " > /etc/event.d/pluto
 fi
 
+## Compromise X security... I mean, make X accessible by Pluto software, for all existing and new users
+KDExhost="#!/bin/bash
+xhost +
+"
+
+for user in /home/*; do
+	if [[ ! -d "$user" ]]; then
+		continue
+	fi
+	Dir="$user/.kde/Autostart"
+	mkdir -p "$Dir"
+	echo "$KDExhost" >"$Dir/xhost"
+	User="${user#/home/}"
+	chown "$User.$User" "$Dir/xhost"
+done
+
+Dir="/etc/skel/.kde/Autostart"
+echo "$KDExhost" >"$Dir/xhost"
+
 apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
 
 StatsMessage "Installation Finished"
