@@ -326,6 +326,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bCapsLock = false;
 	m_pCacheImageManager = NULL;
 	m_pScreenHistory_NewEntry = NULL;
+	m_bIgnoreMouse = false;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	m_pMouseBehavior = NULL;
@@ -5924,6 +5925,7 @@ void Orbiter::CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,boo
 #endif
 	m_bYieldScreen = ( sOnOff=="1" );
 	m_bYieldInput = bFully_release_keyboard;
+	m_bIgnoreMouse = bAlways;
 }
 
 bool Orbiter::IsYieldScreen() const

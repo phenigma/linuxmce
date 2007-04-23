@@ -280,7 +280,9 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"XRecordExtensionHandler::XRecordi
 					  pEvent->type,pEvent->data.button.m_iPK_Button,pEvent->data.button.m_iKeycode);
 #endif
 				}
-				pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
+
+				if( pEvent->type!=Orbiter::Event::MOUSE_MOVE || !pRecordingHandler->m_pOrbiter->m_bIgnoreMouse )
+					pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 			}
 	}
 

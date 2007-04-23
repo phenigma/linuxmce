@@ -222,6 +222,7 @@ namespace DCE
 		bool m_bShowingSpeedBar; // For UI2 this means we temporarily are displaying the speed bar because we're not at normal 1x speed
 		bool m_bSpeedIconsOnVfd; // True if there's a VFD that can show speed icons
 		bool m_bExpertMode; // A device data, if true we support quick launch
+		bool m_bIgnoreMouse; // Completely ignore mouse events
 		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 		class DesignObj_Orbiter *GetCurrentDesignObj();
 		string m_sOperatingSystem; // If this is an OSD for a dual-boot media director this contains the type of o/s
