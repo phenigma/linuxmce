@@ -47,6 +47,7 @@
 #include "Step5.h"
 #include "Step6.h"
 #include "StepAptMirror.h"
+#include "StepUbuntuCD.h"
 #include "StepUI.h"
 
 #include "network-common.h"
@@ -68,10 +69,16 @@
 #define STEPAPTMIRROR 15
 #define STEPUI 16 
 #define STEPCONF 17
+#define STEPUBUTUCD 18
 
 #define INSTALL_TYPE_CD   1
 #define INSTALL_TYPE_ISO  2
 #define INSTALL_TYPE_NET  3
+
+#define FROM_CD 1
+#define FROM_ISO 2
+#define FROM_NET 3
+
 
 GladeXML  *gxml;
 GtkWidget *mainWindow;
@@ -115,6 +122,11 @@ gint	 setting_installType;
 gint	 setting_UI;
 
 gchar*   setting_installMirror;
+
+gint     setting_ubuntuCdFrom;
+gchar*   setting_ubuntuCdIsoPath;
+gint     setting_ubuntuExtraCdFrom;
+gchar*   setting_ubuntuExtraCdIsoPath;
 
 gint	 flag_mirror;
 gchar	 *other_mirror;
