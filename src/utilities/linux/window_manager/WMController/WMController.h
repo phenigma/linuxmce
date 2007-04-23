@@ -1,5 +1,5 @@
 //
-// Author : ...
+// Author : Cristian Miron
 //
 // Changed by : Remus C.
 //
@@ -37,6 +37,7 @@ public:
 protected:
     WmCtrl wmctrl;
 
+	unsigned long ulUserCurrentDesktop;
 	string m_sPrimaryDesktop;
 	string m_sSecondaryDesktop;
 };

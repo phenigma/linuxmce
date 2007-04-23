@@ -1216,6 +1216,48 @@ int WmCtrl::action_window_str(Display *disp, char mode)
     }
 }
 
+bool WmCtrl::CurrentDesktop(unsigned long& ulCurrentDesktop)
+{
+    // new code
+    Display *disp = NULL;
+
+	/* necessary to make g_get_charset() and g_locale_*() work */
+    setlocale(LC_ALL, "");
+
+    init_charset();
+
+    if (! (disp = XOpenDisplay(NULL)))
+    {
+        fputs("Cannot open display.\n", stderr);
+        return false;
+    }
+
+	XLockDisplay(disp);
+
+	Window root = DefaultRootWindow(disp);
+
+	unsigned long *pCurrentDesktop = NULL;
+
+	if (! (pCurrentDesktop = (unsigned long *)get_property(disp, root, XA_CARDINAL, "_NET_CURRENT_DESKTOP", NULL)))
+    {
+        if (! (pCurrentDesktop = (unsigned long *)get_property(disp, root, XA_CARDINAL, "_WIN_WORKSPACE", NULL)))
+		{
+			return false;
+		}
+	}
+
+	ulCurrentDesktop = *pCurrentDesktop;
+
+	g_free(pCurrentDesktop);
+
+    XSync(disp, false);
+    XUnlockDisplay(disp);
+    if (disp)
+        XCloseDisplay(disp);
+
+	return true;
+}
+
 int WmCtrl::list_desktops(Display *disp)
 {
     unsigned long *num_desktops = NULL;
@@ -1604,10 +1646,12 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
         g_free(client_machine);
     }
 
+#ifdef DEBUG
     /* list header and tail */
     const char s1[]="=======================================================================================\n";
     const char s2[]="| WindowID |Dsk|Layer|  PID  |      Geometry      |        Class         |ClMach|Title|\n";
     const char s3[]="|----------|---|-----|-------|--------------------|----------------------|------|-----|\n";
+#endif
 
 #ifdef DEBUG
     if (options.list_show_all)

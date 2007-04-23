@@ -1,5 +1,5 @@
 //
-// Author : ...
+// Author : Cristian Miron
 //
 // Changed by : Remus C.
 //
@@ -14,6 +14,10 @@ using namespace DCE;
 //-------------------------------------------------------------------------------------------------------------
 WMControllerImpl::WMControllerImpl()
 {
+	ulUserCurrentDesktop = 0;
+	wmctrl.CurrentDesktop(ulUserCurrentDesktop);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: users's current desktop: %d", ulUserCurrentDesktop);
+
     const char *pPrimaryDesktopName = getenv("ORBITER_PRIMARY_DESKTOP");
     if(NULL != pPrimaryDesktopName)
         m_sPrimaryDesktop = pPrimaryDesktopName;
@@ -32,7 +36,6 @@ WMControllerImpl::WMControllerImpl()
 	//Switch to primary desktop
     wmctrl.ActionCommand('s', NULL, m_sPrimaryDesktop.c_str());
 }
-
 //-------------------------------------------------------------------------------------------------------------
 WMControllerImpl::~WMControllerImpl()
 {

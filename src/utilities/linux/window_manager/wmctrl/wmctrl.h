@@ -124,6 +124,8 @@ public:
     // calls LowLevelCommand
     bool ActionCommand(char action, const char *param_window=NULL, const char *param=NULL, std::list<WinInfo> *pListWinInfo=NULL, bool use_id_in_param_window=false);
 
+	bool CurrentDesktop(unsigned long& ulCurrentDesktop);
+
 protected:
     gboolean wm_supports(Display *disp, const gchar *prop);
     Window *get_client_list(Display *disp, unsigned long *size);
