@@ -1381,9 +1381,11 @@ namespace DCE
 			/** 1=Hide and let the OS take over.  0=The orbiter comes up again. */
 		/** @param #54 Fully release keyboard */
 			/** Only applies if on/off is 1.  If this is false, the orbiter will still filter keystrokes, looking for macros to implement, and only pass on keys that it doesn't catch.  If true, it will pass all keys.  True also releases the mouse. */
+		/** @param #225 Always */
+			/** If true, the mouse will always be ignored */
 
-	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard) { string sCMD_Result; CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,NULL);};
-	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,bool bAlways) { string sCMD_Result; CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,bAlways,sCMD_Result,NULL);};
+	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,bool bAlways,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #77 - Set Current Room */
