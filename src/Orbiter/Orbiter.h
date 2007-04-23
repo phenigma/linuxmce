@@ -1377,7 +1377,7 @@ namespace DCE
 		/** @param #8 On/Off */
 			/** 1=Hide and let the OS take over.  0=The orbiter comes up again. */
 		/** @param #54 Fully release keyboard */
-			/** Only applies if on/off is 1.  If this is false, the orbiter will still filter keystrokes, looking for macros to implement, and only pass on keys that it doesn't catch.  If true, it will pass all keys. */
+			/** Only applies if on/off is 1.  If this is false, the orbiter will still filter keystrokes, looking for macros to implement, and only pass on keys that it doesn't catch.  If true, it will pass all keys.  True also releases the mouse. */
 
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard) { string sCMD_Result; CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,NULL);};
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,Message *pMessage);
@@ -1893,7 +1893,6 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Bind_to_Wireless_Keyboard() { string sCMD_Result; CMD_Bind_to_Wireless_Keyboard(sCMD_Result,NULL);};
 	virtual void CMD_Bind_to_Wireless_Keyboard(string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
 
