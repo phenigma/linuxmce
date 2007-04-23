@@ -428,7 +428,7 @@ void OrbiterLinux::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Resu
 	if(NULL != m_pWinListManager)
 		m_pWinListManager->HandleOnCommand();
 
-	Orbiter::CMD_Surrender_to_OS(m_bYieldScreen ? "1" : "0", m_bYieldInput);
+	Orbiter::CMD_Surrender_to_OS(m_bYieldScreen ? "1" : "0", m_bYieldInput,false);
 }
 
 void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
@@ -440,7 +440,7 @@ void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 	if(NULL != m_pWinListManager)
 		m_pWinListManager->HandleOffCommand();	
 
-	Orbiter::CMD_Surrender_to_OS("1", true);
+	Orbiter::CMD_Surrender_to_OS("1", true,false);
 }
 
 void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)
@@ -495,7 +495,7 @@ void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &
     }
 }
 
-void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff, bool bFully_release_keyboard, string &sCMD_Result, Message *pMessage)
+void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,bool bAlways, string &sCMD_Result, Message *pMessage)
 {
     // when xine is full-screen, on DVD menu
     // and navigation in the dvd-menu with keyboard is wanted

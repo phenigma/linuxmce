@@ -2817,7 +2817,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 		{
 			//toggle surrender to OS
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Surrendering to OS: %d", !m_bYieldScreen);
-			CMD_Surrender_to_OS(m_bYieldScreen ? "0" : "1", !m_bYieldScreen);
+			CMD_Surrender_to_OS(m_bYieldScreen ? "0" : "1", !m_bYieldScreen,false);
 		}
 	}
 
