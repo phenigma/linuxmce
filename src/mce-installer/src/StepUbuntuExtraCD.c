@@ -9,73 +9,23 @@
 */
 #include "common.h"
 
-
-GtkWidget *runWindow;
-pid_t      runApplicationPid;
-gint       runTagProgessBar;
-static gboolean connectedToReaper;
-
-gint run_shell_command_progress_pulse(gpointer data) {
-	GtkProgressBar *pbar = GTK_PROGRESS_BAR(data);
-	gtk_progress_bar_pulse(pbar);
-	return 1;
-}
-
-void run_shell_reaper_child_exited(VteTerminal *terminal, gint pid, gint errcode, gpointer data) {
-	if (runApplicationPid == pid) {
-		printf("Exited with error code : %d\n", errcode);
-		g_source_remove((gint)runTagProgessBar);
-
-		gdk_threads_enter();
-		gtk_widget_hide_all(GTK_WIDGET(runWindow));
-
-		if (errcode != 0) {
-			GtkWidget* runErrorDialog = gtk_dialog_new_with_buttons ("Message", GTK_WINDOW(mainWindow), 
-					GTK_DIALOG_DESTROY_WITH_PARENT,GTK_STOCK_OK, GTK_RESPONSE_NONE, NULL);
-			gtk_window_set_title(GTK_WINDOW(runErrorDialog), "Error");
-			gtk_dialog_run(GTK_DIALOG(runErrorDialog));
-			gtk_widget_destroy (GTK_WIDGET(runErrorDialog));
-		} else {
-		}
-		gdk_threads_leave();
-	}
-}
-
-void run_shell_command(const gchar* application, const gchar* windowTitle) {
-
-	runWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(runWindow), windowTitle);
-	gtk_window_set_modal(GTK_WINDOW(runWindow), TRUE);
-	gtk_window_set_transient_for(GTK_WINDOW(runWindow), GTK_WINDOW(mainWindow)); 
-	gtk_window_set_position(GTK_WINDOW(runWindow), GTK_WIN_POS_CENTER_ON_PARENT);
-	gtk_container_set_border_width(GTK_CONTAINER(runWindow), 10);
-
-	GtkWidget* runHBox = gtk_vbox_new(FALSE, 5);
-	gtk_container_add(GTK_CONTAINER(runWindow), runHBox);
-
-	GtkWidget* runLabelWait = gtk_label_new("Please Wait ...");
-	gtk_box_pack_start(GTK_BOX(runHBox), runLabelWait, TRUE, TRUE, 5);
-
-	GtkWidget* runProgress = gtk_progress_bar_new();
-	gtk_box_pack_start(GTK_BOX(runHBox), runProgress, TRUE, TRUE, 5);
-	runTagProgessBar = g_timeout_add(200, run_shell_command_progress_pulse, runProgress);
-
-	GtkWidget* runTerminal = vte_terminal_new();
-	runApplicationPid = vte_terminal_fork_command(VTE_TERMINAL(runTerminal),application, NULL, NULL, "", FALSE, FALSE, FALSE);
-	GObject* runVteReaper = G_OBJECT(vte_reaper_get());
-	if (connectedToReaper == 0 ) {
-		g_signal_connect(G_OBJECT(runVteReaper), "child-exited", G_CALLBACK(run_shell_reaper_child_exited), NULL);
-		connectedToReaper = 1;
-	}
-
-	gtk_widget_show_all(runWindow);
-}
-
-
-
 void on_StepUbuntuExtraCD_forward_clicked(GtkWidget *widget, gpointer data)  {
-	g_queue_push_head(history, (gpointer)STEPAPTMIRROR);	
-	run_shell_command("./testscript.sh", "This is a title");
+
+	gboolean goNext = TRUE;
+
+	if (setting_ubuntuExtraCdFrom != FROM_NET) {	
+		goNext = FALSE;
+		GtkWidget* runWindow = run_shell_command("./testscript.sh", "This is a title", "This is a error message");
+		gtk_widget_show_all(runWindow);
+		if (gtk_dialog_run(GTK_DIALOG(runWindow)) != 1) {
+			goNext = TRUE;
+		}
+	}
+
+	if (goNext) {
+		g_queue_push_head(history, (gpointer)STEPAPTMIRROR);
+		displayStepUbuntuCD();
+	}
 }
 
 void on_StepUbuntuExtraCD_file_set(GtkWidget *widget, gpointer data) {

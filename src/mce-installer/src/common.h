@@ -32,6 +32,8 @@
 #include <string.h>
 #include <pthread.h>
 
+#include "RunShellCommand.h"
+
 #include "Step0A.h"
 #include "Step0B.h"
 #include "Step1A.h"

@@ -58,7 +58,7 @@ am_mce_installer_OBJECTS = main.$(OBJEXT) Step1A.$(OBJEXT) \
 	Step2F.$(OBJEXT) Step0A.$(OBJEXT) Step6.$(OBJEXT) \
 	StepAptMirror.$(OBJEXT) StepUI.$(OBJEXT) \
 	StepUbuntuCD.$(OBJEXT) StepUbuntuExtraCD.$(OBJEXT) \
-	StepConfFiles.$(OBJEXT)
+	RunShellCommand.$(OBJEXT) StepConfFiles.$(OBJEXT)
 mce_installer_OBJECTS = $(am_mce_installer_OBJECTS)
 am__DEPENDENCIES_1 =
 mce_installer_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -245,6 +245,8 @@ mce_installer_SOURCES = \
 	StepUbuntuCD.h \
 	StepUbuntuExtraCD.c \
 	StepUbuntuExtraCD.h \
+	RunShellCommand.c \
+	RunShellCommand.h \
 	StepConfFiles.h \
 	StepConfFiles.c
 
@@ -317,6 +319,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+include ./$(DEPDIR)/RunShellCommand.Po
 include ./$(DEPDIR)/Step0A.Po
 include ./$(DEPDIR)/Step0B.Po
 include ./$(DEPDIR)/Step1A.Po
