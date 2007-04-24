@@ -14,7 +14,13 @@ fi
 
 mkdir -p /usr/pluto/deb-cache || exit 2
 cp "${CD_Dir}"/*.deb /usr/pluto/deb-cache || exit 3
-cp "${CD_Dir}"/Packages* /usr/pluto/deb-cache/ || exit 5
+#cp "${CD_Dir}"/Packages* /usr/pluto/deb-cache/ || exit 5
+
+cp ./dpkg-scanpackages /usr/pluto/deb-cache || :
+pushd /usr/pluto/deb-cache
+	./dpkg-scanpackages ./ /dev/null > Packages
+	gzip -c Packages > Packages.gz
+popd
 
 umount -lf $CD_Dir || :
 rm -rf $CD_Dir
