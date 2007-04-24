@@ -376,44 +376,6 @@ function Configure_Network_Options {
 
 }
 
-function CreateDebCache() {
-	StatsMessage "Caching LinuxMCE CD on the harddrive"
-	mkdir -p /usr/pluto/deb-cache
-	cp /media/cdrom/*.deb /usr/pluto/deb-cache/ ||  ExitInstaller "Failed to read correctly from the LinuxMCE CDROM"
-	cp /media/cdrom/Packages* /usr/pluto/deb-cache/
-}
-
-function Setup_DebCache() {
-	local OK=0
-
-#	apt-get -y install dpkg-dev
-	while [[ "$OK" == 0 ]]; do
-		case "$c_installType" in
-			1) # ISO on CD
-				echo "Mounting CD"
-				mount /dev/cdrom /media/cdrom 2>/dev/null
-				CreateDebCache
-				umount /media/cdrom 2>/dev/null
-				OK=1
-			;;
-			2) # ISO in /var/linuxmce/linux-mce.iso
-				echo "Installing from ISO"
-				mount -o loop /var/linuxmce/linux-mce.iso /media/cdrom
-				CreateDebCache
-				umount /media/cdrom
-				OK=1
-			;;
-			3) # Net install; Nothing to do
-				OK=1
-				:
-			;;
-			*) echo "Bad install type: '$c_InstallType'" 
-				OK=1
-			;;
-		esac
-	done
-}
-
 Core_PK_Device="0"
 killall NetworkManager
 killall NetworkManagerDispatcher
@@ -423,7 +385,6 @@ fi
 Setup_Apt_Conffiles
 Setup_Pluto_Conf
 Setup_NIS
-Setup_DebCache
 Install_DCERouter
 Create_And_Config_Devices
 Configure_Network_Options

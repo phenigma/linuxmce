@@ -164,9 +164,15 @@ void write_config_file(void) {
 				"c_netIntIPN='%s'\n"
 				"c_startupType=%d\n"
 				"c_installType=%d\n"
-				"c_installMirror=%s\n"
-				"c_netExtKeep=%s\n"
+				"c_installMirror='%s'\n"
+				"c_netExtKeep='%s'\n"
 				"c_installUI=%d\n"
+				"c_ubuntuCdFrom=%d\n"
+				"c_ubuntuCdIsoPath='%s'\n"
+				"c_linuxmceCdFrom=%d\n"
+				"c_linuxmceCdIsoPath='%s'\n"
+				"c_ubuntuExtraCdFrom=%d\n"
+				"c_ubuntuExtraCdPath='%s'\n"
 				,setting_deviceType
 				,setting_netIfaceNo
 				,setting_netExtName
@@ -184,6 +190,12 @@ void write_config_file(void) {
 				,setting_installMirror
 				,setting_netExtKeep?"true":"false"
 				,setting_UI
+				,setting_ubuntuCdFrom
+				,setting_ubuntuCdIsoPath
+				,setting_linuxmceCdFrom
+				,setting_linuxmceCdIsoPath
+				,setting_ubuntuExtraCdFrom
+				,setting_ubuntuExtraCdIsoPath
 		);
 	} else {
 		output = g_strdup_printf(

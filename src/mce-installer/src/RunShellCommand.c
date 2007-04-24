@@ -58,6 +58,7 @@ GtkWidget* run_shell_command(const gchar* application, const gchar* windowTitle,
 	runTagProgessBar = g_timeout_add(200, run_shell_command_progress_pulse, runProgress);
 
 	GtkWidget* runTerminal = vte_terminal_new();
+	write_config_file();
 	runApplicationPid = vte_terminal_fork_command(VTE_TERMINAL(runTerminal),application, NULL, NULL, "", FALSE, FALSE, FALSE);
 	GObject* runVteReaper = G_OBJECT(vte_reaper_get());
 	runErrorMessage = g_strdup(errorMessage);
