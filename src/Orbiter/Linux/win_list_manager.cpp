@@ -40,8 +40,9 @@ using namespace DCE;
 
 WinListManager::WinListManager(const string &sSdlWindowName)
         : m_WindowsMutex("Windows List Mutex")
-		, m_bHideSdlWindow(false)
+	, m_bHideSdlWindow(false)
         , m_sSdlWindowName(sSdlWindowName)
+	, m_bEnabled(true)
 {
     pthread_mutexattr_init( &m_WindowsMutexAttr );
     pthread_mutexattr_settype( &m_WindowsMutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
@@ -318,6 +319,9 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 	return;
 #endif
 
+	if(!m_bEnabled)
+		return;
+
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	list<WinInfo> listWinInfo;
 	GetWindows(listWinInfo);  // Do this first since it may set m_bExternalChange
@@ -460,6 +464,8 @@ WindowContext& WinListManager::PendingContext(string sWindowName)
 
 void WinListManager::HandleOnCommand()
 {
+	m_bEnabled = true;
+
 	//store what desktop is currently active
 	m_pWMController->SaveCurrentUserDesktop();
 	
@@ -479,5 +485,7 @@ void WinListManager::HandleOffCommand()
 #ifdef KDE_LMCE
 	m_pWMController->SetLayer("kicker", LayerNormal);
 #endif
+
+	m_bEnabled = false;
 }
 

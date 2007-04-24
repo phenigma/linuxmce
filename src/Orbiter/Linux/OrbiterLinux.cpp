@@ -428,7 +428,7 @@ void OrbiterLinux::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Resu
 	if(NULL != m_pWinListManager)
 		m_pWinListManager->HandleOnCommand();
 
-	Orbiter::CMD_Surrender_to_OS(m_bYieldScreen ? "1" : "0", m_bYieldInput,false);
+	Orbiter::CMD_Surrender_to_OS("0", false, false);
 }
 
 void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
@@ -440,11 +440,17 @@ void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 	if(NULL != m_pWinListManager)
 		m_pWinListManager->HandleOffCommand();	
 
-	Orbiter::CMD_Surrender_to_OS("1", true,false);
+	Orbiter::CMD_Surrender_to_OS("1", true, true);
 }
 
 void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)
 {
+	if(!m_bDisplayOn)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s) ignored because display is off", sWindowName.c_str());
+		return;
+	}
+
 	m_sApplicationName = sWindowName;
     LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
 	m_pWinListManager->SetExternApplicationName(sWindowName);

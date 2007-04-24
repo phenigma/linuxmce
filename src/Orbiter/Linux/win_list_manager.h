@@ -131,6 +131,7 @@ private:
 	//variables
 	string m_sSdlWindowName;
 	WMControllerImpl *m_pWMController;
+	bool m_bEnabled;
 };
 
 #endif

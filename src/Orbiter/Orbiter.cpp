@@ -5920,12 +5920,11 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 void Orbiter::CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,bool bAlways,string &sCMD_Result,Message *pMessage)
 //<-dceag-c72-e->
 {
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Surrender_to_OS %s %d",sOnOff.c_str(),(int) bFully_release_keyboard);
-#endif
 	m_bYieldScreen = ( sOnOff=="1" );
 	m_bYieldInput = bFully_release_keyboard;
 	m_bIgnoreMouse = bAlways;
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Surrender_to_OS: grab keyboard/mouse %d, ignore keyboard %d, ignore mouse %d", !m_bYieldScreen, m_bYieldInput, m_bIgnoreMouse);
 }
 
 bool Orbiter::IsYieldScreen() const
@@ -5938,9 +5937,6 @@ bool Orbiter::IsYieldInput() const
 	return m_bYieldInput;
 }
 
-// Radu -- implemented scrolling into Orbiter -- Up/Down for now
-//------------------------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------------------
 DesignObjText *Orbiter::FindText( DesignObj_Orbiter *pObj,  int iPK_Text )
 {
 	if( !pObj )
@@ -7307,17 +7303,6 @@ void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"cmd_off m_bDisplayOn set to %d",(int) m_bDisplayOn);
 #endif
-	m_pOrbiterRenderer->BeginPaint();
-	PlutoColor color(200, 200, 200, 100);
-	m_pOrbiterRenderer->SolidRectangle(5, m_iImageHeight - 30, 200, 25, color);
-	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
-	DesignObjText text(m_pScreenHistory_Current->GetObj());
-	text.m_rPosition = rect;
-	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
-	string sText = "Display is OFF";
-	m_pOrbiterRenderer->RenderText(sText,&text, pTextStyle);
-	m_pOrbiterRenderer->UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25), PlutoPoint(0, 0));
-	m_pOrbiterRenderer->EndPaint();
 }
 //<-dceag-c330-b->
 

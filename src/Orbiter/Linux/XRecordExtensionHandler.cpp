@@ -281,7 +281,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"XRecordExtensionHandler::XRecordi
 #endif
 				}
 
-				if( pEvent->type!=Orbiter::Event::MOUSE_MOVE || !pRecordingHandler->m_pOrbiter->m_bIgnoreMouse )
+				if(!pRecordingHandler->m_pOrbiter->m_bIgnoreMouse)
 					pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 			}
 	}
