@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
  	int opt;
 
 
-	string sWindowName; //-r win : window class name
+	string sWindow; //-r win : window id
 	bool bListWindows = false;	//-l : list windows
 	bool bActivateWindow = false; //-a : activate window
 	string sPosition; //-p x,y,h,w : position
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
         switch (opt)
 		{
             case 'r':
-				sWindowName = optarg;
+				sWindow = optarg;
                 break;
             case 'p':
 				sPosition = optarg;
@@ -79,22 +79,17 @@ int main(int argc, char *argv[])
 
     WMControllerImpl *pWMController = new WMControllerImpl();
 
-//    if(sVerbose == "1" || sVerbose == "0")
-//	{
-//		pWMController->SetVerbose(sVerbose == "1");
-//	}
-
 	if(bListWindows)
     {
         list<WinInfo> dummy;
 		pWMController->ListWindows(dummy);
     }
 
-	if(sWindowName != "")
+	if(sWindow != "")
 	{
 		if(bActivateWindow)
 		{
-			pWMController->ActivateWindow(sWindowName);
+			pWMController->ActivateWindow(sWindow, true);
 		}
 
 		if(sPosition != "")
@@ -103,8 +98,8 @@ int main(int argc, char *argv[])
 			Tokenize(sPosition, ",", vectItems);
 			if(vectItems.size() == 4)
 			{
-				pWMController->SetPosition(sWindowName, atoi(vectItems[0].c_str()),
-					atoi(vectItems[1].c_str()), atoi(vectItems[2].c_str()), atoi(vectItems[3].c_str()));
+				pWMController->SetPosition(sWindow, atoi(vectItems[0].c_str()),
+					atoi(vectItems[1].c_str()), atoi(vectItems[2].c_str()), atoi(vectItems[3].c_str()), true);
 			}
 			else
 				printf("ERROR: You need 4 params for position!\n");
@@ -112,27 +107,28 @@ int main(int argc, char *argv[])
 
 		if(sVisible == "1" || sVisible == "0")
 		{
-			pWMController->SetVisible(sWindowName, sVisible == "1");
+			pWMController->SetVisible(sWindow, sVisible == "1", true);
 		}
 
 		if(sMaximized == "1" || sMaximized == "0")
 		{
-			pWMController->SetMaximized(sWindowName, sMaximized == "1");
+			pWMController->SetMaximized(sWindow, sMaximized == "1", true);
 		}
 
 		if(sFullScreen == "1" || sFullScreen == "0")
 		{
-			pWMController->SetFullScreen(sWindowName, sFullScreen == "1");
+			pWMController->SetFullScreen(sWindow, sFullScreen == "1", true);
 		}
 
 		if(sLayer != "")
 		{
 			pWMController->SetLayer(
-                sWindowName,
+                sWindow,
                 ( sLayer == "above" || sLayer == "a" ) ? LayerAbove :
                 ( sLayer == "below" || sLayer == "b" ) ? LayerBelow :
                 ( sLayer == "normal" || sLayer == "n" ) ? LayerNormal :
-                LayerUnknown
+                LayerUnknown,
+				true
                 );
 		}
 	}

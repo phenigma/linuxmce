@@ -122,7 +122,7 @@ public:
 
     // set some options
     // calls LowLevelCommand
-    bool ActionCommand(char action, const char *param_window=NULL, const char *param=NULL, std::list<WinInfo> *pListWinInfo=NULL, bool use_id_in_param_window=false);
+    bool ActionCommand(char action, const char *param_window=NULL, const char *param=NULL, bool use_id_in_param_window=false, std::list<WinInfo> *pListWinInfo=NULL);
 
 	bool CurrentDesktop(unsigned long& ulCurrentDesktop);
 

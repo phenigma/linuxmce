@@ -406,9 +406,9 @@ int WmCtrl::LowLevelCommand(char action, Options cmd_options, std::list<WinInfo>
     return ret;
 }
 
-bool WmCtrl::ActionCommand(char action, const char *param_window/*=NULL*/, const char *param/*=NULL*/, std::list<WinInfo> *pListWinInfo/*=NULL*/, bool use_id_in_param_window/*=false*/)
+bool WmCtrl::ActionCommand(char action, const char *param_window/*=NULL*/, const char *param/*=NULL*/, bool use_id_in_param_window/*=false*/, std::list<WinInfo> *pListWinInfo/*=NULL*/)
 {
-    //fprintf(stderr, "WmCtrl::ActionCommand('%c', '%s', '%s', %d, %p)\n", action, param_window, param, use_id_in_param_window, pListWinInfo);
+    fprintf(stderr, "WmCtrl::ActionCommand('%c', '%s', '%s', %d, %p)\n", action, param_window, param, use_id_in_param_window, pListWinInfo);
     Options options;
     options.verbose = true;
     options.show_class = true;

@@ -25,12 +25,12 @@ public:
     WMControllerImpl();
     ~WMControllerImpl();
 
-	bool SetVisible(const string& sWindowName, bool bVisible);
-    bool SetLayer(const string& sWindowName, WindowLayer aLayer);
-    bool SetPosition(const string& sWindowName, int x, int y, int w, int h);
-    bool SetFullScreen(const string& sWindowName, bool bFullScreen);
-    bool SetMaximized(const string& sWindowName, bool bMaximized);
-    bool ActivateWindow(const string& sWindowName);
+	bool SetVisible(string sWindow, bool bVisible, bool bUseWindowId = false);
+    bool SetLayer(string sWindow, WindowLayer aLayer, bool bUseWindowId = false);
+    bool SetPosition(string sWindow, int x, int y, int w, int h, bool bUseWindowId = false);
+    bool SetFullScreen(string sWindow, bool bFullScreen, bool bUseWindowId = false);
+    bool SetMaximized(string sWindow, bool bMaximized, bool bUseWindowId = false);
+    bool ActivateWindow(string sWindow, bool bUseWindowId = false);
 
     bool ListWindows(list<WinInfo> &listWinInfo);
 
@@ -38,12 +38,16 @@ public:
 	void SwitchToPrimaryDesktop();
 	void SwitchToUserDesktop();
 
+	string WindowId(string sWindowClass);
+
 protected:
     WmCtrl wmctrl;
 
 	unsigned long m_ulUserCurrentDesktop;
 	string m_sPrimaryDesktop;
 	string m_sSecondaryDesktop;
+
+	void TranslateWindowId(string& sWindow, bool& bUseWindowId);
 };
 
 //-------------------------------------------------------------------------------------------------------------

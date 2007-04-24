@@ -14,6 +14,8 @@ using namespace DCE;
 //-------------------------------------------------------------------------------------------------------------
 WMControllerImpl::WMControllerImpl()
 {
+	m_ulUserCurrentDesktop = 0;
+
 	const char *pPrimaryDesktopName = getenv("ORBITER_PRIMARY_DESKTOP");
     if(NULL != pPrimaryDesktopName)
         m_sPrimaryDesktop = pPrimaryDesktopName;
@@ -26,13 +28,13 @@ WMControllerImpl::WMControllerImpl()
     else
  		m_sSecondaryDesktop = "1";
 
+#ifndef TEST_UNIT
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: primary desktop %s", m_sPrimaryDesktop.c_str());
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: secondary desktop %s", m_sSecondaryDesktop.c_str());
 
-	m_ulUserCurrentDesktop = 0;
-
 	SaveCurrentUserDesktop();
 	SwitchToPrimaryDesktop();
+#endif
 }
 //-------------------------------------------------------------------------------------------------------------
 WMControllerImpl::~WMControllerImpl()
@@ -40,17 +42,21 @@ WMControllerImpl::~WMControllerImpl()
 }
 
 //-------------------------------------------------------------------------------------------------------------
-bool WMControllerImpl::SetVisible(const string& sWindowName, bool bVisible)
+bool WMControllerImpl::SetVisible(string sWindow, bool bVisible, bool bUseWindowId)
 {
+	TranslateWindowId(sWindow, bUseWindowId);
+
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetVisible() : window name: %s, visible: %d\n", sWindowName.c_str(), bVisible);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetVisible() : window: %s, visible: %d\n", sWindow.c_str(), bVisible);
 #endif
-    return wmctrl.ActionCommand('t', sWindowName.c_str(), bVisible ? m_sPrimaryDesktop.c_str() : m_sSecondaryDesktop.c_str());
+    return wmctrl.ActionCommand('t', sWindow.c_str(), bVisible ? m_sPrimaryDesktop.c_str() : m_sSecondaryDesktop.c_str(), bUseWindowId);
 }
 
 //-------------------------------------------------------------------------------------------------------------
-bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
+bool WMControllerImpl::SetLayer(string sWindow, WindowLayer aLayer, bool bUseWindowId)
 {
+	TranslateWindowId(sWindow, bUseWindowId);
+
     // TODO: activate the lines with ActionCommand and 'O', after the demo!
     // these should remove the need for the bogus_xterm
     // ActionCommand 'O' :  clear/set recursive the override_redirect property for a window
@@ -58,26 +64,23 @@ bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
     // not activated by default, to not change anything before the demo
 
 #ifdef DEBUG
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetLayer() : window name: %s, aLayer: %d\n", sWindowName.c_str(), aLayer);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetLayer() : window: %s, aLayer: %d\n", sWindow.c_str(), aLayer);
 #endif
 
     bool bResult = true;
 	switch(aLayer)
 	{
 		case LayerNormal:
-            //bResult = bResult && wmctrl.ActionCommand('O', sWindowName.c_str(), "0");
-            bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "remove,above");
-            bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "remove,below");
+            bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "remove,above", bUseWindowId);
+            bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "remove,below", bUseWindowId);
 			break;
 		case LayerAbove:
-            //bResult = bResult && wmctrl.ActionCommand('O', sWindowName.c_str(), "0");
-            bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "remove,below");
-            bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "add,above");
+            bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "remove,below", bUseWindowId);
+            bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "add,above", bUseWindowId);
 			break;
 		case LayerBelow:
-            //bResult = bResult && wmctrl.ActionCommand('O', sWindowName.c_str(), "0");
-            bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "remove,above");
-            bResult = bResult && wmctrl.ActionCommand('b', sWindowName.c_str(), "add,below");
+            bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "remove,above", bUseWindowId);
+            bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "add,below", bUseWindowId);
 			break;
 		default:
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetLayer() : Unknown layer!");
@@ -87,49 +90,56 @@ bool WMControllerImpl::SetLayer(const string& sWindowName, WindowLayer aLayer)
 }
 
 //-------------------------------------------------------------------------------------------------------------
-bool WMControllerImpl::SetPosition(const string& sWindowName, int x, int y, int w, int h)
+bool WMControllerImpl::SetPosition(string sWindow, int x, int y, int w, int h, bool bUseWindowId)
 {
+	TranslateWindowId(sWindow, bUseWindowId);
+
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetPosition() : window name: %s, position: %d %d %d %d\n", sWindowName.c_str(), x, y, w, h);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetPosition() : window: %s, position: %d %d %d %d\n", sWindow.c_str(), x, y, w, h);
 #endif
 
 	char sParam[128];
 	sprintf(sParam, "0,%d,%d,%d,%d", x, y, w, h);
-    return wmctrl.ActionCommand('e', sWindowName.c_str(), sParam);
+    return wmctrl.ActionCommand('e', sWindow.c_str(), sParam, bUseWindowId);
 }
 
 //-------------------------------------------------------------------------------------------------------------
-bool WMControllerImpl::SetFullScreen(const string& sWindowName, bool bFullScreen)
+bool WMControllerImpl::SetFullScreen(string sWindow, bool bFullScreen, bool bUseWindowId)
 {
+	TranslateWindowId(sWindow, bUseWindowId);
+
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetFullScreen() : window name: %s, fullscreen: %d\n", sWindowName.c_str(), bFullScreen);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetFullScreen() : window: %s, fullscreen: %d\n", sWindow.c_str(), bFullScreen);
 #endif
 
-    return wmctrl.ActionCommand('b', sWindowName.c_str(), bFullScreen ? "add,fullscreen" : "remove,fullscreen");
+    return wmctrl.ActionCommand('b', sWindow.c_str(), bFullScreen ? "add,fullscreen" : "remove,fullscreen", bUseWindowId);
 }
 
 //-------------------------------------------------------------------------------------------------------------
-bool WMControllerImpl::SetMaximized(const string& sWindowName, bool bMaximized)
+bool WMControllerImpl::SetMaximized(string sWindow, bool bMaximized, bool bUseWindowId)
 {
+	TranslateWindowId(sWindow, bUseWindowId);
+
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetMaximized() : window name: %s, maximized: %d\n", sWindowName.c_str(), bMaximized);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetMaximized() : window: %s, maximized: %d\n", sWindow.c_str(), bMaximized);
 #endif
 
-    return wmctrl.ActionCommand('b', sWindowName.c_str(), bMaximized ? "add,maximized_horz,maximized_vert" : "remove,maximized_horz,maximized_vert");
+    return wmctrl.ActionCommand('b', sWindow.c_str(), bMaximized ? "add,maximized_horz,maximized_vert" : "remove,maximized_horz,maximized_vert", bUseWindowId);
 }
 
 //-------------------------------------------------------------------------------------------------------------
-bool WMControllerImpl::ActivateWindow(const string& sWindowName)
+bool WMControllerImpl::ActivateWindow(string sWindow, bool bUseWindowId)
 {
+	TranslateWindowId(sWindow, bUseWindowId);
+
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::ActivateWindow() : window name: %s\n", sWindowName.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::ActivateWindow() : window: %s\n", sWindow.c_str());
 #endif
 
-    if (sWindowName == "")
+    if (sWindow == "")
         return false;
-    return wmctrl.ActionCommand('R', sWindowName.c_str());
+    return wmctrl.ActionCommand('R', sWindow.c_str(), "", bUseWindowId);
 }
-
 //-------------------------------------------------------------------------------------------------------------
 bool WMControllerImpl::ListWindows(list<WinInfo> &listWinInfo)
 {
@@ -137,7 +147,7 @@ bool WMControllerImpl::ListWindows(list<WinInfo> &listWinInfo)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::ListWindows()\n");
 #endif
 
-	bool bResult = wmctrl.ActionCommand('l', NULL, NULL, &listWinInfo);
+	bool bResult = wmctrl.ActionCommand('l', NULL, NULL, true, &listWinInfo);
 
 	int nPrimaryDesktop = atoi(m_sPrimaryDesktop.c_str());
 	int nSecondaryDesktop = atoi(m_sSecondaryDesktop.c_str());
@@ -146,13 +156,13 @@ bool WMControllerImpl::ListWindows(list<WinInfo> &listWinInfo)
 	for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end();)
 	{
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Window %s, desktop %d", it->sClassName.c_str(), it->lDesktop); 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Window %s, id 0x%x desktop %d", it->sClassName.c_str(), it->ulWindowId, it->lDesktop); 
 #endif
 
 		if(static_cast<int>(it->lDesktop) != nPrimaryDesktop && static_cast<int>(it->lDesktop) != nSecondaryDesktop)
 		{
 #ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Skipping %s (it's not on our desktops)", it->sClassName.c_str()); 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Skipping %s id 0x%x (it's not on our desktops)", it->sClassName.c_str(), it->ulWindowId); 
 #endif
 			listWinInfo.erase(it++);
 		}
@@ -162,12 +172,44 @@ bool WMControllerImpl::ListWindows(list<WinInfo> &listWinInfo)
 
     return bResult;
 }
+//-------------------------------------------------------------------------------------------------------------
+string WMControllerImpl::WindowId(string sWindowClass)
+{
+	list<WinInfo> listWinInfo;
+	wmctrl.ActionCommand('l', NULL, NULL, true, &listWinInfo);
 
+	int nPrimaryDesktop = atoi(m_sPrimaryDesktop.c_str());
+	int nSecondaryDesktop = atoi(m_sSecondaryDesktop.c_str());
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::WindowId window class %s", sWindowClass.c_str()); 
+
+	//filter the windows; we need only those from our desktops
+	for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end();++it)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Window %s, id 0x%x desktop %d", it->sClassName.c_str(), it->ulWindowId, it->lDesktop); 
+
+		if(
+			(
+				static_cast<int>(it->lDesktop) == nPrimaryDesktop || 
+				static_cast<int>(it->lDesktop) == nSecondaryDesktop
+			)
+			&&
+			it->sClassName.find(sWindowClass) != string::npos
+		)
+		{
+			char buf[64];
+			sprintf(buf, "0x%x", static_cast<unsigned int>(it->ulWindowId));
+			return string(buf);
+		}
+	}
+
+    return "";
+}
 //-------------------------------------------------------------------------------------------------------------
 void WMControllerImpl::SaveCurrentUserDesktop()
 {
 	unsigned long ulUserCurrentDesktop = 0;
-	if(wmctrl.CurrentDesktop(ulUserCurrentDesktop) && ulUserCurrentDesktop != atoi(m_sPrimaryDesktop.c_str()))
+	if(wmctrl.CurrentDesktop(ulUserCurrentDesktop) && static_cast<int>(ulUserCurrentDesktop) != atoi(m_sPrimaryDesktop.c_str()))
 		m_ulUserCurrentDesktop = ulUserCurrentDesktop;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: user's current desktop: %d", m_ulUserCurrentDesktop);
@@ -189,4 +231,16 @@ void WMControllerImpl::SwitchToUserDesktop()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: switching back to user's desktop %d", m_ulUserCurrentDesktop);
 }
 //-------------------------------------------------------------------------------------------------------------
-
+void WMControllerImpl::TranslateWindowId(string& sWindow, bool& bUseWindowId)
+{
+	if(!bUseWindowId)
+	{
+		string sWindowID = WindowId(sWindow);
+		if(!sWindowID.empty())
+		{
+			sWindow = sWindowID;
+			bUseWindowId = true;
+		}
+	}
+}
+//-------------------------------------------------------------------------------------------------------------
