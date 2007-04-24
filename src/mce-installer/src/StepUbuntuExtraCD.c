@@ -10,18 +10,38 @@
 #include "common.h"
 
 
+GtkWidget *runWindow;
+pid_t      runApplicationPid;
+gint       runTagProgessBar;
+static gboolean connectedToReaper;
+
 gint run_shell_command_progress_pulse(gpointer data) {
 	GtkProgressBar *pbar = GTK_PROGRESS_BAR(data);
 	gtk_progress_bar_pulse(pbar);
 	return 1;
 }
 
-void run_shell_child_exited(VteTerminal *terminal, gpointer data) {
-	g_source_remove((gint)data);
+void run_shell_reaper_child_exited(VteTerminal *terminal, gint pid, gint errcode, gpointer data) {
+	if (runApplicationPid == pid) {
+		printf("Exited with error code : %d\n", errcode);
+		g_source_remove((gint)runTagProgessBar);
+
+		gdk_threads_enter();
+		gtk_widget_hide_all(GTK_WIDGET(runWindow));
+
+		if (errcode != 0) {
+			GtkWidget* runErrorDialog = gtk_dialog_new_with_buttons ("Message", GTK_WINDOW(mainWindow), 
+					GTK_DIALOG_DESTROY_WITH_PARENT,GTK_STOCK_OK, GTK_RESPONSE_NONE, NULL);
+			gtk_window_set_title(GTK_WINDOW(runErrorDialog), "Error");
+			gtk_dialog_run(GTK_DIALOG(runErrorDialog));
+			gtk_widget_destroy (GTK_WIDGET(runErrorDialog));
+		} else {
+		}
+		gdk_threads_leave();
+	}
 }
 
 void run_shell_command(const gchar* application, const gchar* windowTitle) {
-	GtkWidget *runWindow;
 
 	runWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(runWindow), windowTitle);
@@ -38,11 +58,15 @@ void run_shell_command(const gchar* application, const gchar* windowTitle) {
 
 	GtkWidget* runProgress = gtk_progress_bar_new();
 	gtk_box_pack_start(GTK_BOX(runHBox), runProgress, TRUE, TRUE, 5);
-	gint runTagProgessBar = g_timeout_add(200, run_shell_command_progress_pulse, runProgress);
+	runTagProgessBar = g_timeout_add(200, run_shell_command_progress_pulse, runProgress);
 
 	GtkWidget* runTerminal = vte_terminal_new();
-	vte_terminal_fork_command(VTE_TERMINAL(runTerminal),"ls",NULL, NULL, "", FALSE, FALSE, FALSE);
-	g_signal_connect(G_OBJECT(runTerminal), "child-exited", G_CALLBACK(run_shell_child_exited), (gpointer)runTagProgessBar);
+	runApplicationPid = vte_terminal_fork_command(VTE_TERMINAL(runTerminal),application, NULL, NULL, "", FALSE, FALSE, FALSE);
+	GObject* runVteReaper = G_OBJECT(vte_reaper_get());
+	if (connectedToReaper == 0 ) {
+		g_signal_connect(G_OBJECT(runVteReaper), "child-exited", G_CALLBACK(run_shell_reaper_child_exited), NULL);
+		connectedToReaper = 1;
+	}
 
 	gtk_widget_show_all(runWindow);
 }
@@ -51,8 +75,7 @@ void run_shell_command(const gchar* application, const gchar* windowTitle) {
 
 void on_StepUbuntuExtraCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 	g_queue_push_head(history, (gpointer)STEPAPTMIRROR);	
-	run_shell_command("ls", "This is a title");
-//      displayStep5();
+	run_shell_command("./testscript.sh", "This is a title");
 }
 
 void on_StepUbuntuExtraCD_file_set(GtkWidget *widget, gpointer data) {

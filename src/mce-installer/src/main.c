@@ -110,14 +110,14 @@ main (int argc, char *argv[])
 
 	history = g_queue_new();
 
-
+/*
 	if (setting_coreIP != NULL) {
 		displayStep1C();
 	} else {
 		displayStep1D();
 	}
-
-//isplayStepUbuntuExtraCD();
+*/
+displayStepUbuntuExtraCD();
 	//displayStepConfFiles();
 
 //	displayStep0A();
