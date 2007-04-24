@@ -74,6 +74,7 @@
 #define STEPCONF 17
 #define STEPUBUTUCD 18
 #define STEPUBUTUEXTRACD 19
+#define STEPLINUXMCECD 20
 
 #define INSTALL_TYPE_CD   1
 #define INSTALL_TYPE_ISO  2
@@ -132,6 +133,9 @@ gchar*   setting_ubuntuCdIsoPath;
 
 gint     setting_ubuntuExtraCdFrom;
 gchar*   setting_ubuntuExtraCdIsoPath;
+
+gint     setting_linuxmceCdFrom;
+gchar*   setting_linuxmceCdIsoPath;
 
 gint	 flag_mirror;
 gchar	 *other_mirror;

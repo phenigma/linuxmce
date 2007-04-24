@@ -58,7 +58,8 @@ am_mce_installer_OBJECTS = main.$(OBJEXT) Step1A.$(OBJEXT) \
 	Step2F.$(OBJEXT) Step0A.$(OBJEXT) Step6.$(OBJEXT) \
 	StepAptMirror.$(OBJEXT) StepUI.$(OBJEXT) \
 	StepUbuntuCD.$(OBJEXT) StepUbuntuExtraCD.$(OBJEXT) \
-	RunShellCommand.$(OBJEXT) StepConfFiles.$(OBJEXT)
+	StepLinuxMceCD.$(OBJEXT) RunShellCommand.$(OBJEXT) \
+	StepConfFiles.$(OBJEXT)
 mce_installer_OBJECTS = $(am_mce_installer_OBJECTS)
 am__DEPENDENCIES_1 =
 mce_installer_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -245,6 +246,8 @@ mce_installer_SOURCES = \
 	StepUbuntuCD.h \
 	StepUbuntuExtraCD.c \
 	StepUbuntuExtraCD.h \
+	StepLinuxMceCD.c \
+	StepLinuxMceCD.h \
 	RunShellCommand.c \
 	RunShellCommand.h \
 	StepConfFiles.h \
@@ -336,6 +339,7 @@ include ./$(DEPDIR)/Step5.Po
 include ./$(DEPDIR)/Step6.Po
 include ./$(DEPDIR)/StepAptMirror.Po
 include ./$(DEPDIR)/StepConfFiles.Po
+include ./$(DEPDIR)/StepLinuxMceCD.Po
 include ./$(DEPDIR)/StepUI.Po
 include ./$(DEPDIR)/StepUbuntuCD.Po
 include ./$(DEPDIR)/StepUbuntuExtraCD.Po
