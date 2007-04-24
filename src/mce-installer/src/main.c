@@ -107,20 +107,18 @@ main (int argc, char *argv[])
 	setting_netExtKeep = TRUE;
 	setting_netIntIPN = "192.168.80";
 	setting_installType = INSTALL_TYPE_CD;
+	setting_ubuntuCdFrom = FROM_NET;
+	setting_ubuntuExtraCdFrom = FROM_NET;
 
 	history = g_queue_new();
 
-/*
 	if (setting_coreIP != NULL) {
 		displayStep1C();
 	} else {
 		displayStep1D();
 	}
-*/
-displayStepUbuntuExtraCD();
+//	displayStepUbuntuExtraCD();
 	//displayStepConfFiles();
-
-//	displayStep0A();
 
 	gtk_main ();
 	gdk_threads_leave();

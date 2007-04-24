@@ -15,16 +15,16 @@ void on_StepUbuntuExtraCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	if (setting_ubuntuExtraCdFrom != FROM_NET) {	
 		goNext = FALSE;
-		GtkWidget* runWindow = run_shell_command("./testscript.sh", "This is a title", "This is a error message");
+		GtkWidget* runWindow = run_shell_command("./mce-installer-UbuntuExtraCD.sh", "Caching Ubuntu Extra CD", "Failed to chache the Kubuntu Cache CD");
 		gtk_widget_show_all(runWindow);
-		if (gtk_dialog_run(GTK_DIALOG(runWindow)) != 1) {
+		if (gtk_dialog_run(GTK_DIALOG(runWindow)) == 1) {
 			goNext = TRUE;
 		}
 	}
 
 	if (goNext) {
-		g_queue_push_head(history, (gpointer)STEPAPTMIRROR);
-		displayStepUbuntuCD();
+		g_queue_push_head(history, (gpointer)STEPUBUTUEXTRACD);
+		displayStep3();
 	}
 }
 
@@ -59,18 +59,27 @@ void displayStepUbuntuExtraCD(void) {
 	GtkWidget *radioUseNet = gtk_radio_button_new_with_label(group, "I don't have it. Download packages from the Internet.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioUseNet, TRUE, TRUE, 0);
 	g_signal_connect(G_OBJECT(radioUseNet), "toggled", G_CALLBACK(on_StepUbuntuExtraCD_radio_toggled), (gpointer)FROM_NET);
+	if (setting_ubuntuExtraCdFrom == FROM_NET) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseNet), TRUE);
+	}
 
 	// Radio button install using CD
 	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioUseNet));
 	GtkWidget *radioUseCD = gtk_radio_button_new_with_label(group, "It's in the CD drive.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioUseCD, TRUE, TRUE, 0);
 	g_signal_connect(G_OBJECT(radioUseCD), "toggled", G_CALLBACK(on_StepUbuntuExtraCD_radio_toggled), (gpointer)FROM_CD);
+	if (setting_ubuntuExtraCdFrom == FROM_CD) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseCD), TRUE);
+	}
 
 	// Radio button install using ISO
 	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioUseNet));
 	GtkWidget *radioUseISO = gtk_radio_button_new_with_label(group, "I have an iso image on my harddrive.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioUseISO, TRUE, TRUE, 0);
 	g_signal_connect(G_OBJECT(radioUseISO), "toggled", G_CALLBACK(on_StepUbuntuExtraCD_radio_toggled), (gpointer)FROM_ISO);
+	if (setting_ubuntuExtraCdFrom == FROM_ISO) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseISO), TRUE);
+	}
 
 	// File chooser button
 	GtkWidget *fileChooser = gtk_file_chooser_button_new("Choose 'Kubuntu Extra CD ISO' Location", GTK_FILE_CHOOSER_ACTION_OPEN);

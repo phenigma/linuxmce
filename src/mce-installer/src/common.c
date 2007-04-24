@@ -85,6 +85,10 @@ void on_back_clicked(GObject object, gpointer data) {
 				break;
 			case STEPUBUTUCD:
 				displayStepUbuntuCD();
+				break;
+			case STEPUBUTUEXTRACD:
+				displayStepUbuntuExtraCD();
+				break;
 			case STEPCONF:
 				displayStepConfFiles();
 				break;
