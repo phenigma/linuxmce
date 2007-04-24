@@ -465,11 +465,19 @@ void WinListManager::HandleOnCommand()
 	
 	//switch to orbiter’s desktop
 	m_pWMController->SwitchToPrimaryDesktop();
+
+#ifdef KDE_LMCE
+	m_pWMController->SetLayer("kicker", LayerBelow);
+#endif
 }
 
 void WinListManager::HandleOffCommand()
 {
 	//switch back to whatever desktop was active before. 
 	m_pWMController->SwitchToUserDesktop();
+
+#ifdef KDE_LMCE
+	m_pWMController->SetLayer("kicker", LayerNormal);
+#endif
 }
 
