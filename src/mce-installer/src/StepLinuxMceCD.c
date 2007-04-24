@@ -22,11 +22,10 @@ void on_StepLinuxMceCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 		}
 	}
 
-/*	if (goNext) {
+	if (goNext) {
 		g_queue_push_head(history, (gpointer)STEPLINUXMCECD);
 		displayStep3();
 	}
-*/
 }
 
 void on_StepLinuxMceCD_file_set(GtkWidget *widget, gpointer data) {
