@@ -485,10 +485,12 @@ for user in /home/*; do
 	echo "$KDExhost" >"$Dir/xhost"
 	User="${user#/home/}"
 	chown "$User.$User" "$Dir/xhost"
+	chmod +x "$Dir/xhost"
 done
 
 Dir="/etc/skel/.kde/Autostart"
 echo "$KDExhost" >"$Dir/xhost"
+chmod +x "$Dir/xhost"
 
 apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
 
