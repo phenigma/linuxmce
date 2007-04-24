@@ -61,32 +61,34 @@ void displayStepUbuntuCD(void) {
 	GtkWidget *radioUseNet = gtk_radio_button_new_with_label(group, "I don't have it. Download packages from the Internet.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioUseNet, TRUE, TRUE, 0);
 	g_signal_connect(G_OBJECT(radioUseNet), "toggled", G_CALLBACK(on_StepUbuntuCD_radio_toggled), (gpointer)FROM_NET);
-	if (setting_ubuntuCdFrom == FROM_NET) {
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseNet), TRUE);
-	}
 
 	// Radio button install using CD
 	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioUseNet));
 	GtkWidget *radioUseCD = gtk_radio_button_new_with_label(group, "It's in the CD drive.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioUseCD, TRUE, TRUE, 0);
 	g_signal_connect(G_OBJECT(radioUseCD), "toggled", G_CALLBACK(on_StepUbuntuCD_radio_toggled), (gpointer)FROM_CD);
-	if (setting_ubuntuCdFrom == FROM_CD) {
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseCD), TRUE);
-	}
 
 	// Radio button install using ISO
 	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioUseNet));
 	GtkWidget *radioUseISO = gtk_radio_button_new_with_label(group, "I have an iso image on my harddrive.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioUseISO, TRUE, TRUE, 0);
 	g_signal_connect(G_OBJECT(radioUseISO), "toggled", G_CALLBACK(on_StepUbuntuCD_radio_toggled), (gpointer)FROM_ISO);
-	if (setting_ubuntuCdFrom == FROM_ISO) {
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseISO), TRUE);
-	}
 
 	// File chooser button
 	GtkWidget *fileChooser = gtk_file_chooser_button_new("Choose 'Kubuntu Install CD ISO' Location", GTK_FILE_CHOOSER_ACTION_OPEN);
 	gtk_box_pack_start(GTK_BOX(mainBox), fileChooser, TRUE, TRUE, 0);
+	if (setting_ubuntuCdIsoPath) {
+		gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(fileChooser), setting_ubuntuCdIsoPath);
+	}
 	g_signal_connect(G_OBJECT(fileChooser), "selection-changed", G_CALLBACK(on_StepUbuntuCD_file_set), radioUseISO);
+
+	if (setting_ubuntuCdFrom == FROM_CD) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseCD), TRUE);
+	}else if (setting_ubuntuCdFrom == FROM_NET) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseNet), TRUE);
+	} else 	if (setting_ubuntuCdFrom == FROM_ISO) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseISO), TRUE);
+	}
 
 	// Back Button	
 	GtkWidget *buttonBack = gtk_button_new_from_stock(GTK_STOCK_GO_BACK);
