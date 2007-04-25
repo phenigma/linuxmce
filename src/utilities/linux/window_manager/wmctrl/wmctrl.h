@@ -141,7 +141,7 @@ protected:
     int change_viewport(Display *disp);
     int change_geometry(Display *disp);
     int change_number_of_desktops(Display *disp);
-    int switch_desktop(Display *disp);
+    int switch_desktop(Display *disp, char *desktop_id);
     int wm_info(Display *disp);
     gchar *get_output_str(gchar *str, gboolean is_utf8);
     int action_window(Display *disp, Window win, char mode);

@@ -353,7 +353,7 @@ int WmCtrl::LowLevelCommand(char action, Options cmd_options, std::list<WinInfo>
             ret = list_desktops(disp);
             break;
         case 's':
-            ret = switch_desktop(disp);
+            ret = switch_desktop(disp, cmd_options.param);
             break;
         case 'm':
             ret = wm_info(disp);
@@ -714,11 +714,17 @@ int WmCtrl::change_number_of_desktops(Display *disp)
                       n, 0, 0, 0, 0);
 }
 
-int WmCtrl::switch_desktop(Display *disp)
+int WmCtrl::switch_desktop(Display *disp, char *desktop_id)
 {
     int target = -1;
 
-    target = atoi(options.param);
+	if(NULL == desktop_id)
+	{
+        fputs("Invalid desktop ID.\n", stderr);
+        return EXIT_FAILURE;
+	}
+
+    target = atoi(desktop_id);
     if (target == -1)
     {
         fputs("Invalid desktop ID.\n", stderr);
