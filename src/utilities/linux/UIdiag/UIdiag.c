@@ -387,9 +387,9 @@ int drawGLScene( GLvoid )
 		Frames = 0;
 	}
 
-#ifndef WIN32
-	usleep(40000);
-#endif
+//#ifndef WIN32
+//	usleep(40000);
+//#endif
 	xrot += 0.3f; /* X Axis Rotation */
 	yrot += 0.2f; /* Y Axis Rotation */
 	zrot += 0.4f; /* Z Axis Rotation */
