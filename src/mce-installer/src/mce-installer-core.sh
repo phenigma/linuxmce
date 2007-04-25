@@ -368,7 +368,7 @@ function Configure_Network_Options {
 
 	Q="REPLACE INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES('$Core_PK_Device',32,'$NETsetting')"
 	RunSQL "$Q"
-	if [[ "$DHCP" != n && "$DHCP" != N ]]; then
+	if [[ "$c_netExtUseDhcp" == "1" ]]; then
 		Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
 			VALUES($Core_PK_Device, 28, '$DHCPsetting')"
 		RunSQL "$Q"
