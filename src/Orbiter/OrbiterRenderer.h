@@ -128,6 +128,11 @@ public:
 	virtual void DrawLine(int iX, int iY, int iWidth, int iHeight, PlutoColor color) = 0;
 
 	/**
+	* @brief draws an arrow
+	*/
+	virtual void DrawArrow(PlutoPoint p1, PlutoPoint p2, double dRatio = 0.2, PlutoColor color = PlutoColor::Blue()) {};
+
+	/**
 	* @brief replaces the specified color from within the specified rectangle with another one
 	*/
 	virtual void ReplaceColorInRectangle( int iX, int iY, int iWidth, int iHeight, PlutoColor ColorToReplace, PlutoColor ReplacementColor, DesignObj_Orbiter *pObj = NULL) = 0;

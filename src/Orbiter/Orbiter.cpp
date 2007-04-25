@@ -3455,6 +3455,11 @@ bool Orbiter::RegionUp( int x,  int y )
 }
 bool Orbiter::RegionDown( int x,  int y )
 {
+///////////////////////////
+//testing -- remove me
+//m_pOrbiterRenderer->DrawArrow(PlutoPoint(300, 200), PlutoPoint(x, y));
+//-------------------------
+
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if(UsesUIVersion2())
 	{
