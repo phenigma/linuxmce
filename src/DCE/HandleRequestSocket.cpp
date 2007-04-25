@@ -162,7 +162,6 @@ void HandleRequestSocket::RunThread()
 			else if ( sMessage.substr(0,7) == "REPLACE" && sMessage.size()>7 )
 			{
 				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Another device with IP %s connected as device: %d", sMessage.c_str(), m_dwPK_Device );
-                m_bUnexpected = true;
                 m_bTerminate = true;
                 if(OnReplaceHandler(sMessage.substr(7)))
 				{
