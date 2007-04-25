@@ -114,6 +114,8 @@ namespace DCE
 		map<int, int> m_mapMythInputsToDevices;
 		EPGGrid *m_pEPGGrid;
 
+		int m_iRetriesStartingMyth;
+
 		ListMythChannel m_ListMythChannel; // The channels in the right order for display
 
 		/** Private member variables */

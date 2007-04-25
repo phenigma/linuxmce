@@ -74,6 +74,7 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 
 	m_bAskBeforeReload=true;
 	m_bImplementsPendingTasks=true;
+	m_iRetriesStartingMyth=0;
 }
 
 //<-dceag-getconfig-b->
@@ -2244,6 +2245,11 @@ void MythTV_PlugIn::ConfirmMasterBackendOk(int iMediaStreamID)
 	m_pMythBackEnd_Socket->SendMythString("QUERY_UPTIME",&sResponse);
 	if( sResponse.empty() )
 	{
+		if( m_iRetriesStartingMyth++>50 )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::ConfirmMasterBackendOk -- restarted myth 50 times already.  Aborting");
+			return;
+		}
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::ConfirmMasterBackendOk -- lost communication with it.  Forcing it to die");
 		DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
 		if( pDevice_App_Server )

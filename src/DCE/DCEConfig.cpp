@@ -27,7 +27,22 @@ DCEConfig::DCEConfig(string sFilename) : RA_Config()
 
 	vector<string> vectString;
 	FileUtils::ReadFileIntoVector( m_sConfigFile, vectString );
+	ParseFile(vectString);
+}
 
+DCEConfig::DCEConfig(const char *pBuffer,size_t size) : RA_Config()
+{
+	string sData = pBuffer;
+	vector<string> vectString;
+	StringUtils::Tokenize(sData,"\n",vectString);
+	for(size_t s=0;s<vectString.size();++s)
+		vectString[s] = StringUtils::Replace(&vectString[s],"\r","");
+
+	ParseFile(vectString);
+}
+
+void DCEConfig::ParseFile(vector<string> &vectString)
+{
 	for(size_t s=0;s<vectString.size();++s)
 	{
 		string::size_type pos_Equal;

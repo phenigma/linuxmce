@@ -27,6 +27,7 @@
 #include "DataGrid.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DCE/Message.h"
+#include "DCE/DCEConfig.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_DataGrid.h"
@@ -2744,5 +2745,106 @@ void ScreenHandler::SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue)
 	DisplayMessageOnOrbiter(PK_Screen, sMessage, false, "", false,
 		m_pOrbiter->m_mapTextString[TEXT_YES_CONST],sSetPnpOptions + "1 & " + sManualConfig + "0",
 		m_pOrbiter->m_mapTextString[TEXT_NO_CONST],sSetPnpOptions + "0 & " + sManualConfig + "1");
+}
+
+void ScreenHandler::SCREEN_Remote_Assistance(long PK_Screen)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,"");
+	char *pData=NULL;
+	int size=0;
+	DCE::CMD_Request_File CMD_Request_File(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,"/etc/pluto.conf",
+		&pData,&size);
+	m_pOrbiter->SendCommand(CMD_Request_File);
+	if( pData==NULL )
+	{
+		DisplayMessageOnOrbiter(PK_Screen, "Unknown error getting conf file");
+		return;
+	}
+
+	pData[size]=0;
+	DCEConfig config(pData,size);
+	string sRA = config.m_mapParameters_Find("remote");
+
+	ScreenHandlerBase::SCREEN_Remote_Assistance(PK_Screen);  // Before the show object
+	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuRemoteAssistance_CONST) ".0.0." TOSTRING(DESIGNOBJ_butRAEnable_CONST),0,"","",sRA.empty() ? "1" : "0");
+	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuRemoteAssistance_CONST) ".0.0." TOSTRING(DESIGNOBJ_butRADisable_CONST),0,"","",sRA.empty() ? "0" : "1");
+
+	if( sRA.empty()==false )
+	{
+		string sInstallation = config.m_mapParameters_Find("PK_Installation");
+		m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuRemoteAssistance_CONST) ".0.0","Remote assistance enabled.  Give the support rep the code: \n" + sInstallation + "-" + sRA,TEXT_STATUS_CONST);
+	}
+	else
+		m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuRemoteAssistance_CONST) ".0.0","Remote assistance disabled.",TEXT_STATUS_CONST);
+
+	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::SCREEN_Remote_Assistance_OnTimer, new CallBackData());
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::SCREEN_Remote_Assistance_ObjectSelected, new ObjectInfoBackData());
+}
+
+bool ScreenHandler::SCREEN_Remote_Assistance_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butRAEnable_CONST || pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butRADisable_CONST )
+	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,StringUtils::itos(pObjectInfoData->m_pObj->m_iBaseObjectID));
+		bool bSent=false;
+		DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
+		if( pDevice_Core )
+		{
+			DeviceData_Base *pDevice_AppServer = pDevice_Core->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+			if( pDevice_AppServer )
+			{
+				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+					"/usr/pluto/bin/RA-handler.sh","remote assist",
+					pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butRAEnable_CONST ? "--enable" : "--disable",
+					"","",false,false,false,true);
+				bSent = m_pOrbiter->SendCommand(CMD_Spawn_Application);
+			}
+		}
+
+		if( !bSent )
+		{
+			DisplayMessageOnOrbiter(SCREEN_Remote_Assistance_CONST, "Unknown error getting contacting app server");
+			return false;
+		}
+		else
+		{
+			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuRemoteAssistance_CONST) ".0.0." TOSTRING(DESIGNOBJ_butRAEnable_CONST),0,"","","0");
+			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuRemoteAssistance_CONST) ".0.0." TOSTRING(DESIGNOBJ_butRADisable_CONST),0,"","","0");
+			m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuRemoteAssistance_CONST) ".0.0","One moment...",TEXT_STATUS_CONST);
+			m_pOrbiter->StartScreenHandlerTimer(2000);
+		}
+	}
+	return false; // Keep processing it
+}
+
+bool ScreenHandler::SCREEN_Remote_Assistance_OnTimer(CallBackData *pData)
+{
+	string sName = m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST);
+
+	char *pBuffer=NULL;
+	int size=0;
+	DCE::CMD_Request_File CMD_Request_File(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,"/etc/pluto.conf",
+		&pBuffer,&size);
+	m_pOrbiter->SendCommand(CMD_Request_File);
+	if( pBuffer==NULL )
+	{
+		DisplayMessageOnOrbiter(SCREEN_Remote_Assistance_CONST, "Unknown error getting conf file");
+		return false;
+	}
+	pBuffer[size]=0;
+
+	DCEConfig config(pBuffer,size);
+	string sRA = config.m_mapParameters_Find("remote");
+
+	if( (atoi(sName.c_str())==DESIGNOBJ_butRAEnable_CONST && sRA.empty()==false)
+		|| (atoi(sName.c_str())==DESIGNOBJ_butRADisable_CONST && sRA.empty()==true) )
+	{
+		// We're good 
+		NeedToRender render2( m_pOrbiter, "ScreenHandler::SCREEN_Remote_Assistance_OnTimer" );
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Remote_Assistance_CONST,0,false,false);
+		return false;
+	}
+	return true;
 }
 

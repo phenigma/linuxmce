@@ -143,8 +143,7 @@ public:
     virtual Window GetMainWindow(); // use this
     virtual Display * GetDisplay_MainWindow(); // do not use
 
-	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage);
-	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,Message *pMessage);
 
 	virtual void CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage);
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage);

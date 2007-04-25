@@ -372,7 +372,12 @@ void XPromptUser::UnloadFonts()
 void XPromptUser::Init()
 {
 	Display *pDisplay = XOpenDisplay(NULL);
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "XPromptUser::Init(): pDisplay=%d ->Opened", pDisplay);
+	if( pDisplay==NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XPromptUser::Init(): cannot open display");
+		return;
+	}
+        
 	int nScreenNo = DefaultScreen(pDisplay);
 	int nDesktopX = DisplayWidth(pDisplay, nScreenNo);
 	int nDesktopY = DisplayHeight(pDisplay, nScreenNo);

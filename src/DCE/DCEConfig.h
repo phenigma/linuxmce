@@ -47,8 +47,10 @@ public:
 
 	void AddString(string sToken, string sValue) { m_mapParameters[sToken]=sValue; }
 	void AddInteger(string sToken, int iValue) { m_mapParameters[sToken]=StringUtils::itos(iValue); }
+	void ParseFile(vector<string> &vectString);
 
 	DCEConfig(string sFilename="/etc/pluto.conf");
+	DCEConfig(const char *pBuffer,size_t size);
 	virtual ~DCEConfig();
 };
 //------------------------------------------------------------------------------------------------------

@@ -419,28 +419,24 @@ void OrbiterLinux::Destroy()
     LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy() : done");
 }
 
-void OrbiterLinux::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
+void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,Message *pMessage)
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD on");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Activate_PC_Desktop %d",(int) bTrueFalse);
 
-	Orbiter::CMD_On(iPK_Pipe, sPK_Device_Pipes, sCMD_Result, pMessage);
+	if( bTrueFalse )
+	{
+		if(NULL != m_pWinListManager)
+			m_pWinListManager->HandleOffCommand();	
 
-	if(NULL != m_pWinListManager)
-		m_pWinListManager->HandleOnCommand();
+		Orbiter::CMD_Surrender_to_OS("1", true, true);
+	}
+	else
+	{
+		if(NULL != m_pWinListManager)
+			m_pWinListManager->HandleOnCommand();
 
-	Orbiter::CMD_Surrender_to_OS("0", false, false);
-}
-
-void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
-{
-    LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD off");
-
-	Orbiter::CMD_Off(iPK_Pipe, sCMD_Result, pMessage);
-
-	if(NULL != m_pWinListManager)
-		m_pWinListManager->HandleOffCommand();	
-
-	Orbiter::CMD_Surrender_to_OS("1", true, true);
+		Orbiter::CMD_Surrender_to_OS("0", false, false);
+	}
 }
 
 void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)

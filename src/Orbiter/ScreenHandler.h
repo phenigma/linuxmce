@@ -209,6 +209,10 @@ public:
 	bool Computing_ObjectSelected(CallBackData *pData);
 	bool Computing_DatagridSelected(CallBackData *pData);
 
+	virtual void SCREEN_Remote_Assistance(long PK_Screen);
+	bool SCREEN_Remote_Assistance_ObjectSelected(CallBackData *pData);
+	bool SCREEN_Remote_Assistance_OnTimer(CallBackData *pData);
+
 	//dialogs
 	virtual void SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors);
 	virtual void SCREEN_DialogRippingInProgress(long PK_Screen, string sPK_DeviceFrom, string sPK_RippingDevice);
