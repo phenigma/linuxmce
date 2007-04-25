@@ -1,9 +1,5 @@
 #!/bin/bash
 
-echo "Waiting 3 seconds"
-sleep 3
-exit 0
-
 . /usr/pluto/bin/Utils.sh
 
 rm -rf /tmp/mce_installer_error
