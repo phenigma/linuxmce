@@ -284,6 +284,7 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 #ifdef DEBUG
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "RenderDesktop : maximize sWindowName='%s'", sWindowName.c_str());
 #endif
+				m_pWinListManager->PositionWindow(sWindowName, 0, 0, -1, -1);
 				m_pWinListManager->MaximizeWindow(sWindowName);
 			}
 			else
@@ -441,14 +442,8 @@ void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,M
 
 void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)
 {
-	if(!m_bDisplayOn)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s) ignored because display is off", sWindowName.c_str());
-		return;
-	}
-
 	m_sApplicationName = sWindowName;
-    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
 	m_pWinListManager->SetExternApplicationName(sWindowName);
 }
 

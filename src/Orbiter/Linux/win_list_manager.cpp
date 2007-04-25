@@ -51,10 +51,15 @@ WinListManager::WinListManager(const string &sSdlWindowName)
 	m_pWMController = new WMControllerImpl();
 	m_bExternalChange=false;
 	m_bKeepSdlWindowActive=false;
+
+	HandleOnCommand();
+
 }
 
 WinListManager::~WinListManager()
 {
+	HandleOffCommand();
+
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager: deleting Window controller");
 	delete m_pWMController;
 	m_pWMController = NULL;
@@ -119,6 +124,7 @@ void WinListManager::ShowSdlWindow(bool bExclusive, bool bYieldInput)
     // it, so it will be maximized instead
 	PendingContext(m_sSdlWindowName).Visible(!m_bHideSdlWindow);
 	PendingContext(m_sSdlWindowName).Maximize(true);
+	PendingContext(m_sSdlWindowName).Position(PlutoRectangle(0, 0, -1, -1));
 	PendingContext(m_sSdlWindowName).Layer(bExclusive ? LayerAbove : LayerBelow);
 
     if(!m_bHideSdlWindow)
@@ -215,6 +221,9 @@ void WinListManager::SetExternApplicationPosition(const PlutoRectangle &coord)
 
 bool WinListManager::IsWindowAvailable(const string &sClassName)
 {
+    if(sClassName.empty())
+	    return false;
+
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     list<WinInfo> listWinInfo;
     if (! m_pWMController->ListWindows(listWinInfo))
@@ -320,7 +329,10 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 #endif
 
 	if(!m_bEnabled)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "ApplyContext command ignore since the wm controller is disabled");
 		return;
+	}
 
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	list<WinInfo> listWinInfo;
@@ -409,9 +421,11 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 
 			PlutoRectangle rect = pending_context.Position();
 			if(
-				!pending_context.IsMaximized() && !pending_context.IsFullScreen() &&
-				rect.Width != -1 && rect.Height != -1
+				//!pending_context.IsMaximized() && !pending_context.IsFullScreen() &&
+				rect.X != -1 && rect.Y != -1
+				//rect.Width != -1 && rect.Height != -1
 			)
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "SetPosition: %s => %d,%d,%d,%d", sWindowName.c_str(), rect.X, rect.Y, rect.Width, rect.Height);
 				bResult = bResult && m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
 
 			if(pending_context.IsActivated())
