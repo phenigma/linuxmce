@@ -29,6 +29,8 @@ using namespace DCE;
 
 #include <pthread.h>
 
+#include "SDL_syswm.h"
+
 bool SDLFrontEnd::Quitting = false;
 
 void *SDLQuitWatchDogThread(void *)
@@ -132,9 +134,72 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	}
 	atexit(SDL_Quit);
 	
-	
 	SDL_WM_SetCaption("PlutoGalleryViewer", "GalleryViewer");
-	
+
+#if !defined(WIN32) && defined(KDE_LMCE)
+	SDL_SysWMinfo info;
+
+	SDL_VERSION(&info.version);
+	if ( SDL_GetWMInfo(&info) ) 
+	{
+		SDL_bool set;
+		Atom WM_HINTS;
+
+		/* We haven't modified the window manager hints yet */
+		set = SDL_FALSE;
+
+		Window WMwindow = info.info.x11.wmwindow;
+
+		/* First try to set MWM hints */
+		WM_HINTS = XInternAtom(info.info.x11.display, "_MOTIF_WM_HINTS", True);
+		if ( WM_HINTS != None ) {
+			/* Hints used by Motif compliant window managers */
+			struct {
+				unsigned long flags;
+				unsigned long functions;
+				unsigned long decorations;
+				long input_mode;
+				unsigned long status;
+			} MWMHints = { (1L << 1), 0, 0, 0, 0 };
+
+			XChangeProperty(info.info.x11.display, WMwindow,
+			                WM_HINTS, WM_HINTS, 32,
+			                PropModeReplace,
+					(unsigned char *)&MWMHints,
+					sizeof(MWMHints)/sizeof(long));
+			set = SDL_TRUE;
+		}
+		/* Now try to set KWM hints */
+		WM_HINTS = XInternAtom(info.info.x11.display, "KWM_WIN_DECORATION", True);
+		if ( WM_HINTS != None ) {
+			long KWMHints = 0;
+
+			XChangeProperty(info.info.x11.display, WMwindow,
+			                WM_HINTS, WM_HINTS, 32,
+			                PropModeReplace,
+					(unsigned char *)&KWMHints,
+					sizeof(KWMHints)/sizeof(long));
+			set = SDL_TRUE;
+		}
+		/* Now try to set GNOME hints */
+		WM_HINTS = XInternAtom(info.info.x11.display, "_WIN_HINTS", True);
+		if ( WM_HINTS != None ) {
+			long GNOMEHints = 0;
+
+			XChangeProperty(info.info.x11.display, WMwindow,
+			                WM_HINTS, WM_HINTS, 32,
+			                PropModeReplace,
+					(unsigned char *)&GNOMEHints,
+					sizeof(GNOMEHints)/sizeof(long));
+			set = SDL_TRUE;
+		}
+//		/* Finally set the transient hints if necessary */
+//		if ( ! set ) {
+//			XSetTransientForHint(info.info.x11.display, WMwindow, SDL_Root);
+//		}
+	} 
+#endif
+
 	return 0;
 }
 
