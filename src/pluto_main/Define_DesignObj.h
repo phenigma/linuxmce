@@ -1777,7 +1777,7 @@
 #define DESIGNOBJ_butConfirmCodes_CONST 4631
 #define DESIGNOBJ_butTypeTVmodel_CONST 4632
 #define DESIGNOBJ_AlarmPanelModel_CONST 4633
-#define DESIGNOBJ_AlarmType_CONST 4634
+#define DESIGNOBJ_AlarmSensorType_CONST 4634
 #define DESIGNOBJ_butWhatInputs_CONST 4635
 #define DESIGNOBJ_butLearnCodes_CONST 4636
 #define DESIGNOBJ_InWhichRoomIsTheSystem_CONST 4637
@@ -1822,7 +1822,7 @@
 #define DESIGNOBJ_AVDeviceModel_CONST 4677
 #define DESIGNOBJ_AVDeviceVideo_CONST 4678
 #define DESIGNOBJ_butLocationWizard_CONST 4679
-#define DESIGNOBJ_AlarmName_CONST 4680
+#define DESIGNOBJ_AlarmSensorName_CONST 4680
 #define DESIGNOBJ_butAddSoftware_CONST 4681
 #define DESIGNOBJ_butAlarmPanelWizard_CONST 4682
 #define DESIGNOBJ_butTVBoxManuf_CONST 4683
