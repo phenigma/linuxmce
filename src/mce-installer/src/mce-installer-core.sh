@@ -403,8 +403,6 @@ StatsMessage "Building a disk image for your Diskless Media Directors"
 
 
 mkdir -p /usr/pluto/deb-cache
-sed -i 's/"nv"/"vesa"/g' /etc/X11/xorg.conf
-sed -i 's/"nvidia"/"vesa"/g' /etc/X11/xorg.conf
 
 if [[ "$c_startupType" == "1" ]] ;then
 	mv /etc/init.d/gdm /etc/init.d/gdm.saved
