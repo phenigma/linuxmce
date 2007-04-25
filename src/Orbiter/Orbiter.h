@@ -1082,7 +1082,7 @@ namespace DCE
 		/** @param #7 Comparisson Value */
 			/** If a Variable, Comparisson Type, and Comparisson Value are specified, the command will be ignored if the comparisson is not true */
 		/** @param #8 On/Off */
-			/** 1=show object, 2=hide object */
+			/** 1=show object, 0=hide object */
 
 	virtual void CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff) { string sCMD_Result; CMD_Show_Object(sPK_DesignObj.c_str(),iPK_Variable,sComparisson_Operator.c_str(),sComparisson_Value.c_str(),sOnOff.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,Message *pMessage);
@@ -1899,6 +1899,15 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Bind_to_Wireless_Keyboard() { string sCMD_Result; CMD_Bind_to_Wireless_Keyboard(sCMD_Result,NULL);};
 	virtual void CMD_Bind_to_Wireless_Keyboard(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #912 - Activate PC Desktop */
+	/** Activate or de-activate the PC-desktop */
+		/** @param #119 True/False */
+			/** If true, switch to the last PC desktop.  If false, switch to Orbiter's desktop */
+
+	virtual void CMD_Activate_PC_Desktop(bool bTrueFalse) { string sCMD_Result; CMD_Activate_PC_Desktop(bTrueFalse,sCMD_Result,NULL);};
+	virtual void CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 

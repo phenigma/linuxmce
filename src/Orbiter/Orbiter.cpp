@@ -5223,7 +5223,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 		/** @param #7 Comparisson Value */
 			/** If a Variable, Comparisson Type, and Comparisson Value are specified, the command will be ignored if the comparisson is not true */
 		/** @param #8 On/Off */
-			/** 1=show object, 2=hide object */
+			/** 1=show object, 0=hide object */
 
 void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c6-e->
@@ -9842,3 +9842,15 @@ void Orbiter::SendOnToSS( void *data )
 		CallMaintenanceInMiliseconds( 1000, &Orbiter::SendOnToSS, NULL, pe_ALL, false );
 	}
 }
+//<-dceag-c912-b->
+
+	/** @brief COMMAND: #912 - Activate PC Desktop */
+	/** Activate or de-activate the PC-desktop */
+		/** @param #119 True/False */
+			/** If true, switch to the last PC desktop.  If false, switch to Orbiter's desktop */
+
+void Orbiter::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,Message *pMessage)
+//<-dceag-c912-e->
+{
+}
+
