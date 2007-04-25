@@ -2432,6 +2432,9 @@
 #define DESIGNOBJ_cellPendingTasks_CONST 5430
 #define DESIGNOBJ_iconAbort_CONST 5431
 #define DESIGNOBJ_icoScheduledRecording_CONST 5432
+#define DESIGNOBJ_mnuAdjustScreen_CONST 5433
+#define DESIGNOBJ_butSwitchDesktop_CONST 5434
+#define DESIGNOBJ_butKDEDesktop_CONST 5436
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
