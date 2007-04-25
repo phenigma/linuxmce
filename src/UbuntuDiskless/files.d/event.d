@@ -11,12 +11,12 @@ set -e
 ## Startup sequence
 File="/etc/event.d/pluto"
 Content="
-start on runlevel-2
+start on runlevel 2
 
 stop on shutdown
-stop on runlevel-3
-stop on runlevel-4
-stop on runlevel-5
+stop on runlevel 3
+stop on runlevel 4
+stop on runlevel 5
 
 script
 /usr/pluto/bin/Startup_DisklessMD.sh
