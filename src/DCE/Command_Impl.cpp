@@ -259,7 +259,7 @@ void Command_Impl::CreateChildren()
 		// This device has it's own executible. Try to spawn it. If that fails, we will try to create it ourselves
 		if( pDeviceData_Impl_Child->m_bImplementsDCE && !pDeviceData_Impl_Child->m_bIsEmbedded )
 		{
-			if( SpawnChildDevice(pDeviceData_Impl_Child) )
+			if( SpawnChildDevice(pDeviceData_Impl_Child->m_dwPK_Device,pDeviceData_Impl_Child->m_sCommandLine) )
 				continue;
 		}
 		Event_Impl *pEvent = m_pEvent->CreateEvent( pDeviceData_Impl_Child->m_dwPK_DeviceTemplate, m_pPrimaryDeviceCommand->m_pEvent->m_pClientSocket, pDeviceData_Impl_Child->m_dwPK_Device );
@@ -282,6 +282,36 @@ void Command_Impl::CreateChildren()
 	}
 }
 
+void Command_Impl::CreateNewChildren()
+{
+	string sChildren = m_pEvent->SendReceiveString("CHILD_DEVICES " + StringUtils::itos(m_dwPK_Device),5);
+	if( StringUtils::StartsWith(sChildren,"CHILD_DEVICES") )
+	{
+		string::size_type pos = 14;
+		while(pos<sChildren.size())
+		{
+			int PK_Device=atoi(StringUtils::Tokenize(sChildren,"\t",pos).c_str());
+			string sCommand = StringUtils::Tokenize(sChildren,"\t",pos);
+
+			if( !PK_Device || sCommand.empty() )
+				continue;
+
+			PLUTO_SAFETY_LOCK( sSM, m_listMessageQueueMutex );  // Use this to protect m_mapSpawnedDevices
+			if( m_mapSpawnedDevices.find(PK_Device)==m_mapSpawnedDevices.end() )
+				SpawnChildDevice(PK_Device,sCommand);
+		}
+	}
+	else
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Command_Impl::CreateNewChildren can't get list from router");
+
+	PLUTO_SAFETY_LOCK( sSM, m_listMessageQueueMutex );  // Use this to protect m_mapSpawnedDevices
+	for(map<int,string>::iterator it=m_mapSpawnedDevices.begin();it!=m_mapSpawnedDevices.end();++it)
+	{
+		Message *pMessage = new Message(m_dwPK_Device,it->first,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_SPAWN_NEW_CHILDREN,0);
+		QueueMessageToRouter(pMessage);
+	}
+}
+
 void Command_Impl::PostConfigCleanup()
 {
 	m_pData->m_pDeviceCategory = m_pData->m_AllDevices.m_mapDeviceCategory_Find( m_pData->m_dwPK_DeviceCategory );
@@ -296,7 +326,7 @@ void Command_Impl::PostConfigCleanup(DeviceData_Impl *pDevice)
 		PostConfigCleanup(*it);
 }
 
-bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Child, string sDisplay )
+bool Command_Impl::SpawnChildDevice( int PK_Device, string sCommand, string sDisplay )
 {
 #ifndef WIN32
 	string sPrefix="";
@@ -333,15 +363,8 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 	*/
 #endif
 
-	string sCommand = StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine;
-	m_vectSpawnedDevices.push_back( sCommand ); // push back the spawned device
-
-	FILE *file = fopen( ("/var/log/pluto/spawned_devices_" + StringUtils::itos( m_dwPK_Device )).c_str(),"ab" );
-	if( file )
-	{
-		fwrite( (sCommand + "\n").c_str(), sCommand.length()+1, 1, file );
-		fclose(file);
-	}
+	PLUTO_SAFETY_LOCK( sSM, m_listMessageQueueMutex );  // Use this to protect m_mapSpawnedDevices
+	m_mapSpawnedDevices[PK_Device]=sCommand; // save the spawned device
 
 	return true;
 }
@@ -685,6 +708,12 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Going to reload log levels...");
 			LoggerWrapper::GetInstance()->ReloadLogLevels();
+			return rmr_Processed;
+		}
+		if( pMessage->m_dwID == SYSCOMMAND_SPAWN_NEW_CHILDREN && pMessage->m_dwPK_Device_To==m_dwPK_Device)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Going to spawn new children...");
+			CreateNewChildren();
 			return rmr_Processed;
 		}
 	}

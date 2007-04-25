@@ -134,7 +134,7 @@ namespace DCE
 	private:
 	
 		list<Message *> m_listMessageQueue;  /** < there are two ways of sending a message: realtime and queued (in a sepparted thread); this is the queue of messages */
-		vector<string> m_vectSpawnedDevices;  /** < Keep track of all the devices we spawned so we can kill them on create */
+		map<int,string> m_mapSpawnedDevices;  /** < Keep track of all the devices we spawned so we can kill them on create PK_Device->Command */
 
 	public:
 		// Set the following two flags in your DCE Device's constructor since the flags are passed in on the Connect()
@@ -228,6 +228,7 @@ namespace DCE
 		 * @brief creates a new command embedded into this one
 		 */
 		virtual void CreateChildren();
+		virtual void CreateNewChildren();  // Spawn any new child devices that were created after the load (ie temporary so devices start without a reload router)
 
 		/**
 		 * @brief Called during the getconfig in the auto-generated classes to do misc cleanup such as assigning m_pCategory for all the devices
@@ -239,7 +240,7 @@ namespace DCE
 		 * @brief this will try to spawn the children as separate sessions (for example different displays under Linux or different comman prompts for Windows)
 		 * derived classes should implement this to handle special cases, such as if the child requires the GUI interface
 		 */
-		virtual bool SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Child, string sDisplay="" );  // Another implementation may override this, passing in the display to export -- Linux only
+		virtual bool SpawnChildDevice( int PK_Device, string sCommand, string sDisplay="" );  // Another implementation may override this, passing in the display to export -- Linux only
 		
 		/**
 		 * @brief this will check to see that all related devices on the same pc that ImplementDCE and are not embedded

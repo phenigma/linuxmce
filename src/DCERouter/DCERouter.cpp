@@ -1434,6 +1434,28 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		pSocket->SendString( "PARENT " + sDevice_ControlledVia );
         return true;
 	}
+	else if( Line.substr(0,13)=="CHILD_DEVICES" && Line.size()>14 )
+	{
+		string sSql = "SELECT PK_Device,DeviceTemplate.Description,CommandLine FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+			" WHERE IsEmbedded=0 AND ImplementsDCE=1 AND FK_Device_ControlledVia = " + Line.substr(14);
+
+		string sResponse;
+		PlutoSqlResult result_set;
+		MYSQL_ROW row;
+		if( (result_set.r=mysql_query_result(sSql)) )
+		{
+			while ((row = mysql_fetch_row(result_set.r)))
+			{
+				if( row[1]==NULL )
+					continue; // shouldn't happen
+				string sCommandLine = row[2] ? row[2] : "";
+				if( sCommandLine.empty() )
+					sCommandLine = FileUtils::ValidCPPName( row[1] );
+				sResponse += row[0] + string("\t") + sCommandLine + "\t";
+			}
+		}
+		pSocket->SendString( "CHILD_DEVICES " + sResponse );
+	}
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Router: Don't know how to handle %s.", Line.c_str());
     pSocket->SendString("ERROR");
     return false;

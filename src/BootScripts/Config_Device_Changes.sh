@@ -136,7 +136,7 @@ modprobe nbd
 InitCmd=$(cat /proc/1/cmdline | tr '\0' ' ')
 if [[ "$StartLocalDevice" == "y" && "$InitCmd" == *2* ]]; then
         echo "Starting local devices"
-        /usr/pluto/bin/Start_LocalDevices.sh
+        /usr/pluto/bin/MessageSend "$DCERouter" 0 "$PK_Device" 7 12
 fi
 
 # Run alsaconf-noninteractive
