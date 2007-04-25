@@ -24444,5 +24444,33 @@ namespace DCE
 			COMMANDPARAMETER_ID_CONST, sID.c_str(),
 			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
 	};
+	class CMD_Activate_PC_Desktop : public PreformedCommand {
+	public:
+		CMD_Activate_PC_Desktop(long DeviceIDFrom, long DeviceIDTo,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Activate_PC_Desktop_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_TrueFalse_CONST, (bTrueFalse ? "1" : "0")); }
+	};
+	class CMD_Activate_PC_Desktop_DL : public PreformedCommand {
+	public:
+		CMD_Activate_PC_Desktop_DL(long DeviceIDFrom, string DeviceIDTo,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Activate_PC_Desktop_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_TrueFalse_CONST, (bTrueFalse ? "1" : "0")); }
+	};
+	class CMD_Activate_PC_Desktop_DT : public PreformedCommand {
+	public:
+		CMD_Activate_PC_Desktop_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Activate_PC_Desktop_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_TrueFalse_CONST, (bTrueFalse ? "1" : "0")); }
+	};
+	class CMD_Activate_PC_Desktop_Cat : public PreformedCommand {
+	public:
+		CMD_Activate_PC_Desktop_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Activate_PC_Desktop_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_TrueFalse_CONST, (bTrueFalse ? "1" : "0")); }
+	};
 }
 #endif
