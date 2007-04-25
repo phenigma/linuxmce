@@ -1949,7 +1949,7 @@ bool OSDScreenHandler::AlarmSetup_ObjectSelected(CallBackData *pData)
 			}
 		}
 		break;
-		case DESIGNOBJ_AlarmType_CONST:
+		case DESIGNOBJ_AlarmSensorType_CONST:
 		{
 			if(DESIGNOBJ_butAlarmName2_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
@@ -1964,7 +1964,7 @@ bool OSDScreenHandler::AlarmSetup_ObjectSelected(CallBackData *pData)
 			}
 		}
 		break;
-		case DESIGNOBJ_AlarmName_CONST:
+		case DESIGNOBJ_AlarmSensorName_CONST:
 		{
 			if(DESIGNOBJ_butAlarmSetupRoom_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
