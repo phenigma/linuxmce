@@ -30,7 +30,7 @@ fi
 
 netExtIP=$(ifconfig $netExtName | grep "inet addr" | sed 's/.*inet addr:\([0-9.]*\).*Bcast.*/\1/g')
 netExtMask=$(ifconfig $netExtName | grep "inet addr" | sed 's/.*Mask:\([0-9.]*\).*$/\1/g')
-netExtGate=$(route -n | grep "^0.0.0.0" | tail -1 | awk '{print $2}')
+netExtGate=$(route -n | grep "^0.0.0.0" | head -1 | awk '{print $2}')
 netExtDNS1=$(cat /etc/resolv.conf | grep "^nameserver" | head -1 | awk '{print $2}')
 netExtDNS2=$(cat /etc/resolv.conf | grep "^nameserver" | tail -1 | awk '{print $2}')
 
