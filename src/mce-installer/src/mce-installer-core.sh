@@ -376,6 +376,15 @@ function Configure_Network_Options {
 
 }
 
+function Configure_Xorg_Conf {
+	if grep -q ".*Load.*\"record\"" ;then
+		echo "Found xrecord , skiping ..."
+		return
+	fi
+
+	sed -i 's/.*Section.*\"Module\"/Section "Module"\n Load "record"/g' /etc/X11/xorg.conf
+}
+
 Core_PK_Device="0"
 killall NetworkManager
 killall NetworkManagerDispatcher
@@ -386,6 +395,7 @@ Setup_Apt_Conffiles
 Setup_Pluto_Conf
 Setup_NIS
 Install_DCERouter
+Configure_Xorg_Conf
 Create_And_Config_Devices
 Configure_Network_Options
 
