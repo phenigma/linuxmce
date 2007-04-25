@@ -346,9 +346,9 @@ bool Command_Impl::SpawnChildDevice( int PK_Device, string sCommand, string sDis
 		}
 	}
 
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Spawning device: %d %s on display: %s ip: %s", PK_Device, sCommandLine.c_str(), sDisplay.c_str(), m_sIPAddress.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Spawning device: %d %s on display: %s ip: %s", PK_Device, sCommand.c_str(), sDisplay.c_str(), m_sIPAddress.c_str() );
 	system( ("screen -d -m -h 3000 -S " + sCommandLine + "_" + StringUtils::itos( PK_Device ) +
-			" /bin/bash -x " + sPrefix + "Spawn_Device.sh " + StringUtils::itos(PK_Device) + " " + m_sIPAddress + " " + sDisplay + " " + m_sCommandLine).c_str() );
+			" /bin/bash -x " + sPrefix + "Spawn_Device.sh " + StringUtils::itos(PK_Device) + " " + m_sIPAddress + " " + sDisplay + " " + sCommand).c_str() );
 #else
 	//TO BE IMPLEMENTED
 	/*
@@ -372,7 +372,8 @@ bool Command_Impl::SpawnChildDevice( int PK_Device, string sCommand, string sDis
 void Command_Impl::KillSpawnedDevices()
 {
 #ifndef WIN32
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to kill %d child devices", (int)m_vectSpawnedDevices.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to kill %d child devices", (int)m_mapSpawnedDevices.size());
+	/*
 	string sSpawnedDevices("");
 	for( size_t s=0; s < m_vectSpawnedDevices.size(); ++s )
 	{
@@ -382,6 +383,7 @@ void Command_Impl::KillSpawnedDevices()
 //		system( sCmd.c_str() );
 	}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Initiating kill for: %s", sSpawnedDevices.c_str());
+	*/
 //	string sCmd = string("/usr/pluto/bin/KillScreens.sh ") + sSpawnedDevices;
 //	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Cmd: %s", sCmd.c_str());
 // Temporary hack - for some unexplainable reason, the KillScreens script, although it appears correct
