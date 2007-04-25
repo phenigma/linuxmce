@@ -51,6 +51,7 @@
 #include "StepAptMirror.h"
 #include "StepUbuntuCD.h"
 #include "StepUbuntuExtraCD.h"
+#include "StepInstallDependencies.h"
 #include "StepUI.h"
 
 #include "network-common.h"

@@ -44,7 +44,7 @@ void start_network_wizard(void) {
 		memset(readbuffer, 0, 1024);
 		size = read(fd[0], readbuffer, 1023);
 		readbuffer[size-1] = '\0';
-		printf("Read: %s --\n",readbuffer);
+	//	printf("Read: %s --\n",readbuffer);
 
 		if(size==0 || g_ascii_strcasecmp(readbuffer, "0")==0) {
 			printf("No network cards detected\n");
@@ -57,7 +57,7 @@ void start_network_wizard(void) {
 			memset(readbuffer, 0, 1024);
 			size = read(fd[0], readbuffer, 1023);
 			readbuffer[size-1] = '\0';
-			printf("Read: %s --\n",readbuffer);
+	//		printf("Read: %s --\n",readbuffer);
 
 			tokens = g_strsplit(readbuffer, "|", 2);
 			setting_netExtName = tokens[0];	
@@ -67,7 +67,7 @@ void start_network_wizard(void) {
 			memset(readbuffer, 0, 1024);
 			size = read(fd[0], readbuffer, 1023);
 			readbuffer[size-1] = '\0';
-			printf("Read: %s --\n",readbuffer);
+	//		printf("Read: %s --\n",readbuffer);
 
 			tokens = g_strsplit(readbuffer, "|", 7);
 			setting_netExtIP = tokens[0];

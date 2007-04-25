@@ -19,6 +19,8 @@ bin_PROGRAMS = mce-installer
 
 mce_installer_SOURCES = \
 	main.c         \
+	StepInstallDependencies.c \
+	StepInstallDependencies.h \
 	Step1A.c         \
 	Step1A.h         \
 	common.h         \

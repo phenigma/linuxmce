@@ -21,7 +21,7 @@ void on_StepAptMirror_forward_clicked(GtkWidget *widget, gpointer data)  {
 		printf("am ramas cu ohter mirror: >>>%s<<<<", setting_installMirror);
 	}
 
-        displayStep5();
+        displayStepInstallDependencies();
 }
 
 void on_StepAptMirror_combo_changed(GtkWidget *widget, gpointer data) {

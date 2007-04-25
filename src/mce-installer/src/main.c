@@ -112,12 +112,13 @@ main (int argc, char *argv[])
 
 	history = g_queue_new();
 
+	/*
 	if (setting_coreIP != NULL) {
 		displayStep1C();
 	} else {
 		displayStep1D();
-	}
-//	displayStepUbuntuExtraCD();
+	}*/
+	displayStepInstallDependencies();
 	//displayStepConfFiles();
 
 	gtk_main ();

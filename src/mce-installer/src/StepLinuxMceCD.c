@@ -52,16 +52,6 @@ void displayStepLinuxMceCD(void) {
 	GtkWidget *label = gtk_label_new_for_wizard ("Please insert the LinuxMCE Cd in the drive or locate the iso image on your hard drive");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
-
-/*	// Radio button install from Internet
-	GtkWidget *radioUseNet = gtk_radio_button_new_with_label(group, "I don't have it. Download packages from the Internet.");
-	gtk_box_pack_start(GTK_BOX(mainBox), radioUseNet, TRUE, TRUE, 0);
-	g_signal_connect(G_OBJECT(radioUseNet), "toggled", G_CALLBACK(on_StepLinuxMceCD_radio_toggled), (gpointer)FROM_NET);
-	if (setting_linuxmceCdFrom == FROM_NET) {
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseNet), TRUE);
-	}
-	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioUseNet));
-*/
 	// Radio button install using CD
 	GSList *group = NULL;
 	GtkWidget *radioUseCD = gtk_radio_button_new_with_label(group, "It's in the CD drive.");
@@ -78,6 +68,15 @@ void displayStepLinuxMceCD(void) {
 	g_signal_connect(G_OBJECT(radioUseISO), "toggled", G_CALLBACK(on_StepLinuxMceCD_radio_toggled), (gpointer)FROM_ISO);
 	if (setting_linuxmceCdFrom == FROM_ISO) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseISO), TRUE);
+	}
+	
+	// Radio button install from Internet
+	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioUseCD));
+	GtkWidget *radioUseNet = gtk_radio_button_new_with_label(group, "I don't have it. Download packages from the Internet.");
+	gtk_box_pack_start(GTK_BOX(mainBox), radioUseNet, TRUE, TRUE, 0);
+	g_signal_connect(G_OBJECT(radioUseNet), "toggled", G_CALLBACK(on_StepLinuxMceCD_radio_toggled), (gpointer)FROM_NET);
+	if (setting_linuxmceCdFrom == FROM_NET) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseNet), TRUE);
 	}
 
 	// File chooser button
