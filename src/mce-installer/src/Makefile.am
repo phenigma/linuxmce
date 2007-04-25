@@ -65,6 +65,8 @@ mce_installer_SOURCES = \
 	StepLinuxMceCD.h \
 	StepDvdCss.c \
 	StepDvdCss.h \
+	StepNvidiaDrivers.c \
+	StepNvidiaDrivers.h \
 	RunShellCommand.c \
 	RunShellCommand.h \
 	StepConfFiles.h \

@@ -56,7 +56,8 @@ am_mce_installer_OBJECTS = main.$(OBJEXT) \
 	StepAptMirror.$(OBJEXT) StepUI.$(OBJEXT) \
 	StepUbuntuCD.$(OBJEXT) StepUbuntuExtraCD.$(OBJEXT) \
 	StepLinuxMceCD.$(OBJEXT) StepDvdCss.$(OBJEXT) \
-	RunShellCommand.$(OBJEXT) StepConfFiles.$(OBJEXT)
+	StepNvidiaDrivers.$(OBJEXT) RunShellCommand.$(OBJEXT) \
+	StepConfFiles.$(OBJEXT)
 mce_installer_OBJECTS = $(am_mce_installer_OBJECTS)
 am__DEPENDENCIES_1 =
 mce_installer_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -255,6 +256,8 @@ mce_installer_SOURCES = \
 	StepLinuxMceCD.h \
 	StepDvdCss.c \
 	StepDvdCss.h \
+	StepNvidiaDrivers.c \
+	StepNvidiaDrivers.h \
 	RunShellCommand.c \
 	RunShellCommand.h \
 	StepConfFiles.h \
@@ -349,6 +352,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepDvdCss.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepInstallDependencies.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepLinuxMceCD.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepNvidiaDrivers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepUI.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepUbuntuCD.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepUbuntuExtraCD.Po@am__quote@

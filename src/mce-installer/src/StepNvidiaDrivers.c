@@ -10,14 +10,14 @@
 #include "common.h"
 
 
-void on_StepDvdCss_forward_clicked(GtkWidget *widget, gpointer data)  {
+void on_NvidiaDrivers_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	gboolean goNext = TRUE;
-	gboolean installDvdCss = * (gboolean *)data;
+	gboolean intallNvidiaDrivers = * (gboolean *)data;
 
-	if (installDvdCss == TRUE) {	
+	if (intallNvidiaDrivers == TRUE) {	
 		goNext = FALSE;
-		GtkWidget* runWindow = run_shell_command("./mce-installer-DvdCss.sh", "Installing DVD CSS", "Failed to cache the DVD CSS");
+		GtkWidget* runWindow = run_shell_command("./mce-installer-NvidiaDrivers.sh", "Installing Nvidia Propetary Drivers", "Failed to install nvidia propetary drivers");
 		gtk_widget_show_all(runWindow);
 		if (gtk_dialog_run(GTK_DIALOG(runWindow)) == 1) {
 			goNext = TRUE;
@@ -25,43 +25,39 @@ void on_StepDvdCss_forward_clicked(GtkWidget *widget, gpointer data)  {
 	}
 
 	if (goNext) {
-		g_queue_push_head(history, (gpointer)STEPDVDCSS);
-		if (has_nv_video_driver()) {
-			displayStepNvidiaDrivers();
-		} else {
-			displayStep4();
-		}
+		g_queue_push_head(history, (gpointer)STEPNVIDIADRIVERS);
+		displayStep4();
 	}
 }
 
-void on_StepDvdCss_radio_no_toggled(GtkWidget *widget, gpointer data) {
+void on_NvidiaDrivers_radio_no_toggled(GtkWidget *widget, gpointer data) {
 	
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
 		* (gboolean *) data = FALSE;
 	}
 }
 
-void on_StepDvdCss_radio_yes_toggled(GtkWidget *widget, gpointer data) {
+void on_NvidiaDrivers_radio_yes_toggled(GtkWidget *widget, gpointer data) {
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
 		* (gboolean *) data = TRUE;
 	}
 }
 
 
-void displayStepDvdCss(void) {
+void displayStepNvidiaDrivers(void) {
 
-	printf("StepDvdCss\n");
+	printf("NvidiaDrivers\n");
 
-	gboolean* installDvdCss;
-	installDvdCss = (gboolean *)malloc(sizeof(gboolean));
-	*installDvdCss = TRUE;
+	gboolean* intallNvidiaDrivers;
+	intallNvidiaDrivers = (gboolean *)malloc(sizeof(gboolean));
+	*intallNvidiaDrivers = TRUE;
 
 	// Cleanup window
 	cleanupContainer(mainBox);
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("The software to play encrypted, commercial dvd’s (libdvdcss) is not installed.  Is this legal in your area and should it be installed?");
+	GtkWidget *label = gtk_label_new_for_wizard ("The open source nv driver doesn’t work well.  Replace it with nVidia’s proprietary driver?");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 
@@ -69,13 +65,13 @@ void displayStepDvdCss(void) {
 	GSList *group = NULL;
 	GtkWidget *radioYes = gtk_radio_button_new_with_label(group, "Yes, i want it installed.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioYes, TRUE, TRUE, 0);
-	g_signal_connect(G_OBJECT(radioYes), "toggled", G_CALLBACK(on_StepDvdCss_radio_yes_toggled), (gpointer)installDvdCss);
+	g_signal_connect(G_OBJECT(radioYes), "toggled", G_CALLBACK(on_NvidiaDrivers_radio_yes_toggled), (gpointer)intallNvidiaDrivers);
 
 	// Radio : No
 	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioYes));
-	GtkWidget *radioNo = gtk_radio_button_new_with_label(group, "No, it's ilegal in my contry to use it.");
+	GtkWidget *radioNo = gtk_radio_button_new_with_label(group, "No, it wan to use the opensource drivers witout 3d acceleration.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioNo, TRUE, TRUE, 0);
-	g_signal_connect(G_OBJECT(radioNo), "toggled", G_CALLBACK(on_StepDvdCss_radio_no_toggled), (gpointer)installDvdCss);
+	g_signal_connect(G_OBJECT(radioNo), "toggled", G_CALLBACK(on_NvidiaDrivers_radio_no_toggled), (gpointer)intallNvidiaDrivers);
 
 	// Back Button	
 	GtkWidget *buttonBack = gtk_button_new_from_stock(GTK_STOCK_GO_BACK);
@@ -85,7 +81,7 @@ void displayStepDvdCss(void) {
 	// Button Forward
 	GtkWidget *buttonForward = gtk_button_new_from_stock(GTK_STOCK_GO_FORWARD);
 	gtk_container_add(GTK_CONTAINER(mainButtonBox), buttonForward);
-	g_signal_connect(G_OBJECT(buttonForward), "clicked", G_CALLBACK(on_StepDvdCss_forward_clicked), (gpointer)installDvdCss);
+	g_signal_connect(G_OBJECT(buttonForward), "clicked", G_CALLBACK(on_NvidiaDrivers_forward_clicked), (gpointer)intallNvidiaDrivers);
 	
 
 	// Redraw window	

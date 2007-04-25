@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <sys/wait.h>
 
 #include "RunShellCommand.h"
 
@@ -54,6 +55,8 @@
 #include "StepInstallDependencies.h"
 #include "StepUI.h"
 #include "StepDvdCss.h"
+#include "StepNvidiaDrivers.h"
+#include "StepConfFiles.h"
 
 #include "network-common.h"
 
@@ -78,6 +81,7 @@
 #define STEPUBUTUEXTRACD 19
 #define STEPLINUXMCECD 20
 #define STEPDVDCSS 21
+#define STEPNVIDIADRIVERS 22
 
 #define INSTALL_TYPE_CD   1
 #define INSTALL_TYPE_ISO  2
@@ -100,6 +104,7 @@ void		write_config_file(void);
 void		on_back_clicked(GObject object, gpointer data);
 GtkWidget*	gtk_label_new_for_wizard(const gchar *text);
 void		run_as_root(void);
+gboolean	has_nv_video_driver(void);
 
 #define DT_CORE 1
 #define DT_HYBRID 2

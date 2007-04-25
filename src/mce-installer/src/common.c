@@ -37,6 +37,25 @@ void run_as_root(void) {
 	exit(1);
 }
 
+gboolean has_nv_video_driver(void) {
+	pid_t grep_pid;
+	int grep_status = -1;
+
+	grep_pid = fork();
+	if (grep_pid == 0) {
+		execl("/bin/grep","/bin/grep","Driver.*\"nv\"","/etc/X11/xorg.conf", NULL);
+		exit(1);
+	} else if (grep_pid > 0) {
+		waitpid (grep_pid, &grep_status, 0);
+	}
+
+	if (grep_status == 0) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
 void on_back_clicked(GObject object, gpointer data) {
 	if (!g_queue_is_empty(history) != 0) {
 		gint prevScreen = (gint) g_queue_pop_head(history);
