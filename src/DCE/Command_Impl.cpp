@@ -347,7 +347,7 @@ bool Command_Impl::SpawnChildDevice( int PK_Device, string sCommand, string sDis
 	}
 
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Spawning device: %d %s on display: %s ip: %s", PK_Device, sCommand.c_str(), sDisplay.c_str(), m_sIPAddress.c_str() );
-	system( ("screen -d -m -h 3000 -S " + sCommandLine + "_" + StringUtils::itos( PK_Device ) +
+	system( ("screen -d -m -h 3000 -S " + sCommand + "_" + StringUtils::itos( PK_Device ) +
 			" /bin/bash -x " + sPrefix + "Spawn_Device.sh " + StringUtils::itos(PK_Device) + " " + m_sIPAddress + " " + sDisplay + " " + sCommand).c_str() );
 #else
 	//TO BE IMPLEMENTED
