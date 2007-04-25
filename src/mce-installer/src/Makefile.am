@@ -63,6 +63,8 @@ mce_installer_SOURCES = \
 	StepUbuntuExtraCD.h \
 	StepLinuxMceCD.c \
 	StepLinuxMceCD.h \
+	StepDvdCss.c \
+	StepDvdCss.h \
 	RunShellCommand.c \
 	RunShellCommand.h \
 	StepConfFiles.h \

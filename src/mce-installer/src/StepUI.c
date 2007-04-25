@@ -12,7 +12,7 @@
 
 void on_StepUI_forward_clicked(GtkWidget *widget, gpointer data) {
 	g_queue_push_head(history, (gpointer)STEPUI);
-        displayStep4();
+        displayStepDvdCss();
 }
 
 void on_StepUI_finish_clicked(GtkWidget *widget, gpointer data) {

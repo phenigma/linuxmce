@@ -53,6 +53,7 @@
 #include "StepUbuntuExtraCD.h"
 #include "StepInstallDependencies.h"
 #include "StepUI.h"
+#include "StepDvdCss.h"
 
 #include "network-common.h"
 
@@ -76,6 +77,7 @@
 #define STEPUBUTUCD 18
 #define STEPUBUTUEXTRACD 19
 #define STEPLINUXMCECD 20
+#define STEPDVDCSS 21
 
 #define INSTALL_TYPE_CD   1
 #define INSTALL_TYPE_ISO  2
