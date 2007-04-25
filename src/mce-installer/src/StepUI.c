@@ -12,7 +12,11 @@
 
 void on_StepUI_forward_clicked(GtkWidget *widget, gpointer data) {
 	g_queue_push_head(history, (gpointer)STEPUI);
-        displayStepDvdCss();
+	if (access("/usr/share/doc/libdvdcss2/changelog.gz", F_OK) == 0) {
+		displayStep4();
+	} else {
+	        displayStepDvdCss();
+	}
 }
 
 void on_StepUI_finish_clicked(GtkWidget *widget, gpointer data) {

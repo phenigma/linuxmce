@@ -45,10 +45,6 @@ void on_StepDvdCss_radio_yes_toggled(GtkWidget *widget, gpointer data) {
 
 
 void displayStepDvdCss(void) {
-	if (access("/usr/share/doc/libdvdcss2/changelog.gz", F_OK) == 0) {
-		displayStep4();
-		return;
-	}
 
 	printf("StepDvdCss\n");
 
