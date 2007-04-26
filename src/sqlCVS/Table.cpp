@@ -63,6 +63,7 @@ itmp_RowsToDelete=0;
 	m_pTable_History=m_pTable_History_Mask=m_pTable_WeAreHistoryFor=m_pTable_WeAreHistoryMaskFor=NULL;
 	m_pField_AutoIncrement=NULL;
 	m_bIsSystemTable=false;
+	ValidateTable( );
 	GetFields( );
 	m_psc_id_next=1;
 	m_psc_id_last_sync=m_psc_batch_last_sync=-1;
@@ -2649,3 +2650,32 @@ bool Table::DoWeHaveBatch( int psc_batch )
 	else
 		return false;
 }
+
+void Table::ValidateTable()
+{
+	// Do any fixups if something has changed in the schema
+	if( m_pDatabase->m_iServerVersion>50000 ) // In Mysql 5 they require an ON UPDATE CURRENT_TIMESTAMP for the psc_mod
+	{
+		std::ostringstream sSQL;
+		sSQL << "show create table `" << m_sName << "`";
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) && row[0] && row[1] )
+		{
+			vector<string> vectString;
+			string s = row[1];
+			StringUtils::Tokenize(s,"\n",vectString);
+			for(vector<string>::iterator it=vectString.begin();it!=vectString.end();++it)
+			{
+				if( it->find("`psc_mod`")!=string::npos && it->find("ON UPDATE CURRENT_TIMESTAMP")==string::npos )
+				{
+					std::ostringstream sSQL;
+					sSQL << "ALTER TABLE `" << m_sName << "` change `psc_mod` `psc_mod` timestamp NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP";
+					m_pDatabase->threaded_mysql_query( sSQL.str() );
+					break;
+				}
+			}
+		}
+	}
+}
+

@@ -59,6 +59,8 @@ Database::Database( string db_host, string db_user, string db_pass, string db_na
 			return;
 	}
 
+	m_iServerVersion=mysql_get_server_version(m_pMySQL);
+
 	m_bInvalid=false;
 	try
 	{

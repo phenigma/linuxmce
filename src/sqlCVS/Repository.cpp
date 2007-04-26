@@ -957,7 +957,11 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		{
 			string sQuotedDefault;
 			if (sDefault == "CURRENT_TIMESTAMP")
+			{
 				sQuotedDefault = "CURRENT_TIMESTAMP";
+				if( sField=="psc_mod" )
+					sQuotedDefault += " on update CURRENT_TIMESTAMP";
+			}
 			else
 				sQuotedDefault = "'" + sDefault + "'";
 

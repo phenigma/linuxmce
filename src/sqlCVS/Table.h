@@ -147,6 +147,8 @@ int itmp_RowsToDelete;
 		/** @brief Displays a summary of all the rows changed in the table by the given user.  Called by the 'diff' command.  returns false means the user wants to quit */
 		bool ShowChanges(int psc_user);
 
+		void ValidateTable();
+
 		/** If the table is in the format some_text_something it returns 'something'--the text following the final _ */
 		string GetTrailingString( string sName="" ); 
 		
