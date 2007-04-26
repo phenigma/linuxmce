@@ -70,13 +70,11 @@ APT::Get::AllowUnauthenticated "true";
 
 	ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
 
-	StatsMessage "Preseeding debconf options"
 	./mce-installer-preseed.sh
 	apt-get update
 }
 
 function Setup_NIS {
-	StatsMessage "Configuring Network Information Service (NIS)"
 	## Put a temporary nis config file that will prevent ypbind to start
 	echo "
 NISSERVER=false
