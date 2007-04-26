@@ -306,11 +306,9 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 	if ( pSocket_Old )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_REGISTRATION, "!!! Replacing command handler on device ID \x1b[34;1m%d!\x1b[0m", iDeviceID );
-		if( pSocket_Old && Socket->m_sIPAddress != pSocket_Old->m_sIPAddress )
-		{
-			pSocket_Old->SendString("REPLACE " + Socket->m_sIPAddress);
-			Sleep(10);  // Give it just enough time to be sure the message gets through
-		}
+
+		pSocket_Old->SendString("REPLACE " + Socket->m_sIPAddress);
+		Sleep(10);  // Give it just enough time to be sure the message gets through
 
 		ll.Release();
 		gs.DeletingSocket();
