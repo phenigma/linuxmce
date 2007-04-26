@@ -209,9 +209,13 @@ OpenGLGraphic* Graphic)
 	MeshBuilder MB;
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MB.SetColor(1.0f, 1.0f, 1.0f);
-
-	PlutoPoint tail_p1(p1.X - (arrow_p2.X - arrow_p1.X) / 4, p1.Y - (arrow_p2.Y - arrow_p1.Y) / 4);
-	PlutoPoint tail_p2(p1.X + (arrow_p2.X - arrow_p1.X) / 4, p1.Y + (arrow_p2.Y - arrow_p1.Y) / 4);
+	
+    const float ratio = 0.15f; //the 1/2 ratio between arrow's tail width and head width
+	PlutoPoint head_middle(static_cast<int>(arrow_p2.X - 0.5f * (arrow_p2.X - arrow_p1.X)), static_cast<int>(arrow_p2.Y - 0.5f * (arrow_p2.Y - arrow_p1.Y)));
+	PlutoPoint head_p1(static_cast<int>(head_middle.X - ratio * (arrow_p2.X - arrow_p1.X)), static_cast<int>(head_middle.Y - ratio * (arrow_p2.Y - arrow_p1.Y)));
+	PlutoPoint head_p2(static_cast<int>(head_middle.X + ratio * (arrow_p2.X - arrow_p1.X)), static_cast<int>(head_middle.Y + ratio * (arrow_p2.Y - arrow_p1.Y)));
+	PlutoPoint tail_p1(static_cast<int>(p1.X - ratio * (arrow_p2.X - arrow_p1.X)), static_cast<int>(p1.Y - ratio * (arrow_p2.Y - arrow_p1.Y)));
+	PlutoPoint tail_p2(static_cast<int>(p1.X + ratio * (arrow_p2.X - arrow_p1.X)), static_cast<int>(p1.Y + ratio * (arrow_p2.Y - arrow_p1.Y)));
 
 	float max_x = float(max(max(p1.X, p2.X), max(arrow_p1.X, arrow_p2.X)));
 	float max_y = float(max(max(p1.Y, p2.Y), max(arrow_p1.Y, arrow_p2.Y)));
@@ -228,12 +232,25 @@ OpenGLGraphic* Graphic)
 	MB.SetTexture2D(p2.X / (max_x - min_x), p2.Y / (max_y - min_y));
 	MB.AddVertexFloat((float)p2.X, (float)p2.Y, 0);
 
+	//extra dummy vertexe
+	MB.SetTexture2D(head_p1.X / (max_x - min_x), head_p1.Y / (max_y - min_y));
+	MB.AddVertexFloat((float)head_p1.X, (float)head_p1.Y, 0);
+
 	//the arrow tail
+	MB.SetTexture2D(head_p1.X / (max_x - min_x), head_p1.Y / (max_y - min_y));
+	MB.AddVertexFloat((float)head_p1.X, (float)head_p1.Y, 0);
+
 	MB.SetTexture2D(tail_p1.X / (max_x - min_x), tail_p1.Y / (max_y - min_y));
 	MB.AddVertexFloat((float)tail_p1.X, (float)tail_p1.Y, 0);
 
+	MB.SetTexture2D(head_p2.X / (max_x - min_x), head_p2.Y / (max_y - min_y));
+	MB.AddVertexFloat((float)head_p2.X, (float)head_p2.Y, 0);
+
 	MB.SetTexture2D((tail_p2.X) / (max_x - min_x), tail_p2.Y / (max_y - min_y));
 	MB.AddVertexFloat((float)tail_p2.X, (float)tail_p2.Y, 0);
+
+	MB.SetTexture2D(head_p1.X / (max_x - min_x), head_p1.Y / (max_y - min_y));
+	MB.AddVertexFloat((float)head_p1.X, (float)head_p1.Y, 0);
 
 	return MB.End();
 }
