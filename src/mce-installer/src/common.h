@@ -50,7 +50,6 @@
 #include "Step5.h"
 #include "Step6.h"
 #include "StepAptMirror.h"
-#include "StepUbuntuCD.h"
 #include "StepUbuntuExtraCD.h"
 #include "StepInstallDependencies.h"
 #include "StepUI.h"
@@ -77,7 +76,6 @@
 #define STEPAPTMIRROR 15
 #define STEPUI 16 
 #define STEPCONF 17
-#define STEPUBUTUCD 18
 #define STEPUBUTUEXTRACD 19
 #define STEPLINUXMCECD 20
 #define STEPDVDCSS 21
@@ -135,9 +133,6 @@ gint	 setting_installType;
 gint	 setting_UI;
 
 gchar*   setting_installMirror;
-
-gint     setting_ubuntuCdFrom;
-gchar*   setting_ubuntuCdIsoPath;
 
 gint     setting_ubuntuExtraCdFrom;
 gchar*   setting_ubuntuExtraCdIsoPath;

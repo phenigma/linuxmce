@@ -102,9 +102,6 @@ void on_back_clicked(GObject object, gpointer data) {
 			case STEPUI:
 				displayStepUI();
 				break;
-			case STEPUBUTUCD:
-				displayStepUbuntuCD();
-				break;
 			case STEPUBUTUEXTRACD:
 				displayStepUbuntuExtraCD();
 				break;
@@ -189,8 +186,6 @@ void write_config_file(void) {
 				"c_installMirror='%s'\n"
 				"c_netExtKeep='%s'\n"
 				"c_installUI=%d\n"
-				"c_ubuntuCdFrom=%d\n"
-				"c_ubuntuCdIsoPath='%s'\n"
 				"c_linuxmceCdFrom=%d\n"
 				"c_linuxmceCdIsoPath='%s'\n"
 				"c_ubuntuExtraCdFrom=%d\n"
@@ -212,8 +207,6 @@ void write_config_file(void) {
 				,setting_installMirror
 				,setting_netExtKeep?"true":"false"
 				,setting_UI
-				,setting_ubuntuCdFrom
-				,setting_ubuntuCdIsoPath
 				,setting_linuxmceCdFrom
 				,setting_linuxmceCdIsoPath
 				,setting_ubuntuExtraCdFrom

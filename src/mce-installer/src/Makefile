@@ -54,10 +54,9 @@ am_mce_installer_OBJECTS = main.$(OBJEXT) \
 	Step4.$(OBJEXT) Step5.$(OBJEXT) Step0B.$(OBJEXT) \
 	Step2F.$(OBJEXT) Step0A.$(OBJEXT) Step6.$(OBJEXT) \
 	StepAptMirror.$(OBJEXT) StepUI.$(OBJEXT) \
-	StepUbuntuCD.$(OBJEXT) StepUbuntuExtraCD.$(OBJEXT) \
-	StepLinuxMceCD.$(OBJEXT) StepDvdCss.$(OBJEXT) \
-	StepNvidiaDrivers.$(OBJEXT) RunShellCommand.$(OBJEXT) \
-	StepConfFiles.$(OBJEXT)
+	StepUbuntuExtraCD.$(OBJEXT) StepLinuxMceCD.$(OBJEXT) \
+	StepDvdCss.$(OBJEXT) StepNvidiaDrivers.$(OBJEXT) \
+	RunShellCommand.$(OBJEXT) StepConfFiles.$(OBJEXT)
 mce_installer_OBJECTS = $(am_mce_installer_OBJECTS)
 am__DEPENDENCIES_1 =
 mce_installer_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -248,8 +247,6 @@ mce_installer_SOURCES = \
 	StepAptMirror.c \
 	StepUI.h \
 	StepUI.c \
-	StepUbuntuCD.c \
-	StepUbuntuCD.h \
 	StepUbuntuExtraCD.c \
 	StepUbuntuExtraCD.h \
 	StepLinuxMceCD.c \
@@ -354,7 +351,6 @@ include ./$(DEPDIR)/StepInstallDependencies.Po
 include ./$(DEPDIR)/StepLinuxMceCD.Po
 include ./$(DEPDIR)/StepNvidiaDrivers.Po
 include ./$(DEPDIR)/StepUI.Po
-include ./$(DEPDIR)/StepUbuntuCD.Po
 include ./$(DEPDIR)/StepUbuntuExtraCD.Po
 include ./$(DEPDIR)/common.Po
 include ./$(DEPDIR)/main.Po

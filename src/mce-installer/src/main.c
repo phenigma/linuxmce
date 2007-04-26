@@ -107,7 +107,6 @@ main (int argc, char *argv[])
 	setting_netExtKeep = TRUE;
 	setting_netIntIPN = "192.168.80";
 	setting_installType = INSTALL_TYPE_CD;
-	setting_ubuntuCdFrom = FROM_NET;
 	setting_ubuntuExtraCdFrom = FROM_NET;
 
 	history = g_queue_new();

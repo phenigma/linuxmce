@@ -57,8 +57,6 @@ mce_installer_SOURCES = \
 	StepAptMirror.c \
 	StepUI.h \
 	StepUI.c \
-	StepUbuntuCD.c \
-	StepUbuntuCD.h \
 	StepUbuntuExtraCD.c \
 	StepUbuntuExtraCD.h \
 	StepLinuxMceCD.c \
