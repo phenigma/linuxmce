@@ -279,7 +279,7 @@ function Configure_Network_Options {
 
 	Q="REPLACE INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES('$Core_PK_Device',32,'$NETsetting')"
 	RunSQL "$Q"
-	if [[ "$c_netExtUseDhcp" == "1" ]]; then
+	if [[ "$c_runDhcpServer" == "1" ]]; then
 		Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
 			VALUES($Core_PK_Device, 28, '$DHCPsetting')"
 		RunSQL "$Q"
@@ -324,12 +324,12 @@ if [[ "$c_startupType" == "1" ]] ;then
 	mv /etc/init.d/gdm /etc/init.d/gdm.saved
 	mv /etc/init.d/kdm /etc/init.d/kdm.saved
 	echo "
-start on runlevel-2
+start on runlevel 2
 
 stop on shutdown
-stop on runlevel-3
-stop on runlevel-4
-stop on runlevel-5
+stop on runlevel 3
+stop on runlevel 4
+stop on runlevel 5
 
 script
 /usr/pluto/bin/Startup_Core-Hybrid.sh
@@ -337,12 +337,12 @@ end script
 " > /etc/event.d/pluto
 elif [[ "$c_startupType" == "2" ]] ;then
 	echo "
-start on runlevel-2
+start on runlevel 2
 
 stop on shutdown
-stop on runlevel-3
-stop on runlevel-4
-stop on runlevel-5
+stop on runlevel 3
+stop on runlevel 4
+stop on runlevel 5
 
 script
 /usr/share/mce-launcher/scripts/mce-launcher-core.sh
