@@ -29,6 +29,10 @@
 #include "../pluto_main/Define_HorizAlignment.h" 
 #include "../pluto_main/Define_Button.h"
 
+#include "math.h"
+
+#define M_PI   3.14159265358979323846
+
 #include <memory>
 //-----------------------------------------------------------------------------------------------------
 using namespace std;
@@ -1580,42 +1584,121 @@ void OrbiterRenderer::RelativePosition(const PlutoRectangle& A,
 	}
 }
 
-void OrbiterRenderer::DrawArrow(PlutoPoint p1, PlutoPoint p2, double dRatio, PlutoColor color) 
+void OrbiterRenderer::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoColor color) 
 {
-	int nHeadHeight = static_cast<int>(sqrt(static_cast<double>((p1.X - p2.X) * (p1.X - p2.X) + (p1.Y - p2.Y) * (p1.Y - p2.Y))) * dRatio);
-
-	if(nHeadHeight > 100)
-		nHeadHeight = 100;
-
 	DrawLine(p1.X, p1.Y, p2.X, p2.Y, color);
 
-	PlutoPoint p3;
-	PlutoPoint p4;
-	PlutoPoint p5;
+	PlutoPoint arrow_p1;
+	PlutoPoint arrow_p2;
+	CalcArrowValues(p1, p2, sizeArrow, arrow_p1, arrow_p2);
 
-	if(p1.X < p2.X)
-		p5.X = p1.X + static_cast<int>((1.0 - dRatio) * (p2.X - p1.X));
-	else
-		p5.X = p2.X + static_cast<int>(dRatio * (p1.X - p2.X));
-
-	if(p1.Y < p2.Y)
-		p5.Y = p1.Y + static_cast<int>((1.0 - dRatio) * (p2.Y - p1.Y));
-	else
-		p5.Y = p2.Y + static_cast<int>(dRatio * (p1.Y - p2.Y));
-
-	//debug p5
-	//PlutoColor color2(255, 0, 0, 100);
-	//SolidRectangle(p5.X - 5, p5.Y - 5, 10, 10, color2);
-
-	double cosalpha = (p2.X - p1.X) / static_cast<double>((p2.X - p1.X) * (p2.X - p1.X) + (p2.Y - p1.Y) * (p2.Y - p1.Y));
-	double sinalpha = sqrt(1 - cosalpha * cosalpha);
-
-	p3.X = p5.X + static_cast<int>(nHeadHeight * sinalpha);
-	p3.Y = p5.Y + static_cast<int>(sqrt(static_cast<double>(nHeadHeight * nHeadHeight / 4 - (p5.X - p3.X) * (p5.X - p3.X))));
-
-	p4.X = p5.X - static_cast<int>(nHeadHeight * sinalpha);
-	p4.Y = p5.Y - static_cast<int>(sqrt(static_cast<double>(nHeadHeight * nHeadHeight / 4 - (p5.X - p4.X) * (p5.X - p4.X))));
-	
-	DrawLine(p2.X, p2.Y, p3.X, p3.Y, color);
-	DrawLine(p2.X, p2.Y, p4.X, p4.Y, color);
+	DrawLine(p2.X, p2.Y, arrow_p1.X, arrow_p1.Y, color);
+	DrawLine(p2.X, p2.Y, arrow_p2.X, arrow_p2.Y, color);
 }
+
+void OrbiterRenderer::CalcArrowValues(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoPoint& arrow_p1, PlutoPoint& arrow_p2) 
+{
+	int al = sizeArrow.Width;
+	int aw = sizeArrow.Height;
+    int haw = aw / 2;
+
+	if (p1.X == p2.X) 
+	{ 
+		if (p2.Y < p1.Y) 
+		{
+			arrow_p1.X = p2.X - haw;
+			arrow_p1.Y = p2.Y + al;
+			arrow_p2.X = p2.X + haw;
+			arrow_p2.Y = p2.Y + al;
+		}
+		else 
+		{
+			arrow_p1.X = p2.X - haw;
+			arrow_p1.Y = p2.Y - al;
+			arrow_p2.X = p2.X + haw;
+			arrow_p2.Y = p2.Y - al;
+		}
+
+		return;
+	}	
+
+	if (p1.Y == p2.Y) 
+	{
+		if (p2.X > p1.X) 
+		{
+			arrow_p1.X = p2.X - al;
+			arrow_p1.Y = p2.Y - haw;
+			arrow_p2.X = p2.X - al;
+			arrow_p2.Y = p2.Y + haw;
+		}
+		else 
+		{
+			arrow_p1.X = p2.X + al;
+			arrow_p1.Y = p2.Y - haw;
+			arrow_p2.X = p2.X + al;
+			arrow_p2.Y = p2.Y + haw;
+		}
+
+		return;
+	}
+
+	CalcArrowValuesQuad(p1, p2, sizeArrow, arrow_p1, arrow_p2);
+}
+
+void OrbiterRenderer::CalcArrowValuesQuad(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoPoint& arrow_p1, PlutoPoint& arrow_p2) 
+{ 
+	int al = sizeArrow.Width;
+	int aw = sizeArrow.Height;
+    int haw = aw / 2;
+
+	double arrowAng = atan(haw / static_cast<double>(al));
+	double dist = sqrt(static_cast<double>(al * al + aw));
+	double lineAng = atan(abs(p1.X - p2.X) / static_cast<double>(abs(p1.Y - p2.Y)));
+
+	if (p1.X > p2.X) 
+	{
+		if (p1.Y > p2.Y) 
+			lineAng = M_PI - lineAng;
+	}
+	else 
+	{
+		if (p1.Y > p2.Y) 
+			lineAng = M_PI + lineAng;
+		else 
+			lineAng = 2 * M_PI - lineAng;
+	}
+
+	CalcArrowCoords(p2.X, p2.Y, dist, lineAng - arrowAng, arrow_p1);
+	CalcArrowCoords(p2.X, p2.Y, dist, lineAng + arrowAng, arrow_p2);
+}
+
+void OrbiterRenderer::CalcArrowCoords(int x, int y, double dist, double dirn, PlutoPoint& arrow) 
+{
+	while(dirn < 0.0)   
+		dirn = 2 * M_PI + dirn;
+	while(dirn > 2 * M_PI) 
+		dirn = dirn - 2 * M_PI;
+
+	if (dirn <= M_PI / 2) 
+	{
+		arrow.X = x + (int) (sin(dirn) * dist);
+		arrow.Y = y - (int) (cos(dirn) * dist);
+		return;
+	}
+	if (dirn <= M_PI) 
+	{
+		arrow.X = x + (int) ((cos(dirn - M_PI / 2)) * dist);
+		arrow.Y = y + (int) ((sin(dirn - M_PI / 2)) * dist);
+		return;
+	}
+	if (dirn <= 3 * M_PI / 2) 
+	{
+		arrow.X = x - (int) ((sin(dirn - M_PI)) * dist);
+		arrow.Y = y + (int) ((cos(dirn - M_PI)) * dist);
+	}
+	else 
+	{
+		arrow.X = x - (int) ((cos(dirn - 3 * M_PI / 2)) * dist);
+		arrow.Y = y - (int) ((sin(dirn - 3 * M_PI / 2)) * dist);
+	}
+}      

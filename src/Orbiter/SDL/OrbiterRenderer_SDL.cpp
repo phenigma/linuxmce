@@ -655,6 +655,7 @@ void OrbiterRenderer_SDL::DrawLine(int x1, int y1, int x2, int y2, PlutoColor co
         xinc1 = -1;
         xinc2 = -1;
     }
+
     if (y2 >= y1) 
     {
         yinc1 = 1;
@@ -665,6 +666,7 @@ void OrbiterRenderer_SDL::DrawLine(int x1, int y1, int x2, int y2, PlutoColor co
         yinc1 = -1;
         yinc2 = -1;
     }
+
     if (deltax >= deltay) 
     {
         xinc1 = 0; 
@@ -683,6 +685,7 @@ void OrbiterRenderer_SDL::DrawLine(int x1, int y1, int x2, int y2, PlutoColor co
         numadd = deltax;
         numpixels = deltay; 
     }
+
     for (curpixel = 0; curpixel <= numpixels; curpixel++)
     {
 		putpixel(m_pScreenImage, x % OrbiterLogic()->m_iImageWidth, y % OrbiterLogic()->m_iImageHeight, color.m_Value);
@@ -700,9 +703,9 @@ void OrbiterRenderer_SDL::DrawLine(int x1, int y1, int x2, int y2, PlutoColor co
     }
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_SDL::DrawArrow(PlutoPoint p1, PlutoPoint p2, double dRatio, PlutoColor color) 
+void OrbiterRenderer_SDL::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoColor color) 
 {
-	OrbiterRenderer::DrawArrow(p1, p2, dRatio, color);
+	OrbiterRenderer::DrawArrow(p1, p2, sizeArrow, color);
 	SDL_UpdateRect(Screen, 0, 0, 0, 0);
 }
 //-----------------------------------------------------------------------------------------------------

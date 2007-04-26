@@ -77,6 +77,11 @@ private:
 		const PlutoRectangle& rectCandidateObject,
 		int &Direction_Primary, int &Direction_Secondary, int &Distance);
 
+	//draw arrow - helper functions
+	void CalcArrowValues(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoPoint& arrow_p1, PlutoPoint& arrow_p2);
+	void CalcArrowValuesQuad(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoPoint& arrow_p1, PlutoPoint& arrow_p2);
+	void CalcArrowCoords(int x, int y, double dist, double dirn, PlutoPoint& arrow);
+
 protected:
 
 	OrbiterRenderer(Orbiter *pOrbiter);
@@ -130,7 +135,7 @@ public:
 	/**
 	* @brief draws an arrow
 	*/
-	virtual void DrawArrow(PlutoPoint p1, PlutoPoint p2, double dRatio = 0.2, PlutoColor color = PlutoColor::Blue());
+	virtual void DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow = PlutoSize(16, 12), PlutoColor color = PlutoColor::Blue());
 
 	/**
 	* @brief replaces the specified color from within the specified rectangle with another one

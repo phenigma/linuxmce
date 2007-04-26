@@ -1056,9 +1056,9 @@ void OrbiterRenderer_PocketFrog::DrawLine(int x1, int y1, int x2, int y2, PlutoC
     delete pRasterizer;
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::DrawArrow(PlutoPoint p1, PlutoPoint p2, double dRatio, PlutoColor color)
+void OrbiterRenderer_PocketFrog::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoColor color)
 {
-	OrbiterRenderer::DrawArrow(p1, p2, dRatio, color);
+	OrbiterRenderer::DrawArrow(p1, p2, sizeArrow, color);
 	GetDisplay()->Update();
 }
 //-----------------------------------------------------------------------------------------------------
