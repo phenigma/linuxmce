@@ -13,8 +13,7 @@ else
 fi
 
 mkdir -p /usr/pluto/deb-cache || exit 2
-cp "${CD_Dir}"/*.deb /usr/pluto/deb-cache || exit 3
-#cp "${CD_Dir}"/Packages* /usr/pluto/deb-cache/ || exit 5
+cp "${CD_Dir}"/deb-cache/*.deb /usr/pluto/deb-cache || exit 3
 
 cp ./dpkg-scanpackages /usr/pluto/deb-cache || :
 pushd /usr/pluto/deb-cache
