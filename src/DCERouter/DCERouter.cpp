@@ -1610,7 +1610,7 @@ string Message::ToXML()
 	if( !m_bRunning )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not start listening");
-		exit(1);
+		exit(m_bFailedToBind ? 0 : 1);  // If we failed to bind, exit with 0 so we're not restarted because there must be another router running
 	}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DCERouter Version: %s",VERSION);
     RegisterAllPlugins();

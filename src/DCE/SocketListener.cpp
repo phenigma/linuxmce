@@ -55,6 +55,7 @@ SocketListener::SocketListener( string sName )
 	  m_bTerminate(false),
 	  m_bRunning(false),
 	  m_bClosed(false),
+	  m_bFailedToBind(false),
 	  m_bSendOnlySocket(false)
 {
 	pthread_mutexattr_init( &m_MutexAttr );
@@ -128,6 +129,9 @@ void SocketListener::Run()
 	if ( SOCKFAIL( bind( m_Socket, (struct sockaddr*)&addrT, sizeof(addrT) ) ) ) // test if we can bind the socket with the desired properties @todo ask
 	{
 		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Failed to bind to port.\r" );
+		m_bFailedToBind=true;
+		m_bRunning=false;
+		return;
 	}
 	else if ( SOCKFAIL( listen( m_Socket, SOMAXCONN ) ) )
 	{
@@ -306,9 +310,11 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 	if ( pSocket_Old )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_REGISTRATION, "!!! Replacing command handler on device ID \x1b[34;1m%d!\x1b[0m", iDeviceID );
-
-		pSocket_Old->SendString("REPLACE " + Socket->m_sIPAddress);
-		Sleep(10);  // Give it just enough time to be sure the message gets through
+		if( pSocket_Old )
+		{
+			pSocket_Old->SendString("REPLACE " + Socket->m_sIPAddress);
+			Sleep(10);  // Give it just enough time to be sure the message gets through
+		}
 
 		ll.Release();
 		gs.DeletingSocket();

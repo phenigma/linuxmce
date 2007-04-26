@@ -64,6 +64,7 @@ namespace DCE
 		bool m_bTerminate; /** < set to true when the listener terminates (from the destructor)  */
 		bool m_bRunning; /** < specifies if the listener is running - set by StartListening */
 		bool m_bClosed; /** < specifies if the socket is closed @todo ask how it's used */
+		bool m_bFailedToBind; /** < The listener failed to start because it couldn't bind to the socket */
 
 		bool m_bSendOnlySocket; /** <specifies if this socket works in send-only mode (actually this is a hack around blocking reads) */
 

@@ -31,9 +31,9 @@
 #define DEVICEID_NULL           -1  // Invalid device
 
 // Some system devices
-#define DEVICEID_DCEROUTER      -1000
+#define DEVICEID_DCEROUTER      -1000	// System commands for the router itself
 #define DEVICEID_EVENTMANAGER   -1001   // Not a real device, just the destination of events
-#define DEVICEID_LOGGER			-1002   // System commands for the router itself
+#define DEVICEID_LOGGER			-1002   
 #define DEVICEID_MESSAGESEND	-1003	// The message send utility
 
 // Virtual devices
