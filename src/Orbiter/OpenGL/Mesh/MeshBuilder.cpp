@@ -210,8 +210,8 @@ OpenGLGraphic* Graphic)
 	MB.Begin(MBMODE_TRIANGLE_STRIP);
 	MB.SetColor(1.0f, 1.0f, 1.0f);
 
-	PlutoPoint tail_p1(p1.X - (arrow_p2.X - arrow_p1.X) / 2, p1.Y - (arrow_p2.Y - arrow_p1.Y) / 2);
-	PlutoPoint tail_p2(p1.X + (arrow_p2.X - arrow_p1.X) / 2, p1.Y + (arrow_p2.Y - arrow_p1.Y) / 2);
+	PlutoPoint tail_p1(p1.X - (arrow_p2.X - arrow_p1.X) / 4, p1.Y - (arrow_p2.Y - arrow_p1.Y) / 4);
+	PlutoPoint tail_p2(p1.X + (arrow_p2.X - arrow_p1.X) / 4, p1.Y + (arrow_p2.Y - arrow_p1.Y) / 4);
 
 	float max_x = float(max(max(p1.X, p2.X), max(arrow_p1.X, arrow_p2.X)));
 	float max_y = float(max(max(p1.Y, p2.Y), max(arrow_p1.Y, arrow_p2.Y)));

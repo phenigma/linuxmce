@@ -113,7 +113,7 @@ public:
 		string ObjectID = "");
 	virtual void UnSelectObject(string ParentObjectID = "", string ObjectID = "") {}
 	void DrawLine(int x1, int y1, int x2, int y2, PlutoColor color);
-	void DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow = PlutoSize(16, 12), PlutoColor color = PlutoColor::Blue());
+	void DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow = PlutoSize(16, 12), PlutoColor color = PlutoColor::Blue(), string ParentObjectID = "", string ObjectID = "");
 	void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, 
 		PlutoColor ReplacementColor, DesignObj_Orbiter *pObj = NULL);
 	void FloodFill(int x, int y, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};

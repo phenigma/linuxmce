@@ -1024,10 +1024,9 @@ void OrbiterRenderer_OpenGL::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint 
 		OrbiterRenderer::GraphicOffScreen(pvectGraphic);
 }
 
-void OrbiterRenderer_OpenGL::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoColor color)
+void OrbiterRenderer_OpenGL::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, 
+	PlutoColor color, string ParentObjectID, string ObjectID)
 {
-//, string ParentObjectID = "", string ObjectID = ""
-
 	PlutoPoint arrow_p1;
 	PlutoPoint arrow_p2;
 	CalcArrowValues(p1, p2, sizeArrow, arrow_p1, arrow_p2);
@@ -1037,12 +1036,16 @@ void OrbiterRenderer_OpenGL::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize s
 	Container->SetColor(Color);
 	Container->SetAlpha(color.A() / 255.0f);
 
-	string ArrowUniqueID = "arrow " + 
-		StringUtils::ltos(p1.X) + "," + StringUtils::ltos(p1.Y) + "," +
-		StringUtils::ltos(p2.X) + "," + StringUtils::ltos(p2.Y);
+	string ArrowUniqueID = 
+		ObjectID.empty() ? 
+		"arrow " + StringUtils::ltos(p1.X) + "," + StringUtils::ltos(p1.Y) + "," + StringUtils::ltos(p2.X) + "," + StringUtils::ltos(p2.Y) : 
+		ObjectID;
 
 	MeshFrame* Frame = new MeshFrame(ArrowUniqueID, Container);
 	Frame->MarkAsVolatile();
 
-	Engine->AddMeshFrameToDesktop("", Frame);	
+	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);	
 }
+
+
+

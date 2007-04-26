@@ -1584,7 +1584,8 @@ void OrbiterRenderer::RelativePosition(const PlutoRectangle& A,
 	}
 }
 
-void OrbiterRenderer::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoColor color) 
+void OrbiterRenderer::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, 
+								PlutoColor color, string ParentObjectID, string ObjectID) 
 {
 	DrawLine(p1.X, p1.Y, p2.X, p2.Y, color);
 

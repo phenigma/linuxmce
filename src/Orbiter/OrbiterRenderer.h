@@ -135,7 +135,7 @@ public:
 	/**
 	* @brief draws an arrow
 	*/
-	virtual void DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow = PlutoSize(16, 12), PlutoColor color = PlutoColor::Blue());
+	virtual void DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow = PlutoSize(16, 12), PlutoColor color = PlutoColor::Blue(), string ParentObjectID = "", string ObjectID = "");
 
 	/**
 	* @brief replaces the specified color from within the specified rectangle with another one

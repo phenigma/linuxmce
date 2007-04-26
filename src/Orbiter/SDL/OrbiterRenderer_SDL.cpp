@@ -703,7 +703,8 @@ void OrbiterRenderer_SDL::DrawLine(int x1, int y1, int x2, int y2, PlutoColor co
     }
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_SDL::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoColor color) 
+void OrbiterRenderer_SDL::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoColor color,
+	string ParentObjectID, string ObjectID) 
 {
 	OrbiterRenderer::DrawArrow(p1, p2, sizeArrow, color);
 	SDL_UpdateRect(Screen, 0, 0, 0, 0);
