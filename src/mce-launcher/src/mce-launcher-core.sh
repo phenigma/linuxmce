@@ -117,14 +117,12 @@ StartService "Applying Updates" "/usr/pluto/bin/ApplyUpdates.sh"
 StartService "Starting DCE Router" "/usr/pluto/bin/Start_DCERouter.sh"
 StartService "Configure Device Changes" "/usr/pluto/bin/Config_Device_Changes.sh"
 StartService "Setting Coredump Location" "/usr/pluto/bin/corefile.sh"
-StartService "Starting Pluto HAL daemon" "/usr/pluto/bin/StartHAL.sh"
 
 if [[ "$AVWizardDone" != "1" ]] ;then
 	StartService "Starting Audio/Video Wizard" "/usr/pluto/bin/AVWizard_Run.sh"
 fi
 
 StartService "Generating Orbiter Screens" "/usr/pluto/bin/Start_OrbiterGen.sh"
-#StartService "Starting X11 Server" "/usr/pluto/bin/Start_X.sh"
 StartDaemon  "Starting Dhcp Plugin" "/usr/pluto/bin/Dhcpd-Plugin.sh" "DhcpdPlugin"
 StartDaemon  "Start PNP MD Plugin" "/usr/pluto/bin/Start_NewMD_interactor.sh" "NewMDinteractor"
 StartService "Creating Firewire 2 Video4Linux Pipes" "/usr/pluto/bin/Firewire2Video4Linux.sh"
@@ -139,20 +137,6 @@ if [[ -d /home/backup/upload ]]; then
 	apt-get update 1>/dev/null 2>/dev/null
 	apt-get -f install --reinstall pluto-local-database 1>/dev/null 2>/dev/null
 fi
-
-
-#Pluto_alsaconf-noninteractive \
-#Pluto_Diskless_Setup.sh \
-#Pluto_Restart_DHCP.sh \
-#Pluto_Restart_MythBackend.sh \
-#Pluto_Setup_ExportsNFS.sh \
-#Pluto_VoiceMailMonitor.sh \
-#Pluto_kpanic.sh \
-#Pluto_qos.pl \
-#Pluto_Report_MachineOn.sh \
-#Pluto_WakeMDs.sh \
-#Pluto_Backup_Database.sh \
-#Pluto_Share_IRCodes.sh \
 
 echo "100%Done" > /tmp/mce-launcher-pipe
 sleep 2
