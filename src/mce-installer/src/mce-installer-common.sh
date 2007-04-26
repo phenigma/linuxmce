@@ -48,7 +48,10 @@ deb http://linuxmce.com/ubuntu ./
 # Pluto sources - end"
 
 	if ! grep -qF '# Pluto sources - start' /etc/apt/sources.list ;then
-		echo "$Sources" >>/etc/apt/sources.list
+		echo "$Sources" > /etc/apt/sources.list.$$
+		cat /etc/apt/sources.list.$$ /etc/apt/sources.list > /etc/apt/sources.list.$$.all
+		mv -f /etc/apt/sources.list.$$.all /etc/apt/sources.list
+		rm -f /etc/apt/sources.list.$$
 	else
 		Replace_Mirror "$c_installMirror"
 	fi
