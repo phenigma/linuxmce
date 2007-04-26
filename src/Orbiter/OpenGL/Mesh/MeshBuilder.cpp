@@ -202,3 +202,38 @@ OpenGLGraphic* Graphic)
 	return MB.End();
 
 }
+
+/*static*/ MeshContainer* MeshBuilder::BuildArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow,
+	PlutoPoint& arrow_p1, PlutoPoint& arrow_p2)
+{
+	MeshBuilder MB;
+	MB.Begin(MBMODE_TRIANGLE_STRIP);
+	MB.SetColor(1.0f, 1.0f, 1.0f);
+
+	PlutoPoint tail_p1(p1.X - (arrow_p2.X - arrow_p1.X) / 2, p1.Y - (arrow_p2.Y - arrow_p1.Y) / 2);
+	PlutoPoint tail_p2(p1.X + (arrow_p2.X - arrow_p1.X) / 2, p1.Y + (arrow_p2.Y - arrow_p1.Y) / 2);
+
+	float max_x = float(max(max(p1.X, p2.X), max(arrow_p1.X, arrow_p2.X)));
+	float max_y = float(max(max(p1.Y, p2.Y), max(arrow_p1.Y, arrow_p2.Y)));
+	float min_x = float(min(min(p1.X, p2.X), min(arrow_p1.X, arrow_p2.X)));
+	float min_y = float(min(min(p1.Y, p2.Y), min(arrow_p1.Y, arrow_p2.Y)));
+
+	//the arrow head
+	MB.SetTexture2D(arrow_p1.X / (max_x - min_x), arrow_p1.Y / (max_y - min_y));
+	MB.AddVertexFloat((float)arrow_p1.X, (float)arrow_p1.Y, 0);
+
+	MB.SetTexture2D(arrow_p2.X / (max_x - min_x), arrow_p2.Y / (max_y - min_y));
+	MB.AddVertexFloat((float)arrow_p2.X, (float)arrow_p2.Y, 0);	
+
+	MB.SetTexture2D(p2.X / (max_x - min_x), p2.Y / (max_y - min_y));
+	MB.AddVertexFloat((float)p2.X, (float)p2.Y, 0);
+
+	//the arrow tail
+	MB.SetTexture2D(tail_p1.X / (max_x - min_x), tail_p1.Y / (max_y - min_y));
+	MB.AddVertexFloat((float)tail_p1.X, (float)tail_p1.Y, 0);
+
+	MB.SetTexture2D((tail_p2.X) / (max_x - min_x), tail_p2.Y / (max_y - min_y));
+	MB.AddVertexFloat((float)tail_p2.X, (float)tail_p2.Y, 0);
+
+	return MB.End();
+}

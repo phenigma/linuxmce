@@ -77,11 +77,6 @@ private:
 		const PlutoRectangle& rectCandidateObject,
 		int &Direction_Primary, int &Direction_Secondary, int &Distance);
 
-	//draw arrow - helper functions
-	void CalcArrowValues(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoPoint& arrow_p1, PlutoPoint& arrow_p2);
-	void CalcArrowValuesQuad(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoPoint& arrow_p1, PlutoPoint& arrow_p2);
-	void CalcArrowCoords(int x, int y, double dist, double dirn, PlutoPoint& arrow);
-
 protected:
 
 	OrbiterRenderer(Orbiter *pOrbiter);
@@ -91,6 +86,11 @@ protected:
 
 	auto_ptr<TextStyle> m_spTextStyle;
 	pluto_pthread_mutex_t m_NeedRedrawVarMutex; //this will protect needredraw vectors
+
+	//draw arrow - helper functions
+	void CalcArrowValues(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoPoint& arrow_p1, PlutoPoint& arrow_p2);
+	void CalcArrowValuesQuad(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow, PlutoPoint& arrow_p1, PlutoPoint& arrow_p2);
+	void CalcArrowCoords(int x, int y, double dist, double dirn, PlutoPoint& arrow);
 
 public:
 

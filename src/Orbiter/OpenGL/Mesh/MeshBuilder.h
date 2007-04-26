@@ -130,6 +130,12 @@ public:
 	 */
 	static MeshContainer* BuildRectangle(PlutoRectangle& Rectangle, 
 		OpenGLGraphic* Graphic);
+
+	/**
+	 *	Helper class to create an arrow
+	 */
+	static MeshContainer* BuildArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize sizeArrow,
+		PlutoPoint& arrow_p1, PlutoPoint& arrow_p2);
 };
 
 #endif
