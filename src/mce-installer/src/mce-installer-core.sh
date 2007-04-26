@@ -288,7 +288,7 @@ function Configure_Network_Options {
 }
 
 function Configure_Xorg_Conf {
-	if grep -q ".*Load.*\"record\"" ;then
+	if grep -q ".*Load.*\"record\"" /etc/X11/xorg.conf ;then
 		echo "Found xrecord , skiping ..."
 		return
 	fi
