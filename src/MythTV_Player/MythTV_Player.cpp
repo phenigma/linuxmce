@@ -1428,6 +1428,9 @@ void MythTV_Player::CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_
 
 bool MythTV_Player::StopMythFrontend()
 {
+	if( !m_pData )
+		return false; // Never started up anyway
+
 	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
 	string sResponse;
 	if( pDevice_App_Server )

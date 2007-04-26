@@ -123,10 +123,16 @@ if [[ -z "$CardDevice_UsbSerial" ]] ;then
 	exit
 fi
 
+PK_Country=$(RunSQL "SELECT FK_Country FROM Installation WHERE PK_Installation=$PK_Installation")
+
 Port=""
 for dir in /sys/class/pvrusb2/* ;do
 	if [[ "$(cat $dir/device/serial)" == "$CardDevice_UsbSerial" ]]; then
 		Port="video$(cat $dir/v4l_minor_number)"
+		
+		if [[ "$PK_Country" = "840" ]] ;then  # U.S.
+			echo NTSC-M >$dir/ctl_video_standard/cur_val
+		fi
 	fi
 done
 
