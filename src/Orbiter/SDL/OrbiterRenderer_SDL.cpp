@@ -175,6 +175,67 @@ void OrbiterRenderer_SDL::Configure()
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to set video mode (%d x %d): %s", OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight, SDL_GetError());
 		exit(1);
 	}
+
+#if !defined(WIN32) && defined(KDE_LMCE)
+    SDL_SysWMinfo info;
+
+    SDL_VERSION(&info.version);
+    if ( SDL_GetWMInfo(&info) )
+    {
+            SDL_bool set;
+            Atom WM_HINTS;
+
+            /* We haven't modified the window manager hints yet */
+            set = SDL_FALSE;
+
+            Window WMwindow = info.info.x11.wmwindow;
+
+            /* First try to set MWM hints */
+            WM_HINTS = XInternAtom(info.info.x11.display, "_MOTIF_WM_HINTS", True);
+            if ( WM_HINTS != None ) {
+                    /* Hints used by Motif compliant window managers */
+                    struct {
+                            unsigned long flags;
+                            unsigned long functions;
+                            unsigned long decorations;
+                            long input_mode;
+                            unsigned long status;
+                    } MWMHints = { (1L << 1), 0, 0, 0, 0 };
+
+                    XChangeProperty(info.info.x11.display, WMwindow,
+                                    WM_HINTS, WM_HINTS, 32,
+                                    PropModeReplace,
+                                    (unsigned char *)&MWMHints,
+                                    sizeof(MWMHints)/sizeof(long));
+                    set = SDL_TRUE;
+            }
+            /* Now try to set KWM hints */
+            WM_HINTS = XInternAtom(info.info.x11.display, "KWM_WIN_DECORATION", True);
+            if ( WM_HINTS != None ) {
+                    long KWMHints = 0;
+
+                    XChangeProperty(info.info.x11.display, WMwindow,
+                                    WM_HINTS, WM_HINTS, 32,
+                                    PropModeReplace,
+                                    (unsigned char *)&KWMHints,
+                                    sizeof(KWMHints)/sizeof(long));
+                    set = SDL_TRUE;
+            }
+            /* Now try to set GNOME hints */
+            WM_HINTS = XInternAtom(info.info.x11.display, "_WIN_HINTS", True);
+            if ( WM_HINTS != None ) {
+                    long GNOMEHints = 0;
+
+                    XChangeProperty(info.info.x11.display, WMwindow,
+                                    WM_HINTS, WM_HINTS, 32,
+                                    PropModeReplace,
+                                    (unsigned char *)&GNOMEHints,
+                                    sizeof(GNOMEHints)/sizeof(long));
+                    set = SDL_TRUE;
+            }
+	}
+#endif 
+
 	g_bResettingVideoMode=false;
     InitializeAfterSetVideoMode();
 	SetupWindow();
