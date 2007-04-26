@@ -12,7 +12,7 @@
 
 void on_Step4_forward_clicked(GtkWidget *widget, gpointer data) {
 	g_queue_push_head(history, (gpointer)STEP4);
-        displayStepAptMirror();
+	displayStepInstallDependencies();
 }
 
 void on_Step4_finish_clicked(GtkWidget *widget, gpointer data) {

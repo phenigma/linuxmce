@@ -23,8 +23,7 @@ void on_Step2E_forward_clicked(GtkWidget *widget, gpointer data) {
 	setting_netExtDNS2    = g_strdup(gtk_entry_get_text(GTK_ENTRY(entryDNS2)));
 
 	g_queue_push_head(history, (gpointer)STEP2E);
-	displayStepUbuntuExtraCD();
-	//displayStep3();
+	displayStepAptMirror();
 }
 
 void foreach_table_child_set_active(GtkWidget *widget, gpointer data) {

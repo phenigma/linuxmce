@@ -16,16 +16,14 @@ void on_StepAptMirror_forward_clicked(GtkWidget *widget, gpointer data)  {
 	g_queue_push_head(history, (gpointer)STEPAPTMIRROR);	
 	if (flag_mirror==1){	
 		other_mirror = g_strdup_printf("%s",gtk_entry_get_text(txt_entry));
-		//other_mirror = gtk_entry_get_text(txt_entry);
 		setting_installMirror=other_mirror;
 		printf("am ramas cu ohter mirror: >>>%s<<<<", setting_installMirror);
 	}
 
-        displayStepInstallDependencies();
+	displayStepUbuntuExtraCD();
 }
 
 void on_StepAptMirror_combo_changed(GtkWidget *widget, gpointer data) {
-	//GtkWidget *tableMirror = GTK_WIDGET(data);
 	setting_installMirror = g_hash_table_lookup(mirrors, gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget)));
 	printf("Am schimbat in >> %s << \n", setting_installMirror);
 }

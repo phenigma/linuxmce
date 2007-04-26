@@ -13,7 +13,7 @@
 void on_Step2A_forward_clicked(GtkWidget *widget, gpointer data) {
 	g_queue_push_head(history, (gpointer)STEP2A);
 	if (setting_netExtKeep) {
-		displayStepUbuntuExtraCD();
+		displayStepAptMirror();
 	} else {
 		displayStep2E();
 	}
