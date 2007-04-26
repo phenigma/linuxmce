@@ -86,22 +86,6 @@ LogLevels = 1,5,7,8
 	chmod 777 /etc/pluto.conf &>/dev/null
 }
 
-function Setup_NIS {
-	StatsMessage "Configuring Network Information Service (NIS)"
-	## Put a temporar nis config files that will prevent ypbind to start
-	echo "
-NISSERVER=false
-NISCLIENT=false
-YPPWDDIR=/etc
-YPCHANGEOK=chsh
-NISMASTER=
-YPSERVARGS=
-YPBINDARGS=
-YPPASSWDDARGS=
-YPXFRDARGS=
-" > /etc/default/nis
-}
-
 function Install_DCERouter {
 	StatsMessage "Installing MySQL Server"
 	apt-get update
@@ -320,7 +304,6 @@ if [[ "$c_netExtKeep" != "true" ]] ;then
 fi
 Setup_Apt_Conffiles
 Setup_Pluto_Conf
-Setup_NIS
 Install_DCERouter
 Configure_Xorg_Conf
 Create_And_Config_Devices

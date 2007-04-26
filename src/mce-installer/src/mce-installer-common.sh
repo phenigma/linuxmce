@@ -1,3 +1,4 @@
+#!/bin/bash
 
 function Replace_Mirror {
 	local mirror=$1
@@ -72,4 +73,20 @@ APT::Get::AllowUnauthenticated "true";
 	StatsMessage "Preseeding debconf options"
 	./mce-installer-preseed.sh
 	apt-get update
+}
+
+function Setup_NIS {
+	StatsMessage "Configuring Network Information Service (NIS)"
+	## Put a temporary nis config file that will prevent ypbind to start
+	echo "
+NISSERVER=false
+NISCLIENT=false
+YPPWDDIR=/etc
+YPCHANGEOK=chsh
+NISMASTER=
+YPSERVARGS=
+YPBINDARGS=
+YPPASSWDDARGS=
+YPXFRDARGS=
+" > /etc/default/nis
 }
