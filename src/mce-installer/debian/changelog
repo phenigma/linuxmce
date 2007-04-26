@@ -1,3 +1,9 @@
+mce-installer (2.0.1-1) unstable; urgency=low
+
+  * Some more steps added
+
+ -- Paul Webber <webpaul1@gmail.com>  Wed, 25 Apr 2007 16:19:17 -0400
+
 mce-installer (2.0.0-1) unstable; urgency=low
 
   * Installer for feisty 
