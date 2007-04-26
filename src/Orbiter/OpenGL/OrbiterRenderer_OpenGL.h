@@ -78,7 +78,7 @@ namespace DCE
 		virtual void SolidRectangle(int x, int y, int width, int height, PlutoColor color, string ParentObjectID = "", string ObjectID = "");
 		virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color, string ParentObjectID = "", string ObjectID = "");
 		virtual void UnSelectObject(string ParentObjectID = "", string ObjectID = "");
-		virtual void DrawLine(int x, int y, int width, int height, PlutoColor color) {};
+		virtual void DrawLine(int x1, int y1, int x2, int y2, PlutoColor color) {};
 		virtual void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor, DesignObj_Orbiter *pObj=NULL);
 		virtual void FloodFill(int x, int y, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};
 		virtual void RenderText(string &sTextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0), string ObjectID = "");

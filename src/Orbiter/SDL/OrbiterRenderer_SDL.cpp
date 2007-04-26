@@ -37,9 +37,13 @@
 #include "SerializeClass/ShapesColors.h"
 
 #include "../../SDL_Helpers/SDL_Defs.h"
-#include "../RendererOCG.h"
-#include "SDLRendererOCGHelper.h"
+#include "../../SDL_Helpers/SDL_pixel.h"
 
+#include "../RendererOCG.h"
+#include "../ScreenHistory.h"
+#include "../Orbiter.h"
+
+#include "SDLRendererOCGHelper.h"
 #include "pluto_main/Define_Effect.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Text.h"
@@ -48,8 +52,6 @@
 #include "DataGrid.h"
 #include "SDLGraphic.h"
 #include "Splitter/TextWrapper.h"
-#include "../ScreenHistory.h"
-#include "../Orbiter.h"
 
 #ifdef WIN32
 #include "../Win32/MainDialog.h"
@@ -613,27 +615,94 @@ void OrbiterRenderer_SDL::CaptureRelativeMovements()
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL::ReleaseRelativeMovements()
 {
+	//TODO : do we need this anymore? it's deactivated
     // CaptureRelativeMovements() was deactivated above
     if (0)
     {
         LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements()");
         m_bRelativeMode = false;
 
-        // warning: incompatible with constrain-mouse in linux
-        // both keyboard and mouse
         SDL_WM_GrabInput(SDL_GRAB_OFF);
-//#ifndef WIN32 // linux
-//    // sample code
-//    if (OrbiterLogic()->IsYieldScreen())
-//    {
-//        GrabPointer(true);
-//        GrabKeyboard(true);
-//    }
-//    // sample code
-//#endif
         SDL_ShowCursor(SDL_ENABLE);
+
         LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_SDL::ReleaseRelativeMovements() : done");
     }
 }
 
+//-----------------------------------------------------------------------------------------------------
+void OrbiterRenderer_SDL::DrawLine(int x1, int y1, int x2, int y2, PlutoColor color)
+{
+	int x = x1;
+	int y = y1;
+
+    if(
+		x1 < 0 || x1 > OrbiterLogic()->m_iImageWidth - 1 || x2 < 0 || x2 > OrbiterLogic()->m_iImageWidth - 1 || 
+		y1 < 0 || y1 > OrbiterLogic()->m_iImageHeight - 1 || y2 < 0 || y2 > OrbiterLogic()->m_iImageHeight - 1
+	) 
+		return;
+    
+    int deltax = abs(x2 - x1); 
+    int deltay = abs(y2 - y1); 
+    int xinc1, xinc2, yinc1, yinc2, den, num, numadd, numpixels, curpixel;
+
+    if (x2 >= x1) 
+    {
+        xinc1 = 1;
+        xinc2 = 1;
+    }
+    else 
+    {
+        xinc1 = -1;
+        xinc2 = -1;
+    }
+    if (y2 >= y1) 
+    {
+        yinc1 = 1;
+        yinc2 = 1;
+    }
+    else 
+    {
+        yinc1 = -1;
+        yinc2 = -1;
+    }
+    if (deltax >= deltay) 
+    {
+        xinc1 = 0; 
+        yinc2 = 0; 
+        den = deltax;
+        num = deltax / 2;
+        numadd = deltay;
+        numpixels = deltax; 
+    }
+    else 
+    {
+        xinc2 = 0; 
+        yinc1 = 0; 
+        den = deltay;
+        num = deltay / 2;
+        numadd = deltax;
+        numpixels = deltay; 
+    }
+    for (curpixel = 0; curpixel <= numpixels; curpixel++)
+    {
+		putpixel(m_pScreenImage, x % OrbiterLogic()->m_iImageWidth, y % OrbiterLogic()->m_iImageHeight, color.m_Value);
+        num += numadd; 
+        
+		if (num >= den) 
+        {
+            num -= den; 
+            x += xinc1; 
+            y += yinc1; 
+        }
+
+        x += xinc2; 
+        y += yinc2; 
+    }
+}
+//-----------------------------------------------------------------------------------------------------
+void OrbiterRenderer_SDL::DrawArrow(PlutoPoint p1, PlutoPoint p2, double dRatio, PlutoColor color) 
+{
+	OrbiterRenderer::DrawArrow(p1, p2, dRatio, color);
+	SDL_UpdateRect(Screen, 0, 0, 0, 0);
+}
 //-----------------------------------------------------------------------------------------------------

@@ -125,12 +125,12 @@ public:
 	/**
 	* @brief draws an line
 	*/
-	virtual void DrawLine(int iX, int iY, int iWidth, int iHeight, PlutoColor color) = 0;
+	virtual void DrawLine(int x1, int y1, int x2, int y2, PlutoColor color) = 0;
 
 	/**
 	* @brief draws an arrow
 	*/
-	virtual void DrawArrow(PlutoPoint p1, PlutoPoint p2, double dRatio = 0.2, PlutoColor color = PlutoColor::Blue()) {};
+	virtual void DrawArrow(PlutoPoint p1, PlutoPoint p2, double dRatio = 0.2, PlutoColor color = PlutoColor::Blue());
 
 	/**
 	* @brief replaces the specified color from within the specified rectangle with another one

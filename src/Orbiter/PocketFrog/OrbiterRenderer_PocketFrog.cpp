@@ -1049,55 +1049,16 @@ void OrbiterRenderer_PocketFrog::HollowRectangle(int x, int y, int width, int he
 	GetDisplay()->DrawRect(x, y, x + width, y + height, GetColor16(color));
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterRenderer_PocketFrog::DrawLine(int x, int y, int width, int height, PlutoColor color)
+void OrbiterRenderer_PocketFrog::DrawLine(int x1, int y1, int x2, int y2, PlutoColor color)
 {
 	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(GetDisplay()->GetBackBuffer());
-	pRasterizer->DrawLine(x, y, x + width, y + height, GetColor16(color));
+	pRasterizer->DrawLine(x1, y1, x2, y2, GetColor16(color));
     delete pRasterizer;
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_PocketFrog::DrawArrow(PlutoPoint p1, PlutoPoint p2, double dRatio, PlutoColor color)
 {
-	int nHeadHeight = static_cast<int>(sqrt(static_cast<double>((p1.X - p2.X) * (p1.X - p2.X) + (p1.Y - p2.Y) * (p1.Y - p2.Y))) * dRatio);
-
-	if(nHeadHeight > 100)
-		nHeadHeight = 100;
-
-	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(GetDisplay()->GetBackBuffer());
-	pRasterizer->DrawLine(p1.X, p1.Y, p2.X, p2.Y, GetColor16(color));
-
-	PlutoPoint p3;
-	PlutoPoint p4;
-	PlutoPoint p5;
-
-	if(p1.X < p2.X)
-		p5.X = p1.X + static_cast<int>((1.0 - dRatio) * (p2.X - p1.X));
-	else
-		p5.X = p2.X + static_cast<int>(dRatio * (p1.X - p2.X));
-
-	if(p1.Y < p2.Y)
-		p5.Y = p1.Y + static_cast<int>((1.0 - dRatio) * (p2.Y - p1.Y));
-	else
-		p5.Y = p2.Y + static_cast<int>(dRatio * (p1.Y - p2.Y));
-
-	//debug p5
-	//PlutoColor color2(255, 0, 0, 100);
-	//SolidRectangle(p5.X - 5, p5.Y - 5, 10, 10, color2);
-
-	double cosalpha = (p2.X - p1.X) / static_cast<double>((p2.X - p1.X) * (p2.X - p1.X) + (p2.Y - p1.Y) * (p2.Y - p1.Y));
-	double sinalpha = sqrt(1 - cosalpha * cosalpha);
-
-	p3.X = p5.X + static_cast<int>(nHeadHeight * sinalpha);
-	p3.Y = p5.Y + static_cast<int>(sqrt(static_cast<double>(nHeadHeight * nHeadHeight / 4 - (p5.X - p3.X) * (p5.X - p3.X))));
-
-	p4.X = p5.X - static_cast<int>(nHeadHeight * sinalpha);
-	p4.Y = p5.Y - static_cast<int>(sqrt(static_cast<double>(nHeadHeight * nHeadHeight / 4 - (p5.X - p4.X) * (p5.X - p4.X))));
-	
-	pRasterizer->DrawLine(p2.X, p2.Y, p3.X, p3.Y, GetColor16(color));
-	pRasterizer->DrawLine(p2.X, p2.Y, p4.X, p4.Y, GetColor16(color));
-
-    delete pRasterizer;
-
+	OrbiterRenderer::DrawArrow(p1, p2, dRatio, color);
 	GetDisplay()->Update();
 }
 //-----------------------------------------------------------------------------------------------------

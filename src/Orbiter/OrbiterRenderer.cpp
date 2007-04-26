@@ -1579,3 +1579,43 @@ void OrbiterRenderer::RelativePosition(const PlutoRectangle& A,
 		}
 	}
 }
+
+void OrbiterRenderer::DrawArrow(PlutoPoint p1, PlutoPoint p2, double dRatio, PlutoColor color) 
+{
+	int nHeadHeight = static_cast<int>(sqrt(static_cast<double>((p1.X - p2.X) * (p1.X - p2.X) + (p1.Y - p2.Y) * (p1.Y - p2.Y))) * dRatio);
+
+	if(nHeadHeight > 100)
+		nHeadHeight = 100;
+
+	DrawLine(p1.X, p1.Y, p2.X, p2.Y, color);
+
+	PlutoPoint p3;
+	PlutoPoint p4;
+	PlutoPoint p5;
+
+	if(p1.X < p2.X)
+		p5.X = p1.X + static_cast<int>((1.0 - dRatio) * (p2.X - p1.X));
+	else
+		p5.X = p2.X + static_cast<int>(dRatio * (p1.X - p2.X));
+
+	if(p1.Y < p2.Y)
+		p5.Y = p1.Y + static_cast<int>((1.0 - dRatio) * (p2.Y - p1.Y));
+	else
+		p5.Y = p2.Y + static_cast<int>(dRatio * (p1.Y - p2.Y));
+
+	//debug p5
+	//PlutoColor color2(255, 0, 0, 100);
+	//SolidRectangle(p5.X - 5, p5.Y - 5, 10, 10, color2);
+
+	double cosalpha = (p2.X - p1.X) / static_cast<double>((p2.X - p1.X) * (p2.X - p1.X) + (p2.Y - p1.Y) * (p2.Y - p1.Y));
+	double sinalpha = sqrt(1 - cosalpha * cosalpha);
+
+	p3.X = p5.X + static_cast<int>(nHeadHeight * sinalpha);
+	p3.Y = p5.Y + static_cast<int>(sqrt(static_cast<double>(nHeadHeight * nHeadHeight / 4 - (p5.X - p3.X) * (p5.X - p3.X))));
+
+	p4.X = p5.X - static_cast<int>(nHeadHeight * sinalpha);
+	p4.Y = p5.Y - static_cast<int>(sqrt(static_cast<double>(nHeadHeight * nHeadHeight / 4 - (p5.X - p4.X) * (p5.X - p4.X))));
+	
+	DrawLine(p2.X, p2.Y, p3.X, p3.Y, color);
+	DrawLine(p2.X, p2.Y, p4.X, p4.Y, color);
+}
