@@ -21,7 +21,7 @@ device_name="$module"
 MAX_LOOP_COUNT=200
 
 i=1
-while [ "$i" -le "$MAX_LOOP_COUNT" ]; do
+while [[ "$i" -le "$MAX_LOOP_COUNT" ]]; do
 	Log "$LogFile" "$LogSectionDelimiter"
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i" "$LogFile"
@@ -29,7 +29,7 @@ while [ "$i" -le "$MAX_LOOP_COUNT" ]; do
 
 	/usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.log)
 	mysqldump pluto_main Device > /var/log/pluto/device.$(date +%F-%T)
-	if [ "${Valgrind/DCERouter}" != "$Valgrind" ]; then
+	if [[ "${Valgrind/DCERouter}" != "$Valgrind" ]]; then
 		/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost -l "$LogFile"
 	else
 		/usr/pluto/bin/Spawn_Wrapper.sh /usr/pluto/bin/DCERouter -h localhost -l "$LogFile"
@@ -37,13 +37,13 @@ while [ "$i" -le "$MAX_LOOP_COUNT" ]; do
 
 	Ret="$?"
 	Log "$LogFile" "Return code: $Ret"
-	if [ "$Ret" -eq 3 ]; then
+	if [[ "$Ret" -eq 0 ]]; then
 		# Abort
 		Logging $TYPE $SEVERITY_NORMAL "$module" "Shutting down... count=$i/$MAX_LOOP_COUNT dev=$device_name"
 		Logging $TYPE $SEVERITY_NORMAL "$module" "Shutting down... count=$i/$MAX_LOOP_COUNT dev=$device_name" "$LogFile"
 		Log "$LogFile" "$(date) Shutdown"
 		exit
-	elif [ "$Ret" -eq 2 ]; then
+	elif [[ "$Ret" -eq 2 ]]; then
 		Logging $TYPE $SEVERITY_NORMAL "$module" "Device requests restart... count=$i/$MAX_LOOP_COUNT dev=$device_name"
 		Logging $TYPE $SEVERITY_NORMAL "$module" "Device requests restart... count=$i/$MAX_LOOP_COUNT dev=$device_name" "$LogFile"
 		Log "$LogFile" "$(date) Restart"
