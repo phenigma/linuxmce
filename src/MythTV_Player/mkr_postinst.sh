@@ -28,6 +28,28 @@ function addEntries
 	fi;
 }
 
+function addRootUser
+{
+	is_in_group="false"
+	for group in `id -nG root` ;do
+		if [[ "$group" == "mythtv" ]] ;then
+			is_in_group="true"
+		fi
+	done
+
+	if [[ "$is_in_group" == "false" ]] ;then
+		group_line=$(grep "^mythtv:" /etc/group)
+		if [[ "$(echo $group_line | cut -d':' -f4)" == "" ]] ;then
+			group_line="${group_line}root"
+		else
+		    group_line="${group_line},root"
+		fi
+        grep -v "^mythtv:" /etc/group > /etc/group.$$
+        echo $group_line >> /etc/group.$$
+        mv /etc/group.$$ /etc/group
+	fi																																	
+}
+
 # make the proper ownership's because the backend can't read it otherwise
 chown mythtv /etc/mythtv/mysql.txt
 
@@ -112,8 +134,8 @@ adduser --quiet mythtv public
 
 ## Set root user to mythtv group
 if grep -q 'mythtv' /etc/group ;then
-	useradd -G mythtv root || :
+	addRootUser
 else
 	groupadd mythtv || :
-	useradd -G mythtv root || :
+	addRootUser
 fi
