@@ -489,12 +489,9 @@ bool SDL_App_Object::EventProcess()
         SetExitCode(1);
         return false;
     }
-    if (! SDL_Event_Process(*m_pSDL_Event_Loop_Data))
-    {
-        SetExitCode(m_pSDL_Event_Loop_Data->pOrbiter->m_bReload ? 2 : 0);
-        LoggerWrapper::GetInstance()->Write(LV_STATUS, "SDL_App_Object::EventProcess() END, with return code : %d", GetExitCode());
-        return false;
-    }
+    SDL_Event_Process(*m_pSDL_Event_Loop_Data);
+    SetExitCode(m_pSDL_Event_Loop_Data->pOrbiter->m_bReload ? 2 : 0);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "SDL_App_Object::EventProcess() END, with return code : %d", GetExitCode());
     return true;
 };
 
