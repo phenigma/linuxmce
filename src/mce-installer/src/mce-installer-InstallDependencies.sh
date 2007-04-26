@@ -1,6 +1,9 @@
 #!/bin/bash
 
 . /tmp/mce_wizard_data.sh
+. ./mce-installer-common.h
+
+Setup_Apt_Conffiles
 
 rm -rf /tmp/mce_installer_error
 InstallerLogFile="/var/log/mce-installer-$(date +%s).log"
