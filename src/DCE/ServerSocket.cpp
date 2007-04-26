@@ -64,9 +64,9 @@ void *ServerSocket::BeginWapClientThread(void *SvSock)
 
 ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress, string sMacAddress ) :
 	Socket( sName, sIPAddress, sMacAddress ),
+	m_bSelfDestroying(false),
 	m_ConnectionMutex( "connection " + sName ),
-	m_ClientThreadID( (pthread_t)NULL ),
-	m_bSelfDestroying(false)
+	m_ClientThreadID((pthread_t)NULL)
 {
 	m_iInstanceID = 0;
 	m_bSendOnlySocket = false;
@@ -294,7 +294,7 @@ bool ServerSocket::ServeClient()
 			if( sMessage.find("IMPLEMENTS_PENDING_TASKS")!=string::npos )
 				m_bImplementsPendingTasks=true;
 
-			string::size_type pos_flags = sMessage.find("INSTANCE");
+			//string::size_type pos_flags = sMessage.find("INSTANCE");
 			if( pos_instance!=string::npos )
 				m_iInstanceID = atoi(sMessage.substr(pos_instance+8).c_str());
 
