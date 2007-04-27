@@ -246,13 +246,17 @@ DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *p
 void MouseBehavior::SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection,bool bHasTimeline)
 {
 	m_bHasTimeline = bHasTimeline;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS," MouseBehavior::SetMediaInfo %s %s timeline %d ptr %p type %d",
+		sTotal.c_str(),sTime.c_str(),(int) m_bHasTimeline, m_pMouseHandler,
+		m_pMouseHandler ? (int) m_pMouseHandler->TypeOfMouseHandler() : -1 );
 	if( m_pMouseHandler && m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_Speed )
 	{
 		SpeedMouseHandler *pSpeedMouseHandler = (SpeedMouseHandler *) m_pMouseHandler;
 		int Stop = pSpeedMouseHandler->ParseTime(sTotal);
 		int Current = pSpeedMouseHandler->ParseTime(sTime);
-		LoggerWrapper::GetInstance()->Write(LV_STATUS," MouseBehavior::SetMediaInfo %s %s %d %d",
-			sTotal.c_str(),sTime.c_str(),Stop,Current);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS," MouseBehavior::SetMediaInfo 2 %s %s %d %d timeline %d ptr %p type %d",
+			sTotal.c_str(),sTime.c_str(),Stop,Current,(int) m_bHasTimeline, m_pMouseHandler,
+		m_pMouseHandler ? (int) m_pMouseHandler->TypeOfMouseHandler() : -1 );
 		if( Stop==pSpeedMouseHandler->m_CurrentMedia_Stop && Current==pSpeedMouseHandler->m_CurrentMedia_Pos )
 			return;
 		pSpeedMouseHandler->m_CurrentMedia_Stop = Stop;
