@@ -7378,7 +7378,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 		m_pOrbiterRenderer->PromptUser("I'm sorry.  This version of Orbiter is too old.  It uses schema " + StringUtils::itos(ORBITER_SCHEMA)
 			+ " instead of " + StringUtils::itos(iSC_Version) + ".  Please install a newer version.");
 		OnQuit();
-		exit(0);
+		exit(1);
 	}
 	else
 	{
@@ -7390,7 +7390,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 		if( iResponse==prNo )
 		{
 			OnQuit();
-			exit(0);
+			exit(1);
 			return false;
 		}
 
@@ -7400,7 +7400,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 #ifdef WIN32
 		OnUnexpectedDisconnect(); //force a reload
 #else
-		exit(0);
+		exit(1);
 #endif
 	}
 
@@ -8454,7 +8454,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 		else
 		{
 			OnQuit();
-			exit(0);
+			exit(1);
 		}
 
 		return 0; // Quit
@@ -8463,7 +8463,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 	{
 		m_pOrbiterRenderer->PromptUser("Something went wrong and this orbiter's user interface wasn't created.  In Pluto Admin, go to Wizard, Devices, Orbiters and click Regen for Orbiter #" + StringUtils::itos(m_dwPK_Device) + " and try later");
 		OnQuit();
-		exit(0);
+		exit(1);
 		return 0;
 	}
 	else if( sStatus=="D" || sStatus=="U" )
@@ -8536,7 +8536,7 @@ int Orbiter::DeviceIdInvalid()
 		if(prYes != nResponse)
 		{
 			OnQuit();
-			exit(0);
+			exit(1);
 			return 0;
 		}
 	}
@@ -8558,7 +8558,7 @@ int Orbiter::DeviceIdInvalid()
 		if( iResponse == prCancel || PROMPT_CANCEL == iResponse )
 		{
 			OnQuit();
-			exit(0);
+			exit(1);
 			return 0;
 		}
 		if( iResponse == prYes )
@@ -8569,7 +8569,7 @@ int Orbiter::DeviceIdInvalid()
 			if(PROMPT_CANCEL == PK_Device)
 			{
 				OnQuit();
-				exit(0);
+				exit(1);
 				return 0;
 			}
 		}
@@ -8578,7 +8578,7 @@ int Orbiter::DeviceIdInvalid()
 	if( !PK_Device )
 	{
 		OnQuit();
-		exit(0);
+		exit(1);
 	}
 
 	return PK_Device;
