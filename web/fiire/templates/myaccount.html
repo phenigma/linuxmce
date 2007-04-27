@@ -1,0 +1,134 @@
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td><img src="images/myaccount.jpg" width="570" height="34" /></td>
+            </tr>
+            <tr>
+              <td><img src="images/spacer.gif" width="4" height="2" /></td>
+            </tr>
+            <tr>
+              <td>
+			  <table>
+			  	<tr>
+			  		<td><B>My commission & referrals	</B></td>
+			  	</tr>
+			  	<tr>
+			  		<td><table border="0" cellspacing="0" cellpadding="1">
+  <tr>
+    <td colspan="5">Level 1: {referrals_level_1} </td>
+  </tr>
+  <tr>
+    <td width="19"><img src="images/joinbottom.gif" width="18" height="18" /></td>
+    <td colspan="4">Level 2: {referrals_level_2}</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="18"><img src="images/joinbottom.gif" width="18" height="18" /></td>
+    <td colspan="3">Level 3: {referrals_level_3}</td>
+  </tr>
+</table>
+Tell your friends about Fiire, and be sure to tell them to put your username as the 'referred by': <strong>{uname}</strong> 
+</td>
+			  	</tr>
+			  	<tr>
+			  		<td><img src="images/spacer.gif" width="1" height="15"></td>
+			  	</tr>
+			  	<tr>
+			  		<td><table width="100%">
+			  			<tr>
+			  				<td>Your total commission earned is: <B>${commisionsTotal}</B></td>
+			  				<td align="right"><a href="mycommisions.php?all=1">[&nbsp;show&nbsp;me&nbsp;]</a></td>
+			  			</tr>
+			  		</table></td>
+			  	</tr>
+			  	<tr>
+			  		<td><table width="100%">
+			  			<tr>
+			  				<td>You have <B>${commisionsBlocked}</B> in commissions that will be available as soon as the 30-day return period expires. </td>
+			  				<td align="right"><a href="mycommisions.php?blocked=1">[&nbsp;show&nbsp;me&nbsp;]</a></td>
+			  			</tr>
+			  		</table></td>
+			  	</tr>
+			  	<tr>
+			  		<td><table width="100%">
+			  			<tr>
+			  				<td>You have <B>${commisionsAvailable}</B> available now. </td>
+			  				<td align="right"><a href="mycommisions.php">[ show me / send me my money! ]</a></td>
+			  			</tr>
+			  		</table></td>
+			  	</tr>
+			  	<tr>
+			  		<td><img src="images/spacer.gif" width="1" height="15"></td>
+			  	</tr>			  	
+			  	<tr>
+			  		<td><B>My account info</B></td>
+			  	</tr>			  	
+			  	<tr>
+			  		<td>
+			  		<form name="myform" action="myaccount.php" method="POST">
+			  		<table>
+						<tr>
+							<td colspan="2" align="center">{message}</td>
+						</tr>			  		
+						<tr>
+							<td>Username</td>
+							<td><B>{uname}</B></td>
+						</tr>
+						<tr>
+							<td>Old password</td>
+							<td><input type="password" name="old_password" value=""></td>
+						</tr>
+						<tr>
+							<td>Password</td>
+							<td><input type="password" name="password1" value=""></td>
+						</tr>
+						<tr>
+							<td>Confirm password *</td>
+							<td><input type="password" name="password2" value=""></td>
+						</tr>
+						<tr>
+							<td>Referred by</td>
+							<td>{referred_by}</td>
+						</tr>
+						<tr>
+							<td>Comments</td>
+							<td><textarea name="comments" rows="5" style="width:300px;">{comments}</textarea></td>
+						</tr>
+						<tr>
+							<td colspan="2"><input type="checkbox" name="publicUser" value="1" {publicUserChecked}> Let the general public see my username and amount I've referred in the top performers section of the website if I am a top performer.</td>
+						</tr>
+						<tr>
+							<td colspan="2"><input type="checkbox" name="publicComments" value="1" {publicCommentsChecked}> Make the comments above also visible to the general public.</td>
+						</tr>			  		
+			  			<tr>
+			  				<td>Polywell email</td>
+			  				<td><input type="text" name="pemail" value="{polywell_email}"></td>
+			  			</tr>
+			  			<tr>
+			  				<td>&nbsp;</td>
+			  				<td><input type="submit" name="update" value="Update"></td>
+			  			</tr>			  			
+			  		</table></form></td>
+			  	</tr>	
+			  	<tr>
+			  		<td><img src="images/spacer.gif" width="1" height="15"></td>
+			  	</tr>
+			  	<tr>
+			  		<td><B>Support Requests</B></td>
+			  	</tr>			  	
+			  	<tr>
+			  		<td>{support_requests}</td>
+			  	</tr>	
+			  	<tr>
+			  		<td><img src="images/spacer.gif" width="1" height="15"></td>
+			  	</tr>
+			  	<tr>
+			  		<td><B>Order History</B></td>
+			  	</tr>			  	
+			  	<tr>
+			  		<td>{orders_history}</td>
+			  	</tr>			  	
+			  	
+			  </table>
+			  </td>
+            </tr>
+          </table>

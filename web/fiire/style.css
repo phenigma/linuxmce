@@ -1,0 +1,32 @@
+body { font-family: Verdana, Arial, Helvetica, sans-serif; color:#777777; background: url(images/background.jpg) repeat-x; margin: 0px 0px 0px 0px; }			
+a { text-decoration: none; color: #CC6602; }
+a:hover { text-decoration: underline; color: #777777; }
+.input { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: #777777; border: 1px solid #C2C6C9; }
+
+.login { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: #777777; font-weight: bold;
+padding-top: 7px;
+padding-bottom: 7px;}
+
+.main_left {  width: 168px; border-right: 1px solid #C2C6C9; }
+.text_left {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: #777777; 
+padding-top: 5px;
+padding-bottom: 20px;
+padding-right: 19px;  
+padding-left: 5px; }
+.other_text {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: #777777; 
+}
+
+.navbar {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: #777777; 
+padding-top: 25px;
+padding-bottom: 10px;
+}
+
+.footer1 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color:#777777; font-weight: bold; background: url(images/back_footer1.jpg) repeat-x; height: 33px; }
+.footer2 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 11px; color:#333333; background: url(images/back_footer2.jpg) repeat-x; height: 30px; }
+
+.err {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: red; font-weight: bold;}
+.notice {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: green; font-weight: bold;}
+.black {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: black;}
+.price {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 14px; color: #FFA31A; font-weight: bold;}
+a.plink { text-decoration: none; color: #FFA31A; }
+a.plink:hover { text-decoration: none; color: #000000; }
