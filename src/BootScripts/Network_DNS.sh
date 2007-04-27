@@ -11,10 +11,24 @@ if [ ! -e /etc/bind/named.conf.forwarders.pbackup ] && [ -e /etc/bind/named.conf
 fi	
 
 if ! BlacklistConfFiles '/etc/resolv.conf' && ! BlacklistConfFiles '/etc/bind/named.conf.forwarders' ;then
+
+Parm="$1"
+
 cat >/etc/bind/named.conf.forwarders <<END
 forwarders {
 $(grep nameserver /etc/resolv.conf | grep -v '#' | sed 's/nameserver//g; s/ *//g; s/^.*$/\t&;/')
 };
 END
 fi
-rndc reload
+## For some reason, 'rndc reload' didn't refresh the forwarders for at least one occasion
+## Because of this, the default is to restart BIND.
+## Only special callers will reload BIND instead of restarting it.
+case "$1" in
+	dhclienthook)
+		rndc reload
+	;;
+
+	*)
+		/etc/init.d/bind9 restart
+	;;
+esac
