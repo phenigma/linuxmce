@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dcerouter'." << endl
 			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
 			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
-		exit(0);
+		exit(1);
 	}
 
 #ifdef WIN32
