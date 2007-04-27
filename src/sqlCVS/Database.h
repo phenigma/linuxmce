@@ -54,8 +54,6 @@ namespace sqlCVS
 		 */
 		bool m_bInteractiveMode;
 
-		int m_iServerVersion; // The version of the mysql server
-
 		/** @brief constructor */
 		
 		Database( string db_host, string db_user, string db_pass, string db_name, int db_port );

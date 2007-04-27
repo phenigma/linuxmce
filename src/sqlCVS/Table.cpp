@@ -2654,7 +2654,7 @@ bool Table::DoWeHaveBatch( int psc_batch )
 void Table::ValidateTable()
 {
 	// Do any fixups if something has changed in the schema
-	if( m_pDatabase->m_iServerVersion>50000 ) // In Mysql 5 they require an ON UPDATE CURRENT_TIMESTAMP for the psc_mod
+	if( mysql_get_server_version(m_pDatabase->m_pMySQL)>50000 ) // In Mysql 5 they require an ON UPDATE CURRENT_TIMESTAMP for the psc_mod
 	{
 		std::ostringstream sSQL;
 		sSQL << "show create table `" << m_sName << "`";
