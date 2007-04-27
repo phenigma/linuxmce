@@ -127,6 +127,7 @@ private:
 	bool Internal_HideWindow(const string &sClassName);
 	void Internal_SetSdlWindowVisibility(bool bValue);
 	void Internal_ResetOrbiterWindow();
+	void RemoveWindowDecoration(string sWindowId);
 
 	//variables
 	string m_sSdlWindowName;

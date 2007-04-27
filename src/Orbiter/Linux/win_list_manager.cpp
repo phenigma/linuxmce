@@ -36,6 +36,8 @@
 #include "win_list_manager.h"
 #include "WindowContext.h"
 #include "DCE/Logger.h"
+
+#include "SDL.h"
 using namespace DCE;
 
 WinListManager::WinListManager(const string &sSdlWindowName)
@@ -414,6 +416,9 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::ApplyContext: applying whole context for '%s': %s (ExternalChange: %d ErrorFlag %d)",
 				sWindowName.c_str(), pending_context.ToString().c_str(),(int) m_bExternalChange,(int) pending_context.IsErrorFlag());
 #endif
+
+			RemoveWindowDecoration(m_pWMController->WindowId(sWindowName));
+
 			bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 			bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
 			bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
@@ -503,3 +508,82 @@ void WinListManager::HandleOffCommand()
 	m_bEnabled = false;
 }
 
+void WinListManager::RemoveWindowDecoration(string sWindowId)
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager: removing window decoration for %s", sWindowId.c_str());
+
+	SDL_bool set;
+	Atom WM_HINTS;
+
+	/* We haven't modified the window manager hints yet */
+	set = SDL_FALSE;
+
+    unsigned long wid;
+
+    if (sscanf(sWindowId.c_str(), "0x%lx", &wid) != 1 &&
+        sscanf(sWindowId.c_str(), "0X%lx", &wid) != 1 &&
+        sscanf(sWindowId.c_str(), "%lu", &wid) != 1)
+    {
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager: failed to parse window id %s", sWindowId.c_str());
+        return;
+    }
+
+	Display *display = XOpenDisplay(NULL);
+
+	if(NULL == display)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager: failed to open display");
+		return;
+	}
+
+    Window WMwindow = (Window)wid;
+
+	/* First try to set MWM hints */
+	WM_HINTS = XInternAtom(display, "_MOTIF_WM_HINTS", True);
+	if ( WM_HINTS != None ) 
+	{
+			/* Hints used by Motif compliant window managers */
+			struct {
+					unsigned long flags;
+					unsigned long functions;
+					unsigned long decorations;
+					long input_mode;
+					unsigned long status;
+			} MWMHints = { (1L << 1), 0, 0, 0, 0 };
+
+			XChangeProperty(display, WMwindow,
+							WM_HINTS, WM_HINTS, 32,
+							PropModeReplace,
+							(unsigned char *)&MWMHints,
+							sizeof(MWMHints)/sizeof(long));
+			set = SDL_TRUE;
+	}
+	/* Now try to set KWM hints */
+	WM_HINTS = XInternAtom(display, "KWM_WIN_DECORATION", True);
+	if ( WM_HINTS != None ) 
+	{
+			long KWMHints = 0;
+
+			XChangeProperty(display, WMwindow,
+							WM_HINTS, WM_HINTS, 32,
+							PropModeReplace,
+							(unsigned char *)&KWMHints,
+							sizeof(KWMHints)/sizeof(long));
+			set = SDL_TRUE;
+	}
+	/* Now try to set GNOME hints */
+	WM_HINTS = XInternAtom(display, "_WIN_HINTS", True);
+	if ( WM_HINTS != None ) 
+	{
+			long GNOMEHints = 0;
+
+			XChangeProperty(display, WMwindow,
+							WM_HINTS, WM_HINTS, 32,
+							PropModeReplace,
+							(unsigned char *)&GNOMEHints,
+							sizeof(GNOMEHints)/sizeof(long));
+			set = SDL_TRUE;
+	}
+
+	XCloseDisplay(display);
+}
