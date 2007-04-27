@@ -2,14 +2,19 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
 <form action="login.php" method="post">
                 <tr>
-                  <td width="33%" valign="middle"><input name="user" id="user" type="text" value="User" size="15" class="input"  onClick="document.getElementById('user').value='';"/>
-                    <input name="pass" type="password" value="" size="15" class="input" />
-                    <label></label></td>
+                  <td width="33%" valign="middle"><table>
+                  	<tr>
+                  		<td><input name="user" id="user" type="text" value="User" size="15" class="input"  onClick="document.getElementById('user').value='';"/></td>
+                  		<td><input name="pass" type="password" value="" size="15" class="input" /></td>
+                  		<td><input type="image" src="images/login.jpg" border="0"></td>
+                  		</tr>
+                  	</table>
+                    </td>
                   <td width="4%" valign="middle"><input type="checkbox" name="remember" value="1" /></td>
                   <td width="63%" valign="middle" class="other_text">Remember me </td>
                 </tr>
           		<tr>
-            		<td class="login" colspan="3" class="login"> Login :: <a href="register.php">Register</a> :: <a href="forgot.php">Forgot Password</a> <input type="image" src="images/spacer.gif"></td>
+            		<td class="login" colspan="3" class="login"> <a href="register.php">Register</a> :: <a href="forgot.php">Forgot Password</a> <input type="image" src="images/spacer.gif"></td>
           		</tr>                
           		</form>
               </table>

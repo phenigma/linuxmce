@@ -939,6 +939,7 @@ function do_cookie_autologin($conn){
 	
 				$_SESSION['uID']=$row['id'];
 				$_SESSION['username']=$row['username'];
+				$_SESSION['uemail']=$row['email'];
 				$_SESSION['cookie_str']=$cstr;
 			}
 		}
@@ -952,7 +953,7 @@ function register($conn){
 	return register_form();
 }
 
-function register_form($regusername='',$referrer='',$error=''){
+function register_form($regusername='',$regemail='',$referrer='',$error=''){
 
 	$variables=array();
 	
@@ -964,6 +965,7 @@ function register_form($regusername='',$referrer='',$error=''){
 	
 	// set dynamic fields
 	$variables=set_variable($variables,'regusername',$regusername);
+	$variables=set_variable($variables,'regemail',$regemail);
 	$variables=set_variable($variables,'referrer',$referrer);
 	$variables=set_variable($variables,'error',$error);
 	
@@ -978,37 +980,50 @@ function process_register($conn){
 	$comments=cleanString($_POST['comments']);
 	$publicUser=(int)@$_POST['publicUser'];
 	$publicComments=(int)@$_POST['publicComments'];
+	$regemail=trim(cleanString($_POST['regemail']));
 	
 	// check if any field is empty
-	if($regusername=='' || $regpassword1==''){
+	if($regusername=='' || $regpassword1=='' || $regemail==''){
 		$error='All fields are required.';
-		return register_form($regusername,$referrerName,$error);
+		return register_form($regusername,$regemail,$referrerName,$error);
 	}
 	
+	// check if the email is not already registered
+	$emailData=getAssocArray('users','id','name',$conn,'WHERE email LIKE \''.$regemail.'\'');
+	if(count($emailData)>0){
+		$error='This email address is already registered.';
+		return register_form($regusername,$regemail,$referrerName,$error);
+	}
 	
+	// check if the email address is valid
+	if(!check_valid_email($regemail)){
+		$error='This email address is invalid.';
+		return register_form($regusername,$regemail,$referrerName,$error);
+	}
+		
 	// check if the username is available
 	$nameData=getAssocArray('users','id','name',$conn,'WHERE username LIKE \''.$regusername.'\'');
 	if(count($nameData)>0){
 		$error='This username is already used.';
-		return register_form($regusername,$referrerName,$error);
+		return register_form($regusername,$regemail,$referrerName,$error);
 	}
 
 	// check if the password is the same
 	if($regpassword1!=$regpassword2){
 		$error='Passwords doesn\'t match.';
-		return register_form($regusername,$referrerName,$error);
+		return register_form($regusername,$regemail,$referrerName,$error);
 	}
 	
 	$regpassword=md5($regpassword1);
 	$unique=md5(microtime());
 	$referrer=get_user_id($referrerName,$conn);
 	
-	$res=query("INSERT INTO users (username, password, uniqueid,regdate,referrer_id,activated,comments,publicUser,publicComments) VALUES ('$regusername','$regpassword','$unique',NOW(),'$referrer',1,'$comments',$publicUser,$publicComments)",$conn);
+	$res=query("INSERT INTO users (username, password, uniqueid,regdate,referrer_id,activated,comments,publicUser,publicComments,email) VALUES ('$regusername','$regpassword','$unique',NOW(),'$referrer',1,'$comments',$publicUser,$publicComments,'$regemail')",$conn);
 	if(mysql_affected_rows($conn)==0){
 		$error='Registration failed due a database error.An email was dispached to a site admin, please try again later.  We are sorry for the inconvenience.';
 		// todo: mail to admin
 		
-		return register_form($regusername,$referrerName,$error);
+		return register_form($regusername,$regemail,$referrerName,$error);
 	}else{
 		// login user
 		do_login($regusername,$regpassword1,0,$conn);
@@ -1107,6 +1122,7 @@ function do_login($user,$pass,$remember,$conn){
 
 		$_SESSION['uID']=$row['id'];
 		$_SESSION['username']=$row['username'];
+		$_SESSION['uemail']=$row['email'];
 		$_SESSION['cookie_str']=md5(str_makerand(10,10,1,0,1));
 		query("UPDATE users SET cookie_str='".$_SESSION['cookie_str']."' WHERE id=".$row['id'],$conn);
 		
@@ -1128,6 +1144,7 @@ function logout_form($conn){
 function do_logout(){
 	unset($_SESSION['uID']);
 	unset($_SESSION['username']);
+	unset($_SESSION['uemail']);
 	save_cookie(1);
 }
 
@@ -1168,10 +1185,15 @@ function get_myaccount($conn){
 	$variables=set_variable($variables,'publicCommentsChecked',(($udata[0]['publicComments']==1)?'checked':''));
 	$variables=set_variable($variables,'polywell_email',$udata[0]['polywell_email']);
 	$variables=set_variable($variables,'comments',$udata[0]['comments']);
+	$variables=set_variable($variables,'email',$udata[0]['email']);
 	$variables=set_variable($variables,'support_requests',get_support_request($conn));	
 	$variables=set_variable($variables,'orders_history',get_orders_history($conn));	
 	$variables=set_variable($variables,'message',@$message);	
 	
+	if(isset($_SESSION['message'])){
+		$variables=set_variable($variables,'message',$_SESSION['message']);
+		unset($_SESSION['message']);
+	}
 	return outputHTML($variables,$page_template,1);		
 }
 
@@ -1332,8 +1354,16 @@ function process_update_account($conn){
 	$publicUser=(int)@$_POST['publicUser'];
 	$publicComments=(int)@$_POST['publicComments'];
 	$pemail=cleanString($_POST['pemail']);
-//$GLOBALS['db_in_debug']=1;
-	$res=query("UPDATE users SET comments='$comments',publicUser=$publicUser,publicComments=$publicComments,polywell_email='$pemail' WHERE id=$id",$conn);
+	$email=cleanString($_POST['email']);
+	
+	$emailData=getAssocArray('users','id','name',$conn,'WHERE email LIKE \''.$email.'\' AND id!='.$id);
+	if(count($emailData)>0){
+		$_SESSION['message']=msg_error('This email address is already registered.');
+		header("Location: myaccount.php");
+		exit();
+	}
+	
+	$res=query("UPDATE users SET comments='$comments',publicUser=$publicUser,publicComments=$publicComments,polywell_email='$pemail',email='$email' WHERE id=$id",$conn);
 	$message=msg_notice('Account info updated.');
 	
 	if($old_password!=''){
@@ -1375,9 +1405,26 @@ function get_polywell_redirect($url){
 		return msg_error('Redirect parameter not specified. Aborting ...');
 	}
 	
+	$polywell_info=get_polywell_info();
+	
 	$variables=array();
 	$page_template=implode('',file('templates/polywell-redirect.html'));
 	$variables=set_variable($variables,'url',$url);
+	$variables=set_variable($variables,'poywell_info',$polywell_info);
+
+	return outputHTML($variables,$page_template,1);		
+}
+
+function get_polywell_info(){
+	if(isset($_SESSION['uID'])){
+		$template='templates/polywell_logged.html';
+	}else{
+		$template='templates/polywell_not_logged.html';
+	}
+	
+	$variables=array();
+	$page_template=implode('',file($template));
+	$variables=set_variable($variables,'email',@$_SESSION['uemail']);
 
 	return outputHTML($variables,$page_template,1);		
 }
@@ -1411,5 +1458,45 @@ function get_accesories($conn){
 	$page_template=implode('',file('templates/accesories.html'));
 
 	return outputHTML($variables,$page_template,1);		
+}
+
+function forgot_password($conn){
+	if(isset($_POST['send'])){
+		return process_forgot_password($conn);
+	}
+	
+	return forgot_password_form();
+}
+
+function forgot_password_form(){
+	$variables=array();
+	$page_template=implode('',file('templates/forgot_password.html'));
+
+	return outputHTML($variables,$page_template,1);		
+}
+
+function process_forgot_password($conn){
+	
+	$email=cleanString($_POST['email']);
+	$subject="Your Fiire password";
+	$pass=str_makerand(8,8,1,0,0);
+	
+	$emailData=getAssocArray('users','email','id',$conn,'WHERE email LIKE \''.$email.'\'');
+	if(count($emailData)==0){
+		return msg_error('This email address is not registered with Fiire.').'<br><a href="forgot.php">Try again</a>';
+	}
+	
+	
+	$message='Hello,<br>
+	 Your new password for Fiire Website is <b>'.$pass. '</b>  <br><br>
+	 <a href="'.$GLOBALS['website_url'].'">Click here</a> to login and after that you can change the password from your account.<br><br>
+	 Best regards, <br>Fiire staff.';
+	$mdpass=md5($pass);
+	$id=$emailData[$email];
+	query("UPDATE users SET password='$mdpass' WHERE id=$id",$conn);
+	
+	send_mail('Fiire','noreply@fiire.com',$email,$email,$subject,$message);
+	return 'A new password was sent to the email address you provided. <br>
+	Please check your email.';
 }
 ?>
