@@ -23,11 +23,12 @@ nvidia-xconfig --render-accel
 
 awk '
 BEGIN { Section = ""; }
-/Section.*"Screen"/ { Section = "Screen"; next; }
+/Section.*"Screen"/ { Section = "Screen"; print; next; }
 Section == "Screen" && /Option..*"ModeValidation"/ { next; }
 Section == "Screen" && /EndSection/ {
 	Section = "";
 	print "\tOption \"ModeValidation\" \"NoDFPNativeResolutionCheck, NoEdidMaxPClkCheck, NoMaxPClkCheck\"";
+	print;
 	next;
 }
 { print; }
