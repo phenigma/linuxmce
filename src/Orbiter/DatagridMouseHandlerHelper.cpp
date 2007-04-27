@@ -151,7 +151,7 @@ LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"DatagridMouseHandlerHelper::Scr
 		}
 
 		int Frequency;
-		bool bPage=false;
+		//bool bPage=false;
 		Frequency = (11-Notch)*100;
 		m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_MediaTracks,dwPK_Direction==DIRECTION_Down_CONST ? 2 : -2,"",Frequency,NULL);
 		m_pMouseHandler->m_iLastNotch=Notch;

@@ -515,7 +515,7 @@ int MouseBehavior::GetDirectionAwayFromHighlight(int X,int Y)
 
 void MouseBehavior::PositionMouseAtObjectEdge(int PK_Direction)
 {
-	DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted; // Make the code look better
+	//DesignObj_Orbiter *pObj = m_pOrbiter->m_pObj_Highlighted; // Make the code look better
 	PlutoRectangle rect = GetHighlighedObjectCoordinates();
 
 	switch(PK_Direction)

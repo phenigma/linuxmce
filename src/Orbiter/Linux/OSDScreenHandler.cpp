@@ -685,7 +685,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 	m_pWizardLogic->m_nPK_Device_TV = 0;
 	m_pWizardLogic->m_nPK_Command_Input_Video_On_TV = 0;
 	string sTV,sInput;
-	bool bHasTvInPath = m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+	/*bool bHasTvInPath = */m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
                                               m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV,sTV,sInput);
 	if( !m_pWizardLogic->m_nPK_Device_TV )
 		m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST,m_pOrbiter->m_dwPK_Device,&sTV);
@@ -819,7 +819,7 @@ bool OSDScreenHandler::TV_Manufacturer_GridSelected(CallBackData *pData)
 bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
-	int nDeviceId = 0;
+	//int nDeviceId = 0;
 	string aux;
 
 	switch( GetCurrentScreen_PK_DesignObj() )
@@ -929,13 +929,13 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 	long PK_Command_Input = 0;
 	string sReceiver,sInput;
 	m_pWizardLogic->m_nPK_Device_Receiver = 0;  // We will refind this
-	bool bHasReceiverInPath = m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+	/*bool bHasReceiverInPath = */m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
                                               m_pWizardLogic->m_nPK_Device_Receiver,1,PK_Command_Input,sReceiver,sInput);
 	if( m_pWizardLogic->m_nPK_Device_Receiver )
 	{
 		// Be sure it's really a receiver and not just the TV being used as the audio device
 		string sTV,sInput;
-		bool bHasTvInPath = m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+		/*bool bHasTvInPath = */m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
 												m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV,sTV,sInput);
 		if( m_pWizardLogic->m_nPK_Device_TV==m_pWizardLogic->m_nPK_Device_Receiver ) // It's just the tv
 			m_pWizardLogic->m_nPK_Device_Receiver=0;
@@ -1072,7 +1072,7 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 			if(DESIGNOBJ_butNoReceiver_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject )
 			{
 				string sTV,sInput;
-				bool bHasTvInPath = m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+				/*bool bHasTvInPath = */m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
 														m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV,sTV,sInput);
 				if( !m_pWizardLogic->m_nPK_Device_TV )
 					m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST,m_pOrbiter->m_dwPK_Device,&sTV);
@@ -1352,7 +1352,7 @@ void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
 
 bool OSDScreenHandler::VideoWizardDone_OnScreen(CallBackData *pData)
 {
-	RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pData;
+	//RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pData;
 	if( !m_bAlreadyPlayFinalGreeting )
 	{
 		m_bAlreadyPlayFinalGreeting=true;
@@ -1792,7 +1792,7 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 void OSDScreenHandler::HandleAlarmScreen()
 {
 	NeedToRender render2( m_pOrbiter, "OSDScreenHandler::HandleAlarmScreen" );  // Redraw anything that was changed by this command
-	int PK_DeviceTemplate = DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_AlarmPanel);
+	/*int PK_DeviceTemplate = */DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_AlarmPanel);
 	int NumSensors = m_pWizardLogic->GetNumSensors();
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::itos(NumSensors));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,StringUtils::itos((int) m_pWizardLogic->m_dequeNumSensors.size()));
@@ -2223,7 +2223,7 @@ bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pD
 
 	//PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	sEditVal = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
-	int nSelectedId = 0;
+	//int nSelectedId = 0;
 	pCellInfoData = dynamic_cast<DatagridCellBackData *>(pData);
 
 	switch( GetCurrentScreen_PK_DesignObj() )
@@ -2263,7 +2263,7 @@ bool OSDScreenHandler::VolumeControlCustomRender(CallBackData *pData)
 		//hook the object to have the background image merged with the desktop image
 		//will do this only once
 		static PlutoGraphic *pBackgroundBackgroundX = NULL;
-		static PlutoGraphic *pBackgroundBackgroundY = NULL;
+		//static PlutoGraphic *pBackgroundBackgroundY = NULL;
 
 		if( m_pOrbiter->m_pMouseBehavior->m_pMouseHandler )
 		{
@@ -2337,7 +2337,7 @@ bool OSDScreenHandler::LightControlCustomRender(CallBackData *pData)
 		//hook the object to have the background image merged with the desktop image
 		//will do this only once
 		static PlutoGraphic *pBackgroundBackgroundX = NULL;
-		static PlutoGraphic *pBackgroundBackgroundY = NULL;
+		//static PlutoGraphic *pBackgroundBackgroundY = NULL;
 
 		if( m_pOrbiter->m_pMouseBehavior->m_pMouseHandler )
 		{
@@ -2576,7 +2576,7 @@ void OSDScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 {
-	int PK_Device = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str());
+	//int PK_Device = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str());
 
 	string sValue; // If this is a set variable for VARIABLE_Execution_Result_CONST, then we got back a response and can continue
 #ifdef DEBUG
@@ -2640,7 +2640,7 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 			it++;
 			continue; // Shouldn't happen
 		}
-		int ID = atoi( it->c_str() );
+		//int ID = atoi( it->c_str() );
 		string sValue = it->substr(pos+1);
 
 		pCell = new DataGridCell(sValue,it->substr(0,pos));

@@ -462,7 +462,7 @@ bool WizardLogic::GetLocation()
 
 bool WizardLogic::SetLocation(string sLocation)
 {
-	int PK_Country = GetCountry();
+	/*int PK_Country =*/ GetCountry();
 	//0=PK_City,1=PK_PostalCode,2=City,3=Region,4=PostalCode,5=Lat,6=Long,7=time zone
 	string::size_type pos=0;
 	int PK_City = atoi( StringUtils::Tokenize(sLocation,"\t",pos).c_str() );

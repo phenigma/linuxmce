@@ -272,7 +272,7 @@ void SpeedMouseHandler::DrawInfo()
 		return;
 
 	int Style=0; // Option #1, the style
-	char *SpeedOptions = "FULL";  // Option #2, the number of available speeds
+	//char *SpeedOptions = "FULL";  // Option #2, the number of available speeds
 	int Speed = -9999;  // Option #3, the current speed, -9999 = don't show any speed
 	int SeekPosition = -1;  // Option #5, the current seek to position.  -1 = none
 

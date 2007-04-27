@@ -122,7 +122,9 @@ void MouseIterator::SetIterator(EIteratorFunction eIteratorFunction,int dwParm,s
 	}
 	switch(eIteratorFunction)
 	{
-	case if_Volume:
+		case if_Volume:
+			break;
+		default:
 			break;
 	};
 	if( m_EIteratorFunction!=if_None )
@@ -199,7 +201,8 @@ void MouseIterator::DoIteration()
 				return; // Again shouldn't happen
 				*/
 		}
-
+		break;
+	default:
 		break;
 	};
 }

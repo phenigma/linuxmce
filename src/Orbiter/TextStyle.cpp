@@ -28,12 +28,12 @@
 #include <SDL_ttf.h>
 #endif
 
-TextStyle::TextStyle() : m_pTTF_Font(NULL), m_iPK_Style(0), m_iPK_StyleVariation(0),
+TextStyle::TextStyle() : m_iPK_Style(0), m_iPK_StyleVariation(0),
 	m_iPK_Style_Selected(0), m_iPK_Style_Highlighed(0), m_iPK_Style_Alt(0),
 	m_ForeColor(PlutoColor()), m_BackColor(PlutoColor()), m_ShadowColor(PlutoColor()),
 	m_iPixelHeight(0), m_bBold(false), m_bItalic(false), m_bUnderline(false),
 	m_iShadowX(0), m_iShadowY(0), m_iBorderStyle(0), 
-	m_iPK_HorizAlignment(0), m_iPK_VertAlignment(0)
+	m_iPK_HorizAlignment(0), m_iPK_VertAlignment(0), m_pTTF_Font(NULL)
 { 
 } 
 

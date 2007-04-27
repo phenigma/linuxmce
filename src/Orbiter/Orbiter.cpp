@@ -232,10 +232,10 @@ Constructors/Destructor
 Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,
 				 bool bLocalMode,  int iImageWidth,  int iImageHeight, pluto_pthread_mutex_t* pExternalScreenMutex/*=NULL*/,
 				 bool bFullScreen/*=false*/)
-				 : Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
+				 : Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ), IRReceiverBase(),
 				 m_MaintThreadMutex("MaintThread"), m_ScreenMutex( "rendering" ),
 				 m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
-				 m_TimeCodeMutex( "timecode" ), m_TimeCodeID(0), IRReceiverBase()
+				 m_TimeCodeMutex( "timecode" ), m_TimeCodeID(0)
 				 //<-dceag-const-e->
 {
 	IRReceiverBase::Setup(this);
@@ -367,7 +367,7 @@ Orbiter::~Orbiter()
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Waiting for HID thread to finish...");
 		pthread_join(m_HidThreadID, NULL);
-		m_HidThreadID = NULL;
+		m_HidThreadID = 0;
 	}
 	
 	delete m_pHIDInterface;
@@ -558,7 +558,7 @@ Orbiter::~Orbiter()
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Waiting for TimeCode thread to finish...");
 		pthread_join(m_TimeCodeID, NULL);
-		m_TimeCodeID = NULL;
+		m_TimeCodeID = 0;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Done with TimeCode thread.");
 	}
 
@@ -2204,7 +2204,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
  		for(vector<string>::iterator it_shortcuts=vectShortcuts.begin();it_shortcuts!=vectShortcuts.end();++it_shortcuts)
 		{
 			string::size_type pos=0;
-			bool bAutomatic = StringUtils::Tokenize( *it_shortcuts, "\t", pos )=="1";
+			/*bool bAutomatic =*/ StringUtils::Tokenize( *it_shortcuts, "\t", pos )=="1";
 			string sCharacter = StringUtils::Tokenize( *it_shortcuts, "\t", pos );
 			string sMessage = StringUtils::Tokenize( *it_shortcuts, "\t", pos );
 
@@ -2552,8 +2552,8 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 		pObj->m_iBaseObjectID = atoi( pObj->m_ObjectID.c_str(  ) );
 	}
 
-if( pObj->m_iBaseObjectID==5399 )
-int k=2;
+//if( pObj->m_iBaseObjectID==5399 )
+//int k=2;
 	// On any screen all child objects should inherit the screen's priority so the whole screen is cached
 	pObj->m_Priority = pObj_Screen->m_Priority;
 
@@ -2716,7 +2716,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		string sRepeatKey;  // This will not be empty if we're pressing a key that can be repeated.  It will be the key to repeat
 
 		// and we're looking for scan codes
-		char cAction = 'D'; // Action is D=down, U=up, R=Repeat, H=Held Down
+		//char cAction = 'D'; // Action is D=down, U=up, R=Repeat, H=Held Down
 		if( pEvent->type == Orbiter::Event::BUTTON_UP )
 		{
 			timespec tButtonUp;
@@ -3818,8 +3818,8 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Executing command %d in object: %s", PK_Command,  pObj->m_ObjectID.c_str(  ) );
 #endif
-if( PK_Command==35 )
-int k=2;
+//if( PK_Command==35 )
+//int k=2;
 		if(
 			Simulator::GetInstance()->IsRunning() && 
 			(
@@ -4430,14 +4430,13 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 				}
 				else
 				{
-int i1=it->first;
-for(map<int,class FloorplanObject *>::iterator it2=m_mapFloorplanObject_Selected.begin();it2!=m_mapFloorplanObject_Selected.end();++it2)
-{
-	int i=it2->first;
-	class FloorplanObject *pFloorplanObject = it2->second;
-	string s="";
-
-}
+//int i1=it->first;
+//for(map<int,class FloorplanObject *>::iterator it2=m_mapFloorplanObject_Selected.begin();it2!=m_mapFloorplanObject_Selected.end();++it2)
+//{
+//	int i=it2->first;
+//	class FloorplanObject *pFloorplanObject = it2->second;
+//	string s="";
+//}
 
 
 					//this is a media floorplan object; it doesn't have a device associated
@@ -6596,7 +6595,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		if(m_TimeCodeID)
 		{
 			pthread_join(m_TimeCodeID, NULL);
-			m_TimeCodeID = NULL;
+			m_TimeCodeID = 0;
 		}
 		
 		pthread_create(&m_TimeCodeID, NULL, UpdateTimeCodeThread, (void*)this);
@@ -7109,7 +7108,7 @@ void Orbiter::KillMaintThread()
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Waiting for Maint thread to finish...");
 		pthread_join(m_MaintThreadID, NULL);
-		m_MaintThreadID = NULL;
+		m_MaintThreadID = 0;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Done with Maint thread.");
 	}
 }

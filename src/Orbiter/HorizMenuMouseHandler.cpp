@@ -188,11 +188,11 @@ void HorizMenuMouseHandler::Move(int X,int Y,int PK_Direction)
 	{
 		if( m_pObj_ActiveSubMenu && Y<m_pObj_ActiveMenuPad->m_rPosition.Y )  // Only do this if the cursor is above the menu pad
 		{
-if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
-{
-PlutoRectangle r = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
-int k=2;
-}
+//if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+//{
+//PlutoRectangle r = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
+//int k=2;
+//}
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"HorizMenuMouseHandler::Move 2 m_bStartedMovement=true");
 #endif
@@ -201,11 +201,11 @@ int k=2;
 			DesignObj_Orbiter *pObj_ToHighlight=m_pMouseBehavior->FindChildObjectAtPosition(m_pObj_ActiveSubMenu,X,Y,&pObj_ToHighlight_TopMost,DIRECTION_Up_CONST);
 			if( pObj_ToHighlight || pObj_ToHighlight_TopMost)
 				m_pMouseBehavior->HighlightObject(pObj_ToHighlight ? pObj_ToHighlight : pObj_ToHighlight_TopMost);
-if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
-{
-PlutoRectangle r = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
-int k=2;
-}
+//if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
+//{
+//PlutoRectangle r = m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_rPosition + m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted->m_pPopupPoint;
+//int k=2;
+//}
 		}
 		else
 			m_pMouseBehavior->HighlightObject(NULL); // m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted

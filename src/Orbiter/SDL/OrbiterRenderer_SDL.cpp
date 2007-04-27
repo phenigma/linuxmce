@@ -87,7 +87,7 @@ using namespace DCE;
 bool g_bResettingVideoMode;
 void *SetVideoModeWatchDogThread(void *p)
 {
-    OrbiterRenderer_SDL *pOrbiterRenderer_SDL = (OrbiterRenderer_SDL *) p;
+    //OrbiterRenderer_SDL *pOrbiterRenderer_SDL = (OrbiterRenderer_SDL *) p;
     LoggerWrapper::GetInstance()->Write(LV_STATUS,"Inside WatchDogThread");
     Sleep(2000);
     if( g_bResettingVideoMode )
@@ -771,3 +771,4 @@ void OrbiterRenderer_SDL::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize size
 	SDL_UpdateRect(Screen, 0, 0, 0, 0);
 }
 //-----------------------------------------------------------------------------------------------------
+

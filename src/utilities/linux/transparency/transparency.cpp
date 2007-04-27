@@ -16,13 +16,14 @@ bool SetWindowTransparency(Display * dpy, Window wnd, double transp)
 			(unsigned char *) &opacity, 1L);
 	}
 	XSync(dpy, False);
+	return true;
 }
 
 Window GetParentWnd( Display * dpy, Window wnd )
 {
 	Window root;
 	Window parent;
-	Window grandparent; /* Grandparent is the WM frame */
+	//Window grandparent; /* Grandparent is the WM frame */
 	Window *children;
 	unsigned int children_count;
 	

@@ -64,7 +64,7 @@ list<Row> & TextLineExtract::Extract(string text)
 	Word word = "";
 	Row line;
 	char c;
-	bool inflags = false, splitter = true;
+	bool inflags = false/*, splitter = true*/;
 
 	for (string::iterator i = text.begin(); i != text.end(); i++)
 	{

@@ -142,7 +142,7 @@ void VolumeMouseHandler::Move(int X,int Y,int PK_Direction)
 	}
 	else
 	{
-		int NotchWidth = m_pObj->m_rPosition.Width/100; // Allow for 7 repeat levels in each direction
+		//int NotchWidth = m_pObj->m_rPosition.Width/100; // Allow for 7 repeat levels in each direction
 		int Notch = (X - m_pObj->m_rPosition.X - m_pObj->m_pPopupPoint.X) * 100 / m_pObj->m_rPosition.Width;
 		if( Notch<0 )
 			Notch=0;

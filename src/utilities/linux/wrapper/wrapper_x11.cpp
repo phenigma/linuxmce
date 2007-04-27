@@ -2206,8 +2206,8 @@ bool X11wrapper::Debug_Shape_Context_Example(Window window, unsigned int width, 
 
 int X11wrapper::AfterFunction_Grabber(Display *pDisplay)
 {
-    static const char s_header[] = "Xlib: AfterFunction_Grabber()";
 #ifdef DEBUG
+    static const char s_header[] = "Xlib: AfterFunction_Grabber()";
     _LOG_WRN("%s : pDisplay==%p", s_header, pDisplay);
 #endif
     return 0;

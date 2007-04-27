@@ -198,7 +198,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
     if (m_bTapAndRelease && m_pDatagridMouseHandlerHelper->Move(X,Y,PK_Direction))
 		return;
 
-	DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) m_pObj;
+	//DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) m_pObj;
 
 	if( m_pDesignObj_DataGrid_Active && m_pDesignObj_DataGrid_Active->m_iBaseObjectID==DESIGNOBJ_dgUpcomingShows_CONST && X<m_pDesignObj_DataGrid_Active->m_rPosition.Right() )
 	{

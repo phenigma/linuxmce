@@ -143,7 +143,7 @@ void MediaMouseHandler::Move(int X,int Y,int PK_Direction)
 	if( !pObj_Grid->DataGridTable_Get() )
 		return; // Again shouldn't happen
 
-	int Rows = pObj_Grid->DataGridTable_Get()->GetRows();
+	//int Rows = pObj_Grid->DataGridTable_Get()->GetRows();
 	/*
 	if( m_bTapAndRelease==false )  // Discrete positioning
 	{

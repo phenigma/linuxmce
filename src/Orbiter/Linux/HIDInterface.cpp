@@ -76,7 +76,7 @@ void PlutoHIDInterface::ProcessHIDEvents()
 		busses = usb_get_busses();
 
 		struct usb_bus *bus;
-		int c, i, a;
+		//int c, i, a;
 
 		/* ... */
 
@@ -232,6 +232,7 @@ bool PlutoHIDInterface::Rebind()
 		return false;
 	}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::Rebind wrote message %d",ctrl);
+	return true;
 }
 
 bool PlutoHIDInterface::DoStartMouse()

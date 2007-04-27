@@ -57,8 +57,7 @@ namespace ProgressBar
 using namespace ProgressBar;
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer::OrbiterRenderer(Orbiter *pOrbiter) : 
-	m_pOrbiter(pOrbiter),
-	m_NeedRedrawVarMutex("need redraw variables")
+	m_NeedRedrawVarMutex("need redraw variables"), m_pOrbiter(pOrbiter)
 {
 	m_NeedRedrawVarMutex.Init(NULL);
 	ConfigureDefaultTextStyle();
@@ -974,7 +973,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 #endif
 	PLUTO_SAFETY_LOCK(sm, OrbiterLogic()->m_ScreenMutex);
 
-	int nPopupEffect = 1;
+	//int nPopupEffect = 1;
 
 	if(pPopup->m_pObj)
 	{

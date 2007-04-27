@@ -249,8 +249,8 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 /*virtual*/ void ObjectRenderer::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-if( m_pObj_Owner->m_ObjectID.find("5312")!=string::npos )
-int k=2;
+//if( m_pObj_Owner->m_ObjectID.find("5312")!=string::npos )
+//int k=2;
 	if(!PreRenderActions(pObj_Screen, point))
 		return;
 
@@ -402,8 +402,8 @@ int k=2;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"xzx Rendering %s with %d %p=%p size %d",m_pObj_Owner->m_ObjectID.c_str(),m_pObj_Owner->m_GraphicToDisplay,
 					  m_pObj_Owner->m_pvectCurrentGraphic,&m_pObj_Owner->m_vectGraphic,(int) m_pObj_Owner->m_vectAltGraphics.size());
 #endif
-if( m_pObj_Owner->m_iBaseObjectID==2355 )
-int k=2;
+//if( m_pObj_Owner->m_iBaseObjectID==2355 )
+//int k=2;
 	if(
 		(m_pObj_Owner == m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted || 
 		(m_pObj_Owner->ChildOf(m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted) && (m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST || ((DesignObj_DataGrid *) m_pObj_Owner->m_pOrbiter->m_pObj_Highlighted)->GridObjectIsHighlighted(m_pObj_Owner) ))
@@ -547,8 +547,8 @@ int k=2;
 			ChildObjectToRender.remove(pDesignObj_Orbiter);
 		}
 	}
-if( m_pObj_Owner->m_ObjectID.find("1784")!=string::npos || m_pObj_Owner->m_ObjectID.find("5137")!=string::npos || m_pObj_Owner->m_ObjectID.find("5138")!=string::npos || m_pObj_Owner->m_ObjectID.find("5193")!=string::npos || m_pObj_Owner->m_ObjectID.find("5189")!=string::npos)
-int k=2;
+//if( m_pObj_Owner->m_ObjectID.find("1784")!=string::npos || m_pObj_Owner->m_ObjectID.find("5137")!=string::npos || m_pObj_Owner->m_ObjectID.find("5138")!=string::npos || m_pObj_Owner->m_ObjectID.find("5193")!=string::npos || m_pObj_Owner->m_ObjectID.find("5189")!=string::npos)
+//int k=2;
 	for( iHao=m_pObj_Owner->m_ChildObjects.rbegin(  ); iHao != m_pObj_Owner->m_ChildObjects.rend(  ); ++iHao )
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
