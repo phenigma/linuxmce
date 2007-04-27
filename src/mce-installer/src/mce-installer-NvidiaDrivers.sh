@@ -21,3 +21,15 @@ nvidia-xconfig --allow-glx-with-composite
 nvidia-xconfig --add-argb-glx-visuals
 nvidia-xconfig --render-accel
 
+awk '
+BEGIN { Section = ""; }
+/Section.*"Screen"/ { Section = "Screen"; next; }
+Section == "Screen" && /Option..*"ModeValidation"/ { next; }
+Section == "Screen" && /EndSection/ {
+	Section = "";
+	print "\tOption \"ModeValidation\" \"NoDFPNativeResolutionCheck, NoEdidMaxPClkCheck, NoMaxPClkCheck\"";
+	next;
+}
+{ print; }
+' /etc/X11/xorg.conf >/etc/X11/xorg.conf.$$
+mv /etc/X11/xorg.conf{.$$,}
