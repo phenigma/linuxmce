@@ -22,7 +22,7 @@ padding-bottom: 10px;
 }
 
 .footer1 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color:#777777; font-weight: bold; background: url(images/back_footer1.jpg) repeat-x; height: 33px; }
-.footer2 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 11px; color:#333333; background: url(images/back_footer2.jpg) repeat-x; height: 30px; }
+.footer2 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color:#333333; background: url(images/back_footer2.jpg) repeat-x; height: 30px; }
 
 .err {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: red; font-weight: bold;}
 .notice {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: green; font-weight: bold;}
