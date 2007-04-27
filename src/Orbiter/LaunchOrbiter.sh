@@ -3,6 +3,7 @@
 ## Includes
 . /usr/pluto/bin/Config_Ops.sh 2>/dev/null || exit 1  ## So the orbiter can get the environment variable for the mysql server
 . /usr/pluto/bin/SQL_Ops.sh 2>/dev/null || exit 1
+. /usr/pluto/bin/Utils.sh 2>/dev/null || exit 1
 . /usr/pluto/bin/pluto.func 2>/dev/null || exit 1
 
 ## Read command line params
@@ -45,11 +46,26 @@ if [[ "$SharedDesktop" != 1 ]]; then
 	export ORBITER_SECONDARY_DESKTOP=1
 else
 	### Shared desktop
+	AlphaBlending=$(AlphaBlendingEnabled)
+
+	## Configure window manager trasparancy manager
+	WMTweaksFile="/root/.config/xfce4/mcs_settings/wmtweaks.xml"
+	if [[ "$AlphaBlending" != 1 ]]; then
+		WMParm=(--compositor=off)
+		WMCompTweakVal=0
+	else
+		WMParm=()
+		WMCompTweakVal=1
+	fi
+	sed -i '/Xfwm\/UseCompositing/ s/value="."/value="'"$WMCompTweakVal"'"/g' "$WMTweaksFile"
+
 	## Kill kwin, xcompmgr
 	killall kwin
+	killall xfwm4
 	killall xcompmgr
 	## Start xfwm4
-	xfwm4 &>/dev/null </dev/null &
+	xfwm4 "${WMParm[@]}" &>/dev/null </dev/null &
+	disown -a
 	sleep 1
 	
 	## Increase number of desktops by 2
