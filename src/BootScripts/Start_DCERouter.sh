@@ -1,6 +1,10 @@
 #!/bin/bash
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/LockUtils.sh
+
+trap 'Unlock "DCER" "Start_DCE_Router"' EXIT
+Lock "DCER" "Start_DCE_Router"
 
 cd /usr/pluto/bin
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting DCERouter"
