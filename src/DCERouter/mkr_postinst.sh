@@ -126,5 +126,5 @@ script
 /usr/pluto/bin/startup-script.sh
 end script
 "
-echo ${Content} > ${File} || :
+echo "${Content}" > ${File} || :
 #<-mkr_b_ubuntu_e->
