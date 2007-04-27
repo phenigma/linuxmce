@@ -59,9 +59,9 @@ $GLOBALS['records_per_page']=10;
 // the number of seconds between posts: 0 = no check
 $GLOBALS['time_between_comments']=30;
 
-$GLOBALS['fiire_engine_url']='http://10.0.0.175/fiire/shop/catalog/product_info.php?products_id=28';
-$GLOBALS['fiire_station_url']='http://10.0.0.175/fiire/shop/catalog/product_info.php?products_id=29';
-$GLOBALS['fiire_chief_url']='http://10.0.0.175/fiire/shop/catalog/product_info.php?products_id=30';
+$GLOBALS['fiire_engine_url']='http://fiireshop.com/product_info.php?products_id=28';
+$GLOBALS['fiire_station_url']='http://fiireshop.com/product_info.php?products_id=29';
+$GLOBALS['fiire_chief_url']='http://fiireshop.com/product_info.php?products_id=30';
 
 // override standard settings with local one
 // to avoid saving in svn real users and passwords
