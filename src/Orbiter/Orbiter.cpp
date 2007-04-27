@@ -8486,7 +8486,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 			Simulator::GetInstance()->SaveConfigurationFile();
 		}
 		OnQuit();
-		exit(0);
+		exit(1);
 		return 0;
 	}
 
