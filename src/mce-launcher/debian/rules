@@ -65,7 +65,7 @@ install: build
 	mkdir -p $(CURDIR)/debian/mce-launcher/usr/share/applications
 	cp $(CURDIR)/src/mce-logo.png $(CURDIR)/debian/mce-launcher/usr/share/mce-launcher/images/
 	cp $(CURDIR)/src/mce-launcher-core.sh $(CURDIR)/debian/mce-launcher/usr/share/mce-launcher/scripts/
-	cp $(CURDIR)/debian/mce-launcher.desktop $(CURDIR)/debian/mce-launcher/usr/share/applications/
+#	cp $(CURDIR)/debian/mce-launcher.desktop $(CURDIR)/debian/mce-launcher/usr/share/applications/
 	cp $(CURDIR)/debian/mce-launcher.xorg.conf $(CURDIR)/debian/mce-launcher/usr/share/mce-launcher/
 
 
