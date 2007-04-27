@@ -3,6 +3,10 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/LockUtils.sh
+
+trap 'Unlock "SOG" "Start_Orbiter_Gen"' EXIT
+Lock "SOG" "Start_Orbiter_Gen"
 
 export LD_LIBRARY_PATH=/opt/libxine1-pluto/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib
 
