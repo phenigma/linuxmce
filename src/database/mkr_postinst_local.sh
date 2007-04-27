@@ -1,7 +1,8 @@
 #!/bin/bash
 /usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
-echo "alter table `Document_Comment` ,change `Date` `Date` datetime   NOT NULL " | mysql pluto_main || /bin/true
+echo "alter table \`Document_Comment\` ,change \`Date\` \`Date\` datetime   NOT NULL " | mysql pluto_main || /bin/true
+
 
 cd /usr/pluto/database/
 /usr/pluto/bin/sqlCVS -n -D pluto_main -r local import
