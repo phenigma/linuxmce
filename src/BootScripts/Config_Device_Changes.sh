@@ -22,7 +22,7 @@ NeedConfigure()
 	R=$(RunSQL "$Q")
 	NeedConfigure=$(Field 1 "$R")
 
-	if [ "$NeedConfigure" -eq 1 ]; then
+	if [[ "$NeedConfigure" == 1 ]]; then
 		return 0
 	fi
 
