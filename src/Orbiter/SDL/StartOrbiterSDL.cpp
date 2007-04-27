@@ -425,7 +425,7 @@ SDL_App_Object::SDL_App_Object(int argc, char *argv[])
         : m_pSDL_Event_Loop_Data(NULL)
         , argc(argc)
         , argv(argv)
-        , m_nExitCode(0)
+        , m_nExitCode(1)
 {
 }
 
