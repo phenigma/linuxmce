@@ -18,3 +18,6 @@ Symlink="${Parm_RootLocation}/etc/rcS.d/S44mountnfs.sh"
 mkdir -p "${Parm_RootLocation}/etc/rcS.d"
 rm -f "${Symlink}"
 ln -s "$File" "${Symlink}" 2>/dev/null || /bin/true
+
+## This script is broken so we better remove it
+rm -f ${Parm_RootLocation}/etc/init.d/waitnfs.sh
