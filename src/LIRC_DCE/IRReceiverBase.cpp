@@ -41,8 +41,8 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl)
 	m_pCommand_Impl=pCommand_Impl;
 	m_cCurrentScreen='M';
 
-	/*int iResult=*/pthread_cond_init(&m_RepeatThreadCond, NULL);
-	/*int iResult2=*/m_RepeatThreadMutex.Init(NULL,&m_RepeatThreadCond);
+	int iResult=pthread_cond_init(&m_RepeatThreadCond, NULL);
+	int iResult2=m_RepeatThreadMutex.Init(NULL,&m_RepeatThreadCond);
 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRReceiverBase::IRReceiverBase r1 %d r2 %d cond %p",
