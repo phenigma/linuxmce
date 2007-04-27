@@ -148,7 +148,7 @@ function Create_And_Config_Devices {
 		RunSQL "$Q"
  
 		## Set UI interface
-		Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$Hybrid_DT'"
+		Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$Hybrid_DT' AND FK_DeviceTemplate=62"
 		OrbiterDevice=$(RunSQL "$Q")
 
 		case "$c_installUI" in
