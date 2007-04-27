@@ -117,7 +117,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft_Reverse::Paint(int Now)
 		Step= 1-(Step - 0.5f)*2.f; 
 
 	int i, j;
-	float Average = Animation.Width * (2.f/3.f);
+	//float Average = Animation.Width * (2.f/3.f);
 
 	// 0 = Start, 1 = Control Start, 2 = Control end, 3 = End 
 	float TopProfile [4], LeftProfile[4];

@@ -38,8 +38,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 
 #include <map>
 
-MeshContainer::MeshContainer(void) : Blended_(false), NoVertexes(0), NoTriangles(0),
-	Vertexes(NULL), Triangles(NULL)
+MeshContainer::MeshContainer(void) : Vertexes(NULL), NoVertexes(0), Triangles(NULL), NoTriangles(0), Blended_(false)
 {
 }
 
@@ -147,3 +146,4 @@ MeshContainer* MeshContainer::Clone(bool bShareGraphic)
 
 	return Result;
 }
+

@@ -155,8 +155,8 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 }	
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) : 
-	OrbiterRenderer(pOrbiter), Mutex("open gl"), Engine(NULL), NeedToUpdateScreen_(false),
-	m_bWindowCreated(false), Popups(NULL), m_pLastHighlightedObject(NULL)
+	OrbiterRenderer(pOrbiter), NeedToUpdateScreen_(false), m_bWindowCreated(false), Popups(NULL), 
+	m_pLastHighlightedObject(NULL), Engine(NULL), Mutex("open gl")
 {
 	std::cout << "*** OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL()" << std::endl;
 	GLThread = 0;

@@ -46,12 +46,12 @@ namespace GLEffect2D
 LayersCompose* LayersCompose::Instance_ = NULL;
 
 LayersCompose::LayersCompose() : 
+	TextureMan(NULL),
 	CurrentLayer(NULL), 
 	OldLayer(NULL),
-	TextureMan(NULL),
+	NeedUpdateLayers(true),
 	OldScreen(NULL),
-	NewScreen(NULL),
-	NeedUpdateLayers(true)
+	NewScreen(NULL)
 {
 }
 

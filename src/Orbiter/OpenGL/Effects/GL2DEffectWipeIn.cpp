@@ -97,8 +97,8 @@ void GL2DEffectWipeIn::Paint(int Now)
 {
 	GL2DEffectTransit::Paint();
 
-	float MaxCoordU = 1;
-	float MaxCoordV = 1;
+	//float MaxCoordU = 1;
+	//float MaxCoordV = 1;
 
 	if(!Configured) {
 		//Set up the textures for triangles

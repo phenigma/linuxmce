@@ -123,7 +123,7 @@ void GL2DBezierEffectTransit_Prism::Paint(int Now)
 		Step= (1.0f-Step)*2; 
 
 	int i;
-	float Average = Animation.Width * 2/3;
+	//float Average = Animation.Width * 2/3;
 
 	// bit-to-bit copy 
 	BEZIER_PATCH BezierDefinition = Button->BezierDefinition;

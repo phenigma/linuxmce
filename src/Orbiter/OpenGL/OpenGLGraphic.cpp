@@ -146,7 +146,7 @@ void OpenGLGraphic::Initialize()
 bool OpenGLGraphic::SetupFromImage(std::string FileName)
 {
 	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
-	SDL_Surface *LocalSurface = IMG_Load(FileName.c_str());
+	LocalSurface = IMG_Load(FileName.c_str());
 
 	Prepare();
 	return true;
@@ -482,8 +482,8 @@ OpenGLGraphic* OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, Pluto
 		ReplacementColor.R(), ReplacementColor.G(), ReplacementColor.B());
 #endif
 
-	int x = Area.Left();
-	int y = Area.Top();
+	//int x = Area.Left();
+	//int y = Area.Top();
 	int width = Area.Width;
 	int height = Area.Height;
 
@@ -695,3 +695,4 @@ VideoRAMUsageObserver::~VideoRAMUsageObserver()
 
 #endif
 //-----------------------------------------------------------------------------------------------------
+

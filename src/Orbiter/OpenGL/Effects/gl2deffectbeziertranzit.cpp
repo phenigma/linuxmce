@@ -192,3 +192,4 @@ void GL2DBezierEffectTransit::Paint(int Now)
 }
 
 }
+

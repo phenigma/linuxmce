@@ -116,7 +116,7 @@ void GL2DBezierEffectTransit_Flow_SlideLeft::Paint(int Now)
 		Step= 1-(Step - 0.5f)*2; 
 
 	int i, j;
-	float Average = Animation.Width * 2/3;
+	//float Average = Animation.Width * 2/3;
 
 	// bit-to-bit copy 
 	BEZIER_PATCH BezierDefinition = ButonTop->BezierDefinition;

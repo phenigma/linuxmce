@@ -58,8 +58,8 @@ TextureManager::TextureManager(void)
 	: LastTexture(0), 
 	TextureEnable_(false),
 	SupportTextureNonPowerOfTwo_(-1),
-	Engine(NULL),
 	TextureLock("texture mutex"),
+	Engine(NULL),
 	ReleaseTextureSuspended(0),
 	m_bMemoryManagementEnabled(false)
 {
