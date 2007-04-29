@@ -1241,10 +1241,23 @@ function get_get_fiired(){
 	$variables=array();
 	$page_template=implode('',file('templates/get-fiired.html'));
 	
+	return outputHTML($variables,$page_template,1);		
+}
+
+function get_dealer(){
+	$variables=array();
+	$page_template=implode('',file('templates/dealer.html'));
 
 	return outputHTML($variables,$page_template,1);		
 }
 
+function get_showcase(){
+	$variables=array();
+	$page_template=implode('',file('templates/showcase.html'));
+	
+
+	return outputHTML($variables,$page_template,1);		
+}
 function get_products($conn){
 	$variables=array();
 	$page_template=implode('',file('templates/products.html'));
