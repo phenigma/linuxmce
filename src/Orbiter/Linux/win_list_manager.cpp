@@ -356,6 +356,8 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 		if(!sExternalWindowName.empty() && sWindowName != sExternalWindowName)
 			continue;
 
+		RemoveWindowDecoration(m_pWMController->WindowId(sWindowName));
+
 		bool bResult = true;  // Will be set to false if any of them fail
 		WindowsContext::iterator it_current = m_CurrentContext.find(sWindowName);
 		if(it_current != m_CurrentContext.end() && m_bExternalChange==false && pending_context.IsErrorFlag()==false )
@@ -416,8 +418,6 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::ApplyContext: applying whole context for '%s': %s (ExternalChange: %d ErrorFlag %d)",
 				sWindowName.c_str(), pending_context.ToString().c_str(),(int) m_bExternalChange,(int) pending_context.IsErrorFlag());
 #endif
-
-			RemoveWindowDecoration(m_pWMController->WindowId(sWindowName));
 
 			bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 			bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
