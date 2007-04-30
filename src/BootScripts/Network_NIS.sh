@@ -25,5 +25,5 @@ if ! BlacklistConfFiles '/etc/ypserv.securenets' ;then
 	" > /etc/ypserv.securenets
 fi
 invoke-rc.d nis stop
-invoke-rc.d nis start
 echo | /usr/lib/yp/ypinit -m
+invoke-rc.d nis start
