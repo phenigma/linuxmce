@@ -125,7 +125,7 @@ void WinListManager::ShowSdlWindow(bool bExclusive, bool bYieldInput)
 	// when Orbiter is fullscreen no other dialog can be on top of
     // it, so it will be maximized instead
 	PendingContext(m_sSdlWindowName).Visible(!m_bHideSdlWindow);
-	PendingContext(m_sSdlWindowName).Maximize(true);
+	PendingContext(m_sSdlWindowName).Maximize(false);
 	PendingContext(m_sSdlWindowName).Position(PlutoRectangle(0, 0, -1, -1));
 	PendingContext(m_sSdlWindowName).Layer(bExclusive ? LayerAbove : LayerBelow);
 
