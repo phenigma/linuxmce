@@ -9,6 +9,7 @@ include('lib/init.php');
 $title='FIIRE :: OpenFiire';
 $page_template=implode('',file('templates/template.html'));
 $content=get_open_fiire($conn);
+$content.='<br>'.contact('open-fiire',$conn);
 $login_form=login_header($conn);
 $navArray=array(
 	'index.php'=>'Home',

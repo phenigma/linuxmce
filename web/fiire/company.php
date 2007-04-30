@@ -9,6 +9,7 @@ include('lib/init.php');
 $title='FIIRE :: Company';
 $page_template=implode('',file('templates/template.html'));
 $content=get_company();
+$content.='<br>'.contact('company',$conn);
 $login_form=login_header($conn);
 $navArray=array(
 	'index.php'=>'Home',

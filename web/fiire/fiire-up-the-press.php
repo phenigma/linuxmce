@@ -9,6 +9,7 @@ include('lib/init.php');
 $title='FIIRE :: Fiire up the Press';
 $page_template=implode('',file('templates/template.html'));
 $content=get_fiire_up_the_press($conn);
+$content.='<br>'.contact('fiire-up-the-press',$conn);
 $login_form=login_header($conn);
 $navArray=array(
 	'index.php'=>'Home',

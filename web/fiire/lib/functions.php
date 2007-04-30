@@ -137,7 +137,7 @@ function getVariable($name,$conn){
 	return $fields[0]['value'];
 } 
 
-function pulldownFromArray($contentArray,$name,$selectedValue,$event='',$restricted=20)
+function pulldownFromArray($contentArray,$name,$selectedValue,$event='',$restricted=50)
 {
 	if(!is_array($contentArray))
 		return '';	// error
@@ -1018,6 +1018,13 @@ function process_register($conn){
 	$unique=md5(microtime());
 	$referrer=get_user_id($referrerName,$conn);
 	
+	// check if referrer name is valid
+	if($referrer=='null'){
+		$error='Invalid referrer.';
+		return register_form($regusername,$regemail,$referrerName,$error);
+	}
+
+	
 	$res=query("INSERT INTO users (username, password, uniqueid,regdate,referrer_id,activated,comments,publicUser,publicComments,email) VALUES ('$regusername','$regpassword','$unique',NOW(),'$referrer',1,'$comments',$publicUser,$publicComments,'$regemail')",$conn);
 	if(mysql_affected_rows($conn)==0){
 		$error='Registration failed due a database error.An email was dispached to a site admin, please try again later.  We are sorry for the inconvenience.';
@@ -1244,10 +1251,29 @@ function get_get_fiired(){
 	return outputHTML($variables,$page_template,1);		
 }
 
-function get_dealer(){
+function get_dealer($conn){
+	
+	$selCountry=(int)@$_REQUEST['country'];
+	$countries=array(0=>'Pick the country')+getAssocArray('Country','PK_Country','Description',$conn,'','ORDER BY Description ASC');
+
+	$selRegion=(int)@$_REQUEST['region'];
+	$regions=($selCountry!=0)?getAssocArray('Region','PK_Region','Region',$conn,'WHERE FK_Country='.$selCountry,'ORDER BY Region ASC'):array(0=>'Pick the country');
+
+	$selCity=(int)@$_REQUEST['city'];
+	$cities=($selRegion!=0)?array(0=>'Pick city')+getAssocArray('City','PK_City','City',$conn,'WHERE FK_Region='.$selRegion,'ORDER BY City ASC'):array(0=>'Pick the region');
+
+
 	$variables=array();
 	$page_template=implode('',file('templates/dealer.html'));
-
+	$variables=set_variable($variables,'country_pulldown',pulldownFromArray($countries,'country',$selCountry,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'region_pulldown',pulldownFromArray($regions,'region',$selRegion,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'city_pulldown',pulldownFromArray($cities,'city',$selCity,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'dealers_table',get_dealers_list($conn,$selCountry,$selRegion,$selCity));
+	if(isset($_SESSION['message'])){
+		$variables=set_variable($variables,'message',$_SESSION['message']);
+		unset($_SESSION['message']);
+	}
+	
 	return outputHTML($variables,$page_template,1);		
 }
 
@@ -1511,5 +1537,147 @@ function process_forgot_password($conn){
 	send_mail('Fiire','noreply@fiire.com',$email,$email,$subject,$message);
 	return 'A new password was sent to the email address you provided. <br>
 	Please check your email.';
+}
+
+function contact($page,$conn){
+	if(isset($_POST['send']) && (int)@$_SESSION['msg_sent']!=1){
+		unset($_SESSION['msg_sent']);
+		return process_contact_form($page,$conn);
+	}else{
+		unset($_SESSION['msg_sent']);
+		return get_contact_form($page,$conn);
+	}
+}
+
+
+	function get_contact_form($page,$conn){
+	$variables=array();
+	$page_template=implode('',file('templates/contact_form.html'));
+	if(isset($_SESSION['message'])){
+		$variables=set_variable($variables,'message',$_SESSION['message']);
+		unset($_SESSION['message']);
+	}
+
+	return outputHTML($variables,$page_template,1);		
+}
+
+function process_contact_form($page,$conn){
+	$cname=cleanString($_POST['cname']);
+	$cemail=cleanString($_POST['cemail']);
+	$csubject=cleanString($_POST['csubject']);
+	$cdescription=cleanString($_POST['cdescription']);
+	if($cname=='' || $cemail=='' || $csubject=='' || $cdescription==''){
+		$_SESSION['message']=msg_error('Please fill all fields.');
+		return get_contact_form($page,$conn);
+	}
+	
+	query("INSERT INTO contacts (page,name,email,subject,description) VALUES ('$page','$cname','$cemail','$csubject','$cdescription')",$conn);
+	
+	$mailSubject='Fiire contact form';
+	$message='Contact name: '.$cname.'<br>';
+	$message.='Contact email: '.$cemail.'<br>';
+	$message.='Subject: '.$csubject.'<br>';
+	$message.='Description: '.nl2br($cdescription).'<br>';
+	
+	send_mail('Fiire','noreply@fiire.com',$GLOBALS['contact_email'],$GLOBALS['contact_email'],$mailSubject,$message);
+	$_SESSION['msg_sent']=1;
+	return msg_notice('Thank you, your message was recorded.');
+}
+
+function record_dealer($categs,$conn){
+	if(!isset($_SESSION['uID']) || (int)$_SESSION['uID']==0){
+		return 'Please login in order to update your account.';
+	}	
+
+	
+	if(isset($_POST['save'])){
+		return process_record_dealer($categs,$conn);
+	}
+	return record_dealer_form($categs,$conn);
+}
+
+function record_dealer_form($categs,$conn){
+	$id=(int)@$_SESSION['uID'];
+	$data=getFields('dealers','WHERE user_id='.$id,$conn);
+	
+	$selCountry=(int)@$_REQUEST['country'];
+	$countries=array(0=>'Pick the country')+getAssocArray('Country','PK_Country','Description',$conn,'','ORDER BY Description ASC');
+
+	$selRegion=(int)@$_REQUEST['region'];
+	$regions=($selCountry!=0)?array(0=>'Pick the region')+getAssocArray('Region','PK_Region','Region',$conn,'WHERE FK_Country='.$selCountry,'ORDER BY Region ASC'):array(0=>'Pick the country');
+
+	$selCity=(int)@$_REQUEST['city'];
+	$cities=($selRegion!=0)?array(0=>'Not in the list')+getAssocArray('City','PK_City','City',$conn,'WHERE FK_Region='.$selRegion,'ORDER BY City ASC'):array(0=>'Pick the region');
+
+	$categ=(int)@$_REQUEST['categ'];
+	
+	$variables=array();
+	$page_template=implode('',file('templates/record_dealer.html'));
+	$variables=set_variable($variables,'country_pulldown',pulldownFromArray($countries,'country',$selCountry,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'region_pulldown',pulldownFromArray($regions,'region',$selRegion,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'city_pulldown',pulldownFromArray($cities,'city',$selCity,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'categ_pulldown',pulldownFromArray($categs,'categ',$categ,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'from_to_dates',($categ==3)?' from <input type="text" name="date_from" value="00-00-0000 00:00"> to <input type="text" name="to_date" value="00-00-0000 00:00">':'');
+	if(isset($_SESSION['message'])){
+		$variables=set_variable($variables,'message',$_SESSION['message']);
+		unset($_SESSION['message']);
+	}
+		
+	return outputHTML($variables,$page_template,1);		
+}
+
+function process_record_dealer($categs,$conn){
+	$id=(int)@$_SESSION['uID'];
+	
+	$selCountry=(int)@$_REQUEST['country'];
+	$selRegion=(int)@$_REQUEST['region'];
+	$selCity=(int)@$_REQUEST['city'];
+	$cityname=cleanString($_POST['cityname']);
+	$categ=(int)@$_REQUEST['categ'];
+	$url=cleanString($_POST['url']);
+	$description=cleanString($_POST['description']);
+	$date_from=cleanString(@$_POST['date_from']);
+	$date_to=cleanString(@$_POST['date_to']);
+	
+	if($selCountry==0 || $selRegion==0 || ($selCity==0 && $cityname=='')){
+		$_SESSION['message']=msg_error('Please provide geographical info.');
+		return record_dealer_form($categs,$conn);
+	}
+	
+	if($url=='' || $description==''){
+		$_SESSION['message']=msg_error('Please fill in your offering info.');
+		return record_dealer_form($categs,$conn);
+	}
+	
+	if($selCity==0 && $cityname!=''){
+		query("INSERT INTO City (FK_Country,FK_Region,City) VALUES ($selCountry,$selRegion,'$cityname')",$conn);
+		$selCity=mysql_insert_id($conn);
+	}
+	query("REPLACE INTO dealers (FK_Country,FK_Region,FK_City,cityname,category,url,description,user_id,date_from,date_to) VALUES ('$selCountry','$selRegion','$selCity','$cityname','$categ','$url','$description',$id,'$date_from','$date_to')",$conn);
+	$_SESSION['message']=msg_notice('Account updated.');
+	unset($_POST);
+	
+	return record_dealer_form($categs,$conn);
+}
+
+function get_dealers_list($conn,$selCountry,$selRegion,$selCity){
+	$res=query("SELECT * FROM dealers WHERE FK_Country=$selCountry AND FK_Region=$selRegion AND FK_City=$selCity",$conn);
+	if(mysql_num_rows($res)==0){
+		return 'We are sorry, there are no dealers for the area you selected.';
+	}
+	$out='<table width="100%">';
+	while($row=mysql_fetch_assoc($res)){
+		$out.='
+			<tr>
+				<td><a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
+			</tr>
+			<tr>
+				<td align="right"><a href="">Rate it</a></td>
+			</tr>			
+		';
+	}
+	$out.='</table>';
+	
+	return $out;
 }
 ?>

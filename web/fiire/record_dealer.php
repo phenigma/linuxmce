@@ -7,12 +7,21 @@ include('lib/functions.php');
 include('lib/init.php');
 
 $title='FIIRE :: Dealer';
+$categ_titles=array(
+	1=>'Become a dealer',
+	2=>'Become a custom installer',
+	3=>'Announce an open house event'
+);
+
 $page_template=implode('',file('templates/template.html'));
-$content=get_dealer($conn);
+$content=record_dealer($categ_titles,$conn);
 $login_form=login_header($conn);
+$categ=(int)@$_REQUEST['categ'];
+
 $navArray=array(
 	'index.php'=>'Home',
-	'dealer.php'=>'Dealer'
+	'myaccount.php'=>'My account',
+	'record_dealer.php'=>@$categ_titles[$categ]
 );
 
 // set dynamic fields

@@ -1,6 +1,6 @@
           <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
-              <td><img src="images/get-fiired.jpg" width="570" height="34" /></td>
+              <td><img src="images/dealer.gif" width="570" height="34" /></td>
             </tr>
             <tr>
               <td><img src="images/spacer.gif" width="4" height="2" /></td>
@@ -12,14 +12,41 @@
 				</p>
             </td>
 			  </tr>
-
+            <tr>
+              <td>
+				<p>Become a dealer or custom installer, or announce an open house event.
+				</p>
+				<form name="form1" method="POST" action="dealer.php">
+				<table>
+					<tr>
+						<td colspan="2" align="center">{message}</td>
+					</tr>				
+					<tr>
+						<td>Country</td>
+						<td>{country_pulldown}</td>
+					</tr>
+					<tr>
+						<td>Region</td>
+						<td>{region_pulldown}</td>
+					</tr>
+					<tr>
+						<td>City</td>
+						<td>{city_pulldown}</td>
+					</tr>
+					<tr>
+						<td colspan="2">{dealers_table}</td>
+					</tr>					
+				</table>
+				</form>
+            </td>
+			  </tr>
 
             <tr>
               <td>
 				<p>
 					No dealers yet.  Fiire is a brand new product.  
 					However, with our <a href="sure-fiire.php"><img src="images/t_sure_fiire.gif" alt="Sure Fiire" width="97" height="13" border="0" /></a>
-					guarantee, ou have nothing to worry about it.  We guarantee our trained tech support staff will get your Fiire system up and going and working
+					guarantee, you have nothing to worry about it.  We guarantee our trained tech support staff will get your Fiire system up and going and working
 					with all your existing devices.  If you're not totally satisifed, you get a full refund.
 				</p>
             </td>
