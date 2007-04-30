@@ -195,6 +195,7 @@ int main(int argc, char* argv[])
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
+	bool bAppError=false;
 	bool bReload=false;
 	try
 	{
@@ -218,6 +219,7 @@ int main(int argc, char* argv[])
 		} 
 		else 
 		{
+			bAppError = true;
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() Failed");
 		}
 
@@ -238,6 +240,9 @@ int main(int argc, char* argv[])
 #ifdef WIN32
     WSACleanup();
 #endif
+
+	if( bAppError )
+		return 1;
 
 	if( bReload )
 		return 2;
