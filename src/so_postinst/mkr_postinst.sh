@@ -1,6 +1,10 @@
 #!/bin/bash
 
-. /usr/pluto/bin/Utils.sh
+function BlacklistConfFiles {
+	return 1
+}
+
+. /usr/pluto/bin/Utils.sh || :
 
 /usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
