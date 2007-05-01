@@ -39,6 +39,7 @@ function Setup_Apt_Conffiles {
 		cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
 	fi
 
+
 	## Setup apt sources.list
 	local Sources="# Pluto sources - start
 # Choosed mirror - start
@@ -65,6 +66,11 @@ deb file:/usr/pluto/deb-cache/ ./
 # Pluto sources offline - end"
 	echo "$SourcesOffline" >/etc/apt/sources.list.offline
 
+	if [[ "$c_ubuntuExtraCDFrom" != "3" ]] ;then
+		#echo "Dir::Etc::sourcelist sources.list.offline;" >/etc/apt/apt.conf.d/00ubuntu_offline
+		cp /etc/apt/sources.list /etc/apt/sources.list.original
+		mv /etc/apt/sources.list.offline /etc/apt/sources.list
+	fi
 	# Setup pluto's apt.conf
 	pluto_apt_conf='// Pluto apt conf add-on
 Apt::Cache-Limit "12582912";

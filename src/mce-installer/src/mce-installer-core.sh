@@ -2,6 +2,8 @@
 
 . ./mce-installer-common.sh
 
+trap 'RemoveOfflineSource' EXIT
+
 rm -rf /tmp/mce_installer_error
 InstallerLogFile="/var/log/mce-installer-$(date +%s).log"
 echo "--- start mce wizard data ---" >> $InstallerLogFile
@@ -296,6 +298,15 @@ function Configure_Xorg_Conf {
 	sed -i 's/.*Section.*\"Module\"/Section "Module"\n Load "record"/g' /etc/X11/xorg.conf
 }
 
+function RemoveOfflineSource {
+
+	#if [ -e  /etc/apt/apt.conf.d/00ubuntu_offline ] ;then
+	#	rm -f /etc/apt/apt.conf.d/00ubuntu_offline
+	#fi
+	mv /etc/apt/sources.list.original /etc/apt/sources.list
+}
+
+
 Core_PK_Device="0"
 killall NetworkManager
 killall NetworkManagerDispatcher
@@ -371,6 +382,7 @@ Dir="/etc/skel/.kde/Autostart"
 echo "$KDExhost" >"$Dir/xhost"
 chmod +x "$Dir/xhost"
 
-apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
+if [[ "$c_ubuntuExtraCDFrom" == "3" ]] ;then
+	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."	 fi
 
 StatsMessage "Installation Finished"
