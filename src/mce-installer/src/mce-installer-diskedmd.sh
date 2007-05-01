@@ -83,3 +83,4 @@ Setup_NIS
 Configure_Mounts
 Unpack_Config_Files
 Run_Installer_Script
+Setup_XOrg

@@ -131,3 +131,31 @@ function Setup_XOrg {
 		sed -i 's/.*Section.*\"Module\"/Section "Module"\n Load "record"/g' /etc/X11/xorg.conf
 	fi
 }
+
+
+function UI_SetOptions {
+	local OrbiterDev="$1"
+	local OpenGLeffects="$2"
+	local AlphaBlending="$3"
+	local UI_Version="$4"
+
+	DEVICEDATA_Use_OpenGL_effects=172
+	DEVICEDATA_Use_alpha_blended_UI=169
+	DEVICEDATA_PK_UI=104
+
+	# disable OpenGL effects
+	Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+	     VALUES ('$OrbiterDev', '$DEVICEDATA_Use_OpenGL_effects', '$OpenGLeffects')"
+	RunSQL "$Q"
+
+	# disable alpha blending
+	Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+	     VALUES ('$OrbiterDev', '$DEVICEDATA_Use_alpha_blended_UI', '$AlphaBlending')"
+	RunSQL "$Q"
+
+	# set UI	
+	Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+	     VALUES ('$OrbiterDev', '$DEVICEDATA_PK_UI', '$UI_Version')"
+	RunSQL "$Q"
+
+}
