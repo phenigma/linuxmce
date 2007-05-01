@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
 			<< "password    -- password for database connection, default is `` (empty)" << endl
 			<< "database    -- database name.  default is pluto_main" << endl;
 
-		exit(0);
+		exit(1);
 	}
 
 	string args;

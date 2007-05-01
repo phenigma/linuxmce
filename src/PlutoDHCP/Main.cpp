@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 			<< "If -a is specified it will echo an available IP" << endl
 			<< "Note use -d with -a to assign that IP to a device" << endl;
 
-		exit(0);
+		exit(1);
 	}
 
 	string args;

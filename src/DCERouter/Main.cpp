@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
                 << "-f base path -- device requests for files will be relative to this path" << endl
 		<< "-l logger	 -- where to put the log" << endl;
 
-        exit(0);
+        exit(1);
     }
 
 		

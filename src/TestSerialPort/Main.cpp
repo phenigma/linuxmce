@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 			<< "-M puts it in monitor mode where it just reports the state" << endl
 			<< "  of hardware flow control until ctrl+c is pressed" << endl;
 
-		exit(0);
+		exit(1);
 	}
 
 	char pBuffer[5000]="";

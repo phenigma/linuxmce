@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
 			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
 			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl
 			<< "-V -- This is being run from a hard drive boot--ie not a Pluto Media Director" << endl;
-		exit(0);
+		exit(1);
 	}
 
 #ifdef WIN32

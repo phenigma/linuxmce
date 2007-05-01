@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 			<< "database    -- database name.  default is pluto_main" << endl
 			<< "To create a Media scenario, pass in -e" << endl;
 
-		exit(0);
+		exit(1);
 	}
 
 	UpdateEntArea updateEntArea;

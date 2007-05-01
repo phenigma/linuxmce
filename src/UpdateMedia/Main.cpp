@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
 			<< "-B          -- Run as daemon" << endl
 			<< "Directory defaults to /home" << endl;
 
-		exit(0);
+		exit(1);
 	}
 
 	if(!bRunAsDaemon)

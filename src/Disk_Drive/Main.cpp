@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
 			<< "-l dcerouter|stdout|filename	-- Where to save the log files. " << endl
 			<< "	Specify 'dcerouter' to have the messages logged to the DCE Router." << endl
 			<< "	Defaults to stdout." << endl;
-	      exit(0);
+	      exit(1);
     }
 
 #ifdef WIN32
