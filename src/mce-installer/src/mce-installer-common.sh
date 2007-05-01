@@ -1,5 +1,9 @@
 #!/bin/bash
 
+DT_MEDIA_DIRECTOR=3
+DT_CORE=1
+DT_HYBRID=2
+
 function Replace_Mirror {
 	local mirror=$1
 	local flag='0'
