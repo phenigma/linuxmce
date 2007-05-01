@@ -104,7 +104,7 @@ int main(int argc, char **argv)
             << "-D database  -- database name" << endl
             << "-P port      -- port for database connection, default is 3306" << endl
             << "-s <list of directories to watch>" << endl;
-            exit(0);
+            exit(1);
     }
 
     try

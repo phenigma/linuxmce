@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 			<< "-p password  -- password for database connection, default is `` (empty)" << endl
 			<< "-D database  -- database name" << endl
 			<< "-P port      -- port for database connection, default is 3306" << endl;
-		exit(0);
+		exit(1);
 	}
 
 	Database_pluto_main mds(LoggerWrapper::GetInstance()); 

@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 			<< "database    -- database name.  default is pluto_main" << endl
 			<< "port        -- port for database connection, default is 3306" << endl;
 
-		exit(0);
+		exit(1);
 	}
 
 	try

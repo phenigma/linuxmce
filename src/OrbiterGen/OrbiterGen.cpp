@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 			<< "-D database  -- database name" << endl
 			<< "-P port      -- port for database connection, default is 3306" << endl
 			<< "-s screen    -- only regenerate this one screen" << endl;
-		exit(0);
+		exit(1);
 	}
 
 	// Windows will work with / also

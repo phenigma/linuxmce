@@ -117,7 +117,7 @@ bool LIRC_DCE::GetConfig()
 		else
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No SerialPort selected and no default entry found. Exiting.");
-			exit(0);
+			exit(1);
 		}
 #endif
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "No SerialPort selected, selecting default %s", sSerialPort.c_str());

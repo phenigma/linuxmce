@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 			<< "-a(abort)   -- Abort on error without prompting" << endl
 			<< "-d          -- Don't make changes to the database" << endl;
 
-		exit(0);
+		exit(1);
 	}
 
 	string sWhere;

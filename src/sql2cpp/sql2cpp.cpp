@@ -136,7 +136,7 @@ int main( int argc, char *argv[] )
 			<< "-i input path  -- Where to find the template files. " << endl
 			<< "			 Default is . then ../sql2cpp" << endl;
 
-		exit(0); // errors
+		exit(1); // errors
 	}
 
 	// default value for sOutputPath

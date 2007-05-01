@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 			<< "-P -- port for database connection, default is 3306" << endl
 			<< "-a -- List all devices by number" << endl
 			<< "-s -- List all devices with this string in the name" << endl;
-		exit(0);
+		exit(1);
 	}
 
 	StringUtils::Replace(&GeneratedOutput,"\\","/");

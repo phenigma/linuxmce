@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
 			<< "device id   -- the device id" << endl
 			<< "-n no prompts -- errors will be sent to a log file without asking the user to continue" << endl;
 
-		exit(0);
+		exit(1);
 	}
 
 	while( sCommand.length()==0 )

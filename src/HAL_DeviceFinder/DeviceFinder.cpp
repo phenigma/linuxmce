@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 	{
 		cout << "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
 			<< "Usage: DeviceFinder -f <Input Filename>" << endl;
-		exit(0);
+		exit(1);
 	}
 
 	vector<string> vectLines;

@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 		cout << "MakeRelease_PrepFiles_PrepFiles" << endl
 			<< "Usage: MakeRelease_PrepFiles_PrepFiles -p Path -e Extensions -c ConfFile" << endl;
 
-		exit(0);
+		exit(1);
 	}
 
 	g_dceConfig = new DCEConfig(sConfFile);
