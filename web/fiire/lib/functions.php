@@ -1019,7 +1019,7 @@ function process_register($conn){
 	$referrer=get_user_id($referrerName,$conn);
 	
 	// check if referrer name is valid
-	if($referrer=='null'){
+	if($referrerName!='' && $referrer=='null'){
 		$error='Invalid referrer.';
 		return register_form($regusername,$regemail,$referrerName,$error);
 	}
@@ -1252,22 +1252,18 @@ function get_get_fiired(){
 }
 
 function get_dealer($conn){
+	process_add_rating($conn);
 	
 	$selCountry=(int)@$_REQUEST['country'];
-	$countries=array(0=>'Pick the country')+getAssocArray('Country','PK_Country','Description',$conn,'','ORDER BY Description ASC');
-
 	$selRegion=(int)@$_REQUEST['region'];
-	$regions=($selCountry!=0)?getAssocArray('Region','PK_Region','Region',$conn,'WHERE FK_Country='.$selCountry,'ORDER BY Region ASC'):array(0=>'Pick the country');
-
 	$selCity=(int)@$_REQUEST['city'];
-	$cities=($selRegion!=0)?array(0=>'Pick city')+getAssocArray('City','PK_City','City',$conn,'WHERE FK_Region='.$selRegion,'ORDER BY City ASC'):array(0=>'Pick the region');
-
+	
 
 	$variables=array();
 	$page_template=implode('',file('templates/dealer.html'));
-	$variables=set_variable($variables,'country_pulldown',pulldownFromArray($countries,'country',$selCountry,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'region_pulldown',pulldownFromArray($regions,'region',$selRegion,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'city_pulldown',pulldownFromArray($cities,'city',$selCity,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'country_pulldown',countriesPulldown('country',$selCountry,$conn,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"'));
 	$variables=set_variable($variables,'dealers_table',get_dealers_list($conn,$selCountry,$selRegion,$selCity));
 	if(isset($_SESSION['message'])){
 		$variables=set_variable($variables,'message',$_SESSION['message']);
@@ -1601,21 +1597,16 @@ function record_dealer_form($categs,$conn){
 	$data=getFields('dealers','WHERE user_id='.$id,$conn);
 	
 	$selCountry=(int)@$_REQUEST['country'];
-	$countries=array(0=>'Pick the country')+getAssocArray('Country','PK_Country','Description',$conn,'','ORDER BY Description ASC');
-
 	$selRegion=(int)@$_REQUEST['region'];
-	$regions=($selCountry!=0)?array(0=>'Pick the region')+getAssocArray('Region','PK_Region','Region',$conn,'WHERE FK_Country='.$selCountry,'ORDER BY Region ASC'):array(0=>'Pick the country');
-
 	$selCity=(int)@$_REQUEST['city'];
-	$cities=($selRegion!=0)?array(0=>'Not in the list')+getAssocArray('City','PK_City','City',$conn,'WHERE FK_Region='.$selRegion,'ORDER BY City ASC'):array(0=>'Pick the region');
 
 	$categ=(int)@$_REQUEST['categ'];
 	
 	$variables=array();
 	$page_template=implode('',file('templates/record_dealer.html'));
-	$variables=set_variable($variables,'country_pulldown',pulldownFromArray($countries,'country',$selCountry,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'region_pulldown',pulldownFromArray($regions,'region',$selRegion,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'city_pulldown',pulldownFromArray($cities,'city',$selCity,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'country_pulldown',countriesPulldown('country',$selCountry,$conn,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"'));
 	$variables=set_variable($variables,'categ_pulldown',pulldownFromArray($categs,'categ',$categ,'onChange="document.form1.submit();"'));
 	$variables=set_variable($variables,'from_to_dates',($categ==3)?' from <input type="text" name="date_from" value="00-00-0000 00:00"> to <input type="text" name="to_date" value="00-00-0000 00:00">':'');
 	if(isset($_SESSION['message'])){
@@ -1626,6 +1617,59 @@ function record_dealer_form($categs,$conn){
 	return outputHTML($variables,$page_template,1);		
 }
 
+function countriesPulldown($name,$selected,$conn,$extra){
+	$res=query("
+		SELECT Country.*,user_id FROM Country 
+		LEFT JOIN dealers on FK_Country=PK_Country
+		GROUP BY PK_Country
+		ORDER BY Country.Description ASC",$conn);
+	$select='<select name="'.$name.'" '.$extra.'>
+		<option value="0">Pick the country</option>';
+	while($row=mysql_fetch_assoc($res)){
+		$select.='<option value="'.$row['PK_Country'].'" '.(($row['PK_Country']==$selected)?'selected':'').' '.((!is_null($row['user_id']))?'style="background:#DFFFEF;"':'').'>'.$row['Description'].'</option>';
+	}
+	$select.='
+	</select>';
+	
+	return $select;
+}
+
+function regionsPulldown($name,$selected,$country,$conn,$extra){
+	$res=query("
+		SELECT Region.*,user_id FROM Region 
+		LEFT JOIN dealers on FK_Region=PK_Region
+		WHERE Region.FK_Country=$country
+		GROUP BY PK_Region
+		ORDER BY Region.Region ASC",$conn);
+	$select='<select name="'.$name.'" '.$extra.'>
+		<option value="0">Pick the region</option>';
+	while($row=mysql_fetch_assoc($res)){
+		$select.='<option value="'.$row['PK_Region'].'" '.(($row['PK_Region']==$selected)?'selected':'').' '.((!is_null($row['user_id']))?'style="background:#DFFFEF;"':'').'>'.$row['Region'].'</option>';
+	}
+	$select.='
+	</select>';
+	
+	return $select;
+}
+
+function citiesPulldown($name,$selected,$region,$conn,$extra){
+	$res=query("
+		SELECT City.*,user_id FROM City
+		LEFT JOIN dealers on FK_City=PK_City
+		WHERE City.FK_Region=$region
+		GROUP BY PK_City
+		ORDER BY City.City ASC",$conn);
+	$select='<select name="'.$name.'" '.$extra.'>
+		<option value="0">Pick the city</option>';
+	while($row=mysql_fetch_assoc($res)){
+		$select.='<option value="'.$row['PK_City'].'" '.(($row['PK_City']==$selected)?'selected':'').' '.((!is_null($row['user_id']))?'style="background:#DFFFEF;"':'').'>'.$row['City'].'</option>';
+	}
+	$select.='
+	</select>';
+	
+	return $select;
+}
+
 function process_record_dealer($categs,$conn){
 	$id=(int)@$_SESSION['uID'];
 	
@@ -1634,6 +1678,7 @@ function process_record_dealer($categs,$conn){
 	$selCity=(int)@$_REQUEST['city'];
 	$cityname=cleanString($_POST['cityname']);
 	$categ=(int)@$_REQUEST['categ'];
+	$title=cleanString($_POST['title']);
 	$url=cleanString($_POST['url']);
 	$description=cleanString($_POST['description']);
 	$date_from=cleanString(@$_POST['date_from']);
@@ -1653,7 +1698,10 @@ function process_record_dealer($categs,$conn){
 		query("INSERT INTO City (FK_Country,FK_Region,City) VALUES ($selCountry,$selRegion,'$cityname')",$conn);
 		$selCity=mysql_insert_id($conn);
 	}
-	query("REPLACE INTO dealers (FK_Country,FK_Region,FK_City,cityname,category,url,description,user_id,date_from,date_to) VALUES ('$selCountry','$selRegion','$selCity','$cityname','$categ','$url','$description',$id,'$date_from','$date_to')",$conn);
+	query("
+	REPLACE INTO dealers (FK_Country,FK_Region,FK_City,cityname,category,url,description,user_id,date_from,date_to,title) 
+	VALUES 
+	('$selCountry','$selRegion','$selCity','$cityname','$categ','$url','$description',$id,'$date_from','$date_to','$title')",$conn);
 	$_SESSION['message']=msg_notice('Account updated.');
 	unset($_POST);
 	
@@ -1661,22 +1709,81 @@ function process_record_dealer($categs,$conn){
 }
 
 function get_dealers_list($conn,$selCountry,$selRegion,$selCity){
-	$res=query("SELECT * FROM dealers WHERE FK_Country=$selCountry AND FK_Region=$selRegion AND FK_City=$selCity",$conn);
-	if(mysql_num_rows($res)==0){
+	if($selCountry==0){
+		return '';
+	}
+	$filters='';
+	if($selRegion!=0){
+		$filters.=' AND FK_Region='.$selRegion;
+	}
+	if($selCity!=0){
+		$filters.=' AND FK_City='.$selCity;
+	}
+	$ratingArray=array(
+		0=>'Rate dealer',
+		5=>'Excelent',
+		4=>'Very good',
+		3=>'Good',
+		2=>'Average',
+		1=>'Bad'
+	);
+	
+	$res=query("SELECT dealers.*,avg(rating.rating) AS rating,myrating.rating as myrating
+		FROM dealers 
+		LEFT JOIN rating ON rating.user_id=dealers.user_id
+		LEFT JOIN rating myrating on myrating.user_id=dealers.user_id AND myrating.ipaddress='10.0.0.104'
+		WHERE FK_Country=$selCountry $filters
+		GROUP BY dealers.user_id ",$conn);
+	$no=mysql_num_rows($res);
+	if($no==0){
 		return 'We are sorry, there are no dealers for the area you selected.';
 	}
-	$out='<table width="100%">';
+	$out='
+	<table width="100%">
+		<tr>
+			<td>Found '.$no.' records.<hr></td>
+		</tr>';
+	$dealers=array();
 	while($row=mysql_fetch_assoc($res)){
+		$rating=(is_null($row['myrating']))?pulldownFromArray($ratingArray,'rating_'.$row['user_id'],0,'onChange="document.form1.submit();"'):'';
 		$out.='
 			<tr>
-				<td><a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
+				<td><b>'.$row['title'].'</b><br><a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
 			</tr>
 			<tr>
-				<td align="right"><a href="">Rate it</a></td>
+				<td align="right">'.star_rating(ceil($row['rating'])).' '.$rating.'<hr></td>
 			</tr>			
 		';
+		$dealers[]=$row['user_id'];
 	}
-	$out.='</table>';
+	$out.='</table>
+	<input type="hidden" name="dealers" value="'.join(',',$dealers).'">';
+	
+	return $out;
+}
+
+function process_add_rating($conn){
+	$ipaddress=$_SERVER['REMOTE_ADDR'];
+	$dealers=explode(',',@$_POST['dealers']);
+	if(count($dealers)>0){
+		foreach ($dealers AS $id){
+			$rating=(int)@$_POST['rating_'.$id];
+			if($rating!=0){
+				query("INSERT IGNORE INTO rating (user_id,rating,ipaddress) values ($id,$rating,'$ipaddress')",$conn);
+			}
+		}
+	}
+}
+
+function star_rating($no){
+	if($no==0){
+		return '';
+	}
+	
+	$out='';
+	for($i=0;$i<$no;$i++){
+		$out.='<img src="images/star.gif" border="0">';
+	}
 	
 	return $out;
 }
