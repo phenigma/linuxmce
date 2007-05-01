@@ -381,9 +381,19 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 			if(pending_context.IsFullScreen() != current_context.IsFullScreen())
 				bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
 
-
 			if(pending_context.IsVisible() != current_context.IsVisible())
-				bResult = bResult && m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
+			{
+				if(sWindowName.find("Screen_Saver") != string::npos)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "PSS 'visible' %d", pending_context.IsVisible());
+					bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.IsVisible() ? LayerNormal : LayerBelow);
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s visible %d", sWindowName.c_str(), pending_context.IsVisible());
+					bResult = bResult && m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
+				}
+			}
 
 			PlutoRectangle rect = pending_context.Position();
 			PlutoRectangle current_rect = current_context.Position();
@@ -422,16 +432,24 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 			bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 			bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
 			bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
-			bResult = bResult && m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
+
+			if(sWindowName.find("Screen_Saver") != string::npos)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PSS whole context; 'visible' %d", pending_context.IsVisible());
+				bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.IsVisible() ? LayerNormal : LayerBelow);	
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s visible %d", sWindowName.c_str(), pending_context.IsVisible());
+				bResult = bResult && m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
+			}
 
 			PlutoRectangle rect = pending_context.Position();
-			if(
-				//!pending_context.IsMaximized() && !pending_context.IsFullScreen() &&
-				rect.X != -1 && rect.Y != -1
-				//rect.Width != -1 && rect.Height != -1
-			)
+			if(rect.X != -1 && rect.Y != -1)
+			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "SetPosition: %s => %d,%d,%d,%d", sWindowName.c_str(), rect.X, rect.Y, rect.Width, rect.Height);
 				bResult = bResult && m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
+			}
 
 			if(pending_context.IsActivated())
 			{

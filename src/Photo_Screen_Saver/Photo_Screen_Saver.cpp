@@ -216,11 +216,6 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 
 	Gallery::Instance().Resume();
 	m_bIsOn=true;
-
-#ifndef WIN32
-	WMControllerImpl wmctrl;
-	wmctrl.SetVisible(m_sPSSWindow, true);
-#endif
 }
 
 //<-dceag-c193-b->
@@ -235,11 +230,6 @@ void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMess
 {
 	Gallery::Instance().Pause();
 	m_bIsOn=false;
-
-#ifndef WIN32
-	WMControllerImpl wmctrl;
-	wmctrl.SetVisible(m_sPSSWindow, false);
-#endif
 }
 
 void Photo_Screen_Saver::Terminate()
