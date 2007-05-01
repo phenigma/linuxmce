@@ -118,7 +118,9 @@ function Create_And_Config_Devices {
 	## Create a hybrid if needed
 	if [[ "$c_deviceType" == "2" ]] ;then
 		StatsMessage "Setting up you computer to act as a 'Media Director'"
-		Hybrid_DT=$(/usr/pluto/bin/CreateDevice -d $DEVICE_TEMPLATE_MediaDirector -C "$Core_PK_Device")
+		/usr/pluto/bin/CreateDevice -d $DEVICE_TEMPLATE_MediaDirector -C "$Core_PK_Device"
+		Hybrid_DT=$(RunSQL "SELECT PK_Device FROM Device WHERE FK_Device_Template='$DEVICE_TEMPLATE_MediaDirector' LIMIT 1")
+
 		Q="UPDATE Device SET Description='The core/hybrid' WHERE PK_Device='$Hybrid_DT'"
 		RunSQL "$Q"
  
