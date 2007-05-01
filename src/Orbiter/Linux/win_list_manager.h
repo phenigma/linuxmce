@@ -116,6 +116,7 @@ private:
 	bool m_bExternalChange;
 
 	bool m_bHideSdlWindow;
+	bool m_bExclusive;
 
 	//internal helpers methods
 	void Internal_ActivateWindow(const string& sWindowsName);

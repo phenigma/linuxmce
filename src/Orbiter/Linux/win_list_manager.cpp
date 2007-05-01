@@ -54,8 +54,9 @@ WinListManager::WinListManager(const string &sSdlWindowName)
 	m_bExternalChange=false;
 	m_bKeepSdlWindowActive=false;
 
-	HandleOnCommand();
+	m_bExclusive = true;
 
+	HandleOnCommand();
 }
 
 WinListManager::~WinListManager()
@@ -122,6 +123,8 @@ void WinListManager::ShowSdlWindow(bool bExclusive, bool bYieldInput)
 {
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 
+    m_bExclusive = bExclusive;
+
 	// when Orbiter is fullscreen no other dialog can be on top of
     // it, so it will be maximized instead
 	PendingContext(m_sSdlWindowName).Visible(!m_bHideSdlWindow);
@@ -180,15 +183,6 @@ void WinListManager::HideAllWindows()
 			continue;
 		it_pending->second.Visible(false);
 	}
-/*
-	Hmm...  This reports windows in a x.y, and we just use x, so we always re-hide windows even that are not supposed to be
-	for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
-	{
-		if( StringUtils::StartsWith(it->second,"Orbiter",true) )  // Doesn't apply to orbiter
-			continue;
-		HideWindow(it->second);
-	}
-*/
 }
 
 string WinListManager::GetExternApplicationName()
@@ -254,16 +248,6 @@ void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	m_pWMController->ListWindows(listWinInfo);
 
-#ifdef DEBUG
-for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"WinListManager::GetWindows1 %d/%s",it->first,it->second.c_str());
-
-for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end(); ++it)
-{
-LoggerWrapper::GetInstance()->Write(LV_WARNING,"WinListManager::GetWindows1b id %d desktop %d class %s title %s",it->ulWindowId,it->lDesktop,it->sClassName.c_str(),it->sTitle.c_str());
-}
-#endif
-
 	bool bChangesDetected=false;
 
 	map<unsigned long,bool> mapFoundWindows;  // Put all known windows in here with 'false' and mark them as true as we find them
@@ -284,9 +268,6 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"WinListManager::GetWindows1b id 
 		}
 		else
 		{
-#ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_WARNING,"WinListManager::GetWindows %d found %d",it->ulWindowId,itKnownWindows == m_mapKnownWindows.end());
-#endif
 			mapFoundWindows[ it->ulWindowId ] = true;
 		}
 	}
@@ -304,10 +285,6 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"WinListManager::GetWindows %d fo
 		}
 	}
 
-#ifdef DEBUG
-for(map<unsigned long,string>::iterator it=m_mapKnownWindows.begin();it!=m_mapKnownWindows.end();++it)
-LoggerWrapper::GetInstance()->Write(LV_WARNING,"WinListManager::GetWindows2 %d/%s",it->first,it->second.c_str());
-#endif
 	if( bChangesDetected )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"WinListManager::GetWindows m_bExternalChange set");
@@ -383,7 +360,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 
 			if(pending_context.IsVisible() != current_context.IsVisible())
 			{
-				if(sWindowName.find("Screen_Saver") != string::npos)
+				if(sWindowName.find("Screen_Saver") != string::npos && m_bExclusive)
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "PSS 'visible' %d", pending_context.IsVisible());
 					bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.IsVisible() ? LayerNormal : LayerBelow);
@@ -433,7 +410,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 			bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
 			bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
 
-			if(sWindowName.find("Screen_Saver") != string::npos)
+			if(sWindowName.find("Screen_Saver") != string::npos && m_bExclusive)
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PSS whole context; 'visible' %d", pending_context.IsVisible());
 				bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.IsVisible() ? LayerNormal : LayerBelow);	
