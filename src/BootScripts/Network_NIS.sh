@@ -2,6 +2,13 @@
 
 . /usr/pluto/bin/Network_Parameters.sh
 
+#NIS_Domain=$(</etc/defaultdomain)
+#if [[ -z "$NIS_Domain" ]]; then
+	NIS_Domain=pluto
+#fi
+echo "Setting NIS, with domain '$NIS_Domain'"
+domainname "$NIS_Domain"
+
 IntNetIP=""
 for i in 1 2 3 4 ;do
 	[[ "$IntNetIP" != "" ]] && IntNetIP="${IntNetIP}."
