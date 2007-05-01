@@ -445,6 +445,12 @@ void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Me
 	m_sApplicationName = sWindowName;
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
 	m_pWinListManager->SetExternApplicationName(sWindowName);
+
+	if(UsesUIVersion2() && sWindowName.find("Screen_Saver") != string::npos)
+	{
+		m_pWinListManager->ShowWindow(sWindowName);
+		m_pWinListManager->ApplyContext(sWindowName);
+	}
 }
 
 void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
