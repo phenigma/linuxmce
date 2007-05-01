@@ -24,6 +24,7 @@ xinit /usr/pluto/bin/XWM_Wrapper.sh "${Parms_Client[@]}" -- "${Parms_Server[@]}"
 echo "Exit code: $?"
 timestampEnd=$(date +%s)
 
+## This is vulnerable to unexpected time shifts (for example, if ntpdate runs in the meantime, it can set timestampEnd -before- timestampStart, giving a time travel effect)
 echo "start: $timestampStart; end: $timestampEnd; diff: $((timestampEnd-timestampStart))"
 if ((timestampEnd-timestampStart < 10)); then
 	CleanupVideo
