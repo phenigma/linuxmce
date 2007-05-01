@@ -5,6 +5,7 @@
 LastVar=
 for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
+		--flags) LastVar=Parms_Flags;;
 		--parms) LastVar=Parms_StartX ;;
 		--client) LastVar=Parms_Client ;;
 		--server) LastVar=Parms_Server ;;
@@ -24,9 +25,15 @@ xinit /usr/pluto/bin/XWM_Wrapper.sh "${Parms_Client[@]}" -- "${Parms_Server[@]}"
 echo "Exit code: $?"
 timestampEnd=$(date +%s)
 
+## if "noreconf" flag is given, don't go through safety reconfiguration
+if [[ " ${Parms_Flags[*]} " == *" noreconf "* ]]; then
+	exit 0
+fi
+
 ## This is vulnerable to unexpected time shifts (for example, if ntpdate runs in the meantime, it can set timestampEnd -before- timestampStart, giving a time travel effect)
 echo "start: $timestampStart; end: $timestampEnd; diff: $((timestampEnd-timestampStart))"
 if ((timestampEnd-timestampStart < 10)); then
+	## if X exited too soon, reconfigure it, considering that the video card has changed and X needs to be reconfigured
 	CleanupVideo
 	sleep 1
 	/usr/pluto/bin/Start_X.sh "${Parms_StartX[@]}"

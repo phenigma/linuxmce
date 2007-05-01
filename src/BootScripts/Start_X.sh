@@ -60,11 +60,12 @@ fi
 
 for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
-		-client) ((i++)); XClient=${!i} ;;
-		-parm) ((i++)); XClientParm=("${XClientParm[@]}" ${!i}) ;;
+		-client) ((i++)); XClient="${!i}" ;;
+		-parm) ((i++)); XClientParm=("${XClientParm[@]}" "${!i}") ;;
 		-fg) Background=n ;;
-		-srvparm) ((i++)); XServerParm=("${XServerParm[@]}" ${!i}) ;;
-		-display) ((i++)); XDisplay=${!i} ;;
+		-srvparm) ((i++)); XServerParm=("${XServerParm[@]}" "${!i}") ;;
+		-display) ((i++)); XDisplay="${!i}" ;;
+		-flags) ((i++)); WrapperFlags=("${WrapperFlags[@]}" "${!i}") ;;
 	esac
 done
 
@@ -74,7 +75,7 @@ VT=${XDisplay#:}
 VT=vt"$((7+VT))"
 
 # Start X11
-Xcmd=(/usr/pluto/bin/Start_X_Wrapper.sh --parms "$@" --client "$XClient" "${XClientParm[@]}" --server "$XDisplay" -ignoreABI -ac -allowMouseOpenFail "$VT" "${XServerParm[@]}")
+Xcmd=(/usr/pluto/bin/Start_X_Wrapper.sh --parms "$@" --client "$XClient" "${XClientParm[@]}" --server "$XDisplay" -ignoreABI -ac -allowMouseOpenFail "$VT" "${XServerParm[@]}" --flags "${WrapperFlags[@]}")
 if [[ "$Background" == y ]]; then
 	screen -d -m -S XWindowSystem "${Xcmd[@]}"
 	# Start everouter for gyration mouse
