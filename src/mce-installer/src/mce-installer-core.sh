@@ -383,6 +383,7 @@ echo "$KDExhost" >"$Dir/xhost"
 chmod +x "$Dir/xhost"
 
 if [[ "$c_ubuntuExtraCDFrom" == "3" ]] ;then
-	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."	 fi
+	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
+fi
 
 StatsMessage "Installation Finished"
