@@ -81,7 +81,6 @@ function setup_hosts_file
 	done
 	
 	PopulateSection "/etc/hosts" "DiskledMD" "$Content"
-	PopulateSection "/etc/hosts" "NetworkSetup" "\n${IntIP} dcerouter\n" #TODO: REMOVE THIS LINE AN MODIFY NetworkSetup.sh: 
 
 	## Export hosts file to other computer
 	echo | /usr/lib/yp/ypinit -m
