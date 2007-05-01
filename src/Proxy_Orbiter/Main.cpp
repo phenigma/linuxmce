@@ -174,6 +174,7 @@ int main(int argc, char* argv[])
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
+	bool bAppError = false;
 	bool bReload=false;
 	try
 	{
@@ -181,16 +182,21 @@ int main(int argc, char* argv[])
 	}
 	catch(string s)
 	{
+		bAppError = true;
 		cerr << "Exception: " << s << endl;
 	}
 	catch(const char *s)
 	{
+		bAppError = true;
 		cerr << "Exception: " << s << endl;
 	}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d ending",PK_Device);
 #ifdef WIN32
     WSACleanup();
 #endif
+
+	if(bAppError)
+		return 1;
 
 	if( bReload )
 		return 2;
