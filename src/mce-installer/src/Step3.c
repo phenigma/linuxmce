@@ -31,6 +31,11 @@ void on_Step3_dhcp_changed(GtkWidget *widget, gpointer data) {
 }
 
 void displayStep3(void) {
+	if (setting_deviceType == DT_MEDIA_DIRECTOR ) {
+		displayStepUI();
+		return;
+	}
+
 	printf("Step3\n");
 	cleanupContainer(mainBox);
 	cleanupContainer(mainButtonBox);

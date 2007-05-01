@@ -24,6 +24,11 @@ void on_Step4_radio_toggled(GtkWidget *widget, gpointer data) {
 }
 
 void displayStep4(void) {
+	if (setting_deviceType == DT_MEDIA_DIRECTOR ) {
+		displayStepInstallDependencies();
+		return;
+	}
+
 	printf("Step4\n");
 
 	// Cleanup window
