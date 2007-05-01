@@ -2,19 +2,8 @@
 
 . /usr/pluto/bin/Utils.sh
 
-#if [[ ! -r /tmp/mce_wizard_data.sh ]] ;then
-#	echo "ERROR: Cannot find wizard data";
-#	exit 1
-
-	c_coreIpAddress="192.168.80.1"
-	c_deviceID="31"
-#fi
-
-function Create_Device
-{
-	## Install libs needed by CreateDevice
-	apt-get -y --force-yes install libmysqlclinet12 libhttpfetcher1
-}
+c_coreIpAddress="192.168.80.1"
+c_deviceID="31"
 
 function Setup_NIS 
 {
@@ -94,4 +83,3 @@ Setup_NIS
 Configure_Mounts
 Unpack_Config_Files
 Run_Installer_Script
-Create_Device

@@ -101,3 +101,33 @@ YPPASSWDDARGS=
 YPXFRDARGS=
 " > /etc/default/nis
 }
+
+function Setup_XOrg {
+	## Make X accessible by Pluto software, for all existing and new users
+	KDExhost="#!/bin/bash
+	xhost +
+	"
+
+	for user in /home/*; do
+		if [[ ! -d "$user" ]]; then
+			continue
+		fi
+		Dir="$user/.kde/Autostart"
+		mkdir -p "$Dir"
+		echo "$KDExhost" >"$Dir/xhost"
+		User="${user#/home/}"
+		chown "$User.$User" "$Dir/xhost"
+		chmod +x "$Dir/xhost"
+	done
+
+	Dir="/etc/skel/.kde/Autostart"
+	echo "$KDExhost" >"$Dir/xhost"
+	chmod +x "$Dir/xhost"
+
+	## Add xrecord extention if missing
+	if grep -q ".*Load.*\"record\"" /etc/X11/xorg.conf ;then
+		echo "Found xrecord , skiping ..."
+	else 
+		sed -i 's/.*Section.*\"Module\"/Section "Module"\n Load "record"/g' /etc/X11/xorg.conf
+	fi
+}

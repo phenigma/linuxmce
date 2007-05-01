@@ -289,15 +289,6 @@ function Configure_Network_Options {
 
 }
 
-function Configure_Xorg_Conf {
-	if grep -q ".*Load.*\"record\"" /etc/X11/xorg.conf ;then
-		echo "Found xrecord , skiping ..."
-		return
-	fi
-
-	sed -i 's/.*Section.*\"Module\"/Section "Module"\n Load "record"/g' /etc/X11/xorg.conf
-}
-
 function RemoveOfflineSource {
 
 	#if [ -e  /etc/apt/apt.conf.d/00ubuntu_offline ] ;then
@@ -316,9 +307,9 @@ fi
 Setup_Apt_Conffiles
 Setup_Pluto_Conf
 Install_DCERouter
-Configure_Xorg_Conf
 Create_And_Config_Devices
 Configure_Network_Options
+Setup_XOrg
 
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/bin/Timezone_Detect.sh
@@ -360,27 +351,6 @@ script
 end script
 " > /etc/event.d/pluto
 fi
-
-## Compromise X security... I mean, make X accessible by Pluto software, for all existing and new users
-KDExhost="#!/bin/bash
-xhost +
-"
-
-for user in /home/*; do
-	if [[ ! -d "$user" ]]; then
-		continue
-	fi
-	Dir="$user/.kde/Autostart"
-	mkdir -p "$Dir"
-	echo "$KDExhost" >"$Dir/xhost"
-	User="${user#/home/}"
-	chown "$User.$User" "$Dir/xhost"
-	chmod +x "$Dir/xhost"
-done
-
-Dir="/etc/skel/.kde/Autostart"
-echo "$KDExhost" >"$Dir/xhost"
-chmod +x "$Dir/xhost"
 
 if [[ "$c_ubuntuExtraCDFrom" == "3" ]] ;then
 	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
