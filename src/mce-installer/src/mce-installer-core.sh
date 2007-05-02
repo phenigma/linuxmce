@@ -328,6 +328,13 @@ end script
 " > /etc/event.d/pluto
 fi
 
+## Remove 'Install LinuxMCE' icon after LinuxMCE was installed
+for dir in /home/* ;do
+	if [ -d "$dir/Desktop" ] ;then
+		rm -f "$dir/Desktop/mce-installer.desktop"
+	fi
+done
+
 if [[ "$c_ubuntuExtraCDFrom" == "3" ]] ;then
 	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
 fi
