@@ -114,7 +114,7 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 
-	bytes = snprintf(buffer, 1024, "newmd %s %s %s 9|1|112|%s\n", myIP, myMAC, myArchitecture, myArchitecture);
+	bytes = snprintf(buffer, 1024, "newmd %s %s 9|1|112|%s\n", myIP, myMAC, myArchitecture);
 	write(s, buffer, bytes < 1024 ? bytes : 1024);
 	
 	close(s);
