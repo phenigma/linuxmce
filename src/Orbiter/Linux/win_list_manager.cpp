@@ -63,6 +63,12 @@ WinListManager::~WinListManager()
 {
 	HandleOffCommand();
 
+                //-----------------------------------------------------------------
+                //temporary code - until we'll have shared desktop = false on MD's
+		m_pWMController->SetVisible("lmce_launch_manager", true);
+                //end of temporary code
+                //-----------------------------------------------------------------
+
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager: deleting Window controller");
 	delete m_pWMController;
 	m_pWMController = NULL;
@@ -333,7 +339,11 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 		if(!sExternalWindowName.empty() && sWindowName != sExternalWindowName)
 			continue;
 
-		RemoveWindowDecoration(m_pWMController->WindowId(sWindowName));
+                //-----------------------------------------------------------------
+                //temporary code - until we'll have shared desktop = false on MD's
+                if(sWindowName.find("lmce_launch_manager") == string::npos)
+		//-----------------------------------------------------------------
+			RemoveWindowDecoration(m_pWMController->WindowId(sWindowName));
 
 		bool bResult = true;  // Will be set to false if any of them fail
 		WindowsContext::iterator it_current = m_CurrentContext.find(sWindowName);
