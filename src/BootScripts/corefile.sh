@@ -6,7 +6,13 @@ Kver=$(uname -r)
 Kmaj=$(echo "$Kver" | cut -d. -f1)
 Kmin=$(echo "$Kver" | cut -d. -f2)
 
-if [ "$Kmaj.$Kmin" == "2.6" ]; then
+echo "# set this to 0 to disable apport
+enabled=0
+
+# set maximum core dump file size (default: 209715200 bytes == 200 MB)
+maxsize=209715200" >/etc/default/apport
+
+if [[ "$Kmaj.$Kmin" == "2.6" ]]; then
 	if [[ ! -d /home/coredump/$PK_Device ]] ;then
 		mkdir -p "/home/coredump/$PK_Device"
 	fi
