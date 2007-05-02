@@ -10,6 +10,11 @@
 #include "common.h"
 #include "StepCreateDiskedDevice.h"
 #include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <netinet/in.h>
+#include <net/if.h>
 
 GtkWidget *progress_CreateDevice;
 
@@ -50,7 +55,7 @@ void *create_thread(void *arg) {
 		printf("ERROR: server_socket cannot be created\n");
 		return NULL;
 	}
-	//set_close_on_exec(server_socket);
+	
 	if (bind(server_socket, (struct sockaddr *) &saddr_server, sizeof(saddr_server)) == -1) {
 		printf("ERROR: cannot bind on server_socket\n");
 		return NULL;
@@ -75,7 +80,49 @@ void *create_thread(void *arg) {
 		return NULL;
 	}
 
-	bytes = snprintf(buffer, 1024, "newmd 10.0.0.66 00:11:22:33:44:55 9|0\n");
+	// Get local ip address
+	struct sockaddr_in test;
+	int x = sizeof(test);
+	getsockname(client_socket, &test, &x);
+	printf("My IP: %s\n", inet_ntoa(test.sin_addr));
+	setting_netExtIP = g_strdup(inet_ntoa(test.sin_addr));
+
+	// Get local mac address
+	int iface_index;
+	for (iface_index = 0; iface_index < 10; iface_index++) {
+		struct ifreq ifr;
+		int fd = socket(AF_INET, SOCK_DGRAM, 0);
+
+		ifr.ifr_addr.sa_family = AF_INET;
+		ifr.ifr_ifindex = iface_index;
+		if (ioctl (fd, SIOCGIFNAME, &ifr) < 0) {
+			continue;
+		}
+
+		if (ioctl(fd, SIOCGIFADDR, &ifr) < 0 ) {
+			continue;
+		}
+
+		if (strcmp(inet_ntoa(((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr), setting_netExtIP) == 0) {
+			if (ioctl(fd, SIOCGIFHWADDR, &ifr) < 0 ) {
+				continue;
+			}
+			setting_netExtMac = g_strdup_printf("%.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
+				(unsigned char)ifr.ifr_hwaddr.sa_data[0],
+				(unsigned char)ifr.ifr_hwaddr.sa_data[1],
+				(unsigned char)ifr.ifr_hwaddr.sa_data[2],
+				(unsigned char)ifr.ifr_hwaddr.sa_data[3],
+				(unsigned char)ifr.ifr_hwaddr.sa_data[4],
+				(unsigned char)ifr.ifr_hwaddr.sa_data[5]);
+			printf("My Mac %s\n", setting_netExtMac);
+			break;
+		}
+
+		close(fd);
+	}
+
+
+	bytes = snprintf(buffer, 1024, "newmd %s %s 9|0\n", setting_netExtIP, setting_netExtMac);
 	write(client_socket, buffer, bytes < 1024 ? bytes : 1024);
 
 	close (client_socket);
