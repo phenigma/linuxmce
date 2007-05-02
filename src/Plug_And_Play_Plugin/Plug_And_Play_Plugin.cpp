@@ -213,20 +213,6 @@ bool Plug_And_Play_Plugin::DoneDetectingDevices( class Socket *pSocket, class Me
 {
 	string sSignature = pMessage->m_mapParameters[EVENTPARAMETER_Signature_CONST];
 	m_pPnpQueue->DoneDetectingDevices(sSignature);
-	if( pDeviceFrom )
-	{
-		DeviceData_Base *pDevice_PC = pDeviceFrom->GetTopMostDevice();
-		if( pDevice_PC )
-		{
-			QueueMessageToRouter( 
-				new Message(m_dwPK_Device, pDevice_PC->m_dwPK_Device, PRIORITY_NORMAL, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_SPAWN_NEW_CHILDREN, 0) 
-			);
-		}
-		else
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Plug_And_Play_Plugin::DeviceDetected can't get topmost device for %d",pDeviceFrom->m_dwPK_Device);
-	}
-	else
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Plug_And_Play_Plugin::DeviceDetected no device info for %d",pMessage->m_dwPK_Device_From);
 	return false;
 }
 

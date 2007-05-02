@@ -1690,6 +1690,11 @@ bool PnpQueue::ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Dev
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::ReenableDevice queue %d was existing device, but disabled",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 #endif
+
+	int PK_Device = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
+	m_pPlug_And_Play_Plugin->QueueMessageToRouter( 
+		new Message(m_pPlug_And_Play_Plugin->m_dwPK_Device, PK_Device, PRIORITY_NORMAL, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_SPAWN_NEW_CHILDREN, 0) 
+	);
 	return Process_Detect_Stage_Add_Software(pPnpQueueEntry);
 }
 
