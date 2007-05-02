@@ -1195,6 +1195,7 @@ function get_myaccount($conn){
 	$variables=set_variable($variables,'email',$udata[0]['email']);
 	$variables=set_variable($variables,'support_requests',get_support_request($conn));	
 	$variables=set_variable($variables,'orders_history',get_orders_history($conn));	
+	$variables=set_variable($variables,'mydealers',get_my_dealers($_SESSION['uID'],$conn));	
 	$variables=set_variable($variables,'message',@$message);	
 	
 	if(isset($_SESSION['message'])){
@@ -1202,6 +1203,57 @@ function get_myaccount($conn){
 		unset($_SESSION['message']);
 	}
 	return outputHTML($variables,$page_template,1);		
+}
+
+function get_my_dealers($user_id,$conn){
+	$res=query("
+		SELECT dealers.*, Country.Description AS Country,Region.Region AS Region,City.City AS City
+		FROM dealers 
+		INNER JOIN Country ON dealers.FK_Country=PK_Country
+		INNER JOIN Region ON dealers.FK_Region=PK_Region
+		INNER JOIN City ON dealers.FK_City=PK_City
+		WHERE user_id=$user_id ORDER BY category ASC",$conn);
+	if(mysql_num_rows($res)==0){
+		return '';
+	}
+	$categ_titles=array(
+		1=>'Dealer info',
+		2=>'Custom installer info',
+		3=>'Open house event'
+	);	
+	
+	$out='<table>';
+	while($row=mysql_fetch_assoc($res)){
+		$out.='
+		<tr class="alternate">
+			<td><b>'.$categ_titles[$row['category']].': '.$row['title'].'</b></td>
+			<td align="right"><a href="edit_dealer.php?id='.$row['id'].'&categ='.$row['category'].'">Edit</a> <a href="javascript:if(confirm(\'Are you sure you want to delete this record?\'))self.location=\'dremove.php?id='.$row['id'].'\'">Remove</a></td>
+		</tr>
+		<tr>
+			<td colspan="2">Country: '.$row['Country'].', region '.$row['Region'].', city '.$row['City'].' </td>
+		</tr>
+		<tr>
+			<td colspan="2"><a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
+		</tr>';
+	}
+	$out.='</table>';
+	
+	return $out;
+}
+
+
+function delete_dealer($id,$conn){
+	if(!isset($_SESSION['uID']) || (int)$_SESSION['uID']==0){
+		Header("Location: myaccount.php");
+		exit();
+	}	
+	
+	if($id==0){
+		return false;
+	}	
+	$user_id=(int)@$_SESSION['uID'];
+	query("DELETE FROM dealers WHERE user_id=$user_id AND id=$id",$conn);
+	// return message ??
 }
 
 function get_company(){
@@ -1596,19 +1648,40 @@ function record_dealer_form($categs,$conn){
 	$id=(int)@$_SESSION['uID'];
 	$data=getFields('dealers','WHERE user_id='.$id,$conn);
 	
-	$selCountry=(int)@$_REQUEST['country'];
-	$selRegion=(int)@$_REQUEST['region'];
-	$selCity=(int)@$_REQUEST['city'];
+	if(isset($_REQUEST['country'])){
+		$selCountry=(int)@$_REQUEST['country'];
+		$selRegion=(int)@$_REQUEST['region'];
+		$selCity=(int)@$_REQUEST['city'];
+		$date_from=@$_REQUEST['date_from'];
+		$date_to=@$_REQUEST['date_to'];
+		$title=cleanString($_POST['title']);
+		$description=cleanString($_POST['description']);
+		$url=cleanString($_POST['url']);
+	}else{
+		$selCountry=0;
+		$selRegion=0;
+		$selCity=0;
+		$date_from='0000-00-00 00:00';
+		$date_to='0000-00-00 00:00';
+		$title='';
+		$description='';
+		$url='';
+	}
 
 	$categ=(int)@$_REQUEST['categ'];
 	
 	$variables=array();
 	$page_template=implode('',file('templates/record_dealer.html'));
+	$variables=set_variable($variables,'form_action','record_dealer.php');
 	$variables=set_variable($variables,'country_pulldown',countriesPulldown('country',$selCountry,$conn,'onChange="document.form1.submit();"'));
 	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"'));
 	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"'));
 	$variables=set_variable($variables,'categ_pulldown',pulldownFromArray($categs,'categ',$categ,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'from_to_dates',($categ==3)?' from <input type="text" name="date_from" value="00-00-0000 00:00"> to <input type="text" name="to_date" value="00-00-0000 00:00">':'');
+	$variables=set_variable($variables,'from_to_dates',($categ==3)?' from <input type="text" name="date_from" value="'.$date_from.'"> to <input type="text" name="date_to" value="'.$date_to.'">':'');
+	$variables=set_variable($variables,'title',$title);
+	$variables=set_variable($variables,'description',$description);
+	$variables=set_variable($variables,'url',$url);
+
 	if(isset($_SESSION['message'])){
 		$variables=set_variable($variables,'message',$_SESSION['message']);
 		unset($_SESSION['message']);
@@ -1699,7 +1772,7 @@ function process_record_dealer($categs,$conn){
 		$selCity=mysql_insert_id($conn);
 	}
 	query("
-	REPLACE INTO dealers (FK_Country,FK_Region,FK_City,cityname,category,url,description,user_id,date_from,date_to,title) 
+	INSERT INTO dealers (FK_Country,FK_Region,FK_City,cityname,category,url,description,user_id,date_from,date_to,title) 
 	VALUES 
 	('$selCountry','$selRegion','$selCity','$cityname','$categ','$url','$description',$id,'$date_from','$date_to','$title')",$conn);
 	$_SESSION['message']=msg_notice('Account updated.');
@@ -1745,7 +1818,7 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity){
 		</tr>';
 	$dealers=array();
 	while($row=mysql_fetch_assoc($res)){
-		$rating=(is_null($row['myrating']))?pulldownFromArray($ratingArray,'rating_'.$row['user_id'],0,'onChange="document.form1.submit();"'):'';
+		$rating=(is_null($row['myrating']))?pulldownFromArray($ratingArray,'rating_'.$row['id'],0,'onChange="document.form1.submit();"'):'';
 		$out.='
 			<tr>
 				<td><b>'.$row['title'].'</b><br><a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
@@ -1754,7 +1827,7 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity){
 				<td align="right">'.star_rating(ceil($row['rating'])).' '.$rating.'<hr></td>
 			</tr>			
 		';
-		$dealers[]=$row['user_id'];
+		$dealers[]=$row['id'];
 	}
 	$out.='</table>
 	<input type="hidden" name="dealers" value="'.join(',',$dealers).'">';
@@ -1769,7 +1842,7 @@ function process_add_rating($conn){
 		foreach ($dealers AS $id){
 			$rating=(int)@$_POST['rating_'.$id];
 			if($rating!=0){
-				query("INSERT IGNORE INTO rating (user_id,rating,ipaddress) values ($id,$rating,'$ipaddress')",$conn);
+				query("INSERT IGNORE INTO rating (dealer_id,rating,ipaddress) values ($id,$rating,'$ipaddress')",$conn);
 			}
 		}
 	}
@@ -1787,4 +1860,101 @@ function star_rating($no){
 	
 	return $out;
 }
+
+function edit_dealer($id,$categs,$conn){
+	if(!isset($_SESSION['uID']) || (int)$_SESSION['uID']==0){
+		return 'Please login in order to update your account.';
+	}	
+
+	
+	if(isset($_POST['save'])){
+		return process_edit_dealer($categs,$conn);
+	}
+	return edit_dealer_form($id,$categs,$conn);
+}
+
+function edit_dealer_form($id,$categs,$conn){
+	$user_id=(int)@$_SESSION['uID'];
+	$data=getFields('dealers','WHERE user_id='.$user_id.' AND id='.$id,$conn);
+	
+	if(isset($_REQUEST['country'])){
+		$selCountry=(int)@$_REQUEST['country'];
+		$selRegion=(int)@$_REQUEST['region'];
+		$selCity=(int)@$_REQUEST['city'];
+		$date_from=@$_REQUEST['date_from'];
+		$date_to=@$_REQUEST['date_to'];
+		$title=cleanString($_POST['title']);
+		$description=cleanString($_POST['description']);
+		$url=cleanString($_POST['url']);
+	}else{
+		$selCountry=$data[0]['FK_Country'];
+		$selRegion=$data[0]['FK_Region'];
+		$selCity=$data[0]['FK_City'];
+		$date_from=$data[0]['date_from'];
+		$date_to=$data[0]['date_to'];
+		$title=$data[0]['title'];
+		$description=$data[0]['description'];
+		$url=$data[0]['url'];
+	}
+	
+	
+	$categ=(int)@$_REQUEST['categ'];
+	
+	$variables=array();
+	$page_template=implode('',file('templates/record_dealer.html'));
+	$variables=set_variable($variables,'form_action','edit_dealer.php');
+	$variables=set_variable($variables,'country_pulldown',countriesPulldown('country',$selCountry,$conn,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'categ_pulldown',pulldownFromArray($categs,'categ',$categ,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'from_to_dates',($categ==3)?' from <input type="text" name="date_from" value="'.$date_from.'"> to <input type="text" name="date_to" value="'.$date_to.'">':'');
+	$variables=set_variable($variables,'id',$id);
+	$variables=set_variable($variables,'title',$title);
+	$variables=set_variable($variables,'description',$description);
+	$variables=set_variable($variables,'url',$url);
+	if(isset($_SESSION['message'])){
+		$variables=set_variable($variables,'message',$_SESSION['message']);
+		unset($_SESSION['message']);
+	}
+		
+	return outputHTML($variables,$page_template,1);		
+}
+
+function process_edit_dealer($categs,$conn){
+	$user_id=(int)@$_SESSION['uID'];
+	$id=(int)@$_POST['id'];
+	
+	$selCountry=(int)@$_REQUEST['country'];
+	$selRegion=(int)@$_REQUEST['region'];
+	$selCity=(int)@$_REQUEST['city'];
+	$cityname=cleanString($_POST['cityname']);
+	$categ=(int)@$_REQUEST['categ'];
+	$title=cleanString($_POST['title']);
+	$url=cleanString($_POST['url']);
+	$description=cleanString($_POST['description']);
+	$date_from=cleanString(@$_POST['date_from']);
+	$date_to=cleanString(@$_POST['date_to']);
+
+	if($selCountry==0 || $selRegion==0 || ($selCity==0 && $cityname=='')){
+		$_SESSION['message']=msg_error('Please provide geographical info.');
+		return edit_dealer_form($id,$categs,$conn);
+	}
+	
+	if($url=='' || $description==''){
+		$_SESSION['message']=msg_error('Please fill in your offering info.');
+		return edit_dealer_form($id,$categs,$conn);
+	}
+	
+	if($selCity==0 && $cityname!=''){
+		query("INSERT INTO City (FK_Country,FK_Region,City) VALUES ($selCountry,$selRegion,'$cityname')",$conn);
+		$selCity=mysql_insert_id($conn);
+	}
+	
+	query("UPDATE dealers SET FK_Country='$selCountry',FK_Region='$selRegion',FK_City='$selCity',cityname='$cityname',category='$categ',url='$url',description='$url',date_from='$date_from',date_to='$date_to',title='$title' WHERE id=$id",$conn);
+	$_SESSION['message']=msg_notice('Account updated.');
+	unset($_POST);
+	
+	return edit_dealer_form($id,$categs,$conn);
+}
+
 ?>

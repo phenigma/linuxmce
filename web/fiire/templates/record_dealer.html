@@ -9,7 +9,8 @@
               <td>
 				<p>Become a dealer or custom installer, or announce an open house event.
 				</p>
-				<form name="form1" method="POST" action="record_dealer.php">
+				<form name="form1" method="POST" action="{form_action}">
+				<input type="hidden" name="id" value="{id}">
 				<table>
 					<tr>
 						<td colspan="2" align="center">{message}</td>
@@ -44,10 +45,10 @@
 					</tr>
 					<tr>
 						<td>Description</td>
-						<td><textarea name="description" rows="5" style="width:300px;"></textarea></td>
+						<td><textarea name="description" rows="5" style="width:300px;">{description}</textarea></td>
 					</tr>
 					<tr>
-						<td colspan="2" align="center"><input type="submit" name="save" value="Register"></td>
+						<td colspan="2" align="center"><input type="submit" name="save" value="Save"></td>
 					</tr>					
 					<tr>
 						<td colspan="2"><em>* If it's not in the list</em></td>
