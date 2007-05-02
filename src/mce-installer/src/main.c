@@ -102,6 +102,7 @@ main (int argc, char *argv[])
 
 	// Initializations
 	setting_coreIP = detectCoreIpAddress();
+//	setting_coreIP = "10.0.0.86";
 	setting_deviceType = DT_HYBRID;
 	setting_runDhcpServer = TRUE;
 	setting_netExtKeep = TRUE;
@@ -111,14 +112,15 @@ main (int argc, char *argv[])
 
 	history = g_queue_new();
 
+#if 0
+	displayStepCreateDiskedDevice();
+#else
 	if (setting_coreIP != NULL) {
 		displayStep1C();
 	} else {
 		displayStep1D();
 	}
-
-//isplayStepDvdCss();
-	//displayStepConfFiles();
+#endif
 
 	gtk_main ();
 	gdk_threads_leave();

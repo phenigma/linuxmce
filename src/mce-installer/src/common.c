@@ -111,6 +111,9 @@ void on_back_clicked(GObject object, gpointer data) {
 			case STEPDVDCSS:
 				displayStepDvdCss();
 				break;
+			case STEPCREATEMD:
+				displayStepCreateDiskedDevice();
+				break;
 			default:
 				printf("Unknown screen in history [%d]", prevScreen);
 		}

@@ -56,6 +56,7 @@
 #include "StepDvdCss.h"
 #include "StepNvidiaDrivers.h"
 #include "StepConfFiles.h"
+#include "StepCreateDiskedDevice.h"
 
 #include "network-common.h"
 
@@ -80,6 +81,7 @@
 #define STEPLINUXMCECD 20
 #define STEPDVDCSS 21
 #define STEPNVIDIADRIVERS 22
+#define STEPCREATEMD 23
 
 #define INSTALL_TYPE_CD   1
 #define INSTALL_TYPE_ISO  2

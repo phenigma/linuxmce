@@ -56,7 +56,8 @@ am_mce_installer_OBJECTS = main.$(OBJEXT) \
 	StepAptMirror.$(OBJEXT) StepUI.$(OBJEXT) \
 	StepUbuntuExtraCD.$(OBJEXT) StepLinuxMceCD.$(OBJEXT) \
 	StepDvdCss.$(OBJEXT) StepNvidiaDrivers.$(OBJEXT) \
-	RunShellCommand.$(OBJEXT) StepConfFiles.$(OBJEXT)
+	RunShellCommand.$(OBJEXT) StepCreateDiskedDevice.$(OBJEXT) \
+	StepConfFiles.$(OBJEXT)
 mce_installer_OBJECTS = $(am_mce_installer_OBJECTS)
 am__DEPENDENCIES_1 =
 mce_installer_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -82,21 +83,21 @@ DATA = $(glade_DATA)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/rgavril/mce-installer/missing --run aclocal-1.10
-AMTAR = ${SHELL} /home/rgavril/mce-installer/missing --run tar
-AUTOCONF = ${SHELL} /home/rgavril/mce-installer/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/rgavril/mce-installer/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/rgavril/mce-installer/missing --run automake-1.10
+ACLOCAL = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run aclocal-1.10
+AMTAR = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run tar
+AUTOCONF = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run automake-1.10
 AWK = mawk
 CATALOGS = 
-CATOBJEXT = NONE
+CATOBJEXT = .gmo
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
-DATADIRNAME = 
+DATADIRNAME = share
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 ECHO_C = 
@@ -106,25 +107,25 @@ EGREP = /bin/grep -E
 EXEEXT = 
 GETTEXT_PACKAGE = mce-installer
 GMOFILES = 
-GMSGFMT = 
+GMSGFMT = /usr/bin/msgfmt
 GREP = /bin/grep
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-INSTOBJEXT = 
+INSTOBJEXT = .mo
 INTLLIBS = 
 LDFLAGS = 
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAINT = #
-MAKEINFO = ${SHELL} /home/rgavril/mce-installer/missing --run makeinfo
+MAINT = 
+MAKEINFO = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 MKINSTALLDIRS = ./mkinstalldirs
-MSGFMT = no
-MSGFMT_OPTS = 
+MSGFMT = /usr/bin/msgfmt
+MSGFMT_OPTS = -c
 OBJEXT = o
 PACKAGE = mce-installer
 PACKAGE_BUGREPORT = 
@@ -145,11 +146,11 @@ SHELL = /bin/bash
 STRIP = 
 USE_NLS = yes
 VERSION = 0.1
-XGETTEXT = :
-abs_builddir = /home/rgavril/mce-installer/src
-abs_srcdir = /home/rgavril/mce-installer/src
-abs_top_builddir = /home/rgavril/mce-installer
-abs_top_srcdir = /home/rgavril/mce-installer
+XGETTEXT = /usr/bin/xgettext
+abs_builddir = /home/rgavril/Work/SVN/src/mce-installer/src
+abs_srcdir = /home/rgavril/Work/SVN/src/mce-installer/src
+abs_top_builddir = /home/rgavril/Work/SVN/src/mce-installer
+abs_top_srcdir = /home/rgavril/Work/SVN/src/mce-installer
 ac_ct_CC = gcc
 am__include = include
 am__leading_dot = .
@@ -176,7 +177,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = $(SHELL) /home/rgavril/mce-installer/install-sh
+install_sh = $(SHELL) /home/rgavril/Work/SVN/src/mce-installer/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -257,6 +258,8 @@ mce_installer_SOURCES = \
 	StepNvidiaDrivers.h \
 	RunShellCommand.c \
 	RunShellCommand.h \
+	StepCreateDiskedDevice.h \
+	StepCreateDiskedDevice.c \
 	StepConfFiles.h \
 	StepConfFiles.c
 
@@ -267,7 +270,7 @@ all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .o .obj
-$(srcdir)/Makefile.in: # $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -292,9 +295,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure: # $(am__configure_deps)
+$(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4): # $(am__aclocal_m4_deps)
+$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
@@ -346,6 +349,7 @@ include ./$(DEPDIR)/Step5.Po
 include ./$(DEPDIR)/Step6.Po
 include ./$(DEPDIR)/StepAptMirror.Po
 include ./$(DEPDIR)/StepConfFiles.Po
+include ./$(DEPDIR)/StepCreateDiskedDevice.Po
 include ./$(DEPDIR)/StepDvdCss.Po
 include ./$(DEPDIR)/StepInstallDependencies.Po
 include ./$(DEPDIR)/StepLinuxMceCD.Po

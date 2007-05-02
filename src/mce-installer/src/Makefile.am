@@ -67,6 +67,8 @@ mce_installer_SOURCES = \
 	StepNvidiaDrivers.h \
 	RunShellCommand.c \
 	RunShellCommand.h \
+	StepCreateDiskedDevice.h \
+	StepCreateDiskedDevice.c \
 	StepConfFiles.h \
 	StepConfFiles.c
 

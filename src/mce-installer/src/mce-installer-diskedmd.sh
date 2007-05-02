@@ -1,9 +1,7 @@
 #!/bin/bash
 
+. /tmp/mce_wizard_data.sh
 . /usr/pluto/bin/Utils.sh
-
-c_coreIpAddress="192.168.80.1"
-c_deviceID="31"
 
 function Setup_NIS 
 {
