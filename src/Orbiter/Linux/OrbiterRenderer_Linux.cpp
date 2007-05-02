@@ -489,6 +489,23 @@ void OrbiterRenderer_Linux::EventLoop()
 				Engine->RefreshScreen();
 			}
 #endif
+                        else if(Event.type == SDL_ACTIVEEVENT)
+                        {
+                            /* See what happened */
+                            string sAppState = string("SSS Orbiter app ") + (Event.active.gain ? "gained" : "lost");
+                            if ( Event.active.state & SDL_APPACTIVE )
+                            {
+                                LoggerWrapper::GetInstance()->Write(LV_WARNING, "%s active state", sAppState.c_str() );
+                                if(Event.active.gain)
+				{
+                                        OrbiterLogic()->CMD_Activate_PC_Desktop(0);
+				}
+                            }
+                            else if ( Event.active.state & SDL_APPMOUSEFOCUS )
+                                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "%s state mouse", sAppState.c_str() );
+                            else if ( Event.active.state & SDL_APPINPUTFOCUS )
+                                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "%s state input", sAppState.c_str() );
+                        }
 		}
 		else
 		{

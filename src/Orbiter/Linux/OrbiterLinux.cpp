@@ -422,7 +422,7 @@ void OrbiterLinux::Destroy()
 
 void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,Message *pMessage)
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Activate_PC_Desktop %d",(int) bTrueFalse);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "SSS CMD_Activate_PC_Desktop %d",(int) bTrueFalse);
 
 	if( bTrueFalse )
 	{
