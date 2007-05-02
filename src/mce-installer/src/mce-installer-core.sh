@@ -6,10 +6,11 @@ trap 'RemoveOfflineSource' EXIT
 
 rm -rf /tmp/mce_installer_error
 InstallerLogFile="/var/log/mce-installer-$(date +%s).log"
-echo "--- start mce wizard data ---" >> $InstallerLogFile
-cat /tmp/mce_wizard_data.sh >> $InstallerLogFile
-echo "--- end mce wizard data ---" >> $InstallerLogFile
 exec &> >(tee $InstallerLogFile)
+
+echo "--- start mce wizard data ---" 
+cat /tmp/mce_wizard_data.sh 
+echo "--- end mce wizard data ---"
 
 function ExitInstaller {
 	echo 
@@ -119,7 +120,7 @@ function Create_And_Config_Devices {
 	if [[ "$c_deviceType" == "2" ]] ;then
 		StatsMessage "Setting up you computer to act as a 'Media Director'"
 		/usr/pluto/bin/CreateDevice -d $DEVICE_TEMPLATE_MediaDirector -C "$Core_PK_Device"
-		Hybrid_DT=$(RunSQL "SELECT PK_Device FROM Device WHERE FK_Device_Template='$DEVICE_TEMPLATE_MediaDirector' LIMIT 1")
+		Hybrid_DT=$(RunSQL "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate='$DEVICE_TEMPLATE_MediaDirector' LIMIT 1")
 
 		Q="UPDATE Device SET Description='The core/hybrid' WHERE PK_Device='$Hybrid_DT'"
 		RunSQL "$Q"
