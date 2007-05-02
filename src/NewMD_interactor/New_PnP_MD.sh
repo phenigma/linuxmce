@@ -43,6 +43,9 @@ if ! /usr/pluto/bin/Diskless_Setup.sh; then
 	Unlock "NewPnPMD" "NewPnPMD$MD_Device"
 	exit 1
 fi
+
+/usr/pluto/bin/Disked_Setup.sh
+
 FeedbackMD "Running DHCP_config.sh"
 /usr/pluto/bin/DHCP_config.sh
 FeedbackMD "Running Diskless_ExportsNFS.sh"
