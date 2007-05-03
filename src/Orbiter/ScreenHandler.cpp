@@ -2865,10 +2865,10 @@ void ScreenHandler::AdjustScreenSettings_DrawArrows()
 	PlutoPoint center_point((100 - nSpacing) * m_pOrbiter->m_iImageWidth / (2 * 100), (100 - nSpacing) * m_pOrbiter->m_iImageHeight / (2 * 100));
 	PlutoSize arrow_size(24, 40);
 
-	m_pOrbiter->Renderer()->DrawArrow(center_point + offset, offset, arrow_size, PlutoColor::Red(), "", "arrow1");
-	m_pOrbiter->Renderer()->DrawArrow(center_point + offset, offset + PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - nSpacing) / 100, m_pOrbiter->m_iImageHeight * (100 - nSpacing) / 100), arrow_size, PlutoColor::Red(), "", "arrow2");
-	m_pOrbiter->Renderer()->DrawArrow(center_point + offset, offset + PlutoPoint(0, m_pOrbiter->m_iImageHeight * (100 - nSpacing) / 100), arrow_size, PlutoColor::Red(), "", "arrow3");
-	m_pOrbiter->Renderer()->DrawArrow(center_point + offset, offset + PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - nSpacing) / 100, 0), arrow_size, PlutoColor::Red(), "", "arrow4");
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(offset), offset, arrow_size, PlutoColor::Red(), "", "arrow1");
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(offset), offset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - nSpacing) / 100, m_pOrbiter->m_iImageHeight * (100 - nSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow2");
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(offset), offset.operator +(PlutoPoint(0, m_pOrbiter->m_iImageHeight * (100 - nSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow3");
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(offset), offset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - nSpacing) / 100, 0)), arrow_size, PlutoColor::Red(), "", "arrow4");
 }
 
 bool ScreenHandler::AdjustScreenSettings_KeyDown(CallBackData *pData)
