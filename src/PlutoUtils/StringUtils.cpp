@@ -104,7 +104,7 @@ string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &
     }
 
 	string sReturnValue = sInput.substr( CurPos, (TokenPos - CurPos) );
-	CurPos = TokenPos + (bMultiCharacterTokens ? sToken.size() : 1);
+	CurPos = TokenPos + (bMultiCharacterTokens ? sToken.length() : 1);
     return sReturnValue;
 }
 
