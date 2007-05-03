@@ -1803,10 +1803,10 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity){
 	
 	$res=query("SELECT dealers.*,avg(rating.rating) AS rating,myrating.rating as myrating
 		FROM dealers 
-		LEFT JOIN rating ON rating.user_id=dealers.user_id
-		LEFT JOIN rating myrating on myrating.user_id=dealers.user_id AND myrating.ipaddress='10.0.0.104'
+		LEFT JOIN rating ON rating.dealer_id=dealers.id
+		LEFT JOIN rating myrating on myrating.dealer_id=dealers.id AND myrating.ipaddress='10.0.0.104'
 		WHERE FK_Country=$selCountry $filters
-		GROUP BY dealers.user_id ",$conn);
+		GROUP BY dealers.id ",$conn);
 	$no=mysql_num_rows($res);
 	if($no==0){
 		return 'We are sorry, there are no dealers for the area you selected.';
