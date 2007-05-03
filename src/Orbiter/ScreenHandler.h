@@ -299,6 +299,8 @@ public:
 
 	virtual void SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue);
 
+	virtual void SCREEN_AdjustScreenSettings(long PK_Screen);
+
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
 	void SaveFile_SendCommand(int PK_Users);

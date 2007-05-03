@@ -2848,3 +2848,7 @@ bool ScreenHandler::SCREEN_Remote_Assistance_OnTimer(CallBackData *pData)
 	return true;
 }
 
+void ScreenHandler::SCREEN_AdjustScreenSettings(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_AdjustScreenSettings(PK_Screen);  
+}

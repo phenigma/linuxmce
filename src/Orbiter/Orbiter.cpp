@@ -8728,7 +8728,7 @@ int Orbiter::MonitorRegen(int PK_Device)
 			break;
 		}
 
-		if( m_pOrbiterRenderer->DisplayProgress(sRegenStatus,iRegenPercent) )
+		if( m_pOrbiterRenderer->DisplayProgress(sRegenStatus,iRegenPercent < 100 ? iRegenPercent : 100) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MonitorRegen - User cancelled");
 			m_pOrbiterRenderer->DisplayProgress("",-1);
@@ -9240,7 +9240,7 @@ void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter::ShowProgress(int nPercent) 
 {
-	m_pOrbiterRenderer->ShowProgress(nPercent);
+	m_pOrbiterRenderer->ShowProgress(nPercent < 100 ? nPercent : 100);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter::OnQuit() 
