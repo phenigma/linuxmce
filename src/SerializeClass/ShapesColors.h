@@ -83,7 +83,7 @@ public:
 	}
 	virtual string SerializeClassClassName() { return "PlutoPoint"; }
 
-	PlutoPoint operator+ (PlutoPoint &p) { return PlutoPoint(X + p.X,Y + p.Y); }
+	PlutoPoint operator+ (PlutoPoint p) { return PlutoPoint(X + p.X,Y + p.Y); }
 	bool operator==(PlutoPoint &p1) { return p1.X==X && p1.Y==Y; }
 
 	// Given another point, what is it's relative direction and distance
