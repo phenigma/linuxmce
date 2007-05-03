@@ -97,7 +97,7 @@ void IRReceiverBase::GetConfig(DeviceData_Impl *pData)
 					char **pArgs = StringUtils::ConvertStringToArgs(vectButtons[s].substr(posSlash+1),iNumberOfArguments);
 					if( iNumberOfArguments )  // Should always be true
 					{
-						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Screen %c, Layout %c, LIRCBtn %s fires: %s",cScreenType ? cScreenType : '*', cRemoteLayout ? cRemoteLayout : '*', sToken.c_str(),vectButtons[s].substr(posSlash+1).c_str());
+						//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Screen %c, Layout %c, LIRCBtn %s fires: %s",cScreenType ? cScreenType : '*', cRemoteLayout ? cRemoteLayout : '*', sToken.c_str(),vectButtons[s].substr(posSlash+1).c_str());
 						Message *pMessage = new Message(iNumberOfArguments,pArgs,pData->m_dwPK_Device);
 						PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(pArgs, iNumberOfArguments);
 						m_Virtual_Device_Translator.TranslateVirtualDevice(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_To);

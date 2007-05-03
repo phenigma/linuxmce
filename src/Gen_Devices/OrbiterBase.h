@@ -337,6 +337,30 @@ public:
 			return atoi(m_mapParameters[DEVICEDATA_PK_Screen_CONST].c_str());
 	}
 
+	string Get_Spacing()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Spacing_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Spacing_CONST];
+	}
+
+	void Set_Spacing(string Value)
+	{
+		SetParm(DEVICEDATA_Spacing_CONST,Value.c_str());
+	}
+	string Get_Offset()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Offset_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Offset_CONST];
+	}
+
+	void Set_Offset(string Value)
+	{
+		SetParm(DEVICEDATA_Offset_CONST,Value.c_str());
+	}
 	bool Get_Get_Time_Code_for_Media()
 	{
 		if( m_bRunningWithoutDeviceData )
@@ -513,6 +537,10 @@ public:
 	string DATA_Get_Remote_Phone_IP() { return GetData()->Get_Remote_Phone_IP(); }
 	int DATA_Get_Listen_Port() { return GetData()->Get_Listen_Port(); }
 	int DATA_Get_PK_Screen() { return GetData()->Get_PK_Screen(); }
+	string DATA_Get_Spacing() { return GetData()->Get_Spacing(); }
+	void DATA_Set_Spacing(string Value,bool bUpdateDatabase=false) { GetData()->Set_Spacing(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,150,Value); }
+	string DATA_Get_Offset() { return GetData()->Get_Offset(); }
+	void DATA_Set_Offset(string Value,bool bUpdateDatabase=false) { GetData()->Set_Offset(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,167,Value); }
 	bool DATA_Get_Get_Time_Code_for_Media() { return GetData()->Get_Get_Time_Code_for_Media(); }
 	string DATA_Get_Shortcut() { return GetData()->Get_Shortcut(); }
 	bool DATA_Get_Expert_Mode() { return GetData()->Get_Expert_Mode(); }

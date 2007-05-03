@@ -989,6 +989,10 @@ namespace DCE
 	string DATA_Get_Remote_Phone_IP();
 	int DATA_Get_Listen_Port();
 	int DATA_Get_PK_Screen();
+	string DATA_Get_Spacing();
+	void DATA_Set_Spacing(string Value);
+	string DATA_Get_Offset();
+	void DATA_Set_Offset(string Value);
 	bool DATA_Get_Get_Time_Code_for_Media();
 	string DATA_Get_Shortcut();
 	bool DATA_Get_Expert_Mode();
@@ -1908,6 +1912,7 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Activate_PC_Desktop(bool bTrueFalse) { string sCMD_Result; CMD_Activate_PC_Desktop(bTrueFalse,sCMD_Result,NULL);};
 	virtual void CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 

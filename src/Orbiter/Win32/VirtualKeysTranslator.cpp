@@ -138,6 +138,9 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
 		case VK_OEM_COMMA:  iPK_Button = BUTTON_comma_CONST;    break;
 		case VK_OEM_1:  iPK_Button = BUTTON_semicolumn_CONST;    break;
 		case VK_OEM_7:  iPK_Button = BUTTON_single_quote_CONST;    break;
+
+		case VK_ADD: iPK_Button = BUTTON_dash_CONST;		 break;
+		case VK_SUBTRACT: iPK_Button = BUTTON_plus_CONST;    break;
     }
 
     if( bShiftDown && !bControlDown && !bAltDown )

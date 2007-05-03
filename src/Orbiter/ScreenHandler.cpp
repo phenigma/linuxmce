@@ -2851,4 +2851,119 @@ bool ScreenHandler::SCREEN_Remote_Assistance_OnTimer(CallBackData *pData)
 void ScreenHandler::SCREEN_AdjustScreenSettings(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_AdjustScreenSettings(PK_Screen);  
+
+	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_OnTimer, new CallBackData());
+	RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_KeyDown, new KeyCallBackData());
+
+	m_pOrbiter->StartScreenHandlerTimer(500);
 }
+
+void ScreenHandler::AdjustScreenSettings_DrawArrows()
+{
+	int nSpacing = AdjustScreenSettings_LoadSpacing();
+	PlutoPoint offset = AdjustScreenSettings_LoadOffset();
+	PlutoPoint center_point((100 - nSpacing) * m_pOrbiter->m_iImageWidth / (2 * 100), (100 - nSpacing) * m_pOrbiter->m_iImageHeight / (2 * 100));
+	PlutoSize arrow_size(24, 40);
+
+	m_pOrbiter->Renderer()->DrawArrow(center_point + offset, offset, arrow_size, PlutoColor::Red(), "", "arrow1");
+	m_pOrbiter->Renderer()->DrawArrow(center_point + offset, offset + PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - nSpacing) / 100, m_pOrbiter->m_iImageHeight * (100 - nSpacing) / 100), arrow_size, PlutoColor::Red(), "", "arrow2");
+	m_pOrbiter->Renderer()->DrawArrow(center_point + offset, offset + PlutoPoint(0, m_pOrbiter->m_iImageHeight * (100 - nSpacing) / 100), arrow_size, PlutoColor::Red(), "", "arrow3");
+	m_pOrbiter->Renderer()->DrawArrow(center_point + offset, offset + PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - nSpacing) / 100, 0), arrow_size, PlutoColor::Red(), "", "arrow4");
+}
+
+bool ScreenHandler::AdjustScreenSettings_KeyDown(CallBackData *pData)
+{
+	KeyCallBackData *pKeyCallBackData = dynamic_cast<KeyCallBackData *>(pData);
+
+	if(NULL == pKeyCallBackData)
+		return false;
+
+	int nSpacing = AdjustScreenSettings_LoadSpacing();
+	PlutoPoint offset = AdjustScreenSettings_LoadOffset();
+
+	if(pKeyCallBackData->m_nPlutoKey == BUTTON_Up_Arrow_CONST)
+	{
+		offset.Y -= 5;
+	}
+	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_Down_Arrow_CONST)
+	{
+		offset.Y += 5;
+	}
+	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_Left_Arrow_CONST)
+	{
+		offset.X -= 5;
+	}
+	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_Right_Arrow_CONST)
+	{
+		offset.X += 5;
+	}
+	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_plus_CONST)
+	{
+		nSpacing++;
+	}
+	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_dash_CONST)
+	{
+		nSpacing--;
+	}
+	else
+	{
+		return false;
+	}
+
+	if(offset.X < 0)
+		offset.X = 0;
+
+	if(offset.Y < 0)
+		offset.Y = 0;
+
+	if(nSpacing < 0)
+		nSpacing = 0;
+
+	if(nSpacing > 80)
+		nSpacing = 80;
+
+	AdjustScreenSettings_SaveOffset(offset);
+	AdjustScreenSettings_SaveSpacing(nSpacing);
+	AdjustScreenSettings_DrawArrows();
+	return true;
+}
+
+bool ScreenHandler::AdjustScreenSettings_OnTimer(CallBackData *pData)
+{
+	AdjustScreenSettings_DrawArrows();
+	return false;
+}
+
+PlutoPoint ScreenHandler::AdjustScreenSettings_LoadOffset()
+{
+	string sOffset = m_pOrbiter->m_pEvent->GetDeviceDataFromDatabase(m_pOrbiter->m_dwPK_Device, DEVICEDATA_Offset_CONST);
+
+	vector<string> vectStrings;
+	StringUtils::Tokenize(sOffset, ",", vectStrings);
+
+	PlutoPoint offset;
+	if(vectStrings.size() >= 2)
+	{
+		offset.X = atoi(vectStrings[0].c_str());
+		offset.Y = atoi(vectStrings[1].c_str());
+	}
+
+	return offset;
+}
+
+void ScreenHandler::AdjustScreenSettings_SaveOffset(PlutoPoint offset)
+{
+	m_pOrbiter->DATA_Set_Offset(StringUtils::ltos(offset.X) + "," + StringUtils::ltos(offset.Y), true);
+}
+
+int ScreenHandler::AdjustScreenSettings_LoadSpacing()
+{
+	string sSpacing = m_pOrbiter->m_pEvent->GetDeviceDataFromDatabase(m_pOrbiter->m_dwPK_Device, DEVICEDATA_Spacing_CONST);
+	return atoi(sSpacing.c_str());
+}
+
+void ScreenHandler::AdjustScreenSettings_SaveSpacing(int nValue)
+{
+	m_pOrbiter->DATA_Set_Spacing(StringUtils::ltos(nValue), true);
+}
+

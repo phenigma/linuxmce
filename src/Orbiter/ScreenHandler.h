@@ -26,6 +26,7 @@
 #include "pluto_main/Define_Variable.h"
 #include "pluto_media/Define_MediaSource.h"
 #include "DesignObj_DataGrid.h"
+#include "SerializeClass/ShapesColors.h"
 
 //-----------------------------------------------------------------------------------------------------
 typedef bool (ScreenHandler::*ScreenHandlerCallBack)(CallBackData *pData);
@@ -300,6 +301,13 @@ public:
 	virtual void SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue);
 
 	virtual void SCREEN_AdjustScreenSettings(long PK_Screen);
+	void AdjustScreenSettings_DrawArrows();
+	bool AdjustScreenSettings_KeyDown(CallBackData *pData);
+	bool AdjustScreenSettings_OnTimer(CallBackData *pData);
+	PlutoPoint AdjustScreenSettings_LoadOffset();
+	void AdjustScreenSettings_SaveOffset(PlutoPoint offset);
+	int AdjustScreenSettings_LoadSpacing();
+	void AdjustScreenSettings_SaveSpacing(int nValue);
 
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
