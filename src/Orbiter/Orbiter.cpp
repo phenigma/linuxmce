@@ -2783,7 +2783,17 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s repeat %s",sKey.c_str(),sRepeatKey.c_str());
 #endif
-			ReceivedCode(0,sKey.c_str(),sRepeatKey.c_str());
+
+			CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnRemoteKeyCodeIntercepted);
+			if(pCallBackData)
+			{
+				RemoteKeyCodeCallBackData *pRemoteKeyCodeCallBackData = (RemoteKeyCodeCallBackData *)pCallBackData;
+				pRemoteKeyCodeCallBackData->m_sKeyCode = sKey;
+			}
+					
+			if(!ExecuteScreenHandlerCallback(cbOnRemoteKeyCodeIntercepted))
+				ReceivedCode(0,sKey.c_str(),sRepeatKey.c_str());
+
 			return;
 		}
 	}

@@ -2854,6 +2854,7 @@ void ScreenHandler::SCREEN_AdjustScreenSettings(long PK_Screen)
 
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_OnTimer, new CallBackData());
 	RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_KeyDown, new KeyCallBackData());
+	RegisterCallBack(cbOnRemoteKeyCodeIntercepted, (ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_RemoteKeyCodeIntercepted, new RemoteKeyCodeCallBackData());
 
 	m_pOrbiter->StartScreenHandlerTimer(500);
 }
@@ -2967,3 +2968,23 @@ void ScreenHandler::AdjustScreenSettings_SaveSpacing(int nValue)
 	m_pOrbiter->DATA_Set_Spacing(StringUtils::ltos(nValue), true);
 }
 
+bool ScreenHandler::AdjustScreenSettings_RemoteKeyCodeIntercepted(CallBackData *pData)
+{
+	RemoteKeyCodeCallBackData *pRemoteKeyCodeCallBackData = dynamic_cast<RemoteKeyCodeCallBackData *>(pData);
+
+	if(NULL == pRemoteKeyCodeCallBackData)
+		return false;
+
+	string sKeyCode = pRemoteKeyCodeCallBackData->m_sKeyCode;
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "TEST AdjustScreenSettings_RemoteKeyCodeIntercepted %s", sKeyCode.c_str());
+
+	if(sKeyCode == "volup" || sKeyCode == "chup")
+		m_pOrbiter->ButtonDown(BUTTON_plus_CONST);
+	else if(sKeyCode == "voldown" || sKeyCode == "chdown")
+		m_pOrbiter->ButtonDown(BUTTON_dash_CONST);
+	else 
+		return false;
+		
+	return true;
+}

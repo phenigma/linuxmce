@@ -304,6 +304,8 @@ public:
 	void AdjustScreenSettings_DrawArrows();
 	bool AdjustScreenSettings_KeyDown(CallBackData *pData);
 	bool AdjustScreenSettings_OnTimer(CallBackData *pData);
+	bool AdjustScreenSettings_RemoteKeyCodeIntercepted(CallBackData *pData);
+
 	PlutoPoint AdjustScreenSettings_LoadOffset();
 	void AdjustScreenSettings_SaveOffset(PlutoPoint offset);
 	int AdjustScreenSettings_LoadSpacing();

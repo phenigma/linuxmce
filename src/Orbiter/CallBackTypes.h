@@ -41,7 +41,8 @@ enum CallBackType
     cbMessageIntercepted,
     cbOnRenderScreen,
 	cbOnCustomRender,
-    cbOnGotoScreen
+    cbOnGotoScreen,
+	cbOnRemoteKeyCodeIntercepted,
 };
 
 #endif
