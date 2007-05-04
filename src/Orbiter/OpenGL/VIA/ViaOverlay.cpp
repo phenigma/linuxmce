@@ -314,6 +314,13 @@ void ViaOverlay::ShowPopup(int x, int y, int w, int h)
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "#VIA Show popup %d %d %d %d", x, y, w, h);
 
 	InternalFillRectangleInAlphaMask(x, y, w, h, 0x00);
+
+	if(!m_bHasPopups)
+	{
+		//make sure with have the screen mask up-to-date
+		memcpy(m_BufferMask, m_ScreenMask, m_nWidth * m_nHeight);
+	}
+
 	m_bHasPopups = true;
 }
 //-------------------------------------------------------------------------------------------------------
