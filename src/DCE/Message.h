@@ -92,6 +92,13 @@ namespace DCE
     enum eBroadcastLevel { BL_None=0, BL_DirectSiblings=1, BL_SameComputer=2, BL_SameRoom=3, BL_SameHouse=4, BL_AllHouses=5 };
 
     /**
+     * @brief enum containing values associated with retry, if the message cannot be delivered.
+	 * The default is MR_None to not retry.  MR_Retry means resend when the device registers, MR_Persist means 
+	 * do MR_Retry, but also serialize to disk so the message will survive after a reload router
+     */
+    enum eRetry { MR_None=0, MR_Retry=1, MR_Persist=2 };
+
+	/**
      * @brief enum containing vlues associated with expected responses
      */
     enum eExpectedResponse { ER_None=0, ER_ReplyMessage, ER_ReplyString, ER_DeliveryConfirmation };
@@ -172,11 +179,16 @@ namespace DCE
 		bool m_bCanBuffer;  // This message can be buffered
 
         /**
-         * @brief the level at witch the message is broadcasted
+         * @brief the level at which the message is broadcasted
          */
         eBroadcastLevel m_eBroadcastLevel;
 
         /**
+         * @brief how to handle retries if the message cannot be delivered
+         */
+        eRetry m_eRetry;
+
+		/**
          * @brief specifies the expected response, so that the socket filter stops all other responses
          */
         eExpectedResponse m_eExpectedResponse;
@@ -297,6 +309,8 @@ namespace DCE
         SafetyMessage( Message *pMessage, bool bAutoDelete=true ) { m_pMessage = pMessage; m_bAutoDelete = bAutoDelete; };
 
         ~SafetyMessage() { if( m_bAutoDelete ) delete m_pMessage; };
+
+		void m_bAutoDelete_set(bool bAutoDelete) { m_bAutoDelete=bAutoDelete; }
     };
 }
 

@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 		return uudecode(argv[2],argv[3]);
     else if (argc<6)
     {
-		cout << "Usage: MessageSend server [-targetType [device|category|template]] [-r | -o] [-p path] [-bl BroadcastLevel] DeviceFrom DeviceTo MsgType(1=Command, 2=Event) MsgID [parm1id param1value] [parm2id parm2value] ..." << endl
+		cout << "Usage: MessageSend server [-targetType [device|category|template]] [-r | -o] [-p path] [-bl BroadcastLevel] [-retry value] DeviceFrom DeviceTo MsgType(1=Command, 2=Event) MsgID [parm1id param1value] [parm2id parm2value] ..." << endl
 			<< "\tthe server is the name/ip of the router, such as localhost" << endl
 			<< "\tthe default target type is the device." << endl
             << "\t-p specifies the path for output params" << endl
@@ -118,6 +118,8 @@ int main(int argc, char *argv[])
 			<< "\t-bl means the broadcast level if the message is sent to category or template;" << endl
 			<< "\t\tvalues: none, direct_siblings, same_computer, same_room, same_house*, all_houses" << endl
 			<< "\t\tneeds valid device ID for this to be useful" << endl
+			<< "\t-retry means what to do if the message cannot be delivered;" << endl
+			<< "\t\tvalues: none (don't retry), retry (send it when the device registers), persist (retry, but survive a reload router)" << endl
 			<< "\tthe parm ID can be prefixed with a letter:" << endl
 			<< "\t\tD send as a data paramter, rather than text" << endl
 			<< "\t\tU send as a data paramter, rather than text, parameter is UU-encoded" << endl

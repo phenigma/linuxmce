@@ -2504,6 +2504,7 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
 
     DCE::CMD_Spawn_Application cmd_Spawn_Application(m_dwPK_Device, iApp_Server_Device_ID,
         sCommand_Line, sName, sArguments, sCommOnFailure, sCommOnSuccess, false,false,false,true);
+	cmd_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
     SendCommand(cmd_Spawn_Application);
 }
 
@@ -2839,18 +2840,14 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 		
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 				*it,"screen_saver_" + sFilename,sArguments,"","",false,false,false,false);
-			string sResponse;
-			if( !SendCommand(CMD_Spawn_Application,&sResponse) )
-			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Failed to start flickr script.  Trying again in 1 minute");
-				m_pAlarmManager->AddRelativeAlarm(60,this,PROCESS_SCREEN_SAVER_PHOTOS,NULL);
-				return;
-			}
+			CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
+			SendCommand(CMD_Spawn_Application);
 		}
 
 		// Also update our list of software while we're at it
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 			"usr/pluto/bin/getxmls","getxmls","","","",false,false,false,false);
+		CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
 		SendCommand(CMD_Spawn_Application);
 	}
 	m_pAlarmManager->AddRelativeAlarm(60 * 60 * 24 /* do again in 24 hours */,this,PROCESS_SCREEN_SAVER_PHOTOS,NULL);
@@ -3156,5 +3153,6 @@ bool Orbiter_Plugin::SafeToReload(string &sReason)
 			sReason += ",";
 		sReason += StringUtils::itos(*it);
 	}
+	return false;
 }
 

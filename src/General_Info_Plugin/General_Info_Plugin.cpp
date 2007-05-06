@@ -146,6 +146,12 @@ bool General_Info_Plugin::GetConfig()
 	return true;
 }
 
+void General_Info_Plugin::PrepareToDelete()
+{
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+	Command_Impl::PrepareToDelete();
+}
+
 //<-dceag-const2-b->!
 
 //<-dceag-dest-b->
@@ -2279,61 +2285,34 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 	if( !pListDeviceData_Router )
 		return;
 
-	DeviceData_Router *pDevice_AppServerOnCore=NULL; // We will use this to be sure we don't run 2 app server's
-	bool bAlreadyRanOnCore=false;
 	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 	{
 		DeviceData_Router *pDevice = *it;
-		if( pDevice->m_pDevice_ControlledVia && pDevice->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
+		if( !m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device] )
 		{
-			if( pDevice->m_pDevice_Core )
-				bAlreadyRanOnCore=true;
+			string sResponseCommand = StringUtils::itos(pDevice->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
+				StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST);
+			string sFailureCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 1";
+			string sSuccessCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 0";
 
-			if( !m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device] )
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
+				"F\tStartLocalDevice\tAlert",
+				sFailureCommand,
+				sSuccessCommand,false,false,false,true);
+			string sResponse;
+			CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
+			if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 			{
-				string sResponseCommand = StringUtils::itos(pDevice->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
-					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST);
-				string sFailureCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 1";
-				string sSuccessCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 0";
-
-				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
-					"F\tStartLocalDevice\tAlert",
-					sFailureCommand,
-					sSuccessCommand,false,false,false,true);
-				string sResponse;
-				if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig Failed to send spawn application to %d",pDevice->m_dwPK_Device);
-				else
-				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig %d=true",pDevice->m_pDevice_ControlledVia->m_dwPK_Device);
-					m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device]=true;
-				}
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig Failed to send spawn application to %d",pDevice->m_dwPK_Device);
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig %d=true",pDevice->m_pDevice_ControlledVia->m_dwPK_Device);
+				m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device]=true;
 			}
 		}
-		else if( pDevice->m_pDevice_ControlledVia && pDevice->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Core_CONST) )
-			pDevice_AppServerOnCore = pDevice;
 	}
 
-	if( pDevice_AppServerOnCore && !bAlreadyRanOnCore && !m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device] )
-	{
-		string sResponseCommand = StringUtils::itos(pDevice_AppServerOnCore->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
-			StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST);
-		string sFailureCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 1";
-		string sSuccessCommand = sResponseCommand + " " + StringUtils::itos(COMMANDPARAMETER_Failed_CONST) + " 0";
-
-		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServerOnCore->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
-			"F\tStartLocalDevice\tAlert",
-			sFailureCommand,
-			sSuccessCommand,false,false,false,true);
-		string sResponse;
-		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig Failed to send spawn application to %d",pDevice_AppServerOnCore->m_dwPK_Device);
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates2 m_mapMediaDirectors_PendingConfig %d=true",pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device);
-			m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device]=true;
-		}
-	}
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates m_mapMediaDirectors_PendingConfig %d pending configs",(int) m_mapMediaDirectors_PendingConfig.size());
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
@@ -3111,31 +3090,13 @@ void General_Info_Plugin::CMD_Check_Mounts(string &sCMD_Result,Message *pMessage
 	if( !pListDeviceData_Router )
 		return;
 
-	DeviceData_Router *pDevice_AppServerOnCore=NULL; // We will use this to be sure we don't run 2 app server's
-	bool bAlreadyRanOnCore=false;
 	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 	{
 		DeviceData_Router *pDevice = *it;
-		if( pDevice->m_pDevice_ControlledVia && pDevice->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
-		{
-			if( pDevice->m_pDevice_Core )
-				bAlreadyRanOnCore=true;
-
-			if( !m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device] )
-			{
-				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/DoAllMounts.sh","dm",
-					"","","",false,false,false,true);
-				SendCommand(CMD_Spawn_Application);
-			}
-		}
-		else if( pDevice->m_pDevice_ControlledVia && pDevice->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Core_CONST) )
-			pDevice_AppServerOnCore = pDevice;
-	}
-
-	if( pDevice_AppServerOnCore && !bAlreadyRanOnCore && !m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device] )
-	{
-		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServerOnCore->m_dwPK_Device,"/usr/pluto/bin/DoAllMounts.sh","dm",
+		string sResponse;
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/DoAllMounts.sh","dm",
 			"","","",false,false,false,true);
+		CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
 		SendCommand(CMD_Spawn_Application);
 	}
 }

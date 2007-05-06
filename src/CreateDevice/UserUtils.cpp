@@ -126,11 +126,12 @@ int UserUtils::AddUser(string sUsername,Command_Impl *pCommand_Impl)
 		if( pDevice_Core )
 		{
 			DeviceData_Base *pDevice_AppServer = 
-				pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, pCommand_Impl );
+				pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
 			if( pDevice_AppServer )
 			{
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(pCommand_Impl->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 					"/usr/pluto/bin/SetPasswords.sh","set passwords",StringUtils::itos(PK_Users) + "\t" + sUsername,"","",false,false,false,true);
+				CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Persist;
 				pCommand_Impl->SendCommand(CMD_Spawn_Application);
 			}
 		}

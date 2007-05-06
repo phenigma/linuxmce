@@ -36,6 +36,7 @@ class Database_pluto_main;
 class Row_Device;
 
 typedef class Command_Impl * (* RAP_FType) (class Router *, int, Logger *);
+typedef list<Message *> ListMessage;
 
 /*
 
@@ -46,7 +47,6 @@ Classes to hold pointers to the call back functions, and general helper classes
 namespace DCE
 {
 //class ClientSocket;
-
     // Contains a pointer to the message interceptor
     class MessageInterceptorCallBack
     {
@@ -169,6 +169,7 @@ namespace DCE
         map<int,class Command_Impl *> m_mapPlugIn;
         map<int,ListCommand_Impl *> m_mapPlugIn_DeviceTemplate;
 		map<int,pair<time_t,time_t> > m_mapDeviceUpStatus; // For each device (ie each md), 2 times: first when the machine first came up (or 0 if it's down), the second, the last time there was communication from it
+		map<int,ListMessage *> m_mapPendingMessages; // int=the device id, ListMessage = list of messages to send the device after it registers.  See Message::m_eRetry
 
         map<int,class MessageTypeInterceptor *> m_mapMessageTypeInterceptor;
         list<class MessageInterceptorCallBack *> m_listMessageInterceptor_Global;   // Interceptors that want all messages
@@ -438,6 +439,12 @@ namespace DCE
 			GET_SERVER_SOCKET(gs, pServerSocket, PK_Device );
 			return pServerSocket!=NULL;
 		}
+
+		void HandleMessageFailure(SafetyMessage *pSafetyMessage);  // Called when we failed to deliver a message
+		void HandleMessageFailure(Message *pMessage,bool bSkipSerialization=false);
+		void CheckForMessageRetries(int DeviceID);
+		void ReadPersistentMessages();
+		void SerializePersistentMessages();
 
 		void SetDeviceDataInDB(int PK_Device,int PK_DeviceData,string sValue,bool bOnlyIfNotAlreadyThere=false)
 		{

@@ -2031,20 +2031,14 @@ void MythTV_PlugIn::SetPaths()
 
 void MythTV_PlugIn::RunBackendStarter()
 {
-	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
+	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
 	if( pDevice_App_Server )
 	{
-		string sResponse;
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 			"/usr/bin/screen","restart_myth","-d\t-m\t-S\tRestart_Myth_Backend\t/usr/pluto/bin/Restart_MythBackend.sh","","",false,false,false,false);
-		if( SendCommand(CMD_Spawn_Application,&sResponse) && sResponse=="OK" )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::RunBackendStarter ok");
-			return; // We're ok
-		}
+		CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
+		SendCommand(CMD_Spawn_Application);
 	}
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::RunBackendStarter try again");
-	m_pAlarmManager->AddRelativeAlarm(5,this,RUN_BACKEND_STARTER,NULL);
 }
 
 void MythTV_PlugIn::StartFillDatabase()
@@ -2062,6 +2056,7 @@ void MythTV_PlugIn::StartFillDatabase()
 		string sResponse = "fill done";
 		DCE::CMD_Spawn_Application CMD_Spawn_Application_fill(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 			"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,true,false);
+		CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Persist;
 		if( !SendCommand(CMD_Spawn_Application_fill) )
 		{
 			m_bFillDbRunning=false;

@@ -85,6 +85,8 @@ extern DCEConfig g_DCEConfig;
 
 #define  VERSION "<=version=>"
 
+#define	 SERIALIZE_MESSAGE_FILE		"/var/PersistentDceMessages"
+
 bool SerializeMessageXML(Message *pMessage, char *&pData, size_t &nSize);
 bool DeserializeMessageXML(Message *pMessage, char *pData, size_t nSize);
 
@@ -1513,6 +1515,8 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
     // This device has registered, so we can always route its messages back to itself
     m_Routing_DeviceToController[DeviceID] = DeviceID;
 
+	CheckForMessageRetries(DeviceID);
+
 	if( pDevice )
 	{
 		// Don't use sql2cpp class because we don't want the psc_mod timestamp to change
@@ -1600,6 +1604,7 @@ string Message::ToXML()
 */
 
     m_bIsLoading=true;
+	ReadPersistentMessages();
     StartListening();
 	int Timeout=0;
 	while( !m_bRunning && Timeout++<10 )
@@ -2160,6 +2165,11 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"realsendmessage after device conn
                 int MessageType = (*(*pSafetyMessage))->m_dwMessage_Type;
                 int ID = (*(*pSafetyMessage))->m_dwID;
 
+				// If we're supposed to retry in the event of failure, we have to at least have delivery confirmation set
+				if( (*(*pSafetyMessage))->m_eRetry!=MR_None && (*(*pSafetyMessage))->m_eExpectedResponse==ER_None )
+					(*(*pSafetyMessage))->m_eExpectedResponse=ER_DeliveryConfirmation;
+
+
 				/* AB 8/5, changed this since we still use the message later
                 bool bResult = pDeviceConnection->SendMessage(pSafetyMessage->Detach()); */
                 bool bResult = pServerSocket->SendMessage(pSafetyMessage->m_pMessage,false);
@@ -2179,6 +2189,7 @@ LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Got response: %d to message type
                 if (!bResult)
                 {
                     LoggerWrapper::GetInstance()->Write(LV_WARNING, "Socket %p failure sending message to device %d", pServerSocket,pServerSocket->m_dwPK_Device);
+					HandleMessageFailure(pSafetyMessage);
 					pServerSocket->Close();
                     bServerSocket_Failed = true;;
                 }
@@ -2262,6 +2273,7 @@ LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Got response: %d to message type
                         LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Socket %p failure waiting for response to message from device %d type %d id %d",
                             pServerSocket,pServerSocket->m_dwPK_Device,
 							(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
+						HandleMessageFailure(pSafetyMessage);
                         bServerSocket_Failed = true;
                     }
                 }
@@ -2287,6 +2299,7 @@ LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Got response: %d to message type
         else
         {
             LoggerWrapper::GetInstance()->Write(LV_WARNING, "The target device %d (routed to %d) has not registered.",(*(*pSafetyMessage))->m_dwPK_Device_To,RouteToDevice);
+			HandleMessageFailure(pSafetyMessage);
             // If this is a request we have to let the sender know so it doesn't wait in vain.
             // also, send responses back to corpserver
         }
@@ -3160,3 +3173,139 @@ bool DeserializeMessageXML(Message *pMessage, char *pData, size_t nSize)
 
 	return !msg_xml.Failed();
 }
+
+void Router::HandleMessageFailure(SafetyMessage *pSafetyMessage)
+{
+	if( (*(*pSafetyMessage))->m_eRetry==MR_None ) 
+		return;  // Nothing to do
+
+	pSafetyMessage->m_bAutoDelete_set(false);
+	HandleMessageFailure(pSafetyMessage->m_pMessage);
+}
+
+void Router::HandleMessageFailure(Message *pMessage,bool bSkipSerialization)
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Router::HandleMessageFailure will retry message type %d id %d to %d retry %d",
+		pMessage->m_dwMessage_Type, pMessage->m_dwID,
+		pMessage->m_dwPK_Device_To, (int) pMessage->m_eRetry);
+
+	PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect m_mapPendingMessages
+
+	ListMessage *pListMessage = m_mapPendingMessages[pMessage->m_dwPK_Device_To];
+	if( pListMessage==NULL )
+	{
+		pListMessage = new ListMessage();
+		m_mapPendingMessages[pMessage->m_dwPK_Device_To]=pListMessage;
+	}
+	pListMessage->push_back(pMessage);
+
+	if( pMessage->m_eRetry==MR_Persist && bSkipSerialization==false )
+	{
+		im.Release(); // Not recursive
+		SerializePersistentMessages();
+	}
+}
+
+void Router::CheckForMessageRetries(int DeviceID)
+{
+	PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect m_mapPendingMessages
+	map<int,ListMessage *>::iterator it=m_mapPendingMessages.find(DeviceID);
+	if( it==m_mapPendingMessages.end() )
+		return;  // Nothing to do
+
+	ListMessage *pListMessage = it->second;
+	if( !pListMessage )
+		return; // Shouldn't happen
+
+	bool bSerializePersistent=false; // Keep track of whether we need to re-serialize this
+
+	for(ListMessage::iterator it=pListMessage->begin();it!=pListMessage->end();++it)
+	{
+		Message *pMessage = *it;
+		if( pMessage->m_eRetry==MR_Persist )
+			bSerializePersistent=true;
+		AddMessageToQueue(pMessage);
+	}
+	pListMessage->clear();  // We processed all the ones here.  If they fail again, they'll be re-added
+
+	if( bSerializePersistent )
+	{
+		im.Release();
+		SerializePersistentMessages();
+	}
+}
+
+void Router::ReadPersistentMessages()
+{
+	size_t size;
+	char *pBuffer =	FileUtils::ReadFileIntoBuffer(SERIALIZE_MESSAGE_FILE,size);
+	if( pBuffer )
+	{
+		SerializeClass serializeClass;
+		serializeClass.StartReading(size,pBuffer);
+		int NumMessages = serializeClass.Read_unsigned_long();
+		for(int i=0;i<NumMessages;++i)
+		{
+			int Size = serializeClass.Read_unsigned_long();
+			char *pBuffer = serializeClass.Read_block(Size);
+			Message *pMessage = new Message(Size,pBuffer);
+			HandleMessageFailure(pMessage,true);
+		}
+
+		delete pBuffer;
+	}
+	SerializePersistentMessages();  // Re-write taking into account what may have gotten processed (probably nothing)
+}
+
+void Router::SerializePersistentMessages()
+{
+	PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect m_mapPendingMessages
+
+	ListMessage listMessage; // Temporary hold all the messages
+	for(map<int,ListMessage *>::iterator itList=m_mapPendingMessages.begin();itList!=m_mapPendingMessages.end();++itList)
+	{
+		ListMessage *pListMessage = itList->second;
+		if( pListMessage )
+		{
+			for(ListMessage::iterator itMsg=pListMessage->begin();itMsg!=pListMessage->end();++itMsg)
+			{
+				Message *pMessage = *itMsg;
+				if( pMessage->m_eRetry==MR_Persist )
+					listMessage.push_back(pMessage);
+			}
+		}
+	}
+
+	if( listMessage.empty() )
+	{
+		FileUtils::DelFile(SERIALIZE_MESSAGE_FILE);
+		return;
+	}
+
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"Router::SerializePersistentMessages %d Messages", listMessage.size());
+
+	SerializeClass serializeClass;
+	serializeClass.StartWriting();
+	serializeClass.Write_unsigned_long((int) listMessage.size());
+
+	for(ListMessage::iterator itList=listMessage.begin();itList!=listMessage.end();++itList)
+	{
+		Message *pMessage = *itList;
+		char *pcData = NULL;
+		unsigned long dwSize = 0;
+		pMessage->ToData( dwSize, pcData, false ); // converts the message to data
+		serializeClass.Write_unsigned_long(dwSize);
+		serializeClass.Write_block(pcData,dwSize);
+	}
+
+	FILE *pFile = fopen(SERIALIZE_MESSAGE_FILE,"wb");
+	if( !pFile || fwrite(serializeClass.m_pcDataBlock, 1, serializeClass.CurrentSize(), pFile) != serializeClass.CurrentSize() )
+	{
+	    LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Router::SerializePersistentMessages failed to write to file %s",SERIALIZE_MESSAGE_FILE);
+		FileUtils::DelFile(SERIALIZE_MESSAGE_FILE);
+	}
+
+	if( pFile )
+		fclose( pFile );
+}
+

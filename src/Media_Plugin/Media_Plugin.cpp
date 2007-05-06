@@ -1631,6 +1631,7 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 			StringUtils::Replace(&sArguments," ","\t");  // The database uses spaces to separate the arguments, we need tabs
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 				sPortSelectUtility,"setinput",sArguments,"","",false,false,false,true);
+			CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
 			SendCommand(CMD_Spawn_Application);
 		}
 		else

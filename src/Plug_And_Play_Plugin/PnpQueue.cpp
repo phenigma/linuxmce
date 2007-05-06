@@ -286,6 +286,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 				"/usr/pluto/bin/UpdateAvailableSerialPorts.sh", "serialports",
 				"","","",false,false,false,true);
+			CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
 		}
 	}
@@ -300,6 +301,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 				"/usr/pluto/bin/StorageDevices_Radar.sh", "storagedevices",
 				"","","",false,false,false,true);
+			CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
 			m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
 		}
 	}
@@ -951,6 +953,7 @@ void PnpQueue::RunSetupScript(PnpQueueEntry *pPnpQueueEntry)
 
 					DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pPlug_And_Play_Plugin->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 						"/usr/pluto/bin/" + sBinary,"setup_script",sArguments,"","",false,false,false,true);
+					CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Persist;
 					m_pPlug_And_Play_Plugin->SendCommand(CMD_Spawn_Application);
 				}
 			}

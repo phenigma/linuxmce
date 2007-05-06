@@ -63,6 +63,7 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+	virtual void PrepareToDelete();
 	
 	// Private member variables
 	Database_pluto_main *m_pDatabase_pluto_main;

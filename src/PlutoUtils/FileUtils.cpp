@@ -373,7 +373,6 @@ bool FileUtils::DirExists( string sFile )
 bool FileUtils::DelFile(string sFileName)
 {
 #ifndef WINCE //no findfiles implemented under CE yet
-printf("FileUtils::DelFile %s",sFileName.c_str());
 	if( sFileName.find('*')!=string::npos || sFileName.find('?')!=string::npos )
 	{
 		list<string> listFiles;

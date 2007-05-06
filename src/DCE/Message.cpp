@@ -76,6 +76,7 @@ Message::Message( Message *pMessage_Clone )
     m_bRelativeToSender = pMessage_Clone->m_bRelativeToSender;
     m_bRespondedToMessage = pMessage_Clone->m_bRespondedToMessage;
     m_eBroadcastLevel = pMessage_Clone->m_eBroadcastLevel;
+    m_eRetry = pMessage_Clone->m_eRetry;
     m_eExpectedResponse = pMessage_Clone->m_eExpectedResponse;
     m_sPK_Device_List_To = pMessage_Clone->m_sPK_Device_List_To;
 
@@ -122,6 +123,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
     Clear();
 
 	m_eBroadcastLevel = BL_SameHouse;
+	m_eRetry = MR_None;
 
 	int baseMessageSpecPos = 0;
 	int targetType = 0; // Device;
@@ -167,6 +169,17 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 				m_eBroadcastLevel = BL_SameHouse;
 			else if ( strcmp(cArguments[baseMessageSpecPos], "all_houses") == 0 )
 				m_eBroadcastLevel = BL_AllHouses;
+			baseMessageSpecPos ++;
+		}
+		else if ( strcmp(cArguments[baseMessageSpecPos], "-retry") == 0 )
+		{
+			baseMessageSpecPos++;
+			if ( strcmp(cArguments[baseMessageSpecPos], "none") == 0)
+				m_eRetry = MR_None;
+			else if ( strcmp(cArguments[baseMessageSpecPos], "retry") == 0 )
+				m_eRetry = MR_Retry;
+			else if ( strcmp(cArguments[baseMessageSpecPos], "persist") == 0 )
+				m_eRetry = MR_Persist;
 			baseMessageSpecPos ++;
 		}
 		else
@@ -485,6 +498,7 @@ void Message::Clear()
 	m_bRelativeToSender = true;
     m_eExpectedResponse = ER_None;
     m_eBroadcastLevel = BL_SameHouse; // Default broadcast level
+    m_eRetry = MR_None; // Default retry
     m_bRespondedToMessage = false;
     m_dwPriority = 0;
     m_dwPK_Device_From = -1;
@@ -554,6 +568,7 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
     Write_long( m_dwPK_Device_Template );
     Write_unsigned_char( m_bIncludeChildren );
     Write_long( m_eBroadcastLevel );
+    Write_long( m_eRetry );
     Write_unsigned_char( m_bRelativeToSender );
     Write_long( m_eExpectedResponse );
     Write_string( m_sPK_Device_List_To );
@@ -717,6 +732,7 @@ void Message::FromData( unsigned long dwSize, char *pcData )
     m_dwPK_Device_Template = Read_long();
     m_bIncludeChildren=(Read_unsigned_char()==1);
     m_eBroadcastLevel=(eBroadcastLevel) Read_long();
+    m_eRetry=(eRetry) Read_long();
     m_bRelativeToSender = Read_unsigned_char()==1;
     m_eExpectedResponse=(eExpectedResponse) Read_long();
     Read_string( m_sPK_Device_List_To );
@@ -786,6 +802,7 @@ void Message::Dump( int iLogLevel /*=LV_DEBUG*/)
 	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_dwPK_Device_Template: %d", m_dwPK_Device_Template );
 	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_bIncludeChildren: %d", m_bIncludeChildren );
 	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_eBroadcastLevel: %d", m_eBroadcastLevel );
+	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_eRetry: %d", m_eRetry );
 	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_bRelativeToSender: %d", m_bRelativeToSender );
 	LoggerWrapper::GetInstance()->Write( iLogLevel, "**** m_eExpectedResponse: %d", m_eExpectedResponse );
 }
