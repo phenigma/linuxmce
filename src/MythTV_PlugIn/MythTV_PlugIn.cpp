@@ -2056,7 +2056,7 @@ void MythTV_PlugIn::StartFillDatabase()
 		string sResponse = "fill done";
 		DCE::CMD_Spawn_Application CMD_Spawn_Application_fill(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 			"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,true,false);
-		CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Persist;
+		CMD_Spawn_Application_fill.m_pMessage->m_eRetry=MR_Persist;
 		if( !SendCommand(CMD_Spawn_Application_fill) )
 		{
 			m_bFillDbRunning=false;
