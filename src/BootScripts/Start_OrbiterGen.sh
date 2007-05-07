@@ -14,6 +14,13 @@ SkinDir=/usr/pluto/orbiter/skins
 FontDir=/usr/share/fonts/truetype/msttcorefonts
 OutDir=/usr/pluto/orbiter
 
+# send progress messages to boot splash?
+ToSplash="-b"
+
+#<-mkr_b_ubuntu_b->
+ToSplash=""
+#<-mkr_b_ubuntu_e->
+
 /usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.log)
 
 Q="UPDATE Orbiter SET RegenInProgress=0"  # This is only run at bootup, so no regens are in progress
@@ -43,7 +50,7 @@ AND FK_Installation=$installation"
 
 	for OrbiterDev in $Orbiters; do
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Generating stand-alone Orbiter nr. $OrbiterDev"
-		/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" -b -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h "$MySqlHost" > >(tee -a /var/log/pluto/orbitergen.log) 2> >(grep -vF "WARNING: You are using the SDL dummy video driver!" >&2) || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"
+		/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" "$ToSplash" -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h "$MySqlHost" > >(tee -a /var/log/pluto/orbitergen.log) 2> >(grep -vF "WARNING: You are using the SDL dummy video driver!" >&2) || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"
 	done
 fi
 
