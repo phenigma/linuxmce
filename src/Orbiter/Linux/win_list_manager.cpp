@@ -359,9 +359,8 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager::ApplyContext: applying diff context for '%s': %s",
 					sWindowName.c_str(), pending_context.ToString().c_str());
 
-			if(!(!pending_context.IsVisible() && IsOurBackgroundApplication(sWindowName) && m_bExclusive))
-				if(pending_context.Layer() != current_context.Layer())
-					bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
+			if(pending_context.Layer() != current_context.Layer())
+				bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 
 			if(pending_context.IsMaximized() != current_context.IsMaximized())
 				bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
@@ -370,18 +369,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 				bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
 
 			if(pending_context.IsVisible() != current_context.IsVisible())
-			{
-				if(IsOurBackgroundApplication(sWindowName) && m_bExclusive)
-				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "PSS 'visible' %d", pending_context.IsVisible());
-					bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.IsVisible() ? LayerNormal : LayerBelow);
-				}
-				else
-				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s visible %d", sWindowName.c_str(), pending_context.IsVisible());
-					bResult = bResult && m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
-				}
-			}
+				bResult = bResult && m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
 
 			PlutoRectangle rect = pending_context.Position();
 			PlutoRectangle current_rect = current_context.Position();
@@ -418,29 +406,14 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 #endif
 
 
-                        if(!(!pending_context.IsVisible() && IsOurBackgroundApplication(sWindowName) && m_bExclusive))
-				bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
-
+			bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 			bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
 			bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
-
-			if(IsOurBackgroundApplication(sWindowName) && m_bExclusive)
-			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PSS whole context; 'visible' %d", pending_context.IsVisible());
-				bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.IsVisible() ? LayerNormal : LayerBelow);	
-			}
-			else
-			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s visible %d", sWindowName.c_str(), pending_context.IsVisible());
-				bResult = bResult && m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
-			}
+			bResult = bResult && m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
 
 			PlutoRectangle rect = pending_context.Position();
 			if(rect.X != -1 && rect.Y != -1)
-			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "SetPosition: %s => %d,%d,%d,%d", sWindowName.c_str(), rect.X, rect.Y, rect.Width, rect.Height);
 				bResult = bResult && m_pWMController->SetPosition(sWindowName, rect.X, rect.Y, rect.Width, rect.Height);
-			}
 
 			if(pending_context.IsActivated())
 			{
@@ -483,7 +456,7 @@ WindowContext& WinListManager::PendingContext(string sWindowName)
 	if(it == m_PendingContext.end())
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager::PendingContext: adding new entry %s", sWindowName.c_str());
-		m_PendingContext.insert(make_pair(sWindowName, WindowContext(sWindowName)));
+		m_PendingContext.insert(make_pair(sWindowName, WindowContext(sWindowName, m_bExclusive)));
 		return m_PendingContext.find(sWindowName)->second;
 	}
 
@@ -599,10 +572,5 @@ void WinListManager::RemoveWindowDecoration(string sWindowId)
 	}
 
 	XCloseDisplay(display);
-}
-
-bool WinListManager::IsOurBackgroundApplication(string sWindowName)
-{
-	return sWindowName.find("Screen_Saver") != string::npos;
 }
 

@@ -42,7 +42,7 @@ class WindowContext
 {
 public:
 
-	WindowContext(string sWindowName);
+	WindowContext(string sWindowName, bool bExclusiveMode);
 	~WindowContext();
 
 	WindowLayer Layer();
@@ -84,6 +84,10 @@ private:
 	bool m_bActivated;
 	bool m_bErrorFlag;
 	PlutoRectangle m_rectPosition;
+
+	bool m_bExclusiveMode;
+
+	bool IsOurBackgroundApp();
 };
 //-----------------------------------------------------------------------------------------------------
 #endif //__WINDOW_CONTEXT_H__

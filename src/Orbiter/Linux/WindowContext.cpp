@@ -43,7 +43,7 @@ char *WindowLayerStr[] =
 	"LayerAbove"
 };
 //-----------------------------------------------------------------------------------------------------
-WindowContext::WindowContext(string sWindowName) :
+WindowContext::WindowContext(string sWindowName, bool bExclusiveMode) :
 	m_sWindowName(sWindowName),
 	m_WindowLayer(LayerNormal),
 	m_bMaximized(false),
@@ -51,7 +51,8 @@ WindowContext::WindowContext(string sWindowName) :
 	m_bVisible(true),
 	m_bActivated(false),
 	m_bErrorFlag(false),
-	m_rectPosition(-1, -1, -1, -1)
+	m_rectPosition(-1, -1, -1, -1),
+	m_bExclusiveMode(bExclusiveMode)
 {
 }
 //-----------------------------------------------------------------------------------------------------
@@ -69,6 +70,7 @@ void WindowContext::Layer(WindowLayer layer)
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WindowContext::Layer '%s' : %s", m_sWindowName.c_str(), WindowLayerStr[layer]);
 #endif
+
 	m_WindowLayer = layer;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -109,9 +111,16 @@ void WindowContext::Visible(bool bValue)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WindowContext::Visible '%s' : %s", m_sWindowName.c_str(), bValue ? "true" : "false");
 #endif
 
+        if(!bValue)
+                m_bActivated = false; // If the window has become invisible, it should be activated the next time Activate(true) is set
+
+	if(IsOurBackgroundApp() && m_bExclusiveMode)
+	{
+		m_WindowLayer = bValue ? LayerNormal : LayerBelow;
+		return;
+	}
+
 	m_bVisible = bValue;
-	if( bValue==false )
-		m_bActivated = false; // If the window has become invisible, it should be activated the next time Activate(true) is set
 }
 //-----------------------------------------------------------------------------------------------------
 bool WindowContext::IsActivated()
@@ -200,3 +209,9 @@ bool operator!=(const WindowContext& context1, const WindowContext& context2)
 	return !(context1 == context2);
 }
 //-----------------------------------------------------------------------------------------------------
+bool WindowContext::IsOurBackgroundApp()
+{
+	return m_sWindowName.find("Screen_Saver") != string::npos;
+}
+//-----------------------------------------------------------------------------------------------------
+

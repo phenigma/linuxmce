@@ -130,8 +130,6 @@ private:
 	void Internal_ResetOrbiterWindow();
 	void RemoveWindowDecoration(string sWindowId);
 
-	bool IsOurBackgroundApplication(string sClassName); 
-
 	//variables
 	string m_sSdlWindowName;
 	WMControllerImpl *m_pWMController;
