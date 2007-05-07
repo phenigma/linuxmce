@@ -145,7 +145,7 @@ void WinListManager::ShowSdlWindow(bool bExclusive, bool bYieldInput)
     {
 		if(m_sExternApplicationName != "")
 		{
-			PendingContext(m_sExternApplicationName).Layer(bExclusive ? LayerBelow : LayerAbove); 
+			//PendingContext(m_sExternApplicationName).Layer(bExclusive ? LayerNormal : LayerAbove); 
 			PendingContext(m_sExternApplicationName).Activate(true);
 		}
     }
@@ -359,7 +359,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager::ApplyContext: applying diff context for '%s': %s",
 					sWindowName.c_str(), pending_context.ToString().c_str());
 
-			if(pending_context.Layer() != current_context.Layer())
+			//if(pending_context.Layer() != current_context.Layer())
 				bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 
 			if(pending_context.IsMaximized() != current_context.IsMaximized())
@@ -465,6 +465,10 @@ WindowContext& WinListManager::PendingContext(string sWindowName)
 
 void WinListManager::HandleOnCommand()
 {
+#ifdef KDE_LMCE
+        m_pWMController->SetLayer("kicker", LayerBelow);
+#endif
+
 	m_bEnabled = true;
 
 	//store what desktop is currently active
@@ -476,20 +480,16 @@ void WinListManager::HandleOnCommand()
 	//reapply whole context
 	m_CurrentContext.clear();
 	ApplyContext();
-
-#ifdef KDE_LMCE
-	m_pWMController->SetLayer("kicker", LayerBelow);
-#endif
 }
 
 void WinListManager::HandleOffCommand()
 {
+#ifdef KDE_LMCE
+        m_pWMController->SetLayer("kicker", LayerNormal);
+#endif	
+
 	//switch back to whatever desktop was active before. 
 	m_pWMController->SwitchToUserDesktop();
-
-#ifdef KDE_LMCE
-	m_pWMController->SetLayer("kicker", LayerNormal);
-#endif
 
 	m_bEnabled = false;
 }

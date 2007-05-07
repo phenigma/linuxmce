@@ -144,7 +144,7 @@ bool WMControllerImpl::ActivateWindow(string sWindow, bool bUseWindowId)
 bool WMControllerImpl::ListWindows(list<WinInfo> &listWinInfo)
 {
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::ListWindows()\n");
+//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::ListWindows()\n");
 #endif
 
 	bool bResult = wmctrl.ActionCommand('l', NULL, NULL, true, &listWinInfo);
@@ -156,13 +156,13 @@ bool WMControllerImpl::ListWindows(list<WinInfo> &listWinInfo)
 	for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end();)
 	{
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Window %s, id 0x%x desktop %d", it->sClassName.c_str(), it->ulWindowId, it->lDesktop); 
+//		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Window %s, id 0x%x desktop %d", it->sClassName.c_str(), it->ulWindowId, it->lDesktop); 
 #endif
 
 		if(static_cast<int>(it->lDesktop) != nPrimaryDesktop && static_cast<int>(it->lDesktop) != nSecondaryDesktop)
 		{
 #ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Skipping %s id 0x%x (it's not on our desktops)", it->sClassName.c_str(), it->ulWindowId); 
+//			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Skipping %s id 0x%x (it's not on our desktops)", it->sClassName.c_str(), it->ulWindowId); 
 #endif
 			listWinInfo.erase(it++);
 		}
@@ -181,17 +181,20 @@ string WMControllerImpl::WindowId(string sWindowClass)
 	int nPrimaryDesktop = atoi(m_sPrimaryDesktop.c_str());
 	int nSecondaryDesktop = atoi(m_sSecondaryDesktop.c_str());
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::WindowId window class %s", sWindowClass.c_str()); 
+	//LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::WindowId window class %s", sWindowClass.c_str()); 
 
 	//filter the windows; we need only those from our desktops
 	for(list<WinInfo>::iterator it = listWinInfo.begin(); it != listWinInfo.end();++it)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Window %s, id 0x%x desktop %d", it->sClassName.c_str(), it->ulWindowId, it->lDesktop); 
+		//LoggerWrapper::GetInstance()->Write(LV_STATUS, "Window %s, id 0x%x desktop %d", it->sClassName.c_str(), it->ulWindowId, it->lDesktop); 
 
 		if(
 			(
 				static_cast<int>(it->lDesktop) == nPrimaryDesktop || 
-				static_cast<int>(it->lDesktop) == nSecondaryDesktop
+				static_cast<int>(it->lDesktop) == nSecondaryDesktop ||
+				static_cast<int>(it->lDesktop) == -1
+				//it->sClassName.find("kicker") != string::npos
+
 			)
 			&&
 			it->sClassName.find(sWindowClass) != string::npos
