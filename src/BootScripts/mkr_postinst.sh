@@ -62,3 +62,9 @@ fi
 if ! grep -qF '# Pluto alias for less log viewing' /root/.profile; then
 	echo "alias les='less -Rn' # Pluto alias for less log viewing" >>/root/.profile
 fi
+
+## If pluto.conf has no LogLevels entry, add: LogLevels = 1,5,7,8
+[ -e /etc/pluto.conf ] || touch /etc/pluto.conf
+if ! grep -qF 'LogLevels = 1,5,7,8' /etc/pluto.conf ;then
+	echo "LogLevels = 1,5,7,8" >> /etc/pluto.conf
+fi
