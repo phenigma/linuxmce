@@ -1,5 +1,5 @@
-#<-mkr_b_ubuntu_b->
 #!/bin/bash
+#<-mkr_b_ubuntu_b->
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/LockUtils.sh
@@ -173,7 +173,6 @@ if [[ "$i" -gt "$MAX_RESPAWN_COUNT"  ]]; then
 fi
 #<-mkr_b_ubuntu_e->
 #<-mkr_B_ubuntu_b->
-#!/bin/bash
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/LockUtils.sh
