@@ -1,5 +1,6 @@
 #!/bin/bash
 
+rm -f ivtv-firmware_*.deb
 aptitude download ivtv-firmware
 mkdir ivtv-firmware
 cd ivtv-firmware

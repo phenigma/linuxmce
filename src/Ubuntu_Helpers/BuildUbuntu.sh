@@ -3,7 +3,7 @@
 . /root/Ubuntu_Helpers/BuildUbuntu_Functions.sh
 
 #Install_Build_Needed_Packages
-Create_Diskless_Archive
+#Create_Diskless_Archive
 Import_Pluto_Skins
 Checkout_Pluto_Svn #branches/2.0.0.44
 Build_Pluto_Replacements

@@ -2,7 +2,7 @@
 
 . /root/Ubuntu_Helpers/SQL_Ops.sh
 
-TMP_DIR="/var/ubuntu/"
+TMP_DIR="/var/ubuntu-cache/"
 MAX_LEVEL=6
 
 function GetMaxLevel 
@@ -64,7 +64,7 @@ RunSQL "$Q"
 Q="DELETE FROM Dependencies"
 RunSQL "$Q"
 
-rm -f /var/ubuntu/*
+rm -f /var/ubuntu-cache/*
 apt-get clean
 apt-get update
 
@@ -95,12 +95,20 @@ Q="SELECT DISTINCT PackageName FROM Dependencies"
 packages=$(RunSQL "$Q")
 
 for package in $packages ;do
-	apt-get --download-only -y install --reinstall $package
+	apt-get --download-only -y install --reinstall --force-yes $package
 done
 
 #rm /var/cache/apt/archives/*pluto*
 cp /var/cache/apt/archives/* $TMP_DIR
+rm -f /var/ubuntu/*
+cp /var/cache/apt/archives/* /var/ubuntu/
 
+while read file; do
+	rm -f "$TMP_DIR/$file"_*.deb
+done </root/Ubuntu_Helpers/RemoveFromCD.cfg
+
+#skip doing iso
+if /bin/false ;then
 pushd $TMP_DIR
 dpkg-scanpackages . /dev/null > Packages
 cat Packages | gzip -9c > Packages.gz
@@ -111,7 +119,7 @@ if [[ -z "$Version" ]]; then
 	export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
 fi
 mkisofs -f -J -r -o linuxmce-$Version-packages.iso $TMP_DIR
-
+fi
 #for package in $(dpkg -l | cut -d " " -f 3) ;do 
 #	pkg=$(grep "Package: $package$" $REP_LISTS/*_Packages | cut -d":" -f1,3 | cut -d '_' -f4,5,7 | cut -d':' -f2)
 #	if [[ -n "$pkg" ]] ;then

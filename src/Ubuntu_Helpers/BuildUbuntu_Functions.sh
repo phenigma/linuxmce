@@ -2,6 +2,8 @@
 
 . /usr/pluto/bin/Utils.sh
 
+export KDE_LMCE=""
+
 flavor="ubuntu"
 
 if [[ $build_dir == "" || $local_mirror_dir == "" ]] ;then
@@ -36,7 +38,7 @@ export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | 
 
 
 function Install_Build_Needed_Packages {
-	local pkgs="subversion build-essential dh-make libmysqlclient12-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server"
+	local pkgs="subversion build-essential dh-make libmysqlclient15-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server libmediastreamer0-dev libgtk2.0-dev libvte-dev libglade2-dev libstdc++5" 
 	local pkg
 	for pkg in $pkgs ;do
 		apt-get -y install $pkg
@@ -45,6 +47,8 @@ function Install_Build_Needed_Packages {
 
 
 function Checkout_Pluto_Svn {
+	echo "$(date) part 21 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 	local Branch="${1:-trunk}"
 
 	[[ -d $svn_dir ]] && mkdir -p $svn_dir
@@ -63,9 +67,12 @@ function Checkout_Pluto_Svn {
 	#/bin/sql2cpp -h localhost -u root -D pluto_main
 	pushd ${svn_dir}/trunk/src
 	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/ZWave/
-	
 	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/RFID_Interface/
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/EMI_AMG/
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/lmce_launch_manager/
 	popd
+	echo "$(date) part 22 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 }
 
 
@@ -101,6 +108,9 @@ function Build_MakeRelease_Binary {
 }
 
 function Build_Pluto_Replacements {
+	echo "$(date) part 1 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
+       
 	temp_dir="${replacements_dir}"
 	mkdir -p $temp_dir
 
@@ -112,7 +122,7 @@ function Build_Pluto_Replacements {
 		dpkg -i ../libsdl1.2debian-pluto-all_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
 		dpkg -i ../libsdl1.2debian-pluto_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
 		dpkg -i ../libsdl1.2-pluto-dev_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
-		cp ../libsdl1.2*-pluto-*.deb ${temp_dir}
+		cp ../libsdl*.deb ${temp_dir}
 	popd
 
 	#Package: libxine
@@ -138,12 +148,16 @@ function Build_Pluto_Replacements {
 	popd
 
 	#Package: lirc-modules
-	apt-get -y install linux-source linux-headers module-assistant lirc-modules-source
+	apt-get -y install linux-source-`uname -r | cut -d'-' -f1` linux-headers-`uname -r` module-assistant lirc-modules-source
 	pushd .
                 cd "${svn_dir}"/trunk/src/Ubuntu_Helpers
                 ./Preseed_lirc-modules-source.sh
                 rm -f /etc/lirc/lirc-modules-source.conf
                 dpkg-reconfigure -fnoninteractive lirc-modules-source
+
+		pushd /usr/src
+			tar jxvf linux-source-`uname -r | cut -d '-' -f1`.tar.bz2
+		popd
 
                 mkdir -p /usr/src/modules/lirc/drivers/media/video/bt8xx/
                 cp -a /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video/bt8xx/* /lib/modules/`uname -r`/build/drivers/media/video
@@ -162,19 +176,25 @@ function Build_Pluto_Replacements {
 	pushd .
 		m-a -ft a-b ivtv
 		cp /usr/src/ivtv-modules*.deb "${temp_dir}"
-		Src="deb http://dl.ivtvdriver.org/ubuntu edgy firmware"
-		if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
-			if [ ! -e /etc/apt/sources.list.pbackup ] ;then
-				cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
-			fi
-			if ! grep -qF "$Src" /etc/apt/sources.list; then
-				echo "$Src" >> /etc/apt/sources.list
-				apt-get update
-			fi
+	popd
+	
+	echo "$(date) part 2 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
+
+	pushd "${svn_dir}"/trunk/ubuntu/
+		Src="deb http://dl.ivtvdriver.org/ubuntu feisty firmware"
+		if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+			cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
 		fi
-		#aptitude download ivtv-firmware
-		#cp ivtv-firmware_*.deb "${temp_dir}"
-		#rm ivtv-firmware_*.deb
+		if ! grep -qF "$Src" /etc/apt/sources.list; then
+			echo "$Src" >> /etc/apt/sources.list
+			apt-get update
+		fi
+
+		/root/Ubuntu_Helpers/RepackIvtvFirmware.sh
+
+		cp ivtv-firmware_*.deb "${temp_dir}"
+		rm ivtv-firmware_*.deb
 	popd
 
 	#Package: lirc-pluto
@@ -182,6 +202,9 @@ function Build_Pluto_Replacements {
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../lirc-pluto_*.deb "${temp_dir}"
 	popd
+	
+	echo "$(date) part 3 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 
 	#Package: mce-launcher
 	pushd "${svn_dir}"/trunk/src/mce-launcher
@@ -227,12 +250,17 @@ function Build_Pluto_Stuff_Debs {
 }
 
 function Build_Pluto_Stuff {
+	echo "$(date) part 4 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
+	
 	touch /home/README.Devel.Dependencies
+	mkdir -p /usr/pluto/dummy-packages/
+	touch /usr/pluto/dummy-packages/Readme.PlutoConsoleUtilities.dummy
 
 	export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
 
-	SVNrevision=$(svn info "${svn_dir}"/trunk |grep ^Revision | cut -d" " -f2)
+	SVNrevision=$(svn info "${svn_dir}"/trunk/src |grep ^Revision | cut -d" " -f2)
 
 	MakeRelease="${mkr_dir}/MakeRelease"
 	MakeRelease_PrepFiles="${mkr_dir}/MakeRelease_PrepFiles"
@@ -260,11 +288,19 @@ function Build_Pluto_Stuff {
 #	543  	Pluto vloopback Kernel Module
 #	542 	Pluto vloopback Kernel Module Source
 # 	-b
+	echo "$(date) part 5 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 
-	$MakeRelease -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 1 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
+	$MakeRelease -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 14 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
+	
+	echo "$(date) part 6 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 }
 
 function Create_Fake_Windows_Binaries {
+	echo "$(date) part 7 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
+
 	touch ${svn_dir}/trunk/src/bin/Pluto_S60.sis
 	touch ${svn_dir}/trunk/src/bin/Orbiter.CAB
 	touch ${svn_dir}/trunk/src/bin/Orbiter_Treo.CAB
@@ -299,16 +335,24 @@ function Create_Fake_Windows_Binaries {
 
 
 	pushd ${svn_dir}/trunk/src/bin
-	scp pluto@10.0.0.150:/home/builds/Windows_Output_LinuxMCE/src/bin/* ./
+	scp pluto@10.0.0.150:'/home/builds/Windows_Output_LinuxMCE/src/bin/*' ./
 	popd
 
 	pushd ${svn_dir}/trunk/src/lib
-	scp pluto@10.0.0.150:/home/builds/Windows_Output_LinuxMCE/src/lib/* ./
+	scp pluto@10.0.0.150:'/home/builds/Windows_Output_LinuxMCE/src/lib/*' ./
 	popd
+	
+	echo "$(date) part 8 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 }
 
 function Create_Local_Repository {
-	rm -rf $local_mirror_dir
+	echo "$(date) part 9 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
+	
+	rm -f $local_mirror_dir/*.deb
+	rm -f $local_mirror_dir/Packages*
+
 	mkdir -p $local_mirror_dir
 
 	cp ${out_dir}/tmp/*.deb $local_mirror_dir
@@ -319,6 +363,8 @@ function Create_Local_Repository {
 	popd
 	ln -s . $local_mirror_dir/ubuntu
 	cp -f /root/build-files/virus_free.php /var/www
+	echo "$(date) part 10 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 }
 
 function Import_Build_Database {
@@ -331,14 +377,14 @@ function Import_Build_Database {
 	local temp_file_telecom=$(mktemp)
 
 	## Import sqlcvs repositories from plutohome.com
-	ssh uploads@plutohome.com "
+	ssh -i /root/.ssh/uploads_plutohome_key uploads@plutohome.com "
                 set -x;
                 rm -f /tmp/main_sqlcvs.dump /tmp/myth_sqlcvs /home/uploads/sqlcvs_dumps.tar.gz;
                 mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs.dump;
                 mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata myth_sqlcvs > /tmp/myth_sqlcvs.dump;
                 cd /tmp;
                 tar zcvf /home/uploads/sqlcvs_dumps.tar.gz main_sqlcvs.dump myth_sqlcvs.dump"
-        scp uploads@plutohome.com:/home/uploads/sqlcvs_dumps.tar.gz $temp_sqlcvsdir
+        scp -i /root/.ssh/uploads_plutohome_key uploads@plutohome.com:/home/uploads/sqlcvs_dumps.tar.gz $temp_sqlcvsdir
         pushd $temp_sqlcvsdir
 	        tar zxvf sqlcvs_dumps.tar.gz
 		mv main_sqlcvs.dump $temp_file_main
@@ -385,10 +431,13 @@ function Import_Build_Database {
 
 	rm -rf $temp_file $temp_file_main $temp_file_myth $temp_file_media $temp_file_security $temp_file_telecom $temp_sqlcvsdir
 
-	export Version=$("select VersionName from Version" | mysql $sql_slave_db | tail -1);
+	export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
 }
 
 function Import_Pluto_Skins {
+	echo "$(date) part 11 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
+
 	local skins_dir=/home/samba/www_docs/graphics
 
 	mkdir -p /usr/pluto/orbiter/
@@ -403,37 +452,59 @@ function Import_Pluto_Skins {
 	popd
 	
 	pushd /usr/pluto/orbiter/skins
-		rm -f Basic
-		ln -s LinuxMCE Basic
+#		rm -f Basic
+		cp -r LinuxMCE/* Basic/
+#		ln -s LinuxMCE Basic
 	popd
+
+	pushd ${build_dir}
+		ln -s /home/samba
+	popd
+	
+	echo "$(date) part 12 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 }
 
 function Create_Diskless_Archive {
-	touch /home/DisklessFS/ramdisk.tar.bz2
+
+	echo "$(date) part 13 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 
 	apt-get -y install debootstrap
 
 	local temp_dir=$(mktemp -d)
-	debootstrap edgy $temp_dir http://ro.archive.ubuntu.com/ubuntu/
+	debootstrap feisty $temp_dir http://ro.archive.ubuntu.com/ubuntu/
 
 	mkdir -p /home/DisklessFS
 	pushd $temp_dir
 		tar -jcf /home/DisklessFS/PlutoMD_Debootstraped.tar.bz2 *
 	popd
 	rm -rf $temp_dir
+	
+	touch /home/DisklessFS/ramdisk.tar.bz2
+	touch /home/DisklessFS/PlutoMD.tar.bz2
+	mkdir -p  /home/DisklessFS/BootWait
+	touch /home/DisklessFS/BootWait/vmlinuz-default-2.6.16.20-pluto-2-686-smp
+	touch /home/DisklessFS/BootWait/initrd.img-default-2.6.16.20-pluto-2-686-smp
+	
+	echo "$(date) part 14 " >> /var/log/build.log
+	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
+
 }
 
 function Create_ISO {
 	# Create the iso
 	pushd $local_mirror_dir
-	        /root/Ubuntu_Helpers/get-packages.sh
+	        /root/Ubuntu_Helpers/get-packages-quick.sh
+		/root/Ubuntu_Helpers/make-cache-cd.sh
 	popd
 }
 
 function Upload_Build_Archive {
 	pushd $local_mirror_dir
-		tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz *
-		scp -i /root/.ssh/uploads_linuxmce_build_150_key /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
+		tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz *.iso
+		scp -i /root/.ssh/uploads_plutohome_key /var/plutobuild/linuxmce-uploads.tar.gz uploads@plutohome.com:
+#	scp -i /root/.ssh/uploads_linuxmce_build_150_key /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
 	popd
 }
 
