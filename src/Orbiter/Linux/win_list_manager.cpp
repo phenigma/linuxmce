@@ -359,8 +359,9 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager::ApplyContext: applying diff context for '%s': %s",
 					sWindowName.c_str(), pending_context.ToString().c_str());
 
-			if(pending_context.Layer() != current_context.Layer())
-				bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
+			if(!(!pending_context.IsVisible() && IsOurBackgroundApplication(sWindowName) && m_bExclusive))
+				if(pending_context.Layer() != current_context.Layer())
+					bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
 
 			if(pending_context.IsMaximized() != current_context.IsMaximized())
 				bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
@@ -370,7 +371,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 
 			if(pending_context.IsVisible() != current_context.IsVisible())
 			{
-				if(sWindowName.find("Screen_Saver") != string::npos && m_bExclusive)
+				if(IsOurBackgroundApplication(sWindowName) && m_bExclusive)
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "PSS 'visible' %d", pending_context.IsVisible());
 					bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.IsVisible() ? LayerNormal : LayerBelow);
@@ -416,11 +417,14 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 				sWindowName.c_str(), pending_context.ToString().c_str(),(int) m_bExternalChange,(int) pending_context.IsErrorFlag());
 #endif
 
-			bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
+
+                        if(!(!pending_context.IsVisible() && IsOurBackgroundApplication(sWindowName) && m_bExclusive))
+				bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.Layer());
+
 			bResult = bResult && m_pWMController->SetMaximized(sWindowName, pending_context.IsMaximized());
 			bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
 
-			if(sWindowName.find("Screen_Saver") != string::npos && m_bExclusive)
+			if(IsOurBackgroundApplication(sWindowName) && m_bExclusive)
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PSS whole context; 'visible' %d", pending_context.IsVisible());
 				bResult = bResult && m_pWMController->SetLayer(sWindowName, pending_context.IsVisible() ? LayerNormal : LayerBelow);	
@@ -596,3 +600,9 @@ void WinListManager::RemoveWindowDecoration(string sWindowId)
 
 	XCloseDisplay(display);
 }
+
+bool WinListManager::IsOurBackgroundApplication(string sWindowName)
+{
+	return sWindowName.find("Screen_Saver") != string::npos;
+}
+
