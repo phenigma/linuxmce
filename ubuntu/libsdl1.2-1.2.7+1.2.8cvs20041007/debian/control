@@ -4,7 +4,7 @@ Section: libs
 Maintainer: Debian SDL maintainers <mrd-sdl@debian.org>
 Uploaders: Matthew Danish <mrd@debian.org>, Zephaniah E. Hull <warp@debian.org>, Lawrence Williams <lawrence_cecil_williams@hotmail.com>
 Standards-Version: 3.6.1
-Build-Depends: debhelper (>> 3.0.0), dbs, libaa1-dev, libslang2-dev, xlibs-dev, libaudiofile-dev, libesd0-dev, xlibmesa-dev | libgl-dev, libsvga1-dev [i386], libarts1-dev, libartsc0-dev, libasound2-dev [i386 ia64 alpha amd64 armeb arm hppa m32r m68k mips mipsel powerpc ppc64 s390 s390x sh3 sh3eb sh4 sh4eb sparc], type-handling (>= 0.2.1), libaudio-dev, automake1.7
+Build-Depends: debhelper (>> 3.0.0), dbs, libaa1-dev, libslang2-dev, xlibs-dev | xlibs-static-dev, libaudiofile-dev, libesd0-dev, xlibmesa-dev | libgl-dev, libsvga1-dev [i386], libarts1-dev, libartsc0-dev, libasound2-dev [i386 ia64 alpha amd64 armeb arm hppa m32r m68k mips mipsel powerpc ppc64 s390 s390x sh3 sh3eb sh4 sh4eb sparc], type-handling (>= 0.2.1), libaudio-dev, automake1.7
 
 Package: libsdl1.2debian-pluto
 Architecture: any
