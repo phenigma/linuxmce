@@ -8,7 +8,7 @@ LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -lpluto_media 
 MYNAME = Disk_Drive_Functions
 
-sources = Disk_Drive_Functions.cpp RipTask.cpp RipJob.cpp ../Media_Plugin/MediaAttributes_LowLevel.cpp
+sources = Disk_Drive_Functions.cpp RipTask.cpp RipJob.cpp IdentifyJob.cpp IdentifyTask.cpp MoveDiscTask.cpp ../Media_Plugin/MediaAttributes_LowLevel.cpp 
 
 all: $(sources:.cpp=.o)
 	$(CXX) -shared -o lib$(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
