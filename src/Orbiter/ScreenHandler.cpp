@@ -2900,11 +2900,11 @@ bool ScreenHandler::AdjustScreenSettings_KeyDown(CallBackData *pData)
 	}
 	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_plus_CONST)
 	{
-		nSpacing++;
+		nSpacing--;
 	}
 	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_dash_CONST)
 	{
-		nSpacing--;
+		nSpacing++;
 	}
 	else
 	{
@@ -2983,10 +2983,11 @@ bool ScreenHandler::AdjustScreenSettings_RemoteKeyCodeIntercepted(CallBackData *
 
 	if(sKeyCode == "volup" || sKeyCode == "chup")
 		m_pOrbiter->ButtonDown(BUTTON_plus_CONST);
-	else if(sKeyCode == "voldown" || sKeyCode == "chdown")
+	else if(sKeyCode == "voldn" || sKeyCode == "chdown")
 		m_pOrbiter->ButtonDown(BUTTON_dash_CONST);
 	else 
 		return false;
 		
 	return true;
 }
+
