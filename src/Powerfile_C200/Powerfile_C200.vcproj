@@ -150,7 +150,7 @@
 				RelativePath="..\Media_Plugin\MediaAttributes_LowLevel.cpp">
 			</File>
 			<File
-				RelativePath="..\Disk_Drive_Functions\MoveDisc.cpp">
+				RelativePath="..\Disk_Drive_Functions\MoveDiscTask.cpp">
 			</File>
 			<File
 				RelativePath="Powerfile_C200.cpp">

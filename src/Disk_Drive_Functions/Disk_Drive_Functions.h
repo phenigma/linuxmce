@@ -84,9 +84,18 @@ enum DiscTypes {
 
 class Disk_Drive_Functions
 {
+public:
+	enum Locked
+	{
+		locked_available,
+		locked_identify_job,
+		locked_rip_job,
+		locked_playback
+	};
+
 	friend class nsJobHandler::RipTask;
 
-	private:
+	protected:
 		Command_Impl * m_pCommand_Impl;
 	    pthread_mutexattr_t m_ThreadAttribute;
 		bool m_bNbdServerRunning;
@@ -94,6 +103,7 @@ class Disk_Drive_Functions
 		JobHandler *m_pJobHandler;
 		class Database_pluto_media *m_pDatabase_pluto_media;
 		class MediaAttributes_LowLevel *m_pMediaAttributes_LowLevel;
+		Locked m_eLocked; // Indicates if the drive is in use, if so for what, or available
 
 		void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
 		void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc);
@@ -101,7 +111,7 @@ class Disk_Drive_Functions
 	public:
 	    pluto_pthread_mutex_t m_DiskMutex;
 
-		Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel);
+		Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel,bool bAutoIdentifyMedia=true);
 		~Disk_Drive_Functions();
 		bool internal_monitor_step(bool bFireEvent);
 		bool internal_reset_drive(bool bFireEvent);
@@ -127,6 +137,10 @@ class Disk_Drive_Functions
 		bool m_bTrayOpen;
 		string m_sDrive;
 		Command_Impl *m_pCommand_Impl_get() { return m_pCommand_Impl; }
+
+		bool LockDrive(Locked locked); // returns false if the drive is already locked, or true if it set it to locked
+		void UnlockDrive();  // release the drive
+		Locked m_eLocked_get() { return m_eLocked; }
 };
 
 #endif

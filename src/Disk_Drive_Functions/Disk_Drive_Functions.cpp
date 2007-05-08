@@ -54,6 +54,7 @@ Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const s
 	m_pDatabase_pluto_media=pDatabase_pluto_media;
 	m_pMediaAttributes_LowLevel=pMediaAttributes_LowLevel;
 	m_bNbdServerRunning=false;
+	m_eLocked=locked_available;
 
     pthread_mutexattr_init( &m_ThreadAttribute );
     pthread_mutexattr_settype( &m_ThreadAttribute, PTHREAD_MUTEX_RECURSIVE_NP );
@@ -166,7 +167,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Not firing the event");
 		}
 
-		if( m_pDevice_MediaIdentifier )
+		if( m_pDevice_MediaIdentifier && m_bAutoIdentifyMedia )
 		{
 			DCE::CMD_Identify_Media CMD_Identify_Media(m_pCommand_Impl->m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
 				m_pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_pCommand_Impl->m_dwPK_Device);
@@ -222,7 +223,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 			EVENT_Media_Inserted(status, mrl,StringUtils::itos(m_discid),m_sDrive);
 		}
 		UpdateDiscLocation('d');  // We know it's media
-		if( m_pDevice_MediaIdentifier )
+		if( m_pDevice_MediaIdentifier && m_bAutoIdentifyMedia )
 		{
 			DCE::CMD_Identify_Media CMD_Identify_Media(m_pCommand_Impl->m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
 				m_pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_pCommand_Impl->m_dwPK_Device);
@@ -812,5 +813,22 @@ void Disk_Drive_Functions::GetTracksForDisc(Row_Disc *pRow_Disc,map<int,string> 
 			mapTracks[ pRow_Disc_Attribute->Track_get() ] = sName;
 		}
 	}
+}
+
+bool Disk_Drive_Functions::LockDrive(Locked locked)
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::LockDrive m_eLocked %d locked %d", (int) m_eLocked, (int) locked);
+
+	if( m_eLocked!=locked_available )
+		return false;
+
+	m_eLocked=locked;
+	return true;
+}
+
+void Disk_Drive_Functions::UnlockDrive()
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::UnlockDrive");
+	m_eLocked=locked_available;
 }
 

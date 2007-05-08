@@ -106,7 +106,7 @@ void JukeBox::UpdateDrivesSlotsFromDatabase()
 	}
 }
 
-Drive *JukeBox::LockAvailableDrive(Drive::Locked eLocked,Job *pJob)
+Drive *JukeBox::LockAvailableDrive(Disk_Drive_Functions::Locked eLocked,Job *pJob,bool bEmptyOnly)
 {
 	PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
 
@@ -114,11 +114,16 @@ Drive *JukeBox::LockAvailableDrive(Drive::Locked eLocked,Job *pJob)
 	for (itDrive = m_mapDrive.begin(); itDrive != m_mapDrive.end(); itDrive++)
 	{
 		Drive *pDrive = itDrive->second;
-		if( pDrive->m_eLocked==Drive::locked_available )
+		if( pDrive->m_eLocked_get()==Disk_Drive_Functions::locked_available )
 		{
-			pDrive->m_eLocked = eLocked;
-			pDrive->m_pJob = pJob;
-			return pDrive;
+			if( pDrive->m_mediaInserted && bEmptyOnly )
+				continue;
+
+			if( pDrive->LockDrive(eLocked) )
+			{
+				pDrive->m_pJob = pJob;
+				return pDrive;
+			}
 		}
 	}
 
@@ -134,9 +139,9 @@ void JukeBox::MassIdentify(string sSlots)
 		for(map_int_Drivep::iterator it=m_mapDrive.begin();it!=m_mapDrive.end();++it)
 		{
 			Drive *pDrive = it->second;
-			if( pDrive->m_eStatus==Drive::drive_full )
+			if( pDrive->m_mediaInserted )
 			{
-				IdentifyJob *pIdentifyJob = new IdentifyJob(m_pJobHandler,pDrive->m_pDisk_Drive_Functions,NULL);
+				IdentifyJob *pIdentifyJob = new IdentifyJob(m_pJobHandler,pDrive,NULL);
 				m_pJobHandler->AddJob(pIdentifyJob);
 			}
 		}

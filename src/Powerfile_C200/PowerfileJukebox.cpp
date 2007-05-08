@@ -89,12 +89,11 @@ namespace nsJukeBox
 							sResult += string("-") + vsFF[6];
 							sscanf(vsFF[6].c_str(), "%d", &iDiscFrom);
 
-							m_mapDrive[nDrive]->m_eStatus = Drive::drive_full;
+							m_mapDrive[nDrive]->m_mediaInserted = true;
 							m_mapDrive[nDrive]->m_iSourceSlot = iDiscFrom;
 						}
 						else
 						{
-							m_mapDrive[nDrive]->m_eStatus = Drive::drive_empty;
 							m_mapDrive[nDrive]->m_iSourceSlot = 0;
 						}
 						m_mapDrive[nDrive]->m_DriveNumber = nDrive;
@@ -146,6 +145,24 @@ namespace nsJukeBox
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get device status");
 			}
 		}
+
+#ifdef DEBUG
+		map_int_Drivep::iterator itDrive;
+		for (itDrive = m_mapDrive.begin(); itDrive != m_mapDrive.end(); itDrive++)
+		{
+			Drive *pDrive = itDrive->second;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PowerfileJukebox::Get_Jukebox_Status m_DriveNumber: %d m_sSRdev %s drive %s",
+				(int) pDrive->m_DriveNumber,pDrive->m_sSRdev.c_str(),pDrive->m_sDrive);
+		}
+
+		map_int_Slotp::iterator itSlot;
+		for (itSlot = m_mapSlot.begin(); itSlot != m_mapSlot.end(); itSlot++)
+		{
+			Slot *pSlot = itSlot->second;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PowerfileJukebox::Get_Jukebox_Status m_SlotNumber: %d m_eStatus %d PK_Disc %d",
+				(int) pSlot->m_SlotNumber,(int) pSlot->m_eStatus,pSlot->m_pRow_Disc ? pSlot->m_pRow_Disc->PK_Disc_get() : -1);
+		}
+#endif
 		/*
 		else // Use cached info
 		{
@@ -304,9 +321,8 @@ namespace nsJukeBox
 				if( pDevice )
 					m_pPowerfile->SetDeviceDataInDB(pDevice->m_dwPK_Device,DEVICEDATA_Drive_CONST,vsFF[6]);
 
-				Disk_Drive_Functions * pDDF = new Disk_Drive_Functions(m_pPowerfile, vsFF[6],
-						m_pJobHandler, m_pDatabase_pluto_media, m_pMediaAttributes_LowLevel);
-				Drive * pDrive= new Drive(nDrive, Drive::drive_empty, pDDF, vsFF[7],this,true);
+				Drive * pDrive= new Drive(m_pPowerfile, vsFF[6],
+						m_pJobHandler, m_pDatabase_pluto_media, m_pMediaAttributes_LowLevel,nDrive, vsFF[7],this,true);
 				m_mapDrive[nDrive] = pDrive;
 
 				/*
@@ -373,20 +389,9 @@ namespace nsJukeBox
 
 		JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
-		if (pDrive->m_eStatus == Drive::drive_full)
+		if (pDrive->m_mediaInserted)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unit %d full", pDrive->m_DriveNumber);
-		}
-		else if (pDrive->m_eStatus == Drive::drive_empty)
-		{
-			if (pDrive->m_iSourceSlot == 0)
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Slot %d empty", pSlot->m_SlotNumber);
-			}
-			else
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Drive asked for by slot %d is reserved by slot %d", pSlot->m_SlotNumber, -pDrive->m_DriveNumber);
-			}
 		}
 		else
 		{
@@ -398,7 +403,7 @@ namespace nsJukeBox
 				//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 				//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				//system(sCmd.c_str());
-				sCmd = MTX_CMD " -f " + pDrive->m_pDisk_Drive_Functions->m_sDrive + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
+				sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				int iRet = system(sCmd.c_str());
 				if (iRet == -1)
@@ -422,7 +427,7 @@ namespace nsJukeBox
 					pSlot->m_eStatus = Slot::slot_empty;
 
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting disc type");
-					Disk_Drive_Functions * pDDF = pDrive->m_pDisk_Drive_Functions;
+					Disk_Drive_Functions * pDDF = pDrive;
 					pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
 					pDDF->m_mediaInserted = false;
 					pDDF->cdrom_checkdrive(pDDF->m_sDrive.c_str(), &pDDF->m_mediaDiskStatus, false);
@@ -431,6 +436,12 @@ namespace nsJukeBox
 						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded disc of type %d", pDDF->m_mediaDiskStatus);
 						pDDF->m_mediaInserted = true;
 						jbRetCode = JukeBox::jukebox_ok;
+
+						// Update the database
+						string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(pDrive->m_pCommand_Impl_get()->m_dwPK_Device) + ",Slot=NULL" + 
+							" WHERE EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " AND Slot=" + StringUtils::itos(pSlot->m_SlotNumber);
+						m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+
 					}
 					else
 					{
@@ -461,13 +472,9 @@ namespace nsJukeBox
 		
 		JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
-		if (pDrive->m_eStatus == Drive::drive_empty)
+		if (pDrive->m_mediaInserted==false)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unit %d empty", pDrive->m_DriveNumber);
-		}
-		else if (pSlot->m_eStatus != Slot::slot_empty)
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Slot %d not empty", pSlot->m_SlotNumber);
 		}
 		else
 		{
@@ -479,7 +486,7 @@ namespace nsJukeBox
 				//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 				//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				//system(sCmd.c_str());
-				sCmd = MTX_CMD " -f " + pDrive->m_pDisk_Drive_Functions->m_sDrive + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
+				sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				int iRet = system(sCmd.c_str());
 				if (iRet == -1)
@@ -502,11 +509,14 @@ namespace nsJukeBox
 					pDrive->m_iSourceSlot = -pSlot->m_SlotNumber;
 					pSlot->m_eStatus = Slot::slot_unknown_medium; // TODO: distinguish between slot_unknown_medium and slot_identified_disc
 					
-					Disk_Drive_Functions * pDDF = pDrive->m_pDisk_Drive_Functions;
+					Disk_Drive_Functions * pDDF = pDrive;
 					pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
 					pDDF->m_mediaInserted = false;
-					
-					//ReleaseDrive_NoMutex(iDrive_Number, iSlot_Number);
+
+					// Update the database
+					string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + ",Slot=" + 
+						StringUtils::itos(pSlot->m_SlotNumber) + " WHERE EK_Device=" + StringUtils::itos(pDrive->m_pCommand_Impl_get()->m_dwPK_Device);
+					m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
 					
 					jbRetCode = JukeBox::jukebox_ok;
 				}

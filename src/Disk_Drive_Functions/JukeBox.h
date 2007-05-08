@@ -35,7 +35,7 @@ namespace nsJukeBox
 		int m_SlotNumber;
 		enum Status
 		{
-			slot_empty,
+			slot_empty=0,
 			slot_identified_disc,
 			slot_unknown_medium,
 			slot_defective
@@ -54,41 +54,28 @@ namespace nsJukeBox
 		virtual ~Slot() {};
 	};
 
-	class Drive
+	class Drive : public Disk_Drive_Functions
 	{
 	public:
-		enum Locked
-		{
-			locked_available,
-			locked_identify_job,
-			locked_rip_job,
-			locked_playback
-		} m_eLocked; // Indicates if the drive is in use, if so for what, or available
 		Job *m_pJob;  // If it's locked by a job, this is the job
 
 		int m_iSourceSlot;  // Slot where the disk came from originally, or -1 if there is no disc or it's unknown
 		int m_DriveNumber;
 		bool m_bFunctional;
 		string m_sSRdev; // The /dev/sgX entry
-		enum Status
-		{
-			drive_empty,
-			drive_full
-		} m_eStatus;
-		Disk_Drive_Functions *m_pDisk_Drive_Functions;
+
 		Row_Disc *m_pRow_Disc;
 		JukeBox *m_pJukeBox;
 
-		Drive(int DriveNumber, Status status, Disk_Drive_Functions *pDisk_Drive_Functions, string sSRdev, JukeBox *pJukeBox, bool bFunctional)
+		Drive(Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel,
+            int DriveNumber, string sSRdev, JukeBox *pJukeBox, bool bFunctional)
+			: Disk_Drive_Functions(pCommand_Impl, sDrive, pJobHandler, pDatabase_pluto_media,pMediaAttributes_LowLevel,false)
 		{
 			m_DriveNumber=DriveNumber;
-			m_eStatus=status;
-			m_pDisk_Drive_Functions=pDisk_Drive_Functions;
 			m_sSRdev=sSRdev;
 			m_bFunctional=bFunctional;
 			m_iSourceSlot=0;
 			m_pRow_Disc=NULL;
-			m_eLocked=locked_available;
 			m_pJob=NULL;
 			m_pJukeBox=pJukeBox;
 		}
@@ -132,7 +119,7 @@ namespace nsJukeBox
 		void UpdateDrivesSlotsFromDatabase(); // Udpate the m_pRow_Disc's in slot's and drives
 
 		// If a drive is available, it locks it and returns the drive.  Otherwise returns NULL
-		Drive *LockAvailableDrive(Drive::Locked eLocked,Job *pJob);
+		Drive *LockAvailableDrive(Disk_Drive_Functions::Locked eLocked,Job *pJob,bool bEmptyOnly);
 
 		virtual JukeBoxReturnCode MoveFromSlotToDrive(Slot *pSlot,Drive *pDrive)=0;
 		virtual JukeBoxReturnCode MoveFromDriveToSlot(Slot *pSlot,Drive *pDrive)=0;
