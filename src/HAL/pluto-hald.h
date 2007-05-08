@@ -49,6 +49,7 @@ class PlutoHalD
 		static long pnpDeviceID;
 		static GMainLoop * loop;
 		static bool threadShutdown;
+		static std::string moreInfo;
 	
 	public:
 	

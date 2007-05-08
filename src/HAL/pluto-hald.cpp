@@ -37,6 +37,8 @@
 #define USB_COMM_METHOD       4
 #define PCI_COMM_METHOD       8
 
+#define DEVICEDATA_PARENT_SERIAL_NUMBER  226
+
 using namespace DCE;
 
 using namespace std;
@@ -47,6 +49,7 @@ long PlutoHalD::pnpDeviceID = 0;
 GMainLoop * PlutoHalD::loop = NULL;
 DBusError PlutoHalD::halError;
 bool PlutoHalD::threadShutdown = false;
+std::string PlutoHalD::moreInfo;
 
 PlutoHalD::PlutoHalD()
 {
@@ -279,6 +282,18 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 				deviceData += StringUtils::itos( DEVICEDATA_Location_on_PCI_bus_CONST );
 				deviceData += "|";
 				deviceData += sysfsPath.c_str();
+			}
+			
+			if( !moreInfo.empty() )
+			{
+				if( !deviceData.empty() )
+				{
+					deviceData += "|";
+				}
+				
+				deviceData += StringUtils::itos( DEVICEDATA_PARENT_SERIAL_NUMBER );
+				deviceData += "|";
+				deviceData += moreInfo.c_str();
 			}
 			
 			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category, halDevice->m_sSignature_get());
@@ -586,6 +601,18 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 					deviceData += "|";
 					deviceData += sysfsPath.c_str();
 				}
+				
+				if( !moreInfo.empty() )
+				{
+					if( !deviceData.empty() )
+					{
+						deviceData += "|";
+					}
+					
+					deviceData += StringUtils::itos( DEVICEDATA_PARENT_SERIAL_NUMBER );
+					deviceData += "|";
+					deviceData += moreInfo.c_str();
+				}
 			
 				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), category, halDevice->m_sSignature_get());
 
@@ -632,6 +659,7 @@ void PlutoHalD::getProductVendorId(	LibHalContext * ctx, const char * udi,
 									int * subsysProdId, int * subsysVendorId,
 									int * busType , string & sysfsPath )
 {
+	moreInfo = "";
 	gchar *bus = libhal_device_get_property_string (ctx, udi, "info.bus", NULL);
 	if( bus != NULL )
 	{
@@ -692,6 +720,14 @@ void PlutoHalD::getProductVendorId(	LibHalContext * ctx, const char * udi,
 		else if( 0 == strcmp(bus, "scsi") && strlen(bus) == strlen("scsi") )
 		{
 			*busType = 10;
+		}
+		else if( 0 == strcmp(bus, "ieee1394") && strlen(bus) == strlen("ieee1394") )
+		{
+			char tempBuffer[32];// 14+1 should be enough
+			snprintf(tempBuffer, sizeof(tempBuffer), "%llx",
+				(long long unsigned int)libhal_device_get_property_uint64(ctx, udi, "ieee1394.guid", NULL) );
+			moreInfo = tempBuffer;
+			*busType = 11;
 		}
 		else // unknown
 		{
