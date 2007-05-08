@@ -37,8 +37,6 @@
 #define USB_COMM_METHOD       4
 #define PCI_COMM_METHOD       8
 
-#define DEVICEDATA_PARENT_SERIAL_NUMBER  226
-
 using namespace DCE;
 
 using namespace std;
@@ -291,7 +289,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 					deviceData += "|";
 				}
 				
-				deviceData += StringUtils::itos( DEVICEDATA_PARENT_SERIAL_NUMBER );
+				deviceData += StringUtils::itos( DEVICEDATA_Firewire_ID_CONST );
 				deviceData += "|";
 				deviceData += moreInfo.c_str();
 			}
@@ -609,7 +607,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 						deviceData += "|";
 					}
 					
-					deviceData += StringUtils::itos( DEVICEDATA_PARENT_SERIAL_NUMBER );
+					deviceData += StringUtils::itos( DEVICEDATA_Firewire_ID_CONST );
 					deviceData += "|";
 					deviceData += moreInfo.c_str();
 				}
