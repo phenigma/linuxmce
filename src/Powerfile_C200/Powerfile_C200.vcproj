@@ -126,10 +126,16 @@
 				RelativePath="..\Disk_Drive_Functions\Disk_Drive_Functions.cpp">
 			</File>
 			<File
+				RelativePath="..\Hal\HalTree.cpp">
+			</File>
+			<File
 				RelativePath="..\JobHandler\Job.cpp">
 			</File>
 			<File
 				RelativePath="..\JobHandler\JobHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\Disk_Drive_Functions\JukeBox.cpp">
 			</File>
 			<File
 				RelativePath="Main.cpp">
@@ -144,7 +150,19 @@
 				RelativePath="..\Gen_Devices\Powerfile_C200Base.cpp">
 			</File>
 			<File
+				RelativePath=".\PowerfileJukebox.cpp">
+			</File>
+			<File
+				RelativePath="..\Disk_Drive_Functions\RipJob.cpp">
+			</File>
+			<File
+				RelativePath="..\Disk_Drive_Functions\RipTask.cpp">
+			</File>
+			<File
 				RelativePath="..\JobHandler\Task.cpp">
+			</File>
+			<File
+				RelativePath=".\Utils.cpp">
 			</File>
 		</Filter>
 		<Filter

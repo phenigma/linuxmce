@@ -32,8 +32,7 @@
 using namespace nsJobHandler;
 #endif
 #include <vector>
-class Database_pluto_media;
-class MediaAttributes_LowLevel;
+
 class Row_Disc;
 
 namespace nsJukeBox
@@ -49,8 +48,6 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		friend class PowerfileRip_Task;
-		Database_pluto_media *m_pDatabase_pluto_media;
-		class MediaAttributes_LowLevel *m_pMediaAttributes_LowLevel;
 
 		// Private methods
 public:

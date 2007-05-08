@@ -11,19 +11,6 @@ namespace DCE
 
 namespace nsJukeBox
 {
-	class PowerfileDrive : public Drive
-	{
-		public:
-			string m_sSGdev;
-			string m_sSRdev;
-			bool m_bFunctional;
-			int m_iSlotOfProvenience;
-
-		public:
-			PowerfileDrive(int DriveNumber, Status status, Disk_Drive_Functions *pDisk_Drive_Functions,
-					const string & sSGdev, const string & sSRdev, bool bFunctional = true);
-	};
-
 	class PowerfileJukebox : public JukeBox
 	{
 		private:
@@ -50,8 +37,6 @@ namespace nsJukeBox
 			virtual JukeBoxReturnCode Eject(Slot *pSlot);  // Elect the disc in pSlot
 			virtual JukeBoxReturnCode Load(Slot *pSlot=NULL);  // If NULL, just allow bulk inserting into slots.
 	};
-
-	typedef map<int,PowerfileDrive *> map_int_PowerfileDrivep;
 };
 
 #endif /*PowerfileJukebox_H*/

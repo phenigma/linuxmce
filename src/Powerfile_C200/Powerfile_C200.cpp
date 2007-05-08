@@ -59,8 +59,6 @@ Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectE
 	: Powerfile_C200_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-    m_pDatabase_pluto_media = NULL;
-	m_pMediaAttributes_LowLevel = NULL;
 }
 
 //<-dceag-const2-b->!
@@ -136,9 +134,10 @@ Disk_Drive_Functions * Powerfile_C200::GetDDF(int iDrive_Number)
 	return m_vectDDF[iDrive_Number];
 }
 
+#endif
+/*
 bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 {
-	/*
 	bool bComma = false, bResult = false;
 	string sOutput;
 	if (sJukebox_Status)
@@ -258,11 +257,10 @@ bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished getting device status");
 		bResult = true;
 	}
-*/
+
 	return bResult;
 }
-#endif
-
+*/
 //<-dceag-getconfig-b->
 bool Powerfile_C200::GetConfig()
 {
@@ -274,7 +272,7 @@ bool Powerfile_C200::GetConfig()
 	m_pPowerfileJukebox = new nsJukeBox::PowerfileJukebox(this);
 	if (!m_pPowerfileJukebox->Init())
 		return false;
-
+	
 #ifdef NOTDEF
 	PurgeInterceptors();
 	// MessageInterceptorFn, int Device_From, int Device_To, int Device_Type, int Device_Category, int Message_Type, int Message_ID
@@ -397,18 +395,13 @@ where:
 void Powerfile_C200::CMD_Get_Jukebox_Status(string sForce,string *sJukebox_Status,string &sCMD_Result,Message *pMessage)
 //<-dceag-c703-e->
 {
-#ifdef NOTDEF
 	bool bForce = sForce.size() != 0;
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting jukebox status");
 
 	sCMD_Result = "FAILED";
-	if (Get_Jukebox_Status(sJukebox_Status, bForce))
-	{
+	if (m_pPowerfileJukebox->Get_Jukebox_Status(sJukebox_Status,sForce=="1"))
 		sCMD_Result = "OK";
-	}
-#endif
-
 }
 //<-dceag-c45-b->
 

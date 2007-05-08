@@ -13,23 +13,16 @@ extern DCEConfig g_DCEConfig;
 #include "../Media_Plugin/MediaAttributes_LowLevel.h"
 #include "Powerfile_C200.h"
 
+#include "../HAL/HalTree.h"
+
 #define MTX_CMD "/opt/mtx-pluto/sbin/mtx"
+
+#ifdef WIN32
+	#define WEXITSTATUS(a) 0
+#endif
 
 namespace nsJukeBox
 {
-	/*
-	 * PowerfileDrive class implementation
-	 */
-
-	PowerfileDrive::PowerfileDrive(int DriveNumber, Status status, Disk_Drive_Functions *pDisk_Drive_Functions,
-			const string & sSRdev, const string & sSGdev, bool bFunctional)
-		: Drive(DriveNumber, status, pDisk_Drive_Functions)
-	{
-		m_sSRdev = sSRdev;
-		m_sSGdev = sSGdev;
-		m_bFunctional = bFunctional;
-	}
-
 	/*
 	 * PowerfileJukebox class implementation
 	 */
@@ -45,15 +38,13 @@ namespace nsJukeBox
 	{
 		bool bComma = false, bResult = false;
 		string sOutput;
-		if (sJukebox_Status)
-			* sJukebox_Status = "";
 
 		int nDrive = 0; // Drives are counted from 0
 		int nSlot = 1;  // Slots are counted from 1
 
-		if (! m_bStatusCached || bForce)
+		if (true )//! m_bStatusCached || bForce)
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting fresh status info (changer:%s) %s", m_sChangerDev.c_str(), bForce ? " (Forced)" : "");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting fresh status info (changer:%s) %s", m_sChangerDev.c_str(), "na");//bForce ? " (Forced)" : "");
 #ifdef EMULATE_PF
 			char * args[] = {"/bin/cat", "/tmp/samples/mtx-status", NULL};
 #else
@@ -97,14 +88,13 @@ namespace nsJukeBox
 							sscanf(vsFF[6].c_str(), "%d", &iDiscFrom);
 
 							m_mapDrive[nDrive]->m_eStatus = Drive::drive_full;
-							(dynamic_cast<PowerfileDrive *> (m_mapDrive[nDrive]))->m_iSlotOfProvenience = iDiscFrom;
+							m_mapDrive[nDrive]->m_iSourceSlot = iDiscFrom;
 						}
 						else
 						{
 							m_mapDrive[nDrive]->m_eStatus = Drive::drive_empty;
-							(dynamic_cast<PowerfileDrive *> (m_mapDrive[nDrive]))->m_iSlotOfProvenience = 0;
+							m_mapDrive[nDrive]->m_iSourceSlot = 0;
 						}
-						(dynamic_cast<PowerfileDrive *> (m_mapDrive[nDrive]))->m_bFunctional = true;
 						m_mapDrive[nDrive]->m_DriveNumber = nDrive;
 						nDrive ++;
 					}
@@ -114,6 +104,10 @@ namespace nsJukeBox
 						sWhoWhat = vsFF[2];
 						Tokenize(sWhoWhat, ":", vsC);
 						
+						Slot *pSlot = m_mapSlot[nSlot];
+						if( pSlot==NULL )
+							m_mapSlot[nSlot] = new Slot(nSlot,Slot::slot_empty);
+
 						sResult = string("S") + vsC[0] + "=" +vsC[1];
 						if (vsC[1] == "Empty")
 						{
@@ -132,7 +126,6 @@ namespace nsJukeBox
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Don't know what to do with vsFF[0]=%s and size=%d",
 							vsFF[0].c_str(),(int) vsFF.size());
 					}
-					
 					if (sJukebox_Status && sResult != "")
 					{
 						if (bComma)
@@ -151,6 +144,7 @@ namespace nsJukeBox
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get device status");
 			}
 		}
+		/*
 		else // Use cached info
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using cached info");
@@ -162,9 +156,9 @@ namespace nsJukeBox
 			
 			for (itDrive = m_mapDrive.begin(); itDrive != m_mapDrive.end(); itDrive++)
 			{
-				PowerfileDrive * pPowerfileDrive = dynamic_cast<PowerfileDrive *> (itDrive->second);
-				sState = pPowerfileDrive->m_iSlotOfProvenience == 0 ? "Empty" : ("Full-" + StringUtils::itos(pPowerfileDrive->m_iSlotOfProvenience));
-				sResult = "D" + StringUtils::itos(pPowerfileDrive->m_DriveNumber) + "=" + sState;
+				Drive * pDrive =  (itDrive->second);
+				sState = pDrive->m_iSourceSlot == 0 ? "Empty" : ("Full-" + StringUtils::itos(pDrive->m_iSourceSlot));
+				sResult = "D" + StringUtils::itos(pDrive->m_DriveNumber) + "=" + sState;
 				if (sJukebox_Status && sResult != "")
 				{
 					if (bComma)
@@ -193,7 +187,9 @@ namespace nsJukeBox
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished getting device status");
 			bResult = true;
 		}
-		return bResult;
+		*/
+		//return bResult;
+		return JukeBox::jukebox_transport_failure;
 	}
 
 	/*virtual*/ bool PowerfileJukebox::Init()
@@ -201,13 +197,16 @@ namespace nsJukeBox
 		m_pJobHandler = new JobHandler();
 		m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
 		// TODO: the connection data is stored in pluto.conf; use it
-		if (!m_pDatabase_pluto_media->Connect("dcerouter", "root", "", "pluto_media", 3306))
+		if (!m_pDatabase_pluto_media->Connect(m_pPowerfile->m_sIPAddress, "root", "", "pluto_media", 3306))
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 			m_pPowerfile->m_bQuit_set(true);
 			return false;
 		}
 		m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media, 0);
+
+		HalTree halTree;
+		halTree.Populate();
 
 		string sOutput;
 #ifdef EMULATE_PF
@@ -226,33 +225,20 @@ namespace nsJukeBox
 		char *pBuffer = FileUtils::ReadFileIntoBuffer("/temp/lsscsi",size);
 		sOutput=pBuffer;
 #endif
+		string sReportingChildDevices;  // To notify gip of the drives in this system
 
+		HalDevice *pHalDevice_Changer = NULL; // We'll fill this in when we find it
 		vector<string> vect_sOutput_Rows;
 		Tokenize(sOutput, "\n", vect_sOutput_Rows);
 		int nDrive = 0;
+
+		// Two passes, so we always get the changer first
 		for (size_t i = 0; i < vect_sOutput_Rows.size(); i++)
 		{
 			vector<string> vsFF; // FF = Filtered Fields
 			ExtractFields(vect_sOutput_Rows[i], vsFF);
-			if (vsFF[1] == "cd/dvd" &&
-					(
-					 0 == 1
-					 || /* Powerfile C200 */      (vsFF[2] == "TOSHIBA"  && vsFF[3] == "DVD-ROM" && vsFF[4] == "SD-M1212")
-					 || /* Powerfile R200 DLC */  (vsFF[2] == "MATSHITA" && vsFF[3] == "DVD-RAM" && vsFF[4] == "SW-9585S")
-					 || /* Sony VAIO XL1B2 */     (vsFF[2] == "MATSHITA" && vsFF[3] == "DVD-RAM" && vsFF[4] == "SW-9584" )
-					)
-				)
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found DVD unit %d: %s", nDrive, vsFF[6].c_str());
 
-				Disk_Drive_Functions * pDDF = new Disk_Drive_Functions(m_pPowerfile, vsFF[6],
-						m_pJobHandler, m_pDatabase_pluto_media, m_pMediaAttributes_LowLevel);
-				PowerfileDrive * pPowerfileDrive= new PowerfileDrive(nDrive, Drive::drive_empty, pDDF, vsFF[6], vsFF[7]);
-				m_mapDrive[nDrive] = pPowerfileDrive;
-
-				nDrive++;
-			}
-			else if (vsFF[1] == "mediumx")
+			if (vsFF[1] == "mediumx")
 			{
 				int iField = 0;
 				if (1 == 0
@@ -263,6 +249,7 @@ namespace nsJukeBox
 				{
 					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found changer unit: %s", vsFF[iField].c_str());
 					m_sChangerDev = vsFF[iField];
+					pHalDevice_Changer = halTree.GetDeviceWithParm("linux.device_file",m_sChangerDev);
 				}
 				else
 				{
@@ -270,21 +257,78 @@ namespace nsJukeBox
 				}
 			}
 		}
+		for (size_t i = 0; i < vect_sOutput_Rows.size(); i++)
+		{
+			vector<string> vsFF; // FF = Filtered Fields
+			ExtractFields(vect_sOutput_Rows[i], vsFF);
 
-		if (!Get_Jukebox_Status(NULL, true))
+			if (vsFF[1] == "cd/dvd" &&
+				(
+					 0 == 1
+					 || /* Powerfile C200 */      (vsFF[2] == "TOSHIBA" /* && vsFF[3] == "DVD-ROM" */ && vsFF[4] == "SD-M1212")
+					 || /* Powerfile R200 DLC */  (vsFF[2] == "MATSHITA" /* && vsFF[3] == "DVD-RAM" */ && vsFF[4] == "SW-9585S")
+					 || /* Sony VAIO XL1B2 */     (vsFF[2] == "MATSHITA" /* && vsFF[3] == "DVD-RAM" */ && vsFF[4] == "SW-9584" )
+					)
+				)
+			{
+				// There is a drive.  See if it's one of ours by finding our changer in the tree, then this device, and seeing if they have the same serial number
+				HalDevice *pHalDevice_Drive = halTree.GetDeviceWithParm("linux.device_file",vsFF[7]);
+				if( !pHalDevice_Drive || !pHalDevice_Changer )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::Init cannot find %s changer (%p)", m_sChangerDev.c_str(),pHalDevice_Changer);
+					continue;
+				}
+
+				// There should be only 1 difference between the ID's of the changer and the drive
+				const char *sz_Changer = pHalDevice_Changer->m_sUdi.c_str();
+				const char *sz_Drive = pHalDevice_Drive->m_sUdi.c_str();
+				const char *pDiff = NULL;
+				bool bDifferentUnits=false; // Will set to true if this drive doesn't belong to the changer
+				while( *sz_Drive && *sz_Changer )
+				{
+					if( *sz_Changer!=*sz_Drive )
+					{
+						if( pDiff )
+						{
+							bDifferentUnits=true;  // There's more than one diff
+							break;
+						}
+						pDiff=sz_Changer;
+					}
+					sz_Changer++;
+					sz_Drive++;
+				}
+				if( bDifferentUnits )
+					continue; // This drive doesn't belong to this changer
+
+				m_bMtxAltres = vsFF[4] == "SW-9584";
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found DVD unit %d: %s", nDrive, vsFF[6].c_str());
+
+				// Find the device id for this drive
+				DeviceData_Impl *pDevice = m_pPowerfile->m_pData->FindChild(DEVICEDATA_PortChannel_Number_CONST,StringUtils::itos(nDrive));
+				if( pDevice )
+					m_pPowerfile->SetDeviceDataInDB(pDevice->m_dwPK_Device,DEVICEDATA_Drive_CONST,vsFF[6]);
+
+				Disk_Drive_Functions * pDDF = new Disk_Drive_Functions(m_pPowerfile, vsFF[6],
+						m_pJobHandler, m_pDatabase_pluto_media, m_pMediaAttributes_LowLevel);
+				Drive * pDrive= new Drive(nDrive, Drive::drive_empty, pDDF, vsFF[7],true);
+				m_mapDrive[nDrive] = pDrive;
+
+				/*
+				A list like this:
+					[internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
+				*/
+				sReportingChildDevices += StringUtils::itos(nDrive) + "\t" + "Drive " + StringUtils::itos(nDrive)
+					+ "\t\t" + TOSTRING(DEVICETEMPLATE_Disk_Drive_CONST) + "\n";
+
+				nDrive++;
+			}
+		}
+
+		if (!Get_Jukebox_Status(NULL,true))
 			return false;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished config");
 
-		map_int_Drivep::iterator itDrive;
-		for (itDrive = m_mapDrive.begin(); itDrive != m_mapDrive.end(); itDrive++)
-		{
-			PowerfileDrive * pPowerfileDrive = dynamic_cast<PowerfileDrive *> (itDrive->second);
-			if (pPowerfileDrive->m_iSlotOfProvenience != 0)
-			{
-				MoveFromDriveToSlot(m_mapSlot[pPowerfileDrive->m_iSlotOfProvenience], pPowerfileDrive);
-			}
-		}
-		
 		string sDefective = m_pPowerfile->DATA_Get_Defective_Units();
 		vector<string> vect_sDefective;
 		Tokenize(sDefective, ",", vect_sDefective);
@@ -298,39 +342,53 @@ namespace nsJukeBox
 				continue;
 			}
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Marking user-marked-as-defective drive %d as OFFLINE", iDrive_Number);
-			(dynamic_cast<PowerfileDrive *> (m_mapDrive[iDrive_Number]))->m_bFunctional = false;
+			( (m_mapDrive[iDrive_Number]))->m_bFunctional = false;
 		}
 
+
+		map_int_Drivep::iterator itDrive;
+		for (itDrive = m_mapDrive.begin(); itDrive != m_mapDrive.end(); itDrive++)
+		{
+			Drive *pDrive = (itDrive->second);
+			if (pDrive->m_iSourceSlot != 0)
+			{
+				MoveFromDriveToSlot(m_mapSlot[pDrive->m_iSourceSlot], pDrive);
+			}
+		}
+
+		Message *pMessage = new Message(m_pPowerfile->m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_Reporting_Child_Devices_CONST,1,
+			EVENTPARAMETER_Text_CONST,sReportingChildDevices.c_str());
+		m_pPowerfile->QueueMessageToRouter(pMessage);
+		
 		return true;
 	}
 
 	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::MoveFromSlotToDrive(Slot *pSlot,Drive *pDrive)
 	{
 		PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
-		PowerfileDrive * pPowerfileDrive = dynamic_cast<PowerfileDrive *> (pDrive);
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc from slot %d into drive %d", pSlot->m_SlotNumber, pPowerfileDrive->m_DriveNumber);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc from slot %d into drive %d", pSlot->m_SlotNumber, pDrive->m_DriveNumber);
 #ifdef EMULATE_PF
 		string sCmd = "/bin/true";
 #else
-		string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? "altres" : "") + " nobarcode load " + itos(pSlot->m_SlotNumber) + " " + itos(pPowerfileDrive->m_DriveNumber);
+		string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? "altres" : "") + " nobarcode load " + itos(pSlot->m_SlotNumber) + " " + itos(pDrive->m_DriveNumber);
 #endif
 
 		JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
-		if (pPowerfileDrive->m_eStatus == Drive::drive_full)
+		if (pDrive->m_eStatus == Drive::drive_full)
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unit %d full", pPowerfileDrive->m_DriveNumber);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unit %d full", pDrive->m_DriveNumber);
 		}
-		else if (pPowerfileDrive->m_eStatus == Drive::drive_empty)
+		else if (pDrive->m_eStatus == Drive::drive_empty)
 		{
-			if (pPowerfileDrive->m_iSlotOfProvenience == 0)
+			if (pDrive->m_iSourceSlot == 0)
 			{
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Slot %d empty", pSlot->m_SlotNumber);
 			}
 			else
 			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Drive asked for by slot %d is reserved by slot %d", pSlot->m_SlotNumber, -pPowerfileDrive->m_DriveNumber);
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Drive asked for by slot %d is reserved by slot %d", pSlot->m_SlotNumber, -pDrive->m_DriveNumber);
 			}
 		}
 		else
@@ -343,7 +401,7 @@ namespace nsJukeBox
 				//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 				//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				//system(sCmd.c_str());
-				sCmd = MTX_CMD " -f " + pPowerfileDrive->m_sSGdev + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
+				sCmd = MTX_CMD " -f " + pDrive->m_pDisk_Drive_Functions->m_sDrive + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				int iRet = system(sCmd.c_str());
 				if (iRet == -1)
@@ -354,8 +412,8 @@ namespace nsJukeBox
 				{
 					if (WEXITSTATUS(iRet) == 1)
 					{
-						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc loaded but failed to refresh state. Marking drive %d as OFFLINE", pPowerfileDrive->m_DriveNumber);
-						pPowerfileDrive->m_bFunctional = false;
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc loaded but failed to refresh state. Marking drive %d as OFFLINE", pDrive->m_DriveNumber);
+						pDrive->m_bFunctional = false;
 					}
 					else
 #endif
@@ -363,11 +421,11 @@ namespace nsJukeBox
 						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc succeeded");
 					}
 					
-					pPowerfileDrive->m_iSlotOfProvenience = pSlot->m_SlotNumber;
+					pDrive->m_iSourceSlot = pSlot->m_SlotNumber;
 					pSlot->m_eStatus = Slot::slot_empty;
 
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting disc type");
-					Disk_Drive_Functions * pDDF = pPowerfileDrive->m_pDisk_Drive_Functions;
+					Disk_Drive_Functions * pDDF = pDrive->m_pDisk_Drive_Functions;
 					pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
 					pDDF->m_mediaInserted = false;
 					pDDF->cdrom_checkdrive(pDDF->m_sDrive.c_str(), &pDDF->m_mediaDiskStatus, false);
@@ -379,8 +437,8 @@ namespace nsJukeBox
 					}
 					else
 					{
-						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't get disc type. Since we're sure there's a disc in there (we just loaded it), assuming defective unit. Marking drive %d as OFFLINE", pPowerfileDrive->m_DriveNumber);
-						pPowerfileDrive->m_bFunctional = false;
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't get disc type. Since we're sure there's a disc in there (we just loaded it), assuming defective unit. Marking drive %d as OFFLINE", pDrive->m_DriveNumber);
+						pDrive->m_bFunctional = false;
 					}
 				}
 			}
@@ -396,20 +454,19 @@ namespace nsJukeBox
 	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::MoveFromDriveToSlot(Slot *pSlot,Drive *pDrive)
 	{
 		PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
-		PowerfileDrive * pPowerfileDrive = dynamic_cast<PowerfileDrive *> (pDrive);
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc from drive %d into slot %d", pPowerfileDrive->m_DriveNumber, pSlot->m_SlotNumber);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc from drive %d into slot %d", pDrive->m_DriveNumber, pSlot->m_SlotNumber);
 #ifdef EMULATE_PF
 		string sCmd = "/bin/true";
 #else
-		string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? "altres" : "") + " nobarcode unload " + itos(pSlot->m_SlotNumber) + " " + itos(pDrive->m_DriveNumber);
+		string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? " altres" : "") + " nobarcode unload " + itos(pSlot->m_SlotNumber) + " " + itos(pDrive->m_DriveNumber);
 #endif
 		
 		JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
-		if (pPowerfileDrive->m_eStatus == Drive::drive_empty)
+		if (pDrive->m_eStatus == Drive::drive_empty)
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unit %d empty", pPowerfileDrive->m_DriveNumber);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unit %d empty", pDrive->m_DriveNumber);
 		}
 		else if (pSlot->m_eStatus != Slot::slot_empty)
 		{
@@ -425,7 +482,7 @@ namespace nsJukeBox
 				//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 				//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				//system(sCmd.c_str());
-				sCmd = MTX_CMD " -f " + pPowerfileDrive->m_sSGdev + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
+				sCmd = MTX_CMD " -f " + pDrive->m_pDisk_Drive_Functions->m_sDrive + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				int iRet = system(sCmd.c_str());
 				if (iRet == -1)
@@ -436,8 +493,8 @@ namespace nsJukeBox
 				{
 					if (WEXITSTATUS(iRet) == 1)
 					{
-						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unloaded but failed to refresh state. Marking drive %d as OFFLINE", pPowerfileDrive->m_DriveNumber);
-						pPowerfileDrive->m_bFunctional = false;
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unloaded but failed to refresh state. Marking drive %d as OFFLINE", pDrive->m_DriveNumber);
+						pDrive->m_bFunctional = false;
 					}
 					else
 #endif
@@ -445,10 +502,10 @@ namespace nsJukeBox
 						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc succeeded");
 					}
 					
-					pPowerfileDrive->m_iSlotOfProvenience = -pSlot->m_SlotNumber;
+					pDrive->m_iSourceSlot = -pSlot->m_SlotNumber;
 					pSlot->m_eStatus = Slot::slot_unknown_medium; // TODO: distinguish between slot_unknown_medium and slot_identified_disc
 					
-					Disk_Drive_Functions * pDDF = pPowerfileDrive->m_pDisk_Drive_Functions;
+					Disk_Drive_Functions * pDDF = pDrive->m_pDisk_Drive_Functions;
 					pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
 					pDDF->m_mediaInserted = false;
 					
@@ -463,14 +520,16 @@ namespace nsJukeBox
 			}
 		}
 
-		return JukeBox::jukebox_transport_failure;
+		return jbRetCode;
 	}
 
 	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(Slot *pSlot)
 	{
+		return JukeBox::jukebox_transport_failure;
 	}
 
 	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Load(Slot *pSlot/*=NULL*/)
 	{
+		return JukeBox::jukebox_transport_failure;
 	}
 }

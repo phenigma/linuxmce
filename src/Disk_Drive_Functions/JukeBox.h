@@ -53,7 +53,10 @@ namespace nsJukeBox
 	class Drive
 	{
 	public:
+		int m_iSourceSlot;  // Slot where the disk came from originally, or -1 if there is no disc or it's unknown
 		int m_DriveNumber;
+		bool m_bFunctional;
+		string m_sSRdev; // The /dev/sgX entry
 		enum Status
 		{
 			drive_empty,
@@ -61,11 +64,14 @@ namespace nsJukeBox
 		} m_eStatus;
 		Disk_Drive_Functions *m_pDisk_Drive_Functions;
 
-		Drive(int DriveNumber, Status status, Disk_Drive_Functions *pDisk_Drive_Functions)
+		Drive(int DriveNumber, Status status, Disk_Drive_Functions *pDisk_Drive_Functions, string sSRdev, bool bFunctional)
 		{
 			m_DriveNumber=DriveNumber;
 			m_eStatus=status;
 			m_pDisk_Drive_Functions=pDisk_Drive_Functions;
+			m_sSRdev=sSRdev;
+			m_bFunctional=bFunctional;
+			m_iSourceSlot=0;
 		}
 
 		virtual ~Drive() {};

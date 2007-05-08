@@ -206,6 +206,20 @@ namespace DCE
 			}
 			return NULL;
 		}
+
+		virtual DeviceData_Impl *FindChild(int PK_DeviceData,string sValue)
+		{
+			for(size_t s=0;s<m_vectDeviceData_Impl_Children.size();++s)
+			{
+				DeviceData_Impl *pDevice = m_vectDeviceData_Impl_Children[s];
+				if( pDevice->m_mapParameters_Find(PK_DeviceData)==sValue )
+					return pDevice;
+				DeviceData_Impl *pDevice_Child = pDevice->FindChild(PK_DeviceData,sValue);
+				if( pDevice_Child )
+					return pDevice_Child;
+			}
+			return NULL;
+		}
 	};
 }
 

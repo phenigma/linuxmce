@@ -792,9 +792,9 @@ m_bNoEffects = true;
 		vector<Row_Users *> vectRow_Users;
 		m_spDatabase_pluto_main->Users_get()->GetRows("WHERE 1=1 LIMIT 1",&vectRow_Users);
 
-		if( vectRow_Room.size()==0 || vectRow_Users.size()==0 )
+		if( vectRow_Room.size()==0 || vectRow_Users.size()==0 || m_pRow_Device->FK_Room_get()==0 )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"new orbiter no rooms/users");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"new orbiter no rooms/users/room specified");
 			m_bNewOrbiter = true;
 		}
 	}
