@@ -196,6 +196,8 @@
 #define DEVICEDATA_Border_Size_CONST 223
 #define DEVICEDATA_Pnp_Ignore_Device_Data_CONST 224
 #define DEVICEDATA_PNP_Signature_CONST 225
+#define DEVICEDATA_Parent_Serial_Number_CONST 226
+#define DEVICEDATA_Firewire_ID_CONST 227
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

@@ -2435,6 +2435,7 @@
 #define DESIGNOBJ_mnuAdjustScreen_CONST 5433
 #define DESIGNOBJ_butSwitchDesktop_CONST 5434
 #define DESIGNOBJ_butKDEDesktop_CONST 5436
+#define DESIGNOBJ_butAdjustScreen_CONST 5438
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
