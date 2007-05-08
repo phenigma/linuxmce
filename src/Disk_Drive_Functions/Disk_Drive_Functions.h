@@ -98,7 +98,7 @@ public:
 	protected:
 		Command_Impl * m_pCommand_Impl;
 	    pthread_mutexattr_t m_ThreadAttribute;
-		bool m_bNbdServerRunning;
+		bool m_bNbdServerRunning,m_bAutoIdentifyMedia;
 		DeviceData_Base *m_pDevice_MediaIdentifier;
 		JobHandler *m_pJobHandler;
 		class Database_pluto_media *m_pDatabase_pluto_media;
@@ -137,6 +137,7 @@ public:
 		bool m_bTrayOpen;
 		string m_sDrive;
 		Command_Impl *m_pCommand_Impl_get() { return m_pCommand_Impl; }
+		DeviceData_Base *m_pDevice_MediaIdentifier_get() { return m_pDevice_MediaIdentifier; }
 
 		bool LockDrive(Locked locked); // returns false if the drive is already locked, or true if it set it to locked
 		void UnlockDrive();  // release the drive

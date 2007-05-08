@@ -89,6 +89,8 @@ namespace nsJobHandler
 
 		virtual bool CanHandleAnotherTask() { return m_iMaxTasks==0 || PendingTasks()<m_iMaxTasks; }
 
+		virtual string GetType()=0;
+
 		Task *GetNextTask();
 		Task *FindTask(int taskID);
 		void AddTask(Task *pTask);

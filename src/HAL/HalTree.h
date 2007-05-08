@@ -41,6 +41,8 @@ namespace DCE
 	class HalValue
 	{
 	public:
+		virtual ~HalValue() {}
+
 		enum HalValueType { hvt_string, hvt_string_list, hvt_int, hvt_bool };
 		string m_sValueAsString;
 

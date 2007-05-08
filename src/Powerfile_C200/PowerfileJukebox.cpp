@@ -10,6 +10,7 @@ using namespace StringUtils;
 extern DCEConfig g_DCEConfig;
 
 #include "../pluto_media/Database_pluto_media.h"
+#include "../pluto_media/Table_Disc.h"
 #include "../Media_Plugin/MediaAttributes_LowLevel.h"
 #include "Powerfile_C200.h"
 
@@ -152,7 +153,7 @@ namespace nsJukeBox
 		{
 			Drive *pDrive = itDrive->second;
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PowerfileJukebox::Get_Jukebox_Status m_DriveNumber: %d m_sSRdev %s drive %s",
-				(int) pDrive->m_DriveNumber,pDrive->m_sSRdev.c_str(),pDrive->m_sDrive);
+				(int) pDrive->m_DriveNumber,pDrive->m_sSRdev.c_str(),pDrive->m_sDrive.c_str());
 		}
 
 		map_int_Slotp::iterator itSlot;
@@ -538,5 +539,16 @@ namespace nsJukeBox
 	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Load(Slot *pSlot/*=NULL*/)
 	{
 		return JukeBox::jukebox_transport_failure;
+	}
+	
+	void PowerfileJukebox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc)
+	{
+		PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+		const ListJob *plistJob = m_pJobHandler->m_listJob_get();
+
+		for(ListJob::const_iterator it=plistJob->begin();it!=plistJob->end();++it)
+		{
+			Job *pJob = *it;
+		}
 	}
 }

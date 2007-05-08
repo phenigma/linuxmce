@@ -63,6 +63,8 @@ namespace nsJobHandler
 		virtual int PercentComplete();
 		virtual int SecondsRemaining();
 		virtual string ToString();
+
+		virtual string GetType() { return "RipJob"; }
 	};
 };
 

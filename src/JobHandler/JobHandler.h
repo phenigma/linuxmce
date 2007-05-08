@@ -57,9 +57,10 @@ using namespace DCE;
 
 namespace nsJobHandler
 {
+	typedef list<class Job *> ListJob;
 	class JobHandler : public nsThreadedClass::ThreadedClass
 	{
-		list<class Job *> m_listJob;
+		ListJob m_listJob;
 
 	public:
 		JobHandler();
@@ -81,6 +82,7 @@ namespace nsJobHandler
 		// Be sure to grab a mutex before using these, like this: PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
 		Job *FindJob(int jobID);
 		class Task *FindTask(int jobID,int taskID);
+		const ListJob *m_listJob_get() { return &m_listJob; }
 
 		bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
 	};

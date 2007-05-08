@@ -1165,7 +1165,24 @@ void Powerfile_Job::Remove_PowerfileTask_Slot(int iSlot)
 void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
-#ifdef NOTDEF
+	DCE::CMD_Media_Identified_DT CMD_Media_Identified_DT(m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
+		BL_SameHouse,m_dwPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc);
+	SendCommand(CMD_Media_Identified_DT);
+
+	m_pPowerfileJukebox->Media_Identified(iPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc);
+/*
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Media_Identified disc is %d",*iEK_Disc);
+	if( *iEK_Disc )
+	{
+		char cMediaType='M'; // The default
+		if( iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+			cMediaType='c';
+		else if( iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+			cMediaType='d';
+		m_pDisk_Drive_Functions->UpdateDiscLocation(cMediaType,*iEK_Disc,0);
+	}
+
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media Identified. Slot '%s', Format: '%s', MRL: '%s', PK_Device: '%d', Value: '%s'",
 		sID.c_str(), sFormat.c_str(), sMediaURL.c_str(), iPK_Device, sValue_To_Assign.c_str());
 
@@ -1191,6 +1208,7 @@ void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign
 		PK_Disc = m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(iMediaType, listMediaAttribute_, sValue_To_Assign);
 	if( sFormat=="MISC-TAB" )
 		PK_Disc = m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(iMediaType, listMediaAttribute_, sValue_To_Assign, 0);
+		*/
 /*
 	if( PK_Disc )
 	{
@@ -1211,9 +1229,8 @@ void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign
 		m_pDatabase_pluto_media->Disc_get()->Commit();
 		m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size,sURL);
 	}
-	*/
 	m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
-#endif
+	*/
 }
 //<-dceag-c743-b->
 
