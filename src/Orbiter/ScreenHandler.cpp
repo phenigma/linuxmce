@@ -2852,6 +2852,9 @@ void ScreenHandler::SCREEN_AdjustScreenSettings(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_AdjustScreenSettings(PK_Screen);  
 
+	m_ScreenOffset = AdjustScreenSettings_LoadOffset();
+	m_nScreenSpacing = AdjustScreenSettings_LoadSpacing();
+
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_OnTimer, new CallBackData());
 	RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_KeyDown, new KeyCallBackData());
 	RegisterCallBack(cbOnRemoteKeyCodeIntercepted, (ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_RemoteKeyCodeIntercepted, new RemoteKeyCodeCallBackData());
@@ -2861,15 +2864,13 @@ void ScreenHandler::SCREEN_AdjustScreenSettings(long PK_Screen)
 
 void ScreenHandler::AdjustScreenSettings_DrawArrows()
 {
-	int nSpacing = AdjustScreenSettings_LoadSpacing();
-	PlutoPoint offset = AdjustScreenSettings_LoadOffset();
-	PlutoPoint center_point((100 - nSpacing) * m_pOrbiter->m_iImageWidth / (2 * 100), (100 - nSpacing) * m_pOrbiter->m_iImageHeight / (2 * 100));
+	PlutoPoint center_point((100 - m_nScreenSpacing) * m_pOrbiter->m_iImageWidth / (2 * 100), (100 - m_nScreenSpacing) * m_pOrbiter->m_iImageHeight / (2 * 100));
 	PlutoSize arrow_size(24, 40);
 
-	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(offset), offset, arrow_size, PlutoColor::Red(), "", "arrow1");
-	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(offset), offset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - nSpacing) / 100, m_pOrbiter->m_iImageHeight * (100 - nSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow2");
-	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(offset), offset.operator +(PlutoPoint(0, m_pOrbiter->m_iImageHeight * (100 - nSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow3");
-	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(offset), offset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - nSpacing) / 100, 0)), arrow_size, PlutoColor::Red(), "", "arrow4");
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(m_ScreenOffset), m_ScreenOffset, arrow_size, PlutoColor::Red(), "", "arrow1");
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(m_ScreenOffset), m_ScreenOffset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - m_nScreenSpacing) / 100, m_pOrbiter->m_iImageHeight * (100 - m_nScreenSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow2");
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(m_ScreenOffset), m_ScreenOffset.operator +(PlutoPoint(0, m_pOrbiter->m_iImageHeight * (100 - m_nScreenSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow3");
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(m_ScreenOffset), m_ScreenOffset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - m_nScreenSpacing) / 100, 0)), arrow_size, PlutoColor::Red(), "", "arrow4");
 }
 
 bool ScreenHandler::AdjustScreenSettings_KeyDown(CallBackData *pData)
@@ -2879,52 +2880,52 @@ bool ScreenHandler::AdjustScreenSettings_KeyDown(CallBackData *pData)
 	if(NULL == pKeyCallBackData)
 		return false;
 
-	int nSpacing = AdjustScreenSettings_LoadSpacing();
-	PlutoPoint offset = AdjustScreenSettings_LoadOffset();
-
 	if(pKeyCallBackData->m_nPlutoKey == BUTTON_Up_Arrow_CONST)
 	{
-		offset.Y -= 5;
+		m_ScreenOffset.Y -= 5;
 	}
 	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_Down_Arrow_CONST)
 	{
-		offset.Y += 5;
+		m_ScreenOffset.Y += 5;
 	}
 	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_Left_Arrow_CONST)
 	{
-		offset.X -= 5;
+		m_ScreenOffset.X -= 5;
 	}
 	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_Right_Arrow_CONST)
 	{
-		offset.X += 5;
+		m_ScreenOffset.X += 5;
 	}
 	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_plus_CONST)
 	{
-		nSpacing--;
+		m_nScreenSpacing--;
 	}
 	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_dash_CONST)
 	{
-		nSpacing++;
+		m_nScreenSpacing++;
+	}
+	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_Enter_CONST)
+	{
+		AdjustScreenSettings_SaveOffset(m_ScreenOffset);
+		AdjustScreenSettings_SaveSpacing(m_nScreenSpacing);
 	}
 	else
 	{
 		return false;
 	}
 
-	if(offset.X < 0)
-		offset.X = 0;
+	if(m_ScreenOffset.X < 0)
+		m_ScreenOffset.X = 0;
 
-	if(offset.Y < 0)
-		offset.Y = 0;
+	if(m_ScreenOffset.Y < 0)
+		m_ScreenOffset.Y = 0;
 
-	if(nSpacing < 0)
-		nSpacing = 0;
+	if(m_nScreenSpacing < 0)
+		m_nScreenSpacing = 0;
 
-	if(nSpacing > 80)
-		nSpacing = 80;
+	if(m_nScreenSpacing > 80)
+		m_nScreenSpacing = 80;
 
-	AdjustScreenSettings_SaveOffset(offset);
-	AdjustScreenSettings_SaveSpacing(nSpacing);
 	AdjustScreenSettings_DrawArrows();
 	return true;
 }

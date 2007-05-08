@@ -311,6 +311,9 @@ public:
 	int AdjustScreenSettings_LoadSpacing();
 	void AdjustScreenSettings_SaveSpacing(int nValue);
 
+	PlutoPoint m_ScreenOffset;
+	int m_nScreenSpacing;
+
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
 	void SaveFile_SendCommand(int PK_Users);
