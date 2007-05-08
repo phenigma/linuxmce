@@ -478,16 +478,6 @@ Window X11wrapper::Window_Create(int nPosX, int nPosY, unsigned int nWidth, unsi
     X11_Locker x11_locker(GetDisplay());
     do
     {
-		/*
-        window = XCreateSimpleWindow(
-            GetDisplay(),
-            parent_window,
-            nPosX, nPosY, nWidth, nHeight,
-            0, // BorderWidth,
-            0, // BorderColor
-            0 // BgColor
-            );*/
-
 		window = XCreateWindow(
 			GetDisplay(), parent_window, 
 			nPosX, nPosY, nWidth, nHeight, InputOnly, 
@@ -530,7 +520,9 @@ Window X11wrapper::Window_Create_Show(int nPosX, int nPosY, unsigned int nWidth,
 			Sync();
 		}
 
-		if (! Window_MoveResize(window, nPosX, nPosY, nWidth, nHeight, true, true))
+		RemoveWindowDecoration(window);
+
+		if (! Window_MoveResize(window, nPosX, nPosY, nWidth, nHeight, false, true))
 			_LOG_XERROR_BREAK("cannot re-position window==%d", window);
     } while ((xcode = 0));
     // cleanup
@@ -597,9 +589,8 @@ bool X11wrapper::Window_Show(Window window, bool bShow/*=true*/)
 bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const int nPosY, const unsigned int nWidth, const unsigned int nHeight, bool bUse_WM_Window=true, bool bWaitForCompletion=true)
 {
 #ifdef DEBUG
-	_LOG_NFO("window==%d, pos==(%d, %d, %d, %d)", window, nPosX, nPosY, nWidth, nHeight);
+	_LOG_NFO("Window_MoveResize window==%d, pos==(%d, %d, %d, %d)", window, nPosX, nPosY, nWidth, nHeight);
 #endif
-
 	// cannot wait for Expose events: they may be generated or not
 	// correct position checker
 	bool bGoodPos = false; // initial window
@@ -626,7 +617,7 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
 			unsigned int w_req = nWidth;
 			unsigned int h_req = nHeight;
 			// coordinates for the corresponding wm-parent-window
-			Window window_wm = 0;
+			Window window_wm = window;
 			int x_wm = 0;
 			int y_wm = 0;
 			unsigned int w_wm = 0;
@@ -661,7 +652,7 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
 #endif
 						continue;
 					}
-					//_LOG_NFO("window_wm==%d => pos==(%d, %d, %d, %d)", window_wm, x_wm, y_wm, w_wm, h_wm);
+					_LOG_NFO("window_wm==%d => pos==(%d, %d, %d, %d)", window_wm, x_wm, y_wm, w_wm, h_wm);
 
 
 					// compute the new coordinates
@@ -672,8 +663,11 @@ bool X11wrapper::Window_MoveResize(const Window window, const int nPosX, const i
 					h_req = h_wm;
 				}
 			}
+
 			// real call
-			//_LOG_NFO("window_req==%d => pos==(%d, %d, %d, %d)", window_req, x_req, y_req, w_req, h_req);
+#ifdef DEBUG
+			_LOG_NFO("window_req==%d => pos==(%d, %d, %d, %d)", window_req, x_req, y_req, w_req, h_req);
+#endif			
 			xcode = XMoveResizeWindow(GetDisplay(), window_req, x_req, y_req, w_req, h_req);
 			usleep(WAIT_FOR_COMPLETION_INTERVAL_USLEEP);
 			Sync();
@@ -2445,3 +2439,75 @@ bool X11wrapper::Pixmap_WriteFile(const string &sPath, const Pixmap &pixmap, uns
     } while ((xcode = 0));
     return (xcode == 0);
 }
+
+bool X11wrapper::RemoveWindowDecoration(Window window)
+{
+    _LOG_NFO("X11wrapper: removing window decoration for 0x%x", window);
+
+	Atom WM_HINTS;
+
+	Display *display = XOpenDisplay(NULL);
+	if(NULL == display)
+	{
+		_LOG_ERR("WinListManager: failed to open display");
+		return false;
+	}
+
+	/* First try to set MWM hints */
+	WM_HINTS = XInternAtom(display, "_MOTIF_WM_HINTS", True);
+	if(WM_HINTS != None) 
+	{
+			/* Hints used by Motif compliant window managers */
+			struct 
+			{
+					unsigned long flags;
+					unsigned long functions;
+					unsigned long decorations;
+					long input_mode;
+					unsigned long status;
+			} MWMHints = { (1L << 1), 0, 0, 0, 0 };
+
+			XChangeProperty(display, window, WM_HINTS, WM_HINTS, 32, PropModeReplace,
+				(unsigned char *)&MWMHints, sizeof(MWMHints)/sizeof(long));
+	}
+	/* Now try to set KWM hints */
+	WM_HINTS = XInternAtom(display, "KWM_WIN_DECORATION", True);
+	if(WM_HINTS != None) 
+	{
+			long KWMHints = 0;
+
+			XChangeProperty(display, window, WM_HINTS, WM_HINTS, 32, PropModeReplace,
+							(unsigned char *)&KWMHints, sizeof(KWMHints)/sizeof(long));
+	}
+
+	/* Now try to set GNOME hints */
+	WM_HINTS = XInternAtom(display, "_WIN_HINTS", True);
+	if(WM_HINTS != None) 
+	{
+			long GNOMEHints = 0;
+
+			XChangeProperty(display, window, WM_HINTS, WM_HINTS, 32, PropModeReplace,
+							(unsigned char *)&GNOMEHints, sizeof(GNOMEHints)/sizeof(long));
+	}
+
+	XCloseDisplay(display);
+
+	return true;
+}
+
+bool X11wrapper::RemoveWindowDecoration(string sWindowId)
+{
+    _LOG_NFO("X11wrapper: removing window decoration for %s", sWindowId.c_str());
+
+	unsigned long wid;
+    if (sscanf(sWindowId.c_str(), "0x%lx", &wid) != 1 &&
+        sscanf(sWindowId.c_str(), "0X%lx", &wid) != 1 &&
+        sscanf(sWindowId.c_str(), "%lu", &wid) != 1)
+    {
+		_LOG_ERR("X11wrapper: failed to parse window id %s", sWindowId.c_str());
+        return false;
+    }
+
+    return RemoveWindowDecoration((Window)wid); 
+}
+

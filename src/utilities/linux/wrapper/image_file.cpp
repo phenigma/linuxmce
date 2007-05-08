@@ -28,7 +28,7 @@ bool Xbm_WriteFile(const string &sPath, const char *pRawData, unsigned int width
         fprintf(pFile, "#define name_x_hot %d\n", x_hot);
     if (y_hot != -1)
         fprintf(pFile, "#define name_y_hot %d\n", y_hot);
-    fprintf(pFile, "static unsigned char name_bits[] = {\n", width);
+    fprintf(pFile, "static unsigned char name_bits[] = {\n");
     unsigned char packed_byte = 0;
     unsigned int pos_in_byte = 0;
     for (unsigned int y=0; y<height; ++y)
@@ -56,9 +56,9 @@ bool Xbm_WriteFile(const string &sPath, const char *pRawData, unsigned int width
             pos_in_byte = 0;
             packed_byte = 0;
         }
-        fprintf(pFile, "\n", width);
+        fprintf(pFile, "\n");
     }
-    fprintf(pFile, "}\n", width);
+    fprintf(pFile, "}\n");
     fclose(pFile);
     return true;
 }

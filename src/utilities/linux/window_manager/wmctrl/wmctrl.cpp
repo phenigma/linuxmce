@@ -1791,16 +1791,6 @@ int WmCtrl::list_windows(Display *disp, std::list<WinInfo> *pListWinInfo/*=NULL*
         if (pListWinInfo)
         {
             pListWinInfo->push_back(itemWinInfo);
-#ifdef DEBUG
-            fprintf(stderr, "WmCtrl::list_windows() : desktop(%d), pid(%u), class(%s), title(%s), machine(%s), pos(%d,%d,%d,%d)\n",
-                    itemWinInfo.lDesktop,
-                    itemWinInfo.ulPid,
-                    itemWinInfo.sClassName.c_str(),
-                    itemWinInfo.sTitle.c_str(),
-                    itemWinInfo.sClientMachine.c_str(),
-                    itemWinInfo.x, itemWinInfo.y, itemWinInfo.w, itemWinInfo.h
-                    );
-#endif
         }
     }
     g_free(client_list);

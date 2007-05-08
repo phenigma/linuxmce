@@ -436,6 +436,8 @@ public:
     // works only in X
     bool Pixmap_WriteFile(const string &sPath, const Pixmap &pixmap, unsigned int width, unsigned int height, int x_hot=-1, int y_hot=-1);
 
+	static bool RemoveWindowDecoration(Window window);
+	static bool RemoveWindowDecoration(string sWindowId);
 };
 
 #endif
