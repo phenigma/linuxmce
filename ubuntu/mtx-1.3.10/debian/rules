@@ -65,7 +65,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/mtx.
-	$(MAKE) prefix=$(CURDIR)/debian/mtx/usr install
+	$(MAKE) prefix=$(CURDIR)/debian/mtx-pluto/opt/mtx-pluto install
 
 
 # Build architecture-independent files here.
