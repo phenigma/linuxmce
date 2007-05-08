@@ -27,7 +27,13 @@ namespace DCE
 {
 	class PendingTaskList;
 }
+namespace nsJukeBox
+{
+	class JukeBox;
+}
+
 using namespace DCE;
+using namespace nsJukeBox;
 
 namespace nsJobHandler
 {
@@ -37,7 +43,7 @@ namespace nsJobHandler
 
 	private:
 		Disk_Drive_Functions *m_pDisk_Drive_Functions;
-		class JukeBox *m_pJukeBox;
+		JukeBox *m_pJukeBox;
 		int m_iPK_Users, m_iEK_Disc, m_iDrive_Number,m_iPK_Orbiter,m_iPK_MediaType;
 		string m_sFormat, m_sFileName, m_sTracks;
 

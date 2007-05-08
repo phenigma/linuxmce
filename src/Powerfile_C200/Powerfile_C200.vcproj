@@ -129,6 +129,12 @@
 				RelativePath="..\Hal\HalTree.cpp">
 			</File>
 			<File
+				RelativePath="..\Disk_Drive_Functions\IdentifyJob.cpp">
+			</File>
+			<File
+				RelativePath="..\Disk_Drive_Functions\IdentifyTask.cpp">
+			</File>
+			<File
 				RelativePath="..\JobHandler\Job.cpp">
 			</File>
 			<File
@@ -142,6 +148,9 @@
 			</File>
 			<File
 				RelativePath="..\Media_Plugin\MediaAttributes_LowLevel.cpp">
+			</File>
+			<File
+				RelativePath="..\Disk_Drive_Functions\MoveDisc.cpp">
 			</File>
 			<File
 				RelativePath="Powerfile_C200.cpp">

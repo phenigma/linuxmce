@@ -52,6 +52,8 @@ namespace DCE
 	class HalValue_int : public HalValue
 	{
 	public:
+		virtual ~HalValue_int() {}
+
 		int m_iValue;
 		virtual HalValueType GetType() { return hvt_int; }
 		virtual void Assign(string sValue) { HalValue::Assign(sValue); m_iValue=atoi(sValue.c_str()); }
@@ -60,6 +62,8 @@ namespace DCE
 	class HalValue_string : public HalValue
 	{
 	public:
+		virtual ~HalValue_string() {}
+
 		string m_sValue;
 		virtual HalValueType GetType() { return hvt_string; }
 		virtual void Assign(string sValue) { HalValue::Assign(sValue); m_sValue=sValue; }
@@ -68,6 +72,8 @@ namespace DCE
 	class HalValue_bool : public HalValue
 	{
 	public:
+		virtual ~HalValue_bool() {}
+
 		bool m_bValue;
 		virtual HalValueType GetType() { return hvt_bool; }
 		virtual void Assign(string sValue) { HalValue::Assign(sValue); m_bValue = (sValue=="true"); }

@@ -13,16 +13,9 @@ namespace nsJukeBox
 {
 	class PowerfileJukebox : public JukeBox
 	{
-		private:
-			pluto_pthread_mutex_t m_DriveMutex;
-
 		public:
-			string m_sChangerDev;
 			bool m_bMtxAltres;
 			DCE::Powerfile_C200 * m_pPowerfile;
-			JobHandler * m_pJobHandler;
-			Database_pluto_media * m_pDatabase_pluto_media;
-			MediaAttributes_LowLevel * m_pMediaAttributes_LowLevel;
 
 			bool m_bStatusCached;
 

@@ -20,6 +20,7 @@
 /*
 
 A JobHandler lets you add job's and tasks which need to be done asynchronously.
+
 A Job can be something like Rip a Disc, Generate an Orbiter's GUI, etc.
 Derive a class from Job for your particular type of job.  The JobHandler
 will check your Job to see if it's ready to do something, and if so, make the 
@@ -28,15 +29,15 @@ run in parallel up to the maximum specified.
 
 Within a job are a series of Tasks which much be run in order.  You do not need to
 use the task mechanism, and can instead handle the job yourself directly by overriding the
-ServiceTasks() function to do whatever you like.
+Run() function to do whatever you like.
 
 However, you can also create classes drived from Task to do all the tasks that need to be done
-in order and add them to Job, and let ServiceTasks run them in order.  Note that the Job's ServiceTasks
-function can either block and not return until the Job is complete, or it can set the 
-m_tNextServiceTime to the next time that the Job should be serviced.  If that is 0, and the job 
-is not complete, it will be serviced whenever JobHandler::SomethingChanged is called.
+in order and add them to Job, and let Job::Run() run them in order.  Note that the Job's ReadyToRun
+function can return true, meaning it's ready to go and Run() will be called, or return false, meaning
+it's not ready, check it later.  If ReadyRoRun() sets m_tNextRunAttempt to a time then it will be checked
+again at that time.  Otherwise it won't be checked again until JobHandler::SomethingChanged is called.
 
-Both Job::ServiceTasks and Task::Service need to keep checking m_bAbort and if it's true,
+Both Job::Run and Task::Run need to keep checking m_bAbort and if it's true,
 return and set the status to ABORTED.
 
 */

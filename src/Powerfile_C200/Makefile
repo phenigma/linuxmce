@@ -32,6 +32,7 @@ sources += \
 	../JobHandler/Job.cpp \
 	../JobHandler/Task.cpp \
 	../Media_Plugin/MediaAttributes_LowLevel.cpp \
+	../HAL/HalTree.cpp
 #	../UpdateMedia/PlutoMediaFile.cpp \
 #	../UpdateMedia/id3info/id3info.cpp \
 #	../UpdateMedia/MediaIdentifier.cpp \

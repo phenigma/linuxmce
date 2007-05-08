@@ -348,6 +348,9 @@ void Powerfile_C200::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c701-e->
 {
+/*
+	PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
+
 	if (m_pPowerfileJukebox->MoveFromSlotToDrive(m_pPowerfileJukebox->m_mapSlot[iSlot_Number], m_pPowerfileJukebox->m_mapDrive[iDrive_Number]))
 	{
 		sCMD_Result = "OK";
@@ -356,6 +359,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 	{
 		sCMD_Result = "FAILED";
 	}
+	*/
 }
 
 //<-dceag-c702-b->
@@ -724,63 +728,9 @@ void Powerfile_C200::CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string
 void Powerfile_C200::CMD_Mass_identify_media(string sDisks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c740-e->
 {
-#ifdef NOTDEF
-	size_t i;
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Mass_identify_media: sDisks: %s", sDisks.c_str());
-
-	// to replace this with "append if not empty but don't start anything; make new list if empty and start it"
-	if (m_pJob->PendingTasks())
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Not in IDLE state (%d tasks pending). Can't start mass identify", m_pJob->PendingTasks());
-		sCMD_Result = "FAILED";
-		return;
-	}
-	m_pJob->Reset();
-	
-	vector<int> vect_iSlots;
-	if (sDisks == "*")
-	{
-		for (size_t i = 0; i < m_vectSlotStatus.size(); i++)
-		{
-			if (m_vectSlotStatus[i])
-				vect_iSlots.push_back(i + 1);
-		}
-	}
-	else
-	{
-		vector<string> vect_sDisks;
-		Tokenize(sDisks, ",", vect_sDisks);
-		for (i = 0; i < vect_sDisks.size(); i++)
-			vect_iSlots.push_back(atoi(vect_sDisks[i].c_str()));
-	}
-
-	for (i = 0; i < vect_iSlots.size(); i++)
-	{
-		int iSlot = vect_iSlots[i];
-		PowerfileIdentify_Task * pTask = new PowerfileIdentify_Task("Identify Slot " + StringUtils::itos(iSlot), 0, m_pJob);
-		pTask->m_iSlot = iSlot;
-		m_pJob->AddTask(pTask);
-	}
-
-	if (!m_pJob->PendingTasks())
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received empty track list");
-		sCMD_Result = "FAILED";
-		return;
-	}
-
-	for (size_t i = 0; i < m_vectDrive.size(); i++)
-	{
-		if (!m_vectDriveStatus[i].second)
-			continue; // unit offline; skip
-		Task * pTask = m_pJob->GetNextTask();
-		if (pTask)
-			pTask->Execute();
-		else
-			break;
-	}
-#endif
+	m_pPowerfileJukebox->MassIdentify(sDisks);
 }
+
 #ifdef NOTDEF
 int Powerfile_C200::GetFreeDrive(int iSlot)
 {

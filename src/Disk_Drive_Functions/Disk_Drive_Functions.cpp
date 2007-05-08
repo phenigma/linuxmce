@@ -756,7 +756,17 @@ void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc,int Slot)
 {
 	Row_DiscLocation *pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(m_pCommand_Impl->m_dwPK_Device,Slot);
 	if( pRow_DiscLocation )
+	{
+		if( PK_Disc==0 )  // Shouldn't be a record if it's empty
+		{
+			pRow_DiscLocation->Delete();
+			m_pDatabase_pluto_media->DiscLocation_get()->Commit();
+			return;
+		}
 		pRow_DiscLocation->Reload();
+	}
+	else if( PK_Disc==0 )
+		return; // Nothing to do if it's empty
 	else
 	{
 		pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->AddRow();

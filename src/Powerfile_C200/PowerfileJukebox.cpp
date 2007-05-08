@@ -28,7 +28,7 @@ namespace nsJukeBox
 	 */
 
 	PowerfileJukebox::PowerfileJukebox(Powerfile_C200 * pPowerfile)
-		: m_DriveMutex("PowerfileJukebox drive mutex", true)
+		: JukeBox(pPowerfile)
 	{
 		m_pPowerfile = pPowerfile;
 		m_bStatusCached = false;
@@ -36,6 +36,8 @@ namespace nsJukeBox
 
 	bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	{
+		PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
+
 		bool bComma = false, bResult = false;
 		string sOutput;
 
@@ -106,7 +108,7 @@ namespace nsJukeBox
 						
 						Slot *pSlot = m_mapSlot[nSlot];
 						if( pSlot==NULL )
-							m_mapSlot[nSlot] = new Slot(nSlot,Slot::slot_empty);
+							m_mapSlot[nSlot] = new Slot(nSlot,Slot::slot_empty,this);
 
 						sResult = string("S") + vsC[0] + "=" +vsC[1];
 						if (vsC[1] == "Empty")
@@ -194,16 +196,9 @@ namespace nsJukeBox
 
 	/*virtual*/ bool PowerfileJukebox::Init()
 	{
-		m_pJobHandler = new JobHandler();
-		m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
-		// TODO: the connection data is stored in pluto.conf; use it
-		if (!m_pDatabase_pluto_media->Connect(m_pPowerfile->m_sIPAddress, "root", "", "pluto_media", 3306))
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
-			m_pPowerfile->m_bQuit_set(true);
+		PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
+		if( !JukeBox::Init() )
 			return false;
-		}
-		m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media, 0);
 
 		HalTree halTree;
 		halTree.Populate();
@@ -311,7 +306,7 @@ namespace nsJukeBox
 
 				Disk_Drive_Functions * pDDF = new Disk_Drive_Functions(m_pPowerfile, vsFF[6],
 						m_pJobHandler, m_pDatabase_pluto_media, m_pMediaAttributes_LowLevel);
-				Drive * pDrive= new Drive(nDrive, Drive::drive_empty, pDDF, vsFF[7],true);
+				Drive * pDrive= new Drive(nDrive, Drive::drive_empty, pDDF, vsFF[7],this,true);
 				m_mapDrive[nDrive] = pDrive;
 
 				/*
@@ -359,6 +354,8 @@ namespace nsJukeBox
 		Message *pMessage = new Message(m_pPowerfile->m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_Reporting_Child_Devices_CONST,1,
 			EVENTPARAMETER_Text_CONST,sReportingChildDevices.c_str());
 		m_pPowerfile->QueueMessageToRouter(pMessage);
+
+		UpdateDrivesSlotsFromDatabase();
 		
 		return true;
 	}
