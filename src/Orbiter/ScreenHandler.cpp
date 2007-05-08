@@ -2979,6 +2979,8 @@ bool ScreenHandler::AdjustScreenSettings_RemoteKeyCodeIntercepted(CallBackData *
 
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "TEST AdjustScreenSettings_RemoteKeyCodeIntercepted %s", sKeyCode.c_str());
 
+	sKeyCode = StringUtils::ToLower(sKeyCode);
+
 	if(sKeyCode == "volup" || sKeyCode == "chup")
 		m_pOrbiter->ButtonDown(BUTTON_plus_CONST);
 	else if(sKeyCode == "voldown" || sKeyCode == "chdown")

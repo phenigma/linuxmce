@@ -2790,8 +2790,8 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 				RemoteKeyCodeCallBackData *pRemoteKeyCodeCallBackData = (RemoteKeyCodeCallBackData *)pCallBackData;
 				pRemoteKeyCodeCallBackData->m_sKeyCode = sKey;
 			}
-					
-			if(!ExecuteScreenHandlerCallback(cbOnRemoteKeyCodeIntercepted))
+			
+			if(ExecuteScreenHandlerCallback(cbOnRemoteKeyCodeIntercepted))
 				ReceivedCode(0,sKey.c_str(),sRepeatKey.c_str());
 
 			return;
