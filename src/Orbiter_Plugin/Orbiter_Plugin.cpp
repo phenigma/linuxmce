@@ -111,6 +111,7 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 	m_UnknownDevicesMutex.Init(&m_MutexAttr);
     m_AllowedConnectionsMutex.Init(NULL);
 	m_pDatabase_pluto_main=NULL;
+	m_pDatabase_pluto_media=NULL;
 	m_pDatabase_pluto_security=NULL;
 	m_pRegenMonitor=NULL;
 	m_bFloorPlansArePrepared = false;
