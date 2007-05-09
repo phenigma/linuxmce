@@ -1,7 +1,9 @@
 #!/bin/sh
 
+#<-mkr_B_etch_b->
 # replace /target/usr/lib/base-config/menu/pkgsel with ours
 cp -f /cdrom/Pluto-Install/pkgsel /target/usr/lib/base-config/menu/
+#<-mkr_B_etch_e->
 
 # copy install scripts to /usr/pluto/install
 DIR=/target/usr/pluto/install
@@ -12,6 +14,7 @@ for S in $SCRIPTS; do
 done
 touch "$DIR/.notdone"
 
+#<-mkr_B_etch_b->
 mkdir -p /target/usr/pluto/deb-cache/dists/sarge/main/binary-i386/
 ln -s sarge /target/usr/pluto/deb-cache/dists/testing
 ln -s sarge /target/usr/pluto/deb-cache/dists/stable
@@ -28,11 +31,14 @@ find /cdrom/pool/main -type f -name '*.deb' |
 
 echo 'LANG="en_US.UTF8"
 LANGUAGE="en_US:en_GB:en"' >/target/etc/environment
+#<-mkr_B_etch_e->
 
 sed -i 's/allow-hotplug/auto/g' /target/etc/network/interfaces
 
+#<-mkr_B_etch_b->
 # The installer no longer does this for us, so we have to apply stage 2 preseed values ourselves
 chroot /target /usr/pluto/install/PreseedStage2.sh
+#<-mkr_B_etch_e->
 
 ## Setup pluto's apt.conf
 pluto_apt_conf='// Pluto apt conf add-on
