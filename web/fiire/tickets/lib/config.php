@@ -20,13 +20,10 @@ $GLOBALS['action_on_error']=1;
 // database settings
 $GLOBALS['db_server']="localhost";
 $GLOBALS['db_port']="3306";
-$GLOBALS['db_user']="user";
-$GLOBALS['db_pass']="pass";
-$GLOBALS['db_database']="fiire";
+$GLOBALS['db_user']="db_user";
+$GLOBALS['db_pass']="db_pass";
+$GLOBALS['db_database']="linuxmce_tickets";
 
-// SMF settings
-$GLOBALS['smf_database']="fiire";
-$GLOBALS['smf_db_prefix']='smf_';
 
 // contact email
 $GLOBALS['contact_email']='your_name@your_address.com';
@@ -42,11 +39,11 @@ error_reporting(E_ALL);
 $GLOBALS['db_in_debug']=0;
 
 // website url
-$GLOBALS['website_url']='http://fiire.com/';
+$GLOBALS['website_url']='http://support.linuxmce.com/';
 
 // path for uploaded pics
 // need write permissions for web server and also be placed relative to web root
-$GLOBALS['site_root']='/var/www/fiire/upload/';
+$GLOBALS['site_root']='/var/www/linux-mce/';
 $GLOBALS['upload_path']=$GLOBALS['site_root'].'upload/';
 
 // relative path to uploaded files
@@ -59,21 +56,16 @@ $GLOBALS['records_per_page']=10;
 // the number of seconds between posts: 0 = no check
 $GLOBALS['time_between_comments']=30;
 
-$GLOBALS['fiire_engine_url']='http://fiireshop.com/product_info.php?products_id=566';
-$GLOBALS['fiire_station_url']='http://fiireshop.com/product_info.php?products_id=567';
-$GLOBALS['fiire_chief_url']='http://fiireshop.com/product_info.php?products_id=568';
-
 $GLOBALS['incident_status_array']=array(
-	10=>'Open',
-	20=>'Resolved & Closed',
-	30=>'Closed - unresolvable'
+	10=>'Issue open',
+	20=>'Issue Closed - resolved',
+	30=>'Issue Closed - unresolvable'
 );
 
 
 // override standard settings with local one
 // to avoid saving in svn real users and passwords
 if(file_exists('lib/config.local.php')){
-	include_once('lib/config.local.php');
+	include('lib/config.local.php');
 }
-
 ?>

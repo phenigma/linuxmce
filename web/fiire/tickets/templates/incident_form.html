@@ -1,0 +1,82 @@
+<SCRIPT>
+function display_new_user(val){
+	newval=(val==-1)?'':'none';
+	document.incident_form.username.style.display=newval;
+	document.incident_form.contact_type.style.display=newval;
+}
+</SCRIPT>
+<form name="incident_form" method="POST" action="{action}">
+	<INPUT type="hidden" name="id" value="{id}">
+	<INPUT type="hidden" name="from" value="{from}">
+	<table>
+		<tr>
+			<td colspan="2" class="cat_title"><B>{form_title}</B></td>
+		</tr>
+		<tr>
+			<td colspan="2" class="err" align="center">{notification}</td>
+		</tr>	
+		<tr>
+			<td>&nbsp;</td>
+		</tr>		
+		<tr>
+			<td><B>User Info</B></td>
+		</tr>
+		<tr>
+			<td>User Name *</td>
+			<td>{users_pulldown}<input type="text" name="username" value="{username}" style="display:none;"> {contact_type}</td>
+		</tr>
+		<tr>
+			<td>Email address *</td>
+			<td><input type="text" name="email" value="{email}"></td>
+		</tr>
+		<tr>
+			<td colspan="2" class="cat_title"></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+		</tr>		
+		<tr>
+			<td><B>Incident info</B></td>
+		</tr>
+		<tr>
+			<td>Date</td>
+			<td><input type="text" name="date_reported" value="{date_reported}"></td>
+		</tr>
+		<tr>
+			<td>Description</td>
+			<td><TEXTAREA name="description" rows="5">{description}</TEXTAREA></td>
+		</tr>
+		<tr>
+			<td>Resolution</td>
+			<td><TEXTAREA name="resolution" rows="5">{resolution}</TEXTAREA></td>
+		</tr>		
+		<tr>
+			<td>Workaround</td>
+			<td><TEXTAREA name="workaround" rows="3">{workaround}</TEXTAREA></td>
+		</tr>
+		<tr>
+			<td>Bug report</td>
+			<td><input type="text" name="bug_report" value="{bug_report}"></td>
+		</tr>
+		<tr>
+			<td>Bug option</td>
+			<td>{bug_option}</td>
+		</tr>
+		<tr>
+			<td>Result</td>
+			<td>{bug_result}</td>
+		</tr>
+		<tr>
+			<td>Status</td>
+			<td>{status_pulldown}</td>
+		</tr>
+		{contact_rows}
+		<tr>
+			<td colspan="2">* Required fields</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center"><input type="submit" name="save" value="{form_title}"> {delete_button}</td>
+		</tr>		
+	</table>
+	</form>
+	<a href="index.php"> &lt;&lt; Back</a>

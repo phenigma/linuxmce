@@ -792,11 +792,11 @@ function pending_comments($conn){
 		'comments.id AS id'=>'id',
 		'cdate'=>'Date',
 		'news.title AS ntitle'=>'News',
-		'users.name AS user'=>'Posted by'
+		'Users.name AS user'=>'Posted by'
 	);
 
 	$out='<p class="normal_row"><b>Unvalidated comments</b><br>
-	'.multi_page($fieldsArray,'comments','INNER JOIN news ON news_id=news.id INNER JOIN users on user_id=users.id WHERE valid=0','ORDER BY cdate DESC,title ASC','pending_comments',$page,$conn,'edit_comment','del_comment');
+	'.multi_page($fieldsArray,'comments','INNER JOIN news ON news_id=news.id INNER JOIN Users on user_id=Users.id WHERE valid=0','ORDER BY cdate DESC,title ASC','pending_comments',$page,$conn,'edit_comment','del_comment');
 
 	return $out;
 }
@@ -806,7 +806,7 @@ function edit_comment($id,$conn){
 		return '<span class="error">ERROR: Invalid ID.</span>';
 	}
 	
-	$fields=get_fields('comments','INNER JOIN users ON user_id=users.id INNER JOIN news on news_id=news.id WHERE comments.id='.$id,$conn,'','comments.id AS id, users.name AS name, news.title AS news_title,news_id,comment,cdate,valid');
+	$fields=get_fields('comments','INNER JOIN Users ON user_id=Users.id INNER JOIN news on news_id=news.id WHERE comments.id='.$id,$conn,'','comments.id AS id, Users.name AS name, news.title AS news_title,news_id,comment,cdate,valid');
 	if(count($fields)==0){
 		return '<span class="error">ERROR: Section not found.</span>';
 	}
@@ -933,7 +933,7 @@ function do_cookie_autologin($conn){
 	if(!isset($_SESSION['uID'])){
 		if(isset($_COOKIE['FiireCookie'])){
 			parse_str($_COOKIE['FiireCookie']);
-			$res=query("SELECT * FROM users WHERE id=".(int)$cuserid." AND cookie_str='$cstr'",$conn);
+			$res=query("SELECT * FROM Users WHERE id=".(int)$cuserid." AND cookie_str='$cstr'",$conn);
 			if(mysql_num_rows($res)>0){
 				$row=mysql_fetch_assoc($res);
 	
@@ -989,7 +989,7 @@ function process_register($conn){
 	}
 	
 	// check if the email is not already registered
-	$emailData=getAssocArray('users','id','name',$conn,'WHERE email LIKE \''.$regemail.'\'');
+	$emailData=getAssocArray('Users','id','name',$conn,'WHERE email LIKE \''.$regemail.'\'');
 	if(count($emailData)>0){
 		$error='This email address is already registered.';
 		return register_form($regusername,$regemail,$referrerName,$error);
@@ -1002,7 +1002,7 @@ function process_register($conn){
 	}
 		
 	// check if the username is available
-	$nameData=getAssocArray('users','id','name',$conn,'WHERE username LIKE \''.$regusername.'\'');
+	$nameData=getAssocArray('Users','id','name',$conn,'WHERE username LIKE \''.$regusername.'\'');
 	if(count($nameData)>0){
 		$error='This username is already used.';
 		return register_form($regusername,$regemail,$referrerName,$error);
@@ -1025,7 +1025,7 @@ function process_register($conn){
 	}
 
 	
-	$res=query("INSERT INTO users (username, password, uniqueid,regdate,referrer_id,activated,comments,publicUser,publicComments,email) VALUES ('$regusername','$regpassword','$unique',NOW(),'$referrer',1,'$comments',$publicUser,$publicComments,'$regemail')",$conn);
+	$res=query("INSERT INTO Users (username, password, uniqueid,regdate,referrer_id,activated,comments,publicUser,publicComments,email) VALUES ('$regusername','$regpassword','$unique',NOW(),'$referrer',1,'$comments',$publicUser,$publicComments,'$regemail')",$conn);
 	if(mysql_affected_rows($conn)==0){
 		$error='Registration failed due a database error.An email was dispached to a site admin, please try again later.  We are sorry for the inconvenience.';
 		// todo: mail to admin
@@ -1049,7 +1049,7 @@ function users($conn){
 		'if(activated=1,\'Yes\',\'No\') AS enabled'=>'Enabled'
 	);
 	$out='<p class="normal_row"><b>Users</b><br>
-	'.multi_page($fieldsArray,'users','','ORDER BY activated ASC, regdate DESC','users',$page,$conn,'','del_user','100%',array('index.php?section=validate_user'=>'Validate'));
+	'.multi_page($fieldsArray,'Users','','ORDER BY activated ASC, regdate DESC','Users',$page,$conn,'','del_user','100%',array('index.php?section=validate_user'=>'Validate'));
 
 	return $out;
 }
@@ -1060,7 +1060,7 @@ function del_user($did,$conn)
 		return '<span class="error">ERROR: Invalid ID.</span>';
 	}
 			
-	$res=query("DELETE FROM users WHERE id='$did'",$conn);
+	$res=query("DELETE FROM Users WHERE id='$did'",$conn);
 	$out='The user was deleted.<br>
 	<a href="index.php?section=users">Back to users</a>';
 	
@@ -1068,7 +1068,7 @@ function del_user($did,$conn)
 }
 
 function validate_user($id,$conn){
-	query("UPDATE users SET activated=1 WHERE id=$id",$conn);
+	query("UPDATE Users SET activated=1 WHERE id=$id",$conn);
 	
 	return 'The user was validated.<br>Back to <a href="index.php?section=users">users</a>';
 }
@@ -1121,7 +1121,7 @@ function setVariable($name,$value,$conn){
 }
 
 function do_login($user,$pass,$remember,$conn){
-	$res=query("SELECT * FROM users WHERE username='$user' AND password='".md5($pass)."'",$conn);
+	$res=query("SELECT * FROM Users WHERE username='$user' AND password='".md5($pass)."'",$conn);
 	if(mysql_num_rows($res)==0){
 		$_SESSION['login_error']='Pasword doesn\'t match or username does not exist.';
 	}else{
@@ -1131,7 +1131,7 @@ function do_login($user,$pass,$remember,$conn){
 		$_SESSION['username']=$row['username'];
 		$_SESSION['uemail']=$row['email'];
 		$_SESSION['cookie_str']=md5(str_makerand(10,10,1,0,1));
-		query("UPDATE users SET cookie_str='".$_SESSION['cookie_str']."' WHERE id=".$row['id'],$conn);
+		query("UPDATE Users SET cookie_str='".$_SESSION['cookie_str']."' WHERE id=".$row['id'],$conn);
 		
 		if($remember==1){
 			save_cookie(0);
@@ -1175,7 +1175,7 @@ function get_myaccount($conn){
 	}
 	
 	$referrals=get_referrals_summary_array($_SESSION['uID'],$conn);
-	$udata=getFields('users','LEFT JOIN users ref ON users.referrer_id=ref.id WHERE users.id='.$_SESSION['uID'],$conn,'','users.*,ref.username AS referrer');
+	$udata=getFields('Users','LEFT JOIN Users ref ON Users.referrer_id=ref.id WHERE Users.id='.$_SESSION['uID'],$conn,'','Users.*,ref.username AS referrer');
 
 	$variables=array();
 	$page_template=implode('',file('templates/myaccount.html'));
@@ -1228,12 +1228,24 @@ function get_my_dealers($user_id,$conn){
 		<tr class="alternate">
 			<td><b>'.$categ_titles[$row['category']].': '.$row['title'].'</b></td>
 			<td align="right"><a href="edit_dealer.php?id='.$row['id'].'&categ='.$row['category'].'">Edit</a> <a href="javascript:if(confirm(\'Are you sure you want to delete this record?\'))self.location=\'dremove.php?id='.$row['id'].'\'">Remove</a></td>
-		</tr>
+		</tr>';
+		if($row['category']==3){
+			$out.='
+			<tr>
+				<td colspan="2">From <b>'.format_mysql_date($row['date_from'],'d M Y h:i').'</b> to <b>'.format_mysql_date($row['date_to'],'d M Y h:i').'</b></td>
+			</tr>
+			
+			';
+		}
+		$out.='
 		<tr>
 			<td colspan="2">Country: '.$row['Country'].', region '.$row['Region'].', city '.$row['City'].' </td>
 		</tr>
 		<tr>
 			<td colspan="2"><a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
+		</tr>
+		<tr>
+			<td colspan="2">&nbsp;</td>
 		</tr>';
 	}
 	$out.='</table>';
@@ -1391,7 +1403,7 @@ function get_downloads(){
 }
 
 function get_user_id($username,$conn){
-	$res=query("SELECt id from users WHERE username='$username'",$conn);
+	$res=query("SELECT id from Users WHERE username='$username'",$conn);
 	
 	// return null as string to be used in sql queries
 	if(mysql_num_rows($res)==0){
@@ -1412,7 +1424,7 @@ function get_referrals_summary_array($uID,$conn){
 	foreach ($rArray AS $pos=>$count){
 		$referrals=array();
 		if(count($parents)!=0){
-			$referrals=getAssocArray('users','id','username',$conn,'WHERE referrer_id IN ('.join(',',$parents).')');
+			$referrals=getAssocArray('Users','id','username',$conn,'WHERE referrer_id IN ('.join(',',$parents).')');
 		}
 		$parents=array_keys($referrals);
 		$rArray[$pos]=count($referrals);
@@ -1422,8 +1434,31 @@ function get_referrals_summary_array($uID,$conn){
 }
 
 function get_support_request($conn){
-	// TODO
-	return 'No support requests.';
+	$res=query("SELECT * FROM Incidents ORDER BY date_reported DESC",$conn);
+	if(mysql_num_rows($res)==0){
+		return 'No support requests.';
+	}
+
+	$out='<table>
+		<tr class="alternate">
+			<td><b>Ticket ID</b></td>
+			<td><b>Date reported</b></td>
+			<td><b>Status</b></td>
+		</tr>';
+	while($row=mysql_fetch_assoc($res)){
+		$out.='
+		<tr class="alternate">
+			<td><a href="ticket.php?id='.$row['id'].'">'.$row['id'].'</a></td>
+			<td>'.format_mysql_date($row['date_reported'],'d M Y h:i').'</td>
+			<td>'.$GLOBALS['incident_status_array'][$row['status_id']].'</td>
+		</tr>
+		<tr>
+			<td colspan="3">'.nl2br($row['description']).'</td>
+		</tr>';
+	}
+	$out.='</table>';
+	
+	return $out;
 }
 
 function get_orders_history($conn){
@@ -1443,18 +1478,18 @@ function process_update_account($conn){
 	$pemail=cleanString($_POST['pemail']);
 	$email=cleanString($_POST['email']);
 	
-	$emailData=getAssocArray('users','id','name',$conn,'WHERE email LIKE \''.$email.'\' AND id!='.$id);
+	$emailData=getAssocArray('Users','id','name',$conn,'WHERE email LIKE \''.$email.'\' AND id!='.$id);
 	if(count($emailData)>0){
 		$_SESSION['message']=msg_error('This email address is already registered.');
 		header("Location: myaccount.php");
 		exit();
 	}
 	
-	$res=query("UPDATE users SET comments='$comments',publicUser=$publicUser,publicComments=$publicComments,polywell_email='$pemail',email='$email' WHERE id=$id",$conn);
+	$res=query("UPDATE Users SET comments='$comments',publicUser=$publicUser,publicComments=$publicComments,polywell_email='$pemail',email='$email' WHERE id=$id",$conn);
 	$message=msg_notice('Account info updated.');
 	
 	if($old_password!=''){
-		$res=query("SELECT id FROM users WHERE id=$id AND password='".md5($old_password)."'",$conn);
+		$res=query("SELECT id FROM Users WHERE id=$id AND password='".md5($old_password)."'",$conn);
 		if(mysql_num_rows($res)==0){
 			return msg_error('Old password doesn\'t match.');
 		}
@@ -1467,7 +1502,7 @@ function process_update_account($conn){
 			return msg_error('Confirmed password doesn\'t match.');
 		}else{
 			$password=md5($password1);	
-			$res=query("UPDATE users SET password='$password' WHERE id=$id",$conn);
+			$res=query("UPDATE Users SET password='$password' WHERE id=$id",$conn);
 			$message=msg_notice('Password updated.');
 		}
 	}
@@ -1568,7 +1603,7 @@ function process_forgot_password($conn){
 	$subject="Your Fiire password";
 	$pass=str_makerand(8,8,1,0,0);
 	
-	$emailData=getAssocArray('users','email','id',$conn,'WHERE email LIKE \''.$email.'\'');
+	$emailData=getAssocArray('Users','email','id',$conn,'WHERE email LIKE \''.$email.'\'');
 	if(count($emailData)==0){
 		return msg_error('This email address is not registered with Fiire.').'<br><a href="forgot.php">Try again</a>';
 	}
@@ -1580,7 +1615,7 @@ function process_forgot_password($conn){
 	 Best regards, <br>Fiire staff.';
 	$mdpass=md5($pass);
 	$id=$emailData[$email];
-	query("UPDATE users SET password='$mdpass' WHERE id=$id",$conn);
+	query("UPDATE Users SET password='$mdpass' WHERE id=$id",$conn);
 	
 	send_mail('Fiire','noreply@fiire.com',$email,$email,$subject,$message);
 	return 'A new password was sent to the email address you provided. <br>
@@ -1619,7 +1654,7 @@ function process_contact_form($page,$conn){
 		return get_contact_form($page,$conn);
 	}
 	
-	query("INSERT INTO contacts (page,name,email,subject,description) VALUES ('$page','$cname','$cemail','$csubject','$cdescription')",$conn);
+	query("INSERT INTO SiteContacts (page,name,email,subject,description) VALUES ('$page','$cname','$cemail','$csubject','$cdescription')",$conn);
 	
 	$mailSubject='Fiire contact form';
 	$message='Contact name: '.$cname.'<br>';
@@ -1800,12 +1835,15 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity){
 		2=>'Average',
 		1=>'Bad'
 	);
+	$ipaddress=$_SERVER['REMOTE_ADDR'];
 	
-	$res=query("SELECT dealers.*,avg(rating.rating) AS rating,myrating.rating as myrating
-		FROM dealers 
+	$res=query("SELECT dealers.*,avg(rating.rating) AS rating,myrating.rating as myrating,City.City, Region.Region
+		FROM dealers
+		INNER JOIN City ON dealers.FK_City=PK_City
+		INNER JOIN Region ON dealers.FK_Region=PK_Region
 		LEFT JOIN rating ON rating.dealer_id=dealers.id
-		LEFT JOIN rating myrating on myrating.dealer_id=dealers.id AND myrating.ipaddress='10.0.0.104'
-		WHERE FK_Country=$selCountry $filters
+		LEFT JOIN rating myrating on myrating.dealer_id=dealers.id AND myrating.ipaddress='$ipaddress'
+		WHERE dealers.FK_Country=$selCountry $filters
 		GROUP BY dealers.id ",$conn);
 	$no=mysql_num_rows($res);
 	if($no==0){
@@ -1821,7 +1859,7 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity){
 		$rating=(is_null($row['myrating']))?pulldownFromArray($ratingArray,'rating_'.$row['id'],0,'onChange="document.form1.submit();"'):'';
 		$out.='
 			<tr>
-				<td><b>'.$row['title'].'</b><br><a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
+				<td><b>'.$row['title'].' ('.$row['Region'].', '.$row['City'].')</b><br><a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
 			</tr>
 			<tr>
 				<td align="right">'.star_rating(ceil($row['rating'])).' '.$rating.'<hr></td>
@@ -1957,4 +1995,88 @@ function process_edit_dealer($categs,$conn){
 	return edit_dealer_form($id,$categs,$conn);
 }
 
+function report_issue($conn){
+	if(!isset($_SESSION['uID']) || (int)$_SESSION['uID']==0){
+		return 'Please login in order to report an issue.';
+	}	
+		
+	if(isset($_POST['save'])){
+		return process_report_issue($conn);
+	}
+	
+	return report_issue_form($conn);
+}
+
+function report_issue_form($conn){
+	$variables=array();
+	$page_template=implode('',file('templates/report_issue.html'));
+	
+	if(isset($_SESSION['message'])){
+		$variables=set_variable($variables,'message',$_SESSION['message']);
+		unset($_SESSION['message']);
+	}
+
+	return outputHTML($variables,$page_template,1);	
+}
+
+
+function process_report_issue($conn){
+	$description=cleanString($_POST['description']);
+	$user_id=(int)@$_SESSION['uID'];
+	
+	query("INSERT INTO Incidents (user_id,date_reported,description,status_id) VALUES ($user_id,NOW(),'$description',10)",$conn);
+	$ticketID=mysql_insert_id($conn);
+	
+	return 'Thank you, your issue was recorded.<br>This is your ticket number: <span class="price">'.$ticketID.'</span><br>
+	You can check it\'s status at any time from "My Account / Support request" section.';
+}
+
+function ticket_history($id,$conn){
+	if($id==0){
+		return msg_error('Invalid ticket ID');
+	}
+	$user_id=(int)@$_SESSION['uID'];
+	$ticket=getFields('Incidents','WHERE id='.$id.' AND user_id='.$user_id,$conn);
+	
+	
+	$variables=array();
+	$page_template=implode('',file('templates/ticket_history.html'));
+	$variables=set_variable($variables,'date_reported',format_mysql_date($ticket[0]['date_reported'],'d-M Y h:i'));	
+	$variables=set_variable($variables,'description',nl2br($ticket[0]['description']));	
+	$variables=set_variable($variables,'resolution',($ticket[0]['resolution']!='')?nl2br($ticket[0]['resolution']):'Not available.');	
+	$variables=set_variable($variables,'status',$GLOBALS['incident_status_array'][$ticket[0]['status_id']]);	
+	$variables=set_variable($variables,'notes',get_contacts_table($id,$conn));	
+	
+	return outputHTML($variables,$page_template,1);	
+}
+
+function get_contacts_table($incident_id,$conn){
+	$res=query("SELECT * FROM Contacts WHERE incident_id=$incident_id ORDER BY contact_date ASC",$conn);
+	if(mysql_num_rows($res)==0){
+		return 'No notes.';
+	}
+	
+	$out='';
+	$pos=0;
+	while($row=mysql_fetch_assoc($res)){
+		$pos++;
+		$out.='
+		<table width="570" border="0" cellpadding="0" cellspacing="0" class="'.(($pos%2!=0)?'gri':'').'">
+        <tr>
+
+          <td style="padding:10px 10px 0 10px;"><strong>'.format_mysql_date($row['contact_date'],'d M Y h:i').'</strong></td>
+        </tr>
+        <tr>
+          <td style="word-wrap:break-word;"><div class="comment">'.nl2br($row['comments']).'</div></td>
+        </tr>
+        <tr>
+          <td style="word-wrap:break-word;">&nbsp;</td>
+        </tr>
+      </table>
+		
+		';
+	}
+	
+	return $out;
+}
 ?>
