@@ -59,6 +59,8 @@ Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectE
 	: Powerfile_C200_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	m_bAskBeforeReload=true;
+	m_bImplementsPendingTasks=true;
 }
 
 //<-dceag-const2-b->!
@@ -1165,72 +1167,7 @@ void Powerfile_Job::Remove_PowerfileTask_Slot(int iSlot)
 void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
-	DCE::CMD_Media_Identified_DT CMD_Media_Identified_DT(m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
-		BL_SameHouse,m_dwPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc);
-	SendCommand(CMD_Media_Identified_DT);
-
 	m_pPowerfileJukebox->Media_Identified(iPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc);
-/*
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Media_Identified disc is %d",*iEK_Disc);
-	if( *iEK_Disc )
-	{
-		char cMediaType='M'; // The default
-		if( iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
-			cMediaType='c';
-		else if( iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
-			cMediaType='d';
-		m_pDisk_Drive_Functions->UpdateDiscLocation(cMediaType,*iEK_Disc,0);
-	}
-
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media Identified. Slot '%s', Format: '%s', MRL: '%s', PK_Device: '%d', Value: '%s'",
-		sID.c_str(), sFormat.c_str(), sMediaURL.c_str(), iPK_Device, sValue_To_Assign.c_str());
-
-	listMediaAttribute listMediaAttribute_;
-	int PK_Disc = 0;
-	int iMediaType = MEDIATYPE_pluto_CD_CONST;
-	int iDiscType = m_pJob->MediaIdentified(atoi(sID.c_str()));
-	switch (iDiscType)
-	{
-		case DISCTYPE_CD_AUDIO:
-			iMediaType = MEDIATYPE_pluto_CD_CONST;
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disc type: Audio CD");
-			break;
-		case DISCTYPE_DVD_VIDEO:
-			iMediaType = MEDIATYPE_pluto_DVD_CONST;
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disc type: DVD");
-			break;
-		default:
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unsupported/wrong disc type: %d. Defaulting to Audio CD", iDiscType);
-	}
-
-	if( sFormat=="CDDB-TAB" )
-		PK_Disc = m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(iMediaType, listMediaAttribute_, sValue_To_Assign);
-	if( sFormat=="MISC-TAB" )
-		PK_Disc = m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(iMediaType, listMediaAttribute_, sValue_To_Assign, 0);
-		*/
-/*
-	if( PK_Disc )
-	{
-		vector<Row_Disc *> vectRow_Disc;
-		m_pDatabase_pluto_media->Disc_get()->GetRows("EK_Device=" + StringUtils::itos(m_dwPK_Device) + " AND Slot=" + sID,&vectRow_Disc);
-		for(size_t s=0;s<vectRow_Disc.size();++s)
-		{
-			vectRow_Disc[s]->EK_Device_set(0);
-			vectRow_Disc[s]->Slot_set(0);
-		}
-
-		Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(PK_Disc);
-		if( pRow_Disc )
-		{
-			pRow_Disc->EK_Device_set(m_dwPK_Device);
-			pRow_Disc->Slot_set(atoi(sID.c_str()));
-		}
-		m_pDatabase_pluto_media->Disc_get()->Commit();
-		m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size,sURL);
-	}
-	m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
-	*/
 }
 //<-dceag-c743-b->
 
@@ -1287,4 +1224,20 @@ void Powerfile_C200::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename
 void Powerfile_C200::CMD_Update_Ripping_Status(string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage)
 //<-dceag-c871-e->
 {
+}
+
+bool Powerfile_C200::SafeToReload(string &sReason)
+{
+	PLUTO_SAFETY_LOCK(jm,*(m_pPowerfileJukebox->m_pJobHandler->m_ThreadMutex_get()));
+
+	if(m_pPowerfileJukebox->m_pJobHandler->HasJobs()==false)
+		return true;
+
+	sReason = "See Pending Tasks.  Powerfile busy.";
+	return false;
+}
+
+bool Powerfile_C200::ReportPendingTasks(PendingTaskList *pPendingTaskList)
+{
+	return m_pPowerfileJukebox->m_pJobHandler->ReportPendingTasks(pPendingTaskList);
 }

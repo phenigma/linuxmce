@@ -140,5 +140,5 @@ string IdentifyJob::ToString()
 	string sTimeLeft;
 	if( pTask_Current )
 		sTimeLeft = "(" + StringUtils::SecondsAsTime(pTask_Current->SecondsRemaining()) + ")";
-	return "Ripping " + StringUtils::itos(iTaskNum) + " of " + StringUtils::itos((int) m_listTask.size()) + " " + sTimeLeft + ": ";
+	return "Identifying disc.  Stage " + StringUtils::itos(iTaskNum) + " of " + StringUtils::itos((int) m_listTask.size()) + " " + sTimeLeft + ": ";
 }

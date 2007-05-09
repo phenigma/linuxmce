@@ -20,6 +20,7 @@ extern DCEConfig g_DCEConfig;
 #include "../JobHandler/Task.h"
 #include "../Disk_Drive_Functions/Disk_Drive_Functions.h"
 #include "../Disk_Drive_Functions/IdentifyJob.h"
+#include "../Gen_Devices/AllCommandsRequests.h"
 
 using namespace nsJobHandler;
 
@@ -524,6 +525,39 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 	
 	void PowerfileJukebox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc)
 	{
+		DCE::CMD_Media_Identified_DT CMD_Media_Identified_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
+			BL_SameHouse,iPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc);
+		m_pCommand_Impl->SendCommand(CMD_Media_Identified_DT);
+
+		PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
+		Drive *pDrive = NULL;
+		for(map_int_Drivep::iterator it=m_mapDrive.begin();it!=m_mapDrive.end();++it)
+		{
+			Drive *pD = it->second;
+			if( pD->m_dwPK_Device_get()==iPK_Device )
+			{
+				pDrive = pD;
+				break;
+			}
+		}
+
+		if( !pDrive )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PowerfileJukebox::Media_Identified - no drive: %d",iPK_Device);
+			return;
+		}
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PowerfileJukebox::Media_Identified disc is %d",*iEK_Disc);
+		if( *iEK_Disc )
+		{
+			char cMediaType='M'; // The default
+			if( iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+				cMediaType='c';
+			else if( iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+				cMediaType='d';
+			pDrive->UpdateDiscLocation(cMediaType,*iEK_Disc,0);
+		}
+
 		PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
 		const ListJob *plistJob = m_pJobHandler->m_listJob_get();
 

@@ -64,6 +64,9 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+		bool SafeToReload(string &sReason);
+		bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
+
 //<-dceag-const2-b->!
 		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
 
