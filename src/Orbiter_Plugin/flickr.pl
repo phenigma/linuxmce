@@ -11,28 +11,29 @@ use Image::Magick;
 use Data::Dumper;
 use DBI;
 use POSIX qw(ceil floor);
+use POSIX ":sys_wait_h";
 #use strict;
-use vars qw($dest $xs $r @buff $child_count $minW $minH @fileList);
+use vars qw($dest $xs $r @buff $child_count $minW $minH @fileList @AoH);
 
 $child_count = 5;
 
-$SIG{CHLD}='sig_child';
+$SIG{CHLD} = \&sig_child;
 
-if (-e '/tmp/flickr_start'){
-	my $line = `tail -n 1 /tmp/flickr_start`;
+if (-e '/var/flickr_start'){
+	my $line = `tail -n 1 /var/flickr_start`;
 	chomp($line);
 	if ($line eq 'Pictures downloaded'){
 		my $currentTime = `date +%s`;
-		my $lastRunTime = `stat --format=%Z /tmp/flickr_start`;
+		my $lastRunTime = `stat --format=%Z /var/flickr_start`;
 		my $nrSeconds = $currentTime - $lastRunTime;
 		if ($nrSeconds > 18000){
-			`touch /tmp/flickr_start`;
+			`touch /var/flickr_start`;
 		} else {
-			exit (1);
+			exit (0);
 		}
 	}
 } else {
-	`touch /tmp/flickr_start`;
+	`touch /var/flickr_start`;
 }
 
 # Config section. ###########################################
@@ -89,7 +90,6 @@ if (!-d $dest) {
 
 $api = new Flickr::API({'key' => $fKey});
 my ($max_number, $picture_nr);
-#$max_number = 100;
 $max_number = getMaxNrFiles();
 $picture_nr = 0;
 
@@ -138,7 +138,8 @@ if ($search_string){
 				} else {
 					# I'm the child
 					get_files($search_string, $IMGS->{$id}, $id);
-					exit(0);
+					CORE::exit(0);
+					#exit(0);
 				} 
 			}
                 } else {
@@ -205,8 +206,9 @@ if ($search_string){
 						next;
 					} else {
 						# I'm the child
+						print "CC: $child_count";
 						get_files('', $IMGS->{$id}, $id);
-						exit(0);
+						CORE::exit(0);
 					} 
 				}
 			}
@@ -217,14 +219,17 @@ if ($search_string){
 	}
 }
 
-open DATA, ">/tmp/flickr_start" or die "can't open /tmp/flickr_start";
+open DATA, ">/var/flickr_start" or die "can't open /var/flickr_start";
 print DATA 'Pictures downloaded';
 close(DATA);
+
+#resizing images
+resize_images();
 
 #deleting old files;
 delete_old();
 
-sub get_files{
+sub get_files {
 	my $pattern = shift;
 	my $image = shift;
 	my $buff = shift;
@@ -236,7 +241,6 @@ sub get_files{
 			die "Cannot create ".$dest."/".'tags'."\n";
 		}
 	} 
-	my $symdest="/home/public/data/pictures/flickr";
 	if ($pattern eq '') {
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($image->{'time'});
 		$year=1900+$year;
@@ -263,77 +267,95 @@ sub get_files{
 		}
 
 		$finaldst = $dest."/".$year."/".$mon."/".$mday."/".$buff.".".$image->{'format'};
-		$symdest.="/".$year."/".$mon."/".$mday."/".$buff.".".$image->{'format'};
 	} else {
 		$finaldst = $dest."/".'tags'."/".$buff.".".$image->{'format'};
-		$symdest.="/".'tags'."/".$buff.".".$image->{'format'};
 	}
 	
-	`touch "$finaldst.lock"`;
 	`wget $image->{'source'} -O "$finaldst" 1>/dev/null 2>/dev/null`;
 
-	$xs=Image::Magick->new;
-	$r=$xs->Read("$finaldst");
-	warn "$r" if "$r";
+	open TEST, ">>/var/log/pluto/Flickr.log";
+	print TEST "Downloading image $finaldst \n";	
+	close(TEST);
+}
+
+sub resize_images {
+
+	my ($i, $width, $height, $finaldst, $symdest, $partdst);
 	open TEST, ">>/var/log/pluto/Flickr.log";
 	print TEST "-------------------\n";
-	my $test_date = `date`;
-	print TEST "$test_date Image downloaded: $finaldst \n";
-	print TEST "Old image width: $image->{'width'} and height: $image->{'height'}\n";
-	if (($image->{'width'} > 1024 || $image->{'height'} > 1024)||
-	    ($image->{'width'} > 1024 && $image->{'height'} > 1024)) {
-		if($image->{'width'} > $image->{'height'}){
-			$image->{'height'} = floor(($image->{'height'}/$image->{'width'})*1024);
-			$image->{'height'} = 768 if($image->{'height'} > 768);
-			$image->{'width'} = 1024;
-		} 
-		elsif($image->{'height'} > $image->{'width'}){
-			$image->{'width'} = floor(($image->{'width'}/$image->{'height'})*1024);
-			$image->{'width'} = 768 if($image->{'width'} > 768);
-			$image->{'height'} = 1024;
-		}
-		elsif($image->{'height'} == $image->{'width'}){
-			$image->{'width'} = 768;
-			$image->{'height'} = 768;
-		}
-	}
-	print TEST "Resizing: New image width: $image->{'width'} and height: $image->{'height'}\n";
-	
-	$r=$xs->Scale(width=>$image->{'width'}, 
-		      height=>$image->{'height'});
-
-#	$r = $xs->Annotate( font=>'/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf', 
-#				pointsize=>20, 
-#				fill=>'red', 
-#				x=>'20',
-#				y=>'40',
-#				text=>chr(169).$image->{'username'});
-	warn "$r" if "$r";
-	$r=$xs->Write($finaldst);
-	print "[flickr.pl] Writing file $finaldst.\n";
-	$test_date = `date`;
-	print TEST "$test_date Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 $symdest\n";
+	print TEST "Resizing images \n";	
 	print TEST "-------------------\n";
-	close(TEST);
+	for $i ( 0 .. $#AoH ) {	
+		$symdest = "/home/public/data/pictures/flickr";
+		$finaldst = $AoH[$i]{File}; 
+		`touch "$finaldst.lock"`;
+		$partdst = $finaldst;
+		$partdst =~ s/\/home\/flickr//g;  
+		$symdest .= "$partdst";
+		$width = $AoH[$i]{Width};
+		$height = $AoH[$i]{Height};
+		#$xs=Image::Magick->new;
+		#$r=$xs->Read("$finaldst");
+		#warn "$r" if "$r";
+		my $test_date = `date`;
+		print TEST "Old image width: $width and height: $height\n";
+		if (($width > 1024 || $height > 1024)||
+		    ($width > 1024 && $height > 1024)) {
+			if($width > $height){
+				$height = floor(($height/$width)*1024);
+				$height = 768 if($height > 768);
+				$width = 1024;
+			} 
+			elsif($height > $width){
+				$width = floor(($width/$height)*1024);
+				$width = 768 if($width > 768);
+				$height = 1024;
+			}
+			elsif($height == $width){
+				$width = 768;
+				$height = 768;
+			}
+			print TEST "Resizing: New image width: $width and height: $height\n";
+		
+			#$r=$xs->Scale(width=>$width, 
+			#	      height=>$height);
+			#warn "$r" if "$r";
+			#$r=$xs->Write($finaldst);
+			`/usr/bin/convert -sample "$width"x"$height" $finaldst $finaldst`;
+			print "[flickr.pl] Writing file $finaldst.\n";
+		}
 
-	my $fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |; 
-				
-	## If the router is not available for the moment
-	while ( $fms =~ m/Cannot communicate with router/ ) {
-		printf "Waiting for router to come up";
-		sleep 10;
-		$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |;
-	}
-				
-	`rm -f $finaldst.lock`;
-	$fms =~ s/\n//g;
-	@out = split (/:/, $fms);
-	$ffield = $out[2];
-	warn "$r" if "$r";
+	#	$r = $xs->Annotate( font=>'/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf', 
+	#				pointsize=>20, 
+	#				fill=>'red', 
+	#				x=>'20',
+	#				y=>'40',
+	#				text=>chr(169).$image->{'username'});
+		$test_date = `date`;
+		print TEST "$test_date Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 $symdest\n";
+		print TEST "-------------------\n";
+
+		$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |; 
 					
-	# second message send
-	#	print "Fire-ing second messagesend event\n";
-	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 391 145 "$ffield" 122 30 5 "*" |;
+		## If the router is not available for the moment
+		while ( $fms =~ m/Cannot communicate with router/ ) {
+			printf "Waiting for router to come up";
+			sleep 10;
+			$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |;
+		}
+					
+		`rm -f $finaldst.lock`;
+		$fms =~ s/\n//g;
+		@out = split (/:/, $fms);
+		$ffield = $out[2];
+		#warn "$r" if "$r";
+						
+		# second message send
+		#	print "Fire-ing second messagesend event\n";
+		qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 391 145 "$ffield" 122 30 5 "*" |;
+	}
+	
+	close(TEST);
 }
 
 sub delete_old {
@@ -441,6 +463,7 @@ sub isFileOnDisk {
 	}
 	#print "destinatia: $finaldst ";
 	if (!-e $finaldst){
+		push @AoH, { File => $finaldst, Width => $image->{'width'}, Height => $image->{'height'} };
 		push (@fileList, $finaldst);
 		return 0;
 	}
@@ -455,12 +478,14 @@ sub getPictureDimensions {
 	if ($response->{success} == 1) {
 		my $r=XMLin($response->{_content});
 		foreach $buff (@{$r->{'sizes'}->{'size'}}) {
-			if ($buff->{'width'} >= $minW && $buff->{'height'} >= $minH) {
+			if (($buff->{'width'} >= $minW && $buff->{'height'} >= $minH) && 
+			     ($buff->{'width'} <= 2048 && $buff->{'height'} <= 2048) )  {
 				#last if ($buff->{'width'} > $maxW || $buff->{'height'} >= $maxH);
 				$width = $buff->{'width'};
 				$height = $buff->{'height'};
 				$source = $buff->{'source'};
 				$download = 1;
+				last;
 			}
 		}
 		return ($width, $height, $source, $download);
