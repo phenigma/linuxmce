@@ -44,12 +44,15 @@ function Setup_Network_Intefaces {
 		echo "auto lo" >> /etc/network/interfaces
 		echo "iface lo inet loopback" >> /etc/network/interfaces
 
-		echo "" >> /etc/network/interfaces
-		echo "auto $c_netExtName" >> /etc/network/interfaces
-		echo "iface $c_netExtName inet static" >> /etc/network/interfaces
-		echo "address $c_netExtIP" >> /etc/network/interfaces
-		echo "netmask $c_netExtMask" >> /etc/network/interfaces
-		echo "gateway $c_netExtGateway" >> /etc/network/interfaces
+		if [[ "$c_netExtIP" != "" ]] && [[ "$c_netExtName" != "" ]] &&
+		   [[ "$c_netExtMask" != "" ]] && [[ "$c_netExtGateway" != "" ]] ;then
+			echo "" >> /etc/network/interfaces
+			echo "auto $c_netExtName" >> /etc/network/interfaces
+			echo "iface $c_netExtName inet static" >> /etc/network/interfaces
+			echo "address $c_netExtIP" >> /etc/network/interfaces
+			echo "netmask $c_netExtMask" >> /etc/network/interfaces
+			echo "gateway $c_netExtGateway" >> /etc/network/interfaces
+		fi
 
 		echo > /etc/resolv.conf
 		echo "nameserver $c_netExtDNS1" >> /etc/resolv.conf
