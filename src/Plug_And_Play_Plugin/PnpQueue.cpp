@@ -1367,7 +1367,8 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 			}
 			// The arguments are this device, the queue ie, the path where to find the device, the pnp script name
 			string sArguments = StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device) + "\t" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + 
-				"\t" + sPath + "\t" + pRow_DHCPDevice_To_Detect->PnpDetectionScript_get();
+				"\t" + sPath + "\t" + pRow_DHCPDevice_To_Detect->PnpDetectionScript_get() + "\t" + pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_Block_Device_CONST) + "\t" +
+				pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_Location_on_PCI_bus_CONST);
 			string sName = "PNP Detection " + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " " + pRow_DHCPDevice_To_Detect->PnpDetectionScript_get();
 			string sMessage = "0 " + StringUtils::itos(m_pPlug_And_Play_Plugin->m_dwPK_Device) + " 1 " + TOSTRING(COMMAND_PNP_Detection_Script_Finished_CONST) + " "
 				+ TOSTRING(COMMANDPARAMETER_PK_PnpQueue_CONST) + " " 
