@@ -57,15 +57,23 @@ void HalTree::PurgeTree()
 
 HalDevice *HalTree::GetDeviceWithParm(string sKey,string sValue)
 {
+LoggerWrapper::GetInstance()->Write(LV_WARNING, "HalTree::GetDeviceWithParm key %s value %s", sKey.c_str(), sValue.c_str() );
+
 	for(map<int,HalDevice *>::iterator it=m_mapHalDevice.begin();it!=m_mapHalDevice.end();++it)
 	{
 		HalDevice *pHalDevice = it->second;
+LoggerWrapper::GetInstance()->Write(LV_WARNING, "HalTree::GetDeviceWithParm key %s value %s device %d", sKey.c_str(), sValue.c_str(), pHalDevice->m_iID );
 		for(map<string,HalValue *>::iterator it2=pHalDevice->m_mapHalValue.begin();it2!=pHalDevice->m_mapHalValue.end();++it2)
 		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "HalTree::GetDeviceWithParm key <%s> value <%s> device %d <%s><%s>", sKey.c_str(), sValue.c_str(), pHalDevice->m_iID,it2->first.c_str(),it2->second->m_sValueAsString.c_str() );
 			if( it2->first==sKey && it2->second->m_sValueAsString==sValue )
+			{
+LoggerWrapper::GetInstance()->Write(LV_WARNING, "HalTree::GetDeviceWithParm match");
 				return pHalDevice;
+			}
 		}
 	}
+LoggerWrapper::GetInstance()->Write(LV_WARNING, "HalTree::GetDeviceWithParm no match");
 	return NULL;
 }
 
