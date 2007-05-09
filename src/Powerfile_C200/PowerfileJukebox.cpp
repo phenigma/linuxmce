@@ -500,7 +500,7 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 				//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 				//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				//system(sCmd.c_str());
-				sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
+				sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? " altres" : "") + " nobarcode eject"; // this is a patched version of mtx
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				int iRet = system(sCmd.c_str());
 				if (iRet == -1)
