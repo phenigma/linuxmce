@@ -106,7 +106,7 @@ bool Disk_Drive::GetConfig()
 	
 	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media,g_DCEConfig.m_iPK_Installation);
 
-	m_pDisk_Drive_Functions = new Disk_Drive_Functions(this, sDrive, m_pJobHandler,m_pDatabase_pluto_media,m_pMediaAttributes_LowLevel);
+	m_pDisk_Drive_Functions = new Disk_Drive_Functions(m_dwPK_Device,this, sDrive, m_pJobHandler,m_pDatabase_pluto_media,m_pMediaAttributes_LowLevel);
 
 	bool bResult = m_pJobHandler->StartThread();
 	LoggerWrapper::GetInstance()->Write(LV_SOCKET,"Disk_Drive::GetConfig StartThread %d", (int) bResult);
