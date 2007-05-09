@@ -418,50 +418,34 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 				//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 				//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				//system(sCmd.c_str());
-				sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? " altres" : "") + " nobarcode eject"; // this is a patched version of mtx
+				sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? " altres" : "") + " nobarcode eject"; // this is a patched version of mtx.  This is just a hack for a bug in the C200.  Don't worry about the result code
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				int iRet = system(sCmd.c_str());
-				if (iRet == -1)
+#endif
+					
+				pDrive->m_iSourceSlot = pSlot->m_SlotNumber;
+				pSlot->m_eStatus = Slot::slot_empty;
+
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting disc type");
+				pDrive->m_mediaDiskStatus = DISCTYPE_NONE;
+				pDrive->m_mediaInserted = false;
+				pDrive->cdrom_checkdrive(pDrive->m_sDrive.c_str(), &pDrive->m_mediaDiskStatus, false);
+				if (pDrive->m_mediaDiskStatus != DISCTYPE_NONE)
 				{
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to execute mtx");
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded disc of type %d", pDrive->m_mediaDiskStatus);
+					pDrive->m_mediaInserted = true;
+					jbRetCode = JukeBox::jukebox_ok;
+
+					// Update the database
+					string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(pDrive->m_dwPK_Device_get()) + ",Slot=NULL" + 
+						" WHERE EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " AND Slot=" + StringUtils::itos(pSlot->m_SlotNumber);
+					m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+
 				}
 				else
 				{
-					if (WEXITSTATUS(iRet) == 1)
-					{
-						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc loaded but failed to refresh state. Marking drive %d as OFFLINE", pDrive->m_DriveNumber);
-						pDrive->m_bFunctional = false;
-					}
-					else
-#endif
-					{
-						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc succeeded");
-					}
-					
-					pDrive->m_iSourceSlot = pSlot->m_SlotNumber;
-					pSlot->m_eStatus = Slot::slot_empty;
-
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting disc type");
-					pDrive->m_mediaDiskStatus = DISCTYPE_NONE;
-					pDrive->m_mediaInserted = false;
-					pDrive->cdrom_checkdrive(pDrive->m_sDrive.c_str(), &pDrive->m_mediaDiskStatus, false);
-					if (pDrive->m_mediaDiskStatus != DISCTYPE_NONE)
-					{
-						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded disc of type %d", pDrive->m_mediaDiskStatus);
-						pDrive->m_mediaInserted = true;
-						jbRetCode = JukeBox::jukebox_ok;
-
-						// Update the database
-						string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(pDrive->m_dwPK_Device_get()) + ",Slot=NULL" + 
-							" WHERE EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " AND Slot=" + StringUtils::itos(pSlot->m_SlotNumber);
-						m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
-
-					}
-					else
-					{
-						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't get disc type. Since we're sure there's a disc in there (we just loaded it), assuming defective unit. Marking drive %d as OFFLINE", pDrive->m_DriveNumber);
-						pDrive->m_bFunctional = false;
-					}
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't get disc type. Since we're sure there's a disc in there (we just loaded it), assuming defective unit. Marking drive %d as OFFLINE", pDrive->m_DriveNumber);
+					pDrive->m_bFunctional = false;
 				}
 			}
 			else
@@ -500,40 +484,24 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 				//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 				//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				//system(sCmd.c_str());
-				sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? " altres" : "") + " nobarcode eject"; // this is a patched version of mtx
+				sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? " altres" : "") + " nobarcode eject"; // this is a patched version of mtx.  This is just a hack for a bug in the C200.  Don't worry about the result code
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				int iRet = system(sCmd.c_str());
-				if (iRet == -1)
-				{
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to execute mtx");
-				}
-				else
-				{
-					if (WEXITSTATUS(iRet) == 1)
-					{
-						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unloaded but failed to refresh state. Marking drive %d as OFFLINE", pDrive->m_DriveNumber);
-						pDrive->m_bFunctional = false;
-					}
-					else
 #endif
-					{
-						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc succeeded");
-					}
-					
-					pDrive->m_iSourceSlot = -pSlot->m_SlotNumber;
-					pSlot->m_eStatus = Slot::slot_unknown_medium; // TODO: distinguish between slot_unknown_medium and slot_identified_disc
-					
-					Disk_Drive_Functions * pDDF = pDrive;
-					pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
-					pDDF->m_mediaInserted = false;
+				
+				pDrive->m_iSourceSlot = -pSlot->m_SlotNumber;
+				pSlot->m_eStatus = Slot::slot_unknown_medium; // TODO: distinguish between slot_unknown_medium and slot_identified_disc
+				
+				Disk_Drive_Functions * pDDF = pDrive;
+				pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
+				pDDF->m_mediaInserted = false;
 
-					// Update the database
-					string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + ",Slot=" + 
-						StringUtils::itos(pSlot->m_SlotNumber) + " WHERE EK_Device=" + StringUtils::itos(pDrive->m_dwPK_Device_get());
-					m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
-					
-					jbRetCode = JukeBox::jukebox_ok;
-				}
+				// Update the database
+				string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + ",Slot=" + 
+					StringUtils::itos(pSlot->m_SlotNumber) + " WHERE EK_Device=" + StringUtils::itos(pDrive->m_dwPK_Device_get());
+				m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+				
+				jbRetCode = JukeBox::jukebox_ok;
 			}
 			else
 			{
