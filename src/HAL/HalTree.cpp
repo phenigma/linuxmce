@@ -86,6 +86,8 @@ void HalTree::Populate()
 	char * args[] = {"hal-device", NULL};
 	if (!ProcessUtils::GetCommandOutput(args[0], args, sBuffer))
 		return;
+
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"got %d %s",sBuffer.size(),sBuffer.c_str());
 	
 #ifdef WIN32
 	size_t size;
