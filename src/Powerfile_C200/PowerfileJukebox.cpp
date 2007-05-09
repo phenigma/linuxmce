@@ -87,6 +87,12 @@ namespace nsJukeBox
 					// Data Transfer Element
 					else if (vsFF[0] == "Data" && vsFF.size() >= 4)
 					{
+						if( m_mapDrive.find(nDrive)==m_mapDrive.end() )
+						{
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PowerfileJukebox::Get_Jukebox_Status drive %d not found", nDrive);
+							continue;
+						}
+
 						int iDiscFrom = 0;
 						sWhoWhat = vsFF[3];
 						Tokenize(sWhoWhat, ":", vsC); // Unit_number:State
@@ -227,6 +233,7 @@ namespace nsJukeBox
 
 		HalTree halTree;
 		halTree.Populate();
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapHalDevice.size());
 
 		string sOutput;
 #ifdef EMULATE_PF
