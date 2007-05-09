@@ -821,7 +821,7 @@ void PowerfileRip_Task::Run()
 	Row_Disc *pRow_Disc;
 	if( !PK_Disc || (pRow_Disc=pPowerfile_Job->m_pPowerfile_C200->m_pDatabase_pluto_media->Disc_get()->GetRow(PK_Disc))==NULL )
 	{
-		m_ePreTaskStatus=TASK_FAILED;
+		m_ePreTaskStatus=TASK_FAILED_CONTINUE;
 		m_sResult="Disc has not been identified";
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot rip disk for device %d slot %d because it has not been identified",
 			pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device,m_iSlot);
@@ -834,7 +834,7 @@ void PowerfileRip_Task::Run()
 		RipDVD(pRow_Disc,listMediaAttribute_);
 	else
 	{
-		m_ePreTaskStatus=TASK_FAILED;
+		m_ePreTaskStatus=TASK_FAILED_CONTINUE;
 		m_sResult="Disc type is unknown";
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot rip disk for device %d slot %d because the type %d is unknown",
 			pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device,m_iSlot,pRow_Disc->EK_MediaType_get());
@@ -855,7 +855,7 @@ void PowerfileRip_Task::RipDVD(Row_Disc *pRow_Disc,listMediaAttribute &listMedia
 
 	if (! sTitle.size())
 	{
-		m_ePreTaskStatus = TASK_FAILED;
+		m_ePreTaskStatus = TASK_FAILED_CONTINUE;
 		m_sResult = "DVD Title is not known";
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot rip disk for device %d slot %d because the title is unknown",
 			pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device, m_iSlot);
@@ -902,7 +902,7 @@ void PowerfileRip_Task::RipDVD(Row_Disc *pRow_Disc,listMediaAttribute &listMedia
 	else
 	{
 		m_bStop = true;
-		m_ePreTaskStatus = TASK_FAILED;
+		m_ePreTaskStatus = TASK_FAILED_CONTINUE;
 		m_sResult = "Ripping reported " + sCMD_Result;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disc failed to rip %s", sCMD_Result.c_str());
 	}
@@ -934,7 +934,7 @@ void PowerfileRip_Task::RipCD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaA
 
 	if( sPerformer.size()==0 || sAlbum.size()==0 )
 	{
-		m_ePreTaskStatus=TASK_FAILED;
+		m_ePreTaskStatus=TASK_FAILED_CONTINUE;
 		m_sResult="CD Performer and Album are not known";
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot rip disk for device %d slot %d because the performer/album are unknown",
 			pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device,m_iSlot);
@@ -992,7 +992,7 @@ void PowerfileRip_Task::RipCD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaA
 	else
 	{
 		m_bStop=true;
-		m_ePreTaskStatus=TASK_FAILED;
+		m_ePreTaskStatus=TASK_FAILED_CONTINUE;
 		m_sResult="Ripping reported " + sCMD_Result;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disc failed to rip %s",sCMD_Result.c_str());
 	}
@@ -1025,7 +1025,7 @@ void PowerfileIdentify_Task::Run()
 	if (m_bStop)
 		m_ePreTaskStatus = TASK_COMPLETED;
 	else // timeout
-		m_ePreTaskStatus = TASK_FAILED;
+		m_ePreTaskStatus = TASK_FAILED_CONTINUE;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Drive %d identifying task finished with status %d", m_iDrive_Number, m_ePreTaskStatus);
 }
 
@@ -1093,7 +1093,7 @@ void Powerfile_Job::RippingProgress_End(int iDrive_Number, int iResult)
 			else
 			{
 				pTask->m_sResult="Technical problem reading the disc";
-				pTask->m_ePreTaskStatus = TASK_FAILED;
+				pTask->m_ePreTaskStatus = TASK_FAILED_CONTINUE;
 			}
 			pTask->m_bStop = true;
 			return;

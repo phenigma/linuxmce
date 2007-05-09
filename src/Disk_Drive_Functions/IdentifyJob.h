@@ -42,11 +42,10 @@ namespace nsJobHandler
 	{
 		friend class IdentifyTask;
 
-	private:
+	public:
 		Disk_Drive_Functions *m_pDisk_Drive_Functions;  // If non-null, identify the disc in a particular drive
 		Slot *m_pSlot; // If specified, this is the slot to identify, and m_pDisk_Drive_Functions will be filled in as a drive becomes available
 
-	public:
 		IdentifyJob(class JobHandler *pJobHandler,
 			Disk_Drive_Functions *pDisk_Drive_Functions,
 			Slot *pSlot);

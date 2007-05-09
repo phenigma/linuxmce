@@ -31,14 +31,27 @@
 
 using namespace nsJobHandler;
 
+#define	ID_TIMEOUT	45 // Maximum seconds to wait for ID
+
 IdentifyTask::IdentifyTask(IdentifyJob *pIdentifyJob,string sName)
 	: Task(pIdentifyJob,sName)
 {
 	m_pIdentifyJob=pIdentifyJob; // A duplicate of m_pJob, but we don't need to keep recasting
+	m_tSentIdCommand=0;
 }
 
 int IdentifyTask::Run()
 {
+	if( m_tSentIdCommand )
+	{
+		if( m_tSentIdCommand + ID_TIMEOUT < time(NULL) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "IdentifyTask::Run didn't get a valid response");
+			m_eTaskStatus_set(TASK_FAILED_CONTINUE);  // Keep going and put the disc back in its slot
+			return 0;
+		}
+		return 1000; // Keep going
+	}
 	if( m_pIdentifyJob && m_pIdentifyJob->m_pDisk_Drive_Functions && m_pIdentifyJob->m_pDisk_Drive_Functions->m_pDevice_MediaIdentifier_get() )
 	{
 		Command_Impl *pCommand_Impl=NULL;
@@ -49,18 +62,19 @@ int IdentifyTask::Run()
 
 		string sResponse;
 		DCE::CMD_Identify_Media CMD_Identify_Media(pCommand_Impl->m_dwPK_Device,m_pIdentifyJob->m_pDisk_Drive_Functions->m_pDevice_MediaIdentifier_get()->m_dwPK_Device,
-			pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_pIdentifyJob->m_pDisk_Drive_Functions->m_discid),
+			m_pIdentifyJob->m_pDisk_Drive_Functions->m_dwPK_Device_get(),StringUtils::itos(m_pIdentifyJob->m_pDisk_Drive_Functions->m_discid),
 			m_pIdentifyJob->m_pDisk_Drive_Functions->m_sDrive,
 			pCommand_Impl->m_dwPK_Device);
-		if( pCommand_Impl->SendCommand(CMD_Identify_Media,&sResponse) && sResponse!="OK" )
+		if( pCommand_Impl->SendCommand(CMD_Identify_Media,&sResponse) && sResponse=="OK" )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "IdentifyTask::Run waiting for identification");
 			m_eTaskStatus_set(TASK_IN_PROGRESS);
+			m_tSentIdCommand=time(NULL);
 			return 1000;
 		}
 	}
 
-	m_eTaskStatus_set(TASK_FAILED);
+	m_eTaskStatus_set(TASK_FAILED_CONTINUE);  // Keep going and put the disc back in its slot
 	return 0;
 
 

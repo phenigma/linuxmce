@@ -28,7 +28,8 @@ namespace nsJobHandler
 	typedef enum {
 		TASK_NOT_STARTED = 0,
 		TASK_IN_PROGRESS,
-		TASK_FAILED,
+		TASK_FAILED_ABORT,  // Failed, and stop all the rest of the tasks
+		TASK_FAILED_CONTINUE, // Failed, but keep doing the rest of the tasks
 		TASK_COMPLETED,
 		TASK_CANCELED
 	} TaskStatus;
@@ -55,7 +56,7 @@ namespace nsJobHandler
 
 		int m_iID_get() { return m_iID; }
 		virtual string ToString() { return m_sName; }
-		virtual string Type() { return "Unknown Task"; }  // Should override
+		virtual string GetType()=0; // Should override
 		virtual int Run()=0;  // Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms
 		TaskStatus m_eTaskStatus_get() { return m_eTaskStatus; }
 		void m_eTaskStatus_set(TaskStatus taskStatus) 

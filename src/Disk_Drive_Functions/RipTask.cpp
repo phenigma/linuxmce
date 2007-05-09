@@ -136,7 +136,7 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 	else if( sStatus=="e" )
 	{
 		ReportFailure();
-		m_eTaskStatus_set(TASK_FAILED);
+		m_eTaskStatus_set(TASK_FAILED_ABORT);
 	}
 	else if( sStatus=="s" )
 	{

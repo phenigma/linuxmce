@@ -67,9 +67,9 @@ namespace nsJukeBox
 		Row_Disc *m_pRow_Disc;
 		JukeBox *m_pJukeBox;
 
-		Drive(Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel,
+		Drive(int dwPK_Device,Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel,
             int DriveNumber, string sSRdev, JukeBox *pJukeBox, bool bFunctional)
-			: Disk_Drive_Functions(pCommand_Impl, sDrive, pJobHandler, pDatabase_pluto_media,pMediaAttributes_LowLevel,false)
+			: Disk_Drive_Functions(dwPK_Device,pCommand_Impl, sDrive, pJobHandler, pDatabase_pluto_media,pMediaAttributes_LowLevel,false)
 		{
 			m_DriveNumber=DriveNumber;
 			m_sSRdev=sSRdev;

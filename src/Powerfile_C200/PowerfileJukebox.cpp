@@ -16,6 +16,13 @@ extern DCEConfig g_DCEConfig;
 
 #include "../HAL/HalTree.h"
 
+#include "../JobHandler/Job.h"
+#include "../JobHandler/Task.h"
+#include "../Disk_Drive_Functions/Disk_Drive_Functions.h"
+#include "../Disk_Drive_Functions/IdentifyJob.h"
+
+using namespace nsJobHandler;
+
 #define MTX_CMD "/opt/mtx-pluto/sbin/mtx"
 
 #ifdef WIN32
@@ -322,7 +329,7 @@ namespace nsJukeBox
 				if( pDevice )
 					m_pPowerfile->SetDeviceDataInDB(pDevice->m_dwPK_Device,DEVICEDATA_Drive_CONST,vsFF[6]);
 
-				Drive * pDrive= new Drive(m_pPowerfile, vsFF[6],
+				Drive * pDrive= new Drive(pDevice ? pDevice->m_dwPK_Device : 0,m_pPowerfile, vsFF[6],
 						m_pJobHandler, m_pDatabase_pluto_media, m_pMediaAttributes_LowLevel,nDrive, vsFF[7],this,true);
 				m_mapDrive[nDrive] = pDrive;
 
@@ -385,7 +392,7 @@ namespace nsJukeBox
 #ifdef EMULATE_PF
 		string sCmd = "/bin/true";
 #else
-		string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? "altres" : "") + " nobarcode load " + itos(pSlot->m_SlotNumber) + " " + itos(pDrive->m_DriveNumber);
+		string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? " altres" : "") + " nobarcode load " + itos(pSlot->m_SlotNumber) + " " + itos(pDrive->m_DriveNumber);
 #endif
 
 		JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
@@ -404,7 +411,7 @@ namespace nsJukeBox
 				//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
 				//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				//system(sCmd.c_str());
-				sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? "altres" : "") + " nobarcode eject"; // this is a patched version of mtx
+				sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? " altres" : "") + " nobarcode eject"; // this is a patched version of mtx
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				int iRet = system(sCmd.c_str());
 				if (iRet == -1)
@@ -428,18 +435,17 @@ namespace nsJukeBox
 					pSlot->m_eStatus = Slot::slot_empty;
 
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting disc type");
-					Disk_Drive_Functions * pDDF = pDrive;
-					pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
-					pDDF->m_mediaInserted = false;
-					pDDF->cdrom_checkdrive(pDDF->m_sDrive.c_str(), &pDDF->m_mediaDiskStatus, false);
-					if (pDDF->m_mediaDiskStatus != -1)
+					pDrive->m_mediaDiskStatus = DISCTYPE_NONE;
+					pDrive->m_mediaInserted = false;
+					pDrive->cdrom_checkdrive(pDrive->m_sDrive.c_str(), &pDrive->m_mediaDiskStatus, false);
+					if (pDrive->m_mediaDiskStatus != DISCTYPE_NONE)
 					{
-						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded disc of type %d", pDDF->m_mediaDiskStatus);
-						pDDF->m_mediaInserted = true;
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded disc of type %d", pDrive->m_mediaDiskStatus);
+						pDrive->m_mediaInserted = true;
 						jbRetCode = JukeBox::jukebox_ok;
 
 						// Update the database
-						string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(pDrive->m_pCommand_Impl_get()->m_dwPK_Device) + ",Slot=NULL" + 
+						string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(pDrive->m_dwPK_Device_get()) + ",Slot=NULL" + 
 							" WHERE EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " AND Slot=" + StringUtils::itos(pSlot->m_SlotNumber);
 						m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
 
@@ -516,7 +522,7 @@ namespace nsJukeBox
 
 					// Update the database
 					string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + ",Slot=" + 
-						StringUtils::itos(pSlot->m_SlotNumber) + " WHERE EK_Device=" + StringUtils::itos(pDrive->m_pCommand_Impl_get()->m_dwPK_Device);
+						StringUtils::itos(pSlot->m_SlotNumber) + " WHERE EK_Device=" + StringUtils::itos(pDrive->m_dwPK_Device_get());
 					m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
 					
 					jbRetCode = JukeBox::jukebox_ok;
@@ -549,6 +555,21 @@ namespace nsJukeBox
 		for(ListJob::const_iterator it=plistJob->begin();it!=plistJob->end();++it)
 		{
 			Job *pJob = *it;
+			if( pJob->GetType()=="IdentifyJob" )
+			{
+				IdentifyJob *pIdentifyJob = (IdentifyJob *) pJob;
+				if( pIdentifyJob->m_pDisk_Drive_Functions && pIdentifyJob->m_pDisk_Drive_Functions->m_dwPK_Device_get()==iPK_Device )
+				{
+					// Found the job.  Now get the pending task
+					Task *pTask = pIdentifyJob->GetNextTask();
+					if( pTask && pTask->GetType()=="IdentifyTask" )
+					{
+						pTask->m_eTaskStatus_set(TASK_COMPLETED);
+						return;
+					}
+				}
+			}
 		}
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::Media_Identified cannot find job/task for %d",iPK_Device);
 	}
 }

@@ -147,8 +147,12 @@ void JukeBox::MassIdentify(string sSlots)
 		}
 		for(map_int_Slotp::iterator it=m_mapSlot.begin();it!=m_mapSlot.end();++it)
 		{
-			IdentifyJob *pIdentifyJob = new IdentifyJob(m_pJobHandler,NULL,it->second);
-			m_pJobHandler->AddJob(pIdentifyJob);
+			Slot *pSlot = it->second;
+			if( pSlot->m_eStatus!=Slot::slot_defective && pSlot->m_eStatus!=Slot::slot_empty )
+			{
+				IdentifyJob *pIdentifyJob = new IdentifyJob(m_pJobHandler,NULL,pSlot);
+				m_pJobHandler->AddJob(pIdentifyJob);
+			}
 		}
 	}
 }

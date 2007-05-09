@@ -48,6 +48,7 @@ namespace nsJobHandler
 
 		MoveDiscTask(class Job *pJob,string sName,MoveDiscTaskType MoveDiscTaskType,Drive *pDrive,Slot *pSlot);
 		virtual ~MoveDiscTask() {}
+		virtual string GetType() { return "MoveDiscTask"; }
 
 		virtual int Run();  // Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms
 

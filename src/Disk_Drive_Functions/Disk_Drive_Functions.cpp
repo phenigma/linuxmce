@@ -46,11 +46,12 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include <sstream>
 using namespace std;
 
-Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,
+Disk_Drive_Functions::Disk_Drive_Functions(int dwPK_Device,Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,
 	Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel,bool bAutoIdentifyMedia)
 : m_pCommand_Impl(pCommand_Impl), m_DiskMutex("disk drive"), m_mediaDiskStatus(DISCTYPE_NONE), m_discid(0),
 	m_mediaInserted(false), m_bTrayOpen(false), m_sDrive(sDrive), m_pJobHandler(pJobHandler)
 {
+	m_dwPK_Device=dwPK_Device;
 	m_pDatabase_pluto_media=pDatabase_pluto_media;
 	m_pMediaAttributes_LowLevel=pMediaAttributes_LowLevel;
 	m_bNbdServerRunning=false;
@@ -81,12 +82,12 @@ Disk_Drive_Functions::~Disk_Drive_Functions()
 
 void Disk_Drive_Functions::EVENT_Media_Inserted(int iFK_MediaType, string sMRL, string sID, string sName)
 {
-	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_pCommand_Impl->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3, 4, 3, StringUtils::itos(iFK_MediaType).c_str(), 4, sMRL.c_str(), 7, sID.c_str(), 35, sName.c_str()));
+	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3, 4, 3, StringUtils::itos(iFK_MediaType).c_str(), 4, sMRL.c_str(), 7, sID.c_str(), 35, sName.c_str()));
 }
 
 void Disk_Drive_Functions::EVENT_Ripping_Progress(string sText, int iResult, string sValue, string sName, int iEK_Disc)
 {
-	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_pCommand_Impl->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 35, 5, 13, sText.c_str(), 20, StringUtils::itos(iResult).c_str(), 30, sValue.c_str(), 35, sName.c_str(), 43, StringUtils::itos(iEK_Disc).c_str()));
+	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 35, 5, 13, sText.c_str(), 20, StringUtils::itos(iResult).c_str(), 30, sValue.c_str(), 35, sName.c_str(), 43, StringUtils::itos(iEK_Disc).c_str()));
 }
 
 bool Disk_Drive_Functions::internal_monitor_step(bool bFireEvent)
@@ -170,8 +171,8 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 
 		if( m_pDevice_MediaIdentifier && m_bAutoIdentifyMedia )
 		{
-			DCE::CMD_Identify_Media CMD_Identify_Media(m_pCommand_Impl->m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
-				m_pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_pCommand_Impl->m_dwPK_Device);
+			DCE::CMD_Identify_Media CMD_Identify_Media(m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
+				m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_dwPK_Device);
 			m_pCommand_Impl->SendCommand(CMD_Identify_Media);
 		}
 
@@ -226,8 +227,8 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 		UpdateDiscLocation('d');  // We know it's media
 		if( m_pDevice_MediaIdentifier && m_bAutoIdentifyMedia )
 		{
-			DCE::CMD_Identify_Media CMD_Identify_Media(m_pCommand_Impl->m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
-				m_pCommand_Impl->m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_pCommand_Impl->m_dwPK_Device);
+			DCE::CMD_Identify_Media CMD_Identify_Media(m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
+				m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_dwPK_Device);
 			m_pCommand_Impl->SendCommand(CMD_Identify_Media);
 		}
 
@@ -712,13 +713,13 @@ void Disk_Drive_Functions::DisplayMessageOnOrbVFD(string sMessage)
 	string sResponse; // Get Return confirmation so we know the message gets through before continuing
 	if( pDevice_OSD )
 	{
-		DCE::CMD_Display_Message_DT CMD_Display_Message_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Orbiter_Plugin_CONST,BL_SameHouse,
+		DCE::CMD_Display_Message_DT CMD_Display_Message_DT(m_dwPK_Device,DEVICETEMPLATE_Orbiter_Plugin_CONST,BL_SameHouse,
 			sMessage,"","","5",StringUtils::itos(pDevice_OSD->m_dwPK_Device));
 		m_pCommand_Impl->SendCommand(CMD_Display_Message_DT, &sResponse);
 	}
 	if( pDevice_VFD )
 	{
-		DCE::CMD_Display_Message CMD_Display_Message(m_pCommand_Impl->m_dwPK_Device,pDevice_VFD->m_dwPK_Device,
+		DCE::CMD_Display_Message CMD_Display_Message(m_dwPK_Device,pDevice_VFD->m_dwPK_Device,
 			sMessage,
 			StringUtils::itos(VL_MSGTYPE_RUNTIME_NOTICES),"app serve","5","");
 		m_pCommand_Impl->SendCommand(CMD_Display_Message, &sResponse);
@@ -732,7 +733,7 @@ void Disk_Drive_Functions::StartNbdServer()
 
 	m_bNbdServerRunning=true;
 	string sArgs = "--start\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server."
-		+ StringUtils::itos(m_pCommand_Impl->m_dwPK_Device+18000) + ".pid\t--\t" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device+18000) + "\t" + m_sDrive + "\t-r";
+		+ StringUtils::itos(m_dwPK_Device+18000) + ".pid\t--\t" + StringUtils::itos(m_dwPK_Device+18000) + "\t" + m_sDrive + "\t-r";
 
 	ProcessUtils::SpawnApplication("start-stop-daemon", sArgs, "Start nbd server", NULL, true, true);
 
@@ -747,7 +748,7 @@ void Disk_Drive_Functions::StopNbdServer()
 		return;
 	}
 	m_bNbdServerRunning=false;
-	string sArgs = "--stop\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server." + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device+18000) + ".pid\t--retry\t1";
+	string sArgs = "--stop\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server." + StringUtils::itos(m_dwPK_Device+18000) + ".pid\t--retry\t1";
 
 	ProcessUtils::SpawnApplication("start-stop-daemon", sArgs, "Stop nbd server", NULL, true, true);
 
@@ -756,7 +757,7 @@ void Disk_Drive_Functions::StopNbdServer()
 
 void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc,int Slot)
 {
-	Row_DiscLocation *pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(m_pCommand_Impl->m_dwPK_Device,Slot);
+	Row_DiscLocation *pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(m_dwPK_Device,Slot);
 	if( pRow_DiscLocation )
 	{
 		if( PK_Disc==0 )  // Shouldn't be a record if it's empty
@@ -772,7 +773,7 @@ void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc,int Slot)
 	else
 	{
 		pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->AddRow();
-		pRow_DiscLocation->EK_Device_set(m_pCommand_Impl->m_dwPK_Device);
+		pRow_DiscLocation->EK_Device_set(m_dwPK_Device);
 		pRow_DiscLocation->Slot_set(Slot);
 	}
 

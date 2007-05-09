@@ -27,10 +27,12 @@ namespace nsJobHandler
 	class IdentifyTask : public Task
 	{
 		class IdentifyJob *m_pIdentifyJob;
+		time_t m_tSentIdCommand;
 
 	public:
 		IdentifyTask(class IdentifyJob *pIdentifyJob,string sName);
 		virtual ~IdentifyTask() {}
+		virtual string GetType() { return "IdentifyTask"; }
 
 		virtual int Run();  // Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms
 

@@ -79,7 +79,7 @@ Task *Job::GetNextTask()
 		Task *pTask = *it;
 		if (pTask->m_eTaskStatus_get() == TASK_NOT_STARTED || pTask->m_eTaskStatus_get() == TASK_IN_PROGRESS )
 			return pTask;
-		if (pTask->m_eTaskStatus_get() == TASK_FAILED )
+		if (pTask->m_eTaskStatus_get() == TASK_FAILED_ABORT )
 			return NULL;  // Don't continue if this task failed
 	}
 	return NULL;

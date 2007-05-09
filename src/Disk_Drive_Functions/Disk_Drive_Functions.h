@@ -104,6 +104,7 @@ public:
 		class Database_pluto_media *m_pDatabase_pluto_media;
 		class MediaAttributes_LowLevel *m_pMediaAttributes_LowLevel;
 		Locked m_eLocked; // Indicates if the drive is in use, if so for what, or available
+		int m_dwPK_Device;
 
 		void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
 		void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc);
@@ -111,7 +112,7 @@ public:
 	public:
 	    pluto_pthread_mutex_t m_DiskMutex;
 
-		Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel,bool bAutoIdentifyMedia=true);
+		Disk_Drive_Functions(int dwPK_Device,Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel,bool bAutoIdentifyMedia=true);
 		~Disk_Drive_Functions();
 		bool internal_monitor_step(bool bFireEvent);
 		bool internal_reset_drive(bool bFireEvent);
@@ -142,6 +143,7 @@ public:
 		bool LockDrive(Locked locked); // returns false if the drive is already locked, or true if it set it to locked
 		void UnlockDrive();  // release the drive
 		Locked m_eLocked_get() { return m_eLocked; }
+		int m_dwPK_Device_get() { return m_dwPK_Device; }
 };
 
 #endif
