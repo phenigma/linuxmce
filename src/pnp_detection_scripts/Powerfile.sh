@@ -14,8 +14,9 @@ echo "type $type"
 if [[ "$type" == 'mediumx' && "$manufacturer" == 'PowrFile' && "$model" == 'C200' ]]; then
 	echo "it's a c200"
 	/usr/pluto/bin/MessageSend dcerouter -r 0 $1 1 806 224 $2 13 "$4" 44 1737
-elif [[ "$type" == 'mediumx' && "$manufacturer" == 'PowrFile' && "$model" == 'C200' ]]; then
+elif [[ "$type" == 'mediumx' && "$manufacturer" == 'Sony' && "$model" == 'VAIOChanger1' ]]; then
 	echo "it's a sony"
+	/usr/pluto/bin/MessageSend dcerouter -r 0 $1 1 806 224 $2 13 "$4" 44 1889
 else
 	echo "none of the above"
 	/usr/pluto/bin/MessageSend dcerouter -r 0 $1 1 806 224 $2 13 "$4" 44 0
