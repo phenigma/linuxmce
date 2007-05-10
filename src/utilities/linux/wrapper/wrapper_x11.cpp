@@ -2497,6 +2497,9 @@ bool X11wrapper::RemoveWindowDecoration(Window window)
 
 bool X11wrapper::RemoveWindowDecoration(string sWindowId)
 {
+    if(sWindowId.empty())
+	    return false;
+
     _LOG_NFO("X11wrapper: removing window decoration for %s", sWindowId.c_str());
 
 	unsigned long wid;
