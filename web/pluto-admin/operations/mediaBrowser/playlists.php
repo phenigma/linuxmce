@@ -54,7 +54,25 @@ function playlists($output,$mediadbADO) {
 					<td align="center" colspan="4">&nbsp;</td>
 				</tr>
 				<tr>
-					<td align="center" colspan="4"><B>'.$TEXT_ADD_PLAYLIST_CONST.'</B> <input type="text" name="newPlaylist" value=""> '.$TEXT_PICTURE_CONST.' <input type="file" name="newPlaylistPicture" value=""> <input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
+					<td align="center" colspan="4"><B>'.$TEXT_ADD_PLAYLIST_CONST.'</B> <br>
+					<table>
+						<tr>
+							<td><b>'.$TEXT_NAME_CONST.'</b></td>
+							<td><input type="text" name="newPlaylist" value=""></td>
+						</tr>
+						<tr>
+							<td><b>Private</b></td>
+							<td><input type="checkbox" name="private" value="1" checked></td>
+						</tr>
+						<tr>
+							<td><b>'.$TEXT_PICTURE_CONST.'</b></td>
+							<td><input type="file" name="newPlaylistPicture" value=""></td> 
+						</tr>
+						<tr>
+							<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td> 
+						</tr>
+					</table>
+					</td>
 				</tr>
 			</table>
 		</form>';
@@ -86,6 +104,8 @@ function playlists($output,$mediadbADO) {
 			}			
 			
 			$newPlaylist=cleanString($_POST['newPlaylist']);
+			$private=(int)@$_POST['private'];
+			$userID=($private==1)?$userID:0;
 			$mediadbADO->Execute('INSERT INTO Playlist (EK_User, Name,FK_Picture) VALUES (?,?,?)',array($userID,$newPlaylist,$pictureID));
 			
 			

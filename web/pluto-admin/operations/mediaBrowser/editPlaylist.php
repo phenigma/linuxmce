@@ -13,8 +13,9 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 	$playlistInfo=getAssocArray('Playlist','FK_Picture','Name',$mediadbADO,'WHERE PK_Playlist=',$playlistID);
 	$nameArr=array_values($playlistInfo);
 	$picArr=array_keys($playlistInfo);
+
 	$pname=$nameArr[0];
-	$picID=$picArr[0];
+	$picID=(int)$picArr[0];
 	
 	$selMediaType=(isset($_REQUEST['mediaType']))?(int)$_REQUEST['mediaType']:0;	
 	$selSubType=(isset($_REQUEST['subtype']))?(int)$_REQUEST['subtype']:0;
@@ -22,7 +23,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 	$selOrderBy=(isset($_REQUEST['orderBy']))?(int)$_REQUEST['orderBy']:'filename';
 	
 	if($action=='form'){
-		$pic=(!is_null($picID))?'<a href="mediapics/'.$picID.'.jpg" target="_blank"><img src="mediapics/'.$picID.'_tn.jpg" border="0"></a>':'';
+		$pic=($picID!=0)?'<a href="mediapics/'.$picID.'.jpg" target="_blank"><img src="mediapics/'.$picID.'_tn.jpg" border="0"></a>':'';
 		
 		// media types - hardcoded to music, videos amd movies
 		$mediaTypes=array(
