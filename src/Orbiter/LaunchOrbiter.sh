@@ -68,9 +68,14 @@ else
 	disown -a
 	sleep 1
 	
-	## Increase number of desktops by 2
 	N_Desktops=$(wmctrl -d | wc -l) # zero based
-	wmctrl -n $((N_Desktops + 2))
+	## Increase number of desktops by 2
+	if [[ "$DesktopActivated" != 1 ]]; then
+		wmctrl -n $((N_Desktops + 2))
+		ConfSet DesktopActivated 1
+	else
+		((N_Desktops -= 2))
+	fi
 
 	## Export Orbiter desktop information variables
 	export ORBITER_PRIMARY_DESKTOP=$((N_Desktops))
@@ -111,8 +116,10 @@ else
 fi
 
 ## Restore number of desktops
-if [[ "$SharedDesktop" == 1 ]]; then
-	wmctrl -n "$N_Desktops"
+if [[ "$SharedDesktop" == 1 && "$DesktopActivated" == 1 ]]; then
+	N_Desktops=$(wmctrl -d | wc -l) # zero based
+	wmctrl -n $((N_Desktops - 2))
+	ConfSet DesktopActivated 0
 fi
 
 #sleep 5
