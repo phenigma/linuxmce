@@ -2046,6 +2046,11 @@ class DataGridTable *General_Info_Plugin::Discs( string GridID, string Parms, vo
 		it!=pListDeviceData_Router->end();++it)
 	{
 		DeviceData_Router *pDevice = *it;
+
+		if( pDevice->m_pDevice_ControlledVia && 
+			pDevice->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_CDDVD_Jukeboxes_CONST) )
+				continue; // Ignore disks in jukeboxes, since they're handled separately
+
 //		if( !m_pRouter->DeviceIsRegistered(pDevice->m_dwPK_Device) )
 //			continue; // skip devices that aren't online
 		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
@@ -2101,19 +2106,34 @@ class DataGridTable *General_Info_Plugin::HardDiscs( string GridID, string Parms
 	int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 	DataGridTable *pDataGrid = new DataGridTable( );
-	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Hard_Drives_CONST);
-	if( !pListDeviceData_Router )
-		return pDataGrid;
-
 	DataGridCell *pCell;
 	int iRow=0;
-	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();
-		it!=pListDeviceData_Router->end();++it)
+
+	// Both internal and network drives
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Hard_Drives_CONST);
+	if( pListDeviceData_Router )
 	{
-		DeviceData_Router *pDevice = *it;
-		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
-		pDataGrid->SetData(0,iRow++,pCell);
+		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();
+			it!=pListDeviceData_Router->end();++it)
+		{
+			DeviceData_Router *pDevice = *it;
+			pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+			pDataGrid->SetData(0,iRow++,pCell);
+		}
 	}
+
+	pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Network_Storage_CONST);
+	if( pListDeviceData_Router )
+	{
+		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();
+			it!=pListDeviceData_Router->end();++it)
+		{
+			DeviceData_Router *pDevice = *it;
+			pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+			pDataGrid->SetData(0,iRow++,pCell);
+		}
+	}
+
 	return pDataGrid;
 }
 
@@ -2235,7 +2255,7 @@ class DataGridTable *General_Info_Plugin::JukeboxSlots( string GridID, string Pa
 		Row_Disc *pRow_Disc = pRow_DiscLocation->FK_Disc_getrow();
 		if( !pRow_Disc )
 			continue;  // shouldn't happen
-		pCell = new DataGridCell(StringUtils::itos(pRow_Disc->PK_Disc_get()),StringUtils::itos(pRow_Disc->PK_Disc_get()));
+		pCell = new DataGridCell(StringUtils::itos(pRow_DiscLocation->Slot_get()),StringUtils::itos(pRow_Disc->PK_Disc_get()));
 		pCell->m_mapAttributes["PK_Device"] = StringUtils::itos(pRow_DiscLocation->EK_Device_get());
 		pCell->m_mapAttributes["PK_Disc"] = StringUtils::itos(pRow_Disc->PK_Disc_get());
 		pCell->m_mapAttributes["Slot_Drive"] = pRow_DiscLocation->EK_Device_get()==pDevice_Jukebox->m_dwPK_Device ? "slot" : "drive";

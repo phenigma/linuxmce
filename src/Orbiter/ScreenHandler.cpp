@@ -2488,7 +2488,9 @@ void ScreenHandler::SCREEN_Drive_Overview(long PK_Screen)
 bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-	if( (pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST || 
+	if( (pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST || 
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST || 
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST || 
 		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoPlay_CONST ||
 		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butManage_CONST) && 
 		pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject &&
@@ -2516,6 +2518,16 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 				{
 					DCE::CMD_Eject CMD_Eject(m_pOrbiter->m_dwPK_Device,atoi(pCell->GetValue()));
 					m_pOrbiter->SendCommand(CMD_Eject);
+				}
+				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
+				{
+					DCE::CMD_Eject CMD_Eject(m_pOrbiter->m_dwPK_Device,atoi(pCell->GetValue()));
+					m_pOrbiter->SendCommand(CMD_Eject);
+				}
+				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST )
+				{
+					DCE::CMD_Mass_identify_media CMD_Mass_identify_media(m_pOrbiter->m_dwPK_Device,atoi(pCell->GetValue()),"*");
+					m_pOrbiter->SendCommand(CMD_Mass_identify_media);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoPlay_CONST && m_pOrbiter->m_pLocationInfo ) // play requires a location to play at
 				{
