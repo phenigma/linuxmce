@@ -54,6 +54,15 @@ namespace DCE
 		bool m_bQuit; /** < set when the socket should terminate */
 
 	public:
+
+
+/*  TEMPORARY -- DELETE THIS.  ONLY TO DEBUG AN ISSUE WITH RECEIVING A MESSAGE, EXPECTING A MESSAGE RESPONSE, AND INSTEAD SENDING AN 'OK'
+*/
+		bool m_bExpectingAMessage;
+
+
+
+
 		enum SocketType { st_Unknown, st_ServerCommand, st_ServerEvent, st_ClientCommand, st_ClientEvent } m_eSocketType;
 
 		/** < If true,  the framework will send a ping every 10 seconds or so to be sure the network

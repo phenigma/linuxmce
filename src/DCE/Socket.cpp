@@ -156,6 +156,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 
 Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMutex("socket mutex " + Name)
 {
+m_bExpectingAMessage=false;
     m_bCancelSocketOp = false;
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
 	m_sHostName = sIPAddress;
@@ -252,6 +253,8 @@ Socket::~Socket()
 
 bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 {
+if( m_bExpectingAMessage )
+int k=2;
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Socket::SendMessage type %d id %d from %d to %d",
 		pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To);
@@ -326,6 +329,8 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 
 Message *Socket::SendReceiveMessage( Message *pMessage)
 {
+if( m_bExpectingAMessage )
+int k=2;
 	pMessage->m_eExpectedResponse=ER_ReplyMessage;
 	PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, m_SocketMutex );  // Don't log anything but failures
 
@@ -398,6 +403,8 @@ Message *Socket::ReceiveMessage( int iLength, DataFormat format)
 
 bool Socket::SendData( int iSize, const char *pcData )
 {
+if( m_bExpectingAMessage )
+int k=2;
 	if( m_Socket == INVALID_SOCKET ) // m_Socket wasn't propperlly initializated
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Socket::SendData socket is invalid");
@@ -749,6 +756,19 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 
 bool Socket::SendString( string sLine )
 {
+if( m_bExpectingAMessage )
+int k=2;
+
+	if( m_bExpectingAMessage && StringUtils::StartsWith(sLine,"MESSAGE",true)==false )
+{
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::SendString send %s expecting=true", sLine.c_str());
+#ifndef WIN32
+		kill(getpid(), SIGSEGV);
+#endif
+		char *pFoo = NULL;
+		strcpy(pFoo,"cause a crash");
+}
+
 	sLine += "\n"; // add the newline
 	return SendData( (int)sLine.length(), sLine.c_str() ); // sending the string as a char array
 }
