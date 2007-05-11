@@ -1,7 +1,6 @@
 #!/bin/bash
 
-Content="
-#!/bin/bash
+Content="#!/bin/bash
 
 case \"\$1\" in
   start)
@@ -23,4 +22,4 @@ echo "$Content" > /etc/init.d/voiceMailMonitor
 
 chmod +x /etc/init.d/voiceMailMonitor || :
 
-update-rc.d -f voiceMailMonitor start 99 2 3 4 5 || /bin/true 
+update-rc.d -f voiceMailMonitor start 99 2 3 4 5 . || /bin/true 
