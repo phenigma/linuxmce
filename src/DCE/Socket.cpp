@@ -334,12 +334,15 @@ Message *Socket::SendReceiveMessage( Message *pMessage)
 
 	string sResult;
 	Message *pOutMessage;
-	if ( ReceiveString( sResult, m_iReceiveTimeout > 0 ? m_iReceiveTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE ) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 ) // got the response we expected
+
+	bool bResult = ReceiveString( sResult, m_iReceiveTimeout > 0 ? m_iReceiveTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE );
+	if (bResult && sResult.substr(0,7) == "MESSAGE" && sResult.size() > 7) // got the response we expected
 	{
 		pOutMessage = ReceiveMessageRaw(sResult);
 		return pOutMessage; // return the response
 	}
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Socket::SendReceiveMessage didn't get valid response");
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Socket::SendReceiveMessage didn't get valid response %s", sResult.c_str());
 	return NULL; // what we got wasn't what we expected it to be
 }
 
