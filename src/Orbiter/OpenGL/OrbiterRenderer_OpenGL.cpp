@@ -517,7 +517,11 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
 
 	if(TextureManager::Instance()->CacheEnabled())
 	{
-		if(!OrbiterLogic()->m_bMemoryManagementEnabled || (point.X != 0 || point.Y != 0))
+		if(
+			(!OrbiterLogic()->m_bMemoryManagementEnabled || point.X != 0 || point.Y != 0)
+			&& 
+			Graphic->m_Filename.find("dynamic object") != 0
+		)
 		{
 			TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
 		}
