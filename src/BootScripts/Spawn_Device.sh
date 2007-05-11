@@ -198,14 +198,12 @@ valgrind_LogFile="/var/log/pluto/valgrind_${device_id}_$(basename $cmd_line).log
 
 ReloadWatcher_Background()
 {
-#<-mkr_B_ubuntu_b->
 	local InitCmd
 	InitCmd=$(cat /proc/1/cmdline | tr '\0' ' ')
 	if [[ "$InitCmd" != *2* ]]; then
 		return
 	fi
 	
-#<-mkr_B_ubuntu_e->
 	/usr/pluto/bin/Config_Device_Changes.sh
 	/usr/pluto/bin/Start_LocalDevices.sh
 }
