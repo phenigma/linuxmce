@@ -4083,9 +4083,11 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 #endif
 				pMessage->m_eExpectedResponse = ER_ReplyMessage;  // a set now playing command
 				Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pMessage );
-				if( pResponse && pResponse->m_dwID )
+				if(NULL != pResponse)
 				{
-					ReceivedMessage( pResponse );
+					if(pResponse->m_dwID)
+						ReceivedMessage( pResponse );
+
 					delete pResponse;
 				}
 				else
@@ -5039,9 +5041,12 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 		}
 		else
 		{
+			PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 			m_pContextToBeRestored = pScreenHistory;  // Don't do this if we're going to the screen
 			m_pScreenHistory_NewEntry = m_pScreenHistory_Current;
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Go_back to %d is not a gobacktoscreen",m_pScreenHistory_NewEntry->PK_Screen());
+			cm.Release();
+
 			CMD_Goto_DesignObj(0, pScreenHistory->GetObj()->m_ObjectID, pScreenHistory->ScreenID(),
 				"", false, pScreenHistory->GetObj()->m_bCantGoBack);
 		}
@@ -8955,7 +8960,9 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool b
 	if( ExecuteScreenHandlerCallback(cbOnGotoScreen) )
 		return;
 
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	m_pContextToBeRestored = NULL; // Won't restore any pending context.  It's possible there was a go back that set this and hasn't yet finished rendering before a goto screen
+	cm.Release();
 
 	bool bCreatedMessage=pMessage==NULL;
 	if( pMessage==NULL )
@@ -8977,7 +8984,7 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool b
 	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, m_pScreenHistory_Current,pMessage,this);
 	m_pScreenHistory_NewEntry->ScreenID(sID);
 
-	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+	cm.Relock();
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
 	cm.Release();
 
