@@ -21,6 +21,12 @@ AptSrc_AddSource()
 	if [[ -z "$type" ]]; then
 		return 1
 	fi
+#<-mkr_b_etch_b->
+	# HACK: Don't add feisty sources to etch
+	if [[ "$distribution" == feisty ]]; then
+		return 1
+	fi
+#<-mkr_b_etch_e->
 
 	uri="${uri%/}/" # make sure URI ends with a slash
 	id=$(echo "$type $uri $distribution" | md5sum | cut -d' ' -f1)
