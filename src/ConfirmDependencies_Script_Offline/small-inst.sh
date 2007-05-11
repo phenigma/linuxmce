@@ -6,8 +6,41 @@ exit 0
 
 exec &> >(tee /var/log/mce-etch-install.log)
 
+function CopyDebs() {
+	local reply
+	
+	apt-get -f -y install dpkg-dev
+	
+	mkdir -p /usr/pluto/deb-cache
+	while :; do
+		echo "Did you insert a CD with debian packages? [Y/n]"
+		read reply
+		if [[ "$reply" == n || "$reply" == N ]]; then
+			break;
+		fi
+		if [[ "$reply" != y && "$reply" != Y && "$reply" != "" ]]; then
+			continue
+		fi
+		mount -t iso9660 /dev/cdrom /media/cdrom
+		cp -f /media/cdrom/*.deb /usr/pluto/deb-cache
+		umount /media/cdrom
+		eject /dev/cdrom
+	done
+	
+	pushd /usr/pluto/deb-cache
+	dpkg-scanpackages . /dev/null >Packages
+	cat Packages | gzip -9c > Packages.gz
+	popd
+
+	apt-get update
+}
+
 function Setup_Apt() {
-	sed -i '/cdrom/ d' /etc/apt/sources.list
+	echo "# VIA LMCE sources.list
+deb file:/usr/pluto/deb-cache/ ./
+deb http://ftp.ro.debian.org/debian/ etch  main non-free contrib
+deb http://security.debian.org/ etch/updates  main contrib" >/etc/apt/sources.list
+	apt-get update
 }
 
 function Setup_Pluto_Conf {
@@ -42,6 +75,10 @@ function Install_DCERouter {
 
 	StatsMessage "Installing LinuxMCE Base Software"
 	apt-get -y -f install pluto-dcerouter || ExitInstaller "Failed to install and configure the base software"
+}
+
+function Install_VIA_ALSA {
+	apt-get -y -f install via-alsa
 }
 
 function Create_And_Config_Devices {
@@ -151,6 +188,9 @@ function Setup_XOrg {
 		User="${user#/home/}"
 		chown "$User.$User" "$Dir/xhost"
 		chmod +x "$Dir/xhost"
+
+		owner=$(stat -c '%u:%g' "$user")
+		chown -R "$owner" "$user"/.kde
 	done
 
 	Dir="/etc/skel/.kde/Autostart"
@@ -188,7 +228,9 @@ c_installUI=1
 Setup_NIS
 
 Setup_Apt
+CopyDebs
 Setup_Pluto_Conf
+Install_VIA_ALSA
 Install_DCERouter
 Create_And_Config_Devices
 Setup_XOrg
