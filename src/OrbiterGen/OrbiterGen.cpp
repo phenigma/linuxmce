@@ -133,6 +133,8 @@ int main(int argc, char *argv[])
 	{
 		if( argv[optnum][0]!='-' )
 		{
+			if( argv[optnum][0]==0 )
+				continue; // Skip blank options
 			cerr << "Unknown option " << argv[optnum] << endl;
 			exit(1);
 		}
