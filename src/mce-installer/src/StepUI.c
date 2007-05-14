@@ -35,7 +35,7 @@ void on_StepUI_radio_toggled(GtkWidget *widget, gpointer data) {
 
 void on_StepUI_application_clicked(GtkWidget *widget, gpointer data) {
 	if ( fork() == 0 ) {
-		execl("/usr/bin/gcalctool", "/usr/bin/gcalctool", NULL);
+		execl("UIdiag", "UIdiag", NULL);
 		exit(0);
 	}
 }
