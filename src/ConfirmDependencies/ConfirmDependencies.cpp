@@ -392,6 +392,9 @@ int main(int argc, char *argv[])
 	{
 		if( iPK_Orbiter )
 			cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 NONE 9 'Installing software.  Please wait...'" << endl;
+		
+		cout << "echo -e '\tInstalling software.  Please wait...' >> /var/log/pluto/LaunchManager.progress.log" << endl;
+		
 		list<PackageInfo *>::iterator it;
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
@@ -417,6 +420,8 @@ int main(int argc, char *argv[])
 
 			if( iPK_Orbiter )
 				cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 NONE 9 'Downloading " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "...'" << endl;
+			
+			cout << "echo -e '\tDownloading " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "...' >> /var/log/pluto/LaunchManager.progress.log" << endl;
 
 			/*
 			on package 277, it tried the targz before the DEB
@@ -426,6 +431,8 @@ int main(int argc, char *argv[])
 
 			if( iPK_Orbiter )
 				cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 5 9 'Downloading " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << " done'" << endl;
+			
+			cout << "echo -e '\tDownloading " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << " done' >> /var/log/pluto/LaunchManager.progress.log" << endl;
 
 			/* AB 1/26/05 - for the moment I'm going to comment this out so we don't keep trying alternate sources.  If one source failes, it really is a failure and we should stop
 			if (pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() != REPOSITORYTYPE_PACKAGE_CONST)
@@ -448,6 +455,8 @@ int main(int argc, char *argv[])
 #define EOL "\n"
 			if( iPK_Orbiter )
 				cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 5 9 'Failed to get " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
+			
+			cout << "echo -e '\tFailed to get " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "' >> /var/log/pluto/LaunchManager.progress.log" << endl;
 
 			cout <<
 				"\t\techo \"***************************************************\"" EOL
@@ -486,6 +495,8 @@ int main(int argc, char *argv[])
 			{
 				if( iPK_Orbiter )
 					cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 NONE 9 'Configuring " << pRow_Device->Description_get() << "...'" << endl;
+				
+				cout << "echo -e '\tConfiguring " << pRow_Device->Description_get() << "...' >> /var/log/pluto/LaunchManager.progress.log" << endl;
 
 				cout << "#Running configure script" << endl;
 				cout << "/usr/pluto/bin/" << pRow_Device->FK_DeviceTemplate_getrow()->ConfigureScript_get()
@@ -499,6 +510,8 @@ int main(int argc, char *argv[])
 
 				if( iPK_Orbiter )
 					cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 5 9 'Configuring " << pRow_Device->Description_get() << " done.'" << endl;
+				
+				cout << "echo -e '\tConfiguring " << pRow_Device->Description_get() << " done.' >> /var/log/pluto/LaunchManager.progress.log" << endl;
 			}
 			else
 			{
@@ -529,6 +542,8 @@ int main(int argc, char *argv[])
 
 		if( iPK_Orbiter )
 			cout << "/usr/pluto/bin/MessageSend dcerouter 0 " << iPK_Orbiter << " 1 809 70 install 182 5 9 'Installing software finished.'" << endl;
+		
+		cout << "echo -e '\tInstalling software finished.' >> /var/log/pluto/LaunchManager.progress.log" << endl;
 
 		cout << "rm -f /usr/pluto/install/.notdone" << endl;
 		cout << "echo \"*************************\"" << endl;
