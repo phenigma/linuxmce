@@ -100,7 +100,8 @@ fi
 
 
 if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
-	StartService "Updating Software Database" "/usr/pluto/bin/getxmls" "&"
+	#StartService "Updating Software Database" "/usr/pluto/bin/getxmls" "&"
+	/usr/pluto/bin/getxmls &> /var/log/pluto/add_software_debug.log &
 	ConfSet "FirstBoot" "false" 2>/dev/null 1>/dev/null
 fi
 
