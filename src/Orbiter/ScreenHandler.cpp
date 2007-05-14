@@ -1329,16 +1329,12 @@ void ScreenHandler::SCREEN_DialogRippingInProgress(long PK_Screen, string sPK_De
 {
 	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_ripping_cant_play_disc_CONST) + "%>",
 		false, "10", true,
-		//"Abort ripping text"
-		"<%=T" + StringUtils::itos(TEXT_Abort_ripping_CONST) + "%>",
-		//"Abort ripping message"
-		sPK_DeviceFrom + " " + sPK_RippingDevice + " 1 " + StringUtils::itos(COMMAND_Abort_Ripping_CONST),
 		//"Monitor progress text"
 		"<%=T" + StringUtils::itos(TEXT_Monitor_progress_CONST) + "%>",
 		//"Monitor progress message"
 		"0 " + StringUtils::itos(DEVICETEMPLATE_This_Orbiter_CONST) +
-		" 1 " + StringUtils::itos(COMMAND_Goto_DesignObj_CONST) + " " +
-		StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + StringUtils::itos(DESIGNOBJ_mnuPendingTasks_CONST)
+		" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " +
+		StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::itos(SCREEN_PendingTasks_CONST)
 	);
 	return;
 }
