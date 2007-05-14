@@ -30,6 +30,22 @@ void on_StepUI_finish_clicked(GtkWidget *widget, gpointer data) {
 void on_StepUI_radio_toggled(GtkWidget *widget, gpointer data) {
 	setting_UI = (gint)data;
 	printf("UI: %d\n", setting_UI);
+
+}
+
+void on_StepUI_application_clicked(GtkWidget *widget, gpointer data) {
+	if ( fork() == 0 ) {
+		execl("/usr/bin/gcalctool", "/usr/bin/gcalctool", NULL);
+		exit(0);
+	}
+}
+
+void on_StepUI_url_clicked(GtkWidget *widget, gpointer data) {
+	if ( fork() == 0 ) {
+		execl("/usr/bin/konqueror", "/usr/bin/konqueror", "http://wiki.linuxmce.com/index.php/Graphics_Test", NULL);
+		exit(0);
+	}
+
 }
 
 void displayStepUI(void) {
@@ -38,10 +54,30 @@ void displayStepUI(void) {
 	// Cleanup window
 	cleanupContainer(mainBox);
 	cleanupContainer(mainButtonBox);
-
+	
 	// Wizard text
 	GtkWidget *label = gtk_label_new_for_wizard ("What interface do you want to use ?");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
+	
+	// Info Text
+	GtkWidget *expander_info = gtk_frame_new("Info");
+	gtk_box_pack_start(GTK_BOX(mainBox), expander_info, TRUE, TRUE, 0);
+	//GtkWidget *expander_info = mainBox;
+
+	GtkWidget *box_info = gtk_vbox_new(FALSE, 5);
+	gtk_container_set_border_width(GTK_CONTAINER(box_info), 5);
+	gtk_container_add(GTK_CONTAINER(expander_info), box_info);
+
+	GtkWidget *label_info = gtk_label_new_for_wizard ("Before making your selection, use the 'Graphics Test' application to confirm which UI your hardware can handle.  Also read the online documentation on the subject.");
+	gtk_box_pack_start(GTK_BOX(box_info), label_info, TRUE, TRUE, 0);
+
+	GtkWidget *info_url = gtk_button_new_with_label ("Read Online Documentation");
+	g_signal_connect(G_OBJECT(info_url), "clicked", G_CALLBACK(on_StepUI_url_clicked), NULL);
+	gtk_box_pack_start(GTK_BOX(box_info), info_url, TRUE, TRUE, 0);
+
+	GtkWidget *info_app = gtk_button_new_with_label ("Run Graphical Test Application");
+	g_signal_connect(G_OBJECT(info_app), "clicked", G_CALLBACK(on_StepUI_application_clicked), NULL);
+	gtk_box_pack_start(GTK_BOX(box_info), info_app, TRUE, TRUE, 0);
 
 	// Questions
 	GSList *group = NULL;

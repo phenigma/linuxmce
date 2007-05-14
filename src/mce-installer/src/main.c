@@ -112,8 +112,8 @@ main (int argc, char *argv[])
 
 	history = g_queue_new();
 
-#if 0
-	displayStepCreateDiskedDevice();
+#if 1
+	displayStepUI();
 #else
 	if (setting_coreIP != NULL) {
 		displayStep1C();
