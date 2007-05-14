@@ -35,7 +35,7 @@ void displayStep2C(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard("WARNING:\n\n I could not connect to the internet using you current network setup, this probably means that you internet connection is brocken or that you haven't configured it until now.\nIf is a hardware problem (cable unpluged, ..) fix it now and select the coresponding option before pressing 'Forward' and i'll check again.");
+	GtkWidget *label = gtk_label_new_for_wizard("WARNING:\n\n I could not connect to the internet using you current network setup, this probably means that you internet connection is broken or that you haven't configured it until now.\nIf is a hardware problem (cable unpluged, ..) fix it now and select the coresponding option before pressing 'Forward' and i'll check again.");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	// Questions

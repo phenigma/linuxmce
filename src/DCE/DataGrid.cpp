@@ -171,6 +171,15 @@ void DataGridCell::SetValue(string Value)
 	m_ValueLength = (int)Value.length();
 }
 
+void DataGridCell::SetText(string Text)
+{
+	delete m_Text;
+
+	m_Text = new char[Text.length()+1]; 
+	strcpy(m_Text,Text.c_str());
+	m_TextLength = (int)Text.length();
+}
+
 DataGridCell::DataGridCell(int Size, char *Data)
 {
 	Initialize();

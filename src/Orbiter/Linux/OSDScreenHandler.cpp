@@ -117,6 +117,7 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 	m_pOrbiter->CMD_Activate_Window("pluto-xine-playback-window.pluto-xine-playback-window");
 
 	m_pOrbiter->m_bBypassScreenSaver = true;
+	m_pOrbiter->StopScreenSaver();
 
 	DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_Greetings_CONST),TEXT_STATUS_CONST );
 	if( !m_bHasVideoWizardFiles )

@@ -9,5 +9,5 @@ mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
 
 
 echo "LOCK TABLE schemalock WRITE;" | $mysql_command # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
-invoke-rc.d /gmythtv-backend restart
+invoke-rc.d mythtv-backend restart
 

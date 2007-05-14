@@ -67,6 +67,8 @@ namespace DCE
 		void SetImage(char *Data, int Length, enum eGraphicFormat Format);
 		void SetImagePath(const char *ImagePath);
 		void SetValue(string Value);
+		void SetText(string Text);
+
 		// Will fire off this message when touched.
 		void SetMessage(Message *pMessage);
 		const char *GetText();

@@ -420,31 +420,39 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	map<int,bool> mapVideoSourcesToUse;
 	// The source is 0, means all myth channels and video sources.  Otherwise, just those for the given device (like a cable box)
 	int PK_Device_Source = pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_LiveTV_CONST ? 0 : pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+	list_int *p_list_int = NULL;
 	if( PK_Device_Source )
+		p_list_int = &(m_mapDevicesToSources[PK_Device_Source]);
+
+	// Go through all the channels, and set the cell to NULL if we're not supposed to include it
+	// or to a new value if we are.  We'll update the description with the show down below
+	for(ListMythChannel::iterator it=m_ListMythChannel.begin();it!=m_ListMythChannel.end();++it)
 	{
-		list_int *p_list_int = &(m_mapDevicesToSources[PK_Device_Source]);
-		if( p_list_int->size() )
+		MythChannel *pMythChannel = *it;
+		if( p_list_int )
 		{
-			sProvider = " AND sourceid in (";
-			bool bFirst=true;
+			bool bOk=false;
 			for(list_int::iterator it=p_list_int->begin();it!=p_list_int->end();++it)
 			{
-				if( bFirst )
-					bFirst = false;
-				else
-					sProvider += ",";
-				sProvider += StringUtils::itos( *it );
-				mapVideoSourcesToUse[ *it ] = true;
+				if( *it==pMythChannel->m_dwSource )
+				{
+					bOk=true;
+					break;
+				}
 			}
-			sProvider += ")";
+			if( !bOk )
+			{
+				pMythChannel->m_pCell=NULL;
+				continue;
+			}
 		}
+		string sChannelName = StringUtils::itos(pMythChannel->m_dwChanNum) + " " + pMythChannel->m_sShortName;
+		pMythChannel->m_pCell = new DataGridCell(sChannelName,StringUtils::itos(pMythChannel->m_dwID));
+		pMythChannel->m_pCell->m_mapAttributes["Name"] = sChannelName;
 	}
 
-	for(ListMythChannel::iterator it=m_ListMythChannel.begin();it!=m_ListMythChannel.end();++it)
-		(*it)->m_pCell=NULL;
-
 	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
-	string sSQL = "SELECT program.chanid, title, starttime, endtime, seriesid, programid "
+	string sSQL = "SELECT chanid, title, starttime, endtime, seriesid, programid "
 		"FROM program "
 		"WHERE starttime < '" + StringUtils::SQLDateTime() + "' AND endtime>'" + StringUtils::SQLDateTime() + "' " + sProvider;
 
@@ -457,21 +465,18 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 		while((row = mysql_fetch_row(result.r)))
 		{
 			MythChannel *pMythChannel = m_mapMythChannel_Find( atoi(row[0]) );
-			if( !pMythChannel )
-				continue; // Shouldn't happen
+			if( !pMythChannel || !pMythChannel->m_pCell )
+				continue; // Shouldn't happen that pMythChannel is NULL, if cell is, we're not including it
 
 			if( bAllSource==false && mapVideoSourcesToUse[ pMythChannel->m_dwSource ]==false )  // Not a source for this list
 				continue;
 
-			string sChannelName = StringUtils::itos(pMythChannel->m_dwChanNum) + " " + pMythChannel->m_sShortName;
-			string sDesc = sChannelName + " " + row[1];
-			pCell = new DataGridCell(sDesc,row[0]);
-			pMythChannel->m_pCell = pCell; // So we can display it in the right order below
+			pMythChannel->m_pCell->SetText( string(pMythChannel->m_pCell->GetText()) + row[1] );
 			if( pMythChannel->m_pPic )
 			{
 				char *pPic = new char[ pMythChannel->m_Pic_size ];
 				memcpy(pPic,pMythChannel->m_pPic,pMythChannel->m_Pic_size);
-				pCell->SetImage( pPic, pMythChannel->m_Pic_size, GR_JPG );
+				pMythChannel->m_pCell->SetImage( pPic, pMythChannel->m_Pic_size, GR_JPG );
 			}
 
 			time_t tStart = StringUtils::SQLDateTime( row[2] );
@@ -480,22 +485,21 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			string sNumber = NULL != row[0] ? row[0] : "";
 			string sInfo = NULL != row[4] ? row[1]: "";
 
-			pCell->m_mapAttributes["Number"] = sNumber;
-			pCell->m_mapAttributes["Name"] = sChannelName;
-			pCell->m_mapAttributes["Time"] = sTime;
-			pCell->m_mapAttributes["Info"] = sInfo;
+			pMythChannel->m_pCell->m_mapAttributes["Number"] = sNumber;
+			pMythChannel->m_pCell->m_mapAttributes["Time"] = sTime;
+			pMythChannel->m_pCell->m_mapAttributes["Info"] = sInfo;
 			if( row[4] )
-				pCell->m_mapAttributes["Series"] = row[4];
+				pMythChannel->m_pCell->m_mapAttributes["Series"] = row[4];
 			if( row[5] )
-				pCell->m_mapAttributes["Program"] = row[5];
+				pMythChannel->m_pCell->m_mapAttributes["Program"] = row[5];
 			MapBookmark *pMapBookmark_Series_Or_Program;
 			MapBookmark::iterator it;
 			if( (it=pMythChannel->m_mapBookmark.find(0))!=pMythChannel->m_mapBookmark.end() ||
 				(it=pMythChannel->m_mapBookmark.find(iPK_Users))!=pMythChannel->m_mapBookmark.end() )
 			{
 				// It's a user's favorited channel
-				pCell->m_mapAttributes["PK_Bookmark"] = it->second;
-				pDataGridTable->SetData(0,iRow++,new DataGridCell(pCell)); // A copy since we'll add this one later too
+				pMythChannel->m_pCell->m_mapAttributes["PK_Bookmark"] = it->second;
+				pDataGridTable->SetData(0,iRow++,new DataGridCell(pMythChannel->m_pCell)); // A copy since we'll add this one later too
 			}
 			else if( row[4] &&
 				(pMapBookmark_Series_Or_Program=m_mapSeriesBookmarks_Find(row[4])) &&
@@ -505,7 +509,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 				))
 			{
 				// It's a user's favorited series
-				pDataGridTable->SetData(0,iRow++,new DataGridCell(pCell)); // A copy since we'll add this one later too
+				pDataGridTable->SetData(0,iRow++,new DataGridCell(pMythChannel->m_pCell)); // A copy since we'll add this one later too
 			}
 			else if( row[5] &&
 				(pMapBookmark_Series_Or_Program=m_mapProgramBookmarks_Find(row[5])) &&
@@ -515,7 +519,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 				))
 			{
 				// It's a user's favorited series.
-				pDataGridTable->SetData(0,iRow++,new DataGridCell(pCell)); // A copy since we'll add this one later too
+				pDataGridTable->SetData(0,iRow++,new DataGridCell(pMythChannel->m_pCell)); // A copy since we'll add this one later too
 			}
 		}
 	}
