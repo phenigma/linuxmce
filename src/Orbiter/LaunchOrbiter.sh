@@ -69,13 +69,19 @@ else
 	sleep 1
 	
 	N_Desktops=$(wmctrl -d | wc -l) # zero based
+
+	Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Number of desktops found: $N_Desktops ; desktops activated? $DesktopActivated"
+
 	## Increase number of desktops by 2
 	if [[ "$DesktopActivated" != 1 ]]; then
+		Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Increasing number of desktops to: $((N_Desktops + 2))"
 		wmctrl -n $((N_Desktops + 2))
 		ConfSet DesktopActivated 1
 	else
 		((N_Desktops -= 2))
 	fi
+
+	Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Primary desktop: $N_Desktops and secondary desktop $((N_Desktops + 1))"
 
 	## Export Orbiter desktop information variables
 	export ORBITER_PRIMARY_DESKTOP=$((N_Desktops))
@@ -100,13 +106,6 @@ done
 ## Run Orbiter
 xset m 1 1
 
-## Nasty hack ...  It seems icewm somehow ignores the first window that starts, and when we didn't start xterm first
-## then Orbiter would start, launch Xine, and when you went to play a movie, xine would be full screen and topmost
-## and Orbiter couldn't go on top of xine
-#Logging "$TYPE" "$SEVERITY_CRITICAL" "LaunchOrbiter" "Hack to start xterm"
-#killall xterm
-#xterm -class bogus_xterm -name bogus_xterm -geometry 1x1+2000+2000 &
-#sleep 1
 if [[ "$Valgrind" == *"$Executable"* ]]; then
 	$VGcmd "$Executable" "$@"
 	Orbiter_RetCode=$?
@@ -117,13 +116,12 @@ fi
 
 ## Restore number of desktops
 if [[ "$SharedDesktop" == 1 && "$DesktopActivated" == 1 ]]; then
+
 	N_Desktops=$(wmctrl -d | wc -l) # zero based
 	wmctrl -n $((N_Desktops - 2))
 	ConfSet DesktopActivated 0
-fi
 
-#sleep 5
-#Logging "$TYPE" "$SEVERITY_CRITICAL" "LaunchOrbiter" "Hack to kill xterm"
-#killall xterm
+        Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Decreasing number of desktops to $((N_Desktops - 2))"
+fi
 
 exit ${Orbiter_RetCode}
