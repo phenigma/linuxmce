@@ -4998,8 +4998,11 @@ void Media_Plugin::CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int
 void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 {
 	if( StringUtils::StartsWith(pMediaFile->m_sFilename,"/dev/",true) || 
-		StringUtils::StartsWith(pMediaFile->m_sFilename,"cdda:/",true) )
-		return;  // Don't add it if it's just a drive
+		StringUtils::StartsWith(pMediaFile->m_sFilename,"cdda:/",true) ||
+		pMediaFile->m_sFilename.empty() )
+			return;  // Don't add it if it's just a drive
+
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::AddFileToDatabase %s",pMediaFile->m_sFilename.c_str());
 
 	vector<Row_File *> vectRow_File;
 	m_pDatabase_pluto_media->File_get()->GetRows("Path='" + 
