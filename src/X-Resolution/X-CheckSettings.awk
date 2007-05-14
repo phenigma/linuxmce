@@ -1,11 +1,4 @@
 BEGIN {
-	if (vUI == "")
-	{
-		# vUI = UI1, UI2mask, UI2alpha
-		print "vUI was not set";
-		exit 2;
-	}
-
 	if (vOpenGL == "")
 	{
 		print "vOpenGL was not set";
@@ -17,6 +10,12 @@ BEGIN {
 		print "vAlphaBlending was not set";
 		exit 2;
 	}
+
+	if (vOpenGL == 0)
+		vUI = "UI1"
+	else if (vAlphaBlending == 0)
+		vUI = "UI2mask"
+	else vUI = "UI2alpha";
 
 	SectionScreenOrDevice = 0;
 	SectionDevice = 0;
@@ -60,15 +59,13 @@ SectionExtension == 1 && /Option..*"Composite"/i { Composite = 1; }
 END {
 	if (Driver == "\"vesa\"")
 		warnings[warncount++] = "Warning: you are using the vesa driver. Performance will be affected";
-	if (Driver == "nv")
+	if (Driver == "\"nv\"")
 		warnings[warncount++] = "Warning: you are using the nv driver. It is recommended that you use the nvidia driver.";
 	
 	if (vUI == "UI2mask")
 	{
 		if (Driver != "nvidia" && Driver != "via" && Driver != "ati")
 			warnings[warncount++] = "Warning: you try to run UI2 with mask on the " Driver " driver. Performance will be affected.";
-		if (vOpenGL != 1)
-			errors[errcount++] = "Error: UI2 with mask needs OpenGL";
 		if (XvmcUsesTextures != 1)
 			errors[errcount++] = "Error: UI2 with mask needs XvmcUsesTextures";
 		if (AllowGLXWithComposite != 1)
@@ -81,10 +78,6 @@ END {
 	{
 		if (Driver != "nvidia")
 			errors[errcount++] = "Error: Can't run UI2 with alpha blending on other drivers than nvidia."
-		if (vOpenGL != 1)
-			errors[errcount++] = "Error: UI2 with alpha blending needs OpenGL";
-		if (vAlphaBlending != 1)
-			errors[errcount++] = "Error: UI2 with alpha blending needs AlphaBlending set in the database";
 		if (XvmcUsesTextures != 1)
 			errors[errcount++] = "Error: UI2 with alpha blending needs XvmcUsesTextures";
 		if (AllowGLXWithComposite != 1)
