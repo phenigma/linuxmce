@@ -16,9 +16,15 @@
 #endif
 
 #ifdef WIN32
-#include "GL/glext.h"
+	#include "GL/glext.h"
 #else
-#include <GL/glx.h>
+	#include <GL/glx.h>
+	#include <fcntl.h>
+	#include <sys/ipc.h>
+	#include <sys/sem.h>
+	#include <unistd.h>
+	#include <sys/wait.h>
+	#include <errno.h>
 #endif
 
 #include <stdio.h>
@@ -397,7 +403,40 @@ int drawGLScene( GLvoid )
 	return( TRUE );
 }
 
+char *ReadFileIntoBuffer( string sFileName, size_t &Size )
+{
+    Size=0;
+    if( sFileName.length()==0 )
+        return NULL;
 
+    FILE *pFile = fopen( sFileName.c_str(), "rb" );
+    if ( pFile == NULL )
+        return NULL;
+
+    fseek( pFile, 0L, SEEK_END );
+    Size = ftell( pFile );
+    fseek( pFile, 0L, SEEK_SET );
+
+    char *pChr = new char[Size+1];
+    fread( pChr, Size, 1, pFile );
+    pChr[Size] = 0;
+    fclose( pFile );
+    return pChr;
+}
+
+bool ReadTextFile(string sFileName, string& sData)
+{
+	size_t nSize = 0;
+	char *pData = ReadFileIntoBuffer(sFileName, nSize);
+	bool bResult = NULL != pData;
+
+	if(pData)
+		sData = string(pData);
+
+	delete [] pData;
+	pData = NULL;
+	return bResult;
+}
 
 #ifdef WIN32
 int _tmain(int argc, char * /*_TCHAR*/ argv[])
@@ -439,6 +478,30 @@ int main( int argc, char **argv )
 	printf("Texture to use: %s\n", sTextureName.c_str());
 	printf("Composite: %s\n", bUseComposite ? "enabled" : "disabled");
 	printf("Mask: %s\n", bUseMask ? "enabled" : "disabled");
+
+	int pid = fork();
+
+	if(pid == 0)
+	{
+		string sCommand = "cat /etc/mailcap | grep \"^video/mpeg;\"  | head -1 | cut -d';' -f2 > /tmp/player-name";
+		system(sCommand.c_str());
+
+		string sPlayerCommandTemplate;
+		if(ReadTextFile("/tmp/player-name", sPlayerCommandTemplate))
+		{
+			char pPlayerCommand[1024];
+			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
+
+			printf("Running player application %s", pPlayerCommand); 
+			system(pPlayerCommand);
+		}
+		else
+		{
+			printf("Error : cannot find the default player application!");
+		}	
+
+		exit(0);
+	}
 
 	while(true)
 	{
