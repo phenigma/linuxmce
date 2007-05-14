@@ -40,21 +40,21 @@ BEGIN {
 /Section..*"Screen"/ { SectionScreenOrDevice = 1; next; }
 /Section..*"Device"/ { SectionScreenOrDevice = 1; SectionDevice = 1; next; }
 SectionScreenOrDevice == 1 && /EndSection/ { SectionScreenOrDevice = 0; SectionDevice = 0; next; }
-SectionScreenOrDevice == 1 && /Option..*"XvmcUsesTextures"/i { XvmcUsesTextures = 1; }
-SectionScreenOrDevice == 1 && /Option..*"AllowGLXWithComposite"/i { AllowGLXWithComposite = 1; }
-SectionScreenOrDevice == 1 && /Option..*"AddARGBGLXVisuals"/i { AddARGBGLXVisuals = 1; }
-SectionScreenOrDevice == 1 && /Option..*"renderAccel"/i { RenderAccel = 1; }
+SectionScreenOrDevice == 1 && /Option..*"XvmcUsesTextures"/ { XvmcUsesTextures = 1; }
+SectionScreenOrDevice == 1 && /Option..*"AllowGLXWithComposite"/ { AllowGLXWithComposite = 1; }
+SectionScreenOrDevice == 1 && /Option..*"AddARGBGLXVisuals"/ { AddARGBGLXVisuals = 1; }
+SectionScreenOrDevice == 1 && /Option..*"renderAccel"/ { RenderAccel = 1; }
 
-SectionScreenOrDevice == 1 && /Option..*"AccelMethod"/i { AccelMethod = 1; }
-SectionScreenOrDevice == 1 && /Option..*"ExaScratchSize"/i { ExaScratchSize = 1; }
-SectionScreenOrDevice == 1 && /Option..*"MaxDRIMem"/i { MaxDRIMem = 1; }
-SectionScreenOrDevice == 1 && /Option..*"MigrationHeuristic"/i { MigrationHeuristic = 1; }
+SectionScreenOrDevice == 1 && /Option..*"AccelMethod"/ { AccelMethod = 1; }
+SectionScreenOrDevice == 1 && /Option..*"ExaScratchSize"/ { ExaScratchSize = 1; }
+SectionScreenOrDevice == 1 && /Option..*"MaxDRIMem"/ { MaxDRIMem = 1; }
+SectionScreenOrDevice == 1 && /Option..*"MigrationHeuristic"/ { MigrationHeuristic = 1; }
 
-SectionDevice == 1 && /Driver..*/i { Driver = $2; }
+SectionDevice == 1 && /Driver..*/ { Driver = $2; }
 
 /Section..*"Extensions"/ { SectionExtension = 1; next; }
 SectionExtension == 1 && /EndSection/ { SectionExtension = 0; next; }
-SectionExtension == 1 && /Option..*"Composite"/i { Composite = 1; }
+SectionExtension == 1 && /Option..*"Composite"/ { Composite = 1; }
 
 END {
 	if (Driver == "\"vesa\"")
@@ -64,7 +64,7 @@ END {
 	
 	if (vUI == "UI2mask")
 	{
-		if (Driver != "nvidia" && Driver != "via" && Driver != "ati")
+		if (Driver != "\"nvidia\"" && Driver != "\"via\"" && Driver != "\"ati\"")
 			warnings[warncount++] = "Warning: you try to run UI2 with mask on the " Driver " driver. Performance will be affected.";
 		if (XvmcUsesTextures != 1)
 			errors[errcount++] = "Error: UI2 with mask needs XvmcUsesTextures";
@@ -76,7 +76,7 @@ END {
 	
 	if (vUI == "UI2alpha")
 	{
-		if (Driver != "nvidia")
+		if (Driver != "\"nvidia\"")
 			errors[errcount++] = "Error: Can't run UI2 with alpha blending on other drivers than nvidia."
 		if (XvmcUsesTextures != 1)
 			errors[errcount++] = "Error: UI2 with alpha blending needs XvmcUsesTextures";
