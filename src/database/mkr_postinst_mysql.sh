@@ -15,6 +15,13 @@ if ! BlacklistConfFiles "$MyCnf" ;then
 	sed -i 's/^bind-address.*$/bind-address=0.0.0.0/; s/\(^log.*=.*$\)/#\1/g' "$MyCnf"
 	sed -i 's/^expire_logs_days/#expire_logs_days/g' "$MyCnf"
 	grep -q '^default-table-type=' "$MyCnf" || echo "default-table-type=$DefTableType" >>"$MyCnf"
+
+	mkdir -p /etc/mysql/conf.d
+	echo "
+[mysqld]
+skip-name-resolve
+" >> /etc/mysql/conf.d/pluto-database-settings.cnf 
+
 	echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
 	echo "FLUSH PRIVILEGES;" | mysql
 	invoke-rc.d mysql restart
