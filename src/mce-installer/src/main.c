@@ -112,8 +112,8 @@ main (int argc, char *argv[])
 
 	history = g_queue_new();
 
-#if 1
-	displayStepUI();
+#if 0
+	displayStep6();
 #else
 	if (setting_coreIP != NULL) {
 		displayStep1C();

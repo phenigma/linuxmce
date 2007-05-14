@@ -42,7 +42,7 @@ void displayStep6(void) {
 		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	} else {
-		label = gtk_label_new_for_wizard ("Installation Finished. You need to reboot you computer before starting Linux MCE.");
+		label = gtk_label_new_for_wizard ("Installation is finished.  You should now reboot. \n\nNOTE: The first time you start LinuxMCE it will take several minutes to verity the new installation and generate the UI’s");
 		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 	}
 
