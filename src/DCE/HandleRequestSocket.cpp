@@ -177,8 +177,6 @@ void HandleRequestSocket::RunThread()
 				Message *pMessage = ReceiveMessageRaw(sMessage);
 				if ( pMessage )
 				{
-					if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						m_bExpectingAMessage = true;
 #ifdef DEBUG
 					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Received Message type %d ID %d from %d to %d (device: %d) resp %d",
 						pMessage->m_dwMessage_Type, pMessage->m_dwID, pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To, m_dwPK_Device,
@@ -198,7 +196,6 @@ void HandleRequestSocket::RunThread()
 					}
 					if( receivedMessageResult != rmr_Buffered )
 						delete pMessage;
-					m_bExpectingAMessage = false;
 				}
 				else
 				{

@@ -79,9 +79,10 @@ bool Event_Impl::SendMessage( Message *pMessage )
 bool Event_Impl::SendMessage( Message *pMessage, string &sResponse )
 {
 	pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;
-	if( !m_pClientSocket->SendMessage( pMessage ) )
-		return false;
-	return m_pClientSocket->ReceiveString( sResponse );
+	return m_pClientSocket->SendMessageWithConfirmation(pMessage, sResponse);
+	//if( !m_pClientSocket->SendMessage( pMessage ) )
+	//	return false;
+	//return m_pClientSocket->ReceiveString( sResponse );
 }
 
 Message *Event_Impl::SendReceiveMessage( Message *pMessage )

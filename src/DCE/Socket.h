@@ -55,14 +55,6 @@ namespace DCE
 
 	public:
 
-
-/*  TEMPORARY -- DELETE THIS.  ONLY TO DEBUG AN ISSUE WITH RECEIVING A MESSAGE, EXPECTING A MESSAGE RESPONSE, AND INSTEAD SENDING AN 'OK'
-*/
-		bool m_bExpectingAMessage;
-
-
-
-
 		enum SocketType { st_Unknown, st_ServerCommand, st_ServerEvent, st_ClientCommand, st_ClientEvent } m_eSocketType;
 
 		/** < If true,  the framework will send a ping every 10 seconds or so to be sure the network
@@ -172,6 +164,12 @@ namespace DCE
 		 * @return false on errors
 		 */
 		virtual Message *SendReceiveMessage( Message *pMessage);
+
+		/**
+		 * @brief sends a message to the socket and retrives the confirmation (as string)
+		 * @return false on errors
+		 */
+		virtual bool SendMessageWithConfirmation(Message *pMessage, string &sRefResponse);
 
 		/**
 		 * @brief Close the socket
