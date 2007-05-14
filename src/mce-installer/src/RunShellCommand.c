@@ -3,7 +3,7 @@
 
 GtkWidget *runWindow;
 pid_t      runApplicationPid;
-gint       runTagProgessBar;
+//gint       runTagProgessBar;
 gchar     *runErrorMessage;
 static gboolean connectedToReaper;
 
@@ -16,7 +16,7 @@ gint run_shell_command_progress_pulse(gpointer data) {
 void run_shell_reaper_child_exited(VteTerminal *terminal, gint pid, gint errcode, gpointer data) {
 	if (runApplicationPid == pid) {
 		printf("Exited with error code : %d\n", errcode);
-		g_source_remove((gint)runTagProgessBar);
+//		g_source_remove((gint)runTagProgessBar);
 
 		gdk_threads_enter();
 		gtk_widget_hide_all(GTK_WIDGET(runWindow));
@@ -53,9 +53,9 @@ GtkWidget* run_shell_command(const gchar* application, const gchar* windowTitle,
 	GtkWidget* runLabelWait = gtk_label_new("Please Wait ...");
 	gtk_box_pack_start(GTK_BOX(runHBox), runLabelWait, TRUE, TRUE, 5);
 
-	GtkWidget* runProgress = gtk_progress_bar_new();
-	gtk_box_pack_start(GTK_BOX(runHBox), runProgress, TRUE, TRUE, 5);
-	runTagProgessBar = g_timeout_add(200, run_shell_command_progress_pulse, runProgress);
+//	GtkWidget* runProgress = gtk_progress_bar_new();
+//	gtk_box_pack_start(GTK_BOX(runHBox), runProgress, TRUE, TRUE, 5);
+//	runTagProgessBar = g_timeout_add(200, run_shell_command_progress_pulse, runProgress);
 
 	GtkWidget* runTerminal = vte_terminal_new();
 	write_config_file();
