@@ -16,7 +16,7 @@ if ! BlacklistConfFiles "$MyCnf" ;then
 	sed -i 's/^expire_logs_days/#expire_logs_days/g' "$MyCnf"
 	grep -q '^default-table-type=' "$MyCnf" || echo "default-table-type=$DefTableType" >>"$MyCnf"
 
-	mkdir -p /etc/mysql/conf.d
+	mkdir -p /etc/mysql/conf.d || : 
 	echo "
 [mysqld]
 skip-name-resolve
