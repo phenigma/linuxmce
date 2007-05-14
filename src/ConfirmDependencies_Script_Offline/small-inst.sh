@@ -21,7 +21,7 @@ function CopyDebs() {
 		if [[ "$reply" != y && "$reply" != Y && "$reply" != "" ]]; then
 			continue
 		fi
-		mount -t iso9660 /dev/cdrom /media/cdrom
+		mount /media/cdrom
 		cp -f /media/cdrom/*.deb /usr/pluto/deb-cache
 		umount /media/cdrom
 		eject /dev/cdrom
