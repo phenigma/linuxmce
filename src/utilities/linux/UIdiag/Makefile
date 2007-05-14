@@ -8,7 +8,7 @@ sources = UIdiag.cpp
 			
 all: $(sources:.cpp=.o)
 	$(CXX) -o UIdiag $+ $(LDFLAGS)
-
+	cp UIdiag ../../../bin/
 clean:
 	rm -f UIdiag $(sources:.cpp=.o) 
 	
