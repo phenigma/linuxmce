@@ -26,7 +26,9 @@ void on_NvidiaDrivers_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	if (goNext) {
 		g_queue_push_head(history, (gpointer)STEPNVIDIADRIVERS);
-		displayStep4();
+//		gtk_widget_set_sensitive (GTK_WIDGET(widget), FALSE);
+//		start_network_wizard();
+		displayStepNvidiaDriversEnd();
 	}
 }
 

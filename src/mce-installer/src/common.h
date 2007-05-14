@@ -55,6 +55,7 @@
 #include "StepUI.h"
 #include "StepDvdCss.h"
 #include "StepNvidiaDrivers.h"
+#include "StepNvidiaDriversEnd.h"
 #include "StepConfFiles.h"
 #include "StepCreateDiskedDevice.h"
 

@@ -26,11 +26,7 @@ void on_StepDvdCss_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	if (goNext) {
 		g_queue_push_head(history, (gpointer)STEPDVDCSS);
-		if (has_nv_video_driver()) {
-			displayStepNvidiaDrivers();
-		} else {
-			displayStep4();
-		}
+		displayStep4();
 	}
 }
 
