@@ -1,4 +1,6 @@
 BEGIN {
+	IGNORECASE = 1;
+	
 	if (vOpenGL == "")
 	{
 		print "vOpenGL was not set";
@@ -43,7 +45,7 @@ SectionScreenOrDevice == 1 && /EndSection/ { SectionScreenOrDevice = 0; SectionD
 SectionScreenOrDevice == 1 && /Option..*"XvmcUsesTextures"/ { XvmcUsesTextures = 1; }
 SectionScreenOrDevice == 1 && /Option..*"AllowGLXWithComposite"/ { AllowGLXWithComposite = 1; }
 SectionScreenOrDevice == 1 && /Option..*"AddARGBGLXVisuals"/ { AddARGBGLXVisuals = 1; }
-SectionScreenOrDevice == 1 && /Option..*"renderAccel"/ { RenderAccel = 1; }
+SectionScreenOrDevice == 1 && /Option..*"RenderAccel"/ { RenderAccel = 1; }
 
 SectionScreenOrDevice == 1 && /Option..*"AccelMethod"/ { AccelMethod = 1; }
 SectionScreenOrDevice == 1 && /Option..*"ExaScratchSize"/ { ExaScratchSize = 1; }
@@ -54,7 +56,7 @@ SectionDevice == 1 && /Driver..*/ { Driver = $2; }
 
 /Section..*"Extensions"/ { SectionExtension = 1; next; }
 SectionExtension == 1 && /EndSection/ { SectionExtension = 0; next; }
-SectionExtension == 1 && /Option..*"Composite"/i { IGNORECASE = 1; if ($2 ~ "false") { Composite = 0; } IGNORECASE = 0; }
+SectionExtension == 1 && /Option..*"Composite"/ { if ($2 ~ "false") Composite = 0;}
 
 END {
 	if (Driver == "\"vesa\"")
