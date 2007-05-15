@@ -77,11 +77,7 @@ GenModeline()
 }
 
 OrigParams=("$@")
-if [[ -f /etc/diskless.conf ]]; then
-	ConfigFile="/etc/X11/xorg.conf.pluto"
-else
-	ConfigFile="/etc/X11/xorg.conf"
-fi
+ConfigFile="/etc/X11/xorg.conf.pluto"
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
