@@ -60,7 +60,7 @@ namespace DCE
 		map<int,Row_DHCPDevice *> m_mapPK_DHCPDevice_possible;
 		int m_iPK_DHCPDevice,m_dwPK_Device_TopLevel,m_dwPK_PnpQueue_BlockingFor,m_iPK_Room;
 		map<int,string> m_mapPK_DeviceData;
-		string m_mapPK_DeviceData_Find(int PK_DeviceData) { map<int,string>::iterator it = m_mapPK_DeviceData.find(PK_DeviceData); return it==m_mapPK_DeviceData.end() ? NULL : (*it).second; }
+		string m_mapPK_DeviceData_Find(int PK_DeviceData) { map<int,string>::iterator it = m_mapPK_DeviceData.find(PK_DeviceData); return it==m_mapPK_DeviceData.end() ? "" : (*it).second; }
 		Row_Device *m_pRow_Device_Reported;
 		string m_sPK_Orbiter_List_For_Prompts;
 		string m_sDetectionScript_Running;
