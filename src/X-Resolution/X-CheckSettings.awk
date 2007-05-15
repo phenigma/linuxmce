@@ -31,7 +31,7 @@ BEGIN {
 	MaxDRIMem = 0;
 	MigrationHeuristic = 0;
 	
-	Composite = 0;
+	Composite = 1;
 
 	warncount = 0;
 	errcount = 0;
@@ -54,7 +54,7 @@ SectionDevice == 1 && /Driver..*/ { Driver = $2; }
 
 /Section..*"Extensions"/ { SectionExtension = 1; next; }
 SectionExtension == 1 && /EndSection/ { SectionExtension = 0; next; }
-SectionExtension == 1 && /Option..*"Composite"/ { Composite = 1; }
+SectionExtension == 1 && /Option..*"Composite"/i { IGNORECASE = 1; if ($2 ~ "false") { Composite = 0; } IGNORECASE = 0; }
 
 END {
 	if (Driver == "\"vesa\"")
