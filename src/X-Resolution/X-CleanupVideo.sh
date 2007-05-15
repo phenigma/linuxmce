@@ -98,13 +98,13 @@ CleanupVideo()
 	echo "$(date -R) --> Auto-create video card device"
 	VideoDriver=$(GetVideoDriver)
 	case "$VideoDriver" in
-		nv)
+		nv|nvidia)
 			if [[ -z "$nV_dev" ]]; then
 				NewDeviceTemplate=$DEVICETEMPLATE_GeForce_or_TNT2
 				nV_dev=$(/usr/pluto/bin/CreateDevice -d "$NewDeviceTemplate" -R "$PK_Device")
 			fi
 		;;
-		ati|radeon)
+		ati|radeon|fglrx)
 			if [[ -z "$ATI_dev" ]]; then
 				NewDeviceTemplate=$DEVICETEMPLATE_Radeon_8500_or_newer
 				ATI_dev=$(/usr/pluto/bin/CreateDevice -d "$NewDeviceTemplate" -R "$PK_Device")
