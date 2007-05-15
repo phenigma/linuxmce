@@ -10,7 +10,7 @@ fi
 
 apt-get install nvidia-glx
 apt-get install linux-restricted-modules-generic
-sed -i 's/Driver.*"nv"/Driver "nvidia"/g' /etc/X11/xorg.conf
+sed -i 's/Driver.*"nv"/Driver "nvidia"/gi' /etc/X11/xorg.conf
 nvidia-xconfig --no-use-edid
 nvidia-xconfig --exact-mode-timings-dvi
 nvidia-xconfig --no-logo
