@@ -8,6 +8,10 @@ function Replace_Mirror {
 	local mirror=$1
 	local flag='0'
 	local newlines="
+	if [[ "$mirror" == "(null)" ]] ;then
+		echo "WARNING: Replace_Mirror called with (null) mirror"
+	fi
+
 deb file:/usr/pluto/deb-cache/ ./
 deb $mirror feisty main restricted universe multiverse
 deb $mirror feisty-security main restricted universe multiverse
@@ -16,17 +20,21 @@ deb http://linuxmce.com/ununtu ./
 "
 
 	while read line ;do
-		if [[ "$line" == '# Choosed mirror - end' ]] ;then
-			echo "$newlines" >> /etc/apt/sources.list.$$
-			flag='0'
-		fi
 		if [[ "$line" == '# Choosed mirror - start' ]] ;then
-			echo "$line" >> /etc/apt/sources.list.$$		
 			flag='1'
+			echo "# Choosed mirror - start
+$newlines
+# Choosed mirror - end" >> /etc/apt/sources.list.$$
 		fi
+
 		if [[ "$flag" == '0' ]] ;then
 			echo "$line" >> /etc/apt/sources.list.$$
 		fi
+                
+		if [[ "$line" == '# Choosed mirror - end' ]] ;then
+			flag='0'
+		fi
+
 	done < /etc/apt/sources.list
 
 	mv -f /etc/apt/sources.list.$$ /etc/apt/sources.list
