@@ -63,13 +63,13 @@ WinListManager::WinListManager(const string &sSdlWindowName)
 
 WinListManager::~WinListManager()
 {
-	HandleOffCommand();
-
                 //-----------------------------------------------------------------
                 //temporary code - until we'll have shared desktop = false on MD's
 		m_pWMController->SetVisible("lmce_launch_manager", true);
                 //end of temporary code
                 //-----------------------------------------------------------------
+
+	HandleOffCommand();
 
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager: deleting Window controller");
 	delete m_pWMController;
