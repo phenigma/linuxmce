@@ -2,6 +2,17 @@
 
 . /tmp/mce_wizard_data.sh
 . /usr/pluto/bin/Utils.sh
+. ./mce-installer-common.sh
+
+set -x
+
+InstallerLogFile="/var/log/mce-installer-$(date +%s).log"
+exec &> >(tee $InstallerLogFile)
+
+echo "--- start mce wizard data ---"
+cat /tmp/mce_wizard_data.sh
+echo "--- end mce wizard data ---"
+
 
 function Setup_NIS 
 {
