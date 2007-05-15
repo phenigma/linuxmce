@@ -116,12 +116,10 @@ fi
 
 ## Restore number of desktops
 if [[ "$SharedDesktop" == 1 && "$DesktopActivated" == 1 ]]; then
-
-	N_Desktops=$(wmctrl -d | wc -l) # zero based
-	wmctrl -n $((N_Desktops - 2))
+	wmctrl -n "$N_Desktops"
 	ConfSet DesktopActivated 0
 
-        Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Decreasing number of desktops to $((N_Desktops - 2))"
+        Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Decreasing number of desktops to $N_Desktops"
 fi
 
 exit ${Orbiter_RetCode}
