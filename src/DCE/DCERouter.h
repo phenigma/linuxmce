@@ -182,7 +182,7 @@ namespace DCE
         pluto_pthread_mutex_t m_MessageQueueMutex;
         pthread_cond_t m_MessageQueueCond;
         int m_Port,m_dwPK_Language;
-        unsigned long m_dwPK_Device_Largest;
+        long m_dwPK_Device_Largest;
 		bool m_bStopProcessingMessages; // We're going to kill ourselves
         string m_sBasePath;
         pthread_t m_pthread_queue_id;

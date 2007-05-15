@@ -602,7 +602,6 @@ RAP_FType Router::PlugIn_Load(int PK_Device, int PK_DeviceTemplate, string sComm
 Command_Impl * Router::PlugIn_Activate(int PK_Device, RAP_FType RegisterAsPlugin, string sLogFile)
 {
     string ErrorMessage;
-    char MS_ErrorMessage[1024];
 
     char sz[100];
     strcpy(sz, sLogFile.c_str());
@@ -1361,7 +1360,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		MYSQL_ROW row;
 		if( (result_set.r=mysql_query_result(sSQL)) )
 		{
-			sResponse = "DEVICE_INFO " + StringUtils::itos(result_set.r->row_count) + "\t";
+			sResponse = "DEVICE_INFO " + StringUtils::ltos(static_cast<unsigned long>(result_set.r->row_count)) + "\t";
 	        PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
 			ServerSocketMap::iterator iDeviceConnection;
 			while ((row = mysql_fetch_row(result_set.r)))
@@ -2844,7 +2843,7 @@ string Router::GetDevicesByDeviceTemplate(DeviceData_Router *pDeviceData_From,in
 
         if( !pDevice )
         {
-#pragma warning("this shouldn't happen");
+//#pragma message("this shouldn't happen");
             LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"m_mapDeviceData_Router has a NULL assciated with id: %d", (*itDevice).first);
             continue;
         }
@@ -2876,7 +2875,7 @@ string Router::GetDevicesByCategory(DeviceData_Router *pDeviceData_From,int PK_D
         DeviceData_Router *pDevice = (*itDevice).second;
 if( !pDevice )
 {
-#pragma warning("this shouldn't happen");
+//#pragma message("this shouldn't happen");
 LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"m_mapDeviceData_Router has a NULL in it");
 continue;
 }
@@ -3242,7 +3241,7 @@ void Router::ReadPersistentMessages()
 	if( pBuffer )
 	{
 		SerializeClass serializeClass;
-		serializeClass.StartReading(size,pBuffer);
+		serializeClass.StartReading(static_cast<unsigned long>(size),pBuffer);
 		int NumMessages = serializeClass.Read_unsigned_long();
 		for(int i=0;i<NumMessages;++i)
 		{
