@@ -1787,8 +1787,8 @@ void PnpQueue::DoneDetectingDevices(string sSignature)
 		PnpQueueEntry *pPnpQueueEntry = it->second;
 
 		// If we're blocked waiting for a device like HAL to startup, check if it's since finished registering
-		if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_waiting_for_initial_detection && 
-			pPnpQueueEntry->m_pRow_PnpQueue->Signature_get()==sSignature )
+		if( (pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_waiting_for_initial_detection || pPnpQueueEntry->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_DETECTED)
+			&& pPnpQueueEntry->m_pRow_PnpQueue->Signature_get()==sSignature )
 		{
 			LocateDevice(pPnpQueueEntry);
 			if( pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() )
