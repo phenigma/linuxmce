@@ -65,13 +65,13 @@ void displayStepNvidiaDrivers(void) {
 
 	// Radio : Yes
 	GSList *group = NULL;
-	GtkWidget *radioYes = gtk_radio_button_new_with_label(group, "Yes, i want it installed.");
+	GtkWidget *radioYes = gtk_radio_button_new_with_label(group, "Yes, I want it installed.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioYes, TRUE, TRUE, 0);
 	g_signal_connect(G_OBJECT(radioYes), "toggled", G_CALLBACK(on_NvidiaDrivers_radio_yes_toggled), (gpointer)intallNvidiaDrivers);
 
 	// Radio : No
 	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioYes));
-	GtkWidget *radioNo = gtk_radio_button_new_with_label(group, "No, I wang to use the opensource drivers without 3d acceleration.");
+	GtkWidget *radioNo = gtk_radio_button_new_with_label(group, "No, I want to use the opensource drivers without 3d acceleration.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioNo, TRUE, TRUE, 0);
 	g_signal_connect(G_OBJECT(radioNo), "toggled", G_CALLBACK(on_NvidiaDrivers_radio_no_toggled), (gpointer)intallNvidiaDrivers);
 
