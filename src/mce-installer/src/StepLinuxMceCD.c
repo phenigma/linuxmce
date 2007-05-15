@@ -70,7 +70,7 @@ void displayStepLinuxMceCD(void) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseISO), TRUE);
 	}
 	
-	// Radio button install from Internet
+/*	// Radio button install from Internet
 	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioUseCD));
 	GtkWidget *radioUseNet = gtk_radio_button_new_with_label(group, "I don't have it. Download packages from the Internet.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioUseNet, TRUE, TRUE, 0);
@@ -78,7 +78,7 @@ void displayStepLinuxMceCD(void) {
 	if (setting_linuxmceCdFrom == FROM_NET) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseNet), TRUE);
 	}
-
+*/
 	// File chooser button
 	GtkWidget *fileChooser = gtk_file_chooser_button_new("Choose 'Kubuntu Extra CD ISO' Location", GTK_FILE_CHOOSER_ACTION_OPEN);
 	gtk_box_pack_start(GTK_BOX(mainBox), fileChooser, TRUE, TRUE, 0);

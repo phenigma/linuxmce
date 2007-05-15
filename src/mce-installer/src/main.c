@@ -108,12 +108,14 @@ main (int argc, char *argv[])
 	setting_netExtKeep = TRUE;
 	setting_netIntIPN = "192.168.80";
 	setting_installType = INSTALL_TYPE_CD;
-	setting_ubuntuExtraCdFrom = FROM_NET;
 
+	setting_ubuntuExtraCdFrom = FROM_CD;
+	setting_linuxmceCdFrom = FROM_CD;
 	history = g_queue_new();
 
 #if 0
-	displayStep6();
+displayStepUbuntuExtraCD();
+//	displayStepLinuxMceCD();
 #else
 	if (setting_coreIP != NULL) {
 		displayStep1C();
