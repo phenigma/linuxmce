@@ -301,7 +301,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Alias_asSQL
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -358,7 +359,8 @@ update_values_list = update_values_list + "`PK_Alias`="+pRow->PK_Alias_asSQL()+"
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform update query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -404,7 +406,8 @@ condition = condition + "`PK_Alias`=" + tmp_PK_Alias;
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform delete query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			return false;
 		}	
 		
@@ -439,7 +442,8 @@ bool Table_Alias::GetRows(string where_statement,vector<class Row_Alias*> *rows)
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		bool bResult=database->MySQLConnect(true);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::GetRows Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 		return false;
 	}	
 
@@ -589,7 +593,8 @@ condition = condition + "`PK_Alias`=" + tmp_PK_Alias;
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		bool bResult=database->MySQLConnect(true);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::FetchRow Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 		return NULL;
 	}	
 
