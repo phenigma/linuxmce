@@ -78,7 +78,7 @@ function Install_DCERouter {
 }
 
 function Install_VIA_ALSA {
-	apt-get -y -f install via-alsa
+	apt-get -y -f install via-alsa-2.6.16.20-pluto-2-686
 }
 
 function Create_And_Config_Devices {
