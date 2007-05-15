@@ -52,6 +52,11 @@ deb http://linuxmce.com/ubuntu ./
 #deb http://10.0.0.82/ ./
 # Pluto sources - end"
 
+	local SourcesOffline="# Pluto sources offline - start
+deb file:/usr/pluto/deb-cache/ ./
+# Pluto sources offline - end"
+
+if [[ ! -z "$c_deviceType" ]] && [[ "$c_deviceType" != "3" ]] ;then
 	if ! grep -qF '# Pluto sources - start' /etc/apt/sources.list ;then
 		echo "$Sources" > /etc/apt/sources.list.$$
 		cat /etc/apt/sources.list.$$ /etc/apt/sources.list > /etc/apt/sources.list.$$.all
@@ -60,13 +65,16 @@ deb http://linuxmce.com/ubuntu ./
 	else
 		Replace_Mirror "$c_installMirror"
 	fi
+else
+	echo "$SourcesOffline" > /etc/apt/sources.list.$$
+	cat /etc/apt/sources.list.$$ /etc/apt/sources.list > /etc/apt/sources.list.$$.all
+	mv -f /etc/apt/sources.list.$$.all /etc/apt/sources.list
+	rm -f /etc/apt/sources.list.$$
+fi
 
-	local SourcesOffline="# Pluto sources offline - start
-deb file:/usr/pluto/deb-cache/ ./
-# Pluto sources offline - end"
 	echo "$SourcesOffline" >/etc/apt/sources.list.offline
 
-	if [[ "$c_ubuntuExtraCDFrom" != "3" ]] ;then
+	if [[ "$c_ubuntuExtraCDFrom" != "3" ]] && [[ ! -z "$c_ubuntuExtraCDFrom" ]] ;then
 		#echo "Dir::Etc::sourcelist sources.list.offline;" >/etc/apt/apt.conf.d/00ubuntu_offline
 		cp /etc/apt/sources.list /etc/apt/sources.list.original
 		mv /etc/apt/sources.list.offline /etc/apt/sources.list
