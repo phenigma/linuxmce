@@ -483,7 +483,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->EK_MediaType_a
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_MediaType_AttributeType::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_MediaType_AttributeType::Commit Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -543,7 +544,8 @@ update_values_list = update_values_list + "`EK_MediaType`="+pRow->EK_MediaType_a
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_MediaType_AttributeType::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_MediaType_AttributeType::Commit Cannot perform update query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -592,7 +594,8 @@ condition = condition + "`EK_MediaType`=" + tmp_EK_MediaType+" AND "+"`FK_Attrib
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_MediaType_AttributeType::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_MediaType_AttributeType::Commit Cannot perform delete query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			return false;
 		}	
 		
@@ -627,7 +630,8 @@ bool Table_MediaType_AttributeType::GetRows(string where_statement,vector<class 
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_MediaType_AttributeType::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		bool bResult=database->MySQLConnect(true);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_MediaType_AttributeType::GetRows Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 		return false;
 	}	
 
@@ -857,7 +861,8 @@ condition = condition + "`EK_MediaType`=" + tmp_EK_MediaType+" AND "+"`FK_Attrib
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_MediaType_AttributeType::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		bool bResult=database->MySQLConnect(true);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_MediaType_AttributeType::FetchRow Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 		return NULL;
 	}	
 
