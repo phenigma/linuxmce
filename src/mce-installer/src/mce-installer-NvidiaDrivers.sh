@@ -3,7 +3,7 @@
 . /tmp/mce_wizard_data.sh
 . ./mce-installer-common.sh
 
-Setup_Apt_Conffiles
+#Setup_Apt_Conffiles
 if [[ ! -f /etc/X11/xorg.conf.pbackup ]] ;then
 	cp /etc/X11/xorg.conf /etc/X11/xorg.conf.pbackup
 fi
