@@ -1188,6 +1188,11 @@
 #define TEXT_Confirm_PNP_TV_Tuner_CONST 1912
 #define TEXT_Switch_Desktop_CONST 1913
 #define TEXT_Adjust_spacing_and_offset_CONST 1914
+#define TEXT_Cancel_Ripping_CONST 1925
+#define TEXT_Eject_All_CONST 1926
+#define TEXT_Load_1_CONST 1927
+#define TEXT_Load_Bulk_CONST 1928
+#define TEXT_Rip_All_CONST 1929
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

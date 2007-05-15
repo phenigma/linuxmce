@@ -2436,6 +2436,13 @@
 #define DESIGNOBJ_butSwitchDesktop_CONST 5434
 #define DESIGNOBJ_butKDEDesktop_CONST 5436
 #define DESIGNOBJ_butAdjustScreen_CONST 5438
+#define DESIGNOBJ_butCancelRipping_CONST 5453
+#define DESIGNOBJ_butRipAll_CONST 5454
+#define DESIGNOBJ_butEjectAll_CONST 5455
+#define DESIGNOBJ_butLoad1_CONST 5456
+#define DESIGNOBJ_butLoadBulk_CONST 5457
+#define DESIGNOBJ_butUnload_CONST 5458
+#define DESIGNOBJ_butLoad_CONST 5459
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
