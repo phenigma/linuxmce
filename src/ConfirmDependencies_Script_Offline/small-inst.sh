@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 #<-mkr_B_etch_b->
 exit 0
