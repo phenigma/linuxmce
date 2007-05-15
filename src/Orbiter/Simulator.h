@@ -37,7 +37,7 @@ class Simulator
 	Simulator(); //private constructor
 
 	map<string,string> m_mapParameters;
-	string m_mapParameters_Find(string Token) {	map<string,string>::iterator it = m_mapParameters.find( Token ); return it == m_mapParameters.end() ? NULL : (*it).second; }
+	string m_mapParameters_Find(string Token) {	map<string,string>::iterator it = m_mapParameters.find( Token ); return it == m_mapParameters.end() ? "" : (*it).second; }
 	bool m_mapParameters_Exists(string Token) {	map<string,string>::iterator it = m_mapParameters.find( Token ); return it != m_mapParameters.end(); }
 
 	inline int ReadInteger(string sToken, int iDefaultValue = 0);
