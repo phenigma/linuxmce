@@ -76,8 +76,10 @@ END {
 	
 	if (vUI == "UI2alpha")
 	{
+#<-mkr_B_via_b->
 		if (Driver != "\"nvidia\"")
 			errors[errcount++] = "Error: Can't run UI2 with alpha blending on other drivers than nvidia."
+#<-mkr_B_via_e->
 		if (XvmcUsesTextures != 1)
 			errors[errcount++] = "Error: UI2 with alpha blending needs XvmcUsesTextures";
 		if (AllowGLXWithComposite != 1)
