@@ -490,7 +490,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Contact_asS
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Contact_Users_Sync::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Contact_Users_Sync::Commit Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -550,7 +551,8 @@ update_values_list = update_values_list + "`FK_Contact`="+pRow->FK_Contact_asSQL
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Contact_Users_Sync::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Contact_Users_Sync::Commit Cannot perform update query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -599,7 +601,8 @@ condition = condition + "`FK_Contact`=" + tmp_FK_Contact+" AND "+"`EK_Users`=" +
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Contact_Users_Sync::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Contact_Users_Sync::Commit Cannot perform delete query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			return false;
 		}	
 		
@@ -634,7 +637,8 @@ bool Table_Contact_Users_Sync::GetRows(string where_statement,vector<class Row_C
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Contact_Users_Sync::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		bool bResult=database->MySQLConnect(true);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Contact_Users_Sync::GetRows Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 		return false;
 	}	
 
@@ -864,7 +868,8 @@ condition = condition + "`FK_Contact`=" + tmp_FK_Contact+" AND "+"`EK_Users`=" +
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Contact_Users_Sync::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		bool bResult=database->MySQLConnect(true);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Contact_Users_Sync::FetchRow Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 		return NULL;
 	}	
 

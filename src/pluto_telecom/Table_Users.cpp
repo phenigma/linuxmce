@@ -407,7 +407,8 @@ values_list_comma_separated = values_list_comma_separated + pRow->EK_Users_asSQL
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Users::Commit Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Users::Commit Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			if( bDeleteFailedInsertRow )
 			{
 				addedRows.erase(i);
@@ -464,7 +465,8 @@ update_values_list = update_values_list + "`EK_Users`="+pRow->EK_Users_asSQL()+"
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Users::Commit Cannot perform update query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Users::Commit Cannot perform update query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			if( bDeleteFailedModifiedRow )
 			{
 				cachedRows.erase(i);
@@ -510,7 +512,8 @@ condition = condition + "`EK_Users`=" + tmp_EK_Users;
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Users::Commit Cannot perform delete query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+			bool bResult=database->MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Users::Commit Cannot perform delete query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 			return false;
 		}	
 		
@@ -545,7 +548,8 @@ bool Table_Users::GetRows(string where_statement,vector<class Row_Users*> *rows)
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Users::GetRows Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		bool bResult=database->MySQLConnect(true);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Users::GetRows Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 		return false;
 	}	
 
@@ -739,7 +743,8 @@ condition = condition + "`EK_Users`=" + tmp_EK_Users;
 	{	
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Users::FetchRow Cannot perform query [%s] %s",query.c_str(),database->m_sLastMySqlError.c_str());
+		bool bResult=database->MySQLConnect(true);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Users::FetchRow Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
 		return NULL;
 	}	
 
