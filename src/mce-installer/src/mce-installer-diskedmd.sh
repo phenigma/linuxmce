@@ -62,6 +62,7 @@ function Unpack_Config_Files
 
 function Run_Installer_Script
 {
+	apt-get -y install pluto-boot-scripts
 	. /usr/pluto/install/activation.sh
 }
 
