@@ -92,5 +92,6 @@ fi
 Setup_NIS
 Configure_Mounts
 Unpack_Config_Files
+Setup_Apt_Conffiles
 Run_Installer_Script
 Setup_XOrg
