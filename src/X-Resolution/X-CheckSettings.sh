@@ -3,7 +3,7 @@
 . /usr/pluto/bin/Utils.sh
 
 #<-mkr_b_via_b->
-	exit 0;
+exit 0
 #<-mkr_b_via_e->
 	
 AlphaBlending=$(AlphaBlendingEnabled)
