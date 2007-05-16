@@ -45,7 +45,7 @@ ViaOverlay ViaOverlay::m_Instance;
 ViaOverlay::ViaOverlay() : 
 	m_ScreenMutex("screen mutex"), 
 	m_lpAlphaSurface(NULL), m_nWidth(0), m_nHeight(0), m_bOverlayInitialized(false),
-	m_bHasPopups(false), m_ScreenMask(NULL), m_BufferMask(NULL)
+	m_bHasPopups(false), m_ScreenMask(NULL), m_BufferMask(NULL), m_bOverlaySuspended(false)
 {
 	pthread_mutexattr_t m_ScreenAttr;
 	pthread_mutexattr_init(&m_ScreenAttr);
@@ -127,11 +127,13 @@ void ViaOverlay::WorldChanged()
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA ViaOverlay::WorldChanged");
 
 	if(m_bOverlayInitialized)
 	{
-		memcpy(m_lpAlphaSurface, m_BufferMask, m_nWidth * m_nHeight);
+		if(!m_bOverlaySuspended)
+			memcpy(m_lpAlphaSurface, m_BufferMask, m_nWidth * m_nHeight);
 
 		if(!m_bHasPopups)
 			memcpy(m_ScreenMask, m_BufferMask, m_nWidth * m_nHeight);
@@ -150,17 +152,22 @@ void ViaOverlay::ResetAlphaMask()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA Reseting alpha surface...");
 	memset(m_BufferMask, 0xFF, m_nWidth * m_nHeight);
 	memset(m_ScreenMask, 0xFF, m_nWidth * m_nHeight);
+
+	if(!m_bOverlaySuspended)
 	memset(m_lpAlphaSurface, 0xFF, m_nWidth * m_nHeight);
+
 	m_bHasPopups = false;
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::SuspendOverlay()
 {
-	memset(m_lpAlphaSurface, 0xFF, m_nWidth * m_nHeight);
+	m_bOverlaySuspended = true;
+	memset(m_lpAlphaSurface, 0x00, m_nWidth * m_nHeight);
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ResumeOverlay()
 {
+	m_bOverlaySuspended = false;
 	memcpy(m_lpAlphaSurface, m_BufferMask, m_nWidth * m_nHeight);
 }
 //-------------------------------------------------------------------------------------------------------

@@ -123,6 +123,8 @@ private:
 	unsigned char *m_ScreenMask;
 	unsigned char *m_BufferMask;
 
+	bool m_bOverlaySuspended;
+
 	/*
 	* VMI wrappers
 	*/
