@@ -33,7 +33,7 @@ void on_StepUI_radio_toggled(GtkWidget *widget, gpointer data) {
 
 }
 
-void on_StepUI_application_clicked(GtkWidget *widget, gpointer data) {a
+void on_StepUI_application_clicked(GtkWidget *widget, gpointer data) {
 	int aux_pid = fork();
 	int aux_status;
 
@@ -44,7 +44,7 @@ void on_StepUI_application_clicked(GtkWidget *widget, gpointer data) {a
 		}
 		_exit (0);
 	} else if (aux_pid > 0 ) {
-		waitpid (aux_pid, &aux_status, 1);
+		waitpid (aux_pid, &aux_status, 0);
 	}
 }
 
@@ -59,7 +59,7 @@ void on_StepUI_url_clicked(GtkWidget *widget, gpointer data) {
 		}
 		_exit (0);
 	} else if (aux_pid > 0 ) {
-		waitpid (aux_pid, &aux_status, 1);
+		waitpid (aux_pid, &aux_status, 0);
 	}
 }
 
