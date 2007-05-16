@@ -82,7 +82,7 @@ fi
 
 	echo "$SourcesOffline" >/etc/apt/sources.list.offline
 
-	if [[ "$c_ubuntuExtraCDFrom" != "3" ]] && [[ ! -z "$c_ubuntuExtraCDFrom" ]] ;then
+	if [[ "$c_ubuntuExtraCdFrom" != "3" ]] && [[ ! -z "$c_ubuntuExtraCdFrom" ]] ;then
 		#echo "Dir::Etc::sourcelist sources.list.offline;" >/etc/apt/apt.conf.d/00ubuntu_offline
 		cp /etc/apt/sources.list /etc/apt/sources.list.original
 		mv /etc/apt/sources.list.offline /etc/apt/sources.list
