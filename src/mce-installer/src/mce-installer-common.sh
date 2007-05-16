@@ -7,11 +7,11 @@ DT_HYBRID=2
 function Replace_Mirror {
 	local mirror=$1
 	local flag='0'
-	local newlines="
 	if [[ "$mirror" == "(null)" ]] ;then
 		echo "WARNING: Replace_Mirror called with (null) mirror"
 	fi
 
+	local newlines="
 deb file:/usr/pluto/deb-cache/ ./
 deb $mirror feisty main restricted universe multiverse
 deb $mirror feisty-security main restricted universe multiverse
