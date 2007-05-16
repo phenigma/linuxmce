@@ -19,6 +19,7 @@ tail -n +$SKIP $0 | tar xz -C $WRKDIR
 PREV=`pwd`
 cd $WRKDIR
 export LD_LIBRARY_PATH=$WRKDIR
+export PATH=$PATH:$WRKDIR
 if [[ $UID != "0" ]] ;then
 	mv ./mce-installer ./mce-installer-user
 	echo "#!/bin/bash
