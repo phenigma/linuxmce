@@ -31,8 +31,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = i686-pc-linux-gnu
-host_triplet = i686-pc-linux-gnu
+build_triplet = i486-pc-linux-gnu
+host_triplet = i486-pc-linux-gnu
 bin_PROGRAMS = mce-installer$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -83,18 +83,18 @@ DATA = $(glade_DATA)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run aclocal-1.10
-AMTAR = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run tar
-AUTOCONF = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run automake-1.10
-AWK = mawk
+ACLOCAL = ${SHELL} /var/plutobuild/svn/trunk/src/mce-installer/missing --run aclocal-1.10
+AMTAR = ${SHELL} /var/plutobuild/svn/trunk/src/mce-installer/missing --run tar
+AUTOCONF = ${SHELL} /var/plutobuild/svn/trunk/src/mce-installer/missing --run autoconf
+AUTOHEADER = ${SHELL} /var/plutobuild/svn/trunk/src/mce-installer/missing --run autoheader
+AUTOMAKE = ${SHELL} /var/plutobuild/svn/trunk/src/mce-installer/missing --run automake-1.10
+AWK = gawk
 CATALOGS = 
 CATOBJEXT = .gmo
-CC = gcc
+CC = i486-linux-gnu-gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2
-CPP = gcc -E
+CFLAGS = -Wall -g -O2
+CPP = i486-linux-gnu-gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
 DATADIRNAME = share
@@ -116,12 +116,12 @@ INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 INSTOBJEXT = .mo
 INTLLIBS = 
-LDFLAGS = 
+LDFLAGS = -Wl,-z,defs
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAINT = 
-MAKEINFO = ${SHELL} /home/rgavril/Work/SVN/src/mce-installer/missing --run makeinfo
+MAINT = #
+MAKEINFO = ${SHELL} /var/plutobuild/svn/trunk/src/mce-installer/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 MKINSTALLDIRS = ./mkinstalldirs
 MSGFMT = /usr/bin/msgfmt
@@ -147,20 +147,20 @@ STRIP =
 USE_NLS = yes
 VERSION = 0.1
 XGETTEXT = /usr/bin/xgettext
-abs_builddir = /home/rgavril/Work/SVN/src/mce-installer/src
-abs_srcdir = /home/rgavril/Work/SVN/src/mce-installer/src
-abs_top_builddir = /home/rgavril/Work/SVN/src/mce-installer
-abs_top_srcdir = /home/rgavril/Work/SVN/src/mce-installer
-ac_ct_CC = gcc
+abs_builddir = /var/plutobuild/svn/trunk/src/mce-installer/src
+abs_srcdir = /var/plutobuild/svn/trunk/src/mce-installer/src
+abs_top_builddir = /var/plutobuild/svn/trunk/src/mce-installer
+abs_top_srcdir = /var/plutobuild/svn/trunk/src/mce-installer
+ac_ct_CC = 
 am__include = include
 am__leading_dot = .
 am__quote = 
 am__tar = ${AMTAR} chof - "$$tardir"
 am__untar = ${AMTAR} xf -
 bindir = ${exec_prefix}/bin
-build = i686-pc-linux-gnu
-build_alias = 
-build_cpu = i686
+build = i486-pc-linux-gnu
+build_alias = i486-linux-gnu
+build_cpu = i486
 build_os = linux-gnu
 build_vendor = pc
 builddir = .
@@ -169,24 +169,24 @@ datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = i686-pc-linux-gnu
-host_alias = 
-host_cpu = i686
+host = i486-pc-linux-gnu
+host_alias = i486-linux-gnu
+host_cpu = i486
 host_os = linux-gnu
 host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
-infodir = ${datarootdir}/info
-install_sh = $(SHELL) /home/rgavril/Work/SVN/src/mce-installer/install-sh
+infodir = ${prefix}/share/info
+install_sh = $(SHELL) /var/plutobuild/svn/trunk/src/mce-installer/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
 localstatedir = ${prefix}/var
-mandir = ${datarootdir}/man
+mandir = ${prefix}/share/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /usr/local
+prefix = /usr
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
@@ -272,7 +272,7 @@ all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .o .obj
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: # $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -297,9 +297,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: # $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): # $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)

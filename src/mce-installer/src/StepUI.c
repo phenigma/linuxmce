@@ -33,19 +33,34 @@ void on_StepUI_radio_toggled(GtkWidget *widget, gpointer data) {
 
 }
 
-void on_StepUI_application_clicked(GtkWidget *widget, gpointer data) {
-	if ( fork() == 0 ) {
-		execl("UIdiag", "UIdiag", NULL);
-		exit(0);
+void on_StepUI_application_clicked(GtkWidget *widget, gpointer data) {a
+	int aux_pid = fork();
+	int aux_status;
+
+	if ( aux_pid == 0 ) {
+		if (fork() == 0) {
+			execl("UIdiag", "UIdiag", NULL);
+			_exit(0);
+		}
+		_exit (0);
+	} else if (aux_pid > 0 ) {
+		waitpid (aux_pid, &aux_status, 1);
 	}
 }
 
 void on_StepUI_url_clicked(GtkWidget *widget, gpointer data) {
-	if ( fork() == 0 ) {
-		execl("/usr/bin/konqueror", "/usr/bin/konqueror", "http://wiki.linuxmce.com/index.php/Graphics_Test", NULL);
-		exit(0);
-	}
+	int aux_pid = fork();
+	int aux_status;
 
+	if ( aux_pid == 0 ) {
+		if (fork() == 0) {
+			execl("/usr/bin/konqueror", "/usr/bin/konqueror", "http://wiki.linuxmce.com/index.php/Graphics_Test", NULL);
+			_exit(0);
+		}
+		_exit (0);
+	} else if (aux_pid > 0 ) {
+		waitpid (aux_pid, &aux_status, 1);
+	}
 }
 
 void displayStepUI(void) {

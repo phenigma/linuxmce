@@ -1,7 +1,7 @@
 #!/bin/bash
 
 . /tmp/mce_wizard_data.sh
-Version=_SNR_VERSION_
+Version=2.0.0.44
 
 ISO="http://linuxmce.com/ubuntu/linuxmce-$Version-packages.iso"
 
