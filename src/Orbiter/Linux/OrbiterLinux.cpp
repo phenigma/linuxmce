@@ -439,21 +439,21 @@ void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,M
 			m_pWinListManager->HandleOffCommand();	
 
 #if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
-		ViaOverlay::Instance().FillRectangleInAlphaMask(0, 0, m_iImageWidth, m_iImageHeight, 0x00);
+		ViaOverlay::Instance().SuspendOverlay();
 #endif
 
 		Orbiter::CMD_Surrender_to_OS("1", true, true);
 	}
 	else
 	{
+#if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
+		ViaOverlay::Instance().ResumeOverlay();
+#endif
+		
 		if(NULL != m_pWinListManager)
 			m_pWinListManager->HandleOnCommand();
 
 		Orbiter::CMD_Surrender_to_OS("0", false, false);
-
-#if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
-		CMD_Refresh("");
-#endif		
 	}
 }
 

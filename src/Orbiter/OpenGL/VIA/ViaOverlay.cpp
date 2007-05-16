@@ -154,6 +154,16 @@ void ViaOverlay::ResetAlphaMask()
 	m_bHasPopups = false;
 }
 //-------------------------------------------------------------------------------------------------------
+void ViaOverlay::SuspendOverlay()
+{
+	memset(m_lpAlphaSurface, 0xFF, m_nWidth * m_nHeight);
+}
+//-------------------------------------------------------------------------------------------------------
+void ViaOverlay::ResumeOverlay()
+{
+	memcpy(m_lpAlphaSurface, m_BufferMask, m_nWidth * m_nHeight);
+}
+//-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask)
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 

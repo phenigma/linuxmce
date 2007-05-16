@@ -91,6 +91,12 @@ public:
 	void HidePopup(int x, int y, int w, int h);
 
 	/*
+	 * Suspend/resume overlay
+	 */ 
+	void SuspendOverlay();
+	void ResumeOverlay();
+
+	/*
 	*  Debugging methods
 	*/ 
 	void DumpMask();
