@@ -215,7 +215,7 @@ public:
 	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Eject_Disk(int iSlot_Number,int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Start_Burn_Session(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Start_Ripping_Session(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_File_To_Burning_Session(string &sCMD_Result,class Message *pMessage) {};
@@ -342,8 +342,9 @@ public:
 				case COMMAND_Eject_Disk_CONST:
 					{
 						string sCMD_Result="OK";
+						int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
 						int iDrive_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Drive_Number_CONST].c_str());
-						CMD_Eject_Disk(iDrive_Number,sCMD_Result,pMessage);
+						CMD_Eject_Disk(iSlot_Number,iDrive_Number,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -360,7 +361,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Eject_Disk(iDrive_Number,sCMD_Result,pMessage);
+								CMD_Eject_Disk(iSlot_Number,iDrive_Number,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

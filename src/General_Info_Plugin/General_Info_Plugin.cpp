@@ -2065,6 +2065,8 @@ class DataGridTable *General_Info_Plugin::Discs( string GridID, string Parms, vo
 			string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_DiscLocation->FK_Disc_get())
 				+ " AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Album_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ")";
 
+			pCell->m_mapAttributes["PK_Disc"]=StringUtils::itos(pRow_DiscLocation->FK_Disc_get());
+
 			vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
 			m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sSQL,&vectRow_Disc_Attribute);
 			if( vectRow_Disc_Attribute.size() )
@@ -2194,7 +2196,7 @@ class DataGridTable *General_Info_Plugin::JukeboxDrives( string GridID, string P
 	{
 		DeviceData_Router *pDevice_Drive = (DeviceData_Router *) *it;
 		string sPort = pDevice_Drive->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
-		pCell = new DataGridCell(sPort,StringUtils::itos(pDevice_Drive->m_dwPK_Device));
+		pCell = new DataGridCell(sPort,"# " + StringUtils::itos(pDevice_Drive->m_dwPK_Device));
 
 		vector<Row_Disc *> vectRow_Disc;
 		m_pDatabase_pluto_media->Disc_get()->GetRows("EK_Device=" + StringUtils::itos(pDevice_Drive->m_dwPK_Device),&vectRow_Disc);
@@ -2233,22 +2235,11 @@ class DataGridTable *General_Info_Plugin::JukeboxSlots( string GridID, string Pa
 	if( !pDevice_Jukebox )
 		return pDataGrid;  // Shouldn't happen
 
-	// Store all the children (the drives) in a comma separates list so we can do a sql find
-	string sPK_Drives;
-	for(VectDeviceData_Impl::iterator it=pDevice_Jukebox->m_vectDeviceData_Impl_Children.begin();
-		it!=pDevice_Jukebox->m_vectDeviceData_Impl_Children.end();++it)
-	{
-		DeviceData_Router *pDevice_Drive = (DeviceData_Router *) *it;
-		if( sPK_Drives.empty()==false )
-			sPK_Drives += ",";
-		sPK_Drives += StringUtils::itos(pDevice_Drive->m_dwPK_Device);
-	}
-
 	DataGridCell *pCell;
 	int iRow=0;
 
 	vector<Row_DiscLocation *> vectRow_DiscLocation;
-	m_pDatabase_pluto_media->DiscLocation_get()->GetRows("EK_Device IN (" + StringUtils::itos(pDevice_Jukebox->m_dwPK_Device) + "," + sPK_Drives + ")",&vectRow_DiscLocation);
+	m_pDatabase_pluto_media->DiscLocation_get()->GetRows("EK_Device=" + StringUtils::itos(pDevice_Jukebox->m_dwPK_Device),&vectRow_DiscLocation);
 	for(vector<Row_DiscLocation *>::iterator it=vectRow_DiscLocation.begin();it!=vectRow_DiscLocation.end();++it)
 	{
 		Row_DiscLocation *pRow_DiscLocation = *it;
@@ -2258,7 +2249,6 @@ class DataGridTable *General_Info_Plugin::JukeboxSlots( string GridID, string Pa
 		pCell = new DataGridCell(StringUtils::itos(pRow_DiscLocation->Slot_get()),StringUtils::itos(pRow_Disc->PK_Disc_get()));
 		pCell->m_mapAttributes["PK_Device"] = StringUtils::itos(pRow_DiscLocation->EK_Device_get());
 		pCell->m_mapAttributes["PK_Disc"] = StringUtils::itos(pRow_Disc->PK_Disc_get());
-		pCell->m_mapAttributes["Slot_Drive"] = pRow_DiscLocation->EK_Device_get()==pDevice_Jukebox->m_dwPK_Device ? "slot" : "drive";
 		pCell->m_mapAttributes["Slot"] = StringUtils::itos(pRow_DiscLocation->Slot_get());
 
 		string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get())
@@ -3773,5 +3763,6 @@ bool General_Info_Plugin::SafeToReload(string &sReason)
 			sReason += ",";
 		sReason += StringUtils::itos(it->first);
 	}
+	return false;
 }
 

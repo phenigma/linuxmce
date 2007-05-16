@@ -1374,9 +1374,9 @@ void ScreenHandler::SCREEN_DialogRippingInstructions(long PK_Screen)
 		"<%=T" + StringUtils::itos(TEXT_Monitor_progress_CONST) + "%>",
 		//the command
 		"0 " + StringUtils::itos(DEVICETEMPLATE_This_Orbiter_CONST) +
-		" 1 " + StringUtils::itos(COMMAND_Goto_DesignObj_CONST) + " " +
-		StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " +
-		StringUtils::itos(DESIGNOBJ_mnuPendingTasks_CONST)
+		" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " +
+		StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " +
+		StringUtils::itos(SCREEN_PendingTasks_CONST)
 	);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -2117,7 +2117,7 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sCaption, string sCommand, bool bAdvanced_options)
+void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options)
 {
 	//the command to execute with the selected file
 	m_sSaveFile_Command = sCommand;
@@ -2128,7 +2128,7 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sCaption, string sCom
 		//get default ripping info
 		string sMounterFolder;
 		CMD_Get_Default_Ripping_Info cmd_CMD_Get_Default_Ripping_Info(m_pOrbiter->m_dwPK_Device,
-			m_pOrbiter->m_dwPK_Device_MediaPlugIn, 0, &m_pOrbiter->m_sDefaultRippingName,
+			m_pOrbiter->m_dwPK_Device_MediaPlugIn, iEK_Disc, &m_pOrbiter->m_sDefaultRippingName,
 			&sMounterFolder, &m_pOrbiter->m_nDefaultStorageDeviceForRipping, 
 			&m_pOrbiter->m_sDefaultStorageDeviceForRippingName);
 		m_pOrbiter->SendCommand(cmd_CMD_Get_Default_Ripping_Info);
@@ -2153,7 +2153,7 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sCaption, string sCom
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, FileUtils::ExcludeTrailingSlash(m_sSaveFile_MountedFolder) + "\nMT-1\nP");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, m_sSaveFile_FileName);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
-	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sCaption, sCommand, bAdvanced_options);
+	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, iEK_Disc, sCaption, sCommand, bAdvanced_options);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::FileSave_ObjectSelected,	
 		new ObjectInfoBackData());
@@ -2512,13 +2512,24 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 			{
 				if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST )
 				{
-					DCE::CMD_Eject CMD_Eject(m_pOrbiter->m_dwPK_Device,atoi(pCell->GetValue()));
-					m_pOrbiter->SendCommand(CMD_Eject);
+					DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,atoi(pCell->GetValue()),0,0);
+					m_pOrbiter->SendCommand(CMD_Eject_Disk);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
 				{
-					DCE::CMD_Eject CMD_Eject(m_pOrbiter->m_dwPK_Device,atoi(pCell->GetValue()));
-					m_pOrbiter->SendCommand(CMD_Eject);
+					string sRipMessage = 
+						StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " +
+						StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 "
+						TOSTRING(COMMAND_Rip_Disk_CONST) " "
+						TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=U%> "
+						TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=17%>\" "
+						TOSTRING(COMMANDPARAMETER_DriveID_CONST) " \"<%=45%>\" "
+						TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=9%>\" "
+						TOSTRING(COMMANDPARAMETER_EK_Disc_CONST) " \"" + pCell->m_mapAttributes["PK_Disc"] + "\" ";
+
+					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
+					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
+					m_pOrbiter->SendCommand(SCREEN_FileSave);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST )
 				{
@@ -2582,7 +2593,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 				{
 					int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
 					int Slot = atoi( pCell->m_mapAttributes_Find("Slot").c_str() );
-					DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,PK_Device,Slot);
+					DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,PK_Device,0,Slot);
 					m_pOrbiter->SendCommand(CMD_Eject_Disk);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
@@ -2591,14 +2602,15 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 						StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " +
 						StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 "
 						TOSTRING(COMMAND_Rip_Disk_CONST) " "
-						TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=EU%> "
-						TOSTRING(COMMANDPARAMETER_Filename_CONST) " <%=E17%> "
-						TOSTRING(COMMANDPARAMETER_DriveID_CONST) " <%=E45%> "
-						TOSTRING(COMMANDPARAMETER_Directory_CONST) " <%=E9%> ";
+						TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=U%> "
+						TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=17%>\" "
+						TOSTRING(COMMANDPARAMETER_DriveID_CONST) " \"<%=45%>\" "
+						TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=9%>\" "
+						TOSTRING(COMMANDPARAMETER_EK_Disc_CONST) " \"" + pCell->m_mapAttributes["PK_Disc"] + "\" ";
 
 					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
 					
-					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,sTitle,sRipMessage,true);
+					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,0,sTitle,sRipMessage,true);
 					m_pOrbiter->SendCommand(SCREEN_FileSave);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST )

@@ -504,7 +504,7 @@ int main(int argc, char *argv[])
 					<< "\" -m \"" + pRow_Device->MACaddress_get() + "\"" << endl;
 
 				cout << "if [[ $? -eq 0 ]]; then" << endl
-					<< "\tQ=\"UPDATE Device SET Status='' WHERE PK_Device='" << pRow_Device->PK_Device_get() << "'\"" << endl
+					<< "\tQ=\"UPDATE Device SET Status='',psc_mod=psc_mod WHERE PK_Device='" << pRow_Device->PK_Device_get() << "'\"" << endl
 					<< "\tRunSQL \"$Q\"" << endl
 					<< "fi" << endl;
 
@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
 			else
 			{
 				cout << "#No configure script" << endl;
-				cout << "\tQ=\"UPDATE Device SET Status='' WHERE PK_Device='" << pRow_Device->PK_Device_get() << "'\"" << endl
+				cout << "\tQ=\"UPDATE Device SET Status='',psc_mod=psc_mod WHERE PK_Device='" << pRow_Device->PK_Device_get() << "'\"" << endl
 					 << "\tRunSQL \"$Q\"" << endl;
 			}
 

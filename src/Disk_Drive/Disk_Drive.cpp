@@ -251,12 +251,14 @@ void Disk_Drive::CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,Mess
 
 	/** @brief COMMAND: #48 - Eject Disk */
 	/** Eject the disk from the drive. */
+		/** @param #151 Slot Number */
+			/** For jukeboxes, which slot to eject */
 		/** @param #152 Drive Number */
 			/** Disc unit index number
 Disk_Drive: 0
 Powerfile: 0, 1, ... */
 
-void Disk_Drive::CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Eject_Disk(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
 	static time_t tLastEject=0;

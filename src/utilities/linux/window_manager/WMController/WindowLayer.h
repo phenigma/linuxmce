@@ -3,7 +3,7 @@
 //-------------------------------------------------------------------------------------------------------------
 enum WindowLayer
 {
-	LayerUnknown,
+	LayerUnknown=0,
 	LayerBelow,
 	LayerNormal,
 	LayerAbove,

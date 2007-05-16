@@ -69,7 +69,7 @@ void displayStepDvdCss(void) {
 
 	// Radio : No
 	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioYes));
-	GtkWidget *radioNo = gtk_radio_button_new_with_label(group, "No, it's ilegal in my contry to use it.");
+	GtkWidget *radioNo = gtk_radio_button_new_with_label(group, "No, it's not allowed here.  Don't install it.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioNo, TRUE, TRUE, 0);
 	g_signal_connect(G_OBJECT(radioNo), "toggled", G_CALLBACK(on_StepDvdCss_radio_no_toggled), (gpointer)installDvdCss);
 

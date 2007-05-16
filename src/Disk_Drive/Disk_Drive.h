@@ -110,13 +110,15 @@ Powerfile: 0, 1, ... */
 
 	/** @brief COMMAND: #48 - Eject Disk */
 	/** Eject the disk from the drive. */
+		/** @param #151 Slot Number */
+			/** For jukeboxes, which slot to eject */
 		/** @param #152 Drive Number */
 			/** Disc unit index number
 Disk_Drive: 0
 Powerfile: 0, 1, ... */
 
-	virtual void CMD_Eject_Disk(int iDrive_Number) { string sCMD_Result; CMD_Eject_Disk(iDrive_Number,sCMD_Result,NULL);};
-	virtual void CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Eject_Disk(int iSlot_Number,int iDrive_Number) { string sCMD_Result; CMD_Eject_Disk(iSlot_Number,iDrive_Number,sCMD_Result,NULL);};
+	virtual void CMD_Eject_Disk(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #49 - Start Burn Session */

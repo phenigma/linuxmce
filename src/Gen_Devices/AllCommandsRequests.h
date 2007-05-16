@@ -2634,39 +2634,35 @@ namespace DCE
 	};
 	class CMD_Surrender_to_OS : public PreformedCommand {
 	public:
-		CMD_Surrender_to_OS(long DeviceIDFrom, long DeviceIDTo,string sOnOff,bool bFully_release_keyboard,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Surrender_to_OS(long DeviceIDFrom, long DeviceIDTo,string sOnOff,bool bFully_release_keyboard) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Surrender_to_OS_CONST,
-			3 /* number of parameters */,
+			2 /* number of parameters */,
 			COMMANDPARAMETER_OnOff_CONST, sOnOff.c_str(),
-			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0"),
-			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
+			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0")); }
 	};
 	class CMD_Surrender_to_OS_DL : public PreformedCommand {
 	public:
-		CMD_Surrender_to_OS_DL(long DeviceIDFrom, string DeviceIDTo,string sOnOff,bool bFully_release_keyboard,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Surrender_to_OS_DL(long DeviceIDFrom, string DeviceIDTo,string sOnOff,bool bFully_release_keyboard) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Surrender_to_OS_CONST,
-			3 /* number of parameters */,
+			2 /* number of parameters */,
 			COMMANDPARAMETER_OnOff_CONST, sOnOff.c_str(),
-			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0"),
-			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
+			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0")); }
 	};
 	class CMD_Surrender_to_OS_DT : public PreformedCommand {
 	public:
-		CMD_Surrender_to_OS_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sOnOff,bool bFully_release_keyboard,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Surrender_to_OS_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sOnOff,bool bFully_release_keyboard) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Surrender_to_OS_CONST,
-			3 /* number of parameters */,
+			2 /* number of parameters */,
 			COMMANDPARAMETER_OnOff_CONST, sOnOff.c_str(),
-			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0"),
-			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
+			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0")); }
 	};
 	class CMD_Surrender_to_OS_Cat : public PreformedCommand {
 	public:
-		CMD_Surrender_to_OS_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sOnOff,bool bFully_release_keyboard,bool bAlways) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Surrender_to_OS_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sOnOff,bool bFully_release_keyboard) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Surrender_to_OS_CONST,
-			3 /* number of parameters */,
+			2 /* number of parameters */,
 			COMMANDPARAMETER_OnOff_CONST, sOnOff.c_str(),
-			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0"),
-			COMMANDPARAMETER_Always_CONST, (bAlways ? "1" : "0")); }
+			COMMANDPARAMETER_Fully_release_keyboard_CONST, (bFully_release_keyboard ? "1" : "0")); }
 	};
 	class CMD_Bind_to_Media_Remote : public PreformedCommand {
 	public:
@@ -5482,38 +5478,30 @@ namespace DCE
 	};
 	class CMD_Schedule_Recording : public PreformedCommand {
 	public:
-		CMD_Schedule_Recording(long DeviceIDFrom, long DeviceIDTo,string sType,string sOptions,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Schedule_Recording(long DeviceIDFrom, long DeviceIDTo,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Schedule_Recording_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_Type_CONST, sType.c_str(),
-			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
+			1 /* number of parameters */,
 			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
 	};
 	class CMD_Schedule_Recording_DL : public PreformedCommand {
 	public:
-		CMD_Schedule_Recording_DL(long DeviceIDFrom, string DeviceIDTo,string sType,string sOptions,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Schedule_Recording_DL(long DeviceIDFrom, string DeviceIDTo,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Schedule_Recording_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_Type_CONST, sType.c_str(),
-			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
+			1 /* number of parameters */,
 			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
 	};
 	class CMD_Schedule_Recording_DT : public PreformedCommand {
 	public:
-		CMD_Schedule_Recording_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sType,string sOptions,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Schedule_Recording_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Schedule_Recording_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_Type_CONST, sType.c_str(),
-			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
+			1 /* number of parameters */,
 			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
 	};
 	class CMD_Schedule_Recording_Cat : public PreformedCommand {
 	public:
-		CMD_Schedule_Recording_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sType,string sOptions,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Schedule_Recording_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Schedule_Recording_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_Type_CONST, sType.c_str(),
-			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
+			1 /* number of parameters */,
 			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
 	};
 	class RESP_Get_Current_Floorplan : public PreformedCommandResponse {
@@ -10796,105 +10784,45 @@ namespace DCE
 			COMMANDPARAMETER_Text_CONST, sText.c_str(),
 			COMMANDPARAMETER_Go_Back_CONST, (bGo_Back ? "1" : "0")); }
 	};
-	class RESP_Add_Media_Attribute : public PreformedCommandResponse {
-		int *m_iEK_Attribute;
-	public:
-		RESP_Add_Media_Attribute(int *iEK_Attribute) { 
-		m_iEK_Attribute=iEK_Attribute; }
-		void ParseResponse(Message *pMessage) {
-			*m_iEK_Attribute=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Attribute_CONST].c_str()); };
-	};
 	class CMD_Add_Media_Attribute : public PreformedCommand {
 	public:
-		CMD_Add_Media_Attribute(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,int *iEK_Attribute) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Add_Media_Attribute(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Add_Media_Attribute_CONST,
-			7 /* number of parameters */,
+			6 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
 			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
 			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
 			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
 			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
-			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str(),
-			COMMANDPARAMETER_EK_Attribute_CONST, StringUtils::itos(*iEK_Attribute).c_str());		m_pcResponse = new RESP_Add_Media_Attribute(iEK_Attribute); }
+			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str()); }
 	};
 	class CMD_Add_Media_Attribute_DL : public PreformedCommand {
 	public:
-		CMD_Add_Media_Attribute_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,int *iEK_Attribute) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Add_Media_Attribute_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Add_Media_Attribute_CONST,
-			7 /* number of parameters */,
+			6 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
 			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
 			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
 			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
 			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
-			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str(),
-			COMMANDPARAMETER_EK_Attribute_CONST, StringUtils::itos(*iEK_Attribute).c_str());		m_pcResponse = new RESP_Add_Media_Attribute(iEK_Attribute); }
+			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str()); }
 	};
 	class CMD_Add_Media_Attribute_DT : public PreformedCommand {
 	public:
-		CMD_Add_Media_Attribute_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,int *iEK_Attribute) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Add_Media_Attribute_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Add_Media_Attribute_CONST,
-			7 /* number of parameters */,
+			6 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
 			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
 			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
 			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
 			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
-			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str(),
-			COMMANDPARAMETER_EK_Attribute_CONST, StringUtils::itos(*iEK_Attribute).c_str());		m_pcResponse = new RESP_Add_Media_Attribute(iEK_Attribute); }
+			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str()); }
 	};
 	class CMD_Add_Media_Attribute_Cat : public PreformedCommand {
 	public:
-		CMD_Add_Media_Attribute_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,int *iEK_Attribute) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Add_Media_Attribute_CONST,
-			7 /* number of parameters */,
-			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
-			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
-			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
-			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
-			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
-			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str(),
-			COMMANDPARAMETER_EK_Attribute_CONST, StringUtils::itos(*iEK_Attribute).c_str());		m_pcResponse = new RESP_Add_Media_Attribute(iEK_Attribute); }
-	};
-	class CMD_NOREP_Add_Media_Attribute : public PreformedCommand {
-	public:
-		CMD_NOREP_Add_Media_Attribute(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Add_Media_Attribute_CONST,
-			6 /* number of parameters */,
-			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
-			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
-			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
-			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
-			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
-			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str()); }
-	};
-	class CMD_NOREP_Add_Media_Attribute_DL : public PreformedCommand {
-	public:
-		CMD_NOREP_Add_Media_Attribute_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Add_Media_Attribute_CONST,
-			6 /* number of parameters */,
-			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
-			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
-			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
-			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
-			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
-			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str()); }
-	};
-	class CMD_NOREP_Add_Media_Attribute_DT : public PreformedCommand {
-	public:
-		CMD_NOREP_Add_Media_Attribute_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Add_Media_Attribute_CONST,
-			6 /* number of parameters */,
-			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
-			COMMANDPARAMETER_StreamID_CONST, StringUtils::itos(iStreamID).c_str(),
-			COMMANDPARAMETER_Tracks_CONST, sTracks.c_str(),
-			COMMANDPARAMETER_EK_AttributeType_CONST, StringUtils::itos(iEK_AttributeType).c_str(),
-			COMMANDPARAMETER_Section_CONST, sSection.c_str(),
-			COMMANDPARAMETER_EK_File_CONST, StringUtils::itos(iEK_File).c_str()); }
-	};
-	class CMD_NOREP_Add_Media_Attribute_Cat : public PreformedCommand {
-	public:
-		CMD_NOREP_Add_Media_Attribute_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Add_Media_Attribute_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Add_Media_Attribute_CONST,
 			6 /* number of parameters */,
 			COMMANDPARAMETER_Value_To_Assign_CONST, sValue_To_Assign.c_str(),
@@ -24375,102 +24303,6 @@ namespace DCE
 		CMD_XM_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_XM_CONST,
 			0 /* number of parameters */); }
-	};
-	class CMD_Reporting_EPG_Status : public PreformedCommand {
-	public:
-		CMD_Reporting_EPG_Status(long DeviceIDFrom, long DeviceIDTo,string sText,bool bIsSuccessful,string sTask) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
-			COMMAND_Reporting_EPG_Status_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_Text_CONST, sText.c_str(),
-			COMMANDPARAMETER_IsSuccessful_CONST, (bIsSuccessful ? "1" : "0"),
-			COMMANDPARAMETER_Task_CONST, sTask.c_str()); }
-	};
-	class CMD_Reporting_EPG_Status_DL : public PreformedCommand {
-	public:
-		CMD_Reporting_EPG_Status_DL(long DeviceIDFrom, string DeviceIDTo,string sText,bool bIsSuccessful,string sTask) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Reporting_EPG_Status_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_Text_CONST, sText.c_str(),
-			COMMANDPARAMETER_IsSuccessful_CONST, (bIsSuccessful ? "1" : "0"),
-			COMMANDPARAMETER_Task_CONST, sTask.c_str()); }
-	};
-	class CMD_Reporting_EPG_Status_DT : public PreformedCommand {
-	public:
-		CMD_Reporting_EPG_Status_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sText,bool bIsSuccessful,string sTask) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Reporting_EPG_Status_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_Text_CONST, sText.c_str(),
-			COMMANDPARAMETER_IsSuccessful_CONST, (bIsSuccessful ? "1" : "0"),
-			COMMANDPARAMETER_Task_CONST, sTask.c_str()); }
-	};
-	class CMD_Reporting_EPG_Status_Cat : public PreformedCommand {
-	public:
-		CMD_Reporting_EPG_Status_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sText,bool bIsSuccessful,string sTask) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Reporting_EPG_Status_CONST,
-			3 /* number of parameters */,
-			COMMANDPARAMETER_Text_CONST, sText.c_str(),
-			COMMANDPARAMETER_IsSuccessful_CONST, (bIsSuccessful ? "1" : "0"),
-			COMMANDPARAMETER_Task_CONST, sTask.c_str()); }
-	};
-	class CMD_Remove_Scheduled_Recording : public PreformedCommand {
-	public:
-		CMD_Remove_Scheduled_Recording(long DeviceIDFrom, long DeviceIDTo,string sID,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
-			COMMAND_Remove_Scheduled_Recording_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_ID_CONST, sID.c_str(),
-			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
-	};
-	class CMD_Remove_Scheduled_Recording_DL : public PreformedCommand {
-	public:
-		CMD_Remove_Scheduled_Recording_DL(long DeviceIDFrom, string DeviceIDTo,string sID,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Remove_Scheduled_Recording_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_ID_CONST, sID.c_str(),
-			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
-	};
-	class CMD_Remove_Scheduled_Recording_DT : public PreformedCommand {
-	public:
-		CMD_Remove_Scheduled_Recording_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Remove_Scheduled_Recording_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_ID_CONST, sID.c_str(),
-			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
-	};
-	class CMD_Remove_Scheduled_Recording_Cat : public PreformedCommand {
-	public:
-		CMD_Remove_Scheduled_Recording_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Remove_Scheduled_Recording_CONST,
-			2 /* number of parameters */,
-			COMMANDPARAMETER_ID_CONST, sID.c_str(),
-			COMMANDPARAMETER_ProgramID_CONST, sProgramID.c_str()); }
-	};
-	class CMD_Activate_PC_Desktop : public PreformedCommand {
-	public:
-		CMD_Activate_PC_Desktop(long DeviceIDFrom, long DeviceIDTo,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
-			COMMAND_Activate_PC_Desktop_CONST,
-			1 /* number of parameters */,
-			COMMANDPARAMETER_TrueFalse_CONST, (bTrueFalse ? "1" : "0")); }
-	};
-	class CMD_Activate_PC_Desktop_DL : public PreformedCommand {
-	public:
-		CMD_Activate_PC_Desktop_DL(long DeviceIDFrom, string DeviceIDTo,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Activate_PC_Desktop_CONST,
-			1 /* number of parameters */,
-			COMMANDPARAMETER_TrueFalse_CONST, (bTrueFalse ? "1" : "0")); }
-	};
-	class CMD_Activate_PC_Desktop_DT : public PreformedCommand {
-	public:
-		CMD_Activate_PC_Desktop_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Activate_PC_Desktop_CONST,
-			1 /* number of parameters */,
-			COMMANDPARAMETER_TrueFalse_CONST, (bTrueFalse ? "1" : "0")); }
-	};
-	class CMD_Activate_PC_Desktop_Cat : public PreformedCommand {
-	public:
-		CMD_Activate_PC_Desktop_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
-			COMMAND_Activate_PC_Desktop_CONST,
-			1 /* number of parameters */,
-			COMMANDPARAMETER_TrueFalse_CONST, (bTrueFalse ? "1" : "0")); }
 	};
 }
 #endif

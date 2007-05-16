@@ -11,6 +11,7 @@ extern DCEConfig g_DCEConfig;
 
 #include "../pluto_media/Database_pluto_media.h"
 #include "../pluto_media/Table_Disc.h"
+#include "../pluto_media/Table_DiscLocation.h"
 #include "../Media_Plugin/MediaAttributes_LowLevel.h"
 #include "Powerfile_C200.h"
 
@@ -27,14 +28,14 @@ using namespace nsJobHandler;
 #define MTX_CMD "/opt/mtx-pluto/sbin/mtx"
 
 #ifdef WIN32
-	#define WEXITSTATUS(a) 0
+#define WEXITSTATUS(a) 0
 #endif
 
 namespace nsJukeBox
 {
 	/*
-	 * PowerfileJukebox class implementation
-	 */
+	* PowerfileJukebox class implementation
+	*/
 
 	PowerfileJukebox::PowerfileJukebox(Powerfile_C200 * pPowerfile)
 		: JukeBox(pPowerfile)
@@ -51,7 +52,6 @@ namespace nsJukeBox
 		string sOutput;
 
 		int nDrive = 0; // Drives are counted from 0
-		int nSlot = 1;  // Slots are counted from 1
 
 		if (true )//! m_bStatusCached || bForce)
 		{
@@ -71,7 +71,7 @@ namespace nsJukeBox
 				sOutput = pBuffer;
 #endif
 				vector<string> vect_sOutput_Rows;
-				
+
 				Tokenize(sOutput, "\n", vect_sOutput_Rows);
 				for (size_t i = 0; i < vect_sOutput_Rows.size(); i++)
 				{
@@ -97,7 +97,7 @@ namespace nsJukeBox
 						int iDiscFrom = 0;
 						sWhoWhat = vsFF[3];
 						Tokenize(sWhoWhat, ":", vsC); // Unit_number:State
-						
+
 						sResult = string("D") + vsC[0] + "=" + vsC[1];
 						if (vsC[1] == "Full")
 						{
@@ -119,23 +119,40 @@ namespace nsJukeBox
 					{
 						sWhoWhat = vsFF[2];
 						Tokenize(sWhoWhat, ":", vsC);
-						
+
+						int nSlot = atoi(vsC[0].c_str());
 						Slot *pSlot = m_mapSlot[nSlot];
 						if( pSlot==NULL )
-							m_mapSlot[nSlot] = new Slot(nSlot,Slot::slot_empty,this);
+						{
+							pSlot = new Slot(nSlot,Slot::slot_empty,this);
+							m_mapSlot[nSlot] = pSlot;
+						}
+						pSlot->m_SlotNumber = nSlot;
 
 						sResult = string("S") + vsC[0] + "=" +vsC[1];
 						if (vsC[1] == "Empty")
 						{
-							m_mapSlot[nSlot]->m_eStatus = Slot::slot_empty;
+							pSlot->m_eStatus = Slot::slot_empty;
+							string sSQL = "DELETE FROM DiscLocation WHERE EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " AND Slot=" + StringUtils::itos(pSlot->m_SlotNumber);
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:%s",sSQL.c_str());
+							m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
 						}
 						else
 						{
-							m_mapSlot[nSlot]->m_eStatus = Slot::slot_unknown_medium;
-							// TODO: distinguish between slot_unknown_medium and slot_identified_disc
+							pSlot->m_eStatus = Slot::slot_unknown_medium;
+							Row_DiscLocation *pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber);
+							if( !pRow_DiscLocation )
+							{
+								string sSQL = "INSERT INTO DiscLocation(EK_Device,Slot,Type) VALUES(" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + "," + StringUtils::itos(pSlot->m_SlotNumber) + ",'U')";
+								LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:%s",sSQL.c_str());
+								m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+							}
+							else if( pRow_DiscLocation->FK_Disc_isNull()==false )
+							{
+								LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:slot %d is disc %d",nSlot,pRow_DiscLocation->FK_Disc_get());
+								pSlot->m_eStatus = Slot::slot_identified_disc;
+							}
 						}
-						m_mapSlot[nSlot]->m_SlotNumber = nSlot;
-						nSlot ++;
 					}
 					else
 					{
@@ -181,45 +198,45 @@ namespace nsJukeBox
 		/*
 		else // Use cached info
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using cached info");
-			string sResult, sState;
-			bool bComma = false;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using cached info");
+		string sResult, sState;
+		bool bComma = false;
 
-			map_int_Slotp::iterator itSlot;
-			map_int_Drivep::iterator itDrive;
-			
-			for (itDrive = m_mapDrive.begin(); itDrive != m_mapDrive.end(); itDrive++)
-			{
-				Drive * pDrive =  (itDrive->second);
-				sState = pDrive->m_iSourceSlot == 0 ? "Empty" : ("Full-" + StringUtils::itos(pDrive->m_iSourceSlot));
-				sResult = "D" + StringUtils::itos(pDrive->m_DriveNumber) + "=" + sState;
-				if (sJukebox_Status && sResult != "")
-				{
-					if (bComma)
-						* sJukebox_Status += ",";
-					else
-						bComma = true;
-					* sJukebox_Status += sResult;
-				}
-			}
+		map_int_Slotp::iterator itSlot;
+		map_int_Drivep::iterator itDrive;
 
-			for (itSlot = m_mapSlot.begin(); itSlot != m_mapSlot.end(); itSlot++)
-			{
-				Slot * pSlot = itSlot->second;
-				sState = pSlot->m_eStatus == Slot::slot_empty ? "Empty" : "Full"; // XXX: distinguish between varieties of full?
-				sResult = "S" + StringUtils::itos(pSlot->m_SlotNumber) + "=" + sState;
-				if (sJukebox_Status && sResult != "")
-				{
-					if (bComma)
-						* sJukebox_Status += ",";
-					else
-						bComma = true;
-					* sJukebox_Status += sResult;
-				}
-			}
+		for (itDrive = m_mapDrive.begin(); itDrive != m_mapDrive.end(); itDrive++)
+		{
+		Drive * pDrive =  (itDrive->second);
+		sState = pDrive->m_iSourceSlot == 0 ? "Empty" : ("Full-" + StringUtils::itos(pDrive->m_iSourceSlot));
+		sResult = "D" + StringUtils::itos(pDrive->m_DriveNumber) + "=" + sState;
+		if (sJukebox_Status && sResult != "")
+		{
+		if (bComma)
+		* sJukebox_Status += ",";
+		else
+		bComma = true;
+		* sJukebox_Status += sResult;
+		}
+		}
 
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished getting device status");
-			bResult = true;
+		for (itSlot = m_mapSlot.begin(); itSlot != m_mapSlot.end(); itSlot++)
+		{
+		Slot * pSlot = itSlot->second;
+		sState = pSlot->m_eStatus == Slot::slot_empty ? "Empty" : "Full"; // XXX: distinguish between varieties of full?
+		sResult = "S" + StringUtils::itos(pSlot->m_SlotNumber) + "=" + sState;
+		if (sJukebox_Status && sResult != "")
+		{
+		if (bComma)
+		* sJukebox_Status += ",";
+		else
+		bComma = true;
+		* sJukebox_Status += sResult;
+		}
+		}
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished getting device status");
+		bResult = true;
 		}
 		*/
 		//return bResult;
@@ -234,7 +251,7 @@ namespace nsJukeBox
 
 		HalTree halTree;
 		halTree.Populate();
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapHalDevice.size());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapHalDevice.size());
 
 		string sOutput;
 #ifdef EMULATE_PF
@@ -270,9 +287,9 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 			{
 				int iField = 0;
 				if (1 == 0
-						|| /* Powerfile C200 */     (vsFF[2] == "Escient"  && vsFF[3] == "Powerfile"    && vsFF[4] == "C200" && (iField = 7))
-						|| /* Powerfile R200 DLC */ (vsFF[2] == "PowrFile" && vsFF[3] == "C200"                              && (iField = 6))
-						|| /* Sony VAIO XL1B2 */    (vsFF[2] == "Sony"     && vsFF[3] == "VAIOChanger1"                      && (iField = 6, m_bMtxAltres = true))
+					|| /* Powerfile C200 */     (vsFF[2] == "Escient"  && vsFF[3] == "Powerfile"    && vsFF[4] == "C200" && (iField = 7))
+					|| /* Powerfile R200 DLC */ (vsFF[2] == "PowrFile" && vsFF[3] == "C200"                              && (iField = 6))
+					|| /* Sony VAIO XL1B2 */    (vsFF[2] == "Sony"     && vsFF[3] == "VAIOChanger1"                      && (iField = 6, m_bMtxAltres = true))
 					)
 				{
 					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found changer unit: %s", vsFF[iField].c_str());
@@ -292,11 +309,11 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 
 			if (vsFF[1] == "cd/dvd" &&
 				(
-					 0 == 1
-					 || /* Powerfile C200 */      (vsFF[2] == "TOSHIBA" /* && vsFF[3] == "DVD-ROM" */ && vsFF[4] == "SD-M1212")
-					 || /* Powerfile R200 DLC */  (vsFF[2] == "MATSHITA" /* && vsFF[3] == "DVD-RAM" */ && vsFF[4] == "SW-9585S")
-					 || /* Sony VAIO XL1B2 */     (vsFF[2] == "MATSHITA" /* && vsFF[3] == "DVD-RAM" */ && vsFF[4] == "SW-9584" )
-					)
+				0 == 1
+				|| /* Powerfile C200 */      (vsFF[2] == "TOSHIBA" /* && vsFF[3] == "DVD-ROM" */ && vsFF[4] == "SD-M1212")
+				|| /* Powerfile R200 DLC */  (vsFF[2] == "MATSHITA" /* && vsFF[3] == "DVD-RAM" */ && vsFF[4] == "SW-9585S")
+				|| /* Sony VAIO XL1B2 */     (vsFF[2] == "MATSHITA" /* && vsFF[3] == "DVD-RAM" */ && vsFF[4] == "SW-9584" )
+				)
 				)
 			{
 				// There is a drive.  See if it's one of ours by finding our changer in the tree, then this device, and seeing if they have the same serial number
@@ -338,12 +355,12 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 					m_pPowerfile->SetDeviceDataInDB(pDevice->m_dwPK_Device,DEVICEDATA_Drive_CONST,vsFF[6]);
 
 				Drive * pDrive= new Drive(pDevice ? pDevice->m_dwPK_Device : 0,m_pPowerfile, vsFF[6],
-						m_pJobHandler, m_pDatabase_pluto_media, m_pMediaAttributes_LowLevel,nDrive, vsFF[7],this,true);
+					m_pJobHandler, m_pDatabase_pluto_media, m_pMediaAttributes_LowLevel,nDrive, vsFF[7],this,true);
 				m_mapDrive[nDrive] = pDrive;
 
 				/*
 				A list like this:
-					[internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
+				[internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
 				*/
 				sReportingChildDevices += StringUtils::itos(nDrive) + "\t" + "Drive " + StringUtils::itos(nDrive)
 					+ "\t\t" + TOSTRING(DEVICETEMPLATE_Disk_Drive_CONST) + "\n";
@@ -388,7 +405,7 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 		m_pPowerfile->QueueMessageToRouter(pMessage);
 
 		UpdateDrivesSlotsFromDatabase();
-		
+
 		return true;
 	}
 
@@ -423,7 +440,7 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				int iRet = system(sCmd.c_str());
 #endif
-					
+
 				pDrive->m_iSourceSlot = pSlot->m_SlotNumber;
 				pSlot->m_eStatus = Slot::slot_empty;
 
@@ -468,7 +485,7 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 #else
 		string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? " altres" : "") + " nobarcode unload " + itos(pSlot->m_SlotNumber) + " " + itos(pDrive->m_DriveNumber);
 #endif
-		
+
 		JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
 		if (pDrive->m_mediaInserted==false)
@@ -489,10 +506,10 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				int iRet = system(sCmd.c_str());
 #endif
-				
+
 				pDrive->m_iSourceSlot = -pSlot->m_SlotNumber;
 				pSlot->m_eStatus = Slot::slot_unknown_medium; // TODO: distinguish between slot_unknown_medium and slot_identified_disc
-				
+
 				Disk_Drive_Functions * pDDF = pDrive;
 				pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
 				pDDF->m_mediaInserted = false;
@@ -501,7 +518,7 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 				string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + ",Slot=" + 
 					StringUtils::itos(pSlot->m_SlotNumber) + " WHERE EK_Device=" + StringUtils::itos(pDrive->m_dwPK_Device_get());
 				m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
-				
+
 				jbRetCode = JukeBox::jukebox_ok;
 			}
 			else
@@ -522,7 +539,7 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapH
 	{
 		return JukeBox::jukebox_transport_failure;
 	}
-	
+
 	void PowerfileJukebox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc)
 	{
 		DCE::CMD_Media_Identified_DT CMD_Media_Identified_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,

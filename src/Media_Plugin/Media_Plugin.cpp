@@ -1738,7 +1738,7 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 					&& pMessage->m_mapParameters[COMMANDPARAMETER_Eject_CONST]=="1" )
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got a stop with no media.  Will eject 1");
-					DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
+					DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0, 0);
 					SendCommand(CMD_Eject_Disk_Cat);
 					return rmr_Processed;
 				}
@@ -1766,7 +1766,7 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 					&& pMessage->m_mapParameters[COMMANDPARAMETER_Eject_CONST]=="1" )
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got a stop with no media.  Will eject 4");
-				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
+				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0, 0);
 				SendCommand(CMD_Eject_Disk_Cat);
 				return rmr_Processed;
 			}
@@ -1785,7 +1785,7 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 
 		if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID==COMMAND_Eject_Disk_CONST )
 		{
-			DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
+			DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0, 0);
 			SendCommand(CMD_Eject_Disk_Cat);
 			return rmr_Processed;
 		}
@@ -5687,34 +5687,66 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,s
 	*sFilename = "Unknown disk";
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-	vector<EntertainArea *> vectEntertainArea;
-	DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
-	if(vectEntertainArea.size() == 1)
+	
+	if( iEK_Disc )
 	{
-		EntertainArea *pEntertainArea = vectEntertainArea[0];
-		if(NULL != pEntertainArea && NULL != pEntertainArea->m_pMediaStream)
+		Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
+		if( !pRow_Disc )
 		{
-			MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;
-			if( pMediaStream->m_bIdentifiedDisc )
+	        LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Media_Plugin::CMD_Get_Default_Ripping_Info - invalid disc %d",iEK_Disc );
+			return;
+		}
+		*sFilename=""; // May not have been empty
+		if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST )
+		{
+			string sPerformer,sAlbum;
+			m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeFromDisc(iEK_Disc,ATTRIBUTETYPE_Performer_CONST,sPerformer);
+			m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeFromDisc(iEK_Disc,ATTRIBUTETYPE_Album_CONST,sAlbum);
+			*sFilename = FileUtils::ValidFileName(sPerformer);
+			if(sFilename->size())
+				*sFilename += "/"; // We got a performer
+
+			*sFilename += FileUtils::ValidFileName(sAlbum);
+		}
+
+		if( sFilename->empty() )
+		{
+			string sTitle;
+			m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeFromDisc(iEK_Disc,ATTRIBUTETYPE_Title_CONST,sTitle);
+			*sFilename = FileUtils::ValidFileName(sTitle);
+		}
+	}
+	else
+	{
+		vector<EntertainArea *> vectEntertainArea;
+		DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
+		if(vectEntertainArea.size() == 1)
+		{
+			EntertainArea *pEntertainArea = vectEntertainArea[0];
+			if(NULL != pEntertainArea && NULL != pEntertainArea->m_pMediaStream)
 			{
-				if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+				MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;
+				if( pMediaStream->m_bIdentifiedDisc )
 				{
-					list_int *listPK_Attribute_Performer = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
-					list_int *listPK_Attribute_Album = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
-					int PK_Attribute_Performer = listPK_Attribute_Performer && listPK_Attribute_Performer->size() ? *(listPK_Attribute_Performer->begin()) : 0;
-					int PK_Attribute_Album = listPK_Attribute_Album && listPK_Attribute_Album->size() ? *(listPK_Attribute_Album->begin()) : 0;
+					if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+					{
+						list_int *listPK_Attribute_Performer = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
+						list_int *listPK_Attribute_Album = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
+						int PK_Attribute_Performer = listPK_Attribute_Performer && listPK_Attribute_Performer->size() ? *(listPK_Attribute_Performer->begin()) : 0;
+						int PK_Attribute_Album = listPK_Attribute_Album && listPK_Attribute_Album->size() ? *(listPK_Attribute_Album->begin()) : 0;
 
-					*sFilename = FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Performer));
-					if(sFilename->size())
-						*sFilename += "/"; // We got a performer
+						*sFilename = FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Performer));
+						if(sFilename->size())
+							*sFilename += "/"; // We got a performer
 
-					*sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Album));
+						*sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Album));
+					}
+					else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+						*sFilename = FileUtils::ValidFileName(pMediaStream->m_sMediaDescription);
 				}
-				else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
-					*sFilename = FileUtils::ValidFileName(pMediaStream->m_sMediaDescription);
+				else if( pMediaStream->m_iPK_Playlist )
+					*sFilename = FileUtils::ValidFileName(pMediaStream->m_sPlaylistName);
 			}
-			else if( pMediaStream->m_iPK_Playlist )
-				*sFilename = FileUtils::ValidFileName(pMediaStream->m_sPlaylistName);
 		}
 	}
 

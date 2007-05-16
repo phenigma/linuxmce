@@ -15,7 +15,7 @@ void on_StepUbuntuExtraCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	if (setting_ubuntuExtraCdFrom != FROM_NET) {	
 		goNext = FALSE;
-		GtkWidget* runWindow = run_shell_command("./mce-installer-UbuntuExtraCD.sh", "Caching Ubuntu Extra CD", "Failed to chache the Kubuntu Cache CD");
+		GtkWidget* runWindow = run_shell_command("./mce-installer-UbuntuExtraCD.sh", "Caching Ubuntu Extra CD", "Failed to cache the Kubuntu Cache CD");
 		gtk_widget_show_all(runWindow);
 		if (gtk_dialog_run(GTK_DIALOG(runWindow)) == 1) {
 			goNext = TRUE;

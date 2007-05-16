@@ -1561,6 +1561,17 @@ int MediaAttributes_LowLevel::GetAttributeFromFile(int PK_File,int PK_AttributeT
 	return vectRow_Attribute[0]->PK_Attribute_get();
 }
 
+int MediaAttributes_LowLevel::GetAttributeFromDisc(int PK_Disc,int PK_AttributeType,string &sAttribute)
+{
+	string sSQL = "JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " and FK_Disc=" + StringUtils::itos(PK_Disc) + " limit 1";
+	vector<Row_Attribute *> vectRow_Attribute;
+	m_pDatabase_pluto_media->Attribute_get()->GetRows(sSQL,&vectRow_Attribute);
+	if( vectRow_Attribute.empty() )
+		return 0;
+
+	sAttribute = vectRow_Attribute[0]->Name_get();
+	return vectRow_Attribute[0]->PK_Attribute_get();
+}
 
 void MediaAttributes_LowLevel::AddAttributeToFile(Row_File *pRow_File,Row_Attribute *pRow_Attribute,int Track,int Section)
 {
