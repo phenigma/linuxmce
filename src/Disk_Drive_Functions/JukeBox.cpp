@@ -95,6 +95,9 @@ void JukeBox::UpdateDrivesSlotsFromDatabase()
 	for(vector<Row_DiscLocation *>::iterator it=vectRow_DiscLocation.begin();it!=vectRow_DiscLocation.end();++it)
 	{
 		Row_DiscLocation *pRow_DiscLocation = *it;
+		if( pRow_DiscLocation->Type_get()=="U" )
+			continue;  // It's got something in it, but we don't know what it is
+
 		Row_Disc *pRow_Disc = pRow_DiscLocation->FK_Disc_getrow();
 		Slot *pSlot = m_mapSlot_Find( pRow_DiscLocation->Slot_get() );
 		if( !pSlot || !pRow_Disc )
