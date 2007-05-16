@@ -88,7 +88,7 @@ if [[ "$AVWizardDone" != "1" ]] ;then
 	StartService "Starting Audio/Video Wizard" "/usr/pluto/bin/AVWizard_Run.sh"
 fi
 StartService "Starting X11 Server" "/usr/pluto/bin/Start_X.sh"
-StartDaemon "Starting the Launch Manager" "/usr/pluto/bin/lmce_launch_manager" "LaunchManager"
+StartService "Starting the Launch Manager" "/usr/pluto/bin/lmce_launch_manager"
 StartService "Creating Firewire 2 Video4Linux Pipes" "/usr/pluto/bin/Firewire2Video4Linux.sh"
 #StartService "Starting Local Devices" "/usr/pluto/bin/Start_LocalDevices.sh"
 StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
