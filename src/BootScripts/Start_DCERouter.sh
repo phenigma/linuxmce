@@ -6,6 +6,11 @@
 trap 'Unlock "DCER" "Start_DCE_Router"' EXIT
 Lock "DCER" "Start_DCE_Router"
 
+# hack: cleaning lockfile on router start to allow
+# local devices to start
+# TODO: remove this when correct locking will be implemented
+rm -f /usr/pluto/locks/pluto_spawned_local_devices.txt
+
 cd /usr/pluto/bin
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting DCERouter"
 
