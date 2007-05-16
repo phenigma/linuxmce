@@ -4940,7 +4940,7 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 				"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
 
 			DCE::SCREEN_FileSave SCREEN_FileSave(m_dwPK_Device,pMessage->m_dwPK_Device_From, 
-				"<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>", sCmdToRenameBookmark, false);
+				0, "<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>", sCmdToRenameBookmark, false);
 			SendCommand(SCREEN_FileSave);
 		}
 	}
@@ -5607,6 +5607,21 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 			return;
 		}
 		pMediaFile = pEntertainArea->m_pMediaStream->GetCurrentMediaFile();
+	}
+	else if( StringUtils::StartsWith(sFilename,"!P") )  // Playlists are handled differently
+	{
+		Row_Playlist *pRow_Playlist = m_pDatabase_pluto_media->Playlist_get()->GetRow(atoi(sFilename.substr(2).c_str()));
+		if( pRow_Playlist )
+		{
+			*sValue_To_Assign = "FILE\t" + sFilename + 
+			"\tTITLE\t" + pRow_Playlist->Name_get() +
+			"\t";	
+			if( pRow_Playlist->FK_Picture_get() )
+				*sValue_To_Assign += "PICTURE\t/home/mediapics/" + StringUtils::itos(pRow_Playlist->FK_Picture_get()) + ".jpg\t";
+		}
+		else
+			*sValue_To_Assign = "FILE\t" + sFilename + "\tTITLE\t" + sFilename + "\t";	
+		return;
 	}
     deque<MediaFile *> dequeMediaFile;
 	m_pMediaAttributes->m_pMediaAttributes_LowLevel->TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.

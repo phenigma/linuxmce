@@ -2198,25 +2198,29 @@ class DataGridTable *General_Info_Plugin::JukeboxDrives( string GridID, string P
 		string sPort = pDevice_Drive->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 		pCell = new DataGridCell(sPort,"# " + StringUtils::itos(pDevice_Drive->m_dwPK_Device));
 
-		vector<Row_Disc *> vectRow_Disc;
-		m_pDatabase_pluto_media->Disc_get()->GetRows("EK_Device=" + StringUtils::itos(pDevice_Drive->m_dwPK_Device),&vectRow_Disc);
-		if( vectRow_Disc.size() )
+		pCell->m_mapAttributes["PK_Device"] = StringUtils::itos(pDevice_Drive->m_dwPK_Device);
+		vector<Row_DiscLocation *> vectRow_DiscLocation;
+		m_pDatabase_pluto_media->DiscLocation_get()->GetRows("EK_Device=" + StringUtils::itos(pDevice_Drive->m_dwPK_Device),&vectRow_DiscLocation);
+		if( vectRow_DiscLocation.size() )
 		{
-			Row_Disc *pRow_Disc = vectRow_Disc[0];
-
-			pCell->m_mapAttributes["PK_Disc"] = StringUtils::itos(pRow_Disc->PK_Disc_get());
-
-			string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get())
-				+ " AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Album_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ")";
-
-			vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
-			m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sSQL,&vectRow_Disc_Attribute);
-			if( vectRow_Disc_Attribute.size() )
+			Row_DiscLocation *pRow_DiscLocation = vectRow_DiscLocation[0];
+			Row_Disc *pRow_Disc = pRow_DiscLocation->FK_Disc_getrow();
+			if( pRow_Disc )
 			{
-				Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[0];
-				Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
-				if( pRow_Attribute )
-					pCell->m_mapAttributes["Disc"]=pRow_Attribute->Name_get();
+				pCell->m_mapAttributes["PK_Disc"] = StringUtils::itos(pRow_Disc->PK_Disc_get());
+
+				string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get())
+					+ " AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Album_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ")";
+
+				vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+				m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sSQL,&vectRow_Disc_Attribute);
+				if( vectRow_Disc_Attribute.size() )
+				{
+					Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[0];
+					Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
+					if( pRow_Attribute )
+						pCell->m_mapAttributes["Disc"]=pRow_Attribute->Name_get();
+				}
 			}
 		}
 		pDataGrid->SetData(0,iRow++,pCell);
@@ -2244,24 +2248,26 @@ class DataGridTable *General_Info_Plugin::JukeboxSlots( string GridID, string Pa
 	{
 		Row_DiscLocation *pRow_DiscLocation = *it;
 		Row_Disc *pRow_Disc = pRow_DiscLocation->FK_Disc_getrow();
-		if( !pRow_Disc )
-			continue;  // shouldn't happen
-		pCell = new DataGridCell(StringUtils::itos(pRow_DiscLocation->Slot_get()),StringUtils::itos(pRow_Disc->PK_Disc_get()));
+		pCell = new DataGridCell(StringUtils::itos(pRow_DiscLocation->Slot_get()),pRow_Disc ? StringUtils::itos(pRow_Disc->PK_Disc_get()) : "");
 		pCell->m_mapAttributes["PK_Device"] = StringUtils::itos(pRow_DiscLocation->EK_Device_get());
-		pCell->m_mapAttributes["PK_Disc"] = StringUtils::itos(pRow_Disc->PK_Disc_get());
 		pCell->m_mapAttributes["Slot"] = StringUtils::itos(pRow_DiscLocation->Slot_get());
 
-		string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get())
-			+ " AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Album_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ")";
-
-		vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
-		m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sSQL,&vectRow_Disc_Attribute);
-		if( vectRow_Disc_Attribute.size() )
+		if( pRow_Disc )
 		{
-			Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[0];
-			Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
-			if( pRow_Attribute )
-				pCell->m_mapAttributes["Disc"]=pRow_Attribute->Name_get();
+			pCell->m_mapAttributes["PK_Disc"] = StringUtils::itos(pRow_Disc->PK_Disc_get());
+
+			string sSQL = "JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get())
+				+ " AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Album_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ")";
+
+			vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+			m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sSQL,&vectRow_Disc_Attribute);
+			if( vectRow_Disc_Attribute.size() )
+			{
+				Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[0];
+				Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
+				if( pRow_Attribute )
+					pCell->m_mapAttributes["Disc"]=pRow_Attribute->Name_get();
+			}
 		}
 		pDataGrid->SetData(0,iRow++,pCell);
 	}

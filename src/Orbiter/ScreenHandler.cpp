@@ -2593,7 +2593,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 				{
 					int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
 					int Slot = atoi( pCell->m_mapAttributes_Find("Slot").c_str() );
-					DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,PK_Device,0,Slot);
+					DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,PK_Device,Slot,0);
 					m_pOrbiter->SendCommand(CMD_Eject_Disk);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
