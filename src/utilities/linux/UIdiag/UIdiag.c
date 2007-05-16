@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 #include <fstream>
 #include <string>
 using namespace std;
@@ -44,6 +45,22 @@ using namespace std;
 #define TRUE  1
 #define FALSE 0
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	const Uint32 rmask = 0xff000000;
+	const Uint32 gmask = 0x00ff0000;
+	const Uint32 bmask = 0x0000ff00;
+	const Uint32 amask = 0x000000ff;
+	
+	const int rshift = 24, gshift = 16, bshift = 8, ashift = 0;
+#else
+	const Uint32 rmask = 0x000000ff;
+	const Uint32 gmask = 0x0000ff00;
+	const Uint32 bmask = 0x00ff0000;
+	const Uint32 amask = 0xff000000;
+
+	const int rshift = 0, gshift = 8, bshift = 16, ashift = 24;
+#endif
+
 /* This is our SDL surface */
 SDL_Surface *surface;
 
@@ -51,7 +68,8 @@ GLfloat xrot; /* X Rotation ( NEW ) */
 GLfloat yrot; /* Y Rotation ( NEW ) */
 GLfloat zrot; /* Z Rotation ( NEW ) */
 
-GLuint texture[1]; /* Storage For One Texture ( NEW ) */
+GLuint face_texture; 
+GLuint text_texture;
 
 string sTextureName;
 bool bUseComposite = false;
@@ -84,55 +102,55 @@ int MinPowerOf2(int Value)
 int LoadGLTextures( )
 {
 	/* Create storage space for the texture */
-	SDL_Surface *TextureImage[1]; 
+	SDL_Surface *pTextureImage; 
 
 	/* Load The Bitmap, Check For Errors, If Bitmap's Not Found Quit */
-	if ( ( TextureImage[0] = IMG_Load(sTextureName.c_str())))
+	if ( ( pTextureImage = IMG_Load(sTextureName.c_str())))
 	{
-		int Width = MinPowerOf2(TextureImage[0]->w);
-		int Height = MinPowerOf2(TextureImage[0]->h);
+		int Width = MinPowerOf2(pTextureImage->w);
+		int Height = MinPowerOf2(pTextureImage->h);
 
-		if(Width != TextureImage[0]->w || Height != TextureImage[0]->h)
+		if(Width != pTextureImage->w || Height != pTextureImage->h)
 		{
-			Uint32 saved_flags = TextureImage[0]->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
-			Uint8  saved_alpha = TextureImage[0]->format->alpha;
+			Uint32 saved_flags = pTextureImage->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
+			Uint8  saved_alpha = pTextureImage->format->alpha;
 
 			if ((saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA) 
-				SDL_SetAlpha(TextureImage[0], 0, 0);
+				SDL_SetAlpha(pTextureImage, 0, 0);
 
 			SDL_Surface *LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 
-				TextureImage[0]->format->BitsPerPixel, 
-				TextureImage[0]->format->Rmask, TextureImage[0]->format->Gmask, TextureImage[0]->format->Bmask,
-				TextureImage[0]->format->Amask);
+				pTextureImage->format->BitsPerPixel, 
+				pTextureImage->format->Rmask, pTextureImage->format->Gmask, pTextureImage->format->Bmask,
+				pTextureImage->format->Amask);
 
-			SDL_BlitSurface(TextureImage[0], NULL, LocalSurface, NULL);
+			SDL_BlitSurface(pTextureImage, NULL, LocalSurface, NULL);
 
 			if ((saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA) 
 				SDL_SetAlpha(LocalSurface, saved_flags, saved_alpha);
 
-			SDL_FreeSurface(TextureImage[0]); 
-			TextureImage[0] = LocalSurface;
+			SDL_FreeSurface(pTextureImage); 
+			pTextureImage = LocalSurface;
 		}
 
 		/* Create The Texture */
-		glGenTextures( 1, &texture[0] );
+		glGenTextures( 1, &face_texture );
 
 		/* Typical Texture Generation Using Data From The Bitmap */
-		glBindTexture( GL_TEXTURE_2D, texture[0] );
+		glBindTexture( GL_TEXTURE_2D, face_texture );
 
-		if(TextureImage[0]->format->BytesPerPixel == 4)
+		if(pTextureImage->format->BytesPerPixel == 4)
 		{
 			/* Generate The Texture */
-			glTexImage2D( GL_TEXTURE_2D, 0, 4, TextureImage[0]->w,
-				TextureImage[0]->h, 0, GL_RGBA,
-				GL_UNSIGNED_BYTE, TextureImage[0]->pixels );
+			glTexImage2D( GL_TEXTURE_2D, 0, 4, pTextureImage->w,
+				pTextureImage->h, 0, GL_RGBA,
+				GL_UNSIGNED_BYTE, pTextureImage->pixels );
 		}
 		else
 		{
 			/* Generate The Texture */
-			glTexImage2D( GL_TEXTURE_2D, 0, 3, TextureImage[0]->w,
-				TextureImage[0]->h, 0, GL_RGB,
-				GL_UNSIGNED_BYTE, TextureImage[0]->pixels );
+			glTexImage2D( GL_TEXTURE_2D, 0, 3, pTextureImage->w,
+				pTextureImage->h, 0, GL_RGB,
+				GL_UNSIGNED_BYTE, pTextureImage->pixels );
 		}
 
 		/* Linear Filtering */
@@ -143,10 +161,77 @@ int LoadGLTextures( )
 		return false;
 
 	/* Free up any memory we may have used */
-	if ( TextureImage[0] )
-		SDL_FreeSurface( TextureImage[0] );
+	if ( pTextureImage )
+		SDL_FreeSurface(pTextureImage);
 
 	return true;
+}
+
+/* function to load in bitmap as a GL texture */
+void PreRenderInstructions()
+{
+	if(TTF_Init() != -1)
+	{
+		TTF_Font *pFont =  TTF_OpenFont("/usr/share/fonts/truetype/msttcorefonts/arial.ttf", 12);
+
+		SDL_Color color;
+		color.r = 0;
+		color.g = 0;
+		color.b = 0;
+		color.unused = 0;
+
+		if(NULL != pFont)
+		{
+			SDL_Surface *pSurfaceTextLines[5];
+
+			pSurfaceTextLines[0] = TTF_RenderUTF8_Blended(pFont, "Keys:", color);
+			pSurfaceTextLines[1] = TTF_RenderUTF8_Blended(pFont, "c - toggle composite", color);
+			pSurfaceTextLines[2] = TTF_RenderUTF8_Blended(pFont, "m - toggle masking", color);
+			pSurfaceTextLines[3] = TTF_RenderUTF8_Blended(pFont, "F1 - toggle fullscreen", color);
+			pSurfaceTextLines[4] = TTF_RenderUTF8_Blended(pFont, "any other key - quit", color);
+
+			SDL_Surface *pSurfaceText = SDL_CreateRGBSurface(SDL_SWSURFACE, 128, 64, 32, rmask, gmask, bmask, amask);
+			
+			if ( NULL != pSurfaceText)
+			{
+				SDL_FillRect(pSurfaceText, NULL, SDL_MapRGBA(pSurfaceText->format, 0xff, 0xff, 0xff, 128));
+
+				for(int i = 0; i < 5; i++)
+				{
+					if(NULL != pSurfaceTextLines[i])
+					{
+						SDL_Rect dest_rect;
+						memset(&dest_rect, 0, sizeof(SDL_Rect));
+
+						dest_rect.y = i * 12;
+						SDL_BlitSurface(pSurfaceTextLines[i], NULL, pSurfaceText, &dest_rect);
+
+						SDL_FreeSurface(pSurfaceTextLines[i]);
+					}
+				}
+
+				/* Create The Texture */
+				glGenTextures( 1, &text_texture );
+
+				/* Typical Texture Generation Using Data From The Bitmap */
+				glBindTexture( GL_TEXTURE_2D, text_texture );
+
+				/* Generate The Texture */
+				glTexImage2D( GL_TEXTURE_2D, 0, 4, pSurfaceText->w,
+					pSurfaceText->h, 0, GL_RGBA,
+					GL_UNSIGNED_BYTE, pSurfaceText->pixels );
+
+				/* Linear Filtering */
+				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+				SDL_FreeSurface(pSurfaceText);
+			}
+
+			TTF_CloseFont(pFont);
+		}
+
+		TTF_Quit(); 
+	}
 }
 
 /* function to reset our viewport after a window resize */
@@ -231,11 +316,13 @@ bool handleKeyPress( SDL_keysym *keysym )
 /* general OpenGL initialization function */
 int initGL( GLvoid )
 {
-
 	/* Load in the texture */
-	if ( !LoadGLTextures( ) )
+	if(!LoadGLTextures())
 		return FALSE;
 
+	/* Prerender texture with instructions */
+	PreRenderInstructions();
+		
 	/* Enable Texture Mapping ( NEW ) */
 	glEnable( GL_TEXTURE_2D );
 
@@ -276,12 +363,32 @@ int drawGLScene( GLvoid )
 	glLoadIdentity( );
 	glTranslatef( 0.0f, 0.0f, -5.0f );
 
+//////////////////////////////
+
+	//render the texture with instructions
+	glRotatef( 0.0f, 1.0f, 0.0f, 0.0f); /* Rotate On The X Axis */
+	glRotatef( 0.0f, 0.0f, 1.0f, 0.0f); /* Rotate On The Y Axis */
+	glRotatef( 0.0f, 0.0f, 0.0f, 1.0f); /* Rotate On The Z Axis */
+
+	glBindTexture( GL_TEXTURE_2D, text_texture );
+
+	glBegin(GL_QUADS);
+
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-2.7f, -2.0f,  0.0f);	// Bottom Left Of The Texture and Quad
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.2f, -2.0f,  0.0f);	// Bottom Right Of The Texture and Quad
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.2f, -1.0f,  0.0f);	// Top Right Of The Texture and Quad
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-2.7f, -1.0f,  0.0f);	// Top Left Of The Texture and Quad
+
+	glEnd();
+
+////////////////////////////
+
 	glRotatef( xrot, 1.0f, 0.0f, 0.0f); /* Rotate On The X Axis */
 	glRotatef( yrot, 0.0f, 1.0f, 0.0f); /* Rotate On The Y Axis */
 	glRotatef( zrot, 0.0f, 0.0f, 1.0f); /* Rotate On The Z Axis */
 
 	/* Select Our Texture */
-	glBindTexture( GL_TEXTURE_2D, texture[0] );
+	glBindTexture( GL_TEXTURE_2D, face_texture );
 
 	/* NOTE:
 	*   The x coordinates of the glTexCoord2f function need to inverted
@@ -503,6 +610,8 @@ int main( int argc, char **argv )
 		exit(0);
 	}
 
+	SDL_WM_SetCaption("UI diagnostics", "UI diagnostics");
+
 	while(true)
 	{
 		done = FALSE;
@@ -619,9 +728,11 @@ int main( int argc, char **argv )
 					break;
 				case SDL_QUIT:
 					/* handle quit requests */
-					printf("about to quit!\n");
-					done = TRUE;
-					break;
+					{
+						printf("about to quit!\n");
+						SDL_Quit();
+						return 0;
+					}
 				default:
 					break;
 				}
