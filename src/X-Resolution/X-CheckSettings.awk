@@ -1,4 +1,8 @@
 BEGIN {
+#<-mkr_b_etch_b->
+	exit 0;
+#<-mkr_b_etch_e->
+	
 	IGNORECASE = 1;
 	
 	if (vOpenGL == "")
