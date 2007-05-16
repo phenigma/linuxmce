@@ -71,6 +71,9 @@ GLfloat zrot; /* Z Rotation ( NEW ) */
 GLuint face_texture; 
 GLuint text_texture;
 
+int pid_player = 0;
+int pid_xcompmgr = 0;
+
 string sTextureName;
 bool bUseComposite = false;
 bool bUseMask = false;
@@ -80,11 +83,27 @@ bool bFullScreen = false;
 float MaxU = 1.0f;
 float MaxV = 1.0f;
 
+void WaitForChildren()
+{
+	int status = 0;
+
+	printf("waiting for %d\n", pid_player);
+	waitpid(pid_player, &status, 0);
+
+	printf("killing %d\n", pid_xcompmgr);
+	kill(pid_xcompmgr, SIGKILL);
+
+	printf("waiting for %d\n", pid_xcompmgr);
+	waitpid(pid_xcompmgr, &status, 0);
+}
+
 /* function to release/destroy our resources and restoring the old desktop */
 void Quit( int returnCode )
 {
 	/* clean up the window */
 	SDL_Quit( );
+
+	WaitForChildren();
 
 	/* and exit appropriately */
 	exit( returnCode );
@@ -586,9 +605,8 @@ int main( int argc, char **argv )
 	printf("Composite: %s\n", bUseComposite ? "enabled" : "disabled");
 	printf("Mask: %s\n", bUseMask ? "enabled" : "disabled");
 
-	int pid = fork();
-
-	if(pid == 0)
+	pid_player = fork();
+	if(pid_player == 0)
 	{
 		string sCommand = "cat /etc/mailcap | grep \"^video/mpeg;\"  | head -1 | cut -d';' -f2 > /tmp/player-name";
 		system(sCommand.c_str());
@@ -607,6 +625,14 @@ int main( int argc, char **argv )
 			printf("Error : cannot find the default player application!");
 		}	
 
+		exit(0);
+	}
+
+	pid_xcompmgr = fork();
+	if(pid_xcompmgr == 0)
+	{
+		printf("Launching xcompmgr...\n");
+		execvp("xcompmgr", NULL);
 		exit(0);
 	}
 
@@ -730,7 +756,7 @@ int main( int argc, char **argv )
 					/* handle quit requests */
 					{
 						printf("about to quit!\n");
-						SDL_Quit();
+						Quit(0);
 						return 0;
 					}
 				default:
