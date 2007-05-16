@@ -193,6 +193,11 @@ void PreRenderInstructions()
 	{
 		TTF_Font *pFont =  TTF_OpenFont("/usr/share/fonts/truetype/msttcorefonts/arial.ttf", 12);
 
+		if(NULL == pFont)
+		{
+			pFont = TTF_OpenFont("/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf", 12);
+		}
+
 		SDL_Color color;
 		color.r = 0;
 		color.g = 0;
