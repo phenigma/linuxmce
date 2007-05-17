@@ -323,6 +323,9 @@
 				RelativePath=".\PreformedCommand.h">
 			</File>
 			<File
+				RelativePath="..\SerializeClass\SerializeClass.h">
+			</File>
+			<File
 				RelativePath=".\ServerLogger.h">
 			</File>
 			<File

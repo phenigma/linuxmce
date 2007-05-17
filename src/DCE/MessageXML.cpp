@@ -194,6 +194,7 @@ void MessageXML::GenerateXML(bool bAddHeaders)
 	if(bAddHeaders)
 	{
 		m_sXMLData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + m_sXMLData;  
+		m_sXMLData = "MESSAGEXML " + StringUtils::itos(static_cast<int>(m_sXMLData._c)) + "\n" + m_sXMLData;
 	}
 }
 //--------------------------------------------------------------------------------------------------
