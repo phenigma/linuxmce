@@ -3,6 +3,27 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
+function CheckTimeZoneSettings {
+	Q="SELECT FK_City, FK_Country, City, State FROM  Installation"
+	R=$(RunSQL "$Q")
+
+	local FK_City=$(Field 1 "$R")
+	local FK_Country=$(Field 2 "$R")
+	local City=$(Field 3 "$R")
+	local State=$(Field 4 "$R")
+
+	if [[ "$FK_City" == "0" ]] || [[ "$FK_Country" == "0" ]] ||
+	   [[ -z "$City" ]] || [[ -z "$State" ]] ;then
+		return 1
+	fi
+
+	return 0
+}
+
+if CheckTimeZoneSettings ;then
+	exit # timezone/location could not be detected
+fi
+
 #if [[ "$TimeZoneSet" == 1 ]]; then
 #	exit # timezone has already been set once
 #fi
