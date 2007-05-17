@@ -273,11 +273,13 @@ void Disk_Drive::CMD_Eject_Disk(int iSlot_Number,int iDrive_Number,string &sCMD_
 	}
 	if( m_pDisk_Drive_Functions->m_bTrayOpen )
 	{
+		m_pDisk_Drive_Functions->m_bTrayOpen=false;
 		m_pDisk_Drive_Functions->DisplayMessageOnOrbVFD("Closing tray...");
 	    system("eject -t");
 	}
 	else
 	{
+		m_pDisk_Drive_Functions->m_bTrayOpen=true;
 		m_pDisk_Drive_Functions->DisplayMessageOnOrbVFD("Opening tray...");
 	    system("eject");
 	}

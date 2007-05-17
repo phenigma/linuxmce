@@ -116,25 +116,31 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"got %d %s",sBuffer.size(),sBuff
 			// Get the type.  It's at the end in (type)
 			if( it->size()>10 && (*it)[it->size()-1]==')' )
 			{
-				pos = it->size()-1;
+				string s = *it;
+				pos = s.size()-1;
 				while( pos && (*it)[pos]!='(' )
 					pos--;
 
 				if( pos<5 )
 					continue; // Didn't find the opening (
 
-				string sType = it->substr(pos+1,it->size()-pos-2);
+				string sType = s.substr(pos+1,s.size()-pos-2);
 				HalValue *pValue = HalValue::GetValue(sType);
 				if( !pValue )
 					continue; // Unknown type
 
-				string::size_type pos_equal = it->find('=');
+				string::size_type pos_equal = s.find('=');
 				if( pos_equal == string::npos || pos_equal>pos )
 					continue; // Malformed
 
-				string sToken = it->substr(0,pos_equal);
+				string sToken = s.substr(0,pos_equal);
 				StringUtils::TrimSpaces(sToken);
-				string sValue = it->substr(pos_equal+3,pos-pos_equal-6);
+				string sValue;
+
+				if( s[pos_equal+2]=='\'' )
+					sValue = s.substr(pos_equal+3,pos-pos_equal-6);
+				else
+					sValue = s.substr(pos_equal+2,pos-pos_equal-4);
 
 				pValue->Assign(sValue);
 				pHalDevice->m_mapHalValue[sToken]=pValue;

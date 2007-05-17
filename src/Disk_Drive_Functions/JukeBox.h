@@ -96,7 +96,25 @@ namespace nsJukeBox
 		map_int_Slotp m_mapSlot;
 		map_int_Drivep m_mapDrive;
 		Drive *m_mapDrive_Find( int Drive ) { map_int_Drivep::iterator it = m_mapDrive.find( Drive ); return it == m_mapDrive.end() ? NULL : (*it).second; }
+		Drive *m_mapDrive_FindByPK_Device( int PK_Device )
+		{ 
+			for(map_int_Drivep::iterator it = m_mapDrive.begin(); it != m_mapDrive.end(); ++it)
+			{
+				if( it->second->m_dwPK_Device_get()==PK_Device )
+					return it->second;
+			}
+			return NULL;
+		}
 		Slot *m_mapSlot_Find( int Slot ) { map_int_Slotp::iterator it = m_mapSlot.find( Slot ); return it == m_mapSlot.end() ? NULL : (*it).second; }
+		Slot *m_mapSlot_Empty()
+		{ 
+			for(map_int_Slotp::iterator it = m_mapSlot.begin(); it != m_mapSlot.end(); ++it)
+			{
+				if( it->second->m_eStatus == Slot::slot_empty )
+					return it->second;
+			}
+			return NULL;
+		}
 
 		string m_sChangerDev;
 		JobHandler * m_pJobHandler;

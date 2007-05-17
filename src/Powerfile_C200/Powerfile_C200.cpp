@@ -49,6 +49,8 @@ namespace nsJobHandler
 	int g_ID = 0;
 }
 
+using namespace nsJukeBox;
+
 #ifdef WIN32
 	#define WEXITSTATUS(a) 0
 #endif
@@ -308,6 +310,26 @@ bool Powerfile_C200::Register()
 void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
+	Drive *pDrive = m_pPowerfileJukebox->m_mapDrive_FindByPK_Device(pMessage->m_dwPK_Device_To);
+	if( !pDrive )
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::ReceivedCommandForChild Unknown device: %d", pMessage->m_dwPK_Device_To);
+	else
+	{
+		if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+		{
+			sCMD_Result = "OK";
+			switch( pMessage->m_dwID )
+			{
+			case COMMAND_Eject_Disk_CONST:
+				m_pPowerfileJukebox->Eject(pDrive);
+				return;
+
+			default:
+				sCMD_Result = "UNHANDLED COMMAND";
+				return;
+			};
+		}
+	}
 	sCMD_Result = "UNHANDLED CHILD";
 }
 
@@ -468,13 +490,7 @@ Powerfile: 0, 1, ... */
 void Powerfile_C200::CMD_Eject_Disk(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
-#ifdef NOTDEF
-	Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
-	if (pDDF)
-	{
-		// put disc back in origin slot
-	}
-#endif
+	m_pPowerfileJukebox->Eject(iSlot_Number,iDrive_Number);
 }
 
 //<-dceag-c49-b->

@@ -1286,6 +1286,16 @@ Message *Command_Impl::GetLocalModeResponse()
 
 void Command_Impl::OnQuit() 
 { 
+	PLUTO_SAFETY_LOCK( sSM, m_listMessageQueueMutex );  // Use this to protect m_mapSpawnedDevices
+	for(map<int,string>::iterator it=m_mapSpawnedDevices.begin();it!=m_mapSpawnedDevices.end();++it)
+	{
+		Message *pMessage = new Message(m_dwPK_Device,it->first,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
+		QueueMessageToRouter(pMessage);
+	}
+	sSM.Release();
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Command_Impl::OnQuit Waiting for quit messages to go through");
+	WaitForMessageQueue();
+
 	m_bQuit_set(true); 
 	m_bTerminate=true; 
 	pthread_cond_broadcast( &m_listMessageQueueCond ); 

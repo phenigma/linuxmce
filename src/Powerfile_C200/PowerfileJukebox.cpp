@@ -42,6 +42,8 @@ namespace nsJukeBox
 	{
 		m_pPowerfile = pPowerfile;
 		m_bStatusCached = false;
+		m_sChangerDev = m_pPowerfile->m_pEvent->GetDeviceDataFromDatabase(m_pPowerfile->m_dwPK_Device,DEVICEDATA_Block_Device_CONST);
+		m_TransferElement = -1;
 	}
 
 	bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
@@ -113,6 +115,11 @@ namespace nsJukeBox
 						}
 						m_mapDrive[nDrive]->m_DriveNumber = nDrive;
 						nDrive ++;
+					}
+					// Transfer Element
+					else if (vsFF.size() == 4 && vsFF[0] == "Storage" && vsFF[1] == "Element" && StringUtils::StartsWith(vsFF[3],"IMPORT/EXPORT") )
+					{
+						m_TransferElement = atoi(vsFF[2].c_str());
 					}
 					// Storage Element
 					else if (vsFF.size() == 3 && vsFF[0] == "Storage" && vsFF[1] == "Element")
@@ -292,8 +299,13 @@ namespace nsJukeBox
 					|| /* Sony VAIO XL1B2 */    (vsFF[2] == "Sony"     && vsFF[3] == "VAIOChanger1"                      && (iField = 6, m_bMtxAltres = true))
 					)
 				{
+					string sChangerDev = vsFF[iField];
+					if( sChangerDev!=m_sChangerDev )
+					{
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Skipping changer unit: %s looking for %s", vsFF[iField].c_str(), sChangerDev.c_str());
+						continue;
+					}
 					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found changer unit: %s", vsFF[iField].c_str());
-					m_sChangerDev = vsFF[iField];
 					pHalDevice_Changer = halTree.GetDeviceWithParm("linux.device_file",m_sChangerDev);
 				}
 				else
@@ -363,7 +375,7 @@ namespace nsJukeBox
 				[internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
 				*/
 				sReportingChildDevices += StringUtils::itos(nDrive) + "\t" + "Drive " + StringUtils::itos(nDrive)
-					+ "\t\t" + TOSTRING(DEVICETEMPLATE_Disk_Drive_CONST) + "\n";
+					+ "\t\t" + TOSTRING(DEVICETEMPLATE_Disc_Drive_Embedded_CONST) + "\n";
 
 				nDrive++;
 			}
@@ -530,9 +542,74 @@ namespace nsJukeBox
 		return jbRetCode;
 	}
 
+	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(int iSlot_Number,int iDrive_Number)
+	{
+		if( iDrive_Number )
+		{
+			Drive *pDrive = m_mapDrive_Find(iDrive_Number);
+			if( !pDrive )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::Eject invalid drive %d",iDrive_Number);
+				return JukeBox::jukebox_transport_failure;
+			}
+			return Eject(pDrive);
+		}
+		
+		Slot *pSlot = m_mapSlot_Find(iSlot_Number);
+		if( !pSlot )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::Eject invalid slot %d",iSlot_Number);
+			return JukeBox::jukebox_transport_failure;
+		}
+		return Eject(pSlot);
+	}
+
+	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(Drive *pDrive)
+	{
+		PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "PowerfileJukebox::Eject Ejecting disc from drive %d", pDrive->m_dwPK_Device_get());
+		Slot *pSlot = m_mapSlot_Empty();
+		if( !pSlot )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PowerfileJukebox::Eject no empty slot");
+			return JukeBox::jukebox_transport_failure;
+		}
+
+		if( MoveFromDriveToSlot(pSlot,pDrive)!=JukeBox::jukebox_ok )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PowerfileJukebox::Eject can't move to slot");
+			return JukeBox::jukebox_transport_failure;
+		}
+
+		return Eject(pSlot);
+	}
+
 	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(Slot *pSlot)
 	{
-		return JukeBox::jukebox_transport_failure;
+		PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ejecting disc from slot %d", pSlot->m_SlotNumber);
+#ifdef EMULATE_PF
+		string sCmd = "/bin/true";
+#else
+		string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? " altres" : "") + " nobarcode transfer " + StringUtils::itos(pSlot->m_SlotNumber) + " " + StringUtils::itos(m_TransferElement);
+#endif
+
+		JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+		int status = system(sCmd.c_str());
+		if (WEXITSTATUS(status) == 0)
+		{
+			pSlot->m_eStatus = Slot::slot_empty;
+			return JukeBox::jukebox_ok;
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Ejecting disc failed");
+			return JukeBox::jukebox_transport_failure;
+		}
 	}
 
 	/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Load(Slot *pSlot/*=NULL*/)
@@ -599,3 +676,4 @@ namespace nsJukeBox
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::Media_Identified cannot find job/task for %d",iPK_Device);
 	}
 }
+

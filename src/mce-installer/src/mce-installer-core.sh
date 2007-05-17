@@ -86,6 +86,9 @@ PK_Distro = 14
 Display = 0
 SharedDesktop = 1
 OfflineMode = false
+#<-mkr_b_videowizard_b->
+UseVideoWizard = 1
+#<-mkr_b_videowizard_e->
 #LogLevels = 1,5,7,8
 "
 	echo "$PlutoConf" > /etc/pluto.conf

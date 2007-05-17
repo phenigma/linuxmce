@@ -367,6 +367,8 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 	status = ioctl(fd, CDROM_DRIVE_STATUS, CDSL_CURRENT);
 	//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current disk status %d", status);
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk_Drive_Functions::cdrom_checkdrive status %d",status);
+
 	switch (status)
 	{
 		// if there's a ok disc in there
