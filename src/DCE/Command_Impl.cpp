@@ -122,6 +122,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_iInstanceID = (int) time(NULL);
 	m_pEvent = NULL;
 	m_pData = NULL;
+	m_bKillSpawnedDevicesOnExit = true;
 	m_pRouter = pRouter;
 	m_pcRequestSocket = NULL;
 	m_bLocalMode = bLocalMode;
