@@ -3,6 +3,7 @@
 set -e 
 
 . /usr/pluto/bin/SQL_Ops.sh 2>/dev/null
+. /usr/pluto/bin/Section_Ops.sh 2>/dev/null
 
 
 DEVICEDATA_DisklessBoot=9
