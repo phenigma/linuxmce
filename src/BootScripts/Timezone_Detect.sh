@@ -3,9 +3,9 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-if [[ "$TimeZoneSet" == 1 ]]; then
-	exit # timezone has already been set once
-fi
+#if [[ "$TimeZoneSet" == 1 ]]; then
+#	exit # timezone has already been set once
+#fi
 
 Info=$(wget --timeout=10 -O - http://timezone.plutohome.com/geoip/detect_timezone.php)
 if [[ -z "$Info" ]]; then
