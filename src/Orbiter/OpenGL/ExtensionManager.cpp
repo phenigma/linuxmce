@@ -195,8 +195,10 @@ void ExtensionManager::Resize(int Width, int Height)
 	{
 
 #if !defined(WIN32) && defined(KDE_LMCE)
-        SDL_SysWMinfo info;
 
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ready to remove window decorations for Orbiter");
+		
+		SDL_SysWMinfo info;
         SDL_VERSION(&info.version);
         if ( SDL_GetWMInfo(&info) )
         {
@@ -207,6 +209,8 @@ void ExtensionManager::Resize(int Width, int Height)
                 set = SDL_FALSE;
 
                 Window WMwindow = info.info.x11.wmwindow;
+
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Attempt to remove _MOTIF_WM_HINTS");
 
                 /* First try to set MWM hints */
                 WM_HINTS = XInternAtom(info.info.x11.display, "_MOTIF_WM_HINTS", True);
@@ -226,7 +230,12 @@ void ExtensionManager::Resize(int Width, int Height)
                                         (unsigned char *)&MWMHints,
                                         sizeof(MWMHints)/sizeof(long));
                         set = SDL_TRUE;
+
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removed _MOTIF_WM_HINTS");
                 }
+
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Attempt to remove KWM_WIN_DECORATION");
+
                 /* Now try to set KWM hints */
                 WM_HINTS = XInternAtom(info.info.x11.display, "KWM_WIN_DECORATION", True);
                 if ( WM_HINTS != None ) {
@@ -238,7 +247,12 @@ void ExtensionManager::Resize(int Width, int Height)
                                         (unsigned char *)&KWMHints,
                                         sizeof(KWMHints)/sizeof(long));
                         set = SDL_TRUE;
+
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removed KWM_WIN_DECORATION");
                 }
+
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Attempt to remove _WIN_HINTS");
+
                 /* Now try to set GNOME hints */
                 WM_HINTS = XInternAtom(info.info.x11.display, "_WIN_HINTS", True);
                 if ( WM_HINTS != None ) {
@@ -250,12 +264,19 @@ void ExtensionManager::Resize(int Width, int Height)
                                         (unsigned char *)&GNOMEHints,
                                         sizeof(GNOMEHints)/sizeof(long));
                         set = SDL_TRUE;
+
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removed _WIN_HINTS");
                 }
+
 //              /* Finally set the transient hints if necessary */
 //              if ( ! set ) {
 //                      XSetTransientForHint(info.info.x11.display, WMwindow, SDL_Root);
 //              }
         }
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to remove window decorations for Orbiter");
+		}
 #endif
 
 
