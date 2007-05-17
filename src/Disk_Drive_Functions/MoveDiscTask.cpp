@@ -93,7 +93,7 @@ int MoveDiscTask::Run()
 		if( !pSlot )
 		{
 			// This is a load all slots
-			pSlot = m_pJukeBox->m_mapSlot_NotEmpty();
+			pSlot = m_pJukeBox->m_mapSlot_Empty();
 			if( !pSlot )  // We have no more slots
 			{
 				m_eTaskStatus_set(TASK_COMPLETED);
