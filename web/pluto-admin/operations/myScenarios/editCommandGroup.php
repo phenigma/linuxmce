@@ -240,8 +240,7 @@ function editCommandGroup($output,$dbADO) {
 			
 			// update command group
 			list ($isModified,$parametersUpdatedAlert)=processEditScenarioCommands($commandGroupID,$dbADO);
-			
-			if(isset($_REQUEST['cgcID'])){
+			if(isset($_REQUEST['cgcID']) && (int)$_REQUEST['cgcID']!=0){
 				// test command
 				$cgcID=$_REQUEST['cgcID'];
 				$queryCommands='
