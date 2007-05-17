@@ -45,6 +45,8 @@ JukeBox::JukeBox(Command_Impl *pCommand_Impl)
 	m_pJobHandler = NULL;
 	m_pDatabase_pluto_media = NULL;
 	m_pMediaAttributes_LowLevel = NULL;
+	m_eLocked=Disk_Drive_Functions::locked_available;
+	m_pLockedPtr=NULL;
 }
 
 JukeBox::~JukeBox()
@@ -109,7 +111,7 @@ void JukeBox::UpdateDrivesSlotsFromDatabase()
 	}
 }
 
-Drive *JukeBox::LockAvailableDrive(Disk_Drive_Functions::Locked eLocked,Job *pJob,bool bEmptyOnly)
+Drive *JukeBox::LockAvailableDrive(Disk_Drive_Functions::Locked eLocked,Job *pJob,void *p_void,bool bEmptyOnly)
 {
 	PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
 
@@ -117,12 +119,12 @@ Drive *JukeBox::LockAvailableDrive(Disk_Drive_Functions::Locked eLocked,Job *pJo
 	for (itDrive = m_mapDrive.begin(); itDrive != m_mapDrive.end(); itDrive++)
 	{
 		Drive *pDrive = itDrive->second;
-		if( pDrive->m_eLocked_get()==Disk_Drive_Functions::locked_available )
+		if( pDrive->m_eLocked_get(NULL)==Disk_Drive_Functions::locked_available )
 		{
 			if( pDrive->m_mediaInserted && bEmptyOnly )
 				continue;
 
-			if( pDrive->LockDrive(eLocked) )
+			if( pDrive->LockDrive(eLocked,p_void) )
 			{
 				pDrive->m_pJob = pJob;
 				return pDrive;
@@ -158,4 +160,45 @@ void JukeBox::MassIdentify(string sSlots)
 			}
 		}
 	}
+}
+
+bool JukeBox::LockJukebox(Disk_Drive_Functions::Locked locked,void *p_void)
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"JukeBox::LockDrive m_eLocked %d locked %d %p", (int) m_eLocked, (int) locked,m_pLockedPtr);
+
+	if( m_eLocked!=Disk_Drive_Functions::locked_available )
+	{
+		if( m_pLockedPtr==p_void )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"LockJukebox::LockJukebox already locked");
+			return true;
+		}
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"JukeBox::LockJukebox cannot lock %p/%p", m_pLockedPtr, p_void);
+		return false;
+	}
+
+	m_pLockedPtr=p_void;
+	m_eLocked=locked;
+	return true;
+}
+
+void JukeBox::UnlockJukebox()
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"JukeBox::UnlockJukebox %p",m_pLockedPtr);
+	m_eLocked=Disk_Drive_Functions::locked_available;
+}
+
+void JukeBox::AssertJukeboxIsLocked()
+{
+	if( m_eLocked==Disk_Drive_Functions::locked_available )
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"JukeBox::AssertJukeboxIsLocked");  // Report that something is wrong since we're using this without locking it
+
+}
+
+Disk_Drive_Functions::Locked JukeBox::m_eLocked_get(void **p_void)
+{
+	if( p_void )
+		*p_void = m_pLockedPtr;
+
+	return m_eLocked;
 }

@@ -824,6 +824,7 @@
 #define COMMAND_Reporting_EPG_Status_CONST 910
 #define COMMAND_Remove_Scheduled_Recording_CONST 911
 #define COMMAND_Activate_PC_Desktop_CONST 912
+#define COMMAND_Load_Disk_CONST 913
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

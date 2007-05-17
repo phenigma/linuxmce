@@ -38,14 +38,30 @@ IdentifyJob::IdentifyJob(class JobHandler *pJobHandler,
 	m_pSlot=pSlot;
 }
 
+IdentifyJob::~IdentifyJob()
+{
+	void *p_void;
+	if( m_pDisk_Drive_Functions && m_pDisk_Drive_Functions->m_eLocked_get(&p_void)!=Disk_Drive_Functions::locked_available && p_void==(void *) this )
+	{
+		m_pDisk_Drive_Functions->UnlockDrive();
+	}
+}
+
 bool IdentifyJob::ReadyToRun()
 {
 	if( m_pDisk_Drive_Functions )  // We're ready to go if we have a drive to do the ripping
 	{
-		if( !m_pDisk_Drive_Functions->LockDrive(Disk_Drive_Functions::locked_identify_job) )
+		if( !m_pDisk_Drive_Functions->LockDrive(Disk_Drive_Functions::locked_identify_job,this) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"IdentifyJob::ReadyToRun cannot lock drive");
 			return false; // We're not ready yet.  Somebody else is using the drive
+		}
+
+		if( !m_pDisk_Drive_Functions->m_pDevice_MediaIdentifier_get() )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "IdentifyJob::ReadyToRun no media identifier");
+			m_eJobStatus = job_Error;
+			return false;
 		}
 
 		AddIdentifyTasks();
@@ -59,16 +75,23 @@ bool IdentifyJob::ReadyToRun()
 	}
 
 	// Try to get an available drive from the jukebox to do the ripping
-	m_pDisk_Drive_Functions = m_pSlot->m_pJukeBox->LockAvailableDrive(Drive::locked_identify_job,this,true);
+	m_pDisk_Drive_Functions = m_pSlot->m_pJukeBox->LockAvailableDrive(Drive::locked_identify_job,this,this,true);
 	if( m_pDisk_Drive_Functions==NULL )  // We don't have a drive
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"IdentifyJob::ReadyToRun no drive for slot %d",m_pSlot->m_SlotNumber);
 		return false;
 	}
 
-	AddTask(new MoveDiscTask(this,"SlotToDrive",MoveDiscTask::mdt_SlotToDrive,(Drive *) m_pDisk_Drive_Functions,m_pSlot));
+	if( !m_pDisk_Drive_Functions->m_pDevice_MediaIdentifier_get() )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "IdentifyJob::ReadyToRun no media identifier");
+		m_eJobStatus = job_Error;
+		return false;
+	}
+
+	AddTask(new MoveDiscTask(this,"SlotToDrive",MoveDiscTask::mdt_SlotToDrive,m_pSlot->m_pJukeBox,(Drive *) m_pDisk_Drive_Functions,m_pSlot));
 	AddIdentifyTasks();
-	AddTask(new MoveDiscTask(this,"SlotToDrive",MoveDiscTask::mdt_DriveToSlot,(Drive *) m_pDisk_Drive_Functions,m_pSlot));
+	AddTask(new MoveDiscTask(this,"DriveToSlot",MoveDiscTask::mdt_DriveToSlot,m_pSlot->m_pJukeBox,(Drive *) m_pDisk_Drive_Functions,m_pSlot));
 	return true;
 }
 

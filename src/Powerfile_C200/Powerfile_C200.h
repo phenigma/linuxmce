@@ -392,6 +392,15 @@ only slots that were scheduled for ripping will appear in the string */
 	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful) { string sCMD_Result; CMD_Lock(iPK_Device,sID.c_str(),bTurn_On,sText,bIsSuccessful,sCMD_Result,NULL);};
 	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #913 - Load Disk */
+	/** Load a disk into the jukebox */
+		/** @param #259 Multiple */
+			/** If true, load multiple disks */
+
+	virtual void CMD_Load_Disk(bool bMultiple) { string sCMD_Result; CMD_Load_Disk(bMultiple,sCMD_Result,NULL);};
+	virtual void CMD_Load_Disk(bool bMultiple,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 		private:
 			nsJukeBox::PowerfileJukebox * m_pPowerfileJukebox;

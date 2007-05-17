@@ -372,6 +372,7 @@ void Powerfile_C200::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c701-e->
 {
+	//addtask
 /*
 	PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
 
@@ -398,6 +399,8 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c702-e->
 {
+	/*
+	addtask
 	if (m_pPowerfileJukebox->MoveFromDriveToSlot(m_pPowerfileJukebox->m_mapSlot[iSlot_Number], m_pPowerfileJukebox->m_mapDrive[iDrive_Number]))
 	{
 		sCMD_Result = "OK";
@@ -406,6 +409,7 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 	{
 		sCMD_Result = "FAILED";
 	}
+	*/
 }
 
 //<-dceag-c703-b->
@@ -1281,4 +1285,16 @@ bool Powerfile_C200::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 void Powerfile_C200::CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage)
 //<-dceag-c872-e->
 {
+}
+//<-dceag-c913-b->
+
+	/** @brief COMMAND: #913 - Load Disk */
+	/** Load a disk into the jukebox */
+		/** @param #259 Multiple */
+			/** If true, load multiple disks */
+
+void Powerfile_C200::CMD_Load_Disk(bool bMultiple,string &sCMD_Result,Message *pMessage)
+//<-dceag-c913-e->
+{
+	m_pPowerfileJukebox->Load(bMultiple);
 }

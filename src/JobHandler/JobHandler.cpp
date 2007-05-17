@@ -108,6 +108,7 @@ void JobHandler::PurgeCompletedJobs()
 #endif
 			pJob->StopThread(5);  // Job should immediately, but give it 5 seconds to be sure
 			m_listJob.erase(it++);
+			delete pJob;
 		}
 		else
 		{

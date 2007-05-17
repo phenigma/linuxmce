@@ -85,16 +85,16 @@ enum DiscTypes {
 class Disk_Drive_Functions
 {
 public:
+	friend class nsJobHandler::RipTask;
+
 	enum Locked
 	{
 		locked_available,
+		locked_move,
 		locked_identify_job,
 		locked_rip_job,
 		locked_playback
 	};
-
-	friend class nsJobHandler::RipTask;
-
 	protected:
 		Command_Impl * m_pCommand_Impl;
 	    pthread_mutexattr_t m_ThreadAttribute;
@@ -104,6 +104,7 @@ public:
 		class Database_pluto_media *m_pDatabase_pluto_media;
 		class MediaAttributes_LowLevel *m_pMediaAttributes_LowLevel;
 		Locked m_eLocked; // Indicates if the drive is in use, if so for what, or available
+		void *m_pLockedPtr; // Whatever did the lock
 		int m_dwPK_Device;
 
 		void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
@@ -140,9 +141,9 @@ public:
 		Command_Impl *m_pCommand_Impl_get() { return m_pCommand_Impl; }
 		DeviceData_Base *m_pDevice_MediaIdentifier_get() { return m_pDevice_MediaIdentifier; }
 
-		bool LockDrive(Locked locked); // returns false if the drive is already locked, or true if it set it to locked
+		bool LockDrive(Locked locked,void *p_void); // returns false if the drive is already locked, or true if it set it to locked.  p_void is the pointer to whatever locked it so we can check if it was us
 		void UnlockDrive();  // release the drive
-		Locked m_eLocked_get() { return m_eLocked; }
+		Locked m_eLocked_get(void **p_void);
 		int m_dwPK_Device_get() { return m_dwPK_Device; }
 };
 

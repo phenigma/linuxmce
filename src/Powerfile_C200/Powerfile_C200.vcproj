@@ -144,6 +144,9 @@
 				RelativePath="..\Disk_Drive_Functions\JukeBox.cpp">
 			</File>
 			<File
+				RelativePath="..\Disk_Drive_Functions\LoadUnloadJob.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File

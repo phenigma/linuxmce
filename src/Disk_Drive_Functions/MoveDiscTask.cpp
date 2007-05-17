@@ -31,31 +31,85 @@
 
 using namespace nsJobHandler;
 
-MoveDiscTask::MoveDiscTask(class Job *pJob,string sName,MoveDiscTaskType MoveDiscTaskType,Drive *pDrive,Slot *pSlot)
+MoveDiscTask::MoveDiscTask(class Job *pJob,string sName,MoveDiscTaskType MoveDiscTaskType,JukeBox *pJukeBox,Drive *pDrive,Slot *pSlot)
 	: Task(pJob,sName)
 {
 	m_pDrive=pDrive;
 	m_pSlot=pSlot;
+	m_pJukeBox=pJukeBox;
 	m_MoveDiscTaskType=MoveDiscTaskType;
 }
 
 int MoveDiscTask::Run()
 {
-	if( !m_pDrive->m_pDevice_MediaIdentifier_get() )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MoveDiscTask::Run no media identifier");
-		m_eTaskStatus_set(TASK_FAILED_ABORT);
-		return 0;
-	}
-
 	JukeBox::JukeBoxReturnCode jukeBoxReturnCode = JukeBox::jukebox_ok;
 	if( m_MoveDiscTaskType==mdt_SlotToDrive && m_pSlot && m_pDrive )
 	{
-		jukeBoxReturnCode = m_pDrive->m_pJukeBox->MoveFromSlotToDrive(m_pSlot,m_pDrive);
+		if( !m_pJukeBox->LockJukebox(Disk_Drive_Functions::locked_move,this) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MoveDiscTask::Run 1 cannot lock jukebox");
+			return 1;  // Try again in a sec
+		}
+		jukeBoxReturnCode = m_pJukeBox->MoveFromSlotToDrive(m_pSlot,m_pDrive);
+		m_pJukeBox->UnlockJukebox();
 	}
 	else if( m_MoveDiscTaskType==mdt_DriveToSlot && m_pSlot && m_pDrive )
 	{
-		jukeBoxReturnCode = m_pDrive->m_pJukeBox->MoveFromDriveToSlot(m_pSlot,m_pDrive);
+		if( !m_pJukeBox->LockJukebox(Disk_Drive_Functions::locked_move,this) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MoveDiscTask::Run 2 cannot lock jukebox");
+			return 1;  // Try again in a sec
+		}
+		jukeBoxReturnCode = m_pJukeBox->MoveFromDriveToSlot(m_pSlot,m_pDrive);
+		m_pJukeBox->UnlockJukebox();
+	}
+	else if( m_MoveDiscTaskType==mdt_SlotToEject )
+	{
+		Slot *pSlot = m_pSlot;
+		if( !pSlot )
+		{
+			// This is an eject all slots
+			pSlot = m_pJukeBox->m_mapSlot_NotEmpty();
+			if( !pSlot )  // We ejected all slots
+			{
+				m_eTaskStatus_set(TASK_COMPLETED);
+				return 0;
+			}
+		}
+		if( !m_pJukeBox->LockJukebox(Disk_Drive_Functions::locked_move,this) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MoveDiscTask::Run 3 cannot lock jukebox");
+			return 1;  // Try again in a sec
+		}
+		jukeBoxReturnCode = m_pJukeBox->Eject(pSlot);
+		m_pJukeBox->UnlockJukebox();
+
+		if( !m_pSlot )
+			return 1;  // This is a multiple eject, so keep going until we run out
+	}
+	else if( m_MoveDiscTaskType==mdt_Load )
+	{
+		Slot *pSlot = m_pSlot;
+		if( !pSlot )
+		{
+			// This is a load all slots
+			pSlot = m_pJukeBox->m_mapSlot_NotEmpty();
+			if( !pSlot )  // We have no more slots
+			{
+				m_eTaskStatus_set(TASK_COMPLETED);
+				return 0;
+			}
+		}
+		if( !m_pJukeBox->LockJukebox(Disk_Drive_Functions::locked_move,this) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MoveDiscTask::Run 4 cannot lock jukebox");
+			return 1;  // Try again in a sec
+		}
+		jukeBoxReturnCode = m_pJukeBox->Load(pSlot);
+		m_pJukeBox->UnlockJukebox();
+
+		if( !m_pSlot )
+			return 1;  // This is a multiple eject, so keep going until we run out
 	}
 
 	m_eTaskStatus_set(jukeBoxReturnCode==JukeBox::jukebox_ok ? TASK_COMPLETED : TASK_FAILED_ABORT);

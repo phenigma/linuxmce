@@ -32,6 +32,7 @@ namespace nsJukeBox
 			virtual JukeBoxReturnCode Eject(Drive *pDrive);  // Elect the disc in pDrive
 			virtual JukeBoxReturnCode Eject(int iSlot_Number,int iDrive_Number);
 			virtual JukeBoxReturnCode Load(Slot *pSlot=NULL);  // If NULL, just allow bulk inserting into slots.
+			virtual JukeBoxReturnCode Load(bool bMultiple);
 	};
 };
 

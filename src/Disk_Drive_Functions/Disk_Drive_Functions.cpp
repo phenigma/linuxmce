@@ -51,6 +51,7 @@ Disk_Drive_Functions::Disk_Drive_Functions(int dwPK_Device,Command_Impl * pComma
 : m_pCommand_Impl(pCommand_Impl), m_DiskMutex("disk drive"), m_mediaDiskStatus(DISCTYPE_NONE), m_discid(0),
 	m_mediaInserted(false), m_bTrayOpen(false), m_sDrive(sDrive), m_pJobHandler(pJobHandler)
 {
+	m_pLockedPtr=NULL;
 	m_dwPK_Device=dwPK_Device;
 	m_pDatabase_pluto_media=pDatabase_pluto_media;
 	m_pMediaAttributes_LowLevel=pMediaAttributes_LowLevel;
@@ -819,20 +820,36 @@ void Disk_Drive_Functions::GetTracksForDisc(Row_Disc *pRow_Disc,map<int,string> 
 	}
 }
 
-bool Disk_Drive_Functions::LockDrive(Locked locked)
+bool Disk_Drive_Functions::LockDrive(Locked locked,void *p_void)
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::LockDrive m_eLocked %d locked %d", (int) m_eLocked, (int) locked);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::LockDrive m_eLocked %d locked %d %p", (int) m_eLocked, (int) locked,m_pLockedPtr);
 
 	if( m_eLocked!=locked_available )
+	{
+		if( m_pLockedPtr==p_void )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::LockDrive already locked");
+			return true;
+		}
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::LockDrive cannot lock %p/%p", m_pLockedPtr, p_void);
 		return false;
+	}
 
+	m_pLockedPtr=p_void;
 	m_eLocked=locked;
 	return true;
 }
 
 void Disk_Drive_Functions::UnlockDrive()
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::UnlockDrive");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::UnlockDrive %p",m_pLockedPtr);
 	m_eLocked=locked_available;
 }
 
+Disk_Drive_Functions::Locked Disk_Drive_Functions::m_eLocked_get(void **p_void)
+{
+	if( p_void )
+		*p_void = m_pLockedPtr;
+
+	return m_eLocked;
+}

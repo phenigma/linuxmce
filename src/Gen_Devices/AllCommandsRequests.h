@@ -24452,5 +24452,33 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_TrueFalse_CONST, (bTrueFalse ? "1" : "0")); }
 	};
+	class CMD_Load_Disk : public PreformedCommand {
+	public:
+		CMD_Load_Disk(long DeviceIDFrom, long DeviceIDTo,bool bMultiple) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Load_Disk_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Multiple_CONST, (bMultiple ? "1" : "0")); }
+	};
+	class CMD_Load_Disk_DL : public PreformedCommand {
+	public:
+		CMD_Load_Disk_DL(long DeviceIDFrom, string DeviceIDTo,bool bMultiple) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Load_Disk_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Multiple_CONST, (bMultiple ? "1" : "0")); }
+	};
+	class CMD_Load_Disk_DT : public PreformedCommand {
+	public:
+		CMD_Load_Disk_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,bool bMultiple) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Load_Disk_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Multiple_CONST, (bMultiple ? "1" : "0")); }
+	};
+	class CMD_Load_Disk_Cat : public PreformedCommand {
+	public:
+		CMD_Load_Disk_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,bool bMultiple) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Load_Disk_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Multiple_CONST, (bMultiple ? "1" : "0")); }
+	};
 }
 #endif

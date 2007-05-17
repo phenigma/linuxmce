@@ -38,7 +38,8 @@ namespace nsJukeBox
 			slot_empty=0,
 			slot_identified_disc,
 			slot_unknown_medium,
-			slot_defective
+			slot_defective,
+			slot_intransit
 		} m_eStatus;
 		Row_Disc *m_pRow_Disc;
 		class JukeBox *m_pJukeBox;
@@ -91,6 +92,8 @@ namespace nsJukeBox
 	protected:
 		pluto_pthread_mutex_t m_DriveMutex;
 		pthread_mutexattr_t m_MutexAttr;
+		Disk_Drive_Functions::Locked m_eLocked; // Indicates if the drive is in use, if so for what, or available
+		void *m_pLockedPtr; // What locked it
 
 	public:
 		map_int_Slotp m_mapSlot;
@@ -115,12 +118,22 @@ namespace nsJukeBox
 			}
 			return NULL;
 		}
+		Slot *m_mapSlot_NotEmpty()
+		{ 
+			for(map_int_Slotp::iterator it = m_mapSlot.begin(); it != m_mapSlot.end(); ++it)
+			{
+				if( it->second->m_eStatus != Slot::slot_empty )
+					return it->second;
+			}
+			return NULL;
+		}
 
 		string m_sChangerDev;
 		JobHandler * m_pJobHandler;
 		Database_pluto_media * m_pDatabase_pluto_media;
 		MediaAttributes_LowLevel * m_pMediaAttributes_LowLevel;
 		Command_Impl *m_pCommand_Impl;
+		pluto_pthread_mutex_t &m_DriveMutex_get() { return m_DriveMutex; }
 
 	public:
 		enum JukeBoxReturnCode
@@ -137,15 +150,25 @@ namespace nsJukeBox
 		void UpdateDrivesSlotsFromDatabase(); // Udpate the m_pRow_Disc's in slot's and drives
 
 		// If a drive is available, it locks it and returns the drive.  Otherwise returns NULL
-		Drive *LockAvailableDrive(Disk_Drive_Functions::Locked eLocked,Job *pJob,bool bEmptyOnly);
+		Drive *LockAvailableDrive(Disk_Drive_Functions::Locked eLocked,Job *pJob,void *p_void,bool bEmptyOnly);
 
+		/*
+			Don't call these directly.  Call from a job as they may block.  Be sure the Jukebox and any Drive involved are locked first (Drive, then Jukebox)
+		*/
 		virtual JukeBoxReturnCode MoveFromSlotToDrive(Slot *pSlot,Drive *pDrive)=0;
 		virtual JukeBoxReturnCode MoveFromDriveToSlot(Slot *pSlot,Drive *pDrive)=0;
-		virtual JukeBoxReturnCode Eject(Slot *pSlot)=0;  // Elect the disc in pSlot
+		virtual JukeBoxReturnCode Eject(Slot *pSlot)=0;  // Elect the disc in pSlot.
 		virtual JukeBoxReturnCode Load(Slot *pSlot=NULL)=0;  // If NULL, just allow bulk inserting into slots.
 
 		// High level functions
 		void MassIdentify(string sSlots);
+
+		bool LockJukebox(Disk_Drive_Functions::Locked locked,void *p_void); // returns false if the jukebox is already locked, or true if it set it to locked
+		void UnlockJukebox();  // release the jukebox
+		Disk_Drive_Functions::Locked m_eLocked_get(void **p_void);
+	
+		void AssertJukeboxIsLocked();
+
 	};
 }
 

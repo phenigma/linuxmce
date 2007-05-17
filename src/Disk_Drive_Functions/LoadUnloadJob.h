@@ -17,8 +17,8 @@
 
  */
 
-#ifndef IdentifyJob_h
-#define IdentifyJob_h
+#ifndef LoadUnloadJob_h
+#define LoadUnloadJob_h
 
 #include "JobHandler/Job.h"
 class Disk_Drive_Functions;
@@ -29,6 +29,7 @@ namespace DCE
 }
 namespace nsJukeBox
 {
+	class Drive;
 	class JukeBox;
 	class Slot;
 }
@@ -38,28 +39,39 @@ using namespace nsJukeBox;
 
 namespace nsJobHandler
 {
-	class IdentifyJob : public Job
+	class LoadUnloadJob : public Job
 	{
-		friend class IdentifyTask;
-
 	public:
-		Disk_Drive_Functions *m_pDisk_Drive_Functions;  // If non-null, identify the disc in a particular drive
-		Slot *m_pSlot; // If specified, this is the slot to identify, and m_pDisk_Drive_Functions will be filled in as a drive becomes available
+		enum LoadUnloadJobType
+		{
+			eLoadOneDisc,
+			eLoadMultipleDiscs,
+			eEjectOneDisc,
+			eEjectMultipleDiscs,
+			eMoveFromSlotToDrive,
+			eMoveFromDriveToSlot
+		} m_eLoadUnloadJobType;
 
-		IdentifyJob(class JobHandler *pJobHandler,
-			Disk_Drive_Functions *pDisk_Drive_Functions,
+		Drive *m_pDrive;  // The drive involved in the move
+		Slot *m_pSlot; // The slot involved
+		JukeBox *m_pJukeBox;  // The jukebox
+
+		LoadUnloadJob(JobHandler *pJobHandler,
+			LoadUnloadJobType loadUnloadJobType,
+			JukeBox *pJukeBox,
+			Drive *pDrive,
 			Slot *pSlot);
-		virtual ~IdentifyJob();
+		virtual ~LoadUnloadJob();
 
 		virtual bool ReadyToRun();
-		void AddIdentifyTasks();
+		void AddTasks();
 
 		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
 		virtual int PercentComplete();
 		virtual int SecondsRemaining();
 		virtual string ToString();
 
-		virtual string GetType() { return "IdentifyJob"; }
+		virtual string GetType() { return "LoadUnloadJob"; }
 	};
 };
 

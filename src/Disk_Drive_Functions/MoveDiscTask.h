@@ -26,6 +26,7 @@ namespace nsJukeBox
 {
 	class Drive;
 	class Slot;
+	class JukeBox;
 };
 
 using namespace nsJukeBox;
@@ -40,13 +41,15 @@ namespace nsJobHandler
 			mdt_SlotToDrive,
 			mdt_DriveToSlot,
 			mdt_DriveToEject, // Eject the disc in a drive
-			mdt_SlotToEject  // Eject the disc in a slot
+			mdt_SlotToEject,  // Eject the disc in a slot
+			mdt_Load
 		} m_MoveDiscTaskType;
 
 		Drive *m_pDrive;
 		Slot *m_pSlot;
+		JukeBox *m_pJukeBox;
 
-		MoveDiscTask(class Job *pJob,string sName,MoveDiscTaskType MoveDiscTaskType,Drive *pDrive,Slot *pSlot);
+		MoveDiscTask(class Job *pJob,string sName,MoveDiscTaskType MoveDiscTaskType,JukeBox *pJukeBox,Drive *pDrive,Slot *pSlot);
 		virtual ~MoveDiscTask() {}
 		virtual string GetType() { return "MoveDiscTask"; }
 
