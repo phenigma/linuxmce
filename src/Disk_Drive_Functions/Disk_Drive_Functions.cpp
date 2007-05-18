@@ -630,7 +630,7 @@ void Disk_Drive_Functions::CMD_Rip_Disk(string sFilename,int iPK_Users,string sF
 
 	RipJob *pRipJob = new RipJob(m_pJobHandler,this,NULL,iPK_Users,iEK_Disc,iSlot_Number,
 		m_mediaDiskStatus == DISCTYPE_DVD_VIDEO ? MEDIATYPE_pluto_StoredVideo_CONST : MEDIATYPE_pluto_StoredAudio_CONST,
-		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat,sFilename,sTracks);
+		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat,sFilename,sTracks,m_pCommand_Impl);
 	m_pJobHandler->AddJob(pRipJob);
 }
 

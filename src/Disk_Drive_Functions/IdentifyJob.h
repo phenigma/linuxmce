@@ -48,7 +48,9 @@ namespace nsJobHandler
 
 		IdentifyJob(class JobHandler *pJobHandler,
 			Disk_Drive_Functions *pDisk_Drive_Functions,
-			Slot *pSlot);
+			Slot *pSlot,
+			int PK_Orbiter,
+			Command_Impl *pCommand_Impl);
 		virtual ~IdentifyJob();
 
 		virtual bool ReadyToRun();

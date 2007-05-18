@@ -44,7 +44,7 @@ namespace nsJobHandler
 	private:
 		Disk_Drive_Functions *m_pDisk_Drive_Functions;
 		JukeBox *m_pJukeBox;
-		int m_iPK_Users, m_iEK_Disc, m_iDrive_Number,m_iPK_Orbiter,m_iPK_MediaType;
+		int m_iPK_Users, m_iEK_Disc, m_iDrive_Number,m_iPK_MediaType;
 		string m_sFormat, m_sFileName, m_sTracks;
 
 	public:
@@ -53,7 +53,8 @@ namespace nsJobHandler
 			JukeBox *pJukeBox,
 			int iPK_Users, int iEK_Disc, int iDrive_Number, int iPK_MediaType,
 			int iPK_Orbiter,
-			string sFormat, string sFileName, string sTracks);
+			string sFormat, string sFileName, string sTracks,
+			Command_Impl *pCommand_Impl);
 		virtual ~RipJob() {};
 
 		virtual bool ReadyToRun();

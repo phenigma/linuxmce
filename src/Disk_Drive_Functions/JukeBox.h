@@ -161,7 +161,7 @@ namespace nsJukeBox
 		virtual JukeBoxReturnCode Load(Slot *pSlot=NULL)=0;  // If NULL, just allow bulk inserting into slots.
 
 		// High level functions
-		void MassIdentify(string sSlots);
+		void MassIdentify(string sSlots,int PK_Orbiter);
 
 		bool LockJukebox(Disk_Drive_Functions::Locked locked,void *p_void); // returns false if the jukebox is already locked, or true if it set it to locked
 		void UnlockJukebox();  // release the jukebox

@@ -321,7 +321,7 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 			switch( pMessage->m_dwID )
 			{
 			case COMMAND_Eject_Disk_CONST:
-				m_pPowerfileJukebox->Eject(pDrive);
+				m_pPowerfileJukebox->Eject(pDrive,pMessage->m_dwPK_Device_From);
 				return;
 
 			default:
@@ -494,7 +494,7 @@ Powerfile: 0, 1, ... */
 void Powerfile_C200::CMD_Eject_Disk(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
-	m_pPowerfileJukebox->Eject(iSlot_Number,iDrive_Number);
+	m_pPowerfileJukebox->Eject(iSlot_Number,iDrive_Number,pMessage->m_dwPK_Device_From);
 }
 
 //<-dceag-c49-b->
@@ -754,7 +754,7 @@ void Powerfile_C200::CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string
 void Powerfile_C200::CMD_Mass_identify_media(string sDisks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c740-e->
 {
-	m_pPowerfileJukebox->MassIdentify(sDisks);
+	m_pPowerfileJukebox->MassIdentify(sDisks,pMessage->m_dwPK_Device_From);
 }
 
 #ifdef NOTDEF
@@ -1296,5 +1296,5 @@ void Powerfile_C200::CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sT
 void Powerfile_C200::CMD_Load_Disk(bool bMultiple,string &sCMD_Result,Message *pMessage)
 //<-dceag-c913-e->
 {
-	m_pPowerfileJukebox->Load(bMultiple);
+	m_pPowerfileJukebox->Load(bMultiple,pMessage->m_dwPK_Device_From);
 }

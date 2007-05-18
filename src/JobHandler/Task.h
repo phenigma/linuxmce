@@ -59,13 +59,7 @@ namespace nsJobHandler
 		virtual string GetType()=0; // Should override
 		virtual int Run()=0;  // Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms
 		TaskStatus m_eTaskStatus_get() { return m_eTaskStatus; }
-		void m_eTaskStatus_set(TaskStatus taskStatus) 
-		{
-			if( m_eTaskStatus==TASK_NOT_STARTED && taskStatus==TASK_IN_PROGRESS )
-				m_tStarted=time(NULL);
-
-			m_eTaskStatus=taskStatus;
-		}
+		void m_eTaskStatus_set(TaskStatus taskStatus);
 		virtual int PercentComplete() { return m_iPercent; }
 		virtual int SecondsRemaining()
 		{ 

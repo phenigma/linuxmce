@@ -31,8 +31,10 @@ using namespace DCE;
 
 IdentifyJob::IdentifyJob(class JobHandler *pJobHandler,
 			Disk_Drive_Functions *pDisk_Drive_Functions,
-			Slot *pSlot)
-	: Job(pJobHandler,"IdentifyJob")
+			Slot *pSlot,
+			int PK_Orbiter,
+			Command_Impl *pCommand_Impl)
+	: Job(pJobHandler,"IdentifyJob",PK_Orbiter,pCommand_Impl)
 {
 	m_pDisk_Drive_Functions=pDisk_Drive_Functions;
 	m_pSlot=pSlot;

@@ -45,3 +45,13 @@ bool Task::Abort()
 		m_eTaskStatus_set(TASK_CANCELED);
 	return true;
 }
+
+void Task::m_eTaskStatus_set(TaskStatus taskStatus) 
+{
+	if( m_eTaskStatus==TASK_NOT_STARTED && taskStatus==TASK_IN_PROGRESS )
+		m_tStarted=time(NULL);
+
+	m_pJob->RefreshOrbiter();
+
+	m_eTaskStatus=taskStatus;
+}

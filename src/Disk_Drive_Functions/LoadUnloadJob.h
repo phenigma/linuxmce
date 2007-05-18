@@ -60,7 +60,9 @@ namespace nsJobHandler
 			LoadUnloadJobType loadUnloadJobType,
 			JukeBox *pJukeBox,
 			Drive *pDrive,
-			Slot *pSlot);
+			Slot *pSlot,
+			int PK_Orbiter,
+			Command_Impl *pCommand_Impl);
 		virtual ~LoadUnloadJob();
 
 		virtual bool ReadyToRun();

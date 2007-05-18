@@ -33,8 +33,10 @@ LoadUnloadJob::LoadUnloadJob(class JobHandler *pJobHandler,
 			LoadUnloadJobType loadUnloadJobType,
 			JukeBox *pJukeBox,
 			Drive *pDrive,
-			Slot *pSlot)
-	: Job(pJobHandler,"LoadUnloadJob")
+			Slot *pSlot,
+			int PK_Orbiter,
+			Command_Impl *pCommand_Impl)
+	: Job(pJobHandler,"LoadUnloadJob",PK_Orbiter,pCommand_Impl)
 {
 	m_pDrive=pDrive;
 	m_pSlot=pSlot;

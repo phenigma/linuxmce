@@ -538,11 +538,11 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	return jbRetCode;
 }
 
-/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(int iSlot_Number,int iDrive_Number)
+/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(int iSlot_Number,int iDrive_Number,int PK_Orbiter)
 {
 	if( iSlot_Number==0 && iDrive_Number==0 )
 	{
-		LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eEjectMultipleDiscs,this,NULL,NULL);
+		LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eEjectMultipleDiscs,this,NULL,NULL,PK_Orbiter,m_pCommand_Impl);
 		m_pJobHandler->AddJob(pLoadUnloadJob);
 		return JukeBox::jukebox_ok;
 	}
@@ -554,7 +554,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::Eject invalid drive %d",iDrive_Number);
 			return JukeBox::jukebox_transport_failure;
 		}
-		return Eject(pDrive);
+		return Eject(pDrive,PK_Orbiter);
 	}
 	
 	Slot *pSlot = m_mapSlot_Find(iSlot_Number);
@@ -564,12 +564,12 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		return JukeBox::jukebox_transport_failure;
 	}
 
-	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eEjectOneDisc,this,NULL,pSlot);
+	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eEjectOneDisc,this,NULL,pSlot,PK_Orbiter,m_pCommand_Impl);
 	m_pJobHandler->AddJob(pLoadUnloadJob);
 	return JukeBox::jukebox_ok;
 }
 
-/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(Drive *pDrive)
+/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(Drive *pDrive,int PK_Orbiter)
 {
 	PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
 
@@ -581,7 +581,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		return JukeBox::jukebox_transport_failure;
 	}
 
-	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eEjectOneDisc,this,pDrive,pSlot);
+	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eEjectOneDisc,this,pDrive,pSlot,PK_Orbiter,m_pCommand_Impl);
 	m_pJobHandler->AddJob(pLoadUnloadJob);
 	return JukeBox::jukebox_ok;
 }
@@ -707,7 +707,7 @@ void PowerfileJukebox::Media_Identified(int iPK_Device,string sValue_To_Assign,s
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::Media_Identified cannot find job/task for %d",iPK_Device);
 }
 
-/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Load(bool bMultiple)
+/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Load(bool bMultiple,int PK_Orbiter)
 {
 	PLUTO_SAFETY_LOCK(pf,m_DriveMutex_get());
 	Slot *pSlot=NULL;
@@ -722,7 +722,7 @@ void PowerfileJukebox::Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		pSlot->m_eStatus=Slot::slot_intransit;
 	}
 
-	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,pSlot==NULL ? LoadUnloadJob::eLoadMultipleDiscs : LoadUnloadJob::eLoadOneDisc,this,NULL,pSlot);
+	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,pSlot==NULL ? LoadUnloadJob::eLoadMultipleDiscs : LoadUnloadJob::eLoadOneDisc,this,NULL,pSlot,PK_Orbiter,m_pCommand_Impl);
 	m_pJobHandler->AddJob(pLoadUnloadJob);
 	return JukeBox::jukebox_ok;
 }

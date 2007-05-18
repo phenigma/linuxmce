@@ -22,6 +22,7 @@
 #include <string>
 #include <list>
 #include "PlutoUtils/ThreadedClass.h"
+#include "DCE/Command_Impl.h"
 
 using namespace std;
 using namespace nsThreadedClass;
@@ -64,9 +65,11 @@ namespace nsJobHandler
 		class JobHandler *m_pJobHandler;
 		list<Task *> m_listTask;
 		time_t m_tNextRunAttempt;  // Set this to non-zero if you want to your ReadyToRun() to be called no later than this time.  Zero means don't call until something changes
+		int m_iPK_Orbiter;  // If passed into the constructor, send this Orbiter a 'refresh' when something changes with this job
+		Command_Impl *m_pCommand_Impl;  // If passed, use this to refresh the orbiter above in RefreshOrbiter();
 		
 	public:
-		Job(JobHandler *pJobHandler,string sName);
+		Job(JobHandler *pJobHandler,string sName,int PK_Orbiter=0,Command_Impl *pCommand_Impl=NULL);
 		virtual ~Job();
 
 		// Override these for better reporting of the Job's progress
@@ -101,6 +104,8 @@ namespace nsJobHandler
 		virtual void Run();
 
 		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList);  // override to accurately report this job
+
+		void RefreshOrbiter();
 	};
 };
 

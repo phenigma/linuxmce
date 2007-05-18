@@ -23,14 +23,14 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "DCE/Command_Impl.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 
 using namespace DCE;
 using namespace nsJobHandler;
 
 int Job::m_NextJobID=0;
 
-Job::Job(JobHandler *pJobHandler,string sName)
+Job::Job(JobHandler *pJobHandler,string sName,int PK_Orbiter,Command_Impl *pCommand_Impl)
 { 
 	m_pJobHandler=pJobHandler;
 	m_eJobStatus=job_WaitingToStart;
@@ -39,6 +39,8 @@ Job::Job(JobHandler *pJobHandler,string sName)
 	m_iID=m_NextJobID++;
 	m_NextTaskID=0; // Unique id's for each task within this job
 	m_tNextRunAttempt=0;
+	m_iPK_Orbiter=PK_Orbiter;
+	m_pCommand_Impl=pCommand_Impl;
 }
 
 Job::~Job()
@@ -145,6 +147,7 @@ void Job::Run()
 		}
 		jm.Relock();
 	}
+	RefreshOrbiter();
 	m_eJobStatus=job_Done;
 	m_pJobHandler->BroadcastCond();
 }
@@ -187,4 +190,14 @@ bool Job::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 	}
 	else
 		return false;
+}
+
+void Job::RefreshOrbiter()
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Job::RefreshOrbiter %p/%d",m_pCommand_Impl,m_iPK_Orbiter);
+	if( !m_pCommand_Impl || !m_iPK_Orbiter )
+		return;
+
+	DCE::CMD_Refresh CMD_Refresh(m_pCommand_Impl->m_dwPK_Device,m_iPK_Orbiter,"*");
+	m_pCommand_Impl->SendCommand(CMD_Refresh);
 }

@@ -135,7 +135,7 @@ Drive *JukeBox::LockAvailableDrive(Disk_Drive_Functions::Locked eLocked,Job *pJo
 	return NULL;
 }
 
-void JukeBox::MassIdentify(string sSlots)
+void JukeBox::MassIdentify(string sSlots,int PK_Orbiter)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "JukeBox::MassIdentify: sSlots: %s", sSlots.c_str());
 
@@ -146,7 +146,7 @@ void JukeBox::MassIdentify(string sSlots)
 			Drive *pDrive = it->second;
 			if( pDrive->m_mediaInserted )
 			{
-				IdentifyJob *pIdentifyJob = new IdentifyJob(m_pJobHandler,pDrive,NULL);
+				IdentifyJob *pIdentifyJob = new IdentifyJob(m_pJobHandler,pDrive,NULL,PK_Orbiter,m_pCommand_Impl);
 				m_pJobHandler->AddJob(pIdentifyJob);
 			}
 		}
@@ -155,7 +155,7 @@ void JukeBox::MassIdentify(string sSlots)
 			Slot *pSlot = it->second;
 			if( pSlot->m_eStatus!=Slot::slot_defective && pSlot->m_eStatus!=Slot::slot_empty )
 			{
-				IdentifyJob *pIdentifyJob = new IdentifyJob(m_pJobHandler,NULL,pSlot);
+				IdentifyJob *pIdentifyJob = new IdentifyJob(m_pJobHandler,NULL,pSlot,PK_Orbiter,m_pCommand_Impl);
 				m_pJobHandler->AddJob(pIdentifyJob);
 			}
 		}
