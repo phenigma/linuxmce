@@ -82,11 +82,11 @@ fi
 
 	echo "$SourcesOffline" >/etc/apt/sources.list.offline
 
-	if [[ "$c_ubuntuExtraCdFrom" != "3" ]] && [[ ! -z "$c_ubuntuExtraCdFrom" ]] ;then
+#	if [[ "$c_ubuntuExtraCdFrom" != "3" ]] && [[ ! -z "$c_ubuntuExtraCdFrom" ]] ;then
 		#echo "Dir::Etc::sourcelist sources.list.offline;" >/etc/apt/apt.conf.d/00ubuntu_offline
-		cp /etc/apt/sources.list /etc/apt/sources.list.original
-		mv /etc/apt/sources.list.offline /etc/apt/sources.list
-	fi
+#		cp /etc/apt/sources.list /etc/apt/sources.list.original
+#		mv /etc/apt/sources.list.offline /etc/apt/sources.list
+#	fi
 	# Setup pluto's apt.conf
 	pluto_apt_conf='// Pluto apt conf add-on
 Apt::Cache-Limit "12582912";

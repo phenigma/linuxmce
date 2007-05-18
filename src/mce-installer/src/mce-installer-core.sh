@@ -2,7 +2,7 @@
 
 . ./mce-installer-common.sh
 
-trap 'RemoveOfflineSource' EXIT
+#trap 'RemoveOfflineSource' EXIT
 
 rm -rf /tmp/mce_installer_error
 InstallerLogFile="/var/log/mce-installer-$(date +%s).log"
