@@ -189,7 +189,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 			m_discid=0;
 			StopNbdServer();
 			m_mediaInserted = false;
-			UpdateDiscLocation('E',0,0); // Now the drive is empty
+			UpdateDiscLocation('E',0); // Now the drive is empty
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk is not in the drive at the moment");
 		}
 	}
