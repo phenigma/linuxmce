@@ -6,7 +6,9 @@ while /bin/true ;do
 	X_Is_Ok=true
 	X_Start_Time=$(date +%s)
 		/usr/pluto/bin/Start_X.sh -config /etc/X11/xorg.conf
+		export KDE_DEBUG=1
 		/usr/pluto/bin/lmce_launch_manager
+		export -n KDE_DEBUG
 	X_Stop_Time=$(date +%s)
 
 	## If X exited to quick

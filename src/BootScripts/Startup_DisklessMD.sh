@@ -88,7 +88,9 @@ if [[ "$AVWizardDone" != "1" ]] ;then
 	StartService "Starting Audio/Video Wizard" "/usr/pluto/bin/AVWizard_Run.sh"
 fi
 StartService "Starting X11 Server" "/usr/pluto/bin/Start_X.sh"
+export KDE_DEBUG=1
 StartService "Starting the Launch Manager" "/usr/pluto/bin/lmce_launch_manager"
+export -n KDE_DEBUG
 StartService "Creating Firewire 2 Video4Linux Pipes" "/usr/pluto/bin/Firewire2Video4Linux.sh"
 
 # hack: cleaning lockfile on M/D start to allow
