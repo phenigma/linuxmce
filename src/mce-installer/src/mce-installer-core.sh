@@ -319,19 +319,19 @@ script
 /usr/pluto/bin/Startup_Core-Hybrid.sh
 end script
 " > /etc/event.d/pluto
-elif [[ "$c_startupType" == "2" ]] ;then
-	echo "
-start on runlevel 2
-
-stop on shutdown
-stop on runlevel 3
-stop on runlevel 4
-stop on runlevel 5
-
-script
-/usr/share/mce-launcher/scripts/mce-launcher-core.sh
-end script
-" > /etc/event.d/pluto
+#elif [[ "$c_startupType" == "2" ]] ;then
+#	echo "
+#start on runlevel 2
+#
+#stop on shutdown
+#stop on runlevel 3
+#stop on runlevel 4
+#stop on runlevel 5
+#
+#script
+#/usr/share/mce-launcher/scripts/mce-launcher-core.sh
+#end script
+#" > /etc/event.d/pluto
 fi
 
 ## Remove 'Install LinuxMCE' icon after LinuxMCE was installed

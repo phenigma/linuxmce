@@ -88,7 +88,38 @@ fi
 if [ ! -e /etc/shadow.pbackup ] ;then
    cp /etc/shadow /etc/shadow.pbackup
 fi
-			
+
+
+if [[ "$c_startupType" == "1" ]] ;then
+	mv /etc/init.d/gdm /etc/init.d/gdm.saved
+	mv /etc/init.d/kdm /etc/init.d/kdm.saved
+	echo "
+start on runlevel 2
+
+stop on shutdown
+stop on runlevel 3
+stop on runlevel 4
+stop on runlevel 5
+
+script
+/usr/pluto/bin/Startup_DiskedMD.sh
+end script
+" > /etc/event.d/pluto
+fi
+
+echo "
+start on runlevel 2
+
+stop on shutdown
+stop on runlevel 3
+stop on runlevel 4
+stop on runlevel 5
+
+script
+/usr/pluto/bin/startup-script-diskedmd.sh
+end script
+" > /etc/event.d/media-cernter-startup
+
 Setup_NIS
 Configure_Mounts
 Unpack_Config_Files
