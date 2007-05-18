@@ -2649,6 +2649,11 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 		DCE::CMD_Load_Disk CMD_Load_Disk(m_pOrbiter->m_dwPK_Device,PK_Device_JukeBox,true);
 		m_pOrbiter->SendCommand(CMD_Load_Disk);
 	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butIdAll_CONST )
+	{
+		DCE::CMD_Mass_identify_media CMD_Mass_identify_media(m_pOrbiter->m_dwPK_Device,PK_Device_JukeBox,"*");
+		m_pOrbiter->SendCommand(CMD_Mass_identify_media);
+	}
 
 	return false; // Keep processing it
 }

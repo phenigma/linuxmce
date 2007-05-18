@@ -84,7 +84,7 @@ int MoveDiscTask::Run()
 		jukeBoxReturnCode = m_pJukeBox->Eject(pSlot);
 		m_pJukeBox->UnlockJukebox();
 
-		if( !m_pSlot )
+		if( !m_pSlot && jukeBoxReturnCode==JukeBox::jukebox_ok )
 			return 1;  // This is a multiple eject, so keep going until we run out
 	}
 	else if( m_MoveDiscTaskType==mdt_Load )
@@ -108,7 +108,7 @@ int MoveDiscTask::Run()
 		jukeBoxReturnCode = m_pJukeBox->Load(pSlot);
 		m_pJukeBox->UnlockJukebox();
 
-		if( !m_pSlot )
+		if( !m_pSlot && jukeBoxReturnCode==JukeBox::jukebox_ok )
 			return 1;  // This is a multiple eject, so keep going until we run out
 	}
 

@@ -342,6 +342,25 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 void Powerfile_C200::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 //<-dceag-cmduk-e->
 {
+	// Temp test to debug memory
+	if (pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND && pMessage->m_dwID == 999)
+	{
+		for(map_int_Slotp::iterator it=m_pPowerfileJukebox->m_mapSlot.begin();it!=m_pPowerfileJukebox->m_mapSlot.end();++it)
+		{
+			Slot *pSlot = it->second;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Slot #%d st %d disc %d", 
+				pSlot->m_SlotNumber, (int) pSlot->m_eStatus, pSlot->m_pRow_Disc ? pSlot->m_pRow_Disc->PK_Disc_get() : -1);
+		}
+		for(map_int_Drivep::iterator it=m_pPowerfileJukebox->m_mapDrive.begin();it!=m_pPowerfileJukebox->m_mapDrive.end();++it)
+		{
+			Drive *pDrive = it->second;
+			void *p;;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Dive #%d st %d locked %d", 
+				pDrive->m_dwPK_Device_get(),
+				pDrive->m_mediaDiskStatus, (int) pDrive->m_eLocked_get(&p));
+		}
+	}
+
 #ifdef NOTDEF
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unknown command: type %d, id %d", pMessage->m_dwMessage_Type, pMessage->m_dwID);
 	if (pMessage->m_dwMessage_Type == MESSAGETYPE_EVENT && pMessage->m_dwID == EVENT_Ripping_Progress_CONST)

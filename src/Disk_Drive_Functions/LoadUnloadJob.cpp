@@ -93,6 +93,20 @@ bool LoadUnloadJob::ReadyToRun()
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"LoadUnloadJob::ReadyToRun 2 drive is already locked");
 				return false;
 			}
+
+			PLUTO_SAFETY_LOCK(dm,m_pJukeBox->m_DriveMutex_get());
+			Slot *pSlot = m_pJukeBox->m_mapSlot_Empty();  // Get an empty slot to move it to
+			if( !pSlot )
+			{
+				m_eJobStatus = job_Error;
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"LoadUnloadJob::ReadyToRun 7 no slot for load operation");
+				return false;
+			}
+			pSlot->m_eStatus = Slot::slot_intransit;
+
+			AddTask(new MoveDiscTask(this,"DriveToSlot",MoveDiscTask::mdt_DriveToSlot,m_pJukeBox,m_pDrive,pSlot));
+			AddTask(new MoveDiscTask(this,"SlotToEject",MoveDiscTask::mdt_SlotToEject,m_pJukeBox,NULL,pSlot));
+			return true;
 		}
 		else if( !m_pSlot )
 		{

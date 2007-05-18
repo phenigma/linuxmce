@@ -2443,6 +2443,7 @@
 #define DESIGNOBJ_butLoadBulk_CONST 5457
 #define DESIGNOBJ_butUnload_CONST 5458
 #define DESIGNOBJ_butLoad_CONST 5459
+#define DESIGNOBJ_butIdAll_CONST 5460
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
