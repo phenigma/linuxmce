@@ -656,11 +656,13 @@ bool Xine_Stream_Factory::CreateWindows()
 //	XIconifyWindow( m_pXDisplay, windows[ 0 ], 0 );
 
 	XUnlockDisplay( m_pXDisplay );
-	
+
+#ifndef VIA
 	WMControllerImpl *pWMController = new WMControllerImpl();
 	pWMController->SetVisible(m_sWindowTitle, false);
 	delete pWMController;
 	pWMController = NULL;
+#endif
 
 	return true;
 }
