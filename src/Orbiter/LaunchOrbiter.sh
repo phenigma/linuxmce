@@ -29,6 +29,16 @@ if [[ "$UseOpenGL" == "1"  ]]; then
 fi
 
 export DISPLAY=:$Display
+
+## Kill kwin, xcompmgr
+killall -9 kwin
+killall -9 xfwm4
+killall -9 xcompmgr
+## Start xfwm4
+xfwm4 "${WMParm[@]}" &>/dev/null </dev/null &
+disown -a
+sleep 1
+	
 ## Detect if we're running dedicated or a shared desktop system
 if [[ "$SharedDesktop" != 1 ]]; then
 	### Dedicated desktop
@@ -59,15 +69,6 @@ else
 	fi
 	sed -i '/Xfwm\/UseCompositing/ s/value="."/value="'"$WMCompTweakVal"'"/g' "$WMTweaksFile"
 
-	## Kill kwin, xcompmgr
-	killall kwin
-	killall xfwm4
-	killall xcompmgr
-	## Start xfwm4
-	xfwm4 "${WMParm[@]}" &>/dev/null </dev/null &
-	disown -a
-	sleep 1
-	
 	N_Desktops=$(wmctrl -d | wc -l) # zero based
 
 	Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Number of desktops found: $N_Desktops ; desktops activated? $DesktopActivated"
