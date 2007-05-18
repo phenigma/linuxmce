@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# We need to remove cache so we don't get the Restore Session message
+rm /root/.mozilla/firefox/pluto.default/Cache/*
+
+
 . /usr/pluto/bin/Config_Ops.sh
 export DISPLAY=":${Display}"
 
