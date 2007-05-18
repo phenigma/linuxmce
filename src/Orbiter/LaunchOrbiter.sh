@@ -75,8 +75,23 @@ else
 	## Increase number of desktops by 2
 	if [[ "$DesktopActivated" != 1 ]]; then
 		Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Increasing number of desktops to: $((N_Desktops + 2))"
-		wmctrl -n $((N_Desktops + 2))
-		ConfSet DesktopActivated 1
+		for ((i = 0; i < 5; i++)); do
+			wmctrl -n $((N_Desktops + 2))
+			N_Desktops_Result=$(wmctrl -d | wc -l)
+			if ((N_Desktops_Result == N_Desktops + 2)); then
+				ConfSet DesktopActivated 1
+				break
+			fi
+			sleep 1
+		done
+		if [[ "$DesktopActivated" != 1 ]]; then
+			Logging $TYPE $SEVERITY_WARNING "LaunchOrbiter" "Failed to increase number of desktops"
+			if ((N_Desktops < 2)); then
+				Logging $TYPE $SEVERITY_CRITICAL "LaunchOrbiter" "Number of desktops is lower than 2. We need at least two desktops for propper functionality."
+				exit 2
+			fi
+			((N_Desktops -= 2))
+		fi
 	else
 		((N_Desktops -= 2))
 	fi
