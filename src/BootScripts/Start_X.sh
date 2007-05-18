@@ -4,9 +4,9 @@
 
 function assureXorgSane()
 {
-	xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
+	xorgLines=$(cat ${XOrgConf} | wc -l)
 	if [ $xorgLines -le 15 ] ;then
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "File xorg.conf.pluto has only $xorgLines lines, rebuilding"
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "${XOrgConf} has only $xorgLines lines, rebuilding"
 		EVICETEMPLATE_OnScreen_Orbiter=62
 		DEVICETEMPLATE_OrbiterPlugin=12
 		DEVICECATEGORY_Media_Director=8
@@ -40,12 +40,13 @@ AlphaBlending=$(AlphaBlendingEnabled)
 #XClient=/usr/pluto/bin/Start_IceWM.sh
 XClient=/usr/bin/xfwm4
 XClientParm=()
+XOrgConf="/etc/X11/xorg.conf.pluto"
 
 #<-mkr_b_ubuntu_b->
 XClientParm=(--compositor=off)
 #<-mkr_b_ubuntu_e->
 
-XServerParm=(-logverbose 9 -br -config /etc/X11/xorg.conf.pluto)
+XServerParm=(-logverbose 9 -br -config $XOrgConf)
 Background=y
 XDisplay=":$Display"
 
@@ -66,6 +67,7 @@ for ((i = 1; i <= "$#"; i++)); do
 		-srvparm) ((i++)); XServerParm=("${XServerParm[@]}" "${!i}") ;;
 		-display) ((i++)); XDisplay="${!i}" ;;
 		-flags) ((i++)); WrapperFlags=("${WrapperFlags[@]}" "${!i}") ;;
+		-config) ((i++)); XOrgConf=${!i} ;;
 	esac
 done
 
