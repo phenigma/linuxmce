@@ -517,7 +517,7 @@ void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,str
 			cMediaType='c';
 		else if( iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
 			cMediaType='d';
-		m_pDisk_Drive_Functions->UpdateDiscLocation(cMediaType,*iEK_Disc,0);
+		m_pDisk_Drive_Functions->UpdateDiscLocation(cMediaType,*iEK_Disc);
 	}
 }
 //<-dceag-c871-b->
