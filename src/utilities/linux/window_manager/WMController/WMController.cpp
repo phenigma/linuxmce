@@ -28,7 +28,7 @@ WMControllerImpl::WMControllerImpl()
     else
  		m_sSecondaryDesktop = "1";
 
-#ifndef TEST_UNIT
+#if defined(ORBITER)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: primary desktop %s", m_sPrimaryDesktop.c_str());
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl: secondary desktop %s", m_sSecondaryDesktop.c_str());
 
