@@ -2563,10 +2563,13 @@ void ScreenHandler::SCREEN_Jukebox_Manager(long PK_Screen, int iPK_Device)
 bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	int PK_Device_JukeBox = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str());
 	if( (pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST ||
 		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoPlay_CONST ||
 		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST ||
-		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST ||
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butUnload_CONST ||
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butLoad_CONST 
 		) && 
 		pObjectInfoData->m_pObj->m_pParentObject && pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject &&
 		pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
@@ -2623,6 +2626,30 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 			}
 		}
 	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butCancelRipping_CONST )
+	{
+		DCE::CMD_Abort_Ripping CMD_Abort_Ripping(m_pOrbiter->m_dwPK_Device,PK_Device_JukeBox);
+		m_pOrbiter->SendCommand(CMD_Abort_Ripping);
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butRipAll_CONST )
+	{
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butEjectAll_CONST )
+	{
+		DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,PK_Device_JukeBox,0,0);
+		m_pOrbiter->SendCommand(CMD_Eject_Disk);
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butLoad1_CONST )
+	{
+		DCE::CMD_Load_Disk CMD_Load_Disk(m_pOrbiter->m_dwPK_Device,PK_Device_JukeBox,false);
+		m_pOrbiter->SendCommand(CMD_Load_Disk);
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butLoadBulk_CONST )
+	{
+		DCE::CMD_Load_Disk CMD_Load_Disk(m_pOrbiter->m_dwPK_Device,PK_Device_JukeBox,true);
+		m_pOrbiter->SendCommand(CMD_Load_Disk);
+	}
+
 	return false; // Keep processing it
 }
 

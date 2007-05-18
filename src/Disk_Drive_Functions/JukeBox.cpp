@@ -202,3 +202,27 @@ Disk_Drive_Functions::Locked JukeBox::m_eLocked_get(void **p_void)
 
 	return m_eLocked;
 }
+
+void JukeBox::UpdateDiscLocation(int PK_Device_Original,int Slot_Original,int PK_Device_New,int Slot_New)
+{
+	string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(PK_Device_New) + ",Slot=" + (Slot_New==-1 ? "NULL" : StringUtils::itos(Slot_New)) +
+		" WHERE EK_Device=" + StringUtils::itos(PK_Device_Original) + (Slot_Original==-1 ? "" : " AND Slot=" + StringUtils::itos(Slot_Original));
+	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+}
+
+void JukeBox::RemoveDiscFromDb(int PK_Device,int Slot)
+{
+	string sSQL = "DELETE FROM DiscLocation WHERE EK_Device=" + StringUtils::itos(PK_Device);
+	if( Slot!=-1 )
+		sSQL += " AND Slot=" + StringUtils::itos(Slot);
+
+	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:%s",sSQL.c_str());
+}
+
+void JukeBox::AddDiscToDb(int PK_Device,int Slot,char Type)
+{
+	string sSQL = "INSERT INTO DiscLocation(EK_Device,Slot,Type) VALUES(" + StringUtils::itos(PK_Device) + "," + (Slot ? StringUtils::itos(Slot) : "NULL") + ",'" + Type + "')";
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:%s",sSQL.c_str());
+	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+}

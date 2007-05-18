@@ -141,9 +141,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 					if (vsC[1] == "Empty")
 					{
 						pSlot->m_eStatus = Slot::slot_empty;
-						string sSQL = "DELETE FROM DiscLocation WHERE EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " AND Slot=" + StringUtils::itos(pSlot->m_SlotNumber);
-						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:%s",sSQL.c_str());
-						m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+						RemoveDiscFromDb(m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber);
 					}
 					else
 					{
@@ -151,9 +149,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 						Row_DiscLocation *pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber);
 						if( !pRow_DiscLocation )
 						{
-							string sSQL = "INSERT INTO DiscLocation(EK_Device,Slot,Type) VALUES(" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + "," + StringUtils::itos(pSlot->m_SlotNumber) + ",'U')";
-							LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:%s",sSQL.c_str());
-							m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+							AddDiscToDb(m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber,'U');
 						}
 						else if( pRow_DiscLocation->FK_Disc_isNull()==false )
 						{
@@ -470,10 +466,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 				jbRetCode = JukeBox::jukebox_ok;
 
 				// Update the database
-				string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(pDrive->m_dwPK_Device_get()) + ",Slot=NULL" + 
-					" WHERE EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " AND Slot=" + StringUtils::itos(pSlot->m_SlotNumber);
-				m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
-
+				UpdateDiscLocation(m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber,pDrive->m_dwPK_Device_get(),-1);
 			}
 			else
 			{
@@ -532,9 +525,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 			pDDF->m_mediaInserted = false;
 
 			// Update the database
-			string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + ",Slot=" + 
-				StringUtils::itos(pSlot->m_SlotNumber) + " WHERE EK_Device=" + StringUtils::itos(pDrive->m_dwPK_Device_get());
-			m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+			UpdateDiscLocation(pDrive->m_dwPK_Device_get(),-1,m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber);
 
 			jbRetCode = JukeBox::jukebox_ok;
 		}
@@ -549,6 +540,12 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 /*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(int iSlot_Number,int iDrive_Number)
 {
+	if( iSlot_Number==0 && iDrive_Number==0 )
+	{
+		LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eEjectMultipleDiscs,this,NULL,NULL);
+		m_pJobHandler->AddJob(pLoadUnloadJob);
+		return JukeBox::jukebox_ok;
+	}
 	if( iDrive_Number )
 	{
 		Drive *pDrive = m_mapDrive_Find(iDrive_Number);
@@ -609,6 +606,8 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	int status = system(sCmd.c_str());
 	if (WEXITSTATUS(status) == 0)
 	{
+		// Update the database
+		RemoveDiscFromDb(m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber);
 		pSlot->m_eStatus = Slot::slot_empty;
 		return JukeBox::jukebox_ok;
 	}
@@ -638,6 +637,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	int status = system(sCmd.c_str());
 	if (WEXITSTATUS(status) == 0)
 	{
+		AddDiscToDb(m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber,'U');
 		pSlot->m_eStatus = Slot::slot_unknown_medium;
 		return JukeBox::jukebox_ok;
 	}
@@ -680,7 +680,7 @@ void PowerfileJukebox::Media_Identified(int iPK_Device,string sValue_To_Assign,s
 			cMediaType='c';
 		else if( iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
 			cMediaType='d';
-		pDrive->UpdateDiscLocation(cMediaType,*iEK_Disc,0);
+		pDrive->UpdateDiscLocation(cMediaType,*iEK_Disc);
 	}
 
 	PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());

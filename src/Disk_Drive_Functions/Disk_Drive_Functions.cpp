@@ -73,7 +73,7 @@ Disk_Drive_Functions::Disk_Drive_Functions(int dwPK_Device,Command_Impl * pComma
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::Disk_Drive_Functions m_pDevice_MediaIdentifier %d",m_pDevice_MediaIdentifier ? m_pDevice_MediaIdentifier->m_dwPK_Device : 0);
 
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
-	UpdateDiscLocation('E',0,0); // For now say the drive is empty, when the script starts it will get set again
+	UpdateDiscLocation('E',0); // For now say the drive is empty, when the script starts it will get set again
 }
 
 Disk_Drive_Functions::~Disk_Drive_Functions()
@@ -758,9 +758,9 @@ void Disk_Drive_Functions::StopNbdServer()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::StopNbdServer %s",sArgs.c_str());
 }
 
-void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc,int Slot)
+void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc)
 {
-	Row_DiscLocation *pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(m_dwPK_Device,Slot);
+	Row_DiscLocation *pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(m_dwPK_Device,0);
 	if( pRow_DiscLocation )
 	{
 		if( PK_Disc==0 )  // Shouldn't be a record if it's empty
@@ -777,7 +777,6 @@ void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc,int Slot)
 	{
 		pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->AddRow();
 		pRow_DiscLocation->EK_Device_set(m_dwPK_Device);
-		pRow_DiscLocation->Slot_set(Slot);
 	}
 
 	pRow_DiscLocation->FK_Disc_set(PK_Disc);

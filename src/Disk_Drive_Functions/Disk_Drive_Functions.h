@@ -127,7 +127,7 @@ public:
 		void StartNbdServer();
 		void StopNbdServer();
 		bool isRipping();
-		void UpdateDiscLocation(char cType,int PK_Disc=0,int Slot=0);  // An unknown type
+		void UpdateDiscLocation(char cType,int PK_Disc=0);  // An unknown type
 		void GetTracksForDisc(class Row_Disc *pRow_Disc,map<int,string> &mapTracks);
 
 		// TODO: write accessors for these

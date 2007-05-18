@@ -169,6 +169,11 @@ namespace nsJukeBox
 	
 		void AssertJukeboxIsLocked();
 
+		// Update the database
+		void UpdateDiscLocation(int PK_Device_Original,int Slot_Original,int PK_Device_New,int Slot_New);
+		void RemoveDiscFromDb(int PK_Device,int Slot);
+		void AddDiscToDb(int PK_Device,int Slot,char Type);
+
 	};
 }
 
