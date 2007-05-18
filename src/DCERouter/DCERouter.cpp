@@ -3187,6 +3187,16 @@ void Router::HandleMessageFailure(SafetyMessage *pSafetyMessage)
 
 void Router::HandleMessageFailure(Message *pMessage,bool bSkipSerialization)
 {
+	if(pMessage->m_dwPK_Device_Template != 0 || pMessage->m_dwPK_Device_Category_To != 0 || !pMessage->m_sPK_Device_List_To.empty())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Router::HandleMessageFailure WON'T retry message "
+			"type %d id %d to %d retry %d because we cannot handle broadcast/multicast messages",
+			pMessage->m_dwMessage_Type, pMessage->m_dwID,
+			pMessage->m_dwPK_Device_To, (int) pMessage->m_eRetry);
+
+		return;
+	}
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Router::HandleMessageFailure will retry message type %d id %d to %d retry %d",
 		pMessage->m_dwMessage_Type, pMessage->m_dwID,
 		pMessage->m_dwPK_Device_To, (int) pMessage->m_eRetry);
