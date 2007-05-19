@@ -314,7 +314,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 		pSlot = m_mapSlot_Empty();
 		if( !pSlot )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Powerfile_C200::CMD_Load_Disk -- no available slots");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "JukeBox::CMD_Load_Disk -- no available slots");
 			return JukeBox::jukebox_transport_failure;
 		}
 		pSlot->m_eStatus=Slot::slot_intransit;
@@ -331,7 +331,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 	Slot *pSlot=m_mapSlot_Find(iSlot_Number);
 	if( !pSlot || pSlot->m_eStatus==Slot::slot_empty || pSlot->m_eStatus==Slot::slot_intransit )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- bad slot %d status %d", iSlot_Number, pSlot ? (int) pSlot->m_eStatus : -1);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Load_from_Slot_into_Drive -- bad slot %d status %d", iSlot_Number, pSlot ? (int) pSlot->m_eStatus : -1);
 		return JukeBox::jukebox_transport_failure;
 	}
 
@@ -343,7 +343,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 		pDrive = m_mapDrive_Find(iDrive_Number);
 		if( !pDrive || !pDrive->LockDrive(Disk_Drive_Functions::locked_move,pLoadUnloadJob) )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- bad drive %d or cannot lock drive %p", iDrive_Number, pDrive);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Load_from_Slot_into_Drive -- bad drive %d or cannot lock drive %p", iDrive_Number, pDrive);
 			delete pLoadUnloadJob;
 			return JukeBox::jukebox_transport_failure;
 		}
@@ -353,7 +353,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 		pDrive = LockAvailableDrive(Disk_Drive_Functions::locked_move,pLoadUnloadJob,pLoadUnloadJob,true);
 		if( !pDrive )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- bad drive %d", iDrive_Number);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Load_from_Slot_into_Drive -- bad drive %d", iDrive_Number);
 			delete pLoadUnloadJob;
 			return JukeBox::jukebox_transport_failure;
 		}
@@ -374,7 +374,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 		pSlot = m_mapSlot_Find(iSlot_Number);
 		if( !pSlot || pSlot->m_eStatus!=Slot::slot_empty )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- bad slot %d status %d", iSlot_Number, pSlot ? (int) pSlot->m_eStatus : -1);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Unload_from_Drive_into_Slot -- bad slot %d status %d", iSlot_Number, pSlot ? (int) pSlot->m_eStatus : -1);
 			return JukeBox::jukebox_transport_failure;
 		}
 	}
@@ -383,7 +383,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 		pSlot = m_mapSlot_Empty();
 		if( !pSlot )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- no empty slots");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Unload_from_Drive_into_Slot -- no empty slots");
 			return JukeBox::jukebox_transport_failure;
 		}
 	}
@@ -391,15 +391,14 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 	Drive *pDrive = m_mapDrive_Find(iDrive_Number);
 	if( !pDrive )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- bad drive %d", iDrive_Number);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Unload_from_Drive_into_Slot -- bad drive %d", iDrive_Number);
 		return JukeBox::jukebox_transport_failure;
 	}
 
 	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eMoveFromDriveToSlot,this,pDrive,pSlot,iPK_Orbiter,m_pCommand_Impl);
-
 	if( !pDrive->LockDrive(Disk_Drive_Functions::locked_move,pLoadUnloadJob) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- cannot lock drive %d", iDrive_Number);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Unload_from_Drive_into_Slot -- cannot lock drive %d", iDrive_Number);
 		delete pLoadUnloadJob;
 		return JukeBox::jukebox_transport_failure;
 	}

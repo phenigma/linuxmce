@@ -327,7 +327,11 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 			case COMMAND_Unload_from_Drive_into_Slot_CONST:
 				{
 					int iSlot = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
-					CMD_Unload_from_Drive_into_Slot(iSlot,pMessage->m_dwPK_Device_To,sCMD_Result,pMessage); // Forward this on with this is the drive
+					Drive *pDrive = m_pPowerfileJukebox->m_mapDrive_FindByPK_Device(pMessage->m_dwPK_Device_To);
+					if( !pDrive )
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::ReceivedCommandForChild Unknown drive: %d", pMessage->m_dwPK_Device_To);
+					else
+						CMD_Unload_from_Drive_into_Slot(iSlot,pDrive->m_DriveNumber,sCMD_Result,pMessage); // Forward this on with this is the drive
 				}
 				return;
 
