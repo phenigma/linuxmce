@@ -2226,8 +2226,8 @@ class DataGridTable *General_Info_Plugin::JukeboxDrives( string GridID, string P
 						pCell->m_mapAttributes["Disc"]=pRow_Attribute->Name_get();
 				}
 			}
+			pDataGrid->SetData(0,iRow++,pCell);
 		}
-		pDataGrid->SetData(0,iRow++,pCell);
 	}
 
 	return pDataGrid;
