@@ -4316,7 +4316,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		}
 		else if( Variable[0]=='C' && Variable[1]=='A' )
 		{
-			if( Variable.length()>6 )
+			if( Variable.length()>4 )  // Token must be at least 2 characters, like <%=CA:ID%>
 			{
 				if( Variable[2]=='H' )
 				{

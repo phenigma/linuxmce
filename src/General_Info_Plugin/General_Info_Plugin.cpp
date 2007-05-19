@@ -2196,15 +2196,19 @@ class DataGridTable *General_Info_Plugin::JukeboxDrives( string GridID, string P
 	{
 		DeviceData_Router *pDevice_Drive = (DeviceData_Router *) *it;
 		string sPort = pDevice_Drive->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
-		pCell = new DataGridCell(sPort,"# " + StringUtils::itos(pDevice_Drive->m_dwPK_Device));
-
-		pCell->m_mapAttributes["PK_Device"] = StringUtils::itos(pDevice_Drive->m_dwPK_Device);
 		vector<Row_DiscLocation *> vectRow_DiscLocation;
 		m_pDatabase_pluto_media->DiscLocation_get()->GetRows("EK_Device=" + StringUtils::itos(pDevice_Drive->m_dwPK_Device),&vectRow_DiscLocation);
 		if( vectRow_DiscLocation.size() )
 		{
 			Row_DiscLocation *pRow_DiscLocation = vectRow_DiscLocation[0];
 			Row_Disc *pRow_Disc = pRow_DiscLocation->FK_Disc_getrow();
+
+			pCell = new DataGridCell("# " + StringUtils::itos(pDevice_Drive->m_dwPK_Device),sPort);
+
+			pCell->m_mapAttributes["PK_Device"] = StringUtils::itos(pDevice_Drive->m_dwPK_Device);
+			pCell->m_mapAttributes["DeviceDescription"] = pDevice_Drive->m_sDescription;
+			pCell->m_mapAttributes["ID"] = sPort;
+
 			if( pRow_Disc )
 			{
 				pCell->m_mapAttributes["PK_Disc"] = StringUtils::itos(pRow_Disc->PK_Disc_get());

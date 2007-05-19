@@ -85,7 +85,10 @@ int MoveDiscTask::Run()
 		m_pJukeBox->UnlockJukebox();
 
 		if( !m_pSlot && jukeBoxReturnCode==JukeBox::jukebox_ok )
+		{
+			m_pJob->RefreshOrbiter();
 			return 1;  // This is a multiple eject, so keep going until we run out
+		}
 	}
 	else if( m_MoveDiscTaskType==mdt_Load )
 	{
@@ -109,7 +112,10 @@ int MoveDiscTask::Run()
 		m_pJukeBox->UnlockJukebox();
 
 		if( !m_pSlot && jukeBoxReturnCode==JukeBox::jukebox_ok )
+		{
+			m_pJob->RefreshOrbiter();
 			return 1;  // This is a multiple eject, so keep going until we run out
+		}
 	}
 
 	m_eTaskStatus_set(jukeBoxReturnCode==JukeBox::jukebox_ok ? TASK_COMPLETED : TASK_FAILED_ABORT);

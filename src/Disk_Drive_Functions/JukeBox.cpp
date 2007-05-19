@@ -160,6 +160,20 @@ void JukeBox::MassIdentify(string sSlots,int PK_Orbiter)
 			}
 		}
 	}
+	else
+	{
+		string::size_type pos=0;
+		while(pos<sSlots.size())
+		{
+			int iSlot = atoi( StringUtils::Tokenize(sSlots,",",pos).c_str() );
+			Slot *pSlot = m_mapSlot_Find(iSlot);
+			if( pSlot->m_eStatus!=Slot::slot_defective && pSlot->m_eStatus!=Slot::slot_empty )
+			{
+				IdentifyJob *pIdentifyJob = new IdentifyJob(m_pJobHandler,NULL,pSlot,PK_Orbiter,m_pCommand_Impl);
+				m_pJobHandler->AddJob(pIdentifyJob);
+			}
+		}
+	}
 }
 
 bool JukeBox::LockJukebox(Disk_Drive_Functions::Locked locked,void *p_void)
