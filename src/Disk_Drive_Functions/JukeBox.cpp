@@ -336,7 +336,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 	}
 
 	Drive *pDrive = NULL;
-	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eLoadOneDisc,this,NULL,pSlot,iPK_Orbiter,m_pCommand_Impl);
+	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eMoveFromSlotToDrive,this,NULL,pSlot,iPK_Orbiter,m_pCommand_Impl);
 
 	if( iDrive_Number!=-1 )
 	{
@@ -395,7 +395,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 		return JukeBox::jukebox_transport_failure;
 	}
 
-	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eLoadOneDisc,this,pDrive,pSlot,iPK_Orbiter,m_pCommand_Impl);
+	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eMoveFromDriveToSlot,this,pDrive,pSlot,iPK_Orbiter,m_pCommand_Impl);
 
 	if( !pDrive->LockDrive(Disk_Drive_Functions::locked_move,pLoadUnloadJob) )
 	{
