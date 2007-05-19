@@ -24,15 +24,12 @@ namespace nsJukeBox
 			PowerfileJukebox(class DCE::Powerfile_C200 * pPowerfile);
 			virtual bool Init();
 
-			virtual void Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc);
-
 			virtual JukeBoxReturnCode MoveFromSlotToDrive(Slot *pSlot,Drive *pDrive);
 			virtual JukeBoxReturnCode MoveFromDriveToSlot(Slot *pSlot,Drive *pDrive);
 			virtual JukeBoxReturnCode Eject(Slot *pSlot);  // Elect the disc in pSlot
 			virtual JukeBoxReturnCode Eject(Drive *pDrive,int PK_Orbiter);  // Elect the disc in pDrive
 			virtual JukeBoxReturnCode Eject(int iSlot_Number,int iDrive_Number,int PK_Orbiter);
 			virtual JukeBoxReturnCode Load(Slot *pSlot=NULL);  // If NULL, just allow bulk inserting into slots.
-			virtual JukeBoxReturnCode Load(bool bMultiple,int PK_Orbiter);
 	};
 };
 

@@ -443,7 +443,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	else
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+		dm.Release();
 		int status = system(sCmd.c_str());
+		dm.Relock();
 		if (WEXITSTATUS(status) == 0)
 		{
 #ifndef EMULATE_PF
@@ -452,7 +454,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 			//system(sCmd.c_str());
 			sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? " altres" : "") + " nobarcode eject"; // this is a patched version of mtx.  This is just a hack for a bug in the C200.  Don't worry about the result code
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+			dm.Release();
 			int iRet = system(sCmd.c_str());
+			dm.Relock();
 #endif
 
 			pDrive->m_iSourceSlot = pSlot->m_SlotNumber;
@@ -508,7 +512,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	else
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+		dm.Release();
 		int status = system(sCmd.c_str());
+		dm.Relock();
 		if (WEXITSTATUS(status) == 0)
 		{
 #ifndef EMULATE_PF
@@ -517,7 +523,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 			//system(sCmd.c_str());
 			sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? " altres" : "") + " nobarcode eject"; // this is a patched version of mtx.  This is just a hack for a bug in the C200.  Don't worry about the result code
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+			dm.Release();
 			int iRet = system(sCmd.c_str());
+			dm.Relock();
 #endif
 
 			pDrive->m_iSourceSlot = -pSlot->m_SlotNumber;
@@ -606,7 +614,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+	dm.Release();
 	int status = system(sCmd.c_str());
+	dm.Relock();
 	if (WEXITSTATUS(status) == 0)
 	{
 		// Update the database
@@ -637,7 +647,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
+	dm.Release();
 	int status = system(sCmd.c_str());
+	dm.Relock();
 	if (WEXITSTATUS(status) == 0)
 	{
 		AddDiscToDb(m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber,'U');
@@ -649,84 +661,5 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Load disc failed");
 		return JukeBox::jukebox_transport_failure;
 	}
-}
-
-void PowerfileJukebox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc)
-{
-	DCE::CMD_Media_Identified_DT CMD_Media_Identified_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
-		BL_SameHouse,iPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc);
-	m_pCommand_Impl->SendCommand(CMD_Media_Identified_DT);
-
-	PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
-	Drive *pDrive = NULL;
-	for(map_int_Drivep::iterator it=m_mapDrive.begin();it!=m_mapDrive.end();++it)
-	{
-		Drive *pD = it->second;
-		if( pD->m_dwPK_Device_get()==iPK_Device )
-		{
-			pDrive = pD;
-			break;
-		}
-	}
-
-	if( !pDrive )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PowerfileJukebox::Media_Identified - no drive: %d",iPK_Device);
-		return;
-	}
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PowerfileJukebox::Media_Identified disc is %d",*iEK_Disc);
-	if( *iEK_Disc )
-	{
-		char cMediaType='M'; // The default
-		if( iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
-			cMediaType='c';
-		else if( iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
-			cMediaType='d';
-		pDrive->UpdateDiscLocation(cMediaType,*iEK_Disc);
-	}
-
-	PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
-	const ListJob *plistJob = m_pJobHandler->m_listJob_get();
-
-	for(ListJob::const_iterator it=plistJob->begin();it!=plistJob->end();++it)
-	{
-		Job *pJob = *it;
-		if( pJob->GetType()=="IdentifyJob" )
-		{
-			IdentifyJob *pIdentifyJob = (IdentifyJob *) pJob;
-			if( pIdentifyJob->m_pDisk_Drive_Functions && pIdentifyJob->m_pDisk_Drive_Functions->m_dwPK_Device_get()==iPK_Device )
-			{
-				// Found the job.  Now get the pending task
-				Task *pTask = pIdentifyJob->GetNextTask();
-				if( pTask && pTask->GetType()=="IdentifyTask" )
-				{
-					pTask->m_eTaskStatus_set(TASK_COMPLETED);
-					return;
-				}
-			}
-		}
-	}
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::Media_Identified cannot find job/task for %d",iPK_Device);
-}
-
-/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Load(bool bMultiple,int PK_Orbiter)
-{
-	PLUTO_SAFETY_LOCK(pf,m_DriveMutex_get());
-	Slot *pSlot=NULL;
-	if( bMultiple==false )
-	{
-		pSlot = m_mapSlot_Empty();
-		if( !pSlot )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Powerfile_C200::CMD_Load_Disk -- no available slots");
-			return JukeBox::jukebox_transport_failure;
-		}
-		pSlot->m_eStatus=Slot::slot_intransit;
-	}
-
-	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,pSlot==NULL ? LoadUnloadJob::eLoadMultipleDiscs : LoadUnloadJob::eLoadOneDisc,this,NULL,pSlot,PK_Orbiter,m_pCommand_Impl);
-	m_pJobHandler->AddJob(pLoadUnloadJob);
-	return JukeBox::jukebox_ok;
 }
 

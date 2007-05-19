@@ -324,6 +324,13 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 				m_pPowerfileJukebox->Eject(pDrive,pMessage->m_dwPK_Device_From);
 				return;
 
+			case COMMAND_Unload_from_Drive_into_Slot_CONST:
+				{
+					int iSlot = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
+					CMD_Unload_from_Drive_into_Slot(iSlot,pMessage->m_dwPK_Device_To,sCMD_Result,pMessage); // Forward this on with this is the drive
+				}
+				return;
+
 			default:
 				sCMD_Result = "UNHANDLED COMMAND";
 				return;
@@ -391,19 +398,7 @@ void Powerfile_C200::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c701-e->
 {
-	//addtask
-/*
-	PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
-
-	if (m_pPowerfileJukebox->MoveFromSlotToDrive(m_pPowerfileJukebox->m_mapSlot[iSlot_Number], m_pPowerfileJukebox->m_mapDrive[iDrive_Number]))
-	{
-		sCMD_Result = "OK";
-	}
-	else
-	{
-		sCMD_Result = "FAILED";
-	}
-	*/
+	m_pPowerfileJukebox->Load_from_Slot_into_Drive(iSlot_Number,iDrive_Number,pMessage->m_dwPK_Device_From);
 }
 
 //<-dceag-c702-b->
@@ -418,17 +413,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c702-e->
 {
-	/*
-	addtask
-	if (m_pPowerfileJukebox->MoveFromDriveToSlot(m_pPowerfileJukebox->m_mapSlot[iSlot_Number], m_pPowerfileJukebox->m_mapDrive[iDrive_Number]))
-	{
-		sCMD_Result = "OK";
-	}
-	else
-	{
-		sCMD_Result = "FAILED";
-	}
-	*/
+	m_pPowerfileJukebox->Load_from_Slot_into_Drive(iSlot_Number,iDrive_Number,pMessage->m_dwPK_Device_From);
 }
 
 //<-dceag-c703-b->
@@ -1315,5 +1300,5 @@ void Powerfile_C200::CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sT
 void Powerfile_C200::CMD_Load_Disk(bool bMultiple,string &sCMD_Result,Message *pMessage)
 //<-dceag-c913-e->
 {
-	m_pPowerfileJukebox->Load(bMultiple,pMessage->m_dwPK_Device_From);
+	m_pPowerfileJukebox->LoadDiscs(bMultiple,pMessage->m_dwPK_Device_From);
 }

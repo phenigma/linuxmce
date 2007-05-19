@@ -22,6 +22,7 @@
 #include "Disk_Drive_Functions.h"
 #include "JukeBox.h"
 #include "IdentifyJob.h"
+#include "LoadUnloadJob.h"
 
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
@@ -221,7 +222,11 @@ void JukeBox::UpdateDiscLocation(int PK_Device_Original,int Slot_Original,int PK
 {
 	string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(PK_Device_New) + ",Slot=" + (Slot_New==-1 ? "NULL" : StringUtils::itos(Slot_New)) +
 		" WHERE EK_Device=" + StringUtils::itos(PK_Device_Original) + (Slot_Original==-1 ? "" : " AND Slot=" + StringUtils::itos(Slot_Original));
-	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+	if( m_pDatabase_pluto_media->threaded_mysql_query(sSQL)==0 )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"JukeBox::UpdateDiscLocation Nothing in the db for dev %d slot %d, adding",PK_Device_New,Slot_New);
+		AddDiscToDb(PK_Device_New,Slot_New,'U');
+	}
 }
 
 void JukeBox::RemoveDiscFromDb(int PK_Device,int Slot)
@@ -239,4 +244,167 @@ void JukeBox::AddDiscToDb(int PK_Device,int Slot,char Type)
 	string sSQL = "INSERT INTO DiscLocation(EK_Device,Slot,Type) VALUES(" + StringUtils::itos(PK_Device) + "," + (Slot ? StringUtils::itos(Slot) : "NULL") + ",'" + Type + "')";
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:%s",sSQL.c_str());
 	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+}
+
+void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc)
+{
+	DCE::CMD_Media_Identified_DT CMD_Media_Identified_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
+		BL_SameHouse,iPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc);
+	m_pCommand_Impl->SendCommand(CMD_Media_Identified_DT);
+
+	PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
+	Drive *pDrive = NULL;
+	for(map_int_Drivep::iterator it=m_mapDrive.begin();it!=m_mapDrive.end();++it)
+	{
+		Drive *pD = it->second;
+		if( pD->m_dwPK_Device_get()==iPK_Device )
+		{
+			pDrive = pD;
+			break;
+		}
+	}
+
+	if( !pDrive )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PowerfileJukebox::Media_Identified - no drive: %d",iPK_Device);
+		return;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PowerfileJukebox::Media_Identified disc is %d",*iEK_Disc);
+	if( *iEK_Disc )
+	{
+		char cMediaType='M'; // The default
+		if( iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+			cMediaType='c';
+		else if( iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+			cMediaType='d';
+		pDrive->UpdateDiscLocation(cMediaType,*iEK_Disc);
+	}
+
+	PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+	const ListJob *plistJob = m_pJobHandler->m_listJob_get();
+
+	for(ListJob::const_iterator it=plistJob->begin();it!=plistJob->end();++it)
+	{
+		Job *pJob = *it;
+		if( pJob->GetType()=="IdentifyJob" )
+		{
+			IdentifyJob *pIdentifyJob = (IdentifyJob *) pJob;
+			if( pIdentifyJob->m_pDisk_Drive_Functions && pIdentifyJob->m_pDisk_Drive_Functions->m_dwPK_Device_get()==iPK_Device )
+			{
+				// Found the job.  Now get the pending task
+				Task *pTask = pIdentifyJob->GetNextTask();
+				if( pTask && pTask->GetType()=="IdentifyTask" )
+				{
+					pTask->m_eTaskStatus_set(TASK_COMPLETED);
+					return;
+				}
+			}
+		}
+	}
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::Media_Identified cannot find job/task for %d",iPK_Device);
+}
+
+/*virtual*/ JukeBox::JukeBoxReturnCode JukeBox::LoadDiscs(bool bMultiple,int PK_Orbiter)
+{
+	PLUTO_SAFETY_LOCK(pf,m_DriveMutex_get());
+	Slot *pSlot=NULL;
+	if( bMultiple==false )
+	{
+		pSlot = m_mapSlot_Empty();
+		if( !pSlot )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Powerfile_C200::CMD_Load_Disk -- no available slots");
+			return JukeBox::jukebox_transport_failure;
+		}
+		pSlot->m_eStatus=Slot::slot_intransit;
+	}
+
+	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,pSlot==NULL ? LoadUnloadJob::eLoadMultipleDiscs : LoadUnloadJob::eLoadOneDisc,this,NULL,pSlot,PK_Orbiter,m_pCommand_Impl);
+	m_pJobHandler->AddJob(pLoadUnloadJob);
+	return JukeBox::jukebox_ok;
+}
+
+/*virtual*/ JukeBox::JukeBoxReturnCode JukeBox::Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,int iPK_Orbiter)
+{
+	PLUTO_SAFETY_LOCK(pf,m_DriveMutex_get());
+	Slot *pSlot=m_mapSlot_Find(iSlot_Number);
+	if( !pSlot || pSlot->m_eStatus==Slot::slot_empty || pSlot->m_eStatus==Slot::slot_intransit )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- bad slot %d status %d", iSlot_Number, pSlot ? (int) pSlot->m_eStatus : -1);
+		return JukeBox::jukebox_transport_failure;
+	}
+
+	Drive *pDrive = NULL;
+	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eLoadOneDisc,this,NULL,pSlot,iPK_Orbiter,m_pCommand_Impl);
+
+	if( iDrive_Number!=-1 )
+	{
+		pDrive = m_mapDrive_Find(iDrive_Number);
+		if( !pDrive || !pDrive->LockDrive(Disk_Drive_Functions::locked_move,pLoadUnloadJob) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- bad drive %d or cannot lock drive %p", iDrive_Number, pDrive);
+			delete pLoadUnloadJob;
+			return JukeBox::jukebox_transport_failure;
+		}
+	}
+	else
+	{
+		pDrive = LockAvailableDrive(Disk_Drive_Functions::locked_move,pLoadUnloadJob,pLoadUnloadJob,true);
+		if( !pDrive )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- bad drive %d", iDrive_Number);
+			delete pLoadUnloadJob;
+			return JukeBox::jukebox_transport_failure;
+		}
+	}
+
+	pSlot->m_eStatus=Slot::slot_intransit;
+	pLoadUnloadJob->m_pDrive=pDrive;
+	m_pJobHandler->AddJob(pLoadUnloadJob);
+	return JukeBox::jukebox_ok;
+}
+
+/*virtual*/ JukeBox::JukeBoxReturnCode JukeBox::Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive_Number,int iPK_Orbiter)
+{
+	PLUTO_SAFETY_LOCK(pf,m_DriveMutex_get());
+	Slot *pSlot=NULL;
+	if( iSlot_Number!=-1 )
+	{
+		pSlot = m_mapSlot_Find(iSlot_Number);
+		if( !pSlot || pSlot->m_eStatus!=Slot::slot_empty )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- bad slot %d status %d", iSlot_Number, pSlot ? (int) pSlot->m_eStatus : -1);
+			return JukeBox::jukebox_transport_failure;
+		}
+	}
+	else
+	{
+		pSlot = m_mapSlot_Empty();
+		if( !pSlot )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- no empty slots");
+			return JukeBox::jukebox_transport_failure;
+		}
+	}
+
+	Drive *pDrive = m_mapDrive_Find(iDrive_Number);
+	if( !pDrive )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- bad drive %d", iDrive_Number);
+		return JukeBox::jukebox_transport_failure;
+	}
+
+	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eLoadOneDisc,this,pDrive,pSlot,iPK_Orbiter,m_pCommand_Impl);
+
+	if( !pDrive->LockDrive(Disk_Drive_Functions::locked_move,pLoadUnloadJob) )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::Load_from_Slot_into_Drive -- cannot lock drive %d", iDrive_Number);
+		delete pLoadUnloadJob;
+		return JukeBox::jukebox_transport_failure;
+	}
+
+	pSlot->m_eStatus=Slot::slot_intransit;
+	m_pJobHandler->AddJob(pLoadUnloadJob);
+	return JukeBox::jukebox_ok;
 }

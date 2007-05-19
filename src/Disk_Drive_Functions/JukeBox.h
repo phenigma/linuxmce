@@ -163,6 +163,11 @@ namespace nsJukeBox
 		// High level functions
 		void MassIdentify(string sSlots,int PK_Orbiter);
 
+		virtual void Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc);
+		virtual JukeBoxReturnCode LoadDiscs(bool bMultiple,int PK_Orbiter);
+		virtual JukeBoxReturnCode Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,int iPK_Orbiter);
+		virtual JukeBoxReturnCode Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive_Number,int iPK_Orbiter);
+
 		bool LockJukebox(Disk_Drive_Functions::Locked locked,void *p_void); // returns false if the jukebox is already locked, or true if it set it to locked
 		void UnlockJukebox();  // release the jukebox
 		Disk_Drive_Functions::Locked m_eLocked_get(void **p_void);

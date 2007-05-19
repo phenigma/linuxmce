@@ -118,6 +118,7 @@ int MoveDiscTask::Run()
 		}
 	}
 
+	m_pJob->RefreshOrbiter();
 	m_eTaskStatus_set(jukeBoxReturnCode==JukeBox::jukebox_ok ? TASK_COMPLETED : TASK_FAILED_ABORT);
 	return 0;
 }

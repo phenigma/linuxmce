@@ -803,7 +803,7 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 			string sWholeName = StringUtils::Tokenize(sLine,"\t",pos);
 			if( !PK_AttributeType || sWholeName.size()==0 )
 			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Empty/invalid media attribute");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Empty/invalid media attribute %d/%s",PK_AttributeType,sWholeName.c_str());
 				continue;
 			}
 

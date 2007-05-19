@@ -2623,6 +2623,21 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 						m_pOrbiter->m_dwPK_Device,PK_Device,pCell->m_mapAttributes_Find("Slot"));
 					m_pOrbiter->SendCommand(CMD_Mass_identify_media);
 				}
+				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butLoad_CONST )
+				{
+					int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
+					int Slot = atoi( pCell->m_mapAttributes_Find("Slot").c_str() );
+					DCE::CMD_Load_from_Slot_into_Drive CMD_Load_from_Slot_into_Drive(
+						m_pOrbiter->m_dwPK_Device,PK_Device,Slot,-1);
+					m_pOrbiter->SendCommand(CMD_Load_from_Slot_into_Drive);
+				}
+				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butUnload_CONST )
+				{
+					int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
+					DCE::CMD_Unload_from_Drive_into_Slot CMD_Unload_from_Drive_into_Slot(
+						m_pOrbiter->m_dwPK_Device,PK_Device,-1,PK_Device);
+					m_pOrbiter->SendCommand(CMD_Unload_from_Drive_into_Slot);
+				}
 			}
 		}
 	}
