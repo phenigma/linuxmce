@@ -189,8 +189,8 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		Drive *pDrive = itDrive->second;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "PowerfileJukebox::Get_Jukebox_Status m_DriveNumber: %d inserted %d slot %d m_sSRdev %s drive %s",
 			(int) pDrive->m_DriveNumber,
-			(int) m_mapDrive[nDrive]->m_mediaInserted,
-			(int) m_mapDrive[nDrive]->m_iSourceSlot,
+			(int) pDrive->m_mediaInserted,
+			(int) pDrive->m_iSourceSlot,
 			pDrive->m_sSRdev.c_str(),pDrive->m_sDrive.c_str());
 	}
 
