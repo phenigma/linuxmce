@@ -353,7 +353,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 		pDrive = LockAvailableDrive(Disk_Drive_Functions::locked_move,pLoadUnloadJob,pLoadUnloadJob,true);
 		if( !pDrive )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Load_from_Slot_into_Drive -- bad drive %d", *iPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Load_from_Slot_into_Drive -- no available drives");
 			delete pLoadUnloadJob;
 			return JukeBox::jukebox_transport_failure;
 		}
