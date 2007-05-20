@@ -196,17 +196,19 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 		}
 	}
 #else
+	*iPK_MediaType=MEDIATYPE_pluto_DVD_CONST;
+	*sDisks="1";
+	*sURL=m_sDrive;
 	// Pretend there's a dvd/cd in here for windows
 	if( m_mediaInserted==false )
 	{
 		// DVD Block
-		/*
 		m_mediaDiskStatus = DISCTYPE_DVD_VIDEO;
-		int *iPK_MediaType = MEDIATYPE_pluto_DVD_CONST;
-		string *sURL=m_sDrive;
-		*/
+		*iPK_MediaType = MEDIATYPE_pluto_DVD_CONST;
+		*sURL=m_sDrive;
 
 		// CD Block
+		/*
 		m_mediaDiskStatus = DISCTYPE_CD_AUDIO;
 		*iPK_MediaType = MEDIATYPE_pluto_CD_CONST;
 		*sURL=
@@ -221,6 +223,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 			"cdda:///dev/cdrom/9\n"
 			"cdda:///dev/cdrom/10\n"
 			"cdda:///dev/cdrom/11";
+		*/
 
 		if ( bFireEvent )
 		{
@@ -832,8 +835,8 @@ bool Disk_Drive_Functions::LockDrive(Locked locked,void *p_void)
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::LockDrive already locked");
 			return true;
 		}
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::LockDrive cannot lock %p/%p", m_pLockedPtr, p_void);
-		return false;
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Disk_Drive_Functions::LockDrive cannot lock %p/%p", m_pLockedPtr, p_void);
+		return true;  // temporarily letting locking problems through
 	}
 
 	m_pLockedPtr=p_void;

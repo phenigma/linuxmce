@@ -6465,25 +6465,9 @@ bool Media_Plugin::AssignDriveForDisc(MediaStream *pMediaStream,MediaFile *pMedi
 	{
 		string sText="STREAM " + StringUtils::itos(pMediaStream->m_iStreamID_get());
 		bool bIsSuccessful=false;
-		DCE::CMD_Lock CMD_Lock(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,m_dwPK_Device,
-			StringUtils::itos(pMediaFile->m_Slot),true,&sText,&bIsSuccessful);
-		if( !SendCommand(CMD_Lock) || bIsSuccessful==false )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::AssignDriveForDisc Cannot lock drive %d", pMediaFile->m_dwPK_Device_Disk_Drive);
-			if( pMediaStream->m_pOH_Orbiter_StartedMedia )
-			{
-				SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, 
-					pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device, "Drive is not available");
-				SendCommand(SCREEN_DialogCannotPlayMedia);
-			}
-			StreamEnded(pMediaStream);
-			return false;
-		}
 
-		int PK_Device_Disk = atoi(sText.c_str());
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::AssignDriveForDisc locked drive %d for disc %d slot %d", PK_Device_Disk, pMediaFile->m_dwPK_Disk, pMediaFile->m_Slot);
-
-		DCE::CMD_Load_from_Slot_into_Drive CMD_Load_from_Slot_into_Drive(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,pMediaFile->m_Slot,PK_Device_Disk);  // Figure out the drive id based on the destination
+		int PK_Device_Disk=-1;  // This will give us the drive and lock it
+		DCE::CMD_Load_from_Slot_into_Drive CMD_Load_from_Slot_into_Drive(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,pMediaFile->m_Slot,&PK_Device_Disk);  // Figure out the drive id based on the destination
 		if( !SendCommand(CMD_Load_from_Slot_into_Drive) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::AssignDriveForDisc Cannot lock drive %d", pMediaFile->m_dwPK_Device_Disk_Drive);
@@ -6520,13 +6504,15 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::WaitingForJukebox stream %d.  Disc loaded in drive.  Now ready", pMediaStream->m_iStreamID_get());
 
 		// It's possible we were playing a slot without knowing what type of disc was in it.  Fill out the missing info
-		int iPK_MediaType;
+		int iPK_MediaType=0;
 		string sDisks,sURL,sBlock_Device;
 		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,&iPK_MediaType,&sDisks,&sURL,&sBlock_Device);
 		if( SendCommand(CMD_Get_Disk_Info) )
 		{
-			pMediaFile->m_dwPK_MediaType=iPK_MediaType;
-			pMediaFile->m_sFilename=sURL;
+			if( iPK_MediaType )
+				pMediaFile->m_dwPK_MediaType=iPK_MediaType;
+			if( sURL.empty()==false )
+				pMediaFile->m_sFilename=sURL;
 		}
 		StartMedia(pMediaStream);
 		return;

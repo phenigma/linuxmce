@@ -331,7 +331,7 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 					if( !pDrive )
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::ReceivedCommandForChild Unknown drive: %d", pMessage->m_dwPK_Device_To);
 					else
-						CMD_Unload_from_Drive_into_Slot(iSlot,pDrive->m_DriveNumber,sCMD_Result,pMessage); // Forward this on with this is the drive
+						CMD_Unload_from_Drive_into_Slot(pDrive->m_DriveNumber,&iSlot,sCMD_Result,pMessage); // Forward this on with this is the drive
 				}
 				return;
 
@@ -449,14 +449,16 @@ void Powerfile_C200::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 	/** @brief COMMAND: #701 - Load from Slot into Drive */
 	/** Load disc from "Storage Element" (Slot) to "Data Transfer Element" (Drive) */
 		/** @param #2 PK_Device */
-			/** The drive to load to */
+			/** The drive to load to.  Can pass in -1 and output will be the actual drive used and locked */
 		/** @param #151 Slot Number */
 			/** "Storage Element" (Slot) to transfer disc from */
 
-void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iPK_Device,int iSlot_Number,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c701-e->
 {
-	m_pPowerfileJukebox->Load_from_Slot_into_Drive(iSlot_Number,iPK_Device,pMessage->m_dwPK_Device_From);
+	if( m_pPowerfileJukebox->Load_from_Slot_into_Drive(iSlot_Number,iPK_Device,pMessage->m_dwPK_Device_From)!=JukeBox::jukebox_ok )
+		sCMD_Result="JUKEBOX ERROR";
+		
 }
 
 //<-dceag-c702-b->
@@ -466,12 +468,13 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iPK_Device,int iSlot_Numb
 		/** @param #2 PK_Device */
 			/** The drive */
 		/** @param #151 Slot Number */
-			/** "Storage Element" (Slot) to transfer disc to */
+			/** "Storage Element" (Slot) to transfer disc to.  Can pass in -1 and output will be the slot used */
 
-void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iPK_Device,int iSlot_Number,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iPK_Device,int *iSlot_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c702-e->
 {
-	m_pPowerfileJukebox->Load_from_Slot_into_Drive(iSlot_Number,iPK_Device,pMessage->m_dwPK_Device_From);
+	if( m_pPowerfileJukebox->Unload_from_Drive_into_Slot(iSlot_Number,iPK_Device,pMessage->m_dwPK_Device_From)!=JukeBox::jukebox_ok )
+		sCMD_Result="JUKEBOX ERROR";
 }
 
 //<-dceag-c703-b->

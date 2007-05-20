@@ -210,12 +210,12 @@ public:
 	/** @brief COMMAND: #701 - Load from Slot into Drive */
 	/** Load disc from "Storage Element" (Slot) to "Data Transfer Element" (Drive) */
 		/** @param #2 PK_Device */
-			/** The drive to load to */
+			/** The drive to load to.  Can pass in -1 and output will be the actual drive used and locked */
 		/** @param #151 Slot Number */
 			/** "Storage Element" (Slot) to transfer disc from */
 
-	virtual void CMD_Load_from_Slot_into_Drive(int iPK_Device,int iSlot_Number) { string sCMD_Result; CMD_Load_from_Slot_into_Drive(iPK_Device,iSlot_Number,sCMD_Result,NULL);};
-	virtual void CMD_Load_from_Slot_into_Drive(int iPK_Device,int iSlot_Number,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Load_from_Slot_into_Drive(int iSlot_Number,int *iPK_Device) { string sCMD_Result; CMD_Load_from_Slot_into_Drive(iSlot_Number,iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Load_from_Slot_into_Drive(int iSlot_Number,int *iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #702 - Unload from Drive into Slot */
@@ -223,10 +223,10 @@ public:
 		/** @param #2 PK_Device */
 			/** The drive */
 		/** @param #151 Slot Number */
-			/** "Storage Element" (Slot) to transfer disc to */
+			/** "Storage Element" (Slot) to transfer disc to.  Can pass in -1 and output will be the slot used */
 
-	virtual void CMD_Unload_from_Drive_into_Slot(int iPK_Device,int iSlot_Number) { string sCMD_Result; CMD_Unload_from_Drive_into_Slot(iPK_Device,iSlot_Number,sCMD_Result,NULL);};
-	virtual void CMD_Unload_from_Drive_into_Slot(int iPK_Device,int iSlot_Number,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Unload_from_Drive_into_Slot(int iPK_Device,int *iSlot_Number) { string sCMD_Result; CMD_Unload_from_Drive_into_Slot(iPK_Device,iSlot_Number,sCMD_Result,NULL);};
+	virtual void CMD_Unload_from_Drive_into_Slot(int iPK_Device,int *iSlot_Number,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #703 - Get Jukebox Status */

@@ -221,8 +221,8 @@ public:
 	virtual void CMD_Format_Drive(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Close_Tray(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Load_from_Slot_into_Drive(int iPK_Device,int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Unload_from_Drive_into_Slot(int iPK_Device,int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Load_from_Slot_into_Drive(int iSlot_Number,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Unload_from_Drive_into_Slot(int iPK_Device,int *iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Jukebox_Status(string sForce,string *sJukebox_Status,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,string sDisks,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play_Disk(int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
@@ -632,13 +632,14 @@ public:
 				case COMMAND_Load_from_Slot_into_Drive_CONST:
 					{
 						string sCMD_Result="OK";
-						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
 						int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
-						CMD_Load_from_Slot_into_Drive(iPK_Device,iSlot_Number,sCMD_Result,pMessage);
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						CMD_Load_from_Slot_into_Drive(iSlot_Number,&iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST]=StringUtils::itos(iPK_Device);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -651,7 +652,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Load_from_Slot_into_Drive(iPK_Device,iSlot_Number,sCMD_Result,pMessage);
+								CMD_Load_from_Slot_into_Drive(iSlot_Number,&iPK_Device,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -661,11 +662,12 @@ public:
 						string sCMD_Result="OK";
 						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
 						int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
-						CMD_Unload_from_Drive_into_Slot(iPK_Device,iSlot_Number,sCMD_Result,pMessage);
+						CMD_Unload_from_Drive_into_Slot(iPK_Device,&iSlot_Number,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST]=StringUtils::itos(iSlot_Number);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -678,7 +680,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Unload_from_Drive_into_Slot(iPK_Device,iSlot_Number,sCMD_Result,pMessage);
+								CMD_Unload_from_Drive_into_Slot(iPK_Device,&iSlot_Number,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
