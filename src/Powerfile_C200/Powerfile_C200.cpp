@@ -331,7 +331,7 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 					if( !pDrive )
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::ReceivedCommandForChild Unknown drive: %d", pMessage->m_dwPK_Device_To);
 					else
-						CMD_Unload_from_Drive_into_Slot(pDrive->m_DriveNumber,&iSlot,sCMD_Result,pMessage); // Forward this on with this is the drive
+						CMD_Unload_from_Drive_into_Slot(pDrive->m_dwPK_Device_get(),&iSlot,sCMD_Result,pMessage); // Forward this on with this is the drive
 				}
 				return;
 
