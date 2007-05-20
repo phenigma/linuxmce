@@ -227,6 +227,7 @@ class Row_FileGroup* FK_FileGroup_getrow();
 		// Return the rows in other tables with foreign keys pointing here
 		void Bookmark_FK_File_getrows(vector <class Row_Bookmark*> *rows);
 void CoverArtScan_FK_File_getrows(vector <class Row_CoverArtScan*> *rows);
+void Disc_FK_File_getrows(vector <class Row_Disc*> *rows);
 void File_Attribute_FK_File_getrows(vector <class Row_File_Attribute*> *rows);
 void File_Users_FK_File_getrows(vector <class Row_File_Users*> *rows);
 void LongAttribute_FK_File_getrows(vector <class Row_LongAttribute*> *rows);

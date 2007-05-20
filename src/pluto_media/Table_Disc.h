@@ -101,6 +101,7 @@ long int m_FK_FileFormat;
 long int m_EK_Users_Private;
 string m_DateLastViewed;
 short int m_IsNew;
+long int m_FK_File;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -108,7 +109,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[14];
+		bool is_null[15];
 	
 	public:
 		long int PK_Disc_get();
@@ -119,6 +120,7 @@ long int FK_FileFormat_get();
 long int EK_Users_Private_get();
 string DateLastViewed_get();
 short int IsNew_get();
+long int FK_File_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -135,6 +137,7 @@ void FK_FileFormat_set(long int val);
 void EK_Users_Private_set(long int val);
 void DateLastViewed_set(string val);
 void IsNew_set(short int val);
+void FK_File_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -148,6 +151,7 @@ bool FK_MediaSubType_isNull();
 bool FK_FileFormat_isNull();
 bool EK_Users_Private_isNull();
 bool DateLastViewed_isNull();
+bool FK_File_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -160,6 +164,7 @@ void FK_MediaSubType_setNull(bool val);
 void FK_FileFormat_setNull(bool val);
 void EK_Users_Private_setNull(bool val);
 void DateLastViewed_setNull(bool val);
+void FK_File_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -179,6 +184,7 @@ void psc_restrict_setNull(bool val);
 		// Return the rows for foreign keys 
 		class Row_MediaSubType* FK_MediaSubType_getrow();
 class Row_FileFormat* FK_FileFormat_getrow();
+class Row_File* FK_File_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -193,7 +199,7 @@ void Picture_Disc_FK_Disc_getrows(vector <class Row_Picture_Disc*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Disc+ m_ID+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_EK_Users_Private+ m_DateLastViewed+ m_IsNew+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Disc+ m_ID+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_EK_Users_Private+ m_DateLastViewed+ m_IsNew+ m_FK_File+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -206,6 +212,7 @@ string FK_FileFormat_asSQL();
 string EK_Users_Private_asSQL();
 string DateLastViewed_asSQL();
 string IsNew_asSQL();
+string FK_File_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

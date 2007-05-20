@@ -19,6 +19,8 @@
 #define DISC_DATELASTVIEWED_TABLE_FIELD "Disc.DateLastViewed"
 #define DISC_ISNEW_FIELD "IsNew"
 #define DISC_ISNEW_TABLE_FIELD "Disc.IsNew"
+#define DISC_FK_FILE_FIELD "FK_File"
+#define DISC_FK_FILE_TABLE_FIELD "Disc.FK_File"
 #define DISC_PSC_ID_FIELD "psc_id"
 #define DISC_PSC_ID_TABLE_FIELD "Disc.psc_id"
 #define DISC_PSC_BATCH_FIELD "psc_batch"
