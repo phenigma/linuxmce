@@ -26,8 +26,6 @@ extern DCEConfig g_DCEConfig;
 
 using namespace nsJobHandler;
 
-#define MTX_CMD "/opt/mtx-pluto/sbin/mtx"
-
 #ifdef WIN32
 #define WEXITSTATUS(a) 0
 #endif
@@ -42,6 +40,7 @@ PowerfileJukebox::PowerfileJukebox(Powerfile_C200 * pPowerfile)
 	: JukeBox(pPowerfile)
 {
 	m_pPowerfile = pPowerfile;
+	m_bDoEject = m_pPowerfile->DATA_Get_Hacks().find('E')!=string::npos;
 	m_bStatusCached = false;
 	m_sChangerDev = m_pPowerfile->m_pEvent->GetDeviceDataFromDatabase(m_pPowerfile->m_dwPK_Device,DEVICEDATA_Block_Device_CONST);
 	m_TransferElement = -1;
@@ -401,7 +400,6 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		( (m_mapDrive[iDrive_Number]))->m_bFunctional = false;
 	}
 
-
 	map_int_Drivep::iterator itDrive;
 	for (itDrive = m_mapDrive.begin(); itDrive != m_mapDrive.end(); itDrive++)
 	{
@@ -449,13 +447,8 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		if (WEXITSTATUS(status) == 0)
 		{
 #ifndef EMULATE_PF
-			//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
-			//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
-			//system(sCmd.c_str());
-			sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? " altres" : "") + " nobarcode eject"; // this is a patched version of mtx.  This is just a hack for a bug in the C200.  Don't worry about the result code
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			dm.Release();
-			int iRet = system(sCmd.c_str());
+			CheckEjectHack(pDrive);
 			dm.Relock();
 #endif
 
@@ -518,16 +511,10 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		if (WEXITSTATUS(status) == 0)
 		{
 #ifndef EMULATE_PF
-			//sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
-			//LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
-			//system(sCmd.c_str());
-			sCmd = MTX_CMD " -f " + pDrive->m_sDrive + (m_bMtxAltres ? " altres" : "") + " nobarcode eject"; // this is a patched version of mtx.  This is just a hack for a bug in the C200.  Don't worry about the result code
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			dm.Release();
-			int iRet = system(sCmd.c_str());
+			CheckEjectHack(pDrive);
 			dm.Relock();
 #endif
-
 			pDrive->m_iSourceSlot = -pSlot->m_SlotNumber;
 			pSlot->m_eStatus = Slot::slot_unknown_medium; // TODO: distinguish between slot_unknown_medium and slot_identified_disc
 

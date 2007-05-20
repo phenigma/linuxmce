@@ -226,7 +226,7 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 
 	if( pMediaFile && pMediaFile->m_dwPK_Disk )
 	{
-		sFileToPlay = m_pMedia_Plugin->GetMRLFromDiscID(pMediaFile->m_dwPK_Disk);
+		sFileToPlay = m_pMedia_Plugin->GetMRLFromDiscID(pMediaFile->m_dwPK_Disk,pMediaFile->m_dwPK_Device_Disk_Drive);
 		pXineMediaStream->m_dwPK_Disc = pMediaFile->m_dwPK_Disk;
 	}
 	else 

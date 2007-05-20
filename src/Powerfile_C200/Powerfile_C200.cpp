@@ -447,7 +447,7 @@ void Powerfile_C200::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 //<-dceag-c701-b->
 
 	/** @brief COMMAND: #701 - Load from Slot into Drive */
-	/** Load disc from "Storage Element" (Slot) to "Data Transfer Element" (Drive) */
+	/** Load disc from "Storage Element" (Slot) to "Data Transfer Element" (Drive).  This will lock the drive, which can be -1 for any drive */
 		/** @param #2 PK_Device */
 			/** The drive to load to.  Can pass in -1 and output will be the actual drive used and locked */
 		/** @param #151 Slot Number */
@@ -464,7 +464,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int *iPK_Dev
 //<-dceag-c702-b->
 
 	/** @brief COMMAND: #702 - Unload from Drive into Slot */
-	/** Unload disc from "Data Transfer Element" (Drive) to "Storage Element" (Slot) */
+	/** Unload disc from "Data Transfer Element" (Drive) to "Storage Element" (Slot).  This will unlock the drive */
 		/** @param #2 PK_Device */
 			/** The drive */
 		/** @param #151 Slot Number */

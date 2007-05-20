@@ -99,6 +99,14 @@ public:
 			return m_mapParameters[DEVICEDATA_Defective_Units_CONST];
 	}
 
+	string Get_Hacks()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Hacks_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Hacks_CONST];
+	}
+
 };
 
 
@@ -204,6 +212,7 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	string DATA_Get_Defective_Units() { return GetData()->Get_Defective_Units(); }
+	string DATA_Get_Hacks() { return GetData()->Get_Hacks(); }
 	//Event accessors
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str(),sName.c_str()); }
 	//Commands - Override these to handle commands from the server

@@ -79,6 +79,7 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Defective_Units();
+	string DATA_Get_Hacks();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
@@ -208,7 +209,7 @@ public:
 
 
 	/** @brief COMMAND: #701 - Load from Slot into Drive */
-	/** Load disc from "Storage Element" (Slot) to "Data Transfer Element" (Drive) */
+	/** Load disc from "Storage Element" (Slot) to "Data Transfer Element" (Drive).  This will lock the drive, which can be -1 for any drive */
 		/** @param #2 PK_Device */
 			/** The drive to load to.  Can pass in -1 and output will be the actual drive used and locked */
 		/** @param #151 Slot Number */
@@ -219,7 +220,7 @@ public:
 
 
 	/** @brief COMMAND: #702 - Unload from Drive into Slot */
-	/** Unload disc from "Data Transfer Element" (Drive) to "Storage Element" (Slot) */
+	/** Unload disc from "Data Transfer Element" (Drive) to "Storage Element" (Slot).  This will unlock the drive */
 		/** @param #2 PK_Device */
 			/** The drive */
 		/** @param #151 Slot Number */

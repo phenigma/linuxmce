@@ -2644,8 +2644,11 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 				{
 					if( pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject->m_iBaseObjectID==DESIGNOBJ_dgJukeboxDrives_CONST )
 					{
+						int PK_Disc = atoi( pCell->m_mapAttributes_Find("PK_Disc").c_str() );
+						int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
 						DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
-							atoi(pCell->GetValue()),"",0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0);
+							0,"!r" + StringUtils::itos(PK_Disc) + ":" + StringUtils::itos(PK_Device), // see MediaAttributes_LowLevel::TransformFilenameToDeque
+							0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0);
 						m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 					}
 					else

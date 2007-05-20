@@ -1377,6 +1377,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 				SendCommand(SCREEN_DialogCannotPlayMedia);
 			}
 			StreamEnded(pMediaStream);
+			return false;
 		}
 	}
 
@@ -5976,20 +5977,26 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 #endif
 }
 
-string Media_Plugin::GetMRLFromDiscID( int PK_Disc )
+string Media_Plugin::GetMRLFromDiscID( int PK_Disc,int PK_Device_Drive )
 {
-    string SQL = "SELECT EK_Device FROM DiscLocation WHERE FK_Disc=" + StringUtils::itos( PK_Disc );
-    PlutoSqlResult result;
-    MYSQL_ROW row;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && NULL != row[0] )
-    {
-        int PK_Device = atoi(row[0]);
-		string sDrive = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,PK_Device,DEVICEDATA_Drive_CONST);
+	if( PK_Device_Drive==0 )
+	{
+		string SQL = "SELECT EK_Device FROM DiscLocation WHERE FK_Disc=" + StringUtils::itos( PK_Disc );
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && NULL != row[0] )
+			PK_Device_Drive = atoi(row[0]);
+	}
+
+	if( PK_Device_Drive )
+	{
+		string sDrive = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,PK_Device_Drive,DEVICEDATA_Drive_CONST);
 		if( sDrive.empty() )
 			sDrive = "/dev/cdrom";
-		return sDrive + "\t(" + row[0] + ")\t";  // This \t(xxx)\t is used to know which drive it is.  See xine plugin
+		return sDrive + "\t(" + StringUtils::itos(PK_Device_Drive) + ")\t";  // This \t(xxx)\t is used to know which drive it is.  See xine plugin
     }
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::GetMRLFromDiscID no drive");
     return "/dev/cdrom";
 }
 
