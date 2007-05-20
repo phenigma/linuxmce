@@ -389,6 +389,26 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 					}
 				}
 
+			case COMMAND_Rip_Disk_CONST:
+			{
+				Drive *pDrive = m_pPowerfileJukebox->m_mapDrive_FindByPK_Device(pMessage->m_dwPK_Device_To);
+				if( !pDrive )
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::ReceivedCommandForChild (rip) Unknown drive: %d", pMessage->m_dwPK_Device_To);
+				else
+				{
+					string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
+					int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
+					string sFormat=pMessage->m_mapParameters[COMMANDPARAMETER_Format_CONST];
+					string sTracks=pMessage->m_mapParameters[COMMANDPARAMETER_Tracks_CONST];
+					int iEK_Disc=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST].c_str());
+					int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
+					int iDriveID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_DriveID_CONST].c_str());
+					string sDirectory=pMessage->m_mapParameters[COMMANDPARAMETER_Directory_CONST];
+
+					pDrive->CMD_Rip_Disk( sFilename,iPK_Users,sFormat,sTracks,iEK_Disc,iSlot_Number,iDriveID,sDirectory, sCMD_Result, pMessage);
+				}
+			}
+
 			default:
 				sCMD_Result = "UNHANDLED COMMAND";
 				return;
