@@ -335,6 +335,60 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 				}
 				return;
 
+			case COMMAND_Lock_CONST:
+				{
+					Drive *pDrive = m_pPowerfileJukebox->m_mapDrive_FindByPK_Device(pMessage->m_dwPK_Device_To);
+					bool bIsSuccessful=false;
+					bool bTurn_On=(pMessage->m_mapParameters[COMMANDPARAMETER_Turn_On_CONST]=="1" ? true : false);
+					if( pDrive )
+					{
+						if( bTurn_On )
+							bIsSuccessful = pDrive->LockDrive(Disk_Drive_Functions::locked_playback,this);
+						else
+						{
+							bIsSuccessful = true;
+							pDrive->UnlockDrive();
+						}
+					}
+
+					if( !bIsSuccessful )
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::ReceivedCommandForChild failed to %s %d", bTurn_On ? "lock" : "unlock", pMessage->m_dwPK_Device_To);
+
+					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage ) // Should always be the case
+					{
+						pMessage->m_bRespondedToMessage=true;
+						Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_IsSuccessful_CONST]=(bIsSuccessful ? "1" : "0");
+						pMessageOut->m_mapParameters[0]=sCMD_Result;
+						SendMessage(pMessageOut);
+					}
+				}
+				return;
+
+			case COMMAND_Get_Disk_Info_CONST:
+				{
+					Drive *pDrive = m_pPowerfileJukebox->m_mapDrive_FindByPK_Device(pMessage->m_dwPK_Device_To);
+					if( !pDrive )
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::ReceivedCommandForChild Unknown drive: %d", pMessage->m_dwPK_Device_To);
+					else
+					{
+						int iPK_MediaType;
+						string sDisks,sURL,sBlock_Device;
+						pDrive->internal_reset_drive(false,&iPK_MediaType,&sDisks,&sURL,&sBlock_Device);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST]=StringUtils::itos(iPK_MediaType);
+							pMessageOut->m_mapParameters[COMMANDPARAMETER_Disks_CONST]=sDisks;
+							pMessageOut->m_mapParameters[COMMANDPARAMETER_URL_CONST]=sURL;
+							pMessageOut->m_mapParameters[COMMANDPARAMETER_Block_Device_CONST]=sBlock_Device;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+					}
+				}
+
 			default:
 				sCMD_Result = "UNHANDLED COMMAND";
 				return;
@@ -394,30 +448,30 @@ void Powerfile_C200::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 
 	/** @brief COMMAND: #701 - Load from Slot into Drive */
 	/** Load disc from "Storage Element" (Slot) to "Data Transfer Element" (Drive) */
+		/** @param #2 PK_Device */
+			/** The drive to load to */
 		/** @param #151 Slot Number */
 			/** "Storage Element" (Slot) to transfer disc from */
-		/** @param #152 Drive Number */
-			/** "Data Transfer Element" (Disc Unit) to transfer disc to */
 
-void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iPK_Device,int iSlot_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c701-e->
 {
-	m_pPowerfileJukebox->Load_from_Slot_into_Drive(iSlot_Number,iDrive_Number,pMessage->m_dwPK_Device_From);
+	m_pPowerfileJukebox->Load_from_Slot_into_Drive(iSlot_Number,iPK_Device,pMessage->m_dwPK_Device_From);
 }
 
 //<-dceag-c702-b->
 
 	/** @brief COMMAND: #702 - Unload from Drive into Slot */
 	/** Unload disc from "Data Transfer Element" (Drive) to "Storage Element" (Slot) */
+		/** @param #2 PK_Device */
+			/** The drive */
 		/** @param #151 Slot Number */
 			/** "Storage Element" (Slot) to transfer disc to */
-		/** @param #152 Drive Number */
-			/** "Data Transfer Element" (Disc Unit) to transfer disc from */
 
-void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iPK_Device,int iSlot_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c702-e->
 {
-	m_pPowerfileJukebox->Load_from_Slot_into_Drive(iSlot_Number,iDrive_Number,pMessage->m_dwPK_Device_From);
+	m_pPowerfileJukebox->Load_from_Slot_into_Drive(iSlot_Number,iPK_Device,pMessage->m_dwPK_Device_From);
 }
 
 //<-dceag-c703-b->
@@ -467,12 +521,8 @@ void Powerfile_C200::CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,Message *
 
 	/** @brief COMMAND: #47 - Reset Disk Drive */
 	/** Reset the disk drive. */
-		/** @param #152 Drive Number */
-			/** Disc unit index number
-Disk_Drive: 0
-Powerfile: 0, 1, ... */
 
-void Powerfile_C200::CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage)
 //<-dceag-c47-e->
 {
 #ifdef NOTDEF
@@ -483,7 +533,9 @@ void Powerfile_C200::CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,
 		pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
 		pDDF->DisplayMessageOnOrbVFD("Checking disc...");
 
-		pDDF->internal_reset_drive(true);
+		int iPK_MediaType;
+		string sDisks,sURL,sBlock_Device;
+		pDDF->internal_reset_drive(true,&iPK_MediaType,&sDisks,&sURL,&sBlock_Device);
 	}
 #endif
 }
@@ -494,15 +546,11 @@ void Powerfile_C200::CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,
 	/** Eject the disk from the drive. */
 		/** @param #151 Slot Number */
 			/** For jukeboxes, which slot to eject */
-		/** @param #152 Drive Number */
-			/** Disc unit index number
-Disk_Drive: 0
-Powerfile: 0, 1, ... */
 
-void Powerfile_C200::CMD_Eject_Disk(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Eject_Disk(int iSlot_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
-	m_pPowerfileJukebox->Eject(iSlot_Number,iDrive_Number,pMessage->m_dwPK_Device_From);
+	m_pPowerfileJukebox->Eject(iSlot_Number,0,pMessage->m_dwPK_Device_From);
 }
 
 //<-dceag-c49-b->
@@ -615,14 +663,12 @@ void Powerfile_C200::CMD_Close_Tray(string &sCMD_Result,Message *pMessage)
 			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
 		/** @param #151 Slot Number */
 			/** The slot if this is a jukebox */
-		/** @param #152 Drive Number */
-			/** For jukeboxes this is a slot, for other drives it's not used */
 		/** @param #233 DriveID */
 			/** The PK_Device ID of the storage drive that will be ripped to. Can be the ID of the core to store in /home */
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-void Powerfile_C200::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 #ifdef NOTDEF
@@ -1282,7 +1328,7 @@ bool Powerfile_C200::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 		/** @param #2 PK_Device */
 			/** The device requesting the lock */
 		/** @param #9 Text */
-			/** A description of the lock */
+			/** A description of the lock for incoming.  On failure (IsSuccesful=false), the description of whatever currently has the lock, on success info about the lock (for jukeboxes, the drive) */
 		/** @param #10 ID */
 			/** The ID of what needs to be locked.  For a jukebox, this would be the slot. */
 		/** @param #40 IsSuccessful */
@@ -1293,6 +1339,23 @@ bool Powerfile_C200::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 void Powerfile_C200::CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage)
 //<-dceag-c872-e->
 {
+	// This is to lock a drive for playback.  We'll return the id of the drive we're locking
+	if( bTurn_On )
+	{
+		Drive *pDrive = m_pPowerfileJukebox->LockAvailableDrive(Disk_Drive_Functions::locked_playback,NULL,this,true);
+		if( pDrive )
+		{
+			*bIsSuccessful=true;
+			*sText=StringUtils::itos( pDrive->m_dwPK_Device_get() );
+		}
+		else
+		{
+			*bIsSuccessful=false;
+			*sText="NO DRIVES";
+		}
+	}
+	else
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::CMD_Lock unlock requests should be going to the drive, not the jukebox");
 }
 //<-dceag-c913-b->
 
@@ -1305,4 +1368,22 @@ void Powerfile_C200::CMD_Load_Disk(bool bMultiple,string &sCMD_Result,Message *p
 //<-dceag-c913-e->
 {
 	m_pPowerfileJukebox->LoadDiscs(bMultiple,pMessage->m_dwPK_Device_From);
+}
+//<-dceag-c914-b->
+
+	/** @brief COMMAND: #914 - Get Disk Info */
+	/**  */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #157 Disks */
+			/** The disk id */
+		/** @param #193 URL */
+			/** The URL/MRL to play */
+		/** @param #223 Block Device */
+			/** The block device for the drive */
+
+void Powerfile_C200::CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c914-e->
+{
+	// Should be sent to the children instead
 }

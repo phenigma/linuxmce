@@ -30,40 +30,48 @@ class MediaFile
 public:
 	MediaFile(MediaAttributes_LowLevel *pMediaAttributes_LowLevel,int dwPK_File,string sFullyQualifiedFile)	{
 		m_dwPK_File=dwPK_File; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
-		m_dwPK_Bookmark=m_dwPK_Disk=0;
+		m_dwPK_Bookmark=m_dwPK_Disk=m_dwPK_Device_Disk_Drive=0;
+		m_Slot=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_iTrack=0;
 		m_dwPK_MediaType=m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 		CheckForStartPosition(pMediaAttributes_LowLevel);
+		m_bWaitingForJukebox=false;
 	}
 
-	MediaFile(int PK_Disk)	{
+	MediaFile(int PK_Disk,int PK_Device_Disk_Drive,int Slot)	{
 		m_dwPK_Disk=PK_Disk;
+		m_dwPK_Device_Disk_Drive=PK_Device_Disk_Drive;
+		m_Slot=Slot;
 		m_dwPK_File=0;
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_iTrack=0;
 		m_dwPK_MediaType=m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
+		m_bWaitingForJukebox=false;
 	}
 
 	MediaFile(string sMRL)	{
 		m_sFilename=sMRL;
-		m_dwPK_File=m_dwPK_Disk=0;
+		m_dwPK_File=m_dwPK_Disk=m_dwPK_Device_Disk_Drive=0;
+		m_Slot=0;
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
 		m_iTrack=0;
 		m_dwPK_MediaType=m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sMRL));
+		m_bWaitingForJukebox=false;
 	}
 
 	MediaFile(MediaAttributes_LowLevel *pMediaAttributes_LowLevel, string sFullyQualifiedFile) {
 		m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
 		m_dwPK_File=pMediaAttributes_LowLevel->GetFileIDFromFilePath(sFullyQualifiedFile);
-		m_dwPK_Disk=0;
+		m_dwPK_Disk=m_dwPK_Device_Disk_Drive=0;
+		m_Slot=0;
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
@@ -71,11 +79,14 @@ public:
 		m_dwPK_MediaType=m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 		CheckForStartPosition(pMediaAttributes_LowLevel);
+		m_bWaitingForJukebox=false;
 	}
 
 	MediaFile(MediaFile *pMediaFile_Copy) {
 		m_dwPK_File=pMediaFile_Copy->m_dwPK_File;
 		m_dwPK_Disk=pMediaFile_Copy->m_dwPK_Disk;
+		m_Slot=pMediaFile_Copy->m_Slot;
+		m_dwPK_Device_Disk_Drive=pMediaFile_Copy->m_dwPK_Device_Disk_Drive;
 		m_sPath=pMediaFile_Copy->m_sPath;
 		m_sFilename=pMediaFile_Copy->m_sFilename;
 		m_sDescription=pMediaFile_Copy->m_sDescription;
@@ -88,17 +99,20 @@ public:
 		m_dwDuration=pMediaFile_Copy->m_dwDuration;
 		m_tTimeout=pMediaFile_Copy->m_tTimeout;
 		m_iTrack=pMediaFile_Copy->m_iTrack;
+		m_bWaitingForJukebox=pMediaFile_Copy->m_bWaitingForJukebox;
 	}
 
 
 	MediaFile(Row_PlaylistEntry *pRow_PlaylistEntry) {
 		m_dwPK_File=pRow_PlaylistEntry->FK_File_get();
-		m_dwPK_Disk=0;
+		m_dwPK_Disk=m_dwPK_Device_Disk_Drive=0;
+		m_Slot=0;
 		m_dwPK_Bookmark=pRow_PlaylistEntry->FK_Bookmark_get();
 		m_dwDuration=pRow_PlaylistEntry->Duration_get();
 		m_tTimeout=0;
 		m_iTrack=0;
 		m_dwPK_MediaType=0;
+		m_bWaitingForJukebox=false;
 		m_sPath=pRow_PlaylistEntry->Path_get();
 		m_sFilename=pRow_PlaylistEntry->Filename_get();
 		m_dwPK_CommandGroup_Start=pRow_PlaylistEntry->EK_CommandGroup_Start_get();
@@ -131,7 +145,10 @@ public:
 	deque<MediaTitle *> m_dequeMediaTitle;
 	map< int,list_int > m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
     list_int *m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,list_int >::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : &((*it).second); }
-	int m_dwPK_File,m_dwPK_Disk,m_dwPK_MediaType;
+	int m_dwPK_File,m_dwPK_Disk,m_dwPK_MediaType,m_dwPK_Device_Disk_Drive;
+	int m_Slot; // For Jukeboxes, the source slot.  0 means not specified
+	bool m_bWaitingForJukebox; // if true, the disk is in a jukebox and we're waiting for the jukebox to move it to a drive before we can continue
+
 	unsigned long m_dwPK_Bookmark,  // The bookmark to play instead of a file.  comes from Playlist_Entry.File
 		m_dwDuration, // If Playlist_Entry has a value, this file will only play for this many seconds
 		m_dwPK_CommandGroup_Start,m_dwPK_CommandGroup_Stop; // If specified in Playlist_Entry, these will be executed when the file starts and stops

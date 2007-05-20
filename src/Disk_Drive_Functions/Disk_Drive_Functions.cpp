@@ -94,7 +94,9 @@ void Disk_Drive_Functions::EVENT_Ripping_Progress(string sText, int iResult, str
 bool Disk_Drive_Functions::internal_monitor_step(bool bFireEvent)
 {
 	PLUTO_SAFETY_LOCK(dm,m_DiskMutex);
-	if ( ! internal_reset_drive(bFireEvent) )
+	int iPK_MediaType;
+	string sDisks,sURL,sBlock_Device;
+	if ( ! internal_reset_drive(bFireEvent,&iPK_MediaType,&sDisks,&sURL,&sBlock_Device) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Monitor drive returned false.");
 		return false;
@@ -102,16 +104,15 @@ bool Disk_Drive_Functions::internal_monitor_step(bool bFireEvent)
 	return true;
 }
 
-bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
+bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device)
 {
+	*sBlock_Device=m_sDrive;
 #ifndef WIN32
 	PLUTO_SAFETY_LOCK(dm,m_DiskMutex);
-	int status;
-	string mrl = ""; //, serverMRL, title;
 
 	int result = cdrom_checkdrive(m_sDrive.c_str(), &m_mediaDiskStatus, bFireEvent);
 
-	//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disc Reset: checkdrive status: %d  result: %d", m_mediaDiskStatus, result);
+	//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disc Reset: checkdrive *iPK_MediaType: %d  result: %d", m_mediaDiskStatus, result);
 
 	// we only care if a new CD was inserted in the meantime.
 	if (result >= 0 && m_mediaDiskStatus != DISCTYPE_NONE && m_mediaInserted == false)
@@ -124,46 +125,47 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 			return false;
 		}
 
-		mrl = m_sDrive;
+		*sURL = m_sDrive;
 		switch (m_mediaDiskStatus)
 		{
 		case DISCTYPE_CD_MIXED: // treat a mixed CD as an audio CD for now.
 		case DISCTYPE_CD_AUDIO:
-			mrl = getTracks("cdda://" + m_sDrive + "/").c_str();
-			status = MEDIATYPE_pluto_CD_CONST;
+			*sURL = getTracks("cdda://" + m_sDrive + "/").c_str();
+			*iPK_MediaType = MEDIATYPE_pluto_CD_CONST;
 			UpdateDiscLocation('c');  // We know it's media
 			break;
 
 		case DISCTYPE_DVD_VIDEO:
-			mrl = m_sDrive;
-			status = MEDIATYPE_pluto_DVD_CONST;
+			*sURL = m_sDrive;
+			*iPK_MediaType = MEDIATYPE_pluto_DVD_CONST;
 			UpdateDiscLocation('d');  // We know it's media
 			break;
 
 		case DISCTYPE_BLANK:
-			status = MEDIATYPE_misc_BlankMedia_CONST;
+			*iPK_MediaType = MEDIATYPE_misc_BlankMedia_CONST;
 			UpdateDiscLocation('b');  // We know it's media
 			break;
 
 		case DISCTYPE_CD_VCD:
-			status = MEDIATYPE_pluto_StoredVideo_CONST;
+			*iPK_MediaType = MEDIATYPE_pluto_StoredVideo_CONST;
 			UpdateDiscLocation('M');  // We know it's media
 			break;
 
 		default:
 			UpdateDiscLocation('U');  // An unknown type
-			status = 0;
+			*iPK_MediaType = 0;
 			break;
 		}
 		close (fd);
 
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc of type %d was detected", status, mrl.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc of type %d was detected", *iPK_MediaType, sURL->c_str());
 
 		m_discid=time(NULL);
-		if ( bFireEvent && status )
+		*sDisks = StringUtils::itos(m_discid);
+		if ( bFireEvent && *iPK_MediaType )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", mrl.c_str(),m_discid);
-			EVENT_Media_Inserted(status, mrl,StringUtils::itos(m_discid),m_sDrive);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", sURL->c_str(),m_discid);
+			EVENT_Media_Inserted(*iPK_MediaType, *sURL,StringUtils::itos(m_discid),m_sDrive);
 		}
 		else
 		{
@@ -200,14 +202,14 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 		// DVD Block
 		/*
 		m_mediaDiskStatus = DISCTYPE_DVD_VIDEO;
-		int status = MEDIATYPE_pluto_DVD_CONST;
-		string mrl=m_sDrive;
+		int *iPK_MediaType = MEDIATYPE_pluto_DVD_CONST;
+		string *sURL=m_sDrive;
 		*/
 
 		// CD Block
 		m_mediaDiskStatus = DISCTYPE_CD_AUDIO;
-		int status = MEDIATYPE_pluto_CD_CONST;
-		string mrl=
+		*iPK_MediaType = MEDIATYPE_pluto_CD_CONST;
+		*sURL=
 			"cdda:///dev/cdrom/1\n"
 			"cdda:///dev/cdrom/2\n"
 			"cdda:///dev/cdrom/3\n"
@@ -222,8 +224,8 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 
 		if ( bFireEvent )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", mrl.c_str(),m_discid);
-			EVENT_Media_Inserted(status, mrl,StringUtils::itos(m_discid),m_sDrive);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "One Media Inserted event fired (%s) m_discid: %d", sURL->c_str(),m_discid);
+			EVENT_Media_Inserted(*iPK_MediaType, *sURL,StringUtils::itos(m_discid),m_sDrive);
 		}
 		UpdateDiscLocation('d');  // We know it's media
 		if( m_pDevice_MediaIdentifier && m_bAutoIdentifyMedia )

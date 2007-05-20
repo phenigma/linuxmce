@@ -405,8 +405,14 @@ public:
 	// This creates a single media stream for a given media handler and starts playing it by calling the next StartMedia, or returns NULL if it cannot create the stream
     MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat, string sStartingPosition, int iPK_Playlist=0, map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone=NULL);
 
+	// This is the second to the final stage of 'StartMedia'.  
+	bool StartMedia(MediaStream *pMediaStream, map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone);
+
 	// This is the final stage of 'StartMedia' that starts playing the given stream.  This is also called when the stream changes, or is moved, and needs to be restarted
-	bool StartMedia(MediaStream *pMediaStream, map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone=NULL);
+	bool StartMedia(MediaStream *pMediaStream);
+
+	// An alarm callback when we're holding up starting the stream while waiting for a jukebox to load a drive
+	void WaitingForJukebox( MediaStream *pMediaStream );
 
 	// Used by StartMedia to confirm the m_pMediaDevice_ActiveDest are set for each ea
 	void FindActiveDestination(MediaStream *pMediaStream,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone);
@@ -560,6 +566,8 @@ public:
 	class DataGridTable *ProvidersForDevice( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *ThumbnailableAttributes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	bool CanThumbnail(int PK_AttributeType);
+	void ReleaseDriveLock(MediaStream *pMediaStream);  // When playing media from a disk drive, we issue a CMD_Lock to block others from using the drive.  Call this to release any lock
+	bool AssignDriveForDisc(MediaStream *pMediaStream,MediaFile *pMediaFile);  // If we're playing a disk, be sure we fill in a drive that can be used to play the disc, since DiscLocation means copies of the disc can be in multiple drives
 
 	/*
 	*	Above functions in Media_Plugin_Grids.cpp

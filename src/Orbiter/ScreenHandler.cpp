@@ -2512,7 +2512,7 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 			{
 				if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST )
 				{
-					DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,atoi(pCell->GetValue()),0,0);
+					DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,atoi(pCell->GetValue()),0);
 					m_pOrbiter->SendCommand(CMD_Eject_Disk);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
@@ -2596,7 +2596,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 				{
 					int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
 					int Slot = atoi( pCell->m_mapAttributes_Find("Slot").c_str() );
-					DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,PK_Device,Slot,0);
+					DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,PK_Device,Slot);
 					m_pOrbiter->SendCommand(CMD_Eject_Disk);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
@@ -2635,8 +2635,27 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 				{
 					int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
 					DCE::CMD_Unload_from_Drive_into_Slot CMD_Unload_from_Drive_into_Slot(
-						m_pOrbiter->m_dwPK_Device,PK_Device,-1,PK_Device);
+						m_pOrbiter->m_dwPK_Device,PK_Device,PK_Device,-1);
 					m_pOrbiter->SendCommand(CMD_Unload_from_Drive_into_Slot);
+				}
+				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoPlay_CONST && m_pOrbiter->m_pLocationInfo ) // play requires a location to play at
+				{
+					if( pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject->m_iBaseObjectID==DESIGNOBJ_dgJukeboxDrives_CONST )
+					{
+						DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+							atoi(pCell->GetValue()),"",0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0);
+						m_pOrbiter->SendCommand(CMD_MH_Play_Media);
+					}
+					else
+					{
+						int PK_Disc = atoi( pCell->m_mapAttributes_Find("PK_Disc").c_str() );
+						int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
+						int Slot = atoi( pCell->m_mapAttributes_Find("Slot").c_str() );
+						DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+							0,"!r" + StringUtils::itos(PK_Disc) + ":" + StringUtils::itos(PK_Device) + ":" + StringUtils::itos(Slot), // see MediaAttributes_LowLevel::TransformFilenameToDeque
+							0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0);
+						m_pOrbiter->SendCommand(CMD_MH_Play_Media);
+					}
 				}
 			}
 		}
@@ -2651,7 +2670,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butEjectAll_CONST )
 	{
-		DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,PK_Device_JukeBox,0,0);
+		DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pOrbiter->m_dwPK_Device,PK_Device_JukeBox,0);
 		m_pOrbiter->SendCommand(CMD_Eject_Disk);
 	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butLoad1_CONST )

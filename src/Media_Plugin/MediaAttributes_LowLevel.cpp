@@ -99,20 +99,27 @@ void MediaAttributes_LowLevel::TransformFilenameToDeque(string sFilename,deque<M
 			}
 		}	
 	}
-	else if( sFilename[1] == 'r' || sFilename[1] == 'R' )  // Removable media (ie a disc)
+	else if( sFilename[1] == 'r' || sFilename[1] == 'R' )  // Removable media (ie a disc) as !r[PK_Disc][.track]:[PK_Device_Disk]:[Slot]  This can be followed by a : and a disk drive to prevent ambiguity if there are multiple sources, and another : and a slot
 	{
-		MediaFile *pMediaFile = new MediaFile(atoi(sFilename.substr(2).c_str()));
-		string::size_type pos = sFilename.find('.');
+		int PK_Device_Disk_Drive=0;
+		int Slot=-1;
+		string::size_type pos=sFilename.find(':');
 		if( pos!=string::npos )
 		{
-			pMediaFile->m_iTrack = atoi( sFilename.substr(pos+1).c_str() );
+			PK_Device_Disk_Drive = atoi( sFilename.substr(pos+1).c_str() );
+			pos=sFilename.find(':',pos+1);
+			if( pos!=string::npos )
+				Slot = atoi( sFilename.substr(pos+1).c_str() );
 		}
+
+		MediaFile *pMediaFile = new MediaFile(atoi(sFilename.substr(2).c_str()),PK_Device_Disk_Drive,Slot);
+		pos = sFilename.find('.');
+		if( pos!=string::npos )
+			pMediaFile->m_iTrack = atoi( sFilename.substr(pos+1).c_str() );
 		dequeFilenames.push_back(pMediaFile);
 	}
 	else
-	{
 		dequeFilenames.push_back(new MediaFile(this,sFilename));  // Just a normal file
-	}
 }
 
 /*

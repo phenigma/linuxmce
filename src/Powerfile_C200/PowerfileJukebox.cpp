@@ -549,20 +549,20 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	return jbRetCode;
 }
 
-/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(int iSlot_Number,int iDrive_Number,int PK_Orbiter)
+/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::Eject(int iSlot_Number,int iPK_Device,int PK_Orbiter)
 {
-	if( iSlot_Number==0 && iDrive_Number==0 )
+	if( iSlot_Number==0 && iPK_Device==0 )
 	{
 		LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eEjectMultipleDiscs,this,NULL,NULL,PK_Orbiter,m_pCommand_Impl);
 		m_pJobHandler->AddJob(pLoadUnloadJob);
 		return JukeBox::jukebox_ok;
 	}
-	if( iDrive_Number )
+	if( iPK_Device )
 	{
-		Drive *pDrive = m_mapDrive_Find(iDrive_Number);
+		Drive *pDrive = m_mapDrive_FindByPK_Device(iPK_Device);
 		if( !pDrive )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::Eject invalid drive %d",iDrive_Number);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::Eject invalid drive %d",iPK_Device);
 			return JukeBox::jukebox_transport_failure;
 		}
 		return Eject(pDrive,PK_Orbiter);

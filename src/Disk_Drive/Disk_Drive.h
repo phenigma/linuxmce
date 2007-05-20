@@ -99,26 +99,18 @@ public:
 
 	/** @brief COMMAND: #47 - Reset Disk Drive */
 	/** Reset the disk drive. */
-		/** @param #152 Drive Number */
-			/** Disc unit index number
-Disk_Drive: 0
-Powerfile: 0, 1, ... */
 
-	virtual void CMD_Reset_Disk_Drive(int iDrive_Number) { string sCMD_Result; CMD_Reset_Disk_Drive(iDrive_Number,sCMD_Result,NULL);};
-	virtual void CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Reset_Disk_Drive() { string sCMD_Result; CMD_Reset_Disk_Drive(sCMD_Result,NULL);};
+	virtual void CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #48 - Eject Disk */
 	/** Eject the disk from the drive. */
 		/** @param #151 Slot Number */
 			/** For jukeboxes, which slot to eject */
-		/** @param #152 Drive Number */
-			/** Disc unit index number
-Disk_Drive: 0
-Powerfile: 0, 1, ... */
 
-	virtual void CMD_Eject_Disk(int iSlot_Number,int iDrive_Number) { string sCMD_Result; CMD_Eject_Disk(iSlot_Number,iDrive_Number,sCMD_Result,NULL);};
-	virtual void CMD_Eject_Disk(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Eject_Disk(int iSlot_Number) { string sCMD_Result; CMD_Eject_Disk(iSlot_Number,sCMD_Result,NULL);};
+	virtual void CMD_Eject_Disk(int iSlot_Number,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #49 - Start Burn Session */
@@ -202,15 +194,13 @@ Powerfile: 0, 1, ... */
 			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
 		/** @param #151 Slot Number */
 			/** The slot if this is a jukebox */
-		/** @param #152 Drive Number */
-			/** For jukeboxes this is a slot, for other drives it's not used */
 		/** @param #233 DriveID */
 			/** The PK_Device ID of the storage drive that will be ripped to. Can be the ID of the core to store in /home */
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDrive_Number,int iDriveID,string sDirectory) { string sCMD_Result; CMD_Rip_Disk(sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDrive_Number,iDriveID,sDirectory.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory) { string sCMD_Result; CMD_Rip_Disk(sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDriveID,sDirectory.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #742 - Media Identified */
@@ -281,7 +271,7 @@ Powerfile: 0, 1, ... */
 		/** @param #2 PK_Device */
 			/** The device requesting the lock */
 		/** @param #9 Text */
-			/** A description of the lock */
+			/** A description of the lock for incoming.  On failure (IsSuccesful=false), the description of whatever currently has the lock, on success info about the lock (for jukeboxes, the drive) */
 		/** @param #10 ID */
 			/** The ID of what needs to be locked.  For a jukebox, this would be the slot. */
 		/** @param #40 IsSuccessful */
@@ -300,6 +290,21 @@ Powerfile: 0, 1, ... */
 
 	virtual void CMD_Abort_Task(int iParameter_ID) { string sCMD_Result; CMD_Abort_Task(iParameter_ID,sCMD_Result,NULL);};
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #914 - Get Disk Info */
+	/**  */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #157 Disks */
+			/** The disk id */
+		/** @param #193 URL */
+			/** The URL/MRL to play */
+		/** @param #223 Block Device */
+			/** The block device for the drive */
+
+	virtual void CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device) { string sCMD_Result; CMD_Get_Disk_Info(iPK_MediaType,sDisks,sURL,sBlock_Device,sCMD_Result,NULL);};
+	virtual void CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	private:

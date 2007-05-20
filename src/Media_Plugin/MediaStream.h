@@ -54,6 +54,17 @@ namespace DCE
 		RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *);
 	};
 
+	// A helper class with some info about any prior streams
+	class OldStreamInfo
+	{
+	public:
+		EntertainArea *m_pEntertainArea;
+		bool m_bNoChanges;
+		int m_PK_MediaType_Prior;
+		map<int,MediaDevice *> m_mapMediaDevice_Prior;
+		OldStreamInfo(EntertainArea *pEntertainArea) { m_pEntertainArea=pEntertainArea; m_bNoChanges=false; m_PK_MediaType_Prior=0; }
+	};
+
 
     /** @brief
      * An instance of media, such as a DVD or a CD.  If 2 people start watching the same DVD individually, that will be 2 media streams,
@@ -107,8 +118,7 @@ namespace DCE
 
 		// If this is a generic media device, like a DVD player, that is connected to a capture card which is being
 		// accessed by a media playing overlay device, like Xine, the following will be non null
-		DeviceData_Router		*m_pDevice_CaptureCard,      /** The device which is the capture card for this media stream. */
-			*m_pMediaDevice_Drive; /** If the source is a disc from a drive, this is the drive so we can lock it */
+		DeviceData_Router		*m_pDevice_CaptureCard;      /** The device which is the capture card for this media stream. */
 
 		int 			 m_iPK_MediaType;        	/** The type of media in this stream. */
 		int				 m_iPK_MediaProvider;		/** The media provider in this stream. */
@@ -153,6 +163,8 @@ namespace DCE
 		string m_sAppName;				/** The name of the application (window name actually) the will render this on the media director */
 
 		bool m_bContainsTitlesOrSections;  /** The stream has titles or sections, like a dvd, and skipping should skip withing the file, not between files */
+
+		map<int,class OldStreamInfo *> m_mapOldStreamInfo; // Info about any prior streams this is replacing
 
         /** @brief constructor*/
         MediaStream(class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, MediaDevice *pMediaDevice, int PK_Users,enum SourceType sourceType,int iStreamID);

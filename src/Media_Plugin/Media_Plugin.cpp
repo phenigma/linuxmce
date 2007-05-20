@@ -102,6 +102,9 @@ DCEConfig g_DCEConfig;
 // Alarm Types
 #define MEDIA_PLAYBACK_TIMEOUT					1
 #define CHECK_FOR_NEW_FILES						2
+#define WAITING_FOR_JUKEBOX						3
+
+#define TIMEOUT_JUKEBOX							30
 
 int UniqueColors[MAX_MEDIA_COLORS];
 
@@ -783,6 +786,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			for(size_t s=0;s<dequeFileNames.size();++s)
 			{
 				MediaFile *pMediaFile = new MediaFile(dequeFileNames[s]);
+				pMediaFile->m_dwPK_Device_Disk_Drive=pMessage->m_dwPK_Device_From;
 				if( dequeFileNames.size()>1 )
 					pMediaFile->m_sDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%> " + StringUtils::itos(s+1);
 				else
@@ -885,6 +889,8 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::PlaybackCompleted() Checking conditions: canPlayMore: %d, shouldResume %d parked: %d  # of eas %d", pMediaStream->CanPlayMore(), pMediaStream->m_bResume, (int) pMediaStream->m_tTime_Parked, (int) pMediaStream->m_mapEntertainArea.size() );
     if ( !bWithErrors && pMediaStream->CanPlayMore() && !pMediaStream->m_bResume && !pMediaStream->m_tTime_Parked )
     {
+		ReleaseDriveLock(pMediaStream);
+
         pMediaStream->ChangePositionInPlaylist(1);
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from playback completed");
 		string sError;
@@ -1140,6 +1146,16 @@ int Media_Plugin::GetMediaTypeForFile(deque<MediaFile *> *p_dequeMediaFile,vecto
 			return pMediaHandlerInfo->m_PK_MediaType;
 		}
 	}
+
+	// It's possible that it's an unidentified slot in a jukebox.  If so, just assume it's a dvd for now.  WaitingForJukebox will fill in the real info
+	if( pMediaFile->m_dwPK_Device_Disk_Drive )
+	{
+		DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(pMediaFile->m_dwPK_Device_Disk_Drive);
+		if( pDevice && pDevice->WithinCategory(DEVICECATEGORY_CDDVD_Jukeboxes_CONST) )
+		{
+			return MEDIATYPE_pluto_DVD_CONST;
+		}
+	}
 	return 0;
 }
 
@@ -1274,20 +1290,8 @@ dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
 	return NULL;
 }
 
-class OldStreamInfo
-{
-public:
-	EntertainArea *m_pEntertainArea;
-	bool m_bNoChanges;
-	int m_PK_MediaType_Prior;
-	map<int,MediaDevice *> m_mapMediaDevice_Prior;
-	OldStreamInfo(EntertainArea *pEntertainArea) { m_pEntertainArea=pEntertainArea; m_bNoChanges=false; m_PK_MediaType_Prior=0; }
-};
-
 bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone)
 {
-	map<int,class OldStreamInfo *> mapOldStreamInfo;
-
 	if( !pMediaStream->m_pMediaDevice_Source )
 	{
 		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
@@ -1307,7 +1311,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 		if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream!=pMediaStream )
 		{
 			OldStreamInfo *pOldStreamInfo = new OldStreamInfo(pEntertainArea);
-			mapOldStreamInfo[pEntertainArea->m_iPK_EntertainArea]=pOldStreamInfo;
+			pMediaStream->m_mapOldStreamInfo[pEntertainArea->m_iPK_EntertainArea]=pOldStreamInfo;
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&pOldStreamInfo->m_mapMediaDevice_Prior);
 			pOldStreamInfo->m_PK_MediaType_Prior = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType;
 
@@ -1342,6 +1346,45 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 
 	FindActiveDestination(pMediaStream,p_mapEntertainmentArea_OutputZone);
 
+	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
+	if( pMediaFile && (pMediaFile->m_dwPK_Disk || pMediaFile->m_dwPK_Device_Disk_Drive) )
+	{
+		if( !AssignDriveForDisc(pMediaStream,pMediaFile) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::StartMedia AssignDriveForDisc failed");
+			return false;
+		}
+		if( pMediaFile->m_bWaitingForJukebox )
+		{
+			m_pAlarmManager->AddRelativeAlarm(1,this,WAITING_FOR_JUKEBOX,(void *) pMediaStream);
+			return true;
+		}
+	}
+
+	if( pMediaFile && pMediaFile->m_dwPK_Device_Disk_Drive )
+	{
+		string sText="STREAM " + StringUtils::itos(pMediaStream->m_iStreamID_get());
+		bool bIsSuccessful=false;
+		DCE::CMD_Lock CMD_Lock(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,m_dwPK_Device,
+			"",true,&sText,&bIsSuccessful);
+		if( !SendCommand(CMD_Lock) || bIsSuccessful==false )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::StartMedia Cannot lock drive %d", pMediaFile->m_dwPK_Device_Disk_Drive);
+			if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+			{
+				SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, 
+					pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device, "Drive is not available");
+				SendCommand(SCREEN_DialogCannotPlayMedia);
+			}
+			StreamEnded(pMediaStream);
+		}
+	}
+
+	return StartMedia(pMediaStream);
+}
+
+bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
+{
 #ifdef SIM_JUKEBOX
 	static bool bToggle=false;
 	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
@@ -1376,8 +1419,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 			pMediaStream->m_iDequeMediaFile_Pos=pos;
 	}
 
-
 	m_pMediaAttributes->LoadStreamAttributes(pMediaStream);
+
 	string sError;
 	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream,sError) )
 	{
@@ -1397,7 +1440,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 			if( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive == false)
 				StartCaptureCard(pMediaStream);
 
-			OldStreamInfo *pOldStreamInfo = mapOldStreamInfo[pEntertainArea->m_iPK_EntertainArea];
+			OldStreamInfo *pOldStreamInfo = pMediaStream->m_mapOldStreamInfo[pEntertainArea->m_iPK_EntertainArea];
 			if( !pOldStreamInfo || !pOldStreamInfo->m_bNoChanges )
 			{
 				// We need to get the current rendering devices so that we can send on/off commands
@@ -1426,7 +1469,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartMedia() done - not sending to remote since stream is marked resumte");
 
-			for(map<int,class OldStreamInfo *>::iterator it = mapOldStreamInfo.begin(); it != mapOldStreamInfo.end(); ++it)
+			for(map<int,class OldStreamInfo *>::iterator it = pMediaStream->m_mapOldStreamInfo.begin(); it != pMediaStream->m_mapOldStreamInfo.end(); ++it)
 				delete it->second;
 
 			return true;
@@ -1491,7 +1534,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartMedia() function call completed with honors!");
 
-	for(map<int,class OldStreamInfo *>::iterator it = mapOldStreamInfo.begin(); it != mapOldStreamInfo.end(); ++it)
+	for(map<int,class OldStreamInfo *>::iterator it = pMediaStream->m_mapOldStreamInfo.begin(); it != pMediaStream->m_mapOldStreamInfo.end(); ++it)
 		delete it->second;
 
 	return true;
@@ -1499,7 +1542,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 
 void Media_Plugin::FindActiveDestination(MediaStream *pMediaStream,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone)
 {
-	// Find the active destinations.  If the media player in teh living room is playing locally and streaming to the bedroom,
+	// Find the active destinations.  If the media player in the living room is playing locally and streaming to the bedroom,
 	// then in the living room the media player is both the source and the destination, and in the bedroom, that media player is the
 	// destination if the device supports streaming.
 	// If the source device is standard a/v equipment connected to a capture card, and the destination is an EA away from the capture card,
@@ -1738,7 +1781,7 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 					&& pMessage->m_mapParameters[COMMANDPARAMETER_Eject_CONST]=="1" )
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got a stop with no media.  Will eject 1");
-					DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0, 0);
+					DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
 					SendCommand(CMD_Eject_Disk_Cat);
 					return rmr_Processed;
 				}
@@ -1766,7 +1809,7 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 					&& pMessage->m_mapParameters[COMMANDPARAMETER_Eject_CONST]=="1" )
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Got a stop with no media.  Will eject 4");
-				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0, 0);
+				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
 				SendCommand(CMD_Eject_Disk_Cat);
 				return rmr_Processed;
 			}
@@ -1785,7 +1828,7 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 
 		if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID==COMMAND_Eject_Disk_CONST )
 		{
-			DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0, 0);
+			DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
 			SendCommand(CMD_Eject_Disk_Cat);
 			return rmr_Processed;
 		}
@@ -2155,6 +2198,8 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StreamEnded() called with NULL MediaStream in it! Ignoring");
 		return;
 	}
+	
+	ReleaseDriveLock(pMediaStream);
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
@@ -2753,7 +2798,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 				pMediaDevice_Source->m_pOH_Orbiter_Reset = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Device_Orbiter);
 				pMediaDevice_Source->m_tReset = time(NULL);
 
-				DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_dwPK_Device, pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, 0);
+				DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_dwPK_Device, pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
                 SendCommand(CMD_Reset_Disk_Drive);
 				bDiskWasReset = true;
 			}
@@ -3782,7 +3827,7 @@ void Media_Plugin::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,st
 		sFormat = "flac";
 	string sResponse;
 	DCE::CMD_Rip_Disk cmdRipDisk(pMessage->m_dwPK_Device_From, pDevice_Disk->m_dwPK_Device, sFilename, iPK_Users, 
-		sFormat, sTracks, pRow_Disc->PK_Disc_get(), iSlot_Number, 0, iDriveID, sDirectory);  // Send it from the Orbiter so disk drive knows who requested it
+		sFormat, sTracks, pRow_Disc->PK_Disc_get(), iSlot_Number, iDriveID, sDirectory);  // Send it from the Orbiter so disk drive knows who requested it
 	if( !SendCommand(cmdRipDisk,&sResponse) || sResponse!="OK" )
 	{
 		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
@@ -5486,6 +5531,8 @@ void Media_Plugin::AlarmCallback(int id, void* param)
 	}
 	else if( id==CHECK_FOR_NEW_FILES )
 		CMD_Check_For_New_Files();
+	else if( id==WAITING_FOR_JUKEBOX )
+		WaitingForJukebox( (MediaStream *) param);
 }
 
 void Media_Plugin::ProcessMediaFileTimeout(MediaStream *pMediaStream)
@@ -6358,4 +6405,144 @@ void Media_Plugin::CMD_Update_Ripping_Status(string sText,string sFilename,strin
 void Media_Plugin::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c882-e->
 {
+}
+
+void Media_Plugin::ReleaseDriveLock(MediaStream *pMediaStream)
+{
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
+	if( pMediaFile && pMediaFile->m_dwPK_Device_Disk_Drive )
+	{
+		string sText;
+		bool bIsSuccessful=false;
+		DCE::CMD_Lock CMD_Lock(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,m_dwPK_Device,
+			"",false,&sText,&bIsSuccessful);
+		if( !SendCommand(CMD_Lock) || bIsSuccessful==false )
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::ReleaseDriveLock Cannot unlock drive %d", pMediaFile->m_dwPK_Device_Disk_Drive);
+	}
+}
+
+bool Media_Plugin::AssignDriveForDisc(MediaStream *pMediaStream,MediaFile *pMediaFile)
+{
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	if( pMediaFile->m_dwPK_Disk && !pMediaFile->m_dwPK_Device_Disk_Drive )
+	{
+		int Slot=0;
+		Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(pMediaFile->m_dwPK_Disk);
+		if( pRow_Disc )
+		{
+			vector<Row_DiscLocation *> vectRow_DiscLocation;
+			pRow_Disc->DiscLocation_FK_Disc_getrows(&vectRow_DiscLocation);
+			DeviceData_Router *pDevice_Backup=NULL; // We'll try to find a drive on the same PC, otherwise we'll take any we can find with this disc
+			for(vector<Row_DiscLocation *>::iterator it=vectRow_DiscLocation.begin();it!=vectRow_DiscLocation.end();++it)
+			{
+				Row_DiscLocation *pRow_DiscLocation = *it;
+				DeviceData_Router *pDevice_Drive = m_pRouter->m_mapDeviceData_Router_Find(pRow_DiscLocation->EK_Device_get());
+				if( pDevice_Drive )
+				{
+					if( pDevice_Drive->GetTopMostDevice() == pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->GetTopMostDevice() )
+					{
+						pMediaFile->m_dwPK_Device_Disk_Drive = pDevice_Drive->m_dwPK_Device;
+						pMediaFile->m_Slot = pRow_DiscLocation->Slot_get();
+						break;
+					}
+					Slot = pRow_DiscLocation->Slot_get();
+					pDevice_Backup = pDevice_Drive;
+				}
+			}
+			if( !pMediaFile->m_dwPK_Device_Disk_Drive && pDevice_Backup )
+			{
+				pMediaFile->m_dwPK_Device_Disk_Drive = pDevice_Backup->m_dwPK_Device;
+				pMediaFile->m_Slot = Slot;
+			}
+		}
+	}
+
+	// See if the drive is actually a jukebox.  If so, we need to get an actual drive to play it and load the disc
+	DeviceData_Router *pDevice_Jukebox = m_pRouter->m_mapDeviceData_Router_Find(pMediaFile->m_dwPK_Device_Disk_Drive);
+	if( pDevice_Jukebox && pDevice_Jukebox->WithinCategory(DEVICECATEGORY_CDDVD_Jukeboxes_CONST) )
+	{
+		string sText="STREAM " + StringUtils::itos(pMediaStream->m_iStreamID_get());
+		bool bIsSuccessful=false;
+		DCE::CMD_Lock CMD_Lock(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,m_dwPK_Device,
+			StringUtils::itos(pMediaFile->m_Slot),true,&sText,&bIsSuccessful);
+		if( !SendCommand(CMD_Lock) || bIsSuccessful==false )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::AssignDriveForDisc Cannot lock drive %d", pMediaFile->m_dwPK_Device_Disk_Drive);
+			if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+			{
+				SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, 
+					pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device, "Drive is not available");
+				SendCommand(SCREEN_DialogCannotPlayMedia);
+			}
+			StreamEnded(pMediaStream);
+			return false;
+		}
+
+		int PK_Device_Disk = atoi(sText.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::AssignDriveForDisc locked drive %d for disc %d slot %d", PK_Device_Disk, pMediaFile->m_dwPK_Disk, pMediaFile->m_Slot);
+
+		DCE::CMD_Load_from_Slot_into_Drive CMD_Load_from_Slot_into_Drive(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,pMediaFile->m_Slot,PK_Device_Disk);  // Figure out the drive id based on the destination
+		if( !SendCommand(CMD_Load_from_Slot_into_Drive) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::AssignDriveForDisc Cannot lock drive %d", pMediaFile->m_dwPK_Device_Disk_Drive);
+			if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+			{
+				SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, 
+					pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device, "Drive is not available");
+				SendCommand(SCREEN_DialogCannotPlayMedia);
+			}
+			StreamEnded(pMediaStream);
+			return false;
+		}
+
+		pMediaFile->m_dwPK_Device_Disk_Drive = PK_Device_Disk; // This is the disc we'll be using now
+		pMediaFile->m_bWaitingForJukebox=true;
+	}
+
+	return true;
+}
+
+void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
+{
+	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
+	if( !pMediaFile )  // Shouldn't ever happen
+	{
+		StreamEnded(pMediaStream);
+		return;
+	}
+
+	vector<Row_DiscLocation *> vectRow_DiscLocation;
+	m_pDatabase_pluto_media->DiscLocation_get()->GetRows( "EK_Device=" + StringUtils::itos(pMediaFile->m_dwPK_Device_Disk_Drive), &vectRow_DiscLocation );  // This should now be the drive, not the jukebox, since AssignDriveForDisc converts it
+	if( vectRow_DiscLocation.size() )  // There should only be 1 record for a drive since only 1 disc can be there.  When this is not empty, the move has finished
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::WaitingForJukebox stream %d.  Disc loaded in drive.  Now ready", pMediaStream->m_iStreamID_get());
+
+		// It's possible we were playing a slot without knowing what type of disc was in it.  Fill out the missing info
+		int iPK_MediaType;
+		string sDisks,sURL,sBlock_Device;
+		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,&iPK_MediaType,&sDisks,&sURL,&sBlock_Device);
+		if( SendCommand(CMD_Get_Disk_Info) )
+		{
+			pMediaFile->m_dwPK_MediaType=iPK_MediaType;
+			pMediaFile->m_sFilename=sURL;
+		}
+		StartMedia(pMediaStream);
+		return;
+	}
+
+	if( pMediaStream->m_tTime + TIMEOUT_JUKEBOX < time(NULL) )
+	{
+		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+		{
+			SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, 
+				pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device, "Drive is not available");
+			SendCommand(SCREEN_DialogCannotPlayMedia);
+		}
+		StreamEnded(pMediaStream);
+		return;
+	}
+	else // Try again
+		m_pAlarmManager->AddRelativeAlarm(1,this,WAITING_FOR_JUKEBOX,(void *) pMediaStream);
 }

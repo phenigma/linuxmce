@@ -116,7 +116,7 @@ public:
 		Disk_Drive_Functions(int dwPK_Device,Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel,bool bAutoIdentifyMedia=true);
 		~Disk_Drive_Functions();
 		bool internal_monitor_step(bool bFireEvent);
-		bool internal_reset_drive(bool bFireEvent);
+		bool internal_reset_drive(bool bFireEvent,int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device);
 		int cdrom_has_dir(int fd, const char *directory);
 		int cdrom_lock(int lock);
 		int cdrom_checkdrive(const char * filename, int * flag, bool bFireEvent);

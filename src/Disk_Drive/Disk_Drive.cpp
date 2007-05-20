@@ -231,20 +231,18 @@ void Disk_Drive::CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,Message *pMes
 
 	/** @brief COMMAND: #47 - Reset Disk Drive */
 	/** Reset the disk drive. */
-		/** @param #152 Drive Number */
-			/** Disc unit index number
-Disk_Drive: 0
-Powerfile: 0, 1, ... */
 
-void Disk_Drive::CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage)
 //<-dceag-c47-e->
 {
 	PLUTO_SAFETY_LOCK(dm,m_pDisk_Drive_Functions->m_DiskMutex);
 	m_pDisk_Drive_Functions->m_mediaInserted = false;
 	m_pDisk_Drive_Functions->m_mediaDiskStatus = DISCTYPE_NONE;
 	m_pDisk_Drive_Functions->DisplayMessageOnOrbVFD("Checking disc...");
-	
-	m_pDisk_Drive_Functions->internal_reset_drive(true);
+
+	int iPK_MediaType;
+	string sDisks,sURL,sBlock_Device;
+	m_pDisk_Drive_Functions->internal_reset_drive(true,&iPK_MediaType,&sDisks,&sURL,&sBlock_Device);
 }
 
 //<-dceag-c48-b->
@@ -253,12 +251,8 @@ void Disk_Drive::CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,Mess
 	/** Eject the disk from the drive. */
 		/** @param #151 Slot Number */
 			/** For jukeboxes, which slot to eject */
-		/** @param #152 Drive Number */
-			/** Disc unit index number
-Disk_Drive: 0
-Powerfile: 0, 1, ... */
 
-void Disk_Drive::CMD_Eject_Disk(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Eject_Disk(int iSlot_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
 	static time_t tLastEject=0;
@@ -448,14 +442,12 @@ void Disk_Drive::RunMonitorLoop()
 			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
 		/** @param #151 Slot Number */
 			/** The slot if this is a jukebox */
-		/** @param #152 Drive Number */
-			/** For jukeboxes this is a slot, for other drives it's not used */
 		/** @param #233 DriveID */
 			/** The PK_Device ID of the storage drive that will be ripped to. Can be the ID of the core to store in /home */
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-void Disk_Drive::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	m_pDisk_Drive_Functions->CMD_Rip_Disk( sFilename,iPK_Users,sFormat,sTracks,iEK_Disc,iSlot_Number,iDriveID,sDirectory, sCMD_Result, pMessage);
@@ -560,7 +552,7 @@ void Disk_Drive::CMD_Update_Ripping_Status(string sText,string sFilename,string 
 		/** @param #2 PK_Device */
 			/** The device requesting the lock */
 		/** @param #9 Text */
-			/** A description of the lock */
+			/** A description of the lock for incoming.  On failure (IsSuccesful=false), the description of whatever currently has the lock, on success info about the lock (for jukeboxes, the drive) */
 		/** @param #10 ID */
 			/** The ID of what needs to be locked.  For a jukebox, this would be the slot. */
 		/** @param #40 IsSuccessful */
@@ -596,4 +588,21 @@ void Disk_Drive::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *p
 	}
 
 	pJob->Abort();
+}
+//<-dceag-c914-b->
+
+	/** @brief COMMAND: #914 - Get Disk Info */
+	/**  */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #157 Disks */
+			/** The disk id */
+		/** @param #193 URL */
+			/** The URL/MRL to play */
+		/** @param #223 Block Device */
+			/** The block device for the drive */
+
+void Disk_Drive::CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c914-e->
+{
 }

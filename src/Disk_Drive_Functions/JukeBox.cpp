@@ -325,7 +325,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 	return JukeBox::jukebox_ok;
 }
 
-/*virtual*/ JukeBox::JukeBoxReturnCode JukeBox::Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,int iPK_Orbiter)
+/*virtual*/ JukeBox::JukeBoxReturnCode JukeBox::Load_from_Slot_into_Drive(int iSlot_Number,int iPK_Device,int iPK_Orbiter)
 {
 	PLUTO_SAFETY_LOCK(pf,m_DriveMutex_get());
 	Slot *pSlot=m_mapSlot_Find(iSlot_Number);
@@ -338,12 +338,12 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 	Drive *pDrive = NULL;
 	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eMoveFromSlotToDrive,this,NULL,pSlot,iPK_Orbiter,m_pCommand_Impl);
 
-	if( iDrive_Number!=-1 )
+	if( iPK_Device!=-1 )
 	{
-		pDrive = m_mapDrive_Find(iDrive_Number);
+		pDrive = m_mapDrive_FindByPK_Device(iPK_Device);
 		if( !pDrive || !pDrive->LockDrive(Disk_Drive_Functions::locked_move,pLoadUnloadJob) )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Load_from_Slot_into_Drive -- bad drive %d or cannot lock drive %p", iDrive_Number, pDrive);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Load_from_Slot_into_Drive -- bad drive %d or cannot lock drive %p", iPK_Device, pDrive);
 			delete pLoadUnloadJob;
 			return JukeBox::jukebox_transport_failure;
 		}
@@ -353,7 +353,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 		pDrive = LockAvailableDrive(Disk_Drive_Functions::locked_move,pLoadUnloadJob,pLoadUnloadJob,true);
 		if( !pDrive )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Load_from_Slot_into_Drive -- bad drive %d", iDrive_Number);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Load_from_Slot_into_Drive -- bad drive %d", iPK_Device);
 			delete pLoadUnloadJob;
 			return JukeBox::jukebox_transport_failure;
 		}
@@ -365,7 +365,7 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 	return JukeBox::jukebox_ok;
 }
 
-/*virtual*/ JukeBox::JukeBoxReturnCode JukeBox::Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive_Number,int iPK_Orbiter)
+/*virtual*/ JukeBox::JukeBoxReturnCode JukeBox::Unload_from_Drive_into_Slot(int iSlot_Number,int iPK_Device,int iPK_Orbiter)
 {
 	PLUTO_SAFETY_LOCK(pf,m_DriveMutex_get());
 	Slot *pSlot=NULL;
@@ -388,17 +388,17 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 		}
 	}
 
-	Drive *pDrive = m_mapDrive_Find(iDrive_Number);
+	Drive *pDrive = m_mapDrive_FindByPK_Device(iPK_Device);
 	if( !pDrive )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Unload_from_Drive_into_Slot -- bad drive %d", iDrive_Number);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Unload_from_Drive_into_Slot -- bad drive %d", iPK_Device);
 		return JukeBox::jukebox_transport_failure;
 	}
 
 	LoadUnloadJob *pLoadUnloadJob = new LoadUnloadJob(m_pJobHandler,LoadUnloadJob::eMoveFromDriveToSlot,this,pDrive,pSlot,iPK_Orbiter,m_pCommand_Impl);
 	if( !pDrive->LockDrive(Disk_Drive_Functions::locked_move,pLoadUnloadJob) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Unload_from_Drive_into_Slot -- cannot lock drive %d", iDrive_Number);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::Unload_from_Drive_into_Slot -- cannot lock drive %d", iPK_Device);
 		delete pLoadUnloadJob;
 		return JukeBox::jukebox_transport_failure;
 	}
