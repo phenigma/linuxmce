@@ -136,7 +136,7 @@ function Setup_XOrg {
 		chmod +x "$Dir/xhost"
 
 		File="$user/.profile"
-		if ! grep -q "export KDEWM=/usr/bin/xfwm4" "$File"; then
+		if ! grep -q "export KDEWM=/usr/bin/xfwm4" "$File" 2>/dev/null; then
 			echo "export KDEWM=/usr/bin/xfwm4" >>"$File"
 		fi
 		chown -R "$owner" "$user"/.profile
@@ -147,7 +147,7 @@ function Setup_XOrg {
 	chmod +x "$Dir/xhost"
 
 	File="/etc/skel/.profile"
-	if ! grep -q "export KDEWM=/usr/bin/xfwm4" "$File"; then
+	if ! grep -q "export KDEWM=/usr/bin/xfwm4" "$File" 2>/dev/null; then
 		echo "export KDEWM=/usr/bin/xfwm4" >>"$File"
 	fi
 
