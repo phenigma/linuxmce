@@ -18,7 +18,7 @@ function outputScreenOrDevice()
 	print "\tOption \"AccelMethod\" \"exa\"";
 	print "\tOption \"ExaScratchSize\" \"8192\"";
 	print "\tOption \"MaxDRIMem\" \"16384\"";
-	print "\tOption \"MigrationHeuristic\" \"greedy\"";
+	print "\tOption \"MigrationHeuristic\" \"always\"";
 #<-mkr_b_via_e->
 
 	if (OpenGL == 0)
@@ -32,6 +32,7 @@ function outputScreenOrDevice()
 function outputExtensions()
 {
 	print "Section \"Extensions\"";
+#<-mkr_B_via_b->
 	if (OpenGL == 1)
 	{
 		print "\tOption \"Composite\" \"true\"";
@@ -40,6 +41,10 @@ function outputExtensions()
 	{
 		print "\tOption \"Composite\" \"false\"";
 	}
+#<-mkr_B_via_e->
+#<-mkr_b_via_b->
+	print "\tOption \"Composite\" \"false\"";
+#<-mkr_b_via_e->
 	print "\tOption \"RENDER\" \"true\"";
 	print "EndSection";
 }
