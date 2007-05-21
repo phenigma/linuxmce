@@ -30,15 +30,6 @@ fi
 
 export DISPLAY=:$Display
 
-## Kill kwin, xcompmgr
-killall -9 kwin
-killall -9 xfwm4
-killall -9 xcompmgr
-## Start xfwm4
-xfwm4 "${WMParm[@]}" &>/dev/null </dev/null &
-disown -a
-sleep 1
-	
 ## Detect if we're running dedicated or a shared desktop system
 if [[ "$SharedDesktop" != 1 ]]; then
 	### Dedicated desktop
@@ -87,12 +78,23 @@ else
 		done
 		if [[ "$DesktopActivated" != 1 ]]; then
 			Logging $TYPE $SEVERITY_WARNING "LaunchOrbiter" "Failed to increase number of desktops"
-			if ((N_Desktops < 2)); then
-				Logging $TYPE $SEVERITY_CRITICAL "LaunchOrbiter" "Number of desktops is lower than 2. We need at least two desktops for propper functionality."
-				exit 2
-			fi
-			((N_Desktops -= 2))
+			exit 2
 		fi
+	elif [[ "$N_Desktops" -lt 4 ]]; then
+		Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Number of desktops below 4. Setting to 4"
+		for ((i = 0; i < 5; i++)); do
+			wmctrl -n 4
+			N_Desktops_Result=$(wmctrl -d | wc -l)
+			if ((N_Desktops_Result == 4)); then
+				break
+			fi
+			sleep 1
+		done
+		if ((N_Desktops_Result != 4)); then
+			Logging $TYPE $SEVERITY_WARNING "LaunchOrbiter" "Failed to increase number of desktops"
+			exit 2
+		fi
+		N_Desktops=2
 	else
 		((N_Desktops -= 2))
 	fi
@@ -128,14 +130,6 @@ if [[ "$Valgrind" == *"$Executable"* ]]; then
 else
 	"$Executable" "$@"
 	Orbiter_RetCode=$?
-fi
-
-## Restore number of desktops
-if [[ "$SharedDesktop" == 1 && "$DesktopActivated" == 1 ]]; then
-	wmctrl -n "$N_Desktops"
-	ConfSet DesktopActivated 0
-
-        Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Decreasing number of desktops to $N_Desktops"
 fi
 
 exit ${Orbiter_RetCode}
