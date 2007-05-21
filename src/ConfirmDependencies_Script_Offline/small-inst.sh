@@ -191,11 +191,22 @@ function Setup_XOrg {
 
 		owner=$(stat -c '%u:%g' "$user")
 		chown -R "$owner" "$user"/.kde
+
+		File="$user/.profile"
+		if ! grep -q "export KDEWM=/usr/bin/xfwm4" "$File"; then
+			echo "export KDEWM=/usr/bin/xfwm4" >>"$File"
+		fi
+		chown -R "$owner" "$user"/.profile
 	done
 
 	Dir="/etc/skel/.kde/Autostart"
 	echo "$KDExhost" >"$Dir/xhost"
 	chmod +x "$Dir/xhost"
+	
+	File="/etc/skel/.profile"
+	if ! grep -q "export KDEWM=/usr/bin/xfwm4" "$File"; then
+		echo "export KDEWM=/usr/bin/xfwm4" >>"$File"
+	fi
 
 	## Add xrecord extention if missing
 	if grep -q ".*Load.*\"record\"" /etc/X11/xorg.conf ;then
