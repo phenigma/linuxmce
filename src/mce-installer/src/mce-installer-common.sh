@@ -134,19 +134,13 @@ function Setup_XOrg {
 		User="${user#/home/}"
 		chown "$User.$User" "$Dir/xhost"
 		chmod +x "$Dir/xhost"
-
-		File="$user/.profile"
-		if ! grep -q "export KDEWM=/usr/bin/xfwm4" "$File" 2>/dev/null; then
-			echo "export KDEWM=/usr/bin/xfwm4" >>"$File"
-		fi
-		chown -R "$owner" "$user"/.profile
 	done
 
 	Dir="/etc/skel/.kde/Autostart"
 	echo "$KDExhost" >"$Dir/xhost"
 	chmod +x "$Dir/xhost"
 
-	File="/etc/skel/.profile"
+	File="/etc/profile"
 	if ! grep -q "export KDEWM=/usr/bin/xfwm4" "$File" 2>/dev/null; then
 		echo "export KDEWM=/usr/bin/xfwm4" >>"$File"
 	fi
