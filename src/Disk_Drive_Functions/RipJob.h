@@ -30,6 +30,7 @@ namespace DCE
 namespace nsJukeBox
 {
 	class JukeBox;
+	class Slot;
 }
 
 using namespace DCE;
@@ -43,15 +44,15 @@ namespace nsJobHandler
 
 	private:
 		Disk_Drive_Functions *m_pDisk_Drive_Functions;
-		JukeBox *m_pJukeBox;
+		Slot *m_pSlot;
 		int m_iPK_Users, m_iEK_Disc, m_iDrive_Number,m_iPK_MediaType;
 		string m_sFormat, m_sFileName, m_sTracks;
 
 	public:
 		RipJob(class JobHandler *pJobHandler,
 			Disk_Drive_Functions *pDisk_Drive_Functions,
-			JukeBox *pJukeBox,
-			int iPK_Users, int iEK_Disc, int iDrive_Number, int iPK_MediaType,
+			Slot *pSlot,
+			int iPK_Users, int iEK_Disc, int iPK_MediaType,
 			int iPK_Orbiter,
 			string sFormat, string sFileName, string sTracks,
 			Command_Impl *pCommand_Impl);

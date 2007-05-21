@@ -22,24 +22,25 @@
 #include "DCE/Logger.h"
 #include "DCE/Command_Impl.h"
 #include "Disk_Drive_Functions/Disk_Drive_Functions.h"
+#include "JukeBox.h"
+#include "MoveDiscTask.h"
 
 using namespace nsJobHandler;
 using namespace DCE;
 
 RipJob::RipJob(class JobHandler *pJobHandler,
 			Disk_Drive_Functions *pDisk_Drive_Functions,
-			JukeBox *pJukeBox,
-			int iPK_Users, int iEK_Disc, int iDrive_Number, int iPK_MediaType,
+			Slot *pSlot,
+			int iPK_Users, int iEK_Disc, int iPK_MediaType,
 			int iPK_Orbiter,
 			string sFormat, string sFileName, string sTracks,
 			Command_Impl *pCommand_Impl)
 	: Job(pJobHandler,"RipJob",iPK_Orbiter,pCommand_Impl)
 {
 	m_pDisk_Drive_Functions=pDisk_Drive_Functions;
-	m_pJukeBox=pJukeBox;
+	m_pSlot=pSlot;
 	m_iPK_Users=iPK_Users;
 	m_iEK_Disc=iEK_Disc;
-	m_iDrive_Number=iDrive_Number;
 	m_iPK_MediaType=iPK_MediaType;
 	m_sFormat=sFormat;
 	m_sFileName=sFileName;
@@ -54,20 +55,21 @@ bool RipJob::ReadyToRun()
 		return true;
 	}
 
-	if( !m_pJukeBox ) // If we don't have a jukebox, something is wrong, we have nothing and can't proceed
+	if( !m_pSlot ) // If we don't have a jukebox, something is wrong, we have nothing and can't proceed
 	{
 		m_eJobStatus = job_Error;
 		return false;
 	}
 
 	// Try to get an available drive from the jukebox to do the ripping
-//	m_pDisk_Drive_Functions = m_pJukeBox->LockAvailableDrive(this);
-	if( m_pDisk_Drive_Functions==NULL )  // We don't have a drive
+	Drive *pDrive = m_pSlot->m_pJukeBox->LockAvailableDrive(Disk_Drive_Functions::locked_rip_job,this,NULL,true);
+	if( pDrive==NULL )  // We don't have a drive
 		return false;
 
-// MoveSlotToDrive();
-//		AddRippingTasks();
-// MoveDriveToSlot(any_available);
+	m_pDisk_Drive_Functions=pDrive;
+	AddTask(new MoveDiscTask(this,"SlotToDrive",MoveDiscTask::mdt_SlotToDrive,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
+	AddRippingTasks();
+	AddTask(new MoveDiscTask(this,"DriveToSlot",MoveDiscTask::mdt_DriveToSlot,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
 	return true;
 }
 
