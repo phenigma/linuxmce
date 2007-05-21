@@ -33,7 +33,7 @@ MythBackEnd_Socket::MythBackEnd_Socket(MythTV_PlugIn *pMythTV_PlugIn,string sIPA
 MythBackEnd_Socket::~MythBackEnd_Socket()
 {
 	delete m_pSocket;
-	delete m_pSocketBuffer;
+	delete[] m_pSocketBuffer;
 }
 
 bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse,string sContaining)
