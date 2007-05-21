@@ -206,12 +206,15 @@ bool ScreenHandler::Pnp_ObjectSelected(CallBackData *pData)
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName, int iDriveID)
+void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sFormat, string sName, int iEK_Disc, int iSlot_Number, int iDriveID)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, StringUtils::ltos(iPK_Users));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sFormat);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sName);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, StringUtils::itos(iEK_Disc));
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, StringUtils::itos(iSlot_Number));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(iDriveID));
-	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users, sName, iDriveID);
+	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, iPK_Users, sFormat, sName, iEK_Disc, iSlot_Number, iDriveID);
 }
 //-----------------------------------------------------------------------------------------------------
 string MediaFileBrowserOptions::HumanReadable()
@@ -2613,7 +2616,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 
 					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
 					
-					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,0,sTitle,sRipMessage,true);
+					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
 					m_pOrbiter->SendCommand(SCREEN_FileSave);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST )

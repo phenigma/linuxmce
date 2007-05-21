@@ -925,6 +925,33 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
     return pDataGrid;
 }
 
+class DataGridTable *Media_Plugin::CDTracks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+    DataGridTable *pDataGrid = new DataGridTable();
+    DataGridCell *pCell;
+
+	string sSQL = "select Track,Name FROM Attribute JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST) " AND FK_Disc=" + Parms;
+
+	PlutoSqlResult result;
+    MYSQL_ROW row;
+
+	int currentPos=0;
+
+    if( (result.r=m_pDatabase_pluto_media->mysql_query_result(sSQL)) )
+        while( (row=mysql_fetch_row(result.r)) )
+		{
+			if( row[0] && row[1] )
+			{
+				pCell = new DataGridCell(row[1],row[0]);
+				pDataGrid->SetData(0, currentPos++,pCell);
+			}
+		}
+
+    return pDataGrid;
+}
+
 class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
     FileListGrid *pDataGrid = new FileListGrid( m_pDatagrid_Plugin, this );

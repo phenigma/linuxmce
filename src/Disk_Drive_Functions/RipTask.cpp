@@ -87,7 +87,7 @@ int RipTask::Run()
 		m_sName.c_str(), pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus, strParameters.c_str());
 
 	string sResultMessage =
-		StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) + " " + StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) +
+		StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_dwPK_Device) + " " + StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) +
 			" " + StringUtils::itos(MESSAGETYPE_COMMAND) +
 			" " + StringUtils::itos(COMMAND_Update_Ripping_Status_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_Task_CONST) + " " + StringUtils::itos(m_iID_get()) +
 			" " + StringUtils::itos(COMMANDPARAMETER_Job_CONST) + " " + StringUtils::itos(m_pJob->m_iID_get()) + " " +

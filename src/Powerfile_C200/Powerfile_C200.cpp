@@ -43,6 +43,7 @@ using namespace DCE;
 using namespace StringUtils;
 
 #include "PowerfileJukebox.h"
+#include "Disk_Drive_Functions/RipTask.h"
 
 namespace nsJobHandler
 {
@@ -385,6 +386,7 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 							pMessageOut->m_mapParameters[COMMANDPARAMETER_Block_Device_CONST]=sBlock_Device;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
+							return;
 						}
 					}
 				}
@@ -406,6 +408,7 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 					string sDirectory=pMessage->m_mapParameters[COMMANDPARAMETER_Directory_CONST];
 
 					pDrive->CMD_Rip_Disk( sFilename,iPK_Users,sFormat,sTracks,iEK_Disc,iSlot_Number,iDriveID,sDirectory, sCMD_Result, pMessage);
+					return;
 				}
 			}
 
@@ -694,13 +697,16 @@ void Powerfile_C200::CMD_Close_Tray(string &sCMD_Result,Message *pMessage)
 void Powerfile_C200::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
-#ifdef NOTDEF
-	Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
-	if (pDDF)
+	/*
+	Drive *pDrive = m_pPowerfileJukebox->LockAvailableDrive(Disk_Drive_Functions::locked_rip_job,NULL,NULL,true);
+	if( !pDrive )
 	{
-		pDDF->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, iDrive_Number, sCMD_Result, pMessage);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::CMD_Rip_Disk no available drive");
+		return;
 	}
-#endif
+
+	m_pDisk_Drive_Functions->CMD_Rip_Disk( sFilename,iPK_Users,sFormat,sTracks,iEK_Disc,iSlot_Number,iDriveID,sDirectory, sCMD_Result, pMessage);
+	*/
 }
 //<-dceag-c720-b->
 
@@ -1327,6 +1333,16 @@ void Powerfile_C200::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename
 void Powerfile_C200::CMD_Update_Ripping_Status(string sText,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,Message *pMessage)
 //<-dceag-c871-e->
 {
+	PLUTO_SAFETY_LOCK(jm,*m_pPowerfileJukebox->m_pJobHandler->m_ThreadMutex_get());
+	Task *pTask = m_pPowerfileJukebox->m_pJobHandler->FindTask(atoi(sJob.c_str()),atoi(sTask.c_str()));
+	if( !pTask )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Powerfile_C200::CMD_Update_Ripping_Status invalid job %s task %s",sJob.c_str(),sTask.c_str());
+		return;
+	}
+
+	RipTask *pRipTask = (RipTask *) pTask;
+	pRipTask->UpdateProgress(sStatus,iPercent,atoi(sTime.c_str()),sText,sFilename);
 }
 
 bool Powerfile_C200::SafeToReload(string &sReason)

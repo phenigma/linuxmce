@@ -554,6 +554,10 @@ bool Media_Plugin::Register()
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::CurrentMediaSections) )
         , DATAGRID_Current_Media_Sections_CONST,PK_DeviceTemplate_get() );
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::CDTracks) )
+        , DATAGRID_Current_Media_Sections_CONST,PK_DeviceTemplate_get() );
+
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::AvailablePlaylists) )
         , DATAGRID_Playlists_CONST,PK_DeviceTemplate_get() );
@@ -3799,7 +3803,7 @@ void Media_Plugin::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,st
 	// If it's a cd and no tracks were specified, prompt the user, otherwise fill in the file names
 	if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST && sTracks.size()==0 )
 	{
-		SCREEN_CDTrackCopy SCREEN_CDTrackCopy(m_dwPK_Device,pMessage->m_dwPK_Device_From, iPK_Users,sFilename,iDriveID);
+		SCREEN_CDTrackCopy SCREEN_CDTrackCopy(m_dwPK_Device,pMessage->m_dwPK_Device_From, iPK_Users,sFormat,sFilename,iEK_Disc,iSlot_Number,iDriveID);
 		SendCommand(SCREEN_CDTrackCopy);
 		return;
 	}
@@ -6421,12 +6425,24 @@ void Media_Plugin::ReleaseDriveLock(MediaStream *pMediaStream)
 	MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
 	if( pMediaFile && pMediaFile->m_dwPK_Device_Disk_Drive )
 	{
-		string sText;
-		bool bIsSuccessful=false;
-		DCE::CMD_Lock CMD_Lock(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,m_dwPK_Device,
-			"",false,&sText,&bIsSuccessful);
-		if( !SendCommand(CMD_Lock) || bIsSuccessful==false )
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::ReleaseDriveLock Cannot unlock drive %d", pMediaFile->m_dwPK_Device_Disk_Drive);
+		DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(pMediaFile->m_dwPK_Device_Disk_Drive);
+		if( pDevice && pDevice->WithinCategory(DEVICECATEGORY_CDDVD_Jukeboxes_CONST)==false )  // If the lock failed and there were no avail drives, m_dwPK_Device_Disk_Drive will be a jukebox, and not a drive
+		{
+			string sText;
+			bool bIsSuccessful=false;
+			DCE::CMD_Lock CMD_Lock(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,m_dwPK_Device,
+				"",false,&sText,&bIsSuccessful);
+			if( !SendCommand(CMD_Lock) || bIsSuccessful==false )
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::ReleaseDriveLock Cannot unlock drive %d", pMediaFile->m_dwPK_Device_Disk_Drive);
+
+			// If this is within a jukebox, then we're done with the disc so put it back in a lot
+			if( pDevice && pDevice->m_pDevice_ControlledVia && pDevice->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_CDDVD_Jukeboxes_CONST) )
+			{
+				int i=-1;
+				DCE::CMD_Unload_from_Drive_into_Slot CMD_Unload_from_Drive_into_Slot(m_dwPK_Device,pDevice->m_dwPK_Device,pDevice->m_dwPK_Device,&i);
+				SendCommand(CMD_Unload_from_Drive_into_Slot);
+			}
+		}
 	}
 }
 

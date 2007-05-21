@@ -1370,14 +1370,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_CDTrackCopy(long DeviceIDFrom, long DeviceIDTo,
-			int iPK_Users, string sName, int iDriveID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			int iPK_Users, string sFormat, string sName, int iEK_Disc, int iSlot_Number, int iDriveID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 10, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 20 /* Format */, sFormat.c_str(), 50 /* The name to save this disc as */, sName.c_str(), 131 /* EK_Disc */, StringUtils::ltos(iEK_Disc).c_str(), 151 /* Slot */, StringUtils::ltos(iSlot_Number).c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
 		}
 	};
 
@@ -1385,14 +1385,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_CDTrackCopy_DL(long DeviceIDFrom, string sDeviceIDTo,
-			int iPK_Users, string sName, int iDriveID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			int iPK_Users, string sFormat, string sName, int iEK_Disc, int iSlot_Number, int iDriveID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 10, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 20 /* Format */, sFormat.c_str(), 50 /* The name to save this disc as */, sName.c_str(), 131 /* EK_Disc */, StringUtils::ltos(iEK_Disc).c_str(), 151 /* Slot */, StringUtils::ltos(iSlot_Number).c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
 		}
 	};
 
@@ -1400,14 +1400,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_CDTrackCopy_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			int iPK_Users, string sName, int iDriveID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			int iPK_Users, string sFormat, string sName, int iEK_Disc, int iSlot_Number, int iDriveID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 10, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 20 /* Format */, sFormat.c_str(), 50 /* The name to save this disc as */, sName.c_str(), 131 /* EK_Disc */, StringUtils::ltos(iEK_Disc).c_str(), 151 /* Slot */, StringUtils::ltos(iSlot_Number).c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
 		}
 	};
 
@@ -1415,14 +1415,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_CDTrackCopy_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			int iPK_Users, string sName, int iDriveID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			int iPK_Users, string sFormat, string sName, int iEK_Disc, int iSlot_Number, int iDriveID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 10, 
 				COMMANDPARAMETER_PK_Screen_CONST, "25" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 50 /* The name to save this disc as */, sName.c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
+				17 /* PK Users */, StringUtils::ltos(iPK_Users).c_str(), 20 /* Format */, sFormat.c_str(), 50 /* The name to save this disc as */, sName.c_str(), 131 /* EK_Disc */, StringUtils::ltos(iEK_Disc).c_str(), 151 /* Slot */, StringUtils::ltos(iSlot_Number).c_str(), 233 /* The id of the external drive */, StringUtils::ltos(iDriveID).c_str());
 		}
 	};
 
@@ -13240,7 +13240,7 @@ namespace DCE
 		virtual void SCREEN_MakeCallPhonebook2(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MakeCallIntercom(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CurrentUser(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sName, int iDriveID){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sFormat, string sName, int iEK_Disc, int iSlot_Number, int iDriveID){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CDRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_VoicemailMain(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_TransferAllUsers(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -13628,9 +13628,12 @@ namespace DCE
 				{
 					ResetCallBacks();
 					int iPK_Users = atoi(pMessage->m_mapParameters[17].c_str());
+					string sFormat = pMessage->m_mapParameters[20];
 					string sName = pMessage->m_mapParameters[50];
+					int iEK_Disc = atoi(pMessage->m_mapParameters[131].c_str());
+					int iSlot_Number = atoi(pMessage->m_mapParameters[151].c_str());
 					int iDriveID = atoi(pMessage->m_mapParameters[233].c_str());
-					SCREEN_CDTrackCopy(nPK_Screen, iPK_Users, sName, iDriveID);
+					SCREEN_CDTrackCopy(nPK_Screen, iPK_Users, sFormat, sName, iEK_Disc, iSlot_Number, iDriveID);
 					break;
 				}
 				case 26:
