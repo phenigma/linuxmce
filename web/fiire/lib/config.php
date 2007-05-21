@@ -30,6 +30,7 @@ $GLOBALS['smf_db_prefix']='smf_';
 
 // contact email
 $GLOBALS['contact_email']='your_name@your_address.com';
+$GLOBALS['support_email']='support@your_address.com';
 
 // override PHP settings, if necessary
 ini_set('max_execution_time',30000);

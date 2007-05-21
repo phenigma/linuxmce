@@ -2037,7 +2037,7 @@ function process_report_issue($conn){
 	
 	Go to <a href="'.$GLOBALS['website_url'].'/tickets/">ticketing application</a>';
 	
-	send_mail('Fiire website','noreply@fiire.com','Fiire Support',$GLOBALS['contact_email'],'Support request #'.$ticketID,$msg);
+	send_mail('Fiire website','noreply@fiire.com','Fiire Support',$GLOBALS['support_email'],'Support request #'.$ticketID,$msg);
 	
 	return 'Thank you, your issue was recorded.<br>This is your ticket number: <span class="price">'.$ticketID.'</span><br>
 	You can check it\'s status at any time from "My Account / Support request" section.';
