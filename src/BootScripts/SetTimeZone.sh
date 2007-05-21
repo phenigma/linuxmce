@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Utils.sh
+
 timeZone="$1"
 
 ## Function for seting timezone for a computer
