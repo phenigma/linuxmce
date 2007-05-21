@@ -1824,10 +1824,10 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity){
 	}
 	$filters='';
 	if($selRegion!=0){
-		$filters.=' AND FK_Region='.$selRegion;
+		$filters.=' AND dealers.FK_Region='.$selRegion;
 	}
 	if($selCity!=0){
-		$filters.=' AND FK_City='.$selCity;
+		$filters.=' AND dealers.FK_City='.$selCity;
 	}
 	$ratingArray=array(
 		0=>'Rate dealer',
