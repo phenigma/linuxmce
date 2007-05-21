@@ -812,7 +812,7 @@ function incident_details($conn){
 	if($id==0){
 		return 'Invalid ID';
 	}
-	$data=getFields('Incidents','INNER JOIN Users ON Users.id=user_id LEFT JOIN BugOptions ON BugOptions.id=bug_option_id INNER JOIN BugResults ON BugResults.id=bug_result_id WHERE Incidents.id='.$id,$conn);
+	$data=getFields('Incidents','INNER JOIN Users ON Users.id=user_id LEFT JOIN BugOptions ON BugOptions.id=bug_option_id LEFT JOIN BugResults ON BugResults.id=bug_result_id WHERE Incidents.id='.$id,$conn);
 	if(count($data)==0){
 		return 'Invalid ID';
 	}

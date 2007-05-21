@@ -1434,7 +1434,9 @@ function get_referrals_summary_array($uID,$conn){
 }
 
 function get_support_request($conn){
-	$res=query("SELECT * FROM Incidents ORDER BY date_reported DESC",$conn);
+
+	$userID=(int)@$_SESSION['uID'];
+	$res=query("SELECT * FROM Incidents WHERE user_id=$userID ORDER BY date_reported DESC",$conn);
 	if(mysql_num_rows($res)==0){
 		return 'No support requests.';
 	}
@@ -2026,6 +2028,16 @@ function process_report_issue($conn){
 	
 	query("INSERT INTO Incidents (user_id,date_reported,description,status_id) VALUES ($user_id,NOW(),'$description',10)",$conn);
 	$ticketID=mysql_insert_id($conn);
+	
+	$msg='
+	New support ticket opened: #'.$ticketID.'<br>
+	Opener: '.$_SESSION['username'].'<br>
+	Email address: '.$_SESSION['uemail'].'<br>
+	Details: <hr>'.nl2br(stripslashes($description)).'<br><br>
+	
+	Go to <a href="'.$GLOBALS['website_url'].'/tickets/">ticketing application</a>';
+	
+	send_mail('Fiire website','noreply@fiire.com','Fiire Support',$GLOBALS['contact_email'],'Support request #'.$ticketID,$msg);
 	
 	return 'Thank you, your issue was recorded.<br>This is your ticket number: <span class="price">'.$ticketID.'</span><br>
 	You can check it\'s status at any time from "My Account / Support request" section.';
