@@ -79,7 +79,7 @@ bool JukeBox::Init()
 	m_pJobHandler->StartThread();
 	m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
 	// TODO: the connection data is stored in pluto.conf; use it
-	if (!m_pDatabase_pluto_media->Connect("192.168.80.2", "root", "", "pluto_media", 3306))
+	if (!m_pDatabase_pluto_media->Connect(m_pCommand_Impl->m_sIPAddress, "root", "", "pluto_media", 3306))
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		m_pCommand_Impl->m_bQuit_set(true);
