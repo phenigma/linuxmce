@@ -281,9 +281,9 @@ function RemoveOfflineSource {
 
 
 Core_PK_Device="0"
-killall NetworkManager
-killall NetworkManagerDispatcher
 if [[ "$c_netExtKeep" != "true" ]] ;then
+	killall NetworkManager
+	killall NetworkManagerDispatcher
 	Setup_Network_Intefaces
 fi
 Setup_Apt_Conffiles
