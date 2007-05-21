@@ -752,7 +752,7 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 
 	*pcBuf = 0;
 	pcBuf--;
-	while( *pcBuf == '\r' || *pcBuf == '\n' && pcBuf >= acBuf ) // replacing cariage return and \n with \0
+	while( pcBuf >= acBuf && ( *pcBuf == '\r' || *pcBuf == '\n' ) ) // replacing cariage return and \n with \0
 		*pcBuf-- = '\0';
 	sRefString = acBuf;
 
