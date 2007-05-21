@@ -12,8 +12,13 @@ function CheckTimeZoneSettings {
 	local City=$(Field 3 "$R")
 	local State=$(Field 4 "$R")
 
+	echo "( $FK_City ) ( $FK_Country ) ( $City ) ( $State ) " >> /var/log/pluto/timezone.log
+
 	if [[ "$FK_City" == "0" ]] || [[ "$FK_Country" == "0" ]] ||
-	   [[ -z "$City" ]] || [[ -z "$State" ]] ;then
+	   [[ -z "$City" ]] || [[ -z "$State" ]] || 
+	   [[ -z "$FK_City" ]] || [[ -z "$FK_Country" ]] || 
+	   [[ "$FK_City" == "NULL" ]] || [[ "$FK_Country" == "NULL" ]] ||
+	   [[ "$City" == "NULL" ]] || [[ "$State" == "NULL" ]] ;then
 		return 1
 	fi
 
@@ -50,4 +55,4 @@ RunSQL "$Query"
 
 /usr/pluto/bin/SetTimeZone.sh "$TimeZone"
 ConfSet TimeZoneSet 1
-invoke-rc.d ntpdate restart
+invoke-rc.d ntp restart
