@@ -42,4 +42,24 @@ else
 		fi
 	fi
 fi
+
+if [ -e /usr/share/kubuntu-default-settings/kde-profile/default/share/config/ksmserverrc ] ;then
+	flag='0'
+	if ! grep -qF 'excludeApps=xfwm4' /usr/share/kubuntu-default-settings/kde-profile/default/share/config/ksmserverrc ;then
+			while read line ;do
+					if [[ "$line" == "[General]" ]] ;then
+							flag='1'
+					fi
+					if [[ "$flag" == "1" ]] ;then
+							echo "$line" >> /usr/share/kubuntu-default-settings/kde-profile/default/share/config/ksmserverrc.$$
+							echo "excludeApps=xfwm4" >> /usr/share/kubuntu-default-settings/kde-profile/default/share/config/ksmserverrc.$$
+							flag='0'
+					else
+							echo "$line" >> /usr/share/kubuntu-default-settings/kde-profile/default/share/config/ksmserverrc.$$
+					fi
+			done < /usr/share/kubuntu-default-settings/kde-profile/default/share/config/ksmserverrc
+			mv /usr/share/kubuntu-default-settings/kde-profile/default/share/config/ksmserverrc.$$ /usr/share/kubuntu-default-settings/kde-profile/default/share/config/ksmserverrc
+	fi
+fi
+
 exit 0
