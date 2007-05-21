@@ -147,6 +147,9 @@ void ViaOverlay::WorldChanged()
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ResetAlphaMask()
 {
+	if(!m_bOverlayInitialized)
+		return;
+
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA Reseting alpha surface...");
@@ -161,12 +164,18 @@ void ViaOverlay::ResetAlphaMask()
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::SuspendOverlay()
 {
+	if(!m_bOverlayInitialized)
+		return;
+
 	m_bOverlaySuspended = true;
 	memset(m_lpAlphaSurface, 0x00, m_nWidth * m_nHeight);
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ResumeOverlay()
 {
+	if(!m_bOverlayInitialized)
+		return;
+
 	m_bOverlaySuspended = false;
 	memcpy(m_lpAlphaSurface, m_BufferMask, m_nWidth * m_nHeight);
 }
@@ -236,8 +245,13 @@ void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, un
 bool ViaOverlay::VMI_CreateConnection()
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
+	
+	int nReturnCode = VMI_Create(&m_VMI_Info);
 
-	return VMI_OK == VMI_Create(&m_VMI_Info);
+	if(nReturnCode != VMI_OK)
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VMI_Create failed code %d", nReturnCode);
+
+	return VMI_OK == nReturnCode;
 }
 //-------------------------------------------------------------------------------------------------------
 bool ViaOverlay::CreateAlphaSurface(int nWidth, int nHeight)
