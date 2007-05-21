@@ -24,6 +24,7 @@ function get_login($conn){
 function get_login_form(){
 	$variables=array();
 	$page_template=implode('',file('templates/login_form.html'));
+	$variables=set_variable($variables,'back',@$_REQUEST['back']);
 	if(isset($_SESSION['login_error'])){
 		$variables=set_variable($variables,'login_error',$_SESSION['login_error']);
 		unset($_SESSION['login_error']);
@@ -40,8 +41,9 @@ function process_login($conn){
 		$_SESSION['login_error']=$isAut;
 		return get_login_form();
 	}
+	$back=($_REQUEST['back']!='')?base64_decode($_REQUEST['back']):'index.php';
 	
-	header("Location: index.php");
+	header("Location: ".$back);
 	exit();
 }
 
@@ -388,7 +390,7 @@ function process_add_incident($conn){
 
 function edit_incident($conn){
 	if(!isset($_SESSION['staffID'])){
-		header("Location: login.php");
+		header("Location: login.php?back=".base64_encode('edit_incident.php?'.$_SERVER['QUERY_STRING']));
 		exit();
 	}
 		

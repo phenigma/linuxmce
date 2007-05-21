@@ -2035,7 +2035,7 @@ function process_report_issue($conn){
 	Email address: '.$_SESSION['uemail'].'<br>
 	Details: <hr>'.nl2br(stripslashes($description)).'<br><br>
 	
-	Go to <a href="'.$GLOBALS['website_url'].'/tickets/">ticketing application</a>';
+	Go to <a href="'.$GLOBALS['website_url'].'/tickets/edit_incident.php?id='.$ticketID.'">ticketing application</a>';
 	
 	send_mail('Fiire website','noreply@fiire.com','Fiire Support',$GLOBALS['support_email'],'Support request #'.$ticketID,$msg);
 	
