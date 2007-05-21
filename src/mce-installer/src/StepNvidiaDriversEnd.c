@@ -24,7 +24,7 @@ void displayStepNvidiaDriversEnd(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("The driver has been changed, and the installer will now exit.  Please choose ‘Logout’ from the KDE menu, and click on the ‘menu’ icon on the login screen to choose ‘Restart X’.  Then login again and restart the installer.");
+	GtkWidget *label = gtk_label_new_for_wizard ("The driver has been changed, and the installer will now exit.");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 	
 	// Button Forward

@@ -69,3 +69,5 @@ Section == "Screen" && /EndSection/ {
 { print; }
 ' /etc/X11/xorg.conf >/etc/X11/xorg.conf.$$
 mv /etc/X11/xorg.conf{.$$,}
+
+reboot

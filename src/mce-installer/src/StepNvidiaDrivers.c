@@ -59,7 +59,7 @@ void displayStepNvidiaDrivers(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("The open source nv driver doesn’t work well.  Replace it with nVidia’s proprietary driver?");
+	GtkWidget *label = gtk_label_new_for_wizard ("The open source nv driver doesn’t work well. Shall I switch to the nVidia driver?  (Note: this will reboot the system)?");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 
