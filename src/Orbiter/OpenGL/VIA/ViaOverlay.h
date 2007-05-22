@@ -41,7 +41,13 @@ extern "C"
 };
 //-------------------------------------------------------------------------------------------------------
 #include <list>
-#include "DCE/Logger.h" 
+#include <string>
+
+#ifdef VIA_DIAG_TEST_UNIT
+	#define pluto_pthread_mutex_t long
+#else
+	#include "DCE/Logger.h" 
+#endif
 //-------------------------------------------------------------------------------------------------------
 class ViaOverlay
 {

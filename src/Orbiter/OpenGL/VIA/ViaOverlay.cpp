@@ -33,25 +33,64 @@
  */
 #include "ViaOverlay.h"
 
-#include "DCE/Logger.h"
-#include "SDL_Helpers/SDL_Defs.h"
-#include "SDL_Helpers/SDL_pixel.h"
-#include "SDL_Helpers/SDL_SavePNG.h"
-#include "SDL.h"
-using namespace DCE;
+#ifdef VIA_DIAG_TEST_UNIT
+	#include <stdarg.h>
+
+	#define PLUTO_SAFETY_LOCK(x, y) 
+
+	#define LV_STATUS	1
+	#define LV_WARNING	2
+	#define LV_CRITICAL 3
+
+	class LoggerWrapper
+	{
+		static LoggerWrapper *m_pLoggerWrapper;
+
+	public:
+		static LoggerWrapper *GetInstance()
+		{
+			if(NULL == m_pLoggerWrapper)
+				m_pLoggerWrapper = new LoggerWrapper();
+
+			return m_pLoggerWrapper;
+		}
+
+		void Write(int iLevel, const char *pcFormat, ... ) 
+		{
+			va_list argList;
+			va_start(argList, pcFormat);
+			printf("%s", iLevel == LV_WARNING ? "(WW)\t: " : iLevel == LV_CRITICAL ? "(EE)\t" : "(II)\t:");
+			printf(pcFormat, argList);
+			va_end(argList); 
+		}
+	};
+
+	LoggerWrapper *LoggerWrapper::m_pLoggerWrapper = NULL;
+#else
+	#include "SDL_Helpers/SDL_Defs.h"
+	#include "SDL_Helpers/SDL_pixel.h"
+	#include "SDL_Helpers/SDL_SavePNG.h"
+	#include "SDL.h"
+
+	using namespace DCE;
+#endif
 //-------------------------------------------------------------------------------------------------------
 ViaOverlay ViaOverlay::m_Instance;
 //-------------------------------------------------------------------------------------------------------
 ViaOverlay::ViaOverlay() : 
+#ifndef VIA_DIAG_TEST_UNIT
 	m_ScreenMutex("screen mutex"), 
+#endif
 	m_lpAlphaSurface(NULL), m_nWidth(0), m_nHeight(0), m_bOverlayInitialized(false),
 	m_bHasPopups(false), m_ScreenMask(NULL), m_BufferMask(NULL), m_bOverlaySuspended(false)
 {
+#ifndef VIA_DIAG_TEST_UNIT
 	pthread_mutexattr_t m_ScreenAttr;
 	pthread_mutexattr_init(&m_ScreenAttr);
 	pthread_mutexattr_settype(&m_ScreenAttr, PTHREAD_MUTEX_RECURSIVE_NP);
 	m_ScreenMutex.Init(&m_ScreenAttr);
 	pthread_mutexattr_destroy(&m_ScreenAttr); 
+#endif
 
 	memset(&m_VMI_Info, 0, sizeof(VMI_INFO_PARAM));
 }
@@ -70,7 +109,9 @@ ViaOverlay::~ViaOverlay()
 	delete [] m_BufferMask;
 	m_BufferMask = NULL;
 
+#ifndef VIA_DIAG_TEST_UNIT
 	pthread_mutex_destroy(&m_ScreenMutex.mutex); 
+#endif
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::WindowCreated(unsigned long nWidth, unsigned long nHeight)
@@ -329,6 +370,7 @@ bool ViaOverlay::UpdateAlphaSurface()
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::DumpMask()
 {
+#ifndef VIA_DIAG_TEST_UNIT
 	SDL_Surface *pSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_nWidth, m_nHeight, 32, rmask, gmask, bmask, amask);
 
 	for(int j = 0; j < m_nHeight; j++)
@@ -337,6 +379,7 @@ void ViaOverlay::DumpMask()
 
 	IMG_SavePNG(pSurface, "/home/mask-dump.png");
 	SDL_FreeSurface(pSurface);
+#endif
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ShowPopup(int x, int y, int w, int h)
