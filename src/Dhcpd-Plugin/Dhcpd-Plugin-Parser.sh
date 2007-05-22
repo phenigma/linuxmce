@@ -11,6 +11,12 @@
 #Dec 20 05:44:43 dcerouter dhcpd: DHCPREQUEST for 192.168.80.253 (192.168.80.1) from 00:0f:23:fc:a4:ea (SEP000F23FCA4EA) via eth1
 #Dec 20 05:44:43 dcerouter dhcpd: DHCPACK on 192.168.80.253 to 00:0f:23:fc:a4:ea (SEP000F23FCA4EA) via eth1
 
+# This is a dhclient sequence
+#May 22 20:59:21 dcerouter dhclient: DHCPREQUEST on eth0 to 10.0.0.150 port 67
+#May 22 20:59:21 dcerouter dhclient: DHCPACK from 10.0.0.150
+#May 22 20:59:21 dcerouter dhclient: bound to 10.0.0.84 -- renewal in 31 seconds.
+
+
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
@@ -56,6 +62,9 @@ while :; do
 
 	line=$(parse "$inline")
 	tag=$(extract_field 5 "$line")
+
+	case "$tag" in
+		"dhcpd:")
 	op=$(extract_field 6 "$line")
 	mac_found=$(extract_field 10 "$line")
 	ip_sent=$(extract_field 8 "$line")
@@ -84,6 +93,15 @@ while :; do
 				fi
 			else
 				log_plugin log "Device already exists: $R"
+			fi
+		;;
+	esac
+		;;
+		"dhclient:")
+			text="$(extract_field 6,7 "$line")"
+			if [[ "$text" == "bound,to" ]]; then
+				/usr/pluto/bin/Network_DNS.sh dhclienthook
+				/usr/pluto/bin/Network_NIS.sh
 			fi
 		;;
 	esac
