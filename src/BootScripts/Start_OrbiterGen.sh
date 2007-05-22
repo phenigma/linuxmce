@@ -17,7 +17,9 @@ OutDir=/usr/pluto/orbiter
 # send progress messages to boot splash?
 ToSplash="-b"
 
-#
+#<-mkr_b_ubuntu_b->
+ToSplash=""
+#<-mkr_b_ubuntu_e->
 
 /usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.log)
 

@@ -13,7 +13,9 @@
 #  -- Razvan Gavril <razvan.g@plutohome.com> Wed, 11 Jan 2006
 #
 
-#
+#<-mkr_b_ubuntu_b->
+exit 0
+#<-mkr_b_ubuntu_e->
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
