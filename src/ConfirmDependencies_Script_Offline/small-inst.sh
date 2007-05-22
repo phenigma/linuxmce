@@ -273,10 +273,17 @@ YPXFRDARGS=
 " > /etc/default/nis
 }
 
+KillNetworkManager()
+{
+	apt-get -f -y remove network-manager
+}
+
 c_deviceType=2
 c_installUI=1
 
 /usr/pluto/install/PreseedStage2.sh
+
+KillNetworkManager
 
 Setup_NIS
 
