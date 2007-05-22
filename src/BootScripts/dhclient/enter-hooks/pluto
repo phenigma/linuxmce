@@ -1,0 +1,4 @@
+#!/bin/bash
+
+/usr/pluto/bin/Network_DNS.sh dhclienthook
+/usr/pluto/bin/Network_NIS.sh
