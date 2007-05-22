@@ -3,23 +3,18 @@
 . /usr/pluto/bin/Config_Ops.sh
 export DISPLAY=:${Display}
 while /bin/true ;do
-	X_Is_Ok=true
-	X_Start_Time=$(date +%s)
+	XPID=$(</var/run/plutoX$Display.pid)
+	if [[ -z "$XPID" || ! -d /proc/"$XPID" ]] ;then
 		/usr/pluto/bin/Start_X.sh -config /etc/X11/xorg.conf
-		export KDE_DEBUG=1
-		/usr/pluto/bin/lmce_launch_manager
-		export -n KDE_DEBUG
-	X_Stop_Time=$(date +%s)
-
-	## If X exited to quick
-	if [[ $(( $X_Stop_Time - $X_Start_Time )) -lt 4 ]] ;then
-		X_Is_Ok=false
 	fi
 
-	## If X cannot start, run the script in console
-	if [[ "$X_Is_Ok" == "false" ]] ;then
-		echo "FAILED TO START X11"
-	fi
+	export KDE_DEBUG=1
+	/usr/pluto/bin/lmce_launch_manager
+
+	while [[ "$(pidof lmce_launch_manager)" != "" ]] ;do
+		sleep 5
+	done
+	export -n KDE_DEBUG
 done
 
 
