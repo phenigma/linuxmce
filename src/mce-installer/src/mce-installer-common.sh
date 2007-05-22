@@ -117,7 +117,6 @@ YPPASSWDDARGS=
 YPXFRDARGS=
 " > /etc/default/nis
 }
-
 function Setup_XOrg {
 	## Make X accessible by Pluto software, for all existing and new users
 	KDExhost="#!/bin/bash
@@ -128,23 +127,41 @@ function Setup_XOrg {
 		if [[ ! -d "$user" ]]; then
 			continue
 		fi
+		owner=$(stat -c '%u:%g' "$user")
+
 		Dir="$user/.kde/Autostart"
 		mkdir -p "$Dir"
 		echo "$KDExhost" >"$Dir/xhost"
-		User="${user#/home/}"
-		chown "$User.$User" "$Dir/xhost"
+		chown "$owner" "$Dir/xhost"
 		chmod +x "$Dir/xhost"
+
+		## Configure window manager trasparancy manager
+		WMTweaksFile="$user/.config/xfce4/mcs_settings/wmtweaks.xml"
+		mkdir -p "$(dirname "$WMTweaksFile")"
+
+		if [[ -f "$WMTweaksFile" ]]; then
+			sed -i '/Xfwm\/UseCompositing/ s/value="."/value="1"/g' "$WMTweaksFile"
+		else
+			wmtweaks_default >"$WMTweaksFile"
+		fi
+		
+		chown -R "$owner" "$user"/.kde
+		chown -R "$owner" "$user"/.config
 	done
 
 	Dir="/etc/skel/.kde/Autostart"
 	echo "$KDExhost" >"$Dir/xhost"
 	chmod +x "$Dir/xhost"
-
+	
 	File="/etc/profile"
 	if ! grep -q "export KDEWM=/usr/bin/xfwm4" "$File" 2>/dev/null; then
 		echo "export KDEWM=/usr/bin/xfwm4" >>"$File"
 	fi
 
+	WMTweaksFile="/etc/skel/.config/xfce4/mcs_settings/wmtweaks.xml"
+	mkdir -p "$(dirname "$WMTweaksFile")"
+	wmtweaks_default >"$WMTweaksFile"
+	
 	## Add xrecord extention if missing
 	if grep -q ".*Load.*\"record\"" /etc/X11/xorg.conf ;then
 		echo "Found xrecord , skiping ..."
