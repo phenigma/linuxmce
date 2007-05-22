@@ -681,7 +681,7 @@ void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
 				}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %s is a go", sValue.c_str());
 				sDrive = sRealValue.empty() ? sValue : sRealValue;
-				DATA_Set_Drive(sDrive);
+				SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_Drive_CONST,sDrive);
 				return;
 			}
 		}
