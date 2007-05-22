@@ -9265,7 +9265,8 @@ void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *
 	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Orbiter quiting..."); 
 	Orbiter_Command::OnQuit(); 
 
-	m_pOrbiterRenderer->OnQuit();
+	if(NULL != m_pOrbiterRenderer)
+		m_pOrbiterRenderer->OnQuit();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter::OnReload() 
