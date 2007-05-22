@@ -171,9 +171,9 @@ function getVariants($arr){
 	if(count($arr)==0){
 		return $retArr;
 	}
-	
+	print_array($arr);
 	foreach ($arr AS $id=>$item){
-		if(isset($item[0]['children'][0]['tagData']) && isset($item[0]['children'][1]['tagData'])){
+		if(isset($item[0]) && isset($item[0]) && isset($item[0]['children']) && isset($item[0]['children'][0]) && isset($item[0]['children'][0]['tagData']) && isset($item[0]['children'][1]['tagData'])){
 			$key=$item[0]['children'][0]['tagData'];
 			$value=$item[0]['children'][1]['tagData'];
 
