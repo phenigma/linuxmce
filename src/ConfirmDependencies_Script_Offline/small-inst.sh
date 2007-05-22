@@ -172,6 +172,39 @@ function Create_And_Config_Devices {
 	/usr/pluto/bin/Update_StartupScrips.sh
 }
 
+function wmtweaks_default()
+{
+	echo '<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mcs-option SYSTEM "mcs-option.dtd">
+
+<mcs-option>
+	<option name="Xfwm/BorderlessMaximize" type="int" value="1"/>
+	<option name="Xfwm/CycleHidden" type="int" value="1"/>
+	<option name="Xfwm/CycleMinimum" type="int" value="1"/>
+	<option name="Xfwm/CycleWorkspaces" type="int" value="0"/>
+	<option name="Xfwm/EasyClick" type="string" value="Alt"/>
+	<option name="Xfwm/FocusHint" type="int" value="1"/>
+	<option name="Xfwm/FrameOpacity" type="int" value="100"/>
+	<option name="Xfwm/InactiveOpacity" type="int" value="100"/>
+	<option name="Xfwm/MoveOpacity" type="int" value="100"/>
+	<option name="Xfwm/PlacementRatio" type="int" value="20"/>
+	<option name="Xfwm/PopupOpacity" type="int" value="100"/>
+	<option name="Xfwm/PreventFocusStealing" type="int" value="1"/>
+	<option name="Xfwm/RaiseWithAnyButton" type="int" value="0"/>
+	<option name="Xfwm/ResizeOpacity" type="int" value="100"/>
+	<option name="Xfwm/RestoreOnMove" type="int" value="1"/>
+	<option name="Xfwm/ScrollWorkspaces" type="int" value="1"/>
+	<option name="Xfwm/ShowFrameShadow" type="int" value="0"/>
+	<option name="Xfwm/ShowPopupShadow" type="int" value="0"/>
+	<option name="Xfwm/SnapResist" type="int" value="0"/>
+	<option name="Xfwm/ToggleWorkspaces" type="int" value="1"/>
+	<option name="Xfwm/UnredirectOverlays" type="int" value="0"/>
+	<option name="Xfwm/UseCompositing" type="int" value="1"/>
+	<option name="Xfwm/WrapCycle" type="int" value="0"/>
+	<option name="Xfwm/WrapLayout" type="int" value="0"/>
+</mcs-option>'
+}
+
 function Setup_XOrg {
 	## Make X accessible by Pluto software, for all existing and new users
 	KDExhost="#!/bin/bash
@@ -182,6 +215,8 @@ function Setup_XOrg {
 		if [[ ! -d "$user" ]]; then
 			continue
 		fi
+		owner=$(stat -c '%u:%g' "$user")
+
 		Dir="$user/.kde/Autostart"
 		mkdir -p "$Dir"
 		echo "$KDExhost" >"$Dir/xhost"
@@ -189,8 +224,18 @@ function Setup_XOrg {
 		chown "$User.$User" "$Dir/xhost"
 		chmod +x "$Dir/xhost"
 
-		owner=$(stat -c '%u:%g' "$user")
+		## Configure window manager trasparancy manager
+		WMTweaksFile="$user/.config/xfce4/mcs_settings/wmtweaks.xml"
+		mkdir -p "$(dirname "$WMTweaksFile")"
+
+		if [[ -f "$WMTweaksFile" ]]; then
+			sed -i '/Xfwm\/UseCompositing/ s/value="."/value="1"/g' "$WMTweaksFile"
+		else
+			wmtweaks_default >"$WMTweaksFile"
+		fi
+		
 		chown -R "$owner" "$user"/.kde
+		chown -R "$owner" "$user"/.config
 	done
 
 	Dir="/etc/skel/.kde/Autostart"
@@ -202,6 +247,10 @@ function Setup_XOrg {
 		echo "export KDEWM=/usr/bin/xfwm4" >>"$File"
 	fi
 
+	WMTweaksFile="/etc/skel/.config/xfce4/mcs_settings/wmtweaks.xml"
+	mkdir -p "$(dirname "$WMTweaksFile")"
+	wmtweaks_default >"$WMTweaksFile"
+	
 	## Add xrecord extention if missing
 	if grep -q ".*Load.*\"record\"" /etc/X11/xorg.conf ;then
 		echo "Found xrecord , skiping ..."
