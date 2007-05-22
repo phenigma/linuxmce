@@ -59,8 +59,9 @@
 		{
 			va_list argList;
 			va_start(argList, pcFormat);
-			printf("%s", iLevel == LV_WARNING ? "(WW)\t: " : iLevel == LV_CRITICAL ? "(EE)\t" : "(II)\t:");
+			printf("%s", iLevel == LV_WARNING ? "(WW)\t: " : iLevel == LV_CRITICAL ? "(EE)\t: " : "(II)\t: ");
 			printf(pcFormat, argList);
+			printf("\n");
 			va_end(argList); 
 		}
 	};
@@ -118,7 +119,7 @@ void ViaOverlay::WindowCreated(unsigned long nWidth, unsigned long nHeight)
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA ViaOverlay::WindowCreated");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA ViaOverlay::WindowCreated size %d x %d", nWidth, nHeight);
 
 	m_nWidth = nWidth;
 	m_nHeight = nHeight;

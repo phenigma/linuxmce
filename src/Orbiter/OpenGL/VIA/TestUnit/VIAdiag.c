@@ -1,646 +1,402 @@
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glx.h>
+/* $Id: gears.c,v 1.2 1999/10/21 16:39:06 brianp Exp $ */
 
-#include <X11/extensions/XTest.h>
-#include <X11/extensions/shape.h>
+/*
+ * 3-D gear wheels.  This program is in the public domain.
+ *
+ * Command line options:
+ *    -info      print GL implementation information
+ *
+ *
+ * Brian Paul
+ */
 
-#include <SDL/SDL_syswm.h>
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
+/* Conversion to GLUT by Mark J. Kilgard */
 
-#include <fcntl.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <errno.h>
-#include <stdio.h>
+/*
+ * $Log: gears.c,v $
+ * Revision 1.2  1999/10/21 16:39:06  brianp
+ * added -info command line option
+ *
+ * Revision 1.1.1.1  1999/08/19 00:55:40  jtg
+ * Imported sources
+ *
+ * Revision 3.2  1999/06/03 17:07:36  brianp
+ * an extra quad was being drawn in front and back faces
+ *
+ * Revision 3.1  1998/11/03 02:49:10  brianp
+ * added fps output
+ *
+ * Revision 3.0  1998/02/14 18:42:29  brianp
+ * initial rev
+ *
+ */
+
+
+#include <math.h>
 #include <stdlib.h>
-#include <fstream>
-#include <string>
-using namespace std;
+#include <stdio.h>
+#include <string.h>
+#include <GL/glut.h>
 
 #include "../ViaOverlay.h"
 
-/* screen width, height, and bit depth */
-#define SCREEN_WIDTH  800
-#define SCREEN_HEIGHT 600
-#define SCREEN_BPP     32
-
-/* Set up some booleans */
-#define TRUE  1
-#define FALSE 0
-
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	const Uint32 rmask = 0xff000000;
-	const Uint32 gmask = 0x00ff0000;
-	const Uint32 bmask = 0x0000ff00;
-	const Uint32 amask = 0x000000ff;
-	
-	const int rshift = 24, gshift = 16, bshift = 8, ashift = 0;
-#else
-	const Uint32 rmask = 0x000000ff;
-	const Uint32 gmask = 0x0000ff00;
-	const Uint32 bmask = 0x00ff0000;
-	const Uint32 amask = 0xff000000;
-
-	const int rshift = 0, gshift = 8, bshift = 16, ashift = 24;
+#ifndef M_PI
+#define M_PI 3.14159265
 #endif
 
-/* This is our SDL surface */
-SDL_Surface *surface;
+static GLint T0 = 0;
+static GLint Frames = 0;
+// Definition--------------------------------------------------------------
+#define SCREEN_WIDTH	800
+#define SCREEN_HEIGHT	600
 
-GLfloat xrot; /* X Rotation ( NEW ) */
-GLfloat yrot; /* Y Rotation ( NEW ) */
-GLfloat zrot; /* Z Rotation ( NEW ) */
+// for Alpha Blending
+RECTL rDest;
+static unsigned char    *lpAlphaSurface;
+static VMI_INFO_PARAM VMI_Info;
+GLint x=0,y=0,width=0,height=0;
+GLint x_previous=0, y_previous=0, width_previous=0, height_previous=0;
 
-GLuint face_texture; 
-GLuint text_texture;
+//for Overlay Select
+int IsOverlayFlag = 0;
 
-int pid_player = 0;
-int pid_xcompmgr = 0;
+/**
 
-string sTextureName;
-bool bUseMask = false;
-bool bRemoveMask = false;
-bool bFullScreen = false;
+  Draw a gear wheel.  You'll probably want to call this function when
+  building a display list since we do a lot of trig here.
+ 
+  Input:  inner_radius - radius of hole at center
+          outer_radius - radius at center of teeth
+          width - width of gear
+          teeth - number of teeth
+          tooth_depth - depth of tooth
 
-float MaxU = 1.0f;
-float MaxV = 1.0f;
+ **/
 
-/* function to release/destroy our resources and restoring the old desktop */
-void Quit( int returnCode )
+static void
+gear(GLfloat inner_radius, GLfloat outer_radius, GLfloat width,
+  GLint teeth, GLfloat tooth_depth)
 {
-	/* clean up the window */
-	SDL_Quit( );
+  GLint i;
+  GLfloat r0, r1, r2;
+  GLfloat angle, da;
+  GLfloat u, v, len;
 
-	/* and exit appropriately */
-	exit( returnCode );
+  r0 = inner_radius;
+  r1 = outer_radius - tooth_depth / 2.0;
+  r2 = outer_radius + tooth_depth / 2.0;
+
+  da = 2.0 * M_PI / teeth / 4.0;
+
+  glShadeModel(GL_FLAT);
+
+  glNormal3f(0.0, 0.0, 1.0);
+
+  /* draw front face */
+  glBegin(GL_QUAD_STRIP);
+  for (i = 0; i <= teeth; i++) {
+    angle = i * 2.0 * M_PI / teeth;
+    glVertex3f(r0 * cos(angle), r0 * sin(angle), width * 0.5);
+    glVertex3f(r1 * cos(angle), r1 * sin(angle), width * 0.5);
+    if (i < teeth) {
+      glVertex3f(r0 * cos(angle), r0 * sin(angle), width * 0.5);
+      glVertex3f(r1 * cos(angle + 3 * da), r1 * sin(angle + 3 * da), width * 0.5);
+    }
+  }
+  glEnd();
+
+  /* draw front sides of teeth */
+  glBegin(GL_QUADS);
+  da = 2.0 * M_PI / teeth / 4.0;
+  for (i = 0; i < teeth; i++) {
+    angle = i * 2.0 * M_PI / teeth;
+
+    glVertex3f(r1 * cos(angle), r1 * sin(angle), width * 0.5);
+    glVertex3f(r2 * cos(angle + da), r2 * sin(angle + da), width * 0.5);
+    glVertex3f(r2 * cos(angle + 2 * da), r2 * sin(angle + 2 * da), width * 0.5);
+    glVertex3f(r1 * cos(angle + 3 * da), r1 * sin(angle + 3 * da), width * 0.5);
+  }
+  glEnd();
+
+  glNormal3f(0.0, 0.0, -1.0);
+
+  /* draw back face */
+  glBegin(GL_QUAD_STRIP);
+  for (i = 0; i <= teeth; i++) {
+    angle = i * 2.0 * M_PI / teeth;
+    glVertex3f(r1 * cos(angle), r1 * sin(angle), -width * 0.5);
+    glVertex3f(r0 * cos(angle), r0 * sin(angle), -width * 0.5);
+    if (i < teeth) {
+      glVertex3f(r1 * cos(angle + 3 * da), r1 * sin(angle + 3 * da), -width * 0.5);
+      glVertex3f(r0 * cos(angle), r0 * sin(angle), -width * 0.5);
+    }
+  }
+  glEnd();
+
+  /* draw back sides of teeth */
+  glBegin(GL_QUADS);
+  da = 2.0 * M_PI / teeth / 4.0;
+  for (i = 0; i < teeth; i++) {
+    angle = i * 2.0 * M_PI / teeth;
+
+    glVertex3f(r1 * cos(angle + 3 * da), r1 * sin(angle + 3 * da), -width * 0.5);
+    glVertex3f(r2 * cos(angle + 2 * da), r2 * sin(angle + 2 * da), -width * 0.5);
+    glVertex3f(r2 * cos(angle + da), r2 * sin(angle + da), -width * 0.5);
+    glVertex3f(r1 * cos(angle), r1 * sin(angle), -width * 0.5);
+  }
+  glEnd();
+
+  /* draw outward faces of teeth */
+  glBegin(GL_QUAD_STRIP);
+  for (i = 0; i < teeth; i++) {
+    angle = i * 2.0 * M_PI / teeth;
+
+    glVertex3f(r1 * cos(angle), r1 * sin(angle), width * 0.5);
+    glVertex3f(r1 * cos(angle), r1 * sin(angle), -width * 0.5);
+    u = r2 * cos(angle + da) - r1 * cos(angle);
+    v = r2 * sin(angle + da) - r1 * sin(angle);
+    len = sqrt(u * u + v * v);
+    u /= len;
+    v /= len;
+    glNormal3f(v, -u, 0.0);
+    glVertex3f(r2 * cos(angle + da), r2 * sin(angle + da), width * 0.5);
+    glVertex3f(r2 * cos(angle + da), r2 * sin(angle + da), -width * 0.5);
+    glNormal3f(cos(angle), sin(angle), 0.0);
+    glVertex3f(r2 * cos(angle + 2 * da), r2 * sin(angle + 2 * da), width * 0.5);
+    glVertex3f(r2 * cos(angle + 2 * da), r2 * sin(angle + 2 * da), -width * 0.5);
+    u = r1 * cos(angle + 3 * da) - r2 * cos(angle + 2 * da);
+    v = r1 * sin(angle + 3 * da) - r2 * sin(angle + 2 * da);
+    glNormal3f(v, -u, 0.0);
+    glVertex3f(r1 * cos(angle + 3 * da), r1 * sin(angle + 3 * da), width * 0.5);
+    glVertex3f(r1 * cos(angle + 3 * da), r1 * sin(angle + 3 * da), -width * 0.5);
+    glNormal3f(cos(angle), sin(angle), 0.0);
+  }
+
+  glVertex3f(r1 * cos(0), r1 * sin(0), width * 0.5);
+  glVertex3f(r1 * cos(0), r1 * sin(0), -width * 0.5);
+
+  glEnd();
+
+  glShadeModel(GL_SMOOTH);
+
+  /* draw inside radius cylinder */
+  glBegin(GL_QUAD_STRIP);
+  for (i = 0; i <= teeth; i++) {
+    angle = i * 2.0 * M_PI / teeth;
+    glNormal3f(-cos(angle), -sin(angle), 0.0);
+    glVertex3f(r0 * cos(angle), r0 * sin(angle), -width * 0.5);
+    glVertex3f(r0 * cos(angle), r0 * sin(angle), width * 0.5);
+  }
+  glEnd();
+
 }
 
-int MinPowerOf2(int Value)
+static GLfloat view_rotx = 20.0, view_roty = 30.0, view_rotz = 0.0;
+static GLint gear1, gear2, gear3;
+static GLfloat angle = 0.0;
+
+static void
+draw(void)
 {
-	int Result = 1;
-	while(Result<Value)
-		Result*= 2;
-	return Result;	
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glPushMatrix();
+  glRotatef(view_rotx, 1.0, 0.0, 0.0);
+  glRotatef(view_roty, 0.0, 1.0, 0.0);
+  glRotatef(view_rotz, 0.0, 0.0, 1.0);
+
+  glPushMatrix();
+  glTranslatef(-3.0, -2.0, 0.0);
+  glRotatef(angle, 0.0, 0.0, 1.0);
+  glCallList(gear1);
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(3.1, -2.0, 0.0);
+  glRotatef(-2.0 * angle - 9.0, 0.0, 0.0, 1.0);
+  glCallList(gear2);
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(-3.1, 4.2, 0.0);
+  glRotatef(-2.0 * angle - 25.0, 0.0, 0.0, 1.0);
+  glCallList(gear3);
+  glPopMatrix();
+
+  glPopMatrix();
+
+  glutSwapBuffers();
+
+ 
+  Frames++;
+ 
+  {
+	  GLint t = glutGet(GLUT_ELAPSED_TIME);
+	  if (t - T0 >= 5000) {
+		  GLfloat seconds = (t - T0) / 1000.0;
+		  GLfloat fps = Frames / seconds;
+		  printf("%d frames in %g seconds = %g FPS\n", Frames, seconds, fps);
+		  T0 = t;
+		  Frames = 0;
+     }
+  }
 }
 
-/* function to load in bitmap as a GL texture */
-int LoadGLTextures( )
+
+static void
+idle(void)
 {
-	/* Create storage space for the texture */
-	SDL_Surface *pTextureImage; 
-
-	/* Load The Bitmap, Check For Errors, If Bitmap's Not Found Quit */
-	if ( ( pTextureImage = IMG_Load(sTextureName.c_str())))
-	{
-		int Width = MinPowerOf2(pTextureImage->w);
-		int Height = MinPowerOf2(pTextureImage->h);
-
-		if(Width != pTextureImage->w || Height != pTextureImage->h)
-		{
-			Uint32 saved_flags = pTextureImage->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
-			Uint8  saved_alpha = pTextureImage->format->alpha;
-
-			if ((saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA) 
-				SDL_SetAlpha(pTextureImage, 0, 0);
-
-			SDL_Surface *LocalSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 
-				pTextureImage->format->BitsPerPixel, 
-				pTextureImage->format->Rmask, pTextureImage->format->Gmask, pTextureImage->format->Bmask,
-				pTextureImage->format->Amask);
-
-			SDL_BlitSurface(pTextureImage, NULL, LocalSurface, NULL);
-
-			if ((saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA) 
-				SDL_SetAlpha(LocalSurface, saved_flags, saved_alpha);
-
-			SDL_FreeSurface(pTextureImage); 
-			pTextureImage = LocalSurface;
-		}
-
-		/* Create The Texture */
-		glGenTextures( 1, &face_texture );
-
-		/* Typical Texture Generation Using Data From The Bitmap */
-		glBindTexture( GL_TEXTURE_2D, face_texture );
-
-		if(pTextureImage->format->BytesPerPixel == 4)
-		{
-			/* Generate The Texture */
-			glTexImage2D( GL_TEXTURE_2D, 0, 4, pTextureImage->w,
-				pTextureImage->h, 0, GL_RGBA,
-				GL_UNSIGNED_BYTE, pTextureImage->pixels );
-		}
-		else
-		{
-			/* Generate The Texture */
-			glTexImage2D( GL_TEXTURE_2D, 0, 3, pTextureImage->w,
-				pTextureImage->h, 0, GL_RGB,
-				GL_UNSIGNED_BYTE, pTextureImage->pixels );
-		}
-
-		/* Linear Filtering */
-		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	}
-	else
-		return false;
-
-	/* Free up any memory we may have used */
-	if ( pTextureImage )
-		SDL_FreeSurface(pTextureImage);
-
-	return true;
+  angle += 2.0;
+  glutPostRedisplay();
 }
 
-/* function to load in bitmap as a GL texture */
-void PreRenderInstructions()
+/* change view angle, exit upon ESC */
+/* ARGSUSED1 */
+static void
+key(unsigned char k, int x, int y)
 {
-	if(TTF_Init() != -1)
-	{
-		TTF_Font *pFont =  TTF_OpenFont("/usr/share/fonts/truetype/msttcorefonts/arial.ttf", 12);
-
-		if(NULL == pFont)
-		{
-			pFont = TTF_OpenFont("/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf", 12);
-		}
-
-		SDL_Color color;
-		color.r = 0;
-		color.g = 0;
-		color.b = 0;
-		color.unused = 0;
-
-		if(NULL != pFont)
-		{
-			SDL_Surface *pSurfaceTextLines[4];
-
-			pSurfaceTextLines[0] = TTF_RenderUTF8_Blended(pFont, "Keys:", color);
-			pSurfaceTextLines[1] = TTF_RenderUTF8_Blended(pFont, "m - toggle masking", color);
-			pSurfaceTextLines[2] = TTF_RenderUTF8_Blended(pFont, "F1 - toggle fullscreen", color);
-			pSurfaceTextLines[3] = TTF_RenderUTF8_Blended(pFont, "any other key - quit", color);
-
-			SDL_Surface *pSurfaceText = SDL_CreateRGBSurface(SDL_SWSURFACE, 128, 64, 32, rmask, gmask, bmask, amask);
-			
-			if ( NULL != pSurfaceText)
-			{
-				SDL_FillRect(pSurfaceText, NULL, SDL_MapRGBA(pSurfaceText->format, 0xff, 0xff, 0xff, 128));
-
-				for(int i = 0; i < 4; i++)
-				{
-					if(NULL != pSurfaceTextLines[i])
-					{
-						SDL_Rect dest_rect;
-						memset(&dest_rect, 0, sizeof(SDL_Rect));
-
-						dest_rect.y = i * 12;
-						SDL_BlitSurface(pSurfaceTextLines[i], NULL, pSurfaceText, &dest_rect);
-
-						SDL_FreeSurface(pSurfaceTextLines[i]);
-					}
-				}
-
-				/* Create The Texture */
-				glGenTextures( 1, &text_texture );
-
-				/* Typical Texture Generation Using Data From The Bitmap */
-				glBindTexture( GL_TEXTURE_2D, text_texture );
-
-				/* Generate The Texture */
-				glTexImage2D( GL_TEXTURE_2D, 0, 4, pSurfaceText->w,
-					pSurfaceText->h, 0, GL_RGBA,
-					GL_UNSIGNED_BYTE, pSurfaceText->pixels );
-
-				/* Linear Filtering */
-				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-				SDL_FreeSurface(pSurfaceText);
-			}
-
-			TTF_CloseFont(pFont);
-		}
-
-		TTF_Quit(); 
-	}
+  switch (k) {
+  case 'z':
+    view_rotz += 5.0;
+    break;
+  case 'Z':
+    view_rotz -= 5.0;
+    break;
+  case 27:  /* Escape */
+    exit(0);
+    break;
+  default:
+    return;
+  }
+  glutPostRedisplay();
 }
 
-/* function to reset our viewport after a window resize */
-int resizeWindow( int width, int height )
+/* change view angle */
+/* ARGSUSED1 */
+static void
+special(int k, int x, int y)
 {
-	/* Height / width ration */
-	GLfloat ratio;
-
-	/* Protect against a divide by zero */
-	if ( height == 0 )
-		height = 1;
-
-	ratio = ( GLfloat )width / ( GLfloat )height;
-
-	/* Setup our viewport. */
-	glViewport( 0, 0, ( GLint )width, ( GLint )height );
-
-	/*
-	* change to the projection matrix and set
-	* our viewing volume.
-	*/
-	glMatrixMode( GL_PROJECTION );
-	glLoadIdentity( );
-
-	/* Set our perspective */
-	gluPerspective( 45.0f, ratio, 0.1f, 100.0f );
-
-	/* Make sure we're chaning the model view and not the projection */
-	glMatrixMode( GL_MODELVIEW );
-
-	/* Reset The View */
-	glLoadIdentity( );
-
-	glShadeModel(GL_SMOOTH);
-	//Realy Nice perspective calculations
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glClearDepth(1.0);                       // Depth Buffer Setup
-	//glEnable(GL_DEPTH_TEST);                 // Enable Depth Buffer
-	glDepthFunc(GL_LESS);	
-
-	glEnable(GL_TEXTURE_2D);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	return( TRUE );
+  switch (k) {
+  case GLUT_KEY_UP:
+    view_rotx += 5.0;
+    break;
+  case GLUT_KEY_DOWN:
+    view_rotx -= 5.0;
+    break;
+  case GLUT_KEY_LEFT:
+    view_roty += 5.0;
+    break;
+  case GLUT_KEY_RIGHT:
+    view_roty -= 5.0;
+    break;
+  default:
+    return;
+  }
+  glutPostRedisplay();
 }
 
-/* function to handle key press events */
-bool handleKeyPress( SDL_keysym *keysym )
+/* new window size or exposure */
+static void
+reshape(int width, int height)
 {
-	switch ( keysym->sym )
-	{
-		case SDLK_F1:
-			/* F1 key was pressed
-			* this toggles fullscreen mode
-			*/
-			bFullScreen = !bFullScreen;
-			SDL_WM_ToggleFullScreen( surface );
-			break;
+  GLfloat h = (GLfloat) height / (GLfloat) width;
 
-		case SDLK_m:
-			bUseMask = !bUseMask;
-
-			if(!bUseMask)
-				bRemoveMask = true;
-
-			return false;
-
-		default:
-			Quit( 0 );
-			break;
-	}
-
-	return false;
+  glViewport(0, 0, (GLint) width, (GLint) height);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glFrustum(-1.0, 1.0, -h, h, 5.0, 60.0);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glTranslatef(0.0, 0.0, -40.0);
 }
 
-/* general OpenGL initialization function */
-int initGL( GLvoid )
+static void
+init(int argc, char *argv[])
 {
-	/* Load in the texture */
-	if(!LoadGLTextures())
-		return FALSE;
+  static GLfloat pos[4] =
+  {5.0, 5.0, 10.0, 0.0};
+  static GLfloat red[4] =
+  {0.8, 0.1, 0.0, 1.0};
+  static GLfloat green[4] =
+  {0.0, 0.8, 0.2, 1.0};
+  static GLfloat blue[4] =
+  {0.2, 0.2, 1.0, 1.0};
 
-	/* Prerender texture with instructions */
-	PreRenderInstructions();
-		
-	/* Enable Texture Mapping ( NEW ) */
-	glEnable( GL_TEXTURE_2D );
+  glLightfv(GL_LIGHT0, GL_POSITION, pos);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
+  glEnable(GL_DEPTH_TEST);
 
-	/* Enable smooth shading */
-	glShadeModel( GL_SMOOTH );
+  /* make the gears */
+  gear1 = glGenLists(1);
+  glNewList(gear1, GL_COMPILE);
+  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
+  gear(1.0, 4.0, 1.0, 20, 0.7);
+  glEndList();
 
-	/* Set the background black */
-	glClearColor( 0.0f, 0.0f, 0.0f, 0.5f );
+  gear2 = glGenLists(1);
+  glNewList(gear2, GL_COMPILE);
+  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
+  gear(0.5, 2.0, 2.0, 10, 0.7);
+  glEndList();
 
-	/* Depth buffer setup */
-	glClearDepth( 1.0f );
+  gear3 = glGenLists(1);
+  glNewList(gear3, GL_COMPILE);
+  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
+  gear(1.3, 2.0, 0.5, 10, 0.7);
+  glEndList();
 
-	/* Enables Depth Testing */
-	glEnable( GL_DEPTH_TEST );
+  glEnable(GL_NORMALIZE);
 
-	/* The Type Of Depth Test To Do */
-	glDepthFunc( GL_LEQUAL );
-
-	/* Really Nice Perspective Calculations */
-	glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
-
-	return( TRUE );
+  if (argc > 1 && strcmp(argv[1], "-info")==0) {
+     printf("GL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));
+     printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
+     printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
+     printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
+  }
 }
 
-/* Here goes our drawing code */
-int drawGLScene( GLvoid )
+void 
+visible(int vis)
 {
-	/* These are to calculate our fps */
-	static GLint T0     = 0;
-	static GLint T1mask = 0;
-	static GLint Frames = 0;
-
-	/* Clear The Screen And The Depth Buffer */
-	glClearColor(0.5f, 0.0f, 0.0f, 0.0f);
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-	/* Move Into The Screen 5 Units */
-	glLoadIdentity( );
-	glTranslatef( 0.0f, 0.0f, -5.0f );
-
-//////////////////////////////
-
-	//render the texture with instructions
-	glRotatef( 0.0f, 1.0f, 0.0f, 0.0f); /* Rotate On The X Axis */
-	glRotatef( 0.0f, 0.0f, 1.0f, 0.0f); /* Rotate On The Y Axis */
-	glRotatef( 0.0f, 0.0f, 0.0f, 1.0f); /* Rotate On The Z Axis */
-
-	glBindTexture( GL_TEXTURE_2D, text_texture );
-
-	glBegin(GL_QUADS);
-
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-2.7f, -2.0f,  0.0f);	// Bottom Left Of The Texture and Quad
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.2f, -2.0f,  0.0f);	// Bottom Right Of The Texture and Quad
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.2f, -1.0f,  0.0f);	// Top Right Of The Texture and Quad
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-2.7f, -1.0f,  0.0f);	// Top Left Of The Texture and Quad
-
-	glEnd();
-
-////////////////////////////
-
-	glRotatef( xrot, 1.0f, 0.0f, 0.0f); /* Rotate On The X Axis */
-	glRotatef( yrot, 0.0f, 1.0f, 0.0f); /* Rotate On The Y Axis */
-	glRotatef( zrot, 0.0f, 0.0f, 1.0f); /* Rotate On The Z Axis */
-
-	/* Select Our Texture */
-	glBindTexture( GL_TEXTURE_2D, face_texture );
-
-	/* NOTE:
-	*   The x coordinates of the glTexCoord2f function need to inverted
-	* for SDL because of the way SDL_LoadBmp loads the data. So where
-	* in the tutorial it has glTexCoord2f( 1.0f, 0.0f ); it should
-	* now read glTexCoord2f( 0.0f, 0.0f );
-	*/
-
-	glBegin(GL_QUADS);
-	// Front Face
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f,  1.0f);	// Bottom Left Of The Texture and Quad
-	glTexCoord2f(0.0f, 0.0f); glVertex3f( 1.0f, -1.0f,  1.0f);	// Bottom Right Of The Texture and Quad
-	glTexCoord2f(0.0f, 1.0f); glVertex3f( 1.0f,  1.0f,  1.0f);	// Top Right Of The Texture and Quad
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f,  1.0f,  1.0f);	// Top Left Of The Texture and Quad
-	// Back Face
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);	// Bottom Right Of The Texture and Quad
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f,  1.0f, -1.0f);	// Top Right Of The Texture and Quad
-	glTexCoord2f(1.0f, 1.0f); glVertex3f( 1.0f,  1.0f, -1.0f);	// Top Left Of The Texture and Quad
-	glTexCoord2f(1.0f, 0.0f); glVertex3f( 1.0f, -1.0f, -1.0f);	// Bottom Left Of The Texture and Quad
-	// Top Face
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f,  1.0f, -1.0f);	// Top Left Of The Texture and Quad
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f,  1.0f,  1.0f);	// Bottom Left Of The Texture and Quad
-	glTexCoord2f(0.0f, 0.0f); glVertex3f( 1.0f,  1.0f,  1.0f);	// Bottom Right Of The Texture and Quad
-	glTexCoord2f(0.0f, 1.0f); glVertex3f( 1.0f,  1.0f, -1.0f);	// Top Right Of The Texture and Quad
-	// Bottom Face
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, -1.0f, -1.0f);	// Top Right Of The Texture and Quad
-	glTexCoord2f(1.0f, 1.0f); glVertex3f( 1.0f, -1.0f, -1.0f);	// Top Left Of The Texture and Quad
-	glTexCoord2f(1.0f, 0.0f); glVertex3f( 1.0f, -1.0f,  1.0f);	// Bottom Left Of The Texture and Quad
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f,  1.0f);	// Bottom Right Of The Texture and Quad
-	// Right face
-	glTexCoord2f(0.0f, 0.0f); glVertex3f( 1.0f, -1.0f, -1.0f);	// Bottom Right Of The Texture and Quad
-	glTexCoord2f(0.0f, 1.0f); glVertex3f( 1.0f,  1.0f, -1.0f);	// Top Right Of The Texture and Quad
-	glTexCoord2f(1.0f, 1.0f); glVertex3f( 1.0f,  1.0f,  1.0f);	// Top Left Of The Texture and Quad
-	glTexCoord2f(1.0f, 0.0f); glVertex3f( 1.0f, -1.0f,  1.0f);	// Bottom Left Of The Texture and Quad
-	// Left Face
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);	// Bottom Left Of The Texture and Quad
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f,  1.0f);	// Bottom Right Of The Texture and Quad
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f,  1.0f,  1.0f);	// Top Right Of The Texture and Quad
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f,  1.0f, -1.0f);	// Top Left Of The Texture and Quad
-	glEnd();
-
-	/* Draw it to the screen */
-	SDL_GL_SwapBuffers( );
-
-	GLint t = SDL_GetTicks();
-	
-	if((bUseMask || bRemoveMask) && t - T1mask >= 500)
-	{
-		SDL_SysWMinfo info;
-		SDL_VERSION(&info.version); 
-		if(SDL_GetWMInfo(&info))
-		{
-			if(bUseMask)
-			{
-				XRectangle rects[2] = 
-				{
-					{0, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2},
-					{SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT}
-				};
-
-				XShapeCombineRectangles (
-					info.info.x11.display,
-					info.info.x11.wmwindow,
-					ShapeBounding,
-					0, 0,
-					rects,
-					2, ShapeSet, Unsorted);
-
-				printf("Applied mask\n");
-			}
-			else
-			{
-				//remove mask
-				XRectangle rects[1] = 
-				{
-					{0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}
-				};
-
-				XShapeCombineRectangles (
-					info.info.x11.display,
-					info.info.x11.wmwindow,
-					ShapeBounding,
-					0, 0,
-					rects,
-					1, ShapeSet, Unsorted);
-
-				printf("Removed mask\n");
-				bRemoveMask = false;
-			}
-
-			T1mask = t;
-		}
-		else
-		{
-			Quit(1);
-		}
-	}
-
-	Frames++;
-
-	/* Gather our frames per second */
-	if (t - T0 >= 5000) 
-	{
-		GLfloat seconds = (t - T0) / 1000.0;
-		GLfloat fps = Frames / seconds;
-		//todo
-		printf("%d frames in %g seconds = %g FPS\n", Frames, seconds, fps);
-		T0 = t;
-		Frames = 0;
-	}
-
-	xrot += 0.3f; /* X Axis Rotation */
-	yrot += 0.2f; /* Y Axis Rotation */
-	zrot += 0.4f; /* Z Axis Rotation */
-
-	return( TRUE );
+  if (vis == GLUT_VISIBLE)
+    glutIdleFunc(idle);
+  else
+    glutIdleFunc(NULL);
 }
 
-int main( int argc, char **argv )
+
+int main(int argc, char *argv[])
 {
-	/* Flags to pass to SDL_SetVideoMode */
-	int videoFlags;
-	/* main loop variable */
-	int done = FALSE;
-	/* used to collect events */
-	SDL_Event event;
-	/* this holds some info about our display */
-	const SDL_VideoInfo *videoInfo;
-	/* whether or not the window is active */
-	int isActive = TRUE;
+  int dwRet = 0;
 
-	sTextureName = "logo.png";
-	printf("Texture to use: %s\n", sTextureName.c_str());
-	printf("Mask: %s\n", bUseMask ? "enabled" : "disabled");
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
-	SDL_WM_SetCaption("VIA diagnostics", "VIA diagnostics");
+  //william
+  dwRet = setenv("VIA_3D_OVERLAY","no",1);
+  if(dwRet !=0)
+	  printf("set env error!\n");
+  IsOverlayFlag = 0;
+  
+  glutInitWindowPosition(0, 0);
+  glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+  glutCreateWindow("Gears");
+  init(argc, argv);
 
-	while(true)
-	{
-		done = FALSE;
+  glutDisplayFunc(draw);
+  glutReshapeFunc(reshape);
+  glutKeyboardFunc(key);
+  glutSpecialFunc(special);
+  glutVisibilityFunc(visible);
 
-		/* initialize SDL */
-		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE ) < 0 )
-		{
-			fprintf( stderr, "Video initialization failed: %s\n",
-				SDL_GetError( ) );
-			Quit(1);
-		}
+  ViaOverlay::Instance().WindowCreated(SCREEN_WIDTH, SCREEN_HEIGHT);
+  ViaOverlay::Instance().WindowResized();
+  ViaOverlay::Instance().ResetAlphaMask();
+  ViaOverlay::Instance().FillRectangleInAlphaMask(0, 0, 800, 600, (char)0x80);
+  ViaOverlay::Instance().WorldChanged();
 
-		/* Fetch the video info */
-		videoInfo = SDL_GetVideoInfo( );
-
-		if ( !videoInfo )
-		{
-			fprintf( stderr, "Video query failed: %s\n", SDL_GetError( ) );
-			Quit(1);
-		}
-
-		/* the flags to pass to SDL_SetVideoMode */
-		videoFlags  = SDL_OPENGL;          /* Enable OpenGL in SDL */
-		videoFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
-//		videoFlags |= SDL_HWPALETTE;       /* Store the palette in hardware */
-
-		/* This checks to see if surfaces can be stored in memory */
-//		if ( videoInfo->hw_available )
-//			videoFlags |= SDL_HWSURFACE;
-//		else
-//			videoFlags |= SDL_SWSURFACE;
-
-		/* This checks if hardware blits can be done */
-//		if ( videoInfo->blit_hw )
-//			videoFlags |= SDL_HWACCEL;
-
-		/* Sets up OpenGL double buffering */
-		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-
-		/* get a SDL surface */
-		surface = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags );
-
-		/* Verify there is a surface */
-		if ( !surface )
-		{
-			fprintf( stderr,  "Video mode set failed: %s\n", SDL_GetError( ) );
-			Quit(1);
-			return 1;
-		}
-
-		/* initialize OpenGL */
-		initGL( );
-
-		ViaOverlay::Instance().WindowCreated(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-		/* resize the initial window */
-		resizeWindow( SCREEN_WIDTH, SCREEN_HEIGHT );
-
-		ViaOverlay::Instance().WindowResized();
-
-		if(bFullScreen)
-			SDL_WM_ToggleFullScreen( surface );
-
-		ViaOverlay::Instance().FillRectangleInAlphaMask(SCREEN_WIDTH / 3, 0, SCREEN_WIDTH / 3, SCREEN_HEIGHT, 128, true);
-		ViaOverlay::Instance().WorldChanged();
-
-		/* wait for events */
-		while ( !done )
-		{
-			/* handle the events in the queue */
-
-			while ( !done && SDL_PollEvent( &event ) )
-			{
-				switch( event.type )
-				{
-
-				case SDL_ACTIVEEVENT:
-					/* Something's happend with our focus
-					* If we lost focus or we are iconified, we
-					* shouldn't draw the screen
-					*/
-					if ( event.active.gain == 0 )
-						isActive = FALSE;
-					else
-						isActive = TRUE;
-					break;			    
-
-				case SDL_VIDEORESIZE:
-					/* handle resize event */
-					surface = SDL_SetVideoMode( event.resize.w,
-						event.resize.h,
-						32, videoFlags );
-					if ( !surface )
-					{
-						fprintf( stderr, "Could not get a surface after resize: %s\n", SDL_GetError( ) );
-						Quit( 1 );
-					}
-					resizeWindow( event.resize.w, event.resize.h );
-					break;
-				case SDL_KEYDOWN:
-					/* handle key presses */
-					if(handleKeyPress( &event.key.keysym))
-						done = TRUE;
-
-					break;
-				case SDL_QUIT:
-					/* handle quit requests */
-					{
-						printf("about to quit!\n");
-						Quit(0);
-						return 0;
-					}
-				default:
-					break;
-				}
-			}
-
-			drawGLScene( );
-		}
-
-		/* clean up the window */
-		SDL_Quit( );
-	}
-
-	/* Should never get here */
-	return(0);
+  glutMainLoop();
+  return 0;             /* ANSI C requires main to return int. */
 } 
-
