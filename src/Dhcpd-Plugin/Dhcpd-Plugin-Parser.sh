@@ -65,38 +65,39 @@ while :; do
 
 	case "$tag" in
 		"dhcpd:")
-	op=$(extract_field 6 "$line")
-	mac_found=$(extract_field 10 "$line")
-	ip_sent=$(extract_field 8 "$line")
+			op=$(extract_field 6 "$line")
+			mac_found=$(extract_field 10 "$line")
+			ip_sent=$(extract_field 8 "$line")
 
-	if [[ "$tag" != "dhcpd:" || -z "$mac_found" ]]; then
-		continue
-	fi
-
-	case "$op" in
-		"DHCPACK")
-			log_plugin log "DHCP : MAC '$mac_found' IP '$ip_sent'"
-
-			Q="SELECT PK_Device FROM Device WHERE MACaddress='$mac_found' AND IPaddress='$ip_sent'"
-			R=$(RunSQL "$Q")
-
-			if [[ -z "$R" ]]; then
-				Q="SELECT PK_UnknownDevices FROM UnknownDevices WHERE MACaddress='$mac_found'"
-				R=$(RunSQL "$Q")
-
-				if [[ -z "$R" ]]; then
-					log_plugin log "NEW DEVICE !!!"
-
-					echo "$mac_found $ip_sent" >&3
-				else
-					log_plugin log "Device already marked as unknown, ignore"
-				fi
-			else
-				log_plugin log "Device already exists: $R"
+			if [[ -z "$mac_found" ]]; then
+				continue
 			fi
+
+			case "$op" in
+				"DHCPACK")
+					log_plugin log "DHCP : MAC '$mac_found' IP '$ip_sent'"
+
+					Q="SELECT PK_Device FROM Device WHERE MACaddress='$mac_found' AND IPaddress='$ip_sent'"
+					R=$(RunSQL "$Q")
+
+					if [[ -z "$R" ]]; then
+						Q="SELECT PK_UnknownDevices FROM UnknownDevices WHERE MACaddress='$mac_found'"
+						R=$(RunSQL "$Q")
+
+						if [[ -z "$R" ]]; then
+							log_plugin log "NEW DEVICE !!!"
+
+							echo "$mac_found $ip_sent" >&3
+						else
+							log_plugin log "Device already marked as unknown, ignore"
+						fi
+					else
+						log_plugin log "Device already exists: $R"
+					fi
+				;;
+			esac
 		;;
-	esac
-		;;
+
 		"dhclient:")
 			text="$(extract_field 6,7 "$line")"
 			if [[ "$text" == "bound,to" ]]; then
