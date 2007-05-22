@@ -46,7 +46,7 @@ XOrgConf="/etc/X11/xorg.conf.pluto"
 XClientParm=(--compositor=off)
 #<-mkr_b_ubuntu_e->
 
-XServerParm=(-logverbose 9 -br -config $XOrgConf)
+XServerParm=(-logverbose 9 -br)
 Background=y
 XDisplay=":$Display"
 
@@ -77,7 +77,7 @@ VT=${XDisplay#:}
 VT=vt"$((7+VT))"
 
 # Start X11
-Xcmd=(/usr/pluto/bin/Start_X_Wrapper.sh --parms "$@" --client "$XClient" "${XClientParm[@]}" --server "$XDisplay" -ignoreABI -ac -allowMouseOpenFail "$VT" "${XServerParm[@]}" --flags "${WrapperFlags[@]}")
+Xcmd=(/usr/pluto/bin/Start_X_Wrapper.sh --parms "$@" --client "$XClient" "${XClientParm[@]}" --server "$XDisplay" -ignoreABI -ac -allowMouseOpenFail "$VT" "${XServerParm[@]}" --flags "${WrapperFlags[@]}" -config "${XOrgConf}")
 if [[ "$Background" == y ]]; then
 	screen -d -m -S XWindowSystem "${Xcmd[@]}"
 	# Start everouter for gyration mouse
