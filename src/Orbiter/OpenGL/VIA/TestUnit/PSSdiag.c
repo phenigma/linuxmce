@@ -38,6 +38,7 @@
 #include <string.h>
 #include <GL/glut.h>
 
+#include <unistd.h>
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif
@@ -203,6 +204,7 @@ draw(void)
 
   glutSwapBuffers();
 
+  usleep(50000);
  
   Frames++;
  

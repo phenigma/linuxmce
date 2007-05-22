@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <GL/glut.h>
+#include <unistd.h>
 
 #include "../ViaOverlay.h"
 
@@ -227,7 +228,9 @@ draw(void)
 
   glutSwapBuffers();
 
- 
+
+  usleep(50000);
+
   Frames++;
  
   {
