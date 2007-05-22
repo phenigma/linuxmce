@@ -248,6 +248,7 @@ done
 
 setup_hosts_file
 /usr/pluto/bin/Diskless_ExportsNFS.sh
+/usr/pluto/bin/sync_pluto2amp.pl
 
 echo "Finished setting up network boot for media directors."
 echo "If new media director(s) were added, do a quick reload router."
