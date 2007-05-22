@@ -1,4 +1,0 @@
-#!/bin/bash
-
-screen -d -m -S DhcpdPlugin /usr/pluto/bin/Dhcpd-Plugin.sh
-/usr/lib/pluto-dhcpd-plugin/dhcpd3 "$@"
