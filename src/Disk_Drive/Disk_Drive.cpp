@@ -623,7 +623,6 @@ void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
 	// something else
 
 	string sRealFile = FileUtils::GetSymlincDest(sDrive);
-sRealFile="/dev/scd0";
 	if( sRealFile.empty() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %s is not a symlinc", sDrive.c_str());
