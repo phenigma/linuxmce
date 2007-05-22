@@ -1,9 +1,6 @@
 #!/bin/bash
 
-#<-mkr_b_ubuntu_b->
-[[ -z "$(pidof mce-launcher)" ]] || echo "%$*" > /tmp/mce-launcher-pipe
-exit 0
-#<-mkr_b_ubuntu_e->
+#
 
 ## Check if we are in silent mode else exit
 grep -q "silent" /proc/splash 2>/dev/null || exit 0

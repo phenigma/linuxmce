@@ -42,18 +42,14 @@ XClient=/usr/bin/xfwm4
 XClientParm=()
 XOrgConf="/etc/X11/xorg.conf"
 
-#<-mkr_b_ubuntu_b->
-XClientParm=(--compositor=off)
-#<-mkr_b_ubuntu_e->
+#
 
 XServerParm=(-logverbose 9 -br)
 Background=y
 XDisplay=":$Display"
 
 Xcompmgr=/bin/true
-#<-mkr_b_ubuntu_b->
-Xcompmgr=/usr/bin/xcompmgr
-#<-mkr_b_ubuntu_e->
+#
 
 if [[ "$AlphaBlending" != 1 ]]; then
 	XClientParm=(--compositor=off)
