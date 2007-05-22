@@ -556,7 +556,7 @@ bool Media_Plugin::Register()
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::CDTracks) )
-        , DATAGRID_Current_Media_Sections_CONST,PK_DeviceTemplate_get() );
+        , DATAGRID_CD_Tracks_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::AvailablePlaylists) )
@@ -3706,6 +3706,8 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #2 PK_Device */
+			/** The ID of the disk drive or jukebox */
 		/** @param #13 Filename */
 			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #17 PK_Users */
@@ -3718,14 +3720,12 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 			/** The ID of the disc to rip.  If not specified this will be whatever disc is currently playing the entertainment area. */
 		/** @param #151 Slot Number */
 			/** The slot if this is a jukebox */
-		/** @param #152 Drive Number */
-			/** For jukeboxes this is a slot, for other drives it's not used */
 		/** @param #233 DriveID */
 			/** The PK_Device ID of the storage drive that will be ripped to. Can be the ID of the core to store in /home */
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-void Media_Plugin::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDrive_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	// we only have the sources device. This should be an orbiter
@@ -3780,15 +3780,19 @@ void Media_Plugin::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,st
 		}
 	}
 
-	DeviceData_Base *pDevice_Disk=NULL;
-	vector<Row_DiscLocation *> vectRow_DiscLocation;
-	pRow_Disc->DiscLocation_FK_Disc_getrows(&vectRow_DiscLocation);
-	for(vector<Row_DiscLocation *>::iterator it=vectRow_DiscLocation.begin();it!=vectRow_DiscLocation.end();++it)
+	// The disk drive we're ripping could have been passed in.  Otherwise we'll find one with the given disc
+	DeviceData_Base *pDevice_Disk=m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+	if( !pDevice_Disk )
 	{
-		Row_DiscLocation *pRow_DiscLocation = *it;
-		pDevice_Disk = m_pRouter->m_mapDeviceData_Router_Find( pRow_DiscLocation->EK_Device_get() );
-		if( pDevice_Disk )
-			break;
+		vector<Row_DiscLocation *> vectRow_DiscLocation;
+		pRow_Disc->DiscLocation_FK_Disc_getrows(&vectRow_DiscLocation);
+		for(vector<Row_DiscLocation *>::iterator it=vectRow_DiscLocation.begin();it!=vectRow_DiscLocation.end();++it)
+		{
+			Row_DiscLocation *pRow_DiscLocation = *it;
+			pDevice_Disk = m_pRouter->m_mapDeviceData_Router_Find( pRow_DiscLocation->EK_Device_get() );
+			if( pDevice_Disk )
+				break;
+		}
 	}
 
 	if( !pDevice_Disk )
@@ -3831,7 +3835,7 @@ void Media_Plugin::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,st
 	if( sFormat.size()==0 )
 		sFormat = "flac";
 	string sResponse;
-	DCE::CMD_Rip_Disk cmdRipDisk(pMessage->m_dwPK_Device_From, pDevice_Disk->m_dwPK_Device, sFilename, iPK_Users, 
+	DCE::CMD_Rip_Disk cmdRipDisk(pMessage->m_dwPK_Device_From, pDevice_Disk->m_dwPK_Device, pDevice_Disk->m_dwPK_Device, sFilename, iPK_Users, 
 		sFormat, sTracks, pRow_Disc->PK_Disc_get(), iSlot_Number, iDriveID, sDirectory);  // Send it from the Orbiter so disk drive knows who requested it
 	if( !SendCommand(cmdRipDisk,&sResponse) || sResponse!="OK" )
 	{
@@ -5745,10 +5749,12 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 			/** Base path for ripping. */
 		/** @param #233 DriveID */
 			/** The id of the storage device with most free space. */
+		/** @param #234 Directory */
+			/** The directory for this, such as video, audio, etc. */
 		/** @param #235 Storage Device Name */
 			/** The name of the storage device with most free space. */
 
-void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
 //<-dceag-c817-e->
 {
 	*sFilename = "Unknown disk";
@@ -5774,7 +5780,10 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,s
 				*sFilename += "/"; // We got a performer
 
 			*sFilename += FileUtils::ValidFileName(sAlbum);
+			*sDirectory = "audio";
 		}
+		else
+			*sDirectory = "videos";
 
 		if( sFilename->empty() )
 		{
@@ -5807,9 +5816,14 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,s
 							*sFilename += "/"; // We got a performer
 
 						*sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Album));
+						*sDirectory = "audio";
 					}
 					else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+					{
 						*sFilename = FileUtils::ValidFileName(pMediaStream->m_sMediaDescription);
+						*sDirectory = "videos";
+					}
+
 				}
 				else if( pMediaStream->m_iPK_Playlist )
 					*sFilename = FileUtils::ValidFileName(pMediaStream->m_sPlaylistName);

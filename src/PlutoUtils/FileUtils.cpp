@@ -552,6 +552,7 @@ string FileUtils::ValidFileName(string sInput,bool bAllowSlashes)
     StringUtils::Replace(&sInput,">"," ");
     StringUtils::Replace(&sInput,"<"," ");
 	StringUtils::Replace(&sInput,"\"","'");
+	StringUtils::Replace(&sInput,"*","'");
 	return sInput;
 }
 

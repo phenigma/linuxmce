@@ -566,7 +566,7 @@ bool Disk_Drive_Functions::mountDVD(string fileName, string & strMediaUrl)
 	return false;
 }
 
-void Disk_Drive_Functions::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result, Message *pMessage)
+void Disk_Drive_Functions::FixupRippingInfo(int &PK_MediaType,string &sFilename,string &sTracks,int iEK_Disc,string &sDirectory)
 {
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
 //if !
@@ -577,7 +577,8 @@ void Disk_Drive_Functions::CMD_Rip_Disk(string sFilename,int iPK_Users,string sF
 	StringUtils::Replace( &sDirectory, "[", "" );
 	StringUtils::Replace( &sDirectory, "]", "" );
 
-	if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST )
+	PK_MediaType=pRow_Disc->EK_MediaType_get();
+	if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
 	{
 		map<int,string> mapTracks;
 		GetTracksForDisc(pRow_Disc,mapTracks);
@@ -632,11 +633,6 @@ void Disk_Drive_Functions::CMD_Rip_Disk(string sFilename,int iPK_Users,string sF
 			sNewName = sFilename + "_" + StringUtils::itos(Counter++);
 		sFilename = sNewName;
 	}
-
-	RipJob *pRipJob = new RipJob(m_pJobHandler,this,NULL,iPK_Users,iEK_Disc,
-		m_mediaDiskStatus == DISCTYPE_DVD_VIDEO ? MEDIATYPE_pluto_StoredVideo_CONST : MEDIATYPE_pluto_StoredAudio_CONST,
-		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat,sFilename,sTracks,m_pCommand_Impl);
-	m_pJobHandler->AddJob(pRipJob);
 }
 
 string Disk_Drive_Functions::getTracks(string mrl)

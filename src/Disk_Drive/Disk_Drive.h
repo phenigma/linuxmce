@@ -182,6 +182,8 @@ public:
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #2 PK_Device */
+			/** The ID of the disk drive or jukebox */
 		/** @param #13 Filename */
 			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #17 PK_Users */
@@ -199,8 +201,8 @@ public:
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory) { string sCMD_Result; CMD_Rip_Disk(sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDriveID,sDirectory.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory) { string sCMD_Result; CMD_Rip_Disk(iPK_Device,sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDriveID,sDirectory.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #742 - Media Identified */

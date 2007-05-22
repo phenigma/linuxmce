@@ -43,6 +43,7 @@ using namespace DCE;
 using namespace StringUtils;
 
 #include "PowerfileJukebox.h"
+#include "Disk_Drive_Functions/RipJob.h"
 #include "Disk_Drive_Functions/RipTask.h"
 
 namespace nsJobHandler
@@ -393,23 +394,11 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 
 			case COMMAND_Rip_Disk_CONST:
 			{
-				Drive *pDrive = m_pPowerfileJukebox->m_mapDrive_FindByPK_Device(pMessage->m_dwPK_Device_To);
-				if( !pDrive )
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::ReceivedCommandForChild (rip) Unknown drive: %d", pMessage->m_dwPK_Device_To);
-				else
-				{
-					string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
-					int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
-					string sFormat=pMessage->m_mapParameters[COMMANDPARAMETER_Format_CONST];
-					string sTracks=pMessage->m_mapParameters[COMMANDPARAMETER_Tracks_CONST];
-					int iEK_Disc=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST].c_str());
-					int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
-					int iDriveID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_DriveID_CONST].c_str());
-					string sDirectory=pMessage->m_mapParameters[COMMANDPARAMETER_Directory_CONST];
-
-					pDrive->CMD_Rip_Disk( sFilename,iPK_Users,sFormat,sTracks,iEK_Disc,iSlot_Number,iDriveID,sDirectory, sCMD_Result, pMessage);
-					return;
-				}
+				// Just forward this to our own handler
+				pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST] = StringUtils::itos(pMessage->m_dwPK_Device_To);
+				pMessage->m_dwPK_Device_To = m_dwPK_Device;
+				ReceivedMessage(pMessage);
+				return;
 			}
 
 			default:
@@ -677,6 +666,8 @@ void Powerfile_C200::CMD_Close_Tray(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #2 PK_Device */
+			/** The ID of the disk drive or jukebox */
 		/** @param #13 Filename */
 			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #17 PK_Users */
@@ -694,19 +685,20 @@ void Powerfile_C200::CMD_Close_Tray(string &sCMD_Result,Message *pMessage)
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-void Powerfile_C200::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
-	/*
-	Drive *pDrive = m_pPowerfileJukebox->LockAvailableDrive(Disk_Drive_Functions::locked_rip_job,NULL,NULL,true);
-	if( !pDrive )
+	Drive *pDrive = m_pPowerfileJukebox->m_mapDrive_Find(iPK_Device);  // May be NULL if we're supposed to just pick a drive
+	Slot *pSlot = m_pPowerfileJukebox->m_mapSlot_Find(iSlot_Number);
+
+	if( !pDrive && !pSlot )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::CMD_Rip_Disk no available drive");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::CMD_Rip_Disk no drive and no slot");
 		return;
 	}
-
-	m_pDisk_Drive_Functions->CMD_Rip_Disk( sFilename,iPK_Users,sFormat,sTracks,iEK_Disc,iSlot_Number,iDriveID,sDirectory, sCMD_Result, pMessage);
-	*/
+	RipJob *pRipJob = new RipJob(m_pPowerfileJukebox->m_pJobHandler,pDrive,pSlot,iPK_Users,iEK_Disc,
+		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat,sFilename,sDirectory,sTracks,this);
+	m_pPowerfileJukebox->m_pJobHandler->AddJob(pRipJob);
 }
 //<-dceag-c720-b->
 

@@ -2125,7 +2125,7 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iEK_Disc, string sCaptio
 	//the command to execute with the selected file
 	m_sSaveFile_Command = sCommand;
 	m_bSaveFile_Advanced_options = bAdvanced_options;
-
+	string sFolder;
 	if(!m_bSaveFile_CreatingFolder)
 	{
 		//get default ripping info
@@ -2133,6 +2133,7 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iEK_Disc, string sCaptio
 		CMD_Get_Default_Ripping_Info cmd_CMD_Get_Default_Ripping_Info(m_pOrbiter->m_dwPK_Device,
 			m_pOrbiter->m_dwPK_Device_MediaPlugIn, iEK_Disc, &m_pOrbiter->m_sDefaultRippingName,
 			&sMounterFolder, &m_pOrbiter->m_nDefaultStorageDeviceForRipping, 
+			&sFolder,
 			&m_pOrbiter->m_sDefaultStorageDeviceForRippingName);
 		m_pOrbiter->SendCommand(cmd_CMD_Get_Default_Ripping_Info);
 
@@ -2155,6 +2156,7 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iEK_Disc, string sCaptio
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(m_nSaveFile_PK_DeviceDrive));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, FileUtils::ExcludeTrailingSlash(m_sSaveFile_MountedFolder) + "\nMT-1\nP");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, m_sSaveFile_FileName);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Status_CONST, sFolder);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
 	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, iEK_Disc, sCaption, sCommand, bAdvanced_options);
 
@@ -2230,7 +2232,9 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 			{
 				m_sSaveFile_FileName = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 
-				string sSubDir = m_pOrbiter->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
+				string sSubDir = m_pOrbiter->m_mapVariable_Find(VARIABLE_Status_CONST);
+				if( sSubDir.empty() )
+					sSubDir = m_pOrbiter->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
 				if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST)
 					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "public/data/" + sSubDir + "/";
 				else
@@ -2529,6 +2533,9 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 						TOSTRING(COMMANDPARAMETER_DriveID_CONST) " \"<%=45%>\" "
 						TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=9%>\" "
 						TOSTRING(COMMANDPARAMETER_EK_Disc_CONST) " \"" + pCell->m_mapAttributes["PK_Disc"] + "\" ";
+					if( pCell->GetValue() )
+						sRipMessage +=
+							TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " \"" + string(pCell->GetValue()) + "\" ";  // This will be either a drive or jukebox depending on which cell was chosen
 
 					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
 					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
@@ -2612,7 +2619,9 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 						TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=17%>\" "
 						TOSTRING(COMMANDPARAMETER_DriveID_CONST) " \"<%=45%>\" "
 						TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=9%>\" "
-						TOSTRING(COMMANDPARAMETER_EK_Disc_CONST) " \"" + pCell->m_mapAttributes["PK_Disc"] + "\" ";
+						TOSTRING(COMMANDPARAMETER_EK_Disc_CONST) " \"" + pCell->m_mapAttributes["PK_Disc"] + "\" "
+						TOSTRING(COMMANDPARAMETER_Slot_Number_CONST) " \"" + pCell->m_mapAttributes["Slot"] + "\" "
+						TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " \"" + pCell->m_mapAttributes["PK_Device"] + "\" ";  // This will be either a drive or jukebox depending on which cell was chosen
 
 					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
 					

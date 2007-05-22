@@ -88,6 +88,8 @@ namespace nsJobHandler
 		virtual bool StopThread(int iTimeout);
 		virtual bool ReadyToRun() { return true; }
 
+		virtual void JobDone() {} // Override to do something when the job is finished
+
 		enum JobStatus m_eJobStatus_get() { return m_eJobStatus; }
 
 		virtual bool CanHandleAnotherTask() { return m_iMaxTasks==0 || PendingTasks()<m_iMaxTasks; }

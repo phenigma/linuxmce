@@ -126,6 +126,9 @@
 				RelativePath="..\Disk_Drive_Functions\Disk_Drive_Functions.cpp">
 			</File>
 			<File
+				RelativePath="..\Disk_Drive_Functions\FixupRippingInfoTask.cpp">
+			</File>
+			<File
 				RelativePath="..\Hal\HalTree.cpp">
 			</File>
 			<File

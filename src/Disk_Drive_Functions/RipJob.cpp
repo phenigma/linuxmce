@@ -24,6 +24,7 @@
 #include "Disk_Drive_Functions/Disk_Drive_Functions.h"
 #include "JukeBox.h"
 #include "MoveDiscTask.h"
+#include "FixupRippingInfoTask.h"
 
 using namespace nsJobHandler;
 using namespace DCE;
@@ -31,9 +32,9 @@ using namespace DCE;
 RipJob::RipJob(class JobHandler *pJobHandler,
 			Disk_Drive_Functions *pDisk_Drive_Functions,
 			Slot *pSlot,
-			int iPK_Users, int iEK_Disc, int iPK_MediaType,
+			int iPK_Users, int iEK_Disc,
 			int iPK_Orbiter,
-			string sFormat, string sFileName, string sTracks,
+			string sFormat, string sFileName, string sDirectory, string sTracks,
 			Command_Impl *pCommand_Impl)
 	: Job(pJobHandler,"RipJob",iPK_Orbiter,pCommand_Impl)
 {
@@ -41,9 +42,10 @@ RipJob::RipJob(class JobHandler *pJobHandler,
 	m_pSlot=pSlot;
 	m_iPK_Users=iPK_Users;
 	m_iEK_Disc=iEK_Disc;
-	m_iPK_MediaType=iPK_MediaType;
+	m_iPK_MediaType=0;  // Fix ripping in the disc drive will fill this in
 	m_sFormat=sFormat;
 	m_sFileName=sFileName;
+	m_sDirectory=sDirectory;
 	m_sTracks=sTracks;
 }
 
@@ -51,6 +53,7 @@ bool RipJob::ReadyToRun()
 {
 	if( m_pDisk_Drive_Functions )  // We're ready to go if we have a drive to do the ripping
 	{
+		m_pDisk_Drive_Functions->FixupRippingInfo(m_iPK_MediaType,m_sFileName,m_sTracks,m_iEK_Disc,m_sDirectory);
 		AddRippingTasks();
 		return true;
 	}
@@ -68,9 +71,17 @@ bool RipJob::ReadyToRun()
 
 	m_pDisk_Drive_Functions=pDrive;
 	AddTask(new MoveDiscTask(this,"SlotToDrive",MoveDiscTask::mdt_SlotToDrive,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
+	AddTask(new FixupRippingInfoTask(this,"FixupRippingInfo"));
+	//m_pDisk_Drive_Functions->FixupRippingInfo(m_iPK_MediaType,m_sFileName,m_sTracks,m_iEK_Disc,m_sDirectory);
 	AddRippingTasks();
 	AddTask(new MoveDiscTask(this,"DriveToSlot",MoveDiscTask::mdt_DriveToSlot,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
 	return true;
+}
+
+void RipJob::JobDone()
+{
+	if( m_pDisk_Drive_Functions )
+		m_pDisk_Drive_Functions->UnlockDrive();
 }
 
 void RipJob::AddRippingTasks()
@@ -85,9 +96,19 @@ bool RipJob::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 	{
 		if( pPendingTaskList )
 		{
-			pPendingTaskList->m_listPendingTask.push_back(new PendingTask(m_iID,m_pDisk_Drive_Functions->m_pCommand_Impl_get()->m_dwPK_Device,
-				m_pDisk_Drive_Functions->m_pCommand_Impl_get()->m_dwPK_Device,
-				"rip",ToString(),(char) PercentComplete(),SecondsRemaining(),true));
+			if( m_pDisk_Drive_Functions )
+			{
+				pPendingTaskList->m_listPendingTask.push_back(new PendingTask(m_iID,m_pDisk_Drive_Functions->m_pCommand_Impl_get()->m_dwPK_Device,
+					m_pDisk_Drive_Functions->m_pCommand_Impl_get()->m_dwPK_Device,
+					"rip",ToString(),(char) PercentComplete(),SecondsRemaining(),true));
+			}
+			else
+			{
+				// We don't have a drive yet
+				pPendingTaskList->m_listPendingTask.push_back(new PendingTask(m_iID,m_pCommand_Impl->m_dwPK_Device,
+					m_pCommand_Impl->m_dwPK_Device,
+					"rip",ToString(),(char) PercentComplete(),SecondsRemaining(),true));
+			}
 		}
 
 		return true;
@@ -126,6 +147,9 @@ int RipJob::SecondsRemaining()
 
 string RipJob::ToString()
 { 
+	if( !m_pDisk_Drive_Functions )
+		return "Waiting... (" + m_sFileName + ")";
+
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	int iTaskNum=0;  // This will be which task we're working on
 	Task *pTask_Current=NULL;

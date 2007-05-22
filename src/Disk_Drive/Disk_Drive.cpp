@@ -41,6 +41,7 @@ using namespace DCE;
 #include "DCE/DCEConfig.h"
 DCEConfig g_DCEConfig;
 
+#include "Disk_Drive_Functions/RipJob.h"
 #include "Disk_Drive_Functions/RipTask.h"
 
 #include <sys/types.h>
@@ -430,6 +431,8 @@ void Disk_Drive::RunMonitorLoop()
 
 	/** @brief COMMAND: #337 - Rip Disk */
 	/** This will try to RIP a DVD to the HDD. */
+		/** @param #2 PK_Device */
+			/** The ID of the disk drive or jukebox */
 		/** @param #13 Filename */
 			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #17 PK_Users */
@@ -447,10 +450,12 @@ void Disk_Drive::RunMonitorLoop()
 		/** @param #234 Directory */
 			/** The relative directory for the file to rip */
 
-void Disk_Drive::CMD_Rip_Disk(string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
-	m_pDisk_Drive_Functions->CMD_Rip_Disk( sFilename,iPK_Users,sFormat,sTracks,iEK_Disc,iSlot_Number,iDriveID,sDirectory, sCMD_Result, pMessage);
+	RipJob *pRipJob = new RipJob(m_pJobHandler,m_pDisk_Drive_Functions,NULL,iPK_Users,iEK_Disc,
+		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat,sFilename,sDirectory,sTracks,this);
+	m_pJobHandler->AddJob(pRipJob);
 }
 //<-dceag-c817-b->
 

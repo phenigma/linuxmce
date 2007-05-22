@@ -116,12 +116,15 @@ bool Job::StartThread()
 
 bool Job::StopThread(int iTimeout)
 {
+	if( ThreadedClass::StopThread()==true )
+		return true; // We're ok
+
 	if( !Abort() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Job::StopThread %s cannot abort tasks", m_sName.c_str());
 		return false;
 	}
-	return ThreadedClass::StopThread();
+	return true;  // Had to abort, but still ok
 }
 
 // run each task
@@ -149,6 +152,7 @@ void Job::Run()
 	}
 	RefreshOrbiter();
 	m_eJobStatus=job_Done;
+	JobDone();
 	m_pJobHandler->BroadcastCond();
 }
 

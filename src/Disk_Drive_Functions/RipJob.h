@@ -41,25 +41,27 @@ namespace nsJobHandler
 	class RipJob : public Job
 	{
 		friend class RipTask;
+		friend class FixupRippingInfoTask;
 
 	private:
 		Disk_Drive_Functions *m_pDisk_Drive_Functions;
 		Slot *m_pSlot;
 		int m_iPK_Users, m_iEK_Disc, m_iDrive_Number,m_iPK_MediaType;
-		string m_sFormat, m_sFileName, m_sTracks;
+		string m_sFormat, m_sFileName, m_sDirectory, m_sTracks;
 
 	public:
 		RipJob(class JobHandler *pJobHandler,
 			Disk_Drive_Functions *pDisk_Drive_Functions,
 			Slot *pSlot,
-			int iPK_Users, int iEK_Disc, int iPK_MediaType,
+			int iPK_Users, int iEK_Disc,
 			int iPK_Orbiter,
-			string sFormat, string sFileName, string sTracks,
+			string sFormat, string sFileName, string sDirectory, string sTracks,
 			Command_Impl *pCommand_Impl);
 		virtual ~RipJob() {};
 
 		virtual bool ReadyToRun();
 		void AddRippingTasks();
+		virtual void JobDone();
 
 		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
 		virtual int PercentComplete();
