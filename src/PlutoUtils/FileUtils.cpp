@@ -34,6 +34,7 @@
 	#include <fcntl.h>
 	#include <fnmatch.h>
 	#include <sys/vfs.h>
+	#include <libgen.h>
 #ifdef USE_HTTP_FETCHER
 	extern "C"
 	{
@@ -1122,9 +1123,9 @@ string FileUtils::GetSymlincDest(string sFile)
 	else
 	{
 		char *str = strdup( sFile.c_str() );
-		char dir = dirname(str);
-		free(fee);
+		char *dir = dirname(str);
 		string sCombined = string(dir) + "/" + pLinkContents;
+		free(str);
 		return sCombined;
 	}
 #endif
