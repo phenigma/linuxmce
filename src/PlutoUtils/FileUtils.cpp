@@ -1109,4 +1109,19 @@ time_t FileUtils::GetLastModifiedDate(string sFile)
 	return -1;
 }
 
+string FileUtils::GetSymlincDest(string sFile)
+{
+#ifdef WIN32
+	return "";
+#else
+	char pLinkContents[4096];
+	memset(pLinkContents, 0, 4096);
+
+	if ( -1 == readlink(sFile.c_str(),  pLinkContents, 4095) ) // does not append NULL character
+		return "";
+	else
+		return pLinkContents;
+#endif
+}
+
 #endif //not WINCE

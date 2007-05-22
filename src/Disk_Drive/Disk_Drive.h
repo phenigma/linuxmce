@@ -65,6 +65,9 @@ public:
     virtual void RunMonitorLoop();
 
 	virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
+
+	void VerifyDriveIsNotEmbedded(string &sDrive);
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

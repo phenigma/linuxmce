@@ -40,6 +40,7 @@ using namespace DCE;
 #include "JobHandler/Job.h"
 #include "DCE/DCEConfig.h"
 DCEConfig g_DCEConfig;
+#include "HAL/HalTree.h"
 
 #include "Disk_Drive_Functions/RipJob.h"
 #include "Disk_Drive_Functions/RipTask.h"
@@ -97,6 +98,8 @@ bool Disk_Drive::GetConfig()
 	string sIP = g_DCEConfig.m_mapParameters_Find("MySqlHost");
 	if( sIP.empty() )
 		sIP = m_sIPAddress;
+
+	VerifyDriveIsNotEmbedded(sDrive);
 
 	if( !m_pDatabase_pluto_media->Connect(sIP,"root","","pluto_media") )
 	{
@@ -610,4 +613,77 @@ void Disk_Drive::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *p
 void Disk_Drive::CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c914-e->
 {
+}
+
+void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
+{
+	// There's a problem in Linux that it often creates the /dev/cdrom symlinc
+	// to a drive that's really embedded in one of the jukeboxes, and not the main cdrom.
+	// Go through all embedded disk drives, and if this is a symlinc to one, change it to
+	// something else
+
+	string sRealFile = FileUtils::GetSymlincDest(sDrive);
+sRealFile="/dev/scd0";
+	if( sRealFile.empty() )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %s is not a symlinc", sDrive.c_str());
+		return;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded symlinc: %s", sRealFile.c_str());
+
+	bool bNeedToChangeDrive=false; // Will set to true if we're using the same thing as an embedded
+	list<string> listEmbeddedDrives;
+	for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
+	{
+		DeviceData_Base *pDeviceData_Base = (*it).second;
+		if( pDeviceData_Base->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Disc_Drive_Embedded_CONST )
+		{
+			string s = m_pEvent->GetDeviceDataFromDatabase(pDeviceData_Base->m_dwPK_Device,DEVICEDATA_Drive_CONST);
+			if( s.size() )
+			{
+				string sRealFile2 = FileUtils::GetSymlincDest(s);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded found embedded %s - %s", s.c_str(), sRealFile2.c_str());
+				if( sDrive==s || sDrive==sRealFile2 || sRealFile==s || sRealFile==sRealFile2 )
+				{
+					bNeedToChangeDrive=true;
+					listEmbeddedDrives.push_back(s);
+					if( sRealFile2.empty()==false )
+						listEmbeddedDrives.push_back(sRealFile2);
+				}
+			}
+		}
+	}
+
+	// Go through the whole hal tree and find a cd-rom drive that's not embedded
+	if( bNeedToChangeDrive )
+	{
+		HalTree halTree;
+		halTree.Populate();
+		for(map<int,HalDevice *>::iterator it=halTree.m_mapHalDevice.begin();it!=halTree.m_mapHalDevice.end();++it)
+		{
+			HalDevice *pHalDevice = it->second;
+			HalValue *pHalValue = pHalDevice->m_mapHalValue_Find("storage.drive_type");
+			if( !pHalValue || !pHalValue->GetType()==HalValue::hvt_string || ((HalValue_string *) pHalValue)->m_sValue!="cdrom" )
+				continue; // Not of interest to us
+
+			pHalValue = pHalDevice->m_mapHalValue_Find("block.device");
+			if( !pHalValue || !pHalValue->GetType()==HalValue::hvt_string )
+				continue; // Not of interest to us
+
+			string sValue = ((HalValue_string *) pHalValue)->m_sValue;
+			string sRealValue = FileUtils::GetSymlincDest(sValue);
+			for(list<string>::iterator it=listEmbeddedDrives.begin();it!=listEmbeddedDrives.end();++it)
+			{
+				if( sValue==*it || sRealValue==*it )
+				{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded skipping %s is already in use", sValue.c_str());
+					continue;
+				}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %s is a go", sValue.c_str());
+				sDrive = sRealValue.empty() ? sValue : sRealValue;
+				return;
+			}
+		}
+	}
 }

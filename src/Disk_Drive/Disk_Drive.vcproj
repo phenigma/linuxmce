@@ -132,16 +132,37 @@
 				RelativePath="..\Gen_Devices\Disk_DriveBase.cpp">
 			</File>
 			<File
+				RelativePath="..\Disk_Drive_Functions\FixupRippingInfoTask.cpp">
+			</File>
+			<File
+				RelativePath="..\Hal\HalTree.cpp">
+			</File>
+			<File
+				RelativePath="..\Disk_Drive_Functions\IdentifyJob.cpp">
+			</File>
+			<File
+				RelativePath="..\Disk_Drive_Functions\IdentifyTask.cpp">
+			</File>
+			<File
 				RelativePath="..\JobHandler\Job.cpp">
 			</File>
 			<File
 				RelativePath="..\JobHandler\JobHandler.cpp">
 			</File>
 			<File
+				RelativePath="..\Disk_Drive_Functions\JukeBox.cpp">
+			</File>
+			<File
+				RelativePath="..\Disk_Drive_Functions\LoadUnloadJob.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File
 				RelativePath="..\Media_Plugin\MediaAttributes_LowLevel.cpp">
+			</File>
+			<File
+				RelativePath="..\Disk_Drive_Functions\MoveDiscTask.cpp">
 			</File>
 			<File
 				RelativePath="..\Disk_Drive_Functions\RipJob.cpp">
