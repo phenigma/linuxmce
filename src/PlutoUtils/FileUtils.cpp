@@ -1120,7 +1120,13 @@ string FileUtils::GetSymlincDest(string sFile)
 	if ( -1 == readlink(sFile.c_str(),  pLinkContents, 4095) ) // does not append NULL character
 		return "";
 	else
-		return pLinkContents;
+	{
+		char *str = strdup( sFile.c_str() );
+		char dir = dirname(str);
+		free(fee);
+		string sCombined = string(dir) + "/" + pLinkContents;
+		return sCombined;
+	}
 #endif
 }
 
