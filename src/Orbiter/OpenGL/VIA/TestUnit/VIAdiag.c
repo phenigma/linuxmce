@@ -394,7 +394,11 @@ int main(int argc, char *argv[])
   ViaOverlay::Instance().WindowCreated(SCREEN_WIDTH, SCREEN_HEIGHT);
   ViaOverlay::Instance().WindowResized();
   ViaOverlay::Instance().ResetAlphaMask();
-  ViaOverlay::Instance().FillRectangleInAlphaMask(0, 0, 800, 600, (char)0x80);
+  
+  ViaOverlay::Instance().FillRectangleInAlphaMask(0, 0, SCREEN_WIDTH / 3, SCREEN_HEIGHT, (char)0x20);
+  ViaOverlay::Instance().FillRectangleInAlphaMask(SCREEN_WIDTH / 3, 0, SCREEN_WIDTH / 3, SCREEN_HEIGHT, (char)0x80);
+  ViaOverlay::Instance().FillRectangleInAlphaMask(2 * SCREEN_WIDTH / 3, 0, SCREEN_WIDTH / 3, SCREEN_HEIGHT, (char)0xD0);
+  
   ViaOverlay::Instance().WorldChanged();
 
   glutMainLoop();
