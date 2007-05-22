@@ -85,6 +85,7 @@ namespace DCE
 	{
 	public:
 		map<string,HalValue *> m_mapHalValue;
+		HalValue *m_mapHalValue_Find(string sToken) { map<string,HalValue *>::iterator it = m_mapHalValue.find(sToken); return it==m_mapHalValue.end() ? NULL : (*it).second; }
 		int m_iID;
 		string m_sUdi;
 
