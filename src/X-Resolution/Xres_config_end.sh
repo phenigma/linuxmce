@@ -13,8 +13,8 @@ DEVICEDATA_Video_settings=89
 
 function XorgConfLogging() {
         local message="$1"
-        local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
-        local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
+        local xorgLog="/var/log/pluto/xorg.conf.log"
+        local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
 
         local myPid=$$
 
@@ -29,11 +29,11 @@ Answer="$1"
 . /usr/pluto/bin/Utils.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-pidOfX="$(ps ax|grep "X $XDisplay -ignoreABI -ac -config /etc/X11/xorg.conf.pluto.test"|grep -v grep|awk '{print $1}')"
+pidOfX="$(ps ax|grep "X $XDisplay -ignoreABI -ac -config /etc/X11/xorg.conf.test"|grep -v grep|awk '{print $1}')"
 if [[ -z "$pidOfX" ]]; then
 	echo "test X not running. nothing to kill"
 fi
-if [[ ! -f "/etc/X11/xorg.conf.pluto.test" ]]; then
+if [[ ! -f "/etc/X11/xorg.conf.test" ]]; then
 	echo "test config not found. no new settings to apply"
 	exit 10
 fi
@@ -55,11 +55,11 @@ if [[ "${Answer:0:1}" == "y" || "${Answer:0:1}" == "Y" ]]; then
 	fi
 	OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
 
-	mv /etc/X11/xorg.conf.pluto{.test,}
+	mv /etc/X11/xorg.conf{.test,}
 	echo "Killing real X (to restart it with new config)"
 	/usr/pluto/bin/RestartX.sh $OrbiterDev 127.0.0.1
 	rm -f /tmp/Pluto_VideoSetting.txt
 else
-	rm -f /etc/X11/xorg.conf.pluto.test /tmp/Pluto_VideoSetting.txt
+	rm -f /etc/X11/xorg.conf.test /tmp/Pluto_VideoSetting.txt
 fi
 echo

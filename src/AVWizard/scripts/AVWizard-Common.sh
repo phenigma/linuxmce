@@ -2,8 +2,8 @@
 
 function XorgConfLogging() {
         local message="$1"
-        local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
-        local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
+        local xorgLog="/var/log/pluto/xorg.conf.log"
+        local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
 
         local myPid=$$
 

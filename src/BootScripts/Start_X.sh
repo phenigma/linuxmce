@@ -40,7 +40,7 @@ AlphaBlending=$(AlphaBlendingEnabled)
 #XClient=/usr/pluto/bin/Start_IceWM.sh
 XClient=/usr/bin/xfwm4
 XClientParm=()
-XOrgConf="/etc/X11/xorg.conf.pluto"
+XOrgConf="/etc/X11/xorg.conf"
 
 #<-mkr_b_ubuntu_b->
 XClientParm=(--compositor=off)

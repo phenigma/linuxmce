@@ -71,7 +71,7 @@ else
 	XConfPath=""
 fi
 
-XConfFile="$XConfPath/etc/X11/xorg.conf.pluto"
+XConfFile="$XConfPath/etc/X11/xorg.conf"
 
 case "$Action" in
 	get)

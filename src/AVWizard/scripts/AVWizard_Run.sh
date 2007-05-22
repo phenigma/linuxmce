@@ -2,8 +2,8 @@
 
 function XorgConfLogging() {
         local message="$1"
-        local xorgLog="/var/log/pluto/xorg.conf.pluto.log"
-        local xorgLines=$(cat /etc/X11/xorg.conf.pluto | wc -l)
+        local xorgLog="/var/log/pluto/xorg.conf.log"
+        local xorgLines=$(cat /etc/X11/xorg.conf | wc -l)
 				
         local myPid=$$
 
@@ -265,7 +265,7 @@ done
 set -x
 # Finalize wizard: save settings
 ConfSet "AVWizardDone" "1"
-ConfFile="/etc/X11/xorg.conf.pluto"
+ConfFile="/etc/X11/xorg.conf"
 mv "$XF86Config" "$ConfFile"
 mv "$XineConf" /etc/pluto/xine.conf
 alsactl store
