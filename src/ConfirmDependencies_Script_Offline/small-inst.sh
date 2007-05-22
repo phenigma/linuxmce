@@ -278,6 +278,18 @@ KillNetworkManager()
 	apt-get -f -y remove network-manager
 }
 
+Start_Dhcpd_Plugin_At_Boot()
+{
+	echo '#!/bin/bash
+case "$1" in
+	start)
+		screen -d -m -S DhcpdPlugin /usr/pluto/bin/Dhcpd-Plugin.sh
+	;;
+esac
+' >/etc/init.d/pluto-dhcp-plugin
+	ln -sf ../init.d/pluto-dhcp-plugin /etc/rc2.d/S05pluto-dhcp-plugin
+}
+
 c_deviceType=2
 c_installUI=1
 
@@ -294,6 +306,8 @@ Install_VIA_ALSA
 Install_DCERouter
 Create_And_Config_Devices
 Setup_XOrg
+
+Start_Dhcpd_Plugin_At_Boot
 
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/bin/Timezone_Detect.sh
