@@ -334,6 +334,19 @@ end script
 #" > /etc/event.d/pluto
 fi
 
+echo "
+start on runlevel 2
+
+stop on shutdown
+stop on runlevel 3
+stop on runlevel 4
+stop on runlevel 5
+
+script
+screen -d -m -S DhcpdPlugin /usr/pluto/bin/Dhcpd-Plugin.sh
+end script
+" > /etc/event.d/pluto-dhcp-plugin
+
 ## Remove 'Install LinuxMCE' icon after LinuxMCE was installed
 for dir in /home/* ;do
 	if [ -d "$dir/Desktop" ] ;then
