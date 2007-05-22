@@ -30,7 +30,7 @@ namespace nsJobHandler
 	class FixupRippingInfoTask : public Task
 	{
 	public:
-		FixupRippingInfoTask::FixupRippingInfoTask(class Job *pJob,string sName)
+		FixupRippingInfoTask(class Job *pJob,string sName)
 			: Task(pJob,sName)
 		{
 		}
