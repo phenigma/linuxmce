@@ -220,8 +220,7 @@ function Setup_XOrg {
 		Dir="$user/.kde/Autostart"
 		mkdir -p "$Dir"
 		echo "$KDExhost" >"$Dir/xhost"
-		User="${user#/home/}"
-		chown "$User.$User" "$Dir/xhost"
+		chown "$owner" "$Dir/xhost"
 		chmod +x "$Dir/xhost"
 
 		## Configure window manager trasparancy manager
