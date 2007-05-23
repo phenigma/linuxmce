@@ -51,7 +51,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
 
 	bool bComma = false, bResult = false;
-	string sOutput;
+	string sOutput, sStdErr;
 
 	int nDrive = 0; // Drives are counted from 0
 
@@ -65,7 +65,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		char * args2[] = {MTX_CMD, "-f", (char *) m_sChangerDev.c_str(), "altres", "nobarcode", "status", NULL};
 		char ** args = m_bMtxAltres ? args2 : args1;
 #endif
-		if (ProcessUtils::GetCommandOutput(args[0], args, sOutput))
+		if (ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr) == 0)
 		{
 #ifdef WIN32
 			size_t size;
@@ -259,13 +259,13 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	halTree.Populate();
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapHalDevice.size());
 
-	string sOutput;
+	string sOutput, sStdErr;
 #ifdef EMULATE_PF
 	char * args[] = {"/bin/cat", "/tmp/samples/lsscsi", NULL};
 #else
 	char * args[] = {"/usr/bin/lsscsi", "-g", NULL};
 #endif
-	if (! ProcessUtils::GetCommandOutput(args[0], args, sOutput))
+	if (ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr) != 0)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get device names");
 		return false;

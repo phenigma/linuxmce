@@ -29,9 +29,9 @@ using namespace std;
 
 int main(int argc, char * argv[])
 {
-	string sOutput;
+	string sOutput, sStdErr;
 	char * args[] = { "/usr/pluto/bin/Network_DisplaySettings.sh", "--orbiter", NULL };
-	ProcessUtils::GetCommandOutput(args[0], &args[0], sOutput);
+	ProcessUtils::GetCommandOutput(args[0], &args[0], sOutput, sStdErr);
 #if 0
 	char * args_default[] = {"(unused)", "/bin/cat", "/proc/cpuinfo", NULL};
 	char ** args = args_default;
@@ -40,8 +40,8 @@ int main(int argc, char * argv[])
 		args = argv;
 	
 	cout << "Executing " << args[1] << endl;
-	string sOutput;
-	if (ProcessUtils::GetCommandOutput(args[1], &args[1], sOutput))
+	string sOutput, sStdErr;
+	if (ProcessUtils::GetCommandOutput(args[1], &args[1], sOutput, sStdErr) == 0)
 	{
 		cout << sOutput;
 	}
