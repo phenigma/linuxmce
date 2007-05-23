@@ -395,8 +395,11 @@ int ProcessUtils::GetCommandOutput(const char * path, char * args[], string & sO
 			char buffer[4096];
 			memset(buffer, 0, sizeof(buffer));
 			
-			while (waitpid(pid, &status, WNOHANG) == 0)
+			int quit = 0;
+			while (quit < 2)
 			{
+				if (quit || waitpid(pid, &status, WNOHANG) != 0)
+					quit++;
 				int bytes = 0;
 				
 				select(maxfd, &fdset, NULL, NULL, NULL);
