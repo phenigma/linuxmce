@@ -131,6 +131,10 @@ bool SimplePhone::GetConfig()
 		}
 	}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone::GetConfig: Starting with extension '%s'", m_sExtension.c_str());
+	
+	// set mic as default capture device, mute, increase capture volume level
+	char * cmd[] = { "/usr/pluto/bin/SoundCard_SetupAudioCapture.sh", NULL };
+	execv(cmd[0], cmd);
 
     return true;
 }
