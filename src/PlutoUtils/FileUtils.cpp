@@ -1131,4 +1131,15 @@ string FileUtils::GetSymlincDest(string sFile)
 #endif
 }
 
+int FileUtils::GetLinuxDeviceId(string sFilename)
+{
+#ifdef WIN32
+	return -1;
+#else
+	struct stat st;
+	stat(sFilename.c_str(), &st);
+	return st.st_rdev;
+#endif
+}
+
 #endif //not WINCE

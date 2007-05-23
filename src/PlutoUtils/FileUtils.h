@@ -67,6 +67,7 @@ namespace FileUtils
     string ExcludeTrailingSlash(string sDirectoryPath);
 	string ValidFileName(string sInput,bool bAllowSlashes=false); /** < converts the input file name to a valid file name (stripping / and \, for example) */
 	string GetSymlincDest(string sFile);
+	int GetLinuxDeviceId(string sFilename);
 
 #ifndef WINCE
     string ValidCPPName( string sInput ); /** < converts the input file name to a valid CPP file name */
