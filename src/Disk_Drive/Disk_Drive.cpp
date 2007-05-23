@@ -638,10 +638,8 @@ void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
 				int iDrive2 = FileUtils::GetLinuxDeviceId(s);
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded found embedded %d - %s", iDrive2, s.c_str());
 				if( iDrive==iDrive2 )
-				{
 					bNeedToChangeDrive=true;
-					listEmbeddedDrives.push_back(iDrive2);
-				}
+				listEmbeddedDrives.push_back(iDrive2);
 			}
 		}
 	}
@@ -666,13 +664,18 @@ void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
 			string sValue = ((HalValue_string *) pHalValue)->m_sValue;
 			int iDrive2 = FileUtils::GetLinuxDeviceId(sValue);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded checking %s against %d",sValue.c_str(),listEmbeddedDrives.size());
+			bool bIsOk=true;
 			for(list<int>::iterator it=listEmbeddedDrives.begin();it!=listEmbeddedDrives.end();++it)
 			{
 				if( iDrive2==*it )
 				{
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded skipping %d,%s is already in use", iDrive2,sValue.c_str());
-					continue;
+					bIsOk=false;
+					break;
 				}
+			}
+			if( bIsOk )
+			{
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %d,%s is a go", iDrive2,sValue.c_str());
 				SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_Drive_CONST,sValue);
 				return;
