@@ -347,9 +347,10 @@ void ProcessUtils::KillAllApplications()
 int ProcessUtils::GetCommandOutput(const char * path, char * args[], string & sOutput, string & sStdErr)
 {
 #ifdef WIN32
-	return true;
+	return 0;
 #else
 	int pid;
+	int status;
 	int output[2];
 	int errput[2];
 
@@ -419,17 +420,14 @@ int ProcessUtils::GetCommandOutput(const char * path, char * args[], string & sO
 					break;
 			}
 			
-			int status;
 			waitpid(pid, &status, 0);
 			status = WEXITSTATUS(status);
 
 			close(output[0]);
 			close(errput[0]);
-			if (status == 254)
-				return false;
 	}
 
-	return true;
+	return status;
 #endif
 }
 
@@ -459,7 +457,6 @@ bool ProcessUtils::SpawnDaemon(const char * path, char * args[], bool bLogOutput
 {
 #ifndef WIN32
 	int pid;
-	int status;
 
 	{
 		string sArgs;
@@ -517,15 +514,17 @@ bool ProcessUtils::SpawnDaemon(const char * path, char * args[], bool bLogOutput
 			return false;
 			break;
 		default: /* parent */
+			int status;
 
 			waitpid(pid, &status, 0); // wait for daemon spawner to start
 			status = WEXITSTATUS(status);
 
-			return status;
+			if (status == 254)
+				return false;
 			break;
 	}
 #endif
-	return 0;
+	return true;
 }
 
 unsigned long ProcessUtils::g_SecondsReset=0;
