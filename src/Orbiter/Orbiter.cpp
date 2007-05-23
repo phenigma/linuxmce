@@ -4173,7 +4173,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             if (FileUtils::FileExists(sCmd))
             {
                 char * args[] = { sCmd, "--orbiter", NULL };
-                ProcessUtils::GetCommandOutput(args[0], &args[0], Output);
+		string sStdErr;
+                ProcessUtils::GetCommandOutput(args[0], &args[0], Output, sStdErr);
             }
 #endif
 		}
