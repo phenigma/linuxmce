@@ -622,17 +622,11 @@ void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
 	// Go through all embedded disk drives, and if this is a symlinc to one, change it to
 	// something else
 
-	string sRealFile = FileUtils::GetSymlincDest(sDrive);
-	if( sRealFile.empty() )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %s is not a symlinc", sDrive.c_str());
-		return;
-	}
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded symlinc: %s", sRealFile.c_str());
+	int iDrive = FileUtils::GetLinuxDeviceId(sDrive);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %d: %s",  iDrive, sDrive.c_str());
 
 	bool bNeedToChangeDrive=false; // Will set to true if we're using the same thing as an embedded
-	list<string> listEmbeddedDrives;
+	list<int> listEmbeddedDrives;
 	for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
 	{
 		DeviceData_Base *pDeviceData_Base = (*it).second;
@@ -641,14 +635,12 @@ void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
 			string s = m_pEvent->GetDeviceDataFromDatabase(pDeviceData_Base->m_dwPK_Device,DEVICEDATA_Drive_CONST);
 			if( s.size() )
 			{
-				string sRealFile2 = FileUtils::GetSymlincDest(s);
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded found embedded %s - %s", s.c_str(), sRealFile2.c_str());
-				if( sDrive==s || sDrive==sRealFile2 || sRealFile==s || sRealFile==sRealFile2 )
+				int iDrive2 = FileUtils::GetLinuxDeviceId(s);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded found embedded %d - %s", iDrive2, s.c_str());
+				if( iDrive==iDrive2 )
 				{
 					bNeedToChangeDrive=true;
-					listEmbeddedDrives.push_back(s);
-					if( sRealFile2.empty()==false )
-						listEmbeddedDrives.push_back(sRealFile2);
+					listEmbeddedDrives.push_back(iDrive2);
 				}
 			}
 		}
@@ -659,6 +651,7 @@ void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
 	{
 		HalTree halTree;
 		halTree.Populate();
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded need to change scanning %d items",halTree.m_mapHalDevice.size());
 		for(map<int,HalDevice *>::iterator it=halTree.m_mapHalDevice.begin();it!=halTree.m_mapHalDevice.end();++it)
 		{
 			HalDevice *pHalDevice = it->second;
@@ -671,17 +664,17 @@ void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
 				continue; // Not of interest to us
 
 			string sValue = ((HalValue_string *) pHalValue)->m_sValue;
-			string sRealValue = FileUtils::GetSymlincDest(sValue);
-			for(list<string>::iterator it=listEmbeddedDrives.begin();it!=listEmbeddedDrives.end();++it)
+			int iDrive2 = FileUtils::GetLinuxDeviceId(sValue);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded checking %s against %d",sValue.c_str(),listEmbeddedDrives.size());
+			for(list<int>::iterator it=listEmbeddedDrives.begin();it!=listEmbeddedDrives.end();++it)
 			{
-				if( sValue==*it || sRealValue==*it )
+				if( iDrive2==*it )
 				{
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded skipping %s is already in use", sValue.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded skipping %d,%s is already in use", iDrive2,sValue.c_str());
 					continue;
 				}
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %s is a go", sValue.c_str());
-				sDrive = sRealValue.empty() ? sValue : sRealValue;
-				SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_Drive_CONST,sDrive);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %d,%s is a go", iDrive2,sValue.c_str());
+				SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_Drive_CONST,sValue);
 				return;
 			}
 		}
