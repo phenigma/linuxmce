@@ -87,10 +87,6 @@ StartService "Setting Coredump Location" "/usr/pluto/bin/corefile.sh"
 if [[ "$AVWizardDone" != "1" ]] ;then
 	StartService "Starting Audio/Video Wizard" "/usr/pluto/bin/AVWizard_Run.sh"
 fi
-StartService "Starting X11 Server" "/usr/pluto/bin/Start_X.sh"
-export KDE_DEBUG=1
-StartService "Starting the Launch Manager" "/usr/pluto/bin/lmce_launch_manager"
-export -n KDE_DEBUG
 StartService "Creating Firewire 2 Video4Linux Pipes" "/usr/pluto/bin/Firewire2Video4Linux.sh"
 
 # hack: cleaning lockfile on M/D start to allow
@@ -102,17 +98,19 @@ rm -f /usr/pluto/locks/pluto_spawned_local_devices.txt
 StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
 StartService "Report machine is on" "/usr/pluto/bin/Report_MachineOn.sh" "&"
 
-#Pluto_alsaconf-noninteractive \
-#Pluto_Diskless_Setup.sh \
-#Pluto_Restart_DHCP.sh \
-#Pluto_Restart_MythBackend.sh \
-#Pluto_Setup_ExportsNFS.sh \
-#Pluto_VoiceMailMonitor.sh \
-#Pluto_kpanic.sh \
-#Pluto_qos.pl \
-#Pluto_Report_MachineOn.sh \
-#Pluto_Net_Mount_All.sh \
-#Pluto_WakeMDs.sh \
-#Pluto_Backup_Database.sh \
-#Pluto_Share_IRCodes.sh \
+. /usr/pluto/bin/Config_Ops.sh
+export DISPLAY=:${Display}
+while /bin/true ;do
+	XPID=$(</var/run/plutoX$Display.pid)
+	if [[ -z "$XPID" || ! -d /proc/"$XPID" ]] ;then
+		/usr/pluto/bin/Start_X.sh -config /etc/X11/xorg.conf
+	fi
 
+	export KDE_DEBUG=1
+	/usr/pluto/bin/lmce_launch_manager
+
+	while [[ "$(pidof lmce_launch_manager)" != "" ]] ;do
+		sleep 5
+	done
+	export -n KDE_DEBUG
+done
