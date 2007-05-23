@@ -54,7 +54,7 @@ namespace ProcessUtils
 	void KillAllApplications();
 
 	/** Execute a command with execv and return its stdout. Returns exit code */
-	int GetCommandOutput(const char * path, const char * args[], string & sOutput, string & sStdErr);
+	int GetCommandOutput(const char * path, char *const args[], string & sOutput, string & sStdErr);
 
 	/** Execute a daemon (paenguin?) - i.e. run it in the background and disown it */
 	bool SpawnDaemon(const char * path, char * args[], bool bLogOutput = true);
