@@ -370,7 +370,7 @@ int ProcessUtils::GetCommandOutput(const char * path, const char *const args[], 
 			dup2(errput[1], 2);
 			close(errput[1]);
 			
-			execv(path, args);
+			execv(path, (char * const *) args);
 			_exit(254);
 			/* Rationale for _exit instead of exit:
 			 * exit calls atexit-registered functions and X registers some stuff
