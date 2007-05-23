@@ -395,11 +395,8 @@ int ProcessUtils::GetCommandOutput(const char * path, char * args[], string & sO
 			char buffer[4096];
 			memset(buffer, 0, sizeof(buffer));
 			
-			int quit = 0;
-			while (quit < 2)
+			while (waitpid(pid, &status, WNOHANG) != 0)
 			{
-				if (quit || waitpid(pid, &status, WNOHANG) != 0)
-					quit++;
 				int bytes = 0;
 				
 				select(maxfd, &fdset, NULL, NULL, NULL);
@@ -422,9 +419,18 @@ int ProcessUtils::GetCommandOutput(const char * path, char * args[], string & sO
 				// (otherwise, it will get a 'broken pipe' signal and terminate anyway)
 				// so we finish the loop and return the output to the user
 			}
-			
 			status = WEXITSTATUS(status);
-
+			
+			// catch unflushed buffers
+			// 1. stdout
+			memset(buffer, 0, sizeof(buffer));
+			read(output[0], buffer, sizeof(buffer) - 1);
+			sOutput += buffer;
+			// 2. stderr
+			memset(buffer, 0, sizeof(buffer));
+			read(errput[0], buffer, sizeof(buffer) - 1);
+			sStdErr += buffer;
+			
 			close(output[0]);
 			close(errput[0]);
 	}
