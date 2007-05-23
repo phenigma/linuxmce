@@ -395,35 +395,31 @@ int ProcessUtils::GetCommandOutput(const char * path, char * args[], string & sO
 			char buffer[4096];
 			memset(buffer, 0, sizeof(buffer));
 			
-			while (select(maxfd, &fdset, NULL, NULL, NULL) > 0)
+			while (waitpid(pid, &status, WNOHANG) == 0)
 			{
 				int bytes = 0;
-				bool quit = false;
+				
+				select(maxfd, &fdset, NULL, NULL, NULL);
 
 				if (FD_ISSET(output[0], &fdset))
 				{
 					bytes = read(output[0], buffer, sizeof(buffer) - 1);
 					sOutput += buffer;
 					memset(buffer, 0, sizeof(buffer));
-					quit = bytes <= 0;
 				}
 				if (FD_ISSET(errput[0], &fdset))
 				{
 					bytes = read(errput[0], buffer, sizeof(buffer) - 1);
 					sStdErr += buffer;
 					memset(buffer, 0, sizeof(buffer));
-					quit = bytes <= 0;
 				}
 
 				// if one of the streams returned 0 bytes, or read error,
 				// the child application has probably terminated
 				// (otherwise, it will get a 'broken pipe' signal and terminate anyway)
 				// so we finish the loop and return the output to the user
-				if (quit)
-					break;
 			}
 			
-			waitpid(pid, &status, 0);
 			status = WEXITSTATUS(status);
 
 			close(output[0]);
