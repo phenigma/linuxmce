@@ -117,6 +117,17 @@ YPPASSWDDARGS=
 YPXFRDARGS=
 " > /etc/default/nis
 }
+
+function wmtweaks_default()
+{
+	echo '<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mcs-option SYSTEM "mcs-option.dtd">
+
+<mcs-option>
+	<option name="Xfwm/UseCompositing" type="int" value="1"/>
+</mcs-option>'
+}
+
 function Setup_XOrg {
 	## Make X accessible by Pluto software, for all existing and new users
 	KDExhost="#!/bin/bash
