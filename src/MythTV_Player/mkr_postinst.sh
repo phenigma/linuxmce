@@ -139,3 +139,6 @@ else
 	groupadd mythtv || :
 	addRootUser
 fi
+
+mkdir -p /root/.mythtv/
+touch /root/.mythtv/ignoregroup
