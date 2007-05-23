@@ -140,5 +140,5 @@ else
 	addRootUser
 fi
 
-mkdir -p /root/.mythtv/
-touch /root/.mythtv/ignoregroup
+mkdir -p /root/.mythtv/ || :
+touch /root/.mythtv/ignoregroup || :
