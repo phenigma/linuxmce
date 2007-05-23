@@ -62,6 +62,6 @@ for device in $Devices ;do
 	fi
 done
 
-mkdir -p /root/.mythtv/
-touch /root/.mythtv/ignoregroup
+mkdir -p /root/.mythtv/ || :
+touch /root/.mythtv/ignoregroup || :
 
