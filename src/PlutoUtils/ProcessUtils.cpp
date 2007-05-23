@@ -350,7 +350,7 @@ int ProcessUtils::GetCommandOutput(const char * path, char * args[], string & sO
 	return 0;
 #else
 	int pid;
-	int status;
+	int status = 253;
 	int output[2];
 	int errput[2];
 
