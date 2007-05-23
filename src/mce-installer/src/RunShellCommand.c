@@ -46,6 +46,8 @@ GtkWidget* run_shell_command(const gchar* application, const gchar* windowTitle,
 	gtk_window_set_modal(GTK_WINDOW(runWindow), TRUE);
 	gtk_window_set_transient_for(GTK_WINDOW(runWindow), GTK_WINDOW(mainWindow)); 
 	gtk_window_set_position(GTK_WINDOW(runWindow), GTK_WIN_POS_CENTER_ON_PARENT);
+	gtk_window_set_default_size(GTK_WINDOW(runWindow), 300, 70);
+
 	gtk_container_set_border_width(GTK_CONTAINER(runWindow), 10);
 
 	GtkWidget* runHBox = GTK_DIALOG(runWindow)->vbox; 

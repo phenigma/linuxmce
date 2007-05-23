@@ -114,7 +114,7 @@ main (int argc, char *argv[])
 	history = g_queue_new();
 
 #if 0
-displayStepUbuntuExtraCD();
+displayStepDvdCss();
 //	displayStepLinuxMceCD();
 #else
 	if (setting_coreIP != NULL) {
