@@ -82,9 +82,9 @@ void HalTree::Populate()
 {
 	PurgeTree();
 
-	string sBuffer;
+	string sBuffer, sStdErr;
 	char * args[] = {"/usr/bin/hal-device", NULL};
-	if (!ProcessUtils::GetCommandOutput(args[0], args, sBuffer))
+	if (ProcessUtils::GetCommandOutput(args[0], args, sBuffer, sStdErr) != 0)
 		return;
 
 LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"got %d %s",sBuffer.size(),sBuffer.c_str());
