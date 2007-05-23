@@ -175,7 +175,7 @@ public:
 	/**
 	 * @brief free datablock - complements the destructor
 	 */
-	void FreeSerializeMemory() { delete m_pcDataBlock; m_pcDataBlock=m_pcCurrentPosition=NULL; }
+	void FreeSerializeMemory() { delete[] m_pcDataBlock; m_pcDataBlock=m_pcCurrentPosition=NULL; }
 	
 	/**
 	 * @brief computes the current size of processed data
