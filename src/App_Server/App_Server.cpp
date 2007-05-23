@@ -91,7 +91,7 @@ bool App_Server::GetConfig()
 #ifndef WIN32
 	{
 		const char * args[] = { AudioVolumeScript, "set", "unmute", NULL };
-		ProcessUtils::SpawnDaemon(args[0], args);
+		ProcessUtils::SpawnDaemon(args[0], (char **) args);
 	}
 	{
 		string sVolume, sStdErr;
