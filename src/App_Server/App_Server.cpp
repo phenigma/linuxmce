@@ -95,7 +95,7 @@ bool App_Server::GetConfig()
 	}
 	{
 		string sVolume, sStdErr;
-		const char * args[] = { AudioVolumeScript, "get-percent", NULL };
+		const char * const args[] = { AudioVolumeScript, "get-percent", NULL };
 		ProcessUtils::GetCommandOutput(args[0], args, sVolume, sStdErr);
 		m_iLastVolume = atoi(sVolume.c_str());
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "ALSA Master volume: %d%%", m_iLastVolume);
@@ -589,7 +589,7 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 	int iVolume;
 	{
 		string sVolume, sStdErr;
-		char * args[] = { (char *) AudioVolumeScript, "get-percent", NULL };
+		char * const args[] = { (char *) AudioVolumeScript, "get-percent", NULL };
 		ProcessUtils::GetCommandOutput(args[0], args, sVolume, sStdErr);
 		iVolume = atoi(sVolume.c_str());
 	}

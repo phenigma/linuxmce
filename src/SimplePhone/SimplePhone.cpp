@@ -117,7 +117,7 @@ bool SimplePhone::GetConfig()
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SimplePhone::GetConfig: Extension is empty. Attempting to sync with AMP");
 
-		const char * cmd[] = { "/usr/pluto/bin/LaunchRemoteCmd.sh", "dcerouter", "/usr/pluto/bin/sync_pluto2amp.pl", NULL };
+		const char * const cmd[] = { "/usr/pluto/bin/LaunchRemoteCmd.sh", "dcerouter", "/usr/pluto/bin/sync_pluto2amp.pl", NULL };
 		string sOutput, sStdErr;
 		ProcessUtils::GetCommandOutput(cmd[0], cmd, sOutput, sStdErr);
 

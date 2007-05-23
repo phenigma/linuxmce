@@ -291,6 +291,7 @@ public:
 	void SCREEN_Jukebox_Manager(long PK_Screen, int iPK_Device);
 	void SCREEN_NAS_Manager(long PK_Screen, int iPK_Device);
 	bool DriveOverview_ObjectSelected(CallBackData *pData);
+	bool DriveOverview_GridRendering(CallBackData *pData);
 	bool JukeboxManager_ObjectSelected(CallBackData *pData);
 	bool NASManager_ObjectSelected(CallBackData *pData);
 

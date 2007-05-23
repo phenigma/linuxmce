@@ -2486,6 +2486,7 @@ void ScreenHandler::SCREEN_Drive_Overview(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_Drive_Overview(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::DriveOverview_ObjectSelected,	new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::DriveOverview_GridRendering,	new DatagridAcquiredBackData());
 }
 
 bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
@@ -2561,6 +2562,36 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 		}
 	}
 	return false; // Keep processing it
+}
+
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::DriveOverview_GridRendering(CallBackData *pData)
+{
+	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
+
+	if( pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid==DATAGRID_EPG_All_Shows_CONST )
+	{
+		// Iterate through all the cells
+		for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+		{
+			DataGridCell *pCell = it->second;
+			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+			if(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size() != 0)
+				colRow.second = colRow.second % int(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size());
+
+			// See if there is an object assigned for this column/row
+			map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+			if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+			{
+				DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+				if( pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
+				{
+					pObj->m_GraphicToDisplay_set("dogr", 1);
+				}
+			}
+		}
+	}
+	return false;
 }
 
 void ScreenHandler::SCREEN_Jukebox_Manager(long PK_Screen, int iPK_Device)

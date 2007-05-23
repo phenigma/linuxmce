@@ -54,11 +54,11 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting fresh status info (changer:%s) %s", m_sChangerDev.c_str(), "na");//bForce ? " (Forced)" : "");
 #ifdef EMULATE_PF
-		const char * args[] = {"/bin/cat", "/tmp/samples/mtx-status", NULL};
+		char * const args[] = {"/bin/cat", "/tmp/samples/mtx-status", NULL};
 #else
-		const char * args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "status", NULL};
-		const char * args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "status", NULL};
-		const char ** args = m_bMtxAltres ? args2 : args1;
+		const char * const args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "status", NULL};
+		const char * const args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "status", NULL};
+		const char * const * args = m_bMtxAltres ? args2 : args1;
 #endif
 		if (ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr) == 0)
 		{
@@ -256,9 +256,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 	string sOutput, sStdErr;
 #ifdef EMULATE_PF
-	const char * args[] = {"/bin/cat", "/tmp/samples/lsscsi", NULL};
+	const char * const args[] = {"/bin/cat", "/tmp/samples/lsscsi", NULL};
 #else
-	const char * args[] = {"/usr/bin/lsscsi", "-g", NULL};
+	const char * const args[] = {"/usr/bin/lsscsi", "-g", NULL};
 #endif
 	if (ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr) != 0)
 	{
@@ -424,9 +424,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 	string sSlot = StringUtils::itos(pSlot->m_SlotNumber);
 	string sDrive = StringUtils::itos(pDrive->m_DriveNumber);
-	const char * args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "load", sSlot.c_str(), sDrive.c_str(), NULL};
-	const char * args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "load", sSlot.c_str(), sDrive.c_str(), NULL};
-	const char ** args = m_bMtxAltres ? args2 : args1;
+	const char * const args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "load", sSlot.c_str(), sDrive.c_str(), NULL};
+	const char * const args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "load", sSlot.c_str(), sDrive.c_str(), NULL};
+	const char * const* args = m_bMtxAltres ? args2 : args1;
 
 	JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
@@ -489,9 +489,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 	string sSlot = StringUtils::itos(pSlot->m_SlotNumber);
 	string sDrive = StringUtils::itos(pDrive->m_DriveNumber);
-	const char * args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "unload", sSlot.c_str(), sDrive.c_str(), NULL};
-	const char * args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "unload", sSlot.c_str(), sDrive.c_str(), NULL};
-	const char ** args = m_bMtxAltres ? args2 : args1;
+	const char * const args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "unload", sSlot.c_str(), sDrive.c_str(), NULL};
+	const char * const args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "unload", sSlot.c_str(), sDrive.c_str(), NULL};
+	const char * const* args = m_bMtxAltres ? args2 : args1;
 
 	JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
@@ -592,9 +592,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 	string sSlot = StringUtils::itos(pSlot->m_SlotNumber);
 	string sTxfElement = StringUtils::itos(m_TransferElement);
-	const char * args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "transfer", sSlot.c_str(), sTxfElement.c_str(), NULL};
-	const char * args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "transfer", sSlot.c_str(), sTxfElement.c_str(), NULL};
-	const char ** args = m_bMtxAltres ? args2 : args1;
+	const char * const args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "transfer", sSlot.c_str(), sTxfElement.c_str(), NULL};
+	const char * const args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "transfer", sSlot.c_str(), sTxfElement.c_str(), NULL};
+	const char * const* args = m_bMtxAltres ? args2 : args1;
 
 
 	JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
@@ -626,9 +626,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc to slot %d", pSlot->m_SlotNumber);
 	string sSlot = StringUtils::itos(pSlot->m_SlotNumber);
 	string sTransfer = StringUtils::itos(m_TransferElement);
-	const char * args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "transfer", sTransfer.c_str(), sSlot.c_str(), NULL};
-	const char * args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "transfer", sTransfer.c_str(), sSlot.c_str(), NULL};
-	const char ** args = m_bMtxAltres ? args2 : args1;
+	const char * const args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "transfer", sTransfer.c_str(), sSlot.c_str(), NULL};
+	const char * const args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "transfer", sTransfer.c_str(), sSlot.c_str(), NULL};
+	const char * const* args = m_bMtxAltres ? args2 : args1;
 
 	JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 

@@ -344,7 +344,7 @@ void ProcessUtils::KillAllApplications()
 	}
 }
 
-int ProcessUtils::GetCommandOutput(const char * path, char *const args[], string & sOutput, string & sStdErr)
+int ProcessUtils::GetCommandOutput(const char * path, const char *const args[], string & sOutput, string & sStdErr)
 {
 #ifdef WIN32
 	return 0;
