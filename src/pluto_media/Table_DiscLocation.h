@@ -98,6 +98,8 @@ class DECLSPECIFIER Row_DiscLocation : public TableRow, public SerializeClass
 long int m_Slot;
 long int m_FK_Disc;
 string m_Type;
+long int m_EK_Device_Ripping;
+long int m_RipJob;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -105,13 +107,15 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[10];
+		bool is_null[12];
 	
 	public:
 		long int EK_Device_get();
 long int Slot_get();
 long int FK_Disc_get();
 string Type_get();
+long int EK_Device_Ripping_get();
+long int RipJob_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -124,6 +128,8 @@ long int psc_restrict_get();
 void Slot_set(long int val);
 void FK_Disc_set(long int val);
 void Type_set(string val);
+void EK_Device_Ripping_set(long int val);
+void RipJob_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -134,6 +140,8 @@ void psc_restrict_set(long int val);
 		
 		bool FK_Disc_isNull();
 bool Type_isNull();
+bool EK_Device_Ripping_isNull();
+bool RipJob_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -143,6 +151,8 @@ bool psc_restrict_isNull();
 			
 		void FK_Disc_setNull(bool val);
 void Type_setNull(bool val);
+void EK_Device_Ripping_setNull(bool val);
+void RipJob_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -168,7 +178,7 @@ void psc_restrict_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_EK_Device+ m_Slot+ m_FK_Disc+ m_Type+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_EK_Device+ m_Slot+ m_FK_Disc+ m_Type+ m_EK_Device_Ripping+ m_RipJob+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -177,6 +187,8 @@ void psc_restrict_setNull(bool val);
 string Slot_asSQL();
 string FK_Disc_asSQL();
 string Type_asSQL();
+string EK_Device_Ripping_asSQL();
+string RipJob_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
