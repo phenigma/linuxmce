@@ -53,8 +53,8 @@ namespace ProcessUtils
 	/** Kill all the applications we have spawned with SpawnApplication */
 	void KillAllApplications();
 
-	/** Execute a command with execv and return its stdout */
-	bool GetCommandOutput(const char * path, char * args[], string & sOutput);
+	/** Execute a command with execv and return its stdout. Returns exit code */
+	int GetCommandOutput(const char * path, char * args[], string & sOutput, string & sStdErr);
 
 	/** Execute a daemon (paenguin?) - i.e. run it in the background and disown it */
 	bool SpawnDaemon(const char * path, char * args[], bool bLogOutput = true);

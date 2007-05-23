@@ -36,6 +36,7 @@
 	#include <unistd.h>
 	#include <sys/wait.h>
 	#include <errno.h>
+	#include <sys/select.h>
 
 	extern int errno;
 #endif
@@ -72,7 +73,7 @@ int ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, str
     if ( sAppIdentifier == "" )
         sAppIdentifier = "not named";
 
-    if (sCmdExecutable == "" && sCmdParams == "")
+    if (sCmdExecutable == "")
     {
 		LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::SpawnApplication() Received empty Executable and Parameters for '%s'\n", sAppIdentifier.c_str());
         return 0;
@@ -343,22 +344,31 @@ void ProcessUtils::KillAllApplications()
 	}
 }
 
-bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & sOutput)
+int ProcessUtils::GetCommandOutput(const char * path, char * args[], string & sOutput, string & sStdErr)
 {
 #ifdef WIN32
 	return true;
 #else
 	int pid;
 	int output[2];
+	int errput[2];
 
 	pipe(output);
+	pipe(errput);
+	
 	switch (pid = fork())
 	{
 		case 0: /* child */
-			// treat stderr too someplace?
+			// stdout pipe
 			close(output[0]);
 			dup2(output[1], 1);
 			close(output[1]);
+
+			// stderr pipe
+			close (errput[0]);
+			dup2(errput[1], 2);
+			close(errput[1]);
+			
 			execv(path, args);
 			_exit(254);
 			/* Rationale for _exit instead of exit:
@@ -372,13 +382,41 @@ bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & s
 			break;
 		default: /* parent */
 			close(output[1]);
+			close(errput[1]);
+			
+			fd_set fdset;
+			FD_ZERO(&fdset);
+			FD_SET(output[0], &fdset);
+			FD_SET(errput[0], &fdset);
+
+			int maxfd = max(output[0], errput[0]) + 1;
 			
 			char buffer[4096];
 			memset(buffer, 0, sizeof(buffer));
-			while (read(output[0], buffer, sizeof(buffer) - 1) > 0)
+			
+			while (select(maxfd, &fdset, NULL, NULL, NULL) > 0)
 			{
-				sOutput += buffer;
-				memset(buffer, 0, sizeof(buffer));
+				int bytes1 = 0, bytes2 = 0;
+
+				if (FD_ISSET(output[0], &fdset))
+				{
+					bytes1 = read(output[0], buffer, sizeof(buffer) - 1);
+					sOutput += buffer;
+					memset(buffer, 0, sizeof(buffer));
+				}
+				if (FD_ISSET(errput[0], &fdset))
+				{
+					bytes2 = read(errput[0], buffer, sizeof(buffer) - 1);
+					sStdErr += buffer;
+					memset(buffer, 0, sizeof(buffer));
+				}
+
+				// if one of the streams returned 0 bytes, or read error,
+				// the child application has probably terminated
+				// (otherwise, it will get a 'broken pipe' signal and terminate anyway)
+				// so we finish the loop and return the output to the user
+				if (bytes1 <= 0 || bytes2 <= 0)
+					break;
 			}
 			
 			int status;
@@ -386,6 +424,7 @@ bool ProcessUtils::GetCommandOutput(const char * path, char * args[], string & s
 			status = WEXITSTATUS(status);
 
 			close(output[0]);
+			close(errput[0]);
 			if (status == 254)
 				return false;
 	}
@@ -420,6 +459,7 @@ bool ProcessUtils::SpawnDaemon(const char * path, char * args[], bool bLogOutput
 {
 #ifndef WIN32
 	int pid;
+	int status;
 
 	{
 		string sArgs;
@@ -477,17 +517,15 @@ bool ProcessUtils::SpawnDaemon(const char * path, char * args[], bool bLogOutput
 			return false;
 			break;
 		default: /* parent */
-			int status;
 
 			waitpid(pid, &status, 0); // wait for daemon spawner to start
 			status = WEXITSTATUS(status);
 
-			if (status == 254)
-				return false;
+			return status;
 			break;
 	}
 #endif
-	return true;
+	return 0;
 }
 
 unsigned long ProcessUtils::g_SecondsReset=0;
