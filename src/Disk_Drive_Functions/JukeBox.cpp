@@ -93,6 +93,14 @@ void JukeBox::UpdateDrivesSlotsFromDatabase()
 {
 	PLUTO_SAFETY_LOCK(dl,m_DriveMutex);
 
+	// This is called on startup, so we're not ripping anything.  Clear stale values
+	string sDeviceList = StringUtils::itos(m_pCommand_Impl->m_dwPK_Device);
+	for (map_int_Drivep::iterator itDrive = m_mapDrive.begin(); itDrive != m_mapDrive.end(); itDrive++)
+		sDeviceList += "," + StringUtils::itos(itDrive->second->m_dwPK_Device_get());
+	string sSQL = "UPDATE DiscLocation SET EK_Device_Ripping=NULL,RipJob=NULL WHERE EK_Device_Ripping IN (" + sDeviceList + ")";
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "JukeBox::UpdateDrivesSlotsFromDatabase SQL: %s", sSQL.c_str());
+	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+
 	vector<Row_DiscLocation *> vectRow_DiscLocation;
 	m_pDatabase_pluto_media->DiscLocation_get()->GetRows("EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device),&vectRow_DiscLocation);
 	for(vector<Row_DiscLocation *>::iterator it=vectRow_DiscLocation.begin();it!=vectRow_DiscLocation.end();++it)

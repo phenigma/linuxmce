@@ -23,6 +23,8 @@
 #include "JobHandler/Job.h"
 class Disk_Drive_Functions;
 
+class Row_DiscLocation;
+
 namespace DCE
 {
 	class PendingTaskList;
@@ -48,6 +50,7 @@ namespace nsJobHandler
 		Slot *m_pSlot;
 		int m_iPK_Users, m_iEK_Disc, m_iDrive_Number,m_iPK_MediaType;
 		string m_sFormat, m_sFileName, m_sDirectory, m_sTracks;
+		Row_DiscLocation *m_pRow_DiscLocation;
 
 	public:
 		RipJob(class JobHandler *pJobHandler,
@@ -57,7 +60,7 @@ namespace nsJobHandler
 			int iPK_Orbiter,
 			string sFormat, string sFileName, string sDirectory, string sTracks,
 			Command_Impl *pCommand_Impl);
-		virtual ~RipJob() {};
+		virtual ~RipJob();
 
 		virtual bool ReadyToRun();
 		void AddRippingTasks();

@@ -25,6 +25,7 @@
 #include "JukeBox.h"
 #include "MoveDiscTask.h"
 #include "FixupRippingInfoTask.h"
+#include "pluto_media/Table_DiscLocation.h"
 
 using namespace nsJobHandler;
 using namespace DCE;
@@ -47,6 +48,47 @@ RipJob::RipJob(class JobHandler *pJobHandler,
 	m_sFileName=sFileName;
 	m_sDirectory=sDirectory;
 	m_sTracks=sTracks;
+
+	string sWhere;
+	if( m_pDisk_Drive_Functions )
+	{
+		sWhere = "EK_Device = " + StringUtils::itos(m_pDisk_Drive_Functions->m_dwPK_Device_get());
+		if( m_pSlot )
+			sWhere += " AND Slot = " + StringUtils::itos(m_pSlot->m_SlotNumber);
+	}
+	else if( m_pSlot )
+		sWhere = "EK_Device = " + StringUtils::itos(m_pSlot->m_pJukeBox->m_pCommand_Impl->m_dwPK_Device) +
+			" AND Slot = " + StringUtils::itos(m_pSlot->m_SlotNumber);
+
+	if( sWhere.empty() )
+		m_pRow_DiscLocation=NULL;
+	else
+	{
+		vector<Row_DiscLocation *> vectRow_DiscLocation;
+		m_pDisk_Drive_Functions->m_pDatabase_pluto_media_get()->DiscLocation_get()->GetRows(sWhere,&vectRow_DiscLocation);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::RipJob %d/%s", (int) vectRow_DiscLocation.size(), sWhere.c_str());
+		if( vectRow_DiscLocation.size() )
+			m_pRow_DiscLocation = vectRow_DiscLocation[0];
+		else
+			m_pRow_DiscLocation=NULL;
+	}
+
+	if( m_pRow_DiscLocation )
+	{
+		m_pRow_DiscLocation->RipJob_set(m_iID);
+		if( m_pDisk_Drive_Functions )
+			m_pRow_DiscLocation->EK_Device_Ripping_set(m_pDisk_Drive_Functions->m_dwPK_Device_get());
+		else if( m_pSlot )
+			m_pRow_DiscLocation->EK_Device_Ripping_set(m_pSlot->m_pJukeBox->m_pCommand_Impl->m_dwPK_Device);
+		m_pRow_DiscLocation->Table_DiscLocation_get()->Commit();
+	}
+}
+
+RipJob::~RipJob()
+{
+	m_pRow_DiscLocation->EK_Device_Ripping_setNull(true);
+	m_pRow_DiscLocation->RipJob_setNull(true);
+	m_pRow_DiscLocation->Table_DiscLocation_get()->Commit();
 }
 
 bool RipJob::ReadyToRun()
@@ -72,7 +114,6 @@ bool RipJob::ReadyToRun()
 	m_pDisk_Drive_Functions=pDrive;
 	AddTask(new MoveDiscTask(this,"SlotToDrive",MoveDiscTask::mdt_SlotToDrive,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
 	AddTask(new FixupRippingInfoTask(this,"FixupRippingInfo"));
-	//m_pDisk_Drive_Functions->FixupRippingInfo(m_iPK_MediaType,m_sFileName,m_sTracks,m_iEK_Disc,m_sDirectory);
 	AddRippingTasks();
 	AddTask(new MoveDiscTask(this,"DriveToSlot",MoveDiscTask::mdt_DriveToSlot,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
 	return true;

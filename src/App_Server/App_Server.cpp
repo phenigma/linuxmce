@@ -90,12 +90,12 @@ bool App_Server::GetConfig()
 
 #ifndef WIN32
 	{
-		char * args[] = { (char *) AudioVolumeScript, "set", "unmute", NULL };
+		const char * args[] = { AudioVolumeScript, "set", "unmute", NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
 	}
 	{
 		string sVolume, sStdErr;
-		char * args[] = { (char *) AudioVolumeScript, "get-percent", NULL };
+		const char * args[] = { AudioVolumeScript, "get-percent", NULL };
 		ProcessUtils::GetCommandOutput(args[0], args, sVolume, sStdErr);
 		m_iLastVolume = atoi(sVolume.c_str());
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "ALSA Master volume: %d%%", m_iLastVolume);

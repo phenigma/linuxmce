@@ -25,11 +25,6 @@ extern DCEConfig g_DCEConfig;
 #include "../Gen_Devices/AllCommandsRequests.h"
 
 using namespace nsJobHandler;
-
-#ifdef WIN32
-#define WEXITSTATUS(a) 0
-#endif
-
 using namespace nsJukeBox;
 
 /*
@@ -59,11 +54,11 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting fresh status info (changer:%s) %s", m_sChangerDev.c_str(), "na");//bForce ? " (Forced)" : "");
 #ifdef EMULATE_PF
-		char * args[] = {"/bin/cat", "/tmp/samples/mtx-status", NULL};
+		const char * args[] = {"/bin/cat", "/tmp/samples/mtx-status", NULL};
 #else
-		char * args1[] = {MTX_CMD, "-f", (char *) m_sChangerDev.c_str(), "nobarcode", "status", NULL};
-		char * args2[] = {MTX_CMD, "-f", (char *) m_sChangerDev.c_str(), "altres", "nobarcode", "status", NULL};
-		char ** args = m_bMtxAltres ? args2 : args1;
+		const char * args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "status", NULL};
+		const char * args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "status", NULL};
+		const char ** args = m_bMtxAltres ? args2 : args1;
 #endif
 		if (ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr) == 0)
 		{
@@ -177,7 +172,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get device status");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get device status %s\n%s",sOutput.c_str(), sStdErr.c_str());
 		}
 	}
 
@@ -261,13 +256,13 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 	string sOutput, sStdErr;
 #ifdef EMULATE_PF
-	char * args[] = {"/bin/cat", "/tmp/samples/lsscsi", NULL};
+	const char * args[] = {"/bin/cat", "/tmp/samples/lsscsi", NULL};
 #else
-	char * args[] = {"/usr/bin/lsscsi", "-g", NULL};
+	const char * args[] = {"/usr/bin/lsscsi", "-g", NULL};
 #endif
 	if (ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr) != 0)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get device names");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get device names %s\n%s",sOutput.c_str(), sStdErr.c_str());
 		return false;
 	}
 
@@ -426,11 +421,12 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	AssertJukeboxIsLocked();
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc from slot %d into drive %d", pSlot->m_SlotNumber, pDrive->m_DriveNumber);
-#ifdef EMULATE_PF
-	string sCmd = "/bin/true";
-#else
-	string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? " altres" : "") + " nobarcode load " + itos(pSlot->m_SlotNumber) + " " + itos(pDrive->m_DriveNumber);
-#endif
+
+	string sSlot = StringUtils::itos(pSlot->m_SlotNumber);
+	string sDrive = StringUtils::itos(pDrive->m_DriveNumber);
+	const char * args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "load", sSlot.c_str(), sDrive.c_str(), NULL};
+	const char * args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "load", sSlot.c_str(), sDrive.c_str(), NULL};
+	const char ** args = m_bMtxAltres ? args2 : args1;
 
 	JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
@@ -440,11 +436,11 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 		dm.Release();
-		int status = system(sCmd.c_str());
+		string sOutput,sStdErr;
+		int returncode = ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr);
 		dm.Relock();
-		if (WEXITSTATUS(status) == 0)
+		if (returncode == 0)
 		{
 #ifndef EMULATE_PF
 			dm.Release();
@@ -476,7 +472,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Loading disc failed");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Loading disc failed: %s\n%s", sOutput.c_str(), sStdErr.c_str());
 		}
 	}
 
@@ -490,11 +486,12 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	AssertJukeboxIsLocked();
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc from drive %d into slot %d", pDrive->m_DriveNumber, pSlot->m_SlotNumber);
-#ifdef EMULATE_PF
-	string sCmd = "/bin/true";
-#else
-	string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? " altres" : "") + " nobarcode unload " + itos(pSlot->m_SlotNumber) + " " + itos(pDrive->m_DriveNumber);
-#endif
+
+	string sSlot = StringUtils::itos(pSlot->m_SlotNumber);
+	string sDrive = StringUtils::itos(pDrive->m_DriveNumber);
+	const char * args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "unload", sSlot.c_str(), sDrive.c_str(), NULL};
+	const char * args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "unload", sSlot.c_str(), sDrive.c_str(), NULL};
+	const char ** args = m_bMtxAltres ? args2 : args1;
 
 	JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
@@ -504,11 +501,11 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 		dm.Release();
-		int status = system(sCmd.c_str());
+		string sOutput,sStdErr;
+		int returncode = ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr);
 		dm.Relock();
-		if (WEXITSTATUS(status) == 0)
+		if (returncode == 0)
 		{
 #ifndef EMULATE_PF
 			dm.Release();
@@ -529,7 +526,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc failed");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc failed %s\n%s",sOutput.c_str(), sStdErr.c_str());
 		}
 	}
 
@@ -592,19 +589,21 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	AssertJukeboxIsLocked();
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ejecting disc from slot %d", pSlot->m_SlotNumber);
-#ifdef EMULATE_PF
-	string sCmd = "/bin/true";
-#else
-	string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? " altres" : "") + " nobarcode transfer " + StringUtils::itos(pSlot->m_SlotNumber) + " " + StringUtils::itos(m_TransferElement);
-#endif
+
+	string sSlot = StringUtils::itos(pSlot->m_SlotNumber);
+	string sTxfElement = StringUtils::itos(m_TransferElement);
+	const char * args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "transfer", sSlot.c_str(), sTxfElement.c_str(), NULL};
+	const char * args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "transfer", sSlot.c_str(), sTxfElement.c_str(), NULL};
+	const char ** args = m_bMtxAltres ? args2 : args1;
+
 
 	JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 	dm.Release();
-	int status = system(sCmd.c_str());
+	string sOutput,sStdErr;
+	int returncode = ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr);
 	dm.Relock();
-	if (WEXITSTATUS(status) == 0)
+	if (returncode == 0)
 	{
 		// Update the database
 		RemoveDiscFromDb(m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber);
@@ -613,7 +612,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Ejecting disc failed");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Ejecting disc failed %s\n%s",sOutput.c_str(), sStdErr.c_str());
 		return JukeBox::jukebox_transport_failure;
 	}
 }
@@ -625,19 +624,19 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	AssertJukeboxIsLocked();
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading disc to slot %d", pSlot->m_SlotNumber);
-#ifdef EMULATE_PF
-	string sCmd = "/bin/true";
-#else
-	string sCmd = string(MTX_CMD " -f ") + m_sChangerDev + (m_bMtxAltres ? " altres" : "") + " nobarcode transfer " + StringUtils::itos(m_TransferElement) + " " + StringUtils::itos(pSlot->m_SlotNumber);
-#endif
+	string sSlot = StringUtils::itos(pSlot->m_SlotNumber);
+	string sTransfer = StringUtils::itos(m_TransferElement);
+	const char * args1[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "nobarcode", "transfer", sTransfer.c_str(), sSlot.c_str(), NULL};
+	const char * args2[] = {MTX_CMD, "-f", m_sChangerDev.c_str(), "altres", "nobarcode", "transfer", sTransfer.c_str(), sSlot.c_str(), NULL};
+	const char ** args = m_bMtxAltres ? args2 : args1;
 
 	JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 	dm.Release();
-	int status = system(sCmd.c_str());
+	string sOutput,sStdErr;
+	int returncode = ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr);
 	dm.Relock();
-	if (WEXITSTATUS(status) == 0)
+	if (returncode == 0)
 	{
 		AddDiscToDb(m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber,'U');
 		pSlot->m_eStatus = Slot::slot_unknown_medium;
@@ -645,7 +644,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Load disc failed");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Load disc failed %s\n%s",sOutput.c_str(), sStdErr.c_str());
 		return JukeBox::jukebox_transport_failure;
 	}
 }

@@ -83,7 +83,7 @@ void HalTree::Populate()
 	PurgeTree();
 
 	string sBuffer, sStdErr;
-	char * args[] = {"/usr/bin/hal-device", NULL};
+	const char * args[] = {"/usr/bin/hal-device", NULL};
 	if (ProcessUtils::GetCommandOutput(args[0], args, sBuffer, sStdErr) != 0)
 		return;
 

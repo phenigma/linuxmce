@@ -30,11 +30,11 @@ using namespace std;
 int main(int argc, char * argv[])
 {
 	string sOutput, sStdErr;
-	char * args[] = { "/usr/pluto/bin/Network_DisplaySettings.sh", "--orbiter", NULL };
+	const char * args[] = { "/usr/pluto/bin/Network_DisplaySettings.sh", "--orbiter", NULL };
 	ProcessUtils::GetCommandOutput(args[0], &args[0], sOutput, sStdErr);
 #if 0
-	char * args_default[] = {"(unused)", "/bin/cat", "/proc/cpuinfo", NULL};
-	char ** args = args_default;
+	const char * args_default[] = {"(unused)", "/bin/cat", "/proc/cpuinfo", NULL};
+	const char ** args = args_default;
 
 	if (argc > 1)
 		args = argv;

@@ -145,6 +145,8 @@ public:
 		void UnlockDrive();  // release the drive
 		Locked m_eLocked_get(void **p_void);
 		int m_dwPK_Device_get() { return m_dwPK_Device; }
+
+		class Database_pluto_media *m_pDatabase_pluto_media_get() { return m_pDatabase_pluto_media; }
 };
 
 #endif
