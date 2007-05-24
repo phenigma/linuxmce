@@ -439,6 +439,20 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		dm.Release();
 		string sOutput,sStdErr;
 		int returncode = ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr);
+
+		if( returncode!=0 )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::MoveFromSlotToDrive Loading disc failed once %s\n%s",sOutput.c_str(), sStdErr.c_str());
+			Sleep(2000);
+			// It seems that this fails a lot for no reason, even though it really did work
+			returncode = ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr);
+			if( returncode==1 && sOutput.find("Full")!=string::npos && sOutput.find("loaded")!=string::npos )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::MoveFromSlotToDrive unit recovered %s\n%s",sOutput.c_str(), sStdErr.c_str());
+				returncode=0;
+			}
+		}
+
 		dm.Relock();
 		if (returncode == 0)
 		{
@@ -472,7 +486,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Loading disc failed: %s\n%s", sOutput.c_str(), sStdErr.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Loading disc failed: %s\n%s", sOutput.c_str(), sStdErr.c_str());
 		}
 	}
 
@@ -504,6 +518,20 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		dm.Release();
 		string sOutput,sStdErr;
 		int returncode = ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr);
+
+		if( returncode!=0 )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::MoveFromDriveToSlot Unloading disc failed once %s\n%s",sOutput.c_str(), sStdErr.c_str());
+			Sleep(2000);
+			// It seems that this fails a lot for no reason, even though it really did work
+			returncode = ProcessUtils::GetCommandOutput(args[0], args, sOutput, sStdErr);
+			if( returncode==1 && sOutput.find("is Empty")!=string::npos )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::MoveFromDriveToSlot unit recovered %s\n%s",sOutput.c_str(), sStdErr.c_str());
+				returncode=0;
+			}
+		}
+
 		dm.Relock();
 		if (returncode == 0)
 		{
@@ -526,7 +554,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Unloading disc failed %s\n%s",sOutput.c_str(), sStdErr.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unloading disc failed %s\n%s",sOutput.c_str(), sStdErr.c_str());
 		}
 	}
 
