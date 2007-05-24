@@ -259,6 +259,8 @@ void Disk_Drive::CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage)
 void Disk_Drive::CMD_Eject_Disk(int iSlot_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
+	if( !m_pDisk_Drive_Functions )
+		return;  // shouldn't happen
 	static time_t tLastEject=0;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Eject_Disk  tLastEject %d (%d) tray open: %d",
@@ -273,13 +275,13 @@ void Disk_Drive::CMD_Eject_Disk(int iSlot_Number,string &sCMD_Result,Message *pM
 	{
 		m_pDisk_Drive_Functions->m_bTrayOpen=false;
 		m_pDisk_Drive_Functions->DisplayMessageOnOrbVFD("Closing tray...");
-	    system("eject -t");
+		system( ("eject -t " + m_pDisk_Drive_Functions->m_sDrive).c_str() );
 	}
 	else
 	{
 		m_pDisk_Drive_Functions->m_bTrayOpen=true;
 		m_pDisk_Drive_Functions->DisplayMessageOnOrbVFD("Opening tray...");
-	    system("eject");
+	    system( ("eject " + m_pDisk_Drive_Functions->m_sDrive).c_str() );
 	}
 
 	m_pDisk_Drive_Functions->m_mediaInserted = false;  // Be sure we re-identify any media in there
