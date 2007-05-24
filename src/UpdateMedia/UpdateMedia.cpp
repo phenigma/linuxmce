@@ -556,9 +556,6 @@ void UpdateMedia::UpdateThumbnails()
 	{
 		while( ( row=mysql_fetch_row( result.r ) ) )
 		{
-			if(m_bAsDaemon)
-				Sleep(40);
-
 #ifdef WIN32
 			__time64_t tModTime=0,tTnModTime=0;
 			struct __stat64 dirEntryStat;
@@ -575,23 +572,33 @@ void UpdateMedia::UpdateThumbnails()
 
 			if( tModTime>tTnModTime )
 			{
+				if(m_bAsDaemon)
+					Sleep(40);
+
 				string Cmd = "convert -sample 75x75 /home/mediapics/" + string(row[0])  + "." + row[1] +
 					" /home/mediapics/" + row[0] + "_tn." + row[1];
 				int result;
 				if( ( result=system( Cmd.c_str( ) ) )!=0 )
 					LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
+
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thumbs pic #%s updated!", row[0]);
 			}
 			else if( tModTime==0 && tTnModTime==0 )
 			{
+				if(m_bAsDaemon)
+					Sleep(40);
+
 				cout << "Picture " << row[0] << " missing.  Deleting all references" << endl;
 				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture WHERE PK_Picture=" + string(row[0]));
 				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture_Attribute WHERE FK_Picture=" + string(row[0]));
 				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture_Disc WHERE FK_Picture=" + string(row[0]));
 				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture_File WHERE FK_Picture=" + string(row[0]));
 				m_pDatabase_pluto_media->threaded_mysql_query("UPDATE Bookmark SET FK_Picture=NULL WHERE FK_Picture=" + string(row[0]));
+
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thumbs pic #%s deleted!", row[0]);
 			}
 
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thumbs updated!");
+			
 		}
 	}
 }
