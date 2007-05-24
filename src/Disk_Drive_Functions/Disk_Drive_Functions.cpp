@@ -762,6 +762,7 @@ void Disk_Drive_Functions::StopNbdServer()
 void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc)
 {
 	Row_DiscLocation *pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(m_dwPK_Device,0);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::UpdateDiscLocation device %d type %c disc %d / %p", m_dwPK_Device,cType,PK_Disc,pRow_DiscLocation);
 	if( pRow_DiscLocation )
 	{
 		if( PK_Disc==0 )  // Shouldn't be a record if it's empty
