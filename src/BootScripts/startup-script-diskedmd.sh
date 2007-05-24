@@ -19,7 +19,11 @@ StartService() {
 	if [[ -x $(echo $ServiceCmd | cut -d ' ' -f1) ]] ;then
 		DisplayProgress "$ServiceDescription"
 		echo -n "$ServiceDescription ..."
-		$ServiceCmd $ServiceBkg
+		if [[ "$ServiceBkg" == "&" ]] ;then
+			$ServiceCmd &
+		else
+			$ServiceCmd
+		fi
 		err=$?
 
 		if [[ "$err" == "0" ]] ;then

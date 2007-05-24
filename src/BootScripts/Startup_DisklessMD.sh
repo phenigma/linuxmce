@@ -12,7 +12,11 @@ StartService() {
 
 	if [[ -x $(echo $ServiceCmd | cut -d ' ' -f1) ]] ;then
 		echo -n "$ServiceDescription ... "
-		$ServiceCmd 1>/dev/null 2>/dev/null $ServiceBkg
+		if [[ "$ServiceBkg" == "&" ]] ;then
+			$ServiceCmd 1>/dev/null 2>/dev/null &
+		else
+			$ServiceCmd 1>/dev/null 2>/dev/null	
+		fi
 		err=$?
 
 		if [[ "$err" == "0" ]] ;then
