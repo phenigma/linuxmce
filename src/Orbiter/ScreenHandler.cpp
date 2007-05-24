@@ -2569,24 +2569,34 @@ bool ScreenHandler::DriveOverview_GridRendering(CallBackData *pData)
 {
 	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
 
-	if( pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid==DATAGRID_EPG_All_Shows_CONST )
+	if( pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid==DATAGRID_Discs_CONST )
 	{
 		// Iterate through all the cells
 		for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
 		{
 			DataGridCell *pCell = it->second;
-			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
-			if(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size() != 0)
-				colRow.second = colRow.second % int(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size());
-
-			// See if there is an object assigned for this column/row
-			map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
-			if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+			string sEK_Device_Ripping = pCell->m_mapAttributes_Find("EK_Device_Ripping");
+			string sPK_File = pCell->m_mapAttributes_Find("PK_File");
+			if( sEK_Device_Ripping.empty()==false || sPK_File.empty()==false )
 			{
-				DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
-				if( pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
+				pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+				if(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size() != 0)
+					colRow.second = colRow.second % int(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size());
+
+				// See if there is an object assigned for this column/row
+				map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+				if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
 				{
-					pObj->m_GraphicToDisplay_set("dogr", 1);
+					DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+					DesignObj_DataList::iterator iHao;
+
+					// Iterate through all the object's children
+					for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+					{
+						DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+						if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
+							pDesignObj_Orbiter->m_GraphicToDisplay_set("dogr", sEK_Device_Ripping.empty()==false ? 2 : 1);
+					}
 				}
 			}
 		}
@@ -2599,6 +2609,7 @@ void ScreenHandler::SCREEN_Jukebox_Manager(long PK_Screen, int iPK_Device)
 	ScreenHandlerBase::SCREEN_Jukebox_Manager(PK_Screen,iPK_Device);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST,StringUtils::itos(iPK_Device));
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::JukeboxManager_ObjectSelected,	new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::JukeboxManager_GridRendering,	new DatagridAcquiredBackData());
 }
 
 bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
@@ -2715,6 +2726,12 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butRipAll_CONST )
 	{
+		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_butJukeboxRefresh_CONST),"","",false,true);
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butJukeboxRefresh_CONST )
+	{
+		DCE::CMD_Refresh CMD_Refresh(m_pOrbiter->m_dwPK_Device,PK_Device_JukeBox,"*");
+		m_pOrbiter->SendCommand(CMD_Refresh);
 	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butEjectAll_CONST )
 	{
@@ -2738,6 +2755,46 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 	}
 
 	return false; // Keep processing it
+}
+
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::JukeboxManager_GridRendering(CallBackData *pData)
+{
+	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
+
+	if( pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid==DATAGRID_Jukebox_Drives_CONST || pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid==DATAGRID_Jukebox_Slots_CONST )
+	{
+		// Iterate through all the cells
+		for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+		{
+			DataGridCell *pCell = it->second;
+			string sEK_Device_Ripping = pCell->m_mapAttributes_Find("EK_Device_Ripping");
+			string sPK_File = pCell->m_mapAttributes_Find("PK_File");
+			if( sEK_Device_Ripping.empty()==false || sPK_File.empty()==false )
+			{
+				pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+				if(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size() != 0)
+					colRow.second = colRow.second % int(pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.size());
+
+				// See if there is an object assigned for this column/row
+				map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+				if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+				{
+					DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+					DesignObj_DataList::iterator iHao;
+
+					// Iterate through all the object's children
+					for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+					{
+						DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+						if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
+							pDesignObj_Orbiter->m_GraphicToDisplay_set("dogr", sEK_Device_Ripping.empty()==false ? 2 : 1);
+					}
+				}
+			}
+		}
+	}
+	return false;
 }
 
 void ScreenHandler::SCREEN_NAS_Manager(long PK_Screen, int iPK_Device)

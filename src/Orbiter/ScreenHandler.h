@@ -293,6 +293,7 @@ public:
 	bool DriveOverview_ObjectSelected(CallBackData *pData);
 	bool DriveOverview_GridRendering(CallBackData *pData);
 	bool JukeboxManager_ObjectSelected(CallBackData *pData);
+	bool JukeboxManager_GridRendering(CallBackData *pData);
 	bool NASManager_ObjectSelected(CallBackData *pData);
 
 	virtual void SCREEN_PendingTasks(long PK_Screen);
