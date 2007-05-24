@@ -1445,7 +1445,12 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			if( pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive == false)
 				StartCaptureCard(pMediaStream);
 
-			OldStreamInfo *pOldStreamInfo = pMediaStream->m_mapOldStreamInfo[pEntertainArea->m_iPK_EntertainArea];
+			map<int,class OldStreamInfo *>::iterator itFind = pMediaStream->m_mapOldStreamInfo.find(pEntertainArea->m_iPK_EntertainArea);
+			OldStreamInfo *pOldStreamInfo = NULL;
+			if( itFind != pMediaStream->m_mapOldStreamInfo.end() )
+			{
+				pOldStreamInfo = (*itFind).second;
+			}
 			if( !pOldStreamInfo || !pOldStreamInfo->m_bNoChanges )
 			{
 				// We need to get the current rendering devices so that we can send on/off commands
@@ -1476,6 +1481,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 
 			for(map<int,class OldStreamInfo *>::iterator it = pMediaStream->m_mapOldStreamInfo.begin(); it != pMediaStream->m_mapOldStreamInfo.end(); ++it)
 				delete it->second;
+			pMediaStream->m_mapOldStreamInfo.clear();
 
 			return true;
 		}
@@ -1541,6 +1547,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 
 	for(map<int,class OldStreamInfo *>::iterator it = pMediaStream->m_mapOldStreamInfo.begin(); it != pMediaStream->m_mapOldStreamInfo.end(); ++it)
 		delete it->second;
+	pMediaStream->m_mapOldStreamInfo.clear();
 
 	return true;
 }
