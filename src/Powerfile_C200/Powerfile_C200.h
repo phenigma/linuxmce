@@ -88,6 +88,15 @@ public:
 	*/
 
 
+	/** @brief COMMAND: #14 - Refresh */
+	/** Refresh the status of the drives */
+		/** @param #15 DataGrid ID */
+			/** Normally refresh does not cause the orbiter to re-request data.  But if a specific grid ID is specified, that grid will be refreshed.  Specify * to re-request all grids on the current screen */
+
+	virtual void CMD_Refresh(string sDataGrid_ID) { string sCMD_Result; CMD_Refresh(sDataGrid_ID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #45 - Disk Drive Monitoring ON */
 	/** Turn ON the disk Monitoring. */
 
@@ -341,11 +350,13 @@ only slots that were scheduled for ripping will appear in the string */
 			/** Base path for ripping. */
 		/** @param #233 DriveID */
 			/** The id of the storage device with most free space. */
+		/** @param #234 Directory */
+			/** The directory for this, such as video, audio, etc. */
 		/** @param #235 Storage Device Name */
 			/** The name of the storage device with most free space. */
 
-	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name) { string sCMD_Result; CMD_Get_Default_Ripping_Info(iEK_Disc,sFilename,sPath,iDriveID,sStorage_Device_Name,sCMD_Result,NULL);};
-	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { string sCMD_Result; CMD_Get_Default_Ripping_Info(iEK_Disc,sFilename,sPath,iDriveID,sDirectory,sStorage_Device_Name,sCMD_Result,NULL);};
+	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #871 - Update Ripping Status */

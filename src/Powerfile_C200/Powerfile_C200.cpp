@@ -1295,10 +1295,12 @@ void Powerfile_C200::CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Resul
 			/** Base path for ripping. */
 		/** @param #233 DriveID */
 			/** The id of the storage device with most free space. */
+		/** @param #234 Directory */
+			/** The directory for this, such as video, audio, etc. */
 		/** @param #235 Storage Device Name */
 			/** The name of the storage device with most free space. */
 
-void Powerfile_C200::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
 //<-dceag-c817-e->
 {
 }
@@ -1417,4 +1419,16 @@ void Powerfile_C200::CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string 
 //<-dceag-c914-e->
 {
 	// Should be sent to the children instead
+}
+//<-dceag-c14-b->
+
+	/** @brief COMMAND: #14 - Refresh */
+	/** Refresh the status of the drives */
+		/** @param #15 DataGrid ID */
+			/** Normally refresh does not cause the orbiter to re-request data.  But if a specific grid ID is specified, that grid will be refreshed.  Specify * to re-request all grids on the current screen */
+
+void Powerfile_C200::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c14-e->
+{
+	m_pPowerfileJukebox->Get_Jukebox_Status(NULL,true);
 }

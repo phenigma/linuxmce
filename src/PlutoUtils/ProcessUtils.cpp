@@ -346,6 +346,17 @@ void ProcessUtils::KillAllApplications()
 
 int ProcessUtils::GetCommandOutput(const char * path, const char *const args[], string & sOutput, string & sStdErr)
 {
+	string sArgs;
+	for(int i=0;;++i)
+	{
+		const char *ptr = args[0];
+		if( !ptr )
+			break;
+		sArgs += string("\t") + ptr;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"ProcessUtils::GetCommandOutput %s%s", path,sArgs.c_str());
+
 #ifdef WIN32
 	return 0;
 #else
