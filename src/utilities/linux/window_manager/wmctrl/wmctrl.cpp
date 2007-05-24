@@ -13,7 +13,7 @@
 #include "wmctrl.h"
 #include "../../wrapper/wrapper_x11.h"
 #include "Logger.h"
-
+using namespace DCE;
 /* version */
 #define VERSION "1.07"
 
