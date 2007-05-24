@@ -349,7 +349,7 @@ int ProcessUtils::GetCommandOutput(const char * path, const char *const args[], 
 	string sArgs;
 	for(int i=0;;++i)
 	{
-		const char *ptr = args[0];
+		const char *ptr = args[i];
 		if( !ptr )
 			break;
 		sArgs += string("\t") + ptr;
