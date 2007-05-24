@@ -47,7 +47,7 @@ bool WMControllerImpl::SetVisible(string sWindow, bool bVisible, bool bUseWindow
 	TranslateWindowId(sWindow, bUseWindowId);
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetVisible() : window: %s, visible: %d\n", sWindow.c_str(), bVisible);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WMControllerImpl::SetVisible() : window: %s/%s, visible: %d\n", sWindow.c_str(), bVisible ? m_sPrimaryDesktop.c_str() : m_sSecondaryDesktop.c_str(), bVisible);
 #endif
     return wmctrl.ActionCommand('t', sWindow.c_str(), bVisible ? m_sPrimaryDesktop.c_str() : m_sSecondaryDesktop.c_str(), bUseWindowId);
 }
@@ -76,10 +76,12 @@ bool WMControllerImpl::SetLayer(string sWindow, WindowLayer aLayer, bool bUseWin
 			break;
 		case LayerAbove:
             bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "remove,below", bUseWindowId);
+            bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "remove,above", bUseWindowId);
             bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "add,above", bUseWindowId);
 			break;
 		case LayerBelow:
             bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "remove,above", bUseWindowId);
+            bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "remove,below", bUseWindowId);
             bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "add,below", bUseWindowId);
 			break;
 		default:

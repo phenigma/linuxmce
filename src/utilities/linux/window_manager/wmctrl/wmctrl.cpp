@@ -12,6 +12,7 @@
 
 #include "wmctrl.h"
 #include "../../wrapper/wrapper_x11.h"
+#include "Logger.h"
 
 /* version */
 #define VERSION "1.07"
@@ -328,6 +329,7 @@ int WmCtrl::LowLevelCommand(char action, Options cmd_options, std::list<WinInfo>
 
     if (! (disp = XOpenDisplay(NULL)))
     {
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WmCtrl::LowLevelCommand Cannot open display.");
         fputs("Cannot open display.\n", stderr);
         return EXIT_FAILURE;
     }
@@ -408,7 +410,7 @@ int WmCtrl::LowLevelCommand(char action, Options cmd_options, std::list<WinInfo>
 
 bool WmCtrl::ActionCommand(char action, const char *param_window/*=NULL*/, const char *param/*=NULL*/, bool use_id_in_param_window/*=false*/, std::list<WinInfo> *pListWinInfo/*=NULL*/)
 {
-    fprintf(stderr, "WmCtrl::ActionCommand('%c', '%s', '%s', %d, %p)\n", action, param_window, param, use_id_in_param_window, pListWinInfo);
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"WmCtrl::ActionCommand('%c', '%s', '%s', %d, %p)\n", action, param_window, param, use_id_in_param_window, pListWinInfo);
     Options options;
     options.verbose = true;
     options.show_class = true;
@@ -435,7 +437,7 @@ bool WmCtrl::ActionCommand(char action, const char *param_window/*=NULL*/, const
     delete[] options.param_window;
     delete[] options.param;
 #ifdef DEBUG
-    fprintf(stderr, "WmCtrl::ActionCommand('%c', '%s', '%s', %d, %p) => RetCode==%d\n", action, param_window, param, use_id_in_param_window, pListWinInfo, nRetCode);
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG,"WmCtrl::ActionCommand('%c', '%s', '%s', %d, %p) => RetCode==%d\n", action, param_window, param, use_id_in_param_window, pListWinInfo, nRetCode);
 #endif
     return bRetCode;
 }
