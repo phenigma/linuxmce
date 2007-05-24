@@ -571,6 +571,20 @@ void Disk_Drive::CMD_Update_Ripping_Status(string sText,string sFilename,string 
 void Disk_Drive::CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage)
 //<-dceag-c872-e->
 {
+	if( !m_pDisk_Drive_Functions )
+	{
+		*bIsSuccessful = false;
+		return;
+	}
+
+	// This is to lock a drive for playback.  We'll return the id of the drive we're locking
+	if( bTurn_On )
+		*bIsSuccessful = m_pDisk_Drive_Functions->LockDrive(Disk_Drive_Functions::locked_playback,this);
+	else
+	{
+		*bIsSuccessful = true;
+		m_pDisk_Drive_Functions->UnlockDrive();
+	}
 }
 
 bool Disk_Drive::ReportPendingTasks(PendingTaskList *pPendingTaskList)
