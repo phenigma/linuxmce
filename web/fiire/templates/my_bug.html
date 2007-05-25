@@ -1,0 +1,44 @@
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td><img src="images/myaccount.jpg" width="570" height="34" /></td>
+            </tr>
+            <tr>
+              <td><img src="images/spacer.gif" width="4" height="2" /></td>
+            </tr>
+            <tr>
+              <td>
+				<p>
+					Please record the issue you reported on linuxmce.com bug tracking tool.
+				</p>
+            </td>
+			  </tr>
+            <tr>
+              <td>
+<form name="form1" method="POST" action="bug_report.php">
+<input type="hidden" name="action" value="{form_action}">
+<input type="hidden" name="id" value="{id}">
+				<table width="100%">
+					<tr>
+						<td colspan="2" align="center">{message}</td>
+					</tr>				
+					<tr>
+						<td><b>Mantis ID</b></td>
+						<td><input type="text" name="mantis_id" value="{mantis_id}"></td>
+					</tr>
+					<tr>
+						<td><b>Description</b></td>
+						<td><textarea name="description" style="width:250px;height:50px;">{description}</textarea></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><em>* All fields are required</em><br><input type="submit" name="save" value="Save"></td>
+					</tr>
+					
+				</table>
+				
+</form>									
+            </td>
+			  </tr>
+
+
+</table>

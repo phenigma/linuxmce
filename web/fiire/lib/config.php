@@ -70,6 +70,7 @@ $GLOBALS['incident_status_array']=array(
 	30=>'Closed - unresolvable'
 );
 
+$GLOBALS['linuxmce_mantis_url']='http://mantis.linuxmce.com/';
 
 // override standard settings with local one
 // to avoid saving in svn real users and passwords

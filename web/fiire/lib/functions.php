@@ -1196,6 +1196,8 @@ function get_myaccount($conn){
 	$variables=set_variable($variables,'support_requests',get_support_request($conn));	
 	$variables=set_variable($variables,'orders_history',get_orders_history($conn));	
 	$variables=set_variable($variables,'mydealers',get_my_dealers($_SESSION['uID'],$conn));	
+	$variables=set_variable($variables,'my_bug_reports',get_my_mantis($_SESSION['uID'],$conn));	
+	$variables=set_variable($variables,'my_code_submissions',get_my_svn($_SESSION['uID'],$conn));	
 	$variables=set_variable($variables,'message',@$message);	
 	
 	if(isset($_SESSION['message'])){
@@ -2091,4 +2093,309 @@ function get_contacts_table($incident_id,$conn){
 	
 	return $out;
 }
+
+function get_my_mantis($userID,$conn){
+	$res=query("SELECT * FROM linuxmce_mantis WHERE user_id=$userID",$conn);
+	if(mysql_num_rows($res)==0){
+		return '<tr><td>No records.</td></tr>';
+	}	
+	$out='
+		<tr class="alternate">
+			<td><b>Mantis ID</b></td>
+			<td><b>Description</b></td>
+			<td><b>Functions</b></td>
+		</tr>
+	
+	';
+	$pos=0;
+	while($row=mysql_fetch_assoc($res)){
+		$pos++;
+		$class=($pos%2==0)?'alternate':'';
+		$out.='
+		<tr class="'.$class.'">
+			<td align="center"><a href="'.$GLOBALS['linuxmce_mantis_url'].'view.php?id='.$row['mantis_id'].'" target="_blank">'.$row['mantis_id'].'</a></td>
+			<td>'.nl2br($row['description']).'</td>
+			<td align="center"><a href="bug_report.php?action=edit&id='.$row['id'].'">Edit</a> <a href="javascript:if(confirm(\'Are you sure you want to delete this record?\'))self.location=\'bug_report.php?action=del&id='.$row['id'].'\'">Del</a></td>
+		</tr>
+		';
+	}
+	
+	return $out;
+}
+
+function get_my_svn($userID,$conn){
+	$res=query("SELECT * FROM linuxmce_svn WHERE user_id=$userID",$conn);
+	if(mysql_num_rows($res)==0){
+		return '<tr><td>No records.</td></tr>';
+	}
+
+	$out='
+		<tr class="alternate">
+			<td><b>SVN revision</b></td>
+			<td><b>Description</b></td>
+			<td><b>Functions</b></td>
+		</tr>
+		';
+	$pos=0;
+	while($row=mysql_fetch_assoc($res)){
+		$pos++;
+		$class=($pos%2==0)?'alternate':'';
+		$out.='
+		<tr class="'.$class.'">
+			<td align="center">'.$row['svnrev'].'</td>
+			<td>'.nl2br($row['description']).'</td>
+			<td align="center"><a href="svn.php?action=edit&id='.$row['id'].'">Edit</a> <a href="javascript:if(confirm(\'Are you sure you want to delete this record?\'))self.location=\'svn.php?action=del&id='.$row['id'].'\'">Del</a></td>
+		</tr>
+		';
+	}
+	
+	return $out;	
+}
+
+
+function bug_report($action,$conn){
+	if(!isset($_SESSION['uID']) || (int)$_SESSION['uID']==0){
+		return 'Please login in order to add/edit bug reports.';
+	}
+
+	switch($action){
+		case 'edit':
+			if(isset($_POST['save'])){
+				return process_edit_bug_report($conn);
+			}
+			return edit_bug_report_form((int)@$_REQUEST['id'],$conn);		
+			
+		break;
+		case 'del':
+			return del_bug_report((int)@$_REQUEST['id'],$conn);		
+		break;
+		default:
+			if(isset($_POST['save'])){
+				return process_add_bug_report($conn);
+			}
+			return add_bug_report_form($conn);		
+			
+		break;
+	}
+}
+
+function add_bug_report_form($conn){
+	$variables=array();
+	$page_template=implode('',file('templates/my_bug.html'));
+	$variables=set_variable($variables,'form_action','add');
+
+	if(isset($_SESSION['message'])){
+		$variables=set_variable($variables,'message',$_SESSION['message']);
+		unset($_SESSION['message']);
+	}
+		
+	return outputHTML($variables,$page_template,1);		
+}
+
+function process_add_bug_report($conn){
+	$userID=$_SESSION['uID'];
+	$mantisID=(int)@$_POST['mantis_id'];
+	$description=cleanString($_POST['description']);
+	
+	if($mantisID==0 || $description==''){
+		$_SESSION['message']=msg_error('Please fill all fields.');	
+		return add_bug_report_form($conn);
+	}
+	
+	query("INSERT INTO linuxmce_mantis (user_id,mantis_id,description) VALUES ($userID,$mantisID,'$description')",$conn);
+	return msg_notice('The record was saved.').'<br><br><a href="myaccount.php">Back to my account</a>';
+}
+
+function edit_bug_report_form($id,$conn){
+	$user_id=(int)@$_SESSION['uID'];
+	
+	if($id==0){
+		return msg_error('Invalid bug report ID');
+	}
+	
+	$data=getFields('linuxmce_mantis','WHERE id='.$id.' AND user_id='.$user_id,$conn);
+	if(count($data)==0){
+		return msg_error('Invalid bug report ID');
+	}	
+	
+	$variables=array();
+	$page_template=implode('',file('templates/my_bug.html'));
+	$variables=set_variable($variables,'form_action','edit');
+	$variables=set_variable($variables,'id',$id);
+	$variables=set_variable($variables,'mantis_id',$data[0]['mantis_id']);
+	$variables=set_variable($variables,'description',$data[0]['description']);
+	
+	if(isset($_SESSION['message'])){
+		$variables=set_variable($variables,'message',$_SESSION['message']);
+		unset($_SESSION['message']);
+	}
+		
+	return outputHTML($variables,$page_template,1);		
+}
+
+function process_edit_bug_report($conn){
+	$userID=$_SESSION['uID'];
+	$id=(int)@$_POST['id'];
+	
+	if($id==0){
+		return msg_error('Invalid bug report ID');
+	}
+	
+	$data=getFields('linuxmce_mantis','WHERE id='.$id.' AND user_id='.$userID,$conn);
+	if(count($data)==0){
+		return msg_error('Invalid bug report ID');
+	}	
+	
+	$mantisID=(int)@$_POST['mantis_id'];
+	$description=cleanString($_POST['description']);
+
+	if($mantisID==0 || $description==''){
+		$_SESSION['message']=msg_error('Please fill all fields.');	
+		return edit_bug_report_form($id,$conn);
+	}
+
+	
+	query("UPDATE linuxmce_mantis SET mantis_id=$mantisID,description='$description' WHERE id=$id",$conn);
+	return msg_notice('The record was saved.').'<br><br><a href="myaccount.php">Back to my account</a>';
+}
+
+function del_bug_report($id,$conn){
+	$userID=$_SESSION['uID'];
+	
+	if($id==0){
+		return msg_error('Invalid bug report ID');
+	}
+	
+	$data=getFields('linuxmce_mantis','WHERE id='.$id.' AND user_id='.$userID,$conn);
+	if(count($data)==0){
+		return msg_error('Invalid bug report ID');
+	}	
+	
+	query("DELETE FROM linuxmce_mantis WHERE id=$id",$conn);
+	return msg_notice('The record was deleted.').'<br><br><a href="myaccount.php">Back to my account</a>';
+}
+
+function svn($action,$conn){
+	if(!isset($_SESSION['uID']) || (int)$_SESSION['uID']==0){
+		return 'Please login in order to add/edit bug reports.';
+	}
+
+	switch($action){
+		case 'edit':
+			if(isset($_POST['save'])){
+				return process_edit_svn($conn);
+			}
+			return edit_svn_form((int)@$_REQUEST['id'],$conn);		
+			
+		break;
+		case 'del':
+			return del_svn((int)@$_REQUEST['id'],$conn);		
+		break;
+		default:
+			if(isset($_POST['save'])){
+				return process_add_svn($conn);
+			}
+			return add_svn_form($conn);		
+			
+		break;
+	}
+}
+
+function add_svn_form($conn){
+	$variables=array();
+	$page_template=implode('',file('templates/my_svn.html'));
+	$variables=set_variable($variables,'form_action','add');
+
+	if(isset($_SESSION['message'])){
+		$variables=set_variable($variables,'message',$_SESSION['message']);
+		unset($_SESSION['message']);
+	}
+		
+	return outputHTML($variables,$page_template,1);		
+}
+
+function process_add_svn($conn){
+	$userID=$_SESSION['uID'];
+	$svnrev=(int)@$_POST['svnrev'];
+	$description=cleanString($_POST['description']);
+	
+	if($svnrev==0 || $description==''){
+		$_SESSION['message']=msg_error('Please fill all fields.');	
+		return add_svn_form($conn);
+	}
+
+	
+	query("INSERT INTO linuxmce_svn (user_id,svnrev,description) VALUES ($userID,$svnrev,'$description')",$conn);
+	return msg_notice('The record was saved.').'<br><br><a href="myaccount.php">Back to my account</a>';
+}
+
+function edit_svn_form($id,$conn){
+	$user_id=(int)@$_SESSION['uID'];
+	
+	if($id==0){
+		return msg_error('Invalid bug report ID');
+	}
+	
+	$data=getFields('linuxmce_svn','WHERE id='.$id.' AND user_id='.$user_id,$conn);
+	if(count($data)==0){
+		return msg_error('Invalid bug report ID');
+	}	
+	
+	$variables=array();
+	$page_template=implode('',file('templates/my_svn.html'));
+	$variables=set_variable($variables,'form_action','edit');
+	$variables=set_variable($variables,'id',$id);
+	$variables=set_variable($variables,'svnrev',$data[0]['svnrev']);
+	$variables=set_variable($variables,'description',$data[0]['description']);
+	
+	if(isset($_SESSION['message'])){
+		$variables=set_variable($variables,'message',$_SESSION['message']);
+		unset($_SESSION['message']);
+	}
+		
+	return outputHTML($variables,$page_template,1);		
+}
+
+function process_edit_svn($conn){
+	$userID=$_SESSION['uID'];
+	$id=(int)@$_POST['id'];
+	
+	if($id==0){
+		return msg_error('Invalid record.');
+	}
+	
+	$data=getFields('linuxmce_svn','WHERE id='.$id.' AND user_id='.$userID,$conn);
+	if(count($data)==0){
+		return msg_error('Invalid record.');
+	}	
+	
+	$svnrev=(int)@$_POST['svnrev'];
+	$description=cleanString($_POST['description']);
+	
+	if($svnrev==0 || $description==''){
+		$_SESSION['message']=msg_error('Please fill all fields.');	
+		return edit_svn_form($id,$conn);
+	}
+	
+	query("UPDATE linuxmce_svn SET svnrev=$svnrev,description='$description' WHERE id=$id",$conn);
+	return msg_notice('The record was saved.').'<br><br><a href="myaccount.php">Back to my account</a>';
+}
+
+function del_svn($id,$conn){
+	$userID=$_SESSION['uID'];
+	
+	if($id==0){
+		return msg_error('Invalid record.');
+	}
+	
+	$data=getFields('linuxmce_svn','WHERE id='.$id.' AND user_id='.$userID,$conn);
+	if(count($data)==0){
+		return msg_error('Invalid record.');
+	}	
+	
+	query("DELETE FROM linuxmce_svn WHERE id=$id",$conn);
+	return msg_notice('The record was deleted.').'<br><br><a href="myaccount.php">Back to my account</a>';
+}
+
+
 ?>
