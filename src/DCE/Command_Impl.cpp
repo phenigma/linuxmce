@@ -187,9 +187,7 @@ Command_Impl::~Command_Impl()
 	m_pEvent=m_pcRequestSocket=NULL;
 
 	for(list<Message *>::iterator it = m_listMessageQueue.begin(); it != m_listMessageQueue.end(); it++)
-	{
 		delete *it;
-	}
 	m_listMessageQueue.clear();
 
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "~Command_Impl finished" );
@@ -1286,17 +1284,15 @@ Message *Command_Impl::GetLocalModeResponse()
 }
 
 void Command_Impl::OnQuit() 
-{ 
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Command_Impl::OnQuit forwarding quit's to children");
 	PLUTO_SAFETY_LOCK( sSM, m_listMessageQueueMutex );  // Use this to protect m_mapSpawnedDevices
 	for(map<int,string>::iterator it=m_mapSpawnedDevices.begin();it!=m_mapSpawnedDevices.end();++it)
 	{
 		Message *pMessage = new Message(m_dwPK_Device,it->first,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_QUIT,0);
-		m_listMessageQueue.push_back( pMessage );  // Don't use QueueMessage because it uses the same non-recursive mutex
+		m_pcRequestSocket->SendMessage(pMessage);
 	}
 	sSM.Release();
-	pthread_cond_broadcast( &m_listMessageQueueCond );
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Command_Impl::OnQuit Waiting for quit messages to go through");
-	WaitForMessageQueue();
 
 	m_bQuit_set(true); 
 	m_bTerminate=true; 

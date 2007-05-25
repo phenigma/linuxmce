@@ -619,10 +619,7 @@ void PlutoLock::DoLock()
 	}
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly )
-	{
-
 		LoggerWrapper::GetInstance()->Write(LV_LOCKING, "lock(%p) (>%d) %s: %s:%d %s",&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
-	}
 #endif
 	time_t t = time(NULL);
 
@@ -639,7 +636,6 @@ void PlutoLock::DoLock()
 		else if( iResult!= EBUSY )
 		{
 			// Some other error condition
-
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "pthread_mutex_trylock returned %d  (%p) (>%d) %s: %s:%d %s", iResult,
 				&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 			Sleep(1000);  // Something went terribly wrong.  Pause a second so we don't log these errors a zillion times in 5 seconds
@@ -652,7 +648,6 @@ void PlutoLock::DoLock()
 #endif
 	if( !m_bGotLock )
 	{
-
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get lock(%p) %s: %s:%d last used %s:%d thread: %p (>%d) %s",
 			&m_pMyLock->mutex, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_pMyLock->m_sFileName.c_str(),m_pMyLock->m_Line,m_pMyLock->m_thread,m_pMyLock->m_LockNum,m_sMessage.c_str()); 
 		DumpOutstandingLocks();
@@ -670,11 +665,8 @@ void PlutoLock::DoLock()
 	m_pMyLock->m_LockNum=m_LockNum;
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly )
-	{
-
 		LoggerWrapper::GetInstance()->Write(LV_LOCKING, "acquired(%p) #%d (>%d) %s %s:%d %s", 
 			&m_pMyLock->mutex,m_pMyLock->m_NumLocks,m_LockNum,m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
-	}
 #endif
 }
 
@@ -686,10 +678,7 @@ void PlutoLock::Release()
 		m_pMyLock->m_NumLocks--;
 #ifdef THREAD_LOG
 		if( !m_bLogErrorsOnly )
-		{
-
 			LoggerWrapper::GetInstance()->Write(LV_LOCKING, "unlock(%p) #%d (>%d) %s: %s:%d %s", &m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
-		}
 #endif
 	}
 	m_bReleased=true;
