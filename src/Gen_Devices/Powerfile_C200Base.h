@@ -216,6 +216,7 @@ public:
 	//Event accessors
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str(),sName.c_str()); }
 	//Commands - Override these to handle commands from the server
+	virtual void CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Reset_Disk_Drive(string &sCMD_Result,class Message *pMessage) {};
@@ -239,7 +240,7 @@ public:
 	virtual void CMD_Mass_identify_media(string sDisks,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Update_Ripping_Status(string sText,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Load_Disk(bool bMultiple,string &sCMD_Result,class Message *pMessage) {};
@@ -276,6 +277,32 @@ public:
 					return rmr_Buffered;
 				switch(pMessage->m_dwID)
 				{
+				case COMMAND_Refresh_CONST:
+					{
+						string sCMD_Result="OK";
+						string sDataGrid_ID=pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_ID_CONST];
+						CMD_Refresh(sDataGrid_ID.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Refresh(sDataGrid_ID.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
 				case COMMAND_Disk_Drive_Monitoring_ON_CONST:
 					{
 						string sCMD_Result="OK";
@@ -900,8 +927,9 @@ public:
 						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
 						string sPath=pMessage->m_mapParameters[COMMANDPARAMETER_Path_CONST];
 						int iDriveID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_DriveID_CONST].c_str());
+						string sDirectory=pMessage->m_mapParameters[COMMANDPARAMETER_Directory_CONST];
 						string sStorage_Device_Name=pMessage->m_mapParameters[COMMANDPARAMETER_Storage_Device_Name_CONST];
-						CMD_Get_Default_Ripping_Info(iEK_Disc,&sFilename,&sPath,&iDriveID,&sStorage_Device_Name,sCMD_Result,pMessage);
+						CMD_Get_Default_Ripping_Info(iEK_Disc,&sFilename,&sPath,&iDriveID,&sDirectory,&sStorage_Device_Name,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -909,6 +937,7 @@ public:
 						pMessageOut->m_mapParameters[COMMANDPARAMETER_Filename_CONST]=sFilename;
 						pMessageOut->m_mapParameters[COMMANDPARAMETER_Path_CONST]=sPath;
 						pMessageOut->m_mapParameters[COMMANDPARAMETER_DriveID_CONST]=StringUtils::itos(iDriveID);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Directory_CONST]=sDirectory;
 						pMessageOut->m_mapParameters[COMMANDPARAMETER_Storage_Device_Name_CONST]=sStorage_Device_Name;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
@@ -922,7 +951,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_Default_Ripping_Info(iEK_Disc,&sFilename,&sPath,&iDriveID,&sStorage_Device_Name,sCMD_Result,pMessage);
+								CMD_Get_Default_Ripping_Info(iEK_Disc,&sFilename,&sPath,&iDriveID,&sDirectory,&sStorage_Device_Name,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

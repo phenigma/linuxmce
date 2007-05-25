@@ -209,6 +209,10 @@ MediaStream::~MediaStream( )
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaStream::~MediaStream size %d - %d",(int) sizebefore,(int) m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream.size());
 	}
     ClearPlaylist();
+
+	for(map<int,class OldStreamInfo *>::iterator it = m_mapOldStreamInfo.begin(); it != m_mapOldStreamInfo.end(); ++it)
+		delete it->second;
+	m_mapOldStreamInfo.clear();
 }
 
 bool MediaStream::ProcessJumpPosition(string sJumpSpecification)

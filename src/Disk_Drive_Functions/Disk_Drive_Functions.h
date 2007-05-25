@@ -147,6 +147,8 @@ public:
 		int m_dwPK_Device_get() { return m_dwPK_Device; }
 
 		class Database_pluto_media *m_pDatabase_pluto_media_get() { return m_pDatabase_pluto_media; }
+
+		void IdDisk(); // Send the command to id this disc
 };
 
 #endif

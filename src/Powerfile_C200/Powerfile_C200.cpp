@@ -322,6 +322,10 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 			sCMD_Result = "OK";
 			switch( pMessage->m_dwID )
 			{
+			case COMMAND_Mass_identify_media_CONST:
+				pDrive->IdDisk();
+				return;
+
 			case COMMAND_Eject_Disk_CONST:
 				m_pPowerfileJukebox->Eject(pDrive,pMessage->m_dwPK_Device_From);
 				return;

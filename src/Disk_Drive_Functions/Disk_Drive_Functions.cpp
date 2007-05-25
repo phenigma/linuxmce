@@ -173,11 +173,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 		}
 
 		if( m_pDevice_MediaIdentifier && m_bAutoIdentifyMedia )
-		{
-			DCE::CMD_Identify_Media CMD_Identify_Media(m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
-				m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_dwPK_Device);
-			m_pCommand_Impl->SendCommand(CMD_Identify_Media);
-		}
+			IdDisk();
 
 		StartNbdServer();
 		m_mediaInserted = true;
@@ -232,11 +228,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 		}
 		UpdateDiscLocation('d');  // We know it's media
 		if( m_pDevice_MediaIdentifier && m_bAutoIdentifyMedia )
-		{
-			DCE::CMD_Identify_Media CMD_Identify_Media(m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
-				m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_dwPK_Device);
-			m_pCommand_Impl->SendCommand(CMD_Identify_Media);
-		}
+			IdDisk();
 
 		m_mediaInserted = true;
 	}
@@ -368,12 +360,21 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 		return -1;
 	}
 
+	/*
+		#define CDS_NO_INFO             0 
+		#define CDS_NO_DISC             1
+		#define CDS_TRAY_OPEN           2
+		#define CDS_DRIVE_NOT_READY     3
+		#define CDS_DISC_OK             4
+	*/
+
+
 	//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk Drive %s file handle was opened!", DATA_Get_Drive().c_str());
 	// read the drive status info
 	status = ioctl(fd, CDROM_DRIVE_STATUS, CDSL_CURRENT);
 	//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current disk status %d", status);
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk_Drive_Functions::cdrom_checkdrive status %d",status);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk_Drive_Functions::cdrom_checkdrive status %d inserted %d",status,(int) m_mediaInserted);
 
 	switch (status)
 	{
@@ -480,17 +481,23 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 		break;
 
 	case CDS_NO_INFO:
+		if( * flag != DISCTYPE_NONE )
+			UpdateDiscLocation('E',0); // Now the drive is empty
 		// drive doesnt support querying, so this program will never work on that drive.
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "%s does not support status queries.", filename);
 		* flag = DISCTYPE_NONE;
 		break;
 
 	case CDS_NO_DISC:
+		if( * flag != DISCTYPE_NONE )
+			UpdateDiscLocation('E',0); // Now the drive is empty
 		m_bTrayOpen = false;
 		* flag = DISCTYPE_NONE;
 		break;
 
 	case CDS_TRAY_OPEN:
+		if( * flag != DISCTYPE_NONE )
+			UpdateDiscLocation('E',0); // Now the drive is empty
 		* flag = DISCTYPE_NONE;
 		m_bTrayOpen = true;
 		break;
@@ -498,6 +505,8 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 	default:
 		// LoggerWrapper::GetInstance()->Write(LV_STATUS, "Nothing interesting hapened");
 		// release the device
+		if( * flag != DISCTYPE_NONE )
+			UpdateDiscLocation('E',0); // Now the drive is empty
 		* flag = DISCTYPE_NONE;
 	}
 	close(fd);
@@ -853,4 +862,14 @@ Disk_Drive_Functions::Locked Disk_Drive_Functions::m_eLocked_get(void **p_void)
 		*p_void = m_pLockedPtr;
 
 	return m_eLocked;
+}
+
+void Disk_Drive_Functions::IdDisk()
+{
+	if( m_pDevice_MediaIdentifier && m_bAutoIdentifyMedia )
+	{
+		DCE::CMD_Identify_Media CMD_Identify_Media(m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
+			m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_dwPK_Device);
+		m_pCommand_Impl->SendCommand(CMD_Identify_Media);
+	}
 }
