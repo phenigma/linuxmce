@@ -129,6 +129,12 @@ int add_qam_channel(char *pFrequency)
 // storing the frequency in g_Frequency
 static int cmd_scan_callback_scanning(const char *str)
 {
+	struct tm *newtime;
+	time_t aclock;
+	time( &aclock );   // Get time in seconds
+	newtime = localtime( &aclock );   // Convert time to struct tm form 
+	printf("%s Scanning %s\n", asctime( newtime ),str);
+
 	strcpy(g_szCurrentScan,str);
 	unsigned long frequency;
 	if (sscanf(str, "%lu", &frequency) != 1) {
@@ -463,16 +469,31 @@ static int myth_scan_tuner(struct hdhomerun_device_t *pHD)
 		"WHERE videodevice='%08lX' AND cardtype='HDHOMERUN' and dbox2_port=%u",
 		(unsigned long)DeviceID, Tuner);
 
-	int iresult;
-	MYSQL_RES *pMYSQL_RES;
-	MYSQL_ROW row;
-	if( (iresult=mysql_query(g_pMySQL,sSQL))!=0 || (pMYSQL_RES = mysql_store_result(g_pMySQL))==NULL )
+	time_t timeout = time(NULL) + 60;  // Wait up to 60 seconds for the HD Home Run device to get into the database
+	while(time(NULL) < timeout)
 	{
-		printf("Error executing query: %s",sSQL);
-		return 1;
-	}
+		int iresult;
+		MYSQL_RES *pMYSQL_RES;
+		MYSQL_ROW row;
+		if( (iresult=mysql_query(g_pMySQL,sSQL))!=0 || (pMYSQL_RES = mysql_store_result(g_pMySQL))==NULL )
+		{
+			printf("Error executing query: %s",sSQL);
+			return 1;
+		}
 
-	row = mysql_fetch_row( pMYSQL_RES );
+		row = mysql_fetch_row( pMYSQL_RES );
+		if( row==NULL )
+		{
+			struct tm *newtime;
+			time_t aclock;
+			time( &aclock );   // Get time in seconds
+			newtime = localtime( &aclock );   // Convert time to struct tm form 
+
+			printf("%s Card %08lX tuner %u not yet in the mythtv-setup database.  Wait 10 seconds\n", asctime( newtime ), (unsigned long)DeviceID, Tuner);
+			Sleep(10000);
+			continue;  // try again
+		}
+	}
 	if( row==NULL )
 	{
 		printf("Skipping card %08lX tuner %u because it's not in the mythtv-setup database\n", (unsigned long)DeviceID, Tuner);
@@ -527,6 +548,12 @@ static int myth_scan_tuner(struct hdhomerun_device_t *pHD)
 
 static int myth_scan_hdhomerun(struct hdhomerun_device_t *pHD, const char *pTuner)
 {
+	struct tm *newtime;
+	time_t aclock;
+	time( &aclock );   // Get time in seconds
+	newtime = localtime( &aclock );   // Convert time to struct tm form 
+	printf("%s Starting\n", asctime( newtime ));
+
 	if (strcasecmp(pTuner, "ALL") != 0) {
 		if (hdhomerun_device_set_tuner_from_str(pHD, pTuner) <= 0) {
 			fprintf(stderr, "invalid tuner: %s\n", pTuner);
