@@ -479,8 +479,8 @@ static int myth_scan_tuner(struct hdhomerun_device_t *pHD)
 
 	time_t timeout = time(NULL) + 60;  // Wait up to 60 seconds for the HD Home Run device to get into the database
 	int iresult;
-	MYSQL_RES *pMYSQL_RES;
-	MYSQL_ROW row;
+	MYSQL_RES *pMYSQL_RES=NULL;
+	MYSQL_ROW row=NULL;
 
 	while(time(NULL) < timeout)
 	{
