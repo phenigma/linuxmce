@@ -1182,15 +1182,15 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 
 			if( pRow_MediaProvider!=NULL || bHasChannels )  // If we have channels, we must already have a source id
 			{
+				Row_ProviderSource *pRow_ProviderSource = pRow_MediaProvider ? pRow_MediaProvider->FK_ProviderSource_getrow() : NULL;
+				string sGrabber;
+				if( pRow_ProviderSource )
+					sGrabber = pRow_ProviderSource->FillCommandLine_get();
+				string sProviderName = pRow_MediaProvider ? "Provider " + StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get()) : "";
+
 				if( !sourceid && pRow_MediaProvider )  // No source, but we do have a provider
 				{
-					Row_ProviderSource *pRow_ProviderSource = pRow_MediaProvider->FK_ProviderSource_getrow();
-					string sGrabber;
-					if( pRow_ProviderSource )
-						sGrabber = pRow_ProviderSource->FillCommandLine_get();
-
 					// See if the provider is in the database already
-					string sProviderName = "Provider " + StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get());
 					sSQL = "SELECT sourceid FROM `videosource` WHERE name='" + sProviderName + "'";
 					PlutoSqlResult result_set2;
 					if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set2.r)) && atoi(row2[0]) )
@@ -1209,8 +1209,31 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 							sourceid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 						}
 					}
+				}
 
-					sSQL = "UPDATE `videosource` SET name='" + sProviderName + "',xmltvgrabber='" + sGrabber + "',userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE sourceid=" + StringUtils::itos(sourceid);
+				if( sourceid && sProviderName.empty()==false )
+				{
+					int iAppendValue=0;
+					// The same provider can be in here more than once, but name must be unique, so append a number to it if it is
+					// This can happen for a device that does it's own channel scan, adds it's source and channels as UNKNOWN_
+					// and then later the user assigns it to a provider that already exists.  Since channels are stored by source, not card,
+					// we want to leave the provider in here more than once
+					while(true)  
+					{
+						string s = sProviderName + (iAppendValue ? "_" + StringUtils::itos(iAppendValue) : "");
+						sSQL = "SELECT name from `videosource` WHERE name='" + s + "' AND sourceid<>" + StringUtils::itos(sourceid);
+						PlutoSqlResult result_set2;
+						if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && result_set2.r->row_count>0 )
+						{
+							iAppendValue++;  // This name is already used.  Add a suffix to it and try again
+							continue;
+						}
+						else
+							break;
+					}
+
+					string sRealProvider = sProviderName + (iAppendValue ? "_" + StringUtils::itos(iAppendValue) : "");
+					sSQL = "UPDATE `videosource` SET name='" + sRealProvider + "',xmltvgrabber='" + sGrabber + "',userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE sourceid=" + StringUtils::itos(sourceid);
 					if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
 					{
 						LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
@@ -1275,23 +1298,28 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 		return;
 
 	// Find cards with invalid starting channels
-	sSQL = "SELECT cardinputid FROM cardinput LEFT JOIN channel on startchan=channum WHERE channum IS NULL";
+	sSQL = "SELECT cardinputid,cardinput.sourceid FROM cardinput LEFT JOIN channel on startchan=channum AND cardinput.sourceid=channel.sourceid WHERE channum IS NULL";
 	PlutoSqlResult result_set2;
-	if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && result_set2.r->row_count>0 )
+	if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) )
 	{
-		bModifiedRows=true;
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
-		string sChanNum="1";
-
-		sSQL = "SELECT min(channum) FROM channel";
-		PlutoSqlResult result_set3;
-		if( (result_set3.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set3.r)) && row[0] )
-			sChanNum = row[0];
-
-		while ((row = mysql_fetch_row(result_set2.r)))
+		while( ( row=mysql_fetch_row( result_set2.r ) ) )
 		{
-			sSQL = "UPDATE cardinput SET startchan='" + sChanNum + "' WHERE cardinputid='" + row[0] + "'";
-			m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
+			if( row[0] && row[1] )
+			{
+				string cardinputid=row[0];
+				string sourceid=row[1];
+				bModifiedRows=true;
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
+				string sChanNum="1";
+
+				sSQL = "SELECT min(channum) FROM channel where sourceid=" + sourceid;
+				PlutoSqlResult result_set3;
+				if( (result_set3.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set3.r)) && row[0] )
+					sChanNum = row[0];
+
+				sSQL = "UPDATE cardinput SET startchan='" + sChanNum + "' WHERE cardinputid=" + cardinputid;
+				m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
+			}
 		}
 	}
 
