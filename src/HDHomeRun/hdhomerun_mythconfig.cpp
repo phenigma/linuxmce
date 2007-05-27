@@ -502,6 +502,8 @@ static int myth_scan_tuner(struct hdhomerun_device_t *pHD)
 			Sleep(10000);
 			continue;  // try again
 		}
+		else
+			break;
 	}
 	if( row==NULL )
 	{
