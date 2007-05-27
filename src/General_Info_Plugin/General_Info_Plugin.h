@@ -516,6 +516,17 @@ Delimiter: '\n' */
 	virtual void CMD_Abort_Task(int iParameter_ID) { string sCMD_Result; CMD_Abort_Task(iParameter_ID,sCMD_Result,NULL);};
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #915 - Enable Device */
+	/** Called when instead of creating a device, we re-enabled one that had been disabled and need to call the postcreateoptions again */
+		/** @param #2 PK_Device */
+			/** The device that was enabled */
+		/** @param #198 PK_Orbiter */
+			/** The Orbiter that did it, if any */
+
+	virtual void CMD_Enable_Device(int iPK_Device,int iPK_Orbiter) { string sCMD_Result; CMD_Enable_Device(iPK_Device,iPK_Orbiter,sCMD_Result,NULL);};
+	virtual void CMD_Enable_Device(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;

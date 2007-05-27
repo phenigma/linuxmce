@@ -826,6 +826,7 @@
 #define COMMAND_Activate_PC_Desktop_CONST 912
 #define COMMAND_Load_Disk_CONST 913
 #define COMMAND_Get_Disk_Info_CONST 914
+#define COMMAND_Enable_Device_CONST 915
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

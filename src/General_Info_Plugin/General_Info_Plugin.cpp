@@ -3816,3 +3816,24 @@ bool General_Info_Plugin::SafeToReload(string &sReason)
 	return false;
 }
 
+//<-dceag-c915-b->
+
+	/** @brief COMMAND: #915 - Enable Device */
+	/** Called when instead of creating a device, we re-enabled one that had been disabled and need to call the postcreateoptions again */
+		/** @param #2 PK_Device */
+			/** The device that was enabled */
+		/** @param #198 PK_Orbiter */
+			/** The Orbiter that did it, if any */
+
+void General_Info_Plugin::CMD_Enable_Device(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
+//<-dceag-c915-e->
+{
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	if( pRow_Device )
+	{
+		OH_Orbiter *pOH_Orbiter = NULL;
+		if( iPK_Orbiter )
+			pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Orbiter);
+		m_pPostCreateOptions->PostCreateDevice(pRow_Device,pOH_Orbiter);
+	}
+}

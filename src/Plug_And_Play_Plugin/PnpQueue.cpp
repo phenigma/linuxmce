@@ -1680,6 +1680,20 @@ bool PnpQueue::ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Dev
 	pPnpQueueEntry->AssignDeviceData(pRow_Device);
 	SetDisableFlagForDeviceAndChildren(pRow_Device,false);
 	m_pDatabase_pluto_main->Device_get()->Commit();
+
+	Command_Impl *pCommand_Impl_GIP = m_pPlug_And_Play_Plugin->m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
+	if( pCommand_Impl_GIP )
+	{
+		string sResponse;
+		// Check for updates will also start any devices
+		DCE::CMD_Enable_Device CMD_Enable_Device(m_pPlug_And_Play_Plugin->m_dwPK_Device,pCommand_Impl_GIP->m_dwPK_Device,pRow_Device->PK_Device_get(),0);
+		if( !m_pPlug_And_Play_Plugin->SendCommand(CMD_Enable_Device,&sResponse) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PnpQueue::ReenableDevice queue %d Device %d can't send re-enable command",
+				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get());
+		}
+	}
+
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_ADD_SOFTWARE);
 
 	DetermineOrbitersForPrompting(pPnpQueueEntry,false); // For the Display Alert
