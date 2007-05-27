@@ -45,6 +45,14 @@
 	int hdhomerun_device_set_tuner_from_str(struct hdhomerun_device_t *hd, const char *tuner_str) { return 0; }
 #else
 	#include <mysql/mysql.h>
+	void Sleep(int miliseconds)
+	{
+		struct timeval t;
+		t.tv_sec = (miliseconds / 1000);
+		t.tv_usec = (miliseconds % 1000) * 1000;
+		while (t.tv_sec > 0 || t.tv_usec > 0)
+			select(0, NULL, NULL, NULL, &t);
+	}
 #endif
 
 static const char appname[] = "mythconfig";
@@ -470,11 +478,12 @@ static int myth_scan_tuner(struct hdhomerun_device_t *pHD)
 		(unsigned long)DeviceID, Tuner);
 
 	time_t timeout = time(NULL) + 60;  // Wait up to 60 seconds for the HD Home Run device to get into the database
+	int iresult;
+	MYSQL_RES *pMYSQL_RES;
+	MYSQL_ROW row;
+
 	while(time(NULL) < timeout)
 	{
-		int iresult;
-		MYSQL_RES *pMYSQL_RES;
-		MYSQL_ROW row;
 		if( (iresult=mysql_query(g_pMySQL,sSQL))!=0 || (pMYSQL_RES = mysql_store_result(g_pMySQL))==NULL )
 		{
 			printf("Error executing query: %s",sSQL);
