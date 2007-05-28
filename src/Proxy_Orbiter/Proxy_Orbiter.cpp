@@ -59,9 +59,6 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
     m_ImageQuality = 70;
 	m_bDisplayOn=true;  // Override the default behavior -- when the phone starts the display is already on
 
-    m_sInternalServerAddress = "192.168.80.1";
-    m_sBaseUrl = "http://" + m_sInternalServerAddress + "/pluto-admin/";
-
     pthread_cond_init( &m_ActionCond, NULL );
     m_ActionMutex.Init(NULL, &m_ActionCond);
 	m_ResourcesMutex.Init(NULL);
@@ -82,6 +79,11 @@ Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerA
     m_iListenPort = DATA_Get_Listen_Port();
     if( !m_iListenPort )
         m_iListenPort = CISCO_LISTEN_PORT_START;
+
+    m_sInternalServerAddress = m_pData->GetTopMostDevice()->GetIPAddress();
+    m_sBaseUrl = "http://" + m_sInternalServerAddress + "/pluto-admin/";
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Server's internal ip address: %s", m_sInternalServerAddress.c_str()); 
 
     return true;
 }
