@@ -1142,4 +1142,16 @@ int FileUtils::GetLinuxDeviceId(string sFilename)
 #endif
 }
 
+int FileUtils::GetInode(string sFilename)
+{
+#ifdef WIN32
+	return -1;
+#else
+	struct stat st;
+	if( stat(sFilename.c_str(), &st)!=0 )
+		return -1;
+	return st.st_ino;
+#endif
+}
+
 #endif //not WINCE
