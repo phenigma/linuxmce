@@ -24,7 +24,7 @@ See the GNU General Public License for more details.
 #if  defined(WINCE) && !defined(SMARTPHONE2005) && !defined(_VC80_UPGRADE)//--- CHANGED4WM5 ----//
 #include _STLP_NATIVE_C_HEADER(time.h)
 #include "wince.h"
-#elif (defined(SMARTPHONE2005) || defined(_VC80_UPGRADE)) && !defined(ARMV4I)
+#elif (defined(SMARTPHONE2005)) && !defined(ARMV4I)
 #include <wce_time.h>
 #define time		wceex_time
 #define localtime	wceex_localtime
