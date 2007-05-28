@@ -100,7 +100,7 @@ APT::Get::AllowUnauthenticated "true";
 	ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
 
 	./mce-installer-preseed.sh
-	apt-get update
+	#apt-get update
 }
 
 function Setup_NIS {
