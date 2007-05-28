@@ -4,11 +4,21 @@ use strict;
 use diagnostics;
 use DBI;
 
+sub getIP {
+        my $dbh = DBI->connect('dbi:mysql:pluto_main');
+        my $sth = $dbh->prepare("SELECT IPaddress FROM Device WHERE FK_DeviceTemplate = 7");
+        $sth->execute || die "Sql Error";
+        my $row = $sth->fetchrow_hashref;
+        my $IP = $row->{IPaddress};
+        return $IP;
+}
+
 #declare vars (it's safer this way)
 my $Device_ID;
 my $Device_IP;
 my $Device_MAC;
 my $Device_EXT;
+my $IntIP; 
 
 #check params
 if($#ARGV < 5 || $ARGV[0] ne "-d" || $ARGV[2] ne "-i" || $ARGV[4] ne "-m")
@@ -21,6 +31,11 @@ else
     $Device_ID = $ARGV[1];
     $Device_IP = $ARGV[3];
     $Device_MAC = $ARGV[5];
+}
+
+$IntIP = getIP();
+if ($IntIP eq "") {
+        $IntIP="192.168.80.1";
 }
 
 #sync with AMP
@@ -38,7 +53,7 @@ $Device_MAC = uc($Device_MAC);
 my $str_SIPDefault = "";
 my $str_SIPMAC = "";
 
-$str_SIPDefault .= "proxy1_address: \"192.168.80.1\"\n";
+$str_SIPDefault .= "proxy1_address: \"$IntIP\"\n";
 $str_SIPDefault .= "proxy1_port: 5060\n";
 $str_SIPDefault .= "line1_name: \"\"\n";
 $str_SIPDefault .= "line1_authname: \"\"\n";

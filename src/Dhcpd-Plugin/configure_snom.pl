@@ -4,6 +4,7 @@ use DBI;
 #use strict;
 use Socket;
 
+
 if($ARGV[0] ne "-d" || $ARGV[2] ne "-i" || $ARGV[4] ne "-m") {
   print "<USAGE-1>\n$_[0] -d <Device Template> -i <IP> -m <mac address>\n";
   exit(-1);
@@ -12,7 +13,6 @@ if($ARGV[0] ne "-d" || $ARGV[2] ne "-i" || $ARGV[4] ne "-m") {
   $ip = $ARGV[3];
   $mac = $ARGV[5];
 }
-
 
 open(CONF,"/etc/pluto.conf");
 @data=<CONF>;

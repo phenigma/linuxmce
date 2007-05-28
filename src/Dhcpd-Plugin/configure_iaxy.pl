@@ -4,11 +4,21 @@ use strict;
 use diagnostics;
 use DBI;
 
+sub getIP {
+        my $dbh = DBI->connect('dbi:mysql:pluto_main');
+        my $sth = $dbh->prepare("SELECT IPaddress FROM Device WHERE FK_DeviceTemplate = 7");
+        $sth->execute || die "Sql Error";
+        my $row = $sth->fetchrow_hashref;
+        my $IP = $row->{IPaddress};
+        return $IP;
+}
+
 #declare vars (it's safer this way)
 my $Device_ID;
 my $Device_IP;
 my $Device_MAC;
 my $Device_EXT;
+my $IntIP; 
 
 #check params
 if($#ARGV < 5 || $ARGV[0] ne "-d" || $ARGV[2] ne "-i" || $ARGV[4] ne "-m")
@@ -23,6 +33,11 @@ else
     $Device_MAC = $ARGV[5];
 }
 
+$IntIP = getIP();
+if ($IntIP eq "") {
+        $IntIP="192.168.80.1";
+}
+
 #sync with AMP (practically do nothing but create a new extension number)
 `/usr/pluto/bin/sync_pluto2amp.pl $Device_ID`;
 
@@ -35,7 +50,7 @@ chomp($Device_EXT);
 
 my $iaxyconf = "dhcp\n";
 $iaxyconf .= "codec: ulaw\n";
-$iaxyconf .= "server: 192.168.80.1\n";
+$iaxyconf .= "server: $IntIP\n";
 $iaxyconf .= "user: $Device_EXT\n";
 $iaxyconf .= "pass: $Device_EXT\n";
 $iaxyconf .= "register\n";

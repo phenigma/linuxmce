@@ -4,11 +4,21 @@ use strict;
 use diagnostics;
 use DBI;
 
+sub getIP {
+        my $dbh = DBI->connect('dbi:mysql:pluto_main');
+        my $sth = $dbh->prepare("SELECT IPaddress FROM Device WHERE FK_DeviceTemplate = 7");
+        $sth->execute || die "Sql Error";
+        my $row = $sth->fetchrow_hashref;
+        my $IP = $row->{IPaddress};
+        return $IP;
+}
+
 #declare vars (it's safer this way)
 my $Device_ID;
 my $Device_IP;
 my $Device_MAC;
 my $Device_EXT;
+my $IntIP;
 
 #check params
 if($#ARGV < 5 || $ARGV[0] ne "-d" || $ARGV[2] ne "-i" || $ARGV[4] ne "-m")
@@ -21,6 +31,11 @@ else
     $Device_ID = $ARGV[1];
     $Device_IP = $ARGV[3];
     $Device_MAC = $ARGV[5];
+}
+
+$IntIP = getIP();
+if ($IntIP eq "") {
+        $IntIP="192.168.80.1";
 }
 
 #sync with AMP (practically do nothing but create a new extension number)
@@ -49,12 +64,12 @@ $str_XMLDefault .= "\t\t\t\t<callManager>\n";
 $str_XMLDefault .= "\t\t\t\t\t<ports>\n";
 $str_XMLDefault .= "\t\t\t\t\t\t<ethernetPhonePort>2000</ethernetPhonePort>\n";
 $str_XMLDefault .= "\t\t\t\t\t</ports>\n";
-$str_XMLDefault .= "\t\t\t\t\t<processNodeName>192.168.80.1</processNodeName>\n";
+$str_XMLDefault .= "\t\t\t\t\t<processNodeName>$IntIP</processNodeName>\n";
 $str_XMLDefault .= "\t\t\t\t</callManager>\n";
 $str_XMLDefault .= "\t\t\t</member>\n";
 $str_XMLDefault .= "\t\t</members>\n";
 $str_XMLDefault .= "\t</callManagerGroup>\n";
-$str_XMLDefault .= "\t<servicesURL>http://192.168.80.1/pluto-admin/ServicesMenu.php</servicesURL>\n";
+$str_XMLDefault .= "\t<servicesURL>http://$IntIP/pluto-admin/ServicesMenu.php</servicesURL>\n";
 $str_XMLDefault .= "</Default>\n";
 
 open(FILE,"> /tftpboot/XmlDefault.cnf.xml");
@@ -82,7 +97,7 @@ $str_SEPDefault .= "<listen>2427</listen>\r\n";
 $str_SEPDefault .= "<keepAlive>2428</keepAlive>\r\n";
 $str_SEPDefault .= "</mgcpPorts>\r\n";
 $str_SEPDefault .= "</ports>\r\n";
-$str_SEPDefault .= "<processNodeName>192.168.80.1</processNodeName>\r\n";
+$str_SEPDefault .= "<processNodeName>$IntIP</processNodeName>\r\n";
 $str_SEPDefault .= "</callManager>\r\n";
 $str_SEPDefault .= "</member>\r\n";
 $str_SEPDefault .= "<member  priority=\"1\">\r\n";
@@ -96,7 +111,7 @@ $str_SEPDefault .= "<listen>2427</listen>\r\n";
 $str_SEPDefault .= "<keepAlive>2428</keepAlive>\r\n";
 $str_SEPDefault .= "</mgcpPorts>\r\n";
 $str_SEPDefault .= "</ports>\r\n";
-$str_SEPDefault .= "<processNodeName>192.168.80.1</processNodeName>\r\n";
+$str_SEPDefault .= "<processNodeName>$IntIP</processNodeName>\r\n";
 $str_SEPDefault .= "</callManager>\r\n";
 $str_SEPDefault .= "</member>\r\n";
 $str_SEPDefault .= "</members>\r\n";
@@ -152,13 +167,13 @@ $str_SEPDefault .= "<version>4.1(3)</version>\r\n";
 $str_SEPDefault .= "</networkLocaleInfo>\r\n";
 $str_SEPDefault .= "<deviceSecurityMode>1</deviceSecurityMode>\r\n";
 $str_SEPDefault .= "<idleTimeout>0</idleTimeout>\r\n";
-$str_SEPDefault .= "<authenticationURL>http://192.168.80.1/pluto-admin/authenticate_cisco.php</authenticationURL>\r\n";
+$str_SEPDefault .= "<authenticationURL>http://$IntIP/pluto-admin/authenticate_cisco.php</authenticationURL>\r\n";
 $str_SEPDefault .= "<directoryURL></directoryURL>\r\n";
 $str_SEPDefault .= "<idleURL></idleURL>\r\n";
 $str_SEPDefault .= "<informationURL></informationURL>\r\n";
 $str_SEPDefault .= "<messagesURL></messagesURL>\r\n";
 $str_SEPDefault .= "<proxyServerURL></proxyServerURL>\r\n";
-$str_SEPDefault .= "<servicesURL>http://192.168.80.1/pluto-admin/ServicesMenu.php</servicesURL>\r\n";
+$str_SEPDefault .= "<servicesURL>http://$IntIP/pluto-admin/ServicesMenu.php</servicesURL>\r\n";
 $str_SEPDefault .= "<dscpForCm2Dvce>96</dscpForCm2Dvce>\r\n";
 $str_SEPDefault .= "<dscpForSCCPPhoneConfig>96</dscpForSCCPPhoneConfig>\r\n";
 $str_SEPDefault .= "<dscpForSCCPPhoneServices>0</dscpForSCCPPhoneServices>\r\n";
@@ -166,7 +181,7 @@ $str_SEPDefault .= "<capfAuthMode>2</capfAuthMode>\r\n";
 $str_SEPDefault .= "<capfList>\r\n";
 $str_SEPDefault .= "<capf>\r\n";
 $str_SEPDefault .= "<phonePort>3804</phonePort>\r\n";
-$str_SEPDefault .= "<processNodeName>192.168.80.1</processNodeName>\r\n";
+$str_SEPDefault .= "<processNodeName>$IntIP</processNodeName>\r\n";
 $str_SEPDefault .= "</capf>\r\n";
 $str_SEPDefault .= "</capfList>\r\n";
 $str_SEPDefault .= "</device>\r\n";
@@ -236,7 +251,7 @@ close(FILE);
 my $ORB_ID;
 my $ORB_CNT;
 my $DB_ROW;
-my $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=192.168.80.1;user=root;password=;") or die "Could not connect to MySQL";
+my $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=$IntIP;user=root;password=;") or die "Could not connect to MySQL";
 my $DB_SQL = "select count(PK_Device) from Device where FK_DeviceTemplate=1727";
 my $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
 $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
