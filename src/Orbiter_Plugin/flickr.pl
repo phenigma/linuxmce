@@ -219,9 +219,13 @@ if ($search_string){
 	}
 }
 
-open DATA, ">/var/flickr_start" or die "can't open /var/flickr_start";
-print DATA 'Pictures downloaded';
-close(DATA);
+#marked as downloaded if at least 20 procents of total pictures are downloaded
+$min_nr=floor(($max_number*20)/100);
+if ($picture_nr >= $min_nr) {
+	open DATA, ">/var/flickr_start" or die "can't open /var/flickr_start";
+	print DATA 'Pictures downloaded';
+	close(DATA);
+}
 
 #resizing images
 resize_images();
