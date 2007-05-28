@@ -90,7 +90,7 @@ void DataGridRenderer_OpenGL::Reset()
 	MeshFrame *BeforeDataGrid = m_pRenderFrame;
 
 	string DatagridFrameID = "datagrid " + m_pObj_Owner->GenerateObjectHash(point, false);
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject %s", DatagridFrameID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject %s, 'before datagrid': %p", DatagridFrameID.c_str(), m_pRenderFrame);
 
 	//render datagrid in a frame
 	if(0 != StartAnimation)
