@@ -968,8 +968,12 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 			{
 				Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_PC->FK_DeviceTemplate_getrow();
 				if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Core_CONST )
+				{
 					sHostname = "moon" + StringUtils::itos(pRow_Device_PC->PK_Device_get());
-				UpdateMythSetting("BackendServerIP",pRow_Device_PC->IPaddress_get(),sHostname);
+					UpdateMythSetting("BackendServerIP",pRow_Device_PC->IPaddress_get(),sHostname);
+				}
+				else
+					UpdateMythSetting("BackendServerIP","localhost",sHostname);
 				UpdateMythSetting("MasterServerPort","6543",sHostname);
 			}
 			else
