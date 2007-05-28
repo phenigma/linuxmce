@@ -9,10 +9,17 @@ done
 
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
 
 case "$DCERouter" in
 	localhost) RouterIP="127.0.0.1" ;;
-	dcerouter) RouterIP="192.168.80.1" ;; # TODO: remove hardcoded assumption
+	dcerouter) 
+		Q="SELECT IPaddress FROM Device WHERE FK_DeviceTemplate = 7"
+		RouterIP=$(RunSQL "$Q")
+		if [[ "$RouterIP" == "" ]] ;then
+			 RouterIP="192.168.80.1"
+		fi
+	;; # TODO: remove hardcoded assumption
 	*) RouterIP="$DCERouter" ;;
 esac
 

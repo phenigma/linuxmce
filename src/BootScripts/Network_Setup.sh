@@ -29,7 +29,12 @@ if [[ "$NetIfConf" == 0 || "$NPflagReconfNetwork" == yes ]]; then
 			NetIfConf="$ExtIf,$ExtIP,$ExtNetmask,$Gateway,$DNS|"
 		fi
 		IntIf="$ExtIf:0"
-		IntIP=192.168.80.1
+		Q="SELECT IPaddress FROM Device WHERE FK_DeviceTemplate = 7"
+	        IntIP=$(RunSQL "$Q")
+		if [[ "$IntIP" == "" ]] ;then
+			$IntIP="192.168.80.1"
+		fi
+		#IntIP=192.168.80.1
 		IntNetmask=255.255.255.0
 	else
 		echo "Using DHCP Setting to set up internal interface data: '$DHCPsetting'"
