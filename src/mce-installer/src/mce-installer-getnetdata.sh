@@ -38,7 +38,7 @@ netInternetWorking=0
 nc -z www.google.com 80 2>/dev/null && netInternetWorking=1
 
 netUseDhcp=0
-if  ps ax | grep -q " dhclient ${netExtName}$" ;then
+if ps ax | egrep -q " dhclient.? .*${netExtName}\$" ;then
 	netUseDhcp=1
 fi
 
