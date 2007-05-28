@@ -1326,8 +1326,6 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 			{
 				string cardinputid=row[0];
 				string sourceid=row[1];
-				bModifiedRows=true;
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
 				string sChanNum="1";
 
 				sSQL = "SELECT min(channum) FROM channel where sourceid=" + sourceid;
@@ -1336,7 +1334,12 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 					sChanNum = row[0];
 
 				sSQL = "UPDATE cardinput SET startchan='" + sChanNum + "' WHERE cardinputid=" + cardinputid;
-				m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards %s",sSQL.c_str());
+				if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
+					bModifiedRows=true;
+				}
 			}
 		}
 	}
