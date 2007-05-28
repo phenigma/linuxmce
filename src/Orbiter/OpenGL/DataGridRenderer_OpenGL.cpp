@@ -70,6 +70,8 @@ void DataGridRenderer_OpenGL::Reset()
 	PLUTO_SAFETY_LOCK(cm, m_pObj_Owner->m_pOrbiter->m_ScreenMutex);
 	StartAnimation = 0; 
 	m_pRenderFrame = NULL;
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Datagrid %d reseted!", m_pObj_Owner->m_ObjectID.c_str());
 }
 
 /*virtual*/ void DataGridRenderer_OpenGL::RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point/* = PlutoPoint(0, 0)*/)
