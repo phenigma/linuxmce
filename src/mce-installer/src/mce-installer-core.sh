@@ -280,10 +280,10 @@ function RemoveOfflineSource {
 }
 
 
+apt-get --purge remove network-manager
+
 Core_PK_Device="0"
 if [[ "$c_netExtKeep" != "true" ]] ;then
-	killall NetworkManager
-	killall NetworkManagerDispatcher
 	Setup_Network_Intefaces
 fi
 Setup_Apt_Conffiles
