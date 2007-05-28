@@ -635,6 +635,7 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 
 	if( !pRow_DeviceTemplate && pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 )  // We have no possibilities.  We'll have to skip it
 	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Prompting_User_For_DT no possibilities: %s", pPnpQueueEntry->ToString().c_str());
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
 		return true;
 	}
@@ -900,6 +901,9 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 		}
 	}
 
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Add_Device: done %s", pPnpQueueEntry->ToString().c_str());
+#endif
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);   // CreateDevice already adds the software and starts it, so we're done
 	return true; 
 }
@@ -1012,12 +1016,16 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 	
 	for(map<int,class PnpQueueEntry *>::iterator it=m_mapPnpQueueEntry.begin();it!=m_mapPnpQueueEntry.end();++it)
 	{
+		// If there's some add's that are older than this remove, get rid of them
 		PnpQueueEntry *pPnpQueueEntry2 = it->second;
-		if( pPnpQueueEntry2->m_pRow_PnpQueue->Removed_get()==0 && 
+		if( pPnpQueueEntry2->m_pRow_PnpQueue->Removed_get()==0 && pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get()<pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get() &&
 			( (pPnpQueueEntry2->m_pRow_PnpQueue->SerialNumber_get().size() && pPnpQueueEntry2->m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get()) ||
 			(pPnpQueueEntry2->m_pRow_PnpQueue->MACaddress_get().size() && pPnpQueueEntry2->m_pRow_PnpQueue->MACaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get()) ||
 			(pPnpQueueEntry2->m_pRow_PnpQueue->IPaddress_get().size() && pPnpQueueEntry2->m_pRow_PnpQueue->IPaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get()) ) )
 		{
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Remove_Stage_Removed: removing extra queue %d", pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get());
+#endif
 			pPnpQueueEntry2->Stage_set(PNP_DETECT_STAGE_DONE);
 			DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 				m_pPlug_And_Play_Plugin->m_dwPK_Device, m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPnpDevice_CONST);

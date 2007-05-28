@@ -1944,7 +1944,7 @@ class DataGridTable *Media_Plugin::CaptureCardPorts( string GridID, string Parms
 		Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
 		while( pRow_Device_Parent )
 		{
-			sDescription = pRow_Device_Parent->Description_get() + " / " + sDescription;
+			sDescription = sDescription + "/" + pRow_Device_Parent->Description_get();
 			pRow_Device_Parent = pRow_Device_Parent->FK_Device_ControlledVia_getrow();
 		}
 

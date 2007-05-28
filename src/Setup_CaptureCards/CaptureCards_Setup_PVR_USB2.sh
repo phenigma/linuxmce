@@ -127,6 +127,7 @@ PK_Country=$(RunSQL "SELECT FK_Country FROM Installation WHERE PK_Installation=$
 
 Port=""
 for dir in /sys/class/pvrusb2/* ;do
+	echo "Checking directory $dir"
 	if [[ "$(cat $dir/device/serial)" == "$CardDevice_UsbSerial" ]]; then
 		Port="video$(cat $dir/v4l_minor_number)"
 		
@@ -137,9 +138,11 @@ for dir in /sys/class/pvrusb2/* ;do
 done
 
 if [[ "$Port" != "" ]] ;then
+	echo "Enabling $1 with $Port"
 	Slot=""
 	EnableDevice "$1"
 	UpdatePorts_NoFind "$1" "$Port"
 else
+	echo "Disabling $1"
 	DisableDevice "$1"
 fi	

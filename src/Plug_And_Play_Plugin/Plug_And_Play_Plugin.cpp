@@ -203,7 +203,7 @@ bool Plug_And_Play_Plugin::DeviceDetected( class Socket *pSocket, class Message 
 		pMessage->m_mapParameters[EVENTPARAMETER_VendorModelID_CONST],
 		pMessage->m_mapParameters[EVENTPARAMETER_Signature_CONST]);
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::DeviceDetected %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::DeviceDetected queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 // no, then auto-create are blocked?	m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry);
 	m_pPnpQueue->NewEntry(pPnpQueueEntry);
 	return false;
@@ -559,6 +559,7 @@ void Plug_And_Play_Plugin::CMD_Pre_Pnp_Script_Done(string sData_String,bool bTru
 	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 	if( !bTrueFalse )
 	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Plug_And_Play_Plugin::CMD_Pre_Pnp_Script_Done queue %d done", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
 		return;
 	}
