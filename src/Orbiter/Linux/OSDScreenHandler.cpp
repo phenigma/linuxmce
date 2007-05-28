@@ -2893,8 +2893,9 @@ void OSDScreenHandler::ChooseProviderGetNextStage()
 			sArguments;
 
 		int PK_Device = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str());
+		string sResponse;
 		DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,sAllArguments);
-		m_pOrbiter->SendCommand(CMD_Specify_Media_Provider);
+		m_pOrbiter->SendCommand(CMD_Specify_Media_Provider,&sResponse); // Send with return confirmation so it gets processed first
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProviderGetNextStage CALLING CMD_Goto_Screen");
 #endif
