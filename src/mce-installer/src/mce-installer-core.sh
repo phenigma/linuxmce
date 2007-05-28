@@ -69,6 +69,13 @@ function Setup_Network_Intefaces {
 }
 
 function Setup_Pluto_Conf {
+	if [[ "$c_startupType" == 1 ]]; then
+		AutostartCore=1
+		AutostartMedia=1
+	else
+		AutostartCore=0
+		AutostartMedia=0
+	fi
 	StatsMessage "Generating Default Config File"
 	PlutoConf="# Pluto config file
 MySqlHost = localhost
@@ -90,6 +97,8 @@ OfflineMode = false
 UseVideoWizard = 1
 #<-mkr_b_videowizard_e->
 #LogLevels = 1,5,7,8
+AutostartCore=$AutostartCore
+AutostartMedia=$AutostartMedia
 "
 	echo "$PlutoConf" > /etc/pluto.conf
 	chmod 777 /etc/pluto.conf &>/dev/null
