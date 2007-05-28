@@ -5,6 +5,7 @@
 . /usr/pluto/bin/Section_Ops.sh
 . /usr/pluto/bin/LockUtils.sh
 . /usr/pluto/bin/Diskless_Utils.sh
+. /usr/pluto/bin/SQL_Ops.sh
 
 SkipLock=n
 
@@ -327,7 +328,13 @@ for Client in $R; do
 
 		if [ ! -d $DlPath/etc/cron.daily ]; then
 				mkdir -p $DlPath/etc/cron.daily
-				echo "/usr/sbin/ntpdate 192.168.80.1" > $DlPath/$SyncTime
+				Q="SELECT IPaddress FROM Device WHERE FK_DeviceTemplate = 7"
+		                RouterIP=$(RunSQL "$Q")
+                		if [[ "$RouterIP" == "" ]] ;then
+                         		RouterIP="192.168.80.1"
+                		fi
+
+				echo "/usr/sbin/ntpdate $RouterIP" > $DlPath/$SyncTime
 				chmod +x $DlPath/$SyncTime
 		fi
 		
