@@ -443,6 +443,9 @@ void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,M
 #endif
 
 		Orbiter::CMD_Surrender_to_OS("1", true, true);
+
+		//check if kde is running and if not, start it
+		ConfirmPcDesktop();
 	}
 	else
 	{
@@ -908,4 +911,11 @@ void OrbiterLinux::StopActivateExternalWindowTask()
 			return;
 		}
 	}
+}
+
+void OrbiterLinux::ConfirmPcDesktop()
+{
+	//TODO : Razvan
+	// - check if kde is running
+	// - if not, start it
 }

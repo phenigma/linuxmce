@@ -93,8 +93,6 @@ private:
 	
 	bool m_bMaskApplied;
 
-protected:
-    // virtual bool forkAndWait(char * const args[], int millis);
 	virtual bool RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, PlutoPoint point = PlutoPoint(0, 0) );
     virtual void ActivateExternalWindowAsync(void *);
 
@@ -105,7 +103,7 @@ protected:
 	void ResetAppliedMask();
 	void ApplyMask(PlutoRectangle rectTotal, PlutoPoint point);
 
-	//keyboardState m_keyboardState;
+	void ConfirmPcDesktop();
 
     // grabbed once for info only
     // do not use this
