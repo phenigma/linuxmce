@@ -128,7 +128,7 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 	DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_Greetings_CONST),TEXT_STATUS_CONST );
 	if( !m_bHasVideoWizardFiles )
 	{
-		DisableAllVideo();
+		//DisableAllVideo();
 		if( pText )
 			pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_No_bonus_CD_CONST];
 	}
