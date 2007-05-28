@@ -1003,6 +1003,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 	PlutoSqlResult result_set;
 	if( (result_set.r=m_pMedia_Plugin->m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
 	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders sql has %d rows", result_set.r->row_count);
 		while ((row = mysql_fetch_row(result_set.r)))
 		{
 			Row_Device *pRow_Device = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
@@ -1067,7 +1068,10 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				continue;
 			}
 			else if( pRow_Device->Disabled_get()==1 || pRow_Device_CaptureCard->Disabled_get()==1 )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders skipping disabled device %d", pRow_Device->PK_Device_get());
 				continue;
+			}
 
 			PlutoSqlResult result_confirm_cardid_is_valid;
 			sSQL = "select cardid from capturecard where cardid=" + StringUtils::itos(cardid);
@@ -1097,6 +1101,10 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders no port name for device %s provider %s",row[0],row[1]);
 				continue;
 			}
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders device %d card id %d block %s port %s", 
+				pRow_Device->PK_Device_get(),cardid,sBlockDevice.c_str(),sPortName.c_str());
+
 			if( !cardid )
 			{
 				bNewCard=true;
@@ -1147,6 +1155,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 
 			if( (bNewCard || pRow_Device_CaptureCard->NeedConfigure_get()==1 || pRow_Device->NeedConfigure_get()==1) && sScanningScript.empty()==false )
 			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders device %d scan script %s",
+					pRow_Device->PK_Device_get(),sScanningScript.c_str());
 				StartScanningScript(pRow_Device,pRow_Device_CaptureCard,iPK_Orbiter,sScanningScript);
 				continue;
 			}
@@ -1180,6 +1190,9 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				if( (result_set_has_channels.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && result_set_has_channels.r->row_count>0 )
 					bHasChannels = true;
 			}
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders device %d source %d prov %p channels %d",
+				pRow_Device->PK_Device_get(),sourceid,pRow_MediaProvider,(int) bHasChannels);
 
 			if( pRow_MediaProvider!=NULL || bHasChannels )  // If we have channels, we must already have a source id
 			{
